@@ -23,12 +23,13 @@
 
 namespace Proc
 {
-  using mgOnGpu::np4; // dimensions of 4-momenta (E,px,py,pz)
-  using mgOnGpu::npar; // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
-  using mgOnGpu::ncomb; // #helicity combinations: e.g. 16 for e+ e- -> mu+ mu- (2**4 = fermion spin up/down ** npar)
+  static constexpr int np4 = mgOnGpu::np4; // dimensions of 4-momenta (E,px,py,pz)
+  static constexpr int npar = mgOnGpu::npar; // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
+  static constexpr int ncomb = mgOnGpu::ncomb; // #helicity combinations: e.g. 16 for e+ e- -> mu+ mu- (2**4 = fermion spin up/down ** npar)
 
-  using mgOnGpu::nwf; // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
-  using mgOnGpu::nw6; // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
+  static constexpr int nwf = mgOnGpu::nwf; // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
+  static constexpr int nw6 = mgOnGpu::nw6; // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
+  static constexpr int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
 
   //--------------------------------------------------------------------------
 
@@ -36,23 +37,21 @@ namespace Proc
   // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
   SYCL_EXTERNAL
   INLINE
-  void calculate_wavefunctions( int ihel,
-                                const fptype_sv* __restrict__ allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-                                fptype_sv* allMEs,                        // output: allMEs[npagM][neppM], final |M|^2 averaged over helicities
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                           , fptype* allNumerators        // output: multichannel numerators[nevt], running_sum_over_helicities
-                           , fptype* allDenominators      // output: multichannel denominators[nevt], running_sum_over_helicities
-                           , const unsigned int channelId // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
-#endif
-                                size_t ievt,
-                                const short*  __restrict__ cHel,
-                                const fptype* __restrict__ cIPC,
-                                const fptype* __restrict__ cIPD
+  fptype calculate_wavefunctions( const fptype_sv* __restrict__ allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+                                  #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+                                      fptype* allNumerators,                // output: multichannel numerators[nevt], running_sum_over_helicities
+                                      fptype* allDenominators,              // output: multichannel denominators[nevt], running_sum_over_helicities
+                                      const unsigned int channelId,         // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
+                                  #endif
+                                  const short*  __restrict__ cHel,
+                                  const fptype* __restrict__ cIPC,
+                                  const fptype* __restrict__ cIPD
                                 )
   //ALWAYS_INLINE // attributes are not permitted in a function definition
   {
     using namespace MG5_sm;
     mgDebug( 0, __FUNCTION__ );
+    fptype allMEs = 0;
     const cxtype* COUPs = reinterpret_cast<const cxtype*>(cIPC);
 
 
@@ -76,15 +75,15 @@ namespace Proc
       // *** DIAGRAM 1 OF 16 ***
 
       // Wavefunction(s) for diagram number 1
-      vxxxxx( allmomenta, ievt, 0., cHel[ihel*npar + 0], -1, w_sv[0], 0 );
+      vxxxxx( allmomenta + 0 * np4 * neppM, 0., cHel[0], -1, w_sv[0]);
 
-      vxxxxx( allmomenta, ievt, 0., cHel[ihel*npar + 1], -1, w_sv[1], 1 );
+      vxxxxx( allmomenta + 1 * np4 * neppM, 0., cHel[1], -1, w_sv[1]);
 
-      oxxxxx( allmomenta, ievt, cIPD[0], cHel[ihel*npar + 2], +1, w_sv[2], 2 );
+      oxxxxx( allmomenta + 2 * np4 * neppM, cIPD[0], cHel[2], +1, w_sv[2]);
 
-      ixxxxx( allmomenta, ievt, cIPD[0], cHel[ihel*npar + 3], -1, w_sv[3], 3 );
+      ixxxxx( allmomenta + 3 * np4 * neppM, cIPD[0], cHel[3], -1, w_sv[3]);
 
-      vxxxxx( allmomenta, ievt, 0., cHel[ihel*npar + 4], +1, w_sv[4], 4 );
+      vxxxxx( allmomenta + 4 * np4 * neppM, 0., cHel[4], +1, w_sv[4]);
 
       VVV1P0_1( w_sv[0], w_sv[1], COUPs[0], 0., 0., w_sv[5] );
       FFV1P0_3( w_sv[3], w_sv[2], COUPs[1], 0., 0., w_sv[6] );
@@ -352,10 +351,10 @@ namespace Proc
 
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
       // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-      allMEs[ievt] += deltaMEs;
+      allMEs += deltaMEs;
     }
     mgDebug( 1, __FUNCTION__ );
-    return;
+    return allMEs;
   }
 
   //--------------------------------------------------------------------------
@@ -460,9 +459,7 @@ m_tIPD[1] = (fptype)m_pars->mdl_WT;
 
   SYCL_EXTERNAL
   void sigmaKin_getGoodHel( const fptype* __restrict__ allmomenta, // input: momenta[nevt*npar*4]
-                            fptype* allMEs,           // output: allMEs[nevt], |M|^2 final_avg_over_helicities
                             bool* isGoodHel,          // output: isGoodHel[ncomb] - device array
-                            const size_t ievt,
                             const short* __restrict__ cHel,
                             const fptype* __restrict__ cIPC,
                             const fptype* __restrict__ cIPD
@@ -470,16 +467,17 @@ m_tIPD[1] = (fptype)m_pars->mdl_WT;
   {
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
     fptype allMEsLast = 0;
+    fptype allMEs = 0;
     for ( int ihel = 0; ihel < ncomb; ihel++ )
     {
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
-      calculate_wavefunctions( ihel, allmomenta, allMEs, ievt, cHel, cIPC, cIPD );
-      if ( allMEs[ievt] != allMEsLast )
+      allMEs += calculate_wavefunctions( allmomenta, cHel + ihel*npar, cIPC, cIPD );
+      if ( allMEs != allMEsLast )
       {
         //if ( !isGoodHel[ihel] ) std::cout << "sigmaKin_getGoodHel ihel=" << ihel << " TRUE" << std::endl;
         isGoodHel[ihel] = true;
       }
-      allMEsLast = allMEs[ievt]; // running sum up to helicity ihel for event ievt
+      allMEsLast = allMEs; // running sum up to helicity ihel for event ievt
     }
   }
 
@@ -507,14 +505,12 @@ m_tIPD[1] = (fptype)m_pars->mdl_WT;
   // FIXME: assume process.nprocesses == 1 (eventually: allMEs[nevt] -> allMEs[nevt*nprocesses]?)
 
   SYCL_EXTERNAL
-  void sigmaKin( const fptype* __restrict__ allmomenta, // input: momenta[nevt*npar*4]
-                 fptype* allMEs,           // output: allMEs[nevt], |M|^2 final_avg_over_helicities
-                 size_t ievt,
-                 const short* __restrict__ cHel,
-                 const fptype* __restrict__ cIPC,
-                 const fptype* __restrict__ cIPD,
-                 const int* __restrict__ cNGoodHel,
-                 const int* __restrict__ cGoodHel
+  fptype sigmaKin( const fptype* __restrict__ allmomenta, // input: momenta[nevt*npar*4]
+                   const short* __restrict__ cHel,
+                   const fptype* __restrict__ cIPC,
+                   const fptype* __restrict__ cIPD,
+                   const int* __restrict__ cNGoodHel,
+                   const int* __restrict__ cGoodHel
                  )
   {
     mgDebugInitialise();
@@ -531,7 +527,7 @@ m_tIPD[1] = (fptype)m_pars->mdl_WT;
     // PART 0 - INITIALISATION (before calculate_wavefunctions)
     // Reset the "matrix elements" - running sums of |M|^2 over helicities for the given event
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-    allMEs[ievt] = 0;
+    fptype allMEs = 0;
 
     // PART 1 - HELICITY LOOP: CALCULATE WAVEFUNCTIONS
     // (in both CUDA and C++, using precomputed good helicities)
@@ -539,7 +535,7 @@ m_tIPD[1] = (fptype)m_pars->mdl_WT;
     for ( int ighel = 0; ighel < cNGoodHel[0]; ighel++ )
     {
       const int ihel = cGoodHel[ighel];
-      calculate_wavefunctions( ihel, allmomenta, allMEs, ievt, cHel, cIPC, cIPD );
+      allMEs += calculate_wavefunctions( allmomenta, cHel + ihel*npar, cIPC, cIPD );
     }
 
     // PART 2 - FINALISATION (after calculate_wavefunctions)
@@ -547,8 +543,8 @@ m_tIPD[1] = (fptype)m_pars->mdl_WT;
     // [NB 'sum over final spins, average over initial spins', eg see
     // https://www.uzh.ch/cmsssl/physik/dam/jcr:2e24b7b1-f4d7-4160-817e-47b13dbf1d7c/Handout_4_2016-UZH.pdf]
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-    allMEs[ievt] /= denominators;
     mgDebugFinalise();
+    return allMEs / denominators;
   }
 
   //--------------------------------------------------------------------------

@@ -19,10 +19,10 @@
 namespace rambo2toNm0
 {
 
-  using mgOnGpu::np4;
-  using mgOnGpu::npari;
-  using mgOnGpu::nparf;
-  using mgOnGpu::npar;
+  static constexpr int np4 = mgOnGpu::np4;
+  static constexpr int npari = mgOnGpu::npari;
+  static constexpr int nparf = mgOnGpu::nparf;
+  static constexpr int npar = mgOnGpu::npar;
 
   //--------------------------------------------------------------------------
   // Memory access functions
@@ -34,9 +34,9 @@ namespace rambo2toNm0
           const size_t ievt
           ) {
     // mapping for the various schemes (AOSOA, AOS, SOA...)
-    using mgOnGpu::np4;
-    using mgOnGpu::npar;
-    const int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
+    static constexpr int np4 = mgOnGpu::np4;
+    static constexpr int npar = mgOnGpu::npar;
+    static constexpr int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
     const int ipagM = ievt/neppM; // #eventpage in this iteration
     const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
     return momenta1d[ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM]; // AOSOA[ipagM][ipar][ip4][ieppM]

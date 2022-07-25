@@ -812,23 +812,21 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
   // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
   SYCL_EXTERNAL
   INLINE
-  void calculate_wavefunctions( int ihel,
-                                const fptype_sv* __restrict__ allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-                                fptype_sv* allMEs,                        // output: allMEs[npagM][neppM], final |M|^2 averaged over helicities
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                           , fptype* allNumerators        // output: multichannel numerators[nevt], running_sum_over_helicities
-                           , fptype* allDenominators      // output: multichannel denominators[nevt], running_sum_over_helicities
-                           , const unsigned int channelId // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
-#endif
-                                size_t ievt,
-                                const short*  __restrict__ cHel,
-                                const fptype* __restrict__ cIPC,
-                                const fptype* __restrict__ cIPD
+  fptype calculate_wavefunctions( const fptype_sv* __restrict__ allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+                                  #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+                                      fptype* allNumerators,                // output: multichannel numerators[nevt], running_sum_over_helicities
+                                      fptype* allDenominators,              // output: multichannel denominators[nevt], running_sum_over_helicities
+                                      const unsigned int channelId,         // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
+                                  #endif
+                                  const short*  __restrict__ cHel,
+                                  const fptype* __restrict__ cIPC,
+                                  const fptype* __restrict__ cIPD
                                 )
   //ALWAYS_INLINE // attributes are not permitted in a function definition
   {
     using namespace MG5_sm;
     mgDebug( 0, __FUNCTION__ );
+    fptype allMEs = 0;
     const cxtype* COUPs = reinterpret_cast<const cxtype*>(cIPC);
 \n""")
             ret_lines.append("    // The number of colors")
@@ -1231,45 +1229,47 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             # Fill out with X up to 6 positions
             call = call + 'x' * (6 - len(call))
             # Specify namespace for Helas calls
-            call = call + "( allmomenta, ievt,"
+            call = call + "( allmomenta + %d * np4 * neppM,"
             if argument.get('spin') != 1:
                 # For non-scalars, need mass and helicity
-                call = call + "m_pars->%s, cHel[ihel*npar + %d],"
+                call = call + "m_pars->%s, cHel[%d],"
             else:
                 # AV This seems to be for scalars (spin==1???), pass neither mass nor helicity (#351)
                 ###call = call + "m_pars->%s,"
                 call = call
-            call = call + "%+d, w_sv[%d], %d );" # AV vectorize
+            call = call + "%+d, w_sv[%d]);" # AV vectorize
             if argument.get('spin') == 1:
                 return call % \
-                                (wf.get('mass'),
+                                (wf.get('number_external')-1,
+                                 wf.get('mass'),
+                                 wf.get('number_external')-1,
                                  # For boson, need initial/final here
                                  (-1) ** (wf.get('state') == 'initial'),
-                                 wf.get('me_id')-1,
-                                 wf.get('number_external')-1)
+                                 wf.get('me_id')-1)
             elif argument.is_boson():
                 misc.sprint(call)
-                misc.sprint( (wf.get('mass'),
+                misc.sprint( 
+                                (wf.get('number_external')-1,
+                                 wf.get('mass'),
                                  wf.get('number_external')-1,
                                  # For boson, need initial/final here
                                  (-1) ** (wf.get('state') == 'initial'),
-                                 wf.get('me_id')-1,
-                                 wf.get('number_external')-1))
+                                 wf.get('me_id')-1))
                 return  self.format_coupling(call % \
-                                (wf.get('mass'),
+                                (wf.get('number_external')-1,
+                                 wf.get('mass'),
                                  wf.get('number_external')-1,
                                  # For boson, need initial/final here
                                  (-1) ** (wf.get('state') == 'initial'),
-                                 wf.get('me_id')-1,
-                                 wf.get('number_external')-1))
+                                 wf.get('me_id')-1))
             else:
                 return self.format_coupling(call % \
-                                (wf.get('mass'),
+                                (wf.get('number_external')-1,
+                                 wf.get('mass'),
                                  wf.get('number_external')-1,
                                  # For fermions, need particle/antiparticle
                                  - (-1) ** wf.get_with_flow('is_part'),
-                                 wf.get('me_id')-1,
-                                 wf.get('number_external')-1))
+                                 wf.get('me_id')-1))
         else:
             if wf.get('number_external') == 1:
                 call += 'pz'
@@ -1282,13 +1282,13 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             if wf.get('number_external') == 1 or wf.get('number_external') == 2: # AV
                 comment = ' // NB: ' + call + ' only uses pz' # AV skip '(not E,px,py)' to avoid interference with comma parsing in get_external
             # Specify namespace for Helas calls
-            call = call + '( allmomenta, ievt, cHel[ihel*npar + %d], %+d, w_sv[%d], %d );' + comment # AV vectorize and add comment
+            call = call + '( allmomenta + %d * np4 * neppM, cHel[%d], %+d, w_sv[%d] );' + comment # AV vectorize and add comment
             return self.format_coupling(call % \
                                 (wf.get('number_external')-1,
+                                 wf.get('number_external')-1,
                                  # For fermions, need particle/antiparticle
                                  - (-1) ** wf.get_with_flow('is_part'),
-                                 wf.get('me_id')-1,
-                                 wf.get('number_external')-1))
+                                 wf.get('me_id')-1))
 
     # AV - replace helas_call_writers.GPUFOHelasCallWriter method (vectorize w_sv and amp_sv)
     def generate_helas_call(self, argument):

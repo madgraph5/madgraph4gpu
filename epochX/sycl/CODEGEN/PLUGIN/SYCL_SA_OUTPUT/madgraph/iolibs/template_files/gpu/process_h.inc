@@ -24,9 +24,7 @@ namespace Proc
 
   SYCL_EXTERNAL
   void sigmaKin_getGoodHel( const fptype* __restrict__ allmomenta, // input: momenta[nevt*npar*4]
-                            fptype* allMEs,           // output: allMEs[nevt], |M|^2 final_avg_over_helicities
                             bool* isGoodHel,          // output: isGoodHel[ncomb] - device array
-                            const size_t ievt,
                             const short* __restrict__ cHel,
                             const fptype* __restrict__ cIPC,
                             const fptype* __restrict__ cIPD
@@ -39,14 +37,12 @@ namespace Proc
   //--------------------------------------------------------------------------
 
   SYCL_EXTERNAL
-  void sigmaKin( const fptype* __restrict__ allmomenta, // input: momenta[nevt*npar*4]
-                 fptype* allMEs,           // output: allMEs[nevt], |M|^2 final_avg_over_helicities
-                 size_t ievt,
-                 const short* __restrict__ cHel,
-                 const fptype* __restrict__ cIPC,
-                 const fptype* __restrict__ cIPD,
-                 const int* __restrict__ cNGoodHel,
-                 const int* __restrict__ cGoodHel
+  fptype sigmaKin( const fptype* __restrict__ allmomenta, // input: momenta[nevt*npar*4]
+                   const short* __restrict__ cHel,
+                   const fptype* __restrict__ cIPC,
+                   const fptype* __restrict__ cIPD,
+                   const int* __restrict__ cNGoodHel,
+                   const int* __restrict__ cGoodHel
                  );
 
   //--------------------------------------------------------------------------

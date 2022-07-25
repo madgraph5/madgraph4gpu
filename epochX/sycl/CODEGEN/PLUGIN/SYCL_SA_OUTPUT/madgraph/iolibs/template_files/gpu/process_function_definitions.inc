@@ -4,12 +4,13 @@
 
 namespace Proc
 {
-  using mgOnGpu::np4; // dimensions of 4-momenta (E,px,py,pz)
-  using mgOnGpu::npar; // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
-  using mgOnGpu::ncomb; // #helicity combinations: e.g. 16 for e+ e- -> mu+ mu- (2**4 = fermion spin up/down ** npar)
+  static constexpr int np4 = mgOnGpu::np4; // dimensions of 4-momenta (E,px,py,pz)
+  static constexpr int npar = mgOnGpu::npar; // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
+  static constexpr int ncomb = mgOnGpu::ncomb; // #helicity combinations: e.g. 16 for e+ e- -> mu+ mu- (2**4 = fermion spin up/down ** npar)
 
-  using mgOnGpu::nwf; // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
-  using mgOnGpu::nw6; // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
+  static constexpr int nwf = mgOnGpu::nwf; // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
+  static constexpr int nw6 = mgOnGpu::nw6; // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
+  static constexpr int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
 
   //--------------------------------------------------------------------------
 %(all_sigmaKin)s
@@ -73,9 +74,7 @@ namespace Proc
 
   SYCL_EXTERNAL
   void sigmaKin_getGoodHel( const fptype* __restrict__ allmomenta, // input: momenta[nevt*npar*4]
-                            fptype* allMEs,           // output: allMEs[nevt], |M|^2 final_avg_over_helicities
                             bool* isGoodHel,          // output: isGoodHel[ncomb] - device array
-                            const size_t ievt,
                             const short* __restrict__ cHel,
                             const fptype* __restrict__ cIPC,
                             const fptype* __restrict__ cIPD
@@ -83,16 +82,17 @@ namespace Proc
   {
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
     fptype allMEsLast = 0;
+    fptype allMEs = 0;
     for ( int ihel = 0; ihel < ncomb; ihel++ )
     {
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
-      calculate_wavefunctions( ihel, allmomenta, allMEs, ievt, cHel, cIPC, cIPD );
-      if ( allMEs[ievt] != allMEsLast )
+      allMEs += calculate_wavefunctions( allmomenta, cHel + ihel*npar, cIPC, cIPD );
+      if ( allMEs != allMEsLast )
       {
         //if ( !isGoodHel[ihel] ) std::cout << "sigmaKin_getGoodHel ihel=" << ihel << " TRUE" << std::endl;
         isGoodHel[ihel] = true;
       }
-      allMEsLast = allMEs[ievt]; // running sum up to helicity ihel for event ievt
+      allMEsLast = allMEs; // running sum up to helicity ihel for event ievt
     }
   }
 
@@ -120,14 +120,12 @@ namespace Proc
   // FIXME: assume process.nprocesses == 1 (eventually: allMEs[nevt] -> allMEs[nevt*nprocesses]?)
 
   SYCL_EXTERNAL
-  void sigmaKin( const fptype* __restrict__ allmomenta, // input: momenta[nevt*npar*4]
-                 fptype* allMEs,           // output: allMEs[nevt], |M|^2 final_avg_over_helicities
-                 size_t ievt,
-                 const short* __restrict__ cHel,
-                 const fptype* __restrict__ cIPC,
-                 const fptype* __restrict__ cIPD,
-                 const int* __restrict__ cNGoodHel,
-                 const int* __restrict__ cGoodHel
+  fptype sigmaKin( const fptype* __restrict__ allmomenta, // input: momenta[nevt*npar*4]
+                   const short* __restrict__ cHel,
+                   const fptype* __restrict__ cIPC,
+                   const fptype* __restrict__ cIPD,
+                   const int* __restrict__ cNGoodHel,
+                   const int* __restrict__ cGoodHel
                  )
   {
     mgDebugInitialise();

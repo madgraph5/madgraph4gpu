@@ -30,12 +30,11 @@ namespace MG5_sm
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
   SYCL_EXTERNAL INLINE
   void ixxxxx( const fptype_sv* momenta,
-               const size_t ievt,
                const fptype fmass,             // input: fermion mass
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv fi[],
-               const int ipar ) ALWAYS_INLINE; // input: particle# out of npar
+               cxtype_sv fi[]
+             ) ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
 
@@ -43,12 +42,11 @@ namespace MG5_sm
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
   SYCL_EXTERNAL INLINE
   void ipzxxx( const fptype_sv* momenta,
-               const size_t ievt,
                //const fptype fmass,           // ASSUME fermion mass==0
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv fi[],
-               const int ipar ) ALWAYS_INLINE; // input: particle# out of npar
+               cxtype_sv fi[]
+             ) ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
 
@@ -56,12 +54,11 @@ namespace MG5_sm
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
   SYCL_EXTERNAL INLINE
   void imzxxx( const fptype_sv* momenta,
-               const size_t ievt,
                //const fptype fmass,           // ASSUME fermion mass==0
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv fi[],
-               const int ipar ) ALWAYS_INLINE; // input: particle# out of npar
+               cxtype_sv fi[]
+             ) ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
 
@@ -69,48 +66,44 @@ namespace MG5_sm
   // ASSUMPTIONS: (FMASS == 0) and (PT > 0)
   SYCL_EXTERNAL INLINE
   void ixzxxx( const fptype_sv* momenta,
-               const size_t ievt,
                //const fptype fmass,           // ASSUME fermion mass==0
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv fi[],
-               const int ipar ) ALWAYS_INLINE; // input: particle# out of npar
+               cxtype_sv fi[]
+             ) ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction vc[6] from the input momenta[npar*4*nevt]
   SYCL_EXTERNAL INLINE
   void vxxxxx( const fptype_sv* momenta,
-               const size_t ievt,
                const fptype vmass,             // input: vector boson mass
                const int nhel,                 // input: -1, 0 (only if vmass!=0) or +1 (helicity of vector boson)
                const int nsv,                  // input: +1 (final) or -1 (initial)
-               cxtype_sv vc[],
-               const int ipar ) ALWAYS_INLINE; // input: particle# out of npar
+               cxtype_sv vc[]
+             ) ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction sc[3] from the input momenta[npar*4*nevt]
   SYCL_EXTERNAL INLINE
   void sxxxxx( const fptype_sv* momenta,
-               const size_t ievt,
                const fptype,                   // WARNING: input "smass" unused (missing in Fortran) - scalar boson mass
                const int,                      // WARNING: input "nhel" unused (missing in Fortran) - scalar has no helicity!
                const int nss,                  // input: +1 (final) or -1 (initial)
-               cxtype_sv sc[],
-               const int ipar ) ALWAYS_INLINE; // input: particle# out of npar
+               cxtype_sv sc[]
+             ) ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction fo[6] from the input momenta[npar*4*nevt]
   SYCL_EXTERNAL INLINE
   void oxxxxx( const fptype_sv* momenta,
-               const size_t ievt,
                const fptype fmass,             // input: fermion mass
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv fo[],
-               const int ipar ) ALWAYS_INLINE; // input: particle# out of npar
+               cxtype_sv fo[]
+             ) ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
 
@@ -118,12 +111,11 @@ namespace MG5_sm
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
   SYCL_EXTERNAL INLINE
   void opzxxx( const fptype_sv* momenta,
-               const size_t ievt,
                //const fptype fmass,           // ASSUME fermion mass==0
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv fo[],
-               const int ipar ) ALWAYS_INLINE; // input: particle# out of npar
+               cxtype_sv fo[]
+             ) ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
 
@@ -131,24 +123,22 @@ namespace MG5_sm
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
   SYCL_EXTERNAL INLINE
   void omzxxx( const fptype_sv* momenta,
-               const size_t ievt,
                //const fptype fmass,           // ASSUME fermion mass==0
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv fo[],
-               const int ipar ) ALWAYS_INLINE; // input: particle# out of npar
+               cxtype_sv fo[]
+             ) ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction fo[6] from the input momenta[npar*4*nevt]
   SYCL_EXTERNAL INLINE
   void oxzxxx( const fptype_sv* momenta,
-               const size_t ievt,
                //const fptype fmass,           // ASSUME fermion mass==0
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv fo[],
-               const int ipar ) ALWAYS_INLINE; // input: particle# out of npar
+               cxtype_sv fo[]
+             ) ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
 
@@ -158,9 +148,9 @@ namespace MG5_sm
                               const int ip4,
                               const int ievt )
   {
-    using mgOnGpu::np4;
-    using mgOnGpu::npar;
-    const int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
+    static constexpr int np4 = mgOnGpu::np4;
+    static constexpr int npar = mgOnGpu::npar;
+    static constexpr int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
     const int ipagM = ievt/neppM; // #eventpage in this iteration
     const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
     //printf( "%f\n", momenta[ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM] );
@@ -175,18 +165,18 @@ namespace MG5_sm
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
   SYCL_EXTERNAL
   void ixxxxx( const fptype_sv* momenta,
-               const size_t ievt,
                const fptype fmass,             // input: fermion mass
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv fi[],
-               const int ipar ) // input: particle# out of npar
+               cxtype_sv fi[]
+             )
   {
     mgDebug( 0, __FUNCTION__ );
-    const fptype pvec0 = pIparIp4Ievt( momenta, ipar, 0, ievt );
-    const fptype pvec1 = pIparIp4Ievt( momenta, ipar, 1, ievt );
-    const fptype pvec2 = pIparIp4Ievt( momenta, ipar, 2, ievt );
-    const fptype pvec3 = pIparIp4Ievt( momenta, ipar, 3, ievt );
+    static constexpr int neppM = mgOnGpu::neppM;
+    const fptype pvec0 = momenta[0 * neppM];
+    const fptype pvec1 = momenta[1 * neppM];
+    const fptype pvec2 = momenta[2 * neppM];
+    const fptype pvec3 = momenta[3 * neppM];
 
     fi[0] = cxmake( -pvec0 * (fptype)nsf, -pvec3 * (fptype)nsf );
     fi[1] = cxmake( -pvec1 * (fptype)nsf, -pvec2 * (fptype)nsf );
@@ -256,15 +246,15 @@ namespace MG5_sm
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
   SYCL_EXTERNAL
   void ipzxxx( const fptype_sv* momenta,
-               const size_t ievt,
                //const fptype fmass,           // ASSUME fermion mass==0
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv fi[],
-               const int ipar )
+               cxtype_sv fi[]
+             )
   {
     mgDebug( 0, __FUNCTION__ );
-    const fptype pvec3 = pIparIp4Ievt( momenta, ipar, 3, ievt );
+    static constexpr int neppM = mgOnGpu::neppM;
+    const fptype pvec3 = momenta[3 * neppM];
     fi[0] = cxmake( -pvec3 * (fptype)nsf, -pvec3 * (fptype)nsf );
     fi[1] = cxzero_sv();
     const int nh = nhel * nsf;
@@ -291,15 +281,15 @@ namespace MG5_sm
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
   SYCL_EXTERNAL
   void imzxxx( const fptype_sv* momenta,
-               const size_t ievt,
                //const fptype fmass,           // ASSUME fermion mass==0
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv fi[],
-               const int ipar )
+               cxtype_sv fi[]
+             )
   {
     mgDebug( 0, __FUNCTION__ );
-    const fptype pvec3 = pIparIp4Ievt( momenta, ipar, 3, ievt );
+    static constexpr int neppM = mgOnGpu::neppM;
+    const fptype pvec3 = momenta[3 * neppM];
     fi[0] = cxmake( pvec3 * (fptype)nsf, -pvec3 * (fptype)nsf );
     fi[1] = cxzero_sv();
     const int nh = nhel * nsf;
@@ -326,18 +316,18 @@ namespace MG5_sm
   // ASSUMPTIONS: (FMASS == 0) and (PT > 0)
   SYCL_EXTERNAL
   void ixzxxx( const fptype_sv* momenta,
-               const size_t ievt,
                //const fptype fmass,           // ASSUME fermion mass==0
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv fi[],
-               const int ipar )
+               cxtype_sv fi[]
+             )
   {
     mgDebug( 0, __FUNCTION__ );
-    const fptype pvec0 = pIparIp4Ievt( momenta, ipar, 0, ievt );
-    const fptype pvec1 = pIparIp4Ievt( momenta, ipar, 1, ievt );
-    const fptype pvec2 = pIparIp4Ievt( momenta, ipar, 2, ievt );
-    const fptype pvec3 = pIparIp4Ievt( momenta, ipar, 3, ievt );
+    static constexpr int neppM = mgOnGpu::neppM;
+    const fptype pvec0 = momenta[0 * neppM];
+    const fptype pvec1 = momenta[1 * neppM];
+    const fptype pvec2 = momenta[2 * neppM];
+    const fptype pvec3 = momenta[3 * neppM];
     //fi[0] = cxmake( -pvec0 * nsf, -pvec2 * nsf ); // AV: BUG! not the same as ixxxxx
     //fi[1] = cxmake( -pvec0 * nsf, -pvec1 * nsf ); // AV: BUG! not the same as ixxxxx
     fi[0] = cxmake( -pvec0 * (fptype)nsf, -pvec3 * (fptype)nsf ); // AV: BUG FIX
@@ -370,18 +360,18 @@ namespace MG5_sm
   // Compute the output wavefunction vc[6] from the input momenta[npar*4*nevt]
   SYCL_EXTERNAL
   void vxxxxx( const fptype_sv* momenta,
-               const size_t ievt,
                const fptype vmass,             // input: vector boson mass
                const int nhel,                 // input: -1, 0 (only if vmass!=0) or +1 (helicity of vector boson)
                const int nsv,                  // input: +1 (final) or -1 (initial)
-               cxtype_sv vc[],
-               const int ipar )
+               cxtype_sv vc[]
+             )
   {
     mgDebug( 0, __FUNCTION__ );
-    const fptype pvec0 = pIparIp4Ievt( momenta, ipar, 0, ievt );
-    const fptype pvec1 = pIparIp4Ievt( momenta, ipar, 1, ievt );
-    const fptype pvec2 = pIparIp4Ievt( momenta, ipar, 2, ievt );
-    const fptype pvec3 = pIparIp4Ievt( momenta, ipar, 3, ievt );
+    static constexpr int neppM = mgOnGpu::neppM;
+    const fptype pvec0 = momenta[0 * neppM];
+    const fptype pvec1 = momenta[1 * neppM];
+    const fptype pvec2 = momenta[2 * neppM];
+    const fptype pvec3 = momenta[3 * neppM];
     const fptype sqh = fpsqrt( 0.5 ); // AV this is > 0!
     const fptype hel = nhel;
     vc[0] = cxmake( pvec0 * (fptype)nsv, pvec3 * (fptype)nsv );
@@ -450,18 +440,18 @@ namespace MG5_sm
   // Compute the output wavefunction sc[3] from the input momenta[npar*4*nevt]
   SYCL_EXTERNAL
   void sxxxxx( const fptype_sv* momenta,
-               const size_t ievt,
                const fptype,                   // WARNING: input "smass" unused (missing in Fortran) - scalar boson mass
                const int,                      // WARNING: input "nhel" unused (missing in Fortran) - scalar has no helicity!
                const int nss,                  // input: +1 (final) or -1 (initial)
-               cxtype_sv sc[],
-               const int ipar )
+               cxtype_sv sc[]
+             )
   {
     mgDebug( 0, __FUNCTION__ );
-    const fptype pvec0 = pIparIp4Ievt( momenta, ipar, 0, ievt );
-    const fptype pvec1 = pIparIp4Ievt( momenta, ipar, 1, ievt );
-    const fptype pvec2 = pIparIp4Ievt( momenta, ipar, 2, ievt );
-    const fptype pvec3 = pIparIp4Ievt( momenta, ipar, 3, ievt );
+    static constexpr int neppM = mgOnGpu::neppM;
+    const fptype pvec0 = momenta[0 * neppM];
+    const fptype pvec1 = momenta[1 * neppM];
+    const fptype pvec2 = momenta[2 * neppM];
+    const fptype pvec3 = momenta[3 * neppM];
 
     sc[2] = cxmake( 1 + fptype_sv{ 0 }, 0 );
     sc[0] = cxmake( pvec0 * (fptype)nss, pvec3 * (fptype)nss );
@@ -475,18 +465,18 @@ namespace MG5_sm
   // Compute the output wavefunction fo[6] from the input momenta[npar*4*nevt]
   SYCL_EXTERNAL
   void oxxxxx( const fptype_sv* momenta,
-               const size_t ievt,
                const fptype fmass,             // input: fermion mass
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv fo[],
-               const int ipar )
+               cxtype_sv fo[]
+             )
   {
     mgDebug( 0, __FUNCTION__ );
-    const fptype pvec0 = pIparIp4Ievt( momenta, ipar, 0, ievt );
-    const fptype pvec1 = pIparIp4Ievt( momenta, ipar, 1, ievt );
-    const fptype pvec2 = pIparIp4Ievt( momenta, ipar, 2, ievt );
-    const fptype pvec3 = pIparIp4Ievt( momenta, ipar, 3, ievt );
+    static constexpr int neppM = mgOnGpu::neppM;
+    const fptype pvec0 = momenta[0 * neppM];
+    const fptype pvec1 = momenta[1 * neppM];
+    const fptype pvec2 = momenta[2 * neppM];
+    const fptype pvec3 = momenta[3 * neppM];
 
     fo[0] = cxmake( pvec0 * (fptype)nsf, pvec3 * (fptype)nsf );
     fo[1] = cxmake( pvec1 * (fptype)nsf, pvec2 * (fptype)nsf );
@@ -560,15 +550,15 @@ namespace MG5_sm
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
   SYCL_EXTERNAL
   void opzxxx( const fptype_sv* momenta,
-               const size_t ievt,
                //const fptype fmass,           // ASSUME fermion mass==0
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv fo[],
-               const int ipar )
+               cxtype_sv fo[]
+             )
   {
     mgDebug( 0, __FUNCTION__ );
-    const fptype pvec3 = pIparIp4Ievt( momenta, ipar, 3, ievt );
+    static constexpr int neppM = mgOnGpu::neppM;
+    const fptype pvec3 = momenta[3 * neppM];
 
     fo[0] = cxmake( pvec3 * (fptype)nsf, pvec3 * (fptype)nsf );
     fo[1] = cxzero_sv();
@@ -596,15 +586,15 @@ namespace MG5_sm
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
   SYCL_EXTERNAL
   void omzxxx( const fptype_sv* momenta,
-               const size_t ievt,
                //const fptype fmass,           // ASSUME fermion mass==0
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv fo[],
-               const int ipar )
+               cxtype_sv fo[]
+             )
   {
     mgDebug( 0, __FUNCTION__ );
-    const fptype pvec3 = pIparIp4Ievt( momenta, ipar, 3, ievt );
+    static constexpr int neppM = mgOnGpu::neppM;
+    const fptype pvec3 = momenta[3 * neppM];
 
     fo[0] = cxmake( -pvec3 * (fptype)nsf, pvec3 * (fptype)nsf ); // remember pvec0 == -pvec3
     fo[1] = cxzero_sv();
@@ -635,18 +625,18 @@ namespace MG5_sm
   // ASSUMPTIONS: (FMASS == 0) and (PT > 0)
   SYCL_EXTERNAL
   void oxzxxx( const fptype_sv* momenta,
-               const size_t ievt,
                //const fptype fmass,           // ASSUME fermion mass==0
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv fo[],
-               const int ipar )
+               cxtype_sv fo[]
+             )
   {
     mgDebug( 0, __FUNCTION__ );
-    const fptype pvec0 = pIparIp4Ievt( momenta, ipar, 0, ievt );
-    const fptype pvec1 = pIparIp4Ievt( momenta, ipar, 1, ievt );
-    const fptype pvec2 = pIparIp4Ievt( momenta, ipar, 2, ievt );
-    const fptype pvec3 = pIparIp4Ievt( momenta, ipar, 3, ievt );
+    static constexpr int neppM = mgOnGpu::neppM;
+    const fptype pvec0 = momenta[0 * neppM];
+    const fptype pvec1 = momenta[1 * neppM];
+    const fptype pvec2 = momenta[2 * neppM];
+    const fptype pvec3 = momenta[3 * neppM];
 
     fo[0] = cxmake( pvec0 * (fptype)nsf, pvec3 * (fptype)nsf );
     fo[1] = cxmake( pvec1 * (fptype)nsf, pvec2 * (fptype)nsf );

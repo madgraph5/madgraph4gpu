@@ -317,21 +317,21 @@ int main(int argc, char **argv)
     }
   }
 
-  using mgOnGpu::neppR; // AOSOA layout: constant at compile-time
+  static constexpr int neppR = mgOnGpu::neppR; // AOSOA layout: constant at compile-time
   if ( gputhreads%neppR != 0 )
   {
     std::cout << "ERROR! #threads/block should be a multiple of neppR=" << neppR << std::endl;
     return usage(argv[0]);
   }
 
-  using mgOnGpu::neppM; // AOSOA layout: constant at compile-time
+  static constexpr int neppM =  mgOnGpu::neppM; // AOSOA layout: constant at compile-time
   if ( gputhreads%neppM != 0 )
   {
     std::cout << "ERROR! #threads/block should be a multiple of neppM=" << neppM << std::endl;
     return usage(argv[0]);
   }
 
-  using mgOnGpu::ntpbMAX;
+  static constexpr int ntpbMAX = mgOnGpu::ntpbMAX;
   if ( gputhreads > ntpbMAX )
   {
     std::cout << "ERROR! #threads/block should be <= " << ntpbMAX << std::endl;
@@ -392,10 +392,10 @@ int main(int argc, char **argv)
   timermap.start( alloKey );
 
   // Memory structures for random numbers, momenta, matrix elements and weights on host and device
-  using mgOnGpu::np4;
-  using mgOnGpu::nparf;
-  using mgOnGpu::npar;
-  using mgOnGpu::ncomb; // Number of helicity combinations
+  static constexpr int np4 =  mgOnGpu::np4;
+  static constexpr int nparf = mgOnGpu::nparf;
+  static constexpr int npar = mgOnGpu::npar;
+  static constexpr int ncomb = mgOnGpu::ncomb; // Number of helicity combinations
   const int nRnarray = np4*nparf*nevt; // (NB: AOSOA layout with nevt=npagR*neppR events per iteration)
   const int nMomenta = np4*npar*nevt; // (NB: nevt=npagM*neppM for AOSOA layouts)
   const int nWeights = nevt;
@@ -540,7 +540,9 @@ int main(int argc, char **argv)
           cgh.parallel_for_work_group(sycl::range<1>{gpublocks}, sycl::range<1>{gputhreads}, ([=](sycl::group<1> wGroup) {
               wGroup.parallel_for_work_item([&](sycl::h_item<1> index) {
                   size_t ievt = index.get_global_id(0);
-                  Proc::sigmaKin_getGoodHel( devMomenta, devMEs, devIsGoodHel, ievt, devcHel, devcIPC, devcIPD );
+                  const int ipagM = ievt/neppM; // #eventpage in this iteration
+                  const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
+                  Proc::sigmaKin_getGoodHel( devMomenta + ipagM * npar * np4 * neppM + ieppM, devIsGoodHel, devcHel, devcIPC, devcIPD );
               });
           }));
       });
@@ -569,7 +571,9 @@ int main(int argc, char **argv)
         cgh.parallel_for_work_group(sycl::range<1>{gpublocks}, sycl::range<1>{gputhreads}, ([=](sycl::group<1> wGroup) {
             wGroup.parallel_for_work_item([&](sycl::h_item<1> index) {
                 size_t ievt = index.get_global_id(0);
-                Proc::sigmaKin( devMomenta, devMEs, ievt, devcHel, devcIPC, devcIPD, devcNGoodHel, devcGoodHel );
+                const int ipagM = ievt/neppM; // #eventpage in this iteration
+                const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
+                devMEs[ievt] = Proc::sigmaKin( devMomenta + ipagM * npar * np4 * neppM + ieppM, devcHel, devcIPC, devcIPD, devcNGoodHel, devcGoodHel );
             });
         }));
     });
