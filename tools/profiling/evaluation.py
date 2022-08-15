@@ -14,11 +14,34 @@ import matplotlib.style
 #from matplotlib.offsetbox import TextArea, DrawingArea, OffsetImage, AnnotationBbox
 import seaborn as sns
 import configparser
+import argparse
 import re
 import math
 
+#############################
+#                           #
+#     Argument defaults     #
+#                           #
+#############################
 
+physicsProcesses = ['ee_mumu', 'gg_tt', 'gg_ttg', 'gg_ttgg', 'gg_ttggg']
 
+reportPath = 'C:\\Users\\jteig\\cernbox\\Documents\\CERN\\reports\\v100s_Profiling'
+
+savePath = 'C:\\Users\\jteig\\cernbox\\Documents\\CERN\\Graphs\\'
+
+filePrefix = 'test_v100s_sycl-11.5'
+
+#############################
+
+parser = argparse.ArgumentParser(description='A program for profiling GPUs using MadGraph.')
+
+parser.add_argument("-p", help="Physic process used for making the graphs.", default=physicsProcesses[0], choices=physicsProcesses)
+parser.add_argument("-r", help="Path for the directory containing the reports.", default=reportPath)
+parser.add_argument("-s", help="Path for the directory where the graphs will be saved.", default=savePath)
+parser.add_argument("-n", help="The prefix in the name of the files of the reports e.g test_v100s_sycl-11.5.", default=filePrefix)
+
+args = parser.parse_args()
 
 class Evaluation:
     
@@ -44,7 +67,7 @@ class Evaluation:
         listfolders = os.listdir()
         
         for datafolder in listfolders:
-            os.chdir(path+'/'+datafolder)   #Jump in datafolder
+            os.chdir(path+'\\'+datafolder)   #Jump in datafolder
             df_dict[datafolder]=pd.DataFrame()
             Data=pd.DataFrame()
             list_results =[]
@@ -206,7 +229,9 @@ class Evaluation:
             #plt.rcParams['legend.title_fontsize']='large'
             #plt.text(16400, 250000, 'Here we have space for some\nfurther information like:\n\nCuda\nepoch2\ngg_ttgg',fontsize=25)
             plt.show()
-            fig.savefig('/home/andy/cernbox/data/raw/data'+'epoch2_ee_mumu_gcheck_float'+yaxis)
+
+            # Savepath and physics process set by arguments
+            fig.savefig(args.s + args.p + '_' + yaxis)
 
     def data_compare(self,df_dict,compare_list,stat):
         #This function takes the dictinary of data frames and plots the selected df from the list
@@ -368,28 +393,32 @@ if __name__=='__main__':
     Ev.readConfig()
     #logo=mpimg.imread('/home/andy/cernbox/Madgraph/profiler/Logo/Logo_CERN.png')
     #imagebox=OffsetImage(logo)
-    path='/home/andy/cernbox/data/Andrea'
+
+    # Gets directory containing the reports from -r argument
+    path = args.r
+    
     dataframes=Ev.load_df(path) #returns a directory that contains df for all data given in the path
     plotlist= [item for item in Ev.plot_confi['plots']if Ev.plot_confi['plots'][item] == 'on']
-    
-    
 
     dataframes_conv=Ev.convertunits_2() #returns a df directory with converted units
-    dataframes_statisical=Ev.dataframes_statistical_transfomation(dataframes_conv,'max')
-  
-    '''
-    Ev.plots(dataframes_conv['gcheck.exe_epoch1_cuda_ee_mumu_double'],plotlist)
-    '''
+    
+    #''' Plot Graph
+    Ev.plots(dataframes_conv[args.n + '_' + args.p],plotlist)
+    #'''
+
+    # Compare graphs
+    #dataframes_statisical=Ev.dataframes_statistical_transfomation(dataframes_conv,'max')
+
     #max(df_adj_units['EvtsPerSec[MatrixElems] (3)'])
     # To be done
-    list_to_compare=['gcheck.exe_epoch1_cuda_ee_mumu_float','gcheck.exe_epoch1_cuda_ee_mumu_double']
+    #list_to_compare=['check.exe_epochx_cuda_ee_mumu_float','check.exe_epochx_cuda_ee_mumu_double']
     #test_df=Ev.data_compare(dataframes_conv,list_to_compare,'max')
     
-    Ev.data_compare2(dataframes_statisical,list_to_compare)
+    #Ev.data_compare2(dataframes_statisical,list_to_compare)
     
-    dataframes_statisical[list(dataframes_statisical.keys())[0]]
-    dataframes_statisical[list(dataframes_statisical.keys())[0]]['gridsize']
-    dataframes_statisical['gcheck.exe_epoch1_cuda_ee_mumu_float'].dtypes
+    #dataframes_statisical[list(dataframes_statisical.keys())[0]]
+    #dataframes_statisical[list(dataframes_statisical.keys())[0]]['gridsize']
+    #dataframes_statisical['check.exe_epochx_cuda_ee_mumu_float'].dtypes
     
     
     
