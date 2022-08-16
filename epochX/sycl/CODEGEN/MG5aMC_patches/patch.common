@@ -1,0 +1,391 @@
+diff --git b/epochX/sycl/gg_tt.mad/Source/dsample.f a/epochX/sycl/gg_tt.mad/Source/dsample.f
+index 8da031857..cbf27d64b 100644
+--- b/epochX/sycl/gg_tt.mad/Source/dsample.f
++++ a/epochX/sycl/gg_tt.mad/Source/dsample.f
+@@ -25,16 +25,16 @@ c
+ c Local
+ c
+       double precision x(maxinvar),wgt,p(4*maxdim/3+14)
+-      double precision all_p(4*maxdim/3+14,nb_page), all_wgt(nb_page), all_x(maxinvar,nb_page)
+-      integer all_lastbin(maxdim, nb_page)
+-      double precision bckp(nb_page)
++      double precision all_p(4*maxdim/3+14,nb_page_max), all_wgt(nb_page_max), all_x(maxinvar,nb_page_max)
++      integer all_lastbin(maxdim, nb_page_max)
++      double precision bckp(nb_page_max)
+       double precision tdem, chi2, dum
+       integer ievent,kevent,nwrite,iter,nun,luntmp,itsum
+       integer jmax,i,j,ipole
+       integer itmax_adjust
+ 
+       integer imirror, iproc, iconf
+-      integer ivec !position of the event in the vectorization # max is nb_page 
++      integer ivec ! position of the event in the vectorization # max is nb_page_max (but loops go over nb_page_loop)
+ c
+ c     External
+ c
+@@ -101,8 +101,8 @@ c      common /to_fx/   fx
+       COMMON/TO_CM_RAP/SET_CM_RAP,CM_RAP
+ 
+ C     data for vectorization      
+-      double precision all_xbk(2, nb_page), all_q2fact(2, nb_page), all_cm_rap(nb_page)
+-      double precision all_fx(nb_page)
++      double precision all_xbk(2, nb_page_max), all_q2fact(2, nb_page_max), all_cm_rap(nb_page_max)
++      double precision all_fx(nb_page_max)
+       
+       
+       LOGICAL CUTSDONE,CUTSPASSED
+@@ -181,14 +181,14 @@ c               fx = dsig(all_p(1,i),all_wgt(i),0)
+ c               bckp(i) = fx
+ c               write(*,*) i, all_wgt(i), fx, all_wgt(i)*fx
+ c               all_wgt(i) = all_wgt(i)*fx
+-               if (ivec.lt.nb_page)then
++               if (ivec.lt.nb_page_loop)then
+                   cycle
+                endif
+                ivec=0
+-               if (nb_page.le.1) then
++               if (nb_page_loop.le.1) then
+                   all_fx(1) = dsig(all_p, all_wgt,0)
+                else
+-               do i=1, nb_page
++               do i=1, nb_page_loop
+ c                 need to restore common block                  
+                   xbk(:) = all_xbk(:, i)
+                   cm_rap = all_cm_rap(i)
+@@ -197,11 +197,11 @@ c                 need to restore common block
+                   CUTSPASSED=.TRUE.
+                   call prepare_grouping_choice(all_p(1,i), all_wgt(i), i.eq.1)
+                enddo
+-               call select_grouping(imirror, iproc, iconf, all_wgt, nb_page)
++               call select_grouping(imirror, iproc, iconf, all_wgt, nb_page_loop)
+                call dsig_vec(all_p, all_wgt, all_xbk, all_q2fact, all_cm_rap,
+-     &                          iconf, iproc, imirror, all_fx,nb_page)
++     &                          iconf, iproc, imirror, all_fx,nb_page_loop)
+ 
+-                do i=1, nb_page
++                do i=1, nb_page_loop
+ c                 need to restore common block                  
+                   xbk(:) = all_xbk(:, i)
+                   cm_rap = all_cm_rap(i)
+@@ -214,17 +214,17 @@ c                  endif
+ c     write(*,*) i, all_wgt(i), fx, all_wgt(i)*fx
+                enddo
+                endif
+-               do I=1, nb_page
++               do I=1, nb_page_loop
+                   all_wgt(i) = all_wgt(i)*all_fx(i)
+               enddo
+-               do i =1, nb_page
++               do i =1, nb_page_loop
+ c     if last paremeter is true -> allow grid update so only for a full page
+                   lastbin(:) = all_lastbin(:,i)
+                   if (all_wgt(i) .ne. 0d0) kevent=kevent+1
+-c                  write(*,*) 'put point in sample kevent', kevent, 'allow_update', ivec.eq.nb_page                   
+-                  call sample_put_point(all_wgt(i),all_x(1,i),iter,ipole, i.eq.nb_page) !Store result
++c                  write(*,*) 'put point in sample kevent', kevent, 'allow_update', ivec.eq.nb_page_loop                   
++                  call sample_put_point(all_wgt(i),all_x(1,i),iter,ipole, i.eq.nb_page_loop) !Store result
+                enddo
+-               if (nb_page.ne.1.and.force_reset)then
++               if (nb_page_loop.ne.1.and.force_reset)then
+                   call reset_cumulative_variable()
+                   force_reset=.false.
+                endif
+@@ -893,7 +893,7 @@ c      write(*,*) 'Forwarding random number generator'
+ 
+ C     sanity check that we have a minimal number of event
+       
+-      if ( .not.MC_GROUPED_SUBPROC.or.nb_page.gt.1)then
++      if ( .not.MC_GROUPED_SUBPROC.or.nb_page_loop.gt.1)then
+          events = max(events, maxtries)
+          MC_GROUPED_SUBPROC = .false.
+       else 
+diff --git b/epochX/sycl/gg_tt.mad/Source/genps.inc a/epochX/sycl/gg_tt.mad/Source/genps.inc
+index d04f63ba5..b95e0d108 100644
+--- b/epochX/sycl/gg_tt.mad/Source/genps.inc
++++ a/epochX/sycl/gg_tt.mad/Source/genps.inc
+@@ -30,7 +30,8 @@ c*************************************************************************
+ c	Parameters for helicity sums in matrixN.f
+ c*************************************************************************
+       REAL*8 LIMHEL
+-      PARAMETER(LIMHEL=1e-8)
++c     PARAMETER(LIMHEL=1e-8) ! old Fortran default
++      PARAMETER(LIMHEL=0) ! new Fortran default as in sycl (see #419)
+       INTEGER MAXTRIES
+       PARAMETER(MAXTRIES=25)
+ C     To pass the helicity configuration chosen by the DiscreteSampler to 
+@@ -46,4 +47,4 @@ c*******************************************************************************
+ c       parameters to control is zero-cross section is due to PS or matrix-element
+ c**********************************************************************************
+       integer nb_pass_cuts
+-      common/cut_efficiency/nb_pass_cuts
+\ No newline at end of file
++      common/cut_efficiency/nb_pass_cuts
+diff --git b/epochX/sycl/gg_tt.mad/SubProcesses/addmothers.f a/epochX/sycl/gg_tt.mad/SubProcesses/addmothers.f
+index c1226b212..2d20032aa 100644
+--- b/epochX/sycl/gg_tt.mad/SubProcesses/addmothers.f
++++ a/epochX/sycl/gg_tt.mad/SubProcesses/addmothers.f
+@@ -46,7 +46,7 @@ c     Variables for combination of color indices (including multipart. vert)
+       save prmass,prwidth,pow
+       data first_time /.true./
+ 
+-      Double Precision jamp2(0:maxflow, nb_page)
++      Double Precision jamp2(0:maxflow, nb_page_max)
+       common/to_jamps/       jamp2
+ 
+       integer           mincfig, maxcfig
+diff --git b/epochX/sycl/gg_tt.mad/SubProcesses/cuts.f a/epochX/sycl/gg_tt.mad/SubProcesses/cuts.f
+index 6b581bdfd..32c71b457 100644
+--- b/epochX/sycl/gg_tt.mad/SubProcesses/cuts.f
++++ a/epochX/sycl/gg_tt.mad/SubProcesses/cuts.f
+@@ -260,7 +260,7 @@ c         endif
+ 
+          if(fixed_ren_scale) then
+             G = SQRT(4d0*PI*ALPHAS(scale))
+-            do i =1, nb_page
++            do i =1, nb_page_loop
+                call update_as_param(i)
+             enddo
+          endif
+diff --git b/epochX/sycl/gg_tt.mad/SubProcesses/makefile a/epochX/sycl/gg_tt.mad/SubProcesses/makefile
+index dd709f52c..0304b2356 100644
+--- b/epochX/sycl/gg_tt.mad/SubProcesses/makefile
++++ a/epochX/sycl/gg_tt.mad/SubProcesses/makefile
+@@ -1,6 +1,17 @@
+ include ../../Source/make_opts
+ FFLAGS+= -w
+ 
++# Enable the C preprocessor https://gcc.gnu.org/onlinedocs/gfortran/Preprocessing-Options.html
++FFLAGS+= -cpp 
++
++# Enable ccache if USECCACHE=1
++ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
++  override CXX:=ccache $(CXX)
++endif
++ifeq ($(USECCACHE)$(shell echo $(FC) | grep ccache),1)
++  override FC:=ccache $(FC)
++endif
++
+ # Load additional dependencies of the bias module, if present
+ ifeq (,$(wildcard ../bias_dependencies))
+ BIASDEPENDENCIES =
+@@ -24,7 +35,21 @@ else
+     MADLOOP_LIB =
+ endif
+ 
+-LINKLIBS = $(LINK_MADLOOP_LIB) $(LINK_LOOP_LIBS) -L../../lib/ -ldhelas -ldsample -lmodel -lgeneric -lpdf -lcernlib $(llhapdf) -lbias 
++LINKLIBS = $(LINK_MADLOOP_LIB) $(LINK_LOOP_LIBS) -L$(LIBDIR) -ldhelas -ldsample -lmodel -lgeneric -lpdf -lcernlib $(llhapdf) -lbias 
++
++processid_short=$(shell basename $(CURDIR) | awk -F_ '{print $$(NF-1)"_"$$NF}')
++SYCL_MAKEFILE=sycl.mk
++# NB1 Using ":=" below instead of "=" is much faster (it only runs the subprocess once instead of many times)
++# NB2 Do not add a comment inlined "SYCL_BUILDDIR=$(shell ...) # comment" as otherwise a trailing space is included...
++# NB3 The variables relevant to the sycl Makefile must be explicitly passed to $(shell...)
++SYCL_MAKEENV:=$(shell echo '$(.VARIABLES)' | tr " " "\n" | egrep "(USEBUILDDIR|AVX|FPTYPE|HELINL|HRDCOD)")
++###$(info SYCL_MAKEENV=$(SYCL_MAKEENV))
++###$(info $(foreach v,$(SYCL_MAKEENV),$(v)="$($(v))"))
++SYCL_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(SYCL_MAKEENV),$(v)="$($(v))") -f $(SYCL_MAKEFILE) -pn | awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
++###$(info SYCL_BUILDDIR='$(SYCL_BUILDDIR)')
++SYCL_COMMONLIB=mg5amc_common
++SYCL_CXXLIB=mg5amc_$(processid_short)_cpp
++SYCL_CULIB=mg5amc_$(processid_short)_sycl
+ 
+ LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS)
+ 
+@@ -43,24 +68,67 @@ ifeq ($(strip $(MATRIX_HEL)),)
+ endif
+ 
+ 
+-PROCESS= driver.o myamp.o genps.o unwgt.o setcuts.o get_color.o \
++PROCESS= myamp.o genps.o unwgt.o setcuts.o get_color.o \
+          cuts.o cluster.o reweight.o initcluster.o addmothers.o setscales.o \
+-	 idenparts.o dummy_fct.o \
+-         $(patsubst %.f,%.o,$(wildcard auto_dsig*.f)) \
++	 idenparts.o dummy_fct.o
++
++DSIG=driver.o $(patsubst %.f, %.o, $(filter-out auto_dsig.f, $(wildcard auto_dsig*.f)))
++DSIG_sycl=driver_sycl.o $(patsubst %.f, %_sycl.o, $(filter-out auto_dsig.f, $(wildcard auto_dsig*.f)))
+ 
+ SYMMETRY = symmetry.o idenparts.o 
+ 
+ # Binaries
+ 
+-$(PROG): $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX)
+-	$(FC) -o $(PROG) $(PROCESS) $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp
++LDFLAGS+=-Wl,--no-relax # avoid 'failed to convert GOTPCREL relocation' error #458
++
++ifeq (,$(wildcard fbridge.inc))
++all: $(PROG)
++else
++all: $(PROG) $(SYCL_BUILDDIR)/c$(PROG)_sycl $(SYCL_BUILDDIR)/g$(PROG)_sycl
++endif
++
++$(PROG): $(PROCESS) $(DSIG) auto_dsig.o $(LIBS) $(MATRIX) counters.o
++	$(FC) -o $(PROG) $(PROCESS) $(DSIG) auto_dsig.o $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o
++
++$(LIBS): .libs
++
++.libs: ../../Cards/param_card.dat ../../Cards/run_card.dat
++	cd ../../Source; make
++	touch $@
++
++ifneq (,$(wildcard fbridge.inc))
++$(SYCL_BUILDDIR)/.sycllibs:
++	$(MAKE) -f $(SYCL_MAKEFILE)
++	touch $@
++endif
++
++# On Linux, set rpath to LIBDIR to make it unnecessary to use LD_LIBRARY_PATH
++# Use relative paths with respect to the executables ($ORIGIN on Linux)
++# On Darwin, building libraries with absolute paths in LIBDIR makes this unnecessary
++ifeq ($(UNAME_S),Darwin)
++  override LIBFLAGSRPATH =
++else ifeq ($(USEBUILDDIR),1)
++  override LIBFLAGSRPATH = -Wl,-rpath,'$$ORIGIN/../$(LIBDIR)/$(SYCL_BUILDDIR)'
++else
++  override LIBFLAGSRPATH = -Wl,-rpath,'$$ORIGIN/$(LIBDIR)'
++endif
++
++$(SYCL_BUILDDIR)/c$(PROG)_sycl: $(PROCESS) $(DSIG_sycl) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(SYCL_BUILDDIR)/.sycllibs
++	$(FC) -o $(SYCL_BUILDDIR)/c$(PROG)_sycl $(PROCESS) $(DSIG_sycl) auto_dsig.o $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o -L$(LIBDIR)/$(SYCL_BUILDDIR) -l$(SYCL_COMMONLIB) -l$(SYCL_CXXLIB) $(LIBFLAGSRPATH)
++
++$(SYCL_BUILDDIR)/g$(PROG)_sycl: $(PROCESS) $(DSIG_sycl) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(SYCL_BUILDDIR)/.sycllibs
++	$(FC) -o $(SYCL_BUILDDIR)/g$(PROG)_sycl $(PROCESS) $(DSIG_sycl) auto_dsig.o $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o -L$(LIBDIR)/$(SYCL_BUILDDIR) -l$(SYCL_COMMONLIB) -l$(SYCL_CULIB) $(LIBFLAGSRPATH)
++
++counters.o: counters.cpp timer.h
++	$(CXX) -std=c++11 -Wall -Wshadow -Wextra -c $< -o $@
+ 
+ $(PROG)_forhel: $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX_HEL)
+ 	$(FC) -o $(PROG)_forhel $(PROCESS) $(MATRIX_HEL) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp
+ 
+ gensym: $(SYMMETRY) configs.inc $(LIBS)
+-	$(FC) -o gensym $(SYMMETRY) -L../../lib/ $(LINKLIBS) $(LDFLAGS)
++	$(FC) -o gensym $(SYMMETRY) -L$(LIBDIR) $(LINKLIBS) $(LDFLAGS)
+ 
++ifeq (,$(wildcard fbridge.inc))
+ $(LIBDIR)libmodel.$(libext): ../../Cards/param_card.dat
+ 	cd ../../Source/MODEL; make
+ 
+@@ -69,12 +137,15 @@ $(LIBDIR)libgeneric.$(libext): ../../Cards/run_card.dat
+ 
+ $(LIBDIR)libpdf.$(libext): 
+ 	cd ../../Source/PDF; make
++endif
+ 
+ # Add source so that the compiler finds the DiscreteSampler module.
+ $(MATRIX): %.o: %.f
+ 	$(FC) $(FFLAGS) $(MATRIX_FLAG) -c $< -I../../Source/ -fopenmp
+ %.o: %.f
+-	$(FC) $(FFLAGS) -c $< -I../../Source/ -fopenmp
++	$(FC) $(FFLAGS) -c $< -I../../Source/ -fopenmp -o $@
++%_sycl.o: %.f
++	$(FC) $(FFLAGS) -c -DMG5AMC_MEEXPORTER_SYCL $< -I../../Source/ -fopenmp -o $@
+ 
+ # Dependencies
+ 
+@@ -94,5 +165,65 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
+ 	 run_config.inc
+ initcluster.o: message.inc
+ 
++# Extra dependencies on discretesampler.mod
++
++auto_dsig.o: .libs
++driver.o: .libs
++driver_sycl.o: .libs
++$(MATRIX): .libs
++genps.o: .libs
++
++# sycl avxall targets
++
++ifneq (,$(wildcard fbridge.inc))
++
++UNAME_P := $(shell uname -p)
++ifeq ($(UNAME_P),ppc64le)
++avxall: avxnone avxsse4
++else ifeq ($(UNAME_P),arm)
++avxall: avxnone avxsse4
++else
++avxall: avxnone avxsse4 avxavx2 avx512y avx512z
++endif
++
++avxnone: $(PROG) $(DSIG_sycl)
++	@echo
++	$(MAKE) USEBUILDDIR=1 AVX=none
++
++avxsse4: $(PROG) $(DSIG_sycl)
++	@echo
++	$(MAKE) USEBUILDDIR=1 AVX=sse4
++
++avxavx2: $(PROG) $(DSIG_sycl)
++	@echo
++	$(MAKE) USEBUILDDIR=1 AVX=avx2
++
++avx512y: $(PROG) $(DSIG_sycl)
++	@echo
++	$(MAKE) USEBUILDDIR=1 AVX=512y
++
++avx512z: $(PROG) $(DSIG_sycl)
++	@echo
++	$(MAKE) USEBUILDDIR=1 AVX=512z
++
++endif
++
++# Clean
++
+ clean:
+-	$(RM) *.o gensym madevent madevent_forhel
++ifeq (,$(wildcard fbridge.inc))
++	$(RM) *.o gensym $(PROG) $(PROG)_forhel
++else
++	$(RM) *.o gensym $(PROG) $(PROG)_forhel $(SYCL_BUILDDIR)/*$(PROG)_sycl
++endif
++
++cleanall:
++	make clean
++	make -C ../../Source clean
++	rm -rf $(LIBDIR)libbias.$(libext)
++ifneq (,$(wildcard fbridge.inc))
++	$(MAKE) -f $(SYCL_MAKEFILE) cleanall
++	rm -f $(SYCL_BUILDDIR)/.sycllibs
++endif
++	rm -f ../../Source/*.mod ../../Source/*/*.mod
++	rm -f .libs
+diff --git b/epochX/sycl/gg_tt.mad/SubProcesses/reweight.f a/epochX/sycl/gg_tt.mad/SubProcesses/reweight.f
+index e24a14569..b80b7b201 100644
+--- b/epochX/sycl/gg_tt.mad/SubProcesses/reweight.f
++++ a/epochX/sycl/gg_tt.mad/SubProcesses/reweight.f
+@@ -1809,7 +1809,7 @@ C      include 'maxparticles.inc'
+       end
+ 
+       
+-      subroutine update_scale_coupling_vec(all_p, all_wgt,all_q2fact, nb_page)
++      subroutine update_scale_coupling_vec(all_p, all_wgt,all_q2fact, nb_page_loop_in)
+       implicit none
+ 
+ C
+@@ -1827,7 +1827,7 @@ C      include 'maxparticles.inc'
+       
+       double precision all_p(4*maxdim/3+14,*), all_wgt(*)
+       double precision all_q2fact(2,*)
+-      integer i,j,k, nb_page
++      integer i,j,k, nb_page_loop_in
+ 
+       logical setclscales
+       external setclscales
+@@ -1841,7 +1841,7 @@ c      save firsttime
+       if(.not.fixed_ren_scale) then
+          scale = 0d0
+       endif
+-      do i =1, nb_page
++      do i =1, nb_page_loop_in
+ 
+          if(.not.fixed_ren_scale) then
+             call set_ren_scale(all_p(1,i),scale)
+@@ -1963,7 +1963,7 @@ c     q2bck holds the central q2fact scales
+       integer njets,iqjets(nexternal)
+       common /to_rw/jlast,njetstore,iqjetstore,njets,iqjets,q2bck
+ 
+-      DOUBLE PRECISION G, ALL_G(nb_page)
++      DOUBLE PRECISION G, ALL_G(nb_page_max)
+       COMMON/STRONG/ G, ALL_G
+ 
+ c     strong coupling is needed for the reweighting function      
