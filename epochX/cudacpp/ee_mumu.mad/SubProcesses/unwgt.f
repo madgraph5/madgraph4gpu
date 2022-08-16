@@ -466,8 +466,9 @@ c
       include 'nexternal.inc'
       include 'maxamps.inc'
       include 'message.inc'
+      include 'vector.inc'
+      include 'coupl.inc'
       include 'cluster.inc'
-      include 'coupl.inc' ! needs nb_page_max from cluster.inc
       include 'run.inc'
       include 'run_config.inc'
 

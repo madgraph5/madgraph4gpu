@@ -5,6 +5,7 @@
       include 'genps.inc'
       include 'nexternal.inc'
       include 'maxamps.inc'
+      include 'vector.inc'
       include 'cluster.inc'
       include 'coupl.inc'
       include 'message.inc'
