@@ -10,5 +10,6 @@ C Variable NB_PAGE_MAX is in file vector.inc
 C
 C NB: THIS FILE CANNOT CONTAIN #ifdef DIRECTIVES BECAUSE IT DOES NOT GO THROUGH THE CPP PREPROCESSOR (#458)
 C 
-      INTEGER NB_PAGE_LOOP
-      COMMON/TO_NB_PAGE/NB_PAGE_LOOP
+      INTEGER NB_PAGE_MAX
+      PARAMETER (NB_PAGE_MAX=16384) ! NB: 16k events per GPU grid is the minimum required to fill a V100 GPU
+c     PARAMETER (NB_PAGE_MAX=32) ! NB: workaround for out-of-memory on Juwels: 32 is enough for no-CUDA builds (issue #498)
