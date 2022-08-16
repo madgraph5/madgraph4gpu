@@ -77,7 +77,6 @@ C     GLOBAL VARIABLES
 C     
       LOGICAL INIT_MODE
       COMMON /TO_DETERMINE_ZERO_HEL/INIT_MODE
-      include 'vector.inc'
       DOUBLE PRECISION AMP2(MAXAMPS), JAMP2(0:MAXFLOW)
 
       CHARACTER*101         HEL_BUFF
@@ -368,7 +367,7 @@ C
 C     GLOBAL VARIABLES
 C     
       DOUBLE PRECISION AMP2(MAXAMPS), JAMP2(0:MAXFLOW)
-      include 'vector.inc'
+      include 'vector_max.inc'
       include 'coupl.inc'
 
       DOUBLE PRECISION SMALL_WIDTH_TREATMENT

@@ -35,7 +35,7 @@ C
       double precision xzoomfact
       common/to_zoom/  xzoomfact
       include 'run.inc'
-      include 'vector.inc'
+      include 'vector_max.inc'
       include 'coupl.inc'
 c
 c     DATA
@@ -466,9 +466,9 @@ c
       include 'nexternal.inc'
       include 'maxamps.inc'
       include 'message.inc'
-      include 'vector.inc'
-      include 'coupl.inc'
+c     include 'vector_max.inc' ! already in cluster.inc
       include 'cluster.inc'
+      include 'coupl.inc'
       include 'run.inc'
       include 'run_config.inc'
 

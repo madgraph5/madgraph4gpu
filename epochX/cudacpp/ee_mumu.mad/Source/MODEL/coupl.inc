@@ -1,4 +1,4 @@
-c NB vector.inc (defining nb_page_max) must be included before coupl.inc (#458)
+c NB vector_max.inc (defining nb_page_max) must be included before coupl.inc (#458)
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c      written by the UFO converter
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc

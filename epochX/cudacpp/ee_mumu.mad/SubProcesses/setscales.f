@@ -11,7 +11,7 @@ c     INCLUDE and COMMON
 c
       include 'genps.inc'
       include 'nexternal.inc'
-      include 'vector.inc'
+      include 'vector_max.inc'
       include 'coupl.inc'
 
       integer i
@@ -109,7 +109,7 @@ c     INCLUDE and COMMON
 c
       include 'genps.inc'
       include 'nexternal.inc'
-      include 'vector.inc'
+      include 'vector_max.inc'
       include 'coupl.inc'
       include 'run.inc'
 c--masses and poles

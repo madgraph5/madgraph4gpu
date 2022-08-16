@@ -1,4 +1,5 @@
-c NB vector.inc (defining nb_page_max) must be included before clusters.inc (#458)
+c NB vector_max.inc (defining nb_page_max) must be included before clusters.inc (#458)
+      include 'vector_max.inc'
 c*************************************************************************
 c	Parameters used by cluster
 c*************************************************************************

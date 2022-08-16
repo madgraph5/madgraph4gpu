@@ -117,7 +117,7 @@ C     Cannot make a selection with all PDFs to zero, so we return now
       ENDIF
       END
 
-      SUBROUTINE SELECT_GROUPING(IMIRROR,  IPROC, ICONF, WGT, NB_PAGE_LOOP)
+      SUBROUTINE SELECT_GROUPING(IMIRROR,  IPROC, ICONF, WGT, NB_PAGE_LOOP_IN)
       USE DISCRETESAMPLER
       IMPLICIT NONE
 C     
@@ -125,15 +125,15 @@ C     INPUT (VIA COMMAND BLOCK)
 C     SELPROC 
 C     SUMPROB
 C     INPUT
-C     nb_page_loop (number of weight to update)
+C     nb_page_loop_in (number of weight to update) <= nb_page_max
 C     INPUT/OUTPUT
-C     WGTS(nb_page_loop) #multiplied by the associated jacobian      
+C     WGTS(nb_page_max) #multiplied by the associated jacobian      
 C     
 C     OUTPUT
 C     
 C     iconf, iproc, imirror
 C     
-      INTEGER NB_PAGE_LOOP
+      INTEGER NB_PAGE_LOOP_IN
       DOUBLE PRECISION WGT(*)
       INTEGER IMIRROR, IPROC, ICONF
 
@@ -207,7 +207,7 @@ C     all, then we pick a point based on PDF only.
  50     CONTINUE
 C       Update weigth w.r.t SELPROC normalized to selection probability
 
-        DO I=1, NB_PAGE_LOOP
+        DO I=1, NB_PAGE_LOOP_IN
           WGT(I)=WGT(I)*(SUMPROB/SELPROC(IMIRROR,IPROC,ICONF))
         ENDDO
 
@@ -215,7 +215,7 @@ C       Update weigth w.r.t SELPROC normalized to selection probability
 C       We are using the grouped_processes grid and it is initialized.
         CALL DS_GET_POINT('grouped_processes',R,LMAPPED
      $   ,MC_GROUPED_PROC_JACOBIAN,'norm',(/'PDF_convolution'/))
-        DO I=1, NB_PAGE_LOOP
+        DO I=1, NB_PAGE_LOOP_IN
           WGT(I)=WGT(I)*MC_GROUPED_PROC_JACOBIAN
         ENDDO
         CALL MAP_1_TO_3(LMAPPED,MAXSPROC,2,ICONF,IPROC,IMIRROR)
@@ -224,19 +224,19 @@ C       We are using the grouped_processes grid and it is initialized.
       END
 
       SUBROUTINE DSIG_VEC(ALL_P,ALL_WGT,ALL_XBK, ALL_Q2FACT,
-     $  ALL_CM_RAP, ICONF,IPROC,IMIRROR, ALL_OUT,NB_PAGE_LOOP)
+     $  ALL_CM_RAP, ICONF,IPROC,IMIRROR, ALL_OUT,NB_PAGE_LOOP_IN)
 C     ******************************************************
 C     
-C     INPUT: ALL_PP(0:3, NEXTERNAL, NB_PAGE_LOOP)
-C     INPUT/OUtpUT       ALL_WGT(Nb_Page_Loop)
-C     nb_page_loop = vector size
-C     ALL_OUT(NB_PAGE_LOOP)
+C     INPUT: ALL_PP(0:3, NEXTERNAL, NB_PAGE_LOOP_IN)
+C     INPUT/OUTPUT ALL_WGT(nb_page_max)
+C     nb_page_loop = vector size <= nb_page_max
+C     ALL_OUT(NB_PAGE_MAX)
 C     function (PDf*cross)
 C     ******************************************************
       USE DISCRETESAMPLER
       IMPLICIT NONE
 
-      INTEGER NB_PAGE_LOOP
+      INTEGER NB_PAGE_LOOP_IN
       INCLUDE 'genps.inc'
       DOUBLE PRECISION ALL_P(4*MAXDIM/3+14,*)
       DOUBLE PRECISION ALL_WGT(*)
@@ -301,7 +301,7 @@ C      entries to the grid for the MC over helicity configuration
 
 C     set the running scale 
 C     and update the couplings accordingly
-      CALL UPDATE_SCALE_COUPLING_VEC(ALL_P, ALL_WGT, ALL_Q2FACT, NB_PAGE_LOOP)
+      CALL UPDATE_SCALE_COUPLING_VEC(ALL_P, ALL_WGT, ALL_Q2FACT, NB_PAGE_LOOP_IN)
 
       IF(GROUPED_MC_GRID_STATUS.EQ.0) THEN
 C       If we were in the initialization phase of the grid for MC over
@@ -315,7 +315,7 @@ C        the call DSIGPROC just below.
      $  IPROC,IMIRROR,SYMCONF,CONFSUB,ALL_WGT,0, ALL_OUT)
 
 
-      DO I =1,NB_PAGE_LOOP
+      DO I =1,NB_PAGE_LOOP_IN
 C       Reset ALLOW_HELICITY_GRID_ENTRIES
         ALLOW_HELICITY_GRID_ENTRIES = .TRUE.
 
@@ -332,7 +332,7 @@ C       OC(IMIRROR,IPROC,ICONF)))
 C       ENDIF
 
       ENDDO
-      DO I=1, NB_PAGE_LOOP
+      DO I=1, NB_PAGE_LOOP_IN
         IF(ALL_OUT(I).GT.0D0)THEN
 C         Update summed weight and number of events
           SUMWGT(IMIRROR,IPROC,ICONF)=SUMWGT(IMIRROR,IPROC,ICONF)
@@ -428,7 +428,7 @@ C     Common blocks
       DATA  NB_SPIN_STATE /2,2/
       COMMON /NB_HEL_STATE/ NB_SPIN_STATE
 
-      include 'vector.inc'
+      include 'vector_max.inc'
       include 'coupl.inc'
       INCLUDE 'run.inc'
 C     ICONFIG has this config number
@@ -772,7 +772,8 @@ C     ****************************************************
       INCLUDE 'maxconfigs.inc'
       INCLUDE 'nexternal.inc'
       INCLUDE 'maxamps.inc'
-      include 'vector.inc'
+      include 'vector.inc' ! for nb_page_loop
+      include 'vector_max.inc'
       include 'coupl.inc'
       INCLUDE 'run.inc'
 C     
@@ -910,7 +911,8 @@ C     ****************************************************
       INCLUDE 'maxconfigs.inc'
       INCLUDE 'nexternal.inc'
       INCLUDE 'maxamps.inc'
-      include 'vector.inc'
+      include 'vector.inc' ! for nb_page_loop
+      include 'vector_max.inc'
       include 'coupl.inc'
       INCLUDE 'run.inc'
 C     
