@@ -1790,7 +1790,7 @@ C
       include 'genps.inc'
       include 'run.inc'
       include 'nexternal.inc'
-      include 'vector_max.inc'
+      include 'vector.inc'
       include 'coupl.inc'
 C      include 'maxparticles.inc'
       
@@ -1817,7 +1817,7 @@ C
       include 'genps.inc'
       include 'run.inc'
       include 'nexternal.inc'
-      include 'vector_max.inc'
+      include 'vector.inc'
       include 'coupl.inc'
 C      include 'maxparticles.inc'
       

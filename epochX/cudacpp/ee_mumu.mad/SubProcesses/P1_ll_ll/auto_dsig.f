@@ -428,7 +428,7 @@ C     Common blocks
       DATA  NB_SPIN_STATE /2,2/
       COMMON /NB_HEL_STATE/ NB_SPIN_STATE
 
-      include 'vector_max.inc'
+      include 'vector.inc'
       include 'coupl.inc'
       INCLUDE 'run.inc'
 C     ICONFIG has this config number
@@ -772,8 +772,7 @@ C     ****************************************************
       INCLUDE 'maxconfigs.inc'
       INCLUDE 'nexternal.inc'
       INCLUDE 'maxamps.inc'
-      include 'vector.inc' ! for nb_page_loop
-      include 'vector_max.inc'
+      include 'vector.inc'
       include 'coupl.inc'
       INCLUDE 'run.inc'
 C     
@@ -911,8 +910,7 @@ C     ****************************************************
       INCLUDE 'maxconfigs.inc'
       INCLUDE 'nexternal.inc'
       INCLUDE 'maxamps.inc'
-      include 'vector.inc' ! for nb_page_loop
-      include 'vector_max.inc'
+      include 'vector.inc'
       include 'coupl.inc'
       INCLUDE 'run.inc'
 C     

@@ -15,7 +15,7 @@ c
       include 'PDF/pdf.inc'
       include 'run.inc'
       include 'alfas.inc'
-      include 'vector_max.inc'
+      include 'vector.inc'
       include 'coupl.inc'
 
       double precision D

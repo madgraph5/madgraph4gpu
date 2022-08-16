@@ -367,7 +367,7 @@ C
 C     GLOBAL VARIABLES
 C     
       DOUBLE PRECISION AMP2(MAXAMPS), JAMP2(0:MAXFLOW)
-      include 'vector_max.inc'
+      include 'vector.inc'
       include 'coupl.inc'
 
       DOUBLE PRECISION SMALL_WIDTH_TREATMENT

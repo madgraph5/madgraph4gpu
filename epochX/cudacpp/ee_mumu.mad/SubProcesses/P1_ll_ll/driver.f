@@ -71,8 +71,7 @@ c      double precision xsec,xerr
 c      integer ncols,ncolflow(maxamps),ncolalt(maxamps),ic
 c      common/to_colstats/ncols,ncolflow,ncolalt,ic
 
-      include 'vector.inc' ! for nb_page_loop
-      include 'vector_max.inc'
+      include 'vector.inc'
       include 'coupl.inc'
 
 #ifdef MG5AMC_MEEXPORTER_CUDACPP

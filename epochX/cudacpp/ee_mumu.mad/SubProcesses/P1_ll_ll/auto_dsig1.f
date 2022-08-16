@@ -79,7 +79,7 @@ C     Keep track of whether cuts already calculated for this event
 
       INTEGER SUBDIAG(MAXSPROC),IB(2)
       COMMON/TO_SUB_DIAG/SUBDIAG,IB
-      include 'vector_max.inc'
+      include 'vector.inc'
       include 'coupl.inc'
       INCLUDE 'run.inc'
 C     Common blocks
@@ -230,8 +230,7 @@ C     ****************************************************
 C     
 C     CONSTANTS
 C     
-      include 'vector.inc' ! for nb_page_loop
-      include 'vector_max.inc'
+      include 'vector.inc'
       include 'coupl.inc'
       INCLUDE 'genps.inc'
       INCLUDE 'nexternal.inc'
@@ -468,8 +467,7 @@ C
 
       IMPLICIT NONE
       INCLUDE 'nexternal.inc'
-      include 'vector.inc' ! for nb_page_loop
-      include 'vector_max.inc'
+      include 'vector.inc'
       include 'coupl.inc'
       INCLUDE 'maxamps.inc'
       DOUBLE PRECISION P_MULTI(0:3, NEXTERNAL, NB_PAGE_MAX)

@@ -9,7 +9,7 @@ c************************************************************************
       subroutine printout
       implicit none
 
-      include 'vector_max.inc'
+      include 'vector.inc'
       include 'coupl.inc'
       include 'input.inc'
       

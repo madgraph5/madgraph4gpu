@@ -15,7 +15,6 @@ c**************************************************************************
       implicit none
       include 'genps.inc'
       include 'vector.inc'
-      include 'vector_max.inc'
 c     
 c Arguments
 c
@@ -664,7 +663,6 @@ c
       include 'maxconfigs.inc'
       include 'run.inc'
       include 'vector.inc'
-      include 'vector_max.inc'
 c
 c     Arguments
 c

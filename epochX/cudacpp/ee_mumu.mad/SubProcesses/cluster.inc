@@ -1,5 +1,3 @@
-c NB vector_max.inc (defining nb_page_max) must be included before clusters.inc (#458)
-      include 'vector_max.inc'
 c*************************************************************************
 c	Parameters used by cluster
 c*************************************************************************
@@ -12,6 +10,7 @@ c     id_cl gives diagrams for propagators
       logical heavyrad(n_max_cg)
       common/cl_map/id_cl,heavyrad
 c     vectorised version
+      include 'vector.inc' ! for nb_page_max (see #458)
       integer v_id_cl(maxsproc,n_max_cl,0:n_max_cg, nb_page_max)
       logical v_heavyrad(n_max_cg,nb_page_max)
       common/v_cl_map/v_id_cl,v_heavyrad
