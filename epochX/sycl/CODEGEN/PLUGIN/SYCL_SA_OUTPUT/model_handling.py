@@ -883,10 +883,9 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         self.edit_mgonGPU()
         self.edit_processidfile() # AV new file (NB this is Sigma-specific, should not be a symlink to Subprocesses)
         # Add symbolic links
-        ###files.ln(pjoin(self.path, 'gcheck_sa.cu'), self.path, 'check_sa.cc')
-        ###files.ln(pjoin(self.path, 'gCPPProcess.cu'), self.path, 'CPPProcess.cc')
-        #files.ln(pjoin(self.path, 'check_sa.cc'), self.path, 'gcheck_sa.cu')
-        #files.ln(pjoin(self.path, 'CPPProcess.cc'), self.path, 'gCPPProcess.cu')
+        # NB: symlink of sycl.mk to makefile is overwritten by madevent makefile if this exists (#480)
+        # NB: this relies on the assumption that sycl code is generated before madevent code
+        files.ln(pjoin(self.path, 'sycl.mk'), self.path, 'makefile')
 
     # AV - replace the export_cpp.OneProcessExporterGPU method (invert .cc/.cu, add debug printouts)
     def edit_check_sa(self):

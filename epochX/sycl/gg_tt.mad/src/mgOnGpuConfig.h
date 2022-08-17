@@ -34,20 +34,20 @@ namespace mgOnGpu
 
   // --- Physics process-specific constants that are best declared at compile time
 
-  const int np4 = 4; // dimensions of 4-momenta (E,px,py,pz)
+  static constexpr int np4 = 4; // dimensions of 4-momenta (E,px,py,pz)
 
-  const int npari = 2; // #particles in the initial state (incoming): e.g. 2 (e+ e-) for e+ e- -> mu+ mu-
-  const int nparf = 2; // #particles in the final state (outgoing): e.g. 2 (mu+ mu-) for e+ e- -> mu+ mu-
-  const int npar = npari + nparf; // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
+  static constexpr int npari = 2; // #particles in the initial state (incoming): e.g. 2 (e+ e-) for e+ e- -> mu+ mu-
+  static constexpr int nparf = 2; // #particles in the final state (outgoing): e.g. 2 (mu+ mu-) for e+ e- -> mu+ mu-
+  static constexpr int npar = npari + nparf; // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
 
-  const int ncomb = 16; // #helicity combinations: e.g. 16 for e+ e- -> mu+ mu- (2**4 = fermion spin up/down ** npar)
+  static constexpr int ncomb = 16; // #helicity combinations: e.g. 16 for e+ e- -> mu+ mu- (2**4 = fermion spin up/down ** npar)
 
-  const int nw6 = 6; // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
-  const int nwf = 5; // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
+  static constexpr int nw6 = 6; // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
+  static constexpr int nwf = 5; // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
   
-  const int ncouplings = 2;
-  const int ncouplingstimes2 = 4;
-  const int nparams = 2;
+  static constexpr int ncouplings = 2;
+  static constexpr int ncouplingstimes2 = 4;
+  static constexpr int nparams = 2;
 
   // --- Platform-specific software implementation details
 
@@ -59,9 +59,9 @@ namespace mgOnGpu
   // Maximum number of threads per block
   //const int ntpbMAX = 256; // AV Apr2021: why had I set this to 256?
 #ifdef MGONGPU_NTPBMAX
-  const int ntpbMAX = MGONGPU_NTPBMAX;
+  static constexpr int ntpbMAX = MGONGPU_NTPBMAX;
 #else
-  const int ntpbMAX = 1024; // NB: 512 is ok, but 1024 does fail with "too many resources requested for launch"
+  static constexpr int ntpbMAX = 1024; // NB: 512 is ok, but 1024 does fail with "too many resources requested for launch"
 #endif
 
   // -----------------------------------------------------------------------------------------------
@@ -80,7 +80,7 @@ namespace mgOnGpu
   // Number of Events Per Page in the random number AOSOA memory layout
   // *** NB Different values of neppR lead to different physics results: the ***
   // *** same 1d array is generated, but it is interpreted in different ways ***
-  const int neppR = 8; // HARDCODED TO GIVE ALWAYS THE SAME PHYSICS RESULTS!
+  static constexpr int neppR = 8; // HARDCODED TO GIVE ALWAYS THE SAME PHYSICS RESULTS!
   //const int neppR = 1; // AOS (tests of sectors/requests)
 
 }
