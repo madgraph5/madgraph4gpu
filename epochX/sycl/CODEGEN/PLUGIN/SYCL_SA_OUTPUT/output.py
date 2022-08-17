@@ -117,9 +117,13 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
     from_template = {'src': [s+'gpu/rambo.h', s+'read_slha.h', s+'read_slha.cc',
                              s+'gpu/mgOnGpuTypes.h', s+'gpu/mgOnGpuVectors.h', s+'gpu/extras.h'],
                     'SubProcesses': [s+'gpu/timer.h', s+'gpu/timermap.h', s+'gpu/Memory.h', 
-                                     s+'gpu/Makefile', s+'gpu/runTest.cc', s+'gpu/testxxx.cc', s+'gpu/testxxx_cc_ref.txt',
+                                     s+'gpu/runTest.cc', s+'gpu/testxxx.cc', s+'gpu/testxxx_cc_ref.txt',
+                                     s+'gpu/Bridge.h',
+                                     s+'gpu/fbridge.cc', s+'gpu/fbridge.inc', s+'gpu/fsampler.cc', s+'gpu/fsampler.inc',
                                      s+'gpu/perf.py', s+'gpu/profile.sh']}
     to_link_in_P = ['timer.h', 'timermap.h', 'Memory.h', 'Makefile', 'runTest.cc', 'testxxx.cc', 'testxxx_cc_ref.txt', 'perf.py', 'profile.sh',
+                    'Bridge.h',
+                    'fbridge.cc', 'fbridge.inc', 'fsampler.cc', 'fsampler.inc',
 
                     'sycl.mk' # this is generated from a template in Subprocesses but we still link it in Sigma
                    ]
