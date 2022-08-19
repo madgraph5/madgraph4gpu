@@ -117,8 +117,8 @@ endif
 # (NB issue #505: this must be a single word, "clang++ --gcc-toolchain..." is not supported)
 CUFLAGS += -ccbin $(shell which $(subst ccache ,,$(CXX)))
 
-# Allow unsupported clang14 compiler from icx2022 with CUDA 11.6
-ifneq ($(shell $(CXX) --version | grep ^Intel | grep ' 2022\.'),)
+# Allow newer (unsupported) C++ compilers with older versions of CUDA if ALLOW_UNSUPPORTED_COMPILER_IN_CUDA is set (#504)
+ifneq ($(origin ALLOW_UNSUPPORTED_COMPILER_IN_CUDA),undefined)
 CUFLAGS += -allow-unsupported-compiler
 endif
 
