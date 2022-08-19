@@ -147,7 +147,7 @@ index 6b581bdfd..32c71b457 100644
              enddo
           endif
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
-index dd709f52c..0304b2356 100644
+index dd709f52c..cb380a343 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 @@ -1,6 +1,17 @@
@@ -191,7 +191,7 @@ index dd709f52c..0304b2356 100644
  
  LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS)
  
-@@ -43,24 +68,67 @@ ifeq ($(strip $(MATRIX_HEL)),)
+@@ -43,24 +68,69 @@ ifeq ($(strip $(MATRIX_HEL)),)
  endif
  
  
@@ -215,6 +215,8 @@ index dd709f52c..0304b2356 100644
 +
 +ifeq (,$(wildcard fbridge.inc))
 +all: $(PROG)
++else ifeq ($(NVCC),)
++all: $(PROG) $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp
 +else
 +all: $(PROG) $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp $(CUDACPP_BUILDDIR)/g$(PROG)_cudacpp
 +endif
@@ -265,7 +267,7 @@ index dd709f52c..0304b2356 100644
  $(LIBDIR)libmodel.$(libext): ../../Cards/param_card.dat
  	cd ../../Source/MODEL; make
  
-@@ -69,12 +137,15 @@ $(LIBDIR)libgeneric.$(libext): ../../Cards/run_card.dat
+@@ -69,12 +139,15 @@ $(LIBDIR)libgeneric.$(libext): ../../Cards/run_card.dat
  
  $(LIBDIR)libpdf.$(libext): 
  	cd ../../Source/PDF; make
@@ -282,7 +284,7 @@ index dd709f52c..0304b2356 100644
  
  # Dependencies
  
-@@ -94,5 +165,65 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
+@@ -94,5 +167,65 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
  	 run_config.inc
  initcluster.o: message.inc
  

@@ -83,6 +83,8 @@ LDFLAGS+=-Wl,--no-relax # avoid 'failed to convert GOTPCREL relocation' error #4
 
 ifeq (,$(wildcard fbridge.inc))
 all: $(PROG)
+else ifeq ($(NVCC),)
+all: $(PROG) $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp
 else
 all: $(PROG) $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp $(CUDACPP_BUILDDIR)/g$(PROG)_cudacpp
 endif
