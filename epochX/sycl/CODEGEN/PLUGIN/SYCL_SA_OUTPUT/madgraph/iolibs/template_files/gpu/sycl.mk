@@ -1,4 +1,30 @@
-#=== Configure common compiler flags for CUDA and C++
+#=== Determine the name of this makefile (https://ftp.gnu.org/old-gnu/Manuals/make-3.80/html_node/make_17.html)
+#=== NB: different names (e.g. cudacpp.mk and cudacpp_src.mk) are used in the Subprocess and src directories
+
+SYCL_MAKEFILE = $(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST))
+SYCL_SRC_MAKEFILE = sycl_src.mk
+
+#-------------------------------------------------------------------------------
+
+#=== Use bash in the Makefile (https://www.gnu.org/software/make/manual/html_node/Choosing-the-Shell.html)
+
+SHELL = /bin/bash
+
+#-------------------------------------------------------------------------------
+
+#=== Detect O/S and architecture (assuming uname is available, https://en.wikipedia.org/wiki/Uname)
+
+# Detect O/S kernel (Linux, Darwin...)
+UNAME_S := $(shell uname -s)
+###$(info UNAME_S='$(UNAME_S)')
+
+# Detect architecture (x86_64, ppc64le...)
+UNAME_P := $(shell uname -p)
+###$(info UNAME_P='$(UNAME_P)')
+
+#-------------------------------------------------------------------------------
+
+#=== Configure common compiler flags for C++ and SYCL
 
 INCFLAGS = -I.
 OPTFLAGS = -O3 -march=native
@@ -22,7 +48,7 @@ ifndef SYCLFLAGS
   $(error SYCLFLAGS not set)
 endif
 
-# Note: AR and CXX are implicitly defined if not set externally
+# Note: AR, CXX and FC are implicitly defined if not set externally
 # See https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
 
 #-------------------------------------------------------------------------------
@@ -36,7 +62,7 @@ endif
 
 #-------------------------------------------------------------------------------
 
-#=== Configure defaults and check if user-defined choices exist for PTYPE, HELINL
+#=== Configure defaults and check if user-defined choices exist for FPTYPE, HELINL, NTPBMAX
 
 # Set the default FPTYPE (floating point type) choice
 ifeq ($(FPTYPE),)
@@ -60,7 +86,7 @@ export NTPBMAX
 
 #-------------------------------------------------------------------------------
 
-#=== Set the SYCL compiler flags appropriate to user-defined choices of FPTYPE, HELINL
+#=== Set the SYCL/C++ compiler flags appropriate to user-defined choices of FPTYPE, HELINL, NTPBMAX
 
 # Set the build flags appropriate to each FPTYPE choice (example: "make FPTYPE=f")
 $(info FPTYPE=$(FPTYPE))
@@ -97,23 +123,37 @@ override TAG = $(FPTYPE)_inl$(HELINL)
 # Build directory: current directory by default, or build.$(DIRTAG) if USEBUILDDIR==1
 ifeq ($(USEBUILDDIR),1)
   override BUILDDIR = build.$(DIRTAG)
-  override LIBDIR   = ../../lib/$(BUILDDIR)
+  override LIBDIR = ../../lib/$(BUILDDIR)
+  override LIBDIRRPATH = '$$ORIGIN/../$(LIBDIR)'
   $(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG) (USEBUILDDIR is set = 1))
 else
   override BUILDDIR = .
-  override LIBDIR   = ../../lib
+  override LIBDIR = ../../lib
+  override LIBDIRRPATH = '$$ORIGIN/$(LIBDIR)'
   $(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG) (USEBUILDDIR is not set))
 endif
-###$(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG))
+
+# On Linux, set rpath to LIBDIR to make it unnecessary to use LD_LIBRARY_PATH
+# Use relative paths with respect to the executables ($ORIGIN on Linux)
+# On Darwin, building libraries with absolute paths in LIBDIR makes this unnecessary
+ifeq ($(UNAME_S),Darwin)
+  override CXXLIBFLAGSRPATH =
+else
+  override CXXLIBFLAGSRPATH = -Wl,-rpath,$(LIBDIRRPATH)
+endif
+
+# Setting LD_LIBRARY_PATH or DYLD_LIBRARY_PATH in the RUNTIME is no longer necessary (neither on Linux nor on Mac)
+override RUNTIME =
 
 #===============================================================================
 #=== Makefile TARGETS and build rules below
 #===============================================================================
 
-cu_main=$(BUILDDIR)/check.exe
+sycl_main=$(BUILDDIR)/check.exe
+fsycl_main=$(BUILDDIR)/fcheck.exe
 
 # First target (default goal)
-all.$(TAG): $(BUILDDIR)/.build.$(TAG) ../../src/$(BUILDDIR)/.build.$(TAG) $(cu_main)
+all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(sycl_main) $(fsycl_main)
 
 # Target (and build options): debug
 MAKEDEBUG=
@@ -125,27 +165,13 @@ debug: all.$(TAG)
 override oldtagsb=`if [ -d $(BUILDDIR) ]; then find $(BUILDDIR) -maxdepth 1 -name '.build.*' ! -name '.build.$(TAG)' -exec echo $(shell pwd)/{} \; ; fi`
 $(BUILDDIR)/.build.$(TAG):
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	@if [ "$(oldtagsb)" != "" ]; then echo -e "Cannot build for tag=$(TAG) as old builds exist for other tags:\n$(oldtagsb)\nPlease run 'make clean' first\nIf 'make clean' is not enough: run 'make clean USEBUILDDIR=1 FPTYPE=$(FPTYPE)' or 'make cleanall'"; exit 1; fi
+	@if [ "$(oldtagsb)" != "" ]; then echo "Cannot build for tag=$(TAG) as old builds exist for other tags:"; echo "  $(oldtagsb)"; echo "Please run 'make clean' first\nIf 'make clean' is not enough: run 'make clean USEBUILDDIR=1 AVX=$(AVX) FPTYPE=$(FPTYPE)' or 'make cleanall'"; exit 1; fi
 	@touch $(BUILDDIR)/.build.$(TAG)
 
-../../src/$(BUILDDIR)/.build.$(TAG):
-	$(MAKE) -C ../../src $(MAKEDEBUG)
-
-#-------------------------------------------------------------------------------
-
-# Generic target and build rules: objects from SYCL compilation
-$(BUILDDIR)/%%.o : %%.cu *.h ../../src/*.h
-	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
-	$(CXX) $(CXXFLAGS) $(SYCLFLAGS) -fPIC -c $< -o $@
-
-$(BUILDDIR)/%%_cu.o : %%.cc *.h ../../src/*.h
-	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
-	$(CXX) $(CXXFLAGS) $(SYCLFLAGS) -fPIC -c $< -o $@
-
-# Generic target and build rules: objects from SYCL compilation
+# Generic target and build rules: objects from C++ compilation
 $(BUILDDIR)/%%.o : %%.cc *.h ../../src/*.h
-	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
-	$(CXX) $(CXXFLAGS) $(SYCLFLAGS) -fPIC -c $< -o $@
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(SYCLFLAGS) -fPIC -c $< -o $@
 
 #-------------------------------------------------------------------------------
 
@@ -153,69 +179,117 @@ $(BUILDDIR)/%%.o : %%.cc *.h ../../src/*.h
 commonlib : $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so
 
 $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so: ../../src/*.h ../../src/*.cc
-	$(MAKE) -C ../../src $(MAKEDEBUG)
+	$(MAKE) -C ../../src $(MAKEDEBUG) -f $(SYCL_SRC_MAKEFILE)
 
 #-------------------------------------------------------------------------------
 
-# Target (and build rules): SYCL standalone executables
-$(cu_main):
-	$(CXX) $(CXXFLAGS) $(SYCLFLAGS) -o $@ check_sa.cc CPPProcess.cc -pthread $(LIBFLAGS) -lstdc++fs
+processid_short=$(shell basename $(CURDIR) | awk -F_ '{print $$(NF-1)"_"$$NF}')
+
+MG5AMC_CXXLIB = mg5amc_$(processid_short)_sycl
+cxx_objects_lib=$(BUILDDIR)/CPPProcess.o
+cxx_objects_exe=
+
+# Target (and build rules): C++ and SYCL shared libraries
+$(LIBDIR)/lib$(MG5AMC_CXXLIB).so: $(BUILDDIR)/fbridge.o
+$(LIBDIR)/lib$(MG5AMC_CXXLIB).so: cxx_objects_lib += $(BUILDDIR)/fbridge.o
+$(LIBDIR)/lib$(MG5AMC_CXXLIB).so: $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects_lib)
+	$(CXX) $(CXXFLAGS) $(SYCLFLAGS) -shared -o $@ $(cxx_objects_lib) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
 
 #-------------------------------------------------------------------------------
 
-# Target (and build rules): install libraries and headers (for use by MadEvent in Fortran)
-INSTALL_HEADERS=extras.h
-INSTALL_INC_DIR=../../include
-INSTALL_OBJECTS=
-
-install: all.$(TAG) $(INSTALL_INC_DIR) $(addprefix $(INSTALL_INC_DIR)/, $(INSTALL_HEADERS)) $(addprefix $(LIBDIR)/, $(INSTALL_OBJECTS))
-
-$(INSTALL_INC_DIR) :
-	$(MAKE) -C ../../src install
-
-$(INSTALL_INC_DIR)/%%.h : %%.h
-	@if [ ! -d $(INSTALL_INC_DIR) ]; then mkdir $(INSTALL_INC_DIR); fi
-	cp $< $@
-
-$(LIBDIR)/%%.o : $(BUILDDIR)/%%.o
-	cp $< $@
+# Target (and build rules): Fortran include files
+###$(INCDIR)/%%.inc : ../%%.inc
+###	@if [ ! -d $(INCDIR) ]; then echo "mkdir -p $(INCDIR)"; mkdir -p $(INCDIR); fi
+###	\cp $< $@
 
 #-------------------------------------------------------------------------------
 
+# Target (and build rules): C++ and SYCL standalone executables
+$(sycl_main): LIBFLAGS += $(CXXLIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
+$(sycl_main): $(BUILDDIR)/check_sa.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).so $(cxx_objects_exe)
+	$(CXX) $(SYCLFLAGS) -o $@ $(BUILDDIR)/check_sa.o -ldl -pthread $(LIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CXXLIB) -lstdc++fs $(cxx_objects_exe)
+
+#-------------------------------------------------------------------------------
+
+# Generic target and build rules: objects from Fortran compilation
+$(BUILDDIR)/%%.o : %%.f *.inc
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
+	$(FC) -I. -c $< -o $@
+
+# Generic target and build rules: objects from Fortran compilation
+###$(BUILDDIR)/%%.o : %%.f *.inc
+###	@if [ ! -d $(INCDIR) ]; then echo "mkdir -p $(INCDIR)"; mkdir -p $(INCDIR); fi
+###	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
+###	$(FC) -I. -I$(INCDIR) -c $< -o $@
+
+# Target (and build rules): Fortran standalone executables
+###$(BUILDDIR)/fcheck_sa.o : $(INCDIR)/fbridge.inc
+
+ifeq ($(UNAME_S),Darwin)
+$(fsycl_main): LIBFLAGS += -L$(shell dirname $(shell $(FC) --print-file-name libgfortran.dylib)) # add path to libgfortran on Mac #375
+endif
+$(fsycl_main): LIBFLAGS += $(CULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
+$(fsycl_main): $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler.o $(LIBDIR)/lib$(MG5AMC_CULIB).so $(cxx_objects_exe)
+	$(CXX) $(SYCLFLAGS) -o $@ $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler.o $(LIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_CXXLIB) -lstdc++fs $(cxx_objects_exe)
+endif
+
+#-------------------------------------------------------------------------------
 
 # Target: clean the builds
 .PHONY: clean
 
 clean:
-	make -C ../../src clean
-ifneq ($(BUILDDIR),.)
+ifeq ($(USEBUILDDIR),1)
 	rm -rf $(BUILDDIR)
 else
 	rm -f $(BUILDDIR)/.build.* $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
+	rm -f $(LIBDIR)/lib$(MG5AMC_CXXLIB).so
 endif
+	$(MAKE) -C ../../src clean -f $(SYCL_SRC_MAKEFILE)
+###	rm -rf $(INCDIR)
 
 cleanall:
 	@echo
-	make USEBUILDDIR=0 clean
+	$(MAKE) USEBUILDDIR=0 clean -f $(SYCL_MAKEFILE)
 	@echo
-	make USEBUILDDIR=0 -C ../../src cleanall
+	$(MAKE) USEBUILDDIR=0 -C ../../src cleanall -f $(SYCL_SRC_MAKEFILE)
 	rm -rf build.*
+
+# Target: clean the builds as well as the googletest installation
+distclean: cleanall
+	$(MAKE) -C $(TOOLSDIR) clean
+	$(MAKE) -C $(TESTDIR) clean
 
 #-------------------------------------------------------------------------------
 
 # Target: show system and compiler information
 info:
 	@echo ""
-	@echo -n "hostname="
-	@hostname
+	@uname -spn # e.g. Linux nodename.cern.ch x86_64
+ifeq ($(UNAME_S),Darwin)
+	@sysctl -a | grep -i brand
+	@sysctl -a | grep machdep.cpu | grep features || true
+	@sysctl -a | grep hw.physicalcpu:
+	@sysctl -a | grep hw.logicalcpu:
+else
 	@cat /proc/cpuinfo | grep "model name" | sort -u
 	@cat /proc/cpuinfo | grep "flags" | sort -u
 	@cat /proc/cpuinfo | grep "cpu cores" | sort -u
 	@cat /proc/cpuinfo | grep "physical id" | sort -u
+endif
 	@echo ""
+ifneq ($(shell which nvidia-smi 2>/dev/null),)
+	nvidia-smi -L
+	@echo ""
+endif
 	@echo USECCACHE=$(USECCACHE)
 ifeq ($(USECCACHE),1)
 	ccache --version | head -1
+endif
+	@echo ""
+	@echo NVCC=$(NVCC)
+ifneq ($(NVCC),)
+	$(NVCC) --version
 endif
 	@echo ""
 	@echo CXX=$(CXX)
@@ -226,15 +300,21 @@ ifneq ($(shell $(CXX) --version | grep ^clang),)
 else
 	$(CXX) --version
 endif
+	@echo ""
+	@echo FC=$(FC)
+	$(FC) --version
 
 #-------------------------------------------------------------------------------
 
 # Target: check (run the C++ test executable)
 # [NB THIS IS WHAT IS USED IN THE GITHUB CI!]
-check: runGcheck
+check: cmpFcheck
 
-# Target: runGcheck (run the SYCL standalone executable check.exe with a small number of events)
-runGcheck: $(BUILDDIR)/check.exe
-	DYLD_LIBRARY_PATH="$(LIBDIR):$(DYLD_LIBRARY_PATH)" LD_LIBRARY_PATH="$(LIBDIR):$(LD_LIBRARY_PATH)" $(BUILDDIR)/check.exe -p --device_id 0 2 32 2
+# Target: cmpFcheck (compare ME results from the C++ and Fortran with C++ MEs standalone executables, with a small number of events)
+cmpFcheck: all.$(TAG)
+	@echo
+	@echo "$(BUILDDIR)/check.exe -p 2 32 2"
+	@echo "$(BUILDDIR)/fcheck.exe 2 32 2"
+	@me1=$(shell $(RUNTIME) $(BUILDDIR)/check.exe -p 2 32 2 | grep MeanMatrix | awk '{print $$4}'); me2=$(shell $(RUNTIME) $(BUILDDIR)/fcheck.exe 2 32 2 | grep Average | awk '{print $$4}'); echo "Avg ME (C++/C++)    = $${me1}"; echo "Avg ME (F77/C++)    = $${me2}"; if [ "$${me2}" == "NaN" ]; then echo "ERROR! Fortran calculation (F77/C++) returned NaN"; elif [ "$${me2}" == "" ]; then echo "ERROR! Fortran calculation (F77/C++) crashed"; else python3 -c "me1=$${me1}; me2=$${me2}; reldif=abs((me2-me1)/me1); print('Relative difference =', reldif); ok = reldif <= 2E-4; print ( '%%s (relative difference %%s 2E-4)' %% ( ('OK','<=') if ok else ('ERROR','>') ) ); import sys; sys.exit(0 if ok else 1)"; fi
 
 #-------------------------------------------------------------------------------

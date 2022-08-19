@@ -121,7 +121,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                                      s+'gpu/Bridge.h',
                                      s+'gpu/fbridge.cc', s+'gpu/fbridge.inc', s+'gpu/fsampler.cc', s+'gpu/fsampler.inc',
                                      s+'gpu/perf.py', s+'gpu/profile.sh']}
-    to_link_in_P = ['timer.h', 'timermap.h', 'Memory.h', 'Makefile', 'runTest.cc', 'testxxx.cc', 'testxxx_cc_ref.txt', 'perf.py', 'profile.sh',
+    to_link_in_P = ['timer.h', 'timermap.h', 'Memory.h', 'runTest.cc', 'testxxx.cc', 'testxxx_cc_ref.txt', 'perf.py', 'profile.sh',
                     'Bridge.h',
                     'fbridge.cc', 'fbridge.inc', 'fsampler.cc', 'fsampler.inc',
 
