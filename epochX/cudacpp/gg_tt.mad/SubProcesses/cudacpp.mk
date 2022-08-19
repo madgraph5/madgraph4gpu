@@ -62,6 +62,13 @@ CXXFLAGS+= -ffast-math # see issue #117
 
 #=== Configure the CUDA compiler
 
+# If CXX is not a single word (example "clang++ --gcc-toolchain...") then disable CUDA builds (issue #505)
+# This is because it is impossible to pass this to "CUFLAGS += -ccbin <host-compiler>" below
+ifneq ($(words $(subst ccache ,,$(CXX))),1) # allow at most "CXX=ccache <host-compiler>" from outside
+  $(warning CUDA builds are not supported for multi-word CXX "$(CXX)")
+  override CUDA_HOME=disabled
+endif
+
 # If CUDA_HOME is not set, try to set it from the location of nvcc
 ifndef CUDA_HOME
   CUDA_HOME = $(patsubst %bin/nvcc,%,$(shell which nvcc 2>/dev/null))
@@ -100,16 +107,17 @@ else ifneq ($(origin REQUIRE_CUDA),undefined)
   $(error No cuda installation found (set CUDA_HOME or make nvcc visible in PATH))
 else
   # No cuda. Switch cuda compilation off and go to common random numbers in C++
-  $(warning CUDA_HOME is not set or is invalid. Export CUDA_HOME to compile with cuda)
+  $(warning CUDA_HOME is not set or is invalid: export CUDA_HOME to compile with cuda)
   override NVCC=
   override USE_NVTX=
   override CULIBFLAGS=
 endif
 
-# Set the host C++ compiler for nvcc
+# Set the host C++ compiler for nvcc via "-ccbin <host-compiler>"
+# (NB issue #505: this must be a single word, "clang++ --gcc-toolchain..." is not supported)
 CUFLAGS += -ccbin $(shell which $(subst ccache ,,$(CXX)))
 
-# Allow unsupported clang14 compiler from icx2022 with the latest CUDA (11.6)
+# Allow unsupported clang14 compiler from icx2022 with CUDA 11.6
 ifneq ($(shell $(CXX) --version | grep ^Intel | grep ' 2022\.'),)
 CUFLAGS += -allow-unsupported-compiler
 endif
@@ -546,7 +554,7 @@ $(testmain): $(GTESTLIBS)
 $(testmain): INCFLAGS += -I$(TESTDIR)/googletest/googletest/include
 $(testmain): LIBFLAGS += -L$(GTESTLIBDIR) -lgtest -lgtest_main
 ifneq ($(shell $(CXX) --version | grep ^clang),)
-$(testmain): LIBFLAGS += -L$(patsubst %bin/clang++,%lib,$(shell which $(CXX) | tail -1))
+$(testmain): LIBFLAGS += -L$(patsubst %bin/clang++,%lib,$(shell which $(firstword $(subst ccache ,,$(CXX))) | tail -1))
 endif
 
 ifeq ($(NVCC),) # link only runTest.o
