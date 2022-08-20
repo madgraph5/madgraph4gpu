@@ -147,7 +147,7 @@ index 6b581bdfd..32c71b457 100644
              enddo
           endif
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
-index dd709f52c..2ee81527c 100644
+index dd709f52c..c41a6bfb4 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 @@ -1,6 +1,17 @@
@@ -168,7 +168,7 @@ index dd709f52c..2ee81527c 100644
  # Load additional dependencies of the bias module, if present
  ifeq (,$(wildcard ../bias_dependencies))
  BIASDEPENDENCIES =
-@@ -24,7 +35,21 @@ else
+@@ -24,7 +35,22 @@ else
      MADLOOP_LIB =
  endif
  
@@ -178,20 +178,21 @@ index dd709f52c..2ee81527c 100644
 +processid_short=$(shell basename $(CURDIR) | awk -F_ '{print $$(NF-1)"_"$$NF}')
 +CUDACPP_MAKEFILE=cudacpp.mk
 +# NB1 Using ":=" below instead of "=" is much faster (it only runs the subprocess once instead of many times)
-+# NB2 Do not add a comment inlined "CUDACPP_BUILDDIR=$(shell ...) # comment" as otherwise a trailing space is included...
-+# NB3 The variables relevant to the cudacpp Makefile must be explicitly passed to $(shell...)
++# NB2 Use '|&' in CUDACPP_BUILDDIR to avoid confusing errors about googletest #507
++# NB3 Do not add a comment inlined "CUDACPP_BUILDDIR=$(shell ...) # comment" as otherwise a trailing space is included...
++# NB4 The variables relevant to the cudacpp Makefile must be explicitly passed to $(shell...)
 +CUDACPP_MAKEENV:=$(shell echo '$(.VARIABLES)' | tr " " "\n" | egrep "(USEBUILDDIR|AVX|FPTYPE|HELINL|HRDCOD)")
 +###$(info CUDACPP_MAKEENV=$(CUDACPP_MAKEENV))
 +###$(info $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))"))
-+CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn |& awk '/Building/{print $$3}' | sed s/BUILDDIR=//) # NB Use '|&' to avoid confusing errors about googletest #507
-+###$(info CUDACPP_BUILDDIR='$(CUDACPP_BUILDDIR)')
++CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn |& awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
++$(info CUDACPP_BUILDDIR='$(CUDACPP_BUILDDIR)')
 +CUDACPP_COMMONLIB=mg5amc_common
 +CUDACPP_CXXLIB=mg5amc_$(processid_short)_cpp
 +CUDACPP_CULIB=mg5amc_$(processid_short)_cuda
  
  LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS)
  
-@@ -43,24 +68,69 @@ ifeq ($(strip $(MATRIX_HEL)),)
+@@ -43,24 +69,69 @@ ifeq ($(strip $(MATRIX_HEL)),)
  endif
  
  
@@ -267,7 +268,7 @@ index dd709f52c..2ee81527c 100644
  $(LIBDIR)libmodel.$(libext): ../../Cards/param_card.dat
  	cd ../../Source/MODEL; make
  
-@@ -69,12 +139,15 @@ $(LIBDIR)libgeneric.$(libext): ../../Cards/run_card.dat
+@@ -69,12 +140,15 @@ $(LIBDIR)libgeneric.$(libext): ../../Cards/run_card.dat
  
  $(LIBDIR)libpdf.$(libext): 
  	cd ../../Source/PDF; make
@@ -284,7 +285,7 @@ index dd709f52c..2ee81527c 100644
  
  # Dependencies
  
-@@ -94,5 +167,65 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
+@@ -94,5 +168,65 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
  	 run_config.inc
  initcluster.o: message.inc
  
