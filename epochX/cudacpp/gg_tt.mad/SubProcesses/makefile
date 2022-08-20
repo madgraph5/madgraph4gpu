@@ -40,13 +40,14 @@ LINKLIBS = $(LINK_MADLOOP_LIB) $(LINK_LOOP_LIBS) -L$(LIBDIR) -ldhelas -ldsample 
 processid_short=$(shell basename $(CURDIR) | awk -F_ '{print $$(NF-1)"_"$$NF}')
 CUDACPP_MAKEFILE=cudacpp.mk
 # NB1 Using ":=" below instead of "=" is much faster (it only runs the subprocess once instead of many times)
-# NB2 Do not add a comment inlined "CUDACPP_BUILDDIR=$(shell ...) # comment" as otherwise a trailing space is included...
-# NB3 The variables relevant to the cudacpp Makefile must be explicitly passed to $(shell...)
+# NB2 Use '|&' in CUDACPP_BUILDDIR to avoid confusing errors about googletest #507
+# NB3 Do not add a comment inlined "CUDACPP_BUILDDIR=$(shell ...) # comment" as otherwise a trailing space is included...
+# NB4 The variables relevant to the cudacpp Makefile must be explicitly passed to $(shell...)
 CUDACPP_MAKEENV:=$(shell echo '$(.VARIABLES)' | tr " " "\n" | egrep "(USEBUILDDIR|AVX|FPTYPE|HELINL|HRDCOD)")
 ###$(info CUDACPP_MAKEENV=$(CUDACPP_MAKEENV))
 ###$(info $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))"))
-CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn |& awk '/Building/{print $$3}' | sed s/BUILDDIR=//) # NB Use '|&' to avoid confusing errors about googletest #507
-###$(info CUDACPP_BUILDDIR='$(CUDACPP_BUILDDIR)')
+CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn |& awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
+$(info CUDACPP_BUILDDIR='$(CUDACPP_BUILDDIR)')
 CUDACPP_COMMONLIB=mg5amc_common
 CUDACPP_CXXLIB=mg5amc_$(processid_short)_cpp
 CUDACPP_CULIB=mg5amc_$(processid_short)_cuda
