@@ -567,8 +567,9 @@ $(testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects_lib) $(cxx_object
 	$(NVCC) -o $@ $(cxx_objects_lib) $(cxx_objects_exe) $(cu_objects_lib) $(cu_objects_exe) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp
 endif
 
+# Use flock to allow 'make -j' if googletest has not yet been downloaded https://stackoverflow.com/a/32666215
 $(GTESTLIBS):
-	$(MAKE) -C $(TESTDIR)
+	flock $(BUILDDIR)/.make_test.lock $(MAKE) -C $(TESTDIR)
 
 #-------------------------------------------------------------------------------
 
