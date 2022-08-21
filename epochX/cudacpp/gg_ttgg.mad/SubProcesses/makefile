@@ -230,3 +230,9 @@ ifneq (,$(wildcard fbridge.inc))
 endif
 	rm -f ../../Source/*.mod ../../Source/*/*.mod
 	rm -f .libs
+
+ifneq (,$(wildcard fbridge.inc))
+# Target: clean the builds as well as the googletest installation
+distclean: cleanall
+	$(MAKE) -f $(CUDACPP_MAKEFILE) distclean
+endif
