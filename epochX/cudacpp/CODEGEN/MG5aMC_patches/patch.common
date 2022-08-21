@@ -147,7 +147,7 @@ index 6b581bdfd..32c71b457 100644
              enddo
           endif
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
-index dd709f52c..c41a6bfb4 100644
+index dd709f52c..80fac065e 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 @@ -1,6 +1,17 @@
@@ -285,7 +285,7 @@ index dd709f52c..c41a6bfb4 100644
  
  # Dependencies
  
-@@ -94,5 +168,65 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
+@@ -94,5 +168,71 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
  	 run_config.inc
  initcluster.o: message.inc
  
@@ -352,6 +352,12 @@ index dd709f52c..c41a6bfb4 100644
 +endif
 +	rm -f ../../Source/*.mod ../../Source/*/*.mod
 +	rm -f .libs
++
++ifneq (,$(wildcard fbridge.inc))
++# Target: clean the builds as well as the googletest installation
++distclean: cleanall
++	$(MAKE) -f $(CUDACPP_MAKEFILE) distclean
++endif
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/reweight.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/reweight.f
 index e24a14569..b80b7b201 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/reweight.f

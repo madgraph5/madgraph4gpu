@@ -550,5 +550,4 @@ done
 echo "========================================================================="
 
 # Workaround for reading of data files
-popd >& /dev/null
 printf "\nTEST COMPLETED\n"
