@@ -18,6 +18,55 @@
 
 namespace mg5amcGpu
 {
+
+  
+  // A base class encapsulating a memory buffer (not necessarily an event buffer)
+  template<typename T>
+  class buffer_base {
+  protected:
+    buffer_base( const size_t size, const bool on_device, sycl::queue q) : m_size( size ), m_data( nullptr ), m_on_device( on_device ), m_q( q ){}
+    virtual ~buffer_base(){}
+  public:
+    T* data(){ return m_data; }
+    const T* data() const{ return m_data; }
+    sycl::queue get_queue(){ return m_q; }
+    const sycl::queue get_queue() const{ return m_q; }
+    T& operator[]( const size_t index ){ return m_data[index]; }
+    const T& operator[]( const size_t index ) const { return m_data[index]; }
+    size_t size() const{ return m_size; }
+    size_t bytes() const{ return m_size * sizeof(T); }
+    bool isOnDevice() const { return m_on_device; }
+  protected:
+    const size_t m_size;
+    T* m_data;
+    const bool m_on_device;
+    sycl::queue m_q;
+ };
+
+  // A class encapsulating a SYCL device buffer
+  template<typename T>
+  class device_buffer : public buffer_base<T> {
+  public:
+    device_buffer( const size_t size, sycl::queue q ) : buffer_base<T>( size, true, q ) {
+        this->m_data = sycl::malloc_device<T>(this->size(), this->m_q);
+    }
+    virtual ~device_buffer() {
+        sycl::free( this->m_data, this->m_q );
+    }
+  };
+
+  // A class encapsulating a SYCL host buffer
+  template<typename T>
+  class host_buffer : public buffer_base<T> {
+  public:
+    host_buffer( const size_t size, sycl::queue q ) : buffer_base<T>( size, false, q ) {
+        this->m_data = sycl::malloc_host<T>(this->size(), this->m_q);
+    }
+    virtual ~host_buffer() {
+        sycl::free( this->m_data, this->m_q );
+    }
+  };
+
   //--------------------------------------------------------------------------
   /**
    * A base class for a class whose pointer is passed between Fortran and C++.
@@ -61,23 +110,6 @@ namespace mg5amcGpu
      */
     Bridge( unsigned int nevtF, unsigned int nparF, unsigned int np4F );
 
-    /**
-     * Destructor
-     */
-    ~Bridge() {
-        sycl::free( m_devMomentaF  , m_q);
-        sycl::free( m_devMomentaC  , m_q);
-        sycl::free( m_devMEsC      , m_q);
-        sycl::free( m_hstMEsC      , m_q);
-        sycl::free( m_devIsGoodHel , m_q);
-        sycl::free( m_hstIsGoodHel , m_q);
-        sycl::free( m_devcHel      , m_q);
-        sycl::free( m_devcIPC      , m_q);
-        sycl::free( m_devcIPD      , m_q);
-        sycl::free( m_devcNGoodHel , m_q); 
-        sycl::free( m_devcGoodHel  , m_q); 
-    }
-
     // Delete copy/move constructors and assignment operators
     Bridge( const Bridge& ) = delete;
     Bridge( Bridge&& ) = delete;
@@ -117,19 +149,19 @@ namespace mg5amcGpu
 
     int m_gputhreads; // number of gpu threads (default set from number of events, can be modified)
     int m_gpublocks;  // number of gpu blocks (default set from number of events, can be modified)
-    sycl::malloc_device<fptype> m_devMomentaF;
-    sycl::malloc_device<fptype> m_devMomentaC;
-    //sycl::malloc_device<fptype> m_devGsC;
+    device_buffer<fptype> m_devMomentaF;
+    device_buffer<fptype> m_devMomentaC;
+    //device_buffer<fptype> m_devGsC;
     //std::unique_ptr<fptype> m_hstGsC;
-    sycl::malloc_device<fptype> m_devMEsC;
-    sycl::malloc_host<fptype  > m_hstMEsC;
-    sycl::malloc_device<bool  > m_devIsGoodHel;
-    sycl::malloc_host<bool    > m_hstIsGoodHel;
-    sycl::malloc_device<short > m_devcHel;
-    sycl::malloc_device<fptype> m_devcIPC;
-    sycl::malloc_device<fptype> m_devcIPD;
-    sycl::malloc_device<int   > m_devcNGoodHel; 
-    sycl::malloc_device<int   > m_devcGoodHel; 
+    device_buffer<fptype> m_devMEsC;
+    host_buffer<fptype  > m_hstMEsC;
+    device_buffer<bool  > m_devIsGoodHel;
+    host_buffer<bool    > m_hstIsGoodHel;
+    device_buffer<short > m_devcHel;
+    device_buffer<fptype> m_devcIPC;
+    device_buffer<fptype> m_devcIPD;
+    device_buffer<int   > m_devcNGoodHel; 
+    device_buffer<int   > m_devcGoodHel; 
     
     //static constexpr int s_gputhreadsmin = 16; // minimum number of gpu threads (TEST VALUE FOR MADEVENT)
     static constexpr int s_gputhreadsmin = 32; // minimum number of gpu threads (DEFAULT)
@@ -157,13 +189,13 @@ namespace mg5amcGpu
   template<typename FORTRANFPTYPE>
   Bridge<FORTRANFPTYPE>::Bridge( unsigned int nevtF, unsigned int nparF, unsigned int np4F )
     : m_nevt( nevtF )
+    , m_goodHelsCalculated( false )
     , m_devices( sycl::device::get_devices() )
 #ifdef MGONGPU_DEVICE_ID
     , m_q( sycl::queue(m_devices[MGONGPU_DEVICE_ID]) )
 #else
     , m_q( sycl::queue(m_devices[0]) )
 #endif
-    , m_goodHelsCalculated( false )
     , m_gputhreads( 256 )                  // default number of gpu threads
     , m_gpublocks( m_nevt / m_gputhreads ) // this ensures m_nevt <= m_gpublocks*m_gputhreads
     , m_devMomentaF( m_nevt, m_q )
@@ -197,9 +229,9 @@ namespace mg5amcGpu
     Proc::CPPProcess process( 1, m_gpublocks, m_gputhreads, false, false );
     process.initProc( "../../Cards/param_card.dat" );
 
-    m_q.memcpy( m_devcHel, process.get_tHel_ptr(), mgOnGpu::ncomb*mgOnGpu::npar*sizeof(short) );
-    m_q.memcpy( m_devcIPC, process.get_tIPC_ptr(), mgOnGpu::ncouplingstimes2*sizeof(fptype) );
-    m_q.memcpy( m_devcIPD, process.get_tIPD_ptr(), mgOnGpu::nparams*sizeof(fptype) ).wait();
+    m_q.memcpy( m_devcHel.data(), process.get_tHel_ptr(), mgOnGpu::ncomb*mgOnGpu::npar*sizeof(short) );
+    m_q.memcpy( m_devcIPC.data(), process.get_tIPC_ptr(), mgOnGpu::ncouplingstimes2*sizeof(fptype) );
+    m_q.memcpy( m_devcIPD.data(), process.get_tIPD_ptr(), mgOnGpu::nparams*sizeof(fptype) ).wait();
   }
 
   template<typename FORTRANFPTYPE>
@@ -228,19 +260,22 @@ namespace mg5amcGpu
 
     if constexpr( neppM == 1 && std::is_same_v<FORTRANFPTYPE, fptype> )
     {
-      m_q.memcpy( m_devMomentaC, momenta, np4*npar*m_nevt*sizeof(fptype) ).wait();
+      m_q.memcpy( m_devMomentaC.data(), momenta, np4*npar*m_nevt*sizeof(fptype) ).wait();
     }
     else
     {
-      m_q.memcpy( m_devMomentaF, momenta, np4*npar*m_nevt*sizeof(fptype) ).wait();
+      m_q.memcpy( m_devMomentaF.data(), momenta, np4*npar*m_nevt*sizeof(fptype) ).wait();
       static constexpr int thrPerEvt = npar * np4; // AV: transpose alg does 1 element per thread (NOT 1 event per thread)
 
       //const int thrPerEvt = 1; // AV: try new alg with 1 event per thread... this seems slower
+      auto devMomentaC = m_devMomentaC.data();
+      auto devMomentaF = m_devMomentaF.data();
+      auto nevt = m_nevt;
       m_q.submit([&](sycl::handler& cgh) {
           cgh.parallel_for_work_group(sycl::range<1>{m_gpublocks * thrPerEvt}, sycl::range<1>{m_gputhreads}, ([=](sycl::group<1> wGroup) {
               wGroup.parallel_for_work_item([&](sycl::h_item<1> index) {
                   size_t ievt = index.get_global_id(0);
-                  dev_transposeMomentaF2C( m_devMomentaC, m_devMomentaF, ievt, m_nevt );
+                  dev_transposeMomentaF2C( devMomentaC, devMomentaF, ievt, nevt );
               });
           }));
       });
@@ -250,36 +285,48 @@ namespace mg5amcGpu
     //m_q.memcpy( m_devGsC, m_hstGsC, m_nevt*sizeof(fptype) ).wait();
     if( !m_goodHelsCalculated )
     {
+      auto devMomentaC = m_devMomentaC.data();
+      auto devIsGoodHel = m_devIsGoodHel.data();
+      auto devcHel = m_devcHel.data();
+      auto devcIPC = m_devcIPC.data();
+      auto devcIPD = m_devcIPD.data();
       m_q.submit([&](sycl::handler& cgh) {
           cgh.parallel_for_work_group(sycl::range<1>{m_gpublocks}, sycl::range<1>{m_gputhreads}, ([=](sycl::group<1> wGroup) {
               wGroup.parallel_for_work_item([&](sycl::h_item<1> index) {
                   size_t ievt = index.get_global_id(0);
                   const int ipagM = ievt/neppM; // #eventpage in this iteration
                   const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
-                  Proc::sigmaKin_getGoodHel( m_devMomentaC + ipagM * npar * np4 * neppM + ieppM, m_devIsGoodHel, m_devcHel, m_devcIPC, m_devcIPD );
+                  Proc::sigmaKin_getGoodHel( devMomentaC + ipagM * npar * np4 * neppM + ieppM, devIsGoodHel, devcHel, devcIPC, devcIPD );
               });
           }));
       });
       m_q.wait();
 
-      m_q.memcpy(m_hstIsGoodHel, m_devIsGoodHel, ncomb*sizeof(bool)).wait();
+      m_q.memcpy(m_hstIsGoodHel.data(), m_devIsGoodHel.data(), ncomb*sizeof(bool)).wait();
 
       int goodHel[mgOnGpu::ncomb] = {0};
-      int nGoodHel = Proc::sigmaKin_setGoodHel( m_hstIsGoodHel, goodHel );
+      int nGoodHel = Proc::sigmaKin_setGoodHel( m_hstIsGoodHel.data(), goodHel );
 
-      m_q.memcpy( m_devcNGoodHel, &nGoodHel, sizeof(int) ).wait();
-      m_q.memcpy( m_devcGoodHel, goodHel, ncomb*sizeof(int) ).wait();
+      m_q.memcpy( m_devcNGoodHel.data(), &nGoodHel, sizeof(int) ).wait();
+      m_q.memcpy( m_devcGoodHel.data(), goodHel, ncomb*sizeof(int) ).wait();
       m_goodHelsCalculated = true;
     }
     if( goodHelOnly ) return;
 
+    auto devMomentaC = m_devMomentaC.data();
+    auto devcHel = m_devcHel.data();
+    auto devcIPC = m_devcIPC.data();
+    auto devcIPD = m_devcIPD.data();
+    auto devcNGoodHel = m_devcNGoodHel.data();
+    auto devcGoodHel = m_devcGoodHel.data();
+    auto devMEsC = m_devMEsC.data();
     m_q.submit([&](sycl::handler& cgh) {
         cgh.parallel_for_work_group(sycl::range<1>{m_gpublocks}, sycl::range<1>{m_gputhreads}, ([=](sycl::group<1> wGroup) {
             wGroup.parallel_for_work_item([&](sycl::h_item<1> index) {
                 size_t ievt = index.get_global_id(0);
                 const int ipagM = ievt/neppM;
                 const int ieppM = ievt%neppM;
-                m_devMEsC[ievt] = Proc::sigmaKin( m_devMomenta + ipagM * npar * np4 * neppM + ieppM, m_devcHel, m_devcIPC, m_devcIPD, m_devcNGoodHel, m_devcGoodHel );
+                devMEsC[ievt] = Proc::sigmaKin( devMomentaC + ipagM * npar * np4 * neppM + ieppM, devcHel, devcIPC, devcIPD, devcNGoodHel, devcGoodHel );
             });
         }));
     });
@@ -287,14 +334,14 @@ namespace mg5amcGpu
 
     if constexpr( std::is_same_v<FORTRANFPTYPE, fptype> )
     {
-      m_q.memcpy( mes, m_devMEsC, m_nevt*sizeof(fptype) ).wait();
+      m_q.memcpy( mes, m_devMEsC.data(), m_nevt*sizeof(fptype) ).wait();
       //flagAbnormalMEs( mes, m_nevt );
     }
     else
     {
-      m_q.memcpy( m_hstMEsC, m_devMEsC, m_nevt*sizeof(fptype) ).wait();
+      m_q.memcpy( m_hstMEsC.data(), m_devMEsC.data(), m_nevt*sizeof(fptype) ).wait();
       //flagAbnormalMEs( m_hstMEsC, m_nevt );
-      std::copy( m_hstMEsC, m_hstMEsC + m_nevt, mes );
+      std::copy( m_hstMEsC.data(), m_hstMEsC.data() + m_nevt, mes );
     }
 
   }
@@ -316,7 +363,7 @@ namespace mg5amcGpu
       constexpr int part = mgOnGpu::npar;
       constexpr int mome = mgOnGpu::np4;
       constexpr int strd = mgOnGpu::neppM;
-      int arrlen = nevt * part * mome;
+      unsigned int arrlen = nevt * part * mome;
       if( pos < arrlen )
       {
         int page_i = pos / ( strd * mome * part );
