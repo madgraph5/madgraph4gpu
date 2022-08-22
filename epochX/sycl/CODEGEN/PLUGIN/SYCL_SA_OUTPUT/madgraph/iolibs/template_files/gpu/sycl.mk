@@ -193,7 +193,7 @@ cxx_objects_exe=
 $(LIBDIR)/lib$(MG5AMC_CXXLIB).so: $(BUILDDIR)/fbridge.o
 $(LIBDIR)/lib$(MG5AMC_CXXLIB).so: cxx_objects_lib += $(BUILDDIR)/fbridge.o
 $(LIBDIR)/lib$(MG5AMC_CXXLIB).so: $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects_lib)
-	$(CXX) $(CXXFLAGS) $(SYCLFLAGS) -shared -o $@ $(cxx_objects_lib) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
+	$(CXX) $(CXXFLAGS) $(SYCLFLAGS) -fPIC -shared -o $@ $(cxx_objects_lib) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
 
 #-------------------------------------------------------------------------------
 
@@ -206,8 +206,10 @@ $(LIBDIR)/lib$(MG5AMC_CXXLIB).so: $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_obje
 
 # Target (and build rules): C++ and SYCL standalone executables
 $(sycl_main): LIBFLAGS += $(CXXLIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
-$(sycl_main): $(BUILDDIR)/check_sa.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).so $(cxx_objects_exe)
-	$(CXX) $(SYCLFLAGS) -o $@ $(BUILDDIR)/check_sa.o -ldl -pthread $(LIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CXXLIB) -lstdc++fs $(cxx_objects_exe)
+###$(sycl_main): $(BUILDDIR)/check_sa.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).so $(cxx_objects_exe)
+$(sycl_main): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
+	$(CXX) $(CXXFLAGS) $(SYCLFLAGS) -fPIC -o $@ check_sa.cc CPPProcess.cc -pthread $(LIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB) -lstdc++fs
 
 #-------------------------------------------------------------------------------
 
@@ -231,7 +233,6 @@ endif
 $(fsycl_main): LIBFLAGS += $(CULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(fsycl_main): $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler.o $(LIBDIR)/lib$(MG5AMC_CULIB).so $(cxx_objects_exe)
 	$(CXX) $(SYCLFLAGS) -o $@ $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler.o $(LIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_CXXLIB) -lstdc++fs $(cxx_objects_exe)
-endif
 
 #-------------------------------------------------------------------------------
 

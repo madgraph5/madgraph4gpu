@@ -899,17 +899,19 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
 
     # AV - replace the export_cpp.OneProcessExporterGPU method (invert .cc/.cu, add debug printouts)
     def edit_check_sa(self):
-        """Generate check_sa.cc"""
+        """Generate check_sa.cc and fcheck_sa.f"""
         misc.sprint('Entering PLUGIN_OneProcessExporter.edit_check_sa')
+        ff = open(pjoin(self.path, 'check_sa.cc'),'w')
         template = open(pjoin(self.template_path,'gpu','check_sa.cc'),'r').read()
-        # AV May remove replace_dict as no replacement is done in check_sa.cc (in upstream Madgraph)
-        ###replace_dict = {}
-        ###replace_dict['nexternal'], _ = self.matrix_elements[0].get_nexternal_ninitial()
+        ff.write(template) # nothing to replace in check_sa.cc
+        ff.close()
+        replace_dict = {}
+        replace_dict['nexternal'], _ = self.matrix_elements[0].get_nexternal_ninitial()
         ###replace_dict['model'] = self.model_name
         ###replace_dict['numproc'] = len(self.matrix_elements)
-        ff = open(pjoin(self.path, 'check_sa.cc'),'w')
-        ff.write(template)
-        ###ff.write(template % replace_dict) # AV normally this should be used! (and % should be %% in check_sa.cc)
+        ff = open(pjoin(self.path, 'fcheck_sa.f'),'w')
+        template = open(pjoin(self.template_path,'gpu','fcheck_sa.f'),'r').read()
+        ff.write(template % replace_dict)
         ff.close()
 
     # AV - add debug printouts over the export_cpp.OneProcessExporterGPU method

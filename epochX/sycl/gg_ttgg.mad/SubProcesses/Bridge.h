@@ -315,7 +315,7 @@ namespace mg5amcGpu
       // SR initial implementation
       constexpr int part = mgOnGpu::npar;
       constexpr int mome = mgOnGpu::np4;
-      constexpr int strd = MemoryAccessMomenta::neppM;
+      constexpr int strd = mgOnGpu::neppM;
       int arrlen = nevt * part * mome;
       if( pos < arrlen )
       {
@@ -340,7 +340,7 @@ namespace mg5amcGpu
       // C-style: AOSOA[npagM][npar][np4][neppM] with nevt=npagM*neppM
       constexpr int npar = mgOnGpu::npar;
       constexpr int np4 = mgOnGpu::np4;
-      constexpr int neppM = MemoryAccessMomenta::neppM;
+      constexpr int neppM = mgOnGpu::neppM;
       assert( nevt % neppM == 0 ); // number of events is not a multiple of neppM???
       size_t ievt = pos;
       int ipagM = ievt / neppM;
@@ -364,7 +364,7 @@ namespace mg5amcGpu
       // SR initial implementation
       constexpr unsigned int part = mgOnGpu::npar;
       constexpr unsigned int mome = mgOnGpu::np4;
-      constexpr unsigned int strd = MemoryAccessMomenta::neppM;
+      constexpr unsigned int strd = mgOnGpu::neppM;
       unsigned int arrlen = nevt * part * mome;
       for( unsigned int pos = 0; pos < arrlen; ++pos )
       {
@@ -393,7 +393,7 @@ namespace mg5amcGpu
       // C-style: AOSOA[npagM][npar][np4][neppM] with nevt=npagM*neppM
       constexpr unsigned int npar = mgOnGpu::npar;
       constexpr unsigned int np4 = mgOnGpu::np4;
-      constexpr unsigned int neppM = MemoryAccessMomenta::neppM;
+      constexpr unsigned int neppM = mgOnGpu::neppM;
       if constexpr( neppM == 1 && std::is_same_v<Tin, Tout> )
       {
         memcpy( out, in, nevt * npar * np4 * sizeof( Tin ) );
