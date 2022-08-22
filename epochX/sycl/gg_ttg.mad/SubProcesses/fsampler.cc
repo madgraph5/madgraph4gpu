@@ -29,7 +29,6 @@ namespace mg5amcGpu
     const int m_nevt; // The number of events in each iteration
     int m_iiter;      // The iteration counter (for random number seeding)
 
-    //FIXME
     hstMakeUnique<fptype> m_hstRnarray; // Memory buffers for random numbers
     hstMakeUnique<fptype> m_hstMomenta; // Memory buffers for momenta
     hstMakeUnique<fptype> m_hstWeights; // Memory buffers for sampling weights
@@ -68,9 +67,13 @@ namespace mg5amcGpu
     std::copy( rnd.begin(), rnd.end(), m_hstRnarray.data() );
     m_iiter++;
 
-    // FIXME
-    m_prsk->getMomentaInitial();
-    m_prsk->getMomentaFinal();
+    constexpr auto getMomentaInitial = ramboGetMomentaInitial<HostAccessMomenta>;
+    // ** START LOOP ON IEVT **
+    for( size_t ievt = 0; ievt < m_nevt; ++ievt )
+    {
+      ramboGetMomentaInitial( energy, m_hstMomenta.data(), ievt );
+      ramboGetMomentaFinal( energy, m_hstRnarray.data(), m_hstMomenta.data(), m_hstWeights.data(), ievt );
+    }
     hst_transposeMomentaC2F( m_hstMomenta.data(), fortranMomenta, m_nevt );
   }
 }
