@@ -17,12 +17,14 @@ function usage()
 # PART 0 - decode command line arguments
 ##########################################################################
 
+procs=
 eemumu=0
 ggtt=0
 ggttg=0
 ggttgg=0
 ggttggg=0
 heftggh=0
+
 suffs=".mad/"
 
 omp=0
@@ -57,21 +59,27 @@ if [ "$bckend" != "alpaka" ]; then alpaka=0; fi # alpaka mode is only available 
 
 while [ "$1" != "" ]; do
   if [ "$1" == "-eemumu" ]; then
+    if [ "$eemumu" == "0" ]; then procs+=${procs:+ }$1; fi
     eemumu=1
     shift
   elif [ "$1" == "-ggtt" ]; then
+    if [ "$ggtt" == "0" ]; then procs+=${procs:+ }$1; fi
     ggtt=1
     shift
   elif [ "$1" == "-ggttg" ]; then
+    if [ "$ggttg" == "0" ]; then procs+=${procs:+ }$1; fi
     ggttg=1
     shift
   elif [ "$1" == "-ggttgg" ]; then
+    if [ "$ggttgg" == "0" ]; then procs+=${procs:+ }$1; fi
     ggttgg=1
     shift
   elif [ "$1" == "-ggttggg" ]; then
+    if [ "$ggttggg" == "0" ]; then procs+=${procs:+ }$1; fi
     ggttggg=1
     shift
   elif [ "$1" == "-heftggh" ]; then
+    if [ "$heftggh" == "0" ]; then procs+=${procs:+ }$1; fi
     heftggh=1
     shift
   elif [ "$1" == "-sa" ]; then
@@ -213,35 +221,35 @@ fi
 unames=$(uname -s)
 unamep=$(uname -p)
 
-# Determine the working directory below topdir based on suff, bckend and <process>
+# Determine the working directory below topdir based on suff, bckend and proc
 function showdir()
 {
   if [ "${suff}" == ".mad/" ]; then
-    if [ "${eemumu}" == "1" ]; then 
+    if [ "${proc}" == "-eemumu" ]; then 
       dir=$topdir/epochX/${bckend}/ee_mumu${suff}SubProcesses/P1_ll_ll
-    elif [ "${ggtt}" == "1" ]; then 
+    elif [ "${proc}" == "-ggtt" ]; then 
       dir=$topdir/epochX/${bckend}/gg_tt${suff}SubProcesses/P1_gg_ttx
-    elif [ "${ggttg}" == "1" ]; then 
+    elif [ "${proc}" == "-ggttg" ]; then 
       dir=$topdir/epochX/${bckend}/gg_ttg${suff}SubProcesses/P1_gg_ttxg
-    elif [ "${ggttgg}" == "1" ]; then 
+    elif [ "${proc}" == "-ggttgg" ]; then 
       dir=$topdir/epochX/${bckend}/gg_ttgg${suff}SubProcesses/P1_gg_ttxgg
-    elif [ "${ggttggg}" == "1" ]; then 
+    elif [ "${proc}" == "-ggttggg" ]; then 
       dir=$topdir/epochX/${bckend}/gg_ttggg${suff}SubProcesses/P1_gg_ttxggg
-    elif [ "${heftggh}" == "1" ]; then 
+    elif [ "${proc}" == "-heftggh" ]; then 
       echo "ERROR! Options -mad and -madonly are not supported with -heftggh"; exit 1
     fi
   else
-    if [ "${eemumu}" == "1" ]; then 
+    if [ "${proc}" == "-eemumu" ]; then 
       dir=$topdir/epochX/${bckend}/ee_mumu${suff}SubProcesses/P1_Sigma_sm_epem_mupmum
-    elif [ "${ggtt}" == "1" ]; then 
+    elif [ "${proc}" == "-ggtt" ]; then 
       dir=$topdir/epochX/${bckend}/gg_tt${suff}SubProcesses/P1_Sigma_sm_gg_ttx
-    elif [ "${ggttg}" == "1" ]; then 
+    elif [ "${proc}" == "-ggttg" ]; then 
       dir=$topdir/epochX/${bckend}/gg_ttg${suff}SubProcesses/P1_Sigma_sm_gg_ttxg
-    elif [ "${ggttgg}" == "1" ]; then 
+    elif [ "${proc}" == "-ggttgg" ]; then 
       dir=$topdir/epochX/${bckend}/gg_ttgg${suff}SubProcesses/P1_Sigma_sm_gg_ttxgg
-    elif [ "${ggttggg}" == "1" ]; then 
+    elif [ "${proc}" == "-ggttggg" ]; then 
       dir=$topdir/epochX/${bckend}/gg_ttggg${suff}SubProcesses/P1_Sigma_sm_gg_ttxggg
-    elif [ "${heftggh}" == "1" ]; then 
+    elif [ "${proc}" == "-heftggh" ]; then 
       dir=$topdir/epochX/${bckend}/heft_gg_h${suff}/SubProcesses/P1_Sigma_heft_gg_h
     fi
   fi
@@ -255,16 +263,23 @@ printf "\n"
 # PART 1 - compile the list of the executables which should be run
 ##########################################################################
 
+dirs=
+for proc in $procs; do
+  for suff in $suffs; do
+    dirs+=${dirs:+ }$(showdir)
+  done
+done
+if [ "$dirs" == "" ]; then echo "ERROR! no valid directories found?"; exit 1; fi  
+
 exes=
 
-for suff in $suffs; do
-
+for dir in $dirs; do
+  
   #=====================================
   # CUDA   (epochX - manual/mad)
   # ALPAKA (epochX - manual/auto)
   #=====================================
   if [ "${cuda}" == "1" ]; then
-    dir=$(showdir)
     for hrdcod in $hrdcods; do
       hrdsuf=_hrd${hrdcod}
       if [ "$bckend" == "alpaka" ]; then hrdsuf=""; fi
@@ -283,7 +298,6 @@ for suff in $suffs; do
   # C++ (eemumu/epochX - manual/mad)
   #=====================================
   if [ "${cpp}" == "1" ]; then 
-    dir=$(showdir)
     for hrdcod in $hrdcods; do
       hrdsuf=_hrd${hrdcod}
       if [ "$bckend" == "alpaka" ]; then hrdsuf=""; fi
@@ -313,15 +327,12 @@ done
 # PART 2 - build the executables which should be run
 ##########################################################################
 
-pushd $topdir/tests >& /dev/null
+pushd $topdir/test >& /dev/null
 make 2>&1 # avoid issues with googletest in parallel builds
 popd >& /dev/null
 
-###echo "exes=$exes"
+for dir in $dirs; do
 
-for suff in $suffs; do
-
-  dir=$(showdir)
   export USEBUILDDIR=1
   pushd $dir >& /dev/null
   pwd
@@ -482,6 +493,7 @@ fi
 echo -e "On $HOSTNAME [CPU: $cpuTxt] [GPU: $gpuTxt]:"
 
 lastExe=
+###echo "exes=$exes"
 for exe in $exes; do
   ###echo EXE=$exe; continue
   exeArgs2=""
