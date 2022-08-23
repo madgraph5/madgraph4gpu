@@ -313,6 +313,10 @@ done
 # PART 2 - build the executables which should be run
 ##########################################################################
 
+pushd $topdir/tests >& /dev/null
+make 2>&1 # avoid issues with googletest in parallel builds
+popd >& /dev/null
+
 ###echo "exes=$exes"
 
 for suff in $suffs; do
