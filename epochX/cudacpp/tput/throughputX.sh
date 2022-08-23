@@ -492,6 +492,8 @@ else
 fi
 echo -e "On $HOSTNAME [CPU: $cpuTxt] [GPU: $gpuTxt]:"
 
+BMKMULTIPLIER=1 # needed by the BMK project: do not change
+
 lastExe=
 ###echo "exes=$exes"
 for exe in $exes; do
@@ -534,6 +536,8 @@ for exe in $exes; do
     exeArgs="-p 2048 256 12"
     ncuArgs="-p 2048 256 1"
   fi
+  exeArgs="${exeArgs% *} $((${exeArgs##* }*BMKMULTIPLIER))"
+  if [ "${exeArgs2}" != "" ]; then exeArgs2="${exeArgs2% *} $((${exeArgs2##* }*BMKMULTIPLIER))"; fi  
   exeDir=$(dirname $exe)
   cd $exeDir/.. # workaround for reading '../../Cards/param_card.dat' without setting MG5AMC_CARD_PATH
   unset OMP_NUM_THREADS
