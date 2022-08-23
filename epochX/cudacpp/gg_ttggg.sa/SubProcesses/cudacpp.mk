@@ -635,7 +635,6 @@ cleanall:
 
 # Target: clean the builds as well as the googletest installation
 distclean: cleanall
-	$(MAKE) -C $(TOOLSDIR) clean
 	$(MAKE) -C $(TESTDIR) clean
 
 #-------------------------------------------------------------------------------
