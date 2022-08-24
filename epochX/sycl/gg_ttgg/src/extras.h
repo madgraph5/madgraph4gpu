@@ -5,6 +5,13 @@
 
 namespace extras {
 
+// Forward declarations
+template<typename FPType> class complex;
+
+/// Return complex conjugate
+template<typename FPType>
+SYCL_EXTERNAL complex<FPType> conj(const complex<FPType>&);
+
 template< typename FPType >
 class complex {
 public:
@@ -242,6 +249,12 @@ SYCL_EXTERNAL inline complex<FPType> operator+(const complex<FPType>& __x) { ret
 template<typename FPType>
 SYCL_EXTERNAL inline complex<FPType> operator-(const complex<FPType>& __x) {
     return complex<FPType>(-__x.real(), -__x.imag());
+}
+
+// Return complex conjugate
+template<typename FPType>
+SYCL_EXTERNAL inline complex<FPType> conj(const complex<FPType>& __z) {
+    return complex<FPType>(__z.real(), -__z.imag());
 }
 
 }

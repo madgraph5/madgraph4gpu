@@ -930,7 +930,8 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         misc.sprint('Entering PLUGIN_OneProcessExporter.edit_processidfile')
         template = open(pjoin(self.template_path,'gpu','epoch_process_id.h'),'r').read()
         replace_dict = {}
-        replace_dict['processid'] = self.get_process_name().upper()
+        replace_dict['processid'] = self.get_process_name()
+        replace_dict['processid_uppercase'] = self.get_process_name().upper()
         ff = open(pjoin(self.path, 'epoch_process_id.h'),'w')
         ff.write(template % replace_dict)
         ff.close()
@@ -998,12 +999,12 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         import madgraph.core.color_algebra as color
         if not matrix_element.get('color_matrix'):
             ###return "\n".join(["static const double denom[1] = {1.};", "static const double cf[1][1] = {1.};"])
-            return "\n".join(["      constexpr fptype denom[1] = {1.};", "static const fptype cf[1][1] = {1.};"]) # AV
+            return "\n".join(["      static constexpr fptype denom[1] = {1.};", "static const fptype cf[1][1] = {1.};"]) # AV
         else:
             color_denominators = matrix_element.get('color_matrix').\
                                                  get_line_denominators()
             ###denom_string = "static const double denom[ncolor] = {%s};" % ",".join(["%i" % denom for denom in color_denominators])
-            denom_string = "      constexpr fptype denom[ncolor] = {%s};" % ", ".join(["%i" % denom for denom in color_denominators]) # AV
+            denom_string = "      static constexpr fptype denom[ncolor] = {%s};" % ", ".join(["%i" % denom for denom in color_denominators]) # AV
             matrix_strings = []
             my_cs = color.ColorString()
             for index, denominator in enumerate(color_denominators):
@@ -1012,7 +1013,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
                 ###matrix_strings.append("{%s}" % ",".join(["%d" % i for i in num_list]))
                 matrix_strings.append("{%s}" % ", ".join(["%d" % i for i in num_list])) # AV
             ###matrix_string = "static const double cf[ncolor][ncolor] = {" + ",".join(matrix_strings) + "};"
-            matrix_string = "      constexpr fptype cf[ncolor][ncolor] = " # AV
+            matrix_string = "      static constexpr fptype cf[ncolor][ncolor] = " # AV
             if len( matrix_strings ) > 1 : matrix_string += '{\n      ' + ',\n      '.join(matrix_strings) + '};' # AV
             else: matrix_string += '{' + matrix_strings[0] + '};' # AV
             return "\n".join([denom_string, matrix_string])
@@ -1033,7 +1034,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
     def get_helicity_matrix(self, matrix_element):
         """Return the Helicity matrix definition lines for this matrix element"""
         ###helicity_line = "static const int helicities[ncomb][nexternal] = {";
-        helicity_line = "    constexpr short helicities[ncomb][mgOnGpu::npar] = {\n      "; # AV (this is tHel)
+        helicity_line = "    static constexpr short helicities[ncomb][mgOnGpu::npar] = {\n      "; # AV (this is tHel)
         helicity_line_list = []
         for helicities in matrix_element.get_helicity_matrix(allow_reverse=False):
             ###helicity_line_list.append("{"+",".join(['%d'] * len(helicities)) % tuple(helicities) + "}")

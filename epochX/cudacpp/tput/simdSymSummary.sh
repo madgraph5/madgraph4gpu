@@ -53,9 +53,15 @@ function mainSummarizeSyms() {
   ###ls -l $dumptmp
 
   unamep=$(uname -p)
+  #--- ARM ---
+  if [ "${unamep}" == "arm" ]; then 
+
+    # FIXME: classifying objdump symbols for ARM has not been done yet
+    return
+
   #--- PPC ---
   # See https://cdn.openpowerfoundation.org/wp-content/uploads/resources/Intrinsics-Reference_final/Intrinsics-Reference-20200811.pdf
-  if [ "${unamep}" == "ppc64le" ]; then 
+  elif [ "${unamep}" == "ppc64le" ]; then 
 
     # Exclude all instructions not involving "vs" registers
     cat $dumptmp | grep " vs" > ${dumptmp}.new

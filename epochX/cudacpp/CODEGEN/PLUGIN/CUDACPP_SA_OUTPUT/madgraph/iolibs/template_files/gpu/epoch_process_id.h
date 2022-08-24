@@ -1,4 +1,4 @@
-#ifndef EPOCH_PROCESS_ID_H 
+#ifndef EPOCH_PROCESS_ID_H
 #define EPOCH_PROCESS_ID_H 1
 
 // No need to indicate EPOCHX_ any longer for auto-generated code

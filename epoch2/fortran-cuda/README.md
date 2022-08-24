@@ -18,7 +18,7 @@ set etal 1
 using MG5 branch 
 
 ```
-lp:~maddevelopers/mg5amcnlo/3.1.1_lo_vectorization
+bzr checkout lp:~maddevelopers/mg5amcnlo/3.1.1_lo_vectorization
 ```
 
 

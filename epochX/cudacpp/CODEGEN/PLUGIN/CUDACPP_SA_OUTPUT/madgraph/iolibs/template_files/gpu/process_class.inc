@@ -5,10 +5,10 @@
 
   class CPPProcess
   {
-  public:
+  public: /* clang-format off */
 
     // Constructor (from command line arguments)
-    CPPProcess( int numiterations, int gpublocks, int gputhreads, bool verbose = false, bool debug = false );
+    CPPProcess( bool verbose = false, bool debug = false );
 
     // Destructor
     ~CPPProcess();
@@ -27,13 +27,10 @@
     //int getNIOParticles() const { return nexternal; } // nexternal was nioparticles
 
     // Accessors (unused so far: add four of them only to fix a clang build warning)
-    int numiterations() const { return m_numiterations; }
-    int gpublocks() const { return m_ngpublocks; }
-    int gputhreads() const { return m_ngputhreads; }
     //bool verbose() const { return m_verbose; }
     bool debug() const { return m_debug; }
 
-  public:
+  public: /* clang-format on */
 
     // Hardcoded parameters for this process (constant class variables)
     //static const int ninitial = mgOnGpu::npari;
@@ -42,19 +39,15 @@
     //static const int nwavefuncs = %(nwavefuncs)d; // mgOnGpu::nwf
     //static const int namplitudes = %(namp)d;
     //static const int ncomb = %(ncomb)d; // mgOnGpu::ncomb
-    //static const int wrows = %(sizew)d; // mgOnGpu::nw6;
 
   private:
 
     // Command line arguments (constructor)
-    int m_numiterations; // number of iterations (each iteration has nblocks*nthreads events)
-    int m_ngpublocks; // number of GPU blocks in one grid (i.e. one iteration)
-    int m_ngputhreads; // number of GPU threads in a block
     bool m_verbose;
     bool m_debug;
 
     // Physics model parameters to be read from file (initProc function)
-#ifndef MGONGPU_HARDCODE_CIPC
+#ifndef MGONGPU_HARDCODE_PARAM
     Parameters_%(model_name)s* m_pars;
 #endif
     std::vector<fptype> m_masses; // external particle masses
@@ -62,5 +55,4 @@
     // Other variables of this instance (???)
     //int id1, id2; // initial particle ids
     //cxtype** amp; // ???
-
   };

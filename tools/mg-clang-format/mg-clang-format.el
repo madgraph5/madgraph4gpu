@@ -2,8 +2,11 @@
 
 ;; Keywords: tools, c
 ;; Package-Requires: ((cl-lib "0.3"))
+;; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ;;; Commentary:
+
+;; Downloaded and adapted from https://github.com/emacsmirror/clang-format/blob/master/clang-format.el
 
 ;; This package allows to filter code through clang-format to fix its formatting.
 ;; clang-format is a tool that formats C/C++/Obj-C code according to a set of
@@ -45,16 +48,28 @@ A string containing the name or the full path of the executable."
   :type '(file :must-match t)
   :risky t)
 
-(defcustom clang-format-style "file"
+(defcustom clang-format-style nil
   "Style argument to pass to clang-format.
 
 By default clang-format will load the style configuration from
 a file named .clang-format located in one of the parent directories
 of the buffer."
   :group 'clang-format
-  :type 'string
+  :type '(choice (string) (const nil))
   :safe #'stringp)
 (make-variable-buffer-local 'clang-format-style)
+
+(defcustom clang-format-fallback-style "none"
+  "Fallback style to pass to clang-format.
+
+This style will be used if clang-format-style is set to \"file\"
+and no .clang-format is found in the directory of the buffer or
+one of parent directories. Set to \"none\" to disable formatting
+in such buffers."
+  :group 'clang-format
+  :type 'string
+  :safe #'stringp)
+(make-variable-buffer-local 'clang-format-fallback-style)
 
 (defun clang-format--extract (xml-node)
   "Extract replacements and cursor information from XML-NODE."
@@ -160,7 +175,8 @@ uses the function `buffer-file-name'."
                                ;; https://bugs.llvm.org/show_bug.cgi?id=34667
                                ,@(and assume-file-name
                                       (list "-assume-filename" assume-file-name))
-                               "-style" ,style
+                               ,@(and style (list "-style" style))
+                               "-fallback-style" ,clang-format-fallback-style
                                "-offset" ,(number-to-string file-start)
                                "-length" ,(number-to-string (- file-end file-start))
                                "-cursor" ,(number-to-string cursor))))

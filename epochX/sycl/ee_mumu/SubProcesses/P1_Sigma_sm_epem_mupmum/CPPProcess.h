@@ -1,27 +1,23 @@
 //==========================================================================
-// This file has been automatically generated for SYCL/C++ standalone by
+// This file has been automatically generated for SYCL standalone by
 // MadGraph5_aMC@NLO v. 2.9.5, 2021-08-22
 // By the MadGraph5_aMC@NLO Development Team
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
 
 #ifndef MG5_Sigma_sm_epem_mupmum_H
-#define MG5_Sigma_sm_epem_mupmum_H
-
-#include <cassert>
-#include <complex>
-#include <iostream>
-#include <vector>
+#define MG5_Sigma_sm_epem_mupmum_H 1
 
 #include "mgOnGpuConfig.h"
-#include "mgOnGpuTypes.h"
 #include "mgOnGpuVectors.h"
 
 #include "Parameters_sm.h"
 
+#include <vector>
+
 //--------------------------------------------------------------------------
 
-namespace Proc
+namespace mg5amcGpu
 {
 
   //==========================================================================
@@ -39,16 +35,17 @@ namespace Proc
     // Destructor
     ~CPPProcess();
 
-    // Device Pointer Accessors
-    short * get_cHel_ptr() const;
-    fptype * get_cIPC_ptr();
-    fptype * get_cIPD_ptr();
-
     // Initialize process (read model parameters from file)
     virtual void initProc( const std::string& param_card_name );
 
-    // Retrieve the compiler that was used to build this module
-    static const std::string getCompiler();
+    // Pointer accessors
+    const short* get_tHel_ptr() const;
+
+    cxtype* get_tIPC_ptr();
+    const cxtype* get_tIPC_ptr() const;
+
+    fptype* get_tIPD_ptr();
+    const fptype* get_tIPD_ptr() const;
 
     // Other methods of this instance (???)
     //const std::vector<fptype>& getMasses() const { return m_masses; }
@@ -57,18 +54,18 @@ namespace Proc
     //int getDim() const { return dim; }
     //int getNIOParticles() const { return nexternal; } // nexternal was nioparticles
 
-    // Accessors (unused so far: add them to fix a clang build warning)
-    //int numiterations() const { return m_numiterations; }
-    //int gpublocks() const { return m_ngpublocks; }
-    //int gputhreads() const { return m_ngputhreads; }
+    // Accessors (unused so far: add four of them only to fix a clang build warning)
+    int numiterations() const { return m_numiterations; }
+    int gpublocks() const { return m_ngpublocks; }
+    int gputhreads() const { return m_ngputhreads; }
     //bool verbose() const { return m_verbose; }
-    //bool debug() const { return m_debug; }
+    bool debug() const { return m_debug; }
 
   public:
 
     // Hardcoded parameters for this process (constant class variables)
     //static const int ninitial = mgOnGpu::npari;
-    static const int nexternal = 4; // mgOnGpu::npar (nexternal was nioparticles)
+    //static const int nexternal = 4; // mgOnGpu::npar (nexternal was nioparticles)
     //static const int nprocesses = 1; // FIXME: assume process.nprocesses == 1
     //static const int nwavefuncs = 6; // mgOnGpu::nwf
     //static const int namplitudes = 2;
@@ -85,10 +82,15 @@ namespace Proc
     bool m_debug;
 
     // Physics model parameters to be read from file (initProc function)
-#ifndef MGONGPU_HARDCODE_CIPC
     Parameters_sm* m_pars;
-#endif
     std::vector<fptype> m_masses; // external particle masses
+
+    // Helicities for the process
+    const short m_tHel[mgOnGpu::ncomb][mgOnGpu::npar];
+
+    // Physics parameters (masses, coupling, etc...)
+    cxtype m_tIPC[mgOnGpu::ncouplings];
+    fptype m_tIPD[mgOnGpu::nparams];
 
     // Other variables of this instance (???)
     //int id1, id2; // initial particle ids
@@ -99,38 +101,31 @@ namespace Proc
   //--------------------------------------------------------------------------
 
   SYCL_EXTERNAL
-  void sigmaKin_getGoodHel(
-          const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-          fptype* allMEs,           // output: allMEs[nevt], |M|^2 final_avg_over_helicities
-          bool * isGoodHel,         // output: isGoodHel[ncomb] - device array
-          size_t ievt,
-          short *cHel,
-          const fptype *cIPC,
-          const fptype *cIPD
-          );
+  void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta[nevt*npar*4]
+                            fptype* allMEs,           // output: allMEs[nevt], |M|^2 final_avg_over_helicities
+                            bool* isGoodHel,          // output: isGoodHel[ncomb] - device array
+                            const size_t ievt,
+                            short* cHel,
+                            const fptype* cIPC,
+                            const fptype* cIPD
+                            );
+
+  //--------------------------------------------------------------------------
+
+  int sigmaKin_setGoodHel( const bool* isGoodHel, int* goodHel ); // input: isGoodHel[ncomb] - host array
 
   //--------------------------------------------------------------------------
 
   SYCL_EXTERNAL
-  void sigmaKin_setGoodHel(
-          const bool * isGoodHel,  // input: isGoodHel[ncomb] - host array
-          int * cNGoodHel_ptr,
-          int* cGoodHel_ptr
-          );
-
-  //--------------------------------------------------------------------------
-
-  SYCL_EXTERNAL
-  void sigmaKin(
-          const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-          fptype* allMEs,           // output: allMEs[nevt], |M|^2 final_avg_over_helicities
-          size_t ievt,
-          short *cHel,
-          const fptype *cIPC,
-          const fptype *cIPD,
-          int *cNGoodHel,
-          int *cGoodHel
-          );
+  void sigmaKin( const fptype* allmomenta, // input: momenta[nevt*npar*4]
+                 fptype* allMEs,           // output: allMEs[nevt], |M|^2 final_avg_over_helicities
+                 size_t ievt,
+                 short* cHel,
+                 const fptype* cIPC,
+                 const fptype* cIPD,
+                 int* cNGoodHel,
+                 int* cGoodHel
+                 );
 
   //--------------------------------------------------------------------------
 }

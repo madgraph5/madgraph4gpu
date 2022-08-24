@@ -14,11 +14,29 @@ function codeGenAndDiff()
     gg_tt)
       cmd="generate g g > t t~"
       ;;
-    ###gg_ttg)
-    ###  cmd="generate g g > t t~ g"
-    ###  ;;
+    gg_ttg)
+      cmd="generate g g > t t~ g"
+      ;;
     gg_ttgg)
       cmd="generate g g > t t~ g g"
+      ;;
+    gg_ttggg)
+      cmd="generate g g > t t~ g g g"
+      ;;
+    pp_tt)
+      cmd="generate p p > t t~"
+      ;;
+    uu_tt)
+      cmd="generate u u~ > t t~"
+      ;;
+    uu_dd)
+      cmd="generate u u~ > d d~"
+      ;;
+    bb_tt)
+      cmd="generate b b~ > t t~"
+      ;;
+    heft_gg_h)
+      cmd="set auto_convert_model T; import model heft; generate g g > h"
       ;;
     *)
       echo -e "\nWARNING! Skipping unknown process '$proc'"
@@ -131,10 +149,10 @@ function cleanup_MG5AMC_HOME()
 SCRDIR=$(cd $(dirname $0); pwd)
 
 # Output source code directory for the chosen backend
-OUTDIR=$(dirname $SCRDIR) # e.g. epochX/cudacpp if $SCRDIR=epochX/cudacpp/CODEGEN
+OUTDIR=$(dirname $SCRDIR) # e.g. epochX/sycl if $SCRDIR=epochX/sycl/CODEGEN
 
 # Output backend
-OUTBCK=$(basename $OUTDIR) # e.g. cudacpp if $OUTDIR=epochX/cudacpp
+OUTBCK=$(basename $OUTDIR) # e.g. sycl if $OUTDIR=epochX/sycl
 
 # Default: brief diffs (use --nobrief to use full diffs)
 BRIEF=--brief

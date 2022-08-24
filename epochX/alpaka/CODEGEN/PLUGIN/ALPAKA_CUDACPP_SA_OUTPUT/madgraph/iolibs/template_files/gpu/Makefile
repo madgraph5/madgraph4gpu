@@ -90,7 +90,7 @@ ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
     ALPINC := -I$(ALPAKA_ROOT)/include -I$(BOOSTINC)
     CUPLAINC := -I$(CUPLA_ROOT)/include
     CUPLASRC := $(CUPLA_ROOT)/src
-    ALPFLAGS := -DALPAKA -DALPAKA_ACC_GPU_CUDA_ENABLED
+    ALPFLAGS := -DALPAKA -DALPAKA_ACC_GPU_CUDA_ENABLED --expt-relaxed-constexpr
   endif
 
 else
@@ -234,11 +234,11 @@ cxx_objects=$(BUILDDIR)/CPPProcess.o
 
 testmain=$(BUILDDIR)/runTest.exe
 
-all.$(TAG): ../../src/$(BUILDDIR)/.build.$(TAG) $(BUILDDIR)/.build.$(TAG) $(cu_main) $(alp_main) $(cxx_main) $(testmain)
+all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/lib$(MODELLIB).a $(cu_main) $(alp_main) $(cxx_main) $(testmain)
 
 override oldtags=`find $(BUILDDIR) -maxdepth 1 -name '.build.*' ! -name '.build.$(TAG)'`
 $(BUILDDIR)/.build.$(TAG):
-	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir $(BUILDDIR)"; mkdir $(BUILDDIR); fi
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	@if [ "$(oldtags)" != "" ]; then echo -e "Cannot build for tag=$(TAG) as old builds exist for other tags:\n$(oldtags)\nPlease run 'make clean' first\nIf 'make clean' is not enough: run 'make clean USEBUILDDIR=1 AVX=$(AVX) FPTYPE=$(FPTYPE)' or 'make cleanall'"; exit 1; fi
 	@touch $(BUILDDIR)/.build.$(TAG)
 
@@ -247,39 +247,36 @@ debug: CUOPTFLAGS = -G
 debug: MAKEDEBUG := debug
 debug: all.$(TAG)
 
-../../src/$(BUILDDIR)/.build.$(TAG):
-	$(MAKE) -C ../../src $(MAKEDEBUG)
-
 $(LIBDIR)/lib$(MODELLIB).a: ../../src/*.h ../../src/*.cc
 	$(MAKE) -C ../../src $(MAKEDEBUG)
 
 $(BUILDDIR)/gcheck_sa.o: gcheck_sa.cu *.h ../../src/*.h # ../../src/*.cu
-	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
 
 $(BUILDDIR)/alpcheck_sa.o: gcheck_sa.cu *.h ../../src/*.h
-	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	$(NVCC) $(LIBFLAGS) $(CULIBFLAGS) $(CUFLAGS) $(ALPFLAGS) $(ALPINC) $(CUPLAINC) -dc $< -o $@
 
 $(BUILDDIR)/CPPProcess.o : ../../src/HelAmps_sm.cc
 $(BUILDDIR)/gCPPProcess.o : ../../src/HelAmps_sm.cc
 
 $(BUILDDIR)/%%.o : %%.cu *.h ../../src/*.h
-	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
 
 # Apply special build flags only to CPPProcess.cc (-flto)
 #$(BUILDDIR)/CPPProcess.o : CPPProcess.cc *.h ../../src/*.h
-#	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
+#	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 #	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -flto $(CUINC) -c $< -o $@
 
 ### Apply special build flags only to CPPProcess.cc (AVXFLAGS)
 ###$(BUILDDIR)/CPPProcess.o : CPPProcess.cc *.h ../../src/*.h
-###	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
+###	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 ###	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(AVXFLAGS) $(CUINC) -c $< -o $@
 
 $(BUILDDIR)/%%.o : %%.cc *.h ../../src/*.h
-	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CUINC) -c $< -o $@
 
 $(BUILDDIR)/cupla/%%.o: $(CUPLASRC)/%%.cpp
@@ -301,10 +298,9 @@ $(cxx_main): $(BUILDDIR)/check_sa.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects)
 $(BUILDDIR)/runTest.o: $(GTESTLIBS)
 $(testmain): $(GTESTLIBS)
 $(testmain): INCFLAGS += -I$(TESTDIR)/googletest/googletest/include
-$(testmain): INCFLAGS += -I$(TESTDIR)/include
 $(testmain): LIBFLAGS += -L$(GTESTLIBDIR) -lgtest -lgtest_main
-$(testmain): $(BUILDDIR)/runTest.o $(TESTDIR)/src/MadgraphTest.o $(TESTDIR)/include/*.h
-$(testmain): cxx_objects += $(BUILDDIR)/runTest.o $(TESTDIR)/src/MadgraphTest.o
+$(testmain): $(BUILDDIR)/runTest.o $(BUILDDIR)/MadgraphTest.o
+$(testmain): cxx_objects += $(BUILDDIR)/runTest.o $(BUILDDIR)/MadgraphTest.o
 $(testmain): alp_objects += $(BUILDDIR)/runTest_alp.o
 ifneq ($(shell $(CXX) --version | grep ^clang),)
 $(testmain): LIBFLAGS += -L$(patsubst %%bin/clang++,%%lib,$(shell which $(CXX) | tail -1))
@@ -319,16 +315,19 @@ ifeq ($(NVCC),)
 # Link only runTest.o
 $(testmain): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS) 
 	$(CXX) -o $@ $(cxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
-else
+else ifneq ($(wildcard $(CUPLA_ROOT)/include/cuda_to_cupla.hpp),)
 # Link both runTest.o and runTest_alp.o
 # (todo? avoid multiple targets and '&', this needs the latest make 4.3, see https://stackoverflow.com/a/60232515)
 $(testmain) $(BUILDDIR)/runTest_alp.o &: runTest.cc $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(alp_objects) $(cupla_objects) $(GTESTLIBS)
 	$(NVCC) -o $(BUILDDIR)/runTest_alp.o -dc -x cu runTest.cc $(CUFLAGS) $(ALPFLAGS) $(ALPINC) $(CUPLAINC)
 	$(NVCC) -o $@ $(cxx_objects) $(alp_objects) $(cupla_objects) $(CPPFLAGS) $(CUFLAGS) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp
+else
+# Link both runTest.o and runTest_cu.o
+# (todo? avoid multiple targets and '&', this needs the latest make 4.3, see https://stackoverflow.com/a/60232515)
+$(testmain) $(BUILDDIR)/runTest_cu.o &: runTest.cc $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(cu_objects) $(GTESTLIBS)
+	$(NVCC) -o $(BUILDDIR)/runTest_cu.o -c -x cu runTest.cc $(CPPFLAGS) $(CUFLAGS)
+	$(NVCC) -o $@ $(cxx_objects) $(cu_objects) $(CPPFLAGS) $(CUFLAGS) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp
 endif
-
-$(TESTDIR)/src/MadgraphTest.o: $(TESTDIR)/src/MadgraphTest.cc $(TESTDIR)/include/*.h
-	$(MAKE) -C $(TESTDIR)
 
 $(GTESTLIBS):
 	$(MAKE) -C $(TESTDIR)
@@ -336,17 +335,29 @@ $(GTESTLIBS):
 check: $(testmain)
 	$(testmain)
 
-avxall:
+# Target: build all targets in all AVX modes (each AVX mode in a separate build directory)
+# Split the avxall target into five separate targets to allow parallel 'make -j avxall' builds
+avxnone:
 	@echo
 	make USEBUILDDIR=1 AVX=none
+
+avxsse4:
 	@echo
 	make USEBUILDDIR=1 AVX=sse4
+
+avxavx2:
 	@echo
 	make USEBUILDDIR=1 AVX=avx2
+
+avx512y:
 	@echo
 	make USEBUILDDIR=1 AVX=512y
+
+avx512z:
 	@echo
 	make USEBUILDDIR=1 AVX=512z
+
+avxall: avxnone avxsse4 avxavx2 avx512y avx512z
 
 .PHONY: clean
 

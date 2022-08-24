@@ -1,53 +1,69 @@
 #ifndef MGONGPUVECTORS_H
 #define MGONGPUVECTORS_H 1
 
+#include "mgOnGpuFptypes.h"
+#include "mgOnGpuCxtypes.h"
+
 #include <iostream>
 
+//==========================================================================
+
 //------------------------------
-// Vector types
+// Vector types - C++
 //------------------------------
 
-#include "mgOnGpuTypes.h"
-
-namespace mgOnGpu {
-#ifdef MGONGPU_NEPPV
-    const int neppV = MGONGPU_NEPPV;
-#else
-    const int neppV = 1;
-#endif
+namespace mgOnGpu
+{
+  const int neppV = 1;
 }
+
+//--------------------------------------------------------------------------
 
 // Expose typedefs outside the namespace
 using mgOnGpu::neppV;
 
-// Printout to std::cout for user defined types
-inline void print( const fptype& f ) { std::cout << f << std::endl; }
-
-inline void print( const cxtype& c ) { std::cout << c << std::endl; }
-
-// Operators for bool
-inline fptype fpternary( const bool& mask, const fptype& a, const fptype& b ) {
-    return ( mask ? a : b );
-}
-
-inline cxtype cxternary( const bool& mask, const cxtype& a, const cxtype& b ) {
-    return ( mask ? a : b );
-}
-
-inline bool maskor( const bool& mask ) {
-  return mask;
-}
-
 //--------------------------------------------------------------------------
 
-// Scalar-or-vector types:
+//==========================================================================
+
+//------------------------------
+// Vector types - SYCL
+//------------------------------
+
+// Printout to std::cout for user defined types
+inline void print( const fptype& f ){ printf( "%f\n", f ); }
+inline void print( const cxtype& c ){ printf( "[%f, %f]\n", cxreal(c), cximag(c) ); }
+
+/*
+SYCL_EXTERNAL inline
+const cxtype& cxvmake( const cxtype& c )
+{
+  return c;
+}
+*/
+
+SYCL_EXTERNAL inline
+fptype fpternary( const bool& mask, const fptype& a, const fptype& b )
+{
+  return ( mask ? a : b );
+}
+
+SYCL_EXTERNAL inline
+cxtype cxternary( const bool& mask, const cxtype& a, const cxtype& b )
+{
+  return ( mask ? a : b );
+}
+
+//==========================================================================
+
+// Scalar-or-vector types: scalar in SYCL
 typedef bool bool_sv;
 typedef fptype fptype_sv;
 typedef cxtype cxtype_sv;
 
-// Scalar-or-vector zeros:
-inline cxtype cxzero_sv(){ return cxtype{ fptype{0}, fptype{0} }; }
+// Scalar-or-vector zeros: scalar in CUDA, vector or scalar in C++
+SYCL_EXTERNAL inline cxtype cxzero_sv(){ return cxtype( 0, 0 ); }
 
-//--------------------------------------------------------------------------
+//==========================================================================
 
 #endif // MGONGPUVECTORS_H
