@@ -405,12 +405,13 @@ $(BUILDDIR)/gCrossSectionKernels.o: CUFLAGS += -Xcompiler -fno-fast-math
 endif
 
 # Avoid clang warning "overriding '-ffp-contract=fast' option with '-ffp-contract=on'" (#516)
-ifneq ($(shell $(CXX) --version | egrep '^(clang|Intel)'),)
-$(BUILDDIR)/CrossSectionKernels.o: CXXFLAGS += -Wno-overriding-t-option
-ifneq ($(NVCC),)
-$(BUILDDIR)/gCrossSectionKernels.o: CUFLAGS += -Xcompiler -Wno-overriding-t-option
-endif
-endif
+# This patch does remove the warning, but I prefer to keep it disabled for the moment...
+###ifneq ($(shell $(CXX) --version | egrep '^(clang|Intel)'),)
+###$(BUILDDIR)/CrossSectionKernels.o: CXXFLAGS += -Wno-overriding-t-option
+###ifneq ($(NVCC),)
+###$(BUILDDIR)/gCrossSectionKernels.o: CUFLAGS += -Xcompiler -Wno-overriding-t-option
+###endif
+###endif
 
 #### Apply special build flags only to CPPProcess.cc (-flto)
 ###$(BUILDDIR)/CPPProcess.o: CXXFLAGS += -flto
