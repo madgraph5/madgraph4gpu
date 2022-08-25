@@ -399,9 +399,19 @@ $(BUILDDIR)/%.o : %.cc *.h ../../src/*.h
 
 # Apply special build flags only to CrossSectionKernel.cc and gCrossSectionKernel.cu (no fast math, see #117)
 $(BUILDDIR)/CrossSectionKernels.o: CXXFLAGS += -fno-fast-math
+$(BUILDDIR)/CrossSectionKernels.o: CXXFLAGS += -fno-fast-math
 ifneq ($(NVCC),)
 $(BUILDDIR)/gCrossSectionKernels.o: CUFLAGS += -Xcompiler -fno-fast-math
 endif
+
+# Avoid clang warning "overriding '-ffp-contract=fast' option with '-ffp-contract=on'" (#516)
+# This patch does remove the warning, but I prefer to keep it disabled for the moment...
+###ifneq ($(shell $(CXX) --version | egrep '^(clang|Intel)'),)
+###$(BUILDDIR)/CrossSectionKernels.o: CXXFLAGS += -Wno-overriding-t-option
+###ifneq ($(NVCC),)
+###$(BUILDDIR)/gCrossSectionKernels.o: CUFLAGS += -Xcompiler -Wno-overriding-t-option
+###endif
+###endif
 
 #### Apply special build flags only to CPPProcess.cc (-flto)
 ###$(BUILDDIR)/CPPProcess.o: CXXFLAGS += -flto
