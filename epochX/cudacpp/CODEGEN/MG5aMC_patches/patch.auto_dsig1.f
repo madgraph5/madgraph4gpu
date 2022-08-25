@@ -1,5 +1,5 @@
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
-index 1734289bf..3c66b950f 100644
+index 1734289bf..876010e27 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
 @@ -76,13 +76,13 @@ C     Keep track of whether cuts already calculated for this event
@@ -18,6 +18,15 @@ index 1734289bf..3c66b950f 100644
  C     jamp2 information
        DOUBLE PRECISION JAMP2(0:MAXFLOW, NB_PAGE_MAX)
        COMMON/TO_JAMPS/       JAMP2
+@@ -148,7 +148,7 @@ C     Continue only if IMODE is 0, 4 or 5
+       ENDIF
+ 
+       CHANNEL = SUBDIAG(1)
+-      CALL SMATRIX1(P1,0,CHANNEL,DSIGUU,JAMP2(0,1),1)
++      CALL SMATRIX1(P1,0D0,CHANNEL,DSIGUU,JAMP2(0,1),1)
+ 
+       IF (IMODE.EQ.5) THEN
+         IF (DSIGUU.LT.1D199) THEN
 @@ -219,7 +219,8 @@ C     ****************************************************
  C     
  C     CONSTANTS
