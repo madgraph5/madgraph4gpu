@@ -403,6 +403,17 @@ ifneq ($(NVCC),)
 $(BUILDDIR)/gCrossSectionKernels.o: CUFLAGS += -Xcompiler -fno-fast-math
 endif
 
+# Apply special build flags only to CrossSectionKernel.cc and gCrossSectionKernel.cu (no fast math, see #117)
+# Unsuccessful attempt to avoid clang warning "overriding '-ffp-contract=fast' option with '-ffp-contract=on'" (#516)
+###$(BUILDDIR)/CrossSectionKernels.o: CrossSectionKernels.cc *.h ../../src/*.h
+###	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
+###	$(CXX) $(CPPFLAGS) $(filter-out -ffast-math,$(CXXFLAGS)) -fno-fast-math $(CUINC) -fPIC -c $< -o $@
+###ifneq ($(NVCC),)
+###$(BUILDDIR)/gCrossSectionKernels.o: gCrossSectionKernels.cu *.h ../../src/*.h
+###	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
+###	$(NVCC) $(CPPFLAGS) $(filter-out -use_fast_math,$(CUFLAGS)) -Xcompiler -fno-fast-math -Xcompiler -fPIC -c $< -o $@
+###endif
+
 #### Apply special build flags only to CPPProcess.cc (-flto)
 ###$(BUILDDIR)/CPPProcess.o: CXXFLAGS += -flto
 
