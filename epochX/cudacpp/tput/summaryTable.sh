@@ -3,6 +3,7 @@
 table=
 if [ "$1" == "-ALL" ] && [ "$2" == "" ]; then
   set -e
+  $0 -latest
   $0 -default
   $0 -bridge
   $0 -hrdcod
@@ -12,6 +13,8 @@ if [ "$1" == "-ALL" ] && [ "$2" == "" ]; then
   $0 -alphas
   $0 -3xcomp
   exit 0
+elif [ "$1" == "-latest" ]; then
+  table="latest"; shift
 elif [ "$1" == "-default" ]; then
   table="default"; shift
 elif [ "$1" == "-bridge" ]; then
@@ -29,7 +32,7 @@ elif [ "$1" == "-alphas" ]; then
 elif [ "$1" == "-3xcomp" ]; then
   table="3xcomp"; shift
 else
-  echo "Usage: $0 <table [-ALL|-default|-bridge|-hrdcod|-juwels|-alpaka|-macm1|-alphas|-3xcomp]>"; exit 1
+  echo "Usage: $0 <table [-ALL|-latest|-default|-bridge|-hrdcod|-juwels|-alpaka|-macm1|-alphas|-3xcomp]>"; exit 1
 fi
 
 unames=$(uname -s)
@@ -54,15 +57,20 @@ touch $out
 #    Logs (28 Apr 2022, bae5c248): cuda116/gcc102 (56 logs from allTees.sh)
 #----------------------------------------------------------------------------
 
+# NB: some PRs include many log modifications but eventually go back to the initial logs (overall noop)
+# NB: use 'git log --full-history' to show all intermediate commits (which are pruned by a simple 'git log')
+
 # Select revisions of cudacpp and alpaka logs
-crevs=""
-arevs=""
-mrevs=""
-if [ "$table" == "default" ]; then
+crevs="" # cudacpp .sa
+arevs="" # alpaka
+mrevs="" # cudacpp .mad
+if [ "$table" == "latest" ]; then
+  mrevs="$mrevs 2d3e789"  # cuda116/gcc102  (20 Jun 2022) BASELINE eemumu/ggtt* x f/d x hrd0 x inl0 x default/bridge
+elif [ "$table" == "default" ]; then
   crevs="$crevs 09e482e"  # cuda116/gcc102  (03 Mar 2022) BASELINE eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
   crevs="$crevs 16df79c"  # cuda116/icx2022 (03 Mar 2022) ICX TEST eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
 elif [ "$table" == "bridge" ]; then
-  mrevs="$mrevs 2d3e789"  # cuda116/gcc102  (22 Jun 2022) BASELINE eemumu/ggtt* x f/d x hrd0 x inl0 x default/bridge
+  mrevs="$mrevs 2d3e789"  # cuda116/gcc102  (20 Jun 2022) BASELINE eemumu/ggtt* x f/d x hrd0 x inl0 x default/bridge
 elif [ "$table" == "hrdcod" ]; then
   crevs="$crevs 09e482e"  # cuda116/gcc102  (03 Mar 2022) BASELINE eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
   crevs="$crevs 16df79c"  # cuda116/icx2022 (03 Mar 2022) ICX TEST eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
@@ -90,7 +98,12 @@ fi
 procs="eemumu ggtt ggttg ggttgg ggttggg"
 
 # Select fptype, helinl, hrdcod
-if [ "$table" == "default" ]; then
+if [ "$table" == "latest" ]; then
+  fpts="d f"
+  inls="inl0 inl1"
+  hrds="hrd0"
+  brds="nobr"
+elif [ "$table" == "default" ]; then
   fpts="d f"
   inls="inl0 inl1"
   hrds="hrd0"
