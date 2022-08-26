@@ -195,6 +195,16 @@ $(LIBDIR)/lib$(MG5AMC_CXXLIB).so: cxx_objects_lib += $(BUILDDIR)/fbridge.o
 $(LIBDIR)/lib$(MG5AMC_CXXLIB).so: $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects_lib)
 	$(CXX) $(CXXFLAGS) $(SYCLFLAGS) -fPIC -shared -o $@ $(cxx_objects_lib) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
 
+# Target (and build rules): C++ and SYCL static libraries
+$(BUILDDIR)/lib$(MG5AMC_CXXLIB).o: cxx_objects_lib += $(BUILDDIR)/fbridge.o
+$(BUILDDIR)/lib$(MG5AMC_CXXLIB).o: $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects_lib)
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
+	$(CXX) $(CXXFLAGS) $(SYCLFLAGS) -fPIC -o $@ $(cxx_objects_lib) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
+
+$(LIBDIR)/lib$(MG5AMC_CXXLIB).a: $(BUILDDIR)/lib$(MG5AMC_CXXLIB).o
+	@if [ ! -d $(LIBDIR) ]; then echo "mkdir -p $(LIBDIR)"; mkdir -p $(LIBDIR); fi
+	ar rvs $@ $^
+
 #-------------------------------------------------------------------------------
 
 # Target (and build rules): Fortran include files
@@ -207,9 +217,9 @@ $(LIBDIR)/lib$(MG5AMC_CXXLIB).so: $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_obje
 # Target (and build rules): C++ and SYCL standalone executables
 $(sycl_main): LIBFLAGS += $(CXXLIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 ###$(sycl_main): $(BUILDDIR)/check_sa.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).so $(cxx_objects_exe)
-$(sycl_main): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so
+$(sycl_main): $(LIBDIR)/lib$(MG5AMC_CXXLIB).a
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	$(CXX) $(CXXFLAGS) $(SYCLFLAGS) -fPIC -o $@ check_sa.cc CPPProcess.cc -pthread $(LIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB) -lstdc++fs
+	$(CXX) $(CXXFLAGS) $(SYCLFLAGS) -fPIC -o $@ check_sa.cc $(LIBDIR)/lib$(MG5AMC_CXXLIB).a -pthread $(LIBFLAGS) -lstdc++fs
 
 #-------------------------------------------------------------------------------
 
