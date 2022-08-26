@@ -57,7 +57,8 @@ touch $out
 # 2. Code (28 Apr 2022, bae5c248): about to be merged in the alphas PR #434
 #    Logs (28 Apr 2022, bae5c248): cuda116/gcc102 (56 logs from allTees.sh)
 #-------------------------------------------------------------------------------------------------------
-# 1. Logs (20 Jun 2022, 2d3e789): cuda116/gcc102 (60 logs from allTees.sh) <= LATEST cuda116/gcc102
+# 1. Logs (20 Jun 2022, 2d3e789): cuda116/gcc102 (60 logs from allTees.sh) <= previous cuda116/gcc102
+# 2. Logs (26 Aug 2022, 21c4cb8): cuda116/gcc102 (60 logs from allTees.sh) <= LATEST cuda116/gcc102
 #----------------------------------------------------------------------------
 
 # NB: some PRs include many log modifications but eventually go back to the initial logs (overall noop)
@@ -68,7 +69,7 @@ crevs="" # cudacpp .sa
 arevs="" # alpaka
 mrevs="" # cudacpp .mad
 if [ "$table" == "latest" ]; then
-  mrevs="$mrevs 2d3e789" # cuda116/gcc102  (20 Jun 2022) BASELINE eemumu/ggtt* x f/d x hrd0 x inl0 x default/bridge
+  mrevs="$mrevs 21c4cb8" # cuda116/gcc102  (26 Aug 2022) BASELINE eemumu/ggtt* x f/d x hrd0 x inl0 x default/bridge
 elif [ "$table" == "default" ]; then
   crevs="$crevs 09e482e" # cuda116/gcc102  (03 Mar 2022) BASELINE eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
   crevs="$crevs 16df79c" # cuda116/icx2022 (03 Mar 2022) ICX TEST eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
