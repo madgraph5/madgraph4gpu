@@ -49,12 +49,15 @@ out=tput/summaryTable_${table}.txt
 \rm -f $out
 touch $out
 
-#----------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------------------------
 # A few reference points 
+#-------------------------------------------------------------------------------------------------------
 # 1. Code (21 Apr 2022, c0c27684): just before the alphas PR #434
 #    Logs (28 Apr 2022, 88fe36d1): cuda116/gcc102 (56 logs from allTees.sh)
 # 2. Code (28 Apr 2022, bae5c248): about to be merged in the alphas PR #434
 #    Logs (28 Apr 2022, bae5c248): cuda116/gcc102 (56 logs from allTees.sh)
+#-------------------------------------------------------------------------------------------------------
+# 1. Logs (20 Jun 2022, 2d3e789): cuda116/gcc102 (60 logs from allTees.sh) <= LATEST cuda116/gcc102
 #----------------------------------------------------------------------------
 
 # NB: some PRs include many log modifications but eventually go back to the initial logs (overall noop)
@@ -65,31 +68,31 @@ crevs="" # cudacpp .sa
 arevs="" # alpaka
 mrevs="" # cudacpp .mad
 if [ "$table" == "latest" ]; then
-  mrevs="$mrevs 2d3e789"  # cuda116/gcc102  (20 Jun 2022) BASELINE eemumu/ggtt* x f/d x hrd0 x inl0 x default/bridge
+  mrevs="$mrevs 2d3e789" # cuda116/gcc102  (20 Jun 2022) BASELINE eemumu/ggtt* x f/d x hrd0 x inl0 x default/bridge
 elif [ "$table" == "default" ]; then
-  crevs="$crevs 09e482e"  # cuda116/gcc102  (03 Mar 2022) BASELINE eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
-  crevs="$crevs 16df79c"  # cuda116/icx2022 (03 Mar 2022) ICX TEST eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
+  crevs="$crevs 09e482e" # cuda116/gcc102  (03 Mar 2022) BASELINE eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
+  crevs="$crevs 16df79c" # cuda116/icx2022 (03 Mar 2022) ICX TEST eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
 elif [ "$table" == "bridge" ]; then
-  mrevs="$mrevs 2d3e789"  # cuda116/gcc102  (20 Jun 2022) BASELINE eemumu/ggtt* x f/d x hrd0 x inl0 x default/bridge
+  mrevs="$mrevs 2d3e789" # cuda116/gcc102  (20 Jun 2022) BASELINE eemumu/ggtt* x f/d x hrd0 x inl0 x default/bridge
 elif [ "$table" == "hrdcod" ]; then
-  crevs="$crevs 09e482e"  # cuda116/gcc102  (03 Mar 2022) BASELINE eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
-  crevs="$crevs 16df79c"  # cuda116/icx2022 (03 Mar 2022) ICX TEST eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
+  crevs="$crevs 09e482e" # cuda116/gcc102  (03 Mar 2022) BASELINE eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
+  crevs="$crevs 16df79c" # cuda116/icx2022 (03 Mar 2022) ICX TEST eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
 elif [ "$table" == "juwels" ]; then
-  crevs="$crevs 09e482e"  # cuda116/gcc102  (03 Mar 2022) BASELINE eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
-  crevs="$crevs 65730b2"  # cuda115/gcc112  (18 Feb 2022) JUWELSCL eemumu/ggtt/ggttgg x f/d x inl0/inl1 + ggttg/ggttggg x f/d
-  crevs="$crevs df441ad"  # cuda115/gcc112  (18 Feb 2022) JUWELSBO eemumu/ggtt/ggttgg x f/d x inl0/inl1 + ggttg/ggttggg x f/d
+  crevs="$crevs 09e482e" # cuda116/gcc102  (03 Mar 2022) BASELINE eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
+  crevs="$crevs 65730b2" # cuda115/gcc112  (18 Feb 2022) JUWELSCL eemumu/ggtt/ggttgg x f/d x inl0/inl1 + ggttg/ggttggg x f/d
+  crevs="$crevs df441ad" # cuda115/gcc112  (18 Feb 2022) JUWELSBO eemumu/ggtt/ggttgg x f/d x inl0/inl1 + ggttg/ggttggg x f/d
 elif [ "$table" == "alpaka" ]; then
-  crevs="$crevs 09e482e"  # cuda116/gcc102  (03 Mar 2022) BASELINE eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
-  arevs="$arevs f5a44ba"  # cuda116/gcc102  (06 Mar 2022) GOLDEPX4 eemumu/ggtt/ggttg/ggttgg/ggttggg x d x inl0 (golden tag epochx4)
+  crevs="$crevs 09e482e" # cuda116/gcc102  (03 Mar 2022) BASELINE eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
+  arevs="$arevs f5a44ba" # cuda116/gcc102  (06 Mar 2022) GOLDEPX4 eemumu/ggtt/ggttg/ggttgg/ggttggg x d x inl0 (golden tag epochx4)
 elif [ "$table" == "macm1" ]; then
-  crevs="$crevs ea28661"  # NOGPU/clang120  (10 Apr 2022) MACM1ARM eemumu/ggtt/ggttg/ggttgg/ggttggg x f/d x hrd0 x inl0
+  crevs="$crevs ea28661" # NOGPU/clang120  (10 Apr 2022) MACM1ARM eemumu/ggtt/ggttg/ggttgg/ggttggg x f/d x hrd0 x inl0
 elif [ "$table" == "alphas" ]; then
-  crevs="$crevs 88fe36d1" # cuda116/gcc102  (28 Apr 2022) PRE-AS   56 logs allTees.sh
-  crevs="$crevs bae5c248" # cuda116/gcc102  (28 Apr 2022) POST-AS  56 logs allTees.sh
+  crevs="$crevs 88fe36d" # cuda116/gcc102  (28 Apr 2022) PRE-AS   56 logs allTees.sh
+  crevs="$crevs bae5c24" # cuda116/gcc102  (28 Apr 2022) POST-AS  56 logs allTees.sh
 elif [ "$table" == "3xcomp" ]; then
-  crevs="$crevs c112e7db" # cuda116/gcc102  (10 May 2022) GCC102   58 logs allTees.sh (includes also heftggh)
-  crevs="$crevs 7a158588" # cuda116/clang12 (10 May 2022) CLANG12  56 logs allTees.sh
-  crevs="$crevs 7912f186" # cuda116/icx2022 (10 May 2022) ICX2022  56 logs allTees.sh
+  crevs="$crevs c112e7d" # cuda116/gcc102  (10 May 2022) GCC102   58 logs allTees.sh (includes also heftggh)
+  crevs="$crevs 7a15858" # cuda116/clang12 (10 May 2022) CLANG12  56 logs allTees.sh
+  crevs="$crevs 7912f18" # cuda116/icx2022 (10 May 2022) ICX2022  56 logs allTees.sh
 else
   echo "ERROR! Unknown table '$table'"; exit 1
 fi
