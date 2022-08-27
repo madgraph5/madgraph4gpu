@@ -67,8 +67,7 @@ crevs="" # cudacpp .sa
 arevs="" # alpaka
 mrevs="" # cudacpp .mad
 if [ "$table" == "latest" ]; then
-  mrevs="$mrevs d250d2d" # cuda117/gcc112  (26 Aug 2022) BASELINE eemumu/ggtt* x f/d x hrd0 x inl0 x default/bridge
-  ###mrevs="$mrevs 21c4cb8" # cuda116/gcc102  (26 Aug 2022) BASELINE eemumu/ggtt* x f/d x hrd0 x inl0 x default/bridge
+  mrevs="$mrevs d250d2d" # cuda117/gcc112  (26 Aug 2022) GCC112   60 logs allTees.sh
 elif [ "$table" == "bridge" ]; then
   mrevs="$mrevs 2d3e789" # cuda116/gcc102  (20 Jun 2022) BASELINE eemumu/ggtt* x f/d x hrd0 x inl0 x default/bridge
 elif [ "$table" == "hrdcod" ]; then
