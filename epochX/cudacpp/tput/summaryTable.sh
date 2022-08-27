@@ -236,8 +236,8 @@ for fpt in $fpts; do
     fi
     if [ "$revs" == "" ]; then continue; fi
     ### DIFFERENT SORTINGS
-    if [ "$table" == "3xcomp" ]; then
-      ### New sorting (3xcomp)
+    if [ "$table" == "3xcomp" ] || [ "$table" == "default" ]; then
+      ### New sorting (3xcomp, default)
       for inl in $inls; do
         for hrd in $hrds; do
           for brd in $brds; do
@@ -265,7 +265,7 @@ for fpt in $fpts; do
         done
       done
     else
-      ### Old sorting (all but alphas and 3xcomp)
+      ### Old sorting (all but alphas, 3xcomp, default)
       for rev in $revs; do
         echo -e "+++ $bckend REVISION $rev (commit date: $(git log $rev --pretty=format:'%ci' --abbrev-commit -n1)) +++" >> $out
         nodelast=
