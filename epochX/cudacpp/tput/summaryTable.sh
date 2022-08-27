@@ -4,7 +4,6 @@ table=
 if [ "$1" == "-ALL" ] && [ "$2" == "" ]; then
   set -e
   $0 -latest
-  $0 -default
   $0 -bridge
   $0 -hrdcod
   $0 -juwels
@@ -15,8 +14,6 @@ if [ "$1" == "-ALL" ] && [ "$2" == "" ]; then
   exit 0
 elif [ "$1" == "-latest" ]; then
   table="latest"; shift
-elif [ "$1" == "-default" ]; then
-  table="default"; shift
 elif [ "$1" == "-bridge" ]; then
   table="bridge"; shift
 elif [ "$1" == "-hrdcod" ]; then
@@ -32,7 +29,7 @@ elif [ "$1" == "-alphas" ]; then
 elif [ "$1" == "-3xcomp" ]; then
   table="3xcomp"; shift
 else
-  echo "Usage: $0 <table [-ALL|-latest|-default|-bridge|-hrdcod|-juwels|-alpaka|-macm1|-alphas|-3xcomp]>"; exit 1
+  echo "Usage: $0 <table [-ALL|-latest|-bridge|-hrdcod|-juwels|-alpaka|-macm1|-alphas|-3xcomp]>"; exit 1
 fi
 
 unames=$(uname -s)
@@ -72,9 +69,6 @@ mrevs="" # cudacpp .mad
 if [ "$table" == "latest" ]; then
   mrevs="$mrevs d250d2d" # cuda117/gcc112  (26 Aug 2022) BASELINE eemumu/ggtt* x f/d x hrd0 x inl0 x default/bridge
   ###mrevs="$mrevs 21c4cb8" # cuda116/gcc102  (26 Aug 2022) BASELINE eemumu/ggtt* x f/d x hrd0 x inl0 x default/bridge
-elif [ "$table" == "default" ]; then
-  mrevs="$mrevs d250d2d" # cuda117/gcc112  (26 Aug 2022) GCC112   60 logs allTees.sh
-  mrevs="$mrevs f3ee68c" # cuda117/icx2022 (27 Aug 2022) ICX2022  60 logs allTees.sh
 elif [ "$table" == "bridge" ]; then
   mrevs="$mrevs 2d3e789" # cuda116/gcc102  (20 Jun 2022) BASELINE eemumu/ggtt* x f/d x hrd0 x inl0 x default/bridge
 elif [ "$table" == "hrdcod" ]; then
@@ -105,11 +99,6 @@ procs="eemumu ggtt ggttg ggttgg ggttggg"
 
 # Select fptype, helinl, hrdcod
 if [ "$table" == "latest" ]; then
-  fpts="d f"
-  inls="inl0 inl1"
-  hrds="hrd0"
-  brds="nobr"
-elif [ "$table" == "default" ]; then
   fpts="d f"
   inls="inl0 inl1"
   hrds="hrd0"
@@ -236,8 +225,8 @@ for fpt in $fpts; do
     fi
     if [ "$revs" == "" ]; then continue; fi
     ### DIFFERENT SORTINGS
-    if [ "$table" == "3xcomp" ] || [ "$table" == "default" ]; then
-      ### New sorting (3xcomp, default)
+    if [ "$table" == "3xcomp" ]; then
+      ### New sorting (3xcomp)
       for inl in $inls; do
         for hrd in $hrds; do
           for brd in $brds; do
@@ -265,7 +254,7 @@ for fpt in $fpts; do
         done
       done
     else
-      ### Old sorting (all but alphas, 3xcomp, default)
+      ### Old sorting (all but alphas, 3xcomp)
       for rev in $revs; do
         echo -e "+++ $bckend REVISION $rev (commit date: $(git log $rev --pretty=format:'%ci' --abbrev-commit -n1)) +++" >> $out
         nodelast=
