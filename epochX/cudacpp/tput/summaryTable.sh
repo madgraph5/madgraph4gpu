@@ -93,9 +93,9 @@ elif [ "$table" == "alphas" ]; then
   crevs="$crevs 88fe36d" # cuda116/gcc102  (28 Apr 2022) PRE-AS   56 logs allTees.sh
   crevs="$crevs bae5c24" # cuda116/gcc102  (28 Apr 2022) POST-AS  56 logs allTees.sh
 elif [ "$table" == "3xcomp" ]; then
-  crevs="$crevs c112e7d" # cuda116/gcc102  (10 May 2022) GCC102   58 logs allTees.sh (includes also heftggh)
-  crevs="$crevs 7a15858" # cuda116/clang12 (10 May 2022) CLANG12  56 logs allTees.sh
-  crevs="$crevs 7912f18" # cuda116/icx2022 (10 May 2022) ICX2022  56 logs allTees.sh
+  mrevs="$mrevs d250d2d" # cuda117/gcc112  (26 Aug 2022) GCC112   60 logs allTees.sh
+  mrevs="$mrevs 335ff21" # cuda117/clang13 (27 Aug 2022) CLANG13  60 logs allTees.sh
+  mrevs="$mrevs f3ee68c" # cuda117/icx2022 (27 Aug 2022) ICX2022  60 logs allTees.sh
 else
   echo "ERROR! Unknown table '$table'"; exit 1
 fi
