@@ -33,46 +33,46 @@ make[1]: Entering directory `/data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp
 make[1]: Nothing to be done for `all'.
 make[1]: Leaving directory `/data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll'
 
-DATE: 2022-08-26_16:13:02
+DATE: 2022-08-27_03:10:35
 
 On itscrd70.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
 =========================================================================
 runExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.none_d_inl1_hrd1/gcheck.exe -p 2048 256 12 OMP=
-Process                     = SIGMA_SM_EPEM_MUPMUM_CUDA [nvcc 11.7.99 (gcc 11.2.0)] [inlineHel=1] [hardcodePARAM=1]
+Process                     = SIGMA_SM_EPEM_MUPMUM_CUDA [nvcc 11.7.99 (icx 20220100, clang 14.0.0, gcc 11.2.0)] [inlineHel=1] [hardcodePARAM=1]
 Workflow summary            = CUD:DBL+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
 FP precision                = DOUBLE (NaN/abnormal=0, zero=0)
-EvtsPerSec[Rmb+ME]     (23) = ( 5.514490e+07                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 5.764609e+08                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 1.290623e+09                 )  sec^-1
+EvtsPerSec[Rmb+ME]     (23) = ( 6.327295e+07                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 6.269092e+08                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.307964e+09                 )  sec^-1
 MeanMatrixElemValue         = ( 1.371706e-02 +- 3.270315e-06 )  GeV^0
-TOTAL       :     0.753649 sec
-       454,216,588      cycles:u                  #    0.455 GHz                    
-       802,408,498      instructions:u            #    1.77  insn per cycle         
-       1.055222929 seconds time elapsed
+TOTAL       :     0.889955 sec
+       542,888,118      cycles:u                  #    0.489 GHz                    
+     1,181,837,776      instructions:u            #    2.18  insn per cycle         
+       1.213452343 seconds time elapsed
 ==PROF== Profiling "sigmaKin": launch__registers_per_thread 112
 ==PROF== Profiling "sigmaKin": sm__sass_average_branch_targets_threads_uniform.pct 100%
 -------------------------------------------------------------------------
 cmpExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.none_d_inl1_hrd1/gcheck.exe --common -p 2 64 2
 cmpExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.none_d_inl1_hrd1/fgcheck.exe 2 64 2
 Avg ME (C++/CUDA)   = 1.282804e-02
-Avg ME (F77/CUDA)   = 1.2828039868165208E-002
-Relative difference = 1.0277079981222336e-08
+Avg ME (F77/CUDA)   = 1.2828039868165077E-002
+Relative difference = 1.0277090123399995e-08
 OK (relative difference <= 2E-4)
 =========================================================================
 runExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.none_d_inl1_hrd1/check.exe -p 2048 256 12 OMP=
-Process                     = SIGMA_SM_EPEM_MUPMUM_CPP [gcc 11.2.0] [inlineHel=1] [hardcodePARAM=1]
+Process                     = SIGMA_SM_EPEM_MUPMUM_CPP [icx 20220100 (clang 14.0.0, gcc 11.2.0)] [inlineHel=1] [hardcodePARAM=1]
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/none+NAVBRK
 FP precision                = DOUBLE (NaN/abnormal=0, zero=0)
 Internal loops fptype_sv    = SCALAR ('none': ~vector[1], no SIMD)
-EvtsPerSec[Rmb+ME]     (23) = ( 2.251484e+06                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 7.414326e+06                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 7.414326e+06                 )  sec^-1
+EvtsPerSec[Rmb+ME]     (23) = ( 3.695437e+06                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 6.334454e+06                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 6.334454e+06                 )  sec^-1
 MeanMatrixElemValue         = ( 1.371706e-02 +- 3.270315e-06 )  GeV^0
-TOTAL       :     3.283579 sec
-     8,597,882,640      cycles:u                  #    2.606 GHz                    
-    15,160,613,462      instructions:u            #    1.76  insn per cycle         
-       3.302596727 seconds time elapsed
-=Symbols in CPPProcess.o= (~sse4:  104) (avx2:    0) (512y:    0) (512z:    0)
+TOTAL       :     2.333433 sec
+     5,755,386,480      cycles:u                  #    2.486 GHz                    
+    13,288,998,355      instructions:u            #    2.31  insn per cycle         
+       2.363237633 seconds time elapsed
+=Symbols in CPPProcess.o= (~sse4:  239) (avx2:    0) (512y:    0) (512z:    0)
 -------------------------------------------------------------------------
 runExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.none_d_inl1_hrd1/runTest.exe
 [  PASSED  ] 6 tests.
@@ -80,24 +80,24 @@ runExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProces
 cmpExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.none_d_inl1_hrd1/check.exe --common -p 2 64 2
 cmpExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.none_d_inl1_hrd1/fcheck.exe 2 64 2
 Avg ME (C++/C++)    = 1.282804e-02
-Avg ME (F77/C++)    = 1.2828039868164921E-002
-Relative difference = 1.0277102294013186e-08
+Avg ME (F77/C++)    = 1.2828039868165081E-002
+Relative difference = 1.0277089852941924e-08
 OK (relative difference <= 2E-4)
 -------------------------------------------------------------------------
 runExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.sse4_d_inl1_hrd1/check.exe -p 2048 256 12 OMP=
-Process                     = SIGMA_SM_EPEM_MUPMUM_CPP [gcc 11.2.0] [inlineHel=1] [hardcodePARAM=1]
-Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/sse4+CXVBRK
+Process                     = SIGMA_SM_EPEM_MUPMUM_CPP [icx 20220100 (clang 14.0.0, gcc 11.2.0)] [inlineHel=1] [hardcodePARAM=1]
+Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/sse4+NOVBRK
 FP precision                = DOUBLE (NaN/abnormal=0, zero=0)
-Internal loops fptype_sv    = VECTOR[2] ('sse4': SSE4.2, 128bit) [cxtype_ref=YES]
-EvtsPerSec[Rmb+ME]     (23) = ( 2.431353e+06                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 1.095070e+07                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 1.095070e+07                 )  sec^-1
+Internal loops fptype_sv    = VECTOR[2] ('sse4': SSE4.2, 128bit) [cxtype_ref=NO]
+EvtsPerSec[Rmb+ME]     (23) = ( 4.641969e+06                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 1.048587e+07                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.048587e+07                 )  sec^-1
 MeanMatrixElemValue         = ( 1.371706e-02 +- 3.270315e-06 )  GeV^0
-TOTAL       :     3.068109 sec
-     8,031,416,234      cycles:u                  #    2.604 GHz                    
-    13,111,944,478      instructions:u            #    1.63  insn per cycle         
-       3.087240243 seconds time elapsed
-=Symbols in CPPProcess.o= (~sse4:  362) (avx2:    0) (512y:    0) (512z:    0)
+TOTAL       :     1.982889 sec
+     4,812,166,146      cycles:u                  #    2.451 GHz                    
+    10,521,518,772      instructions:u            #    2.19  insn per cycle         
+       2.012946790 seconds time elapsed
+=Symbols in CPPProcess.o= (~sse4:  415) (avx2:    0) (512y:    0) (512z:    0)
 -------------------------------------------------------------------------
 runExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.sse4_d_inl1_hrd1/runTest.exe
 [  PASSED  ] 6 tests.
@@ -105,24 +105,24 @@ runExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProces
 cmpExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.sse4_d_inl1_hrd1/check.exe --common -p 2 64 2
 cmpExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.sse4_d_inl1_hrd1/fcheck.exe 2 64 2
 Avg ME (C++/C++)    = 1.282804e-02
-Avg ME (F77/C++)    = 1.2828039868164921E-002
-Relative difference = 1.0277102294013186e-08
+Avg ME (F77/C++)    = 1.2828039868165081E-002
+Relative difference = 1.0277089852941924e-08
 OK (relative difference <= 2E-4)
 -------------------------------------------------------------------------
 runExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.avx2_d_inl1_hrd1/check.exe -p 2048 256 12 OMP=
-Process                     = SIGMA_SM_EPEM_MUPMUM_CPP [gcc 11.2.0] [inlineHel=1] [hardcodePARAM=1]
-Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/avx2+CXVBRK
+Process                     = SIGMA_SM_EPEM_MUPMUM_CPP [icx 20220100 (clang 14.0.0, gcc 11.2.0)] [inlineHel=1] [hardcodePARAM=1]
+Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/avx2+NOVBRK
 FP precision                = DOUBLE (NaN/abnormal=0, zero=0)
-Internal loops fptype_sv    = VECTOR[4] ('avx2': AVX2, 256bit) [cxtype_ref=YES]
-EvtsPerSec[Rmb+ME]     (23) = ( 2.555618e+06                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 1.314094e+07                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 1.314094e+07                 )  sec^-1
+Internal loops fptype_sv    = VECTOR[4] ('avx2': AVX2, 256bit) [cxtype_ref=NO]
+EvtsPerSec[Rmb+ME]     (23) = ( 5.251371e+06                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 1.349342e+07                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.349342e+07                 )  sec^-1
 MeanMatrixElemValue         = ( 1.371706e-02 +- 3.270315e-06 )  GeV^0
-TOTAL       :     2.943076 sec
-     7,516,701,463      cycles:u                  #    2.540 GHz                    
-    11,093,414,155      instructions:u            #    1.48  insn per cycle         
-       2.962317930 seconds time elapsed
-=Symbols in CPPProcess.o= (~sse4:    0) (avx2:  351) (512y:    0) (512z:    0)
+TOTAL       :     1.827464 sec
+     4,227,693,659      cycles:u                  #    2.337 GHz                    
+     8,273,706,312      instructions:u            #    1.96  insn per cycle         
+       1.856767101 seconds time elapsed
+=Symbols in CPPProcess.o= (~sse4:    0) (avx2:  582) (512y:    0) (512z:    0)
 -------------------------------------------------------------------------
 runExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.avx2_d_inl1_hrd1/runTest.exe
 [  PASSED  ] 6 tests.
@@ -130,24 +130,24 @@ runExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProces
 cmpExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.avx2_d_inl1_hrd1/check.exe --common -p 2 64 2
 cmpExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.avx2_d_inl1_hrd1/fcheck.exe 2 64 2
 Avg ME (C++/C++)    = 1.282804e-02
-Avg ME (F77/C++)    = 1.2828039868165093E-002
-Relative difference = 1.0277088906338675e-08
+Avg ME (F77/C++)    = 1.2828039868164959E-002
+Relative difference = 1.0277099318974405e-08
 OK (relative difference <= 2E-4)
 -------------------------------------------------------------------------
 runExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.512y_d_inl1_hrd1/check.exe -p 2048 256 12 OMP=
-Process                     = SIGMA_SM_EPEM_MUPMUM_CPP [gcc 11.2.0] [inlineHel=1] [hardcodePARAM=1]
-Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/512y+CXVBRK
+Process                     = SIGMA_SM_EPEM_MUPMUM_CPP [icx 20220100 (clang 14.0.0, gcc 11.2.0)] [inlineHel=1] [hardcodePARAM=1]
+Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/512y+NOVBRK
 FP precision                = DOUBLE (NaN/abnormal=0, zero=0)
-Internal loops fptype_sv    = VECTOR[4] ('512y': AVX512, 256bit) [cxtype_ref=YES]
-EvtsPerSec[Rmb+ME]     (23) = ( 2.566516e+06                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 1.326329e+07                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 1.326329e+07                 )  sec^-1
+Internal loops fptype_sv    = VECTOR[4] ('512y': AVX512, 256bit) [cxtype_ref=NO]
+EvtsPerSec[Rmb+ME]     (23) = ( 5.350977e+06                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 1.421214e+07                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.421214e+07                 )  sec^-1
 MeanMatrixElemValue         = ( 1.371706e-02 +- 3.270315e-06 )  GeV^0
-TOTAL       :     2.933179 sec
-     7,488,743,719      cycles:u                  #    2.539 GHz                    
-    11,021,064,827      instructions:u            #    1.47  insn per cycle         
-       2.952492074 seconds time elapsed
-=Symbols in CPPProcess.o= (~sse4:    0) (avx2:  346) (512y:    0) (512z:    0)
+TOTAL       :     1.813792 sec
+     4,195,448,976      cycles:u                  #    2.339 GHz                    
+     7,954,803,698      instructions:u            #    1.90  insn per cycle         
+       1.843292981 seconds time elapsed
+=Symbols in CPPProcess.o= (~sse4:    0) (avx2:  426) (512y:    0) (512z:    0)
 -------------------------------------------------------------------------
 runExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.512y_d_inl1_hrd1/runTest.exe
 [  PASSED  ] 6 tests.
@@ -155,24 +155,24 @@ runExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProces
 cmpExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.512y_d_inl1_hrd1/check.exe --common -p 2 64 2
 cmpExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.512y_d_inl1_hrd1/fcheck.exe 2 64 2
 Avg ME (C++/C++)    = 1.282804e-02
-Avg ME (F77/C++)    = 1.2828039868165093E-002
-Relative difference = 1.0277088906338675e-08
+Avg ME (F77/C++)    = 1.2828039868164959E-002
+Relative difference = 1.0277099318974405e-08
 OK (relative difference <= 2E-4)
 -------------------------------------------------------------------------
 runExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.512z_d_inl1_hrd1/check.exe -p 2048 256 12 OMP=
-Process                     = SIGMA_SM_EPEM_MUPMUM_CPP [gcc 11.2.0] [inlineHel=1] [hardcodePARAM=1]
-Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/512z+CXVBRK
+Process                     = SIGMA_SM_EPEM_MUPMUM_CPP [icx 20220100 (clang 14.0.0, gcc 11.2.0)] [inlineHel=1] [hardcodePARAM=1]
+Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/512z+NOVBRK
 FP precision                = DOUBLE (NaN/abnormal=0, zero=0)
-Internal loops fptype_sv    = VECTOR[8] ('512z': AVX512, 512bit) [cxtype_ref=YES]
-EvtsPerSec[Rmb+ME]     (23) = ( 2.377106e+06                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 9.813923e+06                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 9.813923e+06                 )  sec^-1
+Internal loops fptype_sv    = VECTOR[8] ('512z': AVX512, 512bit) [cxtype_ref=NO]
+EvtsPerSec[Rmb+ME]     (23) = ( 4.987180e+06                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 1.174154e+07                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.174154e+07                 )  sec^-1
 MeanMatrixElemValue         = ( 1.371706e-02 +- 3.270315e-06 )  GeV^0
-TOTAL       :     3.127900 sec
-     7,503,245,525      cycles:u                  #    2.386 GHz                    
-    10,591,668,850      instructions:u            #    1.41  insn per cycle         
-       3.147424841 seconds time elapsed
-=Symbols in CPPProcess.o= (~sse4:    0) (avx2:  218) (512y:    0) (512z:  204)
+TOTAL       :     1.936756 sec
+     4,024,720,437      cycles:u                  #    2.121 GHz                    
+     7,390,142,425      instructions:u            #    1.84  insn per cycle         
+       1.966372055 seconds time elapsed
+=Symbols in CPPProcess.o= (~sse4:    0) (avx2:  335) (512y:    0) (512z:  155)
 -------------------------------------------------------------------------
 runExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.512z_d_inl1_hrd1/runTest.exe
 [  PASSED  ] 6 tests.
@@ -180,8 +180,8 @@ runExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProces
 cmpExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.512z_d_inl1_hrd1/check.exe --common -p 2 64 2
 cmpExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.512z_d_inl1_hrd1/fcheck.exe 2 64 2
 Avg ME (C++/C++)    = 1.282804e-02
-Avg ME (F77/C++)    = 1.2828039868165093E-002
-Relative difference = 1.0277088906338675e-08
+Avg ME (F77/C++)    = 1.2828039868164959E-002
+Relative difference = 1.0277099318974405e-08
 OK (relative difference <= 2E-4)
 =========================================================================
 
