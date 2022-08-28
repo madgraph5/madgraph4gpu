@@ -162,7 +162,7 @@ def processTimdata(njob, nthr, timdata, debug=False):
     if njob not in timsum_njob_nthr: timsum_njob_nthr[njob] = {}
     timsum_njob_nthr[njob][nthr] = [avgtot, avgtot1, avgtot2, avgtot3, sumnevt]
     ###print( 'Running2', timsum_njob_nthr )
-    
+
 def processMemdata(njob, nthr, memdata, debug=False):
     ###debug=True
     ###if debug : print( 'processMemdata', njob, nthr, memdata )
@@ -178,7 +178,7 @@ def processMemdata(njob, nthr, memdata, debug=False):
     if njob not in memsum_njob_nthr: memsum_njob_nthr[njob] = {}
     memsum_njob_nthr[njob][nthr] = [sumrss, sumpss, sumswp]
     ###print( 'Running2', memsum_njob_nthr )
-    
+
 def processFiles(rundir, avx='none', debug=False):
     ###debug=True
     if not os.path.isdir(rundir):
@@ -250,7 +250,7 @@ def processFiles(rundir, avx='none', debug=False):
             if njob in memsum_njob_nthr and nthr in memsum_njob_nthr[njob]: maxpss = memsum_njob_nthr[njob][nthr][1]/1000
             else: maxpss = 0
             print( '%4d %4d %11.5f    %9d %11.5f   %11.5f'%( njob, nthr, tput / 1E6, njob*nthr, tput / tput1, maxpss ) )
-                
+
 #------------------------------------------------------------------------------
 
 # Compare MT and ST for many njobs (eg with no simd)
@@ -269,7 +269,7 @@ def plot1(rundir, debug=False):
     for nthr in sorted(allnthr):
         npars = []
         tputs = []
-        for njob in sorted(allnjob):            
+        for njob in sorted(allnjob):
             if njob not in timsum_njob_nthr: continue
             if nthr not in timsum_njob_nthr[njob]: continue
             npar = nthr*njob
@@ -284,7 +284,7 @@ def plot1(rundir, debug=False):
     for nthr in sorted(allnthr):
         npars = []
         mpsss = []
-        for njob in sorted(allnjob):            
+        for njob in sorted(allnjob):
             if njob not in memsum_njob_nthr: continue
             if nthr not in memsum_njob_nthr[njob]: continue
             npar = nthr*njob
@@ -293,7 +293,7 @@ def plot1(rundir, debug=False):
             mpsss.append(mpss)
         if nthr == 1 : ax2.plot(npars, mpsss, marker='*', label='1 (ST)', ms=20, mew=1)
         else: ax2.plot(npars, mpsss, marker='o', label=str(nthr))
-    # Decorate both plots 
+    # Decorate both plots
     title='#threads\n per MT job'
     #loc = 'upper left'
     loc = 'lower right'
@@ -339,7 +339,7 @@ def plot1(rundir, debug=False):
 #---------------------------------------
 
 # Compare various simd ST options for many njobs
-def plot2(rundir, avxs, debug=False):
+def plot2(rundir, avxs, debug=False, abstput=True):
     # Loop through files for different avx
     global timsum_njob_nthr
     global memsum_njob_nthr
@@ -368,7 +368,11 @@ def plot2(rundir, avxs, debug=False):
     tput1_avx = {} # throughput with 1 ST job for different AVX
     tcol1_avx = {} # colors of throughput plots for different AVX
     ax1.set_xlabel('Level of parallelism (number of ST jobs)')
-    ax1.set_ylabel('Node throughput (E6 events per second)')
+    if abstput:
+        ax1.set_ylabel('Node throughput (E6 events per second)')
+    else:
+        ax1.set_ylabel('Ratio (node throughput) / (node throughput for 1 job with SIMD=none)')
+        ax1.grid()
     for avx in avxs:
         timsum_njob_nthr = timsum_avx_njob_nthr[avx]
         npars = []
@@ -381,7 +385,13 @@ def plot2(rundir, avxs, debug=False):
             npars.append(npar)
             tputs.append(tput)
             if njob == 1: tput1_avx[avx] = tput
-        p = ax1.plot(npars, tputs, marker='o', label=avx)
+        if abstput:
+            p = ax1.plot(npars, tputs, marker='o', label=avx)
+        else:
+            tputratios = list( tput/tput1_avx['none'] for tput in tputs )
+            print( avx, tputs )
+            print( avx, tputratios )
+            p = ax1.plot(npars, tputratios, marker='o', label=avx)
         tcol1_avx[avx] = p[0].get_color()
     # Second plot: memory
     nthr = 1 # only ST
@@ -399,7 +409,7 @@ def plot2(rundir, avxs, debug=False):
             npars.append(npar)
             mpsss.append(mpss)
         ax2.plot(npars, mpsss, marker='o', label=avx)
-    # Decorate both plots 
+    # Decorate both plots
     title='SIMD mode'
     loc = 'right'
     ax1.legend(loc=loc, title=title)
@@ -413,7 +423,8 @@ def plot2(rundir, avxs, debug=False):
         ax1.set_title(nodet)
         ax2.set_title(nodet)
         xmax=54
-        ymax1=0.14
+        if abstput: ymax1=0.14
+        else: ymax1=75
         ymax2=0.6
         ax1.axis([0,xmax,0,ymax1])
         ax2.axis([0,xmax,0,ymax2])
@@ -423,10 +434,11 @@ def plot2(rundir, avxs, debug=False):
         ax1.text(xht/2, 0.92*ymax1, 'No HT', ha='center', va='center', size=15)
         ax1.text(xht*3/2, 0.92*ymax1, '2x HT', ha='center', va='center', size=15)
         ax1.text(xmax/2+xht, 0.92*ymax1, 'Overcommit', ha='center', va='center', size=15)
-        for avx in avxs:
-            tput1 = tput1_avx[avx]
-            tcol1 = tcol1_avx[avx]
-            ax1.plot( [0,xht], [0,xht*tput1], marker='', ls=':', lw=2, color=tcol1 )
+        if abstput:
+            for avx in avxs:
+                tput1 = tput1_avx[avx]
+                tcol1 = tcol1_avx[avx]
+                ax1.plot( [0,xht], [0,xht*tput1], marker='', ls=':', lw=2, color=tcol1 )
         ###ax2.axhline(y=64, color='black', ls='-')
         ###ax2.text(xmax/2+xht/2, 64*1.05, 'MAXIMUM MEMORY: 64 GB', ha='center', va='center', size=12)
         ax2.text(xmax/2, 0.5, '(MAXIMUM MEMORY: 64 GB)', ha='center', va='center', size=10, backgroundcolor='white')
@@ -438,7 +450,8 @@ def plot2(rundir, avxs, debug=False):
     # Save and show the figure
     # NB: savefig may issue WARNING 'Unable to parse the pattern' (https://bugzilla.redhat.com/show_bug.cgi?id=1653300)
     ###print( 'Please ignore the warning "Unable to parse the pattern"' )
-    save = rundir + '.none/' + node + '-simd.png'
+    if abstput: save = rundir + '.none/' + node + '-simd.png'
+    else: save = rundir + '.none/' + node + '-simd-ratios.png'
     fig.savefig(save, format='png', bbox_inches="tight")
     from subprocess import Popen
     ###Popen(['eog', '-w', save])
@@ -460,4 +473,6 @@ if __name__ == '__main__':
     ###processFiles('BMKTST.avx2', avx='avx2', debug=True)
 
     #plot1('BMKTST.none', debug=False) # useless for 2022 ggttgg as we have no OMP
-    plot2('BMKTST', ['none', 'sse4', 'avx2'], debug=False) # 2022 ggttgg
+
+    plot2('BMKTST', ['none', 'sse4', 'avx2'], debug=False) # 2022 ggttgg absolute throughputs
+    plot2('BMKTST', ['none', 'sse4', 'avx2'], debug=False, abstput=False) # 2022 ggttgg throughput ratios
