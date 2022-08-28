@@ -260,7 +260,7 @@ def plot1(rundir, debug=False):
     import matplotlib
     matplotlib.use('agg')
     import matplotlib.pyplot as plt
-    fig = plt.figure(figsize=(12,6))
+    fig = plt.figure(figsize=(10,5))
     ax1 = fig.add_subplot(121)
     ax2 = fig.add_subplot(122)
     # First plot: throughput
@@ -301,14 +301,14 @@ def plot1(rundir, debug=False):
     ax2.legend(loc=loc, title=title)
     node = 'pmpe'
     if node == 'pmpe' :
-        ftitle = 'check.exe scalability on pmpe04 (2x 8-core 2.4GHz Haswell with 2x HT)'
+        ftitle = 'ggttgg check.exe scalability on pmpe04 (2x 8-core 2.4GHz Haswell with 2x HT)'
         fig.suptitle(ftitle)
         nodet = 'WITHOUT SIMD'
         ax1.set_title(nodet)
         ax2.set_title(nodet)
         xmax=54
-        ymax1=25
-        ymax2=80
+        ymax1=0.14
+        ymax2=0.6
         ax1.axis([0,xmax,0,ymax1])
         ax2.axis([0,xmax,0,ymax2])
         xht=16
@@ -317,8 +317,9 @@ def plot1(rundir, debug=False):
         ax1.text(xht/2, 0.92*ymax1, 'No HT', ha='center', va='center', size=15)
         ax1.text(xht*3/2, 0.92*ymax1, '2x HT', ha='center', va='center', size=15)
         ax1.text(xmax/2+xht, 0.92*ymax1, 'Overcommit', ha='center', va='center', size=15)
-        ax2.axhline(y=64, color='black', ls='-')
-        ax2.text(xmax/2+xht/2, 64*1.05, 'MAXIMUM MEMORY: 64 GB', ha='center', va='center', size=12)
+        ###ax2.axhline(y=64, color='black', ls='-')
+        ###ax2.text(xmax/2+xht/2, 64*1.05, 'MAXIMUM MEMORY: 64 GB', ha='center', va='center', size=12)
+        ax2.text(xmax/2, 0.5, '(MAXIMUM MEMORY: 64 GB)', ha='center', va='center', size=10, backgroundcolor='white')
         ax2.axvline(xht, color='black', ls=':')
         ax2.axvline(xht*2, color='black', ls='-.')
         ax2.text(xht/2, 0.92*ymax2, 'No HT', ha='center', va='center', size=15)
@@ -326,13 +327,14 @@ def plot1(rundir, debug=False):
         ax2.text(xmax/2+xht, 0.92*ymax2, 'Overcommit', ha='center', va='center', size=15)
     # Save and show the figure
     # NB: savefig may issue WARNING 'Unable to parse the pattern' (https://bugzilla.redhat.com/show_bug.cgi?id=1653300)
-    print( 'Please ignore the warning "Unable to parse the pattern"' )
+    ###print( 'Please ignore the warning "Unable to parse the pattern"' )
     save = rundir + '/' + node + '-nosimd.png'
     fig.savefig(save, format='png', bbox_inches="tight")
     from subprocess import Popen
     ###Popen(['eog', '-w', save])
-    Popen(['display', save])
-    print( 'Plot successfully completed' )
+    Popen(['display', '-geometry', '+50+50', save])
+    ###Popen(['display', '-geometry', '+50+50', '-resize', '800', save])
+    print( 'Plot successfully saved on', save )
 
 #---------------------------------------
 
@@ -358,7 +360,7 @@ def plot2(rundir, avxs, debug=False):
     import matplotlib
     matplotlib.use('agg')
     import matplotlib.pyplot as plt
-    fig = plt.figure(figsize=(12,6))
+    fig = plt.figure(figsize=(10,5))
     ax1 = fig.add_subplot(121)
     ax2 = fig.add_subplot(122)
     # First plot: throughput
@@ -405,14 +407,14 @@ def plot2(rundir, avxs, debug=False):
     ax2.legend(loc=loc, title=title)
     node = 'pmpe'
     if node == 'pmpe' :
-        ftitle = 'check.exe scalability on pmpe04 (2x 8-core 2.4GHz Haswell with 2x HT)'
+        ftitle = 'ggttgg check.exe scalability on pmpe04 (2x 8-core 2.4GHz Haswell with 2x HT)'
         fig.suptitle(ftitle)
         nodet = 'VARIOUS SIMD MODES'
         ax1.set_title(nodet)
         ax2.set_title(nodet)
         xmax=54
-        ymax1=110
-        ymax2=80
+        ymax1=0.14
+        ymax2=0.6
         ax1.axis([0,xmax,0,ymax1])
         ax2.axis([0,xmax,0,ymax2])
         xht=16
@@ -425,8 +427,9 @@ def plot2(rundir, avxs, debug=False):
             tput1 = tput1_avx[avx]
             tcol1 = tcol1_avx[avx]
             ax1.plot( [0,xht], [0,xht*tput1], marker='', ls=':', lw=2, color=tcol1 )
-        ax2.axhline(y=64, color='black', ls='-')
-        ax2.text(xmax/2+xht/2, 64*1.05, 'MAXIMUM MEMORY: 64 GB', ha='center', va='center', size=12)
+        ###ax2.axhline(y=64, color='black', ls='-')
+        ###ax2.text(xmax/2+xht/2, 64*1.05, 'MAXIMUM MEMORY: 64 GB', ha='center', va='center', size=12)
+        ax2.text(xmax/2, 0.5, '(MAXIMUM MEMORY: 64 GB)', ha='center', va='center', size=10, backgroundcolor='white')
         ax2.axvline(xht, color='black', ls=':')
         ax2.axvline(xht*2, color='black', ls='-.')
         ax2.text(xht/2, 0.92*ymax2, 'No HT', ha='center', va='center', size=15)
@@ -434,13 +437,14 @@ def plot2(rundir, avxs, debug=False):
         ax2.text(xmax/2+xht, 0.92*ymax2, 'Overcommit', ha='center', va='center', size=15)
     # Save and show the figure
     # NB: savefig may issue WARNING 'Unable to parse the pattern' (https://bugzilla.redhat.com/show_bug.cgi?id=1653300)
-    print( 'Please ignore the warning "Unable to parse the pattern"' )
+    ###print( 'Please ignore the warning "Unable to parse the pattern"' )
     save = rundir + '.none/' + node + '-simd.png'
     fig.savefig(save, format='png', bbox_inches="tight")
     from subprocess import Popen
     ###Popen(['eog', '-w', save])
-    Popen(['display', save])
-    print( 'Plot successfully completed' )
+    Popen(['display', '-geometry', '+50+50', save])
+    ###Popen(['display', '-geometry', '+50+50', '-resize', '800', save])
+    print( 'Plot successfully saved on', save )
 
 #---------------------------------------
 
@@ -455,6 +459,5 @@ if __name__ == '__main__':
     ###processFiles('BMKTST.sse4', avx='sse4', debug=False)
     ###processFiles('BMKTST.avx2', avx='avx2', debug=True)
 
-    #plot1('BMKTST', debug=False)
-
-    plot2('BMKTST', ['none', 'sse4', 'avx2'], debug=False)
+    #plot1('BMKTST.none', debug=False) # useless for 2022 ggttgg as we have no OMP
+    plot2('BMKTST', ['none', 'sse4', 'avx2'], debug=False) # 2022 ggttgg
