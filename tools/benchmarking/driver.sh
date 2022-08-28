@@ -1,5 +1,8 @@
 #!/bin/bash
 
+### TO KILL A TEST:
+###kill $(ps -ef | egrep '(driver.sh|check.exe)' | grep -v grep | awk '{print $2}')
+
 # For tests and debugging
 avx=none
 jts="[1,1]"
@@ -10,14 +13,23 @@ jts="[1,1]"
 ###avx=none
 ###jts=""; for j in 1 2 4 8 16 32; do for t in 1 2 4 8 16 32; do if [ $((j*t)) -le 32 ]; then jts="$jts [$j,$t]"; fi; done; done 
 
-# For simd plots including overcommit
+# For simd plots including overcommit (no OMP)
 #avx=none
 #avx=sse4
 #avx=avx2
 #jts=""; for j in 1 2 4 8 16 32 48; do for t in 1; do if [ $((j*t)) -le 64 ]; then jts="$jts [$j,$t]"; fi; done; done 
 
+# For simd plots including overcommit (no OMP)
+if [ "$1" != "" ]; then
+  avx=$1
+  shift
+else
+  avx=none
+fi
+jts=""; for j in 1 2 4 8 16 32 48; do for t in 1; do if [ $((j*t)) -le 64 ]; then jts="$jts [$j,$t]"; fi; done; done 
+
 srcDir=$(pwd)
-exe=${srcDir}/build.${avx}/check.exe 
+exe=${srcDir}/build.${avx}_d_inl0_hrd0/check.exe 
 tstName="check-test.${avx}"
 
 #--- command line arguments ---
@@ -108,13 +120,15 @@ function runjob {
   cd ${srcDir}
   if [ "${DEBUG}" == "1" ]; then echo c1 ${jobno} `pwd -P`; fi
   ###echo "DUMMY TEST!"
-  ###$exe -p 2048 256 1 | egrep '(OMP threads|TotalEventsComputed|TOTAL   \(3\))'
+  ###blkthrs="2048 256" ## eemumu (with 40 iterations: always less than 2 minutes)
+  blkthrs="64 256" ## ggttgg (only 10 iterations: always less than 10 minutes)
+  ###$exe -p $blkthrs 1 | egrep '(OMP threads|TotalEventsComputed|TOTAL   \(3\))'
   date > ${logtxt}
   if which lbsmaps >& /dev/null; then
     interval=2000 #2s (2k ms)
-    lbsmaps -i ${interval} -o ${memtxt} ${exe} -p 2048 256 40 2>&1 | egrep -v '(Arg\[|Running Command)' >> ${logtxt}
+    lbsmaps -i ${interval} -o ${memtxt} ${exe} -p $blkthrs 10 2>&1 | egrep -v '(Arg\[|Running Command)' >> ${logtxt}
   else
-    ${exe} -p 2048 256 40 >> ${logtxt}
+    ${exe} -p $blkthrs 10 >> ${logtxt} # ggttgg
   fi
   date >> ${logtxt}
   if [ "${DEBUG}" == "1" ]; then echo c2 ${jobno} `pwd -P`; fi
@@ -159,7 +173,8 @@ for jt in `cat alljts.${avx}`; do
     ( runandwait ) &
     waiterPid=$! # See https://stackoverflow.com/a/10028986
     while [ ! -f WAITING ]; do sleep 1; done
-    timeout=2 # 2 minutes
+    ###timeout=2 # 2 minutes
+    timeout=10 # 10 minutes
     echo `date`": INFO: TIMEOUT $timeout minutes"
     for i in `seq 1 $timeout`; do
       if [ -f WAITING ]; then
