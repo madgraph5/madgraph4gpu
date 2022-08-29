@@ -108,26 +108,31 @@ while [ "$1" != "" ]; do
     if [ "${cpp}" == "0" ]; then echo "ERROR! Options $1 and -nocpp are incompatible"; usage; fi
     if [ "${simds}" != "" ]; then echo "ERROR! Incompatible option $1: SIMDs are already defined as '$simds'"; usage; fi
     simds="none"
+    cuda=0; echo "WARNING! Option $1 implies -nocuda"
     shift
   elif [ "$1" == "-sse4only" ]; then
     if [ "${cpp}" == "0" ]; then echo "ERROR! Options $1 and -nocpp are incompatible"; usage; fi
     if [ "${simds}" != "" ]; then echo "ERROR! Incompatible option $1: SIMDs are already defined as '$simds'"; usage; fi
     simds="sse4"
+    cuda=0; echo "WARNING! Option $1 implies -nocuda"
     shift
   elif [ "$1" == "-avx2only" ]; then
     if [ "${cpp}" == "0" ]; then echo "ERROR! Options $1 and -nocpp are incompatible"; usage; fi
     if [ "${simds}" != "" ]; then echo "ERROR! Incompatible option $1: SIMDs are already defined as '$simds'"; usage; fi
     simds="avx2"
+    cuda=0; echo "WARNING! Option $1 implies -nocuda"
     shift
   elif [ "$1" == "-512yonly" ]; then
     if [ "${cpp}" == "0" ]; then echo "ERROR! Options $1 and -nocpp are incompatible"; usage; fi
     if [ "${simds}" != "" ]; then echo "ERROR! Incompatible option $1: SIMDs are already defined as '$simds'"; usage; fi
     simds="512y"
+    cuda=0; echo "WARNING! Option $1 implies -nocuda"
     shift
   elif [ "$1" == "-512zonly" ]; then
     if [ "${cpp}" == "0" ]; then echo "ERROR! Options $1 and -nocpp are incompatible"; usage; fi
     if [ "${simds}" != "" ]; then echo "ERROR! Incompatible option $1: SIMDs are already defined as '$simds'"; usage; fi
     simds="512z"
+    cuda=0; echo "WARNING! Option $1 implies -nocuda"
     shift
   elif [ "$1" == "-noalpaka" ]; then
     alpaka=0
