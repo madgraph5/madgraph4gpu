@@ -303,21 +303,19 @@ for dir in $dirs; do
       if [ "$bckend" == "alpaka" ]; then hrdsuf=""; fi
       for helinl in $helinls; do
         for fptype in $fptypes; do
-	  # Do not check which SIM modes are supported: if a mode is not supported, that exe will not be found
-	  # Previously the script was requiring the following (in addition to avxall):
-	  # - none: no check (built all the time)
-	  # - sse4: no check (built all the time)
-	  # - avx2 and 512*: if [ "${unamep}" == "x86_64" ]
-	  # - 512*: [ "${unames}" != "Darwin" ] && [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" == "1" ]
           exes="$exes $dir/build.none_${fptype}_inl${helinl}${hrdsuf}/check.exe"
-          if [ "${avxall}" == "1" ]; then
-	    exes="$exes $dir/build.sse4_${fptype}_inl${helinl}${hrdsuf}/check.exe"
-            exes="$exes $dir/build.avx2_${fptype}_inl${helinl}${hrdsuf}/check.exe"
-	  fi
-          exes="$exes $dir/build.512y_${fptype}_inl${helinl}${hrdsuf}/check.exe"
-          if [ "${avxall}" == "1" ]; then
-            exes="$exes $dir/build.512z_${fptype}_inl${helinl}${hrdsuf}/check.exe"
-	  fi
+          if [ "${avxall}" == "1" ]; then 
+            exes="$exes $dir/build.sse4_${fptype}_inl${helinl}${hrdsuf}/check.exe"
+            if [ "${unamep}" == "x86_64" ]; then 
+              exes="$exes $dir/build.avx2_${fptype}_inl${helinl}${hrdsuf}/check.exe"
+            fi
+          fi
+          if [ "${unamep}" == "x86_64" ] && [ "${unames}" != "Darwin" ] && [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" == "1" ]; then 
+            exes="$exes $dir/build.512y_${fptype}_inl${helinl}${hrdsuf}/check.exe"
+            if [ "${avxall}" == "1" ]; then 
+              exes="$exes $dir/build.512z_${fptype}_inl${helinl}${hrdsuf}/check.exe"
+            fi
+          fi
         done
       done
     done
