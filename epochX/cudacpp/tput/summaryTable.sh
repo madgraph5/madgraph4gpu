@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# NB: some PRs include many log modifications but eventually go back to the initial logs (overall noop)
+# NB: use 'git log --full-history' to show all intermediate commits (which are pruned by a simple 'git log')
+
 table=
 if [ "$1" == "-ALL" ] && [ "$2" == "" ]; then
   set -e
@@ -58,9 +61,6 @@ touch $out
 # 2. Logs (26 Aug 2022, 21c4cb8): cuda116/gcc102 (60 logs from allTees.sh) <= LATEST cuda116/gcc102
 # 3. Logs (26 Aug 2022, d250d2d): cuda117/gcc112 (60 logs from allTees.sh) <= LATEST cuda117/gcc112
 #----------------------------------------------------------------------------
-
-# NB: some PRs include many log modifications but eventually go back to the initial logs (overall noop)
-# NB: use 'git log --full-history' to show all intermediate commits (which are pruned by a simple 'git log')
 
 # Select revisions of cudacpp and alpaka logs
 crevs="" # cudacpp .sa
