@@ -102,32 +102,32 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-avxall" ]; then
     if [ "${cpp}" == "0" ]; then echo "ERROR! Options $1 and -nocpp are incompatible"; usage; fi
     if [ "${simds}" != "" ]; then echo "ERROR! Incompatible option $1: SIMDs are already defined as '$simds'"; fi
-    simds="-none -sse4 -avx2 -512y -512z"
+    simds="none sse4 avx2 512y 512z"
     shift
   elif [ "$1" == "-noneonly" ]; then
     if [ "${cpp}" == "0" ]; then echo "ERROR! Options $1 and -nocpp are incompatible"; usage; fi
     if [ "${simds}" != "" ]; then echo "ERROR! Incompatible option $1: SIMDs are already defined as '$simds'"; fi
-    simds="-none"
+    simds="none"
     shift
   elif [ "$1" == "-sse4only" ]; then
     if [ "${cpp}" == "0" ]; then echo "ERROR! Options $1 and -nocpp are incompatible"; usage; fi
     if [ "${simds}" != "" ]; then echo "ERROR! Incompatible option $1: SIMDs are already defined as '$simds'"; fi
-    simds="-sse4"
+    simds="sse4"
     shift
   elif [ "$1" == "-avx2only" ]; then
     if [ "${cpp}" == "0" ]; then echo "ERROR! Options $1 and -nocpp are incompatible"; usage; fi
     if [ "${simds}" != "" ]; then echo "ERROR! Incompatible option $1: SIMDs are already defined as '$simds'"; fi
-    simds="-avx2"
+    simds="avx2"
     shift
   elif [ "$1" == "-512yonly" ]; then
     if [ "${cpp}" == "0" ]; then echo "ERROR! Options $1 and -nocpp are incompatible"; usage; fi
     if [ "${simds}" != "" ]; then echo "ERROR! Incompatible option $1: SIMDs are already defined as '$simds'"; fi
-    simds="-512y"
+    simds="512y"
     shift
   elif [ "$1" == "-512zonly" ]; then
     if [ "${cpp}" == "0" ]; then echo "ERROR! Options $1 and -nocpp are incompatible"; usage; fi
     if [ "${simds}" != "" ]; then echo "ERROR! Incompatible option $1: SIMDs are already defined as '$simds'"; fi
-    simds="-512z"
+    simds="512z"
     shift
   elif [ "$1" == "-noalpaka" ]; then
     alpaka=0
@@ -217,7 +217,7 @@ fi
 if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ] && [ "${heftggh}" == "0" ]; then usage; fi
 
 # Define the default simds if none are defined
-if [ "${simds}" == "" ]; then simds="-none -512y"; fi
+if [ "${simds}" == "" ]; then simds="none 512y"; fi
 
 # Use only the .auto process directories in the alpaka directory
 if [ "$bckend" == "alpaka" ]; then
@@ -390,11 +390,9 @@ for dir in $dirs; do
       export HELINL=$helinl
       for fptype in $fptypes; do
         export FPTYPE=$fptype
-        if [ "${avxall}" == "1" ]; then
-          make ${makef} ${makej} avxall; echo
-        else
-          make ${makef} ${makej} AVX=none; echo
-          make ${makef} ${makej} AVX=512y; echo
+        make ${makef} ${makej} AVX=none; echo # always build this for cuda
+        for simd in ${simds}; do
+          make ${makef} ${makej} AVX=${simd}; echo
         fi
       done
     done
