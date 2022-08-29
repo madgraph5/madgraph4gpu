@@ -91,7 +91,7 @@ while [ "$1" != "" ]; do
     shift
   elif [ "$1" == "-nocpp" ]; then
     if [ "${omp}" == "1" ]; then echo "ERROR! Options -omp and -nocpp are incompatible"; usage; fi
-    if [ "${simds}" != "" ]; then echo "ERROR! Incompatible option $1: SIMDs are already defined as '$simds'"; fi
+    if [ "${simds}" != "" ]; then echo "ERROR! Incompatible option $1: SIMDs are already defined as '$simds'"; usage; fi
     if [ "${cuda}" == "0" ]; then echo "ERROR! Options -nocuda and -nocpp are incompatible"; usage; fi
     cpp=0
     shift
@@ -101,32 +101,32 @@ while [ "$1" != "" ]; do
     shift
   elif [ "$1" == "-avxall" ]; then
     if [ "${cpp}" == "0" ]; then echo "ERROR! Options $1 and -nocpp are incompatible"; usage; fi
-    if [ "${simds}" != "" ]; then echo "ERROR! Incompatible option $1: SIMDs are already defined as '$simds'"; fi
+    if [ "${simds}" != "" ]; then echo "ERROR! Incompatible option $1: SIMDs are already defined as '$simds'"; usage; fi
     simds="none sse4 avx2 512y 512z"
     shift
   elif [ "$1" == "-noneonly" ]; then
     if [ "${cpp}" == "0" ]; then echo "ERROR! Options $1 and -nocpp are incompatible"; usage; fi
-    if [ "${simds}" != "" ]; then echo "ERROR! Incompatible option $1: SIMDs are already defined as '$simds'"; fi
+    if [ "${simds}" != "" ]; then echo "ERROR! Incompatible option $1: SIMDs are already defined as '$simds'"; usage; fi
     simds="none"
     shift
   elif [ "$1" == "-sse4only" ]; then
     if [ "${cpp}" == "0" ]; then echo "ERROR! Options $1 and -nocpp are incompatible"; usage; fi
-    if [ "${simds}" != "" ]; then echo "ERROR! Incompatible option $1: SIMDs are already defined as '$simds'"; fi
+    if [ "${simds}" != "" ]; then echo "ERROR! Incompatible option $1: SIMDs are already defined as '$simds'"; usage; fi
     simds="sse4"
     shift
   elif [ "$1" == "-avx2only" ]; then
     if [ "${cpp}" == "0" ]; then echo "ERROR! Options $1 and -nocpp are incompatible"; usage; fi
-    if [ "${simds}" != "" ]; then echo "ERROR! Incompatible option $1: SIMDs are already defined as '$simds'"; fi
+    if [ "${simds}" != "" ]; then echo "ERROR! Incompatible option $1: SIMDs are already defined as '$simds'"; usage; fi
     simds="avx2"
     shift
   elif [ "$1" == "-512yonly" ]; then
     if [ "${cpp}" == "0" ]; then echo "ERROR! Options $1 and -nocpp are incompatible"; usage; fi
-    if [ "${simds}" != "" ]; then echo "ERROR! Incompatible option $1: SIMDs are already defined as '$simds'"; fi
+    if [ "${simds}" != "" ]; then echo "ERROR! Incompatible option $1: SIMDs are already defined as '$simds'"; usage; fi
     simds="512y"
     shift
   elif [ "$1" == "-512zonly" ]; then
     if [ "${cpp}" == "0" ]; then echo "ERROR! Options $1 and -nocpp are incompatible"; usage; fi
-    if [ "${simds}" != "" ]; then echo "ERROR! Incompatible option $1: SIMDs are already defined as '$simds'"; fi
+    if [ "${simds}" != "" ]; then echo "ERROR! Incompatible option $1: SIMDs are already defined as '$simds'"; usage; fi
     simds="512z"
     shift
   elif [ "$1" == "-noalpaka" ]; then
@@ -331,36 +331,9 @@ for dir in $dirs; do
       hrdsuf=_hrd${hrdcod}
       if [ "$bckend" == "alpaka" ]; then hrdsuf=""; fi
       for helinl in $helinls; do
-        for fptype in $fptypes; do
-          # SIMD: none
-          if [ "${simds/none}" != "${simds}" ]; then 
-            exes="$exes $dir/build.none_${fptype}_inl${helinl}${hrdsuf}/check.exe"
-          fi
-          # SIMD: sse4
-          if [ "${simds/sse4}" != "${simds}" ]; then 
-            exes="$exes $dir/build.sse4_${fptype}_inl${helinl}${hrdsuf}/check.exe"
-          fi
-          # SIMD: avx2
-          if [ "${simds/avx2}" != "${simds}" ]; then 
-            if [ "${unamep}" == "x86_64" ]; then
-              exes="$exes $dir/build.avx2_${fptype}_inl${helinl}${hrdsuf}/check.exe"
-            fi
-          fi
-          # SIMD: 512y
-          if [ "${simds/512y}" != "${simds}" ]; then 
-            if [ "${unamep}" == "x86_64" ] &&\
-               [ "${unames}" != "Darwin" ] &&\
-               [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" == "1" ]; then
-              exes="$exes $dir/build.512y_${fptype}_inl${helinl}${hrdsuf}/check.exe"
-            fi
-          fi
-          # SIMD: 512z
-          if [ "${simds/512z}" != "${simds}" ]; then 
-            if [ "${unamep}" == "x86_64" ] &&\
-               [ "${unames}" != "Darwin" ] &&\
-               [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" == "1" ]; then
-              exes="$exes $dir/build.512z_${fptype}_inl${helinl}${hrdsuf}/check.exe"
-            fi
+        for simd in none sse4 avx2 512y 512z; do
+          if [ "${simds/${simd}}" != "${simds}" ]; then 
+            exes="$exes $dir/build.${simd}_${fptype}_inl${helinl}${hrdsuf}/check.exe"
           fi
         done
       done
@@ -393,7 +366,7 @@ for dir in $dirs; do
         make ${makef} ${makej} AVX=none; echo # always build this for cuda
         for simd in ${simds}; do
           make ${makef} ${makej} AVX=${simd}; echo
-        fi
+        done
       done
     done
   done
@@ -550,6 +523,17 @@ for exe in $exes; do
     echo "-------------------------------------------------------------------------"
   fi
   if [ ! -f $exe ]; then echo "Not found: $exe"; continue; fi
+  if [ "${unamep}" != "x86_64" ]; then
+    if [ "${exe/build.avx2}" != "${exe}" ]; then echo "$exe is not supported on ${unamep}"; continue; fi
+    if [ "${exe/build.512y}" != "${exe}" ]; then echo "$exe is not supported on ${unamep}"; continue; fi
+    if [ "${exe/build.512z}" != "${exe}" ]; then echo "$exe is not supported on ${unamep}"; continue; fi
+  elif [ "${unames}" == "Darwin" ]; then
+    if [ "${exe/build.512y}" != "${exe}" ]; then echo "$exe is not supported on ${unames}"; continue; fi
+    if [ "${exe/build.512z}" != "${exe}" ]; then echo "$exe is not supported on ${unames}"; continue; fi
+  elif [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" != "1" ]; then
+    if [ "${exe/build.512y}" != "${exe}" ]; then echo "$exe is not supported (no avx512vl in /proc/cpuinfo)"; continue; fi
+    if [ "${exe/build.512z}" != "${exe}" ]; then echo "$exe is not supported (no avx512vl in /proc/cpuinfo)"; continue; fi
+  fi
   if [ "${exe%%/gcheck*}" != "${exe}" ] && [ "$gpuTxt" == "none" ]; then continue; fi
   if [ "${exe%%/heft_gg_h*}" != "${exe}" ]; then 
     # For heftggh: 2->1 process, hence all events are identical and random numbers are ignored, use bare minimum 1 8 1
