@@ -9,7 +9,7 @@ topdir=$(cd $scrdir; cd ../../..; pwd)
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-heftggh]> [-nocpp|[-omp][-avxall][-nocuda]] [-sa] [-noalpaka] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly|-makeclean|-makecleanonly] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest] [-v] [-dlp <dyld_library_path>]"
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-heftggh]> [-nocpp|[-omp][-avxall][-nocuda][-noneonly][-sse4only][-avx2only][-512yonly][-512zonly]] [-sa] [-noalpaka] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly|-makeclean|-makecleanonly] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest] [-v] [-dlp <dyld_library_path>]"
   exit 1
 }
 
@@ -28,7 +28,7 @@ heftggh=0
 suffs=".mad/"
 
 omp=0
-avxall=0
+simds=
 cpp=1
 cuda=1
 alpaka=1
@@ -85,23 +85,49 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-sa" ]; then
     suffs=".sa/"
     shift
-  elif [ "$1" == "-omp" ]; then
-    if [ "${cpp}" == "0" ]; then echo "ERROR! Options -omp and -nocpp are incompatible"; usage; fi
-    omp=1
-    shift
-  elif [ "$1" == "-avxall" ]; then
-    if [ "${cpp}" == "0" ]; then echo "ERROR! Options -avxall and -nocpp are incompatible"; usage; fi
-    avxall=1
-    shift
   elif [ "$1" == "-nocuda" ]; then
     if [ "${cpp}" == "0" ]; then echo "ERROR! Options -nocuda and -nocpp are incompatible"; usage; fi
     cuda=0
     shift
   elif [ "$1" == "-nocpp" ]; then
     if [ "${omp}" == "1" ]; then echo "ERROR! Options -omp and -nocpp are incompatible"; usage; fi
-    if [ "${avxall}" == "1" ]; then echo "ERROR! Options -avxall and -nocpp are incompatible"; usage; fi
+    if [ "${simds}" != "" ]; then echo "ERROR! Incompatible option $1: SIMDs are already defined as '$simds'"; fi
     if [ "${cuda}" == "0" ]; then echo "ERROR! Options -nocuda and -nocpp are incompatible"; usage; fi
     cpp=0
+    shift
+  elif [ "$1" == "-omp" ]; then
+    if [ "${cpp}" == "0" ]; then echo "ERROR! Options -omp and -nocpp are incompatible"; usage; fi
+    omp=1
+    shift
+  elif [ "$1" == "-avxall" ]; then
+    if [ "${cpp}" == "0" ]; then echo "ERROR! Options $1 and -nocpp are incompatible"; usage; fi
+    if [ "${simds}" != "" ]; then echo "ERROR! Incompatible option $1: SIMDs are already defined as '$simds'"; fi
+    simds="-none -sse4 -avx2 -512y -512z"
+    shift
+  elif [ "$1" == "-noneonly" ]; then
+    if [ "${cpp}" == "0" ]; then echo "ERROR! Options $1 and -nocpp are incompatible"; usage; fi
+    if [ "${simds}" != "" ]; then echo "ERROR! Incompatible option $1: SIMDs are already defined as '$simds'"; fi
+    simds="-none"
+    shift
+  elif [ "$1" == "-sse4only" ]; then
+    if [ "${cpp}" == "0" ]; then echo "ERROR! Options $1 and -nocpp are incompatible"; usage; fi
+    if [ "${simds}" != "" ]; then echo "ERROR! Incompatible option $1: SIMDs are already defined as '$simds'"; fi
+    simds="-sse4"
+    shift
+  elif [ "$1" == "-avx2only" ]; then
+    if [ "${cpp}" == "0" ]; then echo "ERROR! Options $1 and -nocpp are incompatible"; usage; fi
+    if [ "${simds}" != "" ]; then echo "ERROR! Incompatible option $1: SIMDs are already defined as '$simds'"; fi
+    simds="-avx2"
+    shift
+  elif [ "$1" == "-512yonly" ]; then
+    if [ "${cpp}" == "0" ]; then echo "ERROR! Options $1 and -nocpp are incompatible"; usage; fi
+    if [ "${simds}" != "" ]; then echo "ERROR! Incompatible option $1: SIMDs are already defined as '$simds'"; fi
+    simds="-512y"
+    shift
+  elif [ "$1" == "-512zonly" ]; then
+    if [ "${cpp}" == "0" ]; then echo "ERROR! Options $1 and -nocpp are incompatible"; usage; fi
+    if [ "${simds}" != "" ]; then echo "ERROR! Incompatible option $1: SIMDs are already defined as '$simds'"; fi
+    simds="-512z"
     shift
   elif [ "$1" == "-noalpaka" ]; then
     alpaka=0
@@ -189,6 +215,9 @@ fi
 
 # Check that at least one process has been selected
 if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ] && [ "${heftggh}" == "0" ]; then usage; fi
+
+# Define the default simds if none are defined
+if [ "${simds}" == "" ]; then simds="-none -512y"; fi
 
 # Use only the .auto process directories in the alpaka directory
 if [ "$bckend" == "alpaka" ]; then
@@ -303,16 +332,33 @@ for dir in $dirs; do
       if [ "$bckend" == "alpaka" ]; then hrdsuf=""; fi
       for helinl in $helinls; do
         for fptype in $fptypes; do
-          exes="$exes $dir/build.none_${fptype}_inl${helinl}${hrdsuf}/check.exe"
-          if [ "${avxall}" == "1" ]; then 
+          # SIMD: none
+          if [ "${simds/none}" != "${simds}" ]; then 
+            exes="$exes $dir/build.none_${fptype}_inl${helinl}${hrdsuf}/check.exe"
+          fi
+          # SIMD: sse4
+          if [ "${simds/sse4}" != "${simds}" ]; then 
             exes="$exes $dir/build.sse4_${fptype}_inl${helinl}${hrdsuf}/check.exe"
-            if [ "${unamep}" == "x86_64" ]; then 
+          fi
+          # SIMD: avx2
+          if [ "${simds/avx2}" != "${simds}" ]; then 
+            if [ "${unamep}" == "x86_64" ]; then
               exes="$exes $dir/build.avx2_${fptype}_inl${helinl}${hrdsuf}/check.exe"
             fi
           fi
-          if [ "${unamep}" == "x86_64" ] && [ "${unames}" != "Darwin" ] && [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" == "1" ]; then 
-            exes="$exes $dir/build.512y_${fptype}_inl${helinl}${hrdsuf}/check.exe"
-            if [ "${avxall}" == "1" ]; then 
+          # SIMD: 512y
+          if [ "${simds/512y}" != "${simds}" ]; then 
+            if [ "${unamep}" == "x86_64" ] &&\
+               [ "${unames}" != "Darwin" ] &&\
+               [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" == "1" ]; then
+              exes="$exes $dir/build.512y_${fptype}_inl${helinl}${hrdsuf}/check.exe"
+            fi
+          fi
+          # SIMD: 512z
+          if [ "${simds/512z}" != "${simds}" ]; then 
+            if [ "${unamep}" == "x86_64" ] &&\
+               [ "${unames}" != "Darwin" ] &&\
+               [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" == "1" ]; then
               exes="$exes $dir/build.512z_${fptype}_inl${helinl}${hrdsuf}/check.exe"
             fi
           fi
