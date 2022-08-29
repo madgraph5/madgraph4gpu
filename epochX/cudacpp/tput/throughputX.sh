@@ -353,14 +353,15 @@ done
 ##########################################################################
 
 pushd $topdir/test >& /dev/null
-make 2>&1 # avoid issues with googletest in parallel builds
+echo "Building in $(pwd)"
+make; echo # avoid issues with googletest in parallel builds
 popd >& /dev/null
 
 for dir in $dirs; do
 
   export USEBUILDDIR=1
   pushd $dir >& /dev/null
-  pwd
+  echo "Building in $(pwd)"
   if [ "${maketype}" == "-makeclean" ]; then make cleanall; echo; fi
   if [ "${maketype}" == "-makecleanonly" ]; then make cleanall; echo; continue; fi
   for hrdcod in $hrdcods; do
@@ -369,8 +370,10 @@ for dir in $dirs; do
       export HELINL=$helinl
       for fptype in $fptypes; do
         export FPTYPE=$fptype
-        make ${makef} ${makej} AVX=none; echo # always build this for cuda
-        for simd in ${simds}; do
+        if [ "${cuda}" == "1" ] || [ "${simds/none}" != "${simds}" ]; then 
+          make ${makef} ${makej} AVX=none; echo
+        fi
+        for simd in ${simds/none}; do
           make ${makef} ${makej} AVX=${simd}; echo
         done
       done
