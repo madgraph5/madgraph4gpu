@@ -337,10 +337,12 @@ for dir in $dirs; do
       hrdsuf=_hrd${hrdcod}
       if [ "$bckend" == "alpaka" ]; then hrdsuf=""; fi
       for helinl in $helinls; do
-        for simd in none sse4 avx2 512y 512z; do
-          if [ "${simds/${simd}}" != "${simds}" ]; then 
-            exes="$exes $dir/build.${simd}_${fptype}_inl${helinl}${hrdsuf}/check.exe"
-          fi
+        for fptype in $fptypes; do
+          for simd in none sse4 avx2 512y 512z; do
+            if [ "${simds/${simd}}" != "${simds}" ]; then 
+              exes="$exes $dir/build.${simd}_${fptype}_inl${helinl}${hrdsuf}/check.exe"
+            fi
+          done
         done
       done
     done
