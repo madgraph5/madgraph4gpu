@@ -196,12 +196,7 @@ $(LIBDIR)/lib$(MG5AMC_CXXLIB).so: $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_obje
 	$(CXX) $(CXXFLAGS) $(SYCLFLAGS) -fPIC -shared -o $@ $(cxx_objects_lib) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
 
 # Target (and build rules): C++ and SYCL static libraries
-$(BUILDDIR)/lib$(MG5AMC_CXXLIB).o: cxx_objects_lib += $(BUILDDIR)/fbridge.o
-$(BUILDDIR)/lib$(MG5AMC_CXXLIB).o: $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects_lib)
-	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	$(CXX) $(CXXFLAGS) $(SYCLFLAGS) -fPIC -o $@ $(cxx_objects_lib) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
-
-$(LIBDIR)/lib$(MG5AMC_CXXLIB).a: $(BUILDDIR)/lib$(MG5AMC_CXXLIB).o
+$(LIBDIR)/lib$(MG5AMC_CXXLIB).a: $(BUILDDIR)/CPPProcess.o $(BUILDDIR)/fbridge.o
 	@if [ ! -d $(LIBDIR) ]; then echo "mkdir -p $(LIBDIR)"; mkdir -p $(LIBDIR); fi
 	ar rvs $@ $^
 
@@ -217,9 +212,9 @@ $(LIBDIR)/lib$(MG5AMC_CXXLIB).a: $(BUILDDIR)/lib$(MG5AMC_CXXLIB).o
 # Target (and build rules): C++ and SYCL standalone executables
 $(sycl_main): LIBFLAGS += $(CXXLIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 ###$(sycl_main): $(BUILDDIR)/check_sa.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).so $(cxx_objects_exe)
-$(sycl_main): $(LIBDIR)/lib$(MG5AMC_CXXLIB).a
+$(sycl_main): $(LIBDIR)/lib$(MG5AMC_CXXLIB).a $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	$(CXX) $(CXXFLAGS) $(SYCLFLAGS) -fPIC -o $@ check_sa.cc $(LIBDIR)/lib$(MG5AMC_CXXLIB).a -pthread $(LIBFLAGS) -lstdc++fs
+	$(CXX) $(CXXFLAGS) $(SYCLFLAGS) -fPIC -o $@ check_sa.cc $(LIBDIR)/lib$(MG5AMC_CXXLIB).a -pthread $(LIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB) -lstdc++fs
 
 #-------------------------------------------------------------------------------
 
@@ -237,12 +232,16 @@ $(BUILDDIR)/%%.o : %%.f *.inc
 # Target (and build rules): Fortran standalone executables
 ###$(BUILDDIR)/fcheck_sa.o : $(INCDIR)/fbridge.inc
 
-ifeq ($(UNAME_S),Darwin)
-$(fsycl_main): LIBFLAGS += -L$(shell dirname $(shell $(FC) --print-file-name libgfortran.dylib)) # add path to libgfortran on Mac #375
-endif
-$(fsycl_main): LIBFLAGS += $(CULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
-$(fsycl_main): $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler.o $(LIBDIR)/lib$(MG5AMC_CULIB).so $(cxx_objects_exe)
-	$(CXX) $(SYCLFLAGS) -o $@ $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler.o $(LIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_CXXLIB) -lstdc++fs $(cxx_objects_exe)
+#ifeq ($(UNAME_S),Darwin)
+#$(fsycl_main): LIBFLAGS += -L$(shell dirname $(shell $(FC) --print-file-name libgfortran.dylib)) # add path to libgfortran on Mac #375
+#endif
+#$(fsycl_main): LIBFLAGS += $(CXXLIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
+#$(fsycl_main): $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).a $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so
+#	$(FC) -fsycl -o $@ $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).a $(LIBFLAGS) -lstdc++ -lsycl -L$(LIBDIR) -l$(MG5AMC_COMMONLIB) -lstdc++fs
+
+$(fsycl_main): LIBFLAGS += $(CXXLIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
+$(fsycl_main): $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).a $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so
+	$(CXX) $(SYCLFLAGS) -o $@ $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).a $(LIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_COMMONLIB) -lstdc++fs
 
 #-------------------------------------------------------------------------------
 

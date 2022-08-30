@@ -29,9 +29,9 @@ namespace mg5amcGpu
     const int m_nevt; // The number of events in each iteration
     int m_iiter;      // The iteration counter (for random number seeding)
 
-    hstMakeUnique<fptype> m_hstRnarray; // Memory buffers for random numbers
-    hstMakeUnique<fptype> m_hstMomenta; // Memory buffers for momenta
-    hstMakeUnique<fptype> m_hstWeights; // Memory buffers for sampling weights
+    host_buffer_unique<fptype> m_hstRnarray; // Memory buffers for random numbers
+    host_buffer_unique<fptype> m_hstMomenta; // Memory buffers for momenta
+    host_buffer_unique<fptype> m_hstWeights; // Memory buffers for sampling weights
 
     // HARDCODED DEFAULTS
     static constexpr fptype energy = 1500; // historical default, Ecms = 1500 GeV = 1.5 TeV (above the Z peak)
@@ -67,12 +67,11 @@ namespace mg5amcGpu
     std::copy( rnd.begin(), rnd.end(), m_hstRnarray.data() );
     m_iiter++;
 
-    constexpr auto getMomentaInitial = ramboGetMomentaInitial<HostAccessMomenta>;
     // ** START LOOP ON IEVT **
     for( size_t ievt = 0; ievt < m_nevt; ++ievt )
     {
-      ramboGetMomentaInitial( energy, m_hstMomenta.data(), ievt );
-      ramboGetMomentaFinal( energy, m_hstRnarray.data(), m_hstMomenta.data(), m_hstWeights.data(), ievt );
+      rambo2toNm0::ramboGetMomentaInitial( energy, m_hstMomenta.data(), ievt );
+      rambo2toNm0::ramboGetMomentaFinal( energy, m_hstRnarray.data(), m_hstMomenta.data(), m_hstWeights.data(), ievt );
     }
     hst_transposeMomentaC2F( m_hstMomenta.data(), fortranMomenta, m_nevt );
   }

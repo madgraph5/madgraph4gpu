@@ -198,8 +198,8 @@ namespace mg5amcGpu
 #endif
     , m_gputhreads( 256 )                  // default number of gpu threads
     , m_gpublocks( m_nevt / m_gputhreads ) // this ensures m_nevt <= m_gpublocks*m_gputhreads
-    , m_devMomentaF( m_nevt, m_q )
-    , m_devMomentaC( m_nevt, m_q )
+    , m_devMomentaF( m_nevt*mgOnGpu::npar*mgOnGpu::np4, m_q )
+    , m_devMomentaC( m_nevt*mgOnGpu::npar*mgOnGpu::np4, m_q )
     //, m_devGsC( m_nevt )
     //, m_hstGsC( m_nevt )
     , m_devMEsC( m_nevt, m_q )
