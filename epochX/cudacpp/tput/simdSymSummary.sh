@@ -25,23 +25,26 @@ function mainSummarizeSyms() {
     exit 1
   }
 
-  # Command line arguments: HelAmps functions only?
-  helamps=0
-  if [ "$1" == "-helamps" ]; then
-    helamps=1
-    shift
-  fi
-
-  # Command line arguments: strip dir when showing the file name?
-  stripdir=0
-  if [ "$1" == "-stripdir" ]; then
-    stripdir=1
-    shift
-  fi
-
-  # Command line arguments: select file
-  if [ "$1" == "" ] || [ "$1" == "-h" ] || [ "$2" != "" ]; then usage; fi
-  file=$1
+  # Command line arguments
+  helamps=0 # HelAmps functions only?
+  stripdir=0 # strip dir when showing the file name?
+  file= # select file
+  while [ "$1" != "" ]; do
+    if [ "$1" == "-helamps" ]; then
+      helamps=1
+      shift
+    elif [ "$1" == "-stripdir" ]; then
+      stripdir=1
+      shift
+    elif [ "$file" == "" ]; then
+      file=$1
+      shift
+    elif [ "$1" == "-h" ]; then
+      usage
+    else
+      usage
+    fi
+  done
   if [ ! -f $file ]; then echo "ERROR! File '$file' not found"; usage; fi
 
   # Disassemble selected file
