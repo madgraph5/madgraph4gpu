@@ -19,6 +19,12 @@ function stripSyms() {
 
 function mainSummarizeSyms() {
 
+  function usage(){
+    echo "Usage:   $0 [-helamps] [-stripdir] <filename>"
+    echo "Example: $0 ./check.exe"
+    exit 1
+  }
+
   # Command line arguments: HelAmps functions only?
   helamps=0
   if [ "$1" == "-helamps" ]; then
@@ -34,12 +40,9 @@ function mainSummarizeSyms() {
   fi
 
   # Command line arguments: select file
-  if [ "$1" == "" ] || [ "$2" != "" ]; then
-    echo "Usage:   $0 [-helamps] [-stripdir] <filename>"
-    echo "Example: $0 ./check.exe"
-    exit 1
-  fi
+  if [ "$1" == "" ] || [ "$1" == "-h" ] || [ "$2" != "" ]; then usage; fi
   file=$1
+  if [ ! -f $file ]; then echo "ERROR! File '$file' not found"; usage; fi
 
   # Disassemble selected file
   # Use cut -f3- to print only the assembly code after two leading fields separated by tabs
