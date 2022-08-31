@@ -520,7 +520,9 @@ else
 fi
 echo -e "On $HOSTNAME [CPU: $cpuTxt] [GPU: $gpuTxt]:"
 
-BMKMULTIPLIER=1 # needed by the BMK project: do not change
+# These two settings are needed by BMK containers: do not change them
+BMKEXEARGS="" # if BMKEXEARGS is set, exeArgs is set equal to BMKEXEARGS, while exeArgs2 is set to ""
+BMKMULTIPLIER=1 # the pre-defined numbers of iterations (including those in BMKEXEARGS) are multiplied by BMKMULTIPLIER
 
 lastExe=
 ###echo "exes=$exes"
@@ -575,6 +577,7 @@ for exe in $exes; do
     exeArgs="-p 2048 256 12"
     ncuArgs="-p 2048 256 1"
   fi
+  if [ "$BMKEXEARGS" ]; then exeArgs="$BMKEXEARGS"; exeArgs2=""; fi
   exeArgs="${exeArgs% *} $((${exeArgs##* }*BMKMULTIPLIER))"
   if [ "${exeArgs2}" != "" ]; then exeArgs2="${exeArgs2% *} $((${exeArgs2##* }*BMKMULTIPLIER))"; fi  
   exeDir=$(dirname $exe)
