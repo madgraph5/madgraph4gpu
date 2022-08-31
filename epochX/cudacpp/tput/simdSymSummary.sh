@@ -28,6 +28,7 @@ function mainSummarizeSyms() {
   # Command line arguments
   helamps=0 # HelAmps functions only?
   stripdir=0 # strip dir when showing the file name?
+  dumptotmp=0 # dump to /tmp instead of in situ
   file= # select file
   while [ "$1" != "" ]; do
     if [ "$1" == "-helamps" ]; then
@@ -35,6 +36,9 @@ function mainSummarizeSyms() {
       shift
     elif [ "$1" == "-stripdir" ]; then
       stripdir=1
+      shift
+    elif [ "$1" == "-dumptotmp" ]; then
+      dumptotmp=1
       shift
     elif [ "$file" == "" ]; then
       file=$1
@@ -49,8 +53,12 @@ function mainSummarizeSyms() {
 
   # Disassemble selected file
   # Use cut -f3- to print only the assembly code after two leading fields separated by tabs
-  objdump -d -C $file > ${file}.objdump # unnecessary but useful for debugging
-  dumptmp=${file}.objdump.tmp
+  if [ "$dumptotmp" == "0" ]; then
+    objdump -d -C ${file} > ${file}.objdump # unnecessary but useful for debugging
+    dumptmp=${file}.objdump.tmp
+  else
+    dumptmp=$(mktemp -d)/$(basename ${file}).objdump.tmp
+  fi
   if [ "$helamps" == "0" ]; then
     objdump -d -C $file | awk '/^ +[[:xdigit:]]+:\t/' | cut -f3- > ${dumptmp}
   else
