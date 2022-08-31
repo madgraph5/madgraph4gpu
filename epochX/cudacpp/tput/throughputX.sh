@@ -582,7 +582,7 @@ for exe in $exes; do
   unset OMP_NUM_THREADS
   runExe $exe "$exeArgs"
   if [ "${exe%%/check*}" != "${exe}" ]; then 
-    obj=${exe%%/check*}/CPPProcess.o; $scrdir/simdSymSummary.sh -stripdir ${obj}
+    obj=${exe%%/check*}/CPPProcess.o; $scrdir/simdSymSummary.sh -stripdir ${obj} -dumptotmp # comment out -dumptotmp to keep full objdump
     if [ "${omp}" == "1" ]; then 
       echo "-------------------------------------------------------------------------"
       export OMP_NUM_THREADS=$(nproc --all)
