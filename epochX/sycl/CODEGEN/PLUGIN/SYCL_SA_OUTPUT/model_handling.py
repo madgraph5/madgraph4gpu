@@ -814,8 +814,8 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
   INLINE
   fptype calculate_wavefunctions( const fptype_sv* __restrict__ allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
                                   #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                                      fptype* allNumerators,                // output: multichannel numerators[nevt], running_sum_over_helicities
-                                      fptype* allDenominators,              // output: multichannel denominators[nevt], running_sum_over_helicities
+                                      fptype* allNumerators,                // output: multichannel numerators, running_sum_over_helicities
+                                      fptype* allDenominators,              // output: multichannel denominators, running_sum_over_helicities
                                       const unsigned int channelId,         // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
                                   #endif
                                   const short*  __restrict__ cHel,
@@ -843,9 +843,15 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
     // === Calculate wavefunctions and amplitudes for all diagrams in all processes - Loop over nevt events ===
 """)
             ret_lines.append('    {') # NB This is closed in process_matrix.inc
+            multi_channel = None
+            if self.include_multi_channel:
+                if not self.support_multichannel:
+                    raise Exception("link with madevent not supported")
+                multi_channel = self.get_multi_channel_dictionary(self.matrix_elements[0].get('diagrams'), self.include_multi_channel)
             helas_calls = self.helas_call_writer.get_matrix_element_calls(\
                                                     self.matrix_elements[0],
-                                                    color_amplitudes[0]
+                                                    color_amplitudes[0],
+                                                    multi_channel_map = multi_channel
                                                     )
             logger.debug("only one Matrix-element supported?")
             self.couplings2order = self.helas_call_writer.couplings2order
@@ -878,6 +884,13 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
     def generate_process_files(self):
         """Generate mgOnGpuConfig.h, CPPProcess.cc, check_sa.cc, gCPPProcess.h/cu link, gcheck_sa.cu link""" 
         misc.sprint('Entering PLUGIN_OneProcessExporter.generate_process_files')
+        if self.include_multi_channel:
+            misc.sprint('self.include_multi_channel is already defined: this is madevent+second_exporter mode')
+        else:
+            misc.sprint('self.include_multi_channel is not yet defined: this is standalone_sycl mode') # see issue #473
+        if self.matrix_elements[0].get('has_mirror_process'):
+            self.matrix_elements[0].set('has_mirror_process', False)
+            self.nprocesses/=2
         super(export_cpp.OneProcessExporterGPU, self).generate_process_files()
         self.edit_CMakeLists()
         self.edit_check_sa()
@@ -936,6 +949,11 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         replace_dict['nparams'] = len(self.params2order)
         
         
+        if self.include_multi_channel:
+            replace_dict['mgongpu_supports_multichannel'] = '#define MGONGPU_SUPPORTS_MULTICHANNEL 1'
+        else:
+            replace_dict['mgongpu_supports_multichannel'] = '#undef MGONGPU_SUPPORTS_MULTICHANNEL'
+
         ff = open(pjoin(self.path, '..','..','src','mgOnGpuConfig.h'),'w')
         ff.write(template % replace_dict)
         ff.close()        
@@ -1133,7 +1151,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         return call.replace('(','( ').replace(')',' )').replace(',',', ')
 
     # AV - replace helas_call_writers.GPUFOHelasCallWriter method (improve formatting)
-    def super_get_matrix_element_calls(self, matrix_element, color_amplitudes):
+    def super_get_matrix_element_calls(self, matrix_element, color_amplitudes, multi_channel_map=False):
         """Return a list of strings, corresponding to the Helas calls for the matrix element"""
         import madgraph.core.helas_objects as helas_objects
         import madgraph.loop.loop_helas_objects as loop_helas_objects
@@ -1156,28 +1174,40 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         ###res.append('for(int i=0;i<%s;i++){jamp[i] = cxtype(0.,0.);}' % len(color_amplitudes))
         res.append('// Reset color flows (reset jamp_sv) at the beginning of a new event or event page')
         res.append('for( int i=0; i<ncolor; i++ ){ jamp_sv[i] = cxzero_sv(); }')
+        diagrams = matrix_element.get('diagrams')
+        diag_to_config = {}
+        if multi_channel_map:
+            for config in sorted(multi_channel_map.keys()):
+                amp = [a.get('number') for a in \
+                                  sum([diagrams[idiag].get('amplitudes') for \
+                                       idiag in multi_channel_map[config]], [])]
+                diag_to_config[amp[0]] = config
+        id_amp = 0
         for diagram in matrix_element.get('diagrams'):
             ###print('DIAGRAM %3d: #wavefunctions=%3d, #diagrams=%3d' %
             ###      (diagram.get('number'), len(diagram.get('wavefunctions')), len(diagram.get('amplitudes')) )) # AV - FOR DEBUGGING
             res.append('\n      // *** DIAGRAM %d OF %d ***' % (diagram.get('number'), len(matrix_element.get('diagrams'))) ) # AV
             res.append('\n      // Wavefunction(s) for diagram number %d' % diagram.get('number')) # AV
             res.extend([ self.get_wavefunction_call(wf) for wf in diagram.get('wavefunctions') ]) # AV new: avoid format_call
-            ###res.extend([ self.format_call(self.get_wavefunction_call(wf)) for wf in diagram.get('wavefunctions') ]) # AV old: use format_call
             if len(diagram.get('wavefunctions')) == 0 : res.append('// (none)') # AV
-            ###res.append("# Amplitude(s) for diagram number %d" % diagram.get('number'))
+            if res[-1][-1] == '\n' : res[-1] = res[-1][:-1]
             res.append("\n      // Amplitude(s) for diagram number %d" % diagram.get('number'))
             for amplitude in diagram.get('amplitudes'):
+                id_amp +=1
                 namp = amplitude.get('number')
                 amplitude.set('number', 1)
                 res.append(self.get_amplitude_call(amplitude)) # AV new: avoid format_call
-                ###res.append(self.format_call(self.get_amplitude_call(amplitude))) # AV old: use format_call
-                res.append("#ifdef MGONGPU_SUPPORTS_MULTICHANNEL")
-                res.append("// Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)")
-                res.append("#endif")
+                if multi_channel_map: # different code bases #473 (assume this is the same as self.include_multi_channel...)
+                    if id_amp in diag_to_config:
+                        res.append("#ifdef MGONGPU_SUPPORTS_MULTICHANNEL")
+                        res.append("if( channelId == %i ) allNumerators[0] += cxabs2( amp_sv[0] );" % diagram.get('number'))
+                        res.append("if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );")
+                        res.append("#endif")
+                else:
+                    res.append("#ifdef MGONGPU_SUPPORTS_MULTICHANNEL")
+                    res.append("// Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)")
+                    res.append("#endif")
                 for njamp, coeff in color[namp].items():
-                    ###res.append("jamp[%s] += %samp[0];" % (njamp, export_cpp.OneProcessExporterGPU.coeff(*coeff)))
-                    ###res.append("jamp[%s] += %samp[0];" % (njamp, PLUGIN_OneProcessExporter.coeff(*coeff)))
-                    ###res.append("jamp_sv[%s] += %samp_sv[0];" % (njamp, PLUGIN_OneProcessExporter.coeff(*coeff))) # AV vectorize
                     scoeff = PLUGIN_OneProcessExporter.coeff(*coeff) # AV
                     if scoeff[0] == '+' : scoeff = scoeff[1:]
                     scoeff = scoeff.replace('(','( ')
@@ -1192,10 +1222,9 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         return res
 
     # AV - overload helas_call_writers.GPUFOHelasCallWriter method (improve formatting)
-    def get_matrix_element_calls(self, matrix_element, color_amplitudes):
+    def get_matrix_element_calls(self, matrix_element, color_amplitudes, multi_channel_map=False):
         """Return a list of strings, corresponding to the Helas calls for the matrix element"""
-        ###res = super().get_matrix_element_calls(matrix_element, color_amplitudes)
-        res = self.super_get_matrix_element_calls(matrix_element, color_amplitudes)
+        res = self.super_get_matrix_element_calls(matrix_element, color_amplitudes, multi_channel_map)
         for i, item in enumerate(res):
             ###print(item) # FOR DEBUGGING
             if item.startswith('# Amplitude'): item='//'+item[1:] # AV replace '# Amplitude' by '// Amplitude'

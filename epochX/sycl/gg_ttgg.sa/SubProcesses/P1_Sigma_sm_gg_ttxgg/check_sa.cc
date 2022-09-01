@@ -573,7 +573,11 @@ int main(int argc, char **argv)
                 size_t ievt = index.get_global_id(0);
                 const int ipagM = ievt/neppM; // #eventpage in this iteration
                 const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+                devMEs[ievt] = Proc::sigmaKin( devMomenta + ipagM * npar * np4 * neppM + ieppM, 0, devcHel, devcIPC, devcIPD, devcNGoodHel, devcGoodHel );
+#else
                 devMEs[ievt] = Proc::sigmaKin( devMomenta + ipagM * npar * np4 * neppM + ieppM, devcHel, devcIPC, devcIPD, devcNGoodHel, devcGoodHel );
+#endif
             });
         }));
     });

@@ -322,11 +322,16 @@ namespace mg5amcGpu
     auto devMEsC = m_devMEsC.data();
     m_q.submit([&](sycl::handler& cgh) {
         cgh.parallel_for_work_group(sycl::range<1>{m_gpublocks}, sycl::range<1>{m_gputhreads}, ([=](sycl::group<1> wGroup) {
+            auto l_channelId = channelId;
             wGroup.parallel_for_work_item([&](sycl::h_item<1> index) {
                 size_t ievt = index.get_global_id(0);
                 const int ipagM = ievt/neppM;
                 const int ieppM = ievt%neppM;
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+                devMEsC[ievt] = Proc::sigmaKin( devMomentaC + ipagM * npar * np4 * neppM + ieppM, l_channelId, devcHel, devcIPC, devcIPD, devcNGoodHel, devcGoodHel );
+#else
                 devMEsC[ievt] = Proc::sigmaKin( devMomentaC + ipagM * npar * np4 * neppM + ieppM, devcHel, devcIPC, devcIPD, devcNGoodHel, devcGoodHel );
+#endif
             });
         }));
     });

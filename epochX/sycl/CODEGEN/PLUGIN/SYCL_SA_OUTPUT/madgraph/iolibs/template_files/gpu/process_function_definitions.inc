@@ -74,7 +74,7 @@ namespace Proc
 
   SYCL_EXTERNAL
   void sigmaKin_getGoodHel( const fptype* __restrict__ allmomenta, // input: momenta[nevt*npar*4]
-                            bool* isGoodHel,          // output: isGoodHel[ncomb] - device array
+                            bool* isGoodHel,                       // output: isGoodHel[ncomb] - device array
                             const short* __restrict__ cHel,
                             const fptype* __restrict__ cIPC,
                             const fptype* __restrict__ cIPD
@@ -86,7 +86,14 @@ namespace Proc
     for ( int ihel = 0; ihel < ncomb; ihel++ )
     {
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+      constexpr unsigned int channelId = 0; // disable single-diagram channel enhancement
+      fptype allNumerators = 0;
+      fptype allDenominators = 0;
+      allMEs += calculate_wavefunctions( allmomenta, allNumerators, allDenominators, channelId, cHel + ihel*npar, cIPC, cIPD );
+#else
       allMEs += calculate_wavefunctions( allmomenta, cHel + ihel*npar, cIPC, cIPD );
+#endif
       if ( allMEs != allMEsLast )
       {
         //if ( !isGoodHel[ihel] ) std::cout << "sigmaKin_getGoodHel ihel=" << ihel << " TRUE" << std::endl;
@@ -121,6 +128,9 @@ namespace Proc
 
   SYCL_EXTERNAL
   fptype sigmaKin( const fptype* __restrict__ allmomenta, // input: momenta[nevt*npar*4]
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+                   const unsigned int channelId           // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
+#endif
                    const short* __restrict__ cHel,
                    const fptype* __restrict__ cIPC,
                    const fptype* __restrict__ cIPD,
