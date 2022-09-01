@@ -48,8 +48,8 @@ SYCL_MAKEENV:=$(shell echo '$(.VARIABLES)' | tr " " "\n" | egrep "(USEBUILDDIR|A
 SYCL_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(SYCL_MAKEENV),$(v)="$($(v))") -f $(SYCL_MAKEFILE) -pn | awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
 ###$(info SYCL_BUILDDIR='$(SYCL_BUILDDIR)')
 SYCL_COMMONLIB=mg5amc_common
-SYCL_CXXLIB=mg5amc_$(processid_short)_cpp
-SYCL_CULIB=mg5amc_$(processid_short)_sycl
+SYCL_CXXLIB=mg5amc_$(processid_short)_sycl
+SYCL_SYCLLIB=mg5amc_$(processid_short)_sycl
 
 LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS)
 
@@ -114,10 +114,10 @@ else
 endif
 
 $(SYCL_BUILDDIR)/c$(PROG)_sycl: $(PROCESS) $(DSIG_sycl) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(SYCL_BUILDDIR)/.sycllibs
-	$(FC) -o $(SYCL_BUILDDIR)/c$(PROG)_sycl $(PROCESS) $(DSIG_sycl) auto_dsig.o $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o -L$(LIBDIR)/$(SYCL_BUILDDIR) -l$(SYCL_COMMONLIB) -l$(SYCL_CXXLIB) $(LIBFLAGSRPATH)
+	$(CXX) $(SYCLFLAGS) -o $(SYCL_BUILDDIR)/c$(PROG)_sycl $(PROCESS) $(DSIG_sycl) auto_dsig.o $(MATRIX) $(LIBDIR)/$(SYCL_BUILDDIR)/lib$(SYCL_CULIB).a $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o -lgfortran -L$(LIBDIR)/$(SYCL_BUILDDIR) -l$(SYCL_COMMONLIB) $(LIBFLAGSRPATH) -lstdc++fs
 
 $(SYCL_BUILDDIR)/g$(PROG)_sycl: $(PROCESS) $(DSIG_sycl) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(SYCL_BUILDDIR)/.sycllibs
-	$(FC) -o $(SYCL_BUILDDIR)/g$(PROG)_sycl $(PROCESS) $(DSIG_sycl) auto_dsig.o $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o -L$(LIBDIR)/$(SYCL_BUILDDIR) -l$(SYCL_COMMONLIB) -l$(SYCL_CULIB) $(LIBFLAGSRPATH)
+	$(CXX) $(SYCLFLAGS) -o $(SYCL_BUILDDIR)/g$(PROG)_sycl $(PROCESS) $(DSIG_sycl) auto_dsig.o $(MATRIX) $(LIBDIR)/$(SYCL_BUILDDIR)/lib$(SYCL_CULIB).a $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o -lgfortran -L$(LIBDIR)/$(SYCL_BUILDDIR) -l$(SYCL_COMMONLIB) $(LIBFLAGSRPATH) -lstdc++fs
 
 counters.o: counters.cpp timer.h
 	$(CXX) -std=c++11 -Wall -Wshadow -Wextra -c $< -o $@

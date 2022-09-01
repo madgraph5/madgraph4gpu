@@ -39,8 +39,8 @@ namespace Proc
   INLINE
   fptype calculate_wavefunctions( const fptype_sv* __restrict__ allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
                                   #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                                      fptype* allNumerators,                // output: multichannel numerators[nevt], running_sum_over_helicities
-                                      fptype* allDenominators,              // output: multichannel denominators[nevt], running_sum_over_helicities
+                                      fptype* allNumerators,                // output: multichannel numerators, running_sum_over_helicities
+                                      fptype* allDenominators,              // output: multichannel denominators, running_sum_over_helicities
                                       const unsigned int channelId,         // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
                                   #endif
                                   const short*  __restrict__ cHel,
@@ -92,9 +92,6 @@ namespace Proc
 
       // Amplitude(s) for diagram number 1
       VVVV1_0( w_sv[6], w_sv[7], w_sv[4], w_sv[5], COUPs[2], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -104,9 +101,6 @@ namespace Proc
       jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
       VVVV3_0( w_sv[6], w_sv[7], w_sv[4], w_sv[5], COUPs[2], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[12] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -116,9 +110,6 @@ namespace Proc
       jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
       VVVV4_0( w_sv[6], w_sv[7], w_sv[4], w_sv[5], COUPs[2], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[12] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -136,7 +127,8 @@ namespace Proc
       // Amplitude(s) for diagram number 2
       VVV1_0( w_sv[7], w_sv[5], w_sv[8], COUPs[0], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 2 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -155,7 +147,8 @@ namespace Proc
       // Amplitude(s) for diagram number 3
       VVV1_0( w_sv[7], w_sv[4], w_sv[9], COUPs[0], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 3 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -174,7 +167,8 @@ namespace Proc
       // Amplitude(s) for diagram number 4
       VVV1_0( w_sv[6], w_sv[7], w_sv[10], COUPs[0], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 4 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -194,7 +188,8 @@ namespace Proc
       // Amplitude(s) for diagram number 5
       FFV1_0( w_sv[12], w_sv[11], w_sv[5], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 5 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -207,7 +202,8 @@ namespace Proc
       // Amplitude(s) for diagram number 6
       FFV1_0( w_sv[3], w_sv[11], w_sv[9], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 6 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[12] += amp_sv[0];
       jamp_sv[14] -= amp_sv[0];
@@ -222,7 +218,8 @@ namespace Proc
       // Amplitude(s) for diagram number 7
       FFV1_0( w_sv[13], w_sv[11], w_sv[6], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 7 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[12] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[14] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -235,7 +232,8 @@ namespace Proc
       // Amplitude(s) for diagram number 8
       FFV1_0( w_sv[12], w_sv[14], w_sv[4], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 8 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -248,7 +246,8 @@ namespace Proc
       // Amplitude(s) for diagram number 9
       FFV1_0( w_sv[3], w_sv[14], w_sv[8], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 9 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[18] += amp_sv[0];
       jamp_sv[20] -= amp_sv[0];
@@ -263,7 +262,8 @@ namespace Proc
       // Amplitude(s) for diagram number 10
       FFV1_0( w_sv[15], w_sv[14], w_sv[6], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 10 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[18] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[20] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -276,7 +276,8 @@ namespace Proc
       // Amplitude(s) for diagram number 11
       FFV1_0( w_sv[15], w_sv[16], w_sv[5], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 11 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -289,7 +290,8 @@ namespace Proc
       // Amplitude(s) for diagram number 12
       FFV1_0( w_sv[15], w_sv[2], w_sv[9], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 12 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[1] += amp_sv[0];
       jamp_sv[7] -= amp_sv[0];
@@ -304,7 +306,8 @@ namespace Proc
       // Amplitude(s) for diagram number 13
       FFV1_0( w_sv[13], w_sv[16], w_sv[4], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 13 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -317,7 +320,8 @@ namespace Proc
       // Amplitude(s) for diagram number 14
       FFV1_0( w_sv[13], w_sv[2], w_sv[8], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 14 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[0] += amp_sv[0];
       jamp_sv[6] -= amp_sv[0];
@@ -332,7 +336,8 @@ namespace Proc
       // Amplitude(s) for diagram number 15
       FFV1_0( w_sv[3], w_sv[16], w_sv[10], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 15 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[0] += amp_sv[0];
       jamp_sv[1] -= amp_sv[0];
@@ -347,7 +352,8 @@ namespace Proc
       // Amplitude(s) for diagram number 16
       FFV1_0( w_sv[12], w_sv[2], w_sv[10], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 16 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[16] += amp_sv[0];
       jamp_sv[17] -= amp_sv[0];
@@ -364,7 +370,8 @@ namespace Proc
       // Amplitude(s) for diagram number 17
       FFV1_0( w_sv[16], w_sv[8], w_sv[5], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 17 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[3] -= amp_sv[0];
 
@@ -376,7 +383,8 @@ namespace Proc
       // Amplitude(s) for diagram number 18
       FFV1_0( w_sv[16], w_sv[9], w_sv[4], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 18 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[5] -= amp_sv[0];
 
@@ -388,7 +396,8 @@ namespace Proc
       // Amplitude(s) for diagram number 19
       FFV1_0( w_sv[16], w_sv[12], w_sv[10], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 19 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[5] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -402,7 +411,8 @@ namespace Proc
       // Amplitude(s) for diagram number 20
       VVV1_0( w_sv[6], w_sv[5], w_sv[17], COUPs[0], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 20 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[0] += amp_sv[0];
       jamp_sv[2] -= amp_sv[0];
@@ -417,7 +427,8 @@ namespace Proc
       // Amplitude(s) for diagram number 21
       FFV1_0( w_sv[3], w_sv[9], w_sv[6], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 21 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[4] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[5] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -430,7 +441,8 @@ namespace Proc
       // Amplitude(s) for diagram number 22
       FFV1_0( w_sv[13], w_sv[12], w_sv[6], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 22 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -443,7 +455,8 @@ namespace Proc
       // Amplitude(s) for diagram number 23
       VVV1_0( w_sv[18], w_sv[4], w_sv[17], COUPs[0], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 23 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[1] += amp_sv[0];
       jamp_sv[2] -= amp_sv[0];
@@ -458,7 +471,8 @@ namespace Proc
       // Amplitude(s) for diagram number 24
       FFV1_0( w_sv[3], w_sv[8], w_sv[18], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 24 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[2] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[3] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -471,7 +485,8 @@ namespace Proc
       // Amplitude(s) for diagram number 25
       FFV1_0( w_sv[15], w_sv[12], w_sv[18], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 25 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -484,7 +499,8 @@ namespace Proc
       // Amplitude(s) for diagram number 26
       FFV1_0( w_sv[15], w_sv[19], w_sv[5], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 26 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[1] -= amp_sv[0];
 
@@ -496,7 +512,8 @@ namespace Proc
       // Amplitude(s) for diagram number 27
       FFV1_0( w_sv[15], w_sv[9], w_sv[1], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 27 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[4] -= amp_sv[0];
 
@@ -508,7 +525,8 @@ namespace Proc
       // Amplitude(s) for diagram number 28
       FFV1_0( w_sv[13], w_sv[19], w_sv[4], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 28 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[0] -= amp_sv[0];
 
@@ -520,7 +538,8 @@ namespace Proc
       // Amplitude(s) for diagram number 29
       FFV1_0( w_sv[13], w_sv[8], w_sv[1], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 29 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[2] -= amp_sv[0];
 
@@ -532,7 +551,8 @@ namespace Proc
       // Amplitude(s) for diagram number 30
       FFV1_0( w_sv[3], w_sv[19], w_sv[10], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 30 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -545,7 +565,8 @@ namespace Proc
       // Amplitude(s) for diagram number 31
       VVV1_0( w_sv[1], w_sv[10], w_sv[17], COUPs[0], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 31 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[0] += amp_sv[0];
       jamp_sv[1] -= amp_sv[0];
@@ -561,25 +582,16 @@ namespace Proc
 
       // Amplitude(s) for diagram number 32
       FFV1_0( w_sv[3], w_sv[12], w_sv[17], COUPs[1], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[0] += amp_sv[0];
       jamp_sv[1] -= amp_sv[0];
       jamp_sv[3] -= amp_sv[0];
       jamp_sv[5] += amp_sv[0];
       FFV1_0( w_sv[3], w_sv[12], w_sv[19], COUPs[1], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[1] -= amp_sv[0];
       jamp_sv[2] += amp_sv[0];
       jamp_sv[3] -= amp_sv[0];
       jamp_sv[4] += amp_sv[0];
       FFV1_0( w_sv[3], w_sv[12], w_sv[8], COUPs[1], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[0] -= amp_sv[0];
       jamp_sv[2] += amp_sv[0];
       jamp_sv[4] += amp_sv[0];
@@ -595,7 +607,8 @@ namespace Proc
       // Amplitude(s) for diagram number 33
       FFV1_0( w_sv[20], w_sv[9], w_sv[5], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 33 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[11] -= amp_sv[0];
 
@@ -607,7 +620,8 @@ namespace Proc
       // Amplitude(s) for diagram number 34
       FFV1_0( w_sv[21], w_sv[9], w_sv[4], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 34 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[9] -= amp_sv[0];
 
@@ -619,7 +633,8 @@ namespace Proc
       // Amplitude(s) for diagram number 35
       FFV1_0( w_sv[12], w_sv[9], w_sv[10], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 35 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[9] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -632,7 +647,8 @@ namespace Proc
       // Amplitude(s) for diagram number 36
       VVV1_0( w_sv[6], w_sv[5], w_sv[22], COUPs[0], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 36 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[9] += amp_sv[0];
       jamp_sv[15] -= amp_sv[0];
@@ -647,7 +663,8 @@ namespace Proc
       // Amplitude(s) for diagram number 37
       FFV1_0( w_sv[21], w_sv[2], w_sv[6], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 37 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[9] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[15] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -660,7 +677,8 @@ namespace Proc
       // Amplitude(s) for diagram number 38
       FFV1_0( w_sv[12], w_sv[14], w_sv[6], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 38 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -673,7 +691,8 @@ namespace Proc
       // Amplitude(s) for diagram number 39
       VVV1_0( w_sv[18], w_sv[4], w_sv[22], COUPs[0], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 39 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[11] += amp_sv[0];
       jamp_sv[15] -= amp_sv[0];
@@ -688,7 +707,8 @@ namespace Proc
       // Amplitude(s) for diagram number 40
       FFV1_0( w_sv[20], w_sv[2], w_sv[18], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 40 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[11] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[21] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -701,7 +721,8 @@ namespace Proc
       // Amplitude(s) for diagram number 41
       FFV1_0( w_sv[12], w_sv[11], w_sv[18], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 41 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -714,7 +735,8 @@ namespace Proc
       // Amplitude(s) for diagram number 42
       FFV1_0( w_sv[23], w_sv[11], w_sv[5], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 42 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[17] -= amp_sv[0];
 
@@ -726,7 +748,8 @@ namespace Proc
       // Amplitude(s) for diagram number 43
       FFV1_0( w_sv[21], w_sv[11], w_sv[1], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 43 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[15] -= amp_sv[0];
 
@@ -738,7 +761,8 @@ namespace Proc
       // Amplitude(s) for diagram number 44
       FFV1_0( w_sv[23], w_sv[14], w_sv[4], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 44 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[23] -= amp_sv[0];
 
@@ -750,7 +774,8 @@ namespace Proc
       // Amplitude(s) for diagram number 45
       FFV1_0( w_sv[20], w_sv[14], w_sv[1], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 45 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[21] -= amp_sv[0];
 
@@ -762,7 +787,8 @@ namespace Proc
       // Amplitude(s) for diagram number 46
       FFV1_0( w_sv[23], w_sv[2], w_sv[10], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 46 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[17] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -775,7 +801,8 @@ namespace Proc
       // Amplitude(s) for diagram number 47
       VVV1_0( w_sv[1], w_sv[10], w_sv[22], COUPs[0], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 47 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[9] += amp_sv[0];
       jamp_sv[11] -= amp_sv[0];
@@ -789,25 +816,16 @@ namespace Proc
 
       // Amplitude(s) for diagram number 48
       FFV1_0( w_sv[12], w_sv[2], w_sv[17], COUPs[1], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[9] += amp_sv[0];
       jamp_sv[11] -= amp_sv[0];
       jamp_sv[17] -= amp_sv[0];
       jamp_sv[23] += amp_sv[0];
       FFV1_0( w_sv[12], w_sv[2], w_sv[19], COUPs[1], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[11] -= amp_sv[0];
       jamp_sv[15] += amp_sv[0];
       jamp_sv[17] -= amp_sv[0];
       jamp_sv[21] += amp_sv[0];
       FFV1_0( w_sv[12], w_sv[2], w_sv[8], COUPs[1], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[9] -= amp_sv[0];
       jamp_sv[15] += amp_sv[0];
       jamp_sv[21] += amp_sv[0];
@@ -822,7 +840,8 @@ namespace Proc
       // Amplitude(s) for diagram number 49
       FFV1_0( w_sv[22], w_sv[9], w_sv[5], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 49 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -835,7 +854,8 @@ namespace Proc
       // Amplitude(s) for diagram number 50
       FFV1_0( w_sv[3], w_sv[9], w_sv[23], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 50 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[6] += amp_sv[0];
       jamp_sv[8] -= amp_sv[0];
@@ -850,7 +870,8 @@ namespace Proc
       // Amplitude(s) for diagram number 51
       FFV1_0( w_sv[13], w_sv[9], w_sv[12], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 51 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[6] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[8] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -863,7 +884,8 @@ namespace Proc
       // Amplitude(s) for diagram number 52
       FFV1_0( w_sv[16], w_sv[20], w_sv[5], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 52 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -876,7 +898,8 @@ namespace Proc
       // Amplitude(s) for diagram number 53
       FFV1_0( w_sv[16], w_sv[2], w_sv[23], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 53 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[3] += amp_sv[0];
       jamp_sv[13] -= amp_sv[0];
@@ -891,7 +914,8 @@ namespace Proc
       // Amplitude(s) for diagram number 54
       FFV1_0( w_sv[16], w_sv[14], w_sv[12], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 54 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[19] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[22] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -904,7 +928,8 @@ namespace Proc
       // Amplitude(s) for diagram number 55
       FFV1_0( w_sv[3], w_sv[20], w_sv[18], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 55 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[2] += amp_sv[0];
       jamp_sv[3] -= amp_sv[0];
@@ -919,7 +944,8 @@ namespace Proc
       // Amplitude(s) for diagram number 56
       FFV1_0( w_sv[22], w_sv[2], w_sv[18], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 56 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[10] += amp_sv[0];
       jamp_sv[11] -= amp_sv[0];
@@ -934,7 +960,8 @@ namespace Proc
       // Amplitude(s) for diagram number 57
       VVV1_0( w_sv[12], w_sv[18], w_sv[7], COUPs[0], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 57 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
@@ -952,9 +979,6 @@ namespace Proc
 
       // Amplitude(s) for diagram number 58
       VVVV1_0( w_sv[12], w_sv[1], w_sv[7], w_sv[5], COUPs[2], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[2] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
@@ -964,9 +988,6 @@ namespace Proc
       jamp_sv[21] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
       VVVV3_0( w_sv[12], w_sv[1], w_sv[7], w_sv[5], COUPs[2], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[2] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[3] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[10] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -976,9 +997,6 @@ namespace Proc
       jamp_sv[20] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[21] -= cxtype( 0, 1 ) * amp_sv[0];
       VVVV4_0( w_sv[12], w_sv[1], w_sv[7], w_sv[5], COUPs[2], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[3] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[6] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[8] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -996,7 +1014,8 @@ namespace Proc
       // Amplitude(s) for diagram number 59
       VVV1_0( w_sv[7], w_sv[5], w_sv[21], COUPs[0], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 59 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[2] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1015,7 +1034,8 @@ namespace Proc
       // Amplitude(s) for diagram number 60
       VVV1_0( w_sv[1], w_sv[7], w_sv[23], COUPs[0], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 60 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[3] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[6] += cxtype( 0, 1 ) * amp_sv[0];
@@ -1034,7 +1054,8 @@ namespace Proc
       // Amplitude(s) for diagram number 61
       FFV1_0( w_sv[3], w_sv[14], w_sv[21], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 61 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[19] += amp_sv[0];
       jamp_sv[20] -= amp_sv[0];
@@ -1049,7 +1070,8 @@ namespace Proc
       // Amplitude(s) for diagram number 62
       FFV1_0( w_sv[22], w_sv[14], w_sv[1], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 62 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[20] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[21] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1062,7 +1084,8 @@ namespace Proc
       // Amplitude(s) for diagram number 63
       FFV1_0( w_sv[13], w_sv[2], w_sv[21], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 63 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[2] += amp_sv[0];
       jamp_sv[6] -= amp_sv[0];
@@ -1077,7 +1100,8 @@ namespace Proc
       // Amplitude(s) for diagram number 64
       FFV1_0( w_sv[13], w_sv[20], w_sv[1], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 64 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[2] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[12] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1091,7 +1115,8 @@ namespace Proc
       // Amplitude(s) for diagram number 65
       FFV1_0( w_sv[21], w_sv[9], w_sv[4], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 65 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1104,7 +1129,8 @@ namespace Proc
       // Amplitude(s) for diagram number 66
       FFV1_0( w_sv[3], w_sv[9], w_sv[22], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 66 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[7] += amp_sv[0];
       jamp_sv[8] -= amp_sv[0];
@@ -1119,7 +1145,8 @@ namespace Proc
       // Amplitude(s) for diagram number 67
       FFV1_0( w_sv[15], w_sv[9], w_sv[20], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 67 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[7] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[10] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1132,7 +1159,8 @@ namespace Proc
       // Amplitude(s) for diagram number 68
       FFV1_0( w_sv[16], w_sv[23], w_sv[4], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 68 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1145,7 +1173,8 @@ namespace Proc
       // Amplitude(s) for diagram number 69
       FFV1_0( w_sv[16], w_sv[2], w_sv[22], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 69 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[5] += amp_sv[0];
       jamp_sv[13] -= amp_sv[0];
@@ -1160,7 +1189,8 @@ namespace Proc
       // Amplitude(s) for diagram number 70
       FFV1_0( w_sv[16], w_sv[11], w_sv[20], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 70 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[13] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[16] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1173,7 +1203,8 @@ namespace Proc
       // Amplitude(s) for diagram number 71
       FFV1_0( w_sv[3], w_sv[23], w_sv[6], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 71 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[4] += amp_sv[0];
       jamp_sv[5] -= amp_sv[0];
@@ -1188,7 +1219,8 @@ namespace Proc
       // Amplitude(s) for diagram number 72
       FFV1_0( w_sv[21], w_sv[2], w_sv[6], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 72 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[8] += amp_sv[0];
       jamp_sv[9] -= amp_sv[0];
@@ -1203,7 +1235,8 @@ namespace Proc
       // Amplitude(s) for diagram number 73
       VVV1_0( w_sv[20], w_sv[6], w_sv[7], COUPs[0], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 73 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
@@ -1221,9 +1254,6 @@ namespace Proc
 
       // Amplitude(s) for diagram number 74
       VVVV1_0( w_sv[20], w_sv[1], w_sv[7], w_sv[4], COUPs[2], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[4] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
@@ -1233,9 +1263,6 @@ namespace Proc
       jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[18] -= cxtype( 0, 1 ) * amp_sv[0];
       VVVV3_0( w_sv[20], w_sv[1], w_sv[7], w_sv[4], COUPs[2], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[4] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[5] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[8] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1245,9 +1272,6 @@ namespace Proc
       jamp_sv[18] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[19] += cxtype( 0, 1 ) * amp_sv[0];
       VVVV4_0( w_sv[20], w_sv[1], w_sv[7], w_sv[4], COUPs[2], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[5] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[7] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[8] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1265,7 +1289,8 @@ namespace Proc
       // Amplitude(s) for diagram number 75
       VVV1_0( w_sv[7], w_sv[4], w_sv[12], COUPs[0], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 75 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[4] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1284,7 +1309,8 @@ namespace Proc
       // Amplitude(s) for diagram number 76
       VVV1_0( w_sv[1], w_sv[7], w_sv[22], COUPs[0], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 76 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[5] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[7] += cxtype( 0, 1 ) * amp_sv[0];
@@ -1303,7 +1329,8 @@ namespace Proc
       // Amplitude(s) for diagram number 77
       FFV1_0( w_sv[3], w_sv[11], w_sv[12], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 77 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[13] += amp_sv[0];
       jamp_sv[14] -= amp_sv[0];
@@ -1318,7 +1345,8 @@ namespace Proc
       // Amplitude(s) for diagram number 78
       FFV1_0( w_sv[21], w_sv[11], w_sv[1], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 78 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[14] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[15] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1331,7 +1359,8 @@ namespace Proc
       // Amplitude(s) for diagram number 79
       FFV1_0( w_sv[15], w_sv[2], w_sv[12], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 79 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[4] += amp_sv[0];
       jamp_sv[7] -= amp_sv[0];
@@ -1346,7 +1375,8 @@ namespace Proc
       // Amplitude(s) for diagram number 80
       FFV1_0( w_sv[15], w_sv[23], w_sv[1], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 80 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[4] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[18] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1359,7 +1389,8 @@ namespace Proc
       // Amplitude(s) for diagram number 81
       FFV1_0( w_sv[15], w_sv[23], w_sv[5], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 81 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[7] -= amp_sv[0];
 
@@ -1371,7 +1402,8 @@ namespace Proc
       // Amplitude(s) for diagram number 82
       FFV1_0( w_sv[12], w_sv[9], w_sv[5], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 82 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[10] -= amp_sv[0];
 
@@ -1383,7 +1415,8 @@ namespace Proc
       // Amplitude(s) for diagram number 83
       FFV1_0( w_sv[13], w_sv[23], w_sv[4], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 83 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[6] -= amp_sv[0];
 
@@ -1395,7 +1428,8 @@ namespace Proc
       // Amplitude(s) for diagram number 84
       FFV1_0( w_sv[21], w_sv[9], w_sv[4], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 84 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[8] -= amp_sv[0];
 
@@ -1407,7 +1441,8 @@ namespace Proc
       // Amplitude(s) for diagram number 85
       FFV1_0( w_sv[3], w_sv[23], w_sv[10], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 85 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[6] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1420,7 +1455,8 @@ namespace Proc
       // Amplitude(s) for diagram number 86
       FFV1_0( w_sv[3], w_sv[9], w_sv[23], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 86 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[6] += amp_sv[0];
       jamp_sv[7] -= amp_sv[0];
@@ -1435,7 +1471,8 @@ namespace Proc
       // Amplitude(s) for diagram number 87
       FFV1_0( w_sv[22], w_sv[11], w_sv[5], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 87 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[16] -= amp_sv[0];
 
@@ -1447,7 +1484,8 @@ namespace Proc
       // Amplitude(s) for diagram number 88
       FFV1_0( w_sv[16], w_sv[20], w_sv[5], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 88 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[13] -= amp_sv[0];
 
@@ -1459,7 +1497,8 @@ namespace Proc
       // Amplitude(s) for diagram number 89
       FFV1_0( w_sv[22], w_sv[14], w_sv[4], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 89 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[22] -= amp_sv[0];
 
@@ -1471,7 +1510,8 @@ namespace Proc
       // Amplitude(s) for diagram number 90
       FFV1_0( w_sv[16], w_sv[24], w_sv[4], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 90 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[19] -= amp_sv[0];
 
@@ -1483,7 +1523,8 @@ namespace Proc
       // Amplitude(s) for diagram number 91
       FFV1_0( w_sv[22], w_sv[2], w_sv[10], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 91 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[22] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1496,7 +1537,8 @@ namespace Proc
       // Amplitude(s) for diagram number 92
       FFV1_0( w_sv[16], w_sv[2], w_sv[23], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 92 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[3] += amp_sv[0];
       jamp_sv[5] -= amp_sv[0];
@@ -1510,9 +1552,6 @@ namespace Proc
 
       // Amplitude(s) for diagram number 93
       VVVV1_0( w_sv[0], w_sv[6], w_sv[7], w_sv[5], COUPs[2], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[8] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1522,9 +1561,6 @@ namespace Proc
       jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
       VVVV3_0( w_sv[0], w_sv[6], w_sv[7], w_sv[5], COUPs[2], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1534,9 +1570,6 @@ namespace Proc
       jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
       VVVV4_0( w_sv[0], w_sv[6], w_sv[7], w_sv[5], COUPs[2], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
@@ -1554,7 +1587,8 @@ namespace Proc
       // Amplitude(s) for diagram number 94
       VVV1_0( w_sv[7], w_sv[5], w_sv[22], COUPs[0], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 94 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1573,7 +1607,8 @@ namespace Proc
       // Amplitude(s) for diagram number 95
       VVV1_0( w_sv[6], w_sv[5], w_sv[25], COUPs[0], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 95 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1592,7 +1627,8 @@ namespace Proc
       // Amplitude(s) for diagram number 96
       FFV1_0( w_sv[3], w_sv[14], w_sv[22], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 96 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[18] += amp_sv[0];
       jamp_sv[19] -= amp_sv[0];
@@ -1607,7 +1643,8 @@ namespace Proc
       // Amplitude(s) for diagram number 97
       FFV1_0( w_sv[3], w_sv[24], w_sv[6], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 97 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[18] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1620,7 +1657,8 @@ namespace Proc
       // Amplitude(s) for diagram number 98
       FFV1_0( w_sv[13], w_sv[2], w_sv[22], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 98 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[0] += amp_sv[0];
       jamp_sv[2] -= amp_sv[0];
@@ -1635,7 +1673,8 @@ namespace Proc
       // Amplitude(s) for diagram number 99
       FFV1_0( w_sv[21], w_sv[2], w_sv[6], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 99 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[14] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1647,9 +1686,6 @@ namespace Proc
 
       // Amplitude(s) for diagram number 100
       VVVV1_0( w_sv[0], w_sv[18], w_sv[7], w_sv[4], COUPs[2], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[10] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1659,9 +1695,6 @@ namespace Proc
       jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[20] += cxtype( 0, 1 ) * amp_sv[0];
       VVVV3_0( w_sv[0], w_sv[18], w_sv[7], w_sv[4], COUPs[2], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
@@ -1671,9 +1704,6 @@ namespace Proc
       jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
       VVVV4_0( w_sv[0], w_sv[18], w_sv[7], w_sv[4], COUPs[2], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
@@ -1691,7 +1721,8 @@ namespace Proc
       // Amplitude(s) for diagram number 101
       VVV1_0( w_sv[7], w_sv[4], w_sv[6], COUPs[0], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 101 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1710,7 +1741,8 @@ namespace Proc
       // Amplitude(s) for diagram number 102
       VVV1_0( w_sv[18], w_sv[4], w_sv[25], COUPs[0], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 102 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1729,7 +1761,8 @@ namespace Proc
       // Amplitude(s) for diagram number 103
       FFV1_0( w_sv[3], w_sv[11], w_sv[6], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 103 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[12] += amp_sv[0];
       jamp_sv[13] -= amp_sv[0];
@@ -1744,7 +1777,8 @@ namespace Proc
       // Amplitude(s) for diagram number 104
       FFV1_0( w_sv[3], w_sv[20], w_sv[18], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 104 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[12] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1757,7 +1791,8 @@ namespace Proc
       // Amplitude(s) for diagram number 105
       FFV1_0( w_sv[15], w_sv[2], w_sv[6], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 105 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[1] += amp_sv[0];
       jamp_sv[4] -= amp_sv[0];
@@ -1772,7 +1807,8 @@ namespace Proc
       // Amplitude(s) for diagram number 106
       FFV1_0( w_sv[12], w_sv[2], w_sv[18], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 106 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[20] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1784,9 +1820,6 @@ namespace Proc
 
       // Amplitude(s) for diagram number 107
       VVVV1_0( w_sv[0], w_sv[1], w_sv[7], w_sv[10], COUPs[2], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1796,9 +1829,6 @@ namespace Proc
       jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
       VVVV3_0( w_sv[0], w_sv[1], w_sv[7], w_sv[10], COUPs[2], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[3] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1808,9 +1838,6 @@ namespace Proc
       jamp_sv[17] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
       VVVV4_0( w_sv[0], w_sv[1], w_sv[7], w_sv[10], COUPs[2], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[3] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[6] += cxtype( 0, 1 ) * amp_sv[0];
@@ -1828,7 +1855,8 @@ namespace Proc
       // Amplitude(s) for diagram number 108
       VVV1_0( w_sv[1], w_sv[10], w_sv[25], COUPs[0], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 108 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1847,7 +1875,8 @@ namespace Proc
       // Amplitude(s) for diagram number 109
       VVV1_0( w_sv[1], w_sv[7], w_sv[23], COUPs[0], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 109 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[3] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
@@ -1866,7 +1895,8 @@ namespace Proc
       // Amplitude(s) for diagram number 110
       FFV1_0( w_sv[13], w_sv[20], w_sv[1], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 110 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[12] -= amp_sv[0];
 
@@ -1878,7 +1908,8 @@ namespace Proc
       // Amplitude(s) for diagram number 111
       FFV1_0( w_sv[21], w_sv[11], w_sv[1], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 111 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[14] -= amp_sv[0];
 
@@ -1890,7 +1921,8 @@ namespace Proc
       // Amplitude(s) for diagram number 112
       FFV1_0( w_sv[15], w_sv[24], w_sv[1], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 112 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[18] -= amp_sv[0];
 
@@ -1902,7 +1934,8 @@ namespace Proc
       // Amplitude(s) for diagram number 113
       FFV1_0( w_sv[12], w_sv[14], w_sv[1], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+      if( channelId == 113 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[20] -= amp_sv[0];
 
@@ -1915,9 +1948,6 @@ namespace Proc
 
       // Amplitude(s) for diagram number 114
       VVV1_0( w_sv[12], w_sv[7], w_sv[5], COUPs[0], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[8] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1927,9 +1957,6 @@ namespace Proc
       jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
       VVV1_0( w_sv[24], w_sv[7], w_sv[5], COUPs[0], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[6] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[8] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1939,9 +1966,6 @@ namespace Proc
       jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[22] -= cxtype( 0, 1 ) * amp_sv[0];
       VVV1_0( w_sv[21], w_sv[7], w_sv[5], COUPs[0], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[0] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[6] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[12] += cxtype( 0, 1 ) * amp_sv[0];
@@ -1958,25 +1982,16 @@ namespace Proc
 
       // Amplitude(s) for diagram number 115
       FFV1_0( w_sv[3], w_sv[14], w_sv[12], COUPs[1], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[18] += amp_sv[0];
       jamp_sv[19] -= amp_sv[0];
       jamp_sv[21] -= amp_sv[0];
       jamp_sv[23] += amp_sv[0];
       FFV1_0( w_sv[3], w_sv[14], w_sv[24], COUPs[1], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[19] -= amp_sv[0];
       jamp_sv[20] += amp_sv[0];
       jamp_sv[21] -= amp_sv[0];
       jamp_sv[22] += amp_sv[0];
       FFV1_0( w_sv[3], w_sv[14], w_sv[21], COUPs[1], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[18] -= amp_sv[0];
       jamp_sv[20] += amp_sv[0];
       jamp_sv[22] += amp_sv[0];
@@ -1989,25 +2004,16 @@ namespace Proc
 
       // Amplitude(s) for diagram number 116
       FFV1_0( w_sv[13], w_sv[2], w_sv[12], COUPs[1], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[0] += amp_sv[0];
       jamp_sv[2] -= amp_sv[0];
       jamp_sv[8] -= amp_sv[0];
       jamp_sv[14] += amp_sv[0];
       FFV1_0( w_sv[13], w_sv[2], w_sv[24], COUPs[1], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[2] -= amp_sv[0];
       jamp_sv[6] += amp_sv[0];
       jamp_sv[8] -= amp_sv[0];
       jamp_sv[12] += amp_sv[0];
       FFV1_0( w_sv[13], w_sv[2], w_sv[21], COUPs[1], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[0] -= amp_sv[0];
       jamp_sv[6] += amp_sv[0];
       jamp_sv[12] += amp_sv[0];
@@ -2022,9 +2028,6 @@ namespace Proc
 
       // Amplitude(s) for diagram number 117
       VVV1_0( w_sv[21], w_sv[7], w_sv[4], COUPs[0], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[10] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -2034,9 +2037,6 @@ namespace Proc
       jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[20] += cxtype( 0, 1 ) * amp_sv[0];
       VVV1_0( w_sv[13], w_sv[7], w_sv[4], COUPs[0], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[7] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[10] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -2046,9 +2046,6 @@ namespace Proc
       jamp_sv[16] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[18] += cxtype( 0, 1 ) * amp_sv[0];
       VVV1_0( w_sv[24], w_sv[7], w_sv[4], COUPs[0], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[7] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[12] += cxtype( 0, 1 ) * amp_sv[0];
@@ -2065,25 +2062,16 @@ namespace Proc
 
       // Amplitude(s) for diagram number 118
       FFV1_0( w_sv[3], w_sv[11], w_sv[21], COUPs[1], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[12] += amp_sv[0];
       jamp_sv[13] -= amp_sv[0];
       jamp_sv[15] -= amp_sv[0];
       jamp_sv[17] += amp_sv[0];
       FFV1_0( w_sv[3], w_sv[11], w_sv[13], COUPs[1], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[13] -= amp_sv[0];
       jamp_sv[14] += amp_sv[0];
       jamp_sv[15] -= amp_sv[0];
       jamp_sv[16] += amp_sv[0];
       FFV1_0( w_sv[3], w_sv[11], w_sv[24], COUPs[1], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[12] -= amp_sv[0];
       jamp_sv[14] += amp_sv[0];
       jamp_sv[16] += amp_sv[0];
@@ -2096,25 +2084,16 @@ namespace Proc
 
       // Amplitude(s) for diagram number 119
       FFV1_0( w_sv[15], w_sv[2], w_sv[21], COUPs[1], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[1] += amp_sv[0];
       jamp_sv[4] -= amp_sv[0];
       jamp_sv[10] -= amp_sv[0];
       jamp_sv[20] += amp_sv[0];
       FFV1_0( w_sv[15], w_sv[2], w_sv[13], COUPs[1], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[4] -= amp_sv[0];
       jamp_sv[7] += amp_sv[0];
       jamp_sv[10] -= amp_sv[0];
       jamp_sv[18] += amp_sv[0];
       FFV1_0( w_sv[15], w_sv[2], w_sv[24], COUPs[1], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[1] -= amp_sv[0];
       jamp_sv[7] += amp_sv[0];
       jamp_sv[18] += amp_sv[0];
@@ -2129,25 +2108,16 @@ namespace Proc
 
       // Amplitude(s) for diagram number 120
       FFV1_0( w_sv[3], w_sv[9], w_sv[24], COUPs[1], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[6] += amp_sv[0];
       jamp_sv[7] -= amp_sv[0];
       jamp_sv[9] -= amp_sv[0];
       jamp_sv[11] += amp_sv[0];
       FFV1_0( w_sv[3], w_sv[9], w_sv[15], COUPs[1], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[7] -= amp_sv[0];
       jamp_sv[8] += amp_sv[0];
       jamp_sv[9] -= amp_sv[0];
       jamp_sv[10] += amp_sv[0];
       FFV1_0( w_sv[3], w_sv[9], w_sv[13], COUPs[1], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[6] -= amp_sv[0];
       jamp_sv[8] += amp_sv[0];
       jamp_sv[10] += amp_sv[0];
@@ -2160,25 +2130,16 @@ namespace Proc
 
       // Amplitude(s) for diagram number 121
       FFV1_0( w_sv[16], w_sv[2], w_sv[24], COUPs[1], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[3] += amp_sv[0];
       jamp_sv[5] -= amp_sv[0];
       jamp_sv[16] -= amp_sv[0];
       jamp_sv[22] += amp_sv[0];
       FFV1_0( w_sv[16], w_sv[2], w_sv[15], COUPs[1], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[5] -= amp_sv[0];
       jamp_sv[13] += amp_sv[0];
       jamp_sv[16] -= amp_sv[0];
       jamp_sv[19] += amp_sv[0];
       FFV1_0( w_sv[16], w_sv[2], w_sv[13], COUPs[1], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[3] -= amp_sv[0];
       jamp_sv[13] += amp_sv[0];
       jamp_sv[19] += amp_sv[0];
@@ -2191,9 +2152,6 @@ namespace Proc
 
       // Amplitude(s) for diagram number 122
       VVV1_0( w_sv[24], w_sv[1], w_sv[7], COUPs[0], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[3] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[6] += cxtype( 0, 1 ) * amp_sv[0];
@@ -2203,9 +2161,6 @@ namespace Proc
       jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[22] -= cxtype( 0, 1 ) * amp_sv[0];
       VVV1_0( w_sv[15], w_sv[1], w_sv[7], COUPs[0], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
@@ -2215,9 +2170,6 @@ namespace Proc
       jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
       VVV1_0( w_sv[13], w_sv[1], w_sv[7], COUPs[0], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
@@ -2234,9 +2186,6 @@ namespace Proc
 
       // Amplitude(s) for diagram number 123
       VVV1_0( w_sv[0], w_sv[17], w_sv[7], COUPs[0], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[0] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
@@ -2246,9 +2195,6 @@ namespace Proc
       jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] += cxtype( 0, 1 ) * amp_sv[0];
       VVV1_0( w_sv[0], w_sv[19], w_sv[7], COUPs[0], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
@@ -2258,9 +2204,6 @@ namespace Proc
       jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
       VVV1_0( w_sv[0], w_sv[8], w_sv[7], COUPs[0], &amp_sv[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -2467,7 +2410,7 @@ m_tIPD[1] = (fptype)m_pars->mdl_WT;
 
   SYCL_EXTERNAL
   void sigmaKin_getGoodHel( const fptype* __restrict__ allmomenta, // input: momenta[nevt*npar*4]
-                            bool* isGoodHel,          // output: isGoodHel[ncomb] - device array
+                            bool* isGoodHel,                       // output: isGoodHel[ncomb] - device array
                             const short* __restrict__ cHel,
                             const fptype* __restrict__ cIPC,
                             const fptype* __restrict__ cIPD
@@ -2479,7 +2422,14 @@ m_tIPD[1] = (fptype)m_pars->mdl_WT;
     for ( int ihel = 0; ihel < ncomb; ihel++ )
     {
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+      constexpr unsigned int channelId = 0; // disable single-diagram channel enhancement
+      fptype allNumerators = 0;
+      fptype allDenominators = 0;
+      allMEs += calculate_wavefunctions( allmomenta, allNumerators, allDenominators, channelId, cHel + ihel*npar, cIPC, cIPD );
+#else
       allMEs += calculate_wavefunctions( allmomenta, cHel + ihel*npar, cIPC, cIPD );
+#endif
       if ( allMEs != allMEsLast )
       {
         //if ( !isGoodHel[ihel] ) std::cout << "sigmaKin_getGoodHel ihel=" << ihel << " TRUE" << std::endl;
@@ -2514,6 +2464,9 @@ m_tIPD[1] = (fptype)m_pars->mdl_WT;
 
   SYCL_EXTERNAL
   fptype sigmaKin( const fptype* __restrict__ allmomenta, // input: momenta[nevt*npar*4]
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+                   const unsigned int channelId           // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
+#endif
                    const short* __restrict__ cHel,
                    const fptype* __restrict__ cIPC,
                    const fptype* __restrict__ cIPD,
@@ -2536,6 +2489,10 @@ m_tIPD[1] = (fptype)m_pars->mdl_WT;
     // Reset the "matrix elements" - running sums of |M|^2 over helicities for the given event
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
     fptype allMEs = 0;
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+    fptype allNumerators = 0;
+    fptype allDenominators = 0;
+#endif
 
     // PART 1 - HELICITY LOOP: CALCULATE WAVEFUNCTIONS
     // (in both CUDA and C++, using precomputed good helicities)
@@ -2543,7 +2500,11 @@ m_tIPD[1] = (fptype)m_pars->mdl_WT;
     for ( int ighel = 0; ighel < cNGoodHel[0]; ighel++ )
     {
       const int ihel = cGoodHel[ighel];
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+      allMEs += calculate_wavefunctions( allmomenta, &allNumerators, &allDenominators, channelId, cHel + ihel*npar, cIPC, cIPD );
+#else
       allMEs += calculate_wavefunctions( allmomenta, cHel + ihel*npar, cIPC, cIPD );
+#endif
     }
 
     // PART 2 - FINALISATION (after calculate_wavefunctions)
@@ -2552,6 +2513,9 @@ m_tIPD[1] = (fptype)m_pars->mdl_WT;
     // https://www.uzh.ch/cmsssl/physik/dam/jcr:2e24b7b1-f4d7-4160-817e-47b13dbf1d7c/Handout_4_2016-UZH.pdf]
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
     mgDebugFinalise();
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+    if( channelId > 0 ) allMEs *= allNumerators / allDenominators; // FIXME (#343): assume nprocesses == 1
+#endif
     return allMEs / denominators;
   }
 

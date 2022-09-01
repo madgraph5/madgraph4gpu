@@ -1,6 +1,10 @@
 #ifndef MGONGPUCONFIG_H
 #define MGONGPUCONFIG_H 1
 
+// HARDCODED AT CODE GENERATION TIME: DO NOT MODIFY (#473)
+// There are two different code bases for standalone_sycl (without multichannel) and madevent+sycl (with multichannel)
+#define MGONGPU_SUPPORTS_MULTICHANNEL 1
+
 // Choose floating point precision
 // If one of these macros has been set from outside with e.g. -DMGONGPU_FPTYPE_FLOAT, nothing happens (issue #167)
 #if not defined MGONGPU_FPTYPE_DOUBLE and not defined MGONGPU_FPTYPE_FLOAT
