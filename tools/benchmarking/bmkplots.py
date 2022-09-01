@@ -210,28 +210,28 @@ def processFiles(rundir, avx='none', debug=False):
     # DEBUG: DUMP TIMSUM_NJOB_NTHR AND MEMSUM_NJOB_NTHR
     print( 'Processed files' )
     ###print( 'timsum_njob_nthr', timsum_njob_nthr )
-    #print( '%4s %4s %11s    %9s %11s'%( 'njob', 'nthr', 'tput[Mev/s]', 'njob*nthr', 'tput/tput1' ) )
+    #print( '%4s %4s %12s    %9s %12s'%( 'njob', 'nthr', 'tput[Mev/s]', 'njob*nthr', 'tput/tput1' ) )
     #tput1=0
     #for njob in sorted(timsum_njob_nthr) :
     #    for nthr in sorted(timsum_njob_nthr[njob]) :
     #        tput = timsum_njob_nthr[njob][nthr][4] / timsum_njob_nthr[njob][nthr][3] / 1E6
     #        if tput1 == 0 : tput1=tput
-    #        print( '%4d %4d %11.5f    %9d %11.5f'%( njob, nthr, tput, njob*nthr, tput / tput1 ) )
+    #        print( '%4d %4d %12.6f    %9d %12.6f'%( njob, nthr, tput, njob*nthr, tput / tput1 ) )
     ###print( 'memsum_njob_nthr', memsum_njob_nthr )
-    #print( '%4s %4s %11s'%( 'njob', 'nthr', 'maxPSS[GB]' ) )
+    #print( '%4s %4s %12s'%( 'njob', 'nthr', 'maxPSS[GB]' ) )
     #for njob in sorted(memsum_njob_nthr) :
     #    for nthr in sorted(memsum_njob_nthr[njob]) :
     #        maxpss = memsum_njob_nthr[njob][nthr][1]/1000
-    #        print( '%4d %4d %11.5f'%( njob, nthr, maxpss ) )
+    #        print( '%4d %4d %12.6f'%( njob, nthr, maxpss ) )
     # DUMP THEM TOGETHER (ASSUMING THE SAME ARRAY STRUCTURE)
-    #print( '%4s %4s %11s    %9s %11s   %11s'%( 'njob', 'nthr', 'tput[Mev/s]', 'njob*nthr', 'tput/tput1', 'maxPSS[GB]' ) )
+    #print( '%4s %4s %12s    %9s %12s   %12s'%( 'njob', 'nthr', 'tput[Mev/s]', 'njob*nthr', 'tput/tput1', 'maxPSS[GB]' ) )
     #tput1=0
     #for njob in sorted(timsum_njob_nthr) :
     #    for nthr in sorted(timsum_njob_nthr[njob]) :
     #        tput = timsum_njob_nthr[njob][nthr][4] / timsum_njob_nthr[njob][nthr][3]
     #        if tput1 == 0 : tput1=tput
     #        maxpss = memsum_njob_nthr[njob][nthr][1]/1000
-    #        print( '%4d %4d %11.5f    %9d %11.5f   %11.5f'%( njob, nthr, tput / 1E6, njob*nthr, tput / tput1, maxpss ) )
+    #        print( '%4d %4d %12.6f    %9d %12.6f   %12.6f'%( njob, nthr, tput / 1E6, njob*nthr, tput / tput1, maxpss ) )
     # DUMP THEM TOGETHER (ASSUMING THE SAME ARRAY STRUCTURE)
     global allnjob
     global allnthr
@@ -239,7 +239,7 @@ def processFiles(rundir, avx='none', debug=False):
     allnthr = []
     for njob in allnjob: allnthr += sorted(timsum_njob_nthr[njob])
     allnthr = list(set(allnthr)) # unique items
-    print( '%4s %4s %11s    %9s %11s   %11s'%( 'njob', 'nthr', 'tput[Mev/s]', 'njob*nthr', 'tput/tput1', 'maxPSS[GB]' ) )
+    print( '%4s %4s %12s    %9s %12s   %12s'%( 'njob', 'nthr', 'tput[Mev/s]', 'njob*nthr', 'tput/tput1', 'maxPSS[GB]' ) )
     tput1=0
     for nthr in sorted(allnthr):
         for njob in sorted(allnjob):
@@ -249,7 +249,7 @@ def processFiles(rundir, avx='none', debug=False):
             if tput1 == 0 : tput1=tput
             if njob in memsum_njob_nthr and nthr in memsum_njob_nthr[njob]: maxpss = memsum_njob_nthr[njob][nthr][1]/1000
             else: maxpss = 0
-            print( '%4d %4d %11.5f    %9d %11.5f   %11.5f'%( njob, nthr, tput / 1E6, njob*nthr, tput / tput1, maxpss ) )
+            print( '%4d %4d %12.6f    %9d %12.6f   %12.6f'%( njob, nthr, tput / 1E6, njob*nthr, tput / tput1, maxpss ) )
 
 #------------------------------------------------------------------------------
 
