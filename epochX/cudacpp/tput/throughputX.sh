@@ -9,7 +9,7 @@ topdir=$(cd $scrdir; cd ../../..; pwd)
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-heftggh]> [-nocpp|[-avxall][-nocuda][-noneonly][-sse4only][-avx2only][-512yonly][-512zonly]] [-sa] [-noalpaka] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly|-makeclean|-makecleanonly] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest] [-v] [-dlp <dyld_library_path>]" # removed -omp
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-heftggh]> [-nocpp|[-avxall][-nocuda][-noneonly][-sse4only][-avx2only][-512yonly][-512zonly]] [-sa] [-noalpaka] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly|-makeclean|-makecleanonly|-dryrun] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest] [-v] [-dlp <dyld_library_path>]" # removed -omp
   exit 1
 }
 
@@ -173,9 +173,9 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-bridge" ]; then
     rmbsmp=" -${1}"
     shift
-  elif [ "$1" == "-makeonly" ] || [ "$1" == "-makeclean" ] || [ "$1" == "-makecleanonly" ]; then
+  elif [ "$1" == "-makeonly" ] || [ "$1" == "-makeclean" ] || [ "$1" == "-makecleanonly" ] || [ "$1" == "-dryrun" ]; then
     if [ "${maketype}" != "" ] && [ "${maketype}" != "$1" ]; then
-      echo "ERROR! Options -makeonly, -makeclean and -makecleanonly are incompatible"; usage
+      echo "ERROR! Options -makeonly, -makeclean, -makecleanonly and -dryrun are incompatible"; usage
     fi
     maketype="$1"
     shift
@@ -354,55 +354,66 @@ done
 # PART 2 - build the executables which should be run
 ##########################################################################
 
-pushd $topdir/test >& /dev/null
-echo "Building in $(pwd)"
-make; echo # avoid issues with googletest in parallel builds
-popd >& /dev/null
+if [ "${maketype}" == "-dryrun" ]; then
 
-for dir in $dirs; do
+  printf "DRYRUN: SKIP MAKE\n\n"
 
-  export USEBUILDDIR=1
-  pushd $dir >& /dev/null
+else
+
+  pushd $topdir/test >& /dev/null
   echo "Building in $(pwd)"
-  if [ "${maketype}" == "-makeclean" ]; then make cleanall; echo; fi
-  if [ "${maketype}" == "-makecleanonly" ]; then make cleanall; echo; continue; fi
-  for hrdcod in $hrdcods; do
-    export HRDCOD=$hrdcod
-    for helinl in $helinls; do
-      export HELINL=$helinl
-      for fptype in $fptypes; do
-        export FPTYPE=$fptype
-        if [ "${cuda}" == "1" ] || [ "${simds/none}" != "${simds}" ]; then 
-          make ${makef} ${makej} AVX=none; echo
-        fi
-        for simd in ${simds/none}; do
-          make ${makef} ${makej} AVX=${simd}; echo
-        done
+  make; echo # avoid issues with googletest in parallel builds
+  popd >& /dev/null
+
+  for dir in $dirs; do
+
+    export USEBUILDDIR=1
+    pushd $dir >& /dev/null
+    echo "Building in $(pwd)"
+    if [ "${maketype}" == "-makeclean" ]; then make cleanall; echo; fi
+    if [ "${maketype}" == "-makecleanonly" ]; then make cleanall; echo; continue; fi
+    for hrdcod in $hrdcods; do
+      export HRDCOD=$hrdcod
+      for helinl in $helinls; do
+	export HELINL=$helinl
+	for fptype in $fptypes; do
+          export FPTYPE=$fptype
+          if [ "${cuda}" == "1" ] || [ "${simds/none}" != "${simds}" ]; then 
+            make ${makef} ${makej} AVX=none; echo
+          fi
+          for simd in ${simds/none}; do
+            make ${makef} ${makej} AVX=${simd}; echo
+          done
+	done
       done
     done
+    popd >& /dev/null
+    export USEBUILDDIR=
+    export HRDCOD=
+    export HELINL=
+    export FPTYPE=
+
   done
-  popd >& /dev/null
-  export USEBUILDDIR=
-  export HRDCOD=
-  export HELINL=
-  export FPTYPE=
 
-done
+  if [ "${maketype}" == "-makecleanonly" ]; then printf "MAKE CLEANALL COMPLETED\n"; exit 0; fi
+  if [ "${maketype}" == "-makeonly" ]; then printf "MAKE COMPLETED\n"; exit 0; fi
 
-if [ "${maketype}" == "-makecleanonly" ]; then printf "MAKE CLEANALL COMPLETED\n"; exit 0; fi
-if [ "${maketype}" == "-makeonly" ]; then printf "MAKE COMPLETED\n"; exit 0; fi
-
+fi
+  
 ##########################################################################
 # PART 3 - run all the executables which should be run
 ##########################################################################
 
-printf "DATE: $(date '+%Y-%m-%d_%H:%M:%S')\n\n"
+if [ "${maketype}" != "-dryrun" ]; then
+  printf "DATE: $(date '+%Y-%m-%d_%H:%M:%S')\n\n"
+fi
 
 function runExe() {
   exe=$1
   args="$2"
   args="$args$rndgen$rmbsmp"
   echo "runExe $exe $args OMP=$OMP_NUM_THREADS"
+  if [ "${maketype}" == "-dryrun" ]; then return; fi
   pattern="Process|fptype_sv|OMP threads|EvtsPerSec\[MECalc|MeanMatrix|FP precision|TOTAL       :"
   # Optionally add other patterns here for some specific configurations (e.g. clang)
   if [ "${exe%%/gcheck*}" != "${exe}" ]; then pattern="${pattern}|EvtsPerSec\[Matrix"; fi
@@ -441,6 +452,7 @@ function cmpExe() {
   args="--common -p ${argsf}"
   echo "cmpExe $exe $args"
   echo "cmpExe $exef $argsf"
+  if [ "${maketype}" == "-dryrun" ]; then return; fi
   tmp=$(mktemp)
   me1=$(${exe} ${args} 2>${tmp} | grep MeanMatrix | awk '{print $4}'); cat ${tmp}
   me2=$(${exef} ${argsf} 2>${tmp} | grep Average | awk '{print $4}'); cat ${tmp}
@@ -458,6 +470,7 @@ function cmpExe() {
 
 # Profile #registers and %divergence only
 function runNcu() {
+  if [ "${maketype}" == "-dryrun" ]; then return; fi
   exe=$1
   args="$2"
   args="$args$rndgen$rmbsmp"
@@ -476,6 +489,7 @@ function runNcu() {
 # See https://docs.nvidia.com/gameworks/content/developertools/desktop/analysis/report/cudaexperiments/kernellevel/branchstatistics.htm
 # See https://docs.nvidia.com/gameworks/content/developertools/desktop/analysis/report/cudaexperiments/sourcelevel/divergentbranch.htm
 function runNcuDiv() {
+  if [ "${maketype}" == "-dryrun" ]; then return; fi
   exe=$1
   args="-p 1 32 1"
   args="$args$rndgen$rmbsmp"
@@ -497,6 +511,7 @@ function runNcuDiv() {
 
 # Profiles sectors and requests
 function runNcuReq() {
+  if [ "${maketype}" == "-dryrun" ]; then return; fi
   exe=$1
   ncuArgs="$2"
   ncuArgs="$ncuArgs$rndgen$rmbsmp"
@@ -585,7 +600,9 @@ for exe in $exes; do
   unset OMP_NUM_THREADS
   runExe $exe "$exeArgs"
   if [ "${exe%%/check*}" != "${exe}" ]; then 
-    obj=${exe%%/check*}/CPPProcess.o; $scrdir/simdSymSummary.sh -stripdir ${obj} -dumptotmp # comment out -dumptotmp to keep full objdump
+    if [ "${maketype}" != "-dryrun" ]; then
+      obj=${exe%%/check*}/CPPProcess.o; $scrdir/simdSymSummary.sh -stripdir ${obj} -dumptotmp # comment out -dumptotmp to keep full objdump
+    fi
     if [ "${omp}" == "1" ]; then 
       echo "-------------------------------------------------------------------------"
       export OMP_NUM_THREADS=$(nproc --all)
