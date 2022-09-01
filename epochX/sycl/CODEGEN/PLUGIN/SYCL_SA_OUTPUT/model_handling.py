@@ -814,8 +814,8 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
   INLINE
   fptype calculate_wavefunctions( const fptype_sv* __restrict__ allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
                                   #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                                      fptype* allNumerators,                // output: multichannel numerators, running_sum_over_helicities
-                                      fptype* allDenominators,              // output: multichannel denominators, running_sum_over_helicities
+                                      fptype* __restrict__ allNumerators,   // output: multichannel numerators, running_sum_over_helicities
+                                      fptype* __restrict__ allDenominators, // output: multichannel denominators, running_sum_over_helicities
                                       const unsigned int channelId,         // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
                                   #endif
                                   const short*  __restrict__ cHel,

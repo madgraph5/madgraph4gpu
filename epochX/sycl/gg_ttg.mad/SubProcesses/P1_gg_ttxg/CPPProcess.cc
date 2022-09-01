@@ -39,8 +39,8 @@ namespace Proc
   INLINE
   fptype calculate_wavefunctions( const fptype_sv* __restrict__ allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
                                   #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                                      fptype* allNumerators,                // output: multichannel numerators, running_sum_over_helicities
-                                      fptype* allDenominators,              // output: multichannel denominators, running_sum_over_helicities
+                                      fptype* __restrict__ allNumerators,   // output: multichannel numerators, running_sum_over_helicities
+                                      fptype* __restrict__ allDenominators, // output: multichannel denominators, running_sum_over_helicities
                                       const unsigned int channelId,         // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
                                   #endif
                                   const short*  __restrict__ cHel,
@@ -481,7 +481,7 @@ m_tIPD[1] = (fptype)m_pars->mdl_WT;
       constexpr unsigned int channelId = 0; // disable single-diagram channel enhancement
       fptype allNumerators = 0;
       fptype allDenominators = 0;
-      allMEs += calculate_wavefunctions( allmomenta, allNumerators, allDenominators, channelId, cHel + ihel*npar, cIPC, cIPD );
+      allMEs += calculate_wavefunctions( allmomenta, &allNumerators, &allDenominators, channelId, cHel + ihel*npar, cIPC, cIPD );
 #else
       allMEs += calculate_wavefunctions( allmomenta, cHel + ihel*npar, cIPC, cIPD );
 #endif
@@ -520,7 +520,7 @@ m_tIPD[1] = (fptype)m_pars->mdl_WT;
   SYCL_EXTERNAL
   fptype sigmaKin( const fptype* __restrict__ allmomenta, // input: momenta[nevt*npar*4]
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                   const unsigned int channelId           // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
+                   const unsigned int channelId,          // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
 #endif
                    const short* __restrict__ cHel,
                    const fptype* __restrict__ cIPC,

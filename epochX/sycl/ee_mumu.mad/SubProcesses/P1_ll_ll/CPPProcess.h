@@ -118,7 +118,7 @@ namespace Proc
   SYCL_EXTERNAL
   fptype sigmaKin( const fptype* __restrict__ allmomenta, // input: momenta[nevt*npar*4]
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                   const unsigned int channelId           // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
+                   const unsigned int channelId,          // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
 #endif
                    const short* __restrict__ cHel,
                    const fptype* __restrict__ cIPC,
