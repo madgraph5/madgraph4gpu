@@ -28,7 +28,7 @@ def loadRunSet( runsetdir, debug=False ):
     runset_scores = {}
     print( 'Loading runs in RunSetDir', runsetdir )
     for d in sorted( os.listdir( runsetdir ) ) :
-        if d.find( 'sa-cpp-' ) != -1: # e.g. sa-cpp-j004-t001-e001
+        if d.startswith( 'sa-cpp-' ) and 'png' not in d : # e.g. sa-cpp-j004-t001-e001
             dl = d.split( '-' )
             njob = int( dl[-3][-3:] )
             nthr = int( dl[-2][-3:] )
