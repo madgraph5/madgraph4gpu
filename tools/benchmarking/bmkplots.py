@@ -251,7 +251,8 @@ if __name__ == '__main__':
     #dumpScoresAllKeys( loadRunSet( 'BMK-pmpe04'), keymatch='ggttgg-sa-cpp-d-inl0' )
 
     # PRODUCTION PLOTS
-    workdir = 'BMK-pmpe04'
+    #workdir = 'BMK-pmpe04'
+    workdir = 'BMK-itscrd70'
     plotST( workdir, keymatch='sa-cpp-d-inl0-best', ylog=True )
     plotST( workdir, keymatch='sa-cpp-f-inl0-best', ylog=True )
     plotOneProcess2( workdir, 'ggttgg', 'sa-cpp-d-inl0' )
