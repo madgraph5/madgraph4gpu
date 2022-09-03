@@ -94,11 +94,11 @@ def dumpScoresAllKeys( runset_scores, keymatch=None, debug=False ):
 # Compare various simd ST options for many njobs
 def axesST( ax, runset_scores, keymatch=None, abstput=True, xht=None, debug=False ):
     # Prepare axes labels
-    ax.set_xlabel('Level of parallelism (number of ST jobs)')
+    ax.set_xlabel('Level of parallelism (number of ST jobs)', size=9 )
     if abstput:
-        ax.set_ylabel('Node throughput (E6 events per second)')
+        ax.set_ylabel('Node throughput (E6 events per second)', size=9 )
     else:
-        ax.set_ylabel('Ratio (node throughput) / (node throughput for 1 job with SIMD=none)')
+        ax.set_ylabel('Ratio (node throughput) / (node throughput for 1 job with SIMD=none)', size=9 )
         ax.grid()
     # Add one curve per matching score key
     xmax = 0
@@ -129,18 +129,17 @@ def axesST( ax, runset_scores, keymatch=None, abstput=True, xht=None, debug=Fals
         # Add curve of y vs x
         p = ax.plot( xvals, yvals, marker='o', label=score_key )
     # Decorate axes
-    xmax *= 1.6
+    xmax *= 2.0
     ymax *= 1.2
-    title='score name'
     loc = 'lower right'
-    ax.legend( loc=loc, title=title )
+    ax.legend( loc=loc, fontsize=8 )
     ax.axis( [0, xmax, 0, ymax] )
     if xht is not None :
         ax.axvline( xht, color='black', ls=':' )
         ax.axvline( xht*2, color='black', ls='-.' )
-        ax.text( xht/2, 0.92*ymax, 'No HT', ha='center', va='center', size=15 )
-        ax.text( xht*3/2, 0.92*ymax, '2x HT', ha='center', va='center', size=15 )
-        ax.text( xmax/2+xht, 0.92*ymax, 'Overcommit', ha='center', va='center', size=15 )
+        ax.text( xht/2, 0.92*ymax, 'No HT', ha='center', va='center', size=9 )
+        ax.text( xht*3/2, 0.92*ymax, '2x HT', ha='center', va='center', size=9 )
+        ax.text( xmax/2+xht, 0.92*ymax, 'Overcommit', ha='center', va='center', size=9 )
 
 # Compare various simd ST options for many njobs
 def plotST( pngpath, runset_scores, keymatch=None, xht=None, abstput=True, ftitle=None, debug=False ):
@@ -148,11 +147,11 @@ def plotST( pngpath, runset_scores, keymatch=None, xht=None, abstput=True, ftitl
     import matplotlib
     matplotlib.use('agg')
     import matplotlib.pyplot as plt
-    fig = plt.figure( figsize=(10,5) )
+    fig = plt.figure( figsize=(6,3) )
     ax1 = fig.add_subplot( 111 )
     # Fill the plot in the figure
     axesST( ax1, runset_scores, keymatch=keymatch, xht=xht, abstput=abstput, debug=debug )
-    if ftitle is not None: fig.suptitle( ftitle )
+    if ftitle is not None: fig.suptitle( ftitle, size=9 )
     # Save and show the figure
     fig.savefig( pngpath, format='png', bbox_inches="tight" )
     from subprocess import Popen
