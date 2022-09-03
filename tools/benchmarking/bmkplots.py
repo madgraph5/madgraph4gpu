@@ -39,16 +39,16 @@ def loadOneRun( workdir, debug=False ):
 
 #---------------------------------------
 
-def loadRunSet( runsetdir, debug=False ):
+def loadRunSet( runsetdir, evtmatch='e001', debug=False ):
     ###debug=True
     if not os.path.isdir( runsetdir ):
         print( 'Unknown directory', runsetdir )
         return
     # Go through all runs in runsetdir and fill runset_scores[njob,nthr]
     runset_scores = {}
-    print( 'Loading runs in RunSetDir', runsetdir )
+    print( 'Loading runs in RunSetDir', runsetdir, 'for events', evtmatch )
     for d in sorted( os.listdir( runsetdir ) ) :
-        if d.startswith( 'sa-cpp-' ) and 'png' not in d : # e.g. sa-cpp-j004-t001-e001
+        if d.startswith( 'sa-cpp-' ) and d.endswith( evtmatch ) and 'png' not in d : # e.g. sa-cpp-j004-t001-e001
             dl = d.split( '-' )
             njob = int( dl[-3][-3:] )
             nthr = int( dl[-2][-3:] )
@@ -173,18 +173,23 @@ def axesST( ax, runset_scores, keymatch=None, abstput=True, ylog=False, xht=None
 # Get node-dependent features
 def getNodeFeatures( workdir ):
     if workdir == 'BMK-pmpe04' :
+        node='pmpe04'
         xht=16
         ftitle='check.exe scalability on pmpe04 (2x 8-core 2.4GHz Haswell with 2x HT)'
+    elif workdir == 'BMK-itscrd70' :
+        node='itscrd70'
+        xht=2
+        ftitle='check.exe scalability on itscrd70'
     else:
         print( 'ERROR! Unknown workdir', workdir )
         sys.exit(-1)
-    return xht, ftitle
+    return node, xht, ftitle
     
 # Create a figure with a single plot
-def plotST( workdir, keymatch=None, abstput=True, ylog=False, debug=False ):
-    runset_scores = loadRunSet( workdir )
-    xht, ftitle = getNodeFeatures( workdir )
-    pngpath = workdir + '/' + keymatch + '.png'
+def plotST( workdir, keymatch=None, abstput=True, ylog=False, evtmatch='-e001', debug=False ):
+    runset_scores = loadRunSet( workdir, evtmatch=evtmatch )
+    node, xht, ftitle = getNodeFeatures( workdir )
+    pngpath = workdir + '/' + node + evtmatch + '-all-' + keymatch + '.png'
     # Create figure with one plot
     fig = plt.figure( figsize=plots_figsize )
     ax1 = fig.add_subplot( 111 )
@@ -198,16 +203,14 @@ def plotST( workdir, keymatch=None, abstput=True, ylog=False, debug=False ):
     print( 'Plot successfully saved on', pngpath )
 
 # Create a figure with two plots per process, absolute and normalized tput
-def plotOneProcess2( workdir, oneprocess, keymatch, debug=False ):
-    runset_scores = loadRunSet( workdir )
-    xht, ftitle = getNodeFeatures( workdir )
+def plotOneProcess2( workdir, oneprocess, keymatch, evtmatch='-e001', debug=False ):
+    runset_scores = loadRunSet( workdir, evtmatch=evtmatch )
+    node, xht, ftitle = getNodeFeatures( workdir )
     # One process or all processes?
-    if oneprocess is not None:
-        processes = [ oneprocess ]
-        pngpath = workdir + '/' + oneprocess + '-' + keymatch + '.png'
-    else:
-        processes = [ 'eemumu', 'ggtt', 'ggttg', 'ggttgg' ]
-        pngpath = workdir + '/' + keymatch + '.png'
+    if oneprocess is not None: processes = [ oneprocess ]
+    else: processes = [ 'eemumu', 'ggtt', 'ggttg', 'ggttgg' ]
+    pngpath = workdir + '/' + node + evtmatch + '-' + \
+	      ( 'all' if oneprocess is None else oneprocess ) + '-' + keymatch + '.png'
     # Create figure with two plots per process
     fig = plt.figure( figsize = ( plots_figsize[0]*2, plots_figsize[1]*len(processes) ) )
     # Add two plots per process
@@ -246,12 +249,12 @@ if __name__ == '__main__':
     #dumpScoresAllKeys( loadRunSet( 'BMK-pmpe04'), keymatch='inl0-best' )
     #dumpScoresAllKeys( loadRunSet( 'BMK-pmpe04'), keymatch='ggttgg-sa-cpp-d-inl0' )
 
-    plotST( 'BMK-pmpe04', keymatch='d-inl0-best', ylog=True )
-    plotST( 'BMK-pmpe04', keymatch='f-inl0-best', ylog=True )
+    plotST( 'BMK-pmpe04', keymatch='sa-cpp-d-inl0-best', ylog=True )
+    plotST( 'BMK-pmpe04', keymatch='sa-cpp-f-inl0-best', ylog=True )
 
-    plotOneProcess2( 'BMK-pmpe04', 'ggttgg', 'sa-cpp-d-inl0' )
-    plotOneProcess2( 'BMK-pmpe04', 'ggttgg', 'sa-cpp-f-inl0' )
+    #plotOneProcess2( 'BMK-pmpe04', 'ggttgg', 'sa-cpp-d-inl0' )
+    #plotOneProcess2( 'BMK-pmpe04', 'ggttgg', 'sa-cpp-f-inl0' )
 
-    plotOneProcess2( 'BMK-pmpe04', None, 'sa-cpp-d-inl0' )
-    plotOneProcess2( 'BMK-pmpe04', None, 'sa-cpp-f-inl0' )
+    #plotOneProcess2( 'BMK-pmpe04', None, 'sa-cpp-d-inl0' )
+    #plotOneProcess2( 'BMK-pmpe04', None, 'sa-cpp-f-inl0' )
 
