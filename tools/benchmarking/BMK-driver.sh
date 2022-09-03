@@ -10,14 +10,12 @@ if [ "$(hostname)" == "pmpe04.cern.ch" ]; then
   unset SINGULARITY_TMPDIR
   resDir=/data/BMK2021/TMP_RESULTS
   tstDir=BMK-pmpe04
-  mkdir -p ${tstDir}
   jts=""; for j in 1 2 4 8 16 32 48; do for t in 1; do if [ $((j*t)) -le 64 ]; then jts="$jts [$j,$t]"; fi; done; done 
 elif [ "$(hostname)" == "itscrd70.cern.ch" ]; then
   export SINGULARITY_TMPDIR=/scratch/TMP_AVALASSI/
   export SINGULARITY_CACHEDIR=/scratch/SINGULARITY_CACHEDIR
   resDir=/scratch/TMP_RESULTS
   tstDir=BMK-itscrd70
-  mkdir -p ${tstDir}
   jts=""; for j in 1 2 4 6; do for t in 1; do if [ $((j*t)) -le 8 ]; then jts="$jts [$j,$t]"; fi; done; done 
 else
   echo "ERROR! Unknown host $(hostname)"; exit 1
