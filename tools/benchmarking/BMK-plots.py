@@ -104,6 +104,7 @@ def axesST( ax, runset_scores, keymatch=None, abstput=True, xht=None, debug=Fals
     xmax = 0
     ymax = 0
     keys = getSortedMatchingKeys( runset_scores, keymatch, debug )
+    if 'best' not in keymatch: keys = [ key for key in keys if 'best' not in key ]
     for score_key in keys :
         score_key_none = score_key[:-4]+'none'
         njobs = set( [njobnthr[0] for njobnthr in runset_scores] ) # use set(list) to get unique keys
@@ -171,5 +172,6 @@ if __name__ == '__main__':
     #dumpScoresAllKeys( loadRunSet( 'BMK-pmpe04'), keymatch='inl0-best' )
     #dumpScoresAllKeys( loadRunSet( 'BMK-pmpe04'), keymatch='ggttgg-sa-cpp-d-inl0' )
 
-    plotST( 'BMK-pmpe04/plot.png', loadRunSet( 'BMK-pmpe04'), keymatch='ggttgg-sa-cpp-d-inl0', xht=16, ftitle='check.exe scalability on pmpe04 (2x 8-core 2.4GHz Haswell with 2x HT)' )
+    plotST( 'BMK-pmpe04/ggttgg-sa-cpp-d-inl0.png', loadRunSet( 'BMK-pmpe04'), keymatch='ggttgg-sa-cpp-d-inl0', xht=16, ftitle='check.exe scalability on pmpe04 (2x 8-core 2.4GHz Haswell with 2x HT)' )
+    #plotST( 'BMK-pmpe04/d-inl0-best.png', loadRunSet( 'BMK-pmpe04'), keymatch='d-inl0-best', xht=16, ftitle='check.exe scalability on pmpe04 (2x 8-core 2.4GHz Haswell with 2x HT)' )
 
