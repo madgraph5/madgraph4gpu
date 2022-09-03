@@ -161,8 +161,21 @@ def axesST( ax, runset_scores, keymatch=None, abstput=True, xht=None, debug=Fals
         ax.text( xht*3/2, 0.92*ymax, '2x HT', ha='center', va='center', size=plots_txtsize )
         ax.text( xmax/2+xht, 0.92*ymax, 'Overcommit', ha='center', va='center', size=plots_txtsize )
 
+# Get node-dependent features
+def getNodeFeatures( workdir ):
+    if workdir == 'BMK-pmpe04' :
+        xht=16
+        ftitle='check.exe scalability on pmpe04 (2x 8-core 2.4GHz Haswell with 2x HT)'
+    else:
+        print( 'ERROR! Unknown workdir', workdir )
+        sys.exit(-1)
+    return xht, ftitle
+    
 # Create a figure with a single plot
-def plotST( pngpath, runset_scores, keymatch=None, xht=None, abstput=True, ftitle=None, debug=False ):
+def plotST( workdir, keymatch=None, abstput=True, debug=False ):
+    runset_scores = loadRunSet( workdir )
+    xht, ftitle = getNodeFeatures( workdir )
+    pngpath = workdir + '/' + keymatch + '.png'
     # Create figure with one plot
     fig = plt.figure( figsize=plots_figsize )
     ax1 = fig.add_subplot( 111 )
@@ -175,16 +188,6 @@ def plotST( pngpath, runset_scores, keymatch=None, xht=None, abstput=True, ftitl
     ###Popen( ['display', '-geometry', '+50+50', '-resize', '800', pngpath] )
     print( 'Plot successfully saved on', pngpath )
 
-# Get node-dependent features
-def getNodeFeatures( workdir ):
-    if workdir == 'BMK-pmpe04' :
-        xht=16
-        ftitle='check.exe scalability on pmpe04 (2x 8-core 2.4GHz Haswell with 2x HT)'
-    else:
-        print( 'ERROR! Unknown workdir', workdir )
-        sys.exit(-1)
-    return xht, ftitle
-    
 # Create a figure with two plots per process, absolute and normalized tput
 def plotOneProcess2( workdir, oneprocess, keymatch, debug=False ):
     runset_scores = loadRunSet( workdir )
@@ -234,11 +237,11 @@ if __name__ == '__main__':
     #dumpScoresAllKeys( loadRunSet( 'BMK-pmpe04'), keymatch='inl0-best' )
     #dumpScoresAllKeys( loadRunSet( 'BMK-pmpe04'), keymatch='ggttgg-sa-cpp-d-inl0' )
 
-    #plotST( 'BMK-pmpe04/d-inl0-best.png', loadRunSet( 'BMK-pmpe04'), keymatch='d-inl0-best', xht=16, ftitle='check.exe scalability on pmpe04 (2x 8-core 2.4GHz Haswell with 2x HT)' )
+    plotST( 'BMK-pmpe04', keymatch='d-inl0-best' )
 
-    plotOneProcess2( 'BMK-pmpe04', 'ggttgg', 'sa-cpp-d-inl0' )
-    plotOneProcess2( 'BMK-pmpe04', 'ggttgg', 'sa-cpp-f-inl0' )
+    #plotOneProcess2( 'BMK-pmpe04', 'ggttgg', 'sa-cpp-d-inl0' )
+    #plotOneProcess2( 'BMK-pmpe04', 'ggttgg', 'sa-cpp-f-inl0' )
 
-    plotOneProcess2( 'BMK-pmpe04', None, 'sa-cpp-d-inl0' )
-    plotOneProcess2( 'BMK-pmpe04', None, 'sa-cpp-f-inl0' )
+    #plotOneProcess2( 'BMK-pmpe04', None, 'sa-cpp-d-inl0' )
+    #plotOneProcess2( 'BMK-pmpe04', None, 'sa-cpp-f-inl0' )
 
