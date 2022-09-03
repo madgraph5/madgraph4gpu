@@ -112,7 +112,7 @@ def dumpScoresAllKeys( runset_scores, keymatch=None, debug=False ):
 #---------------------------------------
 
 # Compare various curves in ST plots
-def axesST( ax, runset_scores, keymatch=None, abstput=True, ylog=False, xht=None, debug=False ):
+def axesST( ax, runset_scores, keymatch=None, bestonly=False, abstput=True, ylog=False, xht=None, debug=False ):
     # Prepare axes labels
     ax.set_xlabel('Level of parallelism (number of ST jobs)', size=plots_labelsize )
     if abstput:
@@ -125,7 +125,8 @@ def axesST( ax, runset_scores, keymatch=None, abstput=True, ylog=False, xht=None
     xmax = 0
     ymax = 0
     keys = getSortedMatchingKeys( runset_scores, keymatch, debug )
-    if 'best' not in keymatch: keys = [ key for key in keys if 'best' not in key ]
+    if bestonly : keys = [ key for key in keys if 'best' in key ]
+    elif 'best' not in keymatch: keys = [ key for key in keys if 'best' not in key ]
     for score_key in keys :
         score_key_none = score_key[:-4]+'none'
         njobs = set( [njobnthr[0] for njobnthr in runset_scores] ) # use set(list) to get unique keys
@@ -203,7 +204,7 @@ def plotST( workdir, keymatch=None, abstput=True, ylog=False, evtmatch='-e001', 
     print( 'Plot successfully saved on', pngpath )
 
 # Create a figure with two plots per process, absolute and normalized tput
-def plotOneProcess2( workdir, oneprocess, keymatch, evtmatch='-e001', debug=False ):
+def plotOneProcess2( workdir, oneprocess, keymatch, bestonly=False, evtmatch='-e001', debug=False ):
     runset_scores = loadRunSet( workdir, evtmatch=evtmatch )
     node, xht, ftitle = getNodeFeatures( workdir )
     # One process or all processes?
@@ -220,9 +221,11 @@ def plotOneProcess2( workdir, oneprocess, keymatch, evtmatch='-e001', debug=Fals
         ###print( idx1, idx2 )
         fullkeymatch = process + '-' + keymatch
         ax1 = fig.add_subplot( idx1 )
-        axesST( ax1, runset_scores, keymatch=fullkeymatch, ylog=False, xht=xht, abstput=True, debug=debug )
+        axesST( ax1, runset_scores, keymatch=fullkeymatch, bestonly=bestonly, \
+		ylog=False, xht=xht, abstput=True, debug=debug )
         ax1 = fig.add_subplot( idx2 )
-        axesST( ax1, runset_scores, keymatch=fullkeymatch, ylog=False, xht=xht, abstput=False, debug=debug )
+        axesST( ax1, runset_scores, keymatch=fullkeymatch, bestonly=bestonly, \
+		ylog=False, xht=xht, abstput=False, debug=debug )
         idx1 += 2
         idx2 += 2
     # Save and show the figure
@@ -253,10 +256,12 @@ if __name__ == '__main__':
     # PRODUCTION PLOTS
     #workdir = 'BMK-pmpe04'
     workdir = 'BMK-itscrd70'
-    plotST( workdir, keymatch='sa-cpp-d-inl0-best', ylog=True )
-    plotST( workdir, keymatch='sa-cpp-f-inl0-best', ylog=True )
-    plotOneProcess2( workdir, 'ggttgg', 'sa-cpp-d-inl0' )
-    plotOneProcess2( workdir, 'ggttgg', 'sa-cpp-f-inl0' )
+    #plotST( workdir, keymatch='sa-cpp-d-inl0-best', ylog=True )
+    #plotST( workdir, keymatch='sa-cpp-f-inl0-best', ylog=True )
+    #plotOneProcess2( workdir, 'ggttgg', 'sa-cpp-d-inl0' )
+    #plotOneProcess2( workdir, 'ggttgg', 'sa-cpp-f-inl0' )
     plotOneProcess2( workdir, None, 'sa-cpp-d-inl0' )
     plotOneProcess2( workdir, None, 'sa-cpp-f-inl0' )
+    plotOneProcess2( workdir, None, 'sa-cpp-d-inl', bestonly=True )
+    plotOneProcess2( workdir, None, 'sa-cpp-f-inl', bestonly=True )
 
