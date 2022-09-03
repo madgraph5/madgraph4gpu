@@ -17,7 +17,8 @@ else
 fi
 
 # Loop over tests
-events=1
+###events=1 # NOT ENOUGH FOR GGTTG AND ALSO GGTT (BMK-1056)
+events=10
 for jt in $jts; do
   jt=${jt:1:-1}; t=${jt#*,}; j=${jt%,*}
   ###echo "jobs=$j, threads=$t"
