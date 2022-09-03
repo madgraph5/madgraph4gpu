@@ -211,8 +211,10 @@ def plotOneProcess2( workdir, oneprocess, keymatch, debug=False ):
         fig.suptitle( ftitle, size=plots_ftitlesize )
     fig.set_tight_layout( True )
     fig.savefig( pngpath, format='png', bbox_inches="tight" )
-    ###Popen( ['display', '-geometry', '+50+50', pngpath] )
-    Popen( ['display', '-geometry', '+50+50', '-resize', '600', pngpath] )
+    if oneprocess is not None:
+        Popen( ['display', '-geometry', '+50+50', pngpath] )
+    else:
+        Popen( ['display', '-geometry', '+50+50', '-resize', '600', pngpath] )
     print( 'Plot successfully saved on', pngpath )
 
 #---------------------------------------
@@ -229,6 +231,9 @@ if __name__ == '__main__':
 
     #plotST( 'BMK-pmpe04/d-inl0-best.png', loadRunSet( 'BMK-pmpe04'), keymatch='d-inl0-best', xht=16, ftitle='check.exe scalability on pmpe04 (2x 8-core 2.4GHz Haswell with 2x HT)' )
 
-    ###plotOneProcess2( 'BMK-pmpe04', 'ggttgg', 'sa-cpp-d-inl0' )
-    plotOneProcess2( 'BMK-pmpe04', None, 'sa-cpp-d-inl0' )
+    #plotOneProcess2( 'BMK-pmpe04', 'ggttgg', 'sa-cpp-d-inl0' )
+    plotOneProcess2( 'BMK-pmpe04', 'ggttgg', 'sa-cpp-f-inl0' )
+
+    #plotOneProcess2( 'BMK-pmpe04', None, 'sa-cpp-d-inl0' )
+    #plotOneProcess2( 'BMK-pmpe04', None, 'sa-cpp-f-inl0' )
 
