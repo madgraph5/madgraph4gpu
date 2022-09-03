@@ -1,478 +1,292 @@
 #!/usr/bin/env python3
 
-import os
+import os, sys
+import matplotlib
+matplotlib.use('agg')
+import matplotlib.pyplot as plt
+from subprocess import Popen
 
-#------------------------------------------------------------------------------
-
-# Format tuple [RSS, PSS, SWAP] where measurements can be None
-def memstr(mem):
-    ###print( mem )
-    out= '[%8s, %8s, %8s]'%\
-         tuple('%8.1f'%m if m is not None else 'None' for m in mem)
-    ###print( out )
-    return out
-
-# Parse mem.xml for a job to extract max RSS/PSS/SWAP over the job time range
-def parseMemXml(fileName, debug=False):
-    f = open(fileName, 'r')
-    memsum = [None, None, None] # rss, pss, swp (sum over all processes of a MP job)
-    maxmemsum = [None, None, None] # rss, pss, swp (max sum over all processes of a MP job)
-    for l in f.readlines():
-        l = l.replace('<',' ').replace('>',' ')
-        # New memprof line group (new time, new memory measurements)
-        if l.startswith(' memprof'):
-            if debug: print( memstr(memsum), '\n\n', l.split()[1] )
-            for i in range(3):
-                if maxmemsum[i] is None or memsum[i] > maxmemsum[i]:
-                    maxmemsum[i] = memsum[i]
-            memsum = [None, None, None] # rss, pss, swp (sum over all processes)
-        # New process or thread line
-        if not l.startswith(' process') and not l.startswith(' thread') :
-            continue
-        lsplit = l.split()
-        ###print( lsplit )
-        pid = lsplit[1]
-        if lsplit[2].startswith('ppid='):
-            if not lsplit[4].startswith('rss=') :
-                raise Exception('Internal error - no rss in %s'%lsplit[4])
-            rss = int(lsplit[4].split('"')[1])/1000.0 # MB (kB / 1000)
-            if not lsplit[5].startswith('pss=') :
-                raise Exception('Internal error - no pss in %s'%lsplit[5])
-            pss = int(lsplit[5].split('"')[1])/1000.0 # MB (kB / 1000)
-            if lsplit[6].startswith('swap='):
-                # lbsmaps version "21": BC's second version, plus AV's swap
-                swp = int(lsplit[6].split('"')[1])/1000.0 # MB (kB / 1000)
-                cmd = lsplit[7]
-            else:
-                # lbsmaps version "20": BC's second version, without AV's swap
-                swp = None
-                cmd = lsplit[6]
-        else:
-            if not lsplit[3].startswith('rss=') :
-                raise Exception('Internal error - no rss in %s'%lsplit[3])
-            rss = int(lsplit[3].split('"')[1])/1000.0 # MB (kB / 1000)
-            if not lsplit[4].startswith('pss=') :
-                raise Exception('Internal error - no pss in %s'%lsplit[4])
-            pss = int(lsplit[4].split('"')[1])/1000.0 # MB (kB / 1000)
-            if lsplit[5].startswith('swap='):
-                # lbsmaps version "11": BC's first version, plus AV's swap
-                swp = int(lsplit[5].split('"')[1])/1000.0 # MB (kB / 1000)
-                cmd = lsplit[6]
-            else:
-                # lbsmaps version "10": BC's first version, without AV's swap
-                swp = None
-                cmd = lsplit[5]
-        mem = [rss, pss, swp]
-        ###if debug: print( memstr(memsum), memstr(mem), cmd )
-        if not cmd.startswith('{') and not cmd.endswith('}'):
-            if debug: print( memstr(memsum), memstr(mem), cmd ) # NB check.exe has a single process!
-            for i in range(3):
-                if memsum[i] is None : memsum[i] = mem[i]
-                else : memsum[i] += mem[i]
-    f.close()
-    if debug: print( '\nmaxmemsum\n', memstr(maxmemsum) )
-    for i in range(3):
-        if maxmemsum[i] is not None: maxmemsum[i] = int(maxmemsum[i]*1000)/1000.
-    ###print( 'maxmemsum', maxmemsum )
-    return maxmemsum
-
-# Parse log.txt for a job to extract total times
-def parseLogTxt(file):
-    ###print( 'FILE:', file )
-    tot, tot1, tot2, tot3, nevt = 0, 0, 0, 0, 0
-    with open(file, 'r') as fh:
-        for line in fh.readlines() :
-            lline = line.split()
-            if lline[0]=='TotalEventsComputed' : nevt=float(lline[2])
-            elif lline[0]=='TOTAL' :
-                if lline[1]==':' : tot=float(lline[2])
-                elif lline[1]=='(1)' : tot1=float(lline[3])
-                elif lline[1]=='(2)' : tot2=float(lline[3])
-                elif lline[1]=='(3)' : tot3=float(lline[3])
-    ###print( tot, tot1, tot2, tot3, nevt )
-    return tot, tot1, tot2, tot3, nevt
-
-# Append to timdata the job times extracted from log.txt
-# Here timdata[ijob] = [tot, tot1, tot2, tot3, nevt]
-def appendTimdata(timdata, ijob, file, debug=False):
-    tot, tot1, tot2, tot3, nevt = parseLogTxt(file)
-    if debug: print( "appendTimdata", ijob, tot, tot1, tot2, tot3, nevt )
-    timdata[ijob] = ( tot, tot1, tot2, tot3, nevt )
-
-# Append to memdata the rss, pss extracted from mem.txt
-# Here memdata[ijob] = [max sumrss, max sumpss, max sumswap]
-# where max is over all measurements in the job time range
-# and sum is the sum over all processes existing at a given time
-def appendMemdata(memdata, ijob, file, debug=False):
-    rss, pss, swp = parseMemXml(file)
-    if debug: print( "appendMemdata", ijob, rss, pss, swp )
-    memdata[ijob] = ( rss, pss, swp )
-
-# Browse the test directory for a given njob and nthr and parse files therein
-def extractTimdataAndMemdata(workdir, debug=False):
-    print( '-> Processing files in', workdir )
-    # Extract timdata and memdata
-    timdata = {} # x[ijob] = [tot, tot1, tot2, tot3, nevt]
-    memdata = {} # x[ijob] = [max sumrss, max sumpss, max sumswap]
-    for x in sorted(os.listdir(workdir)):
-        workdir2 = workdir + x
-        if os.path.isdir(workdir2) and x.isdigit():
-            ijob = int(x)
-            if debug : print( '---> Processing files in', workdir2 )
-            for y in sorted(os.listdir(workdir2)):
-                if y == 'log.txt':
-                    logfile = workdir2 + os.sep + y
-                    if os.path.isfile(logfile):
-                        if debug : print( '----> Parsing', logfile )
-                        appendTimdata(timdata, ijob, logfile, debug)
-                elif y == 'mem.txt':
-                    memfile = workdir2 + os.sep + y
-                    if os.path.isfile(memfile):
-                        if debug : print( '----> Parsing', memfile )
-                        appendMemdata(memdata, ijob, memfile, debug)
-    return timdata, memdata
-
-#------------------------------------------------------------------------------
-
-timsum_njob_nthr = {} # x[njob,nthr] = [avgtot, avgtot1, avgtot2, avgtot3, sumnevt] -> avg times and sum nevt over all jobs
-memsum_njob_nthr = {} # x[njob,nthr] = [sumrss, sumpss, sumswap] -> sum over all jobs (and threads/processes of MT/MP jobs)
-
-allnjob = []
-allnthr = []
-
-def processTimdata(njob, nthr, timdata, debug=False):
-    ###debug=True
-    ###if debug : print( 'processTimdata', njob, nthr, timdata )
-    ###print( 'Running1', timsum_njob_nthr )
-    sumtot = 0
-    sumtot1 = 0
-    sumtot2 = 0
-    sumtot3 = 0
-    sumnevt = 0
-    for x in sorted(timdata): # one per job
-        sumtot += timdata[x][0]
-        sumtot1 += timdata[x][1]
-        sumtot2 += timdata[x][2]
-        sumtot3 += timdata[x][3]
-        sumnevt += timdata[x][4]
-    avgtot = sumtot/njob
-    avgtot1 = sumtot1/njob
-    avgtot2 = sumtot2/njob
-    avgtot3 = sumtot3/njob
-    if njob not in timsum_njob_nthr: timsum_njob_nthr[njob] = {}
-    timsum_njob_nthr[njob][nthr] = [avgtot, avgtot1, avgtot2, avgtot3, sumnevt]
-    ###print( 'Running2', timsum_njob_nthr )
-
-def processMemdata(njob, nthr, memdata, debug=False):
-    ###debug=True
-    ###if debug : print( 'processMemdata', njob, nthr, memdata )
-    ###print( 'Running1', memsum_njob_nthr )
-    sumrss = 0
-    sumpss = 0
-    sumswp = None
-    for x in sorted(memdata): # one per job
-        sumrss += memdata[x][0]
-        sumpss += memdata[x][1]
-        if sumswp is None : sumswp = memdata[x][2]
-        else : sumswp += memdata[x][2]
-    if njob not in memsum_njob_nthr: memsum_njob_nthr[njob] = {}
-    memsum_njob_nthr[njob][nthr] = [sumrss, sumpss, sumswp]
-    ###print( 'Running2', memsum_njob_nthr )
-
-def processFiles(rundir, avx='none', debug=False):
-    ###debug=True
-    if not os.path.isdir(rundir):
-        print( 'Unknown directory', rundir )
-        return
-    # GO THROUGH ALL TESTS IN RUNDIR AND FILL TIMSUM_NJOB_NTHR AND MEMSUM_NJOB_NTHR
-    global timsum_njob_nthr
-    global memsum_njob_nthr
-    timsum_njob_nthr = {}
-    memsum_njob_nthr = {}
-    print( 'Processing files in', rundir )
-    curlist = os.listdir(rundir)
-    curlist.sort()
-    for d in curlist:
-        if d.find('check-test.'+avx+'.') != -1: # e.g. check-test.none.j002.t004
-            dl = d.split('.')
-            njob = int(dl[-2][-3:])
-            nthr = int(dl[-1][-3:])
-            workdir = rundir + '/' + d + '/'
-            print( 'Workdir', workdir, njob, nthr )
-            data = extractTimdataAndMemdata(workdir, debug)
-            if data is not None:
-                timdata = data[0]
-                memdata = data[1]
-                processTimdata(njob, nthr, timdata, debug)
-                processMemdata(njob, nthr, memdata, debug)
-            else:
-                print( '   Empty data found in', workdir )
-    # DEBUG: DUMP TIMSUM_NJOB_NTHR AND MEMSUM_NJOB_NTHR
-    print( 'Processed files' )
-    ###print( 'timsum_njob_nthr', timsum_njob_nthr )
-    #print( '%4s %4s %12s    %9s %12s'%( 'njob', 'nthr', 'tput[Mev/s]', 'njob*nthr', 'tput/tput1' ) )
-    #tput1=0
-    #for njob in sorted(timsum_njob_nthr) :
-    #    for nthr in sorted(timsum_njob_nthr[njob]) :
-    #        tput = timsum_njob_nthr[njob][nthr][4] / timsum_njob_nthr[njob][nthr][3] / 1E6
-    #        if tput1 == 0 : tput1=tput
-    #        print( '%4d %4d %12.6f    %9d %12.6f'%( njob, nthr, tput, njob*nthr, tput / tput1 ) )
-    ###print( 'memsum_njob_nthr', memsum_njob_nthr )
-    #print( '%4s %4s %12s'%( 'njob', 'nthr', 'maxPSS[GB]' ) )
-    #for njob in sorted(memsum_njob_nthr) :
-    #    for nthr in sorted(memsum_njob_nthr[njob]) :
-    #        maxpss = memsum_njob_nthr[njob][nthr][1]/1000
-    #        print( '%4d %4d %12.6f'%( njob, nthr, maxpss ) )
-    # DUMP THEM TOGETHER (ASSUMING THE SAME ARRAY STRUCTURE)
-    #print( '%4s %4s %12s    %9s %12s   %12s'%( 'njob', 'nthr', 'tput[Mev/s]', 'njob*nthr', 'tput/tput1', 'maxPSS[GB]' ) )
-    #tput1=0
-    #for njob in sorted(timsum_njob_nthr) :
-    #    for nthr in sorted(timsum_njob_nthr[njob]) :
-    #        tput = timsum_njob_nthr[njob][nthr][4] / timsum_njob_nthr[njob][nthr][3]
-    #        if tput1 == 0 : tput1=tput
-    #        maxpss = memsum_njob_nthr[njob][nthr][1]/1000
-    #        print( '%4d %4d %12.6f    %9d %12.6f   %12.6f'%( njob, nthr, tput / 1E6, njob*nthr, tput / tput1, maxpss ) )
-    # DUMP THEM TOGETHER (ASSUMING THE SAME ARRAY STRUCTURE)
-    global allnjob
-    global allnthr
-    allnjob = sorted(timsum_njob_nthr)
-    allnthr = []
-    for njob in allnjob: allnthr += sorted(timsum_njob_nthr[njob])
-    allnthr = list(set(allnthr)) # unique items
-    print( '%4s %4s %12s    %9s %12s   %12s'%( 'njob', 'nthr', 'tput[Mev/s]', 'njob*nthr', 'tput/tput1', 'maxPSS[GB]' ) )
-    tput1=0
-    for nthr in sorted(allnthr):
-        for njob in sorted(allnjob):
-            if njob not in timsum_njob_nthr: continue
-            if nthr not in timsum_njob_nthr[njob]: continue
-            tput = timsum_njob_nthr[njob][nthr][4] / timsum_njob_nthr[njob][nthr][3]
-            if tput1 == 0 : tput1=tput
-            if njob in memsum_njob_nthr and nthr in memsum_njob_nthr[njob]: maxpss = memsum_njob_nthr[njob][nthr][1]/1000
-            else: maxpss = 0
-            print( '%4d %4d %12.6f    %9d %12.6f   %12.6f'%( njob, nthr, tput / 1E6, njob*nthr, tput / tput1, maxpss ) )
-
-#------------------------------------------------------------------------------
-
-# Compare MT and ST for many njobs (eg with no simd)
-def plot1(rundir, debug=False):
-    processFiles(rundir, debug=debug)
-    # Create figure with two plots
-    import matplotlib
-    matplotlib.use('agg')
-    import matplotlib.pyplot as plt
-    fig = plt.figure(figsize=(10,5))
-    ax1 = fig.add_subplot(121)
-    ax2 = fig.add_subplot(122)
-    # First plot: throughput
-    ax1.set_xlabel('Level of parallelism (#jobs times #threads per MT job)')
-    ax1.set_ylabel('Node throughput (E6 events per second)')
-    for nthr in sorted(allnthr):
-        npars = []
-        tputs = []
-        for njob in sorted(allnjob):
-            if njob not in timsum_njob_nthr: continue
-            if nthr not in timsum_njob_nthr[njob]: continue
-            npar = nthr*njob
-            tput = timsum_njob_nthr[njob][nthr][4] / timsum_njob_nthr[njob][nthr][3] / 1E6
-            npars.append(npar)
-            tputs.append(tput)
-        if nthr == 1 : ax1.plot(npars, tputs, marker='*', label='1 (ST)', ms=20, mew=1)
-        else: ax1.plot(npars, tputs, marker='o', label=str(nthr))
-    # Second plot: memory
-    ax2.set_xlabel('Level of parallelism (#jobs times #threads per MT job)')
-    ax2.set_ylabel('Total PSS memory (GB)')
-    for nthr in sorted(allnthr):
-        npars = []
-        mpsss = []
-        for njob in sorted(allnjob):
-            if njob not in memsum_njob_nthr: continue
-            if nthr not in memsum_njob_nthr[njob]: continue
-            npar = nthr*njob
-            mpss = memsum_njob_nthr[njob][nthr][1]/1000
-            npars.append(npar)
-            mpsss.append(mpss)
-        if nthr == 1 : ax2.plot(npars, mpsss, marker='*', label='1 (ST)', ms=20, mew=1)
-        else: ax2.plot(npars, mpsss, marker='o', label=str(nthr))
-    # Decorate both plots
-    title='#threads\n per MT job'
-    #loc = 'upper left'
-    loc = 'lower right'
-    ax1.legend(loc=loc, title=title)
-    ax2.legend(loc=loc, title=title)
-    node = 'pmpe'
-    if node == 'pmpe' :
-        ftitle = 'ggttgg check.exe scalability on pmpe04 (2x 8-core 2.4GHz Haswell with 2x HT)'
-        fig.suptitle(ftitle)
-        nodet = 'WITHOUT SIMD'
-        ax1.set_title(nodet)
-        ax2.set_title(nodet)
-        xmax=54
-        ymax1=0.14
-        ymax2=0.6
-        ax1.axis([0,xmax,0,ymax1])
-        ax2.axis([0,xmax,0,ymax2])
-        xht=16
-        ax1.axvline(xht, color='black', ls=':')
-        ax1.axvline(xht*2, color='black', ls='-.')
-        ax1.text(xht/2, 0.92*ymax1, 'No HT', ha='center', va='center', size=15)
-        ax1.text(xht*3/2, 0.92*ymax1, '2x HT', ha='center', va='center', size=15)
-        ax1.text(xmax/2+xht, 0.92*ymax1, 'Overcommit', ha='center', va='center', size=15)
-        ###ax2.axhline(y=64, color='black', ls='-')
-        ###ax2.text(xmax/2+xht/2, 64*1.05, 'MAXIMUM MEMORY: 64 GB', ha='center', va='center', size=12)
-        ax2.text(xmax/2, 0.5, '(MAXIMUM MEMORY: 64 GB)', ha='center', va='center', size=10, backgroundcolor='white')
-        ax2.axvline(xht, color='black', ls=':')
-        ax2.axvline(xht*2, color='black', ls='-.')
-        ax2.text(xht/2, 0.92*ymax2, 'No HT', ha='center', va='center', size=15)
-        ax2.text(xht*3/2, 0.92*ymax2, '2x HT', ha='center', va='center', size=15)
-        ax2.text(xmax/2+xht, 0.92*ymax2, 'Overcommit', ha='center', va='center', size=15)
-    # Save and show the figure
-    # NB: savefig may issue WARNING 'Unable to parse the pattern' (https://bugzilla.redhat.com/show_bug.cgi?id=1653300)
-    ###print( 'Please ignore the warning "Unable to parse the pattern"' )
-    save = rundir + '/' + node + '-nosimd.png'
-    fig.savefig(save, format='png', bbox_inches="tight")
-    from subprocess import Popen
-    ###Popen(['eog', '-w', save])
-    Popen(['display', '-geometry', '+50+50', save])
-    ###Popen(['display', '-geometry', '+50+50', '-resize', '800', save])
-    print( 'Plot successfully saved on', save )
+# Adapt plots to screen size
+###plots_smallscreen=False # desktop
+plots_smallscreen=True # laptop
+if plots_smallscreen:
+    plots_figsize=(6,3)
+    plots_ftitlesize=9
+    plots_txtsize=9
+    plots_labelsize=9
+    plots_legendsize=8
+else:
+    plots_figsize=(10,5)
+    plots_ftitlesize=12
+    plots_txtsize=15
+    plots_legendsize=12
+    plots_labelsize=12
 
 #---------------------------------------
 
-# Compare various simd ST options for many njobs
-def plot2(rundir, avxs, debug=False, abstput=True):
-    # Loop through files for different avx
-    global timsum_njob_nthr
-    global memsum_njob_nthr
-    timsum_avx_njob_nthr = {} # x[avx,njob,nthr] = [avgtot, avgtot1, avgtot2, avgtot3, sumnevt] -> avg times and sum nevt over all jobs
-    memsum_avx_njob_nthr = {} # x[avx,njob,nthr] = [sumrss, sumpss, sumswap] -> sum over all jobs (and threads/processes of MT/MP jobs)
-    allnjob2 = []
-    allnthr2 = []
-    for avx in avxs:
-        processFiles(rundir+'.'+avx, avx, debug)
-        timsum_avx_njob_nthr[avx] = timsum_njob_nthr
-        memsum_avx_njob_nthr[avx] = memsum_njob_nthr
-        allnjobtmp = sorted(timsum_njob_nthr)
-        allnjob2 += allnjobtmp
-        for njob in allnjobtmp: allnthr2 += sorted(timsum_njob_nthr[njob])
-    allnjob2 = list(set(allnjob2)) # unique items
-    allnthr2 = list(set(allnthr2)) # unique items
-    # Create figure with two plots
-    import matplotlib
-    matplotlib.use('agg')
-    import matplotlib.pyplot as plt
-    fig = plt.figure(figsize=(10,5))
-    ax1 = fig.add_subplot(121)
-    ax2 = fig.add_subplot(122)
-    # First plot: throughput
-    nthr = 1 # only ST
-    tput1_avx = {} # throughput with 1 ST job for different AVX
-    tcol1_avx = {} # colors of throughput plots for different AVX
-    ax1.set_xlabel('Level of parallelism (number of ST jobs)')
+def loadOneRun( workdir, debug=False ):
+    ###debug=True
+    import json
+    run_file = workdir + '/mg5amc-madgraph4gpu-2022_summary.json'
+    print( 'Loading Run', run_file )
+    run_dict = json.load( open( run_file ) )
+    run_info = run_dict['run_info']
+    run_info['app_version'] = run_dict['app']['version']
+    if debug : print( run_info )
+    run_scores = run_dict['report']['wl-scores']
+    if debug : print( run_scores )    
+    return run_info, run_scores
+
+#---------------------------------------
+
+def loadRunSet( runsetdir, evtmatch='e001', debug=False ):
+    ###debug=True
+    if not os.path.isdir( runsetdir ):
+        print( 'Unknown directory', runsetdir )
+        return
+    # Go through all runs in runsetdir and fill runset_scores[njob,nthr]
+    runset_scores = {}
+    print( 'Loading runs in RunSetDir', runsetdir, 'for events', evtmatch )
+    for d in sorted( os.listdir( runsetdir ) ) :
+        if d.startswith( 'sa-cpp-' ) and d.endswith( evtmatch ) and 'png' not in d : # e.g. sa-cpp-j004-t001-e001
+            dl = d.split( '-' )
+            njob = int( dl[-3][-3:] )
+            nthr = int( dl[-2][-3:] )
+            nevt = int( dl[-1][-3:] )
+            rundir = runsetdir + '/' + d
+            if debug : print( '\nRunDir=%30s %3i %3i %3i'%( rundir, njob, nthr, nevt ) )
+            run_info, run_scores = loadOneRun( rundir ) 
+            njobkey, nthrkey, nevtkey = 'copies', 'threads_per_copy', 'events_per_thread'
+            assert njob == run_info[njobkey], 'njob mismatch %i != %i'%( njob, run_info[njobkey] ) 
+            assert nthr == run_info[nthrkey], 'nthr mismatch %i != %i'%( nthr, run_info[nthrkey] ) 
+            assert nevt == run_info[nevtkey], 'nevt mismatch %i != %i'%( nevt, run_info[nevtkey] ) 
+            runset_scores[njob,nthr] = run_scores
+    return runset_scores
+
+#---------------------------------------
+
+def dumpScoresOneKey( runset_scores, score_key, debug=False ):
+    ###debug=True
+    print( '\nSCORES[\'%s\']:'%score_key )
+    score_key_none = score_key[:-4]+'none'
+    njobs = set( [njobnthr[0] for njobnthr in runset_scores] ) # use set(list) to get unique keys
+    nthrs = set( [njobnthr[1] for njobnthr in runset_scores] ) # use set(list) to get unique keys
+    print( '%4s %4s %12s    %9s %12s %12s %16s'%( 'njob', 'nthr', 'Score', 'njob*nthr', 'S/S[1,1]', 'S/S-none', 'S/S-none[1,1]' ) )
+    assert (1,1) in runset_scores, 'no scores found for njob==1 and nthr==1?'     
+    tput1 = runset_scores[1,1][score_key]
+    tput1none = runset_scores[1,1][score_key_none]
+    for nthr in sorted(nthrs):
+        for njob in sorted(njobs):
+            if (njob,nthr) not in runset_scores: continue
+            tput = runset_scores[njob,nthr][score_key]
+            tputnone = runset_scores[njob,nthr][score_key_none]
+            print( '%4d %4d %12.6f    %9d %12.6f %12.6f %16.6f'%
+                   ( njob, nthr, tput, njob*nthr, tput / tput1, tput / tputnone, tput / tput1none ) )
+
+#---------------------------------------
+
+def getSortedMatchingKeys( runset_scores, keymatch=None, debug=False ):
+    ###debug=True
+    keys = []
+    for njobnthr in runset_scores : keys += list( runset_scores[njobnthr].keys() )
+    keys = set( keys ) # use set(list) to get unique keys
+    if keymatch is not None: keys = [ key for key in keys if keymatch in key ]
+    def sortableSimdKey( key ): # use keys sortable in this order: none, sse4, avx2, 512y, 512z, best
+        key = key.replace( '-none', '-simd0' )
+        key = key.replace( '-sse4', '-simd1' )
+        key = key.replace( '-avx2', '-simd3' )
+        key = key.replace( '-512y', '-simd4' )
+        key = key.replace( '-512z', '-simd5' )
+        key = key.replace( '-best', '-simd6' )
+        return key
+    keys2 = [ sortableSimdKey( key ) for key in keys ]
+    keys = [ key for _, key in sorted( zip( keys2, keys ) ) ] # https://stackoverflow.com/a/6618543
+    return keys
+
+#---------------------------------------
+
+def dumpScoresAllKeys( runset_scores, keymatch=None, debug=False ):
+    keys = getSortedMatchingKeys( runset_scores, keymatch, debug )
+    for key in keys : dumpScoresOneKey( runset_scores, key )
+
+#---------------------------------------
+
+# Compare various curves in ST plots
+def axesST( ax, runset_scores, keymatch=None, bestonly=False, abstput=True, ylog=False, xht=None, debug=False ):
+    # Prepare axes labels
+    ax.set_xlabel('Level of parallelism (number of ST jobs)', size=plots_labelsize )
     if abstput:
-        ax1.set_ylabel('Node throughput (E6 events per second)')
+        ax.set_ylabel('Throughput (E6 events per second)', size=plots_labelsize )
     else:
-        ax1.set_ylabel('Ratio (node throughput) / (node throughput for 1 job with SIMD=none)')
-        ax1.grid()
-    for avx in avxs:
-        timsum_njob_nthr = timsum_avx_njob_nthr[avx]
-        npars = []
-        tputs = []
-        for njob in sorted(allnjob2):
-            if njob not in timsum_njob_nthr: continue
-            if nthr not in timsum_njob_nthr[njob]: continue
-            npar = nthr*njob
-            tput = timsum_njob_nthr[njob][nthr][4] / timsum_njob_nthr[njob][nthr][3] / 1E6
-            npars.append(npar)
-            tputs.append(tput)
-            if njob == 1: tput1_avx[avx] = tput
-        if abstput:
-            p = ax1.plot(npars, tputs, marker='o', label=avx)
-        else:
-            tputratios = list( tput/tput1_avx['none'] for tput in tputs )
-            print( avx, tputs )
-            print( avx, tputratios )
-            p = ax1.plot(npars, tputratios, marker='o', label=avx)
-        tcol1_avx[avx] = p[0].get_color()
-    # Second plot: memory
-    nthr = 1 # only ST
-    ax2.set_xlabel('Level of parallelism (number of ST jobs)')
-    ax2.set_ylabel('Total PSS memory (GB)')
-    for avx in avxs:
-        memsum_njob_nthr = memsum_avx_njob_nthr[avx]
-        npars = []
-        mpsss = []
-        for njob in sorted(allnjob2):
-            if njob not in memsum_njob_nthr: continue
-            if nthr not in memsum_njob_nthr[njob]: continue
-            npar = nthr*njob
-            mpss = memsum_njob_nthr[njob][nthr][1]/1000
-            npars.append(npar)
-            mpsss.append(mpss)
-        ax2.plot(npars, mpsss, marker='o', label=avx)
-    # Decorate both plots
-    title='SIMD mode'
-    loc = 'right'
-    ax1.legend(loc=loc, title=title)
+        ax.set_ylabel('Throughput ratio to 1 no-SIMD job', size=plots_labelsize )
+        ax.grid()
+    if ylog: ax.set_yscale( 'log' )
+    # Add one curve per matching score key
+    xmax = 0
+    ymax = 0
+    keys = getSortedMatchingKeys( runset_scores, keymatch, debug )
+    if bestonly : keys = [ key for key in keys if 'best' in key ]
+    elif 'best' not in keymatch: keys = [ key for key in keys if 'best' not in key ]
+    for score_key in keys :
+        score_key_none = score_key[:-4]+'none'
+        njobs = set( [njobnthr[0] for njobnthr in runset_scores] ) # use set(list) to get unique keys
+        nthrs = set( [njobnthr[1] for njobnthr in runset_scores] ) # use set(list) to get unique keys
+        assert (1,1) in runset_scores, 'no scores found for njob==1 and nthr==1?'     
+        ###tput1 = runset_scores[1,1][score_key]
+        tput1none = runset_scores[1,1][score_key_none]
+        # Prepare x-axis and y-axis lists
+        xvals = []
+        yvals = []
+        for nthr in sorted(nthrs):
+            for njob in sorted(njobs):
+                if (njob,nthr) not in runset_scores: continue
+                xval = nthr*njob # 'npar' level of parallelism
+                tput = runset_scores[njob,nthr][score_key]
+                ###tputnone = runset_scores[njob,nthr][score_key_none]
+                xvals.append( xval )
+                if abstput: yvals.append( tput )
+                else: yvals.append( tput / tput1none )
+        xmax = max( xmax, max( xvals ) )
+        ymax = max( ymax, max( yvals ) )
+        # Add curve of y vs x
+        p = ax.plot( xvals, yvals, marker='o', label=score_key )
+    # Decorate axes
     loc = 'lower right'
-    ax2.legend(loc=loc, title=title)
-    node = 'pmpe'
-    if node == 'pmpe' :
-        ftitle = 'ggttgg check.exe scalability on pmpe04 (2x 8-core 2.4GHz Haswell with 2x HT)'
-        fig.suptitle(ftitle)
-        nodet = 'VARIOUS SIMD MODES'
-        ax1.set_title(nodet)
-        ax2.set_title(nodet)
-        xmax=54
-        if abstput: ymax1=0.14
-        else: ymax1=75
-        ymax2=0.6
-        ax1.axis([0,xmax,0,ymax1])
-        ax2.axis([0,xmax,0,ymax2])
+    ax.legend( loc=loc, fontsize=plots_legendsize )
+    xmin = 0
+    xmax *= 1.8
+    if ylog:
+        ymin = 0.001
+        ymax *= 12
+        ytxt = 0.5 * ymax
+    else:
+        ymin = 0
+        ymax *= 1.2
+        ytxt = 0.92 * ymax
+    ax.axis( [xmin, xmax, ymin, ymax] )
+    if xht is not None :
+        ax.axvline( xht, color='black', ls=':' )
+        ax.axvline( xht*2, color='black', ls='-.' )
+        ax.text( xht/2, ytxt, 'No HT', ha='center', va='center', size=plots_txtsize )
+        ax.text( xht*3/2, ytxt, '2x HT', ha='center', va='center', size=plots_txtsize )
+        ax.text( xmax/2+xht, ytxt, 'Overcommit', ha='center', va='center', size=plots_txtsize )
+
+# Get node-dependent features
+def getNodeFeatures( workdir ):
+    if workdir == 'BMK-pmpe04' :
+        node='pmpe04'
         xht=16
-        ax1.axvline(xht, color='black', ls=':')
-        ax1.axvline(xht*2, color='black', ls='-.')
-        ax1.text(xht/2, 0.92*ymax1, 'No HT', ha='center', va='center', size=15)
-        ax1.text(xht*3/2, 0.92*ymax1, '2x HT', ha='center', va='center', size=15)
-        ax1.text(xmax/2+xht, 0.92*ymax1, 'Overcommit', ha='center', va='center', size=15)
-        if abstput:
-            for avx in avxs:
-                tput1 = tput1_avx[avx]
-                tcol1 = tcol1_avx[avx]
-                ax1.plot( [0,xht], [0,xht*tput1], marker='', ls=':', lw=2, color=tcol1 )
-        ###ax2.axhline(y=64, color='black', ls='-')
-        ###ax2.text(xmax/2+xht/2, 64*1.05, 'MAXIMUM MEMORY: 64 GB', ha='center', va='center', size=12)
-        ax2.text(xmax/2, 0.5, '(MAXIMUM MEMORY: 64 GB)', ha='center', va='center', size=10, backgroundcolor='white')
-        ax2.axvline(xht, color='black', ls=':')
-        ax2.axvline(xht*2, color='black', ls='-.')
-        ax2.text(xht/2, 0.92*ymax2, 'No HT', ha='center', va='center', size=15)
-        ax2.text(xht*3/2, 0.92*ymax2, '2x HT', ha='center', va='center', size=15)
-        ax2.text(xmax/2+xht, 0.92*ymax2, 'Overcommit', ha='center', va='center', size=15)
+        ftitle='check.exe scalability on pmpe04 (2x 8-core 2.4GHz Haswell with 2x HT)' # lscpu
+    elif workdir == 'BMK-itscrd70' :
+        node='itscrd70'
+        xht=2
+        ftitle='check.exe scalability on itscrd70 (1x 4-core 2.1GHz Xeon Silver 4216 without HT)' # lscpu
+    else:
+        print( 'ERROR! Unknown workdir', workdir )
+        sys.exit(-1)
+    return node, xht, ftitle
+    
+# Create a figure with a single plot
+def plotST( workdir, keymatch=None, abstput=True, ylog=False, evtmatch='-e001', debug=False ):
+    runset_scores = loadRunSet( workdir, evtmatch=evtmatch )
+    node, xht, ftitle = getNodeFeatures( workdir )
+    pngpath = workdir + '/' + node + evtmatch + '-all-' + keymatch + '.png'
+    # Create figure with one plot
+    fig = plt.figure( figsize=plots_figsize )
+    ax1 = fig.add_subplot( 111 )
+    # Fill the plot in the figure
+    axesST( ax1, runset_scores, keymatch=keymatch, ylog=ylog, xht=xht, abstput=abstput, debug=debug )
+    if ftitle is not None: fig.suptitle( ftitle, size=plots_ftitlesize )
     # Save and show the figure
-    # NB: savefig may issue WARNING 'Unable to parse the pattern' (https://bugzilla.redhat.com/show_bug.cgi?id=1653300)
-    ###print( 'Please ignore the warning "Unable to parse the pattern"' )
-    if abstput: save = rundir + '.none/' + node + '-simd.png'
-    else: save = rundir + '.none/' + node + '-simd-ratios.png'
-    fig.savefig(save, format='png', bbox_inches="tight")
-    from subprocess import Popen
-    ###Popen(['eog', '-w', save])
-    Popen(['display', '-geometry', '+50+50', save])
-    ###Popen(['display', '-geometry', '+50+50', '-resize', '800', save])
-    print( 'Plot successfully saved on', save )
+    fig.savefig( pngpath, format='png', bbox_inches="tight" )
+    Popen( ['display', '-geometry', '+50+50', pngpath] )
+    ###Popen( ['display', '-geometry', '+50+50', '-resize', '800', pngpath] )
+    print( 'Plot successfully saved on', pngpath )
+
+# Create a figure with two plots per process, absolute and normalized tput
+def plotOneProcess2( workdir, oneprocess, keymatch, bestonly=False, evtmatch='-e001', debug=False ):
+    runset_scores = loadRunSet( workdir, evtmatch=evtmatch )
+    node, xht, ftitle = getNodeFeatures( workdir )
+    # One process or all processes?
+    if oneprocess is not None: processes = [ oneprocess ]
+    else: processes = [ 'eemumu', 'ggtt', 'ggttg', 'ggttgg' ]
+    pngpath = workdir + '/' + node + evtmatch + '-' + \
+	      ( 'all' if oneprocess is None else oneprocess ) + '-' + keymatch + '.png'
+    # Create figure with two plots per process
+    fig = plt.figure( figsize = ( plots_figsize[0]*2, plots_figsize[1]*len(processes) ) )
+    # Add two plots per process
+    idx1 = len(processes)*100 + 21
+    idx2 = len(processes)*100 + 22
+    for process in processes:
+        ###print( idx1, idx2 )
+        fullkeymatch = process + '-' + keymatch
+        ax1 = fig.add_subplot( idx1 )
+        axesST( ax1, runset_scores, keymatch=fullkeymatch, bestonly=bestonly, \
+		ylog=False, xht=xht, abstput=True, debug=debug )
+        ax2 = fig.add_subplot( idx2 )
+        axesST( ax2, runset_scores, keymatch=fullkeymatch, bestonly=bestonly, \
+		ylog=False, xht=xht, abstput=False, debug=debug )
+        idx1 += 2
+        idx2 += 2
+    # Save and show the figure
+    if ftitle is not None:
+        if oneprocess is not None: ftitle = oneprocess + ' ' + ftitle
+        fig.suptitle( ftitle, size=plots_ftitlesize )
+    fig.set_tight_layout( True )
+    fig.savefig( pngpath, format='png', bbox_inches="tight" )
+    if oneprocess is not None:
+        Popen( ['display', '-geometry', '+50+50', pngpath] )
+    else:
+        Popen( ['display', '-geometry', '+50+50', '-resize', '600', pngpath] )
+    print( 'Plot successfully saved on', pngpath )
+
+# Create a figure with one plots per process, with inl0 and inl1 best
+def plotProcessesInl( workdir, keymatch, evtmatch='-e001', debug=False ):
+    runset_scores = loadRunSet( workdir, evtmatch=evtmatch )
+    node, xht, ftitle = getNodeFeatures( workdir )
+    # One process or all processes?
+    processes = [ 'eemumu', 'ggtt', 'ggttg', 'ggttgg' ]
+    pngpath = workdir + '/' + node + evtmatch + '-all-' + keymatch + '.png'
+    # Create figure with two plots per process
+    fig = plt.figure( figsize = ( plots_figsize[0], plots_figsize[1]*len(processes) ) )
+    # Add two plots per process
+    idx1 = len(processes)*100 + 11
+    for process in processes:
+        fullkeymatch = process + '-' + keymatch
+        ax1 = fig.add_subplot( idx1 )
+        axesST( ax1, runset_scores, keymatch=fullkeymatch, bestonly=True, \
+		ylog=False, xht=xht, abstput=True, debug=debug )
+        idx1 += 1
+    # Save and show the figure
+    if ftitle is not None:
+        fig.suptitle( ftitle, size=plots_ftitlesize )
+    fig.set_tight_layout( True )
+    fig.savefig( pngpath, format='png', bbox_inches="tight" )
+    Popen( ['display', '-geometry', '+50+50', '-resize', '300', pngpath] )
+    print( 'Plot successfully saved on', pngpath )
 
 #---------------------------------------
 
 if __name__ == '__main__':
 
-    ###parseMemXml('BMKTST/check-test.none.j016.t001/1/mem.txt', debug=False)
+    # TESTS
+    #loadOneRun( 'BMK-pmpe04/sa-cpp-j032-t001-e001', debug=True )
+    #loadRunSet( 'BMK-pmpe04', debug=True )
+    #dumpScoresOneKey( loadRunSet( 'BMK-pmpe04' ), 'ggttgg-sa-cpp-d-inl0-best' )
+    #dumpScoresAllKeys( loadRunSet( 'BMK-pmpe04' ) )
+    #dumpScoresAllKeys( loadRunSet( 'BMK-pmpe04'), keymatch='best' )
+    #dumpScoresAllKeys( loadRunSet( 'BMK-pmpe04'), keymatch='inl0-best' )
+    #dumpScoresAllKeys( loadRunSet( 'BMK-pmpe04'), keymatch='ggttgg-sa-cpp-d-inl0' )
 
-    ###parseLogTxt('BMKTST/check-test.none.j016.t001/1/log.txt')
+    # PRODUCTION PLOTS
+    workdir = 'BMK-pmpe04'
+    #workdir = 'BMK-itscrd70'
+    plotST( workdir, keymatch='sa-cpp-d-inl0-best', ylog=True )
+    plotST( workdir, keymatch='sa-cpp-f-inl0-best', ylog=True )
+    plotOneProcess2( workdir, 'ggttgg', 'sa-cpp-d-inl0' )
+    plotOneProcess2( workdir, 'ggttgg', 'sa-cpp-f-inl0' )
+    plotOneProcess2( workdir, None, 'sa-cpp-d-inl0' )
+    plotOneProcess2( workdir, None, 'sa-cpp-f-inl0' )
+    plotProcessesInl( workdir, 'sa-cpp-d-inl' )
+    plotProcessesInl( workdir, 'sa-cpp-f-inl' )
 
-    ###processFiles('BMKTST', debug=True)
-    ###processFiles('BMKTST', debug=False)
-    ###processFiles('BMKTST.sse4', avx='sse4', debug=False)
-    ###processFiles('BMKTST.avx2', avx='avx2', debug=True)
-
-    #plot1('BMKTST.none', debug=False) # useless for 2022 ggttgg as we have no OMP
-
-    plot2('BMKTST', ['none', 'sse4', 'avx2'], debug=False) # 2022 ggttgg absolute throughputs
-    plot2('BMKTST', ['none', 'sse4', 'avx2'], debug=False, abstput=False) # 2022 ggttgg throughput ratios
