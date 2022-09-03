@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os, sys
 import matplotlib
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
@@ -40,7 +41,6 @@ def loadOneRun( workdir, debug=False ):
 
 def loadRunSet( runsetdir, debug=False ):
     ###debug=True
-    import os
     if not os.path.isdir( runsetdir ):
         print( 'Unknown directory', runsetdir )
         return
@@ -175,15 +175,20 @@ def plotST( pngpath, runset_scores, keymatch=None, xht=None, abstput=True, ftitl
     ###Popen( ['display', '-geometry', '+50+50', '-resize', '800', pngpath] )
     print( 'Plot successfully saved on', pngpath )
 
-# Create a figure with two plots per process, absolute and normalized tput
-def plotOneProcess2( workdir, oneprocess, keymatch, debug=False ):
-    runset_scores = loadRunSet( workdir )
+# Get node-dependent features
+def getNodeFeatures( workdir ):
     if workdir == 'BMK-pmpe04' :
         xht=16
         ftitle='check.exe scalability on pmpe04 (2x 8-core 2.4GHz Haswell with 2x HT)'
     else:
         print( 'ERROR! Unknown workdir', workdir )
-        return
+        sys.exit(-1)
+    return xht, ftitle
+    
+# Create a figure with two plots per process, absolute and normalized tput
+def plotOneProcess2( workdir, oneprocess, keymatch, debug=False ):
+    runset_scores = loadRunSet( workdir )
+    xht, ftitle = getNodeFeatures( workdir )
     # One process or all processes?
     if oneprocess is not None:
         processes = [ oneprocess ]
