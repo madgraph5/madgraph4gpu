@@ -112,7 +112,7 @@ def dumpScoresAllKeys( runset_scores, keymatch=None, debug=False ):
 #---------------------------------------
 
 # Compare various curves in ST plots
-def axesST( ax, runset_scores, keymatch=None, abstput=True, xht=None, debug=False ):
+def axesST( ax, runset_scores, keymatch=None, abstput=True, ylog=False, xht=None, debug=False ):
     # Prepare axes labels
     ax.set_xlabel('Level of parallelism (number of ST jobs)', size=plots_labelsize )
     if abstput:
@@ -120,6 +120,7 @@ def axesST( ax, runset_scores, keymatch=None, abstput=True, xht=None, debug=Fals
     else:
         ax.set_ylabel('Throughput ratio to 1 no-SIMD job', size=plots_labelsize )
         ax.grid()
+    if ylog: ax.set_yscale( 'log' )
     # Add one curve per matching score key
     xmax = 0
     ymax = 0
@@ -149,17 +150,25 @@ def axesST( ax, runset_scores, keymatch=None, abstput=True, xht=None, debug=Fals
         # Add curve of y vs x
         p = ax.plot( xvals, yvals, marker='o', label=score_key )
     # Decorate axes
-    xmax *= 1.8
-    ymax *= 1.2
     loc = 'lower right'
     ax.legend( loc=loc, fontsize=plots_legendsize )
-    ax.axis( [0, xmax, 0, ymax] )
+    xmin = 0
+    xmax *= 1.8
+    if ylog:
+        ymin = 0.001
+        ymax *= 12
+        ytxt = 0.5 * ymax
+    else:
+        ymin = 0
+        ymax *= 1.2
+        ytxt = 0.92 * ymax
+    ax.axis( [xmin, xmax, ymin, ymax] )
     if xht is not None :
         ax.axvline( xht, color='black', ls=':' )
         ax.axvline( xht*2, color='black', ls='-.' )
-        ax.text( xht/2, 0.92*ymax, 'No HT', ha='center', va='center', size=plots_txtsize )
-        ax.text( xht*3/2, 0.92*ymax, '2x HT', ha='center', va='center', size=plots_txtsize )
-        ax.text( xmax/2+xht, 0.92*ymax, 'Overcommit', ha='center', va='center', size=plots_txtsize )
+        ax.text( xht/2, ytxt, 'No HT', ha='center', va='center', size=plots_txtsize )
+        ax.text( xht*3/2, ytxt, '2x HT', ha='center', va='center', size=plots_txtsize )
+        ax.text( xmax/2+xht, ytxt, 'Overcommit', ha='center', va='center', size=plots_txtsize )
 
 # Get node-dependent features
 def getNodeFeatures( workdir ):
@@ -172,7 +181,7 @@ def getNodeFeatures( workdir ):
     return xht, ftitle
     
 # Create a figure with a single plot
-def plotST( workdir, keymatch=None, abstput=True, debug=False ):
+def plotST( workdir, keymatch=None, abstput=True, ylog=False, debug=False ):
     runset_scores = loadRunSet( workdir )
     xht, ftitle = getNodeFeatures( workdir )
     pngpath = workdir + '/' + keymatch + '.png'
@@ -180,7 +189,7 @@ def plotST( workdir, keymatch=None, abstput=True, debug=False ):
     fig = plt.figure( figsize=plots_figsize )
     ax1 = fig.add_subplot( 111 )
     # Fill the plot in the figure
-    axesST( ax1, runset_scores, keymatch=keymatch, xht=xht, abstput=abstput, debug=debug )
+    axesST( ax1, runset_scores, keymatch=keymatch, ylog=ylog, xht=xht, abstput=abstput, debug=debug )
     if ftitle is not None: fig.suptitle( ftitle, size=plots_ftitlesize )
     # Save and show the figure
     fig.savefig( pngpath, format='png', bbox_inches="tight" )
@@ -208,9 +217,9 @@ def plotOneProcess2( workdir, oneprocess, keymatch, debug=False ):
         ###print( idx1, idx2 )
         fullkeymatch = process + '-' + keymatch
         ax1 = fig.add_subplot( idx1 )
-        axesST( ax1, runset_scores, keymatch=fullkeymatch, xht=xht, abstput=True, debug=debug )
+        axesST( ax1, runset_scores, keymatch=fullkeymatch, ylog=False, xht=xht, abstput=True, debug=debug )
         ax1 = fig.add_subplot( idx2 )
-        axesST( ax1, runset_scores, keymatch=fullkeymatch, xht=xht, abstput=False, debug=debug )
+        axesST( ax1, runset_scores, keymatch=fullkeymatch, ylog=False, xht=xht, abstput=False, debug=debug )
         idx1 += 2
         idx2 += 2
     # Save and show the figure
@@ -237,11 +246,12 @@ if __name__ == '__main__':
     #dumpScoresAllKeys( loadRunSet( 'BMK-pmpe04'), keymatch='inl0-best' )
     #dumpScoresAllKeys( loadRunSet( 'BMK-pmpe04'), keymatch='ggttgg-sa-cpp-d-inl0' )
 
-    plotST( 'BMK-pmpe04', keymatch='d-inl0-best' )
+    plotST( 'BMK-pmpe04', keymatch='d-inl0-best', ylog=True )
+    plotST( 'BMK-pmpe04', keymatch='f-inl0-best', ylog=True )
 
-    #plotOneProcess2( 'BMK-pmpe04', 'ggttgg', 'sa-cpp-d-inl0' )
-    #plotOneProcess2( 'BMK-pmpe04', 'ggttgg', 'sa-cpp-f-inl0' )
+    plotOneProcess2( 'BMK-pmpe04', 'ggttgg', 'sa-cpp-d-inl0' )
+    plotOneProcess2( 'BMK-pmpe04', 'ggttgg', 'sa-cpp-f-inl0' )
 
-    #plotOneProcess2( 'BMK-pmpe04', None, 'sa-cpp-d-inl0' )
-    #plotOneProcess2( 'BMK-pmpe04', None, 'sa-cpp-f-inl0' )
+    plotOneProcess2( 'BMK-pmpe04', None, 'sa-cpp-d-inl0' )
+    plotOneProcess2( 'BMK-pmpe04', None, 'sa-cpp-f-inl0' )
 
