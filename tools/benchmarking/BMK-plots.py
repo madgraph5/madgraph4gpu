@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 
+import matplotlib
+matplotlib.use('agg')
+import matplotlib.pyplot as plt
+from subprocess import Popen
+
 # Adapt plots to screen size
 ###plots_smallscreen=False # desktop
 plots_smallscreen=True # laptop
@@ -36,7 +41,6 @@ def loadOneRun( workdir, debug=False ):
 def loadRunSet( runsetdir, debug=False ):
     ###debug=True
     import os
-    import json
     if not os.path.isdir( runsetdir ):
         print( 'Unknown directory', runsetdir )
         return
@@ -107,14 +111,14 @@ def dumpScoresAllKeys( runset_scores, keymatch=None, debug=False ):
 
 #---------------------------------------
 
-# Compare various simd ST options for many njobs
+# Compare various curves in ST plots
 def axesST( ax, runset_scores, keymatch=None, abstput=True, xht=None, debug=False ):
     # Prepare axes labels
     ax.set_xlabel('Level of parallelism (number of ST jobs)', size=plots_labelsize )
     if abstput:
         ax.set_ylabel('Node throughput (E6 events per second)', size=plots_labelsize )
     else:
-        ax.set_ylabel('Ratio (node throughput) / (node throughput for 1 job with SIMD=none)', size=plots_labelsize )
+        ax.set_ylabel('Throughput ratio to 1 no-SIMD job', size=plots_labelsize )
         ax.grid()
     # Add one curve per matching score key
     xmax = 0
@@ -157,12 +161,9 @@ def axesST( ax, runset_scores, keymatch=None, abstput=True, xht=None, debug=Fals
         ax.text( xht*3/2, 0.92*ymax, '2x HT', ha='center', va='center', size=plots_txtsize )
         ax.text( xmax/2+xht, 0.92*ymax, 'Overcommit', ha='center', va='center', size=plots_txtsize )
 
-# Compare various simd ST options for many njobs
+# Create a figure with a single plot
 def plotST( pngpath, runset_scores, keymatch=None, xht=None, abstput=True, ftitle=None, debug=False ):
     # Create figure with one plot
-    import matplotlib
-    matplotlib.use('agg')
-    import matplotlib.pyplot as plt
     fig = plt.figure( figsize=plots_figsize )
     ax1 = fig.add_subplot( 111 )
     # Fill the plot in the figure
@@ -170,7 +171,30 @@ def plotST( pngpath, runset_scores, keymatch=None, xht=None, abstput=True, ftitl
     if ftitle is not None: fig.suptitle( ftitle, size=plots_ftitlesize )
     # Save and show the figure
     fig.savefig( pngpath, format='png', bbox_inches="tight" )
-    from subprocess import Popen
+    Popen( ['display', '-geometry', '+50+50', pngpath] )
+    ###Popen( ['display', '-geometry', '+50+50', '-resize', '800', pngpath] )
+    print( 'Plot successfully saved on', pngpath )
+
+# Create a figure with two plots per process, absolute and normalized tput
+def plotOneProcess2( workdir, process, keymatch, debug=False ):
+    runset_scores = loadRunSet( workdir )
+    keymatch = process + '-' + keymatch
+    pngpath = workdir + '/' + keymatch + '.png'
+    if workdir == 'BMK-pmpe04' :
+        xht=16
+        ftitle='check.exe scalability on pmpe04 (2x 8-core 2.4GHz Haswell with 2x HT)'
+    else:
+        print( 'ERROR! Unknown workdir', workdir )
+        return
+    # Create figure with two plots
+    fig = plt.figure( figsize = ( plots_figsize[0]*2, plots_figsize[1] ) )
+    ax1 = fig.add_subplot( 121 )
+    axesST( ax1, runset_scores, keymatch=keymatch, xht=xht, abstput=True, debug=debug )
+    ax1 = fig.add_subplot( 122 )
+    axesST( ax1, runset_scores, keymatch=keymatch, xht=xht, abstput=False, debug=debug )
+    if ftitle is not None: fig.suptitle( process + ' ' + ftitle, size=plots_ftitlesize )
+    # Save and show the figure
+    fig.savefig( pngpath, format='png', bbox_inches="tight" )
     Popen( ['display', '-geometry', '+50+50', pngpath] )
     ###Popen( ['display', '-geometry', '+50+50', '-resize', '800', pngpath] )
     print( 'Plot successfully saved on', pngpath )
@@ -187,6 +211,7 @@ if __name__ == '__main__':
     #dumpScoresAllKeys( loadRunSet( 'BMK-pmpe04'), keymatch='inl0-best' )
     #dumpScoresAllKeys( loadRunSet( 'BMK-pmpe04'), keymatch='ggttgg-sa-cpp-d-inl0' )
 
-    plotST( 'BMK-pmpe04/ggttgg-sa-cpp-d-inl0.png', loadRunSet( 'BMK-pmpe04'), keymatch='ggttgg-sa-cpp-d-inl0', xht=16, ftitle='check.exe scalability on pmpe04 (2x 8-core 2.4GHz Haswell with 2x HT)' )
     #plotST( 'BMK-pmpe04/d-inl0-best.png', loadRunSet( 'BMK-pmpe04'), keymatch='d-inl0-best', xht=16, ftitle='check.exe scalability on pmpe04 (2x 8-core 2.4GHz Haswell with 2x HT)' )
+
+    plotOneProcess2( 'BMK-pmpe04', 'ggttgg', 'sa-cpp-d-inl0' )
 
