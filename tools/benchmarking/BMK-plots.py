@@ -149,7 +149,7 @@ def axesST( ax, runset_scores, keymatch=None, abstput=True, xht=None, debug=Fals
         # Add curve of y vs x
         p = ax.plot( xvals, yvals, marker='o', label=score_key )
     # Decorate axes
-    xmax *= 2.0
+    xmax *= 1.8
     ymax *= 1.2
     loc = 'lower right'
     ax.legend( loc=loc, fontsize=plots_legendsize )
@@ -231,9 +231,9 @@ if __name__ == '__main__':
 
     #plotST( 'BMK-pmpe04/d-inl0-best.png', loadRunSet( 'BMK-pmpe04'), keymatch='d-inl0-best', xht=16, ftitle='check.exe scalability on pmpe04 (2x 8-core 2.4GHz Haswell with 2x HT)' )
 
-    #plotOneProcess2( 'BMK-pmpe04', 'ggttgg', 'sa-cpp-d-inl0' )
+    plotOneProcess2( 'BMK-pmpe04', 'ggttgg', 'sa-cpp-d-inl0' )
     plotOneProcess2( 'BMK-pmpe04', 'ggttgg', 'sa-cpp-f-inl0' )
 
-    #plotOneProcess2( 'BMK-pmpe04', None, 'sa-cpp-d-inl0' )
-    #plotOneProcess2( 'BMK-pmpe04', None, 'sa-cpp-f-inl0' )
+    plotOneProcess2( 'BMK-pmpe04', None, 'sa-cpp-d-inl0' )
+    plotOneProcess2( 'BMK-pmpe04', None, 'sa-cpp-f-inl0' )
 
