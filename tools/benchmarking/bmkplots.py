@@ -281,12 +281,12 @@ if __name__ == '__main__':
     # PRODUCTION PLOTS
     #workdir = 'BMK-pmpe04'
     workdir = 'BMK-itscrd70'
-    #plotST( workdir, keymatch='sa-cpp-d-inl0-best', ylog=True )
-    #plotST( workdir, keymatch='sa-cpp-f-inl0-best', ylog=True )
-    #plotOneProcess2( workdir, 'ggttgg', 'sa-cpp-d-inl0' )
-    #plotOneProcess2( workdir, 'ggttgg', 'sa-cpp-f-inl0' )
-    #plotOneProcess2( workdir, None, 'sa-cpp-d-inl0' )
-    #plotOneProcess2( workdir, None, 'sa-cpp-f-inl0' )
+    plotST( workdir, keymatch='sa-cpp-d-inl0-best', ylog=True )
+    plotST( workdir, keymatch='sa-cpp-f-inl0-best', ylog=True )
+    plotOneProcess2( workdir, 'ggttgg', 'sa-cpp-d-inl0' )
+    plotOneProcess2( workdir, 'ggttgg', 'sa-cpp-f-inl0' )
+    plotOneProcess2( workdir, None, 'sa-cpp-d-inl0' )
+    plotOneProcess2( workdir, None, 'sa-cpp-f-inl0' )
     plotProcessesInl( workdir, 'sa-cpp-d-inl' )
     plotProcessesInl( workdir, 'sa-cpp-f-inl' )
 
