@@ -223,8 +223,8 @@ def plotOneProcess2( workdir, oneprocess, keymatch, bestonly=False, evtmatch='-e
         ax1 = fig.add_subplot( idx1 )
         axesST( ax1, runset_scores, keymatch=fullkeymatch, bestonly=bestonly, \
 		ylog=False, xht=xht, abstput=True, debug=debug )
-        ax1 = fig.add_subplot( idx2 )
-        axesST( ax1, runset_scores, keymatch=fullkeymatch, bestonly=bestonly, \
+        ax2 = fig.add_subplot( idx2 )
+        axesST( ax2, runset_scores, keymatch=fullkeymatch, bestonly=bestonly, \
 		ylog=False, xht=xht, abstput=False, debug=debug )
         idx1 += 2
         idx2 += 2
@@ -238,6 +238,31 @@ def plotOneProcess2( workdir, oneprocess, keymatch, bestonly=False, evtmatch='-e
         Popen( ['display', '-geometry', '+50+50', pngpath] )
     else:
         Popen( ['display', '-geometry', '+50+50', '-resize', '600', pngpath] )
+    print( 'Plot successfully saved on', pngpath )
+
+# Create a figure with one plots per process, with inl0 and inl1 best
+def plotProcessesInl( workdir, keymatch, evtmatch='-e001', debug=False ):
+    runset_scores = loadRunSet( workdir, evtmatch=evtmatch )
+    node, xht, ftitle = getNodeFeatures( workdir )
+    # One process or all processes?
+    processes = [ 'eemumu', 'ggtt', 'ggttg', 'ggttgg' ]
+    pngpath = workdir + '/' + node + evtmatch + '-all-' + keymatch + '.png'
+    # Create figure with two plots per process
+    fig = plt.figure( figsize = ( plots_figsize[0], plots_figsize[1]*len(processes) ) )
+    # Add two plots per process
+    idx1 = len(processes)*100 + 11
+    for process in processes:
+        fullkeymatch = process + '-' + keymatch
+        ax1 = fig.add_subplot( idx1 )
+        axesST( ax1, runset_scores, keymatch=fullkeymatch, bestonly=True, \
+		ylog=False, xht=xht, abstput=True, debug=debug )
+        idx1 += 1
+    # Save and show the figure
+    if ftitle is not None:
+        fig.suptitle( ftitle, size=plots_ftitlesize )
+    fig.set_tight_layout( True )
+    fig.savefig( pngpath, format='png', bbox_inches="tight" )
+    Popen( ['display', '-geometry', '+50+50', '-resize', '300', pngpath] )
     print( 'Plot successfully saved on', pngpath )
 
 #---------------------------------------
@@ -260,8 +285,8 @@ if __name__ == '__main__':
     #plotST( workdir, keymatch='sa-cpp-f-inl0-best', ylog=True )
     #plotOneProcess2( workdir, 'ggttgg', 'sa-cpp-d-inl0' )
     #plotOneProcess2( workdir, 'ggttgg', 'sa-cpp-f-inl0' )
-    plotOneProcess2( workdir, None, 'sa-cpp-d-inl0' )
-    plotOneProcess2( workdir, None, 'sa-cpp-f-inl0' )
-    plotOneProcess2( workdir, None, 'sa-cpp-d-inl', bestonly=True )
-    plotOneProcess2( workdir, None, 'sa-cpp-f-inl', bestonly=True )
+    #plotOneProcess2( workdir, None, 'sa-cpp-d-inl0' )
+    #plotOneProcess2( workdir, None, 'sa-cpp-f-inl0' )
+    plotProcessesInl( workdir, 'sa-cpp-d-inl' )
+    plotProcessesInl( workdir, 'sa-cpp-f-inl' )
 
