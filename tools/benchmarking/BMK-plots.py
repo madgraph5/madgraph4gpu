@@ -65,7 +65,7 @@ def dumpScoresOneKey( runset_scores, score_key, debug=False ):
 
 #---------------------------------------
 
-def dumpScoresAllKeys( runset_scores, keymatch=None, debug=False ):
+def getSortedMatchingKeys( runset_scores, keymatch=None, debug=False ):
     ###debug=True
     keys = []
     for njobnthr in runset_scores : keys += list( runset_scores[njobnthr].keys() )
@@ -81,7 +81,83 @@ def dumpScoresAllKeys( runset_scores, keymatch=None, debug=False ):
         return key
     keys2 = [ sortableSimdKey( key ) for key in keys ]
     keys = [ key for _, key in sorted( zip( keys2, keys ) ) ] # https://stackoverflow.com/a/6618543
+    return keys
+
+#---------------------------------------
+
+def dumpScoresAllKeys( runset_scores, keymatch=None, debug=False ):
+    keys = getSortedMatchingKeys( runset_scores, keymatch, debug )
     for key in keys : dumpScoresOneKey( runset_scores, key )
+
+#---------------------------------------
+
+# Compare various simd ST options for many njobs
+def axesST( ax, runset_scores, keymatch=None, abstput=True, xht=None, debug=False ):
+    # Prepare axes labels
+    ax.set_xlabel('Level of parallelism (number of ST jobs)')
+    if abstput:
+        ax.set_ylabel('Node throughput (E6 events per second)')
+    else:
+        ax.set_ylabel('Ratio (node throughput) / (node throughput for 1 job with SIMD=none)')
+        ax.grid()
+    # Add one curve per matching score key
+    xmax = 0
+    ymax = 0
+    keys = getSortedMatchingKeys( runset_scores, keymatch, debug )
+    for score_key in keys :
+        score_key_none = score_key[:-4]+'none'
+        njobs = set( [njobnthr[0] for njobnthr in runset_scores] ) # use set(list) to get unique keys
+        nthrs = set( [njobnthr[1] for njobnthr in runset_scores] ) # use set(list) to get unique keys
+        assert (1,1) in runset_scores, 'no scores found for njob==1 and nthr==1?'     
+        ###tput1 = runset_scores[1,1][score_key]
+        tput1none = runset_scores[1,1][score_key_none]
+        # Prepare x-axis and y-axis lists
+        xvals = []
+        yvals = []
+        for nthr in sorted(nthrs):
+            for njob in sorted(njobs):
+                if (njob,nthr) not in runset_scores: continue
+                xval = nthr*njob # 'npar' level of parallelism
+                tput = runset_scores[njob,nthr][score_key]
+                ###tputnone = runset_scores[njob,nthr][score_key_none]
+                xvals.append( xval )
+                if abstput: yvals.append( tput )
+                else: yvals.append( tput / tput1none )
+        xmax = max( xmax, max( xvals ) )
+        ymax = max( ymax, max( yvals ) )
+        # Add curve of y vs x
+        p = ax.plot( xvals, yvals, marker='o', label=score_key )
+    # Decorate axes
+    xmax *= 1.6
+    ymax *= 1.2
+    title='score name'
+    loc = 'lower right'
+    ax.legend( loc=loc, title=title )
+    ax.axis( [0, xmax, 0, ymax] )
+    if xht is not None :
+        ax.axvline( xht, color='black', ls=':' )
+        ax.axvline( xht*2, color='black', ls='-.' )
+        ax.text( xht/2, 0.92*ymax, 'No HT', ha='center', va='center', size=15 )
+        ax.text( xht*3/2, 0.92*ymax, '2x HT', ha='center', va='center', size=15 )
+        ax.text( xmax/2+xht, 0.92*ymax, 'Overcommit', ha='center', va='center', size=15 )
+
+# Compare various simd ST options for many njobs
+def plotST( pngpath, runset_scores, keymatch=None, xht=None, abstput=True, ftitle=None, debug=False ):
+    # Create figure with one plot
+    import matplotlib
+    matplotlib.use('agg')
+    import matplotlib.pyplot as plt
+    fig = plt.figure( figsize=(10,5) )
+    ax1 = fig.add_subplot( 111 )
+    # Fill the plot in the figure
+    axesST( ax1, runset_scores, keymatch=keymatch, xht=xht, abstput=abstput, debug=debug )
+    if ftitle is not None: fig.suptitle( ftitle )
+    # Save and show the figure
+    fig.savefig( pngpath, format='png', bbox_inches="tight" )
+    from subprocess import Popen
+    Popen( ['display', '-geometry', '+50+50', pngpath] )
+    ###Popen( ['display', '-geometry', '+50+50', '-resize', '800', pngpath] )
+    print( 'Plot successfully saved on', pngpath )
 
 #---------------------------------------
 
@@ -92,6 +168,8 @@ if __name__ == '__main__':
     #dumpScoresOneKey( loadRunSet( 'BMK-pmpe04' ), 'ggttgg-sa-cpp-d-inl0-best' )
     #dumpScoresAllKeys( loadRunSet( 'BMK-pmpe04' ) )
     #dumpScoresAllKeys( loadRunSet( 'BMK-pmpe04'), keymatch='best' )
-    dumpScoresAllKeys( loadRunSet( 'BMK-pmpe04'), keymatch='inl0-best' )
+    #dumpScoresAllKeys( loadRunSet( 'BMK-pmpe04'), keymatch='inl0-best' )
     #dumpScoresAllKeys( loadRunSet( 'BMK-pmpe04'), keymatch='ggttgg-sa-cpp-d-inl0' )
+
+    plotST( 'BMK-pmpe04/plot.png', loadRunSet( 'BMK-pmpe04'), keymatch='ggttgg-sa-cpp-d-inl0', xht=16, ftitle='check.exe scalability on pmpe04 (2x 8-core 2.4GHz Haswell with 2x HT)' )
 
