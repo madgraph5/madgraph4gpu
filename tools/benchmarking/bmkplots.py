@@ -175,11 +175,11 @@ def getNodeFeatures( workdir ):
     if workdir == 'BMK-pmpe04' :
         node='pmpe04'
         xht=16
-        ftitle='check.exe scalability on pmpe04 (2x 8-core 2.4GHz Haswell with 2x HT)'
+        ftitle='check.exe scalability on pmpe04 (2x 8-core 2.4GHz Haswell with 2x HT)' # lscpu
     elif workdir == 'BMK-itscrd70' :
         node='itscrd70'
         xht=2
-        ftitle='check.exe scalability on itscrd70'
+        ftitle='check.exe scalability on itscrd70 (1x 4-core 2.1GHz Xeon Silver 4216 without HT)' # lscpu
     else:
         print( 'ERROR! Unknown workdir', workdir )
         sys.exit(-1)
@@ -241,6 +241,7 @@ def plotOneProcess2( workdir, oneprocess, keymatch, evtmatch='-e001', debug=Fals
 
 if __name__ == '__main__':
 
+    # TESTS
     #loadOneRun( 'BMK-pmpe04/sa-cpp-j032-t001-e001', debug=True )
     #loadRunSet( 'BMK-pmpe04', debug=True )
     #dumpScoresOneKey( loadRunSet( 'BMK-pmpe04' ), 'ggttgg-sa-cpp-d-inl0-best' )
@@ -249,12 +250,12 @@ if __name__ == '__main__':
     #dumpScoresAllKeys( loadRunSet( 'BMK-pmpe04'), keymatch='inl0-best' )
     #dumpScoresAllKeys( loadRunSet( 'BMK-pmpe04'), keymatch='ggttgg-sa-cpp-d-inl0' )
 
-    plotST( 'BMK-pmpe04', keymatch='sa-cpp-d-inl0-best', ylog=True )
-    plotST( 'BMK-pmpe04', keymatch='sa-cpp-f-inl0-best', ylog=True )
-
-    #plotOneProcess2( 'BMK-pmpe04', 'ggttgg', 'sa-cpp-d-inl0' )
-    #plotOneProcess2( 'BMK-pmpe04', 'ggttgg', 'sa-cpp-f-inl0' )
-
-    #plotOneProcess2( 'BMK-pmpe04', None, 'sa-cpp-d-inl0' )
-    #plotOneProcess2( 'BMK-pmpe04', None, 'sa-cpp-f-inl0' )
+    # PRODUCTION PLOTS
+    workdir = 'BMK-pmpe04'
+    plotST( workdir, keymatch='sa-cpp-d-inl0-best', ylog=True )
+    plotST( workdir, keymatch='sa-cpp-f-inl0-best', ylog=True )
+    plotOneProcess2( workdir, 'ggttgg', 'sa-cpp-d-inl0' )
+    plotOneProcess2( workdir, 'ggttgg', 'sa-cpp-f-inl0' )
+    plotOneProcess2( workdir, None, 'sa-cpp-d-inl0' )
+    plotOneProcess2( workdir, None, 'sa-cpp-f-inl0' )
 
