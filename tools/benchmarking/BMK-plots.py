@@ -33,7 +33,7 @@ def loadRunSet( runsetdir, debug=False ):
             njob = int( dl[-3][-3:] )
             nthr = int( dl[-2][-3:] )
             nevt = int( dl[-1][-3:] )
-            rundir = runsetdir + '/' + d + '/'
+            rundir = runsetdir + '/' + d
             if debug : print( '\nRunDir=%30s %3i %3i %3i'%( rundir, njob, nthr, nevt ) )
             run_info, run_scores = loadOneRun( rundir ) 
             njobkey, nthrkey, nevtkey = 'copies', 'threads_per_copy', 'events_per_thread'
@@ -48,17 +48,20 @@ def loadRunSet( runsetdir, debug=False ):
 def dumpScoresOneKey( runset_scores, score_key, debug=False ):
     ###debug=True
     print( '\nSCORES[\'%s\']:'%score_key )
+    score_key_none = score_key[:-4]+'none'
     njobs = set( [njobnthr[0] for njobnthr in runset_scores] ) # use set(list) to get unique keys
     nthrs = set( [njobnthr[1] for njobnthr in runset_scores] ) # use set(list) to get unique keys
-    print( '%4s %4s %12s    %9s %18s'%( 'njob', 'nthr', 'score', 'njob*nthr', 'score/score[1,1]' ) )
-    tput1=0
+    print( '%4s %4s %12s    %9s %12s %12s %16s'%( 'njob', 'nthr', 'Score', 'njob*nthr', 'S/S[1,1]', 'S/S-none', 'S/S-none[1,1]' ) )
+    assert (1,1) in runset_scores, 'no scores found for njob==1 and nthr==1?'     
+    tput1 = runset_scores[1,1][score_key]
+    tput1none = runset_scores[1,1][score_key_none]
     for nthr in sorted(nthrs):
         for njob in sorted(njobs):
             if (njob,nthr) not in runset_scores: continue
             tput = runset_scores[njob,nthr][score_key]
-            if njob == 1 and nthr == 1 : tput1 = tput
-            assert tput1 > 0, 'no score found for njob==1 and nthr==1?' 
-            print( '%4d %4d %12.6f    %9d %18.6f'%( njob, nthr, tput, njob*nthr, tput / tput1 ) )
+            tputnone = runset_scores[njob,nthr][score_key_none]
+            print( '%4d %4d %12.6f    %9d %12.6f %12.6f %16.6f'%
+                   ( njob, nthr, tput, njob*nthr, tput / tput1, tput / tputnone, tput / tput1none ) )
 
 #---------------------------------------
 
@@ -90,4 +93,5 @@ if __name__ == '__main__':
     #dumpScoresAllKeys( loadRunSet( 'BMK-pmpe04' ) )
     #dumpScoresAllKeys( loadRunSet( 'BMK-pmpe04'), keymatch='best' )
     dumpScoresAllKeys( loadRunSet( 'BMK-pmpe04'), keymatch='inl0-best' )
+    #dumpScoresAllKeys( loadRunSet( 'BMK-pmpe04'), keymatch='ggttgg-sa-cpp-d-inl0' )
 
