@@ -116,7 +116,7 @@ def axesST( ax, runset_scores, keymatch=None, abstput=True, xht=None, debug=Fals
     # Prepare axes labels
     ax.set_xlabel('Level of parallelism (number of ST jobs)', size=plots_labelsize )
     if abstput:
-        ax.set_ylabel('Node throughput (E6 events per second)', size=plots_labelsize )
+        ax.set_ylabel('Throughput (E6 events per second)', size=plots_labelsize )
     else:
         ax.set_ylabel('Throughput ratio to 1 no-SIMD job', size=plots_labelsize )
         ax.grid()
@@ -176,27 +176,43 @@ def plotST( pngpath, runset_scores, keymatch=None, xht=None, abstput=True, ftitl
     print( 'Plot successfully saved on', pngpath )
 
 # Create a figure with two plots per process, absolute and normalized tput
-def plotOneProcess2( workdir, process, keymatch, debug=False ):
+def plotOneProcess2( workdir, oneprocess, keymatch, debug=False ):
     runset_scores = loadRunSet( workdir )
-    keymatch = process + '-' + keymatch
-    pngpath = workdir + '/' + keymatch + '.png'
     if workdir == 'BMK-pmpe04' :
         xht=16
         ftitle='check.exe scalability on pmpe04 (2x 8-core 2.4GHz Haswell with 2x HT)'
     else:
         print( 'ERROR! Unknown workdir', workdir )
         return
-    # Create figure with two plots
-    fig = plt.figure( figsize = ( plots_figsize[0]*2, plots_figsize[1] ) )
-    ax1 = fig.add_subplot( 121 )
-    axesST( ax1, runset_scores, keymatch=keymatch, xht=xht, abstput=True, debug=debug )
-    ax1 = fig.add_subplot( 122 )
-    axesST( ax1, runset_scores, keymatch=keymatch, xht=xht, abstput=False, debug=debug )
-    if ftitle is not None: fig.suptitle( process + ' ' + ftitle, size=plots_ftitlesize )
+    # One process or all processes?
+    if oneprocess is not None:
+        processes = [ oneprocess ]
+        pngpath = workdir + '/' + oneprocess + '-' + keymatch + '.png'
+    else:
+        processes = [ 'eemumu', 'ggtt', 'ggttg', 'ggttgg' ]
+        pngpath = workdir + '/' + keymatch + '.png'
+    # Create figure with two plots per process
+    fig = plt.figure( figsize = ( plots_figsize[0]*2, plots_figsize[1]*len(processes) ) )
+    # Add two plots per process
+    idx1 = len(processes)*100 + 21
+    idx2 = len(processes)*100 + 22
+    for process in processes:
+        ###print( idx1, idx2 )
+        fullkeymatch = process + '-' + keymatch
+        ax1 = fig.add_subplot( idx1 )
+        axesST( ax1, runset_scores, keymatch=fullkeymatch, xht=xht, abstput=True, debug=debug )
+        ax1 = fig.add_subplot( idx2 )
+        axesST( ax1, runset_scores, keymatch=fullkeymatch, xht=xht, abstput=False, debug=debug )
+        idx1 += 2
+        idx2 += 2
     # Save and show the figure
+    if ftitle is not None:
+        if oneprocess is not None: ftitle = oneprocess + ' ' + ftitle
+        fig.suptitle( ftitle, size=plots_ftitlesize )
+    fig.set_tight_layout( True )
     fig.savefig( pngpath, format='png', bbox_inches="tight" )
-    Popen( ['display', '-geometry', '+50+50', pngpath] )
-    ###Popen( ['display', '-geometry', '+50+50', '-resize', '800', pngpath] )
+    ###Popen( ['display', '-geometry', '+50+50', pngpath] )
+    Popen( ['display', '-geometry', '+50+50', '-resize', '600', pngpath] )
     print( 'Plot successfully saved on', pngpath )
 
 #---------------------------------------
@@ -213,5 +229,6 @@ if __name__ == '__main__':
 
     #plotST( 'BMK-pmpe04/d-inl0-best.png', loadRunSet( 'BMK-pmpe04'), keymatch='d-inl0-best', xht=16, ftitle='check.exe scalability on pmpe04 (2x 8-core 2.4GHz Haswell with 2x HT)' )
 
-    plotOneProcess2( 'BMK-pmpe04', 'ggttgg', 'sa-cpp-d-inl0' )
+    ###plotOneProcess2( 'BMK-pmpe04', 'ggttgg', 'sa-cpp-d-inl0' )
+    plotOneProcess2( 'BMK-pmpe04', None, 'sa-cpp-d-inl0' )
 
