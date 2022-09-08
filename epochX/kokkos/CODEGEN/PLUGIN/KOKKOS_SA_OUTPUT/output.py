@@ -7,51 +7,14 @@ import madgraph.iolibs.export_cpp as export_cpp
 ###from madgraph import MG5DIR
 PLUGINDIR = os.path.dirname( __file__ )
 
-# AV - model_handling includes custom UFOModelConverter and OneProcessExporter, plus additional patches
+# AV - model_handling includes the custom FileWriter, ALOHAWriter, UFOModelConverter, OneProcessExporter and HelasCallWriter, plus additional patches
 import PLUGIN.KOKKOS_SA_OUTPUT.model_handling as model_handling
 
-#------------------------------------------------------------------------------------
+# AV - create a plugin-specific logger
+import logging
+logger = logging.getLogger('madgraph.PLUGIN.CUDACPP_SA_OUTPUT.output')
 
-# AV - modify misc.make_unique (remove a printout)
 import madgraph.various.misc as misc
-printordering = True
-def PLUGIN_make_unique(input, keepordering=None):
-    "remove duplicate in a list "
-    global printordering
-    if keepordering is None:
-        keepordering = misc.madgraph.ordering
-        if printordering:
-            printordering = False
-            misc.sprint('keepordering (default): %s'%keepordering) # AV - add a printout only in the first call
-    else:
-        misc.sprint('keepordering (argument): %s'%keepordering) # AV - add a printout at every call only if it is an argument	
-    ###sprint(keepordering) # AV - remove the printout at every call
-    if not keepordering:
-        return list(set(input))
-    else:
-        return list(dict.fromkeys(input)) 
-
-DEFAULT_make_unique = misc.make_unique
-misc.make_unique = PLUGIN_make_unique
-
-#------------------------------------------------------------------------------------
-
-# AV - modify madgraph.iolibs.files.cp (preserve symlinks)
-def PLUGIN_cp(path1, path2, log=True, error=False):
-    """ simple cp taking linux or mix entry"""
-    from madgraph.iolibs.files import format_path
-    path1 = format_path(path1)
-    path2 = format_path(path2)
-    try:
-        import shutil
-        ###shutil.copy(path1, path2)
-        shutil.copy(path1, path2, follow_symlinks=False) # AV
-    except:
-        from madgraph.iolibs.files import cp
-        cp(path1, path2, log=log, error=error)
-
-DEFAULT_cp = export_cpp.cp
-export_cpp.cp = PLUGIN_cp
 
 class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
     # Class structure information
@@ -97,22 +60,26 @@ class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
     # [NB: mgOnGpuConfig.h and check_sa.cu are handled through dedicated methods]
     ###s = MG5DIR + '/madgraph/iolibs/template_files/'
     s = PLUGINDIR + '/madgraph/iolibs/template_files/'
-                                 
-    from_template = {'src': [s + 'gpu/rambo.h', s + 'read_slha.h', s + 'read_slha.cc',
-                             s + 'gpu/Makefile_src', s + 'gpu/random_generator.h',
-                             s + 'gpu/mgOnGpuTypes.h',
-                             s + 'gpu/mgOnGpuVectors.h',
-                             s + 'gpu/extras.h',
-                             s + 'gpu/mgOnGpuConfig.h',
-                             s + 'gpu/epoch_process_id.h',
-                             s + 'gpu/nvtx.h',
-                             s + 'gpu/timer.h',
-                             s + 'gpu/timermap.h'],
-                     'SubProcesses': [s + 'gpu/Makefile', s + 'gpu/CalcMean.h']}
-    to_link_in_P = ['Makefile', 'CalcMean.h']
+    from_template = {'.': [s+'CMake/CMakeLists.txt'],
+                     'CMake': [s+'CMake/Compilers.txt', s+'CMake/Platforms.txt', s+'CMake/Macros.txt'],
+                     'src': [s+'gpu/rambo.h', s+'read_slha.h', s+'read_slha.cc',
+                            s+'gpu/random_generator.h',
+                            s+'gpu/mgOnGpuTypes.h', s+'gpu/mgOnGpuVectors.h',s+'gpu/extras.h',
+                            s+'CMake/src/CMakeLists.txt',
+                            s+'gpu/mgOnGpuConfig.h',s+'gpu/epoch_process_id.h'],
+                     'SubProcesses': [
+                            s+'gpu/nvtx.h', s+'gpu/timer.h', s+'gpu/timermap.h', s+'gpu/CalcMean.h',
+                            s+'gpu/Bridge.h',
+                            s+'gpu/fbridge.cc', s+'gpu/fbridge.inc', s+'gpu/fsampler.cc', s+'gpu/fsampler.inc',
+                            s+'gpu/perf.py', s+'gpu/profile.sh',
+                            s+'CMake/SubProcesses/CMakeLists.txt']}
+    to_link_in_P = ['nvtx.h', 'timer.h', 'timermap.h', 'CalcMean.h',
+                    'Bridge.h','fbridge.cc', 'fbridge.inc', 'fsampler.cc', 'fsampler.inc',
+                    'kokkos.mk' # this is generated from a template in Subprocesses but we still link it in Sigma
+                   ]
 
-    template_src_make = pjoin(PLUGINDIR, 'madgraph' ,'iolibs', 'template_files','gpu','Makefile_src')
-    template_Sub_make = pjoin(PLUGINDIR, 'madgraph', 'iolibs', 'template_files','gpu','Makefile')
+    template_src_make = pjoin(PLUGINDIR, 'madgraph' ,'iolibs', 'template_files','gpu','kokkos_src.mk')
+    template_Sub_make = pjoin(PLUGINDIR, 'madgraph', 'iolibs', 'template_files','gpu','kokkos.mk')
 
     # For model/aloha exporter (typically not used)
     import PLUGIN.KOKKOS_SA_OUTPUT.model_handling as model_handling 
@@ -128,16 +95,37 @@ class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
         misc.sprint('Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter)')
         return super().__init__(*args, **kwargs)
 
-    # AV (default from OM's tutorial) - add a debug printout
+    # AV - overload the default version: create CMake directory, do not create lib directory
     def copy_template(self, model):
         misc.sprint('Entering PLUGIN_ProcessExporter.copy_template (initialise the directory)')
-        return super().copy_template(model)
+        try: os.mkdir(self.dir_path)
+        except os.error as error: logger.warning(error.strerror + ' ' + self.dir_path)
+        with misc.chdir(self.dir_path):
+            logger.info('Creating subdirectories in directory %s' % self.dir_path)
+            for d in ['src', 'Cards', 'SubProcesses', 'CMake']: # AV - added CMake, removed lib
+                try: os.mkdir(d)
+                except os.error as error: logger.warning(error.strerror + ' ' + os.path.join(self.dir_path,d))
+            # Write param_card
+            open(os.path.join('Cards','param_card.dat'), 'w').write(model.write_param_card())
+            # Copy files in various subdirectories
+            for key in self.from_template:
+                for f in self.from_template[key]:
+                    PLUGIN_export_cpp.cp(f, key) # NB this assumes directory key exists...
+            # Copy src makefile
+            if self.template_src_make:
+                makefile_src = self.read_template_file(self.template_src_make) % {'model': self.get_model_name(model.get('name'))}
+                open(os.path.join('src', 'kokkos_src.mk'), 'w').write(makefile_src)
+            # Copy SubProcesses makefile
+            if self.template_Sub_make:
+                makefile = self.read_template_file(self.template_Sub_make) % {'model': self.get_model_name(model.get('name'))}
+                open(os.path.join('SubProcesses', 'kokkos.mk'), 'w').write(makefile)
 
     # AV - add debug printouts (in addition to the default one from OM's tutorial)
     def generate_subprocess_directory(self, subproc_group, fortran_model, me=None):
         misc.sprint('Entering PLUGIN_ProcessExporter.generate_subprocess_directory (create the directory)')
         misc.sprint('  type(subproc_group)=%s'%type(subproc_group)) # e.g. madgraph.core.helas_objects.HelasMatrixElement
         misc.sprint('  type(fortran_model)=%s'%type(fortran_model)) # e.g. madgraph.iolibs.helas_call_writers.GPUFOHelasCallWriter
+        misc.sprint('  type(me)=%s me=%s'%(type(me) if me is not None else None, me)) # e.g. int
         return super().generate_subprocess_directory(subproc_group, fortran_model, me)
 
     # AV (default from OM's tutorial) - add a debug printout
@@ -165,4 +153,3 @@ class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
         return False, matrix_element
 
 #------------------------------------------------------------------------------------
-
