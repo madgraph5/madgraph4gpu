@@ -44,7 +44,7 @@ namespace Proc
                                       const unsigned int channelId,         // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
                                   #endif
                                   const short*  __restrict__ cHel,
-                                  const fptype* __restrict__ cIPC,
+                                  const cxtype* __restrict__ COUPs,
                                   const fptype* __restrict__ cIPD
                                 )
   //ALWAYS_INLINE // attributes are not permitted in a function definition
@@ -52,7 +52,7 @@ namespace Proc
     using namespace MG5_sm;
     mgDebug( 0, __FUNCTION__ );
     fptype allMEs = 0;
-    const cxtype* COUPs = reinterpret_cast<const cxtype*>(cIPC);
+    //const cxtype* COUPs = reinterpret_cast<const cxtype*>(cIPC);
 
 
     // The number of colors
@@ -243,7 +243,7 @@ m_tIPD[1] = (fptype)m_pars->mdl_WT;
   void sigmaKin_getGoodHel( const fptype* __restrict__ allmomenta, // input: momenta[nevt*npar*4]
                             bool* isGoodHel,                       // output: isGoodHel[ncomb] - device array
                             const short* __restrict__ cHel,
-                            const fptype* __restrict__ cIPC,
+                            const cxtype* __restrict__ cIPC,
                             const fptype* __restrict__ cIPD
                             )
   {
@@ -299,7 +299,7 @@ m_tIPD[1] = (fptype)m_pars->mdl_WT;
                    const unsigned int channelId,          // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
 #endif
                    const short* __restrict__ cHel,
-                   const fptype* __restrict__ cIPC,
+                   const cxtype* __restrict__ cIPC,
                    const fptype* __restrict__ cIPD,
                    const int* __restrict__ cNGoodHel,
                    const int* __restrict__ cGoodHel

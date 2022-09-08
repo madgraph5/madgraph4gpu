@@ -633,9 +633,125 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
         res = res.replace('\n','\n  ')
         return res
 
+    def write_hardcoded_parameters(self, params):
+        pardef = super().write_parameters(params)
+        parset = super().write_set_parameters(params)
+        if ( pardef == '' ):
+            assert( parset == '' ) # AV sanity check (both are empty)
+            res = '// (none)\n'
+            return res
+        #pardef = pardef.replace('std::complex<','cxsmpl<') # custom simplex complex class (with constexpr arithmetics)
+        #parset = parset.replace('std::complex<','cxsmpl<') # custom simplex complex class (with constexpr arithmetics)
+        parset = parset.replace('sqrt(','constexpr_sqrt(') # constexpr sqrt (based on iterative Newton-Raphson approximation)
+        parset = parset.replace('pow(','constexpr_pow(') # constexpr sqrt (based on iterative Newton-Raphson approximation)
+        parset = parset.replace('(','( ')
+        parset = parset.replace(')',' )')
+        parset = parset.replace('+',' + ')
+        parset = parset.replace('-',' - ')
+        parset = parset.replace('e + ','e+') # fix exponents
+        parset = parset.replace('e - ','e-') # fix exponents
+        parset = parset.replace('=  + ','= +') # fix leading + in assignmments
+        parset = parset.replace('=  - ','= -') # fix leading - in assignmments
+        #parset = parset.replace('*',' * ')
+        #parset = parset.replace('/',' / ')
+        parset = parset.replace(',',', ')
+        pardef_lines = {}
+        for line in pardef.split('\n'):
+            type, pars = line.rstrip(';').split(' ') # strip trailing ';'
+            for par in pars.split(','):
+                pardef_lines[par] = ( 'constexpr ' + type + ' ' + par )
+        ###print( pardef_lines )
+        parset_pars = []
+        parset_lines = {}
+        for line in parset.split('\n'):
+            par, parval = line.split(' = ')
+            if parval.startswith('slha.get_block_entry'): parval = parval.split(',')[2].lstrip(' ').rstrip(');') + ';'
+            parset_pars.append( par )
+            parset_lines[par] = parval # includes a trailing ';'
+        ###print( parset_lines )
+        assert( len(pardef_lines) == len(parset_lines) ) # AV sanity check (same number of parameters)
+        res = '  '.join( pardef_lines[par] + ' = ' + parset_lines[par] + '\n' for par in parset_pars ) # no leading '  ' on first row
+        res = res.replace(' ;',';')
+        ###print(res); assert(False)
+        return res
+
+    def super_generate_parameters_class_files(self):
+        """Create the content of the Parameters_model.h and .cc files"""
+        replace_dict = self.default_replace_dict
+        replace_dict['info_lines'] = export_cpp.get_mg5_info_lines()
+        replace_dict['model_name'] = self.model_name
+        params_indep = [ line.replace('aS, ','')
+                         for line in self.write_parameters(self.params_indep).split('\n') ]
+        replace_dict['independent_parameters'] = '// Model parameters independent of aS\n  //double aS; // now retrieved event-by-event (as G) from Fortran (running alphas #373)\n' + '\n'.join( params_indep )
+        replace_dict['independent_couplings'] = '// Model couplings independent of aS\n' + self.write_parameters(self.coups_indep)
+        params_dep = [ '  //' + line[2:] + ' // now computed event-by-event (running alphas #373)' for line in self.write_parameters(self.params_dep).split('\n') ]
+        replace_dict['dependent_parameters'] = '// Model parameters dependent on aS\n' + '\n'.join( params_dep )
+        coups_dep = [ '  //' + line[2:] + ' // now computed event-by-event (running alphas #373)' for line in self.write_parameters(list(self.coups_dep.values())).split('\n') ]
+        replace_dict['dependent_couplings'] = '// Model couplings dependent on aS\n' + '\n'.join( coups_dep )
+        set_params_indep = [ line.replace('aS','//aS') + ' // now retrieved event-by-event (as G) from Fortran (running alphas #373)'
+                             if line.startswith( '  aS =' ) else
+                             line for line in self.write_set_parameters(self.params_indep).split('\n') ]
+        replace_dict['set_independent_parameters'] = '\n'.join( set_params_indep )
+        replace_dict['set_independent_couplings'] = self.write_set_parameters(self.coups_indep)
+        replace_dict['set_dependent_parameters'] = self.write_set_parameters(self.params_dep)
+        replace_dict['set_dependent_couplings'] = self.write_set_parameters(list(self.coups_dep.values()))
+        print_params_indep = [ line.replace('std::cout','//std::cout') + ' // now retrieved event-by-event (as G) from Fortran (running alphas #373)'
+                               if '"aS =' in line else
+                               line for line in self.write_print_parameters(self.params_indep).split('\n') ]
+        replace_dict['print_independent_parameters'] = '\n'.join( print_params_indep )
+        replace_dict['print_independent_couplings'] = self.write_print_parameters(self.coups_indep)
+        replace_dict['print_dependent_parameters'] = self.write_print_parameters(self.params_dep)
+        replace_dict['print_dependent_couplings'] = self.write_print_parameters(list(self.coups_dep.values()))
+        if 'include_prefix' not in replace_dict:
+            replace_dict['include_prefix'] = ''
+        hrd_params_indep = [ line.replace('constexpr','//constexpr') + ' // now retrieved event-by-event (as G) from Fortran (running alphas #373)' if 'aS =' in line else line for line in self.write_hardcoded_parameters(self.params_indep).split('\n') ]
+        replace_dict['hardcoded_independent_parameters'] = '\n'.join( hrd_params_indep )
+        replace_dict['hardcoded_independent_couplings'] = self.write_hardcoded_parameters(self.coups_indep)
+        hrd_params_dep = [ line.replace('constexpr','//constexpr') + ' // now computed event-by-event (running alphas #373)' if line != '' else line for line in self.write_hardcoded_parameters(self.params_dep).split('\n') ]
+        replace_dict['hardcoded_dependent_parameters'] = '\n'.join( hrd_params_dep )
+        hrd_coups_dep = [ line.replace('constexpr','//constexpr') + ' // now computed event-by-event (running alphas #373)' if line != '' else line for line in self.write_hardcoded_parameters(list(self.coups_dep.values())).split('\n') ]
+        replace_dict['hardcoded_dependent_couplings'] = '\n'.join( hrd_coups_dep )
+        replace_dict['nicoup'] = len( self.coups_indep )
+        if len( self.coups_indep ) > 0 :
+            iicoup = [ '  //constexpr size_t ixcoup_%s = %d + Parameters_%s_dependentCouplings::ndcoup; // out of ndcoup+nicoup' % (par.name, id, self.model_name) for (id, par) in enumerate(self.coups_indep) ]
+            replace_dict['iicoup'] = '\n'.join( iicoup )
+        else:
+            replace_dict['iicoup'] = '  // NB: there are no aS-independent couplings in this physics process'
+        replace_dict['ndcoup'] = len( self.coups_dep )
+        if len( self.coups_dep ) > 0 :
+            idcoup = [ '  constexpr size_t idcoup_%s = %d;' % (name, id) for (id, name) in enumerate(self.coups_dep) ]
+            replace_dict['idcoup'] = '\n'.join( idcoup )
+            dcoupdecl = [ '    cxtype_sv %s;' % name for name in self.coups_dep ]
+            replace_dict['dcoupdecl'] = '\n'.join( dcoupdecl )
+            dcoupsetdpar = []
+            foundG = False
+            for line in self.write_hardcoded_parameters(self.params_dep).split('\n'):
+                if line != '':
+                    dcoupsetdpar.append( '    ' + line.replace('constexpr double', 'const FPType' if foundG else '//const FPType' ) )
+                    if 'constexpr double G =' in line: foundG = True
+            replace_dict['dcoupsetdpar'] = '  ' + '\n'.join( dcoupsetdpar )
+            dcoupsetdcoup = [ '    ' + line.replace('constexpr std::complex<double> ','couplings[idcoup_')
+                                           .replace(" = ","] = ")
+                                           .replace('mdl_complexi', 'cI')
+                                for line in self.write_hardcoded_parameters(list(self.coups_dep.values())).split('\n') if line != '' ]
+            replace_dict['dcoupsetdcoup'] = '  ' + '\n'.join( dcoupsetdcoup )
+        else:
+            replace_dict['idcoup'] = '  // NB: there are no aS-dependent couplings in this physics process'
+            replace_dict['dcoupdecl'] = '    // (none)'
+            replace_dict['dcoupsetdpar'] = '      // (none)'
+            replace_dict['dcoupsetdcoup'] = '      // (none)'
+        if self.model_name == 'sm' :
+            replace_dict['efterror'] = ''
+        else:
+            replace_dict['efterror'] = '\n#error This non-SM physics process only supports MGONGPU_HARDCODE_PARAM builds (#439): please run "make HRDCOD=1"'
+        file_h = self.read_template_file(self.param_template_h) % replace_dict
+        file_cc = self.read_template_file(self.param_template_cc) % replace_dict
+        return file_h, file_cc
+
     # AV - overload export_cpp.UFOModelConverterCPP method (improve formatting)
     def generate_parameters_class_files(self):
-        file_h, file_cc = super().generate_parameters_class_files()
+        #file_h, file_cc = super().generate_parameters_class_files()
+        file_h, file_cc = self.super_generate_parameters_class_files()
         file_h = file_h[:-1] # remove extra trailing '\n'
         file_cc = file_cc[:-1] # remove extra trailing '\n'
         # [NB: there is a minor bug in export_cpp.UFOModelConverterCPP.generate_parameters_class_files
@@ -799,14 +915,6 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         """Get sigmaKin_process for all subprocesses for gCPPProcess.cu"""
         ret_lines = []
         if self.single_helicities:
-            ###ret_lines.append( "__device__ void calculate_wavefunctions(int ihel, const fptype* allmomenta,fptype &meHelSum \n#ifndef __CUDACC__\n                                , const int ievt\n#endif\n                                )\n{" )
-            ###ret_lines.append(" using namespace MG5_%s;" % self.model_name)
-            ###ret_lines.append("mgDebug( 0, __FUNCTION__ );")
-            ###ret_lines.append("cxtype amp[1]; // was %i" % len(self.matrix_elements[0].get_all_amplitudes()))
-            ###ret_lines.append("const int ncolor =  %i;" % len(color_amplitudes[0]))
-            ###ret_lines.append("cxtype jamp[ncolor];")
-            ###ret_lines.append("// Calculate wavefunctions for all processes")
-            ###ret_lines.append("using namespace MG5_%s;" % self.model_name)
             ret_lines.append("""
   // Evaluate |M|^2 for each subprocess
   // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
@@ -819,7 +927,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
                                       const unsigned int channelId,         // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
                                   #endif
                                   const short*  __restrict__ cHel,
-                                  const fptype* __restrict__ cIPC,
+                                  const cxtype* __restrict__ COUPs,
                                   const fptype* __restrict__ cIPD
                                 )
   //ALWAYS_INLINE // attributes are not permitted in a function definition
@@ -827,7 +935,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
     using namespace MG5_sm;
     mgDebug( 0, __FUNCTION__ );
     fptype allMEs = 0;
-    const cxtype* COUPs = reinterpret_cast<const cxtype*>(cIPC);
+    //const cxtype* COUPs = reinterpret_cast<const cxtype*>(cIPC);
 \n""")
             ret_lines.append("    // The number of colors")
             ret_lines.append("    constexpr int ncolor = %i;" % len(color_amplitudes[0]))

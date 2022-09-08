@@ -413,13 +413,13 @@ int main(int argc, char **argv)
   auto devWeights   = malloc_device<fptype>( nWeights,   q );
   auto devMEs       = malloc_device<fptype>( nMEs,       q );
   auto devcHel      = malloc_device<short >( ncomb*npar, q );
-  auto devcIPC      = malloc_device<fptype>( mgOnGpu::ncouplingstimes2, q );
+  //auto devcIPC      = malloc_device<fptype>( mgOnGpu::ncouplingstimes2, q );
   auto devcIPD      = malloc_device<fptype>( mgOnGpu::nparams,          q );
   auto devcNGoodHel = malloc_device<int   >( 1,          q ); 
   auto devcGoodHel  = malloc_device<int   >( ncomb,      q ); 
 
   q.memcpy( devcHel, process.get_tHel_ptr(), ncomb*npar*sizeof(short) ).wait();
-  q.memcpy( devcIPC, process.get_tIPC_ptr(), mgOnGpu::ncouplingstimes2*sizeof(fptype) ).wait();
+  //q.memcpy( devcIPC, process.get_tIPC_ptr(), mgOnGpu::ncouplingstimes2*sizeof(fptype) ).wait();
   q.memcpy( devcIPD, process.get_tIPD_ptr(), mgOnGpu::nparams*sizeof(fptype) ).wait();
 
   const int nbytesRnarray   = nRnarray * sizeof(fptype);
@@ -430,6 +430,7 @@ int main(int argc, char **argv)
   const int nbytescNGoodHel =            sizeof(int);
   const int nbytescGoodHel  = ncomb    * sizeof(int);
 
+  constexpr fptype fixedG = 1.2177157847767195; // fixed G for aS=0.118 (hardcoded for now in check_sa.cc, fcheck_sa.f, runTest.cc)
   std::unique_ptr<double[]> genrtimes( new double[niter] );
   std::unique_ptr<double[]> rambtimes( new double[niter] );
   std::unique_ptr<double[]> wavetimes( new double[niter] );
@@ -538,6 +539,8 @@ int main(int argc, char **argv)
       // ... 0d1. Compute good helicity mask on the device
       q.submit([&](sycl::handler& cgh) {
           cgh.parallel_for_work_group(sycl::range<1>{gpublocks}, sycl::range<1>{gputhreads}, ([=](sycl::group<1> wGroup) {
+              cxtype devcIPC[Proc::dependentCouplings::ndcoup + Proc::independentCouplings::nicoup];
+              Proc::dependentCouplings::set_couplings_from_G(devcIPC, fixedG); 
               wGroup.parallel_for_work_item([&](sycl::h_item<1> index) {
                   size_t ievt = index.get_global_id(0);
                   const int ipagM = ievt/neppM; // #eventpage in this iteration
@@ -569,6 +572,8 @@ int main(int argc, char **argv)
 
     q.submit([&](sycl::handler& cgh) {
         cgh.parallel_for_work_group(sycl::range<1>{gpublocks}, sycl::range<1>{gputhreads}, ([=](sycl::group<1> wGroup) {
+            cxtype devcIPC[Proc::dependentCouplings::ndcoup + Proc::independentCouplings::nicoup];
+            Proc::dependentCouplings::set_couplings_from_G(devcIPC, fixedG); 
             wGroup.parallel_for_work_item([&](sycl::h_item<1> index) {
                 size_t ievt = index.get_global_id(0);
                 const int ipagM = ievt/neppM; // #eventpage in this iteration
@@ -767,7 +772,7 @@ int main(int argc, char **argv)
   sycl::free( devWeights   , q);
   sycl::free( devMEs       , q);
   sycl::free( devcHel      , q);
-  sycl::free( devcIPC      , q);
+  //sycl::free( devcIPC      , q);
   sycl::free( devcIPD      , q);
   sycl::free( devcNGoodHel , q);
   sycl::free( devcGoodHel  , q);

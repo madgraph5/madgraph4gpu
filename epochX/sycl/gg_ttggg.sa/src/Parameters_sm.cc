@@ -5,28 +5,31 @@
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
 
-#include <iostream>
-#include <iomanip>
 #include "Parameters_sm.h"
+
+#include <iomanip>
+#include <iostream>
+
+#ifndef MGONGPU_HARDCODE_PARAM
 
 // Initialize static instance
 Parameters_sm* Parameters_sm::instance = 0;
 
 // Function to get static instance - only one instance per program
-Parameters_sm* Parameters_sm::getInstance()
+Parameters_sm*
+Parameters_sm::getInstance()
 {
-  if (instance == 0)
+  if( instance == 0 )
     instance = new Parameters_sm();
   return instance;
 }
 
-void Parameters_sm::setIndependentParameters(SLHAReader& slha)
+void
+Parameters_sm::setIndependentParameters( SLHAReader& slha )
 {
-  // Define "zero"
-  zero = 0;
-  ZERO = 0;
-  // Prepare a vector for indices
-  std::vector<int> indices(2, 0);
+  zero = 0; // define "zero"
+  ZERO = 0; // define "zero"
+  //std::vector<int> indices(2, 0); // prepare a vector for indices
   mdl_WH = slha.get_block_entry("decay", 25, 6.382339e-03);
   mdl_WW = slha.get_block_entry("decay", 24, 2.047600e+00);
   mdl_WZ = slha.get_block_entry("decay", 23, 2.441404e+00);
@@ -34,7 +37,7 @@ void Parameters_sm::setIndependentParameters(SLHAReader& slha)
   mdl_ymtau = slha.get_block_entry("yukawa", 15, 1.777000e+00);
   mdl_ymt = slha.get_block_entry("yukawa", 6, 1.730000e+02);
   mdl_ymb = slha.get_block_entry("yukawa", 5, 4.700000e+00);
-  aS = slha.get_block_entry("sminputs", 3, 1.180000e-01);
+  //aS = slha.get_block_entry("sminputs", 3, 1.180000e-01); // now retrieved event-by-event (as G) from Fortran (running alphas #373)
   mdl_Gf = slha.get_block_entry("sminputs", 2, 1.166390e-05);
   aEWM1 = slha.get_block_entry("sminputs", 1, 1.325070e+02);
   mdl_MH = slha.get_block_entry("mass", 25, 1.250000e+02);
@@ -77,29 +80,38 @@ void Parameters_sm::setIndependentParameters(SLHAReader& slha)
   mdl_cw__exp__2 = ((mdl_cw)*(mdl_cw));
 }
 
-void Parameters_sm::setIndependentCouplings()
+void
+Parameters_sm::setIndependentCouplings()
 {
   // (none)
 }
 
-void Parameters_sm::setDependentParameters()
+/*
+void
+Parameters_sm::setDependentParameters() // now computed event-by-event (running alphas #373)
 {
   mdl_sqrt__aS = sqrt(aS);
   G = 2.*mdl_sqrt__aS*sqrt(M_PI);
   mdl_G__exp__2 = ((G)*(G));
 }
 
-void Parameters_sm::setDependentCouplings()
+void
+Parameters_sm::setDependentCouplings() // now computed event-by-event (running alphas #373)
 {
   GC_10 = -G;
   GC_11 = mdl_complexi*G;
   GC_12 = mdl_complexi*mdl_G__exp__2;
 }
+*/
+
+#endif
 
 // Routines for printing out parameters
-void Parameters_sm::printIndependentParameters()
+void
+Parameters_sm::printIndependentParameters()
 {
   std::cout << "sm model parameters independent of event kinematics:" << std::endl;
+  std::cout << "(Warning: aS in the runcard is ignored because event-by-event Gs are hardcoded or retrieved from Fortran)" << std::endl;
   std::cout << std::setw(20) << "mdl_WH " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_WH << std::endl;
   std::cout << std::setw(20) << "mdl_WW " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_WW << std::endl;
   std::cout << std::setw(20) << "mdl_WZ " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_WZ << std::endl;
@@ -150,13 +162,16 @@ void Parameters_sm::printIndependentParameters()
   std::cout << std::setw(20) << "mdl_cw__exp__2 " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_cw__exp__2 << std::endl;
 }
 
-void Parameters_sm::printIndependentCouplings()
+void
+Parameters_sm::printIndependentCouplings()
 {
   std::cout << "sm model couplings independent of event kinematics:" << std::endl;
   // (none)
 }
 
-void Parameters_sm::printDependentParameters()
+/*
+void
+Parameters_sm::printDependentParameters() // now computed event-by-event (running alphas #373)
 {
   std::cout << "sm model parameters dependent on event kinematics:" << std::endl;
   std::cout << std::setw(20) << "mdl_sqrt__aS " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_sqrt__aS << std::endl;
@@ -164,10 +179,13 @@ void Parameters_sm::printDependentParameters()
   std::cout << std::setw(20) << "mdl_G__exp__2 " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_G__exp__2 << std::endl;
 }
 
-void Parameters_sm::printDependentCouplings()
+void
+Parameters_sm::printDependentCouplings() // now computed event-by-event (running alphas #373)
 {
   std::cout << "sm model couplings dependent on event kinematics:" << std::endl;
   std::cout << std::setw(20) << "GC_10 " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << GC_10 << std::endl;
   std::cout << std::setw(20) << "GC_11 " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << GC_11 << std::endl;
   std::cout << std::setw(20) << "GC_12 " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << GC_12 << std::endl;
 }
+*/
+

@@ -151,14 +151,14 @@ namespace mg5amcGpu
     int m_gpublocks;  // number of gpu blocks (default set from number of events, can be modified)
     device_buffer<fptype> m_devMomentaF;
     device_buffer<fptype> m_devMomentaC;
-    //device_buffer<fptype> m_devGsC;
+    device_buffer<fptype> m_devGsC;
     //std::unique_ptr<fptype> m_hstGsC;
     device_buffer<fptype> m_devMEsC;
     host_buffer<fptype  > m_hstMEsC;
     device_buffer<bool  > m_devIsGoodHel;
     host_buffer<bool    > m_hstIsGoodHel;
     device_buffer<short > m_devcHel;
-    device_buffer<fptype> m_devcIPC;
+    //device_buffer<fptype> m_devcIPC;
     device_buffer<fptype> m_devcIPD;
     device_buffer<int   > m_devcNGoodHel; 
     device_buffer<int   > m_devcGoodHel; 
@@ -200,14 +200,14 @@ namespace mg5amcGpu
     , m_gpublocks( m_nevt / m_gputhreads ) // this ensures m_nevt <= m_gpublocks*m_gputhreads
     , m_devMomentaF( m_nevt*mgOnGpu::npar*mgOnGpu::np4, m_q )
     , m_devMomentaC( m_nevt*mgOnGpu::npar*mgOnGpu::np4, m_q )
-    //, m_devGsC( m_nevt )
+    , m_devGsC( m_nevt, m_q )
     //, m_hstGsC( m_nevt )
     , m_devMEsC( m_nevt, m_q )
     , m_hstMEsC( m_nevt, m_q )
     , m_devIsGoodHel( mgOnGpu::ncomb, m_q )
     , m_hstIsGoodHel( mgOnGpu::ncomb, m_q )
     , m_devcHel( mgOnGpu::ncomb*mgOnGpu::npar, m_q )
-    , m_devcIPC( mgOnGpu::ncouplingstimes2, m_q )
+    //, m_devcIPC( mgOnGpu::ncouplingstimes2, m_q )
     , m_devcIPD( mgOnGpu::nparams, m_q )
     , m_devcNGoodHel( 1, m_q ) 
     , m_devcGoodHel( mgOnGpu::ncomb, m_q ) 
@@ -230,7 +230,7 @@ namespace mg5amcGpu
     process.initProc( "../../Cards/param_card.dat" );
 
     m_q.memcpy( m_devcHel.data(), process.get_tHel_ptr(), mgOnGpu::ncomb*mgOnGpu::npar*sizeof(short) );
-    m_q.memcpy( m_devcIPC.data(), process.get_tIPC_ptr(), mgOnGpu::ncouplingstimes2*sizeof(fptype) );
+    //m_q.memcpy( m_devcIPC.data(), process.get_tIPC_ptr(), mgOnGpu::ncouplingstimes2*sizeof(fptype) );
     m_q.memcpy( m_devcIPD.data(), process.get_tIPD_ptr(), mgOnGpu::nparams*sizeof(fptype) ).wait();
   }
 
@@ -281,14 +281,17 @@ namespace mg5amcGpu
       });
       m_q.wait();
     }
+    //FIXME need std::copy if FORTRANFPTYPE is not the same as fptype
     //std::copy( gs, gs + m_nevt, m_hstGsC );
-    //m_q.memcpy( m_devGsC, m_hstGsC, m_nevt*sizeof(fptype) ).wait();
+    //m_q.memcpy( m_devGsC.data(), m_hstGsC, m_nevt*sizeof(fptype) ).wait();
+    m_q.memcpy( m_devGsC.data(), gs, m_nevt*sizeof(fptype) ).wait();
     if( !m_goodHelsCalculated )
     {
       auto devMomentaC = m_devMomentaC.data();
+      auto devGsC = m_devGsC.data();
       auto devIsGoodHel = m_devIsGoodHel.data();
       auto devcHel = m_devcHel.data();
-      auto devcIPC = m_devcIPC.data();
+      //auto devcIPC = m_devcIPC.data();
       auto devcIPD = m_devcIPD.data();
       m_q.submit([&](sycl::handler& cgh) {
           cgh.parallel_for_work_group(sycl::range<1>{m_gpublocks}, sycl::range<1>{m_gputhreads}, ([=](sycl::group<1> wGroup) {
@@ -296,6 +299,10 @@ namespace mg5amcGpu
                   size_t ievt = index.get_global_id(0);
                   const int ipagM = ievt/neppM; // #eventpage in this iteration
                   const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
+
+                  cxtype devcIPC[Proc::dependentCouplings::ndcoup + Proc::independentCouplings::nicoup];
+                  Proc::dependentCouplings::set_couplings_from_G(devcIPC, devGsC[ievt]); 
+
                   Proc::sigmaKin_getGoodHel( devMomentaC + ipagM * npar * np4 * neppM + ieppM, devIsGoodHel, devcHel, devcIPC, devcIPD );
               });
           }));
@@ -314,8 +321,9 @@ namespace mg5amcGpu
     if( goodHelOnly ) return;
 
     auto devMomentaC = m_devMomentaC.data();
+    auto devGsC = m_devGsC.data();
     auto devcHel = m_devcHel.data();
-    auto devcIPC = m_devcIPC.data();
+    //auto devcIPC = m_devcIPC.data();
     auto devcIPD = m_devcIPD.data();
     auto devcNGoodHel = m_devcNGoodHel.data();
     auto devcGoodHel = m_devcGoodHel.data();
@@ -327,6 +335,10 @@ namespace mg5amcGpu
                 size_t ievt = index.get_global_id(0);
                 const int ipagM = ievt/neppM;
                 const int ieppM = ievt%neppM;
+
+                cxtype devcIPC[Proc::dependentCouplings::ndcoup + Proc::independentCouplings::nicoup];
+                Proc::dependentCouplings::set_couplings_from_G(devcIPC, devGsC[ievt]); 
+
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
                 devMEsC[ievt] = Proc::sigmaKin( devMomentaC + ipagM * npar * np4 * neppM + ieppM, l_channelId, devcHel, devcIPC, devcIPD, devcNGoodHel, devcGoodHel );
 #else
