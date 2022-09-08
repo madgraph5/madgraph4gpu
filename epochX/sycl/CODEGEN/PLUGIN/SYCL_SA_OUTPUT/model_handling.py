@@ -765,8 +765,7 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
         # For each parameter, write name = expr;
         res_strings = []
         for param in params:
-            ###res_strings.append("cout << setw(20) << \"%s \" << \"= \" << setiosflags(ios::scientific) << setw(10) << %s << endl;" % (param.name, param.name))
-            res_strings.append("std::cout << std::setw(20) << \"%s \" << \"= \" << std::setiosflags(std::ios::scientific) << std::setw(10) << %s << std::endl;" % (param.name, param.name)) # AV
+            res_strings.append('std::cout << std::setw( 20 ) << \"%s = \" << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << %s << std::endl;' % (param.name, param.name)) # AV
         if len(res_strings) == 0 : res_strings.append('// (none)')
         ##return "\n".join(res_strings)
         return "\n  ".join(res_strings) # AV (why was this not necessary before?)
