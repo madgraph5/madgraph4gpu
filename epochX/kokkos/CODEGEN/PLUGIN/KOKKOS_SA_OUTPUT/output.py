@@ -1,7 +1,19 @@
 import os
 pjoin = os.path.join
 
-import madgraph.iolibs.export_cpp as export_cpp
+# AV - load an independent 2nd copy of the export_cpp module (as PLUGIN_export_cpp) and use that within the plugin (workaround for #341)
+# See https://stackoverflow.com/a/11285504
+###import madgraph.iolibs.export_cpp as export_cpp # 1st copy
+######import madgraph.iolibs.export_cpp as PLUGIN_export_cpp # this is not enough to define an independent 2nd copy: id(export_cpp)==id(PLUGIN_export_cpp)
+import sys
+import importlib.util
+SPEC_EXPORTCPP = importlib.util.find_spec('madgraph.iolibs.export_cpp')
+PLUGIN_export_cpp = importlib.util.module_from_spec(SPEC_EXPORTCPP)
+SPEC_EXPORTCPP.loader.exec_module(PLUGIN_export_cpp)
+sys.modules['PLUGIN.KOKKOS_SA_OUTPUT.PLUGIN_export_cpp'] = PLUGIN_export_cpp # allow 'import PLUGIN.KOKKOS_SA_OUTPUT.PLUGIN_export_cpp' in model_handling.py
+del SPEC_EXPORTCPP
+###print('id(export_cpp)=%s'%id(export_cpp))
+###print('id(PLUGIN_export_cpp)=%s'%id(PLUGIN_export_cpp))
 
 # AV - use template files from PLUGINDIR instead of MG5DIR
 ###from madgraph import MG5DIR
@@ -16,7 +28,7 @@ logger = logging.getLogger('madgraph.PLUGIN.CUDACPP_SA_OUTPUT.output')
 
 import madgraph.various.misc as misc
 
-class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
+class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
     # Class structure information
     #  - object
     #  - VirtualExporter(object) [in madgraph/iolibs/export_v4.py]
@@ -37,8 +49,8 @@ class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
     # AV - keep OM's default for this plugin (using grouped_mode=False, "can decide to merge uu~ and u~u anyway")
     sa_symmetry = True
 
-    # Below are the class variable that are defined in export_cpp.ProcessExporterGPU
-    # AV - keep defaults from export_cpp.ProcessExporterGPU
+    # Below are the class variable that are defined in PLUGIN_export_cpp.ProcessExporterGPU
+    # AV - keep defaults from PLUGIN_export_cpp.ProcessExporterGPU
     # Decide which type of merging is used [madevent/madweight]
     ###grouped_mode = False 
     # Other options
@@ -51,7 +63,7 @@ class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
     exporter = 'gpu'
 
     # AV - use a custom OneProcessExporter
-    ###oneprocessclass = export_cpp.OneProcessExporterGPU # responsible for P directory
+    ###oneprocessclass = PLUGIN_export_cpp.OneProcessExporterGPU # responsible for P directory
     oneprocessclass = model_handling.PLUGIN_OneProcessExporter
     
     # Information to find the template file that we want to include from madgraph
@@ -81,14 +93,14 @@ class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
     template_src_make = pjoin(PLUGINDIR, 'madgraph' ,'iolibs', 'template_files','gpu','kokkos_src.mk')
     template_Sub_make = pjoin(PLUGINDIR, 'madgraph', 'iolibs', 'template_files','gpu','kokkos.mk')
 
-    # For model/aloha exporter (typically not used)
-    import PLUGIN.KOKKOS_SA_OUTPUT.model_handling as model_handling 
+    # AV - use a custom UFOModelConverter (model/aloha exporter)
+    ###create_model_class =  PLUGIN_export_cpp.UFOModelConverterGPU
     create_model_class = model_handling.PLUGIN_UFOModelConverter
     
-    # AV - "aloha_exporter" is not used anywhere!
-    # (OM: "typically not defined but useful for this tutorial - the class for writing helas routine")
-    ###aloha_exporter = None
-    ###aloha_exporter = model_handling.PLUGIN_UFOHelasCallWriter
+    # AV - use a custom GPUFOHelasCallWriter
+    # (NB: use "helas_exporter" - see class MadGraphCmd in madgraph_interface.py - not "aloha_exporter" that is never used!)
+    ###helas_exporter = None
+    helas_exporter = model_handling.PLUGIN_GPUFOHelasCallWriter # this is one of the main fixes for issue #341!
 
     # AV (default from OM's tutorial) - add a debug printout
     def __init__(self, *args, **kwargs):
