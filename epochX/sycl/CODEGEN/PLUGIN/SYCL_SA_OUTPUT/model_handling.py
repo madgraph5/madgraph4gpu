@@ -889,10 +889,10 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
             coupling[pos] = coup
         #coup_str = "const cxtype tIPC[%s] = { cxmake( m_pars->%s ) };\n" % (len(self.couplings2order), ' ), cxmake( m_pars->'.join(coupling))
 
-        # NSN - Need access to tIPC outside of CPPProcess for SYCL
+        ## NSN - Need access to tIPC outside of CPPProcess for SYCL
         coup_str = ""
-        for i in range(len(self.couplings2order)):
-            coup_str += "m_tIPC[%s] = cxmake( m_pars->%s );\n" % (i, coupling[i])
+        #for i in range(len(self.couplings2order)):
+        #    coup_str += "m_tIPC[%s] = cxmake( m_pars->%s );\n" % (i, coupling[i])
 
         for para, pos in self.params2order.items():
             params[pos] = para

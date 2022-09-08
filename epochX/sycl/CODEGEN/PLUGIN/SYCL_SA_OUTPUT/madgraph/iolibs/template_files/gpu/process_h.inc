@@ -18,8 +18,8 @@
 
 namespace Proc
 {
-using dependentCouplings=Parameters_%(model_name)s_dependentCouplings;
-using independentCouplings=Parameters_%(model_name)s_independentCouplings;
+namespace dependentCouplings = Parameters_%(model_name)s_dependentCouplings;
+namespace independentCouplings = Parameters_%(model_name)s_independentCouplings;
 
 %(process_class_definitions)s
   //--------------------------------------------------------------------------

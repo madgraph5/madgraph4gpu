@@ -197,14 +197,14 @@ namespace Proc
     SLHAReader slha( param_card_name, m_verbose );
     m_pars->setIndependentParameters( slha );
     m_pars->setIndependentCouplings();
-    m_pars->setDependentParameters();
-    m_pars->setDependentCouplings();
+    //m_pars->setDependentParameters();
+    //m_pars->setDependentCouplings();
     if ( m_verbose )
     {
       m_pars->printIndependentParameters();
       m_pars->printIndependentCouplings();
-      m_pars->printDependentParameters();
-      m_pars->printDependentCouplings();
+      //m_pars->printDependentParameters();
+      //m_pars->printDependentCouplings();
     }
     // Set external particle masses for this matrix element
     m_masses.push_back( m_pars->ZERO );
@@ -212,10 +212,7 @@ namespace Proc
     m_masses.push_back( m_pars->ZERO );
     m_masses.push_back( m_pars->ZERO );
     // Read physics parameters like masses and couplings from user configuration files (static: initialize once)
-    m_tIPC[0] = cxmake( m_pars->GC_3 );
-m_tIPC[1] = cxmake( m_pars->GC_50 );
-m_tIPC[2] = cxmake( m_pars->GC_59 );
-m_tIPD[0] = (fptype)m_pars->mdl_MZ;
+    m_tIPD[0] = (fptype)m_pars->mdl_MZ;
 m_tIPD[1] = (fptype)m_pars->mdl_WZ;
 
   }
@@ -224,8 +221,8 @@ m_tIPD[1] = (fptype)m_pars->mdl_WZ;
   // Define pointer accessors
   const short* CPPProcess::get_tHel_ptr() const {return &(**m_tHel);}
 
-  cxtype* CPPProcess::get_tIPC_ptr() {return m_tIPC;}
-  const cxtype* CPPProcess::get_tIPC_ptr() const {return m_tIPC;}
+  //cxtype* CPPProcess::get_tIPC_ptr() {return m_tIPC;}
+  //const cxtype* CPPProcess::get_tIPC_ptr() const {return m_tIPC;}
 
   fptype* CPPProcess::get_tIPD_ptr() {return m_tIPD;}
   const fptype* CPPProcess::get_tIPD_ptr() const {return m_tIPD;}

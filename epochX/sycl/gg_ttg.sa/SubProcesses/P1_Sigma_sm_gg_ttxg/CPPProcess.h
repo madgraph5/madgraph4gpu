@@ -20,8 +20,8 @@
 
 namespace Proc
 {
-using dependentCouplings=Parameters_sm_dependentCouplings;
-using independentCouplings=Parameters_sm_independentCouplings;
+namespace dependentCouplings = Parameters_sm_dependentCouplings;
+namespace independentCouplings = Parameters_sm_independentCouplings;
 
   //==========================================================================
   // A class for calculating the matrix elements for
@@ -44,8 +44,8 @@ using independentCouplings=Parameters_sm_independentCouplings;
     // Pointer accessors
     const short* get_tHel_ptr() const;
 
-    cxtype* get_tIPC_ptr();
-    const cxtype* get_tIPC_ptr() const;
+    //cxtype* get_tIPC_ptr();
+    //const cxtype* get_tIPC_ptr() const;
 
     fptype* get_tIPD_ptr();
     const fptype* get_tIPD_ptr() const;
@@ -92,7 +92,7 @@ using independentCouplings=Parameters_sm_independentCouplings;
     const short m_tHel[mgOnGpu::ncomb][mgOnGpu::npar];
 
     // Physics parameters (masses, coupling, etc...)
-    cxtype m_tIPC[mgOnGpu::ncouplings];
+    //cxtype m_tIPC[mgOnGpu::ncouplings];
     fptype m_tIPD[mgOnGpu::nparams];
 
     // Other variables of this instance (???)

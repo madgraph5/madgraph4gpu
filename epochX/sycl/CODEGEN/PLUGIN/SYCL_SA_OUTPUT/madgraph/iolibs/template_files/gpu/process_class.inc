@@ -19,8 +19,8 @@
     // Pointer accessors
     const short* get_tHel_ptr() const;
 
-    cxtype* get_tIPC_ptr();
-    const cxtype* get_tIPC_ptr() const;
+    //cxtype* get_tIPC_ptr();
+    //const cxtype* get_tIPC_ptr() const;
 
     fptype* get_tIPD_ptr();
     const fptype* get_tIPD_ptr() const;
@@ -67,7 +67,7 @@
     const short m_tHel[mgOnGpu::ncomb][mgOnGpu::npar];
 
     // Physics parameters (masses, coupling, etc...)
-    cxtype m_tIPC[mgOnGpu::ncouplings];
+    //cxtype m_tIPC[mgOnGpu::ncouplings];
     fptype m_tIPD[mgOnGpu::nparams];
 
     // Other variables of this instance (???)

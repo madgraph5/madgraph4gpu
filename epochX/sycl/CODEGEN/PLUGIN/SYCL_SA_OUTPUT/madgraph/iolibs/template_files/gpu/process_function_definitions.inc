@@ -46,14 +46,14 @@ namespace Proc
     SLHAReader slha( param_card_name, m_verbose );
     m_pars->setIndependentParameters( slha );
     m_pars->setIndependentCouplings();
-    m_pars->setDependentParameters();
-    m_pars->setDependentCouplings();
+    //m_pars->setDependentParameters();
+    //m_pars->setDependentCouplings();
     if ( m_verbose )
     {
       m_pars->printIndependentParameters();
       m_pars->printIndependentCouplings();
-      m_pars->printDependentParameters();
-      m_pars->printDependentCouplings();
+      //m_pars->printDependentParameters();
+      //m_pars->printDependentCouplings();
     }
     %(initProc_lines)s
     // Read physics parameters like masses and couplings from user configuration files (static: initialize once)
@@ -64,8 +64,8 @@ namespace Proc
   // Define pointer accessors
   const short* CPPProcess::get_tHel_ptr() const {return &(**m_tHel);}
 
-  cxtype* CPPProcess::get_tIPC_ptr() {return m_tIPC;}
-  const cxtype* CPPProcess::get_tIPC_ptr() const {return m_tIPC;}
+  //cxtype* CPPProcess::get_tIPC_ptr() {return m_tIPC;}
+  //const cxtype* CPPProcess::get_tIPC_ptr() const {return m_tIPC;}
 
   fptype* CPPProcess::get_tIPD_ptr() {return m_tIPD;}
   const fptype* CPPProcess::get_tIPD_ptr() const {return m_tIPD;}
