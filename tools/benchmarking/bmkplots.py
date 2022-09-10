@@ -39,7 +39,7 @@ def loadOneRun( workdir, debug=False ):
 
 #---------------------------------------
 
-def loadRunSet( runsetdir, evtmatch='-e010', debug=False ):
+def loadRunSet( runsetdir, evtmatch='-e001', debug=False ):
     ###debug=True
     if not os.path.isdir( runsetdir ):
         print( 'Unknown directory', runsetdir )
@@ -48,7 +48,7 @@ def loadRunSet( runsetdir, evtmatch='-e010', debug=False ):
     runset_scores = {}
     print( 'Loading runs in RunSetDir', runsetdir, 'for events', evtmatch )
     for d in sorted( os.listdir( runsetdir ) ) :
-        if d.startswith( 'sa-cpp-' ) and d.endswith( evtmatch ) and 'png' not in d : # e.g. sa-cpp-j004-t001-e010
+        if d.startswith( 'sa-cpp-' ) and d.endswith( evtmatch ) and 'png' not in d : # e.g. sa-cpp-j004-t001-e001
             dl = d.split( '-' )
             njob = int( dl[-3][-3:] )
             nthr = int( dl[-2][-3:] )
@@ -181,18 +181,22 @@ def getNodeFeatures( workdir ):
     if workdir == 'BMK-pmpe04' :
         node='pmpe04'
         xht=16
-        ftitle='check.exe scalability on pmpe04 (2x 8-core 2.4GHz Haswell with 2x HT)' # lscpu
+        ftitle='check.exe scalability on pmpe04 (2x 8-core 2.4GHz Xeon E5-2630 v3 with 2x HT)' # lscpu
     elif workdir == 'BMK-itscrd70' :
         node='itscrd70'
         xht=2
         ftitle='check.exe scalability on itscrd70 (1x 4-core 2.1GHz Xeon Silver 4216 without HT)' # lscpu
+    elif workdir == 'BMK-jwlogin08' :
+        node='jwlogin08'
+        xht=40
+        ftitle='check.exe scalability on jwlogin08 (2x 20-core 2.4GHz Xeon Gold 6148 with 2x HT)' # lscpu
     else:
         print( 'ERROR! Unknown workdir', workdir )
         sys.exit(-1)
     return node, xht, ftitle
     
 # Create a figure with a single plot
-def plotST( workdir, keymatch=None, abstput=True, ylog=False, evtmatch='-e010', debug=False ):
+def plotST( workdir, keymatch=None, abstput=True, ylog=False, evtmatch='-e001', debug=False ):
     runset_scores = loadRunSet( workdir, evtmatch=evtmatch )
     node, xht, ftitle = getNodeFeatures( workdir )
     pngpath = workdir + '/' + node + evtmatch + '-all-' + keymatch + '.png'
@@ -209,7 +213,7 @@ def plotST( workdir, keymatch=None, abstput=True, ylog=False, evtmatch='-e010', 
     print( 'Plot successfully saved on', pngpath )
 
 # Create a figure with two plots per process, absolute and normalized tput
-def plotOneProcess2( workdir, oneprocess, keymatch, bestonly=False, evtmatch='-e010', debug=False ):
+def plotOneProcess2( workdir, oneprocess, keymatch, bestonly=False, evtmatch='-e001', debug=False ):
     runset_scores = loadRunSet( workdir, evtmatch=evtmatch )
     node, xht, ftitle = getNodeFeatures( workdir )
     # One process or all processes?
@@ -246,7 +250,7 @@ def plotOneProcess2( workdir, oneprocess, keymatch, bestonly=False, evtmatch='-e
     print( 'Plot successfully saved on', pngpath )
 
 # Create a figure with one plots per process, with inl0 and inl1 best
-def plotProcessesInl( workdir, keymatch, evtmatch='-e010', debug=False ):
+def plotProcessesInl( workdir, keymatch, evtmatch='-e001', debug=False ):
     runset_scores = loadRunSet( workdir, evtmatch=evtmatch )
     node, xht, ftitle = getNodeFeatures( workdir )
     # One process or all processes?
@@ -275,7 +279,7 @@ def plotProcessesInl( workdir, keymatch, evtmatch='-e010', debug=False ):
 if __name__ == '__main__':
 
     # TESTS
-    #loadOneRun( 'BMK-pmpe04/sa-cpp-j032-t001-e010', debug=True )
+    #loadOneRun( 'BMK-pmpe04/sa-cpp-j032-t001-e001', debug=True )
     #loadRunSet( 'BMK-pmpe04', debug=True )
     #dumpScoresOneKey( loadRunSet( 'BMK-pmpe04' ), 'ggttgg-sa-cpp-d-inl0-best' )
     #dumpScoresAllKeys( loadRunSet( 'BMK-pmpe04' ) )
@@ -284,14 +288,15 @@ if __name__ == '__main__':
     #dumpScoresAllKeys( loadRunSet( 'BMK-pmpe04'), keymatch='ggttgg-sa-cpp-d-inl0' )
 
     # PRODUCTION PLOTS
-    workdir = 'BMK-pmpe04'
+    #workdir = 'BMK-pmpe04'
     #workdir = 'BMK-itscrd70'
+    workdir = 'BMK-jwlogin08'
     plotST( workdir, keymatch='sa-cpp-d-inl0-best', ylog=True )
     plotST( workdir, keymatch='sa-cpp-f-inl0-best', ylog=True )
     plotOneProcess2( workdir, 'ggttgg', 'sa-cpp-d-inl0' )
     plotOneProcess2( workdir, 'ggttgg', 'sa-cpp-f-inl0' )
-    plotOneProcess2( workdir, None, 'sa-cpp-d-inl0' )
-    plotOneProcess2( workdir, None, 'sa-cpp-f-inl0' )
-    plotProcessesInl( workdir, 'sa-cpp-d-inl' )
-    plotProcessesInl( workdir, 'sa-cpp-f-inl' )
+    #plotOneProcess2( workdir, None, 'sa-cpp-d-inl0' )
+    #plotOneProcess2( workdir, None, 'sa-cpp-f-inl0' )
+    #plotProcessesInl( workdir, 'sa-cpp-d-inl' )
+    #plotProcessesInl( workdir, 'sa-cpp-f-inl' )
 
