@@ -39,7 +39,7 @@ def loadOneRun( workdir, debug=False ):
 
 #---------------------------------------
 
-def loadRunSet( runsetdir, evtmatch='e001', debug=False ):
+def loadRunSet( runsetdir, evtmatch='-e010', debug=False ):
     ###debug=True
     if not os.path.isdir( runsetdir ):
         print( 'Unknown directory', runsetdir )
@@ -48,7 +48,7 @@ def loadRunSet( runsetdir, evtmatch='e001', debug=False ):
     runset_scores = {}
     print( 'Loading runs in RunSetDir', runsetdir, 'for events', evtmatch )
     for d in sorted( os.listdir( runsetdir ) ) :
-        if d.startswith( 'sa-cpp-' ) and d.endswith( evtmatch ) and 'png' not in d : # e.g. sa-cpp-j004-t001-e001
+        if d.startswith( 'sa-cpp-' ) and d.endswith( evtmatch ) and 'png' not in d : # e.g. sa-cpp-j004-t001-e010
             dl = d.split( '-' )
             njob = int( dl[-3][-3:] )
             nthr = int( dl[-2][-3:] )
@@ -187,7 +187,7 @@ def getNodeFeatures( workdir ):
     return node, xht, ftitle
     
 # Create a figure with a single plot
-def plotST( workdir, keymatch=None, abstput=True, ylog=False, evtmatch='-e001', debug=False ):
+def plotST( workdir, keymatch=None, abstput=True, ylog=False, evtmatch='-e010', debug=False ):
     runset_scores = loadRunSet( workdir, evtmatch=evtmatch )
     node, xht, ftitle = getNodeFeatures( workdir )
     pngpath = workdir + '/' + node + evtmatch + '-all-' + keymatch + '.png'
@@ -204,7 +204,7 @@ def plotST( workdir, keymatch=None, abstput=True, ylog=False, evtmatch='-e001', 
     print( 'Plot successfully saved on', pngpath )
 
 # Create a figure with two plots per process, absolute and normalized tput
-def plotOneProcess2( workdir, oneprocess, keymatch, bestonly=False, evtmatch='-e001', debug=False ):
+def plotOneProcess2( workdir, oneprocess, keymatch, bestonly=False, evtmatch='-e010', debug=False ):
     runset_scores = loadRunSet( workdir, evtmatch=evtmatch )
     node, xht, ftitle = getNodeFeatures( workdir )
     # One process or all processes?
@@ -241,7 +241,7 @@ def plotOneProcess2( workdir, oneprocess, keymatch, bestonly=False, evtmatch='-e
     print( 'Plot successfully saved on', pngpath )
 
 # Create a figure with one plots per process, with inl0 and inl1 best
-def plotProcessesInl( workdir, keymatch, evtmatch='-e001', debug=False ):
+def plotProcessesInl( workdir, keymatch, evtmatch='-e010', debug=False ):
     runset_scores = loadRunSet( workdir, evtmatch=evtmatch )
     node, xht, ftitle = getNodeFeatures( workdir )
     # One process or all processes?
@@ -270,7 +270,7 @@ def plotProcessesInl( workdir, keymatch, evtmatch='-e001', debug=False ):
 if __name__ == '__main__':
 
     # TESTS
-    #loadOneRun( 'BMK-pmpe04/sa-cpp-j032-t001-e001', debug=True )
+    #loadOneRun( 'BMK-pmpe04/sa-cpp-j032-t001-e010', debug=True )
     #loadRunSet( 'BMK-pmpe04', debug=True )
     #dumpScoresOneKey( loadRunSet( 'BMK-pmpe04' ), 'ggttgg-sa-cpp-d-inl0-best' )
     #dumpScoresAllKeys( loadRunSet( 'BMK-pmpe04' ) )
