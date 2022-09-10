@@ -157,6 +157,8 @@ def axesST( ax, runset_scores, keymatch=None, bestonly=False, abstput=True, ylog
     loc = 'lower right'
     ax.legend( loc=loc, fontsize=plots_legendsize )
     xmin = 0
+    if xmax > 2*xht: hasovercommit = True
+    else: hasovercommit = False
     xmax *= 1.8
     if ylog:
         ymin = 0.001
@@ -172,7 +174,7 @@ def axesST( ax, runset_scores, keymatch=None, bestonly=False, abstput=True, ylog
         ax.axvline( xht*2, color='black', ls='-.' )
         ax.text( xht/2, ytxt, 'No HT', ha='center', va='center', size=plots_txtsize )
         ax.text( xht*3/2, ytxt, '2x HT', ha='center', va='center', size=plots_txtsize )
-        ax.text( xmax/2+xht, ytxt, 'Overcommit', ha='center', va='center', size=plots_txtsize )
+        if hasovercommit: ax.text( xmax/2+xht, ytxt, 'Overcommit', ha='center', va='center', size=plots_txtsize )
 
 # Get node-dependent features
 def getNodeFeatures( workdir ):
