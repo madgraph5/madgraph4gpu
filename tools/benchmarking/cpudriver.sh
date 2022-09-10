@@ -3,6 +3,8 @@
 ### TO KILL A TEST:
 ###kill $(ps -ef | egrep '(mg5amc-madgraph4gpu-2022-bmk.sh|throughputX.sh|check.exe)' | grep -v grep | awk '{print $2}')
 
+startdate=$(date)
+
 # Node-specific configuration
 image=oras://registry.cern.ch/hep-workloads/mg5amc-madgraph4gpu-2022-bmk:v0.6
 if [ "$(hostname)" == "pmpe04.cern.ch" ]; then
@@ -33,3 +35,6 @@ for jt in $jts; do
   singularity run -B ${resDir}:/results ${image} --extra-args '-eemumu -ggtt -ggttg -ggttgg -dbl -flt -inl0 -inl1 --cpu' -c${j} -t${t} -e${events} -w /results/${wDir} -W
   ###ls -l ${resDir}/${wDir}
 done
+
+echo "Started at ${startdate}"
+echo "Completed at $(date)"
