@@ -7,7 +7,7 @@ startdate=$(date)
 
 # Defaults for all nodes (may be overridden)
 image=oras://registry.cern.ch/hep-workloads/mg5amc-madgraph4gpu-2022-bmk:v0.6
-extraargs="--extra-args '-eemumu -ggtt -ggttg -ggttgg -dbl -flt -inl0 -inl1 --cpu'"
+extraargs="-eemumu -ggtt -ggttg -ggttgg -dbl -flt -inl0 -inl1 --cpu"
 ###events=1 # NOT ENOUGH FOR GGTTG AND ALSO GGTT (BMK-1056)
 events=10
 
@@ -31,7 +31,7 @@ elif [ "$(hostname)" == "jwlogin08.juwels" ]; then
   resDir=/p/scratch/prpb109/avalassi/TMP_RESULTS
   tstDir=BMK-jwlogin08
   jts=""; for j in 1 2 5 10 20 40 80; do for t in 1; do if [ $((j*t)) -le 80 ]; then jts="$jts [$j,$t]"; fi; done; done 
-  extraargs="--extra-args '-ggttgg -dbl -flt -inl0 --cpu'" # SHORTER TESTS ON JUWELS
+  extraargs="-ggttgg -dbl -flt -inl0 --cpu" # SHORTER TESTS ON JUWELS
   events=1 # SHORTER TESTS ON JUWELS
 else
   echo "ERROR! Unknown host $(hostname)"; exit 1
@@ -44,7 +44,7 @@ for jt in $jts; do
   wDir="${tstDir}/sa-cpp$(printf '%s%03i%s%03i%s%03i' '-j' ${j} '-t' ${t} '-e' ${events})"
   ###echo ${resDir}/${wDir}
   \rm -rf ${resDir}/${wDir}
-  singularity run -B ${resDir}:/results ${image} ${extraargs} -c${j} -t${t} -e${events} -w /results/${wDir} -W
+  singularity run -B ${resDir}:/results ${image} --extra-args "${extraargs}" -c${j} -t${t} -e${events} -w /results/${wDir} -W
   ###ls -l ${resDir}/${wDir}
 done
 
