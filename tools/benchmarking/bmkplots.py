@@ -56,6 +56,9 @@ def loadRunSet( runsetdir, evtmatch='-e010', debug=False ):
             rundir = runsetdir + '/' + d
             if debug : print( '\nRunDir=%30s %3i %3i %3i'%( rundir, njob, nthr, nevt ) )
             run_info, run_scores = loadOneRun( rundir ) 
+            if len(run_scores) == 0 :
+                print( 'WARNING! %s contains 0 scores and will be skipped' )
+                continue
             njobkey, nthrkey, nevtkey = 'copies', 'threads_per_copy', 'events_per_thread'
             assert njob == run_info[njobkey], 'njob mismatch %i != %i'%( njob, run_info[njobkey] ) 
             assert nthr == run_info[nthrkey], 'nthr mismatch %i != %i'%( nthr, run_info[nthrkey] ) 
