@@ -204,6 +204,10 @@ def getNodeFeatures( workdir ):
         node='jwlogin08'
         xht=40
         ftitle='check.exe scalability on jwlogin08 (2x 20-core 2.4GHz Xeon Gold 6148 with 2x HT)' # lscpu
+    elif workdir == 'BMK-bmk6130' :
+        node='bmk6130'
+        xht=32
+        ftitle='check.exe scalability on bmk-ironic-0731f1ce3b (2x 16-core 2.1GHz Xeon Gold 6130 with 2x HT)' # lscpu
     else:
         print( 'ERROR! Unknown workdir', workdir )
         sys.exit(-1)
@@ -303,16 +307,17 @@ if __name__ == '__main__':
 
     # PRODUCTION PLOTS
     #workdir = 'BMK-pmpe04'
-    workdir = 'BMK-itscrd70'
+    #workdir = 'BMK-itscrd70'
     #workdir = 'BMK-jwlogin08'
-    ###evtmatch='-e001'
-    evtmatch='-e010'
+    workdir = 'BMK-bmk6130'
+    evtmatch='-e001'
+    #evtmatch='-e010'
     plotST( workdir, keymatch='sa-cpp-d-inl0-best', ylog=True, evtmatch=evtmatch )
     plotST( workdir, keymatch='sa-cpp-f-inl0-best', ylog=True, evtmatch=evtmatch )
     plotOneProcess2( workdir, 'ggttgg', 'sa-cpp-d-inl0', evtmatch=evtmatch )
     plotOneProcess2( workdir, 'ggttgg', 'sa-cpp-f-inl0', evtmatch=evtmatch )
-    plotOneProcess2( workdir, None, 'sa-cpp-d-inl0', evtmatch=evtmatch )
-    plotOneProcess2( workdir, None, 'sa-cpp-f-inl0', evtmatch=evtmatch )
-    plotProcessesInl( workdir, 'sa-cpp-d-inl', evtmatch=evtmatch )
-    plotProcessesInl( workdir, 'sa-cpp-f-inl', evtmatch=evtmatch )
+    #plotOneProcess2( workdir, None, 'sa-cpp-d-inl0', evtmatch=evtmatch )
+    #plotOneProcess2( workdir, None, 'sa-cpp-f-inl0', evtmatch=evtmatch )
+    #plotProcessesInl( workdir, 'sa-cpp-d-inl', evtmatch=evtmatch )
+    #plotProcessesInl( workdir, 'sa-cpp-f-inl', evtmatch=evtmatch )
 
