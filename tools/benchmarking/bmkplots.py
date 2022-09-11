@@ -49,15 +49,18 @@ def loadRunSet( runsetdir, evtmatch='-e001', debug=False ):
     print( 'Loading runs in RunSetDir', runsetdir, 'for events', evtmatch )
     for d in sorted( os.listdir( runsetdir ) ) :
         if d.startswith( 'sa-cpp-' ) and d.endswith( evtmatch ) and 'png' not in d : # e.g. sa-cpp-j004-t001-e001
+            rundir = runsetdir + '/' + d
+            if 'SKIP' in os.listdir( rundir ):
+                print( 'WARNING! %s contains file SKIP and will be skipped'%rundir )
+                continue
             dl = d.split( '-' )
             njob = int( dl[-3][-3:] )
             nthr = int( dl[-2][-3:] )
             nevt = int( dl[-1][-3:] )
-            rundir = runsetdir + '/' + d
             if debug : print( '\nRunDir=%30s %3i %3i %3i'%( rundir, njob, nthr, nevt ) )
             run_info, run_scores = loadOneRun( rundir )
             if len(run_scores) == 0 :
-                print( 'WARNING! %s contains 0 scores and will be skipped' )
+                print( 'WARNING! %s contains 0 scores and will be skipped'%rundir )
                 continue
             njobkey, nthrkey, nevtkey = 'copies', 'threads_per_copy', 'events_per_thread'
             assert njob == run_info[njobkey], 'njob mismatch %i != %i'%( njob, run_info[njobkey] )
