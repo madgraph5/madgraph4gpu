@@ -207,7 +207,8 @@ def getNodeFeatures( workdir ):
     elif workdir == 'BMK-bmk6130' :
         node='bmk6130'
         xht=32
-        ftitle='check.exe scalability on bmk-ironic-0731f1ce3b (2x 16-core 2.1GHz Xeon Gold 6130 with 2x HT)' # lscpu
+        ###ftitle='check.exe scalability on bmk-ironic-0731f1ce3b (2x 16-core 2.1GHz Xeon Gold 6130 with 2x HT)' # lscpu
+        ftitle='check.exe scalability on "bmk6130" (2x 16-core 2.1GHz Xeon Gold 6130 with 2x HT)' # lscpu
     else:
         print( 'ERROR! Unknown workdir', workdir )
         sys.exit(-1)
