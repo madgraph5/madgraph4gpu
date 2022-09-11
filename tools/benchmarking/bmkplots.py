@@ -161,10 +161,13 @@ def axesST( ax, runset_scores, keymatch=None, bestonly=False, abstput=True, ylog
     if xht is None:
         hasht = False
         hasovercommit = False
-    else:
-        hasht = ( xht > 0 )
-        xht = abs( xht )
+    elif xht > 0:
+        hasht = True
         hasovercommit = ( xmax > 2*xht )
+    else:
+        hasht = False
+        xht = -xht
+        hasovercommit = ( xmax > xht )
     xmax *= 1.8
     if ylog:
         ymin = 0.001
@@ -180,7 +183,9 @@ def axesST( ax, runset_scores, keymatch=None, bestonly=False, abstput=True, ylog
         if hasht: ax.axvline( xht*2, color='black', ls='-.' )
         ax.text( xht/2, ytxt, 'No HT', ha='center', va='center', size=plots_txtsize )
         if hasht: ax.text( xht*3/2, ytxt, '2x HT', ha='center', va='center', size=plots_txtsize )
-        if hasovercommit: ax.text( xmax/2+xht, ytxt, 'Overcommit', ha='center', va='center', size=plots_txtsize )
+        if hasovercommit:
+            xtxtover = ( xmax/2+xht if hasht else xmax/2+xht/2 )
+            ax.text( xtxtover, ytxt, 'Overcommit', ha='center', va='center', size=plots_txtsize )
 
 # Get node-dependent features
 def getNodeFeatures( workdir ):
