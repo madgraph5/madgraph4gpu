@@ -115,6 +115,7 @@ def dumpScoresAllKeys( runset_scores, keymatch=None, debug=False ):
 #---------------------------------------
 
 # Compare various curves in ST plots
+# NB: xht>0 is the number of physical cores before 2xHT, xht<0 is the number of physical cores without HT
 def axesST( ax, runset_scores, keymatch=None, bestonly=False, abstput=True, ylog=False, xht=None, debug=False ):
     # Prepare axes labels
     ax.set_xlabel('Level of parallelism (number of ST jobs)', size=plots_labelsize )
@@ -157,8 +158,13 @@ def axesST( ax, runset_scores, keymatch=None, bestonly=False, abstput=True, ylog
     loc = 'lower right'
     ax.legend( loc=loc, fontsize=plots_legendsize )
     xmin = 0
-    if xmax > 2*xht: hasovercommit = True
-    else: hasovercommit = False
+    if xht is None:
+	hasht = False
+	hasovercommit = False
+    else:
+	hasht = ( xht > 0 )
+	xht = abs( xht )
+	hasovercommit = ( xmax > 2*xht )
     xmax *= 1.8
     if ylog:
         ymin = 0.001
@@ -171,9 +177,9 @@ def axesST( ax, runset_scores, keymatch=None, bestonly=False, abstput=True, ylog
     ax.axis( [xmin, xmax, ymin, ymax] )
     if xht is not None :
         ax.axvline( xht, color='black', ls=':' )
-        ax.axvline( xht*2, color='black', ls='-.' )
+	if hasht: ax.axvline( xht*2, color='black', ls='-.' )
         ax.text( xht/2, ytxt, 'No HT', ha='center', va='center', size=plots_txtsize )
-        ax.text( xht*3/2, ytxt, '2x HT', ha='center', va='center', size=plots_txtsize )
+	if hasht: ax.text( xht*3/2, ytxt, '2x HT', ha='center', va='center', size=plots_txtsize )
         if hasovercommit: ax.text( xmax/2+xht, ytxt, 'Overcommit', ha='center', va='center', size=plots_txtsize )
 
 # Get node-dependent features
@@ -184,7 +190,7 @@ def getNodeFeatures( workdir ):
         ftitle='check.exe scalability on pmpe04 (2x 8-core 2.4GHz Xeon E5-2630 v3 with 2x HT)' # lscpu
     elif workdir == 'BMK-itscrd70' :
         node='itscrd70'
-        xht=2
+        xht=-4
         ftitle='check.exe scalability on itscrd70 (1x 4-core 2.1GHz Xeon Silver 4216 without HT)' # lscpu
     elif workdir == 'BMK-jwlogin08' :
         node='jwlogin08'
