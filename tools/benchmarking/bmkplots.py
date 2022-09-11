@@ -324,9 +324,9 @@ if __name__ == '__main__':
     #dumpScoresAllKeys( loadRunSet( 'BMK-pmpe04'), keymatch='ggttgg-sa-cpp-d-inl0' )
 
     # PRODUCTION PLOTS
-    allplots( 'BMK-pmpe04', '-e001' )
-    allplots( 'BMK-pmpe04', '-e010' )
-    #allplots( 'BMK-itscrd70', '-e001' )
-    #allplots( 'BMK-itscrd70', '-e010' )
+    #allplots( 'BMK-pmpe04', '-e001' )
+    #allplots( 'BMK-pmpe04', '-e010' )
+    allplots( 'BMK-itscrd70', '-e001' )
+    allplots( 'BMK-itscrd70', '-e010' )
     #allplots( 'BMK-jwlogin08', '-e001' )
     #allplots( 'BMK-bmk6130', '-e001' )
