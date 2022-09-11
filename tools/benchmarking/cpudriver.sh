@@ -39,8 +39,6 @@ elif [ "$(hostname)" == "bmk-ironic-0731f1ce3b.cern.ch" ]; then
   resDir=/var/benchmark/avalassi/TMP_RESULTS
   tstDir=BMK-bmk6130
   jts=""; for j in 1 2 4 8 16 32 64 96; do for t in 1; do if [ $((j*t)) -le 128 ]; then jts="$jts [$j,$t]"; fi; done; done 
-  extraargs="-ggttgg -dbl -flt -inl0 --cpu" # SHORTER TESTS INITIALLY
-  events=1 # SHORTER TESTS INITIALLY
 else
   echo "ERROR! Unknown host $(hostname)"; exit 1
 fi
