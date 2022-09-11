@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ### TO KILL A TEST:
-###kill $(ps -ef | egrep '(mg5amc-madgraph4gpu-2022-bmk.sh|throughputX.sh|check.exe|gpudriver.sh)' | grep -v grep | awk '{print $2}')
+###kill -9 $(ps -ef | egrep '(mg5amc-madgraph4gpu-2022-bmk.sh|throughputX.sh|check.exe|gpudriver.sh)' | egrep -v '(grep|emacs)' | awk '{print $2}')
 
 startdate=$(date)
 
