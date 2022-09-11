@@ -24,12 +24,12 @@ else
 fi
 
 # Loop over tests
-for jt in $jts; do
-  jt=${jt:1:-1}; t=${jt#*,}; j=${jt%,*}
-  ###echo "jobs=$j, threads=$t"
-  for gbgt in $gbgts; do
-    gbgt=${gbgt:1:-1}; gt=${gbgt#*,}; gb=${gbgt%,*}
-    ###echo "gpublks=$gb, gputhrs=$gt"
+for gbgt in $gbgts; do
+  gbgt=${gbgt:1:-1}; gt=${gbgt#*,}; gb=${gbgt%,*}
+  ###echo "gpublks=$gb, gputhrs=$gt"
+  for jt in $jts; do
+    jt=${jt:1:-1}; t=${jt#*,}; j=${jt%,*}
+    ###echo "jobs=$j, threads=$t"
     wDir="${tstDir}/sa-cuda$(printf '%s%03i%s%03i%s%03i%s%03i%s%03i' '-gb' ${gb} '-gt' ${gt} '-j' ${j} '-t' ${t} '-e' ${events})"
     ###echo ${resDir}/${wDir}
     \rm -rf ${resDir}/${wDir}
