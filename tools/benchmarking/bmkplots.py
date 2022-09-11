@@ -223,7 +223,9 @@ def plotST( workdir, keymatch=None, abstput=True, ylog=False, evtmatch='-e001', 
     ax1 = fig.add_subplot( 111 )
     # Fill the plot in the figure
     axesST( ax1, runset_scores, keymatch=keymatch, ylog=ylog, xht=xht, abstput=abstput, debug=debug )
-    if ftitle is not None: fig.suptitle( ftitle, size=plots_ftitlesize )
+    if ftitle is not None:
+        if evtmatch.startswith( '-e' ) and evtmatch[2:].isdigit(): ftitle += ' for %d cycles'%int(evtmatch[2:])
+        fig.suptitle( ftitle, size=plots_ftitlesize )
     # Save and show the figure
     fig.savefig( pngpath, format='png', bbox_inches="tight" )
     Popen( ['display', '-geometry', '+50+50', pngpath] )
@@ -258,6 +260,7 @@ def plotOneProcess2( workdir, oneprocess, keymatch, bestonly=False, evtmatch='-e
     # Save and show the figure
     if ftitle is not None:
         if oneprocess is not None: ftitle = oneprocess + ' ' + ftitle
+        if evtmatch.startswith( '-e' ) and evtmatch[2:].isdigit(): ftitle += ' for %d cycles'%int(evtmatch[2:])
         fig.suptitle( ftitle, size=plots_ftitlesize )
     fig.set_tight_layout( True )
     fig.savefig( pngpath, format='png', bbox_inches="tight" )
@@ -286,6 +289,7 @@ def plotProcessesInl( workdir, keymatch, evtmatch='-e001', debug=False ):
         idx1 += 1
     # Save and show the figure
     if ftitle is not None:
+        if evtmatch.startswith( '-e' ) and evtmatch[2:].isdigit(): ftitle += ' for %d cycles'%int(evtmatch[2:])
         fig.suptitle( ftitle, size=plots_ftitlesize )
     fig.set_tight_layout( True )
     fig.savefig( pngpath, format='png', bbox_inches="tight" )
