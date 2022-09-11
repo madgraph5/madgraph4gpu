@@ -48,7 +48,8 @@ def loadRunSet( runsetdir, evtmatch='-e001', debug=False ):
     runset_scores = {}
     print( 'Loading runs in RunSetDir', runsetdir, 'for events', evtmatch )
     for d in sorted( os.listdir( runsetdir ) ) :
-        if d.startswith( 'sa-cpp-' ) and d.endswith( evtmatch ) and 'png' not in d : # e.g. sa-cpp-j004-t001-e001
+        if ( d.startswith( 'sa-cpp' ) or d.startswith( 'sa-cuda' ) ) \
+               and d.endswith( evtmatch ) and 'png' not in d : # e.g. sa-cpp-j004-t001-e001
             rundir = runsetdir + '/' + d
             if 'SKIP' in os.listdir( rundir ):
                 print( 'WARNING! %s contains file SKIP and will be skipped'%rundir )
@@ -314,7 +315,7 @@ def allplots( workdir, evtmatch='-e001', debug=False ):
 
 if __name__ == '__main__':
 
-    # TESTS
+    # TESTS (CPP)
     #loadOneRun( 'BMK-pmpe04/sa-cpp-j032-t001-e001', debug=True )
     #loadRunSet( 'BMK-pmpe04', debug=True )
     #dumpScoresOneKey( loadRunSet( 'BMK-pmpe04' ), 'ggttgg-sa-cpp-d-inl0-best' )
@@ -323,10 +324,13 @@ if __name__ == '__main__':
     #dumpScoresAllKeys( loadRunSet( 'BMK-pmpe04'), keymatch='inl0-best' )
     #dumpScoresAllKeys( loadRunSet( 'BMK-pmpe04'), keymatch='ggttgg-sa-cpp-d-inl0' )
 
-    # PRODUCTION PLOTS
+    # PRODUCTION PLOTS (CPP)
     #allplots( 'BMK-pmpe04', '-e001' )
     #allplots( 'BMK-pmpe04', '-e010' )
-    allplots( 'BMK-itscrd70', '-e001' )
-    allplots( 'BMK-itscrd70', '-e010' )
+    #allplots( 'BMK-itscrd70', '-e001' )
+    #allplots( 'BMK-itscrd70', '-e010' )
     #allplots( 'BMK-jwlogin08', '-e001' )
     #allplots( 'BMK-bmk6130', '-e001' )
+
+    # TESTS (CUDA)
+    loadRunSet( 'BMK-itscrd70-cuda', evtmatch='-e0100', debug=False )
