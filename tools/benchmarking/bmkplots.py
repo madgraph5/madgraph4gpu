@@ -34,7 +34,7 @@ def loadOneRun( workdir, debug=False ):
     run_info['app_version'] = run_dict['app']['version']
     if debug : print( run_info )
     run_scores = run_dict['report']['wl-scores']
-    if debug : print( run_scores )    
+    if debug : print( run_scores )
     return run_info, run_scores
 
 #---------------------------------------
@@ -55,14 +55,14 @@ def loadRunSet( runsetdir, evtmatch='-e001', debug=False ):
             nevt = int( dl[-1][-3:] )
             rundir = runsetdir + '/' + d
             if debug : print( '\nRunDir=%30s %3i %3i %3i'%( rundir, njob, nthr, nevt ) )
-            run_info, run_scores = loadOneRun( rundir ) 
+            run_info, run_scores = loadOneRun( rundir )
             if len(run_scores) == 0 :
                 print( 'WARNING! %s contains 0 scores and will be skipped' )
                 continue
             njobkey, nthrkey, nevtkey = 'copies', 'threads_per_copy', 'events_per_thread'
-            assert njob == run_info[njobkey], 'njob mismatch %i != %i'%( njob, run_info[njobkey] ) 
-            assert nthr == run_info[nthrkey], 'nthr mismatch %i != %i'%( nthr, run_info[nthrkey] ) 
-            assert nevt == run_info[nevtkey], 'nevt mismatch %i != %i'%( nevt, run_info[nevtkey] ) 
+            assert njob == run_info[njobkey], 'njob mismatch %i != %i'%( njob, run_info[njobkey] )
+            assert nthr == run_info[nthrkey], 'nthr mismatch %i != %i'%( nthr, run_info[nthrkey] )
+            assert nevt == run_info[nevtkey], 'nevt mismatch %i != %i'%( nevt, run_info[nevtkey] )
             runset_scores[njob,nthr] = run_scores
     return runset_scores
 
@@ -75,7 +75,7 @@ def dumpScoresOneKey( runset_scores, score_key, debug=False ):
     njobs = set( [njobnthr[0] for njobnthr in runset_scores] ) # use set(list) to get unique keys
     nthrs = set( [njobnthr[1] for njobnthr in runset_scores] ) # use set(list) to get unique keys
     print( '%4s %4s %12s    %9s %12s %12s %16s'%( 'njob', 'nthr', 'Score', 'njob*nthr', 'S/S[1,1]', 'S/S-none', 'S/S-none[1,1]' ) )
-    assert (1,1) in runset_scores, 'no scores found for njob==1 and nthr==1?'     
+    assert (1,1) in runset_scores, 'no scores found for njob==1 and nthr==1?'
     tput1 = runset_scores[1,1][score_key]
     tput1none = runset_scores[1,1][score_key_none]
     for nthr in sorted(nthrs):
@@ -135,7 +135,7 @@ def axesST( ax, runset_scores, keymatch=None, bestonly=False, abstput=True, ylog
         score_key_none = score_key[:-4]+'none'
         njobs = set( [njobnthr[0] for njobnthr in runset_scores] ) # use set(list) to get unique keys
         nthrs = set( [njobnthr[1] for njobnthr in runset_scores] ) # use set(list) to get unique keys
-        assert (1,1) in runset_scores, 'no scores found for njob==1 and nthr==1?'     
+        assert (1,1) in runset_scores, 'no scores found for njob==1 and nthr==1?'
         ###tput1 = runset_scores[1,1][score_key]
         tput1none = runset_scores[1,1][score_key_none]
         # Prepare x-axis and y-axis lists
@@ -159,12 +159,12 @@ def axesST( ax, runset_scores, keymatch=None, bestonly=False, abstput=True, ylog
     ax.legend( loc=loc, fontsize=plots_legendsize )
     xmin = 0
     if xht is None:
-	hasht = False
-	hasovercommit = False
+        hasht = False
+        hasovercommit = False
     else:
-	hasht = ( xht > 0 )
-	xht = abs( xht )
-	hasovercommit = ( xmax > 2*xht )
+        hasht = ( xht > 0 )
+        xht = abs( xht )
+        hasovercommit = ( xmax > 2*xht )
     xmax *= 1.8
     if ylog:
         ymin = 0.001
@@ -177,9 +177,9 @@ def axesST( ax, runset_scores, keymatch=None, bestonly=False, abstput=True, ylog
     ax.axis( [xmin, xmax, ymin, ymax] )
     if xht is not None :
         ax.axvline( xht, color='black', ls=':' )
-	if hasht: ax.axvline( xht*2, color='black', ls='-.' )
+        if hasht: ax.axvline( xht*2, color='black', ls='-.' )
         ax.text( xht/2, ytxt, 'No HT', ha='center', va='center', size=plots_txtsize )
-	if hasht: ax.text( xht*3/2, ytxt, '2x HT', ha='center', va='center', size=plots_txtsize )
+        if hasht: ax.text( xht*3/2, ytxt, '2x HT', ha='center', va='center', size=plots_txtsize )
         if hasovercommit: ax.text( xmax/2+xht, ytxt, 'Overcommit', ha='center', va='center', size=plots_txtsize )
 
 # Get node-dependent features
@@ -200,7 +200,7 @@ def getNodeFeatures( workdir ):
         print( 'ERROR! Unknown workdir', workdir )
         sys.exit(-1)
     return node, xht, ftitle
-    
+
 # Create a figure with a single plot
 def plotST( workdir, keymatch=None, abstput=True, ylog=False, evtmatch='-e001', debug=False ):
     runset_scores = loadRunSet( workdir, evtmatch=evtmatch )
@@ -226,7 +226,7 @@ def plotOneProcess2( workdir, oneprocess, keymatch, bestonly=False, evtmatch='-e
     if oneprocess is not None: processes = [ oneprocess ]
     else: processes = [ 'eemumu', 'ggtt', 'ggttg', 'ggttgg' ]
     pngpath = workdir + '/' + node + evtmatch + '-' + \
-	      ( 'all' if oneprocess is None else oneprocess ) + '-' + keymatch + '.png'
+              ( 'all' if oneprocess is None else oneprocess ) + '-' + keymatch + '.png'
     # Create figure with two plots per process
     fig = plt.figure( figsize = ( plots_figsize[0]*2, plots_figsize[1]*len(processes) ) )
     # Add two plots per process
@@ -237,10 +237,10 @@ def plotOneProcess2( workdir, oneprocess, keymatch, bestonly=False, evtmatch='-e
         fullkeymatch = process + '-' + keymatch
         ax1 = fig.add_subplot( idx1 )
         axesST( ax1, runset_scores, keymatch=fullkeymatch, bestonly=bestonly, \
-		ylog=False, xht=xht, abstput=True, debug=debug )
+                ylog=False, xht=xht, abstput=True, debug=debug )
         ax2 = fig.add_subplot( idx2 )
         axesST( ax2, runset_scores, keymatch=fullkeymatch, bestonly=bestonly, \
-		ylog=False, xht=xht, abstput=False, debug=debug )
+                ylog=False, xht=xht, abstput=False, debug=debug )
         idx1 += 2
         idx2 += 2
     # Save and show the figure
@@ -270,7 +270,7 @@ def plotProcessesInl( workdir, keymatch, evtmatch='-e001', debug=False ):
         fullkeymatch = process + '-' + keymatch
         ax1 = fig.add_subplot( idx1 )
         axesST( ax1, runset_scores, keymatch=fullkeymatch, bestonly=True, \
-		ylog=False, xht=xht, abstput=True, debug=debug )
+                ylog=False, xht=xht, abstput=True, debug=debug )
         idx1 += 1
     # Save and show the figure
     if ftitle is not None:
