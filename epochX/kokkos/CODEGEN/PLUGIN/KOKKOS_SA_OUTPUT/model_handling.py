@@ -608,7 +608,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
     ###aloha_template_h = pjoin('gpu','cpp_hel_amps_h.inc')
     ###aloha_template_cc = pjoin('gpu','cpp_hel_amps_cc.inc')
     ###helas_h = pjoin('gpu', 'helas.h')
-    ###helas_cc = pjoin('gpu', 'helas.cpp')
+    helas_cc = pjoin('gpu', 'helas.cpp')
 
     # AV - use a custom ALOHAWriter (NB: this is an argument to WriterFactory.__new__, either a string or a class!)
     ###aloha_writer = 'cudac' # WriterFactory will use ALOHAWriterForGPU
@@ -1085,7 +1085,7 @@ KOKKOS_INLINE_FUNCTION void calculate_wavefunctions(
     def generate_process_files(self):
         """Generate mgOnGpuConfig.h, CPPProcess.cc, CPPProcess.h, check_sa.cc, gXXX.cu links"""
         misc.sprint('Entering PLUGIN_OneProcessExporter.generate_process_files')
-        super(export_cpp.OneProcessExporterGPU, self).generate_process_files()
+        super(PLUGIN_export_cpp.OneProcessExporterGPU, self).generate_process_files()
         if self.include_multi_channel:
             misc.sprint('self.include_multi_channel is already defined: this is madevent+second_exporter mode')
         else:
@@ -1181,13 +1181,13 @@ KOKKOS_INLINE_FUNCTION void calculate_wavefunctions(
         misc.sprint('Entering PLUGIN_OneProcessExporter.write_process_h_file')
         # WH: This is needed for Kokkos since it uses templated functions
         # where the declaration and definition can't be separated.
-        replace_dict = super(export_cpp.OneProcessExporterGPU, self).write_process_h_file(False)
+        replace_dict = super(PLUGIN_export_cpp.OneProcessExporterGPU, self).write_process_h_file(False)
         try:
             replace_dict['helamps_h'] = open(pjoin(self.path, os.pardir, os.pardir,'src','HelAmps_%s.h' % self.model_name)).read()
         except FileNotFoundError:
             replace_dict['helamps_h'] = "\n#include \"../../src/HelAmps_%s.h\"" % self.model_name
 
-        cc_replace_dict = super(export_cpp.OneProcessExporterGPU, self).write_process_cc_file(False)
+        cc_replace_dict = super(PLUGIN_export_cpp.OneProcessExporterGPU, self).write_process_cc_file(False)
         replace_dict['process_function_definitions'] = cc_replace_dict['process_function_definitions'] 
 
         if writer:
@@ -1595,7 +1595,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             if wf.get('number_external') == 1 or wf.get('number_external') == 2: # AV
                 comment = ' // NB: ' + call + ' only uses pz' # AV skip '(not E,px,py)' to avoid interference with comma parsing in get_external
             # Specify namespace for Helas calls
-            call = call + '( Kokkos::subview(allmomenta,%d,Kokkos::ALL), cHel[%d], %+d, w_sv[%d]);' + comment # AV vectorize and add comment
+            call = call + '( Kokkos::subview(allmomenta,%d,Kokkos::ALL), cHel[%d], %+d, w_sv[%d], %d );' + comment # AV vectorize and add comment
             return self.format_coupling(call % \
                                 (wf.get('number_external')-1,
                                  wf.get('number_external')-1,
