@@ -313,8 +313,8 @@ if __name__ == '__main__':
     # PRODUCTION PLOTS
     #workdir = 'BMK-pmpe04'
     #workdir = 'BMK-itscrd70'
-    #workdir = 'BMK-jwlogin08'
-    workdir = 'BMK-bmk6130'
+    workdir = 'BMK-jwlogin08'
+    #workdir = 'BMK-bmk6130'
     evtmatch='-e001'
     #evtmatch='-e010'
     plotST( workdir, keymatch='sa-cpp-d-inl0-best', ylog=True, evtmatch=evtmatch )
