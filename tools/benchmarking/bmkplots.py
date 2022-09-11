@@ -299,6 +299,19 @@ def plotProcessesInl( workdir, keymatch, evtmatch='-e001', debug=False ):
 
 #---------------------------------------
 
+def allplots( workdir, evtmatch='-e001', debug=False ):
+    plotST( workdir, keymatch='sa-cpp-d-inl0-best', ylog=True, evtmatch=evtmatch )
+    plotST( workdir, keymatch='sa-cpp-f-inl0-best', ylog=True, evtmatch=evtmatch )
+    plotOneProcess2( workdir, 'ggttgg', 'sa-cpp-d-inl0', evtmatch=evtmatch )
+    plotOneProcess2( workdir, 'ggttgg', 'sa-cpp-f-inl0', evtmatch=evtmatch )
+    if 'jwlogin08' not in workdir and 'bmk6130' not in workdir:
+        plotOneProcess2( workdir, None, 'sa-cpp-d-inl0', evtmatch=evtmatch )
+        plotOneProcess2( workdir, None, 'sa-cpp-f-inl0', evtmatch=evtmatch )
+        plotProcessesInl( workdir, 'sa-cpp-d-inl', evtmatch=evtmatch )
+        plotProcessesInl( workdir, 'sa-cpp-f-inl', evtmatch=evtmatch )
+
+#---------------------------------------
+
 if __name__ == '__main__':
 
     # TESTS
@@ -311,18 +324,9 @@ if __name__ == '__main__':
     #dumpScoresAllKeys( loadRunSet( 'BMK-pmpe04'), keymatch='ggttgg-sa-cpp-d-inl0' )
 
     # PRODUCTION PLOTS
-    #workdir = 'BMK-pmpe04'
-    #workdir = 'BMK-itscrd70'
-    workdir = 'BMK-jwlogin08'
-    #workdir = 'BMK-bmk6130'
-    evtmatch='-e001'
-    #evtmatch='-e010'
-    plotST( workdir, keymatch='sa-cpp-d-inl0-best', ylog=True, evtmatch=evtmatch )
-    plotST( workdir, keymatch='sa-cpp-f-inl0-best', ylog=True, evtmatch=evtmatch )
-    plotOneProcess2( workdir, 'ggttgg', 'sa-cpp-d-inl0', evtmatch=evtmatch )
-    plotOneProcess2( workdir, 'ggttgg', 'sa-cpp-f-inl0', evtmatch=evtmatch )
-    #plotOneProcess2( workdir, None, 'sa-cpp-d-inl0', evtmatch=evtmatch )
-    #plotOneProcess2( workdir, None, 'sa-cpp-f-inl0', evtmatch=evtmatch )
-    #plotProcessesInl( workdir, 'sa-cpp-d-inl', evtmatch=evtmatch )
-    #plotProcessesInl( workdir, 'sa-cpp-f-inl', evtmatch=evtmatch )
-
+    #allplots( 'BMK-pmpe04', '-e001' )
+    #allplots( 'BMK-pmpe04', '-e010' )
+    #allplots( 'BMK-itscrd70', '-e001' )
+    #allplots( 'BMK-itscrd70', '-e010' )
+    allplots( 'BMK-jwlogin08', '-e001' )
+    allplots( 'BMK-bmk6130', '-e001' )
