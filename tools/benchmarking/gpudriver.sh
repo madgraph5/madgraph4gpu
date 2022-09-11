@@ -1,14 +1,14 @@
 #!/bin/bash
 
 ### TO KILL A TEST:
-###kill $(ps -ef | egrep '(mg5amc-madgraph4gpu-2022-bmk.sh|throughputX.sh|check.exe)' | grep -v grep | awk '{print $2}')
+###kill $(ps -ef | egrep '(mg5amc-madgraph4gpu-2022-bmk.sh|throughputX.sh|check.exe|gpudriver.sh)' | grep -v grep | awk '{print $2}')
 
 startdate=$(date)
 
 # Defaults for all nodes (may be overridden)
 image=oras://registry.cern.ch/hep-workloads/mg5amc-madgraph4gpu-2022-bmk:v0.6
 extraargs="-ggttgg -dbl -flt -inl0 --gpu" # default for ggttgg is "-p 2048 256 1"
-events=10
+events=100
 
 # Node-specific configuration
 if [ "$(hostname)" == "itscrd70.cern.ch" ]; then
