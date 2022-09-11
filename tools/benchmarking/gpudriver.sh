@@ -30,7 +30,7 @@ for gbgt in $gbgts; do
   for jt in $jts; do
     jt=${jt:1:-1}; t=${jt#*,}; j=${jt%,*}
     ###echo "jobs=$j, threads=$t"
-    wDir="${tstDir}/sa-cuda$(printf '%s%03i%s%03i%s%03i%s%03i%s%03i' '-gb' ${gb} '-gt' ${gt} '-j' ${j} '-t' ${t} '-e' ${events})"
+    wDir="${tstDir}/sa-cuda$(printf '%s%05i%s%05i%s%03i%s%03i%s%04i' '-gb' ${gb} '-gt' ${gt} '-j' ${j} '-t' ${t} '-e' ${events})"
     ###echo ${resDir}/${wDir}
     \rm -rf ${resDir}/${wDir}
     singularity run -B ${resDir}:/results ${image} --extra-args "${extraargs} -p${gb},${gt},1" -c${j} -t${t} -e${events} -w /results/${wDir} -W
