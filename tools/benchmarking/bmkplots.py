@@ -123,6 +123,7 @@ def loadCudaRunSet( runsetdir, evtmatch='-e001', debug=False ):
         print( 'Unknown directory', runsetdir )
         return
     # Go through all runs in runsetdir and fill cudarunset_scores[ngbl,ngth,njob,nthr]
+    node, xht, ftitle = getNodeFeatures( runsetdir )
     cudarunset_scores = {}
     print( 'Loading runs in RunSetDir', runsetdir, 'for events', evtmatch )
     for d in sorted( os.listdir( runsetdir ) ) :
@@ -147,6 +148,11 @@ def loadCudaRunSet( runsetdir, evtmatch='-e001', debug=False ):
             assert njob == run_info[njobkey], 'njob mismatch %i != %i'%( njob, run_info[njobkey] )
             assert nthr == run_info[nthrkey], 'nthr mismatch %i != %i'%( nthr, run_info[nthrkey] )
             assert nevt == run_info[nevtkey], 'nevt mismatch %i != %i'%( nevt, run_info[nevtkey] )
+            if abs(xht) < njob:
+                print( 'WARNING! %s contains overcommit data (njob=%d > nproc=%d) and will be skipped'%(rundir,njob,abs(xht)) )
+                continue
+            else:
+                print( njob, abs(xht) )
             cudarunset_scores[ngbl,ngth,njob,nthr] = run_scores
     return cudarunset_scores
 
@@ -254,7 +260,7 @@ def getNodeFeatures( workdir ):
         node='pmpe04'
         xht=16
         ftitle='check.exe scalability on pmpe04 (2x 8-core 2.4GHz Xeon E5-2630 v3 with 2x HT)' # lscpu
-    elif workdir == 'BMK-itscrd70' :
+    elif workdir.startswith( 'BMK-itscrd70' ) :
         node='itscrd70'
         xht=-4
         ftitle='check.exe scalability on itscrd70 (1x 4-core 2.1GHz Xeon Silver 4216 without HT)' # lscpu
