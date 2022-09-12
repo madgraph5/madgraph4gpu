@@ -8,7 +8,8 @@ startdate=$(date)
 # Defaults for all nodes (may be overridden)
 image=oras://registry.cern.ch/hep-workloads/mg5amc-madgraph4gpu-2022-bmk:v0.6
 extraargs="-ggttgg -dbl -flt -inl0 --gpu" # default for ggttgg is "-p 2048 256 1"
-events=100
+###events=100 # this was ~2h up to 2048
+events=800 # this could be ~10h up to 1280?
 
 # Node-specific configuration
 if [ "$(hostname)" == "itscrd70.cern.ch" ]; then
@@ -17,9 +18,8 @@ if [ "$(hostname)" == "itscrd70.cern.ch" ]; then
   resDir=/scratch/TMP_RESULTS
   tstDir=BMK-itscrd70-cuda
   jts=""; for j in 1 2 4 8; do for t in 1; do if [ $((j*t)) -le 8 ]; then jts="$jts [$j,$t]"; fi; done; done 
-  ###gbgts=""; for gb in 64 128 256 512 1024 2048; do for gt in 256; do if [ $((gb*gt)) -le $((2048*256)) ]; then gbgts="$gbgts [$gb,$gt]"; fi; done; done 
-  gbgts=""; for gb in 1 2 4 8 16 32; do for gt in 256; do if [ $((gb*gt)) -le $((2048*256)) ]; then gbgts="$gbgts [$gb,$gt]"; fi; done; done 
-  ###gbgts=""; for gb in 80 160 320 640 1280 2560; do for gt in 256; do if [ $((gb*gt)) -le $((2560*256)) ]; then gbgts="$gbgts [$gb,$gt]"; fi; done; done 
+  ###gbgts=""; for gb in 1 2 4 8 16 32 64 128 256 512 1024 2048; do for gt in 256; do if [ $((gb*gt)) -le $((2048*256)) ]; then gbgts="$gbgts [$gb,$gt]"; fi; done; done 
+  gbgts=""; for gb in 1 2 4 8 16 20 32 40 64 80 128 160 256 320 640 1280; do for gt in 256; do if [ $((gb*gt)) -le $((2560*256)) ]; then gbgts="$gbgts [$gb,$gt]"; fi; done; done # Tesla V100 uses 80 SM, try to use a multiple of that
 else
   echo "ERROR! Unknown host $(hostname)"; exit 1
 fi
