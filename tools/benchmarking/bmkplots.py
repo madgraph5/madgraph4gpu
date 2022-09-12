@@ -187,10 +187,14 @@ def getNodeFeatures( workdir ):
         node='pmpe04'
         xht=16
         ftitle='check.exe scalability on pmpe04 (2x 8-core 2.4GHz Xeon E5-2630 v3 with 2x HT)' # lscpu
-    elif workdir.startswith( 'BMK-itscrd70' ) :
+    elif workdir == 'BMK-itscrd70' :
         node='itscrd70'
         xht=-4
         ftitle='check.exe scalability on itscrd70 (1x 4-core 2.1GHz Xeon Silver 4216 without HT)' # lscpu
+    elif workdir == 'BMK-itscrd70-cuda' :
+        node='itscrd70'
+        xht=-4
+        ftitle='gcheck.exe scalability on itscrd70 (V100 GPU on a 4-thread Xeon Silver 4216 CPU)' # lscpu
     elif workdir == 'BMK-jwlogin08' :
         node='jwlogin08'
         xht=40
@@ -378,6 +382,72 @@ def allCppPlots( workdir, evtmatch='-e001', debug=False ):
 
 #---------------------------------------
 
+# Compare various curves in cuda ST plots
+def axesCudaST( ax, cudarunset_scores, score_key, ylog=False, debug=False ):
+    # Prepare axes labels
+    ax.set_xlabel('GPUgridsize (#GPUblocks * #GPUthreads)', size=plots_labelsize )
+    ax.set_ylabel('Throughput (E6 events per second)', size=plots_labelsize )
+    if ylog: ax.set_yscale( 'log' )
+    # Add one curve per njob
+    ngbls = set( [njobnthr[0] for njobnthr in cudarunset_scores] ) # use set(list) to get unique keys
+    ngths = set( [njobnthr[1] for njobnthr in cudarunset_scores] ) # use set(list) to get unique keys
+    njobs = set( [njobnthr[2] for njobnthr in cudarunset_scores] ) # use set(list) to get unique keys
+    nthrs = set( [njobnthr[3] for njobnthr in cudarunset_scores] ) # use set(list) to get unique keys
+    nthr = 1
+    assert nthrs == {nthr}, 'assume ST CPU jobs with nthr==1'
+    xmax = 0
+    ymax = 0
+    for njob in njobs :
+        # Prepare x-axis and y-axis lists
+        xvals = []
+        yvals = []
+        for ngbl in sorted(ngbls):
+            for ngth in sorted(ngths):
+                if (ngbl,ngth,njob,nthr) not in cudarunset_scores: continue
+                xval = ngbl*ngth # 'gpugridsize'
+                tput = cudarunset_scores[ngbl,ngth,njob,nthr][score_key]
+                xvals.append( xval )
+                yvals.append( tput )
+        xmax = max( xmax, max( xvals ) )
+        ymax = max( ymax, max( yvals ) )
+        # Add curve of y vs x
+        p = ax.plot( xvals, yvals, marker='o', label='njob=%d'%njob )
+    # Decorate axes
+    loc = 'lower right'
+    ax.legend( loc=loc, fontsize=plots_legendsize )
+    xmin = 0
+    xmax *= 1.8
+    if ylog:
+        ymin = 0.001
+        ymax *= 12
+        ytxt = 0.5 * ymax
+    else:
+        ymin = 0
+        ymax *= 1.2
+        ytxt = 0.92 * ymax
+    ax.axis( [xmin, xmax, ymin, ymax] )
+
+# Create a figure with a single plot
+def plotCudaST( workdir, score_key='ggttgg-sa-cuda-d-inl0', ylog=False, evtmatch='-e001', debug=False ):
+    cudarunset_scores = loadCudaRunSet( workdir, evtmatch=evtmatch )
+    node, xht, ftitle = getNodeFeatures( workdir )
+    pngpath = workdir + '/' + node + evtmatch + '-' + score_key + '.png'
+    # Create figure with one plot
+    fig = plt.figure( figsize=plots_figsize )
+    ax1 = fig.add_subplot( 111 )
+    # Fill the plot in the figure
+    axesCudaST( ax1, cudarunset_scores, score_key=score_key, ylog=ylog, debug=debug )
+    if ftitle is not None:
+        if evtmatch.startswith( '-e' ) and evtmatch[2:].isdigit(): ftitle += ' for %d cycles'%int(evtmatch[2:])
+        fig.suptitle( ftitle, size=plots_ftitlesize )
+    # Save and show the figure
+    fig.savefig( pngpath, format='png', bbox_inches="tight" )
+    Popen( ['display', '-geometry', '+50+50', pngpath] )
+    ###Popen( ['display', '-geometry', '+50+50', '-resize', '800', pngpath] )
+    print( 'Plot successfully saved on', pngpath )
+
+#---------------------------------------
+
 if __name__ == '__main__':
 
     # TESTS (CPP)
@@ -400,5 +470,6 @@ if __name__ == '__main__':
 
     # TESTS (CUDA)
     #loadCudaRunSet( 'BMK-itscrd70-cuda', evtmatch='-e0100', debug=True )
-    dumpCudaScoresOneKey( loadCudaRunSet( 'BMK-itscrd70-cuda', evtmatch='-e0100' ), 'ggttgg-sa-cuda-d-inl0' )
+    #dumpCudaScoresOneKey( loadCudaRunSet( 'BMK-itscrd70-cuda', evtmatch='-e0100' ), 'ggttgg-sa-cuda-d-inl0' )
     #dumpCudaScoresOneKey( loadCudaRunSet( 'BMK-itscrd70-cuda', evtmatch='-e0100' ), 'ggttgg-sa-cuda-f-inl0' )
+    plotCudaST( 'BMK-itscrd70-cuda', score_key='ggttgg-sa-cuda-d-inl0', ylog=False, evtmatch='-e0100', debug=False )
