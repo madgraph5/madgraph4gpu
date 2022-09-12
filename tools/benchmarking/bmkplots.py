@@ -181,6 +181,32 @@ def dumpCudaScoresOneKey( cudarunset_scores, score_key, debug=False ):
 
 #---------------------------------------
 
+# Get node-dependent features
+def getNodeFeatures( workdir ):
+    if workdir == 'BMK-pmpe04' :
+        node='pmpe04'
+        xht=16
+        ftitle='check.exe scalability on pmpe04 (2x 8-core 2.4GHz Xeon E5-2630 v3 with 2x HT)' # lscpu
+    elif workdir.startswith( 'BMK-itscrd70' ) :
+        node='itscrd70'
+        xht=-4
+        ftitle='check.exe scalability on itscrd70 (1x 4-core 2.1GHz Xeon Silver 4216 without HT)' # lscpu
+    elif workdir == 'BMK-jwlogin08' :
+        node='jwlogin08'
+        xht=40
+        ftitle='check.exe scalability on jwlogin08 (2x 20-core 2.4GHz Xeon Gold 6148 with 2x HT)' # lscpu
+    elif workdir == 'BMK-bmk6130' :
+        node='bmk6130'
+        xht=32
+        ###ftitle='check.exe scalability on bmk-ironic-0731f1ce3b (2x 16-core 2.1GHz Xeon Gold 6130 with 2x HT)' # lscpu
+        ftitle='check.exe scalability on "bmk6130" (2x 16-core 2.1GHz Xeon Gold 6130 with 2x HT)' # lscpu
+    else:
+        print( 'ERROR! Unknown workdir', workdir )
+        sys.exit(-1)
+    return node, xht, ftitle
+
+#---------------------------------------
+
 # Compare various curves in ST plots
 # NB: xht>0 is the number of physical cores before 2xHT, xht<0 is the number of physical cores without HT
 def axesCppST( ax, cpprunset_scores, keymatch=None, bestonly=False, abstput=True, ylog=False, xht=None, debug=False ):
@@ -253,30 +279,6 @@ def axesCppST( ax, cpprunset_scores, keymatch=None, bestonly=False, abstput=True
         if hasovercommit:
             xtxtover = ( xmax/2+xht if hasht else xmax/2+xht/2 )
             ax.text( xtxtover, ytxt, 'Overcommit', ha='center', va='center', size=plots_txtsize )
-
-# Get node-dependent features
-def getNodeFeatures( workdir ):
-    if workdir == 'BMK-pmpe04' :
-        node='pmpe04'
-        xht=16
-        ftitle='check.exe scalability on pmpe04 (2x 8-core 2.4GHz Xeon E5-2630 v3 with 2x HT)' # lscpu
-    elif workdir.startswith( 'BMK-itscrd70' ) :
-        node='itscrd70'
-        xht=-4
-        ftitle='check.exe scalability on itscrd70 (1x 4-core 2.1GHz Xeon Silver 4216 without HT)' # lscpu
-    elif workdir == 'BMK-jwlogin08' :
-        node='jwlogin08'
-        xht=40
-        ftitle='check.exe scalability on jwlogin08 (2x 20-core 2.4GHz Xeon Gold 6148 with 2x HT)' # lscpu
-    elif workdir == 'BMK-bmk6130' :
-        node='bmk6130'
-        xht=32
-        ###ftitle='check.exe scalability on bmk-ironic-0731f1ce3b (2x 16-core 2.1GHz Xeon Gold 6130 with 2x HT)' # lscpu
-        ftitle='check.exe scalability on "bmk6130" (2x 16-core 2.1GHz Xeon Gold 6130 with 2x HT)' # lscpu
-    else:
-        print( 'ERROR! Unknown workdir', workdir )
-        sys.exit(-1)
-    return node, xht, ftitle
 
 # Create a figure with a single plot
 def plotCppST( workdir, keymatch=None, abstput=True, ylog=False, evtmatch='-e001', debug=False ):
