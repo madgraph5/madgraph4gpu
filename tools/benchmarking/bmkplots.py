@@ -155,17 +155,23 @@ def loadCudaRunSet( runsetdir, evtmatch='-e001', debug=False ):
 def dumpCudaScoresOneKey( cudarunset_scores, score_key, debug=False ):
     ###debug=True
     print( '\nSCORES[\'%s\']:'%score_key )
-    njobs = set( [njobnthr[0] for njobnthr in cudarunset_scores] ) # use set(list) to get unique keys
-    nthrs = set( [njobnthr[1] for njobnthr in cudarunset_scores] ) # use set(list) to get unique keys
-    print( '%4s %4s %12s    %9s %12s'%( 'njob', 'nthr', 'Score', 'njob*nthr', 'S/S[1,1]' ) )
-    assert (1,1) in cudarunset_scores, 'no scores found for njob==1 and nthr==1?'
-    tput1 = cudarunset_scores[1,1][score_key]
+    ngbls = set( [njobnthr[0] for njobnthr in cudarunset_scores] ) # use set(list) to get unique keys
+    ngths = set( [njobnthr[1] for njobnthr in cudarunset_scores] ) # use set(list) to get unique keys
+    njobs = set( [njobnthr[2] for njobnthr in cudarunset_scores] ) # use set(list) to get unique keys
+    nthrs = set( [njobnthr[3] for njobnthr in cudarunset_scores] ) # use set(list) to get unique keys
+    ngblmin = min( ngbls )
+    ngthmin = min( ngths )
+    assert (ngblmin,ngthmin,1,1) in cudarunset_scores, 'no scores found for (ngbl,ngth,njob,nthr)==(%d,%d,1,1)?'%(ngblmin,ngthmin)
+    tputmin = cudarunset_scores[ngblmin,ngthmin,1,1][score_key]
+    print( '%5s %5s %5s %5s %12s %20s %20s'%( 'nthr', 'njob', 'ngbl', 'ngth', 'Score', 'ngbl*ngth*njob*nthr', 'S/S[%d,%d,1,1]'%(ngblmin,ngthmin) ) )
     for nthr in sorted(nthrs):
         for njob in sorted(njobs):
-            if (njob,nthr) not in cudarunset_scores: continue
-            tput = cudarunset_scores[njob,nthr][score_key]
-            print( '%4d %4d %12.6f    %9d %12.6f'%
-                   ( njob, nthr, tput, njob*nthr, tput / tput1 ) )
+            for ngbl in sorted(ngbls):
+                for ngth in sorted(ngths):
+                    if (ngbl,ngth,njob,nthr) not in cudarunset_scores: continue
+                    tput = cudarunset_scores[ngbl,ngth,njob,nthr][score_key]
+                    print( '%5d %5d %5d %5d %12.6f %20d %20.6f'%
+                           ( nthr, njob, ngbl, ngth, tput, ngbl*ngth*njob*nthr, tput/tputmin ) )
 
 #---------------------------------------
 
@@ -385,5 +391,5 @@ if __name__ == '__main__':
     #allplots( 'BMK-bmk6130', '-e010' )
 
     # TESTS (CUDA)
-    loadCudaRunSet( 'BMK-itscrd70-cuda', evtmatch='-e0100', debug=True )
-    #dumpCudaScoresOneKey( loadCppRunSet( 'BMK-itscrd70-cuda', evtmatch='-e0100' ), 'ggttgg-sa-cuda-d-inl0' )
+    #loadCudaRunSet( 'BMK-itscrd70-cuda', evtmatch='-e0100', debug=True )
+    dumpCudaScoresOneKey( loadCudaRunSet( 'BMK-itscrd70-cuda', evtmatch='-e0100' ), 'ggttgg-sa-cuda-d-inl0' )
