@@ -17,7 +17,8 @@ if [ "$(hostname)" == "itscrd70.cern.ch" ]; then
   resDir=/scratch/TMP_RESULTS
   tstDir=BMK-itscrd70-cuda
   jts=""; for j in 1 2 4 8; do for t in 1; do if [ $((j*t)) -le 8 ]; then jts="$jts [$j,$t]"; fi; done; done 
-  gbgts=""; for gb in 64 128 256 512 1024 2048; do for gt in 256; do if [ $((gb*gt)) -le $((2048*256)) ]; then gbgts="$gbgts [$gb,$gt]"; fi; done; done 
+  ###gbgts=""; for gb in 64 128 256 512 1024 2048; do for gt in 256; do if [ $((gb*gt)) -le $((2048*256)) ]; then gbgts="$gbgts [$gb,$gt]"; fi; done; done 
+  gbgts=""; for gb in 1 2 4 8 16 32; do for gt in 256; do if [ $((gb*gt)) -le $((2048*256)) ]; then gbgts="$gbgts [$gb,$gt]"; fi; done; done 
   ###gbgts=""; for gb in 80 160 320 640 1280 2560; do for gt in 256; do if [ $((gb*gt)) -le $((2560*256)) ]; then gbgts="$gbgts [$gb,$gt]"; fi; done; done 
 else
   echo "ERROR! Unknown host $(hostname)"; exit 1
