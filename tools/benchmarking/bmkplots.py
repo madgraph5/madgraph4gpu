@@ -412,7 +412,7 @@ def axesCudaST( ax, cudarunset_scores, score_key, xlog=True, ylog=False, debug=F
         xmax = max( xmax, max( xvals ) )
         ymax = max( ymax, max( yvals ) )
         # Add curve of y vs x
-        p = ax.plot( xvals, yvals, marker='o', label='njob=%d'%njob )
+        p = ax.plot( xvals, yvals, marker='o', label='%s njob=%d'%('double' if '-d-' in score_key else 'float', njob) )
     # Decorate axes
     loc = 'lower right'
     ax.legend( loc=loc, fontsize=plots_legendsize )
@@ -468,3 +468,4 @@ if __name__ == '__main__':
     #dumpCudaScoresOneKey( loadCudaRunSet( 'BMK-itscrd70-cuda', evtmatch='-e0100' ), 'ggttgg-sa-cuda-d-inl0' )
     #dumpCudaScoresOneKey( loadCudaRunSet( 'BMK-itscrd70-cuda', evtmatch='-e0100' ), 'ggttgg-sa-cuda-f-inl0' )
     plotCudaST( 'BMK-itscrd70-cuda', score_key='ggttgg-sa-cuda-d-inl0', ylog=False, evtmatch='-e0100', debug=False )
+    plotCudaST( 'BMK-itscrd70-cuda', score_key='ggttgg-sa-cuda-f-inl0', ylog=False, evtmatch='-e0100', debug=False )
