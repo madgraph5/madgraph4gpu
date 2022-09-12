@@ -383,10 +383,11 @@ def allCppPlots( workdir, evtmatch='-e001', debug=False ):
 #---------------------------------------
 
 # Compare various curves in cuda ST plots
-def axesCudaST( ax, cudarunset_scores, score_key, ylog=False, debug=False ):
+def axesCudaST( ax, cudarunset_scores, score_key, xlog=True, ylog=False, debug=False ):
     # Prepare axes labels
     ax.set_xlabel('GPUgridsize (#GPUblocks * #GPUthreads)', size=plots_labelsize )
     ax.set_ylabel('Throughput (E6 events per second)', size=plots_labelsize )
+    if xlog: ax.set_xscale( 'log' )
     if ylog: ax.set_yscale( 'log' )
     # Add one curve per njob
     ngbls = set( [njobnthr[0] for njobnthr in cudarunset_scores] ) # use set(list) to get unique keys
@@ -415,16 +416,10 @@ def axesCudaST( ax, cudarunset_scores, score_key, ylog=False, debug=False ):
     # Decorate axes
     loc = 'lower right'
     ax.legend( loc=loc, fontsize=plots_legendsize )
-    xmin = 0
-    xmax *= 1.8
-    if ylog:
-        ymin = 0.001
-        ymax *= 12
-        ytxt = 0.5 * ymax
-    else:
-        ymin = 0
-        ymax *= 1.2
-        ytxt = 0.92 * ymax
+    if xlog: xmin, xmax = 100, xmax*4
+    else: xmin, xmax = 0, xmax*1.1
+    if ylog: ymin, ymax = 0.001, ymax*12
+    else: ymin, ymax = 0, ymax*1.2
     ax.axis( [xmin, xmax, ymin, ymax] )
 
 # Create a figure with a single plot
