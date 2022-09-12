@@ -381,9 +381,10 @@ def allCppPlots( workdir, evtmatch='-e001', debug=False ):
 #---------------------------------------
 
 # Compare various curves in cuda ST plots
-def axesCudaST( ax, cudarunset_scores, score_key, xlog=True, ylog=False, debug=False ):
+def axesCudaST( ax, cudarunset_scores, score_key, xjob=False, xlog=True, ylog=False, debug=False ):
     # Prepare axes labels
-    ax.set_xlabel('GPUgridsize (#GPUblocks * #GPUthreads)', size=plots_labelsize )
+    if xjob: ax.set_xlabel('nblocksGPU * nthreadsGPU * njobsCPU', size=plots_labelsize )
+    else: ax.set_xlabel('nblocksGPU * nthreadsGPU', size=plots_labelsize )
     ax.set_ylabel('Throughput (E6 events per second)', size=plots_labelsize )
     if xlog: ax.set_xscale( 'log' )
     if ylog: ax.set_yscale( 'log' )
@@ -403,35 +404,41 @@ def axesCudaST( ax, cudarunset_scores, score_key, xlog=True, ylog=False, debug=F
         for ngbl in sorted(ngbls):
             for ngth in sorted(ngths):
                 if (ngbl,ngth,njob,nthr) not in cudarunset_scores: continue
-                xval = ngbl*ngth # 'gpugridsize'
+                if xjob: xval = ngbl*ngth*njob # 'gpugridsize*njob'
+                else: xval = ngbl*ngth # 'gpugridsize'
                 tput = cudarunset_scores[ngbl,ngth,njob,nthr][score_key]
                 xvals.append( xval )
                 yvals.append( tput )
-        xmax = max( xmax, max( xvals ) )
-        ymax = max( ymax, max( yvals ) )
+        if xjob: xmax = max( xmax, max(xvals) )
+        else: xmax = max( xmax, max(xvals)*njob ) # use the same xmax both with/without xjob
+        ymax = max( ymax, max(yvals) )
         # Add curve of y vs x
-        p = ax.plot( xvals, yvals, marker='o', label='%s njob=%d'%('double' if '-d-' in score_key else 'float', njob) )
+        p = ax.plot( xvals, yvals, marker='o', label=score_key+' (njobsCPU=%d)'%njob )
     # Decorate axes
     loc = 'lower right'
     ax.legend( loc=loc, fontsize=plots_legendsize )
     if xlog: xmin, xmax = 100, xmax*4
     else: xmin, xmax = 0, xmax*1.1
     if ylog: ymin, ymax = 0.001, ymax*12
-    else: ymin, ymax = 0, ymax*1.2
+    else: ymin, ymax = 0, ymax*1.1
     ax.axis( [xmin, xmax, ymin, ymax] )
 
-# Create a figure with a single plot
+# Create a figure with two plots (use gridsize or gridsize*njob as x-axis)
 def plotCudaST( workdir, score_key='ggttgg-sa-cuda-d-inl0', ylog=False, evtmatch='-e001', debug=False ):
     cudarunset_scores = loadCudaRunSet( workdir, evtmatch=evtmatch )
     node, xht, ftitle = getNodeFeatures( workdir )
     pngpath = workdir + '/' + node + evtmatch + '-' + score_key + '.png'
     # Create figure with one plot
-    fig = plt.figure( figsize=plots_figsize )
-    ax1 = fig.add_subplot( 111 )
+    fig = plt.figure( figsize = ( 1.2*plots_figsize[0]*2, 1.2*plots_figsize[1] ) )
+    ax1 = fig.add_subplot( 121 )
+    ax2 = fig.add_subplot( 122 )
     # Fill the plot in the figure
-    axesCudaST( ax1, cudarunset_scores, score_key=score_key, ylog=ylog, debug=debug )
+    axesCudaST( ax1, cudarunset_scores, xjob=False, score_key=score_key, ylog=ylog, debug=debug )
+    axesCudaST( ax2, cudarunset_scores, xjob=True, score_key=score_key, ylog=ylog, debug=debug )
     if ftitle is not None:
         if evtmatch.startswith( '-e' ) and evtmatch[2:].isdigit(): ftitle += ' for %d cycles'%int(evtmatch[2:])
+        ###ftitle += ' - ' + ( 'DOUBLE' if '-d-' in score_key else 'FLOAT' )
+        ###ftitle += ' - ' + score_key
         fig.suptitle( ftitle, size=plots_ftitlesize )
     # Save and show the figure
     fig.savefig( pngpath, format='png', bbox_inches="tight" )
