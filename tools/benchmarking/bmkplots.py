@@ -183,7 +183,7 @@ def dumpCudaScoresOneKey( cudarunset_scores, score_key, debug=False ):
 
 # Compare various curves in ST plots
 # NB: xht>0 is the number of physical cores before 2xHT, xht<0 is the number of physical cores without HT
-def axesST( ax, cpprunset_scores, keymatch=None, bestonly=False, abstput=True, ylog=False, xht=None, debug=False ):
+def axesCppST( ax, cpprunset_scores, keymatch=None, bestonly=False, abstput=True, ylog=False, xht=None, debug=False ):
     # Prepare axes labels
     ax.set_xlabel('Level of parallelism (number of ST jobs)', size=plots_labelsize )
     if abstput:
@@ -279,7 +279,7 @@ def getNodeFeatures( workdir ):
     return node, xht, ftitle
 
 # Create a figure with a single plot
-def plotST( workdir, keymatch=None, abstput=True, ylog=False, evtmatch='-e001', debug=False ):
+def plotCppST( workdir, keymatch=None, abstput=True, ylog=False, evtmatch='-e001', debug=False ):
     cpprunset_scores = loadCppRunSet( workdir, evtmatch=evtmatch )
     node, xht, ftitle = getNodeFeatures( workdir )
     pngpath = workdir + '/' + node + evtmatch + '-all-' + keymatch + '.png'
@@ -287,7 +287,7 @@ def plotST( workdir, keymatch=None, abstput=True, ylog=False, evtmatch='-e001', 
     fig = plt.figure( figsize=plots_figsize )
     ax1 = fig.add_subplot( 111 )
     # Fill the plot in the figure
-    axesST( ax1, cpprunset_scores, keymatch=keymatch, ylog=ylog, xht=xht, abstput=abstput, debug=debug )
+    axesCppST( ax1, cpprunset_scores, keymatch=keymatch, ylog=ylog, xht=xht, abstput=abstput, debug=debug )
     if ftitle is not None:
         if evtmatch.startswith( '-e' ) and evtmatch[2:].isdigit(): ftitle += ' for %d cycles'%int(evtmatch[2:])
         fig.suptitle( ftitle, size=plots_ftitlesize )
@@ -298,7 +298,7 @@ def plotST( workdir, keymatch=None, abstput=True, ylog=False, evtmatch='-e001', 
     print( 'Plot successfully saved on', pngpath )
 
 # Create a figure with two plots per process, absolute and normalized tput
-def plotOneProcess2( workdir, oneprocess, keymatch, bestonly=False, evtmatch='-e001', debug=False ):
+def plotCppOneProcess2( workdir, oneprocess, keymatch, bestonly=False, evtmatch='-e001', debug=False ):
     cpprunset_scores = loadCppRunSet( workdir, evtmatch=evtmatch )
     node, xht, ftitle = getNodeFeatures( workdir )
     # One process or all processes?
@@ -315,11 +315,11 @@ def plotOneProcess2( workdir, oneprocess, keymatch, bestonly=False, evtmatch='-e
         ###print( idx1, idx2 )
         fullkeymatch = process + '-' + keymatch
         ax1 = fig.add_subplot( idx1 )
-        axesST( ax1, cpprunset_scores, keymatch=fullkeymatch, bestonly=bestonly, \
-                ylog=False, xht=xht, abstput=True, debug=debug )
+        axesCppST( ax1, cpprunset_scores, keymatch=fullkeymatch, bestonly=bestonly, \
+                   ylog=False, xht=xht, abstput=True, debug=debug )
         ax2 = fig.add_subplot( idx2 )
-        axesST( ax2, cpprunset_scores, keymatch=fullkeymatch, bestonly=bestonly, \
-                ylog=False, xht=xht, abstput=False, debug=debug )
+        axesCppST( ax2, cpprunset_scores, keymatch=fullkeymatch, bestonly=bestonly, \
+                   ylog=False, xht=xht, abstput=False, debug=debug )
         idx1 += 2
         idx2 += 2
     # Save and show the figure
@@ -336,7 +336,7 @@ def plotOneProcess2( workdir, oneprocess, keymatch, bestonly=False, evtmatch='-e
     print( 'Plot successfully saved on', pngpath )
 
 # Create a figure with one plots per process, with inl0 and inl1 best
-def plotProcessesInl( workdir, keymatch, evtmatch='-e001', debug=False ):
+def plotCppProcessesInl( workdir, keymatch, evtmatch='-e001', debug=False ):
     cpprunset_scores = loadCppRunSet( workdir, evtmatch=evtmatch )
     node, xht, ftitle = getNodeFeatures( workdir )
     # One process or all processes?
@@ -349,8 +349,8 @@ def plotProcessesInl( workdir, keymatch, evtmatch='-e001', debug=False ):
     for process in processes:
         fullkeymatch = process + '-' + keymatch
         ax1 = fig.add_subplot( idx1 )
-        axesST( ax1, cpprunset_scores, keymatch=fullkeymatch, bestonly=True, \
-                ylog=False, xht=xht, abstput=True, debug=debug )
+        axesCppST( ax1, cpprunset_scores, keymatch=fullkeymatch, bestonly=True, \
+                   ylog=False, xht=xht, abstput=True, debug=debug )
         idx1 += 1
     # Save and show the figure
     if ftitle is not None:
@@ -363,16 +363,16 @@ def plotProcessesInl( workdir, keymatch, evtmatch='-e001', debug=False ):
 
 #---------------------------------------
 
-def allplots( workdir, evtmatch='-e001', debug=False ):
-    plotST( workdir, keymatch='sa-cpp-d-inl0-best', ylog=True, evtmatch=evtmatch )
-    plotST( workdir, keymatch='sa-cpp-f-inl0-best', ylog=True, evtmatch=evtmatch )
-    plotOneProcess2( workdir, 'ggttgg', 'sa-cpp-d-inl0', evtmatch=evtmatch )
-    plotOneProcess2( workdir, 'ggttgg', 'sa-cpp-f-inl0', evtmatch=evtmatch )
+def allCppPlots( workdir, evtmatch='-e001', debug=False ):
+    plotCppST( workdir, keymatch='sa-cpp-d-inl0-best', ylog=True, evtmatch=evtmatch )
+    plotCppST( workdir, keymatch='sa-cpp-f-inl0-best', ylog=True, evtmatch=evtmatch )
+    plotCppOneProcess2( workdir, 'ggttgg', 'sa-cpp-d-inl0', evtmatch=evtmatch )
+    plotCppOneProcess2( workdir, 'ggttgg', 'sa-cpp-f-inl0', evtmatch=evtmatch )
     if 'pmpe04' in workdir or 'itscrd70' in workdir or ( 'bmk6130' in workdir and '-e010' in evtmatch ) :
-        plotOneProcess2( workdir, None, 'sa-cpp-d-inl0', evtmatch=evtmatch )
-        plotOneProcess2( workdir, None, 'sa-cpp-f-inl0', evtmatch=evtmatch )
-        plotProcessesInl( workdir, 'sa-cpp-d-inl', evtmatch=evtmatch )
-        plotProcessesInl( workdir, 'sa-cpp-f-inl', evtmatch=evtmatch )
+        plotCppOneProcess2( workdir, None, 'sa-cpp-d-inl0', evtmatch=evtmatch )
+        plotCppOneProcess2( workdir, None, 'sa-cpp-f-inl0', evtmatch=evtmatch )
+        plotCppProcessesInl( workdir, 'sa-cpp-d-inl', evtmatch=evtmatch )
+        plotCppProcessesInl( workdir, 'sa-cpp-f-inl', evtmatch=evtmatch )
 
 #---------------------------------------
 
@@ -388,15 +388,15 @@ if __name__ == '__main__':
     #dumpCppScoresAllKeys( loadCppRunSet( 'BMK-pmpe04'), keymatch='ggttgg-sa-cpp-d-inl0' )
 
     # PRODUCTION PLOTS (CPP)
-    #allplots( 'BMK-pmpe04', '-e001' )
-    #allplots( 'BMK-pmpe04', '-e010' )
-    #allplots( 'BMK-itscrd70', '-e001' )
-    #allplots( 'BMK-itscrd70', '-e010' )
-    #allplots( 'BMK-jwlogin08', '-e001' )
-    #allplots( 'BMK-bmk6130', '-e001' )
-    #allplots( 'BMK-bmk6130', '-e010' )
+    #allCppPlots( 'BMK-pmpe04', '-e001' )
+    #allCppPlots( 'BMK-pmpe04', '-e010' )
+    #allCppPlots( 'BMK-itscrd70', '-e001' )
+    #allCppPlots( 'BMK-itscrd70', '-e010' )
+    #allCppPlots( 'BMK-jwlogin08', '-e001' )
+    #allCppPlots( 'BMK-bmk6130', '-e001' )
+    #allCppPlots( 'BMK-bmk6130', '-e010' )
 
     # TESTS (CUDA)
     #loadCudaRunSet( 'BMK-itscrd70-cuda', evtmatch='-e0100', debug=True )
-    #dumpCudaScoresOneKey( loadCudaRunSet( 'BMK-itscrd70-cuda', evtmatch='-e0100' ), 'ggttgg-sa-cuda-d-inl0' )
-    dumpCudaScoresOneKey( loadCudaRunSet( 'BMK-itscrd70-cuda', evtmatch='-e0100' ), 'ggttgg-sa-cuda-f-inl0' )
+    dumpCudaScoresOneKey( loadCudaRunSet( 'BMK-itscrd70-cuda', evtmatch='-e0100' ), 'ggttgg-sa-cuda-d-inl0' )
+    #dumpCudaScoresOneKey( loadCudaRunSet( 'BMK-itscrd70-cuda', evtmatch='-e0100' ), 'ggttgg-sa-cuda-f-inl0' )
