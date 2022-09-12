@@ -39,7 +39,7 @@ def loadOneRun( workdir, debug=False ):
 
 #---------------------------------------
 
-def loadRunSet( runsetdir, evtmatch='-e001', debug=False ):
+def loadCppRunSet( runsetdir, evtmatch='-e001', debug=False ):
     ###debug=True
     if not os.path.isdir( runsetdir ):
         print( 'Unknown directory', runsetdir )
@@ -48,8 +48,7 @@ def loadRunSet( runsetdir, evtmatch='-e001', debug=False ):
     runset_scores = {}
     print( 'Loading runs in RunSetDir', runsetdir, 'for events', evtmatch )
     for d in sorted( os.listdir( runsetdir ) ) :
-        if ( d.startswith( 'sa-cpp' ) or d.startswith( 'sa-cuda' ) ) \
-               and d.endswith( evtmatch ) and 'png' not in d : # e.g. sa-cpp-j004-t001-e001
+        if d.startswith( 'sa-cpp' ) and d.endswith( evtmatch ) and 'png' not in d : # e.g. sa-cpp-j004-t001-e001
             rundir = runsetdir + '/' + d
             if 'SKIP' in os.listdir( rundir ):
                 print( 'WARNING! %s contains file SKIP and will be skipped'%rundir )
@@ -115,6 +114,41 @@ def getSortedMatchingKeys( runset_scores, keymatch=None, debug=False ):
 def dumpCppScoresAllKeys( runset_scores, keymatch=None, debug=False ):
     keys = getSortedMatchingKeys( runset_scores, keymatch, debug )
     for key in keys : dumpCppScoresOneKey( runset_scores, key )
+
+#---------------------------------------
+
+def loadCudaRunSet( runsetdir, evtmatch='-e001', debug=False ):
+    ###debug=True
+    if not os.path.isdir( runsetdir ):
+        print( 'Unknown directory', runsetdir )
+        return
+    # Go through all runs in runsetdir and fill runset_scores[njob,nthr]
+    runset_scores = {}
+    print( 'Loading runs in RunSetDir', runsetdir, 'for events', evtmatch )
+    for d in sorted( os.listdir( runsetdir ) ) :
+        if d.startswith( 'sa-cuda' ) and d.endswith( evtmatch ) and 'png' not in d : # e.g. sa-cuda-gb00064-gt00256-j001-t001-e0100
+            rundir = runsetdir + '/' + d
+            if 'SKIP' in os.listdir( rundir ):
+                print( 'WARNING! %s contains file SKIP and will be skipped'%rundir )
+                continue
+            dl = d.split( '-' )
+            ngbl = int( dl[-5][-5:] )
+            ngth = int( dl[-4][-5:] )
+            njob = int( dl[-3][-3:] )
+            nthr = int( dl[-2][-3:] )
+            nevt = int( dl[-1][-4:] )
+            if debug : print( '\nRunDir=%30s %5i %5i %3i %3i %4i'%( rundir, ngbl, ngth, njob, nthr, nevt ) )
+            run_info, run_scores = loadOneRun( rundir )
+            if len(run_scores) == 0 :
+                print( 'WARNING! %s contains 0 scores and will be skipped'%rundir )
+                continue
+            njobkey, nthrkey, nevtkey, nextkey = 'copies', 'threads_per_copy', 'events_per_thread', 'extra_arguments'
+            assert '-p%d,%d,1'%(ngbl,ngth) in run_info[nextkey]
+            assert njob == run_info[njobkey], 'njob mismatch %i != %i'%( njob, run_info[njobkey] )
+            assert nthr == run_info[nthrkey], 'nthr mismatch %i != %i'%( nthr, run_info[nthrkey] )
+            assert nevt == run_info[nevtkey], 'nevt mismatch %i != %i'%( nevt, run_info[nevtkey] )
+            runset_scores[njob,nthr] = run_scores
+    return runset_scores
 
 #---------------------------------------
 
@@ -234,7 +268,7 @@ def getNodeFeatures( workdir ):
 
 # Create a figure with a single plot
 def plotST( workdir, keymatch=None, abstput=True, ylog=False, evtmatch='-e001', debug=False ):
-    runset_scores = loadRunSet( workdir, evtmatch=evtmatch )
+    runset_scores = loadCppRunSet( workdir, evtmatch=evtmatch )
     node, xht, ftitle = getNodeFeatures( workdir )
     pngpath = workdir + '/' + node + evtmatch + '-all-' + keymatch + '.png'
     # Create figure with one plot
@@ -253,7 +287,7 @@ def plotST( workdir, keymatch=None, abstput=True, ylog=False, evtmatch='-e001', 
 
 # Create a figure with two plots per process, absolute and normalized tput
 def plotOneProcess2( workdir, oneprocess, keymatch, bestonly=False, evtmatch='-e001', debug=False ):
-    runset_scores = loadRunSet( workdir, evtmatch=evtmatch )
+    runset_scores = loadCppRunSet( workdir, evtmatch=evtmatch )
     node, xht, ftitle = getNodeFeatures( workdir )
     # One process or all processes?
     if oneprocess is not None: processes = [ oneprocess ]
@@ -291,7 +325,7 @@ def plotOneProcess2( workdir, oneprocess, keymatch, bestonly=False, evtmatch='-e
 
 # Create a figure with one plots per process, with inl0 and inl1 best
 def plotProcessesInl( workdir, keymatch, evtmatch='-e001', debug=False ):
-    runset_scores = loadRunSet( workdir, evtmatch=evtmatch )
+    runset_scores = loadCppRunSet( workdir, evtmatch=evtmatch )
     node, xht, ftitle = getNodeFeatures( workdir )
     # One process or all processes?
     processes = [ 'eemumu', 'ggtt', 'ggttg', 'ggttgg' ]
@@ -334,12 +368,12 @@ if __name__ == '__main__':
 
     # TESTS (CPP)
     #loadOneRun( 'BMK-pmpe04/sa-cpp-j032-t001-e001', debug=True )
-    #loadRunSet( 'BMK-pmpe04', debug=True )
-    #dumpCppScoresOneKey( loadRunSet( 'BMK-pmpe04' ), 'ggttgg-sa-cpp-d-inl0-best' )
-    #dumpCppScoresAllKeys( loadRunSet( 'BMK-pmpe04' ) )
-    #dumpCppScoresAllKeys( loadRunSet( 'BMK-pmpe04'), keymatch='best' )
-    #dumpCppScoresAllKeys( loadRunSet( 'BMK-pmpe04'), keymatch='inl0-best' )
-    #dumpCppScoresAllKeys( loadRunSet( 'BMK-pmpe04'), keymatch='ggttgg-sa-cpp-d-inl0' )
+    #loadCppRunSet( 'BMK-pmpe04', debug=True )
+    #dumpCppScoresOneKey( loadCppRunSet( 'BMK-pmpe04' ), 'ggttgg-sa-cpp-d-inl0-best' )
+    #dumpCppScoresAllKeys( loadCppRunSet( 'BMK-pmpe04' ) )
+    #dumpCppScoresAllKeys( loadCppRunSet( 'BMK-pmpe04'), keymatch='best' )
+    #dumpCppScoresAllKeys( loadCppRunSet( 'BMK-pmpe04'), keymatch='inl0-best' )
+    #dumpCppScoresAllKeys( loadCppRunSet( 'BMK-pmpe04'), keymatch='ggttgg-sa-cpp-d-inl0' )
 
     # PRODUCTION PLOTS (CPP)
     #allplots( 'BMK-pmpe04', '-e001' )
@@ -348,8 +382,8 @@ if __name__ == '__main__':
     #allplots( 'BMK-itscrd70', '-e010' )
     #allplots( 'BMK-jwlogin08', '-e001' )
     #allplots( 'BMK-bmk6130', '-e001' )
-    allplots( 'BMK-bmk6130', '-e010' )
+    #allplots( 'BMK-bmk6130', '-e010' )
 
     # TESTS (CUDA)
-    #loadRunSet( 'BMK-itscrd70-cuda', evtmatch='-e0100', debug=False )
-    #dumpCudaScoresOneKey( loadRunSet( 'BMK-itscrd70-cuda', evtmatch='-e0100' ), 'ggttgg-sa-cuda-d-inl0' )
+    loadCudaRunSet( 'BMK-itscrd70-cuda', evtmatch='-e0100', debug=True )
+    #dumpCudaScoresOneKey( loadCppRunSet( 'BMK-itscrd70-cuda', evtmatch='-e0100' ), 'ggttgg-sa-cuda-d-inl0' )
