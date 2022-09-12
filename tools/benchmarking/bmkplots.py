@@ -333,4 +333,5 @@ if __name__ == '__main__':
     #allplots( 'BMK-bmk6130', '-e001' )
 
     # TESTS (CUDA)
-    loadRunSet( 'BMK-itscrd70-cuda', evtmatch='-e0100', debug=False )
+    #loadRunSet( 'BMK-itscrd70-cuda', evtmatch='-e0100', debug=False )
+    dumpScoresOneKey( loadRunSet( 'BMK-itscrd70-cuda', evtmatch='-e0100' ), 'ggttgg-sa-cuda-d-inl0' )
