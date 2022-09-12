@@ -148,11 +148,9 @@ def loadCudaRunSet( runsetdir, evtmatch='-e001', debug=False ):
             assert njob == run_info[njobkey], 'njob mismatch %i != %i'%( njob, run_info[njobkey] )
             assert nthr == run_info[nthrkey], 'nthr mismatch %i != %i'%( nthr, run_info[nthrkey] )
             assert nevt == run_info[nevtkey], 'nevt mismatch %i != %i'%( nevt, run_info[nevtkey] )
-            if abs(xht) < njob:
-                print( 'WARNING! %s contains overcommit data (njob=%d > nproc=%d) and will be skipped'%(rundir,njob,abs(xht)) )
-                continue
-            else:
-                print( njob, abs(xht) )
+            #if abs(xht) < njob:
+            #    print( 'WARNING! %s contains overcommit data (njob=%d > nproc=%d) and will be skipped'%(rundir,njob,abs(xht)) )
+            #    continue
             cudarunset_scores[ngbl,ngth,njob,nthr] = run_scores
     return cudarunset_scores
 
@@ -398,7 +396,7 @@ def axesCudaST( ax, cudarunset_scores, score_key, xlog=True, ylog=False, debug=F
     assert nthrs == {nthr}, 'assume ST CPU jobs with nthr==1'
     xmax = 0
     ymax = 0
-    for njob in njobs :
+    for njob in sorted(njobs) :
         # Prepare x-axis and y-axis lists
         xvals = []
         yvals = []
