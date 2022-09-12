@@ -44,8 +44,8 @@ def loadCppRunSet( runsetdir, evtmatch='-e001', debug=False ):
     if not os.path.isdir( runsetdir ):
         print( 'Unknown directory', runsetdir )
         return
-    # Go through all runs in runsetdir and fill runset_scores[njob,nthr]
-    runset_scores = {}
+    # Go through all runs in runsetdir and fill cpprunset_scores[njob,nthr]
+    cpprunset_scores = {}
     print( 'Loading runs in RunSetDir', runsetdir, 'for events', evtmatch )
     for d in sorted( os.listdir( runsetdir ) ) :
         if d.startswith( 'sa-cpp' ) and d.endswith( evtmatch ) and 'png' not in d : # e.g. sa-cpp-j004-t001-e001
@@ -66,35 +66,35 @@ def loadCppRunSet( runsetdir, evtmatch='-e001', debug=False ):
             assert njob == run_info[njobkey], 'njob mismatch %i != %i'%( njob, run_info[njobkey] )
             assert nthr == run_info[nthrkey], 'nthr mismatch %i != %i'%( nthr, run_info[nthrkey] )
             assert nevt == run_info[nevtkey], 'nevt mismatch %i != %i'%( nevt, run_info[nevtkey] )
-            runset_scores[njob,nthr] = run_scores
-    return runset_scores
+            cpprunset_scores[njob,nthr] = run_scores
+    return cpprunset_scores
 
 #---------------------------------------
 
-def dumpCppScoresOneKey( runset_scores, score_key, debug=False ):
+def dumpCppScoresOneKey( cpprunset_scores, score_key, debug=False ):
     ###debug=True
     print( '\nSCORES[\'%s\']:'%score_key )
     score_key_none = score_key[:-4]+'none'
-    njobs = set( [njobnthr[0] for njobnthr in runset_scores] ) # use set(list) to get unique keys
-    nthrs = set( [njobnthr[1] for njobnthr in runset_scores] ) # use set(list) to get unique keys
+    njobs = set( [njobnthr[0] for njobnthr in cpprunset_scores] ) # use set(list) to get unique keys
+    nthrs = set( [njobnthr[1] for njobnthr in cpprunset_scores] ) # use set(list) to get unique keys
     print( '%4s %4s %12s    %9s %12s %12s %16s'%( 'njob', 'nthr', 'Score', 'njob*nthr', 'S/S[1,1]', 'S/S-none', 'S/S-none[1,1]' ) )
-    assert (1,1) in runset_scores, 'no scores found for njob==1 and nthr==1?'
-    tput1 = runset_scores[1,1][score_key]
-    tput1none = runset_scores[1,1][score_key_none]
+    assert (1,1) in cpprunset_scores, 'no scores found for njob==1 and nthr==1?'
+    tput1 = cpprunset_scores[1,1][score_key]
+    tput1none = cpprunset_scores[1,1][score_key_none]
     for nthr in sorted(nthrs):
         for njob in sorted(njobs):
-            if (njob,nthr) not in runset_scores: continue
-            tput = runset_scores[njob,nthr][score_key]
-            tputnone = runset_scores[njob,nthr][score_key_none]
+            if (njob,nthr) not in cpprunset_scores: continue
+            tput = cpprunset_scores[njob,nthr][score_key]
+            tputnone = cpprunset_scores[njob,nthr][score_key_none]
             print( '%4d %4d %12.6f    %9d %12.6f %12.6f %16.6f'%
                    ( njob, nthr, tput, njob*nthr, tput / tput1, tput / tputnone, tput / tput1none ) )
 
 #---------------------------------------
 
-def getSortedMatchingKeys( runset_scores, keymatch=None, debug=False ):
+def getSortedMatchingKeys( cpprunset_scores, keymatch=None, debug=False ):
     ###debug=True
     keys = []
-    for njobnthr in runset_scores : keys += list( runset_scores[njobnthr].keys() )
+    for njobnthr in cpprunset_scores : keys += list( cpprunset_scores[njobnthr].keys() )
     keys = set( keys ) # use set(list) to get unique keys
     if keymatch is not None: keys = [ key for key in keys if keymatch in key ]
     def sortableSimdKey( key ): # use keys sortable in this order: none, sse4, avx2, 512y, 512z, best
@@ -111,9 +111,9 @@ def getSortedMatchingKeys( runset_scores, keymatch=None, debug=False ):
 
 #---------------------------------------
 
-def dumpCppScoresAllKeys( runset_scores, keymatch=None, debug=False ):
-    keys = getSortedMatchingKeys( runset_scores, keymatch, debug )
-    for key in keys : dumpCppScoresOneKey( runset_scores, key )
+def dumpCppScoresAllKeys( cpprunset_scores, keymatch=None, debug=False ):
+    keys = getSortedMatchingKeys( cpprunset_scores, keymatch, debug )
+    for key in keys : dumpCppScoresOneKey( cpprunset_scores, key )
 
 #---------------------------------------
 
@@ -122,8 +122,8 @@ def loadCudaRunSet( runsetdir, evtmatch='-e001', debug=False ):
     if not os.path.isdir( runsetdir ):
         print( 'Unknown directory', runsetdir )
         return
-    # Go through all runs in runsetdir and fill runset_scores[njob,nthr]
-    runset_scores = {}
+    # Go through all runs in runsetdir and fill cudarunset_scores[ngbl,ngth,njob,nthr]
+    cudarunset_scores = {}
     print( 'Loading runs in RunSetDir', runsetdir, 'for events', evtmatch )
     for d in sorted( os.listdir( runsetdir ) ) :
         if d.startswith( 'sa-cuda' ) and d.endswith( evtmatch ) and 'png' not in d : # e.g. sa-cuda-gb00064-gt00256-j001-t001-e0100
@@ -147,23 +147,23 @@ def loadCudaRunSet( runsetdir, evtmatch='-e001', debug=False ):
             assert njob == run_info[njobkey], 'njob mismatch %i != %i'%( njob, run_info[njobkey] )
             assert nthr == run_info[nthrkey], 'nthr mismatch %i != %i'%( nthr, run_info[nthrkey] )
             assert nevt == run_info[nevtkey], 'nevt mismatch %i != %i'%( nevt, run_info[nevtkey] )
-            runset_scores[njob,nthr] = run_scores
-    return runset_scores
+            cudarunset_scores[ngbl,ngth,njob,nthr] = run_scores
+    return cudarunset_scores
 
 #---------------------------------------
 
-def dumpCudaScoresOneKey( runset_scores, score_key, debug=False ):
+def dumpCudaScoresOneKey( cudarunset_scores, score_key, debug=False ):
     ###debug=True
     print( '\nSCORES[\'%s\']:'%score_key )
-    njobs = set( [njobnthr[0] for njobnthr in runset_scores] ) # use set(list) to get unique keys
-    nthrs = set( [njobnthr[1] for njobnthr in runset_scores] ) # use set(list) to get unique keys
+    njobs = set( [njobnthr[0] for njobnthr in cudarunset_scores] ) # use set(list) to get unique keys
+    nthrs = set( [njobnthr[1] for njobnthr in cudarunset_scores] ) # use set(list) to get unique keys
     print( '%4s %4s %12s    %9s %12s'%( 'njob', 'nthr', 'Score', 'njob*nthr', 'S/S[1,1]' ) )
-    assert (1,1) in runset_scores, 'no scores found for njob==1 and nthr==1?'
-    tput1 = runset_scores[1,1][score_key]
+    assert (1,1) in cudarunset_scores, 'no scores found for njob==1 and nthr==1?'
+    tput1 = cudarunset_scores[1,1][score_key]
     for nthr in sorted(nthrs):
         for njob in sorted(njobs):
-            if (njob,nthr) not in runset_scores: continue
-            tput = runset_scores[njob,nthr][score_key]
+            if (njob,nthr) not in cudarunset_scores: continue
+            tput = cudarunset_scores[njob,nthr][score_key]
             print( '%4d %4d %12.6f    %9d %12.6f'%
                    ( njob, nthr, tput, njob*nthr, tput / tput1 ) )
 
@@ -171,7 +171,7 @@ def dumpCudaScoresOneKey( runset_scores, score_key, debug=False ):
 
 # Compare various curves in ST plots
 # NB: xht>0 is the number of physical cores before 2xHT, xht<0 is the number of physical cores without HT
-def axesST( ax, runset_scores, keymatch=None, bestonly=False, abstput=True, ylog=False, xht=None, debug=False ):
+def axesST( ax, cpprunset_scores, keymatch=None, bestonly=False, abstput=True, ylog=False, xht=None, debug=False ):
     # Prepare axes labels
     ax.set_xlabel('Level of parallelism (number of ST jobs)', size=plots_labelsize )
     if abstput:
@@ -183,25 +183,25 @@ def axesST( ax, runset_scores, keymatch=None, bestonly=False, abstput=True, ylog
     # Add one curve per matching score key
     xmax = 0
     ymax = 0
-    keys = getSortedMatchingKeys( runset_scores, keymatch, debug )
+    keys = getSortedMatchingKeys( cpprunset_scores, keymatch, debug )
     if bestonly : keys = [ key for key in keys if 'best' in key ]
     elif 'best' not in keymatch: keys = [ key for key in keys if 'best' not in key ]
     for score_key in keys :
         score_key_none = score_key[:-4]+'none'
-        njobs = set( [njobnthr[0] for njobnthr in runset_scores] ) # use set(list) to get unique keys
-        nthrs = set( [njobnthr[1] for njobnthr in runset_scores] ) # use set(list) to get unique keys
-        assert (1,1) in runset_scores, 'no scores found for njob==1 and nthr==1?'
-        ###tput1 = runset_scores[1,1][score_key]
-        tput1none = runset_scores[1,1][score_key_none]
+        njobs = set( [njobnthr[0] for njobnthr in cpprunset_scores] ) # use set(list) to get unique keys
+        nthrs = set( [njobnthr[1] for njobnthr in cpprunset_scores] ) # use set(list) to get unique keys
+        assert (1,1) in cpprunset_scores, 'no scores found for njob==1 and nthr==1?'
+        ###tput1 = cpprunset_scores[1,1][score_key]
+        tput1none = cpprunset_scores[1,1][score_key_none]
         # Prepare x-axis and y-axis lists
         xvals = []
         yvals = []
         for nthr in sorted(nthrs):
             for njob in sorted(njobs):
-                if (njob,nthr) not in runset_scores: continue
+                if (njob,nthr) not in cpprunset_scores: continue
                 xval = nthr*njob # 'npar' level of parallelism
-                tput = runset_scores[njob,nthr][score_key]
-                ###tputnone = runset_scores[njob,nthr][score_key_none]
+                tput = cpprunset_scores[njob,nthr][score_key]
+                ###tputnone = cpprunset_scores[njob,nthr][score_key_none]
                 xvals.append( xval )
                 if abstput: yvals.append( tput )
                 else: yvals.append( tput / tput1none )
@@ -268,14 +268,14 @@ def getNodeFeatures( workdir ):
 
 # Create a figure with a single plot
 def plotST( workdir, keymatch=None, abstput=True, ylog=False, evtmatch='-e001', debug=False ):
-    runset_scores = loadCppRunSet( workdir, evtmatch=evtmatch )
+    cpprunset_scores = loadCppRunSet( workdir, evtmatch=evtmatch )
     node, xht, ftitle = getNodeFeatures( workdir )
     pngpath = workdir + '/' + node + evtmatch + '-all-' + keymatch + '.png'
     # Create figure with one plot
     fig = plt.figure( figsize=plots_figsize )
     ax1 = fig.add_subplot( 111 )
     # Fill the plot in the figure
-    axesST( ax1, runset_scores, keymatch=keymatch, ylog=ylog, xht=xht, abstput=abstput, debug=debug )
+    axesST( ax1, cpprunset_scores, keymatch=keymatch, ylog=ylog, xht=xht, abstput=abstput, debug=debug )
     if ftitle is not None:
         if evtmatch.startswith( '-e' ) and evtmatch[2:].isdigit(): ftitle += ' for %d cycles'%int(evtmatch[2:])
         fig.suptitle( ftitle, size=plots_ftitlesize )
@@ -287,7 +287,7 @@ def plotST( workdir, keymatch=None, abstput=True, ylog=False, evtmatch='-e001', 
 
 # Create a figure with two plots per process, absolute and normalized tput
 def plotOneProcess2( workdir, oneprocess, keymatch, bestonly=False, evtmatch='-e001', debug=False ):
-    runset_scores = loadCppRunSet( workdir, evtmatch=evtmatch )
+    cpprunset_scores = loadCppRunSet( workdir, evtmatch=evtmatch )
     node, xht, ftitle = getNodeFeatures( workdir )
     # One process or all processes?
     if oneprocess is not None: processes = [ oneprocess ]
@@ -303,10 +303,10 @@ def plotOneProcess2( workdir, oneprocess, keymatch, bestonly=False, evtmatch='-e
         ###print( idx1, idx2 )
         fullkeymatch = process + '-' + keymatch
         ax1 = fig.add_subplot( idx1 )
-        axesST( ax1, runset_scores, keymatch=fullkeymatch, bestonly=bestonly, \
+        axesST( ax1, cpprunset_scores, keymatch=fullkeymatch, bestonly=bestonly, \
                 ylog=False, xht=xht, abstput=True, debug=debug )
         ax2 = fig.add_subplot( idx2 )
-        axesST( ax2, runset_scores, keymatch=fullkeymatch, bestonly=bestonly, \
+        axesST( ax2, cpprunset_scores, keymatch=fullkeymatch, bestonly=bestonly, \
                 ylog=False, xht=xht, abstput=False, debug=debug )
         idx1 += 2
         idx2 += 2
@@ -325,7 +325,7 @@ def plotOneProcess2( workdir, oneprocess, keymatch, bestonly=False, evtmatch='-e
 
 # Create a figure with one plots per process, with inl0 and inl1 best
 def plotProcessesInl( workdir, keymatch, evtmatch='-e001', debug=False ):
-    runset_scores = loadCppRunSet( workdir, evtmatch=evtmatch )
+    cpprunset_scores = loadCppRunSet( workdir, evtmatch=evtmatch )
     node, xht, ftitle = getNodeFeatures( workdir )
     # One process or all processes?
     processes = [ 'eemumu', 'ggtt', 'ggttg', 'ggttgg' ]
@@ -337,7 +337,7 @@ def plotProcessesInl( workdir, keymatch, evtmatch='-e001', debug=False ):
     for process in processes:
         fullkeymatch = process + '-' + keymatch
         ax1 = fig.add_subplot( idx1 )
-        axesST( ax1, runset_scores, keymatch=fullkeymatch, bestonly=True, \
+        axesST( ax1, cpprunset_scores, keymatch=fullkeymatch, bestonly=True, \
                 ylog=False, xht=xht, abstput=True, debug=debug )
         idx1 += 1
     # Save and show the figure
