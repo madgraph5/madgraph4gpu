@@ -72,7 +72,7 @@ def loadRunSet( runsetdir, evtmatch='-e001', debug=False ):
 
 #---------------------------------------
 
-def dumpScoresOneKey( runset_scores, score_key, debug=False ):
+def dumpCppScoresOneKey( runset_scores, score_key, debug=False ):
     ###debug=True
     print( '\nSCORES[\'%s\']:'%score_key )
     score_key_none = score_key[:-4]+'none'
@@ -112,9 +112,26 @@ def getSortedMatchingKeys( runset_scores, keymatch=None, debug=False ):
 
 #---------------------------------------
 
-def dumpScoresAllKeys( runset_scores, keymatch=None, debug=False ):
+def dumpCppScoresAllKeys( runset_scores, keymatch=None, debug=False ):
     keys = getSortedMatchingKeys( runset_scores, keymatch, debug )
-    for key in keys : dumpScoresOneKey( runset_scores, key )
+    for key in keys : dumpCppScoresOneKey( runset_scores, key )
+
+#---------------------------------------
+
+def dumpCudaScoresOneKey( runset_scores, score_key, debug=False ):
+    ###debug=True
+    print( '\nSCORES[\'%s\']:'%score_key )
+    njobs = set( [njobnthr[0] for njobnthr in runset_scores] ) # use set(list) to get unique keys
+    nthrs = set( [njobnthr[1] for njobnthr in runset_scores] ) # use set(list) to get unique keys
+    print( '%4s %4s %12s    %9s %12s'%( 'njob', 'nthr', 'Score', 'njob*nthr', 'S/S[1,1]' ) )
+    assert (1,1) in runset_scores, 'no scores found for njob==1 and nthr==1?'
+    tput1 = runset_scores[1,1][score_key]
+    for nthr in sorted(nthrs):
+        for njob in sorted(njobs):
+            if (njob,nthr) not in runset_scores: continue
+            tput = runset_scores[njob,nthr][score_key]
+            print( '%4d %4d %12.6f    %9d %12.6f'%
+                   ( njob, nthr, tput, njob*nthr, tput / tput1 ) )
 
 #---------------------------------------
 
@@ -318,11 +335,11 @@ if __name__ == '__main__':
     # TESTS (CPP)
     #loadOneRun( 'BMK-pmpe04/sa-cpp-j032-t001-e001', debug=True )
     #loadRunSet( 'BMK-pmpe04', debug=True )
-    #dumpScoresOneKey( loadRunSet( 'BMK-pmpe04' ), 'ggttgg-sa-cpp-d-inl0-best' )
-    #dumpScoresAllKeys( loadRunSet( 'BMK-pmpe04' ) )
-    #dumpScoresAllKeys( loadRunSet( 'BMK-pmpe04'), keymatch='best' )
-    #dumpScoresAllKeys( loadRunSet( 'BMK-pmpe04'), keymatch='inl0-best' )
-    #dumpScoresAllKeys( loadRunSet( 'BMK-pmpe04'), keymatch='ggttgg-sa-cpp-d-inl0' )
+    #dumpCppScoresOneKey( loadRunSet( 'BMK-pmpe04' ), 'ggttgg-sa-cpp-d-inl0-best' )
+    #dumpCppScoresAllKeys( loadRunSet( 'BMK-pmpe04' ) )
+    #dumpCppScoresAllKeys( loadRunSet( 'BMK-pmpe04'), keymatch='best' )
+    #dumpCppScoresAllKeys( loadRunSet( 'BMK-pmpe04'), keymatch='inl0-best' )
+    #dumpCppScoresAllKeys( loadRunSet( 'BMK-pmpe04'), keymatch='ggttgg-sa-cpp-d-inl0' )
 
     # PRODUCTION PLOTS (CPP)
     #allplots( 'BMK-pmpe04', '-e001' )
@@ -334,4 +351,4 @@ if __name__ == '__main__':
 
     # TESTS (CUDA)
     #loadRunSet( 'BMK-itscrd70-cuda', evtmatch='-e0100', debug=False )
-    dumpScoresOneKey( loadRunSet( 'BMK-itscrd70-cuda', evtmatch='-e0100' ), 'ggttgg-sa-cuda-d-inl0' )
+    dumpCudaScoresOneKey( loadRunSet( 'BMK-itscrd70-cuda', evtmatch='-e0100' ), 'ggttgg-sa-cuda-d-inl0' )
