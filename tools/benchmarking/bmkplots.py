@@ -472,5 +472,9 @@ if __name__ == '__main__':
     #loadCudaRunSet( 'BMK-itscrd70-cuda', evtmatch='-e0100', debug=True )
     #dumpCudaScoresOneKey( loadCudaRunSet( 'BMK-itscrd70-cuda', evtmatch='-e0100' ), 'ggttgg-sa-cuda-d-inl0' )
     #dumpCudaScoresOneKey( loadCudaRunSet( 'BMK-itscrd70-cuda', evtmatch='-e0100' ), 'ggttgg-sa-cuda-f-inl0' )
-    plotCudaST( 'BMK-itscrd70-cuda', score_key='ggttgg-sa-cuda-d-inl0', ylog=False, evtmatch='-e0100', debug=False )
-    plotCudaST( 'BMK-itscrd70-cuda', score_key='ggttgg-sa-cuda-f-inl0', ylog=False, evtmatch='-e0100', debug=False )
+
+    # PRODUCTION PLOTS (CUDA)
+    #plotCudaST( 'BMK-itscrd70-cuda', score_key='ggttgg-sa-cuda-d-inl0', ylog=False, evtmatch='-e0100', debug=False )
+    #plotCudaST( 'BMK-itscrd70-cuda', score_key='ggttgg-sa-cuda-f-inl0', ylog=False, evtmatch='-e0100', debug=False )
+    plotCudaST( 'BMK-itscrd70-cuda', score_key='ggttgg-sa-cuda-d-inl0', ylog=False, evtmatch='-e0800', debug=False )
+    plotCudaST( 'BMK-itscrd70-cuda', score_key='ggttgg-sa-cuda-f-inl0', ylog=False, evtmatch='-e0800', debug=False )
