@@ -381,11 +381,17 @@ def allCppPlots( workdir, evtmatch='-e001', debug=False ):
 #---------------------------------------
 
 # Compare various curves in cuda ST plots
-def axesCudaST( ax, cudarunset_scores, score_key, xjob=False, xlog=True, ylog=False, debug=False ):
+def axesCudaST( ax, cudarunset_scores, score_key, xjob=False, xlog=True, abstput=True, ylog=False, debug=False ):
     # Prepare axes labels
     if xjob: ax.set_xlabel('nblocksGPU * nthreadsGPU * njobsCPU', size=plots_labelsize )
     else: ax.set_xlabel('nblocksGPU * nthreadsGPU', size=plots_labelsize )
-    ax.set_ylabel('Throughput (E6 events per second)', size=plots_labelsize )
+    if abstput:
+        ax.set_ylabel('Throughput (E6 events per second)', size=plots_labelsize )
+    else:
+        ax.set_ylabel('Throughput ratio to (1,256,1)', size=plots_labelsize )
+        ax.grid()
+        assert (1,256,1,1) in cudarunset_scores, 'no scores found for (ngbl,ngth,njob,nthr)==(1,256,1,1)?'
+        tputmin = cudarunset_scores[1,256,1,1][score_key]
     if xlog: ax.set_xscale( 'log' )
     if ylog: ax.set_yscale( 'log' )
     # Add one curve per njob
@@ -408,7 +414,8 @@ def axesCudaST( ax, cudarunset_scores, score_key, xjob=False, xlog=True, ylog=Fa
                 else: xval = ngbl*ngth # 'gpugridsize'
                 tput = cudarunset_scores[ngbl,ngth,njob,nthr][score_key]
                 xvals.append( xval )
-                yvals.append( tput )
+                if abstput: yvals.append( tput )
+                else: yvals.append( tput / tputmin )
         if xjob: xmax = max( xmax, max(xvals) )
         else: xmax = max( xmax, max(xvals)*njob ) # use the same xmax both with/without xjob
         ymax = max( ymax, max(yvals) )
@@ -423,18 +430,22 @@ def axesCudaST( ax, cudarunset_scores, score_key, xjob=False, xlog=True, ylog=Fa
     else: ymin, ymax = 0, ymax*1.1
     ax.axis( [xmin, xmax, ymin, ymax] )
 
-# Create a figure with two plots (use gridsize or gridsize*njob as x-axis)
+# Create a figure with 2x2 plots (use gridsize or gridsize*njob as x-axis; use absolute or relative tput as y-axis)
 def plotCudaST( workdir, score_key='ggttgg-sa-cuda-d-inl0', ylog=False, evtmatch='-e001', debug=False ):
     cudarunset_scores = loadCudaRunSet( workdir, evtmatch=evtmatch )
     node, xht, ftitle = getNodeFeatures( workdir )
     pngpath = workdir + '/' + node + evtmatch + '-' + score_key + '.png'
     # Create figure with one plot
-    fig = plt.figure( figsize = ( 1.2*plots_figsize[0]*2, 1.2*plots_figsize[1] ) )
-    ax1 = fig.add_subplot( 121 )
-    ax2 = fig.add_subplot( 122 )
+    fig = plt.figure( figsize = ( 1.2*plots_figsize[0]*2, 1.2*plots_figsize[1]*2 ) )
+    ax1 = fig.add_subplot( 221 )
+    ax2 = fig.add_subplot( 222 )
+    ax3 = fig.add_subplot( 223 )
+    ax4 = fig.add_subplot( 224 )
     # Fill the plot in the figure
-    axesCudaST( ax1, cudarunset_scores, xjob=False, score_key=score_key, ylog=ylog, debug=debug )
-    axesCudaST( ax2, cudarunset_scores, xjob=True, score_key=score_key, ylog=ylog, debug=debug )
+    axesCudaST( ax1, cudarunset_scores, xjob=False, score_key=score_key, abstput=True, ylog=ylog, debug=debug )
+    axesCudaST( ax2, cudarunset_scores, xjob=True, score_key=score_key, abstput=True, ylog=ylog, debug=debug )
+    axesCudaST( ax3, cudarunset_scores, xjob=False, score_key=score_key, abstput=False, ylog=ylog, debug=debug )
+    axesCudaST( ax4, cudarunset_scores, xjob=True, score_key=score_key, abstput=False, ylog=ylog, debug=debug )
     if ftitle is not None:
         if evtmatch.startswith( '-e' ) and evtmatch[2:].isdigit(): ftitle += ' for %d cycles'%int(evtmatch[2:])
         ###ftitle += ' - ' + ( 'DOUBLE' if '-d-' in score_key else 'FLOAT' )
@@ -473,10 +484,10 @@ if __name__ == '__main__':
     #dumpCudaScoresOneKey( loadCudaRunSet( 'BMK-itscrd70-cuda', evtmatch='-e0100' ), 'ggttgg-sa-cuda-d-inl0' )
     #dumpCudaScoresOneKey( loadCudaRunSet( 'BMK-itscrd70-cuda', evtmatch='-e0100' ), 'ggttgg-sa-cuda-f-inl0' )
     #dumpCudaScoresOneKey( loadCudaRunSet( 'BMK-itscrd70-cuda', evtmatch='-e0800' ), 'ggttgg-sa-cuda-d-inl0' )
-    dumpCudaScoresOneKey( loadCudaRunSet( 'BMK-itscrd70-cuda', evtmatch='-e0800' ), 'ggttgg-sa-cuda-f-inl0' )
+    #dumpCudaScoresOneKey( loadCudaRunSet( 'BMK-itscrd70-cuda', evtmatch='-e0800' ), 'ggttgg-sa-cuda-f-inl0' )
 
     # PRODUCTION PLOTS (CUDA)
-    #plotCudaST( 'BMK-itscrd70-cuda', score_key='ggttgg-sa-cuda-d-inl0', ylog=False, evtmatch='-e0100', debug=False )
-    #plotCudaST( 'BMK-itscrd70-cuda', score_key='ggttgg-sa-cuda-f-inl0', ylog=False, evtmatch='-e0100', debug=False )
-    #plotCudaST( 'BMK-itscrd70-cuda', score_key='ggttgg-sa-cuda-d-inl0', ylog=False, evtmatch='-e0800', debug=False )
-    #plotCudaST( 'BMK-itscrd70-cuda', score_key='ggttgg-sa-cuda-f-inl0', ylog=False, evtmatch='-e0800', debug=False )
+    plotCudaST( 'BMK-itscrd70-cuda', score_key='ggttgg-sa-cuda-d-inl0', ylog=False, evtmatch='-e0100', debug=False )
+    plotCudaST( 'BMK-itscrd70-cuda', score_key='ggttgg-sa-cuda-f-inl0', ylog=False, evtmatch='-e0100', debug=False )
+    plotCudaST( 'BMK-itscrd70-cuda', score_key='ggttgg-sa-cuda-d-inl0', ylog=False, evtmatch='-e0800', debug=False )
+    plotCudaST( 'BMK-itscrd70-cuda', score_key='ggttgg-sa-cuda-f-inl0', ylog=False, evtmatch='-e0800', debug=False )
