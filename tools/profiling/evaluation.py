@@ -26,11 +26,15 @@ import math
 
 physicsProcesses = ['ee_mumu', 'gg_tt', 'gg_ttg', 'gg_ttgg', 'gg_ttggg']
 
-reportPath = 'C:\\Users\\jteig\\cernbox\\Documents\\CERN\\reports\\v100s_Profiling'
+reportPath = 'C:\\Users\\jteig\\cernbox\\Documents\\CERN\\reports\\Sycl_v100s_Profiling_06.09.22_GCC10.3_CUDA11.5\\'
 
 savePath = 'C:\\Users\\jteig\\cernbox\\Documents\\CERN\\Graphs\\'
 
-filePrefix = 'test_v100s_sycl-11.5'
+filePrefix = 'test_v100s_sycl_11.5'
+
+# 'test_v100s_sycl_11.5'
+
+hardware = 'NVIDIA v100s'
 
 #############################
 #
@@ -38,9 +42,9 @@ filePrefix = 'test_v100s_sycl-11.5'
 #
 #############################
 
-compare = True
+compare = False
 
-graphsToCompare = ['test_v100s_sycl-11.5_ee_mumu', 'test_v100s_sycl-11.5_gg_ttgg']
+graphsToCompare = ['test_v100s_sycl_11.5_gg_ttggg', 'test_v100s_cuda_11.5_gg_ttggg']
 
 #############################
 
@@ -51,11 +55,10 @@ parser.add_argument("-r", help="Path for the directory containing the reports.",
 parser.add_argument("-s", help="Path for the directory where the graphs will be saved.", default=savePath)
 parser.add_argument("-n", help="The prefix in the name of the files of the reports e.g test_v100s_sycl-11.5.", default=filePrefix)
 parser.add_argument("-c", help="Option for comparing graphs instead of plotting them.", default=compare)
+parser.add_argument("-d", help="What device/hardware has been used in the profiling, used as a descriptor in the plots", default=hardware)
 parser.add_argument("-g", help="Graphs to use with the compare option.")
 
 args = parser.parse_args()
-
-print(args.g, args.c)
 
 #exit(0)
 
@@ -162,10 +165,10 @@ class Evaluation:
             temp_df =pd.DataFrame()
             temp_df = dataframes[df][['NumIterations','NumThreadsPerBlock', 'NumBlocksPerGrid',
                                       'EvtsPerSec[MatrixElems] (3)','EvtsPerSec[Rnd+Rmb+ME](123)',
-                                      'EvtsPerSec[Rmb+ME] (23)']]
+                                      'EvtsPerSec[Rmb+ME] (23)', 'EvtsPerSec[MECalcOnly] (3)']]
             
             columns_to_convert = ['EvtsPerSec[MatrixElems] (3)','EvtsPerSec[Rnd+Rmb+ME](123)',
-                                      'EvtsPerSec[Rmb+ME] (23)']
+                                      'EvtsPerSec[Rmb+ME] (23)', 'EvtsPerSec[MECalcOnly] (3)']
             for column in columns_to_convert:
                 
                 for val in range(len(temp_df[column])):
@@ -297,6 +300,12 @@ class Evaluation:
         
     
     def data_compare2(self,df_dict,compare_list):
+
+        # Get names of files to compare
+
+        graph1 = graphsToCompare[0].split('_')
+        graph2 = graphsToCompare[1].split('_')
+
         #Takes a dictionary with dataframes and plots it in the same scatter plot
         
         fig = plt.figure()
@@ -319,31 +328,40 @@ class Evaluation:
         
         #setup y axis
         #get maximum value of all df for ylim
-        max_y = [max(df_dict[df]['EvtsPerSec[MatrixElems] (3)']) for df in df_dict]
+        #max_y = max(df_dict[compare_list[0]]['EvtsPerSec[MatrixElems] (3)'], df_dict[compare_list[1]]['EvtsPerSec[MatrixElems] (3)'])
+
+        #print(max_y)
+
+        #min_y = [min(df_dict[df]['EvtsPerSec[MatrixElems] (3)']) for df in df_dict]
+
         #plt.ylim(-0.1*10**9,max(max_y)*1.3)
-        plt.ylim(10**5,max(max_y)*10)
+        #plt.ylim(min(min_y),max(max_y)*10)
         ax1.set_yscale('log')
         
         #Add labels and title
-        plt.ylabel('Throughput\nMatrix Elements [s-1]')
+        plt.ylabel('Throughput\nME Calc Only [s-1]')
         plt.xlabel('Gridsize')
-        plt.title('SYCL throughput for ee_mumu VS gg_ttgg on NVIDIA v100s\n')
+        plt.title("SYCL vs CUDA throughput for "+ graph1[4] + '_' + graph1[5] +" on " + hardware + "\n")
         
         #Change colormap. More info here https://matplotlib.org/stable/tutorials/colors/colormaps.html 
         cmap=plt.get_cmap('Set1')
         
         i=1
         for data in compare_list:
+
+            tempVar  = 'EvtsPerSec[MECalcOnly] (3)'
+            #tempVar2 = 'EvtsPerSec[MatrixElems] (3)'
+
             #Get maximum values for each dataset
-            maxima_y=max(df_dict[data]['EvtsPerSec[MatrixElems] (3)'])
-            maxima_x=df_dict[data].loc[df_dict[data]['EvtsPerSec[MatrixElems] (3)']==maxima_y,'gridsize'].item()
+            maxima_y=max(df_dict[data][tempVar])
+            maxima_x=df_dict[data].loc[df_dict[data][tempVar]==maxima_y,'gridsize'].item()
             
             #label maximum values
             length=len(str(maxima_y))-1
             label_maximas=str(round(maxima_y*10**-(length),3))+'e'+str(length)
             
             #plot datasets
-            ax1.scatter(df_dict[data]['gridsize'].to_list(),df_dict[data]['EvtsPerSec[MatrixElems] (3)'].to_list(),
+            ax1.scatter(df_dict[data]['gridsize'].to_list(),df_dict[data][tempVar].to_list(),
                         label=data+ ' (max = %s)'%label_maximas,
                         color=cmap(i),
                         s=150,alpha=0.9)
@@ -355,7 +373,11 @@ class Evaluation:
             
             
             
-        ax1.legend(loc='upper left')
+        ax1.legend(loc='best')
+
+        plt.tight_layout()
+        plt.autoscale()
+        
         
         plt.show()
 
@@ -363,7 +385,9 @@ class Evaluation:
 
         graph2 = graphsToCompare[1].split('_')
 
-        fig.savefig(args.s + graph1[3] + '_' + graph1[4] + '_vs_' + graph2[3] + '_' + graph2[4])
+        # args.s + graph1[3] + '_' + graph1[4] + '_vs_' + graph2[3] + '_' + graph2[4]
+
+        fig.savefig(args.s + 'SYCL_' + graph1[4] + '_' + graph1[5] + '_vs_CUDA_' + graph2[4] + '_' + graph2[5] + 'MECalcOnly.png')
         
     def dataframes_statistical_transfomation(self,df_dict,stat):
         #This functions takes a dictionary of dataframes and returns a dictionary with dataframes
@@ -426,6 +450,8 @@ if __name__=='__main__':
     
     if not compare:
 
+        print(dataframes_conv)
+
         # Plots the graphs in the supplied directories with the info from the config file
         Ev.plots(dataframes_conv[args.n + '_' + args.p],plotlist)
     
@@ -437,7 +463,7 @@ if __name__=='__main__':
         # To be done
         #test_df=Ev.data_compare(dataframes_conv,list_to_compare,'max')
     
-        print(dataframes_statisical)
+        #print(dataframes_statisical)
 
         Ev.data_compare2(dataframes_statisical,graphsToCompare)
     
