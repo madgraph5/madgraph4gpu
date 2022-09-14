@@ -437,7 +437,7 @@ def axesCudaST( ax, cudarunset_scores, score_key, xjob=False, xlog=True, abstput
 def plotCudaST( workdir, score_key='ggttgg-sa-cuda-d-inl0', ylog=False, evtmatch='-e001', gputhreads='gt00256', debug=False ):
     cudarunset_scores = loadCudaRunSet( workdir, evtmatch=evtmatch, gputhreads=gputhreads )
     node, xht, ftitle = getNodeFeatures( workdir )
-    pngpath = workdir + '/' + node + evtmatch + '-' + score_key + '.png'
+    pngpath = workdir + '/' + node + '-' + gputhreads + evtmatch + '-' + score_key + '.png'
     # Create figure with one plot
     fig = plt.figure( figsize = ( 1.2*plots_figsize[0]*2, 1.2*plots_figsize[1]*2 ) )
     ax1 = fig.add_subplot( 221 )
