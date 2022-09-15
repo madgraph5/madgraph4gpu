@@ -466,7 +466,8 @@ def plotCudaST( workdir, score_key='ggttgg-sa-cuda-d-inl0', ylog=False, evtmatch
 
 #---------------------------------------
 
-def compareNodesCpp( plot = False ):
+def compareNodesCpp( ax=None ):
+    plot = ax is not None
     nodes = ( 'itscrd70', 'pmpe04', 'bmk6130' )
     refnode = nodes[0] # refnode is the first one (itscrd70)
     npcores_node = {}
@@ -500,8 +501,6 @@ def compareNodesCpp( plot = False ):
         xkey = 'ggttgg-sa-cpp-d-inl0-none' # Use ggttgg/d/none as the x axis (the hepspec06-like benchmark)
         xmin, ymin = 1, 1
         xmax, ymax = 1, 1
-        fig = plt.figure( figsize = ( plots_figsize[0], plots_figsize[1]*2 ) )
-        ax = fig.add_subplot( 111 )
         ax.set_xlabel( 'Tput(node)/Tput(ref_node) for %s'%xkey )
         ax.set_ylabel( 'Tput(node)/Tput(ref_node)' )
     for key in keys :
@@ -525,15 +524,20 @@ def compareNodesCpp( plot = False ):
         if plot:
             xmax = max( xmax, max(xvals) )
             ymax = max( ymax, max(yvals) )
-            p = ax.plot( xvals, yvals, marker='o', label=key )
-    if not plot : return
+            ax.plot( xvals, yvals, marker='o', label=key )
+    if plot:
+        xmax = max( xmax*2, ymax*1.2 )
+        ymax = xmax
+        ax.axis( [xmin, xmax, ymin, ymax] )
+        loc = 'lower right'
+        ax.legend( loc=loc, fontsize=plots_legendsize )
+        ax.plot( [xmin, xmax], [ymin, ymax], ls="--", c='black' )
+
+def compareNodesCppPlot():
+    fig = plt.figure( figsize = ( plots_figsize[0], plots_figsize[1]*2 ) )
+    ax = fig.add_subplot( 111 )
     # Create figure with one plot
-    xmax = max( xmax*2, ymax*1.2 )
-    ymax = xmax
-    ax.axis( [xmin, xmax, ymin, ymax] )
-    loc = 'lower right'
-    ax.legend( loc=loc, fontsize=plots_legendsize )
-    ax.plot( [xmin, xmax], [ymin, ymax], ls="--", c='black' )
+    compareNodesCpp( ax )
     pngpath = 'BMK-COMPARE/all-sa-cpp-d-inl0.png'
     fig.set_tight_layout( True )
     fig.savefig( pngpath, format='png', bbox_inches="tight" )
@@ -580,5 +584,5 @@ if __name__ == '__main__':
     #plotCudaST( 'BMK-itscrd70-cuda', score_key='ggttgg-sa-cuda-f-inl0', ylog=False, evtmatch='-e0800', gputhreads='gt00032', debug=False )
 
     # COMPARE NODES (CPP)
-    #compareNodesCpp( plot=False )
-    compareNodesCpp( plot=True )
+    #compareNodesCpp()
+    compareNodesCppPlot()
