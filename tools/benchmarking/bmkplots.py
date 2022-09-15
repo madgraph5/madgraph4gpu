@@ -466,7 +466,7 @@ def plotCudaST( workdir, score_key='ggttgg-sa-cuda-d-inl0', ylog=False, evtmatch
 
 #---------------------------------------
 
-def compareNodesCpp( ax=None, process=None ):
+def compareNodesCpp( ax=None, process=None, df='-d-', inl='inl0' ):
     plot = ax is not None
     nodes = ( 'itscrd70', 'pmpe04', 'bmk6130' )
     refnode = nodes[0] # refnode is the first one (itscrd70)
@@ -504,9 +504,9 @@ def compareNodesCpp( ax=None, process=None ):
         ax.set_xlabel( 'Tput(node)/Tput(ref_node) for %s'%xkey )
         ax.set_ylabel( 'Tput(node)/Tput(ref_node)' )
     for key in keys :
-        if 'inl1' in key: continue # look at inl0 only
-        if '-f-' in key: continue # look at -d- only
         if process is not None and not key.startswith( process ): continue # look only at one specific process
+        if not df in key: continue # look at -d- or -f- only
+        if not '-%s-'%inl in key: continue # look at inl0 or inl1 only
         if plot: xvals, yvals = [], [] # prepare data to plot
         else: print()
         for node in nodes:
@@ -535,18 +535,18 @@ def compareNodesCpp( ax=None, process=None ):
         ax.legend( loc=loc, fontsize=plots_legendsize )
         ax.plot( [xmin, xmax], [ymin, ymax], ls="--", c='black' )
 
-def compareNodesCppPlot():
+def compareNodesCppPlot( df='-d-', inl='inl0' ):
     fig = plt.figure( figsize = ( plots_figsize[0]*1.4, plots_figsize[1]*2.8 ) )
     # Create figure with 2x2 plots
     ax1 = fig.add_subplot( 221 )
     ax2 = fig.add_subplot( 222 )
     ax3 = fig.add_subplot( 223 )
     ax4 = fig.add_subplot( 224 )
-    compareNodesCpp( ax1, process='eemumu-' )
-    compareNodesCpp( ax2, process='ggtt-' )
-    compareNodesCpp( ax3, process='ggttg-' )
-    compareNodesCpp( ax4, process='ggttgg-' )
-    pngpath = 'BMK-COMPARE/all-sa-cpp-d-inl0.png'
+    compareNodesCpp( ax1, df=df, inl=inl, process='eemumu-' )
+    compareNodesCpp( ax2, df=df, inl=inl, process='ggtt-' )
+    compareNodesCpp( ax3, df=df, inl=inl, process='ggttg-' )
+    compareNodesCpp( ax4, df=df, inl=inl, process='ggttgg-' )
+    pngpath = 'BMK-COMPARE/all-sa-cpp%s%s.png'%(df,inl)
     fig.set_tight_layout( True )
     fig.savefig( pngpath, format='png', bbox_inches="tight" )
     Popen( ['display', '-geometry', '+50+50', pngpath] )
@@ -595,5 +595,5 @@ if __name__ == '__main__':
     #compareNodesCpp( process='ggtt-' )
 
     # PRODUCTION COMPARISONS (CPP)
-    #compareNodesCpp()
-    compareNodesCppPlot()
+    compareNodesCpp()
+    #compareNodesCppPlot()
