@@ -494,7 +494,7 @@ def compareNodesCpp():
         return key
     keys2 = [ sortableSimdKey( key ) for key in keys ]
     keys = [ key for _, key in sorted( zip( keys2, keys ) ) ] # https://stackoverflow.com/a/6618543
-    print( '%-30s %-10s %10s %12s %15s'%( 'ScoreName', 'Node', 'Tput', 'TputPerCore', 'TputPerCore/Ref' ) )
+    print( '%-30s %-10s %10s %10s %12s %15s'%( 'ScoreName', 'Node', 'Tput', 'Tput/Ref', 'TputPerCore', 'TputPerCore/Ref' ) )
     for key in keys :
         if 'inl1' in key: continue # look at inl0 only
         if '-f-' in key: continue # look at -d- only
@@ -504,7 +504,7 @@ def compareNodesCpp():
             tputpc = tput / npcores_node[node]
             reftput = tputs_node[refnode][key]
             reftputpc = tputs_node[refnode][key] / npcores_node[refnode]
-            print( '%-30s %-10s %10.5f %12.5f %15.5f'%( key, node, tput, tputpc, tputpc / reftputpc ) )
+            print( '%-30s %-10s %10.5f %10.5f %12.5f %15.5f'%( key, node, tput, tput / reftput, tputpc, tputpc / reftputpc ) )
         print()
 
 #---------------------------------------
