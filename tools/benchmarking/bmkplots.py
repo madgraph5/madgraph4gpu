@@ -595,5 +595,8 @@ if __name__ == '__main__':
     #compareNodesCpp( process='ggtt-' )
 
     # PRODUCTION COMPARISONS (CPP)
-    compareNodesCpp()
-    #compareNodesCppPlot()
+    #compareNodesCpp()
+    compareNodesCppPlot( df='-d-', inl='inl0' )
+    compareNodesCppPlot( df='-f-', inl='inl0' )
+    compareNodesCppPlot( df='-d-', inl='inl1' )
+    compareNodesCppPlot( df='-f-', inl='inl1' )
