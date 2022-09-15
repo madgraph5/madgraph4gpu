@@ -20,8 +20,81 @@
 
 namespace Proc
 {
-namespace dependentCouplings = Parameters_sm_dependentCouplings;
-namespace independentCouplings = Parameters_sm_independentCouplings;
+  namespace dependentCouplings = Parameters_sm_dependentCouplings;
+  namespace independentCouplings = Parameters_sm_independentCouplings;
+
+  template <typename T>
+  constexpr T helicities[] { 
+    -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, 1,
+    -1, -1, -1, -1, 1, -1,
+    -1, -1, -1, -1, 1, 1,
+    -1, -1, -1, 1, -1, -1,
+    -1, -1, -1, 1, -1, 1,
+    -1, -1, -1, 1, 1, -1,
+    -1, -1, -1, 1, 1, 1,
+    -1, -1, 1, -1, -1, -1,
+    -1, -1, 1, -1, -1, 1,
+    -1, -1, 1, -1, 1, -1,
+    -1, -1, 1, -1, 1, 1,
+    -1, -1, 1, 1, -1, -1,
+    -1, -1, 1, 1, -1, 1,
+    -1, -1, 1, 1, 1, -1,
+    -1, -1, 1, 1, 1, 1,
+    -1, 1, -1, -1, -1, -1,
+    -1, 1, -1, -1, -1, 1,
+    -1, 1, -1, -1, 1, -1,
+    -1, 1, -1, -1, 1, 1,
+    -1, 1, -1, 1, -1, -1,
+    -1, 1, -1, 1, -1, 1,
+    -1, 1, -1, 1, 1, -1,
+    -1, 1, -1, 1, 1, 1,
+    -1, 1, 1, -1, -1, -1,
+    -1, 1, 1, -1, -1, 1,
+    -1, 1, 1, -1, 1, -1,
+    -1, 1, 1, -1, 1, 1,
+    -1, 1, 1, 1, -1, -1,
+    -1, 1, 1, 1, -1, 1,
+    -1, 1, 1, 1, 1, -1,
+    -1, 1, 1, 1, 1, 1,
+    1, -1, -1, -1, -1, -1,
+    1, -1, -1, -1, -1, 1,
+    1, -1, -1, -1, 1, -1,
+    1, -1, -1, -1, 1, 1,
+    1, -1, -1, 1, -1, -1,
+    1, -1, -1, 1, -1, 1,
+    1, -1, -1, 1, 1, -1,
+    1, -1, -1, 1, 1, 1,
+    1, -1, 1, -1, -1, -1,
+    1, -1, 1, -1, -1, 1,
+    1, -1, 1, -1, 1, -1,
+    1, -1, 1, -1, 1, 1,
+    1, -1, 1, 1, -1, -1,
+    1, -1, 1, 1, -1, 1,
+    1, -1, 1, 1, 1, -1,
+    1, -1, 1, 1, 1, 1,
+    1, 1, -1, -1, -1, -1,
+    1, 1, -1, -1, -1, 1,
+    1, 1, -1, -1, 1, -1,
+    1, 1, -1, -1, 1, 1,
+    1, 1, -1, 1, -1, -1,
+    1, 1, -1, 1, -1, 1,
+    1, 1, -1, 1, 1, -1,
+    1, 1, -1, 1, 1, 1,
+    1, 1, 1, -1, -1, -1,
+    1, 1, 1, -1, -1, 1,
+    1, 1, 1, -1, 1, -1,
+    1, 1, 1, -1, 1, 1,
+    1, 1, 1, 1, -1, -1,
+    1, 1, 1, 1, -1, 1,
+    1, 1, 1, 1, 1, -1,
+    1, 1, 1, 1, 1, 1
+  };
+
+#ifdef MGONGPU_HARDCODE_PARAM
+  template <typename FPType>
+  constexpr FPType independent_parameters[] { (FPType)Parameters_sm::mdl_MT, (FPType)Parameters_sm::mdl_WT };
+#endif
 
   //==========================================================================
   // A class for calculating the matrix elements for
@@ -88,12 +161,11 @@ namespace independentCouplings = Parameters_sm_independentCouplings;
     Parameters_sm* m_pars;
     std::vector<fptype> m_masses; // external particle masses
 
-    // Helicities for the process
-    const short m_tHel[mgOnGpu::ncomb][mgOnGpu::npar];
-
+#ifndef MGONGPU_HARDCODE_PARAM
     // Physics parameters (masses, coupling, etc...)
-    //cxtype m_tIPC[mgOnGpu::ncouplings];
+    cxtype m_tIPC[independentCouplings::nicoup];
     fptype m_tIPD[mgOnGpu::nparams];
+#endif
 
     // Other variables of this instance (???)
     //int id1, id2; // initial particle ids

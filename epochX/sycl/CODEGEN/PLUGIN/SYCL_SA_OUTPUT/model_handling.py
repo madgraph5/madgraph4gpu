@@ -713,10 +713,13 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
         replace_dict['hardcoded_dependent_couplings'] = '\n'.join( hrd_coups_dep )
         replace_dict['nicoup'] = len( self.coups_indep )
         if len( self.coups_indep ) > 0 :
-            iicoup = [ '  //constexpr size_t ixcoup_%s = %d + Parameters_%s_dependentCouplings::ndcoup; // out of ndcoup+nicoup' % (par.name, id, self.model_name) for (id, par) in enumerate(self.coups_indep) ]
+            iicoup = [ '  constexpr size_t ixcoup_%s = %d + Parameters_%s_dependentCouplings::ndcoup; // out of ndcoup+nicoup' % (par.name, idx, self.model_name) for (idx, par) in enumerate(self.coups_indep) ]
             replace_dict['iicoup'] = '\n'.join( iicoup )
+            icoupseticoup_hrdcod = [ '    ((FPType)Parameters_{2:s}::{2:s}.real(), (FPType)Parameters_{2:s}::{0:s}.imag()),'.format(par.name, idx, self.model_name) for (idx, par) in enumerate(self.coups_indep) ]
+            replace_dict['icoupseticoup_hrdcod'] = '\n'.join( icoupseticoup_hrdcod )
         else:
             replace_dict['iicoup'] = '  // NB: there are no aS-independent couplings in this physics process'
+            replace_dict['icoupseticoup_hrdcod'] = '    // NB: there are no aS-independent couplings in this physics process'
         replace_dict['ndcoup'] = len( self.coups_dep )
         if len( self.coups_dep ) > 0 :
             idcoup = [ '  constexpr size_t idcoup_%s = %d;' % (name, id) for (id, name) in enumerate(self.coups_dep) ]
@@ -887,25 +890,37 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         params = [''] * len(self.params2order)
         for coup, pos in self.couplings2order.items():
             coupling[pos] = coup
-        #coup_str = "const cxtype tIPC[%s] = { cxmake( m_pars->%s ) };\n" % (len(self.couplings2order), ' ), cxmake( m_pars->'.join(coupling))
 
-        ## NSN - Need access to tIPC outside of CPPProcess for SYCL
+        coupling_indep = [] # AV keep only the alphas-independent couplings #434
+        for coup in coupling:
+            keep = True
+            # Use the same implementation as in UFOModelConverterCPP.prepare_couplings (assume self.model is the same)
+            for key, coup_list in self.model['couplings'].items():
+                if "aS" in key and coup in coup_list: keep = False
+            if keep: coupling_indep.append( coup ) # AV only indep!
+
+        ## NSN - Need access to independent couplings tIPC outside of CPPProcess for SYCL
         coup_str = ""
         #for i in range(len(self.couplings2order)):
         #    coup_str += "m_tIPC[%s] = cxmake( m_pars->%s );\n" % (i, coupling[i])
+        if len(coupling_indep) > 0:
+            for i in range(len(coupling_indep)):
+                coup_str += "    m_tIPC[%s] = cxmake( m_pars->%s );\n" % (i, coupling_indep[i])
+        else:
+            coup_str = "    //m_tIPC[...] = ... ; // nicoup=0\n"
 
         for para, pos in self.params2order.items():
             params[pos] = para
-        ###param_str = "static double tIPD[%s] = {pars->%s};\n"\
-        ###    %(len(self.params2order), ',pars->'.join(params))
+
         # NSN - Need access to tIPD outside of CPPProcess for SYCL
         param_str = ""
-        for i in range(len(self.params2order)):
-            param_str += "m_tIPD[%s] = (fptype)m_pars->%s;\n" % (i, params[i])
+        if len(params) > 0:
+            for i in range(len(self.params2order)):
+                param_str += "    m_tIPD[%s] = (fptype)m_pars->%s;\n" % (i, params[i])
+        else:
+            parm_str += "    //m_tIPD[...] = ... ; // nparam=0\n"
+
         replace_dict['assign_coupling'] = coup_str + param_str
-        replace_dict['all_helicities'] = self.get_helicity_matrix(self.matrix_elements[0])
-        replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace("helicities", "m_tHel")
-        replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace(";", "")
         file = self.read_template_file(self.process_definition_template) % replace_dict
         return file
 
@@ -944,7 +959,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
     cxtype_sv w_sv[nwf][nw6]; // particle wavefunctions within Feynman diagrams (nw6 is often 6, the dimension of spin 1/2 or spin 1 particles)
     cxtype_sv amp_sv[1]; // invariant amplitude for one given Feynman diagram
 
-    // Local variables for the given CUDA event (ievt) or C++ event page (ipagV)
+    // Local variables for the given SYCL event (ievt)
     cxtype_sv jamp_sv[ncolor] = {}; // sum of the invariant amplitudes for all Feynman diagrams in the event or event page
 
     // === Calculate wavefunctions and amplitudes for all diagrams in all processes - Loop over nevt events ===
@@ -1078,10 +1093,47 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
 
     # AV - overload the export_cpp.OneProcessExporterGPU method (add debug printout and truncate last \n)
     # [*NB export_cpp.UFOModelConverterGPU.write_process_h_file is not called!*]
-    def write_process_h_file(self, writer):
-        """Generate final gCPPProcess.h"""
+    def super_write_process_h_file(self, writer):
+        """Generate final CPPProcess.h"""
         misc.sprint('Entering PLUGIN_OneProcessExporter.write_process_h_file')
-        out = super().write_process_h_file(writer)
+        replace_dict = super(export_cpp.OneProcessExporterGPU, self).write_process_h_file(False)
+        replace_dict2 = super(export_cpp.OneProcessExporterGPU,self).get_process_function_definitions(write=False)
+
+        #Set helicities
+        replace_dict['all_helicities'] = self.get_helicity_matrix(self.matrix_elements[0])
+        replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace("{", "")
+        replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace("}", "")
+        replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace("helicities", "constexpr T helicities[] {")
+        replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace("    ", "  ")
+        replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace(", constexpr", "constexpr")
+        replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace(";", "")
+
+        #Set hardcoded parameters
+        params = [''] * len(self.params2order)
+        for para, pos in self.params2order.items():
+            params[pos] = para
+
+        if len(params) > 0:
+            param_str_hrd = '  constexpr FPType independent_parameters[] { '
+            for para in params:
+                param_str_hrd += '(FPType)Parameters_{0:s}::{1:s}, '.format( self.model_name, para )
+            param_str_hrd = param_str_hrd[:-2] + ' };'
+            replace_dict['independent_parameters_hrdcod'] = param_str_hrd
+        else:
+            replace_dict['independent_parameters_hrdcod'] = 'constexpr FPType independent_parameters[] {}; // unused as nparam=0'
+
+        if writer:
+            file = self.read_template_file(self.process_template_h) % replace_dict
+            # Write the file
+            writer.writelines(file)
+        else:
+            return replace_dict
+
+    def write_process_h_file(self, writer):
+        """Generate final CPPProcess.h"""
+        misc.sprint('Entering PLUGIN_OneProcessExporter.write_process_h_file')
+        #out = super().write_process_h_file(writer)
+        out = self.super_write_process_h_file(writer)
         writer.seek(-1, os.SEEK_CUR)
         writer.truncate()
         return out
@@ -1219,7 +1271,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         import re
         ###print(call) # FOR DEBUGGING
         model = self.get('model')
-        if not hasattr(self, 'couplings2order'):
+        if ((not hasattr(self, 'couplings2order')) or (not hasattr(self, 'params2order'))):
             self.couplings2order = {}
             self.params2order = {}
         for coup in re.findall(self.findcoupling, call):

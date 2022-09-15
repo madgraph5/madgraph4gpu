@@ -28,7 +28,6 @@ namespace Proc
     , m_debug( debug )
     , m_pars( 0 )
     , m_masses()
-%(all_helicities)s
   {
   }
 
@@ -56,16 +55,18 @@ namespace Proc
       //m_pars->printDependentCouplings();
     }
     %(initProc_lines)s
+#ifndef MGONGPU_HARDCODE_PARAM
     // Read physics parameters like masses and couplings from user configuration files (static: initialize once)
-    %(assign_coupling)s
+%(assign_coupling)s
+#endif
   }
 
   //--------------------------------------------------------------------------
   // Define pointer accessors
   const short* CPPProcess::get_tHel_ptr() const {return &(**m_tHel);}
 
-  //cxtype* CPPProcess::get_tIPC_ptr() {return m_tIPC;}
-  //const cxtype* CPPProcess::get_tIPC_ptr() const {return m_tIPC;}
+  cxtype* CPPProcess::get_tIPC_ptr() {return m_tIPC;}
+  const cxtype* CPPProcess::get_tIPC_ptr() const {return m_tIPC;}
 
   fptype* CPPProcess::get_tIPD_ptr() {return m_tIPD;}
   const fptype* CPPProcess::get_tIPD_ptr() const {return m_tIPD;}

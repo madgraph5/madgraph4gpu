@@ -49,7 +49,7 @@ cat ${dir}/Source/make_opts >> ${dir}/Source/make_opts.new
 
 # Patch the default Fortran code to provide the integration with the sycl plugin
 # (1) Process-independent patches
-\cp -dpr ${scrdir}/PLUGIN/SYCL_SA_OUTPUT/madgraph/iolibs/template_files/.clang-format ${dir} # new file
+#\cp -dpr ${scrdir}/PLUGIN/SYCL_SA_OUTPUT/madgraph/iolibs/template_files/.clang-format ${dir} # new file
 \cp -dpr ${scrdir}/MG5aMC_patches/vector.inc ${dir}/Source # replace default
 \cp -dpr ${scrdir}/MG5aMC_patches/fbridge_common.inc ${dir}/SubProcesses # new file
 for file in ${dir}/Source/MODEL/rw_para.f; do cat ${file} | sed "s|include 'coupl.inc'|include 'vector.inc'\n      include 'coupl.inc'|" > ${file}.new; \mv ${file}.new ${file}; done

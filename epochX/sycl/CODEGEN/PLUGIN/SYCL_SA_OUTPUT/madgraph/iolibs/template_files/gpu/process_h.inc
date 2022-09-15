@@ -18,8 +18,17 @@
 
 namespace Proc
 {
-namespace dependentCouplings = Parameters_%(model_name)s_dependentCouplings;
-namespace independentCouplings = Parameters_%(model_name)s_independentCouplings;
+  namespace dependentCouplings = Parameters_%(model_name)s_dependentCouplings;
+  namespace independentCouplings = Parameters_%(model_name)s_independentCouplings;
+
+  template <typename T>
+%(all_helicities)s
+  };
+
+#ifdef MGONGPU_HARDCODE_PARAM
+  template <typename FPType>
+%(independent_parameters_hrdcod)s
+#endif
 
 %(process_class_definitions)s
   //--------------------------------------------------------------------------

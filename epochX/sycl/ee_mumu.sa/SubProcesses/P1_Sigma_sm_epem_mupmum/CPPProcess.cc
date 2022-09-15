@@ -63,7 +63,7 @@ namespace Proc
     cxtype_sv w_sv[nwf][nw6]; // particle wavefunctions within Feynman diagrams (nw6 is often 6, the dimension of spin 1/2 or spin 1 particles)
     cxtype_sv amp_sv[1]; // invariant amplitude for one given Feynman diagram
 
-    // Local variables for the given CUDA event (ievt) or C++ event page (ipagV)
+    // Local variables for the given SYCL event (ievt)
     cxtype_sv jamp_sv[ncolor] = {}; // sum of the invariant amplitudes for all Feynman diagrams in the event or event page
 
     // === Calculate wavefunctions and amplitudes for all diagrams in all processes - Loop over nevt events ===
@@ -75,14 +75,7 @@ namespace Proc
       // *** DIAGRAM 1 OF 2 ***
 
       // Wavefunction(s) for diagram number 1
-#if not defined MGONGPU_TEST_DIVERGENCE
       opzxxx( allmomenta + 0 * np4 * neppM, cHel[0], -1, w_sv[0] ); // NB: opzxxx only uses pz
-#else
-      if ( ievt % 2 == 0 )
-        opzxxx( allmomenta + 0 * np4 * neppM, cHel[0], -1, w_sv[0] ); // NB: opzxxx only uses pz
-      else
-        oxxxxx( allmomenta + 0 * np4 * neppM, 0, cHel[0], -1, w_sv[0] );
-#endif
 
       imzxxx( allmomenta + 1 * np4 * neppM, cHel[1], +1, w_sv[1] ); // NB: imzxxx only uses pz
 
@@ -163,23 +156,6 @@ namespace Proc
     , m_debug( debug )
     , m_pars( 0 )
     , m_masses()
-    , m_tHel {
-      {-1, -1, -1, -1},
-      {-1, -1, -1, 1},
-      {-1, -1, 1, -1},
-      {-1, -1, 1, 1},
-      {-1, 1, -1, -1},
-      {-1, 1, -1, 1},
-      {-1, 1, 1, -1},
-      {-1, 1, 1, 1},
-      {1, -1, -1, -1},
-      {1, -1, -1, 1},
-      {1, -1, 1, -1},
-      {1, -1, 1, 1},
-      {1, 1, -1, -1},
-      {1, 1, -1, 1},
-      {1, 1, 1, -1},
-      {1, 1, 1, 1}}
   {
   }
 
@@ -211,18 +187,23 @@ namespace Proc
     m_masses.push_back( m_pars->ZERO );
     m_masses.push_back( m_pars->ZERO );
     m_masses.push_back( m_pars->ZERO );
+#ifndef MGONGPU_HARDCODE_PARAM
     // Read physics parameters like masses and couplings from user configuration files (static: initialize once)
+    m_tIPC[0] = cxmake( m_pars->GC_3 );
+    m_tIPC[1] = cxmake( m_pars->GC_50 );
+    m_tIPC[2] = cxmake( m_pars->GC_59 );
     m_tIPD[0] = (fptype)m_pars->mdl_MZ;
-m_tIPD[1] = (fptype)m_pars->mdl_WZ;
+    m_tIPD[1] = (fptype)m_pars->mdl_WZ;
 
+#endif
   }
 
   //--------------------------------------------------------------------------
   // Define pointer accessors
   const short* CPPProcess::get_tHel_ptr() const {return &(**m_tHel);}
 
-  //cxtype* CPPProcess::get_tIPC_ptr() {return m_tIPC;}
-  //const cxtype* CPPProcess::get_tIPC_ptr() const {return m_tIPC;}
+  cxtype* CPPProcess::get_tIPC_ptr() {return m_tIPC;}
+  const cxtype* CPPProcess::get_tIPC_ptr() const {return m_tIPC;}
 
   fptype* CPPProcess::get_tIPD_ptr() {return m_tIPD;}
   const fptype* CPPProcess::get_tIPD_ptr() const {return m_tIPD;}

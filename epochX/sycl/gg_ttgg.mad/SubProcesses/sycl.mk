@@ -62,7 +62,7 @@ endif
 
 #-------------------------------------------------------------------------------
 
-#=== Configure defaults and check if user-defined choices exist for FPTYPE, HELINL, NTPBMAX
+#=== Configure defaults and check if user-defined choices exist for FPTYPE, HELINL, HRDCOD, NTPBMAX
 
 # Set the default FPTYPE (floating point type) choice
 ifeq ($(FPTYPE),)
@@ -74,19 +74,25 @@ ifeq ($(HELINL),)
   override HELINL = 0
 endif
 
+# Set the default HELINL (inline helicities?) choice
+ifeq ($(HRDCOD),)
+  override HRDCOD = 1
+endif
+
 # Set the default NTPBMAX (maximum threads per block) choice
 ifeq ($(NTPBMAX),)
   override NTPBMAX = 1024
 endif
 
-# Export FPTYPE, HELINL so that it is not necessary to pass them to the src Makefile too
+# Export FPTYPE, HELINL, HRDCOD, NTPBMAX so that it is not necessary to pass them to the src Makefile too
 export FPTYPE
 export HELINL
+export HRDCOD
 export NTPBMAX
 
 #-------------------------------------------------------------------------------
 
-#=== Set the SYCL/C++ compiler flags appropriate to user-defined choices of FPTYPE, HELINL, NTPBMAX
+#=== Set the SYCL/C++ compiler flags appropriate to user-defined choices of FPTYPE, HELINL, HRDCOD, NTPBMAX
 
 # Set the build flags appropriate to each FPTYPE choice (example: "make FPTYPE=f")
 $(info FPTYPE=$(FPTYPE))
@@ -106,6 +112,14 @@ else ifneq ($(HELINL),0)
   $(error Unknown HELINL='$(HELINL)': only '0' and '1' are supported)
 endif
 
+# Set the build flags appropriate to each HRDCOD choice (example: "make HRDCOD=1")
+$(info HRDCOD=$(HRDCOD))
+ifeq ($(HRDCOD),1)
+  CXXFLAGS += -DMGONGPU_HARDCODE_PARAM
+else ifneq ($(HRDCOD),0)
+  $(error Unknown HRDCOD='$(HRDCOD)': only '0' and '1' are supported)
+endif
+
 # Set the build flags appropriate to each NTPBMAX choice (example: "make NTPBMAX=1024")
 $(info NTPBMAX=$(NTPBMAX))
 CXXFLAGS += -DMGONGPU_NTPBMAX=$(NTPBMAX)
@@ -115,10 +129,10 @@ CXXFLAGS += -DMGONGPU_NTPBMAX=$(NTPBMAX)
 #=== Configure build directories and build lockfiles ===
 
 # Build directory "short" tag (defines target and path to the optional build directory)
-override DIRTAG = $(FPTYPE)_inl$(HELINL)
+override DIRTAG = $(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)
 
 # Build lockfile "full" tag (defines full specification of build options that cannot be intermixed)
-override TAG = $(FPTYPE)_inl$(HELINL)
+override TAG = $(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)
 
 # Build directory: current directory by default, or build.$(DIRTAG) if USEBUILDDIR==1
 ifeq ($(USEBUILDDIR),1)

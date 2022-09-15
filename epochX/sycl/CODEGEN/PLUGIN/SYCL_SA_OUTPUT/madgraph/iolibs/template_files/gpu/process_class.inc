@@ -63,12 +63,11 @@
     Parameters_%(model_name)s* m_pars;
     std::vector<fptype> m_masses; // external particle masses
 
-    // Helicities for the process
-    const short m_tHel[mgOnGpu::ncomb][mgOnGpu::npar];
-
+#ifndef MGONGPU_HARDCODE_PARAM
     // Physics parameters (masses, coupling, etc...)
-    //cxtype m_tIPC[mgOnGpu::ncouplings];
+    cxtype m_tIPC[independentCouplings::nicoup];
     fptype m_tIPD[mgOnGpu::nparams];
+#endif
 
     // Other variables of this instance (???)
     //int id1, id2; // initial particle ids

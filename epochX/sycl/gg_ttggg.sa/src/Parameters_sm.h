@@ -221,6 +221,13 @@ namespace Parameters_sm_independentCouplings
 {
   constexpr size_t nicoup = 0; // #couplings that are fixed for all events because they do not depend on the running alphas QCD
   // NB: there are no aS-independent couplings in this physics process
+
+#ifdef MGONGPU_HARDCODE_PARAM
+  template <typename CXType, typename FPType>
+  constexpr CXType independent_couplings[] {
+    // NB: there are no aS-independent couplings in this physics process
+  };
+#endif
 }
 
 #endif // Parameters_sm_H

@@ -152,6 +152,13 @@ namespace Parameters_%(model_name)s_independentCouplings
 {
   constexpr size_t nicoup = %(nicoup)d; // #couplings that are fixed for all events because they do not depend on the running alphas QCD
 %(iicoup)s
+
+#ifdef MGONGPU_HARDCODE_PARAM
+  template <typename CXType, typename FPType>
+  constexpr CXType independent_couplings[] {
+%(icoupseticoup_hrdcod)s
+  };
+#endif
 }
 
 #endif // Parameters_%(model_name)s_H

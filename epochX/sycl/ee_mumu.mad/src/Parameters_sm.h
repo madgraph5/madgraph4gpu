@@ -214,9 +214,18 @@ namespace Parameters_sm_dependentCouplings
 namespace Parameters_sm_independentCouplings
 {
   constexpr size_t nicoup = 3; // #couplings that are fixed for all events because they do not depend on the running alphas QCD
-  //constexpr size_t ixcoup_GC_3 = 0 + Parameters_sm_dependentCouplings::ndcoup; // out of ndcoup+nicoup
-  //constexpr size_t ixcoup_GC_50 = 1 + Parameters_sm_dependentCouplings::ndcoup; // out of ndcoup+nicoup
-  //constexpr size_t ixcoup_GC_59 = 2 + Parameters_sm_dependentCouplings::ndcoup; // out of ndcoup+nicoup
+  constexpr size_t ixcoup_GC_3 = 0 + Parameters_sm_dependentCouplings::ndcoup; // out of ndcoup+nicoup
+  constexpr size_t ixcoup_GC_50 = 1 + Parameters_sm_dependentCouplings::ndcoup; // out of ndcoup+nicoup
+  constexpr size_t ixcoup_GC_59 = 2 + Parameters_sm_dependentCouplings::ndcoup; // out of ndcoup+nicoup
+
+#ifdef MGONGPU_HARDCODE_PARAM
+  template <typename CXType, typename FPType>
+  constexpr CXType independent_couplings[] {
+    ((FPType)Parameters_sm::sm.real(), (FPType)Parameters_sm::GC_3.imag()),
+    ((FPType)Parameters_sm::sm.real(), (FPType)Parameters_sm::GC_50.imag()),
+    ((FPType)Parameters_sm::sm.real(), (FPType)Parameters_sm::GC_59.imag()),
+  };
+#endif
 }
 
 #endif // Parameters_sm_H

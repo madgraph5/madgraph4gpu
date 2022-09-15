@@ -24,7 +24,7 @@ endif
 
 #-------------------------------------------------------------------------------
 
-#=== Set the SYCL compiler flags appropriate to user-defined choices of FPTYPE, HELINL
+#=== Set the SYCL compiler flags appropriate to user-defined choices of FPTYPE, HELINL, HRDCOD
 
 # Set the build flags appropriate to each FPTYPE choice (example: "make FPTYPE=f")
 ifeq ($(FPTYPE),d)
@@ -40,6 +40,13 @@ ifeq ($(HELINL),1)
   CXXFLAGS += -DMGONGPU_INLINE_HELAMPS
 else ifneq ($(HELINL),0)
   $(error Unknown HELINL='$(HELINL)': only '0' and '1' are supported)
+endif
+
+# Set the build flags appropriate to each HRDCOD choice (example: "make HRDCOD=1")
+ifeq ($(HRDCOD),1)
+  CXXFLAGS += -DMGONGPU_HARDCODE_PARAM
+else ifneq ($(HRDCOD),0)
+  $(error Unknown HRDCOD='$(HRDCOD)': only '0' and '1' are supported)
 endif
 
 # Set the build flags appropriate to each NTPBMAX choice (example: "make NTPBMAX=1024")
