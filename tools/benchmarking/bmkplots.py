@@ -466,7 +466,7 @@ def plotCudaST( workdir, score_key='ggttgg-sa-cuda-d-inl0', ylog=False, evtmatch
 
 #---------------------------------------
 
-def compareNodesCpp( ax=None ):
+def compareNodesCpp( ax=None, process=None ):
     plot = ax is not None
     nodes = ( 'itscrd70', 'pmpe04', 'bmk6130' )
     refnode = nodes[0] # refnode is the first one (itscrd70)
@@ -500,12 +500,13 @@ def compareNodesCpp( ax=None ):
     else:
         xkey = 'ggttgg-sa-cpp-d-inl0-none' # Use ggttgg/d/none as the x axis (the hepspec06-like benchmark)
         xmin, ymin = 1, 1
-        xmax, ymax = 1, 1
+        ###xmax, ymax = 1, 1
         ax.set_xlabel( 'Tput(node)/Tput(ref_node) for %s'%xkey )
         ax.set_ylabel( 'Tput(node)/Tput(ref_node)' )
     for key in keys :
         if 'inl1' in key: continue # look at inl0 only
         if '-f-' in key: continue # look at -d- only
+        if process is not None and not key.startswith( process ): continue # look only at one specific process
         if plot: xvals, yvals = [], [] # prepare data to plot
         else: print()
         for node in nodes:
@@ -522,11 +523,12 @@ def compareNodesCpp( ax=None ):
                 xvals.append( xtput / xreftput )
                 yvals.append( tput / reftput )
         if plot:
-            xmax = max( xmax, max(xvals) )
-            ymax = max( ymax, max(yvals) )
+            ###xmax = max( xmax, max(xvals) )
+            ###ymax = max( ymax, max(yvals) )
             ax.plot( xvals, yvals, marker='o', label=key )
     if plot:
-        xmax = max( xmax*2, ymax*1.2 )
+        ###xmax = max( xmax*1.4, ymax*1.2 )
+        xmax = 14 # hardcoded default (same for all plots)
         ymax = xmax
         ax.axis( [xmin, xmax, ymin, ymax] )
         loc = 'lower right'
@@ -534,10 +536,16 @@ def compareNodesCpp( ax=None ):
         ax.plot( [xmin, xmax], [ymin, ymax], ls="--", c='black' )
 
 def compareNodesCppPlot():
-    fig = plt.figure( figsize = ( plots_figsize[0], plots_figsize[1]*2 ) )
-    ax = fig.add_subplot( 111 )
-    # Create figure with one plot
-    compareNodesCpp( ax )
+    fig = plt.figure( figsize = ( plots_figsize[0]*1.4, plots_figsize[1]*2.8 ) )
+    # Create figure with 2x2 plots
+    ax1 = fig.add_subplot( 221 )
+    ax2 = fig.add_subplot( 222 )
+    ax3 = fig.add_subplot( 223 )
+    ax4 = fig.add_subplot( 224 )
+    compareNodesCpp( ax1, process='eemumu-' )
+    compareNodesCpp( ax2, process='ggtt-' )
+    compareNodesCpp( ax3, process='ggttg-' )
+    compareNodesCpp( ax4, process='ggttgg-' )
     pngpath = 'BMK-COMPARE/all-sa-cpp-d-inl0.png'
     fig.set_tight_layout( True )
     fig.savefig( pngpath, format='png', bbox_inches="tight" )
@@ -583,6 +591,9 @@ if __name__ == '__main__':
     #plotCudaST( 'BMK-itscrd70-cuda', score_key='ggttgg-sa-cuda-d-inl0', ylog=False, evtmatch='-e0800', gputhreads='gt00032', debug=False )
     #plotCudaST( 'BMK-itscrd70-cuda', score_key='ggttgg-sa-cuda-f-inl0', ylog=False, evtmatch='-e0800', gputhreads='gt00032', debug=False )
 
-    # COMPARE NODES (CPP)
+    # TEST COMPARISONS (CPP)
+    #compareNodesCpp( process='ggtt-' )
+
+    # PRODUCTION COMPARISONS (CPP)
     #compareNodesCpp()
     compareNodesCppPlot()
