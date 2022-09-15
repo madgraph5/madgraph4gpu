@@ -594,11 +594,12 @@ if __name__ == '__main__':
     #plotCudaST( 'BMK-itscrd70-cuda', score_key='ggttgg-sa-cuda-f-inl0', ylog=False, evtmatch='-e0800', gputhreads='gt00032', debug=False )
 
     # TEST COMPARISONS (CPP)
-    #compareNodesCpp( process='ggtt-' )
+    #compareNodesCpp( process='ggttgg-' )
+    compareNodesCpp( process='ggttgg-', df='-d-', inl='inl0' )
 
     # PRODUCTION COMPARISONS (CPP)
     #compareNodesCpp()
-    compareNodesCppPlot( df='-d-', inl='inl0' )
-    compareNodesCppPlot( df='-f-', inl='inl0' )
-    compareNodesCppPlot( df='-d-', inl='inl1' )
-    compareNodesCppPlot( df='-f-', inl='inl1' )
+    #compareNodesCppPlot( df='-d-', inl='inl0' )
+    #compareNodesCppPlot( df='-f-', inl='inl0' )
+    #compareNodesCppPlot( df='-d-', inl='inl1' )
+    #compareNodesCppPlot( df='-f-', inl='inl1' )
