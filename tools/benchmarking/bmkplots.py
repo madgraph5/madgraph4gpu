@@ -546,6 +546,8 @@ def compareNodesCppPlot( df='-d-', inl='inl0' ):
     compareNodesCpp( ax2, df=df, inl=inl, process='ggtt-' )
     compareNodesCpp( ax3, df=df, inl=inl, process='ggttg-' )
     compareNodesCpp( ax4, df=df, inl=inl, process='ggttgg-' )
+    ftitle='check.exe comparison (no-HT whole nodes) of itscrd70 (4-core Silver4216), pmpe04 (16-core E5-2630), bmk6130 (32-core Gold6130)'
+    fig.suptitle( ftitle, size=plots_ftitlesize )
     pngpath = 'BMK-COMPARE/all-sa-cpp%s%s.png'%(df,inl)
     fig.set_tight_layout( True )
     fig.savefig( pngpath, format='png', bbox_inches="tight" )
