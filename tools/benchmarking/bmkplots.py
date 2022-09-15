@@ -438,13 +438,13 @@ def plotCudaST( workdir, score_key='ggttgg-sa-cuda-d-inl0', ylog=False, evtmatch
     cudarunset_scores = loadCudaRunSet( workdir, evtmatch=evtmatch, gputhreads=gputhreads )
     node, xht, ftitle = getNodeFeatures( workdir )
     pngpath = workdir + '/' + node + '-' + gputhreads + evtmatch + '-' + score_key + '.png'
-    # Create figure with one plot
+    # Create figure with 2x2 plots
     fig = plt.figure( figsize = ( 1.2*plots_figsize[0]*2, 1.2*plots_figsize[1]*2 ) )
     ax1 = fig.add_subplot( 221 )
     ax2 = fig.add_subplot( 222 )
     ax3 = fig.add_subplot( 223 )
     ax4 = fig.add_subplot( 224 )
-    # Fill the plot in the figure
+    # Fill the plots in the figure
     axesCudaST( ax1, cudarunset_scores, xjob=False, score_key=score_key, abstput=True, ylog=ylog, debug=debug )
     axesCudaST( ax2, cudarunset_scores, xjob=True, score_key=score_key, abstput=True, ylog=ylog, debug=debug )
     axesCudaST( ax3, cudarunset_scores, xjob=False, score_key=score_key, abstput=False, ylog=ylog, debug=debug )
@@ -466,7 +466,7 @@ def plotCudaST( workdir, score_key='ggttgg-sa-cuda-d-inl0', ylog=False, evtmatch
 
 #---------------------------------------
 
-def compareNodesCpp():
+def compareNodesCpp( plot = False ):
     nodes = ( 'itscrd70', 'pmpe04', 'bmk6130' )
     refnode = nodes[0] # refnode is the first one (itscrd70)
     npcores_node = {}
@@ -494,18 +494,51 @@ def compareNodesCpp():
         return key
     keys2 = [ sortableSimdKey( key ) for key in keys ]
     keys = [ key for _, key in sorted( zip( keys2, keys ) ) ] # https://stackoverflow.com/a/6618543
-    print( '%-30s %-10s %10s %10s %12s %15s'%( 'ScoreName', 'Node', 'Tput', 'Tput/Ref', 'TputPerCore', 'TputPerCore/Ref' ) )
+    if not plot:
+        print( '%-30s %-10s %10s %10s %12s %15s'%( 'ScoreName', 'Node', 'Tput', 'Tput/Ref', 'TputPerCore', 'TputPerCore/Ref' ) )
+    else:
+        xkey = 'ggttgg-sa-cpp-d-inl0-none' # Use ggttgg/d/none as the x axis (the hepspec06-like benchmark)
+        xmin, ymin = 1, 1
+        xmax, ymax = 1, 1
+        fig = plt.figure( figsize = ( plots_figsize[0], plots_figsize[1]*2 ) )
+        ax = fig.add_subplot( 111 )
+        ax.set_xlabel( 'Tput(node)/Tput(ref_node) for %s'%xkey )
+        ax.set_ylabel( 'Tput(node)/Tput(ref_node)' )
     for key in keys :
         if 'inl1' in key: continue # look at inl0 only
         if '-f-' in key: continue # look at -d- only
+        if plot: xvals, yvals = [], [] # prepare data to plot
+        else: print()
         for node in nodes:
             if key not in tputs_node[node] : continue
             tput = tputs_node[node][key]
-            tputpc = tput / npcores_node[node]
             reftput = tputs_node[refnode][key]
+            tputpc = tput / npcores_node[node]
             reftputpc = tputs_node[refnode][key] / npcores_node[refnode]
-            print( '%-30s %-10s %10.5f %10.5f %12.5f %15.5f'%( key, node, tput, tput / reftput, tputpc, tputpc / reftputpc ) )
-        print()
+            if not plot:
+                print( '%-30s %-10s %10.5f %10.5f %12.5f %15.5f'%( key, node, tput, tput / reftput, tputpc, tputpc / reftputpc ) )
+            else:
+                xtput = tputs_node[node][xkey]
+                xreftput = tputs_node[refnode][xkey]
+                xvals.append( xtput / xreftput )
+                yvals.append( tput / reftput )
+        if plot:
+            xmax = max( xmax, max(xvals) )
+            ymax = max( ymax, max(yvals) )
+            p = ax.plot( xvals, yvals, marker='o', label=key )
+    if not plot : return
+    # Create figure with one plot
+    xmax = max( xmax*2, ymax*1.2 )
+    ymax = xmax
+    ax.axis( [xmin, xmax, ymin, ymax] )
+    loc = 'lower right'
+    ax.legend( loc=loc, fontsize=plots_legendsize )
+    ax.plot( [xmin, xmax], [ymin, ymax], ls="--", c='black' )
+    pngpath = 'BMK-COMPARE/all-sa-cpp-d-inl0.png'
+    fig.set_tight_layout( True )
+    fig.savefig( pngpath, format='png', bbox_inches="tight" )
+    Popen( ['display', '-geometry', '+50+50', pngpath] )
+    print( 'Plot successfully saved on', pngpath )
 
 #---------------------------------------
 
@@ -547,4 +580,5 @@ if __name__ == '__main__':
     #plotCudaST( 'BMK-itscrd70-cuda', score_key='ggttgg-sa-cuda-f-inl0', ylog=False, evtmatch='-e0800', gputhreads='gt00032', debug=False )
 
     # COMPARE NODES (CPP)
-    compareNodesCpp()
+    #compareNodesCpp( plot=False )
+    compareNodesCpp( plot=True )
