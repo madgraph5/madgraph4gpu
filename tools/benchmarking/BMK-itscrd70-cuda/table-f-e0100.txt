@@ -1,0 +1,100 @@
+Loading runs in RunSetDir BMK-itscrd70-cuda for events -e0100
+Loading Run BMK-itscrd70-cuda/sa-cuda-gb00001-gt00256-j001-t001-e0100/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-itscrd70-cuda/sa-cuda-gb00001-gt00256-j002-t001-e0100/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-itscrd70-cuda/sa-cuda-gb00001-gt00256-j004-t001-e0100/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-itscrd70-cuda/sa-cuda-gb00001-gt00256-j008-t001-e0100/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-itscrd70-cuda/sa-cuda-gb00002-gt00256-j001-t001-e0100/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-itscrd70-cuda/sa-cuda-gb00002-gt00256-j002-t001-e0100/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-itscrd70-cuda/sa-cuda-gb00002-gt00256-j004-t001-e0100/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-itscrd70-cuda/sa-cuda-gb00002-gt00256-j008-t001-e0100/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-itscrd70-cuda/sa-cuda-gb00004-gt00256-j001-t001-e0100/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-itscrd70-cuda/sa-cuda-gb00004-gt00256-j002-t001-e0100/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-itscrd70-cuda/sa-cuda-gb00004-gt00256-j004-t001-e0100/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-itscrd70-cuda/sa-cuda-gb00004-gt00256-j008-t001-e0100/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-itscrd70-cuda/sa-cuda-gb00008-gt00256-j001-t001-e0100/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-itscrd70-cuda/sa-cuda-gb00008-gt00256-j002-t001-e0100/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-itscrd70-cuda/sa-cuda-gb00008-gt00256-j004-t001-e0100/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-itscrd70-cuda/sa-cuda-gb00008-gt00256-j008-t001-e0100/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-itscrd70-cuda/sa-cuda-gb00016-gt00256-j001-t001-e0100/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-itscrd70-cuda/sa-cuda-gb00016-gt00256-j002-t001-e0100/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-itscrd70-cuda/sa-cuda-gb00016-gt00256-j004-t001-e0100/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-itscrd70-cuda/sa-cuda-gb00016-gt00256-j008-t001-e0100/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-itscrd70-cuda/sa-cuda-gb00032-gt00256-j001-t001-e0100/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-itscrd70-cuda/sa-cuda-gb00032-gt00256-j002-t001-e0100/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-itscrd70-cuda/sa-cuda-gb00032-gt00256-j004-t001-e0100/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-itscrd70-cuda/sa-cuda-gb00032-gt00256-j008-t001-e0100/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-itscrd70-cuda/sa-cuda-gb00064-gt00256-j001-t001-e0100/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-itscrd70-cuda/sa-cuda-gb00064-gt00256-j002-t001-e0100/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-itscrd70-cuda/sa-cuda-gb00064-gt00256-j004-t001-e0100/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-itscrd70-cuda/sa-cuda-gb00064-gt00256-j008-t001-e0100/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-itscrd70-cuda/sa-cuda-gb00128-gt00256-j001-t001-e0100/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-itscrd70-cuda/sa-cuda-gb00128-gt00256-j002-t001-e0100/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-itscrd70-cuda/sa-cuda-gb00128-gt00256-j004-t001-e0100/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-itscrd70-cuda/sa-cuda-gb00128-gt00256-j008-t001-e0100/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-itscrd70-cuda/sa-cuda-gb00256-gt00256-j001-t001-e0100/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-itscrd70-cuda/sa-cuda-gb00256-gt00256-j002-t001-e0100/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-itscrd70-cuda/sa-cuda-gb00256-gt00256-j004-t001-e0100/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-itscrd70-cuda/sa-cuda-gb00256-gt00256-j008-t001-e0100/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-itscrd70-cuda/sa-cuda-gb00512-gt00256-j001-t001-e0100/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-itscrd70-cuda/sa-cuda-gb00512-gt00256-j002-t001-e0100/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-itscrd70-cuda/sa-cuda-gb00512-gt00256-j004-t001-e0100/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-itscrd70-cuda/sa-cuda-gb00512-gt00256-j008-t001-e0100/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-itscrd70-cuda/sa-cuda-gb01024-gt00256-j001-t001-e0100/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-itscrd70-cuda/sa-cuda-gb01024-gt00256-j002-t001-e0100/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-itscrd70-cuda/sa-cuda-gb01024-gt00256-j004-t001-e0100/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-itscrd70-cuda/sa-cuda-gb01024-gt00256-j008-t001-e0100/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-itscrd70-cuda/sa-cuda-gb02048-gt00256-j001-t001-e0100/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-itscrd70-cuda/sa-cuda-gb02048-gt00256-j002-t001-e0100/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-itscrd70-cuda/sa-cuda-gb02048-gt00256-j004-t001-e0100/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-itscrd70-cuda/sa-cuda-gb02048-gt00256-j008-t001-e0100/mg5amc-madgraph4gpu-2022_summary.json
+
+SCORES['ggttgg-sa-cuda-f-inl0']:
+ nthr  njob  ngbl  ngth        Score  ngbl*ngth*njob*nthr       S/S[1,256,1,1]
+    1     1     1   256     0.024385                  256             1.000000
+    1     1     2   256     0.048662                  512             1.995571
+    1     1     4   256     0.096450                 1024             3.955300
+    1     1     8   256     0.192672                 2048             7.901251
+    1     1    16   256     0.260001                 4096            10.662333
+    1     1    32   256     0.446438                 8192            18.307894
+    1     1    64   256     0.764148                16384            31.336805
+    1     1   128   256     0.758480                32768            31.104367
+    1     1   256   256     0.773506                65536            31.720566
+    1     1   512   256     0.832768               131072            34.150830
+    1     1  1024   256     0.871978               262144            35.758786
+    1     1  2048   256     0.873274               524288            35.811934
+    1     2     1   256     0.030798                  512             1.262990
+    1     2     2   256     0.059460                 1024             2.438384
+    1     2     4   256     0.117978                 2048             4.838138
+    1     2     8   256     0.222825                 4096             9.137790
+    1     2    16   256     0.269353                 8192            11.045848
+    1     2    32   256     0.435938                16384            17.877302
+    1     2    64   256     1.124554                32768            46.116629
+    1     2   128   256     0.712641                65536            29.224564
+    1     2   256   256     0.757179               131072            31.051015
+    1     2   512   256     0.744604               262144            30.535329
+    1     2  1024   256     0.779823               524288            31.979619
+    1     2  2048   256     0.785271              1048576            32.203035
+    1     4     1   256     0.049358                 1024             2.024113
+    1     4     2   256     0.111038                 2048             4.553537
+    1     4     4   256     0.188433                 4096             7.727414
+    1     4     8   256     0.408427                 8192            16.749108
+    1     4    16   256     0.493091                16384            20.221079
+    1     4    32   256     0.730077                32768            29.939594
+    1     4    64   256     1.160924                65536            47.608120
+    1     4   128   256     1.075134               131072            44.089973
+    1     4   256   256     0.772249               262144            31.669018
+    1     4   512   256     0.850771               524288            34.889112
+    1     4  1024   256     0.842995              1048576            34.570228
+    1     4  2048   256     0.807222              2097152            33.103219
+    1     8     1   256     0.104135                 2048             4.270453
+    1     8     2   256     0.215835                 4096             8.851138
+    1     8     4   256     0.425379                 8192            17.444290
+    1     8     8   256     0.826304                16384            33.885749
+    1     8    16   256     0.777300                32768            31.876153
+    1     8    32   256     1.291521                65536            52.963748
+    1     8    64   256     1.689649               131072            69.290506
+    1     8   128   256     1.182148               262144            48.478491
+    1     8   256   256     0.923142               524288            37.856961
+    1     8   512   256     0.879377              1048576            36.062210
+    1     8  1024   256     0.854405              2097152            35.038138
+    1     8  2048   256     0.820338              4194304            33.641091
