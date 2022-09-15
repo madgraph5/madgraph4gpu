@@ -100,10 +100,10 @@ def getSortedMatchingKeys( cpprunset_scores, keymatch=None, debug=False ):
     def sortableSimdKey( key ): # use keys sortable in this order: none, sse4, avx2, 512y, 512z, best
         key = key.replace( '-none', '-simd0' )
         key = key.replace( '-sse4', '-simd1' )
-        key = key.replace( '-avx2', '-simd3' )
-        key = key.replace( '-512y', '-simd4' )
-        key = key.replace( '-512z', '-simd5' )
-        key = key.replace( '-best', '-simd6' )
+        key = key.replace( '-avx2', '-simd2' )
+        key = key.replace( '-512y', '-simd3' )
+        key = key.replace( '-512z', '-simd4' )
+        key = key.replace( '-best', '-simd5' )
         return key
     keys2 = [ sortableSimdKey( key ) for key in keys ]
     keys = [ key for _, key in sorted( zip( keys2, keys ) ) ] # https://stackoverflow.com/a/6618543
@@ -128,7 +128,7 @@ def loadCudaRunSet( runsetdir, evtmatch='-e001', gputhreads='gt00256', debug=Fal
     print( 'Loading runs in RunSetDir', runsetdir, 'for events', evtmatch )
     for d in sorted( os.listdir( runsetdir ) ) :
         if d.startswith( 'sa-cuda' ) and gputhreads in d and d.endswith( evtmatch )\
-	       and 'png' not in d : # e.g. sa-cuda-gb00064-gt00256-j001-t001-e0100
+               and 'png' not in d : # e.g. sa-cuda-gb00064-gt00256-j001-t001-e0100
             rundir = runsetdir + '/' + d
             if 'SKIP' in os.listdir( rundir ):
                 print( 'WARNING! %s contains file SKIP and will be skipped'%rundir )
@@ -466,6 +466,49 @@ def plotCudaST( workdir, score_key='ggttgg-sa-cuda-d-inl0', ylog=False, evtmatch
 
 #---------------------------------------
 
+def compareNodesCpp():
+    nodes = ( 'itscrd70', 'pmpe04', 'bmk6130' )
+    refnode = nodes[0] # refnode is the first one (itscrd70)
+    npcores_node = {}
+    tputs_node = {}
+    keys = []
+    for node in nodes:
+        workdir = 'BMK-' + node
+        cpprunset_scores = loadCppRunSet( workdir, evtmatch='-e010' )
+        node1, xht, ftitle = getNodeFeatures( workdir )
+        assert node == node1, 'node mismatch in getNodeFeatures?'
+        npcores = abs( xht ) # use benchmarks for the case when njob equals the number of physical cores
+        assert (npcores,1) in cpprunset_scores, 'no scores found for njob==%d and nthr==1?'%npcores
+        tputs = cpprunset_scores[ npcores, 1 ]
+        npcores_node[ node ] = npcores
+        tputs_node[ node ] = tputs
+        keys += tputs.keys()
+    keys = set( keys )
+    def sortableSimdKey( key ): # use keys sortable in this order: none, sse4, avx2, 512y, 512z, best
+        if   key.endswith( '-none' ) : key = 'simd0' + key
+        elif key.endswith( '-sse4' ) : key = 'simd1' + key
+        elif key.endswith( '-avx2' ) : key = 'simd2' + key
+        elif key.endswith( '-512y' ) : key = 'simd3' + key
+        elif key.endswith( '-512z' ) : key = 'simd4' + key
+        elif key.endswith( '-best' ) : key = 'simd5' + key
+        return key
+    keys2 = [ sortableSimdKey( key ) for key in keys ]
+    keys = [ key for _, key in sorted( zip( keys2, keys ) ) ] # https://stackoverflow.com/a/6618543
+    print( '%-30s %-10s %10s %12s %15s'%( 'ScoreName', 'Node', 'Tput', 'TputPerCore', 'TputPerCore/Ref' ) )
+    for key in keys :
+        if 'inl1' in key: continue # look at inl0 only
+        if '-f-' in key: continue # look at -d- only
+        for node in nodes:
+            if key not in tputs_node[node] : continue
+            tput = tputs_node[node][key]
+            tputpc = tput / npcores_node[node]
+            reftput = tputs_node[refnode][key]
+            reftputpc = tputs_node[refnode][key] / npcores_node[refnode]
+            print( '%-30s %-10s %10.5f %12.5f %15.5f'%( key, node, tput, tputpc, tputpc / reftputpc ) )
+        print()
+
+#---------------------------------------
+
 if __name__ == '__main__':
 
     # TESTS (CPP)
@@ -500,5 +543,8 @@ if __name__ == '__main__':
     #plotCudaST( 'BMK-itscrd70-cuda', score_key='ggttgg-sa-cuda-f-inl0', ylog=False, evtmatch='-e0100', debug=False )
     #plotCudaST( 'BMK-itscrd70-cuda', score_key='ggttgg-sa-cuda-d-inl0', ylog=False, evtmatch='-e0800', debug=False )
     #plotCudaST( 'BMK-itscrd70-cuda', score_key='ggttgg-sa-cuda-f-inl0', ylog=False, evtmatch='-e0800', debug=False )
-    plotCudaST( 'BMK-itscrd70-cuda', score_key='ggttgg-sa-cuda-d-inl0', ylog=False, evtmatch='-e0800', gputhreads='gt00032', debug=False )
-    plotCudaST( 'BMK-itscrd70-cuda', score_key='ggttgg-sa-cuda-f-inl0', ylog=False, evtmatch='-e0800', gputhreads='gt00032', debug=False )
+    #plotCudaST( 'BMK-itscrd70-cuda', score_key='ggttgg-sa-cuda-d-inl0', ylog=False, evtmatch='-e0800', gputhreads='gt00032', debug=False )
+    #plotCudaST( 'BMK-itscrd70-cuda', score_key='ggttgg-sa-cuda-f-inl0', ylog=False, evtmatch='-e0800', gputhreads='gt00032', debug=False )
+
+    # COMPARE NODES (CPP)
+    compareNodesCpp()
