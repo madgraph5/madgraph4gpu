@@ -114,14 +114,14 @@ namespace Proc
     // Initialize process (read model parameters from file)
     virtual void initProc( const std::string& param_card_name );
 
+#ifndef MGONGPU_HARDCODE_PARAM
     // Pointer accessors
-    const short* get_tHel_ptr() const;
-
-    //cxtype* get_tIPC_ptr();
-    //const cxtype* get_tIPC_ptr() const;
+    cxtype* get_tIPC_ptr();
+    const cxtype* get_tIPC_ptr() const;
 
     fptype* get_tIPD_ptr();
     const fptype* get_tIPD_ptr() const;
+#endif
 
     // Other methods of this instance (???)
     //const std::vector<fptype>& getMasses() const { return m_masses; }

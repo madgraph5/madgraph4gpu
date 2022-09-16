@@ -199,14 +199,14 @@ namespace Proc
   }
 
   //--------------------------------------------------------------------------
+#ifndef MGONGPU_HARDCODE_PARAM
   // Define pointer accessors
-  const short* CPPProcess::get_tHel_ptr() const {return &(**m_tHel);}
-
   cxtype* CPPProcess::get_tIPC_ptr() {return m_tIPC;}
   const cxtype* CPPProcess::get_tIPC_ptr() const {return m_tIPC;}
 
   fptype* CPPProcess::get_tIPD_ptr() {return m_tIPD;}
   const fptype* CPPProcess::get_tIPD_ptr() const {return m_tIPD;}
+#endif
 
   //--------------------------------------------------------------------------
 
