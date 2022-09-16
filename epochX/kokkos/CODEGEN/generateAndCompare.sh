@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -e # fail on error
-set -x
+
 #--------------------------------------------------------------------------------------
 
 function codeGenAndDiff()
