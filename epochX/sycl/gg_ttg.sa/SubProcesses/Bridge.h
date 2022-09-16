@@ -296,11 +296,16 @@ namespace mg5amcGpu
           auto devMomentaC = m_devMomentaC.data();
           auto devGsC = m_devGsC.data();
           auto devIsGoodHel = m_devIsGoodHel.data();
+#ifndef MGONGPU_HARDCODE_PARAM
+          //Get pointer to independent couplings and parameters into shared memory if not hardcoded
+          auto m_dev_independent_couplings_ptr = m_dev_independent_couplings.data();
+          auto m_dev_parameters_ptr = m_dev_independent_parameters.data();
+#endif
           cgh.parallel_for_work_group(sycl::range<1>{m_gpublocks}, sycl::range<1>{m_gputhreads}, ([=](sycl::group<1> wGroup) {
 #ifndef MGONGPU_HARDCODE_PARAM
               //Load independent couplings and parameters into shared memory if not hardcoded
-              auto dev_independent_couplings = m_dev_independent_couplings.data();
-              auto dev_parameters = m_dev_independent_parameters.data();
+              auto dev_independent_couplings = m_dev_independent_couplings_ptr;
+              auto dev_parameters = m_dev_parameters_ptr;
 #endif
               wGroup.parallel_for_work_item([&](sycl::h_item<1> index) {
                   size_t ievt = index.get_global_id(0);
@@ -315,7 +320,7 @@ namespace mg5amcGpu
 #endif
                   //Load helicities and couplings into local (private) memory
                   //FIXME should helicities be set in shared memory instead? Maybe doesn't matter for constexpr?
-                  short dev_helicities = Proc::helicities<short>;
+                  auto dev_helicities = Proc::helicities<short>;
                   cxtype dev_couplings[Proc::dependentCouplings::ndcoup + Proc::independentCouplings::nicoup];
                   if constexpr( Proc::dependentCouplings::ndcoup > 0 ) {
                       Proc::dependentCouplings::set_couplings_from_G(dev_couplings, devGsC[ievt]); 
@@ -350,11 +355,16 @@ namespace mg5amcGpu
         auto devcNGoodHel = m_devcNGoodHel.data();
         auto devcGoodHel = m_devcGoodHel.data();
         auto devMEsC = m_devMEsC.data();
+#ifndef MGONGPU_HARDCODE_PARAM
+        //Get pointer to independent couplings and parameters into shared memory if not hardcoded
+        auto m_dev_independent_couplings_ptr = m_dev_independent_couplings.data();
+        auto m_dev_parameters_ptr = m_dev_independent_parameters.data();
+#endif
         cgh.parallel_for_work_group(sycl::range<1>{m_gpublocks}, sycl::range<1>{m_gputhreads}, ([=](sycl::group<1> wGroup) {
 #ifndef MGONGPU_HARDCODE_PARAM
             //Load independent couplings and parameters into shared memory if not hardcoded
-            auto dev_independent_couplings = m_dev_independent_couplings.data();
-            auto dev_parameters = m_dev_independent_parameters.data();
+            auto dev_independent_couplings = m_dev_independent_couplings_ptr;
+            auto dev_parameters = m_dev_parameters_ptr;
 #endif
             auto l_channelId = channelId;
             wGroup.parallel_for_work_item([&](sycl::h_item<1> index) {
@@ -370,7 +380,7 @@ namespace mg5amcGpu
 #endif
                   //Load helicities and couplings into local (private) memory
                   //FIXME should helicities be set in shared memory instead? Maybe doesn't matter for constexpr?
-                  short dev_helicities = Proc::helicities<short>;
+                  auto dev_helicities = Proc::helicities<short>;
                   cxtype dev_couplings[Proc::dependentCouplings::ndcoup + Proc::independentCouplings::nicoup];
                   if constexpr( Proc::dependentCouplings::ndcoup > 0 ) {
                       Proc::dependentCouplings::set_couplings_from_G(dev_couplings, devGsC[ievt]); 

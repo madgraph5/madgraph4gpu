@@ -415,7 +415,6 @@ int main(int argc, char **argv)
   auto devWeights   = sycl::malloc_device<fptype>( nWeights,   q );
   auto devMEs       = sycl::malloc_device<fptype>( nMEs,       q );
 #ifndef MGONGPU_HARDCODE_PARAM
-  //auto devcHel      = sycl::malloc_device<short >( ncomb*npar, q );
   auto dev_independent_couplings  = sycl::malloc_device<cxtype>( Proc::independentCouplings::nicoup, q );
   auto dev_independent_parameters = sycl::malloc_device<fptype>( mgOnGpu::nparams,          q );
 #endif
@@ -543,11 +542,16 @@ int main(int argc, char **argv)
       
       // ... 0d1. Compute good helicity mask on the device
       q.submit([&](sycl::handler& cgh) {
+#ifndef MGONGPU_HARDCODE_PARAM
+          //Get pointer to independent couplings and parameters into shared memory if not hardcoded
+          auto dev_independent_couplings_ptr = dev_independent_couplings.data();
+          auto dev_parameters_ptr = dev_independent_parameters.data();
+#endif
           cgh.parallel_for_work_group(sycl::range<1>{gpublocks}, sycl::range<1>{gputhreads}, ([=](sycl::group<1> wGroup) {
 #ifndef MGONGPU_HARDCODE_PARAM
               //Load independent couplings and parameters into shared memory if not hardcoded
-              auto dev_independent_couplings = m_dev_independent_couplings.data();
-              auto dev_parameters = m_dev_independent_parameters.data();
+              auto _dev_independent_couplings = dev_independent_couplings_ptr;
+              auto dev_parameters = dev_parameters_ptr;
 #endif
               wGroup.parallel_for_work_item([&](sycl::h_item<1> index) {
                   size_t ievt = index.get_global_id(0);
@@ -556,12 +560,12 @@ int main(int argc, char **argv)
 #ifdef MGONGPU_HARDCODE_PARAM
                   //Load independent couplings and parameters into local (private) memory if hardcoded
                   //FIXME should independent couplings and parameters be set in shared memory instead? Maybe doesn't matter for constexpr
-                  cxtype dev_independent_couplings = Proc::independentCouplings::independent_couplings<cxtype, fptype>;
+                  cxtype _dev_independent_couplings = Proc::independentCouplings::independent_couplings<cxtype, fptype>;
                   fptype dev_parameters = Proc::independent_parameters<fptype>;
 #endif
                   //Load helicities and couplings into local (private) memory
                   //FIXME should helicities be set in shared memory instead? Maybe doesn't matter for constexpr?
-                  short dev_helicities = Proc::helicities<short>;
+                  auto dev_helicities = Proc::helicities<short>;
                   cxtype dev_couplings[Proc::dependentCouplings::ndcoup + Proc::independentCouplings::nicoup];
                   if constexpr( Proc::dependentCouplings::ndcoup > 0 ) {
                       Proc::dependentCouplings::set_couplings_from_G(dev_couplings, fixedG); 
@@ -569,7 +573,7 @@ int main(int argc, char **argv)
 
                   if constexpr( Proc::independentCouplings::nicoup > 0 ) {
                       for (size_t i = 0; i < Proc::independentCouplings::nicoup; i++) {
-                          dev_couplings[Proc::dependentCouplings::ndcoup + i] = dev_independent_couplings[i];
+                          dev_couplings[Proc::dependentCouplings::ndcoup + i] = _dev_independent_couplings[i];
                       }
                   }
 
@@ -599,11 +603,16 @@ int main(int argc, char **argv)
     timermap.start( skinKey );
 
     q.submit([&](sycl::handler& cgh) {
+#ifndef MGONGPU_HARDCODE_PARAM
+        //Get pointer to independent couplings and parameters into shared memory if not hardcoded
+        auto dev_independent_couplings_ptr = dev_independent_couplings.data();
+        auto dev_parameters_ptr = dev_independent_parameters.data();
+#endif
         cgh.parallel_for_work_group(sycl::range<1>{gpublocks}, sycl::range<1>{gputhreads}, ([=](sycl::group<1> wGroup) {
 #ifndef MGONGPU_HARDCODE_PARAM
             //Load independent couplings and parameters into shared memory if not hardcoded
-            auto dev_independent_couplings = m_dev_independent_couplings.data();
-            auto dev_parameters = m_dev_independent_parameters.data();
+            auto _dev_independent_couplings = dev_independent_couplings_ptr;
+            auto dev_parameters = dev_parameters_ptr;
 #endif
             wGroup.parallel_for_work_item([&](sycl::h_item<1> index) {
                 size_t ievt = index.get_global_id(0);
@@ -613,12 +622,12 @@ int main(int argc, char **argv)
 #ifdef MGONGPU_HARDCODE_PARAM
                   //Load independent couplings and parameters into local (private) memory if hardcoded
                   //FIXME should independent couplings and parameters be set in shared memory instead? Maybe doesn't matter for constexpr
-                  cxtype dev_independent_couplings = Proc::independentCouplings::independent_couplings<cxtype, fptype>;
+                  cxtype _dev_independent_couplings = Proc::independentCouplings::independent_couplings<cxtype, fptype>;
                   fptype dev_parameters = Proc::independent_parameters<fptype>;
 #endif
                   //Load helicities and couplings into local (private) memory
                   //FIXME should helicities be set in shared memory instead? Maybe doesn't matter for constexpr?
-                  short dev_helicities = Proc::helicities<short>;
+                  auto dev_helicities = Proc::helicities<short>;
                   cxtype dev_couplings[Proc::dependentCouplings::ndcoup + Proc::independentCouplings::nicoup];
                   if constexpr( Proc::dependentCouplings::ndcoup > 0 ) {
                       Proc::dependentCouplings::set_couplings_from_G(dev_couplings, fixedG); 
@@ -626,7 +635,7 @@ int main(int argc, char **argv)
 
                   if constexpr( Proc::independentCouplings::nicoup > 0 ) {
                       for (size_t i = 0; i < Proc::independentCouplings::nicoup; i++) {
-                          dev_couplings[Proc::dependentCouplings::ndcoup + i] = dev_independent_couplings[i];
+                          dev_couplings[Proc::dependentCouplings::ndcoup + i] = _dev_independent_couplings[i];
                       }
                   }
 
