@@ -59,10 +59,10 @@ CXXFLAGS += -DMGONGPU_NTPBMAX=$(NTPBMAX)
 
 # Build directory "short" tag (defines target and path to the optional build directory)
 # (Rationale: keep directory names shorter, e.g. do not include random number generator choice)
-override DIRTAG = $(FPTYPE)_inl$(HELINL)
+override DIRTAG = $(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)
 
 # Build lockfile "full" tag (defines full specification of build options that cannot be intermixed)
-override TAG = $(FPTYPE)_inl$(HELINL)
+override TAG = $(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)
 
 # Build directory: current directory by default, or build.$(DIRTAG) if USEBUILDDIR==1
 ifeq ($(USEBUILDDIR),1)

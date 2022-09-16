@@ -542,16 +542,11 @@ int main(int argc, char **argv)
       
       // ... 0d1. Compute good helicity mask on the device
       q.submit([&](sycl::handler& cgh) {
-#ifndef MGONGPU_HARDCODE_PARAM
-          //Get pointer to independent couplings and parameters into shared memory if not hardcoded
-          auto dev_independent_couplings_ptr = dev_independent_couplings.data();
-          auto dev_parameters_ptr = dev_independent_parameters.data();
-#endif
           cgh.parallel_for_work_group(sycl::range<1>{gpublocks}, sycl::range<1>{gputhreads}, ([=](sycl::group<1> wGroup) {
 #ifndef MGONGPU_HARDCODE_PARAM
               //Load independent couplings and parameters into shared memory if not hardcoded
-              auto _dev_independent_couplings = dev_independent_couplings_ptr;
-              auto dev_parameters = dev_parameters_ptr;
+              auto _dev_independent_couplings = dev_independent_couplings;
+              auto dev_parameters = dev_independent_parameters;
 #endif
               wGroup.parallel_for_work_item([&](sycl::h_item<1> index) {
                   size_t ievt = index.get_global_id(0);
@@ -603,16 +598,11 @@ int main(int argc, char **argv)
     timermap.start( skinKey );
 
     q.submit([&](sycl::handler& cgh) {
-#ifndef MGONGPU_HARDCODE_PARAM
-        //Get pointer to independent couplings and parameters into shared memory if not hardcoded
-        auto dev_independent_couplings_ptr = dev_independent_couplings.data();
-        auto dev_parameters_ptr = dev_independent_parameters.data();
-#endif
         cgh.parallel_for_work_group(sycl::range<1>{gpublocks}, sycl::range<1>{gputhreads}, ([=](sycl::group<1> wGroup) {
 #ifndef MGONGPU_HARDCODE_PARAM
             //Load independent couplings and parameters into shared memory if not hardcoded
-            auto _dev_independent_couplings = dev_independent_couplings_ptr;
-            auto dev_parameters = dev_parameters_ptr;
+            auto _dev_independent_couplings = dev_independent_couplings;
+            auto dev_parameters = dev_independent_parameters;
 #endif
             wGroup.parallel_for_work_item([&](sycl::h_item<1> index) {
                 size_t ievt = index.get_global_id(0);
