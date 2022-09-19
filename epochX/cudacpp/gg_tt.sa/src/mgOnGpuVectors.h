@@ -234,14 +234,14 @@ inline cxtype_v
 cxmake( const fptype_v& r, const fptype& i )
 {
   //return cxtype_v( r, fptype_v{i} ); // THIS WAS A BUG! #339
-  return cxtype_v( r, fptype_v{ 0. } + i ); // IIII=0000+i=iiii
+  return cxtype_v( r, fptype_v{ 0 } + i ); // IIII=0000+i=iiii
 }
 
 inline cxtype_v
 cxmake( const fptype& r, const fptype_v& i )
 {
   //return cxtype_v( fptype_v{r}, i ); // THIS WAS A BUG! #339
-  return cxtype_v( fptype_v{ 0. } + r, i ); // IIII=0000+r=rrrr
+  return cxtype_v( fptype_v{ 0 } + r, i ); // IIII=0000+r=rrrr
 }
 
 inline const fptype_v&
@@ -325,7 +325,7 @@ operator-( const cxtype_v& a, const fptype_v& b )
 inline cxtype_v
 operator-( const fptype_v& a, const cxtype& b )
 {
-  return cxtype_v( a - b.real(), fptype_v{ 0. } - b.imag() ); // IIII=0000-b.imag()
+  return cxtype_v( a - b.real(), fptype_v{ 0 } - b.imag() ); // IIII=0000-b.imag()
 }
 
 inline cxtype_v
