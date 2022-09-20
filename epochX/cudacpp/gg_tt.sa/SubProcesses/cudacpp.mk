@@ -81,17 +81,12 @@ endif
 ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   NVCC = $(CUDA_HOME)/bin/nvcc
   USE_NVTX ?=-DUSE_NVTX
-  # Default: build for V100 (compute capability 70): e.g. CERN (lxbatch, itscrd) and Juwels (Cluster)
   # See https://developer.nvidia.com/cuda-gpus#compute (other examples: Jetson Nano Maxwell has compute capability 35)
   # See https://arnon.dk/matching-sm-architectures-arch-and-gencode-for-various-nvidia-cards/
-  CUARCHFLAGS = -gencode arch=compute_70,code=compute_70
-  CUARCHFLAGS += -gencode arch=compute_70,code=sm_70
-  # (FIXME?) At Juwels: build only for A100 (compute capability 80) for Juwels (Booster)
-  # See https://docs.nvidia.com/cuda/ampere-compatibility-guide/index.html#building-applications-with-ampere-support
-  ifneq ($(shell hostname | grep juwels),)
-    CUARCHFLAGS = -gencode arch=compute_80,code=compute_80 # Use += to build both 70 and 80 (e.g. Juwels Cluster and Booster)
-    CUARCHFLAGS += -gencode arch=compute_80,code=sm_80
-  endif
+  # Default: build for V100 (compute capability 70): e.g. CERN (lxbatch, itscrd) and Juwels (Cluster)
+  # Embed device code for 70, and PTX for 70+. Export MADGRAPH_CUDA_ARCHITECTURE to override the number.
+  MADGRAPH_CUDA_ARCHITECTURE ?= 70
+  CUARCHFLAGS = --gpu-architecture=compute_$(MADGRAPH_CUDA_ARCHITECTURE) --gpu-code=sm_$(MADGRAPH_CUDA_ARCHITECTURE),compute_$(MADGRAPH_CUDA_ARCHITECTURE)
   CUINC       = -I$(CUDA_HOME)/include/
   CULIBFLAGS  = -L$(CUDA_HOME)/lib64/ -lcurand # NB: -lcuda is not needed here!
   CUOPTFLAGS  = -lineinfo
