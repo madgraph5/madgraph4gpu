@@ -26,11 +26,11 @@ import math
 
 physicsProcesses = ['ee_mumu', 'gg_tt', 'gg_ttg', 'gg_ttgg', 'gg_ttggg']
 
-reportPath = 'C:\\Users\\jteig\\cernbox\\Documents\\CERN\\reports\\Sycl_v100s_Profiling_06.09.22_GCC10.3_CUDA11.5\\'
+reportPath = 'C:\\Users\\jteig\\cernbox\\Documents\\CERN\\reports\\CUDA_v100s_Profiling_12.08_GCC10.3_CUDA11.5\\'
 
 savePath = 'C:\\Users\\jteig\\cernbox\\Documents\\CERN\\Graphs\\'
 
-filePrefix = 'test_v100s_sycl_11.5'
+filePrefix = 'test_v100s_cuda_11.5'
 
 # 'test_v100s_sycl_11.5'
 
@@ -44,7 +44,7 @@ hardware = 'NVIDIA v100s'
 
 compare = False
 
-graphsToCompare = ['test_v100s_sycl_11.5_gg_ttggg', 'test_v100s_cuda_11.5_gg_ttggg']
+graphsToCompare = ['test_v100s_cuda_11.5_gg_ttggg', 'test_v100s_cuda_11.5_gg_ttggg']
 
 #############################
 
