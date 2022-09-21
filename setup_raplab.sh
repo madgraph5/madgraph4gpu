@@ -1,6 +1,7 @@
 #!/bin/bash
 
 module load gcc/9.3.0/cmake
+module load cuda/11.6.1
 
 export MADGRAPH_CUDA_ARCHITECTURE=80
 
