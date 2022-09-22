@@ -84,10 +84,8 @@ LDFLAGS+=-Wl,--no-relax # avoid 'failed to convert GOTPCREL relocation' error #4
 
 ifeq (,$(wildcard fbridge.inc))
 all: $(PROG)
-else ifeq ($(NVCC),)
-all: $(PROG) $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp
 else
-all: $(PROG) $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp $(CUDACPP_BUILDDIR)/g$(PROG)_cudacpp
+all: $(PROG) $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp # also builds g$(PROG)_cudacpp if $(CUDACPP_CULIB) exists (#503)
 endif
 
 $(PROG): $(PROCESS) $(DSIG) auto_dsig.o $(LIBS) $(MATRIX) counters.o
@@ -118,9 +116,9 @@ endif
 
 $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(CUDACPP_BUILDDIR)/.cudacpplibs
 	$(FC) -o $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_CXXLIB) $(LIBFLAGSRPATH)
-
-$(CUDACPP_BUILDDIR)/g$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(CUDACPP_BUILDDIR)/.cudacpplibs
+ifneq (,$(wildcard $(LIBDIR)/$(CUDACPP_BUILDDIR)/lib$(CUDACPP_CULIB).*)) # improved patch for cpp-only builds #503
 	$(FC) -o $(CUDACPP_BUILDDIR)/g$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_CULIB) $(LIBFLAGSRPATH)
+endif
 
 counters.o: counters.cpp timer.h
 	$(CXX) -std=c++11 -Wall -Wshadow -Wextra -c $< -o $@
