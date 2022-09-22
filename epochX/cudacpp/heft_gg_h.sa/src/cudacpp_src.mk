@@ -7,7 +7,7 @@ THISMK = $(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST))
 
 #=== Use bash in the Makefile (https://www.gnu.org/software/make/manual/html_node/Choosing-the-Shell.html)
 
-SHELL = /bin/bash
+SHELL := /bin/bash
 
 #-------------------------------------------------------------------------------
 
