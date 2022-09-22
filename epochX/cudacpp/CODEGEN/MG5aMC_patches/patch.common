@@ -147,10 +147,12 @@ index 6b581bdf..32c71b45 100644
              enddo
           endif
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
-index dd709f52..cf9f8e02 100644
+index dd709f52..c706cdc7 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
-@@ -1,6 +1,17 @@
+@@ -1,6 +1,19 @@
++SHELL := /bin/bash
++
  include ../../Source/make_opts
  FFLAGS+= -w
  
@@ -168,7 +170,7 @@ index dd709f52..cf9f8e02 100644
  # Load additional dependencies of the bias module, if present
  ifeq (,$(wildcard ../bias_dependencies))
  BIASDEPENDENCIES =
-@@ -24,7 +35,22 @@ else
+@@ -24,7 +37,26 @@ else
      MADLOOP_LIB =
  endif
  
@@ -185,14 +187,18 @@ index dd709f52..cf9f8e02 100644
 +###$(info CUDACPP_MAKEENV=$(CUDACPP_MAKEENV))
 +###$(info $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))"))
 +CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn |& awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
++ifeq ($(CUDACPP_BUILDDIR),)
++$(error CUDACPP_BUILDDIR='$(CUDACPP_BUILDDIR)' should not be empty!)
++else
 +$(info CUDACPP_BUILDDIR='$(CUDACPP_BUILDDIR)')
++endif
 +CUDACPP_COMMONLIB=mg5amc_common
 +CUDACPP_CXXLIB=mg5amc_$(processid_short)_cpp
 +CUDACPP_CULIB=mg5amc_$(processid_short)_cuda
  
  LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS)
  
-@@ -43,24 +69,65 @@ ifeq ($(strip $(MATRIX_HEL)),)
+@@ -43,24 +75,65 @@ ifeq ($(strip $(MATRIX_HEL)),)
  endif
  
  
@@ -221,7 +227,7 @@ index dd709f52..cf9f8e02 100644
 +endif
 +
 +$(PROG): $(PROCESS) $(DSIG) auto_dsig.o $(LIBS) $(MATRIX) counters.o
-+	$(FC) -o $(PROG) $(PROCESS) $(DSIG) auto_dsig.o $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o
++	$(FC) -o $(PROG) $(PROCESS) $(DSIG) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) -fopenmp counters.o $(LDFLAGS)
 +
 +$(LIBS): .libs
 +
@@ -247,8 +253,8 @@ index dd709f52..cf9f8e02 100644
 +endif
 +
 +$(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(CUDACPP_BUILDDIR)/.cudacpplibs
-+	$(FC) -o $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_CXXLIB) $(LIBFLAGSRPATH)
-+	if [ -f $(LIBDIR)/$(CUDACPP_BUILDDIR)/lib$(CUDACPP_CULIB).* ]; then $(FC) -o $(CUDACPP_BUILDDIR)/g$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_CULIB) $(LIBFLAGSRPATH); fi # improved patch for cpp-only builds #503
++	$(FC) -o $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) -fopenmp counters.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_CXXLIB) $(LIBFLAGSRPATH) $(LDFLAGS)
++	if [ -f $(LIBDIR)/$(CUDACPP_BUILDDIR)/lib$(CUDACPP_CULIB).* ]; then $(FC) -o $(CUDACPP_BUILDDIR)/g$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) -fopenmp counters.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_CULIB) $(LIBFLAGSRPATH) $(LDFLAGS); fi
 +
 +counters.o: counters.cpp timer.h
 +	$(CXX) -std=c++11 -Wall -Wshadow -Wextra -c $< -o $@
@@ -264,7 +270,7 @@ index dd709f52..cf9f8e02 100644
  $(LIBDIR)libmodel.$(libext): ../../Cards/param_card.dat
  	cd ../../Source/MODEL; make
  
-@@ -69,12 +136,15 @@ $(LIBDIR)libgeneric.$(libext): ../../Cards/run_card.dat
+@@ -69,12 +142,15 @@ $(LIBDIR)libgeneric.$(libext): ../../Cards/run_card.dat
  
  $(LIBDIR)libpdf.$(libext): 
  	cd ../../Source/PDF; make
@@ -281,7 +287,7 @@ index dd709f52..cf9f8e02 100644
  
  # Dependencies
  
-@@ -94,5 +164,71 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
+@@ -94,5 +170,71 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
  	 run_config.inc
  initcluster.o: message.inc
  
