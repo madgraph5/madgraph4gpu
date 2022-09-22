@@ -8,7 +8,7 @@ CUDACPP_SRC_MAKEFILE = cudacpp_src.mk
 
 #=== Use bash in the Makefile (https://www.gnu.org/software/make/manual/html_node/Choosing-the-Shell.html)
 
-SHELL = /bin/bash
+SHELL := /bin/bash
 
 #-------------------------------------------------------------------------------
 

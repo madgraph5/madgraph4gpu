@@ -1,3 +1,5 @@
+SHELL := /bin/bash
+
 include ../../Source/make_opts
 FFLAGS+= -w
 
