@@ -382,9 +382,9 @@ namespace mg5amcGpu
 #endif
                   //Load helicities and couplings into local (private) memory
                   auto dev_helicities = Proc::helicities<short>;
+                  cxtype dev_couplings[Proc::dependentCouplings::ndcoup + Proc::independentCouplings::nicoup];
 
                   [&]() { // Wrap if constexpr in lambda so `if false` doesn't generate code at compile time
-                  cxtype dev_couplings[Proc::dependentCouplings::ndcoup + Proc::independentCouplings::nicoup];
                   if constexpr( Proc::dependentCouplings::ndcoup > 0 ) {
                       Proc::dependentCouplings::set_couplings_from_G(dev_couplings, devGsC[ievt]); 
                   }};
