@@ -1,3 +1,5 @@
+SHELL := /bin/bash
+
 include ../../Source/make_opts
 FFLAGS+= -w
 
@@ -47,7 +49,11 @@ CUDACPP_MAKEENV:=$(shell echo '$(.VARIABLES)' | tr " " "\n" | egrep "(USEBUILDDI
 ###$(info CUDACPP_MAKEENV=$(CUDACPP_MAKEENV))
 ###$(info $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))"))
 CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn |& awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
+ifeq ($(CUDACPP_BUILDDIR),)
+$(error CUDACPP_BUILDDIR='$(CUDACPP_BUILDDIR)' should not be empty!)
+else
 $(info CUDACPP_BUILDDIR='$(CUDACPP_BUILDDIR)')
+endif
 CUDACPP_COMMONLIB=mg5amc_common
 CUDACPP_CXXLIB=mg5amc_$(processid_short)_cpp
 CUDACPP_CULIB=mg5amc_$(processid_short)_cuda
@@ -89,7 +95,7 @@ all: $(PROG) $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp # also builds g$(PROG)_cudacpp
 endif
 
 $(PROG): $(PROCESS) $(DSIG) auto_dsig.o $(LIBS) $(MATRIX) counters.o
-	$(FC) -o $(PROG) $(PROCESS) $(DSIG) auto_dsig.o $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o
+	$(FC) -o $(PROG) $(PROCESS) $(DSIG) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) -fopenmp counters.o $(LDFLAGS)
 
 $(LIBS): .libs
 
@@ -115,8 +121,8 @@ else
 endif
 
 $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(CUDACPP_BUILDDIR)/.cudacpplibs
-	$(FC) -o $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_CXXLIB) $(LIBFLAGSRPATH)
-	if [ -f $(LIBDIR)/$(CUDACPP_BUILDDIR)/lib$(CUDACPP_CULIB).* ]; then $(FC) -o $(CUDACPP_BUILDDIR)/g$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_CULIB) $(LIBFLAGSRPATH); fi # improved patch for cpp-only builds #503
+	$(FC) -o $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) -fopenmp counters.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_CXXLIB) $(LIBFLAGSRPATH) $(LDFLAGS)
+	if [ -f $(LIBDIR)/$(CUDACPP_BUILDDIR)/lib$(CUDACPP_CULIB).* ]; then $(FC) -o $(CUDACPP_BUILDDIR)/g$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) -fopenmp counters.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_CULIB) $(LIBFLAGSRPATH) $(LDFLAGS); fi
 
 counters.o: counters.cpp timer.h
 	$(CXX) -std=c++11 -Wall -Wshadow -Wextra -c $< -o $@
