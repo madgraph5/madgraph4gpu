@@ -75,7 +75,14 @@ namespace Proc
       // *** DIAGRAM 1 OF 2 ***
 
       // Wavefunction(s) for diagram number 1
+#if not defined MGONGPU_TEST_DIVERGENCE
       opzxxx( allmomenta + 0 * np4 * neppM, cHel[0], -1, w_sv[0] ); // NB: opzxxx only uses pz
+#else
+      if ( ievt % 2 == 0 )
+        opzxxx( allmomenta + 0 * np4 * neppM, cHel[0], -1, w_sv[0] ); // NB: opzxxx only uses pz
+      else
+        oxxxxx( allmomenta + 0 * np4 * neppM, 0, cHel[0], -1, w_sv[0] );
+#endif
 
       imzxxx( allmomenta + 1 * np4 * neppM, cHel[1], +1, w_sv[1] ); // NB: imzxxx only uses pz
 

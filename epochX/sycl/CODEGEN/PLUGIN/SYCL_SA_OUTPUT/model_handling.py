@@ -1004,7 +1004,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
 
     # AV - replace the export_cpp.OneProcessExporterGPU method (invert .cc/.cu, add debug printouts)
     def generate_process_files(self):
-        """Generate mgOnGpuConfig.h, CPPProcess.cc, check_sa.cc, gCPPProcess.h/cu link, gcheck_sa.cu link""" 
+        """Generate mgOnGpuConfig.h, CPPProcess.cc, check_sa.cc, CPPProcess.h, check_sa.cc""" 
         misc.sprint('Entering PLUGIN_OneProcessExporter.generate_process_files')
         if self.include_multi_channel:
             misc.sprint('self.include_multi_channel is already defined: this is madevent+second_exporter mode')
@@ -1013,7 +1013,34 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         if self.matrix_elements[0].get('has_mirror_process'):
             self.matrix_elements[0].set('has_mirror_process', False)
             self.nprocesses/=2
-        super(export_cpp.OneProcessExporterGPU, self).generate_process_files()
+
+        ## NSN Explicity copy method and generate cc file first (need params2order for h file)
+        #super(export_cpp.OneProcessExporterGPU, self).generate_process_files()
+
+        #"""Generate the .h and .cc files needed for C++, for the
+        #processes described by multi_matrix_element"""
+
+        # Create the files
+        if not os.path.isdir(os.path.join(self.path, self.process_dir)):
+            os.makedirs(os.path.join(self.path, self.process_dir))
+        filename = os.path.join(self.path, self.process_dir,
+                                '%s.%s' % (self.process_class, self.cc_ext))
+
+        self.write_process_cc_file(writers.CPPWriter(filename))
+
+
+        if not os.path.isdir(os.path.join(self.path, self.include_dir)):
+            os.makedirs(os.path.join(self.path, self.include_dir))
+        filename = os.path.join(self.path, self.include_dir,
+                                '%s.h' % self.process_class)
+
+        self.write_process_h_file(writers.CPPWriter(filename))
+
+
+        logger.info('Created files %(process)s.h and %(process)s.cc in' % \
+                    {'process': self.process_class} + \
+                    ' directory %(dir)s' % {'dir': os.path.split(filename)[0]})
+
         self.edit_CMakeLists()
         self.edit_check_sa()
         self.edit_mgonGPU()
@@ -1097,7 +1124,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         """Generate final CPPProcess.h"""
         misc.sprint('Entering PLUGIN_OneProcessExporter.write_process_h_file')
         replace_dict = super(export_cpp.OneProcessExporterGPU, self).write_process_h_file(False)
-        replace_dict2 = super(export_cpp.OneProcessExporterGPU,self).get_process_function_definitions(write=False)
+        #replace_dict2 = self.get_process_function_definitions(write=False)
 
         #Set helicities
         replace_dict['all_helicities'] = self.get_helicity_matrix(self.matrix_elements[0])
@@ -1109,6 +1136,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace(";", "")
 
         #Set hardcoded parameters
+        params = ['']
         params = [''] * len(self.params2order)
         for para, pos in self.params2order.items():
             params[pos] = para

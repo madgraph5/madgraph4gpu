@@ -95,9 +95,7 @@ namespace Proc
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[0] -= amp_sv[0];
-      jamp_sv[1] -= amp_sv[0];
       jamp_sv[2] += amp_sv[0];
-      jamp_sv[3] -= amp_sv[0];
       jamp_sv[4] += amp_sv[0];
       jamp_sv[5] -= amp_sv[0];
 
@@ -108,12 +106,12 @@ namespace Proc
 
       // Amplitude(s) for diagram number 2
       FFV1_0( w_sv[3], w_sv[7], w_sv[5], COUPs[1], &amp_sv[0] );
-      jamp_sv[0] -= amp_sv[0];
-      jamp_sv[1] -= amp_sv[0];
-      jamp_sv[2] += amp_sv[0];
-      jamp_sv[3] -= amp_sv[0];
-      jamp_sv[4] += amp_sv[0];
-      jamp_sv[5] -= amp_sv[0];
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+      if( channelId == 2 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
+#endif
+      jamp_sv[4] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[5] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 3 OF 16 ***
 
@@ -122,12 +120,12 @@ namespace Proc
 
       // Amplitude(s) for diagram number 3
       FFV1_0( w_sv[8], w_sv[2], w_sv[5], COUPs[1], &amp_sv[0] );
-      jamp_sv[0] -= amp_sv[0];
-      jamp_sv[1] -= amp_sv[0];
-      jamp_sv[2] += amp_sv[0];
-      jamp_sv[3] -= amp_sv[0];
-      jamp_sv[4] += amp_sv[0];
-      jamp_sv[5] -= amp_sv[0];
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+      if( channelId == 3 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
+#endif
+      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 4 OF 16 ***
 
@@ -137,12 +135,11 @@ namespace Proc
 
       // Amplitude(s) for diagram number 4
       FFV1_0( w_sv[9], w_sv[5], w_sv[4], COUPs[1], &amp_sv[0] );
-      jamp_sv[0] -= amp_sv[0];
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+      if( channelId == 4 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
+#endif
       jamp_sv[1] -= amp_sv[0];
-      jamp_sv[2] += amp_sv[0];
-      jamp_sv[3] -= amp_sv[0];
-      jamp_sv[4] += amp_sv[0];
-      jamp_sv[5] -= amp_sv[0];
 
       // *** DIAGRAM 5 OF 16 ***
 
@@ -151,12 +148,12 @@ namespace Proc
 
       // Amplitude(s) for diagram number 5
       FFV1_0( w_sv[3], w_sv[5], w_sv[10], COUPs[1], &amp_sv[0] );
-      jamp_sv[0] -= amp_sv[0];
-      jamp_sv[1] -= amp_sv[0];
-      jamp_sv[2] += amp_sv[0];
-      jamp_sv[3] -= amp_sv[0];
-      jamp_sv[4] += amp_sv[0];
-      jamp_sv[5] -= amp_sv[0];
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+      if( channelId == 5 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
+#endif
+      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 6 OF 16 ***
 
@@ -165,12 +162,11 @@ namespace Proc
 
       // Amplitude(s) for diagram number 6
       FFV1_0( w_sv[8], w_sv[5], w_sv[1], COUPs[1], &amp_sv[0] );
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+      if( channelId == 6 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
+#endif
       jamp_sv[0] -= amp_sv[0];
-      jamp_sv[1] -= amp_sv[0];
-      jamp_sv[2] += amp_sv[0];
-      jamp_sv[3] -= amp_sv[0];
-      jamp_sv[4] += amp_sv[0];
-      jamp_sv[5] -= amp_sv[0];
 
       // *** DIAGRAM 7 OF 16 ***
 
@@ -180,12 +176,11 @@ namespace Proc
 
       // Amplitude(s) for diagram number 7
       FFV1_0( w_sv[5], w_sv[11], w_sv[4], COUPs[1], &amp_sv[0] );
-      jamp_sv[0] -= amp_sv[0];
-      jamp_sv[1] -= amp_sv[0];
-      jamp_sv[2] += amp_sv[0];
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+      if( channelId == 7 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
+#endif
       jamp_sv[3] -= amp_sv[0];
-      jamp_sv[4] += amp_sv[0];
-      jamp_sv[5] -= amp_sv[0];
 
       // *** DIAGRAM 8 OF 16 ***
 
@@ -194,12 +189,12 @@ namespace Proc
 
       // Amplitude(s) for diagram number 8
       FFV1_0( w_sv[5], w_sv[2], w_sv[10], COUPs[1], &amp_sv[0] );
-      jamp_sv[0] -= amp_sv[0];
-      jamp_sv[1] -= amp_sv[0];
-      jamp_sv[2] += amp_sv[0];
-      jamp_sv[3] -= amp_sv[0];
-      jamp_sv[4] += amp_sv[0];
-      jamp_sv[5] -= amp_sv[0];
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+      if( channelId == 8 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
+#endif
+      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[5] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 9 OF 16 ***
 
@@ -208,11 +203,10 @@ namespace Proc
 
       // Amplitude(s) for diagram number 9
       FFV1_0( w_sv[5], w_sv[7], w_sv[1], COUPs[1], &amp_sv[0] );
-      jamp_sv[0] -= amp_sv[0];
-      jamp_sv[1] -= amp_sv[0];
-      jamp_sv[2] += amp_sv[0];
-      jamp_sv[3] -= amp_sv[0];
-      jamp_sv[4] += amp_sv[0];
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+      if( channelId == 9 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
+#endif
       jamp_sv[5] -= amp_sv[0];
 
       // *** DIAGRAM 10 OF 16 ***
@@ -222,12 +216,12 @@ namespace Proc
 
       // Amplitude(s) for diagram number 10
       FFV1_0( w_sv[3], w_sv[11], w_sv[5], COUPs[1], &amp_sv[0] );
-      jamp_sv[0] -= amp_sv[0];
-      jamp_sv[1] -= amp_sv[0];
-      jamp_sv[2] += amp_sv[0];
-      jamp_sv[3] -= amp_sv[0];
-      jamp_sv[4] += amp_sv[0];
-      jamp_sv[5] -= amp_sv[0];
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+      if( channelId == 10 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
+#endif
+      jamp_sv[2] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 11 OF 16 ***
 
@@ -236,12 +230,12 @@ namespace Proc
 
       // Amplitude(s) for diagram number 11
       FFV1_0( w_sv[9], w_sv[2], w_sv[5], COUPs[1], &amp_sv[0] );
-      jamp_sv[0] -= amp_sv[0];
-      jamp_sv[1] -= amp_sv[0];
-      jamp_sv[2] += amp_sv[0];
-      jamp_sv[3] -= amp_sv[0];
-      jamp_sv[4] += amp_sv[0];
-      jamp_sv[5] -= amp_sv[0];
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+      if( channelId == 11 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
+#endif
+      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 12 OF 16 ***
 
@@ -250,12 +244,14 @@ namespace Proc
 
       // Amplitude(s) for diagram number 12
       VVV1_0( w_sv[5], w_sv[1], w_sv[6], COUPs[0], &amp_sv[0] );
-      jamp_sv[0] -= amp_sv[0];
-      jamp_sv[1] -= amp_sv[0];
-      jamp_sv[2] += amp_sv[0];
-      jamp_sv[3] -= amp_sv[0];
-      jamp_sv[4] += amp_sv[0];
-      jamp_sv[5] -= amp_sv[0];
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+      if( channelId == 12 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
+#endif
+      jamp_sv[1] += amp_sv[0];
+      jamp_sv[2] -= amp_sv[0];
+      jamp_sv[3] += amp_sv[0];
+      jamp_sv[4] -= amp_sv[0];
 
       // *** DIAGRAM 13 OF 16 ***
 
@@ -264,12 +260,11 @@ namespace Proc
 
       // Amplitude(s) for diagram number 13
       FFV1_0( w_sv[8], w_sv[11], w_sv[0], COUPs[1], &amp_sv[0] );
-      jamp_sv[0] -= amp_sv[0];
-      jamp_sv[1] -= amp_sv[0];
-      jamp_sv[2] += amp_sv[0];
-      jamp_sv[3] -= amp_sv[0];
-      jamp_sv[4] += amp_sv[0];
-      jamp_sv[5] -= amp_sv[0];
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+      if( channelId == 13 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
+#endif
+      jamp_sv[2] -= amp_sv[0];
 
       // *** DIAGRAM 14 OF 16 ***
 
@@ -278,12 +273,11 @@ namespace Proc
 
       // Amplitude(s) for diagram number 14
       FFV1_0( w_sv[9], w_sv[7], w_sv[0], COUPs[1], &amp_sv[0] );
-      jamp_sv[0] -= amp_sv[0];
-      jamp_sv[1] -= amp_sv[0];
-      jamp_sv[2] += amp_sv[0];
-      jamp_sv[3] -= amp_sv[0];
-      jamp_sv[4] += amp_sv[0];
-      jamp_sv[5] -= amp_sv[0];
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+      if( channelId == 14 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
+#endif
+      jamp_sv[4] -= amp_sv[0];
 
       // *** DIAGRAM 15 OF 16 ***
 
@@ -292,12 +286,14 @@ namespace Proc
 
       // Amplitude(s) for diagram number 15
       VVV1_0( w_sv[0], w_sv[10], w_sv[6], COUPs[0], &amp_sv[0] );
-      jamp_sv[0] -= amp_sv[0];
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+      if( channelId == 15 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
+#endif
+      jamp_sv[0] += amp_sv[0];
       jamp_sv[1] -= amp_sv[0];
-      jamp_sv[2] += amp_sv[0];
       jamp_sv[3] -= amp_sv[0];
-      jamp_sv[4] += amp_sv[0];
-      jamp_sv[5] -= amp_sv[0];
+      jamp_sv[5] += amp_sv[0];
 
       // *** DIAGRAM 16 OF 16 ***
 
@@ -308,24 +304,18 @@ namespace Proc
 
       // Amplitude(s) for diagram number 16
       FFV1_0( w_sv[3], w_sv[2], w_sv[10], COUPs[1], &amp_sv[0] );
-      jamp_sv[0] -= amp_sv[0];
+      jamp_sv[0] += amp_sv[0];
       jamp_sv[1] -= amp_sv[0];
-      jamp_sv[2] += amp_sv[0];
       jamp_sv[3] -= amp_sv[0];
-      jamp_sv[4] += amp_sv[0];
-      jamp_sv[5] -= amp_sv[0];
+      jamp_sv[5] += amp_sv[0];
       FFV1_0( w_sv[3], w_sv[2], w_sv[6], COUPs[1], &amp_sv[0] );
-      jamp_sv[0] -= amp_sv[0];
       jamp_sv[1] -= amp_sv[0];
       jamp_sv[2] += amp_sv[0];
       jamp_sv[3] -= amp_sv[0];
       jamp_sv[4] += amp_sv[0];
-      jamp_sv[5] -= amp_sv[0];
       FFV1_0( w_sv[3], w_sv[2], w_sv[9], COUPs[1], &amp_sv[0] );
       jamp_sv[0] -= amp_sv[0];
-      jamp_sv[1] -= amp_sv[0];
       jamp_sv[2] += amp_sv[0];
-      jamp_sv[3] -= amp_sv[0];
       jamp_sv[4] += amp_sv[0];
       jamp_sv[5] -= amp_sv[0];
 

@@ -90,8 +90,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] -= amp_sv[0];
-      jamp_sv[1] -= amp_sv[0];
+      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 2 OF 3 ***
 
@@ -104,7 +104,6 @@ namespace Proc
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
       jamp_sv[0] -= amp_sv[0];
-      jamp_sv[1] -= amp_sv[0];
 
       // *** DIAGRAM 3 OF 3 ***
 
@@ -116,7 +115,6 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] -= amp_sv[0];
       jamp_sv[1] -= amp_sv[0];
 
       // *** COLOR ALGEBRA BELOW ***

@@ -98,7 +98,7 @@ namespace Proc
     //static const int nwavefuncs = 6; // mgOnGpu::nwf
     //static const int namplitudes = 3;
     //static const int ncomb = 16; // mgOnGpu::ncomb
-    //static const int wrows = 7; // mgOnGpu::nw6;
+    //static const int wrows = 5; // mgOnGpu::nw6;
 
   private:
 

@@ -91,8 +91,8 @@ namespace Proc
       if( channelId == 1 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[0] -= amp_sv[0];
-      jamp_sv[1] -= amp_sv[0];
+      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 2 OF 3 ***
 
@@ -101,8 +101,11 @@ namespace Proc
 
       // Amplitude(s) for diagram number 2
       FFV1_0( w_sv[3], w_sv[4], w_sv[1], COUPs[1], &amp_sv[0] );
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+      if( channelId == 2 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
+#endif
       jamp_sv[0] -= amp_sv[0];
-      jamp_sv[1] -= amp_sv[0];
 
       // *** DIAGRAM 3 OF 3 ***
 
@@ -111,7 +114,10 @@ namespace Proc
 
       // Amplitude(s) for diagram number 3
       FFV1_0( w_sv[4], w_sv[2], w_sv[1], COUPs[1], &amp_sv[0] );
-      jamp_sv[0] -= amp_sv[0];
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+      if( channelId == 3 ) allNumerators[0] += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
+#endif
       jamp_sv[1] -= amp_sv[0];
 
       // *** COLOR ALGEBRA BELOW ***

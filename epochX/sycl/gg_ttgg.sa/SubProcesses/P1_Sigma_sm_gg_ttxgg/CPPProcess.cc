@@ -96,27 +96,11 @@ namespace Proc
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[7] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[16] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[17] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
       VVVV3_0( w_sv[6], w_sv[7], w_sv[4], w_sv[5], COUPs[2], &amp_sv[0] );
@@ -124,57 +108,25 @@ namespace Proc
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[12] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[14] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[18] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[20] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
       VVVV4_0( w_sv[6], w_sv[7], w_sv[4], w_sv[5], COUPs[2], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[12] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[14] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[18] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[20] += cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 2 OF 123 ***
 
@@ -187,27 +139,11 @@ namespace Proc
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[12] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[14] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[18] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[20] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
 
@@ -221,30 +157,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[12] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[14] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[18] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[20] += cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 4 OF 123 ***
 
@@ -257,27 +177,11 @@ namespace Proc
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[7] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[16] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[17] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
 
@@ -292,30 +196,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 6 OF 123 ***
 
@@ -327,30 +209,10 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[12] += amp_sv[0];
+      jamp_sv[14] -= amp_sv[0];
+      jamp_sv[16] -= amp_sv[0];
+      jamp_sv[17] += amp_sv[0];
 
       // *** DIAGRAM 7 OF 123 ***
 
@@ -362,30 +224,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[12] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[14] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 8 OF 123 ***
 
@@ -397,28 +237,6 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
 
@@ -432,30 +250,10 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[22] -= amp_sv[0];
+      jamp_sv[23] += amp_sv[0];
 
       // *** DIAGRAM 10 OF 123 ***
 
@@ -467,30 +265,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[18] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[20] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 11 OF 123 ***
 
@@ -502,30 +278,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 12 OF 123 ***
 
@@ -537,30 +291,10 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] += amp_sv[0];
+      jamp_sv[7] -= amp_sv[0];
+      jamp_sv[18] -= amp_sv[0];
+      jamp_sv[20] += amp_sv[0];
 
       // *** DIAGRAM 13 OF 123 ***
 
@@ -573,29 +307,7 @@ namespace Proc
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 14 OF 123 ***
 
@@ -607,30 +319,10 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] += amp_sv[0];
+      jamp_sv[6] -= amp_sv[0];
       jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 15 OF 123 ***
 
@@ -642,30 +334,10 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] += amp_sv[0];
+      jamp_sv[1] -= amp_sv[0];
+      jamp_sv[6] -= amp_sv[0];
+      jamp_sv[7] += amp_sv[0];
 
       // *** DIAGRAM 16 OF 123 ***
 
@@ -677,30 +349,10 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[16] += amp_sv[0];
+      jamp_sv[17] -= amp_sv[0];
+      jamp_sv[22] -= amp_sv[0];
+      jamp_sv[23] += amp_sv[0];
 
       // *** DIAGRAM 17 OF 123 ***
 
@@ -714,30 +366,7 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] -= amp_sv[0];
 
       // *** DIAGRAM 18 OF 123 ***
 
@@ -749,30 +378,7 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[5] -= amp_sv[0];
 
       // *** DIAGRAM 19 OF 123 ***
 
@@ -784,30 +390,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[5] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 20 OF 123 ***
 
@@ -820,30 +404,10 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] += amp_sv[0];
+      jamp_sv[2] -= amp_sv[0];
+      jamp_sv[4] -= amp_sv[0];
+      jamp_sv[5] += amp_sv[0];
 
       // *** DIAGRAM 21 OF 123 ***
 
@@ -855,30 +419,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[5] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 22 OF 123 ***
 
@@ -891,29 +433,7 @@ namespace Proc
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 23 OF 123 ***
 
@@ -925,30 +445,10 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] += amp_sv[0];
+      jamp_sv[2] -= amp_sv[0];
+      jamp_sv[3] += amp_sv[0];
+      jamp_sv[4] -= amp_sv[0];
 
       // *** DIAGRAM 24 OF 123 ***
 
@@ -960,30 +460,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 25 OF 123 ***
 
@@ -995,30 +473,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 26 OF 123 ***
 
@@ -1030,30 +486,7 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] -= amp_sv[0];
 
       // *** DIAGRAM 27 OF 123 ***
 
@@ -1065,30 +498,7 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] -= amp_sv[0];
 
       // *** DIAGRAM 28 OF 123 ***
 
@@ -1100,30 +510,7 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] -= amp_sv[0];
 
       // *** DIAGRAM 29 OF 123 ***
 
@@ -1135,30 +522,7 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] -= amp_sv[0];
 
       // *** DIAGRAM 30 OF 123 ***
 
@@ -1171,29 +535,7 @@ namespace Proc
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 31 OF 123 ***
 
@@ -1205,30 +547,10 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] += amp_sv[0];
+      jamp_sv[1] -= amp_sv[0];
+      jamp_sv[3] -= amp_sv[0];
+      jamp_sv[5] += amp_sv[0];
 
       // *** DIAGRAM 32 OF 123 ***
 
@@ -1242,86 +564,26 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] += amp_sv[0];
+      jamp_sv[1] -= amp_sv[0];
+      jamp_sv[3] -= amp_sv[0];
+      jamp_sv[5] += amp_sv[0];
       FFV1_0( w_sv[3], w_sv[12], w_sv[19], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] -= amp_sv[0];
+      jamp_sv[2] += amp_sv[0];
+      jamp_sv[3] -= amp_sv[0];
+      jamp_sv[4] += amp_sv[0];
       FFV1_0( w_sv[3], w_sv[12], w_sv[8], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] -= amp_sv[0];
+      jamp_sv[2] += amp_sv[0];
+      jamp_sv[4] += amp_sv[0];
+      jamp_sv[5] -= amp_sv[0];
 
       // *** DIAGRAM 33 OF 123 ***
 
@@ -1335,30 +597,7 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[11] -= amp_sv[0];
 
       // *** DIAGRAM 34 OF 123 ***
 
@@ -1370,30 +609,7 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[9] -= amp_sv[0];
 
       // *** DIAGRAM 35 OF 123 ***
 
@@ -1405,30 +621,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[9] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 36 OF 123 ***
 
@@ -1440,30 +634,10 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[9] += amp_sv[0];
+      jamp_sv[15] -= amp_sv[0];
+      jamp_sv[21] -= amp_sv[0];
+      jamp_sv[23] += amp_sv[0];
 
       // *** DIAGRAM 37 OF 123 ***
 
@@ -1475,30 +649,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[9] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[15] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 38 OF 123 ***
 
@@ -1510,29 +662,7 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
       jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 39 OF 123 ***
@@ -1545,30 +675,10 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[11] += amp_sv[0];
+      jamp_sv[15] -= amp_sv[0];
+      jamp_sv[17] += amp_sv[0];
+      jamp_sv[21] -= amp_sv[0];
 
       // *** DIAGRAM 40 OF 123 ***
 
@@ -1580,30 +690,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[11] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[21] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 41 OF 123 ***
 
@@ -1615,30 +703,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
       jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 42 OF 123 ***
 
@@ -1650,30 +716,7 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[17] -= amp_sv[0];
 
       // *** DIAGRAM 43 OF 123 ***
 
@@ -1685,30 +728,7 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[15] -= amp_sv[0];
 
       // *** DIAGRAM 44 OF 123 ***
 
@@ -1720,30 +740,7 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[23] -= amp_sv[0];
 
       // *** DIAGRAM 45 OF 123 ***
 
@@ -1755,30 +752,7 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[21] -= amp_sv[0];
 
       // *** DIAGRAM 46 OF 123 ***
 
@@ -1790,29 +764,7 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[17] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 47 OF 123 ***
@@ -1825,30 +777,10 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[9] += amp_sv[0];
+      jamp_sv[11] -= amp_sv[0];
+      jamp_sv[17] -= amp_sv[0];
+      jamp_sv[23] += amp_sv[0];
 
       // *** DIAGRAM 48 OF 123 ***
 
@@ -1860,86 +792,26 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[9] += amp_sv[0];
+      jamp_sv[11] -= amp_sv[0];
+      jamp_sv[17] -= amp_sv[0];
+      jamp_sv[23] += amp_sv[0];
       FFV1_0( w_sv[12], w_sv[2], w_sv[19], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[11] -= amp_sv[0];
+      jamp_sv[15] += amp_sv[0];
+      jamp_sv[17] -= amp_sv[0];
+      jamp_sv[21] += amp_sv[0];
       FFV1_0( w_sv[12], w_sv[2], w_sv[8], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[9] -= amp_sv[0];
+      jamp_sv[15] += amp_sv[0];
+      jamp_sv[21] += amp_sv[0];
+      jamp_sv[23] -= amp_sv[0];
 
       // *** DIAGRAM 49 OF 123 ***
 
@@ -1952,30 +824,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 50 OF 123 ***
 
@@ -1987,30 +837,10 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[6] += amp_sv[0];
+      jamp_sv[8] -= amp_sv[0];
+      jamp_sv[10] -= amp_sv[0];
+      jamp_sv[11] += amp_sv[0];
 
       // *** DIAGRAM 51 OF 123 ***
 
@@ -2022,30 +852,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[6] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[8] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 52 OF 123 ***
 
@@ -2057,30 +865,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
       jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 53 OF 123 ***
 
@@ -2092,30 +878,10 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] += amp_sv[0];
+      jamp_sv[13] -= amp_sv[0];
+      jamp_sv[19] -= amp_sv[0];
+      jamp_sv[22] += amp_sv[0];
 
       // *** DIAGRAM 54 OF 123 ***
 
@@ -2127,30 +893,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[19] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[22] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 55 OF 123 ***
 
@@ -2162,30 +906,10 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] += amp_sv[0];
+      jamp_sv[3] -= amp_sv[0];
       jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[13] += amp_sv[0];
 
       // *** DIAGRAM 56 OF 123 ***
 
@@ -2197,30 +921,10 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[10] += amp_sv[0];
+      jamp_sv[11] -= amp_sv[0];
       jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[21] += amp_sv[0];
 
       // *** DIAGRAM 57 OF 123 ***
 
@@ -2232,30 +936,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
+      jamp_sv[12] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
+      jamp_sv[20] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 58 OF 123 ***
 
@@ -2267,86 +955,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
+      jamp_sv[12] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[20] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[21] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
       VVVV3_0( w_sv[12], w_sv[1], w_sv[7], w_sv[5], COUPs[2], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[10] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[11] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[12] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[13] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[20] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[21] -= cxtype( 0, 1 ) * amp_sv[0];
       VVVV4_0( w_sv[12], w_sv[1], w_sv[7], w_sv[5], COUPs[2], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[6] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[8] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[10] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[11] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[13] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[19] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[22] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 59 OF 123 ***
 
@@ -2358,30 +998,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
+      jamp_sv[12] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[20] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[21] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 60 OF 123 ***
 
@@ -2393,30 +1017,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[6] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[8] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[10] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[11] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[13] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[19] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[22] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 61 OF 123 ***
 
@@ -2428,30 +1036,10 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[19] += amp_sv[0];
       jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[21] += amp_sv[0];
+      jamp_sv[22] -= amp_sv[0];
 
       // *** DIAGRAM 62 OF 123 ***
 
@@ -2463,30 +1051,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[20] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[21] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 63 OF 123 ***
 
@@ -2498,30 +1064,10 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] += amp_sv[0];
+      jamp_sv[6] -= amp_sv[0];
+      jamp_sv[8] += amp_sv[0];
       jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 64 OF 123 ***
 
@@ -2533,30 +1079,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[12] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 65 OF 123 ***
 
@@ -2569,30 +1093,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 66 OF 123 ***
 
@@ -2604,30 +1106,10 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[7] += amp_sv[0];
+      jamp_sv[8] -= amp_sv[0];
+      jamp_sv[9] += amp_sv[0];
+      jamp_sv[10] -= amp_sv[0];
 
       // *** DIAGRAM 67 OF 123 ***
 
@@ -2639,30 +1121,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[7] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[10] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 68 OF 123 ***
 
@@ -2674,30 +1134,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
       jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 69 OF 123 ***
 
@@ -2709,30 +1147,10 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[5] += amp_sv[0];
+      jamp_sv[13] -= amp_sv[0];
+      jamp_sv[16] += amp_sv[0];
+      jamp_sv[19] -= amp_sv[0];
 
       // *** DIAGRAM 70 OF 123 ***
 
@@ -2744,30 +1162,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[13] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[16] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 71 OF 123 ***
 
@@ -2779,30 +1175,10 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] += amp_sv[0];
+      jamp_sv[5] -= amp_sv[0];
+      jamp_sv[18] -= amp_sv[0];
+      jamp_sv[19] += amp_sv[0];
 
       // *** DIAGRAM 72 OF 123 ***
 
@@ -2814,30 +1190,10 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[8] += amp_sv[0];
+      jamp_sv[9] -= amp_sv[0];
+      jamp_sv[14] -= amp_sv[0];
+      jamp_sv[15] += amp_sv[0];
 
       // *** DIAGRAM 73 OF 123 ***
 
@@ -2849,30 +1205,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
+      jamp_sv[14] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
+      jamp_sv[18] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 74 OF 123 ***
 
@@ -2884,86 +1224,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
       jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[14] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[15] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[18] -= cxtype( 0, 1 ) * amp_sv[0];
       VVVV3_0( w_sv[20], w_sv[1], w_sv[7], w_sv[4], COUPs[2], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[5] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[8] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[9] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[14] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[15] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[18] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[19] += cxtype( 0, 1 ) * amp_sv[0];
       VVVV4_0( w_sv[20], w_sv[1], w_sv[7], w_sv[4], COUPs[2], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[5] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[7] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[8] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[9] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[10] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[13] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[16] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[19] += cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 75 OF 123 ***
 
@@ -2975,30 +1267,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
       jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[14] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[15] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[18] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 76 OF 123 ***
 
@@ -3010,30 +1286,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[5] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[7] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[8] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[9] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[10] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[13] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[16] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[19] += cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 77 OF 123 ***
 
@@ -3045,30 +1305,10 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[13] += amp_sv[0];
+      jamp_sv[14] -= amp_sv[0];
+      jamp_sv[15] += amp_sv[0];
+      jamp_sv[16] -= amp_sv[0];
 
       // *** DIAGRAM 78 OF 123 ***
 
@@ -3080,30 +1320,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[14] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[15] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 79 OF 123 ***
 
@@ -3115,30 +1333,10 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] += amp_sv[0];
+      jamp_sv[7] -= amp_sv[0];
+      jamp_sv[10] += amp_sv[0];
+      jamp_sv[18] -= amp_sv[0];
 
       // *** DIAGRAM 80 OF 123 ***
 
@@ -3150,30 +1348,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[18] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 81 OF 123 ***
 
@@ -3185,30 +1361,7 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[7] -= amp_sv[0];
 
       // *** DIAGRAM 82 OF 123 ***
 
@@ -3220,30 +1373,7 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[10] -= amp_sv[0];
 
       // *** DIAGRAM 83 OF 123 ***
 
@@ -3255,30 +1385,7 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[6] -= amp_sv[0];
 
       // *** DIAGRAM 84 OF 123 ***
 
@@ -3290,30 +1397,7 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[8] -= amp_sv[0];
 
       // *** DIAGRAM 85 OF 123 ***
 
@@ -3325,30 +1409,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[6] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 86 OF 123 ***
 
@@ -3360,30 +1422,10 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[6] += amp_sv[0];
+      jamp_sv[7] -= amp_sv[0];
+      jamp_sv[9] -= amp_sv[0];
+      jamp_sv[11] += amp_sv[0];
 
       // *** DIAGRAM 87 OF 123 ***
 
@@ -3395,30 +1437,7 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[16] -= amp_sv[0];
 
       // *** DIAGRAM 88 OF 123 ***
 
@@ -3430,30 +1449,7 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[13] -= amp_sv[0];
 
       // *** DIAGRAM 89 OF 123 ***
 
@@ -3465,30 +1461,7 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[22] -= amp_sv[0];
 
       // *** DIAGRAM 90 OF 123 ***
 
@@ -3500,30 +1473,7 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[19] -= amp_sv[0];
 
       // *** DIAGRAM 91 OF 123 ***
 
@@ -3535,30 +1485,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[22] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 92 OF 123 ***
 
@@ -3570,30 +1498,10 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] += amp_sv[0];
+      jamp_sv[5] -= amp_sv[0];
+      jamp_sv[16] -= amp_sv[0];
+      jamp_sv[22] += amp_sv[0];
 
       // *** DIAGRAM 93 OF 123 ***
 
@@ -3606,85 +1514,37 @@ namespace Proc
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
+      jamp_sv[8] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[14] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[18] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[19] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
       VVVV3_0( w_sv[0], w_sv[6], w_sv[7], w_sv[5], COUPs[2], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
       jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
       jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
       VVVV4_0( w_sv[0], w_sv[6], w_sv[7], w_sv[5], COUPs[2], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
+      jamp_sv[14] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
+      jamp_sv[18] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 94 OF 123 ***
 
@@ -3697,28 +1557,12 @@ namespace Proc
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
+      jamp_sv[8] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[14] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[18] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[19] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 95 OF 123 ***
@@ -3732,28 +1576,12 @@ namespace Proc
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
       jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
       jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 96 OF 123 ***
@@ -3766,30 +1594,10 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[19] -= amp_sv[0];
+      jamp_sv[21] -= amp_sv[0];
+      jamp_sv[23] += amp_sv[0];
 
       // *** DIAGRAM 97 OF 123 ***
 
@@ -3801,30 +1609,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
+      jamp_sv[18] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 98 OF 123 ***
 
@@ -3836,30 +1622,10 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] += amp_sv[0];
+      jamp_sv[2] -= amp_sv[0];
+      jamp_sv[8] -= amp_sv[0];
       jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 99 OF 123 ***
 
@@ -3871,30 +1637,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[14] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 100 OF 123 ***
 
@@ -3906,86 +1650,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
+      jamp_sv[10] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[12] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[13] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[20] += cxtype( 0, 1 ) * amp_sv[0];
       VVVV3_0( w_sv[0], w_sv[18], w_sv[7], w_sv[4], COUPs[2], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
       jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
       jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
       VVVV4_0( w_sv[0], w_sv[18], w_sv[7], w_sv[4], COUPs[2], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
+      jamp_sv[12] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
+      jamp_sv[20] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 101 OF 123 ***
 
@@ -3997,30 +1693,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
+      jamp_sv[10] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[12] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[13] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[20] += cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 102 OF 123 ***
 
@@ -4032,30 +1712,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
       jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
       jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 103 OF 123 ***
 
@@ -4067,30 +1731,10 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[12] += amp_sv[0];
+      jamp_sv[13] -= amp_sv[0];
+      jamp_sv[15] -= amp_sv[0];
+      jamp_sv[17] += amp_sv[0];
 
       // *** DIAGRAM 104 OF 123 ***
 
@@ -4102,30 +1746,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
+      jamp_sv[12] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 105 OF 123 ***
 
@@ -4137,30 +1759,10 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] += amp_sv[0];
+      jamp_sv[4] -= amp_sv[0];
+      jamp_sv[10] -= amp_sv[0];
+      jamp_sv[20] += amp_sv[0];
 
       // *** DIAGRAM 106 OF 123 ***
 
@@ -4172,30 +1774,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[20] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 107 OF 123 ***
 
@@ -4208,27 +1788,11 @@ namespace Proc
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[7] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[16] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[17] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
       VVVV3_0( w_sv[0], w_sv[1], w_sv[7], w_sv[10], COUPs[2], &amp_sv[0] );
@@ -4236,57 +1800,25 @@ namespace Proc
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[11] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[17] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
       VVVV4_0( w_sv[0], w_sv[1], w_sv[7], w_sv[10], COUPs[2], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[6] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[11] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[22] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 108 OF 123 ***
 
@@ -4299,28 +1831,12 @@ namespace Proc
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[11] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[17] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 109 OF 123 ***
@@ -4333,30 +1849,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[6] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[11] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[22] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 110 OF 123 ***
 
@@ -4368,30 +1868,7 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 111 OF 123 ***
 
@@ -4403,30 +1880,7 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[14] -= amp_sv[0];
 
       // *** DIAGRAM 112 OF 123 ***
 
@@ -4438,30 +1892,7 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[18] -= amp_sv[0];
 
       // *** DIAGRAM 113 OF 123 ***
 
@@ -4473,30 +1904,7 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 114 OF 123 ***
 
@@ -4511,85 +1919,37 @@ namespace Proc
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
+      jamp_sv[8] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[14] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[18] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[19] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
       VVV1_0( w_sv[24], w_sv[7], w_sv[5], COUPs[0], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
+      jamp_sv[6] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[8] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[12] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[19] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[20] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[22] -= cxtype( 0, 1 ) * amp_sv[0];
       VVV1_0( w_sv[21], w_sv[7], w_sv[5], COUPs[0], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[6] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[12] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[14] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[18] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[20] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[22] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[23] += cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 115 OF 123 ***
 
@@ -4601,86 +1961,26 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[19] -= amp_sv[0];
+      jamp_sv[21] -= amp_sv[0];
+      jamp_sv[23] += amp_sv[0];
       FFV1_0( w_sv[3], w_sv[14], w_sv[24], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[19] -= amp_sv[0];
+      jamp_sv[20] += amp_sv[0];
+      jamp_sv[21] -= amp_sv[0];
+      jamp_sv[22] += amp_sv[0];
       FFV1_0( w_sv[3], w_sv[14], w_sv[21], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[18] -= amp_sv[0];
+      jamp_sv[20] += amp_sv[0];
+      jamp_sv[22] += amp_sv[0];
+      jamp_sv[23] -= amp_sv[0];
 
       // *** DIAGRAM 116 OF 123 ***
 
@@ -4692,86 +1992,26 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] += amp_sv[0];
+      jamp_sv[2] -= amp_sv[0];
+      jamp_sv[8] -= amp_sv[0];
       jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
       FFV1_0( w_sv[13], w_sv[2], w_sv[24], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] -= amp_sv[0];
+      jamp_sv[6] += amp_sv[0];
+      jamp_sv[8] -= amp_sv[0];
+      jamp_sv[12] += amp_sv[0];
       FFV1_0( w_sv[13], w_sv[2], w_sv[21], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] -= amp_sv[0];
+      jamp_sv[6] += amp_sv[0];
+      jamp_sv[12] += amp_sv[0];
+      jamp_sv[14] -= amp_sv[0];
 
       // *** DIAGRAM 117 OF 123 ***
 
@@ -4785,86 +2025,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
+      jamp_sv[10] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[12] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[13] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[20] += cxtype( 0, 1 ) * amp_sv[0];
       VVV1_0( w_sv[13], w_sv[7], w_sv[4], COUPs[0], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
+      jamp_sv[7] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[10] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[13] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[14] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[16] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[18] += cxtype( 0, 1 ) * amp_sv[0];
       VVV1_0( w_sv[24], w_sv[7], w_sv[4], COUPs[0], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[7] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[12] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[14] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[16] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[17] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[18] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[20] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 118 OF 123 ***
 
@@ -4876,86 +2068,26 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[12] += amp_sv[0];
+      jamp_sv[13] -= amp_sv[0];
+      jamp_sv[15] -= amp_sv[0];
+      jamp_sv[17] += amp_sv[0];
       FFV1_0( w_sv[3], w_sv[11], w_sv[13], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[13] -= amp_sv[0];
       jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[15] -= amp_sv[0];
+      jamp_sv[16] += amp_sv[0];
       FFV1_0( w_sv[3], w_sv[11], w_sv[24], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[16] += amp_sv[0];
+      jamp_sv[17] -= amp_sv[0];
 
       // *** DIAGRAM 119 OF 123 ***
 
@@ -4967,86 +2099,26 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] += amp_sv[0];
+      jamp_sv[4] -= amp_sv[0];
+      jamp_sv[10] -= amp_sv[0];
+      jamp_sv[20] += amp_sv[0];
       FFV1_0( w_sv[15], w_sv[2], w_sv[13], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] -= amp_sv[0];
+      jamp_sv[7] += amp_sv[0];
+      jamp_sv[10] -= amp_sv[0];
       jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
       FFV1_0( w_sv[15], w_sv[2], w_sv[24], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] -= amp_sv[0];
+      jamp_sv[7] += amp_sv[0];
       jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 120 OF 123 ***
 
@@ -5060,86 +2132,26 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[6] += amp_sv[0];
+      jamp_sv[7] -= amp_sv[0];
+      jamp_sv[9] -= amp_sv[0];
+      jamp_sv[11] += amp_sv[0];
       FFV1_0( w_sv[3], w_sv[9], w_sv[15], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[7] -= amp_sv[0];
+      jamp_sv[8] += amp_sv[0];
+      jamp_sv[9] -= amp_sv[0];
+      jamp_sv[10] += amp_sv[0];
       FFV1_0( w_sv[3], w_sv[9], w_sv[13], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[6] -= amp_sv[0];
+      jamp_sv[8] += amp_sv[0];
+      jamp_sv[10] += amp_sv[0];
+      jamp_sv[11] -= amp_sv[0];
 
       // *** DIAGRAM 121 OF 123 ***
 
@@ -5151,86 +2163,26 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] += amp_sv[0];
+      jamp_sv[5] -= amp_sv[0];
+      jamp_sv[16] -= amp_sv[0];
+      jamp_sv[22] += amp_sv[0];
       FFV1_0( w_sv[16], w_sv[2], w_sv[15], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[5] -= amp_sv[0];
+      jamp_sv[13] += amp_sv[0];
+      jamp_sv[16] -= amp_sv[0];
+      jamp_sv[19] += amp_sv[0];
       FFV1_0( w_sv[16], w_sv[2], w_sv[13], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] -= amp_sv[0];
+      jamp_sv[13] += amp_sv[0];
+      jamp_sv[19] += amp_sv[0];
+      jamp_sv[22] -= amp_sv[0];
 
       // *** DIAGRAM 122 OF 123 ***
 
@@ -5242,86 +2194,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[6] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[11] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[22] -= cxtype( 0, 1 ) * amp_sv[0];
       VVV1_0( w_sv[15], w_sv[1], w_sv[7], COUPs[0], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
       jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
       jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
       VVV1_0( w_sv[13], w_sv[1], w_sv[7], COUPs[0], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
       jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
       jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 123 OF 123 ***
 
@@ -5333,85 +2237,37 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[5] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[9] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[23] += cxtype( 0, 1 ) * amp_sv[0];
       VVV1_0( w_sv[0], w_sv[19], w_sv[7], COUPs[0], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
       jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
       jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
       VVV1_0( w_sv[0], w_sv[8], w_sv[7], COUPs[0], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += amp_sv[0];
       jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= amp_sv[0];
       jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** COLOR ALGEBRA BELOW ***
