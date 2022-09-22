@@ -11,6 +11,7 @@ echo "Using NVCC=${NVCC}"
 if gfortran-9 --version >& /dev/null; then
   export FC=$(which gfortran-9)
   export LIBRARY_PATH=$(dirname $(${FC} --print-file-name libgfortran.so)):$LIBRARY_PATH
+  export LIBRARY_PATH=$(dirname $(${CXX} --print-file-name liblto_plugin.so)):$LIBRARY_PATH
 elif gfortran-8 --version >& /dev/null; then
   export FC=$(which gfortran-8)
   export LIBRARY_PATH=$(dirname $(${FC} --print-file-name libgfortran.so)):$LIBRARY_PATH
