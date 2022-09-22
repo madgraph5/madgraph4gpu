@@ -553,24 +553,28 @@ int main(int argc, char **argv)
                   const int ipagM = ievt/neppM; // #eventpage in this iteration
                   const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
 #ifdef MGONGPU_HARDCODE_PARAM
-                  //Load independent couplings and parameters into local (private) memory if hardcoded
-                  //FIXME should independent couplings and parameters be set in shared memory instead? Maybe doesn't matter for constexpr
-                  cxtype _dev_independent_couplings = Proc::independentCouplings::independent_couplings<cxtype, fptype>;
-                  fptype dev_parameters = Proc::independent_parameters<fptype>;
+                  //Load parameters into local (private) memory if hardcoded
+                  auto dev_parameters = Proc::independent_parameters<fptype>;
 #endif
                   //Load helicities and couplings into local (private) memory
-                  //FIXME should helicities be set in shared memory instead? Maybe doesn't matter for constexpr?
                   auto dev_helicities = Proc::helicities<short>;
                   cxtype dev_couplings[Proc::dependentCouplings::ndcoup + Proc::independentCouplings::nicoup];
+
+                  [&]() { // Wrap if constexpr in lambda so `if false` doesn't generate code at compile time
                   if constexpr( Proc::dependentCouplings::ndcoup > 0 ) {
                       Proc::dependentCouplings::set_couplings_from_G(dev_couplings, fixedG); 
-                  }
+                  }};
 
+                  [&]() { // Wrap if constexpr in lambda so `if false` doesn't generate code at compile time
                   if constexpr( Proc::independentCouplings::nicoup > 0 ) {
+#ifdef MGONGPU_HARDCODE_PARAM
+                      //Load independent couplings into local (private) memory if hardcoded
+                      auto _dev_independent_couplings = Proc::independentCouplings::independent_couplings<cxtype, fptype>;
+#endif
                       for (size_t i = 0; i < Proc::independentCouplings::nicoup; i++) {
                           dev_couplings[Proc::dependentCouplings::ndcoup + i] = _dev_independent_couplings[i];
                       }
-                  }
+                  }};
 
                   Proc::sigmaKin_getGoodHel( devMomenta + ipagM * npar * np4 * neppM + ieppM, devIsGoodHel, dev_helicities, dev_couplings, dev_parameters );
               });
@@ -610,24 +614,28 @@ int main(int argc, char **argv)
                 const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
 
 #ifdef MGONGPU_HARDCODE_PARAM
-                  //Load independent couplings and parameters into local (private) memory if hardcoded
-                  //FIXME should independent couplings and parameters be set in shared memory instead? Maybe doesn't matter for constexpr
-                  cxtype _dev_independent_couplings = Proc::independentCouplings::independent_couplings<cxtype, fptype>;
-                  fptype dev_parameters = Proc::independent_parameters<fptype>;
+                  //Load parameters into local (private) memory if hardcoded
+                  auto dev_parameters = Proc::independent_parameters<fptype>;
 #endif
                   //Load helicities and couplings into local (private) memory
-                  //FIXME should helicities be set in shared memory instead? Maybe doesn't matter for constexpr?
                   auto dev_helicities = Proc::helicities<short>;
                   cxtype dev_couplings[Proc::dependentCouplings::ndcoup + Proc::independentCouplings::nicoup];
+
+                  [&]() { // Wrap if constexpr in lambda so `if false` doesn't generate code at compile time
                   if constexpr( Proc::dependentCouplings::ndcoup > 0 ) {
                       Proc::dependentCouplings::set_couplings_from_G(dev_couplings, fixedG); 
-                  }
+                  }};
 
+                  [&]() { // Wrap if constexpr in lambda so `if false` doesn't generate code at compile time
                   if constexpr( Proc::independentCouplings::nicoup > 0 ) {
+#ifdef MGONGPU_HARDCODE_PARAM
+                      //Load independent couplings into local (private) memory if hardcoded
+                      auto _dev_independent_couplings = Proc::independentCouplings::independent_couplings<cxtype, fptype>;
+#endif
                       for (size_t i = 0; i < Proc::independentCouplings::nicoup; i++) {
                           dev_couplings[Proc::dependentCouplings::ndcoup + i] = _dev_independent_couplings[i];
                       }
-                  }
+                  }};
 
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
                 devMEs[ievt] = Proc::sigmaKin( devMomenta + ipagM * npar * np4 * neppM + ieppM, 0, dev_helicities, dev_couplings, dev_parameters, devcNGoodHel, devcGoodHel );
