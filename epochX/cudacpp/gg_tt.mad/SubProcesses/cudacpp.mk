@@ -348,14 +348,20 @@ endif
 ###$(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG))
 
 # On Linux, set rpath to LIBDIR to make it unnecessary to use LD_LIBRARY_PATH
-# Use relative paths with respect to the executables ($ORIGIN on Linux)
+# Use relative paths with respect to the executables or shared libraries ($ORIGIN on Linux)
 # On Darwin, building libraries with absolute paths in LIBDIR makes this unnecessary
 ifeq ($(UNAME_S),Darwin)
   override CXXLIBFLAGSRPATH =
   override CULIBFLAGSRPATH =
+  override CXXLIBFLAGSRPATH2 =
+  override CULIBFLAGSRPATH2 =
 else
+  # RPATH to cuda/cpp libs when linking executables
   override CXXLIBFLAGSRPATH = -Wl,-rpath,$(LIBDIRRPATH)
   override CULIBFLAGSRPATH = -Xlinker -rpath,$(LIBDIRRPATH)
+  # RPATH to common lib when linking cuda/cpp libs
+  override CXXLIBFLAGSRPATH2 = -Wl,-rpath,'$$ORIGIN'
+  override CULIBFLAGSRPATH2 = -Xlinker -rpath,'$$ORIGIN'
 endif
 
 # Setting LD_LIBRARY_PATH or DYLD_LIBRARY_PATH in the RUNTIME is no longer necessary (neither on Linux nor on Mac)
@@ -461,13 +467,13 @@ endif
 $(LIBDIR)/lib$(MG5AMC_CXXLIB).so: $(BUILDDIR)/fbridge.o
 $(LIBDIR)/lib$(MG5AMC_CXXLIB).so: cxx_objects_lib += $(BUILDDIR)/fbridge.o
 $(LIBDIR)/lib$(MG5AMC_CXXLIB).so: $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects_lib)
-	$(CXX) -shared -o $@ $(cxx_objects_lib) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
+	$(CXX) -shared -o $@ $(cxx_objects_lib) $(CXXLIBFLAGSRPATH2) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
 
 ifneq ($(NVCC),)
 $(LIBDIR)/lib$(MG5AMC_CULIB).so: $(BUILDDIR)/fbridge_cu.o
 $(LIBDIR)/lib$(MG5AMC_CULIB).so: cu_objects_lib += $(BUILDDIR)/fbridge_cu.o
 $(LIBDIR)/lib$(MG5AMC_CULIB).so: $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cu_objects_lib)
-	$(NVCC) --shared -o $@ $(cu_objects_lib) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
+	$(NVCC) --shared -o $@ $(cu_objects_lib) $(CULIBFLAGSRPATH2) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
 endif
 
 #-------------------------------------------------------------------------------
