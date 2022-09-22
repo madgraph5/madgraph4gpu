@@ -89,7 +89,7 @@ all: $(PROG) $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp # also builds g$(PROG)_cudacpp
 endif
 
 $(PROG): $(PROCESS) $(DSIG) auto_dsig.o $(LIBS) $(MATRIX) counters.o
-	$(FC) -o $(PROG) $(PROCESS) $(DSIG) auto_dsig.o $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o
+	$(FC) -o $(PROG) $(PROCESS) $(DSIG) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) -fopenmp counters.o $(LDFLAGS)
 
 $(LIBS): .libs
 
