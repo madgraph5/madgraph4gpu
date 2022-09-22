@@ -47,7 +47,11 @@ CUDACPP_MAKEENV:=$(shell echo '$(.VARIABLES)' | tr " " "\n" | egrep "(USEBUILDDI
 ###$(info CUDACPP_MAKEENV=$(CUDACPP_MAKEENV))
 ###$(info $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))"))
 CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn |& awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
+ifeq ($(CUDACPP_BUILDDIR),)
+$(error CUDACPP_BUILDDIR='$(CUDACPP_BUILDDIR)' should not be empty!)
+else
 $(info CUDACPP_BUILDDIR='$(CUDACPP_BUILDDIR)')
+endif
 CUDACPP_COMMONLIB=mg5amc_common
 CUDACPP_CXXLIB=mg5amc_$(processid_short)_cpp
 CUDACPP_CULIB=mg5amc_$(processid_short)_cuda
