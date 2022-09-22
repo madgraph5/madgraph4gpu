@@ -161,8 +161,10 @@ namespace Proc
     , m_ngputhreads( ngputhreads )
     , m_verbose( verbose )
     , m_debug( debug )
+#ifndef MGONGPU_HARDCODE_PARAM
     , m_pars( 0 )
     , m_masses()
+#endif
   {
   }
 
@@ -175,6 +177,7 @@ namespace Proc
   // Initialize process (with parameters read from user cards)
   void CPPProcess::initProc( const std::string& param_card_name )
   {
+#ifndef MGONGPU_HARDCODE_PARAM
     // Instantiate the model class and set parameters that stay fixed during run
     m_pars = Parameters_sm::getInstance();
     SLHAReader slha( param_card_name, m_verbose );
@@ -194,7 +197,6 @@ namespace Proc
     m_masses.push_back( m_pars->ZERO );
     m_masses.push_back( m_pars->ZERO );
     m_masses.push_back( m_pars->ZERO );
-#ifndef MGONGPU_HARDCODE_PARAM
     // Read physics parameters like masses and couplings from user configuration files (static: initialize once)
     m_tIPC[0] = cxmake( m_pars->GC_3 );
     m_tIPC[1] = cxmake( m_pars->GC_50 );

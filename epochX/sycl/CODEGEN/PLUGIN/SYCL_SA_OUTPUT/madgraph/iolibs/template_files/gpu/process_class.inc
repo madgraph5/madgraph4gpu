@@ -59,11 +59,11 @@
     bool m_verbose;
     bool m_debug;
 
+#ifndef MGONGPU_HARDCODE_PARAM
     // Physics model parameters to be read from file (initProc function)
     Parameters_%(model_name)s* m_pars;
     std::vector<fptype> m_masses; // external particle masses
 
-#ifndef MGONGPU_HARDCODE_PARAM
     // Physics parameters (masses, coupling, etc...)
     cxtype m_tIPC[independentCouplings::nicoup];
     fptype m_tIPD[mgOnGpu::nparams];
