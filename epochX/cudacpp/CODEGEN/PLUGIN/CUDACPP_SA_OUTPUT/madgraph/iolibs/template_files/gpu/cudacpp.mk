@@ -87,7 +87,8 @@ ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   # Embed device code for 70, and PTX for 70+. Export MADGRAPH_CUDA_ARCHITECTURE to override the number.
   # Other examples: use 80 for A100 (Juwels Booster, NVidia raplab/Curiosity), use 35 for Jetson Nano Maxwell
   MADGRAPH_CUDA_ARCHITECTURE ?= 70
-  CUARCHFLAGS = --gpu-architecture=compute_$(MADGRAPH_CUDA_ARCHITECTURE) --gpu-code=sm_$(MADGRAPH_CUDA_ARCHITECTURE),compute_$(MADGRAPH_CUDA_ARCHITECTURE)
+  ###CUARCHFLAGS = -gencode arch=compute_$(MADGRAPH_CUDA_ARCHITECTURE),code=compute_$(MADGRAPH_CUDA_ARCHITECTURE) -gencode arch=compute_$(MADGRAPH_CUDA_ARCHITECTURE),code=sm_$(MADGRAPH_CUDA_ARCHITECTURE) # OLD implementation (AV)
+  CUARCHFLAGS = --gpu-architecture=compute_$(MADGRAPH_CUDA_ARCHITECTURE) --gpu-code=sm_$(MADGRAPH_CUDA_ARCHITECTURE),compute_$(MADGRAPH_CUDA_ARCHITECTURE) # NEW implementation (SH)
   CUINC       = -I$(CUDA_HOME)/include/
   CULIBFLAGS  = -L$(CUDA_HOME)/lib64/ -lcurand # NB: -lcuda is not needed here!
   CUOPTFLAGS  = -lineinfo
