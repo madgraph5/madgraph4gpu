@@ -158,10 +158,10 @@ namespace mg5amcGpu
     device_buffer<bool  > m_devIsGoodHel;
     host_buffer<bool    > m_hstIsGoodHel;
     //device_buffer<short > m_devcHel;
-#ifndef MGONGPU_HARDCODE_PARAM
+    #ifndef MGONGPU_HARDCODE_PARAM
     device_buffer<fptype> m_dev_independent_couplings;
     device_buffer<fptype> m_dev_independent_parameters;
-#endif
+    #endif
     device_buffer<int   > m_devcNGoodHel; 
     device_buffer<int   > m_devcGoodHel; 
     
@@ -193,11 +193,11 @@ namespace mg5amcGpu
     : m_nevt( nevtF )
     , m_goodHelsCalculated( false )
     , m_devices( sycl::device::get_devices() )
-#ifdef MGONGPU_DEVICE_ID
-    , m_q( sycl::queue(m_devices[MGONGPU_DEVICE_ID]) )
-#else
-    , m_q( sycl::queue(m_devices[0]) )
-#endif
+    #ifdef MGONGPU_DEVICE_ID
+        , m_q( sycl::queue(m_devices[MGONGPU_DEVICE_ID]) )
+    #else
+        , m_q( sycl::queue(m_devices[0]) )
+    #endif
     , m_gputhreads( 256 )                  // default number of gpu threads
     , m_gpublocks( m_nevt / m_gputhreads ) // this ensures m_nevt <= m_gpublocks*m_gputhreads
     , m_devMomentaF( m_nevt*mgOnGpu::npar*mgOnGpu::np4, m_q )
@@ -209,10 +209,10 @@ namespace mg5amcGpu
     , m_devIsGoodHel( mgOnGpu::ncomb, m_q )
     , m_hstIsGoodHel( mgOnGpu::ncomb, m_q )
     //, m_devcHel( mgOnGpu::ncomb*mgOnGpu::npar, m_q )
-#ifndef MGONGPU_HARDCODE_PARAM
+    #ifndef MGONGPU_HARDCODE_PARAM
     , m_dev_independent_couplings( Proc::independentCouplings::nicoup, m_q )
     , m_dev_independent_parameters( mgOnGpu::nparams, m_q )
-#endif
+    #endif
     , m_devcNGoodHel( 1, m_q ) 
     , m_devcGoodHel( mgOnGpu::ncomb, m_q ) 
   {
@@ -230,13 +230,13 @@ namespace mg5amcGpu
     std::cout << "WARNING! Instantiate device Bridge (nevt=" << m_nevt << ", gpublocks=" << m_gpublocks << ", gputhreads=" << m_gputhreads
               << ", gpublocks*gputhreads=" << m_gpublocks * m_gputhreads << ")" << std::endl;
 
-#ifndef MGONGPU_HARDCODE_PARAM
+    #ifndef MGONGPU_HARDCODE_PARAM
     Proc::CPPProcess process( 1, m_gpublocks, m_gputhreads, false, false );
     process.initProc( "../../Cards/param_card.dat" );
 
     m_q.memcpy( m_dev_independent_couplings.data(), process.get_tIPC_ptr(), 2*Proc::independentCouplings::nicoup*sizeof(fptype) );
     m_q.memcpy( m_dev_independent_parameters.data(), process.get_tIPD_ptr(), mgOnGpu::nparams*sizeof(fptype) ).wait();
-#endif
+    #endif
   }
 
   template<typename FORTRANFPTYPE>
@@ -296,45 +296,43 @@ namespace mg5amcGpu
           auto devMomentaC = m_devMomentaC.data();
           auto devGsC = m_devGsC.data();
           auto devIsGoodHel = m_devIsGoodHel.data();
-#ifndef MGONGPU_HARDCODE_PARAM
+          #ifndef MGONGPU_HARDCODE_PARAM
           //Get pointer to independent couplings and parameters into shared memory if not hardcoded
           auto m_dev_independent_couplings_ptr = m_dev_independent_couplings.data();
           auto m_dev_parameters_ptr = m_dev_independent_parameters.data();
-#endif
+          #endif
           cgh.parallel_for_work_group(sycl::range<1>{m_gpublocks}, sycl::range<1>{m_gputhreads}, ([=](sycl::group<1> wGroup) {
-#ifndef MGONGPU_HARDCODE_PARAM
+              #ifndef MGONGPU_HARDCODE_PARAM
               //Load independent couplings and parameters into shared memory if not hardcoded
               auto dev_independent_couplings = m_dev_independent_couplings_ptr;
               auto dev_parameters = m_dev_parameters_ptr;
-#endif
+              #endif
               wGroup.parallel_for_work_item([&](sycl::h_item<1> index) {
                   size_t ievt = index.get_global_id(0);
                   const int ipagM = ievt/neppM; // #eventpage in this iteration
                   const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
 
-#ifdef MGONGPU_HARDCODE_PARAM
+                  #ifdef MGONGPU_HARDCODE_PARAM
                   //Load parameters into local (private) memory if hardcoded
                   auto dev_parameters = Proc::independent_parameters<fptype>;
-#endif
+                  #endif
                   //Load helicities into local (private) memory
                   auto dev_helicities = Proc::helicities<short>;
                   cxtype dev_couplings[Proc::dependentCouplings::ndcoup + Proc::independentCouplings::nicoup];
 
-                  [&]() { // Wrap if constexpr in lambda so `if false` doesn't generate code at compile time
-                  if constexpr( Proc::dependentCouplings::ndcoup > 0 ) {
+                  #if MGONGPU_NDCOUP > 0
                       Proc::dependentCouplings::set_couplings_from_G(dev_couplings, devGsC[ievt]); 
-                  }};
+                  #endif
 
-                  [&]() { // Wrap if constexpr in lambda so `if false` doesn't generate code at compile time
-                  if constexpr( Proc::independentCouplings::nicoup > 0 ) {
-#ifdef MGONGPU_HARDCODE_PARAM
+                  #if MGONGPU_NICOUP > 0
+                      #ifdef MGONGPU_HARDCODE_PARAM
                       //Load independent couplings into local (private) memory if hardcoded
                       auto dev_independent_couplings = Proc::independentCouplings::independent_couplings<cxtype, fptype>;
-#endif
+                      #endif
                       for (size_t i = 0; i < Proc::independentCouplings::nicoup; i++) {
                           dev_couplings[Proc::dependentCouplings::ndcoup + i] = dev_independent_couplings[i];
                       }
-                  }};
+                  #endif
 
                   Proc::sigmaKin_getGoodHel( devMomentaC + ipagM * npar * np4 * neppM + ieppM, devIsGoodHel, dev_helicities, dev_couplings, dev_parameters );
               });
@@ -359,52 +357,50 @@ namespace mg5amcGpu
         auto devcNGoodHel = m_devcNGoodHel.data();
         auto devcGoodHel = m_devcGoodHel.data();
         auto devMEsC = m_devMEsC.data();
-#ifndef MGONGPU_HARDCODE_PARAM
+        #ifndef MGONGPU_HARDCODE_PARAM
         //Get pointer to independent couplings and parameters into shared memory if not hardcoded
         auto m_dev_independent_couplings_ptr = m_dev_independent_couplings.data();
         auto m_dev_parameters_ptr = m_dev_independent_parameters.data();
-#endif
+        #endif
         cgh.parallel_for_work_group(sycl::range<1>{m_gpublocks}, sycl::range<1>{m_gputhreads}, ([=](sycl::group<1> wGroup) {
-#ifndef MGONGPU_HARDCODE_PARAM
+            #ifndef MGONGPU_HARDCODE_PARAM
             //Load independent couplings and parameters into shared memory if not hardcoded
             auto dev_independent_couplings = m_dev_independent_couplings_ptr;
             auto dev_parameters = m_dev_parameters_ptr;
-#endif
+            #endif
             auto l_channelId = channelId;
             wGroup.parallel_for_work_item([&](sycl::h_item<1> index) {
                 size_t ievt = index.get_global_id(0);
                 const int ipagM = ievt/neppM;
                 const int ieppM = ievt%neppM;
 
-#ifdef MGONGPU_HARDCODE_PARAM
+                  #ifdef MGONGPU_HARDCODE_PARAM
                   //Load parameters into local (private) memory if hardcoded
                   auto dev_parameters = Proc::independent_parameters<fptype>;
-#endif
+                  #endif
                   //Load helicities and couplings into local (private) memory
                   auto dev_helicities = Proc::helicities<short>;
                   cxtype dev_couplings[Proc::dependentCouplings::ndcoup + Proc::independentCouplings::nicoup];
 
-                  [&]() { // Wrap if constexpr in lambda so `if false` doesn't generate code at compile time
-                  if constexpr( Proc::dependentCouplings::ndcoup > 0 ) {
+                  #if MGONGPU_NDCOUP > 0
                       Proc::dependentCouplings::set_couplings_from_G(dev_couplings, devGsC[ievt]); 
-                  }};
+                  #endif
 
-                  [&]() { // Wrap if constexpr in lambda so `if false` doesn't generate code at compile time
-                  if constexpr( Proc::independentCouplings::nicoup > 0 ) {
-#ifdef MGONGPU_HARDCODE_PARAM
+                  #if MGONGPU_NICOUP > 0
+                      #ifdef MGONGPU_HARDCODE_PARAM
                       //Load independent couplings into local (private) memory if hardcoded
                       auto dev_independent_couplings = Proc::independentCouplings::independent_couplings<cxtype, fptype>;
-#endif
+                      #endif
                       for (size_t i = 0; i < Proc::independentCouplings::nicoup; i++) {
                           dev_couplings[Proc::dependentCouplings::ndcoup + i] = dev_independent_couplings[i];
                       }
-                  }};
+                  #endif
 
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                devMEsC[ievt] = Proc::sigmaKin( devMomentaC + ipagM * npar * np4 * neppM + ieppM, l_channelId, dev_helicities, dev_couplings, dev_parameters, devcNGoodHel, devcGoodHel );
-#else
-                devMEsC[ievt] = Proc::sigmaKin( devMomentaC + ipagM * npar * np4 * neppM + ieppM, dev_helicities, dev_couplings, dev_parameters, devcNGoodHel, devcGoodHel );
-#endif
+                #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+                    devMEsC[ievt] = Proc::sigmaKin( devMomentaC + ipagM * npar * np4 * neppM + ieppM, l_channelId, dev_helicities, dev_couplings, dev_parameters, devcNGoodHel, devcGoodHel );
+                #else
+                    devMEsC[ievt] = Proc::sigmaKin( devMomentaC + ipagM * npar * np4 * neppM + ieppM, dev_helicities, dev_couplings, dev_parameters, devcNGoodHel, devcGoodHel );
+                #endif
             });
         }));
     });

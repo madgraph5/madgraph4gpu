@@ -909,6 +909,9 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         else:
             coup_str = "    //m_tIPC[...] = ... ; // nicoup=0\n"
 
+        self.number_dependent_couplings = len(coupling) - len(coupling_indep)
+        self.number_independent_couplings = len(coupling_indep)
+
         for para, pos in self.params2order.items():
             params[pos] = para
 
@@ -1083,6 +1086,8 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         template = open(pjoin(self.template_path,'gpu','mgOnGpuConfig.h'),'r').read()
         replace_dict = {}
         nexternal, nincoming = self.matrix_elements[0].get_nexternal_ninitial()
+        replace_dict['number_dependent_couplings'] = self.number_dependent_couplings
+        replace_dict['number_independent_couplings'] = self.number_independent_couplings
         replace_dict['nincoming'] = nincoming
         replace_dict['noutcoming'] = nexternal - nincoming
         

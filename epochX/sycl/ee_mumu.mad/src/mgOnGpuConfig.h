@@ -1,6 +1,9 @@
 #ifndef MGONGPUCONFIG_H
 #define MGONGPUCONFIG_H 1
 
+#define MGONGPU_NDCOUP 0
+#define MGONGPU_NICOUP 3
+
 // HARDCODED AT CODE GENERATION TIME: DO NOT MODIFY (#473)
 // There are two different code bases for standalone_sycl (without multichannel) and madevent+sycl (with multichannel)
 #define MGONGPU_SUPPORTS_MULTICHANNEL 1
