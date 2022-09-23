@@ -6,7 +6,7 @@
 #ifndef Parameters_%(model_name)s_H
 #define Parameters_%(model_name)s_H
 
-#include <complex>
+#include "mgOnGpuCxtypes.h"
 #include <cmath>
 
 #ifndef MGONGPU_HARDCODE_PARAM // this is only supported in SM processes (e.g. not in EFT models) for the moment (#439)%(efterror)s

@@ -620,6 +620,7 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
     # AV - overload export_cpp.UFOModelConverterCPP method (improve formatting)
     def write_parameters(self, params):
         res = super().write_parameters(params)
+        res = res.replace('std::complex<','mgOnGpu::cxsmpl<') # custom simplex complex class (with constexpr arithmetics)
         if res == '' : res = '  // (none)'
         else : res = '  ' + res # add leading '  ' after the '// Model' line
         res = res.replace('\n','\n  ')
@@ -629,6 +630,7 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
     # AV - overload export_cpp.UFOModelConverterCPP method (improve formatting)
     def write_set_parameters(self, params):
         res = super().write_set_parameters(params)
+        res = res.replace('std::complex<','mgOnGpu::cxsmpl<') # custom simplex complex class (with constexpr arithmetics)
         if res == '' : res = '// (none)'
         res = res.replace('\n','\n  ')
         return res
@@ -640,8 +642,8 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
             assert( parset == '' ) # AV sanity check (both are empty)
             res = '// (none)\n'
             return res
-        #pardef = pardef.replace('std::complex<','cxsmpl<') # custom simplex complex class (with constexpr arithmetics)
-        #parset = parset.replace('std::complex<','cxsmpl<') # custom simplex complex class (with constexpr arithmetics)
+        pardef = pardef.replace('std::complex<','mgOnGpu::cxsmpl<') # custom simplex complex class (with constexpr arithmetics)
+        parset = parset.replace('std::complex<','mgOnGpu::cxsmpl<') # custom simplex complex class (with constexpr arithmetics)
         parset = parset.replace('sqrt(','constexpr_sqrt(') # constexpr sqrt (based on iterative Newton-Raphson approximation)
         parset = parset.replace('pow(','constexpr_pow(') # constexpr sqrt (based on iterative Newton-Raphson approximation)
         parset = parset.replace('(','( ')
@@ -733,7 +735,7 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
                     dcoupsetdpar.append( '    ' + line.replace('constexpr double', 'const FPType' if foundG else '//const FPType' ) )
                     if 'constexpr double G =' in line: foundG = True
             replace_dict['dcoupsetdpar'] = '  ' + '\n'.join( dcoupsetdpar )
-            dcoupsetdcoup = [ '    ' + line.replace('constexpr std::complex<double> ','couplings[idcoup_')
+            dcoupsetdcoup = [ '    ' + line.replace('constexpr mgOnGpu::cxsmpl<double> ','couplings[idcoup_')
                                            .replace(" = ","] = ")
                                            .replace('mdl_complexi', 'cI')
                                 for line in self.write_hardcoded_parameters(list(self.coups_dep.values())).split('\n') if line != '' ]
