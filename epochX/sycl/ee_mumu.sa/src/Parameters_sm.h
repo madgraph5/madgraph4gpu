@@ -221,9 +221,9 @@ namespace Parameters_sm_independentCouplings
 #ifdef MGONGPU_HARDCODE_PARAM
   template <typename CXType, typename FPType>
   constexpr CXType independent_couplings[] {
-    ((FPType)Parameters_sm::sm.real(), (FPType)Parameters_sm::GC_3.imag()),
-    ((FPType)Parameters_sm::sm.real(), (FPType)Parameters_sm::GC_50.imag()),
-    ((FPType)Parameters_sm::sm.real(), (FPType)Parameters_sm::GC_59.imag()),
+    ((FPType)Parameters_sm::GC_3.real(), (FPType)Parameters_sm::GC_3.imag()),
+    ((FPType)Parameters_sm::GC_50.real(), (FPType)Parameters_sm::GC_50.imag()),
+    ((FPType)Parameters_sm::GC_59.real(), (FPType)Parameters_sm::GC_59.imag()),
   };
 #endif
 }

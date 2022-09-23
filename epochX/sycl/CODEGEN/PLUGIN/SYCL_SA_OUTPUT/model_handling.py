@@ -715,7 +715,7 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
         if len( self.coups_indep ) > 0 :
             iicoup = [ '  constexpr size_t ixcoup_%s = %d + Parameters_%s_dependentCouplings::ndcoup; // out of ndcoup+nicoup' % (par.name, idx, self.model_name) for (idx, par) in enumerate(self.coups_indep) ]
             replace_dict['iicoup'] = '\n'.join( iicoup )
-            icoupseticoup_hrdcod = [ '    ((FPType)Parameters_{2:s}::{2:s}.real(), (FPType)Parameters_{2:s}::{0:s}.imag()),'.format(par.name, idx, self.model_name) for (idx, par) in enumerate(self.coups_indep) ]
+            icoupseticoup_hrdcod = [ '    ((FPType)Parameters_{2:s}::{0:s}.real(), (FPType)Parameters_{2:s}::{0:s}.imag()),'.format(par.name, idx, self.model_name) for (idx, par) in enumerate(self.coups_indep) ]
             replace_dict['icoupseticoup_hrdcod'] = '\n'.join( icoupseticoup_hrdcod )
         else:
             replace_dict['iicoup'] = '  // NB: there are no aS-independent couplings in this physics process'
