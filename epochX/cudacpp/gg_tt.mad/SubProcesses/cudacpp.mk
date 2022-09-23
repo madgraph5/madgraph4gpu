@@ -491,7 +491,7 @@ endif
 # Target (and build rules): C++ and CUDA standalone executables
 $(cxx_main): LIBFLAGS += $(CXXLIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(cxx_main): $(BUILDDIR)/check_sa.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).so $(cxx_objects_exe)
-	$(CXX) -o $@ $(BUILDDIR)/check_sa.o $(OMPFLAGS) -ldl -pthread $(LIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CXXLIB) $(cxx_objects_exe) $(CULIBFLAGS)
+	$(CXX) -o $@ $(BUILDDIR)/check_sa.o $(cxx_objects_exe) $(OMPFLAGS) -ldl -pthread $(LIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CXXLIB) $(CULIBFLAGS)
 
 ifneq ($(NVCC),)
 ifneq ($(shell $(CXX) --version | grep ^Intel),)
@@ -502,7 +502,7 @@ $(cu_main): LIBFLAGS += -L$(patsubst %bin/nvc++,%lib,$(subst ccache ,,$(CXX))) -
 endif
 $(cu_main): LIBFLAGS += $(CULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(cu_main): $(BUILDDIR)/gcheck_sa.o $(LIBDIR)/lib$(MG5AMC_CULIB).so $(cu_objects_exe)
-	$(NVCC) -o $@ $(BUILDDIR)/gcheck_sa.o $(CUARCHFLAGS) $(LIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CULIB) $(cu_objects_exe) $(CULIBFLAGS)
+	$(NVCC) -o $@ $(BUILDDIR)/gcheck_sa.o $(cu_objects_exe) $(CUARCHFLAGS) $(LIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CULIB) $(CULIBFLAGS)
 endif
 
 #-------------------------------------------------------------------------------
@@ -526,7 +526,7 @@ $(fcxx_main): LIBFLAGS += -L$(shell dirname $(shell $(FC) --print-file-name libg
 endif
 $(fcxx_main): LIBFLAGS += $(CXXLIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(fcxx_main): $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).so $(cxx_objects_exe)
-	$(CXX) -o $@ $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler.o $(LIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_CXXLIB) $(cxx_objects_exe) $(CULIBFLAGS)
+	$(CXX) -o $@ $(BUILDDIR)/fcheck_sa.o $(cxx_objects_exe) $(BUILDDIR)/fsampler.o $(LIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_CXXLIB) $(CULIBFLAGS)
 
 ifneq ($(NVCC),)
 ifneq ($(shell $(CXX) --version | grep ^Intel),)
