@@ -3,10 +3,7 @@
 
 #include "extras.h"
 #include "mgOnGpuConfig.h"
-
-#include <algorithm>
-#include <complex>
-#include <cmath>
+#include "mgOnGpuCxtypes.h"
 
 namespace mgOnGpu
 {
@@ -61,14 +58,14 @@ const cxtype& cxmake( const cxtype& c )
 }
 
 inline // NOT __device__
-cxtype cxmake( const std::complex<fptype>& c ) // std::complex to extras::complex (float-to-float or double-to-double)
+cxtype cxmake( const mgOnGpu::cxsmpl<fptype>& c ) // mgOnGpu::cxsmpl to extras::complex (float-to-float or double-to-double)
 {
   return cxmake( c.real(), c.imag() );
 }
 
 #if defined MGONGPU_FPTYPE_FLOAT
 inline
-cxtype cxmake( const std::complex<double>& c ) // std::complex to std::complex (cast double-to-float)
+cxtype cxmake( const mgOnGpu::cxsmpl<double>& c ) // mgOnGpu::cxsmpl to mgOnGpu::cxsmpl (cast double-to-float)
 {
   return cxmake( (fptype)c.real(), (fptype)c.imag() );
 }

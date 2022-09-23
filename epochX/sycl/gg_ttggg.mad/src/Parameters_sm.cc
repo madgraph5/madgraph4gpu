@@ -48,7 +48,7 @@ Parameters_sm::setIndependentParameters( SLHAReader& slha )
   mdl_conjg__CKM3x3 = 1.;
   mdl_conjg__CKM1x1 = 1.;
   mdl_CKM3x3 = 1.;
-  mdl_complexi = std::complex<double>(0.,1.);
+  mdl_complexi = mgOnGpu::cxsmpl<double>(0.,1.);
   mdl_MZ__exp__2 = ((mdl_MZ)*(mdl_MZ));
   mdl_MZ__exp__4 = ((mdl_MZ)*(mdl_MZ)*(mdl_MZ)*(mdl_MZ));
   mdl_sqrt__2 = sqrt(2.);

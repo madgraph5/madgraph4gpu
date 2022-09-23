@@ -8,7 +8,7 @@
 #ifndef Parameters_sm_H
 #define Parameters_sm_H
 
-#include <complex>
+#include "mgOnGpuCxtypes.h"
 #include <cmath>
 
 #ifndef MGONGPU_HARDCODE_PARAM // this is only supported in SM processes (e.g. not in EFT models) for the moment (#439)
@@ -27,7 +27,7 @@ public:
   // Model parameters independent of aS
   //double aS; // now retrieved event-by-event (as G) from Fortran (running alphas #373)
   double mdl_WH, mdl_WW, mdl_WZ, mdl_WT, mdl_ymtau, mdl_ymt, mdl_ymb, mdl_Gf, aEWM1, mdl_MH, mdl_MZ, mdl_MTA, mdl_MT, mdl_MB, mdl_conjg__CKM3x3, mdl_conjg__CKM1x1, mdl_CKM3x3, mdl_MZ__exp__2, mdl_MZ__exp__4, mdl_sqrt__2, mdl_MH__exp__2, mdl_aEW, mdl_MW, mdl_sqrt__aEW, mdl_ee, mdl_MW__exp__2, mdl_sw2, mdl_cw, mdl_sqrt__sw2, mdl_sw, mdl_g1, mdl_gw, mdl_vev, mdl_vev__exp__2, mdl_lam, mdl_yb, mdl_yt, mdl_ytau, mdl_muH, mdl_ee__exp__2, mdl_sw__exp__2, mdl_cw__exp__2;
-  std::complex<double> mdl_complexi, mdl_I1x33, mdl_I2x33, mdl_I3x33, mdl_I4x33;
+  mgOnGpu::cxsmpl<double> mdl_complexi, mdl_I1x33, mdl_I2x33, mdl_I3x33, mdl_I4x33;
 
   // Model couplings independent of aS
   // (none)
@@ -36,7 +36,7 @@ public:
   //double mdl_sqrt__aS, G, mdl_G__exp__2; // now computed event-by-event (running alphas #373)
 
   // Model couplings dependent on aS
-  //std::complex<double> GC_10, GC_11, GC_12; // now computed event-by-event (running alphas #373)
+  //mgOnGpu::cxsmpl<double> GC_10, GC_11, GC_12; // now computed event-by-event (running alphas #373)
 
   // Set parameters that are unchanged during the run
   void setIndependentParameters( SLHAReader& slha );
@@ -127,7 +127,7 @@ namespace Parameters_sm // keep the same name rather than HardcodedParameters_sm
   constexpr double mdl_conjg__CKM3x3 = 1.;
   constexpr double mdl_conjg__CKM1x1 = 1.;
   constexpr double mdl_CKM3x3 = 1.;
-  constexpr std::complex<double> mdl_complexi = std::complex<double>( 0., 1. );
+  constexpr mgOnGpu::cxsmpl<double> mdl_complexi = mgOnGpu::cxsmpl<double>( 0., 1. );
   constexpr double mdl_MZ__exp__2 = ( ( mdl_MZ )*( mdl_MZ ) );
   constexpr double mdl_MZ__exp__4 = ( ( mdl_MZ )*( mdl_MZ )*( mdl_MZ )*( mdl_MZ ) );
   constexpr double mdl_sqrt__2 = constexpr_sqrt( 2. );
@@ -150,10 +150,10 @@ namespace Parameters_sm // keep the same name rather than HardcodedParameters_sm
   constexpr double mdl_yt = ( mdl_ymt*mdl_sqrt__2 )/mdl_vev;
   constexpr double mdl_ytau = ( mdl_ymtau*mdl_sqrt__2 )/mdl_vev;
   constexpr double mdl_muH = constexpr_sqrt( mdl_lam*mdl_vev__exp__2 );
-  constexpr std::complex<double> mdl_I1x33 = mdl_yb*mdl_conjg__CKM3x3;
-  constexpr std::complex<double> mdl_I2x33 = mdl_yt*mdl_conjg__CKM3x3;
-  constexpr std::complex<double> mdl_I3x33 = mdl_CKM3x3*mdl_yt;
-  constexpr std::complex<double> mdl_I4x33 = mdl_CKM3x3*mdl_yb;
+  constexpr mgOnGpu::cxsmpl<double> mdl_I1x33 = mdl_yb*mdl_conjg__CKM3x3;
+  constexpr mgOnGpu::cxsmpl<double> mdl_I2x33 = mdl_yt*mdl_conjg__CKM3x3;
+  constexpr mgOnGpu::cxsmpl<double> mdl_I3x33 = mdl_CKM3x3*mdl_yt;
+  constexpr mgOnGpu::cxsmpl<double> mdl_I4x33 = mdl_CKM3x3*mdl_yb;
   constexpr double mdl_ee__exp__2 = ( ( mdl_ee )*( mdl_ee ) );
   constexpr double mdl_sw__exp__2 = ( ( mdl_sw )*( mdl_sw ) );
   constexpr double mdl_cw__exp__2 = ( ( mdl_cw )*( mdl_cw ) );
@@ -167,9 +167,9 @@ namespace Parameters_sm // keep the same name rather than HardcodedParameters_sm
   //constexpr double mdl_G__exp__2 = ( ( G )*( G ) ); // now computed event-by-event (running alphas #373)
 
   // Model couplings dependent on aS
-  //constexpr std::complex<double> GC_10 = -G; // now computed event-by-event (running alphas #373)
-  //constexpr std::complex<double> GC_11 = mdl_complexi*G; // now computed event-by-event (running alphas #373)
-  //constexpr std::complex<double> GC_12 = mdl_complexi*mdl_G__exp__2; // now computed event-by-event (running alphas #373)
+  //constexpr mgOnGpu::cxsmpl<double> GC_10 = -G; // now computed event-by-event (running alphas #373)
+  //constexpr mgOnGpu::cxsmpl<double> GC_11 = mdl_complexi*G; // now computed event-by-event (running alphas #373)
+  //constexpr mgOnGpu::cxsmpl<double> GC_12 = mdl_complexi*mdl_G__exp__2; // now computed event-by-event (running alphas #373)
 
   // Print parameters that are unchanged during the run
   void printIndependentParameters();

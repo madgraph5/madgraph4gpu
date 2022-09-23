@@ -159,7 +159,7 @@ namespace mg5amcGpu
     host_buffer<bool    > m_hstIsGoodHel;
     //device_buffer<short > m_devcHel;
     #ifndef MGONGPU_HARDCODE_PARAM
-    device_buffer<fptype> m_dev_independent_couplings;
+    device_buffer<cxtype> m_dev_independent_couplings;
     device_buffer<fptype> m_dev_independent_parameters;
     #endif
     device_buffer<int   > m_devcNGoodHel; 
