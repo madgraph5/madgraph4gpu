@@ -81,14 +81,17 @@ endif
 ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   NVCC = $(CUDA_HOME)/bin/nvcc
   USE_NVTX ?=-DUSE_NVTX
-  # See https://developer.nvidia.com/cuda-gpus#compute
+  # See https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html
   # See https://arnon.dk/matching-sm-architectures-arch-and-gencode-for-various-nvidia-cards/
-  # Default: build for V100 (compute capability 70): e.g. CERN (lxbatch, itscrd) and Juwels (Cluster)
-  # Embed device code for 70, and PTX for 70+. Export MADGRAPH_CUDA_ARCHITECTURE to override the number.
-  # Other examples: use 80 for A100 (Juwels Booster, NVidia raplab/Curiosity), use 35 for Jetson Nano Maxwell
+  # Default: use compute capability 70 for V100 (CERN lxbatch, CERN itscrd, Juwels Cluster).
+  # Embed device code for 70, and PTX for 70+.
+  # Export MADGRAPH_CUDA_ARCHITECTURE (comma-separated list) to use another value or list of values (see #533).
+  # Examples: use 60 for P100 (Piz Daint), 80 for A100 (Juwels Booster, NVidia raplab/Curiosity).
   MADGRAPH_CUDA_ARCHITECTURE ?= 70
   ###CUARCHFLAGS = -gencode arch=compute_$(MADGRAPH_CUDA_ARCHITECTURE),code=compute_$(MADGRAPH_CUDA_ARCHITECTURE) -gencode arch=compute_$(MADGRAPH_CUDA_ARCHITECTURE),code=sm_$(MADGRAPH_CUDA_ARCHITECTURE) # OLD implementation (AV)
-  CUARCHFLAGS = --gpu-architecture=compute_$(MADGRAPH_CUDA_ARCHITECTURE) --gpu-code=sm_$(MADGRAPH_CUDA_ARCHITECTURE),compute_$(MADGRAPH_CUDA_ARCHITECTURE) # NEW implementation (SH)
+  ###CUARCHFLAGS = --gpu-architecture=compute_$(MADGRAPH_CUDA_ARCHITECTURE) --gpu-code=sm_$(MADGRAPH_CUDA_ARCHITECTURE),compute_$(MADGRAPH_CUDA_ARCHITECTURE) # NEW implementation (SH)
+  comma:=,
+  CUARCHFLAGS = $(foreach arch,$(subst $(comma), ,$(MADGRAPH_CUDA_ARCHITECTURE)),--gpu-architecture=compute_$(arch) --gpu-code=sm_$(arch),compute_$(arch))
   CUINC       = -I$(CUDA_HOME)/include/
   CULIBFLAGS  = -L$(CUDA_HOME)/lib64/ -lcurand # NB: -lcuda is not needed here!
   CUOPTFLAGS  = -lineinfo
