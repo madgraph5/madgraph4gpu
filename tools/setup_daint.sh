@@ -1,11 +1,13 @@
 module purge
 
 module use /apps/daint/UES/hackaton/modules/all
-module load gcc
+module load gcc/11.2.0
 module load CUDAcore/11.7.1
 
+export CC=$(which gcc)
 export CXX=$(which g++)
 export NVCC=$(which nvcc)
+echo "Using CC=${CC}"
 echo "Using CXX=${CXX}"
 echo "Using NVCC=${NVCC}"
 
