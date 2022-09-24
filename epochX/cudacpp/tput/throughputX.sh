@@ -581,12 +581,14 @@ for exe in $exes; do
     exeArgs2="-p 2048 256 1"
   elif [ "${exe%%/gg_ttg*}" != "${exe}" ]; then 
     # For ggttg, as on ggttgg: this is a good GPU middle point: tput is 1.5x lower with "32 256 1", only a few% higher with "128 256 1"
-    exeArgs="-p 64 256 1"
+    ###exeArgs="-p 64 256 1" # too short! see https://its.cern.ch/jira/browse/BMK-1056
+    exeArgs="-p 64 256 10"
     ncuArgs="-p 64 256 1"
     # For ggttg, as on ggttgg: on GPU test both "64 256" and "2048 256" for ggttg as the latter gives ~10% higher throughput on cuda110/gcc92
     exeArgs2="-p 2048 256 1"
   elif [ "${exe%%/gg_tt*}" != "${exe}" ]; then 
-    exeArgs="-p 2048 256 1"
+    ###exeArgs="-p 2048 256 1" # too short! see https://its.cern.ch/jira/browse/BMK-1056
+    exeArgs="-p 2048 256 2"
     ncuArgs="-p 2048 256 1"
   else # eemumu
     exeArgs="-p 2048 256 12"
