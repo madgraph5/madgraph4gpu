@@ -569,7 +569,8 @@ for exe in $exes; do
     ncuArgs="-p 1 8 1"
   elif [ "${exe%%/gg_ttggg*}" != "${exe}" ]; then 
     # For ggttggg: this is far too little for GPU (4.8E2), but it keeps the CPU to a manageble level (1sec with 512y)
-    exeArgs="-p 1 256 1"
+    ###exeArgs="-p 1 256 1" # too short! see https://its.cern.ch/jira/browse/BMK-1056
+    exeArgs="-p 1 256 2"
     ncuArgs="-p 1 256 1"
     # For ggttggg: on GPU test also "64 256" to reach the plateau (only ~5% lower than "2048 256": 1.18E4 vs 1.25E4 on cuda116/gcc102)
     exeArgs2="-p 64 256 1"
