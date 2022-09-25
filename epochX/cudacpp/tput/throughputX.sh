@@ -426,7 +426,7 @@ function runExe() {
   pattern="${pattern}|EvtsPerSec\[Matrix" # TEMPORARY! OLD C++/CUDA CODE
   if [ "${ab3}" == "1" ]; then pattern="${pattern}|3a|3b"; fi
   if [ "${req}" == "1" ]; then pattern="${pattern}|memory layout"; fi
-  if perf --version >& /dev/null; then
+  if perf stat -d date >& /dev/null; then # perf exists and CAP_SYS_ADMIN allows users to use it
     # -- Newer version using perf stat
     pattern="${pattern}|instructions|cycles"
     pattern="${pattern}|elapsed"
