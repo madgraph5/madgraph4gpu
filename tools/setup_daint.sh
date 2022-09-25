@@ -18,6 +18,7 @@ export FC=$(which gfortran)
 echo "Using FC=${FC}"
 
 if [ "$USER" == "hck03" ]; then # AV
+  module load singularity
   export PATH=~/ccache/bin:$PATH
   export USECCACHE=1
   export CCACHE_DIR=~/ccache/CCACHE_DIR
