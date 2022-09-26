@@ -330,35 +330,4 @@ namespace mg5amcCpu
   // Evaluate |M|^2, part independent of incoming flavour
   // FIXME: assume process.nprocesses == 1 (eventually: allMEs[nevt] -> allMEs[nevt*nprocesses]?)
 
-  __global__ void /* clang-format off */
-  sigmaKin( const fptype* allmomenta,      // input: momenta[nevt*npar*4]
-            const fptype* allcouplings,    // input: couplings[nevt*ndcoup*2]
-            fptype* allMEs                 // output: allMEs[nevt], |M|^2 final_avg_over_helicities
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-            , fptype* allNumerators        // output: multichannel numerators[nevt], running_sum_over_helicities
-            , fptype* allDenominators      // output: multichannel denominators[nevt], running_sum_over_helicities
-            , const unsigned int channelId // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
-#endif
-#ifndef __CUDACC__
-            , const int nevt               // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
-#endif
-            ) /* clang-format on */
-  {
-    mgDebugInitialise();
 
-    // Denominators: spins, colors and identical particles
-    constexpr int nprocesses = %(nproc)i;
-    static_assert( nprocesses == 1, "Assume nprocesses == 1" ); // FIXME (#343): assume nprocesses == 1
-    constexpr int denominators[%(nproc)i] = { %(den_factors)s };
-
-#ifdef __CUDACC__
-    // Remember: in CUDA this is a kernel for one event, in c++ this processes n events
-    const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
-#else
-    //assert( (size_t)(allmomenta) %% mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
-    //assert( (size_t)(allMEs) %% mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
-#endif
-
-    // Start sigmaKin_lines
-%(sigmaKin_lines)s
-} // end namespace

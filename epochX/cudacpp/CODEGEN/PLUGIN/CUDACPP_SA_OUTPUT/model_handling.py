@@ -1063,6 +1063,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     # AV - modify export_cpp.OneProcessExporterGPU method (fix gCPPProcess.cu)
     def get_all_sigmaKin_lines(self, color_amplitudes, class_name):
         """Get sigmaKin_process for all subprocesses for gCPPProcess.cu"""
+
         ret_lines = []
         if self.single_helicities:
             ###assert self.include_multi_channel # remove this assert: must handle both cases and produce two different code bases (#473)
@@ -1070,7 +1071,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
   // Evaluate |M|^2 for each subprocess
   // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
   // (similarly, it also ADDS the numerator and denominator for a given ihel to their running sums over helicities)
-  __device__ INLINE void /* clang-format off */
+  __global__ INLINE void /* clang-format off */
   calculate_wavefunctions( int ihel,
                            const fptype* allmomenta,      // input: momenta[nevt*npar*4]
                            const fptype* allcouplings,    // input: couplings[nevt*ndcoup*2]
@@ -1211,6 +1212,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         self.edit_testxxx() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
         self.edit_memorybuffers() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
         self.edit_memoryaccesscouplings() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
+        self.edit_matrixelementkernel() # OM new file (was previously a generic file: --now include SigmaKin--)
         # Add symbolic links
         files.ln(pjoin(self.path, 'check_sa.cc'), self.path, 'gcheck_sa.cu')
         files.ln(pjoin(self.path, 'CPPProcess.cc'), self.path, 'gCPPProcess.cu')
@@ -1300,6 +1302,26 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         replace_dict = {}
         replace_dict['model_name'] = self.model_name
         ff = open(pjoin(self.path, '..', 'MemoryBuffers.h'),'w')
+        ff.write(template % replace_dict)
+        ff.close()
+
+    # OM - new method
+    def edit_matrixelementkernel(self):
+        """generate MatrixElementKernel.cc"""
+        misc.sprint('Entering PLUGIN_OneProcessExporter.edit_matrixelementkernel')
+        template = open(pjoin(self.template_path,'gpu','MatrixElementKernels.cc'),'r').read()
+
+        color_amplitudes = [me.get_color_amplitudes() for me in \
+                                self.matrix_elements]
+
+        replace_dict = {}
+        # = self.get_sigmaKin_lines( color_amplitudes ,write=False)
+        replace_dict['sigmaKin_lines'], other_dict = \
+                                     self.get_sigmaKin_lines(color_amplitudes)
+        replace_dict.update(other_dict)                                     
+        misc.sprint(replace_dict)
+        misc.sprint(other_dict)
+        ff = open(pjoin(self.path, '..', 'MatrixElementKernels.cc'),'w')
         ff.write(template % replace_dict)
         ff.close()
 

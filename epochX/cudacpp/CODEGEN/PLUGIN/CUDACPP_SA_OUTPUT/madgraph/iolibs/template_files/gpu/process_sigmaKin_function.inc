@@ -8,13 +8,7 @@
     allDenominators[ievt] = 0;
 #endif
 #else
-    const int npagV = nevt / neppV;
-    for( int ipagV = 0; ipagV < npagV; ++ipagV )
-    {
-      for( int ieppV = 0; ieppV < neppV; ieppV++ )
-      {
-        const unsigned int ievt = ipagV * neppV + ieppV;
-        allMEs[ievt] = 0;
+    cudaMemSet(allMEs, 0, nevt*sizeof(fptype);
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
         allNumerators[ievt] = 0;
         allDenominators[ievt] = 0;
@@ -22,6 +16,10 @@
       }
     }
 #endif
+
+      int* d_ihel;      
+      cudaMalloc(&d_ihel, sizeof(int));
+
 
     // PART 1 - HELICITY LOOP: CALCULATE WAVEFUNCTIONS
     // (in both CUDA and C++, using precomputed good helicities)
@@ -39,11 +37,15 @@
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, allNumerators, allDenominators, channelId, nevt );
 #else
-      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, nevt );
+      cudaMemSet(d_ihel, ihel, sizeof(int));
+      calculate_wavefunctions<<<<m_gpublocks, m_gputhreads>>>( d_ihel, allmomenta, allcouplings, allMEs, nevt );
 #endif
 #endif
       //if ( ighel == 0 ) break; // TEST sectors/requests (issue #16)
     }
+
+// TODO-OM: See how to handle the renormalization here...
+// Dedicated kernel or move it within each calculate_wavefunctions? 
 
     // PART 2 - FINALISATION (after calculate_wavefunctions)
     // Get the final |M|^2 as an average over helicities/colors of the running sum of |M|^2 over helicities for the given event
@@ -69,6 +71,7 @@
       }
     }
 #endif
+    cudaFree(d_ihel);
     mgDebugFinalise();
   }
 

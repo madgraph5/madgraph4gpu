@@ -34,7 +34,7 @@ namespace mg5amcCpu
     // Sanity checks for memory access (momenta buffer)
     constexpr int neppM = MemoryAccessMomenta::neppM; // AOSOA layout
     static_assert( ispoweroftwo( neppM ), "neppM is not a power of 2" );
-    if( nevt % neppM != 0 )
+    if( nevt %% neppM != 0 )
     {
       std::ostringstream sstr;
       sstr << "MatrixElementKernelHost: nevt should be a multiple of neppM=" << neppM;
@@ -77,6 +77,29 @@ namespace mg5amcCpu
 #endif
   }
 
+  void /* clang-format off */
+  MatrixElementKernelHost::sigmaKin( const fptype* allmomenta,      // input: momenta[nevt*npar*4]
+            const fptype* allcouplings,    // input: couplings[nevt*ndcoup*2]
+            fptype* allMEs                 // output: allMEs[nevt], |M|^2 final_avg_over_helicities
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+            , fptype* allNumerators        // output: multichannel numerators[nevt], running_sum_over_helicities
+            , fptype* allDenominators      // output: multichannel denominators[nevt], running_sum_over_helicities
+            , const unsigned int channelId // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
+#endif
+#ifndef __CUDACC__
+            , const int nevt               // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+#endif
+) /* clang-format on */
+  {
+    mgDebugInitialise();
+
+    // Denominators: spins, colors and identical particles
+    constexpr int nprocesses = %(nproc)i;
+    static_assert( nprocesses == 1, "Assume nprocesses == 1" ); // FIXME (#343): assume nprocesses == 1
+    constexpr int denominators[%(nproc)i] = { %(den_factors)s };
+
+    // Start sigmaKin_lines
+%(sigmaKin_lines)s
   //--------------------------------------------------------------------------
 
   // Does this host system support the SIMD used in the matrix element calculation?
@@ -164,7 +187,7 @@ namespace mg5amcGpu
     // Sanity checks for memory access (momenta buffer)
     constexpr int neppM = MemoryAccessMomenta::neppM; // AOSOA layout
     static_assert( ispoweroftwo( neppM ), "neppM is not a power of 2" );
-    if( m_gputhreads % neppM != 0 )
+    if( m_gputhreads %% neppM != 0 )
     {
       std::ostringstream sstr;
       sstr << "MatrixElementKernelHost: gputhreads should be a multiple of neppM=" << neppM;
@@ -209,19 +232,19 @@ namespace mg5amcGpu
     computeDependentCouplings<<<m_gpublocks, m_gputhreads>>>( m_gs.data(), m_couplings.data() );
 #ifndef MGONGPU_NSIGHT_DEBUG
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    sigmaKin<<<m_gpublocks, m_gputhreads>>>( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), m_numerators.data(), m_denominators.data(), channelId );
+    sigmaKin( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), m_numerators.data(), m_denominators.data(), channelId );
 #else
-    sigmaKin<<<m_gpublocks, m_gputhreads>>>( m_momenta.data(), m_couplings.data(), m_matrixElements.data() );
+    sigmaKin( m_momenta.data(), m_couplings.data(), m_matrixElements.data() );
 #endif
 #else
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    sigmaKin<<<m_gpublocks, m_gputhreads, ntpbMAX * sizeof( float )>>>( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), m_numerators.data(), m_denominators.data(), channelId );
+    sigmaKin( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), m_numerators.data(), m_denominators.data(), channelId );
 #else
-    sigmaKin<<<m_gpublocks, m_gputhreads, ntpbMAX * sizeof( float )>>>( m_momenta.data(), m_couplings.data(), m_matrixElements.data() );
+    sigmaKin( m_momenta.data(), m_couplings.data(), m_matrixElements.data() );
 #endif
 #endif
-    checkCuda( cudaPeekAtLastError() );
-    checkCuda( cudaDeviceSynchronize() );
+    //    checkCuda( cudaPeekAtLastError() );
+    //checkCuda( cudaDeviceSynchronize() );
   }
 
   //--------------------------------------------------------------------------
