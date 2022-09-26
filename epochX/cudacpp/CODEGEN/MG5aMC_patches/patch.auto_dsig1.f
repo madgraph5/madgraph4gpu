@@ -1,5 +1,5 @@
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
-index 1734289bf..876010e27 100644
+index 1734289b..876010e2 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
 @@ -76,13 +76,13 @@ C     Keep track of whether cuts already calculated for this event

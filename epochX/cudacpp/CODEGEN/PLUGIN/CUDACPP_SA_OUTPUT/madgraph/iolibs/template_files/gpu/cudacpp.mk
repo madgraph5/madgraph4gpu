@@ -8,7 +8,7 @@ CUDACPP_SRC_MAKEFILE = cudacpp_src.mk
 
 #=== Use bash in the Makefile (https://www.gnu.org/software/make/manual/html_node/Choosing-the-Shell.html)
 
-SHELL = /bin/bash
+SHELL := /bin/bash
 
 #-------------------------------------------------------------------------------
 
@@ -48,7 +48,9 @@ GTESTLIBS   = $(GTESTLIBDIR)/libgtest.a $(GTESTLIBDIR)/libgtest_main.a
 #=== Configure the C++ compiler
 
 CXXFLAGS = $(OPTFLAGS) -std=c++17 $(INCFLAGS) $(USE_NVTX) -Wall -Wshadow -Wextra
+ifeq ($(shell $(CXX) --version | grep ^nvc++),)
 CXXFLAGS+= -ffast-math # see issue #117
+endif
 ###CXXFLAGS+= -Ofast # performance is not different from --fast-math
 ###CXXFLAGS+= -g # FOR DEBUGGING ONLY
 
@@ -79,17 +81,17 @@ endif
 ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   NVCC = $(CUDA_HOME)/bin/nvcc
   USE_NVTX ?=-DUSE_NVTX
-  # Default: build for V100 (compute capability 70): e.g. CERN (lxbatch, itscrd) and Juwels (Cluster)
-  # See https://developer.nvidia.com/cuda-gpus#compute (other examples: Jetson Nano Maxwell has compute capability 35)
+  # See https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html
   # See https://arnon.dk/matching-sm-architectures-arch-and-gencode-for-various-nvidia-cards/
-  CUARCHFLAGS = -gencode arch=compute_70,code=compute_70
-  CUARCHFLAGS += -gencode arch=compute_70,code=sm_70
-  # (FIXME?) At Juwels: build only for A100 (compute capability 80) for Juwels (Booster)
-  # See https://docs.nvidia.com/cuda/ampere-compatibility-guide/index.html#building-applications-with-ampere-support
-  ifneq ($(shell hostname | grep juwels),)
-    CUARCHFLAGS = -gencode arch=compute_80,code=compute_80 # Use += to build both 70 and 80 (e.g. Juwels Cluster and Booster)
-    CUARCHFLAGS += -gencode arch=compute_80,code=sm_80
-  endif
+  # Default: use compute capability 70 for V100 (CERN lxbatch, CERN itscrd, Juwels Cluster).
+  # Embed device code for 70, and PTX for 70+.
+  # Export MADGRAPH_CUDA_ARCHITECTURE (comma-separated list) to use another value or list of values (see #533).
+  # Examples: use 60 for P100 (Piz Daint), 80 for A100 (Juwels Booster, NVidia raplab/Curiosity).
+  MADGRAPH_CUDA_ARCHITECTURE ?= 70
+  ###CUARCHFLAGS = -gencode arch=compute_$(MADGRAPH_CUDA_ARCHITECTURE),code=compute_$(MADGRAPH_CUDA_ARCHITECTURE) -gencode arch=compute_$(MADGRAPH_CUDA_ARCHITECTURE),code=sm_$(MADGRAPH_CUDA_ARCHITECTURE) # Older implementation (AV): go back to this one for multi-GPU support #533
+  ###CUARCHFLAGS = --gpu-architecture=compute_$(MADGRAPH_CUDA_ARCHITECTURE) --gpu-code=sm_$(MADGRAPH_CUDA_ARCHITECTURE),compute_$(MADGRAPH_CUDA_ARCHITECTURE) # Newer implementation (SH): cannot use this as-is for multi-GPU support #533
+  comma:=,
+  CUARCHFLAGS = $(foreach arch,$(subst $(comma), ,$(MADGRAPH_CUDA_ARCHITECTURE)),-gencode arch=compute_$(arch),code=compute_$(arch) -gencode arch=compute_$(arch),code=sm_$(arch))
   CUINC       = -I$(CUDA_HOME)/include/
   CULIBFLAGS  = -L$(CUDA_HOME)/lib64/ -lcurand # NB: -lcuda is not needed here!
   CUOPTFLAGS  = -lineinfo
@@ -253,6 +255,20 @@ else ifeq ($(UNAME_P),arm)
   else ifneq ($(AVX),none)
     $(error Unknown AVX='$(AVX)': only 'none' and 'sse4' are supported on ARM for the moment)
   endif
+else ifneq ($(shell $(CXX) --version | grep ^nvc++),) # support nvc++ #531
+  ifeq ($(AVX),none)
+    override AVXFLAGS = -mno-sse3 # no SIMD
+  else ifeq ($(AVX),sse4)
+    override AVXFLAGS = -mno-avx # SSE4.2 with 128 width (xmm registers)
+  else ifeq ($(AVX),avx2)
+    override AVXFLAGS = -march=haswell # AVX2 with 256 width (ymm registers) [DEFAULT for clang]
+  else ifeq ($(AVX),512y)
+    override AVXFLAGS = -march=skylake -mprefer-vector-width=256 # AVX512 with 256 width (ymm registers) [DEFAULT for gcc]
+  else ifeq ($(AVX),512z)
+    override AVXFLAGS = -march=skylake -DMGONGPU_PVW512 # AVX512 with 512 width (zmm registers)
+  else
+    $(error Unknown AVX='$(AVX)': only 'none', 'sse4', 'avx2', '512y' and '512z' are supported)
+  endif
 else
   ifeq ($(AVX),sse4)
     override AVXFLAGS = -march=nehalem # SSE4.2 with 128 width (xmm registers)
@@ -335,14 +351,20 @@ endif
 ###$(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG))
 
 # On Linux, set rpath to LIBDIR to make it unnecessary to use LD_LIBRARY_PATH
-# Use relative paths with respect to the executables ($ORIGIN on Linux)
+# Use relative paths with respect to the executables or shared libraries ($ORIGIN on Linux)
 # On Darwin, building libraries with absolute paths in LIBDIR makes this unnecessary
 ifeq ($(UNAME_S),Darwin)
   override CXXLIBFLAGSRPATH =
   override CULIBFLAGSRPATH =
+  override CXXLIBFLAGSRPATH2 =
+  override CULIBFLAGSRPATH2 =
 else
+  # RPATH to cuda/cpp libs when linking executables
   override CXXLIBFLAGSRPATH = -Wl,-rpath,$(LIBDIRRPATH)
   override CULIBFLAGSRPATH = -Xlinker -rpath,$(LIBDIRRPATH)
+  # RPATH to common lib when linking cuda/cpp libs
+  override CXXLIBFLAGSRPATH2 = -Wl,-rpath,'$$ORIGIN'
+  override CULIBFLAGSRPATH2 = -Xlinker -rpath,'$$ORIGIN'
 endif
 
 # Setting LD_LIBRARY_PATH or DYLD_LIBRARY_PATH in the RUNTIME is no longer necessary (neither on Linux nor on Mac)
@@ -398,10 +420,12 @@ $(BUILDDIR)/%%.o : %%.cc *.h ../../src/*.h
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CUINC) -fPIC -c $< -o $@
 
 # Apply special build flags only to CrossSectionKernel.cc and gCrossSectionKernel.cu (no fast math, see #117)
+ifeq ($(shell $(CXX) --version | grep ^nvc++),)
 $(BUILDDIR)/CrossSectionKernels.o: CXXFLAGS += -fno-fast-math
 $(BUILDDIR)/CrossSectionKernels.o: CXXFLAGS += -fno-fast-math
 ifneq ($(NVCC),)
 $(BUILDDIR)/gCrossSectionKernels.o: CUFLAGS += -Xcompiler -fno-fast-math
+endif
 endif
 
 # Avoid clang warning "overriding '-ffp-contract=fast' option with '-ffp-contract=on'" (#516)
@@ -446,13 +470,13 @@ endif
 $(LIBDIR)/lib$(MG5AMC_CXXLIB).so: $(BUILDDIR)/fbridge.o
 $(LIBDIR)/lib$(MG5AMC_CXXLIB).so: cxx_objects_lib += $(BUILDDIR)/fbridge.o
 $(LIBDIR)/lib$(MG5AMC_CXXLIB).so: $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects_lib)
-	$(CXX) -shared -o $@ $(cxx_objects_lib) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
+	$(CXX) -shared -o $@ $(cxx_objects_lib) $(CXXLIBFLAGSRPATH2) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
 
 ifneq ($(NVCC),)
 $(LIBDIR)/lib$(MG5AMC_CULIB).so: $(BUILDDIR)/fbridge_cu.o
 $(LIBDIR)/lib$(MG5AMC_CULIB).so: cu_objects_lib += $(BUILDDIR)/fbridge_cu.o
 $(LIBDIR)/lib$(MG5AMC_CULIB).so: $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cu_objects_lib)
-	$(NVCC) --shared -o $@ $(cu_objects_lib) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
+	$(NVCC) --shared -o $@ $(cu_objects_lib) $(CULIBFLAGSRPATH2) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
 endif
 
 #-------------------------------------------------------------------------------
@@ -467,16 +491,18 @@ endif
 # Target (and build rules): C++ and CUDA standalone executables
 $(cxx_main): LIBFLAGS += $(CXXLIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(cxx_main): $(BUILDDIR)/check_sa.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).so $(cxx_objects_exe)
-	$(CXX) -o $@ $(BUILDDIR)/check_sa.o $(OMPFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CXXLIB) $(cxx_objects_exe)
+	$(CXX) -o $@ $(BUILDDIR)/check_sa.o $(OMPFLAGS) -ldl -pthread $(LIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CXXLIB) $(cxx_objects_exe) $(CULIBFLAGS)
 
 ifneq ($(NVCC),)
 ifneq ($(shell $(CXX) --version | grep ^Intel),)
 $(cu_main): LIBFLAGS += -lintlc # compile with icpx and link with nvcc (undefined reference to `_intel_fast_memcpy')
 $(cu_main): LIBFLAGS += -lsvml # compile with icpx and link with nvcc (undefined reference to `__svml_cos4_l9')
+else ifneq ($(shell $(CXX) --version | grep ^nvc++),) # support nvc++ #531
+$(cu_main): LIBFLAGS += -L$(patsubst %%bin/nvc++,%%lib,$(subst ccache ,,$(CXX))) -lnvhpcatm -lnvcpumath -lnvc
 endif
 $(cu_main): LIBFLAGS += $(CULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(cu_main): $(BUILDDIR)/gcheck_sa.o $(LIBDIR)/lib$(MG5AMC_CULIB).so $(cu_objects_exe)
-	$(NVCC) -o $@ $(BUILDDIR)/gcheck_sa.o $(CUARCHFLAGS) $(LIBFLAGS) $(CULIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CULIB) $(cu_objects_exe)
+	$(NVCC) -o $@ $(BUILDDIR)/gcheck_sa.o $(CUARCHFLAGS) $(LIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CULIB) $(cu_objects_exe) $(CULIBFLAGS)
 endif
 
 #-------------------------------------------------------------------------------
@@ -500,7 +526,7 @@ $(fcxx_main): LIBFLAGS += -L$(shell dirname $(shell $(FC) --print-file-name libg
 endif
 $(fcxx_main): LIBFLAGS += $(CXXLIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(fcxx_main): $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).so $(cxx_objects_exe)
-	$(CXX) -o $@ $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler.o $(LIBFLAGS) $(CULIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_CXXLIB) $(cxx_objects_exe)
+	$(CXX) -o $@ $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler.o $(LIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_CXXLIB) $(cxx_objects_exe) $(CULIBFLAGS)
 
 ifneq ($(NVCC),)
 ifneq ($(shell $(CXX) --version | grep ^Intel),)
@@ -512,7 +538,7 @@ $(fcu_main): LIBFLAGS += -L$(shell dirname $(shell $(FC) --print-file-name libgf
 endif
 $(fcu_main): LIBFLAGS += $(CULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(fcu_main): $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler_cu.o $(LIBDIR)/lib$(MG5AMC_CULIB).so $(cu_objects_exe)
-	$(NVCC) -o $@ $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler_cu.o $(LIBFLAGS) $(CULIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_CULIB) $(cu_objects_exe)
+	$(NVCC) -o $@ $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler_cu.o $(LIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_CULIB) $(cu_objects_exe) $(CULIBFLAGS)
 endif
 
 #-------------------------------------------------------------------------------
@@ -555,6 +581,8 @@ $(BUILDDIR)/runTest_cu.o: INCFLAGS += -I$(TESTDIR)/googletest/googletest/include
 ifneq ($(shell $(CXX) --version | grep ^Intel),)
 $(testmain): LIBFLAGS += -lintlc # compile with icpx and link with nvcc (undefined reference to `_intel_fast_memcpy')
 $(testmain): LIBFLAGS += -lsvml # compile with icpx and link with nvcc (undefined reference to `__svml_cos4_l9')
+else ifneq ($(shell $(CXX) --version | grep ^nvc++),) # support nvc++ #531
+$(testmain): LIBFLAGS += -L$(patsubst %%bin/nvc++,%%lib,$(subst ccache ,,$(CXX))) -lnvhpcatm -lnvcpumath -lnvc
 endif
 $(testmain): $(BUILDDIR)/runTest_cu.o
 $(testmain): cu_objects_exe  += $(BUILDDIR)/runTest_cu.o
@@ -574,7 +602,7 @@ $(testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects_lib) $(cxx_object
 else # link both runTest.o and runTest_cu.o
 $(testmain): LIBFLAGS += $(CULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects_lib) $(cxx_objects_exe) $(cu_objects_lib) $(cu_objects_exe) $(GTESTLIBS)
-	$(NVCC) -o $@ $(cxx_objects_lib) $(cxx_objects_exe) $(cu_objects_lib) $(cu_objects_exe) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp
+	$(NVCC) -o $@ $(cxx_objects_lib) $(cxx_objects_exe) $(cu_objects_lib) $(cu_objects_exe) -ldl $(LIBFLAGS) -lcuda -lgomp $(CULIBFLAGS)
 endif
 
 # Use flock (Linux only, no Mac) to allow 'make -j' if googletest has not yet been downloaded https://stackoverflow.com/a/32666215
