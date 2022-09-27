@@ -153,7 +153,17 @@ namespace mg5amcCpu
 
     // Local variables for the given CUDA event (ievt) or C++ event page (ipagV)
     // [jamp: sum (for one event or event page) of the invariant amplitudes for all Feynman diagrams in a given color combination]
+#ifdef __CUDACC__
+    extern __shared__ cxtype_sv jamp_sv_shared[];
+    struct JAccess {
+      __device__ cxtype_sv & operator[]( unsigned int i ) {
+        return jamp_sv_shared[i * blockDim.x + threadIdx.x];
+      }
+    } jamp_sv;
+    for (unsigned int i = 0; i < ncolor; ++i) jamp_sv[i] = 0;
+#else
     cxtype_sv jamp_sv[ncolor] = {}; // all zeros (NB: vector cxtype_v IS initialized to 0, but scalar cxype is NOT, if "= {}" is missing!)
+#endif
 
     // === Calculate wavefunctions and amplitudes for all diagrams in all processes - Loop over nevt events ===
 #ifndef __CUDACC__
