@@ -77,34 +77,8 @@ namespace mg5amcCpu
     // Compute matrix elements
     void computeMatrixElements( const unsigned int channelId ) override final;
 
-    //SigmaKin function
-#ifdef __CUDACC__ /* clang-format off */
-  void
-  sigmaKin( const fptype* allmomenta,       // input: momenta[nevt*npar*4]
-            const fptype* allcouplings,     // input: couplings[nevt*ndcoup*2]
-            fptype* allMEs                  // output: allMEs[nevt], |M|^2 final_avg_over_helicities
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-            , fptype* allNumerators         // output: multichannel numerators[nevt], running_sum_over_helicities
-            , fptype* allDenominators       // output: multichannel denominators[nevt], running_sum_over_helicities
-            , const unsigned int channelId  // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
-#endif
-            );
-#else
-  void
-  sigmaKin( const fptype* allmomenta,     // input: momenta[nevt*npar*4]
-            const fptype* allcouplings,   // input: couplings[nevt*ndcoup*2]
-            fptype* allMEs,               // output: allMEs[nevt], |M|^2 final_avg_over_helicities
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-            fptype* allNumerators,        // output: multichannel numerators[nevt], running_sum_over_helicities
-            fptype* allDenominators,      // output: multichannel denominators[nevt], running_sum_over_helicities
-            const unsigned int channelId, // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
-#endif
-            const int nevt );             // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
-#endif /* clang-format on */
+    //--------------------------------------------------------------------------
 
-  //--------------------------------------------------------------------------
-
-    
     // Is this a host or device kernel?
     bool isOnDevice() const override final { return false; }
 
