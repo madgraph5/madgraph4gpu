@@ -33,4 +33,15 @@
 //#define MGONGPU_TEST_DIVERGENCE 1
 
 %(process_function_definitions)s
+
+
+   __global__ normalise_output(fptype* allMEs, const fptype* allNumetators, cont fptype* allDenominators){
+
+	    const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread)
+            const int globadenom = %(den_factors)s;
+            //todo get ievt;
+            allME[ievt] = allME[ievt] * allNumerators[ievt]/(allDenominators[ievt]*globaldenom);
+            return
+}
+
 //==========================================================================
