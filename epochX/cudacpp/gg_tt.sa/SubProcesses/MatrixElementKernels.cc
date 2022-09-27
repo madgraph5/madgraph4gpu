@@ -212,8 +212,8 @@ namespace mg5amcGpu
 #else
     sigmaKin( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), m_gpublocks, m_gputhreads );
 #endif
-    //checkCuda( cudaPeekAtLastError() );
-    //checkCuda( cudaDeviceSynchronize() );
+    checkCuda( cudaPeekAtLastError() );
+    checkCuda( cudaDeviceSynchronize() );
   }
 
   //--------------------------------------------------------------------------
