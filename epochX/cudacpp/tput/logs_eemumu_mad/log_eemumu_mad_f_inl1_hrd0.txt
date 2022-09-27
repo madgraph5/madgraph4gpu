@@ -18,25 +18,43 @@ make: Nothing to be done for 'all'.
 CUDACPP_BUILDDIR='build.512z_f_inl1_hrd0'
 make: Nothing to be done for 'all'.
 
-DATE: 2022-09-25_12:33:20
+DATE: 2022-09-25_20:49:53
 
-On rl-cpu-r82-u02 [CPU: AMD EPYC 7402P 24-Core Processor] [GPU: none]:
+On dgx03 [CPU: AMD EPYC 7742 64-Core Processor] [GPU: 1x NVIDIA A100-SXM4-80GB]:
 =========================================================================
+runExe /home/p6asv6bp/madgraph4gpu/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.none_f_inl1_hrd0/gcheck.exe -p 2048 256 12 OMP=
+Process                     = SIGMA_SM_EPEM_MUPMUM_CUDA [nvcc 11.6.112 (gcc 9.4.0)] [inlineHel=1] [hardcodePARAM=0]
+Workflow summary            = CUD:FLT+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
+FP precision                = FLOAT (NaN/abnormal=2, zero=0)
+EvtsPerSec[Rmb+ME]     (23) = ( 2.889518e+08                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 2.500285e+09                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 4.559185e+09                 )  sec^-1
+MeanMatrixElemValue         = ( 1.371686e-02 +- 3.270219e-06 )  GeV^0
+TOTAL       :     0.258741 sec
+==PROF== Profiling "sigmaKin": launch__registers_per_thread 64
+==PROF== Profiling "sigmaKin": sm__sass_average_branch_targets_threads_uniform.pct 100%
+-------------------------------------------------------------------------
+cmpExe /home/p6asv6bp/madgraph4gpu/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.none_f_inl1_hrd0/gcheck.exe --common -p 2 64 2
+cmpExe /home/p6asv6bp/madgraph4gpu/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.none_f_inl1_hrd0/fgcheck.exe 2 64 2
+Avg ME (C++/CUDA)   = 1.282802e-02
+Avg ME (F77/CUDA)   = 1.2828112056013197E-002
+Relative difference = 7.17616695296431e-06
+OK (relative difference <= 2E-4)
 =========================================================================
 runExe /home/p6asv6bp/madgraph4gpu/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.none_f_inl1_hrd0/check.exe -p 2048 256 12 OMP=
 Process                     = SIGMA_SM_EPEM_MUPMUM_CPP [gcc 9.4.0] [inlineHel=1] [hardcodePARAM=0]
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+MESHST/none+NAVBRK
 FP precision                = FLOAT (NaN/abnormal=6, zero=0)
 Internal loops fptype_sv    = SCALAR ('none': ~vector[1], no SIMD)
-EvtsPerSec[Rmb+ME]     (23) = ( 2.574432e+06                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 4.576095e+06                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 4.576095e+06                 )  sec^-1
+EvtsPerSec[Rmb+ME]     (23) = ( 3.809965e+06                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 6.768312e+06                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 6.768312e+06                 )  sec^-1
 MeanMatrixElemValue         = ( 1.371706e-02 +- 3.270373e-06 )  GeV^0
-TOTAL       :     2.900183 sec
+TOTAL       :     1.955966 sec
 =Symbols in CPPProcess.o= (~sse4:  116) (avx2:    0) (512y:    0) (512z:    0)
 -------------------------------------------------------------------------
 runExe /home/p6asv6bp/madgraph4gpu/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.none_f_inl1_hrd0/runTest.exe
-runTest.exe: CudaRuntime.h:19: void assertCuda(cudaError_t, const char*, int, bool): Assertion `code == cudaSuccess' failed.
+[  PASSED  ] 6 tests.
 -------------------------------------------------------------------------
 cmpExe /home/p6asv6bp/madgraph4gpu/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.none_f_inl1_hrd0/check.exe --common -p 2 64 2
 cmpExe /home/p6asv6bp/madgraph4gpu/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.none_f_inl1_hrd0/fcheck.exe 2 64 2
@@ -50,15 +68,15 @@ Process                     = SIGMA_SM_EPEM_MUPMUM_CPP [gcc 9.4.0] [inlineHel=1]
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+MESHST/sse4+CXVBRK
 FP precision                = FLOAT (NaN/abnormal=6, zero=0)
 Internal loops fptype_sv    = VECTOR[4] ('sse4': SSE4.2, 128bit) [cxtype_ref=YES]
-EvtsPerSec[Rmb+ME]     (23) = ( 3.508383e+06                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 1.091882e+07                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 1.091882e+07                 )  sec^-1
+EvtsPerSec[Rmb+ME]     (23) = ( 5.981120e+06                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 1.841121e+07                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.841121e+07                 )  sec^-1
 MeanMatrixElemValue         = ( 1.371707e-02 +- 3.270374e-06 )  GeV^0
-TOTAL       :     2.299345 sec
+TOTAL       :     1.337627 sec
 =Symbols in CPPProcess.o= (~sse4:  683) (avx2:    0) (512y:    0) (512z:    0)
 -------------------------------------------------------------------------
 runExe /home/p6asv6bp/madgraph4gpu/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.sse4_f_inl1_hrd0/runTest.exe
-runTest.exe: CudaRuntime.h:19: void assertCuda(cudaError_t, const char*, int, bool): Assertion `code == cudaSuccess' failed.
+[  PASSED  ] 6 tests.
 -------------------------------------------------------------------------
 cmpExe /home/p6asv6bp/madgraph4gpu/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.sse4_f_inl1_hrd0/check.exe --common -p 2 64 2
 cmpExe /home/p6asv6bp/madgraph4gpu/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.sse4_f_inl1_hrd0/fcheck.exe 2 64 2
@@ -72,15 +90,15 @@ Process                     = SIGMA_SM_EPEM_MUPMUM_CPP [gcc 9.4.0] [inlineHel=1]
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+MESHST/avx2+CXVBRK
 FP precision                = FLOAT (NaN/abnormal=4, zero=0)
 Internal loops fptype_sv    = VECTOR[8] ('avx2': AVX2, 256bit) [cxtype_ref=YES]
-EvtsPerSec[Rmb+ME]     (23) = ( 3.357167e+06                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 1.032861e+07                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 1.032861e+07                 )  sec^-1
+EvtsPerSec[Rmb+ME]     (23) = ( 7.102432e+06                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 3.429453e+07                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 3.429453e+07                 )  sec^-1
 MeanMatrixElemValue         = ( 1.371706e-02 +- 3.270339e-06 )  GeV^0
-TOTAL       :     2.378541 sec
+TOTAL       :     1.173892 sec
 =Symbols in CPPProcess.o= (~sse4:    0) (avx2:  811) (512y:    0) (512z:    0)
 -------------------------------------------------------------------------
 runExe /home/p6asv6bp/madgraph4gpu/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.avx2_f_inl1_hrd0/runTest.exe
-runTest.exe: CudaRuntime.h:19: void assertCuda(cudaError_t, const char*, int, bool): Assertion `code == cudaSuccess' failed.
+[  PASSED  ] 6 tests.
 -------------------------------------------------------------------------
 cmpExe /home/p6asv6bp/madgraph4gpu/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.avx2_f_inl1_hrd0/check.exe --common -p 2 64 2
 cmpExe /home/p6asv6bp/madgraph4gpu/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.avx2_f_inl1_hrd0/fcheck.exe 2 64 2

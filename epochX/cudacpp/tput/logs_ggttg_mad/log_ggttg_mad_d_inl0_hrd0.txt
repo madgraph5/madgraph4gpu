@@ -18,25 +18,53 @@ make: Nothing to be done for 'all'.
 CUDACPP_BUILDDIR='build.512z_d_inl0_hrd0'
 make: Nothing to be done for 'all'.
 
-DATE: 2022-09-25_12:15:11
+DATE: 2022-09-25_20:36:11
 
-On rl-cpu-r82-u02 [CPU: AMD EPYC 7402P 24-Core Processor] [GPU: none]:
+On dgx03 [CPU: AMD EPYC 7742 64-Core Processor] [GPU: 1x NVIDIA A100-SXM4-80GB]:
 =========================================================================
+runExe /home/p6asv6bp/madgraph4gpu/epochX/cudacpp/gg_ttg.mad/SubProcesses/P1_gg_ttxg/build.none_d_inl0_hrd0/gcheck.exe -p 64 256 10 OMP=
+Process                     = SIGMA_SM_GG_TTXG_CUDA [nvcc 11.6.112 (gcc 9.4.0)] [inlineHel=0] [hardcodePARAM=0]
+Workflow summary            = CUD:DBL+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
+FP precision                = DOUBLE (NaN/abnormal=0, zero=0)
+EvtsPerSec[Rmb+ME]     (23) = ( 1.507133e+07                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 1.763104e+07                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.792670e+07                 )  sec^-1
+MeanMatrixElemValue         = ( 1.008920e+02 +- 5.001681e+01 )  GeV^-2
+TOTAL       :     0.186391 sec
+==PROF== Profiling "sigmaKin": launch__registers_per_thread 255
+==PROF== Profiling "sigmaKin": sm__sass_average_branch_targets_threads_uniform.pct 100%
+.........................................................................
+runExe /home/p6asv6bp/madgraph4gpu/epochX/cudacpp/gg_ttg.mad/SubProcesses/P1_gg_ttxg/build.none_d_inl0_hrd0/gcheck.exe -p 2048 256 1 OMP=
+Process                     = SIGMA_SM_GG_TTXG_CUDA [nvcc 11.6.112 (gcc 9.4.0)] [inlineHel=0] [hardcodePARAM=0]
+Workflow summary            = CUD:DBL+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
+FP precision                = DOUBLE (NaN/abnormal=0, zero=0)
+EvtsPerSec[Rmb+ME]     (23) = ( 2.385774e+07                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 2.928306e+07                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 2.966889e+07                 )  sec^-1
+MeanMatrixElemValue         = ( 6.734461e+02 +- 4.775415e+02 )  GeV^-2
+TOTAL       :     0.248933 sec
+-------------------------------------------------------------------------
+cmpExe /home/p6asv6bp/madgraph4gpu/epochX/cudacpp/gg_ttg.mad/SubProcesses/P1_gg_ttxg/build.none_d_inl0_hrd0/gcheck.exe --common -p 2 64 2
+cmpExe /home/p6asv6bp/madgraph4gpu/epochX/cudacpp/gg_ttg.mad/SubProcesses/P1_gg_ttxg/build.none_d_inl0_hrd0/fgcheck.exe 2 64 2
+Avg ME (C++/CUDA)   = 1.413122e+00
+Avg ME (F77/CUDA)   = 1.4131213684418646
+Relative difference = 4.4692399902091566e-07
+OK (relative difference <= 2E-4)
 =========================================================================
 runExe /home/p6asv6bp/madgraph4gpu/epochX/cudacpp/gg_ttg.mad/SubProcesses/P1_gg_ttxg/build.none_d_inl0_hrd0/check.exe -p 64 256 10 OMP=
 Process                     = SIGMA_SM_GG_TTXG_CPP [gcc 9.4.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/none+NAVBRK
 FP precision                = DOUBLE (NaN/abnormal=0, zero=0)
 Internal loops fptype_sv    = SCALAR ('none': ~vector[1], no SIMD)
-EvtsPerSec[Rmb+ME]     (23) = ( 2.524228e+04                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 2.536953e+04                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 2.536953e+04                 )  sec^-1
+EvtsPerSec[Rmb+ME]     (23) = ( 2.952898e+04                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 2.967171e+04                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 2.967171e+04                 )  sec^-1
 MeanMatrixElemValue         = ( 1.008920e+02 +- 5.001681e+01 )  GeV^-2
-TOTAL       :     6.511299 sec
+TOTAL       :     5.563551 sec
 =Symbols in CPPProcess.o= (~sse4:  790) (avx2:    0) (512y:    0) (512z:    0)
 -------------------------------------------------------------------------
 runExe /home/p6asv6bp/madgraph4gpu/epochX/cudacpp/gg_ttg.mad/SubProcesses/P1_gg_ttxg/build.none_d_inl0_hrd0/runTest.exe
-runTest.exe: CudaRuntime.h:19: void assertCuda(cudaError_t, const char*, int, bool): Assertion `code == cudaSuccess' failed.
+[  PASSED  ] 6 tests.
 -------------------------------------------------------------------------
 cmpExe /home/p6asv6bp/madgraph4gpu/epochX/cudacpp/gg_ttg.mad/SubProcesses/P1_gg_ttxg/build.none_d_inl0_hrd0/check.exe --common -p 2 64 2
 cmpExe /home/p6asv6bp/madgraph4gpu/epochX/cudacpp/gg_ttg.mad/SubProcesses/P1_gg_ttxg/build.none_d_inl0_hrd0/fcheck.exe 2 64 2
@@ -50,15 +78,15 @@ Process                     = SIGMA_SM_GG_TTXG_CPP [gcc 9.4.0] [inlineHel=0] [ha
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/sse4+CXVBRK
 FP precision                = DOUBLE (NaN/abnormal=0, zero=0)
 Internal loops fptype_sv    = VECTOR[2] ('sse4': SSE4.2, 128bit) [cxtype_ref=YES]
-EvtsPerSec[Rmb+ME]     (23) = ( 3.520005e+04                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 3.552422e+04                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 3.552422e+04                 )  sec^-1
+EvtsPerSec[Rmb+ME]     (23) = ( 5.432498e+04                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 5.480617e+04                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 5.480617e+04                 )  sec^-1
 MeanMatrixElemValue         = ( 1.008920e+02 +- 5.001681e+01 )  GeV^-2
-TOTAL       :     4.679405 sec
+TOTAL       :     3.030834 sec
 =Symbols in CPPProcess.o= (~sse4: 4914) (avx2:    0) (512y:    0) (512z:    0)
 -------------------------------------------------------------------------
 runExe /home/p6asv6bp/madgraph4gpu/epochX/cudacpp/gg_ttg.mad/SubProcesses/P1_gg_ttxg/build.sse4_d_inl0_hrd0/runTest.exe
-runTest.exe: CudaRuntime.h:19: void assertCuda(cudaError_t, const char*, int, bool): Assertion `code == cudaSuccess' failed.
+[  PASSED  ] 6 tests.
 -------------------------------------------------------------------------
 cmpExe /home/p6asv6bp/madgraph4gpu/epochX/cudacpp/gg_ttg.mad/SubProcesses/P1_gg_ttxg/build.sse4_d_inl0_hrd0/check.exe --common -p 2 64 2
 cmpExe /home/p6asv6bp/madgraph4gpu/epochX/cudacpp/gg_ttg.mad/SubProcesses/P1_gg_ttxg/build.sse4_d_inl0_hrd0/fcheck.exe 2 64 2
@@ -72,15 +100,15 @@ Process                     = SIGMA_SM_GG_TTXG_CPP [gcc 9.4.0] [inlineHel=0] [ha
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/avx2+CXVBRK
 FP precision                = DOUBLE (NaN/abnormal=0, zero=0)
 Internal loops fptype_sv    = VECTOR[4] ('avx2': AVX2, 256bit) [cxtype_ref=YES]
-EvtsPerSec[Rmb+ME]     (23) = ( 7.240435e+04                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 7.388011e+04                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 7.388011e+04                 )  sec^-1
+EvtsPerSec[Rmb+ME]     (23) = ( 1.245349e+05                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 1.270034e+05                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.270034e+05                 )  sec^-1
 MeanMatrixElemValue         = ( 1.008920e+02 +- 5.001681e+01 )  GeV^-2
-TOTAL       :     2.290389 sec
+TOTAL       :     1.330349 sec
 =Symbols in CPPProcess.o= (~sse4:    0) (avx2: 4054) (512y:    0) (512z:    0)
 -------------------------------------------------------------------------
 runExe /home/p6asv6bp/madgraph4gpu/epochX/cudacpp/gg_ttg.mad/SubProcesses/P1_gg_ttxg/build.avx2_d_inl0_hrd0/runTest.exe
-runTest.exe: CudaRuntime.h:19: void assertCuda(cudaError_t, const char*, int, bool): Assertion `code == cudaSuccess' failed.
+[  PASSED  ] 6 tests.
 -------------------------------------------------------------------------
 cmpExe /home/p6asv6bp/madgraph4gpu/epochX/cudacpp/gg_ttg.mad/SubProcesses/P1_gg_ttxg/build.avx2_d_inl0_hrd0/check.exe --common -p 2 64 2
 cmpExe /home/p6asv6bp/madgraph4gpu/epochX/cudacpp/gg_ttg.mad/SubProcesses/P1_gg_ttxg/build.avx2_d_inl0_hrd0/fcheck.exe 2 64 2
