@@ -528,24 +528,27 @@ namespace mg5amcCpu
   { /* clang-format on */
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
     fptype allMEsLast = 0;
-    const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
     for( int ihel = 0; ihel < ncomb; ihel++ )
     {
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
-      const int m_gpublocks = 1; // AV HARDCODED: USE ONLY THE FIRST BLOCK!
-      const int m_gputhreads = 32; // AV HARDCODED: GPUTHREADS IS GUARANTEED TO BE >= 32!
+      const int gpublocks = 1; // AV HARDCODED: USE ONLY THE FIRST BLOCK!
+      const int gputhreads = 32; // AV HARDCODED: GPUTHREADS IS GUARANTEED TO BE >= 32!
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       constexpr unsigned int channelId = 0; // disable single-diagram channel enhancement
-      calculate_wavefunctions<<<m_gpublocks, m_gputhreads>>>( ihel, allmomenta, allcouplings, allMEs, allNumerators, allDenominators, channelId );
+      calculate_wavefunctions<<<gpublocks, gputhreads>>>( ihel, allmomenta, allcouplings, allMEs, allNumerators, allDenominators, channelId );
 #else
-      calculate_wavefunctions<<<m_gpublocks, m_gputhreads>>>( ihel, allmomenta, allcouplings, allMEs );
+      calculate_wavefunctions<<<gpublocks, gputhreads>>>( ihel, allmomenta, allcouplings, allMEs );
 #endif
-      if( allMEs[ievt] != allMEsLast )
+      const int nevt = gpublocks*gputhreads;
+      for( int ievt = 0; ievt < nevt; ++ievt )
       {
-        //if ( !isGoodHel[ihel] ) std::cout << "sigmaKin_getGoodHel ihel=" << ihel << " TRUE" << std::endl;
-        isGoodHel[ihel] = true;
+        if( allMEs[ievt] != allMEsLast )
+        {
+          //if ( !isGoodHel[ihel] ) std::cout << "sigmaKin_getGoodHel ihel=" << ihel << " TRUE" << std::endl;
+          isGoodHel[ihel] = true;
+        }
+        allMEsLast = allMEs[ievt]; // running sum up to helicity ihel for event ievt
       }
-      allMEsLast = allMEs[ievt]; // running sum up to helicity ihel for event ievt
     }
   }
 #else
