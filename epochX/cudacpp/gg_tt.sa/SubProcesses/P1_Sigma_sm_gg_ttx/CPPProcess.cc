@@ -532,8 +532,8 @@ namespace mg5amcCpu
     for( int ihel = 0; ihel < ncomb; ihel++ )
     {
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
-      const int m_gpublocks = 1; // AV TEMPORARY HACK!
-      const int m_gputhreads = 32; // AV TEMPORARY HACK!
+      const int m_gpublocks = 1; // AV HARDCODED: USE ONLY THE FIRST BLOCK!
+      const int m_gputhreads = 32; // AV HARDCODED: GPUTHREADS IS GUARANTEED TO BE >= 32!
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       constexpr unsigned int channelId = 0; // disable single-diagram channel enhancement
       calculate_wavefunctions<<<m_gpublocks, m_gputhreads>>>( ihel, allmomenta, allcouplings, allMEs, allNumerators, allDenominators, channelId );
