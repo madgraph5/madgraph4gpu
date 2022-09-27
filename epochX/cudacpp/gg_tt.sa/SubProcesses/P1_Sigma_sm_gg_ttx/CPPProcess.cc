@@ -84,16 +84,15 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-
-//   __global__ normalise_output(fptype* allMEs, const fptype* allNumetators, cont fptype* allDenominators){
-//
-//            int ievt;
-//            int globadenom = %(denominator)s;
-//            //todo get ievt;
-//
-//            allME[ievt] = allME[ievt] * allNumerators[ievt]/(allDenominators[ievt]*globaldenom);
-//            return
-//}
+  //   __global__ normalise_output(fptype* allMEs, const fptype* allNumetators, cont fptype* allDenominators){
+  //
+  //            int ievt;
+  //            int globadenom = %(denominator)s;
+  //            //todo get ievt;
+  //
+  //            allME[ievt] = allME[ievt] * allNumerators[ievt]/(allDenominators[ievt]*globaldenom);
+  //            return
+  //}
             
   // Evaluate |M|^2 for each subprocess
   // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
@@ -529,7 +528,7 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
 #ifdef __CUDACC__ /* clang-format off */
-  __global__ void
+  void
   sigmaKin_getGoodHel( const fptype* allmomenta,   // input: momenta[nevt*npar*4]
                        const fptype* allcouplings, // input: couplings[nevt*ndcoup*2]
                        fptype* allMEs,             // output: allMEs[nevt], |M|^2 final_avg_over_helicities
@@ -545,11 +544,13 @@ namespace mg5amcCpu
     for( int ihel = 0; ihel < ncomb; ihel++ )
     {
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
+      const int m_gpublocks = 1; // AV TEMPORARY HACK!
+      const int m_gputhreads = 32; // AV TEMPORARY HACK!
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       constexpr unsigned int channelId = 0; // disable single-diagram channel enhancement
-      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, allNumerators, allDenominators, channelId );
+      calculate_wavefunctions<<<m_gpublocks, m_gputhreads>>>( ihel, allmomenta, allcouplings, allMEs, allNumerators, allDenominators, channelId );
 #else
-      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs );
+      calculate_wavefunctions<<<m_gpublocks, m_gputhreads>>>( ihel, allmomenta, allcouplings, allMEs );
 #endif
       if( allMEs[ievt] != allMEsLast )
       {
@@ -635,18 +636,18 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
   // Evaluate |M|^2, part independent of incoming flavour
   // FIXME: assume process.nprocesses == 1 (eventually: allMEs[nevt] -> allMEs[nevt*nprocesses]?)
+   __global__ void
+   normalise_output( fptype* allMEs, const fptype* allNumerators, const fptype* allDenominators )
+   {
+     const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread)
+     const int globaldenom = 256;
+     //todo get ievt;
+     allMEs[ievt] = allMEs[ievt] * allNumerators[ievt]/(allDenominators[ievt]*globaldenom);
+     return;
+   }
 
+  //--------------------------------------------------------------------------
 
-
-
-
-   __global__ normalise_output(fptype* allMEs, const fptype* allNumetators, cont fptype* allDenominators){
-
-	    const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread)
-            const int globadenom = 256;
-            //todo get ievt;
-            allME[ievt] = allME[ievt] * allNumerators[ievt]/(allDenominators[ievt]*globaldenom);
-            return
-}
+} // end namespace
 
 //==========================================================================

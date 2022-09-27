@@ -99,7 +99,7 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
 #ifdef __CUDACC__ /* clang-format off */
-  __global__ void
+  void
   sigmaKin_getGoodHel( const fptype* allmomenta,   // input: momenta[nevt*npar*4]
                        const fptype* allcouplings, // input: couplings[nevt*ndcoup*2]
                        fptype* allMEs,             // output: allMEs[nevt], |M|^2 final_avg_over_helicities
