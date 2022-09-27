@@ -207,18 +207,10 @@ namespace mg5amcGpu
   void MatrixElementKernelDevice::computeMatrixElements( const unsigned int channelId )
   {
     computeDependentCouplings<<<m_gpublocks, m_gputhreads>>>( m_gs.data(), m_couplings.data() );
-#ifndef MGONGPU_NSIGHT_DEBUG
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     sigmaKin( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), m_numerators.data(), m_denominators.data(), channelId, m_gpublocks, m_gputhreads );
 #else
     sigmaKin( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), m_gpublocks, m_gputhreads );
-#endif
-#else
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    sigmaKin( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), m_numerators.data(), m_denominators.data(), channelId, m_gpublocks, m_gputhreads );
-#else
-    sigmaKin( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), m_gpublocks, m_gputhreads );
-#endif
 #endif
     //checkCuda( cudaPeekAtLastError() );
     //checkCuda( cudaDeviceSynchronize() );
