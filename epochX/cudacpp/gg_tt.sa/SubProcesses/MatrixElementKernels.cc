@@ -76,20 +76,23 @@ namespace mg5amcCpu
     sigmaKin( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), nevt() );
 #endif
   }
+#endif
+
+  //--------------------------------------------------------------------------
 
   void /* clang-format off */
   MatrixElementKernelHost::sigmaKin( const fptype* allmomenta,      // input: momenta[nevt*npar*4]
-            const fptype* allcouplings,    // input: couplings[nevt*ndcoup*2]
-            fptype* allMEs                 // output: allMEs[nevt], |M|^2 final_avg_over_helicities
+                                     const fptype* allcouplings,    // input: couplings[nevt*ndcoup*2]
+                                     fptype* allMEs                 // output: allMEs[nevt], |M|^2 final_avg_over_helicities
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-            , fptype* allNumerators        // output: multichannel numerators[nevt], running_sum_over_helicities
-            , fptype* allDenominators      // output: multichannel denominators[nevt], running_sum_over_helicities
-            , const unsigned int channelId // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
+                                     , fptype* allNumerators        // output: multichannel numerators[nevt], running_sum_over_helicities
+                                     , fptype* allDenominators      // output: multichannel denominators[nevt], running_sum_over_helicities
+                                     , const unsigned int channelId // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
 #endif
 #ifndef __CUDACC__
-            , const int nevt               // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+                                     , const int nevt               // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
-) /* clang-format on */
+                                     ) /* clang-format on */
   {
     mgDebugInitialise();
 
@@ -103,18 +106,19 @@ namespace mg5amcCpu
     // Reset the "matrix elements" - running sums of |M|^2 over helicities for the given event
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
 #ifdef __CUDACC__
-    allMEs[ievt] = 0;
+    cudaMemSet( allMEs, 0, nevt*sizeof(fptype) );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    allNumerators[ievt] = 0;
-    allDenominators[ievt] = 0;
+    cudaMemSet( allNumerators, 0, nevt*sizeof(fptype) );
+    cudaMemSet( allDenominators, 0, nevt*sizeof(fptype) );
 #endif
 #else
-    cudaMemSet(allMEs, 0, nevt*sizeof(fptype);
+    for( int ievt = 0; ievt < nevt; ++ievt )
+    {      
+      allMEs[ievt] = 0;
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    cudaMemSet(allNumerators, 0, nevt*sizeof(fptype);
-    cudaMemSet(allDenominators, 0, nevt*sizeof(fptype);
+      allNumerators[ievt] = 0;
+      allDenominators[ievt] = 0;
 #endif
-      }
     }
 #endif
 
@@ -134,14 +138,14 @@ namespace mg5amcCpu
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, allNumerators, allDenominators, channelId, nevt );
 #else
-      calculate_wavefunctions(ihel,allmomenta, allcouplings, allMEs, nevt );
+      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, nevt );
 #endif
 #endif
       //if ( ighel == 0 ) break; // TEST sectors/requests (issue #16)
     }
 
-// TODO-OM: See how to handle the renormalization here...
-// Dedicated kernel or move it within each calculate_wavefunctions? 
+    // TODO-OM: See how to handle the renormalization here...
+    // Dedicated kernel or move it within each calculate_wavefunctions? 
 
     // PART 2 - FINALISATION (after calculate_wavefunctions)
     // Get the final |M|^2 as an average over helicities/colors of the running sum of |M|^2 over helicities for the given event
@@ -149,11 +153,10 @@ namespace mg5amcCpu
     // https://www.uzh.ch/cmsssl/physik/dam/jcr:2e24b7b1-f4d7-4160-817e-47b13dbf1d7c/Handout_4_2016-UZH.pdf]
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
 #ifdef __CUDACC__
-    normalise_output<<<m_gpublocks, m_gputhreads>>>(all_ME, allNumerators, allDenominators);
-//    allMEs[ievt] /= denominators[0]; // FIXME (#343): assume nprocesses == 1
-//#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-//    if( channelId > 0 ) allMEs[ievt] *= allNumerators[ievt] / allDenominators[ievt]; // FIXME (#343): assume nprocesses == 1
-#endif
+    normalise_output<<<m_gpublocks, m_gputhreads>>>( all_MEs, allNumerators, allDenominators );
+    //    allMEs[ievt] /= denominators[0]; // FIXME (#343): assume nprocesses == 1
+    //#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+    //    if( channelId > 0 ) allMEs[ievt] *= allNumerators[ievt] / allDenominators[ievt]; // FIXME (#343): assume nprocesses == 1
 #else
     for( int ipagV = 0; ipagV < npagV; ++ipagV )
     {
@@ -170,9 +173,6 @@ namespace mg5amcCpu
 #endif
     mgDebugFinalise();
   }
-
-  //--------------------------------------------------------------------------
-
 
   //--------------------------------------------------------------------------
 
@@ -227,7 +227,6 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
 }
-#endif
 
 //============================================================================
 
