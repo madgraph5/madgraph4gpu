@@ -10,16 +10,12 @@
 #else
     cudaMemSet(allMEs, 0, nevt*sizeof(fptype);
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-        allNumerators[ievt] = 0;
-        allDenominators[ievt] = 0;
+    cudaMemSet(allNumerators, 0, nevt*sizeof(fptype);
+    cudaMemSet(allDenominators, 0, nevt*sizeof(fptype);
 #endif
       }
     }
 #endif
-
-      int* d_ihel;      
-      cudaMalloc(&d_ihel, sizeof(int));
-
 
     // PART 1 - HELICITY LOOP: CALCULATE WAVEFUNCTIONS
     // (in both CUDA and C++, using precomputed good helicities)
@@ -29,16 +25,15 @@
       const int ihel = cGoodHel[ighel];
 #ifdef __CUDACC__
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, allNumerators, allDenominators, channelId );
+      calculate_wavefunctions<<<m_gpublocks, m_gputhreads>>>( ihel, allmomenta, allcouplings, allMEs, allNumerators, allDenominators, channelId );
 #else
-      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs );
+      calculate_wavefunctions<<<m_gpublocks, m_gputhreads>>>( ihel, allmomenta, allcouplings, allMEs );
 #endif
 #else
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, allNumerators, allDenominators, channelId, nevt );
 #else
-      cudaMemSet(d_ihel, ihel, sizeof(int));
-      calculate_wavefunctions<<<<m_gpublocks, m_gputhreads>>>( d_ihel, allmomenta, allcouplings, allMEs, nevt );
+      calculate_wavefunctions(ihel,allmomenta, allcouplings, allMEs, nevt );
 #endif
 #endif
       //if ( ighel == 0 ) break; // TEST sectors/requests (issue #16)
@@ -53,9 +48,10 @@
     // https://www.uzh.ch/cmsssl/physik/dam/jcr:2e24b7b1-f4d7-4160-817e-47b13dbf1d7c/Handout_4_2016-UZH.pdf]
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
 #ifdef __CUDACC__
-    allMEs[ievt] /= denominators[0]; // FIXME (#343): assume nprocesses == 1
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    if( channelId > 0 ) allMEs[ievt] *= allNumerators[ievt] / allDenominators[ievt]; // FIXME (#343): assume nprocesses == 1
+    normalise_output<<<m_gpublocks, m_gputhreads>>>(all_ME, allNumerators, allDenominators);
+//    allMEs[ievt] /= denominators[0]; // FIXME (#343): assume nprocesses == 1
+//#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+//    if( channelId > 0 ) allMEs[ievt] *= allNumerators[ievt] / allDenominators[ievt]; // FIXME (#343): assume nprocesses == 1
 #endif
 #else
     for( int ipagV = 0; ipagV < npagV; ++ipagV )
@@ -71,8 +67,8 @@
       }
     }
 #endif
-    cudaFree(d_ihel);
     mgDebugFinalise();
   }
 
   //--------------------------------------------------------------------------
+

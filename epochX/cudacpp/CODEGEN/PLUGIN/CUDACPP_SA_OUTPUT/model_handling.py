@@ -1068,6 +1068,17 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         if self.single_helicities:
             ###assert self.include_multi_channel # remove this assert: must handle both cases and produce two different code bases (#473)
             ret_lines.append("""
+
+//   __global__ normalise_output(fptype* allMEs, const fptype* allNumetators, cont fptype* allDenominators){
+//
+//            int ievt;
+//            int globadenom = %(denominator)s;
+//            //todo get ievt;
+//
+//            allME[ievt] = allME[ievt] * allNumerators[ievt]/(allDenominators[ievt]*globaldenom);
+//            return
+//}
+            
   // Evaluate |M|^2 for each subprocess
   // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
   // (similarly, it also ADDS the numerator and denominator for a given ihel to their running sums over helicities)
@@ -1351,6 +1362,14 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         """Write the class member definition (.cc) file for the process described by matrix_element"""
         replace_dict = super(PLUGIN_export_cpp.OneProcessExporterGPU, self).write_process_cc_file(False)
         ###replace_dict['hel_amps_def'] = '\n#include \"../../src/HelAmps_%s.cu\"' % self.model_name
+
+        # Extract denominator
+        den_factors = [str(me.get_denominator_factor()) for me in \
+                            self.matrix_elements]
+        if self.nprocesses != len(self.matrix_elements):
+            den_factors.extend(den_factors)
+        replace_dict['den_factors'] = ",".join(den_factors)
+
         replace_dict['hel_amps_h'] = '#include \"HelAmps_%s.h\"' % self.model_name # AV
         if writer:
             file = self.read_template_file(self.process_template_cc) % replace_dict
