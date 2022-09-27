@@ -531,7 +531,7 @@ namespace mg5amcCpu
     for( int ihel = 0; ihel < ncomb; ihel++ )
     {
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
-      const int gpublocks = 1; // AV HARDCODED: USE ONLY THE FIRST BLOCK!
+      const int gpublocks = 1;   // AV HARDCODED: USE ONLY THE FIRST BLOCK!
       const int gputhreads = 32; // AV HARDCODED: GPUTHREADS IS GUARANTEED TO BE >= 32!
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       constexpr unsigned int channelId = 0; // disable single-diagram channel enhancement
@@ -539,7 +539,7 @@ namespace mg5amcCpu
 #else
       calculate_wavefunctions<<<gpublocks, gputhreads>>>( ihel, allmomenta, allcouplings, allMEs );
 #endif
-      const int nevt = gpublocks*gputhreads;
+      const int nevt = gpublocks * gputhreads;
       for( int ievt = 0; ievt < nevt; ++ievt )
       {
         if( allMEs[ievt] != allMEsLast )
@@ -657,11 +657,11 @@ namespace mg5amcCpu
     // Reset the "matrix elements" - running sums of |M|^2 over helicities for the given event
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
 #ifdef __CUDACC__
-    const int nevt = gpublocks*gputhreads;
-    cudaMemset( allMEs, 0, nevt*sizeof(fptype) );
+    const int nevt = gpublocks * gputhreads;
+    cudaMemset( allMEs, 0, nevt * sizeof( fptype ) );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    cudaMemset( allNumerators, 0, nevt*sizeof(fptype) );
-    cudaMemset( allDenominators, 0, nevt*sizeof(fptype) );
+    cudaMemset( allNumerators, 0, nevt * sizeof( fptype ) );
+    cudaMemset( allDenominators, 0, nevt * sizeof( fptype ) );
 #endif
 #else
     const int npagV = nevt / neppV;
@@ -702,7 +702,7 @@ namespace mg5amcCpu
     }
 
     // TODO-OM: See how to handle the renormalization here...
-    // Dedicated kernel or move it within each calculate_wavefunctions? 
+    // Dedicated kernel or move it within each calculate_wavefunctions?
 
     // PART 2 - FINALISATION (after calculate_wavefunctions)
     // Get the final |M|^2 as an average over helicities/colors of the running sum of |M|^2 over helicities for the given event
@@ -734,7 +734,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-#ifdef __CUDACC__
+#ifdef __CUDACC__ /* clang-format off */
   __global__ void
   normalise_output( fptype* allMEs,                // output: allMEs[nevt], |M|^2 running_sum_over_helicities
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
@@ -742,10 +742,10 @@ namespace mg5amcCpu
                     const fptype* allDenominators, // output: multichannel denominators[nevt], running_sum_over_helicities
                     const unsigned int channelId,  // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
 #endif
-                    const fptype globaldenom )
+                    const fptype globaldenom ) /* clang-format on */
   {
     const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread)
-    allMEs[ievt] /= globaldenom; // FIXME (#343): assume nprocesses == 1
+    allMEs[ievt] /= globaldenom;
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     if( channelId > 0 ) allMEs[ievt] *= allNumerators[ievt] / allDenominators[ievt]; // FIXME (#343): assume nprocesses == 1
 #endif
