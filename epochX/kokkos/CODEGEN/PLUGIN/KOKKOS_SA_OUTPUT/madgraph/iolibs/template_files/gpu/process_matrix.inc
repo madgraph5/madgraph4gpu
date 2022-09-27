@@ -28,6 +28,6 @@
   allMEs += deltaMEs;
   //printf( "calculate_wavefunction: %%6d %%2d %%f\n", ievt, ihel, allMEs[ievt] );
 
-    mgDebug( 1, __FUNCTION__ );
-    return;
-  }
+
+  return allMEs;
+}

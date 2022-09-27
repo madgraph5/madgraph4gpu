@@ -3,31 +3,29 @@
 %(info_lines)s
 //==========================================================================
 
-%(helamps_h)s
+// %%(helamps_h)s
 
 #ifndef MG5_%(process_file_name)s_H
 #define MG5_%(process_file_name)s_H
 
-#include <vector>
-#include <cassert>
-#include <iostream>
-
 #include "mgOnGpuConfig.h"
-#include "mgOnGpuVectors.h"
 #include "mgOnGpuTypes.h"
+#include "mgOnGpuVectors.h"
 
 #include "Kokkos_Core.hpp"
 
 #include "Parameters_%(model_name)s.h"
 
-namespace mg5amcGpu
-{
+//--------------------------------------------------------------------------
+
+namespace dependentCouplings = Parameters_%(model_name)s_dependentCouplings;
+namespace independentCouplings = Parameters_%(model_name)s_independentCouplings;
 
 %(process_class_definitions)s
 
 
 %(process_function_definitions)s
 
-} // end namespace mg5amcGpu
+} // end namespace Proc
 
 #endif // MG5_%(process_file_name)s_H

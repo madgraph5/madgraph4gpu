@@ -1,30 +1,19 @@
-///////////////////////// -*- C++ -*- /////////////////////////////
 //==========================================================================
 // Class member functions for calculating the matrix elements for
 %(process_lines)s
 
-using mgOnGpu::ncomb; // number of helicity combinations
 //--------------------------------------------------------------------------
-
-// Evaluate |M|^2 for each subprocess
-// NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event
-
-
 %(all_sigmaKin)s
-
 //--------------------------------------------------------------------------
 
-template <typename ExecSpace>
-CPPProcess<ExecSpace>::CPPProcess(
+CPPProcess::CPPProcess(
     int numiterations, int leaguesize, int teamsize,
     bool verbose, bool debug): 
-      m_numiterations(numiterations), league_size(leaguesize), 
-      team_size(teamsize), 
-      dim(league_size * team_size),
-      cHel("cHel",mgOnGpu::ncomb,mgOnGpu::npar), hHel("hHel",mgOnGpu::ncomb,mgOnGpu::npar), 
-      cmME("cmME",mgOnGpu::npar), hmME("hmME",mgOnGpu::npar),
-      cIPC("cIPC",%(ncouplingstimes2)s), hIPC("hIPC",%(ncouplingstimes2)s), 
-      cIPD("cIPD",%(nparams)s), hIPD("hIPD",%(nparams)s)
+      m_numiterations(numiterations), m_league_size(leaguesize), 
+      m_team_size(teamsize),
+      m_cHel("cHel",mgOnGpu::ncomb,mgOnGpu::npar), m_hHel("hHel",mgOnGpu::ncomb,mgOnGpu::npar), 
+      m_cIPC("cIPC",%(ncouplingstimes2)s), m_hIPC("hIPC",%(ncouplingstimes2)s), 
+      m_cIPD("cIPD",%(nparams)s), m_hIPD("hIPD",%(nparams)s)
 {
 
   // Helicities for the process - nodim
@@ -32,103 +21,35 @@ CPPProcess<ExecSpace>::CPPProcess(
 
   for(int i=0;i<mgOnGpu::ncomb;++i)
       for(int j=0;j<mgOnGpu::npar;++j){
-          hHel(i,j) = tHel[i][j];
+          m_hHel(i,j) = tHel[i][j];
       }
-  Kokkos::deep_copy(cHel,hHel);
+  Kokkos::deep_copy(m_cHel,m_hHel);
 }
 
 //--------------------------------------------------------------------------
 
 // Initialize process (with parameters read from user cards)
-template <typename ExecSpace>
-void CPPProcess<ExecSpace>::initProc( const std::string& param_card_name )
+void CPPProcess::initProc( const std::string& param_card_name )
 {
   // Instantiate the model class and set parameters that stay fixed during run
-  pars = Parameters_%(model_name)s::getInstance();
-  SLHAReader slha(param_card_name, m_verbose);
-  pars->setIndependentParameters(slha);
-  pars->setIndependentCouplings();
-  if (m_verbose) {
-      pars->printIndependentParameters();
-    pars->printIndependentCouplings();
+  m_pars = Parameters_%(model_name)s::getInstance();
+  SLHAReader slha( param_card_name, m_verbose );
+  m_pars->setIndependentParameters( slha );
+  m_pars->setIndependentCouplings();
+  //m_pars->setDependentParameters();
+  //m_pars->setDependentCouplings();
+  if ( m_verbose )
+  {
+    m_pars->printIndependentParameters();
+    m_pars->printIndependentCouplings();
+    //m_pars->printDependentParameters();
+    //m_pars->printDependentCouplings();
   }
-  pars->setDependentParameters();
-  pars->setDependentCouplings();
   %(initProc_lines)s
-  
-  %(assign_coupling)s
+  // Read physics parameters like masses and couplings from user configuration files (static: initialize once)
+%(assign_coupling)s
 
 }
-
-
-// Retrieve the compiler that was used to build this module
-template<typename ExecSpace>
-const std::string CPPProcess<ExecSpace>::getCompiler()
-{
-  std::stringstream out;
-  // CUDA version (NVCC)
-#ifdef __CUDACC__
-#if defined __CUDACC_VER_MAJOR__ && defined __CUDACC_VER_MINOR__ && defined __CUDACC_VER_BUILD__
-  out << "nvcc " << __CUDACC_VER_MAJOR__ << "." << __CUDACC_VER_MINOR__ << "." << __CUDACC_VER_BUILD__;
-#else
-  out << "nvcc UNKNOWN";
-#endif
-  out << " (";
-#endif
-  // ICX version (either as CXX or as host compiler inside NVCC)
-#if defined __INTEL_COMPILER
-#error "icc is no longer supported: please use icx"
-#elif defined __INTEL_LLVM_COMPILER // alternative: __INTEL_CLANG_COMPILER
-  out << "icx " << __INTEL_LLVM_COMPILER << " (";
-#endif
-  // CLANG version (either as CXX or as host compiler inside NVCC or inside ICX)
-#if defined __clang__
-#if defined __clang_major__ && defined __clang_minor__ && defined __clang_patchlevel__
-  out << "clang " << __clang_major__ << "." << __clang_minor__ << "." << __clang_patchlevel__;
-  // GCC toolchain version inside CLANG
-  std::string tchainout;
-  std::string tchaincmd = "readelf -p .comment $(${CXX} -print-libgcc-file-name) |& grep 'GCC: (GNU)' | grep -v Warning | sort -u | awk '{print $5}'";
-  std::unique_ptr<FILE, decltype(&pclose)> tchainpipe( popen( tchaincmd.c_str(), "r" ), pclose );
-  if ( !tchainpipe ) throw std::runtime_error( "`readelf ...` failed?" );
-  std::array<char, 128> tchainbuf;
-  while ( fgets( tchainbuf.data(), tchainbuf.size(), tchainpipe.get() ) != nullptr ) tchainout += tchainbuf.data();
-  if(tchainout.size() > 0) tchainout.pop_back(); // remove trailing newline
-#if defined __CUDACC__ or defined __INTEL_LLVM_COMPILER
-  out << ", gcc " << tchainout;
-#else
-  out << " (gcc " << tchainout << ")";
-#endif
-#else
-  out << "clang UNKNOWKN";
-#endif
-#else
-  // GCC version (either as CXX or as host compiler inside NVCC)
-#if defined __GNUC__ && defined __GNUC_MINOR__ && defined __GNUC_PATCHLEVEL__
-  out << "gcc " << __GNUC__ << "." << __GNUC_MINOR__ << "." << __GNUC_PATCHLEVEL__;
-#else
-  out << "gcc UNKNOWKN";
-#endif
-#endif
-#if defined __CUDACC__ or defined __INTEL_LLVM_COMPILER
-  out << ")";
-#endif
-  return out.str();
-}
-
-//--------------------------------------------------------------------------
-// Define pointer accessors
-template <typename ExecSpace>
-const short* CPPProcess<ExecSpace>::get_tHel_ptr() const {return &(**hHel);}
-
-template <typename ExecSpace>
-cxtype* CPPProcess<ExecSpace>::get_tIPC_ptr() {return hIPC;}
-template <typename ExecSpace>
-const cxtype* CPPProcess<ExecSpace>::get_tIPC_ptr() const {return hIPC;}
-
-template <typename ExecSpace>
-fptype* CPPProcess<ExecSpace>::get_tIPD_ptr() {return hIPD;}
-template <typename ExecSpace>
-const fptype* CPPProcess<ExecSpace>::get_tIPD_ptr() const {return hIPD;}
 
 //--------------------------------------------------------------------------
 template <typename mom_t, typename out_t, typename hel_t, typename ipd_t, 

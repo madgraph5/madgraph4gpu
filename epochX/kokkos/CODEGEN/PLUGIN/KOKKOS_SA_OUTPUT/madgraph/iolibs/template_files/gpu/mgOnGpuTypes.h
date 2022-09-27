@@ -3,17 +3,16 @@
 
 #include "mgOnGpuConfig.h"
 
-#ifndef __CUDACC__
+#ifdef KOKKOS_ENABLE_CUDA
+#include "nvToolsExt.h"
+#else
 #include <cmath>
 inline void nvtxRangePush(char* temp){return;}
 inline void nvtxRangePop(void){return;};
-
-#else
-#include "nvToolsExt.h"
 #endif
 
 
-#if defined MGONGPU_CXTYPE_THRUST
+#ifdef MGONGPU_CXTYPE_THRUST
   #include <thrust/complex.h>
   typedef thrust::complex<fptype> cxtype; // two doubles: RI
   #define COMPLEX_TYPE_NAME "THRUST::COMPLEX"
@@ -25,65 +24,29 @@ inline void nvtxRangePop(void){return;};
 
 // --- Functions and operators for floating point types
 
-#ifdef __CUDACC__ // cuda
+#ifdef KOKKOS_ENABLE_CUDA // cuda
 
-/*
-KOKKOS_INLINE_FUNCTION
-fptype fpmax( const fptype& a, const fptype& b )
-{
-  return max( a, b );
-}
-
-KOKKOS_INLINE_FUNCTION
-fptype fpmin( const fptype& a, const fptype& b )
-{
-  return min( a, b );
-}
-*/
-
-KOKKOS_INLINE_FUNCTION
-const fptype& fpmax( const fptype& a, const fptype& b )
-{
-  return ( ( b < a ) ? a : b );
-}
-
-KOKKOS_INLINE_FUNCTION
-const fptype& fpmin( const fptype& a, const fptype& b )
-{
-  return ( ( a < b ) ? a : b );
-}
-
-KOKKOS_INLINE_FUNCTION
-fptype fpsqrt( const fptype& f )
-{
-#if defined MGONGPU_FPTYPE_FLOAT
-  // See https://docs.nvidia.com/cuda/cuda-math-api/group__CUDA__MATH__SINGLE.html
-  return sqrtf( f );
+// use predefined cuda math library functions for double or float
+#ifdef MGONGPU_FPTYPE_DOUBLE
+const auto& fpmax = fmax;
+const auto& fpmin = fmin;
+const auto& fpsqrt = sqrt;
+const auto& fpabs = fabs;
 #else
-  // See https://docs.nvidia.com/cuda/cuda-math-api/group__CUDA__MATH__DOUBLE.html
-  return sqrt( f );
+const auto& fpmax = fmaxf;
+const auto& fpmin = fminf;
+const auto& fpsqrt = sqrtf;
+const auto& fpabs = fabsf;
 #endif
-}
+const auto& iabs  = abs;
 
 #else // c++
 
-KOKKOS_INLINE_FUNCTION
-const fptype& fpmax( const fptype& a, const fptype& b )
-{
-  return std::max( a, b );
-}
-
-KOKKOS_INLINE_FUNCTION
-const fptype& fpmin( const fptype& a, const fptype& b )
-{
-  return std::min( a, b );
-}
-
-KOKKOS_INLINE_FUNCTION
-fptype fpsqrt( const fptype& f )
-{
-  return std::sqrt( f );
-}
+const auto fpmax = [](fptype const& L, fptype const& R) -> fptype const { return std::max(L, R); };
+const auto fpmin = [](fptype const& L, fptype const& R) -> fptype const { return std::min(L, R); };
+const auto fpsqrt = [](fptype const& V) -> fptype const { return std::sqrt(V); };
+const auto fpabs = [](fptype const& V) -> fptype const { return std::fabs(V); };
+const auto& iabs  = [](int const& V) -> int const { return std::abs(V); };
 
 #endif
 
@@ -93,7 +56,7 @@ fptype fpsqrt( const fptype& f )
 // CUDA
 //------------------------------
 
-#ifdef __CUDACC__ // cuda
+#ifdef KOKKOS_ENABLE_CUDA // cuda
 
 //------------------------------
 // CUDA - using thrust::complex

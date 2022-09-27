@@ -4,7 +4,6 @@
 #include "Kokkos_Core.hpp"
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
-#include "mgOnGpuVectors.h"
 
 #include "CPPProcess.h"           // for CPPProcess
 
@@ -16,26 +15,36 @@
 #include <memory>
 #include <type_traits>
 
-namespace mg5amcGpu
+namespace mg5amcKokkos
 {
+  //--------------------------------------------------------------------------
+  /**
+   * A base class for a class whose pointer is passed between Fortran and C++.
+   * This is not really necessary, but it allows minimal type checks on all such pointers.
+   */
+  struct CppObjectInFortran
+  {
+    CppObjectInFortran() {}
+    virtual ~CppObjectInFortran() {}
+  };
 
   //--------------------------------------------------------------------------
   /**
-   * A templated class for calling the SYCL device matrix element calculations of the event generation workflow.
+   * A templated class for calling the KOKKOS device matrix element calculations of the event generation workflow.
    * The FORTRANFPTYPE template parameter indicates the precision of the Fortran momenta from MadEvent (float or double).
-   * The precision of the matrix element calculation is hardcoded in the fptype typedef in SYCL device.
+   * The precision of the matrix element calculation is hardcoded in the fptype typedef in KOKKOS device.
    *
    * The Fortran momenta passed in are in the form of
    *   DOUBLE PRECISION P_MULTI(0:3, NEXTERNAL, NB_PAGE_LOOP)
    * where the dimensions are <np4F(#momenta)>, <nparF(#particles)>, <nevtF(#events)>.
    * In memory, this is stored in a way that C reads as an array P_MULTI[nevtF][nparF][np4F].
-   * The SYCL device momenta are stored as an array[npagM][npar][np4][neppM] with nevt=npagM*neppM.
-   * The Bridge is configured to store nevt==nevtF events in SYCL device.
+   * The KOKKOS device momenta are stored as an array[npagM][npar][np4][neppM] with nevt=npagM*neppM.
+   * The Bridge is configured to store nevt==nevtF events in KOKKOS device.
    * It also checks that Fortran and C++ parameters match, nparF==npar and np4F==np4.
    *
    * The cpu/gpu sequences take FORTRANFPTYPE* (not fptype*) momenta/MEs.
-   * This allows mixing double in MadEvent Fortran with float in SYCL device sigmaKin.
-   * In the fcheck_sa.f test, Fortran uses double while SYCL device may use double or float.
+   * This allows mixing double in MadEvent Fortran with float in KOKKOS device sigmaKin.
+   * In the fcheck_sa.f test, Fortran uses double while KOKKOS device may use double or float.
    * In the check_sa "--bridge" test, everything is implemented in fptype (double or float).
    */
   template<typename FORTRANFPTYPE>
@@ -50,6 +59,11 @@ namespace mg5amcGpu
      * @param np4F number of momenta components, usually 4, in Fortran arrays (KEPT FOR SANITY CHECKS ONLY)
      */
     Bridge( unsigned int nevtF, unsigned int nparF, unsigned int np4F );
+
+    /**
+     * Destructor
+     */
+    virtual ~Bridge() {}
 
     // Delete copy/move constructors and assignment operators
     Bridge( const Bridge& ) = delete;
@@ -87,10 +101,8 @@ namespace mg5amcGpu
 
     int m_team_size; // number of gpu threads (default set from number of events, can be modified)
     int m_league_size;  // number of gpu blocks (default set from number of events, can be modified)
-    Kokkos::View<fptype***> m_devMomentaF;
-    Kokkos::View<fptype***> m_devMomentaC;
-    //device_buffer<fptype> m_devGsC;
-    //std::unique_ptr<fptype> m_hstGsC;
+    Kokkos::View<fptype***> m_devMomenta;
+    Kokkos::View<fptype*> m_devGsC;
     Kokkos::View<fptype*> m_devMEsC;
     Kokkos::View<fptype*,Kokkos::HostSpace  > m_hstMEsC;
     Kokkos::View<bool*  > m_devIsGoodHel;
@@ -130,17 +142,12 @@ namespace mg5amcGpu
     , m_goodHelsCalculated( false )
     , m_team_size( 256 )                  // default number of gpu threads
     , m_league_size( m_nevt / m_team_size ) // this ensures m_nevt <= m_league_size*m_team_size
-    , m_devMomentaF( Kokkos::ViewAllocateWithoutInitializing("m_devMomentaF"), m_nevt, mgOnGpu::npar, mgOnGpu::np4 )
-    , m_devMomentaC( Kokkos::ViewAllocateWithoutInitializing("m_devMomentaC"), m_nevt, mgOnGpu::npar, mgOnGpu::np4 )
-    //, m_devGsC( m_nevt )
-    //, m_hstGsC( m_nevt )
-    , m_devMEsC( Kokkos::ViewAllocateWithoutInitializing("m_devMEsC"), m_nevt )
-    , m_hstMEsC( Kokkos::ViewAllocateWithoutInitializing("m_hstMEsC"), m_nevt )
+    , m_devMomenta( Kokkos::ViewAllocateWithoutInitializing("m_devMomenta"), m_nevt, mgOnGpu::npar, mgOnGpu::np4 )
+    , m_devGs( Kokkos::ViewAllocateWithoutInitializing("m_devGs"), m_nevt )
+    , m_devMEs( Kokkos::ViewAllocateWithoutInitializing("m_devMEs"), m_nevt )
+    , m_hstMEs( Kokkos::ViewAllocateWithoutInitializing("m_hstMEs"), m_nevt )
     , m_devIsGoodHel( Kokkos::ViewAllocateWithoutInitializing("m_devIsGoodHel"), mgOnGpu::ncomb )
     , m_hstIsGoodHel( Kokkos::ViewAllocateWithoutInitializing("m_hstIsGoodHel"), mgOnGpu::ncomb )
-    , m_devcHel( Kokkos::ViewAllocateWithoutInitializing("m_devcHel"), mgOnGpu::ncomb,mgOnGpu::npar )
-    , m_devcIPC( Kokkos::ViewAllocateWithoutInitializing("m_devcIPC"), mgOnGpu::ncouplingstimes2 )
-    , m_devcIPD( Kokkos::ViewAllocateWithoutInitializing("m_devcIPD"), mgOnGpu::nparams )
     , m_devcNGoodHel( Kokkos::ViewAllocateWithoutInitializing("m_devcNGoodHel"), 1 ) 
     , m_devcGoodHel( Kokkos::ViewAllocateWithoutInitializing("m_devcGoodHel"), mgOnGpu::ncomb ) 
   {
@@ -158,13 +165,8 @@ namespace mg5amcGpu
     std::cout << "WARNING! Instantiate device Bridge (nevt=" << m_nevt << ", league_size=" << m_league_size << ", team_size=" << m_team_size
               << ", league_size*team_size=" << m_league_size * m_team_size << ")" << std::endl;
 
-    Proc::CPPProcess process( 1, m_league_size, m_team_size, false, false );
+    mg5amcKokkos::CPPProcess process( false, false );
     process.initProc( "../../Cards/param_card.dat" );
-    
-    Kokkos::deep_copy( m_devcHel, process.cHel);
-    Kokkos::deep_copy( m_devcIPC, process.cIPC);
-    Kokkos::deep_copy( m_devcIPD, process.cIPD);
-    Kokkos::fence();
   }
 
   template<typename FORTRANFPTYPE>
@@ -194,33 +196,12 @@ namespace mg5amcGpu
     // TC: warning that I am assuming incoming momenta from FORTRAN
     // TC: are already in the format [ievt][ipar][i4]
 
-    Kokkos::View<fptype***,Kokkos::HostSpace> h_momenta(momenta,m_nevt*npar*np4);
-    Kokkos::deep_copy(m_devMomentaC,h_momenta):
+    Kokkos::View<fptype***,Kokkos::HostSpace> hst_momenta(momenta,m_nevt*npar*np4);
+    Kokkos::deep_copy(m_devMomenta,hst_momenta):
 
-    // if constexpr( neppM == 1 && std::is_same_v<FORTRANFPTYPE, fptype> )
-    // {
-    //   m_q.memcpy( m_devMomentaC.data(), momenta, np4*npar*m_nevt*sizeof(fptype) ).wait();
-    // }
-    // else
-    // {
-    //   static constexpr int thrPerEvt = npar * np4; // AV: transpose alg does 1 element per thread (NOT 1 event per thread)
+    Kokkos::View<fptype*,Kokkos::HostSpace> hstGs(gs,m_nevt);
+    Kokkos::deep_copy(m_devGs,hstGs):
 
-    //   //const int thrPerEvt = 1; // AV: try new alg with 1 event per thread... this seems slower
-    //   auto devMomentaC = m_devMomentaC.data();
-    //   auto devMomentaF = m_devMomentaF.data();
-    //   auto nevt = m_nevt;
-    //   m_q.submit([&](sycl::handler& cgh) {
-    //       cgh.parallel_for_work_group(sycl::range<1>{m_league_size * thrPerEvt}, sycl::range<1>{m_team_size}, ([=](sycl::group<1> wGroup) {
-    //           wGroup.parallel_for_work_item([&](sycl::h_item<1> index) {
-    //               size_t ievt = index.get_global_id(0);
-    //               dev_transposeMomentaF2C( devMomentaC, devMomentaF, ievt, nevt );
-    //           });
-    //       }));
-    //   });
-    //   m_q.wait();
-    // }
-    //std::copy( gs, gs + m_nevt, m_hstGsC );
-    //m_q.memcpy( m_devGsC, m_hstGsC, m_nevt*sizeof(fptype) ).wait();
     if( !m_goodHelsCalculated )
     {
       using member_type = typename Kokkos::TeamPolicy<Kokkos::DefaultExecutionSpace>::member_type;
@@ -228,8 +209,10 @@ namespace mg5amcGpu
       Kokkos::parallel_for(__func__,policy, 
       KOKKOS_LAMBDA(const member_type& team_member){
         const int ievt = team_member.league_rank() * team_member.team_size() + team_member.team_rank();
-        sigmaKin_getGoodHel(devMomentaC, devIsGoodHel, devcHel, devcIPC, devcIPD );
+        sigmaKin_getGoodHel(m_devMomenta, m_devIsGoodHel, proc.cHel, proc.cIPC, proc.cIPD );
       });
+
+      sigmaKin_setup(m_devMomenta,m_dev,...) // TODO: still porting here
 
       m_q.memcpy(m_hstIsGoodHel.data(), m_devIsGoodHel.data(), ncomb*sizeof(bool)).wait();
 

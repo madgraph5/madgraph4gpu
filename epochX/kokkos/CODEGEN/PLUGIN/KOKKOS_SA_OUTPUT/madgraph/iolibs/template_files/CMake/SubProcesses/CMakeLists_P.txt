@@ -2,9 +2,7 @@ get_filename_component(basename ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 string(TOLOWER ${basename} targadd)
 
 file(GLOB_RECURSE HEADERS "../*.h" CPPProcess.h)
-set(SOURCES ../BridgeKernels.cc CPPProcess.cc ../CrossSectionKernels.cc
-            ../MatrixElementKernels.cc ../RamboSamplingKernels.cc
-            ../RandomNumberKernels.cc)
+set(SOURCES CPPProcess.cc)
 
 set(libname mg5amc_cxx_${targadd})
 add_library(${libname} ${SOURCES} ${HEADERS})
