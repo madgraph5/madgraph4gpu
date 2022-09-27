@@ -426,7 +426,7 @@ function runExe() {
   pattern="${pattern}|EvtsPerSec\[Matrix" # TEMPORARY! OLD C++/CUDA CODE
   if [ "${ab3}" == "1" ]; then pattern="${pattern}|3a|3b"; fi
   if [ "${req}" == "1" ]; then pattern="${pattern}|memory layout"; fi
-  if perf --version >& /dev/null; then
+  if perf stat -d date >& /dev/null; then # perf exists and CAP_SYS_ADMIN allows users to use it
     # -- Newer version using perf stat
     pattern="${pattern}|instructions|cycles"
     pattern="${pattern}|elapsed"
@@ -569,7 +569,8 @@ for exe in $exes; do
     ncuArgs="-p 1 8 1"
   elif [ "${exe%%/gg_ttggg*}" != "${exe}" ]; then 
     # For ggttggg: this is far too little for GPU (4.8E2), but it keeps the CPU to a manageble level (1sec with 512y)
-    exeArgs="-p 1 256 1"
+    ###exeArgs="-p 1 256 1" # too short! see https://its.cern.ch/jira/browse/BMK-1056
+    exeArgs="-p 1 256 2"
     ncuArgs="-p 1 256 1"
     # For ggttggg: on GPU test also "64 256" to reach the plateau (only ~5% lower than "2048 256": 1.18E4 vs 1.25E4 on cuda116/gcc102)
     exeArgs2="-p 64 256 1"
@@ -581,12 +582,14 @@ for exe in $exes; do
     exeArgs2="-p 2048 256 1"
   elif [ "${exe%%/gg_ttg*}" != "${exe}" ]; then 
     # For ggttg, as on ggttgg: this is a good GPU middle point: tput is 1.5x lower with "32 256 1", only a few% higher with "128 256 1"
-    exeArgs="-p 64 256 1"
+    ###exeArgs="-p 64 256 1" # too short! see https://its.cern.ch/jira/browse/BMK-1056
+    exeArgs="-p 64 256 10"
     ncuArgs="-p 64 256 1"
     # For ggttg, as on ggttgg: on GPU test both "64 256" and "2048 256" for ggttg as the latter gives ~10% higher throughput on cuda110/gcc92
     exeArgs2="-p 2048 256 1"
   elif [ "${exe%%/gg_tt*}" != "${exe}" ]; then 
-    exeArgs="-p 2048 256 1"
+    ###exeArgs="-p 2048 256 1" # too short! see https://its.cern.ch/jira/browse/BMK-1056
+    exeArgs="-p 2048 256 2"
     ncuArgs="-p 2048 256 1"
   else # eemumu
     exeArgs="-p 2048 256 12"
