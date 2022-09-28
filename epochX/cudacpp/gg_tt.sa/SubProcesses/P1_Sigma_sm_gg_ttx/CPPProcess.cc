@@ -515,7 +515,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  void
+  void /* clang-format off */
   sigmaKin_getGoodHel( const fptype* allmomenta,   // input: momenta[nevt*npar*4]
                        const fptype* allcouplings, // input: couplings[nevt*ndcoup*2]
                        fptype* allMEs,             // output: allMEs[nevt], |M|^2 final_avg_over_helicities
@@ -536,7 +536,7 @@ namespace mg5amcCpu
     fptype hstMEsLast[maxtry0] = { 0 };
     const int maxtry = std::min( maxtry0, nevt ); // 16, but at most nevt (avoid invalid memory access if nevt<maxtry0)
     //std::cout << "sigmaKin_getGoodHel nevt=" << nevt << " maxtry=" << maxtry << std::endl;
-#ifdef __CUDACC__
+#ifdef __CUDACC__ /* clang-format on */
     cudaMemset( allMEs, 0, maxtry * sizeof( fptype ) );
     fptype hstMEs[maxtry0];
 #else
