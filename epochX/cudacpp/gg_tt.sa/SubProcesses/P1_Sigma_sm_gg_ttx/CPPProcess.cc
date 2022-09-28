@@ -570,8 +570,9 @@ namespace mg5amcCpu
         const bool differs = ( hstMEs[ievt] != hstMEsLast[ievt] );
         if( differs )
         {
+          std::cout << "sigmaKin_getGoodHel ihel=" << ihel << " TRUE" << std::endl;
           //if ( !isGoodHel[ihel] ) std::cout << "sigmaKin_getGoodHel ihel=" << ihel << " TRUE" << std::endl;
-          isGoodHel[ihel] = true;
+          //isGoodHel[ihel] = true;
         }
         hstMEsLast[ievt] = hstMEs[ievt]; // running sum up to helicity ihel
       }
