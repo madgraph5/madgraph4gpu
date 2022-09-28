@@ -563,16 +563,17 @@ namespace mg5amcCpu
       calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, maxtry );
 #endif
 #endif
-      std::cout << "sigmaKin_getGoodHel ihel=" << ihel << std::endl;
+      //std::cout << "sigmaKin_getGoodHel ihel=" << ihel << std::endl;
       for( int ievt = 0; ievt < maxtry; ++ievt )
       {
         // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
+        //std::cout << "sigmaKin_getGoodHel hstMEs[ievt]=" << hstMEs[ievt] << std::endl;
+        //std::cout << "sigmaKin_getGoodHel hstMEsLast[ievt]=" << hstMEsLast[ievt] << std::endl;
         const bool differs = ( hstMEs[ievt] != hstMEsLast[ievt] );
         if( differs )
         {
-          std::cout << "sigmaKin_getGoodHel ihel=" << ihel << " TRUE" << std::endl;
           //if ( !isGoodHel[ihel] ) std::cout << "sigmaKin_getGoodHel ihel=" << ihel << " TRUE" << std::endl;
-          //isGoodHel[ihel] = true;
+          isGoodHel[ihel] = true;
         }
         hstMEsLast[ievt] = hstMEs[ievt]; // running sum up to helicity ihel
       }
