@@ -55,7 +55,7 @@
 // Cuda nsight compute (ncu) debug: add dummy lines to ease SASS program flow navigation
 #ifdef __CUDACC__
 #undef MGONGPU_NSIGHT_DEBUG // default
-//#define MGONGPU_NSIGHT_DEBUG 1
+//#define MGONGPU_NSIGHT_DEBUG 1 // CURRENTLY NOT SUPPORTED!
 #endif
 
 // SANITY CHECKS (floating point precision)
@@ -161,17 +161,17 @@ using mgOnGpu::fptype;
 
 // Cuda nsight compute (ncu) debug: add dummy lines to ease SASS program flow navigation
 // Arguments (not used so far): text is __FUNCTION__, code is 0 (start) or 1 (end)
-#if defined __CUDACC__ && defined MGONGPU_NSIGHT_DEBUG /* clang-format off */
-#define mgDebugDeclare() __shared__ float mgDebugCounter[mgOnGpu::ntpbMAX];
-#define mgDebugInitialise() { mgDebugCounter[threadIdx.x] = 0; }
-#define mgDebug( code, text ) { mgDebugCounter[threadIdx.x] += 1; }
-#define mgDebugFinalise() { if ( blockIdx.x == 0 && threadIdx.x == 0 ) printf( "MGDEBUG: counter=%%f\n", mgDebugCounter[threadIdx.x] ); }
-#else
-#define mgDebugDeclare() /*noop*/
-#define mgDebugInitialise() { /*noop*/ }
-#define mgDebug( code, text ) { /*noop*/ }
-#define mgDebugFinalise() { /*noop*/ }
-#endif /* clang-format on */
+//#if defined __CUDACC__ && defined MGONGPU_NSIGHT_DEBUG
+//#define mgDebugDeclare() __shared__ float mgDebugCounter[mgOnGpu::ntpbMAX];
+//#define mgDebugInitialise() { mgDebugCounter[threadIdx.x] = 0; }
+//#define mgDebug( code, text ) { mgDebugCounter[threadIdx.x] += 1; }
+//#define mgDebugFinalise() { if ( blockIdx.x == 0 && threadIdx.x == 0 ) printf( "MGDEBUG: counter=%%f\n", mgDebugCounter[threadIdx.x] ); }
+//#else
+#define mgDebugDeclare()      /*noop*/
+#define mgDebugInitialise()   /*noop*/
+#define mgDebug( code, text ) /*noop*/
+#define mgDebugFinalise()     /*noop*/
+//#endif
 
 // Define empty CUDA declaration specifiers for C++
 #ifndef __CUDACC__

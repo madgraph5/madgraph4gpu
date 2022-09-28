@@ -38,13 +38,11 @@ namespace mg5amcCpu
   // Helicity combinations (and filtering of "good" helicity combinations)
 #ifdef __CUDACC__
   __device__ __constant__ short cHel[ncomb][npar];
-  __device__ __constant__ int cNGoodHel; // FIXME: assume process.nprocesses == 1 for the moment (eventually cNGoodHel[nprocesses]?)
-  __device__ __constant__ int cGoodHel[ncomb];
 #else
   static short cHel[ncomb][npar];
+#endif
   static int cNGoodHel; // FIXME: assume process.nprocesses == 1 for the moment (eventually cNGoodHel[nprocesses]?)
   static int cGoodHel[ncomb];
-#endif
 
   //--------------------------------------------------------------------------
 %(all_sigmaKin)s
@@ -222,39 +220,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-#ifdef __CUDACC__ /* clang-format off */
-  __global__ void
-  sigmaKin_getGoodHel( const fptype* allmomenta,   // input: momenta[nevt*npar*4]
-                       const fptype* allcouplings, // input: couplings[nevt*ndcoup*2]
-                       fptype* allMEs,             // output: allMEs[nevt], |M|^2 final_avg_over_helicities
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                       fptype* allNumerators,      // output: multichannel numerators[nevt], running_sum_over_helicities
-                       fptype* allDenominators,    // output: multichannel denominators[nevt], running_sum_over_helicities
-#endif
-                       bool* isGoodHel )           // output: isGoodHel[ncomb] - device array
-  { /* clang-format on */
-    // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-    fptype allMEsLast = 0;
-    const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
-    for( int ihel = 0; ihel < ncomb; ihel++ )
-    {
-      // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      constexpr unsigned int channelId = 0; // disable single-diagram channel enhancement
-      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, allNumerators, allDenominators, channelId );
-#else
-      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs );
-#endif
-      if( allMEs[ievt] != allMEsLast )
-      {
-        //if ( !isGoodHel[ihel] ) std::cout << "sigmaKin_getGoodHel ihel=" << ihel << " TRUE" << std::endl;
-        isGoodHel[ihel] = true;
-      }
-      allMEsLast = allMEs[ievt]; // running sum up to helicity ihel for event ievt
-    }
-  }
-#else
-  void
+  void /* clang-format off */
   sigmaKin_getGoodHel( const fptype* allmomenta,   // input: momenta[nevt*npar*4]
                        const fptype* allcouplings, // input: couplings[nevt*ndcoup*2]
                        fptype* allMEs,             // output: allMEs[nevt], |M|^2 final_avg_over_helicities
@@ -265,39 +231,59 @@ namespace mg5amcCpu
                        bool* isGoodHel,            // output: isGoodHel[ncomb] - device array
                        const int nevt )            // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
   {
+#ifdef __CUDACC__
+    const int maxtry0 = 16;
+#else
     //assert( (size_t)(allmomenta) %% mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
     //assert( (size_t)(allMEs) %% mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
     const int maxtry0 = ( neppV > 16 ? neppV : 16 ); // 16, but at least neppV (otherwise the npagV loop does not even start)
-    fptype allMEsLast[maxtry0] = { 0 };              // all zeros https://en.cppreference.com/w/c/language/array_initialization#Notes
-    const int maxtry = std::min( maxtry0, nevt );    // 16, but at most nevt (avoid invalid memory access if nevt<maxtry0)
-    for( int ievt = 0; ievt < maxtry; ++ievt )
-    {
-      // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-      allMEs[ievt] = 0; // all zeros
-    }
+#endif
+    fptype hstMEsLast[maxtry0] = { 0 };
+    const int maxtry = std::min( maxtry0, nevt ); // 16, but at most nevt (avoid invalid memory access if nevt<maxtry0)
+    //std::cout << "sigmaKin_getGoodHel nevt=" << nevt << " maxtry=" << maxtry << std::endl;
+#ifdef __CUDACC__ /* clang-format on */
+    cudaMemset( allMEs, 0, maxtry * sizeof( fptype ) );
+    fptype hstMEs[maxtry0];
+#else
+    for( int ievt = 0; ievt < maxtry; ++ievt ) allMEs[ievt] = 0; // all zeros
+    fptype* hstMEs = allMEs;
+#endif
     for( int ihel = 0; ihel < ncomb; ihel++ )
     {
-      //std::cout << "sigmaKin_getGoodHel ihel=" << ihel << ( isGoodHel[ihel] ? " true" : " false" ) << std::endl;
+#ifdef __CUDACC__
+      const int gpublocks = 1;
+      const int gputhreads = maxtry;
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+      constexpr unsigned int channelId = 0; // disable single-diagram channel enhancement
+      calculate_wavefunctions<<<gpublocks, gputhreads>>>( ihel, allmomenta, allcouplings, allMEs, allNumerators, allDenominators, channelId );
+#else
+      calculate_wavefunctions<<<gpublocks, gputhreads>>>( ihel, allmomenta, allcouplings, allMEs );
+#endif
+      checkCuda( cudaMemcpy( hstMEs, allMEs, maxtry * sizeof( fptype ), cudaMemcpyDeviceToHost ) );
+#else
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       constexpr unsigned int channelId = 0; // disable single-diagram channel enhancement
       calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, allNumerators, allDenominators, channelId, maxtry );
 #else
       calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, maxtry );
 #endif
+#endif
+      //std::cout << "sigmaKin_getGoodHel ihel=" << ihel << std::endl;
       for( int ievt = 0; ievt < maxtry; ++ievt )
       {
         // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-        const bool differs = ( allMEs[ievt] != allMEsLast[ievt] );
+        //std::cout << "sigmaKin_getGoodHel hstMEs[ievt]=" << hstMEs[ievt] << std::endl;
+        //std::cout << "sigmaKin_getGoodHel hstMEsLast[ievt]=" << hstMEsLast[ievt] << std::endl;
+        const bool differs = ( hstMEs[ievt] != hstMEsLast[ievt] );
         if( differs )
         {
           //if ( !isGoodHel[ihel] ) std::cout << "sigmaKin_getGoodHel ihel=" << ihel << " TRUE" << std::endl;
           isGoodHel[ihel] = true;
         }
-        allMEsLast[ievt] = allMEs[ievt]; // running sum up to helicity ihel
+        hstMEsLast[ievt] = hstMEs[ievt]; // running sum up to helicity ihel
       }
     }
   }
-#endif
 
   //--------------------------------------------------------------------------
 
@@ -317,17 +303,43 @@ namespace mg5amcCpu
         nGoodHel++;
       }
     }
-#ifdef __CUDACC__
-    checkCuda( cudaMemcpyToSymbol( cNGoodHel, &nGoodHel, sizeof( int ) ) ); // FIXME: assume process.nprocesses == 1 for the moment
-    checkCuda( cudaMemcpyToSymbol( cGoodHel, goodHel, ncomb * sizeof( int ) ) );
-#else
     cNGoodHel = nGoodHel;
     for( int ihel = 0; ihel < ncomb; ihel++ ) cGoodHel[ihel] = goodHel[ihel];
-#endif
   }
 
   //--------------------------------------------------------------------------
   // Evaluate |M|^2, part independent of incoming flavour
   // FIXME: assume process.nprocesses == 1 (eventually: allMEs[nevt] -> allMEs[nevt*nprocesses]?)
 
+  void /* clang-format off */
+  sigmaKin( const fptype* allmomenta,      // input: momenta[nevt*npar*4]
+            const fptype* allcouplings,    // input: couplings[nevt*ndcoup*2]
+            fptype* allMEs,                // output: allMEs[nevt], |M|^2 final_avg_over_helicities
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+            fptype* allNumerators,         // output: multichannel numerators[nevt], running_sum_over_helicities
+            fptype* allDenominators,       // output: multichannel denominators[nevt], running_sum_over_helicities
+            const unsigned int channelId,  // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
+#endif
+#ifdef __CUDACC__
+            const int gpublocks,           // input: cuda gpublocks
+            const int gputhreads           // input: cuda gputhreads
+#else
+            const int nevt                 // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+#endif
+            ) /* clang-format on */
+  {
+    mgDebugInitialise();
 
+    // Denominators: spins, colors and identical particles
+    constexpr int nprocesses = 1;
+    static_assert( nprocesses == 1, "Assume nprocesses == 1" ); // FIXME (#343): assume nprocesses == 1
+    constexpr int denominators[1] = { 256 };
+
+#ifndef __CUDACC__
+    //assert( (size_t)(allmomenta) %% mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
+    //assert( (size_t)(allMEs) %% mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
+#endif
+
+    // Start sigmaKin_lines
+%(sigmaKin_lines)s
+} // end namespace

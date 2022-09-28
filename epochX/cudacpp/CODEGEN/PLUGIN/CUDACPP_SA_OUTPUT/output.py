@@ -108,7 +108,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                     'MemoryAccessNumerators.h', 'MemoryAccessDenominators.h',
                     'EventStatistics.h',
                     'CrossSectionKernels.cc', 'CrossSectionKernels.h',
-                    'MatrixElementKernels.h', # .cc is now process specific
+                    'MatrixElementKernels.cc', 'MatrixElementKernels.h',
                     'RamboSamplingKernels.cc', 'RamboSamplingKernels.h',
                     'RandomNumberKernels.h', 'RandomNumberKernels.cc',
                     'Bridge.h', 'BridgeKernels.cc', 'BridgeKernels.h',
