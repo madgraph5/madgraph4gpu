@@ -533,16 +533,18 @@ namespace mg5amcCpu
     //assert( (size_t)(allMEs) % mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
     const int maxtry0 = ( neppV > 16 ? neppV : 16 ); // 16, but at least neppV (otherwise the npagV loop does not even start)
 #endif
-    fptype allMEsLast[maxtry0] = { 0 };              // all zeros https://en.cppreference.com/w/c/language/array_initialization#Notes
-    const int maxtry = std::min( maxtry0, nevt );    // 16, but at most nevt (avoid invalid memory access if nevt<maxtry0)
-    for( int ievt = 0; ievt < maxtry; ++ievt )
-    {
-      // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-      allMEs[ievt] = 0; // all zeros
-    }
+    fptype hstMEsLast[maxtry0] = { 0 };
+    const int maxtry = std::min( maxtry0, nevt ); // 16, but at most nevt (avoid invalid memory access if nevt<maxtry0)
+    //std::cout << "sigmaKin_getGoodHel nevt=" << nevt << " maxtry=" << maxtry << std::endl;
+#ifdef __CUDACC__
+    cudaMemset( allMEs, 0, maxtry * sizeof( fptype ) );
+    fptype hstMEs[maxtry0];
+#else
+    for( int ievt = 0; ievt < maxtry; ++ievt ) allMEs[ievt] = 0; // all zeros
+    fptype* hstMEs = allMEs;
+#endif
     for( int ihel = 0; ihel < ncomb; ihel++ )
     {
-      //std::cout << "sigmaKin_getGoodHel ihel=" << ihel << ( isGoodHel[ihel] ? " true" : " false" ) << std::endl;
 #ifdef __CUDACC__
       const int gpublocks = 1;
       const int gputhreads = maxtry;
@@ -552,6 +554,7 @@ namespace mg5amcCpu
 #else
       calculate_wavefunctions<<<gpublocks, gputhreads>>>( ihel, allmomenta, allcouplings, allMEs );
 #endif
+      checkCuda( cudaMemcpy( hstMEs, allMEs, maxtry * sizeof( fptype ), cudaMemcpyDeviceToHost ) );
 #else
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       constexpr unsigned int channelId = 0; // disable single-diagram channel enhancement
@@ -560,16 +563,17 @@ namespace mg5amcCpu
       calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, maxtry );
 #endif
 #endif
+      std::cout << "sigmaKin_getGoodHel ihel=" << ihel << std::endl;
       for( int ievt = 0; ievt < maxtry; ++ievt )
       {
         // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-        const bool differs = ( allMEs[ievt] != allMEsLast[ievt] );
+        const bool differs = ( hstMEs[ievt] != hstMEsLast[ievt] );
         if( differs )
         {
           //if ( !isGoodHel[ihel] ) std::cout << "sigmaKin_getGoodHel ihel=" << ihel << " TRUE" << std::endl;
           isGoodHel[ihel] = true;
         }
-        allMEsLast[ievt] = allMEs[ievt]; // running sum up to helicity ihel
+        hstMEsLast[ievt] = hstMEs[ievt]; // running sum up to helicity ihel
       }
     }
   }
