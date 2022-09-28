@@ -187,17 +187,15 @@ namespace mg5amcGpu
   {
     using mgOnGpu::ncomb; // the number of helicity combinations
     PinnedHostBufferHelicityMask hstIsGoodHel( ncomb );
-    DeviceBufferHelicityMask devIsGoodHel( ncomb );
-    // ... 0d1. Compute good helicity mask on the device
+    // ... 0d1. Compute good helicity mask (a host variable) on the device
     computeDependentCouplings<<<m_gpublocks, m_gputhreads>>>( m_gs.data(), m_couplings.data() );
+    const int nevt = m_gpublocks * m_gputhreads;
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    sigmaKin_getGoodHel<<<m_gpublocks, m_gputhreads>>>( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), m_numerators.data(), m_denominators.data(), devIsGoodHel.data() );
+    sigmaKin_getGoodHel( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), m_numerators.data(), m_denominators.data(), hstIsGoodHel.data(), nevt );
 #else
-    sigmaKin_getGoodHel<<<m_gpublocks, m_gputhreads>>>( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), devIsGoodHel.data() );
+    sigmaKin_getGoodHel( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), hstIsGoodHel.data(), nevt );
 #endif
     checkCuda( cudaPeekAtLastError() );
-    // ... 0d2. Copy back good helicity mask to the host
-    copyHostFromDevice( hstIsGoodHel, devIsGoodHel );
     // ... 0d3. Copy back good helicity list to constant memory on the device
     sigmaKin_setGoodHel( hstIsGoodHel.data() );
   }
@@ -207,18 +205,10 @@ namespace mg5amcGpu
   void MatrixElementKernelDevice::computeMatrixElements( const unsigned int channelId )
   {
     computeDependentCouplings<<<m_gpublocks, m_gputhreads>>>( m_gs.data(), m_couplings.data() );
-#ifndef MGONGPU_NSIGHT_DEBUG
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    sigmaKin<<<m_gpublocks, m_gputhreads>>>( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), m_numerators.data(), m_denominators.data(), channelId );
+    sigmaKin( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), m_numerators.data(), m_denominators.data(), channelId, m_gpublocks, m_gputhreads );
 #else
-    sigmaKin<<<m_gpublocks, m_gputhreads>>>( m_momenta.data(), m_couplings.data(), m_matrixElements.data() );
-#endif
-#else
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    sigmaKin<<<m_gpublocks, m_gputhreads, ntpbMAX * sizeof( float )>>>( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), m_numerators.data(), m_denominators.data(), channelId );
-#else
-    sigmaKin<<<m_gpublocks, m_gputhreads, ntpbMAX * sizeof( float )>>>( m_momenta.data(), m_couplings.data(), m_matrixElements.data() );
-#endif
+    sigmaKin( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), m_gpublocks, m_gputhreads );
 #endif
     checkCuda( cudaPeekAtLastError() );
     checkCuda( cudaDeviceSynchronize() );
