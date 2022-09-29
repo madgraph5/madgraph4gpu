@@ -179,6 +179,6 @@ INFO: /data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_heft_gg_h/src
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.finalize [1;30m[output.py at line 188][0m [0m
 quit
 
-real	0m0.632s
-user	0m0.541s
-sys	0m0.067s
+real	0m0.752s
+user	0m0.534s
+sys	0m0.079s
