@@ -361,10 +361,10 @@ index dd709f52..c706cdc7 100644
 +	$(MAKE) -f $(CUDACPP_MAKEFILE) distclean
 +endif
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/reweight.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/reweight.f
-index de204965..2454394d 100644
+index 97592752..b6991541 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/reweight.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/reweight.f
-@@ -1809,7 +1809,7 @@ C      include 'maxparticles.inc'
+@@ -1807,7 +1807,7 @@ C      include 'maxparticles.inc'
        end
  
        
@@ -373,7 +373,7 @@ index de204965..2454394d 100644
        implicit none
  
  C
-@@ -1827,7 +1827,7 @@ C      include 'maxparticles.inc'
+@@ -1825,7 +1825,7 @@ C      include 'maxparticles.inc'
        
        double precision all_p(4*maxdim/3+14,*), all_wgt(*)
        double precision all_q2fact(2,*)
@@ -382,7 +382,7 @@ index de204965..2454394d 100644
  
        logical setclscales
        external setclscales
-@@ -1841,7 +1841,7 @@ c      save firsttime
+@@ -1839,7 +1839,7 @@ c      save firsttime
        if(.not.fixed_ren_scale) then
           scale = 0d0
        endif
@@ -391,10 +391,10 @@ index de204965..2454394d 100644
  
           if(.not.fixed_ren_scale) then
              call set_ren_scale(all_p(1,i),scale)
-@@ -1963,7 +1963,7 @@ c     q2bck holds the central q2fact scales
-       integer njets,iqjets(nexternal)
+@@ -1960,7 +1960,7 @@ c     q2bck holds the central q2fact scales
        common /to_rw/jlast,njetstore,iqjetstore,njets,iqjets,q2bck
  
+       include 'vector.inc'
 -      DOUBLE PRECISION G, ALL_G(nb_page)
 +      DOUBLE PRECISION G, ALL_G(nb_page_max)
        COMMON/STRONG/ G, ALL_G
