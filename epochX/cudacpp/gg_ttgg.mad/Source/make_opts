@@ -1,4 +1,4 @@
-GLOBAL_FLAG=-O3 -ffast-math -fbounds-check
+GLOBAL_FLAG ?= -O3 -ffast-math -fbounds-check
 DEFAULT_CPP_COMPILER=g++
 MACFLAG=
 STDLIB=-lstdc++

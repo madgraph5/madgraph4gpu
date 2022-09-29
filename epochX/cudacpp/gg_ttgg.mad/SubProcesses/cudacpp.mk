@@ -27,7 +27,7 @@ UNAME_P := $(shell uname -p)
 #=== Configure common compiler flags for C++ and CUDA
 
 INCFLAGS = -I.
-OPTFLAGS = -O3 # this ends up in CUFLAGS too (should it?), cannot add -Ofast or -ffast-math here
+OPTFLAGS ?= -O3 # this ends up in CUFLAGS too (should it?), cannot add -Ofast or -ffast-math here
 
 # Dependency on src directory
 MG5AMC_COMMONLIB = mg5amc_common
@@ -94,7 +94,7 @@ ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   CUARCHFLAGS = $(foreach arch,$(subst $(comma), ,$(MADGRAPH_CUDA_ARCHITECTURE)),-gencode arch=compute_$(arch),code=compute_$(arch) -gencode arch=compute_$(arch),code=sm_$(arch))
   CUINC       = -I$(CUDA_HOME)/include/
   CULIBFLAGS  = -L$(CUDA_HOME)/lib64/ -lcurand # NB: -lcuda is not needed here!
-  CUOPTFLAGS  = -lineinfo
+  CUOPTFLAGS  ?= -lineinfo
   CUFLAGS     = $(OPTFLAGS) $(CUOPTFLAGS) $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math
   ###CUFLAGS    += -Xcompiler -Wall -Xcompiler -Wextra -Xcompiler -Wshadow
   ###NVCC_VERSION = $(shell $(NVCC) --version | grep 'Cuda compilation tools' | cut -d' ' -f5 | cut -d, -f1)
