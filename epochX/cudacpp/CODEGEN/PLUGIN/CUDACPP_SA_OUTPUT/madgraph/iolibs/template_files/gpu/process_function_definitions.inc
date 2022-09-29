@@ -331,9 +331,9 @@ namespace mg5amcCpu
     mgDebugInitialise();
 
     // Denominators: spins, colors and identical particles
-    constexpr int nprocesses = 1;
+    constexpr int nprocesses = %(nproc)i;
     static_assert( nprocesses == 1, "Assume nprocesses == 1" ); // FIXME (#343): assume nprocesses == 1
-    constexpr int denominators[1] = { 256 };
+    constexpr int denominators[%(nproc)i] = { %(den_factors)s };
 
 #ifndef __CUDACC__
     //assert( (size_t)(allmomenta) %% mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
