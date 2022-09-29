@@ -361,7 +361,7 @@ index dd709f52..c706cdc7 100644
 +	$(MAKE) -f $(CUDACPP_MAKEFILE) distclean
 +endif
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/reweight.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/reweight.f
-index e24a1456..b80b7b20 100644
+index de204965..2454394d 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/reweight.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/reweight.f
 @@ -1809,7 +1809,7 @@ C      include 'maxparticles.inc'
