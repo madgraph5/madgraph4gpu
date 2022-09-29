@@ -1,4 +1,4 @@
-c NB vector.inc (defining nb_page_max) is NOT needed any longer before clusters.inc (#458, #539)
+c NB vector.inc (defining nb_page_max) is NOT needed any longer before cluster.inc (#458, #539)
 c*************************************************************************
 c	Parameters used by cluster
 c*************************************************************************
