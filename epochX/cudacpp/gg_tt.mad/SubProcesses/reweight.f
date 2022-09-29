@@ -1950,7 +1950,6 @@ c     to_rw
 
       include 'nexternal.inc'
       include 'maxamps.inc'
-      include 'vector.inc'
       include 'cluster.inc'
 c     Common block for reweighting info
 c     q2bck holds the central q2fact scales
@@ -1960,6 +1959,7 @@ c     q2bck holds the central q2fact scales
       integer njets,iqjets(nexternal)
       common /to_rw/jlast,njetstore,iqjetstore,njets,iqjets,q2bck
 
+      include 'vector.inc'
       DOUBLE PRECISION G, ALL_G(nb_page_max)
       COMMON/STRONG/ G, ALL_G
 
