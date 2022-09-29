@@ -60,7 +60,7 @@ namespace mg5amcCpu
 #else
     sigmaKin_getGoodHel( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), hstIsGoodHel.data(), nevt() );
 #endif
-    // ... 0d2. Copy back good helicity list to static memory on the host
+    // ... 0d2. Copy good helicity list to static memory on the host
     // [FIXME! REMOVE THIS STATIC THAT BREAKS MULTITHREADING?]
     sigmaKin_setGoodHel( hstIsGoodHel.data() );
   }
@@ -196,7 +196,7 @@ namespace mg5amcGpu
     sigmaKin_getGoodHel( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), hstIsGoodHel.data(), nevt );
 #endif
     checkCuda( cudaPeekAtLastError() );
-    // ... 0d3. Copy back good helicity list to constant memory on the device
+    // ... 0d3. Copy good helicity list to constant memory on the device
     sigmaKin_setGoodHel( hstIsGoodHel.data() );
   }
 
