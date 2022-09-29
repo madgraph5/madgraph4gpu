@@ -1147,7 +1147,8 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
 
     // Local variables for the given CUDA event (ievt) or C++ event page (ipagV)
     // [jamp: sum (for one event or event page) of the invariant amplitudes for all Feynman diagrams in a given color combination]
-    cxtype_sv jamp_sv[ncolor] = {}; // all zeros (NB: vector cxtype_v IS initialized to 0, but scalar cxype is NOT, if \"= {}\" is missing!)
+    fptype_sv jampR_sv[ncolor] = {}; // all zeros (NB: vector cxtype_v IS initialized to 0, but scalar cxype is NOT, if \"= {}\" is missing!)
+    fptype_sv jampI_sv[ncolor] = {}; // all zeros (NB: vector cxtype_v IS initialized to 0, but scalar cxype is NOT, if \"= {}\" is missing!)            
 
     // === Calculate wavefunctions and amplitudes for all diagrams in all processes - Loop over nevt events ===
 #ifndef __CUDACC__
@@ -1159,7 +1160,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     // - shared: as the name says
     // - private: give each thread its own copy, without initialising
     // - firstprivate: give each thread its own copy, and initialise with value from outside
-#pragma omp parallel for default( none ) shared( allmomenta, allMEs, cHel, allcouplings, cIPC, cIPD, ihel, npagV, amp_fp, w_fp ) private( amp_sv, w_sv, jamp_sv )
+#pragma omp parallel for default( none ) shared( allmomenta, allMEs, cHel, allcouplings, cIPC, cIPD, ihel, npagV, amp_fp, w_fp ) private( amp_sv, w_sv, jampR_sv, jampI_sv )
 #endif // _OPENMP
     for( int ipagV = 0; ipagV < npagV; ++ipagV )
 #endif // !__CUDACC__""")
@@ -1601,7 +1602,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
 #endif
 
       // Reset color flows (reset jamp_sv) at the beginning of a new event or event page
-      for( int i = 0; i < ncolor; i++ ) { jamp_sv[i] = cxzero_sv(); }
+      for( int i = 0; i < ncolor; i++ ) { jampR_sv[i] = {}; jampI_sv[i] = {}; }
 
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Numerators and denominators for the current event (CUDA) or SIMD event page (C++)
@@ -1645,15 +1646,31 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                     res.append("// Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)")
                     res.append("#endif")
                 for njamp, coeff in color[namp].items():
-                    scoeff = PLUGIN_OneProcessExporter.coeff(*coeff) # AV
+                    (prefac, frac, is_imag, x) = coeff
+                    if not is_imag:
+                        opeR = "real"
+                        opeI = "imag"
+                        new_coeff =  coeff
+                    else:
+                        # if the coupling is imaginary, we do have to feed the real part to the Imaginary part of the jamp
+                        opeR = "imag"
+                        opeI = "real"
+                        new_coeff =  (prefac, frac, False, x)
+
+                    scoeff = PLUGIN_OneProcessExporter.coeff(*new_coeff) # AV
                     if scoeff[0] == '+' : scoeff = scoeff[1:]
                     scoeff = scoeff.replace('(','( ')
                     scoeff = scoeff.replace(')',' )')
                     scoeff = scoeff.replace(',',', ')
                     scoeff = scoeff.replace('*',' * ')
                     scoeff = scoeff.replace('/',' / ')
-                    if scoeff.startswith('-'): res.append('jamp_sv[%s] -= %samp_sv[0];' % (njamp, scoeff[1:])) # AV
-                    else: res.append('jamp_sv[%s] += %samp_sv[0];' % (njamp, scoeff)) # AV
+                    if scoeff.startswith('-'):
+                        res.append('jampR_sv[%s] -= %samp_sv[0].%s();' % (njamp, scoeff[1:],opeR)) # AV
+                        res.append('jampI_sv[%s] -= %samp_sv[0].%s();' % (njamp, scoeff[1:],opeI)) # AV
+                    else:
+                        res.append('jampR_sv[%s] += %samp_sv[0].%s();' % (njamp, scoeff,opeR)) # AV
+                        res.append('jampI_sv[%s] += %samp_sv[0].%s();' % (njamp, scoeff,opeI)) # AV   
+
             if len(diagram.get('amplitudes')) == 0 : res.append('// (none)') # AV
         ###res.append('\n    // *** END OF DIAGRAMS ***' ) # AV - no longer needed ('COLOR ALGEBRA BELOW')
         return res

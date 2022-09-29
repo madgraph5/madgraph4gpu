@@ -8,14 +8,18 @@
       fptype_sv deltaMEs = { 0 }; // all zeros https://en.cppreference.com/w/c/language/array_initialization#Notes
       for( int icol = 0; icol < ncolor; icol++ )
       {
-        cxtype_sv ztemp_sv = cxzero_sv();
-        for( int jcol = 0; jcol < ncolor; jcol++ )
-          ztemp_sv += cf[icol][jcol] * jamp_sv[jcol];
-        // OLD implementation: why is this not slower? maybe compiler does not compute imaginary part of "ztemp_sv*cxconj(jamp_sv[icol])"?
-        //deltaMEs += cxreal( ztemp_sv * cxconj( jamp_sv[icol] ) ) / denom[icol];
-        // NEW implementation: keep this even if (surprisingly) it is not faster! it is clearer and easier for tensor core offload anyway...
+        fptype_sv ztempR_sv = cf[icol][icol] * jampR_sv[icol];
+        fptype_sv ztempI_sv = cf[icol][icol] * jampR_sv[icol];
+	
+        for( int jcol = icol+1; jcol < ncolor; jcol++ ){
+	  // factor of 2 here because we only loop over the up diagonal part of the matrix
+          ztempR_sv += 2*cf[icol][jcol] * jampR_sv[jcol];
+	  ztempI_sv += 2*cf[icol][jcol] * jampI_sv[jcol];
+        }
+	// here we use the property that M is a real matrix such that we can
         // Rewrite the quadratic form (A-iB)(M)(A+iB) as AMA - iBMA + iBMA + BMB = AMA + BMB!
-        deltaMEs += ( cxreal( ztemp_sv ) * cxreal( jamp_sv[icol] ) + cximag( ztemp_sv ) * cximag( jamp_sv[icol] ) ) / denom[icol];
+	deltaMEs += (jampR_sv[icol]*ztempR_sv + jampI_sv[icol]*ztempI_sv)/denom[icol];
+	}
       }
 
       // *** STORE THE RESULTS ***
