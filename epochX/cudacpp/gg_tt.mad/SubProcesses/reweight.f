@@ -24,7 +24,6 @@ c**************************************************
       include 'nexternal.inc'
       include 'message.inc'
       include 'maxamps.inc'
-      include 'vector.inc'
       include 'cluster.inc'
       include 'sudakov.inc'
       include 'maxparticles.inc'
@@ -98,7 +97,6 @@ c**************************************************
       include 'message.inc'
       include 'nexternal.inc'
       include 'maxamps.inc'
-      include 'vector.inc'
       include 'cluster.inc'      
       integer ipdg,imode
       double precision q0, Q11
@@ -1887,7 +1885,6 @@ c      ENDIF
 
       include 'nexternal.inc'
       include 'maxamps.inc'
-      include 'vector.inc'
       include 'cluster.inc'
 c     Common block for reweighting info
 c     q2bck holds the central q2fact scales
