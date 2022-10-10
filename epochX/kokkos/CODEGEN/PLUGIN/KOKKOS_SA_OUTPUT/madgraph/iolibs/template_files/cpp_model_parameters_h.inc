@@ -71,7 +71,7 @@ namespace Parameters_%(model_name)s_dependentCouplings
 
     // NB: hardcode cxtype cI(0,1) instead of cxtype (or hardcoded cxsmpl) mdl_complexi (which exists in Parameters_%(model_name)s) because:
     // (1) mdl_complexi is always (0,1); (2) mdl_complexi is undefined in device code; (3) need cxsmpl conversion to cxtype in code below
-    static constexpr CXType cI( 0., 1. );
+    static CXType cI( 0., 1. );
 
       // Model parameters dependent on aS
 %(dcoupsetdpar)s

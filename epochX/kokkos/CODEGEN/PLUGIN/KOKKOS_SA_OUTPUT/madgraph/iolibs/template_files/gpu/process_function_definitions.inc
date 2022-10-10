@@ -11,17 +11,9 @@ CPPProcess::CPPProcess(
     bool verbose, bool debug): 
       m_numiterations(numiterations), m_league_size(leaguesize), 
       m_team_size(teamsize),
-      m_cHel("cHel",mgOnGpu::ncomb,mgOnGpu::npar), m_hHel("hHel",mgOnGpu::ncomb,mgOnGpu::npar), 
-      m_cIPC("cIPC",%(ncouplingstimes2)s), m_hIPC("hIPC",%(ncouplingstimes2)s), 
-      m_cIPD("cIPD",%(nparams)s), m_hIPD("hIPD",%(nparams)s)
-{
-
-  for(int i=0;i<mgOnGpu::ncomb;++i)
-      for(int j=0;j<mgOnGpu::npar;++j){
-          m_hHel(i,j) = helicities<short>[i*mgOnGpu::npar + j];
-      }
-  Kokkos::deep_copy(m_cHel,m_hHel);
-}
+      m_cIPC("cIPC",independentCouplings::nicoup), m_hIPC("hIPC",independentCouplings::nicoup), 
+      m_cIPD("cIPD",mgOnGpu::nparams), m_hIPD("hIPD",mgOnGpu::nparams)
+{}
 
 //--------------------------------------------------------------------------
 
@@ -50,15 +42,14 @@ void CPPProcess::initProc( const std::string& param_card_name )
 
 //--------------------------------------------------------------------------
 template <typename mom_t, typename igh_t, typename ngh_t, 
-          typename gs_t, typename gs_t, typename idc_t,
-          typename idp_t>
+          typename gs_t, typename idc_t, typename idp_t>
 void sigmaKin_setup(
     const mom_t& momenta,
     const igh_t& iGoodHel,
     const ngh_t& nGoodHel,
     const gs_t& Gs,
     const idc_t& indep_couplings,
-    const ipd_t& indep_params,
+    const idp_t& cIPD,
     const int& league_size,
     const int& team_size)
 {
@@ -69,22 +60,27 @@ void sigmaKin_setup(
   Kokkos::parallel_for(__func__,policy, 
   KOKKOS_LAMBDA(const member_type& team_member){
     const int ievt = team_member.league_rank() * team_member.team_size() + team_member.team_rank();
-    
-    // Load helicities into local (private) memory
-    const auto dev_helicities = Proc::helicities<short>;
 
-    // build combined couplings 
-    cxtype dev_couplings[dependentCouplings::ndcoup + independentCouplings::nicoup];
-    dependentCouplings::set_couplings_from_G(dev_couplings, devGsC[ievt]);
+    // Load helicities into local (private) memory
+    const auto cHel = helicities<short>;
+    cxtype cIPC[dependentCouplings::ndcoup + independentCouplings::nicoup];
+
+#if MGONGPU_NDCOUP > 0
+    dependentCouplings::set_couplings_from_G(cIPC, Gs[ievt]); 
+#endif
+
+#if MGONGPU_NICOUP > 0
     for (size_t i = 0; i < independentCouplings::nicoup; i++) {
-        dev_couplings[dependentCouplings::ndcoup + i] = dev_independent_couplings[i];
+        cIPC[dependentCouplings::ndcoup + i] = indep_couplings[i];
     }
+#endif
+
 
     auto local_mom = Kokkos::subview(momenta,ievt,Kokkos::ALL,Kokkos::ALL);
     for (int ihel = 0;ihel < mgOnGpu::ncomb;++ihel)
     {
-      const auto local_cHel = dev_helicities[ihel];
-      auto allMEs = calculate_wavefunctions(local_mom, local_cHel, dev_couplings, indep_params);
+      const auto local_cHel = cHel[ihel];
+      auto allMEs = calculate_wavefunctions(local_mom, local_cHel, cIPC, cIPD);
       if (allMEs != 0)
       {
         isGoodHel(ihel) = true;
@@ -109,8 +105,8 @@ void sigmaKin_setup(
 //--------------------------------------------------------------------------
 // Evaluate |M|^2, part independent of incoming flavour.
 template <typename mom_t, typename igh_t, typename ngh_t, 
-          typename gs_t, typename gs_t, typename idc_t,
-          typename idp_t>
+          typename gs_t, typename idc_t, typename idp_t,
+          typename out_t>
 void sigmaKin(
     const mom_t& momenta,
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
@@ -120,9 +116,10 @@ void sigmaKin(
     const ngh_t& nGoodHel,
     const gs_t& Gs,
     const idc_t& indep_couplings,
-    const ipd_t& indep_params,
+    const idp_t& cIPD,
     const int& league_size,
-    const int& team_size)
+    const int& team_size,
+    const out_t& allMEs)
 {
   using member_type = typename Kokkos::TeamPolicy<Kokkos::DefaultExecutionSpace>::member_type;
   Kokkos::TeamPolicy<Kokkos::DefaultExecutionSpace> policy( league_size, team_size );
@@ -136,14 +133,24 @@ void sigmaKin(
     constexpr int denominators = %(den_factors)s; // FIXME: assume process.nprocesses == 1 for the moment (eventually denominators[nprocesses]?)
 
     // Load helicities into local (private) memory
-    const auto dev_helicities = Proc::helicities<short>;
+    const auto cHel = helicities<short>;
+    cxtype cIPC[dependentCouplings::ndcoup + independentCouplings::nicoup];
 
-    // build combined couplings 
-    cxtype dev_couplings[dependentCouplings::ndcoup + independentCouplings::nicoup];
-    dependentCouplings::set_couplings_from_G(dev_couplings, devGsC[ievt]);
+#if MGONGPU_NDCOUP > 0
+    dependentCouplings::set_couplings_from_G(cIPC, Gs[ievt]); 
+#endif
+
+#if MGONGPU_NICOUP > 0
     for (size_t i = 0; i < independentCouplings::nicoup; i++) {
-        dev_couplings[dependentCouplings::ndcoup + i] = dev_independent_couplings[i];
+        cIPC[dependentCouplings::ndcoup + i] = indep_couplings[i];
     }
+#endif
+
+    allMEs[ievt] = 0;
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+    fptype allNumerators = 0;
+    fptype allDenominators = 0;
+#endif
 
     // PART 1 - HELICITY LOOP: CALCULATE WAVEFUNCTIONS
     // (in both CUDA and C++, using precomputed good helicities)
@@ -151,14 +158,22 @@ void sigmaKin(
     auto local_mom = Kokkos::subview(momenta,ievt,Kokkos::ALL,Kokkos::ALL);
     for (int ighel = 0;ighel < nGoodHel(0);++ighel)
     {
-      auto local_cHel = Kokkos::subview(cHel,iGoodHel(ighel),Kokkos::ALL);
-      calculate_wavefunctions(local_mom, local_cHel, cIPD, cIPC, allMEs[ievt]);
+      auto local_cHel = cHel[iGoodHel(ighel)];
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+      allMEs[ievt] += calculate_wavefunctions(local_mom, &allNumerators, &allDenominators, local_cHel, cIPC, cIPD);
+#else
+      allMEs[ievt] += calculate_wavefunctions(local_mom, local_cHel, cIPC, cIPD);
+#endif
     }
     // PART 2 - FINALISATION (after calculate_wavefunctions)
     // Get the final |M|^2 as an average over helicities/colors of the running sum of |M|^2 over helicities for the given event
     // [NB 'sum over final spins, average over initial spins', eg see
     // https://www.uzh.ch/cmsssl/physik/dam/jcr:2e24b7b1-f4d7-4160-817e-47b13dbf1d7c/Handout_4_2016-UZH.pdf]
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
+    
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+    if( channelId > 0 ) allMEs[ievt] *= allNumerators / allDenominators; // FIXME (#343): assume nprocesses == 1
+#endif
     allMEs[ievt] /= (fptype)denominators;
 
   });// end parallel for

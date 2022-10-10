@@ -10,7 +10,6 @@
 #include <unistd.h>
 
 #include "Kokkos_Core.hpp"
-#include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
 #include "random_generator.h"
 #include "rambo.h"
@@ -175,19 +174,6 @@ int main(int argc, char **argv)
   // initialize Kokkos
   Kokkos::initialize(argc, argv); {
 
-  const int neppR = mgOnGpu::neppR; // AOSOA layout: constant at compile-time
-  if ( team_size%neppR != 0 )
-  {
-    std::cout << "ERROR! #threads/block should be a multiple of neppR=" << neppR << std::endl;
-    return usage(argv[0]);
-  }
-
-  const int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
-  if ( team_size%neppM != 0 )
-  {
-    std::cout << "ERROR! #threads/block should be a multiple of neppM=" << neppM << std::endl;
-    return usage(argv[0]);
-  }
 
   using mgOnGpu::ntpbMAX;
   if ( team_size > ntpbMAX )
@@ -230,7 +216,7 @@ int main(int argc, char **argv)
   timermap.start( procKey );
 
   // Create a process object
-  CPPProcess<Kokkos::DefaultExecutionSpace> process( niter, league_size, team_size, verbose );
+  CPPProcess process( niter, league_size, team_size, verbose );
 
 
   // Read param_card and set parameters
@@ -255,33 +241,33 @@ int main(int argc, char **argv)
   // const int nMEs     = nevt; // FIXME: assume process.nprocesses == 1 (eventually: nMEs = nevt * nprocesses?)
 
   // Random Numbers
-  Kokkos::View<fptype**,Kokkos::DefaultExecutionSpace> devRnarray(Kokkos::ViewAllocateWithoutInitializing("devRnarray"),nevt,np4*nparf);
+  Kokkos::View<fptype**> devRnarray(Kokkos::ViewAllocateWithoutInitializing("devRnarray"),nevt,np4*nparf);
 #ifdef FIXED_RANDOM
     auto hstRnarray = Kokkos::create_mirror_view(devRnarray);
 #endif
 
   // momenta
-  Kokkos::View<fptype***,Kokkos::DefaultExecutionSpace> devMomenta(Kokkos::ViewAllocateWithoutInitializing("devMomenta"),nevt,npar,np4);
+  Kokkos::View<fptype***> devMomenta(Kokkos::ViewAllocateWithoutInitializing("devMomenta"),nevt,npar,np4);
   auto hstMomenta = Kokkos::create_mirror_view(devMomenta);
 
   // matrix elements
-  Kokkos::View<fptype*,Kokkos::DefaultExecutionSpace> devMEs(Kokkos::ViewAllocateWithoutInitializing("devMEs"),nevt*process.nprocesses);
+  Kokkos::View<fptype*> devMEs(Kokkos::ViewAllocateWithoutInitializing("devMEs"),nevt);
   auto hstMEs = Kokkos::create_mirror_view(devMEs);
 
+  constexpr fptype fixedG = 1.2177157847767195; // fixed G for aS=0.118 (hardcoded for now in check_sa.cc, fcheck_sa.f, 
+  Kokkos::View<fptype*> devGs(Kokkos::ViewAllocateWithoutInitializing("devGs"),nevt);
+  auto hstGs = Kokkos::create_mirror_view(devGs);
+  for(int i=0;i<nevt;++i) hstGs[i] = fixedG;
+  Kokkos::deep_copy(devGs,hstGs);
+
   // weights
-  Kokkos::View<fptype*,Kokkos::DefaultExecutionSpace> devWeights(Kokkos::ViewAllocateWithoutInitializing("devWeights"),nevt*process.nprocesses);
+  Kokkos::View<fptype*> devWeights(Kokkos::ViewAllocateWithoutInitializing("devWeights"),nevt);
   auto hstWeights = Kokkos::create_mirror_view(devWeights);
 
   // good helicity indices tracking (device-side only)
-  Kokkos::View<int*,Kokkos::DefaultExecutionSpace> devNGoodHel("devNGoodHel",1); // TODO Fixed to 1 process
+  Kokkos::View<int*> devNGoodHel("devNGoodHel",1); // TODO Fixed to 1 process
   auto hstNGoodHel = Kokkos::create_mirror_view(devNGoodHel);
-  Kokkos::View<int*,Kokkos::DefaultExecutionSpace> devIsGoodHel("devIsGoodHel",ncomb);
-
-
-  // const int nbytesMomenta = nMomenta * sizeof(fptype);
-  // const int nbytesIsGoodHel = ncomb * sizeof(bool);
-  // const int nbytesWeights = nWeights * sizeof(fptype);
-  // const int nbytesMEs = nMEs * sizeof(fptype);
+  Kokkos::View<int*> devIsGoodHel("devIsGoodHel",ncomb);
 
   std::unique_ptr<double[]> genrtimes( new double[niter] );
   std::unique_ptr<double[]> rambtimes( new double[niter] );
@@ -352,7 +338,7 @@ int main(int argc, char **argv)
     // --- 2a. Fill in momenta of initial state particles on the device
     const std::string riniKey = "2a RamboIni";
     timermap.start( riniKey );
-    get_initial_momenta(devMomenta,process.nexternal,energy,process.cmME,league_size,team_size);
+    get_initial_momenta(devMomenta,mgOnGpu::npar,energy,league_size,team_size);
     Kokkos::fence();
     //std::cout << "Got initial momenta" << std::endl;
 
@@ -360,7 +346,7 @@ int main(int argc, char **argv)
     // (i.e. map random numbers to final-state particle momenta for each of nevt events)
     const std::string rfinKey = "2b RamboFin";
     rambtime += timermap.start( rfinKey );
-    get_final_momenta(process.ninitial, process.nexternal, energy, process.cmME, devMomenta, devRnarray, devWeights, league_size, team_size);
+    get_final_momenta(mgOnGpu::npari, mgOnGpu::npar, energy, devMomenta, devRnarray, devWeights, league_size, team_size);
     Kokkos::fence();
     //std::cout << "Got final momenta" << std::endl;
 
@@ -390,7 +376,7 @@ int main(int argc, char **argv)
       const std::string ghelKey = "0d SGoodHel";
       timermap.start( ghelKey );
       // ... 0d1. Compute good helicity mask on the device
-      sigmaKin_setup(devMomenta, devMEs, process.cHel, process.cIPD, process.cIPC, devIsGoodHel, devNGoodHel, process.ncomb, league_size, team_size);
+      sigmaKin_setup(devMomenta, devIsGoodHel, devNGoodHel, devGs, process.m_cIPC, process.m_cIPD, league_size, team_size);
       Kokkos::fence();
     }
 
@@ -401,7 +387,7 @@ int main(int argc, char **argv)
     // --- 3a. SigmaKin
     const std::string skinKey = "3a SigmaKin";
     timermap.start( skinKey );
-    sigmaKin(devMomenta, devMEs, process.cHel, process.cIPD, process.cIPC, devIsGoodHel, devNGoodHel, process.ncomb, league_size, team_size);
+    sigmaKin(devMomenta, devIsGoodHel, devNGoodHel, devGs, process.m_cIPC, process.m_cIPD, league_size, team_size, devMEs);
     Kokkos::fence();
     // *** STOP THE NEW OLD-STYLE TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
     wv3atime += timermap.stop(); // calc only
@@ -413,7 +399,6 @@ int main(int argc, char **argv)
     Kokkos::deep_copy(hstMEs,devMEs);
     // *** STOP THE OLD OLD-STYLE TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
     wavetime += timermap.stop(); // calc plus copy
-
 
     // === STEP 4 FINALISE LOOP
     // --- 4a Dump within the loop
@@ -602,21 +587,6 @@ int main(int argc, char **argv)
 
   if (perf)
   {
-#ifndef __CUDACC__
-    // Get the output of "nproc --all" (https://stackoverflow.com/a/478960)
-    std::string nprocall;
-    std::unique_ptr<FILE, decltype(&pclose)> nprocpipe( popen( "nproc --all", "r" ), pclose );
-    if ( !nprocpipe ) throw std::runtime_error( "`nproc --all` failed?" );
-    std::array<char, 128> nprocbuf;
-    while ( fgets( nprocbuf.data(), nprocbuf.size(), nprocpipe.get() ) != nullptr ) nprocall += nprocbuf.data();
-#endif
-#ifdef MGONGPU_CPPSIMD
-#ifdef MGONGPU_HAS_CXTYPE_REF
-    const std::string cxtref = " [cxtype_ref=YES]";
-#else
-    const std::string cxtref = " [cxtype_ref=NO]";
-#endif
-#endif
     // Dump all configuration parameters and all results
     std::cout << std::string(SEP79, '*') << std::endl
 #ifdef __CUDACC__
@@ -624,7 +594,7 @@ int main(int argc, char **argv)
 #else
               << "Process                     = " << XSTRINGIFY(MG_EPOCH_PROCESS_ID) << "_CPP"
 #endif
-              << " [" << process.getCompiler() << "]"
+
 #ifdef MGONGPU_INLINE_HELAMPS
               << " [inlineHel=1]" << std::endl
 #else
@@ -637,57 +607,7 @@ int main(int argc, char **argv)
               << std::string(SEP79, '-') << std::endl
               << "FP precision                = " << FPTYPE_NAME << " (NaN/abnormal=" << nabn << ", zero=" << nzero << ")" << std::endl
               << "Complex type                = " << COMPLEX_TYPE_NAME << std::endl
-              << "RanNumb memory layout       = AOSOA[" << neppR << "]"
-              << ( neppR == 1 ? " == AOS" : "" )
-              << " [HARDCODED FOR REPRODUCIBILITY]" << std::endl
-              << "Momenta memory layout       = AOSOA[" << neppM << "]"
-              << ( neppM == 1 ? " == AOS" : "" ) << std::endl
-#ifdef __CUDACC__
-      //<< "Wavefunction GPU memory     = LOCAL" << std::endl
-#else
-#if !defined MGONGPU_CPPSIMD
-              << "Internal loops fptype_sv    = SCALAR ('none': ~vector[" << neppV
-              << "], no SIMD)" << std::endl
-#elif defined __AVX512VL__
-#ifdef MGONGPU_PVW512
-              << "Internal loops fptype_sv    = VECTOR[" << neppV
-              << "] ('512z': AVX512, 512bit)" << cxtref << std::endl
-#else
-              << "Internal loops fptype_sv    = VECTOR[" << neppV
-              << "] ('512y': AVX512, 256bit)" << cxtref << std::endl
-#endif
-#elif defined __AVX2__
-              << "Internal loops fptype_sv    = VECTOR[" << neppV
-              << "] ('avx2': AVX2, 256bit)" << cxtref << std::endl
-#elif defined __SSE4_2__
-              << "Internal loops fptype_sv    = VECTOR[" << neppV
-#ifdef __PPC__
-              << "] ('sse4': PPC VSX, 128bit)" << cxtref << std::endl
-#else
-              << "] ('sse4': SSE4.2, 128bit)" << cxtref << std::endl
-#endif
-#else
-#error Internal error: unknown SIMD build configuration
-#endif
-#endif
-#ifdef __CUDACC__
-#if defined MGONGPU_COMMONRAND_ONHOST
-              << "Random number generation    = COMMON RANDOM HOST (CUDA code)" << std::endl
-#elif defined MGONGPU_CURAND_ONDEVICE
-              << "Random number generation    = CURAND DEVICE (CUDA code)" << std::endl
-#elif defined MGONGPU_CURAND_ONHOST
-              << "Random number generation    = CURAND HOST (CUDA code)" << std::endl
-#endif
-#else
-#if defined MGONGPU_COMMONRAND_ONHOST
-              << "Random number generation    = COMMON RANDOM (C++ code)" << std::endl
-#else
-              << "Random number generation    = CURAND (C++ code)" << std::endl
-#endif
-#ifdef _OPENMP
-              << "OMP threads / `nproc --all` = " << omp_get_max_threads() << " / " << nprocall // includes a newline
-#endif
-#endif
+
       //<< "MatrixElements compiler     = " << process.getCompiler() << std::endl
               << std::string(SEP79, '-') << std::endl
               << "NumberOfEntries             = " << niter << std::endl
@@ -780,30 +700,8 @@ int main(int argc, char **argv)
              << "\"NumBlocksPerGrid\": " << league_size << ", " << std::endl
              << "\"FP precision\": " << "\"" << FPTYPE_NAME << " (NaN/abnormal=" << nabn << ")\"," << std::endl
              << "\"Complex type\": " << "\"" << COMPLEX_TYPE_NAME << "\"," << std::endl
-             << "\"RanNumb memory layout\": " << "\"AOSOA[" << neppR << "]"
-             << ( neppR == 1 ? " == AOS" : "" ) << "\", " << std::endl
-             << "\"Momenta memory layout\": " << "\"AOSOA[" << neppM << ""
-             << ( neppM == 1 ? " == AOS" : "" ) << "]\", " << std::endl
-#ifdef __CUDACC__
-      //<< "\"Wavefunction GPU memory\": " << "\"LOCAL\"," << std::endl
-#endif
-             << "\"Curand generation\": "
-#ifdef __CUDACC__
-#if defined MGONGPU_COMMONRAND_ONHOST
-             << "\"COMMON RANDOM HOST (CUDA code)\"," << std::endl;
-#elif defined MGONGPU_CURAND_ONDEVICE
-    << "\"CURAND DEVICE (CUDA code)\"," << std::endl;
-#elif defined MGONGPU_CURAND_ONHOST
-    << "\"CURAND HOST (CUDA code)\"," << std::endl;
-#endif
-#else
-#if defined MGONGPU_COMMONRAND_ONHOST
-    << "\"COMMON RANDOM (C++ code)\"," << std::endl;
-#else
-    << "\"CURAND (C++ code)\"," << std::endl;
-#endif
-#endif
-    jsonFile << "\"NumberOfEntries\": " << niter << "," << std::endl
+             
+             << "\"NumberOfEntries\": " << niter << "," << std::endl
       //<< std::scientific // Not sure about this
              << "\"TotalTime[Rnd+Rmb+ME] (123)\": \""
              << std::to_string(sumgtim+sumrtim+sumwtim) << " sec\","

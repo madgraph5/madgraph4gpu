@@ -7,17 +7,16 @@
 
 #define ACC 1e-14
 
-template <typename ExecSpace>
+
 void get_initial_momenta(
-      Kokkos::View<double***,ExecSpace> d_p,
+      Kokkos::View<double***> d_p,
       const int nexternal,const double energy,
-      const Kokkos::View<double*,ExecSpace>& masses,
       const int& league_size,
       const int& team_size)
 {
   
-  using member_type = typename Kokkos::TeamPolicy<ExecSpace>::member_type;
-  Kokkos::TeamPolicy<ExecSpace> policy( league_size, team_size );
+  using member_type = typename Kokkos::TeamPolicy<Kokkos::DefaultExecutionSpace>::member_type;
+  Kokkos::TeamPolicy<Kokkos::DefaultExecutionSpace> policy( league_size, team_size );
   Kokkos::parallel_for(__func__,policy, 
   KOKKOS_LAMBDA(const member_type& team_member){
     const int ievt = team_member.league_rank() * team_member.team_size() + team_member.team_rank();
@@ -38,20 +37,19 @@ void get_initial_momenta(
   });
 }
 
-template <typename ExecSpace>
 void get_final_momenta(const int ninitial,const int nexternal,const double energy,
-    const Kokkos::View<double*,ExecSpace>& masses,
-    Kokkos::View<double ***,ExecSpace>& d_p,
-    const Kokkos::View<double **,ExecSpace>& random_numbers,
-    Kokkos::View<double*,ExecSpace>& d_wgt,
+    // const Kokkos::View<double*>& masses,
+    Kokkos::View<double ***>& d_p,
+    const Kokkos::View<double **>& random_numbers,
+    Kokkos::View<double*>& d_wgt,
     const int& league_size,
     const int& team_size)
   {
 
-  Kokkos::View<int*,ExecSpace> iwarn("iwarn",5);
+  Kokkos::View<int*> iwarn("iwarn",5);
   
-  using member_type = typename Kokkos::TeamPolicy<ExecSpace>::member_type;
-  Kokkos::TeamPolicy<ExecSpace> policy( league_size, team_size );
+  using member_type = typename Kokkos::TeamPolicy<Kokkos::DefaultExecutionSpace>::member_type;
+  Kokkos::TeamPolicy<Kokkos::DefaultExecutionSpace> policy( league_size, team_size );
   Kokkos::parallel_for(__func__,policy, 
     KOKKOS_LAMBDA(const member_type& team_member){
       const int ievt = team_member.league_rank() * team_member.team_size() + team_member.team_rank();

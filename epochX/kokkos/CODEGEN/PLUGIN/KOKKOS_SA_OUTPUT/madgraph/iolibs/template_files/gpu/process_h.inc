@@ -10,6 +10,7 @@
 
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
+#include "HelAmps_sm.h"
 
 #include "Kokkos_Core.hpp"
 #include "Parameters_%(model_name)s.h"
@@ -19,9 +20,7 @@
 namespace dependentCouplings = Parameters_%(model_name)s_dependentCouplings;
 namespace independentCouplings = Parameters_%(model_name)s_independentCouplings;
 
-template <typename T>
 %(all_helicities)s
-};
 
 %(process_class_definitions)s
 

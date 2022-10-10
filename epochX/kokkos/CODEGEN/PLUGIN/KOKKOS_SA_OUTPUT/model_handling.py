@@ -901,13 +901,11 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     # AV - replace export_cpp.OneProcessExporterGPU method (fix gCPPProcess.cu)
     def get_process_function_definitions(self, write=True):
         """The complete class definition for the process"""
-        replace_dict = super(PLUGIN_export_cpp.OneProcessExporterGPU,self).get_process_function_definitions(write=False) # defines replace_dict['initProc_lines']
-        replace_dict['hardcoded_initProc_lines'] = replace_dict['initProc_lines'].replace( 'm_pars->', 'Parameters_%s::' % self.model_name )
-        couplings2order_indep = []
-        # replace_dict['ncouplings'] = len(self.couplings2order)
-        # replace_dict['ncouplingstimes2'] = 2 * replace_dict['ncouplings']
+        replace_dict = super(PLUGIN_export_cpp.OneProcessExporterGPU,self).get_process_function_definitions(write=False)
+        replace_dict['ncouplings'] = len(self.couplings2order)
+        replace_dict['ncouplingstimes2'] = 2 * replace_dict['ncouplings']
         replace_dict['nparams'] = len(self.params2order)
-        # replace_dict['nmodels'] = replace_dict['nparams'] + replace_dict['ncouplings']
+        replace_dict['nmodels'] = replace_dict['nparams'] + replace_dict['ncouplings']
         replace_dict['coupling_list'] = ' '
         replace_dict['hel_amps_cc'] = '#include \"HelAmps_%s.cc\"' % self.model_name # AV
         coupling = [''] * len(self.couplings2order)
@@ -925,35 +923,33 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         
         ## NSN - Need access to independent couplings tIPC outside of CPPProcess for SYCL
         coup_str = ""
+        #for i in range(len(self.couplings2order)):
+        #    coup_str += "m_tIPC[%s] = cxmake( m_pars->%s );\n" % (i, coupling[i])
         if len(coupling_indep) > 0:
             for i in range(len(coupling_indep)):
-                coup_str += "    m_tIPC[%s] = cxmake( m_pars->%s );\n" % (i, coupling_indep[i])
+                coup_str += "  m_hIPC[%s] = cxmake( m_pars->%s );\n" % (i, coupling_indep[i])
+                coup_str += "  Kokkos::deep_copy(m_cIPC,m_hIPC);\n"
         else:
-            coup_str = "    //m_tIPC[...] = ... ; // nicoup=0\n"
+            coup_str = "  //m_tIPC[...] = ... ; // nicoup=0\n"
 
-        replace_dict['ncouplings'] = len(coupling_indep) # AV only indep!
-        replace_dict['ncouplingstimes2'] = 2 * replace_dict['ncouplings']
-        coup_str = "  const cxtype tIPC[%s] = { cxmake( m_pars->%s ) };\n"\
-            %(len(self.couplings2order), '), cxmake( m_pars->'.join(coupling)) # AV
-        coup_str += '''  for(int i=0;i<%s;++i){
-    m_hIPC(i*2 + 0) = tIPC[i].real();
-    m_hIPC(i*2 + 1) = tIPC[i].imag();
-  }
-  Kokkos::deep_copy(m_cIPC,m_hIPC);\n\n''' % len(self.couplings2order)
+        self.number_dependent_couplings = len(coupling) - len(coupling_indep)
+        self.number_independent_couplings = len(coupling_indep)
+
         for para, pos in self.params2order.items():
             params[pos] = para
-        param_str = "  const fptype tIPD[%s] = { (fptype)m_pars->%s };"\
-            %(len(self.params2order), ', (fptype)m_pars->'.join(params)) # AV
-        param_str += '''
-  for(int i=0;i<%s;++i)
-    m_hIPD(i) = tIPD[i];
-  Kokkos::deep_copy(m_cIPD,m_hIPD);''' % len(self.params2order)
+
+        # NSN - Need access to tIPD outside of CPPProcess for SYCL
+        param_str = ""
+        if len(params) > 0:
+            for i in range(len(self.params2order)):
+                param_str += "  m_hIPD[%s] = (fptype)m_pars->%s;\n" % (i, params[i])
+            param_str += "  Kokkos::deep_copy(m_cIPD,m_hIPD);"
+        else:
+            parm_str += "  //m_tIPD[...] = ... ; // nparam=0\n"
+
         replace_dict['assign_coupling'] = coup_str + param_str
-        replace_dict['all_helicities'] = self.get_helicity_matrix(self.matrix_elements[0])
-        replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace('helicities', 'tHel')
-        file_text = self.read_template_file(self.process_definition_template)
-        
-        return file_text % replace_dict
+        file = self.read_template_file(self.process_definition_template) % replace_dict
+        return file
 
     # AV - modify export_cpp.OneProcessExporterGPU method (add debug printouts for multichannel #342)
     def get_sigmaKin_lines(self, color_amplitudes, write=True):
@@ -970,19 +966,20 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             ret_lines.append("""
   // Evaluate |M|^2 for each subprocess
   // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
-template <typename mom_t, typename hel_t, typename ipc_t, typename ipd_t, typename me_t>
+template <typename mom_t, typename ipc_t, typename ipd_t>
 KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
   const mom_t& allmomenta, // input: momenta
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   fptype& allNumerators,   // output: multichannel numerators, running_sum_over_helicities
   fptype& allDenominators, // output: multichannel denominators, running_sum_over_helicities
-   const unsigned int channelId,         // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
+  const unsigned int channelId,         // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
 #endif
   const short*  __restrict__ cHel,
   const ipc_t& COUPs,
   const ipd_t& cIPD
   )
 {
+  using namespace MG5_sm;
   fptype allMEs = 0;""")
             
             ret_lines.append("  // The number of colors")
@@ -1092,15 +1089,28 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
         template = open(pjoin(self.template_path,'gpu','mgOnGpuConfig.h'),'r').read()
         replace_dict = {}
         nexternal, nincoming = self.matrix_elements[0].get_nexternal_ninitial()
+        replace_dict['number_dependent_couplings'] = self.number_dependent_couplings
+        replace_dict['number_independent_couplings'] = self.number_independent_couplings
         replace_dict['nincoming'] = nincoming
         replace_dict['noutcoming'] = nexternal - nincoming
-        replace_dict['nbhel'] = self.matrix_elements[0].get_helicity_combinations() # number of helicity combinations
-        replace_dict['nwavefunc'] = self.matrix_elements[0].get_number_of_wavefunctions()
+
+        # Number of helicity combinations
+        replace_dict['nbhel'] = \
+                            self.matrix_elements[0].get_helicity_combinations()
+        replace_dict['nwavefunc'] = \
+                          self.matrix_elements[0].get_number_of_wavefunctions()
         replace_dict['wavefuncsize'] = 6
+
+        replace_dict['ncouplings'] = len(self.couplings2order)
+        replace_dict['ncouplingstimes2'] = 2 * replace_dict['ncouplings']
+        replace_dict['nparams'] = len(self.params2order)
+        
+        
         if self.include_multi_channel:
             replace_dict['mgongpu_supports_multichannel'] = '#define MGONGPU_SUPPORTS_MULTICHANNEL 1'
         else:
             replace_dict['mgongpu_supports_multichannel'] = '#undef MGONGPU_SUPPORTS_MULTICHANNEL'
+
         ff = open(pjoin(self.path, '..','..','src','mgOnGpuConfig.h'),'w')
         ff.write(template % replace_dict)
         ff.close()
@@ -1143,12 +1153,12 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 
         #Set helicities
         replace_dict['all_helicities'] = self.get_helicity_matrix(self.matrix_elements[0])
-        replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace("{", "")
-        replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace("}", "")
-        replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace("helicities", "constexpr T helicities[] {")
-        replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace("    ", "  ")
-        replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace(", constexpr", "constexpr")
-        replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace(";", "")
+        # replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace("{", "")
+        # replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace("}", "")
+        # replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace("helicities", "constexpr T helicities[mgOnGpu::ncomb][mgOnGpu::npar] {")
+        # replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace("    ", "  ")
+        # replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace(", constexpr", "constexpr")
+        # replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace(";", "")
 
         #Set hardcoded parameters
         params = [''] * len(self.params2order)
@@ -1259,13 +1269,11 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
         """Return the Helicity matrix definition lines for this matrix element"""
         ###helicity_line = "static const int helicities[ncomb][nexternal] = {";
         ###helicity_line = "    constexpr short helicities[ncomb][mgOnGpu::npar] = {\n      "; # AV (this is tHel)
-        helicity_line = "    , helicities {\n      "; # NSN SYCL needs access to tHel outside CPPProcess
+        helicity_line = "template <typename T>\nT helicities[mgOnGpu::ncomb][mgOnGpu::npar] {\n  "; # NSN SYCL needs access to tHel outside CPPProcess
         helicity_line_list = []
         for helicities in matrix_element.get_helicity_matrix(allow_reverse=False):
-            ###helicity_line_list.append("{"+",".join(['%d'] * len(helicities)) % tuple(helicities) + "}")
-            helicity_line_list.append( "{" + ", ".join(['%d'] * len(helicities)) % tuple(helicities) + "}" ) # AV
-        ###return helicity_line + ",".join(helicity_line_list) + "};"
-        return helicity_line + ",\n      ".join(helicity_line_list) + "};" # AV
+            helicity_line_list.append( "{" + ", ".join(['%d'] * len(helicities)) % tuple(helicities) + "}" ) # AV"
+        return helicity_line + ",\n  ".join(helicity_line_list) + "\n};" # AV
 
     # AV - overload the export_cpp.OneProcessExporterGPU method (just to add some comments...)
     def get_reset_jamp_lines(self, color_amplitudes):

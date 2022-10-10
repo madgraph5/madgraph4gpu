@@ -24,29 +24,22 @@ inline void nvtxRangePop(void){return;};
 
 // --- Functions and operators for floating point types
 
-#ifdef KOKKOS_ENABLE_CUDA // cuda
 
 // use predefined cuda math library functions for double or float
-#ifdef MGONGPU_FPTYPE_DOUBLE
-const auto& fpmax = fmax;
-const auto& fpmin = fmin;
-const auto& fpsqrt = sqrt;
-const auto& fpabs = fabs;
-#else
-const auto& fpmax = fmaxf;
-const auto& fpmin = fminf;
-const auto& fpsqrt = sqrtf;
-const auto& fpabs = fabsf;
-#endif
-const auto& iabs  = abs;
+#ifdef KOKKOS_ENABLE_CUDA // cuda
+extern fptype (*fpmax)(const fptype&,const fptype&);
+extern fptype (*fpmin)(const fptype&,const fptype&);
+extern fptype (*fpsqrt)(const fptype&);
+extern fptype (*fpabs)(const fptype&);
+extern int (*iabs)(const int&);
 
-#else // c++
+#elseif // c++
 
-const auto fpmax = [](fptype const& L, fptype const& R) -> fptype const { return std::max(L, R); };
-const auto fpmin = [](fptype const& L, fptype const& R) -> fptype const { return std::min(L, R); };
-const auto fpsqrt = [](fptype const& V) -> fptype const { return std::sqrt(V); };
-const auto fpabs = [](fptype const& V) -> fptype const { return std::fabs(V); };
-const auto& iabs  = [](int const& V) -> int const { return std::abs(V); };
+fptype fpmax(const fptype&,const fptype&);
+fptype fpmin(const fptype& ,const fptype&);
+fptype fpsqrt(const fptype&);
+fptype fpabs(const fptype&);
+int iabs(const int&);
 
 #endif
 
@@ -362,5 +355,17 @@ cxtype cxmake( const std::complex<double>& c ) // std::complex to std::complex (
 #endif
 
 #endif  // END cuda/c++
+
+KOKKOS_INLINE_FUNCTION
+fptype fpternary( const bool& mask, const fptype& a, const fptype& b )
+{
+  return ( mask ? a : b );
+}
+
+KOKKOS_INLINE_FUNCTION
+cxtype cxternary( const bool& mask, const cxtype& a, const cxtype& b )
+{
+  return ( mask ? a : b );
+}
 
 #endif // MGONGPUTYPES_H
