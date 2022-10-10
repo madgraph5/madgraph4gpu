@@ -8,8 +8,6 @@
 #include <iomanip>
 #include <iostream>
 
-#ifndef MGONGPU_HARDCODE_PARAM
-
     // Initialize static instance
     Parameters_%(model_name)s* Parameters_%(model_name)s::instance = 0;
 
@@ -51,7 +49,6 @@ Parameters_%(model_name)s::setDependentCouplings() // now computed event-by-even
     }
 */
 
-#endif
 
     // Routines for printing out parameters
 void

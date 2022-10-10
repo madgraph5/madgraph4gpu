@@ -12,7 +12,6 @@
 #include "Kokkos_Core.hpp"
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
-#include "mgOnGpuVectors.h"
 #include "random_generator.h"
 #include "rambo.h"
 
@@ -231,7 +230,7 @@ int main(int argc, char **argv)
   timermap.start( procKey );
 
   // Create a process object
-  mg5amcGpu::CPPProcess<Kokkos::DefaultExecutionSpace> process( niter, league_size, team_size, verbose );
+  CPPProcess<Kokkos::DefaultExecutionSpace> process( niter, league_size, team_size, verbose );
 
 
   // Read param_card and set parameters
@@ -391,7 +390,7 @@ int main(int argc, char **argv)
       const std::string ghelKey = "0d SGoodHel";
       timermap.start( ghelKey );
       // ... 0d1. Compute good helicity mask on the device
-      mg5amcGpu::sigmaKin_setup(devMomenta, devMEs, process.cHel, process.cIPD, process.cIPC, devIsGoodHel, devNGoodHel, process.ncomb, league_size, team_size);
+      sigmaKin_setup(devMomenta, devMEs, process.cHel, process.cIPD, process.cIPC, devIsGoodHel, devNGoodHel, process.ncomb, league_size, team_size);
       Kokkos::fence();
     }
 
@@ -402,7 +401,7 @@ int main(int argc, char **argv)
     // --- 3a. SigmaKin
     const std::string skinKey = "3a SigmaKin";
     timermap.start( skinKey );
-    mg5amcGpu::sigmaKin(devMomenta, devMEs, process.cHel, process.cIPD, process.cIPC, devIsGoodHel, devNGoodHel, process.ncomb, league_size, team_size);
+    sigmaKin(devMomenta, devMEs, process.cHel, process.cIPD, process.cIPC, devIsGoodHel, devNGoodHel, process.ncomb, league_size, team_size);
     Kokkos::fence();
     // *** STOP THE NEW OLD-STYLE TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
     wv3atime += timermap.stop(); // calc only

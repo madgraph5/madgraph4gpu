@@ -16,12 +16,9 @@ CPPProcess::CPPProcess(
       m_cIPD("cIPD",%(nparams)s), m_hIPD("hIPD",%(nparams)s)
 {
 
-  // Helicities for the process - nodim
-  %(all_helicities)s
-
   for(int i=0;i<mgOnGpu::ncomb;++i)
       for(int j=0;j<mgOnGpu::npar;++j){
-          m_hHel(i,j) = tHel[i][j];
+          m_hHel(i,j) = helicities<short>[i*mgOnGpu::npar + j];
       }
   Kokkos::deep_copy(m_cHel,m_hHel);
 }
@@ -52,45 +49,52 @@ void CPPProcess::initProc( const std::string& param_card_name )
 }
 
 //--------------------------------------------------------------------------
-template <typename mom_t, typename out_t, typename hel_t, typename ipd_t, 
-          typename ipc_t, typename igh_t, typename ngh_t>
+template <typename mom_t, typename igh_t, typename ngh_t, 
+          typename gs_t, typename gs_t, typename idc_t,
+          typename idp_t>
 void sigmaKin_setup(
     const mom_t& momenta,
-    out_t& allMEs,
-    const hel_t& cHel,
-    const ipd_t& cIPD,
-    const ipc_t& cIPC,
-    igh_t& iGoodHel,
-    ngh_t& nGoodHel,
-    const int& ncomb,
+    const igh_t& iGoodHel,
+    const ngh_t& nGoodHel,
+    const gs_t& Gs,
+    const idc_t& indep_couplings,
+    const ipd_t& indep_params,
     const int& league_size,
-    const int& team_size) 
+    const int& team_size)
 {
-  Kokkos::View<int*,Kokkos::DefaultExecutionSpace> isGoodHel("isGoodHel",ncomb); // has to be constant index, but should be `ncomb`
+  Kokkos::View<int*,Kokkos::DefaultExecutionSpace> isGoodHel("isGoodHel",mgOnGpu::ncomb); // has to be constant index, but should be `ncomb`
 
   using member_type = typename Kokkos::TeamPolicy<Kokkos::DefaultExecutionSpace>::member_type;
   Kokkos::TeamPolicy<Kokkos::DefaultExecutionSpace> policy( league_size, team_size );
   Kokkos::parallel_for(__func__,policy, 
   KOKKOS_LAMBDA(const member_type& team_member){
     const int ievt = team_member.league_rank() * team_member.team_size() + team_member.team_rank();
-    fptype allMEsLast = 0;
+    
+    // Load helicities into local (private) memory
+    const auto dev_helicities = Proc::helicities<short>;
+
+    // build combined couplings 
+    cxtype dev_couplings[dependentCouplings::ndcoup + independentCouplings::nicoup];
+    dependentCouplings::set_couplings_from_G(dev_couplings, devGsC[ievt]);
+    for (size_t i = 0; i < independentCouplings::nicoup; i++) {
+        dev_couplings[dependentCouplings::ndcoup + i] = dev_independent_couplings[i];
+    }
 
     auto local_mom = Kokkos::subview(momenta,ievt,Kokkos::ALL,Kokkos::ALL);
-    for (int ihel = 0;ihel < ncomb;++ihel)
+    for (int ihel = 0;ihel < mgOnGpu::ncomb;++ihel)
     {
-      auto local_cHel = Kokkos::subview(cHel,ihel,Kokkos::ALL);
-      calculate_wavefunctions(local_mom, local_cHel, cIPD, cIPC, allMEs[ievt]);
-      if (allMEs[ievt] != allMEsLast)
+      const auto local_cHel = dev_helicities[ihel];
+      auto allMEs = calculate_wavefunctions(local_mom, local_cHel, dev_couplings, indep_params);
+      if (allMEs != 0)
       {
         isGoodHel(ihel) = true;
       }
-      allMEsLast = allMEs[ievt];
     }
   });
 
   Kokkos::parallel_for(__func__,Kokkos::RangePolicy<Kokkos::DefaultExecutionSpace>(0,1),
   KOKKOS_LAMBDA(const int& i){
-    for(int ihel=0;ihel < ncomb;++ihel){
+    for(int ihel=0;ihel < mgOnGpu::ncomb;++ihel){
 
       if(isGoodHel(ihel)){
         iGoodHel(nGoodHel(0)) = ihel;
@@ -104,11 +108,20 @@ void sigmaKin_setup(
 
 //--------------------------------------------------------------------------
 // Evaluate |M|^2, part independent of incoming flavour.
-template <typename mom_t, typename out_t, typename hel_t, typename ipd_t, 
-          typename ipc_t, typename igh_t, typename ngh_t>
-void sigmaKin(const mom_t& momenta, out_t& allMEs, const hel_t& cHel,
-    const ipd_t& cIPD, const ipc_t& cIPC, const igh_t& iGoodHel,
-    const ngh_t& nGoodHel, const int& ncomb, const int& league_size,
+template <typename mom_t, typename igh_t, typename ngh_t, 
+          typename gs_t, typename gs_t, typename idc_t,
+          typename idp_t>
+void sigmaKin(
+    const mom_t& momenta,
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+    const unsigned int channelId,          // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
+#endif
+    const igh_t& iGoodHel,
+    const ngh_t& nGoodHel,
+    const gs_t& Gs,
+    const idc_t& indep_couplings,
+    const ipd_t& indep_params,
+    const int& league_size,
     const int& team_size)
 {
   using member_type = typename Kokkos::TeamPolicy<Kokkos::DefaultExecutionSpace>::member_type;
@@ -118,9 +131,19 @@ void sigmaKin(const mom_t& momenta, out_t& allMEs, const hel_t& cHel,
 
     const int ievt = team_member.league_rank() * team_member.team_size() + team_member.team_rank();
     
+    
     // Denominators: spins, colors and identical particles
-    constexpr int denominators = 512;
-    allMEs[ievt] = 0;
+    constexpr int denominators = %(den_factors)s; // FIXME: assume process.nprocesses == 1 for the moment (eventually denominators[nprocesses]?)
+
+    // Load helicities into local (private) memory
+    const auto dev_helicities = Proc::helicities<short>;
+
+    // build combined couplings 
+    cxtype dev_couplings[dependentCouplings::ndcoup + independentCouplings::nicoup];
+    dependentCouplings::set_couplings_from_G(dev_couplings, devGsC[ievt]);
+    for (size_t i = 0; i < independentCouplings::nicoup; i++) {
+        dev_couplings[dependentCouplings::ndcoup + i] = dev_independent_couplings[i];
+    }
 
     // PART 1 - HELICITY LOOP: CALCULATE WAVEFUNCTIONS
     // (in both CUDA and C++, using precomputed good helicities)

@@ -104,14 +104,15 @@ namespace mg5amcKokkos
     Kokkos::View<fptype***> m_devMomenta;
     Kokkos::View<fptype*> m_devGsC;
     Kokkos::View<fptype*> m_devMEsC;
-    Kokkos::View<fptype*,Kokkos::HostSpace  > m_hstMEsC;
-    Kokkos::View<bool*  > m_devIsGoodHel;
-    Kokkos::View<bool*,Kokkos::HostSpace    > m_hstIsGoodHel;
+    Kokkos::View<fptype*,Kokkos::HostSpace> m_hstMEsC;
+    Kokkos::View<bool*> m_devIsGoodHel;
+    Kokkos::View<bool*,Kokkos::HostSpace> m_hstIsGoodHel;
     Kokkos::View<short** > m_devcHel;
     Kokkos::View<fptype*> m_devcIPC;
     Kokkos::View<fptype*> m_devcIPD;
-    Kokkos::View<int   > m_devcNGoodHel; 
-    Kokkos::View<int*   > m_devcGoodHel; 
+    Kokkos::View<int> m_devNGoodHel; 
+    Kokkos::View<cxtype*> m_dev_independent_couplings;
+    Kokkos::View<fptype*> m_dev_independent_parameters;
     
     //static constexpr int s_team_sizemin = 16; // minimum number of gpu threads (TEST VALUE FOR MADEVENT)
     static constexpr int s_team_sizemin = 32; // minimum number of gpu threads (DEFAULT)
@@ -149,7 +150,9 @@ namespace mg5amcKokkos
     , m_devIsGoodHel( Kokkos::ViewAllocateWithoutInitializing("m_devIsGoodHel"), mgOnGpu::ncomb )
     , m_hstIsGoodHel( Kokkos::ViewAllocateWithoutInitializing("m_hstIsGoodHel"), mgOnGpu::ncomb )
     , m_devcNGoodHel( Kokkos::ViewAllocateWithoutInitializing("m_devcNGoodHel"), 1 ) 
-    , m_devcGoodHel( Kokkos::ViewAllocateWithoutInitializing("m_devcGoodHel"), mgOnGpu::ncomb ) 
+    , m_devcGoodHel( Kokkos::ViewAllocateWithoutInitializing("m_devGoodHel"), mgOnGpu::ncomb )
+    , m_dev_independent_couplings( independentCouplings::nicoup )
+    , m_dev_independent_parameters( mgOnGpu::nparams )
   {
     if( nparF != mgOnGpu::npar ) throw std::runtime_error( "Bridge constructor: npar mismatch" );
     if( np4F != mgOnGpu::np4 ) throw std::runtime_error( "Bridge constructor: np4 mismatch" );
@@ -196,31 +199,24 @@ namespace mg5amcKokkos
     // TC: warning that I am assuming incoming momenta from FORTRAN
     // TC: are already in the format [ievt][ipar][i4]
 
-    Kokkos::View<fptype***,Kokkos::HostSpace> hst_momenta(momenta,m_nevt*npar*np4);
+    // TC: Might need this -> if constexpr( neppM == 1 && std::is_same_v<FORTRANFPTYPE, fptype> )
+    Kokkos::View<FORTRANFPTYPE***,Kokkos::HostSpace> hst_momenta(momenta,m_nevt,npar,np4);
     Kokkos::deep_copy(m_devMomenta,hst_momenta):
 
-    Kokkos::View<fptype*,Kokkos::HostSpace> hstGs(gs,m_nevt);
+    Kokkos::View<FORTRANFPTYPE*,Kokkos::HostSpace> hstGs(gs,m_nevt);
     Kokkos::deep_copy(m_devGs,hstGs):
 
     if( !m_goodHelsCalculated )
     {
-      using member_type = typename Kokkos::TeamPolicy<Kokkos::DefaultExecutionSpace>::member_type;
-      Kokkos::TeamPolicy<Kokkos::DefaultExecutionSpace> policy( league_size, team_size );
-      Kokkos::parallel_for(__func__,policy, 
-      KOKKOS_LAMBDA(const member_type& team_member){
-        const int ievt = team_member.league_rank() * team_member.team_size() + team_member.team_rank();
-        sigmaKin_getGoodHel(m_devMomenta, m_devIsGoodHel, proc.cHel, proc.cIPC, proc.cIPD );
-      });
+      
 
-      sigmaKin_setup(m_devMomenta,m_dev,...) // TODO: still porting here
+      sigmaKin_setup(m_devMomenta,m_devIsGoodHel, m_devNGoodHel,
+                     m_devGs, m_dev_independent_couplings,
+                     m_dev_independent_parameters, 
+                     m_league_size, m_team_size);
 
-      m_q.memcpy(m_hstIsGoodHel.data(), m_devIsGoodHel.data(), ncomb*sizeof(bool)).wait();
-
-      int goodHel[mgOnGpu::ncomb] = {0};
-      int nGoodHel = Proc::sigmaKin_setGoodHel( m_hstIsGoodHel.data(), goodHel );
-
-      m_q.memcpy( m_devcNGoodHel.data(), &nGoodHel, sizeof(int) ).wait();
-      m_q.memcpy( m_devcGoodHel.data(), goodHel, ncomb*sizeof(int) ).wait();
+      Kokkos::deep_copy(m_hstIsGoodHel,m_devIsGoodHel);
+      Kokkos::deep_copy(m_hstNGoodHel,m_devNGoodHel);
       m_goodHelsCalculated = true;
     }
     if( goodHelOnly ) return;

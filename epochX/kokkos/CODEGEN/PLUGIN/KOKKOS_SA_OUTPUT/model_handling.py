@@ -636,6 +636,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
     # AV - overload export_cpp.UFOModelConverterCPP method (improve formatting)
     def write_parameters(self, params):
         res = super().write_parameters(params)
+        res = res.replace('std::complex<','Kokkos::complex<') # custom simplex complex class (with constexpr arithmetics)
         if res == '' : res = '  // (none)'
         else : res = '  ' + res # add leading '  ' after the '// Model' line
         res = res.replace('\n','\n  ')
@@ -645,6 +646,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
     # AV - overload export_cpp.UFOModelConverterCPP method (improve formatting)
     def write_set_parameters(self, params):
         res = super().write_set_parameters(params)
+        res = res.replace('std::complex<','Kokkos::complex<') # custom simplex complex class (with constexpr arithmetics)
         if res == '' : res = '// (none)'
         res = res.replace('\n','\n  ')
         return res
@@ -656,8 +658,8 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             assert( parset == '' ) # AV sanity check (both are empty)
             res = '// (none)\n'
             return res
-        #pardef = pardef.replace('std::complex<','cxsmpl<') # custom simplex complex class (with constexpr arithmetics)
-        #parset = parset.replace('std::complex<','cxsmpl<') # custom simplex complex class (with constexpr arithmetics)
+        pardef = pardef.replace('std::complex<','Kokkos::complex<') # custom simplex complex class (with constexpr arithmetics)
+        parset = parset.replace('std::complex<','Kokkos::complex<') # custom simplex complex class (with constexpr arithmetics)
         parset = parset.replace('sqrt(','constexpr_sqrt(') # constexpr sqrt (based on iterative Newton-Raphson approximation)
         parset = parset.replace('pow(','constexpr_pow(') # constexpr sqrt (based on iterative Newton-Raphson approximation)
         parset = parset.replace('(','( ')
@@ -731,7 +733,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         if len( self.coups_indep ) > 0 :
             iicoup = [ '  constexpr size_t ixcoup_%s = %d + Parameters_%s_dependentCouplings::ndcoup; // out of ndcoup+nicoup' % (par.name, idx, self.model_name) for (idx, par) in enumerate(self.coups_indep) ]
             replace_dict['iicoup'] = '\n'.join( iicoup )
-            icoupseticoup_hrdcod = [ '    ((FPType)Parameters_{2:s}::{2:s}.real(), (FPType)Parameters_{2:s}::{0:s}.imag()),'.format(par.name, idx, self.model_name) for (idx, par) in enumerate(self.coups_indep) ]
+            icoupseticoup_hrdcod = [ '    ((FPType)Parameters_{2:s}::{0:s}.real(), (FPType)Parameters_{2:s}::{0:s}.imag()),'.format(par.name, idx, self.model_name) for (idx, par) in enumerate(self.coups_indep) ]
             replace_dict['icoupseticoup_hrdcod'] = '\n'.join( icoupseticoup_hrdcod )
         else:
             replace_dict['iicoup'] = '  // NB: there are no aS-independent couplings in this physics process'
@@ -746,10 +748,10 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             foundG = False
             for line in self.write_hardcoded_parameters(self.params_dep).split('\n'):
                 if line != '':
-                    dcoupsetdpar.append( '    ' + line.replace('constexpr double', 'const fptype' if foundG else '//const fptype' ) )
+                    dcoupsetdpar.append( '    ' + line.replace('constexpr double', 'const FPType' if foundG else '//const FPType' ) )
                     if 'constexpr double G =' in line: foundG = True
             replace_dict['dcoupsetdpar'] = '  ' + '\n'.join( dcoupsetdpar )
-            dcoupsetdcoup = [ '    ' + line.replace('constexpr std::complex<double> ','couplings[idcoup_')
+            dcoupsetdcoup = [ '    ' + line.replace('constexpr Kokkos::complex<double> ','couplings[idcoup_')
                                            .replace(" = ","] = ")
                                            .replace('mdl_complexi', 'cI')
                                 for line in self.write_hardcoded_parameters(list(self.coups_dep.values())).split('\n') if line != '' ]
@@ -920,6 +922,15 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             for key, coup_list in self.model['couplings'].items():
                 if "aS" in key and coup in coup_list: keep = False
             if keep: coupling_indep.append( coup ) # AV only indep!
+        
+        ## NSN - Need access to independent couplings tIPC outside of CPPProcess for SYCL
+        coup_str = ""
+        if len(coupling_indep) > 0:
+            for i in range(len(coupling_indep)):
+                coup_str += "    m_tIPC[%s] = cxmake( m_pars->%s );\n" % (i, coupling_indep[i])
+        else:
+            coup_str = "    //m_tIPC[...] = ... ; // nicoup=0\n"
+
         replace_dict['ncouplings'] = len(coupling_indep) # AV only indep!
         replace_dict['ncouplingstimes2'] = 2 * replace_dict['ncouplings']
         coup_str = "  const cxtype tIPC[%s] = { cxmake( m_pars->%s ) };\n"\
@@ -962,29 +973,28 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
 template <typename mom_t, typename hel_t, typename ipc_t, typename ipd_t, typename me_t>
 KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
   const mom_t& allmomenta, // input: momenta
-
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-   fptype& allNumerators,   // output: multichannel numerators, running_sum_over_helicities
-   fptype& allDenominators, // output: multichannel denominators, running_sum_over_helicities
+  fptype& allNumerators,   // output: multichannel numerators, running_sum_over_helicities
+  fptype& allDenominators, // output: multichannel denominators, running_sum_over_helicities
    const unsigned int channelId,         // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
 #endif
-  const hel_t& cHel,
+  const short*  __restrict__ cHel,
   const ipc_t& COUPs,
-  const ipd_t& cIPD,
-  const me_t& allMEs
+  const ipd_t& cIPD
   )
-{""")
+{
+  fptype allMEs = 0;""")
             
             ret_lines.append("  // The number of colors")
             ret_lines.append("  constexpr int ncolor = %i;" % len(color_amplitudes[0]))
             ret_lines.append("""
   // Local TEMPORARY variables for a subset of Feynman diagrams in the given event (ievt)
   // [NB these variables are reused several times (and re-initialised each time) within the same event or event page]
-  cxtype w_sv[mgOnGpu::nwf][mgOnGpu::nw6]; // particle wavefunctions within Feynman diagrams (nw6 is often 6, the dimension of spin 1/2 or spin 1 particles)
-  cxtype amp_sv[1]; // invariant amplitude for one given Feynman diagram
+  cxtype w[mgOnGpu::nwf][mgOnGpu::nw6]; // particle wavefunctions within Feynman diagrams (nw6 is often 6, the dimension of spin 1/2 or spin 1 particles)
+  cxtype amp[1]; // invariant amplitude for one given Feynman diagram
 
   // Local variables for the given event (ievt)
-  cxtype jamp_sv[ncolor] = {}; // sum of the invariant amplitudes for all Feynman diagrams in the event or event page
+  cxtype jamp[ncolor] = {}; // sum of the invariant amplitudes for all Feynman diagrams in the event or event page
 
   // === Calculate wavefunctions and amplitudes for all diagrams in all processes - Loop over nevt events ===
 """)
@@ -1124,12 +1134,21 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
         """Generate final CPPProcess.h"""
         misc.sprint('Entering PLUGIN_OneProcessExporter.write_process_h_file')
         replace_dict = super(PLUGIN_export_cpp.OneProcessExporterGPU, self).write_process_h_file(False)
-        replace_dict2 = super(PLUGIN_export_cpp.OneProcessExporterGPU,self).get_process_function_definitions(write=False)
+        # replace_dict2 = super(PLUGIN_export_cpp.OneProcessExporterGPU,self).get_process_function_definitions(write=False)
         replace_dict['helamps_h'] = "\n#include \"HelAmps_%s.h\"" % self.model_name
 
         # Kokkos puts source code in header and the helicities are set in the process_function_definitions
         cc_replace_dict = super(PLUGIN_export_cpp.OneProcessExporterGPU, self).write_process_cc_file(False)
         replace_dict['process_function_definitions'] = cc_replace_dict['process_function_definitions'] 
+
+        #Set helicities
+        replace_dict['all_helicities'] = self.get_helicity_matrix(self.matrix_elements[0])
+        replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace("{", "")
+        replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace("}", "")
+        replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace("helicities", "constexpr T helicities[] {")
+        replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace("    ", "  ")
+        replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace(", constexpr", "constexpr")
+        replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace(";", "")
 
         #Set hardcoded parameters
         params = [''] * len(self.params2order)
@@ -1185,7 +1204,7 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
             if is_imaginary:
                 return '-cxtype(0,1)*' # AV keep default (this is not used in eemumu - should use cI eventually)
             else:
-                return '-' # AV keep default (eg jamp_sv[0] += -amp_sv[0])
+                return '-' # AV keep default (eg jamp[0] += -amp[0])
         ###assert(False) # [this had been inserted to check if coeff is used at all, it is used in uu~>tt~, see #337]
         res_str = '%+i.' % total_coeff.numerator
         if total_coeff.denominator != 1:
@@ -1232,17 +1251,21 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
             initProc_lines.append("  m_masses.push_back( m_pars->%s );" % part.get('mass')) # AV
         # initProc_lines.append('  Kokkos::deep_copy(cmME,hmME);')
         ###for i, colamp in enumerate(color_amplitudes):
-        ###    initProc_lines.append("jamp2_sv[%d] = new double[%d];" % (i, len(colamp))) # AV - this was commented out already
+        ###    initProc_lines.append("jamp2[%d] = new double[%d];" % (i, len(colamp))) # AV - this was commented out already
         return "\n".join(initProc_lines)
 
     # AV - replace the export_cpp.OneProcessExporterCPP method (improve formatting)
     def get_helicity_matrix(self, matrix_element):
         """Return the Helicity matrix definition lines for this matrix element"""
-        helicity_line = 'static constexpr short helicities[mgOnGpu::ncomb][mgOnGpu::npar] = { '; # AV (this is tHel)
+        ###helicity_line = "static const int helicities[ncomb][nexternal] = {";
+        ###helicity_line = "    constexpr short helicities[ncomb][mgOnGpu::npar] = {\n      "; # AV (this is tHel)
+        helicity_line = "    , helicities {\n      "; # NSN SYCL needs access to tHel outside CPPProcess
         helicity_line_list = []
         for helicities in matrix_element.get_helicity_matrix(allow_reverse=False):
-            helicity_line_list.append( '{ ' + ', '.join(['%d'] * len(helicities)) % tuple(helicities) + ' }' ) # AV
-        return helicity_line + ',\n      '.join(helicity_line_list) + ' };' # AV
+            ###helicity_line_list.append("{"+",".join(['%d'] * len(helicities)) % tuple(helicities) + "}")
+            helicity_line_list.append( "{" + ", ".join(['%d'] * len(helicities)) % tuple(helicities) + "}" ) # AV
+        ###return helicity_line + ",".join(helicity_line_list) + "};"
+        return helicity_line + ",\n      ".join(helicity_line_list) + "};" # AV
 
     # AV - overload the export_cpp.OneProcessExporterGPU method (just to add some comments...)
     def get_reset_jamp_lines(self, color_amplitudes):
@@ -1342,8 +1365,8 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         matrix_element.reuse_outdated_wavefunctions(me)
         res = []
         ###res.append('for(int i=0;i<%s;i++){jamp[i] = cxtype(0.,0.);}' % len(color_amplitudes))
-        res.append('// Reset color flows (reset jamp_sv) at the beginning of a new event or event page')
-        res.append('for( int i=0; i<ncolor; i++ ){ jamp_sv[i] = cxzero_sv(); }')
+        res.append('// Reset color flows (reset jamp) at the beginning of a new event or event page')
+        res.append('for( int i=0; i<ncolor; i++ ){ jamp[i] = cxmake( 0, 0 ); }')
         diagrams = matrix_element.get('diagrams')
         diag_to_config = {}
         if multi_channel_map:
@@ -1370,12 +1393,12 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                 if multi_channel_map: # different code bases #473 (assume this is the same as self.include_multi_channel...)
                     if id_amp in diag_to_config:
                         res.append("#ifdef MGONGPU_SUPPORTS_MULTICHANNEL")
-                        res.append("if( channelId == %i ) allNumerators[0] += cxabs2( amp_sv[0] );" % diagram.get('number'))
-                        res.append("if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );")
+                        res.append("if( channelId == %i ) allNumerators[0] += cxabs2( amp[0] );" % diagram.get('number'))
+                        res.append("if( channelId != 0 ) allDenominators[0] += cxabs2( amp[0] );")
                         res.append("#endif")
                 else:
                     res.append("#ifdef MGONGPU_SUPPORTS_MULTICHANNEL")
-                    res.append("// Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)")
+                    res.append("// Here the code base generated with multichannel support updates numerators and denominators (#473)")
                     res.append("#endif")
                 for njamp, coeff in color[namp].items():
                     scoeff = PLUGIN_OneProcessExporter.coeff(*coeff) # AV
@@ -1385,8 +1408,8 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                     scoeff = scoeff.replace(',',', ')
                     scoeff = scoeff.replace('*',' * ')
                     scoeff = scoeff.replace('/',' / ')
-                    if scoeff.startswith('-'): res.append("jamp_sv[%s] -= %samp_sv[0];" % (njamp, scoeff[1:])) # AV
-                    else: res.append("jamp_sv[%s] += %samp_sv[0];" % (njamp, scoeff)) # AV
+                    if scoeff.startswith('-'): res.append("jamp[%s] -= %samp[0];" % (njamp, scoeff[1:])) # AV
+                    else: res.append("jamp[%s] += %samp[0];" % (njamp, scoeff)) # AV
             if len(diagram.get('amplitudes')) == 0 : res.append('// (none)') # AV
         ###res.append('\n    // *** END OF DIAGRAMS ***' ) # AV - no longer needed ('COLOR ALGEBRA BELOW')
         return res
@@ -1426,7 +1449,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         text = '%s\n'
         return text % line
 
-    # AV - replace helas_call_writers.GPUFOHelasCallWriter method (vectorize w_sv)
+    # AV - replace helas_call_writers.GPUFOHelasCallWriter method (vectorize w)
     # This is the method that creates the ixxx/oxxx function calls in calculate_wavefunctions
     # [GPUFOHelasCallWriter.get_external_line is called by GPUFOHelasCallWriter.get_external]
     # [GPUFOHelasCallWriter.get_external (adding #ifdef CUDA) is called by GPUFOHelasCallWriter.generate_helas_call]
@@ -1447,7 +1470,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                 # AV This seems to be for scalars (spin==1???), pass neither mass nor helicity (#351)
                 ###call = call + 'm_pars->%s,'
                 call = call
-            call = call + '%+d, w_sv[%d]);' # AV vectorize
+            call = call + '%+d, w[%d]);' # AV vectorize
             if argument.get('spin') == 1:
                 # AV This seems to be for scalars (spin==1???), pass neither mass nor helicity (#351)
                 return call % \
@@ -1495,7 +1518,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             if wf.get('number_external') == 1 or wf.get('number_external') == 2: # AV
                 comment = ' // NB: ' + call + ' only uses pz' # AV skip '(not E,px,py)' to avoid interference with comma parsing in get_external
             # Specify namespace for Helas calls
-            call = call + '( Kokkos::subview(allmomenta,%d,Kokkos::ALL), cHel[%d], %+d, w_sv[%d] );' + comment # AV vectorize and add comment
+            call = call + '( Kokkos::subview(allmomenta,%d,Kokkos::ALL), cHel[%d], %+d, w[%d] );' + comment # AV vectorize and add comment
             return self.format_coupling(call % \
                                 (wf.get('number_external')-1,
                                  wf.get('number_external')-1,
@@ -1503,7 +1526,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                                  - (-1) ** wf.get_with_flow('is_part'),
                                  wf.get('me_id')-1))
 
-    # AV - replace helas_call_writers.GPUFOHelasCallWriter method (vectorize w_sv and amp_sv)
+    # AV - replace helas_call_writers.GPUFOHelasCallWriter method (vectorize w and amp)
     def generate_helas_call(self, argument):
         """Routine for automatic generation of C++ Helas calls
         according to just the spin structure of the interaction.
@@ -1559,19 +1582,19 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             call = '%(routine_name)s( %(wf)s%(coup)s%(mass)s%(out)s );'
             # compute wf
             arg = {'routine_name': aloha_writers.combine_name('%s' % l[0], l[1:], outgoing, flag, True),
-                   'wf': ("w_sv[%%(%d)d], " * len(argument.get('mothers'))) % tuple(range(len(argument.get('mothers')))), # AV
+                   'wf': ("w[%%(%d)d], " * len(argument.get('mothers'))) % tuple(range(len(argument.get('mothers')))), # AV
                    'coup': ("m_pars->%%(coup%d)s, " * len(argument.get('coupling'))) % tuple(range(len(argument.get('coupling')))) # AV
                    }
             if isinstance(argument, helas_objects.HelasWavefunction):
                 ###arg['out'] = 'w[%(out)d]'
-                arg['out'] = 'w_sv[%(out)d]'
+                arg['out'] = 'w[%(out)d]'
                 if aloha.complex_mass:
                     arg['mass'] = "m_pars->%(CM)s, "
                 else:
                     arg['mass'] = "m_pars->%(M)s, m_pars->%(W)s, "
             else:        
-                arg['out'] = '&amp_sv[%(out)d]'
-                arg['out2'] = 'amp_sv[%(out)d]'
+                arg['out'] = '&amp[%(out)d]'
+                arg['out2'] = 'amp[%(out)d]'
                 arg['mass'] = ''
             call = call % arg
             # Now we have a line correctly formatted

@@ -76,7 +76,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                      'CMake': [s+'CMake/Compilers.txt', s+'CMake/Platforms.txt', s+'CMake/Macros.txt'],
                      'src': [s+'gpu/rambo.h', s+'read_slha.h', s+'read_slha.cc',
                             s+'gpu/random_generator.h',
-                            s+'gpu/mgOnGpuTypes.h', s+'gpu/mgOnGpuVectors.h',s+'gpu/extras.h',
+                            s+'gpu/mgOnGpuTypes.h', s+'gpu/extras.h',
                             s+'CMake/src/CMakeLists.txt',
                             s+'gpu/mgOnGpuConfig.h',s+'gpu/epoch_process_id.h'],
                      'SubProcesses': [
