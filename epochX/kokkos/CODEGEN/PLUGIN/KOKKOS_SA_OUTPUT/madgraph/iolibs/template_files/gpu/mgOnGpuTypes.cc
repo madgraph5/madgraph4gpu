@@ -60,7 +60,7 @@ fptype fpabs(const fptype& V) {
 #endif
 }
 
-int iabs(const fptype& V) {
+int iabs(const int& V) {
 #ifdef KOKKOS_ENABLE_CUDA
 // CUDA INT
   return abs(V);
