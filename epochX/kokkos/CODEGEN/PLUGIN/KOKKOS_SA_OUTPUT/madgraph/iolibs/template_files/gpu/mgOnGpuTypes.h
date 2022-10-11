@@ -26,14 +26,6 @@ inline void nvtxRangePop(void){return;};
 
 
 // use predefined cuda math library functions for double or float
-#ifdef KOKKOS_ENABLE_CUDA // cuda
-extern fptype (*fpmax)(const fptype&,const fptype&);
-extern fptype (*fpmin)(const fptype&,const fptype&);
-extern fptype (*fpsqrt)(const fptype&);
-extern fptype (*fpabs)(const fptype&);
-extern int (*iabs)(const int&);
-
-#elseif // c++
 
 fptype fpmax(const fptype&,const fptype&);
 fptype fpmin(const fptype& ,const fptype&);
@@ -41,7 +33,6 @@ fptype fpsqrt(const fptype&);
 fptype fpabs(const fptype&);
 int iabs(const int&);
 
-#endif
 
 // --- Functions and operators for complex types
 
