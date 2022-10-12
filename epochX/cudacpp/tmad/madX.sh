@@ -94,6 +94,7 @@ suffs=".mad/"
 
 # Switch between double and float builds
 export FPTYPE=$fptype
+if [ "${fptype}" == "f" ]; then xsecthr="4E-6"; else xsecthr="2E-14"; fi
 
 # Determine the working directory below topdir based on suff, bckend and <process>
 function showdir()
@@ -421,7 +422,6 @@ for suff in $suffs; do
   # (2) CMADEVENT_CUDACPP
   for avx in none sse4 avx2 512y 512z; do
     if [ "${checkonly}" == "0" ]; then      
-      xsecthr="2E-14"
       xfac=1
       if [ "${rmrdat}" == "0" ]; then \cp -p results.dat.ref results.dat; else \rm -f results.dat; fi  
       if [ ! -f results.dat ]; then
