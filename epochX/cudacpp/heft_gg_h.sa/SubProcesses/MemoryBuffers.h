@@ -100,9 +100,9 @@ namespace mg5amcCpu
     virtual ~HostBufferBase()
     {
       if constexpr( !ismisaligned )
-        ::operator delete( this->m_data, std::align_val_t( cppAlign ) );
+        ::operator delete[]( this->m_data, std::align_val_t( cppAlign ) );
       else
-        ::operator delete( ( this->m_data ) - 1, std::align_val_t( cppAlign ) ); // TEST MISALIGNMENT!
+        ::operator delete[]( ( this->m_data ) - 1, std::align_val_t( cppAlign ) ); // TEST MISALIGNMENT!
     }
     static constexpr bool isaligned() { return !ismisaligned; }
   public:
