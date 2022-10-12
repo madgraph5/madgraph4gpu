@@ -11,8 +11,10 @@ if [ "$1" == "-ALL" ] && [ "$2" == "" ]; then
   set -e
   $0 -default
   $0 -juwels
+  $0 -juwels2
   $0 -default-short
   $0 -juwels-short
+  $0 -juwels2-short
   exit 0
 elif [ "$1" == "-default" ]; then
   table="default"; onlyxmax=0; shift
@@ -22,23 +24,32 @@ elif [ "$1" == "-juwels" ]; then
   table="juwels";  onlyxmax=0; shift
 elif [ "$1" == "-juwels-short" ]; then
   table="juwels";  onlyxmax=1; shift
+elif [ "$1" == "-juwels2" ]; then
+  table="juwels2";  onlyxmax=0; shift
+elif [ "$1" == "-juwels2-short" ]; then
+  table="juwels2";  onlyxmax=1; shift
 else
-  echo "Usage: $0 <table [-ALL|-default|-juwels|-default-short|-juwels-short]>"; exit 1
+  echo "Usage: $0 <table [-ALL|-default|-juwels|-juwels2|-default-short|-juwels-short|-juwels2-short]>"; exit 1
 fi
 
 # Select revisions and characteristics of mad logs
+# Select processes
 mrevs=""
 if [ "$table" == "default" ]; then
-  mrevs="$mrevs bf727b1"  # cuda116/gcc102  (03 Jul 2022)
+  procs="eemumu ggtt ggttg ggttgg ggttggg"
+  mrevs="$mrevs bf727b1"  # cuda115/gcc102  (03 Jul 2022)
   taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/8192 CUDA/max $cuda8tpb"
 elif [ "$table" == "juwels" ]; then
-  mrevs="$mrevs 8b681c6"  # cuda116/gcc102  (03 Jul 2022) 
+  procs="eemumu ggtt ggttg ggttgg ggttggg"
+  mrevs="$mrevs 8b681c6"  # cuda115/gcc102  (03 Jul 2022) 
+  taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z"
+elif [ "$table" == "juwels2" ]; then
+  procs="ggttgg"
+  mrevs="$mrevs eb30e41"  # cuda115/gcc112  (12 Oct 2022) 
   taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z"
 fi
 revs="$mrevs"
 
-# Select processes
-procs="eemumu ggtt ggttg ggttgg ggttggg"
 
 # TEST MODE (debug individual lines and skip the final END printout)
 testmode=0
