@@ -57,7 +57,7 @@ generate e+ e- > mu+ mu-
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.006807565689086914 [0m
+[1;32mDEBUG: model prefixing  takes 0.0054874420166015625 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -149,7 +149,7 @@ INFO: Checking for minimal orders which gives processes.
 INFO: Please specify coupling orders to bypass this step. 
 INFO: Trying process: e+ e- > mu+ mu- WEIGHTED<=4 @1  
 INFO: Process has 2 diagrams 
-1 processes with 2 diagrams generated in 0.005 s
+1 processes with 2 diagrams generated in 0.004 s
 Total: 1 processes with 2 diagrams
 output standalone_cudacpp CODEGEN_cudacpp_ee_mumu
 Load PLUGIN.CUDACPP_SA_OUTPUT
@@ -194,7 +194,7 @@ ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFV2 routines[0m
 ALOHA: aloha creates FFV4 routines[0m
 ALOHA: aloha creates FFV2_4 routines[0m
-ALOHA: aloha creates 4 routines in  0.321 s
+ALOHA: aloha creates 4 routines in  0.274 s
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV2
@@ -212,6 +212,6 @@ INFO: /data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_ee_mumu/src/.
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.finalize [1;30m[output.py at line 188][0m [0m
 quit
 
-real	0m0.901s
-user	0m0.793s
-sys	0m0.078s
+real	0m0.824s
+user	0m0.686s
+sys	0m0.087s
