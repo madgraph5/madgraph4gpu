@@ -1,4 +1,6 @@
 
+*** FPTYPE=d ******************************************************************
+
 +++  REVISION bf727b1 (commit date: 2022-07-03 19:34:42 +0200) +++
 On itscrd70.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
 

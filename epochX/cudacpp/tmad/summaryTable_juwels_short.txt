@@ -1,4 +1,6 @@
 
+*** FPTYPE=d ******************************************************************
+
 +++  REVISION 8b681c6 (commit date: 2022-07-03 19:34:23 +0200) +++
 On jwlogin08.juwels [CPU: Intel(R) Xeon(R) Gold 6148 CPU] [GPU: none]:
 
