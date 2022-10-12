@@ -16,7 +16,7 @@ if [ "${host/juwels}" != "${host}" ]; then NLOOP=32; fi # workaround for #498
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-d] [-makeonly|-makeclean|-makecleanonly] [-rmrdat] [+10x] [-checkonly]" > /dev/stderr
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-d] [-fltonly] [-makeonly|-makeclean|-makecleanonly] [-rmrdat] [+10x] [-checkonly]" > /dev/stderr
   exit 1
 }
 
@@ -31,6 +31,8 @@ ggtt=0
 ggttg=0
 ggttgg=0
 ggttggg=0
+
+fptype="d"
 
 maketype=
 ###makej=
@@ -60,6 +62,9 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-ggttggg" ]; then
     ggttggg=1
     shift
+  elif [ "$1" == "-fltonly" ]; then
+    fptype="f"
+    shift
   elif [ "$1" == "-makeonly" ] || [ "$1" == "-makeclean" ] || [ "$1" == "-makecleanonly" ]; then
     if [ "${maketype}" != "" ] && [ "${maketype}" != "$1" ]; then
       echo "ERROR! Options -makeonly, -makeclean and -makecleanonly are incompatible"; usage
@@ -86,6 +91,9 @@ if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ 
 
 # Always test only the .mad/ directories (hardcoded)
 suffs=".mad/"
+
+# Switch between double and float builds
+export FPTYPE=$fptype
 
 # Determine the working directory below topdir based on suff, bckend and <process>
 function showdir()
@@ -210,7 +218,7 @@ function runcheck()
   if [ "${cmd/gcheckmax128thr}" != "$cmd" ]; then
     txt="GCHECK(MAX128THR)"
     cmd=${cmd/gcheckmax128thr/gcheck} # hack: run cuda gcheck with tput fastest settings
-    cmd=${cmd/.\//.\/build.none_d_inl0_hrd0\/}
+    cmd=${cmd/.\//.\/build.none_${fptype}_inl0_hrd0\/}
     nblk=$(getgridmax | cut -d ' ' -f1)
     nthr=$(getgridmax | cut -d ' ' -f2)
     while [ $nthr -lt 128 ]; do (( nthr = nthr * 2 )); (( nblk = nblk / 2 )); done
@@ -218,7 +226,7 @@ function runcheck()
   elif [ "${cmd/gcheckmax8thr}" != "$cmd" ]; then
     txt="GCHECK(MAX8THR)"
     cmd=${cmd/gcheckmax8thr/gcheck} # hack: run cuda gcheck with tput fastest settings
-    cmd=${cmd/.\//.\/build.none_d_inl0_hrd0\/}
+    cmd=${cmd/.\//.\/build.none_${fptype}_inl0_hrd0\/}
     nblk=$(getgridmax | cut -d ' ' -f1)
     nthr=$(getgridmax | cut -d ' ' -f2)
     while [ $nthr -gt 8 ]; do (( nthr = nthr / 2 )); (( nblk = nblk * 2 )); done
@@ -226,13 +234,13 @@ function runcheck()
   elif [ "${cmd/gcheckmax}" != "$cmd" ]; then
     txt="GCHECK(MAX)"
     cmd=${cmd/gcheckmax/gcheck} # hack: run cuda gcheck with tput fastest settings
-    cmd=${cmd/.\//.\/build.none_d_inl0_hrd0\/}
+    cmd=${cmd/.\//.\/build.none_${fptype}_inl0_hrd0\/}
     nblk=$(getgridmax | cut -d ' ' -f1)
     nthr=$(getgridmax | cut -d ' ' -f2)
     (( nevt = nblk*nthr ))
   elif [ "${cmd/gcheck}" != "$cmd" ]; then
     txt="GCHECK($NLOOP)"
-    cmd=${cmd/.\//.\/build.none_d_inl0_hrd0\/}
+    cmd=${cmd/.\//.\/build.none_${fptype}_inl0_hrd0\/}
     nthr=32
     (( nblk = NLOOP/nthr )) # NB integer division
     (( nloop2 = nblk*nthr ))
@@ -240,7 +248,7 @@ function runcheck()
     nevt=$(getnevt)
   elif [ "${cmd/check}" != "$cmd" ]; then
     txt="CHECK($NLOOP)"
-    cmd=${cmd/.\//.\/build.${avx}_d_inl0_hrd0\/}
+    cmd=${cmd/.\//.\/build.${avx}_${fptype}_inl0_hrd0\/}
     nthr=32
     (( nblk = NLOOP/nthr )) # NB integer division
     (( nloop2 = nblk*nthr ))
@@ -268,9 +276,9 @@ function runmadevent()
   cmd=$1
   if [ "${cmd/cmadevent}" != "$cmd" ]; then
     tmpin=$(getinputfile -cpp)
-    cmd=${cmd/.\//.\/build.${avx}_d_inl0_hrd0\/}
+    cmd=${cmd/.\//.\/build.${avx}_${fptype}_inl0_hrd0\/}
   elif [ "${cmd/gmadevent}" != "$cmd" ]; then
-    cmd=${cmd/.\//.\/build.none_d_inl0_hrd0\/}
+    cmd=${cmd/.\//.\/build.none_${fptype}_inl0_hrd0\/}
     tmpin=$(getinputfile -cuda)
   else # assume this is madevent (do not check)
     tmpin=$(getinputfile -fortran)
