@@ -33,20 +33,23 @@ else
 fi
 
 # Select revisions and characteristics of mad logs
-# Select processes
+# Select processes and fptypes
 mrevs=""
 if [ "$table" == "default" ]; then
   procs="eemumu ggtt ggttg ggttgg ggttggg"
   mrevs="$mrevs bf727b1"  # cuda115/gcc102  (03 Jul 2022)
   taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/8192 CUDA/max $cuda8tpb"
+  fpts="d"
 elif [ "$table" == "juwels" ]; then
   procs="eemumu ggtt ggttg ggttgg ggttggg"
   mrevs="$mrevs 8b681c6"  # cuda115/gcc102  (03 Jul 2022) 
   taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z"
+  fpts="d"
 elif [ "$table" == "juwels2" ]; then
   procs="ggttgg"
   mrevs="$mrevs eb30e41"  # cuda115/gcc112  (12 Oct 2022) 
   taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z"
+  fpts="d f"
 fi
 revs="$mrevs"
 
@@ -189,7 +192,6 @@ cd $(dirname $0)/..
 echo PWD=$(pwd)
 
 suff=mad
-fpt=d
 inl=inl0
 hrd=hrd0
 
@@ -199,9 +201,12 @@ else
   out=${scrdir}/summaryTable_${table}_short.txt
 fi  
 echo "" > $out
-for rev in $revs; do
-  echo -e "+++ $bckend REVISION $rev (commit date: $(git log $rev --pretty=format:'%ci' --abbrev-commit -n1)) +++" >> $out
-  oneTable
+for fpt in $fpts; do
+  echo -e "*** FPTYPE=$fpt ******************************************************************\n" >> $out
+  for rev in $revs; do
+    echo -e "+++ $bckend REVISION $rev (commit date: $(git log $rev --pretty=format:'%ci' --abbrev-commit -n1)) +++" >> $out
+    oneTable
+  done
 done
 
 git checkout HEAD ../cudacpp/tmad/logs* >& /dev/null
