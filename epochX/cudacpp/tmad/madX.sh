@@ -413,6 +413,10 @@ for suff in $suffs; do
       else
         echo "ERROR! Unknown xfac=$xfac"; exit 1
       fi
+      \cp events.lhe events.lhe0
+      if [ "${fptype}" == "f" ]; then
+	${scrdir}/lheFloat.sh events.lhe0 events.lhe
+      fi
       ${scrdir}/dummyColor.sh events.lhe events.lhe.ref
       ${scrdir}/dummyHelicities.sh events.lhe.ref events.lhe.ref2
       \mv events.lhe.ref2 events.lhe.ref.$xfac
@@ -450,6 +454,10 @@ for suff in $suffs; do
           exit 1
         fi
         echo -e "\n*** (2-$avx) Compare CMADEVENT_CUDACPP x$xfac events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***"
+	\cp events.lhe events.lhe0
+	if [ "${fptype}" == "f" ]; then
+	  ${scrdir}/lheFloat.sh events.lhe0 events.lhe
+	fi
         \mv events.lhe events.lhe.cpp.$xfac
         if ! diff events.lhe.cpp.$xfac events.lhe.ref.$xfac; then echo "ERROR! events.lhe.cpp.$xfac and events.lhe.ref.$xfac differ!"; exit 1; else echo -e "\nOK! events.lhe.cpp.$xfac and events.lhe.ref.$xfac are identical"; fi
       done
@@ -487,6 +495,10 @@ for suff in $suffs; do
         exit 1
       fi
       echo -e "\n*** (3) Compare GMADEVENT_CUDACPP x$xfac events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***"
+      \cp events.lhe events.lhe0
+      if [ "${fptype}" == "f" ]; then
+        ${scrdir}/lheFloat.sh events.lhe0 events.lhe
+      fi
       \mv events.lhe events.lhe.cuda.$xfac
       if ! diff events.lhe.cuda.$xfac events.lhe.ref.$xfac; then echo "ERROR! events.lhe.cuda.$xfac and events.lhe.ref.$xfac differ!"; exit 1; else echo -e "\nOK! events.lhe.cuda.$xfac and events.lhe.ref.$xfac are identical"; fi
     done
@@ -501,7 +513,6 @@ done
 # Cleanup
 \rm -f results.dat
 \rm -f results.dat.ref
-\rm -f events.lhe
-\rm -f events.lhe.*
+\rm -f events.lhe*
 
 printf "\nTEST COMPLETED\n"
