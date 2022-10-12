@@ -102,15 +102,16 @@ namespace mg5amcKokkos
     int m_team_size; // number of gpu threads (default set from number of events, can be modified)
     int m_league_size;  // number of gpu blocks (default set from number of events, can be modified)
     Kokkos::View<fptype***> m_devMomenta;
-    Kokkos::View<fptype*> m_devGsC;
-    Kokkos::View<fptype*> m_devMEsC;
-    Kokkos::View<fptype*,Kokkos::HostSpace> m_hstMEsC;
+    Kokkos::View<fptype*> m_devGs;
+    Kokkos::View<fptype*> m_devMEs;
+    Kokkos::View<fptype*,Kokkos::HostSpace> m_hstMEs;
     Kokkos::View<bool*> m_devIsGoodHel;
     Kokkos::View<bool*,Kokkos::HostSpace> m_hstIsGoodHel;
     Kokkos::View<short** > m_devcHel;
     Kokkos::View<fptype*> m_devcIPC;
     Kokkos::View<fptype*> m_devcIPD;
     Kokkos::View<int> m_devNGoodHel; 
+    Kokkos::View<int,Kokkos::HostSpace> m_hstNGoodHel; 
     Kokkos::View<cxtype*> m_dev_independent_couplings;
     Kokkos::View<fptype*> m_dev_independent_parameters;
     
@@ -149,8 +150,8 @@ namespace mg5amcKokkos
     , m_hstMEs( Kokkos::ViewAllocateWithoutInitializing("m_hstMEs"), m_nevt )
     , m_devIsGoodHel( Kokkos::ViewAllocateWithoutInitializing("m_devIsGoodHel"), mgOnGpu::ncomb )
     , m_hstIsGoodHel( Kokkos::ViewAllocateWithoutInitializing("m_hstIsGoodHel"), mgOnGpu::ncomb )
-    , m_devcNGoodHel( Kokkos::ViewAllocateWithoutInitializing("m_devcNGoodHel"), 1 ) 
-    , m_devcGoodHel( Kokkos::ViewAllocateWithoutInitializing("m_devGoodHel"), mgOnGpu::ncomb )
+    , m_devNGoodHel( Kokkos::ViewAllocateWithoutInitializing("m_devNGoodHel")) 
+    , m_hstNGoodHel( Kokkos::ViewAllocateWithoutInitializing("m_hstNGoodHel")) 
     , m_dev_independent_couplings( independentCouplings::nicoup )
     , m_dev_independent_parameters( mgOnGpu::nparams )
   {
@@ -168,7 +169,7 @@ namespace mg5amcKokkos
     std::cout << "WARNING! Instantiate device Bridge (nevt=" << m_nevt << ", league_size=" << m_league_size << ", team_size=" << m_team_size
               << ", league_size*team_size=" << m_league_size * m_team_size << ")" << std::endl;
 
-    mg5amcKokkos::CPPProcess process( false, false );
+    CPPProcess process( false, false );
     process.initProc( "../../Cards/param_card.dat" );
   }
 
@@ -190,7 +191,6 @@ namespace mg5amcKokkos
                                             const unsigned int channelId,
                                             const bool goodHelOnly )
   {
-    static constexpr int neppM = mgOnGpu::neppM;
     static constexpr int np4 =  mgOnGpu::np4;
     static constexpr int nparf = mgOnGpu::nparf;
     static constexpr int npar = mgOnGpu::npar;
@@ -201,15 +201,13 @@ namespace mg5amcKokkos
 
     // TC: Might need this -> if constexpr( neppM == 1 && std::is_same_v<FORTRANFPTYPE, fptype> )
     Kokkos::View<FORTRANFPTYPE***,Kokkos::HostSpace> hst_momenta(momenta,m_nevt,npar,np4);
-    Kokkos::deep_copy(m_devMomenta,hst_momenta):
+    Kokkos::deep_copy(m_devMomenta,hst_momenta);
 
     Kokkos::View<FORTRANFPTYPE*,Kokkos::HostSpace> hstGs(gs,m_nevt);
-    Kokkos::deep_copy(m_devGs,hstGs):
+    Kokkos::deep_copy(m_devGs,hstGs);
 
     if( !m_goodHelsCalculated )
     {
-      
-
       sigmaKin_setup(m_devMomenta,m_devIsGoodHel, m_devNGoodHel,
                      m_devGs, m_dev_independent_couplings,
                      m_dev_independent_parameters, 
@@ -221,36 +219,12 @@ namespace mg5amcKokkos
     }
     if( goodHelOnly ) return;
 
-    auto devMomentaC = m_devMomentaC.data();
-    auto devcHel = m_devcHel.data();
-    auto devcIPC = m_devcIPC.data();
-    auto devcIPD = m_devcIPD.data();
-    auto devcNGoodHel = m_devcNGoodHel.data();
-    auto devcGoodHel = m_devcGoodHel.data();
-    auto devMEsC = m_devMEsC.data();
-    m_q.submit([&](sycl::handler& cgh) {
-        cgh.parallel_for_work_group(sycl::range<1>{m_league_size}, sycl::range<1>{m_team_size}, ([=](sycl::group<1> wGroup) {
-            wGroup.parallel_for_work_item([&](sycl::h_item<1> index) {
-                size_t ievt = index.get_global_id(0);
-                const int ipagM = ievt/neppM;
-                const int ieppM = ievt%neppM;
-                devMEsC[ievt] = Proc::sigmaKin( devMomentaC + ipagM * npar * np4 * neppM + ieppM, devcHel, devcIPC, devcIPD, devcNGoodHel, devcGoodHel );
-            });
-        }));
-    });
-    m_q.wait();
+    sigmaKin(m_devMomenta,m_devIsGoodHel,m_devNGoodHel,
+            m_devGs, m_dev_independent_couplings,
+            m_dev_independent_parameters, 
+            m_league_size, m_team_size);
 
-    if constexpr( std::is_same_v<FORTRANFPTYPE, fptype> )
-    {
-      m_q.memcpy( mes, m_devMEsC.data(), m_nevt*sizeof(fptype) ).wait();
-      //flagAbnormalMEs( mes, m_nevt );
-    }
-    else
-    {
-      m_q.memcpy( m_hstMEsC.data(), m_devMEsC.data(), m_nevt*sizeof(fptype) ).wait();
-      //flagAbnormalMEs( m_hstMEsC, m_nevt );
-      std::copy( m_hstMEsC.data(), m_hstMEsC.data() + m_nevt, mes );
-    }
+    Kokkos::deep_copy(m_hstMEs,m_devMEs);
 
   }
 

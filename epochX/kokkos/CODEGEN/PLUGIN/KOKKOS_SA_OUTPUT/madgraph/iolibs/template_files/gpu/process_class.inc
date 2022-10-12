@@ -18,8 +18,8 @@ public:
   // Initialize process (read model parameters from file)
 	virtual void initProc(const std::string& param_card_name);
 
-  Kokkos::View<fptype*> m_cIPC;
-  typename Kokkos::View<fptype*,Kokkos::HostSpace> m_hIPC;
+  Kokkos::View<cxtype*> m_cIPC;
+  typename Kokkos::View<cxtype*,Kokkos::HostSpace> m_hIPC;
 
   Kokkos::View<fptype*> m_cIPD;
   typename Kokkos::View<fptype*,Kokkos::HostSpace> m_hIPD;

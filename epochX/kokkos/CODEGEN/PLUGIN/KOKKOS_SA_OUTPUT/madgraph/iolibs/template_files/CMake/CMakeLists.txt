@@ -2,7 +2,15 @@
 
 cmake_minimum_required(VERSION 3.22)
 
-project(Madgraph4GPU)
+project(Madgraph4GPU LANGUAGES C CXX Fortran)
+
+include(FortranCInterface)
+
+# if you are working with C and Fortran
+FortranCInterface_VERIFY()
+
+# if you are working with C++ and Fortran
+FortranCInterface_VERIFY(CXX)
 
 find_package(Kokkos REQUIRED)
 # set cuda flags

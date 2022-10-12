@@ -81,7 +81,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                             s+'gpu/mgOnGpuConfig.h',s+'gpu/epoch_process_id.h'],
                      'SubProcesses': [
                             s+'gpu/nvtx.h', s+'gpu/timer.h', s+'gpu/timermap.h', s+'gpu/CalcMean.h',
-                            s+'gpu/Bridge.h',
+                            s+'gpu/Bridge.h',s+'gpu/fcheck_sa.f',
                             s+'gpu/fbridge.cc', s+'gpu/fbridge.inc', s+'gpu/fsampler.cc', s+'gpu/fsampler.inc',
                             s+'gpu/perf.py', s+'gpu/profile.sh',
                             s+'CMake/SubProcesses/CMakeLists.txt']}

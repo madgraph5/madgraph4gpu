@@ -1043,9 +1043,36 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
         if self.matrix_elements[0].get('has_mirror_process'):
             self.matrix_elements[0].set('has_mirror_process', False)
             self.nprocesses/=2
-        super(PLUGIN_export_cpp.OneProcessExporterGPU, self).generate_process_files()
+
+        ## NSN Explicity copy method and generate cc file first (need params2order for h file)
+        #super(export_cpp.OneProcessExporterGPU, self).generate_process_files()
+
+        #"""Generate the .h and .cc files needed for C++, for the
+        #processes described by multi_matrix_element"""
+
+        # Create the files
+        if not os.path.isdir(os.path.join(self.path, self.process_dir)):
+            os.makedirs(os.path.join(self.path, self.process_dir))
+        filename = os.path.join(self.path, self.process_dir,
+                                '%s.%s' % (self.process_class, self.cc_ext))
+
+        self.write_process_cc_file(PLUGIN_writers.CPPWriter(filename))
+
+
+        if not os.path.isdir(os.path.join(self.path, self.include_dir)):
+            os.makedirs(os.path.join(self.path, self.include_dir))
+        filename = os.path.join(self.path, self.include_dir,
+                                '%s.h' % self.process_class)
+
+        self.write_process_h_file(PLUGIN_writers.CPPWriter(filename))
+
+
+        logger.info('Created files %(process)s.h and %(process)s.cc in' % \
+                    {'process': self.process_class} + \
+                    ' directory %(dir)s' % {'dir': os.path.split(filename)[0]})
+
         self.edit_CMakeLists()
-        self.edit_check()
+        self.edit_check_sa()
         self.edit_mgonGPU()
         #self.edit_processidfile() # AV new file (NB this is Sigma-specific, should not be a symlink to Subprocesses)
         #self.edit_testxxx() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
@@ -1068,18 +1095,21 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
         ff.close()
 
     # AV - replace the export_cpp.OneProcessExporterGPU method (invert .cc/.cu, add debug printouts)
-    def edit_check(self):
-        """Generate check.cc and fcheck_sa.f"""
-        misc.sprint('Entering PLUGIN_OneProcessExporter.edit_check')
-        
+    def edit_check_sa(self):
+        """Generate check_sa.cc and fcheck_sa.f"""
+        misc.sprint('Entering PLUGIN_OneProcessExporter.edit_check_sa')
+        ff = open(pjoin(self.path, 'check_sa.cc'),'w')
         template = open(pjoin(self.template_path,'gpu','check.cpp'),'r').read()
+        ff.write(template)
+        ff.close()
+
         replace_dict = {}
         replace_dict['nexternal'], _ = self.matrix_elements[0].get_nexternal_ninitial()
-        replace_dict['model'] = self.model_name
-        replace_dict['numproc'] = len(self.matrix_elements)
-
-        ff = open(pjoin(self.path, 'check_sa.cc'), 'w')
-        ff.write(template)
+        # replace_dict['model'] = self.model_name
+        # replace_dict['numproc'] = len(self.matrix_elements)
+        ff = open(pjoin(self.path, 'fcheck_sa.f'),'w')
+        template = open(pjoin(self.template_path,'gpu','fcheck_sa.f'),'r').read()
+        ff.write(template % replace_dict)
         ff.close()
 
     # AV - replace the export_cpp.OneProcessExporterGPU method (add debug printouts and multichannel handling #473) 
@@ -1144,7 +1174,7 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
         """Generate final CPPProcess.h"""
         misc.sprint('Entering PLUGIN_OneProcessExporter.write_process_h_file')
         replace_dict = super(PLUGIN_export_cpp.OneProcessExporterGPU, self).write_process_h_file(False)
-        # replace_dict2 = super(PLUGIN_export_cpp.OneProcessExporterGPU,self).get_process_function_definitions(write=False)
+        replace_dict2 = super(PLUGIN_export_cpp.OneProcessExporterGPU,self).get_process_function_definitions(write=False)
         replace_dict['helamps_h'] = "\n#include \"HelAmps_%s.h\"" % self.model_name
 
         # Kokkos puts source code in header and the helicities are set in the process_function_definitions
