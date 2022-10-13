@@ -110,8 +110,8 @@ namespace mg5amcKokkos
     Kokkos::View<short** > m_devcHel;
     Kokkos::View<fptype*> m_devcIPC;
     Kokkos::View<fptype*> m_devcIPD;
-    Kokkos::View<int> m_devNGoodHel; 
-    Kokkos::View<int,Kokkos::HostSpace> m_hstNGoodHel; 
+    Kokkos::View<int*> m_devNGoodHel; 
+    Kokkos::View<int*,Kokkos::HostSpace> m_hstNGoodHel; 
     Kokkos::View<cxtype*> m_dev_independent_couplings;
     Kokkos::View<fptype*> m_dev_independent_parameters;
     
@@ -124,14 +124,14 @@ namespace mg5amcKokkos
   // Forward declare transposition methods
   //
 
-  template<typename Tin, typename Tout>
-  void dev_transposeMomentaF2C( Tout* __restrict__ out, const Tin* __restrict__ in, size_t pos, const unsigned int nevt );
+  // template<typename Tin, typename Tout>
+  // void dev_transposeMomentaF2C( Tout* __restrict__ out, const Tin* __restrict__ in, size_t pos, const unsigned int nevt );
 
-  template<typename Tin, typename Tout>
-  void hst_transposeMomentaF2C( const Tin* __restrict__ in, Tout* __restrict__ out, const unsigned int nevt );
+  // template<typename Tin, typename Tout>
+  // void hst_transposeMomentaF2C( const Tin* __restrict__ in, Tout* __restrict__ out, const unsigned int nevt );
 
-  template<typename Tin, typename Tout>
-  void hst_transposeMomentaC2F( const Tin* __restrict__ in, Tout* __restrict__ out, const unsigned int nevt );
+  // template<typename Tin, typename Tout>
+  // void hst_transposeMomentaC2F( const Tin* __restrict__ in, Tout* __restrict__ out, const unsigned int nevt );
 
   //--------------------------------------------------------------------------
   //
@@ -150,10 +150,10 @@ namespace mg5amcKokkos
     , m_hstMEs( Kokkos::ViewAllocateWithoutInitializing("m_hstMEs"), m_nevt )
     , m_devIsGoodHel( Kokkos::ViewAllocateWithoutInitializing("m_devIsGoodHel"), mgOnGpu::ncomb )
     , m_hstIsGoodHel( Kokkos::ViewAllocateWithoutInitializing("m_hstIsGoodHel"), mgOnGpu::ncomb )
-    , m_devNGoodHel( Kokkos::ViewAllocateWithoutInitializing("m_devNGoodHel")) 
-    , m_hstNGoodHel( Kokkos::ViewAllocateWithoutInitializing("m_hstNGoodHel")) 
-    , m_dev_independent_couplings( independentCouplings::nicoup )
-    , m_dev_independent_parameters( mgOnGpu::nparams )
+    , m_devNGoodHel( Kokkos::ViewAllocateWithoutInitializing("m_devNGoodHel"),1) 
+    , m_hstNGoodHel( Kokkos::ViewAllocateWithoutInitializing("m_hstNGoodHel"),1) 
+    , m_dev_independent_couplings(Kokkos::ViewAllocateWithoutInitializing("m_dev_independent_couplings"), independentCouplings::nicoup )
+    , m_dev_independent_parameters(Kokkos::ViewAllocateWithoutInitializing("m_dev_independent_parameters"), mgOnGpu::nparams )
   {
     if( nparF != mgOnGpu::npar ) throw std::runtime_error( "Bridge constructor: npar mismatch" );
     if( np4F != mgOnGpu::np4 ) throw std::runtime_error( "Bridge constructor: np4 mismatch" );
@@ -200,10 +200,11 @@ namespace mg5amcKokkos
     // TC: are already in the format [ievt][ipar][i4]
 
     // TC: Might need this -> if constexpr( neppM == 1 && std::is_same_v<FORTRANFPTYPE, fptype> )
-    Kokkos::View<FORTRANFPTYPE***,Kokkos::HostSpace> hst_momenta(momenta,m_nevt,npar,np4);
+    Kokkos::View<FORTRANFPTYPE const***,Kokkos::HostSpace> hst_momenta(momenta,m_nevt,npar,np4);
+    // Kokkos::resize(hst_momenta,m_nevt,npar,np4);
     Kokkos::deep_copy(m_devMomenta,hst_momenta);
 
-    Kokkos::View<FORTRANFPTYPE*,Kokkos::HostSpace> hstGs(gs,m_nevt);
+    Kokkos::View<FORTRANFPTYPE const *,Kokkos::HostSpace> hstGs(gs,m_nevt);
     Kokkos::deep_copy(m_devGs,hstGs);
 
     if( !m_goodHelsCalculated )
@@ -222,7 +223,8 @@ namespace mg5amcKokkos
     sigmaKin(m_devMomenta,m_devIsGoodHel,m_devNGoodHel,
             m_devGs, m_dev_independent_couplings,
             m_dev_independent_parameters, 
-            m_league_size, m_team_size);
+            m_league_size, m_team_size,
+            m_devMEs);
 
     Kokkos::deep_copy(m_hstMEs,m_devMEs);
 
@@ -235,132 +237,132 @@ namespace mg5amcKokkos
   // - C++ array: momenta[npagM][npar][np4][neppM] with nevt=npagM*neppM (AOSOA)
   //
 
-  template<typename Tin, typename Tout>
-  void dev_transposeMomentaF2C( Tout* __restrict__ out, const Tin* __restrict__ in, size_t pos, const unsigned int nevt )
-  {
-    constexpr bool oldImplementation = true; // default: use old implementation
-    if constexpr( oldImplementation )
-    {
-      // SR initial implementation
-      constexpr int part = mgOnGpu::npar;
-      constexpr int mome = mgOnGpu::np4;
-      constexpr int strd = mgOnGpu::neppM;
-      unsigned int arrlen = nevt * part * mome;
-      if( pos < arrlen )
-      {
-        int page_i = pos / ( strd * mome * part );
-        int rest_1 = pos % ( strd * mome * part );
-        int part_i = rest_1 / ( strd * mome );
-        int rest_2 = rest_1 % ( strd * mome );
-        int mome_i = rest_2 / strd;
-        int strd_i = rest_2 % strd;
-        int inpos =
-          ( page_i * strd + strd_i ) // event number
-            * ( part * mome )        // event size (pos of event)
-          + part_i * mome            // particle inside event
-          + mome_i;                  // momentum inside particle
-        out[pos] = in[inpos];        // F2C (Fortran to C)
-      }
-    }
-    else
-    {
-      // AV attempt another implementation with 1 event per thread: this seems slower...
-      // F-style: AOS[nevtF][nparF][np4F]
-      // C-style: AOSOA[npagM][npar][np4][neppM] with nevt=npagM*neppM
-      constexpr int npar = mgOnGpu::npar;
-      constexpr int np4 = mgOnGpu::np4;
-      constexpr int neppM = mgOnGpu::neppM;
-      assert( nevt % neppM == 0 ); // number of events is not a multiple of neppM???
-      size_t ievt = pos;
-      int ipagM = ievt / neppM;
-      int ieppM = ievt % neppM;
-      for( int ip4 = 0; ip4 < np4; ip4++ )
-        for( int ipar = 0; ipar < npar; ipar++ )
-        {
-          int cpos = ipagM * npar * np4 * neppM + ipar * np4 * neppM + ip4 * neppM + ieppM;
-          int fpos = ievt * npar * np4 + ipar * np4 + ip4;
-          out[cpos] = in[fpos]; // F2C (Fortran to C)
-        }
-    }
-  }
+  // template<typename Tin, typename Tout>
+  // void dev_transposeMomentaF2C( Tout* __restrict__ out, const Tin* __restrict__ in, size_t pos, const unsigned int nevt )
+  // {
+  //   constexpr bool oldImplementation = true; // default: use old implementation
+  //   if constexpr( oldImplementation )
+  //   {
+  //     // SR initial implementation
+  //     constexpr int part = mgOnGpu::npar;
+  //     constexpr int mome = mgOnGpu::np4;
+  //     constexpr int strd = mgOnGpu::neppM;
+  //     unsigned int arrlen = nevt * part * mome;
+  //     if( pos < arrlen )
+  //     {
+  //       int page_i = pos / ( strd * mome * part );
+  //       int rest_1 = pos % ( strd * mome * part );
+  //       int part_i = rest_1 / ( strd * mome );
+  //       int rest_2 = rest_1 % ( strd * mome );
+  //       int mome_i = rest_2 / strd;
+  //       int strd_i = rest_2 % strd;
+  //       int inpos =
+  //         ( page_i * strd + strd_i ) // event number
+  //           * ( part * mome )        // event size (pos of event)
+  //         + part_i * mome            // particle inside event
+  //         + mome_i;                  // momentum inside particle
+  //       out[pos] = in[inpos];        // F2C (Fortran to C)
+  //     }
+  //   }
+  //   else
+  //   {
+  //     // AV attempt another implementation with 1 event per thread: this seems slower...
+  //     // F-style: AOS[nevtF][nparF][np4F]
+  //     // C-style: AOSOA[npagM][npar][np4][neppM] with nevt=npagM*neppM
+  //     constexpr int npar = mgOnGpu::npar;
+  //     constexpr int np4 = mgOnGpu::np4;
+  //     constexpr int neppM = mgOnGpu::neppM;
+  //     assert( nevt % neppM == 0 ); // number of events is not a multiple of neppM???
+  //     size_t ievt = pos;
+  //     int ipagM = ievt / neppM;
+  //     int ieppM = ievt % neppM;
+  //     for( int ip4 = 0; ip4 < np4; ip4++ )
+  //       for( int ipar = 0; ipar < npar; ipar++ )
+  //       {
+  //         int cpos = ipagM * npar * np4 * neppM + ipar * np4 * neppM + ip4 * neppM + ieppM;
+  //         int fpos = ievt * npar * np4 + ipar * np4 + ip4;
+  //         out[cpos] = in[fpos]; // F2C (Fortran to C)
+  //       }
+  //   }
+  // }
 
-  template<typename Tin, typename Tout, bool F2C>
-  void hst_transposeMomenta( const Tin* __restrict__ in, Tout* __restrict__ out, const unsigned int nevt )
-  {
-    constexpr bool oldImplementation = false; // default: use new implementation
-    if constexpr( oldImplementation )
-    {
-      // SR initial implementation
-      constexpr unsigned int part = mgOnGpu::npar;
-      constexpr unsigned int mome = mgOnGpu::np4;
-      constexpr unsigned int strd = mgOnGpu::neppM;
-      unsigned int arrlen = nevt * part * mome;
-      for( unsigned int pos = 0; pos < arrlen; ++pos )
-      {
-        unsigned int page_i = pos / ( strd * mome * part );
-        unsigned int rest_1 = pos % ( strd * mome * part );
-        unsigned int part_i = rest_1 / ( strd * mome );
-        unsigned int rest_2 = rest_1 % ( strd * mome );
-        unsigned int mome_i = rest_2 / strd;
-        unsigned int strd_i = rest_2 % strd;
-        unsigned int inpos =
-          ( page_i * strd + strd_i ) // event number
-            * ( part * mome )        // event size (pos of event)
-          + part_i * mome            // particle inside event
-          + mome_i;                  // momentum inside particle
-        if constexpr( F2C )          // needs c++17
-          out[pos] = in[inpos];      // F2C (Fortran to C)
-        else
-          out[inpos] = in[pos]; // C2F (C to Fortran)
-      }
-    }
-    else
-    {
-      // AV attempt another implementation: this is slightly faster (better c++ pipelining?)
-      // [NB! this is not a transposition, it is an AOS to AOSOA conversion: if neppM=1, a memcpy is enough]
-      // F-style: AOS[nevtF][nparF][np4F]
-      // C-style: AOSOA[npagM][npar][np4][neppM] with nevt=npagM*neppM
-      constexpr unsigned int npar = mgOnGpu::npar;
-      constexpr unsigned int np4 = mgOnGpu::np4;
-      constexpr unsigned int neppM = mgOnGpu::neppM;
-      if constexpr( neppM == 1 && std::is_same_v<Tin, Tout> )
-      {
-        memcpy( out, in, nevt * npar * np4 * sizeof( Tin ) );
-      }
-      else
-      {
-        const unsigned int npagM = nevt / neppM;
-        assert( nevt % neppM == 0 ); // number of events is not a multiple of neppM???
-        for( unsigned int ipagM = 0; ipagM < npagM; ipagM++ )
-          for( unsigned int ip4 = 0; ip4 < np4; ip4++ )
-            for( unsigned int ipar = 0; ipar < npar; ipar++ )
-              for( unsigned int ieppM = 0; ieppM < neppM; ieppM++ )
-              {
-                unsigned int ievt = ipagM * neppM + ieppM;
-                unsigned int cpos = ipagM * npar * np4 * neppM + ipar * np4 * neppM + ip4 * neppM + ieppM;
-                unsigned int fpos = ievt * npar * np4 + ipar * np4 + ip4;
-                if constexpr( F2C )
-                  out[cpos] = in[fpos]; // F2C (Fortran to C)
-                else
-                  out[fpos] = in[cpos]; // C2F (C to Fortran)
-              }
-      }
-    }
-  }
+  // template<typename Tin, typename Tout, bool F2C>
+  // void hst_transposeMomenta( const Tin* __restrict__ in, Tout* __restrict__ out, const unsigned int nevt )
+  // {
+  //   constexpr bool oldImplementation = false; // default: use new implementation
+  //   if constexpr( oldImplementation )
+  //   {
+  //     // SR initial implementation
+  //     constexpr unsigned int part = mgOnGpu::npar;
+  //     constexpr unsigned int mome = mgOnGpu::np4;
+  //     constexpr unsigned int strd = mgOnGpu::neppM;
+  //     unsigned int arrlen = nevt * part * mome;
+  //     for( unsigned int pos = 0; pos < arrlen; ++pos )
+  //     {
+  //       unsigned int page_i = pos / ( strd * mome * part );
+  //       unsigned int rest_1 = pos % ( strd * mome * part );
+  //       unsigned int part_i = rest_1 / ( strd * mome );
+  //       unsigned int rest_2 = rest_1 % ( strd * mome );
+  //       unsigned int mome_i = rest_2 / strd;
+  //       unsigned int strd_i = rest_2 % strd;
+  //       unsigned int inpos =
+  //         ( page_i * strd + strd_i ) // event number
+  //           * ( part * mome )        // event size (pos of event)
+  //         + part_i * mome            // particle inside event
+  //         + mome_i;                  // momentum inside particle
+  //       if constexpr( F2C )          // needs c++17
+  //         out[pos] = in[inpos];      // F2C (Fortran to C)
+  //       else
+  //         out[inpos] = in[pos]; // C2F (C to Fortran)
+  //     }
+  //   }
+  //   else
+  //   {
+  //     // AV attempt another implementation: this is slightly faster (better c++ pipelining?)
+  //     // [NB! this is not a transposition, it is an AOS to AOSOA conversion: if neppM=1, a memcpy is enough]
+  //     // F-style: AOS[nevtF][nparF][np4F]
+  //     // C-style: AOSOA[npagM][npar][np4][neppM] with nevt=npagM*neppM
+  //     constexpr unsigned int npar = mgOnGpu::npar;
+  //     constexpr unsigned int np4 = mgOnGpu::np4;
+  //     constexpr unsigned int neppM = mgOnGpu::neppM;
+  //     if constexpr( neppM == 1 && std::is_same_v<Tin, Tout> )
+  //     {
+  //       memcpy( out, in, nevt * npar * np4 * sizeof( Tin ) );
+  //     }
+  //     else
+  //     {
+  //       const unsigned int npagM = nevt / neppM;
+  //       assert( nevt % neppM == 0 ); // number of events is not a multiple of neppM???
+  //       for( unsigned int ipagM = 0; ipagM < npagM; ipagM++ )
+  //         for( unsigned int ip4 = 0; ip4 < np4; ip4++ )
+  //           for( unsigned int ipar = 0; ipar < npar; ipar++ )
+  //             for( unsigned int ieppM = 0; ieppM < neppM; ieppM++ )
+  //             {
+  //               unsigned int ievt = ipagM * neppM + ieppM;
+  //               unsigned int cpos = ipagM * npar * np4 * neppM + ipar * np4 * neppM + ip4 * neppM + ieppM;
+  //               unsigned int fpos = ievt * npar * np4 + ipar * np4 + ip4;
+  //               if constexpr( F2C )
+  //                 out[cpos] = in[fpos]; // F2C (Fortran to C)
+  //               else
+  //                 out[fpos] = in[cpos]; // C2F (C to Fortran)
+  //             }
+  //     }
+  //   }
+  // }
 
-  template<typename Tin, typename Tout>
-  void hst_transposeMomentaF2C( const Tin* __restrict__ in, Tout* __restrict__ out, const unsigned int nevt )
-  {
-    constexpr bool F2C = true;
-    hst_transposeMomenta<Tin, Tout, F2C>( in, out, nevt );
-  }
+  // template<typename Tin, typename Tout>
+  // void hst_transposeMomentaF2C( const Tin* __restrict__ in, Tout* __restrict__ out, const unsigned int nevt )
+  // {
+  //   constexpr bool F2C = true;
+  //   hst_transposeMomenta<Tin, Tout, F2C>( in, out, nevt );
+  // }
 
-  template<typename Tin, typename Tout>
-  void hst_transposeMomentaC2F( const Tin* __restrict__ in, Tout* __restrict__ out, const unsigned int nevt )
-  {
-    constexpr bool F2C = false;
-    hst_transposeMomenta<Tin, Tout, F2C>( in, out, nevt );
-  }
+  // template<typename Tin, typename Tout>
+  // void hst_transposeMomentaC2F( const Tin* __restrict__ in, Tout* __restrict__ out, const unsigned int nevt )
+  // {
+  //   constexpr bool F2C = false;
+  //   hst_transposeMomenta<Tin, Tout, F2C>( in, out, nevt );
+  // }
 
   //--------------------------------------------------------------------------
 }

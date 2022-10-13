@@ -9,7 +9,7 @@ extern "C"
    * A single fcreatebridge_ symbol is created in each library with the same name, connected to the appropriate Bridge on SYCL devices.
    * The Fortran MadEvent code is always the same: the choice whether to use a specific SYCL device implementation is done by linking the appropriate library and setting an evironment variable.
    */
-  using namespace mg5amcGpu;
+  using namespace mg5amcKokkos;
 
   /**
    * The floating point precision used in Fortran arrays.

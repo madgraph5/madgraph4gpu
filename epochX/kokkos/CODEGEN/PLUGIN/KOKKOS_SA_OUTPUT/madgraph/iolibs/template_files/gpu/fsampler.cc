@@ -5,7 +5,7 @@
 
 //--------------------------------------------------------------------------
 
-namespace mg5amcGpu
+namespace mg5amcKokkos
 {
   template<typename FORTRANFPTYPE>
   class Sampler final : public CppObjectInFortran

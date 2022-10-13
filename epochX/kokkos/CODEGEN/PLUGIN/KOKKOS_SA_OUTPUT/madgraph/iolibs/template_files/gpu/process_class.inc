@@ -8,8 +8,7 @@ class CPPProcess
 public:
 
   // Constructor (from command line arguments)
-  CPPProcess( int numiterations, int leaguesize, int teamsize,
-              bool verbose = false, bool debug = false );
+  CPPProcess( bool verbose = false, bool debug = false );
 
 
   // Destructor
@@ -27,9 +26,6 @@ public:
 private:
 
   // Command line arguments (constructor)
-  int m_numiterations; // number of iterations (each iteration has nblocks*nthreads events)
-  int m_league_size; // number of GPU blocks in one grid (i.e. one iteration)
-  int m_team_size; // number of GPU threads in a block
   bool m_verbose;
   bool m_debug;
 

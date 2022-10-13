@@ -7,10 +7,8 @@
 //--------------------------------------------------------------------------
 
 CPPProcess::CPPProcess(
-    int numiterations, int leaguesize, int teamsize,
     bool verbose, bool debug): 
-      m_numiterations(numiterations), m_league_size(leaguesize), 
-      m_team_size(teamsize),
+      m_verbose(verbose),m_debug(debug),
       m_cIPC("cIPC",independentCouplings::nicoup), m_hIPC("hIPC",independentCouplings::nicoup), 
       m_cIPD("cIPD",mgOnGpu::nparams), m_hIPD("hIPD",mgOnGpu::nparams)
 {}
