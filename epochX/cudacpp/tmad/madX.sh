@@ -94,7 +94,7 @@ suffs=".mad/"
 
 # Switch between double and float builds
 export FPTYPE=$fptype
-if [ "${fptype}" == "f" ]; then xsecthr="4E-6"; else xsecthr="2E-14"; fi
+if [ "${fptype}" == "f" ]; then xsecthr="2E-4"; else xsecthr="2E-14"; fi
 
 # Determine the working directory below topdir based on suff, bckend and <process>
 function showdir()
