@@ -39,7 +39,7 @@ if [ "$table" == "default" ]; then
   procs="eemumu ggtt ggttg ggttgg ggttggg"
   ###mrevs="$mrevs bf727b1"  # cuda116/gcc102  (03 Jul 2022)
   ###fpts="d"
-  mrevs="$mrevs c788ce1"  # cuda117/gcc112  (13 Oct 2022)
+  mrevs="$mrevs 1efee04"  # cuda117/gcc112  (13 Oct 2022)
   fpts="d f"
   taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/8192 CUDA/max $cuda8tpb"
 elif [ "$table" == "juwels" ]; then
@@ -54,7 +54,6 @@ elif [ "$table" == "juwels2" ]; then
   fpts="d f"
 fi
 revs="$mrevs"
-
 
 # TEST MODE (debug individual lines and skip the final END printout)
 testmode=0
