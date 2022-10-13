@@ -18,5 +18,5 @@ cat ${infile} | awk \
   'BEGIN{line=1000; npar=0}
    {if ($1=="<event>"){line=0; print $0}
     else {line=line+1;
-          if (line==1){$3=sprintf("%.4E",$3); print $0} # keep 5 digits "1.2345" in XWGTUP (first one from sprintf is non-0)
+          if (line==1){$3=sprintf("%.2E",$3); print $0} # keep 3 digits "1.23" in XWGTUP (first one from sprintf is non-0)
           else print $0}}' > ${outfile}
