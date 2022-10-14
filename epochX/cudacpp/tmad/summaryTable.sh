@@ -47,8 +47,8 @@ elif [ "$table" == "juwels" ]; then
   fpts="d f"
 elif [ "$table" == "juwels2" ]; then
   procs="ggttgg"
-  mrevs="$mrevs eb30e41"  # cuda115/gcc112  (12 Oct 2022) 
-  ###mrevs="$mrevs 59b311b"  # cuda115/gcc102  (14 Oct 2022) 
+  ###mrevs="$mrevs eb30e41"  # cuda115/gcc112  (12 Oct 2022) 
+  mrevs="$mrevs 59b311b"  # cuda115/gcc102  (14 Oct 2022) 
   taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z"
   fpts="d f"
 fi
