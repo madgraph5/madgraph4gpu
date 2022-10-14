@@ -37,19 +37,18 @@ fi
 mrevs=""
 if [ "$table" == "default" ]; then
   procs="eemumu ggtt ggttg ggttgg ggttggg"
-  ###mrevs="$mrevs bf727b1"  # cuda116/gcc102  (03 Jul 2022)
-  ###fpts="d"
   mrevs="$mrevs 1efee04"  # cuda117/gcc112  (13 Oct 2022)
   fpts="d f"
   taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/8192 CUDA/max $cuda8tpb"
 elif [ "$table" == "juwels" ]; then
   procs="eemumu ggtt ggttg ggttgg ggttggg"
-  mrevs="$mrevs 8b681c6"  # cuda115/gcc102  (03 Jul 2022) 
+  mrevs="$mrevs 59b311b"  # cuda115/gcc102  (14 Oct 2022) 
   taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z"
-  fpts="d"
+  fpts="d f"
 elif [ "$table" == "juwels2" ]; then
   procs="ggttgg"
   mrevs="$mrevs eb30e41"  # cuda115/gcc112  (12 Oct 2022) 
+  ###mrevs="$mrevs 59b311b"  # cuda115/gcc102  (14 Oct 2022) 
   taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z"
   fpts="d f"
 fi
