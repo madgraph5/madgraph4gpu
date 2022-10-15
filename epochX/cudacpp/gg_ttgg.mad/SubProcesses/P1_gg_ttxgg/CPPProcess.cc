@@ -2359,18 +2359,14 @@ namespace mg5amcCpu
 
       // *** COLOR ALGEBRA BELOW ***
       // (This method used to be called CPPProcess::matrix_1_gg_ttxgg()?)
-#ifdef __CUDACC__
-      typedef float float_sv;
-#else
-      typedef fptype_sv float_sv; // AV FIXME!
-#endif      
+
       // The color denominators (initialize all array elements, with ncolor=24)
       // [NB do keep 'static' for these constexpr arrays, see issue #283]
-      static constexpr float_sv denom[ncolor] = { 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54 }; // 1-D array[24]
+      static constexpr fptype denom[ncolor] = { 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54 }; // 1-D array[24]
 
       // The color matrix (initialize all array elements, with ncolor=24)
       // [NB do keep 'static' for these constexpr arrays, see issue #283]
-      static constexpr float_sv cf[ncolor][ncolor] = {
+      static constexpr fptype cf[ncolor][ncolor] = {
         { 512, -64, -64, 8, 8, 80, -64, 8, 8, -1, -1, -10, 8, -1, 80, -10, 71, 62, -1, -10, -10, 62, 62, -28 },
         { -64, 512, 8, 80, -64, 8, 8, -64, -1, -10, 8, -1, -1, -10, -10, 62, 62, -28, 8, -1, 80, -10, 71, 62 },
         { -64, 8, 512, -64, 80, 8, 8, -1, 80, -10, 71, 62, -64, 8, 8, -1, -1, -10, -10, -1, 62, -28, -10, 62 },
@@ -2398,26 +2394,27 @@ namespace mg5amcCpu
 
       // Sum and square the color flows to get the matrix element
       // (compute |M|^2 by squaring |M|, taking into account colours)
-      float_sv deltaMEs = { 0 }; // all zeros https://en.cppreference.com/w/c/language/array_initialization#Notes
-      
-
+      fptype_sv deltaMEs = { 0 }; // all zeros https://en.cppreference.com/w/c/language/array_initialization#Notes
+      // Use the property that M is a real matrix:
+      // we can rewrite the quadratic form (A-iB)(M)(A+iB) as AMA - iBMA + iBMA + BMB = AMA + BMB (see #475)
+      // In addition, use the property that M is symmetric:
+      // we gain a factor 2 in speed here as we only loop over the up diagonal part of the matrix! (see #475)
       for( int icol = 0; icol < ncolor; icol++ )
       {
-        float_sv fiampR_sv = (float_sv)( cxreal( jamp_sv[icol] ) );
-        float_sv fiampI_sv = (float_sv)( cximag( jamp_sv[icol] ) );
-        float_sv ztempR_sv = cf[icol][icol] * fiampR_sv;
-        float_sv ztempI_sv = cf[icol][icol] * fiampI_sv;
-
-        for( int jcol = icol+1; jcol < ncolor; jcol++ ){
-         // factor of 2 here because we only loop over the up diagonal part of the matrix
-          float_sv fjampR_sv = (float_sv)( cxreal( jamp_sv[jcol] ) );
-          float_sv fjampI_sv = (float_sv)( cximag( jamp_sv[jcol] ) );
-          ztempR_sv += 2*cf[icol][jcol] * fjampR_sv;
-          ztempI_sv += 2*cf[icol][jcol] * fjampI_sv;
+        // Diagonal terms
+        fptype_sv jampRi_sv = cxreal( jamp_sv[icol] );
+        fptype_sv jampIi_sv = cximag( jamp_sv[icol] );
+        fptype_sv ztempR_sv = cf[icol][icol] * jampRi_sv;
+        fptype_sv ztempI_sv = cf[icol][icol] * jampIi_sv;
+        // Off-diagonal terms
+        for( int jcol = icol+1; jcol < ncolor; jcol++ )
+        {
+          fptype_sv jampRj_sv = cxreal( jamp_sv[jcol] );
+          fptype_sv jampIj_sv = cximag( jamp_sv[jcol] );
+          ztempR_sv += 2 * cf[icol][jcol] * jampRj_sv;
+          ztempI_sv += 2 * cf[icol][jcol] * jampIj_sv;
         }
-       // here we use the property that M is a real matrix such that we can
-       // Rewrite the quadratic form (A-iB)(M)(A+iB) as AMA - iBMA + iBMA + BMB = AMA + BMB!
-       deltaMEs += (fiampR_sv*ztempR_sv + fiampI_sv*ztempI_sv)/denom[icol];
+        deltaMEs += ( jampRi_sv * ztempR_sv + jampIi_sv * ztempI_sv ) / denom[icol];
       }
 
       // *** STORE THE RESULTS ***
