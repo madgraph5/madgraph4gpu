@@ -425,6 +425,9 @@ for suff in $suffs; do
 
   # (2) CMADEVENT_CUDACPP
   for avx in none sse4 avx2 512y 512z; do
+    if [ "$avx" == "512y" ] || [ "$avx" == "512z" ]; then 
+      if ! grep avx512vl /proc/cpuinfo >& /dev/null; then echo -e "\n*** (2-$avx) WARNING! SKIP CMADEVENT_CUDACPP (${avx} is not supported on this node) ***"; continue; fi
+    fi
     if [ "${checkonly}" == "0" ]; then      
       xfac=1
       if [ "${rmrdat}" == "0" ]; then \cp -p results.dat.ref results.dat; else \rm -f results.dat; fi  
