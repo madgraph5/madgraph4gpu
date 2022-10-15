@@ -37,7 +37,8 @@ fi
 mrevs=""
 if [ "$table" == "default" ]; then
   procs="eemumu ggtt ggttg ggttgg ggttggg"
-  mrevs="$mrevs 1efee04"  # cuda117/gcc112  (13 Oct 2022)
+  ###mrevs="$mrevs 1efee04"  # cuda117/gcc112  (13 Oct 2022)
+  mrevs="$mrevs 82729ba"  # cuda117/gcc112  (14 Oct 2022)
   fpts="d f"
   taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/8192 CUDA/max $cuda8tpb"
 elif [ "$table" == "juwels" ]; then
