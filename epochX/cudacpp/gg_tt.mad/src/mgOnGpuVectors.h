@@ -117,6 +117,7 @@ namespace mgOnGpu /* clang-format off */
 using mgOnGpu::neppV;
 #ifdef MGONGPU_CPPSIMD
 using mgOnGpu::fptype_v;
+using mgOnGpu::fptype2_v;
 using mgOnGpu::cxtype_v;
 using mgOnGpu::bool_v;
 #endif

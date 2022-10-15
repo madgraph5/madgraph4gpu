@@ -158,6 +158,12 @@ namespace mg5amcCpu
     // === Calculate wavefunctions and amplitudes for all diagrams in all processes - Loop over nevt events ===
 #ifndef __CUDACC__
     const int npagV = nevt / neppV;
+#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+    // Mixed fptypes #537: float for color algebra and double elsewhere
+    cxtype_sv jamp_sv_previous[ncolor] = {}; // mixed fptypes: delay computing color algebra (only on even pages)
+    fptype* MEs_previous = 0; // mixed fptypes: delay updating MEs (only on even pages)
+    assert( npagV % 2 == 0 ); // SANITY CHECK for mixed fptypes: two neppV pages are merged to one neppV2 page
+#endif
     // ** START LOOP ON IPAGV **
 #ifdef _OPENMP
     // (NB gcc9 or higher, or clang, is required)
@@ -267,15 +273,6 @@ namespace mg5amcCpu
       // *** COLOR ALGEBRA BELOW ***
       // (This method used to be called CPPProcess::matrix_1_gg_ttx()?)
 
-      // NB #537: color algebra uses "fptype2" precision which may be lower (float) than "fptype" precision (double)
-#ifdef __CUDACC__
-      typedef float fptype2; // FIXME #537
-      typedef float fptype2_sv; // FIXME #537
-#else
-      typedef fptype fptype2; // FIXME #537
-      typedef fptype_sv fptype2_sv; // FIXME #537
-#endif
-
       // The color denominators (initialize all array elements, with ncolor=2)
       // [NB do keep 'static' for these constexpr arrays, see issue #283]
       static constexpr fptype2 denom[ncolor] = { 3, 3 }; // 1-D array[2]
@@ -286,9 +283,21 @@ namespace mg5amcCpu
         { 16, -2 },
         { -2, 16 } }; // 2-D array[2][2]
 
+#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+      if ( ipagV % 2 == 1 )
+      {
+        for( int icol = 0; icol < ncolor; icol++ )
+          jamp_sv_previous[icol] = jamp_sv[icol]; // mixed fptypes: delay color algebra to next (even) ipagV
+        MEs_previous = MEs; // mixed fptypes: delay ME updates to next (even) ipagV
+        continue; // go to next ipagV in the loop: skip color algebra and ME update on odd pages
+      }
+      fptype_sv deltaMEs_previous = { 0 };
+#endif
+
       // Sum and square the color flows to get the matrix element
       // (compute |M|^2 by squaring |M|, taking into account colours)
       fptype_sv deltaMEs = { 0 }; // all zeros https://en.cppreference.com/w/c/language/array_initialization#Notes
+
       // Use the property that M is a real matrix:
       // we can rewrite the quadratic form (A-iB)(M)(A+iB) as AMA - iBMA + iBMA + BMB = AMA + BMB (see #475)
       // In addition, use the property that M is symmetric:
@@ -296,19 +305,38 @@ namespace mg5amcCpu
       for( int icol = 0; icol < ncolor; icol++ )
       {
         // Diagonal terms
+#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+        fptype2_sv jampRi_sv = { cxreal( jamp_sv_previous[icol] ), cxreal( jamp_sv[icol] ) };
+        fptype2_sv jampIi_sv = { cximag( jamp_sv_previous[icol] ), cximag( jamp_sv[icol] ) };
+#else
         fptype2_sv jampRi_sv = ( fptype2_sv )( cxreal( jamp_sv[icol] ) );
         fptype2_sv jampIi_sv = ( fptype2_sv )( cximag( jamp_sv[icol] ) );
+#endif
         fptype2_sv ztempR_sv = cf[icol][icol] * jampRi_sv;
         fptype2_sv ztempI_sv = cf[icol][icol] * jampIi_sv;
         // Off-diagonal terms
         for( int jcol = icol + 1; jcol < ncolor; jcol++ )
         {
+#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+          fptype2_sv jampRj_sv = { cxreal( jamp_sv_previous[jcol] ), cxreal( jamp_sv[jcol] ) };
+          fptype2_sv jampIj_sv = { cximag( jamp_sv_previous[jcol] ), cximag( jamp_sv[jcol] ) };
+#else
           fptype2_sv jampRj_sv = ( fptype2_sv )( cxreal( jamp_sv[jcol] ) );
           fptype2_sv jampIj_sv = ( fptype2_sv )( cximag( jamp_sv[jcol] ) );
+#endif
           ztempR_sv += 2 * cf[icol][jcol] * jampRj_sv;
           ztempI_sv += 2 * cf[icol][jcol] * jampIj_sv;
         }
-        deltaMEs += ( jampRi_sv * ztempR_sv + jampIi_sv * ztempI_sv ) / denom[icol];
+        fptype_sv deltaMEs2 = ( jampRi_sv * ztempR_sv + jampIi_sv * ztempI_sv ) / denom[icol];
+#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+        for( int ieppV = 0; ieppV < neppV; ieppV++ )
+        {
+          deltaMEs_previous[ieppV] += deltaMEs2[ieppV];
+          deltaMEs[ieppV] += deltaMEs2[neppV+ieppV];
+        }
+#else
+        deltaMEs += deltaMEs2;
+#endif
       }
 
       // *** STORE THE RESULTS ***
@@ -322,6 +350,10 @@ namespace mg5amcCpu
       // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
       fptype_sv& MEs_sv = E_ACCESS::kernelAccess( MEs );
       MEs_sv += deltaMEs; // fix #435
+#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+      fptype_sv& MEs_sv_previous = E_ACCESS::kernelAccess( MEs_previous );
+      MEs_sv_previous += deltaMEs_previous;
+#endif
       /*
 #ifdef __CUDACC__
       if ( cNGoodHel > 0 ) printf( "calculate_wavefunctions: ievt=%6d ihel=%2d me_running=%f\n", blockDim.x * blockIdx.x + threadIdx.x, ihel, MEs_sv );
