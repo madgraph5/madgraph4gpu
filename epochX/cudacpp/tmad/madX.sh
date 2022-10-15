@@ -7,9 +7,16 @@ scrdir=$(cd $(dirname $0); pwd)
 bckend=$(basename $(cd $scrdir; cd ..; pwd)) # cudacpp or alpaka
 topdir=$(cd $scrdir; cd ../../..; pwd)
 
+# HARDCODE NLOOP HERE (may improve this eventually...)
+NLOOP=8192
+
+# Workaround for #498 on juwels
+host=$(hostname)
+if [ "${host/juwels}" != "${host}" ]; then NLOOP=32; fi # workaround for #498
+
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-d] [-makeonly|-makeclean|-makecleanonly] [-rmrdat] [+10x] [+100x]" > /dev/stderr
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-d] [-fltonly] [-makeonly|-makeclean|-makecleanonly] [-rmrdat] [+10x] [-checkonly]" > /dev/stderr
   exit 1
 }
 
@@ -25,12 +32,16 @@ ggttg=0
 ggttgg=0
 ggttggg=0
 
+fptype="d"
+
 maketype=
 ###makej=
 
 rmrdat=0
 
 xfacs="1"
+
+checkonly=0
 
 while [ "$1" != "" ]; do
   if [ "$1" == "-d" ]; then
@@ -51,6 +62,9 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-ggttggg" ]; then
     ggttggg=1
     shift
+  elif [ "$1" == "-fltonly" ]; then
+    fptype="f"
+    shift
   elif [ "$1" == "-makeonly" ] || [ "$1" == "-makeclean" ] || [ "$1" == "-makecleanonly" ]; then
     if [ "${maketype}" != "" ] && [ "${maketype}" != "$1" ]; then
       echo "ERROR! Options -makeonly, -makeclean and -makecleanonly are incompatible"; usage
@@ -63,8 +77,8 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "+10x" ]; then
     xfacs="$xfacs 10"
     shift
-  elif [ "$1" == "+100x" ]; then
-    xfacs="$xfacs 100"
+  elif [ "$1" == "-checkonly" ]; then
+    checkonly=1
     shift
   else
     usage
@@ -77,6 +91,10 @@ if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ 
 
 # Always test only the .mad/ directories (hardcoded)
 suffs=".mad/"
+
+# Switch between double and float builds
+export FPTYPE=$fptype
+if [ "${fptype}" == "f" ]; then xsecthr="2E-4"; else xsecthr="2E-14"; fi
 
 # Determine the working directory below topdir based on suff, bckend and <process>
 function showdir()
@@ -113,15 +131,15 @@ function showdir()
 function getnevt()
 {
   if [ "${eemumu}" == "1" ]; then
-    nevt=2048 # computes 2080 MEs (writes to file 1009 events) in 1.1s
+    nevt=8192 # Fortran (x1, x10) computes (8192, 90112) MEs and writes to file (1611, 1827) events in (0.3s, 0.8s)
   elif [ "${ggtt}" == "1" ]; then 
-    nevt=16384 # computes 16416 MEs (writes to file 788 events) in 1.6s
+    nevt=8192 # Fortran (x1, x10) computes (8192, 90112) MEs and writes to file (434, 1690) events in (0.4s, 2.5s)
   elif [ "${ggttg}" == "1" ]; then
-    nevt=4096 # computes 4128 MEs (writes to file 56 events) in 1.0s
+    nevt=8192 # Fortran (x1, x10) computes (8192, 90112) MEs and writes to file (40, 633) events in (0.8s, 6.8s)
   elif [ "${ggttgg}" == "1" ]; then
-    nevt=512 # computes 544 MEs (writes to file 4 events) in 1.5s
+    nevt=8192 # Fortran (x1, x10) computes (8192, 90112) MEs and writes to file (49, 217) events in (5.8s, 58s)
   elif [ "${ggttggg}" == "1" ]; then
-    nevt=64 # computes 96 MEs (writes to file 4 events) in 4.0s
+    nevt=8192 # Fortran (x1, x10) computes (8192, 90112) MEs and writes to file (14, 97) events in (121s, 1222s)
   else
     echo "ERROR! Unknown process" > /dev/stderr; usage
   fi
@@ -170,21 +188,15 @@ function getinputfile()
   if [ "$1" == "-fortran" ]; then
     mv ${tmp} ${tmp}_fortran
     tmp=${tmp}_fortran
-  elif [ "$1" == "-cuda" ]; then
-    if [ $nevt -lt 8192 ]; then nevt=8192; fi # always use at least 8192 events for cuda
-    mv ${tmp} ${tmp}_cuda
-    tmp=${tmp}_cuda
+    echo "0 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)" >> ${tmp}
+    echo "${NLOOP} ! Number of events in a single Fortran iteration (nb_page_loop)" >> ${tmp}
+  elif [ "$1" == "-cuda" ] || [ "$1" == "-cpp" ]; then # NB: new script, use the same input for cuda and cpp
+    mv ${tmp} ${tmp}_cudacpp
+    tmp=${tmp}_cudacpp
     echo "+1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)" >> ${tmp}
-    nloop=32768
-    while [ $nloop -gt $nevt ]; do (( nloop = nloop / 2 )); done
-    echo "${nloop} ! Number of events in a single CUDA iteration (nb_page_loop)" >> ${tmp}
-  elif [ "$1" == "-cpp" ]; then
-    mv ${tmp} ${tmp}_cpp
-    tmp=${tmp}_cpp
-    echo "+1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)" >> ${tmp}
-    echo "32 ! Number of events in a single C++ or CUDA iteration (nb_page_loop)" >> ${tmp}
+    echo "${NLOOP} ! Number of events in a single C++ or CUDA iteration (nb_page_loop)" >> ${tmp}
   else
-    echo "Usage: getinputfile <backend [-fortran][-cuda]-cpp]>"
+    echo "Usage: getinputfile <backend [-fortran][-cuda][-cpp]>"
     exit 1
   fi
   (( nevt = nevt*$xfac ))
@@ -207,7 +219,7 @@ function runcheck()
   if [ "${cmd/gcheckmax128thr}" != "$cmd" ]; then
     txt="GCHECK(MAX128THR)"
     cmd=${cmd/gcheckmax128thr/gcheck} # hack: run cuda gcheck with tput fastest settings
-    cmd=${cmd/.\//.\/build.none_d_inl0_hrd0\/}
+    cmd=${cmd/.\//.\/build.none_${fptype}_inl0_hrd0\/}
     nblk=$(getgridmax | cut -d ' ' -f1)
     nthr=$(getgridmax | cut -d ' ' -f2)
     while [ $nthr -lt 128 ]; do (( nthr = nthr * 2 )); (( nblk = nblk / 2 )); done
@@ -215,7 +227,7 @@ function runcheck()
   elif [ "${cmd/gcheckmax8thr}" != "$cmd" ]; then
     txt="GCHECK(MAX8THR)"
     cmd=${cmd/gcheckmax8thr/gcheck} # hack: run cuda gcheck with tput fastest settings
-    cmd=${cmd/.\//.\/build.none_d_inl0_hrd0\/}
+    cmd=${cmd/.\//.\/build.none_${fptype}_inl0_hrd0\/}
     nblk=$(getgridmax | cut -d ' ' -f1)
     nthr=$(getgridmax | cut -d ' ' -f2)
     while [ $nthr -gt 8 ]; do (( nthr = nthr / 2 )); (( nblk = nblk * 2 )); done
@@ -223,28 +235,25 @@ function runcheck()
   elif [ "${cmd/gcheckmax}" != "$cmd" ]; then
     txt="GCHECK(MAX)"
     cmd=${cmd/gcheckmax/gcheck} # hack: run cuda gcheck with tput fastest settings
-    cmd=${cmd/.\//.\/build.none_d_inl0_hrd0\/}
+    cmd=${cmd/.\//.\/build.none_${fptype}_inl0_hrd0\/}
     nblk=$(getgridmax | cut -d ' ' -f1)
     nthr=$(getgridmax | cut -d ' ' -f2)
     (( nevt = nblk*nthr ))
-  elif [ "${cmd/gcheck8192}" != "$cmd" ]; then
-    txt="GCHECK(8192)"
-    cmd=${cmd/gcheck8192/gcheck} # hack: run cuda gcheck with tput fastest settings
-    cmd=${cmd/.\//.\/build.none_d_inl0_hrd0\/}
-    nblk=256
-    nthr=32
-    nevt=$(getnevt)
   elif [ "${cmd/gcheck}" != "$cmd" ]; then
-    txt="GCHECK(32)"
-    cmd=${cmd/.\//.\/build.none_d_inl0_hrd0\/}
-    nblk=1
+    txt="GCHECK($NLOOP)"
+    cmd=${cmd/.\//.\/build.none_${fptype}_inl0_hrd0\/}
     nthr=32
+    (( nblk = NLOOP/nthr )) # NB integer division
+    (( nloop2 = nblk*nthr ))
+    if [ "$NLOOP" != "$nloop2" ]; then echo "ERROR! NLOOP($nloop) != nloop2($nloop2)"; exit 1; fi
     nevt=$(getnevt)
   elif [ "${cmd/check}" != "$cmd" ]; then
-    txt="CHECK(32)"
-    cmd=${cmd/.\//.\/build.${avx}_d_inl0_hrd0\/}
-    nblk=1
+    txt="CHECK($NLOOP)"
+    cmd=${cmd/.\//.\/build.${avx}_${fptype}_inl0_hrd0\/}
     nthr=32
+    (( nblk = NLOOP/nthr )) # NB integer division
+    (( nloop2 = nblk*nthr ))
+    if [ "$NLOOP" != "$nloop2" ]; then echo "ERROR! NLOOP($nloop) != nloop2($nloop2)"; exit 1; fi
     nevt=$(getnevt)
   else
     echo "ERROR! Unknown check executable '$cmd'"; exit 1
@@ -268,13 +277,9 @@ function runmadevent()
   cmd=$1
   if [ "${cmd/cmadevent}" != "$cmd" ]; then
     tmpin=$(getinputfile -cpp)
-    cmd=${cmd/.\//.\/build.${avx}_d_inl0_hrd0\/}
-  elif [ "${cmd/gmadevent2}" != "$cmd" ]; then
-    cmd=${cmd/gmadevent2/gmadevent} # hack: run cuda gmadevent with cpp input file
-    cmd=${cmd/.\//.\/build.none_d_inl0_hrd0\/}
-    tmpin=$(getinputfile -cpp)
+    cmd=${cmd/.\//.\/build.${avx}_${fptype}_inl0_hrd0\/}
   elif [ "${cmd/gmadevent}" != "$cmd" ]; then
-    cmd=${cmd/.\//.\/build.none_d_inl0_hrd0\/}
+    cmd=${cmd/.\//.\/build.none_${fptype}_inl0_hrd0\/}
     tmpin=$(getinputfile -cuda)
   else # assume this is madevent (do not check)
     tmpin=$(getinputfile -fortran)
@@ -354,6 +359,17 @@ if [ "${maketype}" == "-makeonly" ]; then printf "\nMAKE COMPLETED\n"; exit 0; f
 
 printf "\nDATE: $(date '+%Y-%m-%d_%H:%M:%S')\n\n"
 
+if nvidia-smi -L > /dev/null 2>&1; then gpuTxt="$(nvidia-smi -L | wc -l)x $(nvidia-smi -L | awk '{print $3,$4}' | sort -u)"; else gpuTxt=none; fi
+if [ "${unames}" == "Darwin" ]; then 
+  cpuTxt=$(sysctl -h machdep.cpu.brand_string)
+  cpuTxt=${cpuTxt/machdep.cpu.brand_string: }
+elif [ "${unamep}" == "ppc64le" ]; then 
+  cpuTxt=$(cat /proc/cpuinfo | grep ^machine | awk '{print substr($0,index($0,"Power"))", "}')$(cat /proc/cpuinfo | grep ^cpu | head -1 | awk '{print substr($0,index($0,"POWER"))}')
+else
+  cpuTxt=$(cat /proc/cpuinfo | grep '^model name' |& head -1 | awk '{i0=index($0,"Intel"); if (i0==0) i0=index($0,"AMD"); i1=index($0," @"); if (i1>0) {print substr($0,i0,i1-i0)} else {print substr($0,i0)}}')
+fi
+echo -e "On $HOSTNAME [CPU: $cpuTxt] [GPU: $gpuTxt]:"
+
 for suff in $suffs; do
 
   dir=$(showdir)
@@ -376,55 +392,99 @@ for suff in $suffs; do
   cd $dir
 
   # (1) MADEVENT
-  xfac=1
-  \rm -f results.dat # ALWAYS remove results.dat before the first madevent execution
-  if [ ! -f results.dat ]; then
-    echo -e "\n*** (1) EXECUTE MADEVENT (create results.dat) ***"
-    \rm -f ftn26
-    runmadevent ./madevent
-    \cp -p results.dat results.dat.ref
-  fi
-  for xfac in $xfacs; do
-    echo -e "\n*** (1) EXECUTE MADEVENT x$xfac (create events.lhe) ***"
-    ${rdatcmd} | grep Modify | sed 's/Modify/results.dat /'
-    \rm -f ftn26
-    runmadevent ./madevent
-    if [ "${xfac}" == "1" ]; then
-      xsecref1=$xsecnew
-    elif [ "${xfac}" == "10" ]; then
-      xsecref10=$xsecnew
-    elif [ "${xfac}" == "100" ]; then
-      xsecref100=$xsecnew
-    else
-      echo "ERROR! Unknown xfac=$xfac"; exit 1
+  if [ "${checkonly}" == "0" ]; then
+    xfac=1
+    \rm -f results.dat # ALWAYS remove results.dat before the first madevent execution
+    if [ ! -f results.dat ]; then
+      echo -e "\n*** (1) EXECUTE MADEVENT (create results.dat) ***"
+      \rm -f ftn26
+      runmadevent ./madevent
+      \cp -p results.dat results.dat.ref
     fi
-    ${scrdir}/dummyColor.sh events.lhe events.lhe.ref
-    ${scrdir}/dummyHelicities.sh events.lhe.ref events.lhe.ref2
-    \mv events.lhe.ref2 events.lhe.ref.$xfac
-  done
-      
+    for xfac in $xfacs; do
+      echo -e "\n*** (1) EXECUTE MADEVENT x$xfac (create events.lhe) ***"
+      ${rdatcmd} | grep Modify | sed 's/Modify/results.dat /'
+      \rm -f ftn26
+      runmadevent ./madevent
+      if [ "${xfac}" == "1" ]; then
+        xsecref1=$xsecnew
+      elif [ "${xfac}" == "10" ]; then
+        xsecref10=$xsecnew
+      else
+        echo "ERROR! Unknown xfac=$xfac"; exit 1
+      fi
+      \cp events.lhe events.lhe0
+      if [ "${fptype}" == "f" ]; then
+	${scrdir}/lheFloat.sh events.lhe0 events.lhe
+      fi
+      ${scrdir}/dummyColor.sh events.lhe events.lhe.ref
+      ${scrdir}/dummyHelicities.sh events.lhe.ref events.lhe.ref2
+      \mv events.lhe.ref2 events.lhe.ref.$xfac
+    done
+  fi
+
   # (2) CMADEVENT_CUDACPP
-  xsecthr="2E-14"
   for avx in none sse4 avx2 512y 512z; do
+    if [ "${checkonly}" == "0" ]; then      
+      xfac=1
+      if [ "${rmrdat}" == "0" ]; then \cp -p results.dat.ref results.dat; else \rm -f results.dat; fi  
+      if [ ! -f results.dat ]; then
+        echo -e "\n*** (2-$avx) EXECUTE CMADEVENT_CUDACPP (create results.dat) ***"
+        \rm -f ftn26
+        runmadevent ./cmadevent_cudacpp
+      fi
+      for xfac in $xfacs; do
+        echo -e "\n*** (2-$avx) EXECUTE CMADEVENT_CUDACPP x$xfac (create events.lhe) ***"
+        ${rdatcmd} | grep Modify | sed 's/Modify/results.dat /'
+        \rm -f ftn26
+        runmadevent ./cmadevent_cudacpp
+        echo -e "\n*** (2-$avx) Compare CMADEVENT_CUDACPP x$xfac xsec to MADEVENT xsec ***"
+        if [ "${xfac}" == "1" ]; then
+          xsecref=$xsecref1
+        elif [ "${xfac}" == "10" ]; then
+          xsecref=$xsecref10
+        else
+          echo "ERROR! Unknown xfac=$xfac"; exit 1
+        fi
+        delta=$(python3 -c "print(abs(1-$xsecnew/$xsecref))")
+        if python3 -c "assert(${delta}<${xsecthr})" 2>/dev/null; then
+          echo -e "\nOK! xsec from fortran ($xsecref) and cpp ($xsecnew) differ by less than ${xsecthr} ($delta)"
+        else
+          echo -e "\nERROR! xsec from fortran ($xsecref) and cpp ($xsecnew) differ by more than ${xsecthr} ($delta)"
+          exit 1
+        fi
+        echo -e "\n*** (2-$avx) Compare CMADEVENT_CUDACPP x$xfac events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***"
+	\cp events.lhe events.lhe0
+	if [ "${fptype}" == "f" ]; then
+	  ${scrdir}/lheFloat.sh events.lhe0 events.lhe
+	fi
+        \mv events.lhe events.lhe.cpp.$xfac
+        if ! diff events.lhe.cpp.$xfac events.lhe.ref.$xfac; then echo "ERROR! events.lhe.cpp.$xfac and events.lhe.ref.$xfac differ!"; exit 1; else echo -e "\nOK! events.lhe.cpp.$xfac and events.lhe.ref.$xfac are identical"; fi
+      done
+    fi
+    runcheck ./check.exe
+  done
+
+  # (3) GMADEVENT_CUDACPP
+  if [ "$gpuTxt" == "none" ]; then continue; fi
+  if [ "${checkonly}" == "0" ]; then      
     xfac=1
     if [ "${rmrdat}" == "0" ]; then \cp -p results.dat.ref results.dat; else \rm -f results.dat; fi  
     if [ ! -f results.dat ]; then
-      echo -e "\n*** (2-$avx) EXECUTE CMADEVENT_CUDACPP (create results.dat) ***"
+      echo -e "\n*** (3) EXECUTE GMADEVENT_CUDACPP (create results.dat) ***"
       \rm -f ftn26
-      runmadevent ./cmadevent_cudacpp
+      runmadevent ./gmadevent_cudacpp
     fi
     for xfac in $xfacs; do
-      echo -e "\n*** (2-$avx) EXECUTE CMADEVENT_CUDACPP x$xfac (create events.lhe) ***"
+      echo -e "\n*** (3) EXECUTE GMADEVENT_CUDACPP x$xfac (create events.lhe) ***"
       ${rdatcmd} | grep Modify | sed 's/Modify/results.dat /'
       \rm -f ftn26
-      runmadevent ./cmadevent_cudacpp
-      echo -e "\n*** (2-$avx) Compare CMADEVENT_CUDACPP x$xfac xsec to MADEVENT xsec ***"
+      runmadevent ./gmadevent_cudacpp
+      echo -e "\n*** (3) Compare GMADEVENT_CUDACPP x$xfac xsec to MADEVENT xsec ***"
       if [ "${xfac}" == "1" ]; then
         xsecref=$xsecref1
       elif [ "${xfac}" == "10" ]; then
         xsecref=$xsecref10
-      elif [ "${xfac}" == "100" ]; then
-        xsecref=$xsecref100
       else
         echo "ERROR! Unknown xfac=$xfac"; exit 1
       fi
@@ -434,72 +494,25 @@ for suff in $suffs; do
         echo -e "\nERROR! xsec from fortran ($xsecref) and cpp ($xsecnew) differ by more than ${xsecthr} ($delta)"
         exit 1
       fi
-      echo -e "\n*** (2-$avx) Compare CMADEVENT_CUDACPP x$xfac events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***"
-      \mv events.lhe events.lhe.cpp.$xfac
-      if ! diff events.lhe.cpp.$xfac events.lhe.ref.$xfac; then echo "ERROR! events.lhe.cpp.$xfac and events.lhe.ref.$xfac differ!"; exit 1; else echo -e "\nOK! events.lhe.cpp.$xfac and events.lhe.ref.$xfac are identical"; fi
+      echo -e "\n*** (3) Compare GMADEVENT_CUDACPP x$xfac events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***"
+      \cp events.lhe events.lhe0
+      if [ "${fptype}" == "f" ]; then
+        ${scrdir}/lheFloat.sh events.lhe0 events.lhe
+      fi
+      \mv events.lhe events.lhe.cuda.$xfac
+      if ! diff events.lhe.cuda.$xfac events.lhe.ref.$xfac; then echo "ERROR! events.lhe.cuda.$xfac and events.lhe.ref.$xfac differ!"; exit 1; else echo -e "\nOK! events.lhe.cuda.$xfac and events.lhe.ref.$xfac are identical"; fi
     done
-    runcheck ./check.exe
-  done
-
-  # (3) GMADEVENT_CUDACPP
-  xfac=1
-  if [ "${rmrdat}" == "0" ]; then \cp -p results.dat.ref results.dat; else \rm -f results.dat; fi  
-  if [ ! -f results.dat ]; then
-    echo -e "\n*** (3) EXECUTE GMADEVENT_CUDACPP (create results.dat) ***"
-    \rm -f ftn26
-    runmadevent ./gmadevent2_cudacpp # hack: run cuda gmadevent with cpp input file
   fi
-  for xfac in $xfacs; do
-    echo -e "\n*** (3) EXECUTE GMADEVENT_CUDACPP x$xfac (create events.lhe) ***"
-    ${rdatcmd} | grep Modify | sed 's/Modify/results.dat /'
-    \rm -f ftn26
-    runmadevent ./gmadevent2_cudacpp # hack: run cuda gmadevent with cpp input file
-    echo -e "\n*** (3) Compare GMADEVENT_CUDACPP x$xfac xsec to MADEVENT xsec ***"
-    if [ "${xfac}" == "1" ]; then
-      xsecref=$xsecref1
-    elif [ "${xfac}" == "10" ]; then
-      xsecref=$xsecref10
-    elif [ "${xfac}" == "100" ]; then
-      xsecref=$xsecref100
-    else
-      echo "ERROR! Unknown xfac=$xfac"; exit 1
-    fi
-    if delta=$(python -c "d=abs(1-$xsecnew/$xsecref); print(d); assert(d<${xsecthr})" 2>/dev/null); then
-      echo -e "\nOK! xsec from fortran ($xsecref) and cpp ($xsecnew) differ by less than ${xsecthr} ($delta)"
-    else
-      echo -e "\nERROR! xsec from fortran ($xsecref) and cpp ($xsecnew) differ by more than ${xsecthr} ($delta)"
-      exit 1
-    fi
-    echo -e "\n*** (3) Compare GMADEVENT_CUDACPP x$xfac events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***"
-    \mv events.lhe events.lhe.cuda.$xfac
-    if ! diff events.lhe.cuda.$xfac events.lhe.ref.$xfac; then echo "ERROR! events.lhe.cuda.$xfac and events.lhe.ref.$xfac differ!"; exit 1; else echo -e "\nOK! events.lhe.cuda.$xfac and events.lhe.ref.$xfac are identical"; fi
-  done
   runcheck ./gcheck.exe
-  
-  # (3bis) GMADEVENT_CUDACPP
-  xfac=1
-  if [ "${rmrdat}" == "0" ]; then \cp -p results.dat.ref results.dat; else \rm -f results.dat; fi  
-  if [ ! -f results.dat ]; then
-    echo -e "\n*** (3bis) EXECUTE GMADEVENT_CUDACPP (create results.dat) ***"
-    \rm -f ftn26
-    runmadevent ./gmadevent_cudacpp
-  fi
-  for xfac in $xfacs; do
-    echo -e "\n*** (3bis) EXECUTE GMADEVENT_CUDACPP x$xfac (create events.lhe) ***"
-    ${rdatcmd} | grep Modify | sed 's/Modify/results.dat /'
-    \rm -f ftn26
-    runmadevent ./gmadevent_cudacpp
-  done
-  runcheck ./gcheck8192.exe
   runcheck ./gcheckmax.exe
   runcheck ./gcheckmax128thr.exe
   runcheck ./gcheckmax8thr.exe
   
-  # Cleanup
-  \rm results.dat
-  \rm results.dat.ref
-  \rm events.lhe
-  \rm events.lhe.*
-
 done
+
+# Cleanup
+\rm -f results.dat
+\rm -f results.dat.ref
+\rm -f events.lhe*
+
 printf "\nTEST COMPLETED\n"

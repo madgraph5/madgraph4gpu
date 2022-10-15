@@ -77,6 +77,8 @@ elif [ "$table" == "juwels" ]; then
   crevs="$crevs 09e482e" # cuda116/gcc102  (03 Mar 2022) BASELINE eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
   crevs="$crevs 65730b2" # cuda115/gcc112  (18 Feb 2022) JUWELSCL eemumu/ggtt/ggttgg x f/d x inl0/inl1 + ggttg/ggttggg x f/d
   crevs="$crevs df441ad" # cuda115/gcc112  (18 Feb 2022) JUWELSBO eemumu/ggtt/ggttgg x f/d x inl0/inl1 + ggttg/ggttggg x f/d
+  ###mrevs="$mrevs 2d3e789" # cuda116/gcc102  (20 Jun 2022) BASELINE eemumu/ggtt* x f/d x hrd0 x inl0 x default/bridge
+  ###mrevs="$mrevs fd4ffe1" # cuda115/gcc112  (24 Jun 2022) JUWELSCL eemumu/ggtt* x f/d x hrd0 x inl0 x default/bridge
 elif [ "$table" == "alpaka" ]; then
   crevs="$crevs 09e482e" # cuda116/gcc102  (03 Mar 2022) BASELINE eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
   arevs="$arevs f5a44ba" # cuda116/gcc102  (06 Mar 2022) GOLDEPX4 eemumu/ggtt/ggttg/ggttgg/ggttggg x d x inl0 (golden tag epochx4)
@@ -116,7 +118,8 @@ elif [ "$table" == "juwels" ]; then
   fpts="d f"
   inls="inl0 inl1"
   hrds="hrd0"
-  brds="nobr"
+  ###brds="nobr"
+  brds="nobr brdg"
 elif [ "$table" == "alpaka" ]; then
   fpts="d"
   inls="inl0"
@@ -155,16 +158,26 @@ fi
 # Kernel function
 function oneTable()
 {
-  files=""
+  filesall=""
   if [ "$brd" == "brdg" ]; then brdsuf="_bridge"; else brdsuf=""; fi
   for proc in $procs; do
     file=../${bckend/.*}/tput/logs_${proc}_${suff}/log_${proc}_${suff}_${fpt}_${inl}_${hrd}${brdsuf}.txt
-    if [ -f $file ]; then files="$files $file"; fi
+    if [ -f $file ]; then filesall="$filesall $file"; fi
   done
+  ###echo "*** FILESALL $filesall ***" >> $out
+  if [ "$filesall" == "" ]; then return; fi
+  if [ "$table" != "juwels" ]; then
+    git checkout $rev $filesall >& /dev/null
+    if [ "$?" != "0" ]; then echo "ERROR! 'git checkout $rev' failed!"; exit 1; fi
+    files=$filesall
+  else
+    files=""
+    for file in $filesall; do
+      if git checkout $rev $file >& /dev/null; then files="$files $file"; else echo "WARNING! 'git checkout $rev $file' failed!"; fi
+    done
+  fi
   ###echo "*** FILES $files ***" >> $out
-  if [ "$files" == "" ]; then continue; fi
-  git checkout $rev $files >& /dev/null
-  if [ "$?" != "0" ]; then echo "ERROR! 'git checkout $rev' failed!"; exit 1; fi
+  if [ "$files" == "" ]; then return; fi
   node=$(cat $files | grep ^On | sort -u)
   if [ "$nodelast" != "$node" ]; then echo -e "$node\n" >> $out; nodelast=$node; fi
   ###cat $files | awk '/^runExe.*check.*/{print $0};/^Process/{print $0};/Workflow/{print $0};/MECalcOnly/{print $0}'; continue
