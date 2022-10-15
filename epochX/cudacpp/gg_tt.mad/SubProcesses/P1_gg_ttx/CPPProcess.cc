@@ -306,8 +306,15 @@ namespace mg5amcCpu
       {
         // Diagonal terms
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
-        fptype2_sv jampRi_sv = { cxreal( jamp_sv_previous[icol] ), cxreal( jamp_sv[icol] ) };
-        fptype2_sv jampIi_sv = { cximag( jamp_sv_previous[icol] ), cximag( jamp_sv[icol] ) };
+        fptype2_sv jampRi_sv = { 0 };
+        fptype2_sv jampIi_sv = { 0 };
+        for( int ieppV = 0; ieppV < neppV; ieppV++ )
+        {
+          jampRi_sv[ieppV] = cxreal( jamp_sv_previous[icol] )[ieppV];
+          jampRi_sv[ieppV+neppV] = cxreal( jamp_sv[icol] )[ieppV];
+          jampIi_sv[ieppV] = cximag( jamp_sv_previous[icol] )[ieppV];
+          jampIi_sv[ieppV+neppV] = cximag( jamp_sv[icol] )[ieppV];
+        }
 #else
         fptype2_sv jampRi_sv = ( fptype2_sv )( cxreal( jamp_sv[icol] ) );
         fptype2_sv jampIi_sv = ( fptype2_sv )( cximag( jamp_sv[icol] ) );
@@ -318,8 +325,15 @@ namespace mg5amcCpu
         for( int jcol = icol + 1; jcol < ncolor; jcol++ )
         {
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
-          fptype2_sv jampRj_sv = { cxreal( jamp_sv_previous[jcol] ), cxreal( jamp_sv[jcol] ) };
-          fptype2_sv jampIj_sv = { cximag( jamp_sv_previous[jcol] ), cximag( jamp_sv[jcol] ) };
+          fptype2_sv jampRj_sv = { 0 };
+          fptype2_sv jampIj_sv = { 0 };
+          for( int ieppV = 0; ieppV < neppV; ieppV++ )
+          {
+            jampRj_sv[ieppV] = cxreal( jamp_sv_previous[jcol] )[ieppV];
+            jampRj_sv[ieppV+neppV] = cxreal( jamp_sv[jcol] )[ieppV];
+            jampIj_sv[ieppV] = cximag( jamp_sv_previous[jcol] )[ieppV];
+            jampIj_sv[ieppV+neppV] = cximag( jamp_sv[jcol] )[ieppV];
+          }
 #else
           fptype2_sv jampRj_sv = ( fptype2_sv )( cxreal( jamp_sv[jcol] ) );
           fptype2_sv jampIj_sv = ( fptype2_sv )( cximag( jamp_sv[jcol] ) );
@@ -327,7 +341,7 @@ namespace mg5amcCpu
           ztempR_sv += 2 * cf[icol][jcol] * jampRj_sv;
           ztempI_sv += 2 * cf[icol][jcol] * jampIj_sv;
         }
-        fptype_sv deltaMEs2 = ( jampRi_sv * ztempR_sv + jampIi_sv * ztempI_sv ) / denom[icol];
+        fptype2_sv deltaMEs2 = ( jampRi_sv * ztempR_sv + jampIi_sv * ztempI_sv ) / denom[icol];
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
         for( int ieppV = 0; ieppV < neppV; ieppV++ )
         {
