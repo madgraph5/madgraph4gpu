@@ -284,11 +284,11 @@ namespace mg5amcCpu
         { -2, 16 } }; // 2-D array[2][2]
 
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
-      if ( ipagV % 2 == 1 )
+      if ( ipagV % 2 == 0 ) // NB: first page is 0! skip even pages, compute on odd pages
       {
         for( int icol = 0; icol < ncolor; icol++ )
-          jamp_sv_previous[icol] = jamp_sv[icol]; // mixed fptypes: delay color algebra to next (even) ipagV
-        MEs_previous = MEs; // mixed fptypes: delay ME updates to next (even) ipagV
+          jamp_sv_previous[icol] = jamp_sv[icol]; // mixed fptypes: delay color algebra to next (odd) ipagV
+        MEs_previous = MEs; // mixed fptypes: delay ME updates to next (odd) ipagV
         continue; // go to next ipagV in the loop: skip color algebra and ME update on odd pages
       }
       fptype_sv deltaMEs_previous = { 0 };
