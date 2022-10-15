@@ -24,7 +24,6 @@ c**************************************************
       include 'nexternal.inc'
       include 'message.inc'
       include 'maxamps.inc'
-      include 'vector.inc'
       include 'cluster.inc'
       include 'sudakov.inc'
       include 'maxparticles.inc'
@@ -98,7 +97,6 @@ c**************************************************
       include 'message.inc'
       include 'nexternal.inc'
       include 'maxamps.inc'
-      include 'vector.inc'
       include 'cluster.inc'      
       integer ipdg,imode
       double precision q0, Q11
@@ -1858,7 +1856,7 @@ c      save firsttime
             all_q2fact(1,i) = q2fact(1)
             all_q2fact(2,i) = q2fact(2)
          endif
-         call save_cl_val_to(i)
+c         call save_cl_val_to(i)
 c      endif
 
 c     Set couplings in model files
@@ -1887,7 +1885,6 @@ c      ENDIF
 
       include 'nexternal.inc'
       include 'maxamps.inc'
-      include 'vector.inc'
       include 'cluster.inc'
 c     Common block for reweighting info
 c     q2bck holds the central q2fact scales
@@ -1953,7 +1950,6 @@ c     to_rw
 
       include 'nexternal.inc'
       include 'maxamps.inc'
-      include 'vector.inc'
       include 'cluster.inc'
 c     Common block for reweighting info
 c     q2bck holds the central q2fact scales
@@ -1963,6 +1959,7 @@ c     q2bck holds the central q2fact scales
       integer njets,iqjets(nexternal)
       common /to_rw/jlast,njetstore,iqjetstore,njets,iqjets,q2bck
 
+      include 'vector.inc'
       DOUBLE PRECISION G, ALL_G(nb_page)
       COMMON/STRONG/ G, ALL_G
 

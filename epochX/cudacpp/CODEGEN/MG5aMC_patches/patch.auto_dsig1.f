@@ -1,5 +1,5 @@
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
-index 1734289bf..876010e27 100644
+index f86a5336..b82b90a1 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
 @@ -76,13 +76,13 @@ C     Keep track of whether cuts already calculated for this event
@@ -45,7 +45,7 @@ index 1734289bf..876010e27 100644
        INCLUDE 'run.inc'
  
        DOUBLE PRECISION P_MULTI(0:3, NEXTERNAL, NB_PAGE_MAX)
-@@ -451,8 +451,10 @@ C
+@@ -452,8 +452,10 @@ C
  
        USE OMP_LIB
  
@@ -57,7 +57,7 @@ index 1734289bf..876010e27 100644
        INCLUDE 'maxamps.inc'
        DOUBLE PRECISION P_MULTI(0:3, NEXTERNAL, NB_PAGE_MAX)
        DOUBLE PRECISION HEL_RAND(NB_PAGE_MAX)
-@@ -462,22 +464,125 @@ C
+@@ -463,22 +465,125 @@ C
        DOUBLE PRECISION JAMP2_MULTI(0:MAXFLOW, NB_PAGE_MAX)
  
        INTEGER IVEC

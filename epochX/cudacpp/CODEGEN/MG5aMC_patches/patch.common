@@ -1,5 +1,5 @@
 diff --git b/epochX/cudacpp/gg_tt.mad/Source/dsample.f a/epochX/cudacpp/gg_tt.mad/Source/dsample.f
-index 8da031857..cbf27d64b 100644
+index 8da03185..cbf27d64 100644
 --- b/epochX/cudacpp/gg_tt.mad/Source/dsample.f
 +++ a/epochX/cudacpp/gg_tt.mad/Source/dsample.f
 @@ -25,16 +25,16 @@ c
@@ -100,7 +100,7 @@ index 8da031857..cbf27d64b 100644
           MC_GROUPED_SUBPROC = .false.
        else 
 diff --git b/epochX/cudacpp/gg_tt.mad/Source/genps.inc a/epochX/cudacpp/gg_tt.mad/Source/genps.inc
-index d04f63ba5..b95e0d108 100644
+index d04f63ba..b95e0d10 100644
 --- b/epochX/cudacpp/gg_tt.mad/Source/genps.inc
 +++ a/epochX/cudacpp/gg_tt.mad/Source/genps.inc
 @@ -30,7 +30,8 @@ c*************************************************************************
@@ -121,7 +121,7 @@ index d04f63ba5..b95e0d108 100644
 \ No newline at end of file
 +      common/cut_efficiency/nb_pass_cuts
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/addmothers.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/addmothers.f
-index c1226b212..2d20032aa 100644
+index c1226b21..2d20032a 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/addmothers.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/addmothers.f
 @@ -46,7 +46,7 @@ c     Variables for combination of color indices (including multipart. vert)
@@ -134,7 +134,7 @@ index c1226b212..2d20032aa 100644
  
        integer           mincfig, maxcfig
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/cuts.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/cuts.f
-index 6b581bdfd..32c71b457 100644
+index 6b581bdf..32c71b45 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/cuts.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/cuts.f
 @@ -260,7 +260,7 @@ c         endif
@@ -147,10 +147,12 @@ index 6b581bdfd..32c71b457 100644
              enddo
           endif
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
-index dd709f52c..cf9f8e024 100644
+index dd709f52..c706cdc7 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
-@@ -1,6 +1,17 @@
+@@ -1,6 +1,19 @@
++SHELL := /bin/bash
++
  include ../../Source/make_opts
  FFLAGS+= -w
  
@@ -168,7 +170,7 @@ index dd709f52c..cf9f8e024 100644
  # Load additional dependencies of the bias module, if present
  ifeq (,$(wildcard ../bias_dependencies))
  BIASDEPENDENCIES =
-@@ -24,7 +35,22 @@ else
+@@ -24,7 +37,26 @@ else
      MADLOOP_LIB =
  endif
  
@@ -185,14 +187,18 @@ index dd709f52c..cf9f8e024 100644
 +###$(info CUDACPP_MAKEENV=$(CUDACPP_MAKEENV))
 +###$(info $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))"))
 +CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn |& awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
++ifeq ($(CUDACPP_BUILDDIR),)
++$(error CUDACPP_BUILDDIR='$(CUDACPP_BUILDDIR)' should not be empty!)
++else
 +$(info CUDACPP_BUILDDIR='$(CUDACPP_BUILDDIR)')
++endif
 +CUDACPP_COMMONLIB=mg5amc_common
 +CUDACPP_CXXLIB=mg5amc_$(processid_short)_cpp
 +CUDACPP_CULIB=mg5amc_$(processid_short)_cuda
  
  LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS)
  
-@@ -43,24 +69,65 @@ ifeq ($(strip $(MATRIX_HEL)),)
+@@ -43,24 +75,65 @@ ifeq ($(strip $(MATRIX_HEL)),)
  endif
  
  
@@ -221,7 +227,7 @@ index dd709f52c..cf9f8e024 100644
 +endif
 +
 +$(PROG): $(PROCESS) $(DSIG) auto_dsig.o $(LIBS) $(MATRIX) counters.o
-+	$(FC) -o $(PROG) $(PROCESS) $(DSIG) auto_dsig.o $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o
++	$(FC) -o $(PROG) $(PROCESS) $(DSIG) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) -fopenmp counters.o $(LDFLAGS)
 +
 +$(LIBS): .libs
 +
@@ -247,8 +253,8 @@ index dd709f52c..cf9f8e024 100644
 +endif
 +
 +$(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(CUDACPP_BUILDDIR)/.cudacpplibs
-+	$(FC) -o $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_CXXLIB) $(LIBFLAGSRPATH)
-+	if [ -f $(LIBDIR)/$(CUDACPP_BUILDDIR)/lib$(CUDACPP_CULIB).* ]; then $(FC) -o $(CUDACPP_BUILDDIR)/g$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_CULIB) $(LIBFLAGSRPATH); fi # improved patch for cpp-only builds #503
++	$(FC) -o $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) -fopenmp counters.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_CXXLIB) $(LIBFLAGSRPATH) $(LDFLAGS)
++	if [ -f $(LIBDIR)/$(CUDACPP_BUILDDIR)/lib$(CUDACPP_CULIB).* ]; then $(FC) -o $(CUDACPP_BUILDDIR)/g$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) -fopenmp counters.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_CULIB) $(LIBFLAGSRPATH) $(LDFLAGS); fi
 +
 +counters.o: counters.cpp timer.h
 +	$(CXX) -std=c++11 -Wall -Wshadow -Wextra -c $< -o $@
@@ -264,7 +270,7 @@ index dd709f52c..cf9f8e024 100644
  $(LIBDIR)libmodel.$(libext): ../../Cards/param_card.dat
  	cd ../../Source/MODEL; make
  
-@@ -69,12 +136,15 @@ $(LIBDIR)libgeneric.$(libext): ../../Cards/run_card.dat
+@@ -69,12 +142,15 @@ $(LIBDIR)libgeneric.$(libext): ../../Cards/run_card.dat
  
  $(LIBDIR)libpdf.$(libext): 
  	cd ../../Source/PDF; make
@@ -281,7 +287,7 @@ index dd709f52c..cf9f8e024 100644
  
  # Dependencies
  
-@@ -94,5 +164,71 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
+@@ -94,5 +170,71 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
  	 run_config.inc
  initcluster.o: message.inc
  
@@ -355,10 +361,10 @@ index dd709f52c..cf9f8e024 100644
 +	$(MAKE) -f $(CUDACPP_MAKEFILE) distclean
 +endif
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/reweight.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/reweight.f
-index e24a14569..b80b7b201 100644
+index 97592752..b6991541 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/reweight.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/reweight.f
-@@ -1809,7 +1809,7 @@ C      include 'maxparticles.inc'
+@@ -1807,7 +1807,7 @@ C      include 'maxparticles.inc'
        end
  
        
@@ -367,7 +373,7 @@ index e24a14569..b80b7b201 100644
        implicit none
  
  C
-@@ -1827,7 +1827,7 @@ C      include 'maxparticles.inc'
+@@ -1825,7 +1825,7 @@ C      include 'maxparticles.inc'
        
        double precision all_p(4*maxdim/3+14,*), all_wgt(*)
        double precision all_q2fact(2,*)
@@ -376,7 +382,7 @@ index e24a14569..b80b7b201 100644
  
        logical setclscales
        external setclscales
-@@ -1841,7 +1841,7 @@ c      save firsttime
+@@ -1839,7 +1839,7 @@ c      save firsttime
        if(.not.fixed_ren_scale) then
           scale = 0d0
        endif
@@ -385,10 +391,10 @@ index e24a14569..b80b7b201 100644
  
           if(.not.fixed_ren_scale) then
              call set_ren_scale(all_p(1,i),scale)
-@@ -1963,7 +1963,7 @@ c     q2bck holds the central q2fact scales
-       integer njets,iqjets(nexternal)
+@@ -1960,7 +1960,7 @@ c     q2bck holds the central q2fact scales
        common /to_rw/jlast,njetstore,iqjetstore,njets,iqjets,q2bck
  
+       include 'vector.inc'
 -      DOUBLE PRECISION G, ALL_G(nb_page)
 +      DOUBLE PRECISION G, ALL_G(nb_page_max)
        COMMON/STRONG/ G, ALL_G
