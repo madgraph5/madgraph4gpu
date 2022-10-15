@@ -6,27 +6,30 @@ scrdir=$(cd $(dirname $0); pwd)
 ###cuda8tpb=
 cuda8tpb="CUDA/8tpb"
 
+# Short tables?
+onlyxmax=1
+if [ "$1" == "--long" ] && [ "$2" != "-ALL" ]; then
+  onlyxmax=0
+  shift
+fi
+
+# Choose table(s)
 table=
 if [ "$1" == "-ALL" ] && [ "$2" == "" ]; then
   set -e
+  $0 --long -default
   $0 -default
   $0 -juwels
-  $0 -default-short
-  $0 -juwels-short
-  $0 -ichep22-short
+  $0 -ichep22
   exit 0
 elif [ "$1" == "-default" ]; then
-  table="default"; onlyxmax=0; shift
-elif [ "$1" == "-default-short" ]; then
-  table="default"; onlyxmax=1; shift
+  table="default"; shift
 elif [ "$1" == "-juwels" ]; then
-  table="juwels";  onlyxmax=0; shift
-elif [ "$1" == "-juwels-short" ]; then
-  table="juwels";  onlyxmax=1; shift
-elif [ "$1" == "-ichep22-short" ]; then
-  table="ichep22";  onlyxmax=1; shift
+  table="juwels"; shift
+elif [ "$1" == "-ichep22" ]; then
+  table="ichep22"; shift
 else
-  echo "Usage: $0 <table [-ALL|-default|-juwels|-default-short|-juwels-short|-ichep22-short]>"; exit 1
+  echo "Usage: $0 [--long] <table [-ALL|-default|-juwels|-ichep22]>"; exit 1
 fi
 
 # Select revisions and characteristics of mad logs
@@ -200,10 +203,10 @@ suff=mad
 inl=inl0
 hrd=hrd0
 
-if [ "${onlyxmax}" == "0" ]; then
+if [ "${onlyxmax}" == "1" ]; then
   out=${scrdir}/summaryTable_${table}.txt
 else
-  out=${scrdir}/summaryTable_${table}_short.txt
+  out=${scrdir}/summaryTable_${table}_long.txt
 fi  
 echo "" > $out
 for fpt in $fpts; do
