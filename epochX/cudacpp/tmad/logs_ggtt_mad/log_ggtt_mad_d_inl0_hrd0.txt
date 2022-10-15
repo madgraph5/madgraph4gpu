@@ -1,13 +1,13 @@
 Working directory (build): /p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx
 CUDACPP_BUILDDIR='.'
 
-make USEBUILDDIR=1 AVX=none
+make USEBUILDDIR=1 AVX=sse4
 
+make USEBUILDDIR=1 AVX=none
 
 
 make USEBUILDDIR=1 AVX=avx2
 
-make USEBUILDDIR=1 AVX=sse4
 make USEBUILDDIR=1 AVX=512y
 make USEBUILDDIR=1 AVX=512z
 make[1]: Entering directory '/p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx'
@@ -15,25 +15,25 @@ make[1]: Entering directory '/p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/
 make[1]: Entering directory '/p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx'
 make[1]: Entering directory '/p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx'
 make[1]: Entering directory '/p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx'
-CUDACPP_BUILDDIR='build.512y_d_inl0_hrd0'
+CUDACPP_BUILDDIR='build.avx2_d_inl0_hrd0'
 make[1]: Nothing to be done for 'all'.
 make[1]: Leaving directory '/p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx'
 CUDACPP_BUILDDIR='build.none_d_inl0_hrd0'
 make[1]: Nothing to be done for 'all'.
 make[1]: Leaving directory '/p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx'
-CUDACPP_BUILDDIR='build.sse4_d_inl0_hrd0'
-make[1]: Nothing to be done for 'all'.
-make[1]: Leaving directory '/p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx'
 CUDACPP_BUILDDIR='build.512z_d_inl0_hrd0'
 make[1]: Nothing to be done for 'all'.
 make[1]: Leaving directory '/p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx'
-CUDACPP_BUILDDIR='build.avx2_d_inl0_hrd0'
+CUDACPP_BUILDDIR='build.sse4_d_inl0_hrd0'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx'
+CUDACPP_BUILDDIR='build.512y_d_inl0_hrd0'
 make[1]: Nothing to be done for 'all'.
 make[1]: Leaving directory '/p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx'
 
-DATE: 2022-10-14_08:25:36
+DATE: 2022-10-14_19:23:45
 
-On jwlogin04.juwels [CPU: Intel(R) Xeon(R) Gold 6148 CPU] [GPU: none]:
+On jwlogin07.juwels [CPU: Intel(R) Xeon(R) Gold 6148 CPU] [GPU: none]:
 Working directory (run): /p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx
 
 *** (1) EXECUTE MADEVENT (create results.dat) ***
@@ -53,9 +53,9 @@ Executing ' ./madevent < /tmp/valassi1/input_ggtt_x1_fortran > /tmp/valassi1/out
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 45.77 [] fbridge_mode=0
- [COUNTERS] PROGRAM TOTAL          :    0.2813s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.2059s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.0754s for     8224 events => throughput is 1.09E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.2867s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.2077s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.0790s for     8224 events => throughput is 1.04E+05 events/s
 
 *** (1) EXECUTE MADEVENT x1 (create events.lhe) ***
 --------------------
@@ -75,9 +75,9 @@ Executing ' ./madevent < /tmp/valassi1/input_ggtt_x1_fortran > /tmp/valassi1/out
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 45.77 [45.768325335243517] fbridge_mode=0
  [UNWEIGHT] Wrote 411 events (found 1109 events)
- [COUNTERS] PROGRAM TOTAL          :    0.3649s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.2891s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.0758s for     8224 events => throughput is 1.08E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.3280s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.2694s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.0586s for     8224 events => throughput is 1.40E+05 events/s
 
 *** (1) EXECUTE MADEVENT x10 (create events.lhe) ***
 --------------------
@@ -97,9 +97,9 @@ Executing ' ./madevent < /tmp/valassi1/input_ggtt_x10_fortran > /tmp/valassi1/ou
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 46.58 [46.579283115428012] fbridge_mode=0
  [UNWEIGHT] Wrote 1672 events (found 1677 events)
- [COUNTERS] PROGRAM TOTAL          :    1.7091s
- [COUNTERS] Fortran Overhead ( 0 ) :    1.0775s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.6316s for    81952 events => throughput is 1.30E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    1.5828s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.9946s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.5882s for    81952 events => throughput is 1.39E+05 events/s
 
 *** (2-none) EXECUTE CMADEVENT_CUDACPP x1 (create events.lhe) ***
 --------------------
@@ -119,9 +119,9 @@ Executing ' ./build.none_d_inl0_hrd0/cmadevent_cudacpp < /tmp/valassi1/input_ggt
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 45.77 [45.768325335243510] fbridge_mode=1
  [UNWEIGHT] Wrote 411 events (found 1109 events)
- [COUNTERS] PROGRAM TOTAL          :    0.3236s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.2820s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0416s for     8224 events => throughput is 1.98E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.3264s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.2851s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0413s for     8224 events => throughput is 1.99E+05 events/s
 
 *** (2-none) Compare CMADEVENT_CUDACPP x1 xsec to MADEVENT xsec ***
 
@@ -149,9 +149,9 @@ Executing ' ./build.none_d_inl0_hrd0/cmadevent_cudacpp < /tmp/valassi1/input_ggt
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 46.58 [46.579283115428019] fbridge_mode=1
  [UNWEIGHT] Wrote 1672 events (found 1677 events)
- [COUNTERS] PROGRAM TOTAL          :    1.3831s
- [COUNTERS] Fortran Overhead ( 0 ) :    1.0377s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.3455s for    81952 events => throughput is 2.37E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    1.3207s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.9895s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.3312s for    81952 events => throughput is 2.47E+05 events/s
 
 *** (2-none) Compare CMADEVENT_CUDACPP x10 xsec to MADEVENT xsec ***
 
@@ -164,12 +164,12 @@ OK! events.lhe.cpp.10 and events.lhe.ref.10 are identical
 *** EXECUTE CHECK(32) -p 1 32 256 --bridge ***
 Process                     = SIGMA_SM_GG_TTX_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+BRDHST/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 2.323614e+05                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.818305e+05                 )  sec^-1
 
 *** EXECUTE CHECK(32) -p 1 32 256 ***
 Process                     = SIGMA_SM_GG_TTX_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 1.882475e+05                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.698882e+05                 )  sec^-1
 
 *** (2-sse4) EXECUTE CMADEVENT_CUDACPP x1 (create events.lhe) ***
 --------------------
@@ -189,9 +189,9 @@ Executing ' ./build.sse4_d_inl0_hrd0/cmadevent_cudacpp < /tmp/valassi1/input_ggt
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 45.77 [45.768325335243517] fbridge_mode=1
  [UNWEIGHT] Wrote 411 events (found 1109 events)
- [COUNTERS] PROGRAM TOTAL          :    0.2673s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.2485s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0188s for     8224 events => throughput is 4.37E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.2545s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.2364s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0181s for     8224 events => throughput is 4.55E+05 events/s
 
 *** (2-sse4) Compare CMADEVENT_CUDACPP x1 xsec to MADEVENT xsec ***
 
@@ -219,9 +219,9 @@ Executing ' ./build.sse4_d_inl0_hrd0/cmadevent_cudacpp < /tmp/valassi1/input_ggt
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 46.58 [46.579283115427998] fbridge_mode=1
  [UNWEIGHT] Wrote 1672 events (found 1677 events)
- [COUNTERS] PROGRAM TOTAL          :    1.2497s
- [COUNTERS] Fortran Overhead ( 0 ) :    1.0573s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.1924s for    81952 events => throughput is 4.26E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    1.1344s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.9569s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.1776s for    81952 events => throughput is 4.62E+05 events/s
 
 *** (2-sse4) Compare CMADEVENT_CUDACPP x10 xsec to MADEVENT xsec ***
 
@@ -234,12 +234,12 @@ OK! events.lhe.cpp.10 and events.lhe.ref.10 are identical
 *** EXECUTE CHECK(32) -p 1 32 256 --bridge ***
 Process                     = SIGMA_SM_GG_TTX_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+BRDHST/sse4+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 3.131616e+05                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 3.057940e+05                 )  sec^-1
 
 *** EXECUTE CHECK(32) -p 1 32 256 ***
 Process                     = SIGMA_SM_GG_TTX_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/sse4+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 4.471345e+05                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 4.590036e+05                 )  sec^-1
 
 *** (2-avx2) EXECUTE CMADEVENT_CUDACPP x1 (create events.lhe) ***
 --------------------
@@ -259,9 +259,9 @@ Executing ' ./build.avx2_d_inl0_hrd0/cmadevent_cudacpp < /tmp/valassi1/input_ggt
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 45.77 [45.768325335243517] fbridge_mode=1
  [UNWEIGHT] Wrote 411 events (found 1109 events)
- [COUNTERS] PROGRAM TOTAL          :    0.2712s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.2611s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0100s for     8224 events => throughput is 8.19E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.2797s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.2686s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0111s for     8224 events => throughput is 7.40E+05 events/s
 
 *** (2-avx2) Compare CMADEVENT_CUDACPP x1 xsec to MADEVENT xsec ***
 
@@ -289,9 +289,9 @@ Executing ' ./build.avx2_d_inl0_hrd0/cmadevent_cudacpp < /tmp/valassi1/input_ggt
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 46.58 [46.579283115427998] fbridge_mode=1
  [UNWEIGHT] Wrote 1672 events (found 1677 events)
- [COUNTERS] PROGRAM TOTAL          :    1.2019s
- [COUNTERS] Fortran Overhead ( 0 ) :    1.0959s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.1060s for    81952 events => throughput is 7.73E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    1.1189s
+ [COUNTERS] Fortran Overhead ( 0 ) :    1.0217s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0972s for    81952 events => throughput is 8.43E+05 events/s
 
 *** (2-avx2) Compare CMADEVENT_CUDACPP x10 xsec to MADEVENT xsec ***
 
@@ -304,12 +304,12 @@ OK! events.lhe.cpp.10 and events.lhe.ref.10 are identical
 *** EXECUTE CHECK(32) -p 1 32 256 --bridge ***
 Process                     = SIGMA_SM_GG_TTX_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+BRDHST/avx2+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 6.926709e+05                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 6.097810e+05                 )  sec^-1
 
 *** EXECUTE CHECK(32) -p 1 32 256 ***
 Process                     = SIGMA_SM_GG_TTX_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/avx2+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 5.976803e+05                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 6.172316e+05                 )  sec^-1
 
 *** (2-512y) EXECUTE CMADEVENT_CUDACPP x1 (create events.lhe) ***
 --------------------
@@ -329,9 +329,9 @@ Executing ' ./build.512y_d_inl0_hrd0/cmadevent_cudacpp < /tmp/valassi1/input_ggt
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 45.77 [45.768325335243517] fbridge_mode=1
  [UNWEIGHT] Wrote 411 events (found 1109 events)
- [COUNTERS] PROGRAM TOTAL          :    0.3359s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.3186s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0173s for     8224 events => throughput is 4.75E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.2891s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.2772s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0118s for     8224 events => throughput is 6.95E+05 events/s
 
 *** (2-512y) Compare CMADEVENT_CUDACPP x1 xsec to MADEVENT xsec ***
 
@@ -359,9 +359,9 @@ Executing ' ./build.512y_d_inl0_hrd0/cmadevent_cudacpp < /tmp/valassi1/input_ggt
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 46.58 [46.579283115427998] fbridge_mode=1
  [UNWEIGHT] Wrote 1672 events (found 1677 events)
- [COUNTERS] PROGRAM TOTAL          :    1.3384s
- [COUNTERS] Fortran Overhead ( 0 ) :    1.2279s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.1105s for    81952 events => throughput is 7.42E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    1.0592s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.9743s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0849s for    81952 events => throughput is 9.65E+05 events/s
 
 *** (2-512y) Compare CMADEVENT_CUDACPP x10 xsec to MADEVENT xsec ***
 
@@ -374,12 +374,12 @@ OK! events.lhe.cpp.10 and events.lhe.ref.10 are identical
 *** EXECUTE CHECK(32) -p 1 32 256 --bridge ***
 Process                     = SIGMA_SM_GG_TTX_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+BRDHST/512y+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 6.459054e+05                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 6.629545e+05                 )  sec^-1
 
 *** EXECUTE CHECK(32) -p 1 32 256 ***
 Process                     = SIGMA_SM_GG_TTX_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/512y+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 6.722075e+05                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 9.406302e+05                 )  sec^-1
 
 *** (2-512z) EXECUTE CMADEVENT_CUDACPP x1 (create events.lhe) ***
 --------------------
@@ -399,9 +399,9 @@ Executing ' ./build.512z_d_inl0_hrd0/cmadevent_cudacpp < /tmp/valassi1/input_ggt
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 45.77 [45.768325335243517] fbridge_mode=1
  [UNWEIGHT] Wrote 411 events (found 1109 events)
- [COUNTERS] PROGRAM TOTAL          :    0.3314s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.3120s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0194s for     8224 events => throughput is 4.23E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.2912s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.2802s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0110s for     8224 events => throughput is 7.50E+05 events/s
 
 *** (2-512z) Compare CMADEVENT_CUDACPP x1 xsec to MADEVENT xsec ***
 
@@ -429,9 +429,9 @@ Executing ' ./build.512z_d_inl0_hrd0/cmadevent_cudacpp < /tmp/valassi1/input_ggt
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 46.58 [46.579283115427998] fbridge_mode=1
  [UNWEIGHT] Wrote 1672 events (found 1677 events)
- [COUNTERS] PROGRAM TOTAL          :    1.6438s
- [COUNTERS] Fortran Overhead ( 0 ) :    1.5079s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.1359s for    81952 events => throughput is 6.03E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    1.1273s
+ [COUNTERS] Fortran Overhead ( 0 ) :    1.0415s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0858s for    81952 events => throughput is 9.55E+05 events/s
 
 *** (2-512z) Compare CMADEVENT_CUDACPP x10 xsec to MADEVENT xsec ***
 
@@ -444,11 +444,11 @@ OK! events.lhe.cpp.10 and events.lhe.ref.10 are identical
 *** EXECUTE CHECK(32) -p 1 32 256 --bridge ***
 Process                     = SIGMA_SM_GG_TTX_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+BRDHST/512z+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 6.467111e+05                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 6.782262e+05                 )  sec^-1
 
 *** EXECUTE CHECK(32) -p 1 32 256 ***
 Process                     = SIGMA_SM_GG_TTX_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/512z+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 6.424722e+05                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 9.319210e+05                 )  sec^-1
 
 TEST COMPLETED
