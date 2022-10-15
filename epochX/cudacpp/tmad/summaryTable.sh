@@ -11,10 +11,9 @@ if [ "$1" == "-ALL" ] && [ "$2" == "" ]; then
   set -e
   $0 -default
   $0 -juwels
-  $0 -juwels2
   $0 -default-short
   $0 -juwels-short
-  $0 -juwels2-short
+  $0 -ichep22-short
   exit 0
 elif [ "$1" == "-default" ]; then
   table="default"; onlyxmax=0; shift
@@ -24,12 +23,10 @@ elif [ "$1" == "-juwels" ]; then
   table="juwels";  onlyxmax=0; shift
 elif [ "$1" == "-juwels-short" ]; then
   table="juwels";  onlyxmax=1; shift
-elif [ "$1" == "-juwels2" ]; then
-  table="juwels2";  onlyxmax=0; shift
-elif [ "$1" == "-juwels2-short" ]; then
-  table="juwels2";  onlyxmax=1; shift
+elif [ "$1" == "-ichep22-short" ]; then
+  table="ichep22";  onlyxmax=1; shift
 else
-  echo "Usage: $0 <table [-ALL|-default|-juwels|-juwels2|-default-short|-juwels-short|-juwels2-short]>"; exit 1
+  echo "Usage: $0 <table [-ALL|-default|-juwels|-default-short|-juwels-short|-ichep22-short]>"; exit 1
 fi
 
 # Select revisions and characteristics of mad logs
@@ -37,7 +34,6 @@ fi
 mrevs=""
 if [ "$table" == "default" ]; then
   procs="eemumu ggtt ggttg ggttgg ggttggg"
-  ###mrevs="$mrevs 1efee04"  # cuda117/gcc112  (13 Oct 2022)
   mrevs="$mrevs 82729ba"  # cuda117/gcc112  (14 Oct 2022)
   fpts="d f"
   taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/8192 CUDA/max $cuda8tpb"
@@ -47,7 +43,7 @@ elif [ "$table" == "juwels" ]; then
   mrevs="$mrevs cdc8dda"  # cuda115/gcc102  (14 Oct 2022 jwlogin07=faster #540)
   taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z"
   fpts="d f"
-elif [ "$table" == "juwels2" ]; then
+elif [ "$table" == "ichep22" ]; then
   procs="ggttgg"
   mrevs="$mrevs eb30e41"  # cuda115/gcc112  (12 Oct 2022 jwlogin07) ICHEP2022table CPU
   mrevs="$mrevs 1efee04"  # cuda117/gcc112  (13 Oct 2022 itscrd70)  ICHEP2022table GPU
