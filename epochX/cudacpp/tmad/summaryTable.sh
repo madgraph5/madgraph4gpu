@@ -49,10 +49,9 @@ elif [ "$table" == "juwels" ]; then
   fpts="d f"
 elif [ "$table" == "juwels2" ]; then
   procs="ggttgg"
-  mrevs="$mrevs eb30e41"  # cuda115/gcc112  (12 Oct 2022 jwlogin07=faster #540) ICHEP2022table 
-  ###mrevs="$mrevs 59b311b"  # cuda115/gcc102  (14 Oct 2022 jwlogin04=slower #540)
-  ###mrevs="$mrevs cdc8dda"  # cuda115/gcc102  (14 Oct 2022 jwlogin07=faster #540)
-  taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z"
+  mrevs="$mrevs eb30e41"  # cuda115/gcc112  (12 Oct 2022 jwlogin07) ICHEP2022table CPU
+  mrevs="$mrevs 1efee04"  # cuda117/gcc112  (13 Oct 2022 itscrd70)  ICHEP2022table GPU
+  taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/8192 CUDA/max $cuda8tpb"
   fpts="d f"
 fi
 revs="$mrevs"
