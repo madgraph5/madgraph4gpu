@@ -1,45 +1,45 @@
-Working directory (build): /p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx
+Working directory (build): /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx
 CUDACPP_BUILDDIR='.'
 
+
+
+
 make USEBUILDDIR=1 AVX=none
-
 make USEBUILDDIR=1 AVX=sse4
-
-make USEBUILDDIR=1 AVX=512y
-make[1]: Entering directory '/p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx'
-make[1]: Entering directory '/p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx'
-make[1]: Entering directory '/p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx'
-
 make USEBUILDDIR=1 AVX=avx2
+make USEBUILDDIR=1 AVX=512y
 
 make USEBUILDDIR=1 AVX=512z
-make[1]: Entering directory '/p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx'
-make[1]: Entering directory '/p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx'
 CUDACPP_BUILDDIR='build.sse4_f_inl0_hrd0'
-make[1]: Nothing to be done for 'all'.
-make[1]: Leaving directory '/p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx'
-CUDACPP_BUILDDIR='build.512y_f_inl0_hrd0'
-CUDACPP_BUILDDIR='build.avx2_f_inl0_hrd0'
-make[1]: Nothing to be done for 'all'.
-make[1]: Leaving directory '/p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx'
-make[1]: Nothing to be done for 'all'.
-make[1]: Leaving directory '/p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx'
 CUDACPP_BUILDDIR='build.512z_f_inl0_hrd0'
 CUDACPP_BUILDDIR='build.none_f_inl0_hrd0'
-make[1]: Nothing to be done for 'all'.
-make[1]: Leaving directory '/p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx'
-make[1]: Nothing to be done for 'all'.
-make[1]: Leaving directory '/p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx'
+make[1]: Entering directory `/data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx'
+make[1]: Nothing to be done for `all'.
+make[1]: Leaving directory `/data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx'
+make[1]: Entering directory `/data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx'
+make[1]: Nothing to be done for `all'.
+make[1]: Leaving directory `/data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx'
+make[1]: Entering directory `/data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx'
+make[1]: Nothing to be done for `all'.
+make[1]: Leaving directory `/data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx'
+CUDACPP_BUILDDIR='build.avx2_f_inl0_hrd0'
+CUDACPP_BUILDDIR='build.512y_f_inl0_hrd0'
+make[1]: Entering directory `/data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx'
+make[1]: Nothing to be done for `all'.
+make[1]: Leaving directory `/data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx'
+make[1]: Entering directory `/data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx'
+make[1]: Nothing to be done for `all'.
+make[1]: Leaving directory `/data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx'
 
-DATE: 2022-10-14_19:24:12
+DATE: 2022-10-14_19:40:38
 
-On jwlogin07.juwels [CPU: Intel(R) Xeon(R) Gold 6148 CPU] [GPU: none]:
-Working directory (run): /p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx
+On itscrd70.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
+Working directory (run): /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx
 
 *** (1) EXECUTE MADEVENT (create results.dat) ***
 --------------------
 0 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
-32 ! Number of events in a single Fortran iteration (nb_page_loop)
+8192 ! Number of events in a single Fortran iteration (nb_page_loop)
 8192 1 1 ! Number of events and max and min iterations
 0.000001 ! Accuracy (ignored because max iterations = min iterations)
 0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
@@ -47,20 +47,20 @@ Working directory (run): /p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cuda
 0 ! Helicity Sum/event 0=exact
 1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 --------------------
-Executing ' ./madevent < /tmp/valassi1/input_ggtt_x1_fortran > /tmp/valassi1/output_ggtt_x1_fortran'
- [XSECTION] nb_page_loop = 32
+Executing ' ./madevent < /tmp/avalassi/input_ggtt_x1_fortran > /tmp/avalassi/output_ggtt_x1_fortran'
+ [XSECTION] nb_page_loop = 8192
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 45.77 [] fbridge_mode=0
- [COUNTERS] PROGRAM TOTAL          :    0.1876s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.1289s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.0587s for     8224 events => throughput is 1.40E+05 events/s
+ [XSECTION] Cross section = 47.69 [] fbridge_mode=0
+ [COUNTERS] PROGRAM TOTAL          :    0.2843s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.2041s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.0802s for     8192 events => throughput is 1.02E+05 events/s
 
 *** (1) EXECUTE MADEVENT x1 (create events.lhe) ***
 --------------------
 0 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
-32 ! Number of events in a single Fortran iteration (nb_page_loop)
+8192 ! Number of events in a single Fortran iteration (nb_page_loop)
 8192 1 1 ! Number of events and max and min iterations
 0.000001 ! Accuracy (ignored because max iterations = min iterations)
 0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
@@ -68,21 +68,21 @@ Executing ' ./madevent < /tmp/valassi1/input_ggtt_x1_fortran > /tmp/valassi1/out
 0 ! Helicity Sum/event 0=exact
 1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 --------------------
-Executing ' ./madevent < /tmp/valassi1/input_ggtt_x1_fortran > /tmp/valassi1/output_ggtt_x1_fortran'
- [XSECTION] nb_page_loop = 32
+Executing ' ./madevent < /tmp/avalassi/input_ggtt_x1_fortran > /tmp/avalassi/output_ggtt_x1_fortran'
+ [XSECTION] nb_page_loop = 8192
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 45.77 [45.768325335243517] fbridge_mode=0
- [UNWEIGHT] Wrote 411 events (found 1109 events)
- [COUNTERS] PROGRAM TOTAL          :    0.3380s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.2708s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.0672s for     8224 events => throughput is 1.22E+05 events/s
+ [XSECTION] Cross section = 47.69 [47.690708277600123] fbridge_mode=0
+ [UNWEIGHT] Wrote 434 events (found 1125 events)
+ [COUNTERS] PROGRAM TOTAL          :    0.4207s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.3401s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.0806s for     8192 events => throughput is 1.02E+05 events/s
 
 *** (1) EXECUTE MADEVENT x10 (create events.lhe) ***
 --------------------
 0 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
-32 ! Number of events in a single Fortran iteration (nb_page_loop)
+8192 ! Number of events in a single Fortran iteration (nb_page_loop)
 81920 1 1 ! Number of events and max and min iterations
 0.000001 ! Accuracy (ignored because max iterations = min iterations)
 0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
@@ -90,21 +90,21 @@ Executing ' ./madevent < /tmp/valassi1/input_ggtt_x1_fortran > /tmp/valassi1/out
 0 ! Helicity Sum/event 0=exact
 1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 --------------------
-Executing ' ./madevent < /tmp/valassi1/input_ggtt_x10_fortran > /tmp/valassi1/output_ggtt_x10_fortran'
- [XSECTION] nb_page_loop = 32
+Executing ' ./madevent < /tmp/avalassi/input_ggtt_x10_fortran > /tmp/avalassi/output_ggtt_x10_fortran'
+ [XSECTION] nb_page_loop = 8192
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 46.58 [46.579283115428012] fbridge_mode=0
- [UNWEIGHT] Wrote 1672 events (found 1677 events)
- [COUNTERS] PROGRAM TOTAL          :    1.5378s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.9643s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.5735s for    81952 events => throughput is 1.43E+05 events/s
+ [XSECTION] Cross section = 46.38 [46.377413285475775] fbridge_mode=0
+ [UNWEIGHT] Wrote 1690 events (found 1695 events)
+ [COUNTERS] PROGRAM TOTAL          :    2.3941s
+ [COUNTERS] Fortran Overhead ( 0 ) :    1.5096s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.8845s for    90112 events => throughput is 1.02E+05 events/s
 
 *** (2-none) EXECUTE CMADEVENT_CUDACPP x1 (create events.lhe) ***
 --------------------
 +1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
-32 ! Number of events in a single C++ or CUDA iteration (nb_page_loop)
+8192 ! Number of events in a single C++ or CUDA iteration (nb_page_loop)
 8192 1 1 ! Number of events and max and min iterations
 0.000001 ! Accuracy (ignored because max iterations = min iterations)
 0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
@@ -112,20 +112,20 @@ Executing ' ./madevent < /tmp/valassi1/input_ggtt_x10_fortran > /tmp/valassi1/ou
 0 ! Helicity Sum/event 0=exact
 1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 --------------------
-Executing ' ./build.none_f_inl0_hrd0/cmadevent_cudacpp < /tmp/valassi1/input_ggtt_x1_cudacpp > /tmp/valassi1/output_ggtt_x1_cudacpp'
- [XSECTION] nb_page_loop = 32
+Executing ' ./build.none_f_inl0_hrd0/cmadevent_cudacpp < /tmp/avalassi/input_ggtt_x1_cudacpp > /tmp/avalassi/output_ggtt_x1_cudacpp'
+ [XSECTION] nb_page_loop = 8192
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 45.77 [45.768319555956033] fbridge_mode=1
- [UNWEIGHT] Wrote 411 events (found 1109 events)
- [COUNTERS] PROGRAM TOTAL          :    0.3383s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.2962s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0422s for     8224 events => throughput is 1.95E+05 events/s
+ [XSECTION] Cross section = 47.69 [47.690707052322011] fbridge_mode=1
+ [UNWEIGHT] Wrote 434 events (found 1125 events)
+ [COUNTERS] PROGRAM TOTAL          :    0.4267s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.3846s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0421s for     8192 events => throughput is 1.94E+05 events/s
 
 *** (2-none) Compare CMADEVENT_CUDACPP x1 xsec to MADEVENT xsec ***
 
-OK! xsec from fortran (45.768325335243517) and cpp (45.768319555956033) differ by less than 2E-4 (1.2627264467379717e-07)
+OK! xsec from fortran (47.690708277600123) and cpp (47.690707052322011) differ by less than 2E-4 (2.5692176830460767e-08)
 
 *** (2-none) Compare CMADEVENT_CUDACPP x1 events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***
 
@@ -134,7 +134,7 @@ OK! events.lhe.cpp.1 and events.lhe.ref.1 are identical
 *** (2-none) EXECUTE CMADEVENT_CUDACPP x10 (create events.lhe) ***
 --------------------
 +1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
-32 ! Number of events in a single C++ or CUDA iteration (nb_page_loop)
+8192 ! Number of events in a single C++ or CUDA iteration (nb_page_loop)
 81920 1 1 ! Number of events and max and min iterations
 0.000001 ! Accuracy (ignored because max iterations = min iterations)
 0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
@@ -142,39 +142,39 @@ OK! events.lhe.cpp.1 and events.lhe.ref.1 are identical
 0 ! Helicity Sum/event 0=exact
 1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 --------------------
-Executing ' ./build.none_f_inl0_hrd0/cmadevent_cudacpp < /tmp/valassi1/input_ggtt_x10_cudacpp > /tmp/valassi1/output_ggtt_x10_cudacpp'
- [XSECTION] nb_page_loop = 32
+Executing ' ./build.none_f_inl0_hrd0/cmadevent_cudacpp < /tmp/avalassi/input_ggtt_x10_cudacpp > /tmp/avalassi/output_ggtt_x10_cudacpp'
+ [XSECTION] nb_page_loop = 8192
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 46.58 [46.579277033589911] fbridge_mode=1
- [UNWEIGHT] Wrote 1672 events (found 1677 events)
- [COUNTERS] PROGRAM TOTAL          :    1.3122s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.9871s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.3251s for    81952 events => throughput is 2.52E+05 events/s
+ [XSECTION] Cross section = 46.38 [46.377411924380048] fbridge_mode=1
+ [UNWEIGHT] Wrote 1690 events (found 1695 events)
+ [COUNTERS] PROGRAM TOTAL          :    2.0213s
+ [COUNTERS] Fortran Overhead ( 0 ) :    1.5567s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.4646s for    90112 events => throughput is 1.94E+05 events/s
 
 *** (2-none) Compare CMADEVENT_CUDACPP x10 xsec to MADEVENT xsec ***
 
-OK! xsec from fortran (46.579283115428012) and cpp (46.579277033589911) differ by less than 2E-4 (1.305695943587537e-07)
+OK! xsec from fortran (46.377413285475775) and cpp (46.377411924380048) differ by less than 2E-4 (2.9348245833560327e-08)
 
 *** (2-none) Compare CMADEVENT_CUDACPP x10 events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***
 
 OK! events.lhe.cpp.10 and events.lhe.ref.10 are identical
 
-*** EXECUTE CHECK(32) -p 1 32 256 --bridge ***
+*** EXECUTE CHECK(8192) -p 256 32 1 --bridge ***
 Process                     = SIGMA_SM_GG_TTX_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+BRDHST/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 1.783123e+05                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 2.000090e+05                 )  sec^-1
 
-*** EXECUTE CHECK(32) -p 1 32 256 ***
+*** EXECUTE CHECK(8192) -p 256 32 1 ***
 Process                     = SIGMA_SM_GG_TTX_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+MESHST/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 1.798888e+05                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.998825e+05                 )  sec^-1
 
 *** (2-sse4) EXECUTE CMADEVENT_CUDACPP x1 (create events.lhe) ***
 --------------------
 +1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
-32 ! Number of events in a single C++ or CUDA iteration (nb_page_loop)
+8192 ! Number of events in a single C++ or CUDA iteration (nb_page_loop)
 8192 1 1 ! Number of events and max and min iterations
 0.000001 ! Accuracy (ignored because max iterations = min iterations)
 0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
@@ -182,20 +182,20 @@ EvtsPerSec[MECalcOnly] (3a) = ( 1.798888e+05                 )  sec^-1
 0 ! Helicity Sum/event 0=exact
 1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 --------------------
-Executing ' ./build.sse4_f_inl0_hrd0/cmadevent_cudacpp < /tmp/valassi1/input_ggtt_x1_cudacpp > /tmp/valassi1/output_ggtt_x1_cudacpp'
- [XSECTION] nb_page_loop = 32
+Executing ' ./build.sse4_f_inl0_hrd0/cmadevent_cudacpp < /tmp/avalassi/input_ggtt_x1_cudacpp > /tmp/avalassi/output_ggtt_x1_cudacpp'
+ [XSECTION] nb_page_loop = 8192
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 45.77 [45.768321076803225] fbridge_mode=1
- [UNWEIGHT] Wrote 411 events (found 1109 events)
- [COUNTERS] PROGRAM TOTAL          :    0.2516s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.2391s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0124s for     8224 events => throughput is 6.61E+05 events/s
+ [XSECTION] Cross section = 47.69 [47.690708559363827] fbridge_mode=1
+ [UNWEIGHT] Wrote 434 events (found 1125 events)
+ [COUNTERS] PROGRAM TOTAL          :    0.3757s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.3591s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0166s for     8192 events => throughput is 4.94E+05 events/s
 
 *** (2-sse4) Compare CMADEVENT_CUDACPP x1 xsec to MADEVENT xsec ***
 
-OK! xsec from fortran (45.768325335243517) and cpp (45.768321076803225) differ by less than 2E-4 (9.304339321225541e-08)
+OK! xsec from fortran (47.690708277600123) and cpp (47.690708559363827) differ by less than 2E-4 (5.9081468606336784e-09)
 
 *** (2-sse4) Compare CMADEVENT_CUDACPP x1 events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***
 
@@ -204,7 +204,7 @@ OK! events.lhe.cpp.1 and events.lhe.ref.1 are identical
 *** (2-sse4) EXECUTE CMADEVENT_CUDACPP x10 (create events.lhe) ***
 --------------------
 +1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
-32 ! Number of events in a single C++ or CUDA iteration (nb_page_loop)
+8192 ! Number of events in a single C++ or CUDA iteration (nb_page_loop)
 81920 1 1 ! Number of events and max and min iterations
 0.000001 ! Accuracy (ignored because max iterations = min iterations)
 0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
@@ -212,39 +212,39 @@ OK! events.lhe.cpp.1 and events.lhe.ref.1 are identical
 0 ! Helicity Sum/event 0=exact
 1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 --------------------
-Executing ' ./build.sse4_f_inl0_hrd0/cmadevent_cudacpp < /tmp/valassi1/input_ggtt_x10_cudacpp > /tmp/valassi1/output_ggtt_x10_cudacpp'
- [XSECTION] nb_page_loop = 32
+Executing ' ./build.sse4_f_inl0_hrd0/cmadevent_cudacpp < /tmp/avalassi/input_ggtt_x10_cudacpp > /tmp/avalassi/output_ggtt_x10_cudacpp'
+ [XSECTION] nb_page_loop = 8192
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 46.58 [46.579281006949017] fbridge_mode=1
- [UNWEIGHT] Wrote 1672 events (found 1677 events)
- [COUNTERS] PROGRAM TOTAL          :    1.1000s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.9737s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.1263s for    81952 events => throughput is 6.49E+05 events/s
+ [XSECTION] Cross section = 46.38 [46.377420812904070] fbridge_mode=1
+ [UNWEIGHT] Wrote 1690 events (found 1695 events)
+ [COUNTERS] PROGRAM TOTAL          :    1.7194s
+ [COUNTERS] Fortran Overhead ( 0 ) :    1.5359s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.1835s for    90112 events => throughput is 4.91E+05 events/s
 
 *** (2-sse4) Compare CMADEVENT_CUDACPP x10 xsec to MADEVENT xsec ***
 
-OK! xsec from fortran (46.579283115428012) and cpp (46.579281006949017) differ by less than 2E-4 (4.526645436264687e-08)
+OK! xsec from fortran (46.377413285475775) and cpp (46.377420812904070) differ by less than 2E-4 (1.6230806676453824e-07)
 
 *** (2-sse4) Compare CMADEVENT_CUDACPP x10 events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***
 
 OK! events.lhe.cpp.10 and events.lhe.ref.10 are identical
 
-*** EXECUTE CHECK(32) -p 1 32 256 --bridge ***
+*** EXECUTE CHECK(8192) -p 256 32 1 --bridge ***
 Process                     = SIGMA_SM_GG_TTX_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+BRDHST/sse4+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 5.386603e+05                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 4.820579e+05                 )  sec^-1
 
-*** EXECUTE CHECK(32) -p 1 32 256 ***
+*** EXECUTE CHECK(8192) -p 256 32 1 ***
 Process                     = SIGMA_SM_GG_TTX_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+MESHST/sse4+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 4.410793e+05                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 4.833425e+05                 )  sec^-1
 
 *** (2-avx2) EXECUTE CMADEVENT_CUDACPP x1 (create events.lhe) ***
 --------------------
 +1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
-32 ! Number of events in a single C++ or CUDA iteration (nb_page_loop)
+8192 ! Number of events in a single C++ or CUDA iteration (nb_page_loop)
 8192 1 1 ! Number of events and max and min iterations
 0.000001 ! Accuracy (ignored because max iterations = min iterations)
 0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
@@ -252,20 +252,20 @@ EvtsPerSec[MECalcOnly] (3a) = ( 4.410793e+05                 )  sec^-1
 0 ! Helicity Sum/event 0=exact
 1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 --------------------
-Executing ' ./build.avx2_f_inl0_hrd0/cmadevent_cudacpp < /tmp/valassi1/input_ggtt_x1_cudacpp > /tmp/valassi1/output_ggtt_x1_cudacpp'
- [XSECTION] nb_page_loop = 32
+Executing ' ./build.avx2_f_inl0_hrd0/cmadevent_cudacpp < /tmp/avalassi/input_ggtt_x1_cudacpp > /tmp/avalassi/output_ggtt_x1_cudacpp'
+ [XSECTION] nb_page_loop = 8192
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 45.77 [45.768320881723938] fbridge_mode=1
- [UNWEIGHT] Wrote 411 events (found 1109 events)
- [COUNTERS] PROGRAM TOTAL          :    0.2772s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.2709s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0062s for     8224 events => throughput is 1.32E+06 events/s
+ [XSECTION] Cross section = 47.69 [47.690699698653496] fbridge_mode=1
+ [UNWEIGHT] Wrote 434 events (found 1125 events)
+ [COUNTERS] PROGRAM TOTAL          :    0.3590s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.3511s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0079s for     8192 events => throughput is 1.03E+06 events/s
 
 *** (2-avx2) Compare CMADEVENT_CUDACPP x1 xsec to MADEVENT xsec ***
 
-OK! xsec from fortran (45.768325335243517) and cpp (45.768320881723938) differ by less than 2E-4 (9.730571404187316e-08)
+OK! xsec from fortran (47.690708277600123) and cpp (47.690699698653496) differ by less than 2E-4 (1.7988717171402158e-07)
 
 *** (2-avx2) Compare CMADEVENT_CUDACPP x1 events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***
 
@@ -274,7 +274,7 @@ OK! events.lhe.cpp.1 and events.lhe.ref.1 are identical
 *** (2-avx2) EXECUTE CMADEVENT_CUDACPP x10 (create events.lhe) ***
 --------------------
 +1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
-32 ! Number of events in a single C++ or CUDA iteration (nb_page_loop)
+8192 ! Number of events in a single C++ or CUDA iteration (nb_page_loop)
 81920 1 1 ! Number of events and max and min iterations
 0.000001 ! Accuracy (ignored because max iterations = min iterations)
 0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
@@ -282,39 +282,39 @@ OK! events.lhe.cpp.1 and events.lhe.ref.1 are identical
 0 ! Helicity Sum/event 0=exact
 1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 --------------------
-Executing ' ./build.avx2_f_inl0_hrd0/cmadevent_cudacpp < /tmp/valassi1/input_ggtt_x10_cudacpp > /tmp/valassi1/output_ggtt_x10_cudacpp'
- [XSECTION] nb_page_loop = 32
+Executing ' ./build.avx2_f_inl0_hrd0/cmadevent_cudacpp < /tmp/avalassi/input_ggtt_x10_cudacpp > /tmp/avalassi/output_ggtt_x10_cudacpp'
+ [XSECTION] nb_page_loop = 8192
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 46.58 [46.579282130021383] fbridge_mode=1
- [UNWEIGHT] Wrote 1672 events (found 1677 events)
- [COUNTERS] PROGRAM TOTAL          :    1.0456s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.9931s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0526s for    81952 events => throughput is 1.56E+06 events/s
+ [XSECTION] Cross section = 46.38 [46.377423702284815] fbridge_mode=1
+ [UNWEIGHT] Wrote 1690 events (found 1695 events)
+ [COUNTERS] PROGRAM TOTAL          :    1.6151s
+ [COUNTERS] Fortran Overhead ( 0 ) :    1.5272s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0879s for    90112 events => throughput is 1.02E+06 events/s
 
 *** (2-avx2) Compare CMADEVENT_CUDACPP x10 xsec to MADEVENT xsec ***
 
-OK! xsec from fortran (46.579283115428012) and cpp (46.579282130021383) differ by less than 2E-4 (2.1155470042444335e-08)
+OK! xsec from fortran (46.377413285475775) and cpp (46.377423702284815) differ by less than 2E-4 (2.246095307523177e-07)
 
 *** (2-avx2) Compare CMADEVENT_CUDACPP x10 events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***
 
 OK! events.lhe.cpp.10 and events.lhe.ref.10 are identical
 
-*** EXECUTE CHECK(32) -p 1 32 256 --bridge ***
+*** EXECUTE CHECK(8192) -p 256 32 1 --bridge ***
 Process                     = SIGMA_SM_GG_TTX_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+BRDHST/avx2+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 1.602909e+06                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.058228e+06                 )  sec^-1
 
-*** EXECUTE CHECK(32) -p 1 32 256 ***
+*** EXECUTE CHECK(8192) -p 256 32 1 ***
 Process                     = SIGMA_SM_GG_TTX_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+MESHST/avx2+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 1.103536e+06                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.068652e+06                 )  sec^-1
 
 *** (2-512y) EXECUTE CMADEVENT_CUDACPP x1 (create events.lhe) ***
 --------------------
 +1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
-32 ! Number of events in a single C++ or CUDA iteration (nb_page_loop)
+8192 ! Number of events in a single C++ or CUDA iteration (nb_page_loop)
 8192 1 1 ! Number of events and max and min iterations
 0.000001 ! Accuracy (ignored because max iterations = min iterations)
 0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
@@ -322,20 +322,20 @@ EvtsPerSec[MECalcOnly] (3a) = ( 1.103536e+06                 )  sec^-1
 0 ! Helicity Sum/event 0=exact
 1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 --------------------
-Executing ' ./build.512y_f_inl0_hrd0/cmadevent_cudacpp < /tmp/valassi1/input_ggtt_x1_cudacpp > /tmp/valassi1/output_ggtt_x1_cudacpp'
- [XSECTION] nb_page_loop = 32
+Executing ' ./build.512y_f_inl0_hrd0/cmadevent_cudacpp < /tmp/avalassi/input_ggtt_x1_cudacpp > /tmp/avalassi/output_ggtt_x1_cudacpp'
+ [XSECTION] nb_page_loop = 8192
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 45.77 [45.768320881723938] fbridge_mode=1
- [UNWEIGHT] Wrote 411 events (found 1109 events)
- [COUNTERS] PROGRAM TOTAL          :    0.2769s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.2712s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0057s for     8224 events => throughput is 1.44E+06 events/s
+ [XSECTION] Cross section = 47.69 [47.690699698653496] fbridge_mode=1
+ [UNWEIGHT] Wrote 434 events (found 1125 events)
+ [COUNTERS] PROGRAM TOTAL          :    0.3583s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.3509s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0074s for     8192 events => throughput is 1.11E+06 events/s
 
 *** (2-512y) Compare CMADEVENT_CUDACPP x1 xsec to MADEVENT xsec ***
 
-OK! xsec from fortran (45.768325335243517) and cpp (45.768320881723938) differ by less than 2E-4 (9.730571404187316e-08)
+OK! xsec from fortran (47.690708277600123) and cpp (47.690699698653496) differ by less than 2E-4 (1.7988717171402158e-07)
 
 *** (2-512y) Compare CMADEVENT_CUDACPP x1 events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***
 
@@ -344,7 +344,7 @@ OK! events.lhe.cpp.1 and events.lhe.ref.1 are identical
 *** (2-512y) EXECUTE CMADEVENT_CUDACPP x10 (create events.lhe) ***
 --------------------
 +1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
-32 ! Number of events in a single C++ or CUDA iteration (nb_page_loop)
+8192 ! Number of events in a single C++ or CUDA iteration (nb_page_loop)
 81920 1 1 ! Number of events and max and min iterations
 0.000001 ! Accuracy (ignored because max iterations = min iterations)
 0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
@@ -352,39 +352,39 @@ OK! events.lhe.cpp.1 and events.lhe.ref.1 are identical
 0 ! Helicity Sum/event 0=exact
 1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 --------------------
-Executing ' ./build.512y_f_inl0_hrd0/cmadevent_cudacpp < /tmp/valassi1/input_ggtt_x10_cudacpp > /tmp/valassi1/output_ggtt_x10_cudacpp'
- [XSECTION] nb_page_loop = 32
+Executing ' ./build.512y_f_inl0_hrd0/cmadevent_cudacpp < /tmp/avalassi/input_ggtt_x10_cudacpp > /tmp/avalassi/output_ggtt_x10_cudacpp'
+ [XSECTION] nb_page_loop = 8192
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 46.58 [46.579282130021383] fbridge_mode=1
- [UNWEIGHT] Wrote 1672 events (found 1677 events)
- [COUNTERS] PROGRAM TOTAL          :    1.0656s
- [COUNTERS] Fortran Overhead ( 0 ) :    1.0152s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0504s for    81952 events => throughput is 1.63E+06 events/s
+ [XSECTION] Cross section = 46.38 [46.377423702284815] fbridge_mode=1
+ [UNWEIGHT] Wrote 1690 events (found 1695 events)
+ [COUNTERS] PROGRAM TOTAL          :    1.6092s
+ [COUNTERS] Fortran Overhead ( 0 ) :    1.5275s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0816s for    90112 events => throughput is 1.10E+06 events/s
 
 *** (2-512y) Compare CMADEVENT_CUDACPP x10 xsec to MADEVENT xsec ***
 
-OK! xsec from fortran (46.579283115428012) and cpp (46.579282130021383) differ by less than 2E-4 (2.1155470042444335e-08)
+OK! xsec from fortran (46.377413285475775) and cpp (46.377423702284815) differ by less than 2E-4 (2.246095307523177e-07)
 
 *** (2-512y) Compare CMADEVENT_CUDACPP x10 events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***
 
 OK! events.lhe.cpp.10 and events.lhe.ref.10 are identical
 
-*** EXECUTE CHECK(32) -p 1 32 256 --bridge ***
+*** EXECUTE CHECK(8192) -p 256 32 1 --bridge ***
 Process                     = SIGMA_SM_GG_TTX_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+BRDHST/512y+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 1.165961e+06                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.136971e+06                 )  sec^-1
 
-*** EXECUTE CHECK(32) -p 1 32 256 ***
+*** EXECUTE CHECK(8192) -p 256 32 1 ***
 Process                     = SIGMA_SM_GG_TTX_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+MESHST/512y+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 1.693027e+06                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.157044e+06                 )  sec^-1
 
 *** (2-512z) EXECUTE CMADEVENT_CUDACPP x1 (create events.lhe) ***
 --------------------
 +1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
-32 ! Number of events in a single C++ or CUDA iteration (nb_page_loop)
+8192 ! Number of events in a single C++ or CUDA iteration (nb_page_loop)
 8192 1 1 ! Number of events and max and min iterations
 0.000001 ! Accuracy (ignored because max iterations = min iterations)
 0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
@@ -392,20 +392,20 @@ EvtsPerSec[MECalcOnly] (3a) = ( 1.693027e+06                 )  sec^-1
 0 ! Helicity Sum/event 0=exact
 1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 --------------------
-Executing ' ./build.512z_f_inl0_hrd0/cmadevent_cudacpp < /tmp/valassi1/input_ggtt_x1_cudacpp > /tmp/valassi1/output_ggtt_x1_cudacpp'
- [XSECTION] nb_page_loop = 32
+Executing ' ./build.512z_f_inl0_hrd0/cmadevent_cudacpp < /tmp/avalassi/input_ggtt_x1_cudacpp > /tmp/avalassi/output_ggtt_x1_cudacpp'
+ [XSECTION] nb_page_loop = 8192
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 45.77 [45.768324407201966] fbridge_mode=1
- [UNWEIGHT] Wrote 411 events (found 1109 events)
- [COUNTERS] PROGRAM TOTAL          :    0.3046s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.2964s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0082s for     8224 events => throughput is 1.00E+06 events/s
+ [XSECTION] Cross section = 47.69 [47.690703661194185] fbridge_mode=1
+ [UNWEIGHT] Wrote 434 events (found 1125 events)
+ [COUNTERS] PROGRAM TOTAL          :    0.3784s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.3680s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0104s for     8192 events => throughput is 7.85E+05 events/s
 
 *** (2-512z) Compare CMADEVENT_CUDACPP x1 xsec to MADEVENT xsec ***
 
-OK! xsec from fortran (45.768325335243517) and cpp (45.768324407201966) differ by less than 2E-4 (2.0276939238783598e-08)
+OK! xsec from fortran (47.690708277600123) and cpp (47.690703661194185) differ by less than 2E-4 (9.679885459856763e-08)
 
 *** (2-512z) Compare CMADEVENT_CUDACPP x1 events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***
 
@@ -414,7 +414,7 @@ OK! events.lhe.cpp.1 and events.lhe.ref.1 are identical
 *** (2-512z) EXECUTE CMADEVENT_CUDACPP x10 (create events.lhe) ***
 --------------------
 +1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
-32 ! Number of events in a single C++ or CUDA iteration (nb_page_loop)
+8192 ! Number of events in a single C++ or CUDA iteration (nb_page_loop)
 81920 1 1 ! Number of events and max and min iterations
 0.000001 ! Accuracy (ignored because max iterations = min iterations)
 0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
@@ -422,33 +422,133 @@ OK! events.lhe.cpp.1 and events.lhe.ref.1 are identical
 0 ! Helicity Sum/event 0=exact
 1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 --------------------
-Executing ' ./build.512z_f_inl0_hrd0/cmadevent_cudacpp < /tmp/valassi1/input_ggtt_x10_cudacpp > /tmp/valassi1/output_ggtt_x10_cudacpp'
- [XSECTION] nb_page_loop = 32
+Executing ' ./build.512z_f_inl0_hrd0/cmadevent_cudacpp < /tmp/avalassi/input_ggtt_x10_cudacpp > /tmp/avalassi/output_ggtt_x10_cudacpp'
+ [XSECTION] nb_page_loop = 8192
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 46.58 [46.579285905504747] fbridge_mode=1
- [UNWEIGHT] Wrote 1672 events (found 1677 events)
- [COUNTERS] PROGRAM TOTAL          :    1.0971s
- [COUNTERS] Fortran Overhead ( 0 ) :    1.0526s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0446s for    81952 events => throughput is 1.84E+06 events/s
+ [XSECTION] Cross section = 46.38 [46.377427598362821] fbridge_mode=1
+ [UNWEIGHT] Wrote 1690 events (found 1695 events)
+ [COUNTERS] PROGRAM TOTAL          :    1.6391s
+ [COUNTERS] Fortran Overhead ( 0 ) :    1.5239s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.1152s for    90112 events => throughput is 7.82E+05 events/s
 
 *** (2-512z) Compare CMADEVENT_CUDACPP x10 xsec to MADEVENT xsec ***
 
-OK! xsec from fortran (46.579283115428012) and cpp (46.579285905504747) differ by less than 2E-4 (5.989952067686488e-08)
+OK! xsec from fortran (46.377413285475775) and cpp (46.377427598362821) differ by less than 2E-4 (3.08617623012708e-07)
 
 *** (2-512z) Compare CMADEVENT_CUDACPP x10 events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***
 
 OK! events.lhe.cpp.10 and events.lhe.ref.10 are identical
 
-*** EXECUTE CHECK(32) -p 1 32 256 --bridge ***
+*** EXECUTE CHECK(8192) -p 256 32 1 --bridge ***
 Process                     = SIGMA_SM_GG_TTX_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+BRDHST/512z+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 1.376149e+06                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 7.937077e+05                 )  sec^-1
 
-*** EXECUTE CHECK(32) -p 1 32 256 ***
+*** EXECUTE CHECK(8192) -p 256 32 1 ***
 Process                     = SIGMA_SM_GG_TTX_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+MESHST/512z+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 1.820623e+06                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 7.943887e+05                 )  sec^-1
+
+*** (3) EXECUTE GMADEVENT_CUDACPP x1 (create events.lhe) ***
+--------------------
++1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
+8192 ! Number of events in a single C++ or CUDA iteration (nb_page_loop)
+8192 1 1 ! Number of events and max and min iterations
+0.000001 ! Accuracy (ignored because max iterations = min iterations)
+0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
+1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
+0 ! Helicity Sum/event 0=exact
+1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
+--------------------
+Executing ' ./build.none_f_inl0_hrd0/gmadevent_cudacpp < /tmp/avalassi/input_ggtt_x1_cudacpp > /tmp/avalassi/output_ggtt_x1_cudacpp'
+ [XSECTION] nb_page_loop = 8192
+ [XSECTION] MultiChannel = TRUE
+ [XSECTION] Configuration = 1
+ [XSECTION] ChannelId = 1
+ [XSECTION] Cross section = 47.69 [47.690703561092150] fbridge_mode=1
+ [UNWEIGHT] Wrote 434 events (found 1125 events)
+ [COUNTERS] PROGRAM TOTAL          :    0.5025s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.5021s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0004s for     8192 events => throughput is 1.94E+07 events/s
+
+*** (3) Compare GMADEVENT_CUDACPP x1 xsec to MADEVENT xsec ***
+
+OK! xsec from fortran (47.690708277600123) and cpp (47.690703561092150) differ by less than 2E-4 (9.889783869621027e-08)
+
+*** (3) Compare GMADEVENT_CUDACPP x1 events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***
+
+OK! events.lhe.cuda.1 and events.lhe.ref.1 are identical
+
+*** (3) EXECUTE GMADEVENT_CUDACPP x10 (create events.lhe) ***
+--------------------
++1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
+8192 ! Number of events in a single C++ or CUDA iteration (nb_page_loop)
+81920 1 1 ! Number of events and max and min iterations
+0.000001 ! Accuracy (ignored because max iterations = min iterations)
+0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
+1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
+0 ! Helicity Sum/event 0=exact
+1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
+--------------------
+Executing ' ./build.none_f_inl0_hrd0/gmadevent_cudacpp < /tmp/avalassi/input_ggtt_x10_cudacpp > /tmp/avalassi/output_ggtt_x10_cudacpp'
+ [XSECTION] nb_page_loop = 8192
+ [XSECTION] MultiChannel = TRUE
+ [XSECTION] Configuration = 1
+ [XSECTION] ChannelId = 1
+ [XSECTION] Cross section = 46.38 [46.377419333532302] fbridge_mode=1
+ [UNWEIGHT] Wrote 1690 events (found 1695 events)
+ [COUNTERS] PROGRAM TOTAL          :    1.6610s
+ [COUNTERS] Fortran Overhead ( 0 ) :    1.6559s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0051s for    90112 events => throughput is 1.76E+07 events/s
+
+*** (3) Compare GMADEVENT_CUDACPP x10 xsec to MADEVENT xsec ***
+
+OK! xsec from fortran (46.377413285475775) and cpp (46.377419333532302) differ by less than 2E-4 (1.3040952695497765e-07)
+
+*** (3) Compare GMADEVENT_CUDACPP x10 events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***
+
+OK! events.lhe.cuda.10 and events.lhe.ref.10 are identical
+
+*** EXECUTE GCHECK(8192) -p 256 32 1 --bridge ***
+Process                     = SIGMA_SM_GG_TTX_CUDA [nvcc 11.7.99 (gcc 11.2.0)] [inlineHel=0] [hardcodePARAM=0]
+Workflow summary            = CUD:FLT+THX:CURHST+RMBHST+BRDDEV/none+NAVBRK
+EvtsPerSec[MECalcOnly] (3a) = ( 4.220875e+07                 )  sec^-1
+
+*** EXECUTE GCHECK(8192) -p 256 32 1 ***
+Process                     = SIGMA_SM_GG_TTX_CUDA [nvcc 11.7.99 (gcc 11.2.0)] [inlineHel=0] [hardcodePARAM=0]
+Workflow summary            = CUD:FLT+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
+EvtsPerSec[MECalcOnly] (3a) = ( 1.044352e+08                 )  sec^-1
+
+*** EXECUTE GCHECK(MAX) -p 16384 32 1 --bridge ***
+Process                     = SIGMA_SM_GG_TTX_CUDA [nvcc 11.7.99 (gcc 11.2.0)] [inlineHel=0] [hardcodePARAM=0]
+Workflow summary            = CUD:FLT+THX:CURHST+RMBHST+BRDDEV/none+NAVBRK
+EvtsPerSec[MECalcOnly] (3a) = ( 8.294489e+07                 )  sec^-1
+
+*** EXECUTE GCHECK(MAX) -p 16384 32 1 ***
+Process                     = SIGMA_SM_GG_TTX_CUDA [nvcc 11.7.99 (gcc 11.2.0)] [inlineHel=0] [hardcodePARAM=0]
+Workflow summary            = CUD:FLT+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
+EvtsPerSec[MECalcOnly] (3a) = ( 3.403652e+08                 )  sec^-1
+
+*** EXECUTE GCHECK(MAX128THR) -p 4096 128 1 --bridge ***
+Process                     = SIGMA_SM_GG_TTX_CUDA [nvcc 11.7.99 (gcc 11.2.0)] [inlineHel=0] [hardcodePARAM=0]
+Workflow summary            = CUD:FLT+THX:CURHST+RMBHST+BRDDEV/none+NAVBRK
+EvtsPerSec[MECalcOnly] (3a) = ( 8.263062e+07                 )  sec^-1
+
+*** EXECUTE GCHECK(MAX128THR) -p 4096 128 1 ***
+Process                     = SIGMA_SM_GG_TTX_CUDA [nvcc 11.7.99 (gcc 11.2.0)] [inlineHel=0] [hardcodePARAM=0]
+Workflow summary            = CUD:FLT+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
+EvtsPerSec[MECalcOnly] (3a) = ( 3.508480e+08                 )  sec^-1
+
+*** EXECUTE GCHECK(MAX8THR) -p 65536 8 1 --bridge ***
+Process                     = SIGMA_SM_GG_TTX_CUDA [nvcc 11.7.99 (gcc 11.2.0)] [inlineHel=0] [hardcodePARAM=0]
+Workflow summary            = CUD:FLT+THX:CURHST+RMBHST+BRDDEV/none+NAVBRK
+EvtsPerSec[MECalcOnly] (3a) = ( 6.839265e+07                 )  sec^-1
+
+*** EXECUTE GCHECK(MAX8THR) -p 65536 8 1 ***
+Process                     = SIGMA_SM_GG_TTX_CUDA [nvcc 11.7.99 (gcc 11.2.0)] [inlineHel=0] [hardcodePARAM=0]
+Workflow summary            = CUD:FLT+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
+EvtsPerSec[MECalcOnly] (3a) = ( 1.150641e+08                 )  sec^-1
 
 TEST COMPLETED
