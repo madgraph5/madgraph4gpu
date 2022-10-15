@@ -2359,14 +2359,18 @@ namespace mg5amcCpu
 
       // *** COLOR ALGEBRA BELOW ***
       // (This method used to be called CPPProcess::matrix_1_gg_ttxgg()?)
-
+#ifdef __CUDACC__
+      typedef float float_sv;
+#else
+      typedef fptype_sv float_sv; // AV FIXME!
+#endif      
       // The color denominators (initialize all array elements, with ncolor=24)
       // [NB do keep 'static' for these constexpr arrays, see issue #283]
-      static constexpr fptype denom[ncolor] = { 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54 }; // 1-D array[24]
+      static constexpr float_sv denom[ncolor] = { 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54 }; // 1-D array[24]
 
       // The color matrix (initialize all array elements, with ncolor=24)
       // [NB do keep 'static' for these constexpr arrays, see issue #283]
-      static constexpr fptype cf[ncolor][ncolor] = {
+      static constexpr float_sv cf[ncolor][ncolor] = {
         { 512, -64, -64, 8, 8, 80, -64, 8, 8, -1, -1, -10, 8, -1, 80, -10, 71, 62, -1, -10, -10, 62, 62, -28 },
         { -64, 512, 8, 80, -64, 8, 8, -64, -1, -10, 8, -1, -1, -10, -10, 62, 62, -28, 8, -1, 80, -10, 71, 62 },
         { -64, 8, 512, -64, 80, 8, 8, -1, 80, -10, 71, 62, -64, 8, 8, -1, -1, -10, -10, -1, 62, -28, -10, 62 },
@@ -2394,17 +2398,26 @@ namespace mg5amcCpu
 
       // Sum and square the color flows to get the matrix element
       // (compute |M|^2 by squaring |M|, taking into account colours)
-      fptype_sv deltaMEs = { 0 }; // all zeros https://en.cppreference.com/w/c/language/array_initialization#Notes
+      float_sv deltaMEs = { 0 }; // all zeros https://en.cppreference.com/w/c/language/array_initialization#Notes
+      
+
       for( int icol = 0; icol < ncolor; icol++ )
       {
-        cxtype_sv ztemp_sv = cxzero_sv();
-        for( int jcol = 0; jcol < ncolor; jcol++ )
-          ztemp_sv += cf[icol][jcol] * jamp_sv[jcol];
-        // OLD implementation: why is this not slower? maybe compiler does not compute imaginary part of "ztemp_sv*cxconj(jamp_sv[icol])"?
-        //deltaMEs += cxreal( ztemp_sv * cxconj( jamp_sv[icol] ) ) / denom[icol];
-        // NEW implementation: keep this even if (surprisingly) it is not faster! it is clearer and easier for tensor core offload anyway...
-        // Rewrite the quadratic form (A-iB)(M)(A+iB) as AMA - iBMA + iBMA + BMB = AMA + BMB!
-        deltaMEs += ( cxreal( ztemp_sv ) * cxreal( jamp_sv[icol] ) + cximag( ztemp_sv ) * cximag( jamp_sv[icol] ) ) / denom[icol];
+        float_sv fiampR_sv = (float_sv)( cxreal( jamp_sv[icol] ) );
+        float_sv fiampI_sv = (float_sv)( cximag( jamp_sv[icol] ) );
+        float_sv ztempR_sv = cf[icol][icol] * fiampR_sv;
+        float_sv ztempI_sv = cf[icol][icol] * fiampI_sv;
+
+        for( int jcol = icol+1; jcol < ncolor; jcol++ ){
+         // factor of 2 here because we only loop over the up diagonal part of the matrix
+          float_sv fjampR_sv = (float_sv)( cxreal( jamp_sv[jcol] ) );
+          float_sv fjampI_sv = (float_sv)( cximag( jamp_sv[jcol] ) );
+          ztempR_sv += 2*cf[icol][jcol] * fjampR_sv;
+          ztempI_sv += 2*cf[icol][jcol] * fjampI_sv;
+        }
+       // here we use the property that M is a real matrix such that we can
+       // Rewrite the quadratic form (A-iB)(M)(A+iB) as AMA - iBMA + iBMA + BMB = AMA + BMB!
+       deltaMEs += (fiampR_sv*ztempR_sv + fiampI_sv*ztempI_sv)/denom[icol];
       }
 
       // *** STORE THE RESULTS ***
