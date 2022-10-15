@@ -268,8 +268,13 @@ namespace mg5amcCpu
       // (This method used to be called CPPProcess::matrix_1_gg_ttx()?)
 
       // NB #537: color algebra uses "fptype2" precision which may be lower (float) than "fptype" precision (double)
+#ifdef __CUDACC__
+      typedef float fptype2; // FIXME #537
+      typedef float fptype2_sv; // FIXME #537
+#else
       typedef fptype fptype2; // FIXME #537
       typedef fptype_sv fptype2_sv; // FIXME #537
+#endif
 
       // The color denominators (initialize all array elements, with ncolor=2)
       // [NB do keep 'static' for these constexpr arrays, see issue #283]
