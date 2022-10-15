@@ -267,13 +267,17 @@ namespace mg5amcCpu
       // *** COLOR ALGEBRA BELOW ***
       // (This method used to be called CPPProcess::matrix_1_gg_ttx()?)
 
+      // NB #537: color algebra uses "fptype2" precision which may be lower (float) than "fptype" precision (double)
+      typedef fptype fptype2; // FIXME #537
+      typedef fptype_sv fptype2_sv; // FIXME #537
+
       // The color denominators (initialize all array elements, with ncolor=2)
       // [NB do keep 'static' for these constexpr arrays, see issue #283]
-      static constexpr fptype denom[ncolor] = { 3, 3 }; // 1-D array[2]
+      static constexpr fptype2 denom[ncolor] = { 3, 3 }; // 1-D array[2]
 
       // The color matrix (initialize all array elements, with ncolor=2)
       // [NB do keep 'static' for these constexpr arrays, see issue #283]
-      static constexpr fptype cf[ncolor][ncolor] = {
+      static constexpr fptype2 cf[ncolor][ncolor] = {
         { 16, -2 },
         { -2, 16 } }; // 2-D array[2][2]
 
@@ -287,15 +291,15 @@ namespace mg5amcCpu
       for( int icol = 0; icol < ncolor; icol++ )
       {
         // Diagonal terms
-        fptype_sv jampRi_sv = cxreal( jamp_sv[icol] );
-        fptype_sv jampIi_sv = cximag( jamp_sv[icol] );
-        fptype_sv ztempR_sv = cf[icol][icol] * jampRi_sv;
-        fptype_sv ztempI_sv = cf[icol][icol] * jampIi_sv;
+        fptype2_sv jampRi_sv = ( fptype2_sv )( cxreal( jamp_sv[icol] ) );
+        fptype2_sv jampIi_sv = ( fptype2_sv )( cximag( jamp_sv[icol] ) );
+        fptype2_sv ztempR_sv = cf[icol][icol] * jampRi_sv;
+        fptype2_sv ztempI_sv = cf[icol][icol] * jampIi_sv;
         // Off-diagonal terms
         for( int jcol = icol + 1; jcol < ncolor; jcol++ )
         {
-          fptype_sv jampRj_sv = cxreal( jamp_sv[jcol] );
-          fptype_sv jampIj_sv = cximag( jamp_sv[jcol] );
+          fptype2_sv jampRj_sv = ( fptype2_sv )( cxreal( jamp_sv[jcol] ) );
+          fptype2_sv jampIj_sv = ( fptype2_sv )( cximag( jamp_sv[jcol] ) );
           ztempR_sv += 2 * cf[icol][jcol] * jampRj_sv;
           ztempI_sv += 2 * cf[icol][jcol] * jampIj_sv;
         }
