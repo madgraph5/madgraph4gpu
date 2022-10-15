@@ -19,11 +19,10 @@
 
 // Choose floating point precision
 // If one of these macros has been set from outside with e.g. -DMGONGPU_FPTYPE_FLOAT, nothing happens (issue #167)
-#if not defined MGONGPU_FPTYPE_DOUBLE and not defined MGONGPU_FPTYPE_FLOAT and not defined MGONGPU_FPTYPE_MIXED
+#if not defined MGONGPU_FPTYPE_DOUBLE and not defined MGONGPU_FPTYPE_FLOAT
 // Floating point precision (CHOOSE ONLY ONE)
-#define MGONGPU_FPTYPE_DOUBLE 1 // default (all double)
-//#define MGONGPU_FPTYPE_FLOAT 1 // ~2x faster (all float)
-//#define MGONGPU_FPTYPE_MIXED 1 // somewhere in between (#537: FFVs double, color algebra float)
+#define MGONGPU_FPTYPE_DOUBLE 1 // default (~6.8E8)
+//#define MGONGPU_FPTYPE_FLOAT 1 // 2.4x faster (~1.64E9 against 6.8E8)
 #endif
 
 // Choose whether to inline all HelAmps functions
@@ -62,10 +61,6 @@
 // SANITY CHECKS (floating point precision)
 #if defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE_FLOAT
 #error You must CHOOSE (ONE AND) ONLY ONE of MGONGPU_FPTYPE_DOUBLE or defined MGONGPU_FPTYPE_FLOAT
-#elif defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE_MIXED
-#error You must CHOOSE (ONE AND) ONLY ONE of MGONGPU_FPTYPE_DOUBLE or defined MGONGPU_FPTYPE_MIXED
-#elif defined MGONGPU_FPTYPE_FLOAT and defined MGONGPU_FPTYPE_MIXED
-#error You must CHOOSE (ONE AND) ONLY ONE of MGONGPU_FPTYPE_FLOAT or defined MGONGPU_FPTYPE_MIXED
 #endif
 
 // SANITY CHECKS (c++ complex number implementation)
@@ -87,16 +82,11 @@ namespace mgOnGpu
 
   // --- Type definitions
 
-  // Floating point type: fptype (double/fp64 is 8 bytes, float/fp32 is 4 bytes)
+  // Floating point type: fptype
 #if defined MGONGPU_FPTYPE_DOUBLE
-  typedef double fptype; // FFVs 
-  typedef double fptype2; // color algebra #537
+  typedef double fptype; // double precision (8 bytes, fp64)
 #elif defined MGONGPU_FPTYPE_FLOAT
-  typedef float fptype; // FFVs 
-  typedef float fptype2; // color algebra #537
-#elif defined MGONGPU_FPTYPE_MIXED
-  typedef double fptype; // FFVs 
-  typedef float fptype2; // color algebra #537
+  typedef float fptype; // single precision (4 bytes, fp32)
 #endif
 
   // --- Physics process-specific constants that are best declared at compile time
@@ -142,25 +132,25 @@ using mgOnGpu::fptype;
 #ifdef __CUDACC__ // CUDA implementation has no SIMD
 #undef MGONGPU_CPPSIMD
 #elif defined __AVX512VL__ && defined MGONGPU_PVW512 // C++ "512z" AVX512 with 512 width (512-bit ie 64-byte): 8 (DOUBLE) or 16 (FLOAT)
-#ifndef MGONGPU_FPTYPE_FLOAT // DOUBLE or MIXED #537
+#ifdef MGONGPU_FPTYPE_DOUBLE
 #define MGONGPU_CPPSIMD 8
 #else
 #define MGONGPU_CPPSIMD 16
 #endif
 #elif defined __AVX512VL__ // C++ "512y" AVX512 with 256 width (256-bit ie 32-byte): 4 (DOUBLE) or 8 (FLOAT) [gcc DEFAULT]
-#ifndef MGONGPU_FPTYPE_FLOAT // DOUBLE or MIXED #537
+#ifdef MGONGPU_FPTYPE_DOUBLE
 #define MGONGPU_CPPSIMD 4
 #else
 #define MGONGPU_CPPSIMD 8
 #endif
 #elif defined __AVX2__ // C++ "avx2" AVX2 (256-bit ie 32-byte): 4 (DOUBLE) or 8 (FLOAT) [clang DEFAULT]
-#ifndef MGONGPU_FPTYPE_FLOAT // DOUBLE or MIXED #537
+#ifdef MGONGPU_FPTYPE_DOUBLE
 #define MGONGPU_CPPSIMD 4
 #else
 #define MGONGPU_CPPSIMD 8
 #endif
 #elif defined __SSE4_2__ // C++ "sse4" SSE4.2 (128-bit ie 16-byte): 2 (DOUBLE) or 4 (FLOAT) [Power9 and ARM default]
-#ifndef MGONGPU_FPTYPE_FLOAT // DOUBLE or MIXED #537
+#ifdef MGONGPU_FPTYPE_DOUBLE
 #define MGONGPU_CPPSIMD 2
 #else
 #define MGONGPU_CPPSIMD 4
