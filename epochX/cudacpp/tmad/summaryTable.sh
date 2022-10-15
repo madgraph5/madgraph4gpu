@@ -21,6 +21,7 @@ if [ "$1" == "-ALL" ] && [ "$2" == "" ]; then
   $0 -default
   $0 -juwels
   $0 -ichep22
+  $0 -ggttgg
   exit 0
 elif [ "$1" == "-default" ]; then
   table="default"; shift
@@ -28,8 +29,10 @@ elif [ "$1" == "-juwels" ]; then
   table="juwels"; shift
 elif [ "$1" == "-ichep22" ]; then
   table="ichep22"; shift
+elif [ "$1" == "-ggttgg" ]; then
+  table="ggttgg"; shift
 else
-  echo "Usage: $0 [--long] <table [-ALL|-default|-juwels|-ichep22]>"; exit 1
+  echo "Usage: $0 [--long] <table [-ALL|-default|-juwels|-ichep22|-ggttgg]>"; exit 1
 fi
 
 # Select revisions and characteristics of mad logs
@@ -49,6 +52,11 @@ elif [ "$table" == "juwels" ]; then
 elif [ "$table" == "ichep22" ]; then
   procs="ggttgg"
   mrevs="$mrevs eb30e41"  # cuda115/gcc112  (12 Oct 2022 jwlogin07) ICHEP2022table CPU
+  mrevs="$mrevs 1efee04"  # cuda117/gcc112  (13 Oct 2022 itscrd70)  ICHEP2022table GPU
+  taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/8192 CUDA/max $cuda8tpb"
+  fpts="d f"
+elif [ "$table" == "ggttgg" ]; then
+  procs="ggttgg"
   mrevs="$mrevs 1efee04"  # cuda117/gcc112  (13 Oct 2022 itscrd70)  ICHEP2022table GPU
   taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/8192 CUDA/max $cuda8tpb"
   fpts="d f"
