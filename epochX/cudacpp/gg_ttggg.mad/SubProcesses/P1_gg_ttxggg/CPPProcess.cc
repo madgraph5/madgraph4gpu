@@ -29996,16 +29996,26 @@ namespace mg5amcCpu
       // Sum and square the color flows to get the matrix element
       // (compute |M|^2 by squaring |M|, taking into account colours)
       fptype_sv deltaMEs = { 0 }; // all zeros https://en.cppreference.com/w/c/language/array_initialization#Notes
+      // Use the property that M is a real matrix:
+      // we can rewrite the quadratic form (A-iB)(M)(A+iB) as AMA - iBMA + iBMA + BMB = AMA + BMB (see #475)
+      // In addition, use the property that M is symmetric:
+      // we gain a factor 2 in speed here as we only loop over the up diagonal part of the matrix! (see #475)
       for( int icol = 0; icol < ncolor; icol++ )
       {
-        cxtype_sv ztemp_sv = cxzero_sv();
-        for( int jcol = 0; jcol < ncolor; jcol++ )
-          ztemp_sv += cf[icol][jcol] * jamp_sv[jcol];
-        // OLD implementation: why is this not slower? maybe compiler does not compute imaginary part of "ztemp_sv*cxconj(jamp_sv[icol])"?
-        //deltaMEs += cxreal( ztemp_sv * cxconj( jamp_sv[icol] ) ) / denom[icol];
-        // NEW implementation: keep this even if (surprisingly) it is not faster! it is clearer and easier for tensor core offload anyway...
-        // Rewrite the quadratic form (A-iB)(M)(A+iB) as AMA - iBMA + iBMA + BMB = AMA + BMB!
-        deltaMEs += ( cxreal( ztemp_sv ) * cxreal( jamp_sv[icol] ) + cximag( ztemp_sv ) * cximag( jamp_sv[icol] ) ) / denom[icol];
+        // Diagonal terms
+        fptype_sv jampRi_sv = cxreal( jamp_sv[icol] );
+        fptype_sv jampIi_sv = cximag( jamp_sv[icol] );
+        fptype_sv ztempR_sv = cf[icol][icol] * jampRi_sv;
+        fptype_sv ztempI_sv = cf[icol][icol] * jampIi_sv;
+        // Off-diagonal terms
+        for( int jcol = icol + 1; jcol < ncolor; jcol++ )
+        {
+          fptype_sv jampRj_sv = cxreal( jamp_sv[jcol] );
+          fptype_sv jampIj_sv = cximag( jamp_sv[jcol] );
+          ztempR_sv += 2 * cf[icol][jcol] * jampRj_sv;
+          ztempI_sv += 2 * cf[icol][jcol] * jampIj_sv;
+        }
+        deltaMEs += ( jampRi_sv * ztempR_sv + jampIi_sv * ztempI_sv ) / denom[icol];
       }
 
       // *** STORE THE RESULTS ***
