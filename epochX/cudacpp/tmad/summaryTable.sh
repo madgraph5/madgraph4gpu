@@ -3,8 +3,8 @@
 scrdir=$(cd $(dirname $0); pwd)
 
 # Include CUDA/8tpb?
-cuda8tpb=
-###cuda8tpb="CUDA/8tpb"
+###cuda8tpb=
+cuda8tpb="CUDA/8tpb"
 
 table=
 if [ "$1" == "-ALL" ] && [ "$2" == "" ]; then
@@ -179,6 +179,13 @@ function oneTable()
                         tputm1[tag], txtmes, ratiomes; }
            if(tag=="FORTRAN"){ printf " %9s | %9s |", "---", "---"; }
            else{ printf " %9.2e |", tputb1[tag]; printf " %9.2e |", tput1[tag]; }
+           if(tag=="CUDA/max"||tag=="CUDA/8tpb")
+                            { printf "\n| %-10s |", "";
+                              if(onlyxmax==0) printf " %95s |", "";
+                              else printf " %66s |", "";
+                              ratiomes2=sprintf("%4.1f",tput1[tag]/tputm1["FORTRAN"]);
+                              if(length(ratiomes2)>4) ratiomes2=substr(ratiomes2,0,4);
+                              printf " %-9s |", ""; printf "   (x%4s) |", ratiomes2; }
            printf "\n"};
 	  if(tag=="CUDA/max"||tag=="CUDA/8tpb") print lsepEQUAL2; else print lsepEQUAL;
           print "\n";
