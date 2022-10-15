@@ -2407,7 +2407,7 @@ namespace mg5amcCpu
         fptype_sv ztempR_sv = cf[icol][icol] * jampRi_sv;
         fptype_sv ztempI_sv = cf[icol][icol] * jampIi_sv;
         // Off-diagonal terms
-        for( int jcol = icol+1; jcol < ncolor; jcol++ )
+        for( int jcol = icol + 1; jcol < ncolor; jcol++ )
         {
           fptype_sv jampRj_sv = cxreal( jamp_sv[jcol] );
           fptype_sv jampIj_sv = cximag( jamp_sv[jcol] );
