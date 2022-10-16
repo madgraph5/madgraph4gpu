@@ -2392,6 +2392,7 @@ namespace mg5amcCpu
         { 62, 71, -10, 80, -1, 8, -28, 62, 62, -10, -10, -1, -1, 8, -10, -1, -64, 8, 8, -64, 80, 8, 512, -64 },
         { -28, 62, 62, -10, -10, -1, 62, 71, -10, 80, -1, 8, -10, -1, -1, 8, 8, -64, 80, 8, 8, -64, -64, 512 } }; // 2-D array[24][24]
 
+#ifndef __CUDACC__
       // Pre-compute a constexpr triangular color matrix properly normalized #475
       struct TriangularNormalizedColorMatrix
       {
@@ -2410,18 +2411,20 @@ namespace mg5amcCpu
         fptype value[ncolor][ncolor];
       };
       static constexpr auto cf2 = TriangularNormalizedColorMatrix();
+#endif
 
       // Sum and square the color flows to get the matrix element
       // (compute |M|^2 by squaring |M|, taking into account colours)
       fptype_sv deltaMEs = { 0 }; // all zeros https://en.cppreference.com/w/c/language/array_initialization#Notes
       // Use the property that M is a real matrix (see #475):
       // we can rewrite the quadratic form (A-iB)(M)(A+iB) as AMA - iBMA + iBMA + BMB = AMA + BMB
-      // In addition, use the property that M is symmetric (see #475),
-      // we gain (a factor 2?) in speed here as we only loop over the up diagonal part of the matrix.
-      // On C++ this would be faster already, on CUDA an additional change (useful also in C++) is needed:
-      // use constexpr to compute "2*" and "/denom[icol]" once and for all at compile time (see #475)
+      // In addition, on C++ use the property that M is symmetric (see #475),
+      // and also use constexpr to compute "2*" and "/denom[icol]" once and for all at compile time:
+      // we gain (not a factor 2...) in speed here as we only loop over the up diagonal part of the matrix.
+      // Strangely, CUDA is slower instead, so keep the old implementation for the moment.
       for( int icol = 0; icol < ncolor; icol++ )
       {
+#ifndef __CUDACC__
         // Diagonal terms
         fptype_sv jampRi_sv = cxreal( jamp_sv[icol] );
         fptype_sv jampIi_sv = cximag( jamp_sv[icol] );
@@ -2436,6 +2439,12 @@ namespace mg5amcCpu
           ztempI_sv += cf2.value[icol][jcol] * jampIj_sv;
         }
         deltaMEs += ( jampRi_sv * ztempR_sv + jampIi_sv * ztempI_sv );
+#else
+        cxtype_sv ztemp_sv = cxzero_sv();
+        for( int jcol = 0; jcol < ncolor; jcol++ )
+          ztemp_sv += cf[icol][jcol] * jamp_sv[jcol];
+        deltaMEs += ( cxreal( ztemp_sv ) * cxreal( jamp_sv[icol] ) + cximag( ztemp_sv ) * cximag( jamp_sv[icol] ) ) / denom[icol];
+#endif
       }
 
       // *** STORE THE RESULTS ***
