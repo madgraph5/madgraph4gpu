@@ -658,38 +658,19 @@ namespace mgOnGpu /* clang-format off */
 inline fptype2_v // output: one float vector with 2*neppV elements
 fpvmerge( const fptype_v& dv1, const fptype_v& dv2 ) // input: two double vectors with neppV elements
 {
+  // This code is inefficient! It makes mixed precision FFV/color useless (slower) on C++.
+  // I considered various alternatives, including
+  // - in gcc12 and clang, __builtin_shufflevector (works with different vector lengths, BUT the same fptype...)
+  // - casting vector(4)double to vector(4)float and then assigning via reinterpret_cast... but how to do the cast?
+  // Probably the best solution is intrinsics?
+  // - see https://stackoverflow.com/questions/5139363
+  // - see https://stackoverflow.com/questions/54518744
   fptype2_v out;
-  /*
   for( int ieppV = 0; ieppV < neppV; ieppV++ )
   {
     out[ieppV] = v1[ieppV];
     out[ieppV+neppV] = v2[ieppV];
   }
-  */
-#ifdef __clang__
-  typedef fptype2 fptype2_vd __attribute__( ( ext_vector_type( neppV ) ) ); // RRRR (not RRRRRRRR)
-#else
-  typedef fptype2 fptype2_vd __attribute__( ( vector_size( neppV * sizeof( fptype2 ) ) ) ); // RRRR (not RRRRRRRR)
-#endif
-  //fptype2_vd fvd1 = (fptype2_vd)( dv1 );
-  fptype2_vd fvd1 = dv1;
-  reinterpret_cast<fptype2_vd*>( out ) = (fptype2_vd)( dv1 );
-  reinterpret_cast<fptype2_vd*>( out+neppV ) = (fptype2_vd)( dv2 );
-  // == MAYBE FOR GCC12? START
-  //#ifdef __clang__
-  //typedef int int2_v __attribute__( ( ext_vector_type( neppV2 ) ) ); // RRRRRRRR
-  //#else
-  //typedef int int2_v __attribute__( ( vector_size( neppV2 * sizeof( fptype2 ) ) ) ); // RRRRRRRR
-  //#endif
-  //#if MGONGPU_CPPSIMD == 2
-  //constexpr int2_v mask2to1 = { 0, 1, 2, 3 };
-  //#elif MGONGPU_CPPSIMD == 4
-  //constexpr int2_v mask2to1 = { 0, 1, 2, 3, 4, 5, 6, 7 };
-  //#elif MGONGPU_CPPSIMD == 8
-  //constexpr int2_v mask2to1 = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
-  //#endif
-  //fptype2_v out = __builtin_shufflevector( v1, v2, mask2to1 );
-  // == MAYBE FOR GCC12? END
   return out;
 }
 
