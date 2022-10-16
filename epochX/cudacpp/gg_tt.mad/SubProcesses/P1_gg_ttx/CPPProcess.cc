@@ -292,6 +292,13 @@ namespace mg5amcCpu
         continue; // go to next ipagV in the loop: skip color algebra and ME update on odd pages
       }
       fptype_sv deltaMEs_previous = { 0 };
+#if MGONGPU_CPPSIMD == 2
+      constexpr fptype2_sv mask2to1 = { 0, 1, 2, 3 };
+#elif MGONGPU_CPPSIMD == 4
+      constexpr __vector(8) int mask2to1 = { 0, 1, 2, 3, 4, 5, 6, 7 };
+#elif MGONGPU_CPPSIMD == 8
+      constexpr fptype2_sv mask2to1 = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+#endif
 #endif
 
       // Sum and square the color flows to get the matrix element
@@ -306,15 +313,8 @@ namespace mg5amcCpu
       {
         // Diagonal terms
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
-        fptype2_sv jampRi_sv = { 0 };
-        fptype2_sv jampIi_sv = { 0 };
-        for( int ieppV = 0; ieppV < neppV; ieppV++ )
-        {
-          jampRi_sv[ieppV] = cxreal( jamp_sv_previous[icol] )[ieppV];
-          jampRi_sv[ieppV+neppV] = cxreal( jamp_sv[icol] )[ieppV];
-          jampIi_sv[ieppV] = cximag( jamp_sv_previous[icol] )[ieppV];
-          jampIi_sv[ieppV+neppV] = cximag( jamp_sv[icol] )[ieppV];
-        }
+        fptype2_sv jampRi_sv = __builtin_shuffle( cxreal( jamp_sv_previous[icol] ), cxreal( jamp_sv[icol] ), mask2to1 );
+        fptype2_sv jampIi_sv = __builtin_shuffle( cximag( jamp_sv_previous[icol] ), cximag( jamp_sv[icol] ), mask2to1 );
 #else
         fptype2_sv jampRi_sv = ( fptype2_sv )( cxreal( jamp_sv[icol] ) );
         fptype2_sv jampIi_sv = ( fptype2_sv )( cximag( jamp_sv[icol] ) );
