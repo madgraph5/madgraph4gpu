@@ -47,6 +47,20 @@ namespace mgOnGpu /* clang-format off */
   typedef fptype fptype_v __attribute__( ( vector_size( neppV * sizeof( fptype ) ) ) ); // RRRR
 #endif
 
+  // Mixed fptypes #537: float for color algebra and double elsewhere
+#if defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+  const int neppV2 = MGONGPU_CPPSIMD * 2;
+  static_assert( mgOnGpu::cppAlign % ( neppV2 * sizeof( fptype2 ) ) == 0 );
+  static_assert( ispoweroftwo( neppV2 ), "neppV2 is not a power of 2" );
+#ifdef __clang__
+  typedef fptype2 fptype2_v __attribute__( ( ext_vector_type( neppV2 ) ) ); // RRRRRRRR
+#else
+  typedef fptype2 fptype2_v __attribute__( ( vector_size( neppV2 * sizeof( fptype2 ) ) ) ); // RRRRRRRR
+#endif
+#else
+  typedef fptype_v fptype2_v;
+#endif
+
   // --- Type definition (using vector compiler extensions: need -march=...)
   class cxtype_v // no need for "class alignas(2*sizeof(fptype_v)) cxtype_v"
   {
@@ -103,6 +117,7 @@ namespace mgOnGpu /* clang-format off */
 using mgOnGpu::neppV;
 #ifdef MGONGPU_CPPSIMD
 using mgOnGpu::fptype_v;
+using mgOnGpu::fptype2_v;
 using mgOnGpu::cxtype_v;
 using mgOnGpu::bool_v;
 #endif
@@ -684,16 +699,19 @@ cxternary( const bool& mask, const cxtype& a, const cxtype& b )
 #ifdef __CUDACC__
 typedef bool bool_sv;
 typedef fptype fptype_sv;
+typedef fptype2 fptype2_sv;
 typedef cxtype cxtype_sv;
 typedef mgOnGpu::cxtype_ref cxtype_sv_ref;
 #elif defined MGONGPU_CPPSIMD
 typedef bool_v bool_sv;
 typedef fptype_v fptype_sv;
+typedef fptype2_v fptype2_sv;
 typedef cxtype_v cxtype_sv;
 typedef mgOnGpu::cxtype_v_ref cxtype_sv_ref;
 #else
 typedef bool bool_sv;
 typedef fptype fptype_sv;
+typedef fptype2 fptype2_sv;
 typedef cxtype cxtype_sv;
 typedef mgOnGpu::cxtype_ref cxtype_sv_ref;
 #endif
