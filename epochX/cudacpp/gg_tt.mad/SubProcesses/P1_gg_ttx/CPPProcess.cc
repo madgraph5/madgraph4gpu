@@ -280,12 +280,14 @@ namespace mg5amcCpu
       // Sum and square the color flows to get the matrix element
       // (compute |M|^2 by squaring |M|, taking into account colours)
       fptype_sv deltaMEs = { 0 }; // all zeros https://en.cppreference.com/w/c/language/array_initialization#Notes
-      // Use the property that M is a real matrix:
-      // we can rewrite the quadratic form (A-iB)(M)(A+iB) as AMA - iBMA + iBMA + BMB = AMA + BMB (see #475)
-      // In addition, use the property that M is symmetric:
-      // we gain a factor 2 in speed here as we only loop over the up diagonal part of the matrix! (see #475)
+      // Use the property that M is a real matrix (see #475):
+      // we can rewrite the quadratic form (A-iB)(M)(A+iB) as AMA - iBMA + iBMA + BMB = AMA + BMB
       for( int icol = 0; icol < ncolor; icol++ )
       {
+        // In addition, for C++ use the property that M is symmetric (see #475):
+        // we gain (a factor 2?) in speed here as we only loop over the up diagonal part of the matrix!
+        // For CUDA, the old implementation is (surprisingly?!) faster expecially for complex physics and large grids
+#ifndef __CUDACC__
         // Diagonal terms
         fptype_sv jampRi_sv = cxreal( jamp_sv[icol] );
         fptype_sv jampIi_sv = cximag( jamp_sv[icol] );
@@ -300,6 +302,12 @@ namespace mg5amcCpu
           ztempI_sv += 2 * cf[icol][jcol] * jampIj_sv;
         }
         deltaMEs += ( jampRi_sv * ztempR_sv + jampIi_sv * ztempI_sv ) / denom[icol];
+#else
+        cxtype_sv ztemp_sv = cxzero_sv();
+        for( int jcol = 0; jcol < ncolor; jcol++ )
+          ztemp_sv += cf[icol][jcol] * jamp_sv[jcol];
+        deltaMEs += ( cxreal( ztemp_sv ) * cxreal( jamp_sv[icol] ) + cximag( ztemp_sv ) * cximag( jamp_sv[icol] ) ) / denom[icol];
+#endif
       }
 
       // *** STORE THE RESULTS ***
