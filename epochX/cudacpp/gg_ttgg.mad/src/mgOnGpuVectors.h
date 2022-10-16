@@ -655,15 +655,26 @@ namespace mgOnGpu /* clang-format off */
 
 #ifdef MGONGPU_CPPSIMD
 
-inline fptype2_v
-fpvmerge( const fptype_v& v1, const fptype_v& v2 )
+inline fptype2_v // output: one float vector with 2*neppV elements
+fpvmerge( const fptype_v& dv1, const fptype_v& dv2 ) // input: two double vectors with neppV elements
 {
   fptype2_v out;
+  /*
   for( int ieppV = 0; ieppV < neppV; ieppV++ )
   {
     out[ieppV] = v1[ieppV];
     out[ieppV+neppV] = v2[ieppV];
   }
+  */
+#ifdef __clang__
+  typedef fptype2 fptype2_vd __attribute__( ( ext_vector_type( neppV ) ) ); // RRRR (not RRRRRRRR)
+#else
+  typedef fptype2 fptype2_vd __attribute__( ( vector_size( neppV * sizeof( fptype2 ) ) ) ); // RRRR (not RRRRRRRR)
+#endif
+  //fptype2_vd fvd1 = (fptype2_vd)( dv1 );
+  fptype2_vd fvd1 = dv1;
+  reinterpret_cast<fptype2_vd*>( out ) = (fptype2_vd)( dv1 );
+  reinterpret_cast<fptype2_vd*>( out+neppV ) = (fptype2_vd)( dv2 );
   // == MAYBE FOR GCC12? START
   //#ifdef __clang__
   //typedef int int2_v __attribute__( ( ext_vector_type( neppV2 ) ) ); // RRRRRRRR
