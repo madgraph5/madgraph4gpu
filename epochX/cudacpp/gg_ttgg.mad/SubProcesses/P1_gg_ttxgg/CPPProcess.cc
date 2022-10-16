@@ -2438,12 +2438,16 @@ namespace mg5amcCpu
           ztempR_sv += cf2.value[icol][jcol] * jampRj_sv;
           ztempI_sv += cf2.value[icol][jcol] * jampIj_sv;
         }
-        deltaMEs += ( jampRi_sv * ztempR_sv + jampIi_sv * ztempI_sv );
+        deltaMEs += ( ztempR_sv * jampRi_sv + ztempI_sv * jampIi_sv );
 #else
-        cxtype_sv ztemp_sv = cxzero_sv();
+        fptype_sv ztempR_sv = { 0 };
+        fptype_sv ztempI_sv = { 0 };
         for( int jcol = 0; jcol < ncolor; jcol++ )
-          ztemp_sv += cf[icol][jcol] * jamp_sv[jcol];
-        deltaMEs += ( cxreal( ztemp_sv ) * cxreal( jamp_sv[icol] ) + cximag( ztemp_sv ) * cximag( jamp_sv[icol] ) ) / denom[icol];
+        {
+          ztempR_sv += cf[icol][jcol] * cxreal( jamp_sv[jcol] );
+          ztempI_sv += cf[icol][jcol] * cximag( jamp_sv[jcol] );
+        }
+        deltaMEs += ( ztempR_sv * cxreal( jamp_sv[icol] ) + ztempI_sv * cximag( jamp_sv[icol] ) ) / denom[icol];
 #endif
       }
 
