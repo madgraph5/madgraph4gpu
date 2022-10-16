@@ -17,20 +17,12 @@
 ////#define MGONGPU_HAS_NO_CURAND 1
 #endif
 
-// Choose floating point precision (for everything but color algebra #537)
+// Choose floating point precision
 // If one of these macros has been set from outside with e.g. -DMGONGPU_FPTYPE_FLOAT, nothing happens (issue #167)
 #if not defined MGONGPU_FPTYPE_DOUBLE and not defined MGONGPU_FPTYPE_FLOAT
 // Floating point precision (CHOOSE ONLY ONE)
-#define MGONGPU_FPTYPE_DOUBLE 1 // default
-//#define MGONGPU_FPTYPE_FLOAT 1 // 2x faster
-#endif
-
-// Choose floating point precision (for color algebra alone #537)
-// If one of these macros has been set from outside with e.g. -DMGONGPU_FPTYPE2_FLOAT, nothing happens (issue #167)
-#if not defined MGONGPU_FPTYPE2_DOUBLE and not defined MGONGPU_FPTYPE2_FLOAT
-// Floating point precision (CHOOSE ONLY ONE)
-#define MGONGPU_FPTYPE2_DOUBLE 1 // default
-//#define MGONGPU_FPTYPE2_FLOAT 1 // 2x faster
+#define MGONGPU_FPTYPE_DOUBLE 1 // default (~6.8E8)
+//#define MGONGPU_FPTYPE_FLOAT 1 // 2.4x faster (~1.64E9 against 6.8E8)
 #endif
 
 // Choose whether to inline all HelAmps functions
@@ -66,17 +58,9 @@
 //#define MGONGPU_NSIGHT_DEBUG 1
 #endif
 
-// SANITY CHECKS (floating point precision for everything but color algebra #537)
+// SANITY CHECKS (floating point precision)
 #if defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE_FLOAT
 #error You must CHOOSE (ONE AND) ONLY ONE of MGONGPU_FPTYPE_DOUBLE or defined MGONGPU_FPTYPE_FLOAT
-#endif
-
-// SANITY CHECKS (floating point precision for color algebra alone #537)
-#if defined MGONGPU_FPTYPE2_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
-#error You must CHOOSE (ONE AND) ONLY ONE of MGONGPU_FPTYPE2_DOUBLE or defined MGONGPU_FPTYPE2_FLOAT
-#endif
-#if defined MGONGPU_FPTYPE2_DOUBLE and defined MGONGPU_FPTYPE_FLOAT
-#error You cannot use double precision for color algebra and single precision elsewhere
 #endif
 
 // SANITY CHECKS (c++ complex number implementation)
@@ -98,18 +82,11 @@ namespace mgOnGpu
 
   // --- Type definitions
 
-  // Floating point type (for everything but color algebra #537): fptype
+  // Floating point type: fptype
 #if defined MGONGPU_FPTYPE_DOUBLE
   typedef double fptype; // double precision (8 bytes, fp64)
 #elif defined MGONGPU_FPTYPE_FLOAT
   typedef float fptype; // single precision (4 bytes, fp32)
-#endif
-
-  // Floating point type (for color algebra alone #537): fptype2
-#if defined MGONGPU_FPTYPE2_DOUBLE
-  typedef double fptype2; // double precision (8 bytes, fp64)
-#elif defined MGONGPU_FPTYPE2_FLOAT
-  typedef float fptype2; // single precision (4 bytes, fp32)
 #endif
 
   // --- Physics process-specific constants that are best declared at compile time
@@ -150,7 +127,6 @@ namespace mgOnGpu
 
 // Expose typedefs and operators outside the namespace
 using mgOnGpu::fptype;
-using mgOnGpu::fptype2;
 
 // C++ SIMD vectorization width (this will be used to set neppV)
 #ifdef __CUDACC__ // CUDA implementation has no SIMD
