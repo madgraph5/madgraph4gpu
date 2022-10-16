@@ -2362,11 +2362,11 @@ namespace mg5amcCpu
 
       // The color denominators (initialize all array elements, with ncolor=24)
       // [NB do keep 'static' for these constexpr arrays, see issue #283]
-      static constexpr fptype denom[ncolor] = { 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54 }; // 1-D array[24]
+      static constexpr fptype2 denom[ncolor] = { 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54 }; // 1-D array[24]
 
       // The color matrix (initialize all array elements, with ncolor=24)
       // [NB do keep 'static' for these constexpr arrays, see issue #283]
-      static constexpr fptype cf[ncolor][ncolor] = {
+      static constexpr fptype2 cf[ncolor][ncolor] = {
         { 512, -64, -64, 8, 8, 80, -64, 8, 8, -1, -1, -10, 8, -1, 80, -10, 71, 62, -1, -10, -10, 62, 62, -28 },
         { -64, 512, 8, 80, -64, 8, 8, -64, -1, -10, 8, -1, -1, -10, -10, 62, 62, -28, 8, -1, 80, -10, 71, 62 },
         { -64, 8, 512, -64, 80, 8, 8, -1, 80, -10, 71, 62, -64, 8, 8, -1, -1, -10, -10, -1, 62, -28, -10, 62 },
@@ -2441,12 +2441,14 @@ namespace mg5amcCpu
         }
         deltaMEs += ( ztempR_sv * jampRi_sv + ztempI_sv * jampIi_sv );
 #else
-        fptype_sv ztempR_sv = { 0 };
-        fptype_sv ztempI_sv = { 0 };
+        fptype2_sv ztempR_sv = { 0 };
+        fptype2_sv ztempI_sv = { 0 };
         for( int jcol = 0; jcol < ncolor; jcol++ )
         {
-          ztempR_sv += cf[icol][jcol] * cxreal( jamp_sv[jcol] );
-          ztempI_sv += cf[icol][jcol] * cximag( jamp_sv[jcol] );
+          fptype2_sv jampRj_sv = cxreal( jamp_sv[jcol] );
+          fptype2_sv jampIj_sv = cximag( jamp_sv[jcol] );
+          ztempR_sv += cf[icol][jcol] * jampRj_sv;
+          ztempI_sv += cf[icol][jcol] * jampIj_sv;
         }
         deltaMEs += ( ztempR_sv * cxreal( jamp_sv[icol] ) + ztempI_sv * cximag( jamp_sv[icol] ) ) / denom[icol];
 #endif
