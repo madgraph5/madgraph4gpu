@@ -2441,7 +2441,6 @@ namespace mg5amcCpu
         }
         deltaMEs += ( ztempR_sv * jampRi_sv + ztempI_sv * jampIi_sv );
 #else
-        /*
         fptype2_sv ztempR_sv = { 0 };
         fptype2_sv ztempI_sv = { 0 };
         for( int jcol = 0; jcol < ncolor; jcol++ )
@@ -2452,21 +2451,6 @@ namespace mg5amcCpu
           ztempI_sv += cf[icol][jcol] * jampIj_sv;
         }
         deltaMEs += ( ztempR_sv * cxreal( jamp_sv[icol] ) + ztempI_sv * cximag( jamp_sv[icol] ) ) / denom[icol];
-        */
-        // Diagonal terms
-        fptype2_sv jampRi_sv = cxreal( jamp_sv[icol] );
-        fptype2_sv jampIi_sv = cximag( jamp_sv[icol] );
-        fptype2_sv ztempR_sv = cf[icol][icol] * jampRi_sv;
-        fptype2_sv ztempI_sv = cf[icol][icol] * jampIi_sv;
-        // Off-diagonal terms
-        for( int jcol = icol + 1; jcol < ncolor; jcol++ )
-        {
-          fptype2_sv jampRj_sv = cxreal( jamp_sv[jcol] );
-          fptype2_sv jampIj_sv = cximag( jamp_sv[jcol] );
-          ztempR_sv += 2 * cf[icol][jcol] * jampRj_sv;
-          ztempI_sv += 2 * cf[icol][jcol] * jampIj_sv;
-        }
-        deltaMEs += ( ztempR_sv * jampRi_sv + ztempI_sv * jampIi_sv ) / denom[icol];
 #endif
       }
 
