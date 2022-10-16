@@ -67,8 +67,8 @@ elif [ "$table" == "ggttgg" ]; then
   fpts="d f"
 elif [ "$table" == "ggttggg" ]; then
   procs="ggttggg"
-  ###mrevs="$mrevs 1efee04"  # cuda117/gcc112  (13 Oct 2022 itscrd70)  ICHEP2022 (gave ggttgg results only)
-  mrevs="$mrevs f64a68e"  # cuda117/gcc112  (15 Oct 2022 itscrd70)  add hack1 MLM
+  mrevs="$mrevs 1efee04"  # cuda117/gcc112  (13 Oct 2022 itscrd70)  ICHEP2022 (gave ggttgg results only)
+  ###mrevs="$mrevs f64a68e"  # cuda117/gcc112  (15 Oct 2022 itscrd70)  add hack1 MLM
   ###mrevs="$mrevs f718e74"  # cuda117/gcc112  (15 Oct 2022 itscrd70)  add hack2 symmetric matrix
   taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/8192 CUDA/max $cuda8tpb"
   fpts="d f"
