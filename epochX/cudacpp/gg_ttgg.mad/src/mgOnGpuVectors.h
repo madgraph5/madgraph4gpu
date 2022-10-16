@@ -649,6 +649,48 @@ namespace mgOnGpu /* clang-format off */
 
 #endif // #ifdef MGONGPU_CPPSIMD
 
+//--------------------------------------------------------------------------
+
+// Functions and operators for fptype2_v
+
+#ifdef MGONGPU_CPPSIMD
+
+inline fptype2_v
+fpvmerge( const fptype_v& v1, const fptype_v& v2 )
+{
+  fptype2_v out;
+  for( int ieppV = 0; ieppV < neppV; ieppV++ )
+  {
+    out[ieppV] = v1[ieppV];
+    out[ieppV+neppV] = v2[ieppV];
+  }
+  return out;
+}
+
+inline fptype_v
+fpvsplit0( const fptype2_v& v )
+{
+  fptype_v out;
+  for( int ieppV = 0; ieppV < neppV; ieppV++ )
+  {
+    out[ieppV] = v[ieppV];
+  }
+  return out;
+}
+
+inline fptype_v
+fpvsplit1( const fptype2_v& v )
+{
+  fptype_v out;
+  for( int ieppV = 0; ieppV < neppV; ieppV++ )
+  {
+    out[ieppV] = v[ieppV+neppV];
+  }
+  return out;
+}
+
+#endif // #ifdef MGONGPU_CPPSIMD
+
 #endif // #ifndef __CUDACC__
 
 //==========================================================================
