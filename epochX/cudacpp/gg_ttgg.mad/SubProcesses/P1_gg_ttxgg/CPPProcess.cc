@@ -2402,15 +2402,19 @@ namespace mg5amcCpu
       for( int icol = 0; icol < ncolor; icol++ )
       {
         // Diagonal terms
-        fptype_sv ztempR_sv = cf[icol][icol] * cxreal( jamp_sv[icol] );
-        fptype_sv ztempI_sv = cf[icol][icol] * cximag( jamp_sv[icol] );
+        fptype_sv jampRi_sv = cxreal( jamp_sv[icol] );
+        fptype_sv jampIi_sv = cximag( jamp_sv[icol] );
+        fptype_sv ztempR_sv = cf[icol][icol] * jampRi_sv;
+        fptype_sv ztempI_sv = cf[icol][icol] * jampIi_sv;
         // Off-diagonal terms
         for( int jcol = icol + 1; jcol < ncolor; jcol++ )
         {
-          ztempR_sv += 2 * cf[icol][jcol] * cxreal( jamp_sv[jcol] );
-          ztempI_sv += 2 * cf[icol][jcol] * cximag( jamp_sv[jcol] );
+          fptype_sv jampRj_sv = cxreal( jamp_sv[jcol] );
+          fptype_sv jampIj_sv = cximag( jamp_sv[jcol] );
+          ztempR_sv += 2 * cf[icol][jcol] * jampRj_sv;
+          ztempI_sv += 2 * cf[icol][jcol] * jampIj_sv;
         }
-        deltaMEs += ( ztempR_sv * cxreal( jamp_sv[icol] ) + ztempI_sv * cximag( jamp_sv[icol] ) ) / denom[icol];
+        deltaMEs += ( jampRi_sv * ztempR_sv + jampIi_sv * ztempI_sv ) / denom[icol];
       }
 
       // *** STORE THE RESULTS ***
