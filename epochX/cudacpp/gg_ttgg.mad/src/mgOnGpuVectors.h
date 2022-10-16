@@ -54,10 +54,8 @@ namespace mgOnGpu /* clang-format off */
   static_assert( ispoweroftwo( neppV2 ), "neppV2 is not a power of 2" );
 #ifdef __clang__
   typedef fptype2 fptype2_v __attribute__( ( ext_vector_type( neppV2 ) ) ); // RRRRRRRR
-  typedef int int2_v __attribute__( ( ext_vector_type( neppV2 ) ) ); // RRRRRRRR
 #else
   typedef fptype2 fptype2_v __attribute__( ( vector_size( neppV2 * sizeof( fptype2 ) ) ) ); // RRRRRRRR
-  typedef int int2_v __attribute__( ( vector_size( neppV2 * sizeof( fptype2 ) ) ) ); // RRRRRRRR
 #endif
 #else
   typedef fptype_v fptype2_v;
@@ -120,9 +118,6 @@ using mgOnGpu::neppV;
 #ifdef MGONGPU_CPPSIMD
 using mgOnGpu::fptype_v;
 using mgOnGpu::fptype2_v;
-#if defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
-using mgOnGpu::int2_v;
-#endif
 using mgOnGpu::cxtype_v;
 using mgOnGpu::bool_v;
 #endif
@@ -663,22 +658,27 @@ namespace mgOnGpu /* clang-format off */
 inline fptype2_v
 fpvmerge( const fptype_v& v1, const fptype_v& v2 )
 {
-  /*
   fptype2_v out;
   for( int ieppV = 0; ieppV < neppV; ieppV++ )
   {
     out[ieppV] = v1[ieppV];
     out[ieppV+neppV] = v2[ieppV];
   }
-  */
-#if MGONGPU_CPPSIMD == 2
-  constexpr int2_v mask2to1 = { 0, 1, 2, 3 };
-#elif MGONGPU_CPPSIMD == 4
-  constexpr int2_v mask2to1 = { 0, 1, 2, 3, 4, 5, 6, 7 };
-#elif MGONGPU_CPPSIMD == 8
-  constexpr int2_v mask2to1 = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
-#endif
-  fptype2_v out = __builtin_shufflevector( v1, v2, mask2to1 );
+  // == MAYBE FOR GCC12? START
+  //#ifdef __clang__
+  //typedef int int2_v __attribute__( ( ext_vector_type( neppV2 ) ) ); // RRRRRRRR
+  //#else
+  //typedef int int2_v __attribute__( ( vector_size( neppV2 * sizeof( fptype2 ) ) ) ); // RRRRRRRR
+  //#endif
+  //#if MGONGPU_CPPSIMD == 2
+  //constexpr int2_v mask2to1 = { 0, 1, 2, 3 };
+  //#elif MGONGPU_CPPSIMD == 4
+  //constexpr int2_v mask2to1 = { 0, 1, 2, 3, 4, 5, 6, 7 };
+  //#elif MGONGPU_CPPSIMD == 8
+  //constexpr int2_v mask2to1 = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+  //#endif
+  //fptype2_v out = __builtin_shufflevector( v1, v2, mask2to1 );
+  // == MAYBE FOR GCC12? END
   return out;
 }
 
