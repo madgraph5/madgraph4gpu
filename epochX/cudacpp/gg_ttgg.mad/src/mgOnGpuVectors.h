@@ -653,7 +653,7 @@ namespace mgOnGpu /* clang-format off */
 
 // Functions and operators for fptype2_v
 
-#ifdef MGONGPU_CPPSIMD
+#if defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
 
 inline fptype2_v // output: one float vector with 2*neppV elements
 fpvmerge( const fptype_v& dv1, const fptype_v& dv2 ) // input: two double vectors with neppV elements
