@@ -656,7 +656,7 @@ namespace mgOnGpu /* clang-format off */
 #if defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
 
 inline fptype2_v // output: one float vector with 2*neppV elements
-fpvmerge( const fptype_v& dv1, const fptype_v& dv2 ) // input: two double vectors with neppV elements
+fpvmerge( const fptype_v& v1, const fptype_v& v2 ) // input: two double vectors with neppV elements
 {
   // This code is inefficient! It makes mixed precision FFV/color useless (slower) on C++.
   // I considered various alternatives, including
@@ -665,12 +665,30 @@ fpvmerge( const fptype_v& dv1, const fptype_v& dv2 ) // input: two double vector
   // Probably the best solution is intrinsics?
   // - see https://stackoverflow.com/questions/5139363
   // - see https://stackoverflow.com/questions/54518744
+  /*
   fptype2_v out;
   for( int ieppV = 0; ieppV < neppV; ieppV++ )
   {
     out[ieppV] = v1[ieppV];
     out[ieppV+neppV] = v2[ieppV];
   }
+  return out;
+  */
+#if MGONGPU_CPPSIMD == 2
+  fptype2_v out = 
+    { (fptype2)v1[0], (fptype2)v1[1],
+      (fptype2)v2[0], (fptype2)v2[1] };
+#elif MGONGPU_CPPSIMD == 4
+  fptype2_v out = 
+    { (fptype2)v1[0], (fptype2)v1[1], (fptype2)v1[2], (fptype2)v1[3],
+      (fptype2)v2[0], (fptype2)v2[1], (fptype2)v2[2], (fptype2)v2[3] };
+#elif MGONGPU_CPPSIMD == 4
+  fptype2_v out =
+    { (fptype2)v1[0], (fptype2)v1[1], (fptype2)v1[2], (fptype2)v1[3],
+      (fptype2)v1[4], (fptype2)v1[5], (fptype2)v1[6], (fptype2)v1[7],
+      (fptype2)v2[0], (fptype2)v2[1], (fptype2)v2[2], (fptype2)v2[3],
+      (fptype2)v2[4], (fptype2)v2[5], (fptype2)v2[6], (fptype2)v2[7] };
+#endif
   return out;
 }
 
