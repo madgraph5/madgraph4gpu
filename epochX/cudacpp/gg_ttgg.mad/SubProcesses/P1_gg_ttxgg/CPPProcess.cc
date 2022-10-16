@@ -158,6 +158,12 @@ namespace mg5amcCpu
     // === Calculate wavefunctions and amplitudes for all diagrams in all processes - Loop over nevt events ===
 #ifndef __CUDACC__
     const int npagV = nevt / neppV;
+#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+    // Mixed fptypes #537: float for color algebra and double elsewhere
+    cxtype_sv jamp_sv_previous[ncolor] = {}; // mixed fptypes: delay computing color algebra (only on even pages)
+    fptype* MEs_previous = 0; // mixed fptypes: delay updating MEs (only on even pages)
+    assert( npagV % 2 == 0 ); // SANITY CHECK for mixed fptypes: two neppV pages are merged to one neppV2 page
+#endif
     // ** START LOOP ON IPAGV **
 #ifdef _OPENMP
     // (NB gcc9 or higher, or clang, is required)
@@ -2409,9 +2415,20 @@ namespace mg5amcCpu
               value[icol][jcol] = 2 * cf[icol][jcol] / denom[icol];
           }
         }
-        fptype value[ncolor][ncolor];
+        fptype2 value[ncolor][ncolor];
       };
       static constexpr auto cf2 = TriangularNormalizedColorMatrix();
+#endif
+
+#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+      if ( ipagV % 2 == 0 ) // NB: first page is 0! skip even pages, compute on odd pages
+      {
+        for( int icol = 0; icol < ncolor; icol++ )
+          jamp_sv_previous[icol] = jamp_sv[icol]; // mixed fptypes: delay color algebra to next (odd) ipagV
+        MEs_previous = MEs; // mixed fptypes: delay ME updates to next (odd) ipagV
+        continue; // go to next ipagV in the loop: skip color algebra and ME update on odd pages
+      }
+      fptype_sv deltaMEs_previous = { 0 };
 #endif
 
       // Sum and square the color flows to get the matrix element
@@ -2426,21 +2443,57 @@ namespace mg5amcCpu
       for( int icol = 0; icol < ncolor; icol++ )
       {
 #ifndef __CUDACC__
+        // === C++ START ===
         // Diagonal terms
-        fptype_sv jampRi_sv = cxreal( jamp_sv[icol] );
-        fptype_sv jampIi_sv = cximag( jamp_sv[icol] );
-        fptype_sv ztempR_sv = cf2.value[icol][icol] * jampRi_sv;
-        fptype_sv ztempI_sv = cf2.value[icol][icol] * jampIi_sv;
+#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+        fptype2_sv jampRi_sv = { 0 };
+        fptype2_sv jampIi_sv = { 0 };
+        for( int ieppV = 0; ieppV < neppV; ieppV++ )
+        {
+          jampRi_sv[ieppV] = cxreal( jamp_sv_previous[icol] )[ieppV];
+          jampRi_sv[ieppV+neppV] = cxreal( jamp_sv[icol] )[ieppV];
+          jampIi_sv[ieppV] = cximag( jamp_sv_previous[icol] )[ieppV];
+          jampIi_sv[ieppV+neppV] = cximag( jamp_sv[icol] )[ieppV];
+        }
+#else
+        fptype2_sv jampRi_sv = ( fptype2_sv )( cxreal( jamp_sv[icol] ) );
+        fptype2_sv jampIi_sv = ( fptype2_sv )( cximag( jamp_sv[icol] ) );
+#endif
+        fptype2_sv ztempR_sv = cf2.value[icol][icol] * jampRi_sv;
+        fptype2_sv ztempI_sv = cf2.value[icol][icol] * jampIi_sv;
         // Off-diagonal terms
         for( int jcol = icol + 1; jcol < ncolor; jcol++ )
         {
-          fptype_sv jampRj_sv = cxreal( jamp_sv[jcol] );
-          fptype_sv jampIj_sv = cximag( jamp_sv[jcol] );
+#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+          fptype2_sv jampRj_sv = { 0 };
+          fptype2_sv jampIj_sv = { 0 };
+          for( int ieppV = 0; ieppV < neppV; ieppV++ )
+          {
+            jampRj_sv[ieppV] = cxreal( jamp_sv_previous[jcol] )[ieppV];
+            jampRj_sv[ieppV+neppV] = cxreal( jamp_sv[jcol] )[ieppV];
+            jampIj_sv[ieppV] = cximag( jamp_sv_previous[jcol] )[ieppV];
+            jampIj_sv[ieppV+neppV] = cximag( jamp_sv[jcol] )[ieppV];
+          }
+#else
+          fptype2_sv jampRj_sv = ( fptype2_sv )( cxreal( jamp_sv[jcol] ) );
+          fptype2_sv jampIj_sv = ( fptype2_sv )( cximag( jamp_sv[jcol] ) );
+#endif
           ztempR_sv += cf2.value[icol][jcol] * jampRj_sv;
           ztempI_sv += cf2.value[icol][jcol] * jampIj_sv;
         }
-        deltaMEs += ( ztempR_sv * jampRi_sv + ztempI_sv * jampIi_sv );
+        fptype2_sv deltaMEs2 = ( jampRi_sv * ztempR_sv + jampIi_sv * ztempI_sv );
+#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+        for( int ieppV = 0; ieppV < neppV; ieppV++ )
+        {
+          deltaMEs_previous[ieppV] += deltaMEs2[ieppV];
+          deltaMEs[ieppV] += deltaMEs2[neppV+ieppV];
+        }
 #else
+        deltaMEs += deltaMEs2;
+#endif
+        // === C++ END ===
+#else
+        // === CUDA START ===
         fptype2_sv ztempR_sv = { 0 };
         fptype2_sv ztempI_sv = { 0 };
         for( int jcol = 0; jcol < ncolor; jcol++ )
@@ -2451,6 +2504,7 @@ namespace mg5amcCpu
           ztempI_sv += cf[icol][jcol] * jampIj_sv;
         }
         deltaMEs += ( ztempR_sv * cxreal( jamp_sv[icol] ) + ztempI_sv * cximag( jamp_sv[icol] ) ) / denom[icol];
+        // === CUDA END ===
 #endif
       }
 
@@ -2465,6 +2519,10 @@ namespace mg5amcCpu
       // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
       fptype_sv& MEs_sv = E_ACCESS::kernelAccess( MEs );
       MEs_sv += deltaMEs; // fix #435
+#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+      fptype_sv& MEs_sv_previous = E_ACCESS::kernelAccess( MEs_previous );
+      MEs_sv_previous += deltaMEs_previous;
+#endif
       /*
 #ifdef __CUDACC__
       if ( cNGoodHel > 0 ) printf( "calculate_wavefunctions: ievt=%6d ihel=%2d me_running=%f\n", blockDim.x * blockIdx.x + threadIdx.x, ihel, MEs_sv );
