@@ -29993,29 +29993,64 @@ namespace mg5amcCpu
         { -116, 442, 442, -134, -134, 505, -44, -134, 28, -224, -62, 496, -53, 19, -62, 496, 10, -80, -62, -71, 10, -80, 1, -8, 136, -116, -116, -44, -44, 514, -116, 442, -44, 28, -53, -62, -44, -53, 514, -62, 100, 10, 28, -62, -62, 10, 10, 1, 514, 505, -62, 496, -71, 568, -44, -134, -53, -62, 19, -71, 10, -80, 100, 10, 640, -80, 1, -8, 10, 1, 64, -8, -62, -71, 10, -80, 1, -8, 28, -62, -62, 10, 10, 1, 1, -8, 10, 1, 64, -8, -8, 64, -80, -8, -512, 64, 496, 568, -80, 640, -8, 64, -224, 496, 496, -80, -80, -8, -8, 64, -80, -8, -512, 64, 64, -512, 640, 64, 4096, -512 },
         { 136, -116, -116, -44, -44, 514, -116, 442, -44, 28, -53, -62, -44, -53, 514, -62, 100, 10, 28, -62, -62, 10, 10, 1, -116, 442, 442, -134, -134, 505, -44, -134, 28, -224, -62, 496, -53, 19, -62, 496, 10, -80, -62, -71, 10, -80, 1, -8, -44, -134, -53, -62, 19, -71, 514, 505, -62, 496, -71, 568, 100, 10, 10, -80, -80, 640, 10, 1, 1, -8, -8, 64, 28, -62, -62, 10, 10, 1, -62, -71, 10, -80, 1, -8, 10, 1, 1, -8, -8, 64, -80, -8, -8, 64, 64, -512, -224, 496, 496, -80, -80, -8, 496, 568, -80, 640, -8, 64, -80, -8, -8, 64, 64, -512, 640, 64, 64, -512, -512, 4096 } }; // 2-D array[120][120]
 
+#ifndef __CUDACC__
+      // Pre-compute a constexpr triangular color matrix properly normalized #475
+      struct TriangularNormalizedColorMatrix
+      {
+        // See https://stackoverflow.com/a/34465458
+        __host__ __device__ constexpr TriangularNormalizedColorMatrix()
+          : value()
+        {
+          for( int icol = 0; icol < ncolor; icol++ )
+          {
+            // Diagonal terms
+            value[icol][icol] = cf[icol][icol] / denom[icol];
+            // Off-diagonal terms
+            for( int jcol = icol + 1; jcol < ncolor; jcol++ )
+              value[icol][jcol] = 2 * cf[icol][jcol] / denom[icol];
+          }
+        }
+        fptype value[ncolor][ncolor];
+      };
+      static constexpr auto cf2 = TriangularNormalizedColorMatrix();
+#endif
+
       // Sum and square the color flows to get the matrix element
       // (compute |M|^2 by squaring |M|, taking into account colours)
       fptype_sv deltaMEs = { 0 }; // all zeros https://en.cppreference.com/w/c/language/array_initialization#Notes
-      // Use the property that M is a real matrix:
-      // we can rewrite the quadratic form (A-iB)(M)(A+iB) as AMA - iBMA + iBMA + BMB = AMA + BMB (see #475)
-      // In addition, use the property that M is symmetric:
-      // we gain a factor 2 in speed here as we only loop over the up diagonal part of the matrix! (see #475)
+      // Use the property that M is a real matrix (see #475):
+      // we can rewrite the quadratic form (A-iB)(M)(A+iB) as AMA - iBMA + iBMA + BMB = AMA + BMB
+      // In addition, on C++ use the property that M is symmetric (see #475),
+      // and also use constexpr to compute "2*" and "/denom[icol]" once and for all at compile time:
+      // we gain (not a factor 2...) in speed here as we only loop over the up diagonal part of the matrix.
+      // Strangely, CUDA is slower instead, so keep the old implementation for the moment.
       for( int icol = 0; icol < ncolor; icol++ )
       {
+#ifndef __CUDACC__
         // Diagonal terms
         fptype_sv jampRi_sv = cxreal( jamp_sv[icol] );
         fptype_sv jampIi_sv = cximag( jamp_sv[icol] );
-        fptype_sv ztempR_sv = cf[icol][icol] * jampRi_sv;
-        fptype_sv ztempI_sv = cf[icol][icol] * jampIi_sv;
+        fptype_sv ztempR_sv = cf2.value[icol][icol] * jampRi_sv;
+        fptype_sv ztempI_sv = cf2.value[icol][icol] * jampIi_sv;
         // Off-diagonal terms
         for( int jcol = icol + 1; jcol < ncolor; jcol++ )
         {
           fptype_sv jampRj_sv = cxreal( jamp_sv[jcol] );
           fptype_sv jampIj_sv = cximag( jamp_sv[jcol] );
-          ztempR_sv += 2 * cf[icol][jcol] * jampRj_sv;
-          ztempI_sv += 2 * cf[icol][jcol] * jampIj_sv;
+          ztempR_sv += cf2.value[icol][jcol] * jampRj_sv;
+          ztempI_sv += cf2.value[icol][jcol] * jampIj_sv;
         }
-        deltaMEs += ( jampRi_sv * ztempR_sv + jampIi_sv * ztempI_sv ) / denom[icol];
+        deltaMEs += ( ztempR_sv * jampRi_sv + ztempI_sv * jampIi_sv );
+#else
+        fptype_sv ztempR_sv = { 0 };
+        fptype_sv ztempI_sv = { 0 };
+        for( int jcol = 0; jcol < ncolor; jcol++ )
+        {
+          ztempR_sv += cf[icol][jcol] * cxreal( jamp_sv[jcol] );
+          ztempI_sv += cf[icol][jcol] * cximag( jamp_sv[jcol] );
+        }
+        deltaMEs += ( ztempR_sv * cxreal( jamp_sv[icol] ) + ztempI_sv * cximag( jamp_sv[icol] ) ) / denom[icol];
+#endif
       }
 
       // *** STORE THE RESULTS ***

@@ -22,6 +22,7 @@ if [ "$1" == "-ALL" ] && [ "$2" == "" ]; then
   $0 -juwels
   $0 -ichep22
   $0 -ggttgg
+  $0 -ggttggg
   exit 0
 elif [ "$1" == "-default" ]; then
   table="default"; shift
@@ -31,8 +32,10 @@ elif [ "$1" == "-ichep22" ]; then
   table="ichep22"; shift
 elif [ "$1" == "-ggttgg" ]; then
   table="ggttgg"; shift
+elif [ "$1" == "-ggttggg" ]; then
+  table="ggttggg"; shift
 else
-  echo "Usage: $0 [--long] <table [-ALL|-default|-juwels|-ichep22|-ggttgg]>"; exit 1
+  echo "Usage: $0 [--long] <table [-ALL|-default|-juwels|-ichep22|-ggttgg|-ggttggg]>"; exit 1
 fi
 
 # Select revisions and characteristics of mad logs
@@ -58,7 +61,18 @@ elif [ "$table" == "ichep22" ]; then
 elif [ "$table" == "ggttgg" ]; then
   procs="ggttgg"
   ###mrevs="$mrevs 1efee04"  # cuda117/gcc112  (13 Oct 2022 itscrd70)  ICHEP2022table GPU
-  mrevs="$mrevs f64a68e"  # cuda117/gcc112  (15 Oct 2022 itscrd70)  add hackathon MLM
+  ###mrevs="$mrevs f64a68e"  # cuda117/gcc112  (15 Oct 2022 itscrd70)  add hack1/MLM (NB: no ggttggg here!)
+  ###mrevs="$mrevs f718e74"  # cuda117/gcc112  (15 Oct 2022 itscrd70)  add hack2/symmetricmatrix(cuda/c++)
+  ###mrevs="$mrevs d95e49c9"  # cuda117/gcc112  (16 Oct 2022 itscrd70)  modify hack2/symmetricmatrix(c++ only)
+  mrevs="$mrevs 48e2012b"  # cuda117/gcc112  (16 Oct 2022 itscrd70)  modify hack2/constexpr(c++ only)
+  taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/8192 CUDA/max $cuda8tpb"
+  fpts="d f"
+elif [ "$table" == "ggttggg" ]; then
+  procs="ggttggg"
+  ###mrevs="$mrevs 1efee04"  # cuda117/gcc112  (13 Oct 2022 itscrd70)  ICHEP2022 (gave ggttgg results only)
+  ###mrevs="$mrevs f718e74"  # cuda117/gcc112  (15 Oct 2022 itscrd70)  add hack1/MLM and hack2/symmetricmatrix(cuda/c++)
+  ###mrevs="$mrevs d95e49c9"  # cuda117/gcc112  (16 Oct 2022 itscrd70)  modify hack2/symmetricmatrix(c++ only)
+  mrevs="$mrevs 48e2012b"  # cuda117/gcc112  (16 Oct 2022 itscrd70)  modify hack2/constexpr(c++ only)
   taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/8192 CUDA/max $cuda8tpb"
   fpts="d f"
 fi
