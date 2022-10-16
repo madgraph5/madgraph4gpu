@@ -2397,7 +2397,8 @@ namespace mg5amcCpu
       struct TriangularNormalizedColorMatrix
       {
         // See https://stackoverflow.com/a/34465458
-        __host__ __device__ constexpr TriangularNormalizedColorMatrix() : value()
+        __host__ __device__ constexpr TriangularNormalizedColorMatrix()
+          : value()
         {
           for( int icol = 0; icol < ncolor; icol++ )
           {
