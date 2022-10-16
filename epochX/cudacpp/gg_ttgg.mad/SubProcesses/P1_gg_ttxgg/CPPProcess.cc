@@ -2421,8 +2421,7 @@ namespace mg5amcCpu
         cxtype_sv ztemp_sv = cxzero_sv();
         for( int jcol = 0; jcol < ncolor; jcol++ )
           ztemp_sv += cf[icol][jcol] * jamp_sv[jcol];
-        deltaMEs += ( cxreal( ztemp_sv ) * cxreal( jamp_sv[icol] ) +
-                      cximag( ztemp_sv ) * cximag( jamp_sv[icol] ) ) / denom[icol];
+        deltaMEs += ( cxreal( ztemp_sv ) * cxreal( jamp_sv[icol] ) + cximag( ztemp_sv ) * cximag( jamp_sv[icol] ) ) / denom[icol];
 #endif
       }
 
