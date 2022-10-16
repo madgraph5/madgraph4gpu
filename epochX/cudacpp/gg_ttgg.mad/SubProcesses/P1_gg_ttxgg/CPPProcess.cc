@@ -2440,14 +2440,23 @@ namespace mg5amcCpu
       // and also use constexpr to compute "2*" and "/denom[icol]" once and for all at compile time:
       // we gain (not a factor 2...) in speed here as we only loop over the up diagonal part of the matrix.
       // Strangely, CUDA is slower instead, so keep the old implementation for the moment.
+#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+      fptype2_sv jampR_sv[ncolor] = { 0 };
+      fptype2_sv jampI_sv[ncolor] = { 0 };
+      for( int icol = 0; icol < ncolor; icol++ )
+      {
+        jampR_sv[icol] = fpvmerge( cxreal( jamp_sv_previous[icol] ), cxreal( jamp_sv[icol] ) );
+        jampI_sv[icol] = fpvmerge( cximag( jamp_sv_previous[icol] ), cximag( jamp_sv[icol] ) );
+      }
+#endif
       for( int icol = 0; icol < ncolor; icol++ )
       {
 #ifndef __CUDACC__
         // === C++ START ===
         // Diagonal terms
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
-        fptype2_sv jampRi_sv = fpvmerge( cxreal( jamp_sv_previous[icol] ), cxreal( jamp_sv[icol] ) );
-        fptype2_sv jampIi_sv = fpvmerge( cximag( jamp_sv_previous[icol] ), cximag( jamp_sv[icol] ) );
+        fptype2_sv& jampRi_sv = jampR_sv[icol];
+        fptype2_sv& jampIi_sv = jampI_sv[icol];
 #else
         fptype2_sv jampRi_sv = ( fptype2_sv )( cxreal( jamp_sv[icol] ) );
         fptype2_sv jampIi_sv = ( fptype2_sv )( cximag( jamp_sv[icol] ) );
@@ -2458,8 +2467,8 @@ namespace mg5amcCpu
         for( int jcol = icol + 1; jcol < ncolor; jcol++ )
         {
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
-          fptype2_sv jampRj_sv = fpvmerge( cxreal( jamp_sv_previous[jcol] ), cxreal( jamp_sv[jcol] ) );
-          fptype2_sv jampIj_sv = fpvmerge( cximag( jamp_sv_previous[jcol] ), cximag( jamp_sv[jcol] ) );
+          fptype2_sv& jampRj_sv = jampR_sv[jcol];
+          fptype2_sv& jampIj_sv = jampI_sv[jcol];
 #else
           fptype2_sv jampRj_sv = ( fptype2_sv )( cxreal( jamp_sv[jcol] ) );
           fptype2_sv jampIj_sv = ( fptype2_sv )( cximag( jamp_sv[jcol] ) );

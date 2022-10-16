@@ -658,7 +658,7 @@ namespace mgOnGpu /* clang-format off */
 inline fptype2_v // output: one float vector with 2*neppV elements
 fpvmerge( const fptype_v& v1, const fptype_v& v2 ) // input: two double vectors with neppV elements
 {
-  // This code is inefficient! It makes mixed precision FFV/color useless (slower) on C++.
+  // This code is not very efficient! It makes mixed precision FFV/color not faster than double on C++ (#537).
   // I considered various alternatives, including
   // - in gcc12 and clang, __builtin_shufflevector (works with different vector lengths, BUT the same fptype...)
   // - casting vector(4)double to vector(4)float and then assigning via reinterpret_cast... but how to do the cast?
