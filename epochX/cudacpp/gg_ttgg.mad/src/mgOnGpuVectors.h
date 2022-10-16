@@ -695,22 +695,48 @@ fpvmerge( const fptype_v& v1, const fptype_v& v2 ) // input: two double vectors 
 inline fptype_v
 fpvsplit0( const fptype2_v& v )
 {
+  /*
   fptype_v out;
   for( int ieppV = 0; ieppV < neppV; ieppV++ )
   {
     out[ieppV] = v[ieppV];
   }
+  */
+#if MGONGPU_CPPSIMD == 2
+  fptype_v out = 
+    { (fptype)v[0], (fptype)v[1] };
+#elif MGONGPU_CPPSIMD == 4
+  fptype_v out = 
+    { (fptype)v[0], (fptype)v[1], (fptype)v[2], (fptype)v[3] };
+#elif MGONGPU_CPPSIMD == 8
+  fptype_v out = 
+    { (fptype)v[0], (fptype)v[1], (fptype)v[2], (fptype)v[3],
+      (fptype)v[0], (fptype)v[5], (fptype)v[6], (fptype)v[7] };
+#endif
   return out;
 }
 
 inline fptype_v
 fpvsplit1( const fptype2_v& v )
 {
+  /*
   fptype_v out;
   for( int ieppV = 0; ieppV < neppV; ieppV++ )
   {
     out[ieppV] = v[ieppV+neppV];
   }
+  */
+#if MGONGPU_CPPSIMD == 2
+  fptype_v out = 
+    { (fptype)v[2], (fptype)v[3] };
+#elif MGONGPU_CPPSIMD == 4
+  fptype_v out = 
+    { (fptype)v[4], (fptype)v[5], (fptype)v[6], (fptype)v[7] };
+#elif MGONGPU_CPPSIMD == 8
+  fptype_v out = 
+    { (fptype)v[8], (fptype)v[9], (fptype)v[10], (fptype)v[11],
+      (fptype)v[12], (fptype)v[13], (fptype)v[14], (fptype)v[15] };
+#endif
   return out;
 }
 
