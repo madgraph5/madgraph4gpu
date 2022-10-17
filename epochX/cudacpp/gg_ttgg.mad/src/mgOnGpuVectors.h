@@ -680,7 +680,7 @@ fpvmerge( const fptype_v& v1, const fptype_v& v2 )
 #elif MGONGPU_CPPSIMD == 4
   fptype2_v out =
     { (fptype2)v1[0], (fptype2)v1[1], (fptype2)v1[2], (fptype2)v1[3], (fptype2)v2[0], (fptype2)v2[1], (fptype2)v2[2], (fptype2)v2[3] };
-#elif MGONGPU_CPPSIMD == 4
+#elif MGONGPU_CPPSIMD == 8
   fptype2_v out =
     { (fptype2)v1[0], (fptype2)v1[1], (fptype2)v1[2], (fptype2)v1[3], (fptype2)v1[4], (fptype2)v1[5], (fptype2)v1[6], (fptype2)v1[7], (fptype2)v2[0], (fptype2)v2[1], (fptype2)v2[2], (fptype2)v2[3], (fptype2)v2[4], (fptype2)v2[5], (fptype2)v2[6], (fptype2)v2[7] };
 #endif
