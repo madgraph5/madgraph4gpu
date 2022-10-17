@@ -653,7 +653,7 @@ namespace mgOnGpu /* clang-format off */
 
 // Functions and operators for fptype2_v
 
-#if defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
 
 inline fptype2_v
 fpvmerge( const fptype_v& v1, const fptype_v& v2 )
@@ -733,7 +733,7 @@ fpvsplit1( const fptype2_v& v )
   return out;
 }
 
-#endif // #ifdef MGONGPU_CPPSIMD
+#endif // #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
 
 #endif // #ifndef __CUDACC__
 
