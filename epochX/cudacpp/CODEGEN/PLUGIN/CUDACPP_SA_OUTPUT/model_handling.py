@@ -1142,8 +1142,9 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     const int npagV = nevt / neppV;
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
     // Mixed fptypes #537: float for color algebra and double elsewhere
-    cxtype_sv jamp_sv_previous[ncolor] = {}; // mixed fptypes: delay computing color algebra (only on even pages)
-    fptype* MEs_previous = 0; // mixed fptypes: delay updating MEs (only on even pages)
+    // Delay color algebra and ME updates (only on even pages)
+    cxtype_sv jamp_sv_previous[ncolor] = {};
+    fptype* MEs_previous = 0;
     assert( npagV % 2 == 0 ); // SANITY CHECK for mixed fptypes: two neppV pages are merged to one neppV2 page
 #endif
     // ** START LOOP ON IPAGV **

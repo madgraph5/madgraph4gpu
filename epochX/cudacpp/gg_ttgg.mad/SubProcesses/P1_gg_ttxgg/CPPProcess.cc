@@ -160,8 +160,9 @@ namespace mg5amcCpu
     const int npagV = nevt / neppV;
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
     // Mixed fptypes #537: float for color algebra and double elsewhere
-    cxtype_sv jamp_sv_previous[ncolor] = {}; // mixed fptypes: delay computing color algebra (only on even pages)
-    fptype* MEs_previous = 0; // mixed fptypes: delay updating MEs (only on even pages)
+    // Delay color algebra and ME updates (only on even pages)
+    cxtype_sv jamp_sv_previous[ncolor] = {};
+    fptype* MEs_previous = 0;
     assert( npagV % 2 == 0 ); // SANITY CHECK for mixed fptypes: two neppV pages are merged to one neppV2 page
 #endif
     // ** START LOOP ON IPAGV **
@@ -2421,11 +2422,12 @@ namespace mg5amcCpu
 #endif
 
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
-      if ( ipagV % 2 == 0 ) // NB: first page is 0! skip even pages, compute on odd pages
+      if( ipagV % 2 == 0 ) // NB: first page is 0! skip even pages, compute on odd pages
       {
+        // Mixed fptypes: delay color algebra and ME updates to next (odd) ipagV
         for( int icol = 0; icol < ncolor; icol++ )
-          jamp_sv_previous[icol] = jamp_sv[icol]; // mixed fptypes: delay color algebra to next (odd) ipagV
-        MEs_previous = MEs; // mixed fptypes: delay ME updates to next (odd) ipagV
+          jamp_sv_previous[icol] = jamp_sv[icol];
+        MEs_previous = MEs;
         continue; // go to next ipagV in the loop: skip color algebra and ME update on odd pages
       }
       fptype_sv deltaMEs_previous = { 0 };
@@ -2433,7 +2435,10 @@ namespace mg5amcCpu
 
       // Sum and square the color flows to get the matrix element
       // (compute |M|^2 by squaring |M|, taking into account colours)
+      // Sum and square the color flows to get the matrix element
+      // (compute |M|^2 by squaring |M|, taking into account colours)
       fptype_sv deltaMEs = { 0 }; // all zeros https://en.cppreference.com/w/c/language/array_initialization#Notes
+
       // Use the property that M is a real matrix (see #475):
       // we can rewrite the quadratic form (A-iB)(M)(A+iB) as AMA - iBMA + iBMA + BMB = AMA + BMB
       // In addition, on C++ use the property that M is symmetric (see #475),
@@ -2458,8 +2463,8 @@ namespace mg5amcCpu
         fptype2_sv& jampRi_sv = jampR_sv[icol];
         fptype2_sv& jampIi_sv = jampI_sv[icol];
 #else
-        fptype2_sv jampRi_sv = ( fptype2_sv )( cxreal( jamp_sv[icol] ) );
-        fptype2_sv jampIi_sv = ( fptype2_sv )( cximag( jamp_sv[icol] ) );
+        fptype2_sv jampRi_sv = (fptype2_sv)( cxreal( jamp_sv[icol] ) );
+        fptype2_sv jampIi_sv = (fptype2_sv)( cximag( jamp_sv[icol] ) );
 #endif
         fptype2_sv ztempR_sv = cf2.value[icol][icol] * jampRi_sv;
         fptype2_sv ztempI_sv = cf2.value[icol][icol] * jampIi_sv;
@@ -2470,8 +2475,8 @@ namespace mg5amcCpu
           fptype2_sv& jampRj_sv = jampR_sv[jcol];
           fptype2_sv& jampIj_sv = jampI_sv[jcol];
 #else
-          fptype2_sv jampRj_sv = ( fptype2_sv )( cxreal( jamp_sv[jcol] ) );
-          fptype2_sv jampIj_sv = ( fptype2_sv )( cximag( jamp_sv[jcol] ) );
+          fptype2_sv jampRj_sv = (fptype2_sv)( cxreal( jamp_sv[jcol] ) );
+          fptype2_sv jampIj_sv = (fptype2_sv)( cximag( jamp_sv[jcol] ) );
 #endif
           ztempR_sv += cf2.value[icol][jcol] * jampRj_sv;
           ztempI_sv += cf2.value[icol][jcol] * jampIj_sv;
@@ -2511,10 +2516,6 @@ namespace mg5amcCpu
       // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
       fptype_sv& MEs_sv = E_ACCESS::kernelAccess( MEs );
       MEs_sv += deltaMEs; // fix #435
-#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
-      fptype_sv& MEs_sv_previous = E_ACCESS::kernelAccess( MEs_previous );
-      MEs_sv_previous += deltaMEs_previous;
-#endif
       /*
 #ifdef __CUDACC__
       if ( cNGoodHel > 0 ) printf( "calculate_wavefunctions: ievt=%6d ihel=%2d me_running=%f\n", blockDim.x * blockIdx.x + threadIdx.x, ihel, MEs_sv );

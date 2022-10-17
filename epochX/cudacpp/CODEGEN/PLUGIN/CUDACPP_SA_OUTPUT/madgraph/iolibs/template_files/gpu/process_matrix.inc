@@ -26,11 +26,12 @@
 #endif
 
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
-      if ( ipagV % 2 == 0 ) // NB: first page is 0! skip even pages, compute on odd pages
+      if( ipagV %% 2 == 0 ) // NB: first page is 0! skip even pages, compute on odd pages
       {
+        // Mixed fptypes: delay color algebra and ME updates to next (odd) ipagV
         for( int icol = 0; icol < ncolor; icol++ )
-          jamp_sv_previous[icol] = jamp_sv[icol]; // mixed fptypes: delay color algebra to next (odd) ipagV
-        MEs_previous = MEs; // mixed fptypes: delay ME updates to next (odd) ipagV
+          jamp_sv_previous[icol] = jamp_sv[icol];
+        MEs_previous = MEs;
         continue; // go to next ipagV in the loop: skip color algebra and ME update on odd pages
       }
       fptype_sv deltaMEs_previous = { 0 };
@@ -41,6 +42,7 @@
       // Sum and square the color flows to get the matrix element
       // (compute |M|^2 by squaring |M|, taking into account colours)
       fptype_sv deltaMEs = { 0 }; // all zeros https://en.cppreference.com/w/c/language/array_initialization#Notes
+
       // Use the property that M is a real matrix (see #475):
       // we can rewrite the quadratic form (A-iB)(M)(A+iB) as AMA - iBMA + iBMA + BMB = AMA + BMB
       // In addition, on C++ use the property that M is symmetric (see #475),
@@ -65,8 +67,8 @@
         fptype2_sv& jampRi_sv = jampR_sv[icol];
         fptype2_sv& jampIi_sv = jampI_sv[icol];
 #else
-        fptype2_sv jampRi_sv = ( fptype2_sv )( cxreal( jamp_sv[icol] ) );
-        fptype2_sv jampIi_sv = ( fptype2_sv )( cximag( jamp_sv[icol] ) );
+        fptype2_sv jampRi_sv = (fptype2_sv)( cxreal( jamp_sv[icol] ) );
+        fptype2_sv jampIi_sv = (fptype2_sv)( cximag( jamp_sv[icol] ) );
 #endif
         fptype2_sv ztempR_sv = cf2.value[icol][icol] * jampRi_sv;
         fptype2_sv ztempI_sv = cf2.value[icol][icol] * jampIi_sv;
@@ -77,8 +79,8 @@
           fptype2_sv& jampRj_sv = jampR_sv[jcol];
           fptype2_sv& jampIj_sv = jampI_sv[jcol];
 #else
-          fptype2_sv jampRj_sv = ( fptype2_sv )( cxreal( jamp_sv[jcol] ) );
-          fptype2_sv jampIj_sv = ( fptype2_sv )( cximag( jamp_sv[jcol] ) );
+          fptype2_sv jampRj_sv = (fptype2_sv)( cxreal( jamp_sv[jcol] ) );
+          fptype2_sv jampIj_sv = (fptype2_sv)( cximag( jamp_sv[jcol] ) );
 #endif
           ztempR_sv += cf2.value[icol][jcol] * jampRj_sv;
           ztempI_sv += cf2.value[icol][jcol] * jampIj_sv;

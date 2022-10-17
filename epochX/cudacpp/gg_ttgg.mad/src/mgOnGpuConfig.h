@@ -102,7 +102,7 @@ namespace mgOnGpu
 #if defined MGONGPU_FPTYPE_DOUBLE
   typedef double fptype; // double precision (8 bytes, fp64)
 #elif defined MGONGPU_FPTYPE_FLOAT
-  typedef float fptype; // single precision (4 bytes, fp32)
+  typedef float fptype;  // single precision (4 bytes, fp32)
 #endif
 
   // Floating point type (for color algebra alone #537): fptype2
