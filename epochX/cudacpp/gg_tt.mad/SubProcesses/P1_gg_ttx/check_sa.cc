@@ -718,7 +718,9 @@ main( int argc, char** argv )
   wrkflwtxt += "CPP:";
 #endif
   // -- DOUBLE or FLOAT?
-#if defined MGONGPU_FPTYPE_DOUBLE
+#if defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+  wrkflwtxt += "MIX+"; // mixed fptypes (single precision color algebra #537) 
+#elif defined MGONGPU_FPTYPE_DOUBLE
   wrkflwtxt += "DBL+";
 #elif defined MGONGPU_FPTYPE_FLOAT
   wrkflwtxt += "FLT+";
@@ -857,7 +859,9 @@ main( int argc, char** argv )
               << "NumIterations               = " << niter << std::endl
               << std::string( SEP79, '-' ) << std::endl;
     std::cout << "Workflow summary            = " << wrkflwtxt << std::endl
-#if defined MGONGPU_FPTYPE_DOUBLE
+#if defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+              << "FP precision                = MIXED (NaN/abnormal=" << nabn << ", zero=" << nzero << ")" << std::endl
+#elif defined MGONGPU_FPTYPE_DOUBLE
               << "FP precision                = DOUBLE (NaN/abnormal=" << nabn << ", zero=" << nzero << ")" << std::endl
 #elif defined MGONGPU_FPTYPE_FLOAT
               << "FP precision                = FLOAT (NaN/abnormal=" << nabn << ", zero=" << nzero << ")" << std::endl
@@ -990,7 +994,10 @@ main( int argc, char** argv )
              << "\"NumIterations\": " << niter << ", " << std::endl
              << "\"NumThreadsPerBlock\": " << gputhreads << ", " << std::endl
              << "\"NumBlocksPerGrid\": " << gpublocks << ", " << std::endl
-#if defined MGONGPU_FPTYPE_DOUBLE
+#if defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+             << "\"FP precision\": "
+             << "\"MIXED (NaN/abnormal=" << nabn << ")\"," << std::endl
+#elif defined MGONGPU_FPTYPE_DOUBLE
              << "\"FP precision\": "
              << "\"DOUBLE (NaN/abnormal=" << nabn << ")\"," << std::endl
 #elif defined MGONGPU_FPTYPE_FLOAT
