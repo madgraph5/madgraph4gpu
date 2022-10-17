@@ -6,7 +6,7 @@ host=$(hostname)
 if [ "${host/juwels}" != "${host}" ]; then ${scrdir}/juwelspatch.sh; fi # workaround for #498
 
 short=0
-flts=-flt
+flts=-mix # "d f m" (alternative: -flt i.e. "d f")
 makeclean=
 rmrdat=
 add10x="+10x"
