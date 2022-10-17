@@ -6,7 +6,7 @@ cd $scrdir
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-flt|-fltonly|-mix] [-makeonly] [-makeclean] [-rmrdat] [+10x] [-checkonly]" > /dev/stderr
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-flt|-fltonly|-mix|-mixonly] [-makeonly] [-makeclean] [-rmrdat] [+10x] [-checkonly]" > /dev/stderr
   exit 1
 }
 
@@ -53,14 +53,17 @@ for arg in $*; do
     if [ "$ggttggg" == "" ]; then procs+=${procs:+ }${arg}; fi
     ggttggg=$arg
   elif [ "$arg" == "-flt" ]; then
-    if [ "${fptypes}" != "d" ] && [ "${fptypes}" != "d f" ]; then echo "ERROR! Options -flt, -fltonly and -mix are incompatible"; usage; fi
+    if [ "${fptypes}" != "d" ] && [ "${fptypes}" != "d f" ]; then echo "ERROR! Options -flt, -fltonly, -mix and -mixonly are incompatible"; usage; fi
     fptypes="d f"
   elif [ "$arg" == "-fltonly" ]; then
-    if [ "${fptypes}" != "d" ] && [ "${fptypes}" != "f" ]; then echo "ERROR! Options -flt, -fltonly and -mix are incompatible"; usage; fi
+    if [ "${fptypes}" != "d" ] && [ "${fptypes}" != "f" ]; then echo "ERROR! Options -flt, -fltonly, -mix and -mixonly are incompatible"; usage; fi
     fptypes="f"
   elif [ "$arg" == "-mix" ]; then
-    if [ "${fptypes}" != "d" ] && [ "${fptypes}" != "d f m" ]; then echo "ERROR! Options -flt, -fltonly and -mix are incompatible"; usage; fi
+    if [ "${fptypes}" != "d" ] && [ "${fptypes}" != "d f m" ]; then echo "ERROR! Options -flt, -fltonly, -mix and -mixonly are incompatible"; usage; fi
     fptypes="d f m"
+  elif [ "$arg" == "-mixonly" ]; then
+    if [ "${fptypes}" != "d" ] && [ "${fptypes}" != "m" ]; then echo "ERROR! Options -flt, -fltonly, -mix and -mixonly are incompatible"; usage; fi
+    fptypes="m"
   #elif [ "$arg" == "-inl" ]; then
   #  if [ "${helinls}" == "1" ]; then echo "ERROR! Options -inl and -inlonly are incompatible"; usage; fi
   #  helinls="0 1"
