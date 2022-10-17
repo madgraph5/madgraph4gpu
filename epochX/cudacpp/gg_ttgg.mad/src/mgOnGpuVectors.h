@@ -705,7 +705,7 @@ fpvsplit0( const fptype2_v& v )
     { (fptype)v[0], (fptype)v[1], (fptype)v[2], (fptype)v[3] };
 #elif MGONGPU_CPPSIMD == 8
   fptype_v out =
-    { (fptype)v[0], (fptype)v[1], (fptype)v[2], (fptype)v[3], (fptype)v[0], (fptype)v[5], (fptype)v[6], (fptype)v[7] };
+    { (fptype)v[0], (fptype)v[1], (fptype)v[2], (fptype)v[3], (fptype)v[4], (fptype)v[5], (fptype)v[6], (fptype)v[7] };
 #endif
   return out;
 }
