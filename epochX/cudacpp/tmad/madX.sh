@@ -103,8 +103,13 @@ suffs=".mad/"
 
 # Switch between double and float builds
 export FPTYPE=$fptype
-if [ "${fptype}" == "f" ]; then xsecthr="2E-4"; else xsecthr="2E-14"; fi
-if [ "${fptype}" == "m" ]; then xsecthr="2E-4"; else xsecthr="2E-14"; fi # FIXME #537
+if [ "${fptype}" == "f" ]; then
+  xsecthr="2E-4"
+elif [ "${fptype}" == "m" ]; then
+  xsecthr="2E-4" # FIXME #537
+else
+  xsecthr="2E-14"
+fi
 
 # Determine the working directory below topdir based on suff, bckend and <process>
 function showdir()
