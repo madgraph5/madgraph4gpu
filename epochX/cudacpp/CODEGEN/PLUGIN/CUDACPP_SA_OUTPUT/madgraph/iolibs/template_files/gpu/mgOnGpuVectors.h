@@ -680,7 +680,7 @@ fpvmerge( const fptype_v& v1, const fptype_v& v2 )
 #elif MGONGPU_CPPSIMD == 4
   fptype2_v out =
     { (fptype2)v1[0], (fptype2)v1[1], (fptype2)v1[2], (fptype2)v1[3], (fptype2)v2[0], (fptype2)v2[1], (fptype2)v2[2], (fptype2)v2[3] };
-#elif MGONGPU_CPPSIMD == 4
+#elif MGONGPU_CPPSIMD == 8
   fptype2_v out =
     { (fptype2)v1[0], (fptype2)v1[1], (fptype2)v1[2], (fptype2)v1[3], (fptype2)v1[4], (fptype2)v1[5], (fptype2)v1[6], (fptype2)v1[7], (fptype2)v2[0], (fptype2)v2[1], (fptype2)v2[2], (fptype2)v2[3], (fptype2)v2[4], (fptype2)v2[5], (fptype2)v2[6], (fptype2)v2[7] };
 #endif
@@ -705,7 +705,7 @@ fpvsplit0( const fptype2_v& v )
     { (fptype)v[0], (fptype)v[1], (fptype)v[2], (fptype)v[3] };
 #elif MGONGPU_CPPSIMD == 8
   fptype_v out =
-    { (fptype)v[0], (fptype)v[1], (fptype)v[2], (fptype)v[3], (fptype)v[0], (fptype)v[5], (fptype)v[6], (fptype)v[7] };
+    { (fptype)v[0], (fptype)v[1], (fptype)v[2], (fptype)v[3], (fptype)v[4], (fptype)v[5], (fptype)v[6], (fptype)v[7] };
 #endif
   return out;
 }
