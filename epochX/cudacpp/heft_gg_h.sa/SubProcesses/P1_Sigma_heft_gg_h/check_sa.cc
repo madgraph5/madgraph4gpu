@@ -719,13 +719,13 @@ main( int argc, char** argv )
 #endif
   // -- DOUBLE or FLOAT?
 #if defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
-  wrkflwtxt += "MIX+"; // mixed fptypes (single precision color algebra #537) 
+  wrkflwtxt += "MIX+"; // mixed fptypes (single precision color algebra #537)
 #elif defined MGONGPU_FPTYPE_DOUBLE
   wrkflwtxt += "DBL+";
 #elif defined MGONGPU_FPTYPE_FLOAT
   wrkflwtxt += "FLT+";
 #else
-  wrkflwtxt += "???+";                                      // no path to this statement
+  wrkflwtxt += "???+"; // no path to this statement
 #endif
   // -- CUCOMPLEX or THRUST or STD complex numbers?
 #ifdef __CUDACC__
