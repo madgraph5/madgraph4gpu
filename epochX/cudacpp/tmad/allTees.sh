@@ -27,10 +27,13 @@ while [ "$1" != "" ]; do
   fi
 done
 
-if [ "$short" == "1" ]; then
-  ${scrdir}/teeMadX.sh -eemumu -ggtt -ggttg -ggttgg $flts $makeclean $rmrdat $add10x
-elif [ "$short" == "-1" ]; then
-  ${scrdir}/teeMadX.sh -ggttggg $flts $makeclean $rmrdat $add10x
-else
-  ${scrdir}/teeMadX.sh -eemumu -ggtt -ggttg -ggttgg -ggttggg $flts $makeclean $rmrdat $add10x
-fi
+#if [ "$short" == "1" ]; then
+#  ${scrdir}/teeMadX.sh -eemumu -ggtt -ggttg -ggttgg $flts $makeclean $rmrdat $add10x
+#elif [ "$short" == "-1" ]; then
+#  ${scrdir}/teeMadX.sh -ggttggg $flts $makeclean $rmrdat $add10x
+#else
+#  ${scrdir}/teeMadX.sh -eemumu -ggtt -ggttg -ggttgg -ggttggg $flts $makeclean $rmrdat $add10x
+#fi
+
+${scrdir}/teeMadX.sh -ggttggg -fltonly -makeclean $rmrdat $add10x
+${scrdir}/teeMadX.sh -ggttggg -mixonly -makeclean $rmrdat $add10x
