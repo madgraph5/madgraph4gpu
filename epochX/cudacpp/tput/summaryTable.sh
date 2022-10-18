@@ -1,9 +1,12 @@
 #!/bin/sh
 
+# NB: some PRs include many log modifications but eventually go back to the initial logs (overall noop)
+# NB: use 'git log --full-history' to show all intermediate commits (which are pruned by a simple 'git log')
+
 table=
 if [ "$1" == "-ALL" ] && [ "$2" == "" ]; then
   set -e
-  $0 -default
+  $0 -latest
   $0 -bridge
   $0 -hrdcod
   $0 -juwels
@@ -12,8 +15,8 @@ if [ "$1" == "-ALL" ] && [ "$2" == "" ]; then
   $0 -alphas
   $0 -3xcomp
   exit 0
-elif [ "$1" == "-default" ]; then
-  table="default"; shift
+elif [ "$1" == "-latest" ]; then
+  table="latest"; shift
 elif [ "$1" == "-bridge" ]; then
   table="bridge"; shift
 elif [ "$1" == "-hrdcod" ]; then
@@ -29,7 +32,7 @@ elif [ "$1" == "-alphas" ]; then
 elif [ "$1" == "-3xcomp" ]; then
   table="3xcomp"; shift
 else
-  echo "Usage: $0 <table [-ALL|-default|-bridge|-hrdcod|-juwels|-alpaka|-macm1|-alphas|-3xcomp]>"; exit 1
+  echo "Usage: $0 <table [-ALL|-latest|-bridge|-hrdcod|-juwels|-alpaka|-macm1|-alphas|-3xcomp]>"; exit 1
 fi
 
 unames=$(uname -s)
@@ -46,42 +49,46 @@ out=tput/summaryTable_${table}.txt
 \rm -f $out
 touch $out
 
-#----------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------------------------
 # A few reference points 
+#-------------------------------------------------------------------------------------------------------
 # 1. Code (21 Apr 2022, c0c27684): just before the alphas PR #434
 #    Logs (28 Apr 2022, 88fe36d1): cuda116/gcc102 (56 logs from allTees.sh)
 # 2. Code (28 Apr 2022, bae5c248): about to be merged in the alphas PR #434
 #    Logs (28 Apr 2022, bae5c248): cuda116/gcc102 (56 logs from allTees.sh)
+#-------------------------------------------------------------------------------------------------------
+# 1. Logs (20 Jun 2022, 2d3e789): cuda116/gcc102 (60 logs from allTees.sh) <= previous cuda116/gcc102
+# 2. Logs (26 Aug 2022, 21c4cb8): cuda116/gcc102 (60 logs from allTees.sh) <= LATEST cuda116/gcc102
+# 3. Logs (26 Aug 2022, d250d2d): cuda117/gcc112 (60 logs from allTees.sh) <= LATEST cuda117/gcc112
 #----------------------------------------------------------------------------
 
 # Select revisions of cudacpp and alpaka logs
-crevs=""
-arevs=""
-mrevs=""
-if [ "$table" == "default" ]; then
-  crevs="$crevs 09e482e"  # cuda116/gcc102  (03 Mar 2022) BASELINE eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
-  crevs="$crevs 16df79c"  # cuda116/icx2022 (03 Mar 2022) ICX TEST eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
+crevs="" # cudacpp .sa
+arevs="" # alpaka
+mrevs="" # cudacpp .mad
+if [ "$table" == "latest" ]; then
+  mrevs="$mrevs d250d2d" # cuda117/gcc112  (26 Aug 2022) GCC112   60 logs allTees.sh
 elif [ "$table" == "bridge" ]; then
-  mrevs="$mrevs 2d3e789"  # cuda116/gcc102  (22 Jun 2022) BASELINE eemumu/ggtt* x f/d x hrd0 x inl0 x default/bridge
+  mrevs="$mrevs d250d2d" # cuda117/gcc112  (26 Aug 2022) GCC112   60 logs allTees.sh
 elif [ "$table" == "hrdcod" ]; then
-  crevs="$crevs 09e482e"  # cuda116/gcc102  (03 Mar 2022) BASELINE eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
-  crevs="$crevs 16df79c"  # cuda116/icx2022 (03 Mar 2022) ICX TEST eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
+  mrevs="$mrevs d250d2d" # cuda117/gcc112  (26 Aug 2022) GCC112   60 logs allTees.sh
+  mrevs="$mrevs f3ee68c" # cuda117/icx2022 (27 Aug 2022) ICX2022  60 logs allTees.sh
 elif [ "$table" == "juwels" ]; then
-  crevs="$crevs 09e482e"  # cuda116/gcc102  (03 Mar 2022) BASELINE eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
-  crevs="$crevs 65730b2"  # cuda115/gcc112  (18 Feb 2022) JUWELSCL eemumu/ggtt/ggttgg x f/d x inl0/inl1 + ggttg/ggttggg x f/d
-  crevs="$crevs df441ad"  # cuda115/gcc112  (18 Feb 2022) JUWELSBO eemumu/ggtt/ggttgg x f/d x inl0/inl1 + ggttg/ggttggg x f/d
+  crevs="$crevs 09e482e" # cuda116/gcc102  (03 Mar 2022) BASELINE eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
+  crevs="$crevs 65730b2" # cuda115/gcc112  (18 Feb 2022) JUWELSCL eemumu/ggtt/ggttgg x f/d x inl0/inl1 + ggttg/ggttggg x f/d
+  crevs="$crevs df441ad" # cuda115/gcc112  (18 Feb 2022) JUWELSBO eemumu/ggtt/ggttgg x f/d x inl0/inl1 + ggttg/ggttggg x f/d
 elif [ "$table" == "alpaka" ]; then
-  crevs="$crevs 09e482e"  # cuda116/gcc102  (03 Mar 2022) BASELINE eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
-  arevs="$arevs f5a44ba"  # cuda116/gcc102  (06 Mar 2022) GOLDEPX4 eemumu/ggtt/ggttg/ggttgg/ggttggg x d x inl0 (golden tag epochx4)
+  crevs="$crevs 09e482e" # cuda116/gcc102  (03 Mar 2022) BASELINE eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
+  arevs="$arevs f5a44ba" # cuda116/gcc102  (06 Mar 2022) GOLDEPX4 eemumu/ggtt/ggttg/ggttgg/ggttggg x d x inl0 (golden tag epochx4)
 elif [ "$table" == "macm1" ]; then
-  crevs="$crevs ea28661"  # NOGPU/clang120  (10 Apr 2022) MACM1ARM eemumu/ggtt/ggttg/ggttgg/ggttggg x f/d x hrd0 x inl0
+  crevs="$crevs ea28661" # NOGPU/clang120  (10 Apr 2022) MACM1ARM eemumu/ggtt/ggttg/ggttgg/ggttggg x f/d x hrd0 x inl0
 elif [ "$table" == "alphas" ]; then
-  crevs="$crevs 88fe36d1" # cuda116/gcc102  (28 Apr 2022) PRE-AS   56 logs allTees.sh
-  crevs="$crevs bae5c248" # cuda116/gcc102  (28 Apr 2022) POST-AS  56 logs allTees.sh
+  crevs="$crevs 88fe36d" # cuda116/gcc102  (28 Apr 2022) PRE-AS   56 logs allTees.sh
+  crevs="$crevs bae5c24" # cuda116/gcc102  (28 Apr 2022) POST-AS  56 logs allTees.sh
 elif [ "$table" == "3xcomp" ]; then
-  crevs="$crevs c112e7db" # cuda116/gcc102  (10 May 2022) GCC102   58 logs allTees.sh (includes also heftggh)
-  crevs="$crevs 7a158588" # cuda116/clang12 (10 May 2022) CLANG12  56 logs allTees.sh
-  crevs="$crevs 7912f186" # cuda116/icx2022 (10 May 2022) ICX2022  56 logs allTees.sh
+  mrevs="$mrevs d250d2d" # cuda117/gcc112  (26 Aug 2022) GCC112   60 logs allTees.sh
+  mrevs="$mrevs 335ff21" # cuda117/clang13 (27 Aug 2022) CLANG13  60 logs allTees.sh
+  mrevs="$mrevs f3ee68c" # cuda117/icx2022 (27 Aug 2022) ICX2022  60 logs allTees.sh
 else
   echo "ERROR! Unknown table '$table'"; exit 1
 fi
@@ -90,7 +97,7 @@ fi
 procs="eemumu ggtt ggttg ggttgg ggttggg"
 
 # Select fptype, helinl, hrdcod
-if [ "$table" == "default" ]; then
+if [ "$table" == "latest" ]; then
   fpts="d f"
   inls="inl0 inl1"
   hrds="hrd0"
@@ -246,7 +253,7 @@ for fpt in $fpts; do
         done
       done
     else
-      ### Old sorting (all but alphas and 3xcomp)
+      ### Old sorting (all but alphas, 3xcomp)
       for rev in $revs; do
         echo -e "+++ $bckend REVISION $rev (commit date: $(git log $rev --pretty=format:'%ci' --abbrev-commit -n1)) +++" >> $out
         nodelast=

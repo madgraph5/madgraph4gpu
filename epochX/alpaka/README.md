@@ -26,6 +26,8 @@ tests using the C++ and ALPAKA versions.
 Building
 ========
 
+Requirements for building are: CUDA version 11.6, g++ 10.2.0, Python 3.8, and Boost 1.78.0.
+
 It is assumed that Bazaar, boost, git, CUDA and a C++ compiler are installed
 (and possibly others). Choose a new, empty working directory:
 
