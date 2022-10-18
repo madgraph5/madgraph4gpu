@@ -82,7 +82,7 @@ elif [ "$table" == "ggttggg" ]; then
   ###fpts="d f d"
   # -- After implementing 'm'
   mrevs="$mrevs 68c9859"  # cuda117/gcc112  (18 Oct 2022 itscrd70)  add hack3/mixedfps (only ggttggg)
-  fpts="d f d"
+  fpts="d f m"
 fi
 revs="$mrevs"
 
