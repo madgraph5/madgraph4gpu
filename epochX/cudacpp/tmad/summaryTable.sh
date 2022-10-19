@@ -48,9 +48,13 @@ if [ "$table" == "default" ]; then
   taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/8192 CUDA/max $cuda8tpb"
 elif [ "$table" == "juwels" ]; then
   procs="eemumu ggtt ggttg ggttgg ggttggg"
-  ###mrevs="$mrevs 59b311b"  # cuda115/gcc102  (14 Oct 2022 jwlogin04=slower #540)
-  mrevs="$mrevs cdc8dda"  # cuda115/gcc102  (14 Oct 2022 jwlogin07=faster #540)
   taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z"
+  # -- Before implementing 'm': add a second 'd' table for better diffs
+  ###mrevs="$mrevs 59b311b"  # cuda115/gcc102  (14 Oct 2022 jwlogin04=slower #540)
+  ###mrevs="$mrevs cdc8dda"  # cuda115/gcc102  (14 Oct 2022 jwlogin07=faster #540)
+  ###fpts="d f"
+  # -- After implementing 'm'
+  mrevs="$mrevs 4a90ec2"  # cuda115/gcc102  (18 Oct 2022 jwlogin07)
   fpts="d f"
 elif [ "$table" == "ichep22" ]; then
   procs="ggttgg"
