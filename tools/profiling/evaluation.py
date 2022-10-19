@@ -26,15 +26,16 @@ import math
 
 physicsProcesses = ['ee_mumu', 'gg_tt', 'gg_ttg', 'gg_ttgg', 'gg_ttggg']
 
-reportPath = 'C:\\Users\\jteig\\cernbox\\Documents\\CERN\\reports\\CUDA_v100s_Profiling_12.08_GCC10.3_CUDA11.5\\'
+reportPath = 'C:\\Users\\jteig\\cernbox\\Documents\\CERN\\reports\\Sycl_v100s_Profiling_18.10.GCC11.3_CUDA11.6.2_MASTER\\'
 
 savePath = 'C:\\Users\\jteig\\cernbox\\Documents\\CERN\\Graphs\\'
 
-filePrefix = 'test_v100s_cuda_11.5'
+filePrefix = 'test_ATS-P_sycl_11.5'
 
 # 'test_v100s_sycl_11.5'
 
-hardware = 'NVIDIA v100s'
+hardware = 'ATS-P'
+#hardware = 'NVIDIA v100s'
 
 #############################
 #
@@ -44,7 +45,10 @@ hardware = 'NVIDIA v100s'
 
 compare = False
 
-graphsToCompare = ['test_v100s_cuda_11.5_gg_ttggg', 'test_v100s_cuda_11.5_gg_ttggg']
+graphsToCompare = ['test_v100s_cuda_11.5_gg_ttgg', 'test_v100s_sycl_11.5_gg_ttgg']
+
+stat = 'MECalcOnly'
+#stat = 'MatrixElems'
 
 #############################
 
@@ -198,8 +202,9 @@ class Evaluation:
             ax.spines['top'].set_visible(False)
             
             #enable grid
-            plt.rcParams['grid.linestyle']=':'
-            ax.yaxis.grid()
+            #plt.rcParams['grid.linestyle']=':'
+            #ax.yaxis.grid()
+            plt.grid(which='both',axis = 'y')
             
             #setup x-axis
             ax.set_xscale('log')
@@ -217,7 +222,9 @@ class Evaluation:
             #Labels and titel
             plt.xlabel('Gridsize',fontsize=15)
             plt.ylabel('Troughput\n'+yaxis,fontsize=13.5)
-            plt.title(yaxis,fontsize=15)
+
+
+            plt.title('SYCL (GCC 11.3) on ATS-P',fontsize=15)
         
             # plt.ylabel(yaxis,fontsize=30)
             # plt.xlabel('NumThreadsPerBlock*NumBlocksPerGrid',fontsize=30)
@@ -248,6 +255,10 @@ class Evaluation:
             #plt.rcParams['legend.title_fontsize']='large'
             #plt.text(16400, 250000, 'Here we have space for some\nfurther information like:\n\nCuda\nepoch2\ngg_ttgg',fontsize=25)
             plt.show()
+
+            # Adjusts labels to fit
+            plt.tight_layout()
+            plt.autoscale()
 
             # Savepath and physics process set by arguments
             fig.savefig(args.s + args.p + '_' + yaxis)
@@ -339,8 +350,8 @@ class Evaluation:
         ax1.set_yscale('log')
         
         #Add labels and title
-        plt.ylabel('Throughput\nME Calc Only [s-1]')
-        plt.xlabel('Gridsize')
+        plt.ylabel('Throughput\n'+ stat +' [s-1]')
+        plt.xlabel('Gridsize (nBlocksGPU * nThreadsGPU)')
         plt.title("SYCL vs CUDA throughput for "+ graph1[4] + '_' + graph1[5] +" on " + hardware + "\n")
         
         #Change colormap. More info here https://matplotlib.org/stable/tutorials/colors/colormaps.html 
@@ -349,8 +360,7 @@ class Evaluation:
         i=1
         for data in compare_list:
 
-            tempVar  = 'EvtsPerSec[MECalcOnly] (3)'
-            #tempVar2 = 'EvtsPerSec[MatrixElems] (3)'
+            tempVar  = 'EvtsPerSec['+ stat +'] (3)'
 
             #Get maximum values for each dataset
             maxima_y=max(df_dict[data][tempVar])
@@ -387,7 +397,7 @@ class Evaluation:
 
         # args.s + graph1[3] + '_' + graph1[4] + '_vs_' + graph2[3] + '_' + graph2[4]
 
-        fig.savefig(args.s + 'SYCL_' + graph1[4] + '_' + graph1[5] + '_vs_CUDA_' + graph2[4] + '_' + graph2[5] + 'MECalcOnly.png')
+        fig.savefig(args.s + 'SYCL_' + graph1[4] + '_' + graph1[5] + '_vs_CUDA_' + graph2[4] + '_' + graph2[5] + '_' + stat +'.png')
         
     def dataframes_statistical_transfomation(self,df_dict,stat):
         #This functions takes a dictionary of dataframes and returns a dictionary with dataframes
