@@ -1077,6 +1077,9 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
         #self.edit_processidfile() # AV new file (NB this is Sigma-specific, should not be a symlink to Subprocesses)
         #self.edit_testxxx() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
         # Add symbolic links
+        # NB: symlink of kokkos.mk to makefile is overwritten by madevent makefile if this exists (#480)
+        # NB: this relies on the assumption that kokkos code is generated before madevent code
+        files.ln(pjoin(self.path, 'kokkos.mk'), self.path, 'makefile')
         #files.ln(pjoin(self.path, 'check_sa.cc'), self.path, 'gcheck_sa.cu')
         #files.ln(pjoin(self.path, 'CPPProcess.cc'), self.path, 'gCPPProcess.cu')
         #files.ln(pjoin(self.path, 'CrossSectionKernels.cc'), self.path, 'gCrossSectionKernels.cu')
