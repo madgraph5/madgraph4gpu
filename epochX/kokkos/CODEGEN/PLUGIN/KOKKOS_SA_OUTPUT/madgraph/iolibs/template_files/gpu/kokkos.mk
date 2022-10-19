@@ -1,7 +1,7 @@
-KOKKOSPATH_CUDA ?= /home/jchilders/git/kokkos/install_v100
-KOKKOSPATH_OMP ?= /home/jchilders/git/kokkos/install_omp
+KOKKOSPATH_CUDA ?= $(KOKKOS_HOME)
+KOKKOSPATH_OMP ?= $(KOKKOS_HOME)
 KOKKOSPATH_INTEL ?= $(KOKKOS_HOME)
-KOKKOSPATH_HIP ?= /home/jchilders/git/kokkos/install_mi50
+KOKKOSPATH_HIP ?= $(KOKKOS_HOME)
 
 MODELSTR = sm
 MODELLIB = model_$(MODELSTR)
@@ -28,7 +28,7 @@ OPENMP_LDFLAGS=$(LDFLAGS) $(KOKKOSPATH_OMP)/lib64/libkokkoscore.a -ldl --openmp
 # INTEL_CXXFLAGS=$(CXXFLAGS) -I$(KOKKOSPATH_INTEL)/include -I/soft/restricted/CNDA/sdk/2021.04.30.001/oneapi/compiler/latest/linux/include/sycl -fiopenmp -fopenmp-targets=spir64 -Wno-parentheses -Wno-openmp-mapping
 # INTEL_LDFLAGS=$(LDFLAGS)  $(KOKKOSPATH_INTEL)/lib64/libkokkoscore.a -fiopenmp -fopenmp-targets=spir64 -L/soft/restricted/CNDA/sdk/2021.04.30.001/oneapi/compiler/latest/linux/lib/ -lsycl
 
-INTEL_BACKEND ?= xehp,12.4.0,skl
+INTEL_BACKEND ?= gen9
 INTEL_SYCL ?= 0
 ifeq ($(INTEL_SYCL),1)
 # build for SYCL

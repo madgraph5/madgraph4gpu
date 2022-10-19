@@ -1,7 +1,7 @@
-KOKKOSPATH_CUDA ?= /home/jchilders/git/kokkos/install_v100
-KOKKOSPATH_OMP ?= /home/jchilders/git/kokkos/install_omp
+KOKKOSPATH_CUDA ?= $(KOKKOS_HOME)
+KOKKOSPATH_OMP ?= $(KOKKOS_HOME)
 KOKKOSPATH_INTEL ?= $(KOKKOS_HOME)
-KOKKOSPATH_HIP ?= /home/jchilders/git/kokkos/install_mi50
+KOKKOSPATH_HIP ?= $(KOKKOS_HOME)
 
 MODELSTR = sm
 MODELLIB = model_$(MODELSTR)
