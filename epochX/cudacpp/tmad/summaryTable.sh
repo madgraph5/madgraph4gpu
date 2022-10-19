@@ -55,7 +55,7 @@ elif [ "$table" == "juwels" ]; then
   ###fpts="d f"
   # -- After implementing 'm'
   mrevs="$mrevs 4a90ec2"  # cuda115/gcc102  (18 Oct 2022 jwlogin07)
-  fpts="d f d"
+  fpts="d f m"
 elif [ "$table" == "ichep22" ]; then
   procs="ggttgg"
   mrevs="$mrevs eb30e41"  # cuda115/gcc112  (12 Oct 2022 jwlogin07) ICHEP2022table CPU
