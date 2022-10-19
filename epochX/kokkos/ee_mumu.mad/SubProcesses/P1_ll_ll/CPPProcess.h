@@ -23,7 +23,7 @@ namespace dependentCouplings = Parameters_sm_dependentCouplings;
 namespace independentCouplings = Parameters_sm_independentCouplings;
 
 template <typename T>
-T helicities[mgOnGpu::ncomb][mgOnGpu::npar] {
+constexpr T helicities[mgOnGpu::ncomb][mgOnGpu::npar] {
   {-1, -1, -1, -1},
   {-1, -1, -1, 1},
   {-1, -1, 1, -1},
@@ -258,7 +258,7 @@ void sigmaKin_setup(
     const int ievt = team_member.league_rank() * team_member.team_size() + team_member.team_rank();
 
     // Load helicities into local (private) memory
-    const auto cHel = helicities<short>;
+    auto cHel = helicities<short>;
     cxtype cIPC[dependentCouplings::ndcoup + independentCouplings::nicoup];
 
 #if MGONGPU_NDCOUP > 0
@@ -275,7 +275,7 @@ void sigmaKin_setup(
     auto local_mom = Kokkos::subview(momenta,ievt,Kokkos::ALL,Kokkos::ALL);
     for (int ihel = 0;ihel < mgOnGpu::ncomb;++ihel)
     {
-      const auto local_cHel = cHel[ihel];
+      auto local_cHel = cHel[ihel];
       auto allMEs = calculate_wavefunctions(local_mom, local_cHel, cIPC, cIPD);
       if (allMEs != 0)
       {
@@ -329,7 +329,7 @@ void sigmaKin(
     constexpr int denominators = 4; // FIXME: assume process.nprocesses == 1 for the moment (eventually denominators[nprocesses]?)
 
     // Load helicities into local (private) memory
-    const auto cHel = helicities<short>;
+    auto cHel = helicities<short>;
     cxtype cIPC[dependentCouplings::ndcoup + independentCouplings::nicoup];
 
 #if MGONGPU_NDCOUP > 0

@@ -81,7 +81,8 @@ namespace Parameters_sm_dependentCouplings
 
     // NB: hardcode cxtype cI(0,1) instead of cxtype (or hardcoded cxsmpl) mdl_complexi (which exists in Parameters_sm) because:
     // (1) mdl_complexi is always (0,1); (2) mdl_complexi is undefined in device code; (3) need cxsmpl conversion to cxtype in code below
-    static CXType cI( 0., 1. );
+    // static constexpr CXType cI( 0., 1. ); FIXME Kokkos::complex does not have constexpr initializer
+    CXType cI( 0., 1. );
 
       // Model parameters dependent on aS
       //const FPType mdl_sqrt__aS = constexpr_sqrt( aS );

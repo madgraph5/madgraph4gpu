@@ -216,7 +216,7 @@ int main(int argc, char **argv)
   timermap.start( procKey );
 
   // Create a process object
-  CPPProcess process( niter, league_size, team_size, verbose );
+  CPPProcess process( verbose );
 
 
   // Read param_card and set parameters

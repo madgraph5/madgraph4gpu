@@ -106,12 +106,10 @@ namespace mg5amcKokkos
     Kokkos::View<fptype*> m_devMEs;
     Kokkos::View<fptype*,Kokkos::HostSpace> m_hstMEs;
     Kokkos::View<bool*> m_devIsGoodHel;
-    Kokkos::View<bool*,Kokkos::HostSpace> m_hstIsGoodHel;
     Kokkos::View<short** > m_devcHel;
     Kokkos::View<fptype*> m_devcIPC;
     Kokkos::View<fptype*> m_devcIPD;
     Kokkos::View<int*> m_devNGoodHel; 
-    Kokkos::View<int*,Kokkos::HostSpace> m_hstNGoodHel; 
     Kokkos::View<cxtype*> m_dev_independent_couplings;
     Kokkos::View<fptype*> m_dev_independent_parameters;
     
@@ -149,9 +147,7 @@ namespace mg5amcKokkos
     , m_devMEs( Kokkos::ViewAllocateWithoutInitializing("m_devMEs"), m_nevt )
     , m_hstMEs( Kokkos::ViewAllocateWithoutInitializing("m_hstMEs"), m_nevt )
     , m_devIsGoodHel( Kokkos::ViewAllocateWithoutInitializing("m_devIsGoodHel"), mgOnGpu::ncomb )
-    , m_hstIsGoodHel( Kokkos::ViewAllocateWithoutInitializing("m_hstIsGoodHel"), mgOnGpu::ncomb )
     , m_devNGoodHel( Kokkos::ViewAllocateWithoutInitializing("m_devNGoodHel"),1) 
-    , m_hstNGoodHel( Kokkos::ViewAllocateWithoutInitializing("m_hstNGoodHel"),1) 
     , m_dev_independent_couplings(Kokkos::ViewAllocateWithoutInitializing("m_dev_independent_couplings"), independentCouplings::nicoup )
     , m_dev_independent_parameters(Kokkos::ViewAllocateWithoutInitializing("m_dev_independent_parameters"), mgOnGpu::nparams )
   {
@@ -214,8 +210,6 @@ namespace mg5amcKokkos
                      m_dev_independent_parameters, 
                      m_league_size, m_team_size);
 
-      Kokkos::deep_copy(m_hstIsGoodHel,m_devIsGoodHel);
-      Kokkos::deep_copy(m_hstNGoodHel,m_devNGoodHel);
       m_goodHelsCalculated = true;
     }
     if( goodHelOnly ) return;
