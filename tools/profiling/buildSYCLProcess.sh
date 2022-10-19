@@ -80,9 +80,12 @@ mv build.d_inl0/ $MG_EXE_DIR #2>/dev/null; true
 
 # Run executable
 cd $WORKSPACE
-#test=LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MG_LIBS $MG_EXE --param_card $MG5AMC_CARD_PATH/param_card.dat --device_info 1024 128 10
-#echo $test
-LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MG_LIBS $MG_EXE -j --json_file $WORKSPACE/test_${GPU_VERSION}_${MG_PROC}_${MG_SUBPROC}_${blocksPerGrid}_${threadsPerBlock}_${iterations}.json --param_card $MG5AMC_CARD_PATH/$
+
+# Display the devices
+#LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MG_LIBS $MG_EXE --param_card $MG5AMC_CARD_PATH/param_card.dat --device_info 32 32 10
+
+# Add MG Libs to linker library path and run the executable
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MG_LIBS $MG_EXE -j --json_file $WORKSPACE/test_${GPU_VERSION}_${MG_PROC}_${MG_SUBPROC}_${blocksPerGrid}_${threadsPerBlock}_${iterations}.json --param_card $MG5AMC_CARD_PATH /param_card.dat --device_id $DEVICE_ID $blocksPerGrid $threadsPerBlock $iterations
 
 # View output
 #nano $WORKSPACE/test_${GPU_VERSION}_${MG_PROC}_${MG_SUBPROC}_${blocksPerGrid}_${threadsPerBlock}_${iterations}.json-+
