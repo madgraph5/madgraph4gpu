@@ -44,7 +44,7 @@ HIP_ARCH_NUM ?= gfx906
 HIP_CXXFLAGS=$(CXXFLAGS) -I$(KOKKOSPATH_HIP)/include -fopenmp -fno-gpu-rdc --amdgpu-target=$(HIP_ARCH_NUM)
 HIP_LDFLAGS=$(LDFLAGS) -L $(KOKKOSPATH_HIP)/lib64  -lkokkoscore -ldl -fopenmp 
 
-FILES = check.ext
+FILES = check_sa.ext
 CHECK_H = CPPProcess.h $(HELAMP_H) $(PAR_H) ../../src/rambo.h ../../src/random_generator.h CalcMean.h
 
 cuda_exe=ccheck.exe
@@ -78,16 +78,16 @@ hip:
 
 # compile object files
 
-%%.openmp.o : %%.cpp $(CHECK_H)
+%%.openmp.o : %%.cc $(CHECK_H)
 	$(CXX) $(OPENMP_CXXFLAGS) -c $< -o $@
 
-%%.cuda.o : %%.cpp $(CHECK_H)
+%%.cuda.o : %%.cc $(CHECK_H)
 	$(NVCC) $(CUDA_CXXFLAGS) -c $< -o $@
 
-%%.intel.o : %%.cpp $(CHECK_H)
+%%.intel.o : %%.cc $(CHECK_H)
 	$(ICPX) $(INTEL_CXXFLAGS) -c $< -o $@
 
-%%.hip.o : %%.cpp $(CHECK_H)
+%%.hip.o : %%.cc $(CHECK_H)
 	$(HIPCC) $(HIP_CXXFLAGS) -c $< -o $@
 
 $(cuda_exe): $(cuda_objects) $(cuda_libmodel)
