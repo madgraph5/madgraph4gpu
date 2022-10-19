@@ -79,14 +79,14 @@ elif [ "$table" == "ggttggg" ]; then
   procs="ggttggg"
   taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/8192 CUDA/max $cuda8tpb"
   # -- Before implementing 'm': add a second 'd' table for better diffs
-  ###mrevs="$mrevs 1efee04"  # cuda117/gcc112  (13 Oct 2022 itscrd70)  ICHEP2022 (gave ggttgg results only)
+  mrevs="$mrevs 1efee04"  # cuda117/gcc112  (13 Oct 2022 itscrd70)  ICHEP2022 code (but gave ggttgg results only)
   ###mrevs="$mrevs f718e74"  # cuda117/gcc112  (15 Oct 2022 itscrd70)  add hack1/MLM and hack2/symmetricmatrix(cuda/c++)
   ###mrevs="$mrevs d95e49c"  # cuda117/gcc112  (16 Oct 2022 itscrd70)  modify hack2/symmetricmatrix(c++ only)
   ###mrevs="$mrevs 48e2012"  # cuda117/gcc112  (16 Oct 2022 itscrd70)  modify hack2/constexpr(c++ only)
-  ###fpts="d f d"
+  fpts="d f d"
   # -- After implementing 'm'
-  mrevs="$mrevs 68c9859"  # cuda117/gcc112  (18 Oct 2022 itscrd70)  add hack3/mixedfps (only ggttggg)
-  fpts="d f m"
+  ###mrevs="$mrevs 68c9859"  # cuda117/gcc112  (18 Oct 2022 itscrd70)  add hack3/mixedfps (only ggttggg)
+  ###fpts="d f m"
 fi
 revs="$mrevs"
 
