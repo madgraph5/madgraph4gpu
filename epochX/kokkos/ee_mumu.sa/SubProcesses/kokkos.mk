@@ -64,16 +64,16 @@ hip_libmodel=../../lib/lib$(MODELLIB)_hip.a
 all: cuda openmp intel hip
 
 cuda:
-	make -C ../../src -f kokks_src.mk cuda
+	make -C ../../src -f kokkos_src.mk cuda
 	make $(cuda_exe)
 openmp: 
-	make -C ../../src -f kokks_src.mk openmp
+	make -C ../../src -f kokkos_src.mk openmp
 	make $(openmp_exe)
 intel:
-	INTEL_SYCL=$(INTEL_SYCL) make -C ../../src -f kokks_src.mk intel
+	INTEL_SYCL=$(INTEL_SYCL) make -C ../../src -f kokkos_src.mk intel
 	make $(intel_exe)
 hip:
-	make -C ../../src -f kokks_src.mk hip
+	make -C ../../src -f kokkos_src.mk hip
 	make $(hip_exe)
 
 # compile object files
@@ -104,5 +104,5 @@ $(hip_exe): $(hip_objects) $(hip_libmodel)
 
 
 clean:
-	make -C ../../src -f kokks_src.mk clean
+	make -C ../../src -f kokkos_src.mk clean
 	rm -f $(cuda_objects) $(cuda_exe) $(openmp_objects) $(openmp_exe) $(intel_exe) $(intel_objects) $(hip_exe) $(hip_objects)
