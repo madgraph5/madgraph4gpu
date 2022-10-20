@@ -1177,7 +1177,7 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
         """Generate final CPPProcess.h"""
         misc.sprint('Entering PLUGIN_OneProcessExporter.write_process_h_file')
         replace_dict = super(PLUGIN_export_cpp.OneProcessExporterGPU, self).write_process_h_file(False)
-        replace_dict2 = super(PLUGIN_export_cpp.OneProcessExporterGPU,self).get_process_function_definitions(write=False)
+        #replace_dict2 = super(PLUGIN_export_cpp.OneProcessExporterGPU,self).get_process_function_definitions(write=False)
         replace_dict['helamps_h'] = "\n#include \"HelAmps_%s.h\"" % self.model_name
 
         # Kokkos puts source code in header and the helicities are set in the process_function_definitions
