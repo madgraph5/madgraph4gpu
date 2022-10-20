@@ -192,27 +192,11 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
   jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
+  jamp[1] -= cxtype( 0, 1 ) * amp[0];
   jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
+  jamp[7] += cxtype( 0, 1 ) * amp[0];
+  jamp[16] -= cxtype( 0, 1 ) * amp[0];
+  jamp[17] += cxtype( 0, 1 ) * amp[0];
   jamp[22] += cxtype( 0, 1 ) * amp[0];
   jamp[23] -= cxtype( 0, 1 ) * amp[0];
   VVVV3_0( w[6], w[7], w[4], w[5], COUPs[2], &amp[0] );
@@ -220,57 +204,25 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
   jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
   jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
+  jamp[12] -= cxtype( 0, 1 ) * amp[0];
+  jamp[14] += cxtype( 0, 1 ) * amp[0];
+  jamp[18] -= cxtype( 0, 1 ) * amp[0];
+  jamp[20] += cxtype( 0, 1 ) * amp[0];
   jamp[22] += cxtype( 0, 1 ) * amp[0];
   jamp[23] -= cxtype( 0, 1 ) * amp[0];
   VVVV4_0( w[6], w[7], w[4], w[5], COUPs[2], &amp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
   jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
   jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
+  jamp[12] -= cxtype( 0, 1 ) * amp[0];
+  jamp[14] += cxtype( 0, 1 ) * amp[0];
   jamp[16] += cxtype( 0, 1 ) * amp[0];
   jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[18] -= cxtype( 0, 1 ) * amp[0];
+  jamp[20] += cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 2 OF 123 ***
 
@@ -283,27 +235,11 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
   jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
   jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
+  jamp[12] -= cxtype( 0, 1 ) * amp[0];
+  jamp[14] += cxtype( 0, 1 ) * amp[0];
+  jamp[18] -= cxtype( 0, 1 ) * amp[0];
+  jamp[20] += cxtype( 0, 1 ) * amp[0];
   jamp[22] += cxtype( 0, 1 ) * amp[0];
   jamp[23] -= cxtype( 0, 1 ) * amp[0];
 
@@ -317,30 +253,14 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
   jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
   jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
+  jamp[12] -= cxtype( 0, 1 ) * amp[0];
+  jamp[14] += cxtype( 0, 1 ) * amp[0];
   jamp[16] += cxtype( 0, 1 ) * amp[0];
   jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[18] -= cxtype( 0, 1 ) * amp[0];
+  jamp[20] += cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 4 OF 123 ***
 
@@ -353,27 +273,11 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
   jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
+  jamp[1] -= cxtype( 0, 1 ) * amp[0];
   jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
+  jamp[7] += cxtype( 0, 1 ) * amp[0];
+  jamp[16] -= cxtype( 0, 1 ) * amp[0];
+  jamp[17] += cxtype( 0, 1 ) * amp[0];
   jamp[22] += cxtype( 0, 1 ) * amp[0];
   jamp[23] -= cxtype( 0, 1 ) * amp[0];
 
@@ -388,30 +292,8 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
   jamp[16] += cxtype( 0, 1 ) * amp[0];
   jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 6 OF 123 ***
 
@@ -423,30 +305,10 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[12] += amp[0];
+  jamp[14] -= amp[0];
+  jamp[16] -= amp[0];
+  jamp[17] += amp[0];
 
   // *** DIAGRAM 7 OF 123 ***
 
@@ -458,30 +320,8 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[12] += cxtype( 0, 1 ) * amp[0];
+  jamp[14] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 8 OF 123 ***
 
@@ -493,28 +333,6 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
   jamp[22] += cxtype( 0, 1 ) * amp[0];
   jamp[23] -= cxtype( 0, 1 ) * amp[0];
 
@@ -528,30 +346,10 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
   jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
   jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[22] -= amp[0];
+  jamp[23] += amp[0];
 
   // *** DIAGRAM 10 OF 123 ***
 
@@ -563,30 +361,8 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[18] += cxtype( 0, 1 ) * amp[0];
+  jamp[20] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 11 OF 123 ***
 
@@ -598,30 +374,8 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
   jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
   jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 12 OF 123 ***
 
@@ -633,30 +387,10 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[1] += amp[0];
+  jamp[7] -= amp[0];
+  jamp[18] -= amp[0];
+  jamp[20] += amp[0];
 
   // *** DIAGRAM 13 OF 123 ***
 
@@ -669,29 +403,7 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
   jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
   jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 14 OF 123 ***
 
@@ -703,30 +415,10 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
+  jamp[0] += amp[0];
+  jamp[6] -= amp[0];
   jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
   jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 15 OF 123 ***
 
@@ -738,30 +430,10 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[0] += amp[0];
+  jamp[1] -= amp[0];
+  jamp[6] -= amp[0];
+  jamp[7] += amp[0];
 
   // *** DIAGRAM 16 OF 123 ***
 
@@ -773,30 +445,10 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[16] += amp[0];
+  jamp[17] -= amp[0];
+  jamp[22] -= amp[0];
+  jamp[23] += amp[0];
 
   // *** DIAGRAM 17 OF 123 ***
 
@@ -810,30 +462,7 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[3] -= amp[0];
 
   // *** DIAGRAM 18 OF 123 ***
 
@@ -845,30 +474,7 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[5] -= amp[0];
 
   // *** DIAGRAM 19 OF 123 ***
 
@@ -880,30 +486,8 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
   jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[5] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 20 OF 123 ***
 
@@ -916,30 +500,10 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[0] += amp[0];
+  jamp[2] -= amp[0];
+  jamp[4] -= amp[0];
+  jamp[5] += amp[0];
 
   // *** DIAGRAM 21 OF 123 ***
 
@@ -951,30 +515,8 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[4] += cxtype( 0, 1 ) * amp[0];
+  jamp[5] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 22 OF 123 ***
 
@@ -987,29 +529,7 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
   jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
   jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 23 OF 123 ***
 
@@ -1021,30 +541,10 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[1] += amp[0];
+  jamp[2] -= amp[0];
+  jamp[3] += amp[0];
+  jamp[4] -= amp[0];
 
   // *** DIAGRAM 24 OF 123 ***
 
@@ -1056,30 +556,8 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[2] += cxtype( 0, 1 ) * amp[0];
+  jamp[3] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 25 OF 123 ***
 
@@ -1091,30 +569,8 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
   jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
   jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 26 OF 123 ***
 
@@ -1126,30 +582,7 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[1] -= amp[0];
 
   // *** DIAGRAM 27 OF 123 ***
 
@@ -1161,30 +594,7 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[4] -= amp[0];
 
   // *** DIAGRAM 28 OF 123 ***
 
@@ -1196,30 +606,7 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[0] -= amp[0];
 
   // *** DIAGRAM 29 OF 123 ***
 
@@ -1231,30 +618,7 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[2] -= amp[0];
 
   // *** DIAGRAM 30 OF 123 ***
 
@@ -1267,29 +631,7 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
   jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[1] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 31 OF 123 ***
 
@@ -1301,30 +643,10 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[0] += amp[0];
+  jamp[1] -= amp[0];
+  jamp[3] -= amp[0];
+  jamp[5] += amp[0];
 
   // *** DIAGRAM 32 OF 123 ***
 
@@ -1338,86 +660,26 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[0] += amp[0];
+  jamp[1] -= amp[0];
+  jamp[3] -= amp[0];
+  jamp[5] += amp[0];
   FFV1_0( w[3], w[12], w[19], COUPs[1], &amp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[1] -= amp[0];
+  jamp[2] += amp[0];
+  jamp[3] -= amp[0];
+  jamp[4] += amp[0];
   FFV1_0( w[3], w[12], w[8], COUPs[1], &amp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[0] -= amp[0];
+  jamp[2] += amp[0];
+  jamp[4] += amp[0];
+  jamp[5] -= amp[0];
 
   // *** DIAGRAM 33 OF 123 ***
 
@@ -1431,30 +693,7 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[11] -= amp[0];
 
   // *** DIAGRAM 34 OF 123 ***
 
@@ -1466,30 +705,7 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[9] -= amp[0];
 
   // *** DIAGRAM 35 OF 123 ***
 
@@ -1501,30 +717,8 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
+  jamp[9] += cxtype( 0, 1 ) * amp[0];
   jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 36 OF 123 ***
 
@@ -1536,30 +730,10 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[9] += amp[0];
+  jamp[15] -= amp[0];
+  jamp[21] -= amp[0];
+  jamp[23] += amp[0];
 
   // *** DIAGRAM 37 OF 123 ***
 
@@ -1571,30 +745,8 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[9] += cxtype( 0, 1 ) * amp[0];
+  jamp[15] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 38 OF 123 ***
 
@@ -1606,29 +758,7 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
   jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
   jamp[23] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 39 OF 123 ***
@@ -1641,30 +771,10 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[11] += amp[0];
+  jamp[15] -= amp[0];
+  jamp[17] += amp[0];
+  jamp[21] -= amp[0];
 
   // *** DIAGRAM 40 OF 123 ***
 
@@ -1676,30 +786,8 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[11] += cxtype( 0, 1 ) * amp[0];
+  jamp[21] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 41 OF 123 ***
 
@@ -1711,30 +799,8 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
   jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
   jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 42 OF 123 ***
 
@@ -1746,30 +812,7 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[17] -= amp[0];
 
   // *** DIAGRAM 43 OF 123 ***
 
@@ -1781,30 +824,7 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[15] -= amp[0];
 
   // *** DIAGRAM 44 OF 123 ***
 
@@ -1816,30 +836,7 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[23] -= amp[0];
 
   // *** DIAGRAM 45 OF 123 ***
 
@@ -1851,30 +848,7 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[21] -= amp[0];
 
   // *** DIAGRAM 46 OF 123 ***
 
@@ -1886,29 +860,7 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
+  jamp[17] += cxtype( 0, 1 ) * amp[0];
   jamp[23] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 47 OF 123 ***
@@ -1921,30 +873,10 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[9] += amp[0];
+  jamp[11] -= amp[0];
+  jamp[17] -= amp[0];
+  jamp[23] += amp[0];
 
   // *** DIAGRAM 48 OF 123 ***
 
@@ -1956,86 +888,26 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[9] += amp[0];
+  jamp[11] -= amp[0];
+  jamp[17] -= amp[0];
+  jamp[23] += amp[0];
   FFV1_0( w[12], w[2], w[19], COUPs[1], &amp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[11] -= amp[0];
+  jamp[15] += amp[0];
+  jamp[17] -= amp[0];
+  jamp[21] += amp[0];
   FFV1_0( w[12], w[2], w[8], COUPs[1], &amp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[9] -= amp[0];
+  jamp[15] += amp[0];
+  jamp[21] += amp[0];
+  jamp[23] -= amp[0];
 
   // *** DIAGRAM 49 OF 123 ***
 
@@ -2048,30 +920,8 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
   jamp[10] += cxtype( 0, 1 ) * amp[0];
   jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 50 OF 123 ***
 
@@ -2083,30 +933,10 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[6] += amp[0];
+  jamp[8] -= amp[0];
+  jamp[10] -= amp[0];
+  jamp[11] += amp[0];
 
   // *** DIAGRAM 51 OF 123 ***
 
@@ -2118,30 +948,8 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[6] += cxtype( 0, 1 ) * amp[0];
+  jamp[8] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 52 OF 123 ***
 
@@ -2153,30 +961,8 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
   jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
   jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 53 OF 123 ***
 
@@ -2188,30 +974,10 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[3] += amp[0];
+  jamp[13] -= amp[0];
+  jamp[19] -= amp[0];
+  jamp[22] += amp[0];
 
   // *** DIAGRAM 54 OF 123 ***
 
@@ -2223,30 +989,8 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[19] += cxtype( 0, 1 ) * amp[0];
+  jamp[22] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 55 OF 123 ***
 
@@ -2258,30 +1002,10 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
+  jamp[2] += amp[0];
+  jamp[3] -= amp[0];
   jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[13] += amp[0];
 
   // *** DIAGRAM 56 OF 123 ***
 
@@ -2293,30 +1017,10 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
+  jamp[10] += amp[0];
+  jamp[11] -= amp[0];
   jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[21] += amp[0];
 
   // *** DIAGRAM 57 OF 123 ***
 
@@ -2328,30 +1032,14 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
   jamp[2] -= cxtype( 0, 1 ) * amp[0];
   jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
   jamp[10] += cxtype( 0, 1 ) * amp[0];
   jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
+  jamp[12] += cxtype( 0, 1 ) * amp[0];
   jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
+  jamp[20] -= cxtype( 0, 1 ) * amp[0];
   jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 58 OF 123 ***
 
@@ -2363,86 +1051,38 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
+  jamp[2] += cxtype( 0, 1 ) * amp[0];
   jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
   jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
+  jamp[12] -= cxtype( 0, 1 ) * amp[0];
   jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
+  jamp[20] += cxtype( 0, 1 ) * amp[0];
+  jamp[21] -= cxtype( 0, 1 ) * amp[0];
   jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
   VVVV3_0( w[12], w[1], w[7], w[5], COUPs[2], &amp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[2] += cxtype( 0, 1 ) * amp[0];
+  jamp[3] -= cxtype( 0, 1 ) * amp[0];
+  jamp[10] -= cxtype( 0, 1 ) * amp[0];
+  jamp[11] += cxtype( 0, 1 ) * amp[0];
+  jamp[12] -= cxtype( 0, 1 ) * amp[0];
+  jamp[13] += cxtype( 0, 1 ) * amp[0];
+  jamp[20] += cxtype( 0, 1 ) * amp[0];
+  jamp[21] -= cxtype( 0, 1 ) * amp[0];
   VVVV4_0( w[12], w[1], w[7], w[5], COUPs[2], &amp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[3] -= cxtype( 0, 1 ) * amp[0];
+  jamp[6] += cxtype( 0, 1 ) * amp[0];
+  jamp[8] -= cxtype( 0, 1 ) * amp[0];
+  jamp[10] -= cxtype( 0, 1 ) * amp[0];
+  jamp[11] += cxtype( 0, 1 ) * amp[0];
+  jamp[13] += cxtype( 0, 1 ) * amp[0];
+  jamp[19] += cxtype( 0, 1 ) * amp[0];
+  jamp[22] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 59 OF 123 ***
 
@@ -2454,30 +1094,14 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
+  jamp[2] += cxtype( 0, 1 ) * amp[0];
   jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
   jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
+  jamp[12] -= cxtype( 0, 1 ) * amp[0];
   jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
+  jamp[20] += cxtype( 0, 1 ) * amp[0];
+  jamp[21] -= cxtype( 0, 1 ) * amp[0];
   jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 60 OF 123 ***
 
@@ -2489,30 +1113,14 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[3] -= cxtype( 0, 1 ) * amp[0];
+  jamp[6] += cxtype( 0, 1 ) * amp[0];
+  jamp[8] -= cxtype( 0, 1 ) * amp[0];
+  jamp[10] -= cxtype( 0, 1 ) * amp[0];
+  jamp[11] += cxtype( 0, 1 ) * amp[0];
+  jamp[13] += cxtype( 0, 1 ) * amp[0];
+  jamp[19] += cxtype( 0, 1 ) * amp[0];
+  jamp[22] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 61 OF 123 ***
 
@@ -2524,30 +1132,10 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
+  jamp[19] += amp[0];
   jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[21] += amp[0];
+  jamp[22] -= amp[0];
 
   // *** DIAGRAM 62 OF 123 ***
 
@@ -2559,30 +1147,8 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[20] += cxtype( 0, 1 ) * amp[0];
+  jamp[21] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 63 OF 123 ***
 
@@ -2594,30 +1160,10 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
+  jamp[2] += amp[0];
+  jamp[6] -= amp[0];
+  jamp[8] += amp[0];
   jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 64 OF 123 ***
 
@@ -2629,30 +1175,8 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[2] += cxtype( 0, 1 ) * amp[0];
+  jamp[12] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 65 OF 123 ***
 
@@ -2665,30 +1189,8 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
   jamp[8] += cxtype( 0, 1 ) * amp[0];
   jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 66 OF 123 ***
 
@@ -2700,30 +1202,10 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[7] += amp[0];
+  jamp[8] -= amp[0];
+  jamp[9] += amp[0];
+  jamp[10] -= amp[0];
 
   // *** DIAGRAM 67 OF 123 ***
 
@@ -2735,30 +1217,8 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[7] += cxtype( 0, 1 ) * amp[0];
+  jamp[10] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 68 OF 123 ***
 
@@ -2770,30 +1230,8 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
   jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
   jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 69 OF 123 ***
 
@@ -2805,30 +1243,10 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[5] += amp[0];
+  jamp[13] -= amp[0];
+  jamp[16] += amp[0];
+  jamp[19] -= amp[0];
 
   // *** DIAGRAM 70 OF 123 ***
 
@@ -2840,30 +1258,8 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[13] += cxtype( 0, 1 ) * amp[0];
+  jamp[16] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 71 OF 123 ***
 
@@ -2875,30 +1271,10 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[4] += amp[0];
+  jamp[5] -= amp[0];
+  jamp[18] -= amp[0];
+  jamp[19] += amp[0];
 
   // *** DIAGRAM 72 OF 123 ***
 
@@ -2910,30 +1286,10 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[8] += amp[0];
+  jamp[9] -= amp[0];
+  jamp[14] -= amp[0];
+  jamp[15] += amp[0];
 
   // *** DIAGRAM 73 OF 123 ***
 
@@ -2945,30 +1301,14 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
   jamp[4] -= cxtype( 0, 1 ) * amp[0];
   jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
   jamp[8] += cxtype( 0, 1 ) * amp[0];
   jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
+  jamp[14] -= cxtype( 0, 1 ) * amp[0];
   jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
+  jamp[18] += cxtype( 0, 1 ) * amp[0];
   jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 74 OF 123 ***
 
@@ -2980,86 +1320,38 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
+  jamp[4] += cxtype( 0, 1 ) * amp[0];
   jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
   jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
   jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
+  jamp[14] += cxtype( 0, 1 ) * amp[0];
+  jamp[15] -= cxtype( 0, 1 ) * amp[0];
   jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[18] -= cxtype( 0, 1 ) * amp[0];
   VVVV3_0( w[20], w[1], w[7], w[4], COUPs[2], &amp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[4] += cxtype( 0, 1 ) * amp[0];
+  jamp[5] -= cxtype( 0, 1 ) * amp[0];
+  jamp[8] -= cxtype( 0, 1 ) * amp[0];
+  jamp[9] += cxtype( 0, 1 ) * amp[0];
+  jamp[14] += cxtype( 0, 1 ) * amp[0];
+  jamp[15] -= cxtype( 0, 1 ) * amp[0];
+  jamp[18] -= cxtype( 0, 1 ) * amp[0];
+  jamp[19] += cxtype( 0, 1 ) * amp[0];
   VVVV4_0( w[20], w[1], w[7], w[4], COUPs[2], &amp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[5] -= cxtype( 0, 1 ) * amp[0];
+  jamp[7] += cxtype( 0, 1 ) * amp[0];
+  jamp[8] -= cxtype( 0, 1 ) * amp[0];
+  jamp[9] += cxtype( 0, 1 ) * amp[0];
+  jamp[10] -= cxtype( 0, 1 ) * amp[0];
+  jamp[13] += cxtype( 0, 1 ) * amp[0];
+  jamp[16] -= cxtype( 0, 1 ) * amp[0];
+  jamp[19] += cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 75 OF 123 ***
 
@@ -3071,30 +1363,14 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
+  jamp[4] += cxtype( 0, 1 ) * amp[0];
   jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
   jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
   jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
+  jamp[14] += cxtype( 0, 1 ) * amp[0];
+  jamp[15] -= cxtype( 0, 1 ) * amp[0];
   jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[18] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 76 OF 123 ***
 
@@ -3106,30 +1382,14 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[5] -= cxtype( 0, 1 ) * amp[0];
+  jamp[7] += cxtype( 0, 1 ) * amp[0];
+  jamp[8] -= cxtype( 0, 1 ) * amp[0];
+  jamp[9] += cxtype( 0, 1 ) * amp[0];
+  jamp[10] -= cxtype( 0, 1 ) * amp[0];
+  jamp[13] += cxtype( 0, 1 ) * amp[0];
+  jamp[16] -= cxtype( 0, 1 ) * amp[0];
+  jamp[19] += cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 77 OF 123 ***
 
@@ -3141,30 +1401,10 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[13] += amp[0];
+  jamp[14] -= amp[0];
+  jamp[15] += amp[0];
+  jamp[16] -= amp[0];
 
   // *** DIAGRAM 78 OF 123 ***
 
@@ -3176,30 +1416,8 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[14] += cxtype( 0, 1 ) * amp[0];
+  jamp[15] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 79 OF 123 ***
 
@@ -3211,30 +1429,10 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[4] += amp[0];
+  jamp[7] -= amp[0];
+  jamp[10] += amp[0];
+  jamp[18] -= amp[0];
 
   // *** DIAGRAM 80 OF 123 ***
 
@@ -3246,30 +1444,8 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[4] += cxtype( 0, 1 ) * amp[0];
+  jamp[18] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 81 OF 123 ***
 
@@ -3281,30 +1457,7 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[7] -= amp[0];
 
   // *** DIAGRAM 82 OF 123 ***
 
@@ -3316,30 +1469,7 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[10] -= amp[0];
 
   // *** DIAGRAM 83 OF 123 ***
 
@@ -3351,30 +1481,7 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[6] -= amp[0];
 
   // *** DIAGRAM 84 OF 123 ***
 
@@ -3386,30 +1493,7 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[8] -= amp[0];
 
   // *** DIAGRAM 85 OF 123 ***
 
@@ -3421,30 +1505,8 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
+  jamp[6] += cxtype( 0, 1 ) * amp[0];
   jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 86 OF 123 ***
 
@@ -3456,30 +1518,10 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[6] += amp[0];
+  jamp[7] -= amp[0];
+  jamp[9] -= amp[0];
+  jamp[11] += amp[0];
 
   // *** DIAGRAM 87 OF 123 ***
 
@@ -3491,30 +1533,7 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[16] -= amp[0];
 
   // *** DIAGRAM 88 OF 123 ***
 
@@ -3526,30 +1545,7 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[13] -= amp[0];
 
   // *** DIAGRAM 89 OF 123 ***
 
@@ -3561,30 +1557,7 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[22] -= amp[0];
 
   // *** DIAGRAM 90 OF 123 ***
 
@@ -3596,30 +1569,7 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[19] -= amp[0];
 
   // *** DIAGRAM 91 OF 123 ***
 
@@ -3631,30 +1581,8 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
   jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[22] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 92 OF 123 ***
 
@@ -3666,30 +1594,10 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[3] += amp[0];
+  jamp[5] -= amp[0];
+  jamp[16] -= amp[0];
+  jamp[22] += amp[0];
 
   // *** DIAGRAM 93 OF 123 ***
 
@@ -3702,85 +1610,37 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
   jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
   jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
+  jamp[8] -= cxtype( 0, 1 ) * amp[0];
+  jamp[14] += cxtype( 0, 1 ) * amp[0];
+  jamp[18] -= cxtype( 0, 1 ) * amp[0];
+  jamp[19] += cxtype( 0, 1 ) * amp[0];
   jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
   jamp[23] -= cxtype( 0, 1 ) * amp[0];
   VVVV3_0( w[0], w[6], w[7], w[5], COUPs[2], &amp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
   jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
   jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
   jamp[4] -= cxtype( 0, 1 ) * amp[0];
   jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
   jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
   jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
   jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
   jamp[23] -= cxtype( 0, 1 ) * amp[0];
   VVVV4_0( w[0], w[6], w[7], w[5], COUPs[2], &amp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
   jamp[4] -= cxtype( 0, 1 ) * amp[0];
   jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
   jamp[8] += cxtype( 0, 1 ) * amp[0];
   jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
+  jamp[14] -= cxtype( 0, 1 ) * amp[0];
   jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
+  jamp[18] += cxtype( 0, 1 ) * amp[0];
   jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 94 OF 123 ***
 
@@ -3793,28 +1653,12 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
   jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
   jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
+  jamp[8] -= cxtype( 0, 1 ) * amp[0];
+  jamp[14] += cxtype( 0, 1 ) * amp[0];
+  jamp[18] -= cxtype( 0, 1 ) * amp[0];
+  jamp[19] += cxtype( 0, 1 ) * amp[0];
   jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
   jamp[23] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 95 OF 123 ***
@@ -3828,28 +1672,12 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
   jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
   jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
   jamp[4] -= cxtype( 0, 1 ) * amp[0];
   jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
   jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
   jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
   jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
   jamp[23] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 96 OF 123 ***
@@ -3862,30 +1690,10 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
   jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[19] -= amp[0];
+  jamp[21] -= amp[0];
+  jamp[23] += amp[0];
 
   // *** DIAGRAM 97 OF 123 ***
 
@@ -3897,30 +1705,8 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
+  jamp[18] += cxtype( 0, 1 ) * amp[0];
   jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 98 OF 123 ***
 
@@ -3932,30 +1718,10 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
+  jamp[0] += amp[0];
+  jamp[2] -= amp[0];
+  jamp[8] -= amp[0];
   jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 99 OF 123 ***
 
@@ -3967,30 +1733,8 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
   jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[14] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 100 OF 123 ***
 
@@ -4002,86 +1746,38 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
   jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
   jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
+  jamp[10] -= cxtype( 0, 1 ) * amp[0];
+  jamp[12] -= cxtype( 0, 1 ) * amp[0];
+  jamp[13] += cxtype( 0, 1 ) * amp[0];
   jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
   jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[20] += cxtype( 0, 1 ) * amp[0];
   VVVV3_0( w[0], w[18], w[7], w[4], COUPs[2], &amp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
   jamp[1] += cxtype( 0, 1 ) * amp[0];
   jamp[2] -= cxtype( 0, 1 ) * amp[0];
   jamp[3] += cxtype( 0, 1 ) * amp[0];
   jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
   jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
   jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
   jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
   jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
   VVVV4_0( w[0], w[18], w[7], w[4], COUPs[2], &amp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
   jamp[2] -= cxtype( 0, 1 ) * amp[0];
   jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
   jamp[10] += cxtype( 0, 1 ) * amp[0];
   jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
+  jamp[12] += cxtype( 0, 1 ) * amp[0];
   jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
+  jamp[20] -= cxtype( 0, 1 ) * amp[0];
   jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 101 OF 123 ***
 
@@ -4093,30 +1789,14 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
   jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
   jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
+  jamp[10] -= cxtype( 0, 1 ) * amp[0];
+  jamp[12] -= cxtype( 0, 1 ) * amp[0];
+  jamp[13] += cxtype( 0, 1 ) * amp[0];
   jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
   jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[20] += cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 102 OF 123 ***
 
@@ -4128,30 +1808,14 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
   jamp[1] += cxtype( 0, 1 ) * amp[0];
   jamp[2] -= cxtype( 0, 1 ) * amp[0];
   jamp[3] += cxtype( 0, 1 ) * amp[0];
   jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
   jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
   jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
   jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
   jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 103 OF 123 ***
 
@@ -4163,30 +1827,10 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[12] += amp[0];
+  jamp[13] -= amp[0];
+  jamp[15] -= amp[0];
+  jamp[17] += amp[0];
 
   // *** DIAGRAM 104 OF 123 ***
 
@@ -4198,30 +1842,8 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
+  jamp[12] += cxtype( 0, 1 ) * amp[0];
   jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 105 OF 123 ***
 
@@ -4233,30 +1855,10 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[1] += amp[0];
+  jamp[4] -= amp[0];
+  jamp[10] -= amp[0];
+  jamp[20] += amp[0];
 
   // *** DIAGRAM 106 OF 123 ***
 
@@ -4268,30 +1870,8 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
   jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[20] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 107 OF 123 ***
 
@@ -4304,27 +1884,11 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
   jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
+  jamp[1] -= cxtype( 0, 1 ) * amp[0];
   jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
+  jamp[7] += cxtype( 0, 1 ) * amp[0];
+  jamp[16] -= cxtype( 0, 1 ) * amp[0];
+  jamp[17] += cxtype( 0, 1 ) * amp[0];
   jamp[22] += cxtype( 0, 1 ) * amp[0];
   jamp[23] -= cxtype( 0, 1 ) * amp[0];
   VVVV3_0( w[0], w[1], w[7], w[10], COUPs[2], &amp[0] );
@@ -4332,57 +1896,25 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
   jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
+  jamp[1] -= cxtype( 0, 1 ) * amp[0];
+  jamp[3] -= cxtype( 0, 1 ) * amp[0];
   jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
   jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
+  jamp[11] += cxtype( 0, 1 ) * amp[0];
+  jamp[17] += cxtype( 0, 1 ) * amp[0];
   jamp[23] -= cxtype( 0, 1 ) * amp[0];
   VVVV4_0( w[0], w[1], w[7], w[10], COUPs[2], &amp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
+  jamp[3] -= cxtype( 0, 1 ) * amp[0];
   jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
+  jamp[6] += cxtype( 0, 1 ) * amp[0];
   jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
   jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
+  jamp[11] += cxtype( 0, 1 ) * amp[0];
   jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[22] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 108 OF 123 ***
 
@@ -4395,28 +1927,12 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
   jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
+  jamp[1] -= cxtype( 0, 1 ) * amp[0];
+  jamp[3] -= cxtype( 0, 1 ) * amp[0];
   jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
   jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
+  jamp[11] += cxtype( 0, 1 ) * amp[0];
+  jamp[17] += cxtype( 0, 1 ) * amp[0];
   jamp[23] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 109 OF 123 ***
@@ -4429,30 +1945,14 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
+  jamp[3] -= cxtype( 0, 1 ) * amp[0];
   jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
+  jamp[6] += cxtype( 0, 1 ) * amp[0];
   jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
   jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
+  jamp[11] += cxtype( 0, 1 ) * amp[0];
   jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[22] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 110 OF 123 ***
 
@@ -4464,30 +1964,7 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
   jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 111 OF 123 ***
 
@@ -4499,30 +1976,7 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[14] -= amp[0];
 
   // *** DIAGRAM 112 OF 123 ***
 
@@ -4534,30 +1988,7 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[18] -= amp[0];
 
   // *** DIAGRAM 113 OF 123 ***
 
@@ -4569,30 +2000,7 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
   jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 114 OF 123 ***
 
@@ -4607,85 +2015,37 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
   jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
   jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
+  jamp[8] -= cxtype( 0, 1 ) * amp[0];
+  jamp[14] += cxtype( 0, 1 ) * amp[0];
+  jamp[18] -= cxtype( 0, 1 ) * amp[0];
+  jamp[19] += cxtype( 0, 1 ) * amp[0];
   jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
   jamp[23] -= cxtype( 0, 1 ) * amp[0];
   VVV1_0( w[24], w[7], w[5], COUPs[0], &amp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
   jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
+  jamp[6] += cxtype( 0, 1 ) * amp[0];
+  jamp[8] -= cxtype( 0, 1 ) * amp[0];
+  jamp[12] += cxtype( 0, 1 ) * amp[0];
+  jamp[19] += cxtype( 0, 1 ) * amp[0];
+  jamp[20] -= cxtype( 0, 1 ) * amp[0];
   jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[22] -= cxtype( 0, 1 ) * amp[0];
   VVV1_0( w[21], w[7], w[5], COUPs[0], &amp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[0] -= cxtype( 0, 1 ) * amp[0];
+  jamp[6] += cxtype( 0, 1 ) * amp[0];
+  jamp[12] += cxtype( 0, 1 ) * amp[0];
+  jamp[14] -= cxtype( 0, 1 ) * amp[0];
+  jamp[18] += cxtype( 0, 1 ) * amp[0];
+  jamp[20] -= cxtype( 0, 1 ) * amp[0];
+  jamp[22] -= cxtype( 0, 1 ) * amp[0];
+  jamp[23] += cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 115 OF 123 ***
 
@@ -4697,86 +2057,26 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
   jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[19] -= amp[0];
+  jamp[21] -= amp[0];
+  jamp[23] += amp[0];
   FFV1_0( w[3], w[14], w[24], COUPs[1], &amp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[19] -= amp[0];
+  jamp[20] += amp[0];
+  jamp[21] -= amp[0];
+  jamp[22] += amp[0];
   FFV1_0( w[3], w[14], w[21], COUPs[1], &amp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[18] -= amp[0];
+  jamp[20] += amp[0];
+  jamp[22] += amp[0];
+  jamp[23] -= amp[0];
 
   // *** DIAGRAM 116 OF 123 ***
 
@@ -4788,86 +2088,26 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
+  jamp[0] += amp[0];
+  jamp[2] -= amp[0];
+  jamp[8] -= amp[0];
   jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
   FFV1_0( w[13], w[2], w[24], COUPs[1], &amp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[2] -= amp[0];
+  jamp[6] += amp[0];
+  jamp[8] -= amp[0];
+  jamp[12] += amp[0];
   FFV1_0( w[13], w[2], w[21], COUPs[1], &amp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[0] -= amp[0];
+  jamp[6] += amp[0];
+  jamp[12] += amp[0];
+  jamp[14] -= amp[0];
 
   // *** DIAGRAM 117 OF 123 ***
 
@@ -4881,86 +2121,38 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
   jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
   jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
+  jamp[10] -= cxtype( 0, 1 ) * amp[0];
+  jamp[12] -= cxtype( 0, 1 ) * amp[0];
+  jamp[13] += cxtype( 0, 1 ) * amp[0];
   jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
   jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[20] += cxtype( 0, 1 ) * amp[0];
   VVV1_0( w[13], w[7], w[4], COUPs[0], &amp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
   jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
+  jamp[7] += cxtype( 0, 1 ) * amp[0];
+  jamp[10] -= cxtype( 0, 1 ) * amp[0];
+  jamp[13] += cxtype( 0, 1 ) * amp[0];
+  jamp[14] -= cxtype( 0, 1 ) * amp[0];
   jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[16] -= cxtype( 0, 1 ) * amp[0];
+  jamp[18] += cxtype( 0, 1 ) * amp[0];
   VVV1_0( w[24], w[7], w[4], COUPs[0], &amp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[1] -= cxtype( 0, 1 ) * amp[0];
+  jamp[7] += cxtype( 0, 1 ) * amp[0];
+  jamp[12] += cxtype( 0, 1 ) * amp[0];
+  jamp[14] -= cxtype( 0, 1 ) * amp[0];
+  jamp[16] -= cxtype( 0, 1 ) * amp[0];
+  jamp[17] += cxtype( 0, 1 ) * amp[0];
+  jamp[18] += cxtype( 0, 1 ) * amp[0];
+  jamp[20] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 118 OF 123 ***
 
@@ -4972,86 +2164,26 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[12] += amp[0];
+  jamp[13] -= amp[0];
+  jamp[15] -= amp[0];
+  jamp[17] += amp[0];
   FFV1_0( w[3], w[11], w[13], COUPs[1], &amp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
+  jamp[13] -= amp[0];
   jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[15] -= amp[0];
+  jamp[16] += amp[0];
   FFV1_0( w[3], w[11], w[24], COUPs[1], &amp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
   jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
   jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[16] += amp[0];
+  jamp[17] -= amp[0];
 
   // *** DIAGRAM 119 OF 123 ***
 
@@ -5063,86 +2195,26 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[1] += amp[0];
+  jamp[4] -= amp[0];
+  jamp[10] -= amp[0];
+  jamp[20] += amp[0];
   FFV1_0( w[15], w[2], w[13], COUPs[1], &amp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
+  jamp[4] -= amp[0];
+  jamp[7] += amp[0];
+  jamp[10] -= amp[0];
   jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
   FFV1_0( w[15], w[2], w[24], COUPs[1], &amp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
+  jamp[1] -= amp[0];
+  jamp[7] += amp[0];
   jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
   jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 120 OF 123 ***
 
@@ -5156,86 +2228,26 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[6] += amp[0];
+  jamp[7] -= amp[0];
+  jamp[9] -= amp[0];
+  jamp[11] += amp[0];
   FFV1_0( w[3], w[9], w[15], COUPs[1], &amp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[7] -= amp[0];
+  jamp[8] += amp[0];
+  jamp[9] -= amp[0];
+  jamp[10] += amp[0];
   FFV1_0( w[3], w[9], w[13], COUPs[1], &amp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[6] -= amp[0];
+  jamp[8] += amp[0];
+  jamp[10] += amp[0];
+  jamp[11] -= amp[0];
 
   // *** DIAGRAM 121 OF 123 ***
 
@@ -5247,86 +2259,26 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[3] += amp[0];
+  jamp[5] -= amp[0];
+  jamp[16] -= amp[0];
+  jamp[22] += amp[0];
   FFV1_0( w[16], w[2], w[15], COUPs[1], &amp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[5] -= amp[0];
+  jamp[13] += amp[0];
+  jamp[16] -= amp[0];
+  jamp[19] += amp[0];
   FFV1_0( w[16], w[2], w[13], COUPs[1], &amp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[3] -= amp[0];
+  jamp[13] += amp[0];
+  jamp[19] += amp[0];
+  jamp[22] -= amp[0];
 
   // *** DIAGRAM 122 OF 123 ***
 
@@ -5338,86 +2290,38 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
+  jamp[3] -= cxtype( 0, 1 ) * amp[0];
   jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
+  jamp[6] += cxtype( 0, 1 ) * amp[0];
   jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
   jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
+  jamp[11] += cxtype( 0, 1 ) * amp[0];
   jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[22] -= cxtype( 0, 1 ) * amp[0];
   VVV1_0( w[15], w[1], w[7], COUPs[0], &amp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
   jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
   jamp[7] -= cxtype( 0, 1 ) * amp[0];
   jamp[8] += cxtype( 0, 1 ) * amp[0];
   jamp[9] -= cxtype( 0, 1 ) * amp[0];
   jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
   jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
   jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
   jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
   VVV1_0( w[13], w[1], w[7], COUPs[0], &amp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
   jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
   jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
   jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
   jamp[10] += cxtype( 0, 1 ) * amp[0];
   jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
   jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
   jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
   jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 123 OF 123 ***
 
@@ -5429,85 +2333,37 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
+  jamp[0] -= cxtype( 0, 1 ) * amp[0];
   jamp[1] += cxtype( 0, 1 ) * amp[0];
-  jamp[2] -= cxtype( 0, 1 ) * amp[0];
   jamp[3] += cxtype( 0, 1 ) * amp[0];
-  jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
+  jamp[5] -= cxtype( 0, 1 ) * amp[0];
+  jamp[9] += cxtype( 0, 1 ) * amp[0];
   jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
-  jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
   jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
-  jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
+  jamp[23] += cxtype( 0, 1 ) * amp[0];
   VVV1_0( w[0], w[19], w[7], COUPs[0], &amp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] += cxtype( 0, 1 ) * amp[0];
   jamp[1] += cxtype( 0, 1 ) * amp[0];
   jamp[2] -= cxtype( 0, 1 ) * amp[0];
   jamp[3] += cxtype( 0, 1 ) * amp[0];
   jamp[4] -= cxtype( 0, 1 ) * amp[0];
-  jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
-  jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
   jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
   jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
   jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
   jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
-  jamp[23] -= cxtype( 0, 1 ) * amp[0];
   VVV1_0( w[0], w[8], w[7], COUPs[0], &amp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
   jamp[0] += cxtype( 0, 1 ) * amp[0];
-  jamp[1] += cxtype( 0, 1 ) * amp[0];
   jamp[2] -= cxtype( 0, 1 ) * amp[0];
-  jamp[3] += cxtype( 0, 1 ) * amp[0];
   jamp[4] -= cxtype( 0, 1 ) * amp[0];
   jamp[5] += cxtype( 0, 1 ) * amp[0];
-  jamp[6] -= cxtype( 0, 1 ) * amp[0];
-  jamp[7] -= cxtype( 0, 1 ) * amp[0];
-  jamp[8] += cxtype( 0, 1 ) * amp[0];
   jamp[9] -= cxtype( 0, 1 ) * amp[0];
-  jamp[10] += cxtype( 0, 1 ) * amp[0];
-  jamp[11] -= cxtype( 0, 1 ) * amp[0];
-  jamp[12] -= amp[0];
-  jamp[13] -= cxtype( 0, 1 ) * amp[0];
-  jamp[14] += amp[0];
   jamp[15] += cxtype( 0, 1 ) * amp[0];
-  jamp[16] += cxtype( 0, 1 ) * amp[0];
-  jamp[17] -= cxtype( 0, 1 ) * amp[0];
-  jamp[18] += amp[0];
-  jamp[19] -= cxtype( 0, 1 ) * amp[0];
-  jamp[20] -= amp[0];
   jamp[21] += cxtype( 0, 1 ) * amp[0];
-  jamp[22] += cxtype( 0, 1 ) * amp[0];
   jamp[23] -= cxtype( 0, 1 ) * amp[0];
 
   // *** COLOR ALGEBRA BELOW ***

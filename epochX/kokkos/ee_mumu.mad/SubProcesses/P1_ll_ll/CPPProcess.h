@@ -123,7 +123,14 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
   // *** DIAGRAM 1 OF 2 ***
 
   // Wavefunction(s) for diagram number 1
-  opzxxx( Kokkos::subview(allmomenta, 0, Kokkos::ALL), cHel[0], -1, w[0] ); // NB: opzxxx only uses pz
+#if not defined KOKKOS_ENABLE_CUDA
+      opzxxx( Kokkos::subview(allmomenta, 0, Kokkos::ALL), cHel[0], -1, w[0] ); // NB: opzxxx only uses pz
+#else
+      if ( ievt % 2 == 0 )
+        opzxxx( Kokkos::subview(allmomenta, 0, Kokkos::ALL), cHel[0], -1, w[0] ); // NB: opzxxx only uses pz
+      else
+        oxxxxx( Kokkos::subview(allmomenta, 0, 0, Kokkos::ALL), cHel[0], -1, w[0] );
+#endif
 
   imzxxx( Kokkos::subview(allmomenta, 1, Kokkos::ALL), cHel[1], +1, w[1] ); // NB: imzxxx only uses pz
 
@@ -148,6 +155,10 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 
   // Amplitude(s) for diagram number 2
   FFV2_4_0( w[2], w[3], w[4], COUPs[1], COUPs[2], &amp[0] );
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+  if( channelId == 2 ) allNumerators[0] += cxabs2( amp[0] );
+  if( channelId != 0 ) allDenominators[0] += cxabs2( amp[0] );
+#endif
   jamp[0] -= amp[0];
 
   // *** COLOR ALGEBRA BELOW ***

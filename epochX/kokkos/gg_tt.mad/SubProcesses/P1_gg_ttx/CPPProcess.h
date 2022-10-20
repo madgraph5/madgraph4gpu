@@ -139,8 +139,8 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
   if( channelId == 1 ) allNumerators[0] += cxabs2( amp[0] );
   if( channelId != 0 ) allDenominators[0] += cxabs2( amp[0] );
 #endif
-  jamp[0] -= amp[0];
-  jamp[1] -= amp[0];
+  jamp[0] += cxtype( 0, 1 ) * amp[0];
+  jamp[1] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 2 OF 3 ***
 
@@ -149,8 +149,11 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 
   // Amplitude(s) for diagram number 2
   FFV1_0( w[3], w[4], w[1], COUPs[1], &amp[0] );
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+  if( channelId == 2 ) allNumerators[0] += cxabs2( amp[0] );
+  if( channelId != 0 ) allDenominators[0] += cxabs2( amp[0] );
+#endif
   jamp[0] -= amp[0];
-  jamp[1] -= amp[0];
 
   // *** DIAGRAM 3 OF 3 ***
 
@@ -159,7 +162,10 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 
   // Amplitude(s) for diagram number 3
   FFV1_0( w[4], w[2], w[1], COUPs[1], &amp[0] );
-  jamp[0] -= amp[0];
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+  if( channelId == 3 ) allNumerators[0] += cxabs2( amp[0] );
+  if( channelId != 0 ) allDenominators[0] += cxabs2( amp[0] );
+#endif
   jamp[1] -= amp[0];
 
   // *** COLOR ALGEBRA BELOW ***

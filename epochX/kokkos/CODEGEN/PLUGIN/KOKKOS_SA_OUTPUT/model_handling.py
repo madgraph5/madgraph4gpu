@@ -949,6 +949,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
 
         replace_dict['assign_coupling'] = coup_str + param_str
         file = self.read_template_file(self.process_definition_template) % replace_dict
+        self.__process_function_definitions__ = file
         return file
 
     # AV - modify export_cpp.OneProcessExporterGPU method (add debug printouts for multichannel #342)
@@ -1183,7 +1184,7 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
         # Kokkos puts source code in header and the helicities are set in the process_function_definitions
         #cc_replace_dict = super(PLUGIN_export_cpp.OneProcessExporterGPU, self).write_process_cc_file(False)
         #replace_dict['process_function_definitions'] = cc_replace_dict['process_function_definitions'] 
-        replace_dict['process_function_definitions'] = self.get_process_function_definitions(write=False)
+        replace_dict['process_function_definitions'] = self.__process_function_definitions__
 
         #Set helicities
         replace_dict['all_helicities'] = self.get_helicity_matrix(self.matrix_elements[0])

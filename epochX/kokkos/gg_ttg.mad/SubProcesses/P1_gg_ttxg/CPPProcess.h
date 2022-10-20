@@ -159,9 +159,7 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
   if( channelId != 0 ) allDenominators[0] += cxabs2( amp[0] );
 #endif
   jamp[0] -= amp[0];
-  jamp[1] -= amp[0];
   jamp[2] += amp[0];
-  jamp[3] -= amp[0];
   jamp[4] += amp[0];
   jamp[5] -= amp[0];
 
@@ -172,12 +170,12 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 
   // Amplitude(s) for diagram number 2
   FFV1_0( w[3], w[7], w[5], COUPs[1], &amp[0] );
-  jamp[0] -= amp[0];
-  jamp[1] -= amp[0];
-  jamp[2] += amp[0];
-  jamp[3] -= amp[0];
-  jamp[4] += amp[0];
-  jamp[5] -= amp[0];
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+  if( channelId == 2 ) allNumerators[0] += cxabs2( amp[0] );
+  if( channelId != 0 ) allDenominators[0] += cxabs2( amp[0] );
+#endif
+  jamp[4] += cxtype( 0, 1 ) * amp[0];
+  jamp[5] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 3 OF 16 ***
 
@@ -186,12 +184,12 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 
   // Amplitude(s) for diagram number 3
   FFV1_0( w[8], w[2], w[5], COUPs[1], &amp[0] );
-  jamp[0] -= amp[0];
-  jamp[1] -= amp[0];
-  jamp[2] += amp[0];
-  jamp[3] -= amp[0];
-  jamp[4] += amp[0];
-  jamp[5] -= amp[0];
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+  if( channelId == 3 ) allNumerators[0] += cxabs2( amp[0] );
+  if( channelId != 0 ) allDenominators[0] += cxabs2( amp[0] );
+#endif
+  jamp[0] += cxtype( 0, 1 ) * amp[0];
+  jamp[2] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 4 OF 16 ***
 
@@ -201,12 +199,11 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 
   // Amplitude(s) for diagram number 4
   FFV1_0( w[9], w[5], w[4], COUPs[1], &amp[0] );
-  jamp[0] -= amp[0];
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+  if( channelId == 4 ) allNumerators[0] += cxabs2( amp[0] );
+  if( channelId != 0 ) allDenominators[0] += cxabs2( amp[0] );
+#endif
   jamp[1] -= amp[0];
-  jamp[2] += amp[0];
-  jamp[3] -= amp[0];
-  jamp[4] += amp[0];
-  jamp[5] -= amp[0];
 
   // *** DIAGRAM 5 OF 16 ***
 
@@ -215,12 +212,12 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 
   // Amplitude(s) for diagram number 5
   FFV1_0( w[3], w[5], w[10], COUPs[1], &amp[0] );
-  jamp[0] -= amp[0];
-  jamp[1] -= amp[0];
-  jamp[2] += amp[0];
-  jamp[3] -= amp[0];
-  jamp[4] += amp[0];
-  jamp[5] -= amp[0];
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+  if( channelId == 5 ) allNumerators[0] += cxabs2( amp[0] );
+  if( channelId != 0 ) allDenominators[0] += cxabs2( amp[0] );
+#endif
+  jamp[0] += cxtype( 0, 1 ) * amp[0];
+  jamp[1] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 6 OF 16 ***
 
@@ -229,12 +226,11 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 
   // Amplitude(s) for diagram number 6
   FFV1_0( w[8], w[5], w[1], COUPs[1], &amp[0] );
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+  if( channelId == 6 ) allNumerators[0] += cxabs2( amp[0] );
+  if( channelId != 0 ) allDenominators[0] += cxabs2( amp[0] );
+#endif
   jamp[0] -= amp[0];
-  jamp[1] -= amp[0];
-  jamp[2] += amp[0];
-  jamp[3] -= amp[0];
-  jamp[4] += amp[0];
-  jamp[5] -= amp[0];
 
   // *** DIAGRAM 7 OF 16 ***
 
@@ -244,12 +240,11 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 
   // Amplitude(s) for diagram number 7
   FFV1_0( w[5], w[11], w[4], COUPs[1], &amp[0] );
-  jamp[0] -= amp[0];
-  jamp[1] -= amp[0];
-  jamp[2] += amp[0];
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+  if( channelId == 7 ) allNumerators[0] += cxabs2( amp[0] );
+  if( channelId != 0 ) allDenominators[0] += cxabs2( amp[0] );
+#endif
   jamp[3] -= amp[0];
-  jamp[4] += amp[0];
-  jamp[5] -= amp[0];
 
   // *** DIAGRAM 8 OF 16 ***
 
@@ -258,12 +253,12 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 
   // Amplitude(s) for diagram number 8
   FFV1_0( w[5], w[2], w[10], COUPs[1], &amp[0] );
-  jamp[0] -= amp[0];
-  jamp[1] -= amp[0];
-  jamp[2] += amp[0];
-  jamp[3] -= amp[0];
-  jamp[4] += amp[0];
-  jamp[5] -= amp[0];
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+  if( channelId == 8 ) allNumerators[0] += cxabs2( amp[0] );
+  if( channelId != 0 ) allDenominators[0] += cxabs2( amp[0] );
+#endif
+  jamp[3] += cxtype( 0, 1 ) * amp[0];
+  jamp[5] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 9 OF 16 ***
 
@@ -272,11 +267,10 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 
   // Amplitude(s) for diagram number 9
   FFV1_0( w[5], w[7], w[1], COUPs[1], &amp[0] );
-  jamp[0] -= amp[0];
-  jamp[1] -= amp[0];
-  jamp[2] += amp[0];
-  jamp[3] -= amp[0];
-  jamp[4] += amp[0];
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+  if( channelId == 9 ) allNumerators[0] += cxabs2( amp[0] );
+  if( channelId != 0 ) allDenominators[0] += cxabs2( amp[0] );
+#endif
   jamp[5] -= amp[0];
 
   // *** DIAGRAM 10 OF 16 ***
@@ -286,12 +280,12 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 
   // Amplitude(s) for diagram number 10
   FFV1_0( w[3], w[11], w[5], COUPs[1], &amp[0] );
-  jamp[0] -= amp[0];
-  jamp[1] -= amp[0];
-  jamp[2] += amp[0];
-  jamp[3] -= amp[0];
-  jamp[4] += amp[0];
-  jamp[5] -= amp[0];
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+  if( channelId == 10 ) allNumerators[0] += cxabs2( amp[0] );
+  if( channelId != 0 ) allDenominators[0] += cxabs2( amp[0] );
+#endif
+  jamp[2] += cxtype( 0, 1 ) * amp[0];
+  jamp[3] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 11 OF 16 ***
 
@@ -300,12 +294,12 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 
   // Amplitude(s) for diagram number 11
   FFV1_0( w[9], w[2], w[5], COUPs[1], &amp[0] );
-  jamp[0] -= amp[0];
-  jamp[1] -= amp[0];
-  jamp[2] += amp[0];
-  jamp[3] -= amp[0];
-  jamp[4] += amp[0];
-  jamp[5] -= amp[0];
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+  if( channelId == 11 ) allNumerators[0] += cxabs2( amp[0] );
+  if( channelId != 0 ) allDenominators[0] += cxabs2( amp[0] );
+#endif
+  jamp[1] += cxtype( 0, 1 ) * amp[0];
+  jamp[4] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 12 OF 16 ***
 
@@ -314,12 +308,14 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 
   // Amplitude(s) for diagram number 12
   VVV1_0( w[5], w[1], w[6], COUPs[0], &amp[0] );
-  jamp[0] -= amp[0];
-  jamp[1] -= amp[0];
-  jamp[2] += amp[0];
-  jamp[3] -= amp[0];
-  jamp[4] += amp[0];
-  jamp[5] -= amp[0];
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+  if( channelId == 12 ) allNumerators[0] += cxabs2( amp[0] );
+  if( channelId != 0 ) allDenominators[0] += cxabs2( amp[0] );
+#endif
+  jamp[1] += amp[0];
+  jamp[2] -= amp[0];
+  jamp[3] += amp[0];
+  jamp[4] -= amp[0];
 
   // *** DIAGRAM 13 OF 16 ***
 
@@ -328,12 +324,11 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 
   // Amplitude(s) for diagram number 13
   FFV1_0( w[8], w[11], w[0], COUPs[1], &amp[0] );
-  jamp[0] -= amp[0];
-  jamp[1] -= amp[0];
-  jamp[2] += amp[0];
-  jamp[3] -= amp[0];
-  jamp[4] += amp[0];
-  jamp[5] -= amp[0];
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+  if( channelId == 13 ) allNumerators[0] += cxabs2( amp[0] );
+  if( channelId != 0 ) allDenominators[0] += cxabs2( amp[0] );
+#endif
+  jamp[2] -= amp[0];
 
   // *** DIAGRAM 14 OF 16 ***
 
@@ -342,12 +337,11 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 
   // Amplitude(s) for diagram number 14
   FFV1_0( w[9], w[7], w[0], COUPs[1], &amp[0] );
-  jamp[0] -= amp[0];
-  jamp[1] -= amp[0];
-  jamp[2] += amp[0];
-  jamp[3] -= amp[0];
-  jamp[4] += amp[0];
-  jamp[5] -= amp[0];
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+  if( channelId == 14 ) allNumerators[0] += cxabs2( amp[0] );
+  if( channelId != 0 ) allDenominators[0] += cxabs2( amp[0] );
+#endif
+  jamp[4] -= amp[0];
 
   // *** DIAGRAM 15 OF 16 ***
 
@@ -356,12 +350,14 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 
   // Amplitude(s) for diagram number 15
   VVV1_0( w[0], w[10], w[6], COUPs[0], &amp[0] );
-  jamp[0] -= amp[0];
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+  if( channelId == 15 ) allNumerators[0] += cxabs2( amp[0] );
+  if( channelId != 0 ) allDenominators[0] += cxabs2( amp[0] );
+#endif
+  jamp[0] += amp[0];
   jamp[1] -= amp[0];
-  jamp[2] += amp[0];
   jamp[3] -= amp[0];
-  jamp[4] += amp[0];
-  jamp[5] -= amp[0];
+  jamp[5] += amp[0];
 
   // *** DIAGRAM 16 OF 16 ***
 
@@ -372,24 +368,18 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 
   // Amplitude(s) for diagram number 16
   FFV1_0( w[3], w[2], w[10], COUPs[1], &amp[0] );
-  jamp[0] -= amp[0];
+  jamp[0] += amp[0];
   jamp[1] -= amp[0];
-  jamp[2] += amp[0];
   jamp[3] -= amp[0];
-  jamp[4] += amp[0];
-  jamp[5] -= amp[0];
+  jamp[5] += amp[0];
   FFV1_0( w[3], w[2], w[6], COUPs[1], &amp[0] );
-  jamp[0] -= amp[0];
   jamp[1] -= amp[0];
   jamp[2] += amp[0];
   jamp[3] -= amp[0];
   jamp[4] += amp[0];
-  jamp[5] -= amp[0];
   FFV1_0( w[3], w[2], w[9], COUPs[1], &amp[0] );
   jamp[0] -= amp[0];
-  jamp[1] -= amp[0];
   jamp[2] += amp[0];
-  jamp[3] -= amp[0];
   jamp[4] += amp[0];
   jamp[5] -= amp[0];
 

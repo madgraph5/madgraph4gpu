@@ -123,7 +123,14 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
   // *** DIAGRAM 1 OF 2 ***
 
   // Wavefunction(s) for diagram number 1
-  opzxxx( Kokkos::subview(allmomenta, 0, Kokkos::ALL), cHel[0], -1, w[0] ); // NB: opzxxx only uses pz
+#if not defined KOKKOS_ENABLE_CUDA
+      opzxxx( Kokkos::subview(allmomenta, 0, Kokkos::ALL), cHel[0], -1, w[0] ); // NB: opzxxx only uses pz
+#else
+      if ( ievt % 2 == 0 )
+        opzxxx( Kokkos::subview(allmomenta, 0, Kokkos::ALL), cHel[0], -1, w[0] ); // NB: opzxxx only uses pz
+      else
+        oxxxxx( Kokkos::subview(allmomenta, 0, 0, Kokkos::ALL), cHel[0], -1, w[0] );
+#endif
 
   imzxxx( Kokkos::subview(allmomenta, 1, Kokkos::ALL), cHel[1], +1, w[1] ); // NB: imzxxx only uses pz
 

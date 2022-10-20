@@ -138,8 +138,8 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] -= amp[0];
-  jamp[1] -= amp[0];
+  jamp[0] += cxtype( 0, 1 ) * amp[0];
+  jamp[1] -= cxtype( 0, 1 ) * amp[0];
 
   // *** DIAGRAM 2 OF 3 ***
 
@@ -152,7 +152,6 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
   jamp[0] -= amp[0];
-  jamp[1] -= amp[0];
 
   // *** DIAGRAM 3 OF 3 ***
 
@@ -164,7 +163,6 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // Here the code base generated with multichannel support updates numerators and denominators (#473)
 #endif
-  jamp[0] -= amp[0];
   jamp[1] -= amp[0];
 
   // *** COLOR ALGEBRA BELOW ***
