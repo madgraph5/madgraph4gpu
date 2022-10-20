@@ -364,4 +364,10 @@ cxtype cxternary( const bool& mask, const cxtype& a, const cxtype& b )
   return ( mask ? a : b );
 }
 
+//FIXME no KOKKOS::Experimental::fabs(Kokkos::complex<FPType>) support
+KOKKOS_INLINE_FUNCTION
+fptype cxabs2( const cxtype& c ) {
+    return cxreal( c ) * cxreal( c ) + cximag( c ) * cximag( c );
+}
+
 #endif // MGONGPUTYPES_H

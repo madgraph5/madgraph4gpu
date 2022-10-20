@@ -203,10 +203,10 @@ private:
   // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
 template <typename mom_t, typename ipc_t, typename ipd_t>
 KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
-  const mom_t& allmomenta, // input: momenta
+  const mom_t& allmomenta,              // input: momenta
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-  fptype& allNumerators,   // output: multichannel numerators, running_sum_over_helicities
-  fptype& allDenominators, // output: multichannel denominators, running_sum_over_helicities
+  fptype* allNumerators,                // output: multichannel numerators, running_sum_over_helicities
+  fptype* allDenominators,              // output: multichannel denominators, running_sum_over_helicities
   const unsigned int channelId,         // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
 #endif
   const short*  __restrict__ cHel,
