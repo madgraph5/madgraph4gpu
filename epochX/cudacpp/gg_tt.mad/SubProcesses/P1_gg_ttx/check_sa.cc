@@ -422,7 +422,7 @@ main( int argc, char** argv )
 #endif
   }
   int nGoodHel = 0; // the number of good helicities (out of ncomb)
-  
+
   // --- 0c. Create cross section kernel [keep this in 0c for the moment]
   EventStatistics hstStats;
   CrossSectionKernelHost xsk( hstWeights, hstMatrixElements, hstStats, nevt );
