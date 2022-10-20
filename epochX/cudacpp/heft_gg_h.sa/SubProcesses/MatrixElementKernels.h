@@ -33,8 +33,8 @@ namespace mg5amcCpu
     // Destructor
     virtual ~MatrixElementKernelBase() {}
 
-    // Compute good helicities
-    virtual void computeGoodHelicities() = 0;
+    // Compute good helicities (returns nGoodHel, the number of good helicity combinations out of ncomb)
+    virtual int computeGoodHelicities() = 0;
 
     // Compute matrix elements
     virtual void computeMatrixElements( const unsigned int channelId ) = 0;
@@ -71,8 +71,8 @@ namespace mg5amcCpu
     // Destructor
     virtual ~MatrixElementKernelHost() {}
 
-    // Compute good helicities
-    void computeGoodHelicities() override final;
+    // Compute good helicities (returns nGoodHel, the number of good helicity combinations out of ncomb)
+    int computeGoodHelicities() override final;
 
     // Compute matrix elements
     void computeMatrixElements( const unsigned int channelId ) override final;
@@ -120,8 +120,8 @@ namespace mg5amcCpu
     // Reset gpublocks and gputhreads
     void setGrid( const int gpublocks, const int gputhreads );
 
-    // Compute good helicities
-    void computeGoodHelicities() override final;
+    // Compute good helicities (returns nGoodHel, the number of good helicity combinations out of ncomb)
+    int computeGoodHelicities() override final;
 
     // Compute matrix elements
     void computeMatrixElements( const unsigned int channelId ) override final;

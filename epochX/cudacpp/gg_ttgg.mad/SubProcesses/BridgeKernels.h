@@ -58,8 +58,8 @@ namespace mg5amcCpu
     // Transpose input momenta from C to Fortran before the matrix element calculation in the Bridge
     void transposeInputMomentaC2F() override final;
 
-    // Compute good helicities
-    void computeGoodHelicities() override final;
+    // Compute good helicities (returns nGoodHel, the number of good helicity combinations out of ncomb)
+    int computeGoodHelicities() override final;
 
     // Compute matrix elements
     void computeMatrixElements( const unsigned int channelId ) override final;
@@ -95,8 +95,8 @@ namespace mg5amcCpu
     // Transpose input momenta from C to Fortran before the matrix element calculation in the Bridge
     void transposeInputMomentaC2F() override final;
 
-    // Compute good helicities
-    void computeGoodHelicities() override final;
+    // Compute good helicities (returns nGoodHel, the number of good helicity combinations out of ncomb)
+    int computeGoodHelicities() override final;
 
     // Compute matrix elements
     void computeMatrixElements( const unsigned int channelId ) override final;
