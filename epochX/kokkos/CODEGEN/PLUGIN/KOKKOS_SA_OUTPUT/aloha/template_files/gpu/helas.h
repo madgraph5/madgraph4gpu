@@ -198,8 +198,8 @@ KOKKOS_INLINE_FUNCTION void ixxxxx(const mom_t& pvec,
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
 template<typename mom_t>
 KOKKOS_INLINE_FUNCTION void ipzxxx(const mom_t& pvec,
-                            const int& nhel,
-                            const int& nsf,
+                            const int nhel,
+                            const int nsf,
                             cxtype* fi)
 {
   const fptype& pvec3 = pvec(3);
@@ -260,8 +260,8 @@ KOKKOS_INLINE_FUNCTION void imzxxx(const mom_t& pvec,
   // ASSUMPTIONS: (FMASS == 0) and (PT > 0)
 template<typename mom_t>
 KOKKOS_INLINE_FUNCTION void ixzxxx(const mom_t& pvec,
-                            const int& nhel,
-                            const int& nsf,
+                            const int nhel,
+                            const int nsf,
                             cxtype* fi)
 {
   const fptype& pvec0 = pvec(0);
@@ -374,8 +374,8 @@ KOKKOS_INLINE_FUNCTION void vxxxxx(const mom_t& pvec,
 template<typename mom_t>
 KOKKOS_INLINE_FUNCTION  void sxxxxx(const mom_t& pvec,
                              const fptype& smass,
-                             const int& nhel,
-                             const int& nss,
+                             const int nhel,
+                             const int nss,
                              cxtype* sc)
 {
   const fptype pvec0 = pvec(0);
@@ -471,8 +471,8 @@ KOKKOS_INLINE_FUNCTION void oxxxxx(const mom_t& pvec,
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
 template<typename mom_t>
 KOKKOS_INLINE_FUNCTION  void opzxxx(const mom_t& pvec,
-                             const int& nhel,                  // input: -1 or +1 (helicity of fermion)
-                             const int& nsf,                  // input: +1 (particle) or -1 (antiparticle)
+                             const int nhel,                  // input: -1 or +1 (helicity of fermion)
+                             const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
                              cxtype* fo)
 {
 
@@ -502,8 +502,8 @@ KOKKOS_INLINE_FUNCTION  void opzxxx(const mom_t& pvec,
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
 template<typename mom_t>
 KOKKOS_INLINE_FUNCTION  void omzxxx(const mom_t& pvec,
-                             const int& nhel,
-                             const int& nsf,
+                             const int nhel,
+                             const int nsf,
                              cxtype* fo)
 {
 
@@ -536,8 +536,8 @@ KOKKOS_INLINE_FUNCTION  void omzxxx(const mom_t& pvec,
   // ASSUMPTIONS: (FMASS == 0) and (PT > 0)
 template<typename mom_t>
 KOKKOS_INLINE_FUNCTION  void oxzxxx(const mom_t& pvec,
-                             const int& nhel,
-                             const int& nsf,
+                             const int nhel,
+                             const int nsf,
                              cxtype* fo)
 {
   const fptype pvec0 = pvec(0);
