@@ -421,7 +421,8 @@ main( int argc, char** argv )
     pmek.reset( new BridgeKernelHost( hstMomenta, hstGs, hstMatrixElements, nevt ) );
 #endif
   }
-
+  int nGoodHel = 0; // the number of good helicities (out of ncomb)
+  
   // --- 0c. Create cross section kernel [keep this in 0c for the moment]
   EventStatistics hstStats;
   CrossSectionKernelHost xsk( hstWeights, hstMatrixElements, hstStats, nevt );
@@ -545,7 +546,7 @@ main( int argc, char** argv )
     {
       const std::string ghelKey = "0e SGoodHel";
       timermap.start( ghelKey );
-      pmek->computeGoodHelicities();
+      nGoodHel = pmek->computeGoodHelicities();
     }
 
     // *** START THE OLD-STYLE TIMERS FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
@@ -917,6 +918,8 @@ main( int argc, char** argv )
 #endif
 #endif
               //<< "MatrixElements compiler     = " << process.getCompiler() << std::endl
+              << std::string( SEP79, '-' ) << std::endl
+              << "HelicityComb Good/Tot       = " << nGoodHel << "/" << mgOnGpu::ncomb << std::endl
               << std::string( SEP79, '-' ) << std::endl
               << "NumberOfEntries             = " << niter << std::endl
               << std::scientific // fixed format: affects all floats (default precision: 6)
