@@ -2339,7 +2339,15 @@ void sigmaKin_setup(
     for (int ihel = 0;ihel < mgOnGpu::ncomb;++ihel)
     {
       auto local_cHel = cHel[ihel];
-      auto allMEs = calculate_wavefunctions(local_mom, local_cHel, cIPC, cIPD);
+      #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+          constexpr unsigned int channelId = 0; // disable single-diagram channel enhancement
+          fptype all_numerators = 0.0;
+          fptype all_denominators = 0.0;
+          auto allMEs = calculate_wavefunctions(local_mom, &all_numerators, &all_denominators, channelId, local_cHel, cIPC, cIPD);
+      #else
+          auto allMEs = calculate_wavefunctions(local_mom, local_cHel, cIPC, cIPD);
+      #endif
+
       if (allMEs != 0)
       {
         isGoodHel(ihel) = true;
@@ -2419,7 +2427,7 @@ void sigmaKin(
     {
       auto local_cHel = cHel[iGoodHel(ighel)];
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      allMEs[ievt] += calculate_wavefunctions(local_mom, &allNumerators, &allDenominators, local_cHel, cIPC, cIPD);
+      allMEs[ievt] += calculate_wavefunctions(local_mom, &allNumerators, &allDenominators, channelId, local_cHel, cIPC, cIPD);
 #else
       allMEs[ievt] += calculate_wavefunctions(local_mom, local_cHel, cIPC, cIPD);
 #endif
