@@ -214,7 +214,7 @@ namespace mg5amcKokkos
     }
     if( goodHelOnly ) return;
 
-    sigmaKin(m_devMomenta,m_devIsGoodHel,m_devNGoodHel,
+    sigmaKin(m_devMomenta,channelId,m_devIsGoodHel,m_devNGoodHel,
             m_devGs, m_dev_independent_couplings,
             m_dev_independent_parameters, 
             m_league_size, m_team_size,
