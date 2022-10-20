@@ -16,7 +16,7 @@ if [ "${host/juwels}" != "${host}" ]; then NLOOP=32; fi # workaround for #498
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-d] [-fltonly|-mixonly] [-makeonly|-makeclean|-makecleanonly] [-rmrdat] [+10x] [-checkonly]" > /dev/stderr
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-d] [-fltonly|-mixonly] [-makeonly|-makeclean|-makecleanonly] [-rmrdat] [+10x] [-checkonly] [-nocleanup]" > /dev/stderr
   exit 1
 }
 
@@ -42,6 +42,8 @@ rmrdat=0
 xfacs="1"
 
 checkonly=0
+
+nocleanup=0
 
 while [ "$1" != "" ]; do
   if [ "$1" == "-d" ]; then
@@ -88,6 +90,9 @@ while [ "$1" != "" ]; do
     shift
   elif [ "$1" == "-checkonly" ]; then
     checkonly=1
+    shift
+  elif [ "$1" == "-nocleanup" ]; then
+    nocleanup=1
     shift
   else
     usage
@@ -538,8 +543,14 @@ for suff in $suffs; do
 done
 
 # Cleanup
-\rm -f results.dat
-\rm -f results.dat.ref
-\rm -f events.lhe*
+if [ "$nocleanup" == "0" ]; then
+  \rm -f results.dat
+  \rm -f results.dat.ref
+  \rm -f events.lhe*
+else
+  echo
+  ls -l $(pwd)/results.dat*
+  ls -l $(pwd)/events.lhe*
+fi
 
 printf "\nTEST COMPLETED\n"
