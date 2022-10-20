@@ -1181,8 +1181,8 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
         replace_dict['helamps_h'] = "\n#include \"HelAmps_%s.h\"" % self.model_name
 
         # Kokkos puts source code in header and the helicities are set in the process_function_definitions
-        cc_replace_dict = super(PLUGIN_export_cpp.OneProcessExporterGPU, self).write_process_cc_file(False)
-        replace_dict['process_function_definitions'] = cc_replace_dict['process_function_definitions'] 
+        #cc_replace_dict = super(PLUGIN_export_cpp.OneProcessExporterGPU, self).write_process_cc_file(False)
+        #replace_dict['process_function_definitions'] = cc_replace_dict['process_function_definitions'] 
 
         #Set helicities
         replace_dict['all_helicities'] = self.get_helicity_matrix(self.matrix_elements[0])
