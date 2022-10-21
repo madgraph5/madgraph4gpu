@@ -69,13 +69,15 @@ elif [ "$table" == "ichep22" ]; then
   fpts="d f"
 elif [ "$table" == "acat22" ]; then
   procs="ggttgg"
-  # -- Before implementing 'm': add a second 'd' table for better diffs
-  mrevs="$mrevs eb30e41"  # cuda115/gcc112  (12 Oct 2022 jwlogin07) ICHEP2022table CPU
-  mrevs="$mrevs 1efee04"  # cuda117/gcc112  (13 Oct 2022 itscrd70)  ICHEP2022table GPU
   taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/8192 CUDA/max $cuda8tpb"
-  fpts="d f d"
+  # -- Before implementing 'm': add a second 'd' table for better diffs
+  ###mrevs="$mrevs eb30e41"  # cuda115/gcc112  (12 Oct 2022 jwlogin07) ICHEP2022table CPU
+  ###mrevs="$mrevs 1efee04"  # cuda117/gcc112  (13 Oct 2022 itscrd70)  ICHEP2022table GPU
+  ###fpts="d f d"
   # -- After implementing 'm'
-  ###mrevs="$mrevs bb15ee2"  # cuda117/gcc112  (21 Oct 2022 itscrd70)  rerun add hack3/mixedfps (all processes)
+  mrevs="$mrevs 4a90ec2"  # cuda115/gcc102  (18 Oct 2022 jwlogin07) add hack3/mixedfps (all processes)
+  mrevs="$mrevs bb15ee2"  # cuda117/gcc112  (21 Oct 2022 itscrd70)  rerun add hack3/mixedfps (all processes)
+  fpts="d f m"
 elif [ "$table" == "ggttgg" ]; then
   procs="ggttgg"
   taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/8192 CUDA/max $cuda8tpb"
