@@ -73,7 +73,8 @@ elif [ "$table" == "ggttgg" ]; then
   ###mrevs="$mrevs 48e2012"  # cuda117/gcc112  (16 Oct 2022 itscrd70)  modify hack2/constexpr(c++ only)
   ###fpts="d f d"
   # -- After implementing 'm'
-  mrevs="$mrevs 9598b41"  # cuda117/gcc112  (17 Oct 2022 itscrd70)  add hack3/mixedfps (no ggttggg)
+  ###mrevs="$mrevs 9598b41"  # cuda117/gcc112  (17 Oct 2022 itscrd70)  add hack3/mixedfps (no ggttggg)
+  mrevs="$mrevs bb15ee2"  # cuda117/gcc112  (21 Oct 2022 itscrd70)  rerun add hack3/mixedfps (all processes)
   fpts="d f m"
 elif [ "$table" == "ggttggg" ]; then
   procs="ggttggg"
