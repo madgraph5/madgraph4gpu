@@ -21,6 +21,7 @@ if [ "$1" == "-ALL" ] && [ "$2" == "" ]; then
   $0 -default
   $0 -juwels
   $0 -ichep22
+  $0 -acat22
   $0 -ggttgg
   $0 -ggttggg
   exit 0
@@ -30,12 +31,14 @@ elif [ "$1" == "-juwels" ]; then
   table="juwels"; shift
 elif [ "$1" == "-ichep22" ]; then
   table="ichep22"; shift
+elif [ "$1" == "-acat22" ]; then
+  table="acat22"; shift
 elif [ "$1" == "-ggttgg" ]; then
   table="ggttgg"; shift
 elif [ "$1" == "-ggttggg" ]; then
   table="ggttggg"; shift
 else
-  echo "Usage: $0 [--long] <table [-ALL|-default|-juwels|-ichep22|-ggttgg|-ggttggg]>"; exit 1
+  echo "Usage: $0 [--long] <table [-ALL|-default|-juwels|-ichep22|-acat22|-ggttgg|-ggttggg]>"; exit 1
 fi
 
 # Select revisions and characteristics of mad logs
@@ -44,6 +47,7 @@ mrevs=""
 if [ "$table" == "default" ]; then
   procs="eemumu ggtt ggttg ggttgg ggttggg"
   mrevs="$mrevs 82729ba"  # cuda117/gcc112  (14 Oct 2022)
+  ###mrevs="$mrevs bb15ee2"  # cuda117/gcc112  (21 Oct 2022 itscrd70)  rerun add hack3/mixedfps (all processes)
   fpts="d f"
   taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/8192 CUDA/max $cuda8tpb"
 elif [ "$table" == "juwels" ]; then
@@ -62,6 +66,13 @@ elif [ "$table" == "ichep22" ]; then
   mrevs="$mrevs 1efee04"  # cuda117/gcc112  (13 Oct 2022 itscrd70)  ICHEP2022table GPU
   taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/8192 CUDA/max $cuda8tpb"
   fpts="d f"
+elif [ "$table" == "acat22" ]; then
+  procs="ggttgg"
+  # -- Before implementing 'm': add a second 'd' table for better diffs
+  mrevs="$mrevs eb30e41"  # cuda115/gcc112  (12 Oct 2022 jwlogin07) ICHEP2022table CPU
+  mrevs="$mrevs 1efee04"  # cuda117/gcc112  (13 Oct 2022 itscrd70)  ICHEP2022table GPU
+  taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/8192 CUDA/max $cuda8tpb"
+  fpts="d f d"
 elif [ "$table" == "ggttgg" ]; then
   procs="ggttgg"
   taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/8192 CUDA/max $cuda8tpb"
