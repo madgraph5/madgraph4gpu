@@ -58,8 +58,8 @@ elif [ "$table" == "juwels" ]; then
   ###mrevs="$mrevs cdc8dda"  # cuda115/gcc102  (14 Oct 2022 jwlogin07=faster #540)
   ###fpts="d f"
   # -- After implementing 'm'
-  ###mrevs="$mrevs 4a90ec2"  # cuda115/gcc102  (18 Oct 2022 jwlogin07) add hack3/mixedfps (all processes)
-  mrevs="$mrevs 210a006"  # cuda115/gcc102  (21 Oct 2022 jwlogin07) rerun add hack3/mixedfps (all processes), slower?
+  mrevs="$mrevs 4a90ec2"  # cuda115/gcc102  (18 Oct 2022 jwlogin07) add hack3/mixedfps (all processes), faster ACAT2022
+  ###mrevs="$mrevs 210a006"  # cuda115/gcc102  (21 Oct 2022 jwlogin07) rerun add hack3/mixedfps (all processes), slower?
   fpts="d f m"
 elif [ "$table" == "ichep22" ]; then
   procs="ggttgg"
