@@ -1,172 +1,168 @@
 
-Building in /data/avalassi/GPU2020/madgraph4gpuX/test
-make: Nothing to be done for `all'.
+Building in /p/home/jusers/valassi1/juwels/madgraph4gpu/test
+make: Nothing to be done for 'all'.
 
-Building in /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll
-CUDACPP_BUILDDIR='build.none_f_inl0_hrd1'
-make: Nothing to be done for `all'.
-
-CUDACPP_BUILDDIR='build.sse4_f_inl0_hrd1'
-make: Nothing to be done for `all'.
-
-CUDACPP_BUILDDIR='build.avx2_f_inl0_hrd1'
-make: Nothing to be done for `all'.
-
+Building in /p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll
 CUDACPP_BUILDDIR='build.512y_f_inl0_hrd1'
-make: Nothing to be done for `all'.
 
+make USEBUILDDIR=1 AVX=none
+make[1]: Entering directory '/p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll'
+CUDACPP_BUILDDIR='build.none_f_inl0_hrd1'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll'
+
+make USEBUILDDIR=1 AVX=sse4
+make[1]: Entering directory '/p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll'
+CUDACPP_BUILDDIR='build.sse4_f_inl0_hrd1'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll'
+
+make USEBUILDDIR=1 AVX=avx2
+make[1]: Entering directory '/p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll'
+CUDACPP_BUILDDIR='build.avx2_f_inl0_hrd1'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll'
+
+make USEBUILDDIR=1 AVX=512y
+make[1]: Entering directory '/p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll'
+CUDACPP_BUILDDIR='build.512y_f_inl0_hrd1'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll'
+
+make USEBUILDDIR=1 AVX=512z
+make[1]: Entering directory '/p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll'
 CUDACPP_BUILDDIR='build.512z_f_inl0_hrd1'
-make: Nothing to be done for `all'.
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll'
 
-DATE: 2022-10-14_08:25:10
+DATE: 2022-10-21_00:06:35
 
-On itscrd70.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
+On jwlogin07.juwels [CPU: Intel(R) Xeon(R) Gold 6148 CPU] [GPU: none]:
 =========================================================================
-runExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.none_f_inl0_hrd1/gcheck.exe -p 2048 256 12 OMP=
-Process                     = SIGMA_SM_EPEM_MUPMUM_CUDA [nvcc 11.7.99 (gcc 11.2.0)] [inlineHel=0] [hardcodePARAM=1]
-Workflow summary            = CUD:FLT+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
-FP precision                = FLOAT (NaN/abnormal=2, zero=0)
-EvtsPerSec[Rmb+ME]     (23) = ( 1.532505e+08                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 1.491278e+09                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 3.047477e+09                 )  sec^-1
-MeanMatrixElemValue         = ( 1.371686e-02 +- 3.270219e-06 )  GeV^0
-TOTAL       :     0.269129 sec
-       303,819,589      cycles:u                  #    0.952 GHz                    
-       656,699,779      instructions:u            #    2.16  insn per cycle         
-       0.325182275 seconds time elapsed
-==PROF== Profiling "sigmaKin": launch__registers_per_thread 56
-==PROF== Profiling "sigmaKin": sm__sass_average_branch_targets_threads_uniform.pct 100%
--------------------------------------------------------------------------
-cmpExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.none_f_inl0_hrd1/gcheck.exe --common -p 2 64 2
-cmpExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.none_f_inl0_hrd1/fgcheck.exe 2 64 2
-Avg ME (C++/CUDA)   = 1.282802e-02
-Avg ME (F77/CUDA)   = 1.2828112568968209E-002
-Relative difference = 7.216154029052431e-06
-OK (relative difference <= 2E-4)
 =========================================================================
-runExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.none_f_inl0_hrd1/check.exe -p 2048 256 12 OMP=
+runExe /p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.none_f_inl0_hrd1/check.exe -p 2048 256 12 OMP=
 Process                     = SIGMA_SM_EPEM_MUPMUM_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=1]
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+MESHST/none+NAVBRK
 FP precision                = FLOAT (NaN/abnormal=6, zero=0)
 Internal loops fptype_sv    = SCALAR ('none': ~vector[1], no SIMD)
-EvtsPerSec[Rmb+ME]     (23) = ( 1.174813e+06                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 1.645036e+06                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 1.645036e+06                 )  sec^-1
-MeanMatrixElemValue         = ( 1.371707e-02 +- 3.270376e-06 )  GeV^0
-TOTAL       :     5.772640 sec
-    15,288,941,934      cycles:u                  #    2.651 GHz                    
-    40,382,644,202      instructions:u            #    2.64  insn per cycle         
-       5.783428098 seconds time elapsed
+EvtsPerSec[Rmb+ME]     (23) = ( 1.647857e+06                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 2.057926e+06                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 2.057926e+06                 )  sec^-1
+MeanMatrixElemValue         = ( 1.371706e-02 +- 3.270373e-06 )  GeV^0
+TOTAL       :     4.144838 sec
+    14,274,633,513      cycles:u                  #    3.438 GHz                      (50.01%)
+    38,624,530,665      instructions:u            #    2.71  insn per cycle           (62.51%)
+       4.162633675 seconds time elapsed
 =Symbols in CPPProcess.o= (~sse4:  350) (avx2:    0) (512y:    0) (512z:    0)
 -------------------------------------------------------------------------
-runExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.none_f_inl0_hrd1/runTest.exe
-[  PASSED  ] 6 tests.
+runExe /p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.none_f_inl0_hrd1/runTest.exe
+runTest.exe: CudaRuntime.h:19: void assertCuda(cudaError_t, const char*, int, bool): Assertion `code == cudaSuccess' failed.
 -------------------------------------------------------------------------
-cmpExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.none_f_inl0_hrd1/check.exe --common -p 2 64 2
-cmpExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.none_f_inl0_hrd1/fcheck.exe 2 64 2
+cmpExe /p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.none_f_inl0_hrd1/check.exe --common -p 2 64 2
+cmpExe /p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.none_f_inl0_hrd1/fcheck.exe 2 64 2
 Avg ME (C++/C++)    = 1.282804e-02
-Avg ME (F77/C++)    = 1.2828040373278782E-002
-Relative difference = 2.909866052404734e-08
+Avg ME (F77/C++)    = 1.2828039827581961E-002
+Relative difference = 1.3440715800298152e-08
 OK (relative difference <= 2E-4)
 -------------------------------------------------------------------------
-runExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.sse4_f_inl0_hrd1/check.exe -p 2048 256 12 OMP=
+runExe /p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.sse4_f_inl0_hrd1/check.exe -p 2048 256 12 OMP=
 Process                     = SIGMA_SM_EPEM_MUPMUM_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=1]
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+MESHST/sse4+CXVBRK
 FP precision                = FLOAT (NaN/abnormal=6, zero=0)
 Internal loops fptype_sv    = VECTOR[4] ('sse4': SSE4.2, 128bit) [cxtype_ref=YES]
-EvtsPerSec[Rmb+ME]     (23) = ( 2.396663e+06                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 6.080914e+06                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 6.080914e+06                 )  sec^-1
-MeanMatrixElemValue         = ( 1.371706e-02 +- 3.270375e-06 )  GeV^0
-TOTAL       :     3.034497 sec
-     8,005,696,772      cycles:u                  #    2.635 GHz                    
-    17,657,289,883      instructions:u            #    2.21  insn per cycle         
-       3.045456732 seconds time elapsed
+EvtsPerSec[Rmb+ME]     (23) = ( 3.915103e+06                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 7.970996e+06                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 7.970996e+06                 )  sec^-1
+MeanMatrixElemValue         = ( 1.371706e-02 +- 3.270373e-06 )  GeV^0
+TOTAL       :     1.911672 sec
+     6,785,661,237      cycles:u                  #    3.528 GHz                      (49.99%)
+    15,803,543,392      instructions:u            #    2.33  insn per cycle           (62.50%)
+       1.928880248 seconds time elapsed
 =Symbols in CPPProcess.o= (~sse4: 1373) (avx2:    0) (512y:    0) (512z:    0)
 -------------------------------------------------------------------------
-runExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.sse4_f_inl0_hrd1/runTest.exe
-[  PASSED  ] 6 tests.
+runExe /p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.sse4_f_inl0_hrd1/runTest.exe
+runTest.exe: CudaRuntime.h:19: void assertCuda(cudaError_t, const char*, int, bool): Assertion `code == cudaSuccess' failed.
 -------------------------------------------------------------------------
-cmpExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.sse4_f_inl0_hrd1/check.exe --common -p 2 64 2
-cmpExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.sse4_f_inl0_hrd1/fcheck.exe 2 64 2
+cmpExe /p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.sse4_f_inl0_hrd1/check.exe --common -p 2 64 2
+cmpExe /p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.sse4_f_inl0_hrd1/fcheck.exe 2 64 2
 Avg ME (C++/C++)    = 1.282804e-02
-Avg ME (F77/C++)    = 1.2828040051317657E-002
-Relative difference = 4.0004284926834985e-09
+Avg ME (F77/C++)    = 1.2828039440137218E-002
+Relative difference = 4.364367299058345e-08
 OK (relative difference <= 2E-4)
 -------------------------------------------------------------------------
-runExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.avx2_f_inl0_hrd1/check.exe -p 2048 256 12 OMP=
+runExe /p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.avx2_f_inl0_hrd1/check.exe -p 2048 256 12 OMP=
 Process                     = SIGMA_SM_EPEM_MUPMUM_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=1]
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+MESHST/avx2+CXVBRK
-FP precision                = FLOAT (NaN/abnormal=5, zero=0)
+FP precision                = FLOAT (NaN/abnormal=4, zero=0)
 Internal loops fptype_sv    = VECTOR[8] ('avx2': AVX2, 256bit) [cxtype_ref=YES]
-EvtsPerSec[Rmb+ME]     (23) = ( 2.892735e+06                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 1.121050e+07                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 1.121050e+07                 )  sec^-1
-MeanMatrixElemValue         = ( 1.371705e-02 +- 3.270339e-06 )  GeV^0
-TOTAL       :     2.587092 sec
-     6,602,432,630      cycles:u                  #    2.546 GHz                    
-    11,901,074,353      instructions:u            #    1.80  insn per cycle         
-       2.598027892 seconds time elapsed
+EvtsPerSec[Rmb+ME]     (23) = ( 5.423380e+06                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 1.590117e+07                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.590117e+07                 )  sec^-1
+MeanMatrixElemValue         = ( 1.371706e-02 +- 3.270338e-06 )  GeV^0
+TOTAL       :     1.467886 sec
+     5,170,624,898      cycles:u                  #    3.489 GHz                      (49.85%)
+    10,139,105,063      instructions:u            #    1.96  insn per cycle           (62.38%)
+       1.486850381 seconds time elapsed
 =Symbols in CPPProcess.o= (~sse4:    0) (avx2: 1139) (512y:    0) (512z:    0)
 -------------------------------------------------------------------------
-runExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.avx2_f_inl0_hrd1/runTest.exe
-[  PASSED  ] 6 tests.
+runExe /p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.avx2_f_inl0_hrd1/runTest.exe
+runTest.exe: CudaRuntime.h:19: void assertCuda(cudaError_t, const char*, int, bool): Assertion `code == cudaSuccess' failed.
 -------------------------------------------------------------------------
-cmpExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.avx2_f_inl0_hrd1/check.exe --common -p 2 64 2
-cmpExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.avx2_f_inl0_hrd1/fcheck.exe 2 64 2
+cmpExe /p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.avx2_f_inl0_hrd1/check.exe --common -p 2 64 2
+cmpExe /p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.avx2_f_inl0_hrd1/fcheck.exe 2 64 2
 Avg ME (C++/C++)    = 1.282805e-02
-Avg ME (F77/C++)    = 1.2828053435441689E-002
-Relative difference = 2.678070079295827e-07
+Avg ME (F77/C++)    = 1.2828053157136310E-002
+Relative difference = 2.461119429163877e-07
 OK (relative difference <= 2E-4)
 -------------------------------------------------------------------------
-runExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.512y_f_inl0_hrd1/check.exe -p 2048 256 12 OMP=
+runExe /p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.512y_f_inl0_hrd1/check.exe -p 2048 256 12 OMP=
 Process                     = SIGMA_SM_EPEM_MUPMUM_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=1]
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+MESHST/512y+CXVBRK
-FP precision                = FLOAT (NaN/abnormal=5, zero=0)
+FP precision                = FLOAT (NaN/abnormal=4, zero=0)
 Internal loops fptype_sv    = VECTOR[8] ('512y': AVX512, 256bit) [cxtype_ref=YES]
-EvtsPerSec[Rmb+ME]     (23) = ( 2.975087e+06                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 1.201431e+07                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 1.201431e+07                 )  sec^-1
-MeanMatrixElemValue         = ( 1.371705e-02 +- 3.270339e-06 )  GeV^0
-TOTAL       :     2.521424 sec
-     6,443,430,166      cycles:u                  #    2.548 GHz                    
-    11,712,332,044      instructions:u            #    1.82  insn per cycle         
-       2.532666841 seconds time elapsed
+EvtsPerSec[Rmb+ME]     (23) = ( 5.476178e+06                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 1.709309e+07                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.709309e+07                 )  sec^-1
+MeanMatrixElemValue         = ( 1.371706e-02 +- 3.270338e-06 )  GeV^0
+TOTAL       :     1.474625 sec
+     5,018,426,307      cycles:u                  #    3.367 GHz                      (49.95%)
+     9,937,703,710      instructions:u            #    1.98  insn per cycle           (62.45%)
+       1.495467278 seconds time elapsed
 =Symbols in CPPProcess.o= (~sse4:    0) (avx2: 1086) (512y:    0) (512z:    0)
 -------------------------------------------------------------------------
-runExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.512y_f_inl0_hrd1/runTest.exe
-[  PASSED  ] 6 tests.
+runExe /p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.512y_f_inl0_hrd1/runTest.exe
+runTest.exe: CudaRuntime.h:19: void assertCuda(cudaError_t, const char*, int, bool): Assertion `code == cudaSuccess' failed.
 -------------------------------------------------------------------------
-cmpExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.512y_f_inl0_hrd1/check.exe --common -p 2 64 2
-cmpExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.512y_f_inl0_hrd1/fcheck.exe 2 64 2
+cmpExe /p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.512y_f_inl0_hrd1/check.exe --common -p 2 64 2
+cmpExe /p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.512y_f_inl0_hrd1/fcheck.exe 2 64 2
 Avg ME (C++/C++)    = 1.282805e-02
-Avg ME (F77/C++)    = 1.2828053435441689E-002
-Relative difference = 2.678070079295827e-07
+Avg ME (F77/C++)    = 1.2828053157136310E-002
+Relative difference = 2.461119429163877e-07
 OK (relative difference <= 2E-4)
 -------------------------------------------------------------------------
-runExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.512z_f_inl0_hrd1/check.exe -p 2048 256 12 OMP=
+runExe /p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.512z_f_inl0_hrd1/check.exe -p 2048 256 12 OMP=
 Process                     = SIGMA_SM_EPEM_MUPMUM_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=1]
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+MESHST/512z+CXVBRK
-FP precision                = FLOAT (NaN/abnormal=5, zero=0)
+FP precision                = FLOAT (NaN/abnormal=4, zero=0)
 Internal loops fptype_sv    = VECTOR[16] ('512z': AVX512, 512bit) [cxtype_ref=YES]
-EvtsPerSec[Rmb+ME]     (23) = ( 2.956643e+06                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 1.069514e+07                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 1.069514e+07                 )  sec^-1
-MeanMatrixElemValue         = ( 1.371705e-02 +- 3.270340e-06 )  GeV^0
-TOTAL       :     2.537230 sec
-     6,055,648,296      cycles:u                  #    2.380 GHz                    
-    10,319,542,744      instructions:u            #    1.70  insn per cycle         
-       2.548334924 seconds time elapsed
+EvtsPerSec[Rmb+ME]     (23) = ( 5.864157e+06                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 2.105146e+07                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 2.105146e+07                 )  sec^-1
+MeanMatrixElemValue         = ( 1.371705e-02 +- 3.270339e-06 )  GeV^0
+TOTAL       :     1.398164 sec
+     4,683,545,682      cycles:u                  #    3.307 GHz                      (49.91%)
+     8,578,927,386      instructions:u            #    1.83  insn per cycle           (62.45%)
+       1.420860603 seconds time elapsed
 =Symbols in CPPProcess.o= (~sse4:    0) (avx2:  375) (512y:    0) (512z:  711)
 -------------------------------------------------------------------------
-runExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.512z_f_inl0_hrd1/runTest.exe
-[  PASSED  ] 6 tests.
+runExe /p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.512z_f_inl0_hrd1/runTest.exe
+runTest.exe: CudaRuntime.h:19: void assertCuda(cudaError_t, const char*, int, bool): Assertion `code == cudaSuccess' failed.
 -------------------------------------------------------------------------
-cmpExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.512z_f_inl0_hrd1/check.exe --common -p 2 64 2
-cmpExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.512z_f_inl0_hrd1/fcheck.exe 2 64 2
+cmpExe /p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.512z_f_inl0_hrd1/check.exe --common -p 2 64 2
+cmpExe /p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll/build.512z_f_inl0_hrd1/fcheck.exe 2 64 2
 Avg ME (C++/C++)    = 1.282805e-02
-Avg ME (F77/C++)    = 1.2828052629629383E-002
-Relative difference = 2.0499057785869785e-07
+Avg ME (F77/C++)    = 1.2828052367694909E-002
+Relative difference = 1.8457169314039668e-07
 OK (relative difference <= 2E-4)
 =========================================================================
 
