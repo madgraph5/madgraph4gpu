@@ -58,7 +58,8 @@ elif [ "$table" == "juwels" ]; then
   ###mrevs="$mrevs cdc8dda"  # cuda115/gcc102  (14 Oct 2022 jwlogin07=faster #540)
   ###fpts="d f"
   # -- After implementing 'm'
-  mrevs="$mrevs 4a90ec2"  # cuda115/gcc102  (18 Oct 2022 jwlogin07)
+  ###mrevs="$mrevs 4a90ec2"  # cuda115/gcc102  (18 Oct 2022 jwlogin07) add hack3/mixedfps (all processes)
+  mrevs="$mrevs 210a006"  # cuda115/gcc102  (21 Oct 2022 jwlogin07) rerun add hack3/mixedfps (all processes), slower?
   fpts="d f m"
 elif [ "$table" == "ichep22" ]; then
   procs="ggttgg"
@@ -73,6 +74,8 @@ elif [ "$table" == "acat22" ]; then
   mrevs="$mrevs 1efee04"  # cuda117/gcc112  (13 Oct 2022 itscrd70)  ICHEP2022table GPU
   taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/8192 CUDA/max $cuda8tpb"
   fpts="d f d"
+  # -- After implementing 'm'
+  ###mrevs="$mrevs bb15ee2"  # cuda117/gcc112  (21 Oct 2022 itscrd70)  rerun add hack3/mixedfps (all processes)
 elif [ "$table" == "ggttgg" ]; then
   procs="ggttgg"
   taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/8192 CUDA/max $cuda8tpb"
