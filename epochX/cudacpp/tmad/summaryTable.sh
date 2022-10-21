@@ -68,7 +68,7 @@ elif [ "$table" == "ichep22" ]; then
   taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/8192 CUDA/max $cuda8tpb"
   fpts="d f"
 elif [ "$table" == "acat22" ]; then
-  procs="ggttgg"
+  procs="ggttgg ggttggg"
   taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/8192 CUDA/max $cuda8tpb"
   # -- Before implementing 'm': add a second 'd' table for better diffs
   ###mrevs="$mrevs eb30e41"  # cuda115/gcc112  (12 Oct 2022 jwlogin07) ICHEP2022table CPU
