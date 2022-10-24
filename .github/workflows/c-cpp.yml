@@ -14,8 +14,11 @@ jobs:
         folder: [ epochX/cudacpp/ee_mumu.sa/SubProcesses/P1_Sigma_sm_epem_mupmum , epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum , epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum ]
       fail-fast: false
     steps:
+
     - uses: actions/checkout@v2
-    - name: make epoch1
+    - name: make cleanall
+      run: make cleanall
+    - name: make epochX/1/2
       run: make -C ${{ matrix.folder }} debug
   CPU:
     runs-on: ubuntu-latest
@@ -26,6 +29,8 @@ jobs:
       fail-fast: false
     steps:
     - uses: actions/checkout@v2
+    - name: make cleanall
+      run: make cleanall
     - name: make info
       run: make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} info
     - name: make
@@ -43,6 +48,8 @@ jobs:
       fail-fast: false
     steps:
     - uses: actions/checkout@v2
+    - name: make cleanall
+      run: make cleanall
     - name: make info
       run: make AVX=none OMPFLAGS= FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} info
     - name: make
@@ -61,6 +68,8 @@ jobs:
       fail-fast: false
     steps:
     - uses: actions/checkout@v2
+    - name: make cleanall
+      run: make cleanall
     - name: make info
       run: source /opt/rh/gcc-toolset-10/enable; make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} info
     - name: make
