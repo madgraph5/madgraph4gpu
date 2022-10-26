@@ -7,8 +7,8 @@ on:
     branches: [ master ]
 
 jobs:
-  GPU:
-    name: A100S Profiling
+  a100s_Profiling:
+    - name: A100S Profiling
     runs-on: [self-hosted, linux, a100s]
 
     uses: actions/checkout@v2
