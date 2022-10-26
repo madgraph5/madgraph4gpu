@@ -7,7 +7,7 @@ on:
     branches: [ master ]
 
 jobs:
-  a100s_Profiling:
+  GPU:
     name: A100S Profiling
     runs-on: [self-hosted, linux, a100s]
 
