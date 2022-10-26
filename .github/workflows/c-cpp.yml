@@ -68,6 +68,8 @@ jobs:
       fail-fast: false
     steps:
     - uses: actions/checkout@v2
+    - name: Add CUDA 11.6 to PATH
+      run: PATH=/usr/local/cuda-11.6/:$PATH
     - name: make cleanall
       run: make -C ${{ matrix.folder }} cleanall
     - name: make info
