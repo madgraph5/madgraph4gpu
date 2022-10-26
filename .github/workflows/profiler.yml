@@ -1,0 +1,17 @@
+name: Profiler
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  a100s:
+    uses: actions/checkout@v2
+
+    - name: Getting prerequisites
+      run: source /cvmfs/sft.cern.ch/lcg/contrib/gcc/11.3.0/x86_64-centos8/setup.sh
+
+    - name: Runs performanceProfiler.py script
+      run: python3 performanceProfiler.py
