@@ -57,7 +57,7 @@ jobs:
     - name: make check
       run: make AVX=none OMPFLAGS= FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} check
   GPU:
-    runs-on: self-hosted
+    runs-on: [self-hosted, linux, a100s]
     env:
       FC: gfortran
       REQUIRE_CUDA: 1
