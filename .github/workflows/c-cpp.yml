@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        folder: [ epochX/cudacpp/ee_mumu.sa/SubProcesses/P1_Sigma_sm_epem_mupmum , epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum , epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum ]
+        folder: [ epochX/cudacpp/ee_mumu.sa/SubProcesses/P1_Sigma_sm_epem_mupmum , epochX/cudacpp/gg_ttgg.sa/SubProcesses/P1_Sigma_sm_gg_ttxgg ]
       fail-fast: false
     steps:
 
@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        folder: [ epochX/cudacpp/ee_mumu.sa/SubProcesses/P1_Sigma_sm_epem_mupmum , epochX/cudacpp/gg_ttgg.sa/SubProcesses/P1_Sigma_sm_gg_ttxgg , epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum , epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum ]
+        folder: [ epochX/cudacpp/ee_mumu.sa/SubProcesses/P1_Sigma_sm_epem_mupmum , epochX/cudacpp/gg_ttgg.sa/SubProcesses/P1_Sigma_sm_gg_ttxgg ]
         precision: [ d , f ]
       fail-fast: false
     steps:
@@ -43,7 +43,7 @@ jobs:
       FC: gfortran-11
     strategy:
       matrix:
-        folder: [ epochX/cudacpp/ee_mumu.sa/SubProcesses/P1_Sigma_sm_epem_mupmum, epochX/cudacpp/gg_ttgg.sa/SubProcesses/P1_Sigma_sm_gg_ttxgg , epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum , epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum ]
+        folder: [ epochX/cudacpp/ee_mumu.sa/SubProcesses/P1_Sigma_sm_epem_mupmum, epochX/cudacpp/gg_ttgg.sa/SubProcesses/P1_Sigma_sm_gg_ttxgg ]
         precision: [ d ]
       fail-fast: false
     steps:
@@ -63,18 +63,16 @@ jobs:
       REQUIRE_CUDA: 1
     strategy:
       matrix:
-        folder: [ epochX/cudacpp/ee_mumu.sa/SubProcesses/P1_Sigma_sm_epem_mupmum , epochX/cudacpp/gg_ttgg.sa/SubProcesses/P1_Sigma_sm_gg_ttxgg , epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum ]
+        folder: [ epochX/cudacpp/ee_mumu.sa/SubProcesses/P1_Sigma_sm_epem_mupmum , epochX/cudacpp/gg_ttgg.sa/SubProcesses/P1_Sigma_sm_gg_ttxgg ]
         precision: [ d , f ]
       fail-fast: false
     steps:
     - uses: actions/checkout@v2
-    - name: Add CUDA 11.6 to CUDA_HOME
-      run: export CUDA_HOME=/usr/local/cuda-11.6/
     - name: make cleanall
       run: make -C ${{ matrix.folder }} cleanall
     - name: make info
-      run: source /opt/rh/gcc-toolset-10/enable; make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} info
+      run: source /opt/rh/gcc-toolset-10/enable; export CUDA_HOME=/usr/local/cuda-11.6/; make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} info
     - name: make
-      run: source /opt/rh/gcc-toolset-10/enable; make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }}
+      run: source /opt/rh/gcc-toolset-10/enable; export CUDA_HOME=/usr/local/cuda-11.6/; make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }}
     - name: make check
-      run: source /opt/rh/gcc-toolset-10/enable; make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} check
+      run: source /opt/rh/gcc-toolset-10/enable; export CUDA_HOME=/usr/local/cuda-11.6/; make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} check
