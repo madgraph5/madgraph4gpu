@@ -11,6 +11,5 @@ jobs:
     name: A100S Profiling
     runs-on: [self-hosted, linux, a100s]
     steps:
-      - uses: actions/checkout@v2
       - name: Runs performanceProfiler.py script
         run: source /cvmfs/sft.cern.ch/lcg/contrib/gcc/11.3.0/x86_64-centos8/setup.sh; python3 performanceProfiler.py
