@@ -69,7 +69,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Add CUDA 11.6 to CUDA_HOME
-      run: CUDA_HOME=/usr/local/cuda-11.6/
+      run: export CUDA_HOME=/usr/local/cuda-11.6/
     - name: make cleanall
       run: make -C ${{ matrix.folder }} cleanall
     - name: make info
