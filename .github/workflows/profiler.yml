@@ -7,11 +7,11 @@ on:
     branches: [ master ]
 
 jobs:
-  a100s:
+  a100s_Profiling:
+    name: A100S Profiling
+    runs-on: [self-hosted, linux, a100s]
+
     uses: actions/checkout@v2
 
-    - name: Getting prerequisites
-      run: source /cvmfs/sft.cern.ch/lcg/contrib/gcc/11.3.0/x86_64-centos8/setup.sh
-
     - name: Runs performanceProfiler.py script
-      run: python3 performanceProfiler.py
+      run: source /cvmfs/sft.cern.ch/lcg/contrib/gcc/11.3.0/x86_64-centos8/setup.sh; python3 performanceProfiler.py
