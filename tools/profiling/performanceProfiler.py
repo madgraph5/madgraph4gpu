@@ -31,10 +31,10 @@ for process in mgProcesses:
         for BPG in blocksPerGrid:
             if (TPB * BPG > doublePrecisionConstant):
 
-                if args.l.upper() == 'SYCL':
+                if str(args.l).upper() == 'SYCL':
                     args = ["./buildSYCLProcess.sh", "-n",  process, "-i",  str(iterations), "-t",  str(TPB), "-b", str(BPG)]
 
-                elif args.l.upper() == 'CUDA':
+                elif str(args.l).upper() == 'CUDA':
 
                     # Used in br_golden_epochX4 branch
                     if args.b == 'br_golden_epochX4':
