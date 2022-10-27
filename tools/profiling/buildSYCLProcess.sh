@@ -32,12 +32,11 @@ fi
 # Begin script in case all parameters are correct
 
 # Set user/SYCL-flags variables
-prefix=/p/project/prpb109
-export DPCPP_HOME=/p/project/prpb109/sycl_workspace
-export CUDA_PATH=/p/software/juwelsbooster/stages/2022/software/CUDA/11.5
-# export SYCLFLAGS="-fsycl -fsycl-targets=nvptx64-nvidia-cuda -target-backend '--cuda-gpu-arch=sm_80' -fgpu-rdc --cuda-path=$CUDA_PATH"
-export SYCLFLAGS="-fsycl -fsycl-targets=nvptx64-nvidia-cuda -Xsycl-target-backend '--cuda-gpu-arch=sm_80' -fgpu-rdc --cuda-path=$CUDA_PATH"
-export GPU_VERSION="sycl_v100_cuda_11.5_gcc_10.3"
+prefix=$(pwd)
+#export DPCPP_HOME=/p/project/prpb109/sycl_workspace
+export CUDA_PATH=/usr/local/cuda-11.6
+export SYCLFLAGS="-fsycl -fsycl-targets=nvptx64-nvidia-cuda -Xsycl-target-backend '--cuda-gpu-arch=sm_70' -fgpu-rdc --cuda-path=$CUDA_PATH"
+export NAME_PREFIX="sycl_v100_cuda11.6_gcc11.3"
 export WORKSPACE=$prefix/workspace_mg4gpu
 
 # Finds correct subprocess
@@ -54,7 +53,7 @@ export DEVICE_ID=0 #if unknown set at the run step after running LD_LIBRARY_PATH
 # Set up compiler and compile options
 export USEBUILDDIR=1
 export NTPBMAX=1024
-export CXX=$DPCPP_HOME/llvm/build/bin/clang++
+export CXX=/cvmfs/projects.cern.ch/intelsw/oneAPI/linux/x86_64/2022/compiler/2022.2.0/linux/bin/dpcpp
 
 mkdir -p $WORKSPACE/mg4gpu/lib
 mkdir -p $WORKSPACE/mg4gpu/bin
@@ -65,10 +64,11 @@ export MG4GPU_BIN=$WORKSPACE/mg4gpu/bin
 export MG_PROC_DIR=$prefix/madgraph4gpu/epochX/sycl/$MG_PROC
 export MG_SP_DIR=$MG_PROC_DIR/SubProcesses/$MG_SUBPROC
 
-export MG_LIBS_DIR="${MG4GPU_LIB}/build_${MG_PROC}_${MG_SUBPROC}_${GPU_VERSION}"
-export MG_LIBS="$DPCPP_HOME/llvm/build/lib:$MG_LIBS_DIR"
+export MG_LIBS_DIR="${MG4GPU_LIB}/build_${MG_PROC}_${MG_SUBPROC}_${NAME_PREFIX}"
+# export MG_LIBS="$DPCPP_HOME/llvm/build/lib:$MG_LIBS_DIR"
+export MG_LIBS=$MG_LIBS_DIR
 
-export MG_EXE_DIR="${MG4GPU_BIN}/build_${MG_PROC}_${MG_SUBPROC}_${GPU_VERSION}"
+export MG_EXE_DIR="${MG4GPU_BIN}/build_${MG_PROC}_${MG_SUBPROC}_${NAME_PREFIX}"
 export MG_EXE="$MG_EXE_DIR/check.exe"
 export MG5AMC_CARD_PATH=$MG_PROC_DIR/Cards
 
@@ -85,7 +85,7 @@ cd $WORKSPACE
 #LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MG_LIBS $MG_EXE --param_card $MG5AMC_CARD_PATH/param_card.dat --device_info 32 32 10
 
 # Add MG Libs to linker library path and run the executable
-LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MG_LIBS $MG_EXE -j --json_file $WORKSPACE/test_${GPU_VERSION}_${MG_PROC}_${MG_SUBPROC}_${blocksPerGrid}_${threadsPerBlock}_${iterations}.json --param_card $MG5AMC_CARD_PATH /param_card.dat --device_id $DEVICE_ID $blocksPerGrid $threadsPerBlock $iterations
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MG_LIBS $MG_EXE -j --json_file $WORKSPACE/test_${NAME_PREFIX}_${MG_PROC}_${blocksPerGrid}_${threadsPerBlock}_${iterations}.json --param_card $MG5AMC_CARD_PATH /param_card.dat --device_id $DEVICE_ID $blocksPerGrid $threadsPerBlock $iterations
 
 # View output
-#nano $WORKSPACE/test_${GPU_VERSION}_${MG_PROC}_${MG_SUBPROC}_${blocksPerGrid}_${threadsPerBlock}_${iterations}.json-+
+#nano $WORKSPACE/test_${NAME_PREFIX}_${MG_PROC}_${MG_SUBPROC}_${blocksPerGrid}_${threadsPerBlock}_${iterations}.json-+
