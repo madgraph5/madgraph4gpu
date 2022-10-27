@@ -36,8 +36,8 @@ fi
 
 # Set user specific variables
 
-prefix=/afs/cern.ch/work/j/jteig
-export CUDA_HOME=/usr/local/cuda-11.5/
+prefix=$(pwd)
+export CUDA_HOME=/usr/local/cuda-11.6/
 export FC=`which gfortran`
 
 # Set up compiler and compile options
@@ -46,7 +46,7 @@ export USEBUILDDIR=1
 export NTPBMAX=1024
 export MG_EXE="./gcheck.exe"
 export WORKSPACE=$prefix/workspace_mg4gpu
-export NAME_PREFIX="cudacpp_v100s_cuda_11.5"
+export NAME_PREFIX="cudacpp_v100s_cuda_11.6"
 
 ##################################################################
 
@@ -68,9 +68,6 @@ esac
 
 export MG_PROC_DIR=$prefix/madgraph4gpu/epochX/cudacpp/$MG_PROC
 export MG_SP_DIR=$MG_PROC_DIR/SubProcesses/$MG_SUBPROC
-export MG5AMC_CARD_PATH=$MG_PROC_DIR/Cards
-
-mkdir -p $MG_SP_DIR/perf/data
 
 # Build executable
 
@@ -79,9 +76,4 @@ make
 
 # Run executable
 
-$MG_EXE -j $blocksPerGrid $threadsPerBlock $iterations
-
-# Move JSON report to workspace
-
-cd $MG_SP_DIR/pref/data/
-mv 0-perf-test-run0.json ${WORKSPACE}/test_${NAME_PREFIX}_${MG_PROC}_${blocksPerGrid}_${threadsPerBlock}_${iterations}.json
+$MG_EXE -j --json_file ${WORKSPACE}/test_${NAME_PREFIX}_${MG_PROC}_${blocksPerGrid}_${threadsPerBlock}_${iterations}.json $blocksPerGrid $threadsPerBlock $iterations
