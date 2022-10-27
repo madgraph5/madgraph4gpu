@@ -18,8 +18,8 @@ blocksPerGrid = [16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384]
 # Parser
 parser = argparse.ArgumentParser(description='A program for profiling GPUs using MadGraph.')
 
-parser.add_argument("-l", "--layer", help="Choose which abstraction layer you want to use (CUDA/SYCL).", default=absLayer)
-parser.add_argument("-b", "--branch", help="Choose which branch the madgraph4gpu repo is in.", default=branch)
+parser.add_argument("-l", help="Choose which abstraction layer you want to use (CUDA/SYCL).", default=absLayer)
+parser.add_argument("-b", help="Choose which branch the madgraph4gpu repo is in.", default=branch)
 
 args = parser.parse_args()
 
