@@ -15,6 +15,6 @@ jobs:
     - name: Change working directory to profiling
       run: cd tools/profiling/; pwd
     - name: Change permissions on files
-      run: chmod +x buildCUDAProcess.sh buildSYCLProcess.sh; pwd
+      run: pwd; chmod +x buildCUDAProcess.sh buildSYCLProcess.sh
     - name: Runs performanceProfiler.py script
       run: source /cvmfs/sft.cern.ch/lcg/contrib/gcc/11.3.0/x86_64-centos8/setup.sh; source /cvmfs/projects.cern.ch/intelsw/oneAPI/linux/x86_64/2022/setvars.sh; python3 tools/profiling/performanceProfiler.py -l 'CUDA' -b 'master'
