@@ -1,3 +1,4 @@
+import string
 import sys
 import os
 import subprocess
@@ -18,8 +19,8 @@ blocksPerGrid = [16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384]
 # Parser
 parser = argparse.ArgumentParser(description='A program for profiling GPUs using MadGraph.')
 
-parser.add_argument("-l", help="Choose which abstraction layer you want to use (CUDA/SYCL).", default=absLayer)
-parser.add_argument("-b", help="Choose which branch the madgraph4gpu repo is in.", default=branch)
+parser.add_argument("-l", help="Choose which abstraction layer you want to use (CUDA/SYCL).", default=absLayer, type=string)
+parser.add_argument("-b", help="Choose which branch the madgraph4gpu repo is in.", default=branch, type=string)
 
 args = parser.parse_args()
 
@@ -31,10 +32,10 @@ for process in mgProcesses:
         for BPG in blocksPerGrid:
             if (TPB * BPG > doublePrecisionConstant):
 
-                if str(args.l).upper() == 'SYCL':
+                if args.l.upper() == 'SYCL':
                     args = ["./buildSYCLProcess.sh", "-n",  process, "-i",  str(iterations), "-t",  str(TPB), "-b", str(BPG)]
 
-                elif str(args.l).upper() == 'CUDA':
+                elif args.l.upper() == 'CUDA':
 
                     # There is no .sa in br_golden_epochX4 so it makes sure that .sa is included in everything other than that branch
                     if args.b != 'br_golden_epochX4':
