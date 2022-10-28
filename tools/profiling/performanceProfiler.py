@@ -22,7 +22,7 @@ parser = argparse.ArgumentParser(description='A program for profiling GPUs using
 parser.add_argument("-l", help="Choose which abstraction layer you want to use (CUDA/SYCL).", default=absLayer)
 parser.add_argument("-b", help="Choose which branch the madgraph4gpu repo is in.", default=branch)
 
-args = parser.parse_args()
+pyArgs = parser.parse_args()
 
 # How many runs in total the program made
 count = 0
@@ -32,23 +32,23 @@ for process in mgProcesses:
         for BPG in blocksPerGrid:
             if (TPB * BPG > doublePrecisionConstant):
 
-                if args.l.upper() == 'SYCL':
-                    args = ["./buildSYCLProcess.sh", "-n",  process, "-i",  str(iterations), "-t",  str(TPB), "-b", str(BPG)]
+                if pyArgs.l.upper() == 'SYCL':
+                    bashArgs = ["./buildSYCLProcess.sh", "-n",  process, "-i",  str(iterations), "-t",  str(TPB), "-b", str(BPG)]
 
-                elif args.l.upper() == 'CUDA':
+                elif pyArgs.l.upper() == 'CUDA':
 
                     # There is no .sa in br_golden_epochX4 so it makes sure that .sa is included in everything other than that branch
-                    if args.b != 'br_golden_epochX4':
+                    if pyArgs.b != 'br_golden_epochX4':
                         if ".sa" not in process:
                             process = process + ".sa"
                     
-                    args = ["./buildCUDAProcess.sh", "-n",  process, "-i",  str(iterations), "-t",  str(TPB), "-b", str(BPG)]
+                    bashArgs = ["./buildCUDAProcess.sh", "-n",  process, "-i",  str(iterations), "-t",  str(TPB), "-b", str(BPG)]
 
                 else: sys.exit("No abstraction layer matching the supplied string!")
 
                 print(str(datetime.datetime.now().strftime("%H:%M:%S")) + " Started " + process + " with TPB("+ str(TPB) +") * BPG("+ str(BPG) +"): " + str(TPB * BPG) + "!")
                 
-                build = subprocess.run(args, stdout=subprocess.DEVNULL)
+                build = subprocess.run(bashArgs, stdout=subprocess.DEVNULL)
                 if build.returncode != 0:
                     print(str(datetime.datetime.now().strftime("%H:%M:%S")) + " " + process + " FAILED!, threadsPerBlock: " + str(TPB) + ", blocksPerGrid: " + str(BPG) + ", Product: " + str(TPB * BPG))
                 else:
