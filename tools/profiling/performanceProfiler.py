@@ -32,7 +32,7 @@ for process in mgProcesses:
             if (TPB * BPG > doublePrecisionConstant):
 
                 if str(args.l).upper() == 'SYCL':
-                    args = ["./tools/profiling/buildSYCLProcess.sh", "-n",  process, "-i",  str(iterations), "-t",  str(TPB), "-b", str(BPG)]
+                    args = ["./madgraph4gpu/tools/profiling/buildSYCLProcess.sh", "-n",  process, "-i",  str(iterations), "-t",  str(TPB), "-b", str(BPG)]
 
                 elif str(args.l).upper() == 'CUDA':
 
@@ -41,7 +41,7 @@ for process in mgProcesses:
                         if ".sa" not in process:
                             process = process + ".sa"
                     
-                    args = ["./tools/profiling/buildCUDAProcess.sh", "-n",  process, "-i",  str(iterations), "-t",  str(TPB), "-b", str(BPG)]
+                    args = ["./madgraph4gpu/tools/profiling/buildCUDAProcess.sh", "-n",  process, "-i",  str(iterations), "-t",  str(TPB), "-b", str(BPG)]
 
                 else: sys.exit("No abstraction layer matching the supplied string!")
 
