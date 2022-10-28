@@ -12,6 +12,6 @@ jobs:
     runs-on: [self-hosted, linux, a100s]
     steps:
     - name: Change permissions on files
-      run: pwd; cd madgraph4gpu/tools/profiling/; chmod +x buildCUDAProcess.sh buildSYCLProcess.sh
+      run: cd tools/profiling/; chmod +x buildCUDAProcess.sh buildSYCLProcess.sh
     - name: Runs performanceProfiler.py script
-      run: cd $GITHUB_WORKSPACE; pwd; source /cvmfs/sft.cern.ch/lcg/contrib/gcc/11.3.0/x86_64-centos8/setup.sh; source /cvmfs/projects.cern.ch/intelsw/oneAPI/linux/x86_64/2022/setvars.sh; python3 tools/profiling/performanceProfiler.py -l 'CUDA' -b 'master'
+      run: cd ../; source /cvmfs/sft.cern.ch/lcg/contrib/gcc/11.3.0/x86_64-centos8/setup.sh; source /cvmfs/projects.cern.ch/intelsw/oneAPI/linux/x86_64/2022/setvars.sh; python3 madgraph4hpu/tools/profiling/performanceProfiler.py -l 'CUDA' -b 'master'
