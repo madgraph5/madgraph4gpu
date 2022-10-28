@@ -83,4 +83,8 @@ make
 # Run executable
 
 cd build*
-$MG_EXE -j --json_file ${WORKSPACE}/test_${NAME_PREFIX}_${MG_PROC}_${blocksPerGrid}_${threadsPerBlock}_${iterations}.json $blocksPerGrid $threadsPerBlock $iterations
+$MG_EXE -j $blocksPerGrid $threadsPerBlock $iterations
+
+mkdir -p $MG_SP_DIR/pref/data/
+cd $MG_SP_DIR/pref/data/
+mv 0-perf-test-run0.json ${WORKSPACE}/test_${NAME_PREFIX}_${MG_PROC}_${blocksPerGrid}_${threadsPerBlock}_${iterations}.json
