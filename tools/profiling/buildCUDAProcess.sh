@@ -36,11 +36,13 @@ fi
 
 # Set user specific variables
 
+# Assumes that this is run from profiling directory in the repo
 prefix=$(pwd)
+
 export CUDA_HOME=/usr/local/cuda-11.6/
 export FC=`which gfortran`
 
-# Set up compiler and compile options
+# Set up compiler and compile options and makes workspace
 
 export USEBUILDDIR=1
 export NTPBMAX=1024
@@ -64,9 +66,7 @@ case $MG_PROC in
     gg_ttggg ) export MG_SUBPROC="P1_Sigma_sm_gg_ttxggg" ;;
 esac
 
-# Makes workspace in correct folder
-
-export MG_PROC_DIR=$prefix/madgraph4gpu/epochX/cudacpp/$MG_PROC
+export MG_PROC_DIR=$prefix/../../epochX/cudacpp/$MG_PROC
 export MG_SP_DIR=$MG_PROC_DIR/SubProcesses/$MG_SUBPROC
 
 # Build executable
