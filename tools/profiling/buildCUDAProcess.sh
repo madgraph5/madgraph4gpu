@@ -38,7 +38,6 @@ fi
 
 # Assumes that this is run from profiling directory in the repo
 prefix=$(pwd)
-pwd
 
 export CUDA_HOME=/usr/local/cuda-11.6/
 export FC=`which gfortran`
@@ -61,20 +60,23 @@ export PATH=$CUDA_HOME:$PATH
 
 case $MG_PROC in
     ee_mumu ) export MG_SUBPROC="P1_Sigma_sm_epem_mupmum" ;;
+    ee_mumu.sa ) export MG_SUBPROC="P1_Sigma_sm_epem_mupmum" ;;
     gg_tt ) export MG_SUBPROC="P1_Sigma_sm_gg_ttx" ;;
+    gg_tt.sa ) export MG_SUBPROC="P1_Sigma_sm_gg_ttx" ;;
     gg_ttg ) export MG_SUBPROC="P1_Sigma_sm_gg_ttxg" ;;
+    gg_ttg.sa ) export MG_SUBPROC="P1_Sigma_sm_gg_ttxg" ;;
     gg_ttgg ) export MG_SUBPROC="P1_Sigma_sm_gg_ttxgg" ;;
+    gg_ttgg.sa ) export MG_SUBPROC="P1_Sigma_sm_gg_ttxgg" ;;
     gg_ttggg ) export MG_SUBPROC="P1_Sigma_sm_gg_ttxggg" ;;
+    gg_ttggg.sa ) export MG_SUBPROC="P1_Sigma_sm_gg_ttxggg" ;;
 esac
 
 export MG_PROC_DIR=$prefix/../../epochX/cudacpp/$MG_PROC
-echo $MG_PROC_DIR
 export MG_SP_DIR=$MG_PROC_DIR/SubProcesses/$MG_SUBPROC
 
 # Build executable
 
 cd $MG_SP_DIR
-pwd
 make
 
 # Run executable
