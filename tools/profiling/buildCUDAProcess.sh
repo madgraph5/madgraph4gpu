@@ -73,6 +73,7 @@ esac
 
 export MG_PROC_DIR=$prefix/../../epochX/cudacpp/$MG_PROC
 export MG_SP_DIR=$MG_PROC_DIR/SubProcesses/$MG_SUBPROC
+export MG5AMC_CARD_PATH=$MG_PROC_DIR/Cards
 
 # Build executable
 
