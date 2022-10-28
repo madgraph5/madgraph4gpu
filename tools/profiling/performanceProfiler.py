@@ -48,7 +48,7 @@ for process in mgProcesses:
 
                 print(str(datetime.datetime.now().strftime("%H:%M:%S")) + " Started " + process + " with TPB("+ str(TPB) +") * BPG("+ str(BPG) +"): " + str(TPB * BPG) + "!")
                 
-                build = subprocess.run(bashArgs, stdout=subprocess.DEVNULL)
+                build = subprocess.run(bashArgs)#, stdout=subprocess.DEVNULL)
                 if build.returncode != 0:
                     print(str(datetime.datetime.now().strftime("%H:%M:%S")) + " " + process + " FAILED!, threadsPerBlock: " + str(TPB) + ", blocksPerGrid: " + str(BPG) + ", Product: " + str(TPB * BPG))
                 else:
