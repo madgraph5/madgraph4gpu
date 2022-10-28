@@ -15,4 +15,4 @@ jobs:
     - name: Change permissions on files
       run: cd tools/profiling/; chmod +x buildCUDAProcess.sh buildSYCLProcess.sh
     - name: Runs performanceProfiler.py script
-      run: cd tools/profiling/; source /cvmfs/sft.cern.ch/lcg/contrib/gcc/11.3.0/x86_64-centos8/setup.sh; source /cvmfs/projects.cern.ch/intelsw/oneAPI/linux/x86_64/2022/setvars.sh; python3 performanceProfiler.py -l 'CUDA' -b 'master'
+      run: source /cvmfs/sft.cern.ch/lcg/contrib/gcc/11.3.0/x86_64-centos8/setup.sh; source /cvmfs/projects.cern.ch/intelsw/oneAPI/linux/x86_64/2022/setvars.sh; python3 tools/profiling/performanceProfiler.py -l 'CUDA' -b 'master'
