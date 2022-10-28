@@ -32,16 +32,16 @@ for process in mgProcesses:
             if (TPB * BPG > doublePrecisionConstant):
 
                 if str(args.l).upper() == 'SYCL':
-                    args = ["./madgraph4gpu/tools/profiling/buildSYCLProcess.sh", "-n",  process, "-i",  str(iterations), "-t",  str(TPB), "-b", str(BPG)]
+                    args = ["./buildSYCLProcess.sh", "-n",  process, "-i",  str(iterations), "-t",  str(TPB), "-b", str(BPG)]
 
                 elif str(args.l).upper() == 'CUDA':
 
-                    # Used in br_golden_epochX4 branch
-                    if args.b == 'br_golden_epochX4':
+                    # There is no .sa in br_golden_epochX4 so it makes sure that .sa is included in everything other than that branch
+                    if args.b != 'br_golden_epochX4':
                         if ".sa" not in process:
                             process = process + ".sa"
                     
-                    args = ["./madgraph4gpu/tools/profiling/buildCUDAProcess.sh", "-n",  process, "-i",  str(iterations), "-t",  str(TPB), "-b", str(BPG)]
+                    args = ["./buildCUDAProcess.sh", "-n",  process, "-i",  str(iterations), "-t",  str(TPB), "-b", str(BPG)]
 
                 else: sys.exit("No abstraction layer matching the supplied string!")
 
