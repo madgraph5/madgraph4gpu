@@ -81,4 +81,5 @@ make
 
 # Run executable
 
+cd build*
 $MG_EXE -j --json_file ${WORKSPACE}/test_${NAME_PREFIX}_${MG_PROC}_${blocksPerGrid}_${threadsPerBlock}_${iterations}.json $blocksPerGrid $threadsPerBlock $iterations
