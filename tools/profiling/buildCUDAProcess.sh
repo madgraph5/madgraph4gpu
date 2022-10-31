@@ -50,7 +50,7 @@ export MG_EXE="./gcheck.exe"
 export WORKSPACE=$prefix/workspace_mg4gpu
 export NAME_PREFIX="cudacpp_v100s_cuda_11.6"
 
-mkdir WORKSPACE
+mkdir $WORKSPACE
 
 ##################################################################
 
@@ -85,8 +85,8 @@ make
 # Run executable
 
 cd build*
-mkdir -p pref/data/
+mkdir -p perf/data/
 $MG_EXE -j $blocksPerGrid $threadsPerBlock $iterations
 
-cd pref/data/
+cd perf/data/
 mv 0-perf-test-run0.json ${WORKSPACE}/test_${NAME_PREFIX}_${MG_PROC}_${blocksPerGrid}_${threadsPerBlock}_${iterations}.json
