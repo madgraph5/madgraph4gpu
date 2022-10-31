@@ -9,6 +9,8 @@ on:
 jobs:
   debug_builds:
     runs-on: ubuntu-latest
+    env:
+      SYCLFLAGS: -fsycl
     strategy:
       matrix:
         folder: [ epochX/sycl/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum , epochX/sycl/gg_tt/SubProcesses/P1_Sigma_sm_gg_ttx , epochX/sycl/gg_ttg/SubProcesses/P1_Sigma_sm_gg_ttxg , epochX/sycl/gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg , epochX/sycl/gg_ttggg/SubProcesses/P1_Sigma_sm_gg_ttxggg ]
@@ -22,6 +24,8 @@ jobs:
       run: make -C ${{ matrix.folder }} debug
   CPU:
     runs-on: ubuntu-latest
+    env:
+      SYCLFLAGS: -fsycl
     strategy:
       matrix:
         folder: [ epochX/sycl/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum , epochX/sycl/gg_tt/SubProcesses/P1_Sigma_sm_gg_ttx , epochX/sycl/gg_ttg/SubProcesses/P1_Sigma_sm_gg_ttxg , epochX/sycl/gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg , epochX/sycl/gg_ttggg/SubProcesses/P1_Sigma_sm_gg_ttxggg ]
@@ -41,6 +45,7 @@ jobs:
     runs-on: macos-latest
     env:
       FC: gfortran-11
+      SYCLFLAGS: -fsycl
     strategy:
       matrix:
         folder: [ epochX/sycl/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum , epochX/sycl/gg_tt/SubProcesses/P1_Sigma_sm_gg_ttx , epochX/sycl/gg_ttg/SubProcesses/P1_Sigma_sm_gg_ttxg , epochX/sycl/gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg , epochX/sycl/gg_ttggg/SubProcesses/P1_Sigma_sm_gg_ttxggg ]
@@ -61,6 +66,7 @@ jobs:
     env:
       FC: gfortran
       REQUIRE_CUDA: 1
+      SYCLFLAGS: -fsycl
     strategy:
       matrix:
         folder: [ epochX/sycl/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum , epochX/sycl/gg_tt/SubProcesses/P1_Sigma_sm_gg_ttx , epochX/sycl/gg_ttg/SubProcesses/P1_Sigma_sm_gg_ttxg , epochX/sycl/gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg , epochX/sycl/gg_ttggg/SubProcesses/P1_Sigma_sm_gg_ttxggg ]
