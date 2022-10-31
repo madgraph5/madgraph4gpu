@@ -50,6 +50,8 @@ export MG_EXE="./gcheck.exe"
 export WORKSPACE=$prefix/workspace_mg4gpu
 export NAME_PREFIX="cudacpp_v100s_cuda_11.6"
 
+mkdir WORKSPACE
+
 ##################################################################
 
 # Sets CUDA in PATH
