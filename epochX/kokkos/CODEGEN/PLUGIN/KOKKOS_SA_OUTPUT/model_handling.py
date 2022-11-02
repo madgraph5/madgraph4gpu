@@ -946,6 +946,8 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             parm_str += "    //m_tIPD[...] = ... ; // nparam=0\n"
 
         replace_dict['assign_coupling'] = coup_str + param_str
+        replace_dict['all_helicities'] = self.get_helicity_matrix(self.matrix_elements[0])
+
         file = self.read_template_file(self.process_definition_template) % replace_dict
         self.__process_function_definitions__ = file
         return file
@@ -1303,7 +1305,7 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
         ###helicity_line = "static const int helicities[ncomb][nexternal] = {";
         ###helicity_line = "    constexpr short helicities[ncomb][mgOnGpu::npar] = {\n      "; # AV (this is tHel)
         #helicity_line = "template <typename T>\nconstexpr T helicities[mgOnGpu::ncomb][mgOnGpu::npar] {\n  "; # NSN SYCL needs access to tHel outside CPPProcess
-        helicity_line = ""; # NSN SYCL needs access to tHel outside CPPProcess
+        helicity_line = "  "; # NSN SYCL needs access to tHel outside CPPProcess
         helicity_line_list = []
         for helicities in matrix_element.get_helicity_matrix(allow_reverse=False):
             #helicity_line_list.append( "{" + ", ".join(['%d'] * len(helicities)) % tuple(helicities) + "}" ) # AV"

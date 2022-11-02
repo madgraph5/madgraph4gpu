@@ -26,6 +26,10 @@
 
 #define SEP79 79
 
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+#include "Bridge.h"
+#endif
+
 bool is_number(const char *s) {
   const char *t = s;
   while (*t != '\0' && isdigit(*t))
@@ -115,6 +119,7 @@ int main(int argc, char **argv)
   std::string param_card = "../../Cards/param_card.dat";
   bool json_file_bool = false;
   std::string json_file = "";
+  bool bridge = false;
 
   for (int argn = 1; argn < argc; ++argn) {
     std::string arg = argv[argn];
@@ -129,6 +134,10 @@ int main(int argc, char **argv)
     else if (strcmp(argv[argn], "--json") == 0 ||
              strcmp(argv[argn], "-j") == 0)
       json = true;
+    else if ( arg == "--bridge" )
+    {
+      bridge = true;
+    }
     else if ( ( arg == "--help" ) || ( arg == "-h" ) )
     {
       return usage(argv[0]);
@@ -239,7 +248,7 @@ int main(int argc, char **argv)
   // const int nMomenta = np4*npar*nevt; // (NB: nevt=npagM*neppM for AOSOA layouts)
   // const int nWeights = nevt;
   // const int nMEs     = nevt; // FIXME: assume process.nprocesses == 1 (eventually: nMEs = nevt * nprocesses?)
-
+  
   // Random Numbers
   Kokkos::View<fptype**> devRnarray(Kokkos::ViewAllocateWithoutInitializing("devRnarray"),nevt,np4*nparf);
 #ifdef FIXED_RANDOM
@@ -360,7 +369,6 @@ int main(int argc, char **argv)
     rambtime += timermap.start( cmomKey );
     Kokkos::deep_copy(hstMomenta,devMomenta);
 
-
     // *** STOP THE OLD-STYLE TIMER FOR RAMBO ***
     rambtime += timermap.stop();
 
@@ -387,7 +395,11 @@ int main(int argc, char **argv)
     // --- 3a. SigmaKin
     const std::string skinKey = "3a SigmaKin";
     timermap.start( skinKey );
-    sigmaKin(devMomenta, devIsGoodHel, devNGoodHel, devGs, process.m_cIPC, process.m_cIPD, league_size, team_size, devMEs);
+    #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+        sigmaKin(devMomenta, 0, devIsGoodHel, devNGoodHel, devGs, process.m_cIPC, process.m_cIPD, league_size, team_size, devMEs);
+    #else
+        sigmaKin(devMomenta, devIsGoodHel, devNGoodHel, devGs, process.m_cIPC, process.m_cIPD, league_size, team_size, devMEs);
+    #endif
     Kokkos::fence();
     // *** STOP THE NEW OLD-STYLE TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
     wv3atime += timermap.stop(); // calc only
@@ -399,6 +411,36 @@ int main(int argc, char **argv)
     Kokkos::deep_copy(hstMEs,devMEs);
     // *** STOP THE OLD OLD-STYLE TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
     wavetime += timermap.stop(); // calc plus copy
+
+    #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+    if (bridge) {
+            //Initialize bridge object
+            Bridge<fptype> pbridge = new Bridge<fptype>( nevt, npar, np4 );
+
+            fptype* _gs = std::malloc(nevt*sizeof(fptype));
+            fptype* _mes = std::malloc(nevt*sizeof(fptype));
+            fptype* _momenta = std::malloc(nevt*npar*np4*sizeof(fptype));
+            for (size_t i=0; i < nevt*npar*np4; i++) {
+                _momenta[i] = hstMomenta.data()[i];
+            }
+            for (size_t i=0; i < nevt; i++) {
+                _gs[i] = hstGs.data()[i];
+            }
+
+            pbridge->gpu_sequence( _momenta, _gs, _mes, 0 );
+            
+            std::cout << "SA_MEs    Bridge_MEs    SA/Bridge" << std::endl;
+            for (size_t i=0; i < nevt; i++) {
+                std::cout << hstMEs(i) << "    " << _mes[i] << std::endl;
+            }
+            
+            std::free(_gs);
+            std::free(_mes);
+            std::free(_momenta);
+            delete pbridge;
+    }
+    #endif
+
 
     // === STEP 4 FINALISE LOOP
     // --- 4a Dump within the loop

@@ -3,6 +3,9 @@ KOKKOSPATH_OMP ?= $(KOKKOS_HOME)
 KOKKOSPATH_INTEL ?= $(KOKKOS_HOME)
 KOKKOSPATH_HIP ?= $(KOKKOS_HOME)
 
+processid_short=$(shell basename $(CURDIR) | awk -F_ '{print $$(NF-1)"_"$$NF}')
+KOKKOS_COMMONLIB=mg5amc_common
+
 MODELSTR = sm
 MODELLIB = model_$(MODELSTR)
 
@@ -35,10 +38,10 @@ SRCS = Parameters_$(MODELSTR).cc read_slha.cc
 # HelAmps_$(MODELSTR).cc
 
 LIBDIR=../lib
-cuda_lib=$(LIBDIR)/lib$(MODELLIB)_cuda.a
-openmp_lib=$(LIBDIR)/lib$(MODELLIB)_openmp.a
-intel_lib=$(LIBDIR)/lib$(MODELLIB)_intel.a
-hip_lib=$(LIBDIR)/lib$(MODELLIB)_hip.a
+cuda_lib=lib$(MODELLIB)_cuda.a
+openmp_lib=lib$(MODELLIB)_openmp.a
+intel_lib=lib$(MODELLIB)_intel.a
+hip_lib=lib$(MODELLIB)_hip.a
 openmp_objects=$(SRCS:.cc=.openmp.o)
 cuda_objects=$(SRCS:.cc=.cuda.o)
 intel_objects=$(SRCS:.cc=.intel.o)
@@ -66,26 +69,30 @@ hip: $(hip_lib)
 %.hip.o : %.cc %.h
 	$(HIPCC) $(HIP_CXXFLAGS) -c $< -o $@
 
-$(cuda_lib): $(cuda_objects)
+$(LIBDIR)/$(cuda_lib): $(cuda_objects)
 	if [ ! -d $(LIBDIR) ]; then mkdir $(LIBDIR); fi
 	$(AR) cru $@ $^
 	ranlib $@
+	ln -s $(cuda_lib) $(LIBDIR)/lib$(KOKKOS_COMMONLIB).a
 
-$(openmp_lib): $(openmp_objects)
+$(LIBDIR)/$(openmp_lib): $(openmp_objects)
 	if [ ! -d $(LIBDIR) ]; then mkdir $(LIBDIR); fi
 	$(AR) cru $@ $^
 	ranlib $@
+	ln -s $(openmp_lib) $(LIBDIR)/lib$(KOKKOS_COMMONLIB).a
 
-$(intel_lib): $(intel_objects)
+$(LIBDIR)/$(intel_lib): $(intel_objects)
 	if [ ! -d $(LIBDIR) ]; then mkdir $(LIBDIR); fi
 	$(AR) cru $@ $^
 	ranlib $@
+	ln -s $(intel_lib) $(LIBDIR)/lib$(KOKKOS_COMMONLIB).a
 
-$(hip_lib): $(hip_objects)
+$(LIBDIR)/$(hip_lib): $(hip_objects)
 	if [ ! -d $(LIBDIR) ]; then mkdir $(LIBDIR); fi
 	$(AR) cru $@ $^
 	ranlib $@
+	ln -s $(hip_lib) $(LIBDIR)/lib$(KOKKOS_COMMONLIB).a
 
 clean:
 	rm -f $(cuda_objects) $(openmp_objects) $(intel_objects) $(hip_objects)
-	rm -f $(cuda_lib) $(openmp_lib) $(intel_lib) $(hip_lib)
+	rm -f $(LIBDIR)/$(cuda_lib) $(LIBDIR)/$(openmp_lib) $(LIBDIR)/$(intel_lib) $(LIBDIR)/$(hip_lib) $(LIBDIR)/lib$(KOKKOS_COMMONLIB).a

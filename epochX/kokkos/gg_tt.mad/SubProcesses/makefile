@@ -1,6 +1,41 @@
 include ../../Source/make_opts
 FFLAGS+= -w
 
+# Add Kokkos flags and variables
+KOKKOSPATH_CUDA ?= $(KOKKOS_HOME)
+KOKKOSPATH_OMP ?= $(KOKKOS_HOME)
+KOKKOSPATH_INTEL ?= $(KOKKOS_HOME)
+KOKKOSPATH_HIP ?= $(KOKKOS_HOME)
+
+INCDIR=../../src
+CXXFLAGS=-O3 -ffast-math -I$(INCDIR) --std=c++17
+
+LDFLAGS=-lstdc++fs
+
+CUDA_ARCH_NUM ?= 70
+NVCC=$(KOKKOSPATH_CUDA)/bin/nvcc_wrapper
+CUDA_LDFLAGS=$(LDFLAGS) $(KOKKOSPATH_CUDA)/lib64/libkokkoscore.a -lnvToolsExt --openmp
+
+CXX ?= g++
+ICPX ?= icpx
+CLANG ?= clang++
+HIPCC ?= hipcc
+
+OPENMP_LDFLAGS=$(LDFLAGS) $(KOKKOSPATH_OMP)/lib64/libkokkoscore.a -ldl --openmp
+
+INTEL_BACKEND ?= gen9
+INTEL_SYCL ?= 0
+ifeq ($(INTEL_SYCL),1)
+# build for SYCL
+INTEL_LDFLAGS=$(LDFLAGS)  $(KOKKOSPATH_INTEL)/lib64/libkokkoscore.a $(KOKKOSPATH_INTEL)/lib64/libkokkoscontainers.a -fiopenmp -fsycl -fsycl-targets=spir64_gen -Xsycl-target-backend "-device ${INTEL_BACKEND}"
+else
+# build for OPENMP
+INTEL_LDFLAGS=$(LDFLAGS)  $(KOKKOSPATH_INTEL)/lib64/libkokkoscore.a $(KOKKOSPATH_INTEL)/lib64/libkokkoscontainers.a -fiopenmp -fopenmp-targets=spir64_gen -Xopenmp-target-backend "-device ${INTEL_BACKEND}"
+endif
+
+HIP_ARCH_NUM ?= gfx906
+HIP_LDFLAGS=$(LDFLAGS) -L $(KOKKOSPATH_HIP)/lib64  -lkokkoscore -ldl -fopenmp 
+
 # Enable the C preprocessor https://gcc.gnu.org/onlinedocs/gfortran/Preprocessing-Options.html
 FFLAGS+= -cpp 
 
@@ -39,17 +74,18 @@ LINKLIBS = $(LINK_MADLOOP_LIB) $(LINK_LOOP_LIBS) -L$(LIBDIR) -ldhelas -ldsample 
 
 processid_short=$(shell basename $(CURDIR) | awk -F_ '{print $$(NF-1)"_"$$NF}')
 KOKKOS_MAKEFILE=kokkos.mk
+KOKKOSSRC_MAKEFILE=kokkos_src.mk
 # NB1 Using ":=" below instead of "=" is much faster (it only runs the subprocess once instead of many times)
 # NB2 Do not add a comment inlined "KOKKOS_BUILDDIR=$(shell ...) # comment" as otherwise a trailing space is included...
 # NB3 The variables relevant to the kokkos Makefile must be explicitly passed to $(shell...)
 KOKKOS_MAKEENV:=$(shell echo '$(.VARIABLES)' | tr " " "\n" | egrep "(USEBUILDDIR|AVX|FPTYPE|HELINL|HRDCOD)")
 ###$(info KOKKOS_MAKEENV=$(KOKKOS_MAKEENV))
 ###$(info $(foreach v,$(KOKKOS_MAKEENV),$(v)="$($(v))"))
-KOKKOS_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(KOKKOS_MAKEENV),$(v)="$($(v))") -f $(KOKKOS_MAKEFILE) -pn | awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
+#KOKKOS_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(KOKKOS_MAKEENV),$(v)="$($(v))") -f $(KOKKOS_MAKEFILE) -pn | awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
+KOKKOS_BUILDDIR:=build
 ###$(info KOKKOS_BUILDDIR='$(KOKKOS_BUILDDIR)')
 KOKKOS_COMMONLIB=mg5amc_common
-KOKKOS_CXXLIB=mg5amc_$(processid_short)_kokkos
-KOKKOS_KOKKOSLIB=mg5amc_$(processid_short)_kokkos
+KOKKOS_BRIDGELIB=mg5amc_$(processid_short)_kokkos
 
 LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS)
 
@@ -84,11 +120,11 @@ LDFLAGS+=-Wl,--no-relax # avoid 'failed to convert GOTPCREL relocation' error #4
 ifeq (,$(wildcard fbridge.inc))
 all: $(PROG)
 else
-all: $(PROG) $(KOKKOS_BUILDDIR)/c$(PROG)_kokkos $(KOKKOS_BUILDDIR)/g$(PROG)_kokkos
+all: $(PROG)
 endif
 
 $(PROG): $(PROCESS) $(DSIG) auto_dsig.o $(LIBS) $(MATRIX) counters.o
-	$(FC) -o $(PROG) $(PROCESS) $(DSIG) auto_dsig.o $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o
+	$(FC) -o $(PROG) $(PROCESS) $(DSIG) auto_dsig.o $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o -lstdc++
 
 $(LIBS): .libs
 
@@ -97,8 +133,24 @@ $(LIBS): .libs
 	touch $@
 
 ifneq (,$(wildcard fbridge.inc))
-$(KOKKOS_BUILDDIR)/.kokkoslibs:
-	$(MAKE) -f $(KOKKOS_MAKEFILE)
+$(KOKKOS_BUILDDIR)/.kokkoslibs_cuda:
+	$(MAKE) -f $(KOKKOS_MAKEFILE) ../../lib/libmodel_sm_bridge_cuda.a
+	$(MAKE) -C ../../src -f $(KOKKOSSRC_MAKEFILE) ../lib/libmodel_sm_cuda.a
+	touch $@
+
+$(KOKKOS_BUILDDIR)/.kokkoslibs_openmp:
+	$(MAKE) -f $(KOKKOS_MAKEFILE) ../../lib/libmodel_sm_bridge_openmp.a
+	$(MAKE) -C ../../src -f $(KOKKOSSRC_MAKEFILE) ../lib/libmodel_sm_openmp.a
+	touch $@
+
+$(KOKKOS_BUILDDIR)/.kokkoslibs_intel:
+	$(MAKE) -f $(KOKKOS_MAKEFILE) ../../lib/libmodel_sm_bridge_intel.a
+	$(MAKE) -C ../../src -f $(KOKKOSSRC_MAKEFILE) ../lib/libmodel_sm_intel.a
+	touch $@
+
+$(KOKKOS_BUILDDIR)/.kokkoslibs_hip:
+	$(MAKE) -f $(KOKKOS_MAKEFILE) ../../lib/libmodel_sm_bridge_hip.a
+	$(MAKE) -C ../../src -f $(KOKKOSSRC_MAKEFILE) ../lib/libmodel_sm_hip.a
 	touch $@
 endif
 
@@ -113,11 +165,17 @@ else
   override LIBFLAGSRPATH = -Wl,-rpath,'$$ORIGIN/$(LIBDIR)'
 endif
 
-$(KOKKOS_BUILDDIR)/c$(PROG)_kokkos: $(PROCESS) $(DSIG_kokkos) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(KOKKOS_BUILDDIR)/.kokkoslibs
-	$(CXX) $(KOKKOSFLAGS) -o $(KOKKOS_BUILDDIR)/c$(PROG)_kokkos $(PROCESS) $(DSIG_kokkos) auto_dsig.o $(MATRIX) $(LIBDIR)/$(KOKKOS_BUILDDIR)/lib$(KOKKOS_CXXLIB).a $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o -lgfortran -L$(LIBDIR)/$(KOKKOS_BUILDDIR) -l$(KOKKOS_COMMONLIB) $(LIBFLAGSRPATH) -lstdc++fs
+cuda: $(PROCESS) $(DSIG_kokkos) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(KOKKOS_BUILDDIR)/.kokkoslibs_cuda
+	$(CXX) $(KOKKOSFLAGS) -o $(KOKKOS_BUILDDIR)/g$(PROG)_kokkos $(PROCESS) $(DSIG_kokkos) auto_dsig.o $(MATRIX) $(LIBDIR)/lib$(KOKKOS_BRIDGELIB).a $(LIBDIR)/lib$(KOKKOS_COMMONLIB).a $(LINKLIBS) $(LDFLAGS) $(CUDA_LDFLAGS) $(BIASDEPENDENCIES) counters.o -lgomp -lgfortran $(LIBFLAGSRPATH) -lstdc++fs
 
-$(KOKKOS_BUILDDIR)/g$(PROG)_kokkos: $(PROCESS) $(DSIG_kokkos) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(KOKKOS_BUILDDIR)/.kokkoslibs
-	$(CXX) $(KOKKOSFLAGS) -o $(KOKKOS_BUILDDIR)/g$(PROG)_kokkos $(PROCESS) $(DSIG_kokkos) auto_dsig.o $(MATRIX) $(LIBDIR)/$(KOKKOS_BUILDDIR)/lib$(KOKKOS_KOKKOSLIB).a $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o -lgfortran -L$(LIBDIR)/$(KOKKOS_BUILDDIR) -l$(KOKKOS_COMMONLIB) $(LIBFLAGSRPATH) -lstdc++fs
+openmp: $(PROCESS) $(DSIG_kokkos) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(KOKKOS_BUILDDIR)/.kokkoslibs_openmp
+	$(CXX) $(KOKKOSFLAGS) -o $(KOKKOS_BUILDDIR)/g$(PROG)_kokkos $(PROCESS) $(DSIG_kokkos) auto_dsig.o $(MATRIX) $(LIBDIR)/lib$(KOKKOS_BRIDGELIB).a $(LIBDIR)/lib$(KOKKOS_COMMONLIB).a $(LINKLIBS) $(LDFLAGS) $(OPENMP_LDFLAGS) $(BIASDEPENDENCIES) counters.o -lgomp -lgfortran $(LIBFLAGSRPATH) -lstdc++fs
+
+intel: $(PROCESS) $(DSIG_kokkos) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(KOKKOS_BUILDDIR)/.kokkoslibs_intel
+	$(CXX) $(KOKKOSFLAGS) -o $(KOKKOS_BUILDDIR)/g$(PROG)_kokkos $(PROCESS) $(DSIG_kokkos) auto_dsig.o $(MATRIX) $(LIBDIR)/lib$(KOKKOS_BRIDGELIB).a $(LIBDIR)/lib$(KOKKOS_COMMONLIB).a $(LINKLIBS) $(LDFLAGS) $(INTEL_LDFLAGS) $(BIASDEPENDENCIES) counters.o -lgomp -lgfortran $(LIBFLAGSRPATH) -lstdc++fs
+
+hip: $(PROCESS) $(DSIG_kokkos) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(KOKKOS_BUILDDIR)/.kokkoslibs_hip
+	$(CXX) $(KOKKOSFLAGS) -o $(KOKKOS_BUILDDIR)/g$(PROG)_kokkos $(PROCESS) $(DSIG_kokkos) auto_dsig.o $(MATRIX) $(LIBDIR)/lib$(KOKKOS_BRIDGELIB).a $(LIBDIR)/lib$(KOKKOS_COMMONLIB).a $(LINKLIBS) $(LDFLAGS) $(HIP_LDFLAGS) $(BIASDEPENDENCIES) counters.o -lgomp -lgfortran $(LIBFLAGSRPATH) -lstdc++fs
 
 counters.o: counters.cpp timer.h
 	$(CXX) -std=c++11 -Wall -Wshadow -Wextra -c $< -o $@

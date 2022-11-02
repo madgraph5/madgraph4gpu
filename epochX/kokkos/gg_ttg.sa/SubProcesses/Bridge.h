@@ -64,6 +64,8 @@ namespace mg5amcKokkos
      * Destructor
      */
     virtual ~Bridge() {}
+    //virtual ~Bridge() {Kokkos::finalize();}
+    
 
     // Delete copy/move constructors and assignment operators
     Bridge( const Bridge& ) = delete;
@@ -101,10 +103,11 @@ namespace mg5amcKokkos
 
     int m_team_size; // number of gpu threads (default set from number of events, can be modified)
     int m_league_size;  // number of gpu blocks (default set from number of events, can be modified)
-    Kokkos::View<fptype***> m_devMomenta;
+    //bool m_kokkos_initialized;
+    Kokkos::View<fptype*[mgOnGpu::npar][mgOnGpu::np4]> m_devMomenta;
     Kokkos::View<fptype*> m_devGs;
     Kokkos::View<fptype*> m_devMEs;
-    Kokkos::View<fptype*,Kokkos::HostSpace> m_hstMEs;
+    //Kokkos::View<fptype*,Kokkos::HostSpace> m_hstMEs;
     Kokkos::View<bool*> m_devIsGoodHel;
     Kokkos::View<short** > m_devcHel;
     Kokkos::View<fptype*> m_devcIPC;
@@ -142,10 +145,11 @@ namespace mg5amcKokkos
     , m_goodHelsCalculated( false )
     , m_team_size( 256 )                  // default number of gpu threads
     , m_league_size( m_nevt / m_team_size ) // this ensures m_nevt <= m_league_size*m_team_size
-    , m_devMomenta( Kokkos::ViewAllocateWithoutInitializing("m_devMomenta"), m_nevt, mgOnGpu::npar, mgOnGpu::np4 )
+    //, m_kokkos_initialized(kokkos_initialize())
+    , m_devMomenta( Kokkos::ViewAllocateWithoutInitializing("m_devMomenta"), m_nevt )
     , m_devGs( Kokkos::ViewAllocateWithoutInitializing("m_devGs"), m_nevt )
     , m_devMEs( Kokkos::ViewAllocateWithoutInitializing("m_devMEs"), m_nevt )
-    , m_hstMEs( Kokkos::ViewAllocateWithoutInitializing("m_hstMEs"), m_nevt )
+    //, m_hstMEs( Kokkos::ViewAllocateWithoutInitializing("m_hstMEs"), m_nevt )
     , m_devIsGoodHel( Kokkos::ViewAllocateWithoutInitializing("m_devIsGoodHel"), mgOnGpu::ncomb )
     , m_devNGoodHel( Kokkos::ViewAllocateWithoutInitializing("m_devNGoodHel"),1) 
     , m_dev_independent_couplings(Kokkos::ViewAllocateWithoutInitializing("m_dev_independent_couplings"), independentCouplings::nicoup )
@@ -167,6 +171,32 @@ namespace mg5amcKokkos
 
     CPPProcess process( false, false );
     process.initProc( "../../Cards/param_card.dat" );
+
+    #if MGONGPU_NICOUP > 0
+        //Create Kokkos view of independent couplings on host
+        Kokkos::View<cxtype*, Kokkos::HostSpace> hst_independent_couplings(process.get_tIPC_ptr(), MGONGPU_NICOUP);
+        
+        //FIXME deep_copy doesn't work since m_dev_independent_couplings and hst_independent_couplings are not in the same execution space
+        //Trying this "workaround"
+        //Create mirror view of m_dev_independent_couplings on host 
+        typename Kokkos::View<cxtype*>::HostMirror hst_mirror_independent_couplings = Kokkos::create_mirror_view(m_dev_independent_couplings);
+
+        //Copy the data from host to device
+        Kokkos::deep_copy(hst_mirror_independent_couplings, hst_independent_couplings); //Same execution space, so can copy. Should result in a no-op?
+        Kokkos::deep_copy(m_dev_independent_couplings, hst_mirror_independent_couplings); //Copy from mirror
+    #endif
+
+    //Create Kokkos view of independent parameters on host
+    Kokkos::View<fptype*, Kokkos::HostSpace> hst_independent_parameters(process.get_tIPD_ptr(), mgOnGpu::nparams);
+    
+    //FIXME deep_copy doesn't work since m_dev_independent_parameters and hst_independent_parameters are not in the same execution space
+    //Trying this "workaround"
+    //Create mirror view of m_dev_independent_parameters on host 
+    typename Kokkos::View<fptype*>::HostMirror hst_mirror_independent_parameters = Kokkos::create_mirror_view(m_dev_independent_parameters);
+
+    //Copy the data from host to device
+    Kokkos::deep_copy(hst_mirror_independent_parameters, hst_independent_parameters); //Same execution space, so can copy. Should result in a no-op?
+    Kokkos::deep_copy(m_dev_independent_parameters, hst_mirror_independent_parameters); //Copy from mirror
   }
 
   template<typename FORTRANFPTYPE>
@@ -196,12 +226,24 @@ namespace mg5amcKokkos
     // TC: are already in the format [ievt][ipar][i4]
 
     // TC: Might need this -> if constexpr( neppM == 1 && std::is_same_v<FORTRANFPTYPE, fptype> )
-    Kokkos::View<FORTRANFPTYPE const***,Kokkos::HostSpace> hst_momenta(momenta,m_nevt,npar,np4);
+    Kokkos::View<FORTRANFPTYPE const*[npar][np4],Kokkos::HostSpace> hst_momenta(momenta,m_nevt);
     // Kokkos::resize(hst_momenta,m_nevt,npar,np4);
-    Kokkos::deep_copy(m_devMomenta,hst_momenta);
+    //Kokkos::deep_copy(m_devMomenta,hst_momenta);
+    //FIXME deep_copy above doesn't work since m_devMomenta and hst_momenta are not in the same execution space
+    //Trying this "workaround"
+    typename Kokkos::View<FORTRANFPTYPE const*[npar][np4]>::HostMirror hst_mirror_momenta = Kokkos::create_mirror_view(m_devMomenta);
+    Kokkos::deep_copy(hst_mirror_momenta, hst_momenta); //Same execution space, so can copy. Should result in a no-op?
+    Kokkos::deep_copy(m_devMomenta, hst_mirror_momenta); //Copy from mirror
 
     Kokkos::View<FORTRANFPTYPE const *,Kokkos::HostSpace> hstGs(gs,m_nevt);
-    Kokkos::deep_copy(m_devGs,hstGs);
+    //Kokkos::deep_copy(m_devGs,hstGs);
+    //FIXME deep_copy above doesn't work since m_devGs and hstGs are not in the same execution space
+    //Trying this "workaround"
+    typename Kokkos::View<FORTRANFPTYPE const *>::HostMirror hst_mirror_Gs = Kokkos::create_mirror_view(m_devGs);
+    Kokkos::deep_copy(hst_mirror_Gs, hstGs); //Same execution space, so can copy. Should result in a no-op?
+    Kokkos::deep_copy(m_devGs, hst_mirror_Gs); //Copy from mirror
+    
+    
 
     if( !m_goodHelsCalculated )
     {
@@ -214,13 +256,23 @@ namespace mg5amcKokkos
     }
     if( goodHelOnly ) return;
 
-    sigmaKin(m_devMomenta,m_devIsGoodHel,m_devNGoodHel,
+    sigmaKin(m_devMomenta,channelId, m_devIsGoodHel,m_devNGoodHel,
             m_devGs, m_dev_independent_couplings,
             m_dev_independent_parameters, 
             m_league_size, m_team_size,
             m_devMEs);
 
-    Kokkos::deep_copy(m_hstMEs,m_devMEs);
+    //Kokkos::deep_copy(m_hstMEs,m_devMEs);
+    //FIXME deep_copy above doesn't work since m_devMEs and hstMEs are not in the same execution space
+    //Trying this "workaround"
+    Kokkos::View<FORTRANFPTYPE *,Kokkos::HostSpace> hstMEs(mes,m_nevt);
+    typename Kokkos::View<FORTRANFPTYPE *>::HostMirror hst_mirror_MEs = Kokkos::create_mirror_view(m_devMEs);
+    Kokkos::deep_copy(hst_mirror_MEs, m_devMEs); //Copy to host mirror
+    Kokkos::deep_copy(hstMEs, hst_mirror_MEs); //Looks like this results in a double copy FIXME should create hst_mirror_MEs on class initialization as mirror of m_devMEs (if possible?)
+    //std::cout << "MEs
+    //for (size_t i = 0; i < m_nevt; i++) {
+    //    ???
+    //}
 
   }
 

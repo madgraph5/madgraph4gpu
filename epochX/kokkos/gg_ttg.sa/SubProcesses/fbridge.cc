@@ -29,6 +29,7 @@ extern "C"
    */
   void fbridgecreate_( CppObjectInFortran** ppbridge, const int* pnevtF, const int* pnparF, const int* pnp4F )
   {
+    bool _kokkos_initialized = kokkos_initialize();
     *ppbridge = new Bridge<FORTRANFPTYPE>( *pnevtF, *pnparF, *pnp4F );
   }
 
@@ -43,6 +44,7 @@ extern "C"
     Bridge<FORTRANFPTYPE>* pbridge = dynamic_cast<Bridge<FORTRANFPTYPE>*>( *ppbridge );
     if( pbridge == 0 ) throw std::runtime_error( "fbridgedelete_: invalid Bridge address" );
     delete pbridge;
+    Kokkos::finalize();
   }
 
   /**

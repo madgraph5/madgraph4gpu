@@ -143,43 +143,59 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
 
 //--------------------------------------------------------------------------
 
-CPPProcess::CPPProcess(
-    bool verbose, bool debug): 
-      m_verbose(verbose),m_debug(debug),
-      m_cIPC("cIPC",independentCouplings::nicoup), m_hIPC("hIPC",independentCouplings::nicoup), 
-      m_cIPD("cIPD",mgOnGpu::nparams), m_hIPD("hIPD",mgOnGpu::nparams)
-{}
+CPPProcess::CPPProcess( bool verbose, bool debug ):
+        m_verbose(verbose),
+        m_debug(debug)
+        {
+}
 
 //--------------------------------------------------------------------------
 
 // Initialize process (with parameters read from user cards)
-void CPPProcess::initProc( const std::string& param_card_name )
-{
-  // Instantiate the model class and set parameters that stay fixed during run
-  m_pars = Parameters_sm::getInstance();
-  SLHAReader slha( param_card_name, m_verbose );
-  m_pars->setIndependentParameters( slha );
-  m_pars->setIndependentCouplings();
-  //m_pars->setDependentParameters();
-  //m_pars->setDependentCouplings();
-  if ( m_verbose )
-  {
-    m_pars->printIndependentParameters();
-    m_pars->printIndependentCouplings();
-    //m_pars->printDependentParameters();
-    //m_pars->printDependentCouplings();
-  }
-  // Set external particle masses for this matrix element
-  m_masses.push_back( m_pars->ZERO );
-  m_masses.push_back( m_pars->ZERO );
-  m_masses.push_back( m_pars->mdl_MT );
-  m_masses.push_back( m_pars->mdl_MT );
-  // Read physics parameters like masses and couplings from user configuration files (static: initialize once)
-  //m_tIPC[...] = ... ; // nicoup=0
-  m_hIPD[0] = (fptype)m_pars->mdl_MT;
-  m_hIPD[1] = (fptype)m_pars->mdl_WT;
-  Kokkos::deep_copy(m_cIPD,m_hIPD);
+void CPPProcess::initProc( const std::string& param_card_name ) {
+    // Instantiate the model class and set parameters that stay fixed during run
+    m_pars = Parameters_sm::getInstance();
+    SLHAReader slha( param_card_name, m_verbose );
+    m_pars->setIndependentParameters( slha );
+    m_pars->setIndependentCouplings();
+    //m_pars->setDependentParameters();
+    //m_pars->setDependentCouplings();
+    if ( m_verbose ) {
+        m_pars->printIndependentParameters();
+        m_pars->printIndependentCouplings();
+        //m_pars->printDependentParameters();
+        //m_pars->printDependentCouplings();
+    }
+    // Set external particle masses for this matrix element
+    m_masses.push_back( m_pars->ZERO );
+    m_masses.push_back( m_pars->ZERO );
+    m_masses.push_back( m_pars->mdl_MT );
+    m_masses.push_back( m_pars->mdl_MT );
+    // Read physics parameters like masses and couplings from user configuration files (static: initialize once)
+    //m_tIPC[...] = ... ; // nicoup=0
+    m_tIPD[0] = (fptype)m_pars->mdl_MT;
+    m_tIPD[1] = (fptype)m_pars->mdl_WT;
 
+
+}
+
+// Define pointer accessors
+cxtype* CPPProcess::get_tIPC_ptr() {return m_tIPC;}
+const cxtype* CPPProcess::get_tIPC_ptr() const {return m_tIPC;}
+
+fptype* CPPProcess::get_tIPD_ptr() {return m_tIPD;}
+const fptype* CPPProcess::get_tIPD_ptr() const {return m_tIPD;}
+
+bool kokkos_initialize() {
+    //FIXME wrapper to Kokkos::initialize() here, might need modifications on certain platforms
+    //// set Kokkos args
+    //Kokkos::InitArguments args;
+    ////args.device_id = 0;
+
+    //// initialize Kokkos
+    //Kokkos::initialize(args); 
+    Kokkos::initialize();
+    return true;
 }
 
 //--------------------------------------------------------------------------
@@ -204,7 +220,26 @@ void sigmaKin_setup(
     const int ievt = team_member.league_rank() * team_member.team_size() + team_member.team_rank();
 
     // Load helicities into local (private) memory
-    auto cHel = helicities<short>;
+    //FIXME template variable does not work on NVIDIA devices
+    //auto cHel = helicities<short>;
+    constexpr short cHel[] {
+      -1, -1, -1, -1,
+      -1, -1, -1, 1,
+      -1, -1, 1, -1,
+      -1, -1, 1, 1,
+      -1, 1, -1, -1,
+      -1, 1, -1, 1,
+      -1, 1, 1, -1,
+      -1, 1, 1, 1,
+      1, -1, -1, -1,
+      1, -1, -1, 1,
+      1, -1, 1, -1,
+      1, -1, 1, 1,
+      1, 1, -1, -1,
+      1, 1, -1, 1,
+      1, 1, 1, -1,
+      1, 1, 1, 1
+    };
     cxtype cIPC[dependentCouplings::ndcoup + independentCouplings::nicoup];
 
 #if MGONGPU_NDCOUP > 0
@@ -221,14 +256,13 @@ void sigmaKin_setup(
     auto local_mom = Kokkos::subview(momenta,ievt,Kokkos::ALL,Kokkos::ALL);
     for (int ihel = 0;ihel < mgOnGpu::ncomb;++ihel)
     {
-      auto local_cHel = cHel[ihel];
       #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
           constexpr unsigned int channelId = 0; // disable single-diagram channel enhancement
           fptype all_numerators = 0.0;
           fptype all_denominators = 0.0;
-          auto allMEs = calculate_wavefunctions(local_mom, &all_numerators, &all_denominators, channelId, local_cHel, cIPC, cIPD);
+          auto allMEs = calculate_wavefunctions(local_mom, &all_numerators, &all_denominators, channelId, cHel + ihel*mgOnGpu::npar, cIPC, cIPD);
       #else
-          auto allMEs = calculate_wavefunctions(local_mom, local_cHel, cIPC, cIPD);
+          auto allMEs = calculate_wavefunctions(local_mom, cHel + ihel*mgOnGpu::npar, cIPC, cIPD);
       #endif
 
       if (allMEs != 0)
@@ -283,7 +317,26 @@ void sigmaKin(
     constexpr int denominators = 256; // FIXME: assume process.nprocesses == 1 for the moment (eventually denominators[nprocesses]?)
 
     // Load helicities into local (private) memory
-    auto cHel = helicities<short>;
+    //FIXME template variable does not work on NVIDIA devices
+    //auto cHel = helicities<short>;
+    constexpr short cHel[] {
+      -1, -1, -1, -1,
+      -1, -1, -1, 1,
+      -1, -1, 1, -1,
+      -1, -1, 1, 1,
+      -1, 1, -1, -1,
+      -1, 1, -1, 1,
+      -1, 1, 1, -1,
+      -1, 1, 1, 1,
+      1, -1, -1, -1,
+      1, -1, -1, 1,
+      1, -1, 1, -1,
+      1, -1, 1, 1,
+      1, 1, -1, -1,
+      1, 1, -1, 1,
+      1, 1, 1, -1,
+      1, 1, 1, 1
+    };
     cxtype cIPC[dependentCouplings::ndcoup + independentCouplings::nicoup];
 
 #if MGONGPU_NDCOUP > 0
@@ -308,11 +361,10 @@ void sigmaKin(
     auto local_mom = Kokkos::subview(momenta,ievt,Kokkos::ALL,Kokkos::ALL);
     for (int ighel = 0;ighel < nGoodHel(0);++ighel)
     {
-      auto local_cHel = cHel[iGoodHel(ighel)];
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      allMEs[ievt] += calculate_wavefunctions(local_mom, &allNumerators, &allDenominators, channelId, local_cHel, cIPC, cIPD);
+      allMEs[ievt] += calculate_wavefunctions(local_mom, &allNumerators, &allDenominators, channelId, cHel + ighel*mgOnGpu::npar, cIPC, cIPD);
 #else
-      allMEs[ievt] += calculate_wavefunctions(local_mom, local_cHel, cIPC, cIPD);
+      allMEs[ievt] += calculate_wavefunctions(local_mom, cHel + ighel*mgOnGpu::npar, cIPC, cIPD);
 #endif
     }
     // PART 2 - FINALISATION (after calculate_wavefunctions)

@@ -150,7 +150,7 @@ diff --git b/epochX/kokkos/gg_tt.mad/SubProcesses/makefile a/epochX/kokkos/gg_tt
 index dd709f52c..0304b2356 100644
 --- b/epochX/kokkos/gg_tt.mad/SubProcesses/makefile
 +++ a/epochX/kokkos/gg_tt.mad/SubProcesses/makefile
-@@ -1,6 +1,17 @@
+@@ -1,6 +1,52 @@
  include ../../Source/make_opts
  FFLAGS+= -w
  
@@ -203,7 +203,7 @@ index dd709f52c..0304b2356 100644
  # Load additional dependencies of the bias module, if present
  ifeq (,$(wildcard ../bias_dependencies))
  BIASDEPENDENCIES =
-@@ -24,7 +35,21 @@ else
+@@ -24,7 +70,22 @@ else
      MADLOOP_LIB =
  endif
  
@@ -227,7 +227,7 @@ index dd709f52c..0304b2356 100644
  
  LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS)
  
-@@ -43,24 +68,67 @@ ifeq ($(strip $(MATRIX_HEL)),)
+@@ -43,24 +104,89 @@ ifeq ($(strip $(MATRIX_HEL)),)
  endif
  
  
@@ -323,7 +323,7 @@ index dd709f52c..0304b2356 100644
  $(LIBDIR)libmodel.$(libext): ../../Cards/param_card.dat
  	cd ../../Source/MODEL; make
  
-@@ -69,12 +137,15 @@ $(LIBDIR)libgeneric.$(libext): ../../Cards/run_card.dat
+@@ -70,12 +195,15 @@ $(LIBDIR)libgeneric.$(libext): ../../Cards/run_card.dat
  
  $(LIBDIR)libpdf.$(libext): 
  	cd ../../Source/PDF; make
@@ -340,7 +340,7 @@ index dd709f52c..0304b2356 100644
  
  # Dependencies
  
-@@ -94,5 +165,65 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
+@@ -95,5 +257,65 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
  	 run_config.inc
  initcluster.o: message.inc
  
