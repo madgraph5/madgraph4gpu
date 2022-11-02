@@ -3,7 +3,10 @@ KOKKOSPATH_OMP ?= $(KOKKOS_HOME)
 KOKKOSPATH_INTEL ?= $(KOKKOS_HOME)
 KOKKOSPATH_HIP ?= $(KOKKOS_HOME)
 
-MODELSTR = sm
+processid_short=$(shell basename $(CURDIR) | awk -F_ '{print $$(NF-1)"_"$$NF}')
+KOKKOS_BRIDGELIB=mg5amc_$(processid_short)_kokkos
+
+MODELSTR = %(model)s
 MODELLIB = model_$(MODELSTR)
 HELAMP_H = ../../src/HelAmps_$(MODELSTR).h
 PAR_H = ../../src/Parameters_$(MODELSTR).h
@@ -59,6 +62,18 @@ intel_libmodel=../../lib/lib$(MODELLIB)_intel.a
 hip_exe=hcheck.exe
 hip_objects=$(FILES:.ext=.hip.o)
 hip_libmodel=../../lib/lib$(MODELLIB)_hip.a
+ 
+BRIDGE_SRCS = fbridge.ext
+cuda_bridge_objects=$(BRIDGE_SRCS:.ext=.cuda.o)
+openmp_bridge_objects=$(BRIDGE_SRCS:.ext=.openmp.o)
+intel_bridge_objects=$(BRIDGE_SRCS:.ext=.intel.o)
+hip_bridge_objects=$(BRIDGE_SRCS:.ext=.hip.o)
+
+LIBDIR=../../lib
+cuda_bridge_lib=lib$(MODELLIB)_bridge_cuda.a
+openmp_bridge_lib=lib$(MODELLIB)_bridge_openmp.a
+intel_bridge_lib=lib$(MODELLIB)_bridge_intel.a
+hip_bridge_lib=lib$(MODELLIB)_bridge_hip.a
 
 
 all: cuda openmp intel hip
@@ -103,6 +118,32 @@ $(hip_exe): $(hip_objects) $(hip_libmodel)
 	$(HIPCC) $(hip_objects) -o $@ $(HIP_LDFLAGS) $(hip_libmodel)
 
 
+$(LIBDIR)/$(cuda_bridge_lib): $(cuda_bridge_objects)
+	if [ ! -d $(LIBDIR) ]; then mkdir $(LIBDIR); fi
+	$(AR) cru $@ $^
+	ranlib $@
+	ln -s $(cuda_bridge_lib) $(LIBDIR)/lib$(KOKKOS_BRIDGELIB).a
+
+$(LIBDIR)/$(openmp_bridge_lib): $(openmp_bridge_objects)
+	if [ ! -d $(LIBDIR) ]; then mkdir $(LIBDIR); fi
+	$(AR) cru $@ $^
+	ranlib $@
+	ln -s $(openmp_bridge_lib) $(LIBDIR)/lib$(KOKKOS_BRIDGELIB).a
+
+$(LIBDIR)/$(intel_bridge_lib): $(intel_bridge_objects)
+	if [ ! -d $(LIBDIR) ]; then mkdir $(LIBDIR); fi
+	$(AR) cru $@ $^
+	ranlib $@
+	ln -s $(intel_bridge_lib) $(LIBDIR)/lib$(KOKKOS_BRIDGELIB).a
+
+$(LIBDIR)/$(hip_bridge_lib): $(hip_bridge_objects)
+	if [ ! -d $(LIBDIR) ]; then mkdir $(LIBDIR); fi
+	$(AR) cru $@ $^
+	ranlib $@
+	ln -s $(hip_bridge_lib) $(LIBDIR)/lib$(KOKKOS_BRIDGELIB).a
+
 clean:
 	make -C ../../src -f kokkos_src.mk clean
 	rm -f $(cuda_objects) $(cuda_exe) $(openmp_objects) $(openmp_exe) $(intel_exe) $(intel_objects) $(hip_exe) $(hip_objects)
+	rm -f $(cuda_bridge_objects) $(openmp_bridge_objects) $(intel_bridge_objects) $(hip_bridge_objects)
+	rm -f $(LIBDIR)/$(cuda_bridge_lib) $(LIBDIR)/$(openmp_bridge_lib) $(LIBDIR)/$(intel_bridge_lib) $(LIBDIR)/$(hip_bridge_lib) $(LIBDIR)/lib$(KOKKOS_BRIDGELIB).a

@@ -927,10 +927,9 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         #    coup_str += "m_tIPC[%s] = cxmake( m_pars->%s );\n" % (i, coupling[i])
         if len(coupling_indep) > 0:
             for i in range(len(coupling_indep)):
-                coup_str += "  m_hIPC[%s] = cxmake( m_pars->%s );\n" % (i, coupling_indep[i])
-                coup_str += "  Kokkos::deep_copy(m_cIPC,m_hIPC);\n"
+                coup_str += "    m_tIPC[%s] = cxmake( m_pars->%s );\n" % (i, coupling_indep[i])
         else:
-            coup_str = "  //m_tIPC[...] = ... ; // nicoup=0\n"
+            coup_str = "    //m_tIPC[...] = ... ; // nicoup=0\n"
 
         self.number_dependent_couplings = len(coupling) - len(coupling_indep)
         self.number_independent_couplings = len(coupling_indep)
@@ -942,10 +941,9 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         param_str = ""
         if len(params) > 0:
             for i in range(len(self.params2order)):
-                param_str += "  m_hIPD[%s] = (fptype)m_pars->%s;\n" % (i, params[i])
-            param_str += "  Kokkos::deep_copy(m_cIPD,m_hIPD);"
+                param_str += "    m_tIPD[%s] = (fptype)m_pars->%s;\n" % (i, params[i])
         else:
-            parm_str += "  //m_tIPD[...] = ... ; // nparam=0\n"
+            parm_str += "    //m_tIPD[...] = ... ; // nparam=0\n"
 
         replace_dict['assign_coupling'] = coup_str + param_str
         file = self.read_template_file(self.process_definition_template) % replace_dict
@@ -1293,7 +1291,7 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
         initProc_lines.append("// Set external particle masses for this matrix element")
         for part in matrix_element.get_external_wavefunctions():
             ###initProc_lines.append("mME.push_back(pars->%s);" % part.get('mass'))
-            initProc_lines.append("  m_masses.push_back( m_pars->%s );" % part.get('mass')) # AV
+            initProc_lines.append("    m_masses.push_back( m_pars->%s );" % part.get('mass')) # AV
         # initProc_lines.append('  Kokkos::deep_copy(cmME,hmME);')
         ###for i, colamp in enumerate(color_amplitudes):
         ###    initProc_lines.append("jamp2[%d] = new double[%d];" % (i, len(colamp))) # AV - this was commented out already
@@ -1304,11 +1302,14 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
         """Return the Helicity matrix definition lines for this matrix element"""
         ###helicity_line = "static const int helicities[ncomb][nexternal] = {";
         ###helicity_line = "    constexpr short helicities[ncomb][mgOnGpu::npar] = {\n      "; # AV (this is tHel)
-        helicity_line = "template <typename T>\nconstexpr T helicities[mgOnGpu::ncomb][mgOnGpu::npar] {\n  "; # NSN SYCL needs access to tHel outside CPPProcess
+        #helicity_line = "template <typename T>\nconstexpr T helicities[mgOnGpu::ncomb][mgOnGpu::npar] {\n  "; # NSN SYCL needs access to tHel outside CPPProcess
+        helicity_line = ""; # NSN SYCL needs access to tHel outside CPPProcess
         helicity_line_list = []
         for helicities in matrix_element.get_helicity_matrix(allow_reverse=False):
-            helicity_line_list.append( "{" + ", ".join(['%d'] * len(helicities)) % tuple(helicities) + "}" ) # AV"
-        return helicity_line + ",\n  ".join(helicity_line_list) + "\n};" # AV
+            #helicity_line_list.append( "{" + ", ".join(['%d'] * len(helicities)) % tuple(helicities) + "}" ) # AV"
+            helicity_line_list.append( "    " + ", ".join(['%d'] * len(helicities)) % tuple(helicities) )
+        #return helicity_line + ",\n  ".join(helicity_line_list) + "\n};" # AV
+        return helicity_line + ",\n  ".join(helicity_line_list)
 
     # AV - overload the export_cpp.OneProcessExporterGPU method (just to add some comments...)
     def get_reset_jamp_lines(self, color_amplitudes):

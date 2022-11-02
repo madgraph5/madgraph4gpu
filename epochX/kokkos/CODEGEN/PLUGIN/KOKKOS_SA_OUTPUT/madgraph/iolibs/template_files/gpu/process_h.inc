@@ -20,7 +20,10 @@
 namespace dependentCouplings = Parameters_%(model_name)s_dependentCouplings;
 namespace independentCouplings = Parameters_%(model_name)s_independentCouplings;
 
+template <typename T>
+constexpr T helicities[] {
 %(all_helicities)s
+};
 
 %(process_class_definitions)s
 
