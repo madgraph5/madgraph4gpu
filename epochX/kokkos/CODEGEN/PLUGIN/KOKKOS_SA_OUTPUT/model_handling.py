@@ -1490,7 +1490,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             split_line2 = [ str.lstrip(' ').rstrip(' ') for str in split_line2] # AV
             split_line2.insert(1, '0') # add parameter fmass=0
             line2 = ', '.join(split_line2)
-            text = '#if not defined KOKKOS_ENABLE_CUDA\n      %s\n#else\n      if ( ievt %% 2 == 0 )\n        %s\n      else\n        %s\n#endif\n'
+            text = '#if not defined MGONGPU_TEST_DIVERGENCE\n      %s\n#else\n      if ( ievt %% 2 == 0 )\n        %s\n      else\n        %s\n#endif\n'
             return text % (line, line, line2)
         text = '%s\n'
         return text % line
