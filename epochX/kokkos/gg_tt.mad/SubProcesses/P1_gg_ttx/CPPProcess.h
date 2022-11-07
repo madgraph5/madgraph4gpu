@@ -322,13 +322,13 @@ void sigmaKin_setup(
 
 #if MGONGPU_NICOUP > 0
     for (size_t i = 0; i < independentCouplings::nicoup; i++) {
-        cIPC[dependentCouplings::ndcoup + i] = indep_couplings[i];
+        cIPC[dependentCouplings::ndcoup + i] = indep_couplings(i);
     }
 #endif
 
 
     auto local_mom = Kokkos::subview(momenta,ievt,Kokkos::ALL,Kokkos::ALL);
-    for (int ihel = 0;ihel < mgOnGpu::ncomb;++ihel)
+    for (int ihel = 0; ihel < mgOnGpu::ncomb; ihel++)
     {
       #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
           constexpr unsigned int channelId = 0; // disable single-diagram channel enhancement
@@ -345,18 +345,19 @@ void sigmaKin_setup(
       }
     }
   });
+  Kokkos::fence();
 
   Kokkos::parallel_for(__func__,Kokkos::RangePolicy<Kokkos::DefaultExecutionSpace>(0,1),
-  KOKKOS_LAMBDA(const int& i){
-    for(int ihel=0;ihel < mgOnGpu::ncomb;++ihel){
-
-      if(isGoodHel(ihel)){
-        iGoodHel(nGoodHel(0)) = ihel;
-        nGoodHel(0)++;
+  KOKKOS_LAMBDA(const int& i) {
+      nGoodHel(0) = 0;
+      for(int ihel=0; ihel < mgOnGpu::ncomb; ihel++) {
+          if(isGoodHel(ihel)) {
+              iGoodHel(nGoodHel(0)) = ihel;
+              nGoodHel(0)++;
+          }
       }
-
-    }
   });
+  Kokkos::fence();
 }
 
 
@@ -419,7 +420,7 @@ void sigmaKin(
 
 #if MGONGPU_NICOUP > 0
     for (size_t i = 0; i < independentCouplings::nicoup; i++) {
-        cIPC[dependentCouplings::ndcoup + i] = indep_couplings[i];
+        cIPC[dependentCouplings::ndcoup + i] = indep_couplings(i);
     }
 #endif
 
@@ -433,12 +434,12 @@ void sigmaKin(
     // (in both CUDA and C++, using precomputed good helicities)
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
     auto local_mom = Kokkos::subview(momenta,ievt,Kokkos::ALL,Kokkos::ALL);
-    for (int ighel = 0;ighel < nGoodHel(0);++ighel)
-    {
+    for (size_t ighel = 0; ighel < nGoodHel(0); ighel++) {
+        const size_t ihel = iGoodHel[ighel];
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      allMEs[ievt] += calculate_wavefunctions(local_mom, &allNumerators, &allDenominators, channelId, cHel + ighel*mgOnGpu::npar, cIPC, cIPD);
+      allMEs[ievt] += calculate_wavefunctions(local_mom, &allNumerators, &allDenominators, channelId, cHel + ihel*mgOnGpu::npar, cIPC, cIPD);
 #else
-      allMEs[ievt] += calculate_wavefunctions(local_mom, cHel + ighel*mgOnGpu::npar, cIPC, cIPD);
+      allMEs[ievt] += calculate_wavefunctions(local_mom, cHel + ihel*mgOnGpu::npar, cIPC, cIPD);
 #endif
     }
     // PART 2 - FINALISATION (after calculate_wavefunctions)
@@ -453,6 +454,7 @@ void sigmaKin(
     allMEs[ievt] /= (fptype)denominators;
 
   });// end parallel for
+  Kokkos::fence();
 
 }
 

@@ -166,7 +166,7 @@ else
 endif
 
 cuda: $(PROCESS) $(DSIG_kokkos) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(KOKKOS_BUILDDIR)/.kokkoslibs_cuda
-	$(CXX) $(KOKKOSFLAGS) -o $(KOKKOS_BUILDDIR)/g$(PROG)_kokkos $(PROCESS) $(DSIG_kokkos) auto_dsig.o $(MATRIX) $(LIBDIR)/lib$(KOKKOS_BRIDGELIB).a $(LIBDIR)/lib$(KOKKOS_COMMONLIB).a $(LINKLIBS) $(LDFLAGS) $(CUDA_LDFLAGS) $(BIASDEPENDENCIES) counters.o -lgomp -lgfortran $(LIBFLAGSRPATH) -lstdc++fs
+	$(NVCC) $(KOKKOSFLAGS) -o $(KOKKOS_BUILDDIR)/g$(PROG)_kokkos $(PROCESS) $(DSIG_kokkos) auto_dsig.o $(MATRIX) $(LIBDIR)/lib$(KOKKOS_BRIDGELIB).a $(LIBDIR)/lib$(KOKKOS_COMMONLIB).a $(LINKLIBS) $(LDFLAGS) $(CUDA_LDFLAGS) $(BIASDEPENDENCIES) counters.o -lgomp -lgfortran $(LIBFLAGSRPATH) -lstdc++fs
 
 openmp: $(PROCESS) $(DSIG_kokkos) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(KOKKOS_BUILDDIR)/.kokkoslibs_openmp
 	$(CXX) $(KOKKOSFLAGS) -o $(KOKKOS_BUILDDIR)/g$(PROG)_kokkos $(PROCESS) $(DSIG_kokkos) auto_dsig.o $(MATRIX) $(LIBDIR)/lib$(KOKKOS_BRIDGELIB).a $(LIBDIR)/lib$(KOKKOS_COMMONLIB).a $(LINKLIBS) $(LDFLAGS) $(OPENMP_LDFLAGS) $(BIASDEPENDENCIES) counters.o -lgomp -lgfortran $(LIBFLAGSRPATH) -lstdc++fs

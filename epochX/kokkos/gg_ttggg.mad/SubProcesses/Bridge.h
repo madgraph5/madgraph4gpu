@@ -108,11 +108,11 @@ namespace mg5amcKokkos
     Kokkos::View<fptype*> m_devGs;
     Kokkos::View<fptype*> m_devMEs;
     //Kokkos::View<fptype*,Kokkos::HostSpace> m_hstMEs;
-    Kokkos::View<bool*> m_devIsGoodHel;
+    Kokkos::View<size_t*> m_devGoodHel;
     Kokkos::View<short** > m_devcHel;
     Kokkos::View<fptype*> m_devcIPC;
     Kokkos::View<fptype*> m_devcIPD;
-    Kokkos::View<int*> m_devNGoodHel; 
+    Kokkos::View<size_t*> m_devNGoodHel; 
     Kokkos::View<cxtype*> m_dev_independent_couplings;
     Kokkos::View<fptype*> m_dev_independent_parameters;
     
@@ -150,7 +150,7 @@ namespace mg5amcKokkos
     , m_devGs( Kokkos::ViewAllocateWithoutInitializing("m_devGs"), m_nevt )
     , m_devMEs( Kokkos::ViewAllocateWithoutInitializing("m_devMEs"), m_nevt )
     //, m_hstMEs( Kokkos::ViewAllocateWithoutInitializing("m_hstMEs"), m_nevt )
-    , m_devIsGoodHel( Kokkos::ViewAllocateWithoutInitializing("m_devIsGoodHel"), mgOnGpu::ncomb )
+    , m_devGoodHel( Kokkos::ViewAllocateWithoutInitializing("m_devGoodHel"), mgOnGpu::ncomb )
     , m_devNGoodHel( Kokkos::ViewAllocateWithoutInitializing("m_devNGoodHel"),1) 
     , m_dev_independent_couplings(Kokkos::ViewAllocateWithoutInitializing("m_dev_independent_couplings"), independentCouplings::nicoup )
     , m_dev_independent_parameters(Kokkos::ViewAllocateWithoutInitializing("m_dev_independent_parameters"), mgOnGpu::nparams )
@@ -247,7 +247,7 @@ namespace mg5amcKokkos
 
     if( !m_goodHelsCalculated )
     {
-      sigmaKin_setup(m_devMomenta,m_devIsGoodHel, m_devNGoodHel,
+      sigmaKin_setup(m_devMomenta,m_devGoodHel, m_devNGoodHel,
                      m_devGs, m_dev_independent_couplings,
                      m_dev_independent_parameters, 
                      m_league_size, m_team_size);
@@ -256,7 +256,7 @@ namespace mg5amcKokkos
     }
     if( goodHelOnly ) return;
 
-    sigmaKin(m_devMomenta,channelId, m_devIsGoodHel,m_devNGoodHel,
+    sigmaKin(m_devMomenta,channelId, m_devGoodHel,m_devNGoodHel,
             m_devGs, m_dev_independent_couplings,
             m_dev_independent_parameters, 
             m_league_size, m_team_size,

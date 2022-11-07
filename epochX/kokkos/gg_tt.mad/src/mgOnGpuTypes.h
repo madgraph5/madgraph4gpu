@@ -371,4 +371,10 @@ fptype cxabs2( const cxtype& c ) {
     return cxreal( c ) * cxreal( c ) + cximag( c ) * cximag( c );
 }
 
+KOKKOS_INLINE_FUNCTION
+cxtype cxmake( Kokkos::complex<double> c ) // Kokkos::complex<double> to cxtype
+{
+  return cxmake( (fptype)c.real(), (fptype)c.imag() );
+}
+
 #endif // MGONGPUTYPES_H
