@@ -1,9 +1,12 @@
-KOKKOSPATH_CUDA ?= /home/jchilders/git/kokkos/install_v100
-KOKKOSPATH_OMP ?= /home/jchilders/git/kokkos/install_omp
+KOKKOSPATH_CUDA ?= $(KOKKOS_HOME)
+KOKKOSPATH_OMP ?= $(KOKKOS_HOME)
 KOKKOSPATH_INTEL ?= $(KOKKOS_HOME)
-KOKKOSPATH_HIP ?= /home/jchilders/git/kokkos/install_mi50
+KOKKOSPATH_HIP ?= $(KOKKOS_HOME)
 
-MODELSTR = sm
+processid_short=$(shell basename $(CURDIR) | awk -F_ '{print $$(NF-1)"_"$$NF}')
+KOKKOS_BRIDGELIB=mg5amc_$(processid_short)_kokkos
+
+MODELSTR = %(model)s
 MODELLIB = model_$(MODELSTR)
 HELAMP_H = ../../src/HelAmps_$(MODELSTR).h
 PAR_H = ../../src/Parameters_$(MODELSTR).h
@@ -28,7 +31,7 @@ OPENMP_LDFLAGS=$(LDFLAGS) $(KOKKOSPATH_OMP)/lib64/libkokkoscore.a -ldl --openmp
 # INTEL_CXXFLAGS=$(CXXFLAGS) -I$(KOKKOSPATH_INTEL)/include -I/soft/restricted/CNDA/sdk/2021.04.30.001/oneapi/compiler/latest/linux/include/sycl -fiopenmp -fopenmp-targets=spir64 -Wno-parentheses -Wno-openmp-mapping
 # INTEL_LDFLAGS=$(LDFLAGS)  $(KOKKOSPATH_INTEL)/lib64/libkokkoscore.a -fiopenmp -fopenmp-targets=spir64 -L/soft/restricted/CNDA/sdk/2021.04.30.001/oneapi/compiler/latest/linux/lib/ -lsycl
 
-INTEL_BACKEND ?= xehp,12.4.0,skl
+INTEL_BACKEND ?= gen9
 INTEL_SYCL ?= 0
 ifeq ($(INTEL_SYCL),1)
 # build for SYCL
@@ -44,7 +47,7 @@ HIP_ARCH_NUM ?= gfx906
 HIP_CXXFLAGS=$(CXXFLAGS) -I$(KOKKOSPATH_HIP)/include -fopenmp -fno-gpu-rdc --amdgpu-target=$(HIP_ARCH_NUM)
 HIP_LDFLAGS=$(LDFLAGS) -L $(KOKKOSPATH_HIP)/lib64  -lkokkoscore -ldl -fopenmp 
 
-FILES = check.ext
+FILES = check_sa.ext
 CHECK_H = CPPProcess.h $(HELAMP_H) $(PAR_H) ../../src/rambo.h ../../src/random_generator.h CalcMean.h
 
 cuda_exe=ccheck.exe
@@ -59,35 +62,47 @@ intel_libmodel=../../lib/lib$(MODELLIB)_intel.a
 hip_exe=hcheck.exe
 hip_objects=$(FILES:.ext=.hip.o)
 hip_libmodel=../../lib/lib$(MODELLIB)_hip.a
+ 
+BRIDGE_SRCS = fbridge.ext
+cuda_bridge_objects=$(BRIDGE_SRCS:.ext=.cuda.o)
+openmp_bridge_objects=$(BRIDGE_SRCS:.ext=.openmp.o)
+intel_bridge_objects=$(BRIDGE_SRCS:.ext=.intel.o)
+hip_bridge_objects=$(BRIDGE_SRCS:.ext=.hip.o)
+
+LIBDIR=../../lib
+cuda_bridge_lib=lib$(MODELLIB)_bridge_cuda.a
+openmp_bridge_lib=lib$(MODELLIB)_bridge_openmp.a
+intel_bridge_lib=lib$(MODELLIB)_bridge_intel.a
+hip_bridge_lib=lib$(MODELLIB)_bridge_hip.a
 
 
 all: cuda openmp intel hip
 
 cuda:
-	make -C ../../src cuda
+	make -C ../../src -f kokkos_src.mk cuda
 	make $(cuda_exe)
 openmp: 
-	make -C ../../src openmp
+	make -C ../../src -f kokkos_src.mk openmp
 	make $(openmp_exe)
 intel:
-	INTEL_SYCL=$(INTEL_SYCL) make -C ../../src intel
+	INTEL_SYCL=$(INTEL_SYCL) make -C ../../src -f kokkos_src.mk intel
 	make $(intel_exe)
 hip:
-	make -C ../../src hip
+	make -C ../../src -f kokkos_src.mk hip
 	make $(hip_exe)
 
 # compile object files
 
-%%.openmp.o : %%.cpp $(CHECK_H)
+%%.openmp.o : %%.cc $(CHECK_H)
 	$(CXX) $(OPENMP_CXXFLAGS) -c $< -o $@
 
-%%.cuda.o : %%.cpp $(CHECK_H)
+%%.cuda.o : %%.cc $(CHECK_H)
 	$(NVCC) $(CUDA_CXXFLAGS) -c $< -o $@
 
-%%.intel.o : %%.cpp $(CHECK_H)
+%%.intel.o : %%.cc $(CHECK_H)
 	$(ICPX) $(INTEL_CXXFLAGS) -c $< -o $@
 
-%%.hip.o : %%.cpp $(CHECK_H)
+%%.hip.o : %%.cc $(CHECK_H)
 	$(HIPCC) $(HIP_CXXFLAGS) -c $< -o $@
 
 $(cuda_exe): $(cuda_objects) $(cuda_libmodel)
@@ -103,6 +118,32 @@ $(hip_exe): $(hip_objects) $(hip_libmodel)
 	$(HIPCC) $(hip_objects) -o $@ $(HIP_LDFLAGS) $(hip_libmodel)
 
 
+$(LIBDIR)/$(cuda_bridge_lib): $(cuda_bridge_objects)
+	if [ ! -d $(LIBDIR) ]; then mkdir $(LIBDIR); fi
+	$(AR) cru $@ $^
+	ranlib $@
+	ln -s $(cuda_bridge_lib) $(LIBDIR)/lib$(KOKKOS_BRIDGELIB).a
+
+$(LIBDIR)/$(openmp_bridge_lib): $(openmp_bridge_objects)
+	if [ ! -d $(LIBDIR) ]; then mkdir $(LIBDIR); fi
+	$(AR) cru $@ $^
+	ranlib $@
+	ln -s $(openmp_bridge_lib) $(LIBDIR)/lib$(KOKKOS_BRIDGELIB).a
+
+$(LIBDIR)/$(intel_bridge_lib): $(intel_bridge_objects)
+	if [ ! -d $(LIBDIR) ]; then mkdir $(LIBDIR); fi
+	$(AR) cru $@ $^
+	ranlib $@
+	ln -s $(intel_bridge_lib) $(LIBDIR)/lib$(KOKKOS_BRIDGELIB).a
+
+$(LIBDIR)/$(hip_bridge_lib): $(hip_bridge_objects)
+	if [ ! -d $(LIBDIR) ]; then mkdir $(LIBDIR); fi
+	$(AR) cru $@ $^
+	ranlib $@
+	ln -s $(hip_bridge_lib) $(LIBDIR)/lib$(KOKKOS_BRIDGELIB).a
+
 clean:
-	make -C ../../src clean
+	make -C ../../src -f kokkos_src.mk clean
 	rm -f $(cuda_objects) $(cuda_exe) $(openmp_objects) $(openmp_exe) $(intel_exe) $(intel_objects) $(hip_exe) $(hip_objects)
+	rm -f $(cuda_bridge_objects) $(openmp_bridge_objects) $(intel_bridge_objects) $(hip_bridge_objects)
+	rm -f $(LIBDIR)/$(cuda_bridge_lib) $(LIBDIR)/$(openmp_bridge_lib) $(LIBDIR)/$(intel_bridge_lib) $(LIBDIR)/$(hip_bridge_lib) $(LIBDIR)/lib$(KOKKOS_BRIDGELIB).a
