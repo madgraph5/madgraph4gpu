@@ -2,18 +2,18 @@
 #define MGONGPUTYPES_H 1
 
 #include "mgOnGpuConfig.h"
+#include "Kokkos_Core.hpp"
 
-#ifndef __CUDACC__
+#ifdef KOKKOS_ENABLE_CUDA
+#include "nvToolsExt.h"
+#else
 #include <cmath>
 inline void nvtxRangePush(char* temp){return;}
 inline void nvtxRangePop(void){return;};
-
-#else
-#include "nvToolsExt.h"
 #endif
 
 
-#if defined MGONGPU_CXTYPE_THRUST
+#ifdef MGONGPU_CXTYPE_THRUST
   #include <thrust/complex.h>
   typedef thrust::complex<fptype> cxtype; // two doubles: RI
   #define COMPLEX_TYPE_NAME "THRUST::COMPLEX"
@@ -25,67 +25,20 @@ inline void nvtxRangePop(void){return;};
 
 // --- Functions and operators for floating point types
 
-#ifdef __CUDACC__ // cuda
 
-/*
-KOKKOS_INLINE_FUNCTION
-fptype fpmax( const fptype& a, const fptype& b )
-{
-  return max( a, b );
-}
+// use predefined cuda math library functions for double or float
 
-KOKKOS_INLINE_FUNCTION
-fptype fpmin( const fptype& a, const fptype& b )
-{
-  return min( a, b );
-}
-*/
+template <typename FPType>
+KOKKOS_FORCEINLINE_FUNCTION FPType fpmax(FPType x, FPType y) { return Kokkos::Experimental::fmax(x, y);}
+template <typename FPType>
+KOKKOS_FORCEINLINE_FUNCTION FPType fpmin(FPType x, FPType y) { return Kokkos::Experimental::fmin(x,y);}
+template <typename FPType>
+KOKKOS_FORCEINLINE_FUNCTION FPType fpsqrt(FPType x) { return Kokkos::Experimental::sqrt(x);}
+template <typename FPType>
+KOKKOS_FORCEINLINE_FUNCTION FPType fpabs(FPType x) { return Kokkos::Experimental::fabs(x);}
+template <typename IType>
+KOKKOS_FORCEINLINE_FUNCTION IType iabs(IType x) { return Kokkos::Experimental::abs(x);}
 
-KOKKOS_INLINE_FUNCTION
-const fptype& fpmax( const fptype& a, const fptype& b )
-{
-  return ( ( b < a ) ? a : b );
-}
-
-KOKKOS_INLINE_FUNCTION
-const fptype& fpmin( const fptype& a, const fptype& b )
-{
-  return ( ( a < b ) ? a : b );
-}
-
-KOKKOS_INLINE_FUNCTION
-fptype fpsqrt( const fptype& f )
-{
-#if defined MGONGPU_FPTYPE_FLOAT
-  // See https://docs.nvidia.com/cuda/cuda-math-api/group__CUDA__MATH__SINGLE.html
-  return sqrtf( f );
-#else
-  // See https://docs.nvidia.com/cuda/cuda-math-api/group__CUDA__MATH__DOUBLE.html
-  return sqrt( f );
-#endif
-}
-
-#else // c++
-
-KOKKOS_INLINE_FUNCTION
-const fptype& fpmax( const fptype& a, const fptype& b )
-{
-  return std::max( a, b );
-}
-
-KOKKOS_INLINE_FUNCTION
-const fptype& fpmin( const fptype& a, const fptype& b )
-{
-  return std::min( a, b );
-}
-
-KOKKOS_INLINE_FUNCTION
-fptype fpsqrt( const fptype& f )
-{
-  return std::sqrt( f );
-}
-
-#endif
 
 // --- Functions and operators for complex types
 
@@ -93,7 +46,7 @@ fptype fpsqrt( const fptype& f )
 // CUDA
 //------------------------------
 
-#ifdef __CUDACC__ // cuda
+#ifdef KOKKOS_ENABLE_CUDA // cuda
 
 //------------------------------
 // CUDA - using thrust::complex
@@ -399,5 +352,29 @@ cxtype cxmake( const std::complex<double>& c ) // std::complex to std::complex (
 #endif
 
 #endif  // END cuda/c++
+
+KOKKOS_INLINE_FUNCTION
+fptype fpternary( const bool& mask, const fptype& a, const fptype& b )
+{
+  return ( mask ? a : b );
+}
+
+KOKKOS_INLINE_FUNCTION
+cxtype cxternary( const bool& mask, const cxtype& a, const cxtype& b )
+{
+  return ( mask ? a : b );
+}
+
+//FIXME no KOKKOS::Experimental::fabs(Kokkos::complex<FPType>) support
+KOKKOS_INLINE_FUNCTION
+fptype cxabs2( const cxtype& c ) {
+    return cxreal( c ) * cxreal( c ) + cximag( c ) * cximag( c );
+}
+
+KOKKOS_INLINE_FUNCTION
+cxtype cxmake( Kokkos::complex<double> c ) // Kokkos::complex<double> to cxtype
+{
+  return cxmake( (fptype)c.real(), (fptype)c.imag() );
+}
 
 #endif // MGONGPUTYPES_H

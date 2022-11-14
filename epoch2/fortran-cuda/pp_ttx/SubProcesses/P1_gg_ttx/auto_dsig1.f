@@ -432,9 +432,10 @@ C     SR --> INJECT CODE
       INTEGER SELECTED_HEL(NB_PAGE)
       DOUBLE PRECISION JAMP2_MULTI(0:MAXFLOW, NB_PAGE)
 
+      DOUBLE PRECISION OUT2(NB_PAGE)
+
       INTEGER IVEC
 
-      call bridge(P_MULTI)
 
 !$OMP PARALLEL
 !$OMP DO
@@ -447,8 +448,33 @@ C       &				 selected_hel(IVEC),
      &				 jamp2_multi(0,IVEC),
      &				 IVEC
      &				 )
-      ENDDO
+       ENDDO
 !$OMP END DO
 !$OMP END PARALLEL
+
+
+C      DO 40 EVT=1, NB_PAGE
+C        WRITE(*,*) EVT
+C        DO 30 PAR=1, NEXTERNAL
+C           WRITE(*,*) P_MULTI(0:3, PAR, EVT)
+C  30    END DO
+C  40  END DO
+
+C      call fcubridge(P_MULTI, OUT2)
+      call fcppbridge(P_MULTI, OUT2)
+
+Cccle      WRITE (*,*) OUT
+C      WRITE (*,*) OUT2
+      DO IVEC=1, NB_PAGE
+C        WRITE (*,*) IVEC, OUT(IVEC)
+        WRITE (*,*) IVEC, OUT2(IVEC)/OUT(IVEC)
+      end do
+
+C      DO 40 EVT=1, NB_PAGE
+C        WRITE(*,*) JAMP2_MULTI(EVT)
+C   40 END DO
+C
+
+
       RETURN
       END

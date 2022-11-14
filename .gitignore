@@ -1,28 +1,38 @@
-# compilation
+#=== Compilation ===
 *.o
 *.a
 *.exe
+*.mod
 *.pyc
+*.so
+build.*
+.build.*
 
-# other
-*.local.log
-*.local
-*~
-local/
-*.log
-*.output
-*.error
-*.cobaltlog
-
-# profiling
+#=== Profiling ===
+nsight_logs
 profile_*
 *.qdrep
 *.sqlite
 *.ncu-rep
+*.objdump*
 
-# perf data
+#=== Perf data ===
 *-perf-test-run*.json
-***/perf/params*.txt
+**/perf/params*.txt
 
-# googletest
+#=== Googletest ===
 test/googletest
+
+#=== Other ===
+*.local.log
+*.local
+*~
+local/
+**/build/
+*.log
+*.output
+*.error
+*.cobaltlog
+*.BKP
+.DS_Store
+*.bak

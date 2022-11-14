@@ -1,6 +1,6 @@
 #include <algorithm>
 #include <cstdlib>
-#include <experimental/filesystem>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include "read_slha.h"
@@ -46,7 +46,7 @@ void SLHAReader::read_slha_file(std::string file_name, bool verbose)
     {
       std::cout << "WARNING! Card file '" << file_name << "' does not exist:"
                 << " look for the file in directory $" << envpath << "='" << getenv( envpath ) << "'" << std::endl;
-      const std::string file_name2 = std::experimental::filesystem::path( getenv( envpath ) ) / std::experimental::filesystem::path( file_name ).filename();
+      const std::string file_name2 = std::filesystem::path( getenv( envpath ) ) / std::filesystem::path( file_name ).filename();
       param_card.open( file_name2.c_str(), std::ifstream::in );
       if( param_card.good() )
       {

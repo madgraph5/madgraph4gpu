@@ -9,87 +9,61 @@ on:
 jobs:
   debug_builds:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        folder: [ epochX/cudacpp/ee_mumu.sa/SubProcesses/P1_Sigma_sm_epem_mupmum , epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum , epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum ]
+      fail-fast: false
     steps:
     - uses: actions/checkout@v2
     - name: make epoch1
-      run: make -C epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum debug
-    - name: make epoch2
-      run: make -C epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum debug
-  epoch1_eemumu:
+      run: make -C ${{ matrix.folder }} debug
+  CPU:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum
+    strategy:
+      matrix:
+        folder: [ epochX/cudacpp/ee_mumu.sa/SubProcesses/P1_Sigma_sm_epem_mupmum , epochX/cudacpp/gg_ttgg.sa/SubProcesses/P1_Sigma_sm_gg_ttxgg , epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum , epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum ]
+        precision: [ d , f ]
+      fail-fast: false
     steps:
     - uses: actions/checkout@v2
     - name: make info
-      run: make info
+      run: make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} info
     - name: make
-      run: make
+      run: make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }}
     - name: make check
-      run: make check
-  epoch1_eemumu_float:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum
+      run: make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} check
+  CPU_MAC:
+    runs-on: macos-latest
+    env:
+      FC: gfortran-11
+    strategy:
+      matrix:
+        folder: [ epochX/cudacpp/ee_mumu.sa/SubProcesses/P1_Sigma_sm_epem_mupmum, epochX/cudacpp/gg_ttgg.sa/SubProcesses/P1_Sigma_sm_gg_ttxgg , epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum , epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum ]
+        precision: [ d ]
+      fail-fast: false
     steps:
     - uses: actions/checkout@v2
     - name: make info
-      run: make info
+      run: make AVX=none OMPFLAGS= FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} info
     - name: make
-      run: make FPTYPE=f
+      run: make AVX=none OMPFLAGS= FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }}
     - name: make check
-      run: make check
-  epoch2_eemumu:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum
-    steps:
-    - uses: actions/checkout@v2
-    - name: make info
-      run: make info
-    - name: make
-      run: make
-    - name: make check
-      run: make check
-  epoch1_eemumu_GPU:
+      run: make AVX=none OMPFLAGS= FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} check
+  GPU:
     runs-on: self-hosted
-    defaults:
-      run:
-        working-directory: epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum
+    env:
+      FC: gfortran
+      REQUIRE_CUDA: 1
+    strategy:
+      matrix:
+        folder: [ epochX/cudacpp/ee_mumu.sa/SubProcesses/P1_Sigma_sm_epem_mupmum , epochX/cudacpp/gg_ttgg.sa/SubProcesses/P1_Sigma_sm_gg_ttxgg , epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum ]
+        precision: [ d , f ]
+      fail-fast: false
     steps:
     - uses: actions/checkout@v2
     - name: make info
-      run: source /opt/rh/gcc-toolset-9/enable; make info
+      run: source /opt/rh/gcc-toolset-10/enable; make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} info
     - name: make
-      run: source /opt/rh/gcc-toolset-9/enable; make
+      run: source /opt/rh/gcc-toolset-10/enable; make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }}
     - name: make check
-      run: source /opt/rh/gcc-toolset-9/enable; make check
-  epoch1_eemumu_GPU_float:
-    runs-on: self-hosted
-    defaults:
-      run:
-        working-directory: epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum
-    steps:
-    - uses: actions/checkout@v2
-    - name: make info
-      run: source /opt/rh/gcc-toolset-9/enable; make info
-    - name: make
-      run: source /opt/rh/gcc-toolset-9/enable; make FPTYPE=f
-    - name: make check
-      run: source /opt/rh/gcc-toolset-9/enable; make check
-  epoch2_eemumu_GPU:
-    runs-on: self-hosted
-    defaults:
-      run:
-        working-directory: epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum
-    steps:
-    - uses: actions/checkout@v2
-    - name: make info
-      run: source /opt/rh/gcc-toolset-9/enable; make info
-    - name: make
-      run: source /opt/rh/gcc-toolset-9/enable; make
-    - name: make check
-      run: source /opt/rh/gcc-toolset-9/enable; make check
+      run: source /opt/rh/gcc-toolset-10/enable; make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} check

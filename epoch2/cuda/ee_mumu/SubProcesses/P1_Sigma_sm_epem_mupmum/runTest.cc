@@ -14,7 +14,7 @@
 #include "rambo.h"
 #endif
 
-struct CUDA_CPU_TestBase : public TestDriverBase<fptype> {
+struct CUDA_CPU_TestBase : public TestDriverBase {
 
   static_assert( gputhreads%mgOnGpu::neppR == 0, "ERROR! #threads/block should be a multiple of neppR" );
   static_assert( gputhreads%mgOnGpu::neppM == 0, "ERROR! #threads/block should be a multiple of neppM" );
@@ -27,9 +27,7 @@ struct CUDA_CPU_TestBase : public TestDriverBase<fptype> {
 
   CUDA_CPU_TestBase() :
   TestDriverBase()
-  {
-    TestDriverBase::nparticle = mgOnGpu::npar;
-  }
+  {  }
 
 };
 
@@ -205,37 +203,16 @@ struct CUDATest : public CUDA_CPU_TestBase {
 #define MG_INSTANTIATE_TEST_SUITE_CPU( prefix, test_suite_name )        \
   INSTANTIATE_TEST_SUITE_P( prefix,                                     \
                             test_suite_name,                            \
-                            testing::Values( [](){ return new CPUTest; } ) );
+                            testing::Values( new CPUTest ) );
 #define TESTID_GPU(s) s##_GPU
 #define XTESTID_GPU(s) TESTID_GPU(s)
 #define MG_INSTANTIATE_TEST_SUITE_GPU( prefix, test_suite_name )        \
   INSTANTIATE_TEST_SUITE_P( prefix,                                     \
                             test_suite_name,                            \
-                            testing::Values( [](){ return new CUDATest; } ) );
-
-#if defined MGONGPU_FPTYPE_DOUBLE
+                            testing::Values( new CUDATest ) );
 
 #ifdef __CUDACC__
-MG_INSTANTIATE_TEST_SUITE_GPU( XTESTID_GPU(MG_EPOCH_PROCESS_ID), MadgraphTestDouble );
+MG_INSTANTIATE_TEST_SUITE_GPU( XTESTID_GPU(MG_EPOCH_PROCESS_ID), MadgraphTest );
 #else
-MG_INSTANTIATE_TEST_SUITE_CPU( XTESTID_CPU(MG_EPOCH_PROCESS_ID), MadgraphTestDouble );
+MG_INSTANTIATE_TEST_SUITE_CPU( XTESTID_CPU(MG_EPOCH_PROCESS_ID), MadgraphTest );
 #endif
-
-#else
-
-#ifdef __CUDACC__
-MG_INSTANTIATE_TEST_SUITE_GPU( XTESTID_GPU(MG_EPOCH_PROCESS_ID), MadgraphTestFloat );
-#else
-MG_INSTANTIATE_TEST_SUITE_CPU( XTESTID_CPU(MG_EPOCH_PROCESS_ID), MadgraphTestFloat );
-#endif
-
-#endif
-
-// Add a dummy test just to check the linking (related to issue #143)
-/*
-#ifdef __CUDACC__
-TEST( XTESTID_GPU(MG_EPOCH_PROCESS_ID), dummy ){}
-#else
-TEST( XTESTID_CPU(MG_EPOCH_PROCESS_ID), dummy ){}
-#endif
-*/

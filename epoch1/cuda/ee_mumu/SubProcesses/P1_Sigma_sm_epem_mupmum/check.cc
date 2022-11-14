@@ -316,19 +316,19 @@ int main(int argc, char **argv)
   const int nMEs     = nevt; // FIXME: assume process.nprocesses == 1 (eventually: nMEs = nevt * nprocesses?)
 
 #if defined MGONGPU_CURAND_ONHOST or defined MGONGPU_COMMONRAND_ONHOST or not defined __CUDACC__
-  auto hstRnarray   = hstMakeUnique<fptype   >( nRnarray ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
+  auto hstRnarray   = hstMakeUnique<fptype>( nRnarray ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
 #endif
-  auto hstMomenta   = hstMakeUnique<fptype_sv>( nMomenta ); // AOSOA[npagM][npar][np4][neppM] (NB: nevt=npagM*neppM)
-  auto hstIsGoodHel = hstMakeUnique<bool     >( ncomb );
-  auto hstWeights   = hstMakeUnique<fptype   >( nWeights );
-  auto hstMEs       = hstMakeUnique<fptype_sv>( nMEs ); // AOSOA[npagM][neppM] (NB: nevt=npagM*neppM)
+  auto hstMomenta   = hstMakeUnique<fptype>( nMomenta ); // AOSOA[npagM][npar][np4][neppM] (NB: nevt=npagM*neppM)
+  auto hstIsGoodHel = hstMakeUnique<bool  >( ncomb );
+  auto hstWeights   = hstMakeUnique<fptype>( nWeights );
+  auto hstMEs       = hstMakeUnique<fptype>( nMEs );     // ARRAY[nevt]
 
 #ifdef __CUDACC__
-  auto devRnarray   = devMakeUnique<fptype   >( nRnarray ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
-  auto devMomenta   = devMakeUnique<fptype   >( nMomenta ); // AOSOA[npagM][npar][np4][neppM] (NB: nevt=npagM*neppM)
-  auto devIsGoodHel = devMakeUnique<bool     >( ncomb );
-  auto devWeights   = devMakeUnique<fptype   >( nWeights );
-  auto devMEs       = devMakeUnique<fptype   >( nMEs ); // AOSOA[npagM][neppM] (NB: nevt=npagM*neppM)
+  auto devRnarray   = devMakeUnique<fptype>( nRnarray ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
+  auto devMomenta   = devMakeUnique<fptype>( nMomenta ); // AOSOA[npagM][npar][np4][neppM] (NB: nevt=npagM*neppM)
+  auto devIsGoodHel = devMakeUnique<bool  >( ncomb );
+  auto devWeights   = devMakeUnique<fptype>( nWeights );
+  auto devMEs       = devMakeUnique<fptype>( nMEs );     // ARRAY[nevt]
 
 #if defined MGONGPU_CURAND_ONHOST or defined MGONGPU_COMMONRAND_ONHOST
   const int nbytesRnarray = nRnarray * sizeof(fptype);
@@ -553,6 +553,11 @@ int main(int argc, char **argv)
           // NB: 'setw' affects only the next field (of any type)
           std::cout << std::scientific // fixed format: affects all floats (default precision: 6)
                     << std::setw(4) << ipar + 1
+                    << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*np4*neppM + 0*neppM + ieppM] // AOSOA[ipagM][ipar][0][ieppM]
+                    << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*np4*neppM + 1*neppM + ieppM] // AOSOA[ipagM][ipar][1][ieppM]
+                    << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*np4*neppM + 2*neppM + ieppM] // AOSOA[ipagM][ipar][2][ieppM]
+                    << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*np4*neppM + 3*neppM + ieppM] // AOSOA[ipagM][ipar][3][ieppM]
+            /*
 #ifndef MGONGPU_CPPSIMD
                     << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*np4*neppM + 0*neppM + ieppM] // AOSOA[ipagM][ipar][0][ieppM]
                     << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*np4*neppM + 1*neppM + ieppM] // AOSOA[ipagM][ipar][1][ieppM]
@@ -564,26 +569,19 @@ int main(int argc, char **argv)
                     << std::setw(14) << hstMomenta[ipagM*npar*np4 + ipar*np4 + 2][ieppM] // AOSOA[ipagM][ipar][2][ieppM]
                     << std::setw(14) << hstMomenta[ipagM*npar*np4 + ipar*np4 + 3][ieppM] // AOSOA[ipagM][ipar][3][ieppM]
 #endif
+            */
                     << std::endl
                     << std::defaultfloat; // default format: affects all floats
         }
         std::cout << std::string(SEP79, '-') << std::endl;
         // Display matrix elements
         std::cout << " Matrix element = "
-#ifndef MGONGPU_CPPSIMD
                   << hstMEs[ievt]
-#else
-                  << hstMEs[ievt/neppM][ievt%neppM]
-#endif
                   << " GeV^" << meGeVexponent << std::endl; // FIXME: assume process.nprocesses == 1
         std::cout << std::string(SEP79, '-') << std::endl;
       }
       // Fill the arrays with ALL MEs and weights
-#ifndef MGONGPU_CPPSIMD
       matrixelementALL[iiter*nevt + ievt] = hstMEs[ievt]; // FIXME: assume process.nprocesses == 1
-#else
-      matrixelementALL[iiter*nevt + ievt] = hstMEs[ievt/neppM][ievt%neppM]; // FIXME: assume process.nprocesses == 1
-#endif
       weightALL[iiter*nevt + ievt] = hstWeights[ievt];
     }
 
@@ -756,9 +754,14 @@ int main(int argc, char **argv)
 #endif
               << " [" << process.getCompiler() << "]"
 #ifdef MGONGPU_INLINE_HELAMPS
-              << " [inlineHel=1]" << std::endl
+              << " [inlineHel=1]"
 #else
-              << " [inlineHel=0]" << std::endl
+              << " [inlineHel=0]"
+#endif
+#ifdef MGONGPU_HARDCODE_CIPC
+              << " [hardcodeCIPC=1]" << std::endl
+#else
+              << " [hardcodeCIPC=0]" << std::endl
 #endif
               << "NumBlocksPerGrid            = " << gpublocks << std::endl
               << "NumThreadsPerBlock          = " << gputhreads << std::endl

@@ -8,11 +8,11 @@
 
 // A Functor for generating uint64_t random numbers templated on the
 // GeneratorPool type
-template <class GeneratorPool,typename ExecSpace>
+template <class GeneratorPool>
 struct generate_random {
   // Output View for the random numbers
-  Kokkos::View<double**,ExecSpace> vals;
-  using member_type = typename Kokkos::TeamPolicy<ExecSpace>::member_type;
+  Kokkos::View<double**> vals;
+  using member_type = typename Kokkos::TeamPolicy<Kokkos::DefaultExecutionSpace>::member_type;
   
   // The GeneratorPool
   GeneratorPool rand_pool;
@@ -20,7 +20,7 @@ struct generate_random {
   int samples;
 
   // Initialize all members
-  generate_random(Kokkos::View<double**,ExecSpace> vals_, GeneratorPool rand_pool_,
+  generate_random(Kokkos::View<double**> vals_, GeneratorPool rand_pool_,
                   int samples_)
       : vals(vals_), rand_pool(rand_pool_), samples(samples_) {}
 
@@ -41,17 +41,16 @@ struct generate_random {
   }
 };
 
-template <typename ExecSpace>
-Kokkos::View<double**,ExecSpace> get_random_numbers(const int size,const int samples,const uint64_t random_seed=5374857){
-  Kokkos::View<double**,ExecSpace> rns("rns",size,samples);
+// Kokkos::View<double**> get_random_numbers(const int size,const int samples,const uint64_t random_seed=5374857){
+//   Kokkos::View<double**> rns("rns",size,samples);
 
-  Kokkos::Random_XorShift64_Pool<> rand_pool64(random_seed);
+//   Kokkos::Random_XorShift64_Pool<> rand_pool64(random_seed);
 
-  Kokkos::parallel_for("generate_random_numbers",Kokkos::RangePolicy<ExecSpace>(0,size),
-    generate_random<Kokkos::Random_XorShift64_Pool<>,ExecSpace>(rns, rand_pool64, samples));
+//   Kokkos::parallel_for("generate_random_numbers",Kokkos::RangePolicy<Kokkos::DefaultExecutionSpace>(0,size),
+//     generate_random<Kokkos::Random_XorShift64_Pool<>>(rns, rand_pool64, samples));
 
-  return rns;
-}
+//   return rns;
+// }
 
 
 Kokkos::Random_XorShift64_Pool<> init_random_generator(const uint64_t random_seed=5374857){
@@ -59,12 +58,12 @@ Kokkos::Random_XorShift64_Pool<> init_random_generator(const uint64_t random_see
   return rand_pool64;
 }
 
-template <typename ExecSpace,typename T>
-void fill_random_numbers_2d(Kokkos::View<T**,ExecSpace> buffer, const int n,const int m,Kokkos::Random_XorShift64_Pool<> rand_pool64,const int league_size, const int team_size){
-  using member_type = typename Kokkos::TeamPolicy<ExecSpace>::member_type;
-  Kokkos::TeamPolicy<ExecSpace> policy( league_size, team_size );
+template <typename buf_t>
+void fill_random_numbers_2d(const buf_t& buffer, const int n,const int m,Kokkos::Random_XorShift64_Pool<> rand_pool64,const int league_size, const int team_size){
+  using member_type = typename Kokkos::TeamPolicy<Kokkos::DefaultExecutionSpace>::member_type;
+  Kokkos::TeamPolicy<Kokkos::DefaultExecutionSpace> policy( league_size, team_size );
   Kokkos::parallel_for(__func__,policy, 
-    generate_random<Kokkos::Random_XorShift64_Pool<>,ExecSpace>(buffer, rand_pool64, m));
+    generate_random<Kokkos::Random_XorShift64_Pool<>>(buffer, rand_pool64, m));
 }
 
 

@@ -12,329 +12,296 @@
 
 #include "CPPProcess.h"
 #include "HelAmps_sm.h"
-///////////////////////// -*- C++ -*- /////////////////////////////
 //==========================================================================
 // Class member functions for calculating the matrix elements for
 // Process: g g > t t~ WEIGHTED<=2 @1
 
-using mgOnGpu::ncomb; // number of helicity combinations
 //--------------------------------------------------------------------------
 
-// Evaluate |M|^2 for each subprocess
-// NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event
-
-
-
-template <typename hel_t, typename mom_t, typename ipd_t, typename ipc_t>
-KOKKOS_INLINE_FUNCTION void calculate_wavefunctions(
-  const mom_t& allmomenta,
-  const hel_t& cHel,
-  const ipd_t& cIPD,
-  const ipc_t& cIPC,
-  fptype_sv& allMEs
+  // Evaluate |M|^2 for each subprocess
+  // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
+template <typename mom_t, typename ipc_t, typename ipd_t>
+KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
+  const mom_t& allmomenta,              // input: momenta
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+  fptype* allNumerators,                // output: multichannel numerators, running_sum_over_helicities
+  fptype* allDenominators,              // output: multichannel denominators, running_sum_over_helicities
+  const unsigned int channelId,         // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
+#endif
+  const short*  __restrict__ cHel,
+  const ipc_t& COUPs,
+  const ipd_t& cIPD
   )
 {
   using namespace MG5_sm;
+  fptype allMEs = 0;
   // The number of colors
   constexpr int ncolor = 2;
 
-  // Local TEMPORARY variables for a subset of Feynman diagrams in the given CUDA event (ievt) or C++ event page (ipagV)
+  // Local TEMPORARY variables for a subset of Feynman diagrams in the given event (ievt)
   // [NB these variables are reused several times (and re-initialised each time) within the same event or event page]
-  cxtype_sv w_sv[mgOnGpu::nwf][mgOnGpu::nw6]; // particle wavefunctions within Feynman diagrams (nw6 is often 6, the dimension of spin 1/2 or spin 1 particles)
-  cxtype_sv amp_sv[1]; // invariant amplitude for one given Feynman diagram
+  cxtype w[mgOnGpu::nwf][mgOnGpu::nw6]; // particle wavefunctions within Feynman diagrams (nw6 is often 6, the dimension of spin 1/2 or spin 1 particles)
+  cxtype amp[1]; // invariant amplitude for one given Feynman diagram
 
-  // Local variables for the given CUDA event (ievt) or C++ event page (ipagV)
-  cxtype_sv jamp_sv[ncolor] = {}; // sum of the invariant amplitudes for all Feynman diagrams in the event or event page
+  // Local variables for the given event (ievt)
+  cxtype jamp[ncolor] = {}; // sum of the invariant amplitudes for all Feynman diagrams in the event or event page
 
-  // Calculate wavefunctions for all processes
-      // SYCL kernels take an input buffer with momenta for all events
-      // const fptype* momenta = allmomenta;
-      // Reset color flows (reset jamp_sv) at the beginning of a new event or event page
-      for( int i=0; i<ncolor; i++ ){ jamp_sv[i] = cxzero_sv(); }
+  // === Calculate wavefunctions and amplitudes for all diagrams in all processes - Loop over nevt events ===
 
-      // *** DIAGRAM 1 OF 3 ***
+  // Reset color flows (reset jamp) at the beginning of a new event or event page
+  for( int i=0; i<ncolor; i++ ){ jamp[i] = cxmake( 0, 0 ); }
 
-      // Wavefunction(s) for diagram number 1
-      vxxxxx(Kokkos::subview(allmomenta, 0, Kokkos::ALL), 0., cHel[0], -1, w_sv[0]);
+  // *** DIAGRAM 1 OF 3 ***
 
-      vxxxxx(Kokkos::subview(allmomenta, 1, Kokkos::ALL), 0., cHel[1], -1, w_sv[1]);
+  // Wavefunction(s) for diagram number 1
+  vxxxxx(Kokkos::subview(allmomenta, 0, Kokkos::ALL), 0., cHel[0], -1, w[0]);
 
-      oxxxxx(Kokkos::subview(allmomenta, 2, Kokkos::ALL), cIPD[0], cHel[2], +1, w_sv[2]);
+  vxxxxx(Kokkos::subview(allmomenta, 1, Kokkos::ALL), 0., cHel[1], -1, w[1]);
 
-      ixxxxx(Kokkos::subview(allmomenta, 3, Kokkos::ALL), cIPD[0], cHel[3], -1, w_sv[3]);
+  oxxxxx(Kokkos::subview(allmomenta, 2, Kokkos::ALL), cIPD[0], cHel[2], +1, w[2]);
 
-      VVV1P0_1( w_sv[0], w_sv[1], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_sv[4] );
+  ixxxxx(Kokkos::subview(allmomenta, 3, Kokkos::ALL), cIPD[0], cHel[3], -1, w[3]);
 
-      // Amplitude(s) for diagram number 1
-      FFV1_0( w_sv[3], w_sv[2], w_sv[4], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
-      jamp_sv[0] -= amp_sv[0];
-      jamp_sv[1] -= amp_sv[0];
+  VVV1P0_1( w[0], w[1], COUPs[0], 0., 0., w[4] );
 
-      // *** DIAGRAM 2 OF 3 ***
+  // Amplitude(s) for diagram number 1
+  FFV1_0( w[3], w[2], w[4], COUPs[1], &amp[0] );
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+  // Here the code base generated with multichannel support updates numerators and denominators (#473)
+#endif
+  jamp[0] += cxtype( 0, 1 ) * amp[0];
+  jamp[1] -= cxtype( 0, 1 ) * amp[0];
 
-      // Wavefunction(s) for diagram number 2
-      FFV1_1( w_sv[2], w_sv[0], cxmake( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[4] );
+  // *** DIAGRAM 2 OF 3 ***
 
-      // Amplitude(s) for diagram number 2
-      FFV1_0( w_sv[3], w_sv[4], w_sv[1], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
-      jamp_sv[0] -= amp_sv[0];
-      jamp_sv[1] -= amp_sv[0];
+  // Wavefunction(s) for diagram number 2
+  FFV1_1( w[2], w[0], COUPs[1], cIPD[0], cIPD[1], w[4] );
 
-      // *** DIAGRAM 3 OF 3 ***
+  // Amplitude(s) for diagram number 2
+  FFV1_0( w[3], w[4], w[1], COUPs[1], &amp[0] );
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+  // Here the code base generated with multichannel support updates numerators and denominators (#473)
+#endif
+  jamp[0] -= amp[0];
 
-      // Wavefunction(s) for diagram number 3
-      FFV1_2( w_sv[3], w_sv[0], cxmake( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[4] );
+  // *** DIAGRAM 3 OF 3 ***
 
-      // Amplitude(s) for diagram number 3
-      FFV1_0( w_sv[4], w_sv[2], w_sv[1], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
-      jamp_sv[0] -= amp_sv[0];
-      jamp_sv[1] -= amp_sv[0];
+  // Wavefunction(s) for diagram number 3
+  FFV1_2( w[3], w[0], COUPs[1], cIPD[0], cIPD[1], w[4] );
+
+  // Amplitude(s) for diagram number 3
+  FFV1_0( w[4], w[2], w[1], COUPs[1], &amp[0] );
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+  // Here the code base generated with multichannel support updates numerators and denominators (#473)
+#endif
+  jamp[1] -= amp[0];
 
   // *** COLOR ALGEBRA BELOW ***
   // (This method used to be called CPPProcess::matrix_1_gg_ttx()?)
 
   // The color matrix
-      static constexpr fptype denom[ncolor] = {3, 3}; // 1-D array[2]
+
+      // The color denominators (initialize all array elements, with ncolor=2)
+      // [NB do keep 'static' for these constexpr arrays, see issue #283]
+      static constexpr fptype denom[ncolor] = { 3, 3 }; // 1-D array[2]
+
+      // The color matrix (initialize all array elements, with ncolor=2)
+      // [NB do keep 'static' for these constexpr arrays, see issue #283]
       static constexpr fptype cf[ncolor][ncolor] = {
-        {16, -2},
-        {-2, 16}}; // 2-D array[2][2]
+        { 16, -2 },
+        { -2, 16 } }; // 2-D array[2][2]
 
   // Sum and square the color flows to get the matrix element
   // (compute |M|^2 by squaring |M|, taking into account colours)
-  fptype_sv deltaMEs = { 0 }; // all zeros
+  fptype deltaMEs = { 0 }; // all zeros
   for( int icol = 0; icol < ncolor; icol++ )
   {
-    cxtype_sv ztemp_sv = cxzero_sv();
+    cxtype ztemp = cxmake( 0, 0 );
     for( int jcol = 0; jcol < ncolor; jcol++ )
-      ztemp_sv += cf[icol][jcol] * jamp_sv[jcol];
-    deltaMEs += cxreal( ztemp_sv * cxconj( jamp_sv[icol] ) ) / denom[icol];
+      ztemp += cf[icol][jcol] * jamp[jcol];
+    deltaMEs += cxreal( ztemp * cxconj( jamp[icol] ) ) / denom[icol];
   }
 
   // *** STORE THE RESULTS ***
 
   // Store the leading color flows for choice of color
-  // (NB: jamp2_sv must be an array of fptype_sv)
+  // (NB: jamp2 must be an array of fptype)
   // for( int icol = 0; icol < ncolor; icol++ )
-  // jamp2_sv[0][icol] += cxreal( jamp_sv[icol]*cxconj( jamp_sv[icol] ) );
+  // jamp2[0][icol] += cxreal( jamp[icol]*cxconj( jamp[icol] ) );
 
   // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
   // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
   allMEs += deltaMEs;
   //printf( "calculate_wavefunction: %6d %2d %f\n", ievt, ihel, allMEs[ievt] );
 
-    mgDebug( 1, __FUNCTION__ );
-    return;
-  }
 
+  return allMEs;
+}
 
 //--------------------------------------------------------------------------
 
-template <typename ExecSpace>
-CPPProcess<ExecSpace>::CPPProcess(
-    int numiterations, int leaguesize, int teamsize,
-    bool verbose, bool debug): 
-      m_numiterations(numiterations), league_size(leaguesize), 
-      team_size(teamsize), 
-      dim(league_size * team_size),
-      cHel("cHel",mgOnGpu::ncomb,mgOnGpu::npar), hHel("hHel",mgOnGpu::ncomb,mgOnGpu::npar), 
-      cmME("cmME",mgOnGpu::npar), hmME("hmME",mgOnGpu::npar),
-      cIPC("cIPC",4), hIPC("hIPC",4), 
-      cIPD("cIPD",2), hIPD("hIPD",2)
-{
-
-  // Helicities for the process - nodim
-  static const int tHel[ncomb][nexternal] = {
-      {-1, -1, -1, -1},
-      {-1, -1, -1, 1},
-      {-1, -1, 1, -1},
-      {-1, -1, 1, 1},
-      {-1, 1, -1, -1},
-      {-1, 1, -1, 1},
-      {-1, 1, 1, -1},
-      {-1, 1, 1, 1},
-      {1, -1, -1, -1},
-      {1, -1, -1, 1},
-      {1, -1, 1, -1},
-      {1, -1, 1, 1},
-      {1, 1, -1, -1},
-      {1, 1, -1, 1},
-      {1, 1, 1, -1},
-      {1, 1, 1, 1}};
-
-  for(int i=0;i<mgOnGpu::ncomb;++i)
-      for(int j=0;j<mgOnGpu::npar;++j){
-          hHel(i,j) = tHel[i][j];
-      }
-  Kokkos::deep_copy(cHel,hHel);
+CPPProcess::CPPProcess( bool verbose, bool debug ):
+        m_verbose(verbose),
+        m_debug(debug)
+        {
 }
 
 //--------------------------------------------------------------------------
 
 // Initialize process (with parameters read from user cards)
-template <typename ExecSpace>
-void CPPProcess<ExecSpace>::initProc( const std::string& param_card_name )
-{
-  // Instantiate the model class and set parameters that stay fixed during run
-  pars = Parameters_sm::getInstance();
-  SLHAReader slha(param_card_name, m_verbose);
-  pars->setIndependentParameters(slha);
-  pars->setIndependentCouplings();
-  if (m_verbose) {
-      pars->printIndependentParameters();
-    pars->printIndependentCouplings();
-  }
-  pars->setDependentParameters();
-  pars->setDependentCouplings();
-  // Set external particle masses for this matrix element
-  hmME(0) = ( pars->ZERO );
-  hmME(1) = ( pars->ZERO );
-  hmME(2) = ( pars->mdl_MT );
-  hmME(3) = ( pars->mdl_MT );
-  Kokkos::deep_copy(cmME,hmME);
-  
-  const cxtype tIPC[2] = { cxmake( pars->GC_10 ), cxmake( pars->GC_11 ) };
-  for(int i=0;i<2;++i){
-    hIPC(i*2 + 0) = tIPC[i].real();
-    hIPC(i*2 + 1) = tIPC[i].imag();
-  }
-  Kokkos::deep_copy(cIPC,hIPC);
+void CPPProcess::initProc( const std::string& param_card_name ) {
+    // Instantiate the model class and set parameters that stay fixed during run
+    m_pars = Parameters_sm::getInstance();
+    SLHAReader slha( param_card_name, m_verbose );
+    m_pars->setIndependentParameters( slha );
+    m_pars->setIndependentCouplings();
+    //m_pars->setDependentParameters();
+    //m_pars->setDependentCouplings();
+    if ( m_verbose ) {
+        m_pars->printIndependentParameters();
+        m_pars->printIndependentCouplings();
+        //m_pars->printDependentParameters();
+        //m_pars->printDependentCouplings();
+    }
+    // Set external particle masses for this matrix element
+    m_masses.push_back( m_pars->ZERO );
+    m_masses.push_back( m_pars->ZERO );
+    m_masses.push_back( m_pars->mdl_MT );
+    m_masses.push_back( m_pars->mdl_MT );
+    // Read physics parameters like masses and couplings from user configuration files (static: initialize once)
+    //m_tIPC[...] = ... ; // nicoup=0
+    m_tIPD[0] = (fptype)m_pars->mdl_MT;
+    m_tIPD[1] = (fptype)m_pars->mdl_WT;
 
-    const fptype tIPD[2] = { (fptype)pars->mdl_MT, (fptype)pars->mdl_WT };
-  for(int i=0;i<2;++i)
-    hIPD(i) = tIPD[i];
-  Kokkos::deep_copy(cIPD,hIPD);
 
 }
 
-
-// Retrieve the compiler that was used to build this module
-template<typename ExecSpace>
-const std::string CPPProcess<ExecSpace>::getCompiler()
-{
-  std::stringstream out;
-  // CUDA version (NVCC)
-#ifdef __CUDACC__
-#if defined __CUDACC_VER_MAJOR__ && defined __CUDACC_VER_MINOR__ && defined __CUDACC_VER_BUILD__
-  out << "nvcc " << __CUDACC_VER_MAJOR__ << "." << __CUDACC_VER_MINOR__ << "." << __CUDACC_VER_BUILD__;
-#else
-  out << "nvcc UNKNOWN";
-#endif
-  out << " (";
-#endif
-  // ICX version (either as CXX or as host compiler inside NVCC)
-#if defined __INTEL_COMPILER
-#error "icc is no longer supported: please use icx"
-#elif defined __INTEL_LLVM_COMPILER // alternative: __INTEL_CLANG_COMPILER
-  out << "icx " << __INTEL_LLVM_COMPILER << " (";
-#endif
-  // CLANG version (either as CXX or as host compiler inside NVCC or inside ICX)
-#if defined __clang__
-#if defined __clang_major__ && defined __clang_minor__ && defined __clang_patchlevel__
-  out << "clang " << __clang_major__ << "." << __clang_minor__ << "." << __clang_patchlevel__;
-  // GCC toolchain version inside CLANG
-  std::string tchainout;
-  std::string tchaincmd = "readelf -p .comment $(${CXX} -print-libgcc-file-name) |& grep 'GCC: (GNU)' | grep -v Warning | sort -u | awk '{print $5}'";
-  std::unique_ptr<FILE, decltype(&pclose)> tchainpipe( popen( tchaincmd.c_str(), "r" ), pclose );
-  if ( !tchainpipe ) throw std::runtime_error( "`readelf ...` failed?" );
-  std::array<char, 128> tchainbuf;
-  while ( fgets( tchainbuf.data(), tchainbuf.size(), tchainpipe.get() ) != nullptr ) tchainout += tchainbuf.data();
-  if(tchainout.size() > 0) tchainout.pop_back(); // remove trailing newline
-#if defined __CUDACC__ or defined __INTEL_LLVM_COMPILER
-  out << ", gcc " << tchainout;
-#else
-  out << " (gcc " << tchainout << ")";
-#endif
-#else
-  out << "clang UNKNOWKN";
-#endif
-#else
-  // GCC version (either as CXX or as host compiler inside NVCC)
-#if defined __GNUC__ && defined __GNUC_MINOR__ && defined __GNUC_PATCHLEVEL__
-  out << "gcc " << __GNUC__ << "." << __GNUC_MINOR__ << "." << __GNUC_PATCHLEVEL__;
-#else
-  out << "gcc UNKNOWKN";
-#endif
-#endif
-#if defined __CUDACC__ or defined __INTEL_LLVM_COMPILER
-  out << ")";
-#endif
-  return out.str();
-}
-
-//--------------------------------------------------------------------------
 // Define pointer accessors
-template <typename ExecSpace>
-const short* CPPProcess<ExecSpace>::get_tHel_ptr() const {return &(**hHel);}
+cxtype* CPPProcess::get_tIPC_ptr() {return m_tIPC;}
+const cxtype* CPPProcess::get_tIPC_ptr() const {return m_tIPC;}
 
-template <typename ExecSpace>
-cxtype* CPPProcess<ExecSpace>::get_tIPC_ptr() {return hIPC;}
-template <typename ExecSpace>
-const cxtype* CPPProcess<ExecSpace>::get_tIPC_ptr() const {return hIPC;}
+fptype* CPPProcess::get_tIPD_ptr() {return m_tIPD;}
+const fptype* CPPProcess::get_tIPD_ptr() const {return m_tIPD;}
 
-template <typename ExecSpace>
-fptype* CPPProcess<ExecSpace>::get_tIPD_ptr() {return hIPD;}
-template <typename ExecSpace>
-const fptype* CPPProcess<ExecSpace>::get_tIPD_ptr() const {return hIPD;}
+bool kokkos_initialize() {
+    //FIXME wrapper to Kokkos::initialize() here, might need modifications on certain platforms
+    //// set Kokkos args
+    //Kokkos::InitArguments args;
+    ////args.device_id = 0;
+
+    //// initialize Kokkos
+    //Kokkos::initialize(args); 
+    Kokkos::initialize();
+    return true;
+}
 
 //--------------------------------------------------------------------------
-template <typename mom_t, typename out_t, typename hel_t, typename ipd_t, 
-          typename ipc_t, typename igh_t, typename ngh_t>
+template <typename mom_t, typename igh_t, typename ngh_t, 
+          typename gs_t, typename idc_t, typename idp_t>
 void sigmaKin_setup(
     const mom_t& momenta,
-    out_t& allMEs,
-    const hel_t& cHel,
-    const ipd_t& cIPD,
-    const ipc_t& cIPC,
-    igh_t& iGoodHel,
-    ngh_t& nGoodHel,
-    const int& ncomb,
+    const igh_t& iGoodHel,
+    const ngh_t& nGoodHel,
+    const gs_t& Gs,
+    const idc_t& indep_couplings,
+    const idp_t& cIPD,
     const int& league_size,
-    const int& team_size) 
+    const int& team_size)
 {
-  Kokkos::View<int*,Kokkos::DefaultExecutionSpace> isGoodHel("isGoodHel",ncomb); // has to be constant index, but should be `ncomb`
+  Kokkos::View<int*,Kokkos::DefaultExecutionSpace> isGoodHel("isGoodHel",mgOnGpu::ncomb); // has to be constant index, but should be `ncomb`
 
   using member_type = typename Kokkos::TeamPolicy<Kokkos::DefaultExecutionSpace>::member_type;
   Kokkos::TeamPolicy<Kokkos::DefaultExecutionSpace> policy( league_size, team_size );
   Kokkos::parallel_for(__func__,policy, 
   KOKKOS_LAMBDA(const member_type& team_member){
     const int ievt = team_member.league_rank() * team_member.team_size() + team_member.team_rank();
-    fptype allMEsLast = 0;
+
+    // Load helicities into local (private) memory
+    //FIXME template variable does not work on NVIDIA devices
+    //auto cHel = helicities<short>;
+    constexpr short cHel[] {
+      -1, -1, -1, -1,
+      -1, -1, -1, 1,
+      -1, -1, 1, -1,
+      -1, -1, 1, 1,
+      -1, 1, -1, -1,
+      -1, 1, -1, 1,
+      -1, 1, 1, -1,
+      -1, 1, 1, 1,
+      1, -1, -1, -1,
+      1, -1, -1, 1,
+      1, -1, 1, -1,
+      1, -1, 1, 1,
+      1, 1, -1, -1,
+      1, 1, -1, 1,
+      1, 1, 1, -1,
+      1, 1, 1, 1
+    };
+    cxtype cIPC[dependentCouplings::ndcoup + independentCouplings::nicoup];
+
+#if MGONGPU_NDCOUP > 0
+    dependentCouplings::set_couplings_from_G(cIPC, Gs[ievt]); 
+#endif
+
+#if MGONGPU_NICOUP > 0
+    for (size_t i = 0; i < independentCouplings::nicoup; i++) {
+        cIPC[dependentCouplings::ndcoup + i] = indep_couplings(i);
+    }
+#endif
+
 
     auto local_mom = Kokkos::subview(momenta,ievt,Kokkos::ALL,Kokkos::ALL);
-    for (int ihel = 0;ihel < ncomb;++ihel)
+    for (int ihel = 0; ihel < mgOnGpu::ncomb; ihel++)
     {
-      auto local_cHel = Kokkos::subview(cHel,ihel,Kokkos::ALL);
-      calculate_wavefunctions(local_mom, local_cHel, cIPD, cIPC, allMEs[ievt]);
-      if (allMEs[ievt] != allMEsLast)
+      #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+          constexpr unsigned int channelId = 0; // disable single-diagram channel enhancement
+          fptype all_numerators = 0.0;
+          fptype all_denominators = 0.0;
+          auto allMEs = calculate_wavefunctions(local_mom, &all_numerators, &all_denominators, channelId, cHel + ihel*mgOnGpu::npar, cIPC, cIPD);
+      #else
+          auto allMEs = calculate_wavefunctions(local_mom, cHel + ihel*mgOnGpu::npar, cIPC, cIPD);
+      #endif
+
+      if (allMEs != 0)
       {
         isGoodHel(ihel) = true;
       }
-      allMEsLast = allMEs[ievt];
     }
   });
+  Kokkos::fence();
 
   Kokkos::parallel_for(__func__,Kokkos::RangePolicy<Kokkos::DefaultExecutionSpace>(0,1),
-  KOKKOS_LAMBDA(const int& i){
-    for(int ihel=0;ihel < ncomb;++ihel){
-
-      if(isGoodHel(ihel)){
-        iGoodHel(nGoodHel(0)) = ihel;
-        nGoodHel(0)++;
+  KOKKOS_LAMBDA(const int& i) {
+      nGoodHel(0) = 0;
+      for(int ihel=0; ihel < mgOnGpu::ncomb; ihel++) {
+          if(isGoodHel(ihel)) {
+              iGoodHel(nGoodHel(0)) = ihel;
+              nGoodHel(0)++;
+          }
       }
-
-    }
   });
+  Kokkos::fence();
 }
 
 
 //--------------------------------------------------------------------------
 // Evaluate |M|^2, part independent of incoming flavour.
-template <typename mom_t, typename out_t, typename hel_t, typename ipd_t, 
-          typename ipc_t, typename igh_t, typename ngh_t>
-void sigmaKin(const mom_t& momenta, out_t& allMEs, const hel_t& cHel,
-    const ipd_t& cIPD, const ipc_t& cIPC, const igh_t& iGoodHel,
-    const ngh_t& nGoodHel, const int& ncomb, const int& league_size,
-    const int& team_size)
+template <typename mom_t, typename igh_t, typename ngh_t, 
+          typename gs_t, typename idc_t, typename idp_t,
+          typename out_t>
+void sigmaKin(
+    const mom_t& momenta,
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+    const unsigned int channelId,          // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
+#endif
+    const igh_t& iGoodHel,
+    const ngh_t& nGoodHel,
+    const gs_t& Gs,
+    const idc_t& indep_couplings,
+    const idp_t& cIPD,
+    const int& league_size,
+    const int& team_size,
+    const out_t& allMEs)
 {
   using member_type = typename Kokkos::TeamPolicy<Kokkos::DefaultExecutionSpace>::member_type;
   Kokkos::TeamPolicy<Kokkos::DefaultExecutionSpace> policy( league_size, team_size );
@@ -343,27 +310,74 @@ void sigmaKin(const mom_t& momenta, out_t& allMEs, const hel_t& cHel,
 
     const int ievt = team_member.league_rank() * team_member.team_size() + team_member.team_rank();
     
+    
     // Denominators: spins, colors and identical particles
-    constexpr int denominators = 512;
+    constexpr int denominators = 256; // FIXME: assume process.nprocesses == 1 for the moment (eventually denominators[nprocesses]?)
+
+    // Load helicities into local (private) memory
+    //FIXME template variable does not work on NVIDIA devices
+    //auto cHel = helicities<short>;
+    constexpr short cHel[] {
+      -1, -1, -1, -1,
+      -1, -1, -1, 1,
+      -1, -1, 1, -1,
+      -1, -1, 1, 1,
+      -1, 1, -1, -1,
+      -1, 1, -1, 1,
+      -1, 1, 1, -1,
+      -1, 1, 1, 1,
+      1, -1, -1, -1,
+      1, -1, -1, 1,
+      1, -1, 1, -1,
+      1, -1, 1, 1,
+      1, 1, -1, -1,
+      1, 1, -1, 1,
+      1, 1, 1, -1,
+      1, 1, 1, 1
+    };
+    cxtype cIPC[dependentCouplings::ndcoup + independentCouplings::nicoup];
+
+#if MGONGPU_NDCOUP > 0
+    dependentCouplings::set_couplings_from_G(cIPC, Gs[ievt]); 
+#endif
+
+#if MGONGPU_NICOUP > 0
+    for (size_t i = 0; i < independentCouplings::nicoup; i++) {
+        cIPC[dependentCouplings::ndcoup + i] = indep_couplings(i);
+    }
+#endif
+
     allMEs[ievt] = 0;
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+    fptype allNumerators = 0;
+    fptype allDenominators = 0;
+#endif
 
     // PART 1 - HELICITY LOOP: CALCULATE WAVEFUNCTIONS
     // (in both CUDA and C++, using precomputed good helicities)
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
     auto local_mom = Kokkos::subview(momenta,ievt,Kokkos::ALL,Kokkos::ALL);
-    for (int ighel = 0;ighel < nGoodHel(0);++ighel)
-    {
-      auto local_cHel = Kokkos::subview(cHel,iGoodHel(ighel),Kokkos::ALL);
-      calculate_wavefunctions(local_mom, local_cHel, cIPD, cIPC, allMEs[ievt]);
+    for (size_t ighel = 0; ighel < nGoodHel(0); ighel++) {
+        const size_t ihel = iGoodHel[ighel];
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+      allMEs[ievt] += calculate_wavefunctions(local_mom, &allNumerators, &allDenominators, channelId, cHel + ihel*mgOnGpu::npar, cIPC, cIPD);
+#else
+      allMEs[ievt] += calculate_wavefunctions(local_mom, cHel + ihel*mgOnGpu::npar, cIPC, cIPD);
+#endif
     }
     // PART 2 - FINALISATION (after calculate_wavefunctions)
     // Get the final |M|^2 as an average over helicities/colors of the running sum of |M|^2 over helicities for the given event
     // [NB 'sum over final spins, average over initial spins', eg see
     // https://www.uzh.ch/cmsssl/physik/dam/jcr:2e24b7b1-f4d7-4160-817e-47b13dbf1d7c/Handout_4_2016-UZH.pdf]
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
+    
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+    if( channelId > 0 ) allMEs[ievt] *= allNumerators / allDenominators; // FIXME (#343): assume nprocesses == 1
+#endif
     allMEs[ievt] /= (fptype)denominators;
 
   });// end parallel for
+  Kokkos::fence();
 
 }
 

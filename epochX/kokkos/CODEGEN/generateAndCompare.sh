@@ -361,7 +361,7 @@ cleanup_MG5AMC_HOME
 cd ${MG5AMC_HOME}
 echo -e "\n***************** Differences to the current git commit ${commit_patches} [START]"
 ###if [ "$(git diff)" == "" ]; then echo -e "[No differences]"; else git diff; fi
-if [ "$(git diff)" == "" ]; then echo -e "[No differences]"; else git diff --name-status; fi
+if [ "$(git diff)" == "" ]; then echo -e "[No differences]"; else git --no-pager diff --name-status; fi
 echo -e "***************** Differences to the current git commit ${commit_patches} [END]"
 cd - > /dev/null
 

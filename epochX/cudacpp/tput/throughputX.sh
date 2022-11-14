@@ -3,28 +3,13 @@
 set +x # not verbose
 set -e # fail on error
 
-omp=0
-avxall=0
-cpp=1
-cuda=1
-ab3=0
-eemumu=0
-ggtt=0
-ggttgg=0
-div=0
-req=0
-fptypes="d"
-helinls="0"
-suffs="/"
-makeonly=0
-makecleanonly=0
-detailed=0
-gtest=0
-verbose=0
+scrdir=$(cd $(dirname $0); pwd)
+bckend=$(basename $(cd $scrdir; cd ..; pwd)) # cudacpp or alpaka
+topdir=$(cd $scrdir; cd ../../..; pwd)
 
 function usage()
 {
-  echo "Usage: $0 [-nocpp|[-omp][-avxall][-nocuda]] [-3a3b] [-eemumu] [-ggtt] [-ggttgg] [-div] [-req] [-flt|-fltonly] [-inl|-inlonly] [-auto|-autoonly] [-makeonly|-makecleanonly] [-detailed] [-gtest] [-v]"
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-heftggh]> [-nocpp|[-avxall][-nocuda][-noneonly][-sse4only][-avx2only][-512yonly][-512zonly]] [-sa] [-noalpaka] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly|-makeclean|-makecleanonly|-dryrun] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest] [-v] [-dlp <dyld_library_path>]" # removed -omp
   exit 1
 }
 
@@ -32,17 +17,73 @@ function usage()
 # PART 0 - decode command line arguments
 ##########################################################################
 
-scrdir=$(cd $(dirname $0); pwd)
-topdir=$(cd $scrdir; cd ../../..; pwd)
+procs=
+eemumu=0
+ggtt=0
+ggttg=0
+ggttgg=0
+ggttggg=0
+heftggh=0
+
+suffs=".mad/"
+
+omp=0
+simds=
+cpp=1
+cuda=1
+alpaka=1
+
+fptypes="d"
+helinls="0"
+hrdcods="0"
+rndgen=""
+rmbsam=""
+
+maketype=
+makej=
+
+ab3=0
+div=0
+req=0
+detailed=0
+gtest=0
+verbose=0
+
+dlp=
+
+# Optional hack to build only the cudacpp plugin (without building the madevent code) in .mad directories
+makef=
+###makef="-f Makefile"
+
+if [ "$bckend" != "alpaka" ]; then alpaka=0; fi # alpaka mode is only available in the alpaka directory
 
 while [ "$1" != "" ]; do
-  if [ "$1" == "-omp" ]; then
-    if [ "${cpp}" == "0" ]; then echo "ERROR! Options -omp and -nocpp are incompatible"; usage; fi
-    omp=1
+  if [ "$1" == "-eemumu" ]; then
+    if [ "$eemumu" == "0" ]; then procs+=${procs:+ }$1; fi
+    eemumu=1
     shift
-  elif [ "$1" == "-avxall" ]; then
-    if [ "${cpp}" == "0" ]; then echo "ERROR! Options -avxall and -nocpp are incompatible"; usage; fi
-    avxall=1
+  elif [ "$1" == "-ggtt" ]; then
+    if [ "$ggtt" == "0" ]; then procs+=${procs:+ }$1; fi
+    ggtt=1
+    shift
+  elif [ "$1" == "-ggttg" ]; then
+    if [ "$ggttg" == "0" ]; then procs+=${procs:+ }$1; fi
+    ggttg=1
+    shift
+  elif [ "$1" == "-ggttgg" ]; then
+    if [ "$ggttgg" == "0" ]; then procs+=${procs:+ }$1; fi
+    ggttgg=1
+    shift
+  elif [ "$1" == "-ggttggg" ]; then
+    if [ "$ggttggg" == "0" ]; then procs+=${procs:+ }$1; fi
+    ggttggg=1
+    shift
+  elif [ "$1" == "-heftggh" ]; then
+    if [ "$heftggh" == "0" ]; then procs+=${procs:+ }$1; fi
+    heftggh=1
+    shift
+  elif [ "$1" == "-sa" ]; then
+    suffs=".sa/"
     shift
   elif [ "$1" == "-nocuda" ]; then
     if [ "${cpp}" == "0" ]; then echo "ERROR! Options -nocuda and -nocpp are incompatible"; usage; fi
@@ -50,27 +91,51 @@ while [ "$1" != "" ]; do
     shift
   elif [ "$1" == "-nocpp" ]; then
     if [ "${omp}" == "1" ]; then echo "ERROR! Options -omp and -nocpp are incompatible"; usage; fi
-    if [ "${avxall}" == "1" ]; then echo "ERROR! Options -avxall and -nocpp are incompatible"; usage; fi
-    if [ "${cuda}" == "1" ]; then echo "ERROR! Options -nocuda and -nocpp are incompatible"; usage; fi
+    if [ "${simds}" != "" ]; then echo "ERROR! Incompatible option $1: SIMDs are already defined as '$simds'"; usage; fi
+    if [ "${cuda}" == "0" ]; then echo "ERROR! Options -nocuda and -nocpp are incompatible"; usage; fi
     cpp=0
     shift
-  elif [ "$1" == "-3a3b" ]; then
-    ab3=1
+  ###elif [ "$1" == "-omp" ]; then
+  ###  if [ "${cpp}" == "0" ]; then echo "ERROR! Options -omp and -nocpp are incompatible"; usage; fi
+  ###  omp=1
+  ###  shift
+  elif [ "$1" == "-avxall" ]; then
+    if [ "${cpp}" == "0" ]; then echo "ERROR! Options $1 and -nocpp are incompatible"; usage; fi
+    if [ "${simds}" != "" ]; then echo "ERROR! Incompatible option $1: SIMDs are already defined as '$simds'"; usage; fi
+    simds="none sse4 avx2 512y 512z"
     shift
-  elif [ "$1" == "-eemumu" ]; then
-    eemumu=1
+  elif [ "$1" == "-noneonly" ]; then
+    if [ "${cpp}" == "0" ]; then echo "ERROR! Options $1 and -nocpp are incompatible"; usage; fi
+    if [ "${simds}" != "" ]; then echo "ERROR! Incompatible option $1: SIMDs are already defined as '$simds'"; usage; fi
+    simds="none"
+    cuda=0; echo "WARNING! Option $1 implies -nocuda"
     shift
-  elif [ "$1" == "-ggtt" ]; then
-    ggtt=1
+  elif [ "$1" == "-sse4only" ]; then
+    if [ "${cpp}" == "0" ]; then echo "ERROR! Options $1 and -nocpp are incompatible"; usage; fi
+    if [ "${simds}" != "" ]; then echo "ERROR! Incompatible option $1: SIMDs are already defined as '$simds'"; usage; fi
+    simds="sse4"
+    cuda=0; echo "WARNING! Option $1 implies -nocuda"
     shift
-  elif [ "$1" == "-ggttgg" ]; then
-    ggttgg=1
+  elif [ "$1" == "-avx2only" ]; then
+    if [ "${cpp}" == "0" ]; then echo "ERROR! Options $1 and -nocpp are incompatible"; usage; fi
+    if [ "${simds}" != "" ]; then echo "ERROR! Incompatible option $1: SIMDs are already defined as '$simds'"; usage; fi
+    simds="avx2"
+    cuda=0; echo "WARNING! Option $1 implies -nocuda"
     shift
-  elif [ "$1" == "-div" ]; then
-    div=1
+  elif [ "$1" == "-512yonly" ]; then
+    if [ "${cpp}" == "0" ]; then echo "ERROR! Options $1 and -nocpp are incompatible"; usage; fi
+    if [ "${simds}" != "" ]; then echo "ERROR! Incompatible option $1: SIMDs are already defined as '$simds'"; usage; fi
+    simds="512y"
+    cuda=0; echo "WARNING! Option $1 implies -nocuda"
     shift
-  elif [ "$1" == "-req" ]; then
-    req=1
+  elif [ "$1" == "-512zonly" ]; then
+    if [ "${cpp}" == "0" ]; then echo "ERROR! Options $1 and -nocpp are incompatible"; usage; fi
+    if [ "${simds}" != "" ]; then echo "ERROR! Incompatible option $1: SIMDs are already defined as '$simds'"; usage; fi
+    simds="512z"
+    cuda=0; echo "WARNING! Option $1 implies -nocuda"
+    shift
+  elif [ "$1" == "-noalpaka" ]; then
+    alpaka=0
     shift
   elif [ "$1" == "-flt" ]; then
     if [ "${fptypes}" == "f" ]; then echo "ERROR! Options -flt and -fltonly are incompatible"; usage; fi
@@ -88,21 +153,43 @@ while [ "$1" != "" ]; do
     if [ "${helinls}" == "0 1" ]; then echo "ERROR! Options -inl and -inlonly are incompatible"; usage; fi
     helinls="1"
     shift
-  elif [ "$1" == "-auto" ]; then
-    if [ "${suffs}" == ".auto/" ]; then echo "ERROR! Options -auto and -autoonly are incompatible"; usage; fi
-    suffs="/ .auto/"
+  elif [ "$1" == "-hrd" ]; then
+    if [ "${hrdcods}" == "1" ]; then echo "ERROR! Options -hrd and -hrdonly are incompatible"; usage; fi
+    hrdcods="0 1"
     shift
-  elif [ "$1" == "-autoonly" ]; then
-    if [ "${suffs}" == "/ .auto/" ]; then echo "ERROR! Options -auto and -autoonly are incompatible"; usage; fi
-    suffs=".auto/"
+  elif [ "$1" == "-hrdonly" ]; then
+    if [ "${hrdcods}" == "0 1" ]; then echo "ERROR! Options -hrd and -hrdonly are incompatible"; usage; fi
+    hrdcods="1"
     shift
-  elif [ "$1" == "-makeonly" ]; then
-    if [ "${makecleanonly}" == "1" ]; then echo "ERROR! Options -makeclean and -makecleanonly are incompatible"; usage; fi
-    makeonly=1
+  elif [ "$1" == "-common" ]; then
+    rndgen=" -${1}"
     shift
-  elif [ "$1" == "-makecleanonly" ]; then
-    if [ "${makeonly}" == "1" ]; then echo "ERROR! Options -makeclean and -makecleanonly are incompatible"; usage; fi
-    makecleanonly=1
+  elif [ "$1" == "-curhst" ]; then
+    rndgen=" -${1}"
+    shift
+  elif [ "$1" == "-rmbhst" ]; then
+    rmbsmp=" -${1}"
+    shift
+  elif [ "$1" == "-bridge" ]; then
+    rmbsmp=" -${1}"
+    shift
+  elif [ "$1" == "-makeonly" ] || [ "$1" == "-makeclean" ] || [ "$1" == "-makecleanonly" ] || [ "$1" == "-dryrun" ]; then
+    if [ "${maketype}" != "" ] && [ "${maketype}" != "$1" ]; then
+      echo "ERROR! Options -makeonly, -makeclean, -makecleanonly and -dryrun are incompatible"; usage
+    fi
+    maketype="$1"
+    shift
+  elif [ "$1" == "-makej" ]; then
+    makej=-j
+    shift
+  elif [ "$1" == "-3a3b" ]; then
+    ab3=1
+    shift
+  elif [ "$1" == "-div" ]; then
+    div=1
+    shift
+  elif [ "$1" == "-req" ]; then
+    req=1
     shift
   elif [ "$1" == "-detailed" ]; then
     detailed=1
@@ -115,17 +202,94 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-v" ]; then
     verbose=1
     shift
+  elif [ "$1" == "-dlp" ] && [ "$2" != "" ]; then
+    dlp="$2"
+    shift
+    shift
   else
+    echo "ERROR! Invalid option '$1'"
     usage
   fi
 done
 ###exit 1
 
-# New default: run both eemumu and ggttgg
-###if [ "${eemumu}" == "0" ] && [ "${ggttgg}" == "0" ]; then 
-###  eemumu=1
-###  ggttgg=1
-###fi
+# Workaround for MacOS SIP (SystemIntegrity Protection): set DYLD_LIBRARY_PATH In subprocesses
+if [ "${dlp}" != "" ]; then
+  echo "export DYLD_LIBRARY_PATH=$dlp"
+  export DYLD_LIBRARY_PATH=$dlp
+fi
+
+# Check that at least one process has been selected
+if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ] && [ "${heftggh}" == "0" ]; then usage; fi
+
+# Define the default simds if none are defined
+if [ "${simds}" == "" ]; then simds="none 512y"; fi
+
+# Use only the .auto process directories in the alpaka directory
+if [ "$bckend" == "alpaka" ]; then
+  echo "WARNING! alpaka directory: using .auto process directories only"
+  suffs=".auto/"
+fi
+
+# Use only HRDCOD=0 in the alpaka directory (old epochX-golden2 code base)
+if [ "$bckend" == "alpaka" ]; then
+  echo "WARNING! alpaka directory: using HRDCOD=0 only"
+  hrdcods="0"
+fi
+
+# Check whether Alpaka should and can be run
+if [ "${alpaka}" == "1" ]; then
+  if [ "${CUPLA_ROOT}" == "" ]; then echo "ERROR! CUPLA_ROOT is not set!"; exit 1; fi
+  echo "CUPLA_ROOT=$CUPLA_ROOT"
+  if [ ! -d "${CUPLA_ROOT}" ]; then echo "ERROR! $CUPLA_ROOT does not exist!"; exit 1; fi
+  if [ "${ALPAKA_ROOT}" == "" ]; then echo "ERROR! ALPAKA_ROOT is not set!"; exit 1; fi
+  echo "ALPAKA_ROOT=$ALPAKA_ROOT"
+  if [ ! -d "${ALPAKA_ROOT}" ]; then echo "ERROR! $ALPAKA_ROOT does not exist!"; exit 1; fi
+  if [ "${BOOSTINC}" == "" ]; then echo "ERROR! BOOSTINC is not set!"; exit 1; fi
+  echo "BOOSTINC=$BOOSTINC"
+  if [ ! -d "${BOOSTINC}" ]; then echo "ERROR! $BOOSTINC does not exist!"; exit 1; fi  
+else
+  export CUPLA_ROOT=none
+fi
+
+# Determine the O/S and the processor architecture for late decisions
+unames=$(uname -s)
+unamep=$(uname -p)
+
+# Determine the working directory below topdir based on suff, bckend and proc
+function showdir()
+{
+  if [ "${suff}" == ".mad/" ]; then
+    if [ "${proc}" == "-eemumu" ]; then 
+      dir=$topdir/epochX/${bckend}/ee_mumu${suff}SubProcesses/P1_ll_ll
+    elif [ "${proc}" == "-ggtt" ]; then 
+      dir=$topdir/epochX/${bckend}/gg_tt${suff}SubProcesses/P1_gg_ttx
+    elif [ "${proc}" == "-ggttg" ]; then 
+      dir=$topdir/epochX/${bckend}/gg_ttg${suff}SubProcesses/P1_gg_ttxg
+    elif [ "${proc}" == "-ggttgg" ]; then 
+      dir=$topdir/epochX/${bckend}/gg_ttgg${suff}SubProcesses/P1_gg_ttxgg
+    elif [ "${proc}" == "-ggttggg" ]; then 
+      dir=$topdir/epochX/${bckend}/gg_ttggg${suff}SubProcesses/P1_gg_ttxggg
+    elif [ "${proc}" == "-heftggh" ]; then 
+      echo "ERROR! Options -mad and -madonly are not supported with -heftggh"; exit 1
+    fi
+  else
+    if [ "${proc}" == "-eemumu" ]; then 
+      dir=$topdir/epochX/${bckend}/ee_mumu${suff}SubProcesses/P1_Sigma_sm_epem_mupmum
+    elif [ "${proc}" == "-ggtt" ]; then 
+      dir=$topdir/epochX/${bckend}/gg_tt${suff}SubProcesses/P1_Sigma_sm_gg_ttx
+    elif [ "${proc}" == "-ggttg" ]; then 
+      dir=$topdir/epochX/${bckend}/gg_ttg${suff}SubProcesses/P1_Sigma_sm_gg_ttxg
+    elif [ "${proc}" == "-ggttgg" ]; then 
+      dir=$topdir/epochX/${bckend}/gg_ttgg${suff}SubProcesses/P1_Sigma_sm_gg_ttxgg
+    elif [ "${proc}" == "-ggttggg" ]; then 
+      dir=$topdir/epochX/${bckend}/gg_ttggg${suff}SubProcesses/P1_Sigma_sm_gg_ttxggg
+    elif [ "${proc}" == "-heftggh" ]; then 
+      dir=$topdir/epochX/${bckend}/heft_gg_h${suff}/SubProcesses/P1_Sigma_heft_gg_h
+    fi
+  fi
+  echo $dir
+}
 
 ###echo -e "\n********************************************************************************\n"
 printf "\n"
@@ -134,52 +298,52 @@ printf "\n"
 # PART 1 - compile the list of the executables which should be run
 ##########################################################################
 
+dirs=
+for proc in $procs; do
+  for suff in $suffs; do
+    dirs+=${dirs:+ }$(showdir)
+  done
+done
+if [ "$dirs" == "" ]; then echo "ERROR! no valid directories found?"; exit 1; fi  
+
 exes=
 
-for suff in $suffs; do
-
+for dir in $dirs; do
+  
   #=====================================
-  # CUDA (epochX - manual/auto)
+  # CUDA   (epochX - manual/mad)
+  # ALPAKA (epochX - manual/auto)
   #=====================================
   if [ "${cuda}" == "1" ]; then
-    if [ "${eemumu}" == "1" ]; then 
-      dir=$topdir/epochX/cudacpp/ee_mumu${suff}SubProcesses/P1_Sigma_sm_epem_mupmum
-    elif [ "${ggtt}" == "1" ]; then 
-      dir=$topdir/epochX/cudacpp/gg_tt${suff}SubProcesses/P1_Sigma_sm_gg_ttx
-    elif [ "${ggttgg}" == "1" ]; then 
-      dir=$topdir/epochX/cudacpp/gg_ttgg${suff}SubProcesses/P1_Sigma_sm_gg_ttxgg
-    fi
-    for helinl in $helinls; do
-      for fptype in $fptypes; do
-        exes="$exes ${dir}/build.none_${fptype}_inl${helinl}/gcheck.exe"
+    for hrdcod in $hrdcods; do
+      hrdsuf=_hrd${hrdcod}
+      if [ "$bckend" == "alpaka" ]; then hrdsuf=""; fi
+      for helinl in $helinls; do
+        for fptype in $fptypes; do
+          exes="$exes ${dir}/build.none_${fptype}_inl${helinl}${hrdsuf}/gcheck.exe"
+          if [ "${alpaka}" == "1" ]; then
+            exes="$exes ${dir}/build.none_${fptype}_inl${helinl}${hrdsuf}/alpcheck.exe"
+          fi
+        done
       done
     done
   fi
   
   #=====================================
-  # C++ (eemumu/epochX - manual/auto)
+  # C++ (eemumu/epochX - manual/mad)
   #=====================================
   if [ "${cpp}" == "1" ]; then 
-    if [ "${eemumu}" == "1" ]; then 
-      dir=$topdir/epochX/cudacpp/ee_mumu${suff}SubProcesses/P1_Sigma_sm_epem_mupmum
-    elif [ "${ggtt}" == "1" ]; then 
-      dir=$topdir/epochX/cudacpp/gg_tt${suff}SubProcesses/P1_Sigma_sm_gg_ttx
-    elif [ "${ggttgg}" == "1" ]; then 
-      dir=$topdir/epochX/cudacpp/gg_ttgg${suff}SubProcesses/P1_Sigma_sm_gg_ttxgg
-    fi
-    for helinl in $helinls; do
-      for fptype in $fptypes; do
-        exes="$exes $dir/build.none_${fptype}_inl${helinl}/check.exe"
-        if [ "${avxall}" == "1" ]; then 
-          exes="$exes $dir/build.sse4_${fptype}_inl${helinl}/check.exe"
-          exes="$exes $dir/build.avx2_${fptype}_inl${helinl}/check.exe"
-        fi
-        if [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" == "1" ]; then 
-          exes="$exes $dir/build.512y_${fptype}_inl${helinl}/check.exe"
-          if [ "${avxall}" == "1" ]; then 
-            exes="$exes $dir/build.512z_${fptype}_inl${helinl}/check.exe"
-          fi
-        fi
+    for hrdcod in $hrdcods; do
+      hrdsuf=_hrd${hrdcod}
+      if [ "$bckend" == "alpaka" ]; then hrdsuf=""; fi
+      for helinl in $helinls; do
+        for fptype in $fptypes; do
+          for simd in none sse4 avx2 512y 512z; do
+            if [ "${simds/${simd}}" != "${simds}" ]; then 
+              exes="$exes $dir/build.${simd}_${fptype}_inl${helinl}${hrdsuf}/check.exe"
+            fi
+          done
+        done
       done
     done
   fi
@@ -190,64 +354,76 @@ done
 # PART 2 - build the executables which should be run
 ##########################################################################
 
-###echo "exes=$exes"
+if [ "${maketype}" == "-dryrun" ]; then
 
-for suff in $suffs; do
+  printf "DRYRUN: SKIP MAKE\n\n"
 
-  if [ "${eemumu}" == "1" ]; then 
-    dir=$topdir/epochX/cudacpp/ee_mumu${suff}SubProcesses/P1_Sigma_sm_epem_mupmum
-  elif [ "${ggtt}" == "1" ]; then 
-    dir=$topdir/epochX/cudacpp/gg_tt${suff}SubProcesses/P1_Sigma_sm_gg_ttx
-  elif [ "${ggttgg}" == "1" ]; then 
-    dir=$topdir/epochX/cudacpp/gg_ttgg${suff}SubProcesses/P1_Sigma_sm_gg_ttxgg
-  fi
+else
 
-  export USEBUILDDIR=1
-  pushd $dir >& /dev/null
-  pwd
-  if [ "${makecleanonly}" == "1" ]; then make cleanall; echo; continue; fi
-  for helinl in $helinls; do
-    export HELINL=$helinl
-    for fptype in $fptypes; do
-      export FPTYPE=$fptype
-      make AVX=none; echo
-      if [ "${avxall}" == "1" ]; then make AVX=sse4; echo; fi
-      if [ "${avxall}" == "1" ]; then make AVX=avx2; echo; fi
-      if [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" == "1" ]; then # skip avx512 if not supported!
-        if [ "${cpp}" == "1" ]; then make AVX=512y; echo; fi # use 512y as C++ ref even if avx2 is faster on clang
-        if [ "${avxall}" == "1" ]; then make AVX=512z; echo; fi
-      fi
-    done
-  done
+  pushd $topdir/test >& /dev/null
+  echo "Building in $(pwd)"
+  make; echo # avoid issues with googletest in parallel builds
   popd >& /dev/null
-  export USEBUILDDIR=
-  export HELINL=
-  export FPTYPE=
 
-done
+  for dir in $dirs; do
 
-if [ "${makecleanonly}" == "1" ]; then printf "MAKE CLEANALL COMPLETED\n"; exit 0; fi
-if [ "${makeonly}" == "1" ]; then printf "MAKE COMPLETED\n"; exit 0; fi
+    export USEBUILDDIR=1
+    pushd $dir >& /dev/null
+    echo "Building in $(pwd)"
+    if [ "${maketype}" == "-makeclean" ]; then make cleanall; echo; fi
+    if [ "${maketype}" == "-makecleanonly" ]; then make cleanall; echo; continue; fi
+    for hrdcod in $hrdcods; do
+      export HRDCOD=$hrdcod
+      for helinl in $helinls; do
+	export HELINL=$helinl
+	for fptype in $fptypes; do
+          export FPTYPE=$fptype
+          if [ "${cuda}" == "1" ] || [ "${simds/none}" != "${simds}" ]; then 
+            make ${makef} ${makej} AVX=none; echo
+          fi
+          for simd in ${simds/none}; do
+            make ${makef} ${makej} AVX=${simd}; echo
+          done
+	done
+      done
+    done
+    popd >& /dev/null
+    export USEBUILDDIR=
+    export HRDCOD=
+    export HELINL=
+    export FPTYPE=
 
+  done
+
+  if [ "${maketype}" == "-makecleanonly" ]; then printf "MAKE CLEANALL COMPLETED\n"; exit 0; fi
+  if [ "${maketype}" == "-makeonly" ]; then printf "MAKE COMPLETED\n"; exit 0; fi
+
+fi
+  
 ##########################################################################
 # PART 3 - run all the executables which should be run
 ##########################################################################
 
-printf "DATE: $(date '+%Y-%m-%d_%H:%M:%S')\n\n"
+if [ "${maketype}" != "-dryrun" ]; then
+  printf "DATE: $(date '+%Y-%m-%d_%H:%M:%S')\n\n"
+fi
 
 function runExe() {
   exe=$1
   args="$2"
+  args="$args$rndgen$rmbsmp"
   echo "runExe $exe $args OMP=$OMP_NUM_THREADS"
+  if [ "${maketype}" == "-dryrun" ]; then return; fi
   pattern="Process|fptype_sv|OMP threads|EvtsPerSec\[MECalc|MeanMatrix|FP precision|TOTAL       :"
   # Optionally add other patterns here for some specific configurations (e.g. clang)
   if [ "${exe%%/gcheck*}" != "${exe}" ]; then pattern="${pattern}|EvtsPerSec\[Matrix"; fi
-  pattern="${pattern}|CUCOMPLEX"
-  pattern="${pattern}|COMMON RANDOM"
+  pattern="${pattern}|Workflow"
+  ###pattern="${pattern}|CUCOMPLEX"
+  ###pattern="${pattern}|COMMON RANDOM|CURAND HOST \(CUDA"
   pattern="${pattern}|ERROR"
-  # TEMPORARY! OLD C++/CUDA CODE (START)
-  pattern="${pattern}|EvtsPerSec\[Matrix"
-  # TEMPORARY! OLD C++/CUDA CODE (END)
+  pattern="${pattern}|WARNING"
+  pattern="${pattern}|EvtsPerSec\[Rmb" # TEMPORARY! for rambo timing tests
+  pattern="${pattern}|EvtsPerSec\[Matrix" # TEMPORARY! OLD C++/CUDA CODE
   if [ "${ab3}" == "1" ]; then pattern="${pattern}|3a|3b"; fi
   if [ "${req}" == "1" ]; then pattern="${pattern}|memory layout"; fi
   if perf --version >& /dev/null; then
@@ -268,10 +444,36 @@ function runExe() {
   fi
 }
 
+function cmpExe() {
+  exe=$1
+  exef=${exe/\/check//fcheck}
+  exef=${exef/\/gcheck//fgcheck}
+  argsf="2 64 2"
+  args="--common -p ${argsf}"
+  echo "cmpExe $exe $args"
+  echo "cmpExe $exef $argsf"
+  if [ "${maketype}" == "-dryrun" ]; then return; fi
+  tmp=$(mktemp)
+  me1=$(${exe} ${args} 2>${tmp} | grep MeanMatrix | awk '{print $4}'); cat ${tmp}
+  me2=$(${exef} ${argsf} 2>${tmp} | grep Average | awk '{print $4}'); cat ${tmp}
+  if [ "${exe%%/gcheck*}" != "${exe}" ]; then tag="/CUDA)"; else tag="/C++) "; fi
+  echo -e "Avg ME (C++${tag}   = ${me1}\nAvg ME (F77${tag}   = ${me2}"
+  if [ "${me2}" == "NaN" ]; then
+    echo "ERROR! Fortran calculation (F77${tag} returned NaN"
+  elif [ "${me2}" == "" ]; then
+    echo "ERROR! Fortran calculation (F77${tag} crashed"
+  else
+    # NB skip python comparison if Fortran returned NaN or crashed, otherwise python returns an error status and the following tests are not executed
+    python3 -c "me1=${me1}; me2=${me2}; reldif=abs((me2-me1)/me1); print('Relative difference =', reldif); ok = reldif <= 2E-4; print ( '%s (relative difference %s 2E-4)' % ( ('OK','<=') if ok else ('ERROR','>') ) )"
+  fi
+}
+
 # Profile #registers and %divergence only
 function runNcu() {
+  if [ "${maketype}" == "-dryrun" ]; then return; fi
   exe=$1
   args="$2"
+  args="$args$rndgen$rmbsmp"
   ###echo "runNcu $exe $args"
   if [ "${verbose}" == "1" ]; then set -x; fi
   #$(which ncu) --metrics launch__registers_per_thread,sm__sass_average_branch_targets_threads_uniform.pct --target-processes all --kernel-id "::sigmaKin:" --kernel-base mangled $exe $args | egrep '(sigmaKin|registers| sm)' | tr "\n" " " | awk '{print $1, $2, $3, $15, $17; print $1, $2, $3, $18, $20$19}'
@@ -287,8 +489,10 @@ function runNcu() {
 # See https://docs.nvidia.com/gameworks/content/developertools/desktop/analysis/report/cudaexperiments/kernellevel/branchstatistics.htm
 # See https://docs.nvidia.com/gameworks/content/developertools/desktop/analysis/report/cudaexperiments/sourcelevel/divergentbranch.htm
 function runNcuDiv() {
+  if [ "${maketype}" == "-dryrun" ]; then return; fi
   exe=$1
   args="-p 1 32 1"
+  args="$args$rndgen$rmbsmp"
   ###echo "runNcuDiv $exe $args"
   if [ "${verbose}" == "1" ]; then set -x; fi
   ###$(which ncu) --query-metrics $exe $args
@@ -307,8 +511,10 @@ function runNcuDiv() {
 
 # Profiles sectors and requests
 function runNcuReq() {
+  if [ "${maketype}" == "-dryrun" ]; then return; fi
   exe=$1
   ncuArgs="$2"
+  ncuArgs="$ncuArgs$rndgen$rmbsmp"
   if [ "${verbose}" == "1" ]; then set -x; fi
   for args in "-p 1 1 1" "-p 1 4 1" "-p 1 8 1" "-p 1 32 1" "$ncuArgs"; do
     ###echo "runNcuReq $exe $args"
@@ -319,26 +525,66 @@ function runNcuReq() {
 }
 
 if nvidia-smi -L > /dev/null 2>&1; then gpuTxt="$(nvidia-smi -L | wc -l)x $(nvidia-smi -L | awk '{print $3,$4}' | sort -u)"; else gpuTxt=none; fi
-unamep=$(uname -p)
-if [ "${unamep}" == "ppc64le" ]; then 
+if [ "${unames}" == "Darwin" ]; then 
+  cpuTxt=$(sysctl -h machdep.cpu.brand_string)
+  cpuTxt=${cpuTxt/machdep.cpu.brand_string: }
+elif [ "${unamep}" == "ppc64le" ]; then 
   cpuTxt=$(cat /proc/cpuinfo | grep ^machine | awk '{print substr($0,index($0,"Power"))", "}')$(cat /proc/cpuinfo | grep ^cpu | head -1 | awk '{print substr($0,index($0,"POWER"))}')
 else
-  cpuTxt=$(cat /proc/cpuinfo | grep '^model name' | head -1 | awk '{i0=index($0,"Intel"); if (i0==0) i0=index($0,"AMD"); i1=index($0," @"); if (i1>0) {print substr($0,i0,i1-i0)} else {print substr($0,i0)}}')
+  cpuTxt=$(cat /proc/cpuinfo | grep '^model name' |& head -1 | awk '{i0=index($0,"Intel"); if (i0==0) i0=index($0,"AMD"); i1=index($0," @"); if (i1>0) {print substr($0,i0,i1-i0)} else {print substr($0,i0)}}')
 fi
 echo -e "On $HOSTNAME [CPU: $cpuTxt] [GPU: $gpuTxt]:"
 
-# Workaround for reading of data files
-pushd $topdir/epochX/cudacpp/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum >& /dev/null
+# These two settings are needed by BMK containers: do not change them
+BMKEXEARGS="" # if BMKEXEARGS is set, exeArgs is set equal to BMKEXEARGS, while exeArgs2 is set to ""
+BMKMULTIPLIER=1 # the pre-defined numbers of iterations (including those in BMKEXEARGS) are multiplied by BMKMULTIPLIER
 
 lastExe=
+###echo "exes=$exes"
 for exe in $exes; do
-  ###if [ ! -f $exe ]; then continue; fi
+  ###echo EXE=$exe; continue
+  exeArgs2=""
+  if [ "$(basename $exe)" != "$lastExe" ]; then
+    echo "========================================================================="
+    lastExe=$(basename $exe)
+  else
+    echo "-------------------------------------------------------------------------"
+  fi
   if [ ! -f $exe ]; then echo "Not found: $exe"; continue; fi
+  if [ "${unamep}" != "x86_64" ]; then
+    if [ "${exe/build.avx2}" != "${exe}" ]; then echo "$exe is not supported on ${unamep}"; continue; fi
+    if [ "${exe/build.512y}" != "${exe}" ]; then echo "$exe is not supported on ${unamep}"; continue; fi
+    if [ "${exe/build.512z}" != "${exe}" ]; then echo "$exe is not supported on ${unamep}"; continue; fi
+  elif [ "${unames}" == "Darwin" ]; then
+    if [ "${exe/build.512y}" != "${exe}" ]; then echo "$exe is not supported on ${unames}"; continue; fi
+    if [ "${exe/build.512z}" != "${exe}" ]; then echo "$exe is not supported on ${unames}"; continue; fi
+  elif [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" != "1" ]; then
+    if [ "${exe/build.512y}" != "${exe}" ]; then echo "$exe is not supported (no avx512vl in /proc/cpuinfo)"; continue; fi
+    if [ "${exe/build.512z}" != "${exe}" ]; then echo "$exe is not supported (no avx512vl in /proc/cpuinfo)"; continue; fi
+  fi
   if [ "${exe%%/gcheck*}" != "${exe}" ] && [ "$gpuTxt" == "none" ]; then continue; fi
-  if [ "${exe%%/gg_ttgg*}" != "${exe}" ]; then 
-    # This is a good GPU middle point: tput is 1.5x lower with "32 256 1", only a few% higher with "128 256 1"
+  if [ "${exe%%/heft_gg_h*}" != "${exe}" ]; then 
+    # For heftggh: 2->1 process, hence all events are identical and random numbers are ignored, use bare minimum 1 8 1
+    exeArgs="-p 1 8 1"
+    ncuArgs="-p 1 8 1"
+  elif [ "${exe%%/gg_ttggg*}" != "${exe}" ]; then 
+    # For ggttggg: this is far too little for GPU (4.8E2), but it keeps the CPU to a manageble level (1sec with 512y)
+    exeArgs="-p 1 256 1"
+    ncuArgs="-p 1 256 1"
+    # For ggttggg: on GPU test also "64 256" to reach the plateau (only ~5% lower than "2048 256": 1.18E4 vs 1.25E4 on cuda116/gcc102)
+    exeArgs2="-p 64 256 1"
+  elif [ "${exe%%/gg_ttgg*}" != "${exe}" ]; then 
+    # For ggttgg (OLD): this is a good GPU middle point: tput is 1.5x lower with "32 256 1", only a few% higher with "128 256 1"
     exeArgs="-p 64 256 1"
     ncuArgs="-p 64 256 1"
+    # For ggttgg (NEW): on GPU test both "64 256" and "2048 256" for ggttgg as the latter gives ~10% higher throughput on cuda110/gcc92
+    exeArgs2="-p 2048 256 1"
+  elif [ "${exe%%/gg_ttg*}" != "${exe}" ]; then 
+    # For ggttg, as on ggttgg: this is a good GPU middle point: tput is 1.5x lower with "32 256 1", only a few% higher with "128 256 1"
+    exeArgs="-p 64 256 1"
+    ncuArgs="-p 64 256 1"
+    # For ggttg, as on ggttgg: on GPU test both "64 256" and "2048 256" for ggttg as the latter gives ~10% higher throughput on cuda110/gcc92
+    exeArgs2="-p 2048 256 1"
   elif [ "${exe%%/gg_tt*}" != "${exe}" ]; then 
     exeArgs="-p 2048 256 1"
     ncuArgs="-p 2048 256 1"
@@ -346,16 +592,17 @@ for exe in $exes; do
     exeArgs="-p 2048 256 12"
     ncuArgs="-p 2048 256 1"
   fi
-  if [ "$(basename $exe)" != "$lastExe" ]; then
-    echo "========================================================================="
-    lastExe=$(basename $exe)
-  else
-    echo "-------------------------------------------------------------------------"
-  fi
+  if [ "$BMKEXEARGS" ]; then exeArgs="$BMKEXEARGS"; exeArgs2=""; fi
+  exeArgs="${exeArgs% *} $((${exeArgs##* }*BMKMULTIPLIER))"
+  if [ "${exeArgs2}" != "" ]; then exeArgs2="${exeArgs2% *} $((${exeArgs2##* }*BMKMULTIPLIER))"; fi  
+  exeDir=$(dirname $exe)
+  cd $exeDir/.. # workaround for reading '../../Cards/param_card.dat' without setting MG5AMC_CARD_PATH
   unset OMP_NUM_THREADS
   runExe $exe "$exeArgs"
   if [ "${exe%%/check*}" != "${exe}" ]; then 
-    obj=${exe%%/check*}/CPPProcess.o; $scrdir/simdSymSummary.sh -stripdir ${obj}
+    if [ "${maketype}" != "-dryrun" ]; then
+      obj=${exe%%/check*}/CPPProcess.o; $scrdir/simdSymSummary.sh -stripdir ${obj} -dumptotmp # comment out -dumptotmp to keep full objdump
+    fi
     if [ "${omp}" == "1" ]; then 
       echo "-------------------------------------------------------------------------"
       export OMP_NUM_THREADS=$(nproc --all)
@@ -368,14 +615,18 @@ for exe in $exes; do
       echo "runExe $exe2"
       $exe2 2>&1 | tail -1
     fi
-  elif [ "${exe%%/gcheck*}" != "${exe}" ]; then 
+  elif [ "${exe%%/gcheck*}" != "${exe}" ] ||  [ "${exe%%/alpcheck*}" != "${exe}" ]; then 
     runNcu $exe "$ncuArgs"
     if [ "${div}" == "1" ]; then runNcuDiv $exe; fi
     if [ "${req}" == "1" ]; then runNcuReq $exe "$ncuArgs"; fi
+    if [ "${exeArgs2}" != "" ]; then echo "........................................................................."; runExe $exe "$exeArgs2"; fi
+  fi
+  if [ "${bckend}" != "alpaka" ]; then
+    echo "-------------------------------------------------------------------------"
+    cmpExe $exe
   fi
 done
 echo "========================================================================="
 
 # Workaround for reading of data files
-popd >& /dev/null
 printf "\nTEST COMPLETED\n"

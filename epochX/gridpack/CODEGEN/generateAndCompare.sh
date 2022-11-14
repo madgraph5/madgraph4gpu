@@ -1,0 +1,1 @@
+../../cudacpp/CODEGEN/generateAndCompare.sh

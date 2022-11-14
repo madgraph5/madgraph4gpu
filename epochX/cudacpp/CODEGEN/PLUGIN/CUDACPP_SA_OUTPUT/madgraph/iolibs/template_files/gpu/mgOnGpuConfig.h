@@ -1,16 +1,20 @@
 #ifndef MGONGPUCONFIG_H
 #define MGONGPUCONFIG_H 1
 
+// HARDCODED AT CODE GENERATION TIME: DO NOT MODIFY (#473)
+// There are two different code bases for standalone_cudacpp (without multichannel) and madevent+cudacpp (with multichannel)
+%(mgongpu_supports_multichannel)s
+
 // ** NB1 Throughputs (e.g. 6.8E8) are events/sec for "./gcheck.exe -p 65536 128 12"
 // ** NB2 Baseline on b7g47n0004 fluctuates (probably depends on load on other VMs)
 
-// Choose how random numbers are generated
-// If one of these macros has been set from outside with e.g. -DMGONGPU_COMMONRAND_ONHOST, nothing happens
-#if not defined MGONGPU_CURAND_ONDEVICE and not defined MGONGPU_CURAND_ONHOST and not defined MGONGPU_COMMONRAND_ONHOST
-// Curand random number generation (CHOOSE ONLY ONE)
-#define MGONGPU_CURAND_ONDEVICE 1 // default (curand: CUDA on device, C++ on host)
-//#define MGONGPU_CURAND_ONHOST 1 // (curand: CUDA on host, C++ on host)
-//#define MGONGPU_COMMONRAND_ONHOST 1 // (common rand: CUDA on host, C++ on host)
+// Choose if curand is supported for generating random numbers
+// For C++, by default, do not inline, but allow this macro to be set from outside with e.g. -DMGONGPU_HAS_NO_CURAND
+#ifdef __CUDACC__
+#undef MGONGPU_HAS_NO_CURAND
+#else
+//#undef MGONGPU_HAS_NO_CURAND // default
+////#define MGONGPU_HAS_NO_CURAND 1
 #endif
 
 // Choose floating point precision
@@ -23,14 +27,29 @@
 
 // Choose whether to inline all HelAmps functions
 // This optimization can gain almost a factor 4 in C++, similar to -flto (issue #229)
-// By default, do not inline, but allow this macros to be set from outside with e.g. -DMGONGPU_INLINE_HELAMPS
+// By default, do not inline, but allow this macro to be set from outside with e.g. -DMGONGPU_INLINE_HELAMPS
 //#undef MGONGPU_INLINE_HELAMPS // default
 ////#define MGONGPU_INLINE_HELAMPS 1
 
-// Complex type in cuda: thrust or cucomplex (CHOOSE ONLY ONE)
+// Choose whether to hardcode the cIPD physics parameters rather than reading them from user cards
+// This optimization can gain 20%% in CUDA in eemumu (issue #39)
+// By default, do not hardcode, but allow this macro to be set from outside with e.g. -DMGONGPU_HARDCODE_PARAM
+// ** NB: The option to use hardcoded cIPD physics parameters is supported again even now when alphas is running (#373)
+// ** NB: Note however that it now only refers to cIPD parameters (cIPC parameters are always accessed through global memory)
+//#undef MGONGPU_HARDCODE_PARAM // default
+////#define MGONGPU_HARDCODE_PARAM 1
+
+// Complex type in c++: std::complex or cxsmpl (CHOOSE ONLY ONE)
+#ifndef __CUDACC__
+//#define MGONGPU_CPPCXTYPE_STDCOMPLEX 1 // ~8 percent slower on float, same on double (5.1E6/double, 9.4E6/float)
+#define MGONGPU_CPPCXTYPE_CXSMPL 1 // new default (5.1E6/double, 10.2E6/float)
+#endif
+
+// Complex type in cuda: thrust or cucomplex or cxsmpl (CHOOSE ONLY ONE)
 #ifdef __CUDACC__
-#define MGONGPU_CXTYPE_THRUST 1 // default (~6.8E8)
-//#define MGONGPU_CXTYPE_CUCOMPLEX 1 // ~5 percent slower (6.5E8 against 6.8E8)
+#define MGONGPU_CUCXTYPE_THRUST 1 // default (~1.15E9/double, ~3.2E9/float)
+//#define MGONGPU_CUCXTYPE_CUCOMPLEX 1 // ~10 percent slower (1.03E9/double, ~2.8E9/float)
+//#define MGONGPU_CUCXTYPE_CXSMPL 1 // ~10 percent slower (1.00E9/double, ~2.9E9/float)
 #endif
 
 // Cuda nsight compute (ncu) debug: add dummy lines to ease SASS program flow navigation
@@ -39,24 +58,22 @@
 //#define MGONGPU_NSIGHT_DEBUG 1
 #endif
 
-// SANITY CHECKS (random numbers)
-#if defined MGONGPU_CURAND_ONDEVICE and defined MGONGPU_CURAND_ONHOST
-#error You must CHOOSE ONLY ONE of MGONGPU_CURAND_ONDEVICE, MGONGPU_CURAND_ONHOST or MGONGPU_COMMONRAND_ONHOST
-#elif defined MGONGPU_CURAND_ONDEVICE and defined MGONGPU_COMMONRAND_ONHOST
-#error You must CHOOSE ONLY ONE of MGONGPU_CURAND_ONDEVICE, MGONGPU_CURAND_ONHOST or MGONGPU_COMMONRAND_ONHOST
-#elif defined MGONGPU_CURAND_ONHOST and defined MGONGPU_COMMONRAND_ONHOST
-#error You must CHOOSE ONLY ONE of MGONGPU_CURAND_ONDEVICE, MGONGPU_CURAND_ONHOST or MGONGPU_COMMONRAND_ONHOST
-#endif
-
 // SANITY CHECKS (floating point precision)
 #if defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE_FLOAT
-#error You must CHOOSE ONLY ONE of MGONGPU_FPTYPE_DOUBLE or defined MGONGPU_FPTYPE_FLOAT
+#error You must CHOOSE (ONE AND) ONLY ONE of MGONGPU_FPTYPE_DOUBLE or defined MGONGPU_FPTYPE_FLOAT
 #endif
 
-// SANITY CHECKS (complex number implementation)
+// SANITY CHECKS (c++ complex number implementation)
+#ifndef __CUDACC__
+#if defined MGONGPU_CPPCXTYPE_STDCOMPLEX and defined MGONGPU_CPPCXTYPE_CXSMPL
+#error You must CHOOSE (ONE AND) ONLY ONE of MGONGPU_CPPCXTYPE_STDCOMPLEX or MGONGPU_CPPCXTYPE_CXSMPL
+#endif
+#endif
+
+// SANITY CHECKS (cuda complex number implementation)
 #ifdef __CUDACC__
-#if defined MGONGPU_CXTYPE_THRUST and defined MGONGPU_CXTYPE_CUCOMPLEX
-#error You must CHOOSE ONLY ONE of MGONGPU_CXTYPE_THRUST or MGONGPU_CXTYPE_CUCOMPLEX
+#if defined MGONGPU_CUCXTYPE_THRUST and defined MGONGPU_CUCXTYPE_CUCOMPLEX and defined MGONGPU_CUCXTYPE_CXSMPL
+#error You must CHOOSE (ONE AND) ONLY ONE of MGONGPU_CUCXTYPE_THRUST or MGONGPU_CUCXTYPE_CUCOMPLEX or MGONGPU_CUCXTYPE_CXSMPL
 #endif
 #endif
 
@@ -77,12 +94,15 @@ namespace mgOnGpu
   const int np4 = 4; // dimensions of 4-momenta (E,px,py,pz)
 
   const int npari = %(nincoming)d; // #particles in the initial state (incoming): e.g. 2 (e+ e-) for e+ e- -> mu+ mu-
+
   const int nparf = %(noutcoming)d; // #particles in the final state (outgoing): e.g. 2 (mu+ mu-) for e+ e- -> mu+ mu-
+
   const int npar = npari + nparf; // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
 
   const int ncomb = %(nbhel)d; // #helicity combinations: e.g. 16 for e+ e- -> mu+ mu- (2**4 = fermion spin up/down ** npar)
 
   const int nw6 = %(wavefuncsize)d; // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
+
   const int nwf = %(nwavefunc)d; // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
 
   // --- Platform-specific software implementation details
@@ -96,85 +116,95 @@ namespace mgOnGpu
   //const int ntpbMAX = 256; // AV Apr2021: why had I set this to 256?
   const int ntpbMAX = 1024; // NB: 512 is ok, but 1024 does fail with "too many resources requested for launch"
 
-  // Vector sizes for AOSOA memory layouts (GPU coalesced memory access, CPU SIMD vectorization)
-  // (these are all best kept as a compile-time constants: see issue #23)
-
-  // Number of Events Per Page in the momenta AOSOA memory layout
-#ifdef __CUDACC__
-#undef MGONGPU_CPPSIMD
-  // -----------------------------------------------------------------------------------------
-  // --- GPUs: neppM must be a power of 2 times the number of fptype's in a 32-byte cacheline
-  // --- This is relevant to ensure coalesced access to momenta in global memory
-  // --- Note that neppR is hardcoded and may differ from neppM and neppV on some platforms
-  // -----------------------------------------------------------------------------------------
-  //const int neppM = 64/sizeof(fptype); // 2x 32-byte GPU cache lines: 8 (DOUBLE) or 16 (FLOAT)
-  const int neppM = 32/sizeof(fptype); // (DEFAULT) 32-byte GPU cache line: 4 (DOUBLE) or 8 (FLOAT)
-  //const int neppM = 1;  // *** NB: this is equivalent to AOS ***
-  //const int neppM = 32; // older default
-#else
-  // -----------------------------------------------------------------------------------------
-  // --- CPUs: neppM must be exactly equal to the number of fptype's in a vector register
-  // --- [DEFAULT is 256-width AVX512 aka "512y" on CPUs, 32-byte as GPUs, faster than AVX2]
-  // --- The logic of the code requires the size neppV of fptype_v to be equal to neppM
-  // --- Note that neppR is hardcoded and may differ from neppM and neppV on some platforms
-  // -----------------------------------------------------------------------------------------
-#if defined __AVX512VL__
-#define MGONGPU_CPPSIMD 1
-#ifdef MGONGPU_PVW512
-  const int neppM = 64/sizeof(fptype); // "512z" AVX512 with 512 width (512-bit ie 64-byte): 8 (DOUBLE) or 16 (FLOAT)
-#else
-  const int neppM = 32/sizeof(fptype); // "512y" AVX512 with 256 width (256-bit ie 32-byte): 4 (DOUBLE) or 8 (FLOAT) [gcc DEFAULT]
+  // Alignment requirement for using reinterpret_cast with SIMD vectorized code
+  // (using reinterpret_cast with non aligned memory may lead to segmentation faults!)
+  // Only needed for C++ code but can be enforced also in NVCC builds of C++ code using CUDA>=11.2 and C++17 (#318, #319, #333)
+#ifndef __CUDACC__
+  constexpr int cppAlign = 64; // alignment requirement for SIMD vectorization (64-byte i.e. 512-bit)
 #endif
-#elif defined __AVX2__
-#define MGONGPU_CPPSIMD 1
-  const int neppM = 32/sizeof(fptype); // "avx2" AVX2 (256-bit ie 32-byte): 4 (DOUBLE) or 8 (FLOAT) [clang DEFAULT]
-#elif defined __SSE4_2__
-#define MGONGPU_CPPSIMD 1
-  const int neppM = 16/sizeof(fptype); // "sse4" SSE4.2 (128-bit ie 16-byte): 2 (DOUBLE) or 4 (FLOAT)
-#else
-#undef MGONGPU_CPPSIMD
-  const int neppM = 1;  // "none" i.e. no SIMD (*** NB: this is equivalent to AOS ***)
-#endif
-#endif
-
-  // Number of Events Per Page in the random number AOSOA memory layout
-  // *** NB Different values of neppR lead to different physics results: the ***
-  // *** same 1d array is generated, but it is interpreted in different ways ***
-  const int neppR = 8; // HARDCODED TO GIVE ALWAYS THE SAME PHYSICS RESULTS!
-  //const int neppR = 1; // AOS (tests of sectors/requests)
 
 }
 
 // Expose typedefs and operators outside the namespace
 using mgOnGpu::fptype;
 
+// C++ SIMD vectorization width (this will be used to set neppV)
+#ifdef __CUDACC__ // CUDA implementation has no SIMD
+#undef MGONGPU_CPPSIMD
+#elif defined __AVX512VL__ && defined MGONGPU_PVW512 // C++ "512z" AVX512 with 512 width (512-bit ie 64-byte): 8 (DOUBLE) or 16 (FLOAT)
+#ifdef MGONGPU_FPTYPE_DOUBLE
+#define MGONGPU_CPPSIMD 8
+#else
+#define MGONGPU_CPPSIMD 16
+#endif
+#elif defined __AVX512VL__ // C++ "512y" AVX512 with 256 width (256-bit ie 32-byte): 4 (DOUBLE) or 8 (FLOAT) [gcc DEFAULT]
+#ifdef MGONGPU_FPTYPE_DOUBLE
+#define MGONGPU_CPPSIMD 4
+#else
+#define MGONGPU_CPPSIMD 8
+#endif
+#elif defined __AVX2__ // C++ "avx2" AVX2 (256-bit ie 32-byte): 4 (DOUBLE) or 8 (FLOAT) [clang DEFAULT]
+#ifdef MGONGPU_FPTYPE_DOUBLE
+#define MGONGPU_CPPSIMD 4
+#else
+#define MGONGPU_CPPSIMD 8
+#endif
+#elif defined __SSE4_2__ // C++ "sse4" SSE4.2 (128-bit ie 16-byte): 2 (DOUBLE) or 4 (FLOAT) [Power9 and ARM default]
+#ifdef MGONGPU_FPTYPE_DOUBLE
+#define MGONGPU_CPPSIMD 2
+#else
+#define MGONGPU_CPPSIMD 4
+#endif
+#else // C++ "none" i.e. no SIMD
+#undef MGONGPU_CPPSIMD
+#endif
+
 // Cuda nsight compute (ncu) debug: add dummy lines to ease SASS program flow navigation
 // Arguments (not used so far): text is __FUNCTION__, code is 0 (start) or 1 (end)
-#if defined __CUDACC__ && defined MGONGPU_NSIGHT_DEBUG
-#define mgDebugDeclare()                              \
-  __shared__ float mgDebugCounter[mgOnGpu::ntpbMAX];
-#define mgDebugInitialise()                     \
-  { mgDebugCounter[threadIdx.x]=0; }
-#define mgDebug( code, text )                   \
-  { mgDebugCounter[threadIdx.x] += 1; }
-#define mgDebugFinalise()                                               \
-  { if ( blockIdx.x == 0 && threadIdx.x == 0 ) printf( "MGDEBUG: counter=%%f\n", mgDebugCounter[threadIdx.x] ); }
+#if defined __CUDACC__ && defined MGONGPU_NSIGHT_DEBUG /* clang-format off */
+#define mgDebugDeclare() __shared__ float mgDebugCounter[mgOnGpu::ntpbMAX];
+#define mgDebugInitialise() { mgDebugCounter[threadIdx.x] = 0; }
+#define mgDebug( code, text ) { mgDebugCounter[threadIdx.x] += 1; }
+#define mgDebugFinalise() { if ( blockIdx.x == 0 && threadIdx.x == 0 ) printf( "MGDEBUG: counter=%%f\n", mgDebugCounter[threadIdx.x] ); }
 #else
-#define mgDebugDeclare()                        \
-  /*noop*/
-#define mgDebugInitialise()                     \
-  { /*noop*/ }
-#define mgDebug( code, text )                   \
-  { /*noop*/ }
-#define mgDebugFinalise()                       \
-  { /*noop*/ }
-#endif
+#define mgDebugDeclare() /*noop*/
+#define mgDebugInitialise() { /*noop*/ }
+#define mgDebug( code, text ) { /*noop*/ }
+#define mgDebugFinalise() { /*noop*/ }
+#endif /* clang-format on */
 
 // Define empty CUDA declaration specifiers for C++
 #ifndef __CUDACC__
 #define __global__
-//#define __host__
+#define __host__
 #define __device__
+#endif
+
+// For SANITY CHECKS: check that neppR, neppM, neppV... are powers of two (https://stackoverflow.com/a/108360)
+inline constexpr bool
+ispoweroftwo( int n )
+{
+  return ( n > 0 ) && !( n & ( n - 1 ) );
+}
+
+// Compiler version support (#96): require nvcc from CUDA >= 11.2, e.g. to use C++17 (see #333)
+#ifdef __NVCC__
+#if( __CUDACC_VER_MAJOR__ < 11 ) || ( __CUDACC_VER_MAJOR__ == 11 && __CUDACC_VER_MINOR__ < 2 )
+#error Unsupported CUDA version: please use CUDA >= 11.2
+#endif
+#endif
+
+// Compiler version support (#96): require clang >= 11
+#if defined __clang__
+#if( __clang_major__ < 11 )
+#error Unsupported clang version: please use clang >= 11
+#endif
+// Compiler version support (#96): require gcc >= 9.3, e.g. for some OMP issues (see #269)
+// [NB skip this check for the gcc toolchain below clang or icx (TEMPORARY? #355)]
+#elif defined __GNUC__
+#if( __GNUC__ < 9 ) || ( __GNUC__ == 9 && __GNUC_MINOR__ < 3 )
+#error Unsupported gcc version: please gcc >= 9.3
+#endif
 #endif
 
 #endif // MGONGPUCONFIG_H

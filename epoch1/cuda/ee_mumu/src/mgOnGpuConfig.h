@@ -14,7 +14,7 @@
 #endif
 
 // Choose floating point precision
-// If one of these macros has been set from outside with e.g. -DMGONGPU_FPTYPE_FLOAT, nothing happens
+// If one of these macros has been set from outside with e.g. -DMGONGPU_FPTYPE_FLOAT, nothing happens (issue #167)
 #if not defined MGONGPU_FPTYPE_DOUBLE and not defined MGONGPU_FPTYPE_FLOAT
 // Floating point precision (CHOOSE ONLY ONE)
 #define MGONGPU_FPTYPE_DOUBLE 1 // default (~6.8E8)
@@ -23,14 +23,20 @@
 
 // Choose whether to inline all HelAmps functions
 // This optimization can gain almost a factor 4 in C++, similar to -flto (issue #229)
-// By default, do not inline, but allow this macros to be set from outside with e.g. -DMGONGPU_INLINE_HELAMPS
+// By default, do not inline, but allow this macro to be set from outside with e.g. -DMGONGPU_INLINE_HELAMPS
 //#undef MGONGPU_INLINE_HELAMPS // default
 ////#define MGONGPU_INLINE_HELAMPS 1
+
+// Choose whether to hardcode the cIPC/cIPD physics parameters rather than reading them from user cards
+// This optimization can gain 20% in CUDA in eemumu (issue #39)
+// By default, do not hardcode, but allow this macro to be set from outside with e.g. -DMGONGPU_HARDCODE_CIPC
+//#undef MGONGPU_HARDCODE_CIPC // default
+////#define MGONGPU_HARDCODE_CIPC 1
 
 // Complex type in cuda: thrust or cucomplex (CHOOSE ONLY ONE)
 #ifdef __CUDACC__
 #define MGONGPU_CXTYPE_THRUST 1 // default (~6.8E8)
-//#define MGONGPU_CXTYPE_CUCOMPLEX 1 // ~5% slower (6.5E8 against 6.8E8)
+//#define MGONGPU_CXTYPE_CUCOMPLEX 1 // ~5 percent slower (6.5E8 against 6.8E8)
 #endif
 
 // Cuda nsight compute (ncu) debug: add dummy lines to ease SASS program flow navigation
@@ -74,13 +80,16 @@ namespace mgOnGpu
 
   // --- Physics process-specific constants that are best declared at compile time
 
-  const int np4 = 4; // the dimension of 4-momenta (E,px,py,pz)
+  const int np4 = 4; // dimensions of 4-momenta (E,px,py,pz)
 
-  const int npari = 2; // #particles in the initial state (incoming): e+ e-
-  const int nparf = 2; // #particles in the final state (outgoing): mu+ mu-
-  const int npar = npari + nparf; // #particles in total (external): e+ e- -> mu+ mu-
+  const int npari = 2; // #particles in the initial state (incoming): e.g. 2 (e+ e-) for e+ e- -> mu+ mu-
+  const int nparf = 2; // #particles in the final state (outgoing): e.g. 2 (mu+ mu-) for e+ e- -> mu+ mu-
+  const int npar = npari + nparf; // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
 
-  const int ncomb = 16; // #helicity combinations: 16=2(spin up/down for fermions)**4(npar)
+  const int ncomb = 16; // #helicity combinations: e.g. 16 for e+ e- -> mu+ mu- (2**4 = fermion spin up/down ** npar)
+
+  const int nw6 = 6; // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
+  const int nwf = 5; // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
 
   // --- Platform-specific software implementation details
 
@@ -93,44 +102,78 @@ namespace mgOnGpu
   //const int ntpbMAX = 256; // AV Apr2021: why had I set this to 256?
   const int ntpbMAX = 1024; // NB: 512 is ok, but 1024 does fail with "too many resources requested for launch"
 
-  // Vector sizes for AOSOA memory layouts (GPU coalesced memory access, CPU SIMD vectorization)
-  // (these are all best kept as a compile-time constants: see issue #23)
+  // Alignment requirement for using reinterpret_cast with SIMD vectorized code
+  // (using reinterpret_cast with non aligned memory may lead to segmentation faults!)
+#ifndef __CUDACC__
+  constexpr int cppAlign = 64; // alignment requirement for SIMD vectorization (64-byte i.e. 512-bit)
+#endif
 
-  // Number of Events Per Page in the momenta AOSOA memory layout
+  // C++ SIMD vectorization width (this will be used to set neppV)
 #ifdef __CUDACC__
 #undef MGONGPU_CPPSIMD
-  // -----------------------------------------------------------------------------------------
-  // --- GPUs: neppM must be a power of 2 times the number of fptype's in a 32-byte cacheline
-  // --- This is relevant to ensure coalesced access to momenta in global memory
-  // --- Note that neppR is hardcoded and may differ from neppM and neppV on some platforms
-  // -----------------------------------------------------------------------------------------
-  //const int neppM = 64/sizeof(fptype); // 2x 32-byte GPU cache lines: 8 (DOUBLE) or 16 (FLOAT)
-  const int neppM = 32/sizeof(fptype); // (DEFAULT) 32-byte GPU cache line: 4 (DOUBLE) or 8 (FLOAT)
-  //const int neppM = 1;  // *** NB: this is equivalent to AOS ***
-  //const int neppM = 32; // older default
 #else
-  // -----------------------------------------------------------------------------------------
-  // --- CPUs: neppM must be exactly equal to the number of fptype's in a vector register
-  // --- [DEFAULT is 256-width AVX512 aka "512y" on CPUs, 32-byte as GPUs, faster than AVX2]
-  // --- The logic of the code requires the size neppV of fptype_v to be equal to neppM
-  // --- Note that neppR is hardcoded and may differ from neppM and neppV on some platforms
-  // -----------------------------------------------------------------------------------------
 #if defined __AVX512VL__
-#define MGONGPU_CPPSIMD 1
 #ifdef MGONGPU_PVW512
-  const int neppM = 64/sizeof(fptype); // "512z" AVX512 with 512 width (512-bit ie 64-byte): 8 (DOUBLE) or 16 (FLOAT)
+  // "512z" AVX512 with 512 width (512-bit ie 64-byte): 8 (DOUBLE) or 16 (FLOAT)
+#ifdef MGONGPU_FPTYPE_DOUBLE
+#define MGONGPU_CPPSIMD 8
 #else
-  const int neppM = 32/sizeof(fptype); // "512y" AVX512 with 256 width (256-bit ie 32-byte): 4 (DOUBLE) or 8 (FLOAT) [gcc DEFAULT]
+#define MGONGPU_CPPSIMD 16
+#endif
+#else
+  // "512y" AVX512 with 256 width (256-bit ie 32-byte): 4 (DOUBLE) or 8 (FLOAT) [gcc DEFAULT]
+#ifdef MGONGPU_FPTYPE_DOUBLE
+#define MGONGPU_CPPSIMD 4
+#else
+#define MGONGPU_CPPSIMD 8
+#endif
 #endif
 #elif defined __AVX2__
-#define MGONGPU_CPPSIMD 1
-  const int neppM = 32/sizeof(fptype); // "avx2" AVX2 (256-bit ie 32-byte): 4 (DOUBLE) or 8 (FLOAT) [clang DEFAULT]
-#elif defined __SSE4_2__
-#define MGONGPU_CPPSIMD 1
-  const int neppM = 16/sizeof(fptype); // "sse4" SSE4.2 (128-bit ie 16-byte): 2 (DOUBLE) or 4 (FLOAT)
+  // "avx2" AVX2 (256-bit ie 32-byte): 4 (DOUBLE) or 8 (FLOAT) [clang DEFAULT]
+#ifdef MGONGPU_FPTYPE_DOUBLE
+#define MGONGPU_CPPSIMD 4
 #else
+#define MGONGPU_CPPSIMD 8
+#endif
+#elif defined __SSE4_2__
+  // "sse4" SSE4.2 (128-bit ie 16-byte): 2 (DOUBLE) or 4 (FLOAT)
+#ifdef MGONGPU_FPTYPE_DOUBLE
+#define MGONGPU_CPPSIMD 2
+#else
+#define MGONGPU_CPPSIMD 4
+#endif
+#else
+  // "none" i.e. no SIMD (*** NB: this is equivalent to AOS ***)
 #undef MGONGPU_CPPSIMD
-  const int neppM = 1;  // "none" i.e. no SIMD (*** NB: this is equivalent to AOS ***)
+#endif
+#endif
+
+  // Number of Events Per Page in the momenta AOSOA memory layout
+  // (these are all best kept as a compile-time constants: see issue #23)
+#ifdef __CUDACC__
+  // -----------------------------------------------------------------------------------------------
+  // --- GPUs: neppM is best set to a power of 2 times the number of fptype's in a 32-byte cacheline
+  // --- This is relevant to ensure coalesced access to momenta in global memory
+  // --- Note that neppR is hardcoded and may differ from neppM and neppV on some platforms
+  // -----------------------------------------------------------------------------------------------
+  //const int neppM = 64/sizeof(fptype); // 2x 32-byte GPU cache lines (512 bits): 8 (DOUBLE) or 16 (FLOAT)
+  const int neppM = 32/sizeof(fptype); // (DEFAULT) 32-byte GPU cache line (256 bits): 4 (DOUBLE) or 8 (FLOAT)
+  //const int neppM = 1;  // *** NB: this is equivalent to AOS ***
+#else
+  // -----------------------------------------------------------------------------------------------
+  // --- CPUs: neppM is best set equal to the number of fptype's (neppV) in a vector register
+  // --- This is relevant to ensure faster access to momenta from C++ memory cache lines
+  // --- However, neppM is now decoupled from neppV (issue #176) and can be separately hardcoded
+  // --- In practice, neppR, neppM and neppV could now (in principle) all be different
+  // -----------------------------------------------------------------------------------------------
+#ifdef MGONGPU_CPPSIMD
+  const int neppM = MGONGPU_CPPSIMD; // (DEFAULT) neppM=neppV for optimal performance
+  //const int neppM = 64/sizeof(fptype); // maximum CPU vector width (512 bits): 8 (DOUBLE) or 16 (FLOAT)
+  //const int neppM = 32/sizeof(fptype); // lower CPU vector width (256 bits): 4 (DOUBLE) or 8 (FLOAT)
+  //const int neppM = 1; // *** NB: this is equivalent to AOS ***
+  //const int neppM = MGONGPU_CPPSIMD*2; // FOR TESTS
+#else
+  const int neppM = 1; // (DEFAULT) neppM=neppV for optimal performance (NB: this is equivalent to AOS)
 #endif
 #endif
 
