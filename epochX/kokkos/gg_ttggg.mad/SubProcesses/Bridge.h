@@ -218,9 +218,9 @@ namespace mg5amcKokkos
                                             const bool goodHelOnly )
   {
     static constexpr int np4 =  mgOnGpu::np4;
-    static constexpr int nparf = mgOnGpu::nparf;
+    //static constexpr int nparf = mgOnGpu::nparf;
     static constexpr int npar = mgOnGpu::npar;
-    static constexpr int ncomb = mgOnGpu::ncomb;
+    //static constexpr int ncomb = mgOnGpu::ncomb;
 
     // TC: warning that I am assuming incoming momenta from FORTRAN
     // TC: are already in the format [ievt][ipar][i4]
