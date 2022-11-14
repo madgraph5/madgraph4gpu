@@ -304,10 +304,10 @@ index dd709f52c..0304b2356 100644
 +	$(CXX) $(KOKKOSFLAGS) -o $(KOKKOS_BUILDDIR)/g$(PROG)_kokkos $(PROCESS) $(DSIG_kokkos) auto_dsig.o $(MATRIX) $(LIBDIR)/lib$(KOKKOS_BRIDGELIB).a $(LIBDIR)/lib$(KOKKOS_COMMONLIB).a $(LINKLIBS) $(LDFLAGS) $(OPENMP_LDFLAGS) $(BIASDEPENDENCIES) counters.o -lgomp -lgfortran $(LIBFLAGSRPATH) -lstdc++fs
 +
 +intel: $(PROCESS) $(DSIG_kokkos) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(KOKKOS_BUILDDIR)/.kokkoslibs_intel
-+	$(CXX) $(KOKKOSFLAGS) -o $(KOKKOS_BUILDDIR)/g$(PROG)_kokkos $(PROCESS) $(DSIG_kokkos) auto_dsig.o $(MATRIX) $(LIBDIR)/lib$(KOKKOS_BRIDGELIB).a $(LIBDIR)/lib$(KOKKOS_COMMONLIB).a $(LINKLIBS) $(LDFLAGS) $(INTEL_LDFLAGS) $(BIASDEPENDENCIES) counters.o -lgomp -lgfortran $(LIBFLAGSRPATH) -lstdc++fs
++	$(ICPX) $(KOKKOSFLAGS) -o $(KOKKOS_BUILDDIR)/g$(PROG)_kokkos $(PROCESS) $(DSIG_kokkos) auto_dsig.o $(MATRIX) $(LIBDIR)/lib$(KOKKOS_BRIDGELIB).a $(LIBDIR)/lib$(KOKKOS_COMMONLIB).a $(LINKLIBS) $(LDFLAGS) $(INTEL_LDFLAGS) $(BIASDEPENDENCIES) counters.o -lgomp -lgfortran $(LIBFLAGSRPATH) -lstdc++fs
 +
 +hip: $(PROCESS) $(DSIG_kokkos) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(KOKKOS_BUILDDIR)/.kokkoslibs_hip
-+	$(CXX) $(KOKKOSFLAGS) -o $(KOKKOS_BUILDDIR)/g$(PROG)_kokkos $(PROCESS) $(DSIG_kokkos) auto_dsig.o $(MATRIX) $(LIBDIR)/lib$(KOKKOS_BRIDGELIB).a $(LIBDIR)/lib$(KOKKOS_COMMONLIB).a $(LINKLIBS) $(LDFLAGS) $(HIP_LDFLAGS) $(BIASDEPENDENCIES) counters.o -lgomp -lgfortran $(LIBFLAGSRPATH) -lstdc++fs
++	$(HIPCC) $(KOKKOSFLAGS) -o $(KOKKOS_BUILDDIR)/g$(PROG)_kokkos $(PROCESS) $(DSIG_kokkos) auto_dsig.o $(MATRIX) $(LIBDIR)/lib$(KOKKOS_BRIDGELIB).a $(LIBDIR)/lib$(KOKKOS_COMMONLIB).a $(LINKLIBS) $(LDFLAGS) $(HIP_LDFLAGS) $(BIASDEPENDENCIES) counters.o -lgomp -lgfortran $(LIBFLAGSRPATH) -lstdc++fs
 +
 +counters.o: counters.cpp timer.h
 +	$(CXX) -std=c++11 -Wall -Wshadow -Wextra -c $< -o $@

@@ -49,13 +49,13 @@ hip_objects=$(SRCS:.cc=.hip.o)
 
 all: cuda openmp intel hip
 
-cuda: $(cuda_lib)
+cuda: $(LIBDIR)/$(cuda_lib)
 
-openmp: $(openmp_lib)
+openmp: $(LIBDIR)/$(openmp_lib)
 
-intel: $(intel_lib)
+intel: $(LIBDIR)/$(intel_lib)
 
-hip: $(hip_lib)
+hip: $(LIBDIR)/$(hip_lib)
 
 %%.openmp.o : %%.cc %%.h
 	$(CXX) $(OPENMP_CXXFLAGS) -c $< -o $@
