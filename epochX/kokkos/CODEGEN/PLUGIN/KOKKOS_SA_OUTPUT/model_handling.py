@@ -927,10 +927,9 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         #    coup_str += "m_tIPC[%s] = cxmake( m_pars->%s );\n" % (i, coupling[i])
         if len(coupling_indep) > 0:
             for i in range(len(coupling_indep)):
-                coup_str += "  m_hIPC[%s] = cxmake( m_pars->%s );\n" % (i, coupling_indep[i])
-                coup_str += "  Kokkos::deep_copy(m_cIPC,m_hIPC);\n"
+                coup_str += "    m_tIPC[%s] = cxmake( m_pars->%s );\n" % (i, coupling_indep[i])
         else:
-            coup_str = "  //m_tIPC[...] = ... ; // nicoup=0\n"
+            coup_str = "    //m_tIPC[...] = ... ; // nicoup=0\n"
 
         self.number_dependent_couplings = len(coupling) - len(coupling_indep)
         self.number_independent_couplings = len(coupling_indep)
@@ -942,13 +941,15 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         param_str = ""
         if len(params) > 0:
             for i in range(len(self.params2order)):
-                param_str += "  m_hIPD[%s] = (fptype)m_pars->%s;\n" % (i, params[i])
-            param_str += "  Kokkos::deep_copy(m_cIPD,m_hIPD);"
+                param_str += "    m_tIPD[%s] = (fptype)m_pars->%s;\n" % (i, params[i])
         else:
-            parm_str += "  //m_tIPD[...] = ... ; // nparam=0\n"
+            parm_str += "    //m_tIPD[...] = ... ; // nparam=0\n"
 
         replace_dict['assign_coupling'] = coup_str + param_str
+        replace_dict['all_helicities'] = self.get_helicity_matrix(self.matrix_elements[0])
+
         file = self.read_template_file(self.process_definition_template) % replace_dict
+        self.__process_function_definitions__ = file
         return file
 
     # AV - modify export_cpp.OneProcessExporterGPU method (add debug printouts for multichannel #342)
@@ -968,10 +969,10 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
   // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
 template <typename mom_t, typename ipc_t, typename ipd_t>
 KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
-  const mom_t& allmomenta, // input: momenta
+  const mom_t& allmomenta,              // input: momenta
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-  fptype& allNumerators,   // output: multichannel numerators, running_sum_over_helicities
-  fptype& allDenominators, // output: multichannel denominators, running_sum_over_helicities
+  fptype* allNumerators,                // output: multichannel numerators, running_sum_over_helicities
+  fptype* allDenominators,              // output: multichannel denominators, running_sum_over_helicities
   const unsigned int channelId,         // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
 #endif
   const short*  __restrict__ cHel,
@@ -1077,6 +1078,9 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
         #self.edit_processidfile() # AV new file (NB this is Sigma-specific, should not be a symlink to Subprocesses)
         #self.edit_testxxx() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
         # Add symbolic links
+        # NB: symlink of kokkos.mk to makefile is overwritten by madevent makefile if this exists (#480)
+        # NB: this relies on the assumption that kokkos code is generated before madevent code
+        files.ln(pjoin(self.path, 'kokkos.mk'), self.path, 'makefile')
         #files.ln(pjoin(self.path, 'check_sa.cc'), self.path, 'gcheck_sa.cu')
         #files.ln(pjoin(self.path, 'CPPProcess.cc'), self.path, 'gCPPProcess.cu')
         #files.ln(pjoin(self.path, 'CrossSectionKernels.cc'), self.path, 'gCrossSectionKernels.cu')
@@ -1174,12 +1178,13 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
         """Generate final CPPProcess.h"""
         misc.sprint('Entering PLUGIN_OneProcessExporter.write_process_h_file')
         replace_dict = super(PLUGIN_export_cpp.OneProcessExporterGPU, self).write_process_h_file(False)
-        replace_dict2 = super(PLUGIN_export_cpp.OneProcessExporterGPU,self).get_process_function_definitions(write=False)
+        #replace_dict2 = super(PLUGIN_export_cpp.OneProcessExporterGPU,self).get_process_function_definitions(write=False)
         replace_dict['helamps_h'] = "\n#include \"HelAmps_%s.h\"" % self.model_name
 
         # Kokkos puts source code in header and the helicities are set in the process_function_definitions
-        cc_replace_dict = super(PLUGIN_export_cpp.OneProcessExporterGPU, self).write_process_cc_file(False)
-        replace_dict['process_function_definitions'] = cc_replace_dict['process_function_definitions'] 
+        #cc_replace_dict = super(PLUGIN_export_cpp.OneProcessExporterGPU, self).write_process_cc_file(False)
+        #replace_dict['process_function_definitions'] = cc_replace_dict['process_function_definitions'] 
+        replace_dict['process_function_definitions'] = self.__process_function_definitions__
 
         #Set helicities
         replace_dict['all_helicities'] = self.get_helicity_matrix(self.matrix_elements[0])
@@ -1288,7 +1293,7 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
         initProc_lines.append("// Set external particle masses for this matrix element")
         for part in matrix_element.get_external_wavefunctions():
             ###initProc_lines.append("mME.push_back(pars->%s);" % part.get('mass'))
-            initProc_lines.append("  m_masses.push_back( m_pars->%s );" % part.get('mass')) # AV
+            initProc_lines.append("    m_masses.push_back( m_pars->%s );" % part.get('mass')) # AV
         # initProc_lines.append('  Kokkos::deep_copy(cmME,hmME);')
         ###for i, colamp in enumerate(color_amplitudes):
         ###    initProc_lines.append("jamp2[%d] = new double[%d];" % (i, len(colamp))) # AV - this was commented out already
@@ -1299,11 +1304,14 @@ KOKKOS_INLINE_FUNCTION fptype calculate_wavefunctions(
         """Return the Helicity matrix definition lines for this matrix element"""
         ###helicity_line = "static const int helicities[ncomb][nexternal] = {";
         ###helicity_line = "    constexpr short helicities[ncomb][mgOnGpu::npar] = {\n      "; # AV (this is tHel)
-        helicity_line = "template <typename T>\nT helicities[mgOnGpu::ncomb][mgOnGpu::npar] {\n  "; # NSN SYCL needs access to tHel outside CPPProcess
+        #helicity_line = "template <typename T>\nconstexpr T helicities[mgOnGpu::ncomb][mgOnGpu::npar] {\n  "; # NSN SYCL needs access to tHel outside CPPProcess
+        helicity_line = "  "; # NSN SYCL needs access to tHel outside CPPProcess
         helicity_line_list = []
         for helicities in matrix_element.get_helicity_matrix(allow_reverse=False):
-            helicity_line_list.append( "{" + ", ".join(['%d'] * len(helicities)) % tuple(helicities) + "}" ) # AV"
-        return helicity_line + ",\n  ".join(helicity_line_list) + "\n};" # AV
+            #helicity_line_list.append( "{" + ", ".join(['%d'] * len(helicities)) % tuple(helicities) + "}" ) # AV"
+            helicity_line_list.append( "    " + ", ".join(['%d'] * len(helicities)) % tuple(helicities) )
+        #return helicity_line + ",\n  ".join(helicity_line_list) + "\n};" # AV
+        return helicity_line + ",\n  ".join(helicity_line_list)
 
     # AV - overload the export_cpp.OneProcessExporterGPU method (just to add some comments...)
     def get_reset_jamp_lines(self, color_amplitudes):
@@ -1482,7 +1490,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             split_line2 = [ str.lstrip(' ').rstrip(' ') for str in split_line2] # AV
             split_line2.insert(1, '0') # add parameter fmass=0
             line2 = ', '.join(split_line2)
-            text = '#if not defined KOKKOS_ENABLE_CUDA\n      %s\n#else\n      if ( ievt %% 2 == 0 )\n        %s\n      else\n        %s\n#endif\n'
+            text = '#if not defined MGONGPU_TEST_DIVERGENCE\n      %s\n#else\n      if ( ievt %% 2 == 0 )\n        %s\n      else\n        %s\n#endif\n'
             return text % (line, line, line2)
         text = '%s\n'
         return text % line

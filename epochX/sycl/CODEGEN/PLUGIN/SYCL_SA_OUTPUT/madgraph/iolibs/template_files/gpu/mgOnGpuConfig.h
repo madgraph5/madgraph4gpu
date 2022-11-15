@@ -1,6 +1,13 @@
 #ifndef MGONGPUCONFIG_H
 #define MGONGPUCONFIG_H 1
 
+#define MGONGPU_NDCOUP %(number_dependent_couplings)s
+#define MGONGPU_NICOUP %(number_independent_couplings)s
+
+// HARDCODED AT CODE GENERATION TIME: DO NOT MODIFY (#473)
+// There are two different code bases for standalone_sycl (without multichannel) and madevent+sycl (with multichannel)
+%(mgongpu_supports_multichannel)s
+
 // Choose floating point precision
 // If one of these macros has been set from outside with e.g. -DMGONGPU_FPTYPE_FLOAT, nothing happens (issue #167)
 #if not defined MGONGPU_FPTYPE_DOUBLE and not defined MGONGPU_FPTYPE_FLOAT
@@ -11,7 +18,7 @@
 
 // Choose whether to inline all HelAmps functions
 // This optimization can gain almost a factor 4 in C++, similar to -flto (issue #229)
-// By default, do not inline, but allow this macro to be set from outside with e.g. -DMGONGPU_INLINE_HELAMPS
+// By default, do not inline, but allow this macros to be set from outside with e.g. -DMGONGPU_INLINE_HELAMPS
 //#undef MGONGPU_INLINE_HELAMPS // default
 ////#define MGONGPU_INLINE_HELAMPS 1
 
@@ -34,20 +41,20 @@ namespace mgOnGpu
 
   // --- Physics process-specific constants that are best declared at compile time
 
-  const int np4 = 4; // dimensions of 4-momenta (E,px,py,pz)
+  static constexpr int np4 = 4; // dimensions of 4-momenta (E,px,py,pz)
 
-  const int npari = %(nincoming)d; // #particles in the initial state (incoming): e.g. 2 (e+ e-) for e+ e- -> mu+ mu-
-  const int nparf = %(noutcoming)d; // #particles in the final state (outgoing): e.g. 2 (mu+ mu-) for e+ e- -> mu+ mu-
-  const int npar = npari + nparf; // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
+  static constexpr int npari = %(nincoming)d; // #particles in the initial state (incoming): e.g. 2 (e+ e-) for e+ e- -> mu+ mu-
+  static constexpr int nparf = %(noutcoming)d; // #particles in the final state (outgoing): e.g. 2 (mu+ mu-) for e+ e- -> mu+ mu-
+  static constexpr int npar = npari + nparf; // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
 
-  const int ncomb = %(nbhel)d; // #helicity combinations: e.g. 16 for e+ e- -> mu+ mu- (2**4 = fermion spin up/down ** npar)
+  static constexpr int ncomb = %(nbhel)d; // #helicity combinations: e.g. 16 for e+ e- -> mu+ mu- (2**4 = fermion spin up/down ** npar)
 
-  const int nw6 = %(wavefuncsize)d; // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
-  const int nwf = %(nwavefunc)d; // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
+  static constexpr int nw6 = %(wavefuncsize)d; // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
+  static constexpr int nwf = %(nwavefunc)d; // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
   
-  const int ncouplings = %(ncouplings)d;
-  const int ncouplingstimes2 = %(ncouplingstimes2)d;
-  const int nparams = %(nparams)d;
+  static constexpr int ncouplings = %(ncouplings)d;
+  static constexpr int ncouplingstimes2 = %(ncouplingstimes2)d;
+  static constexpr int nparams = %(nparams)d;
 
   // --- Platform-specific software implementation details
 
@@ -59,9 +66,9 @@ namespace mgOnGpu
   // Maximum number of threads per block
   //const int ntpbMAX = 256; // AV Apr2021: why had I set this to 256?
 #ifdef MGONGPU_NTPBMAX
-  const int ntpbMAX = MGONGPU_NTPBMAX;
+  static constexpr int ntpbMAX = MGONGPU_NTPBMAX;
 #else
-  const int ntpbMAX = 1024; // NB: 512 is ok, but 1024 does fail with "too many resources requested for launch"
+  static constexpr int ntpbMAX = 1024; // NB: 512 is ok, but 1024 does fail with "too many resources requested for launch"
 #endif
 
   // -----------------------------------------------------------------------------------------------
@@ -76,6 +83,13 @@ namespace mgOnGpu
   static constexpr int neppM = 32/sizeof(fptype); // (DEFAULT) 32-byte GPU cache line (256 bits): 4 (DOUBLE) or 8 (FLOAT)
   //static constexpr int neppM = 1;  // *** NB: this is equivalent to AOS *** (slower: 1.03E9 instead of 1.11E9 in eemumu)
 #endif
+
+  // Number of Events Per Page in the random number AOSOA memory layout
+  // *** NB Different values of neppR lead to different physics results: the ***
+  // *** same 1d array is generated, but it is interpreted in different ways ***
+  static constexpr int neppR = 8; // HARDCODED TO GIVE ALWAYS THE SAME PHYSICS RESULTS!
+  //const int neppR = 1; // AOS (tests of sectors/requests)
+
 }
 
 // Expose typedefs and operators outside the namespace
@@ -103,7 +117,5 @@ using mgOnGpu::fptype;
   { /*noop*/ }
 #endif
 
-// For SANITY CHECKS: check that neppR, neppM, neppV... are powers of two (https://stackoverflow.com/a/108360)
-inline constexpr bool ispoweroftwo( int n ){ return ( n > 0 ) && !( n & ( n - 1 ) ); }
 
 #endif // MGONGPUCONFIG_H

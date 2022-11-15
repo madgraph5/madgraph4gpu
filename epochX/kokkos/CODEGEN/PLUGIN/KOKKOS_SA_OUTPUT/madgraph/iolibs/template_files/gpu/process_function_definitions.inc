@@ -6,36 +6,52 @@
 %(all_sigmaKin)s
 //--------------------------------------------------------------------------
 
-CPPProcess::CPPProcess(
-    bool verbose, bool debug): 
-      m_verbose(verbose),m_debug(debug),
-      m_cIPC("cIPC",independentCouplings::nicoup), m_hIPC("hIPC",independentCouplings::nicoup), 
-      m_cIPD("cIPD",mgOnGpu::nparams), m_hIPD("hIPD",mgOnGpu::nparams)
-{}
+CPPProcess::CPPProcess( bool verbose, bool debug ):
+        m_verbose(verbose),
+        m_debug(debug)
+        {
+}
 
 //--------------------------------------------------------------------------
 
 // Initialize process (with parameters read from user cards)
-void CPPProcess::initProc( const std::string& param_card_name )
-{
-  // Instantiate the model class and set parameters that stay fixed during run
-  m_pars = Parameters_%(model_name)s::getInstance();
-  SLHAReader slha( param_card_name, m_verbose );
-  m_pars->setIndependentParameters( slha );
-  m_pars->setIndependentCouplings();
-  //m_pars->setDependentParameters();
-  //m_pars->setDependentCouplings();
-  if ( m_verbose )
-  {
-    m_pars->printIndependentParameters();
-    m_pars->printIndependentCouplings();
-    //m_pars->printDependentParameters();
-    //m_pars->printDependentCouplings();
-  }
-  %(initProc_lines)s
-  // Read physics parameters like masses and couplings from user configuration files (static: initialize once)
+void CPPProcess::initProc( const std::string& param_card_name ) {
+    // Instantiate the model class and set parameters that stay fixed during run
+    m_pars = Parameters_%(model_name)s::getInstance();
+    SLHAReader slha( param_card_name, m_verbose );
+    m_pars->setIndependentParameters( slha );
+    m_pars->setIndependentCouplings();
+    //m_pars->setDependentParameters();
+    //m_pars->setDependentCouplings();
+    if ( m_verbose ) {
+        m_pars->printIndependentParameters();
+        m_pars->printIndependentCouplings();
+        //m_pars->printDependentParameters();
+        //m_pars->printDependentCouplings();
+    }
+    %(initProc_lines)s
+    // Read physics parameters like masses and couplings from user configuration files (static: initialize once)
 %(assign_coupling)s
 
+}
+
+// Define pointer accessors
+cxtype* CPPProcess::get_tIPC_ptr() {return m_tIPC;}
+const cxtype* CPPProcess::get_tIPC_ptr() const {return m_tIPC;}
+
+fptype* CPPProcess::get_tIPD_ptr() {return m_tIPD;}
+const fptype* CPPProcess::get_tIPD_ptr() const {return m_tIPD;}
+
+bool kokkos_initialize() {
+    //FIXME wrapper to Kokkos::initialize() here, might need modifications on certain platforms
+    //// set Kokkos args
+    //Kokkos::InitArguments args;
+    ////args.device_id = 0;
+
+    //// initialize Kokkos
+    //Kokkos::initialize(args); 
+    Kokkos::initialize();
+    return true;
 }
 
 //--------------------------------------------------------------------------
@@ -60,7 +76,11 @@ void sigmaKin_setup(
     const int ievt = team_member.league_rank() * team_member.team_size() + team_member.team_rank();
 
     // Load helicities into local (private) memory
-    const auto cHel = helicities<short>;
+    //FIXME template variable does not work on NVIDIA devices
+    //auto cHel = helicities<short>;
+    constexpr short cHel[] {
+%(all_helicities)s
+    };
     cxtype cIPC[dependentCouplings::ndcoup + independentCouplings::nicoup];
 
 #if MGONGPU_NDCOUP > 0
@@ -69,34 +89,42 @@ void sigmaKin_setup(
 
 #if MGONGPU_NICOUP > 0
     for (size_t i = 0; i < independentCouplings::nicoup; i++) {
-        cIPC[dependentCouplings::ndcoup + i] = indep_couplings[i];
+        cIPC[dependentCouplings::ndcoup + i] = indep_couplings(i);
     }
 #endif
 
 
     auto local_mom = Kokkos::subview(momenta,ievt,Kokkos::ALL,Kokkos::ALL);
-    for (int ihel = 0;ihel < mgOnGpu::ncomb;++ihel)
+    for (int ihel = 0; ihel < mgOnGpu::ncomb; ihel++)
     {
-      const auto local_cHel = cHel[ihel];
-      auto allMEs = calculate_wavefunctions(local_mom, local_cHel, cIPC, cIPD);
+      #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+          constexpr unsigned int channelId = 0; // disable single-diagram channel enhancement
+          fptype all_numerators = 0.0;
+          fptype all_denominators = 0.0;
+          auto allMEs = calculate_wavefunctions(local_mom, &all_numerators, &all_denominators, channelId, cHel + ihel*mgOnGpu::npar, cIPC, cIPD);
+      #else
+          auto allMEs = calculate_wavefunctions(local_mom, cHel + ihel*mgOnGpu::npar, cIPC, cIPD);
+      #endif
+
       if (allMEs != 0)
       {
         isGoodHel(ihel) = true;
       }
     }
   });
+  Kokkos::fence();
 
   Kokkos::parallel_for(__func__,Kokkos::RangePolicy<Kokkos::DefaultExecutionSpace>(0,1),
-  KOKKOS_LAMBDA(const int& i){
-    for(int ihel=0;ihel < mgOnGpu::ncomb;++ihel){
-
-      if(isGoodHel(ihel)){
-        iGoodHel(nGoodHel(0)) = ihel;
-        nGoodHel(0)++;
+  KOKKOS_LAMBDA(const int& i) {
+      nGoodHel(0) = 0;
+      for(int ihel=0; ihel < mgOnGpu::ncomb; ihel++) {
+          if(isGoodHel(ihel)) {
+              iGoodHel(nGoodHel(0)) = ihel;
+              nGoodHel(0)++;
+          }
       }
-
-    }
   });
+  Kokkos::fence();
 }
 
 
@@ -131,7 +159,11 @@ void sigmaKin(
     constexpr int denominators = %(den_factors)s; // FIXME: assume process.nprocesses == 1 for the moment (eventually denominators[nprocesses]?)
 
     // Load helicities into local (private) memory
-    const auto cHel = helicities<short>;
+    //FIXME template variable does not work on NVIDIA devices
+    //auto cHel = helicities<short>;
+    constexpr short cHel[] {
+%(all_helicities)s
+    };
     cxtype cIPC[dependentCouplings::ndcoup + independentCouplings::nicoup];
 
 #if MGONGPU_NDCOUP > 0
@@ -140,7 +172,7 @@ void sigmaKin(
 
 #if MGONGPU_NICOUP > 0
     for (size_t i = 0; i < independentCouplings::nicoup; i++) {
-        cIPC[dependentCouplings::ndcoup + i] = indep_couplings[i];
+        cIPC[dependentCouplings::ndcoup + i] = indep_couplings(i);
     }
 #endif
 
@@ -154,13 +186,12 @@ void sigmaKin(
     // (in both CUDA and C++, using precomputed good helicities)
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
     auto local_mom = Kokkos::subview(momenta,ievt,Kokkos::ALL,Kokkos::ALL);
-    for (int ighel = 0;ighel < nGoodHel(0);++ighel)
-    {
-      auto local_cHel = cHel[iGoodHel(ighel)];
+    for (size_t ighel = 0; ighel < nGoodHel(0); ighel++) {
+        const size_t ihel = iGoodHel[ighel];
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      allMEs[ievt] += calculate_wavefunctions(local_mom, &allNumerators, &allDenominators, local_cHel, cIPC, cIPD);
+      allMEs[ievt] += calculate_wavefunctions(local_mom, &allNumerators, &allDenominators, channelId, cHel + ihel*mgOnGpu::npar, cIPC, cIPD);
 #else
-      allMEs[ievt] += calculate_wavefunctions(local_mom, local_cHel, cIPC, cIPD);
+      allMEs[ievt] += calculate_wavefunctions(local_mom, cHel + ihel*mgOnGpu::npar, cIPC, cIPD);
 #endif
     }
     // PART 2 - FINALISATION (after calculate_wavefunctions)
@@ -175,6 +206,7 @@ void sigmaKin(
     allMEs[ievt] /= (fptype)denominators;
 
   });// end parallel for
+  Kokkos::fence();
 
 }
 

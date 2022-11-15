@@ -24,7 +24,7 @@
     // PART 1 - HELICITY LOOP: CALCULATE WAVEFUNCTIONS
     // (in both CUDA and C++, using precomputed good helicities)
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-    for (int ighel = 0; ighel < nGoodHel(0);++ighel)
+    for (int ighel = 0; ighel < nGoodHel(0); ighel++)
     {
       auto local_cHel = Kokkos::subview(cHel,iGoodHel(ighel),Kokkos::ALL);
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
