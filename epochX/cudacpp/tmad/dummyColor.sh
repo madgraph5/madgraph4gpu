@@ -16,8 +16,8 @@ fi
 
 cat ${infile} | awk \
   'BEGIN{line=1000; npar=0}
-   {if ($1=="<event>"){line=0; print $0} 
-    else {line=line+1; 
+   {if ($1=="<event>"){line=0; print $0}
+    else {line=line+1;
           if (line==1){npar=$1; print $0}
           else if (line<=1+npar){split("AAA"$0,a,FS,seps); # see https://stackoverflow.com/a/40456663 (add AAA to keep leading whitespaces)
                                  a[6]=sprintf("%"length($5)"d",0); # 1st color is field 5 (but a[6] because of AAA)

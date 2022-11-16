@@ -173,7 +173,6 @@ c**************************************************************************
       implicit none
       include 'nexternal.inc'
       include 'maxamps.inc'
-      include 'vector.inc'
       include 'cluster.inc'
       include 'message.inc'
       integer ignum, idij, iproc, i
@@ -333,7 +332,6 @@ c**************************************************************************
       include 'genps.inc'
       include 'nexternal.inc'
       include 'maxamps.inc'
-      include 'vector.inc'
       include 'cluster.inc'
       include 'message.inc'
 C $B$ IFOREST $B$ !this is a tag for MadWeight
@@ -444,7 +442,6 @@ c**************************************************************************
       implicit none
       include 'nexternal.inc'
       include 'maxamps.inc'
-      include 'vector.inc'
       include 'cluster.inc'
       include 'message.inc'
       include 'genps.inc'
@@ -529,7 +526,6 @@ c**************************************************************************
       include 'run.inc'
       include 'nexternal.inc'
       include 'maxamps.inc'
-      include 'vector.inc'
       include 'cluster.inc'
       include 'message.inc'
 

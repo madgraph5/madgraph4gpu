@@ -8,6 +8,7 @@ googletest:
 googletest/build: googletest
 	mkdir -p $@
 	cd googletest/build && cmake -DBUILD_GMOCK=OFF ../
+#	cd googletest/build && cmake -DBUILD_GMOCK=OFF -DBUILD_SHARED_LIBS=ON ../ # for nvc++ #531
 
 googletest/build/lib/libgtest.a: googletest/build
 	$(MAKE) -C googletest/build
