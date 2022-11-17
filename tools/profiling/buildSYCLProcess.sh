@@ -2,31 +2,31 @@
 
 helpFunction()
 {
-   echo ""
-   echo "Usage: $0 -n gg_ttgg -b 1024 -t 128 -i 10"
-   echo -e "\t-n Name of the physics process being built and run"
-   echo -e "\t-b Blocks per grid"
-   echo -e "\t-t Threads per block"
-   echo -e "\t-i Iterations"
-   exit 1 # Exit script after printing help
+    echo ""
+    echo "Usage: $0 -n gg_ttgg -b 1024 -t 128 -i 10"
+    echo -e "\t-n Name of the physics process being built and run"
+    echo -e "\t-b Blocks per grid"
+    echo -e "\t-t Threads per block"
+    echo -e "\t-i Iterations"
+    exit 1 # Exit script after printing help
 }
 
 while getopts "n:b:t:i:" opt
 do
-   case "$opt" in
-      n ) MG_PROC="$OPTARG" ;; #process to target
-      b ) blocksPerGrid="$OPTARG" ;;
-      t ) threadsPerBlock="$OPTARG" ;;
-      i ) iterations="$OPTARG" ;;
-      ? ) helpFunction ;; # Print helpFunction in case parameter is non-existent
-   esac
+    case "$opt" in
+        n ) MG_PROC="$OPTARG" ;; #process to target
+        b ) blocksPerGrid="$OPTARG" ;;
+        t ) threadsPerBlock="$OPTARG" ;;
+        i ) iterations="$OPTARG" ;;
+        ? ) helpFunction ;; # Print helpFunction in case parameter is non-existent
+    esac
 done
 
 # Print helpFunction in case parameters are empty
 if [ -z "${MG_PROC}" ] || [ -z "${blocksPerGrid}" ] || [ -z "${threadsPerBlock}" ] || [ -z "${iterations}" ]
 then
-   echo "Some or all of the parameters are empty";
-   helpFunction
+    echo "Some or all of the parameters are empty";
+    helpFunction
 fi
 
 # Begin script in case all parameters are correct
