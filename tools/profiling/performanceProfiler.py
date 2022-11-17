@@ -13,7 +13,7 @@ mgProcesses = ["ee_mumu", "gg_tt", "gg_ttg", "gg_ttgg", "gg_ttggg"]
 
 doublePrecisionConstant = 2560
 iterations = 10
-threadsPerBlock = [32, 64, 128, 256]
+threadsPerBlock = [128, 256]
 blocksPerGrid = [16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384]
 
 # Parser
