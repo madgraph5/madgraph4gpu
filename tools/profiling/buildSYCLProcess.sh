@@ -31,13 +31,24 @@ fi
 
 # Begin script in case all parameters are correct
 
-# Set user/SYCL-flags variables
+##################################################################
+
+# Set variables for later use
+
+# Assumes that this is run from profiling directory in the repo
 prefix=$(pwd)
+
 #export DPCPP_HOME=/p/project/prpb109/sycl_workspace
+export USEBUILDDIR=1
+export NTPBMAX=1024
+export CXX=/cvmfs/projects.cern.ch/intelsw/oneAPI/linux/x86_64/2022/compiler/2022.2.0/linux/bin/dpcpp
 export CUDA_PATH=/usr/local/cuda-11.6
 export SYCLFLAGS="-fsycl -fsycl-targets=nvptx64-nvidia-cuda -Xsycl-target-backend '--cuda-gpu-arch=sm_70' -fgpu-rdc --cuda-path=$CUDA_PATH"
-export NAME_PREFIX="sycl_v100_cuda11.6_gcc11.3"
 export WORKSPACE=$prefix/workspace_mg4gpu
+export NAME_PREFIX="sycl_v100s_cuda_11.6.2_gcc_11.3"
+
+# If unknown set at the run step after running LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MG_LIBS $MG_EXE --param_card $MG5AMC_CARD_PATH/param_card.dat --device_info 1024 128 10
+export DEVICE_ID=0
 
 # Finds correct subprocess
 case $MG_PROC in
@@ -47,13 +58,6 @@ case $MG_PROC in
     gg_ttgg ) export MG_SUBPROC="P1_Sigma_sm_gg_ttxgg" ;;
     gg_ttggg ) export MG_SUBPROC="P1_Sigma_sm_gg_ttxggg" ;;
 esac
-
-export DEVICE_ID=0 #if unknown set at the run step after running LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MG_LIBS $MG_EXE --param_card $MG5AMC_CARD_PATH/param_card.dat --device_info 1024 128 10
-
-# Set up compiler and compile options
-export USEBUILDDIR=1
-export NTPBMAX=1024
-export CXX=/cvmfs/projects.cern.ch/intelsw/oneAPI/linux/x86_64/2022/compiler/2022.2.0/linux/bin/dpcpp
 
 mkdir -p $WORKSPACE/mg4gpu/lib
 mkdir -p $WORKSPACE/mg4gpu/bin

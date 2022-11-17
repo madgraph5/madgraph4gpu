@@ -23,7 +23,6 @@ do
 done
 
 # Print helpFunction in case parameters are empty
-
 if [ -z "${MG_PROC}" ] || [ -z "${blocksPerGrid}" ] || [ -z "${threadsPerBlock}" ] || [ -z "${iterations}" ]
 then
    echo "Some or all of the parameters are empty";
@@ -34,32 +33,25 @@ fi
 
 ##################################################################
 
-# Set user specific variables
+# Set variables for later use
 
 # Assumes that this is run from profiling directory in the repo
 prefix=$(pwd)
 
-export CUDA_HOME=/usr/local/cuda-11.6/
-export FC=`which gfortran`
-
-# Set up compiler and compile options and makes workspace
-
 export USEBUILDDIR=1
 export NTPBMAX=1024
 export MG_EXE="./gcheck.exe"
+export CUDA_HOME=/usr/local/cuda-11.6/
+export FC=`which gfortran`
 export WORKSPACE=$prefix/workspace_mg4gpu
-export NAME_PREFIX="cudacpp_v100s_cuda_11.6"
+export NAME_PREFIX="cudacpp_v100s_cuda_11.6.2_gcc_11.3"
+
+# Sets CUDA in PATH
+export PATH=$CUDA_HOME:$PATH
 
 mkdir $WORKSPACE
 
-##################################################################
-
-# Sets CUDA in PATH
-
-export PATH=$CUDA_HOME:$PATH
-
 # Finds correct subprocess
-
 case $MG_PROC in
     ee_mumu ) export MG_SUBPROC="P1_Sigma_sm_epem_mupmum" ;;
     ee_mumu.sa ) export MG_SUBPROC="P1_Sigma_sm_epem_mupmum" ;;
