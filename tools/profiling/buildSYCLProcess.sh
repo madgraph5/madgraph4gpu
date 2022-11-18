@@ -62,6 +62,10 @@ esac
 mkdir -p $WORKSPACE/mg4gpu/lib
 mkdir -p $WORKSPACE/mg4gpu/bin
 
+mkdir -p $WORKSPACE/$(date +"%y-%m-%d")_${NAME_PREFIX}
+
+export REPORT_FOLDER=$WORKSPACE/$(date +"%y-%m-%d")_${NAME_PREFIX}
+
 export MG4GPU_LIB=$WORKSPACE/mg4gpu/lib
 export MG4GPU_BIN=$WORKSPACE/mg4gpu/bin
 
@@ -79,8 +83,8 @@ export MG5AMC_CARD_PATH=$MG_PROC_DIR/Cards
 # Build executable
 cd $MG_SP_DIR
 make
-mv ../../lib/build.d_inl0/ $MG_LIBS_DIR #2>/dev/null; true
-mv build.d_inl0/ $MG_EXE_DIR #2>/dev/null; true
+cp ../../lib/build.d_inl0/ $MG_LIBS_DIR #2>/dev/null; true
+cp build.d_inl0/ $MG_EXE_DIR #2>/dev/null; true
 
 # Run executable
 cd $WORKSPACE
@@ -89,7 +93,7 @@ cd $WORKSPACE
 #LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MG_LIBS $MG_EXE --param_card $MG5AMC_CARD_PATH/param_card.dat --device_info 32 32 10
 
 # Add MG Libs to linker library path and run the executable
-LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MG_LIBS $MG_EXE -j --json_file $WORKSPACE/test_${NAME_PREFIX}_${MG_PROC}_${blocksPerGrid}_${threadsPerBlock}_${iterations}.json --param_card $MG5AMC_CARD_PATH /param_card.dat --device_id $DEVICE_ID $blocksPerGrid $threadsPerBlock $iterations
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MG_LIBS $MG_EXE -j --json_file $REPORT_FOLDER/test_${NAME_PREFIX}_${MG_PROC}_${blocksPerGrid}_${threadsPerBlock}_${iterations}.json --param_card $MG5AMC_CARD_PATH/param_card.dat --device_id $DEVICE_ID $blocksPerGrid $threadsPerBlock $iterations
 
 # View output
-#nano $WORKSPACE/test_${NAME_PREFIX}_${MG_PROC}_${MG_SUBPROC}_${blocksPerGrid}_${threadsPerBlock}_${iterations}.json-+
+#nano $REPORT_FOLDER/test_${NAME_PREFIX}_${MG_PROC}_${blocksPerGrid}_${threadsPerBlock}_${iterations}.json-+

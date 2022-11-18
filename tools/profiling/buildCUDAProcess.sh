@@ -51,6 +51,10 @@ export PATH=$CUDA_HOME:$PATH
 
 mkdir $WORKSPACE
 
+mkdir -p $WORKSPACE/$(date +"%y-%m-%d")_${NAME_PREFIX}
+
+export REPORT_FOLDER=$WORKSPACE/$(date +"%y-%m-%d")_${NAME_PREFIX}
+
 # Finds correct subprocess
 case $MG_PROC in
     ee_mumu ) export MG_SUBPROC="P1_Sigma_sm_epem_mupmum" ;;
@@ -81,4 +85,4 @@ mkdir -p perf/data/
 $MG_EXE -j $blocksPerGrid $threadsPerBlock $iterations
 
 cd perf/data/
-mv 0-perf-test-run0.json ${WORKSPACE}/test_${NAME_PREFIX}_${MG_PROC}_${blocksPerGrid}_${threadsPerBlock}_${iterations}.json
+mv 0-perf-test-run0.json ${REPORT_FOLDER}/test_${NAME_PREFIX}_${MG_PROC}_${blocksPerGrid}_${threadsPerBlock}_${iterations}.json
