@@ -94,8 +94,10 @@ done
 for file in couplings.f couplings1.f couplings2.f; do cat ${file} | sed "s|INCLUDE 'coupl.inc'|include 'vector.inc'\n      include 'coupl.inc'|" > ${file}.new; \mv ${file}.new ${file}; done
 cd - > /dev/null
 cd ${dir}/SubProcesses > /dev/null
-echo "c NB vector.inc (defining nb_page_max) must be included before clusters.inc (#458)" > cluster.inc.new
-cat cluster.inc | grep -v "      include 'vector.inc'" | sed "s/nb_page/nb_page_max/g" >> cluster.inc.new
+###echo "c NB vector.inc (defining nb_page_max) must be included before cluster.inc (#458)" > cluster.inc.new
+###cat cluster.inc | grep -v "      include 'vector.inc'" | sed "s/nb_page/nb_page_max/g" >> cluster.inc.new
+echo "c NB vector.inc (defining nb_page_max) is NOT needed any longer before cluster.inc (#458, #539)" > cluster.inc.new
+cat cluster.inc | grep -v "      include 'vector.inc'" >> cluster.inc.new
 \mv cluster.inc.new cluster.inc
 cd - > /dev/null
 for p1dir in ${dir}/SubProcesses/P1_*; do

@@ -159,7 +159,7 @@ C     Continue only if IMODE is 0, 4 or 5
       ENDIF
 
       CHANNEL = SUBDIAG(1)
-      CALL SMATRIX1(P1,0,CHANNEL,DSIGUU,JAMP2(0,1),1)
+      CALL SMATRIX1(P1,0D0,CHANNEL,DSIGUU,JAMP2(0,1),1)
 
       IF (IMODE.EQ.5) THEN
         IF (DSIGUU.LT.1D199) THEN
@@ -371,6 +371,14 @@ C       Do not need those three here do I?
 C       CM_RAP = ALL_CM_RAP(IVEC)
         Q2FACT(:) = ALL_Q2FACT(:, IVEC)
 
+C       Select a flavor combination (need to do here for right sign)
+        CALL RANMAR(R)
+        IPSEL=0
+        DO WHILE (R.GE.0D0 .AND. IPSEL.LT.IPROC)
+          IPSEL=IPSEL+1
+          R=R-DABS(ALL_PD(IPSEL,IVEC))/ALL_PD(0,IVEC)
+        ENDDO
+
         IF(FRAME_ID.NE.6)THEN
           CALL BOOST_TO_FRAME(ALL_PP(0,1,IVEC), FRAME_ID, P_MULTI(0,1
      $     ,IVEC))
@@ -401,13 +409,6 @@ C     enddo
           ENDIF
           RETURN
         ENDIF
-C       Select a flavor combination (need to do here for right sign)
-        CALL RANMAR(R)
-        IPSEL=0
-        DO WHILE (R.GE.0D0 .AND. IPSEL.LT.IPROC)
-          IPSEL=IPSEL+1
-          R=R-DABS(ALL_PD(IPSEL,IVEC))/ALL_PD(0,IVEC)
-        ENDDO
 
         XBK(:) = ALL_XBK(:,IVEC)
 C       CM_RAP = ALL_CM_RAP(IVEC)
@@ -418,7 +419,7 @@ C       CM_RAP = ALL_CM_RAP(IVEC)
         ELSE
           P1 = ALL_PP(:,:,IVEC)
         ENDIF
-        CALL RESTORE_CL_VAL_TO(IVEC)
+C       call restore_cl_val_to(ivec)
         DSIGUU=DSIGUU*REWGT(P1)
 
 C       Apply the bias weight specified in the run card (default is
