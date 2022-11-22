@@ -69,7 +69,7 @@ export REPORT_FOLDER=$WORKSPACE/$(date +"%y-%m-%d")_${NAME_PREFIX}
 export MG4GPU_LIB=$WORKSPACE/mg4gpu/lib
 export MG4GPU_BIN=$WORKSPACE/mg4gpu/bin
 
-export MG_PROC_DIR=$prefix/madgraph4gpu/epochX/sycl/$MG_PROC
+export MG_PROC_DIR=$prefix/../../epochX/sycl/$MG_PROC
 export MG_SP_DIR=$MG_PROC_DIR/SubProcesses/$MG_SUBPROC
 
 export MG_LIBS_DIR="${MG4GPU_LIB}/build_${MG_PROC}_${NAME_PREFIX}"
