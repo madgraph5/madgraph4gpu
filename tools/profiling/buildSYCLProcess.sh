@@ -41,7 +41,7 @@ prefix=$(pwd)
 #export DPCPP_HOME=/p/project/prpb109/sycl_workspace
 export USEBUILDDIR=1
 export NTPBMAX=1024
-export CXX=/cvmfs/projects.cern.ch/intelsw/oneAPI/linux/x86_64/2022/compiler/2022.2.0/linux/bin/dpcpp
+export CXX=/afs/cern.ch/work/j/jteig/sycl_workspace/llvm/build/bin/clang++
 export CUDA_PATH=/usr/local/cuda-11.6
 export SYCLFLAGS="-fsycl -fsycl-targets=nvptx64-nvidia-cuda -Xsycl-target-backend '--cuda-gpu-arch=sm_70' -fgpu-rdc --cuda-path=$CUDA_PATH"
 export WORKSPACE=$prefix/workspace_mg4gpu
@@ -62,7 +62,7 @@ esac
 mkdir -p $WORKSPACE/mg4gpu/lib
 mkdir -p $WORKSPACE/mg4gpu/bin
 
-mkdir -p $WORKSPACE/$(date +"%y-%m-%d")_${NAME_PREFIX}
+mkdir $WORKSPACE/$(date +"%y-%m-%d")_${NAME_PREFIX}
 
 export REPORT_FOLDER=$WORKSPACE/$(date +"%y-%m-%d")_${NAME_PREFIX}
 
@@ -72,19 +72,19 @@ export MG4GPU_BIN=$WORKSPACE/mg4gpu/bin
 export MG_PROC_DIR=$prefix/madgraph4gpu/epochX/sycl/$MG_PROC
 export MG_SP_DIR=$MG_PROC_DIR/SubProcesses/$MG_SUBPROC
 
-export MG_LIBS_DIR="${MG4GPU_LIB}/build_${MG_PROC}_${MG_SUBPROC}_${NAME_PREFIX}"
+export MG_LIBS_DIR="${MG4GPU_LIB}/build_${MG_PROC}_${NAME_PREFIX}"
 # export MG_LIBS="$DPCPP_HOME/llvm/build/lib:$MG_LIBS_DIR"
 export MG_LIBS=$MG_LIBS_DIR
 
-export MG_EXE_DIR="${MG4GPU_BIN}/build_${MG_PROC}_${MG_SUBPROC}_${NAME_PREFIX}"
+export MG_EXE_DIR="${MG4GPU_BIN}/build_${MG_PROC}_${NAME_PREFIX}"
 export MG_EXE="$MG_EXE_DIR/check.exe"
 export MG5AMC_CARD_PATH=$MG_PROC_DIR/Cards
 
 # Build executable
 cd $MG_SP_DIR
 make
-cp ../../lib/build.d_inl0/ $MG_LIBS_DIR #2>/dev/null; true
-cp build.d_inl0/ $MG_EXE_DIR #2>/dev/null; true
+mv ../../lib/build.d_inl0/ $MG_LIBS_DIR #2>/dev/null; true
+mv build.d_inl0/ $MG_EXE_DIR #2>/dev/null; true
 
 # Run executable
 cd $WORKSPACE
