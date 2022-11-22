@@ -1,0 +1,39 @@
+{
+  "run_info": {
+    "copies": 4,
+    "threads_per_copy": 1,
+    "events_per_thread": 800,
+    "extra_arguments": "-ggttgg -dbl -flt -inl0 --gpu -p16,32,1"
+  },
+  "report": {
+    "wl-scores": {
+      "ggttgg-sa-cuda-d-inl0": 0.095642,
+      "ggttgg-sa-cuda-f-inl0": 0.130608
+    },
+    "wl-stats": {
+      "ggttgg-sa-cuda-d-inl0": {
+        "avg": 0.023911,
+        "median": 0.022931,
+        "min": 0.021317,
+        "max": 0.028463,
+        "count": 4
+      },
+      "ggttgg-sa-cuda-f-inl0": {
+        "avg": 0.032652,
+        "median": 0.03145,
+        "min": 0.030499,
+        "max": 0.037209,
+        "count": 4
+      }
+    },
+    "log": "ok"
+  },
+  "app": {
+    "version": "v0.6",
+    "description": "Madgraph5_aMCatNLO madgraph4gpu benchmark (2022)",
+    "cvmfs_checksum": "70fb8b581609b9e1f7dde9c41d8cd73f",
+    "bmkdata_checksum": "d4c9152ed732e012ca54b6518bf3de93",
+    "bmk_checksum": "b6d583102d66a48190c5b38bfef4b58a",
+    "containment": "singularity"
+  }
+}

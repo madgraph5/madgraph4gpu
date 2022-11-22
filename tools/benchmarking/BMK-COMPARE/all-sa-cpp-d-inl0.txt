@@ -1,0 +1,112 @@
+Loading runs in RunSetDir BMK-itscrd70 for events -e010
+Loading Run BMK-itscrd70/sa-cpp-j001-t001-e010/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-itscrd70/sa-cpp-j002-t001-e010/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-itscrd70/sa-cpp-j004-t001-e010/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-itscrd70/sa-cpp-j006-t001-e010/mg5amc-madgraph4gpu-2022_summary.json
+Loading runs in RunSetDir BMK-pmpe04 for events -e010
+Loading Run BMK-pmpe04/sa-cpp-j001-t001-e010/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-pmpe04/sa-cpp-j002-t001-e010/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-pmpe04/sa-cpp-j004-t001-e010/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-pmpe04/sa-cpp-j008-t001-e010/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-pmpe04/sa-cpp-j016-t001-e010/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-pmpe04/sa-cpp-j032-t001-e010/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-pmpe04/sa-cpp-j048-t001-e010/mg5amc-madgraph4gpu-2022_summary.json
+WARNING! BMK-pmpe04/sa-cpp-j048-t001-e010 contains 0 scores and will be skipped
+Loading runs in RunSetDir BMK-bmk6130 for events -e010
+Loading Run BMK-bmk6130/sa-cpp-j001-t001-e010/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-bmk6130/sa-cpp-j002-t001-e010/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-bmk6130/sa-cpp-j004-t001-e010/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-bmk6130/sa-cpp-j008-t001-e010/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-bmk6130/sa-cpp-j016-t001-e010/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-bmk6130/sa-cpp-j032-t001-e010/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-bmk6130/sa-cpp-j064-t001-e010/mg5amc-madgraph4gpu-2022_summary.json
+Loading Run BMK-bmk6130/sa-cpp-j096-t001-e010/mg5amc-madgraph4gpu-2022_summary.json
+ScoreName                      Node             Tput   Tput/Ref  TputPerCore TputPerCore/Ref
+
+eemumu-sa-cpp-d-inl0-none      itscrd70      6.22655    1.00000      1.55664         1.00000
+eemumu-sa-cpp-d-inl0-none      pmpe04       19.80695    3.18105      1.23793         0.79526
+eemumu-sa-cpp-d-inl0-none      bmk6130      50.76470    8.15294      1.58640         1.01912
+
+ggtt-sa-cpp-d-inl0-none        itscrd70      0.75384    1.00000      0.18846         1.00000
+ggtt-sa-cpp-d-inl0-none        pmpe04        2.40492    3.19022      0.15031         0.79756
+ggtt-sa-cpp-d-inl0-none        bmk6130       5.97870    7.93099      0.18683         0.99137
+
+ggttg-sa-cpp-d-inl0-none       itscrd70      0.09261    1.00000      0.02315         1.00000
+ggttg-sa-cpp-d-inl0-none       pmpe04        0.31905    3.44506      0.01994         0.86127
+ggttg-sa-cpp-d-inl0-none       bmk6130       0.74501    8.04443      0.02328         1.00555
+
+ggttgg-sa-cpp-d-inl0-none      itscrd70      0.00683    1.00000      0.00171         1.00000
+ggttgg-sa-cpp-d-inl0-none      pmpe04        0.02455    3.59166      0.00153         0.89792
+ggttgg-sa-cpp-d-inl0-none      bmk6130       0.05443    7.96269      0.00170         0.99534
+
+eemumu-sa-cpp-d-inl0-sse4      itscrd70     11.95501    1.00000      2.98875         1.00000
+eemumu-sa-cpp-d-inl0-sse4      pmpe04       38.07707    3.18503      2.37982         0.79626
+eemumu-sa-cpp-d-inl0-sse4      bmk6130      94.34756    7.89189      2.94836         0.98649
+
+ggtt-sa-cpp-d-inl0-sse4        itscrd70      1.24746    1.00000      0.31186         1.00000
+ggtt-sa-cpp-d-inl0-sse4        pmpe04        4.24289    3.40123      0.26518         0.85031
+ggtt-sa-cpp-d-inl0-sse4        bmk6130      10.16884    8.15165      0.31778         1.01896
+
+ggttg-sa-cpp-d-inl0-sse4       itscrd70      0.17830    1.00000      0.04457         1.00000
+ggttg-sa-cpp-d-inl0-sse4       pmpe04        0.62060    3.48074      0.03879         0.87019
+ggttg-sa-cpp-d-inl0-sse4       bmk6130       1.40455    7.87766      0.04389         0.98471
+
+ggttgg-sa-cpp-d-inl0-sse4      itscrd70      0.01311    1.00000      0.00328         1.00000
+ggttgg-sa-cpp-d-inl0-sse4      pmpe04        0.04886    3.72706      0.00305         0.93176
+ggttgg-sa-cpp-d-inl0-sse4      bmk6130       0.10648    8.12243      0.00333         1.01530
+
+eemumu-sa-cpp-d-inl0-avx2      itscrd70     20.93128    1.00000      5.23282         1.00000
+eemumu-sa-cpp-d-inl0-avx2      pmpe04       60.57714    2.89410      3.78607         0.72352
+eemumu-sa-cpp-d-inl0-avx2      bmk6130     169.28334    8.08758      5.29010         1.01095
+
+ggtt-sa-cpp-d-inl0-avx2        itscrd70      2.17982    1.00000      0.54496         1.00000
+ggtt-sa-cpp-d-inl0-avx2        pmpe04        6.56234    3.01049      0.41015         0.75262
+ggtt-sa-cpp-d-inl0-avx2        bmk6130      17.80358    8.16745      0.55636         1.02093
+
+ggttg-sa-cpp-d-inl0-avx2       itscrd70      0.34651    1.00000      0.08663         1.00000
+ggttg-sa-cpp-d-inl0-avx2       pmpe04        1.11259    3.21081      0.06954         0.80270
+ggttg-sa-cpp-d-inl0-avx2       bmk6130       2.77311    8.00287      0.08666         1.00036
+
+ggttgg-sa-cpp-d-inl0-avx2      itscrd70      0.02613    1.00000      0.00653         1.00000
+ggttgg-sa-cpp-d-inl0-avx2      pmpe04        0.09523    3.64483      0.00595         0.91121
+ggttgg-sa-cpp-d-inl0-avx2      bmk6130       0.21799    8.34320      0.00681         1.04290
+
+eemumu-sa-cpp-d-inl0-512y      itscrd70     22.76490    1.00000      5.69122         1.00000
+eemumu-sa-cpp-d-inl0-512y      bmk6130     172.48365    7.57674      5.39011         0.94709
+
+ggtt-sa-cpp-d-inl0-512y        itscrd70      2.41146    1.00000      0.60286         1.00000
+ggtt-sa-cpp-d-inl0-512y        bmk6130      19.34208    8.02091      0.60444         1.00261
+
+ggttg-sa-cpp-d-inl0-512y       itscrd70      0.39622    1.00000      0.09905         1.00000
+ggttg-sa-cpp-d-inl0-512y       bmk6130       3.07088    7.75046      0.09597         0.96881
+
+ggttgg-sa-cpp-d-inl0-512y      itscrd70      0.02930    1.00000      0.00733         1.00000
+ggttgg-sa-cpp-d-inl0-512y      bmk6130       0.24142    8.23843      0.00754         1.02980
+
+eemumu-sa-cpp-d-inl0-512z      itscrd70     19.27618    1.00000      4.81905         1.00000
+eemumu-sa-cpp-d-inl0-512z      bmk6130     196.15185   10.17587      6.12975         1.27198
+
+ggtt-sa-cpp-d-inl0-512z        itscrd70      1.46529    1.00000      0.36632         1.00000
+ggtt-sa-cpp-d-inl0-512z        bmk6130      15.52012   10.59181      0.48500         1.32398
+
+ggttg-sa-cpp-d-inl0-512z       itscrd70      0.27229    1.00000      0.06807         1.00000
+ggttg-sa-cpp-d-inl0-512z       bmk6130       3.44197   12.64077      0.10756         1.58010
+
+ggttgg-sa-cpp-d-inl0-512z      itscrd70      0.02532    1.00000      0.00633         1.00000
+ggttgg-sa-cpp-d-inl0-512z      bmk6130       0.32966   13.02145      0.01030         1.62768
+
+eemumu-sa-cpp-d-inl0-best      itscrd70     22.76490    1.00000      5.69122         1.00000
+eemumu-sa-cpp-d-inl0-best      pmpe04       60.57714    2.66099      3.78607         0.66525
+eemumu-sa-cpp-d-inl0-best      bmk6130     196.15185    8.61642      6.12975         1.07705
+
+ggtt-sa-cpp-d-inl0-best        itscrd70      2.41146    1.00000      0.60286         1.00000
+ggtt-sa-cpp-d-inl0-best        pmpe04        6.56234    2.72132      0.41015         0.68033
+ggtt-sa-cpp-d-inl0-best        bmk6130      19.34208    8.02091      0.60444         1.00261
+
+ggttg-sa-cpp-d-inl0-best       itscrd70      0.39622    1.00000      0.09905         1.00000
+ggttg-sa-cpp-d-inl0-best       pmpe04        1.11259    2.80802      0.06954         0.70201
+ggttg-sa-cpp-d-inl0-best       bmk6130       3.44197    8.68703      0.10756         1.08588
+
+ggttgg-sa-cpp-d-inl0-best      itscrd70      0.02930    1.00000      0.00733         1.00000
+ggttgg-sa-cpp-d-inl0-best      pmpe04        0.09523    3.24980      0.00595         0.81245
+ggttgg-sa-cpp-d-inl0-best      bmk6130       0.32966   11.24980      0.01030         1.40622

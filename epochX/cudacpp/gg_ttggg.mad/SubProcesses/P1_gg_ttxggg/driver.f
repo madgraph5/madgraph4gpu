@@ -76,8 +76,10 @@ c      common/to_colstats/ncols,ncolflow,ncolalt,ic
 
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
       INCLUDE 'fbridge.inc'
-      INCLUDE 'fbridge_common.inc'
+c     INCLUDE 'fbridge_common.inc'
 #endif
+      INCLUDE 'fbridge_common.inc'
+
 C-----
 C  BEGIN CODE
 C----- 
@@ -86,15 +88,21 @@ C-----
 
       CALL COUNTERS_INITIALISE()
 
-#ifdef MG5AMC_MEEXPORTER_CUDACPP
+c#ifdef MG5AMC_MEEXPORTER_CUDACPP
       write(*,*) 'Enter fbridge_mode'
       read(*,*) FBRIDGE_MODE ! (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
       write(*,'(a16,i6)') ' FBRIDGE_MODE = ', FBRIDGE_MODE
+#ifndef MG5AMC_MEEXPORTER_CUDACPP
+      if( fbridge_mode.ne.0 ) then
+        write(*,*) 'ERROR! Invalid fbridge_mode = ', fbridge_mode
+        STOP
+      endif
+#endif
       write(*,*) 'Enter #events in a vector loop (max=',nb_page_max,',)'
       read(*,*) nb_page_loop
-#else
-      NB_PAGE_LOOP = 32
-#endif
+c#else
+c      NB_PAGE_LOOP = 32
+c#endif
       write(*,'(a16,i6)') ' NB_PAGE_LOOP = ', NB_PAGE_LOOP
       if( nb_page_loop.gt.nb_page_max .or. nb_page_loop.le.0 ) then
         write(*,*) 'ERROR! Invalid nb_page_loop = ', nb_page_loop

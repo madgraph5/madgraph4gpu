@@ -1,0 +1,119 @@
+{
+  "run_info": {
+    "copies": 40,
+    "threads_per_copy": 1,
+    "events_per_thread": 1,
+    "extra_arguments": "-ggttgg -dbl -flt -inl0 --cpu"
+  },
+  "report": {
+    "wl-scores": {
+      "ggttgg-sa-cpp-d-inl0-best": 0.229812,
+      "ggttgg-sa-cpp-d-inl0-none": 0.036107,
+      "ggttgg-sa-cpp-f-inl0-best": 0.441462,
+      "ggttgg-sa-cpp-f-inl0-none": 0.038564,
+      "ggttgg-sa-cpp-d-inl0-sse4": 0.065913,
+      "ggttgg-sa-cpp-f-inl0-sse4": 0.132245,
+      "ggttgg-sa-cpp-d-inl0-avx2": 0.139463,
+      "ggttgg-sa-cpp-f-inl0-avx2": 0.267606,
+      "ggttgg-sa-cpp-d-inl0-512y": 0.155116,
+      "ggttgg-sa-cpp-f-inl0-512y": 0.304174,
+      "ggttgg-sa-cpp-d-inl0-512z": 0.229812,
+      "ggttgg-sa-cpp-f-inl0-512z": 0.441462
+    },
+    "wl-stats": {
+      "ggttgg-sa-cpp-d-inl0-best": {
+        "avg": 0.005745,
+        "median": 0.005827,
+        "min": 0.004874,
+        "max": 0.006088,
+        "count": 40
+      },
+      "ggttgg-sa-cpp-d-inl0-none": {
+        "avg": 0.000903,
+        "median": 0.000882,
+        "min": 0.000814,
+        "max": 0.00097,
+        "count": 40
+      },
+      "ggttgg-sa-cpp-f-inl0-best": {
+        "avg": 0.011037,
+        "median": 0.011128,
+        "min": 0.008516,
+        "max": 0.011921,
+        "count": 40
+      },
+      "ggttgg-sa-cpp-f-inl0-none": {
+        "avg": 0.000964,
+        "median": 0.000945,
+        "min": 0.000852,
+        "max": 0.00105,
+        "count": 40
+      },
+      "ggttgg-sa-cpp-d-inl0-sse4": {
+        "avg": 0.001648,
+        "median": 0.00163,
+        "min": 0.001273,
+        "max": 0.001785,
+        "count": 40
+      },
+      "ggttgg-sa-cpp-f-inl0-sse4": {
+        "avg": 0.003306,
+        "median": 0.003308,
+        "min": 0.002869,
+        "max": 0.003637,
+        "count": 40
+      },
+      "ggttgg-sa-cpp-d-inl0-avx2": {
+        "avg": 0.003487,
+        "median": 0.003519,
+        "min": 0.003148,
+        "max": 0.003776,
+        "count": 40
+      },
+      "ggttgg-sa-cpp-f-inl0-avx2": {
+        "avg": 0.00669,
+        "median": 0.006817,
+        "min": 0.004845,
+        "max": 0.007404,
+        "count": 40
+      },
+      "ggttgg-sa-cpp-d-inl0-512y": {
+        "avg": 0.003878,
+        "median": 0.003826,
+        "min": 0.003377,
+        "max": 0.004166,
+        "count": 40
+      },
+      "ggttgg-sa-cpp-f-inl0-512y": {
+        "avg": 0.007604,
+        "median": 0.0077,
+        "min": 0.006819,
+        "max": 0.008381,
+        "count": 40
+      },
+      "ggttgg-sa-cpp-d-inl0-512z": {
+        "avg": 0.005745,
+        "median": 0.005827,
+        "min": 0.004874,
+        "max": 0.006088,
+        "count": 40
+      },
+      "ggttgg-sa-cpp-f-inl0-512z": {
+        "avg": 0.011037,
+        "median": 0.011128,
+        "min": 0.008516,
+        "max": 0.011921,
+        "count": 40
+      }
+    },
+    "log": "ok"
+  },
+  "app": {
+    "version": "v0.6",
+    "description": "Madgraph5_aMCatNLO madgraph4gpu benchmark (2022)",
+    "cvmfs_checksum": "70fb8b581609b9e1f7dde9c41d8cd73f",
+    "bmkdata_checksum": "d4c9152ed732e012ca54b6518bf3de93",
+    "bmk_checksum": "b6d583102d66a48190c5b38bfef4b58a",
+    "containment": "singularity"
+  }
+}
