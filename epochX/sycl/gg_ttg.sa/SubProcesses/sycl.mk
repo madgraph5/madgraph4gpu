@@ -42,7 +42,7 @@ INCFLAGS += -I$(TOOLSDIR)
 
 #=== Configure the C++ compiler
 
-CXXFLAGS = $(OPTFLAGS) -std=c++20 $(INCFLAGS) -Wall -Wshadow -Wextra
+CXXFLAGS = $(OPTFLAGS) -std=c++20 $(INCFLAGS) -Wall -Wshadow -Wextra --gcc-toolchain="/cvmfs/sft.cern.ch/lcg/releases/gcc/11.3.0-ad0f5/x86_64-centos8"
 CXXFLAGS+= -ffast-math # see issue #117
 ifndef SYCLFLAGS
   $(error SYCLFLAGS not set)
