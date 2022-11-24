@@ -45,7 +45,10 @@ export CXX=/afs/cern.ch/work/j/jteig/sycl_workspace/llvm/build/bin/clang++
 export CUDA_PATH=/usr/local/cuda-11.6
 export SYCLFLAGS="-fsycl -fsycl-targets=nvptx64-nvidia-cuda -Xsycl-target-backend '--cuda-gpu-arch=sm_70' -fgpu-rdc --cuda-path=$CUDA_PATH"
 export WORKSPACE=$prefix/workspace_mg4gpu
-export NAME_PREFIX="sycl_v100s_cuda_11.6.2_gcc_11.3"
+#export NAME_PREFIX="sycl_v100s_cuda_11.6.2_gcc_11.3"
+#export NAME_PREFIX="sycl_Xeon-Silver-4216_a100s_cuda-11.6.2_gcc-11.3"
+
+REPORT_FOLDER_PREFIX="${WORKSPACE}/$(date +"%y-%m-%d")_${SYCL_NAME_PREFIX}_master"
 
 # If unknown set at the run step after running LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MG_LIBS $MG_EXE --param_card $MG5AMC_CARD_PATH/param_card.dat --device_info 1024 128 10
 export DEVICE_ID=0
@@ -53,18 +56,22 @@ export DEVICE_ID=0
 # Finds correct subprocess
 case $MG_PROC in
     ee_mumu ) export MG_SUBPROC="P1_Sigma_sm_epem_mupmum" ;;
+    ee_mumu.sa ) export MG_SUBPROC="P1_Sigma_sm_epem_mupmum" ;;
     gg_tt ) export MG_SUBPROC="P1_Sigma_sm_gg_ttx" ;;
+    gg_tt.sa ) export MG_SUBPROC="P1_Sigma_sm_gg_ttx" ;;
     gg_ttg ) export MG_SUBPROC="P1_Sigma_sm_gg_ttxg" ;;
+    gg_ttg.sa ) export MG_SUBPROC="P1_Sigma_sm_gg_ttxg" ;;
     gg_ttgg ) export MG_SUBPROC="P1_Sigma_sm_gg_ttxgg" ;;
+    gg_ttgg.sa ) export MG_SUBPROC="P1_Sigma_sm_gg_ttxgg" ;;
     gg_ttggg ) export MG_SUBPROC="P1_Sigma_sm_gg_ttxggg" ;;
+    gg_ttggg.sa ) export MG_SUBPROC="P1_Sigma_sm_gg_ttxggg" ;;
 esac
 
-mkdir -p $WORKSPACE/mg4gpu/lib
-mkdir -p $WORKSPACE/mg4gpu/bin
+mkdir -p $WORKSPACE/mg4gpu/lib 2>/dev/null; true
+mkdir -p $WORKSPACE/mg4gpu/bin 2>/dev/null; true
+mkdir $REPORT_FOLDER_PREFIX 2>/dev/null; true
 
-mkdir $WORKSPACE/$(date +"%y-%m-%d")_${NAME_PREFIX}
-
-export REPORT_FOLDER=$WORKSPACE/$(date +"%y-%m-%d")_${NAME_PREFIX}
+export REPORT_FOLDER=$WORKSPACE/$(date +"%y-%m-%d")_${SYCL_NAME_PREFIX}
 
 export MG4GPU_LIB=$WORKSPACE/mg4gpu/lib
 export MG4GPU_BIN=$WORKSPACE/mg4gpu/bin
@@ -72,11 +79,11 @@ export MG4GPU_BIN=$WORKSPACE/mg4gpu/bin
 export MG_PROC_DIR=$prefix/../../epochX/sycl/$MG_PROC
 export MG_SP_DIR=$MG_PROC_DIR/SubProcesses/$MG_SUBPROC
 
-export MG_LIBS_DIR="${MG4GPU_LIB}/build_${MG_PROC}_${NAME_PREFIX}"
+export MG_LIBS_DIR="${MG4GPU_LIB}/build_${MG_PROC}_${SYCL_NAME_PREFIX}"
 # export MG_LIBS="$DPCPP_HOME/llvm/build/lib:$MG_LIBS_DIR"
 export MG_LIBS=$MG_LIBS_DIR
 
-export MG_EXE_DIR="${MG4GPU_BIN}/build_${MG_PROC}_${NAME_PREFIX}"
+export MG_EXE_DIR="${MG4GPU_BIN}/build_${MG_PROC}_${SYCL_NAME_PREFIX}"
 export MG_EXE="$MG_EXE_DIR/check.exe"
 export MG5AMC_CARD_PATH=$MG_PROC_DIR/Cards
 
@@ -93,7 +100,7 @@ cd $WORKSPACE
 #LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MG_LIBS $MG_EXE --param_card $MG5AMC_CARD_PATH/param_card.dat --device_info 32 32 10
 
 # Add MG Libs to linker library path and run the executable
-LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MG_LIBS $MG_EXE -j --json_file $REPORT_FOLDER/test_${NAME_PREFIX}_${MG_PROC}_${blocksPerGrid}_${threadsPerBlock}_${iterations}.json --param_card $MG5AMC_CARD_PATH/param_card.dat --device_id $DEVICE_ID $blocksPerGrid $threadsPerBlock $iterations
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MG_LIBS $MG_EXE -j --json_file ${REPORT_FOLDER}/test_${MG_PROC}_${SYCL_NAME_PREFIX}_${blocksPerGrid}_${threadsPerBlock}_${iterations}.json --param_card $MG5AMC_CARD_PATH/param_card.dat --device_id $DEVICE_ID $blocksPerGrid $threadsPerBlock $iterations
 
 # View output
-#nano $REPORT_FOLDER/test_${NAME_PREFIX}_${MG_PROC}_${blocksPerGrid}_${threadsPerBlock}_${iterations}.json-+
+#nano $REPORT_FOLDER/test_${SYCL_NAME_PREFIX}_${MG_PROC}_${blocksPerGrid}_${threadsPerBlock}_${iterations}.json-+

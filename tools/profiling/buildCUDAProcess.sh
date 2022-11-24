@@ -40,20 +40,21 @@ prefix=$(pwd)
 
 export USEBUILDDIR=1
 export NTPBMAX=1024
-export MG_EXE="./gcheck.exe"
+export CXX=/cvmfs/sft.cern.ch/lcg/releases/gcc/11.3.0-ad0f5/x86_64-centos8/bin/g++
+export MG_EXE="./gcheck.exe" #GPU
+#export MG_EXE="./check.exe" #CPU
 export CUDA_HOME=/usr/local/cuda-11.6/
 export FC=`which gfortran`
 export WORKSPACE=$prefix/workspace_mg4gpu
-export NAME_PREFIX="cudacpp_v100s_cuda_11.6.2_gcc_11.3"
+#export NAME_PREFIX="cudacpp_v100s_cuda_11.6.2_gcc_11.3"
+
+REPORT_FOLDER_PREFIX="${WORKSPACE}/$(date +"%y-%m-%d")_${CUDA_NAME_PREFIX}_master"
 
 # Sets CUDA in PATH
 export PATH=$CUDA_HOME:$PATH
 
-mkdir $WORKSPACE
-
-mkdir -p $WORKSPACE/$(date +"%y-%m-%d")_${NAME_PREFIX}
-
-export REPORT_FOLDER=$WORKSPACE/$(date +"%y-%m-%d")_${NAME_PREFIX}
+mkdir $WORKSPACE 2>/dev/null; true
+mkdir $REPORT_FOLDER_PREFIX 2>/dev/null; true
 
 # Finds correct subprocess
 case $MG_PROC in
@@ -81,8 +82,8 @@ make
 # Run executable
 
 cd build*
-mkdir -p perf/data/
+mkdir -p perf/data/ 2>/dev/null; true
 $MG_EXE -j $blocksPerGrid $threadsPerBlock $iterations
 
 cd perf/data/
-mv 0-perf-test-run0.json ${REPORT_FOLDER}/test_${NAME_PREFIX}_${MG_PROC}_${blocksPerGrid}_${threadsPerBlock}_${iterations}.json
+mv 0-perf-test-run0.json ${REPORT_FOLDER}/test_${MG_PROC}_${CUDA_NAME_PREFIX}_${blocksPerGrid}_${threadsPerBlock}_${iterations}.json
