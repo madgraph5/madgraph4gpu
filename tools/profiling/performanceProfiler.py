@@ -37,14 +37,18 @@ for process in mgProcesses:
             if (TPB * BPG > doublePrecisionConstant):
 
                 if pyArgs.l.upper() == 'SYCL':
+
+                    if ".sa" not in process:
+                        process = process + ".sa"
+
                     bashArgs = ["./buildSYCLProcess.sh", "-n",  process, "-i",  str(iterations), "-t",  str(TPB), "-b", str(BPG)]
 
                 elif pyArgs.l.upper() == 'CUDA':
 
                     # There is no .sa in br_golden_epochX4 so it makes sure that .sa is included in everything other than that branch
-                    if pyArgs.b != 'br_golden_epochX4':
-                        if ".sa" not in process:
-                            process = process + ".sa"
+                    #if pyArgs.b != 'br_golden_epochX4':
+                    if ".sa" not in process:
+                        process = process + ".sa"
                     
                     bashArgs = ["./buildCUDAProcess.sh", "-n",  process, "-i",  str(iterations), "-t",  str(TPB), "-b", str(BPG)]
 
