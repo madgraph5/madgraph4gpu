@@ -6,14 +6,11 @@
 #ifndef HelAmps_%(model_name)s_H
 #define HelAmps_%(model_name)s_H 1
 
+//#include <cmath>
 #include "mgOnGpuConfig.h"
+#include "mgOnGpuTypes.h"
 #include "mgOnGpuVectors.h"
 
-//#include <cmath>
-//#include <cstdlib>
-//#include <iomanip>
-//#include <iostream>
-
-namespace mg5amcGpu
+namespace %(namespace)s_%(model_name)s
 {
 %(function_declarations)s

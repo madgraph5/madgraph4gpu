@@ -16,14 +16,14 @@
     // Initialize process (read model parameters from file)
     virtual void initProc( const std::string& param_card_name );
 
+#ifndef MGONGPU_HARDCODE_PARAM
     // Pointer accessors
-    const short* get_tHel_ptr() const;
-
     cxtype* get_tIPC_ptr();
     const cxtype* get_tIPC_ptr() const;
 
     fptype* get_tIPD_ptr();
     const fptype* get_tIPD_ptr() const;
+#endif
 
     // Other methods of this instance (???)
     //const std::vector<fptype>& getMasses() const { return m_masses; }
@@ -59,16 +59,15 @@
     bool m_verbose;
     bool m_debug;
 
+#ifndef MGONGPU_HARDCODE_PARAM
     // Physics model parameters to be read from file (initProc function)
     Parameters_%(model_name)s* m_pars;
     std::vector<fptype> m_masses; // external particle masses
 
-    // Helicities for the process
-    const short m_tHel[mgOnGpu::ncomb][mgOnGpu::npar];
-
     // Physics parameters (masses, coupling, etc...)
-    cxtype m_tIPC[mgOnGpu::ncouplings];
+    cxtype m_tIPC[independentCouplings::nicoup];
     fptype m_tIPD[mgOnGpu::nparams];
+#endif
 
     // Other variables of this instance (???)
     //int id1, id2; // initial particle ids

@@ -174,12 +174,9 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         for format, argname in self.define_argument_list(couplings):
             if format.startswith('list'):
                 type = self.type2def[format[5:]] # double or complex (instead of list_double or list_complex)
-                comment_inputs.append('%s[6]'%argname) # AV (wavefuncsize=6 is hardcoded also in export_cpp...)
-                ###if not argname.startswith('COUP'): type = self.type2def[format[5:]+'_v'] # AV vectorize (double_v or complex_v)
-                if not argname.startswith('COUP'):
-                    type = self.type2def['double'] # AV from cxtype_sv to fptype
-                    argname = 'all'+argname
+                if not argname.startswith('COUP'): type = self.type2def[format[5:]+'_v'] # AV vectorize (double_v or complex_v)
                 list_arg = '[]'
+                comment_inputs.append('%s[6]'%argname) # AV (wavefuncsize=6 is hardcoded also in export_cpp...)
             else:
                 type = self.type2def[format]
                 list_arg = ''
@@ -189,26 +186,23 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             else:
                 args.append('%s %s%s'% (type, argname, list_arg))
         if not self.offshell:
-            ###output = '%(doublec)s%(pointer_vertex)s allvertexes' % {
-            ###    'doublec': self.type2def['double'],
-            ###    'pointer_vertex': self.type2def['pointer_vertex']}
-            output = '%(doublec)s allvertexes[]' % {
-                'doublec': self.type2def['double']}
+            ###output = '%(doublec)s %(pointer_vertex)s vertex' % {
+            output = '%(doublec)s%(pointer_vertex)s vertex' % { # AV vectorize
+                'doublec':self.type2def['complex_v'],
+                'pointer_vertex': self.type2def['pointer_vertex']}
             comment_output = 'amplitude \'vertex\''
-            template = ''
         else:
-            output = '%(doublec)s all%(spin)s%(id)d[]' % {
-                     'doublec': self.type2def['double'],
+            output = '%(doublec)s %(spin)s%(id)d[]' % { # AV vectorize
+                     'doublec': self.type2def['complex_v'],
                      'spin': self.particles[self.outgoing -1],
                      'id': self.outgoing}
             ###self.declaration.add(('list_complex', output)) # AV BUG FIX - THIS IS NOT NEEDED AND IS WRONG (adds name 'cxtype_sv V3[]')
             comment_output = 'wavefunction \'%s%d[6]\'' % ( self.particles[self.outgoing -1], self.outgoing ) # AV (wavefuncsize=6)
-            template = ''
+        ###out.write('%(prefix)s void %(name)s(%(args)s,%(output)s)' % \
         comment = '// Compute the output %s from the input wavefunctions %s' % ( comment_output, ', '.join(comment_inputs) ) # AV
         indent = ' ' * len( '  void %s( ' % name )
-        out.write('  %(comment)s\n  %(template)s\n  %(prefix)s\n  void %(name)s( const %(args)s,\n%(indent)s%(output)s )%(suffix)s' %
+        out.write('  %(comment)s\n  %(prefix)s\n  void %(name)s( const %(args)s,\n%(indent)s%(output)s )%(suffix)s' %
                   {'comment': comment, # AV - add comment
-                   'template': template, # AV - add template
                    'prefix': self.prefix + ( ' INLINE' if 'is_h' in mode else '' ), # AV - add INLINE
                    'suffix': ( ' ALWAYS_INLINE' if 'is_h' in mode else '' ), # AV - add ALWAYS_INLINE
                    'indent':indent, 'output':output, 'name': name,
@@ -235,19 +229,8 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             Include the symmetry line (entry FFV_2)
         """
         out = StringIO()
-        out.write('    mgDebug( 0, __FUNCTION__ );\n') # AV
-        ###argument_var = [name for type,name in self.call_arg] # UNUSED
-        for type, name in self.call_arg:
-            ###out.write('    %s %s;\n' % ( type, name ) ) # FOR DEBUGGING
-            if type.startswith('list'):
-                out.write('    const %s* %s = reinterpret_cast<const %s*>( all%s );\n' % ( self.type2def[type[5:]+'_v'], name, self.type2def[type[5:]+'_v'], name ) )
-        if not self.offshell:
-            vname = 'vertex'
-            allvname = 'allvertexes'
-        else:
-            vname = '%(spin)s%(id)d' % { 'spin': self.particles[self.outgoing -1], 'id': self.outgoing }
-            allvname = 'all'+vname
-        out.write('    cxtype_sv* %s = reinterpret_cast<cxtype_sv*>( %s );\n' % ( vname, allvname ) )
+        out.write('    mgDebug( 0, __FUNCTION__ );\n') # AV - NO! move to get_declaration.txt
+        argument_var = [name for type,name in self.call_arg]
         # define the complex number CI = 0+1j
         if add_i:
             ###out.write(self.ci_definition)
@@ -255,7 +238,6 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         codedict = {} # AV allow delayed declaration with initialisation
         for type, name in self.declaration.tolist():
             ###print(name) # FOR DEBUGGING
-            ###out.write('    %s %s;\n' % ( type, name ) ) # FOR DEBUGGING
             if type.startswith('list'):
                 type = type[5:]
                 if name.startswith('P'):
@@ -479,7 +461,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                                         self.write_obj(numerator.get_rep(ind))))
         out.write('    mgDebug( 1, __FUNCTION__ );\n') # AV
         out.write('    return;\n') # AV
-        ###return out.getvalue() # AV
+        ###return out.getvalue()
         # AV check if one, two or half are used and need to be defined (ugly hack for #291: can this be done better?)
         out2 = StringIO()
         if 'one' in out.getvalue(): out2.write('    constexpr fptype one( 1. );\n')
@@ -638,7 +620,7 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
     # AV - overload export_cpp.UFOModelConverterCPP method (improve formatting)
     def write_parameters(self, params):
         res = super().write_parameters(params)
-        #res = res.replace('std::complex<','cxsmpl<') # custom simplex complex class (with constexpr arithmetics)
+        res = res.replace('std::complex<','mgOnGpu::cxsmpl<') # custom simplex complex class (with constexpr arithmetics)
         if res == '' : res = '  // (none)'
         else : res = '  ' + res # add leading '  ' after the '// Model' line
         res = res.replace('\n','\n  ')
@@ -648,24 +630,33 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
     # AV - overload export_cpp.UFOModelConverterCPP method (improve formatting)
     def write_set_parameters(self, params):
         res = super().write_set_parameters(params)
-        #res = res.replace('std::complex<','cxsmpl<') # custom simplex complex class (with constexpr arithmetics)
+        res = res.replace('std::complex<','mgOnGpu::cxsmpl<') # custom simplex complex class (with constexpr arithmetics)
         if res == '' : res = '// (none)'
         res = res.replace('\n','\n  ')
         return res
 
-    # AV - new method (merging write_parameters and write_set_parameters)
     def write_hardcoded_parameters(self, params):
         pardef = super().write_parameters(params)
         parset = super().write_set_parameters(params)
-        ###print( '"' + pardef + '"' )
-        ###print( '"' + parset + '"' )
         if ( pardef == '' ):
             assert( parset == '' ) # AV sanity check (both are empty)
-            res = '// (none)'
+            res = '// (none)\n'
             return res
-        #pardef = pardef.replace('std::complex<','cxsmpl<') # custom simplex complex class (with constexpr arithmetics)
-        #parset = parset.replace('std::complex<','cxsmpl<') # custom simplex complex class (with constexpr arithmetics)
-        parset = parset.replace('sqrt(','sqrtNR(') # Newton-Raphson sqrt (with constexpr arithmetics)
+        pardef = pardef.replace('std::complex<','mgOnGpu::cxsmpl<') # custom simplex complex class (with constexpr arithmetics)
+        parset = parset.replace('std::complex<','mgOnGpu::cxsmpl<') # custom simplex complex class (with constexpr arithmetics)
+        parset = parset.replace('sqrt(','constexpr_sqrt(') # constexpr sqrt (based on iterative Newton-Raphson approximation)
+        parset = parset.replace('pow(','constexpr_pow(') # constexpr sqrt (based on iterative Newton-Raphson approximation)
+        parset = parset.replace('(','( ')
+        parset = parset.replace(')',' )')
+        parset = parset.replace('+',' + ')
+        parset = parset.replace('-',' - ')
+        parset = parset.replace('e + ','e+') # fix exponents
+        parset = parset.replace('e - ','e-') # fix exponents
+        parset = parset.replace('=  + ','= +') # fix leading + in assignmments
+        parset = parset.replace('=  - ','= -') # fix leading - in assignmments
+        #parset = parset.replace('*',' * ')
+        #parset = parset.replace('/',' / ')
+        parset = parset.replace(',',', ')
         pardef_lines = {}
         for line in pardef.split('\n'):
             type, pars = line.rstrip(';').split(' ') # strip trailing ';'
@@ -681,77 +672,96 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
             parset_lines[par] = parval # includes a trailing ';'
         ###print( parset_lines )
         assert( len(pardef_lines) == len(parset_lines) ) # AV sanity check (same number of parameters)
-        res = '  '.join( pardef_lines[par] + " = " + parset_lines[par] + '\n' for par in parset_pars ) # no leading '  ' on first row
+        res = '  '.join( pardef_lines[par] + ' = ' + parset_lines[par] + '\n' for par in parset_pars ) # no leading '  ' on first row
+        res = res.replace(' ;',';')
         ###print(res); assert(False)
         return res
 
-    # AV - replace export_cpp.UFOModelConverterCPP method (add hardcoded parameters and couplings)
     def super_generate_parameters_class_files(self):
         """Create the content of the Parameters_model.h and .cc files"""
         replace_dict = self.default_replace_dict
         replace_dict['info_lines'] = export_cpp.get_mg5_info_lines()
         replace_dict['model_name'] = self.model_name
-        replace_dict['independent_parameters'] = \
-                                   "// Model parameters independent of aS\n" + \
-                                   self.write_parameters(self.params_indep)
-        # AV swap the order (fix bug https://bugs.launchpad.net/mg5amcnlo/+bug/1959192)
-        ###replace_dict['independent_couplings'] = \
-        ###                           "// Model parameters dependent on aS\n" + \
-        ###                           self.write_parameters(self.params_dep)
-        ###replace_dict['dependent_parameters'] = \
-        ###                           "// Model couplings independent of aS\n" + \
-        ###                           self.write_parameters(self.coups_indep)
-        replace_dict['independent_couplings'] = \
-                                   "// Model couplings independent of aS\n" + \
-                                   self.write_parameters(self.coups_indep)
-        replace_dict['dependent_parameters'] = \
-                                   "// Model parameters dependent on aS\n" + \
-                                   self.write_parameters(self.params_dep)
-        replace_dict['dependent_couplings'] = \
-                                   "// Model couplings dependent on aS\n" + \
-                                   self.write_parameters(list(self.coups_dep.values()))
-        replace_dict['set_independent_parameters'] = \
-                               self.write_set_parameters(self.params_indep)
-        replace_dict['set_independent_couplings'] = \
-                               self.write_set_parameters(self.coups_indep)
-        replace_dict['set_dependent_parameters'] = \
-                               self.write_set_parameters(self.params_dep)
-        replace_dict['set_dependent_couplings'] = \
-                               self.write_set_parameters(list(self.coups_dep.values()))
-        replace_dict['print_independent_parameters'] = \
-                               self.write_print_parameters(self.params_indep)
-        replace_dict['print_independent_couplings'] = \
-                               self.write_print_parameters(self.coups_indep)
-        replace_dict['print_dependent_parameters'] = \
-                               self.write_print_parameters(self.params_dep)
-        replace_dict['print_dependent_couplings'] = \
-                               self.write_print_parameters(list(self.coups_dep.values()))
+        params_indep = [ line.replace('aS, ','')
+                         for line in self.write_parameters(self.params_indep).split('\n') ]
+        replace_dict['independent_parameters'] = '// Model parameters independent of aS\n  //double aS; // now retrieved event-by-event (as G) from Fortran (running alphas #373)\n' + '\n'.join( params_indep )
+        replace_dict['independent_couplings'] = '// Model couplings independent of aS\n' + self.write_parameters(self.coups_indep)
+        params_dep = [ '  //' + line[2:] + ' // now computed event-by-event (running alphas #373)' for line in self.write_parameters(self.params_dep).split('\n') ]
+        replace_dict['dependent_parameters'] = '// Model parameters dependent on aS\n' + '\n'.join( params_dep )
+        coups_dep = [ '  //' + line[2:] + ' // now computed event-by-event (running alphas #373)' for line in self.write_parameters(list(self.coups_dep.values())).split('\n') ]
+        replace_dict['dependent_couplings'] = '// Model couplings dependent on aS\n' + '\n'.join( coups_dep )
+        set_params_indep = [ line.replace('aS','//aS') + ' // now retrieved event-by-event (as G) from Fortran (running alphas #373)'
+                             if line.startswith( '  aS =' ) else
+                             line for line in self.write_set_parameters(self.params_indep).split('\n') ]
+        replace_dict['set_independent_parameters'] = '\n'.join( set_params_indep )
+        replace_dict['set_independent_couplings'] = self.write_set_parameters(self.coups_indep)
+        replace_dict['set_dependent_parameters'] = self.write_set_parameters(self.params_dep)
+        replace_dict['set_dependent_couplings'] = self.write_set_parameters(list(self.coups_dep.values()))
+        print_params_indep = [ line.replace('std::cout','//std::cout') + ' // now retrieved event-by-event (as G) from Fortran (running alphas #373)'
+                               if '"aS =' in line else
+                               line for line in self.write_print_parameters(self.params_indep).split('\n') ]
+        replace_dict['print_independent_parameters'] = '\n'.join( print_params_indep )
+        replace_dict['print_independent_couplings'] = self.write_print_parameters(self.coups_indep)
+        replace_dict['print_dependent_parameters'] = self.write_print_parameters(self.params_dep)
+        replace_dict['print_dependent_couplings'] = self.write_print_parameters(list(self.coups_dep.values()))
         if 'include_prefix' not in replace_dict:
             replace_dict['include_prefix'] = ''
-        replace_dict['hardcoded_independent_parameters'] = \
-                               self.write_hardcoded_parameters(self.params_indep)
-        replace_dict['hardcoded_independent_couplings'] = \
-                               self.write_hardcoded_parameters(self.coups_indep)
-        replace_dict['hardcoded_dependent_parameters'] = \
-                               self.write_hardcoded_parameters(self.params_dep)
-        replace_dict['hardcoded_dependent_couplings'] = \
-                               self.write_hardcoded_parameters(list(self.coups_dep.values()))
-        file_h = self.read_template_file(self.param_template_h) % \
-                 replace_dict
-        file_cc = self.read_template_file(self.param_template_cc) % \
-                  replace_dict
+        hrd_params_indep = [ line.replace('constexpr','//constexpr') + ' // now retrieved event-by-event (as G) from Fortran (running alphas #373)' if 'aS =' in line else line for line in self.write_hardcoded_parameters(self.params_indep).split('\n') ]
+        replace_dict['hardcoded_independent_parameters'] = '\n'.join( hrd_params_indep )
+        replace_dict['hardcoded_independent_couplings'] = self.write_hardcoded_parameters(self.coups_indep)
+        hrd_params_dep = [ line.replace('constexpr','//constexpr') + ' // now computed event-by-event (running alphas #373)' if line != '' else line for line in self.write_hardcoded_parameters(self.params_dep).split('\n') ]
+        replace_dict['hardcoded_dependent_parameters'] = '\n'.join( hrd_params_dep )
+        hrd_coups_dep = [ line.replace('constexpr','//constexpr') + ' // now computed event-by-event (running alphas #373)' if line != '' else line for line in self.write_hardcoded_parameters(list(self.coups_dep.values())).split('\n') ]
+        replace_dict['hardcoded_dependent_couplings'] = '\n'.join( hrd_coups_dep )
+        replace_dict['nicoup'] = len( self.coups_indep )
+        if len( self.coups_indep ) > 0 :
+            iicoup = [ '  constexpr size_t ixcoup_%s = %d + Parameters_%s_dependentCouplings::ndcoup; // out of ndcoup+nicoup' % (par.name, idx, self.model_name) for (idx, par) in enumerate(self.coups_indep) ]
+            replace_dict['iicoup'] = '\n'.join( iicoup )
+            icoupseticoup_hrdcod = [ '    ((FPType)Parameters_{2:s}::{0:s}.real(), (FPType)Parameters_{2:s}::{0:s}.imag()),'.format(par.name, idx, self.model_name) for (idx, par) in enumerate(self.coups_indep) ]
+            replace_dict['icoupseticoup_hrdcod'] = '\n'.join( icoupseticoup_hrdcod )
+        else:
+            replace_dict['iicoup'] = '  // NB: there are no aS-independent couplings in this physics process'
+            replace_dict['icoupseticoup_hrdcod'] = '    // NB: there are no aS-independent couplings in this physics process'
+        replace_dict['ndcoup'] = len( self.coups_dep )
+        if len( self.coups_dep ) > 0 :
+            idcoup = [ '  constexpr size_t idcoup_%s = %d;' % (name, id) for (id, name) in enumerate(self.coups_dep) ]
+            replace_dict['idcoup'] = '\n'.join( idcoup )
+            dcoupdecl = [ '    cxtype_sv %s;' % name for name in self.coups_dep ]
+            replace_dict['dcoupdecl'] = '\n'.join( dcoupdecl )
+            dcoupsetdpar = []
+            foundG = False
+            for line in self.write_hardcoded_parameters(self.params_dep).split('\n'):
+                if line != '':
+                    dcoupsetdpar.append( '    ' + line.replace('constexpr double', 'const FPType' if foundG else '//const FPType' ) )
+                    if 'constexpr double G =' in line: foundG = True
+            replace_dict['dcoupsetdpar'] = '  ' + '\n'.join( dcoupsetdpar )
+            dcoupsetdcoup = [ '    ' + line.replace('constexpr mgOnGpu::cxsmpl<double> ','couplings[idcoup_')
+                                           .replace(" = ","] = ")
+                                           .replace('mdl_complexi', 'cI')
+                                for line in self.write_hardcoded_parameters(list(self.coups_dep.values())).split('\n') if line != '' ]
+            replace_dict['dcoupsetdcoup'] = '  ' + '\n'.join( dcoupsetdcoup )
+        else:
+            replace_dict['idcoup'] = '  // NB: there are no aS-dependent couplings in this physics process'
+            replace_dict['dcoupdecl'] = '    // (none)'
+            replace_dict['dcoupsetdpar'] = '      // (none)'
+            replace_dict['dcoupsetdcoup'] = '      // (none)'
+        if self.model_name == 'sm' :
+            replace_dict['efterror'] = ''
+        else:
+            replace_dict['efterror'] = '\n#error This non-SM physics process only supports MGONGPU_HARDCODE_PARAM builds (#439): please run "make HRDCOD=1"'
+        file_h = self.read_template_file(self.param_template_h) % replace_dict
+        file_cc = self.read_template_file(self.param_template_cc) % replace_dict
         return file_h, file_cc
 
     # AV - overload export_cpp.UFOModelConverterCPP method (improve formatting)
     def generate_parameters_class_files(self):
-        ###file_h, file_cc = super().generate_parameters_class_files()
+        #file_h, file_cc = super().generate_parameters_class_files()
         file_h, file_cc = self.super_generate_parameters_class_files()
         file_h = file_h[:-1] # remove extra trailing '\n'
         file_cc = file_cc[:-1] # remove extra trailing '\n'
         # [NB: there is a minor bug in export_cpp.UFOModelConverterCPP.generate_parameters_class_files
         # ['independent_couplings' contains dependent parameters, 'dependent parameters' contains independent_couplings]
         # [This only affects the order in which they are printed out - which is now reversed in the templates]
-        # [This has been reported as bug https://bugs.launchpad.net/mg5amcnlo/+bug/1959192]
         return file_h, file_cc
 
     # AV - replace export_cpp.UFOModelConverterCPP method (add explicit std namespace)
@@ -760,8 +770,7 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
         # For each parameter, write name = expr;
         res_strings = []
         for param in params:
-            ###res_strings.append("cout << setw(20) << \"%s \" << \"= \" << setiosflags(ios::scientific) << setw(10) << %s << endl;" % (param.name, param.name))
-            res_strings.append("std::cout << std::setw(20) << \"%s \" << \"= \" << std::setiosflags(std::ios::scientific) << std::setw(10) << %s << std::endl;" % (param.name, param.name)) # AV
+            res_strings.append('std::cout << std::setw( 20 ) << \"%s = \" << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << %s << std::endl;' % (param.name, param.name)) # AV
         if len(res_strings) == 0 : res_strings.append('// (none)')
         ##return "\n".join(res_strings)
         return "\n  ".join(res_strings) # AV (why was this not necessary before?)
@@ -813,20 +822,18 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
         replace_dict['function_definitions'] = '\n'.join(template_cc_files)
         file_h = self.read_template_file(self.aloha_template_h) % replace_dict
         file_cc = self.read_template_file(self.aloha_template_cc) % replace_dict
-        # Write the HelAmps_sm.h and HelAmps_sm.cc files
-        ###writers.CPPWriter(model_h_file).writelines(file_h)
-        ###writers.CPPWriter(model_cc_file).writelines(file_cc)
-        ###logger.info("Created files %s and %s in directory" \
-        ###            % (os.path.split(model_h_file)[-1],
-        ###               os.path.split(model_cc_file)[-1]))
-        ###logger.info("%s and %s" % \
-        ###            (os.path.split(model_h_file)[0],
-        ###             os.path.split(model_cc_file)[0]))
-        # Write only the HelAmps_sm.h file
+        # Write the files
         file_h_lines = file_h.split('\n')
         file_h = '\n'.join( file_h_lines[:-3]) # skip the trailing '//---'
         file_h += file_cc # append the contents of HelAmps_sm.cc directly to HelAmps_sm.h!
         writers.CPPWriter(model_h_file).writelines(file_h)
+        #writers.CPPWriter(model_cc_file).writelines(file_cc)
+        #logger.info("Created files %s and %s in directory" \
+        #            % (os.path.split(model_h_file)[-1],
+        #               os.path.split(model_cc_file)[-1]))
+        #logger.info("%s and %s" % \
+        #            (os.path.split(model_h_file)[0],
+        #             os.path.split(model_cc_file)[0]))
         logger.info("Created file %s in directory %s" \
                     % (os.path.split(model_h_file)[-1], os.path.split(model_h_file)[0] ) )
 
@@ -885,38 +892,41 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         params = [''] * len(self.params2order)
         for coup, pos in self.couplings2order.items():
             coupling[pos] = coup
-        #coup_str = "const cxtype tIPC[%s] = { cxmake( m_pars->%s ) };\n" % (len(self.couplings2order), ' ), cxmake( m_pars->'.join(coupling))
 
-        # NSN - Need access to tIPC outside of CPPProcess for SYCL
+        coupling_indep = [] # AV keep only the alphas-independent couplings #434
+        for coup in coupling:
+            keep = True
+            # Use the same implementation as in UFOModelConverterCPP.prepare_couplings (assume self.model is the same)
+            for key, coup_list in self.model['couplings'].items():
+                if "aS" in key and coup in coup_list: keep = False
+            if keep: coupling_indep.append( coup ) # AV only indep!
+
+        ## NSN - Need access to independent couplings tIPC outside of CPPProcess for SYCL
         coup_str = ""
-        for i in range(len(self.couplings2order)):
-            coup_str += "m_tIPC[%s] = cxmake( m_pars->%s );\n" % (i, coupling[i])
+        #for i in range(len(self.couplings2order)):
+        #    coup_str += "m_tIPC[%s] = cxmake( m_pars->%s );\n" % (i, coupling[i])
+        if len(coupling_indep) > 0:
+            for i in range(len(coupling_indep)):
+                coup_str += "    m_tIPC[%s] = cxmake( m_pars->%s );\n" % (i, coupling_indep[i])
+        else:
+            coup_str = "    //m_tIPC[...] = ... ; // nicoup=0\n"
+
+        self.number_dependent_couplings = len(coupling) - len(coupling_indep)
+        self.number_independent_couplings = len(coupling_indep)
 
         for para, pos in self.params2order.items():
             params[pos] = para
-        #param_str = "    const fptype tIPD[%s] = { (fptype)m_pars->%s };" % (len(self.params2order), ', (fptype)m_pars->'.join(params))
 
         # NSN - Need access to tIPD outside of CPPProcess for SYCL
         param_str = ""
-        for i in range(len(self.params2order)):
-            param_str += "m_tIPD[%s] = (fptype)m_pars->%s;\n" % (i, params[i])
+        if len(params) > 0:
+            for i in range(len(self.params2order)):
+                param_str += "    m_tIPD[%s] = (fptype)m_pars->%s;\n" % (i, params[i])
+        else:
+            parm_str += "    //m_tIPD[...] = ... ; // nparam=0\n"
+
         replace_dict['assign_coupling'] = coup_str + param_str
-        coup_str_hrd = "__device__ const fptype cIPC[%s] = {\n" % (len(self.couplings2order)*2)
-        for coup in coupling : coup_str_hrd += "    Parameters_sm::%s.real(), Parameters_sm::%s.imag(),\n" % ( coup, coup )
-        coup_str_hrd = coup_str_hrd[:-2] + " };\n"
-        param_str_hrd = "  __device__ const fptype cIPD[%s] = {\n" % len(self.params2order)
-        for para in params : param_str_hrd += "    Parameters_sm::%s,\n" % para
-        param_str_hrd = param_str_hrd[:-2] + " };"
-        replace_dict['assign_hardcoded_coupling'] = coup_str_hrd + param_str_hrd
-        replace_dict['all_helicities'] = self.get_helicity_matrix(self.matrix_elements[0])
-        replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace("helicities", "m_tHel")
-        replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace(";", "")
         file = self.read_template_file(self.process_definition_template) % replace_dict
-        if len(self.params2order) == 0: # remove all IPD occurrences (issue #349)
-            file_lines = file.split('\n')
-            file_lines = [l.replace('cIPC,cIPD','cIPC') for l in file_lines] # remove cIPD from OpenMP pragma
-            file_lines = [l for l in file_lines if 'IPD' not in l] # remove all other lines matchin IPD           
-            file = '\n'.join( file_lines )
         return file
 
     # AV - modify export_cpp.OneProcessExporterGPU method (fix gCPPProcess.cu)
@@ -929,44 +939,46 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
   // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
   SYCL_EXTERNAL
   INLINE
-  void calculate_wavefunctions( int ihel,
-                                const fptype* allmomenta, // input: momenta[nevt*npar*4]
-                                fptype* allMEs,           // output: allMEs[nevt], |M|^2 running_sum_over_helicities
-                                size_t ievt,
-                                short *cHel,
-                                const fptype *cIPC,
-                                const fptype *cIPD
+  fptype calculate_wavefunctions( const fptype_sv* __restrict__ allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+                                  #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+                                      fptype* __restrict__ allNumerators,   // output: multichannel numerators, running_sum_over_helicities
+                                      fptype* __restrict__ allDenominators, // output: multichannel denominators, running_sum_over_helicities
+                                      const unsigned int channelId,         // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
+                                  #endif
+                                  const short*  __restrict__ cHel,
+                                  const cxtype* __restrict__ COUPs,
+                                  const fptype* __restrict__ cIPD
                                 )
   //ALWAYS_INLINE // attributes are not permitted in a function definition
   {
-    using namespace mg5amcGpu;
+    using namespace MG5_sm;
     mgDebug( 0, __FUNCTION__ );
+    fptype allMEs = 0;
+    //const cxtype* COUPs = reinterpret_cast<const cxtype*>(cIPC);
 \n""")
             ret_lines.append("    // The number of colors")
             ret_lines.append("    constexpr int ncolor = %i;" % len(color_amplitudes[0]))
             ret_lines.append("""
     // Local TEMPORARY variables for a subset of Feynman diagrams in the given SYCL event (ievt)
-    // [NB these variables are reused several times (and re-initialised each time) within the same event]
-    //MemoryBufferWavefunctions w_buffer[nwf]{ neppV };
+    // [NB these variables are reused several times (and re-initialised each time) within the same event or event page]
     cxtype_sv w_sv[nwf][nw6]; // particle wavefunctions within Feynman diagrams (nw6 is often 6, the dimension of spin 1/2 or spin 1 particles)
     cxtype_sv amp_sv[1]; // invariant amplitude for one given Feynman diagram
 
-    // Proof of concept for using fptype* in the interface
-    fptype* w_fp[nwf];
-    for ( int iwf=0; iwf<nwf; iwf++ ) w_fp[iwf] = reinterpret_cast<fptype*>( w_sv[iwf] );
-    fptype* amp_fp;
-    amp_fp = reinterpret_cast<fptype*>( amp_sv );
-
     // Local variables for the given SYCL event (ievt)
-    // [jamp: sum (for one event or event page) of the invariant amplitudes for all Feynman diagrams in a given color combination]
-    cxtype_sv jamp_sv[ncolor] = {}; // all zeros (NB: vector cxtype_v IS initialized to 0, but scalar cxtype is NOT, if "= {}" is missing!)
+    cxtype_sv jamp_sv[ncolor] = {}; // sum of the invariant amplitudes for all Feynman diagrams in the event or event page
 
     // === Calculate wavefunctions and amplitudes for all diagrams in all processes - Loop over nevt events ===
 """)
             ret_lines.append('    {') # NB This is closed in process_matrix.inc
+            multi_channel = None
+            if self.include_multi_channel:
+                if not self.support_multichannel:
+                    raise Exception("link with madevent not supported")
+                multi_channel = self.get_multi_channel_dictionary(self.matrix_elements[0].get('diagrams'), self.include_multi_channel)
             helas_calls = self.helas_call_writer.get_matrix_element_calls(\
                                                     self.matrix_elements[0],
-                                                    color_amplitudes[0]
+                                                    color_amplitudes[0],
+                                                    multi_channel_map = multi_channel
                                                     )
             logger.debug("only one Matrix-element supported?")
             self.couplings2order = self.helas_call_writer.couplings2order
@@ -997,35 +1009,76 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
 
     # AV - replace the export_cpp.OneProcessExporterGPU method (invert .cc/.cu, add debug printouts)
     def generate_process_files(self):
-        """Generate mgOnGpuConfig.h, CPPProcess.cc, CPPProcess.h, check_sa.cc, gXXX.cu links"""
+        """Generate mgOnGpuConfig.h, CPPProcess.cc, check_sa.cc, CPPProcess.h, check_sa.cc""" 
         misc.sprint('Entering PLUGIN_OneProcessExporter.generate_process_files')
-        super(export_cpp.OneProcessExporterGPU, self).generate_process_files()
+        if self.include_multi_channel:
+            misc.sprint('self.include_multi_channel is already defined: this is madevent+second_exporter mode')
+        else:
+            misc.sprint('self.include_multi_channel is not yet defined: this is standalone_sycl mode') # see issue #473
+        if self.matrix_elements[0].get('has_mirror_process'):
+            self.matrix_elements[0].set('has_mirror_process', False)
+            self.nprocesses/=2
+
+        ## NSN Explicity copy method and generate cc file first (need params2order for h file)
+        #super(export_cpp.OneProcessExporterGPU, self).generate_process_files()
+
+        #"""Generate the .h and .cc files needed for C++, for the
+        #processes described by multi_matrix_element"""
+
+        # Create the files
+        if not os.path.isdir(os.path.join(self.path, self.process_dir)):
+            os.makedirs(os.path.join(self.path, self.process_dir))
+        filename = os.path.join(self.path, self.process_dir,
+                                '%s.%s' % (self.process_class, self.cc_ext))
+
+        self.write_process_cc_file(writers.CPPWriter(filename))
+
+
+        if not os.path.isdir(os.path.join(self.path, self.include_dir)):
+            os.makedirs(os.path.join(self.path, self.include_dir))
+        filename = os.path.join(self.path, self.include_dir,
+                                '%s.h' % self.process_class)
+
+        self.write_process_h_file(writers.CPPWriter(filename))
+
+
+        logger.info('Created files %(process)s.h and %(process)s.cc in' % \
+                    {'process': self.process_class} + \
+                    ' directory %(dir)s' % {'dir': os.path.split(filename)[0]})
+
+        self.edit_CMakeLists()
         self.edit_check_sa()
         self.edit_mgonGPU()
         self.edit_processidfile() # AV new file (NB this is Sigma-specific, should not be a symlink to Subprocesses)
-        self.edit_testxxx() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
         # Add symbolic links
-        #files.ln(pjoin(self.path, 'check_sa.cc'), self.path, 'gcheck_sa.cu')
-        #files.ln(pjoin(self.path, 'CPPProcess.cc'), self.path, 'gCPPProcess.cu')
-        #files.ln(pjoin(self.path, 'CrossSectionKernels.cc'), self.path, 'gCrossSectionKernels.cu')
-        #files.ln(pjoin(self.path, 'MatrixElementKernels.cc'), self.path, 'gMatrixElementKernels.cu')
-        #files.ln(pjoin(self.path, 'RamboSamplingKernels.cc'), self.path, 'gRamboSamplingKernels.cu')
-        #files.ln(pjoin(self.path, 'RandomNumberKernels.cc'), self.path, 'gRandomNumberKernels.cu')
-        #files.ln(pjoin(self.path, 'BridgeKernels.cc'), self.path, 'gBridgeKernels.cu')
+        # NB: symlink of sycl.mk to makefile is overwritten by madevent makefile if this exists (#480)
+        # NB: this relies on the assumption that sycl code is generated before madevent code
+        files.ln(pjoin(self.path, 'sycl.mk'), self.path, 'makefile')
+
+    # SR - generate CMakeLists.txt file inside the P* directory
+    def edit_CMakeLists(self):
+        """Generate CMakeLists.txt"""
+        misc.sprint('Entering PLUGIN_OneProcessExporter.edit_CMakeLists')
+        template = open(pjoin(self.template_path,'CMake/SubProcesses/CMakeLists_P.txt'),'r').read()
+        ff = open(pjoin(self.path, 'CMakeLists.txt'),'w')
+        ff.write(template)
+        ff.close()
 
     # AV - replace the export_cpp.OneProcessExporterGPU method (invert .cc/.cu, add debug printouts)
     def edit_check_sa(self):
-        """Generate check_sa.cc"""
+        """Generate check_sa.cc and fcheck_sa.f"""
         misc.sprint('Entering PLUGIN_OneProcessExporter.edit_check_sa')
+        ff = open(pjoin(self.path, 'check_sa.cc'),'w')
         template = open(pjoin(self.template_path,'gpu','check_sa.cc'),'r').read()
-        # AV May remove replace_dict as no replacement is done in check_sa.cc (in upstream Madgraph)
-        ###replace_dict = {}
-        ###replace_dict['nexternal'], _ = self.matrix_elements[0].get_nexternal_ninitial()
+        ff.write(template) # nothing to replace in check_sa.cc
+        ff.close()
+        replace_dict = {}
+        replace_dict['nexternal'], _ = self.matrix_elements[0].get_nexternal_ninitial()
         ###replace_dict['model'] = self.model_name
         ###replace_dict['numproc'] = len(self.matrix_elements)
-        ff = open(pjoin(self.path, 'check_sa.cc'),'w')
-        ff.write(template)
-        ###ff.write(template % replace_dict) # AV normally this should be used! (and % should be %% in check_sa.cc)
+        ff = open(pjoin(self.path, 'fcheck_sa.f'),'w')
+        template = open(pjoin(self.template_path,'gpu','fcheck_sa.f'),'r').read()
+        ff.write(template % replace_dict)
         ff.close()
 
     # AV - add debug printouts over the export_cpp.OneProcessExporterGPU method
@@ -1035,6 +1088,8 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         template = open(pjoin(self.template_path,'gpu','mgOnGpuConfig.h'),'r').read()
         replace_dict = {}
         nexternal, nincoming = self.matrix_elements[0].get_nexternal_ninitial()
+        replace_dict['number_dependent_couplings'] = self.number_dependent_couplings
+        replace_dict['number_independent_couplings'] = self.number_independent_couplings
         replace_dict['nincoming'] = nincoming
         replace_dict['noutcoming'] = nexternal - nincoming
         
@@ -1050,6 +1105,11 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         replace_dict['nparams'] = len(self.params2order)
         
         
+        if self.include_multi_channel:
+            replace_dict['mgongpu_supports_multichannel'] = '#define MGONGPU_SUPPORTS_MULTICHANNEL 1'
+        else:
+            replace_dict['mgongpu_supports_multichannel'] = '#undef MGONGPU_SUPPORTS_MULTICHANNEL'
+
         ff = open(pjoin(self.path, '..','..','src','mgOnGpuConfig.h'),'w')
         ff.write(template % replace_dict)
         ff.close()        
@@ -1060,29 +1120,55 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         misc.sprint('Entering PLUGIN_OneProcessExporter.edit_processidfile')
         template = open(pjoin(self.template_path,'gpu','epoch_process_id.h'),'r').read()
         replace_dict = {}
-        replace_dict['processid'] = self.get_process_name()
-        replace_dict['processid_uppercase'] = self.get_process_name().upper()
+        replace_dict['processid'] = self.get_process_name().upper()
         ff = open(pjoin(self.path, 'epoch_process_id.h'),'w')
-        ff.write(template % replace_dict)
-        ff.close()
-
-    # AV - new method
-    def edit_testxxx(self):
-        """Generate testxxx.cc"""
-        misc.sprint('Entering PLUGIN_OneProcessExporter.edit_testxxx')
-        template = open(pjoin(self.template_path,'gpu','testxxx.cc'),'r').read()
-        replace_dict = {}
-        replace_dict['model_name'] = self.model_name
-        ff = open(pjoin(self.path, '..', 'testxxx.cc'),'w')
         ff.write(template % replace_dict)
         ff.close()
 
     # AV - overload the export_cpp.OneProcessExporterGPU method (add debug printout and truncate last \n)
     # [*NB export_cpp.UFOModelConverterGPU.write_process_h_file is not called!*]
-    def write_process_h_file(self, writer):
-        """Generate final gCPPProcess.h"""
+    def super_write_process_h_file(self, writer):
+        """Generate final CPPProcess.h"""
         misc.sprint('Entering PLUGIN_OneProcessExporter.write_process_h_file')
-        out = super().write_process_h_file(writer)
+        replace_dict = super(export_cpp.OneProcessExporterGPU, self).write_process_h_file(False)
+        #replace_dict2 = self.get_process_function_definitions(write=False)
+
+        #Set helicities
+        replace_dict['all_helicities'] = self.get_helicity_matrix(self.matrix_elements[0])
+        replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace("{", "")
+        replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace("}", "")
+        replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace("helicities", "constexpr T helicities[] {")
+        replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace("    ", "  ")
+        replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace(", constexpr", "constexpr")
+        replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace(";", "")
+
+        #Set hardcoded parameters
+        params = ['']
+        params = [''] * len(self.params2order)
+        for para, pos in self.params2order.items():
+            params[pos] = para
+
+        if len(params) > 0:
+            param_str_hrd = '  constexpr FPType independent_parameters[] { '
+            for para in params:
+                param_str_hrd += '(FPType)Parameters_{0:s}::{1:s}, '.format( self.model_name, para )
+            param_str_hrd = param_str_hrd[:-2] + ' };'
+            replace_dict['independent_parameters_hrdcod'] = param_str_hrd
+        else:
+            replace_dict['independent_parameters_hrdcod'] = 'constexpr FPType independent_parameters[] {}; // unused as nparam=0'
+
+        if writer:
+            file = self.read_template_file(self.process_template_h) % replace_dict
+            # Write the file
+            writer.writelines(file)
+        else:
+            return replace_dict
+
+    def write_process_h_file(self, writer):
+        """Generate final CPPProcess.h"""
+        misc.sprint('Entering PLUGIN_OneProcessExporter.write_process_h_file')
+        #out = super().write_process_h_file(writer)
+        out = self.super_write_process_h_file(writer)
         writer.seek(-1, os.SEEK_CUR)
         writer.truncate()
         return out
@@ -1111,7 +1197,6 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         return out
 
     # AV - replace the export_cpp.OneProcessExporterGPU method (improve formatting? actually keep all defaults!)
-    # [NB this is used in uu~>tt~ but not in gg>tt~ or e+e->mu+mu-, see issue #337]
     @staticmethod
     def coeff(ff_number, frac, is_imaginary, Nc_power, Nc_value=3):
         """Returns a nicely formatted string for the coefficients in JAMP lines"""
@@ -1126,7 +1211,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
                 return '-cxtype(0,1)*' # AV keep default (this is not used in eemumu - should use cI eventually)
             else:
                 return '-' # AV keep default (eg jamp_sv[0] += -amp_sv[0])
-        ###assert(False) # [this had been inserted to check if coeff is used at all, it is used in uu~>tt~, see #337]
+        assert(False)
         res_str = '%+i.' % total_coeff.numerator
         if total_coeff.denominator != 1:
             # Check if total_coeff is an integer
@@ -1140,22 +1225,23 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         """Return the color matrix definition lines for this matrix element. Split rows in chunks of size n."""
         import madgraph.core.color_algebra as color
         if not matrix_element.get('color_matrix'):
-            return "\n".join(["      static constexpr fptype denom[1] = {1.};", "static const fptype cf[1][1] = {1.};"])
+            return "\n".join(["      constexpr fptype denom[1] = {1.};", "static const fptype cf[1][1] = {1.};"]) # AV
         else:
             color_denominators = matrix_element.get('color_matrix').\
                                                  get_line_denominators()
-            denom_string = "      static constexpr fptype denom[ncolor] = {%s}; // 1-D array[%i]" \
-                           % ( ", ".join(["%i" % denom for denom in color_denominators]), len(color_denominators) )
+            ###denom_string = "static const double denom[ncolor] = {%s};" % ",".join(["%i" % denom for denom in color_denominators])
+            denom_string = "      static constexpr fptype denom[ncolor] = {%s};" % ", ".join(["%i" % denom for denom in color_denominators]) # AV
             matrix_strings = []
             my_cs = color.ColorString()
             for index, denominator in enumerate(color_denominators):
                 # Then write the numerators for the matrix elements
                 num_list = matrix_element.get('color_matrix').get_line_numerators(index, denominator)
-                matrix_strings.append("{%s}" % ", ".join(["%d" % i for i in num_list]))
-            matrix_string = "      static constexpr fptype cf[ncolor][ncolor] = "
-            if len( matrix_strings ) > 1 : matrix_string += '{\n        ' + ',\n        '.join(matrix_strings) + '};'
-            else: matrix_string += '{' + matrix_strings[0] + '};'
-            matrix_string += ' // 2-D array[%i][%i]' % ( len(color_denominators), len(color_denominators) )
+                ###matrix_strings.append("{%s}" % ",".join(["%d" % i for i in num_list]))
+                matrix_strings.append("{%s}" % ", ".join(["%d" % i for i in num_list])) # AV
+            ###matrix_string = "static const double cf[ncolor][ncolor] = {" + ",".join(matrix_strings) + "};"
+            matrix_string = "      static constexpr fptype cf[ncolor][ncolor] = " # AV
+            if len( matrix_strings ) > 1 : matrix_string += '{\n      ' + ',\n      '.join(matrix_strings) + '};' # AV
+            else: matrix_string += '{' + matrix_strings[0] + '};' # AV
             return "\n".join([denom_string, matrix_string])
 
     # AV - replace the export_cpp.OneProcessExporterGPU method (improve formatting)
@@ -1174,7 +1260,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
     def get_helicity_matrix(self, matrix_element):
         """Return the Helicity matrix definition lines for this matrix element"""
         ###helicity_line = "static const int helicities[ncomb][nexternal] = {";
-        ###helicity_line = "    static constexpr short helicities[ncomb][mgOnGpu::npar] = {\n      "; # AV (this is tHel)
+        ###helicity_line = "    constexpr short helicities[ncomb][mgOnGpu::npar] = {\n      "; # AV (this is tHel)
         helicity_line = "    , helicities {\n      "; # NSN SYCL needs access to tHel outside CPPProcess
         helicity_line_list = []
         for helicities in matrix_element.get_helicity_matrix(allow_reverse=False):
@@ -1220,7 +1306,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         import re
         ###print(call) # FOR DEBUGGING
         model = self.get('model')
-        if not hasattr(self, 'couplings2order'):
+        if ((not hasattr(self, 'couplings2order')) or (not hasattr(self, 'params2order'))):
             self.couplings2order = {}
             self.params2order = {}
         for coup in re.findall(self.findcoupling, call):
@@ -1249,8 +1335,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                                     '%s%s[%s]' % (sign, name, alias[coup]))
             else:
                 call = call.replace('m_pars->%s%s' % (sign, coup),
-                                    '%scxmake( cIPC[%s], cIPC[%s] )' %
-                                    (sign, 2*alias[coup],2*alias[coup]+1))
+                                    '%sCOUPs[%s]' % (sign, alias[coup]))
         return call
 
     # AV - new method for formatting wavefunction/amplitude calls
@@ -1260,7 +1345,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         return call.replace('(','( ').replace(')',' )').replace(',',', ')
 
     # AV - replace helas_call_writers.GPUFOHelasCallWriter method (improve formatting)
-    def super_get_matrix_element_calls(self, matrix_element, color_amplitudes):
+    def super_get_matrix_element_calls(self, matrix_element, color_amplitudes, multi_channel_map=False):
         """Return a list of strings, corresponding to the Helas calls for the matrix element"""
         import madgraph.core.helas_objects as helas_objects
         import madgraph.loop.loop_helas_objects as loop_helas_objects
@@ -1281,30 +1366,49 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         matrix_element.reuse_outdated_wavefunctions(me)
         res = []
         ###res.append('for(int i=0;i<%s;i++){jamp[i] = cxtype(0.,0.);}' % len(color_amplitudes))
-        res.append('// SYCL kernels take an input buffer with momenta for all events')
-        res.append('const fptype* momenta = allmomenta;')
         res.append('// Reset color flows (reset jamp_sv) at the beginning of a new event or event page')
         res.append('for( int i=0; i<ncolor; i++ ){ jamp_sv[i] = cxzero_sv(); }')
+        diagrams = matrix_element.get('diagrams')
+        diag_to_config = {}
+        if multi_channel_map:
+            for config in sorted(multi_channel_map.keys()):
+                amp = [a.get('number') for a in \
+                                  sum([diagrams[idiag].get('amplitudes') for \
+                                       idiag in multi_channel_map[config]], [])]
+                diag_to_config[amp[0]] = config
+        id_amp = 0
         for diagram in matrix_element.get('diagrams'):
             ###print('DIAGRAM %3d: #wavefunctions=%3d, #diagrams=%3d' %
             ###      (diagram.get('number'), len(diagram.get('wavefunctions')), len(diagram.get('amplitudes')) )) # AV - FOR DEBUGGING
             res.append('\n      // *** DIAGRAM %d OF %d ***' % (diagram.get('number'), len(matrix_element.get('diagrams'))) ) # AV
             res.append('\n      // Wavefunction(s) for diagram number %d' % diagram.get('number')) # AV
             res.extend([ self.get_wavefunction_call(wf) for wf in diagram.get('wavefunctions') ]) # AV new: avoid format_call
-            ###res.extend([ self.format_call(self.get_wavefunction_call(wf)) for wf in diagram.get('wavefunctions') ]) # AV old: use format_call
             if len(diagram.get('wavefunctions')) == 0 : res.append('// (none)') # AV
-            ###res.append("# Amplitude(s) for diagram number %d" % diagram.get('number'))
+            if res[-1][-1] == '\n' : res[-1] = res[-1][:-1]
             res.append("\n      // Amplitude(s) for diagram number %d" % diagram.get('number'))
             for amplitude in diagram.get('amplitudes'):
+                id_amp +=1
                 namp = amplitude.get('number')
                 amplitude.set('number', 1)
                 res.append(self.get_amplitude_call(amplitude)) # AV new: avoid format_call
-                ###res.append(self.format_call(self.get_amplitude_call(amplitude))) # AV old: use format_call
+                if multi_channel_map: # different code bases #473 (assume this is the same as self.include_multi_channel...)
+                    if id_amp in diag_to_config:
+                        res.append("#ifdef MGONGPU_SUPPORTS_MULTICHANNEL")
+                        res.append("if( channelId == %i ) allNumerators[0] += cxabs2( amp_sv[0] );" % diagram.get('number'))
+                        res.append("if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );")
+                        res.append("#endif")
+                else:
+                    res.append("#ifdef MGONGPU_SUPPORTS_MULTICHANNEL")
+                    res.append("// Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)")
+                    res.append("#endif")
                 for njamp, coeff in color[namp].items():
-                    ###res.append("jamp[%s] += %samp[0];" % (njamp, export_cpp.OneProcessExporterGPU.coeff(*coeff)))
-                    ###res.append("jamp[%s] += %samp[0];" % (njamp, PLUGIN_OneProcessExporter.coeff(*coeff)))
-                    ###res.append("jamp_sv[%s] += %samp_sv[0];" % (njamp, PLUGIN_OneProcessExporter.coeff(*coeff))) # AV vectorize
                     scoeff = PLUGIN_OneProcessExporter.coeff(*coeff) # AV
+                    if scoeff[0] == '+' : scoeff = scoeff[1:]
+                    scoeff = scoeff.replace('(','( ')
+                    scoeff = scoeff.replace(')',' )')
+                    scoeff = scoeff.replace(',',', ')
+                    scoeff = scoeff.replace('*',' * ')
+                    scoeff = scoeff.replace('/',' / ')
                     if scoeff.startswith('-'): res.append("jamp_sv[%s] -= %samp_sv[0];" % (njamp, scoeff[1:])) # AV
                     else: res.append("jamp_sv[%s] += %samp_sv[0];" % (njamp, scoeff)) # AV
             if len(diagram.get('amplitudes')) == 0 : res.append('// (none)') # AV
@@ -1312,10 +1416,9 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         return res
 
     # AV - overload helas_call_writers.GPUFOHelasCallWriter method (improve formatting)
-    def get_matrix_element_calls(self, matrix_element, color_amplitudes):
+    def get_matrix_element_calls(self, matrix_element, color_amplitudes, multi_channel_map=False):
         """Return a list of strings, corresponding to the Helas calls for the matrix element"""
-        ###res = super().get_matrix_element_calls(matrix_element, color_amplitudes)
-        res = self.super_get_matrix_element_calls(matrix_element, color_amplitudes)
+        res = self.super_get_matrix_element_calls(matrix_element, color_amplitudes, multi_channel_map)
         for i, item in enumerate(res):
             ###print(item) # FOR DEBUGGING
             if item.startswith('# Amplitude'): item='//'+item[1:] # AV replace '# Amplitude' by '// Amplitude'
@@ -1334,20 +1437,17 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         split_line = [ str.lstrip(' ').rstrip(' ') for str in split_line] # AV
         # (AV join using ',': no need to add a space as this is done by format_call later on)
         line = ', '.join(split_line)
-        #line = line.replace( 'xxx(', 'xxx<M_ACCESS, W_ACCESS>(' )
-        line = line.replace( 'w_sv', 'w_fp' )
-        # AV2: line2 logic is to have MGONGPU_TEST_DIVERGENCE on the first xxx call
         if self.first_get_external and ( ( 'mzxxx' in line ) or ( 'pzxxx' in line ) or ( 'xzxxx' in line ) ) :
             self.first_get_external = False
             line2 = line.replace('mzxxx','xxxxx').replace('pzxxx','xxxxx').replace('xzxxx','xxxxx')
             line2 = line2[:line2.find('// NB')]
             split_line2 = line2.split(',')
             split_line2 = [ str.lstrip(' ').rstrip(' ') for str in split_line2] # AV
-            split_line2.insert(2, '0') # add parameter fmass=0
+            split_line2.insert(1, '0') # add parameter fmass=0
             line2 = ', '.join(split_line2)
-            text = '#if not defined MGONGPU_TEST_DIVERGENCE\n      %s\n#else\n      if ( ievt %% 2 == 0 )\n        %s\n      else\n        %s\n#endif\n' # AV
+            text = '#if not defined MGONGPU_TEST_DIVERGENCE\n      %s\n#else\n      if ( ievt %% 2 == 0 )\n        %s\n      else\n        %s\n#endif\n'
             return text % (line, line, line2)
-        text = '%s\n' # AV
+        text = '%s\n'
         return text % line
 
     # AV - replace helas_call_writers.GPUFOHelasCallWriter method (vectorize w_sv)
@@ -1363,47 +1463,47 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             # Fill out with X up to 6 positions
             call = call + 'x' * (6 - len(call))
             # Specify namespace for Helas calls
-            call = call + "( momenta, ievt,"
+            call = call + "( allmomenta + %d * np4 * neppM,"
             if argument.get('spin') != 1:
                 # For non-scalars, need mass and helicity
-                call = call + "m_pars->%s, cHel[ihel*npar + %d],"
+                call = call + "m_pars->%s, cHel[%d],"
             else:
                 # AV This seems to be for scalars (spin==1???), pass neither mass nor helicity (#351)
                 ###call = call + "m_pars->%s,"
                 call = call
-            call = call + "%+d, w_sv[%d], %d );"
+            call = call + "%+d, w_sv[%d]);" # AV vectorize
             if argument.get('spin') == 1:
-                # AV This seems to be for scalars (spin==1???), pass neither mass nor helicity (#351)
                 return call % \
-                                (
-                                 ###wf.get('mass'),
+                                (wf.get('number_external')-1,
+                                 wf.get('mass'),
+                                 wf.get('number_external')-1,
                                  # For boson, need initial/final here
                                  (-1) ** (wf.get('state') == 'initial'),
-                                 wf.get('me_id')-1,
-                                 wf.get('number_external')-1)
+                                 wf.get('me_id')-1)
             elif argument.is_boson():
                 misc.sprint(call)
-                misc.sprint( (wf.get('mass'),
+                misc.sprint( 
+                                (wf.get('number_external')-1,
+                                 wf.get('mass'),
                                  wf.get('number_external')-1,
                                  # For boson, need initial/final here
                                  (-1) ** (wf.get('state') == 'initial'),
-                                 wf.get('me_id')-1,
-                                 wf.get('number_external')-1))
+                                 wf.get('me_id')-1))
                 return  self.format_coupling(call % \
-                                (wf.get('mass'),
+                                (wf.get('number_external')-1,
+                                 wf.get('mass'),
                                  wf.get('number_external')-1,
                                  # For boson, need initial/final here
                                  (-1) ** (wf.get('state') == 'initial'),
-                                 wf.get('me_id')-1,
-                                 wf.get('number_external')-1))
+                                 wf.get('me_id')-1))
             else:
                 return self.format_coupling(call % \
-                                (wf.get('mass'),
+                                (wf.get('number_external')-1,
+                                 wf.get('mass'),
                                  wf.get('number_external')-1,
                                  # For fermions, need particle/antiparticle
                                  - (-1) ** wf.get_with_flow('is_part'),
-                                 wf.get('me_id')-1,
-                                 wf.get('number_external')-1))
+                                 wf.get('me_id')-1))
         else:
             if wf.get('number_external') == 1:
                 call += 'pz'
@@ -1416,13 +1516,13 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             if wf.get('number_external') == 1 or wf.get('number_external') == 2: # AV
                 comment = ' // NB: ' + call + ' only uses pz' # AV skip '(not E,px,py)' to avoid interference with comma parsing in get_external
             # Specify namespace for Helas calls
-            call = call + '( momenta, ievt, cHel[ihel*npar + %d], %+d, w_sv[%d], %d );' + comment # AV vectorize and add comment
+            call = call + '( allmomenta + %d * np4 * neppM, cHel[%d], %+d, w_sv[%d] );' + comment # AV vectorize and add comment
             return self.format_coupling(call % \
                                 (wf.get('number_external')-1,
+                                 wf.get('number_external')-1,
                                  # For fermions, need particle/antiparticle
                                  - (-1) ** wf.get_with_flow('is_part'),
-                                 wf.get('me_id')-1,
-                                 wf.get('number_external')-1))
+                                 wf.get('me_id')-1))
 
     # AV - replace helas_call_writers.GPUFOHelasCallWriter method (vectorize w_sv and amp_sv)
     def generate_helas_call(self, argument):
@@ -1480,21 +1580,18 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             call = '%(routine_name)s( %(wf)s%(coup)s%(mass)s%(out)s );'
             # compute wf
             arg = {'routine_name': aloha_writers.combine_name('%s' % l[0], l[1:], outgoing, flag, True),
-                   'wf': ("w_fp[%%(%d)d], " * len(argument.get('mothers'))) % tuple(range(len(argument.get('mothers')))),
-                   'coup': ("m_pars->%%(coup%d)s, " * len(argument.get('coupling'))) % tuple(range(len(argument.get('coupling'))))
+                   'wf': ("w_sv[%%(%d)d], " * len(argument.get('mothers'))) % tuple(range(len(argument.get('mothers')))), # AV
+                   'coup': ("m_pars->%%(coup%d)s, " * len(argument.get('coupling'))) % tuple(range(len(argument.get('coupling')))) # AV
                    }
-            #if arg['routine_name'].endswith( '_0' ) : arg['routine_name'] += '<find_me, A_ACCESS>'
-            #else : arg['routine_name'] += '<W_ACCESS>'
             if isinstance(argument, helas_objects.HelasWavefunction):
-                #arg['out'] = 'w_sv[%(out)d]'
-                arg['out'] = 'w_fp[%(out)d]'
+                ###arg['out'] = 'w[%(out)d]'
+                arg['out'] = 'w_sv[%(out)d]'
                 if aloha.complex_mass:
                     arg['mass'] = "m_pars->%(CM)s, "
                 else:
                     arg['mass'] = "m_pars->%(M)s, m_pars->%(W)s, "
             else:
-                #arg['out'] = '&amp_sv[%(out)d]'
-                arg['out'] = '&amp_fp[%(out)d]'
+                arg['out'] = '&amp_sv[%(out)d]'
                 arg['out2'] = 'amp_sv[%(out)d]'
                 arg['mass'] = ''
             call = call % arg

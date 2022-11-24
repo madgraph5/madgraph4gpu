@@ -8,13 +8,17 @@
 
       // Sum and square the color flows to get the matrix element
       // (compute |M|^2 by squaring |M|, taking into account colours)
-      fptype_sv deltaMEs = {0}; // all zeros https://en.cppreference.com/w/c/language/array_initialization#Notes
+      fptype_sv deltaMEs = { 0 }; // all zeros
       for( int icol = 0; icol < ncolor; icol++ )
       {
         cxtype_sv ztemp_sv = cxzero_sv();
         for( int jcol = 0; jcol < ncolor; jcol++ )
           ztemp_sv += cf[icol][jcol] * jamp_sv[jcol];
-        deltaMEs += cxreal( ztemp_sv * cxconj( jamp_sv[icol] ) ) / denom[icol];
+        // OLD implementation: why is this not slower? maybe compiler does not compute imaginary part of "ztemp_sv*cxconj(jamp_sv[icol])"?
+        //deltaMEs += cxreal( ztemp_sv * cxconj( jamp_sv[icol] ) ) / denom[icol];
+        // NEW implementation: keep this even if (surprisingly) it is not faster! it is clearer and easier for tensor core offload anyway...
+        // Rewrite the quadratic form (A-iB)(M)(A+iB) as AMA - iBMA + iBMA + BMB = AMA + BMB!
+        deltaMEs += ( cxreal( ztemp_sv ) * cxreal( jamp_sv[icol] ) + cximag( ztemp_sv ) * cximag( jamp_sv[icol] ) ) / denom[icol];
       }
 
       // *** STORE THE RESULTS ***
@@ -26,9 +30,8 @@
 
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
       // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-      allMEs[ievt] += deltaMEs;
-      //if ( cNGoodHel > 0 ) printf( "calculate_wavefunction: %%6d %%2d %%f\n", ievt, ihel, allMEs[ievt] );
+      allMEs += deltaMEs;
     }
     mgDebug( 1, __FUNCTION__ );
-    return;
+    return allMEs;
   }
