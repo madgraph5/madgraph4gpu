@@ -39,6 +39,7 @@ fi
 prefix=$(pwd)
 
 #export DPCPP_HOME=/p/project/prpb109/sycl_workspace
+export DPCPP_HOME=/afs/cern.ch/work/j/jteig/sycl_workspace
 export USEBUILDDIR=1
 export NTPBMAX=1024
 export CXX=/afs/cern.ch/work/j/jteig/sycl_workspace/llvm/build/bin/clang++
