@@ -80,8 +80,7 @@ export MG_PROC_DIR=$prefix/../../epochX/sycl/$MG_PROC
 export MG_SP_DIR=$MG_PROC_DIR/SubProcesses/$MG_SUBPROC
 
 export MG_LIBS_DIR="${MG4GPU_LIB}/build_${MG_PROC}_${SYCL_NAME_PREFIX}"
-# export MG_LIBS="$DPCPP_HOME/llvm/build/lib:$MG_LIBS_DIR"
-export MG_LIBS=$MG_LIBS_DIR
+export MG_LIBS="$DPCPP_HOME/llvm/build/lib:$MG_LIBS_DIR"
 
 export MG_EXE_DIR="${MG4GPU_BIN}/build_${MG_PROC}_${SYCL_NAME_PREFIX}"
 export MG_EXE="$MG_EXE_DIR/check.exe"
