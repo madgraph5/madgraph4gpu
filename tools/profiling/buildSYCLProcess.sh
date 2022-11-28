@@ -8,16 +8,18 @@ helpFunction()
     echo -e "\t-b Blocks per grid"
     echo -e "\t-t Threads per block"
     echo -e "\t-i Iterations"
+    echo -e "\t-p Profiler flag"
     exit 1 # Exit script after printing help
 }
 
-while getopts "n:b:t:i:" opt
+while getopts "n:b:t:i:p:" opt
 do
     case "$opt" in
         n ) MG_PROC="$OPTARG" ;; #process to target
         b ) blocksPerGrid="$OPTARG" ;;
         t ) threadsPerBlock="$OPTARG" ;;
         i ) iterations="$OPTARG" ;;
+        p ) profilerFlag="$OPTARG" ;;
         ? ) helpFunction ;; # Print helpFunction in case parameter is non-existent
     esac
 done
@@ -38,11 +40,13 @@ fi
 # Assumes that this is run from profiling directory in the repo
 prefix=$(pwd)
 
+export ENABLE_CI_PROFILER=1
+
 #export DPCPP_HOME=/p/project/prpb109/sycl_workspace
 export DPCPP_HOME=/afs/cern.ch/work/j/jteig/sycl_workspace
 export USEBUILDDIR=1
 export NTPBMAX=1024
-export CXX=/afs/cern.ch/work/j/jteig/sycl_workspace/llvm/build/bin/clang++
+export CXX=$DPCPP_HOME/llvm/build/bin/clang++
 export CUDA_PATH=/usr/local/cuda-11.6
 export SYCLFLAGS="-fsycl -fsycl-targets=nvptx64-nvidia-cuda -Xsycl-target-backend '--cuda-gpu-arch=sm_70' -fgpu-rdc --cuda-path=$CUDA_PATH"
 export WORKSPACE=$prefix/workspace_mg4gpu
@@ -90,8 +94,8 @@ export MG5AMC_CARD_PATH=$MG_PROC_DIR/Cards
 # Build executable
 cd $MG_SP_DIR
 make
-mv ../../lib/build.d_inl0/ $MG_LIBS_DIR #2>/dev/null; true
-mv build.d_inl0/ $MG_EXE_DIR #2>/dev/null; true
+mv ../../lib/build.d_inl0*/ $MG_LIBS_DIR #2>/dev/null; true
+mv build.d_inl0*/ $MG_EXE_DIR #2>/dev/null; true
 
 # Run executable
 cd $WORKSPACE
