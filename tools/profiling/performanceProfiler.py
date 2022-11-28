@@ -25,13 +25,13 @@ parser = argparse.ArgumentParser(description='A program for profiling GPUs using
 
 parser.add_argument("-l", help="Choose which abstraction layer you want to use (CUDA/SYCL).", default=absLayer)
 parser.add_argument("-b", help="Choose which branch the madgraph4gpu repo is in.", default=branch)
-parser.add_argument("-b", help="Choose which branch the madgraph4gpu repo is in.", default=branch)
 parser.add_argument("--profiler", help="Enables a argument in the build script to specify which GCC toolkit the compiler will use.", action=argparse.BooleanOptionalAction)
 
 #Add profiler option in python and build scripts so that correct gcc toolchain can be set through makefile and still not disturb the compilation on Github machines
 
 pyArgs = parser.parse_args()
 
+# Sets enable CI profiler flag to be picked up in makefiles to set correct GCC toolchain 
 if pyArgs.profiler == True:
     os.environ['ENABLE_CI_PROFILER'] = 1
 else:

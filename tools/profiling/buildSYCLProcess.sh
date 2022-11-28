@@ -8,7 +8,6 @@ helpFunction()
     echo -e "\t-b Blocks per grid"
     echo -e "\t-t Threads per block"
     echo -e "\t-i Iterations"
-    echo -e "\t-p Profiler flag"
     exit 1 # Exit script after printing help
 }
 
@@ -19,7 +18,6 @@ do
         b ) blocksPerGrid="$OPTARG" ;;
         t ) threadsPerBlock="$OPTARG" ;;
         i ) iterations="$OPTARG" ;;
-        p ) profilerFlag="$OPTARG" ;;
         ? ) helpFunction ;; # Print helpFunction in case parameter is non-existent
     esac
 done
