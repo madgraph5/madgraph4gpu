@@ -1,7 +1,7 @@
 #=== Configure common compiler flags for SYCL build
 
 INCFLAGS = -I.
-OPTFLAGS = -O3 -march=native --gcc-toolchain="/cvmfs/sft.cern.ch/lcg/releases/gcc/11.3.0-ad0f5/x86_64-centos8" # this ends up in 
+OPTFLAGS = -O3 -march=native # this ends up in 
 
 #-------------------------------------------------------------------------------
 
