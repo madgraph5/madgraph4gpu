@@ -40,8 +40,6 @@ fi
 # Assumes that this is run from profiling directory in the repo
 prefix=$(pwd)
 
-export ENABLE_CI_PROFILER=1
-
 #export DPCPP_HOME=/p/project/prpb109/sycl_workspace
 export DPCPP_HOME=/afs/cern.ch/work/j/jteig/sycl_workspace
 export USEBUILDDIR=1
