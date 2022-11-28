@@ -27,7 +27,7 @@ UNAME_P := $(shell uname -p)
 #=== Configure common compiler flags for C++ and SYCL
 
 INCFLAGS = -I.
-OPTFLAGS = -O3 -march=native --gcc-toolchain="/cvmfs/sft.cern.ch/lcg/releases/gcc/11.3.0-ad0f5/x86_64-centos8"
+OPTFLAGS = -O3 -march=native
 
 # Dependency on src directory
 MG5AMC_COMMONLIB = mg5amc_common
@@ -93,6 +93,12 @@ export NTPBMAX
 #-------------------------------------------------------------------------------
 
 #=== Set the SYCL/C++ compiler flags appropriate to user-defined choices of FPTYPE, HELINL, HRDCOD, NTPBMAX
+
+# Add option to enable CI profiler use
+$(info ENABLE_CI_PROFILER=$(ENABLE_CI_PROFILER))
+ifeq ($(ENABLE_CI_PROFILER),1)
+  CXXFLAGS += --gcc-toolchain="/cvmfs/sft.cern.ch/lcg/releases/gcc/11.3.0-ad0f5/x86_64-centos8"
+endif
 
 # Set the build flags appropriate to each FPTYPE choice (example: "make FPTYPE=f")
 $(info FPTYPE=$(FPTYPE))
