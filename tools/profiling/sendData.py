@@ -16,6 +16,7 @@ Auth = ['db_user', secret]
 GPU = 'a100s'
 physicsProcesses = ['ee_mumu', 'gg_ttggg', 'gg_ttgg', 'gg_ttg', 'gg_tt']
 absLayer = ['SYCL', 'CUDA', 'sycl', 'cuda']
+branch = 'master'
 GCCVersion = '11.3'
 CUDAVersion = '11.6.2'
 fields = ['EvtsPerSec[MatrixElems] (3)', 'EvtsPerSec[MECalcOnly] (3)']
@@ -30,6 +31,7 @@ parser.add_argument('-g', '--gpu', help="GPU used when profiling.", default=GPU)
 parser.add_argument('--GCCVersion', help="GCC version used when profiling.", default=GCCVersion)
 parser.add_argument('--CUDAVersion', help="CUDA version used when profiling.", default=CUDAVersion)
 parser.add_argument('-a', '--absLayer', help="Abstraction layer used when profiling.", default=absLayer[0], choices=absLayer)
+parser.add_argument('-b', '--branch', help="Branch the profiler data is in.", default=branch)
 parser.add_argument('-p', '--profiler', help="Enable CI profiling defaults.", action=argparse.BooleanOptionalAction)
 
 args = parser.parse_args()
@@ -52,7 +54,7 @@ if __name__=='__main__':
                 logging.error('Sycl name prefix has not been set!')
                 sys.exit(1)
 
-            reportfolder= "workspace_mg4gpu/" + datetime.datetime.now().strftime('%y-%m-%d') + '_' + syclNamePrefix
+            reportfolder= "workspace_mg4gpu/" + datetime.datetime.now().strftime('%y-%m-%d') + '_' + syclNamePrefix + '_' + branch
 
             if not os.path.exists(reportfolder):
                 logging.error('SYCL report path does not exist!')
