@@ -33,9 +33,9 @@ pyArgs = parser.parse_args()
 
 # Sets enable CI profiler flag to be picked up in makefiles to set correct GCC toolchain 
 if pyArgs.profiler == True:
-    os.environ['ENABLE_CI_PROFILER'] = 1
+    os.environ['ENABLE_CI_PROFILER'] = '1'
 else:
-    os.environ['ENABLE_CI_PROFILER'] = 0
+    os.environ['ENABLE_CI_PROFILER'] = '0'
 
 # How many runs in total the program made
 count = 0
