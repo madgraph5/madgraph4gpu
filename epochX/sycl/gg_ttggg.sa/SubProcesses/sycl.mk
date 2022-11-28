@@ -212,7 +212,7 @@ cxx_objects_exe=
 $(LIBDIR)/lib$(MG5AMC_CXXLIB).so: $(BUILDDIR)/fbridge.o
 $(LIBDIR)/lib$(MG5AMC_CXXLIB).so: cxx_objects_lib += $(BUILDDIR)/fbridge.o
 $(LIBDIR)/lib$(MG5AMC_CXXLIB).so: $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects_lib)
-	$(CXX) $(CXXFLAGS) $(CXXFLAGS) $(SYCLFLAGS) -fPIC -shared -o $@ $(cxx_objects_lib) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
+	$(CXX) $(CXXFLAGS) $(SYCLFLAGS) -fPIC -shared -o $@ $(cxx_objects_lib) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
 
 # Target (and build rules): C++ and SYCL static libraries
 $(LIBDIR)/lib$(MG5AMC_CXXLIB).a: $(BUILDDIR)/CPPProcess.o $(BUILDDIR)/fbridge.o
@@ -260,7 +260,7 @@ $(BUILDDIR)/%.o : %.f *.inc
 
 $(fsycl_main): LIBFLAGS += $(CXXLIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(fsycl_main): $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).a $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so
-	$(CXX) $(SYCLFLAGS) -o $@ $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).a $(LIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_COMMONLIB) -lstdc++fs
+	$(CXX) $(CXXFLAGS) $(SYCLFLAGS) -o $@ $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).a $(LIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_COMMONLIB) -lstdc++fs
 
 #-------------------------------------------------------------------------------
 
