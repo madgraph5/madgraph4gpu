@@ -36,9 +36,6 @@ parser.add_argument('-p', '--profiler', help="Enable CI profiling defaults.", ac
 
 args = parser.parse_args()
 
-os.environ['SYCL_NAME_PREFIX'] = 'sycl_Xeon-Silver-4216_a100s_gcc-11.3_cuda-11.6.2'
-os.environ['CUDA_NAME_PREFIX'] = 'cudacpp_Xeon-Silver-4216_a100s_gcc-11.3_cuda-11.6.2'
-
 #
 #   Main
 #
@@ -55,6 +52,7 @@ if __name__=='__main__':
                 sys.exit(1)
 
             reportfolder= "workspace_mg4gpu/" + datetime.datetime.now().strftime('%y-%m-%d') + '_' + syclNamePrefix + '_' + branch
+            print(reportfolder)
 
             if not os.path.exists(reportfolder):
                 logging.error('SYCL report path does not exist!')

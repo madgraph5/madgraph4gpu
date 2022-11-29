@@ -9,7 +9,7 @@ import argparse
 absLayer = "SYCL"
 branch = "master"
 
-mgProcesses = ["ee_mumu", "gg_tt", "gg_ttg", "gg_ttgg", "gg_ttggg"]
+mgProcesses = ["ee_mumu", "gg_tt", "gg_ttg", "gg_ttgg"] #"gg_ttggg"]
 
 #doublePrecisionConstant = 2560
 doublePrecisionConstant = 1
