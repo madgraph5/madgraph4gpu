@@ -15,6 +15,7 @@ jobs:
     env:
       SYCL_NAME_PREFIX: sycl_Xeon-Silver-4216_a100s_gcc-11.3_cuda-11.6.2
       CUDA_NAME_PREFIX: cudacpp_Xeon-Silver-4216_a100s_gcc-11.3_cuda-11.6.2
+      ENABLE_CI_PROFILER: 1
 
       MADGRAPH4GPU_DB_SECRET: ${{ secrets.MADGRAPH4GPU_DB_SECRET }}
     runs-on: [self-hosted, linux, a100s]
