@@ -8,18 +8,18 @@ helpFunction()
     echo -e "\t-b Blocks per grid"
     echo -e "\t-t Threads per block"
     echo -e "\t-i Iterations"
-    echo -e "\t--branch Branch"
+    echo -e "\t-r Branch"
     exit 1 # Exit script after printing help
 }
 
-while getopts "n:b:t:i:branch:" opt
+while getopts "n:b:t:i:r:" opt
 do
     case "$opt" in
         n ) MG_PROC="$OPTARG" ;; #process to target
         b ) blocksPerGrid="$OPTARG" ;;
         t ) threadsPerBlock="$OPTARG" ;;
         i ) iterations="$OPTARG" ;;
-        branch ) branch="$OPTARG" ;;
+        r ) branch="$OPTARG" ;;
         ? ) helpFunction ;; # Print helpFunction in case parameter is non-existent
     esac
 done
