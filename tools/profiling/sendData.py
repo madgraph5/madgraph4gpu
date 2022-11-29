@@ -65,7 +65,7 @@ if __name__=='__main__':
                 logging.error('Cuda name prefix has not been set!')
                 sys.exit(1)
 
-            reportfolder= "workspace_mg4gpu/" + datetime.datetime.now().strftime('%y-%m-%d') + '_' + cudaNamePrefix
+            reportfolder= "workspace_mg4gpu/" + datetime.datetime.now().strftime('%y-%m-%d') + '_' + cudaNamePrefix + '_' + branch
 
             if not os.path.exists(reportfolder):
                 logging.error('CUDA report path does not exist!')
