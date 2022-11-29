@@ -9,16 +9,16 @@ import argparse
 absLayer = "SYCL"
 branch = "master"
 
-mgProcesses = ["ee_mumu", "gg_tt", "gg_ttg", "gg_ttgg"] #"gg_ttggg"]
+mgProcesses = ["ee_mumu", "gg_tt", "gg_ttg", "gg_ttgg", "gg_ttggg"]
 
-#doublePrecisionConstant = 2560
-doublePrecisionConstant = 1
-#iterations = 10
-iterations = 1
-#threadsPerBlock = [128, 256]
-threadsPerBlock = [32]
-#blocksPerGrid = [16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384]
-blocksPerGrid = [32]
+doublePrecisionConstant = 2560
+#doublePrecisionConstant = 1
+iterations = 10
+#iterations = 1
+threadsPerBlock = [128, 256]
+#threadsPerBlock = [32]
+blocksPerGrid = [16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384]
+#blocksPerGrid = [32]
 
 # Parser
 parser = argparse.ArgumentParser(description='A program for profiling GPUs using MadGraph.')
