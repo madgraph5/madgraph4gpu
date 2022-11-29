@@ -12,7 +12,7 @@ helpFunction()
     exit 1 # Exit script after printing help
 }
 
-while getopts "n:b:t:i:" opt
+while getopts "n:b:t:i:branch:" opt
 do
     case "$opt" in
         n ) MG_PROC="$OPTARG" ;; #process to target
