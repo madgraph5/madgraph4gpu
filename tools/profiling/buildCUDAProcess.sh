@@ -2,31 +2,33 @@
 
 helpFunction()
 {
-   echo ""
-   echo "Usage: $0 -n gg_ttgg -b 1024 -t 128 -i 10"
-   echo -e "\t-n Name of the physics process being built and run"
-   echo -e "\t-b Blocks per grid"
-   echo -e "\t-t Threads per block"
-   echo -e "\t-i Iterations"
-   exit 1 # Exit script after printing help
+    echo ""
+    echo "Usage: $0 -n gg_ttgg -b 1024 -t 128 -i 10"
+    echo -e "\t-n Name of the physics process being built and run"
+    echo -e "\t-b Blocks per grid"
+    echo -e "\t-t Threads per block"
+    echo -e "\t-i Iterations"
+    echo -e "\t-r Branch"
+    exit 1 # Exit script after printing help
 }
 
-while getopts "n:b:t:i:" opt
+while getopts "n:b:t:i:r:" opt
 do
-   case "$opt" in
-      n ) MG_PROC="$OPTARG" ;; #process to target
-      b ) blocksPerGrid="$OPTARG" ;;
-      t ) threadsPerBlock="$OPTARG" ;;
-      i ) iterations="$OPTARG" ;;
-      ? ) helpFunction ;; # Print helpFunction in case parameter is non-existent
-   esac
+    case "$opt" in
+        n ) MG_PROC="$OPTARG" ;; #process to target
+        b ) blocksPerGrid="$OPTARG" ;;
+        t ) threadsPerBlock="$OPTARG" ;;
+        i ) iterations="$OPTARG" ;;
+        r ) branch="$OPTARG" ;;
+        ? ) helpFunction ;; # Print helpFunction in case parameter is non-existent
+    esac
 done
 
 # Print helpFunction in case parameters are empty
 if [ -z "${MG_PROC}" ] || [ -z "${blocksPerGrid}" ] || [ -z "${threadsPerBlock}" ] || [ -z "${iterations}" ]
 then
-   echo "Some or all of the parameters are empty";
-   helpFunction
+    echo "Some or all of the parameters are empty";
+    helpFunction
 fi
 
 # Begin script in case all parameters are correct
@@ -48,13 +50,13 @@ export FC=`which gfortran`
 export WORKSPACE=$prefix/workspace_mg4gpu
 #export NAME_PREFIX="cudacpp_v100s_cuda_11.6.2_gcc_11.3"
 
-REPORT_FOLDER_PREFIX="${WORKSPACE}/$(date +"%y-%m-%d")_${CUDA_NAME_PREFIX}_master"
+REPORT_FOLDER="${WORKSPACE}/$(date +"%y-%m-%d")_${CUDA_NAME_PREFIX}_${branch}"
 
 # Sets CUDA in PATH
 export PATH=$CUDA_HOME:$PATH
 
 mkdir $WORKSPACE 2>/dev/null; true
-mkdir $REPORT_FOLDER_PREFIX 2>/dev/null; true
+mkdir $REPORT_FOLDER 2>/dev/null; true
 
 # Finds correct subprocess
 case $MG_PROC in
