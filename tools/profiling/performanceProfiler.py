@@ -52,7 +52,11 @@ for process in mgProcesses:
                     if ".sa" not in process:
                         process = process + ".sa"
                     
-                    bashArgs = ["./buildCUDAProcess.sh", "-n",  process, "-i",  str(iterations), "-t",  str(TPB), "-b", str(BPG)]
+                    bashArgs = ["./buildCUDAProcess.sh", "-n",  process, "-i",  str(iterations), "-t",  str(TPB), "-b", str(BPG), "--branch", str(pyArgs.b).lower]
+
+                    #if len(pyArgs.b) > 0:
+                    #    bashArgs.append('--branch')
+                    #    bashArgs.append(str(pyArgs.b).lower())
 
                 else: sys.exit("No abstraction layer matching the supplied string!")
 

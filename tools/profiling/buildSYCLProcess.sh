@@ -8,16 +8,18 @@ helpFunction()
     echo -e "\t-b Blocks per grid"
     echo -e "\t-t Threads per block"
     echo -e "\t-i Iterations"
+    echo -e "\t--branch Branch"
     exit 1 # Exit script after printing help
 }
 
-while getopts "n:b:t:i:p:" opt
+while getopts "n:b:t:i:" opt
 do
     case "$opt" in
         n ) MG_PROC="$OPTARG" ;; #process to target
         b ) blocksPerGrid="$OPTARG" ;;
         t ) threadsPerBlock="$OPTARG" ;;
         i ) iterations="$OPTARG" ;;
+        branch ) branch="$OPTARG" ;;
         ? ) helpFunction ;; # Print helpFunction in case parameter is non-existent
     esac
 done
@@ -50,7 +52,7 @@ export WORKSPACE=$prefix/workspace_mg4gpu
 #export NAME_PREFIX="sycl_Xeon-Silver-4216_a100s_cuda-11.6.2_gcc-11.3"
 
 # Branch should be enviroment variable in main script and then passed down if none then it is not displayed in prefix
-REPORT_FOLDER_PREFIX="${WORKSPACE}/$(date +"%y-%m-%d")_${SYCL_NAME_PREFIX}_master"
+export REPORT_FOLDER=$WORKSPACE/$(date +"%y-%m-%d")_${SYCL_NAME_PREFIX}_${branch}
 
 # If unknown set at the run step after running LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MG_LIBS $MG_EXE --param_card $MG5AMC_CARD_PATH/param_card.dat --device_info 1024 128 10
 export DEVICE_ID=0
@@ -71,9 +73,7 @@ esac
 
 mkdir -p $WORKSPACE/mg4gpu/lib 2>/dev/null; true
 mkdir -p $WORKSPACE/mg4gpu/bin 2>/dev/null; true
-mkdir $REPORT_FOLDER_PREFIX 2>/dev/null; true
-
-export REPORT_FOLDER=$WORKSPACE/$(date +"%y-%m-%d")_${SYCL_NAME_PREFIX}
+mkdir $REPORT_FOLDER 2>/dev/null; true
 
 export MG4GPU_LIB=$WORKSPACE/mg4gpu/lib
 export MG4GPU_BIN=$WORKSPACE/mg4gpu/bin
