@@ -21,6 +21,7 @@ if [ "$1" == "-ALL" ] && [ "$2" == "" ]; then
   $0 -default
   $0 -juwels
   $0 -ichep22
+  $0 -acat22
   $0 -ggttgg
   $0 -ggttggg
   exit 0
@@ -30,12 +31,14 @@ elif [ "$1" == "-juwels" ]; then
   table="juwels"; shift
 elif [ "$1" == "-ichep22" ]; then
   table="ichep22"; shift
+elif [ "$1" == "-acat22" ]; then
+  table="acat22"; shift
 elif [ "$1" == "-ggttgg" ]; then
   table="ggttgg"; shift
 elif [ "$1" == "-ggttggg" ]; then
   table="ggttggg"; shift
 else
-  echo "Usage: $0 [--long] <table [-ALL|-default|-juwels|-ichep22|-ggttgg|-ggttggg]>"; exit 1
+  echo "Usage: $0 [--long] <table [-ALL|-default|-juwels|-ichep22|-acat22|-ggttgg|-ggttggg]>"; exit 1
 fi
 
 # Select revisions and characteristics of mad logs
@@ -44,37 +47,64 @@ mrevs=""
 if [ "$table" == "default" ]; then
   procs="eemumu ggtt ggttg ggttgg ggttggg"
   mrevs="$mrevs 82729ba"  # cuda117/gcc112  (14 Oct 2022)
+  ###mrevs="$mrevs bb15ee2"  # cuda117/gcc112  (21 Oct 2022 itscrd70)  rerun add hack3/mixedfps (all processes)
   fpts="d f"
   taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/8192 CUDA/max $cuda8tpb"
 elif [ "$table" == "juwels" ]; then
   procs="eemumu ggtt ggttg ggttgg ggttggg"
-  ###mrevs="$mrevs 59b311b"  # cuda115/gcc102  (14 Oct 2022 jwlogin04=slower #540)
-  mrevs="$mrevs cdc8dda"  # cuda115/gcc102  (14 Oct 2022 jwlogin07=faster #540)
   taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z"
-  fpts="d f"
+  # -- Before implementing 'm': add a second 'd' table for better diffs
+  ###mrevs="$mrevs 59b311b"  # cuda115/gcc102  (14 Oct 2022 jwlogin04=slower #540)
+  ###mrevs="$mrevs cdc8dda"  # cuda115/gcc102  (14 Oct 2022 jwlogin07=faster #540)
+  ###fpts="d f"
+  # -- After implementing 'm'
+  mrevs="$mrevs 4a90ec2"  # cuda115/gcc102  (18 Oct 2022 jwlogin07) add hack3/mixedfps (all processes), faster ACAT2022
+  ###mrevs="$mrevs 210a006"  # cuda115/gcc102  (21 Oct 2022 jwlogin07) rerun add hack3/mixedfps (all processes), slower?
+  fpts="d f m"
 elif [ "$table" == "ichep22" ]; then
   procs="ggttgg"
   mrevs="$mrevs eb30e41"  # cuda115/gcc112  (12 Oct 2022 jwlogin07) ICHEP2022table CPU
   mrevs="$mrevs 1efee04"  # cuda117/gcc112  (13 Oct 2022 itscrd70)  ICHEP2022table GPU
   taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/8192 CUDA/max $cuda8tpb"
   fpts="d f"
+elif [ "$table" == "acat22" ]; then
+  procs="ggttgg ggttggg"
+  taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/8192 CUDA/max $cuda8tpb"
+  # -- Before implementing 'm': add a second 'd' table for better diffs
+  ###mrevs="$mrevs eb30e41"  # cuda115/gcc112  (12 Oct 2022 jwlogin07) ICHEP2022table CPU
+  ###mrevs="$mrevs 1efee04"  # cuda117/gcc112  (13 Oct 2022 itscrd70)  ICHEP2022table GPU
+  ###fpts="d f d"
+  # -- After implementing 'm'
+  mrevs="$mrevs 4a90ec2"  # cuda115/gcc102  (18 Oct 2022 jwlogin07) add hack3/mixedfps (all processes)
+  mrevs="$mrevs bb15ee2"  # cuda117/gcc112  (21 Oct 2022 itscrd70)  rerun add hack3/mixedfps (all processes)
+  fpts="d f m"
 elif [ "$table" == "ggttgg" ]; then
   procs="ggttgg"
+  taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/8192 CUDA/max $cuda8tpb"
+  # -- Before implementing 'm': add a second 'd' table for better diffs
   ###mrevs="$mrevs 1efee04"  # cuda117/gcc112  (13 Oct 2022 itscrd70)  ICHEP2022table GPU
   ###mrevs="$mrevs f64a68e"  # cuda117/gcc112  (15 Oct 2022 itscrd70)  add hack1/MLM (NB: no ggttggg here!)
   ###mrevs="$mrevs f718e74"  # cuda117/gcc112  (15 Oct 2022 itscrd70)  add hack2/symmetricmatrix(cuda/c++)
-  ###mrevs="$mrevs d95e49c9"  # cuda117/gcc112  (16 Oct 2022 itscrd70)  modify hack2/symmetricmatrix(c++ only)
-  mrevs="$mrevs 48e2012b"  # cuda117/gcc112  (16 Oct 2022 itscrd70)  modify hack2/constexpr(c++ only)
-  taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/8192 CUDA/max $cuda8tpb"
-  fpts="d f"
+  ###mrevs="$mrevs d95e49c"  # cuda117/gcc112  (16 Oct 2022 itscrd70)  modify hack2/symmetricmatrix(c++ only)
+  ###mrevs="$mrevs 48e2012"  # cuda117/gcc112  (16 Oct 2022 itscrd70)  modify hack2/constexpr(c++ only)
+  ###fpts="d f d"
+  # -- After implementing 'm'
+  ###mrevs="$mrevs 9598b41"  # cuda117/gcc112  (17 Oct 2022 itscrd70)  add hack3/mixedfps (no ggttggg)
+  mrevs="$mrevs bb15ee2"  # cuda117/gcc112  (21 Oct 2022 itscrd70)  rerun add hack3/mixedfps (all processes)
+  fpts="d f m"
 elif [ "$table" == "ggttggg" ]; then
   procs="ggttggg"
-  ###mrevs="$mrevs 1efee04"  # cuda117/gcc112  (13 Oct 2022 itscrd70)  ICHEP2022 (gave ggttgg results only)
-  ###mrevs="$mrevs f718e74"  # cuda117/gcc112  (15 Oct 2022 itscrd70)  add hack1/MLM and hack2/symmetricmatrix(cuda/c++)
-  ###mrevs="$mrevs d95e49c9"  # cuda117/gcc112  (16 Oct 2022 itscrd70)  modify hack2/symmetricmatrix(c++ only)
-  mrevs="$mrevs 48e2012b"  # cuda117/gcc112  (16 Oct 2022 itscrd70)  modify hack2/constexpr(c++ only)
   taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/8192 CUDA/max $cuda8tpb"
-  fpts="d f"
+  # -- Before implementing 'm': add a second 'd' table for better diffs
+  ###mrevs="$mrevs 1efee04"  # cuda117/gcc112  (13 Oct 2022 itscrd70)  ICHEP2022 code (but gave ggttgg results only)
+  ###mrevs="$mrevs f718e74"  # cuda117/gcc112  (15 Oct 2022 itscrd70)  add hack1/MLM and hack2/symmetricmatrix(cuda/c++)
+  ###mrevs="$mrevs d95e49c"  # cuda117/gcc112  (16 Oct 2022 itscrd70)  modify hack2/symmetricmatrix(c++ only)
+  ###mrevs="$mrevs 48e2012"  # cuda117/gcc112  (16 Oct 2022 itscrd70)  modify hack2/constexpr(c++ only)
+  ###fpts="d f d"
+  # -- After implementing 'm'
+  ###mrevs="$mrevs 68c9859"  # cuda117/gcc112  (18 Oct 2022 itscrd70)  add hack3/mixedfps (only ggttggg)
+  mrevs="$mrevs bb15ee2"  # cuda117/gcc112  (21 Oct 2022 itscrd70)  rerun add hack3/mixedfps (all processes)
+  fpts="d f m"
 fi
 revs="$mrevs"
 

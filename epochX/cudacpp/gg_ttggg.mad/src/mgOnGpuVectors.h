@@ -47,6 +47,20 @@ namespace mgOnGpu /* clang-format off */
   typedef fptype fptype_v __attribute__( ( vector_size( neppV * sizeof( fptype ) ) ) ); // RRRR
 #endif
 
+  // Mixed fptypes #537: float for color algebra and double elsewhere
+#if defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+  const int neppV2 = MGONGPU_CPPSIMD * 2;
+  static_assert( mgOnGpu::cppAlign % ( neppV2 * sizeof( fptype2 ) ) == 0 );
+  static_assert( ispoweroftwo( neppV2 ), "neppV2 is not a power of 2" );
+#ifdef __clang__
+  typedef fptype2 fptype2_v __attribute__( ( ext_vector_type( neppV2 ) ) ); // RRRRRRRR
+#else
+  typedef fptype2 fptype2_v __attribute__( ( vector_size( neppV2 * sizeof( fptype2 ) ) ) ); // RRRRRRRR
+#endif
+#else
+  typedef fptype_v fptype2_v;
+#endif
+
   // --- Type definition (using vector compiler extensions: need -march=...)
   class cxtype_v // no need for "class alignas(2*sizeof(fptype_v)) cxtype_v"
   {
@@ -103,6 +117,7 @@ namespace mgOnGpu /* clang-format off */
 using mgOnGpu::neppV;
 #ifdef MGONGPU_CPPSIMD
 using mgOnGpu::fptype_v;
+using mgOnGpu::fptype2_v;
 using mgOnGpu::cxtype_v;
 using mgOnGpu::bool_v;
 #endif
@@ -634,6 +649,92 @@ namespace mgOnGpu /* clang-format off */
 
 #endif // #ifdef MGONGPU_CPPSIMD
 
+//--------------------------------------------------------------------------
+
+// Functions and operators for fptype2_v
+
+#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+
+inline fptype2_v
+fpvmerge( const fptype_v& v1, const fptype_v& v2 )
+{
+  // This code is not very efficient! It makes mixed precision FFV/color not faster than double on C++ (#537).
+  // I considered various alternatives, including
+  // - in gcc12 and clang, __builtin_shufflevector (works with different vector lengths, BUT the same fptype...)
+  // - casting vector(4)double to vector(4)float and then assigning via reinterpret_cast... but how to do the cast?
+  // Probably the best solution is intrinsics?
+  // - see https://stackoverflow.com/questions/5139363
+  // - see https://stackoverflow.com/questions/54518744
+  /*
+  fptype2_v out;
+  for( int ieppV = 0; ieppV < neppV; ieppV++ )
+  {
+    out[ieppV] = v1[ieppV];
+    out[ieppV+neppV] = v2[ieppV];
+  }
+  return out;
+  */
+#if MGONGPU_CPPSIMD == 2
+  fptype2_v out =
+    { (fptype2)v1[0], (fptype2)v1[1], (fptype2)v2[0], (fptype2)v2[1] };
+#elif MGONGPU_CPPSIMD == 4
+  fptype2_v out =
+    { (fptype2)v1[0], (fptype2)v1[1], (fptype2)v1[2], (fptype2)v1[3], (fptype2)v2[0], (fptype2)v2[1], (fptype2)v2[2], (fptype2)v2[3] };
+#elif MGONGPU_CPPSIMD == 8
+  fptype2_v out =
+    { (fptype2)v1[0], (fptype2)v1[1], (fptype2)v1[2], (fptype2)v1[3], (fptype2)v1[4], (fptype2)v1[5], (fptype2)v1[6], (fptype2)v1[7], (fptype2)v2[0], (fptype2)v2[1], (fptype2)v2[2], (fptype2)v2[3], (fptype2)v2[4], (fptype2)v2[5], (fptype2)v2[6], (fptype2)v2[7] };
+#endif
+  return out;
+}
+
+inline fptype_v
+fpvsplit0( const fptype2_v& v )
+{
+  /*
+  fptype_v out;
+  for( int ieppV = 0; ieppV < neppV; ieppV++ )
+  {
+    out[ieppV] = v[ieppV];
+  }
+  */
+#if MGONGPU_CPPSIMD == 2
+  fptype_v out =
+    { (fptype)v[0], (fptype)v[1] };
+#elif MGONGPU_CPPSIMD == 4
+  fptype_v out =
+    { (fptype)v[0], (fptype)v[1], (fptype)v[2], (fptype)v[3] };
+#elif MGONGPU_CPPSIMD == 8
+  fptype_v out =
+    { (fptype)v[0], (fptype)v[1], (fptype)v[2], (fptype)v[3], (fptype)v[4], (fptype)v[5], (fptype)v[6], (fptype)v[7] };
+#endif
+  return out;
+}
+
+inline fptype_v
+fpvsplit1( const fptype2_v& v )
+{
+  /*
+  fptype_v out;
+  for( int ieppV = 0; ieppV < neppV; ieppV++ )
+  {
+    out[ieppV] = v[ieppV+neppV];
+  }
+  */
+#if MGONGPU_CPPSIMD == 2
+  fptype_v out =
+    { (fptype)v[2], (fptype)v[3] };
+#elif MGONGPU_CPPSIMD == 4
+  fptype_v out =
+    { (fptype)v[4], (fptype)v[5], (fptype)v[6], (fptype)v[7] };
+#elif MGONGPU_CPPSIMD == 8
+  fptype_v out =
+    { (fptype)v[8], (fptype)v[9], (fptype)v[10], (fptype)v[11], (fptype)v[12], (fptype)v[13], (fptype)v[14], (fptype)v[15] };
+#endif
+  return out;
+}
+
+#endif // #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+
 #endif // #ifndef __CUDACC__
 
 //==========================================================================
@@ -684,16 +785,19 @@ cxternary( const bool& mask, const cxtype& a, const cxtype& b )
 #ifdef __CUDACC__
 typedef bool bool_sv;
 typedef fptype fptype_sv;
+typedef fptype2 fptype2_sv;
 typedef cxtype cxtype_sv;
 typedef mgOnGpu::cxtype_ref cxtype_sv_ref;
 #elif defined MGONGPU_CPPSIMD
 typedef bool_v bool_sv;
 typedef fptype_v fptype_sv;
+typedef fptype2_v fptype2_sv;
 typedef cxtype_v cxtype_sv;
 typedef mgOnGpu::cxtype_v_ref cxtype_sv_ref;
 #else
 typedef bool bool_sv;
 typedef fptype fptype_sv;
+typedef fptype2 fptype2_sv;
 typedef cxtype cxtype_sv;
 typedef mgOnGpu::cxtype_ref cxtype_sv_ref;
 #endif

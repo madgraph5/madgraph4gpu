@@ -60,11 +60,12 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  void BridgeKernelHost::computeGoodHelicities()
+  int BridgeKernelHost::computeGoodHelicities()
   {
     constexpr bool goodHelOnly = true;
     constexpr unsigned int channelId = 0; // disable multi-channel for helicity filtering
     m_bridge.cpu_sequence( m_fortranMomenta.data(), m_gs.data(), m_matrixElements.data(), channelId, goodHelOnly );
+    return m_bridge.nGoodHel();
   }
 
   //--------------------------------------------------------------------------
@@ -112,11 +113,12 @@ namespace mg5amcGpu
 
   //--------------------------------------------------------------------------
 
-  void BridgeKernelDevice::computeGoodHelicities()
+  int BridgeKernelDevice::computeGoodHelicities()
   {
     constexpr bool goodHelOnly = true;
     constexpr unsigned int channelId = 0; // disable multi-channel for helicity filtering
     m_bridge.gpu_sequence( m_fortranMomenta.data(), m_gs.data(), m_matrixElements.data(), channelId, goodHelOnly );
+    return m_bridge.nGoodHel();
   }
 
   //--------------------------------------------------------------------------

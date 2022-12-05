@@ -119,9 +119,12 @@ namespace mg5amcCpu
                        const bool goodHelOnly = false );
 #endif
 
+    // Return the number of good helicities (-1 initially when they have not yet been calculated)
+    int nGoodHel() const { return m_nGoodHel; }
+
   private:
-    unsigned int m_nevt;       // number of events
-    bool m_goodHelsCalculated; // have the good helicities been calculated?
+    unsigned int m_nevt; // number of events
+    int m_nGoodHel;      // the number of good helicities (-1 initially when they have not yet been calculated)
 
 #ifdef __CUDACC__
     int m_gputhreads; // number of gpu threads (default set from number of events, can be modified)
@@ -169,7 +172,7 @@ namespace mg5amcCpu
   template<typename FORTRANFPTYPE>
   Bridge<FORTRANFPTYPE>::Bridge( unsigned int nevtF, unsigned int nparF, unsigned int np4F )
     : m_nevt( nevtF )
-    , m_goodHelsCalculated( false )
+    , m_nGoodHel( -1 )
 #ifdef __CUDACC__
     , m_gputhreads( 256 )                  // default number of gpu threads
     , m_gpublocks( m_nevt / m_gputhreads ) // this ensures m_nevt <= m_gpublocks*m_gputhreads
@@ -246,10 +249,10 @@ namespace mg5amcCpu
     }
     std::copy( gs, gs + m_nevt, m_hstGsC.data() );
     checkCuda( cudaMemcpy( m_devGsC.data(), m_hstGsC.data(), m_devGsC.bytes(), cudaMemcpyHostToDevice ) );
-    if( !m_goodHelsCalculated )
+    if( m_nGoodHel < 0 )
     {
-      m_pmek->computeGoodHelicities();
-      m_goodHelsCalculated = true;
+      m_nGoodHel = m_pmek->computeGoodHelicities();
+      if( m_nGoodHel < 0 ) throw std::runtime_error( "Bridge gpu_sequence: computeGoodHelicities returned nGoodHel<0" );
     }
     if( goodHelOnly ) return;
     m_pmek->computeMatrixElements( channelId );
@@ -276,10 +279,10 @@ namespace mg5amcCpu
     {
       std::copy( gs, gs + m_nevt, m_hstGsC.data() );
     }
-    if( !m_goodHelsCalculated )
+    if( m_nGoodHel < 0 )
     {
-      m_pmek->computeGoodHelicities();
-      m_goodHelsCalculated = true;
+      m_nGoodHel = m_pmek->computeGoodHelicities();
+      if( m_nGoodHel < 0 ) throw std::runtime_error( "Bridge cpu_sequence: computeGoodHelicities returned nGoodHel<0" );
     }
     if( goodHelOnly ) return;
     m_pmek->computeMatrixElements( channelId );

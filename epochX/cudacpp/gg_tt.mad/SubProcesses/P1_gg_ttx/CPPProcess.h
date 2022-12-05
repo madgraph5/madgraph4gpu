@@ -107,7 +107,7 @@ namespace mg5amcCpu
                        fptype* allNumerators,      // output: multichannel numerators[nevt], running_sum_over_helicities
                        fptype* allDenominators,    // output: multichannel denominators[nevt], running_sum_over_helicities
 #endif
-                       bool* isGoodHel );          // output: isGoodHel[ncomb] - device array
+                       bool* isGoodHel );          // output: isGoodHel[ncomb] - device array (CUDA implementation)
 #else
   __global__ void
   sigmaKin_getGoodHel( const fptype* allmomenta,   // input: momenta[nevt*npar*4]
@@ -117,13 +117,13 @@ namespace mg5amcCpu
                        fptype* allNumerators,      // output: multichannel numerators[nevt], running_sum_over_helicities
                        fptype* allDenominators,    // output: multichannel denominators[nevt], running_sum_over_helicities
 #endif
-                       bool* isGoodHel,            // output: isGoodHel[ncomb] - device array
+                       bool* isGoodHel,            // output: isGoodHel[ncomb] - host array (C++ implementation)
                        const int nevt );           // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif /* clang-format on */
 
   //--------------------------------------------------------------------------
 
-  void
+  int                                           // output: nGoodHel (the number of good helicity combinations out of ncomb)
   sigmaKin_setGoodHel( const bool* isGoodHel ); // input: isGoodHel[ncomb] - host array
 
   //--------------------------------------------------------------------------

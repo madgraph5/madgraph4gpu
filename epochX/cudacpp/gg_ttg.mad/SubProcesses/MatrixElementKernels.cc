@@ -49,7 +49,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  void MatrixElementKernelHost::computeGoodHelicities()
+  int MatrixElementKernelHost::computeGoodHelicities()
   {
     using mgOnGpu::ncomb; // the number of helicity combinations
     HostBufferHelicityMask hstIsGoodHel( ncomb );
@@ -62,7 +62,7 @@ namespace mg5amcCpu
 #endif
     // ... 0d2. Copy back good helicity list to static memory on the host
     // [FIXME! REMOVE THIS STATIC THAT BREAKS MULTITHREADING?]
-    sigmaKin_setGoodHel( hstIsGoodHel.data() );
+    return sigmaKin_setGoodHel( hstIsGoodHel.data() );
   }
 
   //--------------------------------------------------------------------------
@@ -183,7 +183,7 @@ namespace mg5amcGpu
 
   //--------------------------------------------------------------------------
 
-  void MatrixElementKernelDevice::computeGoodHelicities()
+  int MatrixElementKernelDevice::computeGoodHelicities()
   {
     using mgOnGpu::ncomb; // the number of helicity combinations
     PinnedHostBufferHelicityMask hstIsGoodHel( ncomb );
@@ -199,7 +199,7 @@ namespace mg5amcGpu
     // ... 0d2. Copy back good helicity mask to the host
     copyHostFromDevice( hstIsGoodHel, devIsGoodHel );
     // ... 0d3. Copy back good helicity list to constant memory on the device
-    sigmaKin_setGoodHel( hstIsGoodHel.data() );
+    return sigmaKin_setGoodHel( hstIsGoodHel.data() );
   }
 
   //--------------------------------------------------------------------------
