@@ -3,19 +3,64 @@
       // (This method used to be called %(process_class_name)s::matrix_%(proc_name)s(%(matrix_args)s)?)
 %(color_matrix_lines)s
 
+#ifndef __CUDACC__
+      // Pre-compute a constexpr triangular color matrix properly normalized #475
+      struct TriangularNormalizedColorMatrix
+      {
+        // See https://stackoverflow.com/a/34465458
+        __host__ __device__ constexpr TriangularNormalizedColorMatrix()
+          : value()
+        {
+          for( int icol = 0; icol < ncolor; icol++ )
+          {
+            // Diagonal terms
+            value[icol][icol] = cf[icol][icol] / denom[icol];
+            // Off-diagonal terms
+            for( int jcol = icol + 1; jcol < ncolor; jcol++ )
+              value[icol][jcol] = 2 * cf[icol][jcol] / denom[icol];
+          }
+        }
+        fptype value[ncolor][ncolor];
+      };
+      static constexpr auto cf2 = TriangularNormalizedColorMatrix();
+#endif
+
       // Sum and square the color flows to get the matrix element
       // (compute |M|^2 by squaring |M|, taking into account colours)
       fptype_sv deltaMEs = { 0 }; // all zeros https://en.cppreference.com/w/c/language/array_initialization#Notes
+      // Use the property that M is a real matrix (see #475):
+      // we can rewrite the quadratic form (A-iB)(M)(A+iB) as AMA - iBMA + iBMA + BMB = AMA + BMB
+      // In addition, on C++ use the property that M is symmetric (see #475),
+      // and also use constexpr to compute "2*" and "/denom[icol]" once and for all at compile time:
+      // we gain (not a factor 2...) in speed here as we only loop over the up diagonal part of the matrix.
+      // Strangely, CUDA is slower instead, so keep the old implementation for the moment.
       for( int icol = 0; icol < ncolor; icol++ )
       {
-        cxtype_sv ztemp_sv = cxzero_sv();
+#ifndef __CUDACC__
+        // Diagonal terms
+        fptype_sv jampRi_sv = cxreal( jamp_sv[icol] );
+        fptype_sv jampIi_sv = cximag( jamp_sv[icol] );
+        fptype_sv ztempR_sv = cf2.value[icol][icol] * jampRi_sv;
+        fptype_sv ztempI_sv = cf2.value[icol][icol] * jampIi_sv;
+        // Off-diagonal terms
+        for( int jcol = icol + 1; jcol < ncolor; jcol++ )
+        {
+          fptype_sv jampRj_sv = cxreal( jamp_sv[jcol] );
+          fptype_sv jampIj_sv = cximag( jamp_sv[jcol] );
+          ztempR_sv += cf2.value[icol][jcol] * jampRj_sv;
+          ztempI_sv += cf2.value[icol][jcol] * jampIj_sv;
+        }
+        deltaMEs += ( ztempR_sv * jampRi_sv + ztempI_sv * jampIi_sv );
+#else
+        fptype_sv ztempR_sv = { 0 };
+        fptype_sv ztempI_sv = { 0 };
         for( int jcol = 0; jcol < ncolor; jcol++ )
-          ztemp_sv += cf[icol][jcol] * jamp_sv[jcol];
-        // OLD implementation: why is this not slower? maybe compiler does not compute imaginary part of "ztemp_sv*cxconj(jamp_sv[icol])"?
-        //deltaMEs += cxreal( ztemp_sv * cxconj( jamp_sv[icol] ) ) / denom[icol];
-        // NEW implementation: keep this even if (surprisingly) it is not faster! it is clearer and easier for tensor core offload anyway...
-        // Rewrite the quadratic form (A-iB)(M)(A+iB) as AMA - iBMA + iBMA + BMB = AMA + BMB!
-        deltaMEs += ( cxreal( ztemp_sv ) * cxreal( jamp_sv[icol] ) + cximag( ztemp_sv ) * cximag( jamp_sv[icol] ) ) / denom[icol];
+        {
+          ztempR_sv += cf[icol][jcol] * cxreal( jamp_sv[jcol] );
+          ztempI_sv += cf[icol][jcol] * cximag( jamp_sv[jcol] );
+        }
+        deltaMEs += ( ztempR_sv * cxreal( jamp_sv[icol] ) + ztempI_sv * cximag( jamp_sv[icol] ) ) / denom[icol];
+#endif
       }
 
       // *** STORE THE RESULTS ***
