@@ -2,7 +2,7 @@ name: SYCL Profiler
 
 on:
   schedule:
-    - cron:  '35 17 * * *'
+    - cron:  '45 17 * * *'
 
 jobs:
   sycl_v100s_Profiling:

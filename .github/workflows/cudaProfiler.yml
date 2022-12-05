@@ -2,7 +2,7 @@ name: CUDA Profiler
 
 on:
   schedule:
-    - cron:  '35 17 * * *'
+    - cron:  '45 17 * * *'
 
 jobs:
   cuda_a100s_Profiling:
