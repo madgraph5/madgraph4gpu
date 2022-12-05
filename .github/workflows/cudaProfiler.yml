@@ -1,0 +1,23 @@
+name: CUDA Profiler
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  cuda_a100s_Profiling:
+    name: CUDA V100S Profiling
+    env:
+      CUDA_NAME_PREFIX: cudacpp_Xeon-Silver-4216_v100s_gcc-11.3_cuda-11.6.2
+      ENABLE_CI_PROFILER: 1
+
+      MADGRAPH4GPU_DB_SECRET: ${{ secrets.MADGRAPH4GPU_DB_SECRET }}
+    runs-on: [self-hosted, linux, v100s]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Runs CUDA performanceProfiler.py script
+      run: cd tools/profiling/; source /cvmfs/sft.cern.ch/lcg/contrib/gcc/11.3.0/x86_64-centos8/setup.sh; python3 performanceProfiler.py -l 'CUDA' -b 'master'
+    - name: Uploads CUDA JSON files to DB
+      run: cd tools/profiling/; python3 sendData.py --profiler --absLayer "CUDA" --branch master
