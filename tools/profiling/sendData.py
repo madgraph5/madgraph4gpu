@@ -13,7 +13,7 @@ import sys
 URL = 'https://dbod-madgraph4gpu-db.cern.ch:8082/api/v2/write?bucket=ProfilerData'
 secret = os.getenv('MADGRAPH4GPU_DB_SECRET')
 Auth = ['db_user', secret]
-GPU = 'a100s'
+GPU = 'v100s'
 physicsProcesses = ['ee_mumu', 'gg_ttggg', 'gg_ttgg', 'gg_ttg', 'gg_tt']
 absLayer = ['SYCL', 'CUDA', 'sycl', 'cuda']
 branch = 'master'
