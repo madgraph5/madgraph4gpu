@@ -9,6 +9,8 @@
 #include <memory>
 
 #include "mgOnGpuConfig.h"
+#include "mgOnGpuTypes.h"
+#include "mgOnGpuVectors.h"
 
 #include "CPPProcess.h"
 %(hel_amps_h)s

@@ -4,9 +4,10 @@
 //==========================================================================
 
 #ifndef MG5_%(process_file_name)s_H
-#define MG5_%(process_file_name)s_H 1
+#define MG5_%(process_file_name)s_H
 
 #include "mgOnGpuConfig.h"
+#include "mgOnGpuTypes.h"
 #include "mgOnGpuVectors.h"
 
 #include "Parameters_%(model_name)s.h"
@@ -15,20 +16,29 @@
 
 //--------------------------------------------------------------------------
 
-namespace mg5amcGpu
+namespace Proc
 {
+  namespace dependentCouplings = Parameters_%(model_name)s_dependentCouplings;
+  namespace independentCouplings = Parameters_%(model_name)s_independentCouplings;
+
+  template <typename T>
+%(all_helicities)s
+  };
+
+#ifdef MGONGPU_HARDCODE_PARAM
+  template <typename FPType>
+%(independent_parameters_hrdcod)s
+#endif
 
 %(process_class_definitions)s
   //--------------------------------------------------------------------------
 
   SYCL_EXTERNAL
-  void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta[nevt*npar*4]
-                            fptype* allMEs,           // output: allMEs[nevt], |M|^2 final_avg_over_helicities
-                            bool* isGoodHel,          // output: isGoodHel[ncomb] - device array
-                            const size_t ievt,
-                            short* cHel,
-                            const fptype* cIPC,
-                            const fptype* cIPD
+  void sigmaKin_getGoodHel( const fptype* __restrict__ allmomenta, // input: momenta[nevt*npar*4]
+                            bool* isGoodHel,                       // output: isGoodHel[ncomb] - device array
+                            const short* __restrict__ cHel,
+                            const cxtype* __restrict__ cIPC,
+                            const fptype* __restrict__ cIPD
                             );
 
   //--------------------------------------------------------------------------
@@ -38,14 +48,15 @@ namespace mg5amcGpu
   //--------------------------------------------------------------------------
 
   SYCL_EXTERNAL
-  void sigmaKin( const fptype* allmomenta, // input: momenta[nevt*npar*4]
-                 fptype* allMEs,           // output: allMEs[nevt], |M|^2 final_avg_over_helicities
-                 size_t ievt,
-                 short* cHel,
-                 const fptype* cIPC,
-                 const fptype* cIPD,
-                 int* cNGoodHel,
-                 int* cGoodHel
+  fptype sigmaKin( const fptype* __restrict__ allmomenta, // input: momenta[nevt*npar*4]
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+                   const unsigned int channelId,          // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
+#endif
+                   const short* __restrict__ cHel,
+                   const cxtype* __restrict__ cIPC,
+                   const fptype* __restrict__ cIPD,
+                   const int* __restrict__ cNGoodHel,
+                   const int* __restrict__ cGoodHel
                  );
 
   //--------------------------------------------------------------------------

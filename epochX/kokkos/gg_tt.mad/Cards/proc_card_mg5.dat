@@ -1,0 +1,49 @@
+#************************************************************
+#*                     MadGraph5_aMC@NLO                    *
+#*                                                          *
+#*                *                       *                 *
+#*                  *        * *        *                   *
+#*                    * * * * 5 * * * *                     *
+#*                  *        * *        *                   *
+#*                *                       *                 *
+#*                                                          *
+#*                                                          *
+#*         VERSION 3.4.0_lo_vect         2022-05-06         *
+[1;31m#*                                                          *[1;0m
+[1;31m#*          WARNING: UNKNOWN DEVELOPMENT VERSION.           *[1;0m
+[1;31m#*            WARNING: DO NOT USE FOR PRODUCTION            *[1;0m
+[1;31m#*                                                          *[1;0m
+#*                                                          *
+#*    The MadGraph5_aMC@NLO Development Team - Find us at   *
+#*    https://server06.fynu.ucl.ac.be/projects/madgraph     *
+#*                                                          *
+#************************************************************
+#*                                                          *
+#*               Command File for MadGraph5_aMC@NLO         *
+#*                                                          *
+#*     run as ./bin/mg5_aMC  filename                       *
+#*                                                          *
+#************************************************************
+set group_subprocesses Auto
+set ignore_six_quark_processes False
+set low_mem_multicore_nlo_generation False
+set complex_mass_scheme False
+set include_lepton_initiated_processes False
+set gauge unitary
+set loop_optimized_output True
+set loop_color_flows False
+set max_npoint_for_channel 0
+set default_unset_couplings 99
+set max_t_for_channel 99
+set nlo_mixed_expansion True
+set stdout_level DEBUG
+set zerowidth_tchannel F
+generate g g > t t~
+define p = g u c d s u~ c~ d~ s~
+define j = g u c d s u~ c~ d~ s~
+define l+ = e+ mu+
+define l- = e- mu-
+define vl = ve vm vt
+define vl~ = ve~ vm~ vt~
+output madevent CODEGEN_mad_gg_tt --hel_recycling=False --vector_size=\
+16384 --me_exporter=standalone_kokkos
