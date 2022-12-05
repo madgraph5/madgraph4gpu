@@ -52,7 +52,7 @@ export WORKSPACE=$prefix/workspace_mg4gpu
 #export NAME_PREFIX="sycl_Xeon-Silver-4216_a100s_cuda-11.6.2_gcc-11.3"
 
 # Branch should be enviroment variable in main script and then passed down if none then it is not displayed in prefix
-export REPORT_FOLDER=$WORKSPACE/$(date +"%y-%m-%d")_${SYCL_NAME_PREFIX}_${branch}
+REPORT_FOLDER="${WORKSPACE}/$(date +"%y-%m-%d")_${SYCL_NAME_PREFIX}_${branch}"
 
 # If unknown set at the run step after running LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MG_LIBS $MG_EXE --param_card $MG5AMC_CARD_PATH/param_card.dat --device_info 1024 128 10
 export DEVICE_ID=0
