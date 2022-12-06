@@ -6,23 +6,24 @@ scrdir=$(cd $(dirname $0); pwd)
 
 function usage()
 {
-  echo "Usage: $0 <process.[madonly|mad]> <vecsize> [--nopatch]"
+  echo "Usage: $0 <process.[madonly|mad]> <vecsize> <patch_dir> [--nopatch]"
   exit 1 
 }
 
 nopatch=0 # apply patch commands (default)
 if [ "${1%.madonly}" == "$1" ] && [ "${1%.mad}" == "$1" ]; then
   usage
-elif [ "$2" == "" ]; then
+elif [ "$3" == "" ]; then
   usage
-elif [ "$3" == "--nopatch" ]; then
-  if [ "$4" != "" ]; then usage; fi
+elif [ "$4" == "--nopatch" ]; then
+  if [ "$5" != "" ]; then usage; fi
   nopatch=1 # skip patch commands (produce a new reference)
-elif [ "$3" != "" ]; then
+elif [ "$4" != "" ]; then
   usage
 fi
 dir=$1
 vecsize=$2
+dir_patches=$3
 ###echo "Current dir: $pwd"
 ###echo "Input dir to patch: $dir"
 
@@ -50,27 +51,27 @@ cat ${dir}/Source/make_opts >> ${dir}/Source/make_opts.new
 # Patch the default Fortran code to provide the integration with the cudacpp plugin
 # (1) Process-independent patches
 \cp -dpr ${scrdir}/PLUGIN/CUDACPP_SA_OUTPUT/madgraph/iolibs/template_files/.clang-format ${dir} # new file
-\cp -dpr ${scrdir}/MG5aMC_patches/vector.inc ${dir}/Source # replace default
-\cp -dpr ${scrdir}/MG5aMC_patches/fbridge_common.inc ${dir}/SubProcesses # new file
+\cp -dpr ${scrdir}/MG5aMC_patches/${dir_patches}/vector.inc ${dir}/Source # replace default
+\cp -dpr ${scrdir}/MG5aMC_patches/${dir_patches}/fbridge_common.inc ${dir}/SubProcesses # new file
 for file in ${dir}/Source/MODEL/rw_para.f; do cat ${file} | sed "s|include 'coupl.inc'|include 'vector.inc'\n      include 'coupl.inc'|" > ${file}.new; \mv ${file}.new ${file}; done
 for file in ${dir}/Source/PDF/ElectroweakFlux.inc; do cat ${file} | sed "s|include '../MODEL/coupl.inc'|include 'vector.inc'\n        include 'coupl.inc'|" > ${file}.new; \mv ${file}.new ${file}; done
 cd ${dir}/SubProcesses
 cd - > /dev/null
 if [ "${nopatch}" == "0" ]; then
   cd ${dir}
-  if ! patch -p4 -i ${scrdir}/MG5aMC_patches/patch.common; then status=1; fi  
+  if ! patch -p4 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.common; then status=1; fi  
   cd - > /dev/null
 fi
 for p1dir in ${dir}/SubProcesses/P1_*; do
   cd $p1dir
   echo -e "madevent\n*madevent_cudacpp" > .gitignore # new file
   ln -sf ../fbridge_common.inc . # new file
-  \cp -dpr ${scrdir}/MG5aMC_patches/counters.cpp . # new file
+  \cp -dpr ${scrdir}/MG5aMC_patches/${dir_patches}/counters.cpp . # new file
   if [ "${dir%.mad}" == "$1" ]; then
     \cp -dpr ${scrdir}/PLUGIN/CUDACPP_SA_OUTPUT/madgraph/iolibs/template_files/gpu/timer.h . # new file, already present via cudacpp in *.mad
   fi
   if [ "${nopatch}" == "0" ]; then
-    if ! patch -p6 -i ${scrdir}/MG5aMC_patches/patch.P1; then status=1; fi  
+    if ! patch -p6 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.P1; then status=1; fi  
   fi
   cd - > /dev/null
 done
@@ -110,7 +111,7 @@ for p1dir in ${dir}/SubProcesses/P1_*; do
     > auto_dsig1.f.new
   \mv auto_dsig1.f.new auto_dsig1.f
   if [ "${nopatch}" == "0" ]; then
-    if ! patch -p6 -i ${scrdir}/MG5aMC_patches/patch.auto_dsig1.f; then status=1; fi  
+    if ! patch -p6 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.auto_dsig1.f; then status=1; fi  
   fi
   \rm -f *.orig
   ncolor=$(cat matrix1.f | grep PARAMETER | grep NCOLOR= | sed 's/.*NCOLOR=//' | sed 's/)//')

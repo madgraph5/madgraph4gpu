@@ -148,7 +148,7 @@ function codeGenAndDiff()
   # [NB: NEW! these patches are no longer applied to madonly, which is now meant as an out-of-the-box reference]
   ###if [ "${OUTBCK}" == "madonly" ] || [ "${OUTBCK}" == "mad" ]; then
   if [ "${OUTBCK}" == "mad" ]; then
-    $SCRDIR/patchMad.sh ${OUTDIR}/${proc}.${autosuffix} ${vecsize} ${NOPATCH}
+    $SCRDIR/patchMad.sh ${OUTDIR}/${proc}.${autosuffix} ${vecsize} ${dir_patches} ${NOPATCH}
   fi
   # Compare the existing generated code to the newly generated code for the specific process
   pushd ${OUTDIR} >& /dev/null
@@ -329,6 +329,14 @@ if ! git log -n1 >& /dev/null; then
   echo -e "ERROR! MG5AMC_HOME is not a git clone\n"; exit 1
 fi
 echo -e "MG5AMC patches in this plugin refer to git branch '${branch_patches}'"
+echo -e "Reset MG5AMC_HOME to git commit 'origin/${branch_patches}'"
+if ! git reset --hard origin/${branch_patches}; then
+  echo -e "ERROR! 'git reset --hard ${branch_patches}' failed\n"; exit 1
+fi
+echo -e "Check out branch ${branch_patches} in MG5AMC_HOME"
+if ! git checkout ${branch_patches}; then
+  echo -e "ERROR! 'git checkout ${branch_patches}' failed\n"; exit 1
+fi
 branch_mg5amc=$(git branch --no-color | \grep ^* | awk '{print $2}')
 echo -e "Current git branch of MG5AMC_HOME is '${branch_mg5amc}'"
 if [ "${branch_patches}" != "${branch_mg5amc}" ]; then echo -e "\nERROR! git branch mismatch!"; exit 1; fi
