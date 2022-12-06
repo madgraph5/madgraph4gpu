@@ -13,6 +13,7 @@ jobs:
       FC: gfortran
       REQUIRE_CUDA: 1
       SYCLFLAGS: -fsycl
+      CXX: /afs/cern.ch/work/j/jteig/sycl_workspace/llvm/build/bin/clang++
       ENABLE_CI_PROFILER: 1
     strategy:
       matrix:
