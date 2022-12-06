@@ -12,7 +12,7 @@ jobs:
     env:
       FC: gfortran
       REQUIRE_CUDA: 1
-      SYCLFLAGS: -fsycl -fsycl-targets=nvptx64-nvidia-cuda -Xsycl-target-backend '--cuda-gpu-arch=sm_70' -fgpu-rdc --cuda-path=$CUDA_PATH
+      SYCLFLAGS: -fsycl -fsycl-targets=nvptx64-nvidia-cuda -Xsycl-target-backend '--cuda-gpu-arch=sm_70' -fgpu-rdc --cuda-path=/usr/local/cuda-11.6/
       ENABLE_CI_PROFILER: 1
     strategy:
       matrix:
@@ -26,19 +26,16 @@ jobs:
            CXX=/afs/cern.ch/work/j/jteig/sycl_workspace/llvm/build/bin/clang++;
            LD_LIBRARY_PATH=/afs/cern.ch/work/j/jteig/sycl_workspace/llvm/build/lib:$LD_LIBRARY_PATH;
            LD_LIBRARY_PATH=${{ github.workspace }}/${{ matrix.folder }}/../../lib:$LD_LIBRARY_PATH;
-           export CUDA_PATH=/usr/local/cuda-11.6/;
            make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} info
     - name: make
       run: source /cvmfs/sft.cern.ch/lcg/contrib/gcc/11.3.0/x86_64-centos8/setup.sh;
            CXX=/afs/cern.ch/work/j/jteig/sycl_workspace/llvm/build/bin/clang++;
            LD_LIBRARY_PATH=/afs/cern.ch/work/j/jteig/sycl_workspace/llvm/build/lib:$LD_LIBRARY_PATH;
            LD_LIBRARY_PATH=${{ github.workspace }}/${{ matrix.folder }}/../../lib:$LD_LIBRARY_PATH;
-           export CUDA_PATH=/usr/local/cuda-11.6/;
            make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }}
     - name: make check
       run: source /cvmfs/sft.cern.ch/lcg/contrib/gcc/11.3.0/x86_64-centos8/setup.sh; 
            CXX=/afs/cern.ch/work/j/jteig/sycl_workspace/llvm/build/bin/clang++;
            LD_LIBRARY_PATH=/afs/cern.ch/work/j/jteig/sycl_workspace/llvm/build/lib:$LD_LIBRARY_PATH;
            LD_LIBRARY_PATH=${{ github.workspace }}/${{ matrix.folder }}/../../lib:$LD_LIBRARY_PATH;
-           export CUDA_PATH=/usr/local/cuda-11.6/;
            make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} check
