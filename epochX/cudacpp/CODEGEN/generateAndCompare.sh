@@ -284,8 +284,9 @@ echo "proc=${proc}"
 if ! python3 --version >& /dev/null; then echo "ERROR! python3 is not installed"; exit 1; fi
 
 # Make sure that $MG5AMC_HOME exists
-branch_patches=3.1.1_lo_vectorization
-commit_patches=$(cat $SCRDIR/MG5aMC_patches/${branch_patches}/commit.GIT)
+dir_patches=PROD
+branch_patches=$(cat $SCRDIR/MG5aMC_patches/${dir_patches}/branch.GIT)
+commit_patches=$(cat $SCRDIR/MG5aMC_patches/${dir_patches}/commit.GIT)
 if [ "$MG5AMC_HOME" == "" ]; then
   echo "ERROR! MG5AMC_HOME is not defined"
   echo -e "To download MG5AMC please run\n  git clone git@github.com:mg5amcnlo/mg5amcnlo.git\n  cd mg5amcnlo; git checkout ${branch_patches}; git reset --hard ${commit_patches}"
@@ -343,15 +344,15 @@ cd - > /dev/null
 
 # Copy MG5AMC ad-hoc patches if any
 if [ "${SCRBCK}" == "cudacpp" ]; then
-  ###patches=$(cd $SCRDIR/MG5aMC_patches/${branch_patches}; find . -type f -name '*.py')
-  patches=$(cd $SCRDIR/MG5aMC_patches/${branch_patches}; find . -type f ! -name '*.GIT')
-  echo -e "Copy MG5aMC_patches/${branch_patches} patches..."
+  ###patches=$(cd $SCRDIR/MG5aMC_patches/${dir_patches}; find . -type f -name '*.py')
+  patches=$(cd $SCRDIR/MG5aMC_patches/${dir_patches}; find . -type f ! -name '*.GIT')
+  echo -e "Copy MG5aMC_patches/${dir_patches} patches..."
   for patch in $patches; do
     patch=${patch#./}
-    echo cp -dpr $SCRDIR/MG5aMC_patches/${branch_patches}/$patch $MG5AMC_HOME/$patch
-    cp -dpr $SCRDIR/MG5aMC_patches/${branch_patches}/$patch $MG5AMC_HOME/$patch
+    echo cp -dpr $SCRDIR/MG5aMC_patches/${dir_patches}/$patch $MG5AMC_HOME/$patch
+    cp -dpr $SCRDIR/MG5aMC_patches/${dir_patches}/$patch $MG5AMC_HOME/$patch
   done
-  echo -e "Copy MG5aMC_patches/${branch_patches} patches... done\n"
+  echo -e "Copy MG5aMC_patches/${dir_patches} patches... done\n"
 fi
 
 # Clean up before code generation
