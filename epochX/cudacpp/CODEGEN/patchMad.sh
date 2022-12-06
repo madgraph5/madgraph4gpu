@@ -110,9 +110,9 @@ for p1dir in ${dir}/SubProcesses/P1_*; do
     | sed "s|/NB_PAGE|/NB_PAGE_MAX|" \
     > auto_dsig1.f.new
   \mv auto_dsig1.f.new auto_dsig1.f
-  #if [ "${nopatch}" == "0" ]; then
-  #  if ! patch -p6 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.auto_dsig1.f; then status=1; fi  
-  #fi
+  if [ "${nopatch}" == "0" ]; then
+    if ! patch -p6 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.auto_dsig1.f; then status=1; fi  
+  fi
   \rm -f *.orig
   ncolor=$(cat matrix1.f | grep PARAMETER | grep NCOLOR= | sed 's/.*NCOLOR=//' | sed 's/)//')
   cat auto_dsig1.f \

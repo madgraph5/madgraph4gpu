@@ -1,43 +1,33 @@
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
-index f86a53362..b82b90a1c 100644
+index bd2b9672e..ce14691fe 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
 @@ -76,13 +76,13 @@ C     Keep track of whether cuts already calculated for this event
  
        INTEGER SUBDIAG(MAXSPROC),IB(2)
        COMMON/TO_SUB_DIAG/SUBDIAG,IB
--      INCLUDE 'coupl.inc'
-+      include 'vector.inc'
-+      include 'coupl.inc'
++      INCLUDE 'vector.inc'
+       INCLUDE 'coupl.inc'
        INCLUDE 'run.inc'
  C     Common blocks
        CHARACTER*7         PDLABEL,EPA_LABEL
        INTEGER       LHAID
        COMMON/TO_PDF/LHAID,PDLABEL,EPA_LABEL
 -      INCLUDE 'vector.inc'
- C     jamp2 information
-       DOUBLE PRECISION JAMP2(0:MAXFLOW, NB_PAGE_MAX)
-       COMMON/TO_JAMPS/       JAMP2
-@@ -148,7 +148,7 @@ C     Continue only if IMODE is 0, 4 or 5
-       ENDIF
- 
-       CHANNEL = SUBDIAG(1)
--      CALL SMATRIX1(P1,0,CHANNEL,DSIGUU,JAMP2(0,1),1)
-+      CALL SMATRIX1(P1,0D0,CHANNEL,DSIGUU,JAMP2(0,1),1)
- 
-       IF (IMODE.EQ.5) THEN
-         IF (DSIGUU.LT.1D199) THEN
-@@ -219,7 +219,8 @@ C     ****************************************************
+       DOUBLE PRECISION RHEL, RCOL
+       INTEGER SELECTED_HEL(NB_PAGE_MAX)
+       INTEGER SELECTED_COL(NB_PAGE_MAX)
+@@ -222,7 +222,8 @@ C     ****************************************************
  C     
  C     CONSTANTS
  C     
 -      INCLUDE '../../Source/vector.inc'
-+      include 'vector.inc'
-+      include 'coupl.inc'
++      INCLUDE 'vector.inc'
++      INCLUDE 'coupl.inc'
        INCLUDE 'genps.inc'
        INCLUDE 'nexternal.inc'
        INCLUDE 'maxconfigs.inc'
-@@ -288,7 +289,6 @@ C     jamp2 information
+@@ -288,7 +289,6 @@ C     Keep track of whether cuts already calculated for this event
  
        INTEGER SUBDIAG(MAXSPROC),IB(2)
        COMMON/TO_SUB_DIAG/SUBDIAG,IB
@@ -45,22 +35,21 @@ index f86a53362..b82b90a1c 100644
        INCLUDE 'run.inc'
  
        DOUBLE PRECISION P_MULTI(0:3, NEXTERNAL, NB_PAGE_MAX)
-@@ -452,8 +452,10 @@ C
+@@ -450,7 +450,7 @@ C
+       IMPLICIT NONE
  
-       USE OMP_LIB
- 
-+      IMPLICIT NONE
        INCLUDE 'nexternal.inc'
 -      INCLUDE '../../Source/vector.inc'
-+      include 'vector.inc'
-+      include 'coupl.inc'
++      INCLUDE 'vector.inc'
        INCLUDE 'maxamps.inc'
        DOUBLE PRECISION P_MULTI(0:3, NEXTERNAL, NB_PAGE_MAX)
        DOUBLE PRECISION HEL_RAND(NB_PAGE_MAX)
-@@ -463,22 +465,125 @@ C
-       DOUBLE PRECISION JAMP2_MULTI(0:MAXFLOW, NB_PAGE_MAX)
+@@ -461,23 +461,126 @@ C
+       INTEGER SELECTED_COL(NB_PAGE_MAX)
  
        INTEGER IVEC
+-
+-
 +      INTEGER IEXT
 +
 +      INTEGER                    ISUM_HEL
@@ -90,24 +79,36 @@ index f86a53362..b82b90a1c 100644
 +      IF( FBRIDGE_MODE .LE. 0 ) THEN ! (FortranOnly=0 or BothQuiet=-1 or BothDebug=-2)
 +#endif
 +        call counters_smatrix1multi_start( -1, nb_page_loop ) ! fortran=-1
-+c!$OMP PARALLEL
-+c!$OMP DO
+ !$OMP PARALLEL
+ !$OMP DO
+-      DO IVEC=1, NB_PAGE_LOOP
+-        CALL SMATRIX1(P_MULTI(0,1,IVEC),
+-     &	                         hel_rand(IVEC),
+-     &                           col_rand(IVEC),
+-     &				 channel,
+-     &                           IVEC,
+-     &				 out(IVEC),
+-     &				 selected_hel(IVEC),
+-     &				 selected_col(IVEC)
+-     &				 )
+-      ENDDO
 +        DO IVEC=1, NB_PAGE_LOOP
 +          CALL SMATRIX1(P_MULTI(0,1,IVEC),
 +     &      hel_rand(IVEC),
++     &      col_rand(IVEC),
 +     &      channel,
++     &      IVEC,
 +     &      out(IVEC),
-+C    &      selected_hel(IVEC),
-+     &      jamp2_multi(0,IVEC),
-+     &      IVEC
++     &      selected_hel(IVEC),
++     &      selected_col(IVEC)
 +     &      )
 +        ENDDO
-+c!$OMP END DO
-+c!$OMP END PARALLEL
+ !$OMP END DO
+ !$OMP END PARALLEL
 +        call counters_smatrix1multi_stop( -1 ) ! fortran=-1
 +#ifdef MG5AMC_MEEXPORTER_CUDACPP
 +      ENDIF
- 
++
 +      IF( FBRIDGE_MODE .EQ. 1 .OR. FBRIDGE_MODE .LT. 0 ) THEN ! (CppOnly=1 or BothQuiet=-1 or BothDebug=-2)
 +        IF( LIMHEL.NE.0 ) THEN
 +          WRITE(6,*) 'ERROR! The cudacpp bridge only supports LIMHEL=0'
@@ -179,21 +180,7 @@ index f86a53362..b82b90a1c 100644
 +        WRITE (*,*) 'CHANNEL_ID =', CHANNEL
 +        FIRST_CHID = .FALSE.
 +      ENDIF
- 
--!$OMP PARALLEL
--!$OMP DO
--      DO IVEC=1, NB_PAGE_LOOP
--        CALL SMATRIX1(P_MULTI(0,1,IVEC),
--     &	                         hel_rand(IVEC),
--     &				 channel,
--     &				 out(IVEC),
--C       &				 selected_hel(IVEC),
--     &				 jamp2_multi(0,IVEC),
--     &				 IVEC
--     &				 )
--      ENDDO
--!$OMP END DO
--!$OMP END PARALLEL
++
        RETURN
        END
  
