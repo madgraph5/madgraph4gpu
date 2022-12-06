@@ -285,7 +285,7 @@ if ! python3 --version >& /dev/null; then echo "ERROR! python3 is not installed"
 
 # Make sure that $MG5AMC_HOME exists
 dir_patches=PROD
-branch_patches=nuvecMLM
+branch_patches=$(cat $SCRDIR/MG5aMC_patches/${dir_patches}/branch.GIT)
 commit_patches=$(cat $SCRDIR/MG5aMC_patches/${dir_patches}/commit.GIT)
 if [ "$MG5AMC_HOME" == "" ]; then
   echo "ERROR! MG5AMC_HOME is not defined"
