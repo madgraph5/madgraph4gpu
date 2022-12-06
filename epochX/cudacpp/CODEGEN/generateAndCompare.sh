@@ -284,7 +284,8 @@ echo "proc=${proc}"
 if ! python3 --version >& /dev/null; then echo "ERROR! python3 is not installed"; exit 1; fi
 
 # Make sure that $MG5AMC_HOME exists
-dir_patches=PROD
+###dir_patches=PROD
+dir_patches=DEV
 branch_patches=$(cat $SCRDIR/MG5aMC_patches/${dir_patches}/branch.GIT)
 commit_patches=$(cat $SCRDIR/MG5aMC_patches/${dir_patches}/commit.GIT)
 if [ "$MG5AMC_HOME" == "" ]; then
