@@ -480,6 +480,9 @@ C
       DOUBLE PRECISION OUT2(NB_PAGE_MAX)
       DOUBLE PRECISION CBYF1
 
+      DOUBLE PRECISION JAMP2(0:MAXFLOW, NB_PAGE_MAX) ! https://github.com/oliviermattelaer/mg5amc_test/issues/14
+      COMMON/TO_JAMPS/JAMP2                          ! https://github.com/oliviermattelaer/mg5amc_test/issues/14
+
       INTEGER*4 NWARNINGS
       SAVE NWARNINGS
       DATA NWARNINGS/0/
@@ -567,7 +570,7 @@ c         ! This is a workaround for https://github.com/oliviermattelaer/mg5amc_
 
       IF( FBRIDGE_MODE .EQ. 1 ) THEN ! (CppOnly=1 : SMATRIX1 is not called at all, JAMP2_MULTI is not filled)
         DO IVEC=1, NB_PAGE_LOOP
-          JAMP2_MULTI(0,IVEC) = 2 ! workaround for https://github.com/oliviermattelaer/mg5amc_test/issues/14
+          JAMP2(0,IVEC) = 2 ! workaround for https://github.com/oliviermattelaer/mg5amc_test/issues/14
         END DO
       ENDIF
 #endif
