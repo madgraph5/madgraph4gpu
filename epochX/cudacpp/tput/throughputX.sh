@@ -55,6 +55,9 @@ dlp=
 makef=
 ###makef="-f Makefile"
 
+# Workaround to allow 'make avxall' when '-avxall' is specified #536
+simdsall="none sse4 avx2 512y 512z"
+
 if [ "$bckend" != "alpaka" ]; then alpaka=0; fi # alpaka mode is only available in the alpaka directory
 
 while [ "$1" != "" ]; do
@@ -102,7 +105,7 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-avxall" ]; then
     if [ "${cpp}" == "0" ]; then echo "ERROR! Options $1 and -nocpp are incompatible"; usage; fi
     if [ "${simds}" != "" ]; then echo "ERROR! Incompatible option $1: SIMDs are already defined as '$simds'"; usage; fi
-    simds="none sse4 avx2 512y 512z"
+    simds="${simdsall}"
     shift
   elif [ "$1" == "-noneonly" ]; then
     if [ "${cpp}" == "0" ]; then echo "ERROR! Options $1 and -nocpp are incompatible"; usage; fi
@@ -339,7 +342,7 @@ for dir in $dirs; do
       for helinl in $helinls; do
         for fptype in $fptypes; do
           for simd in none sse4 avx2 512y 512z; do
-            if [ "${simds/${simd}}" != "${simds}" ]; then 
+            if [ "${simds}" == "${simdsall}" ] || [ "${simds/${simd}}" != "${simds}" ]; then 
               exes="$exes $dir/build.${simd}_${fptype}_inl${helinl}${hrdsuf}/check.exe"
             fi
           done
@@ -378,12 +381,16 @@ else
 	export HELINL=$helinl
 	for fptype in $fptypes; do
           export FPTYPE=$fptype
-          if [ "${cuda}" == "1" ] || [ "${simds/none}" != "${simds}" ]; then 
-            make ${makef} ${makej} AVX=none; echo
+          if [ "${simds}" == "${simdsall}" ]; then
+            make ${makef} ${makej} avxall; echo # allow 'make avxall' again #536
+          else
+            if [ "${cuda}" == "1" ] || [ "${simds/none}" != "${simds}" ]; then 
+              make ${makef} ${makej} AVX=none; echo
+            fi
+            for simd in ${simds/none}; do
+              make ${makef} ${makej} AVX=${simd}; echo
+            done
           fi
-          for simd in ${simds/none}; do
-            make ${makef} ${makej} AVX=${simd}; echo
-          done
 	done
       done
     done

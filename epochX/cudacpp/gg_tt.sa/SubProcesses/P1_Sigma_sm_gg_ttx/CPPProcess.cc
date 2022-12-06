@@ -158,6 +158,13 @@ namespace mg5amcCpu
     // === Calculate wavefunctions and amplitudes for all diagrams in all processes - Loop over nevt events ===
 #ifndef __CUDACC__
     const int npagV = nevt / neppV;
+#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+    // Mixed fptypes #537: float for color algebra and double elsewhere
+    // Delay color algebra and ME updates (only on even pages)
+    cxtype_sv jamp_sv_previous[ncolor] = {};
+    fptype* MEs_previous = 0;
+    assert( npagV % 2 == 0 ); // SANITY CHECK for mixed fptypes: two neppV pages are merged to one neppV2 page
+#endif
     // ** START LOOP ON IPAGV **
 #ifdef _OPENMP
     // (NB gcc9 or higher, or clang, is required)
@@ -266,27 +273,118 @@ namespace mg5amcCpu
 
       // The color denominators (initialize all array elements, with ncolor=2)
       // [NB do keep 'static' for these constexpr arrays, see issue #283]
-      static constexpr fptype denom[ncolor] = { 3, 3 }; // 1-D array[2]
+      static constexpr fptype2 denom[ncolor] = { 3, 3 }; // 1-D array[2]
 
       // The color matrix (initialize all array elements, with ncolor=2)
       // [NB do keep 'static' for these constexpr arrays, see issue #283]
-      static constexpr fptype cf[ncolor][ncolor] = {
+      static constexpr fptype2 cf[ncolor][ncolor] = {
         { 16, -2 },
         { -2, 16 } }; // 2-D array[2][2]
 
+#ifndef __CUDACC__
+      // Pre-compute a constexpr triangular color matrix properly normalized #475
+      struct TriangularNormalizedColorMatrix
+      {
+        // See https://stackoverflow.com/a/34465458
+        __host__ __device__ constexpr TriangularNormalizedColorMatrix()
+          : value()
+        {
+          for( int icol = 0; icol < ncolor; icol++ )
+          {
+            // Diagonal terms
+            value[icol][icol] = cf[icol][icol] / denom[icol];
+            // Off-diagonal terms
+            for( int jcol = icol + 1; jcol < ncolor; jcol++ )
+              value[icol][jcol] = 2 * cf[icol][jcol] / denom[icol];
+          }
+        }
+        fptype2 value[ncolor][ncolor];
+      };
+      static constexpr auto cf2 = TriangularNormalizedColorMatrix();
+#endif
+
+#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+      if( ipagV % 2 == 0 ) // NB: first page is 0! skip even pages, compute on odd pages
+      {
+        // Mixed fptypes: delay color algebra and ME updates to next (odd) ipagV
+        for( int icol = 0; icol < ncolor; icol++ )
+          jamp_sv_previous[icol] = jamp_sv[icol];
+        MEs_previous = MEs;
+        continue; // go to next ipagV in the loop: skip color algebra and ME update on odd pages
+      }
+      fptype_sv deltaMEs_previous = { 0 };
+#endif
+
+      // Sum and square the color flows to get the matrix element
+      // (compute |M|^2 by squaring |M|, taking into account colours)
       // Sum and square the color flows to get the matrix element
       // (compute |M|^2 by squaring |M|, taking into account colours)
       fptype_sv deltaMEs = { 0 }; // all zeros https://en.cppreference.com/w/c/language/array_initialization#Notes
+
+      // Use the property that M is a real matrix (see #475):
+      // we can rewrite the quadratic form (A-iB)(M)(A+iB) as AMA - iBMA + iBMA + BMB = AMA + BMB
+      // In addition, on C++ use the property that M is symmetric (see #475),
+      // and also use constexpr to compute "2*" and "/denom[icol]" once and for all at compile time:
+      // we gain (not a factor 2...) in speed here as we only loop over the up diagonal part of the matrix.
+      // Strangely, CUDA is slower instead, so keep the old implementation for the moment.
+#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+      fptype2_sv jampR_sv[ncolor] = { 0 };
+      fptype2_sv jampI_sv[ncolor] = { 0 };
       for( int icol = 0; icol < ncolor; icol++ )
       {
-        cxtype_sv ztemp_sv = cxzero_sv();
+        jampR_sv[icol] = fpvmerge( cxreal( jamp_sv_previous[icol] ), cxreal( jamp_sv[icol] ) );
+        jampI_sv[icol] = fpvmerge( cximag( jamp_sv_previous[icol] ), cximag( jamp_sv[icol] ) );
+      }
+#endif
+      for( int icol = 0; icol < ncolor; icol++ )
+      {
+#ifndef __CUDACC__
+        // === C++ START ===
+        // Diagonal terms
+#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+        fptype2_sv& jampRi_sv = jampR_sv[icol];
+        fptype2_sv& jampIi_sv = jampI_sv[icol];
+#else
+        fptype2_sv jampRi_sv = (fptype2_sv)( cxreal( jamp_sv[icol] ) );
+        fptype2_sv jampIi_sv = (fptype2_sv)( cximag( jamp_sv[icol] ) );
+#endif
+        fptype2_sv ztempR_sv = cf2.value[icol][icol] * jampRi_sv;
+        fptype2_sv ztempI_sv = cf2.value[icol][icol] * jampIi_sv;
+        // Off-diagonal terms
+        for( int jcol = icol + 1; jcol < ncolor; jcol++ )
+        {
+#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+          fptype2_sv& jampRj_sv = jampR_sv[jcol];
+          fptype2_sv& jampIj_sv = jampI_sv[jcol];
+#else
+          fptype2_sv jampRj_sv = (fptype2_sv)( cxreal( jamp_sv[jcol] ) );
+          fptype2_sv jampIj_sv = (fptype2_sv)( cximag( jamp_sv[jcol] ) );
+#endif
+          ztempR_sv += cf2.value[icol][jcol] * jampRj_sv;
+          ztempI_sv += cf2.value[icol][jcol] * jampIj_sv;
+        }
+        fptype2_sv deltaMEs2 = ( jampRi_sv * ztempR_sv + jampIi_sv * ztempI_sv );
+#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+        deltaMEs_previous += fpvsplit0( deltaMEs2 );
+        deltaMEs += fpvsplit1( deltaMEs2 );
+#else
+        deltaMEs += deltaMEs2;
+#endif
+        // === C++ END ===
+#else
+        // === CUDA START ===
+        fptype2_sv ztempR_sv = { 0 };
+        fptype2_sv ztempI_sv = { 0 };
         for( int jcol = 0; jcol < ncolor; jcol++ )
-          ztemp_sv += cf[icol][jcol] * jamp_sv[jcol];
-        // OLD implementation: why is this not slower? maybe compiler does not compute imaginary part of "ztemp_sv*cxconj(jamp_sv[icol])"?
-        //deltaMEs += cxreal( ztemp_sv * cxconj( jamp_sv[icol] ) ) / denom[icol];
-        // NEW implementation: keep this even if (surprisingly) it is not faster! it is clearer and easier for tensor core offload anyway...
-        // Rewrite the quadratic form (A-iB)(M)(A+iB) as AMA - iBMA + iBMA + BMB = AMA + BMB!
-        deltaMEs += ( cxreal( ztemp_sv ) * cxreal( jamp_sv[icol] ) + cximag( ztemp_sv ) * cximag( jamp_sv[icol] ) ) / denom[icol];
+        {
+          fptype2_sv jampRj_sv = cxreal( jamp_sv[jcol] );
+          fptype2_sv jampIj_sv = cximag( jamp_sv[jcol] );
+          ztempR_sv += cf[icol][jcol] * jampRj_sv;
+          ztempI_sv += cf[icol][jcol] * jampIj_sv;
+        }
+        deltaMEs += ( ztempR_sv * cxreal( jamp_sv[icol] ) + ztempI_sv * cximag( jamp_sv[icol] ) ) / denom[icol];
+        // === CUDA END ===
+#endif
       }
 
       // *** STORE THE RESULTS ***
@@ -300,6 +398,10 @@ namespace mg5amcCpu
       // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
       fptype_sv& MEs_sv = E_ACCESS::kernelAccess( MEs );
       MEs_sv += deltaMEs; // fix #435
+#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+      fptype_sv& MEs_sv_previous = E_ACCESS::kernelAccess( MEs_previous );
+      MEs_sv_previous += deltaMEs_previous;
+#endif
       /*
 #ifdef __CUDACC__
       if ( cNGoodHel > 0 ) printf( "calculate_wavefunctions: ievt=%6d ihel=%2d me_running=%f\n", blockDim.x * blockIdx.x + threadIdx.x, ihel, MEs_sv );
@@ -526,7 +628,7 @@ namespace mg5amcCpu
                        fptype* allNumerators,      // output: multichannel numerators[nevt], running_sum_over_helicities
                        fptype* allDenominators,    // output: multichannel denominators[nevt], running_sum_over_helicities
 #endif
-                       bool* isGoodHel )           // output: isGoodHel[ncomb] - device array
+                       bool* isGoodHel )           // output: isGoodHel[ncomb] - device array (CUDA implementation)
   { /* clang-format on */
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
     fptype allMEsLast = 0;
@@ -557,7 +659,7 @@ namespace mg5amcCpu
                        fptype* allNumerators,      // output: multichannel numerators[nevt], running_sum_over_helicities
                        fptype* allDenominators,    // output: multichannel denominators[nevt], running_sum_over_helicities
 #endif
-                       bool* isGoodHel,            // output: isGoodHel[ncomb] - device array
+                       bool* isGoodHel,            // output: isGoodHel[ncomb] - host array (C++ implementation)
                        const int nevt )            // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
   {
     //assert( (size_t)(allmomenta) % mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
@@ -596,8 +698,8 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  void
-  sigmaKin_setGoodHel( const bool* isGoodHel ) // input: isGoodHel[ncomb] - host array
+  int                                          // output: nGoodHel (the number of good helicity combinations out of ncomb)
+  sigmaKin_setGoodHel( const bool* isGoodHel ) // input: isGoodHel[ncomb] - host array (CUDA and C++)
   {
     int nGoodHel = 0;           // FIXME: assume process.nprocesses == 1 for the moment (eventually nGoodHel[nprocesses]?)
     int goodHel[ncomb] = { 0 }; // all zeros https://en.cppreference.com/w/c/language/array_initialization#Notes
@@ -619,6 +721,7 @@ namespace mg5amcCpu
     cNGoodHel = nGoodHel;
     for( int ihel = 0; ihel < ncomb; ihel++ ) cGoodHel[ihel] = goodHel[ihel];
 #endif
+    return nGoodHel;
   }
 
   //--------------------------------------------------------------------------

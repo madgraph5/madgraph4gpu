@@ -16,7 +16,7 @@ if [ "${host/juwels}" != "${host}" ]; then NLOOP=32; fi # workaround for #498
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-d] [-fltonly] [-makeonly|-makeclean|-makecleanonly] [-rmrdat] [+10x] [-checkonly]" > /dev/stderr
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-d] [-fltonly|-mixonly] [-makeonly|-makeclean|-makecleanonly] [-rmrdat] [+10x] [-checkonly] [-nocleanup]" > /dev/stderr
   exit 1
 }
 
@@ -43,6 +43,8 @@ xfacs="1"
 
 checkonly=0
 
+nocleanup=0
+
 while [ "$1" != "" ]; do
   if [ "$1" == "-d" ]; then
     debug=1
@@ -63,7 +65,16 @@ while [ "$1" != "" ]; do
     ggttggg=1
     shift
   elif [ "$1" == "-fltonly" ]; then
+    if [ "${fptype}" != "d" ] && [ "${fptype}" != "$1" ]; then
+      echo "ERROR! Options -fltonly and -mixonly are incompatible"; usage
+    fi
     fptype="f"
+    shift
+  elif [ "$1" == "-mixonly" ]; then
+    if [ "${fptype}" != "d" ] && [ "${fptype}" != "$1" ]; then
+      echo "ERROR! Options -fltonly and -mixonly are incompatible"; usage
+    fi
+    fptype="m"
     shift
   elif [ "$1" == "-makeonly" ] || [ "$1" == "-makeclean" ] || [ "$1" == "-makecleanonly" ]; then
     if [ "${maketype}" != "" ] && [ "${maketype}" != "$1" ]; then
@@ -80,6 +91,9 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-checkonly" ]; then
     checkonly=1
     shift
+  elif [ "$1" == "-nocleanup" ]; then
+    nocleanup=1
+    shift
   else
     usage
   fi
@@ -94,7 +108,13 @@ suffs=".mad/"
 
 # Switch between double and float builds
 export FPTYPE=$fptype
-if [ "${fptype}" == "f" ]; then xsecthr="2E-4"; else xsecthr="2E-14"; fi
+if [ "${fptype}" == "f" ]; then
+  xsecthr="2E-4"
+elif [ "${fptype}" == "m" ]; then
+  xsecthr="2E-4" # FIXME #537
+else
+  xsecthr="2E-14"
+fi
 
 # Determine the working directory below topdir based on suff, bckend and <process>
 function showdir()
@@ -417,6 +437,9 @@ for suff in $suffs; do
       if [ "${fptype}" == "f" ]; then
 	${scrdir}/lheFloat.sh events.lhe0 events.lhe
       fi
+      if [ "${fptype}" == "m" ]; then
+	${scrdir}/lheFloat.sh events.lhe0 events.lhe # FIXME #537
+      fi
       ${scrdir}/dummyColor.sh events.lhe events.lhe.ref
       ${scrdir}/dummyHelicities.sh events.lhe.ref events.lhe.ref2
       \mv events.lhe.ref2 events.lhe.ref.$xfac
@@ -461,6 +484,9 @@ for suff in $suffs; do
 	if [ "${fptype}" == "f" ]; then
 	  ${scrdir}/lheFloat.sh events.lhe0 events.lhe
 	fi
+	if [ "${fptype}" == "m" ]; then
+	  ${scrdir}/lheFloat.sh events.lhe0 events.lhe # FIXME #537
+	fi
         \mv events.lhe events.lhe.cpp.$xfac
         if ! diff events.lhe.cpp.$xfac events.lhe.ref.$xfac; then echo "ERROR! events.lhe.cpp.$xfac and events.lhe.ref.$xfac differ!"; exit 1; else echo -e "\nOK! events.lhe.cpp.$xfac and events.lhe.ref.$xfac are identical"; fi
       done
@@ -502,6 +528,9 @@ for suff in $suffs; do
       if [ "${fptype}" == "f" ]; then
         ${scrdir}/lheFloat.sh events.lhe0 events.lhe
       fi
+      if [ "${fptype}" == "m" ]; then
+        ${scrdir}/lheFloat.sh events.lhe0 events.lhe # FIXME #537
+      fi
       \mv events.lhe events.lhe.cuda.$xfac
       if ! diff events.lhe.cuda.$xfac events.lhe.ref.$xfac; then echo "ERROR! events.lhe.cuda.$xfac and events.lhe.ref.$xfac differ!"; exit 1; else echo -e "\nOK! events.lhe.cuda.$xfac and events.lhe.ref.$xfac are identical"; fi
     done
@@ -514,8 +543,14 @@ for suff in $suffs; do
 done
 
 # Cleanup
-\rm -f results.dat
-\rm -f results.dat.ref
-\rm -f events.lhe*
+if [ "$nocleanup" == "0" ]; then
+  \rm -f results.dat
+  \rm -f results.dat.ref
+  \rm -f events.lhe*
+else
+  echo
+  ls -l $(pwd)/results.dat*
+  ls -l $(pwd)/events.lhe*
+fi
 
 printf "\nTEST COMPLETED\n"

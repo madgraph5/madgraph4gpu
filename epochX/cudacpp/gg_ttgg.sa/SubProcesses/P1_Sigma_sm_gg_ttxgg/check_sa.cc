@@ -421,6 +421,7 @@ main( int argc, char** argv )
     pmek.reset( new BridgeKernelHost( hstMomenta, hstGs, hstMatrixElements, nevt ) );
 #endif
   }
+  int nGoodHel = 0; // the number of good helicities (out of ncomb)
 
   // --- 0c. Create cross section kernel [keep this in 0c for the moment]
   EventStatistics hstStats;
@@ -545,7 +546,7 @@ main( int argc, char** argv )
     {
       const std::string ghelKey = "0e SGoodHel";
       timermap.start( ghelKey );
-      pmek->computeGoodHelicities();
+      nGoodHel = pmek->computeGoodHelicities();
     }
 
     // *** START THE OLD-STYLE TIMERS FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
@@ -718,12 +719,14 @@ main( int argc, char** argv )
   wrkflwtxt += "CPP:";
 #endif
   // -- DOUBLE or FLOAT?
-#if defined MGONGPU_FPTYPE_DOUBLE
+#if defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+  wrkflwtxt += "MIX+"; // mixed fptypes (single precision color algebra #537)
+#elif defined MGONGPU_FPTYPE_DOUBLE
   wrkflwtxt += "DBL+";
 #elif defined MGONGPU_FPTYPE_FLOAT
   wrkflwtxt += "FLT+";
 #else
-  wrkflwtxt += "???+";                                      // no path to this statement
+  wrkflwtxt += "???+"; // no path to this statement
 #endif
   // -- CUCOMPLEX or THRUST or STD complex numbers?
 #ifdef __CUDACC__
@@ -857,7 +860,9 @@ main( int argc, char** argv )
               << "NumIterations               = " << niter << std::endl
               << std::string( SEP79, '-' ) << std::endl;
     std::cout << "Workflow summary            = " << wrkflwtxt << std::endl
-#if defined MGONGPU_FPTYPE_DOUBLE
+#if defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+              << "FP precision                = MIXED (NaN/abnormal=" << nabn << ", zero=" << nzero << ")" << std::endl
+#elif defined MGONGPU_FPTYPE_DOUBLE
               << "FP precision                = DOUBLE (NaN/abnormal=" << nabn << ", zero=" << nzero << ")" << std::endl
 #elif defined MGONGPU_FPTYPE_FLOAT
               << "FP precision                = FLOAT (NaN/abnormal=" << nabn << ", zero=" << nzero << ")" << std::endl
@@ -913,6 +918,8 @@ main( int argc, char** argv )
 #endif
 #endif
               //<< "MatrixElements compiler     = " << process.getCompiler() << std::endl
+              << std::string( SEP79, '-' ) << std::endl
+              << "HelicityComb Good/Tot       = " << nGoodHel << "/" << mgOnGpu::ncomb << std::endl
               << std::string( SEP79, '-' ) << std::endl
               << "NumberOfEntries             = " << niter << std::endl
               << std::scientific // fixed format: affects all floats (default precision: 6)
@@ -990,7 +997,10 @@ main( int argc, char** argv )
              << "\"NumIterations\": " << niter << ", " << std::endl
              << "\"NumThreadsPerBlock\": " << gputhreads << ", " << std::endl
              << "\"NumBlocksPerGrid\": " << gpublocks << ", " << std::endl
-#if defined MGONGPU_FPTYPE_DOUBLE
+#if defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+             << "\"FP precision\": "
+             << "\"MIXED (NaN/abnormal=" << nabn << ")\"," << std::endl
+#elif defined MGONGPU_FPTYPE_DOUBLE
              << "\"FP precision\": "
              << "\"DOUBLE (NaN/abnormal=" << nabn << ")\"," << std::endl
 #elif defined MGONGPU_FPTYPE_FLOAT
