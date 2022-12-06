@@ -76,17 +76,16 @@ C     Keep track of whether cuts already calculated for this event
 
       INTEGER SUBDIAG(MAXSPROC),IB(2)
       COMMON/TO_SUB_DIAG/SUBDIAG,IB
-      include 'vector.inc'
-      include 'coupl.inc'
+      INCLUDE 'coupl.inc'
       INCLUDE 'run.inc'
 C     Common blocks
       CHARACTER*7         PDLABEL,EPA_LABEL
       INTEGER       LHAID
       COMMON/TO_PDF/LHAID,PDLABEL,EPA_LABEL
-C     jamp2 information
-      DOUBLE PRECISION JAMP2(0:MAXFLOW, NB_PAGE_MAX)
-      COMMON/TO_JAMPS/       JAMP2
-
+      INCLUDE 'vector.inc'
+      DOUBLE PRECISION RHEL, RCOL
+      INTEGER SELECTED_HEL(NB_PAGE_MAX)
+      INTEGER SELECTED_COL(NB_PAGE_MAX)
 C     
 C     local
 C     
@@ -148,7 +147,11 @@ C     Continue only if IMODE is 0, 4 or 5
       ENDIF
 
       CHANNEL = SUBDIAG(1)
-      CALL SMATRIX1(P1,0D0,CHANNEL,DSIGUU,JAMP2(0,1),1)
+      CALL RANMAR(RHEL)
+      CALL RANMAR(RCOL)
+      CALL SMATRIX1(P1,RHEL, RCOL,CHANNEL,1, DSIGUU, SELECTED_HEL(1),
+     $  SELECTED_COL(1))
+
 
       IF (IMODE.EQ.5) THEN
         IF (DSIGUU.LT.1D199) THEN
@@ -184,7 +187,7 @@ C       Set sign of dsig based on sign of PDF and matrix element
 C     Generate events only if IMODE is 0.
       IF(IMODE.EQ.0.AND.DABS(DSIG1).GT.0D0)THEN
 C       Call UNWGT to unweight and store events
-        CALL UNWGT(PP,DSIG1*WGT,1,1)
+        CALL UNWGT(PP,DSIG1*WGT,1,SELECTED_HEL(1), SELECTED_COL(1), 1)
       ENDIF
 
       END
@@ -219,8 +222,7 @@ C     ****************************************************
 C     
 C     CONSTANTS
 C     
-      include 'vector.inc'
-      include 'coupl.inc'
+      INCLUDE '../../Source/vector.inc'
       INCLUDE 'genps.inc'
       INCLUDE 'nexternal.inc'
       INCLUDE 'maxconfigs.inc'
@@ -283,17 +285,17 @@ C     MINCFIG has this config number
 C     Keep track of whether cuts already calculated for this event
       LOGICAL CUTSDONE,CUTSPASSED
       COMMON/TO_CUTSDONE/CUTSDONE,CUTSPASSED
-C     jamp2 information      
-      DOUBLE PRECISION JAMP2(0:MAXFLOW, NB_PAGE_MAX)
-      COMMON/TO_JAMPS/       JAMP2
 
       INTEGER SUBDIAG(MAXSPROC),IB(2)
       COMMON/TO_SUB_DIAG/SUBDIAG,IB
+      INCLUDE 'coupl.inc'
       INCLUDE 'run.inc'
 
       DOUBLE PRECISION P_MULTI(0:3, NEXTERNAL, NB_PAGE_MAX)
       DOUBLE PRECISION HEL_RAND(NB_PAGE_MAX)
+      DOUBLE PRECISION COL_RAND(NB_PAGE_MAX)
       INTEGER SELECTED_HEL(NB_PAGE_MAX)
+      INTEGER SELECTED_COL(NB_PAGE_MAX)
 
 C     Common blocks
       CHARACTER*7         PDLABEL,EPA_LABEL
@@ -372,17 +374,12 @@ C       Select a flavor combination (need to do here for right sign)
           P_MULTI(:,:,IVEC) = ALL_PP(:,:,IVEC)
         ENDIF
         CALL RANMAR(HEL_RAND(IVEC))
-C       CALL SMATRIX1(P1, RHEL, channel, ALL_OUT(IVEC), JAMP2(0,
-C        IVEC), IVEC)
+        CALL RANMAR(COL_RAND(IVEC))
       ENDDO
       CHANNEL = SUBDIAG(1)
 
-C     do IVEC=1, NB_PAGE_LOOP
-C     CALL SMATRIX1(p_multi(0,1,IVEC), hel_rand(ivec), channel,
-C      ALL_OUT(IVEC), JAMP2(0, IVEC), IVEC)
-C     enddo 
-      CALL SMATRIX1_MULTI(P_MULTI, HEL_RAND,  CHANNEL, ALL_OUT ,
-     $  SELECTED_HEL, JAMP2)
+      CALL SMATRIX1_MULTI(P_MULTI, HEL_RAND, COL_RAND, CHANNEL,
+     $  ALL_OUT , SELECTED_HEL, SELECTED_COL)
 
 
       DO IVEC=1,NB_PAGE_LOOP
@@ -427,7 +424,7 @@ C       Generate events only if IMODE is 0.
         IF(IMODE.EQ.0.AND.DABS(ALL_OUT(IVEC)).GT.0D0)THEN
 C         Call UNWGT to unweight and store events
           CALL UNWGT(ALL_PP(0,1,IVEC), ALL_OUT(IVEC)*ALL_WGT(IVEC),1,
-     $      IVEC)
+     $      SELECTED_HEL(IVEC), SELECTED_COL(IVEC), IVEC)
         ENDIF
       ENDDO
 
@@ -447,143 +444,40 @@ C
       END
 
 
-      SUBROUTINE SMATRIX1_MULTI(P_MULTI, HEL_RAND,  CHANNEL, OUT ,
-     $  SELECTED_HEL, JAMP2_MULTI)
-
+      SUBROUTINE SMATRIX1_MULTI(P_MULTI, HEL_RAND, COL_RAND, CHANNEL,
+     $  OUT , SELECTED_HEL, SELECTED_COL)
       USE OMP_LIB
-
       IMPLICIT NONE
+
       INCLUDE 'nexternal.inc'
-      include 'vector.inc'
-      include 'coupl.inc'
+      INCLUDE '../../Source/vector.inc'
       INCLUDE 'maxamps.inc'
       DOUBLE PRECISION P_MULTI(0:3, NEXTERNAL, NB_PAGE_MAX)
       DOUBLE PRECISION HEL_RAND(NB_PAGE_MAX)
+      DOUBLE PRECISION COL_RAND(NB_PAGE_MAX)
       INTEGER CHANNEL
       DOUBLE PRECISION OUT(NB_PAGE_MAX)
       INTEGER SELECTED_HEL(NB_PAGE_MAX)
-      DOUBLE PRECISION JAMP2_MULTI(0:MAXFLOW, NB_PAGE_MAX)
+      INTEGER SELECTED_COL(NB_PAGE_MAX)
 
       INTEGER IVEC
-      INTEGER IEXT
 
-      INTEGER                    ISUM_HEL
-      LOGICAL                    MULTI_CHANNEL
-      COMMON/TO_MATRIX/ISUM_HEL, MULTI_CHANNEL
 
-      LOGICAL FIRST_CHID
-      SAVE FIRST_CHID
-      DATA FIRST_CHID/.TRUE./
-      
-#ifdef MG5AMC_MEEXPORTER_CUDACPP
-      INCLUDE 'fbridge.inc'
-      INCLUDE 'fbridge_common.inc'
-      INCLUDE 'genps.inc'
-      INCLUDE 'run.inc'
-      DOUBLE PRECISION OUT2(NB_PAGE_MAX)
-      DOUBLE PRECISION CBYF1
-
-      INTEGER*4 NWARNINGS
-      SAVE NWARNINGS
-      DATA NWARNINGS/0/
-      
-      LOGICAL FIRST
-      SAVE FIRST
-      DATA FIRST/.TRUE./
-
-      IF( FBRIDGE_MODE .LE. 0 ) THEN ! (FortranOnly=0 or BothQuiet=-1 or BothDebug=-2)
-#endif
-        call counters_smatrix1multi_start( -1, nb_page_loop ) ! fortran=-1
-c!$OMP PARALLEL
-c!$OMP DO
-        DO IVEC=1, NB_PAGE_LOOP
-          CALL SMATRIX1(P_MULTI(0,1,IVEC),
-     &      hel_rand(IVEC),
-     &      channel,
-     &      out(IVEC),
-C    &      selected_hel(IVEC),
-     &      jamp2_multi(0,IVEC),
-     &      IVEC
-     &      )
-        ENDDO
-c!$OMP END DO
-c!$OMP END PARALLEL
-        call counters_smatrix1multi_stop( -1 ) ! fortran=-1
-#ifdef MG5AMC_MEEXPORTER_CUDACPP
-      ENDIF
-
-      IF( FBRIDGE_MODE .EQ. 1 .OR. FBRIDGE_MODE .LT. 0 ) THEN ! (CppOnly=1 or BothQuiet=-1 or BothDebug=-2)
-        IF( LIMHEL.NE.0 ) THEN
-          WRITE(6,*) 'ERROR! The cudacpp bridge only supports LIMHEL=0'
-          STOP
-        ENDIF
-        IF ( FIRST ) THEN ! exclude first pass (helicity filtering) from timers (#461)
-          CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE, P_MULTI, ALL_G, OUT2, 0) ! 0: multi channel disabled for helicity filtering
-          FIRST = .FALSE.
-c         ! This is a workaround for https://github.com/oliviermattelaer/mg5amc_test/issues/22 (see PR #486)
-          IF( FBRIDGE_MODE .EQ. 1 ) THEN ! (CppOnly=1 : SMATRIX1 is not called at all)
-            CALL RESET_CUMULATIVE_VARIABLE() ! mimic 'avoid bias of the initialization' within SMATRIX1
-          ENDIF
-        ENDIF
-        call counters_smatrix1multi_start( 0, nb_page_loop ) ! cudacpp=0
-        IF ( .NOT. MULTI_CHANNEL ) THEN
-          CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE,
-     &      P_MULTI, ALL_G, OUT2, 0) ! 0: multi channel disabled
-        ELSE
-          IF( SDE_STRAT.NE.1 ) THEN
-            WRITE(6,*) 'ERROR! The cudacpp bridge requires SDE=1' ! multi channel single-diagram enhancement strategy
-            STOP
-          ENDIF
-          CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE,
-     &      P_MULTI, ALL_G, OUT2, CHANNEL) ! 1-N: multi channel enabled
-        ENDIF
-        call counters_smatrix1multi_stop( 0 ) ! cudacpp=0
-      ENDIF
-
-      IF( FBRIDGE_MODE .LT. 0 ) THEN ! (BothQuiet=-1 or BothDebug=-2)
-        DO IVEC=1, NB_PAGE_LOOP
-          CBYF1 = OUT2(IVEC)/OUT(IVEC) - 1
-          FBRIDGE_NCBYF1 = FBRIDGE_NCBYF1 + 1
-          FBRIDGE_CBYF1SUM = FBRIDGE_CBYF1SUM + CBYF1
-          FBRIDGE_CBYF1SUM2 = FBRIDGE_CBYF1SUM2 + CBYF1 * CBYF1
-          IF( CBYF1 .GT. FBRIDGE_CBYF1MAX ) FBRIDGE_CBYF1MAX = CBYF1
-          IF( CBYF1 .LT. FBRIDGE_CBYF1MIN ) FBRIDGE_CBYF1MIN = CBYF1
-          IF( FBRIDGE_MODE .EQ. -2 ) THEN ! (BothDebug=-2)
-            WRITE (*,'(I2,2E16.8,F23.11)')
-     &        IVEC, OUT(IVEC), OUT2(IVEC), 1+CBYF1
-          ENDIF
-          IF( ABS(CBYF1).GT.5E-5 .AND. NWARNINGS.LT.20 ) THEN
-            NWARNINGS = NWARNINGS + 1
-            WRITE (*,'(A,I2,A,I4,2E16.8,F23.11)')
-     &        'WARNING! (', NWARNINGS, '/20) Deviation more than 5E-5',
-     &        IVEC, OUT(IVEC), OUT2(IVEC), 1+CBYF1
-          ENDIF
-        END DO
-      ENDIF
-
-      IF( FBRIDGE_MODE .EQ. 1 .OR. FBRIDGE_MODE .LT. 0 ) THEN ! (CppOnly=1 or BothQuiet=-1 or BothDebug=-2)
-        DO IVEC=1, NB_PAGE_LOOP
-          OUT(IVEC) = OUT2(IVEC) ! use the cudacpp ME instead of the fortran ME!
-        END DO
-      ENDIF
-
-      IF( FBRIDGE_MODE .EQ. 1 ) THEN ! (CppOnly=1 : SMATRIX1 is not called at all, JAMP2_MULTI is not filled)
-        DO IVEC=1, NB_PAGE_LOOP
-          JAMP2_MULTI(0,IVEC) = 2 ! workaround for https://github.com/oliviermattelaer/mg5amc_test/issues/14
-        END DO
-      ENDIF
-#endif
-
-      IF ( FIRST_CHID ) THEN
-        IF ( MULTI_CHANNEL ) THEN
-          WRITE (*,*) 'MULTI_CHANNEL = TRUE'
-        ELSE
-          WRITE (*,*) 'MULTI_CHANNEL = FALSE'
-        ENDIF
-        WRITE (*,*) 'CHANNEL_ID =', CHANNEL
-        FIRST_CHID = .FALSE.
-      ENDIF
-
+!$OMP PARALLEL
+!$OMP DO
+      DO IVEC=1, NB_PAGE_LOOP
+        CALL SMATRIX1(P_MULTI(0,1,IVEC),
+     &	                         hel_rand(IVEC),
+     &                           col_rand(IVEC),
+     &				 channel,
+     &                           IVEC,
+     &				 out(IVEC),
+     &				 selected_hel(IVEC),
+     &				 selected_col(IVEC)
+     &				 )
+      ENDDO
+!$OMP END DO
+!$OMP END PARALLEL
       RETURN
       END
 
