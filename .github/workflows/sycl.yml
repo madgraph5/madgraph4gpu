@@ -13,7 +13,6 @@ jobs:
       FC: gfortran
       REQUIRE_CUDA: 1
       SYCLFLAGS: -fsycl
-      CXX: /afs/cern.ch/work/j/jteig/sycl_workspace/llvm/build/bin/clang++
       ENABLE_CI_PROFILER: 1
     strategy:
       matrix:
@@ -23,8 +22,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: make info
-      run: source /cvmfs/sft.cern.ch/lcg/contrib/gcc/11.3.0/x86_64-centos8/setup.sh; export CUDA_HOME=/usr/local/cuda-11.6/; make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} info
+      run: source /cvmfs/sft.cern.ch/lcg/contrib/gcc/11.3.0/x86_64-centos8/setup.sh; export CXX=/afs/cern.ch/work/j/jteig/sycl_workspace/llvm/build/bin/clang++; export CUDA_HOME=/usr/local/cuda-11.6/; make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} info
     - name: make
-      run: source /cvmfs/sft.cern.ch/lcg/contrib/gcc/11.3.0/x86_64-centos8/setup.sh; export CUDA_HOME=/usr/local/cuda-11.6/; make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }}
+      run: source /cvmfs/sft.cern.ch/lcg/contrib/gcc/11.3.0/x86_64-centos8/setup.sh; export CXX=/afs/cern.ch/work/j/jteig/sycl_workspace/llvm/build/bin/clang++; export CUDA_HOME=/usr/local/cuda-11.6/; make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }}
     - name: make check
-      run: source /cvmfs/sft.cern.ch/lcg/contrib/gcc/11.3.0/x86_64-centos8/setup.sh; export CUDA_HOME=/usr/local/cuda-11.6/; make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} check
+      run: source /cvmfs/sft.cern.ch/lcg/contrib/gcc/11.3.0/x86_64-centos8/setup.sh; export CXX=/afs/cern.ch/work/j/jteig/sycl_workspace/llvm/build/bin/clang++; export CUDA_HOME=/usr/local/cuda-11.6/; make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} check
