@@ -7,75 +7,20 @@ on:
     branches: [ master ]
 
 jobs:
-  debug_builds:
-    runs-on: ubuntu-latest
-    env:
-      SYCLFLAGS: -fsycl
-    strategy:
-      matrix:
-        folder: [ epochX/sycl/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum , epochX/sycl/gg_tt/SubProcesses/P1_Sigma_sm_gg_ttx , epochX/sycl/gg_ttg/SubProcesses/P1_Sigma_sm_gg_ttxg , epochX/sycl/gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg , epochX/sycl/gg_ttggg/SubProcesses/P1_Sigma_sm_gg_ttxggg ]
-      fail-fast: false
-    steps:
-
-    - uses: actions/checkout@v2
-    - name: make cleanall
-      run: make -C ${{ matrix.folder }} cleanall
-    - name: make epochX
-      run: make -C ${{ matrix.folder }} debug
-  CPU:
-    runs-on: ubuntu-latest
-    env:
-      SYCLFLAGS: -fsycl
-    strategy:
-      matrix:
-        folder: [ epochX/sycl/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum , epochX/sycl/gg_tt/SubProcesses/P1_Sigma_sm_gg_ttx , epochX/sycl/gg_ttg/SubProcesses/P1_Sigma_sm_gg_ttxg , epochX/sycl/gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg , epochX/sycl/gg_ttggg/SubProcesses/P1_Sigma_sm_gg_ttxggg ]
-        precision: [ d , f ]
-      fail-fast: false
-    steps:
-    - uses: actions/checkout@v2
-    - name: make cleanall
-      run: make -C ${{ matrix.folder }} cleanall
-    - name: make info
-      run: make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} info
-    - name: make
-      run: make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }}
-    - name: make check
-      run: make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} check
-  CPU_MAC:
-    runs-on: macos-latest
-    env:
-      FC: gfortran-11
-      SYCLFLAGS: -fsycl
-    strategy:
-      matrix:
-        folder: [ epochX/sycl/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum , epochX/sycl/gg_tt/SubProcesses/P1_Sigma_sm_gg_ttx , epochX/sycl/gg_ttg/SubProcesses/P1_Sigma_sm_gg_ttxg , epochX/sycl/gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg , epochX/sycl/gg_ttggg/SubProcesses/P1_Sigma_sm_gg_ttxggg ]
-        precision: [ d ]
-      fail-fast: false
-    steps:
-    - uses: actions/checkout@v2
-    - name: make cleanall
-      run: make -C ${{ matrix.folder }} cleanall
-    - name: make info
-      run: make AVX=none OMPFLAGS= FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} info
-    - name: make
-      run: make AVX=none OMPFLAGS= FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }}
-    - name: make check
-      run: make AVX=none OMPFLAGS= FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} check
   GPU:
-    runs-on: [self-hosted, linux, a100s]
+    runs-on: [self-hosted, linux, v100s]
     env:
       FC: gfortran
       REQUIRE_CUDA: 1
       SYCLFLAGS: -fsycl
+      ENABLE_CI_PROFILER: 1
     strategy:
       matrix:
-        folder: [ epochX/sycl/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum , epochX/sycl/gg_tt/SubProcesses/P1_Sigma_sm_gg_ttx , epochX/sycl/gg_ttg/SubProcesses/P1_Sigma_sm_gg_ttxg , epochX/sycl/gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg , epochX/sycl/gg_ttggg/SubProcesses/P1_Sigma_sm_gg_ttxggg ]
+        folder: [ epochX/sycl/ee_mumu.sa/SubProcesses/P1_Sigma_sm_epem_mupmum , epochX/sycl/gg_tt.sa/SubProcesses/P1_Sigma_sm_gg_ttx , epochX/sycl/gg_ttg.sa/SubProcesses/P1_Sigma_sm_gg_ttxg , epochX/sycl/gg_ttgg.sa/SubProcesses/P1_Sigma_sm_gg_ttxgg , epochX/sycl/gg_ttggg.sa/SubProcesses/P1_Sigma_sm_gg_ttxggg ]
         precision: [ d , f ]
       fail-fast: false
     steps:
     - uses: actions/checkout@v2
-    - name: make cleanall
-      run: make -C ${{ matrix.folder }} cleanall
     - name: make info
       run: source /cvmfs/sft.cern.ch/lcg/contrib/gcc/11.3.0/x86_64-centos8/setup.sh; export CUDA_HOME=/usr/local/cuda-11.6/; make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} info
     - name: make
