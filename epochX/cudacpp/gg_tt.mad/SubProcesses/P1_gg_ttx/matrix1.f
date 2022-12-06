@@ -83,7 +83,7 @@ C     GLOBAL VARIABLES
 C     
       LOGICAL INIT_MODE
       COMMON /TO_DETERMINE_ZERO_HEL/INIT_MODE
-      INCLUDE 'vector.inc'
+      INCLUDE '../../Source/vector.inc'
       DOUBLE PRECISION AMP2(MAXAMPS), JAMP2(0:MAXFLOW)
 
 
@@ -140,7 +140,6 @@ C     ----------
 C     BEGIN CODE
 C     ----------
 
-      call counters_smatrix1_start()
       NTRY(IMIRROR)=NTRY(IMIRROR)+1
       THIS_NTRY(IMIRROR) = THIS_NTRY(IMIRROR)+1
       DO I=1,NEXTERNAL
@@ -235,7 +234,6 @@ C       Include the Jacobian from helicity sampling
         IHEL = HEL_PICKED
       ELSE
         ANS = 1D0
-        call counters_smatrix1_stop()
         RETURN
       ENDIF
       IF (ANS.NE.0D0.AND.(ISUM_HEL .NE. 1.OR.HEL_PICKED.EQ.-1)) THEN
@@ -280,8 +278,9 @@ C           Set right sign for ANS, based on sign of chosen helicity
         ENDIF
       ENDIF
       ANS=ANS/DBLE(IDEN)
+
       CALL SELECT_COLOR(RCOL, JAMP2, CHANNEL,1,  ICOL)
-      call counters_smatrix1_stop()
+
       END
 
 
@@ -352,8 +351,8 @@ C
 C     
 C     GLOBAL VARIABLES
 C     
+      INCLUDE '../../Source/vector.inc'
       DOUBLE PRECISION AMP2(MAXAMPS), JAMP2(0:MAXFLOW)
-      INCLUDE 'vector.inc'
       INCLUDE 'coupl.inc'
 
       DOUBLE PRECISION SMALL_WIDTH_TREATMENT
@@ -382,7 +381,6 @@ C     1 T(2,1,3,4)
 C     ----------
 C     BEGIN CODE
 C     ----------
-      call counters_matrix1_start()
       IF (FIRST) THEN
         FIRST=.FALSE.
         IF(ZERO.NE.0D0) FK_ZERO = SIGN(MAX(ABS(ZERO), ABS(ZERO
@@ -456,7 +454,6 @@ C     JAMPs contributing to orders ALL_ORDERS=1
         ENDDO
       ENDDO
 
-      call counters_matrix1_stop()
       END
 
       SUBROUTINE PRINT_ZERO_AMP_1()
