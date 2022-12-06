@@ -25,20 +25,20 @@ jobs:
       run: source /cvmfs/sft.cern.ch/lcg/contrib/gcc/11.3.0/x86_64-centos8/setup.sh;
            CXX=/afs/cern.ch/work/j/jteig/sycl_workspace/llvm/build/bin/clang++;
            LD_LIBRARY_PATH=/afs/cern.ch/work/j/jteig/sycl_workspace/llvm/build/lib:$LD_LIBRARY_PATH;
-           LD_LIBRARY_PATH=$(pwd)/${{ matrix.folder }}/../../lib/build*/:$LD_LIBRARY_PATH;
+           LD_LIBRARY_PATH=`pwd`/${{ matrix.folder }}/../../lib/build*/:$LD_LIBRARY_PATH;
            export CUDA_HOME=/usr/local/cuda-11.6/;
            make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} info
     - name: make
       run: source /cvmfs/sft.cern.ch/lcg/contrib/gcc/11.3.0/x86_64-centos8/setup.sh;
            CXX=/afs/cern.ch/work/j/jteig/sycl_workspace/llvm/build/bin/clang++;
            LD_LIBRARY_PATH=/afs/cern.ch/work/j/jteig/sycl_workspace/llvm/build/lib:$LD_LIBRARY_PATH;
-           LD_LIBRARY_PATH=$(pwd)/${{ matrix.folder }}/../../lib/build*/:$LD_LIBRARY_PATH;
+           LD_LIBRARY_PATH=`pwd`/${{ matrix.folder }}/../../lib/build*/:$LD_LIBRARY_PATH;
            export CUDA_HOME=/usr/local/cuda-11.6/;
            make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }}
     - name: make check
       run: source /cvmfs/sft.cern.ch/lcg/contrib/gcc/11.3.0/x86_64-centos8/setup.sh; 
            CXX=/afs/cern.ch/work/j/jteig/sycl_workspace/llvm/build/bin/clang++;
            LD_LIBRARY_PATH=/afs/cern.ch/work/j/jteig/sycl_workspace/llvm/build/lib:$LD_LIBRARY_PATH;
-           LD_LIBRARY_PATH=$(pwd)/${{ matrix.folder }}/../../lib/build*/:$LD_LIBRARY_PATH;
+           LD_LIBRARY_PATH=`pwd`/${{ matrix.folder }}/../../lib/build*/:$LD_LIBRARY_PATH;
            export CUDA_HOME=/usr/local/cuda-11.6/;
            make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} check
