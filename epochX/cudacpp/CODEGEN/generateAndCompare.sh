@@ -148,7 +148,7 @@ function codeGenAndDiff()
   # [NB: NEW! these patches are no longer applied to madonly, which is now meant as an out-of-the-box reference]
   ###if [ "${OUTBCK}" == "madonly" ] || [ "${OUTBCK}" == "mad" ]; then
   if [ "${OUTBCK}" == "mad" ]; then
-    $SCRDIR/patchMad.sh ${OUTDIR}/${proc}.${autosuffix} ${vecsize} ${dir_patches} ${NOPATCH}
+    $SCRDIR/patchMad.sh ${OUTDIR}/${proc}.${autosuffix} ${vecsize} ${dir_patches} ${PATCHLEVEL}
   fi
   # Compare the existing generated code to the newly generated code for the specific process
   pushd ${OUTDIR} >& /dev/null
@@ -185,7 +185,7 @@ function usage()
     echo "Usage: $0 [--nobrief] <proc>"
   else
     # NB: all options with $SCRBCK=cudacpp use the 311 branch by default and always disable helicity recycling
-    echo "Usage: $0 [--nobrief] [--cpp|--gpu|--madonly|--mad|--madgpu] [--nopatch] <proc>"
+    echo "Usage: $0 [--nobrief] [--cpp|--gpu|--madonly|--mad|--madgpu] [--nopatch|--upstream] <proc>"
     echo "(NB: a --madcpp option also exists but code generation fails for it)"
   fi
   exit 1
@@ -228,8 +228,8 @@ BRIEF=--brief
 # Default for gridpacks: untar gridpack.tar.gz but do not regenerate it (use --nountaronly to regenerate it)
 UNTARONLY=1
 
-# Default: apply all patches in patchMad.sh (this is ignored unless --mad is also specified)
-NOPATCH=
+# Default: apply all patches in patchMad.sh (--nopatch is ignored unless --mad is also specified)
+PATCHLEVEL=
 
 # Default for gridpacks: use helicity recycling (use --nohelrec to disable it)
 # (export the value to the untarGridpack.sh script)
@@ -243,8 +243,10 @@ for arg in "$@"; do
     usage
   elif [ "$arg" == "--nobrief" ]; then
     BRIEF=
-  elif [ "$arg" == "--nopatch" ]; then
-    NOPATCH=--nopatch
+  elif [ "$arg" == "--nopatch" ] && [ "${PATCHLEVEL}" == "" ]; then
+    PATCHLEVEL=--nopatch
+  elif [ "$arg" == "--upstream" ] && [ "${PATCHLEVEL}" == "" ]; then
+    PATCHLEVEL=--upstream
   elif [ "$arg" == "--nountaronly" ] && [ "${SCRBCK}" == "gridpack" ]; then
     UNTARONLY=0
   elif [ "$arg" == "--nohelrec" ] && [ "${SCRBCK}" == "gridpack" ]; then
@@ -350,8 +352,8 @@ echo -e "Current git commit of MG5AMC_HOME is '${commit_mg5amc}'"
 if [ "${commit_patches}" != "${commit_mg5amc}" ]; then echo -e "\nERROR! git commit mismatch!"; exit 1; fi
 cd - > /dev/null
 
-# Copy MG5AMC ad-hoc patches if any
-if [ "${SCRBCK}" == "cudacpp" ]; then
+# Copy MG5AMC ad-hoc patches if any (unless --upstream is specified)
+if [ "${PATCHLEVEL}" != "--upstream" ] && [ "${SCRBCK}" == "cudacpp" ]; then
   ###patches=$(cd $SCRDIR/MG5aMC_patches/${dir_patches}; find . -type f -name '*.py')
   patches=$(cd $SCRDIR/MG5aMC_patches/${dir_patches}; find . -type f ! -name '*.GIT')
   echo -e "Copy MG5aMC_patches/${dir_patches} patches..."
