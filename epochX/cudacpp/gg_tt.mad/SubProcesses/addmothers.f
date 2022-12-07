@@ -4,6 +4,7 @@
       implicit none
       include 'genps.inc'
       include 'nexternal.inc'
+      include 'vector.inc'
       include 'coupl.inc'
       include 'maxamps.inc'
       include 'cluster.inc'
