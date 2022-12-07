@@ -9,9 +9,9 @@ index 8da031857..cbf27d64b 100644
 -      double precision all_p(4*maxdim/3+14,nb_page), all_wgt(nb_page), all_x(maxinvar,nb_page)
 -      integer all_lastbin(maxdim, nb_page)
 -      double precision bckp(nb_page)
-+      double precision all_p(4*maxdim/3+14,nb_page_max), all_wgt(nb_page_max), all_x(maxinvar,nb_page_max)
-+      integer all_lastbin(maxdim, nb_page_max)
-+      double precision bckp(nb_page_max)
++      double precision all_p(4*maxdim/3+14,VECSIZE_MAX), all_wgt(VECSIZE_MAX), all_x(maxinvar,VECSIZE_MAX)
++      integer all_lastbin(maxdim, VECSIZE_MAX)
++      double precision bckp(VECSIZE_MAX)
        double precision tdem, chi2, dum
        integer ievent,kevent,nwrite,iter,nun,luntmp,itsum
        integer jmax,i,j,ipole
@@ -19,7 +19,7 @@ index 8da031857..cbf27d64b 100644
  
        integer imirror, iproc, iconf
 -      integer ivec !position of the event in the vectorization # max is nb_page 
-+      integer ivec ! position of the event in the vectorization # max is nb_page_max (but loops go over nb_page_loop)
++      integer ivec ! position of the event in the vectorization # max is VECSIZE_MAX (but loops go over VECSIZE_USED)
  c
  c     External
  c
@@ -29,8 +29,8 @@ index 8da031857..cbf27d64b 100644
  C     data for vectorization      
 -      double precision all_xbk(2, nb_page), all_q2fact(2, nb_page), all_cm_rap(nb_page)
 -      double precision all_fx(nb_page)
-+      double precision all_xbk(2, nb_page_max), all_q2fact(2, nb_page_max), all_cm_rap(nb_page_max)
-+      double precision all_fx(nb_page_max)
++      double precision all_xbk(2, VECSIZE_MAX), all_q2fact(2, VECSIZE_MAX), all_cm_rap(VECSIZE_MAX)
++      double precision all_fx(VECSIZE_MAX)
        
        
        LOGICAL CUTSDONE,CUTSPASSED
@@ -39,16 +39,16 @@ index 8da031857..cbf27d64b 100644
  c               write(*,*) i, all_wgt(i), fx, all_wgt(i)*fx
  c               all_wgt(i) = all_wgt(i)*fx
 -               if (ivec.lt.nb_page)then
-+               if (ivec.lt.nb_page_loop)then
++               if (ivec.lt.VECSIZE_USED)then
                    cycle
                 endif
                 ivec=0
 -               if (nb_page.le.1) then
-+               if (nb_page_loop.le.1) then
++               if (VECSIZE_USED.le.1) then
                    all_fx(1) = dsig(all_p, all_wgt,0)
                 else
 -               do i=1, nb_page
-+               do i=1, nb_page_loop
++               do i=1, VECSIZE_USED
  c                 need to restore common block                  
                    xbk(:) = all_xbk(:, i)
                    cm_rap = all_cm_rap(i)
@@ -57,13 +57,13 @@ index 8da031857..cbf27d64b 100644
                    call prepare_grouping_choice(all_p(1,i), all_wgt(i), i.eq.1)
                 enddo
 -               call select_grouping(imirror, iproc, iconf, all_wgt, nb_page)
-+               call select_grouping(imirror, iproc, iconf, all_wgt, nb_page_loop)
++               call select_grouping(imirror, iproc, iconf, all_wgt, VECSIZE_USED)
                 call dsig_vec(all_p, all_wgt, all_xbk, all_q2fact, all_cm_rap,
 -     &                          iconf, iproc, imirror, all_fx,nb_page)
-+     &                          iconf, iproc, imirror, all_fx,nb_page_loop)
++     &                          iconf, iproc, imirror, all_fx,VECSIZE_USED)
  
 -                do i=1, nb_page
-+                do i=1, nb_page_loop
++                do i=1, VECSIZE_USED
  c                 need to restore common block                  
                    xbk(:) = all_xbk(:, i)
                    cm_rap = all_cm_rap(i)
@@ -72,21 +72,21 @@ index 8da031857..cbf27d64b 100644
                 enddo
                 endif
 -               do I=1, nb_page
-+               do I=1, nb_page_loop
++               do I=1, VECSIZE_USED
                    all_wgt(i) = all_wgt(i)*all_fx(i)
                enddo
 -               do i =1, nb_page
-+               do i =1, nb_page_loop
++               do i =1, VECSIZE_USED
  c     if last paremeter is true -> allow grid update so only for a full page
                    lastbin(:) = all_lastbin(:,i)
                    if (all_wgt(i) .ne. 0d0) kevent=kevent+1
 -c                  write(*,*) 'put point in sample kevent', kevent, 'allow_update', ivec.eq.nb_page                   
 -                  call sample_put_point(all_wgt(i),all_x(1,i),iter,ipole, i.eq.nb_page) !Store result
-+c                  write(*,*) 'put point in sample kevent', kevent, 'allow_update', ivec.eq.nb_page_loop                   
-+                  call sample_put_point(all_wgt(i),all_x(1,i),iter,ipole, i.eq.nb_page_loop) !Store result
++c                  write(*,*) 'put point in sample kevent', kevent, 'allow_update', ivec.eq.VECSIZE_USED                   
++                  call sample_put_point(all_wgt(i),all_x(1,i),iter,ipole, i.eq.VECSIZE_USED) !Store result
                 enddo
 -               if (nb_page.ne.1.and.force_reset)then
-+               if (nb_page_loop.ne.1.and.force_reset)then
++               if (VECSIZE_USED.ne.1.and.force_reset)then
                    call reset_cumulative_variable()
                    force_reset=.false.
                 endif
@@ -95,7 +95,7 @@ index 8da031857..cbf27d64b 100644
  C     sanity check that we have a minimal number of event
        
 -      if ( .not.MC_GROUPED_SUBPROC.or.nb_page.gt.1)then
-+      if ( .not.MC_GROUPED_SUBPROC.or.nb_page_loop.gt.1)then
++      if ( .not.MC_GROUPED_SUBPROC.or.VECSIZE_USED.gt.1)then
           events = max(events, maxtries)
           MC_GROUPED_SUBPROC = .false.
        else 
@@ -141,7 +141,7 @@ index 6b581bdfd..32c71b457 100644
           if(fixed_ren_scale) then
              G = SQRT(4d0*PI*ALPHAS(scale))
 -            do i =1, nb_page
-+            do i =1, nb_page_loop
++            do i =1, VECSIZE_USED
                 call update_as_param(i)
              enddo
           endif
@@ -369,7 +369,7 @@ index 975927527..b6991541c 100644
  
        
 -      subroutine update_scale_coupling_vec(all_p, all_wgt,all_q2fact, nb_page)
-+      subroutine update_scale_coupling_vec(all_p, all_wgt,all_q2fact, nb_page_loop_in)
++      subroutine update_scale_coupling_vec(all_p, all_wgt,all_q2fact, VECSIZE_USED_in)
        implicit none
  
  C
@@ -378,7 +378,7 @@ index 975927527..b6991541c 100644
        double precision all_p(4*maxdim/3+14,*), all_wgt(*)
        double precision all_q2fact(2,*)
 -      integer i,j,k, nb_page
-+      integer i,j,k, nb_page_loop_in
++      integer i,j,k, VECSIZE_USED_in
  
        logical setclscales
        external setclscales
@@ -387,7 +387,7 @@ index 975927527..b6991541c 100644
           scale = 0d0
        endif
 -      do i =1, nb_page
-+      do i =1, nb_page_loop_in
++      do i =1, VECSIZE_USED_in
  
           if(.not.fixed_ren_scale) then
              call set_ren_scale(all_p(1,i),scale)
@@ -396,7 +396,7 @@ index 975927527..b6991541c 100644
  
        include 'vector.inc'
 -      DOUBLE PRECISION G, ALL_G(nb_page)
-+      DOUBLE PRECISION G, ALL_G(nb_page_max)
++      DOUBLE PRECISION G, ALL_G(VECSIZE_MAX)
        COMMON/STRONG/ G, ALL_G
  
  c     strong coupling is needed for the reweighting function      

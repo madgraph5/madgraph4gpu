@@ -7,7 +7,7 @@ index 0e29c5c3f..b38490b15 100644
        END
  
 -      SUBROUTINE SELECT_GROUPING(IMIRROR,  IPROC, ICONF, WGT, NB_PAGE)
-+      SUBROUTINE SELECT_GROUPING(IMIRROR,  IPROC, ICONF, WGT, NB_PAGE_LOOP)
++      SUBROUTINE SELECT_GROUPING(IMIRROR,  IPROC, ICONF, WGT, VECSIZE_USED)
        USE DISCRETESAMPLER
        IMPLICIT NONE
  C     
@@ -16,17 +16,17 @@ index 0e29c5c3f..b38490b15 100644
  C     SUMPROB
  C     INPUT
 -C     nb_page (number of weight to update)
-+C     nb_page_loop (number of weight to update)
++C     VECSIZE_USED (number of weight to update)
  C     INPUT/OUTPUT
 -C     WGTS(nb_page) #multiplied by the associated jacobian      
-+C     WGTS(nb_page_loop) #multiplied by the associated jacobian      
++C     WGTS(VECSIZE_USED) #multiplied by the associated jacobian      
  C     
  C     OUTPUT
  C     
  C     iconf, iproc, imirror
  C     
 -      INTEGER NB_PAGE
-+      INTEGER NB_PAGE_LOOP
++      INTEGER VECSIZE_USED
        DOUBLE PRECISION WGT(*)
        INTEGER IMIRROR, IPROC, ICONF
  
@@ -35,7 +35,7 @@ index 0e29c5c3f..b38490b15 100644
  C       Update weigth w.r.t SELPROC normalized to selection probability
  
 -        DO I=1, NB_PAGE
-+        DO I=1, NB_PAGE_LOOP
++        DO I=1, VECSIZE_USED
            WGT(I)=WGT(I)*(SUMPROB/SELPROC(IMIRROR,IPROC,ICONF))
          ENDDO
  
@@ -44,7 +44,7 @@ index 0e29c5c3f..b38490b15 100644
          CALL DS_GET_POINT('grouped_processes',R,LMAPPED
       $   ,MC_GROUPED_PROC_JACOBIAN,'norm',(/'PDF_convolution'/))
 -        DO I=1, NB_PAGE
-+        DO I=1, NB_PAGE_LOOP
++        DO I=1, VECSIZE_USED
            WGT(I)=WGT(I)*MC_GROUPED_PROC_JACOBIAN
          ENDDO
          CALL MAP_1_TO_3(LMAPPED,MAXSPROC,2,ICONF,IPROC,IMIRROR)
@@ -53,24 +53,24 @@ index 0e29c5c3f..b38490b15 100644
  
        SUBROUTINE DSIG_VEC(ALL_P,ALL_WGT,ALL_XBK, ALL_Q2FACT,
 -     $  ALL_CM_RAP, ICONF,IPROC,IMIRROR, ALL_OUT,NB_PAGE)
-+     $  ALL_CM_RAP, ICONF,IPROC,IMIRROR, ALL_OUT,NB_PAGE_LOOP)
++     $  ALL_CM_RAP, ICONF,IPROC,IMIRROR, ALL_OUT,VECSIZE_USED)
  C     ******************************************************
  C     
 -C     INPUT: ALL_PP(0:3, NEXTERNAL, NB_PAGE)
 -C     INPUT/OUtpUT       ALL_WGT(Nb_PAGE)
 -C     nb_page = vector size
 -C     ALL_OUT(NB_PAGE)
-+C     INPUT: ALL_PP(0:3, NEXTERNAL, NB_PAGE_LOOP)
-+C     INPUT/OUtpUT       ALL_WGT(Nb_Page_Loop)
-+C     nb_page_loop = vector size
-+C     ALL_OUT(NB_PAGE_LOOP)
++C     INPUT: ALL_PP(0:3, NEXTERNAL, VECSIZE_USED)
++C     INPUT/OUtpUT       ALL_WGT(VECSIZE_USED)
++C     VECSIZE_USED = vector size
++C     ALL_OUT(VECSIZE_USED)
  C     function (PDf*cross)
  C     ******************************************************
        USE DISCRETESAMPLER
        IMPLICIT NONE
  
 -      INTEGER NB_PAGE
-+      INTEGER NB_PAGE_LOOP
++      INTEGER VECSIZE_USED
        INCLUDE 'genps.inc'
        DOUBLE PRECISION ALL_P(4*MAXDIM/3+14,*)
        DOUBLE PRECISION ALL_WGT(*)
@@ -80,7 +80,7 @@ index 0e29c5c3f..b38490b15 100644
  C     and update the couplings accordingly
 -      CALL UPDATE_SCALE_COUPLING_VEC(ALL_P, ALL_WGT, ALL_Q2FACT,
 -     $  NB_PAGE)
-+      CALL UPDATE_SCALE_COUPLING_VEC(ALL_P, ALL_WGT, ALL_Q2FACT, NB_PAGE_LOOP)
++      CALL UPDATE_SCALE_COUPLING_VEC(ALL_P, ALL_WGT, ALL_Q2FACT, VECSIZE_USED)
  
        IF(GROUPED_MC_GRID_STATUS.EQ.0) THEN
  C       If we were in the initialization phase of the grid for MC over
@@ -89,7 +89,7 @@ index 0e29c5c3f..b38490b15 100644
  
  
 -      DO I =1,NB_PAGE
-+      DO I =1,NB_PAGE_LOOP
++      DO I =1,VECSIZE_USED
  C       Reset ALLOW_HELICITY_GRID_ENTRIES
          ALLOW_HELICITY_GRID_ENTRIES = .TRUE.
  
@@ -98,7 +98,7 @@ index 0e29c5c3f..b38490b15 100644
  
        ENDDO
 -      DO I=1, NB_PAGE
-+      DO I=1, NB_PAGE_LOOP
++      DO I=1, VECSIZE_USED
          IF(ALL_OUT(I).GT.0D0)THEN
  C         Update summed weight and number of events
            SUMWGT(IMIRROR,IPROC,ICONF)=SUMWGT(IMIRROR,IPROC,ICONF)
@@ -129,7 +129,7 @@ index 0e29c5c3f..b38490b15 100644
  C     set the running scale 
  C     and update the couplings accordingly
 -      IF (NB_PAGE.LE.1) THEN
-+      IF (NB_PAGE_LOOP.LE.1) THEN
++      IF (VECSIZE_USED.LE.1) THEN
          CALL UPDATE_SCALE_COUPLING(PP, WGT)
        ENDIF
  
@@ -151,12 +151,12 @@ index 0e29c5c3f..b38490b15 100644
 -      DOUBLE PRECISION ALL_CM_RAP(NB_PAGE)
 -      DOUBLE PRECISION ALL_WGT(NB_PAGE)
 -      DOUBLE PRECISION ALL_OUT(NB_PAGE)
-+      DOUBLE PRECISION ALL_P(4*MAXDIM/3+14,NB_PAGE_MAX)
-+      DOUBLE PRECISION ALL_XBK(2, NB_PAGE_MAX)
-+      DOUBLE PRECISION ALL_Q2FACT(2, NB_PAGE_MAX)
-+      DOUBLE PRECISION ALL_CM_RAP(NB_PAGE_MAX)
-+      DOUBLE PRECISION ALL_WGT(NB_PAGE_MAX)
-+      DOUBLE PRECISION ALL_OUT(NB_PAGE_MAX)
++      DOUBLE PRECISION ALL_P(4*MAXDIM/3+14,VECSIZE_MAX)
++      DOUBLE PRECISION ALL_XBK(2, VECSIZE_MAX)
++      DOUBLE PRECISION ALL_Q2FACT(2, VECSIZE_MAX)
++      DOUBLE PRECISION ALL_CM_RAP(VECSIZE_MAX)
++      DOUBLE PRECISION ALL_WGT(VECSIZE_MAX)
++      DOUBLE PRECISION ALL_OUT(VECSIZE_MAX)
        DOUBLE PRECISION DSIGPROC
        INTEGER ICONF,IPROC,IMIRROR,IMODE
        INTEGER SYMCONF(0:LMAXCONFIGS)
@@ -165,7 +165,7 @@ index 0e29c5c3f..b38490b15 100644
  C     LOCAL VARIABLES 
  C     
 -      DOUBLE PRECISION ALL_P1(0:3,NEXTERNAL,NB_PAGE),XDUM
-+      DOUBLE PRECISION ALL_P1(0:3,NEXTERNAL,NB_PAGE_MAX),XDUM
++      DOUBLE PRECISION ALL_P1(0:3,NEXTERNAL,VECSIZE_MAX),XDUM
        INTEGER I,J,K,JC(NEXTERNAL)
        INTEGER PERMS(NEXTERNAL,LMAXCONFIGS)
        INCLUDE 'symperms.inc'
@@ -174,7 +174,7 @@ index 0e29c5c3f..b38490b15 100644
  
  C       Set momenta according to this permutation
 -        DO IVEC=1, NB_PAGE
-+        DO IVEC=1, NB_PAGE_LOOP
++        DO IVEC=1, VECSIZE_USED
            CALL SWITCHMOM(ALL_P(1,IVEC),ALL_P1(0,1,IVEC),PERMS(1
       $     ,MAPCONFIG(ICONFIG)),JC,NEXTERNAL)
  
@@ -183,7 +183,7 @@ index 0e29c5c3f..b38490b15 100644
  
        IF(IMIRROR.EQ.2)THEN
 -        DO IVEC=1,NB_PAGE
-+        DO IVEC=1,NB_PAGE_LOOP
++        DO IVEC=1,VECSIZE_USED
  C         Flip momenta (rotate around x axis)
            DO I=1,NEXTERNAL
              ALL_P1(2,I, IVEC)=-ALL_P1(2,I,IVEC)
@@ -192,7 +192,7 @@ index 0e29c5c3f..b38490b15 100644
  
  C     IF (PASSCUTS(P1)) THEN
 -      DO IVEC=1,NB_PAGE
-+      DO IVEC=1,NB_PAGE_LOOP
++      DO IVEC=1,VECSIZE_USED
          IF (IMODE.EQ.0D0.AND.NB_PASS_CUTS.LT.2**12.AND.ALL_WGT(IVEC)
       $   .NE.0D0)THEN
            NB_PASS_CUTS = NB_PASS_CUTS + 1
@@ -201,7 +201,7 @@ index 0e29c5c3f..b38490b15 100644
        IF (LAST_ICONF.NE.-1.AND.IMIRROR.EQ.2) THEN
  C       Flip back local momenta P1 if cached
 -        DO IVEC=1,NB_PAGE
-+        DO IVEC=1,NB_PAGE_LOOP
++        DO IVEC=1,VECSIZE_USED
            DO I=1,NEXTERNAL
              ALL_P1(2,I,IVEC)=-ALL_P1(2,I,IVEC)
              ALL_P1(3,I,IVEC)=-ALL_P1(3,I,IVEC)
@@ -240,19 +240,19 @@ index 91e1f5b4e..912ee2d00 100644
 +        STOP
 +      endif
 +#endif
-+      write(*,*) 'Enter #events in a vector loop (max=',nb_page_max,',)'
-+      read(*,*) nb_page_loop
++      write(*,*) 'Enter #events in a vector loop (max=',VECSIZE_MAX,',)'
++      read(*,*) VECSIZE_USED
 +c#else
-+c      NB_PAGE_LOOP = 32
++c      VECSIZE_USED = 32
 +c#endif
-+      write(*,'(a16,i6)') ' NB_PAGE_LOOP = ', NB_PAGE_LOOP
-+      if( nb_page_loop.gt.nb_page_max .or. nb_page_loop.le.0 ) then
-+        write(*,*) 'ERROR! Invalid nb_page_loop = ', nb_page_loop
++      write(*,'(a16,i6)') ' VECSIZE_USED = ', VECSIZE_USED
++      if( VECSIZE_USED.gt.VECSIZE_MAX .or. VECSIZE_USED.le.0 ) then
++        write(*,*) 'ERROR! Invalid VECSIZE_USED = ', VECSIZE_USED
 +        STOP
 +      endif
 +
 +#ifdef MG5AMC_MEEXPORTER_CUDACPP
-+      CALL FBRIDGECREATE(FBRIDGE_PBRIDGE, NB_PAGE_LOOP, NEXTERNAL, 4) ! this must be at the beginning as it initialises the CUDA device
++      CALL FBRIDGECREATE(FBRIDGE_PBRIDGE, VECSIZE_USED, NEXTERNAL, 4) ! this must be at the beginning as it initialises the CUDA device
 +      FBRIDGE_NCBYF1 = 0
 +      FBRIDGE_CBYF1SUM = 0
 +      FBRIDGE_CBYF1SUM2 = 0

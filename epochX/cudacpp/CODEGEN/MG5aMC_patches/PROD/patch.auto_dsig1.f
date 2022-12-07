@@ -15,8 +15,8 @@ index bd2b9672e..f739677b5 100644
        COMMON/TO_PDF/LHAID,PDLABEL,EPA_LABEL
 -      INCLUDE 'vector.inc'
        DOUBLE PRECISION RHEL, RCOL
-       INTEGER SELECTED_HEL(NB_PAGE_MAX)
-       INTEGER SELECTED_COL(NB_PAGE_MAX)
+       INTEGER SELECTED_HEL(VECSIZE_MAX)
+       INTEGER SELECTED_COL(VECSIZE_MAX)
 @@ -222,7 +222,8 @@ C     ****************************************************
  C     
  C     CONSTANTS
@@ -34,7 +34,7 @@ index bd2b9672e..f739677b5 100644
 -      INCLUDE 'coupl.inc'
        INCLUDE 'run.inc'
  
-       DOUBLE PRECISION P_MULTI(0:3, NEXTERNAL, NB_PAGE_MAX)
+       DOUBLE PRECISION P_MULTI(0:3, NEXTERNAL, VECSIZE_MAX)
 @@ -450,7 +450,8 @@ C
        IMPLICIT NONE
  
@@ -43,10 +43,10 @@ index bd2b9672e..f739677b5 100644
 +      INCLUDE 'vector.inc'
 +      INCLUDE 'coupl.inc'
        INCLUDE 'maxamps.inc'
-       DOUBLE PRECISION P_MULTI(0:3, NEXTERNAL, NB_PAGE_MAX)
-       DOUBLE PRECISION HEL_RAND(NB_PAGE_MAX)
+       DOUBLE PRECISION P_MULTI(0:3, NEXTERNAL, VECSIZE_MAX)
+       DOUBLE PRECISION HEL_RAND(VECSIZE_MAX)
 @@ -461,23 +462,120 @@ C
-       INTEGER SELECTED_COL(NB_PAGE_MAX)
+       INTEGER SELECTED_COL(VECSIZE_MAX)
  
        INTEGER IVEC
 -
@@ -66,7 +66,7 @@ index bd2b9672e..f739677b5 100644
 +      INCLUDE 'fbridge_common.inc'
 +      INCLUDE 'genps.inc'
 +      INCLUDE 'run.inc'
-+      DOUBLE PRECISION OUT2(NB_PAGE_MAX)
++      DOUBLE PRECISION OUT2(VECSIZE_MAX)
 +      DOUBLE PRECISION CBYF1
 +
 +      INTEGER*4 NWARNINGS
@@ -79,10 +79,10 @@ index bd2b9672e..f739677b5 100644
 +
 +      IF( FBRIDGE_MODE .LE. 0 ) THEN ! (FortranOnly=0 or BothQuiet=-1 or BothDebug=-2)
 +#endif
-+        call counters_smatrix1multi_start( -1, nb_page_loop ) ! fortran=-1
++        call counters_smatrix1multi_start( -1, VECSIZE_USED ) ! fortran=-1
  !$OMP PARALLEL
  !$OMP DO
--      DO IVEC=1, NB_PAGE_LOOP
+-      DO IVEC=1, VECSIZE_USED
 -        CALL SMATRIX1(P_MULTI(0,1,IVEC),
 -     &	                         hel_rand(IVEC),
 -     &                           col_rand(IVEC),
@@ -93,7 +93,7 @@ index bd2b9672e..f739677b5 100644
 -     &				 selected_col(IVEC)
 -     &				 )
 -      ENDDO
-+        DO IVEC=1, NB_PAGE_LOOP
++        DO IVEC=1, VECSIZE_USED
 +          CALL SMATRIX1(P_MULTI(0,1,IVEC),
 +     &      hel_rand(IVEC),
 +     &      col_rand(IVEC),
@@ -123,7 +123,7 @@ index bd2b9672e..f739677b5 100644
 +            CALL RESET_CUMULATIVE_VARIABLE() ! mimic 'avoid bias of the initialization' within SMATRIX1
 +          ENDIF
 +        ENDIF
-+        call counters_smatrix1multi_start( 0, nb_page_loop ) ! cudacpp=0
++        call counters_smatrix1multi_start( 0, VECSIZE_USED ) ! cudacpp=0
 +        IF ( .NOT. MULTI_CHANNEL ) THEN
 +          CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE,
 +     &      P_MULTI, ALL_G, OUT2, 0) ! 0: multi channel disabled
@@ -139,7 +139,7 @@ index bd2b9672e..f739677b5 100644
 +      ENDIF
 +
 +      IF( FBRIDGE_MODE .LT. 0 ) THEN ! (BothQuiet=-1 or BothDebug=-2)
-+        DO IVEC=1, NB_PAGE_LOOP
++        DO IVEC=1, VECSIZE_USED
 +          CBYF1 = OUT2(IVEC)/OUT(IVEC) - 1
 +          FBRIDGE_NCBYF1 = FBRIDGE_NCBYF1 + 1
 +          FBRIDGE_CBYF1SUM = FBRIDGE_CBYF1SUM + CBYF1
@@ -160,7 +160,7 @@ index bd2b9672e..f739677b5 100644
 +      ENDIF
 +
 +      IF( FBRIDGE_MODE .EQ. 1 .OR. FBRIDGE_MODE .LT. 0 ) THEN ! (CppOnly=1 or BothQuiet=-1 or BothDebug=-2)
-+        DO IVEC=1, NB_PAGE_LOOP
++        DO IVEC=1, VECSIZE_USED
 +          OUT(IVEC) = OUT2(IVEC) ! use the cudacpp ME instead of the fortran ME!
 +        END DO
 +      ENDIF
