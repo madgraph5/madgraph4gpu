@@ -209,12 +209,12 @@ function getinputfile()
     mv ${tmp} ${tmp}_fortran
     tmp=${tmp}_fortran
     echo "0 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)" >> ${tmp}
-    echo "${NLOOP} ! Number of events in a single Fortran iteration (nb_page_loop)" >> ${tmp}
+    echo "${NLOOP} ! Number of events in a single Fortran iteration (VECSIZE_USED)" >> ${tmp}
   elif [ "$1" == "-cuda" ] || [ "$1" == "-cpp" ]; then # NB: new script, use the same input for cuda and cpp
     mv ${tmp} ${tmp}_cudacpp
     tmp=${tmp}_cudacpp
     echo "+1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)" >> ${tmp}
-    echo "${NLOOP} ! Number of events in a single C++ or CUDA iteration (nb_page_loop)" >> ${tmp}
+    echo "${NLOOP} ! Number of events in a single C++ or CUDA iteration (VECSIZE_USED)" >> ${tmp}
   else
     echo "Usage: getinputfile <backend [-fortran][-cuda][-cpp]>"
     exit 1
@@ -315,11 +315,11 @@ function runmadevent()
   $timecmd $cmd < ${tmpin} > ${tmp}
   if [ "$?" != "0" ]; then echo "ERROR! '$timecmd $cmd < ${tmpin} > ${tmp}' failed"; tail -10 $tmp; exit 1; fi
   fbm=$(cat ${tmp} | grep --binary-files=text 'FBRIDGE_MODE =' | awk '{print $NF}')
-  nbp=$(cat ${tmp} | grep --binary-files=text 'NB_PAGE_LOOP =' | awk '{print $NF}')
+  nbp=$(cat ${tmp} | grep --binary-files=text 'VECSIZE_USED =' | awk '{print $NF}')
   mch=$(cat ${tmp} | grep --binary-files=text 'MULTI_CHANNEL =' | awk '{print $NF}')
   conf=$(cat ${tmp} | grep --binary-files=text 'Running Configuration Number:' | awk '{print $NF}')
   chid=$(cat ${tmp} | grep --binary-files=text 'CHANNEL_ID =' | awk '{print $NF}')
-  echo " [XSECTION] nb_page_loop = ${nbp}"
+  echo " [XSECTION] VECSIZE_USED = ${nbp}"
   echo " [XSECTION] MultiChannel = ${mch}"
   echo " [XSECTION] Configuration = ${conf}"
   echo " [XSECTION] ChannelId = ${chid}"
