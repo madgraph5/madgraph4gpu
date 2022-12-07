@@ -120,19 +120,6 @@ index d04f63ba5..b95e0d108 100644
 -      common/cut_efficiency/nb_pass_cuts
 \ No newline at end of file
 +      common/cut_efficiency/nb_pass_cuts
-diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/addmothers.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/addmothers.f
-index c1226b212..2d20032aa 100644
---- b/epochX/cudacpp/gg_tt.mad/SubProcesses/addmothers.f
-+++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/addmothers.f
-@@ -46,7 +46,7 @@ c     Variables for combination of color indices (including multipart. vert)
-       save prmass,prwidth,pow
-       data first_time /.true./
- 
--      Double Precision jamp2(0:maxflow, nb_page)
-+      Double Precision jamp2(0:maxflow, nb_page_max)
-       common/to_jamps/       jamp2
- 
-       integer           mincfig, maxcfig
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/cuts.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/cuts.f
 index 6b581bdfd..32c71b457 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/cuts.f
