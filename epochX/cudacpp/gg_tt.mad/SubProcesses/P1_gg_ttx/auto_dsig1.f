@@ -451,7 +451,6 @@ C
 
       INCLUDE 'nexternal.inc'
       INCLUDE 'vector.inc'
-      INCLUDE 'coupl.inc'
       INCLUDE 'maxamps.inc'
       DOUBLE PRECISION P_MULTI(0:3, NEXTERNAL, NB_PAGE_MAX)
       DOUBLE PRECISION HEL_RAND(NB_PAGE_MAX)
