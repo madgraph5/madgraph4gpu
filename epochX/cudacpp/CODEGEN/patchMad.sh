@@ -69,6 +69,7 @@ cd ${dir}/SubProcesses
 cd - > /dev/null
 if [ "${patchlevel}" == "2" ]; then
   cd ${dir}
+  echo "DEBUG: cd ${PWD}; patch -p4 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.common"
   if ! patch -p4 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.common; then status=1; fi  
   cd - > /dev/null
 fi
@@ -81,6 +82,7 @@ for p1dir in ${dir}/SubProcesses/P1_*; do
     \cp -dpr ${scrdir}/PLUGIN/CUDACPP_SA_OUTPUT/madgraph/iolibs/template_files/gpu/timer.h . # new file, already present via cudacpp in *.mad
   fi
   if [ "${patchlevel}" == "2" ]; then
+    echo "DEBUG: cd ${PWD}; patch -p6 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.P1"
     if ! patch -p6 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.P1; then status=1; fi  
   fi
   cd - > /dev/null
@@ -121,6 +123,7 @@ for p1dir in ${dir}/SubProcesses/P1_*; do
     > auto_dsig1.f.new
   \mv auto_dsig1.f.new auto_dsig1.f
   if [ "${patchlevel}" == "2" ]; then
+    echo "DEBUG: cd ${PWD}; patch -p6 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.auto_dsig1.f"
     if ! patch -p6 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.auto_dsig1.f; then status=1; fi  
   fi
   \rm -f *.orig
