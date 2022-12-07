@@ -288,7 +288,7 @@ if ! python3 --version >& /dev/null; then echo "ERROR! python3 is not installed"
 # Make sure that $MG5AMC_HOME exists
 dir_patches=PROD
 branch_patches=$(cat $SCRDIR/MG5aMC_patches/${dir_patches}/branch.GIT)
-commit_patches=$(cat $SCRDIR/MG5aMC_patches/${dir_patches}/commit.GIT)
+commit_patches=$(cat $SCRDIR/MG5aMC_patches/${dir_patches}/commit.GIT) # e.g. <commit> or <branch>
 if [ "$MG5AMC_HOME" == "" ]; then
   echo "ERROR! MG5AMC_HOME is not defined"
   echo -e "To download MG5AMC please run\n  git clone git@github.com:mg5amcnlo/mg5amcnlo.git\n  cd mg5amcnlo; git checkout ${branch_patches}; git reset --hard ${commit_patches}"
@@ -331,8 +331,8 @@ if ! git log -n1 >& /dev/null; then
   echo -e "ERROR! MG5AMC_HOME is not a git clone\n"; exit 1
 fi
 echo -e "MG5AMC patches in this plugin refer to git branch '${branch_patches}'"
-echo -e "Reset MG5AMC_HOME to git commit 'origin/${branch_patches}'"
-if ! git reset --hard origin/${branch_patches}; then
+echo -e "Reset MG5AMC_HOME to git commit '${branch_patches}'"
+if ! git reset --hard ${branch_patches}; then
   echo -e "ERROR! 'git reset --hard ${branch_patches}' failed\n"; exit 1
 fi
 echo -e "Check out branch ${branch_patches} in MG5AMC_HOME"
@@ -342,14 +342,19 @@ fi
 branch_mg5amc=$(git branch --no-color | \grep ^* | awk '{print $2}')
 echo -e "Current git branch of MG5AMC_HOME is '${branch_mg5amc}'"
 if [ "${branch_patches}" != "${branch_mg5amc}" ]; then echo -e "\nERROR! git branch mismatch!"; exit 1; fi
-echo -e "MG5AMC patches in this plugin refer to git commit '${commit_patches}'"
+commit_patches2=$(git log --oneline -n1 ${commit_patches} | awk '{print $1}') # translate to <commit>
+if [ "${commit_patches2}" == "${commit_patches}" ]; then
+  echo -e "MG5AMC patches in this plugin refer to git commit '${commit_patches}'"
+else
+  echo -e "MG5AMC patches in this plugin refer to git commit '${commit_patches}' (i.e. '${commit_patches2}')"
+fi  
 echo -e "Reset MG5AMC_HOME to git commit '${commit_patches}'"
 if ! git reset --hard ${commit_patches}; then
   echo -e "ERROR! 'git reset --hard ${commit_patches}' failed\n"; exit 1
 fi
 commit_mg5amc=$(git log --oneline -n1 | awk '{print $1}')
 echo -e "Current git commit of MG5AMC_HOME is '${commit_mg5amc}'"
-if [ "${commit_patches}" != "${commit_mg5amc}" ]; then echo -e "\nERROR! git commit mismatch!"; exit 1; fi
+if [ "${commit_patches2}" != "${commit_mg5amc}" ]; then echo -e "\nERROR! git commit mismatch!"; exit 1; fi
 cd - > /dev/null
 
 # Copy MG5AMC ad-hoc patches if any (unless --upstream is specified)
