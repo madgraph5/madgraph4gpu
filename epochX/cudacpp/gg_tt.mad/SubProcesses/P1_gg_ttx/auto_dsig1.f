@@ -84,8 +84,8 @@ C     Common blocks
       INTEGER       LHAID
       COMMON/TO_PDF/LHAID,PDLABEL,EPA_LABEL
       DOUBLE PRECISION RHEL, RCOL
-      INTEGER SELECTED_HEL(NB_PAGE_MAX)
-      INTEGER SELECTED_COL(NB_PAGE_MAX)
+      INTEGER SELECTED_HEL(VECSIZE_MAX)
+      INTEGER SELECTED_COL(VECSIZE_MAX)
 C     
 C     local
 C     
@@ -235,13 +235,13 @@ C
 C     
 C     ARGUMENTS 
 C     
-      DOUBLE PRECISION ALL_PP(0:3,NEXTERNAL,NB_PAGE_MAX)
-      DOUBLE PRECISION ALL_WGT(NB_PAGE_MAX)
-      DOUBLE PRECISION ALL_XBK(2,NB_PAGE_MAX)
-      DOUBLE PRECISION ALL_Q2FACT(2,NB_PAGE_MAX)
-      DOUBLE PRECISION ALL_CM_RAP(NB_PAGE_MAX)
+      DOUBLE PRECISION ALL_PP(0:3,NEXTERNAL,VECSIZE_MAX)
+      DOUBLE PRECISION ALL_WGT(VECSIZE_MAX)
+      DOUBLE PRECISION ALL_XBK(2,VECSIZE_MAX)
+      DOUBLE PRECISION ALL_Q2FACT(2,VECSIZE_MAX)
+      DOUBLE PRECISION ALL_CM_RAP(VECSIZE_MAX)
       INTEGER IMODE
-      DOUBLE PRECISION ALL_OUT(NB_PAGE_MAX)
+      DOUBLE PRECISION ALL_OUT(VECSIZE_MAX)
 C     ----------
 C     BEGIN CODE
 C     ----------
@@ -249,10 +249,10 @@ C
 C     LOCAL VARIABLES 
 C     
       INTEGER I,ITYPE,LP,IPROC
-      DOUBLE PRECISION G1(NB_PAGE_MAX)
-      DOUBLE PRECISION G2(NB_PAGE_MAX)
+      DOUBLE PRECISION G1(VECSIZE_MAX)
+      DOUBLE PRECISION G2(VECSIZE_MAX)
       DOUBLE PRECISION XPQ(-7:7),PD(0:MAXPROC)
-      DOUBLE PRECISION ALL_PD(0:MAXPROC, NB_PAGE_MAX)
+      DOUBLE PRECISION ALL_PD(0:MAXPROC, VECSIZE_MAX)
       DOUBLE PRECISION DSIGUU,R,RCONF
       INTEGER LUN,ICONF,IFACT,NFACT
       DATA NFACT/1/
@@ -291,11 +291,11 @@ C     Keep track of whether cuts already calculated for this event
       COMMON/TO_SUB_DIAG/SUBDIAG,IB
       INCLUDE 'run.inc'
 
-      DOUBLE PRECISION P_MULTI(0:3, NEXTERNAL, NB_PAGE_MAX)
-      DOUBLE PRECISION HEL_RAND(NB_PAGE_MAX)
-      DOUBLE PRECISION COL_RAND(NB_PAGE_MAX)
-      INTEGER SELECTED_HEL(NB_PAGE_MAX)
-      INTEGER SELECTED_COL(NB_PAGE_MAX)
+      DOUBLE PRECISION P_MULTI(0:3, NEXTERNAL, VECSIZE_MAX)
+      DOUBLE PRECISION HEL_RAND(VECSIZE_MAX)
+      DOUBLE PRECISION COL_RAND(VECSIZE_MAX)
+      INTEGER SELECTED_HEL(VECSIZE_MAX)
+      INTEGER SELECTED_COL(VECSIZE_MAX)
 
 C     Common blocks
       CHARACTER*7         PDLABEL,EPA_LABEL
@@ -311,8 +311,8 @@ C
 C     
 C     DATA
 C     
-      DATA G1/NB_PAGE_MAX*1D0/
-      DATA G2/NB_PAGE_MAX*1D0/
+      DATA G1/VECSIZE_MAX*1D0/
+      DATA G2/VECSIZE_MAX*1D0/
 C     ----------
 C     BEGIN CODE
 C     ----------
@@ -326,7 +326,7 @@ C     Continue only if IMODE is 0, 4 or 5
       IF(IMODE.NE.0.AND.IMODE.NE.4.AND.IMODE.NE.5) RETURN
 
 
-      DO IVEC=1,NB_PAGE_LOOP
+      DO IVEC=1,VECSIZE_USED
         IF (ABS(LPP(IB(1))).GE.1) THEN
             !LP=SIGN(1,LPP(IB(1)))
           G1(IVEC)=PDG2PDF(LPP(IB(1)),0, IB(1),ALL_XBK(IB(1),IVEC)
@@ -341,7 +341,7 @@ C     Continue only if IMODE is 0, 4 or 5
       ALL_PD(0,:) = 0D0
       IPROC = 0
       IPROC=IPROC+1  ! g g > t t~
-      DO IVEC=1, NB_PAGE_LOOP
+      DO IVEC=1, VECSIZE_USED
         ALL_PD(IPROC,IVEC)=G1(IVEC)*G2(IVEC)
         ALL_PD(0,IVEC)=ALL_PD(0,IVEC)+DABS(ALL_PD(IPROC,IVEC))
 
@@ -353,7 +353,7 @@ C     Continue only if IMODE is 0, 4 or 5
         RETURN
       ENDIF
 
-      DO IVEC=1,NB_PAGE_LOOP
+      DO IVEC=1,VECSIZE_USED
 C       Do not need those three here do I?	 
         XBK(:) = ALL_XBK(:,IVEC)
 C       CM_RAP = ALL_CM_RAP(IVEC)
@@ -382,7 +382,7 @@ C       Select a flavor combination (need to do here for right sign)
      $  ALL_OUT , SELECTED_HEL, SELECTED_COL)
 
 
-      DO IVEC=1,NB_PAGE_LOOP
+      DO IVEC=1,VECSIZE_USED
         DSIGUU = ALL_OUT(IVEC)
         IF (IMODE.EQ.5) THEN
           IF (DSIGUU.LT.1D199) THEN
@@ -453,13 +453,13 @@ C
       INCLUDE 'vector.inc'
       INCLUDE 'coupl.inc'
       INCLUDE 'maxamps.inc'
-      DOUBLE PRECISION P_MULTI(0:3, NEXTERNAL, NB_PAGE_MAX)
-      DOUBLE PRECISION HEL_RAND(NB_PAGE_MAX)
-      DOUBLE PRECISION COL_RAND(NB_PAGE_MAX)
+      DOUBLE PRECISION P_MULTI(0:3, NEXTERNAL, VECSIZE_MAX)
+      DOUBLE PRECISION HEL_RAND(VECSIZE_MAX)
+      DOUBLE PRECISION COL_RAND(VECSIZE_MAX)
       INTEGER CHANNEL
-      DOUBLE PRECISION OUT(NB_PAGE_MAX)
-      INTEGER SELECTED_HEL(NB_PAGE_MAX)
-      INTEGER SELECTED_COL(NB_PAGE_MAX)
+      DOUBLE PRECISION OUT(VECSIZE_MAX)
+      INTEGER SELECTED_HEL(VECSIZE_MAX)
+      INTEGER SELECTED_COL(VECSIZE_MAX)
 
       INTEGER IVEC
       INTEGER IEXT
@@ -477,7 +477,7 @@ C
       INCLUDE 'fbridge_common.inc'
       INCLUDE 'genps.inc'
       INCLUDE 'run.inc'
-      DOUBLE PRECISION OUT2(NB_PAGE_MAX)
+      DOUBLE PRECISION OUT2(VECSIZE_MAX)
       DOUBLE PRECISION CBYF1
 
       INTEGER*4 NWARNINGS
@@ -490,10 +490,10 @@ C
 
       IF( FBRIDGE_MODE .LE. 0 ) THEN ! (FortranOnly=0 or BothQuiet=-1 or BothDebug=-2)
 #endif
-        call counters_smatrix1multi_start( -1, nb_page_loop ) ! fortran=-1
+        call counters_smatrix1multi_start( -1, VECSIZE_USED ) ! fortran=-1
 !$OMP PARALLEL
 !$OMP DO
-        DO IVEC=1, NB_PAGE_LOOP
+        DO IVEC=1, VECSIZE_USED
           CALL SMATRIX1(P_MULTI(0,1,IVEC),
      &      hel_rand(IVEC),
      &      col_rand(IVEC),
@@ -523,7 +523,7 @@ c         ! This is a workaround for https://github.com/oliviermattelaer/mg5amc_
             CALL RESET_CUMULATIVE_VARIABLE() ! mimic 'avoid bias of the initialization' within SMATRIX1
           ENDIF
         ENDIF
-        call counters_smatrix1multi_start( 0, nb_page_loop ) ! cudacpp=0
+        call counters_smatrix1multi_start( 0, VECSIZE_USED ) ! cudacpp=0
         IF ( .NOT. MULTI_CHANNEL ) THEN
           CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE,
      &      P_MULTI, ALL_G, OUT2, 0) ! 0: multi channel disabled
@@ -539,7 +539,7 @@ c         ! This is a workaround for https://github.com/oliviermattelaer/mg5amc_
       ENDIF
 
       IF( FBRIDGE_MODE .LT. 0 ) THEN ! (BothQuiet=-1 or BothDebug=-2)
-        DO IVEC=1, NB_PAGE_LOOP
+        DO IVEC=1, VECSIZE_USED
           CBYF1 = OUT2(IVEC)/OUT(IVEC) - 1
           FBRIDGE_NCBYF1 = FBRIDGE_NCBYF1 + 1
           FBRIDGE_CBYF1SUM = FBRIDGE_CBYF1SUM + CBYF1
@@ -560,7 +560,7 @@ c         ! This is a workaround for https://github.com/oliviermattelaer/mg5amc_
       ENDIF
 
       IF( FBRIDGE_MODE .EQ. 1 .OR. FBRIDGE_MODE .LT. 0 ) THEN ! (CppOnly=1 or BothQuiet=-1 or BothDebug=-2)
-        DO IVEC=1, NB_PAGE_LOOP
+        DO IVEC=1, VECSIZE_USED
           OUT(IVEC) = OUT2(IVEC) ! use the cudacpp ME instead of the fortran ME!
         END DO
       ENDIF
