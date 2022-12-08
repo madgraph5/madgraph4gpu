@@ -89,5 +89,7 @@ cd build.${makeArgs:3}*
 mkdir -p perf/data/ 2>/dev/null; true
 $MG_EXE -j $blocksPerGrid $threadsPerBlock $iterations
 
+echo "${MG_EXE} -j ${blocksPerGrid} ${threadsPerBlock} ${iterations}"
+
 cd perf/data/
 mv 0-perf-test-run0.json ${REPORT_FOLDER}/test_${MG_PROC}_${CUDA_NAME_PREFIX}_${blocksPerGrid}_${threadsPerBlock}_${iterations}.json
