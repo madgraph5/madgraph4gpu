@@ -98,13 +98,13 @@ c#ifdef MG5AMC_MEEXPORTER_CUDACPP
         STOP
       endif
 #endif
-      write(*,*) 'Enter #events in a vector loop (max=',VECSIZE_MAX,',)'
+      write(*,*) 'Enter #events in a vector loop (max=',VECSIZE_MEMMAX,',)'
       read(*,*) VECSIZE_USED
 c#else
 c      VECSIZE_USED = 32
 c#endif
       write(*,'(a16,i6)') ' VECSIZE_USED = ', VECSIZE_USED
-      if( VECSIZE_USED.gt.VECSIZE_MAX .or. VECSIZE_USED.le.0 ) then
+      if( VECSIZE_USED.gt.VECSIZE_MEMMAX .or. VECSIZE_USED.le.0 ) then
         write(*,*) 'ERROR! Invalid VECSIZE_USED = ', VECSIZE_USED
         STOP
       endif

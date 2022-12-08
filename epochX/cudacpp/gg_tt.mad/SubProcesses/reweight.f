@@ -1960,7 +1960,7 @@ c     q2bck holds the central q2fact scales
       common /to_rw/jlast,njetstore,iqjetstore,njets,iqjets,q2bck
 
       include 'vector.inc'
-      DOUBLE PRECISION G, ALL_G(VECSIZE_MAX)
+      DOUBLE PRECISION G, ALL_G(VECSIZE_MEMMAX)
       COMMON/STRONG/ G, ALL_G
 
 c     strong coupling is needed for the reweighting function      

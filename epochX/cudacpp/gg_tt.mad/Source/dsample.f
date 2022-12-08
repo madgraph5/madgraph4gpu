@@ -25,16 +25,16 @@ c
 c Local
 c
       double precision x(maxinvar),wgt,p(4*maxdim/3+14)
-      double precision all_p(4*maxdim/3+14,VECSIZE_MAX), all_wgt(VECSIZE_MAX), all_x(maxinvar,VECSIZE_MAX)
-      integer all_lastbin(maxdim, VECSIZE_MAX)
-      double precision bckp(VECSIZE_MAX)
+      double precision all_p(4*maxdim/3+14,VECSIZE_MEMMAX), all_wgt(VECSIZE_MEMMAX), all_x(maxinvar,VECSIZE_MEMMAX)
+      integer all_lastbin(maxdim, VECSIZE_MEMMAX)
+      double precision bckp(VECSIZE_MEMMAX)
       double precision tdem, chi2, dum
       integer ievent,kevent,nwrite,iter,nun,luntmp,itsum
       integer jmax,i,j,ipole
       integer itmax_adjust
 
       integer imirror, iproc, iconf
-      integer ivec ! position of the event in the vectorization # max is VECSIZE_MAX (but loops go over VECSIZE_USED)
+      integer ivec ! position of the event in the vectorization # max is VECSIZE_MEMMAX (but loops go over VECSIZE_USED)
 c
 c     External
 c
@@ -101,8 +101,8 @@ c      common /to_fx/   fx
       COMMON/TO_CM_RAP/SET_CM_RAP,CM_RAP
 
 C     data for vectorization      
-      double precision all_xbk(2, VECSIZE_MAX), all_q2fact(2, VECSIZE_MAX), all_cm_rap(VECSIZE_MAX)
-      double precision all_fx(VECSIZE_MAX)
+      double precision all_xbk(2, VECSIZE_MEMMAX), all_q2fact(2, VECSIZE_MEMMAX), all_cm_rap(VECSIZE_MEMMAX)
+      double precision all_fx(VECSIZE_MEMMAX)
       
       
       LOGICAL CUTSDONE,CUTSPASSED
