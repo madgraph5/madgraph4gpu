@@ -9,10 +9,11 @@ helpFunction()
     echo -e "\t-t Threads per block"
     echo -e "\t-i Iterations"
     echo -e "\t-r Branch"
+    echo -e "\t-m Makefile arguments"
     exit 1 # Exit script after printing help
 }
 
-while getopts "n:b:t:i:r:" opt
+while getopts "n:b:t:i:r:m:" opt
 do
     case "$opt" in
         n ) MG_PROC="$OPTARG" ;; #process to target
@@ -20,6 +21,7 @@ do
         t ) threadsPerBlock="$OPTARG" ;;
         i ) iterations="$OPTARG" ;;
         r ) branch="$OPTARG" ;;
+        m ) makeArgs="$OPTARG" ;;
         ? ) helpFunction ;; # Print helpFunction in case parameter is non-existent
     esac
 done
@@ -43,8 +45,8 @@ prefix=$(pwd)
 export USEBUILDDIR=1
 export NTPBMAX=1024
 export CXX=/cvmfs/sft.cern.ch/lcg/releases/gcc/11.3.0-ad0f5/x86_64-centos8/bin/g++
-export MG_EXE="./gcheck.exe" #GPU
-#export MG_EXE="./check.exe" #CPU
+#export MG_EXE="./gcheck.exe" #GPU
+export MG_EXE="./check.exe" #CPU
 export CUDA_HOME=/usr/local/cuda-11.6/
 export FC=`which gfortran`
 export WORKSPACE=$prefix/workspace_mg4gpu
@@ -79,7 +81,7 @@ export MG5AMC_CARD_PATH=$MG_PROC_DIR/Cards
 # Build executable
 
 cd $MG_SP_DIR
-make
+make $makeArgs
 
 # Run executable
 
