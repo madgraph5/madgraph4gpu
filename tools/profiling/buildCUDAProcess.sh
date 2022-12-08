@@ -85,7 +85,7 @@ make $makeArgs
 
 # Run executable
 
-cd build.${makeArgs:3}_*
+cd build.${makeArgs:3}*
 mkdir -p perf/data/ 2>/dev/null; true
 $MG_EXE -j $blocksPerGrid $threadsPerBlock $iterations
 
