@@ -45,8 +45,8 @@ prefix=$(pwd)
 export USEBUILDDIR=1
 export NTPBMAX=1024
 export CXX=/cvmfs/sft.cern.ch/lcg/releases/gcc/11.3.0-ad0f5/x86_64-centos8/bin/g++
-#export MG_EXE="./gcheck.exe" #GPU
-export MG_EXE="./check.exe" #CPU
+export MG_EXE="./gcheck.exe" #GPU
+#export MG_EXE="./check.exe" #CPU
 export CUDA_HOME=/usr/local/cuda-11.6/
 export FC=`which gfortran`
 export WORKSPACE=$prefix/workspace_mg4gpu
@@ -81,7 +81,7 @@ export MG5AMC_CARD_PATH=$MG_PROC_DIR/Cards
 # Build executable
 
 cd $MG_SP_DIR
-make $makeArgs
+make -j $makeArgs
 
 # Run executable
 
