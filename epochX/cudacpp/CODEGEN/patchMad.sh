@@ -100,14 +100,5 @@ for gc in $gcs; do
   fi
 done
 cd - > /dev/null
-for p1dir in ${dir}/SubProcesses/P1_*; do
-  cd $p1dir > /dev/null
-  if [ "${patchlevel}" == "2" ]; then
-    echo "DEBUG: cd ${PWD}; patch -p6 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.auto_dsig1.f"
-    if ! patch -p6 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.auto_dsig1.f; then status=1; fi  
-  fi
-  \rm -f *.orig
-  cd - > /dev/null
-done
 
 exit $status
