@@ -83,6 +83,7 @@ for p1dir in ${dir}/SubProcesses/P1_*; do
     echo "DEBUG: cd ${PWD}; patch -p6 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.P1"
     if ! patch -p6 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.P1; then status=1; fi  
   fi
+  \rm -f *.orig
   cd - > /dev/null
 done
 
