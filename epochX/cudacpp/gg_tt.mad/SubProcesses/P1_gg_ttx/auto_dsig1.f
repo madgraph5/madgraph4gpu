@@ -470,6 +470,7 @@ C
       DATA FIRST_CHID/.TRUE./
       
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
+      INCLUDE 'coupl.inc' ! for ALL_G
       INCLUDE 'fbridge.inc'
       INCLUDE 'fbridge_common.inc'
       INCLUDE 'genps.inc'
