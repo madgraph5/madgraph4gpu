@@ -73,7 +73,8 @@ c      common/to_colstats/ncols,ncolflow,ncolalt,ic
 
       include 'vector.inc'
       include 'coupl.inc'
-      integer VECSIZE_USED
+      INTEGER VECSIZE_USED
+      DATA VECSIZE_USED/VECSIZE_MEMMAX/ ! initial value
 
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
       INCLUDE 'fbridge.inc'
