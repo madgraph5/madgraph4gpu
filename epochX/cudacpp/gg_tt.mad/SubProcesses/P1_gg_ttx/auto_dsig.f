@@ -224,8 +224,8 @@ C       We are using the grouped_processes grid and it is initialized.
       RETURN
       END
 
-      SUBROUTINE DSIG_VEC(ALL_P,ALL_WGT,ALL_XBK, ALL_Q2FACT,
-     $  ALL_CM_RAP, ICONF,IPROC,IMIRROR, ALL_OUT,VECSIZE_USED)
+      SUBROUTINE DSIG_VEC(ALL_P,ALL_WGT,ALL_XBK,ALL_Q2FACT,ALL_CM_RAP
+     $ ,ICONF,IPROC,IMIRROR,ALL_OUT,VECSIZE_USED)
 C     ******************************************************
 C     
 C     INPUT: ALL_PP(0:3, NEXTERNAL, VECSIZE_USED)
@@ -313,8 +313,8 @@ C        the call DSIGPROC just below.
         ALLOW_HELICITY_GRID_ENTRIES = .FALSE.
       ENDIF
 
-      CALL DSIGPROC_VEC(ALL_P, ALL_XBK, ALL_Q2FACT, ALL_CM_RAP, ICONF,
-     $  IPROC,IMIRROR,SYMCONF,CONFSUB,ALL_WGT,0, ALL_OUT, VECSIZE_USED)
+      CALL DSIGPROC_VEC(ALL_P,ALL_XBK,ALL_Q2FACT,ALL_CM_RAP,ICONF
+     $ ,IPROC,IMIRROR,SYMCONF,CONFSUB,ALL_WGT,0,ALL_OUT,VECSIZE_USED)
 
 
       DO I =1,VECSIZE_USED
@@ -864,7 +864,7 @@ C
       ENDIF
 C     set the running scale 
 C     and update the couplings accordingly
-      IF (VECSIZE_MEMMAX.LE.1) THEN ! no-vector (NB not VECSIZE_USED!)
+      IF (VECSIZE_MEMMAX.LE.1) THEN  ! no-vector (NB not VECSIZE_USED!)
         CALL UPDATE_SCALE_COUPLING(PP, WGT)
       ENDIF
 
@@ -893,8 +893,9 @@ C     ccccccccccccccccccccccccc
 C     vectorize version
 C     ccccccccccccccccccccccccc
 
-      SUBROUTINE DSIGPROC_VEC(ALL_P, ALL_XBK, ALL_Q2FACT, ALL_CM_RAP,
-     $  ICONF,IPROC,IMIRROR,SYMCONF,CONFSUB,ALL_WGT,IMODE,ALL_OUT,VECSIZE_USED)
+      SUBROUTINE DSIGPROC_VEC(ALL_P,ALL_XBK,ALL_Q2FACT,ALL_CM_RAP
+     $ ,ICONF,IPROC,IMIRROR,SYMCONF,CONFSUB,ALL_WGT,IMODE,ALL_OUT
+     $ ,VECSIZE_USED)
 C     ****************************************************
 C     RETURNS DIFFERENTIAL CROSS SECTION 
 C     FOR A PROCESS
@@ -1014,7 +1015,7 @@ C     IF (PASSCUTS(P1)) THEN
         ENDIF
       ENDDO
 
-      IF(IPROC.EQ.1) CALL DSIG1_VEC(ALL_P1,ALL_XBK, ALL_Q2FACT
+      IF(IPROC.EQ.1) CALL DSIG1_VEC(ALL_P1,ALL_XBK,ALL_Q2FACT
      $ ,ALL_CM_RAP,ALL_WGT,IMODE,ALL_OUT,VECSIZE_USED)  ! g g > t t~
 C     ENDIF
 
