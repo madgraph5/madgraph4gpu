@@ -56,9 +56,9 @@ REPORT_FOLDER="${WORKSPACE}/$(date +"%y-%m-%d")_${SYCL_NAME_PREFIX}_${branch}"
 
 # If unknown set at the run step after running LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MG_LIBS $MG_EXE --param_card $MG5AMC_CARD_PATH/param_card.dat --device_info 1024 128 10
 # GPU
-#export DEVICE_ID=0
+export DEVICE_ID=0
 # CPU
-export DEVICE_ID=1
+#export DEVICE_ID=1
 
 # Finds correct subprocess
 case $MG_PROC in
@@ -93,7 +93,7 @@ export MG5AMC_CARD_PATH=$MG_PROC_DIR/Cards
 
 # Build executable
 cd $MG_SP_DIR
-make
+make -j
 mv ../../lib/build.d_inl0*/ $MG_LIBS_DIR #2>/dev/null; true
 mv build.d_inl0*/ $MG_EXE_DIR #2>/dev/null; true
 
