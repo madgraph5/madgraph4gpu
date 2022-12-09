@@ -61,7 +61,6 @@ cat ${dir}/Source/make_opts >> ${dir}/Source/make_opts.new
 echo -e "index.html\n.libs\n.cudacpplibs" > ${dir}/.gitignore
 touch ${dir}/Events/.keepme
 \cp -dpr ${scrdir}/PLUGIN/CUDACPP_SA_OUTPUT/madgraph/iolibs/template_files/.clang-format ${dir} # new file
-\cp -dpr ${scrdir}/MG5aMC_patches/${dir_patches}/vector.inc ${dir}/Source # replace default
 \cp -dpr ${scrdir}/MG5aMC_patches/${dir_patches}/fbridge_common.inc ${dir}/SubProcesses # new file
 cd ${dir}/SubProcesses
 cd - > /dev/null
