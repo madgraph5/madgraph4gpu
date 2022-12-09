@@ -1,8 +1,8 @@
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
-index 2e6c9ff51..0f732fd84 100644
+index 2e6c9ff51..b0ab05b66 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
-@@ -459,23 +459,120 @@ C
+@@ -459,23 +459,121 @@ C
        INTEGER SELECTED_COL(VECSIZE_MEMMAX)
  
        INTEGER IVEC
@@ -19,6 +19,7 @@ index 2e6c9ff51..0f732fd84 100644
 +      DATA FIRST_CHID/.TRUE./
 +      
 +#ifdef MG5AMC_MEEXPORTER_CUDACPP
++      INCLUDE 'coupl.inc' ! for ALL_G
 +      INCLUDE 'fbridge.inc'
 +      INCLUDE 'fbridge_common.inc'
 +      INCLUDE 'genps.inc'
