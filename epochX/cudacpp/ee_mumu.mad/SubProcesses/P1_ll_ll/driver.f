@@ -73,6 +73,8 @@ c      common/to_colstats/ncols,ncolflow,ncolalt,ic
 
       include 'vector.inc'
       include 'coupl.inc'
+      INTEGER VECSIZE_USED
+      DATA VECSIZE_USED/VECSIZE_MEMMAX/ ! initial value
 
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
       INCLUDE 'fbridge.inc'
@@ -221,7 +223,7 @@ c         itmin = itmin + 1
       endif
 
       write(*,*) "about to integrate ", ndim,ncall,itmax,itmin,ninvar,nconfigs
-      call sample_full(ndim,ncall,itmax,itmin,dsig,ninvar,nconfigs)
+      call sample_full(ndim,ncall,itmax,itmin,dsig,ninvar,nconfigs,VECSIZE_USED)
 
 c
 c     Now write out events to permanent file
