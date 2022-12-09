@@ -63,8 +63,6 @@ touch ${dir}/Events/.keepme
 \cp -dpr ${scrdir}/PLUGIN/CUDACPP_SA_OUTPUT/madgraph/iolibs/template_files/.clang-format ${dir} # new file
 \cp -dpr ${scrdir}/MG5aMC_patches/${dir_patches}/vector.inc ${dir}/Source # replace default
 \cp -dpr ${scrdir}/MG5aMC_patches/${dir_patches}/fbridge_common.inc ${dir}/SubProcesses # new file
-for file in ${dir}/Source/MODEL/rw_para.f; do cat ${file} | sed "s|include 'coupl.inc'|include 'vector.inc'\n      include 'coupl.inc'|" > ${file}.new; \mv ${file}.new ${file}; done
-for file in ${dir}/Source/PDF/ElectroweakFlux.inc; do cat ${file} | sed "s|include '../MODEL/coupl.inc'|include 'vector.inc'\n        include 'coupl.inc'|" > ${file}.new; \mv ${file}.new ${file}; done
 cd ${dir}/SubProcesses
 cd - > /dev/null
 if [ "${patchlevel}" == "2" ]; then
