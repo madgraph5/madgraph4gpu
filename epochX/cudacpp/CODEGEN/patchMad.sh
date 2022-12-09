@@ -100,13 +100,6 @@ for gc in $gcs; do
   fi
 done
 cd - > /dev/null
-cd ${dir}/SubProcesses > /dev/null
-###echo "c NB vector.inc (defining VECSIZE_MEMMAX) must be included before cluster.inc (#458)" > cluster.inc.new
-###cat cluster.inc | grep -v "      include 'vector.inc'" | sed "s/nb_page/VECSIZE_MEMMAX/g" >> cluster.inc.new
-echo "c NB vector.inc (defining VECSIZE_MEMMAX) is NOT needed any longer before cluster.inc (#458, #539)" > cluster.inc.new
-cat cluster.inc | grep -v "      include 'vector.inc'" >> cluster.inc.new
-\mv cluster.inc.new cluster.inc
-cd - > /dev/null
 for p1dir in ${dir}/SubProcesses/P1_*; do
   cd $p1dir > /dev/null
   cat auto_dsig1.f \
