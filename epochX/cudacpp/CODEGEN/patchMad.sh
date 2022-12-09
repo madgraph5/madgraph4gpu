@@ -91,9 +91,6 @@ done
 # Patch the default Fortran code to provide the integration with the cudacpp plugin
 # (2) Process-dependent patches
 cd ${dir}/Source/MODEL > /dev/null
-echo "c NB vector.inc (defining VECSIZE_MEMMAX) must be included before coupl.inc (#458)" > coupl.inc.new
-cat coupl.inc | sed "s/($vecsize)/(VECSIZE_MEMMAX)/g" >> coupl.inc.new
-\mv coupl.inc.new coupl.inc
 gcs=$(cat coupl_write.inc | awk '{if($1=="WRITE(*,2)") print $NF}') # different printouts for scalar/vector couplings #456
 for gc in $gcs; do
   if grep -q "$gc(VECSIZE_MEMMAX)" coupl.inc; then
@@ -104,7 +101,6 @@ for gc in $gcs; do
   ###  echo "DEBUG: Coupling $gc is a scalar"
   fi
 done
-for file in couplings.f couplings1.f couplings2.f; do cat ${file} | sed "s|INCLUDE 'coupl.inc'|include 'vector.inc'\n      include 'coupl.inc'|" > ${file}.new; \mv ${file}.new ${file}; done
 cd - > /dev/null
 cd ${dir}/SubProcesses > /dev/null
 ###echo "c NB vector.inc (defining VECSIZE_MEMMAX) must be included before cluster.inc (#458)" > cluster.inc.new
