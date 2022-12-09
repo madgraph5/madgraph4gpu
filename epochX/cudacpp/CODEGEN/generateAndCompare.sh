@@ -47,7 +47,7 @@ function codeGenAndDiff()
   esac
   echo -e "\n+++ Generate code for '$proc'\n"
   ###exit 0 # FOR DEBUGGING
-  # Vector size for mad/madonly meexporter (VECSIZE_MAX)
+  # Vector size for mad/madonly meexporter (VECSIZE_MEMMAX)
   vecsize=16384 # NB THIS IS IGNORED ANYWAY (ALL HARDCODED VALUES ARE REPLACED IN PATCHMAD.SH)...
   # Generate code for the specific process
   pushd $MG5AMC_HOME >& /dev/null

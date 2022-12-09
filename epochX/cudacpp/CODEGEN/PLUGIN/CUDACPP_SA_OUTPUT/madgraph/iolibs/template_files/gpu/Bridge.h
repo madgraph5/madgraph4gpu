@@ -61,7 +61,7 @@ namespace mg5amcCpu
     /**
      * Constructor
      *
-     * @param nevtF (VECSIZE_USED, vector.inc) number of events in Fortran array loops (VECSIZE_USED <= VECSIZE_MAX)
+     * @param nevtF (VECSIZE_USED, vector.inc) number of events in Fortran array loops (VECSIZE_USED <= VECSIZE_MEMMAX)
      * @param nparF (NEXTERNAL, nexternal.inc) number of external particles in Fortran arrays (KEPT FOR SANITY CHECKS ONLY)
      * @param np4F number of momenta components, usually 4, in Fortran arrays (KEPT FOR SANITY CHECKS ONLY)
      */

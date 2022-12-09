@@ -91,12 +91,12 @@ done
 # Patch the default Fortran code to provide the integration with the cudacpp plugin
 # (2) Process-dependent patches
 cd ${dir}/Source/MODEL > /dev/null
-echo "c NB vector.inc (defining VECSIZE_MAX) must be included before coupl.inc (#458)" > coupl.inc.new
-cat coupl.inc | sed "s/($vecsize)/(VECSIZE_MAX)/g" >> coupl.inc.new
+echo "c NB vector.inc (defining VECSIZE_MEMMAX) must be included before coupl.inc (#458)" > coupl.inc.new
+cat coupl.inc | sed "s/($vecsize)/(VECSIZE_MEMMAX)/g" >> coupl.inc.new
 \mv coupl.inc.new coupl.inc
 gcs=$(cat coupl_write.inc | awk '{if($1=="WRITE(*,2)") print $NF}') # different printouts for scalar/vector couplings #456
 for gc in $gcs; do
-  if grep -q "$gc(VECSIZE_MAX)" coupl.inc; then
+  if grep -q "$gc(VECSIZE_MEMMAX)" coupl.inc; then
     ###echo "DEBUG: Coupling $gc is a vector"
     cat coupl_write.inc | awk -vgc=$gc '{if($1=="WRITE(*,2)" && $NF==gc) print $0"(1)"; else print $0}' > coupl_write.inc.new
     \mv coupl_write.inc.new coupl_write.inc
@@ -107,19 +107,19 @@ done
 for file in couplings.f couplings1.f couplings2.f; do cat ${file} | sed "s|INCLUDE 'coupl.inc'|include 'vector.inc'\n      include 'coupl.inc'|" > ${file}.new; \mv ${file}.new ${file}; done
 cd - > /dev/null
 cd ${dir}/SubProcesses > /dev/null
-###echo "c NB vector.inc (defining VECSIZE_MAX) must be included before cluster.inc (#458)" > cluster.inc.new
-###cat cluster.inc | grep -v "      include 'vector.inc'" | sed "s/nb_page/VECSIZE_MAX/g" >> cluster.inc.new
-echo "c NB vector.inc (defining VECSIZE_MAX) is NOT needed any longer before cluster.inc (#458, #539)" > cluster.inc.new
+###echo "c NB vector.inc (defining VECSIZE_MEMMAX) must be included before cluster.inc (#458)" > cluster.inc.new
+###cat cluster.inc | grep -v "      include 'vector.inc'" | sed "s/nb_page/VECSIZE_MEMMAX/g" >> cluster.inc.new
+echo "c NB vector.inc (defining VECSIZE_MEMMAX) is NOT needed any longer before cluster.inc (#458, #539)" > cluster.inc.new
 cat cluster.inc | grep -v "      include 'vector.inc'" >> cluster.inc.new
 \mv cluster.inc.new cluster.inc
 cd - > /dev/null
 for p1dir in ${dir}/SubProcesses/P1_*; do
   cd $p1dir > /dev/null
   cat auto_dsig1.f \
-    | sed "s|NB_PAGE)|VECSIZE_MAX)|" \
+    | sed "s|NB_PAGE)|VECSIZE_MEMMAX)|" \
     | sed "s|1,NB_PAGE|1,VECSIZE_USED|" \
     | sed "s|1, NB_PAGE|1, VECSIZE_USED|" \
-    | sed "s|/NB_PAGE|/VECSIZE_MAX|" \
+    | sed "s|/NB_PAGE|/VECSIZE_MEMMAX|" \
     > auto_dsig1.f.new
   \mv auto_dsig1.f.new auto_dsig1.f
   if [ "${patchlevel}" == "2" ]; then

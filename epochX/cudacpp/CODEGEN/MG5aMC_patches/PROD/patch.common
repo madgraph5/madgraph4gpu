@@ -9,9 +9,9 @@ index 8da031857..cbf27d64b 100644
 -      double precision all_p(4*maxdim/3+14,nb_page), all_wgt(nb_page), all_x(maxinvar,nb_page)
 -      integer all_lastbin(maxdim, nb_page)
 -      double precision bckp(nb_page)
-+      double precision all_p(4*maxdim/3+14,VECSIZE_MAX), all_wgt(VECSIZE_MAX), all_x(maxinvar,VECSIZE_MAX)
-+      integer all_lastbin(maxdim, VECSIZE_MAX)
-+      double precision bckp(VECSIZE_MAX)
++      double precision all_p(4*maxdim/3+14,VECSIZE_MEMMAX), all_wgt(VECSIZE_MEMMAX), all_x(maxinvar,VECSIZE_MEMMAX)
++      integer all_lastbin(maxdim, VECSIZE_MEMMAX)
++      double precision bckp(VECSIZE_MEMMAX)
        double precision tdem, chi2, dum
        integer ievent,kevent,nwrite,iter,nun,luntmp,itsum
        integer jmax,i,j,ipole
@@ -19,7 +19,7 @@ index 8da031857..cbf27d64b 100644
  
        integer imirror, iproc, iconf
 -      integer ivec !position of the event in the vectorization # max is nb_page 
-+      integer ivec ! position of the event in the vectorization # max is VECSIZE_MAX (but loops go over VECSIZE_USED)
++      integer ivec ! position of the event in the vectorization # max is VECSIZE_MEMMAX (but loops go over VECSIZE_USED)
  c
  c     External
  c
@@ -29,8 +29,8 @@ index 8da031857..cbf27d64b 100644
  C     data for vectorization      
 -      double precision all_xbk(2, nb_page), all_q2fact(2, nb_page), all_cm_rap(nb_page)
 -      double precision all_fx(nb_page)
-+      double precision all_xbk(2, VECSIZE_MAX), all_q2fact(2, VECSIZE_MAX), all_cm_rap(VECSIZE_MAX)
-+      double precision all_fx(VECSIZE_MAX)
++      double precision all_xbk(2, VECSIZE_MEMMAX), all_q2fact(2, VECSIZE_MEMMAX), all_cm_rap(VECSIZE_MEMMAX)
++      double precision all_fx(VECSIZE_MEMMAX)
        
        
        LOGICAL CUTSDONE,CUTSPASSED
@@ -396,7 +396,7 @@ index 975927527..b6991541c 100644
  
        include 'vector.inc'
 -      DOUBLE PRECISION G, ALL_G(nb_page)
-+      DOUBLE PRECISION G, ALL_G(VECSIZE_MAX)
++      DOUBLE PRECISION G, ALL_G(VECSIZE_MEMMAX)
        COMMON/STRONG/ G, ALL_G
  
  c     strong coupling is needed for the reweighting function      
