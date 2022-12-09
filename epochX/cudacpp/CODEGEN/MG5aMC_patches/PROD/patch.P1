@@ -1,9 +1,9 @@
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
-index 2e6c9ff51..b0ab05b66 100644
+index 1523a60ce..67c728165 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
-@@ -459,23 +459,121 @@ C
-       INTEGER SELECTED_COL(VECSIZE_MEMMAX)
+@@ -461,23 +461,121 @@ C
+       INTEGER VECSIZE_USED
  
        INTEGER IVEC
 -
@@ -138,19 +138,22 @@ index 2e6c9ff51..b0ab05b66 100644
        END
  
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
-index 911915f19..4b792a4e3 100644
+index 5cf1594c7..0d9814838 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
-@@ -74,11 +74,49 @@ c      common/to_colstats/ncols,ncolflow,ncolalt,ic
+@@ -74,13 +74,51 @@ c      common/to_colstats/ncols,ncolflow,ncolalt,ic
        include 'vector.inc'
        include 'coupl.inc'
- 
+       INTEGER VECSIZE_USED
+-      DATA VECSIZE_USED/VECSIZE_MEMMAX/
++      DATA VECSIZE_USED/VECSIZE_MEMMAX/ ! initial value
++
 +#ifdef MG5AMC_MEEXPORTER_CUDACPP
 +      INCLUDE 'fbridge.inc'
 +c     INCLUDE 'fbridge_common.inc'
 +#endif
 +      INCLUDE 'fbridge_common.inc'
-+
+ 
  C-----
  C  BEGIN CODE
  C----- 
@@ -191,7 +194,7 @@ index 911915f19..4b792a4e3 100644
  c
  c     Read process number
  c
-@@ -133,7 +171,8 @@ c   If CKKW-type matching, read IS Sudakov grid
+@@ -135,7 +173,8 @@ c   If CKKW-type matching, read IS Sudakov grid
            exit
   30       issgridfile='../'//issgridfile
            if(i.eq.5)then
@@ -201,7 +204,7 @@ index 911915f19..4b792a4e3 100644
              stop
            endif
          enddo
-@@ -200,8 +239,33 @@ c      call sample_result(xsec,xerr)
+@@ -202,8 +241,33 @@ c      call sample_result(xsec,xerr)
  c      write(*,*) 'Final xsec: ',xsec
  
        rewind(lun)
@@ -236,7 +239,7 @@ index 911915f19..4b792a4e3 100644
        end
  
  c     $B$ get_user_params $B$ ! tag for MadWeight
-@@ -379,7 +443,7 @@ c
+@@ -381,7 +445,7 @@ c
        fopened=.false.
        tempname=filename 	 
        fine=index(tempname,' ') 	 

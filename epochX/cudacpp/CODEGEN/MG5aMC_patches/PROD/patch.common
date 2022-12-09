@@ -12,6 +12,17 @@ index a59181c70..af7e0efbc 100644
        INTEGER MAXTRIES
        PARAMETER(MAXTRIES=25)
  C     To pass the helicity configuration chosen by the DiscreteSampler to 
+diff --git b/epochX/cudacpp/gg_tt.mad/Source/vector.inc a/epochX/cudacpp/gg_tt.mad/Source/vector.inc
+index 3127bf6aa..c4a02cc79 100644
+--- b/epochX/cudacpp/gg_tt.mad/Source/vector.inc
++++ a/epochX/cudacpp/gg_tt.mad/Source/vector.inc
+@@ -15,4 +15,5 @@ C     BECAUSE IT DOES NOT GO THROUGH THE CPP PREPROCESSOR
+ C     (see https://github.com/madgraph5/madgraph4gpu/issues/458).
+ C     
+       INTEGER VECSIZE_MEMMAX
+-      PARAMETER (VECSIZE_MEMMAX=16384)
++      PARAMETER (VECSIZE_MEMMAX=16384) ! NB: 16k events per GPU grid is the minimum required to fill a V100 GPU
++c     PARAMETER (VECSIZE_MEMMAX=32) ! NB: workaround for out-of-memory on Juwels: 32 is enough for no-CUDA builds (issue #498)
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 index dd709f52c..66cbba379 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
