@@ -543,7 +543,6 @@ c      common/to_colstats/ncols,ncolflow,ncolalt,ic
 c      data ncolflow/maxamps*0/
 c      data ncolalt/maxamps*0/
 
-      include 'vector.inc'
       include 'coupl.inc'
 
       include 'lhe_event_infos.inc'

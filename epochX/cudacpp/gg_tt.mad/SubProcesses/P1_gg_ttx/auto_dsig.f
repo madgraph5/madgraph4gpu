@@ -117,7 +117,8 @@ C     Cannot make a selection with all PDFs to zero, so we return now
       ENDIF
       END
 
-      SUBROUTINE SELECT_GROUPING(IMIRROR,  IPROC, ICONF, WGT, VECSIZE_USED)
+      SUBROUTINE SELECT_GROUPING(IMIRROR, IPROC, ICONF, WGT,
+     $  VECSIZE_USED)
       USE DISCRETESAMPLER
       IMPLICIT NONE
 C     
@@ -301,7 +302,8 @@ C      entries to the grid for the MC over helicity configuration
 
 C     set the running scale 
 C     and update the couplings accordingly
-      CALL UPDATE_SCALE_COUPLING_VEC(ALL_P, ALL_WGT, ALL_Q2FACT, VECSIZE_USED)
+      CALL UPDATE_SCALE_COUPLING_VEC(ALL_P, ALL_WGT, ALL_Q2FACT,
+     $  VECSIZE_USED)
 
       IF(GROUPED_MC_GRID_STATUS.EQ.0) THEN
 C       If we were in the initialization phase of the grid for MC over
@@ -428,8 +430,8 @@ C     Common blocks
       DATA  NB_SPIN_STATE /2,2/
       COMMON /NB_HEL_STATE/ NB_SPIN_STATE
 
-      include 'vector.inc'
-      include 'coupl.inc'
+      INCLUDE 'vector.inc'
+      INCLUDE 'coupl.inc'
       INCLUDE 'run.inc'
 C     ICONFIG has this config number
       INTEGER MAPCONFIG(0:LMAXCONFIGS), ICONFIG
@@ -772,8 +774,8 @@ C     ****************************************************
       INCLUDE 'maxconfigs.inc'
       INCLUDE 'nexternal.inc'
       INCLUDE 'maxamps.inc'
-      include 'vector.inc'
-      include 'coupl.inc'
+      INCLUDE 'vector.inc'
+      INCLUDE 'coupl.inc'
       INCLUDE 'run.inc'
 C     
 C     ARGUMENTS 
@@ -910,8 +912,8 @@ C     ****************************************************
       INCLUDE 'maxconfigs.inc'
       INCLUDE 'nexternal.inc'
       INCLUDE 'maxamps.inc'
-      include 'vector.inc'
-      include 'coupl.inc'
+      INCLUDE 'vector.inc'
+      INCLUDE 'coupl.inc'
       INCLUDE 'run.inc'
 C     
 C     ARGUMENTS 

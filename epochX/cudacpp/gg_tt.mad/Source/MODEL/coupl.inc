@@ -1,7 +1,11 @@
-c NB vector.inc (defining VECSIZE_MEMMAX) must be included before coupl.inc (#458)
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c      written by the UFO converter
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+C     
+C     NB: VECSIZE_MEMMAX is defined in vector.inc
+C     NB: vector.inc must be included before coupl.inc
+C     
 
       DOUBLE PRECISION G, ALL_G(VECSIZE_MEMMAX)
       COMMON/STRONG/ G, ALL_G
