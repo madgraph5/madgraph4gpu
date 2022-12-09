@@ -47,7 +47,7 @@ function codeGenAndDiff()
   esac
   echo -e "\n+++ Generate code for '$proc'\n"
   ###exit 0 # FOR DEBUGGING
-  # Vector size for mad/madonly meexporter (nb_page_max)
+  # Vector size for mad/madonly meexporter (VECSIZE_MEMMAX)
   vecsize=16384 # NB THIS IS IGNORED ANYWAY (ALL HARDCODED VALUES ARE REPLACED IN PATCHMAD.SH)...
   # Generate code for the specific process
   pushd $MG5AMC_HOME >& /dev/null
@@ -148,7 +148,7 @@ function codeGenAndDiff()
   # [NB: NEW! these patches are no longer applied to madonly, which is now meant as an out-of-the-box reference]
   ###if [ "${OUTBCK}" == "madonly" ] || [ "${OUTBCK}" == "mad" ]; then
   if [ "${OUTBCK}" == "mad" ]; then
-    $SCRDIR/patchMad.sh ${OUTDIR}/${proc}.${autosuffix} ${vecsize} ${dir_patches} ${NOPATCH}
+    $SCRDIR/patchMad.sh ${OUTDIR}/${proc}.${autosuffix} ${vecsize} ${dir_patches} ${PATCHLEVEL}
   fi
   # Compare the existing generated code to the newly generated code for the specific process
   pushd ${OUTDIR} >& /dev/null
@@ -185,7 +185,7 @@ function usage()
     echo "Usage: $0 [--nobrief] <proc>"
   else
     # NB: all options with $SCRBCK=cudacpp use the 311 branch by default and always disable helicity recycling
-    echo "Usage: $0 [--nobrief] [--cpp|--gpu|--madonly|--mad|--madgpu] [--nopatch] <proc>"
+    echo "Usage: $0 [--nobrief] [--cpp|--gpu|--madonly|--mad|--madgpu] [--nopatch|--upstream] <proc>"
     echo "(NB: a --madcpp option also exists but code generation fails for it)"
   fi
   exit 1
@@ -228,8 +228,8 @@ BRIEF=--brief
 # Default for gridpacks: untar gridpack.tar.gz but do not regenerate it (use --nountaronly to regenerate it)
 UNTARONLY=1
 
-# Default: apply all patches in patchMad.sh (this is ignored unless --mad is also specified)
-NOPATCH=
+# Default: apply all patches in patchMad.sh (--nopatch is ignored unless --mad is also specified)
+PATCHLEVEL=
 
 # Default for gridpacks: use helicity recycling (use --nohelrec to disable it)
 # (export the value to the untarGridpack.sh script)
@@ -243,8 +243,10 @@ for arg in "$@"; do
     usage
   elif [ "$arg" == "--nobrief" ]; then
     BRIEF=
-  elif [ "$arg" == "--nopatch" ]; then
-    NOPATCH=--nopatch
+  elif [ "$arg" == "--nopatch" ] && [ "${PATCHLEVEL}" == "" ]; then
+    PATCHLEVEL=--nopatch
+  elif [ "$arg" == "--upstream" ] && [ "${PATCHLEVEL}" == "" ]; then
+    PATCHLEVEL=--upstream
   elif [ "$arg" == "--nountaronly" ] && [ "${SCRBCK}" == "gridpack" ]; then
     UNTARONLY=0
   elif [ "$arg" == "--nohelrec" ] && [ "${SCRBCK}" == "gridpack" ]; then
@@ -286,7 +288,7 @@ if ! python3 --version >& /dev/null; then echo "ERROR! python3 is not installed"
 # Make sure that $MG5AMC_HOME exists
 dir_patches=PROD
 branch_patches=$(cat $SCRDIR/MG5aMC_patches/${dir_patches}/branch.GIT)
-commit_patches=$(cat $SCRDIR/MG5aMC_patches/${dir_patches}/commit.GIT)
+commit_patches=$(cat $SCRDIR/MG5aMC_patches/${dir_patches}/commit.GIT) # e.g. <commit> or <branch>
 if [ "$MG5AMC_HOME" == "" ]; then
   echo "ERROR! MG5AMC_HOME is not defined"
   echo -e "To download MG5AMC please run\n  git clone git@github.com:mg5amcnlo/mg5amcnlo.git\n  cd mg5amcnlo; git checkout ${branch_patches}; git reset --hard ${commit_patches}"
@@ -329,8 +331,8 @@ if ! git log -n1 >& /dev/null; then
   echo -e "ERROR! MG5AMC_HOME is not a git clone\n"; exit 1
 fi
 echo -e "MG5AMC patches in this plugin refer to git branch '${branch_patches}'"
-echo -e "Reset MG5AMC_HOME to git commit 'origin/${branch_patches}'"
-if ! git reset --hard origin/${branch_patches}; then
+echo -e "Reset MG5AMC_HOME to git commit '${branch_patches}'"
+if ! git reset --hard ${branch_patches}; then
   echo -e "ERROR! 'git reset --hard ${branch_patches}' failed\n"; exit 1
 fi
 echo -e "Check out branch ${branch_patches} in MG5AMC_HOME"
@@ -340,23 +342,32 @@ fi
 branch_mg5amc=$(git branch --no-color | \grep ^* | awk '{print $2}')
 echo -e "Current git branch of MG5AMC_HOME is '${branch_mg5amc}'"
 if [ "${branch_patches}" != "${branch_mg5amc}" ]; then echo -e "\nERROR! git branch mismatch!"; exit 1; fi
-echo -e "MG5AMC patches in this plugin refer to git commit '${commit_patches}'"
+commit_patches2=$(git log --oneline -n1 ${commit_patches} | awk '{print $1}') # translate to <commit>
+if [ "${commit_patches2}" == "${commit_patches}" ]; then
+  echo -e "MG5AMC patches in this plugin refer to git commit '${commit_patches}'"
+else
+  echo -e "MG5AMC patches in this plugin refer to git commit '${commit_patches}' (i.e. '${commit_patches2}')"
+fi  
 echo -e "Reset MG5AMC_HOME to git commit '${commit_patches}'"
 if ! git reset --hard ${commit_patches}; then
   echo -e "ERROR! 'git reset --hard ${commit_patches}' failed\n"; exit 1
 fi
 commit_mg5amc=$(git log --oneline -n1 | awk '{print $1}')
 echo -e "Current git commit of MG5AMC_HOME is '${commit_mg5amc}'"
-if [ "${commit_patches}" != "${commit_mg5amc}" ]; then echo -e "\nERROR! git commit mismatch!"; exit 1; fi
+if [ "${commit_patches2}" != "${commit_mg5amc}" ]; then echo -e "\nERROR! git commit mismatch!"; exit 1; fi
 cd - > /dev/null
 
-# Copy MG5AMC ad-hoc patches if any
-if [ "${SCRBCK}" == "cudacpp" ]; then
-  ###patches=$(cd $SCRDIR/MG5aMC_patches/${dir_patches}; find . -type f -name '*.py')
-  patches=$(cd $SCRDIR/MG5aMC_patches/${dir_patches}; find . -type f ! -name '*.GIT')
+# Copy MG5AMC ad-hoc patches if any (unless --upstream is specified)
+if [ "${PATCHLEVEL}" != "--upstream" ] && [ "${SCRBCK}" == "cudacpp" ]; then
+  patches=$(cd $SCRDIR/MG5aMC_patches/${dir_patches}; find . -mindepth 2 -type f)
   echo -e "Copy MG5aMC_patches/${dir_patches} patches..."
   for patch in $patches; do
-    patch=${patch#./}
+    ###echo "DEBUG: $patch"
+    patch=${patch#./} # strip leading "./"
+    if [ "${patch}" != "${patch%~}" ]; then continue; fi # skip *~ files
+    ###if [ "${patch}" != "${patch%.GIT}" ]; then continue; fi # skip *.GIT files
+    ###if [ "${patch}" != "${patch%.py}" ]; then continue; fi # skip *.py files
+    ###if [ "${patch}" != "${patch#patch.}" ]; then continue; fi # skip patch.* files
     echo cp -dpr $SCRDIR/MG5aMC_patches/${dir_patches}/$patch $MG5AMC_HOME/$patch
     cp -dpr $SCRDIR/MG5aMC_patches/${dir_patches}/$patch $MG5AMC_HOME/$patch
   done

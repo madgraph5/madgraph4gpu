@@ -98,19 +98,19 @@ c#ifdef MG5AMC_MEEXPORTER_CUDACPP
         STOP
       endif
 #endif
-      write(*,*) 'Enter #events in a vector loop (max=',nb_page_max,',)'
-      read(*,*) nb_page_loop
+      write(*,*) 'Enter #events in a vector loop (max=',VECSIZE_MEMMAX,',)'
+      read(*,*) VECSIZE_USED
 c#else
-c      NB_PAGE_LOOP = 32
+c      VECSIZE_USED = 32
 c#endif
-      write(*,'(a16,i6)') ' NB_PAGE_LOOP = ', NB_PAGE_LOOP
-      if( nb_page_loop.gt.nb_page_max .or. nb_page_loop.le.0 ) then
-        write(*,*) 'ERROR! Invalid nb_page_loop = ', nb_page_loop
+      write(*,'(a16,i6)') ' VECSIZE_USED = ', VECSIZE_USED
+      if( VECSIZE_USED.gt.VECSIZE_MEMMAX .or. VECSIZE_USED.le.0 ) then
+        write(*,*) 'ERROR! Invalid VECSIZE_USED = ', VECSIZE_USED
         STOP
       endif
 
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
-      CALL FBRIDGECREATE(FBRIDGE_PBRIDGE, NB_PAGE_LOOP, NEXTERNAL, 4) ! this must be at the beginning as it initialises the CUDA device
+      CALL FBRIDGECREATE(FBRIDGE_PBRIDGE, VECSIZE_USED, NEXTERNAL, 4) ! this must be at the beginning as it initialises the CUDA device
       FBRIDGE_NCBYF1 = 0
       FBRIDGE_CBYF1SUM = 0
       FBRIDGE_CBYF1SUM2 = 0
