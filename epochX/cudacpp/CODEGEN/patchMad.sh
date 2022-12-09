@@ -102,13 +102,6 @@ done
 cd - > /dev/null
 for p1dir in ${dir}/SubProcesses/P1_*; do
   cd $p1dir > /dev/null
-  cat auto_dsig1.f \
-    | sed "s|NB_PAGE)|VECSIZE_MEMMAX)|" \
-    | sed "s|1,NB_PAGE|1,VECSIZE_USED|" \
-    | sed "s|1, NB_PAGE|1, VECSIZE_USED|" \
-    | sed "s|/NB_PAGE|/VECSIZE_MEMMAX|" \
-    > auto_dsig1.f.new
-  \mv auto_dsig1.f.new auto_dsig1.f
   if [ "${patchlevel}" == "2" ]; then
     echo "DEBUG: cd ${PWD}; patch -p6 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.auto_dsig1.f"
     if ! patch -p6 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.auto_dsig1.f; then status=1; fi  
