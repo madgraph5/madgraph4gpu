@@ -103,13 +103,16 @@ extern "C"
    * This is a C symbol that should be called from the Fortran code (in auto_dsig1.f).
    *
    * @param ppbridge the pointer to the Bridge pointer (the Bridge pointer is handled in Fortran as an INTEGER*8 variable)
-   * @param pngoodhel the pointer to the output number of good helicities.o
+   * @param pngoodhel the pointer to the output number of good helicities
+   * @param pntothel the pointer to the output total number of helicities
    */
   void fbridgegetngoodhel_( CppObjectInFortran** ppbridge,
-                            unsigned int* pngoodhel )
+                            unsigned int* pngoodhel,
+                            unsigned int* pntothel )
   {
     Bridge<FORTRANFPTYPE>* pbridge = dynamic_cast<Bridge<FORTRANFPTYPE>*>( *ppbridge );
     if( pbridge == 0 ) throw std::runtime_error( "fbridgegetngoodhel_: invalid Bridge address" );
     *pngoodhel = pbridge->nGoodHel();
+    *pntothel = pbridge->nTotHel();
   }
 }

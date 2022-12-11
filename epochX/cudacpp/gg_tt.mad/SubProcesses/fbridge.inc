@@ -46,10 +46,12 @@ C
 C Retrieve the number of good helicities for helicity filtering in the Bridge.
 C - PBRIDGE:  the memory address of the C++ Bridge
 C - NGOODHEL: the output number of good helicities
+C - NTOTHEL:  the output total number of helicities in cudacpp (aka NCOMB in Fortran)
 C
       INTERFACE
-         SUBROUTINE FBRIDGEGETNGOODHEL(PBRIDGE, NGOODHEL)
+         SUBROUTINE FBRIDGEGETNGOODHEL(PBRIDGE, NGOODHEL, NTOTHEL)
          INTEGER*8 PBRIDGE
          INTEGER*4 NGOODHEL
+         INTEGER*4 NTOTHEL
          END SUBROUTINE FBRIDGEGETNGOODHEL
       END INTERFACE
