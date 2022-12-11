@@ -1,16 +1,3 @@
-#include <unistd.h>
-
-#include <algorithm>
-#include <array>
-#include <cmath>
-#include <cstring>
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-#include <memory>
-#include <numeric>
-#include <string>
-
 #include "mgOnGpuConfig.h"
 
 #include "BridgeKernels.h"
@@ -26,6 +13,20 @@
 #include "RandomNumberKernels.h"
 #include "epoch_process_id.h"
 #include "timermap.h"
+
+#include <unistd.h>
+
+#include <algorithm>
+#include <array>
+#include <cmath>
+#include <cstring>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <memory>
+#include <numeric>
+#include <string>
+
 #define STRINGIFY( s ) #s
 #define XSTRINGIFY( s ) STRINGIFY( s )
 
