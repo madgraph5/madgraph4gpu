@@ -30,7 +30,7 @@ C - PBRIDGE: the memory address of the C++ Bridge
 C - MOMENTA: the input 4-momenta Fortran array
 C - GS:      the input Gs (running QCD coupling constant alphas)
 C - MES:     the output matrix element Fortran array
-C - CHANID:  the Feynman diagram to enhance in multi-channel mode if 1 to n (disable multi-channel if 0)
+C - CHANID:  the input Feynman diagram to enhance in multi-channel mode if 1 to n (disable multi-channel if 0)
 C
       INTERFACE
          SUBROUTINE FBRIDGESEQUENCE(PBRIDGE, MOMENTA, GS, MES, CHANID)
@@ -40,4 +40,16 @@ C
          DOUBLE PRECISION MES(*)
          INTEGER*4 CHANID
          END SUBROUTINE FBRIDGESEQUENCE
+      END INTERFACE
+
+C
+C Retrieve the number of good helicities for helicity filtering in the Bridge.
+C - PBRIDGE:  the memory address of the C++ Bridge
+C - NGOODHEL: the output number of good helicities
+C
+      INTERFACE
+         SUBROUTINE FBRIDGEGETNGOODHEL(PBRIDGE, NGOODHEL)
+         INTEGER*8 PBRIDGE
+         INTEGER*4 NGOODHEL
+         END SUBROUTINE FBRIDGEGETNGOODHEL
       END INTERFACE
