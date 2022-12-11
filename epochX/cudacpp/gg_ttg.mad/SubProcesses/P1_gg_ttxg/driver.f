@@ -88,6 +88,7 @@ C-----
       call cpu_time(t_before)
       CUMULATED_TIMING = t_before
 
+      CALL OMPNUMTHREADS_NOT_SET_MEANS_ONE_THREAD()
       CALL COUNTERS_INITIALISE()
 
 c#ifdef MG5AMC_MEEXPORTER_CUDACPP

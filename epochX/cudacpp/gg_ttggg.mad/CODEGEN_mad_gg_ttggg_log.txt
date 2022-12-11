@@ -57,7 +57,7 @@ generate g g > t t~ g g g
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.006804704666137695 [0m
+[1;32mDEBUG: model prefixing  takes 0.006818056106567383 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -150,17 +150,17 @@ INFO: Please specify coupling orders to bypass this step.
 INFO: Trying coupling order WEIGHTED<=5: WEIGTHED IS QCD+2*QED 
 INFO: Trying process: g g > t t~ g g g WEIGHTED<=5 @1  
 INFO: Process has 1240 diagrams 
-1 processes with 1240 diagrams generated in 2.390 s
+1 processes with 1240 diagrams generated in 2.382 s
 Total: 1 processes with 1240 diagrams
 output madevent CODEGEN_mad_gg_ttggg --hel_recycling=False --vector_size=16384 --me_exporter=standalone_cudacpp
 Load PLUGIN.CUDACPP_SA_OUTPUT
 [1mAddition matrix-element will be done with PLUGIN: CUDACPP_SA_OUTPUT[0m
 [1mOutput will be done with PLUGIN: CUDACPP_SA_OUTPUT[0m
 [1;32mDEBUG:  cformat = [0m standalone_cudacpp [1;30m[export_cpp.py at line 3071][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter) [1;30m[output.py at line 141][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter) [1;30m[output.py at line 143][0m [0m
 INFO: initialize a new directory: CODEGEN_mad_gg_ttggg 
 INFO: remove old information in CODEGEN_mad_gg_ttggg 
-[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.copy_template (initialise the directory) [1;30m[output.py at line 146][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.copy_template (initialise the directory) [1;30m[output.py at line 148][0m [0m
 [1;34mWARNING: File exists /data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo/CODEGEN_mad_gg_ttggg [0m
 INFO: Creating subdirectories in directory /data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo/CODEGEN_mad_gg_ttggg 
 [1;34mWARNING: File exists /data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo/CODEGEN_mad_gg_ttggg/Cards [0m
@@ -171,7 +171,7 @@ INFO: Processing color information for process: g g > t t~ g g g @1
 INFO: Creating files in directory P1_gg_ttxggg 
 INFO: Computing Color-Flow optimization [15120 term] 
 INFO: Color-Flow passed to 1592 term in 40s. Introduce 2768 contraction 
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7ff8d1c57fa0> [1;30m[export_v4.py at line 6121][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7fa090d34c40> [1;30m[export_v4.py at line 6121][0m [0m
 INFO: Creating files in directory . 
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 1205][0m [0m
 [1;32mDEBUG:  self.include_multi_channel is already defined: this is madevent+second_exporter mode [1;30m[model_handling.py at line 1207][0m [0m
@@ -211,8 +211,8 @@ INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./.
 [1;32mDEBUG:  Done [1;30m[export_cpp.py at line 713][0m [0m
 INFO: Generating Feynman diagrams for Process: g g > t t~ g g g WEIGHTED<=5 @1 
 INFO: Finding symmetric diagrams for subprocess group gg_ttxggg 
-Generated helas calls for 1 subprocesses (1240 diagrams) in 8.425 s
-Wrote files for 2281 helas calls in 53.206 s
+Generated helas calls for 1 subprocesses (1240 diagrams) in 8.318 s
+Wrote files for 2281 helas calls in 53.099 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
 ALOHA: aloha creates FFV1 routines[0m
@@ -220,14 +220,14 @@ ALOHA: aloha creates VVVV1 routines[0m
 ALOHA: aloha creates VVVV3 routines[0m
 ALOHA: aloha creates VVVV4 routines[0m
 ALOHA: aloha creates 5 routines in  0.386 s
-[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 179][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 181][0m [0m
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 routines[0m
 ALOHA: aloha creates VVVV3 routines[0m
 ALOHA: aloha creates VVVV4 routines[0m
-ALOHA: aloha creates 10 routines in  0.373 s
+ALOHA: aloha creates 10 routines in  0.378 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -259,6 +259,6 @@ Type "launch" to generate events from this process, or see
 Run "open index.html" to see more information about this process.
 quit
 
-real	1m9.233s
-user	1m7.767s
-sys	0m1.286s
+real	1m9.000s
+user	1m7.646s
+sys	0m1.333s
