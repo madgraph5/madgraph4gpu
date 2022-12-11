@@ -138,10 +138,10 @@ index 1523a60ce..67c728165 100644
        END
  
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
-index 5cf1594c7..0d9814838 100644
+index 5cf1594c7..19aa50965 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
-@@ -74,13 +74,51 @@ c      common/to_colstats/ncols,ncolflow,ncolalt,ic
+@@ -74,13 +74,52 @@ c      common/to_colstats/ncols,ncolflow,ncolalt,ic
        include 'vector.inc'
        include 'coupl.inc'
        INTEGER VECSIZE_USED
@@ -160,6 +160,7 @@ index 5cf1594c7..0d9814838 100644
        call cpu_time(t_before)
        CUMULATED_TIMING = t_before
 +
++      CALL OMPNUMTHREADS_NOT_SET_MEANS_ONE_THREAD()
 +      CALL COUNTERS_INITIALISE()
 +
 +c#ifdef MG5AMC_MEEXPORTER_CUDACPP
@@ -194,7 +195,7 @@ index 5cf1594c7..0d9814838 100644
  c
  c     Read process number
  c
-@@ -135,7 +173,8 @@ c   If CKKW-type matching, read IS Sudakov grid
+@@ -135,7 +174,8 @@ c   If CKKW-type matching, read IS Sudakov grid
            exit
   30       issgridfile='../'//issgridfile
            if(i.eq.5)then
@@ -204,7 +205,7 @@ index 5cf1594c7..0d9814838 100644
              stop
            endif
          enddo
-@@ -202,8 +241,33 @@ c      call sample_result(xsec,xerr)
+@@ -202,8 +242,33 @@ c      call sample_result(xsec,xerr)
  c      write(*,*) 'Final xsec: ',xsec
  
        rewind(lun)
@@ -239,7 +240,7 @@ index 5cf1594c7..0d9814838 100644
        end
  
  c     $B$ get_user_params $B$ ! tag for MadWeight
-@@ -381,7 +445,7 @@ c
+@@ -381,7 +446,7 @@ c
        fopened=.false.
        tempname=filename 	 
        fine=index(tempname,' ') 	 
