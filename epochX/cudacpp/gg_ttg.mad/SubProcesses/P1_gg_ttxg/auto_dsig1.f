@@ -451,6 +451,8 @@ C
       INCLUDE 'nexternal.inc'
       INCLUDE '../../Source/vector.inc'
       INCLUDE 'maxamps.inc'
+      INTEGER                 NCOMB
+      PARAMETER (             NCOMB=32)
       DOUBLE PRECISION P_MULTI(0:3, NEXTERNAL, VECSIZE_MEMMAX)
       DOUBLE PRECISION HEL_RAND(VECSIZE_MEMMAX)
       DOUBLE PRECISION COL_RAND(VECSIZE_MEMMAX)
@@ -479,6 +481,7 @@ C
       INCLUDE 'run.inc'
       DOUBLE PRECISION OUT2(VECSIZE_MEMMAX)
       DOUBLE PRECISION CBYF1
+      INTEGER*4 NGOODHEL, NTOTHEL
 
       INTEGER*4 NWARNINGS
       SAVE NWARNINGS
@@ -487,7 +490,7 @@ C
       LOGICAL FIRST
       SAVE FIRST
       DATA FIRST/.TRUE./
-
+      
       IF( FBRIDGE_MODE .LE. 0 ) THEN ! (FortranOnly=0 or BothQuiet=-1 or BothDebug=-2)
 #endif
         call counters_smatrix1multi_start( -1, VECSIZE_USED ) ! fortran=-1
@@ -522,6 +525,14 @@ c         ! This is a workaround for https://github.com/oliviermattelaer/mg5amc_
           IF( FBRIDGE_MODE .EQ. 1 ) THEN ! (CppOnly=1 : SMATRIX1 is not called at all)
             CALL RESET_CUMULATIVE_VARIABLE() ! mimic 'avoid bias of the initialization' within SMATRIX1
           ENDIF
+          CALL FBRIDGEGETNGOODHEL(FBRIDGE_PBRIDGE,NGOODHEL,NTOTHEL)
+          IF( NTOTHEL .NE. NCOMB ) THEN
+            WRITE(6,*) 'ERROR! Cudacpp/Fortran mismatch',
+     &        ' in total number of helicities', NTOTHEL, NCOMB
+            STOP
+          ENDIF
+          WRITE (6,*) 'NGOODHEL =', NGOODHEL
+          WRITE (6,*) 'NCOMB =', NCOMB
         ENDIF
         call counters_smatrix1multi_start( 0, VECSIZE_USED ) ! cudacpp=0
         IF ( .NOT. MULTI_CHANNEL ) THEN
