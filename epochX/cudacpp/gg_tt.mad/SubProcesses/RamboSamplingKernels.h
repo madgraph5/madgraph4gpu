@@ -20,7 +20,7 @@ namespace mg5amcCpu
 
     // Constructor from existing input and output buffers
     SamplingKernelBase( const fptype energy,                // input: energy
-                        const BufferRandomNumbers& rnarray, // input: random numbers in [0,1]
+                        const BufferRndNumMomenta& rnarray, // input: random numbers in [0,1]
                         BufferMomenta& momenta,             // output: momenta
                         BufferWeights& weights )            // output: weights
       : m_energy( energy )
@@ -50,7 +50,7 @@ namespace mg5amcCpu
     const fptype m_energy;
 
     // The buffer for the input random numbers
-    const BufferRandomNumbers& m_rnarray;
+    const BufferRndNumMomenta& m_rnarray;
 
     // The buffer for the output momenta
     BufferMomenta& m_momenta;
@@ -68,7 +68,7 @@ namespace mg5amcCpu
 
     // Constructor from existing input and output buffers
     RamboSamplingKernelHost( const fptype energy,                // input: energy
-                             const BufferRandomNumbers& rnarray, // input: random numbers in [0,1]
+                             const BufferRndNumMomenta& rnarray, // input: random numbers in [0,1]
                              BufferMomenta& momenta,             // output: momenta
                              BufferWeights& weights,             // output: weights
                              const size_t nevt );
@@ -96,7 +96,7 @@ namespace mg5amcCpu
 
     // Constructor from existing input and output buffers
     RamboSamplingKernelDevice( const fptype energy,                // input: energy
-                               const BufferRandomNumbers& rnarray, // input: random numbers in [0,1]
+                               const BufferRndNumMomenta& rnarray, // input: random numbers in [0,1]
                                BufferMomenta& momenta,             // output: momenta
                                BufferWeights& weights,             // output: weights
                                const size_t gpublocks,

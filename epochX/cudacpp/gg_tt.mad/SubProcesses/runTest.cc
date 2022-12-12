@@ -33,7 +33,7 @@ struct CPUTest : public CUDA_CPU_TestBase
   // Struct data members (process, and memory structures for random numbers, momenta, matrix elements and weights on host and device)
   // [NB the hst/dev memory arrays must be initialised in the constructor, see issue #290]
   CPPProcess process;
-  HostBufferRandomNumbers hstRnarray;
+  HostBufferRndNumMomenta hstRnarray;
   HostBufferMomenta hstMomenta;
   HostBufferGs hstGs;
   HostBufferWeights hstWeights;
@@ -117,13 +117,13 @@ struct CUDATest : public CUDA_CPU_TestBase
   // Struct data members (process, and memory structures for random numbers, momenta, matrix elements and weights on host and device)
   // [NB the hst/dev memory arrays must be initialised in the constructor, see issue #290]
   CPPProcess process;
-  PinnedHostBufferRandomNumbers hstRnarray;
+  PinnedHostBufferRndNumMomenta hstRnarray;
   PinnedHostBufferMomenta hstMomenta;
   PinnedHostBufferGs hstGs;
   PinnedHostBufferWeights hstWeights;
   PinnedHostBufferMatrixElements hstMatrixElements;
   PinnedHostBufferHelicityMask hstIsGoodHel;
-  DeviceBufferRandomNumbers devRnarray;
+  DeviceBufferRndNumMomenta devRnarray;
   DeviceBufferMomenta devMomenta;
   DeviceBufferGs devGs;
   DeviceBufferWeights devWeights;

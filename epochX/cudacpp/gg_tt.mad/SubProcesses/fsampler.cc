@@ -35,11 +35,11 @@ namespace mg5amcCpu
     const int m_nevt; // The number of events in each iteration
     int m_iiter;      // The iteration counter (for random number seeding)
 #ifndef __CUDACC__
-    HostBufferRandomNumbers m_hstRnarray; // Memory buffers for random numbers
+    HostBufferRndNumMomenta m_hstRnarray; // Memory buffers for random numbers
     HostBufferMomenta m_hstMomenta;       // Memory buffers for momenta
     HostBufferWeights m_hstWeights;       // Memory buffers for sampling weights
 #else
-    PinnedHostBufferRandomNumbers m_hstRnarray; // Memory buffers for random numbers
+    PinnedHostBufferRndNumMomenta m_hstRnarray; // Memory buffers for random numbers
     PinnedHostBufferMomenta m_hstMomenta;       // Memory buffers for momenta
     PinnedHostBufferWeights m_hstWeights;       // Memory buffers for sampling weights
 #endif

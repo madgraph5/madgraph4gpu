@@ -18,7 +18,7 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   RamboSamplingKernelHost::RamboSamplingKernelHost( const fptype energy,                // input: energy
-                                                    const BufferRandomNumbers& rnarray, // input: random numbers in [0,1]
+                                                    const BufferRndNumMomenta& rnarray, // input: random numbers in [0,1]
                                                     BufferMomenta& momenta,             // output: momenta
                                                     BufferWeights& weights,             // output: weights
                                                     const size_t nevt )
@@ -89,7 +89,7 @@ namespace mg5amcCpu
 
 #ifdef __CUDACC__
   RamboSamplingKernelDevice::RamboSamplingKernelDevice( const fptype energy,                // input: energy
-                                                        const BufferRandomNumbers& rnarray, // input: random numbers in [0,1]
+                                                        const BufferRndNumMomenta& rnarray, // input: random numbers in [0,1]
                                                         BufferMomenta& momenta,             // output: momenta
                                                         BufferWeights& weights,             // output: weights
                                                         const size_t gpublocks,

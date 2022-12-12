@@ -201,19 +201,19 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   // A base class encapsulating a memory buffer for random numbers
-  typedef BufferBase<fptype> BufferRandomNumbers;
+  typedef BufferBase<fptype> BufferRndNumMomenta;
 
   // The size (number of elements) per event in a memory buffer for random numbers
   constexpr size_t sizePerEventRandomNumbers = MemoryBuffers::np4 * MemoryBuffers::nparf;
 
 #ifndef __CUDACC__
   // A class encapsulating a C++ host buffer for random numbers
-  typedef HostBuffer<fptype, sizePerEventRandomNumbers, HostBufferALIGNED> HostBufferRandomNumbers;
+  typedef HostBuffer<fptype, sizePerEventRandomNumbers, HostBufferALIGNED> HostBufferRndNumMomenta;
 #else
   // A class encapsulating a CUDA pinned host buffer for random numbers
-  typedef PinnedHostBuffer<fptype, sizePerEventRandomNumbers> PinnedHostBufferRandomNumbers;
+  typedef PinnedHostBuffer<fptype, sizePerEventRandomNumbers> PinnedHostBufferRndNumMomenta;
   // A class encapsulating a CUDA device buffer for random numbers
-  typedef DeviceBuffer<fptype, sizePerEventRandomNumbers> DeviceBufferRandomNumbers;
+  typedef DeviceBuffer<fptype, sizePerEventRandomNumbers> DeviceBufferRndNumMomenta;
 #endif
 
   //--------------------------------------------------------------------------

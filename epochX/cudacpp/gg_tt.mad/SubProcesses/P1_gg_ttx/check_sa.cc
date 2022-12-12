@@ -283,10 +283,10 @@ main( int argc, char** argv )
 
   // Memory buffers for random numbers
 #ifndef __CUDACC__
-  HostBufferRandomNumbers hstRnarray( nevt );
+  HostBufferRndNumMomenta hstRnarray( nevt );
 #else
-  PinnedHostBufferRandomNumbers hstRnarray( nevt );
-  DeviceBufferRandomNumbers devRnarray( nevt );
+  PinnedHostBufferRndNumMomenta hstRnarray( nevt );
+  DeviceBufferRndNumMomenta devRnarray( nevt );
 #endif
 
 #ifndef __CUDACC__
@@ -925,7 +925,7 @@ main( int argc, char** argv )
               << std::string( 16, ' ' ) << " )  sec^-1" << std::endl
               << "EvtsPerSec[Rmb+ME]     (23) = ( " << nevtALL / ( sumrtim + sumwtim )
               << std::string( 16, ' ' ) << " )  sec^-1" << std::endl
-              //<< "EvtsPerSec[RndNumbGen]   (1) = ( " << nevtALL/sumgtim
+              //<< "EvtsPerSec[RndNumGen]   (1) = ( " << nevtALL/sumgtim
               //<< std::string(16, ' ') << " )  sec^-1" << std::endl
               //<< "EvtsPerSec[Rambo]        (2) = ( " << nevtALL/sumrtim
               //<< std::string(16, ' ') << " )  sec^-1" << std::endl
