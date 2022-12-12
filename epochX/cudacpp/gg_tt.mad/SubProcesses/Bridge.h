@@ -135,7 +135,7 @@ namespace mg5amcCpu
     mg5amcGpu::DeviceBuffer<FORTRANFPTYPE, sizePerEventMomenta> m_devMomentaF;
     mg5amcGpu::DeviceBufferMomenta m_devMomentaC;
     mg5amcGpu::DeviceBufferGs m_devGsC;
-    mg5amcGpu::PinnedHostBufferMatrixElements m_hstGsC;
+    mg5amcGpu::PinnedHostBufferGs m_hstGsC;
     mg5amcGpu::DeviceBufferMatrixElements m_devMEsC;
     mg5amcGpu::PinnedHostBufferMatrixElements m_hstMEsC;
     std::unique_ptr<mg5amcGpu::MatrixElementKernelDevice> m_pmek;
