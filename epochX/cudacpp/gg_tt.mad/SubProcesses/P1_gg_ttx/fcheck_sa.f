@@ -55,7 +55,7 @@ C
         DO IEVT = 1, NEVT
           GS(IEVT) = 1.2177157847767195 ! fixed G for aS=0.118 (hardcoded for now in check_sa.cc, fcheck_sa.f, runTest.cc)
         END DO
-        CALL FBRIDGESEQUENCE(BRIDGE, MOMENTA, GS, MES, CHANID)
+        CALL FBRIDGESEQUENCE(BRIDGE, MOMENTA, GS, CHANID, MES)
         DO IEVT = 1, NEVT
 c         DO IEXTERNAL = 1, NEXTERNAL
 c           WRITE(6,*) 'MOMENTA', IEVT, IEXTERNAL,

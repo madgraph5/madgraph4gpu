@@ -33,12 +33,12 @@ C - MES:     the output matrix element Fortran array
 C - CHANID:  the input Feynman diagram to enhance in multi-channel mode if 1 to n (disable multi-channel if 0)
 C
       INTERFACE
-         SUBROUTINE FBRIDGESEQUENCE(PBRIDGE, MOMENTA, GS, MES, CHANID)
+         SUBROUTINE FBRIDGESEQUENCE(PBRIDGE, MOMENTA, GS, CHANID, MES)
          INTEGER*8 PBRIDGE
          DOUBLE PRECISION MOMENTA(*)
          DOUBLE PRECISION GS(*)
-         DOUBLE PRECISION MES(*)
          INTEGER*4 CHANID
+         DOUBLE PRECISION MES(*)
          END SUBROUTINE FBRIDGESEQUENCE
       END INTERFACE
 

@@ -82,8 +82,8 @@ extern "C"
   void fbridgesequence_( CppObjectInFortran** ppbridge,
                          const FORTRANFPTYPE* momenta,
                          const FORTRANFPTYPE* gs,
-                         FORTRANFPTYPE* mes,
-                         const unsigned int* pchannelId )
+                         const unsigned int* pchannelId,
+                         FORTRANFPTYPE* mes )
   {
     Bridge<FORTRANFPTYPE>* pbridge = dynamic_cast<Bridge<FORTRANFPTYPE>*>( *ppbridge );
     if( pbridge == 0 ) throw std::runtime_error( "fbridgesequence_: invalid Bridge address" );

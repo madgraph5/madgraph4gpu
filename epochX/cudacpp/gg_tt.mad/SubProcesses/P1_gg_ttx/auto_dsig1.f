@@ -519,7 +519,7 @@ C
           STOP
         ENDIF
         IF ( FIRST ) THEN ! exclude first pass (helicity filtering) from timers (#461)
-          CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE, P_MULTI, ALL_G, OUT2, 0) ! 0: multi channel disabled for helicity filtering
+          CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE, P_MULTI, ALL_G, 0, OUT2) ! 0: multi channel disabled for helicity filtering
           FIRST = .FALSE.
 c         ! This is a workaround for https://github.com/oliviermattelaer/mg5amc_test/issues/22 (see PR #486)
           IF( FBRIDGE_MODE .EQ. 1 ) THEN ! (CppOnly=1 : SMATRIX1 is not called at all)
@@ -537,14 +537,14 @@ c         ! This is a workaround for https://github.com/oliviermattelaer/mg5amc_
         call counters_smatrix1multi_start( 0, VECSIZE_USED ) ! cudacpp=0
         IF ( .NOT. MULTI_CHANNEL ) THEN
           CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE,
-     &      P_MULTI, ALL_G, OUT2, 0) ! 0: multi channel disabled
+     &      P_MULTI, ALL_G, 0, OUT2) ! 0: multi channel disabled
         ELSE
           IF( SDE_STRAT.NE.1 ) THEN
             WRITE(6,*) 'ERROR! The cudacpp bridge requires SDE=1' ! multi channel single-diagram enhancement strategy
             STOP
           ENDIF
           CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE,
-     &      P_MULTI, ALL_G, OUT2, CHANNEL) ! 1-N: multi channel enabled
+     &      P_MULTI, ALL_G, CHANNEL, OUT2) ! 1-N: multi channel enabled
         ENDIF
         call counters_smatrix1multi_stop( 0 ) ! cudacpp=0
       ENDIF
