@@ -266,6 +266,13 @@ namespace mg5amcCpu
     mgDebug( 0, __FUNCTION__ );
     using namespace Parameters_sm_dependentCouplings;
     const fptype_sv& gs_sv = G_ACCESS::kernelAccessConst( gs );
+#ifdef __CUDACC__
+    const int ievt = blockDim.x * blockIdx.x + threadIdx.x;
+    if ( ievt < 4 )
+    {
+      printf( "CUDATest: ievt=%d pgs=%p gs=%f\n", ievt, gs, gs_sv );
+    }
+#endif
     DependentCouplings_sv couplings_sv = computeDependentCouplings_fromG( gs_sv );
     fptype* GC_10s = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_GC_10 );
     fptype* GC_11s = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_GC_11 );
