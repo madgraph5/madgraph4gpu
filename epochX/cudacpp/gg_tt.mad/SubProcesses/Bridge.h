@@ -93,14 +93,14 @@ namespace mg5amcCpu
      *
      * @param momenta the pointer to the input 4-momenta
      * @param gs the pointer to the input Gs (running QCD coupling constant alphas)
-     * @param mes the pointer to the output matrix elements
      * @param channelId the Feynman diagram to enhance in multi-channel mode if 1 to n (disable multi-channel if 0)
+     * @param mes the pointer to the output matrix elements
      * @param goodHelOnly quit after computing good helicities?
      */
     void gpu_sequence( const FORTRANFPTYPE* momenta,
                        const FORTRANFPTYPE* gs,
-                       FORTRANFPTYPE* mes,
                        const unsigned int channelId,
+                       FORTRANFPTYPE* mes,
                        const bool goodHelOnly = false );
 #else
     /**
@@ -108,14 +108,14 @@ namespace mg5amcCpu
      *
      * @param momenta the pointer to the input 4-momenta
      * @param gs the pointer to the input Gs (running QCD coupling constant alphas)
-     * @param mes the pointer to the output matrix elements
      * @param channelId the Feynman diagram to enhance in multi-channel mode if 1 to n (disable multi-channel if 0)
+     * @param mes the pointer to the output matrix elements
      * @param goodHelOnly quit after computing good helicities?
      */
     void cpu_sequence( const FORTRANFPTYPE* momenta,
                        const FORTRANFPTYPE* gs,
-                       FORTRANFPTYPE* mes,
                        const unsigned int channelId,
+                       FORTRANFPTYPE* mes,
                        const bool goodHelOnly = false );
 #endif
 
@@ -234,8 +234,8 @@ namespace mg5amcCpu
   template<typename FORTRANFPTYPE>
   void Bridge<FORTRANFPTYPE>::gpu_sequence( const FORTRANFPTYPE* momenta,
                                             const FORTRANFPTYPE* gs,
-                                            FORTRANFPTYPE* mes,
                                             const unsigned int channelId,
+                                            FORTRANFPTYPE* mes,
                                             const bool goodHelOnly )
   {
     constexpr int neppM = MemoryAccessMomenta::neppM;
@@ -269,8 +269,8 @@ namespace mg5amcCpu
   template<typename FORTRANFPTYPE>
   void Bridge<FORTRANFPTYPE>::cpu_sequence( const FORTRANFPTYPE* momenta,
                                             const FORTRANFPTYPE* gs,
-                                            FORTRANFPTYPE* mes,
                                             const unsigned int channelId,
+                                            FORTRANFPTYPE* mes,
                                             const bool goodHelOnly )
   {
     hst_transposeMomentaF2C( momenta, m_hstMomentaC.data(), m_nevt );

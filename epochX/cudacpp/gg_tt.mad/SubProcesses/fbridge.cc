@@ -90,11 +90,11 @@ extern "C"
 #ifdef __CUDACC__
     // Use the device/GPU implementation in the CUDA library
     // (there is also a host implementation in this library)
-    pbridge->gpu_sequence( momenta, gs, mes, *pchannelId );
+    pbridge->gpu_sequence( momenta, gs, *pchannelId, mes );
 #else
     // Use the host/CPU implementation in the C++ library
     // (there is no device implementation in this library)
-    pbridge->cpu_sequence( momenta, gs, mes, *pchannelId );
+    pbridge->cpu_sequence( momenta, gs, *pchannelId, mes );
 #endif
   }
 
