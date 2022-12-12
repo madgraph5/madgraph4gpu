@@ -1,9 +1,9 @@
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
-index 2e6c9ff51..b0ab05b66 100644
+index 62b656862..3f5a8a015 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
-@@ -459,23 +459,121 @@ C
-       INTEGER SELECTED_COL(VECSIZE_MEMMAX)
+@@ -463,23 +463,130 @@ C
+       INTEGER VECSIZE_USED
  
        INTEGER IVEC
 -
@@ -26,6 +26,7 @@ index 2e6c9ff51..b0ab05b66 100644
 +      INCLUDE 'run.inc'
 +      DOUBLE PRECISION OUT2(VECSIZE_MEMMAX)
 +      DOUBLE PRECISION CBYF1
++      INTEGER*4 NGOODHEL, NTOTHEL
 +
 +      INTEGER*4 NWARNINGS
 +      SAVE NWARNINGS
@@ -34,7 +35,7 @@ index 2e6c9ff51..b0ab05b66 100644
 +      LOGICAL FIRST
 +      SAVE FIRST
 +      DATA FIRST/.TRUE./
-+
++      
 +      IF( FBRIDGE_MODE .LE. 0 ) THEN ! (FortranOnly=0 or BothQuiet=-1 or BothDebug=-2)
 +#endif
 +        call counters_smatrix1multi_start( -1, VECSIZE_USED ) ! fortran=-1
@@ -80,6 +81,14 @@ index 2e6c9ff51..b0ab05b66 100644
 +          IF( FBRIDGE_MODE .EQ. 1 ) THEN ! (CppOnly=1 : SMATRIX1 is not called at all)
 +            CALL RESET_CUMULATIVE_VARIABLE() ! mimic 'avoid bias of the initialization' within SMATRIX1
 +          ENDIF
++          CALL FBRIDGEGETNGOODHEL(FBRIDGE_PBRIDGE,NGOODHEL,NTOTHEL)
++          IF( NTOTHEL .NE. NCOMB ) THEN
++            WRITE(6,*) 'ERROR! Cudacpp/Fortran mismatch',
++     &        ' in total number of helicities', NTOTHEL, NCOMB
++            STOP
++          ENDIF
++          WRITE (6,*) 'NGOODHEL =', NGOODHEL
++          WRITE (6,*) 'NCOMB =', NCOMB
 +        ENDIF
 +        call counters_smatrix1multi_start( 0, VECSIZE_USED ) ! cudacpp=0
 +        IF ( .NOT. MULTI_CHANNEL ) THEN
@@ -138,25 +147,29 @@ index 2e6c9ff51..b0ab05b66 100644
        END
  
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
-index 911915f19..4b792a4e3 100644
+index 295e7de8d..19aa50965 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
-@@ -74,11 +74,49 @@ c      common/to_colstats/ncols,ncolflow,ncolalt,ic
+@@ -74,13 +74,52 @@ c      common/to_colstats/ncols,ncolflow,ncolalt,ic
        include 'vector.inc'
        include 'coupl.inc'
- 
+       INTEGER VECSIZE_USED
+-      DATA VECSIZE_USED/VECSIZE_MEMMAX/ ! can be changed at runtime
++      DATA VECSIZE_USED/VECSIZE_MEMMAX/ ! initial value
++
 +#ifdef MG5AMC_MEEXPORTER_CUDACPP
 +      INCLUDE 'fbridge.inc'
 +c     INCLUDE 'fbridge_common.inc'
 +#endif
 +      INCLUDE 'fbridge_common.inc'
-+
+ 
  C-----
  C  BEGIN CODE
  C----- 
        call cpu_time(t_before)
        CUMULATED_TIMING = t_before
 +
++      CALL OMPNUMTHREADS_NOT_SET_MEANS_ONE_THREAD()
 +      CALL COUNTERS_INITIALISE()
 +
 +c#ifdef MG5AMC_MEEXPORTER_CUDACPP
@@ -191,7 +204,7 @@ index 911915f19..4b792a4e3 100644
  c
  c     Read process number
  c
-@@ -133,7 +171,8 @@ c   If CKKW-type matching, read IS Sudakov grid
+@@ -135,7 +174,8 @@ c   If CKKW-type matching, read IS Sudakov grid
            exit
   30       issgridfile='../'//issgridfile
            if(i.eq.5)then
@@ -201,7 +214,7 @@ index 911915f19..4b792a4e3 100644
              stop
            endif
          enddo
-@@ -200,8 +239,33 @@ c      call sample_result(xsec,xerr)
+@@ -202,8 +242,33 @@ c      call sample_result(xsec,xerr)
  c      write(*,*) 'Final xsec: ',xsec
  
        rewind(lun)
@@ -236,7 +249,7 @@ index 911915f19..4b792a4e3 100644
        end
  
  c     $B$ get_user_params $B$ ! tag for MadWeight
-@@ -379,7 +443,7 @@ c
+@@ -381,7 +446,7 @@ c
        fopened=.false.
        tempname=filename 	 
        fine=index(tempname,' ') 	 
@@ -246,10 +259,22 @@ index 911915f19..4b792a4e3 100644
        open(unit=lun,file=tempname,status='old',ERR=20)
        fopened=.true.
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
-index e34ec77a9..da4da7e93 100644
+index e34ec77a9..2191e8828 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
-@@ -140,6 +140,7 @@ C     ----------
+@@ -72,7 +72,10 @@ C
+       DATA NB_FAIL /0/
+       DOUBLE PRECISION GET_CHANNEL_CUT
+       EXTERNAL GET_CHANNEL_CUT
+-
++C
++      INTEGER NGOODHEL(2) ! -1 if not yet retrieved and printed
++      SAVE NGOODHEL
++      DATA NGOODHEL/-1,-1/
+ C     
+ C     This is just to temporarily store the reference grid for
+ C      helicity of the DiscreteSampler so as to obtain its number of
+@@ -140,6 +143,7 @@ C     ----------
  C     BEGIN CODE
  C     ----------
  
@@ -257,7 +282,25 @@ index e34ec77a9..da4da7e93 100644
        NTRY(IMIRROR)=NTRY(IMIRROR)+1
        THIS_NTRY(IMIRROR) = THIS_NTRY(IMIRROR)+1
        DO I=1,NEXTERNAL
-@@ -234,6 +235,7 @@ C       Include the Jacobian from helicity sampling
+@@ -217,6 +221,17 @@ C     ----------
+           ENDIF
+           IF(NTRY(IMIRROR).EQ.MAXTRIES)THEN
+             ISHEL(IMIRROR)=MIN(ISUM_HEL,NGOOD(IMIRROR))
++C           Print the number of good helicities
++            IF (NGOODHEL(IMIRROR).EQ.-1) THEN
++              NGOODHEL(IMIRROR)=0
++              DO I=1,NCOMB
++                IF (GOODHEL(I,IMIRROR)) THEN
++                  NGOODHEL(IMIRROR)=NGOODHEL(IMIRROR)+1
++                ENDIF
++              END DO
++              WRITE (6,*) 'NGOODHEL =', NGOODHEL(IMIRROR) ! no need to print imirror?
++              WRITE (6,*) 'NCOMB =', NCOMB
++            ENDIF
+           ENDIF
+         ENDIF
+       ELSE IF (.NOT.INIT_MODE) THEN  ! random helicity 
+@@ -234,6 +249,7 @@ C       Include the Jacobian from helicity sampling
          IHEL = HEL_PICKED
        ELSE
          ANS = 1D0
@@ -265,7 +308,7 @@ index e34ec77a9..da4da7e93 100644
          RETURN
        ENDIF
        IF (ANS.NE.0D0.AND.(ISUM_HEL .NE. 1.OR.HEL_PICKED.EQ.-1)) THEN
-@@ -278,9 +280,8 @@ C           Set right sign for ANS, based on sign of chosen helicity
+@@ -278,9 +294,8 @@ C           Set right sign for ANS, based on sign of chosen helicity
          ENDIF
        ENDIF
        ANS=ANS/DBLE(IDEN)
@@ -276,7 +319,7 @@ index e34ec77a9..da4da7e93 100644
        END
  
  
-@@ -381,6 +382,7 @@ C     1 T(2,1,3,4)
+@@ -381,6 +396,7 @@ C     1 T(2,1,3,4)
  C     ----------
  C     BEGIN CODE
  C     ----------
@@ -284,7 +327,7 @@ index e34ec77a9..da4da7e93 100644
        IF (FIRST) THEN
          FIRST=.FALSE.
          IF(ZERO.NE.0D0) FK_ZERO = SIGN(MAX(ABS(ZERO), ABS(ZERO
-@@ -454,6 +456,7 @@ C     JAMPs contributing to orders ALL_ORDERS=1
+@@ -454,6 +470,7 @@ C     JAMPs contributing to orders ALL_ORDERS=1
          ENDDO
        ENDDO
  

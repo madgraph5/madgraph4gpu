@@ -122,6 +122,9 @@ namespace mg5amcCpu
     // Return the number of good helicities (-1 initially when they have not yet been calculated)
     int nGoodHel() const { return m_nGoodHel; }
 
+    // Return the total number of helicities (expose cudacpp ncomb in the Bridge interface to Fortran)
+    constexpr int nTotHel() const { return mgOnGpu::ncomb; }
+
   private:
     unsigned int m_nevt; // number of events
     int m_nGoodHel;      // the number of good helicities (-1 initially when they have not yet been calculated)

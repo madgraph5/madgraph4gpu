@@ -61,7 +61,6 @@ cat ${dir}/Source/make_opts >> ${dir}/Source/make_opts.new
 echo -e "index.html\n.libs\n.cudacpplibs" > ${dir}/.gitignore
 touch ${dir}/Events/.keepme
 \cp -dpr ${scrdir}/PLUGIN/CUDACPP_SA_OUTPUT/madgraph/iolibs/template_files/.clang-format ${dir} # new file
-\cp -dpr ${scrdir}/MG5aMC_patches/${dir_patches}/vector.inc ${dir}/Source # replace default
 \cp -dpr ${scrdir}/MG5aMC_patches/${dir_patches}/fbridge_common.inc ${dir}/SubProcesses # new file
 cd ${dir}/SubProcesses
 cd - > /dev/null
@@ -75,7 +74,8 @@ for p1dir in ${dir}/SubProcesses/P1_*; do
   cd $p1dir
   echo -e "madevent\n*madevent_cudacpp" > .gitignore # new file
   ln -sf ../fbridge_common.inc . # new file
-  \cp -dpr ${scrdir}/MG5aMC_patches/${dir_patches}/counters.cpp . # new file
+  \cp -dpr ${scrdir}/MG5aMC_patches/${dir_patches}/counters.cc . # new file
+  \cp -dpr ${scrdir}/MG5aMC_patches/${dir_patches}/ompnumthreads.cc . # new file
   if [ "${dir%.mad}" == "$1" ]; then
     \cp -dpr ${scrdir}/PLUGIN/CUDACPP_SA_OUTPUT/madgraph/iolibs/template_files/gpu/timer.h . # new file, already present via cudacpp in *.mad
   fi
