@@ -125,6 +125,7 @@ struct CUDATest : public CUDA_CPU_TestBase
   PinnedHostBufferHelicityMask hstIsGoodHel;
   DeviceBufferRandomNumbers devRnarray;
   DeviceBufferMomenta devMomenta;
+  DeviceBufferGs devGs;
   DeviceBufferWeights devWeights;
   DeviceBufferMatrixElements devMatrixElements;
   DeviceBufferHelicityMask devIsGoodHel;
@@ -145,6 +146,7 @@ struct CUDATest : public CUDA_CPU_TestBase
     , hstIsGoodHel( mgOnGpu::ncomb )
     , devRnarray( nevt )
     , devMomenta( nevt )
+    , devGs( nevt )
     , devWeights( nevt )
     , devMatrixElements( nevt )
     , devIsGoodHel( mgOnGpu::ncomb )
@@ -180,7 +182,8 @@ struct CUDATest : public CUDA_CPU_TestBase
   {
     constexpr fptype fixedG = 1.2177157847767195; // fixed G for aS=0.118 (hardcoded for now in check_sa.cc, fcheck_sa.f, runTest.cc)
     for( unsigned int i = 0; i < nevt; ++i ) hstGs[i] = fixedG;
-    MatrixElementKernelDevice mek( devMomenta, hstGs, devMatrixElements, gpublocks, gputhreads );
+    copyDeviceFromHost( devGs, hstGs ); // BUG FIX #566
+    MatrixElementKernelDevice mek( devMomenta, devGs, devMatrixElements, gpublocks, gputhreads );
     if( iiter == 0 ) mek.computeGoodHelicities();
     constexpr unsigned int channelId = 0; // TEMPORARY? disable multi-channel in runTest.exe #466
     mek.computeMatrixElements( channelId );
