@@ -152,8 +152,6 @@ struct CUDATest : public CUDA_CPU_TestBase
     , devIsGoodHel( mgOnGpu::ncomb )
   {
     process.initProc( "../../Cards/param_card.dat" );
-    std::cout << "CUDATest: hstGs=" << hstGs.data() << " onDevice=" << ( hstGs.isOnDevice() ? "T" : "F" ) << std::endl;
-    std::cout << "CUDATest: devGs=" << devGs.data() << " onDevice=" << ( devGs.isOnDevice() ? "T" : "F" ) << std::endl;
   }
 
   virtual ~CUDATest() {}
