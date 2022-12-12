@@ -218,6 +218,32 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
+  /*
+  // A base class encapsulating a memory buffer with ONE fptype per event
+  typedef BufferBase<fptype> BufferOneFp;
+
+  // The size (number of elements) per event in a memory buffer with ONE fptype per event
+  constexpr size_t sizePerEventOneFp = 1;
+
+#ifndef __CUDACC__
+  // A class encapsulating a C++ host buffer with ONE fptype per event
+  typedef HostBuffer<fptype, sizePerEventOneFp, HostBufferALIGNED> HostBufferOneFp;
+#else
+  // A class encapsulating a CUDA pinned host buffer for gs
+  typedef PinnedHostBuffer<fptype, sizePerEventOneFp> PinnedHostBufferOneFp;
+  // A class encapsulating a CUDA device buffer for gs
+  typedef DeviceBuffer<fptype, sizePerEventOneFp> DeviceBufferOneFp;
+#endif
+
+  // Memory buffers for Gs (related to the event-by-event strength of running coupling constant alphas QCD)
+  typedef BufferOneFp BufferGs;
+  typedef HostBufferOneFp HostBufferGs;
+  typedef PinnedHostBufferOneFp PinnedHostBufferGs;
+  typedef DeviceBufferOneFp DeviceBufferGs;
+  */
+  
+  //--------------------------------------------------------------------------
+
   // A base class encapsulating a memory buffer for Gs (related to the event-by-event strength of running coupling constant alphas QCD)
   typedef BufferBase<fptype> BufferGs;
 
