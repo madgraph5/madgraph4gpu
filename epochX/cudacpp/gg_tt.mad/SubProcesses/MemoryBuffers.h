@@ -382,6 +382,42 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
+  // A base class encapsulating a memory buffer for helicity random numbers
+  typedef BufferBase<fptype> BufferRndNumHelicity;
+
+  // The size (number of elements) per event in a memory buffer for helicity random numbers
+  constexpr size_t sizePerEventRndNumHelicity = 1;
+
+#ifndef __CUDACC__
+  // A class encapsulating a C++ host buffer for helicity random numbers
+  typedef HostBuffer<fptype, sizePerEventRndNumHelicity, HostBufferALIGNED> HostBufferRndNumHelicity;
+#else
+  // A class encapsulating a CUDA pinned host buffer for helicity random numbers
+  typedef PinnedHostBuffer<fptype, sizePerEventRndNumHelicity> PinnedHostBufferRndNumHelicity;
+  // A class encapsulating a CUDA device buffer for helicity random numbers
+  typedef DeviceBuffer<fptype, sizePerEventRndNumHelicity> DeviceBufferRndNumHelicity;
+#endif
+
+  //--------------------------------------------------------------------------
+
+  // A base class encapsulating a memory buffer for color random numbers
+  typedef BufferBase<fptype> BufferRndNumColor;
+
+  // The size (number of elements) per event in a memory buffer for color random numbers
+  constexpr size_t sizePerEventRndNumColor = 1;
+
+#ifndef __CUDACC__
+  // A class encapsulating a C++ host buffer for color random numbers
+  typedef HostBuffer<fptype, sizePerEventRndNumColor, HostBufferALIGNED> HostBufferRndNumColor;
+#else
+  // A class encapsulating a CUDA pinned host buffer for color random numbers
+  typedef PinnedHostBuffer<fptype, sizePerEventRndNumColor> PinnedHostBufferRndNumColor;
+  // A class encapsulating a CUDA device buffer for color random numbers
+  typedef DeviceBuffer<fptype, sizePerEventRndNumColor> DeviceBufferRndNumColor;
+#endif
+
+  //--------------------------------------------------------------------------
+
 #ifdef __CUDACC__
   template<class Tdst, class Tsrc>
   void copyDeviceFromHost( Tdst& dst, const Tsrc& src ) // keep the same order of arguments as in memcpy
