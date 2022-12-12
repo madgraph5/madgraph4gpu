@@ -200,20 +200,20 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  // A base class encapsulating a memory buffer for random numbers
+  // A base class encapsulating a memory buffer for momenta random numbers
   typedef BufferBase<fptype> BufferRndNumMomenta;
 
-  // The size (number of elements) per event in a memory buffer for random numbers
-  constexpr size_t sizePerEventRandomNumbers = MemoryBuffers::np4 * MemoryBuffers::nparf;
+  // The size (number of elements) per event in a memory buffer for momenta random numbers
+  constexpr size_t sizePerEventRndNumMomenta = MemoryBuffers::np4 * MemoryBuffers::nparf;
 
 #ifndef __CUDACC__
-  // A class encapsulating a C++ host buffer for random numbers
-  typedef HostBuffer<fptype, sizePerEventRandomNumbers, HostBufferALIGNED> HostBufferRndNumMomenta;
+  // A class encapsulating a C++ host buffer for momenta random numbers
+  typedef HostBuffer<fptype, sizePerEventRndNumMomenta, HostBufferALIGNED> HostBufferRndNumMomenta;
 #else
-  // A class encapsulating a CUDA pinned host buffer for random numbers
-  typedef PinnedHostBuffer<fptype, sizePerEventRandomNumbers> PinnedHostBufferRndNumMomenta;
-  // A class encapsulating a CUDA device buffer for random numbers
-  typedef DeviceBuffer<fptype, sizePerEventRandomNumbers> DeviceBufferRndNumMomenta;
+  // A class encapsulating a CUDA pinned host buffer for momenta random numbers
+  typedef PinnedHostBuffer<fptype, sizePerEventRndNumMomenta> PinnedHostBufferRndNumMomenta;
+  // A class encapsulating a CUDA device buffer for momenta random numbers
+  typedef DeviceBuffer<fptype, sizePerEventRndNumMomenta> DeviceBufferRndNumMomenta;
 #endif
 
   //--------------------------------------------------------------------------
