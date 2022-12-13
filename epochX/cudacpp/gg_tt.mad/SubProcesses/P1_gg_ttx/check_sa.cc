@@ -429,7 +429,7 @@ main( int argc, char** argv )
   else
   {
 #ifdef __CUDACC__
-    pmek.reset( new BridgeKernelDevice( hstMomenta, hstGs, hstRndHel, hstRndCol, hstMatrixElements, devSelHel, devSelCol, gpublocks, gputhreads ) );
+    pmek.reset( new BridgeKernelDevice( hstMomenta, hstGs, hstRndHel, hstRndCol, hstMatrixElements, hstSelHel, hstSelCol, gpublocks, gputhreads ) );
 #else
     pmek.reset( new BridgeKernelHost( hstMomenta, hstGs, hstRndHel, hstRndCol, hstMatrixElements, hstSelHel, hstSelCol, nevt ) );
 #endif
