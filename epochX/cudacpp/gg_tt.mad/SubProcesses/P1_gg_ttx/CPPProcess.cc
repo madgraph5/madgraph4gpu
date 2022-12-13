@@ -793,24 +793,30 @@ namespace mg5amcCpu
     // PART 1 - HELICITY LOOP: CALCULATE WAVEFUNCTIONS
     // (in both CUDA and C++, using precomputed good helicities)
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
+#ifdef __CUDACC__
+    // PART 1a - CUDA
     for( int ighel = 0; ighel < cNGoodHel; ighel++ )
     {
       const int ihel = cGoodHel[ighel];
-#ifdef __CUDACC__
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators );
 #else
       calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs );
 #endif
+      //if ( ighel == 0 ) break; // TEST sectors/requests (issue #16)
+    }
 #else
+    // PART 1b - C++
+    for( int ighel = 0; ighel < cNGoodHel; ighel++ )
+    {
+      const int ihel = cGoodHel[ighel];
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators, nevt );
 #else
       calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, nevt );
 #endif
-#endif
-      //if ( ighel == 0 ) break; // TEST sectors/requests (issue #16)
     }
+#endif
 
     // PART 2 - FINALISATION (after calculate_wavefunctions)
     // Get the final |M|^2 as an average over helicities/colors of the running sum of |M|^2 over helicities for the given event
