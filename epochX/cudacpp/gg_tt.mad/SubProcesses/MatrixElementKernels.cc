@@ -216,17 +216,14 @@ namespace mg5amcGpu
   {
     computeDependentCouplings<<<m_gpublocks, m_gputhreads>>>( m_gs.data(), m_couplings.data() );
 #ifndef MGONGPU_NSIGHT_DEBUG
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    sigmaKin<<<m_gpublocks, m_gputhreads>>>( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), channelId, m_numerators.data(), m_denominators.data(), m_selhel.data(), m_selcol.data() );
+    constexpr unsigned int sharedMemSize = 0;
 #else
-    sigmaKin<<<m_gpublocks, m_gputhreads>>>( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), m_selhel.data(), m_selcol.data() );
+    constexpr unsigned int sharedMemSize = ntpbMAX * sizeof( float );
 #endif
-#else
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    sigmaKin<<<m_gpublocks, m_gputhreads, ntpbMAX * sizeof( float )>>>( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), channelId, m_numerators.data(), m_denominators.data(), m_selhel.data(), m_selcol.data() );
+    sigmaKin<<<m_gpublocks, m_gputhreads, sharedMemSize>>>( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), channelId, m_numerators.data(), m_denominators.data(), m_selhel.data(), m_selcol.data() );
 #else
-    sigmaKin<<<m_gpublocks, m_gputhreads, ntpbMAX * sizeof( float )>>>( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), m_selhel.data(), m_selcol.data() );
-#endif
+    sigmaKin<<<m_gpublocks, m_gputhreads, sharedMemSize>>>( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), m_selhel.data(), m_selcol.data() );
 #endif
     checkCuda( cudaPeekAtLastError() );
     checkCuda( cudaDeviceSynchronize() );
