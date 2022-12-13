@@ -75,9 +75,9 @@ namespace mg5amcCpu
   {
     computeDependentCouplings( m_gs.data(), m_couplings.data(), m_gs.size() );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    sigmaKin( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), m_numerators.data(), m_denominators.data(), channelId, nevt() );
+    sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), channelId, m_numerators.data(), m_denominators.data(), m_selhel.data(), m_selcol.data(), nevt() );
 #else
-    sigmaKin( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), nevt() );
+    sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), m_selhel.data(), m_selcol.data(), nevt() );
 #endif
   }
 
@@ -217,15 +217,15 @@ namespace mg5amcGpu
     computeDependentCouplings<<<m_gpublocks, m_gputhreads>>>( m_gs.data(), m_couplings.data() );
 #ifndef MGONGPU_NSIGHT_DEBUG
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    sigmaKin<<<m_gpublocks, m_gputhreads>>>( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), m_numerators.data(), m_denominators.data(), channelId );
+    sigmaKin<<<m_gpublocks, m_gputhreads>>>( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), channelId, m_numerators.data(), m_denominators.data(), m_selhel.data(), m_selcol.data() );
 #else
-    sigmaKin<<<m_gpublocks, m_gputhreads>>>( m_momenta.data(), m_couplings.data(), m_matrixElements.data() );
+    sigmaKin<<<m_gpublocks, m_gputhreads>>>( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), m_selhel.data(), m_selcol.data() );
 #endif
 #else
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    sigmaKin<<<m_gpublocks, m_gputhreads, ntpbMAX * sizeof( float )>>>( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), m_numerators.data(), m_denominators.data(), channelId );
+    sigmaKin<<<m_gpublocks, m_gputhreads, ntpbMAX * sizeof( float )>>>( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), channelId, m_numerators.data(), m_denominators.data(), m_selhel.data(), m_selcol.data() );
 #else
-    sigmaKin<<<m_gpublocks, m_gputhreads, ntpbMAX * sizeof( float )>>>( m_momenta.data(), m_couplings.data(), m_matrixElements.data() );
+    sigmaKin<<<m_gpublocks, m_gputhreads, ntpbMAX * sizeof( float )>>>( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), m_selhel.data(), m_selcol.data() );
 #endif
 #endif
     checkCuda( cudaPeekAtLastError() );
