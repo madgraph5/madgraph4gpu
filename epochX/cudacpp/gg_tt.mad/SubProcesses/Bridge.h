@@ -268,12 +268,12 @@ namespace mg5amcCpu
   template<typename FORTRANFPTYPE>
   void Bridge<FORTRANFPTYPE>::gpu_sequence( const FORTRANFPTYPE* momenta,
                                             const FORTRANFPTYPE* gs,
-                                            const FORTRANFPTYPE* /*rndhel*/,
-                                            const FORTRANFPTYPE* /*rndcol*/,
+                                            const FORTRANFPTYPE* rndhel,
+                                            const FORTRANFPTYPE* rndcol,
                                             const unsigned int channelId,
                                             FORTRANFPTYPE* mes,
-                                            int* /*selhel*/,
-                                            int* /*selcol*/,
+                                            int* selhel,
+                                            int* selcol,
                                             const bool goodHelOnly )
   {
     constexpr int neppM = MemoryAccessMomenta::neppM;
@@ -288,8 +288,21 @@ namespace mg5amcCpu
       //const int thrPerEvt = 1; // AV: try new alg with 1 event per thread... this seems slower
       dev_transposeMomentaF2C<<<m_gpublocks * thrPerEvt, m_gputhreads>>>( m_devMomentaF.data(), m_devMomentaC.data(), m_nevt );
     }
-    std::copy( gs, gs + m_nevt, m_hstGsC.data() );
-    checkCuda( cudaMemcpy( m_devGsC.data(), m_hstGsC.data(), m_devGsC.bytes(), cudaMemcpyHostToDevice ) );
+    if constexpr( std::is_same_v<FORTRANFPTYPE, fptype> )
+    {
+      memcpy( m_hstGsC.data(), gs, m_nevt * sizeof( FORTRANFPTYPE ) );
+      memcpy( m_hstRndHel.data(), rndhel, m_nevt * sizeof( FORTRANFPTYPE ) );
+      memcpy( m_hstRndCol.data(), rndcol, m_nevt * sizeof( FORTRANFPTYPE ) );
+    }
+    else
+    {
+      std::copy( gs, gs + m_nevt, m_hstGsC.data() );
+      std::copy( rndhel, rndhel + m_nevt, m_hstRndHel.data() );
+      std::copy( rndcol, rndcol + m_nevt, m_hstRndCol.data() );
+    }
+    copyDeviceFromHost( m_devGsC, m_hstGsC );
+    copyDeviceFromHost( m_devRndHel, m_hstRndHel );
+    copyDeviceFromHost( m_devRndCol, m_hstRndCol );
     if( m_nGoodHel < 0 )
     {
       m_nGoodHel = m_pmek->computeGoodHelicities();
@@ -297,9 +310,22 @@ namespace mg5amcCpu
     }
     if( goodHelOnly ) return;
     m_pmek->computeMatrixElements( channelId );
-    checkCuda( cudaMemcpy( m_hstMEsC.data(), m_devMEsC.data(), m_devMEsC.bytes(), cudaMemcpyDeviceToHost ) );
+    copyHostFromDevice( m_hstMEsC, m_devMEsC );
     flagAbnormalMEs( m_hstMEsC.data(), m_nevt );
-    std::copy( m_hstMEsC.data(), m_hstMEsC.data() + m_nevt, mes );
+    copyHostFromDevice( m_hstSelHel, m_devSelHel );
+    copyHostFromDevice( m_hstSelCol, m_devSelCol );
+    if constexpr( std::is_same_v<FORTRANFPTYPE, fptype> )
+    {
+      memcpy( mes, m_hstMEsC.data(), m_hstMEsC.bytes() );
+      memcpy( selhel, m_hstSelHel.data(), m_hstSelHel.bytes() );
+      memcpy( selcol, m_hstSelCol.data(), m_hstSelCol.bytes() );
+    }
+    else
+    {
+      std::copy( m_hstMEsC.data(), m_hstMEsC.data() + m_nevt, mes );
+      std::copy( m_hstSelHel.data(), m_hstSelHel.data() + m_nevt, selhel );
+      std::copy( m_hstSelCol.data(), m_hstSelCol.data() + m_nevt, selcol );
+    }
   }
 #endif
 
@@ -307,22 +333,26 @@ namespace mg5amcCpu
   template<typename FORTRANFPTYPE>
   void Bridge<FORTRANFPTYPE>::cpu_sequence( const FORTRANFPTYPE* momenta,
                                             const FORTRANFPTYPE* gs,
-                                            const FORTRANFPTYPE* /*rndhel*/,
-                                            const FORTRANFPTYPE* /*rndcol*/,
+                                            const FORTRANFPTYPE* rndhel,
+                                            const FORTRANFPTYPE* rndcol,
                                             const unsigned int channelId,
                                             FORTRANFPTYPE* mes,
-                                            int* /*selhel*/,
-                                            int* /*selcol*/,
+                                            int* selhel,
+                                            int* selcol,
                                             const bool goodHelOnly )
   {
     hst_transposeMomentaF2C( momenta, m_hstMomentaC.data(), m_nevt );
     if constexpr( std::is_same_v<FORTRANFPTYPE, fptype> )
     {
       memcpy( m_hstGsC.data(), gs, m_nevt * sizeof( FORTRANFPTYPE ) );
+      memcpy( m_hstRndHel.data(), rndhel, m_nevt * sizeof( FORTRANFPTYPE ) );
+      memcpy( m_hstRndCol.data(), rndcol, m_nevt * sizeof( FORTRANFPTYPE ) );
     }
     else
     {
       std::copy( gs, gs + m_nevt, m_hstGsC.data() );
+      std::copy( rndhel, rndhel + m_nevt, m_hstRndHel.data() );
+      std::copy( rndcol, rndcol + m_nevt, m_hstRndCol.data() );
     }
     if( m_nGoodHel < 0 )
     {
@@ -335,10 +365,14 @@ namespace mg5amcCpu
     if constexpr( std::is_same_v<FORTRANFPTYPE, fptype> )
     {
       memcpy( mes, m_hstMEsC.data(), m_hstMEsC.bytes() );
+      memcpy( selhel, m_hstSelHel.data(), m_hstSelHel.bytes() );
+      memcpy( selcol, m_hstSelCol.data(), m_hstSelCol.bytes() );
     }
     else
     {
       std::copy( m_hstMEsC.data(), m_hstMEsC.data() + m_nevt, mes );
+      std::copy( m_hstSelHel.data(), m_hstSelHel.data() + m_nevt, selhel );
+      std::copy( m_hstSelCol.data(), m_hstSelCol.data() + m_nevt, selcol );
     }
   }
 #endif
