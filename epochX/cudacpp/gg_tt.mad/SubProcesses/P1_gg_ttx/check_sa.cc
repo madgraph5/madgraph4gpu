@@ -289,12 +289,45 @@ main( int argc, char** argv )
   DeviceBufferRndNumMomenta devRndmom( nevt );
 #endif
 
+  // Memory buffers for sampling weights
+#ifndef __CUDACC__
+  HostBufferWeights hstWeights( nevt );
+#else
+  PinnedHostBufferWeights hstWeights( nevt );
+  DeviceBufferWeights devWeights( nevt );
+#endif
+
+  // Memory buffers for momenta
+#ifndef __CUDACC__
+  HostBufferMomenta hstMomenta( nevt );
+#else
+  PinnedHostBufferMomenta hstMomenta( nevt );
+  DeviceBufferMomenta devMomenta( nevt );
+#endif
+
   // Memory buffers for Gs
 #ifndef __CUDACC__
   HostBufferGs hstGs( nevt );
 #else
   PinnedHostBufferGs hstGs( nevt );
   DeviceBufferGs devGs( nevt );
+#endif
+
+  // Hardcode Gs for now (eventually they should come from Fortran MadEvent)
+  for( unsigned int i = 0; i < nevt; ++i )
+  {
+    constexpr fptype fixedG = 1.2177157847767195; // fixed G for aS=0.118 (hardcoded for now in check_sa.cc, fcheck_sa.f, runTest.cc)
+    hstGs[i] = fixedG;
+    //if ( i > 0 ) hstGs[i] = 0; // try hardcoding G only for event 0
+    //hstGs[i] = i;
+  }
+
+  // Memory buffers for matrix elements
+#ifndef __CUDACC__
+  HostBufferMatrixElements hstMatrixElements( nevt );
+#else
+  PinnedHostBufferMatrixElements hstMatrixElements( nevt );
+  DeviceBufferMatrixElements devMatrixElements( nevt );
 #endif
 
   // Memory buffers for random numbers for helicity selection
@@ -313,37 +346,20 @@ main( int argc, char** argv )
   DeviceBufferRndNumColor devRndCol( nevt );
 #endif
 
-  // Hardcode Gs for now (eventually they should come from Fortran MadEvent)
-  for( unsigned int i = 0; i < nevt; ++i )
-  {
-    constexpr fptype fixedG = 1.2177157847767195; // fixed G for aS=0.118 (hardcoded for now in check_sa.cc, fcheck_sa.f, runTest.cc)
-    hstGs[i] = fixedG;
-    //if ( i > 0 ) hstGs[i] = 0; // try hardcoding G only for event 0
-    //hstGs[i] = i;
-  }
-
-  // Memory buffers for momenta
+  // Memory buffers for helicity selection
 #ifndef __CUDACC__
-  HostBufferMomenta hstMomenta( nevt );
+  HostBufferSelectedHelicity hstSelHel( nevt );
 #else
-  PinnedHostBufferMomenta hstMomenta( nevt );
-  DeviceBufferMomenta devMomenta( nevt );
+  PinnedHostBufferSelectedHelicity hstSelHel( nevt );
+  DeviceBufferSelectedHelicity devSelHel( nevt );
 #endif
 
-  // Memory buffers for sampling weights
+  // Memory buffers for color selection
 #ifndef __CUDACC__
-  HostBufferWeights hstWeights( nevt );
+  HostBufferSelectedColor hstSelCol( nevt );
 #else
-  PinnedHostBufferWeights hstWeights( nevt );
-  DeviceBufferWeights devWeights( nevt );
-#endif
-
-  // Memory buffers for matrix elements
-#ifndef __CUDACC__
-  HostBufferMatrixElements hstMatrixElements( nevt );
-#else
-  PinnedHostBufferMatrixElements hstMatrixElements( nevt );
-  DeviceBufferMatrixElements devMatrixElements( nevt );
+  PinnedHostBufferSelectedColor hstSelCol( nevt );
+  DeviceBufferSelectedColor devSelCol( nevt );
 #endif
 
   std::unique_ptr<double[]> genrtimes( new double[niter] );
@@ -405,17 +421,17 @@ main( int argc, char** argv )
   if( !bridge )
   {
 #ifdef __CUDACC__
-    pmek.reset( new MatrixElementKernelDevice( devMomenta, devGs, devRndHel, devRndCol, devMatrixElements, gpublocks, gputhreads ) );
+    pmek.reset( new MatrixElementKernelDevice( devMomenta, devGs, devRndHel, devRndCol, devMatrixElements, devSelHel, devSelCol, gpublocks, gputhreads ) );
 #else
-    pmek.reset( new MatrixElementKernelHost( hstMomenta, hstGs, hstRndHel, hstRndCol, hstMatrixElements, nevt ) );
+    pmek.reset( new MatrixElementKernelHost( hstMomenta, hstGs, hstRndHel, hstRndCol, hstMatrixElements, hstSelHel, hstSelCol, nevt ) );
 #endif
   }
   else
   {
 #ifdef __CUDACC__
-    pmek.reset( new BridgeKernelDevice( hstMomenta, hstGs, hstRndHel, hstRndCol, hstMatrixElements, gpublocks, gputhreads ) );
+    pmek.reset( new BridgeKernelDevice( hstMomenta, hstGs, hstRndHel, hstRndCol, hstMatrixElements, devSelHel, devSelCol, gpublocks, gputhreads ) );
 #else
-    pmek.reset( new BridgeKernelHost( hstMomenta, hstGs, hstRndHel, hstRndCol, hstMatrixElements, nevt ) );
+    pmek.reset( new BridgeKernelHost( hstMomenta, hstGs, hstRndHel, hstRndCol, hstMatrixElements, hstSelHel, hstSelCol, nevt ) );
 #endif
   }
   int nGoodHel = 0; // the number of good helicities (out of ncomb)

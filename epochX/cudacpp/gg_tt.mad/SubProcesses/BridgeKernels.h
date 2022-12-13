@@ -26,6 +26,8 @@ namespace mg5amcCpu
                       const BufferRndNumHelicity& rndhel,   // input: random numbers for helicity selection
                       const BufferRndNumColor& rndcol,      // input: random numbers for color selection
                       BufferMatrixElements& matrixElements, // output: matrix elements
+                      BufferSelectedHelicity& selhel,       // output: helicity selection
+                      BufferSelectedColor& selcol,          // output: color selection
                       const size_t nevt );
 
     // Destructor
@@ -54,6 +56,8 @@ namespace mg5amcCpu
                       const BufferRndNumHelicity& rndhel,   // input: random numbers for helicity selection
                       const BufferRndNumColor& rndcol,      // input: random numbers for color selection
                       BufferMatrixElements& matrixElements, // output: matrix elements
+                      BufferSelectedHelicity& selhel,       // output: helicity selection
+                      BufferSelectedColor& selcol,          // output: color selection
                       const size_t nevt );
 
     // Destructor
@@ -92,6 +96,8 @@ namespace mg5amcCpu
                         const BufferRndNumHelicity& rndhel,   // input: random numbers for helicity selection
                         const BufferRndNumColor& rndcol,      // input: random numbers for color selection
                         BufferMatrixElements& matrixElements, // output: matrix elements
+                        BufferSelectedHelicity& selhel,       // output: helicity selection
+                        BufferSelectedColor& selcol,          // output: color selection
                         const size_t gpublocks,
                         const size_t gputhreads );
 

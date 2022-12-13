@@ -40,6 +40,8 @@ struct CPUTest : public CUDA_CPU_TestBase
   HostBufferRndNumColor hstRndCol;
   HostBufferWeights hstWeights;
   HostBufferMatrixElements hstMatrixElements;
+  HostBufferSelectedHelicity hstSelHel;
+  HostBufferSelectedColor hstSelCol;
   HostBufferHelicityMask hstIsGoodHel;
 
   // Create a process object
@@ -57,6 +59,8 @@ struct CPUTest : public CUDA_CPU_TestBase
     , hstRndCol( nevt )
     , hstWeights( nevt )
     , hstMatrixElements( nevt )
+    , hstSelHel( nevt )
+    , hstSelCol( nevt )
     , hstIsGoodHel( mgOnGpu::ncomb )
   {
     process.initProc( "../../Cards/param_card.dat" );
@@ -85,7 +89,7 @@ struct CPUTest : public CUDA_CPU_TestBase
   {
     constexpr fptype fixedG = 1.2177157847767195; // fixed G for aS=0.118 (hardcoded for now in check_sa.cc, fcheck_sa.f, runTest.cc)
     for( unsigned int i = 0; i < nevt; ++i ) hstGs[i] = fixedG;
-    MatrixElementKernelHost mek( hstMomenta, hstGs, hstRndHel, hstRndCol, hstMatrixElements, nevt );
+    MatrixElementKernelHost mek( hstMomenta, hstGs, hstRndHel, hstRndCol, hstMatrixElements, hstSelHel, hstSelCol, nevt );
     if( iiter == 0 ) mek.computeGoodHelicities();
     constexpr unsigned int channelId = 0; // TEMPORARY? disable multi-channel in runTest.exe #466
     mek.computeMatrixElements( channelId );
@@ -128,6 +132,8 @@ struct CUDATest : public CUDA_CPU_TestBase
   PinnedHostBufferRndNumColor hstRndCol;
   PinnedHostBufferWeights hstWeights;
   PinnedHostBufferMatrixElements hstMatrixElements;
+  PinnedHostBufferSelectedHelicity hstSelHel;
+  PinnedHostBufferSelectedColor hstSelCol;
   PinnedHostBufferHelicityMask hstIsGoodHel;
   DeviceBufferRndNumMomenta devRndmom;
   DeviceBufferMomenta devMomenta;
@@ -136,6 +142,8 @@ struct CUDATest : public CUDA_CPU_TestBase
   DeviceBufferRndNumColor devRndCol;
   DeviceBufferWeights devWeights;
   DeviceBufferMatrixElements devMatrixElements;
+  DeviceBufferSelectedHelicity devSelHel;
+  DeviceBufferSelectedColor devSelCol;
   DeviceBufferHelicityMask devIsGoodHel;
 
   // Create a process object
@@ -153,6 +161,8 @@ struct CUDATest : public CUDA_CPU_TestBase
     , hstRndCol( nevt )
     , hstWeights( nevt )
     , hstMatrixElements( nevt )
+    , hstSelHel( nevt )
+    , hstSelCol( nevt )
     , hstIsGoodHel( mgOnGpu::ncomb )
     , devRndmom( nevt )
     , devMomenta( nevt )
@@ -161,6 +171,8 @@ struct CUDATest : public CUDA_CPU_TestBase
     , devRndCol( nevt )
     , devWeights( nevt )
     , devMatrixElements( nevt )
+    , devSelHel( nevt )
+    , devSelCol( nevt )
     , devIsGoodHel( mgOnGpu::ncomb )
   {
     process.initProc( "../../Cards/param_card.dat" );
@@ -195,7 +207,7 @@ struct CUDATest : public CUDA_CPU_TestBase
     constexpr fptype fixedG = 1.2177157847767195; // fixed G for aS=0.118 (hardcoded for now in check_sa.cc, fcheck_sa.f, runTest.cc)
     for( unsigned int i = 0; i < nevt; ++i ) hstGs[i] = fixedG;
     copyDeviceFromHost( devGs, hstGs ); // BUG FIX #566
-    MatrixElementKernelDevice mek( devMomenta, devGs, devRndHel, devRndCol, devMatrixElements, gpublocks, gputhreads );
+    MatrixElementKernelDevice mek( devMomenta, devGs, devRndHel, devRndCol, devMatrixElements, devSelHel, devSelCol, gpublocks, gputhreads );
     if( iiter == 0 ) mek.computeGoodHelicities();
     constexpr unsigned int channelId = 0; // TEMPORARY? disable multi-channel in runTest.exe #466
     mek.computeMatrixElements( channelId );

@@ -90,19 +90,19 @@ extern "C"
                          const FORTRANFPTYPE* rndcol,
                          const unsigned int* pchannelId,
                          FORTRANFPTYPE* mes,
-                         unsigned int* /*selhel*/,
-                         unsigned int* /*selcol*/ )
+                         int* selhel,
+                         int* selcol )
   {
     Bridge<FORTRANFPTYPE>* pbridge = dynamic_cast<Bridge<FORTRANFPTYPE>*>( *ppbridge );
     if( pbridge == 0 ) throw std::runtime_error( "fbridgesequence_: invalid Bridge address" );
 #ifdef __CUDACC__
     // Use the device/GPU implementation in the CUDA library
     // (there is also a host implementation in this library)
-    pbridge->gpu_sequence( momenta, gs, rndhel, rndcol, *pchannelId, mes );
+    pbridge->gpu_sequence( momenta, gs, rndhel, rndcol, *pchannelId, mes, selhel, selcol );
 #else
     // Use the host/CPU implementation in the C++ library
     // (there is no device implementation in this library)
-    pbridge->cpu_sequence( momenta, gs, rndhel, rndcol, *pchannelId, mes );
+    pbridge->cpu_sequence( momenta, gs, rndhel, rndcol, *pchannelId, mes, selhel, selcol );
 #endif
   }
 

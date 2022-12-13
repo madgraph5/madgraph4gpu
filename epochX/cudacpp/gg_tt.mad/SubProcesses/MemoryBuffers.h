@@ -444,6 +444,42 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
+  // A base class encapsulating a memory buffer for helicity selection
+  typedef BufferBase<int> BufferSelectedHelicity;
+
+  // The size (number of elements) per event in a memory buffer for helicity selection
+  constexpr size_t sizePerEventSelectedHelicity = 1;
+
+#ifndef __CUDACC__
+  // A class encapsulating a C++ host buffer for helicity selection
+  typedef HostBuffer<int, sizePerEventSelectedHelicity, HostBufferALIGNED> HostBufferSelectedHelicity;
+#else
+  // A class encapsulating a CUDA pinned host buffer for helicity selection
+  typedef PinnedHostBuffer<int, sizePerEventSelectedHelicity> PinnedHostBufferSelectedHelicity;
+  // A class encapsulating a CUDA device buffer for helicity selection
+  typedef DeviceBuffer<int, sizePerEventSelectedHelicity> DeviceBufferSelectedHelicity;
+#endif
+
+  //--------------------------------------------------------------------------
+
+  // A base class encapsulating a memory buffer for color selection
+  typedef BufferBase<int> BufferSelectedColor;
+
+  // The size (number of elements) per event in a memory buffer for color selection
+  constexpr size_t sizePerEventSelectedColor = 1;
+
+#ifndef __CUDACC__
+  // A class encapsulating a C++ host buffer for color selection
+  typedef HostBuffer<int, sizePerEventSelectedColor, HostBufferALIGNED> HostBufferSelectedColor;
+#else
+  // A class encapsulating a CUDA pinned host buffer for color selection
+  typedef PinnedHostBuffer<int, sizePerEventSelectedColor> PinnedHostBufferSelectedColor;
+  // A class encapsulating a CUDA device buffer for color selection
+  typedef DeviceBuffer<int, sizePerEventSelectedColor> DeviceBufferSelectedColor;
+#endif
+
+  //--------------------------------------------------------------------------
+
 #ifdef __CUDACC__
   template<class Tdst, class Tsrc>
   void copyDeviceFromHost( Tdst& dst, const Tsrc& src ) // keep the same order of arguments as in memcpy
