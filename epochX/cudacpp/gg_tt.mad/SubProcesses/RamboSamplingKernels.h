@@ -19,10 +19,10 @@ namespace mg5amcCpu
   protected:
 
     // Constructor from existing input and output buffers
-    SamplingKernelBase( const fptype energy,                // input: energy
+    SamplingKernelBase( const fptype energy,               // input: energy
                         const BufferRndNumMomenta& rndmom, // input: random numbers in [0,1]
-                        BufferMomenta& momenta,             // output: momenta
-                        BufferWeights& weights )            // output: weights
+                        BufferMomenta& momenta,            // output: momenta
+                        BufferWeights& weights )           // output: weights
       : m_energy( energy )
       , m_rndmom( rndmom )
       , m_momenta( momenta )
@@ -67,10 +67,10 @@ namespace mg5amcCpu
   public:
 
     // Constructor from existing input and output buffers
-    RamboSamplingKernelHost( const fptype energy,                // input: energy
+    RamboSamplingKernelHost( const fptype energy,               // input: energy
                              const BufferRndNumMomenta& rndmom, // input: random numbers in [0,1]
-                             BufferMomenta& momenta,             // output: momenta
-                             BufferWeights& weights,             // output: weights
+                             BufferMomenta& momenta,            // output: momenta
+                             BufferWeights& weights,            // output: weights
                              const size_t nevt );
 
     // Destructor
@@ -95,10 +95,10 @@ namespace mg5amcCpu
   public:
 
     // Constructor from existing input and output buffers
-    RamboSamplingKernelDevice( const fptype energy,                // input: energy
+    RamboSamplingKernelDevice( const fptype energy,               // input: energy
                                const BufferRndNumMomenta& rndmom, // input: random numbers in [0,1]
-                               BufferMomenta& momenta,             // output: momenta
-                               BufferWeights& weights,             // output: weights
+                               BufferMomenta& momenta,            // output: momenta
+                               BufferWeights& weights,            // output: weights
                                const size_t gpublocks,
                                const size_t gputhreads );
 

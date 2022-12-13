@@ -36,12 +36,12 @@ namespace mg5amcCpu
     int m_iiter;      // The iteration counter (for random number seeding)
 #ifndef __CUDACC__
     HostBufferRndNumMomenta m_hstRndmom; // Memory buffers for random numbers
-    HostBufferMomenta m_hstMomenta;       // Memory buffers for momenta
-    HostBufferWeights m_hstWeights;       // Memory buffers for sampling weights
+    HostBufferMomenta m_hstMomenta;      // Memory buffers for momenta
+    HostBufferWeights m_hstWeights;      // Memory buffers for sampling weights
 #else
     PinnedHostBufferRndNumMomenta m_hstRndmom; // Memory buffers for random numbers
-    PinnedHostBufferMomenta m_hstMomenta;       // Memory buffers for momenta
-    PinnedHostBufferWeights m_hstWeights;       // Memory buffers for sampling weights
+    PinnedHostBufferMomenta m_hstMomenta;      // Memory buffers for momenta
+    PinnedHostBufferWeights m_hstWeights;      // Memory buffers for sampling weights
 #endif
     std::unique_ptr<RandomNumberKernelBase> m_prnk; // The appropriate RandomNumberKernel
     std::unique_ptr<SamplingKernelBase> m_prsk;     // The appropriate SamplingKernel

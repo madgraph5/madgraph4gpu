@@ -100,7 +100,7 @@ namespace mg5amcGpu
                                           BufferMatrixElements& matrixElements, // output: matrix elements
                                           const size_t gpublocks,
                                           const size_t gputhreads )
-  : BridgeKernelBase( momenta, gs, rndhel, rndcol, matrixElements, gpublocks * gputhreads )
+    : BridgeKernelBase( momenta, gs, rndhel, rndcol, matrixElements, gpublocks * gputhreads )
     , m_fortranMomenta( nevt() )
     , m_gpublocks( gpublocks )
     , m_gputhreads( gputhreads )

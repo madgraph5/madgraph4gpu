@@ -241,7 +241,7 @@ namespace mg5amcCpu
   typedef PinnedHostBufferOneFp PinnedHostBufferGs;
   typedef DeviceBufferOneFp DeviceBufferGs;
   */
-  
+
   //--------------------------------------------------------------------------
 
   // A base class encapsulating a memory buffer for Gs (related to the event-by-event strength of running coupling constant alphas QCD)

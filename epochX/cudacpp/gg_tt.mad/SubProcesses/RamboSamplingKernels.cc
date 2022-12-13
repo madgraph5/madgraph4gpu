@@ -17,10 +17,10 @@ namespace mg5amcCpu
 {
   //--------------------------------------------------------------------------
 
-  RamboSamplingKernelHost::RamboSamplingKernelHost( const fptype energy,                // input: energy
+  RamboSamplingKernelHost::RamboSamplingKernelHost( const fptype energy,               // input: energy
                                                     const BufferRndNumMomenta& rndmom, // input: random numbers in [0,1]
-                                                    BufferMomenta& momenta,             // output: momenta
-                                                    BufferWeights& weights,             // output: weights
+                                                    BufferMomenta& momenta,            // output: momenta
+                                                    BufferWeights& weights,            // output: weights
                                                     const size_t nevt )
     : SamplingKernelBase( energy, rndmom, momenta, weights )
     , NumberOfEvents( nevt )
@@ -88,10 +88,10 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
 #ifdef __CUDACC__
-  RamboSamplingKernelDevice::RamboSamplingKernelDevice( const fptype energy,                // input: energy
+  RamboSamplingKernelDevice::RamboSamplingKernelDevice( const fptype energy,               // input: energy
                                                         const BufferRndNumMomenta& rndmom, // input: random numbers in [0,1]
-                                                        BufferMomenta& momenta,             // output: momenta
-                                                        BufferWeights& weights,             // output: weights
+                                                        BufferMomenta& momenta,            // output: momenta
+                                                        BufferWeights& weights,            // output: weights
                                                         const size_t gpublocks,
                                                         const size_t gputhreads )
     : SamplingKernelBase( energy, rndmom, momenta, weights )

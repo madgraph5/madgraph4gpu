@@ -21,7 +21,7 @@ namespace mg5amcCpu
                                                     const BufferRndNumColor& rndcol,      // input: random numbers for color selection
                                                     BufferMatrixElements& matrixElements, // output: matrix elements
                                                     const size_t nevt )
-  : MatrixElementKernelBase( momenta, gs, rndhel, rndcol, matrixElements )
+    : MatrixElementKernelBase( momenta, gs, rndhel, rndcol, matrixElements )
     , NumberOfEvents( nevt )
     , m_couplings( nevt )
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
@@ -149,7 +149,7 @@ namespace mg5amcGpu
                                                         BufferMatrixElements& matrixElements, // output: matrix elements
                                                         const size_t gpublocks,
                                                         const size_t gputhreads )
-  : MatrixElementKernelBase( momenta, gs, rndhel, rndcol, matrixElements )
+    : MatrixElementKernelBase( momenta, gs, rndhel, rndcol, matrixElements )
     , NumberOfEvents( gpublocks * gputhreads )
     , m_couplings( this->nevt() )
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
