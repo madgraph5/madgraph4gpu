@@ -86,8 +86,8 @@ extern "C"
   void fbridgesequence_( CppObjectInFortran** ppbridge,
                          const FORTRANFPTYPE* momenta,
                          const FORTRANFPTYPE* gs,
-                         const FORTRANFPTYPE* /*rndhel*/,
-                         const FORTRANFPTYPE* /*rndcol*/,
+                         const FORTRANFPTYPE* rndhel,
+                         const FORTRANFPTYPE* rndcol,
                          const unsigned int* pchannelId,
                          FORTRANFPTYPE* mes,
                          unsigned int* /*selhel*/,
@@ -98,11 +98,11 @@ extern "C"
 #ifdef __CUDACC__
     // Use the device/GPU implementation in the CUDA library
     // (there is also a host implementation in this library)
-    pbridge->gpu_sequence( momenta, gs, *pchannelId, mes );
+    pbridge->gpu_sequence( momenta, gs, rndhel, rndcol, *pchannelId, mes );
 #else
     // Use the host/CPU implementation in the C++ library
     // (there is no device implementation in this library)
-    pbridge->cpu_sequence( momenta, gs, *pchannelId, mes );
+    pbridge->cpu_sequence( momenta, gs, rndhel, rndcol, *pchannelId, mes );
 #endif
   }
 

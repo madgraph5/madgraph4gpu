@@ -17,9 +17,11 @@ namespace mg5amcCpu
 
   MatrixElementKernelHost::MatrixElementKernelHost( const BufferMomenta& momenta,         // input: momenta
                                                     const BufferGs& gs,                   // input: gs for alphaS
+                                                    const BufferRndNumHelicity& rndhel,   // input: random numbers for helicity selection
+                                                    const BufferRndNumColor& rndcol,      // input: random numbers for color selection
                                                     BufferMatrixElements& matrixElements, // output: matrix elements
                                                     const size_t nevt )
-    : MatrixElementKernelBase( momenta, gs, matrixElements )
+  : MatrixElementKernelBase( momenta, gs, rndhel, rndcol, matrixElements )
     , NumberOfEvents( nevt )
     , m_couplings( nevt )
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
@@ -142,10 +144,12 @@ namespace mg5amcGpu
 
   MatrixElementKernelDevice::MatrixElementKernelDevice( const BufferMomenta& momenta,         // input: momenta
                                                         const BufferGs& gs,                   // input: gs for alphaS
+                                                        const BufferRndNumHelicity& rndhel,   // input: random numbers for helicity selection
+                                                        const BufferRndNumColor& rndcol,      // input: random numbers for color selection
                                                         BufferMatrixElements& matrixElements, // output: matrix elements
                                                         const size_t gpublocks,
                                                         const size_t gputhreads )
-    : MatrixElementKernelBase( momenta, gs, matrixElements )
+  : MatrixElementKernelBase( momenta, gs, rndhel, rndcol, matrixElements )
     , NumberOfEvents( gpublocks * gputhreads )
     , m_couplings( this->nevt() )
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL

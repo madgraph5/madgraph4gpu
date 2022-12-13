@@ -281,7 +281,7 @@ main( int argc, char** argv )
   const std::string alloKey = "0b MemAlloc";
   timermap.start( alloKey );
 
-  // Memory buffers for random numbers
+  // Memory buffers for random numbers for momenta
 #ifndef __CUDACC__
   HostBufferRndNumMomenta hstRnarray( nevt );
 #else
@@ -289,11 +289,28 @@ main( int argc, char** argv )
   DeviceBufferRndNumMomenta devRnarray( nevt );
 #endif
 
+  // Memory buffers for Gs
 #ifndef __CUDACC__
   HostBufferGs hstGs( nevt );
 #else
   PinnedHostBufferGs hstGs( nevt );
   DeviceBufferGs devGs( nevt );
+#endif
+
+  // Memory buffers for random numbers for helicity selection
+#ifndef __CUDACC__
+  HostBufferRndNumHelicity hstRndHel( nevt );
+#else
+  PinnedHostBufferRndNumHelicity hstRndHel( nevt );
+  DeviceBufferRndNumHelicity devRndHel( nevt );
+#endif
+
+  // Memory buffers for random numbers for color selection
+#ifndef __CUDACC__
+  HostBufferRndNumColor hstRndCol( nevt );
+#else
+  PinnedHostBufferRndNumColor hstRndCol( nevt );
+  DeviceBufferRndNumColor devRndCol( nevt );
 #endif
 
   // Hardcode Gs for now (eventually they should come from Fortran MadEvent)
@@ -388,17 +405,17 @@ main( int argc, char** argv )
   if( !bridge )
   {
 #ifdef __CUDACC__
-    pmek.reset( new MatrixElementKernelDevice( devMomenta, devGs, devMatrixElements, gpublocks, gputhreads ) );
+    pmek.reset( new MatrixElementKernelDevice( devMomenta, devGs, devRndHel, devRndCol, devMatrixElements, gpublocks, gputhreads ) );
 #else
-    pmek.reset( new MatrixElementKernelHost( hstMomenta, hstGs, hstMatrixElements, nevt ) );
+    pmek.reset( new MatrixElementKernelHost( hstMomenta, hstGs, hstRndHel, hstRndCol, hstMatrixElements, nevt ) );
 #endif
   }
   else
   {
 #ifdef __CUDACC__
-    pmek.reset( new BridgeKernelDevice( hstMomenta, hstGs, hstMatrixElements, gpublocks, gputhreads ) );
+    pmek.reset( new BridgeKernelDevice( hstMomenta, hstGs, hstRndHel, hstRndCol, hstMatrixElements, gpublocks, gputhreads ) );
 #else
-    pmek.reset( new BridgeKernelHost( hstMomenta, hstGs, hstMatrixElements, nevt ) );
+    pmek.reset( new BridgeKernelHost( hstMomenta, hstGs, hstRndHel, hstRndCol, hstMatrixElements, nevt ) );
 #endif
   }
   int nGoodHel = 0; // the number of good helicities (out of ncomb)

@@ -23,6 +23,8 @@ namespace mg5amcCpu
     // Constructor from existing input and output buffers
     BridgeKernelBase( const BufferMomenta& momenta,         // input: momenta
                       const BufferGs& gs,                   // input: gs for alphaS
+                      const BufferRndNumHelicity& rndhel,   // input: random numbers for helicity selection
+                      const BufferRndNumColor& rndcol,      // input: random numbers for color selection
                       BufferMatrixElements& matrixElements, // output: matrix elements
                       const size_t nevt );
 
@@ -49,6 +51,8 @@ namespace mg5amcCpu
     // Constructor from existing input and output buffers
     BridgeKernelHost( const BufferMomenta& momenta,         // input: momenta
                       const BufferGs& gs,                   // input: gs for alphaS
+                      const BufferRndNumHelicity& rndhel,   // input: random numbers for helicity selection
+                      const BufferRndNumColor& rndcol,      // input: random numbers for color selection
                       BufferMatrixElements& matrixElements, // output: matrix elements
                       const size_t nevt );
 
@@ -85,6 +89,8 @@ namespace mg5amcCpu
     // Constructor from existing input and output buffers
     BridgeKernelDevice( const BufferMomenta& momenta,         // input: momenta
                         const BufferGs& gs,                   // input: gs for alphaS
+                        const BufferRndNumHelicity& rndhel,   // input: random numbers for helicity selection
+                        const BufferRndNumColor& rndcol,      // input: random numbers for color selection
                         BufferMatrixElements& matrixElements, // output: matrix elements
                         const size_t gpublocks,
                         const size_t gputhreads );

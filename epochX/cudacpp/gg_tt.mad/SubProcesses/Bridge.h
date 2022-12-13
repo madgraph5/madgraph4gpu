@@ -93,12 +93,16 @@ namespace mg5amcCpu
      *
      * @param momenta the pointer to the input 4-momenta
      * @param gs the pointer to the input Gs (running QCD coupling constant alphas)
+     * @param rndhel the pointer to the input random numbers for helicity selection
+     * @param rndcol the pointer to the input random numbers for color selection
      * @param channelId the Feynman diagram to enhance in multi-channel mode if 1 to n (disable multi-channel if 0)
      * @param mes the pointer to the output matrix elements
      * @param goodHelOnly quit after computing good helicities?
      */
     void gpu_sequence( const FORTRANFPTYPE* momenta,
                        const FORTRANFPTYPE* gs,
+                       const FORTRANFPTYPE* /*rndhel*/,
+                       const FORTRANFPTYPE* /*rndcol*/,
                        const unsigned int channelId,
                        FORTRANFPTYPE* mes,
                        const bool goodHelOnly = false );
@@ -108,12 +112,16 @@ namespace mg5amcCpu
      *
      * @param momenta the pointer to the input 4-momenta
      * @param gs the pointer to the input Gs (running QCD coupling constant alphas)
+     * @param rndhel the pointer to the input random numbers for helicity selection
+     * @param rndcol the pointer to the input random numbers for color selection
      * @param channelId the Feynman diagram to enhance in multi-channel mode if 1 to n (disable multi-channel if 0)
      * @param mes the pointer to the output matrix elements
      * @param goodHelOnly quit after computing good helicities?
      */
     void cpu_sequence( const FORTRANFPTYPE* momenta,
                        const FORTRANFPTYPE* gs,
+                       const FORTRANFPTYPE* /*rndhel,*/
+                       const FORTRANFPTYPE* /*rndcol,*/
                        const unsigned int channelId,
                        FORTRANFPTYPE* mes,
                        const bool goodHelOnly = false );
@@ -135,8 +143,12 @@ namespace mg5amcCpu
     mg5amcGpu::DeviceBuffer<FORTRANFPTYPE, sizePerEventMomenta> m_devMomentaF;
     mg5amcGpu::DeviceBufferMomenta m_devMomentaC;
     mg5amcGpu::DeviceBufferGs m_devGsC;
-    mg5amcGpu::PinnedHostBufferGs m_hstGsC;
+    mg5amcGpu::DeviceBufferRndNumHelicity m_devRndhel;
+    mg5amcGpu::DeviceBufferRndNumColor m_devRndcol;
     mg5amcGpu::DeviceBufferMatrixElements m_devMEsC;
+    mg5amcGpu::PinnedHostBufferGs m_hstGsC;
+    mg5amcGpu::PinnedHostBufferRndNumHelicity m_hstRndhel;
+    mg5amcGpu::PinnedHostBufferRndNumColor m_hstRndcol;
     mg5amcGpu::PinnedHostBufferMatrixElements m_hstMEsC;
     std::unique_ptr<mg5amcGpu::MatrixElementKernelDevice> m_pmek;
     //static constexpr int s_gputhreadsmin = 16; // minimum number of gpu threads (TEST VALUE FOR MADEVENT)
@@ -144,6 +156,8 @@ namespace mg5amcCpu
 #else
     mg5amcCpu::HostBufferMomenta m_hstMomentaC;
     mg5amcCpu::HostBufferGs m_hstGsC;
+    mg5amcCpu::HostBufferRndNumHelicity m_hstRndhel;
+    mg5amcCpu::HostBufferRndNumColor m_hstRndcol;
     mg5amcCpu::HostBufferMatrixElements m_hstMEsC;
     std::unique_ptr<mg5amcCpu::MatrixElementKernelHost> m_pmek;
 #endif
@@ -182,14 +196,16 @@ namespace mg5amcCpu
     , m_devMomentaF( m_nevt )
     , m_devMomentaC( m_nevt )
     , m_devGsC( m_nevt )
-    , m_hstGsC( m_nevt )
+    , m_devRndhel( m_nevt )
+    , m_devRndcol( m_nevt )
     , m_devMEsC( m_nevt )
-    , m_hstMEsC( m_nevt )
 #else
     , m_hstMomentaC( m_nevt )
-    , m_hstGsC( m_nevt )
-    , m_hstMEsC( m_nevt )
 #endif
+    , m_hstGsC( m_nevt )
+    , m_hstRndhel( m_nevt )
+    , m_hstRndcol( m_nevt )
+    , m_hstMEsC( m_nevt )
     , m_pmek( nullptr )
   {
     if( nparF != mgOnGpu::npar ) throw std::runtime_error( "Bridge constructor: npar mismatch" );
@@ -207,11 +223,11 @@ namespace mg5amcCpu
     std::cout << "WARNING! Instantiate device Bridge (nevt=" << m_nevt << ", gpublocks=" << m_gpublocks << ", gputhreads=" << m_gputhreads
               << ", gpublocks*gputhreads=" << m_gpublocks * m_gputhreads << ")" << std::endl;
     mg5amcGpu::CPPProcess process( /*verbose=*/false );
-    m_pmek.reset( new mg5amcGpu::MatrixElementKernelDevice( m_devMomentaC, m_devGsC, m_devMEsC, m_gpublocks, m_gputhreads ) );
+    m_pmek.reset( new mg5amcGpu::MatrixElementKernelDevice( m_devMomentaC, m_devGsC, m_devRndhel, m_devRndcol, m_devMEsC, m_gpublocks, m_gputhreads ) );
 #else
     std::cout << "WARNING! Instantiate host Bridge (nevt=" << m_nevt << ")" << std::endl;
     mg5amcCpu::CPPProcess process( /*verbose=*/false );
-    m_pmek.reset( new mg5amcCpu::MatrixElementKernelHost( m_hstMomentaC, m_hstGsC, m_hstMEsC, m_nevt ) );
+    m_pmek.reset( new mg5amcCpu::MatrixElementKernelHost( m_hstMomentaC, m_hstGsC, m_hstRndhel, m_hstRndcol, m_hstMEsC, m_nevt ) );
 #endif // __CUDACC__
     process.initProc( "../../Cards/param_card.dat" );
   }
@@ -234,6 +250,8 @@ namespace mg5amcCpu
   template<typename FORTRANFPTYPE>
   void Bridge<FORTRANFPTYPE>::gpu_sequence( const FORTRANFPTYPE* momenta,
                                             const FORTRANFPTYPE* gs,
+                                            const FORTRANFPTYPE* /*rndhel*/,
+                                            const FORTRANFPTYPE* /*rndcol*/,
                                             const unsigned int channelId,
                                             FORTRANFPTYPE* mes,
                                             const bool goodHelOnly )
@@ -269,6 +287,8 @@ namespace mg5amcCpu
   template<typename FORTRANFPTYPE>
   void Bridge<FORTRANFPTYPE>::cpu_sequence( const FORTRANFPTYPE* momenta,
                                             const FORTRANFPTYPE* gs,
+                                            const FORTRANFPTYPE* /*rndhel*/,
+                                            const FORTRANFPTYPE* /*rndcol*/,
                                             const unsigned int channelId,
                                             FORTRANFPTYPE* mes,
                                             const bool goodHelOnly )
