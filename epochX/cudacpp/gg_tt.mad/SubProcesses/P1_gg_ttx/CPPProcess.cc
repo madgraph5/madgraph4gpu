@@ -93,9 +93,9 @@ namespace mg5amcCpu
                            const fptype* allcouplings,    // input: couplings[nevt*ndcoup*2]
                            fptype* allMEs                 // output: allMEs[nevt], |M|^2 running_sum_over_helicities
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+                           , const unsigned int channelId // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
                            , fptype* allNumerators        // output: multichannel numerators[nevt], running_sum_over_helicities
                            , fptype* allDenominators      // output: multichannel denominators[nevt], running_sum_over_helicities
-                           , const unsigned int channelId // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
 #endif
 #ifndef __CUDACC__
                            , const int nevt               // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
@@ -641,7 +641,7 @@ namespace mg5amcCpu
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       constexpr unsigned int channelId = 0; // disable single-diagram channel enhancement
-      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, allNumerators, allDenominators, channelId );
+      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators );
 #else
       calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs );
 #endif
@@ -680,7 +680,7 @@ namespace mg5amcCpu
       //std::cout << "sigmaKin_getGoodHel ihel=" << ihel << ( isGoodHel[ihel] ? " true" : " false" ) << std::endl;
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       constexpr unsigned int channelId = 0; // disable single-diagram channel enhancement
-      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, allNumerators, allDenominators, channelId, maxtry );
+      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators, maxtry );
 #else
       calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, maxtry );
 #endif
@@ -798,13 +798,13 @@ namespace mg5amcCpu
       const int ihel = cGoodHel[ighel];
 #ifdef __CUDACC__
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, allNumerators, allDenominators, channelId );
+      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators );
 #else
       calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs );
 #endif
 #else
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, allNumerators, allDenominators, channelId, nevt );
+      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators, nevt );
 #else
       calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, nevt );
 #endif
