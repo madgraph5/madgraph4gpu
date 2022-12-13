@@ -33,7 +33,7 @@ struct CPUTest : public CUDA_CPU_TestBase
   // Struct data members (process, and memory structures for random numbers, momenta, matrix elements and weights on host and device)
   // [NB the hst/dev memory arrays must be initialised in the constructor, see issue #290]
   CPPProcess process;
-  HostBufferRndNumMomenta hstRnarray;
+  HostBufferRndNumMomenta hstRndmom;
   HostBufferMomenta hstMomenta;
   HostBufferGs hstGs;
   HostBufferRndNumHelicity hstRndHel;
@@ -50,7 +50,7 @@ struct CPUTest : public CUDA_CPU_TestBase
   CPUTest( const std::string& refFileName )
     : CUDA_CPU_TestBase( refFileName )
     , process( /*verbose=*/false )
-    , hstRnarray( nevt )
+    , hstRndmom( nevt )
     , hstMomenta( nevt )
     , hstGs( nevt )
     , hstRndHel( nevt )
@@ -66,14 +66,14 @@ struct CPUTest : public CUDA_CPU_TestBase
 
   void prepareRandomNumbers( unsigned int iiter ) override
   {
-    CommonRandomNumberKernel rnk( hstRnarray );
+    CommonRandomNumberKernel rnk( hstRndmom );
     rnk.seedGenerator( 1337 + iiter );
     rnk.generateRnarray();
   }
 
   void prepareMomenta( fptype energy ) override
   {
-    RamboSamplingKernelHost rsk( energy, hstRnarray, hstMomenta, hstWeights, nevt );
+    RamboSamplingKernelHost rsk( energy, hstRndmom, hstMomenta, hstWeights, nevt );
     // --- 2a. Fill in momenta of initial state particles on the device
     rsk.getMomentaInitial();
     // --- 2b. Fill in momenta of final state particles using the RAMBO algorithm on the device
@@ -121,7 +121,7 @@ struct CUDATest : public CUDA_CPU_TestBase
   // Struct data members (process, and memory structures for random numbers, momenta, matrix elements and weights on host and device)
   // [NB the hst/dev memory arrays must be initialised in the constructor, see issue #290]
   CPPProcess process;
-  PinnedHostBufferRndNumMomenta hstRnarray;
+  PinnedHostBufferRndNumMomenta hstRndmom;
   PinnedHostBufferMomenta hstMomenta;
   PinnedHostBufferGs hstGs;
   PinnedHostBufferRndNumHelicity hstRndHel;
@@ -129,7 +129,7 @@ struct CUDATest : public CUDA_CPU_TestBase
   PinnedHostBufferWeights hstWeights;
   PinnedHostBufferMatrixElements hstMatrixElements;
   PinnedHostBufferHelicityMask hstIsGoodHel;
-  DeviceBufferRndNumMomenta devRnarray;
+  DeviceBufferRndNumMomenta devRndmom;
   DeviceBufferMomenta devMomenta;
   DeviceBufferGs devGs;
   DeviceBufferRndNumHelicity devRndHel;
@@ -146,7 +146,7 @@ struct CUDATest : public CUDA_CPU_TestBase
   CUDATest( const std::string& refFileName )
     : CUDA_CPU_TestBase( refFileName )
     , process( /*verbose=*/false )
-    , hstRnarray( nevt )
+    , hstRndmom( nevt )
     , hstMomenta( nevt )
     , hstGs( nevt )
     , hstRndHel( nevt )
@@ -154,7 +154,7 @@ struct CUDATest : public CUDA_CPU_TestBase
     , hstWeights( nevt )
     , hstMatrixElements( nevt )
     , hstIsGoodHel( mgOnGpu::ncomb )
-    , devRnarray( nevt )
+    , devRndmom( nevt )
     , devMomenta( nevt )
     , devGs( nevt )
     , devRndHel( nevt )
@@ -170,15 +170,15 @@ struct CUDATest : public CUDA_CPU_TestBase
 
   void prepareRandomNumbers( unsigned int iiter ) override
   {
-    CommonRandomNumberKernel rnk( hstRnarray );
+    CommonRandomNumberKernel rnk( hstRndmom );
     rnk.seedGenerator( 1337 + iiter );
     rnk.generateRnarray();
-    copyDeviceFromHost( devRnarray, hstRnarray );
+    copyDeviceFromHost( devRndmom, hstRndmom );
   }
 
   void prepareMomenta( fptype energy ) override
   {
-    RamboSamplingKernelDevice rsk( energy, devRnarray, devMomenta, devWeights, gpublocks, gputhreads );
+    RamboSamplingKernelDevice rsk( energy, devRndmom, devMomenta, devWeights, gpublocks, gputhreads );
     // --- 2a. Fill in momenta of initial state particles on the device
     rsk.getMomentaInitial();
     // --- 2b. Fill in momenta of final state particles using the RAMBO algorithm on the device

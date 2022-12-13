@@ -283,10 +283,10 @@ main( int argc, char** argv )
 
   // Memory buffers for random numbers for momenta
 #ifndef __CUDACC__
-  HostBufferRndNumMomenta hstRnarray( nevt );
+  HostBufferRndNumMomenta hstRndmom( nevt );
 #else
-  PinnedHostBufferRndNumMomenta hstRnarray( nevt );
-  DeviceBufferRndNumMomenta devRnarray( nevt );
+  PinnedHostBufferRndNumMomenta hstRndmom( nevt );
+  DeviceBufferRndNumMomenta devRndmom( nevt );
 #endif
 
   // Memory buffers for Gs
@@ -358,19 +358,19 @@ main( int argc, char** argv )
   std::unique_ptr<RandomNumberKernelBase> prnk;
   if( rndgen == RandomNumberMode::CommonRandom )
   {
-    prnk.reset( new CommonRandomNumberKernel( hstRnarray ) );
+    prnk.reset( new CommonRandomNumberKernel( hstRndmom ) );
   }
 #ifndef MGONGPU_HAS_NO_CURAND
   else if( rndgen == RandomNumberMode::CurandHost )
   {
     const bool onDevice = false;
-    prnk.reset( new CurandRandomNumberKernel( hstRnarray, onDevice ) );
+    prnk.reset( new CurandRandomNumberKernel( hstRndmom, onDevice ) );
   }
 #ifdef __CUDACC__
   else
   {
     const bool onDevice = true;
-    prnk.reset( new CurandRandomNumberKernel( devRnarray, onDevice ) );
+    prnk.reset( new CurandRandomNumberKernel( devRndmom, onDevice ) );
   }
 #else
   else
@@ -389,12 +389,12 @@ main( int argc, char** argv )
   std::unique_ptr<SamplingKernelBase> prsk;
   if( rmbsmp == RamboSamplingMode::RamboHost )
   {
-    prsk.reset( new RamboSamplingKernelHost( energy, hstRnarray, hstMomenta, hstWeights, nevt ) );
+    prsk.reset( new RamboSamplingKernelHost( energy, hstRndmom, hstMomenta, hstWeights, nevt ) );
   }
   else
   {
 #ifdef __CUDACC__
-    prsk.reset( new RamboSamplingKernelDevice( energy, devRnarray, devMomenta, devWeights, gpublocks, gputhreads ) );
+    prsk.reset( new RamboSamplingKernelDevice( energy, devRndmom, devMomenta, devWeights, gpublocks, gputhreads ) );
 #else
     throw std::logic_error( "RamboDevice is not supported on CPUs" ); // INTERNAL ERROR (no path to this statement)
 #endif
@@ -457,10 +457,10 @@ main( int argc, char** argv )
 #ifdef __CUDACC__
     if( rndgen != RandomNumberMode::CurandDevice && rmbsmp == RamboSamplingMode::RamboDevice )
     {
-      // --- 1c. Copy rnarray from host to device
+      // --- 1c. Copy rndmom from host to device
       const std::string htodKey = "1c CpHTDrnd";
       genrtime += timermap.start( htodKey );
-      copyDeviceFromHost( devRnarray, hstRnarray );
+      copyDeviceFromHost( devRndmom, hstRndmom );
     }
 #endif
 

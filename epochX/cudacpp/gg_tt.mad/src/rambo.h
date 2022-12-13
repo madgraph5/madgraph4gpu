@@ -47,7 +47,7 @@ namespace mg5amcCpu
   template<class R_ACCESS, class M_ACCESS, class W_ACCESS>
   __host__ __device__ void
   ramboGetMomentaFinal( const fptype energy,   // input: energy
-                        const fptype* rnarray, // input: random numbers in [0,1] for one event or for a set of events
+                        const fptype* rndmom, // input: random numbers in [0,1] for one event or for a set of events
                         fptype* momenta,       // output: momenta for one event or for a set of events
                         fptype* wgts )         // output: weights for one event or for a set of events
   {
@@ -113,10 +113,10 @@ namespace mg5amcCpu
     fptype q[nparf][np4];
     for( int iparf = 0; iparf < nparf; iparf++ )
     {
-      const fptype r1 = R_ACCESS::kernelAccessIp4IparfConst( rnarray, 0, iparf );
-      const fptype r2 = R_ACCESS::kernelAccessIp4IparfConst( rnarray, 1, iparf );
-      const fptype r3 = R_ACCESS::kernelAccessIp4IparfConst( rnarray, 2, iparf );
-      const fptype r4 = R_ACCESS::kernelAccessIp4IparfConst( rnarray, 3, iparf );
+      const fptype r1 = R_ACCESS::kernelAccessIp4IparfConst( rndmom, 0, iparf );
+      const fptype r2 = R_ACCESS::kernelAccessIp4IparfConst( rndmom, 1, iparf );
+      const fptype r3 = R_ACCESS::kernelAccessIp4IparfConst( rndmom, 2, iparf );
+      const fptype r4 = R_ACCESS::kernelAccessIp4IparfConst( rndmom, 3, iparf );
       const fptype c = 2. * r1 - 1.;
       const fptype s = sqrt( 1. - c * c );
       const fptype f = twopi * r2;
