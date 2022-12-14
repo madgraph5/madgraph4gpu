@@ -868,8 +868,8 @@ namespace mg5amcCpu
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
     // Mixed fptypes #537: float for color algebra and double elsewhere
     // Delay color algebra and ME updates (only on even pages)
-    assert( npagV % 2 == 0 );           // SANITY CHECK for mixed fptypes: two neppV-pages are merged to one 2*neppV-page
-    const int npagV2 = npagV / 2;       // loop on two SIMD pages (neppV events) at a time
+    assert( npagV % 2 == 0 );            // SANITY CHECK for mixed fptypes: two neppV-pages are merged to one 2*neppV-page
+    const int npagV2 = npagV / 2;        // loop on two SIMD pages (neppV events) at a time
     fptype_sv MEs_ighel2[ncomb] = { 0 }; // sum of MEs for all good helicities up to ighel (for the second neppV page)
 #else
     const int npagV2 = npagV;            // loop on one SIMD page (neppV events) at a time
@@ -912,7 +912,7 @@ namespace mg5amcCpu
         for( int ighel = 0; ighel < cNGoodHel; ighel++ )
         {
 #if defined MGONGPU_CPPSIMD
-          const bool okhel = allrndhel[ievt] < ( MEs_ighel[ighel][ieppV] / MEs_ighel[cNGoodHel - 1][ieppV] );          
+          const bool okhel = allrndhel[ievt] < ( MEs_ighel[ighel][ieppV] / MEs_ighel[cNGoodHel - 1][ieppV] );
 #else
           const bool okhel = allrndhel[ievt] < ( MEs_ighel[ighel] / MEs_ighel[cNGoodHel - 1] );
 #endif
