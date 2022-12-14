@@ -433,23 +433,24 @@ namespace mg5amcCpu
     , m_masses()
   {
     // Helicities for the process [NB do keep 'static' for this constexpr array, see issue #283]
+    // *** NB There is no automatic check yet that these are in the same order as Fortran! #569 ***
     static constexpr short tHel[ncomb][mgOnGpu::npar] = {
-      { -1, -1, -1, -1 },
       { -1, -1, -1, 1 },
-      { -1, -1, 1, -1 },
+      { -1, -1, -1, -1 },
       { -1, -1, 1, 1 },
-      { -1, 1, -1, -1 },
+      { -1, -1, 1, -1 },
       { -1, 1, -1, 1 },
-      { -1, 1, 1, -1 },
+      { -1, 1, -1, -1 },
       { -1, 1, 1, 1 },
-      { 1, -1, -1, -1 },
+      { -1, 1, 1, -1 },
       { 1, -1, -1, 1 },
-      { 1, -1, 1, -1 },
+      { 1, -1, -1, -1 },
       { 1, -1, 1, 1 },
-      { 1, 1, -1, -1 },
+      { 1, -1, 1, -1 },
       { 1, 1, -1, 1 },
-      { 1, 1, 1, -1 },
-      { 1, 1, 1, 1 } };
+      { 1, 1, -1, -1 },
+      { 1, 1, 1, 1 },
+      { 1, 1, 1, -1 } };
 #ifdef __CUDACC__
     checkCuda( cudaMemcpyToSymbol( cHel, tHel, ncomb * mgOnGpu::npar * sizeof( short ) ) );
 #else
