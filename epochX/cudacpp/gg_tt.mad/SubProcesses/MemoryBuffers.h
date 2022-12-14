@@ -262,13 +262,16 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // A base class encapsulating a memory buffer for numerators (of the multichannel single-diagram enhancement factors)
   typedef BufferBase<fptype> BufferNumerators;
 
   // The size (number of elements) per event in a memory buffer for numerators
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   constexpr size_t sizePerEventNumerators = 1;
-
+#else
+  constexpr size_t sizePerEventNumerators = 0; // DUMMY! WILL NOT BE ALLOCATED
+#endif
+  
 #ifndef __CUDACC__
   // A class encapsulating a C++ host buffer for gs
   typedef HostBuffer<fptype, sizePerEventNumerators, HostBufferALIGNED> HostBufferNumerators;
@@ -278,16 +281,18 @@ namespace mg5amcCpu
   // A class encapsulating a CUDA device buffer for gs
   typedef DeviceBuffer<fptype, sizePerEventNumerators> DeviceBufferNumerators;
 #endif
-#endif
 
   //--------------------------------------------------------------------------
 
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   // A base class encapsulating a memory buffer for denominators (of the multichannel single-diagram enhancement factors)
   typedef BufferBase<fptype> BufferDenominators;
 
   // The size (number of elements) per event in a memory buffer for denominators
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   constexpr size_t sizePerEventDenominators = 1;
+#else
+  constexpr size_t sizePerEventDenominators = 0; // DUMMY! WILL NOT BE ALLOCATED
+#endif
 
 #ifndef __CUDACC__
   // A class encapsulating a C++ host buffer for gs
@@ -297,7 +302,6 @@ namespace mg5amcCpu
   typedef PinnedHostBuffer<fptype, sizePerEventDenominators> PinnedHostBufferDenominators;
   // A class encapsulating a CUDA device buffer for gs
   typedef DeviceBuffer<fptype, sizePerEventDenominators> DeviceBufferDenominators;
-#endif
 #endif
 
   //--------------------------------------------------------------------------
