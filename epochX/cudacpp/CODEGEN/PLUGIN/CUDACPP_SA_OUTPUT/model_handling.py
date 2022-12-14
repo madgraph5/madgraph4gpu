@@ -1417,12 +1417,12 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         ###    initProc_lines.append('jamp2_sv[%d] = new double[%d];' % (i, len(colamp))) # AV - this was commented out already
         return '\n'.join(initProc_lines)
 
-    # AV - replace the export_cpp.OneProcessExporterCPP method (improve formatting)
+    # AV - replace the export_cpp.OneProcessExporterCPP method (fix helicity order and improve formatting)
     def get_helicity_matrix(self, matrix_element):
         """Return the Helicity matrix definition lines for this matrix element"""
         helicity_line = '    static constexpr short helicities[ncomb][mgOnGpu::npar] = {\n      '; # AV (this is tHel)
         helicity_line_list = []
-        for helicities in matrix_element.get_helicity_matrix(allow_reverse=False):
+        for helicities in matrix_element.get_helicity_matrix(allow_reverse=True): # AV was False: different order in Fortran and cudacpp! #569
             helicity_line_list.append( '{ ' + ', '.join(['%d'] * len(helicities)) % tuple(helicities) + ' }' ) # AV
         return helicity_line + ',\n      '.join(helicity_line_list) + ' };' # AV
 
