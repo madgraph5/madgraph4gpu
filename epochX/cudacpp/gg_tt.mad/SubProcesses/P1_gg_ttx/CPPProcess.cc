@@ -818,11 +818,14 @@ namespace mg5amcCpu
     for( int ipagV = 0; ipagV < npagV; ++ipagV )
     {
       const int ievt0 = ipagV * neppV;
-      fptype_sv& MEs_sv = E_ACCESS::ieventAccess( allMEs, ievt0 );
+      fptype* MEs = E_ACCESS::ieventAccessRecord( allMEs, ievt0 );
+      fptype_sv& MEs_sv = E_ACCESS::kernelAccess( MEs );
       MEs_sv = fptype_sv{ 0 };
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      fptype_sv& numerators_sv = NUM_ACCESS::ieventAccess( allNumerators, ievt0 );
-      fptype_sv& denominators_sv = DEN_ACCESS::ieventAccess( allDenominators, ievt0 );
+      fptype* numerators = NUM_ACCESS::ieventAccessRecord( allNumerators, ievt0 );
+      fptype* denominators = DEN_ACCESS::ieventAccessRecord( allDenominators, ievt0 );
+      fptype_sv& numerators_sv = NUM_ACCESS::kernelAccess( numerators );
+      fptype_sv& denominators_sv = DEN_ACCESS::kernelAccess( denominators );
       numerators_sv = fptype_sv{ 0 };
       denominators_sv = fptype_sv{ 0 };
 #endif
@@ -896,13 +899,16 @@ namespace mg5amcCpu
     for( int ipagV = 0; ipagV < npagV; ++ipagV )
     {
       const int ievt0 = ipagV * neppV;
-      fptype_sv& MEs_sv = E_ACCESS::ieventAccess( allMEs, ievt0 );
+      fptype* MEs = E_ACCESS::ieventAccessRecord( allMEs, ievt0 );
+      fptype_sv& MEs_sv = E_ACCESS::kernelAccess( MEs );
       MEs_sv  /= helcolDenominators[0]; // FIXME (#343): assume nprocesses == 1
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId > 0 )
       {
-        fptype_sv& numerators_sv = NUM_ACCESS::ieventAccess( numerators, ievt0 );
-        fptype_sv& denominators_sv = DEN_ACCESS::ieventAccess( denominators, ievt0 );
+        fptype* numerators = NUM_ACCESS::ieventAccessRecord( allNumerators, ievt0 );
+        fptype* denominators = DEN_ACCESS::ieventAccessRecord( allDenominators, ievt0 );
+        fptype_sv& numerators_sv = NUM_ACCESS::kernelAccess( numerators );
+        fptype_sv& denominators_sv = DEN_ACCESS::kernelAccess( denominators );
         MEs_sv *= numerators_sv / denominators_sv; // FIXME (#343): assume nprocesses == 1
       }
 #endif
