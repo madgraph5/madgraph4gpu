@@ -26,13 +26,13 @@
 #endif
 
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
-      if( ipagV %% 2 == 0 ) // NB: first page is 0! skip even pages, compute on odd pages
+      if( iParity == 0 ) // NB: first page is 0! skip even pages, compute on odd pages
       {
         // Mixed fptypes: delay color algebra and ME updates to next (odd) ipagV
         for( int icol = 0; icol < ncolor; icol++ )
           jamp_sv_previous[icol] = jamp_sv[icol];
         MEs_previous = MEs;
-        continue; // go to next ipagV in the loop: skip color algebra and ME update on odd pages
+        continue; // go to next iParity in the loop: skip color algebra and ME update on odd pages
       }
       fptype_sv deltaMEs_previous = { 0 };
 #endif
@@ -131,13 +131,13 @@
 #ifdef MGONGPU_CPPSIMD
       if( cNGoodHel > 0 )
         for( int ieppV = 0; ieppV < neppV; ieppV++ )
-          printf( "calculate_wavefunctions: ievt=%%6d ihel=%%2d me_running=%%f\n", ipagV * neppV + ieppV, ihel, MEs_sv[ieppV] );
+          printf( "calculate_wavefunctions: ievt=%%6d ihel=%%2d me_running=%%f\n", ievt0 + ieppV, ihel, MEs_sv[ieppV] );
 #else
-      if ( cNGoodHel > 0 ) printf( "calculate_wavefunctions: ievt=%%6d ihel=%%2d me_running=%%f\n", ipagV, ihel, MEs_sv );
+      if ( cNGoodHel > 0 ) printf( "calculate_wavefunctions: ievt=%%6d ihel=%%2d me_running=%%f\n", ievt0, ihel, MEs_sv );
 #endif
 #endif
       */
-    }
+    } // END LOOP ON IPARITY
     mgDebug( 1, __FUNCTION__ );
     return;
   }

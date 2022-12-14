@@ -1070,18 +1070,20 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
   // Evaluate |M|^2 for each subprocess
   // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
   // (similarly, it also ADDS the numerator and denominator for a given ihel to their running sums over helicities)
+  // In CUDA, this device function computes the ME for a single event
+  // In C++, this function computes the ME for a single event "page" or SIMD vector (or for two in "mixed" precision mode)
   __device__ INLINE void /* clang-format off */
   calculate_wavefunctions( int ihel,
                            const fptype* allmomenta,      // input: momenta[nevt*npar*4]
                            const fptype* allcouplings,    // input: couplings[nevt*ndcoup*2]
                            fptype* allMEs                 // output: allMEs[nevt], |M|^2 running_sum_over_helicities
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+                           , const unsigned int channelId // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
                            , fptype* allNumerators        // output: multichannel numerators[nevt], running_sum_over_helicities
                            , fptype* allDenominators      // output: multichannel denominators[nevt], running_sum_over_helicities
-                           , const unsigned int channelId // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
 #endif
 #ifndef __CUDACC__
-                           , const int nevt               // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+                           , const int ievt00             // input: first event number in current C++ event page (for CUDA, ievt depends on threadid)
 #endif
                            )
   //ALWAYS_INLINE // attributes are not permitted in a function definition
@@ -1114,7 +1116,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     mgDebug( 0, __FUNCTION__ );
     //printf( \"calculate_wavefunctions: ihel=%2d\\n\", ihel );
 #ifndef __CUDACC__
-    //printf( \"calculate_wavefunctions: nevt %d\\n\", nevt );
+    //printf( \"calculate_wavefunctions: ievt00=%d\\n\", ievt00 );
 #endif\n""")
             ret_lines.append('    // The number of colors')
             ret_lines.append('    constexpr int ncolor = %i;' % len(color_amplitudes[0]))
@@ -1137,28 +1139,25 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     // [jamp: sum (for one event or event page) of the invariant amplitudes for all Feynman diagrams in a given color combination]
     cxtype_sv jamp_sv[ncolor] = {}; // all zeros (NB: vector cxtype_v IS initialized to 0, but scalar cxype is NOT, if \"= {}\" is missing!)
 
-    // === Calculate wavefunctions and amplitudes for all diagrams in all processes - Loop over nevt events ===
+    // === Calculate wavefunctions and amplitudes for all diagrams in all processes         ===
+    // === (for one event in CUDA, for one - or two in mixed mode - SIMD event pages in C++ ===
 #ifndef __CUDACC__
-    const int npagV = nevt / neppV;
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
     // Mixed fptypes #537: float for color algebra and double elsewhere
     // Delay color algebra and ME updates (only on even pages)
     cxtype_sv jamp_sv_previous[ncolor] = {};
     fptype* MEs_previous = 0;
-    assert( npagV % 2 == 0 ); // SANITY CHECK for mixed fptypes: two neppV pages are merged to one neppV2 page
+    for( int iParity = 0; iParity < 2; ++iParity )
 #endif
-    // ** START LOOP ON IPAGV **
-#ifdef _OPENMP
-    // (NB gcc9 or higher, or clang, is required)
-    // - default(none): no variables are shared by default
-    // - shared: as the name says
-    // - private: give each thread its own copy, without initialising
-    // - firstprivate: give each thread its own copy, and initialise with value from outside
-#pragma omp parallel for default( none ) shared( allmomenta, allMEs, cHel, allcouplings, cIPC, cIPD, ihel, npagV, amp_fp, w_fp ) private( amp_sv, w_sv, jamp_sv )
-#endif // _OPENMP
-    for( int ipagV = 0; ipagV < npagV; ++ipagV )
-#endif // !__CUDACC__""")
-            ret_lines.append('    {') # NB This is closed in process_matrix.inc
+#endif
+    { // START LOOP ON IPARITY
+#ifndef __CUDACC__
+#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+      const int ievt0 = ievt00 + iParity * neppV;
+#else
+      const int ievt0 = ievt00;
+#endif
+#endif""")
             misc.sprint(type(self.helas_call_writer))
             misc.sprint(self.support_multichannel, self.include_multi_channel)
             multi_channel = None
@@ -1552,7 +1551,6 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
 #endif
 #else
       // C++ kernels take input/output buffers with momenta/MEs for one specific event (the first in the current event page)
-      const int ievt0 = ipagV * neppV;
       const fptype* momenta = M_ACCESS::ieventAccessRecordConst( allmomenta, ievt0 );
       const fptype* COUPs[nxcoup];
       for( size_t idcoup = 0; idcoup < ndcoup; idcoup++ )
