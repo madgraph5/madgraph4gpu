@@ -331,6 +331,7 @@ main( int argc, char** argv )
 #endif
 
   // Memory buffers for random numbers for helicity selection
+  // *** NB #403 these buffers always remain initialised at 0: no need for helicity choice in gcheck/check (no LHE produced) ***
 #ifndef __CUDACC__
   HostBufferRndNumHelicity hstRndHel( nevt );
 #else
@@ -339,6 +340,7 @@ main( int argc, char** argv )
 #endif
 
   // Memory buffers for random numbers for color selection
+  // *** NB #402 these buffers always remain initialised at 0: no need for color choice in gcheck/check (no LHE produced) ***
 #ifndef __CUDACC__
   HostBufferRndNumColor hstRndCol( nevt );
 #else
