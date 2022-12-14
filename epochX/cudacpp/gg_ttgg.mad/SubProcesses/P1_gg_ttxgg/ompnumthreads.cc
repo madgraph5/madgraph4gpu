@@ -12,7 +12,7 @@ extern "C"
 {
   void ompnumthreads_not_set_means_one_thread_()
   {
-    const int debuglevel = 0; // quiet(-1), info(0), debug(1)
+    const int debuglevel = 0;                        // quiet(-1), info(0), debug(1)
     ompnumthreadsNotSetMeansOneThread( debuglevel ); // call the inline C++ function defined in the .h file
-  } 
+  }
 }
