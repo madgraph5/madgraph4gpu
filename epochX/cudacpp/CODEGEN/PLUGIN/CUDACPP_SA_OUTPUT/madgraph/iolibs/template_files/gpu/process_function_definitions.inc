@@ -389,9 +389,9 @@ namespace mg5amcCpu
     mgDebugInitialise();
 
     // Denominators: spins, colors and identical particles
-    constexpr int nprocesses = 1;
+    constexpr int nprocesses = %(nproc)i;
     static_assert( nprocesses == 1, "Assume nprocesses == 1" ); // FIXME (#343): assume nprocesses == 1
-    constexpr int helcolDenominators[1] = { 256 };
+    constexpr int helcolDenominators[%(nproc)i] = { %(den_factors)s };
 
 #ifdef __CUDACC__
     // Remember: in CUDA this is a kernel for one event, in c++ this processes n events
