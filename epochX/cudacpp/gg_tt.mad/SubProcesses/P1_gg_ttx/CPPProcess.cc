@@ -788,7 +788,7 @@ namespace mg5amcCpu
     // Denominators: spins, colors and identical particles
     constexpr int nprocesses = 1;
     static_assert( nprocesses == 1, "Assume nprocesses == 1" ); // FIXME (#343): assume nprocesses == 1
-    constexpr int denominators[1] = { 256 };
+    constexpr int helcolDenominators[1] = { 256 };
 
 #ifdef __CUDACC__
     // Remember: in CUDA this is a kernel for one event, in c++ this processes n events
@@ -796,6 +796,11 @@ namespace mg5amcCpu
 #else
     //assert( (size_t)(allmomenta) % mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
     //assert( (size_t)(allMEs) % mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
+    using E_ACCESS = HostAccessMatrixElements; // non-trivial access: buffer includes all events
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+    using NUM_ACCESS = HostAccessNumerators;   // non-trivial access: buffer includes all events
+    using DEN_ACCESS = HostAccessDenominators; // non-trivial access: buffer includes all events
+#endif
 #endif
 
     // Start sigmaKin_lines
@@ -812,18 +817,20 @@ namespace mg5amcCpu
     const int npagV = nevt / neppV;
     for( int ipagV = 0; ipagV < npagV; ++ipagV )
     {
-      for( int ieppV = 0; ieppV < neppV; ieppV++ )
-      {
-        const unsigned int ievt = ipagV * neppV + ieppV;
-        allMEs[ievt] = 0;
+      const int ievt0 = ipagV * neppV;
+      fptype* MEs = E_ACCESS::ieventAccessRecord( allMEs, ievt0 );
+      fptype_sv& MEs_sv = E_ACCESS::kernelAccess( MEs );
+      MEs_sv = fptype_sv{ 0 };
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-        allNumerators[ievt] = 0;
-        allDenominators[ievt] = 0;
+      fptype* numerators = NUM_ACCESS::ieventAccessRecord( allNumerators, ievt0 );
+      fptype* denominators = DEN_ACCESS::ieventAccessRecord( allDenominators, ievt0 );
+      fptype_sv& numerators_sv = NUM_ACCESS::kernelAccess( numerators );
+      fptype_sv& denominators_sv = DEN_ACCESS::kernelAccess( denominators );
+      numerators_sv = fptype_sv{ 0 };
+      denominators_sv = fptype_sv{ 0 };
 #endif
-      }
     }
 #endif
-
   
     // PART 1 - HELICITY LOOP: CALCULATE WAVEFUNCTIONS
     // (in both CUDA and C++, using precomputed good helicities)
@@ -885,22 +892,32 @@ namespace mg5amcCpu
     // https://www.uzh.ch/cmsssl/physik/dam/jcr:2e24b7b1-f4d7-4160-817e-47b13dbf1d7c/Handout_4_2016-UZH.pdf]
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
 #ifdef __CUDACC__
-    allMEs[ievt] /= denominators[0]; // FIXME (#343): assume nprocesses == 1
+    allMEs[ievt] /= helcolDenominators[0]; // FIXME (#343): assume nprocesses == 1
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     if( channelId > 0 ) allMEs[ievt] *= allNumerators[ievt] / allDenominators[ievt]; // FIXME (#343): assume nprocesses == 1
 #endif
 #else
     for( int ipagV = 0; ipagV < npagV; ++ipagV )
     {
-      for( int ieppV = 0; ieppV < neppV; ieppV++ )
-      {
-        const unsigned int ievt = ipagV * neppV + ieppV;
-        allMEs[ievt] /= denominators[0];                                                 // FIXME (#343): assume nprocesses == 1
+      const int ievt0 = ipagV * neppV;
+      fptype* MEs = E_ACCESS::ieventAccessRecord( allMEs, ievt0 );
+      fptype_sv& MEs_sv = E_ACCESS::kernelAccess( MEs );
+      MEs_sv  /= helcolDenominators[0]; // FIXME (#343): assume nprocesses == 1
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-        if( channelId > 0 ) allMEs[ievt] *= allNumerators[ievt] / allDenominators[ievt]; // FIXME (#343): assume nprocesses == 1
-#endif
-        //printf( "sigmaKin: ievt=%2d me=%f\n", ievt, allMEs[ievt] );
+      if( channelId > 0 )
+      {
+        fptype* numerators = NUM_ACCESS::ieventAccessRecord( allNumerators, ievt0 );
+        fptype* denominators = DEN_ACCESS::ieventAccessRecord( allDenominators, ievt0 );
+        fptype_sv& numerators_sv = NUM_ACCESS::kernelAccess( numerators );
+        fptype_sv& denominators_sv = DEN_ACCESS::kernelAccess( denominators );
+        MEs_sv *= numerators_sv / denominators_sv; // FIXME (#343): assume nprocesses == 1
       }
+#endif
+      //for( int ieppV = 0; ieppV < neppV; ieppV++ )
+      //{
+      //  const unsigned int ievt = ipagV * neppV + ieppV;
+      //  printf( "sigmaKin: ievt=%2d me=%f\n", ievt, allMEs[ievt] );
+      //}
     }
 #endif
     mgDebugFinalise();
