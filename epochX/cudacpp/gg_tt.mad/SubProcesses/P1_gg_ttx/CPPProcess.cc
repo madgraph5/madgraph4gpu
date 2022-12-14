@@ -87,6 +87,8 @@ namespace mg5amcCpu
   // Evaluate |M|^2 for each subprocess
   // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
   // (similarly, it also ADDS the numerator and denominator for a given ihel to their running sums over helicities)
+  // In CUDA, this device function computes the ME for a single event
+  // In C++, this function computes the ME for a single event "page" or SIMD vector (or for two in "mixed" precision mode)
   __device__ INLINE void /* clang-format off */
   calculate_wavefunctions( int ihel,
                            const fptype* allmomenta,      // input: momenta[nevt*npar*4]
@@ -98,7 +100,7 @@ namespace mg5amcCpu
                            , fptype* allDenominators      // output: multichannel denominators[nevt], running_sum_over_helicities
 #endif
 #ifndef __CUDACC__
-                           , const int nevt               // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+                           , const int ievt00             // input: first event number in current C++ event page (for CUDA, ievt depends on threadid)
 #endif
                            )
   //ALWAYS_INLINE // attributes are not permitted in a function definition
@@ -131,7 +133,7 @@ namespace mg5amcCpu
     mgDebug( 0, __FUNCTION__ );
     //printf( "calculate_wavefunctions: ihel=%2d\n", ihel );
 #ifndef __CUDACC__
-    //printf( "calculate_wavefunctions: nevt %d\n", nevt );
+    //printf( "calculate_wavefunctions: ievt00=%d\n", ievt00 );
 #endif
 
     // The number of colors
@@ -155,28 +157,25 @@ namespace mg5amcCpu
     // [jamp: sum (for one event or event page) of the invariant amplitudes for all Feynman diagrams in a given color combination]
     cxtype_sv jamp_sv[ncolor] = {}; // all zeros (NB: vector cxtype_v IS initialized to 0, but scalar cxype is NOT, if "= {}" is missing!)
 
-    // === Calculate wavefunctions and amplitudes for all diagrams in all processes - Loop over nevt events ===
+    // === Calculate wavefunctions and amplitudes for all diagrams in all processes         ===
+    // === (for one event in CUDA, for one - or two in mixed mode - SIMD event pages in C++ ===
 #ifndef __CUDACC__
-    const int npagV = nevt / neppV;
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
     // Mixed fptypes #537: float for color algebra and double elsewhere
     // Delay color algebra and ME updates (only on even pages)
     cxtype_sv jamp_sv_previous[ncolor] = {};
     fptype* MEs_previous = 0;
-    assert( npagV % 2 == 0 ); // SANITY CHECK for mixed fptypes: two neppV pages are merged to one neppV2 page
+    for( int iParity = 0; iParity < 2; ++iParity )
 #endif
-    // ** START LOOP ON IPAGV **
-#ifdef _OPENMP
-    // (NB gcc9 or higher, or clang, is required)
-    // - default(none): no variables are shared by default
-    // - shared: as the name says
-    // - private: give each thread its own copy, without initialising
-    // - firstprivate: give each thread its own copy, and initialise with value from outside
-#pragma omp parallel for default( none ) shared( allmomenta, allMEs, cHel, allcouplings, cIPC, cIPD, ihel, npagV, amp_fp, w_fp ) private( amp_sv, w_sv, jamp_sv )
-#endif // _OPENMP
-    for( int ipagV = 0; ipagV < npagV; ++ipagV )
-#endif // !__CUDACC__
-    {
+#endif
+    { // START LOOP ON IPARITY
+#ifndef __CUDACC__
+#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+      const int ievt0 = ievt00 + iParity * neppV;
+#else
+      const int ievt0 = ievt00;
+#endif      
+#endif      
       constexpr size_t nxcoup = ndcoup + nicoup; // both dependent and independent couplings
       const fptype* allCOUPs[nxcoup];
 #ifdef __CUDACC__
@@ -200,7 +199,6 @@ namespace mg5amcCpu
 #endif
 #else
       // C++ kernels take input/output buffers with momenta/MEs for one specific event (the first in the current event page)
-      const int ievt0 = ipagV * neppV;
       const fptype* momenta = M_ACCESS::ieventAccessRecordConst( allmomenta, ievt0 );
       const fptype* COUPs[nxcoup];
       for( size_t idcoup = 0; idcoup < ndcoup; idcoup++ )
@@ -307,13 +305,13 @@ namespace mg5amcCpu
 #endif
 
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
-      if( ipagV % 2 == 0 ) // NB: first page is 0! skip even pages, compute on odd pages
+      if( iParity == 0 ) // NB: first page is 0! skip even pages, compute on odd pages
       {
         // Mixed fptypes: delay color algebra and ME updates to next (odd) ipagV
         for( int icol = 0; icol < ncolor; icol++ )
           jamp_sv_previous[icol] = jamp_sv[icol];
         MEs_previous = MEs;
-        continue; // go to next ipagV in the loop: skip color algebra and ME update on odd pages
+        continue; // go to next iParity in the loop: skip color algebra and ME update on odd pages
       }
       fptype_sv deltaMEs_previous = { 0 };
 #endif
@@ -412,13 +410,13 @@ namespace mg5amcCpu
 #ifdef MGONGPU_CPPSIMD
       if( cNGoodHel > 0 )
         for( int ieppV = 0; ieppV < neppV; ieppV++ )
-          printf( "calculate_wavefunctions: ievt=%6d ihel=%2d me_running=%f\n", ipagV * neppV + ieppV, ihel, MEs_sv[ieppV] );
+          printf( "calculate_wavefunctions: ievt=%6d ihel=%2d me_running=%f\n", ievt0 + ieppV, ihel, MEs_sv[ieppV] );
 #else
-      if ( cNGoodHel > 0 ) printf( "calculate_wavefunctions: ievt=%6d ihel=%2d me_running=%f\n", ipagV, ihel, MEs_sv );
+      if ( cNGoodHel > 0 ) printf( "calculate_wavefunctions: ievt=%6d ihel=%2d me_running=%f\n", ievt0, ihel, MEs_sv );
 #endif
 #endif
       */
-    }
+    } // END LOOP ON IPARITY
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -636,6 +634,7 @@ namespace mg5amcCpu
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
     fptype allMEsLast = 0;
     const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
+    allMEs[ievt] = 0;
     for( int ihel = 0; ihel < ncomb; ihel++ )
     {
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
@@ -667,33 +666,68 @@ namespace mg5amcCpu
   {
     //assert( (size_t)(allmomenta) % mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
     //assert( (size_t)(allMEs) % mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
-    const int maxtry0 = ( neppV > 16 ? neppV : 16 ); // 16, but at least neppV (otherwise the npagV loop does not even start)
-    fptype allMEsLast[maxtry0] = { 0 };              // all zeros https://en.cppreference.com/w/c/language/array_initialization#Notes
-    const int maxtry = std::min( maxtry0, nevt );    // 16, but at most nevt (avoid invalid memory access if nevt<maxtry0)
+    // Allocate arrays at build time to contain at least 16 events (or at least neppV events if neppV>16, e.g. in future VPUs)
+    constexpr int maxtry0 = std::max( 16, neppV ); // 16, but at least neppV (otherwise the npagV loop does not even start)
+    fptype allMEsLast[maxtry0] = { 0 };            // allocated at build time: maxtry0 must be a constexpr
+    // Loop over only nevt events if nevt is < 16 (note that nevt is always >= neppV)
+    assert( nevt >= neppV );
+    const int maxtry = std::min( maxtry0, nevt ); // 16, but at most nevt (avoid invalid memory access if nevt<maxtry0)
+
+    // PART 0 - INITIALISATION (before calculate_wavefunctions)
+    // Reset the "matrix elements" - running sums of |M|^2 over helicities for the given event
     for( int ievt = 0; ievt < maxtry; ++ievt )
     {
       // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
       allMEs[ievt] = 0; // all zeros
     }
-    for( int ihel = 0; ihel < ncomb; ihel++ )
-    {
-      //std::cout << "sigmaKin_getGoodHel ihel=" << ihel << ( isGoodHel[ihel] ? " true" : " false" ) << std::endl;
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      constexpr unsigned int channelId = 0; // disable single-diagram channel enhancement
-      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators, maxtry );
+
+    // PART 1 - LOOP OVER ALL HELICITIES: CALCULATE WAVEFUNCTIONS
+    const int npagV = maxtry / neppV;
+#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+    // Mixed fptypes #537: float for color algebra and double elsewhere
+    // Delay color algebra and ME updates (only on even pages)
+    assert( npagV % 2 == 0 ); // SANITY CHECK for mixed fptypes: two neppV pages are merged to one neppV2 page
+    const int npagV2 = npagV / 2; // loop on two SIMD pages (neppV events) at a time
 #else
-      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, maxtry );
+    const int npagV2 = npagV; // loop on one SIMD page (neppV events) at a time
 #endif
-      for( int ievt = 0; ievt < maxtry; ++ievt )
+    for( int ipagV2 = 0; ipagV2 < npagV2; ++ipagV2 )
+    {
+#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+      const int ievt00 = ipagV2 * neppV * 2; // loop on two SIMD pages (neppV events) at a time
+#else
+      const int ievt00 = ipagV2 * neppV; // loop on one SIMD page (neppV events) at a time
+#endif
+      for( int ihel = 0; ihel < ncomb; ihel++ )
       {
-        // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-        const bool differs = ( allMEs[ievt] != allMEsLast[ievt] );
-        if( differs )
+        //std::cout << "sigmaKin_getGoodHel ihel=" << ihel << ( isGoodHel[ihel] ? " true" : " false" ) << std::endl;
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+        constexpr unsigned int channelId = 0; // disable single-diagram channel enhancement
+        calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators, ievt00 );
+#else
+        calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, ievt00 );
+#endif
+        for( int ieppV = 0; ieppV < neppV; ++ieppV )
         {
-          //if ( !isGoodHel[ihel] ) std::cout << "sigmaKin_getGoodHel ihel=" << ihel << " TRUE" << std::endl;
-          isGoodHel[ihel] = true;
+          const int ievt = ievt00 + ieppV;
+          const bool differs = ( allMEs[ievt] != allMEsLast[ievt] );
+          if( differs )
+          {
+            //if ( !isGoodHel[ihel] ) std::cout << "sigmaKin_getGoodHel ihel=" << ihel << " TRUE" << std::endl;
+            isGoodHel[ihel] = true;
+          }
+          allMEsLast[ievt] = allMEs[ievt]; // running sum up to helicity ihel
+#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+          const int ievt2 = ievt00 + ieppV + neppV;
+          const bool differs2 = ( allMEs[ievt2] != allMEsLast[ievt2] );
+          if( differs2 )
+          {
+            //if ( !isGoodHel[ihel] ) std::cout << "sigmaKin_getGoodHel ihel=" << ihel << " TRUE" << std::endl;
+            isGoodHel[ihel] = true;
+          }
+          allMEsLast[ievt2] = allMEs[ievt2]; // running sum up to helicity ihel
+#endif
         }
-        allMEsLast[ievt] = allMEs[ievt]; // running sum up to helicity ihel
       }
     }
   }
@@ -790,11 +824,12 @@ namespace mg5amcCpu
     }
 #endif
 
+  
     // PART 1 - HELICITY LOOP: CALCULATE WAVEFUNCTIONS
     // (in both CUDA and C++, using precomputed good helicities)
-    // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
+    // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here#ifdef __CUDACC__
 #ifdef __CUDACC__
-    // PART 1a - CUDA
+    // *** PART 1a - CUDA (one event per CPU thread) ***
     for( int ighel = 0; ighel < cNGoodHel; ighel++ )
     {
       const int ihel = cGoodHel[ighel];
@@ -806,15 +841,41 @@ namespace mg5amcCpu
       //if ( ighel == 0 ) break; // TEST sectors/requests (issue #16)
     }
 #else
-    // PART 1b - C++
-    for( int ighel = 0; ighel < cNGoodHel; ighel++ )
-    {
-      const int ihel = cGoodHel[ighel];
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators, nevt );
+    // *** PART 1b - C++ (loop on event pages)
+#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+    // Mixed fptypes #537: float for color algebra and double elsewhere
+    // Delay color algebra and ME updates (only on even pages)
+    assert( npagV % 2 == 0 ); // SANITY CHECK for mixed fptypes: two neppV pages are merged to one neppV2 page
+    const int npagV2 = npagV / 2; // loop on two SIMD pages (neppV events) at a time
 #else
-      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, nevt );
+    const int npagV2 = npagV; // loop on one SIMD page (neppV events) at a time
 #endif
+    /*
+#ifdef _OPENMP
+    // (NB gcc9 or higher, or clang, is required)
+    // - default(none): no variables are shared by default
+    // - shared: as the name says
+    // - private: give each thread its own copy, without initialising
+    // - firstprivate: give each thread its own copy, and initialise with value from outside
+#pragma omp parallel for default( none ) shared( allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators )
+#endif // _OPENMP
+    */
+    for( int ipagV2 = 0; ipagV2 < npagV2; ++ipagV2 )
+    {
+#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+      const int ievt00 = ipagV2 * neppV * 2; // loop on two SIMD pages (neppV events) at a time
+#else
+      const int ievt00 = ipagV2 * neppV; // loop on one SIMD page (neppV events) at a time
+#endif
+      for( int ighel = 0; ighel < cNGoodHel; ighel++ )
+      {
+        const int ihel = cGoodHel[ighel];
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+        calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators, ievt00 );
+#else
+        calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, ievt00 );
+#endif
+      }
     }
 #endif
 
