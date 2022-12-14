@@ -174,8 +174,8 @@ namespace mg5amcCpu
       const int ievt0 = ievt00 + iParity * neppV;
 #else
       const int ievt0 = ievt00;
-#endif      
-#endif      
+#endif
+#endif
       constexpr size_t nxcoup = ndcoup + nicoup; // both dependent and independent couplings
       const fptype* allCOUPs[nxcoup];
 #ifdef __CUDACC__
@@ -686,10 +686,10 @@ namespace mg5amcCpu
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
     // Mixed fptypes #537: float for color algebra and double elsewhere
     // Delay color algebra and ME updates (only on even pages)
-    assert( npagV % 2 == 0 ); // SANITY CHECK for mixed fptypes: two neppV pages are merged to one neppV2 page
+    assert( npagV % 2 == 0 );     // SANITY CHECK for mixed fptypes: two neppV-pages are merged to one 2*neppV-page
     const int npagV2 = npagV / 2; // loop on two SIMD pages (neppV events) at a time
 #else
-    const int npagV2 = npagV; // loop on one SIMD page (neppV events) at a time
+    const int npagV2 = npagV;            // loop on one SIMD page (neppV events) at a time
 #endif
     for( int ipagV2 = 0; ipagV2 < npagV2; ++ipagV2 )
     {
@@ -768,7 +768,7 @@ namespace mg5amcCpu
   __global__ void /* clang-format off */
   sigmaKin( const fptype* allmomenta,      // input: momenta[nevt*npar*4]
             const fptype* allcouplings,    // input: couplings[nevt*ndcoup*2]
-            const fptype* /*allrndhel*/,   // input: random numbers[nevt] for helicity selection
+            const fptype* allrndhel,   // input: random numbers[nevt] for helicity selection
             const fptype* /*allrndcol*/,   // input: random numbers[nevt] for color selection
             fptype* allMEs,                // output: allMEs[nevt], |M|^2 final_avg_over_helicities
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
@@ -776,7 +776,7 @@ namespace mg5amcCpu
             fptype* allNumerators,         // output: multichannel numerators[nevt], running_sum_over_helicities
             fptype* allDenominators,       // output: multichannel denominators[nevt], running_sum_over_helicities
 #endif
-            int* /*allselhel*/,            // output: helicity selection[nevt]
+            int* allselhel,            // output: helicity selection[nevt]
             int* /*allselcol*/             // output: helicity selection[nevt]
 #ifndef __CUDACC__
             , const int nevt               // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
@@ -831,11 +831,12 @@ namespace mg5amcCpu
 #endif
     }
 #endif
-  
+
     // PART 1 - HELICITY LOOP: CALCULATE WAVEFUNCTIONS
     // (in both CUDA and C++, using precomputed good helicities)
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here#ifdef __CUDACC__
 #ifdef __CUDACC__
+    fptype MEs_ighel[ncomb] = { 0 }; // sum of MEs for all good helicities up to ighel (for this event)
     // *** PART 1a - CUDA (one event per CPU thread) ***
     for( int ighel = 0; ighel < cNGoodHel; ighel++ )
     {
@@ -845,16 +846,30 @@ namespace mg5amcCpu
 #else
       calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs );
 #endif
+      MEs_ighel[ighel] = allMEs[ievt];
+    }
+    // Event-by-event random choice of helicity #403
+    for( int ighel = 0; ighel < cNGoodHel; ighel++ )
+    {
+      if( allrndhel[ievt] < ( MEs_ighel[ighel] / MEs_ighel[cNGoodHel - 1] ) )
+      {
+        const int ihel = cGoodHel[ighel];
+        allselhel[ievt] = ihel;
+        break;
+      }
     }
 #else
+
     // *** PART 1b - C++ (loop on event pages)
+    fptype_sv MEs_ighel[ncomb] = { 0 }; // sum of MEs for all good helicities up to ighel (for the first - and/or only - neppV page)
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
     // Mixed fptypes #537: float for color algebra and double elsewhere
     // Delay color algebra and ME updates (only on even pages)
-    assert( npagV % 2 == 0 ); // SANITY CHECK for mixed fptypes: two neppV pages are merged to one neppV2 page
-    const int npagV2 = npagV / 2; // loop on two SIMD pages (neppV events) at a time
+    assert( npagV % 2 == 0 );           // SANITY CHECK for mixed fptypes: two neppV-pages are merged to one 2*neppV-page
+    const int npagV2 = npagV / 2;       // loop on two SIMD pages (neppV events) at a time
+    fptype_sv MEs_ighel2[ncomb] = { 0 }; // sum of MEs for all good helicities up to ighel (for the second neppV page)
 #else
-    const int npagV2 = npagV; // loop on one SIMD page (neppV events) at a time
+    const int npagV2 = npagV;            // loop on one SIMD page (neppV events) at a time
 #endif
     /*
 #ifdef _OPENMP
@@ -881,6 +896,41 @@ namespace mg5amcCpu
 #else
         calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, ievt00 );
 #endif
+        MEs_ighel[ighel] = E_ACCESS::kernelAccess( E_ACCESS::ieventAccessRecord( allMEs, ievt00 ) );
+#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+        MEs_ighel2[ighel] = E_ACCESS::kernelAccess( E_ACCESS::ieventAccessRecord( allMEs, ievt00 + neppV ) );
+#endif
+      }
+      // Event-by-event random choice of helicity #403
+      for( int ieppV = 0; ieppV < neppV; ++ieppV )
+      {
+        const int ievt = ievt00 + ieppV;
+        for( int ighel = 0; ighel < cNGoodHel; ighel++ )
+        {
+#if defined MGONGPU_CPPSIMD
+          const bool okhel = allrndhel[ievt] < ( MEs_ighel[ighel][ieppV] / MEs_ighel[cNGoodHel - 1][ieppV] );          
+#else
+          const bool okhel = allrndhel[ievt] < ( MEs_ighel[ighel] / MEs_ighel[cNGoodHel - 1] );
+#endif
+          if( okhel )
+          {
+            const int ihel = cGoodHel[ighel];
+            allselhel[ievt] = ihel;
+            break;
+          }
+        }
+#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+        const int ievt2 = ievt00 + ieppV + neppV;
+        for( int ighel = 0; ighel < cNGoodHel; ighel++ )
+        {
+          if( allrndhel2[ievt] < ( MEs_ighel2[ighel][ieppV] / MEs_ighel2[cNGoodHel - 1][ieppV] ) )
+          {
+            const int ihel = cGoodHel[ighel];
+            allselhel[ievt2] = ihel;
+            break;
+          }
+        }
+#endif
       }
     }
 #endif
@@ -901,7 +951,7 @@ namespace mg5amcCpu
       const int ievt0 = ipagV * neppV;
       fptype* MEs = E_ACCESS::ieventAccessRecord( allMEs, ievt0 );
       fptype_sv& MEs_sv = E_ACCESS::kernelAccess( MEs );
-      MEs_sv  /= helcolDenominators[0]; // FIXME (#343): assume nprocesses == 1
+      MEs_sv /= helcolDenominators[0]; // FIXME (#343): assume nprocesses == 1
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId > 0 )
       {
