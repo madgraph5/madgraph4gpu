@@ -3,7 +3,7 @@
 
 // HARDCODED AT CODE GENERATION TIME: DO NOT MODIFY (#473)
 // There are two different code bases for standalone_cudacpp (without multichannel) and madevent+cudacpp (with multichannel)
-#undef MGONGPU_SUPPORTS_MULTICHANNEL
+#define MGONGPU_SUPPORTS_MULTICHANNEL 1
 
 // ** NB1 Throughputs (e.g. 6.8E8) are events/sec for "./gcheck.exe -p 65536 128 12"
 // ** NB2 Baseline on b7g47n0004 fluctuates (probably depends on load on other VMs)
