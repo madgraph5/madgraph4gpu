@@ -200,21 +200,47 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  // A base class encapsulating a memory buffer for random numbers
-  typedef BufferBase<fptype> BufferRandomNumbers;
+  // A base class encapsulating a memory buffer for momenta random numbers
+  typedef BufferBase<fptype> BufferRndNumMomenta;
 
-  // The size (number of elements) per event in a memory buffer for random numbers
-  constexpr size_t sizePerEventRandomNumbers = MemoryBuffers::np4 * MemoryBuffers::nparf;
+  // The size (number of elements) per event in a memory buffer for momenta random numbers
+  constexpr size_t sizePerEventRndNumMomenta = MemoryBuffers::np4 * MemoryBuffers::nparf;
 
 #ifndef __CUDACC__
-  // A class encapsulating a C++ host buffer for random numbers
-  typedef HostBuffer<fptype, sizePerEventRandomNumbers, HostBufferALIGNED> HostBufferRandomNumbers;
+  // A class encapsulating a C++ host buffer for momenta random numbers
+  typedef HostBuffer<fptype, sizePerEventRndNumMomenta, HostBufferALIGNED> HostBufferRndNumMomenta;
 #else
-  // A class encapsulating a CUDA pinned host buffer for random numbers
-  typedef PinnedHostBuffer<fptype, sizePerEventRandomNumbers> PinnedHostBufferRandomNumbers;
-  // A class encapsulating a CUDA device buffer for random numbers
-  typedef DeviceBuffer<fptype, sizePerEventRandomNumbers> DeviceBufferRandomNumbers;
+  // A class encapsulating a CUDA pinned host buffer for momenta random numbers
+  typedef PinnedHostBuffer<fptype, sizePerEventRndNumMomenta> PinnedHostBufferRndNumMomenta;
+  // A class encapsulating a CUDA device buffer for momenta random numbers
+  typedef DeviceBuffer<fptype, sizePerEventRndNumMomenta> DeviceBufferRndNumMomenta;
 #endif
+
+  //--------------------------------------------------------------------------
+
+  /*
+  // A base class encapsulating a memory buffer with ONE fptype per event
+  typedef BufferBase<fptype> BufferOneFp;
+
+  // The size (number of elements) per event in a memory buffer with ONE fptype per event
+  constexpr size_t sizePerEventOneFp = 1;
+
+#ifndef __CUDACC__
+  // A class encapsulating a C++ host buffer with ONE fptype per event
+  typedef HostBuffer<fptype, sizePerEventOneFp, HostBufferALIGNED> HostBufferOneFp;
+#else
+  // A class encapsulating a CUDA pinned host buffer for gs
+  typedef PinnedHostBuffer<fptype, sizePerEventOneFp> PinnedHostBufferOneFp;
+  // A class encapsulating a CUDA device buffer for gs
+  typedef DeviceBuffer<fptype, sizePerEventOneFp> DeviceBufferOneFp;
+#endif
+
+  // Memory buffers for Gs (related to the event-by-event strength of running coupling constant alphas QCD)
+  typedef BufferOneFp BufferGs;
+  typedef HostBufferOneFp HostBufferGs;
+  typedef PinnedHostBufferOneFp PinnedHostBufferGs;
+  typedef DeviceBufferOneFp DeviceBufferGs;
+  */
 
   //--------------------------------------------------------------------------
 
@@ -378,6 +404,78 @@ namespace mg5amcCpu
   typedef PinnedHostBuffer<fptype, sizePerEventWavefunctions> PinnedHostBufferWavefunctions;
   // A class encapsulating a CUDA device buffer for wavefunctions
   typedef DeviceBuffer<fptype, sizePerEventWavefunctions> DeviceBufferWavefunctions;
+#endif
+
+  //--------------------------------------------------------------------------
+
+  // A base class encapsulating a memory buffer for helicity random numbers
+  typedef BufferBase<fptype> BufferRndNumHelicity;
+
+  // The size (number of elements) per event in a memory buffer for helicity random numbers
+  constexpr size_t sizePerEventRndNumHelicity = 1;
+
+#ifndef __CUDACC__
+  // A class encapsulating a C++ host buffer for helicity random numbers
+  typedef HostBuffer<fptype, sizePerEventRndNumHelicity, HostBufferALIGNED> HostBufferRndNumHelicity;
+#else
+  // A class encapsulating a CUDA pinned host buffer for helicity random numbers
+  typedef PinnedHostBuffer<fptype, sizePerEventRndNumHelicity> PinnedHostBufferRndNumHelicity;
+  // A class encapsulating a CUDA device buffer for helicity random numbers
+  typedef DeviceBuffer<fptype, sizePerEventRndNumHelicity> DeviceBufferRndNumHelicity;
+#endif
+
+  //--------------------------------------------------------------------------
+
+  // A base class encapsulating a memory buffer for color random numbers
+  typedef BufferBase<fptype> BufferRndNumColor;
+
+  // The size (number of elements) per event in a memory buffer for color random numbers
+  constexpr size_t sizePerEventRndNumColor = 1;
+
+#ifndef __CUDACC__
+  // A class encapsulating a C++ host buffer for color random numbers
+  typedef HostBuffer<fptype, sizePerEventRndNumColor, HostBufferALIGNED> HostBufferRndNumColor;
+#else
+  // A class encapsulating a CUDA pinned host buffer for color random numbers
+  typedef PinnedHostBuffer<fptype, sizePerEventRndNumColor> PinnedHostBufferRndNumColor;
+  // A class encapsulating a CUDA device buffer for color random numbers
+  typedef DeviceBuffer<fptype, sizePerEventRndNumColor> DeviceBufferRndNumColor;
+#endif
+
+  //--------------------------------------------------------------------------
+
+  // A base class encapsulating a memory buffer for helicity selection
+  typedef BufferBase<int> BufferSelectedHelicity;
+
+  // The size (number of elements) per event in a memory buffer for helicity selection
+  constexpr size_t sizePerEventSelectedHelicity = 1;
+
+#ifndef __CUDACC__
+  // A class encapsulating a C++ host buffer for helicity selection
+  typedef HostBuffer<int, sizePerEventSelectedHelicity, HostBufferALIGNED> HostBufferSelectedHelicity;
+#else
+  // A class encapsulating a CUDA pinned host buffer for helicity selection
+  typedef PinnedHostBuffer<int, sizePerEventSelectedHelicity> PinnedHostBufferSelectedHelicity;
+  // A class encapsulating a CUDA device buffer for helicity selection
+  typedef DeviceBuffer<int, sizePerEventSelectedHelicity> DeviceBufferSelectedHelicity;
+#endif
+
+  //--------------------------------------------------------------------------
+
+  // A base class encapsulating a memory buffer for color selection
+  typedef BufferBase<int> BufferSelectedColor;
+
+  // The size (number of elements) per event in a memory buffer for color selection
+  constexpr size_t sizePerEventSelectedColor = 1;
+
+#ifndef __CUDACC__
+  // A class encapsulating a C++ host buffer for color selection
+  typedef HostBuffer<int, sizePerEventSelectedColor, HostBufferALIGNED> HostBufferSelectedColor;
+#else
+  // A class encapsulating a CUDA pinned host buffer for color selection
+  typedef PinnedHostBuffer<int, sizePerEventSelectedColor> PinnedHostBufferSelectedColor;
+  // A class encapsulating a CUDA device buffer for color selection
+  typedef DeviceBuffer<int, sizePerEventSelectedColor> DeviceBufferSelectedColor;
 #endif
 
   //--------------------------------------------------------------------------

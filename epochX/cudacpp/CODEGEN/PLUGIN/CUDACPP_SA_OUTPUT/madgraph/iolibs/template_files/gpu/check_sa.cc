@@ -281,14 +281,31 @@ main( int argc, char** argv )
   const std::string alloKey = "0b MemAlloc";
   timermap.start( alloKey );
 
-  // Memory buffers for random numbers
+  // Memory buffers for random numbers for momenta
 #ifndef __CUDACC__
-  HostBufferRandomNumbers hstRnarray( nevt );
+  HostBufferRndNumMomenta hstRndmom( nevt );
 #else
-  PinnedHostBufferRandomNumbers hstRnarray( nevt );
-  DeviceBufferRandomNumbers devRnarray( nevt );
+  PinnedHostBufferRndNumMomenta hstRndmom( nevt );
+  DeviceBufferRndNumMomenta devRndmom( nevt );
 #endif
 
+  // Memory buffers for sampling weights
+#ifndef __CUDACC__
+  HostBufferWeights hstWeights( nevt );
+#else
+  PinnedHostBufferWeights hstWeights( nevt );
+  DeviceBufferWeights devWeights( nevt );
+#endif
+
+  // Memory buffers for momenta
+#ifndef __CUDACC__
+  HostBufferMomenta hstMomenta( nevt );
+#else
+  PinnedHostBufferMomenta hstMomenta( nevt );
+  DeviceBufferMomenta devMomenta( nevt );
+#endif
+
+  // Memory buffers for Gs
 #ifndef __CUDACC__
   HostBufferGs hstGs( nevt );
 #else
@@ -305,28 +322,44 @@ main( int argc, char** argv )
     //hstGs[i] = i;
   }
 
-  // Memory buffers for momenta
-#ifndef __CUDACC__
-  HostBufferMomenta hstMomenta( nevt );
-#else
-  PinnedHostBufferMomenta hstMomenta( nevt );
-  DeviceBufferMomenta devMomenta( nevt );
-#endif
-
-  // Memory buffers for sampling weights
-#ifndef __CUDACC__
-  HostBufferWeights hstWeights( nevt );
-#else
-  PinnedHostBufferWeights hstWeights( nevt );
-  DeviceBufferWeights devWeights( nevt );
-#endif
-
   // Memory buffers for matrix elements
 #ifndef __CUDACC__
   HostBufferMatrixElements hstMatrixElements( nevt );
 #else
   PinnedHostBufferMatrixElements hstMatrixElements( nevt );
   DeviceBufferMatrixElements devMatrixElements( nevt );
+#endif
+
+  // Memory buffers for random numbers for helicity selection
+#ifndef __CUDACC__
+  HostBufferRndNumHelicity hstRndHel( nevt );
+#else
+  PinnedHostBufferRndNumHelicity hstRndHel( nevt );
+  DeviceBufferRndNumHelicity devRndHel( nevt );
+#endif
+
+  // Memory buffers for random numbers for color selection
+#ifndef __CUDACC__
+  HostBufferRndNumColor hstRndCol( nevt );
+#else
+  PinnedHostBufferRndNumColor hstRndCol( nevt );
+  DeviceBufferRndNumColor devRndCol( nevt );
+#endif
+
+  // Memory buffers for helicity selection
+#ifndef __CUDACC__
+  HostBufferSelectedHelicity hstSelHel( nevt );
+#else
+  PinnedHostBufferSelectedHelicity hstSelHel( nevt );
+  DeviceBufferSelectedHelicity devSelHel( nevt );
+#endif
+
+  // Memory buffers for color selection
+#ifndef __CUDACC__
+  HostBufferSelectedColor hstSelCol( nevt );
+#else
+  PinnedHostBufferSelectedColor hstSelCol( nevt );
+  DeviceBufferSelectedColor devSelCol( nevt );
 #endif
 
   std::unique_ptr<double[]> genrtimes( new double[niter] );
@@ -341,19 +374,19 @@ main( int argc, char** argv )
   std::unique_ptr<RandomNumberKernelBase> prnk;
   if( rndgen == RandomNumberMode::CommonRandom )
   {
-    prnk.reset( new CommonRandomNumberKernel( hstRnarray ) );
+    prnk.reset( new CommonRandomNumberKernel( hstRndmom ) );
   }
 #ifndef MGONGPU_HAS_NO_CURAND
   else if( rndgen == RandomNumberMode::CurandHost )
   {
     const bool onDevice = false;
-    prnk.reset( new CurandRandomNumberKernel( hstRnarray, onDevice ) );
+    prnk.reset( new CurandRandomNumberKernel( hstRndmom, onDevice ) );
   }
 #ifdef __CUDACC__
   else
   {
     const bool onDevice = true;
-    prnk.reset( new CurandRandomNumberKernel( devRnarray, onDevice ) );
+    prnk.reset( new CurandRandomNumberKernel( devRndmom, onDevice ) );
   }
 #else
   else
@@ -372,12 +405,12 @@ main( int argc, char** argv )
   std::unique_ptr<SamplingKernelBase> prsk;
   if( rmbsmp == RamboSamplingMode::RamboHost )
   {
-    prsk.reset( new RamboSamplingKernelHost( energy, hstRnarray, hstMomenta, hstWeights, nevt ) );
+    prsk.reset( new RamboSamplingKernelHost( energy, hstRndmom, hstMomenta, hstWeights, nevt ) );
   }
   else
   {
 #ifdef __CUDACC__
-    prsk.reset( new RamboSamplingKernelDevice( energy, devRnarray, devMomenta, devWeights, gpublocks, gputhreads ) );
+    prsk.reset( new RamboSamplingKernelDevice( energy, devRndmom, devMomenta, devWeights, gpublocks, gputhreads ) );
 #else
     throw std::logic_error( "RamboDevice is not supported on CPUs" ); // INTERNAL ERROR (no path to this statement)
 #endif
@@ -388,17 +421,17 @@ main( int argc, char** argv )
   if( !bridge )
   {
 #ifdef __CUDACC__
-    pmek.reset( new MatrixElementKernelDevice( devMomenta, devGs, devMatrixElements, gpublocks, gputhreads ) );
+    pmek.reset( new MatrixElementKernelDevice( devMomenta, devGs, devRndHel, devRndCol, devMatrixElements, devSelHel, devSelCol, gpublocks, gputhreads ) );
 #else
-    pmek.reset( new MatrixElementKernelHost( hstMomenta, hstGs, hstMatrixElements, nevt ) );
+    pmek.reset( new MatrixElementKernelHost( hstMomenta, hstGs, hstRndHel, hstRndCol, hstMatrixElements, hstSelHel, hstSelCol, nevt ) );
 #endif
   }
   else
   {
 #ifdef __CUDACC__
-    pmek.reset( new BridgeKernelDevice( hstMomenta, hstGs, hstMatrixElements, gpublocks, gputhreads ) );
+    pmek.reset( new BridgeKernelDevice( hstMomenta, hstGs, hstRndHel, hstRndCol, hstMatrixElements, hstSelHel, hstSelCol, gpublocks, gputhreads ) );
 #else
-    pmek.reset( new BridgeKernelHost( hstMomenta, hstGs, hstMatrixElements, nevt ) );
+    pmek.reset( new BridgeKernelHost( hstMomenta, hstGs, hstRndHel, hstRndCol, hstMatrixElements, hstSelHel, hstSelCol, nevt ) );
 #endif
   }
   int nGoodHel = 0; // the number of good helicities (out of ncomb)
@@ -440,10 +473,10 @@ main( int argc, char** argv )
 #ifdef __CUDACC__
     if( rndgen != RandomNumberMode::CurandDevice && rmbsmp == RamboSamplingMode::RamboDevice )
     {
-      // --- 1c. Copy rnarray from host to device
+      // --- 1c. Copy rndmom from host to device
       const std::string htodKey = "1c CpHTDrnd";
       genrtime += timermap.start( htodKey );
-      copyDeviceFromHost( devRnarray, hstRnarray );
+      copyDeviceFromHost( devRndmom, hstRndmom );
     }
 #endif
 
@@ -925,7 +958,7 @@ main( int argc, char** argv )
               << std::string( 16, ' ' ) << " )  sec^-1" << std::endl
               << "EvtsPerSec[Rmb+ME]     (23) = ( " << nevtALL / ( sumrtim + sumwtim )
               << std::string( 16, ' ' ) << " )  sec^-1" << std::endl
-              //<< "EvtsPerSec[RndNumbGen]   (1) = ( " << nevtALL/sumgtim
+              //<< "EvtsPerSec[RndNumGen]   (1) = ( " << nevtALL/sumgtim
               //<< std::string(16, ' ') << " )  sec^-1" << std::endl
               //<< "EvtsPerSec[Rambo]        (2) = ( " << nevtALL/sumrtim
               //<< std::string(16, ' ') << " )  sec^-1" << std::endl
