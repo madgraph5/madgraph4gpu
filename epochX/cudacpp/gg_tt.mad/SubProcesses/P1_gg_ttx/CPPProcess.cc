@@ -849,12 +849,14 @@ namespace mg5amcCpu
       MEs_ighel[ighel] = allMEs[ievt];
     }
     // Event-by-event random choice of helicity #403
+    printf( "sigmaKin: ievt=%4d rndhel=%f\n", ievt, allrndhel[ievt] );
     for( int ighel = 0; ighel < cNGoodHel; ighel++ )
     {
       if( allrndhel[ievt] < ( MEs_ighel[ighel] / MEs_ighel[cNGoodHel - 1] ) )
       {
         const int ihel = cGoodHel[ighel];
         allselhel[ievt] = ihel;
+        printf( "sigmaKin: ievt=%4d ihel=%4d\n", ievt, ihel );
         break;
       }
     }
@@ -905,6 +907,7 @@ namespace mg5amcCpu
       for( int ieppV = 0; ieppV < neppV; ++ieppV )
       {
         const int ievt = ievt00 + ieppV;
+        printf( "sigmaKin: ievt=%4d rndhel=%f\n", ievt, allrndhel[ievt] );
         for( int ighel = 0; ighel < cNGoodHel; ighel++ )
         {
 #if defined MGONGPU_CPPSIMD
@@ -916,17 +919,20 @@ namespace mg5amcCpu
           {
             const int ihel = cGoodHel[ighel];
             allselhel[ievt] = ihel;
+            printf( "sigmaKin: ievt=%4d ihel=%4d\n", ievt, ihel );
             break;
           }
         }
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
         const int ievt2 = ievt00 + ieppV + neppV;
+        printf( "sigmaKin: ievt=%4d rndhel=%f\n", ievt2, allrndhel[ievt2] );
         for( int ighel = 0; ighel < cNGoodHel; ighel++ )
         {
           if( allrndhel2[ievt] < ( MEs_ighel2[ighel][ieppV] / MEs_ighel2[cNGoodHel - 1][ieppV] ) )
           {
             const int ihel = cGoodHel[ighel];
             allselhel[ievt2] = ihel;
+            printf( "sigmaKin: ievt=%4d ihel=%4d\n", ievt, ihel );
             break;
           }
         }
