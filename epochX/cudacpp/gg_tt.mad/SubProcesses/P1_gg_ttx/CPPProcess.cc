@@ -845,7 +845,6 @@ namespace mg5amcCpu
 #else
       calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs );
 #endif
-      //if ( ighel == 0 ) break; // TEST sectors/requests (issue #16)
     }
 #else
     // *** PART 1b - C++ (loop on event pages)
