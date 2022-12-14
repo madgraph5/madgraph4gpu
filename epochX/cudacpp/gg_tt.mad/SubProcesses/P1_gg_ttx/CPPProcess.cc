@@ -855,9 +855,9 @@ namespace mg5amcCpu
     {
       if( allrndhel[ievt] < ( MEs_ighel[ighel] / MEs_ighel[cNGoodHel - 1] ) )
       {
-        const int ihel = cGoodHel[ighel];
-        allselhel[ievt] = ihel;
-        //printf( "sigmaKin: ievt=%4d ihel=%4d\n", ievt, ihel );
+        const int ihelF = cGoodHel[ighel] + 1; // NB Fortran [1,ncomb], cudacpp [0,ncomb-1]
+        allselhel[ievt] = ihelF;
+        //printf( "sigmaKin: ievt=%4d ihel=%4d\n", ievt, ihelF );
         break;
       }
     }
@@ -918,9 +918,9 @@ namespace mg5amcCpu
 #endif
           if( okhel )
           {
-            const int ihel = cGoodHel[ighel];
-            allselhel[ievt] = ihel;
-            //printf( "sigmaKin: ievt=%4d ihel=%4d\n", ievt, ihel );
+            const int ihelF = cGoodHel[ighel] + 1; // NB Fortran [1,ncomb], cudacpp [0,ncomb-1]
+            allselhel[ievt] = ihelF;
+            //printf( "sigmaKin: ievt=%4d ihel=%4d\n", ievt, ihelF );
             break;
           }
         }
@@ -931,9 +931,9 @@ namespace mg5amcCpu
         {
           if( allrndhel2[ievt] < ( MEs_ighel2[ighel][ieppV] / MEs_ighel2[cNGoodHel - 1][ieppV] ) )
           {
-            const int ihel = cGoodHel[ighel];
-            allselhel[ievt2] = ihel;
-            //printf( "sigmaKin: ievt=%4d ihel=%4d\n", ievt, ihel );
+            const int ihelF = cGoodHel[ighel] + 1; // NB Fortran [1,ncomb], cudacpp [0,ncomb-1]
+            allselhel[ievt2] = ihelF;
+            //printf( "sigmaKin: ievt=%4d ihel=%4d\n", ievt, ihelF );
             break;
           }
         }
