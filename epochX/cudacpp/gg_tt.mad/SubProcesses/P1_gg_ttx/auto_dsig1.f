@@ -580,6 +580,8 @@ c         ! This is a workaround for https://github.com/oliviermattelaer/mg5amc_
       IF( FBRIDGE_MODE .EQ. 1 .OR. FBRIDGE_MODE .LT. 0 ) THEN ! (CppOnly=1 or BothQuiet=-1 or BothDebug=-2)
         DO IVEC=1, VECSIZE_USED
           OUT(IVEC) = OUT2(IVEC) ! use the cudacpp ME instead of the fortran ME!
+          SELECTED_HEL(IVEC) = SELECTED_HEL2(IVEC) ! use the cudacpp helicity instead of the fortran helicity!
+c         SELECTED_COL(IVEC) = SELECTED_COL2(IVEC) ! use the cudacpp color instead of the fortran color!
         END DO
       ENDIF
 #endif
