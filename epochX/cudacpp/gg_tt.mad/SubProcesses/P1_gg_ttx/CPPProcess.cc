@@ -91,17 +91,18 @@ namespace mg5amcCpu
   // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
   // (similarly, it also ADDS the numerator and denominator for a given ihel to their running sums over helicities)
   // In CUDA, this device function computes the ME for a single event
-  // In C++, this function computes the ME for a single event "page" or SIMD vector (or for two in "mixed" precision mode)
+  // In C++, this function computes the ME for a single event "page" or SIMD vector (or for two in "mixed" precision mode, nParity=2)
   __device__ INLINE void /* clang-format off */
   calculate_wavefunctions( int ihel,
                            const fptype* allmomenta,      // input: momenta[nevt*npar*4]
                            const fptype* allcouplings,    // input: couplings[nevt*ndcoup*2]
-                           fptype* allMEs                 // output: allMEs[nevt], |M|^2 running_sum_over_helicities
+                           fptype* allMEs,                // output: allMEs[nevt], |M|^2 running_sum_over_helicities
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                           , const unsigned int channelId // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
-                           , fptype* allNumerators        // output: multichannel numerators[nevt], running_sum_over_helicities
-                           , fptype* allDenominators      // output: multichannel denominators[nevt], running_sum_over_helicities
+                           const unsigned int channelId,  // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
+                           fptype* allNumerators,         // output: multichannel numerators[nevt], running_sum_over_helicities
+                           fptype* allDenominators,       // output: multichannel denominators[nevt], running_sum_over_helicities
 #endif
+                           fptype_sv* jamp2               // output: jamp2[ncolor*nParity][neppV] for color choice
 #ifndef __CUDACC__
                            , const int ievt00             // input: first event number in current C++ event page (for CUDA, ievt depends on threadid)
 #endif
@@ -639,11 +640,12 @@ namespace mg5amcCpu
     for( int ihel = 0; ihel < ncomb; ihel++ )
     {
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
+      constexpr fptype_sv* jamp2 = nullptr; // no need for color selection during helicity filtering
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       constexpr unsigned int channelId = 0; // disable single-diagram channel enhancement
-      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators );
+      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators, jamp2 );
 #else
-      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs );
+      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, jamp2 );
 #endif
       if( allMEs[ievt] != allMEsLast )
       {
@@ -701,12 +703,13 @@ namespace mg5amcCpu
 #endif
       for( int ihel = 0; ihel < ncomb; ihel++ )
       {
+        constexpr fptype_sv* jamp2 = nullptr; // no need for color selection during helicity filtering
         //std::cout << "sigmaKin_getGoodHel ihel=" << ihel << ( isGoodHel[ihel] ? " true" : " false" ) << std::endl;
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
         constexpr unsigned int channelId = 0; // disable single-diagram channel enhancement
-        calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators, ievt00 );
+        calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators, jamp2, ievt00 );
 #else
-        calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, ievt00 );
+        calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, jamp2, ievt00 );
 #endif
         for( int ieppV = 0; ieppV < neppV; ++ieppV )
         {
@@ -832,6 +835,14 @@ namespace mg5amcCpu
 #endif
     }
 #endif
+    // Running sum of partial amplitudes squared for event by event color selection (#402)
+    // (for the single event or the single SIMD vector of events processed in calculate_wavefunctions)
+#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+    constexpr int nParity = 2;
+#else
+    constexpr int nParity = 1;
+#endif
+    fptype_sv jamp2[ncolor*nParity] = { 0 };
 
     // PART 1 - HELICITY LOOP: CALCULATE WAVEFUNCTIONS
     // (in both CUDA and C++, using precomputed good helicities)
@@ -843,9 +854,9 @@ namespace mg5amcCpu
     {
       const int ihel = cGoodHel[ighel];
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators );
+      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators, jamp2 );
 #else
-      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs );
+      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, jamp2 );
 #endif
       MEs_ighel[ighel] = allMEs[ievt];
     }
@@ -895,9 +906,9 @@ namespace mg5amcCpu
       {
         const int ihel = cGoodHel[ighel];
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-        calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators, ievt00 );
+        calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators, jamp2, ievt00 );
 #else
-        calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, ievt00 );
+        calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, jamp2, ievt00 );
 #endif
         MEs_ighel[ighel] = E_ACCESS::kernelAccess( E_ACCESS::ieventAccessRecord( allMEs, ievt00 ) );
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
