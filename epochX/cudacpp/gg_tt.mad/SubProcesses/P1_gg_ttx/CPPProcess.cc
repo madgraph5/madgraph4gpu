@@ -54,6 +54,9 @@ namespace mg5amcCpu
   using Parameters_sm_dependentCouplings::ndcoup;   // #couplings that vary event by event (depend on running alphas QCD)
   using Parameters_sm_independentCouplings::nicoup; // #couplings that are fixed for all events (do not depend on running alphas QCD)
 
+  // The number of colors
+  constexpr int ncolor = 2;
+
   // Physics parameters (masses, coupling, etc...)
   // For CUDA performance, hardcoded constexpr's would be better: fewer registers and a tiny throughput increase
   // However, physics parameters are user-defined through card files: use CUDA constant memory instead (issue #39)
@@ -136,9 +139,6 @@ namespace mg5amcCpu
     //printf( "calculate_wavefunctions: ievt00=%d\n", ievt00 );
 #endif
 
-    // The number of colors
-    constexpr int ncolor = 2;
-
     // Local TEMPORARY variables for a subset of Feynman diagrams in the given CUDA event (ievt) or C++ event page (ipagV)
     // [NB these variables are reused several times (and re-initialised each time) within the same event or event page]
     // ** NB: in other words, amplitudes and wavefunctions still have TRIVIAL ACCESS: there is currently no need
@@ -155,7 +155,7 @@ namespace mg5amcCpu
 
     // Local variables for the given CUDA event (ievt) or C++ event page (ipagV)
     // [jamp: sum (for one event or event page) of the invariant amplitudes for all Feynman diagrams in a given color combination]
-    cxtype_sv jamp_sv[ncolor] = {}; // all zeros (NB: vector cxtype_v IS initialized to 0, but scalar cxype is NOT, if "= {}" is missing!)
+    cxtype_sv jamp_sv[ncolor] = {}; // all zeros (NB: vector cxtype_v IS initialized to 0, but scalar cxtype is NOT, if "= {}" is missing!)
 
     // === Calculate wavefunctions and amplitudes for all diagrams in all processes         ===
     // === (for one event in CUDA, for one - or two in mixed mode - SIMD event pages in C++ ===
@@ -977,6 +977,46 @@ namespace mg5amcCpu
     }
 #endif
     mgDebugFinalise();
+  }
+
+  //--------------------------------------------------------------------------
+
+  // Event-by-event random choice of one leading color (#402) for one event or one SIMD vector of events.
+  // [Port to cudacpp the Fortran implementation of SELECT_COLOR in auto_dsig.f]
+  __device__ INLINE void
+  select_color( const fptype_sv& rndcol,  // input: random numbers[neppV] for color selection
+                const fptype_sv* jamp2,   // input: partial amplitudes[ncolor*neppV] for the different colors
+                const bool* isLeadCol,    // input: "is leading color" flags[ncolor] for the different colors
+                int_sv& selcol )          // output: selected color[neppV] (!NB Fortran numbering [1,ncol]!)
+  {
+    selcol = int_sv{ 0 };
+    fptype_sv targetamp[ncolor+1] = { 0 };
+    for( int icolC = 0; icolC < ncolor; icolC++ )
+    {
+      if ( isLeadCol[icolC] ) targetamp[icolC+1] = targetamp[icolC] + jamp2[icolC];
+    }
+#if defined MGONGPU_CPPSIMD
+    for( int ieppV = 0; ieppV < neppV; ieppV++ )
+    {
+      for( int icolF = 1; icolF < ncolor+1; icolF++ )
+      {
+        if( rndcol[ieppV] < ( targetamp[icolF][ieppV] / targetamp[ncolor][ieppV] ) )
+        {
+          selcol[ieppV] = icolF;
+          break;
+        }
+      }          
+    }
+#else
+    for( int icolF = 1; icolF < ncolor+1; icolF++ )
+    {
+      if( rndcol < ( targetamp[icolF] / targetamp[ncolor] ) )
+      {
+        selcol = icolF;
+        break;
+      }
+    }          
+#endif
   }
 
   //--------------------------------------------------------------------------
