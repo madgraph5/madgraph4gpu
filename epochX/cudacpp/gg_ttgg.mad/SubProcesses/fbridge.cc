@@ -76,25 +76,33 @@ extern "C"
    * @param ppbridge the pointer to the Bridge pointer (the Bridge pointer is handled in Fortran as an INTEGER*8 variable)
    * @param momenta the pointer to the input 4-momenta
    * @param gs the pointer to the input Gs (running QCD coupling constant alphas)
-   * @param mes the pointer to the output matrix elements
+   * @param rndhel the pointer to the input random numbers for helicity selection
+   * @param rndcol the pointer to the input random numbers for color selection
    * @param channelId the pointer to the input Feynman diagram to enhance in multi-channel mode if 1 to n (disable multi-channel if 0)
+   * @param mes the pointer to the output matrix elements
+   * @param selhel the pointer to the output selected helicities
+   * @param selcol the pointer to the output selected colors
    */
   void fbridgesequence_( CppObjectInFortran** ppbridge,
                          const FORTRANFPTYPE* momenta,
                          const FORTRANFPTYPE* gs,
+                         const FORTRANFPTYPE* rndhel,
+                         const FORTRANFPTYPE* rndcol,
+                         const unsigned int* pchannelId,
                          FORTRANFPTYPE* mes,
-                         const unsigned int* pchannelId )
+                         int* selhel,
+                         int* selcol )
   {
     Bridge<FORTRANFPTYPE>* pbridge = dynamic_cast<Bridge<FORTRANFPTYPE>*>( *ppbridge );
     if( pbridge == 0 ) throw std::runtime_error( "fbridgesequence_: invalid Bridge address" );
 #ifdef __CUDACC__
     // Use the device/GPU implementation in the CUDA library
     // (there is also a host implementation in this library)
-    pbridge->gpu_sequence( momenta, gs, mes, *pchannelId );
+    pbridge->gpu_sequence( momenta, gs, rndhel, rndcol, *pchannelId, mes, selhel, selcol );
 #else
     // Use the host/CPU implementation in the C++ library
     // (there is no device implementation in this library)
-    pbridge->cpu_sequence( momenta, gs, mes, *pchannelId );
+    pbridge->cpu_sequence( momenta, gs, rndhel, rndcol, *pchannelId, mes, selhel, selcol );
 #endif
   }
 

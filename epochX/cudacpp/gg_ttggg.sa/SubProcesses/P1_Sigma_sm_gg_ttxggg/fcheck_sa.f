@@ -12,9 +12,13 @@
 c     INTEGER IEXTERNAL
       DOUBLE PRECISION MOMENTA(0:NP4-1, NEXTERNAL, NEVTMAX) ! c-array momenta[nevt][nexternal][np4]
       DOUBLE PRECISION GS(NEVTMAX)
-      DOUBLE PRECISION MES(NEVTMAX)
+      DOUBLE PRECISION RNDHEL(NEVTMAX) ! not yet used
+      DOUBLE PRECISION RNDCOL(NEVTMAX) ! not yet used
       INTEGER*4 CHANID
       PARAMETER(CHANID=0) ! TEMPORARY? disable multi-channel in fcheck.exe and fgcheck.exe #466
+      DOUBLE PRECISION MES(NEVTMAX)
+      INTEGER*4 SELHEL(NEVTMAX) ! not yet used
+      INTEGER*4 SELCOL(NEVTMAX) ! not yet used
       DOUBLE PRECISION MES_SUM ! use REAL*16 for quadruple precision
       INTEGER NEVTOK ! exclude nan/abnormal MEs
 C
@@ -55,7 +59,8 @@ C
         DO IEVT = 1, NEVT
           GS(IEVT) = 1.2177157847767195 ! fixed G for aS=0.118 (hardcoded for now in check_sa.cc, fcheck_sa.f, runTest.cc)
         END DO
-        CALL FBRIDGESEQUENCE(BRIDGE, MOMENTA, GS, MES, CHANID)
+        CALL FBRIDGESEQUENCE(BRIDGE, MOMENTA, GS,
+     &    RNDHEL, RNDCOL, CHANID, MES, SELHEL, SELCOL)
         DO IEVT = 1, NEVT
 c         DO IEXTERNAL = 1, NEXTERNAL
 c           WRITE(6,*) 'MOMENTA', IEVT, IEXTERNAL,

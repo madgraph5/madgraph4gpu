@@ -48,7 +48,7 @@ namespace mg5amcCpu
   protected:
 
     // Constructor from an existing output buffer
-    RandomNumberKernelBase( BufferRandomNumbers& rnarray )
+    RandomNumberKernelBase( BufferRndNumMomenta& rnarray )
       : m_rnarray( rnarray ) {}
 
   public:
@@ -68,7 +68,7 @@ namespace mg5amcCpu
   protected:
 
     // The buffer for the output random numbers
-    BufferRandomNumbers& m_rnarray;
+    BufferRndNumMomenta& m_rnarray;
   };
 
   //--------------------------------------------------------------------------
@@ -79,7 +79,7 @@ namespace mg5amcCpu
   public:
 
     // Constructor from an existing output buffer
-    CommonRandomNumberKernel( BufferRandomNumbers& rnarray );
+    CommonRandomNumberKernel( BufferRndNumMomenta& rnarray );
 
     // Destructor
     ~CommonRandomNumberKernel() {}
@@ -108,7 +108,7 @@ namespace mg5amcCpu
   public:
 
     // Constructor from an existing output buffer
-    CurandRandomNumberKernel( BufferRandomNumbers& rnarray, const bool onDevice );
+    CurandRandomNumberKernel( BufferRndNumMomenta& rnarray, const bool onDevice );
 
     // Destructor
     ~CurandRandomNumberKernel();
