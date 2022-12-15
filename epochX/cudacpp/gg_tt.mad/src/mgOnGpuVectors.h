@@ -90,6 +90,13 @@ namespace mgOnGpu /* clang-format off */
 
   // --- Type definition (using vector compiler extensions: need -march=...)
 #ifdef __clang__ // https://clang.llvm.org/docs/LanguageExtensions.html#vectors-and-extended-vectors
+  typedef int int_v __attribute__( ( ext_vector_type( neppV ) ) ); // iiii
+#else // gcc
+  typedef int int_v __attribute__( ( vector_size( neppV * sizeof( int ) ) ) ); // iiii
+#endif
+
+  // --- Type definition (using vector compiler extensions: need -march=...)
+#ifdef __clang__ // https://clang.llvm.org/docs/LanguageExtensions.html#vectors-and-extended-vectors
 #if defined MGONGPU_FPTYPE_DOUBLE
   typedef long int bool_v __attribute__( ( ext_vector_type( neppV ) ) ); // bbbb
 #elif defined MGONGPU_FPTYPE_FLOAT
@@ -119,6 +126,7 @@ using mgOnGpu::neppV;
 using mgOnGpu::fptype_v;
 using mgOnGpu::fptype2_v;
 using mgOnGpu::cxtype_v;
+using mgOnGpu::int_v;
 using mgOnGpu::bool_v;
 #endif
 
@@ -783,18 +791,21 @@ cxternary( const bool& mask, const cxtype& a, const cxtype& b )
 
 // Scalar-or-vector types: scalar in CUDA, vector or scalar in C++
 #ifdef __CUDACC__
+typedef int int_sv;
 typedef bool bool_sv;
 typedef fptype fptype_sv;
 typedef fptype2 fptype2_sv;
 typedef cxtype cxtype_sv;
 typedef mgOnGpu::cxtype_ref cxtype_sv_ref;
 #elif defined MGONGPU_CPPSIMD
+typedef int_v int_sv;
 typedef bool_v bool_sv;
 typedef fptype_v fptype_sv;
 typedef fptype2_v fptype2_sv;
 typedef cxtype_v cxtype_sv;
 typedef mgOnGpu::cxtype_v_ref cxtype_sv_ref;
 #else
+typedef int int_sv;
 typedef bool bool_sv;
 typedef fptype fptype_sv;
 typedef fptype2 fptype2_sv;
