@@ -9,6 +9,7 @@
 
 #include "mgOnGpuConfig.h"
 
+#include "coloramps.h"
 #include "CudaRuntime.h"
 #include "HelAmps_sm.h"
 #include "MemoryAccessAmplitudes.h"
@@ -869,21 +870,23 @@ namespace mg5amcCpu
         break;
       }
     }
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Event-by-event random choice of color #402
     fptype targetamp[ncolor + 1] = { 0 };
     for( int icolC = 0; icolC < ncolor; icolC++ )
     {
-      if( isLeadCol[icolC] ) targetamp[icolC + 1] = targetamp[icolC] + jamp2[icolC];
+      if( mgOnGpu::icolamp[channelId][icolC] ) targetamp[icolC + 1] = targetamp[icolC] + jamp2_sv[icolC];
     }
     //printf( "sigmaKin: ievt=%4d rndcol=%f\n", ievt, allrndcol[ievt] );
     for( int icolF = 1; icolF < ncolor + 1; icolF++ )
     {
       if( allrndcol[ievt] < ( targetamp[icolF] / targetamp[ncolor] ) )
       {
-        selcol[ievt] = icolF;
+        allselcol[ievt] = icolF;
         break;
       }
     }
+#endif
 #else
     // *** PART 1b - C++ (loop on event pages)
     fptype_sv MEs_ighel[ncomb] = { 0 }; // sum of MEs for all good helicities up to ighel (for the first - and/or only - neppV page)
@@ -961,17 +964,18 @@ namespace mg5amcCpu
         }
 #endif
       }
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Event-by-event random choice of color #402
       fptype_sv targetamp[ncolor + 1] = { 0 };
       for( int icolC = 0; icolC < ncolor; icolC++ )
       {
-        if( isLeadCol[icolC] ) targetamp[icolC + 1] = targetamp[icolC] + jamp2_sv[icolC];
+        if( mgOnGpu::icolamp[channelId][icolC] ) targetamp[icolC + 1] = targetamp[icolC] + jamp2_sv[icolC];
       }
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
       fptype_sv targetamp2[ncolor + 1] = { 0 };
       for( int icolC = 0; icolC < ncolor; icolC++ )
       {
-        if( isLeadCol[icolC] ) targetamp2[icolC + 1] = targetamp2[icolC] + jamp2_sv[ncolor + icolC];
+        if( mgOnGpu::icolamp[channelId][icolC] ) targetamp2[icolC + 1] = targetamp2[icolC] + jamp2_sv[ncolor + icolC];
       }
 #endif      
       for( int ieppV = 0; ieppV < neppV; ++ieppV )
@@ -987,7 +991,7 @@ namespace mg5amcCpu
 #endif
           if( okcol )
           {
-            selcol[ievt] = icolF;
+            allselcol[ievt] = icolF;
             break;
           }
         }
@@ -998,10 +1002,11 @@ namespace mg5amcCpu
         {
           if( allrndcol[ievt2] < ( targetamp2[icolF][ieppV] / targetamp2[ncolor][ieppV] ) )
           {
-            selcol[ievt2] = icolF;
+            allselcol[ievt2] = icolF;
             break;
           }
         }
+#endif
 #endif
       }
     }
