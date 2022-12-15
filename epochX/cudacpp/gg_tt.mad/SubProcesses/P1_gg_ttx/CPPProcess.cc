@@ -871,11 +871,12 @@ namespace mg5amcCpu
       }
     }
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+    const int channelIdC = channelId -1; // coloramps.h uses the C array indexing starting at 0
     // Event-by-event random choice of color #402
     fptype targetamp[ncolor + 1] = { 0 };
     for( int icolC = 0; icolC < ncolor; icolC++ )
     {
-      if( mgOnGpu::icolamp[channelId][icolC] ) targetamp[icolC + 1] = targetamp[icolC] + jamp2_sv[icolC];
+      if( mgOnGpu::icolamp[channelIdC][icolC] ) targetamp[icolC + 1] = targetamp[icolC] + jamp2_sv[icolC];
     }
     //printf( "sigmaKin: ievt=%4d rndcol=%f\n", ievt, allrndcol[ievt] );
     for( int icolF = 1; icolF < ncolor + 1; icolF++ )
@@ -965,17 +966,18 @@ namespace mg5amcCpu
 #endif
       }
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+      const int channelIdC = channelId -1; // coloramps.h uses the C array indexing starting at 0
       // Event-by-event random choice of color #402
       fptype_sv targetamp[ncolor + 1] = { 0 };
       for( int icolC = 0; icolC < ncolor; icolC++ )
       {
-        if( mgOnGpu::icolamp[channelId][icolC] ) targetamp[icolC + 1] = targetamp[icolC] + jamp2_sv[icolC];
+        if( mgOnGpu::icolamp[channelIdC][icolC] ) targetamp[icolC + 1] = targetamp[icolC] + jamp2_sv[icolC];
       }
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
       fptype_sv targetamp2[ncolor + 1] = { 0 };
       for( int icolC = 0; icolC < ncolor; icolC++ )
       {
-        if( mgOnGpu::icolamp[channelId][icolC] ) targetamp2[icolC + 1] = targetamp2[icolC] + jamp2_sv[ncolor + icolC];
+        if( mgOnGpu::icolamp[channelIdC][icolC] ) targetamp2[icolC + 1] = targetamp2[icolC] + jamp2_sv[ncolor + icolC];
       }
 #endif      
       for( int ieppV = 0; ieppV < neppV; ++ieppV )
