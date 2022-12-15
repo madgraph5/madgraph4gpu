@@ -9,7 +9,6 @@
 
 #include "mgOnGpuConfig.h"
 
-#include "coloramps.h"
 #include "CudaRuntime.h"
 #include "HelAmps_sm.h"
 #include "MemoryAccessAmplitudes.h"
@@ -19,6 +18,7 @@
 #include "MemoryAccessMatrixElements.h"
 #include "MemoryAccessMomenta.h"
 #include "MemoryAccessWavefunctions.h"
+#include "coloramps.h"
 
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
 #include "MemoryAccessDenominators.h"
@@ -274,9 +274,9 @@ namespace mg5amcCpu
 
       // *** COLOR CHOICE BELOW ***
       // Store the leading color flows for choice of color
-      if ( jamp2_sv ) // disable color choice if nullptr
-        for( int icol = 0; icol < ncolor; icol++ )
-          jamp2_sv[ncolor * iParity + icol] += cxabs2( jamp_sv[icol] );
+      if( jamp2_sv ) // disable color choice if nullptr
+        for( int icolC = 0; icolC < ncolor; icolC++ )
+          jamp2_sv[ncolor * iParity + icolC] += cxabs2( jamp_sv[icolC] );
 
       // *** COLOR ALGEBRA BELOW ***
       // (This method used to be called CPPProcess::matrix_1_gg_ttx()?)
@@ -871,19 +871,20 @@ namespace mg5amcCpu
       }
     }
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    const int channelIdC = channelId -1; // coloramps.h uses the C array indexing starting at 0
+    const int channelIdC = channelId - 1; // coloramps.h uses the C array indexing starting at 0
     // Event-by-event random choice of color #402
-    fptype targetamp[ncolor + 1] = { 0 };
+    fptype targetamp[ncolor] = { 0 };
     for( int icolC = 0; icolC < ncolor; icolC++ )
     {
-      if( mgOnGpu::icolamp[channelIdC][icolC] ) targetamp[icolC + 1] = targetamp[icolC] + jamp2_sv[icolC];
+      if( mgOnGpu::icolamp[channelIdC][icolC] )
+        targetamp[icolC] = jamp2_sv[icolC] + ( icolC == 0 ? 0 : targetamp[icolC - 1] );
     }
     //printf( "sigmaKin: ievt=%4d rndcol=%f\n", ievt, allrndcol[ievt] );
-    for( int icolF = 1; icolF < ncolor + 1; icolF++ )
+    for( int icolC = 0; icolC < ncolor; icolC++ )
     {
-      if( allrndcol[ievt] < ( targetamp[icolF] / targetamp[ncolor] ) )
+      if( allrndcol[ievt] < ( targetamp[icolC] / targetamp[ncolor - 1] ) )
       {
-        allselcol[ievt] = icolF;
+        allselcol[ievt] = icolC + 1; // NB Fortran [1,ncolor], cudacpp [0,ncolor-1]
         break;
       }
     }
@@ -966,45 +967,47 @@ namespace mg5amcCpu
 #endif
       }
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      const int channelIdC = channelId -1; // coloramps.h uses the C array indexing starting at 0
+      const int channelIdC = channelId - 1; // coloramps.h uses the C array indexing starting at 0
       // Event-by-event random choice of color #402
-      fptype_sv targetamp[ncolor + 1] = { 0 };
+      fptype_sv targetamp[ncolor] = { 0 };
       for( int icolC = 0; icolC < ncolor; icolC++ )
       {
-        if( mgOnGpu::icolamp[channelIdC][icolC] ) targetamp[icolC + 1] = targetamp[icolC] + jamp2_sv[icolC];
+        if( mgOnGpu::icolamp[channelIdC][icolC] )
+          targetamp[icolC] = jamp2_sv[icolC] + ( icolC == 0 ? fptype_sv{ 0 } : targetamp[icolC - 1] );
       }
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
-      fptype_sv targetamp2[ncolor + 1] = { 0 };
+      fptype_sv targetamp2[ncolor] = { 0 };
       for( int icolC = 0; icolC < ncolor; icolC++ )
       {
-        if( mgOnGpu::icolamp[channelIdC][icolC] ) targetamp2[icolC + 1] = targetamp2[icolC] + jamp2_sv[ncolor + icolC];
+        if( mgOnGpu::icolamp[channelIdC][icolC] )
+          targetamp2[icolC] = jamp2_sv[ncolor + icolC] + ( icolC == 0 ? fptype_sv{ 0 } : targetamp2[icolC - 1] );
       }
-#endif      
+#endif
       for( int ieppV = 0; ieppV < neppV; ++ieppV )
       {
         const int ievt = ievt00 + ieppV;
         //printf( "sigmaKin: ievt=%4d rndcol=%f\n", ievt, allrndcol[ievt] );
-        for( int icolF = 1; icolF < ncolor + 1; icolF++ )
+        for( int icolC = 0; icolC < ncolor; icolC++ )
         {
 #if defined MGONGPU_CPPSIMD
-          const bool okcol = allrndcol[ievt] < ( targetamp[icolF][ieppV] / targetamp[ncolor][ieppV] );
+          const bool okcol = allrndcol[ievt] < ( targetamp[icolC][ieppV] / targetamp[ncolor - 1][ieppV] );
 #else
-          const bool okcol = allrndcol[ievt] < ( targetamp[icolF] / targetamp[ncolor] );
+          const bool okcol = allrndcol[ievt] < ( targetamp[icolC] / targetamp[ncolor - 1] );
 #endif
           if( okcol )
           {
-            allselcol[ievt] = icolF;
+            allselcol[ievt] = icolC + 1; // NB Fortran [1,ncolor], cudacpp [0,ncolor-1]
             break;
           }
         }
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
         const int ievt2 = ievt00 + ieppV + neppV;
         //printf( "sigmaKin: ievt=%4d rndcol=%f\n", ievt2, allrndcol[ievt2] );
-        for( int icolF = 1; icolF < ncolor + 1; icolF++ )
+        for( int icolC = 0; icolC < ncolor; icolC++ )
         {
-          if( allrndcol[ievt2] < ( targetamp2[icolF][ieppV] / targetamp2[ncolor][ieppV] ) )
+          if( allrndcol[ievt2] < ( targetamp2[icolC][ieppV] / targetamp2[ncolor - 1][ieppV] ) )
           {
-            allselcol[ievt2] = icolF;
+            allselcol[ievt2] = icolC + 1; // NB Fortran [1,ncolor], cudacpp [0,ncolor-1]
             break;
           }
         }
