@@ -109,7 +109,7 @@ namespace mg5amcCpu
                            fptype* allNumerators,         // output: multichannel numerators[nevt], running_sum_over_helicities
                            fptype* allDenominators,       // output: multichannel denominators[nevt], running_sum_over_helicities
 #endif
-                           fptype_sv* jamp2_sv            // output: jamp2[nParity][ncolor][neppV] for color choice (nullptr if disabled(
+                           fptype_sv* jamp2_sv            // output: jamp2[nParity][ncolor][neppV] for color choice (nullptr if disabled)
 #ifndef __CUDACC__
                            , const int ievt00             // input: first event number in current C++ event page (for CUDA, ievt depends on threadid)
 #endif
@@ -774,16 +774,16 @@ namespace mg5amcCpu
   __global__ void /* clang-format off */
   sigmaKin( const fptype* allmomenta,      // input: momenta[nevt*npar*4]
             const fptype* allcouplings,    // input: couplings[nevt*ndcoup*2]
-            const fptype* allrndhel,   // input: random numbers[nevt] for helicity selection
-            const fptype* /*allrndcol*/,   // input: random numbers[nevt] for color selection
+            const fptype* allrndhel,       // input: random numbers[nevt] for helicity selection
+            const fptype* allrndcol,       // input: random numbers[nevt] for color selection
             fptype* allMEs,                // output: allMEs[nevt], |M|^2 final_avg_over_helicities
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
             const unsigned int channelId,  // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
             fptype* allNumerators,         // output: multichannel numerators[nevt], running_sum_over_helicities
             fptype* allDenominators,       // output: multichannel denominators[nevt], running_sum_over_helicities
 #endif
-            int* allselhel,            // output: helicity selection[nevt]
-            int* /*allselcol*/             // output: helicity selection[nevt]
+            int* allselhel,                // output: helicity selection[nevt]
+            int* allselcol                 // output: helicity selection[nevt]
 #ifndef __CUDACC__
             , const int nevt               // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
@@ -839,14 +839,14 @@ namespace mg5amcCpu
 #endif
     // Running sum of partial amplitudes squared for event by event color selection (#402)
     // (for the single event or the single SIMD vector of events processed in calculate_wavefunctions)
-    fptype_sv jamp2_sv[ncolor * nParity] = { 0 }; // jamp2[nParity][ncolor][neppV] for color choice
+    fptype_sv jamp2_sv[nParity * ncolor] = { 0 }; // jamp2[nParity][ncolor][neppV] for color choice
 
     // PART 1 - HELICITY LOOP: CALCULATE WAVEFUNCTIONS
     // (in both CUDA and C++, using precomputed good helicities)
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here#ifdef __CUDACC__
 #ifdef __CUDACC__
-    fptype MEs_ighel[ncomb] = { 0 }; // sum of MEs for all good helicities up to ighel (for this event)
     // *** PART 1a - CUDA (one event per CPU thread) ***
+    fptype MEs_ighel[ncomb] = { 0 }; // sum of MEs for all good helicities up to ighel (for this event)
     for( int ighel = 0; ighel < cNGoodHel; ighel++ )
     {
       const int ihel = cGoodHel[ighel];
@@ -869,8 +869,22 @@ namespace mg5amcCpu
         break;
       }
     }
+    // Event-by-event random choice of color #402
+    fptype targetamp[ncolor + 1] = { 0 };
+    for( int icolC = 0; icolC < ncolor; icolC++ )
+    {
+      if( isLeadCol[icolC] ) targetamp[icolC + 1] = targetamp[icolC] + jamp2[icolC];
+    }
+    //printf( "sigmaKin: ievt=%4d rndcol=%f\n", ievt, allrndcol[ievt] );
+    for( int icolF = 1; icolF < ncolor + 1; icolF++ )
+    {
+      if( allrndcol[ievt] < ( targetamp[icolF] / targetamp[ncolor] ) )
+      {
+        selcol[ievt] = icolF;
+        break;
+      }
+    }
 #else
-
     // *** PART 1b - C++ (loop on event pages)
     fptype_sv MEs_ighel[ncomb] = { 0 }; // sum of MEs for all good helicities up to ighel (for the first - and/or only - neppV page)
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
@@ -947,6 +961,49 @@ namespace mg5amcCpu
         }
 #endif
       }
+      // Event-by-event random choice of color #402
+      fptype_sv targetamp[ncolor + 1] = { 0 };
+      for( int icolC = 0; icolC < ncolor; icolC++ )
+      {
+        if( isLeadCol[icolC] ) targetamp[icolC + 1] = targetamp[icolC] + jamp2_sv[icolC];
+      }
+#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+      fptype_sv targetamp2[ncolor + 1] = { 0 };
+      for( int icolC = 0; icolC < ncolor; icolC++ )
+      {
+        if( isLeadCol[icolC] ) targetamp2[icolC + 1] = targetamp2[icolC] + jamp2_sv[ncolor + icolC];
+      }
+#endif      
+      for( int ieppV = 0; ieppV < neppV; ++ieppV )
+      {
+        const int ievt = ievt00 + ieppV;
+        //printf( "sigmaKin: ievt=%4d rndcol=%f\n", ievt, allrndcol[ievt] );
+        for( int icolF = 1; icolF < ncolor + 1; icolF++ )
+        {
+#if defined MGONGPU_CPPSIMD
+          const bool okcol = allrndcol[ievt] < ( targetamp[icolF][ieppV] / targetamp[ncolor][ieppV] );
+#else
+          const bool okcol = allrndcol[ievt] < ( targetamp[icolF] / targetamp[ncolor] );
+#endif
+          if( okcol )
+          {
+            selcol[ievt] = icolF;
+            break;
+          }
+        }
+#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+        const int ievt2 = ievt00 + ieppV + neppV;
+        //printf( "sigmaKin: ievt=%4d rndcol=%f\n", ievt2, allrndcol[ievt2] );
+        for( int icolF = 1; icolF < ncolor + 1; icolF++ )
+        {
+          if( allrndcol[ievt2] < ( targetamp2[icolF][ieppV] / targetamp2[ncolor][ieppV] ) )
+          {
+            selcol[ievt2] = icolF;
+            break;
+          }
+        }
+#endif
+      }
     }
 #endif
 
@@ -985,46 +1042,6 @@ namespace mg5amcCpu
     }
 #endif
     mgDebugFinalise();
-  }
-
-  //--------------------------------------------------------------------------
-
-  // Event-by-event random choice of one leading color (#402) for one event or one SIMD vector of events.
-  // [Port to cudacpp the Fortran implementation of SELECT_COLOR in auto_dsig.f]
-  __device__ INLINE void
-  select_color( const fptype_sv& rndcol, // input: random numbers[neppV] for color selection
-                const fptype_sv* jamp2,  // input: partial amplitudes[ncolor*neppV] for the different colors
-                const bool* isLeadCol,   // input: "is leading color" flags[ncolor] for the different colors
-                int_sv& selcol )         // output: selected color[neppV] (!NB Fortran numbering [1,ncolor]!)
-  {
-    selcol = int_sv{ 0 };
-    fptype_sv targetamp[ncolor + 1] = { 0 };
-    for( int icolC = 0; icolC < ncolor; icolC++ )
-    {
-      if( isLeadCol[icolC] ) targetamp[icolC + 1] = targetamp[icolC] + jamp2[icolC];
-    }
-#if defined MGONGPU_CPPSIMD
-    for( int ieppV = 0; ieppV < neppV; ieppV++ )
-    {
-      for( int icolF = 1; icolF < ncolor + 1; icolF++ )
-      {
-        if( rndcol[ieppV] < ( targetamp[icolF][ieppV] / targetamp[ncolor][ieppV] ) )
-        {
-          selcol[ieppV] = icolF;
-          break;
-        }
-      }
-    }
-#else
-    for( int icolF = 1; icolF < ncolor + 1; icolF++ )
-    {
-      if( rndcol < ( targetamp[icolF] / targetamp[ncolor] ) )
-      {
-        selcol = icolF;
-        break;
-      }
-    }
-#endif
   }
 
   //--------------------------------------------------------------------------
