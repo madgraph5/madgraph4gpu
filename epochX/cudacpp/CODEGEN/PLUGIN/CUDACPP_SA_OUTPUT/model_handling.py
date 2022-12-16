@@ -1214,6 +1214,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         self.edit_check_sa()
         self.edit_mgonGPU()
         self.edit_processidfile() # AV new file (NB this is Sigma-specific, should not be a symlink to Subprocesses)
+        self.edit_coloramps() # AV new file (NB this is Sigma-specific, should not be a symlink to Subprocesses)
         self.edit_testxxx() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
         self.edit_memorybuffers() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
         self.edit_memoryaccesscouplings() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
@@ -1284,6 +1285,24 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         replace_dict['processid'] = self.get_process_name()
         replace_dict['processid_uppercase'] = self.get_process_name().upper()
         ff = open(pjoin(self.path, 'epoch_process_id.h'),'w')
+        ff.write(template % replace_dict)
+        ff.close()
+
+    # AV - new method
+    def edit_coloramps(self):
+        """Generate coloramps.h"""
+        misc.sprint('Entering PLUGIN_OneProcessExporter.edit_coloramps')
+        template = open(pjoin(self.template_path,'gpu','coloramps.h'),'r').read()
+        ff = open(pjoin(self.path, 'coloramps.h'),'w')
+        # The following five lines from OneProcessExporterCPP.get_sigmaKin_lines (using OneProcessExporterCPP.get_icolamp_lines)
+        replace_dict={}
+        if self.include_multi_channel:
+            multi_channel = self.get_multi_channel_dictionary(self.matrix_elements[0].get('diagrams'), self.include_multi_channel)
+            replace_dict['is_LC'] = self.get_icolamp_lines(multi_channel, self.matrix_elements[0], 1)
+            replace_dict['nb_channel'] = len(multi_channel)
+            replace_dict['nb_color'] = max(1,len(self.matrix_elements[0].get('color_basis')))
+            # AV extra formatting (e.g. gg_tt was "{{true,true};,{true,false};,{false,true};};")
+            replace_dict['is_LC'] = replace_dict['is_LC'].replace(',',', ').replace('{{','    { ').replace('};, {',' },\n    { ').replace('};};',' }\n')
         ff.write(template % replace_dict)
         ff.close()
 
