@@ -1073,17 +1073,18 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
   // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
   // (similarly, it also ADDS the numerator and denominator for a given ihel to their running sums over helicities)
   // In CUDA, this device function computes the ME for a single event
-  // In C++, this function computes the ME for a single event "page" or SIMD vector (or for two in "mixed" precision mode)
+  // In C++, this function computes the ME for a single event "page" or SIMD vector (or for two in "mixed" precision mode, nParity=2)
   __device__ INLINE void /* clang-format off */
   calculate_wavefunctions( int ihel,
                            const fptype* allmomenta,      // input: momenta[nevt*npar*4]
                            const fptype* allcouplings,    // input: couplings[nevt*ndcoup*2]
-                           fptype* allMEs                 // output: allMEs[nevt], |M|^2 running_sum_over_helicities
+                           fptype* allMEs,                // output: allMEs[nevt], |M|^2 running_sum_over_helicities
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                           , const unsigned int channelId // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
-                           , fptype* allNumerators        // output: multichannel numerators[nevt], running_sum_over_helicities
-                           , fptype* allDenominators      // output: multichannel denominators[nevt], running_sum_over_helicities
+                           const unsigned int channelId,  // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
+                           fptype* allNumerators,         // output: multichannel numerators[nevt], running_sum_over_helicities
+                           fptype* allDenominators,       // output: multichannel denominators[nevt], running_sum_over_helicities
 #endif
+                           fptype_sv* jamp2_sv            // output: jamp2[nParity][ncolor][neppV] for color choice (nullptr if disabled)
 #ifndef __CUDACC__
                            , const int ievt00             // input: first event number in current C++ event page (for CUDA, ievt depends on threadid)
 #endif
@@ -1137,26 +1138,20 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
 
     // Local variables for the given CUDA event (ievt) or C++ event page (ipagV)
     // [jamp: sum (for one event or event page) of the invariant amplitudes for all Feynman diagrams in a given color combination]
-    cxtype_sv jamp_sv[ncolor] = {}; // all zeros (NB: vector cxtype_v IS initialized to 0, but scalar cxype is NOT, if \"= {}\" is missing!)
+    cxtype_sv jamp_sv[ncolor] = {}; // all zeros (NB: vector cxtype_v IS initialized to 0, but scalar cxtype is NOT, if "= {}" is missing!)
 
     // === Calculate wavefunctions and amplitudes for all diagrams in all processes         ===
     // === (for one event in CUDA, for one - or two in mixed mode - SIMD event pages in C++ ===
-#ifndef __CUDACC__
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
     // Mixed fptypes #537: float for color algebra and double elsewhere
     // Delay color algebra and ME updates (only on even pages)
     cxtype_sv jamp_sv_previous[ncolor] = {};
     fptype* MEs_previous = 0;
-    for( int iParity = 0; iParity < 2; ++iParity )
 #endif
-#endif
+    for( int iParity = 0; iParity < nParity; ++iParity )
     { // START LOOP ON IPARITY
 #ifndef __CUDACC__
-#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
       const int ievt0 = ievt00 + iParity * neppV;
-#else
-      const int ievt0 = ievt00;
-#endif
 #endif""")
             misc.sprint(type(self.helas_call_writer))
             misc.sprint(self.support_multichannel, self.include_multi_channel)
