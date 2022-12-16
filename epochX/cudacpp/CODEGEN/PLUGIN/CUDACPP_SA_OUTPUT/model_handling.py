@@ -1214,7 +1214,8 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         self.edit_check_sa()
         self.edit_mgonGPU()
         self.edit_processidfile() # AV new file (NB this is Sigma-specific, should not be a symlink to Subprocesses)
-        self.edit_coloramps() # AV new file (NB this is Sigma-specific, should not be a symlink to Subprocesses)
+        if self.include_multi_channel:
+            self.edit_coloramps() # AV new file (NB this is Sigma-specific, should not be a symlink to Subprocesses)
         self.edit_testxxx() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
         self.edit_memorybuffers() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
         self.edit_memoryaccesscouplings() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
@@ -1296,7 +1297,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         ff = open(pjoin(self.path, 'coloramps.h'),'w')
         # The following five lines from OneProcessExporterCPP.get_sigmaKin_lines (using OneProcessExporterCPP.get_icolamp_lines)
         replace_dict={}
-        if self.include_multi_channel:
+        if self.include_multi_channel: # NB unnecessary as edit_coloramps is not called otherwise...
             multi_channel = self.get_multi_channel_dictionary(self.matrix_elements[0].get('diagrams'), self.include_multi_channel)
             replace_dict['is_LC'] = self.get_icolamp_lines(multi_channel, self.matrix_elements[0], 1)
             replace_dict['nb_channel'] = len(multi_channel)

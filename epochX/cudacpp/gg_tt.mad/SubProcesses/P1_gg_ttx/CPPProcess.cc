@@ -18,11 +18,11 @@
 #include "MemoryAccessMatrixElements.h"
 #include "MemoryAccessMomenta.h"
 #include "MemoryAccessWavefunctions.h"
-#include "coloramps.h"
 
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
 #include "MemoryAccessDenominators.h"
 #include "MemoryAccessNumerators.h"
+#include "coloramps.h"
 #endif
 
 #include <algorithm>
