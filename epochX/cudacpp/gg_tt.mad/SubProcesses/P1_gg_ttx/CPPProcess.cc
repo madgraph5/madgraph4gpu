@@ -845,8 +845,8 @@ namespace mg5amcCpu
 #ifdef __CUDACC__
     // *** PART 1a - CUDA (one event per CPU thread) ***
     // Running sum of partial amplitudes squared for event by event color selection (#402)
-    // (for the single event or the single SIMD vector of events processed in calculate_wavefunctions)
-    fptype_sv jamp2_sv[nParity * ncolor] = { 0 }; // jamp2[nParity][ncolor][neppV] for color choice
+    // (for the single event processed in calculate_wavefunctions)
+    fptype_sv jamp2_sv[nParity * ncolor] = { 0 };
     fptype MEs_ighel[ncomb] = { 0 }; // sum of MEs for all good helicities up to ighel (for this event)
     for( int ighel = 0; ighel < cNGoodHel; ighel++ )
     {
@@ -914,8 +914,8 @@ namespace mg5amcCpu
     for( int ipagV2 = 0; ipagV2 < npagV2; ++ipagV2 )
     {
       // Running sum of partial amplitudes squared for event by event color selection (#402)
-      // (for the single event or the single SIMD vector of events processed in calculate_wavefunctions)
-      fptype_sv jamp2_sv[nParity * ncolor] = { 0 }; // jamp2[nParity][ncolor][neppV] for color choice
+      // (jamp2[nParity][ncolor][neppV] for the SIMD vector - or the two SIMD vectors - of events processed in calculate_wavefunctions)
+      fptype_sv jamp2_sv[nParity * ncolor] = { 0 };
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
       const int ievt00 = ipagV2 * neppV * 2; // loop on two SIMD pages (neppV events) at a time
 #else
