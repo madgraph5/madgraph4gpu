@@ -294,7 +294,7 @@ namespace mg5amcCpu
       allMEs[ievt] = 0; // all zeros
     }
 
-    // PART 1 - LOOP OVER ALL HELICITIES: CALCULATE WAVEFUNCTIONS
+    // PART 1 - HELICITY LOOP: CALCULATE WAVEFUNCTIONS
     const int npagV = maxtry / neppV;
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
     // Mixed fptypes #537: float for color algebra and double elsewhere

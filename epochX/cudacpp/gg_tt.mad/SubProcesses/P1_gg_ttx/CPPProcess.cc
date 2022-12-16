@@ -278,7 +278,7 @@ namespace mg5amcCpu
         for( int icolC = 0; icolC < ncolor; icolC++ )
           jamp2_sv[ncolor * iParity + icolC] += cxabs2( jamp_sv[icolC] );
 
-      // *** COLOR ALGEBRA BELOW ***
+      // *** COLOR MATRIX BELOW ***
       // (This method used to be called CPPProcess::matrix_1_gg_ttx()?)
 
       // The color denominators (initialize all array elements, with ncolor=2)
@@ -687,7 +687,7 @@ namespace mg5amcCpu
       allMEs[ievt] = 0; // all zeros
     }
 
-    // PART 1 - LOOP OVER ALL HELICITIES: CALCULATE WAVEFUNCTIONS
+    // PART 1 - HELICITY LOOP: CALCULATE WAVEFUNCTIONS
     const int npagV = maxtry / neppV;
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
     // Mixed fptypes #537: float for color algebra and double elsewhere

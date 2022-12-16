@@ -1639,7 +1639,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                     if scoeff.startswith('-'): res.append('jamp_sv[%s] -= %samp_sv[0];' % (njamp, scoeff[1:])) # AV
                     else: res.append('jamp_sv[%s] += %samp_sv[0];' % (njamp, scoeff)) # AV
             if len(diagram.get('amplitudes')) == 0 : res.append('// (none)') # AV
-        ###res.append('\n    // *** END OF DIAGRAMS ***' ) # AV - no longer needed ('COLOR ALGEBRA BELOW')
+        ###res.append('\n    // *** END OF DIAGRAMS ***' ) # AV - no longer needed ('COLOR MATRIX BELOW')
         return res
 
     # AV - overload helas_call_writers.GPUFOHelasCallWriter method (improve formatting)

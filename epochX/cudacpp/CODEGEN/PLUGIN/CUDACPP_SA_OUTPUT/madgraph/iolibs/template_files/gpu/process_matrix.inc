@@ -1,5 +1,5 @@
 
-      // *** COLOR ALGEBRA BELOW ***
+      // *** COLOR MATRIX BELOW ***
       // (This method used to be called %(process_class_name)s::matrix_%(proc_name)s(%(matrix_args)s)?)
 %(color_matrix_lines)s
 
