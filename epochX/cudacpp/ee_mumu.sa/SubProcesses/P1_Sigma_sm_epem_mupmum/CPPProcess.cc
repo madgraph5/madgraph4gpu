@@ -801,7 +801,7 @@ namespace mg5amcCpu
 #endif
 
     // Start sigmaKin_lines
-    // PART 0 - INITIALISATION (before calculate_wavefunctions)
+    // === PART 0 - INITIALISATION (before calculate_wavefunctions) ===
     // Reset the "matrix elements" - running sums of |M|^2 over helicities for the given event
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
 #ifdef __CUDACC__
@@ -829,11 +829,13 @@ namespace mg5amcCpu
     }
 #endif
 
-    // PART 1 - HELICITY LOOP: CALCULATE WAVEFUNCTIONS
+    // === PART 1 - HELICITY LOOP: CALCULATE WAVEFUNCTIONS ===
     // (in both CUDA and C++, using precomputed good helicities)
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here#ifdef __CUDACC__
-#ifdef __CUDACC__
-    // *** PART 1a - CUDA (one event per CPU thread) ***
+
+#ifdef __CUDACC__ // CUDA OR C++
+
+    // *** START OF PART 1a - CUDA (one event per CPU thread) ***
     // Running sum of partial amplitudes squared for event by event color selection (#402)
     // (for the single event processed in calculate_wavefunctions)
     fptype_sv jamp2_sv[nParity * ncolor] = { 0 };
@@ -861,8 +863,8 @@ namespace mg5amcCpu
       }
     }
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    const int channelIdC = channelId - 1; // coloramps.h uses the C array indexing starting at 0
     // Event-by-event random choice of color #402
+    const int channelIdC = channelId - 1; // coloramps.h uses the C array indexing starting at 0
     fptype targetamp[ncolor] = { 0 };
     for( int icolC = 0; icolC < ncolor; icolC++ )
     {
@@ -879,8 +881,11 @@ namespace mg5amcCpu
       }
     }
 #endif
-#else
-    // *** PART 1b - C++ (loop on event pages)
+    // *** END OF PART 1a - CUDA (one event per CPU thread) ***
+
+#else // CUDA OR C++
+
+    // *** START OF PART 1b - C++ (loop on event pages)
     fptype_sv MEs_ighel[ncomb] = { 0 }; // sum of MEs for all good helicities up to ighel (for the first - and/or only - neppV page)
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
     // Mixed fptypes #537: float for color algebra and double elsewhere
@@ -959,7 +964,7 @@ namespace mg5amcCpu
         }
 #endif
       }
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL // multichannel enabled (random color choice)
       const int channelIdC = channelId - 1; // coloramps.h uses the C array indexing starting at 0
       // Event-by-event random choice of color #402
       fptype_sv targetamp[ncolor] = { 0 };
@@ -1005,12 +1010,14 @@ namespace mg5amcCpu
           }
         }
 #endif
-#endif
       }
+#endif // multichannel enabled (random color choice)
     }
-#endif
+    // *** END OF PART 1b - C++ (loop on event pages)
 
-    // PART 2 - FINALISATION (after calculate_wavefunctions)
+#endif // CUDA or C++
+
+    // === PART 2 - FINALISATION (after calculate_wavefunctions) ===
     // Get the final |M|^2 as an average over helicities/colors of the running sum of |M|^2 over helicities for the given event
     // [NB 'sum over final spins, average over initial spins', eg see
     // https://www.uzh.ch/cmsssl/physik/dam/jcr:2e24b7b1-f4d7-4160-817e-47b13dbf1d7c/Handout_4_2016-UZH.pdf]
