@@ -8,8 +8,8 @@
 #ifndef __CUDACC__
 namespace mg5amcCpu // this is only needed for CPU SIMD vectorization
 {
-#ifdef MGONGPU_CPPSIMD
 
+#ifdef MGONGPU_CPPSIMD
   //--------------------------------------------------------------------------
 
   // Cast one non-const fptype_v reference (one vector of neppV fptype values) from one non-const fptype reference (#435),
@@ -114,16 +114,6 @@ namespace mg5amcCpu // this is only needed for CPU SIMD vectorization
   }
 
   //--------------------------------------------------------------------------
-
-  // Cast one non-const int_v reference (one vector of neppV int values) from one non-const int reference,
-  // assuming that "pointer(evt#0)+1" indicates "pointer(evt#1)", and that the arrays are aligned
-  inline int_v& intvFromAlignedArray( int& ref )
-  {
-    return *reinterpret_cast<int_v*>( &ref );
-  }
-
-  //--------------------------------------------------------------------------
-
 #endif
 
 } // end namespace
