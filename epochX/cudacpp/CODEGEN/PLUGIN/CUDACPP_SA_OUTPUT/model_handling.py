@@ -1214,6 +1214,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         self.edit_check_sa()
         self.edit_mgonGPU()
         self.edit_processidfile() # AV new file (NB this is Sigma-specific, should not be a symlink to Subprocesses)
+        self.edit_coloramps() # AV new file (NB this is Sigma-specific, should not be a symlink to Subprocesses...???)
         self.edit_testxxx() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
         self.edit_memorybuffers() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
         self.edit_memoryaccesscouplings() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
@@ -1284,6 +1285,17 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         replace_dict['processid'] = self.get_process_name()
         replace_dict['processid_uppercase'] = self.get_process_name().upper()
         ff = open(pjoin(self.path, 'epoch_process_id.h'),'w')
+        ff.write(template % replace_dict)
+        ff.close()
+
+    # AV - new method (inspired from export_v4.ProcessExporterFortranME.write_coloramps_file and OneProcessExporterCPP.get_sigmaKin_lines)
+    def edit_coloramps(self, writer):
+        """Generate coloramps.h"""
+        misc.sprint('Entering PLUGIN_OneProcessExporter.edit_coloramps')
+        template = open(pjoin(self.template_path,'gpu','coloramps.h'),'r').read()
+        ff = open(pjoin(self.path, 'coloramps.h'),'w')
+        #replace_dict['icolamp'] = self.get_icolamp_matrix(self.matrix_elements[0])
+        replace_dict['icolamp'] = self.get_icolamp_lines(multi_channel, self.matrix_elements[0], 1) # OneProcessExporterCPP.get_icolamp_lines
         ff.write(template % replace_dict)
         ff.close()
 
@@ -1425,6 +1437,23 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         for helicities in matrix_element.get_helicity_matrix(allow_reverse=True): # AV was False: different order in Fortran and cudacpp! #569
             helicity_line_list.append( '{ ' + ', '.join(['%d'] * len(helicities)) % tuple(helicities) + ' }' ) # AV
         return helicity_line + ',\n      '.join(helicity_line_list) + ' };' # AV
+
+    # AV - new method
+    def get_icolamp_matrix(self, matrix_element):
+        """Return the Helicity matrix definition lines for this matrix element"""
+        # From export_v4.VirtualExporter.write_configs_file
+        configs = [(i+1, d) for i,d in enumerate(matrix_element.get('diagrams'))]
+        mapconfigs = [c[0] for c in configs]
+        #helicity_line = '    static constexpr short helicities[ncomb][mgOnGpu::npar] = {\n      '; # AV (this is tHel)
+        #helicity_line_list = []
+        #for helicities in matrix_element.get_helicity_matrix(allow_reverse=True): # AV was False: different order in Fortran and cudacpp! #569
+        #    helicity_line_list.append( '{ ' + ', '.join(['%d'] * len(helicities)) % tuple(helicities) + ' }' ) # AV
+        #return helicity_line + ',\n      '.join(helicity_line_list) + ' };' # AV
+        lines = self.get_icolamp_lines(mapconfigs, matrix_element, 1)
+        lines.insert(0, "logical icolamp(%d,%d,1)" % \
+                        (max(len(list(matrix_element.get('color_basis').keys())), 1),
+                         len(mapconfigs)))
+        return lines
 
     # AV - overload the export_cpp.OneProcessExporterGPU method (just to add some comments...)
     def get_reset_jamp_lines(self, color_amplitudes):
