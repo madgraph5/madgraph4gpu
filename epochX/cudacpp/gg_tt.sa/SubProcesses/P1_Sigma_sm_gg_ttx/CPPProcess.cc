@@ -839,7 +839,7 @@ namespace mg5amcCpu
     // PART 1 - HELICITY LOOP: CALCULATE WAVEFUNCTIONS
     // (in both CUDA and C++, using precomputed good helicities)
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here#ifdef __CUDACC__
-#ifdef __CUDACC__
+#ifdef __CUDACC__ // CUDA
     // *** PART 1a - CUDA (one event per CPU thread) ***
     // Running sum of partial amplitudes squared for event by event color selection (#402)
     // (for the single event processed in calculate_wavefunctions)
@@ -886,7 +886,7 @@ namespace mg5amcCpu
       }
     }
 #endif
-#else
+#else // C++
     // *** PART 1b - C++ (loop on event pages)
     fptype_sv MEs_ighel[ncomb] = { 0 }; // sum of MEs for all good helicities up to ighel (for the first - and/or only - neppV page)
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
@@ -966,7 +966,7 @@ namespace mg5amcCpu
         }
 #endif
       }
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL // multichannel enabled
       const int channelIdC = channelId - 1; // coloramps.h uses the C array indexing starting at 0
       // Event-by-event random choice of color #402
       fptype_sv targetamp[ncolor] = { 0 };
@@ -1012,10 +1012,10 @@ namespace mg5amcCpu
           }
         }
 #endif
-#endif
       }
+#endif // multichannel enabled
     }
-#endif
+#endif // CUDA or C++
 
     // PART 2 - FINALISATION (after calculate_wavefunctions)
     // Get the final |M|^2 as an average over helicities/colors of the running sum of |M|^2 over helicities for the given event
