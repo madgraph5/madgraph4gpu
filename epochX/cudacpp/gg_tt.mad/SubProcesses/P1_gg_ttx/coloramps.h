@@ -8,7 +8,6 @@ namespace mgOnGpu
     { true, true },
     { true, false },
     { false, true }
-
   };
 
 }
