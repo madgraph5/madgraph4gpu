@@ -1298,7 +1298,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             replace_dict['nb_channel'] = len(multi_channel)
             replace_dict['nb_color'] = max(1,len(self.matrix_elements[0].get('color_basis')))
             # AV extra formatting (e.g. gg_tt was "{{true,true};,{true,false};,{false,true};};")
-            replace_dict['is_LC'] = replace_dict['is_LC'].replace(',',', ').replace('{{','    { ').replace('};, {',' },\n    { ').replace('};};',' }\n')
+            replace_dict['is_LC'] = replace_dict['is_LC'].replace(',',', ').replace('{{','    { ').replace('};, {',' },\n    { ').replace('};};',' }')
         ff.write(template % replace_dict)
         ff.close()
 
