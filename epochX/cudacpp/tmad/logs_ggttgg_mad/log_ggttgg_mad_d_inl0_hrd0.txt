@@ -3,22 +3,18 @@ CUDACPP_BUILDDIR='.'
 
 
 
+
 make USEBUILDDIR=1 AVX=none
 make USEBUILDDIR=1 AVX=sse4
 make USEBUILDDIR=1 AVX=avx2
-
 make USEBUILDDIR=1 AVX=512y
 
 make USEBUILDDIR=1 AVX=512z
 CUDACPP_BUILDDIR='build.512z_d_inl0_hrd0'
-make[1]: Entering directory `/data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
-make[1]: Nothing to be done for `all'.
-make[1]: Leaving directory `/data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
 CUDACPP_BUILDDIR='build.none_d_inl0_hrd0'
 make[1]: Entering directory `/data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
 make[1]: Nothing to be done for `all'.
 make[1]: Leaving directory `/data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
-CUDACPP_BUILDDIR='build.avx2_d_inl0_hrd0'
 make[1]: Entering directory `/data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
 make[1]: Nothing to be done for `all'.
 make[1]: Leaving directory `/data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
@@ -30,8 +26,12 @@ CUDACPP_BUILDDIR='build.sse4_d_inl0_hrd0'
 make[1]: Entering directory `/data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
 make[1]: Nothing to be done for `all'.
 make[1]: Leaving directory `/data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
+CUDACPP_BUILDDIR='build.avx2_d_inl0_hrd0'
+make[1]: Entering directory `/data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
+make[1]: Nothing to be done for `all'.
+make[1]: Leaving directory `/data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
 
-DATE: 2022-12-15_09:26:30
+DATE: 2022-12-17_01:49:21
 
 On itscrd70.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
 Working directory (run): /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg
@@ -55,9 +55,9 @@ Executing ' ./madevent < /tmp/avalassi/input_ggttgg_x1_fortran > /tmp/avalassi/o
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 2
  [XSECTION] Cross section = 0.0003628 [] fbridge_mode=0
- [COUNTERS] PROGRAM TOTAL          :    5.0672s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.2592s
- [COUNTERS] Fortran MEs      ( 1 ) :    4.8080s for     8192 events => throughput is 1.70E+03 events/s
+ [COUNTERS] PROGRAM TOTAL          :    5.2680s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.4557s
+ [COUNTERS] Fortran MEs      ( 1 ) :    4.8123s for     8192 events => throughput is 1.70E+03 events/s
 
 *** (1) EXECUTE MADEVENT x1 (create events.lhe) ***
 --------------------
@@ -79,9 +79,9 @@ Executing ' ./madevent < /tmp/avalassi/input_ggttgg_x1_fortran > /tmp/avalassi/o
  [XSECTION] ChannelId = 2
  [XSECTION] Cross section = 0.0003628 [3.6277245934316629E-004] fbridge_mode=0
  [UNWEIGHT] Wrote 49 events (found 738 events)
- [COUNTERS] PROGRAM TOTAL          :    5.1834s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.3638s
- [COUNTERS] Fortran MEs      ( 1 ) :    4.8195s for     8192 events => throughput is 1.70E+03 events/s
+ [COUNTERS] PROGRAM TOTAL          :    5.2000s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.3891s
+ [COUNTERS] Fortran MEs      ( 1 ) :    4.8109s for     8192 events => throughput is 1.70E+03 events/s
 
 *** (1) EXECUTE MADEVENT x10 (create events.lhe) ***
 --------------------
@@ -103,9 +103,9 @@ Executing ' ./madevent < /tmp/avalassi/input_ggttgg_x10_fortran > /tmp/avalassi/
  [XSECTION] ChannelId = 2
  [XSECTION] Cross section = 0.000158 [1.5803949688410202E-004] fbridge_mode=0
  [UNWEIGHT] Wrote 204 events (found 1633 events)
- [COUNTERS] PROGRAM TOTAL          :   55.3976s
- [COUNTERS] Fortran Overhead ( 0 ) :    2.3323s
- [COUNTERS] Fortran MEs      ( 1 ) :   53.0653s for    90112 events => throughput is 1.70E+03 events/s
+ [COUNTERS] PROGRAM TOTAL          :   55.3360s
+ [COUNTERS] Fortran Overhead ( 0 ) :    2.3737s
+ [COUNTERS] Fortran MEs      ( 1 ) :   52.9624s for    90112 events => throughput is 1.70E+03 events/s
 
 *** (2-none) EXECUTE CMADEVENT_CUDACPP x1 (create events.lhe) ***
 --------------------
@@ -127,458 +127,521 @@ Executing ' ./build.none_d_inl0_hrd0/cmadevent_cudacpp < /tmp/avalassi/input_ggt
  [XSECTION] ChannelId = 2
  [XSECTION] Cross section = 0.0003628 [3.6277245934316645E-004] fbridge_mode=1
  [UNWEIGHT] Wrote 49 events (found 738 events)
- [COUNTERS] PROGRAM TOTAL          :    9.9367s
- [COUNTERS] Fortran Overhead ( 0 ) :    5.0745s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    4.8621s for     8192 events => throughput is 1.68E+03 events/s
+ [COUNTERS] PROGRAM TOTAL          :    9.9731s
+ [COUNTERS] Fortran Overhead ( 0 ) :    5.1308s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    4.8423s for     8192 events => throughput is 1.69E+03 events/s
 
 *** (2-none) Compare CMADEVENT_CUDACPP x1 xsec to MADEVENT xsec ***
 
 OK! xsec from fortran (3.6277245934316629E-004) and cpp (3.6277245934316645E-004) differ by less than 2E-14 (4.440892098500626e-16)
 
-*** (2-none) Compare CMADEVENT_CUDACPP x1 events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***
-
-OK! events.lhe.cpp.1 and events.lhe.ref.1 are identical
-
-*** (2-none) EXECUTE CMADEVENT_CUDACPP x10 (create events.lhe) ***
---------------------
-+1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
-8192 ! Number of events in a single C++ or CUDA iteration (VECSIZE_USED)
-81920 1 1 ! Number of events and max and min iterations
-0.000001 ! Accuracy (ignored because max iterations = min iterations)
-0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
-1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
-0 ! Helicity Sum/event 0=exact
-1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
---------------------
-Executing ' ./build.none_d_inl0_hrd0/cmadevent_cudacpp < /tmp/avalassi/input_ggttgg_x10_cudacpp > /tmp/avalassi/output_ggttgg_x10_cudacpp'
- [OPENMPTH] omp_get_max_threads/nproc = 1/4
- [NGOODHEL] ngoodhel/ncomb = 64/64
- [XSECTION] VECSIZE_USED = 8192
- [XSECTION] MultiChannel = TRUE
- [XSECTION] Configuration = 1
- [XSECTION] ChannelId = 2
- [XSECTION] Cross section = 0.000158 [1.5803949688410199E-004] fbridge_mode=1
- [UNWEIGHT] Wrote 204 events (found 1633 events)
- [COUNTERS] PROGRAM TOTAL          :   60.6180s
- [COUNTERS] Fortran Overhead ( 0 ) :    7.0533s
- [COUNTERS] CudaCpp MEs      ( 2 ) :   53.5647s for    90112 events => throughput is 1.68E+03 events/s
-
-*** (2-none) Compare CMADEVENT_CUDACPP x10 xsec to MADEVENT xsec ***
-
-OK! xsec from fortran (1.5803949688410202E-004) and cpp (1.5803949688410199E-004) differ by less than 2E-14 (2.220446049250313e-16)
-
-*** (2-none) Compare CMADEVENT_CUDACPP x10 events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***
-
-OK! events.lhe.cpp.10 and events.lhe.ref.10 are identical
-
-*** EXECUTE CHECK(8192) -p 256 32 1 --bridge ***
-Process                     = SIGMA_SM_GG_TTXGG_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
-Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+BRDHST/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 1.741267e+03                 )  sec^-1
-
-*** EXECUTE CHECK(8192) -p 256 32 1 ***
-Process                     = SIGMA_SM_GG_TTXGG_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
-Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 1.741227e+03                 )  sec^-1
-
-*** (2-sse4) EXECUTE CMADEVENT_CUDACPP x1 (create events.lhe) ***
---------------------
-+1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
-8192 ! Number of events in a single C++ or CUDA iteration (VECSIZE_USED)
-8192 1 1 ! Number of events and max and min iterations
-0.000001 ! Accuracy (ignored because max iterations = min iterations)
-0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
-1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
-0 ! Helicity Sum/event 0=exact
-1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
---------------------
-Executing ' ./build.sse4_d_inl0_hrd0/cmadevent_cudacpp < /tmp/avalassi/input_ggttgg_x1_cudacpp > /tmp/avalassi/output_ggttgg_x1_cudacpp'
- [OPENMPTH] omp_get_max_threads/nproc = 1/4
- [NGOODHEL] ngoodhel/ncomb = 64/64
- [XSECTION] VECSIZE_USED = 8192
- [XSECTION] MultiChannel = TRUE
- [XSECTION] Configuration = 1
- [XSECTION] ChannelId = 2
- [XSECTION] Cross section = 0.0003628 [3.6277245934316656E-004] fbridge_mode=1
- [UNWEIGHT] Wrote 49 events (found 738 events)
- [COUNTERS] PROGRAM TOTAL          :    5.2130s
- [COUNTERS] Fortran Overhead ( 0 ) :    2.7519s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    2.4611s for     8192 events => throughput is 3.33E+03 events/s
-
-*** (2-sse4) Compare CMADEVENT_CUDACPP x1 xsec to MADEVENT xsec ***
-
-OK! xsec from fortran (3.6277245934316629E-004) and cpp (3.6277245934316656E-004) differ by less than 2E-14 (6.661338147750939e-16)
-
-*** (2-sse4) Compare CMADEVENT_CUDACPP x1 events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***
-
-OK! events.lhe.cpp.1 and events.lhe.ref.1 are identical
-
-*** (2-sse4) EXECUTE CMADEVENT_CUDACPP x10 (create events.lhe) ***
---------------------
-+1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
-8192 ! Number of events in a single C++ or CUDA iteration (VECSIZE_USED)
-81920 1 1 ! Number of events and max and min iterations
-0.000001 ! Accuracy (ignored because max iterations = min iterations)
-0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
-1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
-0 ! Helicity Sum/event 0=exact
-1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
---------------------
-Executing ' ./build.sse4_d_inl0_hrd0/cmadevent_cudacpp < /tmp/avalassi/input_ggttgg_x10_cudacpp > /tmp/avalassi/output_ggttgg_x10_cudacpp'
- [OPENMPTH] omp_get_max_threads/nproc = 1/4
- [NGOODHEL] ngoodhel/ncomb = 64/64
- [XSECTION] VECSIZE_USED = 8192
- [XSECTION] MultiChannel = TRUE
- [XSECTION] Configuration = 1
- [XSECTION] ChannelId = 2
- [XSECTION] Cross section = 0.000158 [1.5803949688410199E-004] fbridge_mode=1
- [UNWEIGHT] Wrote 204 events (found 1633 events)
- [COUNTERS] PROGRAM TOTAL          :   31.8057s
- [COUNTERS] Fortran Overhead ( 0 ) :    4.7071s
- [COUNTERS] CudaCpp MEs      ( 2 ) :   27.0986s for    90112 events => throughput is 3.33E+03 events/s
-
-*** (2-sse4) Compare CMADEVENT_CUDACPP x10 xsec to MADEVENT xsec ***
-
-OK! xsec from fortran (1.5803949688410202E-004) and cpp (1.5803949688410199E-004) differ by less than 2E-14 (2.220446049250313e-16)
-
-*** (2-sse4) Compare CMADEVENT_CUDACPP x10 events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***
-
-OK! events.lhe.cpp.10 and events.lhe.ref.10 are identical
-
-*** EXECUTE CHECK(8192) -p 256 32 1 --bridge ***
-Process                     = SIGMA_SM_GG_TTXGG_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
-Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+BRDHST/sse4+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 3.429903e+03                 )  sec^-1
-
-*** EXECUTE CHECK(8192) -p 256 32 1 ***
-Process                     = SIGMA_SM_GG_TTXGG_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
-Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/sse4+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 3.423615e+03                 )  sec^-1
-
-*** (2-avx2) EXECUTE CMADEVENT_CUDACPP x1 (create events.lhe) ***
---------------------
-+1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
-8192 ! Number of events in a single C++ or CUDA iteration (VECSIZE_USED)
-8192 1 1 ! Number of events and max and min iterations
-0.000001 ! Accuracy (ignored because max iterations = min iterations)
-0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
-1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
-0 ! Helicity Sum/event 0=exact
-1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
---------------------
-Executing ' ./build.avx2_d_inl0_hrd0/cmadevent_cudacpp < /tmp/avalassi/input_ggttgg_x1_cudacpp > /tmp/avalassi/output_ggttgg_x1_cudacpp'
- [OPENMPTH] omp_get_max_threads/nproc = 1/4
- [NGOODHEL] ngoodhel/ncomb = 64/64
- [XSECTION] VECSIZE_USED = 8192
- [XSECTION] MultiChannel = TRUE
- [XSECTION] Configuration = 1
- [XSECTION] ChannelId = 2
- [XSECTION] Cross section = 0.0003628 [3.6277245934316656E-004] fbridge_mode=1
- [UNWEIGHT] Wrote 49 events (found 738 events)
- [COUNTERS] PROGRAM TOTAL          :    2.7811s
- [COUNTERS] Fortran Overhead ( 0 ) :    1.5626s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    1.2185s for     8192 events => throughput is 6.72E+03 events/s
-
-*** (2-avx2) Compare CMADEVENT_CUDACPP x1 xsec to MADEVENT xsec ***
-
-OK! xsec from fortran (3.6277245934316629E-004) and cpp (3.6277245934316656E-004) differ by less than 2E-14 (6.661338147750939e-16)
-
-*** (2-avx2) Compare CMADEVENT_CUDACPP x1 events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***
-
-OK! events.lhe.cpp.1 and events.lhe.ref.1 are identical
-
-*** (2-avx2) EXECUTE CMADEVENT_CUDACPP x10 (create events.lhe) ***
---------------------
-+1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
-8192 ! Number of events in a single C++ or CUDA iteration (VECSIZE_USED)
-81920 1 1 ! Number of events and max and min iterations
-0.000001 ! Accuracy (ignored because max iterations = min iterations)
-0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
-1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
-0 ! Helicity Sum/event 0=exact
-1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
---------------------
-Executing ' ./build.avx2_d_inl0_hrd0/cmadevent_cudacpp < /tmp/avalassi/input_ggttgg_x10_cudacpp > /tmp/avalassi/output_ggttgg_x10_cudacpp'
- [OPENMPTH] omp_get_max_threads/nproc = 1/4
- [NGOODHEL] ngoodhel/ncomb = 64/64
- [XSECTION] VECSIZE_USED = 8192
- [XSECTION] MultiChannel = TRUE
- [XSECTION] Configuration = 1
- [XSECTION] ChannelId = 2
- [XSECTION] Cross section = 0.000158 [1.5803949688410193E-004] fbridge_mode=1
- [UNWEIGHT] Wrote 204 events (found 1633 events)
- [COUNTERS] PROGRAM TOTAL          :   17.0572s
- [COUNTERS] Fortran Overhead ( 0 ) :    3.5211s
- [COUNTERS] CudaCpp MEs      ( 2 ) :   13.5360s for    90112 events => throughput is 6.66E+03 events/s
-
-*** (2-avx2) Compare CMADEVENT_CUDACPP x10 xsec to MADEVENT xsec ***
-
-OK! xsec from fortran (1.5803949688410202E-004) and cpp (1.5803949688410193E-004) differ by less than 2E-14 (5.551115123125783e-16)
-
-*** (2-avx2) Compare CMADEVENT_CUDACPP x10 events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***
-
-OK! events.lhe.cpp.10 and events.lhe.ref.10 are identical
-
-*** EXECUTE CHECK(8192) -p 256 32 1 --bridge ***
-Process                     = SIGMA_SM_GG_TTXGG_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
-Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+BRDHST/avx2+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 6.865649e+03                 )  sec^-1
-
-*** EXECUTE CHECK(8192) -p 256 32 1 ***
-Process                     = SIGMA_SM_GG_TTXGG_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
-Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/avx2+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 6.850538e+03                 )  sec^-1
-
-*** (2-512y) EXECUTE CMADEVENT_CUDACPP x1 (create events.lhe) ***
---------------------
-+1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
-8192 ! Number of events in a single C++ or CUDA iteration (VECSIZE_USED)
-8192 1 1 ! Number of events and max and min iterations
-0.000001 ! Accuracy (ignored because max iterations = min iterations)
-0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
-1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
-0 ! Helicity Sum/event 0=exact
-1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
---------------------
-Executing ' ./build.512y_d_inl0_hrd0/cmadevent_cudacpp < /tmp/avalassi/input_ggttgg_x1_cudacpp > /tmp/avalassi/output_ggttgg_x1_cudacpp'
- [OPENMPTH] omp_get_max_threads/nproc = 1/4
- [NGOODHEL] ngoodhel/ncomb = 64/64
- [XSECTION] VECSIZE_USED = 8192
- [XSECTION] MultiChannel = TRUE
- [XSECTION] Configuration = 1
- [XSECTION] ChannelId = 2
- [XSECTION] Cross section = 0.0003628 [3.6277245934316656E-004] fbridge_mode=1
- [UNWEIGHT] Wrote 49 events (found 738 events)
- [COUNTERS] PROGRAM TOTAL          :    2.5087s
- [COUNTERS] Fortran Overhead ( 0 ) :    1.4212s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    1.0875s for     8192 events => throughput is 7.53E+03 events/s
-
-*** (2-512y) Compare CMADEVENT_CUDACPP x1 xsec to MADEVENT xsec ***
-
-OK! xsec from fortran (3.6277245934316629E-004) and cpp (3.6277245934316656E-004) differ by less than 2E-14 (6.661338147750939e-16)
-
-*** (2-512y) Compare CMADEVENT_CUDACPP x1 events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***
-
-OK! events.lhe.cpp.1 and events.lhe.ref.1 are identical
-
-*** (2-512y) EXECUTE CMADEVENT_CUDACPP x10 (create events.lhe) ***
---------------------
-+1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
-8192 ! Number of events in a single C++ or CUDA iteration (VECSIZE_USED)
-81920 1 1 ! Number of events and max and min iterations
-0.000001 ! Accuracy (ignored because max iterations = min iterations)
-0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
-1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
-0 ! Helicity Sum/event 0=exact
-1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
---------------------
-Executing ' ./build.512y_d_inl0_hrd0/cmadevent_cudacpp < /tmp/avalassi/input_ggttgg_x10_cudacpp > /tmp/avalassi/output_ggttgg_x10_cudacpp'
- [OPENMPTH] omp_get_max_threads/nproc = 1/4
- [NGOODHEL] ngoodhel/ncomb = 64/64
- [XSECTION] VECSIZE_USED = 8192
- [XSECTION] MultiChannel = TRUE
- [XSECTION] Configuration = 1
- [XSECTION] ChannelId = 2
- [XSECTION] Cross section = 0.000158 [1.5803949688410193E-004] fbridge_mode=1
- [UNWEIGHT] Wrote 204 events (found 1633 events)
- [COUNTERS] PROGRAM TOTAL          :   15.3572s
- [COUNTERS] Fortran Overhead ( 0 ) :    3.3785s
- [COUNTERS] CudaCpp MEs      ( 2 ) :   11.9787s for    90112 events => throughput is 7.52E+03 events/s
-
-*** (2-512y) Compare CMADEVENT_CUDACPP x10 xsec to MADEVENT xsec ***
-
-OK! xsec from fortran (1.5803949688410202E-004) and cpp (1.5803949688410193E-004) differ by less than 2E-14 (5.551115123125783e-16)
-
-*** (2-512y) Compare CMADEVENT_CUDACPP x10 events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***
-
-OK! events.lhe.cpp.10 and events.lhe.ref.10 are identical
-
-*** EXECUTE CHECK(8192) -p 256 32 1 --bridge ***
-Process                     = SIGMA_SM_GG_TTXGG_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
-Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+BRDHST/512y+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 7.777120e+03                 )  sec^-1
-
-*** EXECUTE CHECK(8192) -p 256 32 1 ***
-Process                     = SIGMA_SM_GG_TTXGG_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
-Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/512y+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 7.776271e+03                 )  sec^-1
-
-*** (2-512z) EXECUTE CMADEVENT_CUDACPP x1 (create events.lhe) ***
---------------------
-+1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
-8192 ! Number of events in a single C++ or CUDA iteration (VECSIZE_USED)
-8192 1 1 ! Number of events and max and min iterations
-0.000001 ! Accuracy (ignored because max iterations = min iterations)
-0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
-1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
-0 ! Helicity Sum/event 0=exact
-1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
---------------------
-Executing ' ./build.512z_d_inl0_hrd0/cmadevent_cudacpp < /tmp/avalassi/input_ggttgg_x1_cudacpp > /tmp/avalassi/output_ggttgg_x1_cudacpp'
- [OPENMPTH] omp_get_max_threads/nproc = 1/4
- [NGOODHEL] ngoodhel/ncomb = 64/64
- [XSECTION] VECSIZE_USED = 8192
- [XSECTION] MultiChannel = TRUE
- [XSECTION] Configuration = 1
- [XSECTION] ChannelId = 2
- [XSECTION] Cross section = 0.0003628 [3.6277245934316656E-004] fbridge_mode=1
- [UNWEIGHT] Wrote 49 events (found 738 events)
- [COUNTERS] PROGRAM TOTAL          :    2.9040s
- [COUNTERS] Fortran Overhead ( 0 ) :    1.6270s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    1.2769s for     8192 events => throughput is 6.42E+03 events/s
-
-*** (2-512z) Compare CMADEVENT_CUDACPP x1 xsec to MADEVENT xsec ***
-
-OK! xsec from fortran (3.6277245934316629E-004) and cpp (3.6277245934316656E-004) differ by less than 2E-14 (6.661338147750939e-16)
-
-*** (2-512z) Compare CMADEVENT_CUDACPP x1 events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***
-
-OK! events.lhe.cpp.1 and events.lhe.ref.1 are identical
-
-*** (2-512z) EXECUTE CMADEVENT_CUDACPP x10 (create events.lhe) ***
---------------------
-+1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
-8192 ! Number of events in a single C++ or CUDA iteration (VECSIZE_USED)
-81920 1 1 ! Number of events and max and min iterations
-0.000001 ! Accuracy (ignored because max iterations = min iterations)
-0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
-1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
-0 ! Helicity Sum/event 0=exact
-1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
---------------------
-Executing ' ./build.512z_d_inl0_hrd0/cmadevent_cudacpp < /tmp/avalassi/input_ggttgg_x10_cudacpp > /tmp/avalassi/output_ggttgg_x10_cudacpp'
- [OPENMPTH] omp_get_max_threads/nproc = 1/4
- [NGOODHEL] ngoodhel/ncomb = 64/64
- [XSECTION] VECSIZE_USED = 8192
- [XSECTION] MultiChannel = TRUE
- [XSECTION] Configuration = 1
- [XSECTION] ChannelId = 2
- [XSECTION] Cross section = 0.000158 [1.5803949688410193E-004] fbridge_mode=1
- [UNWEIGHT] Wrote 204 events (found 1633 events)
- [COUNTERS] PROGRAM TOTAL          :   17.6357s
- [COUNTERS] Fortran Overhead ( 0 ) :    3.5890s
- [COUNTERS] CudaCpp MEs      ( 2 ) :   14.0467s for    90112 events => throughput is 6.42E+03 events/s
-
-*** (2-512z) Compare CMADEVENT_CUDACPP x10 xsec to MADEVENT xsec ***
-
-OK! xsec from fortran (1.5803949688410202E-004) and cpp (1.5803949688410193E-004) differ by less than 2E-14 (5.551115123125783e-16)
-
-*** (2-512z) Compare CMADEVENT_CUDACPP x10 events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***
-
-OK! events.lhe.cpp.10 and events.lhe.ref.10 are identical
-
-*** EXECUTE CHECK(8192) -p 256 32 1 --bridge ***
-Process                     = SIGMA_SM_GG_TTXGG_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
-Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+BRDHST/512z+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 6.499512e+03                 )  sec^-1
-
-*** EXECUTE CHECK(8192) -p 256 32 1 ***
-Process                     = SIGMA_SM_GG_TTXGG_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
-Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/512z+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 6.490388e+03                 )  sec^-1
-
-*** (3) EXECUTE GMADEVENT_CUDACPP x1 (create events.lhe) ***
---------------------
-+1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
-8192 ! Number of events in a single C++ or CUDA iteration (VECSIZE_USED)
-8192 1 1 ! Number of events and max and min iterations
-0.000001 ! Accuracy (ignored because max iterations = min iterations)
-0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
-1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
-0 ! Helicity Sum/event 0=exact
-1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
---------------------
-Executing ' ./build.none_d_inl0_hrd0/gmadevent_cudacpp < /tmp/avalassi/input_ggttgg_x1_cudacpp > /tmp/avalassi/output_ggttgg_x1_cudacpp'
- [OPENMPTH] omp_get_max_threads/nproc = 1/4
- [NGOODHEL] ngoodhel/ncomb = 64/64
- [XSECTION] VECSIZE_USED = 8192
- [XSECTION] MultiChannel = TRUE
- [XSECTION] Configuration = 1
- [XSECTION] ChannelId = 2
- [XSECTION] Cross section = 0.0003628 [3.6277245934316656E-004] fbridge_mode=1
- [UNWEIGHT] Wrote 49 events (found 738 events)
- [COUNTERS] PROGRAM TOTAL          :    0.9170s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.8838s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0332s for     8192 events => throughput is 2.47E+05 events/s
-
-*** (3) Compare GMADEVENT_CUDACPP x1 xsec to MADEVENT xsec ***
-
-OK! xsec from fortran (3.6277245934316629E-004) and cpp (3.6277245934316656E-004) differ by less than 2E-14 (6.661338147750939e-16)
-
-*** (3) Compare GMADEVENT_CUDACPP x1 events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***
-
-OK! events.lhe.cuda.1 and events.lhe.ref.1 are identical
-
-*** (3) EXECUTE GMADEVENT_CUDACPP x10 (create events.lhe) ***
---------------------
-+1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
-8192 ! Number of events in a single C++ or CUDA iteration (VECSIZE_USED)
-81920 1 1 ! Number of events and max and min iterations
-0.000001 ! Accuracy (ignored because max iterations = min iterations)
-0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
-1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
-0 ! Helicity Sum/event 0=exact
-1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
---------------------
-Executing ' ./build.none_d_inl0_hrd0/gmadevent_cudacpp < /tmp/avalassi/input_ggttgg_x10_cudacpp > /tmp/avalassi/output_ggttgg_x10_cudacpp'
- [OPENMPTH] omp_get_max_threads/nproc = 1/4
- [NGOODHEL] ngoodhel/ncomb = 64/64
- [XSECTION] VECSIZE_USED = 8192
- [XSECTION] MultiChannel = TRUE
- [XSECTION] Configuration = 1
- [XSECTION] ChannelId = 2
- [XSECTION] Cross section = 0.000158 [1.5803949688410188E-004] fbridge_mode=1
- [UNWEIGHT] Wrote 204 events (found 1633 events)
- [COUNTERS] PROGRAM TOTAL          :    3.1949s
- [COUNTERS] Fortran Overhead ( 0 ) :    2.8313s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.3635s for    90112 events => throughput is 2.48E+05 events/s
-
-*** (3) Compare GMADEVENT_CUDACPP x10 xsec to MADEVENT xsec ***
-
-OK! xsec from fortran (1.5803949688410202E-004) and cpp (1.5803949688410188E-004) differ by less than 2E-14 (8.881784197001252e-16)
-
-*** (3) Compare GMADEVENT_CUDACPP x10 events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***
-
-OK! events.lhe.cuda.10 and events.lhe.ref.10 are identical
-
-*** EXECUTE GCHECK(8192) -p 256 32 1 --bridge ***
-Process                     = SIGMA_SM_GG_TTXGG_CUDA [nvcc 11.7.99 (gcc 11.2.0)] [inlineHel=0] [hardcodePARAM=0]
-Workflow summary            = CUD:DBL+THX:CURHST+RMBHST+BRDDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 2.263163e+05                 )  sec^-1
-
-*** EXECUTE GCHECK(8192) -p 256 32 1 ***
-Process                     = SIGMA_SM_GG_TTXGG_CUDA [nvcc 11.7.99 (gcc 11.2.0)] [inlineHel=0] [hardcodePARAM=0]
-Workflow summary            = CUD:DBL+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 2.507921e+05                 )  sec^-1
-
-*** EXECUTE GCHECK(MAX) -p 16384 32 1 --bridge ***
-Process                     = SIGMA_SM_GG_TTXGG_CUDA [nvcc 11.7.99 (gcc 11.2.0)] [inlineHel=0] [hardcodePARAM=0]
-Workflow summary            = CUD:DBL+THX:CURHST+RMBHST+BRDDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 4.128075e+05                 )  sec^-1
-
-*** EXECUTE GCHECK(MAX) -p 16384 32 1 ***
-Process                     = SIGMA_SM_GG_TTXGG_CUDA [nvcc 11.7.99 (gcc 11.2.0)] [inlineHel=0] [hardcodePARAM=0]
-Workflow summary            = CUD:DBL+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 4.221062e+05                 )  sec^-1
-
-*** EXECUTE GCHECK(MAX128THR) -p 4096 128 1 --bridge ***
-Process                     = SIGMA_SM_GG_TTXGG_CUDA [nvcc 11.7.99 (gcc 11.2.0)] [inlineHel=0] [hardcodePARAM=0]
-Workflow summary            = CUD:DBL+THX:CURHST+RMBHST+BRDDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 4.134341e+05                 )  sec^-1
-
-*** EXECUTE GCHECK(MAX128THR) -p 4096 128 1 ***
-Process                     = SIGMA_SM_GG_TTXGG_CUDA [nvcc 11.7.99 (gcc 11.2.0)] [inlineHel=0] [hardcodePARAM=0]
-Workflow summary            = CUD:DBL+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 4.232440e+05                 )  sec^-1
-
-*** EXECUTE GCHECK(MAX8THR) -p 65536 8 1 --bridge ***
-Process                     = SIGMA_SM_GG_TTXGG_CUDA [nvcc 11.7.99 (gcc 11.2.0)] [inlineHel=0] [hardcodePARAM=0]
-Workflow summary            = CUD:DBL+THX:CURHST+RMBHST+BRDDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 4.138623e+05                 )  sec^-1
-
-*** EXECUTE GCHECK(MAX8THR) -p 65536 8 1 ***
-Process                     = SIGMA_SM_GG_TTXGG_CUDA [nvcc 11.7.99 (gcc 11.2.0)] [inlineHel=0] [hardcodePARAM=0]
-Workflow summary            = CUD:DBL+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 1.494492e+05                 )  sec^-1
-
-TEST COMPLETED
+*** (2-none) Compare CMADEVENT_CUDACPP x1 events.lhe to MADEVENT events.lhe reference (including colors and helicities) ***
+19,20c19,20
+<          21   -1    0    0  501  502  0.00000000000E+00  0.00000000000E+00  0.81859166139E+03  0.81859166139E+03  0.00000000000E+00 0.  1.
+<          21   -1    0    0  502  503 -0.00000000000E+00 -0.00000000000E+00 -0.12062291054E+04  0.12062291054E+04  0.00000000000E+00 0.  1.
+---
+>          21   -1    0    0  503  502  0.00000000000E+00  0.00000000000E+00  0.81859166139E+03  0.81859166139E+03  0.00000000000E+00 0.  1.
+>          21   -1    0    0  504  503 -0.00000000000E+00 -0.00000000000E+00 -0.12062291054E+04  0.12062291054E+04  0.00000000000E+00 0.  1.
+23,24c23,24
+<          21    1    1    2  504  503 -0.56095206426E+03 -0.16840118586E+03 -0.93763172088E+03  0.11055222394E+04  0.00000000000E+00 0.  1.
+<          21    1    1    2  505  504  0.20960336497E+02 -0.74282322701E+01  0.36141516992E+01  0.22529457012E+02  0.00000000000E+00 0.  1.
+---
+>          21    1    1    2  504  501 -0.56095206426E+03 -0.16840118586E+03 -0.93763172088E+03  0.11055222394E+04  0.00000000000E+00 0.  1.
+>          21    1    1    2  505  502  0.20960336497E+02 -0.74282322701E+01  0.36141516992E+01  0.22529457012E+02  0.00000000000E+00 0.  1.
+54,56c54,56
+<          -6    1    1    2    0  505  0.12539878316E+03  0.25084537686E+03  0.17266798312E+03  0.37201006747E+03  0.17300000000E+03 0.  1.
+<          21    1    1    2  504  503  0.91559552940E+02 -0.56451043237E+03  0.74367925168E+03  0.93814391719E+03  0.00000000000E+00 0. -1.
+<          21    1    1    2  505  504 -0.59178509296E+01 -0.20888672560E+02  0.16637826240E+02  0.27352785287E+02  0.00000000000E+00 0.  1.
+---
+>          -6    1    1    2    0  504  0.12539878316E+03  0.25084537686E+03  0.17266798312E+03  0.37201006747E+03  0.17300000000E+03 0.  1.
+>          21    1    1    2  504  505  0.91559552940E+02 -0.56451043237E+03  0.74367925168E+03  0.93814391719E+03  0.00000000000E+00 0. -1.
+>          21    1    1    2  505  503 -0.59178509296E+01 -0.20888672560E+02  0.16637826240E+02  0.27352785287E+02  0.00000000000E+00 0.  1.
+67,68c67,68
+<          21   -1    0    0  501  502  0.00000000000E+00  0.00000000000E+00  0.36539106847E+03  0.36539106847E+03  0.00000000000E+00 0. -1.
+<          21   -1    0    0  502  503 -0.00000000000E+00 -0.00000000000E+00 -0.22364294305E+04  0.22364294305E+04  0.00000000000E+00 0. -1.
+---
+>          21   -1    0    0  503  502  0.00000000000E+00  0.00000000000E+00  0.36539106847E+03  0.36539106847E+03  0.00000000000E+00 0. -1.
+>          21   -1    0    0  504  503 -0.00000000000E+00 -0.00000000000E+00 -0.22364294305E+04  0.22364294305E+04  0.00000000000E+00 0. -1.
+71,72c71,72
+<          21    1    1    2  504  503 -0.39662403171E+03 -0.11877848598E+03 -0.89926875535E+03  0.99000163920E+03  0.00000000000E+00 0. -1.
+<          21    1    1    2  505  504 -0.32481008027E+03  0.21107953226E+03 -0.18522249571E+03  0.42937574466E+03  0.00000000000E+00 0. -1.
+---
+>          21    1    1    2  504  501 -0.39662403171E+03 -0.11877848598E+03 -0.89926875535E+03  0.99000163920E+03  0.00000000000E+00 0. -1.
+>          21    1    1    2  505  502 -0.32481008027E+03  0.21107953226E+03 -0.18522249571E+03  0.42937574466E+03  0.00000000000E+00 0. -1.
+83,84c83,84
+<          21   -1    0    0  504  502  0.00000000000E+00  0.00000000000E+00  0.11542054346E+04  0.11542054346E+04  0.00000000000E+00 0. -1.
+<          21   -1    0    0  502  503 -0.00000000000E+00 -0.00000000000E+00 -0.87622448973E+03  0.87622448973E+03  0.00000000000E+00 0. -1.
+---
+>          21   -1    0    0  503  502  0.00000000000E+00  0.00000000000E+00  0.11542054346E+04  0.11542054346E+04  0.00000000000E+00 0. -1.
+>          21   -1    0    0  505  503 -0.00000000000E+00 -0.00000000000E+00 -0.87622448973E+03  0.87622448973E+03  0.00000000000E+00 0. -1.
+86c86
+<          -6    1    1    2    0  505  0.21874707030E+03  0.13546343073E+03  0.25532276652E+03  0.40164578540E+03  0.17300000000E+03 0.  1.
+---
+>          -6    1    1    2    0  502  0.21874707030E+03  0.13546343073E+03  0.25532276652E+03  0.40164578540E+03  0.17300000000E+03 0.  1.
+88c88
+<          21    1    1    2  505  503 -0.11370550817E+03  0.19005264160E+02 -0.20103500671E+03  0.23174385985E+03  0.00000000000E+00 0. -1.
+---
+>          21    1    1    2  505  504 -0.11370550817E+03  0.19005264160E+02 -0.20103500671E+03  0.23174385985E+03  0.00000000000E+00 0. -1.
+115,116c115,116
+<          21   -1    0    0  501  502  0.00000000000E+00  0.00000000000E+00  0.40182492101E+03  0.40182492101E+03  0.00000000000E+00 0. -1.
+<          21   -1    0    0  502  503 -0.00000000000E+00 -0.00000000000E+00 -0.31260679922E+03  0.31260679922E+03  0.00000000000E+00 0. -1.
+---
+>          21   -1    0    0  503  502  0.00000000000E+00  0.00000000000E+00  0.40182492101E+03  0.40182492101E+03  0.00000000000E+00 0. -1.
+>          21   -1    0    0  504  503 -0.00000000000E+00 -0.00000000000E+00 -0.31260679922E+03  0.31260679922E+03  0.00000000000E+00 0. -1.
+119,120c119,120
+<          21    1    1    2  504  503  0.18349167247E+03  0.23112997202E+02 -0.18418527726E+01  0.18495079597E+03  0.00000000000E+00 0. -1.
+<          21    1    1    2  505  504 -0.15497496606E+02  0.49927883956E+02  0.10702696535E+02  0.53362099945E+02  0.00000000000E+00 0.  1.
+---
+>          21    1    1    2  504  501  0.18349167247E+03  0.23112997202E+02 -0.18418527726E+01  0.18495079597E+03  0.00000000000E+00 0. -1.
+>          21    1    1    2  505  502 -0.15497496606E+02  0.49927883956E+02  0.10702696535E+02  0.53362099945E+02  0.00000000000E+00 0.  1.
+131c131
+<          21   -1    0    0  504  502  0.00000000000E+00  0.00000000000E+00  0.96278959232E+03  0.96278959232E+03  0.00000000000E+00 0. -1.
+---
+>          21   -1    0    0  505  502  0.00000000000E+00  0.00000000000E+00  0.96278959232E+03  0.96278959232E+03  0.00000000000E+00 0. -1.
+134,136c134,136
+<          -6    1    1    2    0  505  0.21857372889E+03  0.15145241426E+03  0.45066058276E+02  0.32042512130E+03  0.17300000000E+03 0. -1.
+<          21    1    1    2  504  501 -0.85780113425E+03  0.14260763483E+03 -0.32664683767E+03  0.92890143717E+03  0.00000000000E+00 0. -1.
+<          21    1    1    2  505  503  0.68954570780E+03 -0.61490891384E+03 -0.63923762290E+03  0.11234816394E+04  0.00000000000E+00 0. -1.
+---
+>          -6    1    1    2    0  504  0.21857372889E+03  0.15145241426E+03  0.45066058276E+02  0.32042512130E+03  0.17300000000E+03 0. -1.
+>          21    1    1    2  504  503 -0.85780113425E+03  0.14260763483E+03 -0.32664683767E+03  0.92890143717E+03  0.00000000000E+00 0. -1.
+>          21    1    1    2  505  501  0.68954570780E+03 -0.61490891384E+03 -0.63923762290E+03  0.11234816394E+04  0.00000000000E+00 0. -1.
+147,148c147,148
+<          21   -1    0    0  501  502  0.00000000000E+00  0.00000000000E+00  0.11878421575E+04  0.11878421575E+04  0.00000000000E+00 0.  1.
+<          21   -1    0    0  502  503 -0.00000000000E+00 -0.00000000000E+00 -0.10177375057E+03  0.10177375057E+03  0.00000000000E+00 0. -1.
+---
+>          21   -1    0    0  503  502  0.00000000000E+00  0.00000000000E+00  0.11878421575E+04  0.11878421575E+04  0.00000000000E+00 0.  1.
+>          21   -1    0    0  501  503 -0.00000000000E+00 -0.00000000000E+00 -0.10177375057E+03  0.10177375057E+03  0.00000000000E+00 0. -1.
+150,152c150,152
+<          -6    1    1    2    0  505  0.13931913890E+02  0.17750922096E+03  0.35180277953E+03  0.43057846838E+03  0.17300000000E+03 0. -1.
+<          21    1    1    2  504  503 -0.68773880518E+02 -0.15629672638E+03  0.29558261724E+03  0.34136138759E+03  0.00000000000E+00 0.  1.
+<          21    1    1    2  505  504 -0.31808842154E+02 -0.58814069105E+02  0.18302728040E+03  0.19485862191E+03  0.00000000000E+00 0.  1.
+---
+>          -6    1    1    2    0  504  0.13931913890E+02  0.17750922096E+03  0.35180277953E+03  0.43057846838E+03  0.17300000000E+03 0. -1.
+>          21    1    1    2  504  505 -0.68773880518E+02 -0.15629672638E+03  0.29558261724E+03  0.34136138759E+03  0.00000000000E+00 0.  1.
+>          21    1    1    2  505  502 -0.31808842154E+02 -0.58814069105E+02  0.18302728040E+03  0.19485862191E+03  0.00000000000E+00 0.  1.
+166,168c166,168
+<          -6    1    1    2    0  505  0.20706200236E+03 -0.23262072670E+03 -0.78433215568E+03  0.86144820259E+03  0.17300000000E+03 0. -1.
+<          21    1    1    2  504  502 -0.11364979994E+03  0.36077625749E+03 -0.17519459630E+03  0.41685600819E+03  0.00000000000E+00 0.  1.
+<          21    1    1    2  505  504 -0.24972583892E+03  0.76450798261E+02 -0.37831215827E+03  0.45970404422E+03  0.00000000000E+00 0.  1.
+---
+>          -6    1    1    2    0  504  0.20706200236E+03 -0.23262072670E+03 -0.78433215568E+03  0.86144820259E+03  0.17300000000E+03 0. -1.
+>          21    1    1    2  504  505 -0.11364979994E+03  0.36077625749E+03 -0.17519459630E+03  0.41685600819E+03  0.00000000000E+00 0.  1.
+>          21    1    1    2  505  502 -0.24972583892E+03  0.76450798261E+02 -0.37831215827E+03  0.45970404422E+03  0.00000000000E+00 0.  1.
+179c179
+<          21   -1    0    0  501  502  0.00000000000E+00  0.00000000000E+00  0.98635404392E+02  0.98635404392E+02  0.00000000000E+00 0. -1.
+---
+>          21   -1    0    0  505  502  0.00000000000E+00  0.00000000000E+00  0.98635404392E+02  0.98635404392E+02  0.00000000000E+00 0. -1.
+182c182
+<          -6    1    1    2    0  505  0.22173592950E+03  0.39645155523E+02 -0.58942072439E+03  0.65428155341E+03  0.17300000000E+03 0.  1.
+---
+>          -6    1    1    2    0  504  0.22173592950E+03  0.39645155523E+02 -0.58942072439E+03  0.65428155341E+03  0.17300000000E+03 0.  1.
+184c184
+<          21    1    1    2  505  504 -0.84624596613E+02  0.14399778959E+03 -0.35727888672E+03  0.39439179587E+03  0.00000000000E+00 0.  1.
+---
+>          21    1    1    2  505  501 -0.84624596613E+02  0.14399778959E+03 -0.35727888672E+03  0.39439179587E+03  0.00000000000E+00 0.  1.
+195,196c195,196
+<          21   -1    0    0  503  502  0.00000000000E+00  0.00000000000E+00  0.48692914599E+03  0.48692914599E+03  0.00000000000E+00 0.  1.
+<          21   -1    0    0  501  503 -0.00000000000E+00 -0.00000000000E+00 -0.42777476019E+03  0.42777476019E+03  0.00000000000E+00 0.  1.
+---
+>          21   -1    0    0  504  502  0.00000000000E+00  0.00000000000E+00  0.48692914599E+03  0.48692914599E+03  0.00000000000E+00 0.  1.
+>          21   -1    0    0  502  503 -0.00000000000E+00 -0.00000000000E+00 -0.42777476019E+03  0.42777476019E+03  0.00000000000E+00 0.  1.
+199,200c199,200
+<          21    1    1    2  504  502 -0.11483456115E+03 -0.18451124114E+03  0.28411941872E+03  0.35770828706E+03  0.00000000000E+00 0.  1.
+<          21    1    1    2  505  504  0.40040892554E+02 -0.40819720748E+02 -0.34960525373E+02  0.67020601406E+02  0.00000000000E+00 0.  1.
+---
+>          21    1    1    2  504  501 -0.11483456115E+03 -0.18451124114E+03  0.28411941872E+03  0.35770828706E+03  0.00000000000E+00 0.  1.
+>          21    1    1    2  505  503  0.40040892554E+02 -0.40819720748E+02 -0.34960525373E+02  0.67020601406E+02  0.00000000000E+00 0.  1.
+211,212c211,212
+<          21   -1    0    0  503  502  0.00000000000E+00  0.00000000000E+00  0.59917676920E+03  0.59917676920E+03  0.00000000000E+00 0. -1.
+<          21   -1    0    0  501  503 -0.00000000000E+00 -0.00000000000E+00 -0.17083712269E+04  0.17083712269E+04  0.00000000000E+00 0. -1.
+---
+>          21   -1    0    0  505  502  0.00000000000E+00  0.00000000000E+00  0.59917676920E+03  0.59917676920E+03  0.00000000000E+00 0. -1.
+>          21   -1    0    0  502  503 -0.00000000000E+00 -0.00000000000E+00 -0.17083712269E+04  0.17083712269E+04  0.00000000000E+00 0. -1.
+214,215c214,215
+<          -6    1    1    2    0  505 -0.10657108230E+02 -0.33922771988E+03 -0.46992979638E+03  0.60493969404E+03  0.17300000000E+03 0. -1.
+<          21    1    1    2  504  502  0.47981075109E+03  0.61702976492E+03 -0.40969291350E+02  0.78270209563E+03  0.00000000000E+00 0. -1.
+---
+>          -6    1    1    2    0  503 -0.10657108230E+02 -0.33922771988E+03 -0.46992979638E+03  0.60493969404E+03  0.17300000000E+03 0. -1.
+>          21    1    1    2  504  501  0.47981075109E+03  0.61702976492E+03 -0.40969291350E+02  0.78270209563E+03  0.00000000000E+00 0. -1.
+227,228c227,228
+<          21   -1    0    0  501  502  0.00000000000E+00  0.00000000000E+00  0.52422310266E+03  0.52422310266E+03  0.00000000000E+00 0. -1.
+<          21   -1    0    0  502  503 -0.00000000000E+00 -0.00000000000E+00 -0.58278105273E+03  0.58278105273E+03  0.00000000000E+00 0. -1.
+---
+>          21   -1    0    0  503  502  0.00000000000E+00  0.00000000000E+00  0.52422310266E+03  0.52422310266E+03  0.00000000000E+00 0. -1.
+>          21   -1    0    0  501  503 -0.00000000000E+00 -0.00000000000E+00 -0.58278105273E+03  0.58278105273E+03  0.00000000000E+00 0. -1.
+230,232c230,232
+<          -6    1    1    2    0  505  0.22482853132E+03 -0.61820999175E+02 -0.20240075959E+03  0.35392763656E+03  0.17300000000E+03 0. -1.
+<          21    1    1    2  504  503 -0.18791203660E+03  0.63561496588E+02  0.15365486866E+03  0.25091993945E+03  0.00000000000E+00 0. -1.
+<          21    1    1    2  505  504 -0.11487633146E+03 -0.13416331310E+03  0.14095971748E+03  0.22597789287E+03  0.00000000000E+00 0. -1.
+---
+>          -6    1    1    2    0  504  0.22482853132E+03 -0.61820999175E+02 -0.20240075959E+03  0.35392763656E+03  0.17300000000E+03 0. -1.
+>          21    1    1    2  504  505 -0.18791203660E+03  0.63561496588E+02  0.15365486866E+03  0.25091993945E+03  0.00000000000E+00 0. -1.
+>          21    1    1    2  505  502 -0.11487633146E+03 -0.13416331310E+03  0.14095971748E+03  0.22597789287E+03  0.00000000000E+00 0. -1.
+243,244c243,244
+<          21   -1    0    0  501  502  0.00000000000E+00  0.00000000000E+00  0.74825273737E+03  0.74825273737E+03  0.00000000000E+00 0.  1.
+<          21   -1    0    0  502  503 -0.00000000000E+00 -0.00000000000E+00 -0.26737024844E+03  0.26737024844E+03  0.00000000000E+00 0. -1.
+---
+>          21   -1    0    0  503  502  0.00000000000E+00  0.00000000000E+00  0.74825273737E+03  0.74825273737E+03  0.00000000000E+00 0.  1.
+>          21   -1    0    0  501  503 -0.00000000000E+00 -0.00000000000E+00 -0.26737024844E+03  0.26737024844E+03  0.00000000000E+00 0. -1.
+246,248c246,248
+<          -6    1    1    2    0  505  0.28177467352E+02  0.14804686680E+03  0.30235403396E+02  0.23141958442E+03  0.17300000000E+03 0.  1.
+<          21    1    1    2  504  503 -0.21172919086E+02 -0.84430272724E+02  0.46880125199E+01  0.87170757231E+02  0.00000000000E+00 0. -1.
+<          21    1    1    2  505  504  0.12682080651E+03  0.73565094567E+01  0.44945191374E+03  0.46705958716E+03  0.00000000000E+00 0.  1.
+---
+>          -6    1    1    2    0  504  0.28177467352E+02  0.14804686680E+03  0.30235403396E+02  0.23141958442E+03  0.17300000000E+03 0.  1.
+>          21    1    1    2  504  505 -0.21172919086E+02 -0.84430272724E+02  0.46880125199E+01  0.87170757231E+02  0.00000000000E+00 0. -1.
+>          21    1    1    2  505  502  0.12682080651E+03  0.73565094567E+01  0.44945191374E+03  0.46705958716E+03  0.00000000000E+00 0.  1.
+259c259
+<          21   -1    0    0  501  502  0.00000000000E+00  0.00000000000E+00  0.67165310733E+03  0.67165310733E+03  0.00000000000E+00 0. -1.
+---
+>          21   -1    0    0  504  502  0.00000000000E+00  0.00000000000E+00  0.67165310733E+03  0.67165310733E+03  0.00000000000E+00 0. -1.
+263,264c263,264
+<          21    1    1    2  504  503  0.47232098815E+03 -0.15611505926E+03 -0.10650042999E+02  0.49756652921E+03  0.00000000000E+00 0. -1.
+<          21    1    1    2  505  504 -0.28036978415E+03 -0.11363787385E+03 -0.11941012173E+03  0.32523769679E+03  0.00000000000E+00 0. -1.
+---
+>          21    1    1    2  504  501  0.47232098815E+03 -0.15611505926E+03 -0.10650042999E+02  0.49756652921E+03  0.00000000000E+00 0. -1.
+>          21    1    1    2  505  503 -0.28036978415E+03 -0.11363787385E+03 -0.11941012173E+03  0.32523769679E+03  0.00000000000E+00 0. -1.
+275,276c275,276
+<          21   -1    0    0  504  502  0.00000000000E+00  0.00000000000E+00  0.84250749092E+03  0.84250749092E+03  0.00000000000E+00 0. -1.
+<          21   -1    0    0  502  503 -0.00000000000E+00 -0.00000000000E+00 -0.28585034422E+03  0.28585034422E+03  0.00000000000E+00 0. -1.
+---
+>          21   -1    0    0  503  502  0.00000000000E+00  0.00000000000E+00  0.84250749092E+03  0.84250749092E+03  0.00000000000E+00 0. -1.
+>          21   -1    0    0  505  503 -0.00000000000E+00 -0.00000000000E+00 -0.28585034422E+03  0.28585034422E+03  0.00000000000E+00 0. -1.
+278,280c278,280
+<          -6    1    1    2    0  505  0.17677021064E+02 -0.83542813107E+01  0.30009460761E+03  0.34694098145E+03  0.17300000000E+03 0.  1.
+<          21    1    1    2  504  501 -0.28532806841E+03  0.13427838046E+03  0.24014514455E+03  0.39637416734E+03  0.00000000000E+00 0. -1.
+<          21    1    1    2  505  503  0.91316914749E+01  0.20434093539E+02 -0.30763793641E+02  0.38044066122E+02  0.00000000000E+00 0.  1.
+---
+>          -6    1    1    2    0  504  0.17677021064E+02 -0.83542813107E+01  0.30009460761E+03  0.34694098145E+03  0.17300000000E+03 0.  1.
+>          21    1    1    2  504  502 -0.28532806841E+03  0.13427838046E+03  0.24014514455E+03  0.39637416734E+03  0.00000000000E+00 0. -1.
+>          21    1    1    2  505  501  0.91316914749E+01  0.20434093539E+02 -0.30763793641E+02  0.38044066122E+02  0.00000000000E+00 0.  1.
+307,308c307,308
+<          21   -1    0    0  503  502  0.00000000000E+00  0.00000000000E+00  0.20279666277E+03  0.20279666277E+03  0.00000000000E+00 0. -1.
+<          21   -1    0    0  501  503 -0.00000000000E+00 -0.00000000000E+00 -0.17748069000E+04  0.17748069000E+04  0.00000000000E+00 0.  1.
+---
+>          21   -1    0    0  504  502  0.00000000000E+00  0.00000000000E+00  0.20279666277E+03  0.20279666277E+03  0.00000000000E+00 0. -1.
+>          21   -1    0    0  502  503 -0.00000000000E+00 -0.00000000000E+00 -0.17748069000E+04  0.17748069000E+04  0.00000000000E+00 0.  1.
+311,312c311,312
+<          21    1    1    2  504  502 -0.10257803713E+03 -0.27675943627E+03 -0.71430858226E+02  0.30367813022E+03  0.00000000000E+00 0. -1.
+<          21    1    1    2  505  504  0.14290121448E+03 -0.78770899003E+02 -0.33911087085E+03  0.37632671226E+03  0.00000000000E+00 0.  1.
+---
+>          21    1    1    2  504  501 -0.10257803713E+03 -0.27675943627E+03 -0.71430858226E+02  0.30367813022E+03  0.00000000000E+00 0. -1.
+>          21    1    1    2  505  503  0.14290121448E+03 -0.78770899003E+02 -0.33911087085E+03  0.37632671226E+03  0.00000000000E+00 0.  1.
+324c324
+<          21   -1    0    0  504  503 -0.00000000000E+00 -0.00000000000E+00 -0.22170284178E+03  0.22170284178E+03  0.00000000000E+00 0. -1.
+---
+>          21   -1    0    0  505  503 -0.00000000000E+00 -0.00000000000E+00 -0.22170284178E+03  0.22170284178E+03  0.00000000000E+00 0. -1.
+327,328c327,328
+<          21    1    1    2  504  505 -0.36346166898E+02 -0.73060382077E+02 -0.96989669211E+02  0.12675117045E+03  0.00000000000E+00 0. -1.
+<          21    1    1    2  505  501  0.18381769511E+02  0.14852420334E+03  0.55525657110E+02  0.15962589711E+03  0.00000000000E+00 0. -1.
+---
+>          21    1    1    2  504  501 -0.36346166898E+02 -0.73060382077E+02 -0.96989669211E+02  0.12675117045E+03  0.00000000000E+00 0. -1.
+>          21    1    1    2  505  504  0.18381769511E+02  0.14852420334E+03  0.55525657110E+02  0.15962589711E+03  0.00000000000E+00 0. -1.
+339,340c339,340
+<          21   -1    0    0  503  502  0.00000000000E+00  0.00000000000E+00  0.33199806671E+03  0.33199806671E+03  0.00000000000E+00 0. -1.
+<          21   -1    0    0  501  503 -0.00000000000E+00 -0.00000000000E+00 -0.55596537777E+03  0.55596537777E+03  0.00000000000E+00 0. -1.
+---
+>          21   -1    0    0  504  502  0.00000000000E+00  0.00000000000E+00  0.33199806671E+03  0.33199806671E+03  0.00000000000E+00 0. -1.
+>          21   -1    0    0  502  503 -0.00000000000E+00 -0.00000000000E+00 -0.55596537777E+03  0.55596537777E+03  0.00000000000E+00 0. -1.
+343,344c343,344
+<          21    1    1    2  504  502  0.17129825259E+03 -0.42598670787E+02  0.70319208030E+02  0.19000665544E+03  0.00000000000E+00 0. -1.
+<          21    1    1    2  505  504 -0.18057385172E+02 -0.18827243284E+02 -0.28835273123E+02  0.38884537094E+02  0.00000000000E+00 0.  1.
+---
+>          21    1    1    2  504  501  0.17129825259E+03 -0.42598670787E+02  0.70319208030E+02  0.19000665544E+03  0.00000000000E+00 0. -1.
+>          21    1    1    2  505  503 -0.18057385172E+02 -0.18827243284E+02 -0.28835273123E+02  0.38884537094E+02  0.00000000000E+00 0.  1.
+355,356c355,356
+<          21   -1    0    0  501  502  0.00000000000E+00  0.00000000000E+00  0.74721788721E+03  0.74721788721E+03  0.00000000000E+00 0.  1.
+<          21   -1    0    0  502  503 -0.00000000000E+00 -0.00000000000E+00 -0.68582026055E+03  0.68582026055E+03  0.00000000000E+00 0. -1.
+---
+>          21   -1    0    0  503  502  0.00000000000E+00  0.00000000000E+00  0.74721788721E+03  0.74721788721E+03  0.00000000000E+00 0.  1.
+>          21   -1    0    0  504  503 -0.00000000000E+00 -0.00000000000E+00 -0.68582026055E+03  0.68582026055E+03  0.00000000000E+00 0. -1.
+359,360c359,360
+<          21    1    1    2  504  503 -0.46993497111E+03  0.26029303129E+03 -0.27815892734E+03  0.60494935992E+03  0.00000000000E+00 0. -1.
+<          21    1    1    2  505  504  0.36544140559E+02  0.20612509127E+02  0.23512027531E+02  0.48095375873E+02  0.00000000000E+00 0.  1.
+---
+>          21    1    1    2  504  501 -0.46993497111E+03  0.26029303129E+03 -0.27815892734E+03  0.60494935992E+03  0.00000000000E+00 0. -1.
+>          21    1    1    2  505  502  0.36544140559E+02  0.20612509127E+02  0.23512027531E+02  0.48095375873E+02  0.00000000000E+00 0.  1.
+371,372c371,372
+<          21   -1    0    0  504  502  0.00000000000E+00  0.00000000000E+00  0.64237774275E+02  0.64237774275E+02  0.00000000000E+00 0.  1.
+<          21   -1    0    0  502  503 -0.00000000000E+00 -0.00000000000E+00 -0.12533760551E+04  0.12533760551E+04  0.00000000000E+00 0.  1.
+---
+>          21   -1    0    0  503  502  0.00000000000E+00  0.00000000000E+00  0.64237774275E+02  0.64237774275E+02  0.00000000000E+00 0.  1.
+>          21   -1    0    0  505  503 -0.00000000000E+00 -0.00000000000E+00 -0.12533760551E+04  0.12533760551E+04  0.00000000000E+00 0.  1.
+374,376c374,376
+<          -6    1    1    2    0  505  0.63988507197E+02 -0.48336095319E+02 -0.43608803810E+03  0.47595449797E+03  0.17300000000E+03 0.  1.
+<          21    1    1    2  504  501 -0.12221016945E+03  0.51559952731E+02 -0.13503359931E+03  0.18928240062E+03  0.00000000000E+00 0.  1.
+<          21    1    1    2  505  503  0.15548092184E+02  0.24071637713E+02 -0.82803764946E+02  0.87622202677E+02  0.00000000000E+00 0.  1.
+---
+>          -6    1    1    2    0  504  0.63988507197E+02 -0.48336095319E+02 -0.43608803810E+03  0.47595449797E+03  0.17300000000E+03 0.  1.
+>          21    1    1    2  504  502 -0.12221016945E+03  0.51559952731E+02 -0.13503359931E+03  0.18928240062E+03  0.00000000000E+00 0.  1.
+>          21    1    1    2  505  501  0.15548092184E+02  0.24071637713E+02 -0.82803764946E+02  0.87622202677E+02  0.00000000000E+00 0.  1.
+387c387
+<          21   -1    0    0  501  502  0.00000000000E+00  0.00000000000E+00  0.16316354202E+04  0.16316354202E+04  0.00000000000E+00 0.  1.
+---
+>          21   -1    0    0  504  502  0.00000000000E+00  0.00000000000E+00  0.16316354202E+04  0.16316354202E+04  0.00000000000E+00 0.  1.
+391,392c391,392
+<          21    1    1    2  504  503 -0.59343447897E+03 -0.34529561999E+02  0.61306875044E+03  0.85393797448E+03  0.00000000000E+00 0.  1.
+<          21    1    1    2  505  504  0.18686731050E+03  0.20648812836E+03  0.35627777311E+03  0.45220635831E+03  0.00000000000E+00 0.  1.
+---
+>          21    1    1    2  504  501 -0.59343447897E+03 -0.34529561999E+02  0.61306875044E+03  0.85393797448E+03  0.00000000000E+00 0.  1.
+>          21    1    1    2  505  503  0.18686731050E+03  0.20648812836E+03  0.35627777311E+03  0.45220635831E+03  0.00000000000E+00 0.  1.
+406,408c406,408
+<          -6    1    1    2    0  505 -0.21464427393E+03 -0.12110518135E+03 -0.56477133229E+02  0.30636138114E+03  0.17300000000E+03 0. -1.
+<          21    1    1    2  504  503  0.33290316793E+03  0.37149729646E+03 -0.40518106541E+03  0.64265578365E+03  0.00000000000E+00 0.  1.
+<          21    1    1    2  505  504  0.16165043624E+03 -0.16767027538E+03 -0.16990350120E+03  0.28829045164E+03  0.00000000000E+00 0.  1.
+---
+>          -6    1    1    2    0  504 -0.21464427393E+03 -0.12110518135E+03 -0.56477133229E+02  0.30636138114E+03  0.17300000000E+03 0. -1.
+>          21    1    1    2  504  505  0.33290316793E+03  0.37149729646E+03 -0.40518106541E+03  0.64265578365E+03  0.00000000000E+00 0.  1.
+>          21    1    1    2  505  503  0.16165043624E+03 -0.16767027538E+03 -0.16990350120E+03  0.28829045164E+03  0.00000000000E+00 0.  1.
+420c420
+<          21   -1    0    0  504  503 -0.00000000000E+00 -0.00000000000E+00 -0.89421845094E+03  0.89421845094E+03  0.00000000000E+00 0.  1.
+---
+>          21   -1    0    0  505  503 -0.00000000000E+00 -0.00000000000E+00 -0.89421845094E+03  0.89421845094E+03  0.00000000000E+00 0.  1.
+422,423c422,423
+<          -6    1    1    2    0  502 -0.54431632830E+02 -0.23085593672E+02  0.29418937980E+02  0.18517618961E+03  0.17300000000E+03 0.  1.
+<          21    1    1    2  504  505 -0.83256024246E+02  0.77736473587E+02 -0.45416156269E+03  0.46822777569E+03  0.00000000000E+00 0.  1.
+---
+>          -6    1    1    2    0  504 -0.54431632830E+02 -0.23085593672E+02  0.29418937980E+02  0.18517618961E+03  0.17300000000E+03 0.  1.
+>          21    1    1    2  504  502 -0.83256024246E+02  0.77736473587E+02 -0.45416156269E+03  0.46822777569E+03  0.00000000000E+00 0.  1.
+436c436
+<          21   -1    0    0  504  503 -0.00000000000E+00 -0.00000000000E+00 -0.81921534670E+02  0.81921534670E+02  0.00000000000E+00 0. -1.
+---
+>          21   -1    0    0  505  503 -0.00000000000E+00 -0.00000000000E+00 -0.81921534670E+02  0.81921534670E+02  0.00000000000E+00 0. -1.
+439,440c439,440
+<          21    1    1    2  504  505  0.28660701548E+02 -0.67892405610E+02  0.80145852177E+02  0.10887686703E+03  0.00000000000E+00 0. -1.
+<          21    1    1    2  505  501 -0.61017958141E+02 -0.41225933505E+02  0.21222438665E+02  0.76636549452E+02  0.00000000000E+00 0. -1.
+---
+>          21    1    1    2  504  501  0.28660701548E+02 -0.67892405610E+02  0.80145852177E+02  0.10887686703E+03  0.00000000000E+00 0. -1.
+>          21    1    1    2  505  504 -0.61017958141E+02 -0.41225933505E+02  0.21222438665E+02  0.76636549452E+02  0.00000000000E+00 0. -1.
+452c452
+<          21   -1    0    0  501  503 -0.00000000000E+00 -0.00000000000E+00 -0.50457739686E+03  0.50457739686E+03  0.00000000000E+00 0. -1.
+---
+>          21   -1    0    0  504  503 -0.00000000000E+00 -0.00000000000E+00 -0.50457739686E+03  0.50457739686E+03  0.00000000000E+00 0. -1.
+455,456c455,456
+<          21    1    1    2  504  502 -0.30989396060E+03  0.22568487109E+03  0.21458170976E+03  0.43933271904E+03  0.00000000000E+00 0. -1.
+<          21    1    1    2  505  504  0.86030814077E+01 -0.47120489445E+02  0.51446776447E+02  0.70293131542E+02  0.00000000000E+00 0. -1.
+---
+>          21    1    1    2  504  501 -0.30989396060E+03  0.22568487109E+03  0.21458170976E+03  0.43933271904E+03  0.00000000000E+00 0. -1.
+>          21    1    1    2  505  502  0.86030814077E+01 -0.47120489445E+02  0.51446776447E+02  0.70293131542E+02  0.00000000000E+00 0. -1.
+467,468c467,468
+<          21   -1    0    0  501  502  0.00000000000E+00  0.00000000000E+00  0.70487861924E+03  0.70487861924E+03  0.00000000000E+00 0. -1.
+<          21   -1    0    0  502  503 -0.00000000000E+00 -0.00000000000E+00 -0.51605371195E+03  0.51605371195E+03  0.00000000000E+00 0.  1.
+---
+>          21   -1    0    0  503  502  0.00000000000E+00  0.00000000000E+00  0.70487861924E+03  0.70487861924E+03  0.00000000000E+00 0. -1.
+>          21   -1    0    0  504  503 -0.00000000000E+00 -0.00000000000E+00 -0.51605371195E+03  0.51605371195E+03  0.00000000000E+00 0.  1.
+471,472c471,472
+<          21    1    1    2  504  503 -0.80059802674E+02  0.43437905897E+03 -0.16607821847E+03  0.47188633539E+03  0.00000000000E+00 0.  1.
+<          21    1    1    2  505  504  0.55172409973E+02 -0.87782164217E+02  0.25679766774E+02  0.10681363957E+03  0.00000000000E+00 0. -1.
+---
+>          21    1    1    2  504  501 -0.80059802674E+02  0.43437905897E+03 -0.16607821847E+03  0.47188633539E+03  0.00000000000E+00 0.  1.
+>          21    1    1    2  505  502  0.55172409973E+02 -0.87782164217E+02  0.25679766774E+02  0.10681363957E+03  0.00000000000E+00 0. -1.
+486,488c486,488
+<          -6    1    1    2    0  505  0.30886141756E+02 -0.16430824340E+03 -0.84066899690E+03  0.87441667125E+03  0.17300000000E+03 0. -1.
+<          21    1    1    2  504  503  0.13118182004E+03  0.10973355069E+03 -0.39134396895E+03  0.42708339243E+03  0.00000000000E+00 0. -1.
+<          21    1    1    2  505  504  0.19024439872E+02 -0.81763658921E+02 -0.21758923733E+03  0.23322157154E+03  0.00000000000E+00 0. -1.
+---
+>          -6    1    1    2    0  504  0.30886141756E+02 -0.16430824340E+03 -0.84066899690E+03  0.87441667125E+03  0.17300000000E+03 0. -1.
+>          21    1    1    2  504  505  0.13118182004E+03  0.10973355069E+03 -0.39134396895E+03  0.42708339243E+03  0.00000000000E+00 0. -1.
+>          21    1    1    2  505  503  0.19024439872E+02 -0.81763658921E+02 -0.21758923733E+03  0.23322157154E+03  0.00000000000E+00 0. -1.
+502,504c502,504
+<          -6    1    1    2    0  505 -0.13300555345E+03 -0.11630906445E+03 -0.37665370341E+01  0.24730843601E+03  0.17300000000E+03 0.  1.
+<          21    1    1    2  504  503 -0.43728188693E+02  0.68187246486E+02 -0.38878884523E+01  0.81097291856E+02  0.00000000000E+00 0. -1.
+<          21    1    1    2  505  504  0.14557470704E+03 -0.12755766678E+02 -0.70110299278E+02  0.16208071748E+03  0.00000000000E+00 0. -1.
+---
+>          -6    1    1    2    0  504 -0.13300555345E+03 -0.11630906445E+03 -0.37665370341E+01  0.24730843601E+03  0.17300000000E+03 0.  1.
+>          21    1    1    2  504  505 -0.43728188693E+02  0.68187246486E+02 -0.38878884523E+01  0.81097291856E+02  0.00000000000E+00 0. -1.
+>          21    1    1    2  505  503  0.14557470704E+03 -0.12755766678E+02 -0.70110299278E+02  0.16208071748E+03  0.00000000000E+00 0. -1.
+515,516c515,516
+<          21   -1    0    0  503  502  0.00000000000E+00  0.00000000000E+00  0.15265142404E+03  0.15265142404E+03  0.00000000000E+00 0. -1.
+<          21   -1    0    0  501  503 -0.00000000000E+00 -0.00000000000E+00 -0.67951909106E+03  0.67951909106E+03  0.00000000000E+00 0. -1.
+---
+>          21   -1    0    0  504  502  0.00000000000E+00  0.00000000000E+00  0.15265142404E+03  0.15265142404E+03  0.00000000000E+00 0. -1.
+>          21   -1    0    0  502  503 -0.00000000000E+00 -0.00000000000E+00 -0.67951909106E+03  0.67951909106E+03  0.00000000000E+00 0. -1.
+519,520c519,520
+<          21    1    1    2  504  502 -0.64668073700E+02 -0.22663476572E+02 -0.15548229867E+02  0.70266210787E+02  0.00000000000E+00 0. -1.
+<          21    1    1    2  505  504 -0.86157343699E+02  0.54861376029E+02 -0.85547240486E+02  0.13323358739E+03  0.00000000000E+00 0. -1.
+---
+>          21    1    1    2  504  501 -0.64668073700E+02 -0.22663476572E+02 -0.15548229867E+02  0.70266210787E+02  0.00000000000E+00 0. -1.
+>          21    1    1    2  505  503 -0.86157343699E+02  0.54861376029E+02 -0.85547240486E+02  0.13323358739E+03  0.00000000000E+00 0. -1.
+531c531
+<          21   -1    0    0  501  502  0.00000000000E+00  0.00000000000E+00  0.94803553158E+03  0.94803553158E+03  0.00000000000E+00 0.  1.
+---
+>          21   -1    0    0  505  502  0.00000000000E+00  0.00000000000E+00  0.94803553158E+03  0.94803553158E+03  0.00000000000E+00 0.  1.
+534,535c534,535
+<          -6    1    1    2    0  505  0.10212537215E+03  0.29992209329E+03  0.29620049631E+03  0.46695458848E+03  0.17300000000E+03 0.  1.
+<          21    1    1    2  504  503 -0.27801205545E+03 -0.29895643111E+03  0.19375045748E+03  0.45189035224E+03  0.00000000000E+00 0.  1.
+---
+>          -6    1    1    2    0  503  0.10212537215E+03  0.29992209329E+03  0.29620049631E+03  0.46695458848E+03  0.17300000000E+03 0.  1.
+>          21    1    1    2  504  501 -0.27801205545E+03 -0.29895643111E+03  0.19375045748E+03  0.45189035224E+03  0.00000000000E+00 0.  1.
+547,548c547,548
+<          21   -1    0    0  501  502  0.00000000000E+00  0.00000000000E+00  0.47606275146E+03  0.47606275146E+03  0.00000000000E+00 0. -1.
+<          21   -1    0    0  502  503 -0.00000000000E+00 -0.00000000000E+00 -0.12049860080E+04  0.12049860080E+04  0.00000000000E+00 0. -1.
+---
+>          21   -1    0    0  503  502  0.00000000000E+00  0.00000000000E+00  0.47606275146E+03  0.47606275146E+03  0.00000000000E+00 0. -1.
+>          21   -1    0    0  501  503 -0.00000000000E+00 -0.00000000000E+00 -0.12049860080E+04  0.12049860080E+04  0.00000000000E+00 0. -1.
+550,552c550,552
+<          -6    1    1    2    0  505  0.97882649898E+02  0.16297450200E+03 -0.19720597644E+02  0.25779760166E+03  0.17300000000E+03 0. -1.
+<          21    1    1    2  504  503 -0.28538509898E+03 -0.52873443017E+03 -0.65555368388E+03  0.88924427736E+03  0.00000000000E+00 0. -1.
+<          21    1    1    2  505  504  0.12295736208E+03  0.67300180088E+02  0.76504849312E+02  0.15968975890E+03  0.00000000000E+00 0. -1.
+---
+>          -6    1    1    2    0  504  0.97882649898E+02  0.16297450200E+03 -0.19720597644E+02  0.25779760166E+03  0.17300000000E+03 0. -1.
+>          21    1    1    2  504  505 -0.28538509898E+03 -0.52873443017E+03 -0.65555368388E+03  0.88924427736E+03  0.00000000000E+00 0. -1.
+>          21    1    1    2  505  502  0.12295736208E+03  0.67300180088E+02  0.76504849312E+02  0.15968975890E+03  0.00000000000E+00 0. -1.
+563c563
+<          21   -1    0    0  501  502  0.00000000000E+00  0.00000000000E+00  0.40592590506E+03  0.40592590506E+03  0.00000000000E+00 0. -1.
+---
+>          21   -1    0    0  505  502  0.00000000000E+00  0.00000000000E+00  0.40592590506E+03  0.40592590506E+03  0.00000000000E+00 0. -1.
+566,567c566,567
+<          -6    1    1    2    0  505 -0.87875296856E+01  0.19184114946E+03 -0.43964080569E+02  0.26218712341E+03  0.17300000000E+03 0.  1.
+<          21    1    1    2  504  503 -0.14494537025E+03 -0.38971629371E+03 -0.68618045808E+03  0.80232884218E+03  0.00000000000E+00 0. -1.
+---
+>          -6    1    1    2    0  503 -0.87875296856E+01  0.19184114946E+03 -0.43964080569E+02  0.26218712341E+03  0.17300000000E+03 0.  1.
+>          21    1    1    2  504  501 -0.14494537025E+03 -0.38971629371E+03 -0.68618045808E+03  0.80232884218E+03  0.00000000000E+00 0. -1.
+579,580c579,580
+<          21   -1    0    0  503  502  0.00000000000E+00  0.00000000000E+00  0.77469255466E+03  0.77469255466E+03  0.00000000000E+00 0. -1.
+<          21   -1    0    0  504  503 -0.00000000000E+00 -0.00000000000E+00 -0.10813002608E+04  0.10813002608E+04  0.00000000000E+00 0. -1.
+---
+>          21   -1    0    0  505  502  0.00000000000E+00  0.00000000000E+00  0.77469255466E+03  0.77469255466E+03  0.00000000000E+00 0. -1.
+>          21   -1    0    0  502  503 -0.00000000000E+00 -0.00000000000E+00 -0.10813002608E+04  0.10813002608E+04  0.00000000000E+00 0. -1.
+582,583c582,583
+<          -6    1    1    2    0  502 -0.13927125384E+03  0.27753185779E+03 -0.60837375950E+02  0.36062529105E+03  0.17300000000E+03 0. -1.
+<          21    1    1    2  504  505  0.55152957698E+03 -0.65201833850E+03 -0.16583908850E+03  0.86995137295E+03  0.00000000000E+00 0. -1.
+---
+>          -6    1    1    2    0  504 -0.13927125384E+03  0.27753185779E+03 -0.60837375950E+02  0.36062529105E+03  0.17300000000E+03 0. -1.
+>          21    1    1    2  504  503  0.55152957698E+03 -0.65201833850E+03 -0.16583908850E+03  0.86995137295E+03  0.00000000000E+00 0. -1.
+598,600c598,600
+<          -6    1    1    2    0  505  0.15718148546E+03 -0.24851431682E+02  0.35856848216E+02  0.23777789341E+03  0.17300000000E+03 0. -1.
+<          21    1    1    2  504  502 -0.23107467438E+03 -0.16406600020E+03  0.59477379497E+03  0.65883914937E+03  0.00000000000E+00 0. -1.
+<          21    1    1    2  505  504 -0.88374140735E+02  0.12563521121E+03  0.16770635529E+03  0.22741947289E+03  0.00000000000E+00 0.  1.
+---
+>          -6    1    1    2    0  504  0.15718148546E+03 -0.24851431682E+02  0.35856848216E+02  0.23777789341E+03  0.17300000000E+03 0. -1.
+>          21    1    1    2  504  505 -0.23107467438E+03 -0.16406600020E+03  0.59477379497E+03  0.65883914937E+03  0.00000000000E+00 0. -1.
+>          21    1    1    2  505  502 -0.88374140735E+02  0.12563521121E+03  0.16770635529E+03  0.22741947289E+03  0.00000000000E+00 0.  1.
+614,616c614,616
+<          -6    1    1    2    0  505  0.11116666631E+03 -0.51398409506E+02  0.25242989690E+03  0.32962050459E+03  0.17300000000E+03 0. -1.
+<          21    1    1    2  504  503 -0.15250226778E+03 -0.11176768196E+02 -0.80605642490E+02  0.17285581109E+03  0.00000000000E+00 0. -1.
+<          21    1    1    2  505  504 -0.53378502621E+02 -0.36915136015E+02  0.11915764877E+02  0.65984674445E+02  0.00000000000E+00 0.  1.
+---
+>          -6    1    1    2    0  504  0.11116666631E+03 -0.51398409506E+02  0.25242989690E+03  0.32962050459E+03  0.17300000000E+03 0. -1.
+>          21    1    1    2  504  505 -0.15250226778E+03 -0.11176768196E+02 -0.80605642490E+02  0.17285581109E+03  0.00000000000E+00 0. -1.
+>          21    1    1    2  505  503 -0.53378502621E+02 -0.36915136015E+02  0.11915764877E+02  0.65984674445E+02  0.00000000000E+00 0.  1.
+628c628
+<          21   -1    0    0  504  503 -0.00000000000E+00 -0.00000000000E+00 -0.30704401996E+03  0.30704401996E+03  0.00000000000E+00 0. -1.
+---
+>          21   -1    0    0  505  503 -0.00000000000E+00 -0.00000000000E+00 -0.30704401996E+03  0.30704401996E+03  0.00000000000E+00 0. -1.
+631,632c631,632
+<          21    1    1    2  504  505  0.17407121683E+02 -0.45886173803E+03  0.98272161589E+02  0.46958973611E+03  0.00000000000E+00 0. -1.
+<          21    1    1    2  505  501 -0.11454468903E+03  0.26203389730E+03  0.11151729820E+03  0.30695008865E+03  0.00000000000E+00 0.  1.
+---
+>          21    1    1    2  504  501  0.17407121683E+02 -0.45886173803E+03  0.98272161589E+02  0.46958973611E+03  0.00000000000E+00 0. -1.
+>          21    1    1    2  505  504 -0.11454468903E+03  0.26203389730E+03  0.11151729820E+03  0.30695008865E+03  0.00000000000E+00 0.  1.
+643c643
+<          21   -1    0    0  501  502  0.00000000000E+00  0.00000000000E+00  0.22955568586E+03  0.22955568586E+03  0.00000000000E+00 0.  1.
+---
+>          21   -1    0    0  504  502  0.00000000000E+00  0.00000000000E+00  0.22955568586E+03  0.22955568586E+03  0.00000000000E+00 0.  1.
+647,648c647,648
+<          21    1    1    2  504  503 -0.37202651961E+02 -0.15461282734E+03 -0.61789379593E+02  0.17060800427E+03  0.00000000000E+00 0.  1.
+<          21    1    1    2  505  504 -0.65855298872E+02  0.48688279341E+02 -0.14122613511E+03  0.16325529141E+03  0.00000000000E+00 0.  1.
+---
+>          21    1    1    2  504  501 -0.37202651961E+02 -0.15461282734E+03 -0.61789379593E+02  0.17060800427E+03  0.00000000000E+00 0.  1.
+>          21    1    1    2  505  503 -0.65855298872E+02  0.48688279341E+02 -0.14122613511E+03  0.16325529141E+03  0.00000000000E+00 0.  1.
+659c659
+<          21   -1    0    0  501  502  0.00000000000E+00  0.00000000000E+00  0.19878691327E+04  0.19878691327E+04  0.00000000000E+00 0. -1.
+---
+>          21   -1    0    0  505  502  0.00000000000E+00  0.00000000000E+00  0.19878691327E+04  0.19878691327E+04  0.00000000000E+00 0. -1.
+662c662
+<          -6    1    1    2    0  505 -0.70772535533E+02  0.36186357491E+03  0.79860421170E+03  0.89646622110E+03  0.17300000000E+03 0. -1.
+---
+>          -6    1    1    2    0  504 -0.70772535533E+02  0.36186357491E+03  0.79860421170E+03  0.89646622110E+03  0.17300000000E+03 0. -1.
+664c664
+<          21    1    1    2  505  504  0.23080601449E+03  0.49289826022E+02  0.16717457499E+03  0.28922005774E+03  0.00000000000E+00 0. -1.
+---
+>          21    1    1    2  505  501  0.23080601449E+03  0.49289826022E+02  0.16717457499E+03  0.28922005774E+03  0.00000000000E+00 0. -1.
+675,676c675,676
+<          21   -1    0    0  501  502  0.00000000000E+00  0.00000000000E+00  0.79907847242E+03  0.79907847242E+03  0.00000000000E+00 0. -1.
+<          21   -1    0    0  502  503 -0.00000000000E+00 -0.00000000000E+00 -0.11577536833E+03  0.11577536833E+03  0.00000000000E+00 0. -1.
+---
+>          21   -1    0    0  503  502  0.00000000000E+00  0.00000000000E+00  0.79907847242E+03  0.79907847242E+03  0.00000000000E+00 0. -1.
+>          21   -1    0    0  505  503 -0.00000000000E+00 -0.00000000000E+00 -0.11577536833E+03  0.11577536833E+03  0.00000000000E+00 0. -1.
+678,679c678,679
+<          -6    1    1    2    0  505  0.42321248541E+01 -0.89969962167E+02  0.11768892797E+03  0.22779857054E+03  0.17300000000E+03 0.  1.
+<          21    1    1    2  504  503  0.58019418893E+02 -0.42703378784E+01  0.64376315681E+02  0.86768650877E+02  0.00000000000E+00 0.  1.
+---
+>          -6    1    1    2    0  502  0.42321248541E+01 -0.89969962167E+02  0.11768892797E+03  0.22779857054E+03  0.17300000000E+03 0.  1.
+>          21    1    1    2  504  501  0.58019418893E+02 -0.42703378784E+01  0.64376315681E+02  0.86768650877E+02  0.00000000000E+00 0.  1.
+691,692c691,692
+<          21   -1    0    0  501  502  0.00000000000E+00  0.00000000000E+00  0.87478592262E+03  0.87478592262E+03  0.00000000000E+00 0.  1.
+<          21   -1    0    0  502  503 -0.00000000000E+00 -0.00000000000E+00 -0.16023103971E+03  0.16023103971E+03  0.00000000000E+00 0.  1.
+---
+>          21   -1    0    0  503  502  0.00000000000E+00  0.00000000000E+00  0.87478592262E+03  0.87478592262E+03  0.00000000000E+00 0.  1.
+>          21   -1    0    0  501  503 -0.00000000000E+00 -0.00000000000E+00 -0.16023103971E+03  0.16023103971E+03  0.00000000000E+00 0.  1.
+694,696c694,696
+<          -6    1    1    2    0  505  0.51094356582E+02 -0.40347360213E+02  0.29339796138E+03  0.34677068287E+03  0.17300000000E+03 0.  1.
+<          21    1    1    2  504  503  0.13529064158E+03  0.15714107453E+03  0.10977636523E+03  0.23462251675E+03  0.00000000000E+00 0.  1.
+<          21    1    1    2  505  504  0.18275955805E+02  0.16416297636E+02  0.52338835483E+02  0.57817463525E+02  0.00000000000E+00 0. -1.
+---
+>          -6    1    1    2    0  504  0.51094356582E+02 -0.40347360213E+02  0.29339796138E+03  0.34677068287E+03  0.17300000000E+03 0.  1.
+>          21    1    1    2  504  505  0.13529064158E+03  0.15714107453E+03  0.10977636523E+03  0.23462251675E+03  0.00000000000E+00 0.  1.
+>          21    1    1    2  505  502  0.18275955805E+02  0.16416297636E+02  0.52338835483E+02  0.57817463525E+02  0.00000000000E+00 0. -1.
+707,708c707,708
+<          21   -1    0    0  503  502  0.00000000000E+00  0.00000000000E+00  0.86193635545E+03  0.86193635545E+03  0.00000000000E+00 0. -1.
+<          21   -1    0    0  501  503 -0.00000000000E+00 -0.00000000000E+00 -0.21781596149E+03  0.21781596149E+03  0.00000000000E+00 0. -1.
+---
+>          21   -1    0    0  504  502  0.00000000000E+00  0.00000000000E+00  0.86193635545E+03  0.86193635545E+03  0.00000000000E+00 0. -1.
+>          21   -1    0    0  502  503 -0.00000000000E+00 -0.00000000000E+00 -0.21781596149E+03  0.21781596149E+03  0.00000000000E+00 0. -1.
+711,712c711,712
+<          21    1    1    2  504  502 -0.22329368226E+03 -0.73935470882E+02  0.16867876936E+03  0.28944610833E+03  0.00000000000E+00 0. -1.
+<          21    1    1    2  505  504 -0.32336112435E+02 -0.88941145944E+02  0.17880896684E+03  0.20230867068E+03  0.00000000000E+00 0.  1.
+---
+>          21    1    1    2  504  501 -0.22329368226E+03 -0.73935470882E+02  0.16867876936E+03  0.28944610833E+03  0.00000000000E+00 0. -1.
+>          21    1    1    2  505  503 -0.32336112435E+02 -0.88941145944E+02  0.17880896684E+03  0.20230867068E+03  0.00000000000E+00 0.  1.
+723,724c723,724
+<          21   -1    0    0  501  502  0.00000000000E+00  0.00000000000E+00  0.17158840285E+04  0.17158840285E+04  0.00000000000E+00 0. -1.
+<          21   -1    0    0  502  503 -0.00000000000E+00 -0.00000000000E+00 -0.19926995597E+03  0.19926995597E+03  0.00000000000E+00 0. -1.
+---
+>          21   -1    0    0  503  502  0.00000000000E+00  0.00000000000E+00  0.17158840285E+04  0.17158840285E+04  0.00000000000E+00 0. -1.
+>          21   -1    0    0  505  503 -0.00000000000E+00 -0.00000000000E+00 -0.19926995597E+03  0.19926995597E+03  0.00000000000E+00 0. -1.
+726,727c726,727
+<          -6    1    1    2    0  505  0.13494095331E+03  0.12732567530E+03  0.41986177104E+03  0.49054438662E+03  0.17300000000E+03 0. -1.
+<          21    1    1    2  504  503 -0.36929525166E+03  0.55262020840E+02  0.20540407587E+03  0.42617333121E+03  0.00000000000E+00 0. -1.
+---
+>          -6    1    1    2    0  502  0.13494095331E+03  0.12732567530E+03  0.41986177104E+03  0.49054438662E+03  0.17300000000E+03 0. -1.
+>          21    1    1    2  504  501 -0.36929525166E+03  0.55262020840E+02  0.20540407587E+03  0.42617333121E+03  0.00000000000E+00 0. -1.
+739,740c739,740
+<          21   -1    0    0  501  502  0.00000000000E+00  0.00000000000E+00  0.44014659718E+03  0.44014659718E+03  0.00000000000E+00 0. -1.
+<          21   -1    0    0  502  503 -0.00000000000E+00 -0.00000000000E+00 -0.20717130236E+04  0.20717130236E+04  0.00000000000E+00 0. -1.
+---
+>          21   -1    0    0  503  502  0.00000000000E+00  0.00000000000E+00  0.44014659718E+03  0.44014659718E+03  0.00000000000E+00 0. -1.
+>          21   -1    0    0  505  503 -0.00000000000E+00 -0.00000000000E+00 -0.20717130236E+04  0.20717130236E+04  0.00000000000E+00 0. -1.
+742,743c742,743
+<          -6    1    1    2    0  505  0.78333912975E+02  0.12783305324E+03 -0.50468413634E+02  0.23442174003E+03  0.17300000000E+03 0. -1.
+<          21    1    1    2  504  503 -0.51917617014E+03 -0.41711433140E+03 -0.10951499650E+04  0.12817494712E+04  0.00000000000E+00 0. -1.
+---
+>          -6    1    1    2    0  502  0.78333912975E+02  0.12783305324E+03 -0.50468413634E+02  0.23442174003E+03  0.17300000000E+03 0. -1.
+>          21    1    1    2  504  501 -0.51917617014E+03 -0.41711433140E+03 -0.10951499650E+04  0.12817494712E+04  0.00000000000E+00 0. -1.
+755,756c755,756
+<          21   -1    0    0  503  502  0.00000000000E+00  0.00000000000E+00  0.13682630802E+03  0.13682630802E+03  0.00000000000E+00 0.  1.
+<          21   -1    0    0  501  503 -0.00000000000E+00 -0.00000000000E+00 -0.27815688150E+04  0.27815688150E+04  0.00000000000E+00 0.  1.
+---
+>          21   -1    0    0  505  502  0.00000000000E+00  0.00000000000E+00  0.13682630802E+03  0.13682630802E+03  0.00000000000E+00 0.  1.
+>          21   -1    0    0  502  503 -0.00000000000E+00 -0.00000000000E+00 -0.27815688150E+04  0.27815688150E+04  0.00000000000E+00 0.  1.
+758,759c758,759
+<          -6    1    1    2    0  505  0.99857720003E+02 -0.10433176492E+01 -0.72706788852E+03  0.75400886419E+03  0.17300000000E+03 0. -1.
+<          21    1    1    2  504  502 -0.44329997817E+03  0.91326222484E+02 -0.65904825990E+03  0.79949981766E+03  0.00000000000E+00 0.  1.
+---
+>          -6    1    1    2    0  503  0.99857720003E+02 -0.10433176492E+01 -0.72706788852E+03  0.75400886419E+03  0.17300000000E+03 0. -1.
+>          21    1    1    2  504  501 -0.44329997817E+03  0.91326222484E+02 -0.65904825990E+03  0.79949981766E+03  0.00000000000E+00 0.  1.
+771,772c771,772
+<          21   -1    0    0  501  502  0.00000000000E+00  0.00000000000E+00  0.27782652299E+03  0.27782652299E+03  0.00000000000E+00 0. -1.
+<          21   -1    0    0  502  503 -0.00000000000E+00 -0.00000000000E+00 -0.70892608374E+03  0.70892608374E+03  0.00000000000E+00 0. -1.
+---
+>          21   -1    0    0  503  502  0.00000000000E+00  0.00000000000E+00  0.27782652299E+03  0.27782652299E+03  0.00000000000E+00 0. -1.
+>          21   -1    0    0  505  503 -0.00000000000E+00 -0.00000000000E+00 -0.70892608374E+03  0.70892608374E+03  0.00000000000E+00 0. -1.
+774,775c774,775
+<          -6    1    1    2    0  505  0.16855730097E+03  0.29610135927E+00 -0.32785897876E+03  0.40722495177E+03  0.17300000000E+03 0.  1.
+<          21    1    1    2  504  503 -0.42203367704E+02 -0.12545475516E+03 -0.26604125354E+02  0.13501036747E+03  0.00000000000E+00 0. -1.
+---
+>          -6    1    1    2    0  502  0.16855730097E+03  0.29610135927E+00 -0.32785897876E+03  0.40722495177E+03  0.17300000000E+03 0.  1.
+>          21    1    1    2  504  501 -0.42203367704E+02 -0.12545475516E+03 -0.26604125354E+02  0.13501036747E+03  0.00000000000E+00 0. -1.
+ERROR! events.lhe.cpp.1 and events.lhe.ref.1 differ!

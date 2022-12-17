@@ -2,36 +2,36 @@ Working directory (build): /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/g
 CUDACPP_BUILDDIR='.'
 
 
-
 make USEBUILDDIR=1 AVX=none
 
 make USEBUILDDIR=1 AVX=sse4
+
 make USEBUILDDIR=1 AVX=avx2
 make USEBUILDDIR=1 AVX=512y
 
 make USEBUILDDIR=1 AVX=512z
 CUDACPP_BUILDDIR='build.avx2_m_inl0_hrd0'
-make[1]: Entering directory `/data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttggg.mad/SubProcesses/P1_gg_ttxggg'
-make[1]: Nothing to be done for `all'.
-make[1]: Leaving directory `/data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttggg.mad/SubProcesses/P1_gg_ttxggg'
-CUDACPP_BUILDDIR='build.none_m_inl0_hrd0'
-make[1]: Entering directory `/data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttggg.mad/SubProcesses/P1_gg_ttxggg'
-make[1]: Nothing to be done for `all'.
-make[1]: Leaving directory `/data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttggg.mad/SubProcesses/P1_gg_ttxggg'
-CUDACPP_BUILDDIR='build.sse4_m_inl0_hrd0'
-make[1]: Entering directory `/data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttggg.mad/SubProcesses/P1_gg_ttxggg'
-make[1]: Nothing to be done for `all'.
-make[1]: Leaving directory `/data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttggg.mad/SubProcesses/P1_gg_ttxggg'
 CUDACPP_BUILDDIR='build.512z_m_inl0_hrd0'
-make[1]: Entering directory `/data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttggg.mad/SubProcesses/P1_gg_ttxggg'
-make[1]: Nothing to be done for `all'.
-make[1]: Leaving directory `/data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttggg.mad/SubProcesses/P1_gg_ttxggg'
 CUDACPP_BUILDDIR='build.512y_m_inl0_hrd0'
 make[1]: Entering directory `/data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttggg.mad/SubProcesses/P1_gg_ttxggg'
 make[1]: Nothing to be done for `all'.
 make[1]: Leaving directory `/data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttggg.mad/SubProcesses/P1_gg_ttxggg'
+make[1]: Entering directory `/data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttggg.mad/SubProcesses/P1_gg_ttxggg'
+make[1]: Nothing to be done for `all'.
+make[1]: Entering directory `/data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttggg.mad/SubProcesses/P1_gg_ttxggg'
+make[1]: Nothing to be done for `all'.
+make[1]: Leaving directory `/data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttggg.mad/SubProcesses/P1_gg_ttxggg'
+make[1]: Leaving directory `/data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttggg.mad/SubProcesses/P1_gg_ttxggg'
+CUDACPP_BUILDDIR='build.none_m_inl0_hrd0'
+CUDACPP_BUILDDIR='build.sse4_m_inl0_hrd0'
+make[1]: Entering directory `/data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttggg.mad/SubProcesses/P1_gg_ttxggg'
+make[1]: Nothing to be done for `all'.
+make[1]: Leaving directory `/data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttggg.mad/SubProcesses/P1_gg_ttxggg'
+make[1]: Entering directory `/data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttggg.mad/SubProcesses/P1_gg_ttxggg'
+make[1]: Nothing to be done for `all'.
+make[1]: Leaving directory `/data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttggg.mad/SubProcesses/P1_gg_ttxggg'
 
-DATE: 2022-12-15_16:14:10
+DATE: 2022-12-17_02:49:28
 
 On itscrd70.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
 Working directory (run): /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttggg.mad/SubProcesses/P1_gg_ttxggg
@@ -55,9 +55,9 @@ Executing ' ./madevent < /tmp/avalassi/input_ggttggg_x1_fortran > /tmp/avalassi/
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 1.169e-06 [] fbridge_mode=0
- [COUNTERS] PROGRAM TOTAL          :  111.0817s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.5274s
- [COUNTERS] Fortran MEs      ( 1 ) :  110.5544s for     8192 events => throughput is 7.41E+01 events/s
+ [COUNTERS] PROGRAM TOTAL          :  111.1725s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.5331s
+ [COUNTERS] Fortran MEs      ( 1 ) :  110.6394s for     8192 events => throughput is 7.40E+01 events/s
 
 *** (1) EXECUTE MADEVENT x1 (create events.lhe) ***
 --------------------
@@ -79,9 +79,9 @@ Executing ' ./madevent < /tmp/avalassi/input_ggttggg_x1_fortran > /tmp/avalassi/
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 1.169e-06 [1.1693039943146880E-006] fbridge_mode=0
  [UNWEIGHT] Wrote 14 events (found 457 events)
- [COUNTERS] PROGRAM TOTAL          :  111.2696s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.6000s
- [COUNTERS] Fortran MEs      ( 1 ) :  110.6696s for     8192 events => throughput is 7.40E+01 events/s
+ [COUNTERS] PROGRAM TOTAL          :  111.1537s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.6009s
+ [COUNTERS] Fortran MEs      ( 1 ) :  110.5528s for     8192 events => throughput is 7.41E+01 events/s
 
 *** (1) EXECUTE MADEVENT x10 (create events.lhe) ***
 --------------------
@@ -103,9 +103,9 @@ Executing ' ./madevent < /tmp/avalassi/input_ggttggg_x10_fortran > /tmp/avalassi
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 2.136e-07 [2.1358448797976056E-007] fbridge_mode=0
  [UNWEIGHT] Wrote 84 events (found 1181 events)
- [COUNTERS] PROGRAM TOTAL          : 1221.9622s
- [COUNTERS] Fortran Overhead ( 0 ) :    5.0177s
- [COUNTERS] Fortran MEs      ( 1 ) : 1216.9445s for    90112 events => throughput is 7.40E+01 events/s
+ [COUNTERS] PROGRAM TOTAL          : 1222.0863s
+ [COUNTERS] Fortran Overhead ( 0 ) :    5.0092s
+ [COUNTERS] Fortran MEs      ( 1 ) : 1217.0771s for    90112 events => throughput is 7.40E+01 events/s
 
 *** (2-none) EXECUTE CMADEVENT_CUDACPP x1 (create events.lhe) ***
 --------------------
@@ -127,458 +127,201 @@ Executing ' ./build.none_m_inl0_hrd0/cmadevent_cudacpp < /tmp/avalassi/input_ggt
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 1.169e-06 [1.1693040014636590E-006] fbridge_mode=1
  [UNWEIGHT] Wrote 14 events (found 457 events)
- [COUNTERS] PROGRAM TOTAL          :  246.4528s
- [COUNTERS] Fortran Overhead ( 0 ) :  113.5704s
- [COUNTERS] CudaCpp MEs      ( 2 ) :  132.8823s for     8192 events => throughput is 6.16E+01 events/s
+ [COUNTERS] PROGRAM TOTAL          :  245.8313s
+ [COUNTERS] Fortran Overhead ( 0 ) :  113.2098s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :  132.6215s for     8192 events => throughput is 6.18E+01 events/s
 
 *** (2-none) Compare CMADEVENT_CUDACPP x1 xsec to MADEVENT xsec ***
 
 OK! xsec from fortran (1.1693039943146880E-006) and cpp (1.1693040014636590E-006) differ by less than 2E-4 (6.113868522561461e-09)
 
-*** (2-none) Compare CMADEVENT_CUDACPP x1 events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***
-
-OK! events.lhe.cpp.1 and events.lhe.ref.1 are identical
-
-*** (2-none) EXECUTE CMADEVENT_CUDACPP x10 (create events.lhe) ***
---------------------
-+1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
-8192 ! Number of events in a single C++ or CUDA iteration (VECSIZE_USED)
-81920 1 1 ! Number of events and max and min iterations
-0.000001 ! Accuracy (ignored because max iterations = min iterations)
-0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
-1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
-0 ! Helicity Sum/event 0=exact
-1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
---------------------
-Executing ' ./build.none_m_inl0_hrd0/cmadevent_cudacpp < /tmp/avalassi/input_ggttggg_x10_cudacpp > /tmp/avalassi/output_ggttggg_x10_cudacpp'
- [OPENMPTH] omp_get_max_threads/nproc = 1/4
- [NGOODHEL] ngoodhel/ncomb = 128/128
- [XSECTION] VECSIZE_USED = 8192
- [XSECTION] MultiChannel = TRUE
- [XSECTION] Configuration = 1
- [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 2.136e-07 [2.1358448915086503E-007] fbridge_mode=1
- [UNWEIGHT] Wrote 84 events (found 1181 events)
- [COUNTERS] PROGRAM TOTAL          : 1577.1449s
- [COUNTERS] Fortran Overhead ( 0 ) :  117.7399s
- [COUNTERS] CudaCpp MEs      ( 2 ) : 1459.4050s for    90112 events => throughput is 6.17E+01 events/s
-
-*** (2-none) Compare CMADEVENT_CUDACPP x10 xsec to MADEVENT xsec ***
-
-OK! xsec from fortran (2.1358448797976056E-007) and cpp (2.1358448915086503E-007) differ by less than 2E-4 (5.4830970874775176e-09)
-
-*** (2-none) Compare CMADEVENT_CUDACPP x10 events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***
-
-OK! events.lhe.cpp.10 and events.lhe.ref.10 are identical
-
-*** EXECUTE CHECK(8192) -p 256 32 1 --bridge ***
-Process                     = SIGMA_SM_GG_TTXGGG_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
-Workflow summary            = CPP:MIX+CXS:CURHST+RMBHST+BRDHST/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 7.276034e+01                 )  sec^-1
-
-*** EXECUTE CHECK(8192) -p 256 32 1 ***
-Process                     = SIGMA_SM_GG_TTXGGG_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
-Workflow summary            = CPP:MIX+CXS:CURHST+RMBHST+MESHST/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 7.281113e+01                 )  sec^-1
-
-*** (2-sse4) EXECUTE CMADEVENT_CUDACPP x1 (create events.lhe) ***
---------------------
-+1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
-8192 ! Number of events in a single C++ or CUDA iteration (VECSIZE_USED)
-8192 1 1 ! Number of events and max and min iterations
-0.000001 ! Accuracy (ignored because max iterations = min iterations)
-0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
-1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
-0 ! Helicity Sum/event 0=exact
-1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
---------------------
-Executing ' ./build.sse4_m_inl0_hrd0/cmadevent_cudacpp < /tmp/avalassi/input_ggttggg_x1_cudacpp > /tmp/avalassi/output_ggttggg_x1_cudacpp'
- [OPENMPTH] omp_get_max_threads/nproc = 1/4
- [NGOODHEL] ngoodhel/ncomb = 128/128
- [XSECTION] VECSIZE_USED = 8192
- [XSECTION] MultiChannel = TRUE
- [XSECTION] Configuration = 1
- [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 1.169e-06 [1.1693040018604290E-006] fbridge_mode=1
- [UNWEIGHT] Wrote 14 events (found 457 events)
- [COUNTERS] PROGRAM TOTAL          :  121.4106s
- [COUNTERS] Fortran Overhead ( 0 ) :   55.4852s
- [COUNTERS] CudaCpp MEs      ( 2 ) :   65.9254s for     8192 events => throughput is 1.24E+02 events/s
-
-*** (2-sse4) Compare CMADEVENT_CUDACPP x1 xsec to MADEVENT xsec ***
-
-OK! xsec from fortran (1.1693039943146880E-006) and cpp (1.1693040018604290E-006) differ by less than 2E-4 (6.453189982380536e-09)
-
-*** (2-sse4) Compare CMADEVENT_CUDACPP x1 events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***
-
-OK! events.lhe.cpp.1 and events.lhe.ref.1 are identical
-
-*** (2-sse4) EXECUTE CMADEVENT_CUDACPP x10 (create events.lhe) ***
---------------------
-+1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
-8192 ! Number of events in a single C++ or CUDA iteration (VECSIZE_USED)
-81920 1 1 ! Number of events and max and min iterations
-0.000001 ! Accuracy (ignored because max iterations = min iterations)
-0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
-1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
-0 ! Helicity Sum/event 0=exact
-1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
---------------------
-Executing ' ./build.sse4_m_inl0_hrd0/cmadevent_cudacpp < /tmp/avalassi/input_ggttggg_x10_cudacpp > /tmp/avalassi/output_ggttggg_x10_cudacpp'
- [OPENMPTH] omp_get_max_threads/nproc = 1/4
- [NGOODHEL] ngoodhel/ncomb = 128/128
- [XSECTION] VECSIZE_USED = 8192
- [XSECTION] MultiChannel = TRUE
- [XSECTION] Configuration = 1
- [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 2.136e-07 [2.1358448923322559E-007] fbridge_mode=1
- [UNWEIGHT] Wrote 84 events (found 1181 events)
- [COUNTERS] PROGRAM TOTAL          :  787.5071s
- [COUNTERS] Fortran Overhead ( 0 ) :   59.8553s
- [COUNTERS] CudaCpp MEs      ( 2 ) :  727.6517s for    90112 events => throughput is 1.24E+02 events/s
-
-*** (2-sse4) Compare CMADEVENT_CUDACPP x10 xsec to MADEVENT xsec ***
-
-OK! xsec from fortran (2.1358448797976056E-007) and cpp (2.1358448923322559E-007) differ by less than 2E-4 (5.868708186085314e-09)
-
-*** (2-sse4) Compare CMADEVENT_CUDACPP x10 events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***
-
-OK! events.lhe.cpp.10 and events.lhe.ref.10 are identical
-
-*** EXECUTE CHECK(8192) -p 256 32 1 --bridge ***
-Process                     = SIGMA_SM_GG_TTXGGG_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
-Workflow summary            = CPP:MIX+CXS:CURHST+RMBHST+BRDHST/sse4+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 1.496492e+02                 )  sec^-1
-
-*** EXECUTE CHECK(8192) -p 256 32 1 ***
-Process                     = SIGMA_SM_GG_TTXGGG_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
-Workflow summary            = CPP:MIX+CXS:CURHST+RMBHST+MESHST/sse4+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 1.490236e+02                 )  sec^-1
-
-*** (2-avx2) EXECUTE CMADEVENT_CUDACPP x1 (create events.lhe) ***
---------------------
-+1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
-8192 ! Number of events in a single C++ or CUDA iteration (VECSIZE_USED)
-8192 1 1 ! Number of events and max and min iterations
-0.000001 ! Accuracy (ignored because max iterations = min iterations)
-0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
-1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
-0 ! Helicity Sum/event 0=exact
-1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
---------------------
-Executing ' ./build.avx2_m_inl0_hrd0/cmadevent_cudacpp < /tmp/avalassi/input_ggttggg_x1_cudacpp > /tmp/avalassi/output_ggttggg_x1_cudacpp'
- [OPENMPTH] omp_get_max_threads/nproc = 1/4
- [NGOODHEL] ngoodhel/ncomb = 128/128
- [XSECTION] VECSIZE_USED = 8192
- [XSECTION] MultiChannel = TRUE
- [XSECTION] Configuration = 1
- [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 1.169e-06 [1.1693040019581793E-006] fbridge_mode=1
- [UNWEIGHT] Wrote 14 events (found 457 events)
- [COUNTERS] PROGRAM TOTAL          :   63.0572s
- [COUNTERS] Fortran Overhead ( 0 ) :   28.7041s
- [COUNTERS] CudaCpp MEs      ( 2 ) :   34.3531s for     8192 events => throughput is 2.38E+02 events/s
-
-*** (2-avx2) Compare CMADEVENT_CUDACPP x1 xsec to MADEVENT xsec ***
-
-OK! xsec from fortran (1.1693039943146880E-006) and cpp (1.1693040019581793E-006) differ by less than 2E-4 (6.536787111599551e-09)
-
-*** (2-avx2) Compare CMADEVENT_CUDACPP x1 events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***
-
-OK! events.lhe.cpp.1 and events.lhe.ref.1 are identical
-
-*** (2-avx2) EXECUTE CMADEVENT_CUDACPP x10 (create events.lhe) ***
---------------------
-+1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
-8192 ! Number of events in a single C++ or CUDA iteration (VECSIZE_USED)
-81920 1 1 ! Number of events and max and min iterations
-0.000001 ! Accuracy (ignored because max iterations = min iterations)
-0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
-1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
-0 ! Helicity Sum/event 0=exact
-1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
---------------------
-Executing ' ./build.avx2_m_inl0_hrd0/cmadevent_cudacpp < /tmp/avalassi/input_ggttggg_x10_cudacpp > /tmp/avalassi/output_ggttggg_x10_cudacpp'
- [OPENMPTH] omp_get_max_threads/nproc = 1/4
- [NGOODHEL] ngoodhel/ncomb = 128/128
- [XSECTION] VECSIZE_USED = 8192
- [XSECTION] MultiChannel = TRUE
- [XSECTION] Configuration = 1
- [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 2.136e-07 [2.1358448920691754E-007] fbridge_mode=1
- [UNWEIGHT] Wrote 84 events (found 1181 events)
- [COUNTERS] PROGRAM TOTAL          :  411.5216s
- [COUNTERS] Fortran Overhead ( 0 ) :   33.0755s
- [COUNTERS] CudaCpp MEs      ( 2 ) :  378.4461s for    90112 events => throughput is 2.38E+02 events/s
-
-*** (2-avx2) Compare CMADEVENT_CUDACPP x10 xsec to MADEVENT xsec ***
-
-OK! xsec from fortran (2.1358448797976056E-007) and cpp (2.1358448920691754E-007) differ by less than 2E-4 (5.745534270573671e-09)
-
-*** (2-avx2) Compare CMADEVENT_CUDACPP x10 events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***
-
-OK! events.lhe.cpp.10 and events.lhe.ref.10 are identical
-
-*** EXECUTE CHECK(8192) -p 256 32 1 --bridge ***
-Process                     = SIGMA_SM_GG_TTXGGG_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
-Workflow summary            = CPP:MIX+CXS:CURHST+RMBHST+BRDHST/avx2+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 2.917363e+02                 )  sec^-1
-
-*** EXECUTE CHECK(8192) -p 256 32 1 ***
-Process                     = SIGMA_SM_GG_TTXGGG_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
-Workflow summary            = CPP:MIX+CXS:CURHST+RMBHST+MESHST/avx2+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 2.912847e+02                 )  sec^-1
-
-*** (2-512y) EXECUTE CMADEVENT_CUDACPP x1 (create events.lhe) ***
---------------------
-+1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
-8192 ! Number of events in a single C++ or CUDA iteration (VECSIZE_USED)
-8192 1 1 ! Number of events and max and min iterations
-0.000001 ! Accuracy (ignored because max iterations = min iterations)
-0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
-1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
-0 ! Helicity Sum/event 0=exact
-1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
---------------------
-Executing ' ./build.512y_m_inl0_hrd0/cmadevent_cudacpp < /tmp/avalassi/input_ggttggg_x1_cudacpp > /tmp/avalassi/output_ggttggg_x1_cudacpp'
- [OPENMPTH] omp_get_max_threads/nproc = 1/4
- [NGOODHEL] ngoodhel/ncomb = 128/128
- [XSECTION] VECSIZE_USED = 8192
- [XSECTION] MultiChannel = TRUE
- [XSECTION] Configuration = 1
- [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 1.169e-06 [1.1693040019581793E-006] fbridge_mode=1
- [UNWEIGHT] Wrote 14 events (found 457 events)
- [COUNTERS] PROGRAM TOTAL          :   55.9327s
- [COUNTERS] Fortran Overhead ( 0 ) :   25.2029s
- [COUNTERS] CudaCpp MEs      ( 2 ) :   30.7298s for     8192 events => throughput is 2.67E+02 events/s
-
-*** (2-512y) Compare CMADEVENT_CUDACPP x1 xsec to MADEVENT xsec ***
-
-OK! xsec from fortran (1.1693039943146880E-006) and cpp (1.1693040019581793E-006) differ by less than 2E-4 (6.536787111599551e-09)
-
-*** (2-512y) Compare CMADEVENT_CUDACPP x1 events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***
-
-OK! events.lhe.cpp.1 and events.lhe.ref.1 are identical
-
-*** (2-512y) EXECUTE CMADEVENT_CUDACPP x10 (create events.lhe) ***
---------------------
-+1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
-8192 ! Number of events in a single C++ or CUDA iteration (VECSIZE_USED)
-81920 1 1 ! Number of events and max and min iterations
-0.000001 ! Accuracy (ignored because max iterations = min iterations)
-0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
-1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
-0 ! Helicity Sum/event 0=exact
-1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
---------------------
-Executing ' ./build.512y_m_inl0_hrd0/cmadevent_cudacpp < /tmp/avalassi/input_ggttggg_x10_cudacpp > /tmp/avalassi/output_ggttggg_x10_cudacpp'
- [OPENMPTH] omp_get_max_threads/nproc = 1/4
- [NGOODHEL] ngoodhel/ncomb = 128/128
- [XSECTION] VECSIZE_USED = 8192
- [XSECTION] MultiChannel = TRUE
- [XSECTION] Configuration = 1
- [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 2.136e-07 [2.1358448920691754E-007] fbridge_mode=1
- [UNWEIGHT] Wrote 84 events (found 1181 events)
- [COUNTERS] PROGRAM TOTAL          :  365.1826s
- [COUNTERS] Fortran Overhead ( 0 ) :   29.5390s
- [COUNTERS] CudaCpp MEs      ( 2 ) :  335.6436s for    90112 events => throughput is 2.68E+02 events/s
-
-*** (2-512y) Compare CMADEVENT_CUDACPP x10 xsec to MADEVENT xsec ***
-
-OK! xsec from fortran (2.1358448797976056E-007) and cpp (2.1358448920691754E-007) differ by less than 2E-4 (5.745534270573671e-09)
-
-*** (2-512y) Compare CMADEVENT_CUDACPP x10 events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***
-
-OK! events.lhe.cpp.10 and events.lhe.ref.10 are identical
-
-*** EXECUTE CHECK(8192) -p 256 32 1 --bridge ***
-Process                     = SIGMA_SM_GG_TTXGGG_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
-Workflow summary            = CPP:MIX+CXS:CURHST+RMBHST+BRDHST/512y+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 3.342856e+02                 )  sec^-1
-
-*** EXECUTE CHECK(8192) -p 256 32 1 ***
-Process                     = SIGMA_SM_GG_TTXGGG_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
-Workflow summary            = CPP:MIX+CXS:CURHST+RMBHST+MESHST/512y+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 3.342766e+02                 )  sec^-1
-
-*** (2-512z) EXECUTE CMADEVENT_CUDACPP x1 (create events.lhe) ***
---------------------
-+1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
-8192 ! Number of events in a single C++ or CUDA iteration (VECSIZE_USED)
-8192 1 1 ! Number of events and max and min iterations
-0.000001 ! Accuracy (ignored because max iterations = min iterations)
-0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
-1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
-0 ! Helicity Sum/event 0=exact
-1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
---------------------
-Executing ' ./build.512z_m_inl0_hrd0/cmadevent_cudacpp < /tmp/avalassi/input_ggttggg_x1_cudacpp > /tmp/avalassi/output_ggttggg_x1_cudacpp'
- [OPENMPTH] omp_get_max_threads/nproc = 1/4
- [NGOODHEL] ngoodhel/ncomb = 128/128
- [XSECTION] VECSIZE_USED = 8192
- [XSECTION] MultiChannel = TRUE
- [XSECTION] Configuration = 1
- [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 1.169e-06 [1.1693040019581793E-006] fbridge_mode=1
- [UNWEIGHT] Wrote 14 events (found 457 events)
- [COUNTERS] PROGRAM TOTAL          :   54.2751s
- [COUNTERS] Fortran Overhead ( 0 ) :   26.3029s
- [COUNTERS] CudaCpp MEs      ( 2 ) :   27.9722s for     8192 events => throughput is 2.93E+02 events/s
-
-*** (2-512z) Compare CMADEVENT_CUDACPP x1 xsec to MADEVENT xsec ***
-
-OK! xsec from fortran (1.1693039943146880E-006) and cpp (1.1693040019581793E-006) differ by less than 2E-4 (6.536787111599551e-09)
-
-*** (2-512z) Compare CMADEVENT_CUDACPP x1 events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***
-
-OK! events.lhe.cpp.1 and events.lhe.ref.1 are identical
-
-*** (2-512z) EXECUTE CMADEVENT_CUDACPP x10 (create events.lhe) ***
---------------------
-+1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
-8192 ! Number of events in a single C++ or CUDA iteration (VECSIZE_USED)
-81920 1 1 ! Number of events and max and min iterations
-0.000001 ! Accuracy (ignored because max iterations = min iterations)
-0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
-1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
-0 ! Helicity Sum/event 0=exact
-1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
---------------------
-Executing ' ./build.512z_m_inl0_hrd0/cmadevent_cudacpp < /tmp/avalassi/input_ggttggg_x10_cudacpp > /tmp/avalassi/output_ggttggg_x10_cudacpp'
- [OPENMPTH] omp_get_max_threads/nproc = 1/4
- [NGOODHEL] ngoodhel/ncomb = 128/128
- [XSECTION] VECSIZE_USED = 8192
- [XSECTION] MultiChannel = TRUE
- [XSECTION] Configuration = 1
- [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 2.136e-07 [2.1358448920691754E-007] fbridge_mode=1
- [UNWEIGHT] Wrote 84 events (found 1181 events)
- [COUNTERS] PROGRAM TOTAL          :  340.1531s
- [COUNTERS] Fortran Overhead ( 0 ) :   30.7404s
- [COUNTERS] CudaCpp MEs      ( 2 ) :  309.4127s for    90112 events => throughput is 2.91E+02 events/s
-
-*** (2-512z) Compare CMADEVENT_CUDACPP x10 xsec to MADEVENT xsec ***
-
-OK! xsec from fortran (2.1358448797976056E-007) and cpp (2.1358448920691754E-007) differ by less than 2E-4 (5.745534270573671e-09)
-
-*** (2-512z) Compare CMADEVENT_CUDACPP x10 events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***
-
-OK! events.lhe.cpp.10 and events.lhe.ref.10 are identical
-
-*** EXECUTE CHECK(8192) -p 256 32 1 --bridge ***
-Process                     = SIGMA_SM_GG_TTXGGG_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
-Workflow summary            = CPP:MIX+CXS:CURHST+RMBHST+BRDHST/512z+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 3.179752e+02                 )  sec^-1
-
-*** EXECUTE CHECK(8192) -p 256 32 1 ***
-Process                     = SIGMA_SM_GG_TTXGGG_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
-Workflow summary            = CPP:MIX+CXS:CURHST+RMBHST+MESHST/512z+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 3.183432e+02                 )  sec^-1
-
-*** (3) EXECUTE GMADEVENT_CUDACPP x1 (create events.lhe) ***
---------------------
-+1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
-8192 ! Number of events in a single C++ or CUDA iteration (VECSIZE_USED)
-8192 1 1 ! Number of events and max and min iterations
-0.000001 ! Accuracy (ignored because max iterations = min iterations)
-0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
-1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
-0 ! Helicity Sum/event 0=exact
-1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
---------------------
-Executing ' ./build.none_m_inl0_hrd0/gmadevent_cudacpp < /tmp/avalassi/input_ggttggg_x1_cudacpp > /tmp/avalassi/output_ggttggg_x1_cudacpp'
- [OPENMPTH] omp_get_max_threads/nproc = 1/4
- [NGOODHEL] ngoodhel/ncomb = 128/128
- [XSECTION] VECSIZE_USED = 8192
- [XSECTION] MultiChannel = TRUE
- [XSECTION] Configuration = 1
- [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 1.169e-06 [1.1693039940476802E-006] fbridge_mode=1
- [UNWEIGHT] Wrote 14 events (found 457 events)
- [COUNTERS] PROGRAM TOTAL          :    3.8074s
- [COUNTERS] Fortran Overhead ( 0 ) :    2.9336s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.8738s for     8192 events => throughput is 9.37E+03 events/s
-
-*** (3) Compare GMADEVENT_CUDACPP x1 xsec to MADEVENT xsec ***
-
-OK! xsec from fortran (1.1693039943146880E-006) and cpp (1.1693039940476802E-006) differ by less than 2E-4 (2.283476741027357e-10)
-
-*** (3) Compare GMADEVENT_CUDACPP x1 events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***
-
-OK! events.lhe.cuda.1 and events.lhe.ref.1 are identical
-
-*** (3) EXECUTE GMADEVENT_CUDACPP x10 (create events.lhe) ***
---------------------
-+1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
-8192 ! Number of events in a single C++ or CUDA iteration (VECSIZE_USED)
-81920 1 1 ! Number of events and max and min iterations
-0.000001 ! Accuracy (ignored because max iterations = min iterations)
-0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
-1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
-0 ! Helicity Sum/event 0=exact
-1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
---------------------
-Executing ' ./build.none_m_inl0_hrd0/gmadevent_cudacpp < /tmp/avalassi/input_ggttggg_x10_cudacpp > /tmp/avalassi/output_ggttggg_x10_cudacpp'
- [OPENMPTH] omp_get_max_threads/nproc = 1/4
- [NGOODHEL] ngoodhel/ncomb = 128/128
- [XSECTION] VECSIZE_USED = 8192
- [XSECTION] MultiChannel = TRUE
- [XSECTION] Configuration = 1
- [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 2.136e-07 [2.1358448796664319E-007] fbridge_mode=1
- [UNWEIGHT] Wrote 84 events (found 1181 events)
- [COUNTERS] PROGRAM TOTAL          :   16.8839s
- [COUNTERS] Fortran Overhead ( 0 ) :    7.2859s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    9.5980s for    90112 events => throughput is 9.39E+03 events/s
-
-*** (3) Compare GMADEVENT_CUDACPP x10 xsec to MADEVENT xsec ***
-
-OK! xsec from fortran (2.1358448797976056E-007) and cpp (2.1358448796664319E-007) differ by less than 2E-4 (6.141531727621441e-11)
-
-*** (3) Compare GMADEVENT_CUDACPP x10 events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***
-
-OK! events.lhe.cuda.10 and events.lhe.ref.10 are identical
-
-*** EXECUTE GCHECK(8192) -p 256 32 1 --bridge ***
-Process                     = SIGMA_SM_GG_TTXGGG_CUDA [nvcc 11.7.99 (gcc 11.2.0)] [inlineHel=0] [hardcodePARAM=0]
-Workflow summary            = CUD:MIX+THX:CURHST+RMBHST+BRDDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 9.364522e+03                 )  sec^-1
-
-*** EXECUTE GCHECK(8192) -p 256 32 1 ***
-Process                     = SIGMA_SM_GG_TTXGGG_CUDA [nvcc 11.7.99 (gcc 11.2.0)] [inlineHel=0] [hardcodePARAM=0]
-Workflow summary            = CUD:MIX+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 1.067836e+04                 )  sec^-1
-
-*** EXECUTE GCHECK(MAX) -p 512 32 1 --bridge ***
-Process                     = SIGMA_SM_GG_TTXGGG_CUDA [nvcc 11.7.99 (gcc 11.2.0)] [inlineHel=0] [hardcodePARAM=0]
-Workflow summary            = CUD:MIX+THX:CURHST+RMBHST+BRDDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 1.114166e+04                 )  sec^-1
-
-*** EXECUTE GCHECK(MAX) -p 512 32 1 ***
-Process                     = SIGMA_SM_GG_TTXGGG_CUDA [nvcc 11.7.99 (gcc 11.2.0)] [inlineHel=0] [hardcodePARAM=0]
-Workflow summary            = CUD:MIX+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 1.160721e+04                 )  sec^-1
-
-*** EXECUTE GCHECK(MAX128THR) -p 128 128 1 --bridge ***
-Process                     = SIGMA_SM_GG_TTXGGG_CUDA [nvcc 11.7.99 (gcc 11.2.0)] [inlineHel=0] [hardcodePARAM=0]
-Workflow summary            = CUD:MIX+THX:CURHST+RMBHST+BRDDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 1.113446e+04                 )  sec^-1
-
-*** EXECUTE GCHECK(MAX128THR) -p 128 128 1 ***
-Process                     = SIGMA_SM_GG_TTXGGG_CUDA [nvcc 11.7.99 (gcc 11.2.0)] [inlineHel=0] [hardcodePARAM=0]
-Workflow summary            = CUD:MIX+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 1.111990e+04                 )  sec^-1
-
-*** EXECUTE GCHECK(MAX8THR) -p 2048 8 1 --bridge ***
-Process                     = SIGMA_SM_GG_TTXGGG_CUDA [nvcc 11.7.99 (gcc 11.2.0)] [inlineHel=0] [hardcodePARAM=0]
-Workflow summary            = CUD:MIX+THX:CURHST+RMBHST+BRDDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 1.110451e+04                 )  sec^-1
-
-*** EXECUTE GCHECK(MAX8THR) -p 2048 8 1 ***
-Process                     = SIGMA_SM_GG_TTXGGG_CUDA [nvcc 11.7.99 (gcc 11.2.0)] [inlineHel=0] [hardcodePARAM=0]
-Workflow summary            = CUD:MIX+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 3.670769e+03                 )  sec^-1
-
-TEST COMPLETED
+*** (2-none) Compare CMADEVENT_CUDACPP x1 events.lhe to MADEVENT events.lhe reference (including colors and helicities) ***
+3,4c3,4
+<          21   -1    0    0  501  502  0.00000000000E+00  0.00000000000E+00  0.45140115699E+03  0.45140115699E+03  0.00000000000E+00 0.  1.
+<          21   -1    0    0  502  503 -0.00000000000E+00 -0.00000000000E+00 -0.10341260351E+04  0.10341260351E+04  0.00000000000E+00 0. -1.
+---
+>          21   -1    0    0  503  502  0.00000000000E+00  0.00000000000E+00  0.45140115699E+03  0.45140115699E+03  0.00000000000E+00 0.  1.
+>          21   -1    0    0  504  503 -0.00000000000E+00 -0.00000000000E+00 -0.10341260351E+04  0.10341260351E+04  0.00000000000E+00 0. -1.
+6,9c6,9
+<          -6    1    1    2    0  505 -0.61396089090E+02 -0.42444473999E+01 -0.83343725076E+02  0.20164987379E+03  0.17300000000E+03 0. -1.
+<          21    1    1    2  504  503 -0.35386680161E+03 -0.20785514870E+03 -0.16797889128E+03  0.44344377776E+03  0.00000000000E+00 0. -1.
+<          21    1    1    2  505  506  0.29228535517E+03  0.21675124817E+02  0.51762988375E+02  0.29762383447E+03  0.00000000000E+00 0.  1.
+<          21    1    1    2  506  504  0.54701554307E+02  0.40278689098E+02  0.22839913185E+02  0.71667945927E+02  0.00000000000E+00 0.  1.
+---
+>          -6    1    1    2    0  506 -0.61396089090E+02 -0.42444473999E+01 -0.83343725076E+02  0.20164987379E+03  0.17300000000E+03 0. -1.
+>          21    1    1    2  504  505 -0.35386680161E+03 -0.20785514870E+03 -0.16797889128E+03  0.44344377776E+03  0.00000000000E+00 0. -1.
+>          21    1    1    2  505  501  0.29228535517E+03  0.21675124817E+02  0.51762988375E+02  0.29762383447E+03  0.00000000000E+00 0.  1.
+>          21    1    1    2  506  502  0.54701554307E+02  0.40278689098E+02  0.22839913185E+02  0.71667945927E+02  0.00000000000E+00 0.  1.
+20,21c20,21
+<          21   -1    0    0  501  502  0.00000000000E+00  0.00000000000E+00  0.44201131881E+03  0.44201131881E+03  0.00000000000E+00 0.  1.
+<          21   -1    0    0  502  503 -0.00000000000E+00 -0.00000000000E+00 -0.15374061818E+04  0.15374061818E+04  0.00000000000E+00 0.  1.
+---
+>          21   -1    0    0  503  502  0.00000000000E+00  0.00000000000E+00  0.44201131881E+03  0.44201131881E+03  0.00000000000E+00 0.  1.
+>          21   -1    0    0  505  503 -0.00000000000E+00 -0.00000000000E+00 -0.15374061818E+04  0.15374061818E+04  0.00000000000E+00 0.  1.
+23,25c23,25
+<          -6    1    1    2    0  505 -0.15200912047E+03 -0.13050071083E+03 -0.90612760201E+03  0.94399864373E+03  0.17300000000E+03 0.  1.
+<          21    1    1    2  504  503  0.20014593957E+03  0.30157145809E+03  0.26840565835E+03  0.45060552470E+03  0.00000000000E+00 0.  1.
+<          21    1    1    2  505  506 -0.19271597485E+02  0.11066563948E+02 -0.79589106111E+02  0.82633462464E+02  0.00000000000E+00 0.  1.
+---
+>          -6    1    1    2    0  506 -0.15200912047E+03 -0.13050071083E+03 -0.90612760201E+03  0.94399864373E+03  0.17300000000E+03 0.  1.
+>          21    1    1    2  504  502  0.20014593957E+03  0.30157145809E+03  0.26840565835E+03  0.45060552470E+03  0.00000000000E+00 0.  1.
+>          21    1    1    2  505  501 -0.19271597485E+02  0.11066563948E+02 -0.79589106111E+02  0.82633462464E+02  0.00000000000E+00 0.  1.
+37c37
+<          21   -1    0    0  501  502  0.00000000000E+00  0.00000000000E+00  0.91252171755E+03  0.91252171755E+03  0.00000000000E+00 0. -1.
+---
+>          21   -1    0    0  504  502  0.00000000000E+00  0.00000000000E+00  0.91252171755E+03  0.91252171755E+03  0.00000000000E+00 0. -1.
+41c41
+<          21    1    1    2  504  503 -0.33529344370E+03  0.57751978390E+03  0.43252637536E+03  0.79563173615E+03  0.00000000000E+00 0. -1.
+---
+>          21    1    1    2  504  501 -0.33529344370E+03  0.57751978390E+03  0.43252637536E+03  0.79563173615E+03  0.00000000000E+00 0. -1.
+43c43
+<          21    1    1    2  506  504 -0.45524281259E+02 -0.55544156791E+02  0.57971010362E+02  0.92294374586E+02  0.00000000000E+00 0. -1.
+---
+>          21    1    1    2  506  503 -0.45524281259E+02 -0.55544156791E+02  0.57971010362E+02  0.92294374586E+02  0.00000000000E+00 0. -1.
+54c54
+<          21   -1    0    0  501  502  0.00000000000E+00  0.00000000000E+00  0.26881502138E+03  0.26881502138E+03  0.00000000000E+00 0. -1.
+---
+>          21   -1    0    0  506  502  0.00000000000E+00  0.00000000000E+00  0.26881502138E+03  0.26881502138E+03  0.00000000000E+00 0. -1.
+59,60c59,60
+<          21    1    1    2  505  506 -0.10231725128E+03  0.35996342867E+02 -0.34474096893E+03  0.36140128980E+03  0.00000000000E+00 0.  1.
+<          21    1    1    2  506  504  0.10817198428E+03 -0.14151347774E+03 -0.23220087227E+03  0.29265079472E+03  0.00000000000E+00 0. -1.
+---
+>          21    1    1    2  505  504 -0.10231725128E+03  0.35996342867E+02 -0.34474096893E+03  0.36140128980E+03  0.00000000000E+00 0.  1.
+>          21    1    1    2  506  501  0.10817198428E+03 -0.14151347774E+03 -0.23220087227E+03  0.29265079472E+03  0.00000000000E+00 0. -1.
+71,72c71,72
+<          21   -1    0    0  501  502  0.00000000000E+00  0.00000000000E+00  0.47985840280E+03  0.47985840280E+03  0.00000000000E+00 0. -1.
+<          21   -1    0    0  502  503 -0.00000000000E+00 -0.00000000000E+00 -0.17207770360E+04  0.17207770360E+04  0.00000000000E+00 0. -1.
+---
+>          21   -1    0    0  503  502  0.00000000000E+00  0.00000000000E+00  0.47985840280E+03  0.47985840280E+03  0.00000000000E+00 0. -1.
+>          21   -1    0    0  506  503 -0.00000000000E+00 -0.00000000000E+00 -0.17207770360E+04  0.17207770360E+04  0.00000000000E+00 0. -1.
+75,77c75,77
+<          21    1    1    2  504  503 -0.60232847023E+03  0.51346854613E+03 -0.57928444392E+03  0.98082618281E+03  0.00000000000E+00 0. -1.
+<          21    1    1    2  505  506 -0.16781760346E+02 -0.42089365600E+02 -0.28862369996E+02  0.53723166127E+02  0.00000000000E+00 0. -1.
+<          21    1    1    2  506  504  0.11741917901E+02  0.23064237457E+02 -0.49261809346E+02  0.55646720887E+02  0.00000000000E+00 0. -1.
+---
+>          21    1    1    2  504  502 -0.60232847023E+03  0.51346854613E+03 -0.57928444392E+03  0.98082618281E+03  0.00000000000E+00 0. -1.
+>          21    1    1    2  505  504 -0.16781760346E+02 -0.42089365600E+02 -0.28862369996E+02  0.53723166127E+02  0.00000000000E+00 0. -1.
+>          21    1    1    2  506  501  0.11741917901E+02  0.23064237457E+02 -0.49261809346E+02  0.55646720887E+02  0.00000000000E+00 0. -1.
+88c88
+<          21   -1    0    0  501  502  0.00000000000E+00  0.00000000000E+00  0.38027032465E+03  0.38027032465E+03  0.00000000000E+00 0. -1.
+---
+>          21   -1    0    0  505  502  0.00000000000E+00  0.00000000000E+00  0.38027032465E+03  0.38027032465E+03  0.00000000000E+00 0. -1.
+91c91
+<          -6    1    1    2    0  505  0.17206020218E+03 -0.14398984859E+02 -0.25232373742E+03  0.35129519269E+03  0.17300000000E+03 0.  1.
+---
+>          -6    1    1    2    0  506  0.17206020218E+03 -0.14398984859E+02 -0.25232373742E+03  0.35129519269E+03  0.17300000000E+03 0.  1.
+93c93
+<          21    1    1    2  505  506  0.25535027608E+02  0.31793336837E+02  0.80152744794E+01  0.41558374934E+02  0.00000000000E+00 0.  1.
+---
+>          21    1    1    2  505  501  0.25535027608E+02  0.31793336837E+02  0.80152744794E+01  0.41558374934E+02  0.00000000000E+00 0.  1.
+105c105
+<          21   -1    0    0  501  502  0.00000000000E+00  0.00000000000E+00  0.18300843020E+04  0.18300843020E+04  0.00000000000E+00 0. -1.
+---
+>          21   -1    0    0  506  502  0.00000000000E+00  0.00000000000E+00  0.18300843020E+04  0.18300843020E+04  0.00000000000E+00 0. -1.
+110,111c110,111
+<          21    1    1    2  505  506 -0.28715421247E+03 -0.15068402112E+03 -0.81575207603E+02  0.33439158251E+03  0.00000000000E+00 0. -1.
+<          21    1    1    2  506  504  0.14483409962E+03  0.47675679578E+03 -0.14346502224E+03  0.51851342446E+03  0.00000000000E+00 0. -1.
+---
+>          21    1    1    2  505  504 -0.28715421247E+03 -0.15068402112E+03 -0.81575207603E+02  0.33439158251E+03  0.00000000000E+00 0. -1.
+>          21    1    1    2  506  501  0.14483409962E+03  0.47675679578E+03 -0.14346502224E+03  0.51851342446E+03  0.00000000000E+00 0. -1.
+122,123c122,123
+<          21   -1    0    0  501  502  0.00000000000E+00  0.00000000000E+00  0.20024797810E+04  0.20024797810E+04  0.00000000000E+00 0. -1.
+<          21   -1    0    0  502  503 -0.00000000000E+00 -0.00000000000E+00 -0.40057375947E+03  0.40057375947E+03  0.00000000000E+00 0. -1.
+---
+>          21   -1    0    0  503  502  0.00000000000E+00  0.00000000000E+00  0.20024797810E+04  0.20024797810E+04  0.00000000000E+00 0. -1.
+>          21   -1    0    0  504  503 -0.00000000000E+00 -0.00000000000E+00 -0.40057375947E+03  0.40057375947E+03  0.00000000000E+00 0. -1.
+126,128c126,128
+<          21    1    1    2  504  503  0.58980447912E+03  0.18177044560E+03  0.31525657189E+03  0.69303428819E+03  0.00000000000E+00 0. -1.
+<          21    1    1    2  505  506  0.53437932212E+02  0.23685111464E+02  0.22981430895E+03  0.23713121622E+03  0.00000000000E+00 0.  1.
+<          21    1    1    2  506  504 -0.28079098732E+03 -0.20868322026E+03  0.79585543415E+02  0.35878423000E+03  0.00000000000E+00 0. -1.
+---
+>          21    1    1    2  504  506  0.58980447912E+03  0.18177044560E+03  0.31525657189E+03  0.69303428819E+03  0.00000000000E+00 0. -1.
+>          21    1    1    2  505  502  0.53437932212E+02  0.23685111464E+02  0.22981430895E+03  0.23713121622E+03  0.00000000000E+00 0.  1.
+>          21    1    1    2  506  501 -0.28079098732E+03 -0.20868322026E+03  0.79585543415E+02  0.35878423000E+03  0.00000000000E+00 0. -1.
+139c139
+<          21   -1    0    0  501  502  0.00000000000E+00  0.00000000000E+00  0.26109911166E+04  0.26109911166E+04  0.00000000000E+00 0.  1.
+---
+>          21   -1    0    0  504  502  0.00000000000E+00  0.00000000000E+00  0.26109911166E+04  0.26109911166E+04  0.00000000000E+00 0.  1.
+142,145c142,145
+<          -6    1    1    2    0  505  0.20158633572E+03  0.34732907755E+02 -0.76852652902E+02  0.27870908828E+03  0.17300000000E+03 0.  1.
+<          21    1    1    2  504  503 -0.11500873268E+04  0.29199969202E+03  0.13923882245E+04  0.18294014451E+04  0.00000000000E+00 0.  1.
+<          21    1    1    2  505  506  0.17360882315E+03 -0.32557287323E+03  0.15054954424E+03  0.39850079614E+03  0.00000000000E+00 0.  1.
+<          21    1    1    2  506  504  0.17868470170E+03 -0.71985549087E+02  0.43599550359E+03  0.47665734134E+03  0.00000000000E+00 0.  1.
+---
+>          -6    1    1    2    0  503  0.20158633572E+03  0.34732907755E+02 -0.76852652902E+02  0.27870908828E+03  0.17300000000E+03 0.  1.
+>          21    1    1    2  504  506 -0.11500873268E+04  0.29199969202E+03  0.13923882245E+04  0.18294014451E+04  0.00000000000E+00 0.  1.
+>          21    1    1    2  505  501  0.17360882315E+03 -0.32557287323E+03  0.15054954424E+03  0.39850079614E+03  0.00000000000E+00 0.  1.
+>          21    1    1    2  506  505  0.17868470170E+03 -0.71985549087E+02  0.43599550359E+03  0.47665734134E+03  0.00000000000E+00 0.  1.
+156,157c156,157
+<          21   -1    0    0  501  502  0.00000000000E+00  0.00000000000E+00  0.68767366448E+03  0.68767366448E+03  0.00000000000E+00 0.  1.
+<          21   -1    0    0  502  503 -0.00000000000E+00 -0.00000000000E+00 -0.10822742216E+04  0.10822742216E+04  0.00000000000E+00 0.  1.
+---
+>          21   -1    0    0  503  502  0.00000000000E+00  0.00000000000E+00  0.68767366448E+03  0.68767366448E+03  0.00000000000E+00 0.  1.
+>          21   -1    0    0  504  503 -0.00000000000E+00 -0.00000000000E+00 -0.10822742216E+04  0.10822742216E+04  0.00000000000E+00 0.  1.
+159,162c159,162
+<          -6    1    1    2    0  505  0.30029063436E+03 -0.16035898263E+03 -0.18166405338E+01  0.38186616580E+03  0.17300000000E+03 0.  1.
+<          21    1    1    2  504  503 -0.56484248482E+03  0.50911538771E+03 -0.15389953866E+03  0.77584185158E+03  0.00000000000E+00 0.  1.
+<          21    1    1    2  505  506  0.59320374267E+02 -0.38138662161E+02 -0.12242066845E+03  0.14128087067E+03  0.00000000000E+00 0.  1.
+<          21    1    1    2  506  504  0.10787795636E+03 -0.10436668880E+03 -0.10737545879E+03  0.18455229164E+03  0.00000000000E+00 0. -1.
+---
+>          -6    1    1    2    0  502  0.30029063436E+03 -0.16035898263E+03 -0.18166405338E+01  0.38186616580E+03  0.17300000000E+03 0.  1.
+>          21    1    1    2  504  506 -0.56484248482E+03  0.50911538771E+03 -0.15389953866E+03  0.77584185158E+03  0.00000000000E+00 0.  1.
+>          21    1    1    2  505  501  0.59320374267E+02 -0.38138662161E+02 -0.12242066845E+03  0.14128087067E+03  0.00000000000E+00 0.  1.
+>          21    1    1    2  506  505  0.10787795636E+03 -0.10436668880E+03 -0.10737545879E+03  0.18455229164E+03  0.00000000000E+00 0. -1.
+173,174c173,174
+<          21   -1    0    0  501  502  0.00000000000E+00  0.00000000000E+00  0.83216807278E+03  0.83216807278E+03  0.00000000000E+00 0.  1.
+<          21   -1    0    0  502  503 -0.00000000000E+00 -0.00000000000E+00 -0.27850708832E+04  0.27850708832E+04  0.00000000000E+00 0.  1.
+---
+>          21   -1    0    0  503  502  0.00000000000E+00  0.00000000000E+00  0.83216807278E+03  0.83216807278E+03  0.00000000000E+00 0.  1.
+>          21   -1    0    0  505  503 -0.00000000000E+00 -0.00000000000E+00 -0.27850708832E+04  0.27850708832E+04  0.00000000000E+00 0.  1.
+176,178c176,178
+<          -6    1    1    2    0  505 -0.25812698010E+03 -0.88013699300E+02  0.73832159873E+02  0.33129463767E+03  0.17300000000E+03 0.  1.
+<          21    1    1    2  504  503 -0.35642501273E+03  0.77693111111E+03 -0.79891122452E+03  0.11700084982E+04  0.00000000000E+00 0.  1.
+<          21    1    1    2  505  506  0.79073814541E+03 -0.89832211224E+03 -0.93619678030E+03  0.15194452420E+04  0.00000000000E+00 0.  1.
+---
+>          -6    1    1    2    0  506 -0.25812698010E+03 -0.88013699300E+02  0.73832159873E+02  0.33129463767E+03  0.17300000000E+03 0.  1.
+>          21    1    1    2  504  502 -0.35642501273E+03  0.77693111111E+03 -0.79891122452E+03  0.11700084982E+04  0.00000000000E+00 0.  1.
+>          21    1    1    2  505  501  0.79073814541E+03 -0.89832211224E+03 -0.93619678030E+03  0.15194452420E+04  0.00000000000E+00 0.  1.
+190,191c190,191
+<          21   -1    0    0  501  502  0.00000000000E+00  0.00000000000E+00  0.16131709605E+04  0.16131709605E+04  0.00000000000E+00 0. -1.
+<          21   -1    0    0  502  503 -0.00000000000E+00 -0.00000000000E+00 -0.11807616284E+04  0.11807616284E+04  0.00000000000E+00 0. -1.
+---
+>          21   -1    0    0  503  502  0.00000000000E+00  0.00000000000E+00  0.16131709605E+04  0.16131709605E+04  0.00000000000E+00 0. -1.
+>          21   -1    0    0  504  503 -0.00000000000E+00 -0.00000000000E+00 -0.11807616284E+04  0.11807616284E+04  0.00000000000E+00 0. -1.
+194c194
+<          21    1    1    2  504  503  0.71179938635E+03  0.82240678612E+02 -0.49256311830E+03  0.86950579132E+03  0.00000000000E+00 0. -1.
+---
+>          21    1    1    2  504  501  0.71179938635E+03  0.82240678612E+02 -0.49256311830E+03  0.86950579132E+03  0.00000000000E+00 0. -1.
+196c196
+<          21    1    1    2  506  504 -0.87844848031E+03 -0.66214283199E+02  0.78046247721E+03  0.11769357426E+04  0.00000000000E+00 0. -1.
+---
+>          21    1    1    2  506  502 -0.87844848031E+03 -0.66214283199E+02  0.78046247721E+03  0.11769357426E+04  0.00000000000E+00 0. -1.
+207,208c207,208
+<          21   -1    0    0  501  502  0.00000000000E+00  0.00000000000E+00  0.92882419441E+03  0.92882419441E+03  0.00000000000E+00 0. -1.
+<          21   -1    0    0  502  503 -0.00000000000E+00 -0.00000000000E+00 -0.14141614860E+04  0.14141614860E+04  0.00000000000E+00 0.  1.
+---
+>          21   -1    0    0  503  502  0.00000000000E+00  0.00000000000E+00  0.92882419441E+03  0.92882419441E+03  0.00000000000E+00 0. -1.
+>          21   -1    0    0  506  503 -0.00000000000E+00 -0.00000000000E+00 -0.14141614860E+04  0.14141614860E+04  0.00000000000E+00 0.  1.
+211,213c211,213
+<          21    1    1    2  504  503 -0.71795988054E+03 -0.31734043645E+02 -0.10082589739E+04  0.12381678392E+04  0.00000000000E+00 0.  1.
+<          21    1    1    2  505  506 -0.43658092332E+01 -0.32535173809E+02  0.34241685421E+02  0.47435122489E+02  0.00000000000E+00 0.  1.
+<          21    1    1    2  506  504  0.29878128465E+03 -0.12054240615E+02  0.22498878667E+03  0.37421319445E+03  0.00000000000E+00 0. -1.
+---
+>          21    1    1    2  504  502 -0.71795988054E+03 -0.31734043645E+02 -0.10082589739E+04  0.12381678392E+04  0.00000000000E+00 0.  1.
+>          21    1    1    2  505  504 -0.43658092332E+01 -0.32535173809E+02  0.34241685421E+02  0.47435122489E+02  0.00000000000E+00 0.  1.
+>          21    1    1    2  506  501  0.29878128465E+03 -0.12054240615E+02  0.22498878667E+03  0.37421319445E+03  0.00000000000E+00 0. -1.
+224,225c224,225
+<          21   -1    0    0  501  502  0.00000000000E+00  0.00000000000E+00  0.81496257929E+03  0.81496257929E+03  0.00000000000E+00 0. -1.
+<          21   -1    0    0  502  503 -0.00000000000E+00 -0.00000000000E+00 -0.34903420227E+03  0.34903420227E+03  0.00000000000E+00 0.  1.
+---
+>          21   -1    0    0  503  502  0.00000000000E+00  0.00000000000E+00  0.81496257929E+03  0.81496257929E+03  0.00000000000E+00 0. -1.
+>          21   -1    0    0  505  503 -0.00000000000E+00 -0.00000000000E+00 -0.34903420227E+03  0.34903420227E+03  0.00000000000E+00 0.  1.
+227,229c227,229
+<          -6    1    1    2    0  505  0.14938248743E+03 -0.57617299867E+01  0.26613135971E+03  0.35086069273E+03  0.17300000000E+03 0. -1.
+<          21    1    1    2  504  503 -0.45719414700E+02 -0.12283521504E+03  0.60587392974E+01  0.13120771036E+03  0.00000000000E+00 0.  1.
+<          21    1    1    2  505  506  0.81558104633E+02  0.84649192252E+02 -0.55244212563E+02  0.12988122729E+03  0.00000000000E+00 0.  1.
+---
+>          -6    1    1    2    0  506  0.14938248743E+03 -0.57617299867E+01  0.26613135971E+03  0.35086069273E+03  0.17300000000E+03 0. -1.
+>          21    1    1    2  504  502 -0.45719414700E+02 -0.12283521504E+03  0.60587392974E+01  0.13120771036E+03  0.00000000000E+00 0.  1.
+>          21    1    1    2  505  501  0.81558104633E+02  0.84649192252E+02 -0.55244212563E+02  0.12988122729E+03  0.00000000000E+00 0.  1.
+ERROR! events.lhe.cpp.1 and events.lhe.ref.1 differ!
