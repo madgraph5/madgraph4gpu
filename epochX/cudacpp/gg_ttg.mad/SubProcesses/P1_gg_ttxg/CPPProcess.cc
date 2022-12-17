@@ -1232,18 +1232,6 @@ namespace mg5amcCpu
             break;
           }
         }
-        std::cout << "ievt " << ievt <<std::endl;
-#if defined MGONGPU_CPPSIMD
-        for( int icolC = 0; icolC < ncolor; icolC++ )
-          std::cout << "icol, targetamp " << icolC << " " << targetamp[icolC][ieppV] / targetamp[ncolor - 1][ieppV] << std::endl;
-        std::cout << "icolsel, rcol   " << allselcol[ievt] << " " << allrndcol[ievt] << std::endl << std::endl;
-#else
-        for( int icolC = 0; icolC < ncolor; icolC++ )
-          std::cout << "icol, jamp2, targetamp0 " << icolC << " " << jamp2_sv[icolC] << " " << targetamp[icolC] << std::endl;
-        for( int icolC = 0; icolC < ncolor; icolC++ )
-          std::cout << "icol, targetamp " << icolC << " " << targetamp[icolC] / targetamp[ncolor - 1] << std::endl;
-        std::cout << "icolsel, rcol   " << allselcol[ievt] << " " << allrndcol[ievt] << std::endl << std::endl;
-#endif
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
         const int ievt2 = ievt00 + ieppV + neppV;
         //printf( "sigmaKin: ievt=%4d rndcol=%f\n", ievt2, allrndcol[ievt2] );

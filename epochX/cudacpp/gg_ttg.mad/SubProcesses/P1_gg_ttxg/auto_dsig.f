@@ -1175,10 +1175,6 @@ C
       INTEGER I,J
       DOUBLE PRECISION XTARGET
 
-      INTEGER IEVT
-      DATA IEVT/0/
-      SAVE IEVT
-
       NC = INT(JAMP2(0))
       IS_LC = .TRUE.
       MAXCOLOR=0
@@ -1199,18 +1195,11 @@ C     ensure that at least one leading color is different of zero if
 C      not allow
 C     all subleading color.
       IF (TARGETAMP(NC).EQ.0)THEN
-        IS_LC = .FALSE. 
+        IS_LC = .FALSE.
         DO ICOL =1,NC
           TARGETAMP(ICOL) = JAMP2(ICOL)+TARGETAMP(ICOL-1)
         ENDDO
       ENDIF
-
-      WRITE(6,'(a,i3)') 'IEVT ', IEVT
-      IEVT = IEVT + 1
-      DO ICOL=1,NC
-        WRITE(6,'(a,i3,f6.3)') 'ICOL, TARGETAMP ', ICOL,
-     &    TARGETAMP(ICOL)/TARGETAMP(NC)
-      ENDDO
 
       XTARGET=RCOL*TARGETAMP(NC)
 
@@ -1218,9 +1207,7 @@ C     all subleading color.
       DO WHILE (TARGETAMP(ICOL) .LT. XTARGET .AND. ICOL .LT. NC)
         ICOL = ICOL + 1
       ENDDO
-      WRITE(6,'(a,i3,f6.3)') 'ICOLSEL, RCOL   ', ICOL, RCOL
-      WRITE(6,*)
-      
+
       RETURN
       END
 
