@@ -1236,6 +1236,8 @@ namespace mg5amcCpu
         std::cout << "icolsel, rcol   " << allselcol[ievt] << " " << allrndcol[ievt] << std::endl << std::endl;
 #else
         for( int icolC = 0; icolC < ncolor; icolC++ )
+          std::cout << "icol, jamp2, targetamp0 " << icolC << " " << jamp2_sv[icolC] << " " << targetamp[icolC] << std::endl;
+        for( int icolC = 0; icolC < ncolor; icolC++ )
           std::cout << "icol, targetamp " << icolC << " " << targetamp[icolC] / targetamp[ncolor - 1] << std::endl;
         std::cout << "icolsel, rcol   " << allselcol[ievt] << " " << allrndcol[ievt] << std::endl << std::endl;
 #endif
