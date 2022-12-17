@@ -870,8 +870,11 @@ namespace mg5amcCpu
     fptype targetamp[ncolor] = { 0 };
     for( int icolC = 0; icolC < ncolor; icolC++ )
     {
-      if( mgOnGpu::icolamp[channelIdC][icolC] )
-        targetamp[icolC] = jamp2_sv[icolC] + ( icolC == 0 ? 0 : targetamp[icolC - 1] );
+      if( icolC == 0 )
+        targetamp[icolC] = 0;
+      else
+        targetamp[icolC] = targetamp[icolC - 1];
+      if( mgOnGpu::icolamp[channelIdC][icolC] ) targetamp[icolC] += jamp2_sv[icolC];
     }
     //printf( "sigmaKin: ievt=%4d rndcol=%f\n", ievt, allrndcol[ievt] );
     for( int icolC = 0; icolC < ncolor; icolC++ )
@@ -972,15 +975,21 @@ namespace mg5amcCpu
       fptype_sv targetamp[ncolor] = { 0 };
       for( int icolC = 0; icolC < ncolor; icolC++ )
       {
-        if( mgOnGpu::icolamp[channelIdC][icolC] )
-          targetamp[icolC] = jamp2_sv[icolC] + ( icolC == 0 ? fptype_sv{ 0 } : targetamp[icolC - 1] );
+        if( icolC == 0 )
+          targetamp[icolC] = fptype_sv{ 0 };
+        else
+          targetamp[icolC] = targetamp[icolC - 1];
+        if( mgOnGpu::icolamp[channelIdC][icolC] ) targetamp[icolC] += jamp2_sv[icolC];
       }
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
       fptype_sv targetamp2[ncolor] = { 0 };
       for( int icolC = 0; icolC < ncolor; icolC++ )
       {
-        if( mgOnGpu::icolamp[channelIdC][icolC] )
-          targetamp2[icolC] = jamp2_sv[ncolor + icolC] + ( icolC == 0 ? fptype_sv{ 0 } : targetamp2[icolC - 1] );
+        if( icolC == 0 )
+          targetamp2[icolC] = fptype_sv{ 0 };
+        else
+          targetamp2[icolC] = targetamp2[icolC - 1];
+        if( mgOnGpu::icolamp[channelIdC][icolC] ) targetamp2[icolC] += jamp2_sv[ncolor + icolC];
       }
 #endif
       for( int ieppV = 0; ieppV < neppV; ++ieppV )
