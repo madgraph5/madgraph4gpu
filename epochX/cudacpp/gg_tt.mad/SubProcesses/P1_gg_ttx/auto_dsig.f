@@ -128,7 +128,7 @@ C     SUMPROB
 C     INPUT
 C     VECSIZE_USED (number of weight to update)
 C     INPUT/OUTPUT
-C     WGTS(VECSIZE_USED) #multiplied by the associated jacobian      
+C     WGT(VECSIZE_USED) #multiplied by the associated jacobian      
 C     
 C     OUTPUT
 C     
@@ -430,7 +430,7 @@ C     Common blocks
       DATA  NB_SPIN_STATE /2,2/
       COMMON /NB_HEL_STATE/ NB_SPIN_STATE
 
-      INCLUDE 'vector.inc'
+      INCLUDE 'vector.inc'  ! needed by coupl.inc (defines VECSIZE_MEMMAX)
       INCLUDE 'coupl.inc'
       INCLUDE 'run.inc'
 C     ICONFIG has this config number
@@ -774,7 +774,7 @@ C     ****************************************************
       INCLUDE 'maxconfigs.inc'
       INCLUDE 'nexternal.inc'
       INCLUDE 'maxamps.inc'
-      INCLUDE 'vector.inc'
+      INCLUDE 'vector.inc'  ! needed by coupl.inc (defines VECSIZE_MEMMAX)
       INCLUDE 'coupl.inc'
       INCLUDE 'run.inc'
 C     
@@ -913,7 +913,7 @@ C     ****************************************************
       INCLUDE 'maxconfigs.inc'
       INCLUDE 'nexternal.inc'
       INCLUDE 'maxamps.inc'
-      INCLUDE 'vector.inc'
+      INCLUDE 'vector.inc'  ! needed by coupl.inc (defines VECSIZE_MEMMAX)
       INCLUDE 'coupl.inc'
       INCLUDE 'run.inc'
 C     

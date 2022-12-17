@@ -79,7 +79,7 @@ C     Keep track of whether cuts already calculated for this event
 
       INTEGER SUBDIAG(MAXSPROC),IB(2)
       COMMON/TO_SUB_DIAG/SUBDIAG,IB
-      INCLUDE '../../Source/vector.inc'
+      INCLUDE '../../Source/vector.inc'  ! needed to define VECSIZE_MEMMAX
       INCLUDE 'run.inc'
 C     Common blocks
       CHARACTER*7         PDLABEL,EPA_LABEL
@@ -232,7 +232,7 @@ C     ****************************************************
 C     
 C     CONSTANTS
 C     
-      INCLUDE '../../Source/vector.inc'
+      INCLUDE '../../Source/vector.inc'  ! needed to define VECSIZE_MEMMAX
       INCLUDE 'genps.inc'
       INCLUDE 'nexternal.inc'
       INCLUDE 'maxconfigs.inc'
@@ -463,7 +463,7 @@ C
       IMPLICIT NONE
 
       INCLUDE 'nexternal.inc'
-      INCLUDE '../../Source/vector.inc'
+      INCLUDE '../../Source/vector.inc'  ! needed to define VECSIZE_MEMMAX
       INCLUDE 'maxamps.inc'
       INTEGER                 NCOMB
       PARAMETER (             NCOMB=16)
