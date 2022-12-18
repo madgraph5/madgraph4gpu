@@ -76,7 +76,7 @@ C     Keep track of whether cuts already calculated for this event
 
       INTEGER SUBDIAG(MAXSPROC),IB(2)
       COMMON/TO_SUB_DIAG/SUBDIAG,IB
-      INCLUDE '../../Source/vector.inc'
+      INCLUDE '../../Source/vector.inc'  ! needed to define VECSIZE_MEMMAX
       INCLUDE 'run.inc'
 C     Common blocks
       CHARACTER*7         PDLABEL,EPA_LABEL
@@ -221,7 +221,7 @@ C     ****************************************************
 C     
 C     CONSTANTS
 C     
-      INCLUDE '../../Source/vector.inc'
+      INCLUDE '../../Source/vector.inc'  ! needed to define VECSIZE_MEMMAX
       INCLUDE 'genps.inc'
       INCLUDE 'nexternal.inc'
       INCLUDE 'maxconfigs.inc'
@@ -449,7 +449,7 @@ C
       IMPLICIT NONE
 
       INCLUDE 'nexternal.inc'
-      INCLUDE '../../Source/vector.inc'
+      INCLUDE '../../Source/vector.inc'  ! needed to define VECSIZE_MEMMAX
       INCLUDE 'maxamps.inc'
       INTEGER                 NCOMB
       PARAMETER (             NCOMB=64)
@@ -564,9 +564,10 @@ c         ! This is a workaround for https://github.com/oliviermattelaer/mg5amc_
           IF( CBYF1 .GT. FBRIDGE_CBYF1MAX ) FBRIDGE_CBYF1MAX = CBYF1
           IF( CBYF1 .LT. FBRIDGE_CBYF1MIN ) FBRIDGE_CBYF1MIN = CBYF1
           IF( FBRIDGE_MODE .EQ. -2 ) THEN ! (BothDebug=-2)
-            WRITE (*,'(I4,2E16.8,F23.11,I3,I3)')
+            WRITE (*,'(I4,2E16.8,F23.11,I3,I3,I4,I4)')
      &        IVEC, OUT(IVEC), OUT2(IVEC), 1+CBYF1,
-     &        SELECTED_HEL(IVEC), SELECTED_HEL2(IVEC)
+     &        SELECTED_HEL(IVEC), SELECTED_HEL2(IVEC),
+     &        SELECTED_COL(IVEC), SELECTED_COL2(IVEC)
           ENDIF
           IF( ABS(CBYF1).GT.5E-5 .AND. NWARNINGS.LT.20 ) THEN
             NWARNINGS = NWARNINGS + 1
@@ -581,7 +582,7 @@ c         ! This is a workaround for https://github.com/oliviermattelaer/mg5amc_
         DO IVEC=1, VECSIZE_USED
           OUT(IVEC) = OUT2(IVEC) ! use the cudacpp ME instead of the fortran ME!
           SELECTED_HEL(IVEC) = SELECTED_HEL2(IVEC) ! use the cudacpp helicity instead of the fortran helicity!
-c         SELECTED_COL(IVEC) = SELECTED_COL2(IVEC) ! use the cudacpp color instead of the fortran color!
+          SELECTED_COL(IVEC) = SELECTED_COL2(IVEC) ! use the cudacpp color instead of the fortran color!
         END DO
       ENDIF
 #endif

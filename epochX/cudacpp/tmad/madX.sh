@@ -445,8 +445,7 @@ for suff in $suffs; do
       if [ "${fptype}" == "m" ]; then
 	${scrdir}/lheFloat.sh events.lhe0 events.lhe # FIXME #537
       fi
-      ${scrdir}/dummyColor.sh events.lhe events.lhe.ref
-      \mv events.lhe.ref events.lhe.ref.$xfac
+      \mv events.lhe events.lhe.ref.$xfac
     done
   fi
 
@@ -483,7 +482,7 @@ for suff in $suffs; do
           echo -e "\nERROR! xsec from fortran ($xsecref) and cpp ($xsecnew) differ by more than ${xsecthr} ($delta)"
           exit 1
         fi
-        echo -e "\n*** (2-$avx) Compare CMADEVENT_CUDACPP x$xfac events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***"
+        echo -e "\n*** (2-$avx) Compare CMADEVENT_CUDACPP x$xfac events.lhe to MADEVENT events.lhe reference (including colors and helicities) ***"
 	\cp events.lhe events.lhe0
 	if [ "${fptype}" == "f" ]; then
 	  ${scrdir}/lheFloat.sh events.lhe0 events.lhe
@@ -527,7 +526,7 @@ for suff in $suffs; do
         echo -e "\nERROR! xsec from fortran ($xsecref) and cpp ($xsecnew) differ by more than ${xsecthr} ($delta)"
         exit 1
       fi
-      echo -e "\n*** (3) Compare GMADEVENT_CUDACPP x$xfac events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***"
+      echo -e "\n*** (3) Compare GMADEVENT_CUDACPP x$xfac events.lhe to MADEVENT events.lhe reference (including colors and helicities) ***"
       \cp events.lhe events.lhe0
       if [ "${fptype}" == "f" ]; then
         ${scrdir}/lheFloat.sh events.lhe0 events.lhe

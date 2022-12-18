@@ -18,6 +18,16 @@ namespace mg5amcCpu
   using Parameters_%(model_name)s_dependentCouplings::ndcoup;   // #couplings that vary event by event (depend on running alphas QCD)
   using Parameters_%(model_name)s_independentCouplings::nicoup; // #couplings that are fixed for all events (do not depend on running alphas QCD)
 
+  // The number of colors
+  constexpr int ncolor = %(ncolor)s;
+
+  // The number of SIMD vectors of events processed by calculate_wavefunction
+#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+  constexpr int nParity = 2;
+#else
+  constexpr int nParity = 1;
+#endif
+
   // Physics parameters (masses, coupling, etc...)
   // For CUDA performance, hardcoded constexpr's would be better: fewer registers and a tiny throughput increase
   // However, physics parameters are user-defined through card files: use CUDA constant memory instead (issue #39)
@@ -241,11 +251,12 @@ namespace mg5amcCpu
     for( int ihel = 0; ihel < ncomb; ihel++ )
     {
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
+      constexpr fptype_sv* jamp2_sv = nullptr; // no need for color selection during helicity filtering
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       constexpr unsigned int channelId = 0; // disable single-diagram channel enhancement
-      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators );
+      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators, jamp2_sv );
 #else
-      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs );
+      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, jamp2_sv );
 #endif
       if( allMEs[ievt] != allMEsLast )
       {
@@ -284,7 +295,7 @@ namespace mg5amcCpu
       allMEs[ievt] = 0; // all zeros
     }
 
-    // PART 1 - LOOP OVER ALL HELICITIES: CALCULATE WAVEFUNCTIONS
+    // PART 1 - HELICITY LOOP: CALCULATE WAVEFUNCTIONS
     const int npagV = maxtry / neppV;
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
     // Mixed fptypes #537: float for color algebra and double elsewhere
@@ -303,12 +314,13 @@ namespace mg5amcCpu
 #endif
       for( int ihel = 0; ihel < ncomb; ihel++ )
       {
+        constexpr fptype_sv* jamp2_sv = nullptr; // no need for color selection during helicity filtering
         //std::cout << "sigmaKin_getGoodHel ihel=" << ihel << ( isGoodHel[ihel] ? " true" : " false" ) << std::endl;
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
         constexpr unsigned int channelId = 0; // disable single-diagram channel enhancement
-        calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators, ievt00 );
+        calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators, jamp2_sv, ievt00 );
 #else
-        calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, ievt00 );
+        calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, jamp2_sv, ievt00 );
 #endif
         for( int ieppV = 0; ieppV < neppV; ++ieppV )
         {
@@ -371,16 +383,16 @@ namespace mg5amcCpu
   __global__ void /* clang-format off */
   sigmaKin( const fptype* allmomenta,      // input: momenta[nevt*npar*4]
             const fptype* allcouplings,    // input: couplings[nevt*ndcoup*2]
-            const fptype* allrndhel,   // input: random numbers[nevt] for helicity selection
-            const fptype* /*allrndcol*/,   // input: random numbers[nevt] for color selection
+            const fptype* allrndhel,       // input: random numbers[nevt] for helicity selection
+            const fptype* allrndcol,       // input: random numbers[nevt] for color selection
             fptype* allMEs,                // output: allMEs[nevt], |M|^2 final_avg_over_helicities
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
             const unsigned int channelId,  // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
             fptype* allNumerators,         // output: multichannel numerators[nevt], running_sum_over_helicities
             fptype* allDenominators,       // output: multichannel denominators[nevt], running_sum_over_helicities
 #endif
-            int* allselhel,            // output: helicity selection[nevt]
-            int* /*allselcol*/             // output: helicity selection[nevt]
+            int* allselhel,                // output: helicity selection[nevt]
+            int* allselcol                 // output: helicity selection[nevt]
 #ifndef __CUDACC__
             , const int nevt               // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif

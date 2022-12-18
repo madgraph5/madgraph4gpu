@@ -57,7 +57,7 @@ generate g g > t t~ g
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.006814241409301758 [0m
+[1;32mDEBUG: model prefixing  takes 0.006835460662841797 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -150,7 +150,7 @@ INFO: Please specify coupling orders to bypass this step.
 INFO: Trying coupling order WEIGHTED<=3: WEIGTHED IS QCD+2*QED 
 INFO: Trying process: g g > t t~ g WEIGHTED<=3 @1  
 INFO: Process has 16 diagrams 
-1 processes with 16 diagrams generated in 0.028 s
+1 processes with 16 diagrams generated in 0.027 s
 Total: 1 processes with 16 diagrams
 output madevent CODEGEN_mad_gg_ttg --hel_recycling=False --vector_size=16384 --me_exporter=standalone_cudacpp
 Load PLUGIN.CUDACPP_SA_OUTPUT
@@ -169,51 +169,52 @@ INFO: Organizing processes into subprocess groups
 INFO: Generating Helas calls for process: g g > t t~ g WEIGHTED<=3 @1 
 INFO: Processing color information for process: g g > t t~ g @1 
 INFO: Creating files in directory P1_gg_ttxg 
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f10c8591220> [1;30m[export_v4.py at line 6126][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f2679b983d0> [1;30m[export_v4.py at line 6126][0m [0m
 INFO: Creating files in directory . 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 1204][0m [0m
-[1;32mDEBUG:  self.include_multi_channel is already defined: this is madevent+second_exporter mode [1;30m[model_handling.py at line 1206][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 1199][0m [0m
+[1;32mDEBUG:  self.include_multi_channel is already defined: this is madevent+second_exporter mode [1;30m[model_handling.py at line 1201][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_h_file [1;30m[model_handling.py at line 1327][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_h_file [1;30m[model_handling.py at line 1342][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_cc_file [1;30m[model_handling.py at line 1349][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.get_sigmaKin_lines [1;30m[model_handling.py at line 1058][0m [0m
-[1;32mDEBUG:  self.include_multi_channel = [0m [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0] [1;30m[model_handling.py at line 1059][0m [0m
-[1;32mDEBUG:  self.support_multichannel = [0m True [1;30m[model_handling.py at line 1060][0m [0m
-[1;32mDEBUG:  type(self.helas_call_writer) = [0m <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_GPUFOHelasCallWriter'> [1;30m[model_handling.py at line 1161][0m [0m
-[1;32mDEBUG:  self.support_multichannel, self.include_multi_channel = [0m True [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0] [1;30m[model_handling.py at line 1162][0m [0m
-[1;32mDEBUG:  multi_channel = [0m {1: [0], 2: [1], 3: [2], 4: [3], 5: [4], 6: [5], 7: [6], 8: [7], 9: [8], 10: [9], 11: [10], 12: [11], 13: [12], 14: [13], 15: [14]} [1;30m[model_handling.py at line 1168][0m [0m
-[1;32mDEBUG:  multi_channel_map = [0m {1: [0], 2: [1], 3: [2], 4: [3], 5: [4], 6: [5], 7: [6], 8: [7], 9: [8], 10: [9], 11: [10], 12: [11], 13: [12], 14: [13], 15: [14]} [1;30m[model_handling.py at line 1528][0m [0m
-[1;32mDEBUG:  diag_to_config = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15} [1;30m[model_handling.py at line 1583][0m [0m
-[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1695][0m [0m
-[1;32mDEBUG:  ('ZERO', 0, -1, 0, 0) [1;30m[model_handling.py at line 1696][0m [0m
-[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1695][0m [0m
-[1;32mDEBUG:  ('ZERO', 1, -1, 1, 1) [1;30m[model_handling.py at line 1696][0m [0m
-[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1695][0m [0m
-[1;32mDEBUG:  ('ZERO', 4, 1, 4, 4) [1;30m[model_handling.py at line 1696][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_cc_file [1;30m[model_handling.py at line 1364][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.get_sigmaKin_lines [1;30m[model_handling.py at line 1060][0m [0m
+[1;32mDEBUG:  self.include_multi_channel = [0m [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0] [1;30m[model_handling.py at line 1061][0m [0m
+[1;32mDEBUG:  self.support_multichannel = [0m True [1;30m[model_handling.py at line 1062][0m [0m
+[1;32mDEBUG:  type(self.helas_call_writer) = [0m <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_GPUFOHelasCallWriter'> [1;30m[model_handling.py at line 1156][0m [0m
+[1;32mDEBUG:  self.support_multichannel, self.include_multi_channel = [0m True [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0] [1;30m[model_handling.py at line 1157][0m [0m
+[1;32mDEBUG:  multi_channel = [0m {1: [0], 2: [1], 3: [2], 4: [3], 5: [4], 6: [5], 7: [6], 8: [7], 9: [8], 10: [9], 11: [10], 12: [11], 13: [12], 14: [13], 15: [14]} [1;30m[model_handling.py at line 1163][0m [0m
+[1;32mDEBUG:  multi_channel_map = [0m {1: [0], 2: [1], 3: [2], 4: [3], 5: [4], 6: [5], 7: [6], 8: [7], 9: [8], 10: [9], 11: [10], 12: [11], 13: [12], 14: [13], 15: [14]} [1;30m[model_handling.py at line 1543][0m [0m
+[1;32mDEBUG:  diag_to_config = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15} [1;30m[model_handling.py at line 1598][0m [0m
+[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1710][0m [0m
+[1;32mDEBUG:  ('ZERO', 0, -1, 0, 0) [1;30m[model_handling.py at line 1711][0m [0m
+[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1710][0m [0m
+[1;32mDEBUG:  ('ZERO', 1, -1, 1, 1) [1;30m[model_handling.py at line 1711][0m [0m
+[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1710][0m [0m
+[1;32mDEBUG:  ('ZERO', 4, 1, 4, 4) [1;30m[model_handling.py at line 1711][0m [0m
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_CMakeLists [1;30m[model_handling.py at line 1235][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_check_sa [1;30m[model_handling.py at line 1244][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_mgonGPU [1;30m[model_handling.py at line 1261][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_processidfile [1;30m[model_handling.py at line 1281][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_testxxx [1;30m[model_handling.py at line 1293][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memorybuffers [1;30m[model_handling.py at line 1304][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memoryaccesscouplings [1;30m[model_handling.py at line 1315][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_CMakeLists [1;30m[model_handling.py at line 1232][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_check_sa [1;30m[model_handling.py at line 1241][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_mgonGPU [1;30m[model_handling.py at line 1258][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_processidfile [1;30m[model_handling.py at line 1278][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_coloramps [1;30m[model_handling.py at line 1290][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_testxxx [1;30m[model_handling.py at line 1308][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memorybuffers [1;30m[model_handling.py at line 1319][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memoryaccesscouplings [1;30m[model_handling.py at line 1330][0m [0m
 [1;32mDEBUG:  proc_id = [0m 1 [1;30m[export_cpp.py at line 710][0m [0m
 [1;32mDEBUG:  config_map = [0m [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0] [1;30m[export_cpp.py at line 711][0m [0m
 [1;32mDEBUG:  subproc_number = [0m 0 [1;30m[export_cpp.py at line 712][0m [0m
 [1;32mDEBUG:  Done [1;30m[export_cpp.py at line 713][0m [0m
 INFO: Generating Feynman diagrams for Process: g g > t t~ g WEIGHTED<=3 @1 
 INFO: Finding symmetric diagrams for subprocess group gg_ttxg 
-Generated helas calls for 1 subprocesses (16 diagrams) in 0.048 s
-Wrote files for 36 helas calls in 0.201 s
+Generated helas calls for 1 subprocesses (16 diagrams) in 0.049 s
+Wrote files for 36 helas calls in 0.202 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 set of routines with options: P0[0m
 ALOHA: aloha creates VVVV3 set of routines with options: P0[0m
 ALOHA: aloha creates VVVV4 set of routines with options: P0[0m
-ALOHA: aloha creates 5 routines in  0.399 s
+ALOHA: aloha creates 5 routines in  0.391 s
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 181][0m [0m
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
@@ -221,7 +222,7 @@ ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 set of routines with options: P0[0m
 ALOHA: aloha creates VVVV3 set of routines with options: P0[0m
 ALOHA: aloha creates VVVV4 set of routines with options: P0[0m
-ALOHA: aloha creates 10 routines in  0.380 s
+ALOHA: aloha creates 10 routines in  0.373 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -250,6 +251,6 @@ Type "launch" to generate events from this process, or see
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m2.900s
-user	0m2.562s
-sys	0m0.295s
+real	0m2.901s
+user	0m2.579s
+sys	0m0.300s
