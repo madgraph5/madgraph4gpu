@@ -7,7 +7,6 @@ namespace mgOnGpu
   __device__ constexpr bool icolamp[2][1] = { // FIXME: assume process.nprocesses == 1 for the moment
     { true },
     { true }
-
   };
 
 }
