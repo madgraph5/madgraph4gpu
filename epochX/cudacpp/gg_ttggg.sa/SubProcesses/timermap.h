@@ -81,7 +81,7 @@ namespace mgOnGpu
         maxsize = std::max( maxsize, ip.first.size() );
       maxsize = std::max( maxsize, totalKey.size() );
       // Compute the overall total
-      size_t ipart = 0;
+      //size_t ipart = 0;
       float total = 0;
       //float totalBut2 = 0;
       float total123 = 0;
@@ -100,7 +100,7 @@ namespace mgOnGpu
         if( ip.first[0] == '2' ) total2 += ip.second;
         if( ip.first[0] == '3' ) total3 += ip.second;
         if( ip.first[0] == '3' && ip.first[1] == 'a' ) total3a += ip.second;
-        ipart++;
+        //ipart++;
       }
       // Dump individual partition timers and the overall total
       if( json )

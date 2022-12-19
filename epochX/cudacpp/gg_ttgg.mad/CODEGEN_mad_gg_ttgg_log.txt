@@ -57,7 +57,7 @@ generate g g > t t~ g g
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.0068132877349853516 [0m
+[1;32mDEBUG: model prefixing  takes 0.006790876388549805 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -169,7 +169,7 @@ INFO: Organizing processes into subprocess groups
 INFO: Generating Helas calls for process: g g > t t~ g g WEIGHTED<=4 @1 
 INFO: Processing color information for process: g g > t t~ g g @1 
 INFO: Creating files in directory P1_gg_ttxgg 
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f688e71f8e0> [1;30m[export_v4.py at line 6126][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7fd617f118e0> [1;30m[export_v4.py at line 6126][0m [0m
 INFO: Creating files in directory . 
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 1199][0m [0m
 [1;32mDEBUG:  self.include_multi_channel is already defined: this is madevent+second_exporter mode [1;30m[model_handling.py at line 1201][0m [0m
@@ -208,15 +208,15 @@ INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./.
 [1;32mDEBUG:  Done [1;30m[export_cpp.py at line 713][0m [0m
 INFO: Generating Feynman diagrams for Process: g g > t t~ g g WEIGHTED<=4 @1 
 INFO: Finding symmetric diagrams for subprocess group gg_ttxgg 
-Generated helas calls for 1 subprocesses (123 diagrams) in 0.542 s
-Wrote files for 222 helas calls in 0.926 s
+Generated helas calls for 1 subprocesses (123 diagrams) in 0.539 s
+Wrote files for 222 helas calls in 0.923 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 routines[0m
 ALOHA: aloha creates VVVV3 routines[0m
 ALOHA: aloha creates VVVV4 routines[0m
-ALOHA: aloha creates 5 routines in  0.639 s
+ALOHA: aloha creates 5 routines in  0.419 s
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 181][0m [0m
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
@@ -224,7 +224,7 @@ ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 routines[0m
 ALOHA: aloha creates VVVV3 routines[0m
 ALOHA: aloha creates VVVV4 routines[0m
-ALOHA: aloha creates 10 routines in  0.617 s
+ALOHA: aloha creates 10 routines in  0.377 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -256,6 +256,6 @@ Type "launch" to generate events from this process, or see
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m5.099s
-user	0m4.185s
-sys	0m0.305s
+real	0m4.558s
+user	0m4.153s
+sys	0m0.309s

@@ -169,10 +169,12 @@ endif
 #=== Configure defaults and check if user-defined choices exist for OMPFLAGS, AVX, FPTYPE, HELINL, HRDCOD, RNDGEN
 
 # Set the default OMPFLAGS choice
-ifneq ($(shell $(CXX) --version | grep ^Intel),)
-override OMPFLAGS = # disable OpenMP MT on the Intel compiler (on gcc this requires gcc>=9.3, issue #269)
+ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
+override OMPFLAGS = # disable OpenMP MT on Intel (ok without nvcc, not ok with nvcc)
+else ifneq ($(shell $(CXX) --version | egrep '^clang'),)
+override OMPFLAGS = # disable OpenMP MT on clang (not ok without or with nvcc)
 else
-override OMPFLAGS = -fopenmp # enable OpenMP MT #575
+override OMPFLAGS = -fopenmp
 ###override OMPFLAGS = # disable OpenMP MT (default before #575)
 endif
 
@@ -599,14 +601,24 @@ ifneq ($(shell $(CXX) --version | grep ^clang),)
 $(testmain): LIBFLAGS += -L$(patsubst %bin/clang++,%lib,$(shell which $(firstword $(subst ccache ,,$(CXX))) | tail -1))
 endif
 
+ifneq ($(OMPFLAGS),)
+ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
+###$(testmain): LIBFLAGS += -qopenmp -static-intel # see https://stackoverflow.com/questions/45909648/explicitly-link-intel-icpc-openmp
+else ifneq ($(shell $(CXX) --version | egrep '^clang'),)
+###$(testmain): LIBFLAGS += ??? # OpenMP on clang is not yet supported in cudacpp...
+else
+$(testmain): LIBFLAGS += -lgomp
+endif
+endif
+
 ifeq ($(NVCC),) # link only runTest.o
 $(testmain): LIBFLAGS += $(CXXLIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects_lib) $(cxx_objects_exe) $(GTESTLIBS)
-	$(CXX) -o $@ $(cxx_objects_lib) $(cxx_objects_exe) -ldl -pthread $(LIBFLAGS) -lgomp $(CULIBFLAGS)
+	$(CXX) -o $@ $(cxx_objects_lib) $(cxx_objects_exe) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 else # link both runTest.o and runTest_cu.o
 $(testmain): LIBFLAGS += $(CULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects_lib) $(cxx_objects_exe) $(cu_objects_lib) $(cu_objects_exe) $(GTESTLIBS)
-	$(NVCC) -o $@ $(cxx_objects_lib) $(cxx_objects_exe) $(cu_objects_lib) $(cu_objects_exe) -ldl $(LIBFLAGS) -lcuda -lgomp $(CULIBFLAGS)
+	$(NVCC) -o $@ $(cxx_objects_lib) $(cxx_objects_exe) $(cu_objects_lib) $(cu_objects_exe) -ldl $(LIBFLAGS) -lcuda $(CULIBFLAGS)
 endif
 
 # Use flock (Linux only, no Mac) to allow 'make -j' if googletest has not yet been downloaded https://stackoverflow.com/a/32666215
