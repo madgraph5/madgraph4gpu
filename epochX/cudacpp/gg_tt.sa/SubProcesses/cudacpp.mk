@@ -169,8 +169,10 @@ endif
 #=== Configure defaults and check if user-defined choices exist for OMPFLAGS, AVX, FPTYPE, HELINL, HRDCOD, RNDGEN
 
 # Set the default OMPFLAGS choice
-ifneq ($(shell $(CXX) --version | egrep '^(clang|Intel)'),)
-override OMPFLAGS = # disable OpenMP MT on clang and icpx
+ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
+override OMPFLAGS = # disable OpenMP MT on icpx
+else ifneq ($(shell $(CXX) --version | egrep '^clang'),)
+override OMPFLAGS = # disable OpenMP MT on clang
 else
 override OMPFLAGS = -fopenmp
 ###override OMPFLAGS = # disable OpenMP MT (default before #575)
