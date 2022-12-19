@@ -170,10 +170,11 @@ endif
 
 # Set the default OMPFLAGS choice
 ifneq ($(shell $(CXX) --version | grep ^Intel),)
-override OMPFLAGS = # disable OpenMP on the Intel compiler (on gcc this requires gcc>=9.3, issue #269)
+override OMPFLAGS = # disable OpenMP MT on the Intel compiler (on gcc this requires gcc>=9.3, issue #269)
+else
+override OMPFLAGS = -fopenmp # enable OpenMP MT #575
+###override OMPFLAGS = # disable OpenMP MT (default before #575)
 endif
-###OMPFLAGS ?= -fopenmp # TEMPORARELY DISABLE OMP (need to reassess MT)
-override OMPFLAGS = # TEMPORARELY DISABLE OMP (need to reassess MT)
 
 # Set the default AVX (vectorization) choice
 ifeq ($(AVX),)
@@ -529,7 +530,7 @@ $(fcxx_main): LIBFLAGS += -L$(shell dirname $(shell $(FC) --print-file-name libg
 endif
 $(fcxx_main): LIBFLAGS += $(CXXLIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(fcxx_main): $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).so $(cxx_objects_exe)
-	$(CXX) -o $@ $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler.o $(LIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_CXXLIB) $(cxx_objects_exe) $(CULIBFLAGS)
+	$(CXX) -o $@ $(BUILDDIR)/fcheck_sa.o $(OMPFLAGS) $(BUILDDIR)/fsampler.o $(LIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_CXXLIB) $(cxx_objects_exe) $(CULIBFLAGS)
 
 ifneq ($(NVCC),)
 ifneq ($(shell $(CXX) --version | grep ^Intel),)
