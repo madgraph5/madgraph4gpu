@@ -909,16 +909,15 @@ namespace mg5amcCpu
 #else
     const int npagV2 = npagV;            // loop on one SIMD page (neppV events) at a time
 #endif
-    /*
 #ifdef _OPENMP
-    // (NB gcc9 or higher, or clang, is required)
+    // OMP multithreading #575 (NB: tested only with gcc11 so far)
+    // See https://www.openmp.org/specifications/
     // - default(none): no variables are shared by default
     // - shared: as the name says
     // - private: give each thread its own copy, without initialising
     // - firstprivate: give each thread its own copy, and initialise with value from outside
-#pragma omp parallel for default( none ) shared( allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators )
+#pragma omp parallel for default( none ) shared( allcouplings, allDenominators, allMEs, allmomenta, allNumerators, allrndcol, allrndhel, allselcol, allselhel, cGoodHel, channelId, cNGoodHel, mgOnGpu::icolamp, MEs_ighel, npagV2 )
 #endif // _OPENMP
-    */
     for( int ipagV2 = 0; ipagV2 < npagV2; ++ipagV2 )
     {
       // Running sum of partial amplitudes squared for event by event color selection (#402)
