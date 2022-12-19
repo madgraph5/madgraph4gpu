@@ -171,7 +171,7 @@ endif
 # Set the default OMPFLAGS choice
 ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
 override OMPFLAGS = # disable OpenMP MT on Intel (ok without nvcc, not ok with nvcc)
-else ifneq ($(shell $(CXX) --version | egrep '^clang'),)
+else ifneq ($(shell $(CXX) --version | egrep '^(clang|Apple clang)'),)
 override OMPFLAGS = # disable OpenMP MT on clang (not ok without or with nvcc)
 else
 override OMPFLAGS = -fopenmp
@@ -436,7 +436,7 @@ endif
 
 # Avoid clang warning "overriding '-ffp-contract=fast' option with '-ffp-contract=on'" (#516)
 # This patch does remove the warning, but I prefer to keep it disabled for the moment...
-###ifneq ($(shell $(CXX) --version | egrep '^(clang|Intel)'),)
+###ifneq ($(shell $(CXX) --version | egrep '^(clang|Apple clang|Intel)'),)
 ###$(BUILDDIR)/CrossSectionKernels.o: CXXFLAGS += -Wno-overriding-t-option
 ###ifneq ($(NVCC),)
 ###$(BUILDDIR)/gCrossSectionKernels.o: CUFLAGS += -Xcompiler -Wno-overriding-t-option
@@ -604,7 +604,7 @@ endif
 ifneq ($(OMPFLAGS),)
 ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
 ###$(testmain): LIBFLAGS += -qopenmp -static-intel # see https://stackoverflow.com/questions/45909648/explicitly-link-intel-icpc-openmp
-else ifneq ($(shell $(CXX) --version | egrep '^clang'),)
+else ifneq ($(shell $(CXX) --version | egrep '^(clang|Apple clang)'),)
 ###$(testmain): LIBFLAGS += ??? # OpenMP on clang is not yet supported in cudacpp...
 else
 $(testmain): LIBFLAGS += -lgomp
