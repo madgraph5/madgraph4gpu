@@ -170,7 +170,8 @@ endif
 
 # Set the default OMPFLAGS choice
 ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
-override OMPFLAGS = # disable OpenMP MT on icpx
+override OMPFLAGS = -fopenmp
+###override OMPFLAGS = # disable OpenMP MT on icpx
 else ifneq ($(shell $(CXX) --version | egrep '^clang'),)
 override OMPFLAGS = # disable OpenMP MT on clang
 else
@@ -607,10 +608,17 @@ $(testmain): LIBFLAGS += -lgomp
 endif
 endif
 
+$(testmain): LIBFLAGS += -lstdc++ # link with FC
+$(testmain): LIBFLAGS += -openmp
+ifneq ($(shell $(CXX) --version | grep ^Intel),)
+$(testmain): LIBFLAGS += -lintlc -lsvml
+endif
+
 ifeq ($(NVCC),) # link only runTest.o
 $(testmain): LIBFLAGS += $(CXXLIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects_lib) $(cxx_objects_exe) $(GTESTLIBS)
-	$(CXX) -o $@ $(cxx_objects_lib) $(cxx_objects_exe) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
+#$(CXX) -o $@ $(cxx_objects_lib) $(cxx_objects_exe) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
+	$(FC) -o $@ $(cxx_objects_lib) $(cxx_objects_exe) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 else # link both runTest.o and runTest_cu.o
 $(testmain): LIBFLAGS += $(CULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects_lib) $(cxx_objects_exe) $(cu_objects_lib) $(cu_objects_exe) $(GTESTLIBS)
