@@ -171,11 +171,8 @@ endif
 # Set the default OMPFLAGS choice
 ifneq ($(shell $(CXX) --version | grep ^Intel),)
 override OMPFLAGS = # disable OpenMP MT on the Intel compiler (on gcc this requires gcc>=9.3, issue #269)
-else ifneq ($(shell $(CXX) --version | egrep '^clang'),)
-override OMPFLAGS = -fopenmp=libiomp5 # openmp for clang see https://stackoverflow.com/questions/33357029/using-openmp-with-clang
-###override OMPFLAGS = # disable OpenMP MT (default before #575)
 else
-override OMPFLAGS = -fopenmp
+override OMPFLAGS = -fopenmp # enable OpenMP MT #575
 ###override OMPFLAGS = # disable OpenMP MT (default before #575)
 endif
 
