@@ -12,6 +12,7 @@
 #include "RamboSamplingKernels.h"
 #include "RandomNumberKernels.h"
 #include "epoch_process_id.h"
+#include "ompnumthreads.h"
 #include "timermap.h"
 
 #include <unistd.h>
