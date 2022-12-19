@@ -95,7 +95,8 @@ all: $(PROG) $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp # also builds g$(PROG)_cudacpp
 endif
 
 ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
-override OMPFLAGS = # disable OpenMP MT on icpx
+override OMPFLAGS = -fopenmp
+LINKLIBS += -lintlc # undefined reference to `_intel_fast_memcpy'
 else
 override OMPFLAGS = -fopenmp
 endif
