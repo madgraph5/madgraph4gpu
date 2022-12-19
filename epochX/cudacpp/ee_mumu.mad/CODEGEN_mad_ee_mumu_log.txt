@@ -57,7 +57,7 @@ generate e+ e- > mu+ mu-
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.0068399906158447266 [0m
+[1;32mDEBUG: model prefixing  takes 0.006835222244262695 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -168,7 +168,7 @@ INFO: Organizing processes into subprocess groups
 INFO: Generating Helas calls for process: e+ e- > mu+ mu- WEIGHTED<=4 @1 
 INFO: Processing color information for process: e+ e- > mu+ mu- @1 
 INFO: Creating files in directory P1_ll_ll 
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f1a6cfcedf0> [1;30m[export_v4.py at line 6126][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7faad0e73df0> [1;30m[export_v4.py at line 6126][0m [0m
 INFO: Creating files in directory . 
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 1199][0m [0m
 [1;32mDEBUG:  self.include_multi_channel is already defined: this is madevent+second_exporter mode [1;30m[model_handling.py at line 1201][0m [0m
@@ -206,14 +206,14 @@ ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFV2 routines[0m
 ALOHA: aloha creates FFV4 routines[0m
-ALOHA: aloha creates 3 routines in  0.240 s
+ALOHA: aloha creates 3 routines in  0.267 s
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 181][0m [0m
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFV2 routines[0m
 ALOHA: aloha creates FFV4 routines[0m
 ALOHA: aloha creates FFV2_4 routines[0m
-ALOHA: aloha creates 7 routines in  0.305 s
+ALOHA: aloha creates 7 routines in  0.323 s
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV2
@@ -241,6 +241,6 @@ Type "launch" to generate events from this process, or see
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m2.425s
-user	0m2.110s
-sys	0m0.293s
+real	0m2.496s
+user	0m2.127s
+sys	0m0.289s
