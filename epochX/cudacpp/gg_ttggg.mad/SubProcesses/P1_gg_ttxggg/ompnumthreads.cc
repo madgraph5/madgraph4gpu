@@ -8,6 +8,7 @@
 // Hence use 'extern "C"' to avoid name mangling by the C++ compiler
 // See https://www.geeksforgeeks.org/extern-c-in-c
 
+#ifdef _OPENMP
 extern "C"
 {
   void ompnumthreads_not_set_means_one_thread_()
@@ -16,3 +17,4 @@ extern "C"
     ompnumthreadsNotSetMeansOneThread( debuglevel ); // call the inline C++ function defined in the .h file
   }
 }
+#endif
