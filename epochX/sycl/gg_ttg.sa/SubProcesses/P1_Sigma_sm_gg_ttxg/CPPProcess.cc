@@ -35,8 +35,7 @@ namespace Proc
 
   // Evaluate |M|^2 for each subprocess
   // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
-  SYCL_EXTERNAL
-  INLINE
+  SYCL_EXTERNAL INLINE
   fptype_sv calculate_wavefunctions( const vector4* __restrict__ allmomenta,      // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM FIXME no neppM fix docstring
                                      #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
                                          fptype_sv* __restrict__ allNumerators,   // output: multichannel numerators, running_sum_over_helicities
@@ -347,7 +346,6 @@ namespace Proc
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
       // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
       allMEs += deltaMEs;
-      mgDebug( 1, __FUNCTION__ );
       return allMEs;
   }
 
@@ -387,17 +385,17 @@ namespace Proc
           //m_pars->setDependentParameters();
           //m_pars->setDependentCouplings();
           if ( m_verbose ) {
-            m_pars->printIndependentParameters();
-            m_pars->printIndependentCouplings();
-            //m_pars->printDependentParameters();
-            //m_pars->printDependentCouplings();
+              m_pars->printIndependentParameters();
+              m_pars->printIndependentCouplings();
+              //m_pars->printDependentParameters();
+              //m_pars->printDependentCouplings();
           }
           // Set external particle masses for this matrix element
-    m_masses.push_back( m_pars->ZERO );
-    m_masses.push_back( m_pars->ZERO );
-    m_masses.push_back( m_pars->mdl_MT );
-    m_masses.push_back( m_pars->mdl_MT );
-    m_masses.push_back( m_pars->ZERO );
+          m_masses.push_back( m_pars->ZERO );
+          m_masses.push_back( m_pars->ZERO );
+          m_masses.push_back( m_pars->mdl_MT );
+          m_masses.push_back( m_pars->mdl_MT );
+          m_masses.push_back( m_pars->ZERO );
           // Read physics parameters like masses and couplings from user configuration files (static: initialize once)
           //m_tIPC[...] = ... ; // nicoup=0
           m_tIPD[0] = (fptype)m_pars->mdl_MT;
