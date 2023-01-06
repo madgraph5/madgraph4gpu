@@ -943,7 +943,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
                                   #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
                                       fptype* __restrict__ allNumerators,   // output: multichannel numerators, running_sum_over_helicities
                                       fptype* __restrict__ allDenominators, // output: multichannel denominators, running_sum_over_helicities
-                                      const unsigned int channelId,         // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
+                                      const size_t channelId,               // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
                                   #endif
                                   const short*  __restrict__ cHel,
                                   const cxtype* __restrict__ COUPs,
@@ -957,7 +957,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
     //const cxtype* COUPs = reinterpret_cast<const cxtype*>(cIPC);
 \n""")
             ret_lines.append("    // The number of colors")
-            ret_lines.append("    constexpr int ncolor = %i;" % len(color_amplitudes[0]))
+            ret_lines.append("    constexpr size_t ncolor = %i;" % len(color_amplitudes[0]))
             ret_lines.append("""
     // Local TEMPORARY variables for a subset of Feynman diagrams in the given SYCL event (ievt)
     // [NB these variables are reused several times (and re-initialised each time) within the same event or event page]
@@ -1203,12 +1203,12 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         total_coeff = ff_number * frac * Fraction(Nc_value) ** Nc_power
         if total_coeff == 1:
             if is_imaginary:
-                return '+cxtype(0,1)*' # AV keep default (this is not used in eemumu - should use cI eventually)
+                return '+cxmake(0,1)*' # AV keep default (this is not used in eemumu - should use cI eventually)
             else:
                 return '+' # AV keep default (this is not used in eemumu)
         elif total_coeff == -1:
             if is_imaginary:
-                return '-cxtype(0,1)*' # AV keep default (this is not used in eemumu - should use cI eventually)
+                return '-cxmake(0,1)*' # AV keep default (this is not used in eemumu - should use cI eventually)
             else:
                 return '-' # AV keep default (eg jamp_sv[0] += -amp_sv[0])
         assert(False)
@@ -1217,7 +1217,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
             # Check if total_coeff is an integer
             res_str = res_str + '/%i.' % total_coeff.denominator
         if is_imaginary:
-            res_str = res_str + '*cxtype(0,1)'
+            res_str = res_str + '*cxmake(0,1)'
         return res_str + '*' # AV keep default (this is not used in eemumu)
 
     # AV - replace the export_cpp.OneProcessExporterCPP method (fix fptype and improve formatting)

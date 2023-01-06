@@ -43,20 +43,20 @@ namespace Proc
 
   //--------------------------------------------------------------------------
 
-  int sigmaKin_setGoodHel( const bool* isGoodHel, int* goodHel ); // input: isGoodHel[ncomb] - host array
+  size_t sigmaKin_setGoodHel( const bool* isGoodHel, size_t* goodHel ); // input: isGoodHel[ncomb] - host array
 
   //--------------------------------------------------------------------------
 
   SYCL_EXTERNAL
   fptype sigmaKin( const fptype* __restrict__ allmomenta, // input: momenta[nevt*npar*4]
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                   const unsigned int channelId,          // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
+                   const size_t channelId,          // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
 #endif
                    const short* __restrict__ cHel,
                    const cxtype* __restrict__ cIPC,
                    const fptype* __restrict__ cIPD,
-                   const int* __restrict__ cNGoodHel,
-                   const int* __restrict__ cGoodHel
+                   const size_t* __restrict__ cNGoodHel,
+                   const size_t* __restrict__ cGoodHel
                  );
 
   //--------------------------------------------------------------------------

@@ -210,6 +210,8 @@ $(LIBDIR)/lib$(MG5AMC_CXXLIB).so: $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_obje
 	$(CXX) $(CXXFLAGS) $(SYCLFLAGS) -fPIC -shared -o $@ $(cxx_objects_lib) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
 
 # Target (and build rules): C++ and SYCL static libraries
+bridgelib_static: $(LIBDIR)/lib$(MG5AMC_CXXLIB).a
+
 $(LIBDIR)/lib$(MG5AMC_CXXLIB).a: $(BUILDDIR)/CPPProcess.o $(BUILDDIR)/fbridge.o
 	@if [ ! -d $(LIBDIR) ]; then echo "mkdir -p $(LIBDIR)"; mkdir -p $(LIBDIR); fi
 	ar rvs $@ $^
