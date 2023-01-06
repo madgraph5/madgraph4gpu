@@ -938,8 +938,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
             ret_lines.append("""
   // Evaluate |M|^2 for each subprocess
   // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
-  SYCL_EXTERNAL
-  INLINE
+  SYCL_EXTERNAL INLINE
   fptype_sv calculate_wavefunctions( const vector4* __restrict__ allmomenta,      // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM FIXME no neppM fix docstring
                                      #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
                                          fptype_sv* __restrict__ allNumerators,   // output: multichannel numerators, running_sum_over_helicities
@@ -1248,7 +1247,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         initProc_lines.append("// Set external particle masses for this matrix element")
         for part in matrix_element.get_external_wavefunctions():
             ###initProc_lines.append("mME.push_back(pars->%s);" % part.get('mass'))
-            initProc_lines.append("    m_masses.push_back( m_pars->%s );" % part.get('mass')) # AV
+            initProc_lines.append("          m_masses.push_back( m_pars->%s );" % part.get('mass')) # AV
         ###for i, colamp in enumerate(color_amplitudes):
         ###    initProc_lines.append("jamp2_sv[%d] = new double[%d];" % (i, len(colamp))) # AV - this was commented out already
         return "\n".join(initProc_lines)

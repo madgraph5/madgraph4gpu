@@ -50,10 +50,10 @@ namespace Proc
           //m_pars->setDependentParameters();
           //m_pars->setDependentCouplings();
           if ( m_verbose ) {
-            m_pars->printIndependentParameters();
-            m_pars->printIndependentCouplings();
-            //m_pars->printDependentParameters();
-            //m_pars->printDependentCouplings();
+              m_pars->printIndependentParameters();
+              m_pars->printIndependentCouplings();
+              //m_pars->printDependentParameters();
+              //m_pars->printDependentCouplings();
           }
           %(initProc_lines)s
           // Read physics parameters like masses and couplings from user configuration files (static: initialize once)
