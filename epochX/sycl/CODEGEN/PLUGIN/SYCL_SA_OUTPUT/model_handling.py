@@ -92,11 +92,11 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
 
     # AV - modify C++ code from aloha_writers.ALOHAWriterForGPU
     ###ci_definition = 'cxtype cI = cxtype(0., 1.);\n'
-    ci_definition = 'const cxtype cI = cxmake( 0., 1. );\n'
+    ###ci_definition = 'const cxtype cI = cxmake( 0., 1. );\n'
     ###realoperator = '.real()'
     ###imagoperator = '.imag()'
-    realoperator = 'cxreal' # NB now a function
-    imagoperator = 'cximag' # NB now a function
+    realoperator = 'CXREAL' # NB now a function
+    imagoperator = 'CXIMAG' # NB now a function
 
     # AV - improve formatting
     ###type2def['int'] = 'int '
@@ -132,15 +132,15 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         elif isinstance(number, complex):
             if number.imag:
                 if number.real:
-                    out = '( %s + %s * cI )' % (self.change_number_format(number.real), \
+                    out = '( %s + %s * CXIMAGINARYI_SV )' % (self.change_number_format(number.real), \
                                     self.change_number_format(number.imag))
                 else:
                     if number.imag == 1:
-                        out = 'cI'
+                        out = 'CXIMAGINARYI_SV'
                     elif number.imag == -1:
-                        out = '- cI'
+                        out = '- CXIMAGINARYI_SV'
                     else:
-                        out = '%s * cI' % self.change_number_format(number.imag)
+                        out = '%s * CXIMAGINARYI_SV' % self.change_number_format(number.imag)
             else:
                 out = '%s' % (self.change_number_format(number.real))
         else:
@@ -173,14 +173,16 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         comment_inputs = [] # AV
         for format, argname in self.define_argument_list(couplings):
             if format.startswith('list'):
-                type = self.type2def[format[5:]] # double or complex (instead of list_double or list_complex)
-                if not argname.startswith('COUP'): type = self.type2def[format[5:]+'_v'] # AV vectorize (double_v or complex_v)
+                ###type = self.type2def[format[5:]] # double or complex (instead of list_double or list_complex)
+                ###if not argname.startswith('COUP'): type = self.type2def[format[5:]+'_v'] # AV vectorize (double_v or complex_v)
+                type = self.type2def[format[5:]+'_v'] # AV vectorize (double_v or complex_v)
                 list_arg = '[]'
                 comment_inputs.append('%s[6]'%argname) # AV (wavefuncsize=6 is hardcoded also in export_cpp...)
             else:
                 type = self.type2def[format]
                 list_arg = ''
             if argname.startswith('COUP'):
+                type += '_sv'
                 point = self.type2def['pointer_coup']
                 args.append('%s %s%s%s'% (type, point, argname, list_arg))
             else:
@@ -229,12 +231,13 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             Include the symmetry line (entry FFV_2)
         """
         out = StringIO()
-        out.write('    mgDebug( 0, __FUNCTION__ );\n') # AV - NO! move to get_declaration.txt
+        ###out.write('    mgDebug( 0, __FUNCTION__ );\n') # AV - NO! move to get_declaration.txt
         argument_var = [name for type,name in self.call_arg]
         # define the complex number CI = 0+1j
         if add_i:
             ###out.write(self.ci_definition)
-            out.write('    ' + self.ci_definition) # AV
+            ###out.write('    ' + self.ci_definition) # AV
+            out.write('') # AV
         codedict = {} # AV allow delayed declaration with initialisation
         for type, name in self.declaration.tolist():
             ###print(name) # FOR DEBUGGING
@@ -441,7 +444,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                     if self.routine.denominator:
                         out.write('    %(declnamedenom)s = %(pre_coup)s%(coup)s%(post_coup)s / (%(denom)s)\n' % mydict) # AV
                     else:
-                        out.write('    %(declnamedenom)s = %(pre_coup)s%(coup)s%(post_coup)s / ( (P%(i)s[0] * P%(i)s[0] ) - ( P%(i)s[1] * P%(i)s[1] ) - ( P%(i)s[2] * P%(i)s[2] ) - ( P%(i)s[3] * P%(i)s[3] ) - M%(i)s * ( M%(i)s - cI * W%(i)s ) );\n' % mydict) # AV
+                        out.write('    %(declnamedenom)s = %(pre_coup)s%(coup)s%(post_coup)s / ( (P%(i)s[0] * P%(i)s[0] ) - ( P%(i)s[1] * P%(i)s[1] ) - ( P%(i)s[2] * P%(i)s[2] ) - ( P%(i)s[3] * P%(i)s[3] ) - M%(i)s * ( M%(i)s - CXIMAGINARYI_SV * W%(i)s ) );\n' % mydict) # AV
                 else:
                     if self.routine.denominator:
                         raise Exception('modify denominator are not compatible with complex mass scheme')
@@ -459,8 +462,6 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 out.write('    %s[%d] = %s * %s;\n' % (self.outname, # AV
                                         self.pass_to_HELAS(ind), coeff,
                                         self.write_obj(numerator.get_rep(ind))))
-        out.write('    mgDebug( 1, __FUNCTION__ );\n') # AV
-        out.write('    return;\n') # AV
         ###return out.getvalue()
         # AV check if one, two or half are used and need to be defined (ugly hack for #291: can this be done better?)
         out2 = StringIO()
@@ -536,7 +537,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                     file_str.write('+' if first else ' + ') # AV
                     file_str.write(nb_str)
                 ###file_str.write('*(')
-                file_str.write(' * ( ') # AV (eg '+ cI * (V3[4])')
+                file_str.write(' * ( ') # AV (eg '+ CXIMAGINARYI_SV * (V3[4])')
             elif value == -1:
                 ###add = '-'
                 ###file_str.write('-')
@@ -907,9 +908,9 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         #    coup_str += "m_tIPC[%s] = cxmake( m_pars->%s );\n" % (i, coupling[i])
         if len(coupling_indep) > 0:
             for i in range(len(coupling_indep)):
-                coup_str += "    m_tIPC[%s] = cxmake( m_pars->%s );\n" % (i, coupling_indep[i])
+                coup_str += "          m_tIPC[%s] = cxmake( m_pars->%s );\n" % (i, coupling_indep[i])
         else:
-            coup_str = "    //m_tIPC[...] = ... ; // nicoup=0\n"
+            coup_str = "          //m_tIPC[...] = ... ; // nicoup=0\n"
 
         self.number_dependent_couplings = len(coupling) - len(coupling_indep)
         self.number_independent_couplings = len(coupling_indep)
@@ -921,9 +922,9 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         param_str = ""
         if len(params) > 0:
             for i in range(len(self.params2order)):
-                param_str += "    m_tIPD[%s] = (fptype)m_pars->%s;\n" % (i, params[i])
+                param_str += "          m_tIPD[%s] = (fptype)m_pars->%s;\n" % (i, params[i])
         else:
-            parm_str += "    //m_tIPD[...] = ... ; // nparam=0\n"
+            parm_str += "          //m_tIPD[...] = ... ; // nparam=0\n"
 
         replace_dict['assign_coupling'] = coup_str + param_str
         file = self.read_template_file(self.process_definition_template) % replace_dict
@@ -939,37 +940,32 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
   // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
   SYCL_EXTERNAL
   INLINE
-  fptype calculate_wavefunctions( const fptype_sv* __restrict__ allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-                                  #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                                      fptype* __restrict__ allNumerators,   // output: multichannel numerators, running_sum_over_helicities
-                                      fptype* __restrict__ allDenominators, // output: multichannel denominators, running_sum_over_helicities
-                                      const size_t channelId,               // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
-                                  #endif
-                                  const short*  __restrict__ cHel,
-                                  const cxtype* __restrict__ COUPs,
-                                  const fptype* __restrict__ cIPD
-                                )
-  //ALWAYS_INLINE // attributes are not permitted in a function definition
-  {
-    using namespace MG5_sm;
-    mgDebug( 0, __FUNCTION__ );
-    fptype allMEs = 0;
-    //const cxtype* COUPs = reinterpret_cast<const cxtype*>(cIPC);
+  fptype_sv calculate_wavefunctions( const vector4* __restrict__ allmomenta,      // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM FIXME no neppM fix docstring
+                                     #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+                                         fptype_sv* __restrict__ allNumerators,   // output: multichannel numerators, running_sum_over_helicities
+                                         fptype_sv* __restrict__ allDenominators, // output: multichannel denominators, running_sum_over_helicities
+                                         const size_t channelId,                  // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
+                                     #endif
+                                     const signed char*  __restrict__ cHel,
+                                     const cxtype_sv* __restrict__ COUPs,
+                                     const fptype* __restrict__ cIPD
+                                   ) {
+      using namespace MG5_sm;
+      fptype_sv allMEs = FPZERO_SV;
 \n""")
-            ret_lines.append("    // The number of colors")
-            ret_lines.append("    constexpr size_t ncolor = %i;" % len(color_amplitudes[0]))
+            ret_lines.append("      // The number of colors")
+            ret_lines.append("      constexpr size_t ncolor = %i;" % len(color_amplitudes[0]))
             ret_lines.append("""
-    // Local TEMPORARY variables for a subset of Feynman diagrams in the given SYCL event (ievt)
-    // [NB these variables are reused several times (and re-initialised each time) within the same event or event page]
-    cxtype_sv w_sv[nwf][nw6]; // particle wavefunctions within Feynman diagrams (nw6 is often 6, the dimension of spin 1/2 or spin 1 particles)
-    cxtype_sv amp_sv[1]; // invariant amplitude for one given Feynman diagram
+      // Local TEMPORARY variables for a subset of Feynman diagrams in the given SYCL event (ievt)
+      // [NB these variables are reused several times (and re-initialised each time) within the same event or event page]
+      cxtype_sv w_sv[nwf][nw6]; // particle wavefunctions within Feynman diagrams (nw6 is often 6, the dimension of spin 1/2 or spin 1 particles)
+      cxtype_sv amp_sv[1]; // invariant amplitude for one given Feynman diagram
 
-    // Local variables for the given SYCL event (ievt)
-    cxtype_sv jamp_sv[ncolor] = {}; // sum of the invariant amplitudes for all Feynman diagrams in the event or event page
+      // Local variables for the given SYCL event (ievt)
+      cxtype_sv jamp_sv[ncolor] = {}; // sum of the invariant amplitudes for all Feynman diagrams in the event or event page
 
-    // === Calculate wavefunctions and amplitudes for all diagrams in all processes - Loop over nevt events ===
+      // === Calculate wavefunctions and amplitudes for all diagrams in all processes - Loop over nevt events ===
 """)
-            ret_lines.append('    {') # NB This is closed in process_matrix.inc
             multi_channel = None
             if self.include_multi_channel:
                 if not self.support_multichannel:
@@ -1092,6 +1088,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         replace_dict['number_independent_couplings'] = self.number_independent_couplings
         replace_dict['nincoming'] = nincoming
         replace_dict['noutcoming'] = nexternal - nincoming
+        replace_dict['nexternal'] = nexternal
         
         # Number of helicity combinations
         replace_dict['nbhel'] = \
@@ -1203,12 +1200,12 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         total_coeff = ff_number * frac * Fraction(Nc_value) ** Nc_power
         if total_coeff == 1:
             if is_imaginary:
-                return '+cxmake(0,1)*' # AV keep default (this is not used in eemumu - should use cI eventually)
+                return '+CXIMAGINARYI_SV*' # AV keep default (this is not used in eemumu - should use cI eventually)
             else:
                 return '+' # AV keep default (this is not used in eemumu)
         elif total_coeff == -1:
             if is_imaginary:
-                return '-cxmake(0,1)*' # AV keep default (this is not used in eemumu - should use cI eventually)
+                return '-CXIMAGINARYI_SV*' # AV keep default (this is not used in eemumu - should use cI eventually)
             else:
                 return '-' # AV keep default (eg jamp_sv[0] += -amp_sv[0])
         assert(False)
@@ -1217,7 +1214,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
             # Check if total_coeff is an integer
             res_str = res_str + '/%i.' % total_coeff.denominator
         if is_imaginary:
-            res_str = res_str + '*cxmake(0,1)'
+            res_str = res_str + '*CXIMAGINARYI_SV'
         return res_str + '*' # AV keep default (this is not used in eemumu)
 
     # AV - replace the export_cpp.OneProcessExporterCPP method (fix fptype and improve formatting)
@@ -1367,7 +1364,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         res = []
         ###res.append('for(int i=0;i<%s;i++){jamp[i] = cxtype(0.,0.);}' % len(color_amplitudes))
         res.append('// Reset color flows (reset jamp_sv) at the beginning of a new event or event page')
-        res.append('for( int i=0; i<ncolor; i++ ){ jamp_sv[i] = cxzero_sv(); }')
+        res.append('for (size_t i = 0; i < ncolor; i++){ jamp_sv[i] = CXZERO_SV; }')
         diagrams = matrix_element.get('diagrams')
         diag_to_config = {}
         if multi_channel_map:
@@ -1394,8 +1391,8 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                 if multi_channel_map: # different code bases #473 (assume this is the same as self.include_multi_channel...)
                     if id_amp in diag_to_config:
                         res.append("#ifdef MGONGPU_SUPPORTS_MULTICHANNEL")
-                        res.append("if( channelId == %i ) allNumerators[0] += cxabs2( amp_sv[0] );" % diagram.get('number'))
-                        res.append("if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );")
+                        res.append("if( channelId == %i ) allNumerators[0] += CXABS2( amp_sv[0] );" % diagram.get('number'))
+                        res.append("if( channelId != 0 ) allDenominators[0] += CXABS2( amp_sv[0] );")
                         res.append("#endif")
                 else:
                     res.append("#ifdef MGONGPU_SUPPORTS_MULTICHANNEL")
@@ -1463,7 +1460,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             # Fill out with X up to 6 positions
             call = call + 'x' * (6 - len(call))
             # Specify namespace for Helas calls
-            call = call + "( allmomenta + %d * np4 * neppM,"
+            call = call + "( allmomenta + %d,"
             if argument.get('spin') != 1:
                 # For non-scalars, need mass and helicity
                 call = call + "m_pars->%s, cHel[%d],"
@@ -1516,7 +1513,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             if wf.get('number_external') == 1 or wf.get('number_external') == 2: # AV
                 comment = ' // NB: ' + call + ' only uses pz' # AV skip '(not E,px,py)' to avoid interference with comma parsing in get_external
             # Specify namespace for Helas calls
-            call = call + '( allmomenta + %d * np4 * neppM, cHel[%d], %+d, w_sv[%d] );' + comment # AV vectorize and add comment
+            call = call + '( allmomenta + %d, cHel[%d], %+d, w_sv[%d] );' + comment # AV vectorize and add comment
             return self.format_coupling(call % \
                                 (wf.get('number_external')-1,
                                  wf.get('number_external')-1,
