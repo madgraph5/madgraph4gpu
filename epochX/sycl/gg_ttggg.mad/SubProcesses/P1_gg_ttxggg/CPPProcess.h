@@ -170,7 +170,7 @@ namespace Proc
   public:
 
     // Constructor (from command line arguments)
-    CPPProcess( int numiterations, int gpublocks, int gputhreads, bool verbose = false, bool debug = false );
+    CPPProcess( size_t numiterations, size_t gpublocks, size_t gputhreads, bool verbose = false, bool debug = false );
 
     // Destructor
     ~CPPProcess();
@@ -195,9 +195,9 @@ namespace Proc
     //int getNIOParticles() const { return nexternal; } // nexternal was nioparticles
 
     // Accessors (unused so far: add four of them only to fix a clang build warning)
-    int numiterations() const { return m_numiterations; }
-    int gpublocks() const { return m_ngpublocks; }
-    int gputhreads() const { return m_ngputhreads; }
+    size_t numiterations() const { return m_numiterations; }
+    size_t gpublocks() const { return m_ngpublocks; }
+    size_t gputhreads() const { return m_ngputhreads; }
     //bool verbose() const { return m_verbose; }
     bool debug() const { return m_debug; }
 
@@ -215,9 +215,9 @@ namespace Proc
   private:
 
     // Command line arguments (constructor)
-    int m_numiterations; // number of iterations (each iteration has nblocks*nthreads events)
-    int m_ngpublocks; // number of GPU blocks in one grid (i.e. one iteration)
-    int m_ngputhreads; // number of GPU threads in a block
+    size_t m_numiterations; // number of iterations (each iteration has nblocks*nthreads events)
+    size_t m_ngpublocks; // number of GPU blocks in one grid (i.e. one iteration)
+    size_t m_ngputhreads; // number of GPU threads in a block
     bool m_verbose;
     bool m_debug;
 
@@ -249,20 +249,20 @@ namespace Proc
 
   //--------------------------------------------------------------------------
 
-  int sigmaKin_setGoodHel( const bool* isGoodHel, int* goodHel ); // input: isGoodHel[ncomb] - host array
+  size_t sigmaKin_setGoodHel( const bool* isGoodHel, size_t* goodHel ); // input: isGoodHel[ncomb] - host array
 
   //--------------------------------------------------------------------------
 
   SYCL_EXTERNAL
   fptype sigmaKin( const fptype* __restrict__ allmomenta, // input: momenta[nevt*npar*4]
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                   const unsigned int channelId,          // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
+                   const size_t channelId,          // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
 #endif
                    const short* __restrict__ cHel,
                    const cxtype* __restrict__ cIPC,
                    const fptype* __restrict__ cIPD,
-                   const int* __restrict__ cNGoodHel,
-                   const int* __restrict__ cGoodHel
+                   const size_t* __restrict__ cNGoodHel,
+                   const size_t* __restrict__ cGoodHel
                  );
 
   //--------------------------------------------------------------------------

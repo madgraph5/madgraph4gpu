@@ -1,7 +1,32 @@
 #ifndef MGONGPUTYPES_H
 #define MGONGPUTYPES_H 1
 
-#include "extras.h"
+#include <CL/sycl.hpp>
+#ifdef MGONGPU_COMPLEX_CXSMPL
+    #include "mgOnGpuCxtypes.h"
+#endif
+
+#ifdef MGONGPU_COMPLEX_EXTRAS
+    #include "extras.h"
+#endif
+
+#ifdef MGONGPU_COMPLEX_STD
+    #include <complex>
+#endif
+
+#ifdef MGONGPU_COMPLEX_ONEAPI
+    #define SYCL_EXT_ONEAPI_COMPLEX 1
+    #include <sycl/ext/oneapi/experimental/sycl_complex.hpp>
+#endif
+
+#ifdef MGONGPU_COMPLEX_CUTHRUST
+    #include <thrust/complex.h>
+#endif
+
+#ifdef MGONGPU_COMPLEX_CUCOMPLEX
+    #include <cuComplex.h>
+#endif
+
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuCxtypes.h"
 
@@ -9,7 +34,33 @@ namespace mgOnGpu
 {
 
   // --- Type definitions (complex type: cxtype)
-  typedef extras::complex<fptype> cxtype;
+  #ifdef MGONGPU_COMPLEX_CXSMPL
+      typedef mgOnGpu::cxsmpl<fptype> cxtype;
+  #endif
+
+  #ifdef MGONGPU_COMPLEX_EXTRAS
+      typedef extras::complex<fptype> cxtype;
+  #endif
+
+  #ifdef MGONGPU_COMPLEX_STD
+      typedef std::complex<fptype> cxtype;
+  #endif
+
+  #ifdef MGONGPU_COMPLEX_ONEAPI
+      typedef sycl::ext::oneapi::experimental::complex<fptype> cxtype;
+  #endif
+
+  #ifdef MGONGPU_COMPLEX_CUTHRUST
+      typedef thrust::complex<fptype> cxtype;
+  #endif
+  
+  #ifdef MGONGPU_COMPLEX_CUCOMPLEX
+      #if defined MGONGPU_FPTYPE_DOUBLE
+          typedef cuDoubleComplex cxtype;
+      #elif defined MGONGPU_FPTYPE_FLOAT
+          typedef cuFloatComplex cxtype;
+      #endif
+  #endif
 
   // The number of floating point types in a complex type (real, imaginary)
   constexpr int nx2 = 2;
@@ -30,25 +81,185 @@ using mgOnGpu::cxtype;
 SYCL_EXTERNAL inline
 cxtype cxmake( const fptype& r, const fptype& i )
 {
+#if defined MGONGPU_COMPLEX_CUCOMPLEX && MGONGPU_FPTYPE_DOUBLE
+  return make_cuDoubleComplex( r, i );
+#elif defined MGONGPU_COMPLEX_CUCOMPLEX && MGONGPU_FPTYPE_FLOAT
+  return make_cuFloatComplex( r, i );
+#else
   return cxtype( r, i ); // thrust::complex<fptype> constructor
+#endif
 }
 
 SYCL_EXTERNAL inline
 fptype cxreal( const cxtype& c )
 {
+#if defined MGONGPU_COMPLEX_CUCOMPLEX && MGONGPU_FPTYPE_DOUBLE
+  return cuCreal( c ); // returns by value
+#elif defined MGONGPU_COMPLEX_CUCOMPLEX && MGONGPU_FPTYPE_FLOAT
+  return cuCrealf( c ); // returns by value
+#else
   return c.real(); // thrust::complex<fptype>::real()
+#endif
 }
 
 SYCL_EXTERNAL inline
 fptype cximag( const cxtype& c )
 {
+#if defined MGONGPU_COMPLEX_CUCOMPLEX && MGONGPU_FPTYPE_DOUBLE
+  return cuCimag( c ); // returns by value
+#elif defined MGONGPU_COMPLEX_CUCOMPLEX && MGONGPU_FPTYPE_FLOAT
+  return cuCimagf( c ); // returns by value
+#else
   return c.imag(); // thrust::complex<fptype>::imag()
+#endif
 }
+
+#if defined MGONGPU_COMPLEX_CUCOMPLEX
+SYCL_EXTERNAL inline cxtype
+operator+( const cxtype& a, const cxtype& b )
+{
+#if MGONGPU_FPTYPE_DOUBLE
+  return cuCadd( a, b );
+#elif defined MGONGPU_FPTYPE_FLOAT
+  return cuCaddf( a, b );
+#endif
+}
+
+SYCL_EXTERNAL inline cxtype&
+operator+=( cxtype& a, const cxtype& b )
+{
+#if MGONGPU_FPTYPE_DOUBLE
+  a = cuCadd( a, b );
+#elif defined MGONGPU_FPTYPE_FLOAT
+  a = cuCaddf( a, b );
+#endif
+  return a;
+}
+
+SYCL_EXTERNAL inline cxtype
+operator-( const cxtype& a, const cxtype& b )
+{
+#if MGONGPU_FPTYPE_DOUBLE
+  return cuCsub( a, b );
+#elif defined MGONGPU_FPTYPE_FLOAT
+  return cuCsubf( a, b );
+#endif
+}
+
+SYCL_EXTERNAL inline cxtype&
+operator-=( cxtype& a, const cxtype& b )
+{
+#if MGONGPU_FPTYPE_DOUBLE
+  a = cuCsub( a, b );
+#elif defined MGONGPU_FPTYPE_FLOAT
+  a = cuCsubf( a, b );
+#endif
+  return a;
+}
+
+SYCL_EXTERNAL inline cxtype
+operator*( const cxtype& a, const cxtype& b )
+{
+#if MGONGPU_FPTYPE_DOUBLE
+  return cuCmul( a, b );
+#elif defined MGONGPU_FPTYPE_FLOAT
+  return cuCmulf( a, b );
+#endif
+}
+
+SYCL_EXTERNAL inline cxtype
+operator/( const cxtype& a, const cxtype& b )
+{
+#if MGONGPU_FPTYPE_DOUBLE
+  return cuCdiv( a, b );
+#elif defined MGONGPU_FPTYPE_FLOAT
+  return cuCdivf( a, b );
+#endif
+}
+
+SYCL_EXTERNAL inline cxtype
+operator+( const cxtype a )
+{
+  return a;
+}
+
+SYCL_EXTERNAL inline cxtype
+operator-( const cxtype& a )
+{
+  return cxmake( -cxreal( a ), -cximag( a ) );
+}
+
+SYCL_EXTERNAL inline cxtype
+operator+( const fptype& a, const cxtype& b )
+{
+  return cxmake( a, 0 ) + b;
+}
+
+SYCL_EXTERNAL inline cxtype
+operator-( const fptype& a, const cxtype& b )
+{
+  return cxmake( a, 0 ) - b;
+}
+
+SYCL_EXTERNAL inline cxtype
+operator*( const fptype& a, const cxtype& b )
+{
+  return cxmake( a, 0 ) * b;
+}
+
+SYCL_EXTERNAL inline cxtype
+operator/( const fptype& a, const cxtype& b )
+{
+  return cxmake( a, 0 ) / b;
+}
+
+SYCL_EXTERNAL inline cxtype
+operator+( const cxtype& a, const fptype& b )
+{
+  return a + cxmake( b, 0 );
+}
+
+SYCL_EXTERNAL inline cxtype
+operator-( const cxtype& a, const fptype& b )
+{
+  return a - cxmake( b, 0 );
+}
+
+SYCL_EXTERNAL inline cxtype
+operator*( const cxtype& a, const fptype& b )
+{
+  return a * cxmake( b, 0 );
+}
+
+SYCL_EXTERNAL inline cxtype
+operator/( const cxtype& a, const fptype& b )
+{
+  return a / cxmake( b, 0 );
+}
+#endif
 
 SYCL_EXTERNAL inline
 cxtype cxconj( const cxtype& c )
 {
-  return extras::conj( c ); // extras::conj( extras::complex<fptype> )
+  #ifdef MGONGPU_COMPLEX_EXTRAS
+      return extras::conj( c ); // extras::conj( extras::complex<fptype> )
+  #endif
+
+  #ifdef MGONGPU_COMPLEX_CXSMPL
+      return mgOnGpu::conj( c );
+  #endif
+
+  #ifdef MGONGPU_COMPLEX_STD
+      return std::conj( c ); // std::conj( std::complex<fptype> )
+  #endif
+
+  #ifdef MGONGPU_COMPLEX_ONEAPI
+      return sycl::ext::oneapi::experimental::conj( c ); // sycl::ext::oneapi::experimental::conj( sycl::ext::oneapi::experimental::complex<fptype> )
+  #endif
+
+  #ifdef MGONGPU_COMPLEX_CUTHRUST
+      return thrust::conj( c );
+  #endif
 }
 
 SYCL_EXTERNAL inline
@@ -57,11 +268,13 @@ const cxtype& cxmake( const cxtype& c )
   return c;
 }
 
+#ifndef MGONGPU_COMPLEX_CXSMPL
 inline // NOT __device__
 cxtype cxmake( const mgOnGpu::cxsmpl<fptype>& c ) // mgOnGpu::cxsmpl to extras::complex (float-to-float or double-to-double)
 {
   return cxmake( c.real(), c.imag() );
 }
+#endif
 
 #if defined MGONGPU_FPTYPE_FLOAT
 inline

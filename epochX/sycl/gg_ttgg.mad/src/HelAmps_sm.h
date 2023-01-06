@@ -144,15 +144,15 @@ namespace MG5_sm
 
   SYCL_EXTERNAL inline
   const fptype& pIparIp4Ievt( const fptype* momenta, // input: momenta as AOSOA[npagM][npar][4][neppM]
-                              const int ipar,
-                              const int ip4,
-                              const int ievt )
+                              const size_t ipar,
+                              const size_t ip4,
+                              const size_t ievt )
   {
-    static constexpr int np4 = mgOnGpu::np4;
-    static constexpr int npar = mgOnGpu::npar;
-    static constexpr int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
-    const int ipagM = ievt/neppM; // #eventpage in this iteration
-    const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
+    static constexpr size_t np4 = mgOnGpu::np4;
+    static constexpr size_t npar = mgOnGpu::npar;
+    static constexpr size_t neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
+    const size_t ipagM = ievt/neppM; // #eventpage in this iteration
+    const size_t ieppM = ievt%neppM; // #event in the current eventpage in this iteration
     //printf( "%f\n", momenta[ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM] );
     return momenta[ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM]; // AOSOA[ipagM][ipar][ip4][ieppM]
     //fptype (*momenta)[npar][np4][neppM] = (fptype (*)[npar][np4][neppM]) momenta; // cast to multiD array pointer (AOSOA)

@@ -108,7 +108,7 @@ namespace mg5amcGpu
      * @param nparF (NEXTERNAL, nexternal.inc) number of external particles in Fortran arrays (KEPT FOR SANITY CHECKS ONLY)
      * @param np4F number of momenta components, usually 4, in Fortran arrays (KEPT FOR SANITY CHECKS ONLY)
      */
-    Bridge( unsigned int nevtF, unsigned int nparF, unsigned int np4F );
+    Bridge( size_t nevtF, size_t nparF, size_t np4F );
 
     // Delete copy/move constructors and assignment operators
     Bridge( const Bridge& ) = delete;
@@ -123,7 +123,7 @@ namespace mg5amcGpu
      * @param gpublocks number of gpublocks
      * @param gputhreads number of gputhreads
      */
-    void set_gpugrid( const int gpublocks, const int gputhreads );
+    void set_gpugrid( const size_t gpublocks, const size_t gputhreads );
 
     /**
      * Sequence to be executed for the matrix element calculation
@@ -137,18 +137,18 @@ namespace mg5amcGpu
     void gpu_sequence( const FORTRANFPTYPE* __restrict__ momenta,
                        const FORTRANFPTYPE* __restrict__ gs,
                        FORTRANFPTYPE* __restrict__ mes,
-                       const unsigned int channelId,
+                       const size_t channelId,
                        const bool goodHelOnly = false );
 
   private:
-    unsigned int m_nevt;       // number of events
+    size_t m_nevt;       // number of events
     bool m_goodHelsCalculated; // have the good helicities been calculated?
 
     std::vector<sycl::device> m_devices;
     sycl::queue m_q;
 
-    int m_gputhreads; // number of gpu threads (default set from number of events, can be modified)
-    int m_gpublocks;  // number of gpu blocks (default set from number of events, can be modified)
+    size_t m_gputhreads; // number of gpu threads (default set from number of events, can be modified)
+    size_t m_gpublocks;  // number of gpu blocks (default set from number of events, can be modified)
     device_buffer<fptype> m_devMomentaF;
     device_buffer<fptype> m_devMomentaC;
     device_buffer<fptype> m_devGsC;
@@ -162,11 +162,11 @@ namespace mg5amcGpu
     device_buffer<cxtype> m_dev_independent_couplings;
     device_buffer<fptype> m_dev_independent_parameters;
     #endif
-    device_buffer<int   > m_devcNGoodHel; 
-    device_buffer<int   > m_devcGoodHel; 
+    device_buffer<size_t   > m_devcNGoodHel; 
+    device_buffer<size_t   > m_devcGoodHel; 
     
     //static constexpr int s_gputhreadsmin = 16; // minimum number of gpu threads (TEST VALUE FOR MADEVENT)
-    static constexpr int s_gputhreadsmin = 32; // minimum number of gpu threads (DEFAULT)
+    static constexpr size_t s_gputhreadsmin = 32; // minimum number of gpu threads (DEFAULT)
   };
 
   //--------------------------------------------------------------------------
@@ -175,13 +175,13 @@ namespace mg5amcGpu
   //
 
   template<typename Tin, typename Tout>
-  void dev_transposeMomentaF2C( Tout* __restrict__ out, const Tin* __restrict__ in, size_t pos, const unsigned int nevt );
+  void dev_transposeMomentaF2C( Tout* __restrict__ out, const Tin* __restrict__ in, size_t pos, const size_t nevt );
 
   template<typename Tin, typename Tout>
-  void hst_transposeMomentaF2C( const Tin* __restrict__ in, Tout* __restrict__ out, const unsigned int nevt );
+  void hst_transposeMomentaF2C( const Tin* __restrict__ in, Tout* __restrict__ out, const size_t nevt );
 
   template<typename Tin, typename Tout>
-  void hst_transposeMomentaC2F( const Tin* __restrict__ in, Tout* __restrict__ out, const unsigned int nevt );
+  void hst_transposeMomentaC2F( const Tin* __restrict__ in, Tout* __restrict__ out, const size_t nevt );
 
   //--------------------------------------------------------------------------
   //
@@ -189,7 +189,7 @@ namespace mg5amcGpu
   //
 
   template<typename FORTRANFPTYPE>
-  Bridge<FORTRANFPTYPE>::Bridge( unsigned int nevtF, unsigned int nparF, unsigned int np4F )
+  Bridge<FORTRANFPTYPE>::Bridge( size_t nevtF, size_t nparF, size_t np4F )
     : m_nevt( nevtF )
     , m_goodHelsCalculated( false )
     , m_devices( sycl::device::get_devices() )
@@ -240,7 +240,7 @@ namespace mg5amcGpu
   }
 
   template<typename FORTRANFPTYPE>
-  void Bridge<FORTRANFPTYPE>::set_gpugrid( const int gpublocks, const int gputhreads )
+  void Bridge<FORTRANFPTYPE>::set_gpugrid( const size_t gpublocks, const size_t gputhreads )
   {
     if( m_nevt != gpublocks * gputhreads )
       throw std::runtime_error( "Bridge: gpublocks*gputhreads must equal m_nevt in set_gpugrid" );
@@ -254,14 +254,14 @@ namespace mg5amcGpu
   void Bridge<FORTRANFPTYPE>::gpu_sequence( const FORTRANFPTYPE* __restrict__ momenta,
                                             const FORTRANFPTYPE* __restrict__ gs,
                                             FORTRANFPTYPE* __restrict__ mes,
-                                            const unsigned int channelId,
+                                            const size_t channelId,
                                             const bool goodHelOnly )
   {
-    static constexpr int neppM = mgOnGpu::neppM;
-    static constexpr int np4 =  mgOnGpu::np4;
-    static constexpr int nparf = mgOnGpu::nparf;
-    static constexpr int npar = mgOnGpu::npar;
-    static constexpr int ncomb = mgOnGpu::ncomb;
+    static constexpr size_t neppM = mgOnGpu::neppM;
+    static constexpr size_t np4 =  mgOnGpu::np4;
+    static constexpr size_t nparf = mgOnGpu::nparf;
+    static constexpr size_t npar = mgOnGpu::npar;
+    static constexpr size_t ncomb = mgOnGpu::ncomb;
 
     if constexpr( neppM == 1 && std::is_same_v<FORTRANFPTYPE, fptype> )
     {
@@ -270,9 +270,9 @@ namespace mg5amcGpu
     else
     {
       m_q.memcpy( m_devMomentaF.data(), momenta, np4*npar*m_nevt*sizeof(fptype) ).wait();
-      static constexpr int thrPerEvt = npar * np4; // AV: transpose alg does 1 element per thread (NOT 1 event per thread)
+      static constexpr size_t thrPerEvt = npar * np4; // AV: transpose alg does 1 element per thread (NOT 1 event per thread)
 
-      //const int thrPerEvt = 1; // AV: try new alg with 1 event per thread... this seems slower
+      //const size_t thrPerEvt = 1; // AV: try new alg with 1 event per thread... this seems slower
       m_q.submit([&](sycl::handler& cgh) {
           auto devMomentaC = m_devMomentaC.data();
           auto devMomentaF = m_devMomentaF.data();
@@ -309,8 +309,8 @@ namespace mg5amcGpu
               #endif
               wGroup.parallel_for_work_item([&](sycl::h_item<1> index) {
                   size_t ievt = index.get_global_id(0);
-                  const int ipagM = ievt/neppM; // #eventpage in this iteration
-                  const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
+                  const size_t ipagM = ievt/neppM; // #eventpage in this iteration
+                  const size_t ieppM = ievt%neppM; // #event in the current eventpage in this iteration
 
                   #ifdef MGONGPU_HARDCODE_PARAM
                   //Load parameters into local (private) memory if hardcoded
@@ -342,11 +342,11 @@ namespace mg5amcGpu
 
       m_q.memcpy(m_hstIsGoodHel.data(), m_devIsGoodHel.data(), ncomb*sizeof(bool)).wait();
 
-      int goodHel[mgOnGpu::ncomb] = {0};
-      int nGoodHel = Proc::sigmaKin_setGoodHel( m_hstIsGoodHel.data(), goodHel );
+      size_t goodHel[mgOnGpu::ncomb] = {0};
+      size_t nGoodHel = Proc::sigmaKin_setGoodHel( m_hstIsGoodHel.data(), goodHel );
 
-      m_q.memcpy( m_devcNGoodHel.data(), &nGoodHel, sizeof(int) ).wait();
-      m_q.memcpy( m_devcGoodHel.data(), goodHel, ncomb*sizeof(int) ).wait();
+      m_q.memcpy( m_devcNGoodHel.data(), &nGoodHel, sizeof(size_t) ).wait();
+      m_q.memcpy( m_devcGoodHel.data(), goodHel, ncomb*sizeof(size_t) ).wait();
       m_goodHelsCalculated = true;
     }
     if( goodHelOnly ) return;
@@ -371,8 +371,8 @@ namespace mg5amcGpu
             auto l_channelId = channelId;
             wGroup.parallel_for_work_item([&](sycl::h_item<1> index) {
                 size_t ievt = index.get_global_id(0);
-                const int ipagM = ievt/neppM;
-                const int ieppM = ievt%neppM;
+                const size_t ipagM = ievt/neppM;
+                const size_t ieppM = ievt%neppM;
 
                   #ifdef MGONGPU_HARDCODE_PARAM
                   //Load parameters into local (private) memory if hardcoded
@@ -428,25 +428,25 @@ namespace mg5amcGpu
   //
 
   template<typename Tin, typename Tout>
-  void dev_transposeMomentaF2C( Tout* __restrict__ out, const Tin* __restrict__ in, size_t pos, const unsigned int nevt )
+  void dev_transposeMomentaF2C( Tout* __restrict__ out, const Tin* __restrict__ in, size_t pos, const size_t nevt )
   {
     constexpr bool oldImplementation = true; // default: use old implementation
     if constexpr( oldImplementation )
     {
       // SR initial implementation
-      constexpr int part = mgOnGpu::npar;
-      constexpr int mome = mgOnGpu::np4;
-      constexpr int strd = mgOnGpu::neppM;
-      unsigned int arrlen = nevt * part * mome;
+      constexpr size_t part = mgOnGpu::npar;
+      constexpr size_t mome = mgOnGpu::np4;
+      constexpr size_t strd = mgOnGpu::neppM;
+      size_t arrlen = nevt * part * mome;
       if( pos < arrlen )
       {
-        int page_i = pos / ( strd * mome * part );
-        int rest_1 = pos % ( strd * mome * part );
-        int part_i = rest_1 / ( strd * mome );
-        int rest_2 = rest_1 % ( strd * mome );
-        int mome_i = rest_2 / strd;
-        int strd_i = rest_2 % strd;
-        int inpos =
+        size_t page_i = pos / ( strd * mome * part );
+        size_t rest_1 = pos % ( strd * mome * part );
+        size_t part_i = rest_1 / ( strd * mome );
+        size_t rest_2 = rest_1 % ( strd * mome );
+        size_t mome_i = rest_2 / strd;
+        size_t strd_i = rest_2 % strd;
+        size_t inpos =
           ( page_i * strd + strd_i ) // event number
             * ( part * mome )        // event size (pos of event)
           + part_i * mome            // particle inside event
@@ -459,43 +459,43 @@ namespace mg5amcGpu
       // AV attempt another implementation with 1 event per thread: this seems slower...
       // F-style: AOS[nevtF][nparF][np4F]
       // C-style: AOSOA[npagM][npar][np4][neppM] with nevt=npagM*neppM
-      constexpr int npar = mgOnGpu::npar;
-      constexpr int np4 = mgOnGpu::np4;
-      constexpr int neppM = mgOnGpu::neppM;
+      constexpr size_t npar = mgOnGpu::npar;
+      constexpr size_t np4 = mgOnGpu::np4;
+      constexpr size_t neppM = mgOnGpu::neppM;
       assert( nevt % neppM == 0 ); // number of events is not a multiple of neppM???
       size_t ievt = pos;
-      int ipagM = ievt / neppM;
-      int ieppM = ievt % neppM;
-      for( int ip4 = 0; ip4 < np4; ip4++ )
-        for( int ipar = 0; ipar < npar; ipar++ )
+      size_t ipagM = ievt / neppM;
+      size_t ieppM = ievt % neppM;
+      for( size_t ip4 = 0; ip4 < np4; ip4++ )
+        for( size_t ipar = 0; ipar < npar; ipar++ )
         {
-          int cpos = ipagM * npar * np4 * neppM + ipar * np4 * neppM + ip4 * neppM + ieppM;
-          int fpos = ievt * npar * np4 + ipar * np4 + ip4;
+          size_t cpos = ipagM * npar * np4 * neppM + ipar * np4 * neppM + ip4 * neppM + ieppM;
+          size_t fpos = ievt * npar * np4 + ipar * np4 + ip4;
           out[cpos] = in[fpos]; // F2C (Fortran to C)
         }
     }
   }
 
   template<typename Tin, typename Tout, bool F2C>
-  void hst_transposeMomenta( const Tin* __restrict__ in, Tout* __restrict__ out, const unsigned int nevt )
+  void hst_transposeMomenta( const Tin* __restrict__ in, Tout* __restrict__ out, const size_t nevt )
   {
     constexpr bool oldImplementation = false; // default: use new implementation
     if constexpr( oldImplementation )
     {
       // SR initial implementation
-      constexpr unsigned int part = mgOnGpu::npar;
-      constexpr unsigned int mome = mgOnGpu::np4;
-      constexpr unsigned int strd = mgOnGpu::neppM;
-      unsigned int arrlen = nevt * part * mome;
-      for( unsigned int pos = 0; pos < arrlen; ++pos )
+      constexpr size_t part = mgOnGpu::npar;
+      constexpr size_t mome = mgOnGpu::np4;
+      constexpr size_t strd = mgOnGpu::neppM;
+      size_t arrlen = nevt * part * mome;
+      for( size_t pos = 0; pos < arrlen; ++pos )
       {
-        unsigned int page_i = pos / ( strd * mome * part );
-        unsigned int rest_1 = pos % ( strd * mome * part );
-        unsigned int part_i = rest_1 / ( strd * mome );
-        unsigned int rest_2 = rest_1 % ( strd * mome );
-        unsigned int mome_i = rest_2 / strd;
-        unsigned int strd_i = rest_2 % strd;
-        unsigned int inpos =
+        size_t page_i = pos / ( strd * mome * part );
+        size_t rest_1 = pos % ( strd * mome * part );
+        size_t part_i = rest_1 / ( strd * mome );
+        size_t rest_2 = rest_1 % ( strd * mome );
+        size_t mome_i = rest_2 / strd;
+        size_t strd_i = rest_2 % strd;
+        size_t inpos =
           ( page_i * strd + strd_i ) // event number
             * ( part * mome )        // event size (pos of event)
           + part_i * mome            // particle inside event
@@ -512,25 +512,25 @@ namespace mg5amcGpu
       // [NB! this is not a transposition, it is an AOS to AOSOA conversion: if neppM=1, a memcpy is enough]
       // F-style: AOS[nevtF][nparF][np4F]
       // C-style: AOSOA[npagM][npar][np4][neppM] with nevt=npagM*neppM
-      constexpr unsigned int npar = mgOnGpu::npar;
-      constexpr unsigned int np4 = mgOnGpu::np4;
-      constexpr unsigned int neppM = mgOnGpu::neppM;
+      constexpr size_t npar = mgOnGpu::npar;
+      constexpr size_t np4 = mgOnGpu::np4;
+      constexpr size_t neppM = mgOnGpu::neppM;
       if constexpr( neppM == 1 && std::is_same_v<Tin, Tout> )
       {
         memcpy( out, in, nevt * npar * np4 * sizeof( Tin ) );
       }
       else
       {
-        const unsigned int npagM = nevt / neppM;
+        const size_t npagM = nevt / neppM;
         assert( nevt % neppM == 0 ); // number of events is not a multiple of neppM???
-        for( unsigned int ipagM = 0; ipagM < npagM; ipagM++ )
-          for( unsigned int ip4 = 0; ip4 < np4; ip4++ )
-            for( unsigned int ipar = 0; ipar < npar; ipar++ )
-              for( unsigned int ieppM = 0; ieppM < neppM; ieppM++ )
+        for( size_t ipagM = 0; ipagM < npagM; ipagM++ )
+          for( size_t ip4 = 0; ip4 < np4; ip4++ )
+            for( size_t ipar = 0; ipar < npar; ipar++ )
+              for( size_t ieppM = 0; ieppM < neppM; ieppM++ )
               {
-                unsigned int ievt = ipagM * neppM + ieppM;
-                unsigned int cpos = ipagM * npar * np4 * neppM + ipar * np4 * neppM + ip4 * neppM + ieppM;
-                unsigned int fpos = ievt * npar * np4 + ipar * np4 + ip4;
+                size_t ievt = ipagM * neppM + ieppM;
+                size_t cpos = ipagM * npar * np4 * neppM + ipar * np4 * neppM + ip4 * neppM + ieppM;
+                size_t fpos = ievt * npar * np4 + ipar * np4 + ip4;
                 if constexpr( F2C )
                   out[cpos] = in[fpos]; // F2C (Fortran to C)
                 else
@@ -541,14 +541,14 @@ namespace mg5amcGpu
   }
 
   template<typename Tin, typename Tout>
-  void hst_transposeMomentaF2C( const Tin* __restrict__ in, Tout* __restrict__ out, const unsigned int nevt )
+  void hst_transposeMomentaF2C( const Tin* __restrict__ in, Tout* __restrict__ out, const size_t nevt )
   {
     constexpr bool F2C = true;
     hst_transposeMomenta<Tin, Tout, F2C>( in, out, nevt );
   }
 
   template<typename Tin, typename Tout>
-  void hst_transposeMomentaC2F( const Tin* __restrict__ in, Tout* __restrict__ out, const unsigned int nevt )
+  void hst_transposeMomentaC2F( const Tin* __restrict__ in, Tout* __restrict__ out, const size_t nevt )
   {
     constexpr bool F2C = false;
     hst_transposeMomenta<Tin, Tout, F2C>( in, out, nevt );

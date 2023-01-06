@@ -28,6 +28,21 @@
 
 #define SEP79 79
 
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+#include "Bridge.h"
+#endif
+
+template<typename ... Args>
+std::string string_format( const std::string& format, Args ... args ) {
+    //See https://stackoverflow.com/questions/2342162/stdstring-formatting-like-sprintf
+    int size_s = snprintf( nullptr, 0, format.c_str(), args ... ) + 1; // Extra space for '\0'
+    if( size_s <= 0 ){ throw std::runtime_error( "Error during formatting." ); }
+    auto size = static_cast<size_t>( size_s );
+    auto buf = std::make_unique<char[]>( size );
+    snprintf( buf.get(), size, format.c_str(), args ... );
+    return std::string( buf.get(), buf.get() + size - 1 ); // We don't want the '\0' inside
+}
+
 bool is_number(const char *s) {
   const char *t = s;
   while (*t != '\0' && isdigit(*t))
@@ -91,7 +106,7 @@ __attribute__((optnone))
 #else
 __attribute__((optimize("-fno-fast-math")))
 #endif
-void debug_me_is_abnormal( const fptype& me, int ievtALL )
+void debug_me_is_abnormal( const fptype& me, size_t ievtALL )
 {
   std::cout << "DEBUG[" << ievtALL << "]"
             << " ME=" << me
@@ -155,8 +170,12 @@ void print_device_info(const sycl::device& device) {
     auto max_compute_units = device.get_info<sycl::info::device::max_compute_units>();
     //auto n_groups = (num_steps - 1) / workgroup_size + 1;
     //n_groups = std::min(decltype(n_groups)(max_compute_units),n_groups);  // make groups max number of compute units or less
-    std::cout << "    workgroup_size: " << workgroup_size << std::endl;
+    std::cout << "    max_workgroup_size: " << workgroup_size << std::endl;
     std::cout << "    max_compute_units: " << max_compute_units << std::endl;
+    std::cout << "    preferred_vector_width_float: " << device.get_info<sycl::info::device::preferred_vector_width_float>() << std::endl;
+    std::cout << "    preferred_vector_width_double: " << device.get_info<sycl::info::device::preferred_vector_width_double>() << std::endl;
+    std::cout << "    native_vector_width_float: " << device.get_info<sycl::info::device::native_vector_width_float>() << std::endl;
+    std::cout << "    native_vector_width_double: " << device.get_info<sycl::info::device::native_vector_width_double>() << std::endl;
 
     std::cout << "    usm_support: ";
     if (device.has(sycl::aspect::usm_device_allocations)) {
@@ -187,13 +206,13 @@ int main(int argc, char **argv)
   bool debug = false;
   bool perf = false;
   bool json = false;
-  int niter = 0;
-  unsigned int gpublocks = 1;
-  unsigned int gputhreads = 32;
-  int jsondate = 0;
-  int jsonrun = 0;
-  int numvec[5] = {0,0,0,0,0};
-  int nnum = 0;
+  size_t niter = 0;
+  size_t gpublocks = 1;
+  size_t gputhreads = 32;
+  size_t jsondate = 0;
+  size_t jsonrun = 0;
+  size_t numvec[5] = {0,0,0,0,0};
+  size_t nnum = 0;
   std::string param_card = "../../Cards/param_card.dat";
   bool json_file_bool = false;
   std::string json_file = "";
@@ -202,7 +221,7 @@ int main(int argc, char **argv)
   bool device_chosen = false;
   bool device_info = false;
   auto devices = sycl::device::get_devices();
-  //bool bridge = false;
+  bool bridge = false;
 
   // READ COMMAND LINE ARGUMENTS
   for ( int argn = 1; argn < argc; ++argn )
@@ -226,7 +245,7 @@ int main(int argc, char **argv)
     }
     else if ( arg == "--bridge" )
     {
-      //bridge = true;
+      bridge = true;
       std::cout << "--bridge unused for now." << std::endl;
     }
     else if ( ( arg == "--help" ) || ( arg == "-h" ) )
@@ -264,14 +283,14 @@ int main(int argc, char **argv)
             auto d_name = device.get_info<sycl::info::device::name>();
             std::cout << "    " << i << ": " << d_name << std::endl;
           }
-          std::cout << "Terminating. Exit Code: -999" << std::endl;
-          return -999;
+          std::cout << "Terminating. Exit Code: 2" << std::endl;
+          return 2;
         }
       }
       else
       {
-        std::cout << std::endl << "Invalid device_id, must be integer. Terminating. Exit Code: -998" << std::endl << std::endl;
-        return usage(argv[0], -998);
+        std::cout << std::endl << "Invalid device_id, must be integer. Terminating. Exit Code: 3" << std::endl << std::endl;
+        return usage(argv[0], 3);
       }
       argn++;
     }
@@ -305,33 +324,33 @@ int main(int argc, char **argv)
   if (device_info) {
     if (device_chosen) {
       print_device_info(devices[d_id]);
-      std::cout << "Terminating. Exit Code: -997" << std::endl;
-      return -997;
+      std::cout << "Terminating. Exit Code: 4" << std::endl;
+      return 4;
     } else {
       for (size_t i=0; i < devices.size(); i++) {
         std::cout << "device_id " << i << ":" << std::endl;
         print_device_info(devices[i]);
       }
-      std::cout << "Terminating. Exit Code: -996" << std::endl;
-      return -996;
+      std::cout << "Terminating. Exit Code: 5" << std::endl;
+      return 5;
     }
   }
 
-  static constexpr int neppR = mgOnGpu::neppR; // AOSOA layout: constant at compile-time
+  static constexpr size_t neppR = mgOnGpu::neppR; // AOSOA layout: constant at compile-time
   if ( gputhreads%neppR != 0 )
   {
     std::cout << "ERROR! #threads/block should be a multiple of neppR=" << neppR << std::endl;
     return usage(argv[0]);
   }
 
-  static constexpr int neppM =  mgOnGpu::neppM; // AOSOA layout: constant at compile-time
+  static constexpr size_t neppM =  mgOnGpu::neppM; // AOSOA layout: constant at compile-time
   if ( gputhreads%neppM != 0 )
   {
     std::cout << "ERROR! #threads/block should be a multiple of neppM=" << neppM << std::endl;
     return usage(argv[0]);
   }
 
-  static constexpr int ntpbMAX = mgOnGpu::ntpbMAX;
+  static constexpr size_t ntpbMAX = mgOnGpu::ntpbMAX;
   if ( gputhreads > ntpbMAX )
   {
     std::cout << "ERROR! #threads/block should be <= " << ntpbMAX << std::endl;
@@ -350,9 +369,9 @@ int main(int argc, char **argv)
     return usage(argv[0]);
   }
 
-  const int ndim = gpublocks * gputhreads; // number of threads in one GPU grid
-  const int nevt = ndim; // number of events in one iteration == number of GPU threads
-  const int nevtALL = niter*nevt; // total number of ALL events in all iterations
+  const size_t ndim = gpublocks * gputhreads; // number of threads in one GPU grid
+  const size_t nevt = ndim; // number of events in one iteration == number of GPU threads
+  const size_t nevtALL = niter*nevt; // total number of ALL events in all iterations
 
   if (verbose)
     std::cout << "# iterations: " << niter << std::endl;
@@ -363,6 +382,16 @@ int main(int argc, char **argv)
   // === STEP 0 - INITIALISE
 
   // --- 00. Initialise SYCL
+  auto _global_mem_cache_line_size = devices[d_id].get_info<sycl::info::device::global_mem_cache_line_size>();
+  auto neppM_opt = _global_mem_cache_line_size/sizeof(fptype);
+  if (neppM_opt != neppM) {
+      std::cout << "WARNING: neppM is not optimal." << std::endl;
+      
+      std::cout << "neppM: " << neppM << std::endl;
+      std::cout << "global_mem_cache_line_size: " << _global_mem_cache_line_size << std::endl;
+      std::cout << "global_mem_cache_line_size/sizeof(fptype): " << neppM_opt << std::endl;
+  }
+
   sycl::queue q = sycl::queue(devices[d_id]);
 
   if (verbose) {
@@ -387,21 +416,21 @@ int main(int argc, char **argv)
   const fptype energy = 1500; // historical default, Ecms = 1500 GeV = 1.5 TeV (above the Z peak)
   //const fptype energy = 91.2; // Ecms = 91.2 GeV (Z peak)
   //const fptype energy = 0.100; // Ecms = 100 MeV (well below the Z peak, pure em scattering)
-  const int meGeVexponent = -(2 * mgOnGpu::npar - 8);
+  const size_t meGeVexponent = -(2 * mgOnGpu::npar - 8);
 
   // --- 0b. Allocate memory structures
   const std::string alloKey = "0b MemAlloc";
   timermap.start( alloKey );
 
   // Memory structures for random numbers, momenta, matrix elements and weights on host and device
-  static constexpr int np4 =  mgOnGpu::np4;
-  static constexpr int nparf = mgOnGpu::nparf;
-  static constexpr int npar = mgOnGpu::npar;
-  static constexpr int ncomb = mgOnGpu::ncomb; // Number of helicity combinations
-  const int nRnarray = np4*nparf*nevt; // (NB: AOSOA layout with nevt=npagR*neppR events per iteration)
-  const int nMomenta = np4*npar*nevt; // (NB: nevt=npagM*neppM for AOSOA layouts)
-  const int nWeights = nevt;
-  const int nMEs     = nevt; // FIXME: assume process.nprocesses == 1 (eventually: nMEs = nevt * nprocesses?)
+  static constexpr size_t np4 =  mgOnGpu::np4;
+  static constexpr size_t nparf = mgOnGpu::nparf;
+  static constexpr size_t npar = mgOnGpu::npar;
+  static constexpr size_t ncomb = mgOnGpu::ncomb; // Number of helicity combinations
+  const size_t nRnarray = np4*nparf*nevt; // (NB: AOSOA layout with nevt=npagR*neppR events per iteration)
+  const size_t nMomenta = np4*npar*nevt; // (NB: nevt=npagM*neppM for AOSOA layouts)
+  const size_t nWeights = nevt;
+  const size_t nMEs     = nevt; // FIXME: assume process.nprocesses == 1 (eventually: nMEs = nevt * nprocesses?)
 
   auto hstRnarray   = hstMakeUnique<fptype   >( nRnarray ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
   auto hstMomenta   = hstMakeUnique<fptype_sv>( nMomenta ); // AOSOA[npagM][npar][np4][neppM] (NB: nevt=npagM*neppM)
@@ -418,21 +447,21 @@ int main(int argc, char **argv)
   auto dev_independent_couplings  = sycl::malloc_device<cxtype>( Proc::independentCouplings::nicoup, q );
   auto dev_independent_parameters = sycl::malloc_device<fptype>( mgOnGpu::nparams,          q );
 #endif
-  auto devcNGoodHel = sycl::malloc_device<int   >( 1,          q ); 
-  auto devcGoodHel  = sycl::malloc_device<int   >( ncomb,      q ); 
+  auto devcNGoodHel = sycl::malloc_device<size_t   >( 1,          q ); 
+  auto devcGoodHel  = sycl::malloc_device<size_t   >( ncomb,      q ); 
 
 #ifndef MGONGPU_HARDCODE_PARAM
   q.memcpy( dev_independent_couplings, process.get_tIPC_ptr(), 2*Proc::independentCouplings::nicoup*sizeof(fptype) );
   q.memcpy( dev_independent_parameters, process.get_tIPD_ptr(), mgOnGpu::nparams*sizeof(fptype) ).wait();
 #endif
 
-  const int nbytesRnarray   = nRnarray * sizeof(fptype);
-  const int nbytesMomenta   = nMomenta * sizeof(fptype);
-  const int nbytesIsGoodHel = ncomb    * sizeof(bool);
-  const int nbytesWeights   = nWeights * sizeof(fptype);
-  const int nbytesMEs       = nMEs     * sizeof(fptype);
-  const int nbytescNGoodHel =            sizeof(int);
-  const int nbytescGoodHel  = ncomb    * sizeof(int);
+  const size_t nbytesRnarray   = nRnarray * sizeof(fptype);
+  const size_t nbytesMomenta   = nMomenta * sizeof(fptype);
+  const size_t nbytesIsGoodHel = ncomb    * sizeof(bool);
+  const size_t nbytesWeights   = nWeights * sizeof(fptype);
+  const size_t nbytesMEs       = nMEs     * sizeof(fptype);
+  const size_t nbytescNGoodHel =            sizeof(size_t);
+  const size_t nbytescGoodHel  = ncomb    * sizeof(size_t);
 
   constexpr fptype fixedG = 1.2177157847767195; // fixed G for aS=0.118 (hardcoded for now in check_sa.cc, fcheck_sa.f, runTest.cc)
   std::unique_ptr<double[]> genrtimes( new double[niter] );
@@ -441,6 +470,28 @@ int main(int argc, char **argv)
   std::unique_ptr<double[]> wv3atimes( new double[niter] );
   std::unique_ptr<fptype[]> matrixelementALL( new fptype[nevtALL] ); // FIXME: assume process.nprocesses == 1
   std::unique_ptr<fptype[]> weightALL( new fptype[nevtALL] );
+
+  double bridge_time = 0.0;
+  #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+      mg5amcGpu::Bridge<fptype>* pbridge;
+      fptype* _gs;
+      fptype* _mes;
+      fptype* _momenta;
+      if (bridge) {
+          //Initialize bridge object
+          pbridge = new mg5amcGpu::Bridge<fptype>( nevt, npar, np4 );
+      
+          _gs      = reinterpret_cast<fptype*>(std::malloc(nevt*sizeof(fptype)));
+          _mes     = reinterpret_cast<fptype*>(std::malloc(nevt*sizeof(fptype)));
+          _momenta = reinterpret_cast<fptype*>(std::malloc(nevt*npar*np4*sizeof(fptype)));
+          for (size_t i=0; i < nevt*npar*np4; i++) {
+              _momenta[i] = hstMomenta[i];
+          }
+          for (size_t i=0; i < nevt; i++) {
+              _gs[i] = fixedG;
+          }
+      }
+  #endif
 
   // --- 0c. Create curand or common generator
   const std::string cgenKey = "0c GenCreat";
@@ -453,7 +504,7 @@ int main(int argc, char **argv)
   // *** START MAIN LOOP ON #ITERATIONS ***
   // **************************************
 
-  for (int iiter = 0; iiter < niter; ++iiter)
+  for (size_t iiter = 0; iiter < niter; ++iiter)
   {
     //std::cout << "Iteration #" << iiter+1 << " of " << niter << std::endl;
 
@@ -467,7 +518,7 @@ int main(int argc, char **argv)
     timermap.start( rngnKey );
 
     std::vector<fptype> commonRnd = commonRandomPromises[iiter].get_future().get();
-    assert( nRnarray == static_cast<int>( commonRnd.size() ) );
+    assert( nRnarray == static_cast<size_t>( commonRnd.size() ) );
 
     memcpy( hstRnarray.get(), commonRnd.data(), nRnarray * sizeof(fptype) );
 
@@ -543,19 +594,21 @@ int main(int argc, char **argv)
       // ... 0d1. Compute good helicity mask on the device
       q.submit([&](sycl::handler& cgh) {
           cgh.parallel_for_work_group(sycl::range<1>{gpublocks}, sycl::range<1>{gputhreads}, ([=](sycl::group<1> wGroup) {
-#ifndef MGONGPU_HARDCODE_PARAM
-              //Load independent couplings and parameters into shared memory if not hardcoded
-              auto _dev_independent_couplings = dev_independent_couplings;
-              auto dev_parameters = dev_independent_parameters;
-#endif
+              #ifndef MGONGPU_HARDCODE_PARAM
+                  //Load independent couplings and parameters into shared memory if not hardcoded
+                  auto _dev_independent_couplings = dev_independent_couplings;
+                  auto dev_parameters = dev_independent_parameters;
+              #endif
               wGroup.parallel_for_work_item([&](sycl::h_item<1> index) {
                   size_t ievt = index.get_global_id(0);
-                  const int ipagM = ievt/neppM; // #eventpage in this iteration
-                  const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
-#ifdef MGONGPU_HARDCODE_PARAM
-                  //Load parameters into local (private) memory if hardcoded
-                  auto dev_parameters = Proc::independent_parameters<fptype>;
-#endif
+                  const size_t ipagM = ievt/neppM; // #eventpage in this iteration
+                  const size_t ieppM = ievt%neppM; // #event in the current eventpage in this iteration
+
+                  #ifdef MGONGPU_HARDCODE_PARAM
+                      //Load parameters into local (private) memory if hardcoded
+                      auto dev_parameters = Proc::independent_parameters<fptype>;
+                  #endif
+
                   //Load helicities and couplings into local (private) memory
                   auto dev_helicities = Proc::helicities<short>;
                   cxtype dev_couplings[Proc::dependentCouplings::ndcoup + Proc::independentCouplings::nicoup];
@@ -566,8 +619,8 @@ int main(int argc, char **argv)
 
                   #if MGONGPU_NICOUP > 0
                       #ifdef MGONGPU_HARDCODE_PARAM
-                      //Load independent couplings into local (private) memory if hardcoded
-                      auto _dev_independent_couplings = Proc::independentCouplings::independent_couplings<cxtype, fptype>;
+                          //Load independent couplings into local (private) memory if hardcoded
+                          auto _dev_independent_couplings = Proc::independentCouplings::independent_couplings<cxtype, fptype>;
                       #endif
                       for (size_t i = 0; i < Proc::independentCouplings::nicoup; i++) {
                           dev_couplings[Proc::dependentCouplings::ndcoup + i] = _dev_independent_couplings[i];
@@ -584,8 +637,8 @@ int main(int argc, char **argv)
       q.memcpy(hstIsGoodHel.get(), devIsGoodHel, nbytesIsGoodHel).wait();
 
       // ... 0d3. Copy back good helicity list to constant memory on the device
-      int goodHel[mgOnGpu::ncomb] = {0};
-      int nGoodHel = Proc::sigmaKin_setGoodHel( hstIsGoodHel.get(), goodHel );
+      size_t goodHel[mgOnGpu::ncomb] = {0};
+      size_t nGoodHel = Proc::sigmaKin_setGoodHel( hstIsGoodHel.get(), goodHel );
 
       q.memcpy( devcNGoodHel, &nGoodHel, nbytescNGoodHel ).wait();
       q.memcpy( devcGoodHel, goodHel, nbytescGoodHel ).wait();
@@ -601,43 +654,44 @@ int main(int argc, char **argv)
 
     q.submit([&](sycl::handler& cgh) {
         cgh.parallel_for_work_group(sycl::range<1>{gpublocks}, sycl::range<1>{gputhreads}, ([=](sycl::group<1> wGroup) {
-#ifndef MGONGPU_HARDCODE_PARAM
-            //Load independent couplings and parameters into shared memory if not hardcoded
-            auto _dev_independent_couplings = dev_independent_couplings;
-            auto dev_parameters = dev_independent_parameters;
-#endif
+            #ifndef MGONGPU_HARDCODE_PARAM
+                //Load independent couplings and parameters into shared memory if not hardcoded
+                auto _dev_independent_couplings = dev_independent_couplings;
+                auto dev_parameters = dev_independent_parameters;
+            #endif
             wGroup.parallel_for_work_item([&](sycl::h_item<1> index) {
                 size_t ievt = index.get_global_id(0);
-                const int ipagM = ievt/neppM; // #eventpage in this iteration
-                const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
+                const size_t ipagM = ievt/neppM; // #eventpage in this iteration
+                const size_t ieppM = ievt%neppM; // #event in the current eventpage in this iteration
 
-#ifdef MGONGPU_HARDCODE_PARAM
-                  //Load parameters into local (private) memory if hardcoded
-                  auto dev_parameters = Proc::independent_parameters<fptype>;
-#endif
-                  //Load helicities and couplings into local (private) memory
-                  auto dev_helicities = Proc::helicities<short>;
-                  cxtype dev_couplings[Proc::dependentCouplings::ndcoup + Proc::independentCouplings::nicoup];
+                #ifdef MGONGPU_HARDCODE_PARAM
+                    //Load parameters into local (private) memory if hardcoded
+                    auto dev_parameters = Proc::independent_parameters<fptype>;
+                #endif
 
-                  #if MGONGPU_NDCOUP > 0
-                      Proc::dependentCouplings::set_couplings_from_G(dev_couplings, fixedG); 
-                  #endif
+                //Load helicities and couplings into local (private) memory
+                auto dev_helicities = Proc::helicities<short>;
+                cxtype dev_couplings[Proc::dependentCouplings::ndcoup + Proc::independentCouplings::nicoup];
 
-                  #if MGONGPU_NICOUP > 0
-                      #ifdef MGONGPU_HARDCODE_PARAM
-                      //Load independent couplings into local (private) memory if hardcoded
-                      auto _dev_independent_couplings = Proc::independentCouplings::independent_couplings<cxtype, fptype>;
-                      #endif
-                      for (size_t i = 0; i < Proc::independentCouplings::nicoup; i++) {
-                          dev_couplings[Proc::dependentCouplings::ndcoup + i] = _dev_independent_couplings[i];
-                      }
-                  #endif
+                #if MGONGPU_NDCOUP > 0
+                    Proc::dependentCouplings::set_couplings_from_G(dev_couplings, fixedG); 
+                #endif
 
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                devMEs[ievt] = Proc::sigmaKin( devMomenta + ipagM * npar * np4 * neppM + ieppM, 0, dev_helicities, dev_couplings, dev_parameters, devcNGoodHel, devcGoodHel );
-#else
-                devMEs[ievt] = Proc::sigmaKin( devMomenta + ipagM * npar * np4 * neppM + ieppM, dev_helicities, dev_couplings, dev_parameters, devcNGoodHel, devcGoodHel );
-#endif
+                #if MGONGPU_NICOUP > 0
+                    #ifdef MGONGPU_HARDCODE_PARAM
+                        //Load independent couplings into local (private) memory if hardcoded
+                        auto _dev_independent_couplings = Proc::independentCouplings::independent_couplings<cxtype, fptype>;
+                    #endif
+                    for (size_t i = 0; i < Proc::independentCouplings::nicoup; i++) {
+                        dev_couplings[Proc::dependentCouplings::ndcoup + i] = _dev_independent_couplings[i];
+                    }
+                #endif
+
+                #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+                    devMEs[ievt] = Proc::sigmaKin( devMomenta + ipagM * npar * np4 * neppM + ieppM, 0, dev_helicities, dev_couplings, dev_parameters, devcNGoodHel, devcGoodHel );
+                #else
+                    devMEs[ievt] = Proc::sigmaKin( devMomenta + ipagM * npar * np4 * neppM + ieppM, dev_helicities, dev_couplings, dev_parameters, devcNGoodHel, devcGoodHel );
+                #endif
             });
         }));
     });
@@ -656,6 +710,20 @@ int main(int argc, char **argv)
     // *** STOP THE OLD OLD-STYLE TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
     wavetime += timermap.stop(); // calc plus copy
 
+    #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+        if (bridge) {
+            const std::string bridgeKey = "3c bridge";
+            timermap.start( bridgeKey );
+            pbridge->gpu_sequence( _momenta, _gs, _mes, 0 );
+            bridge_time += timermap.stop();
+            
+            //std::cout << "SA_MEs    Bridge_MEs    SA/Bridge" << std::endl;
+            //for (size_t i=0; i < nevt; i++) {
+            //    std::cout << hstMEs(i) << "    " << _mes[i] << std::endl;
+            //}
+        }
+    #endif
+
     // === STEP 4 FINALISE LOOP
     // --- 4a Dump within the loop
     const std::string loopKey = "4a DumpLoop";
@@ -672,15 +740,15 @@ int main(int argc, char **argv)
       if (perf) std::cout << "Wave function time: " << wavetime << std::endl;
     }
 
-    for (int ievt = 0; ievt < nevt; ++ievt) // Loop over all events in this iteration
+    for (size_t ievt = 0; ievt < nevt; ++ievt) // Loop over all events in this iteration
     {
       if (verbose)
       {
         // Display momenta
-        const int ipagM = ievt/neppM; // #eventpage in this iteration
-        const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
+        const size_t ipagM = ievt/neppM; // #eventpage in this iteration
+        const size_t ieppM = ievt%neppM; // #event in the current eventpage in this iteration
         std::cout << "Momenta:" << std::endl;
-        for (int ipar = 0; ipar < npar; ipar++)
+        for (size_t ipar = 0; ipar < npar; ipar++)
         {
           // NB: 'setw' affects only the next field (of any type)
           std::cout << std::scientific // fixed format: affects all floats (default precision: 6)
@@ -711,6 +779,16 @@ int main(int argc, char **argv)
 
   }
 
+  #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+      if (bridge) {
+          // Destroy bridge objects
+          std::free(_gs);
+          std::free(_mes);
+          std::free(_momenta);
+          delete pbridge;
+      }
+  #endif
+
   // **************************************
   // *** END MAIN LOOP ON #ITERATIONS ***
   // **************************************
@@ -724,7 +802,7 @@ int main(int argc, char **argv)
   //double sqsgtim = 0;
   double mingtim = genrtimes[0];
   double maxgtim = genrtimes[0];
-  for ( int iiter = 0; iiter < niter; ++iiter )
+  for ( size_t iiter = 0; iiter < niter; ++iiter )
   {
     sumgtim += genrtimes[iiter];
     //sqsgtim += genrtimes[iiter]*genrtimes[iiter];
@@ -736,7 +814,7 @@ int main(int argc, char **argv)
   //double sqsrtim = 0;
   double minrtim = rambtimes[0];
   double maxrtim = rambtimes[0];
-  for ( int iiter = 0; iiter < niter; ++iiter )
+  for ( size_t iiter = 0; iiter < niter; ++iiter )
   {
     sumrtim += rambtimes[iiter];
     //sqsrtim += rambtimes[iiter]*rambtimes[iiter];
@@ -748,7 +826,7 @@ int main(int argc, char **argv)
   //double sqswtim = 0;
   double minwtim = wavetimes[0];
   double maxwtim = wavetimes[0];
-  for ( int iiter = 0; iiter < niter; ++iiter )
+  for ( size_t iiter = 0; iiter < niter; ++iiter )
   {
     sumwtim += wavetimes[iiter];
     //sqswtim += wavetimes[iiter]*wavetimes[iiter];
@@ -762,7 +840,7 @@ int main(int argc, char **argv)
   //double sqsw3atim = 0;
   double minw3atim = wv3atimes[0];
   double maxw3atim = wv3atimes[0];
-  for ( int iiter = 0; iiter < niter; ++iiter )
+  for ( size_t iiter = 0; iiter < niter; ++iiter )
   {
     sumw3atim += wv3atimes[iiter];
     //sqsw3atim += wv3atimes[iiter]*wv3atimes[iiter];
@@ -778,7 +856,7 @@ int main(int argc, char **argv)
   double maxelem = matrixelementALL[0];
   double minweig = weightALL[0];
   double maxweig = weightALL[0];
-  for ( int ievtALL = 0; ievtALL < nevtALL; ++ievtALL )
+  for ( size_t ievtALL = 0; ievtALL < nevtALL; ++ievtALL )
   {
     // Compute min/max
     if ( fp_is_zero( matrixelementALL[ievtALL] ) ) nzero++;
@@ -796,7 +874,7 @@ int main(int argc, char **argv)
   }
   double sumelemdiff = 0;
   double sumweigdiff = 0;
-  for ( int ievtALL = 0; ievtALL < nevtALL; ++ievtALL )
+  for ( size_t ievtALL = 0; ievtALL < nevtALL; ++ievtALL )
   {
     // Compute mean from the sum of diff to min
     if ( fp_is_abnormal( matrixelementALL[ievtALL] ) ) continue;
@@ -807,7 +885,7 @@ int main(int argc, char **argv)
   double meanweig = minweig + sumweigdiff / ( nevtALL - nabn );
   double sqselemdiff = 0;
   double sqsweigdiff = 0;
-  for ( int ievtALL = 0; ievtALL < nevtALL; ++ievtALL )
+  for ( size_t ievtALL = 0; ievtALL < nevtALL; ++ievtALL )
   {
     // Compute stddev from the squared sum of diff to mean
     if ( fp_is_abnormal( matrixelementALL[ievtALL] ) ) continue;
@@ -816,6 +894,10 @@ int main(int argc, char **argv)
   }
   double stdelem = std::sqrt( sqselemdiff / ( nevtALL - nabn ) );
   double stdweig = std::sqrt( sqsweigdiff / ( nevtALL - nabn ) );
+  double bridge_MEs_per_sec = 0.0;
+  if (bridge) {
+      bridge_MEs_per_sec = nevtALL/bridge_time;
+  }
 
   // === STEP 9 FINALISE
   const std::string syclfrKey = "9a sycl_free";
@@ -843,7 +925,6 @@ int main(int argc, char **argv)
     // Dump all configuration parameters and all results
     std::cout << std::string(SEP79, '*') << std::endl
               << "Process                     = " << XSTRINGIFY(MG_EPOCH_PROCESS_ID) << "_SYCL"
-              << " [DPCPP]"
 #ifdef MGONGPU_INLINE_HELAMPS
               << " [inlineHel=1]" << std::endl
 #else
@@ -859,61 +940,44 @@ int main(int argc, char **argv)
               << "FP precision                = FLOAT (NaN/abnormal=" << nabn << ", zero=" << nzero << ")" << std::endl
 #endif
               << "Complex type                = EXTRA" << std::endl
-              << "RanNumb memory layout       = AOSOA[" << neppR << "]"
-              << ( neppR == 1 ? " == AOS" : "" )
-              << " [HARDCODED FOR REPRODUCIBILITY]" << std::endl
-              << "Momenta memory layout       = AOSOA[" << neppM << "]"
-              << ( neppM == 1 ? " == AOS" : "" ) << std::endl
+              << "RanNumb memory layout       = AOSOA[" << neppR << "]" << ( neppR == 1 ? " == AOS" : "" ) << " [HARDCODED FOR REPRODUCIBILITY]" << std::endl
+              << "Momenta memory layout       = AOSOA[" << neppM << "]" << ( neppM == 1 ? " == AOS" : "" ) << std::endl
               << "Random number generation    = COMMON RANDOM (C++ code)" << std::endl
-      //<< "MatrixElements compiler     = " << process.getCompiler() << std::endl
+              //<< "MatrixElements compiler     = " << process.getCompiler() << std::endl
               << std::string(SEP79, '-') << std::endl
               << "NumberOfEntries             = " << niter << std::endl
-              << std::scientific // fixed format: affects all floats (default precision: 6)
-              << "TotalTime[Rnd+Rmb+ME] (123) = ( " << sumgtim+sumrtim+sumwtim << std::string(16, ' ') << " )  sec" << std::endl
-              << "TotalTime[Rambo+ME]    (23) = ( " << sumrtim+sumwtim << std::string(16, ' ') << " )  sec" << std::endl
-              << "TotalTime[RndNumGen]    (1) = ( " << sumgtim << std::string(16, ' ') << " )  sec" << std::endl
-              << "TotalTime[Rambo]        (2) = ( " << sumrtim << std::string(16, ' ') << " )  sec" << std::endl
-              << "TotalTime[MatrixElems]  (3) = ( " << sumwtim << std::string(16, ' ') << " )  sec" << std::endl
-              << "MeanTimeInMatrixElems       = ( " << meanwtim << std::string(16, ' ') << " )  sec" << std::endl
-              << "[Min,Max]TimeInMatrixElems  = [ " << minwtim
-              << " ,  " << maxwtim << " ]  sec" << std::endl
-      //<< "StdDevTimeInMatrixElems     = ( " << stdwtim << std::string(16, ' ') << " )  sec" << std::endl
-              << "TotalTime[MECalcOnly]  (3a) = ( " << sumw3atim << std::string(16, ' ') << " )  sec" << std::endl
-              << "MeanTimeInMECalcOnly        = ( " << meanw3atim << std::string(16, ' ') << " )  sec" << std::endl
-              << "[Min,Max]TimeInMECalcOnly   = [ " << minw3atim
-              << " ,  " << maxw3atim << " ]  sec" << std::endl
-      //<< "StdDevTimeInMECalcOnly      = ( " << stdw3atim << std::string(16, ' ') << " )  sec" << std::endl
+              << "TotalTime[Rnd+Rmb+ME] (123) = ( " << string_format("%1.15e", sumgtim+sumrtim+sumwtim) << " )  sec" << std::endl
+              << "TotalTime[Rambo+ME]    (23) = ( " << string_format("%1.15e", sumrtim+sumwtim)         << " )  sec" << std::endl
+              << "TotalTime[RndNumGen]    (1) = ( " << string_format("%1.15e", sumgtim)                 << " )  sec" << std::endl
+              << "TotalTime[Rambo]        (2) = ( " << string_format("%1.15e", sumrtim)                 << " )  sec" << std::endl
+              << "TotalTime[MatrixElems]  (3) = ( " << string_format("%1.15e", sumwtim)                 << " )  sec" << std::endl
+              << "TotalTime[Bridge]           = ( " << string_format("%1.15e", bridge_time)             << " )  sec" << std::endl
+              << "MeanTimeInMatrixElems       = ( " << string_format("%1.15e", meanwtim)                << " )  sec" << std::endl
+              << "[Min,Max]TimeInMatrixElems  = [ " << string_format("%1.15e", minwtim) << " ,  " << string_format("%1.15e", maxwtim) << " ]  sec" << std::endl
+              //<< "StdDevTimeInMatrixElems     = ( " << string_format("%1.15e", stdwtim)                 << " )  sec" << std::endl
+              << "TotalTime[MECalcOnly]  (3a) = ( " << string_format("%1.15e", sumw3atim)               << " )  sec" << std::endl
+              << "MeanTimeInMECalcOnly        = ( " << string_format("%1.15e", meanw3atim)              << " )  sec" << std::endl
+              << "[Min,Max]TimeInMECalcOnly   = [ " << string_format("%1.15e", minw3atim) << " ,  " << string_format("%1.15e", maxw3atim) << " ]  sec" << std::endl
+              //<< "StdDevTimeInMECalcOnly      = ( " << string_format("%1.15e", stdw3atim)               << " )  sec" << std::endl
               << std::string(SEP79, '-') << std::endl
-      //<< "ProcessID:                  = " << getpid() << std::endl
-      //<< "NProcesses                  = " << process.nprocesses << std::endl
+              //<< "ProcessID:                  = " << getpid() << std::endl
+              //<< "NProcesses                  = " << process.nprocesses << std::endl
               << "TotalEventsComputed         = " << nevtALL << std::endl
-              << "EvtsPerSec[Rnd+Rmb+ME](123) = ( " << nevtALL/(sumgtim+sumrtim+sumwtim)
-              << std::string(16, ' ') << " )  sec^-1" << std::endl
-              << "EvtsPerSec[Rmb+ME]     (23) = ( " << nevtALL/(sumrtim+sumwtim)
-              << std::string(16, ' ') << " )  sec^-1" << std::endl
-      //<< "EvtsPerSec[RndNumbGen]   (1) = ( " << nevtALL/sumgtim
-      //<< std::string(16, ' ') << " )  sec^-1" << std::endl
-      //<< "EvtsPerSec[Rambo]        (2) = ( " << nevtALL/sumrtim
-      //<< std::string(16, ' ') << " )  sec^-1" << std::endl
-              << "EvtsPerSec[MatrixElems] (3) = ( " << nevtALL/sumwtim
-              << std::string(16, ' ') << " )  sec^-1" << std::endl
-              << "EvtsPerSec[MECalcOnly] (3a) = ( " << nevtALL/sumw3atim
-              << std::string(16, ' ') << " )  sec^-1" << std::endl
-              << std::defaultfloat; // default format: affects all floats
+              << "EvtsPerSec[Rnd+Rmb+ME](123) = ( " << string_format("%1.15e", nevtALL/(sumgtim+sumrtim+sumwtim)) << " )  sec^-1" << std::endl
+              << "EvtsPerSec[Rmb+ME]     (23) = ( " << string_format("%1.15e", nevtALL/(sumrtim+sumwtim))         << " )  sec^-1" << std::endl
+              //<< "EvtsPerSec[RndNumbGen]   (1) = ( " << string_format("%1.15e", nevtALL/sumgtim)                  << " )  sec^-1" << std::endl
+              //<< "EvtsPerSec[Rambo]        (2) = ( " << string_format("%1.15e", nevtALL/sumrtim)                  << " )  sec^-1" << std::endl
+              << "EvtsPerSec[MatrixElems] (3) = ( " << string_format("%1.15e", nevtALL/sumwtim)                   << " )  sec^-1" << std::endl
+              << "EvtsPerSec[MECalcOnly] (3a) = ( " << string_format("%1.15e", nevtALL/sumw3atim)                 << " )  sec^-1" << std::endl
+              << "EvtsPerSec[Bridge]          = ( " << string_format("%1.15e", bridge_MEs_per_sec)                << " )  sec^-1" << std::endl;
     std::cout << std::string(SEP79, '*') << std::endl
               << "NumMatrixElems(notAbnormal) = " << nevtALL - nabn << std::endl
-              << std::scientific // fixed format: affects all floats (default precision: 6)
-              << "MeanMatrixElemValue         = ( " << meanelem
-              << " +- " << stdelem/sqrt(nevtALL - nabn) << " )  GeV^" << meGeVexponent << std::endl // standard error
-              << "[Min,Max]MatrixElemValue    = [ " << minelem
-              << " ,  " << maxelem << " ]  GeV^" << meGeVexponent << std::endl
-              << "StdDevMatrixElemValue       = ( " << stdelem << std::string(16, ' ') << " )  GeV^" << meGeVexponent << std::endl
-              << "MeanWeight                  = ( " << meanweig
-              << " +- " << stdweig/sqrt(nevtALL - nabn) << " )" << std::endl // standard error
-              << "[Min,Max]Weight             = [ " << minweig
-              << " ,  " << maxweig << " ]" << std::endl
-              << "StdDevWeight                = ( " << stdweig << std::string(16, ' ') << " )" << std::endl
-              << std::defaultfloat; // default format: affects all floats
+              << "MeanMatrixElemValue         = ( " << string_format("%1.15e", meanelem) << " +- " << string_format("%1.15e", stdelem/sqrt(nevtALL - nabn)) << " )  GeV^" << meGeVexponent << std::endl // standard error
+              << "[Min,Max]MatrixElemValue    = [ " << string_format("%1.15e", minelem)  << " ,  " << string_format("%1.15e", maxelem)                      << " ]  GeV^" << meGeVexponent << std::endl
+              << "StdDevMatrixElemValue       = ( " << string_format("%1.15e", stdelem)  << " )  GeV^" << meGeVexponent << std::endl
+              << "MeanWeight                  = ( " << string_format("%1.15e", meanweig) << " +- " << string_format("%1.15e", stdweig/sqrt(nevtALL - nabn)) << " )" << std::endl // standard error
+              << "[Min,Max]Weight             = [ " << string_format("%1.15e", minweig)  << " ,  " << string_format("%1.15e", maxweig)                      << " ]" << std::endl
+              << "StdDevWeight                = ( " << string_format("%1.15e", stdweig)  << " )" << std::endl;
   }
 
   // --- 9c Dump to json
@@ -952,70 +1016,42 @@ int main(int argc, char **argv)
     }
 
     jsonFile << "{" << std::endl
-             << "\"NumIterations\": " << niter << ", " << std::endl
+             << "\"NumIterations\": "      << niter      << ", " << std::endl
              << "\"NumThreadsPerBlock\": " << gputhreads << ", " << std::endl
-             << "\"NumBlocksPerGrid\": " << gpublocks << ", " << std::endl
+             << "\"NumBlocksPerGrid\": "   << gpublocks  << ", " << std::endl
 #if defined MGONGPU_FPTYPE_DOUBLE
              << "\"FP precision\": " << "\"DOUBLE (NaN/abnormal=" << nabn << ")\"," << std::endl
 #elif defined MGONGPU_FPTYPE_FLOAT
              << "\"FP precision\": " << "\"FLOAT (NaN/abnormal=" << nabn << ")\"," << std::endl
 #endif
-             << "\"Complex type\": "
-             << "\"EXTRA\"," << std::endl
-             << "\"RanNumb memory layout\": " << "\"AOSOA[" << neppR << "]\""
-             << ( neppR == 1 ? " == AOS" : "" ) << ", " << std::endl
-             << "\"Momenta memory layout\": " << "\"AOSOA[" << neppM << "]\""
-             << ( neppM == 1 ? " == AOS" : "" ) << ", " << std::endl
-             << "\"Curand generation\": "
-             << "\"COMMON RANDOM (C++ code)\"," << std::endl;
+             << "\"Complex type\": " << "\"EXTRA\"," << std::endl
+             << "\"RanNumb memory layout\": " << "\"AOSOA[" << neppR << "]\"" << ( neppR == 1 ? " == AOS" : "" ) << ", " << std::endl
+             << "\"Momenta memory layout\": " << "\"AOSOA[" << neppM << "]\"" << ( neppM == 1 ? " == AOS" : "" ) << ", " << std::endl
+             << "\"Curand generation\": " << "\"COMMON RANDOM (C++ code)\"," << std::endl;
 
     jsonFile << "\"NumberOfEntries\": " << niter << "," << std::endl
-      //<< std::scientific // Not sure about this
-             << "\"TotalTime[Rnd+Rmb+ME] (123)\": \""
-             << std::to_string(sumgtim+sumrtim+sumwtim) << " sec\","
-             << std::endl
-             << "\"TotalTime[Rambo+ME] (23)\": \""
-             << std::to_string(sumrtim+sumwtim) << " sec\"," << std::endl
-             << "\"TotalTime[RndNumGen] (1)\": \""
-             << std::to_string(sumgtim) << " sec\"," << std::endl
-             << "\"TotalTime[Rambo] (2)\": \""
-             << std::to_string(sumrtim) << " sec\"," << std::endl
-             << "\"TotalTime[MatrixElems] (3)\": \""
-             << std::to_string(sumwtim) << " sec\"," << std::endl
-             << "\"MeanTimeInMatrixElems\": \""
-             << std::to_string(meanwtim) << " sec\"," << std::endl
-             << "\"MinTimeInMatrixElems\": \""
-             << std::to_string(minwtim) << " sec\"," << std::endl
-             << "\"MaxTimeInMatrixElems\": \""
-             << std::to_string(maxwtim) << " sec\"," << std::endl
-      //<< "ProcessID:                = " << getpid() << std::endl
-      //<< "NProcesses                = " << process.nprocesses << std::endl
+             << "\"TotalTime[Rnd+Rmb+ME] (123)\": \"" << string_format("%1.15e", sumgtim+sumrtim+sumwtim) << " sec\"," << std::endl
+             << "\"TotalTime[Rambo+ME] (23)\": \""    << string_format("%1.15e", sumrtim+sumwtim)         << " sec\"," << std::endl
+             << "\"TotalTime[RndNumGen] (1)\": \""    << string_format("%1.15e", sumgtim)                 << " sec\"," << std::endl
+             << "\"TotalTime[Rambo] (2)\": \""        << string_format("%1.15e", sumrtim)                 << " sec\"," << std::endl
+             << "\"TotalTime[MatrixElems] (3)\": \""  << string_format("%1.15e", sumwtim)                 << " sec\"," << std::endl
+             << "\"TotalTime[Bridge]\": \""           << string_format("%1.15e", bridge_time)             << " sec\"," << std::endl
+             << "\"MeanTimeInMatrixElems\": \""       << string_format("%1.15e", meanwtim)                << " sec\"," << std::endl
+             << "\"MinTimeInMatrixElems\": \""        << std::to_string(minwtim) << " sec\"," << std::endl
+             << "\"MaxTimeInMatrixElems\": \""        << std::to_string(maxwtim) << " sec\"," << std::endl
+             //<< "ProcessID:                = "        << getpid() << std::endl
+             //<< "NProcesses                = "        << process.nprocesses << std::endl
              << "\"TotalEventsComputed\": " << nevtALL << "," << std::endl
-             << "\"EvtsPerSec[Rnd+Rmb+ME](123)\": \""
-             << std::to_string(nevtALL/(sumgtim+sumrtim+sumwtim)) << " sec^-1\"," << std::endl
-             << "\"EvtsPerSec[Rmb+ME] (23)\": \""
-             << std::to_string(nevtALL/(sumrtim+sumwtim)) << " sec^-1\"," << std::endl
-             << "\"EvtsPerSec[MatrixElems] (3)\": \""
-             << std::to_string(nevtALL/sumwtim) << " sec^-1\"," << std::endl
-             << "\"EvtsPerSec[MECalcOnly] (3)\": \""
-             << std::to_string(nevtALL/sumw3atim) << " sec^-1\"," << std::endl
-             << "\"NumMatrixElems(notAbnormal)\": " << nevtALL - nabn << "," << std::endl
-             << std::scientific
-             << "\"MeanMatrixElemValue\": "
-             << "\"" << std::to_string(meanelem) << " GeV^"
-             << std::to_string(meGeVexponent) << "\"," << std::endl
-             << "\"StdErrMatrixElemValue\": "
-             << "\"" << std::to_string(stdelem/sqrt(nevtALL)) << " GeV^"
-             << std::to_string(meGeVexponent) << "\"," << std::endl
-             << "\"StdDevMatrixElemValue\": "
-             << "\"" << std::to_string(stdelem)
-             << " GeV^" << std::to_string(meGeVexponent) << "\"," << std::endl
-             << "\"MinMatrixElemValue\": "
-             << "\"" << std::to_string(minelem) << " GeV^"
-             << std::to_string(meGeVexponent) << "\"," << std::endl
-             << "\"MaxMatrixElemValue\": "
-             << "\"" << std::to_string(maxelem) << " GeV^"
-             << std::to_string(meGeVexponent) <<  "\"," << std::endl;
+             << "\"EvtsPerSec[Rnd+Rmb+ME](123)\": \""  << string_format("%1.15e", nevtALL/(sumgtim+sumrtim+sumwtim)) << " sec^-1\"," << std::endl
+             << "\"EvtsPerSec[Rmb+ME] (23)\": \""      << string_format("%1.15e", nevtALL/(sumrtim+sumwtim))         << " sec^-1\"," << std::endl
+             << "\"EvtsPerSec[MatrixElems] (3)\": \""  << string_format("%1.15e", nevtALL/sumwtim)                   << " sec^-1\"," << std::endl
+             << "\"EvtsPerSec[Bridge]\": \""           << string_format("%1.15e", bridge_MEs_per_sec)                << " sec^-1\"," << std::endl
+             << "\"NumMatrixElems(notAbnormal)\": "    << nevtALL - nabn << "," << std::endl
+             << "\"MeanMatrixElemValue\": \""          << string_format("%1.15e", meanelem)              << " GeV^" << meGeVexponent << "\"," << std::endl
+             << "\"StdErrMatrixElemValue\": \""        << string_format("%1.15e", stdelem/sqrt(nevtALL)) << " GeV^" << meGeVexponent << "\"," << std::endl
+             << "\"StdDevMatrixElemValue\": \""        << string_format("%1.15e", stdelem)               << " GeV^" << meGeVexponent << "\"," << std::endl
+             << "\"MinMatrixElemValue\": \""           << string_format("%1.15e", minelem)               << " GeV^" << meGeVexponent << "\"," << std::endl
+             << "\"MaxMatrixElemValue\": \""           << string_format("%1.15e", maxelem)               << " GeV^" << meGeVexponent << "\"," << std::endl;
 
     timermap.dump(jsonFile, true); // NB For the active json timer this dumps a partial total
 

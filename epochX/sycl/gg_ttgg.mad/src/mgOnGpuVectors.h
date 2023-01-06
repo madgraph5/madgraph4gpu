@@ -60,7 +60,7 @@ typedef fptype fptype_sv;
 typedef cxtype cxtype_sv;
 
 // Scalar-or-vector zeros: scalar in SYCL
-SYCL_EXTERNAL inline cxtype cxzero_sv(){ return cxtype( 0, 0 ); }
+SYCL_EXTERNAL inline cxtype cxzero_sv(){ return cxmake( 0, 0 ); }
 
 SYCL_EXTERNAL inline fptype_sv cxabs2( const cxtype_sv& c ) {
     return cxreal( c ) * cxreal( c ) + cximag( c ) * cximag( c );

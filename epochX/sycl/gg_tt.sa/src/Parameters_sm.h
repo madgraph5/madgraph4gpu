@@ -200,7 +200,13 @@ namespace Parameters_sm_dependentCouplings
 #endif
     // NB: hardcode cxtype cI(0,1) instead of cxtype (or hardcoded cxsmpl) mdl_complexi (which exists in Parameters_sm) because:
     // (1) mdl_complexi is always (0,1); (2) mdl_complexi is undefined in device code; (3) need cxsmpl conversion to cxtype in code below
-    static constexpr CXType cI( 0., 1. );
+    #if defined MGONGPU_COMPLEX_CUTHRUST
+        const CXType cI( 0., 1. );
+    #elif defined MGONGPU_COMPLEX_CUCOMPLEX
+        const CXType cI = cxmake(0., 1.);
+    #else
+        static constexpr CXType cI( 0., 1. );
+    #endif
 
     // Model parameters dependent on aS
       //const FPType mdl_sqrt__aS = constexpr_sqrt( aS );

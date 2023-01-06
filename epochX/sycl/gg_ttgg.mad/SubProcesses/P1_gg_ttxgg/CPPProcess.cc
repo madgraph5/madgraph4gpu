@@ -23,13 +23,13 @@
 
 namespace Proc
 {
-  static constexpr int np4 = mgOnGpu::np4; // dimensions of 4-momenta (E,px,py,pz)
-  static constexpr int npar = mgOnGpu::npar; // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
-  static constexpr int ncomb = mgOnGpu::ncomb; // #helicity combinations: e.g. 16 for e+ e- -> mu+ mu- (2**4 = fermion spin up/down ** npar)
+  static constexpr size_t np4 = mgOnGpu::np4; // dimensions of 4-momenta (E,px,py,pz)
+  static constexpr size_t npar = mgOnGpu::npar; // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
+  static constexpr size_t ncomb = mgOnGpu::ncomb; // #helicity combinations: e.g. 16 for e+ e- -> mu+ mu- (2**4 = fermion spin up/down ** npar)
 
-  static constexpr int nwf = mgOnGpu::nwf; // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
-  static constexpr int nw6 = mgOnGpu::nw6; // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
-  static constexpr int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
+  static constexpr size_t nwf = mgOnGpu::nwf; // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
+  static constexpr size_t nw6 = mgOnGpu::nw6; // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
+  static constexpr size_t neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
 
   //--------------------------------------------------------------------------
 
@@ -41,7 +41,7 @@ namespace Proc
                                   #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
                                       fptype* __restrict__ allNumerators,   // output: multichannel numerators, running_sum_over_helicities
                                       fptype* __restrict__ allDenominators, // output: multichannel denominators, running_sum_over_helicities
-                                      const unsigned int channelId,         // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
+                                      const size_t channelId,               // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
                                   #endif
                                   const short*  __restrict__ cHel,
                                   const cxtype* __restrict__ COUPs,
@@ -56,7 +56,7 @@ namespace Proc
 
 
     // The number of colors
-    constexpr int ncolor = 24;
+    constexpr size_t ncolor = 24;
 
     // Local TEMPORARY variables for a subset of Feynman diagrams in the given SYCL event (ievt)
     // [NB these variables are reused several times (and re-initialised each time) within the same event or event page]
@@ -92,32 +92,32 @@ namespace Proc
 
       // Amplitude(s) for diagram number 1
       VVVV1_0( w_sv[6], w_sv[7], w_sv[4], w_sv[5], COUPs[2], &amp_sv[0] );
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[6] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[7] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[16] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[17] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[22] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[23] -= cxmake( 0, 1 ) * amp_sv[0];
       VVVV3_0( w_sv[6], w_sv[7], w_sv[4], w_sv[5], COUPs[2], &amp_sv[0] );
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[6] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[12] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[14] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[18] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[20] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[22] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[23] -= cxmake( 0, 1 ) * amp_sv[0];
       VVVV4_0( w_sv[6], w_sv[7], w_sv[4], w_sv[5], COUPs[2], &amp_sv[0] );
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[7] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[12] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[14] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[16] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[17] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[18] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[20] += cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 2 OF 123 ***
 
@@ -130,14 +130,14 @@ namespace Proc
       if( channelId == 2 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[6] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[12] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[14] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[18] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[20] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[22] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[23] -= cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 3 OF 123 ***
 
@@ -150,14 +150,14 @@ namespace Proc
       if( channelId == 3 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[7] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[12] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[14] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[16] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[17] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[18] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[20] += cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 4 OF 123 ***
 
@@ -170,14 +170,14 @@ namespace Proc
       if( channelId == 4 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[6] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[7] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[16] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[17] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[22] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[23] -= cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 5 OF 123 ***
 
@@ -191,8 +191,8 @@ namespace Proc
       if( channelId == 5 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[16] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[17] -= cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 6 OF 123 ***
 
@@ -221,8 +221,8 @@ namespace Proc
       if( channelId == 7 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[12] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[12] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[14] -= cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 8 OF 123 ***
 
@@ -235,8 +235,8 @@ namespace Proc
       if( channelId == 8 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[22] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[23] -= cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 9 OF 123 ***
 
@@ -265,8 +265,8 @@ namespace Proc
       if( channelId == 10 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[18] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[18] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[20] -= cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 11 OF 123 ***
 
@@ -279,8 +279,8 @@ namespace Proc
       if( channelId == 11 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[7] -= cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 12 OF 123 ***
 
@@ -309,8 +309,8 @@ namespace Proc
       if( channelId == 13 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[6] -= cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 14 OF 123 ***
 
@@ -399,8 +399,8 @@ namespace Proc
       if( channelId == 19 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[5] -= cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 20 OF 123 ***
 
@@ -430,8 +430,8 @@ namespace Proc
       if( channelId == 21 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[4] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[5] -= cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 22 OF 123 ***
 
@@ -444,8 +444,8 @@ namespace Proc
       if( channelId == 22 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] -= cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 23 OF 123 ***
 
@@ -474,8 +474,8 @@ namespace Proc
       if( channelId == 24 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[2] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] -= cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 25 OF 123 ***
 
@@ -488,8 +488,8 @@ namespace Proc
       if( channelId == 25 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] -= cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 26 OF 123 ***
 
@@ -554,8 +554,8 @@ namespace Proc
       if( channelId == 30 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] -= cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 31 OF 123 ***
 
@@ -636,8 +636,8 @@ namespace Proc
       if( channelId == 35 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[9] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[9] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[11] -= cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 36 OF 123 ***
 
@@ -666,8 +666,8 @@ namespace Proc
       if( channelId == 37 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[9] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[9] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[15] -= cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 38 OF 123 ***
 
@@ -680,8 +680,8 @@ namespace Proc
       if( channelId == 38 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[21] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[23] -= cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 39 OF 123 ***
 
@@ -710,8 +710,8 @@ namespace Proc
       if( channelId == 40 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[11] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[11] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[21] -= cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 41 OF 123 ***
 
@@ -724,8 +724,8 @@ namespace Proc
       if( channelId == 41 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[15] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[17] -= cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 42 OF 123 ***
 
@@ -790,8 +790,8 @@ namespace Proc
       if( channelId == 46 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[17] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[17] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[23] -= cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 47 OF 123 ***
 
@@ -843,8 +843,8 @@ namespace Proc
       if( channelId == 49 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[10] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[11] -= cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 50 OF 123 ***
 
@@ -873,8 +873,8 @@ namespace Proc
       if( channelId == 51 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[6] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[6] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[8] -= cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 52 OF 123 ***
 
@@ -887,8 +887,8 @@ namespace Proc
       if( channelId == 52 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[13] -= cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 53 OF 123 ***
 
@@ -917,8 +917,8 @@ namespace Proc
       if( channelId == 54 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[19] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[19] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[22] -= cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 55 OF 123 ***
 
@@ -963,14 +963,14 @@ namespace Proc
       if( channelId == 57 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[10] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[11] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[12] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[13] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[20] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[21] += cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 58 OF 123 ***
 
@@ -979,32 +979,32 @@ namespace Proc
 
       // Amplitude(s) for diagram number 58
       VVVV1_0( w_sv[12], w_sv[1], w_sv[7], w_sv[5], COUPs[2], &amp_sv[0] );
-      jamp_sv[2] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[6] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[8] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[12] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[19] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[20] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[21] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[22] += cxmake( 0, 1 ) * amp_sv[0];
       VVVV3_0( w_sv[12], w_sv[1], w_sv[7], w_sv[5], COUPs[2], &amp_sv[0] );
-      jamp_sv[2] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[13] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[10] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[11] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[12] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[13] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[20] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[21] -= cxmake( 0, 1 ) * amp_sv[0];
       VVVV4_0( w_sv[12], w_sv[1], w_sv[7], w_sv[5], COUPs[2], &amp_sv[0] );
-      jamp_sv[3] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[13] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[19] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[6] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[8] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[10] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[11] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[13] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[19] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[22] -= cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 59 OF 123 ***
 
@@ -1017,14 +1017,14 @@ namespace Proc
       if( channelId == 59 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[2] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[6] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[8] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[12] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[19] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[20] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[21] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[22] += cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 60 OF 123 ***
 
@@ -1037,14 +1037,14 @@ namespace Proc
       if( channelId == 60 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[3] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[13] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[19] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[6] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[8] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[10] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[11] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[13] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[19] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[22] -= cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 61 OF 123 ***
 
@@ -1073,8 +1073,8 @@ namespace Proc
       if( channelId == 62 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[20] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[20] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[21] -= cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 63 OF 123 ***
 
@@ -1103,8 +1103,8 @@ namespace Proc
       if( channelId == 64 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[2] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[12] -= cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 65 OF 123 ***
 
@@ -1118,8 +1118,8 @@ namespace Proc
       if( channelId == 65 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[8] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[9] -= cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 66 OF 123 ***
 
@@ -1148,8 +1148,8 @@ namespace Proc
       if( channelId == 67 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[7] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[7] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[10] -= cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 68 OF 123 ***
 
@@ -1162,8 +1162,8 @@ namespace Proc
       if( channelId == 68 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[5] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[19] -= cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 69 OF 123 ***
 
@@ -1192,8 +1192,8 @@ namespace Proc
       if( channelId == 70 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[13] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[13] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[16] -= cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 71 OF 123 ***
 
@@ -1238,14 +1238,14 @@ namespace Proc
       if( channelId == 73 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[5] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[8] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[9] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[14] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[15] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[18] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[19] -= cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 74 OF 123 ***
 
@@ -1254,32 +1254,32 @@ namespace Proc
 
       // Amplitude(s) for diagram number 74
       VVVV1_0( w_sv[20], w_sv[1], w_sv[7], w_sv[4], COUPs[2], &amp_sv[0] );
-      jamp_sv[4] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[7] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[10] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[13] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[14] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[15] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[16] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[18] -= cxmake( 0, 1 ) * amp_sv[0];
       VVVV3_0( w_sv[20], w_sv[1], w_sv[7], w_sv[4], COUPs[2], &amp_sv[0] );
-      jamp_sv[4] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[19] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[5] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[8] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[9] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[14] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[15] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[18] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[19] += cxmake( 0, 1 ) * amp_sv[0];
       VVVV4_0( w_sv[20], w_sv[1], w_sv[7], w_sv[4], COUPs[2], &amp_sv[0] );
-      jamp_sv[5] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[13] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[19] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[5] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[7] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[8] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[9] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[10] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[13] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[16] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[19] += cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 75 OF 123 ***
 
@@ -1292,14 +1292,14 @@ namespace Proc
       if( channelId == 75 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[4] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[7] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[10] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[13] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[14] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[15] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[16] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[18] -= cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 76 OF 123 ***
 
@@ -1312,14 +1312,14 @@ namespace Proc
       if( channelId == 76 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[5] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[13] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[19] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[5] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[7] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[8] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[9] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[10] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[13] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[16] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[19] += cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 77 OF 123 ***
 
@@ -1348,8 +1348,8 @@ namespace Proc
       if( channelId == 78 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[14] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[14] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[15] -= cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 79 OF 123 ***
 
@@ -1378,8 +1378,8 @@ namespace Proc
       if( channelId == 80 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[4] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[18] -= cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 81 OF 123 ***
 
@@ -1444,8 +1444,8 @@ namespace Proc
       if( channelId == 85 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[6] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[6] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[7] -= cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 86 OF 123 ***
 
@@ -1526,8 +1526,8 @@ namespace Proc
       if( channelId == 91 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[16] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[22] -= cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 92 OF 123 ***
 
@@ -1552,32 +1552,32 @@ namespace Proc
 
       // Amplitude(s) for diagram number 93
       VVVV1_0( w_sv[0], w_sv[6], w_sv[7], w_sv[5], COUPs[2], &amp_sv[0] );
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[19] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[8] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[14] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[18] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[19] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[21] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[23] -= cxmake( 0, 1 ) * amp_sv[0];
       VVVV3_0( w_sv[0], w_sv[6], w_sv[7], w_sv[5], COUPs[2], &amp_sv[0] );
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[5] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[9] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[15] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[21] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[23] -= cxmake( 0, 1 ) * amp_sv[0];
       VVVV4_0( w_sv[0], w_sv[6], w_sv[7], w_sv[5], COUPs[2], &amp_sv[0] );
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[5] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[8] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[9] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[14] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[15] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[18] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[19] -= cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 94 OF 123 ***
 
@@ -1590,14 +1590,14 @@ namespace Proc
       if( channelId == 94 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[19] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[8] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[14] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[18] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[19] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[21] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[23] -= cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 95 OF 123 ***
 
@@ -1610,14 +1610,14 @@ namespace Proc
       if( channelId == 95 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[5] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[9] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[15] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[21] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[23] -= cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 96 OF 123 ***
 
@@ -1646,8 +1646,8 @@ namespace Proc
       if( channelId == 97 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[18] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[18] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[19] -= cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 98 OF 123 ***
 
@@ -1676,8 +1676,8 @@ namespace Proc
       if( channelId == 99 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[8] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[14] -= cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 100 OF 123 ***
 
@@ -1686,32 +1686,32 @@ namespace Proc
 
       // Amplitude(s) for diagram number 100
       VVVV1_0( w_sv[0], w_sv[18], w_sv[7], w_sv[4], COUPs[2], &amp_sv[0] );
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[13] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[10] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[12] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[13] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[15] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[17] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[20] += cxmake( 0, 1 ) * amp_sv[0];
       VVVV3_0( w_sv[0], w_sv[18], w_sv[7], w_sv[4], COUPs[2], &amp_sv[0] );
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[11] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[15] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[17] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[21] += cxmake( 0, 1 ) * amp_sv[0];
       VVVV4_0( w_sv[0], w_sv[18], w_sv[7], w_sv[4], COUPs[2], &amp_sv[0] );
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[10] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[11] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[12] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[13] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[20] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[21] += cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 101 OF 123 ***
 
@@ -1724,14 +1724,14 @@ namespace Proc
       if( channelId == 101 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[13] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[10] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[12] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[13] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[15] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[17] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[20] += cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 102 OF 123 ***
 
@@ -1744,14 +1744,14 @@ namespace Proc
       if( channelId == 102 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[11] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[15] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[17] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[21] += cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 103 OF 123 ***
 
@@ -1780,8 +1780,8 @@ namespace Proc
       if( channelId == 104 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[12] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[12] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[13] -= cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 105 OF 123 ***
 
@@ -1810,8 +1810,8 @@ namespace Proc
       if( channelId == 106 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[10] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[20] -= cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 107 OF 123 ***
 
@@ -1820,32 +1820,32 @@ namespace Proc
 
       // Amplitude(s) for diagram number 107
       VVVV1_0( w_sv[0], w_sv[1], w_sv[7], w_sv[10], COUPs[2], &amp_sv[0] );
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[6] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[7] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[16] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[17] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[22] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[23] -= cxmake( 0, 1 ) * amp_sv[0];
       VVVV3_0( w_sv[0], w_sv[1], w_sv[7], w_sv[10], COUPs[2], &amp_sv[0] );
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[5] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[9] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[11] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[17] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[23] -= cxmake( 0, 1 ) * amp_sv[0];
       VVVV4_0( w_sv[0], w_sv[1], w_sv[7], w_sv[10], COUPs[2], &amp_sv[0] );
-      jamp_sv[3] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[5] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[6] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[7] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[9] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[11] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[16] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[22] -= cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 108 OF 123 ***
 
@@ -1858,14 +1858,14 @@ namespace Proc
       if( channelId == 108 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[5] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[9] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[11] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[17] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[23] -= cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 109 OF 123 ***
 
@@ -1878,14 +1878,14 @@ namespace Proc
       if( channelId == 109 ) allNumerators[0] += cxabs2( amp_sv[0] );
       if( channelId != 0 ) allDenominators[0] += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[3] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[5] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[6] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[7] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[9] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[11] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[16] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[22] -= cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 110 OF 123 ***
 
@@ -1948,32 +1948,32 @@ namespace Proc
 
       // Amplitude(s) for diagram number 114
       VVV1_0( w_sv[12], w_sv[7], w_sv[5], COUPs[0], &amp_sv[0] );
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[19] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[8] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[14] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[18] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[19] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[21] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[23] -= cxmake( 0, 1 ) * amp_sv[0];
       VVV1_0( w_sv[24], w_sv[7], w_sv[5], COUPs[0], &amp_sv[0] );
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[19] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[6] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[8] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[12] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[19] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[20] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[21] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[22] -= cxmake( 0, 1 ) * amp_sv[0];
       VVV1_0( w_sv[21], w_sv[7], w_sv[5], COUPs[0], &amp_sv[0] );
-      jamp_sv[0] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[6] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[12] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[14] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[18] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[20] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[22] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[23] += cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 115 OF 123 ***
 
@@ -2028,32 +2028,32 @@ namespace Proc
 
       // Amplitude(s) for diagram number 117
       VVV1_0( w_sv[21], w_sv[7], w_sv[4], COUPs[0], &amp_sv[0] );
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[13] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[10] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[12] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[13] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[15] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[17] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[20] += cxmake( 0, 1 ) * amp_sv[0];
       VVV1_0( w_sv[13], w_sv[7], w_sv[4], COUPs[0], &amp_sv[0] );
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[13] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[7] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[10] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[13] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[14] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[15] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[16] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[18] += cxmake( 0, 1 ) * amp_sv[0];
       VVV1_0( w_sv[24], w_sv[7], w_sv[4], COUPs[0], &amp_sv[0] );
-      jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[7] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[12] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[14] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[16] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[17] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[18] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[20] -= cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 118 OF 123 ***
 
@@ -2152,32 +2152,32 @@ namespace Proc
 
       // Amplitude(s) for diagram number 122
       VVV1_0( w_sv[24], w_sv[1], w_sv[7], COUPs[0], &amp_sv[0] );
-      jamp_sv[3] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[5] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[6] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[7] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[9] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[11] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[16] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[22] -= cxmake( 0, 1 ) * amp_sv[0];
       VVV1_0( w_sv[15], w_sv[1], w_sv[7], COUPs[0], &amp_sv[0] );
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[5] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[7] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[8] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[9] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[10] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[13] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[16] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[19] -= cxmake( 0, 1 ) * amp_sv[0];
       VVV1_0( w_sv[13], w_sv[1], w_sv[7], COUPs[0], &amp_sv[0] );
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[6] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[8] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[10] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[11] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[13] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[19] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[22] += cxmake( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 123 OF 123 ***
 
@@ -2186,32 +2186,32 @@ namespace Proc
 
       // Amplitude(s) for diagram number 123
       VVV1_0( w_sv[0], w_sv[17], w_sv[7], COUPs[0], &amp_sv[0] );
-      jamp_sv[0] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[5] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[9] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[11] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[17] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[23] += cxmake( 0, 1 ) * amp_sv[0];
       VVV1_0( w_sv[0], w_sv[19], w_sv[7], COUPs[0], &amp_sv[0] );
-      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[11] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[15] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[17] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[21] += cxmake( 0, 1 ) * amp_sv[0];
       VVV1_0( w_sv[0], w_sv[8], w_sv[7], COUPs[0], &amp_sv[0] );
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[5] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[9] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[15] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[21] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[23] -= cxmake( 0, 1 ) * amp_sv[0];
 
       // *** COLOR ALGEBRA BELOW ***
       // (This method used to be called CPPProcess::matrix_1_gg_ttxgg()?)
@@ -2248,10 +2248,10 @@ namespace Proc
       // Sum and square the color flows to get the matrix element
       // (compute |M|^2 by squaring |M|, taking into account colours)
       fptype_sv deltaMEs = { 0 }; // all zeros
-      for( int icol = 0; icol < ncolor; icol++ )
+      for( size_t icol = 0; icol < ncolor; icol++ )
       {
         cxtype_sv ztemp_sv = cxzero_sv();
-        for( int jcol = 0; jcol < ncolor; jcol++ )
+        for( size_t jcol = 0; jcol < ncolor; jcol++ )
           ztemp_sv += cf[icol][jcol] * jamp_sv[jcol];
         // OLD implementation: why is this not slower? maybe compiler does not compute imaginary part of "ztemp_sv*cxconj(jamp_sv[icol])"?
         //deltaMEs += cxreal( ztemp_sv * cxconj( jamp_sv[icol] ) ) / denom[icol];
@@ -2277,9 +2277,9 @@ namespace Proc
 
   //--------------------------------------------------------------------------
 
-  CPPProcess::CPPProcess( int numiterations,
-                          int ngpublocks,
-                          int ngputhreads,
+  CPPProcess::CPPProcess( size_t numiterations,
+                          size_t ngpublocks,
+                          size_t ngputhreads,
                           bool verbose,
                           bool debug )
     : m_numiterations( numiterations )
@@ -2356,11 +2356,11 @@ namespace Proc
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
     fptype allMEsLast = 0;
     fptype allMEs = 0;
-    for ( int ihel = 0; ihel < ncomb; ihel++ )
+    for ( size_t ihel = 0; ihel < ncomb; ihel++ )
     {
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      constexpr unsigned int channelId = 0; // disable single-diagram channel enhancement
+      constexpr size_t channelId = 0; // disable single-diagram channel enhancement
       fptype allNumerators = 0;
       fptype allDenominators = 0;
       allMEs += calculate_wavefunctions( allmomenta, &allNumerators, &allDenominators, channelId, cHel + ihel*npar, cIPC, cIPD );
@@ -2378,10 +2378,10 @@ namespace Proc
 
   //--------------------------------------------------------------------------
 
-  int sigmaKin_setGoodHel( const bool* isGoodHel, int* goodHel ) // input: isGoodHel[ncomb] - host array
+  size_t sigmaKin_setGoodHel( const bool* isGoodHel, size_t* goodHel ) // input: isGoodHel[ncomb] - host array
   {
-    int nGoodHel = 0; // FIXME: assume process.nprocesses == 1 for the moment (eventually nGoodHel[nprocesses]?)
-    for ( int ihel = 0; ihel < ncomb; ihel++ )
+    size_t nGoodHel = 0; // FIXME: assume process.nprocesses == 1 for the moment (eventually nGoodHel[nprocesses]?)
+    for ( size_t ihel = 0; ihel < ncomb; ihel++ )
     {
       //std::cout << "sigmaKin_setGoodHel ihel=" << ihel << ( isGoodHel[ihel] ? " true" : " false" ) << std::endl;
       if ( isGoodHel[ihel] )
@@ -2402,13 +2402,13 @@ namespace Proc
   SYCL_EXTERNAL
   fptype sigmaKin( const fptype* __restrict__ allmomenta, // input: momenta[nevt*npar*4]
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                   const unsigned int channelId,          // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
+                   const size_t channelId,          // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
 #endif
                    const short* __restrict__ cHel,
                    const cxtype* __restrict__ cIPC,
                    const fptype* __restrict__ cIPD,
-                   const int* __restrict__ cNGoodHel,
-                   const int* __restrict__ cGoodHel
+                   const size_t* __restrict__ cNGoodHel,
+                   const size_t* __restrict__ cGoodHel
                  )
   {
     mgDebugInitialise();
@@ -2434,9 +2434,9 @@ namespace Proc
     // PART 1 - HELICITY LOOP: CALCULATE WAVEFUNCTIONS
     // (in both CUDA and C++, using precomputed good helicities)
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-    for ( int ighel = 0; ighel < cNGoodHel[0]; ighel++ )
+    for ( size_t ighel = 0; ighel < cNGoodHel[0]; ighel++ )
     {
-      const int ihel = cGoodHel[ighel];
+      const size_t ihel = cGoodHel[ighel];
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       allMEs += calculate_wavefunctions( allmomenta, &allNumerators, &allDenominators, channelId, cHel + ihel*npar, cIPC, cIPD );
 #else

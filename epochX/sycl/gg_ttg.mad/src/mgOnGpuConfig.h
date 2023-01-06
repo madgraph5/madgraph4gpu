@@ -32,6 +32,8 @@ namespace mgOnGpu
 
   // --- Type definitions
 
+#define MGONGPU_COMPLEX_STD 1
+
   // Floating point type: fptype
 #if defined MGONGPU_FPTYPE_DOUBLE
   typedef double fptype; // double precision (8 bytes, fp64)
@@ -66,9 +68,9 @@ namespace mgOnGpu
   // Maximum number of threads per block
   //const int ntpbMAX = 256; // AV Apr2021: why had I set this to 256?
 #ifdef MGONGPU_NTPBMAX
-  static constexpr int ntpbMAX = MGONGPU_NTPBMAX;
+  static constexpr unsigned int ntpbMAX = MGONGPU_NTPBMAX;
 #else
-  static constexpr int ntpbMAX = 1024; // NB: 512 is ok, but 1024 does fail with "too many resources requested for launch"
+  static constexpr unsigned int ntpbMAX = 1024; // NB: 512 is ok, but 1024 does fail with "too many resources requested for launch"
 #endif
 
   // -----------------------------------------------------------------------------------------------
@@ -77,17 +79,15 @@ namespace mgOnGpu
   // --- Note that neppR is hardcoded and may differ from neppM and neppV on some platforms
   // -----------------------------------------------------------------------------------------------
 #ifdef MGONGPU_NEPPM
-  static constexpr int  neppM = MGONGPU_NEPPM;
+  static constexpr unsigned int neppM = MGONGPU_NEPPM;
 #else
-  //static constexpr int neppM = 64/sizeof(fptype); // 2x 32-byte GPU cache lines (512 bits): 8 (DOUBLE) or 16 (FLOAT)
-  static constexpr int neppM = 32/sizeof(fptype); // (DEFAULT) 32-byte GPU cache line (256 bits): 4 (DOUBLE) or 8 (FLOAT)
-  //static constexpr int neppM = 1;  // *** NB: this is equivalent to AOS *** (slower: 1.03E9 instead of 1.11E9 in eemumu)
+  static constexpr unsigned int neppM = 1; // Set to cache line size / size of fptype
 #endif
 
   // Number of Events Per Page in the random number AOSOA memory layout
   // *** NB Different values of neppR lead to different physics results: the ***
   // *** same 1d array is generated, but it is interpreted in different ways ***
-  static constexpr int neppR = 8; // HARDCODED TO GIVE ALWAYS THE SAME PHYSICS RESULTS!
+  static constexpr unsigned int neppR = 8; // HARDCODED TO GIVE ALWAYS THE SAME PHYSICS RESULTS!
   //const int neppR = 1; // AOS (tests of sectors/requests)
 
 }
