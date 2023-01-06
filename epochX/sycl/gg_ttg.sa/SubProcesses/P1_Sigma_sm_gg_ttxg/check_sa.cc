@@ -170,12 +170,8 @@ void print_device_info(const sycl::device& device) {
     auto max_compute_units = device.get_info<sycl::info::device::max_compute_units>();
     //auto n_groups = (num_steps - 1) / workgroup_size + 1;
     //n_groups = std::min(decltype(n_groups)(max_compute_units),n_groups);  // make groups max number of compute units or less
-    std::cout << "    max_workgroup_size: " << workgroup_size << std::endl;
+    std::cout << "    workgroup_size: " << workgroup_size << std::endl;
     std::cout << "    max_compute_units: " << max_compute_units << std::endl;
-    std::cout << "    preferred_vector_width_float: " << device.get_info<sycl::info::device::preferred_vector_width_float>() << std::endl;
-    std::cout << "    preferred_vector_width_double: " << device.get_info<sycl::info::device::preferred_vector_width_double>() << std::endl;
-    std::cout << "    native_vector_width_float: " << device.get_info<sycl::info::device::native_vector_width_float>() << std::endl;
-    std::cout << "    native_vector_width_double: " << device.get_info<sycl::info::device::native_vector_width_double>() << std::endl;
 
     std::cout << "    usm_support: ";
     if (device.has(sycl::aspect::usm_device_allocations)) {
@@ -343,13 +339,6 @@ int main(int argc, char **argv)
     return usage(argv[0]);
   }
 
-  static constexpr size_t neppM =  mgOnGpu::neppM; // AOSOA layout: constant at compile-time
-  if ( gputhreads%neppM != 0 )
-  {
-    std::cout << "ERROR! #threads/block should be a multiple of neppM=" << neppM << std::endl;
-    return usage(argv[0]);
-  }
-
   static constexpr size_t ntpbMAX = mgOnGpu::ntpbMAX;
   if ( gputhreads > ntpbMAX )
   {
@@ -382,16 +371,6 @@ int main(int argc, char **argv)
   // === STEP 0 - INITIALISE
 
   // --- 00. Initialise SYCL
-  auto _global_mem_cache_line_size = devices[d_id].get_info<sycl::info::device::global_mem_cache_line_size>();
-  auto neppM_opt = _global_mem_cache_line_size/sizeof(fptype);
-  if (neppM_opt != neppM) {
-      std::cout << "WARNING: neppM is not optimal." << std::endl;
-      
-      std::cout << "neppM: " << neppM << std::endl;
-      std::cout << "global_mem_cache_line_size: " << _global_mem_cache_line_size << std::endl;
-      std::cout << "global_mem_cache_line_size/sizeof(fptype): " << neppM_opt << std::endl;
-  }
-
   sycl::queue q = sycl::queue(devices[d_id]);
 
   if (verbose) {
@@ -416,7 +395,7 @@ int main(int argc, char **argv)
   const fptype energy = 1500; // historical default, Ecms = 1500 GeV = 1.5 TeV (above the Z peak)
   //const fptype energy = 91.2; // Ecms = 91.2 GeV (Z peak)
   //const fptype energy = 0.100; // Ecms = 100 MeV (well below the Z peak, pure em scattering)
-  const size_t meGeVexponent = -(2 * mgOnGpu::npar - 8);
+  const int meGeVexponent = -(2 * mgOnGpu::npar - 8);
 
   // --- 0b. Allocate memory structures
   const std::string alloKey = "0b MemAlloc";
@@ -433,16 +412,18 @@ int main(int argc, char **argv)
   const size_t nMEs     = nevt; // FIXME: assume process.nprocesses == 1 (eventually: nMEs = nevt * nprocesses?)
 
   auto hstRnarray   = hstMakeUnique<fptype   >( nRnarray ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
-  auto hstMomenta   = hstMakeUnique<fptype_sv>( nMomenta ); // AOSOA[npagM][npar][np4][neppM] (NB: nevt=npagM*neppM)
+  auto hstMomenta   = hstMakeUnique<fptype   >( nMomenta );   // AOSOA[npagM][npar][np4][neppM] (NB: nevt=npagM*neppM)
+  auto hstMomenta2  = hstMakeUnique<fptype   >( nMomenta );   // AOSOA[npagM][npar][np4][neppM] (NB: nevt=npagM*neppM)
   auto hstIsGoodHel = hstMakeUnique<bool     >( ncomb );
   auto hstWeights   = hstMakeUnique<fptype   >( nWeights );
-  auto hstMEs       = hstMakeUnique<fptype_sv>( nMEs ); // AOSOA[npagM][neppM] (NB: nevt=npagM*neppM)
+  auto hstMEs       = hstMakeUnique<fptype   >( nMEs ); // AOSOA[npagM][neppM] (NB: nevt=npagM*neppM)
 
-  auto devRnarray   = sycl::malloc_device<fptype>( nRnarray,   q ); 
-  auto devMomenta   = sycl::malloc_device<fptype>( nMomenta,   q );
-  auto devIsGoodHel = sycl::malloc_device<bool  >( ncomb,      q );
-  auto devWeights   = sycl::malloc_device<fptype>( nWeights,   q );
-  auto devMEs       = sycl::malloc_device<fptype>( nMEs,       q );
+  auto devRnarray   = sycl::malloc_device<fptype >( nRnarray,   q ); 
+  auto devMomentaRn = sycl::malloc_device<fptype >( nMomenta,   q );
+  auto devMomenta   = sycl::malloc_device<vector4>( nMomenta/MGONGPU_MARRAY_DIM/MGONGPU_FOURVECTOR_DIM,   q );
+  auto devIsGoodHel = sycl::malloc_device<bool   >( ncomb,      q );
+  auto devWeights   = sycl::malloc_device<fptype >( nWeights,   q );
+  auto devMEs       = sycl::malloc_device<fptype_sv >( nMEs/MGONGPU_MARRAY_DIM,       q );
 #ifndef MGONGPU_HARDCODE_PARAM
   auto dev_independent_couplings  = sycl::malloc_device<cxtype>( Proc::independentCouplings::nicoup, q );
   auto dev_independent_parameters = sycl::malloc_device<fptype>( mgOnGpu::nparams,          q );
@@ -476,17 +457,17 @@ int main(int argc, char **argv)
       mg5amcGpu::Bridge<fptype>* pbridge;
       fptype* _gs;
       fptype* _mes;
-      fptype* _momenta;
+      //fptype* _momenta;
       if (bridge) {
           //Initialize bridge object
           pbridge = new mg5amcGpu::Bridge<fptype>( nevt, npar, np4 );
       
           _gs      = reinterpret_cast<fptype*>(std::malloc(nevt*sizeof(fptype)));
           _mes     = reinterpret_cast<fptype*>(std::malloc(nevt*sizeof(fptype)));
-          _momenta = reinterpret_cast<fptype*>(std::malloc(nevt*npar*np4*sizeof(fptype)));
-          for (size_t i=0; i < nevt*npar*np4; i++) {
-              _momenta[i] = hstMomenta[i];
-          }
+          //_momenta = reinterpret_cast<fptype*>(std::malloc(nevt*npar*np4*sizeof(fptype)));
+          //for (size_t i=0; i < nevt*npar*np4; i++) {
+          //    _momenta[i] = hstMomenta[i];
+          //}
           for (size_t i=0; i < nevt; i++) {
               _gs[i] = fixedG;
           }
@@ -545,7 +526,7 @@ int main(int argc, char **argv)
         cgh.parallel_for_work_group(sycl::range<1>{gpublocks}, sycl::range<1>{gputhreads}, ([=](sycl::group<1> wGroup) {
             wGroup.parallel_for_work_item([&](sycl::h_item<1> index) {
                 size_t ievt = index.get_global_id(0);
-                rambo2toNm0::ramboGetMomentaInitial( energy, devMomenta, ievt );
+                rambo2toNm0::ramboGetMomentaInitial( energy, devMomentaRn, ievt );
             });
         }));
     });
@@ -560,7 +541,7 @@ int main(int argc, char **argv)
         cgh.parallel_for_work_group(sycl::range<1>{gpublocks}, sycl::range<1>{gputhreads}, ([=](sycl::group<1> wGroup) {
             wGroup.parallel_for_work_item([&](sycl::h_item<1> index) {
                 size_t ievt = index.get_global_id(0);
-                rambo2toNm0::ramboGetMomentaFinal( energy, devRnarray, devMomenta, devWeights, ievt );
+                rambo2toNm0::ramboGetMomentaFinal( energy, devRnarray, devMomentaRn, devWeights, ievt );
             });
         }));
     });
@@ -574,7 +555,9 @@ int main(int argc, char **argv)
     // --- 2d. CopyDToH Momenta
     const std::string cmomKey = "2d CpDTHmom";
     rambtime += timermap.start( cmomKey );
-    q.memcpy(hstMomenta.get(), devMomenta, nbytesMomenta).wait();
+    q.memcpy(hstMomenta.get(), devMomentaRn, nbytesMomenta).wait();
+    mg5amcGpu::hst_transposeMomenta(hstMomenta2.get(), hstMomenta.get(), nevt);
+    q.memcpy(devMomenta, hstMomenta2.get(), nbytesMomenta).wait();
 
     // *** STOP THE OLD-STYLE TIMER FOR RAMBO ***
     rambtime += timermap.stop();
@@ -593,7 +576,11 @@ int main(int argc, char **argv)
       
       // ... 0d1. Compute good helicity mask on the device
       q.submit([&](sycl::handler& cgh) {
+          #if defined MGONGPU_USE_VEC && MGONGPU_MARRAY_DIM > 1
+          cgh.parallel_for_work_group(sycl::range<1>{gpublocks/MGONGPU_MARRAY_DIM}, sycl::range<1>{gputhreads}, ([=](sycl::group<1> wGroup) {
+          #else
           cgh.parallel_for_work_group(sycl::range<1>{gpublocks}, sycl::range<1>{gputhreads}, ([=](sycl::group<1> wGroup) {
+          #endif
               #ifndef MGONGPU_HARDCODE_PARAM
                   //Load independent couplings and parameters into shared memory if not hardcoded
                   auto _dev_independent_couplings = dev_independent_couplings;
@@ -601,8 +588,6 @@ int main(int argc, char **argv)
               #endif
               wGroup.parallel_for_work_item([&](sycl::h_item<1> index) {
                   size_t ievt = index.get_global_id(0);
-                  const size_t ipagM = ievt/neppM; // #eventpage in this iteration
-                  const size_t ieppM = ievt%neppM; // #event in the current eventpage in this iteration
 
                   #ifdef MGONGPU_HARDCODE_PARAM
                       //Load parameters into local (private) memory if hardcoded
@@ -610,11 +595,11 @@ int main(int argc, char **argv)
                   #endif
 
                   //Load helicities and couplings into local (private) memory
-                  auto dev_helicities = Proc::helicities<short>;
-                  cxtype dev_couplings[Proc::dependentCouplings::ndcoup + Proc::independentCouplings::nicoup];
+                  auto dev_helicities = Proc::helicities<signed char>;
+                  cxtype_sv dev_couplings[Proc::dependentCouplings::ndcoup + Proc::independentCouplings::nicoup];
 
                   #if MGONGPU_NDCOUP > 0
-                      Proc::dependentCouplings::set_couplings_from_G(dev_couplings, fixedG); 
+                      Proc::dependentCouplings::set_couplings_from_G(dev_couplings, fptype_sv(fixedG)); 
                   #endif
 
                   #if MGONGPU_NICOUP > 0
@@ -627,7 +612,7 @@ int main(int argc, char **argv)
                       }
                   #endif
 
-                  Proc::sigmaKin_getGoodHel( devMomenta + ipagM * npar * np4 * neppM + ieppM, devIsGoodHel, dev_helicities, dev_couplings, dev_parameters );
+                  Proc::sigmaKin_getGoodHel( devMomenta + npar*ievt, devIsGoodHel, dev_helicities, dev_couplings, dev_parameters );
               });
           }));
       });
@@ -653,7 +638,11 @@ int main(int argc, char **argv)
     timermap.start( skinKey );
 
     q.submit([&](sycl::handler& cgh) {
+        #if defined MGONGPU_USE_VEC && MGONGPU_MARRAY_DIM > 1
+        cgh.parallel_for_work_group(sycl::range<1>{gpublocks/MGONGPU_MARRAY_DIM}, sycl::range<1>{gputhreads}, ([=](sycl::group<1> wGroup) {
+        #else
         cgh.parallel_for_work_group(sycl::range<1>{gpublocks}, sycl::range<1>{gputhreads}, ([=](sycl::group<1> wGroup) {
+        #endif
             #ifndef MGONGPU_HARDCODE_PARAM
                 //Load independent couplings and parameters into shared memory if not hardcoded
                 auto _dev_independent_couplings = dev_independent_couplings;
@@ -661,8 +650,6 @@ int main(int argc, char **argv)
             #endif
             wGroup.parallel_for_work_item([&](sycl::h_item<1> index) {
                 size_t ievt = index.get_global_id(0);
-                const size_t ipagM = ievt/neppM; // #eventpage in this iteration
-                const size_t ieppM = ievt%neppM; // #event in the current eventpage in this iteration
 
                 #ifdef MGONGPU_HARDCODE_PARAM
                     //Load parameters into local (private) memory if hardcoded
@@ -670,11 +657,11 @@ int main(int argc, char **argv)
                 #endif
 
                 //Load helicities and couplings into local (private) memory
-                auto dev_helicities = Proc::helicities<short>;
-                cxtype dev_couplings[Proc::dependentCouplings::ndcoup + Proc::independentCouplings::nicoup];
+                auto dev_helicities = Proc::helicities<signed char>;
+                cxtype_sv dev_couplings[Proc::dependentCouplings::ndcoup + Proc::independentCouplings::nicoup];
 
                 #if MGONGPU_NDCOUP > 0
-                    Proc::dependentCouplings::set_couplings_from_G(dev_couplings, fixedG); 
+                    Proc::dependentCouplings::set_couplings_from_G(dev_couplings, fptype_sv(fixedG)); 
                 #endif
 
                 #if MGONGPU_NICOUP > 0
@@ -688,9 +675,9 @@ int main(int argc, char **argv)
                 #endif
 
                 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                    devMEs[ievt] = Proc::sigmaKin( devMomenta + ipagM * npar * np4 * neppM + ieppM, 0, dev_helicities, dev_couplings, dev_parameters, devcNGoodHel, devcGoodHel );
+                    devMEs[ievt] = Proc::sigmaKin( devMomenta + npar*ievt, 0, dev_helicities, dev_couplings, dev_parameters, devcNGoodHel, devcGoodHel );
                 #else
-                    devMEs[ievt] = Proc::sigmaKin( devMomenta + ipagM * npar * np4 * neppM + ieppM, dev_helicities, dev_couplings, dev_parameters, devcNGoodHel, devcGoodHel );
+                    devMEs[ievt] = Proc::sigmaKin( devMomenta + npar*ievt, dev_helicities, dev_couplings, dev_parameters, devcNGoodHel, devcGoodHel );
                 #endif
             });
         }));
@@ -714,7 +701,8 @@ int main(int argc, char **argv)
         if (bridge) {
             const std::string bridgeKey = "3c bridge";
             timermap.start( bridgeKey );
-            pbridge->gpu_sequence( _momenta, _gs, _mes, 0 );
+            //pbridge->gpu_sequence( _momenta, _gs, _mes, 0 );
+            pbridge->gpu_sequence( hstMomenta.get(), _gs, _mes, 0 );
             bridge_time += timermap.stop();
             
             //std::cout << "SA_MEs    Bridge_MEs    SA/Bridge" << std::endl;
@@ -745,18 +733,16 @@ int main(int argc, char **argv)
       if (verbose)
       {
         // Display momenta
-        const size_t ipagM = ievt/neppM; // #eventpage in this iteration
-        const size_t ieppM = ievt%neppM; // #event in the current eventpage in this iteration
         std::cout << "Momenta:" << std::endl;
         for (size_t ipar = 0; ipar < npar; ipar++)
         {
           // NB: 'setw' affects only the next field (of any type)
           std::cout << std::scientific // fixed format: affects all floats (default precision: 6)
                     << std::setw(4) << ipar + 1
-                    << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*np4*neppM + 0*neppM + ieppM] // AOSOA[ipagM][ipar][0][ieppM]
-                    << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*np4*neppM + 1*neppM + ieppM] // AOSOA[ipagM][ipar][1][ieppM]
-                    << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*np4*neppM + 2*neppM + ieppM] // AOSOA[ipagM][ipar][2][ieppM]
-                    << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*np4*neppM + 3*neppM + ieppM] // AOSOA[ipagM][ipar][3][ieppM]
+                    << std::setw(14) << hstMomenta[npar*np4*ievt + ipar*np4 + 0] // AOSOA[ipagM][ipar][0][ieppM]
+                    << std::setw(14) << hstMomenta[npar*np4*ievt + ipar*np4 + 1] // AOSOA[ipagM][ipar][1][ieppM]
+                    << std::setw(14) << hstMomenta[npar*np4*ievt + ipar*np4 + 2] // AOSOA[ipagM][ipar][2][ieppM]
+                    << std::setw(14) << hstMomenta[npar*np4*ievt + ipar*np4 + 3] // AOSOA[ipagM][ipar][3][ieppM]
                     << std::endl
                     << std::defaultfloat; // default format: affects all floats
         }
@@ -784,7 +770,7 @@ int main(int argc, char **argv)
           // Destroy bridge objects
           std::free(_gs);
           std::free(_mes);
-          std::free(_momenta);
+          //std::free(_momenta);
           delete pbridge;
       }
   #endif
@@ -941,7 +927,6 @@ int main(int argc, char **argv)
 #endif
               << "Complex type                = EXTRA" << std::endl
               << "RanNumb memory layout       = AOSOA[" << neppR << "]" << ( neppR == 1 ? " == AOS" : "" ) << " [HARDCODED FOR REPRODUCIBILITY]" << std::endl
-              << "Momenta memory layout       = AOSOA[" << neppM << "]" << ( neppM == 1 ? " == AOS" : "" ) << std::endl
               << "Random number generation    = COMMON RANDOM (C++ code)" << std::endl
               //<< "MatrixElements compiler     = " << process.getCompiler() << std::endl
               << std::string(SEP79, '-') << std::endl
@@ -1026,7 +1011,6 @@ int main(int argc, char **argv)
 #endif
              << "\"Complex type\": " << "\"EXTRA\"," << std::endl
              << "\"RanNumb memory layout\": " << "\"AOSOA[" << neppR << "]\"" << ( neppR == 1 ? " == AOS" : "" ) << ", " << std::endl
-             << "\"Momenta memory layout\": " << "\"AOSOA[" << neppM << "]\"" << ( neppM == 1 ? " == AOS" : "" ) << ", " << std::endl
              << "\"Curand generation\": " << "\"COMMON RANDOM (C++ code)\"," << std::endl;
 
     jsonFile << "\"NumberOfEntries\": " << niter << "," << std::endl

@@ -37,57 +37,52 @@ namespace Proc
   // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
   SYCL_EXTERNAL
   INLINE
-  fptype calculate_wavefunctions( const fptype_sv* __restrict__ allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-                                  #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                                      fptype* __restrict__ allNumerators,   // output: multichannel numerators, running_sum_over_helicities
-                                      fptype* __restrict__ allDenominators, // output: multichannel denominators, running_sum_over_helicities
-                                      const size_t channelId,               // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
-                                  #endif
-                                  const short*  __restrict__ cHel,
-                                  const cxtype* __restrict__ COUPs,
-                                  const fptype* __restrict__ cIPD
-                                )
-  //ALWAYS_INLINE // attributes are not permitted in a function definition
-  {
-    using namespace MG5_sm;
-    mgDebug( 0, __FUNCTION__ );
-    fptype allMEs = 0;
-    //const cxtype* COUPs = reinterpret_cast<const cxtype*>(cIPC);
+  fptype_sv calculate_wavefunctions( const vector4* __restrict__ allmomenta,      // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM FIXME no neppM fix docstring
+                                     #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+                                         fptype_sv* __restrict__ allNumerators,   // output: multichannel numerators, running_sum_over_helicities
+                                         fptype_sv* __restrict__ allDenominators, // output: multichannel denominators, running_sum_over_helicities
+                                         const size_t channelId,                  // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
+                                     #endif
+                                     const signed char*  __restrict__ cHel,
+                                     const cxtype_sv* __restrict__ COUPs,
+                                     const fptype* __restrict__ cIPD
+                                   ) {
+      using namespace MG5_sm;
+      fptype_sv allMEs = FPZERO_SV;
 
 
-    // The number of colors
-    constexpr size_t ncolor = 120;
+      // The number of colors
+      constexpr size_t ncolor = 120;
 
-    // Local TEMPORARY variables for a subset of Feynman diagrams in the given SYCL event (ievt)
-    // [NB these variables are reused several times (and re-initialised each time) within the same event or event page]
-    cxtype_sv w_sv[nwf][nw6]; // particle wavefunctions within Feynman diagrams (nw6 is often 6, the dimension of spin 1/2 or spin 1 particles)
-    cxtype_sv amp_sv[1]; // invariant amplitude for one given Feynman diagram
+      // Local TEMPORARY variables for a subset of Feynman diagrams in the given SYCL event (ievt)
+      // [NB these variables are reused several times (and re-initialised each time) within the same event or event page]
+      cxtype_sv w_sv[nwf][nw6]; // particle wavefunctions within Feynman diagrams (nw6 is often 6, the dimension of spin 1/2 or spin 1 particles)
+      cxtype_sv amp_sv[1]; // invariant amplitude for one given Feynman diagram
 
-    // Local variables for the given SYCL event (ievt)
-    cxtype_sv jamp_sv[ncolor] = {}; // sum of the invariant amplitudes for all Feynman diagrams in the event or event page
+      // Local variables for the given SYCL event (ievt)
+      cxtype_sv jamp_sv[ncolor] = {}; // sum of the invariant amplitudes for all Feynman diagrams in the event or event page
 
-    // === Calculate wavefunctions and amplitudes for all diagrams in all processes - Loop over nevt events ===
+      // === Calculate wavefunctions and amplitudes for all diagrams in all processes - Loop over nevt events ===
 
-    {
       // Reset color flows (reset jamp_sv) at the beginning of a new event or event page
-      for( int i=0; i<ncolor; i++ ){ jamp_sv[i] = cxzero_sv(); }
+      for (size_t i = 0; i < ncolor; i++){ jamp_sv[i] = CXZERO_SV; }
 
       // *** DIAGRAM 1 OF 1240 ***
 
       // Wavefunction(s) for diagram number 1
-      vxxxxx( allmomenta + 0 * np4 * neppM, 0., cHel[0], -1, w_sv[0]);
+      vxxxxx( allmomenta + 0, 0., cHel[0], -1, w_sv[0]);
 
-      vxxxxx( allmomenta + 1 * np4 * neppM, 0., cHel[1], -1, w_sv[1]);
+      vxxxxx( allmomenta + 1, 0., cHel[1], -1, w_sv[1]);
 
-      oxxxxx( allmomenta + 2 * np4 * neppM, cIPD[0], cHel[2], +1, w_sv[2]);
+      oxxxxx( allmomenta + 2, cIPD[0], cHel[2], +1, w_sv[2]);
 
-      ixxxxx( allmomenta + 3 * np4 * neppM, cIPD[0], cHel[3], -1, w_sv[3]);
+      ixxxxx( allmomenta + 3, cIPD[0], cHel[3], -1, w_sv[3]);
 
-      vxxxxx( allmomenta + 4 * np4 * neppM, 0., cHel[4], +1, w_sv[4]);
+      vxxxxx( allmomenta + 4, 0., cHel[4], +1, w_sv[4]);
 
-      vxxxxx( allmomenta + 5 * np4 * neppM, 0., cHel[5], +1, w_sv[5]);
+      vxxxxx( allmomenta + 5, 0., cHel[5], +1, w_sv[5]);
 
-      vxxxxx( allmomenta + 6 * np4 * neppM, 0., cHel[6], +1, w_sv[6]);
+      vxxxxx( allmomenta + 6, 0., cHel[6], +1, w_sv[6]);
 
       VVV1P0_1( w_sv[0], w_sv[1], COUPs[0], 0., 0., w_sv[7] );
       FFV1P0_3( w_sv[3], w_sv[2], COUPs[1], 0., 0., w_sv[8] );
@@ -1185,8 +1180,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[64] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[65] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[64] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[65] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 27 OF 1240 ***
 
@@ -1198,8 +1193,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[70] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[71] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[70] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[71] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 28 OF 1240 ***
 
@@ -1211,14 +1206,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[48] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[54] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[60] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[62] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[66] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[68] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[70] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[71] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[48] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[54] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[60] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[62] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[66] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[68] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[70] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[71] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 29 OF 1240 ***
 
@@ -1245,14 +1240,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[49] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[55] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[60] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[62] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[64] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[65] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[66] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[68] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[49] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[55] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[60] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[62] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[64] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[65] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[66] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[68] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 31 OF 1240 ***
 
@@ -1279,38 +1274,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[48] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[49] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[54] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[55] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[64] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[65] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[70] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[71] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[48] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[49] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[54] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[55] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[64] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[65] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[70] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[71] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[33], w_sv[22], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[49] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[55] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[60] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[62] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[64] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[65] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[66] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[68] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[49] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[55] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[60] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[62] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[64] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[65] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[66] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[68] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[33], w_sv[23], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[48] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[54] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[60] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[62] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[66] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[68] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[70] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[71] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[48] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[54] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[60] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[62] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[66] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[68] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[70] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[71] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 33 OF 1240 ***
 
@@ -1323,8 +1318,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[49] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[55] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[49] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[55] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 34 OF 1240 ***
 
@@ -1336,8 +1331,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[66] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[68] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[66] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[68] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 35 OF 1240 ***
 
@@ -1364,8 +1359,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[48] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[54] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[48] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[54] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 37 OF 1240 ***
 
@@ -1377,8 +1372,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[60] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[62] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[60] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[62] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 38 OF 1240 ***
 
@@ -1435,14 +1430,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[48] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[49] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[54] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[55] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[64] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[65] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[70] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[71] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[48] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[49] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[54] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[55] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[64] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[65] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[70] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[71] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 42 OF 1240 ***
 
@@ -1455,8 +1450,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[88] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[89] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[88] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[89] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 43 OF 1240 ***
 
@@ -1468,8 +1463,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[94] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[95] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[94] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[95] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 44 OF 1240 ***
 
@@ -1481,14 +1476,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[72] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[78] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[84] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[86] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[90] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[92] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[94] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[95] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[72] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[78] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[84] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[86] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[90] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[92] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[94] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[95] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 45 OF 1240 ***
 
@@ -1515,14 +1510,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[73] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[79] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[84] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[86] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[88] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[89] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[90] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[92] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[73] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[79] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[84] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[86] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[88] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[89] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[90] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[92] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 47 OF 1240 ***
 
@@ -1549,38 +1544,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[72] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[73] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[78] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[79] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[88] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[89] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[94] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[95] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[72] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[73] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[78] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[79] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[88] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[89] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[94] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[95] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[39], w_sv[19], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[73] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[79] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[84] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[86] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[88] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[89] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[90] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[92] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[73] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[79] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[84] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[86] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[88] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[89] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[90] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[92] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[39], w_sv[20], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[72] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[78] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[84] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[86] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[90] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[92] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[94] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[95] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[72] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[78] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[84] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[86] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[90] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[92] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[94] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[95] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 49 OF 1240 ***
 
@@ -1593,8 +1588,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[73] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[79] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[73] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[79] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 50 OF 1240 ***
 
@@ -1606,8 +1601,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[90] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[92] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[90] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[92] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 51 OF 1240 ***
 
@@ -1634,8 +1629,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[72] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[78] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[72] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[78] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 53 OF 1240 ***
 
@@ -1647,8 +1642,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[84] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[86] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[84] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[86] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 54 OF 1240 ***
 
@@ -1705,14 +1700,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[72] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[73] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[78] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[79] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[88] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[89] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[94] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[95] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[72] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[73] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[78] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[79] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[88] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[89] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[94] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[95] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 58 OF 1240 ***
 
@@ -1725,8 +1720,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[112] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[113] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[112] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[113] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 59 OF 1240 ***
 
@@ -1738,8 +1733,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[118] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[119] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[118] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[119] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 60 OF 1240 ***
 
@@ -1751,14 +1746,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[96] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[102] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[108] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[110] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[114] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[116] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[118] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[119] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[96] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[102] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[108] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[110] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[114] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[116] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[118] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[119] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 61 OF 1240 ***
 
@@ -1785,14 +1780,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[97] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[103] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[108] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[110] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[112] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[113] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[114] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[116] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[97] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[103] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[108] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[110] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[112] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[113] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[114] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[116] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 63 OF 1240 ***
 
@@ -1819,38 +1814,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[96] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[97] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[102] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[103] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[112] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[113] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[118] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[119] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[96] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[97] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[102] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[103] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[112] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[113] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[118] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[119] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[47], w_sv[16], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[97] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[103] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[108] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[110] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[112] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[113] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[114] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[116] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[97] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[103] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[108] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[110] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[112] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[113] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[114] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[116] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[47], w_sv[17], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[96] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[102] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[108] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[110] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[114] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[116] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[118] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[119] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[96] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[102] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[108] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[110] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[114] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[116] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[118] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[119] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 65 OF 1240 ***
 
@@ -1862,8 +1857,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[97] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[103] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[97] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[103] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 66 OF 1240 ***
 
@@ -1875,8 +1870,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[114] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[116] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[114] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[116] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 67 OF 1240 ***
 
@@ -1903,8 +1898,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[96] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[102] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[96] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[102] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 69 OF 1240 ***
 
@@ -1916,8 +1911,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[108] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[110] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[108] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[110] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 70 OF 1240 ***
 
@@ -1974,14 +1969,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[96] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[97] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[102] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[103] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[112] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[113] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[118] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[119] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[96] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[97] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[102] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[103] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[112] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[113] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[118] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[119] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 74 OF 1240 ***
 
@@ -1994,8 +1989,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[5] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[29] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[5] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[29] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 75 OF 1240 ***
 
@@ -2007,8 +2002,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[3] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[27] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[27] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 76 OF 1240 ***
 
@@ -2020,14 +2015,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[3] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[27] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[73] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[79] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[97] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[103] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[114] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[116] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[27] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[73] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[79] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[97] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[103] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[114] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[116] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 77 OF 1240 ***
 
@@ -2054,14 +2049,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[5] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[29] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[73] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[79] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[90] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[92] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[97] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[103] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[5] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[29] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[73] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[79] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[90] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[92] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[97] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[103] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 79 OF 1240 ***
 
@@ -2088,38 +2083,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[3] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[27] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[29] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[90] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[92] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[114] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[116] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[5] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[27] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[29] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[90] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[92] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[114] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[116] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[46], w_sv[2], w_sv[22], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[5] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[29] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[73] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[79] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[90] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[92] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[97] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[103] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[5] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[29] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[73] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[79] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[90] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[92] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[97] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[103] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[46], w_sv[2], w_sv[23], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[3] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[27] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[73] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[79] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[97] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[103] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[114] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[116] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[27] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[73] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[79] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[97] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[103] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[114] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[116] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 81 OF 1240 ***
 
@@ -2161,14 +2156,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[3] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[27] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[29] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[90] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[92] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[114] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[116] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[5] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[27] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[29] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[90] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[92] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[114] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[116] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 84 OF 1240 ***
 
@@ -2180,8 +2175,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[4] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[28] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[28] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 85 OF 1240 ***
 
@@ -2193,8 +2188,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[1] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[25] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[25] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 86 OF 1240 ***
 
@@ -2206,14 +2201,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[1] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[25] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[49] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[55] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[96] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[102] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[108] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[110] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[25] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[49] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[55] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[96] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[102] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[108] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[110] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 87 OF 1240 ***
 
@@ -2240,14 +2235,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[4] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[28] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[49] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[55] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[66] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[68] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[96] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[102] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[28] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[49] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[55] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[66] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[68] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[96] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[102] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 89 OF 1240 ***
 
@@ -2274,38 +2269,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[1] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[25] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[28] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[66] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[68] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[108] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[110] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[4] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[25] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[28] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[66] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[68] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[108] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[110] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[38], w_sv[2], w_sv[19], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[4] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[28] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[49] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[55] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[66] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[68] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[96] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[102] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[28] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[49] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[55] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[66] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[68] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[96] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[102] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[38], w_sv[2], w_sv[20], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[1] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[25] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[49] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[55] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[96] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[102] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[108] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[110] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[25] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[49] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[55] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[96] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[102] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[108] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[110] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 91 OF 1240 ***
 
@@ -2347,14 +2342,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[1] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[25] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[28] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[66] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[68] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[108] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[110] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[4] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[25] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[28] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[66] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[68] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[108] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[110] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 94 OF 1240 ***
 
@@ -2366,8 +2361,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[2] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[26] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[26] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 95 OF 1240 ***
 
@@ -2379,8 +2374,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[24] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[24] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 96 OF 1240 ***
 
@@ -2392,14 +2387,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[24] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[48] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[54] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[72] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[78] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[84] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[86] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[24] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[48] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[54] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[72] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[78] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[84] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[86] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 97 OF 1240 ***
 
@@ -2426,14 +2421,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[2] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[26] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[48] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[54] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[60] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[62] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[72] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[78] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[26] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[48] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[54] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[60] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[62] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[72] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[78] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 99 OF 1240 ***
 
@@ -2460,38 +2455,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[24] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[26] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[60] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[62] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[84] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[86] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[2] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[24] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[26] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[60] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[62] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[84] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[86] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[41], w_sv[2], w_sv[16], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[2] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[26] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[48] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[54] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[60] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[62] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[72] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[78] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[26] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[48] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[54] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[60] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[62] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[72] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[78] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[41], w_sv[2], w_sv[17], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[24] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[48] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[54] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[72] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[78] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[84] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[86] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[24] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[48] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[54] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[72] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[78] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[84] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[86] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 101 OF 1240 ***
 
@@ -2533,14 +2528,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[24] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[26] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[60] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[62] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[84] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[86] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[2] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[24] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[26] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[60] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[62] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[84] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[86] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 104 OF 1240 ***
 
@@ -2567,14 +2562,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[24] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[26] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[28] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[29] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[2] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[4] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[5] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[24] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[26] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[28] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[29] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 106 OF 1240 ***
 
@@ -2601,14 +2596,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[64] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[65] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[88] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[89] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[112] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[113] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[118] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[119] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[64] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[65] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[88] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[89] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[112] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[113] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[118] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[119] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 108 OF 1240 ***
 
@@ -2620,14 +2615,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[60] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[62] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[64] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[65] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[84] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[86] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[88] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[89] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[60] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[62] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[64] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[65] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[84] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[86] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[88] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[89] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 109 OF 1240 ***
 
@@ -2639,14 +2634,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[4] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[28] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[29] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[96] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[97] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[102] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[103] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[5] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[28] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[29] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[96] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[97] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[102] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[103] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 110 OF 1240 ***
 
@@ -2673,14 +2668,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[1] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[25] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[26] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[27] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[28] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[2] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[3] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[4] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[25] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[26] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[27] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[28] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 112 OF 1240 ***
 
@@ -2707,14 +2702,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[70] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[71] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[88] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[89] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[94] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[95] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[112] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[113] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[70] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[71] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[88] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[89] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[94] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[95] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[112] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[113] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 114 OF 1240 ***
 
@@ -2726,14 +2721,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[66] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[68] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[70] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[71] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[108] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[110] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[112] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[113] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[66] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[68] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[70] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[71] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[108] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[110] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[112] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[113] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 115 OF 1240 ***
 
@@ -2745,14 +2740,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[2] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[26] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[27] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[72] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[73] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[78] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[79] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[3] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[26] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[27] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[72] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[73] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[78] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[79] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 116 OF 1240 ***
 
@@ -2779,14 +2774,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[24] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[25] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[27] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[29] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[1] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[3] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[5] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[24] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[25] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[27] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[29] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 118 OF 1240 ***
 
@@ -2813,14 +2808,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[64] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[65] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[70] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[71] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[94] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[95] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[118] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[119] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[64] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[65] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[70] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[71] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[94] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[95] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[118] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[119] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 120 OF 1240 ***
 
@@ -2832,14 +2827,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[90] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[92] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[94] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[95] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[114] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[116] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[118] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[119] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[90] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[92] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[94] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[95] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[114] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[116] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[118] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[119] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 121 OF 1240 ***
 
@@ -2851,14 +2846,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[24] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[25] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[48] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[49] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[54] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[55] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[1] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[24] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[25] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[48] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[49] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[54] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[55] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 122 OF 1240 ***
 
@@ -2870,38 +2865,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[24] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[25] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[27] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[29] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[1] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[3] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[5] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[24] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[25] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[27] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[29] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[52], w_sv[31], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[1] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[25] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[26] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[27] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[28] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[2] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[3] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[4] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[25] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[26] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[27] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[28] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[52], w_sv[32], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[24] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[26] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[28] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[29] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[2] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[4] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[5] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[24] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[26] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[28] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[29] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 123 OF 1240 ***
 
@@ -2913,38 +2908,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[64] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[65] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[70] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[71] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[94] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[95] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[118] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[119] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[64] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[65] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[70] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[71] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[94] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[95] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[118] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[119] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[34], w_sv[2], w_sv[31], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[70] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[71] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[88] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[89] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[94] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[95] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[112] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[113] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[70] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[71] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[88] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[89] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[94] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[95] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[112] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[113] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[34], w_sv[2], w_sv[32], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[64] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[65] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[88] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[89] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[112] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[113] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[118] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[119] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[64] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[65] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[88] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[89] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[112] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[113] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[118] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[119] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 124 OF 1240 ***
 
@@ -3047,8 +3042,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[9] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[9] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[15] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 132 OF 1240 ***
 
@@ -3060,8 +3055,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[21] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[21] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[23] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 133 OF 1240 ***
 
@@ -3088,8 +3083,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[11] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[11] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[21] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 135 OF 1240 ***
 
@@ -3101,8 +3096,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[15] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[15] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[17] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 136 OF 1240 ***
 
@@ -3129,8 +3124,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[9] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[9] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[11] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 138 OF 1240 ***
 
@@ -3142,8 +3137,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[17] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[17] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[23] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 139 OF 1240 ***
 
@@ -3188,14 +3183,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[6] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[12] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[14] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[18] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[20] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[22] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[23] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 141 OF 1240 ***
 
@@ -3207,14 +3202,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[1] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[7] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[12] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[14] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[16] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[17] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[18] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[20] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 142 OF 1240 ***
 
@@ -3226,38 +3221,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[6] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[12] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[14] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[18] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[20] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[22] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[23] += CXIMAGINARYI_SV * amp_sv[0];
       VVVV3_0( w_sv[61], w_sv[5], w_sv[6], w_sv[62], COUPs[2], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[1] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[7] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[12] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[14] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[16] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[17] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[18] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[20] -= CXIMAGINARYI_SV * amp_sv[0];
       VVVV4_0( w_sv[61], w_sv[5], w_sv[6], w_sv[62], COUPs[2], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[1] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[6] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[7] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[16] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[17] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[22] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[23] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 143 OF 1240 ***
 
@@ -3269,8 +3264,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[16] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[16] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[17] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 144 OF 1240 ***
 
@@ -3297,8 +3292,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[22] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[22] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[23] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 146 OF 1240 ***
 
@@ -3325,8 +3320,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[1] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[7] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 148 OF 1240 ***
 
@@ -3353,8 +3348,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[18] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[18] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[20] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 150 OF 1240 ***
 
@@ -3366,8 +3361,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[6] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 151 OF 1240 ***
 
@@ -3394,8 +3389,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[12] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[12] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[14] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 153 OF 1240 ***
 
@@ -3422,14 +3417,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[1] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[6] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[7] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[16] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[17] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[22] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[23] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 155 OF 1240 ***
 
@@ -3457,14 +3452,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[2] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[19] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[6] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[8] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[12] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[19] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[20] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[21] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[22] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 157 OF 1240 ***
 
@@ -3476,14 +3471,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[3] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[13] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[19] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[6] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[8] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[10] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[11] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[13] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[19] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[22] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 158 OF 1240 ***
 
@@ -3495,38 +3490,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[2] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[19] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[6] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[8] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[12] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[19] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[20] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[21] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[22] -= CXIMAGINARYI_SV * amp_sv[0];
       VVVV3_0( w_sv[66], w_sv[4], w_sv[6], w_sv[62], COUPs[2], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[3] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[13] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[19] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[6] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[8] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[10] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[11] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[13] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[19] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[22] -= CXIMAGINARYI_SV * amp_sv[0];
       VVVV4_0( w_sv[66], w_sv[4], w_sv[6], w_sv[62], COUPs[2], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[2] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[13] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[3] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[10] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[11] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[12] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[13] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[20] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[21] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 159 OF 1240 ***
 
@@ -3538,8 +3533,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[10] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[10] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[11] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 160 OF 1240 ***
 
@@ -3566,8 +3561,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[20] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[20] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[21] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 162 OF 1240 ***
 
@@ -3594,8 +3589,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[3] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[13] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[13] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 164 OF 1240 ***
 
@@ -3622,8 +3617,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[19] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[19] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[22] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 166 OF 1240 ***
 
@@ -3635,8 +3630,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[2] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[12] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 167 OF 1240 ***
 
@@ -3663,8 +3658,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[6] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[6] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[8] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 169 OF 1240 ***
 
@@ -3691,14 +3686,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[2] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[13] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[3] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[10] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[11] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[12] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[13] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[20] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[21] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 171 OF 1240 ***
 
@@ -3726,14 +3721,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[4] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[13] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[7] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[10] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[13] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[14] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[15] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[16] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[18] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 173 OF 1240 ***
 
@@ -3745,14 +3740,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[5] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[13] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[19] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[5] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[7] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[8] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[9] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[10] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[13] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[16] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[19] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 174 OF 1240 ***
 
@@ -3764,38 +3759,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[4] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[13] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[7] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[10] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[13] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[14] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[15] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[16] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[18] += CXIMAGINARYI_SV * amp_sv[0];
       VVVV3_0( w_sv[72], w_sv[4], w_sv[5], w_sv[62], COUPs[2], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[5] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[13] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[19] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[5] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[7] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[8] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[9] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[10] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[13] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[16] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[19] += CXIMAGINARYI_SV * amp_sv[0];
       VVVV4_0( w_sv[72], w_sv[4], w_sv[5], w_sv[62], COUPs[2], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[4] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[19] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[5] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[8] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[9] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[14] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[15] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[18] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[19] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 175 OF 1240 ***
 
@@ -3807,8 +3802,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[8] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[8] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[9] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 176 OF 1240 ***
 
@@ -3835,8 +3830,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[14] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[14] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[15] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 178 OF 1240 ***
 
@@ -3863,8 +3858,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[5] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[19] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[5] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[19] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 180 OF 1240 ***
 
@@ -3891,8 +3886,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[13] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[13] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[16] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 182 OF 1240 ***
 
@@ -3904,8 +3899,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[4] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[18] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 183 OF 1240 ***
 
@@ -3932,8 +3927,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[7] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[7] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[10] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 185 OF 1240 ***
 
@@ -3960,14 +3955,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[4] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[19] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[5] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[8] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[9] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[14] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[15] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[18] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[19] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 187 OF 1240 ***
 
@@ -4066,8 +4061,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[3] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[5] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 195 OF 1240 ***
 
@@ -4094,8 +4089,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[16] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[16] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[22] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 197 OF 1240 ***
 
@@ -4179,8 +4174,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[1] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[4] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 204 OF 1240 ***
 
@@ -4207,8 +4202,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[10] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[10] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[20] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 206 OF 1240 ***
 
@@ -4292,8 +4287,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[2] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 213 OF 1240 ***
 
@@ -4320,8 +4315,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[8] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[8] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[14] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 215 OF 1240 ***
 
@@ -4333,8 +4328,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[4] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[5] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 216 OF 1240 ***
 
@@ -4361,14 +4356,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[19] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[2] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[8] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[14] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[18] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[19] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[21] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[23] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 218 OF 1240 ***
 
@@ -4380,14 +4375,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[2] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[4] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[5] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[9] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[15] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[21] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[23] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 219 OF 1240 ***
 
@@ -4399,38 +4394,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[19] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[2] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[8] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[14] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[18] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[19] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[21] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[23] += CXIMAGINARYI_SV * amp_sv[0];
       VVVV3_0( w_sv[1], w_sv[24], w_sv[6], w_sv[62], COUPs[2], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[4] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[19] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[5] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[8] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[9] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[14] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[15] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[18] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[19] -= CXIMAGINARYI_SV * amp_sv[0];
       VVVV4_0( w_sv[1], w_sv[24], w_sv[6], w_sv[62], COUPs[2], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[2] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[4] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[5] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[9] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[15] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[21] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[23] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 220 OF 1240 ***
 
@@ -4457,8 +4452,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[18] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[19] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[18] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[19] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 222 OF 1240 ***
 
@@ -4470,8 +4465,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[2] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[3] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 223 OF 1240 ***
 
@@ -4498,14 +4493,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[1] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[13] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[4] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[10] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[12] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[13] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[15] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[17] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[20] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 225 OF 1240 ***
 
@@ -4517,14 +4512,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[1] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[2] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[3] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[4] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[11] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[15] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[17] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[21] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 226 OF 1240 ***
 
@@ -4536,38 +4531,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[1] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[13] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[4] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[10] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[12] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[13] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[15] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[17] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[20] -= CXIMAGINARYI_SV * amp_sv[0];
       VVVV3_0( w_sv[1], w_sv[27], w_sv[5], w_sv[62], COUPs[2], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[2] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[13] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[3] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[10] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[11] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[12] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[13] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[20] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[21] += CXIMAGINARYI_SV * amp_sv[0];
       VVVV4_0( w_sv[1], w_sv[27], w_sv[5], w_sv[62], COUPs[2], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[1] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[2] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[3] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[4] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[11] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[15] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[17] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[21] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 227 OF 1240 ***
 
@@ -4594,8 +4589,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[12] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[13] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[12] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[13] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 229 OF 1240 ***
 
@@ -4607,8 +4602,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[1] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 230 OF 1240 ***
 
@@ -4635,14 +4630,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[3] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[5] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[6] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[7] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[9] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[11] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[16] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[22] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 232 OF 1240 ***
 
@@ -4654,14 +4649,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[1] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[3] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[5] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[9] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[11] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[17] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[23] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 233 OF 1240 ***
 
@@ -4673,38 +4668,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[1] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[6] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[7] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[16] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[17] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[22] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[23] += CXIMAGINARYI_SV * amp_sv[0];
       VVVV3_0( w_sv[1], w_sv[4], w_sv[29], w_sv[62], COUPs[2], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[3] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[5] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[6] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[7] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[9] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[11] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[16] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[22] -= CXIMAGINARYI_SV * amp_sv[0];
       VVVV4_0( w_sv[1], w_sv[4], w_sv[29], w_sv[62], COUPs[2], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[1] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[3] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[5] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[9] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[11] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[17] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[23] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 234 OF 1240 ***
 
@@ -4731,8 +4726,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[6] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[6] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[7] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 236 OF 1240 ***
 
@@ -4746,38 +4741,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[19] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[2] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[8] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[14] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[18] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[19] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[21] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[23] += CXIMAGINARYI_SV * amp_sv[0];
       VVV1_0( w_sv[79], w_sv[6], w_sv[62], COUPs[0], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[2] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[19] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[6] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[8] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[12] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[19] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[20] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[21] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[22] += CXIMAGINARYI_SV * amp_sv[0];
       VVV1_0( w_sv[80], w_sv[6], w_sv[62], COUPs[0], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[6] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[12] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[14] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[18] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[20] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[22] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[23] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 237 OF 1240 ***
 
@@ -4853,38 +4848,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[1] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[13] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[4] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[10] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[12] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[13] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[15] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[17] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[20] -= CXIMAGINARYI_SV * amp_sv[0];
       VVV1_0( w_sv[81], w_sv[5], w_sv[62], COUPs[0], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[4] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[13] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[7] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[10] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[13] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[14] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[15] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[16] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[18] -= CXIMAGINARYI_SV * amp_sv[0];
       VVV1_0( w_sv[82], w_sv[5], w_sv[62], COUPs[0], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[1] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[7] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[12] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[14] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[16] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[17] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[18] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[20] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 240 OF 1240 ***
 
@@ -4960,38 +4955,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[3] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[5] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[6] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[7] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[9] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[11] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[16] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[22] -= CXIMAGINARYI_SV * amp_sv[0];
       VVV1_0( w_sv[83], w_sv[4], w_sv[62], COUPs[0], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[5] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[13] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[19] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[5] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[7] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[8] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[9] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[10] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[13] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[16] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[19] -= CXIMAGINARYI_SV * amp_sv[0];
       VVV1_0( w_sv[84], w_sv[4], w_sv[62], COUPs[0], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[3] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[13] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[19] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[6] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[8] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[10] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[11] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[13] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[19] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[22] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 243 OF 1240 ***
 
@@ -5096,38 +5091,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[1] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[3] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[5] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[9] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[11] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[17] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[23] += CXIMAGINARYI_SV * amp_sv[0];
       VVV1_0( w_sv[1], w_sv[31], w_sv[62], COUPs[0], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[1] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[2] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[3] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[4] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[11] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[15] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[17] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[21] += CXIMAGINARYI_SV * amp_sv[0];
       VVV1_0( w_sv[1], w_sv[32], w_sv[62], COUPs[0], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[2] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[4] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[5] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[9] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[15] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[21] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[23] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 247 OF 1240 ***
 
@@ -5230,8 +5225,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[45] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[47] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[45] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[47] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 255 OF 1240 ***
 
@@ -5243,8 +5238,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[33] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[39] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[33] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[39] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 256 OF 1240 ***
 
@@ -5271,8 +5266,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[39] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[41] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[39] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[41] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 258 OF 1240 ***
 
@@ -5284,8 +5279,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[35] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[45] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[35] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[45] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 259 OF 1240 ***
 
@@ -5312,8 +5307,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[41] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[47] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[41] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[47] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 261 OF 1240 ***
 
@@ -5325,8 +5320,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[33] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[35] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[33] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[35] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 262 OF 1240 ***
 
@@ -5369,14 +5364,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[33] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[57] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[81] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[87] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[105] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[111] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[117] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[119] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[33] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[57] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[81] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[87] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[105] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[111] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[117] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[119] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 264 OF 1240 ***
 
@@ -5388,14 +5383,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[35] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[59] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[81] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[87] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[93] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[95] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[105] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[111] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[35] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[59] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[81] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[87] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[93] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[95] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[105] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[111] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 265 OF 1240 ***
 
@@ -5407,38 +5402,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[33] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[57] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[81] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[87] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[105] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[111] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[117] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[119] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[33] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[57] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[81] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[87] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[105] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[111] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[117] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[119] += CXIMAGINARYI_SV * amp_sv[0];
       VVVV3_0( w_sv[61], w_sv[5], w_sv[6], w_sv[92], COUPs[2], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[35] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[59] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[81] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[87] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[93] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[95] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[105] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[111] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[35] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[59] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[81] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[87] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[93] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[95] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[105] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[111] -= CXIMAGINARYI_SV * amp_sv[0];
       VVVV4_0( w_sv[61], w_sv[5], w_sv[6], w_sv[92], COUPs[2], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[33] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[35] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[57] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[59] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[93] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[95] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[117] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[119] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[33] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[35] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[57] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[59] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[93] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[95] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[117] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[119] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 266 OF 1240 ***
 
@@ -5450,8 +5445,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[35] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[59] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[35] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[59] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 267 OF 1240 ***
 
@@ -5478,8 +5473,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[33] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[57] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[33] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[57] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 269 OF 1240 ***
 
@@ -5506,8 +5501,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[93] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[95] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[93] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[95] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 271 OF 1240 ***
 
@@ -5534,8 +5529,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[81] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[87] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[81] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[87] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 273 OF 1240 ***
 
@@ -5547,8 +5542,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[117] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[119] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[117] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[119] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 274 OF 1240 ***
 
@@ -5575,8 +5570,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[105] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[111] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[105] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[111] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 276 OF 1240 ***
 
@@ -5603,14 +5598,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[33] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[35] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[57] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[59] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[93] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[95] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[117] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[119] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[33] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[35] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[57] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[59] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[93] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[95] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[117] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[119] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 278 OF 1240 ***
 
@@ -5637,14 +5632,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[39] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[57] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[63] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[81] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[107] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[111] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[113] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[117] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[39] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[57] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[63] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[81] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[107] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[111] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[113] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[117] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 280 OF 1240 ***
 
@@ -5656,14 +5651,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[41] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[57] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[63] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[69] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[71] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[83] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[107] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[117] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[41] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[57] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[63] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[69] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[71] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[83] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[107] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[117] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 281 OF 1240 ***
 
@@ -5675,38 +5670,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[39] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[57] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[63] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[81] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[107] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[111] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[113] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[117] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[39] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[57] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[63] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[81] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[107] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[111] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[113] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[117] -= CXIMAGINARYI_SV * amp_sv[0];
       VVVV3_0( w_sv[66], w_sv[4], w_sv[6], w_sv[92], COUPs[2], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[41] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[57] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[63] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[69] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[71] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[83] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[107] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[117] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[41] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[57] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[63] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[69] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[71] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[83] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[107] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[117] -= CXIMAGINARYI_SV * amp_sv[0];
       VVVV4_0( w_sv[66], w_sv[4], w_sv[6], w_sv[92], COUPs[2], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[39] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[41] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[69] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[71] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[81] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[83] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[111] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[113] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[39] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[41] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[69] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[71] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[81] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[83] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[111] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[113] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 282 OF 1240 ***
 
@@ -5718,8 +5713,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[41] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[83] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[41] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[83] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 283 OF 1240 ***
 
@@ -5746,8 +5741,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[39] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[81] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[39] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[81] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 285 OF 1240 ***
 
@@ -5774,8 +5769,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[69] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[71] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[69] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[71] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 287 OF 1240 ***
 
@@ -5802,8 +5797,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[57] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[63] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[57] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[63] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 289 OF 1240 ***
 
@@ -5815,8 +5810,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[111] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[113] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[111] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[113] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 290 OF 1240 ***
 
@@ -5843,8 +5838,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[107] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[117] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[107] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[117] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 292 OF 1240 ***
 
@@ -5871,14 +5866,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[39] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[41] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[69] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[71] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[81] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[83] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[111] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[113] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[39] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[41] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[69] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[71] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[81] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[83] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[111] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[113] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 294 OF 1240 ***
 
@@ -5905,14 +5900,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[45] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[59] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[69] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[83] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[87] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[89] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[93] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[105] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[45] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[59] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[69] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[83] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[87] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[89] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[93] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[105] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 296 OF 1240 ***
 
@@ -5924,14 +5919,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[47] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[59] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[63] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[65] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[69] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[83] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[93] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[107] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[47] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[59] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[63] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[65] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[69] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[83] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[93] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[107] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 297 OF 1240 ***
 
@@ -5943,38 +5938,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[45] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[59] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[69] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[83] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[87] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[89] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[93] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[105] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[45] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[59] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[69] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[83] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[87] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[89] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[93] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[105] += CXIMAGINARYI_SV * amp_sv[0];
       VVVV3_0( w_sv[72], w_sv[4], w_sv[5], w_sv[92], COUPs[2], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[47] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[59] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[63] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[65] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[69] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[83] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[93] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[107] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[47] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[59] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[63] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[65] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[69] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[83] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[93] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[107] += CXIMAGINARYI_SV * amp_sv[0];
       VVVV4_0( w_sv[72], w_sv[4], w_sv[5], w_sv[92], COUPs[2], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[45] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[47] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[63] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[65] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[87] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[89] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[105] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[107] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[45] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[47] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[63] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[65] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[87] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[89] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[105] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[107] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 298 OF 1240 ***
 
@@ -5986,8 +5981,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[47] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[107] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[47] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[107] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 299 OF 1240 ***
 
@@ -6014,8 +6009,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[45] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[105] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[45] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[105] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 301 OF 1240 ***
 
@@ -6042,8 +6037,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[63] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[65] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[63] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[65] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 303 OF 1240 ***
 
@@ -6070,8 +6065,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[59] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[69] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[59] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[69] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 305 OF 1240 ***
 
@@ -6083,8 +6078,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[87] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[89] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[87] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[89] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 306 OF 1240 ***
 
@@ -6111,8 +6106,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[83] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[93] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[83] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[93] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 308 OF 1240 ***
 
@@ -6139,14 +6134,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[45] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[47] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[63] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[65] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[87] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[89] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[105] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[107] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[45] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[47] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[63] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[65] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[87] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[89] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[105] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[107] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 310 OF 1240 ***
 
@@ -6245,8 +6240,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[65] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[71] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[65] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[71] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 318 OF 1240 ***
 
@@ -6273,8 +6268,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[57] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[59] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[57] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[59] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 320 OF 1240 ***
 
@@ -6358,8 +6353,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[89] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[95] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[89] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[95] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 327 OF 1240 ***
 
@@ -6386,8 +6381,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[81] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[83] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[81] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[83] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 329 OF 1240 ***
 
@@ -6471,8 +6466,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[113] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[119] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[113] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[119] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 336 OF 1240 ***
 
@@ -6499,8 +6494,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[105] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[107] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[105] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[107] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 338 OF 1240 ***
 
@@ -6512,8 +6507,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[65] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[89] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[65] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[89] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 339 OF 1240 ***
 
@@ -6540,14 +6535,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[33] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[39] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[63] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[87] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[105] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[107] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[113] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[119] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[33] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[39] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[63] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[87] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[105] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[107] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[113] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[119] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 341 OF 1240 ***
 
@@ -6559,14 +6554,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[33] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[39] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[45] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[47] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[65] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[89] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[113] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[119] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[33] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[39] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[45] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[47] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[65] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[89] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[113] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[119] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 342 OF 1240 ***
 
@@ -6578,38 +6573,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[33] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[39] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[63] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[87] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[105] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[107] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[113] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[119] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[33] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[39] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[63] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[87] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[105] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[107] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[113] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[119] += CXIMAGINARYI_SV * amp_sv[0];
       VVVV3_0( w_sv[1], w_sv[24], w_sv[6], w_sv[92], COUPs[2], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[45] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[47] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[63] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[65] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[87] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[89] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[105] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[107] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[45] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[47] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[63] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[65] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[87] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[89] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[105] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[107] -= CXIMAGINARYI_SV * amp_sv[0];
       VVVV4_0( w_sv[1], w_sv[24], w_sv[6], w_sv[92], COUPs[2], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[33] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[39] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[45] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[47] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[65] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[89] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[113] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[119] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[33] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[39] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[45] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[47] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[65] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[89] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[113] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[119] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 343 OF 1240 ***
 
@@ -6636,8 +6631,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[63] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[87] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[63] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[87] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 345 OF 1240 ***
 
@@ -6649,8 +6644,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[71] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[113] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[71] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[113] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 346 OF 1240 ***
 
@@ -6677,14 +6672,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[35] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[45] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[69] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[81] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[83] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[89] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[95] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[111] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[35] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[45] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[69] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[81] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[83] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[89] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[95] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[111] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 348 OF 1240 ***
 
@@ -6696,14 +6691,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[35] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[39] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[41] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[45] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[71] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[89] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[95] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[113] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[35] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[39] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[41] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[45] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[71] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[89] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[95] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[113] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 349 OF 1240 ***
 
@@ -6715,38 +6710,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[35] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[45] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[69] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[81] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[83] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[89] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[95] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[111] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[35] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[45] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[69] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[81] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[83] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[89] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[95] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[111] -= CXIMAGINARYI_SV * amp_sv[0];
       VVVV3_0( w_sv[1], w_sv[27], w_sv[5], w_sv[92], COUPs[2], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[39] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[41] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[69] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[71] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[81] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[83] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[111] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[113] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[39] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[41] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[69] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[71] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[81] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[83] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[111] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[113] += CXIMAGINARYI_SV * amp_sv[0];
       VVVV4_0( w_sv[1], w_sv[27], w_sv[5], w_sv[92], COUPs[2], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[35] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[39] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[41] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[45] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[71] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[89] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[95] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[113] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[35] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[39] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[41] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[45] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[71] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[89] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[95] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[113] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 350 OF 1240 ***
 
@@ -6773,8 +6768,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[69] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[111] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[69] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[111] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 352 OF 1240 ***
 
@@ -6786,8 +6781,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[95] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[119] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[95] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[119] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 353 OF 1240 ***
 
@@ -6814,14 +6809,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[41] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[47] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[57] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[59] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[65] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[71] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[93] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[117] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[41] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[47] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[57] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[59] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[65] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[71] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[93] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[117] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 355 OF 1240 ***
 
@@ -6833,14 +6828,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[33] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[35] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[41] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[47] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[65] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[71] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[95] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[119] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[33] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[35] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[41] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[47] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[65] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[71] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[95] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[119] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 356 OF 1240 ***
 
@@ -6852,38 +6847,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[33] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[35] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[57] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[59] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[93] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[95] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[117] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[119] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[33] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[35] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[57] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[59] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[93] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[95] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[117] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[119] += CXIMAGINARYI_SV * amp_sv[0];
       VVVV3_0( w_sv[1], w_sv[4], w_sv[29], w_sv[92], COUPs[2], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[41] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[47] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[57] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[59] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[65] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[71] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[93] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[117] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[41] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[47] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[57] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[59] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[65] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[71] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[93] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[117] -= CXIMAGINARYI_SV * amp_sv[0];
       VVVV4_0( w_sv[1], w_sv[4], w_sv[29], w_sv[92], COUPs[2], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[33] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[35] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[41] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[47] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[65] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[71] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[95] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[119] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[33] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[35] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[41] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[47] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[65] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[71] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[95] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[119] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 357 OF 1240 ***
 
@@ -6910,8 +6905,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[93] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[117] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[93] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[117] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 359 OF 1240 ***
 
@@ -6923,38 +6918,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[33] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[39] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[63] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[87] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[105] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[107] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[113] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[119] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[33] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[39] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[63] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[87] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[105] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[107] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[113] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[119] += CXIMAGINARYI_SV * amp_sv[0];
       VVV1_0( w_sv[79], w_sv[6], w_sv[92], COUPs[0], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[39] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[57] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[63] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[81] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[107] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[111] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[113] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[117] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[39] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[57] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[63] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[81] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[107] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[111] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[113] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[117] += CXIMAGINARYI_SV * amp_sv[0];
       VVV1_0( w_sv[80], w_sv[6], w_sv[92], COUPs[0], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[33] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[57] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[81] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[87] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[105] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[111] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[117] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[119] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[33] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[57] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[81] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[87] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[105] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[111] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[117] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[119] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 360 OF 1240 ***
 
@@ -7028,38 +7023,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[35] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[45] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[69] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[81] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[83] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[89] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[95] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[111] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[35] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[45] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[69] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[81] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[83] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[89] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[95] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[111] -= CXIMAGINARYI_SV * amp_sv[0];
       VVV1_0( w_sv[81], w_sv[5], w_sv[92], COUPs[0], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[45] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[59] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[69] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[83] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[87] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[89] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[93] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[105] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[45] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[59] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[69] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[83] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[87] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[89] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[93] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[105] -= CXIMAGINARYI_SV * amp_sv[0];
       VVV1_0( w_sv[82], w_sv[5], w_sv[92], COUPs[0], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[35] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[59] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[81] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[87] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[93] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[95] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[105] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[111] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[35] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[59] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[81] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[87] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[93] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[95] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[105] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[111] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 363 OF 1240 ***
 
@@ -7133,38 +7128,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[41] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[47] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[57] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[59] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[65] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[71] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[93] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[117] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[41] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[47] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[57] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[59] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[65] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[71] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[93] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[117] -= CXIMAGINARYI_SV * amp_sv[0];
       VVV1_0( w_sv[83], w_sv[4], w_sv[92], COUPs[0], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[47] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[59] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[63] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[65] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[69] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[83] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[93] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[107] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[47] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[59] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[63] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[65] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[69] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[83] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[93] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[107] -= CXIMAGINARYI_SV * amp_sv[0];
       VVV1_0( w_sv[84], w_sv[4], w_sv[92], COUPs[0], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[41] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[57] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[63] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[69] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[71] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[83] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[107] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[117] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[41] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[57] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[63] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[69] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[71] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[83] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[107] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[117] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 366 OF 1240 ***
 
@@ -7269,38 +7264,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[33] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[35] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[41] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[47] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[65] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[71] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[95] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[119] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[33] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[35] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[41] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[47] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[65] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[71] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[95] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[119] += CXIMAGINARYI_SV * amp_sv[0];
       VVV1_0( w_sv[1], w_sv[31], w_sv[92], COUPs[0], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[35] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[39] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[41] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[45] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[71] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[89] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[95] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[113] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[35] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[39] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[41] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[45] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[71] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[89] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[95] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[113] += CXIMAGINARYI_SV * amp_sv[0];
       VVV1_0( w_sv[1], w_sv[32], w_sv[92], COUPs[0], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[33] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[39] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[45] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[47] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[65] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[89] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[113] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[119] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[33] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[39] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[45] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[47] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[65] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[89] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[113] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[119] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 370 OF 1240 ***
 
@@ -7313,8 +7308,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[40] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[41] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[40] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[41] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 371 OF 1240 ***
 
@@ -7326,8 +7321,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[46] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[47] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[46] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[47] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 372 OF 1240 ***
 
@@ -7340,14 +7335,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[24] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[30] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[36] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[38] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[42] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[44] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[46] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[47] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[24] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[30] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[36] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[38] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[42] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[44] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[46] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[47] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 373 OF 1240 ***
 
@@ -7374,14 +7369,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[25] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[31] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[36] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[38] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[40] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[41] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[42] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[44] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[25] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[31] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[36] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[38] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[40] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[41] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[42] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[44] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 375 OF 1240 ***
 
@@ -7410,38 +7405,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[24] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[25] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[30] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[31] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[40] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[41] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[46] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[47] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[24] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[25] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[30] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[31] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[40] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[41] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[46] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[47] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[77], w_sv[90], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[25] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[31] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[36] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[38] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[40] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[41] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[42] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[44] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[25] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[31] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[36] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[38] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[40] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[41] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[42] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[44] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[77], w_sv[96], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[24] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[30] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[36] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[38] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[42] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[44] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[46] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[47] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[24] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[30] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[36] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[38] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[42] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[44] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[46] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[47] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 377 OF 1240 ***
 
@@ -7453,8 +7448,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[25] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[31] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[25] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[31] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 378 OF 1240 ***
 
@@ -7466,8 +7461,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[42] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[44] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[42] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[44] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 379 OF 1240 ***
 
@@ -7494,8 +7489,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[24] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[30] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[24] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[30] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 381 OF 1240 ***
 
@@ -7507,8 +7502,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[36] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[38] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[36] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[38] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 382 OF 1240 ***
 
@@ -7565,14 +7560,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[24] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[25] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[30] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[31] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[40] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[41] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[46] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[47] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[24] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[25] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[30] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[31] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[40] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[41] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[46] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[47] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 386 OF 1240 ***
 
@@ -7584,8 +7579,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[11] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[53] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[11] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[53] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 387 OF 1240 ***
 
@@ -7597,8 +7592,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[9] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[51] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[9] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[51] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 388 OF 1240 ***
 
@@ -7610,14 +7605,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[9] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[51] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[75] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[85] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[99] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[109] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[115] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[118] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[9] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[51] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[75] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[85] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[99] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[109] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[115] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[118] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 389 OF 1240 ***
 
@@ -7644,14 +7639,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[11] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[53] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[75] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[85] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[91] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[94] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[99] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[109] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[11] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[53] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[75] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[85] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[91] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[94] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[99] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[109] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 391 OF 1240 ***
 
@@ -7678,38 +7673,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[9] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[51] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[53] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[91] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[94] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[115] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[118] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[9] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[11] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[51] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[53] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[91] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[94] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[115] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[118] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[52], w_sv[2], w_sv[90], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[11] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[53] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[75] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[85] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[91] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[94] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[99] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[109] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[11] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[53] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[75] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[85] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[91] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[94] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[99] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[109] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[52], w_sv[2], w_sv[96], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[9] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[51] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[75] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[85] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[99] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[109] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[115] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[118] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[9] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[51] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[75] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[85] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[99] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[109] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[115] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[118] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 393 OF 1240 ***
 
@@ -7721,8 +7716,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[91] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[94] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[91] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[94] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 394 OF 1240 ***
 
@@ -7734,8 +7729,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[75] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[85] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[75] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[85] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 395 OF 1240 ***
 
@@ -7762,8 +7757,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[115] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[118] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[115] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[118] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 397 OF 1240 ***
 
@@ -7775,8 +7770,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[99] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[109] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[99] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[109] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 398 OF 1240 ***
 
@@ -7833,14 +7828,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[9] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[51] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[53] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[91] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[94] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[115] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[118] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[9] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[11] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[51] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[53] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[91] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[94] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[115] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[118] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 402 OF 1240 ***
 
@@ -7867,14 +7862,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[6] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[48] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[50] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[52] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[53] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[6] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[8] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[10] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[11] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[48] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[50] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[52] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[53] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 404 OF 1240 ***
 
@@ -7901,14 +7896,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[40] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[41] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[82] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[83] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[106] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[107] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[116] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[117] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[40] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[41] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[82] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[83] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[106] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[107] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[116] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[117] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 406 OF 1240 ***
 
@@ -7920,14 +7915,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[36] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[38] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[40] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[41] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[78] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[80] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[82] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[83] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[36] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[38] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[40] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[41] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[78] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[80] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[82] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[83] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 407 OF 1240 ***
 
@@ -7939,14 +7934,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[10] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[52] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[53] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[98] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[99] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[108] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[109] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[10] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[11] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[52] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[53] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[98] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[99] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[108] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[109] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 408 OF 1240 ***
 
@@ -8106,14 +8101,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[98] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[99] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[106] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[107] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[108] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[109] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[116] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[117] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[98] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[99] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[106] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[107] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[108] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[109] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[116] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[117] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 413 OF 1240 ***
 
@@ -8155,14 +8150,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[6] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[36] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[38] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[48] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[50] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[78] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[80] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[6] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[8] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[36] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[38] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[48] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[50] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[78] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[80] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 416 OF 1240 ***
 
@@ -8219,14 +8214,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[7] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[49] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[50] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[51] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[52] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[7] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[8] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[9] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[10] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[49] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[50] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[51] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[52] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 420 OF 1240 ***
 
@@ -8253,14 +8248,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[46] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[47] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[82] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[83] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[92] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[93] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[106] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[107] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[46] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[47] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[82] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[83] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[92] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[93] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[106] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[107] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 422 OF 1240 ***
 
@@ -8272,14 +8267,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[42] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[44] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[46] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[47] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[102] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[104] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[106] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[107] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[42] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[44] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[46] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[47] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[102] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[104] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[106] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[107] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 423 OF 1240 ***
 
@@ -8291,14 +8286,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[8] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[50] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[51] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[74] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[75] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[84] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[85] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[8] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[9] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[50] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[51] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[74] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[75] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[84] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[85] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 424 OF 1240 ***
 
@@ -8458,14 +8453,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[74] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[75] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[82] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[83] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[84] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[85] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[92] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[93] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[74] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[75] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[82] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[83] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[84] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[85] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[92] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[93] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 429 OF 1240 ***
 
@@ -8507,14 +8502,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[7] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[42] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[44] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[49] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[52] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[102] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[104] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[7] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[10] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[42] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[44] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[49] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[52] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[102] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[104] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 432 OF 1240 ***
 
@@ -9272,14 +9267,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[74] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[78] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[80] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[84] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[91] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[92] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[93] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[94] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[74] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[78] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[80] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[84] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[91] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[92] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[93] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[94] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 451 OF 1240 ***
 
@@ -9306,8 +9301,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[82] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[83] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[82] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[83] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 453 OF 1240 ***
 
@@ -9319,8 +9314,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[92] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[93] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[92] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[93] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 454 OF 1240 ***
 
@@ -9347,14 +9342,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[75] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[78] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[80] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[82] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[83] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[85] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[91] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[94] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[75] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[78] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[80] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[82] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[83] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[85] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[91] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[94] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 456 OF 1240 ***
 
@@ -9366,38 +9361,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[74] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[75] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[82] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[83] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[84] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[85] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[92] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[93] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[74] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[75] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[82] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[83] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[84] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[85] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[92] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[93] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[39], w_sv[113], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[75] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[78] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[80] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[82] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[83] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[85] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[91] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[94] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[75] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[78] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[80] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[82] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[83] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[85] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[91] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[94] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[39], w_sv[114], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[74] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[78] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[80] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[84] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[91] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[92] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[93] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[94] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[74] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[78] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[80] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[84] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[91] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[92] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[93] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[94] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 457 OF 1240 ***
 
@@ -9424,8 +9419,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[74] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[84] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[74] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[84] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 459 OF 1240 ***
 
@@ -9437,8 +9432,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[78] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[80] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[78] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[80] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 460 OF 1240 ***
 
@@ -9450,14 +9445,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[98] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[102] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[104] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[108] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[115] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[116] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[117] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[118] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[98] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[102] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[104] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[108] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[115] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[116] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[117] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[118] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 461 OF 1240 ***
 
@@ -9484,8 +9479,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[106] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[107] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[106] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[107] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 463 OF 1240 ***
 
@@ -9497,8 +9492,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[116] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[117] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[116] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[117] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 464 OF 1240 ***
 
@@ -9525,14 +9520,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[99] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[102] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[104] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[106] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[107] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[109] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[115] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[118] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[99] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[102] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[104] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[106] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[107] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[109] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[115] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[118] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 466 OF 1240 ***
 
@@ -9544,38 +9539,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[98] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[99] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[106] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[107] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[108] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[109] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[116] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[117] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[98] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[99] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[106] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[107] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[108] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[109] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[116] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[117] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[47], w_sv[110], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[99] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[102] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[104] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[106] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[107] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[109] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[115] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[118] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[99] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[102] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[104] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[106] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[107] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[109] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[115] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[118] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[47], w_sv[111], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[98] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[102] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[104] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[108] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[115] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[116] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[117] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[118] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[98] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[102] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[104] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[108] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[115] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[116] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[117] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[118] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 467 OF 1240 ***
 
@@ -9602,8 +9597,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[98] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[108] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[98] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[108] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 469 OF 1240 ***
 
@@ -9615,8 +9610,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[102] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[104] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[102] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[104] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 470 OF 1240 ***
 
@@ -9628,14 +9623,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[7] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[25] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[31] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[49] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[98] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[102] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[104] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[108] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[7] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[25] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[31] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[49] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[98] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[102] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[104] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[108] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 471 OF 1240 ***
 
@@ -9662,8 +9657,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[10] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[52] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[10] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[52] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 473 OF 1240 ***
 
@@ -9675,8 +9670,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[7] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[49] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[7] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[49] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 474 OF 1240 ***
 
@@ -9703,14 +9698,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[10] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[25] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[31] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[42] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[44] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[52] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[98] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[108] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[10] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[25] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[31] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[42] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[44] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[52] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[98] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[108] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 476 OF 1240 ***
 
@@ -9722,38 +9717,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[7] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[42] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[44] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[49] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[52] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[102] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[104] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[7] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[10] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[42] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[44] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[49] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[52] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[102] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[104] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[38], w_sv[2], w_sv[113], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[10] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[25] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[31] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[42] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[44] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[52] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[98] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[108] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[10] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[25] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[31] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[42] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[44] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[52] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[98] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[108] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[38], w_sv[2], w_sv[114], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[7] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[25] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[31] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[49] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[98] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[102] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[104] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[108] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[7] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[25] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[31] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[49] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[98] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[102] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[104] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[108] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 477 OF 1240 ***
 
@@ -9765,14 +9760,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[6] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[24] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[30] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[48] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[74] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[78] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[80] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[84] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[6] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[24] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[30] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[48] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[74] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[78] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[80] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[84] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 478 OF 1240 ***
 
@@ -9799,8 +9794,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[8] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[50] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[8] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[50] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 480 OF 1240 ***
 
@@ -9812,8 +9807,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[6] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[48] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[6] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[48] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 481 OF 1240 ***
 
@@ -9840,14 +9835,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[8] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[24] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[30] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[36] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[38] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[50] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[74] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[84] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[8] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[24] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[30] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[36] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[38] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[50] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[74] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[84] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 483 OF 1240 ***
 
@@ -9859,38 +9854,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[6] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[36] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[38] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[48] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[50] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[78] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[80] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[6] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[8] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[36] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[38] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[48] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[50] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[78] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[80] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[41], w_sv[2], w_sv[110], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[8] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[24] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[30] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[36] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[38] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[50] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[74] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[84] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[8] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[24] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[30] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[36] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[38] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[50] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[74] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[84] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[41], w_sv[2], w_sv[111], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[6] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[24] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[30] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[48] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[74] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[78] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[80] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[84] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[6] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[24] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[30] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[48] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[74] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[78] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[80] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[84] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 484 OF 1240 ***
 
@@ -9902,14 +9897,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[91] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[92] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[93] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[94] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[115] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[116] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[117] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[118] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[91] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[92] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[93] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[94] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[115] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[116] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[117] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[118] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 485 OF 1240 ***
 
@@ -9921,14 +9916,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[6] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[24] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[25] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[30] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[31] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[48] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[49] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[6] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[7] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[24] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[25] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[30] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[31] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[48] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[49] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 486 OF 1240 ***
 
@@ -9940,14 +9935,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[6] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[48] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[49] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[51] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[53] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[6] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[7] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[9] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[11] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[48] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[49] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[51] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[53] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 487 OF 1240 ***
 
@@ -9974,14 +9969,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[40] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[41] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[46] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[47] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[92] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[93] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[116] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[117] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[40] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[41] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[46] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[47] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[92] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[93] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[116] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[117] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 489 OF 1240 ***
 
@@ -10008,38 +10003,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[6] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[48] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[49] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[51] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[53] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[6] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[7] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[9] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[11] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[48] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[49] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[51] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[53] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[102], w_sv[83], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[7] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[49] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[50] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[51] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[52] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[7] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[8] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[9] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[10] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[49] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[50] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[51] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[52] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[102], w_sv[84], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[6] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[48] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[50] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[52] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[53] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[6] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[8] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[10] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[11] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[48] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[50] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[52] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[53] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 491 OF 1240 ***
 
@@ -10051,38 +10046,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[40] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[41] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[46] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[47] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[92] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[93] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[116] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[117] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[40] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[41] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[46] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[47] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[92] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[93] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[116] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[117] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[99], w_sv[2], w_sv[83], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[46] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[47] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[82] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[83] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[92] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[93] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[106] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[107] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[46] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[47] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[82] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[83] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[92] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[93] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[106] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[107] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[99], w_sv[2], w_sv[84], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[40] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[41] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[82] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[83] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[106] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[107] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[116] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[117] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[40] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[41] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[82] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[83] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[106] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[107] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[116] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[117] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 492 OF 1240 ***
 
@@ -10162,8 +10157,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[34] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[35] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[34] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[35] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 494 OF 1240 ***
 
@@ -10175,8 +10170,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[44] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[45] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[44] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[45] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 495 OF 1240 ***
 
@@ -10188,14 +10183,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[26] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[30] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[32] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[36] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[43] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[44] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[45] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[46] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[26] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[30] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[32] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[36] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[43] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[44] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[45] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[46] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 496 OF 1240 ***
 
@@ -10222,14 +10217,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[27] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[30] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[32] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[34] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[35] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[37] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[43] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[46] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[27] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[30] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[32] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[34] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[35] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[37] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[43] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[46] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 498 OF 1240 ***
 
@@ -10258,38 +10253,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[26] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[27] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[34] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[35] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[36] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[37] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[44] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[45] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[26] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[27] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[34] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[35] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[36] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[37] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[44] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[45] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[77], w_sv[110], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[27] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[30] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[32] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[34] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[35] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[37] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[43] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[46] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[27] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[30] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[32] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[34] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[35] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[37] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[43] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[46] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[77], w_sv[109], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[26] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[30] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[32] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[36] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[43] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[44] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[45] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[46] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[26] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[30] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[32] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[36] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[43] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[44] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[45] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[46] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 500 OF 1240 ***
 
@@ -10301,8 +10296,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[27] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[37] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[27] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[37] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 501 OF 1240 ***
 
@@ -10314,8 +10309,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[43] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[46] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[43] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[46] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 502 OF 1240 ***
 
@@ -10342,8 +10337,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[26] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[36] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[26] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[36] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 504 OF 1240 ***
 
@@ -10355,8 +10350,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[30] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[32] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[30] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[32] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 505 OF 1240 ***
 
@@ -10413,14 +10408,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[26] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[27] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[34] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[35] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[36] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[37] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[44] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[45] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[26] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[27] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[34] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[35] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[36] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[37] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[44] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[45] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 509 OF 1240 ***
 
@@ -10432,8 +10427,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[17] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[77] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[17] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[77] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 510 OF 1240 ***
 
@@ -10445,8 +10440,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[15] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[75] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[15] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[75] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 511 OF 1240 ***
 
@@ -10458,14 +10453,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[15] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[51] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[61] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[75] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[101] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[109] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[112] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[115] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[15] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[51] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[61] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[75] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[101] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[109] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[112] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[115] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 512 OF 1240 ***
 
@@ -10492,14 +10487,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[17] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[51] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[61] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[67] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[70] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[77] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[101] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[115] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[17] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[51] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[61] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[67] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[70] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[77] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[101] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[115] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 514 OF 1240 ***
 
@@ -10526,38 +10521,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[15] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[67] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[70] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[75] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[77] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[109] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[112] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[15] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[17] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[67] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[70] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[75] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[77] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[109] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[112] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[52], w_sv[2], w_sv[110], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[17] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[51] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[61] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[67] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[70] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[77] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[101] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[115] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[17] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[51] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[61] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[67] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[70] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[77] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[101] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[115] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[52], w_sv[2], w_sv[109], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[15] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[51] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[61] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[75] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[101] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[109] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[112] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[115] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[15] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[51] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[61] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[75] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[101] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[109] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[112] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[115] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 516 OF 1240 ***
 
@@ -10569,8 +10564,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[67] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[70] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[67] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[70] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 517 OF 1240 ***
 
@@ -10582,8 +10577,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[51] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[61] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[51] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[61] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 518 OF 1240 ***
 
@@ -10610,8 +10605,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[109] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[112] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[109] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[112] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 520 OF 1240 ***
 
@@ -10623,8 +10618,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[101] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[115] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[101] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[115] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 521 OF 1240 ***
 
@@ -10681,14 +10676,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[15] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[67] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[70] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[75] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[77] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[109] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[112] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[15] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[17] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[67] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[70] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[75] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[77] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[109] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[112] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 525 OF 1240 ***
 
@@ -10715,14 +10710,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[12] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[72] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[74] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[76] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[77] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[12] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[14] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[16] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[17] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[72] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[74] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[76] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[77] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 527 OF 1240 ***
 
@@ -10749,14 +10744,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[34] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[35] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[58] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[59] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[104] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[105] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[110] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[111] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[34] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[35] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[58] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[59] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[104] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[105] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[110] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[111] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 529 OF 1240 ***
 
@@ -10768,14 +10763,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[30] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[32] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[34] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[35] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[54] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[56] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[58] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[59] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[30] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[32] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[34] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[35] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[54] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[56] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[58] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[59] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 530 OF 1240 ***
 
@@ -10787,14 +10782,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[16] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[76] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[77] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[100] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[101] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[114] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[115] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[16] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[17] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[76] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[77] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[100] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[101] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[114] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[115] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 531 OF 1240 ***
 
@@ -10954,14 +10949,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[100] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[101] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[104] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[105] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[110] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[111] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[114] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[115] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[100] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[101] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[104] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[105] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[110] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[111] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[114] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[115] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 536 OF 1240 ***
 
@@ -11003,14 +10998,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[12] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[30] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[32] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[54] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[56] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[72] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[74] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[12] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[14] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[30] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[32] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[54] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[56] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[72] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[74] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 539 OF 1240 ***
 
@@ -11067,14 +11062,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[13] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[73] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[74] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[75] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[76] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[13] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[14] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[15] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[16] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[73] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[74] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[75] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[76] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 543 OF 1240 ***
 
@@ -11101,14 +11096,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[44] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[45] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[58] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[59] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[68] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[69] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[104] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[105] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[44] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[45] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[58] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[59] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[68] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[69] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[104] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[105] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 545 OF 1240 ***
 
@@ -11120,14 +11115,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[43] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[44] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[45] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[46] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[103] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[104] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[105] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[106] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[43] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[44] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[45] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[46] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[103] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[104] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[105] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[106] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 546 OF 1240 ***
 
@@ -11139,14 +11134,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[14] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[50] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[51] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[60] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[61] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[74] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[75] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[14] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[15] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[50] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[51] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[60] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[61] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[74] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[75] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 547 OF 1240 ***
 
@@ -11306,14 +11301,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[50] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[51] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[58] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[59] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[60] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[61] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[68] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[69] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[50] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[51] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[58] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[59] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[60] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[61] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[68] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[69] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 552 OF 1240 ***
 
@@ -11355,14 +11350,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[13] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[43] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[46] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[73] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[76] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[103] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[106] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[13] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[16] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[43] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[46] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[73] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[76] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[103] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[106] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 555 OF 1240 ***
 
@@ -12120,14 +12115,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[50] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[54] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[56] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[60] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[67] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[68] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[69] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[70] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[50] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[54] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[56] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[60] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[67] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[68] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[69] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[70] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 574 OF 1240 ***
 
@@ -12154,8 +12149,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[58] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[59] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[58] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[59] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 576 OF 1240 ***
 
@@ -12167,8 +12162,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[68] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[69] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[68] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[69] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 577 OF 1240 ***
 
@@ -12195,14 +12190,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[51] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[54] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[56] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[58] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[59] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[61] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[67] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[70] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[51] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[54] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[56] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[58] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[59] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[61] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[67] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[70] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 579 OF 1240 ***
 
@@ -12214,38 +12209,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[50] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[51] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[58] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[59] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[60] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[61] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[68] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[69] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[50] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[51] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[58] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[59] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[60] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[61] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[68] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[69] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[33], w_sv[90], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[51] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[54] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[56] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[58] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[59] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[61] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[67] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[70] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[51] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[54] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[56] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[58] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[59] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[61] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[67] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[70] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[33], w_sv[88], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[50] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[54] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[56] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[60] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[67] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[68] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[69] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[70] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[50] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[54] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[56] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[60] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[67] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[68] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[69] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[70] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 580 OF 1240 ***
 
@@ -12272,8 +12267,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[50] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[60] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[50] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[60] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 582 OF 1240 ***
 
@@ -12285,8 +12280,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[54] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[56] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[54] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[56] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 583 OF 1240 ***
 
@@ -12298,14 +12293,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[100] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[103] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[106] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[109] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[110] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[111] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[112] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[114] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[100] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[103] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[106] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[109] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[110] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[111] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[112] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[114] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 584 OF 1240 ***
 
@@ -12332,8 +12327,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[104] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[105] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[104] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[105] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 586 OF 1240 ***
 
@@ -12345,8 +12340,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[110] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[111] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[110] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[111] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 587 OF 1240 ***
 
@@ -12373,14 +12368,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[101] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[103] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[104] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[105] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[106] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[109] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[112] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[115] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[101] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[103] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[104] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[105] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[106] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[109] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[112] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[115] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 589 OF 1240 ***
 
@@ -12392,38 +12387,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[100] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[101] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[104] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[105] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[110] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[111] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[114] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[115] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[100] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[101] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[104] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[105] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[110] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[111] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[114] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[115] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[47], w_sv[95], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[101] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[103] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[104] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[105] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[106] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[109] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[112] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[115] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[101] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[103] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[104] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[105] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[106] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[109] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[112] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[115] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[47], w_sv[107], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[100] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[103] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[106] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[109] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[110] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[111] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[112] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[114] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[100] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[103] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[106] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[109] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[110] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[111] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[112] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[114] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 590 OF 1240 ***
 
@@ -12450,8 +12445,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[100] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[114] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[100] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[114] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 592 OF 1240 ***
 
@@ -12463,8 +12458,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[103] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[106] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[103] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[106] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 593 OF 1240 ***
 
@@ -12476,14 +12471,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[13] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[27] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[37] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[73] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[100] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[103] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[106] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[114] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[13] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[27] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[37] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[73] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[100] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[103] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[106] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[114] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 594 OF 1240 ***
 
@@ -12510,8 +12505,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[16] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[76] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[16] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[76] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 596 OF 1240 ***
 
@@ -12523,8 +12518,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[13] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[73] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[13] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[73] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 597 OF 1240 ***
 
@@ -12551,14 +12546,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[16] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[27] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[37] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[43] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[46] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[76] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[100] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[114] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[16] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[27] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[37] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[43] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[46] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[76] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[100] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[114] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 599 OF 1240 ***
 
@@ -12570,38 +12565,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[13] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[43] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[46] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[73] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[76] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[103] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[106] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[13] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[16] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[43] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[46] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[73] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[76] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[103] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[106] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[46], w_sv[2], w_sv[90], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[16] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[27] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[37] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[43] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[46] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[76] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[100] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[114] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[16] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[27] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[37] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[43] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[46] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[76] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[100] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[114] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[46], w_sv[2], w_sv[88], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[13] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[27] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[37] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[73] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[100] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[103] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[106] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[114] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[13] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[27] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[37] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[73] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[100] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[103] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[106] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[114] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 600 OF 1240 ***
 
@@ -12613,14 +12608,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[12] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[26] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[36] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[50] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[54] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[56] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[60] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[72] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[12] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[26] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[36] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[50] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[54] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[56] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[60] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[72] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 601 OF 1240 ***
 
@@ -12647,8 +12642,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[14] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[74] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[14] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[74] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 603 OF 1240 ***
 
@@ -12660,8 +12655,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[12] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[72] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[12] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[72] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 604 OF 1240 ***
 
@@ -12688,14 +12683,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[14] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[26] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[30] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[32] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[36] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[50] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[60] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[74] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[14] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[26] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[30] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[32] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[36] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[50] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[60] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[74] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 606 OF 1240 ***
 
@@ -12707,38 +12702,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[12] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[30] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[32] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[54] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[56] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[72] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[74] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[12] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[14] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[30] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[32] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[54] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[56] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[72] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[74] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[41], w_sv[2], w_sv[95], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[14] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[26] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[30] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[32] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[36] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[50] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[60] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[74] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[14] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[26] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[30] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[32] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[36] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[50] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[60] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[74] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[41], w_sv[2], w_sv[107], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[12] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[26] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[36] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[50] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[54] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[56] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[60] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[72] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[12] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[26] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[36] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[50] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[54] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[56] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[60] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[72] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 607 OF 1240 ***
 
@@ -12750,14 +12745,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[67] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[68] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[69] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[70] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[109] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[110] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[111] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[112] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[67] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[68] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[69] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[70] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[109] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[110] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[111] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[112] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 608 OF 1240 ***
 
@@ -12769,14 +12764,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[12] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[13] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[26] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[27] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[36] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[37] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[72] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[73] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[12] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[13] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[26] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[27] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[36] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[37] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[72] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[73] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 609 OF 1240 ***
 
@@ -12788,14 +12783,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[12] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[13] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[72] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[73] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[75] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[77] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[12] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[13] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[15] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[17] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[72] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[73] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[75] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[77] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 610 OF 1240 ***
 
@@ -12822,14 +12817,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[34] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[35] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[44] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[45] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[68] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[69] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[110] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[111] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[34] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[35] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[44] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[45] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[68] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[69] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[110] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[111] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 612 OF 1240 ***
 
@@ -12856,38 +12851,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[12] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[13] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[72] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[73] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[75] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[77] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[12] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[13] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[15] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[17] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[72] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[73] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[75] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[77] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[112], w_sv[81], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[13] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[73] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[74] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[75] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[76] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[13] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[14] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[15] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[16] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[73] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[74] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[75] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[76] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[112], w_sv[82], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[12] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[72] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[74] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[76] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[77] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[12] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[14] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[16] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[17] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[72] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[74] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[76] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[77] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 614 OF 1240 ***
 
@@ -12899,38 +12894,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[34] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[35] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[44] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[45] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[68] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[69] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[110] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[111] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[34] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[35] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[44] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[45] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[68] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[69] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[110] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[111] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[99], w_sv[2], w_sv[81], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[44] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[45] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[58] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[59] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[68] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[69] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[104] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[105] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[44] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[45] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[58] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[59] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[68] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[69] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[104] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[105] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[99], w_sv[2], w_sv[82], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[34] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[35] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[58] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[59] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[104] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[105] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[110] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[111] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[34] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[35] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[58] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[59] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[104] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[105] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[110] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[111] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 615 OF 1240 ***
 
@@ -13010,8 +13005,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[32] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[33] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[32] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[33] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 617 OF 1240 ***
 
@@ -13023,8 +13018,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[38] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[39] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[38] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[39] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 618 OF 1240 ***
 
@@ -13036,14 +13031,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[28] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[31] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[34] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[37] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[38] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[39] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[40] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[42] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[28] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[31] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[34] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[37] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[38] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[39] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[40] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[42] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 619 OF 1240 ***
 
@@ -13070,14 +13065,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[29] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[31] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[32] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[33] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[34] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[37] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[40] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[43] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[29] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[31] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[32] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[33] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[34] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[37] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[40] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[43] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 621 OF 1240 ***
 
@@ -13106,38 +13101,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[28] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[29] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[32] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[33] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[38] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[39] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[42] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[43] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[28] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[29] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[32] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[33] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[38] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[39] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[42] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[43] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[77], w_sv[95], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[29] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[31] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[32] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[33] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[34] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[37] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[40] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[43] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[29] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[31] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[32] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[33] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[34] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[37] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[40] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[43] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[77], w_sv[105], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[28] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[31] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[34] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[37] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[38] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[39] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[40] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[42] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[28] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[31] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[34] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[37] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[38] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[39] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[40] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[42] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 623 OF 1240 ***
 
@@ -13149,8 +13144,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[29] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[43] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[29] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[43] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 624 OF 1240 ***
 
@@ -13162,8 +13157,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[37] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[40] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[37] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[40] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 625 OF 1240 ***
 
@@ -13190,8 +13185,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[28] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[42] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[28] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[42] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 627 OF 1240 ***
 
@@ -13203,8 +13198,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[31] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[34] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[31] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[34] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 628 OF 1240 ***
 
@@ -13261,14 +13256,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[28] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[29] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[32] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[33] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[38] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[39] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[42] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[43] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[28] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[29] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[32] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[33] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[38] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[39] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[42] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[43] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 632 OF 1240 ***
 
@@ -13280,8 +13275,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[23] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[101] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[23] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[101] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 633 OF 1240 ***
 
@@ -13293,8 +13288,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[21] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[99] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[21] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[99] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 634 OF 1240 ***
 
@@ -13306,14 +13301,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[21] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[53] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[67] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[77] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[85] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[88] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[91] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[99] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[21] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[53] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[67] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[77] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[85] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[88] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[91] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[99] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 635 OF 1240 ***
 
@@ -13340,14 +13335,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[23] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[53] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[61] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[64] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[67] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[77] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[91] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[101] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[23] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[53] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[61] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[64] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[67] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[77] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[91] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[101] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 637 OF 1240 ***
 
@@ -13374,38 +13369,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[21] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[61] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[64] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[85] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[88] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[99] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[101] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[21] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[23] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[61] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[64] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[85] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[88] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[99] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[101] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[52], w_sv[2], w_sv[95], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[23] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[53] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[61] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[64] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[67] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[77] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[91] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[101] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[23] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[53] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[61] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[64] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[67] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[77] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[91] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[101] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[52], w_sv[2], w_sv[105], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[21] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[53] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[67] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[77] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[85] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[88] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[91] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[99] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[21] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[53] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[67] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[77] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[85] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[88] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[91] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[99] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 639 OF 1240 ***
 
@@ -13417,8 +13412,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[61] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[64] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[61] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[64] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 640 OF 1240 ***
 
@@ -13430,8 +13425,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[53] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[67] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[53] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[67] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 641 OF 1240 ***
 
@@ -13458,8 +13453,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[85] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[88] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[85] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[88] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 643 OF 1240 ***
 
@@ -13471,8 +13466,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[77] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[91] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[77] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[91] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 644 OF 1240 ***
 
@@ -13529,14 +13524,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[21] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[61] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[64] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[85] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[88] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[99] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[101] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[21] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[23] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[61] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[64] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[85] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[88] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[99] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[101] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 648 OF 1240 ***
 
@@ -13563,14 +13558,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[18] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[96] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[98] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[100] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[101] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[18] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[20] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[22] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[23] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[96] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[98] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[100] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[101] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 650 OF 1240 ***
 
@@ -13597,14 +13592,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[32] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[33] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[56] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[57] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[80] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[81] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[86] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[87] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[32] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[33] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[56] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[57] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[80] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[81] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[86] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[87] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 652 OF 1240 ***
 
@@ -13616,14 +13611,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[31] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[32] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[33] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[34] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[55] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[56] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[57] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[58] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[31] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[32] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[33] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[34] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[55] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[56] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[57] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[58] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 653 OF 1240 ***
 
@@ -13635,14 +13630,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[22] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[76] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[77] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[90] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[91] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[100] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[101] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[22] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[23] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[76] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[77] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[90] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[91] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[100] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[101] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 654 OF 1240 ***
 
@@ -13802,14 +13797,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[76] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[77] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[80] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[81] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[86] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[87] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[90] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[91] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[76] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[77] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[80] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[81] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[86] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[87] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[90] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[91] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 659 OF 1240 ***
 
@@ -13851,14 +13846,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[18] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[31] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[34] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[55] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[58] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[96] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[98] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[18] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[20] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[31] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[34] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[55] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[58] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[96] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[98] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 662 OF 1240 ***
 
@@ -13915,14 +13910,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[19] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[97] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[98] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[99] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[100] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[19] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[20] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[21] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[22] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[97] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[98] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[99] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[100] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 666 OF 1240 ***
 
@@ -13949,14 +13944,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[38] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[39] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[56] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[57] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[62] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[63] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[80] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[81] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[38] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[39] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[56] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[57] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[62] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[63] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[80] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[81] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 668 OF 1240 ***
 
@@ -13968,14 +13963,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[37] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[38] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[39] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[40] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[79] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[80] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[81] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[82] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[37] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[38] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[39] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[40] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[79] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[80] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[81] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[82] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 669 OF 1240 ***
 
@@ -13987,14 +13982,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[20] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[52] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[53] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[66] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[67] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[98] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[99] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[20] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[21] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[52] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[53] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[66] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[67] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[98] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[99] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 670 OF 1240 ***
 
@@ -14154,14 +14149,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[52] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[53] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[56] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[57] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[62] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[63] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[66] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[67] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[52] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[53] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[56] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[57] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[62] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[63] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[66] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[67] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 675 OF 1240 ***
 
@@ -14203,14 +14198,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[19] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[37] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[40] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[79] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[82] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[97] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[100] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[19] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[22] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[37] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[40] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[79] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[82] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[97] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[100] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 678 OF 1240 ***
 
@@ -14968,14 +14963,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[52] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[55] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[58] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[61] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[62] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[63] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[64] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[66] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[52] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[55] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[58] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[61] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[62] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[63] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[64] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[66] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 697 OF 1240 ***
 
@@ -15002,8 +14997,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[56] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[57] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[56] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[57] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 699 OF 1240 ***
 
@@ -15015,8 +15010,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[62] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[63] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[62] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[63] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 700 OF 1240 ***
 
@@ -15043,14 +15038,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[53] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[55] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[56] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[57] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[58] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[61] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[64] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[67] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[53] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[55] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[56] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[57] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[58] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[61] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[64] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[67] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 702 OF 1240 ***
 
@@ -15062,38 +15057,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[52] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[53] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[56] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[57] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[62] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[63] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[66] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[67] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[52] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[53] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[56] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[57] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[62] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[63] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[66] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[67] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[33], w_sv[110], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[53] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[55] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[56] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[57] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[58] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[61] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[64] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[67] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[53] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[55] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[56] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[57] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[58] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[61] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[64] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[67] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[33], w_sv[111], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[52] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[55] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[58] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[61] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[62] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[63] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[64] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[66] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[52] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[55] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[58] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[61] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[62] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[63] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[64] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[66] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 703 OF 1240 ***
 
@@ -15120,8 +15115,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[52] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[66] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[52] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[66] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 705 OF 1240 ***
 
@@ -15133,8 +15128,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[55] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[58] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[55] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[58] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 706 OF 1240 ***
 
@@ -15146,14 +15141,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[76] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[79] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[82] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[85] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[86] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[87] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[88] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[90] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[76] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[79] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[82] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[85] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[86] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[87] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[88] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[90] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 707 OF 1240 ***
 
@@ -15180,8 +15175,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[80] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[81] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[80] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[81] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 709 OF 1240 ***
 
@@ -15193,8 +15188,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[86] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[87] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[86] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[87] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 710 OF 1240 ***
 
@@ -15221,14 +15216,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[77] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[79] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[80] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[81] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[82] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[85] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[88] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[91] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[77] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[79] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[80] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[81] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[82] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[85] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[88] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[91] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 712 OF 1240 ***
 
@@ -15240,38 +15235,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[76] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[77] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[80] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[81] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[86] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[87] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[90] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[91] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[76] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[77] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[80] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[81] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[86] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[87] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[90] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[91] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[39], w_sv[62], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[77] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[79] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[80] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[81] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[82] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[85] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[88] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[91] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[77] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[79] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[80] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[81] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[82] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[85] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[88] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[91] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[39], w_sv[101], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[76] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[79] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[82] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[85] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[86] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[87] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[88] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[90] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[76] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[79] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[82] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[85] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[86] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[87] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[88] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[90] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 713 OF 1240 ***
 
@@ -15298,8 +15293,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[76] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[90] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[76] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[90] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 715 OF 1240 ***
 
@@ -15311,8 +15306,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[79] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[82] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[79] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[82] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 716 OF 1240 ***
 
@@ -15324,14 +15319,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[19] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[29] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[43] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[76] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[79] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[82] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[90] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[97] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[19] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[29] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[43] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[76] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[79] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[82] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[90] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[97] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 717 OF 1240 ***
 
@@ -15358,8 +15353,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[22] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[100] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[22] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[100] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 719 OF 1240 ***
 
@@ -15371,8 +15366,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[19] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[97] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[19] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[97] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 720 OF 1240 ***
 
@@ -15399,14 +15394,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[22] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[29] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[37] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[40] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[43] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[76] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[90] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[100] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[22] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[29] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[37] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[40] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[43] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[76] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[90] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[100] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 722 OF 1240 ***
 
@@ -15418,38 +15413,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[19] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[37] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[40] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[79] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[82] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[97] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[100] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[19] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[22] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[37] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[40] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[79] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[82] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[97] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[100] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[46], w_sv[2], w_sv[110], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[22] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[29] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[37] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[40] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[43] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[76] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[90] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[100] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[22] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[29] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[37] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[40] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[43] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[76] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[90] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[100] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[46], w_sv[2], w_sv[111], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[19] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[29] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[43] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[76] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[79] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[82] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[90] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[97] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[19] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[29] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[43] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[76] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[79] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[82] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[90] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[97] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 723 OF 1240 ***
 
@@ -15461,14 +15456,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[18] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[28] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[42] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[52] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[55] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[58] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[66] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[96] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[18] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[28] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[42] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[52] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[55] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[58] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[66] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[96] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 724 OF 1240 ***
 
@@ -15495,8 +15490,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[20] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[98] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[20] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[98] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 726 OF 1240 ***
 
@@ -15508,8 +15503,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[18] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[96] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[18] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[96] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 727 OF 1240 ***
 
@@ -15536,14 +15531,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[20] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[28] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[31] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[34] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[42] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[52] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[66] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[98] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[20] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[28] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[31] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[34] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[42] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[52] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[66] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[98] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 729 OF 1240 ***
 
@@ -15555,38 +15550,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[18] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[31] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[34] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[55] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[58] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[96] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[98] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[18] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[20] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[31] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[34] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[55] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[58] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[96] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[98] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[38], w_sv[2], w_sv[62], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[20] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[28] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[31] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[34] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[42] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[52] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[66] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[98] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[20] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[28] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[31] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[34] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[42] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[52] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[66] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[98] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[38], w_sv[2], w_sv[101], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[18] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[28] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[42] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[52] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[55] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[58] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[66] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[96] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[18] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[28] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[42] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[52] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[55] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[58] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[66] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[96] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 730 OF 1240 ***
 
@@ -15598,14 +15593,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[61] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[62] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[63] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[64] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[85] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[86] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[87] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[88] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[61] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[62] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[63] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[64] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[85] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[86] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[87] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[88] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 731 OF 1240 ***
 
@@ -15617,14 +15612,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[18] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[19] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[28] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[29] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[42] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[43] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[96] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[97] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[18] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[19] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[28] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[29] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[42] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[43] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[96] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[97] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 732 OF 1240 ***
 
@@ -15636,14 +15631,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[18] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[19] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[96] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[97] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[99] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[101] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[18] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[19] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[21] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[23] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[96] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[97] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[99] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[101] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 733 OF 1240 ***
 
@@ -15670,14 +15665,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[32] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[33] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[38] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[39] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[62] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[63] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[86] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[87] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[32] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[33] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[38] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[39] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[62] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[63] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[86] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[87] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 735 OF 1240 ***
 
@@ -15704,38 +15699,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[18] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[19] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[96] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[97] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[99] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[101] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[18] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[19] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[21] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[23] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[96] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[97] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[99] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[101] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[96], w_sv[79], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[19] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[97] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[98] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[99] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[100] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[19] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[20] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[21] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[22] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[97] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[98] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[99] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[100] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[96], w_sv[80], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[18] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[96] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[98] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[100] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[101] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[18] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[20] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[22] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[23] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[96] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[98] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[100] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[101] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 737 OF 1240 ***
 
@@ -15747,38 +15742,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[32] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[33] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[38] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[39] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[62] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[63] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[86] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[87] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[32] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[33] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[38] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[39] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[62] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[63] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[86] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[87] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[99], w_sv[2], w_sv[79], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[38] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[39] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[56] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[57] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[62] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[63] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[80] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[81] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[38] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[39] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[56] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[57] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[62] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[63] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[80] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[81] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[99], w_sv[2], w_sv[80], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[32] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[33] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[56] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[57] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[80] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[81] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[86] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[87] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[32] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[33] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[56] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[57] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[80] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[81] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[86] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[87] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 738 OF 1240 ***
 
@@ -15929,8 +15924,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[27] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[29] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[27] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[29] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 746 OF 1240 ***
 
@@ -15942,8 +15937,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[40] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[46] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[40] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[46] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 747 OF 1240 ***
 
@@ -16042,8 +16037,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[25] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[28] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[25] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[28] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 755 OF 1240 ***
 
@@ -16055,8 +16050,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[34] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[44] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[34] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[44] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 756 OF 1240 ***
 
@@ -16155,8 +16150,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[24] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[26] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[24] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[26] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 764 OF 1240 ***
 
@@ -16168,8 +16163,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[32] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[38] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[32] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[38] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 765 OF 1240 ***
 
@@ -16196,8 +16191,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[28] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[29] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[28] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[29] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 767 OF 1240 ***
 
@@ -16224,14 +16219,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[24] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[26] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[32] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[38] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[42] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[43] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[45] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[47] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[24] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[26] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[32] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[38] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[42] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[43] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[45] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[47] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 769 OF 1240 ***
 
@@ -16258,14 +16253,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[24] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[26] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[28] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[29] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[33] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[39] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[45] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[47] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[24] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[26] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[28] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[29] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[33] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[39] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[45] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[47] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 771 OF 1240 ***
 
@@ -16277,8 +16272,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[42] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[43] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[42] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[43] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 772 OF 1240 ***
 
@@ -16292,38 +16287,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[24] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[26] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[28] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[29] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[33] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[39] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[45] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[47] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[24] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[26] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[28] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[29] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[33] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[39] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[45] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[47] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[77], w_sv[112], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[28] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[29] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[32] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[33] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[38] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[39] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[42] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[43] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[28] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[29] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[32] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[33] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[38] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[39] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[42] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[43] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[77], w_sv[111], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[24] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[26] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[32] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[38] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[42] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[43] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[45] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[47] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[24] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[26] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[32] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[38] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[42] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[43] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[45] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[47] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 773 OF 1240 ***
 
@@ -16335,8 +16330,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[26] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[27] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[26] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[27] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 774 OF 1240 ***
 
@@ -16363,14 +16358,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[25] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[28] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[34] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[36] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[37] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[39] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[41] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[44] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[25] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[28] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[34] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[36] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[37] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[39] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[41] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[44] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 776 OF 1240 ***
 
@@ -16397,14 +16392,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[25] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[26] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[27] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[28] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[35] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[39] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[41] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[45] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[25] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[26] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[27] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[28] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[35] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[39] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[41] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[45] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 778 OF 1240 ***
 
@@ -16416,8 +16411,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[36] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[37] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[36] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[37] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 779 OF 1240 ***
 
@@ -16431,38 +16426,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[25] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[26] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[27] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[28] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[35] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[39] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[41] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[45] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[25] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[26] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[27] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[28] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[35] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[39] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[41] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[45] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[77], w_sv[110], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[26] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[27] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[34] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[35] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[36] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[37] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[44] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[45] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[26] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[27] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[34] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[35] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[36] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[37] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[44] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[45] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[77], w_sv[109], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[25] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[28] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[34] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[36] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[37] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[39] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[41] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[44] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[25] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[28] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[34] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[36] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[37] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[39] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[41] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[44] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 780 OF 1240 ***
 
@@ -16474,8 +16469,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[24] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[25] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[24] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[25] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 781 OF 1240 ***
 
@@ -16502,14 +16497,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[27] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[29] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[30] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[31] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[33] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[35] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[40] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[46] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[27] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[29] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[30] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[31] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[33] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[35] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[40] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[46] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 783 OF 1240 ***
 
@@ -16536,14 +16531,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[24] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[25] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[27] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[29] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[33] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[35] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[41] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[47] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[24] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[25] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[27] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[29] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[33] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[35] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[41] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[47] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 785 OF 1240 ***
 
@@ -16555,8 +16550,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[30] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[31] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[30] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[31] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 786 OF 1240 ***
 
@@ -16570,38 +16565,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[24] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[25] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[27] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[29] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[33] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[35] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[41] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[47] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[24] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[25] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[27] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[29] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[33] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[35] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[41] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[47] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[77], w_sv[34], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[27] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[29] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[30] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[31] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[33] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[35] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[40] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[46] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[27] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[29] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[30] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[31] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[33] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[35] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[40] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[46] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[77], w_sv[86], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[24] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[25] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[30] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[31] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[40] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[41] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[46] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[47] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[24] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[25] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[30] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[31] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[40] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[41] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[46] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[47] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 787 OF 1240 ***
 
@@ -16646,38 +16641,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[24] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[25] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[27] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[29] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[33] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[35] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[41] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[47] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[24] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[25] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[27] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[29] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[33] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[35] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[41] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[47] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[77], w_sv[88], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[25] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[26] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[27] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[28] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[35] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[39] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[41] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[45] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[25] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[26] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[27] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[28] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[35] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[39] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[41] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[45] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[77], w_sv[106], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[24] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[26] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[28] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[29] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[33] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[39] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[45] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[47] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[24] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[26] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[28] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[29] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[33] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[39] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[45] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[47] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 789 OF 1240 ***
 
@@ -16761,8 +16756,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[64] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[70] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[64] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[70] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 796 OF 1240 ***
 
@@ -16774,8 +16769,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[51] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[53] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[51] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[53] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 797 OF 1240 ***
 
@@ -16874,8 +16869,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[88] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[94] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[88] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[94] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 805 OF 1240 ***
 
@@ -16887,8 +16882,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[75] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[77] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[75] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[77] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 806 OF 1240 ***
 
@@ -16987,8 +16982,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[112] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[118] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[112] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[118] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 814 OF 1240 ***
 
@@ -17000,8 +16995,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[99] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[101] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[99] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[101] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 815 OF 1240 ***
 
@@ -17028,8 +17023,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[64] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[88] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[64] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[88] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 817 OF 1240 ***
 
@@ -17056,14 +17051,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[9] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[61] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[85] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[99] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[101] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[112] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[118] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[9] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[15] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[61] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[85] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[99] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[101] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[112] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[118] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 819 OF 1240 ***
 
@@ -17090,14 +17085,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[9] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[64] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[88] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[112] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[118] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[9] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[15] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[21] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[23] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[64] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[88] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[112] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[118] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 821 OF 1240 ***
 
@@ -17109,8 +17104,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[61] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[85] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[61] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[85] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 822 OF 1240 ***
 
@@ -17122,38 +17117,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[9] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[64] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[88] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[112] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[118] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[9] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[15] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[21] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[23] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[64] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[88] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[112] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[118] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[52], w_sv[2], w_sv[112], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[21] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[61] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[64] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[85] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[88] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[99] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[101] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[21] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[23] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[61] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[64] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[85] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[88] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[99] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[101] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[52], w_sv[2], w_sv[111], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[9] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[61] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[85] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[99] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[101] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[112] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[118] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[9] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[15] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[61] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[85] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[99] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[101] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[112] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[118] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 823 OF 1240 ***
 
@@ -17165,8 +17160,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[70] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[112] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[70] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[112] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 824 OF 1240 ***
 
@@ -17193,14 +17188,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[11] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[67] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[75] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[77] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[88] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[94] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[109] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[11] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[21] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[67] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[75] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[77] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[88] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[94] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[109] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 826 OF 1240 ***
 
@@ -17227,14 +17222,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[11] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[70] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[88] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[94] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[112] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[11] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[15] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[17] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[21] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[70] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[88] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[94] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[112] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 828 OF 1240 ***
 
@@ -17246,8 +17241,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[67] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[109] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[67] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[109] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 829 OF 1240 ***
 
@@ -17259,38 +17254,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[11] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[70] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[88] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[94] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[112] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[11] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[15] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[17] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[21] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[70] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[88] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[94] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[112] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[52], w_sv[2], w_sv[110], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[15] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[67] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[70] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[75] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[77] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[109] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[112] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[15] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[17] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[67] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[70] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[75] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[77] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[109] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[112] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[52], w_sv[2], w_sv[109], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[11] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[67] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[75] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[77] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[88] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[94] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[109] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[11] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[21] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[67] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[75] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[77] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[88] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[94] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[109] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 830 OF 1240 ***
 
@@ -17302,8 +17297,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[94] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[118] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[94] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[118] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 831 OF 1240 ***
 
@@ -17330,14 +17325,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[17] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[51] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[53] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[64] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[70] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[91] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[115] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[17] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[23] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[51] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[53] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[64] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[70] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[91] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[115] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 833 OF 1240 ***
 
@@ -17364,14 +17359,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[9] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[64] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[70] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[94] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[118] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[9] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[11] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[17] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[23] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[64] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[70] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[94] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[118] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 835 OF 1240 ***
 
@@ -17383,8 +17378,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[91] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[115] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[91] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[115] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 836 OF 1240 ***
 
@@ -17396,38 +17391,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[9] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[64] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[70] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[94] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[118] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[9] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[11] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[17] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[23] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[64] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[70] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[94] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[118] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[52], w_sv[2], w_sv[34], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[17] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[51] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[53] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[64] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[70] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[91] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[115] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[17] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[23] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[51] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[53] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[64] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[70] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[91] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[115] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[52], w_sv[2], w_sv[86], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[9] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[51] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[53] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[91] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[94] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[115] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[118] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[9] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[11] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[51] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[53] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[91] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[94] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[115] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[118] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 837 OF 1240 ***
 
@@ -17470,38 +17465,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[9] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[64] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[70] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[94] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[118] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[9] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[11] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[17] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[23] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[64] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[70] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[94] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[118] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[52], w_sv[2], w_sv[88], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[11] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[70] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[88] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[94] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[112] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[11] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[15] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[17] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[21] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[70] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[88] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[94] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[112] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[52], w_sv[2], w_sv[106], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[9] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[64] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[88] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[112] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[118] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[9] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[15] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[21] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[23] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[64] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[88] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[112] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[118] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 839 OF 1240 ***
 
@@ -18233,14 +18228,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[72] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[74] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[80] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[86] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[90] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[91] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[93] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[95] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[72] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[74] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[80] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[86] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[90] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[91] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[93] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[95] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 856 OF 1240 ***
 
@@ -18267,8 +18262,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[76] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[77] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[76] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[77] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 858 OF 1240 ***
 
@@ -18295,8 +18290,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[90] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[91] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[90] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[91] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 860 OF 1240 ***
 
@@ -18308,14 +18303,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[72] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[74] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[76] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[77] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[81] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[87] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[93] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[95] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[72] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[74] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[76] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[77] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[81] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[87] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[93] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[95] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 861 OF 1240 ***
 
@@ -18327,38 +18322,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[72] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[74] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[76] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[77] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[81] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[87] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[93] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[95] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[72] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[74] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[76] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[77] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[81] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[87] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[93] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[95] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[39], w_sv[95], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[76] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[77] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[80] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[81] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[86] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[87] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[90] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[91] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[76] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[77] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[80] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[81] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[86] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[87] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[90] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[91] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[39], w_sv[107], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[72] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[74] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[80] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[86] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[90] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[91] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[93] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[95] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[72] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[74] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[80] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[86] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[90] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[91] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[93] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[95] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 862 OF 1240 ***
 
@@ -18385,8 +18380,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[72] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[74] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[72] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[74] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 864 OF 1240 ***
 
@@ -18398,8 +18393,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[80] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[86] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[80] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[86] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 865 OF 1240 ***
 
@@ -18411,14 +18406,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[96] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[98] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[104] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[110] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[114] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[115] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[117] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[119] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[96] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[98] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[104] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[110] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[114] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[115] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[117] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[119] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 866 OF 1240 ***
 
@@ -18445,8 +18440,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[100] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[101] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[100] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[101] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 868 OF 1240 ***
 
@@ -18473,8 +18468,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[114] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[115] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[114] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[115] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 870 OF 1240 ***
 
@@ -18486,14 +18481,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[96] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[98] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[100] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[101] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[105] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[111] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[117] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[119] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[96] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[98] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[100] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[101] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[105] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[111] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[117] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[119] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 871 OF 1240 ***
 
@@ -18505,38 +18500,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[96] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[98] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[100] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[101] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[105] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[111] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[117] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[119] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[96] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[98] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[100] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[101] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[105] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[111] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[117] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[119] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[47], w_sv[22], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[100] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[101] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[104] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[105] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[110] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[111] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[114] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[115] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[100] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[101] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[104] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[105] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[110] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[111] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[114] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[115] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[47], w_sv[21], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[96] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[98] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[104] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[110] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[114] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[115] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[117] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[119] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[96] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[98] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[104] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[110] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[114] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[115] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[117] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[119] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 872 OF 1240 ***
 
@@ -18563,8 +18558,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[96] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[98] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[96] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[98] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 874 OF 1240 ***
 
@@ -18576,8 +18571,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[104] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[110] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[104] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[110] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 875 OF 1240 ***
 
@@ -18589,14 +18584,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[1] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[31] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[55] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[96] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[98] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[104] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[110] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[7] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[31] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[55] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[96] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[98] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[104] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[110] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 876 OF 1240 ***
 
@@ -18623,8 +18618,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[34] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[58] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[34] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[58] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 878 OF 1240 ***
 
@@ -18651,8 +18646,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[31] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[55] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[31] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[55] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 880 OF 1240 ***
 
@@ -18664,14 +18659,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[1] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[34] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[58] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[104] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[110] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[7] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[18] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[20] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[34] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[58] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[104] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[110] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 881 OF 1240 ***
 
@@ -18683,38 +18678,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[1] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[34] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[58] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[104] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[110] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[7] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[18] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[20] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[34] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[58] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[104] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[110] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[38], w_sv[2], w_sv[95], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[18] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[31] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[34] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[55] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[58] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[96] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[98] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[18] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[20] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[31] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[34] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[55] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[58] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[96] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[98] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[38], w_sv[2], w_sv[107], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[1] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[31] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[55] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[96] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[98] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[104] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[110] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[7] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[31] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[55] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[96] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[98] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[104] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[110] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 882 OF 1240 ***
 
@@ -18726,14 +18721,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[30] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[54] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[72] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[74] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[80] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[86] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[6] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[30] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[54] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[72] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[74] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[80] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[86] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 883 OF 1240 ***
 
@@ -18760,8 +18755,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[32] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[56] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[32] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[56] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 885 OF 1240 ***
 
@@ -18788,8 +18783,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[30] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[54] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[30] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[54] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 887 OF 1240 ***
 
@@ -18801,14 +18796,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[32] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[56] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[80] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[86] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[6] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[12] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[14] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[32] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[56] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[80] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[86] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 888 OF 1240 ***
 
@@ -18820,38 +18815,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[32] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[56] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[80] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[86] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[6] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[12] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[14] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[32] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[56] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[80] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[86] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[41], w_sv[2], w_sv[22], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[12] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[30] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[32] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[54] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[56] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[72] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[74] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[12] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[14] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[30] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[32] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[54] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[56] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[72] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[74] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[41], w_sv[2], w_sv[21], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[30] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[54] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[72] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[74] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[80] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[86] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[6] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[30] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[54] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[72] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[74] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[80] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[86] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 889 OF 1240 ***
 
@@ -18863,14 +18858,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[90] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[91] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[93] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[95] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[114] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[115] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[117] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[119] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[90] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[91] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[93] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[95] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[114] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[115] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[117] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[119] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 890 OF 1240 ***
 
@@ -18882,14 +18877,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[30] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[31] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[54] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[55] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[1] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[6] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[7] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[30] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[31] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[54] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[55] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 891 OF 1240 ***
 
@@ -18901,14 +18896,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[30] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[31] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[33] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[35] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[54] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[55] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[57] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[59] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[30] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[31] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[33] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[35] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[54] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[55] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[57] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[59] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 892 OF 1240 ***
 
@@ -18920,14 +18915,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[16] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[90] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[91] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[114] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[115] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[16] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[17] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[22] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[23] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[90] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[91] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[114] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[115] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 893 OF 1240 ***
 
@@ -19687,14 +19682,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[48] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[50] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[56] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[62] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[66] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[67] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[69] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[71] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[48] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[50] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[56] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[62] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[66] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[67] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[69] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[71] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 912 OF 1240 ***
 
@@ -19721,8 +19716,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[52] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[53] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[52] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[53] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 914 OF 1240 ***
 
@@ -19749,8 +19744,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[66] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[67] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[66] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[67] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 916 OF 1240 ***
 
@@ -19762,14 +19757,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[48] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[50] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[52] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[53] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[57] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[63] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[69] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[71] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[48] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[50] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[52] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[53] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[57] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[63] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[69] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[71] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 917 OF 1240 ***
 
@@ -19781,38 +19776,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[48] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[50] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[52] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[53] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[57] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[63] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[69] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[71] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[48] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[50] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[52] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[53] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[57] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[63] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[69] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[71] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[33], w_sv[103], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[52] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[53] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[56] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[57] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[62] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[63] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[66] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[67] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[52] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[53] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[56] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[57] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[62] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[63] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[66] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[67] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[33], w_sv[63], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[48] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[50] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[56] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[62] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[66] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[67] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[69] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[71] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[48] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[50] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[56] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[62] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[66] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[67] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[69] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[71] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 918 OF 1240 ***
 
@@ -19839,8 +19834,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[48] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[50] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[48] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[50] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 920 OF 1240 ***
 
@@ -19852,8 +19847,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[56] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[62] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[56] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[62] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 921 OF 1240 ***
 
@@ -19865,14 +19860,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[97] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[100] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[106] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[108] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[109] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[111] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[113] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[116] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[97] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[100] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[106] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[108] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[109] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[111] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[113] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[116] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 922 OF 1240 ***
 
@@ -19899,8 +19894,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[98] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[99] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[98] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[99] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 924 OF 1240 ***
 
@@ -19927,8 +19922,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[108] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[109] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[108] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[109] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 926 OF 1240 ***
 
@@ -19940,14 +19935,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[97] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[98] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[99] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[100] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[107] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[111] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[113] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[117] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[97] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[98] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[99] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[100] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[107] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[111] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[113] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[117] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 927 OF 1240 ***
 
@@ -19959,38 +19954,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[97] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[98] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[99] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[100] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[107] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[111] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[113] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[117] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[97] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[98] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[99] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[100] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[107] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[111] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[113] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[117] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[47], w_sv[90], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[98] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[99] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[106] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[107] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[108] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[109] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[116] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[117] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[98] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[99] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[106] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[107] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[108] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[109] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[116] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[117] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[47], w_sv[21], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[97] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[100] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[106] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[108] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[109] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[111] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[113] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[116] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[97] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[100] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[106] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[108] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[109] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[111] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[113] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[116] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 928 OF 1240 ***
 
@@ -20017,8 +20012,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[97] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[100] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[97] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[100] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 930 OF 1240 ***
 
@@ -20030,8 +20025,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[106] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[116] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[106] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[116] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 931 OF 1240 ***
 
@@ -20043,14 +20038,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[3] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[13] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[37] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[79] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[97] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[100] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[106] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[116] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[13] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[37] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[79] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[97] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[100] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[106] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[116] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 932 OF 1240 ***
 
@@ -20077,8 +20072,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[40] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[82] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[40] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[82] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 934 OF 1240 ***
 
@@ -20105,8 +20100,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[37] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[79] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[37] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[79] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 936 OF 1240 ***
 
@@ -20118,14 +20113,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[3] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[13] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[19] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[40] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[82] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[106] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[116] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[13] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[19] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[22] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[40] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[82] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[106] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[116] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 937 OF 1240 ***
 
@@ -20137,38 +20132,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[3] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[13] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[19] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[40] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[82] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[106] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[116] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[13] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[19] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[22] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[40] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[82] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[106] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[116] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[46], w_sv[2], w_sv[103], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[19] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[37] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[40] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[79] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[82] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[97] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[100] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[19] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[22] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[37] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[40] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[79] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[82] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[97] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[100] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[46], w_sv[2], w_sv[63], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[3] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[13] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[37] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[79] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[97] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[100] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[106] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[116] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[13] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[37] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[79] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[97] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[100] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[106] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[116] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 938 OF 1240 ***
 
@@ -20180,14 +20175,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[2] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[36] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[48] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[50] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[56] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[62] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[78] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[12] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[36] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[48] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[50] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[56] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[62] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[78] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 939 OF 1240 ***
 
@@ -20214,8 +20209,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[38] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[80] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[38] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[80] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 941 OF 1240 ***
 
@@ -20242,8 +20237,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[36] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[78] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[36] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[78] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 943 OF 1240 ***
 
@@ -20255,14 +20250,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[2] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[38] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[56] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[62] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[80] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[6] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[8] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[12] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[38] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[56] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[62] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[80] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 944 OF 1240 ***
 
@@ -20274,38 +20269,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[2] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[38] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[56] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[62] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[80] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[6] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[8] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[12] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[38] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[56] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[62] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[80] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[41], w_sv[2], w_sv[90], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[6] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[36] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[38] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[48] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[50] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[78] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[80] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[6] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[8] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[36] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[38] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[48] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[50] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[78] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[80] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[41], w_sv[2], w_sv[21], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[2] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[36] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[48] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[50] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[56] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[62] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[78] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[12] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[36] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[48] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[50] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[56] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[62] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[78] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 945 OF 1240 ***
 
@@ -20317,14 +20312,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[66] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[67] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[69] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[71] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[108] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[109] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[111] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[113] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[66] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[67] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[69] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[71] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[108] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[109] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[111] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[113] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 946 OF 1240 ***
 
@@ -20336,14 +20331,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[2] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[13] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[36] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[37] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[78] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[79] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[3] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[12] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[13] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[36] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[37] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[78] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[79] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 947 OF 1240 ***
 
@@ -20355,14 +20350,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[36] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[37] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[39] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[41] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[78] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[79] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[81] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[83] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[36] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[37] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[39] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[41] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[78] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[79] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[81] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[83] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 948 OF 1240 ***
 
@@ -20374,14 +20369,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[10] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[66] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[67] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[108] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[109] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[10] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[11] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[20] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[21] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[66] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[67] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[108] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[109] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 949 OF 1240 ***
 
@@ -21139,14 +21134,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[49] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[52] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[58] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[60] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[61] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[63] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[65] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[68] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[49] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[52] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[58] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[60] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[61] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[63] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[65] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[68] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 968 OF 1240 ***
 
@@ -21173,8 +21168,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[50] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[51] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[50] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[51] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 970 OF 1240 ***
 
@@ -21201,8 +21196,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[60] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[61] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[60] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[61] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 972 OF 1240 ***
 
@@ -21214,14 +21209,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[49] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[50] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[51] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[52] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[59] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[63] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[65] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[69] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[49] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[50] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[51] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[52] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[59] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[63] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[65] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[69] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 973 OF 1240 ***
 
@@ -21233,38 +21228,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[49] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[50] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[51] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[52] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[59] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[63] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[65] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[69] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[49] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[50] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[51] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[52] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[59] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[63] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[65] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[69] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[33], w_sv[93], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[50] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[51] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[58] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[59] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[60] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[61] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[68] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[69] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[50] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[51] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[58] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[59] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[60] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[61] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[68] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[69] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[33], w_sv[69], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[49] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[52] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[58] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[60] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[61] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[63] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[65] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[68] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[49] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[52] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[58] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[60] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[61] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[63] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[65] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[68] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 974 OF 1240 ***
 
@@ -21291,8 +21286,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[49] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[52] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[49] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[52] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 976 OF 1240 ***
 
@@ -21304,8 +21299,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[58] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[68] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[58] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[68] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 977 OF 1240 ***
 
@@ -21317,14 +21312,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[73] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[76] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[82] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[84] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[85] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[87] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[89] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[92] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[73] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[76] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[82] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[84] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[85] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[87] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[89] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[92] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 978 OF 1240 ***
 
@@ -21351,8 +21346,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[74] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[75] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[74] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[75] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 980 OF 1240 ***
 
@@ -21379,8 +21374,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[84] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[85] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[84] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[85] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 982 OF 1240 ***
 
@@ -21392,14 +21387,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[73] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[74] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[75] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[76] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[83] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[87] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[89] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[93] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[73] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[74] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[75] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[76] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[83] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[87] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[89] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[93] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 983 OF 1240 ***
 
@@ -21411,38 +21406,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[73] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[74] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[75] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[76] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[83] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[87] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[89] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[93] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[73] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[74] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[75] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[76] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[83] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[87] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[89] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[93] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[39], w_sv[65], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[74] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[75] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[82] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[83] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[84] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[85] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[92] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[93] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[74] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[75] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[82] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[83] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[84] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[85] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[92] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[93] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[39], w_sv[21], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[73] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[76] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[82] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[84] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[85] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[87] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[89] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[92] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[73] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[76] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[82] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[84] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[85] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[87] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[89] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[92] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 984 OF 1240 ***
 
@@ -21469,8 +21464,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[73] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[76] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[73] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[76] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 986 OF 1240 ***
 
@@ -21482,8 +21477,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[82] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[92] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[82] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[92] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 987 OF 1240 ***
 
@@ -21495,14 +21490,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[5] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[19] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[43] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[73] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[76] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[82] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[92] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[103] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[5] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[19] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[43] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[73] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[76] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[82] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[92] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[103] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 988 OF 1240 ***
 
@@ -21529,8 +21524,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[46] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[106] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[46] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[106] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 990 OF 1240 ***
 
@@ -21557,8 +21552,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[43] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[103] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[43] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[103] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 992 OF 1240 ***
 
@@ -21570,14 +21565,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[5] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[13] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[19] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[46] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[82] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[92] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[106] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[5] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[13] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[16] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[19] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[46] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[82] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[92] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[106] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 993 OF 1240 ***
 
@@ -21589,38 +21584,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[5] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[13] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[19] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[46] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[82] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[92] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[106] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[5] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[13] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[16] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[19] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[46] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[82] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[92] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[106] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[46], w_sv[2], w_sv[93], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[13] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[43] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[46] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[73] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[76] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[103] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[106] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[13] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[16] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[43] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[46] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[73] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[76] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[103] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[106] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[46], w_sv[2], w_sv[69], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[5] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[19] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[43] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[73] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[76] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[82] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[92] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[103] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[5] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[19] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[43] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[73] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[76] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[82] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[92] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[103] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 994 OF 1240 ***
 
@@ -21632,14 +21627,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[4] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[42] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[49] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[52] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[58] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[68] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[102] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[18] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[42] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[49] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[52] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[58] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[68] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[102] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 995 OF 1240 ***
 
@@ -21666,8 +21661,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[44] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[104] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[44] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[104] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 997 OF 1240 ***
 
@@ -21694,8 +21689,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[42] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[102] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[42] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[102] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 999 OF 1240 ***
 
@@ -21707,14 +21702,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[4] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[44] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[58] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[68] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[104] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[7] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[10] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[18] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[44] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[58] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[68] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[104] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1000 OF 1240 ***
 
@@ -21726,38 +21721,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[4] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[44] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[58] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[68] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[104] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[7] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[10] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[18] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[44] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[58] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[68] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[104] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[38], w_sv[2], w_sv[65], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[7] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[42] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[44] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[49] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[52] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[102] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[104] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[7] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[10] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[42] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[44] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[49] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[52] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[102] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[104] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[38], w_sv[2], w_sv[21], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[4] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[42] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[49] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[52] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[58] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[68] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[102] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[18] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[42] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[49] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[52] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[58] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[68] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[102] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1001 OF 1240 ***
 
@@ -21769,14 +21764,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[60] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[61] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[63] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[65] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[84] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[85] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[87] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[89] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[60] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[61] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[63] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[65] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[84] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[85] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[87] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[89] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1002 OF 1240 ***
 
@@ -21788,14 +21783,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[4] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[19] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[42] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[43] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[102] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[103] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[5] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[18] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[19] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[42] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[43] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[102] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[103] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1003 OF 1240 ***
 
@@ -21807,14 +21802,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[42] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[43] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[45] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[47] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[102] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[103] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[105] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[107] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[42] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[43] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[45] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[47] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[102] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[103] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[105] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[107] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1004 OF 1240 ***
 
@@ -21826,14 +21821,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[8] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[60] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[61] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[84] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[85] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[8] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[9] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[14] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[15] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[60] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[61] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[84] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[85] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1005 OF 1240 ***
 
@@ -24055,8 +24050,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[48] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[49] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[48] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[49] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1060 OF 1240 ***
 
@@ -24083,14 +24078,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[51] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[53] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[54] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[55] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[57] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[59] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[64] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[70] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[51] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[53] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[54] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[55] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[57] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[59] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[64] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[70] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1062 OF 1240 ***
 
@@ -24102,8 +24097,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[54] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[55] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[54] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[55] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1063 OF 1240 ***
 
@@ -24115,14 +24110,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[48] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[49] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[51] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[53] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[57] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[59] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[65] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[71] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[48] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[49] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[51] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[53] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[57] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[59] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[65] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[71] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1064 OF 1240 ***
 
@@ -24134,38 +24129,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[48] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[49] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[51] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[53] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[57] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[59] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[65] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[71] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[48] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[49] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[51] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[53] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[57] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[59] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[65] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[71] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[33], w_sv[42], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[51] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[53] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[54] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[55] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[57] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[59] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[64] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[70] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[51] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[53] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[54] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[55] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[57] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[59] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[64] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[70] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[33], w_sv[11], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[48] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[49] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[54] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[55] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[64] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[65] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[70] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[71] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[48] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[49] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[54] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[55] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[64] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[65] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[70] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[71] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1065 OF 1240 ***
 
@@ -24336,8 +24331,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[72] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[73] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[72] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[73] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1079 OF 1240 ***
 
@@ -24364,14 +24359,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[75] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[77] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[78] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[79] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[81] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[83] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[88] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[94] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[75] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[77] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[78] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[79] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[81] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[83] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[88] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[94] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1081 OF 1240 ***
 
@@ -24383,8 +24378,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[78] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[79] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[78] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[79] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1082 OF 1240 ***
 
@@ -24396,14 +24391,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[72] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[73] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[75] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[77] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[81] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[83] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[89] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[95] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[72] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[73] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[75] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[77] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[81] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[83] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[89] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[95] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1083 OF 1240 ***
 
@@ -24415,38 +24410,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[72] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[73] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[75] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[77] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[81] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[83] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[89] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[95] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[72] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[73] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[75] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[77] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[81] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[83] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[89] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[95] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[39], w_sv[16], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[75] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[77] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[78] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[79] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[81] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[83] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[88] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[94] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[75] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[77] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[78] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[79] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[81] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[83] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[88] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[94] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[39], w_sv[111], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[72] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[73] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[78] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[79] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[88] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[89] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[94] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[95] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[72] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[73] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[78] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[79] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[88] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[89] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[94] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[95] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1084 OF 1240 ***
 
@@ -24617,8 +24612,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[96] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[97] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[96] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[97] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1098 OF 1240 ***
 
@@ -24645,14 +24640,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[99] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[101] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[102] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[103] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[105] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[107] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[112] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[118] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[99] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[101] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[102] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[103] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[105] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[107] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[112] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[118] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1100 OF 1240 ***
 
@@ -24664,8 +24659,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[102] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[103] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[102] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[103] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1101 OF 1240 ***
 
@@ -24677,14 +24672,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[96] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[97] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[99] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[101] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[105] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[107] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[113] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[119] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[96] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[97] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[99] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[101] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[105] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[107] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[113] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[119] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1102 OF 1240 ***
 
@@ -24696,38 +24691,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[96] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[97] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[99] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[101] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[105] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[107] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[113] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[119] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[96] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[97] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[99] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[101] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[105] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[107] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[113] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[119] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[47], w_sv[71], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[99] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[101] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[102] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[103] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[105] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[107] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[112] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[118] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[99] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[101] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[102] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[103] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[105] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[107] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[112] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[118] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[47], w_sv[21], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[96] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[97] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[102] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[103] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[112] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[113] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[118] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[119] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[96] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[97] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[102] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[103] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[112] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[113] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[118] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[119] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1103 OF 1240 ***
 
@@ -24754,8 +24749,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[92] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[116] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[92] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[116] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1105 OF 1240 ***
 
@@ -24782,14 +24777,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[16] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[27] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[29] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[40] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[46] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[90] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[114] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[16] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[22] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[27] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[29] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[40] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[46] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[90] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[114] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1107 OF 1240 ***
 
@@ -24801,8 +24796,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[90] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[114] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[90] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[114] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1108 OF 1240 ***
 
@@ -24814,14 +24809,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[3] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[40] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[46] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[92] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[116] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[5] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[16] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[22] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[40] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[46] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[92] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[116] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1109 OF 1240 ***
 
@@ -24833,38 +24828,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[3] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[40] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[46] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[92] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[116] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[5] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[16] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[22] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[40] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[46] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[92] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[116] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[46], w_sv[2], w_sv[42], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[16] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[27] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[29] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[40] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[46] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[90] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[114] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[16] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[22] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[27] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[29] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[40] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[46] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[90] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[114] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[46], w_sv[2], w_sv[11], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[3] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[27] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[29] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[90] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[92] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[114] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[116] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[5] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[27] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[29] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[90] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[92] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[114] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[116] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1110 OF 1240 ***
 
@@ -24891,8 +24886,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[68] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[110] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[68] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[110] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1112 OF 1240 ***
 
@@ -24919,14 +24914,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[10] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[25] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[28] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[34] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[44] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[66] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[108] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[10] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[20] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[25] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[28] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[34] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[44] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[66] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[108] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1114 OF 1240 ***
 
@@ -24938,8 +24933,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[66] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[108] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[66] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[108] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1115 OF 1240 ***
 
@@ -24951,14 +24946,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[1] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[34] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[44] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[68] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[110] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[4] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[10] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[20] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[34] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[44] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[68] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[110] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1116 OF 1240 ***
 
@@ -24970,38 +24965,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[1] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[34] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[44] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[68] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[110] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[4] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[10] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[20] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[34] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[44] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[68] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[110] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[38], w_sv[2], w_sv[16], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[10] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[25] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[28] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[34] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[44] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[66] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[108] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[10] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[20] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[25] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[28] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[34] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[44] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[66] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[108] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[38], w_sv[2], w_sv[111], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[1] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[25] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[28] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[66] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[68] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[108] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[110] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[4] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[25] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[28] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[66] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[68] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[108] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[110] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1117 OF 1240 ***
 
@@ -25028,8 +25023,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[62] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[86] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[62] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[86] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1119 OF 1240 ***
 
@@ -25056,14 +25051,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[8] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[24] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[26] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[32] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[38] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[60] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[84] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[8] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[14] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[24] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[26] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[32] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[38] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[60] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[84] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1121 OF 1240 ***
 
@@ -25075,8 +25070,8 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[60] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[84] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[60] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[84] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1122 OF 1240 ***
 
@@ -25088,14 +25083,14 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[32] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[38] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[62] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[86] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[2] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[8] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[14] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[32] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[38] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[62] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[86] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1123 OF 1240 ***
 
@@ -25107,38 +25102,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[32] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[38] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[62] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[86] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[2] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[8] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[14] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[32] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[38] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[62] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[86] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[41], w_sv[2], w_sv[71], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[8] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[24] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[26] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[32] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[38] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[60] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[84] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[8] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[14] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[24] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[26] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[32] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[38] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[60] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[84] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[41], w_sv[2], w_sv[21], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[24] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[26] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[60] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[62] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[84] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[86] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[2] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[24] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[26] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[60] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[62] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[84] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[86] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1124 OF 1240 ***
 
@@ -25577,38 +25572,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[72] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[74] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[80] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[86] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[90] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[91] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[93] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[95] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[72] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[74] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[80] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[86] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[90] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[91] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[93] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[95] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[39], w_sv[98], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[74] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[78] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[80] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[84] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[91] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[92] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[93] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[94] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[74] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[78] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[80] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[84] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[91] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[92] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[93] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[94] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[39], w_sv[111], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[72] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[78] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[84] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[86] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[90] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[92] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[94] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[95] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[72] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[78] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[84] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[86] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[90] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[92] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[94] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[95] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1130 OF 1240 ***
 
@@ -25682,38 +25677,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[96] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[98] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[104] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[110] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[114] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[115] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[117] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[119] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[96] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[98] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[104] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[110] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[114] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[115] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[117] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[119] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[47], w_sv[20], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[98] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[102] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[104] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[108] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[115] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[116] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[117] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[118] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[98] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[102] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[104] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[108] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[115] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[116] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[117] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[118] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[47], w_sv[60], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[96] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[102] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[108] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[110] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[114] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[116] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[118] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[119] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[96] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[102] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[108] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[110] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[114] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[116] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[118] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[119] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1133 OF 1240 ***
 
@@ -25789,38 +25784,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[1] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[31] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[55] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[96] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[98] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[104] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[110] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[7] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[31] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[55] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[96] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[98] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[104] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[110] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[38], w_sv[2], w_sv[98], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[7] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[25] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[31] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[49] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[98] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[102] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[104] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[108] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[7] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[25] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[31] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[49] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[98] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[102] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[104] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[108] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[38], w_sv[2], w_sv[111], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[1] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[25] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[49] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[55] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[96] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[102] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[108] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[110] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[25] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[49] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[55] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[96] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[102] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[108] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[110] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1136 OF 1240 ***
 
@@ -25863,38 +25858,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[30] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[54] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[72] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[74] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[80] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[86] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[6] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[30] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[54] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[72] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[74] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[80] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[86] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[41], w_sv[2], w_sv[20], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[6] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[24] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[30] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[48] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[74] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[78] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[80] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[84] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[6] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[24] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[30] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[48] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[74] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[78] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[80] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[84] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[41], w_sv[2], w_sv[60], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[24] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[48] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[54] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[72] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[78] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[84] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[86] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[24] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[48] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[54] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[72] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[78] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[84] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[86] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1138 OF 1240 ***
 
@@ -25906,38 +25901,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[30] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[31] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[54] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[55] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[1] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[6] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[7] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[30] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[31] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[54] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[55] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[21], w_sv[29], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[6] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[24] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[25] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[30] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[31] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[48] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[49] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[6] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[7] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[24] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[25] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[30] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[31] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[48] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[49] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[71], w_sv[29], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[24] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[25] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[48] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[49] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[54] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[55] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[1] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[24] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[25] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[48] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[49] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[54] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[55] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1139 OF 1240 ***
 
@@ -25949,38 +25944,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[90] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[91] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[93] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[95] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[114] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[115] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[117] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[119] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[90] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[91] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[93] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[95] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[114] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[115] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[117] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[119] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[10], w_sv[2], w_sv[29], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[91] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[92] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[93] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[94] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[115] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[116] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[117] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[118] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[91] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[92] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[93] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[94] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[115] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[116] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[117] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[118] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[68], w_sv[2], w_sv[29], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[90] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[92] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[94] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[95] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[114] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[116] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[118] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[119] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[90] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[92] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[94] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[95] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[114] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[116] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[118] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[119] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1140 OF 1240 ***
 
@@ -26419,38 +26414,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[48] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[50] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[56] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[62] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[66] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[67] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[69] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[71] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[48] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[50] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[56] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[62] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[66] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[67] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[69] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[71] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[33], w_sv[60], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[50] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[54] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[56] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[60] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[67] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[68] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[69] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[70] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[50] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[54] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[56] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[60] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[67] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[68] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[69] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[70] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[33], w_sv[20], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[48] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[54] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[60] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[62] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[66] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[68] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[70] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[71] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[48] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[54] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[60] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[62] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[66] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[68] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[70] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[71] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1146 OF 1240 ***
 
@@ -26524,38 +26519,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[97] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[100] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[106] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[108] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[109] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[111] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[113] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[116] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[97] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[100] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[106] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[108] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[109] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[111] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[113] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[116] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[47], w_sv[71], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[100] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[103] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[106] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[109] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[110] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[111] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[112] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[114] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[100] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[103] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[106] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[109] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[110] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[111] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[112] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[114] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[47], w_sv[21], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[97] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[103] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[108] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[110] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[112] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[113] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[114] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[116] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[97] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[103] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[108] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[110] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[112] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[113] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[114] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[116] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1149 OF 1240 ***
 
@@ -26631,38 +26626,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[3] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[13] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[37] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[79] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[97] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[100] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[106] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[116] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[13] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[37] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[79] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[97] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[100] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[106] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[116] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[46], w_sv[2], w_sv[60], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[13] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[27] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[37] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[73] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[100] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[103] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[106] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[114] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[13] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[27] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[37] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[73] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[100] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[103] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[106] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[114] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[46], w_sv[2], w_sv[20], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[3] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[27] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[73] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[79] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[97] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[103] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[114] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[116] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[27] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[73] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[79] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[97] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[103] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[114] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[116] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1152 OF 1240 ***
 
@@ -26705,38 +26700,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[2] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[36] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[48] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[50] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[56] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[62] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[78] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[12] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[36] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[48] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[50] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[56] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[62] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[78] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[41], w_sv[2], w_sv[71], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[12] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[26] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[36] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[50] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[54] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[56] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[60] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[72] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[12] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[26] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[36] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[50] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[54] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[56] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[60] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[72] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[41], w_sv[2], w_sv[21], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[2] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[26] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[48] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[54] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[60] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[62] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[72] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[78] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[26] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[48] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[54] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[60] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[62] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[72] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[78] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1154 OF 1240 ***
 
@@ -26748,38 +26743,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[2] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[13] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[36] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[37] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[78] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[79] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[3] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[12] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[13] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[36] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[37] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[78] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[79] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[68], w_sv[27], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[12] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[13] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[26] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[27] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[36] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[37] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[72] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[73] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[12] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[13] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[26] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[27] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[36] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[37] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[72] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[73] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[29], w_sv[27], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[2] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[3] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[26] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[27] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[72] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[73] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[78] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[79] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[3] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[26] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[27] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[72] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[73] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[78] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[79] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1155 OF 1240 ***
 
@@ -26791,38 +26786,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[66] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[67] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[69] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[71] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[108] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[109] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[111] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[113] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[66] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[67] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[69] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[71] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[108] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[109] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[111] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[113] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[111], w_sv[2], w_sv[27], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[67] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[68] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[69] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[70] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[109] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[110] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[111] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[112] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[67] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[68] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[69] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[70] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[109] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[110] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[111] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[112] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[98], w_sv[2], w_sv[27], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[66] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[68] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[70] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[71] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[108] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[110] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[112] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[113] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[66] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[68] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[70] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[71] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[108] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[110] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[112] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[113] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1156 OF 1240 ***
 
@@ -27261,38 +27256,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[49] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[52] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[58] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[60] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[61] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[63] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[65] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[68] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[49] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[52] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[58] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[60] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[61] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[63] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[65] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[68] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[33], w_sv[21], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[52] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[55] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[58] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[61] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[62] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[63] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[64] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[66] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[52] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[55] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[58] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[61] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[62] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[63] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[64] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[66] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[33], w_sv[71], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[49] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[55] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[60] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[62] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[64] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[65] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[66] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[68] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[49] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[55] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[60] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[62] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[64] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[65] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[66] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[68] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1162 OF 1240 ***
 
@@ -27366,38 +27361,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[73] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[76] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[82] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[84] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[85] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[87] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[89] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[92] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[73] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[76] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[82] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[84] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[85] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[87] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[89] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[92] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[39], w_sv[29], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[76] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[79] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[82] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[85] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[86] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[87] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[88] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[90] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[76] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[79] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[82] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[85] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[86] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[87] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[88] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[90] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[39], w_sv[68], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[73] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[79] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[84] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[86] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[88] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[89] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[90] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[92] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[73] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[79] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[84] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[86] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[88] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[89] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[90] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[92] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1165 OF 1240 ***
 
@@ -27473,38 +27468,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[5] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[19] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[43] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[73] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[76] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[82] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[92] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[103] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[5] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[19] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[43] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[73] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[76] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[82] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[92] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[103] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[46], w_sv[2], w_sv[21], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[19] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[29] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[43] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[76] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[79] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[82] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[90] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[97] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[19] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[29] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[43] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[76] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[79] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[82] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[90] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[97] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[46], w_sv[2], w_sv[71], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[5] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[29] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[73] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[79] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[90] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[92] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[97] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[103] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[5] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[29] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[73] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[79] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[90] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[92] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[97] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[103] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1168 OF 1240 ***
 
@@ -27547,38 +27542,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[4] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[42] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[49] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[52] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[58] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[68] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[102] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[18] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[42] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[49] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[52] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[58] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[68] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[102] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[38], w_sv[2], w_sv[29], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[18] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[28] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[42] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[52] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[55] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[58] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[66] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[96] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[18] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[28] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[42] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[52] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[55] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[58] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[66] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[96] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[38], w_sv[2], w_sv[68], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[4] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[28] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[49] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[55] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[66] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[68] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[96] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[102] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[28] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[49] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[55] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[66] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[68] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[96] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[102] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1170 OF 1240 ***
 
@@ -27590,38 +27585,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[4] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[19] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[42] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[43] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[102] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[103] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[5] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[18] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[19] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[42] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[43] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[102] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[103] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[98], w_sv[24], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[18] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[19] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[28] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[29] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[42] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[43] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[96] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[97] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[18] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[19] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[28] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[29] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[42] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[43] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[96] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[97] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[27], w_sv[24], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[4] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[28] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[29] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[96] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[97] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[102] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[103] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[5] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[28] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[29] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[96] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[97] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[102] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[103] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1171 OF 1240 ***
 
@@ -27633,38 +27628,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[60] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[61] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[63] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[65] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[84] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[85] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[87] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[89] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[60] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[61] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[63] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[65] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[84] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[85] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[87] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[89] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[20], w_sv[2], w_sv[24], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[61] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[62] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[63] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[64] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[85] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[86] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[87] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[88] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[61] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[62] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[63] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[64] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[85] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[86] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[87] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[88] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[60], w_sv[2], w_sv[24], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[60] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[62] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[64] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[65] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[84] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[86] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[88] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[89] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[60] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[62] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[64] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[65] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[84] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[86] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[88] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[89] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1172 OF 1240 ***
 
@@ -27714,38 +27709,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[24] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[26] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[32] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[38] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[42] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[43] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[45] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[47] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[24] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[26] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[32] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[38] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[42] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[43] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[45] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[47] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[77], w_sv[68], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[26] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[30] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[32] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[36] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[43] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[44] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[45] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[46] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[26] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[30] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[32] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[36] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[43] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[44] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[45] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[46] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[77], w_sv[29], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[24] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[30] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[36] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[38] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[42] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[44] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[46] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[47] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[24] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[30] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[36] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[38] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[42] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[44] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[46] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[47] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1174 OF 1240 ***
 
@@ -27821,38 +27816,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[9] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[61] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[85] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[99] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[101] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[112] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[118] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[9] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[15] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[61] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[85] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[99] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[101] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[112] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[118] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[52], w_sv[2], w_sv[68], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[15] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[51] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[61] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[75] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[101] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[109] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[112] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[115] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[15] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[51] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[61] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[75] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[101] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[109] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[112] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[115] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[52], w_sv[2], w_sv[29], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[9] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[51] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[75] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[85] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[99] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[109] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[115] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[118] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[9] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[51] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[75] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[85] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[99] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[109] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[115] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[118] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1177 OF 1240 ***
 
@@ -27895,38 +27890,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[8] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[60] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[61] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[84] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[85] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[8] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[9] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[14] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[15] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[60] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[61] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[84] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[85] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[71], w_sv[72], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[14] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[15] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[50] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[51] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[60] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[61] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[74] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[75] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[14] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[15] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[50] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[51] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[60] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[61] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[74] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[75] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[21], w_sv[72], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[8] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[9] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[50] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[51] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[74] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[75] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[84] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[85] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[8] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[9] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[50] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[51] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[74] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[75] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[84] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[85] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1179 OF 1240 ***
 
@@ -27938,38 +27933,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[42] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[43] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[45] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[47] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[102] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[103] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[105] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[107] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[42] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[43] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[45] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[47] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[102] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[103] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[105] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[107] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[27], w_sv[2], w_sv[72], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[43] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[44] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[45] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[46] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[103] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[104] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[105] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[106] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[43] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[44] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[45] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[46] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[103] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[104] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[105] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[106] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[98], w_sv[2], w_sv[72], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[42] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[44] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[46] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[47] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[102] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[104] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[106] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[107] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[42] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[44] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[46] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[47] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[102] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[104] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[106] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[107] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1180 OF 1240 ***
 
@@ -28371,38 +28366,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[99] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[101] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[102] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[103] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[105] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[107] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[112] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[118] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[99] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[101] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[102] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[103] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[105] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[107] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[112] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[118] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[47], w_sv[60], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[101] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[103] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[104] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[105] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[106] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[109] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[112] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[115] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[101] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[103] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[104] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[105] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[106] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[109] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[112] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[115] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[47], w_sv[24], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[99] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[102] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[104] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[106] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[107] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[109] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[115] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[118] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[99] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[102] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[104] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[106] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[107] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[109] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[115] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[118] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1185 OF 1240 ***
 
@@ -28445,38 +28440,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[8] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[24] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[26] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[32] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[38] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[60] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[84] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[8] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[14] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[24] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[26] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[32] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[38] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[60] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[84] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[41], w_sv[2], w_sv[60], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[14] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[26] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[30] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[32] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[36] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[50] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[60] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[74] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[14] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[26] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[30] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[32] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[36] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[50] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[60] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[74] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[41], w_sv[2], w_sv[24], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[8] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[24] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[30] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[36] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[38] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[50] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[74] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[84] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[8] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[24] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[30] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[36] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[38] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[50] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[74] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[84] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1187 OF 1240 ***
 
@@ -28557,38 +28552,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[25] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[28] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[34] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[36] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[37] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[39] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[41] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[44] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[25] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[28] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[34] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[36] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[37] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[39] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[41] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[44] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[77], w_sv[27], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[28] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[31] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[34] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[37] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[38] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[39] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[40] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[42] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[28] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[31] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[34] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[37] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[38] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[39] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[40] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[42] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[77], w_sv[16], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[25] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[31] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[36] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[38] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[40] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[41] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[42] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[44] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[25] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[31] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[36] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[38] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[40] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[41] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[42] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[44] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1190 OF 1240 ***
 
@@ -28664,38 +28659,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[11] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[67] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[75] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[77] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[88] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[94] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[109] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[11] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[21] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[67] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[75] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[77] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[88] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[94] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[109] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[52], w_sv[2], w_sv[27], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[21] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[53] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[67] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[77] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[85] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[88] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[91] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[99] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[21] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[53] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[67] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[77] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[85] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[88] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[91] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[99] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[52], w_sv[2], w_sv[16], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[11] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[53] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[75] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[85] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[91] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[94] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[99] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[109] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[11] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[53] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[75] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[85] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[91] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[94] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[99] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[109] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1193 OF 1240 ***
 
@@ -28738,38 +28733,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[10] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[66] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[67] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[108] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[109] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[10] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[11] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[20] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[21] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[66] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[67] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[108] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[109] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[68], w_sv[66], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[20] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[21] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[52] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[53] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[66] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[67] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[98] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[99] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[20] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[21] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[52] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[53] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[66] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[67] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[98] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[99] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[23], w_sv[66], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[10] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[11] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[52] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[53] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[98] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[99] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[108] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[109] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[10] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[11] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[52] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[53] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[98] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[99] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[108] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[109] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1195 OF 1240 ***
 
@@ -28781,38 +28776,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[36] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[37] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[39] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[41] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[78] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[79] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[81] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[83] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[36] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[37] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[39] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[41] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[78] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[79] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[81] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[83] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[60], w_sv[2], w_sv[66], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[37] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[38] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[39] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[40] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[79] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[80] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[81] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[82] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[37] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[38] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[39] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[40] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[79] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[80] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[81] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[82] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[72], w_sv[2], w_sv[66], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[36] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[38] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[40] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[41] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[78] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[80] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[82] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[83] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[36] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[38] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[40] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[41] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[78] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[80] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[82] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[83] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1196 OF 1240 ***
 
@@ -29214,38 +29209,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[75] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[77] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[78] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[79] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[81] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[83] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[88] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[94] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[75] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[77] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[78] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[79] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[81] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[83] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[88] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[94] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[39], w_sv[21], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[77] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[79] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[80] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[81] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[82] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[85] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[88] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[91] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[77] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[79] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[80] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[81] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[82] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[85] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[88] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[91] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[39], w_sv[71], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[75] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[78] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[80] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[82] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[83] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[85] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[91] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[94] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[75] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[78] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[80] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[82] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[83] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[85] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[91] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[94] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1201 OF 1240 ***
 
@@ -29288,38 +29283,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[10] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[25] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[28] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[34] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[44] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[66] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[108] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[10] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[20] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[25] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[28] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[34] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[44] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[66] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[108] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[38], w_sv[2], w_sv[21], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[20] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[28] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[31] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[34] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[42] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[52] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[66] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[98] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[20] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[28] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[31] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[34] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[42] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[52] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[66] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[98] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[38], w_sv[2], w_sv[71], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[10] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[25] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[31] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[42] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[44] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[52] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[98] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[108] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[10] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[25] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[31] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[42] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[44] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[52] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[98] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[108] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1203 OF 1240 ***
 
@@ -29400,38 +29395,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[27] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[29] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[30] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[31] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[33] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[35] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[40] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[46] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[27] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[29] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[30] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[31] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[33] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[35] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[40] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[46] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[77], w_sv[60], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[29] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[31] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[32] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[33] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[34] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[37] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[40] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[43] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[29] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[31] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[32] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[33] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[34] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[37] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[40] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[43] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[77], w_sv[24], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[27] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[30] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[32] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[34] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[35] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[37] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[43] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[46] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[27] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[30] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[32] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[34] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[35] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[37] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[43] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[46] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1206 OF 1240 ***
 
@@ -29507,38 +29502,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[17] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[51] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[53] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[64] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[70] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[91] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[115] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[17] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[23] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[51] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[53] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[64] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[70] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[91] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[115] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[52], w_sv[2], w_sv[60], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[23] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[53] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[61] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[64] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[67] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[77] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[91] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[101] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[23] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[53] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[61] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[64] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[67] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[77] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[91] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[101] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[52], w_sv[2], w_sv[24], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[17] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[51] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[61] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[67] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[70] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[77] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[101] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[115] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[17] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[51] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[61] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[67] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[70] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[77] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[101] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[115] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1209 OF 1240 ***
 
@@ -29581,38 +29576,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[16] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[90] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[91] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[114] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[115] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[16] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[17] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[22] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[23] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[90] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[91] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[114] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[115] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[16], w_sv[61], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[22] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[23] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[76] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[77] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[90] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[91] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[100] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[101] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[22] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[23] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[76] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[77] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[90] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[91] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[100] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[101] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[27], w_sv[61], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[16] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[17] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[76] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[77] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[100] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[101] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[114] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[115] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[16] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[17] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[76] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[77] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[100] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[101] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[114] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[115] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1211 OF 1240 ***
 
@@ -29624,38 +29619,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[30] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[31] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[33] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[35] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[54] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[55] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[57] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[59] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[30] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[31] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[33] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[35] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[54] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[55] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[57] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[59] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[21], w_sv[2], w_sv[61], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[31] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[32] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[33] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[34] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[55] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[56] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[57] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[58] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[31] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[32] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[33] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[34] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[55] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[56] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[57] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[58] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[66], w_sv[2], w_sv[61], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[30] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[32] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[34] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[35] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[54] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[56] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[58] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[59] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[30] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[32] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[34] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[35] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[54] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[56] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[58] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[59] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1212 OF 1240 ***
 
@@ -30057,38 +30052,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[51] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[53] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[54] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[55] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[57] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[59] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[64] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[70] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[51] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[53] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[54] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[55] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[57] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[59] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[64] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[70] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[33], w_sv[23], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[53] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[55] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[56] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[57] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[58] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[61] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[64] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[67] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[53] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[55] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[56] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[57] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[58] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[61] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[64] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[67] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[33], w_sv[68], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[51] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[54] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[56] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[58] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[59] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[61] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[67] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[70] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[51] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[54] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[56] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[58] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[59] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[61] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[67] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[70] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1217 OF 1240 ***
 
@@ -30131,38 +30126,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[16] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[27] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[29] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[40] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[46] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[90] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[114] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[16] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[22] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[27] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[29] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[40] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[46] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[90] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[114] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[46], w_sv[2], w_sv[23], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[22] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[29] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[37] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[40] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[43] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[76] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[90] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[100] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[22] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[29] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[37] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[40] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[43] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[76] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[90] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[100] -= CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[46], w_sv[2], w_sv[68], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[16] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[27] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[37] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[43] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[46] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[76] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[100] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[114] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[16] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[27] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[37] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[43] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[46] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[76] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[100] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[114] += CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1219 OF 1240 ***
 
@@ -30528,38 +30523,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[96] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[97] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[99] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[101] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[105] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[107] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[113] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[119] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[96] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[97] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[99] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[101] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[105] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[107] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[113] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[119] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[47], w_sv[1], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[97] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[98] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[99] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[100] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[107] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[111] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[113] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[117] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[97] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[98] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[99] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[100] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[107] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[111] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[113] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[117] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[47], w_sv[16], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[96] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[98] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[100] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[101] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[105] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[111] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[117] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[119] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[96] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[98] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[100] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[101] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[105] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[111] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[117] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[119] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1224 OF 1240 ***
 
@@ -30602,38 +30597,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[2] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[32] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[38] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[62] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[86] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[2] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[8] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[14] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[32] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[38] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[62] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[86] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[41], w_sv[2], w_sv[1], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[2] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[8] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[38] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[56] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[62] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[80] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[6] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[8] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[12] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[38] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[56] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[62] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[80] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[41], w_sv[2], w_sv[16], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[6] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[12] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[14] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[32] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[56] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[80] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[86] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[6] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[12] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[14] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[32] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[56] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[80] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[86] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1226 OF 1240 ***
 
@@ -30999,38 +30994,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[72] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[73] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[75] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[77] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[81] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[83] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[89] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[95] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[72] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[73] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[75] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[77] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[81] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[83] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[89] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[95] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[39], w_sv[80], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[73] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[74] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[75] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[76] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[83] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[87] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[89] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[93] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[73] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[74] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[75] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[76] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[83] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[87] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[89] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[93] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[39], w_sv[79], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[72] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[74] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[76] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[77] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[81] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[87] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[93] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[95] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[72] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[74] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[76] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[77] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[81] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[87] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[93] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[95] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1231 OF 1240 ***
 
@@ -31073,38 +31068,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[1] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[4] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[34] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[44] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[68] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[110] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[4] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[10] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[20] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[34] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[44] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[68] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[110] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[38], w_sv[2], w_sv[80], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[4] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[10] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[44] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[58] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[68] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[104] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[7] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[10] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[18] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[44] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[58] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[68] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[104] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[38], w_sv[2], w_sv[79], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[1] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[7] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[18] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[20] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[34] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[58] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[104] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[110] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[7] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[18] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[20] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[34] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[58] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[104] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[110] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1233 OF 1240 ***
 
@@ -31470,38 +31465,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[48] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[49] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[51] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[53] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[57] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[59] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[65] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[71] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[48] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[49] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[51] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[53] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[57] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[59] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[65] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[71] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[33], w_sv[82], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[49] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[50] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[51] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[52] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[59] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[63] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[65] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[69] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[49] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[50] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[51] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[52] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[59] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[63] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[65] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[69] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[3], w_sv[33], w_sv[81], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[48] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[50] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[52] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[53] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[57] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[63] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[69] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[71] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[48] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[50] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[52] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[53] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[57] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[63] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[69] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[71] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1238 OF 1240 ***
 
@@ -31544,38 +31539,38 @@ namespace Proc
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[3] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[5] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[40] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[46] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[92] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[116] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[5] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[16] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[22] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[40] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[46] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[92] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[116] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[46], w_sv[2], w_sv[82], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[5] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[13] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[16] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[19] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[46] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[82] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[92] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[106] += cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[5] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[13] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[16] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[19] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[46] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[82] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[92] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[106] += CXIMAGINARYI_SV * amp_sv[0];
       FFV1_0( w_sv[46], w_sv[2], w_sv[81], COUPs[1], &amp_sv[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[3] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[13] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[19] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[22] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[40] -= cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[82] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[106] += cxmake( 0, 1 ) * amp_sv[0];
-      jamp_sv[116] -= cxmake( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[13] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[19] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[22] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[40] -= CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[82] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[106] += CXIMAGINARYI_SV * amp_sv[0];
+      jamp_sv[116] -= CXIMAGINARYI_SV * amp_sv[0];
 
       // *** DIAGRAM 1240 OF 1240 ***
 
@@ -31738,17 +31733,17 @@ namespace Proc
 
       // Sum and square the color flows to get the matrix element
       // (compute |M|^2 by squaring |M|, taking into account colours)
-      fptype_sv deltaMEs = { 0 }; // all zeros
-      for( size_t icol = 0; icol < ncolor; icol++ )
-      {
-        cxtype_sv ztemp_sv = cxzero_sv();
-        for( size_t jcol = 0; jcol < ncolor; jcol++ )
-          ztemp_sv += cf[icol][jcol] * jamp_sv[jcol];
-        // OLD implementation: why is this not slower? maybe compiler does not compute imaginary part of "ztemp_sv*cxconj(jamp_sv[icol])"?
-        //deltaMEs += cxreal( ztemp_sv * cxconj( jamp_sv[icol] ) ) / denom[icol];
-        // NEW implementation: keep this even if (surprisingly) it is not faster! it is clearer and easier for tensor core offload anyway...
-        // Rewrite the quadratic form (A-iB)(M)(A+iB) as AMA - iBMA + iBMA + BMB = AMA + BMB!
-        deltaMEs += ( cxreal( ztemp_sv ) * cxreal( jamp_sv[icol] ) + cximag( ztemp_sv ) * cximag( jamp_sv[icol] ) ) / denom[icol];
+      fptype_sv deltaMEs = FPZERO_SV;
+      for( size_t icol = 0; icol < ncolor; icol++ ) {
+          cxtype_sv ztemp_sv = CXZERO_SV;
+          for( size_t jcol = 0; jcol < ncolor; jcol++ ) {
+              ztemp_sv += cf[icol][jcol]*jamp_sv[jcol];
+          }
+          // OLD implementation: why is this not slower? maybe compiler does not compute imaginary part of "ztemp_sv*cxconj(jamp_sv[icol])"?
+          //deltaMEs += cxreal( ztemp_sv * cxconj( jamp_sv[icol] ) ) / denom[icol];
+          // NEW implementation: keep this even if (surprisingly) it is not faster! it is clearer and easier for tensor core offload anyway...
+          // Rewrite the quadratic form (A-iB)(M)(A+iB) as AMA - iBMA + iBMA + BMB = AMA + BMB!
+          deltaMEs += (CXREAL(ztemp_sv)*CXREAL(jamp_sv[icol]) + CXIMAG(ztemp_sv)*CXIMAG(jamp_sv[icol]))/denom[icol];
       }
 
       // *** STORE THE RESULTS ***
@@ -31761,9 +31756,8 @@ namespace Proc
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
       // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
       allMEs += deltaMEs;
-    }
-    mgDebug( 1, __FUNCTION__ );
-    return allMEs;
+      mgDebug( 1, __FUNCTION__ );
+      return allMEs;
   }
 
   //--------------------------------------------------------------------------
@@ -31778,10 +31772,10 @@ namespace Proc
     , m_ngputhreads( ngputhreads )
     , m_verbose( verbose )
     , m_debug( debug )
-#ifndef MGONGPU_HARDCODE_PARAM
-    , m_pars( 0 )
-    , m_masses()
-#endif
+    #ifndef MGONGPU_HARDCODE_PARAM
+        , m_pars( 0 )
+        , m_masses()
+    #endif
   {
   }
 
@@ -31792,24 +31786,22 @@ namespace Proc
   //--------------------------------------------------------------------------
 
   // Initialize process (with parameters read from user cards)
-  void CPPProcess::initProc( const std::string& param_card_name )
-  {
-#ifndef MGONGPU_HARDCODE_PARAM
-    // Instantiate the model class and set parameters that stay fixed during run
-    m_pars = Parameters_sm::getInstance();
-    SLHAReader slha( param_card_name, m_verbose );
-    m_pars->setIndependentParameters( slha );
-    m_pars->setIndependentCouplings();
-    //m_pars->setDependentParameters();
-    //m_pars->setDependentCouplings();
-    if ( m_verbose )
-    {
-      m_pars->printIndependentParameters();
-      m_pars->printIndependentCouplings();
-      //m_pars->printDependentParameters();
-      //m_pars->printDependentCouplings();
-    }
-    // Set external particle masses for this matrix element
+  void CPPProcess::initProc( const std::string& param_card_name ) {
+      #ifndef MGONGPU_HARDCODE_PARAM
+          // Instantiate the model class and set parameters that stay fixed during run
+          m_pars = Parameters_sm::getInstance();
+          SLHAReader slha( param_card_name, m_verbose );
+          m_pars->setIndependentParameters( slha );
+          m_pars->setIndependentCouplings();
+          //m_pars->setDependentParameters();
+          //m_pars->setDependentCouplings();
+          if ( m_verbose ) {
+            m_pars->printIndependentParameters();
+            m_pars->printIndependentCouplings();
+            //m_pars->printDependentParameters();
+            //m_pars->printDependentCouplings();
+          }
+          // Set external particle masses for this matrix element
     m_masses.push_back( m_pars->ZERO );
     m_masses.push_back( m_pars->ZERO );
     m_masses.push_back( m_pars->mdl_MT );
@@ -31817,74 +31809,64 @@ namespace Proc
     m_masses.push_back( m_pars->ZERO );
     m_masses.push_back( m_pars->ZERO );
     m_masses.push_back( m_pars->ZERO );
-    // Read physics parameters like masses and couplings from user configuration files (static: initialize once)
-    //m_tIPC[...] = ... ; // nicoup=0
-    m_tIPD[0] = (fptype)m_pars->mdl_MT;
-    m_tIPD[1] = (fptype)m_pars->mdl_WT;
+          // Read physics parameters like masses and couplings from user configuration files (static: initialize once)
+          //m_tIPC[...] = ... ; // nicoup=0
+          m_tIPD[0] = (fptype)m_pars->mdl_MT;
+          m_tIPD[1] = (fptype)m_pars->mdl_WT;
 
-#endif
+      #endif
   }
 
   //--------------------------------------------------------------------------
-#ifndef MGONGPU_HARDCODE_PARAM
+  #ifndef MGONGPU_HARDCODE_PARAM
   // Define pointer accessors
   cxtype* CPPProcess::get_tIPC_ptr() {return m_tIPC;}
   const cxtype* CPPProcess::get_tIPC_ptr() const {return m_tIPC;}
 
   fptype* CPPProcess::get_tIPD_ptr() {return m_tIPD;}
   const fptype* CPPProcess::get_tIPD_ptr() const {return m_tIPD;}
-#endif
+  #endif
 
   //--------------------------------------------------------------------------
 
   SYCL_EXTERNAL
-  void sigmaKin_getGoodHel( const fptype* __restrict__ allmomenta, // input: momenta[nevt*npar*4]
-                            bool* isGoodHel,                       // output: isGoodHel[ncomb] - device array
-                            const short* __restrict__ cHel,
-                            const cxtype* __restrict__ cIPC,
+  void sigmaKin_getGoodHel( const vector4* __restrict__ allmomenta, // input: momenta[nevt*npar*4]
+                            bool* isGoodHel,                        // output: isGoodHel[ncomb] - device array
+                            const signed char* __restrict__ cHel,
+                            const cxtype_sv* __restrict__ COUPs,
                             const fptype* __restrict__ cIPD
-                            )
-  {
-    // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-    fptype allMEsLast = 0;
-    fptype allMEs = 0;
-    for ( size_t ihel = 0; ihel < ncomb; ihel++ )
-    {
-      // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      constexpr size_t channelId = 0; // disable single-diagram channel enhancement
-      fptype allNumerators = 0;
-      fptype allDenominators = 0;
-      allMEs += calculate_wavefunctions( allmomenta, &allNumerators, &allDenominators, channelId, cHel + ihel*npar, cIPC, cIPD );
-#else
-      allMEs += calculate_wavefunctions( allmomenta, cHel + ihel*npar, cIPC, cIPD );
-#endif
-      if ( allMEs != allMEsLast )
-      {
-        //if ( !isGoodHel[ihel] ) std::cout << "sigmaKin_getGoodHel ihel=" << ihel << " TRUE" << std::endl;
-        isGoodHel[ihel] = true;
-      }
-      allMEsLast = allMEs; // running sum up to helicity ihel for event ievt
-    }
-  }
+                            ) {
+      // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
+      fptype_sv allMEsLast = FPZERO_SV;
+      fptype_sv allMEs = FPZERO_SV;
+      for ( size_t ihel = 0; ihel < ncomb; ihel++ ) {
+          // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
+          #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+              constexpr size_t channelId = 0; // disable single-diagram channel enhancement
+              fptype_sv allNumerators = FPZERO_SV;
+              fptype_sv allDenominators = FPZERO_SV;
+              allMEs += calculate_wavefunctions( allmomenta, &allNumerators, &allDenominators, channelId, cHel + ihel*npar, COUPs, cIPD );
+          #else
+              allMEs += calculate_wavefunctions( allmomenta, cHel + ihel*npar, COUPs, cIPD );
+          #endif
+          if (FPANY_SV(allMEs != allMEsLast)) {
+              isGoodHel[ihel] = true;
+          }
+          allMEsLast = allMEs; // running sum up to helicity ihel for event ievt
+       }
+   }
 
   //--------------------------------------------------------------------------
 
-  size_t sigmaKin_setGoodHel( const bool* isGoodHel, size_t* goodHel ) // input: isGoodHel[ncomb] - host array
-  {
-    size_t nGoodHel = 0; // FIXME: assume process.nprocesses == 1 for the moment (eventually nGoodHel[nprocesses]?)
-    for ( size_t ihel = 0; ihel < ncomb; ihel++ )
-    {
-      //std::cout << "sigmaKin_setGoodHel ihel=" << ihel << ( isGoodHel[ihel] ? " true" : " false" ) << std::endl;
-      if ( isGoodHel[ihel] )
-      {
-        //goodHel[nGoodHel[0]] = ihel; // FIXME: assume process.nprocesses == 1 for the moment
-        //nGoodHel[0]++; // FIXME: assume process.nprocesses == 1 for the moment
-        goodHel[nGoodHel] = ihel;
-        nGoodHel++;
+  size_t sigmaKin_setGoodHel( const bool* isGoodHel, size_t* goodHel ) {
+      size_t nGoodHel = 0; // FIXME: assume process.nprocesses == 1 for the moment (eventually nGoodHel[nprocesses]?)
+      for (size_t ihel = 0; ihel < ncomb; ihel++) {
+          if (isGoodHel[ihel]) {
+              goodHel[nGoodHel] = ihel;
+              nGoodHel++;
+          }
       }
-    }
-    return nGoodHel;
+      return nGoodHel;
   }
 
   //--------------------------------------------------------------------------
@@ -31892,60 +31874,56 @@ namespace Proc
   // FIXME: assume process.nprocesses == 1 (eventually: allMEs[nevt] -> allMEs[nevt*nprocesses]?)
 
   SYCL_EXTERNAL
-  fptype sigmaKin( const fptype* __restrict__ allmomenta, // input: momenta[nevt*npar*4]
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                   const size_t channelId,          // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
-#endif
-                   const short* __restrict__ cHel,
-                   const cxtype* __restrict__ cIPC,
-                   const fptype* __restrict__ cIPD,
-                   const size_t* __restrict__ cNGoodHel,
-                   const size_t* __restrict__ cGoodHel
-                 )
-  {
-    mgDebugInitialise();
+  fptype_sv sigmaKin( const vector4* __restrict__ allmomenta, // input: momenta[nevt*npar*4]
+                      #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+                          const size_t channelId,             // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
+                      #endif
+                      const signed char* __restrict__ cHel,
+                      const cxtype_sv* __restrict__ COUPs,
+                      const fptype* __restrict__ cIPD,
+                      const size_t* __restrict__ cNGoodHel,
+                      const size_t* __restrict__ cGoodHel
+                 ) {
 
-    // Denominators: spins, colors and identical particles
-    constexpr int denominators = 1536; // FIXME: assume process.nprocesses == 1 for the moment (eventually denominators[nprocesses]?)
+      // Denominators: spins, colors and identical particles
+      constexpr int denominators = 1536; // FIXME: assume process.nprocesses == 1 for the moment (eventually denominators[nprocesses]?)
 
-    // Set the parameters which change event by event
-    // Need to discuss this with Stefan
-    //m_pars->setDependentParameters();
-    //m_pars->setDependentCouplings();
+      // Set the parameters which change event by event
+      // Need to discuss this with Stefan
+      //m_pars->setDependentParameters();
+      //m_pars->setDependentCouplings();
 
-    // Start sigmaKin_lines
-    // PART 0 - INITIALISATION (before calculate_wavefunctions)
-    // Reset the "matrix elements" - running sums of |M|^2 over helicities for the given event
-    // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-    fptype allMEs = 0;
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    fptype allNumerators = 0;
-    fptype allDenominators = 0;
-#endif
+      // Start sigmaKin_lines
+      // PART 0 - INITIALISATION (before calculate_wavefunctions)
+      // Reset the "matrix elements" - running sums of |M|^2 over helicities for the given event
+      // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
+      fptype_sv allMEs = FPZERO_SV;
+      #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+          fptype_sv allNumerators = FPZERO_SV;
+          fptype_sv allDenominators = FPZERO_SV;
+      #endif
 
-    // PART 1 - HELICITY LOOP: CALCULATE WAVEFUNCTIONS
-    // (in both CUDA and C++, using precomputed good helicities)
-    // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-    for ( size_t ighel = 0; ighel < cNGoodHel[0]; ighel++ )
-    {
-      const size_t ihel = cGoodHel[ighel];
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      allMEs += calculate_wavefunctions( allmomenta, &allNumerators, &allDenominators, channelId, cHel + ihel*npar, cIPC, cIPD );
-#else
-      allMEs += calculate_wavefunctions( allmomenta, cHel + ihel*npar, cIPC, cIPD );
-#endif
-    }
+      // PART 1 - HELICITY LOOP: CALCULATE WAVEFUNCTIONS
+      // (in both CUDA and C++, using precomputed good helicities)
+      // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
+      for (size_t ighel = 0; ighel < cNGoodHel[0]; ighel++) {
+          const size_t ihel = cGoodHel[ighel];
+          #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+              allMEs += calculate_wavefunctions( allmomenta, &allNumerators, &allDenominators, channelId, cHel + ihel*npar, COUPs, cIPD );
+          #else
+              allMEs += calculate_wavefunctions( allmomenta, cHel + ihel*npar, COUPs, cIPD );
+          #endif
+      }
 
-    // PART 2 - FINALISATION (after calculate_wavefunctions)
-    // Get the final |M|^2 as an average over helicities/colors of the running sum of |M|^2 over helicities for the given event
-    // [NB 'sum over final spins, average over initial spins', eg see
-    // https://www.uzh.ch/cmsssl/physik/dam/jcr:2e24b7b1-f4d7-4160-817e-47b13dbf1d7c/Handout_4_2016-UZH.pdf]
-    // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-    mgDebugFinalise();
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    if( channelId > 0 ) allMEs *= allNumerators / allDenominators; // FIXME (#343): assume nprocesses == 1
-#endif
-    return allMEs / denominators;
+      // PART 2 - FINALISATION (after calculate_wavefunctions)
+      // Get the final |M|^2 as an average over helicities/colors of the running sum of |M|^2 over helicities for the given event
+      // [NB 'sum over final spins, average over initial spins', eg see
+      // https://www.uzh.ch/cmsssl/physik/dam/jcr:2e24b7b1-f4d7-4160-817e-47b13dbf1d7c/Handout_4_2016-UZH.pdf]
+      // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
+      #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+          if( channelId > 0 ) allMEs *= allNumerators/allDenominators; // FIXME (#343): assume nprocesses == 1
+      #endif
+      return allMEs/denominators;
   }
 
   //--------------------------------------------------------------------------

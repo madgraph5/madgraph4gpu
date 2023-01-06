@@ -3,6 +3,17 @@
 
 #define MGONGPU_NDCOUP 0
 #define MGONGPU_NICOUP 3
+#define MGONGPU_FOURVECTOR_DIM 4
+#define NPAR 4
+
+//FIXME add logic for various CXTypes and vectorization
+#define MGONGPU_COMPLEX_STD 1
+#define MGONGPU_MARRAY_DIM 1
+
+//#define MGONGPU_COMPLEX_STDVEC 1
+//#define MGONGPU_USE_VEC 1 
+//#define MGONGPU_MARRAY_DIM 1 // Sets vectorization level when using vectorizable complex types FIXME check for allowable 1,2,3,4,8,16
+
 
 // HARDCODED AT CODE GENERATION TIME: DO NOT MODIFY (#473)
 // There are two different code bases for standalone_sycl (without multichannel) and madevent+sycl (with multichannel)
@@ -31,8 +42,6 @@ namespace mgOnGpu
 {
 
   // --- Type definitions
-
-#define MGONGPU_COMPLEX_STD 1
 
   // Floating point type: fptype
 #if defined MGONGPU_FPTYPE_DOUBLE
@@ -78,11 +87,7 @@ namespace mgOnGpu
   // --- This is relevant to ensure coalesced access to momenta in global memory
   // --- Note that neppR is hardcoded and may differ from neppM and neppV on some platforms
   // -----------------------------------------------------------------------------------------------
-#ifdef MGONGPU_NEPPM
-  static constexpr unsigned int neppM = MGONGPU_NEPPM;
-#else
-  static constexpr unsigned int neppM = 1; // Set to cache line size / size of fptype
-#endif
+  static constexpr unsigned int neppM = 1; // FIXME neppM unused now, needs to be removed from random number generation
 
   // Number of Events Per Page in the random number AOSOA memory layout
   // *** NB Different values of neppR lead to different physics results: the ***

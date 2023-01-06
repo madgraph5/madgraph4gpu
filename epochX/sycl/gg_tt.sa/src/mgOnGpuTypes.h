@@ -2,15 +2,11 @@
 #define MGONGPUTYPES_H 1
 
 #include <CL/sycl.hpp>
-#ifdef MGONGPU_COMPLEX_CXSMPL
-    #include "mgOnGpuCxtypes.h"
-#endif
-
-#ifdef MGONGPU_COMPLEX_EXTRAS
+#if defined MGONGPU_COMPLEX_EXTRAS || defined MGONGPU_COMPLEX_EXTRASVEC
     #include "extras.h"
 #endif
 
-#ifdef MGONGPU_COMPLEX_STD
+#if defined MGONGPU_COMPLEX_STD || defined MGONGPU_COMPLEX_STDVEC
     #include <complex>
 #endif
 
@@ -34,15 +30,15 @@ namespace mgOnGpu
 {
 
   // --- Type definitions (complex type: cxtype)
-  #ifdef MGONGPU_COMPLEX_CXSMPL
+  #if defined MGONGPU_COMPLEX_CXSMPL || defined MGONGPU_COMPLEX_CXSMPLVEC
       typedef mgOnGpu::cxsmpl<fptype> cxtype;
   #endif
 
-  #ifdef MGONGPU_COMPLEX_EXTRAS
+  #if defined MGONGPU_COMPLEX_EXTRAS || defined MGONGPU_COMPLEX_EXTRASVEC
       typedef extras::complex<fptype> cxtype;
   #endif
 
-  #ifdef MGONGPU_COMPLEX_STD
+  #if defined MGONGPU_COMPLEX_STD || defined MGONGPU_COMPLEX_STDVEC
       typedef std::complex<fptype> cxtype;
   #endif
 
@@ -72,300 +68,276 @@ namespace mgOnGpu
 // Expose typedefs and operators outside the namespace
 using mgOnGpu::cxtype;
 
+//------------------------------
+// Floating point types - SYCL
+//------------------------------
+// sqrt(2)
+#define SQRT2_F 0x1.6a09e6p+0
+#define SQRT2_D 0x1.6a09e667f3bcdp+0
+#if defined MGONGPU_FPTYPE_DOUBLE
+    #define SQRT2 SQRT2_D
+#elif defined MGONGPU_FPTYPE_FLOAT
+    #define SQRT2 SQRT2_F
+#endif
+
+// sqrt(1/2)
+#define SQRTH_F 0x1.6a09e6p-1
+#define SQRTH_D 0x1.6a09e667f3bcdp-1
+#if defined MGONGPU_FPTYPE_DOUBLE
+    #define SQRTH SQRTH_D
+#elif defined MGONGPU_FPTYPE_FLOAT
+    #define SQRTH SQRTH_F
+#endif
+
+// fpzero
+#define FPZERO fptype(0.0)
+#define FPZERO_SV fptype_sv(0.0)
+
+// fpone
+#define FPONE fptype(1.0)
+#define FPONE_SV fptype_sv(1.0)
+
+// fpmax FIXME add description
+#if defined MGONGPU_COMPLEX_CXSMPLVEC || defined MGONGPU_COMPLEX_EXTRASVEC || defined MGONGPU_COMPLEX_STDVEC
+    #define FPMAX(a, b) sycl::fmax(a, b)
+#else
+    #define FPMAX(a, b) (b < a) ? a : b
+#endif
+
+// fpmin FIXME add description
+#if defined MGONGPU_COMPLEX_CXSMPLVEC || defined MGONGPU_COMPLEX_EXTRASVEC || defined MGONGPU_COMPLEX_STDVEC
+    #define FPMIN(a, b) sycl::fmin(a, b)
+#else
+    #define FPMIN(a, b) (a < b) ? a : b
+#endif
+
+// fpsqrt FIXME add description
+#define FPSQRT(a) sycl::sqrt(a)
+
+// fpternary or fpconditional FIXME add better description
+// fpconditional(a, b, c) = c ? b : a
+#define FPCONDITIONAL(a, b, c) c ? b : a
+#if defined MGONGPU_COMPLEX_CXSMPLVEC || defined MGONGPU_COMPLEX_EXTRASVEC || defined MGONGPU_COMPLEX_STDVEC
+    #define FPCONDITIONAL_SV(a, b, c) sycl::select(a, b, c)
+#else
+    #define FPCONDITIONAL_SV(a, b, c) FPCONDITIONAL(a, b, c)
+#endif
+
+// fpany
+#define FPANY(a) a
+#if defined MGONGPU_COMPLEX_CXSMPLVEC || defined MGONGPU_COMPLEX_EXTRASVEC || defined MGONGPU_COMPLEX_STDVEC
+    #if MGONGPU_MARRAY_DIM == 1
+    //    #define FPANY_SV(a) FPANY(a)
+        #define FPANY_SV(a) sycl::any((a)[0])
+    #else
+        #define FPANY_SV(a) sycl::any(a)
+    #endif
+#else
+    #define FPANY_SV(a) FPANY(a)
+#endif
+
+//==========================================================================
+
 //==========================================================================
 // COMPLEX TYPES: (PLATFORM-SPECIFIC) FUNCTIONS AND OPERATORS
 //==========================================================================
-//------------------------------
-// SYCL - extras::complex
-//------------------------------
-SYCL_EXTERNAL inline
-cxtype cxmake( const fptype& r, const fptype& i )
-{
-#if defined MGONGPU_COMPLEX_CUCOMPLEX && MGONGPU_FPTYPE_DOUBLE
-  return make_cuDoubleComplex( r, i );
-#elif defined MGONGPU_COMPLEX_CUCOMPLEX && MGONGPU_FPTYPE_FLOAT
-  return make_cuFloatComplex( r, i );
-#else
-  return cxtype( r, i ); // thrust::complex<fptype> constructor
-#endif
-}
 
-SYCL_EXTERNAL inline
-fptype cxreal( const cxtype& c )
-{
+// cxmake FIXME add description
 #if defined MGONGPU_COMPLEX_CUCOMPLEX && MGONGPU_FPTYPE_DOUBLE
-  return cuCreal( c ); // returns by value
+    #define CXMAKE_1ARG(r) make_cuDoubleComplex(r, 0.0)
+    #define CXMAKE_2ARG(r, i) make_cuDoubleComplex(r, i)
 #elif defined MGONGPU_COMPLEX_CUCOMPLEX && MGONGPU_FPTYPE_FLOAT
-  return cuCrealf( c ); // returns by value
+    #define CXMAKE_1ARG(r) make_cuFloatComplex(r, 0.0)
+    #define CXMAKE_2ARG(r, i) make_cuFloatComplex(r, i)
 #else
-  return c.real(); // thrust::complex<fptype>::real()
+    #define CXMAKE_1ARG(r) cxtype(r)
+    #define CXMAKE_2ARG(r, i) cxtype(r, i)
 #endif
-}
 
-SYCL_EXTERNAL inline
-fptype cximag( const cxtype& c )
-{
+// cxreal FIXME add description
 #if defined MGONGPU_COMPLEX_CUCOMPLEX && MGONGPU_FPTYPE_DOUBLE
-  return cuCimag( c ); // returns by value
+  #define CXREAL(c) cuCreal(c)
 #elif defined MGONGPU_COMPLEX_CUCOMPLEX && MGONGPU_FPTYPE_FLOAT
-  return cuCimagf( c ); // returns by value
+  #define CXREAL(c) cuCrealf(c)
 #else
-  return c.imag(); // thrust::complex<fptype>::imag()
+  #define CXREAL(c) c.real()
 #endif
-}
+
+#if defined MGONGPU_COMPLEX_CUCOMPLEX && MGONGPU_FPTYPE_DOUBLE
+  #define CXIMAG(c) cuCimag(c)
+#elif defined MGONGPU_COMPLEX_CUCOMPLEX && MGONGPU_FPTYPE_FLOAT
+  #define CXIMAG(c) cuCimagf(c)
+#else
+  #define CXIMAG(c) c.imag()
+#endif
 
 #if defined MGONGPU_COMPLEX_CUCOMPLEX
-SYCL_EXTERNAL inline cxtype
-operator+( const cxtype& a, const cxtype& b )
-{
-#if MGONGPU_FPTYPE_DOUBLE
-  return cuCadd( a, b );
-#elif defined MGONGPU_FPTYPE_FLOAT
-  return cuCaddf( a, b );
-#endif
-}
-
-SYCL_EXTERNAL inline cxtype&
-operator+=( cxtype& a, const cxtype& b )
-{
-#if MGONGPU_FPTYPE_DOUBLE
-  a = cuCadd( a, b );
-#elif defined MGONGPU_FPTYPE_FLOAT
-  a = cuCaddf( a, b );
-#endif
-  return a;
-}
-
-SYCL_EXTERNAL inline cxtype
-operator-( const cxtype& a, const cxtype& b )
-{
-#if MGONGPU_FPTYPE_DOUBLE
-  return cuCsub( a, b );
-#elif defined MGONGPU_FPTYPE_FLOAT
-  return cuCsubf( a, b );
-#endif
-}
-
-SYCL_EXTERNAL inline cxtype&
-operator-=( cxtype& a, const cxtype& b )
-{
-#if MGONGPU_FPTYPE_DOUBLE
-  a = cuCsub( a, b );
-#elif defined MGONGPU_FPTYPE_FLOAT
-  a = cuCsubf( a, b );
-#endif
-  return a;
-}
-
-SYCL_EXTERNAL inline cxtype
-operator*( const cxtype& a, const cxtype& b )
-{
-#if MGONGPU_FPTYPE_DOUBLE
-  return cuCmul( a, b );
-#elif defined MGONGPU_FPTYPE_FLOAT
-  return cuCmulf( a, b );
-#endif
-}
-
-SYCL_EXTERNAL inline cxtype
-operator/( const cxtype& a, const cxtype& b )
-{
-#if MGONGPU_FPTYPE_DOUBLE
-  return cuCdiv( a, b );
-#elif defined MGONGPU_FPTYPE_FLOAT
-  return cuCdivf( a, b );
-#endif
-}
-
-SYCL_EXTERNAL inline cxtype
-operator+( const cxtype a )
-{
-  return a;
-}
-
-SYCL_EXTERNAL inline cxtype
-operator-( const cxtype& a )
-{
-  return cxmake( -cxreal( a ), -cximag( a ) );
-}
-
-SYCL_EXTERNAL inline cxtype
-operator+( const fptype& a, const cxtype& b )
-{
-  return cxmake( a, 0 ) + b;
-}
-
-SYCL_EXTERNAL inline cxtype
-operator-( const fptype& a, const cxtype& b )
-{
-  return cxmake( a, 0 ) - b;
-}
-
-SYCL_EXTERNAL inline cxtype
-operator*( const fptype& a, const cxtype& b )
-{
-  return cxmake( a, 0 ) * b;
-}
-
-SYCL_EXTERNAL inline cxtype
-operator/( const fptype& a, const cxtype& b )
-{
-  return cxmake( a, 0 ) / b;
-}
-
-SYCL_EXTERNAL inline cxtype
-operator+( const cxtype& a, const fptype& b )
-{
-  return a + cxmake( b, 0 );
-}
-
-SYCL_EXTERNAL inline cxtype
-operator-( const cxtype& a, const fptype& b )
-{
-  return a - cxmake( b, 0 );
-}
-
-SYCL_EXTERNAL inline cxtype
-operator*( const cxtype& a, const fptype& b )
-{
-  return a * cxmake( b, 0 );
-}
-
-SYCL_EXTERNAL inline cxtype
-operator/( const cxtype& a, const fptype& b )
-{
-  return a / cxmake( b, 0 );
-}
-#endif
-
 SYCL_EXTERNAL inline
-cxtype cxconj( const cxtype& c )
-{
-  #ifdef MGONGPU_COMPLEX_EXTRAS
-      return extras::conj( c ); // extras::conj( extras::complex<fptype> )
-  #endif
-
-  #ifdef MGONGPU_COMPLEX_CXSMPL
-      return mgOnGpu::conj( c );
-  #endif
-
-  #ifdef MGONGPU_COMPLEX_STD
-      return std::conj( c ); // std::conj( std::complex<fptype> )
-  #endif
-
-  #ifdef MGONGPU_COMPLEX_ONEAPI
-      return sycl::ext::oneapi::experimental::conj( c ); // sycl::ext::oneapi::experimental::conj( sycl::ext::oneapi::experimental::complex<fptype> )
-  #endif
-
-  #ifdef MGONGPU_COMPLEX_CUTHRUST
-      return thrust::conj( c );
-  #endif
+cxtype operator + (const cxtype& a,const cxtype& b) {
+    #if MGONGPU_FPTYPE_DOUBLE
+        return cuCadd(a, b);
+    #elif defined MGONGPU_FPTYPE_FLOAT
+        return cuCaddf(a, b);
+    #endif
 }
 
 SYCL_EXTERNAL inline
-const cxtype& cxmake( const cxtype& c )
-{
-  return c;
+cxtype& operator += (cxtype& a, const cxtype& b) {
+    #if MGONGPU_FPTYPE_DOUBLE
+        a = cuCadd(a, b);
+    #elif defined MGONGPU_FPTYPE_FLOAT
+        a = cuCaddf(a, b);
+    #endif
+    return a;
 }
 
-#ifndef MGONGPU_COMPLEX_CXSMPL
+SYCL_EXTERNAL inline
+cxtype operator - (const cxtype& a, const cxtype& b) {
+    #if MGONGPU_FPTYPE_DOUBLE
+        return cuCsub(a, b);
+    #elif defined MGONGPU_FPTYPE_FLOAT
+        return cuCsubf(a, b);
+    #endif
+}
+
+SYCL_EXTERNAL inline
+cxtype& operator -= (cxtype& a, const cxtype& b) {
+    #if MGONGPU_FPTYPE_DOUBLE
+        a = cuCsub(a, b);
+    #elif defined MGONGPU_FPTYPE_FLOAT
+        a = cuCsubf(a, b);
+    #endif
+    return a;
+}
+
+SYCL_EXTERNAL inline
+cxtype operator * (const cxtype& a, const cxtype& b) {
+    #if MGONGPU_FPTYPE_DOUBLE
+        return cuCmul(a, b);
+    #elif defined MGONGPU_FPTYPE_FLOAT
+        return cuCmulf(a, b);
+    #endif
+}
+
+SYCL_EXTERNAL inline
+cxtype operator / (const cxtype& a, const cxtype& b) {
+    #if MGONGPU_FPTYPE_DOUBLE
+        return cuCdiv(a, b);
+    #elif defined MGONGPU_FPTYPE_FLOAT
+        return cuCdivf(a, b);
+    #endif
+}
+
+SYCL_EXTERNAL inline
+cxtype operator + (const cxtype a) {
+    return a;
+}
+
+SYCL_EXTERNAL inline
+cxtype operator - (const cxtype& a) {
+    return CXMAKE_2ARG(-CXREAL(a), -CXIMAG(a));
+}
+
+SYCL_EXTERNAL inline
+cxtype operator + (const fptype& a, const cxtype& b) {
+    return CXMAKE_2ARG(a, 0.0) + b;
+}
+
+SYCL_EXTERNAL inline
+cxtype operator - (const fptype& a, const cxtype& b) {
+    return CXMAKE_2ARG(a, 0.0) - b;
+}
+
+SYCL_EXTERNAL inline
+cxtype operator * (const fptype& a, const cxtype& b) {
+    return CXMAKE_2ARG(a, 0.0)*b;
+}
+
+SYCL_EXTERNAL inline
+cxtype operator / (const fptype& a, const cxtype& b) {
+    return CXMAKE_2ARG(a, 0.0)/b;
+}
+
+SYCL_EXTERNAL inline
+cxtype operator + (const cxtype& a, const fptype& b) {
+    return a + CXMAKE_2ARG(b, 0.0);
+}
+
+SYCL_EXTERNAL inline
+cxtype operator - (const cxtype& a, const fptype& b) {
+    return a - CXMAKE_2ARG(b, 0.0);
+}
+
+SYCL_EXTERNAL inline
+cxtype operator * (const cxtype& a, const fptype& b) {
+    return a*CXMAKE_2ARG(b, 0.0);
+}
+
+SYCL_EXTERNAL inline
+cxtype operator / (const cxtype& a, const fptype& b) {
+    return a/CXMAKE_2ARG(b, 0.0);
+}
+#endif
+
+// cxconj FIXME better description
+#if defined MGONGPU_COMPLEX_EXTRAS || defined MGONGPU_COMPLEX_EXTRASVEC
+    #define CXCONJ(c) extras::conj(c)
+#endif
+
+#if defined MGONGPU_COMPLEX_CXSMPL || defined MGONGPU_COMPLEX_CXSMPLVEC
+    #define CXCONJ(c) mgOnGpu::conj(c)
+#endif
+
+#ifdef MGONGPU_COMPLEX_STD || defined MGONGPU_COMPLEX_STDVEC
+    #define CXCONJ(c) std::conj(c)
+#endif
+
+#ifdef MGONGPU_COMPLEX_ONEAPI
+    #define CXCONJ(c) sycl::ext::oneapi::experimental::conj(c)
+#endif
+
+#ifdef MGONGPU_COMPLEX_CUTHRUST
+    #define CXCONJ(c) thrust::conj(c)
+#endif
+
+// cxmake_sv FIXME better description
+#define CXMAKE_SV_1ARG(a) cxtype_sv(a)
+#define CXMAKE_SV_2ARG(a, b) cxtype_sv(a, b)
+
+// cxzero
+#define CXZERO CXMAKE_2ARG(FPZERO, FPZERO)
+#define CXZERO_SV CXMAKE_SV_2ARG(FPZERO_SV, FPZERO_SV)
+
+// cI imaginary i
+#define CXIMAGINARYI CXMAKE_2ARG(FPZERO, FPONE)
+#define CXIMAGINARYI_SV CXMAKE_SV_2ARG(FPZERO_SV, FPONE_SV)
+
+// cxternary or cxconditional FIXME better description 
+// cxconditional(a, b, c) = c ? b : a
+#define CXCONDITIONAL(a, b, c) c ? b : a
+#if defined MGONGPU_COMPLEX_CXSMPLVEC || defined MGONGPU_COMPLEX_EXTRASVEC || defined MGONGPU_COMPLEX_STDVEC
+    #define CXCONDITIONAL_SV(a, b, c) CXMAKE_SV_2ARG(FPCONDITIONAL_SV(CXREAL(a), CXREAL(b), c), FPCONDITIONAL_SV(CXIMAG(a), CXIMAG(b), c))
+#else
+    #define CXCONDITIONAL_SV(a, b, c) CXCONDITIONAL(a, b, c)
+#endif
+
+// cxabs2
+#define CXABS2(c) CXREAL(c)*CXREAL(c) + CXIMAG(c)*CXIMAG(c)
+
+#if not defined MGONGPU_COMPLEX_CXSMPL or not defined MGONGPU_COMPLEX_CXSMPLVEC
 inline // NOT __device__
-cxtype cxmake( const mgOnGpu::cxsmpl<fptype>& c ) // mgOnGpu::cxsmpl to extras::complex (float-to-float or double-to-double)
-{
-  return cxmake( c.real(), c.imag() );
+cxtype cxmake( const mgOnGpu::cxsmpl<fptype>& c ) { // mgOnGpu::cxsmpl to cxtype (float-to-float or double-to-double)
+    return CXMAKE_2ARG( c.real(), c.imag() );
 }
 #endif
 
 #if defined MGONGPU_FPTYPE_FLOAT
 inline
-cxtype cxmake( const mgOnGpu::cxsmpl<double>& c ) // mgOnGpu::cxsmpl to mgOnGpu::cxsmpl (cast double-to-float)
-{
-  return cxmake( (fptype)c.real(), (fptype)c.imag() );
+cxtype cxmake( const mgOnGpu::cxsmpl<double>& c ) { // mgOnGpu::cxsmpl to mgOnGpu::cxsmpl (cast double-to-float)
+  return CXMAKE_2ARG( (fptype)c.real(), (fptype)c.imag() );
 }
 #endif
 
 //==========================================================================
 
-//==========================================================================
-// COMPLEX TYPES: WRAPPER OVER RI FLOATING POINT PAIR (cxtype_ref)
-//==========================================================================
-
-namespace mgOnGpu
-{
-  // The cxtype_ref class (a non-const reference to two fp variables) was originally designed for cxtype_v::operator[]
-  // It used to be included in the code only when MGONGPU_HAS_CPPCXTYPEV_BRK (originally MGONGPU_HAS_CPPCXTYPE_REF) is defined
-  // It is now always included in the code because it is needed also to access an fptype wavefunction buffer as a cxtype
-  class cxtype_ref
-  {
-  public:
-    cxtype_ref() = delete;
-    cxtype_ref( const cxtype_ref& ) = delete;
-    cxtype_ref( cxtype_ref&& ) = default;
-    cxtype_ref( fptype& r, fptype& i ) : m_real( r ), m_imag( i ) {}
-    cxtype_ref& operator=( const cxtype_ref& ) = delete;
-    cxtype_ref& operator=( cxtype_ref&& c ) { m_real = cxreal( c ); m_imag = cximag( c ); return *this; } // for cxternary
-    cxtype_ref& operator=( const cxtype& c ) { m_real = cxreal( c ); m_imag = cximag( c ); return *this; }
-    SYCL_EXTERNAL operator cxtype() const { return cxmake( m_real, m_imag ); }
-  private:
-    fptype &m_real, &m_imag; // RI
-  };
-}
-
-//// Printout to stream for user defined types
-//SYCL_EXTERNAL inline
-//std::ostream& operator<<( std::ostream& out, const cxtype& c ) {
-//    out << "[" << cxreal(c) << "," << cximag(c) << "]";
-//    return out;
-//}
-//
-//SYCL_EXTERNAL inline
-//std::ostream& operator<<( std::ostream& out, const mgOnGpu::cxtype_ref& c ){ out << (cxtype)c; return out; }
-
-//==========================================================================
-
-//==========================================================================
-
-//------------------------------
-// Floating point types - SYCL
-//------------------------------
-
-/*
-SYCL_EXTERNAL inline
-fptype fpmax( const fptype& a, const fptype& b )
-{
-  return max( a, b );
-}
-
-SYCL_EXTERNAL inline
-fptype fpmin( const fptype& a, const fptype& b )
-{
-  return min( a, b );
-}
-*/
-
-SYCL_EXTERNAL inline
-const fptype& fpmax( const fptype& a, const fptype& b )
-{
-  return ( ( b < a ) ? a : b );
-}
-
-SYCL_EXTERNAL inline
-const fptype& fpmin( const fptype& a, const fptype& b )
-{
-  return ( ( a < b ) ? a : b );
-}
-
-SYCL_EXTERNAL inline
-fptype fpsqrt( const fptype& f )
-{
-#if defined MGONGPU_FPTYPE_FLOAT
-  //FIXME wait for sqrtf support
-  return sycl::sqrt( f );
-#else
-  //FIXME wait for std::sqrt support
-  return sycl::sqrt( f );
-#endif
-}
-
-//==========================================================================
 #endif // MGONGPUTYPES_H
