@@ -43,20 +43,20 @@ namespace mgOnGpu
 
   // --- Physics process-specific constants that are best declared at compile time
 
-  static constexpr int np4 = 4; // dimensions of 4-momenta (E,px,py,pz)
+  static constexpr unsigned int np4 = 4; // dimensions of 4-momenta (E,px,py,pz)
 
-  static constexpr int npari = 2; // #particles in the initial state (incoming): e.g. 2 (e+ e-) for e+ e- -> mu+ mu-
-  static constexpr int nparf = 4; // #particles in the final state (outgoing): e.g. 2 (mu+ mu-) for e+ e- -> mu+ mu-
-  static constexpr int npar = npari + nparf; // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
+  static constexpr unsigned int npari = 2; // #particles in the initial state (incoming): e.g. 2 (e+ e-) for e+ e- -> mu+ mu-
+  static constexpr unsigned int nparf = 4; // #particles in the final state (outgoing): e.g. 2 (mu+ mu-) for e+ e- -> mu+ mu-
+  static constexpr unsigned int npar = npari + nparf; // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
 
-  static constexpr int ncomb = 64; // #helicity combinations: e.g. 16 for e+ e- -> mu+ mu- (2**4 = fermion spin up/down ** npar)
+  static constexpr unsigned int ncomb = 64; // #helicity combinations: e.g. 16 for e+ e- -> mu+ mu- (2**4 = fermion spin up/down ** npar)
 
-  static constexpr int nw6 = 6; // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
-  static constexpr int nwf = 26; // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
+  static constexpr unsigned int nw6 = 6; // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
+  static constexpr unsigned int nwf = 26; // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
   
-  static constexpr int ncouplings = 3;
-  static constexpr int ncouplingstimes2 = 6;
-  static constexpr int nparams = 2;
+  static constexpr unsigned int ncouplings = 3;
+  static constexpr unsigned int ncouplingstimes2 = 6;
+  static constexpr unsigned int nparams = 2;
 
   // --- Platform-specific software implementation details
 
