@@ -93,6 +93,7 @@ C
 C     local
 C     
       DOUBLE PRECISION P1(0:3, NEXTERNAL)
+      INTEGER CHANNEL
 C     
 C     DATA
 C     
@@ -315,7 +316,7 @@ C     local
 C     
       DOUBLE PRECISION P1(0:3, NEXTERNAL)
       INTEGER IVEC
-
+      INTEGER CHANNEL
 C     
 C     DATA
 C     
@@ -385,7 +386,7 @@ C       Select a flavor combination (need to do here for right sign)
         CALL RANMAR(COL_RAND(IVEC))
       ENDDO
 
-      //CHANNEL = SUBDIAG(1)
+      CHANNEL = SUBDIAG(1)
       CALL SMATRIX1_MULTI(P_MULTI, HEL_RAND, COL_RAND, CHANNEL,
      $  ALL_OUT , SELECTED_HEL, SELECTED_COL, VECSIZE_USED)
 
