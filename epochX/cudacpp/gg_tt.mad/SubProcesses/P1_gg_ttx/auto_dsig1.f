@@ -447,19 +447,16 @@ C         Call UNWGT to unweight and store events
       SUBROUTINE SMATRIX1_MULTI(P_MULTI, HEL_RAND, COL_RAND, CHANNEL,
      $  OUT, SELECTED_HEL, SELECTED_COL, VECSIZE_USED)
 C     ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-C     ccccccccccccc
 C     input:
 C     p_multi: a list of momenta (nb of momenta nb_page)
-C     hel_rand: a list of random number (will be used to pick helicity)
-      C.     COL_RAND: A LIST OF RANDOM NUMBER (WILL BE USED TO PICK
-     $  LEADING COLOR)
+C     hel_rand: a list of random numbers (to pick helicity)
+C     col_rand: a list of random numbers (to pick leading color)
 C     channel: channel of integration selected
 C     out: list of amplitude square (times multi-channel factor)
-C     selected_hel: list of selected helicity -> not used in practise. 
+C     selected_hel: list of selected helicity -> not used in practise 
 C     jamp2_multi: return the list of jamp2 -> need to be changed to
 C      follow helicity setup
 C     ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-C     ccccccccccccc
 C     USE OMP_LIB comment openmp port for the moment
       IMPLICIT NONE
 
