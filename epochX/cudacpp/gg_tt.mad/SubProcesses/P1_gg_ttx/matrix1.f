@@ -11,6 +11,13 @@ C     Returns amplitude squared -- no average over initial
 C      state/symmetry factor
 C     and helicities
 C     for the point in phase space P(0:3,NEXTERNAL)
+C     INPUT
+C     
+C     ICONFIG channel of integration under-consideration
+C     correspond to the G directory up to symmetry between the channel
+C      (so not unique)
+C     
+C     IVEC position of that specific event in the vectorization page
 C     
 C     Process: g g > t t~ WEIGHTED<=2 @1
 C     
@@ -87,7 +94,7 @@ C
       LOGICAL INIT_MODE
       COMMON /TO_DETERMINE_ZERO_HEL/INIT_MODE
       INCLUDE '../../Source/vector.inc'
-      DOUBLE PRECISION AMP2(MAXAMPS), JAMP2(0:MAXFLOW)
+      DOUBLE PRECISION AMP2(LMAXCONFIGS), JAMP2(0:MAXFLOW)
 
 
       INTEGER NB_SPIN_STATE_IN(2)
@@ -110,8 +117,7 @@ C     2 means approximation by the	denominator of the propagator
       INTEGER          ISUM_HEL
       LOGICAL                    MULTI_CHANNEL
       COMMON/TO_MATRIX/ISUM_HEL, MULTI_CHANNEL
-      INTEGER MAPCONFIG(0:LMAXCONFIGS), ICONFIG
-      COMMON/TO_MCONFIGS/MAPCONFIG, ICONFIG
+
       DATA XTRY, XREJ /0,0/
       DATA NGOOD /0,0/
       DATA ISHEL/0,0/
@@ -151,7 +157,7 @@ C     ----------
       ENDDO
 
       IF (MULTI_CHANNEL) THEN
-        DO I=1,NDIAGS
+        DO I=1,LMAXCONFIGS
           AMP2(I)=0D0
         ENDDO
         JAMP2(0)=2
@@ -269,19 +275,16 @@ C           Set right sign for ANS, based on sign of chosen helicity
       IF (MULTI_CHANNEL) THEN
         XTOT=0D0
         DO I=1,LMAXCONFIGS
-          J = CONFSUB(1, I)
-          IF (J.NE.0) THEN
-            IF(SDE_STRAT.EQ.1) THEN
-              AMP2(J) = AMP2(J) * GET_CHANNEL_CUT(P, I)
-              XTOT=XTOT+AMP2(J)
-            ELSE
-              AMP2(J) = GET_CHANNEL_CUT(P, I)
-              XTOT=XTOT+AMP2(J)
-            ENDIF
+          IF(SDE_STRAT.EQ.1) THEN
+            AMP2(I) = AMP2(I) * GET_CHANNEL_CUT(P, I)
+            XTOT=XTOT+AMP2(I)
+          ELSE
+            AMP2(I) = GET_CHANNEL_CUT(P, I)
+            XTOT=XTOT+AMP2(I)
           ENDIF
         ENDDO
         IF (XTOT.NE.0D0) THEN
-          ANS=ANS*AMP2(CHANNEL)/XTOT
+          ANS=ANS*AMP2(ICONFIG)/XTOT
         ELSE IF(ANS.NE.0D0) THEN
           IF(NB_FAIL.GE.10)THEN
             WRITE(*,*) 'Problem in the multi-channeling. All amp2 are'
@@ -367,7 +370,7 @@ C
 C     GLOBAL VARIABLES
 C     
       INCLUDE '../../Source/vector.inc'
-      DOUBLE PRECISION AMP2(MAXAMPS), JAMP2(0:MAXFLOW)
+      DOUBLE PRECISION AMP2(*), JAMP2(0:MAXFLOW)
       INCLUDE 'coupl.inc'
 
       DOUBLE PRECISION SMALL_WIDTH_TREATMENT
