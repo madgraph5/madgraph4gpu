@@ -13,7 +13,7 @@ C     and helicities
 C     for the point in phase space P(0:3,NEXTERNAL)
 C     INPUT
 C     
-C     ICONFIG channel of integration under-consideration
+C     CHANNEL channel of integration under-consideration
 C     correspond to the G directory up to symmetry between the channel
 C      (so not unique)
 C     
@@ -284,7 +284,7 @@ C           Set right sign for ANS, based on sign of chosen helicity
           ENDIF
         ENDDO
         IF (XTOT.NE.0D0) THEN
-          ANS=ANS*AMP2(ICONFIG)/XTOT
+          ANS=ANS*AMP2(CHANNEL)/XTOT
         ELSE IF(ANS.NE.0D0) THEN
           IF(NB_FAIL.GE.10)THEN
             WRITE(*,*) 'Problem in the multi-channeling. All amp2 are'
