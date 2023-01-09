@@ -1,8 +1,8 @@
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
-index aa01cb976..50d82f805 100644
+index de8f178ae..c2ab0a22d 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
-@@ -463,23 +463,140 @@ C
+@@ -476,23 +476,140 @@ C     USE OMP_LIB comment openmp port for the moment
        INTEGER VECSIZE_USED
  
        INTEGER IVEC
@@ -41,8 +41,8 @@ index aa01cb976..50d82f805 100644
 +      IF( FBRIDGE_MODE .LE. 0 ) THEN ! (FortranOnly=0 or BothQuiet=-1 or BothDebug=-2)
 +#endif
 +        call counters_smatrix1multi_start( -1, VECSIZE_USED ) ! fortran=-1
- !$OMP PARALLEL
- !$OMP DO
+ C     !$OMP PARALLEL
+ C     !$OMP DO
 -      DO IVEC=1, VECSIZE_USED
 -        CALL SMATRIX1(P_MULTI(0,1,IVEC),
 -     &	                         hel_rand(IVEC),
@@ -65,8 +65,8 @@ index aa01cb976..50d82f805 100644
 +     &      selected_col(IVEC)
 +     &      )
 +        ENDDO
- !$OMP END DO
- !$OMP END PARALLEL
+ C     !$OMP END DO
+ C     !$OMP END PARALLEL
 +        call counters_smatrix1multi_stop( -1 ) ! fortran=-1
 +#ifdef MG5AMC_MEEXPORTER_CUDACPP
 +      ENDIF
@@ -271,10 +271,10 @@ index a76de8ec5..ab38b2202 100644
        open(unit=lun,file=tempname,status='old',ERR=20)
        fopened=.true.
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
-index e34ec77a9..2191e8828 100644
+index 35a9430d2..5a89a8746 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
-@@ -72,7 +72,10 @@ C
+@@ -79,7 +79,10 @@ C
        DATA NB_FAIL /0/
        DOUBLE PRECISION GET_CHANNEL_CUT
        EXTERNAL GET_CHANNEL_CUT
@@ -286,7 +286,7 @@ index e34ec77a9..2191e8828 100644
  C     
  C     This is just to temporarily store the reference grid for
  C      helicity of the DiscreteSampler so as to obtain its number of
-@@ -140,6 +143,7 @@ C     ----------
+@@ -146,6 +149,7 @@ C     ----------
  C     BEGIN CODE
  C     ----------
  
@@ -294,7 +294,7 @@ index e34ec77a9..2191e8828 100644
        NTRY(IMIRROR)=NTRY(IMIRROR)+1
        THIS_NTRY(IMIRROR) = THIS_NTRY(IMIRROR)+1
        DO I=1,NEXTERNAL
-@@ -217,6 +221,17 @@ C     ----------
+@@ -223,6 +227,17 @@ C     ----------
            ENDIF
            IF(NTRY(IMIRROR).EQ.MAXTRIES)THEN
              ISHEL(IMIRROR)=MIN(ISUM_HEL,NGOOD(IMIRROR))
@@ -312,7 +312,7 @@ index e34ec77a9..2191e8828 100644
            ENDIF
          ENDIF
        ELSE IF (.NOT.INIT_MODE) THEN  ! random helicity 
-@@ -234,6 +249,7 @@ C       Include the Jacobian from helicity sampling
+@@ -240,6 +255,7 @@ C       Include the Jacobian from helicity sampling
          IHEL = HEL_PICKED
        ELSE
          ANS = 1D0
@@ -320,18 +320,15 @@ index e34ec77a9..2191e8828 100644
          RETURN
        ENDIF
        IF (ANS.NE.0D0.AND.(ISUM_HEL .NE. 1.OR.HEL_PICKED.EQ.-1)) THEN
-@@ -278,9 +294,8 @@ C           Set right sign for ANS, based on sign of chosen helicity
-         ENDIF
-       ENDIF
-       ANS=ANS/DBLE(IDEN)
--
-       CALL SELECT_COLOR(RCOL, JAMP2, CHANNEL,1,  ICOL)
--
+@@ -284,6 +300,7 @@ C           Set right sign for ANS, based on sign of chosen helicity
+ 
+       CALL SELECT_COLOR(RCOL, JAMP2, ICONFIG,1,  ICOL)
+ 
 +      call counters_smatrix1_stop()
        END
  
  
-@@ -381,6 +396,7 @@ C     1 T(2,1,3,4)
+@@ -384,6 +401,7 @@ C     1 T(2,1,3,4)
  C     ----------
  C     BEGIN CODE
  C     ----------
@@ -339,7 +336,7 @@ index e34ec77a9..2191e8828 100644
        IF (FIRST) THEN
          FIRST=.FALSE.
          IF(ZERO.NE.0D0) FK_ZERO = SIGN(MAX(ABS(ZERO), ABS(ZERO
-@@ -454,6 +470,7 @@ C     JAMPs contributing to orders ALL_ORDERS=1
+@@ -457,6 +475,7 @@ C     JAMPs contributing to orders ALL_ORDERS=1
          ENDDO
        ENDDO
  
@@ -347,3 +344,11 @@ index e34ec77a9..2191e8828 100644
        END
  
        SUBROUTINE PRINT_ZERO_AMP_1()
+@@ -495,7 +514,6 @@ C     JAMPs contributing to orders ALL_ORDERS=1
+ 
+       RETURN
+       END
+-
+ C     Set of functions to handle the array indices of the split orders
+ 
+ 
