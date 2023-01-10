@@ -42,7 +42,7 @@ namespace mg5amcCpu
    * The precision of the matrix element calculation is hardcoded in the fptype typedef in CUDA/C++.
    *
    * The Fortran momenta passed in are in the form of
-   *   DOUBLE PRECISION P_MULTI(0:3, NEXTERNAL, NB_PAGE_LOOP)
+   *   DOUBLE PRECISION P_MULTI(0:3, NEXTERNAL, VECSIZE_USED)
    * where the dimensions are <np4F(#momenta)>, <nparF(#particles)>, <nevtF(#events)>.
    * In memory, this is stored in a way that C reads as an array P_MULTI[nevtF][nparF][np4F].
    * The CUDA/C++ momenta are stored as an array[npagM][npar][np4][neppM] with nevt=npagM*neppM.
@@ -61,7 +61,7 @@ namespace mg5amcCpu
     /**
      * Constructor
      *
-     * @param nevtF (NB_PAGE_LOOP, vector.inc) number of events in Fortran array loops (NB_PAGE_LOOP <= NB_PAGE_MAX)
+     * @param nevtF (VECSIZE_USED, vector.inc) number of events in Fortran array loops (VECSIZE_USED <= VECSIZE_MEMMAX)
      * @param nparF (NEXTERNAL, nexternal.inc) number of external particles in Fortran arrays (KEPT FOR SANITY CHECKS ONLY)
      * @param np4F number of momenta components, usually 4, in Fortran arrays (KEPT FOR SANITY CHECKS ONLY)
      */
@@ -93,14 +93,22 @@ namespace mg5amcCpu
      *
      * @param momenta the pointer to the input 4-momenta
      * @param gs the pointer to the input Gs (running QCD coupling constant alphas)
-     * @param mes the pointer to the output matrix elements
+     * @param rndhel the pointer to the input random numbers for helicity selection
+     * @param rndcol the pointer to the input random numbers for color selection
      * @param channelId the Feynman diagram to enhance in multi-channel mode if 1 to n (disable multi-channel if 0)
+     * @param mes the pointer to the output matrix elements
      * @param goodHelOnly quit after computing good helicities?
+     * @param selhel the pointer to the output selected helicities
+     * @param selcol the pointer to the output selected colors
      */
     void gpu_sequence( const FORTRANFPTYPE* momenta,
                        const FORTRANFPTYPE* gs,
-                       FORTRANFPTYPE* mes,
+                       const FORTRANFPTYPE* rndhel,
+                       const FORTRANFPTYPE* rndcol,
                        const unsigned int channelId,
+                       FORTRANFPTYPE* mes,
+                       int* selhel,
+                       int* selcol,
                        const bool goodHelOnly = false );
 #else
     /**
@@ -108,19 +116,30 @@ namespace mg5amcCpu
      *
      * @param momenta the pointer to the input 4-momenta
      * @param gs the pointer to the input Gs (running QCD coupling constant alphas)
-     * @param mes the pointer to the output matrix elements
+     * @param rndhel the pointer to the input random numbers for helicity selection
+     * @param rndcol the pointer to the input random numbers for color selection
      * @param channelId the Feynman diagram to enhance in multi-channel mode if 1 to n (disable multi-channel if 0)
+     * @param mes the pointer to the output matrix elements
+     * @param selhel the pointer to the output selected helicities
+     * @param selcol the pointer to the output selected colors
      * @param goodHelOnly quit after computing good helicities?
      */
     void cpu_sequence( const FORTRANFPTYPE* momenta,
                        const FORTRANFPTYPE* gs,
-                       FORTRANFPTYPE* mes,
+                       const FORTRANFPTYPE* rndhel,
+                       const FORTRANFPTYPE* rndcol,
                        const unsigned int channelId,
+                       FORTRANFPTYPE* mes,
+                       int* selhel,
+                       int* selcol,
                        const bool goodHelOnly = false );
 #endif
 
     // Return the number of good helicities (-1 initially when they have not yet been calculated)
     int nGoodHel() const { return m_nGoodHel; }
+
+    // Return the total number of helicities (expose cudacpp ncomb in the Bridge interface to Fortran)
+    constexpr int nTotHel() const { return mgOnGpu::ncomb; }
 
   private:
     unsigned int m_nevt; // number of events
@@ -131,17 +150,29 @@ namespace mg5amcCpu
     int m_gpublocks;  // number of gpu blocks (default set from number of events, can be modified)
     mg5amcGpu::DeviceBuffer<FORTRANFPTYPE, sizePerEventMomenta> m_devMomentaF;
     mg5amcGpu::DeviceBufferMomenta m_devMomentaC;
-    mg5amcGpu::DeviceBufferGs m_devGsC;
-    mg5amcGpu::PinnedHostBufferMatrixElements m_hstGsC;
-    mg5amcGpu::DeviceBufferMatrixElements m_devMEsC;
-    mg5amcGpu::PinnedHostBufferMatrixElements m_hstMEsC;
+    mg5amcGpu::DeviceBufferGs m_devGs;
+    mg5amcGpu::DeviceBufferRndNumHelicity m_devRndHel;
+    mg5amcGpu::DeviceBufferRndNumColor m_devRndCol;
+    mg5amcGpu::DeviceBufferMatrixElements m_devMEs;
+    mg5amcGpu::DeviceBufferSelectedHelicity m_devSelHel;
+    mg5amcGpu::DeviceBufferSelectedColor m_devSelCol;
+    mg5amcGpu::PinnedHostBufferGs m_hstGs;
+    mg5amcGpu::PinnedHostBufferRndNumHelicity m_hstRndHel;
+    mg5amcGpu::PinnedHostBufferRndNumColor m_hstRndCol;
+    mg5amcGpu::PinnedHostBufferMatrixElements m_hstMEs;
+    mg5amcGpu::PinnedHostBufferSelectedHelicity m_hstSelHel;
+    mg5amcGpu::PinnedHostBufferSelectedColor m_hstSelCol;
     std::unique_ptr<mg5amcGpu::MatrixElementKernelDevice> m_pmek;
     //static constexpr int s_gputhreadsmin = 16; // minimum number of gpu threads (TEST VALUE FOR MADEVENT)
     static constexpr int s_gputhreadsmin = 32; // minimum number of gpu threads (DEFAULT)
 #else
     mg5amcCpu::HostBufferMomenta m_hstMomentaC;
-    mg5amcCpu::HostBufferGs m_hstGsC;
-    mg5amcCpu::HostBufferMatrixElements m_hstMEsC;
+    mg5amcCpu::HostBufferGs m_hstGs;
+    mg5amcCpu::HostBufferRndNumHelicity m_hstRndHel;
+    mg5amcCpu::HostBufferRndNumColor m_hstRndCol;
+    mg5amcCpu::HostBufferMatrixElements m_hstMEs;
+    mg5amcCpu::HostBufferSelectedHelicity m_hstSelHel;
+    mg5amcCpu::HostBufferSelectedColor m_hstSelCol;
     std::unique_ptr<mg5amcCpu::MatrixElementKernelHost> m_pmek;
 #endif
   };
@@ -178,15 +209,21 @@ namespace mg5amcCpu
     , m_gpublocks( m_nevt / m_gputhreads ) // this ensures m_nevt <= m_gpublocks*m_gputhreads
     , m_devMomentaF( m_nevt )
     , m_devMomentaC( m_nevt )
-    , m_devGsC( m_nevt )
-    , m_hstGsC( m_nevt )
-    , m_devMEsC( m_nevt )
-    , m_hstMEsC( m_nevt )
+    , m_devGs( m_nevt )
+    , m_devRndHel( m_nevt )
+    , m_devRndCol( m_nevt )
+    , m_devMEs( m_nevt )
+    , m_devSelHel( m_nevt )
+    , m_devSelCol( m_nevt )
 #else
     , m_hstMomentaC( m_nevt )
-    , m_hstGsC( m_nevt )
-    , m_hstMEsC( m_nevt )
 #endif
+    , m_hstGs( m_nevt )
+    , m_hstRndHel( m_nevt )
+    , m_hstRndCol( m_nevt )
+    , m_hstMEs( m_nevt )
+    , m_hstSelHel( m_nevt )
+    , m_hstSelCol( m_nevt )
     , m_pmek( nullptr )
   {
     if( nparF != mgOnGpu::npar ) throw std::runtime_error( "Bridge constructor: npar mismatch" );
@@ -204,11 +241,11 @@ namespace mg5amcCpu
     std::cout << "WARNING! Instantiate device Bridge (nevt=" << m_nevt << ", gpublocks=" << m_gpublocks << ", gputhreads=" << m_gputhreads
               << ", gpublocks*gputhreads=" << m_gpublocks * m_gputhreads << ")" << std::endl;
     mg5amcGpu::CPPProcess process( /*verbose=*/false );
-    m_pmek.reset( new mg5amcGpu::MatrixElementKernelDevice( m_devMomentaC, m_devGsC, m_devMEsC, m_gpublocks, m_gputhreads ) );
+    m_pmek.reset( new mg5amcGpu::MatrixElementKernelDevice( m_devMomentaC, m_devGs, m_devRndHel, m_devRndCol, m_devMEs, m_devSelHel, m_devSelCol, m_gpublocks, m_gputhreads ) );
 #else
     std::cout << "WARNING! Instantiate host Bridge (nevt=" << m_nevt << ")" << std::endl;
     mg5amcCpu::CPPProcess process( /*verbose=*/false );
-    m_pmek.reset( new mg5amcCpu::MatrixElementKernelHost( m_hstMomentaC, m_hstGsC, m_hstMEsC, m_nevt ) );
+    m_pmek.reset( new mg5amcCpu::MatrixElementKernelHost( m_hstMomentaC, m_hstGs, m_hstRndHel, m_hstRndCol, m_hstMEs, m_hstSelHel, m_hstSelCol, m_nevt ) );
 #endif // __CUDACC__
     process.initProc( "../../Cards/param_card.dat" );
   }
@@ -231,8 +268,12 @@ namespace mg5amcCpu
   template<typename FORTRANFPTYPE>
   void Bridge<FORTRANFPTYPE>::gpu_sequence( const FORTRANFPTYPE* momenta,
                                             const FORTRANFPTYPE* gs,
-                                            FORTRANFPTYPE* mes,
+                                            const FORTRANFPTYPE* rndhel,
+                                            const FORTRANFPTYPE* rndcol,
                                             const unsigned int channelId,
+                                            FORTRANFPTYPE* mes,
+                                            int* selhel,
+                                            int* selcol,
                                             const bool goodHelOnly )
   {
     constexpr int neppM = MemoryAccessMomenta::neppM;
@@ -247,8 +288,21 @@ namespace mg5amcCpu
       //const int thrPerEvt = 1; // AV: try new alg with 1 event per thread... this seems slower
       dev_transposeMomentaF2C<<<m_gpublocks * thrPerEvt, m_gputhreads>>>( m_devMomentaF.data(), m_devMomentaC.data(), m_nevt );
     }
-    std::copy( gs, gs + m_nevt, m_hstGsC.data() );
-    checkCuda( cudaMemcpy( m_devGsC.data(), m_hstGsC.data(), m_devGsC.bytes(), cudaMemcpyHostToDevice ) );
+    if constexpr( std::is_same_v<FORTRANFPTYPE, fptype> )
+    {
+      memcpy( m_hstGs.data(), gs, m_nevt * sizeof( FORTRANFPTYPE ) );
+      memcpy( m_hstRndHel.data(), rndhel, m_nevt * sizeof( FORTRANFPTYPE ) );
+      memcpy( m_hstRndCol.data(), rndcol, m_nevt * sizeof( FORTRANFPTYPE ) );
+    }
+    else
+    {
+      std::copy( gs, gs + m_nevt, m_hstGs.data() );
+      std::copy( rndhel, rndhel + m_nevt, m_hstRndHel.data() );
+      std::copy( rndcol, rndcol + m_nevt, m_hstRndCol.data() );
+    }
+    copyDeviceFromHost( m_devGs, m_hstGs );
+    copyDeviceFromHost( m_devRndHel, m_hstRndHel );
+    copyDeviceFromHost( m_devRndCol, m_hstRndCol );
     if( m_nGoodHel < 0 )
     {
       m_nGoodHel = m_pmek->computeGoodHelicities();
@@ -256,9 +310,22 @@ namespace mg5amcCpu
     }
     if( goodHelOnly ) return;
     m_pmek->computeMatrixElements( channelId );
-    checkCuda( cudaMemcpy( m_hstMEsC.data(), m_devMEsC.data(), m_devMEsC.bytes(), cudaMemcpyDeviceToHost ) );
-    flagAbnormalMEs( m_hstMEsC.data(), m_nevt );
-    std::copy( m_hstMEsC.data(), m_hstMEsC.data() + m_nevt, mes );
+    copyHostFromDevice( m_hstMEs, m_devMEs );
+    flagAbnormalMEs( m_hstMEs.data(), m_nevt );
+    copyHostFromDevice( m_hstSelHel, m_devSelHel );
+    copyHostFromDevice( m_hstSelCol, m_devSelCol );
+    if constexpr( std::is_same_v<FORTRANFPTYPE, fptype> )
+    {
+      memcpy( mes, m_hstMEs.data(), m_hstMEs.bytes() );
+      memcpy( selhel, m_hstSelHel.data(), m_hstSelHel.bytes() );
+      memcpy( selcol, m_hstSelCol.data(), m_hstSelCol.bytes() );
+    }
+    else
+    {
+      std::copy( m_hstMEs.data(), m_hstMEs.data() + m_nevt, mes );
+      std::copy( m_hstSelHel.data(), m_hstSelHel.data() + m_nevt, selhel );
+      std::copy( m_hstSelCol.data(), m_hstSelCol.data() + m_nevt, selcol );
+    }
   }
 #endif
 
@@ -266,18 +333,26 @@ namespace mg5amcCpu
   template<typename FORTRANFPTYPE>
   void Bridge<FORTRANFPTYPE>::cpu_sequence( const FORTRANFPTYPE* momenta,
                                             const FORTRANFPTYPE* gs,
-                                            FORTRANFPTYPE* mes,
+                                            const FORTRANFPTYPE* rndhel,
+                                            const FORTRANFPTYPE* rndcol,
                                             const unsigned int channelId,
+                                            FORTRANFPTYPE* mes,
+                                            int* selhel,
+                                            int* selcol,
                                             const bool goodHelOnly )
   {
     hst_transposeMomentaF2C( momenta, m_hstMomentaC.data(), m_nevt );
     if constexpr( std::is_same_v<FORTRANFPTYPE, fptype> )
     {
-      memcpy( m_hstGsC.data(), gs, m_nevt * sizeof( FORTRANFPTYPE ) );
+      memcpy( m_hstGs.data(), gs, m_nevt * sizeof( FORTRANFPTYPE ) );
+      memcpy( m_hstRndHel.data(), rndhel, m_nevt * sizeof( FORTRANFPTYPE ) );
+      memcpy( m_hstRndCol.data(), rndcol, m_nevt * sizeof( FORTRANFPTYPE ) );
     }
     else
     {
-      std::copy( gs, gs + m_nevt, m_hstGsC.data() );
+      std::copy( gs, gs + m_nevt, m_hstGs.data() );
+      std::copy( rndhel, rndhel + m_nevt, m_hstRndHel.data() );
+      std::copy( rndcol, rndcol + m_nevt, m_hstRndCol.data() );
     }
     if( m_nGoodHel < 0 )
     {
@@ -286,14 +361,18 @@ namespace mg5amcCpu
     }
     if( goodHelOnly ) return;
     m_pmek->computeMatrixElements( channelId );
-    flagAbnormalMEs( m_hstMEsC.data(), m_nevt );
+    flagAbnormalMEs( m_hstMEs.data(), m_nevt );
     if constexpr( std::is_same_v<FORTRANFPTYPE, fptype> )
     {
-      memcpy( mes, m_hstMEsC.data(), m_hstMEsC.bytes() );
+      memcpy( mes, m_hstMEs.data(), m_hstMEs.bytes() );
+      memcpy( selhel, m_hstSelHel.data(), m_hstSelHel.bytes() );
+      memcpy( selcol, m_hstSelCol.data(), m_hstSelCol.bytes() );
     }
     else
     {
-      std::copy( m_hstMEsC.data(), m_hstMEsC.data() + m_nevt, mes );
+      std::copy( m_hstMEs.data(), m_hstMEs.data() + m_nevt, mes );
+      std::copy( m_hstSelHel.data(), m_hstSelHel.data() + m_nevt, selhel );
+      std::copy( m_hstSelCol.data(), m_hstSelCol.data() + m_nevt, selcol );
     }
   }
 #endif
@@ -301,7 +380,7 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
   //
   // Implementations of transposition methods
-  // - FORTRAN arrays: P_MULTI(0:3, NEXTERNAL, NB_PAGE_LOOP) ==> p_multi[nevtF][nparF][np4F] in C++ (AOS)
+  // - FORTRAN arrays: P_MULTI(0:3, NEXTERNAL, VECSIZE_USED) ==> p_multi[nevtF][nparF][np4F] in C++ (AOS)
   // - C++ array: momenta[npagM][npar][np4][neppM] with nevt=npagM*neppM (AOSOA)
   //
 

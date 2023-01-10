@@ -19,12 +19,12 @@ namespace mg5amcCpu
   protected:
 
     // Constructor from existing input and output buffers
-    SamplingKernelBase( const fptype energy,                // input: energy
-                        const BufferRandomNumbers& rnarray, // input: random numbers in [0,1]
-                        BufferMomenta& momenta,             // output: momenta
-                        BufferWeights& weights )            // output: weights
+    SamplingKernelBase( const fptype energy,               // input: energy
+                        const BufferRndNumMomenta& rndmom, // input: random numbers in [0,1]
+                        BufferMomenta& momenta,            // output: momenta
+                        BufferWeights& weights )           // output: weights
       : m_energy( energy )
-      , m_rnarray( rnarray )
+      , m_rndmom( rndmom )
       , m_momenta( momenta )
       , m_weights( weights )
     {
@@ -50,7 +50,7 @@ namespace mg5amcCpu
     const fptype m_energy;
 
     // The buffer for the input random numbers
-    const BufferRandomNumbers& m_rnarray;
+    const BufferRndNumMomenta& m_rndmom;
 
     // The buffer for the output momenta
     BufferMomenta& m_momenta;
@@ -67,10 +67,10 @@ namespace mg5amcCpu
   public:
 
     // Constructor from existing input and output buffers
-    RamboSamplingKernelHost( const fptype energy,                // input: energy
-                             const BufferRandomNumbers& rnarray, // input: random numbers in [0,1]
-                             BufferMomenta& momenta,             // output: momenta
-                             BufferWeights& weights,             // output: weights
+    RamboSamplingKernelHost( const fptype energy,               // input: energy
+                             const BufferRndNumMomenta& rndmom, // input: random numbers in [0,1]
+                             BufferMomenta& momenta,            // output: momenta
+                             BufferWeights& weights,            // output: weights
                              const size_t nevt );
 
     // Destructor
@@ -95,10 +95,10 @@ namespace mg5amcCpu
   public:
 
     // Constructor from existing input and output buffers
-    RamboSamplingKernelDevice( const fptype energy,                // input: energy
-                               const BufferRandomNumbers& rnarray, // input: random numbers in [0,1]
-                               BufferMomenta& momenta,             // output: momenta
-                               BufferWeights& weights,             // output: weights
+    RamboSamplingKernelDevice( const fptype energy,               // input: energy
+                               const BufferRndNumMomenta& rndmom, // input: random numbers in [0,1]
+                               BufferMomenta& momenta,            // output: momenta
+                               BufferWeights& weights,            // output: weights
                                const size_t gpublocks,
                                const size_t gputhreads );
 

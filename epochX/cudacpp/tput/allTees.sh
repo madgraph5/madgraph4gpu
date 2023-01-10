@@ -37,7 +37,7 @@ started="STARTED  AT $(date)"
 
 # (20/56) Four logs (double/float x hrd0/hrd1 x inl0) in each of the five processes
 \rm -rf gg_ttggg${suff}/lib/build.none_*
-cmd="./tput/teeThroughputX.sh ${sa} -flt -hrd -makej -makeclean -eemumu -ggtt -ggttg -ggttgg $ggttggg"
+cmd="./tput/teeThroughputX.sh -flt -hrd -makej -eemumu -ggtt -ggttg -ggttgg $ggttggg -makeclean ${sa}"
 $cmd; status=$?
 ended1="$cmd\nENDED(1) AT $(date) [Status=$status]"
 tmp1=$(mktemp)
@@ -46,29 +46,29 @@ ls -ltr ee_mumu${suff}/lib/build.none_*_inl0_hrd* gg_tt${suff}/lib/build.none_*_
 # (32/56) Four extra logs (double/float x hrd0/hrd1 x inl1) only in three of the five processes
 \rm -rf gg_ttg${suff}/lib/build.none_*
 \rm -rf gg_ttggg${suff}/lib/build.none_*
-cmd="./tput/teeThroughputX.sh ${sa} -flt -hrd -makej -makeclean -eemumu -ggtt -ggttgg -inlonly"
+cmd="./tput/teeThroughputX.sh -flt -hrd -makej -eemumu -ggtt -ggttgg -inlonly -makeclean ${sa}"
 $cmd; status=$?
 ended2="$cmd\nENDED(2) AT $(date) [Status=$status]"
 tmp2=$(mktemp)
 ls -ltr ee_mumu${suff}/lib/build.none_*_inl1_hrd* gg_tt${suff}/lib/build.none_*_inl1_hrd* gg_tt*g${suff}/lib/build.none_*_inl1_hrd* | egrep -v '(total|\./|\.build|_common|^$)' > $tmp2
 
 # (42/60) Two extra logs (double/float x hrd0 x inl0 + bridge) in all five processes (rebuild from cache)
-cmd="./tput/teeThroughputX.sh ${sa} -makej -makeclean -eemumu -ggtt -ggttg -ggttgg -ggttggg -flt -bridge"
+cmd="./tput/teeThroughputX.sh -makej -eemumu -ggtt -ggttg -ggttgg $ggttggg -flt -bridge -makeclean ${sa}"
 $cmd; status=$?
 ended3="$cmd\nENDED(3) AT $(date) [Status=$status]"
 
 # (48/60) Two extra logs (double/float x hrd0 x inl0 + rmbhst) only in three of the five processes (no rebuild needed)
-cmd="./tput/teeThroughputX.sh ${sa} -eemumu -ggtt -ggttgg -flt -rmbhst"
+cmd="./tput/teeThroughputX.sh -eemumu -ggtt -ggttgg -flt -rmbhst ${sa}"
 $cmd; status=$?
 ended4="$cmd\nENDED(4) AT $(date) [Status=$status]"
 
 # (54/60) Two extra logs (double/float x hrd0 x inl0 + curhst) only in three of the five processes (no rebuild needed)
-cmd="./tput/teeThroughputX.sh ${sa} -eemumu -ggtt -ggttgg -flt -curhst"
+cmd="./tput/teeThroughputX.sh -eemumu -ggtt -ggttgg -flt -curhst ${sa}"
 $cmd; status=$?
 ended5="$cmd\nENDED(5) AT $(date) [Status=$status]"
 
 # (60/60) Two extra logs (double/float x hrd0 x inl0 + common) only in three of the five processes (no rebuild needed)
-cmd="./tput/teeThroughputX.sh ${sa} -eemumu -ggtt -ggttgg -flt -common"
+cmd="./tput/teeThroughputX.sh -eemumu -ggtt -ggttgg -flt -common ${sa}"
 $cmd; status=$?
 ended6="$cmd\nENDED(6) AT $(date) [Status=$status]"
 
@@ -89,5 +89,6 @@ echo -e "$ended5"
 if [ "$ggttggg" == "" ]; then
   echo
   echo "To complete the test for ggttggg type:"
-  echo "  ./tput/teeThroughputX.sh ${sa} -flt -hrd -makej -makeclean -ggttggg"
+  echo "  ./tput/teeThroughputX.sh -flt -hrd -makej -ggttggg -makeclean ${sa}"
+  echo "  ./tput/teeThroughputX.sh -makej -ggttggg -flt -bridge -makeclean ${sa}"
 fi

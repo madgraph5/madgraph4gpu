@@ -1,16 +1,24 @@
-C
-C All Fortran arrays for cudacpp offload can hold up to NB_PAGE_MAX events 
-C These arrays are allocated at compile time (NB_PAGE_MAX is a constant)
-C      
-C Of these, only NB_PAGE_LOOP events are used in Fortran loops (#455)
-C The value of NB_PAGE_LOOP can be chosen at runtime
-C (very large for CUDA/GPUs, smaller for C++/CPUs using SIMD)
-C
-C NB: THIS FILE CANNOT CONTAIN #ifdef DIRECTIVES BECAUSE IT DOES NOT GO THROUGH THE CPP PREPROCESSOR (#458)
-C 
-C
-      INTEGER NB_PAGE_MAX
-      PARAMETER (NB_PAGE_MAX=16384) ! NB: 16k events per GPU grid is the minimum required to fill a V100 GPU
-c     PARAMETER (NB_PAGE_MAX=32) ! NB: workaround for out-of-memory on Juwels: 32 is enough for no-CUDA builds (issue #498)
-      INTEGER NB_PAGE_LOOP
-      COMMON/TO_NB_PAGE/NB_PAGE_LOOP
+C     
+C     If VECSIZE_MEMMAX is greater than 1, a vector API is used:
+C     this is designed for offloading MEs to GPUs or vectorized C++,
+C     but it can also be used for computing MEs in Fortran.
+C     If VECSIZE_MEMMAX equals 1, the old scalar API is used:
+C     this can only be used for computing MEs in Fortran.
+C     
+C     Fortran arrays in the vector API can hold up to VECSIZE_MEMMAX
+C     events and are statically allocated at compile time.
+C     The constant value of VECSIZE_MEMMAX is fixed at codegen time
+C     (output madevent ... --vector_size=<VECSIZE_MEMMAX>).
+C     
+C     While the arrays can hold up to VECSIZE_MEMMAX events,
+C     only VECSIZE_USED (<= VECSIZE_MEMAMX) are used in Fortran loops.
+C     The value of VECSIZE_USED can be chosen at runtime
+C     (typically 8k-16k for GPUs, 16-32 for vectorized C++).
+C     
+C     NB: THIS FILE CANNOT CONTAIN #ifdef DIRECTIVES
+C     BECAUSE IT DOES NOT GO THROUGH THE CPP PREPROCESSOR
+C     (see https://github.com/madgraph5/madgraph4gpu/issues/458).
+C     
+      INTEGER VECSIZE_MEMMAX
+      PARAMETER (VECSIZE_MEMMAX=16384) ! NB: 16k events per GPU grid is the minimum required to fill a V100 GPU
+c     PARAMETER (VECSIZE_MEMMAX=32) ! NB: workaround for out-of-memory on Juwels: 32 is enough for no-CUDA builds (issue #498)

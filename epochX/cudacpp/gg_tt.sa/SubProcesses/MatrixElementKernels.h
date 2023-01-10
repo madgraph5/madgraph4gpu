@@ -19,12 +19,20 @@ namespace mg5amcCpu
   protected:
 
     // Constructor from existing input and output buffers
-    MatrixElementKernelBase( const BufferMomenta& momenta,          // input: momenta
-                             const BufferGs& gs,                    // input: gs for alphaS
-                             BufferMatrixElements& matrixElements ) // output: matrix elements
+    MatrixElementKernelBase( const BufferMomenta& momenta,         // input: momenta
+                             const BufferGs& gs,                   // input: gs for alphaS
+                             const BufferRndNumHelicity& rndhel,   // input: random numbers for helicity selection
+                             const BufferRndNumColor& rndcol,      // input: random numbers for color selection
+                             BufferMatrixElements& matrixElements, // output: matrix elements
+                             BufferSelectedHelicity& selhel,       // output: helicity selection
+                             BufferSelectedColor& selcol )         // output: color selection
       : m_momenta( momenta )
       , m_gs( gs )
+      , m_rndhel( rndhel )
+      , m_rndcol( rndcol )
       , m_matrixElements( matrixElements )
+      , m_selhel( selhel )
+      , m_selcol( selcol )
     {
     }
 
@@ -50,8 +58,20 @@ namespace mg5amcCpu
     // The buffer for the gs to calculate the alphaS values
     const BufferGs& m_gs;
 
+    // The buffer for the random numbers for helicity selection
+    const BufferRndNumHelicity& m_rndhel;
+
+    // The buffer for the random numbers for color selection
+    const BufferRndNumColor& m_rndcol;
+
     // The buffer for the output matrix elements
     BufferMatrixElements& m_matrixElements;
+
+    // The buffer for the output helicity selection
+    BufferSelectedHelicity& m_selhel;
+
+    // The buffer for the output color selection
+    BufferSelectedColor& m_selcol;
   };
 
   //--------------------------------------------------------------------------
@@ -65,7 +85,11 @@ namespace mg5amcCpu
     // Constructor from existing input and output buffers
     MatrixElementKernelHost( const BufferMomenta& momenta,         // input: momenta
                              const BufferGs& gs,                   // input: gs for alphaS
+                             const BufferRndNumHelicity& rndhel,   // input: random numbers for helicity selection
+                             const BufferRndNumColor& rndcol,      // input: random numbers for color selection
                              BufferMatrixElements& matrixElements, // output: matrix elements
+                             BufferSelectedHelicity& selhel,       // output: helicity selection
+                             BufferSelectedColor& selcol,          // output: color selection
                              const size_t nevt );
 
     // Destructor
@@ -110,7 +134,11 @@ namespace mg5amcCpu
     // Constructor from existing input and output buffers
     MatrixElementKernelDevice( const BufferMomenta& momenta,         // input: momenta
                                const BufferGs& gs,                   // input: gs for alphaS
+                               const BufferRndNumHelicity& rndhel,   // input: random numbers for helicity selection
+                               const BufferRndNumColor& rndcol,      // input: random numbers for color selection
                                BufferMatrixElements& matrixElements, // output: matrix elements
+                               BufferSelectedHelicity& selhel,       // output: helicity selection
+                               BufferSelectedColor& selcol,          // output: color selection
                                const size_t gpublocks,
                                const size_t gputhreads );
 

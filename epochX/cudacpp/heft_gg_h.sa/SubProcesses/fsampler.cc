@@ -18,7 +18,7 @@ namespace mg5amcCpu
   {
   public:
     // Constructor
-    // @param nevtF (NB_PAGE_LOOP, vector.inc) number of events in Fortran arrays
+    // @param nevtF (VECSIZE_USED, vector.inc) number of events in Fortran arrays
     // @param nparF (NEXTERNAL, nexternal.inc) number of external particles in Fortran arrays (KEPT FOR SANITY CHECKS ONLY: remove it?)
     // @param np4F number of momenta components, usually 4, in Fortran arrays (KEPT FOR SANITY CHECKS ONLY: remove it?)
     Sampler( int nevtF, int nparF, int np4F );
@@ -35,13 +35,13 @@ namespace mg5amcCpu
     const int m_nevt; // The number of events in each iteration
     int m_iiter;      // The iteration counter (for random number seeding)
 #ifndef __CUDACC__
-    HostBufferRandomNumbers m_hstRnarray; // Memory buffers for random numbers
-    HostBufferMomenta m_hstMomenta;       // Memory buffers for momenta
-    HostBufferWeights m_hstWeights;       // Memory buffers for sampling weights
+    HostBufferRndNumMomenta m_hstRndmom; // Memory buffers for random numbers
+    HostBufferMomenta m_hstMomenta;      // Memory buffers for momenta
+    HostBufferWeights m_hstWeights;      // Memory buffers for sampling weights
 #else
-    PinnedHostBufferRandomNumbers m_hstRnarray; // Memory buffers for random numbers
-    PinnedHostBufferMomenta m_hstMomenta;       // Memory buffers for momenta
-    PinnedHostBufferWeights m_hstWeights;       // Memory buffers for sampling weights
+    PinnedHostBufferRndNumMomenta m_hstRndmom; // Memory buffers for random numbers
+    PinnedHostBufferMomenta m_hstMomenta;      // Memory buffers for momenta
+    PinnedHostBufferWeights m_hstWeights;      // Memory buffers for sampling weights
 #endif
     std::unique_ptr<RandomNumberKernelBase> m_prnk; // The appropriate RandomNumberKernel
     std::unique_ptr<SamplingKernelBase> m_prsk;     // The appropriate SamplingKernel
@@ -53,11 +53,11 @@ namespace mg5amcCpu
   Sampler<FORTRANFPTYPE>::Sampler( int nevtF, int nparF, int np4F )
     : m_nevt( nevtF )
     , m_iiter( 0 )
-    , m_hstRnarray( nevtF )
+    , m_hstRndmom( nevtF )
     , m_hstMomenta( nevtF )
     , m_hstWeights( nevtF )
-    , m_prnk( new CommonRandomNumberKernel( m_hstRnarray ) )
-    , m_prsk( new RamboSamplingKernelHost( energy, m_hstRnarray, m_hstMomenta, m_hstWeights, nevtF ) )
+    , m_prnk( new CommonRandomNumberKernel( m_hstRndmom ) )
+    , m_prsk( new RamboSamplingKernelHost( energy, m_hstRndmom, m_hstMomenta, m_hstWeights, nevtF ) )
   {
     if( nparF != mgOnGpu::npar ) throw std::runtime_error( "Sampler constructor: npar mismatch" );
     if( np4F != mgOnGpu::np4 ) throw std::runtime_error( "Sampler constructor: np4 mismatch" );
