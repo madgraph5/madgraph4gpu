@@ -12,15 +12,23 @@
 #if defined MGONGPU_COMPLEX_CXSMPLVEC
     typedef sycl::vec<fptype, MGONGPU_MARRAY_DIM> fptype_sv;
     typedef mgOnGpu::cxsmpl<fptype_sv> cxtype_sv;
+    typedef sycl::vec<int, MGONGPU_MARRAY_DIM> int_sv;
+    typedef sycl::vec<bool, MGONGPU_MARRAY_DIM> bool_sv;
 #elif defined MGONGPU_COMPLEX_EXTRASVEC
     typedef sycl::vec<fptype, MGONGPU_MARRAY_DIM> fptype_sv;
     typedef extras::complex<fptype_sv> cxtype_sv;
+    typedef sycl::vec<int, MGONGPU_MARRAY_DIM> int_sv;
+    typedef sycl::vec<bool, MGONGPU_MARRAY_DIM> bool_sv;
 #elif defined MGONGPU_COMPLEX_STDVEC
     typedef sycl::vec<fptype, MGONGPU_MARRAY_DIM> fptype_sv;
     typedef std::complex<fptype_sv> cxtype_sv;
+    typedef sycl::vec<int, MGONGPU_MARRAY_DIM> int_sv;
+    typedef sycl::vec<bool, MGONGPU_MARRAY_DIM> bool_sv;
 #else
     typedef fptype fptype_sv;
     typedef cxtype cxtype_sv;
+    typedef int int_sv;
+    typedef bool bool_sv;
 #endif
 
 struct vector4 {

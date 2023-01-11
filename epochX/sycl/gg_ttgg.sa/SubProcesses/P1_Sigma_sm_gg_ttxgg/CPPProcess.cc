@@ -31,12 +31,15 @@ namespace Proc
   static constexpr size_t nw6 = mgOnGpu::nw6; // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
   static constexpr size_t neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
 
+  // The number of colors
+  static constexpr size_t ncolor = 24;
+
   //--------------------------------------------------------------------------
 
   // Evaluate |M|^2 for each subprocess
   // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
   SYCL_EXTERNAL INLINE
-  fptype_sv calculate_wavefunctions( const vector4* __restrict__ allmomenta,      // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM FIXME no neppM fix docstring
+  fptype_sv calculate_wavefunctions( const vector4* __restrict__ allmomenta,      // input: momenta as vector4 
                                      #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
                                          fptype_sv* __restrict__ allNumerators,   // output: multichannel numerators, running_sum_over_helicities
                                          fptype_sv* __restrict__ allDenominators, // output: multichannel denominators, running_sum_over_helicities
@@ -44,14 +47,13 @@ namespace Proc
                                      #endif
                                      const signed char*  __restrict__ cHel,
                                      const cxtype_sv* __restrict__ COUPs,
-                                     const fptype* __restrict__ cIPD
+                                     const fptype* __restrict__ cIPD,
+                                     fptype_sv* jamp2_sv                          // output: jamp2[ncolor] for color choice (nullptr if disabled)
                                    ) {
       using namespace MG5_sm;
       fptype_sv allMEs = FPZERO_SV;
 
 
-      // The number of colors
-      constexpr size_t ncolor = 24;
 
       // Local TEMPORARY variables for a subset of Feynman diagrams in the given SYCL event (ievt)
       // [NB these variables are reused several times (and re-initialised each time) within the same event or event page]
@@ -2263,8 +2265,14 @@ namespace Proc
       jamp_sv[15] += CXIMAGINARYI_SV * amp_sv[0];
       jamp_sv[21] += CXIMAGINARYI_SV * amp_sv[0];
       jamp_sv[23] -= CXIMAGINARYI_SV * amp_sv[0];
-
-      // *** COLOR ALGEBRA BELOW ***
+      // *** COLOR CHOICE BELOW ***
+      // Store the leading color flows for choice of color
+      if (jamp2_sv) { // disable color choice if nullptr
+          for (size_t icolC = 0; icolC < ncolor; icolC++) {
+              jamp2_sv[icolC] += cxabs2(jamp_sv[icolC]);
+          }
+      }
+      // *** COLOR MATRIX BELOW ***
       // (This method used to be called CPPProcess::matrix_1_gg_ttxgg()?)
 
       // The color matrix (initialize all array elements, with ncolor=1)
@@ -2404,13 +2412,14 @@ namespace Proc
       fptype_sv allMEs = FPZERO_SV;
       for ( size_t ihel = 0; ihel < ncomb; ihel++ ) {
           // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
+          constexpr fptype_sv* jamp2_sv = nullptr; // no need for color selection during helicity filtering
           #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
               constexpr size_t channelId = 0; // disable single-diagram channel enhancement
               fptype_sv allNumerators = FPZERO_SV;
               fptype_sv allDenominators = FPZERO_SV;
-              allMEs += calculate_wavefunctions( allmomenta, &allNumerators, &allDenominators, channelId, cHel + ihel*npar, COUPs, cIPD );
+              allMEs += calculate_wavefunctions( allmomenta, &allNumerators, &allDenominators, channelId, cHel + ihel*npar, COUPs, cIPD, jamp2_sv );
           #else
-              allMEs += calculate_wavefunctions( allmomenta, cHel + ihel*npar, COUPs, cIPD );
+              allMEs += calculate_wavefunctions( allmomenta, cHel + ihel*npar, COUPs, cIPD, jamp2_sv );
           #endif
           if (FPANY_SV(allMEs != allMEsLast)) {
               isGoodHel[ihel] = true;
@@ -2437,7 +2446,11 @@ namespace Proc
   // FIXME: assume process.nprocesses == 1 (eventually: allMEs[nevt] -> allMEs[nevt*nprocesses]?)
 
   SYCL_EXTERNAL
-  fptype_sv sigmaKin( const vector4* __restrict__ allmomenta, // input: momenta[nevt*npar*4]
+  fptype_sv sigmaKin( const vector4* __restrict__ allmomenta, // input: momenta[]
+                      const fptype_sv* __restrict__ rndhel,   // input: random numbers[] for helicity selection
+                      const fptype_sv* __restrict__ rndcol,   // input: random numbers[] for color selection
+                      const int_sv* __restrict__ selhel,      // output: helicity selection[]
+                      const int_sv* __restrict__ selcol,      // output: color selection[]
                       #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
                           const size_t channelId,             // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
                       #endif
@@ -2451,11 +2464,6 @@ namespace Proc
       // Denominators: spins, colors and identical particles
       constexpr int denominators = 512; // FIXME: assume process.nprocesses == 1 for the moment (eventually denominators[nprocesses]?)
 
-      // Set the parameters which change event by event
-      // Need to discuss this with Stefan
-      //m_pars->setDependentParameters();
-      //m_pars->setDependentCouplings();
-
       // Start sigmaKin_lines
       // PART 0 - INITIALISATION (before calculate_wavefunctions)
       // Reset the "matrix elements" - running sums of |M|^2 over helicities for the given event
@@ -2467,16 +2475,59 @@ namespace Proc
       #endif
 
       // PART 1 - HELICITY LOOP: CALCULATE WAVEFUNCTIONS
-      // (in both CUDA and C++, using precomputed good helicities)
+      // (using precomputed good helicities)
       // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
+      
+      fptype_sv jamp2_sv[ncolor] = { 0 }; // Running sum of partial amplitudes squared for event by event color selection (#402)
+      fptype_sv MEs_ighel[ncomb] = { 0 }; // sum of MEs for all good helicities up to ighel (for this event)
       for (size_t ighel = 0; ighel < cNGoodHel[0]; ighel++) {
           const size_t ihel = cGoodHel[ighel];
           #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-              allMEs += calculate_wavefunctions( allmomenta, &allNumerators, &allDenominators, channelId, cHel + ihel*npar, COUPs, cIPD );
+              allMEs += calculate_wavefunctions( allmomenta, &allNumerators, &allDenominators, channelId, cHel + ihel*npar, COUPs, cIPD, jamp2_sv );
           #else
-              allMEs += calculate_wavefunctions( allmomenta, cHel + ihel*npar, COUPs, cIPD );
+              allMEs += calculate_wavefunctions( allmomenta, cHel + ihel*npar, COUPs, cIPD, jamp2_sv );
           #endif
       }
+
+      // Event-by-event random choice of helicity #403
+      bool_sv selhel_unset = bool_sv(true);
+      for (size_t ighel = 0; ighel < cNGoodHel[0]; ighel++) {
+          if (FPANY_SV(selhel_unset)) {
+              bool_sv selhel_flip = selhel_unset && (rndhel[0] < (MEs_ighel[ighel]/MEs_ighel[cNGoodHel - 1]));
+              selhel[0] = FPCONDITIONAL_SV(selhel[0], int_sv(cGoodHel[ighel] + 1), selhel_flip);
+              selhel_unset = selhel_unset && !(selhel_flip);
+          }
+          else {
+              break;
+          }
+      }
+
+      #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+          // Event-by-event random choice of color #402
+          const size_t channelIdC = channelId - 1; // coloramps.h uses the C array indexing starting at 0
+          fptype_sv targetamp[ncolor];
+          for (size_t icolC = 0; icolC < ncolor; icolC++) {
+              if (icolC == 0) {
+                  targetamp[icolC] = FPZERO_SV;
+              }
+              else {
+                  targetamp[icolC] = targetamp[icolC - 1];
+              }
+              if (mgOnGpu::icolamp[channelIdC][icolC]) targetamp[icolC] += jamp2_sv[icolC];
+          }
+
+          bool_sv selcol_unset = bool_sv(true);
+          for (size_t icolC = 0; icolC < ncolor; icolC++) {
+              if (FPANY_SV(selcol_unset)) {
+                  bool_sv selcol_flip = selcol_unset && (rndcol[0] < (targetamp[icolC]/targetamp[ncolor - 1]));
+                  selcol[0] = FPCONDITIONAL_SV(selcol[0], int_sv(icolC + 1), selcol_flip);
+                  selcol_unset = selcol_unset && !(selcol_flip);
+              }
+              else {
+                  break;
+              }
+          }
+      #endif
 
       // PART 2 - FINALISATION (after calculate_wavefunctions)
       // Get the final |M|^2 as an average over helicities/colors of the running sum of |M|^2 over helicities for the given event

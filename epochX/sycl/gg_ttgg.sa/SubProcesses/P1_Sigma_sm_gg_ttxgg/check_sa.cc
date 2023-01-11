@@ -418,12 +418,16 @@ int main(int argc, char **argv)
   auto hstWeights   = hstMakeUnique<fptype   >( nWeights );
   auto hstMEs       = hstMakeUnique<fptype   >( nMEs ); // AOSOA[npagM][neppM] (NB: nevt=npagM*neppM)
 
-  auto devRnarray   = sycl::malloc_device<fptype >( nRnarray,   q ); 
-  auto devMomentaRn = sycl::malloc_device<fptype >( nMomenta,   q );
-  auto devMomenta   = sycl::malloc_device<vector4>( nMomenta/MGONGPU_MARRAY_DIM/MGONGPU_FOURVECTOR_DIM,   q );
-  auto devIsGoodHel = sycl::malloc_device<bool   >( ncomb,      q );
-  auto devWeights   = sycl::malloc_device<fptype >( nWeights,   q );
+  auto devRnarray   = sycl::malloc_device<fptype    >( nRnarray,   q ); 
+  auto devMomentaRn = sycl::malloc_device<fptype    >( nMomenta,   q );
+  auto devMomenta   = sycl::malloc_device<vector4   >( nMomenta/MGONGPU_MARRAY_DIM/MGONGPU_FOURVECTOR_DIM,   q );
+  auto devRndHel    = sycl::malloc_device<fptype_sv >( nMEs/MGONGPU_MARRAY_DIM,       q );
+  auto devRndCol    = sycl::malloc_device<fptype_sv >( nMEs/MGONGPU_MARRAY_DIM,       q );
+  auto devIsGoodHel = sycl::malloc_device<bool      >( ncomb,      q );
+  auto devWeights   = sycl::malloc_device<fptype    >( nWeights,   q );
   auto devMEs       = sycl::malloc_device<fptype_sv >( nMEs/MGONGPU_MARRAY_DIM,       q );
+  auto devSelHel    = sycl::malloc_device<int_sv    >( nMEs/MGONGPU_MARRAY_DIM,       q );
+  auto devSelCol    = sycl::malloc_device<int_sv    >( nMEs/MGONGPU_MARRAY_DIM,       q );
 #ifndef MGONGPU_HARDCODE_PARAM
   auto dev_independent_couplings  = sycl::malloc_device<cxtype>( Proc::independentCouplings::nicoup, q );
   auto dev_independent_parameters = sycl::malloc_device<fptype>( mgOnGpu::nparams,          q );
@@ -675,9 +679,9 @@ int main(int argc, char **argv)
                 #endif
 
                 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                    devMEs[ievt] = Proc::sigmaKin( devMomenta + npar*ievt, 0, dev_helicities, dev_couplings, dev_parameters, devcNGoodHel, devcGoodHel );
+                    devMEs[ievt] = Proc::sigmaKin( devMomenta + npar*ievt, devRndHel + ievt, devRndCol + ievt, devSelHel + ievt, devSelCol + ievt, 0, dev_helicities, dev_couplings, dev_parameters, devcNGoodHel, devcGoodHel );
                 #else
-                    devMEs[ievt] = Proc::sigmaKin( devMomenta + npar*ievt, dev_helicities, dev_couplings, dev_parameters, devcNGoodHel, devcGoodHel );
+                    devMEs[ievt] = Proc::sigmaKin( devMomenta + npar*ievt, devRndHel + ievt, devRndCol + ievt, devSelHel + ievt, devSelCol + ievt, dev_helicities, dev_couplings, dev_parameters, devcNGoodHel, devcGoodHel );
                 #endif
             });
         }));

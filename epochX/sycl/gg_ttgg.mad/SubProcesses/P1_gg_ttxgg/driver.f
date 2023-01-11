@@ -71,38 +71,51 @@ c      double precision xsec,xerr
 c      integer ncols,ncolflow(maxamps),ncolalt(maxamps),ic
 c      common/to_colstats/ncols,ncolflow,ncolalt,ic
 
-      include 'vector.inc'
+      include 'vector.inc' ! needed by coupl.inc (defines VECSIZE_MEMMAX)
       include 'coupl.inc'
+      INTEGER VECSIZE_USED
+      DATA VECSIZE_USED/VECSIZE_MEMMAX/ ! initial value
 
 #ifdef MG5AMC_MEEXPORTER_SYCL
       INCLUDE 'fbridge.inc'
-      INCLUDE 'fbridge_common.inc'
+c     INCLUDE 'fbridge_common.inc'
 #endif
+      INCLUDE 'fbridge_common.inc'
+
 C-----
 C  BEGIN CODE
 C----- 
       call cpu_time(t_before)
       CUMULATED_TIMING = t_before
 
+#ifdef _OPENMP
+      CALL OMPNUMTHREADS_NOT_SET_MEANS_ONE_THREAD()
+#endif
       CALL COUNTERS_INITIALISE()
 
-#ifdef MG5AMC_MEEXPORTER_SYCL
+c#ifdef MG5AMC_MEEXPORTER_SYCL
       write(*,*) 'Enter fbridge_mode'
       read(*,*) FBRIDGE_MODE ! (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
       write(*,'(a16,i6)') ' FBRIDGE_MODE = ', FBRIDGE_MODE
-      write(*,*) 'Enter #events in a vector loop (max=',nb_page_max,',)'
-      read(*,*) nb_page_loop
-#else
-      NB_PAGE_LOOP = 32
+#ifndef MG5AMC_MEEXPORTER_SYCL
+      if( fbridge_mode.ne.0 ) then
+        write(*,*) 'ERROR! Invalid fbridge_mode = ', fbridge_mode
+        STOP
+      endif
 #endif
-      write(*,'(a16,i6)') ' NB_PAGE_LOOP = ', NB_PAGE_LOOP
-      if( nb_page_loop.gt.nb_page_max .or. nb_page_loop.le.0 ) then
-        write(*,*) 'ERROR! Invalid nb_page_loop = ', nb_page_loop
+      write(*,*) 'Enter #events in a vector loop (max=',VECSIZE_MEMMAX,',)'
+      read(*,*) VECSIZE_USED
+c#else
+c      VECSIZE_USED = 32
+c#endif
+      write(*,'(a16,i6)') ' VECSIZE_USED = ', VECSIZE_USED
+      if( VECSIZE_USED.gt.VECSIZE_MEMMAX .or. VECSIZE_USED.le.0 ) then
+        write(*,*) 'ERROR! Invalid VECSIZE_USED = ', VECSIZE_USED
         STOP
       endif
 
 #ifdef MG5AMC_MEEXPORTER_SYCL
-      CALL FBRIDGECREATE(FBRIDGE_PBRIDGE, NB_PAGE_LOOP, NEXTERNAL, 4) ! this must be at the beginning as it initialises the SYCL device
+      CALL FBRIDGECREATE(FBRIDGE_PBRIDGE, VECSIZE_USED, NEXTERNAL, 4) ! this must be at the beginning as it initialises the SYCL device
       FBRIDGE_NCBYF1 = 0
       FBRIDGE_CBYF1SUM = 0
       FBRIDGE_CBYF1SUM2 = 0
@@ -213,7 +226,7 @@ c         itmin = itmin + 1
       endif
 
       write(*,*) "about to integrate ", ndim,ncall,itmax,itmin,ninvar,nconfigs
-      call sample_full(ndim,ncall,itmax,itmin,dsig,ninvar,nconfigs)
+      call sample_full(ndim,ncall,itmax,itmin,dsig,ninvar,nconfigs,VECSIZE_USED)
 
 c
 c     Now write out events to permanent file
@@ -234,25 +247,25 @@ c      write(*,*) 'Final xsec: ',xsec
       close(lun)
 
 #ifdef MG5AMC_MEEXPORTER_SYCL
-      CALL FBRIDGEDELETE(FBRIDGE_PBRIDGE) ! this must be at the end as it shuts down the CUDA device
+      CALL FBRIDGEDELETE(FBRIDGE_PBRIDGE) ! this must be at the end as it shuts down the SYCL device
       IF( FBRIDGE_MODE .LE. -1 ) THEN ! (BothQuiet=-1 or BothDebug=-2)
         WRITE(*,'(a,f10.8,a,e8.2)')
-     &    ' [MERATIOS] ME ratio SYCL/Fortran: MIN = ',
+     &    ' [MERATIOS] ME ratio CudaCpp/Fortran: MIN = ',
      &    FBRIDGE_CBYF1MIN + 1, ' = 1 - ', -FBRIDGE_CBYF1MIN
         WRITE(*,'(a,f10.8,a,e8.2)')
-     &    ' [MERATIOS] ME ratio SYCL/Fortran: MAX = ',
+     &    ' [MERATIOS] ME ratio CudaCpp/Fortran: MAX = ',
      &    FBRIDGE_CBYF1MAX + 1, ' = 1 + ', FBRIDGE_CBYF1MAX
         WRITE(*,'(a,i6)')
-     &    ' [MERATIOS] ME ratio SYCL/Fortran: NENTRIES = ',
+     &    ' [MERATIOS] ME ratio CudaCpp/Fortran: NENTRIES = ',
      &    FBRIDGE_NCBYF1
 c        WRITE(*,'(a,e8.2)')
-c    &    ' [MERATIOS] ME ratio SYCL/Fortran - 1: AVG = ',
+c    &    ' [MERATIOS] ME ratio CudaCpp/Fortran - 1: AVG = ',
 c    &    FBRIDGE_CBYF1SUM / FBRIDGE_NCBYF1
 c       WRITE(*,'(a,e8.2)')
-c    &    ' [MERATIOS] ME ratio SYCL/Fortran - 1: STD = ',
+c    &    ' [MERATIOS] ME ratio CudaCpp/Fortran - 1: STD = ',
 c    &    SQRT( FBRIDGE_CBYF1SUM2 / FBRIDGE_NCBYF1 ) ! ~standard deviation
         WRITE(*,'(a,e8.2,a,e8.2)')
-     &    ' [MERATIOS] ME ratio SYCL/Fortran - 1: AVG = ',
+     &    ' [MERATIOS] ME ratio CudaCpp/Fortran - 1: AVG = ',
      &    FBRIDGE_CBYF1SUM / FBRIDGE_NCBYF1, ' +- ',
      &    SQRT( FBRIDGE_CBYF1SUM2 ) / FBRIDGE_NCBYF1 ! ~standard error
       ENDIF
