@@ -1,5 +1,11 @@
-
-      // *** COLOR ALGEBRA BELOW ***
+      // *** COLOR CHOICE BELOW ***
+      // Store the leading color flows for choice of color
+      if (jamp2_sv) { // disable color choice if nullptr
+          for (size_t icolC = 0; icolC < ncolor; icolC++) {
+              jamp2_sv[icolC] += cxabs2(jamp_sv[icolC]);
+          }
+      }
+      // *** COLOR MATRIX BELOW ***
       // (This method used to be called %(process_class_name)s::matrix_%(proc_name)s(%(matrix_args)s)?)
 
       // The color matrix (initialize all array elements, with ncolor=1)

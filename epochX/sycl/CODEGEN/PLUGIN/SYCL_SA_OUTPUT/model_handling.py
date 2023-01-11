@@ -927,6 +927,8 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
             parm_str += "          //m_tIPD[...] = ... ; // nparam=0\n"
 
         replace_dict['assign_coupling'] = coup_str + param_str
+        color_amplitudes = [me.get_color_amplitudes() for me in self.matrix_elements] # as in OneProcessExporterCPP.get_process_function_definitions
+        replace_dict['ncolor'] = len(color_amplitudes[0])
         file = self.read_template_file(self.process_definition_template) % replace_dict
         return file
 
@@ -939,7 +941,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
   // Evaluate |M|^2 for each subprocess
   // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
   SYCL_EXTERNAL INLINE
-  fptype_sv calculate_wavefunctions( const vector4* __restrict__ allmomenta,      // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM FIXME no neppM fix docstring
+  fptype_sv calculate_wavefunctions( const vector4* __restrict__ allmomenta,      // input: momenta as vector4 
                                      #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
                                          fptype_sv* __restrict__ allNumerators,   // output: multichannel numerators, running_sum_over_helicities
                                          fptype_sv* __restrict__ allDenominators, // output: multichannel denominators, running_sum_over_helicities
@@ -947,13 +949,12 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
                                      #endif
                                      const signed char*  __restrict__ cHel,
                                      const cxtype_sv* __restrict__ COUPs,
-                                     const fptype* __restrict__ cIPD
+                                     const fptype* __restrict__ cIPD,
+                                     fptype_sv* jamp2_sv                          // output: jamp2[ncolor] for color choice (nullptr if disabled)
                                    ) {
       using namespace MG5_sm;
       fptype_sv allMEs = FPZERO_SV;
 \n""")
-            ret_lines.append("      // The number of colors")
-            ret_lines.append("      constexpr size_t ncolor = %i;" % len(color_amplitudes[0]))
             ret_lines.append("""
       // Local TEMPORARY variables for a subset of Feynman diagrams in the given SYCL event (ievt)
       // [NB these variables are reused several times (and re-initialised each time) within the same event or event page]
@@ -1045,6 +1046,8 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         self.edit_check_sa()
         self.edit_mgonGPU()
         self.edit_processidfile() # AV new file (NB this is Sigma-specific, should not be a symlink to Subprocesses)
+        if self.include_multi_channel:
+            self.edit_coloramps() # AV new file (NB this is Sigma-specific, should not be a symlink to Subprocesses)
         # Add symbolic links
         # NB: symlink of sycl.mk to makefile is overwritten by madevent makefile if this exists (#480)
         # NB: this relies on the assumption that sycl code is generated before madevent code
@@ -1118,6 +1121,24 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         replace_dict = {}
         replace_dict['processid'] = self.get_process_name().upper()
         ff = open(pjoin(self.path, 'epoch_process_id.h'),'w')
+        ff.write(template % replace_dict)
+        ff.close()
+
+    # AV - new method
+    def edit_coloramps(self):
+        """Generate coloramps.h"""
+        misc.sprint('Entering PLUGIN_OneProcessExporter.edit_coloramps')
+        template = open(pjoin(self.template_path,'gpu','coloramps.h'),'r').read()
+        ff = open(pjoin(self.path, 'coloramps.h'),'w')
+        # The following five lines from OneProcessExporterCPP.get_sigmaKin_lines (using OneProcessExporterCPP.get_icolamp_lines)
+        replace_dict={}
+        if self.include_multi_channel: # NB unnecessary as edit_coloramps is not called otherwise...
+            multi_channel = self.get_multi_channel_dictionary(self.matrix_elements[0].get('diagrams'), self.include_multi_channel)
+            replace_dict['is_LC'] = self.get_icolamp_lines(multi_channel, self.matrix_elements[0], 1)
+            replace_dict['nb_channel'] = len(multi_channel)
+            replace_dict['nb_color'] = max(1,len(self.matrix_elements[0].get('color_basis')))
+            # AV extra formatting (e.g. gg_tt was "{{true,true};,{true,false};,{false,true};};")
+            replace_dict['is_LC'] = replace_dict['is_LC'].replace(',',', ').replace('{{','    { ').replace('};, {',' },\n    { ').replace('};};',' }')
         ff.write(template % replace_dict)
         ff.close()
 

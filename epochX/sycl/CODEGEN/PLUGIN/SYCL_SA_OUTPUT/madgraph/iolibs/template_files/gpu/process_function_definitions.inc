@@ -12,6 +12,9 @@ namespace Proc
   static constexpr size_t nw6 = mgOnGpu::nw6; // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
   static constexpr size_t neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
 
+  // The number of colors
+  static constexpr size_t ncolor = %(ncolor)s;
+
   //--------------------------------------------------------------------------
 %(all_sigmaKin)s
   //--------------------------------------------------------------------------
@@ -85,13 +88,14 @@ namespace Proc
       fptype_sv allMEs = FPZERO_SV;
       for ( size_t ihel = 0; ihel < ncomb; ihel++ ) {
           // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
+          constexpr fptype_sv* jamp2_sv = nullptr; // no need for color selection during helicity filtering
           #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
               constexpr size_t channelId = 0; // disable single-diagram channel enhancement
               fptype_sv allNumerators = FPZERO_SV;
               fptype_sv allDenominators = FPZERO_SV;
-              allMEs += calculate_wavefunctions( allmomenta, &allNumerators, &allDenominators, channelId, cHel + ihel*npar, COUPs, cIPD );
+              allMEs += calculate_wavefunctions( allmomenta, &allNumerators, &allDenominators, channelId, cHel + ihel*npar, COUPs, cIPD, jamp2_sv );
           #else
-              allMEs += calculate_wavefunctions( allmomenta, cHel + ihel*npar, COUPs, cIPD );
+              allMEs += calculate_wavefunctions( allmomenta, cHel + ihel*npar, COUPs, cIPD, jamp2_sv );
           #endif
           if (FPANY_SV(allMEs != allMEsLast)) {
               isGoodHel[ihel] = true;
@@ -118,7 +122,11 @@ namespace Proc
   // FIXME: assume process.nprocesses == 1 (eventually: allMEs[nevt] -> allMEs[nevt*nprocesses]?)
 
   SYCL_EXTERNAL
-  fptype_sv sigmaKin( const vector4* __restrict__ allmomenta, // input: momenta[nevt*npar*4]
+  fptype_sv sigmaKin( const vector4* __restrict__ allmomenta, // input: momenta[]
+                      const fptype_sv* __restrict__ rndhel,   // input: random numbers[] for helicity selection
+                      const fptype_sv* __restrict__ rndcol,   // input: random numbers[] for color selection
+                      const int_sv* __restrict__ selhel,      // output: helicity selection[]
+                      const int_sv* __restrict__ selcol,      // output: color selection[]
                       #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
                           const size_t channelId,             // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
                       #endif
@@ -131,11 +139,6 @@ namespace Proc
 
       // Denominators: spins, colors and identical particles
       constexpr int denominators = %(den_factors)s; // FIXME: assume process.nprocesses == 1 for the moment (eventually denominators[nprocesses]?)
-
-      // Set the parameters which change event by event
-      // Need to discuss this with Stefan
-      //m_pars->setDependentParameters();
-      //m_pars->setDependentCouplings();
 
       // Start sigmaKin_lines
 %(sigmaKin_lines)s
