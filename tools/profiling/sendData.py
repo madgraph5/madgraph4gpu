@@ -11,26 +11,23 @@ import sys
 
 # Parameter defaults
 URL = 'https://dbod-madgraph4gpu-db.cern.ch:8082/api/v2/write?bucket=ProfilerData'
-secret = os.getenv('MADGRAPH4GPU_DB_SECRET')
+secret = 'fV8dKViWTVdnA3Rw*qCeA@MYtZki@q'
 Auth = ['db_user', secret]
-GPU = 'v100s'
 physicsProcesses = ['ee_mumu', 'gg_ttggg', 'gg_ttgg', 'gg_ttg', 'gg_tt']
-absLayer = ['SYCL', 'CUDA', 'sycl', 'cuda']
+absLayers = ['SYCL', 'CUDA']
 branch = 'master'
-GCCVersion = '11.3'
-CUDAVersion = '11.6.2'
 fields = ['EvtsPerSec[MatrixElems] (3)', 'EvtsPerSec[MECalcOnly] (3)']
-reportPath = 'C:\\Users\\jteig\\cernbox\\Documents\\CERN\\reports\\CUDA_v100s_Profiling_16.09_GCC10.3_CUDA11.5_GOLDEN_EPOCHX4'
+reportPath = 'C:\\Users\\jteig\\cernbox\\Documents\\test\\22-12-07_cudacpp_Xeon-Silver-4216_v100s_gcc-11.3_cuda-11.6.2_master'
 
 # Argument parser
 parser = argparse.ArgumentParser(description='A script for sending data from profiler to InfluxDB.')
 
 parser.add_argument('-r', '--reportPath', help="Path for the reports that is being put into the database.", default=reportPath)
 parser.add_argument('-f', '--fields', help="Fields in the JSON to be put into the database.", default=fields)
-parser.add_argument('-g', '--gpu', help="GPU used when profiling.", default=GPU)
-parser.add_argument('--GCCVersion', help="GCC version used when profiling.", default=GCCVersion)
-parser.add_argument('--CUDAVersion', help="CUDA version used when profiling.", default=CUDAVersion)
-parser.add_argument('-a', '--absLayer', help="Abstraction layer used when profiling.", default=absLayer[0], choices=absLayer)
+#parser.add_argument('-g', '--gpu', help="GPU used when profiling.", default=GPU)
+#parser.add_argument('--GCCVersion', help="GCC version used when profiling.", default=GCCVersion)
+#parser.add_argument('--CUDAVersion', help="CUDA version used when profiling.", default=CUDAVersion)
+#parser.add_argument('-a', '--absLayer', help="Abstraction layer used when profiling.", default=absLayer[0], choices=absLayer)
 parser.add_argument('-b', '--branch', help="Branch the profiler data is in.", default=branch)
 parser.add_argument('-p', '--profiler', help="Enable CI profiling defaults.", action=argparse.BooleanOptionalAction)
 
@@ -51,7 +48,8 @@ if __name__=='__main__':
                 logging.error('Sycl name prefix has not been set!')
                 sys.exit(1)
 
-            reportfolder= "workspace_mg4gpu/" + datetime.datetime.now().strftime('%y-%m-%d') + '_' + syclNamePrefix + '_' + branch
+            # Fix the branch detection from the file name here
+            reportfolder= "workspace_mg4gpu/" + datetime.datetime.now().strftime('%y-%m-%d') + '_' + syclNamePrefix + '_' + args.branch
             print(reportfolder)
 
             if not os.path.exists(reportfolder):
@@ -65,7 +63,7 @@ if __name__=='__main__':
                 logging.error('Cuda name prefix has not been set!')
                 sys.exit(1)
 
-            reportfolder= "workspace_mg4gpu/" + datetime.datetime.now().strftime('%y-%m-%d') + '_' + cudaNamePrefix + '_' + branch
+            reportfolder= "workspace_mg4gpu/" + datetime.datetime.now().strftime('%y-%m-%d') + '_' + cudaNamePrefix + '_' + args.branch
 
             if not os.path.exists(reportfolder):
                 logging.error('CUDA report path does not exist!')
@@ -86,34 +84,50 @@ if __name__=='__main__':
     files = [p for sublist in filePath for p in sublist]
 
     for file in files:
-            f = open(file, 'r')
 
-            fileName = (os.path.basename(file))
+        with open(file, "r") as f:
 
-            for process in physicsProcesses:
-                if process in fileName:
-                    physicsProcess = process
-                    break
+            fileContents = f.read()
 
-            f = f.read()
+            if fileContents != '':
+                data = json.loads(fileContents)
 
-            if f != '':
-                data = json.loads(f)
+                fileName = (os.path.basename(file))
+
+                for process in physicsProcesses:
+                    if process in fileName.lower():
+                        physicsProcess = process
+                        break
+
+                fileNameParts = fileName.split('_')
+
+                CPU = fileNameParts[4]
+
+                GPU = fileNameParts[5]
+
+                for word in absLayers:
+                    if word.lower() in fileName.lower():
+                        absLayer = word
+                        break
+
+                GCCVersion = fileNameParts[6].split('-')[1]
+
+                CUDAVersion = fileNameParts[7].split('-')[1]
 
                 gridsize = data[0]["NumThreadsPerBlock"] * data[0]["NumBlocksPerGrid"]
 
-                DBdata = f'{physicsProcess},GPU={args.gpu},AbstractionLayer={args.absLayer.upper()},GCCVersion={args.GCCVersion},CUDAVersion={args.CUDAVersion},NumThreadsPerBlock={data[0]["NumThreadsPerBlock"]},NumBlocksPerGrid={data[0]["NumBlocksPerGrid"]},NumIterations={data[0]["NumIterations"]} Gridsize={gridsize}'
+                DBdata = f'{physicsProcess},CPU={CPU},GPU={GPU},AbstractionLayer={absLayer},GCCVersion={GCCVersion},CUDAVersion={CUDAVersion},NumThreadsPerBlock={data[0]["NumThreadsPerBlock"]},NumBlocksPerGrid={data[0]["NumBlocksPerGrid"]},NumIterations={data[0]["NumIterations"]} Gridsize={gridsize}'
 
                 for field in fields:
                     value = float(re.findall(r'[\d.]+',data[0][field])[0])
 
-                    DBdata = DBdata + ',' + args.absLayer + "_" + field.replace(" ", "_") + '=' + str(value)
-
-                #DBdata = DBdata + ' 1668164400'
+                    DBdata = DBdata + ',' + absLayer + "_" + field.replace(" ", "_") + '=' + str(value)
 
                 requestInfo = ["curl", "-i",  '-XPOST', "-i",  URL, "--header",  "Authorization: Token "+Auth[0]+":"+Auth[1], "--data-raw", DBdata]
                 
                 request = subprocess.run(requestInfo, stdout=subprocess.DEVNULL)
+
+                f.close()
                 
                 if request.returncode != 0:
                     print(str(datetime.datetime.now().strftime("%H:%M:%S")) + " Request FAILED! Data: " + DBdata)
