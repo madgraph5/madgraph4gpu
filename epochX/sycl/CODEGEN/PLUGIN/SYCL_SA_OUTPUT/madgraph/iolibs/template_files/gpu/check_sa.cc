@@ -474,8 +474,8 @@ int main(int argc, char **argv)
           _mes     = reinterpret_cast<fptype*>(std::malloc(nevt*sizeof(fptype)));
           _rndhel  = reinterpret_cast<fptype*>(std::malloc(nevt*sizeof(fptype)));
           _rndcol  = reinterpret_cast<fptype*>(std::malloc(nevt*sizeof(fptype)));
-          _selhel  = reinterpret_cast<fptype*>(std::malloc(nevt*sizeof(int)));
-          _selcol  = reinterpret_cast<fptype*>(std::malloc(nevt*sizeof(int)));
+          _selhel  = reinterpret_cast<int*>(std::malloc(nevt*sizeof(int)));
+          _selcol  = reinterpret_cast<int*>(std::malloc(nevt*sizeof(int)));
           //_momenta = reinterpret_cast<fptype*>(std::malloc(nevt*npar*np4*sizeof(fptype)));
           //for (size_t i=0; i < nevt*npar*np4; i++) {
           //    _momenta[i] = hstMomenta[i];
