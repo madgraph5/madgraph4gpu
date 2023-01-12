@@ -346,7 +346,7 @@ namespace Proc
               else {
                   targetamp[icolC] = targetamp[icolC - 1];
               }
-              if (l_icolamp[ncolor*channelIdC + icolC]) { targetamp[icolC] += jamp2_sv[icolC] };
+              if (l_icolamp[ncolor*channelIdC + icolC]) { targetamp[icolC] += jamp2_sv[icolC]; }
           }
 
           bool_sv selcol_unset = bool_sv(true);
