@@ -781,6 +781,10 @@ int main(int argc, char **argv)
           // Destroy bridge objects
           std::free(_gs);
           std::free(_mes);
+          std::free(_rndhel);
+          std::free(_rndcol);
+          std::free(_selhel);
+          std::free(_selcol);
           //std::free(_momenta);
           delete pbridge;
       }
