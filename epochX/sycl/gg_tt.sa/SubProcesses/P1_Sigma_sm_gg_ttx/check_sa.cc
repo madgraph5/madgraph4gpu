@@ -461,6 +461,10 @@ int main(int argc, char **argv)
       mg5amcGpu::Bridge<fptype>* pbridge;
       fptype* _gs;
       fptype* _mes;
+      fptype* _rndhel;
+      fptype* _rndcol;
+      int* _selhel;
+      int* _selcol;
       //fptype* _momenta;
       if (bridge) {
           //Initialize bridge object
@@ -468,6 +472,10 @@ int main(int argc, char **argv)
       
           _gs      = reinterpret_cast<fptype*>(std::malloc(nevt*sizeof(fptype)));
           _mes     = reinterpret_cast<fptype*>(std::malloc(nevt*sizeof(fptype)));
+          _rndhel  = reinterpret_cast<fptype*>(std::malloc(nevt*sizeof(fptype)));
+          _rndcol  = reinterpret_cast<fptype*>(std::malloc(nevt*sizeof(fptype)));
+          _selhel  = reinterpret_cast<fptype*>(std::malloc(nevt*sizeof(int)));
+          _selcol  = reinterpret_cast<fptype*>(std::malloc(nevt*sizeof(int)));
           //_momenta = reinterpret_cast<fptype*>(std::malloc(nevt*npar*np4*sizeof(fptype)));
           //for (size_t i=0; i < nevt*npar*np4; i++) {
           //    _momenta[i] = hstMomenta[i];
@@ -705,8 +713,7 @@ int main(int argc, char **argv)
         if (bridge) {
             const std::string bridgeKey = "3c bridge";
             timermap.start( bridgeKey );
-            //pbridge->gpu_sequence( _momenta, _gs, _mes, 0 );
-            pbridge->gpu_sequence( hstMomenta.get(), _gs, _mes, 0 );
+            pbridge->gpu_sequence( hstMomenta.get(), _gs, _rndhel, _rndcol, 0, _mes, _selhel, _selcol );
             bridge_time += timermap.stop();
             
             //std::cout << "SA_MEs    Bridge_MEs    SA/Bridge" << std::endl;
