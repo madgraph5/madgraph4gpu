@@ -277,10 +277,10 @@ namespace mg5amcGpu
                                             const FORTRANFPTYPE* __restrict__ gs,
                                             const FORTRANFPTYPE* __restrict__ rndhel,
                                             const FORTRANFPTYPE* __restrict__ rndcol,
+                                            const size_t channelId,
                                             FORTRANFPTYPE* __restrict__ mes,
                                             int* __restrict__ selhel,
                                             int* __restrict__ selcol,
-                                            const size_t channelId,
                                             const bool goodHelOnly ) {
     static constexpr size_t np4 =  mgOnGpu::np4;
     static constexpr size_t nparf = mgOnGpu::nparf;
