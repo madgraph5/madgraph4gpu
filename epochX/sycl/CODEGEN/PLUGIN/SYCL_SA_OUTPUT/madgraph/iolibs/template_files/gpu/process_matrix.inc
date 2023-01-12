@@ -2,7 +2,7 @@
       // Store the leading color flows for choice of color
       if (jamp2_sv) { // disable color choice if nullptr
           for (size_t icolC = 0; icolC < ncolor; icolC++) {
-              jamp2_sv[icolC] += cxabs2(jamp_sv[icolC]);
+              jamp2_sv[icolC] += CXABS2(jamp_sv[icolC]);
           }
       }
       // *** COLOR MATRIX BELOW ***

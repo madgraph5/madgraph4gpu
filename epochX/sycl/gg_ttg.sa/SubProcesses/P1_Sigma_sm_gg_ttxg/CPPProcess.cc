@@ -15,6 +15,11 @@
 #include "mgOnGpuVectors.h"
 
 #include "CPPProcess.h"
+
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+    #include "coloramps.h"
+#endif
+
 #include "HelAmps_sm.h"
 
 //==========================================================================
@@ -312,7 +317,7 @@ namespace Proc
       // Store the leading color flows for choice of color
       if (jamp2_sv) { // disable color choice if nullptr
           for (size_t icolC = 0; icolC < ncolor; icolC++) {
-              jamp2_sv[icolC] += cxabs2(jamp_sv[icolC]);
+              jamp2_sv[icolC] += CXABS2(jamp_sv[icolC]);
           }
       }
       // *** COLOR MATRIX BELOW ***
@@ -473,8 +478,8 @@ namespace Proc
   fptype_sv sigmaKin( const vector4* __restrict__ allmomenta, // input: momenta[]
                       const fptype_sv* __restrict__ rndhel,   // input: random numbers[] for helicity selection
                       const fptype_sv* __restrict__ rndcol,   // input: random numbers[] for color selection
-                      const int_sv* __restrict__ selhel,      // output: helicity selection[]
-                      const int_sv* __restrict__ selcol,      // output: color selection[]
+                      int_sv* __restrict__ selhel,            // output: helicity selection[]
+                      int_sv* __restrict__ selcol,            // output: color selection[]
                       #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
                           const size_t channelId,             // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
                       #endif
@@ -517,7 +522,7 @@ namespace Proc
       bool_sv selhel_unset = bool_sv(true);
       for (size_t ighel = 0; ighel < cNGoodHel[0]; ighel++) {
           if (FPANY_SV(selhel_unset)) {
-              bool_sv selhel_flip = selhel_unset && (rndhel[0] < (MEs_ighel[ighel]/MEs_ighel[cNGoodHel - 1]));
+              bool_sv selhel_flip = selhel_unset && (rndhel[0] < (MEs_ighel[ighel]/MEs_ighel[cNGoodHel[0] - 1]));
               selhel[0] = FPCONDITIONAL_SV(selhel[0], int_sv(cGoodHel[ighel] + 1), selhel_flip);
               selhel_unset = selhel_unset && !(selhel_flip);
           }
@@ -527,6 +532,8 @@ namespace Proc
       }
 
       #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+          auto l_icolamp = mgOnGpu::icolamp<bool>;
+
           // Event-by-event random choice of color #402
           const size_t channelIdC = channelId - 1; // coloramps.h uses the C array indexing starting at 0
           fptype_sv targetamp[ncolor];
@@ -537,7 +544,7 @@ namespace Proc
               else {
                   targetamp[icolC] = targetamp[icolC - 1];
               }
-              if (mgOnGpu::icolamp[channelIdC][icolC]) targetamp[icolC] += jamp2_sv[icolC];
+              if (l_icolamp[ncolor*channelIdC + icolC]) { targetamp[icolC] += jamp2_sv[icolC] };
           }
 
           bool_sv selcol_unset = bool_sv(true);

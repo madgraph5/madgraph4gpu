@@ -145,8 +145,8 @@ namespace Proc
   fptype_sv sigmaKin( const vector4* __restrict__ allmomenta, // input: momenta[]
                       const fptype_sv* __restrict__ rndhel,   // input: random numbers[] for helicity selection
                       const fptype_sv* __restrict__ rndcol,   // input: random numbers[] for color selection
-                      const int_sv* __restrict__ selhel,      // output: helicity selection[]
-                      const int_sv* __restrict__ selcol,      // output: color selection[]
+                      int_sv* __restrict__ selhel,            // output: helicity selection[]
+                      int_sv* __restrict__ selcol,            // output: color selection[]
                       #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
                           const size_t channelId,             // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
                       #endif

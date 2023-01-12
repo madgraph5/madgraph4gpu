@@ -1135,10 +1135,10 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         if self.include_multi_channel: # NB unnecessary as edit_coloramps is not called otherwise...
             multi_channel = self.get_multi_channel_dictionary(self.matrix_elements[0].get('diagrams'), self.include_multi_channel)
             replace_dict['is_LC'] = self.get_icolamp_lines(multi_channel, self.matrix_elements[0], 1)
-            replace_dict['nb_channel'] = len(multi_channel)
-            replace_dict['nb_color'] = max(1,len(self.matrix_elements[0].get('color_basis')))
+            #replace_dict['nb_channel'] = len(multi_channel)
+            #replace_dict['nb_color'] = max(1,len(self.matrix_elements[0].get('color_basis')))
             # AV extra formatting (e.g. gg_tt was "{{true,true};,{true,false};,{false,true};};")
-            replace_dict['is_LC'] = replace_dict['is_LC'].replace(',',', ').replace('{{','    { ').replace('};, {',' },\n    { ').replace('};};',' }')
+            replace_dict['is_LC'] = replace_dict['is_LC'].replace(',',', ').replace('{{','      ').replace('};, {',',\n      ').replace('};};','')
         ff.write(template % replace_dict)
         ff.close()
 
