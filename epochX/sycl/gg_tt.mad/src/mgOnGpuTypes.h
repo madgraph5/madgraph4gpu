@@ -288,7 +288,7 @@ cxtype operator / (const cxtype& a, const fptype& b) {
     #define CXCONJ(c) mgOnGpu::conj(c)
 #endif
 
-#ifdef MGONGPU_COMPLEX_STD || defined MGONGPU_COMPLEX_STDVEC
+#if defined MGONGPU_COMPLEX_STD || defined MGONGPU_COMPLEX_STDVEC
     #define CXCONJ(c) std::conj(c)
 #endif
 

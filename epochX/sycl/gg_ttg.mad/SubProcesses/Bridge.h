@@ -142,10 +142,10 @@ namespace mg5amcGpu
                        const FORTRANFPTYPE* __restrict__ gs,
                        const FORTRANFPTYPE* __restrict__ rndhel,
                        const FORTRANFPTYPE* __restrict__ rndcol,
+                       const size_t channelId,
                        FORTRANFPTYPE* __restrict__ mes,
                        int* __restrict__ selhel,
                        int* __restrict__ selcol,
-                       const size_t channelId,
                        const bool goodHelOnly = false );
 
   // Return the number of good helicities (-1 initially when they have not yet been calculated)
@@ -304,8 +304,8 @@ namespace mg5amcGpu
 
     if constexpr (std::is_same_v<FORTRANFPTYPE, fptype>) {
         m_q.memcpy(m_devGsC.data(), gs, m_nevt*sizeof(fptype));
-        m_q.memcpy(m_hstRndHel.data(), rndhel, m_nevt*sizeof(fptype));
-        m_q.memcpy(m_hstRndCol.data(), rndcol, m_nevt*sizeof(fptype)).wait();
+        m_q.memcpy(m_devRndHel.data(), rndhel, m_nevt*sizeof(fptype));
+        m_q.memcpy(m_devRndCol.data(), rndcol, m_nevt*sizeof(fptype)).wait();
     }
     else {
         host_buffer<fptype> hstGsC(m_nevt, m_q);
