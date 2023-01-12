@@ -106,8 +106,8 @@ cd - > /dev/null
 # (3) Process-dependent patches
 for p1dir in ${dir}/SubProcesses/P1_*; do
   cd $p1dir
-  cat coloramps.h | awk -vp=1 '{if (p==1) print $0; if ($1=="__device__") p=0}' > coloramps.h.new
-  cat coloramps.inc | sed 's|)/|)/ {|' | sed 's|/$|}, /|' \
+  cat coloramps.h | awk -vp=1 '{if (p==1) print $0; if ($1=="constexpr") p=0}' > coloramps.h.new
+  cat coloramps.inc | sed 's|)/|)/ |' | sed 's|/$|, /|' \
     | awk -vb= '{if($1~")/"){b=$2}; if($1=="$"){b=b$2}; if($3=="/"){print "    "b}}' \
     | sed 's/.TRUE./ true/g' | sed 's/.FALSE./ false/g' | sed 's/}/ }/' >> coloramps.h.new
   truncate -s -2 coloramps.h.new

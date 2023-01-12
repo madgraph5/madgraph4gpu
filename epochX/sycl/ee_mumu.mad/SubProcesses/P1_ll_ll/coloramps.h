@@ -6,14 +6,8 @@ namespace mgOnGpu
 
   template <typename T>
   constexpr T icolamp[] = { // FIXME: assume process.nprocesses == 1 for the moment
-      true,
-      true
-  };
-
-}
-#endif // COLORAMPS_H
-    { true },
-    { true }
+     true,
+     true
   };
 
 }
