@@ -1,20 +1,3 @@
-#include <unistd.h>
-
-#include <algorithm>
-#include <array>
-#include <cmath>
-#include <cstring>
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-#include <memory>
-#include <numeric>
-#include <string>
-
-#ifdef _OPENMP
-#include <omp.h>
-#endif
-
 #include "mgOnGpuConfig.h"
 
 #include "BridgeKernels.h"
@@ -29,7 +12,22 @@
 #include "RamboSamplingKernels.h"
 #include "RandomNumberKernels.h"
 #include "epoch_process_id.h"
+#include "ompnumthreads.h"
 #include "timermap.h"
+
+#include <unistd.h>
+
+#include <algorithm>
+#include <array>
+#include <cmath>
+#include <cstring>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <memory>
+#include <numeric>
+#include <string>
+
 #define STRINGIFY( s ) #s
 #define XSTRINGIFY( s ) STRINGIFY( s )
 
@@ -234,24 +232,7 @@ main( int argc, char** argv )
 
 #ifndef __CUDACC__
 #ifdef _OPENMP
-  // Set OMP_NUM_THREADS equal to 1 if it is not yet set
-  char* ompnthr = getenv( "OMP_NUM_THREADS" );
-  if( debug )
-  {
-    std::cout << "DEBUG: omp_get_num_threads() = " << omp_get_num_threads() << std::endl; // always == 1 here!
-    std::cout << "DEBUG: omp_get_max_threads() = " << omp_get_max_threads() << std::endl;
-    std::cout << "DEBUG: ${OMP_NUM_THREADS}    = '" << ( ompnthr == 0 ? "[not set]" : ompnthr ) << "'" << std::endl;
-  }
-  if( ompnthr == NULL || std::string( ompnthr ).find_first_not_of( "0123456789" ) != std::string::npos || atol( ompnthr ) == 0 )
-  {
-    if( ompnthr != NULL )
-      std::cout << "WARNING! OMP_NUM_THREADS is invalid: will use only 1 thread" << std::endl;
-    else if( debug )
-      std::cout << "DEBUG: OMP_NUM_THREADS is not set: will use only 1 thread" << std::endl;
-    omp_set_num_threads( 1 );                                                                         // https://stackoverflow.com/a/22816325
-    if( debug ) std::cout << "DEBUG: omp_get_num_threads() = " << omp_get_num_threads() << std::endl; // always == 1 here!
-    if( debug ) std::cout << "DEBUG: omp_get_max_threads() = " << omp_get_max_threads() << std::endl;
-  }
+  ompnumthreadsNotSetMeansOneThread( debug ? 1 : 0 ); // quiet(-1), info(0), debug(1)
 #endif
 #endif
 
@@ -301,14 +282,31 @@ main( int argc, char** argv )
   const std::string alloKey = "0b MemAlloc";
   timermap.start( alloKey );
 
-  // Memory buffers for random numbers
+  // Memory buffers for random numbers for momenta
 #ifndef __CUDACC__
-  HostBufferRandomNumbers hstRnarray( nevt );
+  HostBufferRndNumMomenta hstRndmom( nevt );
 #else
-  PinnedHostBufferRandomNumbers hstRnarray( nevt );
-  DeviceBufferRandomNumbers devRnarray( nevt );
+  PinnedHostBufferRndNumMomenta hstRndmom( nevt );
+  DeviceBufferRndNumMomenta devRndmom( nevt );
 #endif
 
+  // Memory buffers for sampling weights
+#ifndef __CUDACC__
+  HostBufferWeights hstWeights( nevt );
+#else
+  PinnedHostBufferWeights hstWeights( nevt );
+  DeviceBufferWeights devWeights( nevt );
+#endif
+
+  // Memory buffers for momenta
+#ifndef __CUDACC__
+  HostBufferMomenta hstMomenta( nevt );
+#else
+  PinnedHostBufferMomenta hstMomenta( nevt );
+  DeviceBufferMomenta devMomenta( nevt );
+#endif
+
+  // Memory buffers for Gs
 #ifndef __CUDACC__
   HostBufferGs hstGs( nevt );
 #else
@@ -325,28 +323,46 @@ main( int argc, char** argv )
     //hstGs[i] = i;
   }
 
-  // Memory buffers for momenta
-#ifndef __CUDACC__
-  HostBufferMomenta hstMomenta( nevt );
-#else
-  PinnedHostBufferMomenta hstMomenta( nevt );
-  DeviceBufferMomenta devMomenta( nevt );
-#endif
-
-  // Memory buffers for sampling weights
-#ifndef __CUDACC__
-  HostBufferWeights hstWeights( nevt );
-#else
-  PinnedHostBufferWeights hstWeights( nevt );
-  DeviceBufferWeights devWeights( nevt );
-#endif
-
   // Memory buffers for matrix elements
 #ifndef __CUDACC__
   HostBufferMatrixElements hstMatrixElements( nevt );
 #else
   PinnedHostBufferMatrixElements hstMatrixElements( nevt );
   DeviceBufferMatrixElements devMatrixElements( nevt );
+#endif
+
+  // Memory buffers for random numbers for helicity selection
+  // *** NB #403 these buffers always remain initialised at 0: no need for helicity choice in gcheck/check (no LHE produced) ***
+#ifndef __CUDACC__
+  HostBufferRndNumHelicity hstRndHel( nevt );
+#else
+  PinnedHostBufferRndNumHelicity hstRndHel( nevt );
+  DeviceBufferRndNumHelicity devRndHel( nevt );
+#endif
+
+  // Memory buffers for random numbers for color selection
+  // *** NB #402 these buffers always remain initialised at 0: no need for color choice in gcheck/check (no LHE produced) ***
+#ifndef __CUDACC__
+  HostBufferRndNumColor hstRndCol( nevt );
+#else
+  PinnedHostBufferRndNumColor hstRndCol( nevt );
+  DeviceBufferRndNumColor devRndCol( nevt );
+#endif
+
+  // Memory buffers for helicity selection
+#ifndef __CUDACC__
+  HostBufferSelectedHelicity hstSelHel( nevt );
+#else
+  PinnedHostBufferSelectedHelicity hstSelHel( nevt );
+  DeviceBufferSelectedHelicity devSelHel( nevt );
+#endif
+
+  // Memory buffers for color selection
+#ifndef __CUDACC__
+  HostBufferSelectedColor hstSelCol( nevt );
+#else
+  PinnedHostBufferSelectedColor hstSelCol( nevt );
+  DeviceBufferSelectedColor devSelCol( nevt );
 #endif
 
   std::unique_ptr<double[]> genrtimes( new double[niter] );
@@ -361,19 +377,19 @@ main( int argc, char** argv )
   std::unique_ptr<RandomNumberKernelBase> prnk;
   if( rndgen == RandomNumberMode::CommonRandom )
   {
-    prnk.reset( new CommonRandomNumberKernel( hstRnarray ) );
+    prnk.reset( new CommonRandomNumberKernel( hstRndmom ) );
   }
 #ifndef MGONGPU_HAS_NO_CURAND
   else if( rndgen == RandomNumberMode::CurandHost )
   {
     const bool onDevice = false;
-    prnk.reset( new CurandRandomNumberKernel( hstRnarray, onDevice ) );
+    prnk.reset( new CurandRandomNumberKernel( hstRndmom, onDevice ) );
   }
 #ifdef __CUDACC__
   else
   {
     const bool onDevice = true;
-    prnk.reset( new CurandRandomNumberKernel( devRnarray, onDevice ) );
+    prnk.reset( new CurandRandomNumberKernel( devRndmom, onDevice ) );
   }
 #else
   else
@@ -392,12 +408,12 @@ main( int argc, char** argv )
   std::unique_ptr<SamplingKernelBase> prsk;
   if( rmbsmp == RamboSamplingMode::RamboHost )
   {
-    prsk.reset( new RamboSamplingKernelHost( energy, hstRnarray, hstMomenta, hstWeights, nevt ) );
+    prsk.reset( new RamboSamplingKernelHost( energy, hstRndmom, hstMomenta, hstWeights, nevt ) );
   }
   else
   {
 #ifdef __CUDACC__
-    prsk.reset( new RamboSamplingKernelDevice( energy, devRnarray, devMomenta, devWeights, gpublocks, gputhreads ) );
+    prsk.reset( new RamboSamplingKernelDevice( energy, devRndmom, devMomenta, devWeights, gpublocks, gputhreads ) );
 #else
     throw std::logic_error( "RamboDevice is not supported on CPUs" ); // INTERNAL ERROR (no path to this statement)
 #endif
@@ -408,17 +424,17 @@ main( int argc, char** argv )
   if( !bridge )
   {
 #ifdef __CUDACC__
-    pmek.reset( new MatrixElementKernelDevice( devMomenta, devGs, devMatrixElements, gpublocks, gputhreads ) );
+    pmek.reset( new MatrixElementKernelDevice( devMomenta, devGs, devRndHel, devRndCol, devMatrixElements, devSelHel, devSelCol, gpublocks, gputhreads ) );
 #else
-    pmek.reset( new MatrixElementKernelHost( hstMomenta, hstGs, hstMatrixElements, nevt ) );
+    pmek.reset( new MatrixElementKernelHost( hstMomenta, hstGs, hstRndHel, hstRndCol, hstMatrixElements, hstSelHel, hstSelCol, nevt ) );
 #endif
   }
   else
   {
 #ifdef __CUDACC__
-    pmek.reset( new BridgeKernelDevice( hstMomenta, hstGs, hstMatrixElements, gpublocks, gputhreads ) );
+    pmek.reset( new BridgeKernelDevice( hstMomenta, hstGs, hstRndHel, hstRndCol, hstMatrixElements, hstSelHel, hstSelCol, gpublocks, gputhreads ) );
 #else
-    pmek.reset( new BridgeKernelHost( hstMomenta, hstGs, hstMatrixElements, nevt ) );
+    pmek.reset( new BridgeKernelHost( hstMomenta, hstGs, hstRndHel, hstRndCol, hstMatrixElements, hstSelHel, hstSelCol, nevt ) );
 #endif
   }
   int nGoodHel = 0; // the number of good helicities (out of ncomb)
@@ -460,10 +476,10 @@ main( int argc, char** argv )
 #ifdef __CUDACC__
     if( rndgen != RandomNumberMode::CurandDevice && rmbsmp == RamboSamplingMode::RamboDevice )
     {
-      // --- 1c. Copy rnarray from host to device
+      // --- 1c. Copy rndmom from host to device
       const std::string htodKey = "1c CpHTDrnd";
       genrtime += timermap.start( htodKey );
-      copyDeviceFromHost( devRnarray, hstRnarray );
+      copyDeviceFromHost( devRndmom, hstRndmom );
     }
 #endif
 
@@ -945,7 +961,7 @@ main( int argc, char** argv )
               << std::string( 16, ' ' ) << " )  sec^-1" << std::endl
               << "EvtsPerSec[Rmb+ME]     (23) = ( " << nevtALL / ( sumrtim + sumwtim )
               << std::string( 16, ' ' ) << " )  sec^-1" << std::endl
-              //<< "EvtsPerSec[RndNumbGen]   (1) = ( " << nevtALL/sumgtim
+              //<< "EvtsPerSec[RndNumGen]   (1) = ( " << nevtALL/sumgtim
               //<< std::string(16, ' ') << " )  sec^-1" << std::endl
               //<< "EvtsPerSec[Rambo]        (2) = ( " << nevtALL/sumrtim
               //<< std::string(16, ' ') << " )  sec^-1" << std::endl

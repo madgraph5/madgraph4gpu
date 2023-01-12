@@ -209,12 +209,12 @@ function getinputfile()
     mv ${tmp} ${tmp}_fortran
     tmp=${tmp}_fortran
     echo "0 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)" >> ${tmp}
-    echo "${NLOOP} ! Number of events in a single Fortran iteration (nb_page_loop)" >> ${tmp}
+    echo "${NLOOP} ! Number of events in a single Fortran iteration (VECSIZE_USED)" >> ${tmp}
   elif [ "$1" == "-cuda" ] || [ "$1" == "-cpp" ]; then # NB: new script, use the same input for cuda and cpp
     mv ${tmp} ${tmp}_cudacpp
     tmp=${tmp}_cudacpp
     echo "+1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)" >> ${tmp}
-    echo "${NLOOP} ! Number of events in a single C++ or CUDA iteration (nb_page_loop)" >> ${tmp}
+    echo "${NLOOP} ! Number of events in a single C++ or CUDA iteration (VECSIZE_USED)" >> ${tmp}
   else
     echo "Usage: getinputfile <backend [-fortran][-cuda][-cpp]>"
     exit 1
@@ -314,12 +314,17 @@ function runmadevent()
   fi
   $timecmd $cmd < ${tmpin} > ${tmp}
   if [ "$?" != "0" ]; then echo "ERROR! '$timecmd $cmd < ${tmpin} > ${tmp}' failed"; tail -10 $tmp; exit 1; fi
+  omp=$(cat ${tmp} | grep --binary-files=text 'omp_get_max_threads() =' | awk '{print $NF}')
+  nghel=$(cat ${tmp} | grep --binary-files=text 'NGOODHEL =' | awk '{print $NF}')
+  ncomb=$(cat ${tmp} | grep --binary-files=text 'NCOMB =' | awk '{print $NF}')
   fbm=$(cat ${tmp} | grep --binary-files=text 'FBRIDGE_MODE =' | awk '{print $NF}')
-  nbp=$(cat ${tmp} | grep --binary-files=text 'NB_PAGE_LOOP =' | awk '{print $NF}')
+  nbp=$(cat ${tmp} | grep --binary-files=text 'VECSIZE_USED =' | awk '{print $NF}')
   mch=$(cat ${tmp} | grep --binary-files=text 'MULTI_CHANNEL =' | awk '{print $NF}')
   conf=$(cat ${tmp} | grep --binary-files=text 'Running Configuration Number:' | awk '{print $NF}')
   chid=$(cat ${tmp} | grep --binary-files=text 'CHANNEL_ID =' | awk '{print $NF}')
-  echo " [XSECTION] nb_page_loop = ${nbp}"
+  echo " [OPENMPTH] omp_get_max_threads/nproc = ${omp}/$(nproc)"
+  echo " [NGOODHEL] ngoodhel/ncomb = ${nghel}/${ncomb}"
+  echo " [XSECTION] VECSIZE_USED = ${nbp}"
   echo " [XSECTION] MultiChannel = ${mch}"
   echo " [XSECTION] Configuration = ${conf}"
   echo " [XSECTION] ChannelId = ${chid}"
@@ -440,9 +445,7 @@ for suff in $suffs; do
       if [ "${fptype}" == "m" ]; then
 	${scrdir}/lheFloat.sh events.lhe0 events.lhe # FIXME #537
       fi
-      ${scrdir}/dummyColor.sh events.lhe events.lhe.ref
-      ${scrdir}/dummyHelicities.sh events.lhe.ref events.lhe.ref2
-      \mv events.lhe.ref2 events.lhe.ref.$xfac
+      \mv events.lhe events.lhe.ref.$xfac
     done
   fi
 
@@ -479,7 +482,7 @@ for suff in $suffs; do
           echo -e "\nERROR! xsec from fortran ($xsecref) and cpp ($xsecnew) differ by more than ${xsecthr} ($delta)"
           exit 1
         fi
-        echo -e "\n*** (2-$avx) Compare CMADEVENT_CUDACPP x$xfac events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***"
+        echo -e "\n*** (2-$avx) Compare CMADEVENT_CUDACPP x$xfac events.lhe to MADEVENT events.lhe reference (including colors and helicities) ***"
 	\cp events.lhe events.lhe0
 	if [ "${fptype}" == "f" ]; then
 	  ${scrdir}/lheFloat.sh events.lhe0 events.lhe
@@ -523,7 +526,7 @@ for suff in $suffs; do
         echo -e "\nERROR! xsec from fortran ($xsecref) and cpp ($xsecnew) differ by more than ${xsecthr} ($delta)"
         exit 1
       fi
-      echo -e "\n*** (3) Compare GMADEVENT_CUDACPP x$xfac events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***"
+      echo -e "\n*** (3) Compare GMADEVENT_CUDACPP x$xfac events.lhe to MADEVENT events.lhe reference (including colors and helicities) ***"
       \cp events.lhe events.lhe0
       if [ "${fptype}" == "f" ]; then
         ${scrdir}/lheFloat.sh events.lhe0 events.lhe

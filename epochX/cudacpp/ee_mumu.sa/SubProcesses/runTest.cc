@@ -33,11 +33,15 @@ struct CPUTest : public CUDA_CPU_TestBase
   // Struct data members (process, and memory structures for random numbers, momenta, matrix elements and weights on host and device)
   // [NB the hst/dev memory arrays must be initialised in the constructor, see issue #290]
   CPPProcess process;
-  HostBufferRandomNumbers hstRnarray;
+  HostBufferRndNumMomenta hstRndmom;
   HostBufferMomenta hstMomenta;
   HostBufferGs hstGs;
+  HostBufferRndNumHelicity hstRndHel;
+  HostBufferRndNumColor hstRndCol;
   HostBufferWeights hstWeights;
   HostBufferMatrixElements hstMatrixElements;
+  HostBufferSelectedHelicity hstSelHel;
+  HostBufferSelectedColor hstSelCol;
   HostBufferHelicityMask hstIsGoodHel;
 
   // Create a process object
@@ -48,11 +52,15 @@ struct CPUTest : public CUDA_CPU_TestBase
   CPUTest( const std::string& refFileName )
     : CUDA_CPU_TestBase( refFileName )
     , process( /*verbose=*/false )
-    , hstRnarray( nevt )
+    , hstRndmom( nevt )
     , hstMomenta( nevt )
     , hstGs( nevt )
+    , hstRndHel( nevt )
+    , hstRndCol( nevt )
     , hstWeights( nevt )
     , hstMatrixElements( nevt )
+    , hstSelHel( nevt )
+    , hstSelCol( nevt )
     , hstIsGoodHel( mgOnGpu::ncomb )
   {
     process.initProc( "../../Cards/param_card.dat" );
@@ -62,14 +70,14 @@ struct CPUTest : public CUDA_CPU_TestBase
 
   void prepareRandomNumbers( unsigned int iiter ) override
   {
-    CommonRandomNumberKernel rnk( hstRnarray );
+    CommonRandomNumberKernel rnk( hstRndmom );
     rnk.seedGenerator( 1337 + iiter );
     rnk.generateRnarray();
   }
 
   void prepareMomenta( fptype energy ) override
   {
-    RamboSamplingKernelHost rsk( energy, hstRnarray, hstMomenta, hstWeights, nevt );
+    RamboSamplingKernelHost rsk( energy, hstRndmom, hstMomenta, hstWeights, nevt );
     // --- 2a. Fill in momenta of initial state particles on the device
     rsk.getMomentaInitial();
     // --- 2b. Fill in momenta of final state particles using the RAMBO algorithm on the device
@@ -81,7 +89,7 @@ struct CPUTest : public CUDA_CPU_TestBase
   {
     constexpr fptype fixedG = 1.2177157847767195; // fixed G for aS=0.118 (hardcoded for now in check_sa.cc, fcheck_sa.f, runTest.cc)
     for( unsigned int i = 0; i < nevt; ++i ) hstGs[i] = fixedG;
-    MatrixElementKernelHost mek( hstMomenta, hstGs, hstMatrixElements, nevt );
+    MatrixElementKernelHost mek( hstMomenta, hstGs, hstRndHel, hstRndCol, hstMatrixElements, hstSelHel, hstSelCol, nevt );
     if( iiter == 0 ) mek.computeGoodHelicities();
     constexpr unsigned int channelId = 0; // TEMPORARY? disable multi-channel in runTest.exe #466
     mek.computeMatrixElements( channelId );
@@ -117,16 +125,25 @@ struct CUDATest : public CUDA_CPU_TestBase
   // Struct data members (process, and memory structures for random numbers, momenta, matrix elements and weights on host and device)
   // [NB the hst/dev memory arrays must be initialised in the constructor, see issue #290]
   CPPProcess process;
-  PinnedHostBufferRandomNumbers hstRnarray;
+  PinnedHostBufferRndNumMomenta hstRndmom;
   PinnedHostBufferMomenta hstMomenta;
   PinnedHostBufferGs hstGs;
+  PinnedHostBufferRndNumHelicity hstRndHel;
+  PinnedHostBufferRndNumColor hstRndCol;
   PinnedHostBufferWeights hstWeights;
   PinnedHostBufferMatrixElements hstMatrixElements;
+  PinnedHostBufferSelectedHelicity hstSelHel;
+  PinnedHostBufferSelectedColor hstSelCol;
   PinnedHostBufferHelicityMask hstIsGoodHel;
-  DeviceBufferRandomNumbers devRnarray;
+  DeviceBufferRndNumMomenta devRndmom;
   DeviceBufferMomenta devMomenta;
+  DeviceBufferGs devGs;
+  DeviceBufferRndNumHelicity devRndHel;
+  DeviceBufferRndNumColor devRndCol;
   DeviceBufferWeights devWeights;
   DeviceBufferMatrixElements devMatrixElements;
+  DeviceBufferSelectedHelicity devSelHel;
+  DeviceBufferSelectedColor devSelCol;
   DeviceBufferHelicityMask devIsGoodHel;
 
   // Create a process object
@@ -137,16 +154,25 @@ struct CUDATest : public CUDA_CPU_TestBase
   CUDATest( const std::string& refFileName )
     : CUDA_CPU_TestBase( refFileName )
     , process( /*verbose=*/false )
-    , hstRnarray( nevt )
+    , hstRndmom( nevt )
     , hstMomenta( nevt )
     , hstGs( nevt )
+    , hstRndHel( nevt )
+    , hstRndCol( nevt )
     , hstWeights( nevt )
     , hstMatrixElements( nevt )
+    , hstSelHel( nevt )
+    , hstSelCol( nevt )
     , hstIsGoodHel( mgOnGpu::ncomb )
-    , devRnarray( nevt )
+    , devRndmom( nevt )
     , devMomenta( nevt )
+    , devGs( nevt )
+    , devRndHel( nevt )
+    , devRndCol( nevt )
     , devWeights( nevt )
     , devMatrixElements( nevt )
+    , devSelHel( nevt )
+    , devSelCol( nevt )
     , devIsGoodHel( mgOnGpu::ncomb )
   {
     process.initProc( "../../Cards/param_card.dat" );
@@ -156,15 +182,15 @@ struct CUDATest : public CUDA_CPU_TestBase
 
   void prepareRandomNumbers( unsigned int iiter ) override
   {
-    CommonRandomNumberKernel rnk( hstRnarray );
+    CommonRandomNumberKernel rnk( hstRndmom );
     rnk.seedGenerator( 1337 + iiter );
     rnk.generateRnarray();
-    copyDeviceFromHost( devRnarray, hstRnarray );
+    copyDeviceFromHost( devRndmom, hstRndmom );
   }
 
   void prepareMomenta( fptype energy ) override
   {
-    RamboSamplingKernelDevice rsk( energy, devRnarray, devMomenta, devWeights, gpublocks, gputhreads );
+    RamboSamplingKernelDevice rsk( energy, devRndmom, devMomenta, devWeights, gpublocks, gputhreads );
     // --- 2a. Fill in momenta of initial state particles on the device
     rsk.getMomentaInitial();
     // --- 2b. Fill in momenta of final state particles using the RAMBO algorithm on the device
@@ -180,7 +206,8 @@ struct CUDATest : public CUDA_CPU_TestBase
   {
     constexpr fptype fixedG = 1.2177157847767195; // fixed G for aS=0.118 (hardcoded for now in check_sa.cc, fcheck_sa.f, runTest.cc)
     for( unsigned int i = 0; i < nevt; ++i ) hstGs[i] = fixedG;
-    MatrixElementKernelDevice mek( devMomenta, hstGs, devMatrixElements, gpublocks, gputhreads );
+    copyDeviceFromHost( devGs, hstGs ); // BUG FIX #566
+    MatrixElementKernelDevice mek( devMomenta, devGs, devRndHel, devRndCol, devMatrixElements, devSelHel, devSelCol, gpublocks, gputhreads );
     if( iiter == 0 ) mek.computeGoodHelicities();
     constexpr unsigned int channelId = 0; // TEMPORARY? disable multi-channel in runTest.exe #466
     mek.computeMatrixElements( channelId );

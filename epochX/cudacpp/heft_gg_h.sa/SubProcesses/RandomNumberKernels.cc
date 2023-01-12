@@ -26,7 +26,7 @@ namespace mg5amcCpu
 {
   //--------------------------------------------------------------------------
 
-  CommonRandomNumberKernel::CommonRandomNumberKernel( BufferRandomNumbers& rnarray )
+  CommonRandomNumberKernel::CommonRandomNumberKernel( BufferRndNumMomenta& rnarray )
     : RandomNumberKernelBase( rnarray )
     , m_seed( 20211220 )
   {
@@ -45,7 +45,7 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
 #ifndef MGONGPU_HAS_NO_CURAND
-  CurandRandomNumberKernel::CurandRandomNumberKernel( BufferRandomNumbers& rnarray, const bool onDevice )
+  CurandRandomNumberKernel::CurandRandomNumberKernel( BufferRndNumMomenta& rnarray, const bool onDevice )
     : RandomNumberKernelBase( rnarray )
     , m_isOnDevice( onDevice )
   {

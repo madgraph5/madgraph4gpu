@@ -71,8 +71,10 @@ c      double precision xsec,xerr
 c      integer ncols,ncolflow(maxamps),ncolalt(maxamps),ic
 c      common/to_colstats/ncols,ncolflow,ncolalt,ic
 
-      include 'vector.inc'
+      include 'vector.inc' ! needed by coupl.inc (defines VECSIZE_MEMMAX)
       include 'coupl.inc'
+      INTEGER VECSIZE_USED
+      DATA VECSIZE_USED/VECSIZE_MEMMAX/ ! initial value
 
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
       INCLUDE 'fbridge.inc'
@@ -86,6 +88,9 @@ C-----
       call cpu_time(t_before)
       CUMULATED_TIMING = t_before
 
+#ifdef _OPENMP
+      CALL OMPNUMTHREADS_NOT_SET_MEANS_ONE_THREAD()
+#endif
       CALL COUNTERS_INITIALISE()
 
 c#ifdef MG5AMC_MEEXPORTER_CUDACPP
@@ -98,19 +103,19 @@ c#ifdef MG5AMC_MEEXPORTER_CUDACPP
         STOP
       endif
 #endif
-      write(*,*) 'Enter #events in a vector loop (max=',nb_page_max,',)'
-      read(*,*) nb_page_loop
+      write(*,*) 'Enter #events in a vector loop (max=',VECSIZE_MEMMAX,',)'
+      read(*,*) VECSIZE_USED
 c#else
-c      NB_PAGE_LOOP = 32
+c      VECSIZE_USED = 32
 c#endif
-      write(*,'(a16,i6)') ' NB_PAGE_LOOP = ', NB_PAGE_LOOP
-      if( nb_page_loop.gt.nb_page_max .or. nb_page_loop.le.0 ) then
-        write(*,*) 'ERROR! Invalid nb_page_loop = ', nb_page_loop
+      write(*,'(a16,i6)') ' VECSIZE_USED = ', VECSIZE_USED
+      if( VECSIZE_USED.gt.VECSIZE_MEMMAX .or. VECSIZE_USED.le.0 ) then
+        write(*,*) 'ERROR! Invalid VECSIZE_USED = ', VECSIZE_USED
         STOP
       endif
 
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
-      CALL FBRIDGECREATE(FBRIDGE_PBRIDGE, NB_PAGE_LOOP, NEXTERNAL, 4) ! this must be at the beginning as it initialises the CUDA device
+      CALL FBRIDGECREATE(FBRIDGE_PBRIDGE, VECSIZE_USED, NEXTERNAL, 4) ! this must be at the beginning as it initialises the CUDA device
       FBRIDGE_NCBYF1 = 0
       FBRIDGE_CBYF1SUM = 0
       FBRIDGE_CBYF1SUM2 = 0
@@ -221,7 +226,7 @@ c         itmin = itmin + 1
       endif
 
       write(*,*) "about to integrate ", ndim,ncall,itmax,itmin,ninvar,nconfigs
-      call sample_full(ndim,ncall,itmax,itmin,dsig,ninvar,nconfigs)
+      call sample_full(ndim,ncall,itmax,itmin,dsig,ninvar,nconfigs,VECSIZE_USED)
 
 c
 c     Now write out events to permanent file
