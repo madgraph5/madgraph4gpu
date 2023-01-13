@@ -1276,14 +1276,10 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
     # AV - replace the export_cpp.OneProcessExporterCPP method (improve formatting)
     def get_helicity_matrix(self, matrix_element):
         """Return the Helicity matrix definition lines for this matrix element"""
-        ###helicity_line = "static const int helicities[ncomb][nexternal] = {";
-        ###helicity_line = "    constexpr short helicities[ncomb][mgOnGpu::npar] = {\n      "; # AV (this is tHel)
         helicity_line = "    , helicities {\n      "; # NSN SYCL needs access to tHel outside CPPProcess
         helicity_line_list = []
-        for helicities in matrix_element.get_helicity_matrix(allow_reverse=False):
-            ###helicity_line_list.append("{"+",".join(['%d'] * len(helicities)) % tuple(helicities) + "}")
+        for helicities in matrix_element.get_helicity_matrix(allow_reverse=True):
             helicity_line_list.append( "{" + ", ".join(['%d'] * len(helicities)) % tuple(helicities) + "}" ) # AV
-        ###return helicity_line + ",".join(helicity_line_list) + "};"
         return helicity_line + ",\n      ".join(helicity_line_list) + "};" # AV
 
     # AV - overload the export_cpp.OneProcessExporterGPU method (just to add some comments...)
