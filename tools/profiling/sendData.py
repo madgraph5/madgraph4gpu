@@ -27,7 +27,7 @@ parser.add_argument('-f', '--fields', help="Fields in the JSON to be put into th
 #parser.add_argument('-g', '--gpu', help="GPU used when profiling.", default=GPU)
 #parser.add_argument('--GCCVersion', help="GCC version used when profiling.", default=GCCVersion)
 #parser.add_argument('--CUDAVersion', help="CUDA version used when profiling.", default=CUDAVersion)
-#parser.add_argument('-a', '--absLayer', help="Abstraction layer used when profiling.", default=absLayer[0], choices=absLayer)
+parser.add_argument('-a', '--absLayer', help="Abstraction layer used when profiling.", default=absLayers[0])
 parser.add_argument('-b', '--branch', help="Branch the profiler data is in.", default=branch)
 parser.add_argument('-p', '--profiler', help="Enable CI profiling defaults.", action=argparse.BooleanOptionalAction)
 
@@ -105,23 +105,18 @@ if __name__=='__main__':
 
                 GPU = fileNameParts[5]
 
-                for word in absLayers:
-                    if word.lower() in fileName.lower():
-                        absLayer = word
-                        break
-
                 GCCVersion = fileNameParts[6].split('-')[1]
 
                 CUDAVersion = fileNameParts[7].split('-')[1]
 
                 gridsize = data[0]["NumThreadsPerBlock"] * data[0]["NumBlocksPerGrid"]
 
-                DBdata = f'{physicsProcess},CPU={CPU},GPU={GPU},AbstractionLayer={absLayer},GCCVersion={GCCVersion},CUDAVersion={CUDAVersion},NumThreadsPerBlock={data[0]["NumThreadsPerBlock"]},NumBlocksPerGrid={data[0]["NumBlocksPerGrid"]},NumIterations={data[0]["NumIterations"]} Gridsize={gridsize}'
+                DBdata = f'{physicsProcess},CPU={CPU},GPU={GPU},AbstractionLayer={args.absLayer},GCCVersion={GCCVersion},CUDAVersion={CUDAVersion},NumThreadsPerBlock={data[0]["NumThreadsPerBlock"]},NumBlocksPerGrid={data[0]["NumBlocksPerGrid"]},NumIterations={data[0]["NumIterations"]} Gridsize={gridsize}'
 
                 for field in fields:
                     value = float(re.findall(r'[\d.]+',data[0][field])[0])
 
-                    DBdata = DBdata + ',' + absLayer + "_" + field.replace(" ", "_") + '=' + str(value)
+                    DBdata = DBdata + ',' + args.absLayer + "_" + field.replace(" ", "_") + '=' + str(value)
 
                 requestInfo = ["curl", "-i",  '-XPOST', "-i",  URL, "--header",  "Authorization: Token "+Auth[0]+":"+Auth[1], "--data-raw", DBdata]
                 
