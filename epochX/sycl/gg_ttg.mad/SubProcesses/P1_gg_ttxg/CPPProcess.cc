@@ -518,10 +518,11 @@ namespace Proc
       for (size_t ighel = 0; ighel < cNGoodHel[0]; ighel++) {
           const size_t ihel = cGoodHel[ighel];
           #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-              allMEs += calculate_wavefunctions( allmomenta, &allNumerators, &allDenominators, channelId, cHel + ihel*npar, COUPs, cIPD, jamp2_sv );
+              MEs_ighel[ighel] = calculate_wavefunctions( allmomenta, &allNumerators, &allDenominators, channelId, cHel + ihel*npar, COUPs, cIPD, jamp2_sv );
           #else
-              allMEs += calculate_wavefunctions( allmomenta, cHel + ihel*npar, COUPs, cIPD, jamp2_sv );
+              MEs_ighel[ighel] = calculate_wavefunctions( allmomenta, cHel + ihel*npar, COUPs, cIPD, jamp2_sv );
           #endif
+          allMEs += MEs_ighel[ighel];
       }
 
       // Event-by-event random choice of helicity #403
