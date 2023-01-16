@@ -47,7 +47,7 @@ else
     exit
 
 case $GPU_NAME in
-    Tesla V100S PCIe 32GB )
+    "Tesla V100S PCIe 32GB" )
         export SM_LEVEL="sm_70"
 
         # GPU
@@ -55,7 +55,7 @@ case $GPU_NAME in
         # CPU
         #export DEVICE_ID=1
         ;;
-    A100 PCIe 40GB )
+    "A100 PCIe 40GB" )
         export SM_LEVEL="sm_80"
 
         # GPU
