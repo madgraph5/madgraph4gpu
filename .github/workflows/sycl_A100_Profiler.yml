@@ -1,4 +1,4 @@
-name: SYCL Profiler
+name: SYCL A100 Profiler
 
 on:
   push:
@@ -10,7 +10,7 @@ jobs:
   sycl_A100_Profiling:
     name: SYCL A100 Profiling
     env:
-      SYCL_NAME_PREFIX: sycl_AMD-Epyc-7313_a100_gcc-11.3_cuda-11.6.2
+      SYCL_NAME_PREFIX: sycl_AMD-Epyc-7313_a100_gcc-11.3_cuda-11.9
       ENABLE_CI_PROFILER: 1
 
       MADGRAPH4GPU_DB_SECRET: ${{ secrets.MADGRAPH4GPU_DB_SECRET }}

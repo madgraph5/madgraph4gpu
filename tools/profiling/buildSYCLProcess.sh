@@ -45,7 +45,7 @@ export DPCPP_HOME=/afs/cern.ch/work/j/jteig/sycl_workspace
 export USEBUILDDIR=1
 export NTPBMAX=1024
 export CXX=$DPCPP_HOME/llvm/build/bin/clang++
-export CUDA_PATH=/usr/local/cuda-11.6
+export CUDA_PATH=/usr/local/cuda-11.8/
 export SYCLFLAGS="-fsycl -fsycl-targets=nvptx64-nvidia-cuda -Xsycl-target-backend '--cuda-gpu-arch=sm_70' -fgpu-rdc --cuda-path=$CUDA_PATH"
 export WORKSPACE=$prefix/workspace_mg4gpu
 #export NAME_PREFIX="sycl_v100s_cuda_11.6.2_gcc_11.3"
