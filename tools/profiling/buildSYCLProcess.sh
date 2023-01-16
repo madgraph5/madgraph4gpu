@@ -47,8 +47,22 @@ else
     exit
 
 case $GPU_NAME in
-    Tesla V100S PCIe 32GB ) export SM_LEVEL="sm_70" ;;
-    A100 PCIe 40GB ) export SM_LEVEL="sm_80" ;;
+    Tesla V100S PCIe 32GB )
+        export SM_LEVEL="sm_70"
+
+        # GPU
+        export DEVICE_ID=0
+        # CPU
+        #export DEVICE_ID=1
+        ;;
+    A100 PCIe 40GB )
+        export SM_LEVEL="sm_80"
+
+        # GPU
+        export DEVICE_ID=2
+        # CPU
+        #export DEVICE_ID=1
+        ;;
 esac
 
 ##################################################################
