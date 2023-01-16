@@ -1,18 +1,18 @@
-name: SYCL V100S Profiler
+name: SYCL Profiler
 
 on:
   schedule:
     - cron:  '00 00 * * *'
 
 jobs:
-  sycl_v100s_Profiling:
-    name: SYCL V100S Profiling
+  sycl_A100_Profiling:
+    name: SYCL A100 Profiling
     env:
-      SYCL_NAME_PREFIX: sycl_Xeon-Silver-4216_v100s_gcc-11.3_cuda-11.6.2
+      SYCL_NAME_PREFIX: sycl_AMD-Epyc-7313_a100_gcc-11.3_cuda-11.6.2
       ENABLE_CI_PROFILER: 1
 
       MADGRAPH4GPU_DB_SECRET: ${{ secrets.MADGRAPH4GPU_DB_SECRET }}
-    runs-on: [self-hosted, linux, v100s]
+    runs-on: [self-hosted, linux, a100]
     steps:
     - uses: actions/checkout@v2
     - name: Runs SYCL performanceProfiler.py script
