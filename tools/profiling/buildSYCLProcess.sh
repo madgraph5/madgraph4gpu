@@ -35,6 +35,24 @@ fi
 
 ##################################################################
 
+# Assign correct SM level for NVIDIA GPUs
+
+# Check if nvidia-smi command exists
+if command -v nvidia-smi > /dev/null 2>&1; then
+
+    # Get the name of the GPU
+    GPU_NAME=$(lshw -C display | grep -i "product:" | awk -F'[][]' '{print $2}')
+else
+    echo "nvidia-smi non existent on system, Nvidia GPU not present!"
+    exit
+
+case $GPU_NAME in
+    Tesla V100S PCIe 32GB ) export SM_LEVEL="sm_70" ;;
+    A100 PCIe 40GB ) export SM_LEVEL="sm_80" ;;
+esac
+
+##################################################################
+
 # Set variables for later use
 
 # Assumes that this is run from profiling directory in the repo
@@ -46,7 +64,7 @@ export USEBUILDDIR=1
 export NTPBMAX=1024
 export CXX=$DPCPP_HOME/llvm/build/bin/clang++
 export CUDA_PATH=/usr/local/cuda-11.8/
-export SYCLFLAGS="-fsycl -fsycl-targets=nvptx64-nvidia-cuda -Xsycl-target-backend '--cuda-gpu-arch=sm_70' -fgpu-rdc --cuda-path=$CUDA_PATH"
+export SYCLFLAGS="-fsycl -fsycl-targets=nvptx64-nvidia-cuda -Xsycl-target-backend '--cuda-gpu-arch=$SM_LEVEL' -fgpu-rdc --cuda-path=$CUDA_PATH"
 export WORKSPACE=$prefix/workspace_mg4gpu
 #export NAME_PREFIX="sycl_v100s_cuda_11.6.2_gcc_11.3"
 #export NAME_PREFIX="sycl_Xeon-Silver-4216_a100s_cuda-11.6.2_gcc-11.3"
