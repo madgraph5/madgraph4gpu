@@ -1,42 +1,5 @@
 #!/bin/bash
 
-helpFunction()
-{
-    echo ""
-    echo "Usage: $0 -n gg_ttgg -b 1024 -t 128 -i 10"
-    echo -e "\t-n Name of the physics process being built and run"
-    echo -e "\t-b Blocks per grid"
-    echo -e "\t-t Threads per block"
-    echo -e "\t-i Iterations"
-    echo -e "\t-r Branch"
-    echo -e "\t-d Flag for seeing device info"
-    exit 1 # Exit script after printing help
-}
-
-while getopts "n:b:t:i:r:d:" opt
-do
-    case "$opt" in
-        n ) MG_PROC="$OPTARG" ;; #process to target
-        b ) blocksPerGrid="$OPTARG" ;;
-        t ) threadsPerBlock="$OPTARG" ;;
-        i ) iterations="$OPTARG" ;;
-        r ) branch="$OPTARG" ;;
-        d ) deviceInfoFlag="$OPTARG" ;;
-        ? ) helpFunction ;; # Print helpFunction in case parameter is non-existent
-    esac
-done
-
-# Print helpFunction in case parameters are empty
-if [ -z "${MG_PROC}" ] || [ -z "${blocksPerGrid}" ] || [ -z "${threadsPerBlock}" ] || [ -z "${iterations}" ]
-then
-    echo "Some or all of the parameters are empty";
-    helpFunction
-fi
-
-# Begin script in case all parameters are correct
-
-##################################################################
-
 # Assign correct SM level for NVIDIA GPUs
 
 # Check if nvidia-smi command exists
@@ -67,6 +30,43 @@ case $GPU_NAME in
         #export DEVICE_ID=1
         ;;
 esac
+
+##################################################################
+
+helpFunction()
+{
+    echo ""
+    echo "Usage: $0 -n gg_ttgg -b 1024 -t 128 -i 10"
+    echo -e "\t-n Name of the physics process being built and run"
+    echo -e "\t-b Blocks per grid"
+    echo -e "\t-t Threads per block"
+    echo -e "\t-i Iterations"
+    echo -e "\t-r Branch"
+    echo -e "\t-d Flag for setting device id"
+    exit 1 # Exit script after printing help
+}
+
+while getopts "n:b:t:i:r:d:" opt
+do
+    case "$opt" in
+        n ) MG_PROC="$OPTARG" ;; #process to target
+        b ) blocksPerGrid="$OPTARG" ;;
+        t ) threadsPerBlock="$OPTARG" ;;
+        i ) iterations="$OPTARG" ;;
+        r ) branch="$OPTARG" ;;
+        d ) DEVICE_ID="$OPTARG" ;;
+        ? ) helpFunction ;; # Print helpFunction in case parameter is non-existent
+    esac
+done
+
+# Print helpFunction in case parameters are empty
+if [ -z "${MG_PROC}" ] || [ -z "${blocksPerGrid}" ] || [ -z "${threadsPerBlock}" ] || [ -z "${iterations}" ]
+then
+    echo "Some or all of the parameters are empty";
+    helpFunction
+fi
+
+# Begin script in case all parameters and GPU specific settings are set
 
 ##################################################################
 
@@ -135,11 +135,10 @@ mv build.d_inl0*/ $MG_EXE_DIR #2>/dev/null; true
 # Run executable
 cd $WORKSPACE
 
-if [ -z "$deviceInfoFlag" ]
-then
-    # Add MG Libs to linker library path and run the executable
-    LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MG_LIBS $MG_EXE -j --json_file ${REPORT_FOLDER}/test_${MG_PROC}_${SYCL_NAME_PREFIX}_${blocksPerGrid}_${threadsPerBlock}_${iterations}.json --param_card $MG5AMC_CARD_PATH/param_card.dat --device_id $DEVICE_ID $blocksPerGrid $threadsPerBlock $iterations
-else
+if [ $DEVICE_ID -eq 0 ]; then
     # Display the devices
     LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MG_LIBS $MG_EXE --param_card $MG5AMC_CARD_PATH/param_card.dat --device_info 32 32 10
+else
+    # Add MG Libs to linker library path and run the executable
+    LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MG_LIBS $MG_EXE -j --json_file ${REPORT_FOLDER}/test_${MG_PROC}_${SYCL_NAME_PREFIX}_${blocksPerGrid}_${threadsPerBlock}_${iterations}.json --param_card $MG5AMC_CARD_PATH/param_card.dat --device_id $DEVICE_ID $blocksPerGrid $threadsPerBlock $iterations
 fi
