@@ -9,6 +9,7 @@ helpFunction()
     echo -e "\t-t Threads per block"
     echo -e "\t-i Iterations"
     echo -e "\t-r Branch"
+    echo -e "\t-d Flag for seeing device info"
     exit 1 # Exit script after printing help
 }
 
@@ -20,6 +21,7 @@ do
         t ) threadsPerBlock="$OPTARG" ;;
         i ) iterations="$OPTARG" ;;
         r ) branch="$OPTARG" ;;
+        d ) deviceInfoFlag="$OPTARG" ;;
         ? ) helpFunction ;; # Print helpFunction in case parameter is non-existent
     esac
 done
@@ -133,11 +135,11 @@ mv build.d_inl0*/ $MG_EXE_DIR #2>/dev/null; true
 # Run executable
 cd $WORKSPACE
 
-# Display the devices
-#LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MG_LIBS $MG_EXE --param_card $MG5AMC_CARD_PATH/param_card.dat --device_info 32 32 10
-
-# Add MG Libs to linker library path and run the executable
-LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MG_LIBS $MG_EXE -j --json_file ${REPORT_FOLDER}/test_${MG_PROC}_${SYCL_NAME_PREFIX}_${blocksPerGrid}_${threadsPerBlock}_${iterations}.json --param_card $MG5AMC_CARD_PATH/param_card.dat --device_id $DEVICE_ID $blocksPerGrid $threadsPerBlock $iterations
-
-# View output
-#nano $REPORT_FOLDER/test_${SYCL_NAME_PREFIX}_${MG_PROC}_${blocksPerGrid}_${threadsPerBlock}_${iterations}.json-+
+if [ -z "$deviceInfoFlag" ]
+then
+    # Add MG Libs to linker library path and run the executable
+    LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MG_LIBS $MG_EXE -j --json_file ${REPORT_FOLDER}/test_${MG_PROC}_${SYCL_NAME_PREFIX}_${blocksPerGrid}_${threadsPerBlock}_${iterations}.json --param_card $MG5AMC_CARD_PATH/param_card.dat --device_id $DEVICE_ID $blocksPerGrid $threadsPerBlock $iterations
+else
+    # Display the devices
+    LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MG_LIBS $MG_EXE --param_card $MG5AMC_CARD_PATH/param_card.dat --device_info 32 32 10
+fi
