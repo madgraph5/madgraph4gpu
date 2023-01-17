@@ -172,6 +172,8 @@ namespace mg5amcGpu
     device_buffer<int_sv   > m_devSelHel;
     device_buffer<int_sv   > m_devSelCol;
     host_buffer<fptype     > m_hstMEsC;
+    host_buffer<int_sv     > m_hstSelHel;
+    host_buffer<int_sv     > m_hstSelCol;
     device_buffer<bool     > m_devIsGoodHel;
     host_buffer<bool       > m_hstIsGoodHel;
     #ifndef MGONGPU_HARDCODE_PARAM
@@ -222,6 +224,8 @@ namespace mg5amcGpu
     , m_devSelHel( m_nevt/MGONGPU_MARRAY_DIM, m_q )
     , m_devSelCol( m_nevt/MGONGPU_MARRAY_DIM, m_q )
     , m_hstMEsC( m_nevt, m_q )
+    , m_hstSelHel( m_nevt, m_q )
+    , m_hstSelCol( m_nevt, m_q )
     , m_devIsGoodHel( mgOnGpu::ncomb, m_q )
     , m_hstIsGoodHel( mgOnGpu::ncomb, m_q )
     #ifndef MGONGPU_HARDCODE_PARAM
@@ -437,8 +441,8 @@ namespace mg5amcGpu
     });
     m_q.wait();
 
-    m_q.memcpy(selhel, m_devSelHel.data(), m_nevt*sizeof(int));
-    m_q.memcpy(selcol, m_devSelCol.data(), m_nevt*sizeof(int));
+    m_q.memcpy(m_hstSelHel.data(), m_devSelHel.data(), m_nevt*sizeof(int));
+    m_q.memcpy(m_hstSelCol.data(), m_devSelCol.data(), m_nevt*sizeof(int));
     if constexpr(std::is_same_v<FORTRANFPTYPE, fptype>) {
         m_q.memcpy(mes, m_devMEsC.data(), m_nevt*sizeof(fptype)).wait();
     }
@@ -446,6 +450,8 @@ namespace mg5amcGpu
         m_q.memcpy( m_hstMEsC.data(), m_devMEsC.data(), m_nevt*sizeof(fptype)).wait();
         std::copy( m_hstMEsC.data(), m_hstMEsC.data() + m_nevt, mes);
     }
+    std::copy( m_hstSelHel.data(), m_hstSelHel.data() + m_nevt, selhel);
+    std::copy( m_hstSelCol.data(), m_hstSelCol.data() + m_nevt, selcol);
 
   }
 
