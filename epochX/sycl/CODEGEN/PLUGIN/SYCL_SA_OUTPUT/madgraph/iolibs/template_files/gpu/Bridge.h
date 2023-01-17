@@ -172,8 +172,8 @@ namespace mg5amcGpu
     device_buffer<int_sv   > m_devSelHel;
     device_buffer<int_sv   > m_devSelCol;
     host_buffer<fptype     > m_hstMEsC;
-    host_buffer<int_sv     > m_hstSelHel;
-    host_buffer<int_sv     > m_hstSelCol;
+    host_buffer<long       > m_hstSelHel;
+    host_buffer<long       > m_hstSelCol;
     device_buffer<bool     > m_devIsGoodHel;
     host_buffer<bool       > m_hstIsGoodHel;
     #ifndef MGONGPU_HARDCODE_PARAM
@@ -441,8 +441,8 @@ namespace mg5amcGpu
     });
     m_q.wait();
 
-    m_q.memcpy(m_hstSelHel.data(), m_devSelHel.data(), m_nevt*sizeof(int));
-    m_q.memcpy(m_hstSelCol.data(), m_devSelCol.data(), m_nevt*sizeof(int));
+    m_q.memcpy(m_hstSelHel.data(), m_devSelHel.data(), m_nevt*sizeof(long));
+    m_q.memcpy(m_hstSelCol.data(), m_devSelCol.data(), m_nevt*sizeof(long));
     if constexpr(std::is_same_v<FORTRANFPTYPE, fptype>) {
         m_q.memcpy(mes, m_devMEsC.data(), m_nevt*sizeof(fptype)).wait();
     }

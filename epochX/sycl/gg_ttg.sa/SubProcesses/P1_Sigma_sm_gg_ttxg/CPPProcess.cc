@@ -348,6 +348,18 @@ namespace Proc
           // Rewrite the quadratic form (A-iB)(M)(A+iB) as AMA - iBMA + iBMA + BMB = AMA + BMB!
           deltaMEs += (CXREAL(ztemp_sv)*CXREAL(jamp_sv[icol]) + CXIMAG(ztemp_sv)*CXIMAG(jamp_sv[icol]))/denom[icol];
       }
+      //FIXME test if faster
+      //for (size_t icol = 0; icol < ncolor; icol++) {
+      //    fptype_sv ztempR_sv = FPZERO_SV;
+      //    fptype_sv ztempI_sv = FPZERO_SV;
+      //    for (size_t jcol = 0; jcol < ncolor; jcol++ ) {
+      //        fptype_sv jampRj_sv = CXREAL(jamp_sv[jcol]);
+      //        fptype_sv jampIj_sv = CXIMAG(jamp_sv[jcol]);
+      //        ztempR_sv += cf[icol][jcol]*jampRj_sv;
+      //        ztempI_sv += cf[icol][jcol]*jampIj_sv;
+      //    }
+      //    deltaMEs += ( ztempR_sv*CXREAL(jamp_sv[icol]) + ztempI_sv*CXIMAG(jamp_sv[icol]))/denom[icol];
+      //}
 
       // *** STORE THE RESULTS ***
 
@@ -507,8 +519,12 @@ namespace Proc
       // (using precomputed good helicities)
       // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
       
-      fptype_sv jamp2_sv[ncolor] = { 0 }; // Running sum of partial amplitudes squared for event by event color selection (#402)
-      fptype_sv MEs_ighel[ncomb] = { 0 }; // sum of MEs for all good helicities up to ighel (for this event)
+      fptype_sv jamp2_sv[ncolor]; // Running sum of partial amplitudes squared for event by event color selection (#402)
+      for (size_t icolC = 0; icolC < ncolor; icolC++) {
+          jamp2_sv[icolC] = FPZERO_SV;
+      }
+
+      fptype_sv MEs_ighel[ncomb]; // sum of MEs for all good helicities up to ighel (for this event)
       for (size_t ighel = 0; ighel < cNGoodHel[0]; ighel++) {
           const size_t ihel = cGoodHel[ighel];
           #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
@@ -520,12 +536,12 @@ namespace Proc
       }
 
       // Event-by-event random choice of helicity #403
-      bool_sv selhel_unset = bool_sv(true);
+      bool_sv selhel_unset = bool_sv(-1);
       for (size_t ighel = 0; ighel < cNGoodHel[0]; ighel++) {
           if (FPANY_SV(selhel_unset)) {
-              bool_sv selhel_flip = selhel_unset && (rndhel[0] < (MEs_ighel[ighel]/MEs_ighel[cNGoodHel[0] - 1]));
+              bool_sv selhel_flip = selhel_unset & (rndhel[0] < (MEs_ighel[ighel]/MEs_ighel[cNGoodHel[0] - 1]));
               selhel[0] = FPCONDITIONAL_SV(selhel[0], int_sv(cGoodHel[ighel] + 1), selhel_flip);
-              selhel_unset = selhel_unset && !(selhel_flip);
+              selhel_unset = selhel_unset & !(selhel_flip);
           }
           else {
               break;
@@ -548,12 +564,12 @@ namespace Proc
               if (l_icolamp[ncolor*channelIdC + icolC]) { targetamp[icolC] += jamp2_sv[icolC]; }
           }
 
-          bool_sv selcol_unset = bool_sv(true);
+          bool_sv selcol_unset = bool_sv(-1);
           for (size_t icolC = 0; icolC < ncolor; icolC++) {
               if (FPANY_SV(selcol_unset)) {
-                  bool_sv selcol_flip = selcol_unset && (rndcol[0] < (targetamp[icolC]/targetamp[ncolor - 1]));
+                  bool_sv selcol_flip = selcol_unset & (rndcol[0] < (targetamp[icolC]/targetamp[ncolor - 1]));
                   selcol[0] = FPCONDITIONAL_SV(selcol[0], int_sv(icolC + 1), selcol_flip);
-                  selcol_unset = selcol_unset && !(selcol_flip);
+                  selcol_unset = selcol_unset & !(selcol_flip);
               }
               else {
                   break;

@@ -26,6 +26,18 @@
           // Rewrite the quadratic form (A-iB)(M)(A+iB) as AMA - iBMA + iBMA + BMB = AMA + BMB!
           deltaMEs += (CXREAL(ztemp_sv)*CXREAL(jamp_sv[icol]) + CXIMAG(ztemp_sv)*CXIMAG(jamp_sv[icol]))/denom[icol];
       }
+      //FIXME test if faster
+      //for (size_t icol = 0; icol < ncolor; icol++) {
+      //    fptype_sv ztempR_sv = FPZERO_SV;
+      //    fptype_sv ztempI_sv = FPZERO_SV;
+      //    for (size_t jcol = 0; jcol < ncolor; jcol++ ) {
+      //        fptype_sv jampRj_sv = CXREAL(jamp_sv[jcol]);
+      //        fptype_sv jampIj_sv = CXIMAG(jamp_sv[jcol]);
+      //        ztempR_sv += cf[icol][jcol]*jampRj_sv;
+      //        ztempI_sv += cf[icol][jcol]*jampIj_sv;
+      //    }
+      //    deltaMEs += ( ztempR_sv*CXREAL(jamp_sv[icol]) + ztempI_sv*CXIMAG(jamp_sv[icol]))/denom[icol];
+      //}
 
       // *** STORE THE RESULTS ***
 
