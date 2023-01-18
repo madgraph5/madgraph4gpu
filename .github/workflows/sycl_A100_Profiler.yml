@@ -1,8 +1,10 @@
 name: SYCL A100 Profiler
 
 on:
-  schedule:
-    - cron:  '00 00 * * *'
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
 
 jobs:
   sycl_A100_Profiling:
