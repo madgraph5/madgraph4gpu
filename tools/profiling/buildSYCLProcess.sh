@@ -26,6 +26,8 @@ case $GPU_NAME in
 
         # GPU
         export DEVICE_ID=2
+        echo $SM_LEVEL
+        echo $DEVICE_ID
         # CPU
         #export DEVICE_ID=1
         ;;
@@ -69,6 +71,8 @@ fi
 # Begin script in case all parameters and GPU specific settings are set
 
 ##################################################################
+
+echo $DEVICE_ID
 
 # Set variables for later use
 
@@ -135,10 +139,10 @@ mv build.d_inl0*/ $MG_EXE_DIR #2>/dev/null; true
 # Run executable
 cd $WORKSPACE
 
-if [ $DEVICE_ID == "info" ]; then
+#if [ $DEVICE_ID == "info" ]; then
     # Display the devices
-    LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MG_LIBS $MG_EXE --param_card $MG5AMC_CARD_PATH/param_card.dat --device_info 32 32 10
-else
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MG_LIBS $MG_EXE --param_card $MG5AMC_CARD_PATH/param_card.dat --device_info 32 32 10
+#else
     # Add MG Libs to linker library path and run the executable
-    LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MG_LIBS $MG_EXE -j --json_file ${REPORT_FOLDER}/test_${MG_PROC}_${SYCL_NAME_PREFIX}_${blocksPerGrid}_${threadsPerBlock}_${iterations}.json --param_card $MG5AMC_CARD_PATH/param_card.dat --device_id $DEVICE_ID $blocksPerGrid $threadsPerBlock $iterations
-fi
+#    LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MG_LIBS $MG_EXE -j --json_file ${REPORT_FOLDER}/test_${MG_PROC}_${SYCL_NAME_PREFIX}_${blocksPerGrid}_${threadsPerBlock}_${iterations}.json --param_card $MG5AMC_CARD_PATH/param_card.dat --device_id $DEVICE_ID $blocksPerGrid $threadsPerBlock $iterations
+#fi
