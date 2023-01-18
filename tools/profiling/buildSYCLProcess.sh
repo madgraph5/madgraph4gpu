@@ -141,6 +141,8 @@ cd $WORKSPACE
 
 if [ $DEVICE_ID == "info" ]; then
     # Display the devices
+    echo "sleeping"
+    sleep 5
     LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MG_LIBS $MG_EXE --param_card $MG5AMC_CARD_PATH/param_card.dat --device_info 32 32 10
 
 else
