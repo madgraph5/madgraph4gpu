@@ -6,9 +6,9 @@
 if command -v nvidia-smi > /dev/null 2>&1; then
 
     # Get the name of the GPU
-    GPU_NAME=$(lshw -C display | grep -i "product:" | awk -F'[][]' '{print $2}')
+    GPU_NAME=$(nvidia-smi --query-gpu=name --format=csv,noheader)
 else
-    echo "nvidia-smi non existent on system, Nvidia GPU not present!"
+    echo "nvidia-smi non existent on system, Nvidia GPU possibly not present!"
     exit
 fi
 
