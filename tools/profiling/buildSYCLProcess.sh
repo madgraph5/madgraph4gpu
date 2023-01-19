@@ -7,30 +7,19 @@ if command -v nvidia-smi > /dev/null 2>&1; then
 
     # Get the name of the GPU
     GPU_NAME=$(nvidia-smi --query-gpu=name --format=csv,noheader)
+
+    # GPU
+    export DEVICE_ID=0
+    # CPU
+    #export DEVICE_ID=1
 else
     echo "nvidia-smi non existent on system, Nvidia GPU possibly not present!"
     exit
 fi
 
 case $GPU_NAME in
-    *V100S* )
-        export SM_LEVEL="sm_70"
-
-        # GPU
-        export DEVICE_ID=0
-        # CPU
-        #export DEVICE_ID=1
-        ;;
-    *A100* )
-        export SM_LEVEL="sm_80"
-
-        # GPU
-        export DEVICE_ID=2
-        echo $SM_LEVEL
-        echo $DEVICE_ID
-        # CPU
-        #export DEVICE_ID=1
-        ;;
+    *V100S* ) export SM_LEVEL="sm_70" ;;
+    *A100* ) export SM_LEVEL="sm_80" ;;
 esac
 
 ##################################################################
@@ -83,21 +72,14 @@ prefix=$(pwd)
 export DPCPP_HOME=/afs/cern.ch/work/j/jteig/sycl_workspace
 export USEBUILDDIR=1
 export NTPBMAX=1024
+#CXX=/cvmfs/projects.cern.ch/intelsw/oneAPI/linux/x86_64/2023/compiler/2023.0.0/linux/bin-llvm/clang++
 export CXX=$DPCPP_HOME/llvm/build/bin/clang++
 export CUDA_PATH=/usr/local/cuda-11.8/
 export SYCLFLAGS="-fsycl -fsycl-targets=nvptx64-nvidia-cuda -Xsycl-target-backend '--cuda-gpu-arch=$SM_LEVEL' -fgpu-rdc --cuda-path=$CUDA_PATH"
 export WORKSPACE=$prefix/workspace_mg4gpu
-#export NAME_PREFIX="sycl_v100s_cuda_11.6.2_gcc_11.3"
-#export NAME_PREFIX="sycl_Xeon-Silver-4216_a100s_cuda-11.6.2_gcc-11.3"
 
 # Branch should be enviroment variable in main script and then passed down if none then it is not displayed in prefix
 REPORT_FOLDER="${WORKSPACE}/$(date +"%y-%m-%d")_${SYCL_NAME_PREFIX}_${branch}"
-
-# If unknown set at the run step after running LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MG_LIBS $MG_EXE --param_card $MG5AMC_CARD_PATH/param_card.dat --device_info 1024 128 10
-# GPU
-#export DEVICE_ID=0
-# CPU
-#export DEVICE_ID=1
 
 # Finds correct subprocess
 case $MG_PROC in
@@ -141,8 +123,6 @@ cd $WORKSPACE
 
 if [ $DEVICE_ID == "info" ]; then
     # Display the devices
-    echo "sleeping"
-    sleep 5
     LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MG_LIBS $MG_EXE --param_card $MG5AMC_CARD_PATH/param_card.dat --device_info 32 32 10
 
 else
