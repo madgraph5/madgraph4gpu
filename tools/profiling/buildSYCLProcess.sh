@@ -61,8 +61,6 @@ fi
 
 ##################################################################
 
-echo $DEVICE_ID
-
 # Set variables for later use
 
 # Assumes that this is run from profiling directory in the repo
