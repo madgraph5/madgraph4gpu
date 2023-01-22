@@ -29,7 +29,9 @@ parser.add_argument('-f', '--fields', help="Fields in the JSON to be put into th
 #parser.add_argument('--CUDAVersion', help="CUDA version used when profiling.", default=CUDAVersion)
 parser.add_argument('-a', '--absLayer', help="Abstraction layer used when profiling.", default=absLayers[0])
 parser.add_argument('-b', '--branch', help="Branch the profiler data is in.", default=branch)
-parser.add_argument('-p', '--profiler', help="Enable CI profiling defaults.", action=argparse.BooleanOptionalAction)
+
+# Fix this
+parser.add_argument('-p', '--profiler', help="Enable CI profiling defaults.", default='0')
 
 args = parser.parse_args()
 
@@ -38,7 +40,8 @@ args = parser.parse_args()
 #
 if __name__=='__main__':
 
-    if args.profiler == True:
+    # Fix this
+    if args.profiler == '1':
 
         if args.absLayer.upper() == "SYCL":
 

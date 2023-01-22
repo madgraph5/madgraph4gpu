@@ -18,4 +18,4 @@ jobs:
     - name: Runs SYCL performanceProfiler.py script
       run: cd tools/profiling/; source /cvmfs/sft.cern.ch/lcg/contrib/gcc/11.3.0/x86_64-centos8/setup.sh; python3 performanceProfiler.py -l 'SYCL' -b 'master'
     - name: Uploads SYCL JSON files to DB
-      run: cd tools/profiling/; python3 sendData.py --absLayer SYCL --profiler --branch master
+      run: cd tools/profiling/; python3 sendData.py --absLayer SYCL --profiler 1 --branch master
