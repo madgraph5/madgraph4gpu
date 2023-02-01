@@ -66,14 +66,14 @@ fi
 # Assumes that this is run from profiling directory in the repo
 prefix=$(pwd)
 
-#export DPCPP_HOME=/p/project/prpb109/sycl_workspace
-export DPCPP_HOME=/afs/cern.ch/work/j/jteig/sycl_workspace
+#export DPCPP_HOME=/afs/cern.ch/work/j/jteig/sycl_workspace
 export USEBUILDDIR=1
 export NTPBMAX=1024
-#CXX=/cvmfs/projects.cern.ch/intelsw/oneAPI/linux/x86_64/2023/compiler/2023.0.0/linux/bin-llvm/clang++
-export CXX=$DPCPP_HOME/llvm/build/bin/clang++
+export CXX=/cvmfs/projects.cern.ch/intelsw/oneAPI/linux/x86_64/2023/compiler/2023.0.0/linux/bin-llvm/clang++
+#export CXX=$DPCPP_HOME/llvm/build/bin/clang++
 export CUDA_PATH=/usr/local/cuda-11.8/
-export SYCLFLAGS="-fsycl -fsycl-targets=nvptx64-nvidia-cuda -Xsycl-target-backend '--cuda-gpu-arch=$SM_LEVEL' -fgpu-rdc --cuda-path=$CUDA_PATH"
+#export SYCLFLAGS="-fsycl -fsycl-targets=nvptx64-nvidia-cuda -Xsycl-target-backend '--cuda-gpu-arch=$SM_LEVEL' -fgpu-rdc --cuda-path=$CUDA_PATH"
+export SYCLFLAGS="-fsycl -Xsycl-target-backend=nvptx64-nvidia-cuda --cuda-gpu-arch=$SM_LEVEL"
 export WORKSPACE=$prefix/workspace_mg4gpu
 
 # Branch should be enviroment variable in main script and then passed down if none then it is not displayed in prefix
@@ -104,7 +104,8 @@ export MG_PROC_DIR=$prefix/../../epochX/sycl/$MG_PROC
 export MG_SP_DIR=$MG_PROC_DIR/SubProcesses/$MG_SUBPROC
 
 export MG_LIBS_DIR="${MG4GPU_LIB}/build_${MG_PROC}_${SYCL_NAME_PREFIX}"
-export MG_LIBS="$DPCPP_HOME/llvm/build/lib:$MG_LIBS_DIR"
+#export MG_LIBS="$DPCPP_HOME/llvm/build/lib:$MG_LIBS_DIR"
+export MG_LIBS="$MG_LIBS_DIR"
 
 export MG_EXE_DIR="${MG4GPU_BIN}/build_${MG_PROC}_${SYCL_NAME_PREFIX}"
 export MG_EXE="$MG_EXE_DIR/check.exe"
