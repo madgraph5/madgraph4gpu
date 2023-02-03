@@ -160,9 +160,9 @@ endif
 
 # Add source so that the compiler finds the DiscreteSampler module.
 $(MATRIX): %.o: %.f
-	$(FC) $(FFLAGS) $(MATRIX_FLAG) -c $< -I../../Source/ -I../../Source/PDF/gammaUPC $(OMPFLAGS)
+	$(FC) $(FFLAGS) $(MATRIX_FLAG) -c $< -I../../Source/ -I../../Source/PDF/gammaUPC
 %.o: %.f
-	$(FC) $(FFLAGS) -c $< -I../../Source/ -I../../Source/PDF/gammaUPC $(OMPFLAGS)
+	$(FC) $(FFLAGS) -c $< -I../../Source/ -I../../Source/PDF/gammaUPC
 %_cudacpp.o: %.f
 	$(FC) $(FFLAGS) -c -DMG5AMC_MEEXPORTER_CUDACPP $< -I../../Source/ $(OMPFLAGS) -o $@
 
