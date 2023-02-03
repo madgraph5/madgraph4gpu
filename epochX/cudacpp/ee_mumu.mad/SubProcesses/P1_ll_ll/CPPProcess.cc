@@ -908,11 +908,21 @@ namespace mg5amcCpu
     // - shared: as the name says
     // - private: give each thread its own copy, without initialising
     // - firstprivate: give each thread its own copy, and initialise with value from outside
+#define _OMPLIST0 allcouplings, allMEs, allmomenta, allrndcol, allrndhel, allselcol, allselhel, cGoodHel, cNGoodHel, MEs_ighel, npagV2
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-#pragma omp parallel for default( none ) shared( allcouplings, allDenominators, allMEs, allmomenta, allNumerators, allrndcol, allrndhel, allselcol, allselhel, cGoodHel, channelId, cNGoodHel, mgOnGpu::icolamp, MEs_ighel, npagV2 )
+#define _OMPLIST1 , allDenominators, allNumerators, channelId, mgOnGpu::icolamp
 #else
-#pragma omp parallel for default( none ) shared( allcouplings, allMEs, allmomenta, allrndcol, allrndhel, allselcol, allselhel, cGoodHel, cNGoodHel, MEs_ighel, npagV2 )
+#define _OMPLIST1
 #endif
+#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+#define _OMPLIST2 , MEs_ighel2
+#else
+#define _OMPLIST2
+#endif
+#pragma omp parallel for default( none ) shared( _OMPLIST0 _OMPLIST1 _OMPLIST2 )
+#undef _OMPLIST0
+#undef _OMPLIST1
+#undef _OMPLIST2
 #endif // _OPENMP
     for( int ipagV2 = 0; ipagV2 < npagV2; ++ipagV2 )
     {
