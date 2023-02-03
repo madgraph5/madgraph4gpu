@@ -293,18 +293,10 @@ namespace mg5amcCpu
       //const int thrPerEvt = 1; // AV: try new alg with 1 event per thread... this seems slower
       dev_transposeMomentaF2C<<<m_gpublocks * thrPerEvt, m_gputhreads>>>( m_devMomentaF.data(), m_devMomentaC.data(), m_nevt );
     }
-    if constexpr( std::is_same_v<FORTRANFPTYPE, fptype> )
-    {
-      memcpy( m_hstGs.data(), gs, m_nevt * sizeof( FORTRANFPTYPE ) );
-      memcpy( m_hstRndHel.data(), rndhel, m_nevt * sizeof( FORTRANFPTYPE ) );
-      memcpy( m_hstRndCol.data(), rndcol, m_nevt * sizeof( FORTRANFPTYPE ) );
-    }
-    else
-    {
-      std::copy( gs, gs + m_nevt, m_hstGs.data() );
-      std::copy( rndhel, rndhel + m_nevt, m_hstRndHel.data() );
-      std::copy( rndcol, rndcol + m_nevt, m_hstRndCol.data() );
-    }
+    std::copy( gs, gs + m_nevt, m_hstGs.data() );
+    std::copy( rndhel, rndhel + m_nevt, m_hstRndHel.data() );
+    std::copy( rndcol, rndcol + m_nevt, m_hstRndCol.data() );
+
     copyDeviceFromHost( m_devGs, m_hstGs );
     copyDeviceFromHost( m_devRndHel, m_hstRndHel );
     copyDeviceFromHost( m_devRndCol, m_hstRndCol );
@@ -319,18 +311,9 @@ namespace mg5amcCpu
     flagAbnormalMEs( m_hstMEs.data(), m_nevt );
     copyHostFromDevice( m_hstSelHel, m_devSelHel );
     copyHostFromDevice( m_hstSelCol, m_devSelCol );
-    if constexpr( std::is_same_v<FORTRANFPTYPE, fptype> )
-    {
-      memcpy( mes, m_hstMEs.data(), m_hstMEs.bytes() );
-      memcpy( selhel, m_hstSelHel.data(), m_hstSelHel.bytes() );
-      memcpy( selcol, m_hstSelCol.data(), m_hstSelCol.bytes() );
-    }
-    else
-    {
-      std::copy( m_hstMEs.data(), m_hstMEs.data() + m_nevt, mes );
-      std::copy( m_hstSelHel.data(), m_hstSelHel.data() + m_nevt, selhel );
-      std::copy( m_hstSelCol.data(), m_hstSelCol.data() + m_nevt, selcol );
-    }
+    std::copy( m_hstMEs.data(), m_hstMEs.data() + m_nevt, mes );
+    std::copy( m_hstSelHel.data(), m_hstSelHel.data() + m_nevt, selhel );
+    std::copy( m_hstSelCol.data(), m_hstSelCol.data() + m_nevt, selcol );
   }
 #endif
 
@@ -347,18 +330,9 @@ namespace mg5amcCpu
                                             const bool goodHelOnly )
   {
     hst_transposeMomentaF2C( momenta, m_hstMomentaC.data(), m_nevt );
-    if constexpr( std::is_same_v<FORTRANFPTYPE, fptype> )
-    {
-      memcpy( m_hstGs.data(), gs, m_nevt * sizeof( FORTRANFPTYPE ) );
-      memcpy( m_hstRndHel.data(), rndhel, m_nevt * sizeof( FORTRANFPTYPE ) );
-      memcpy( m_hstRndCol.data(), rndcol, m_nevt * sizeof( FORTRANFPTYPE ) );
-    }
-    else
-    {
-      std::copy( gs, gs + m_nevt, m_hstGs.data() );
-      std::copy( rndhel, rndhel + m_nevt, m_hstRndHel.data() );
-      std::copy( rndcol, rndcol + m_nevt, m_hstRndCol.data() );
-    }
+    std::copy( gs, gs + m_nevt, m_hstGs.data() );
+    std::copy( rndhel, rndhel + m_nevt, m_hstRndHel.data() );
+    std::copy( rndcol, rndcol + m_nevt, m_hstRndCol.data() );
     if( m_nGoodHel < 0 )
     {
       m_nGoodHel = m_pmek->computeGoodHelicities();
@@ -367,18 +341,9 @@ namespace mg5amcCpu
     if( goodHelOnly ) return;
     m_pmek->computeMatrixElements( channelId );
     flagAbnormalMEs( m_hstMEs.data(), m_nevt );
-    if constexpr( std::is_same_v<FORTRANFPTYPE, fptype> )
-    {
-      memcpy( mes, m_hstMEs.data(), m_hstMEs.bytes() );
-      memcpy( selhel, m_hstSelHel.data(), m_hstSelHel.bytes() );
-      memcpy( selcol, m_hstSelCol.data(), m_hstSelCol.bytes() );
-    }
-    else
-    {
-      std::copy( m_hstMEs.data(), m_hstMEs.data() + m_nevt, mes );
-      std::copy( m_hstSelHel.data(), m_hstSelHel.data() + m_nevt, selhel );
-      std::copy( m_hstSelCol.data(), m_hstSelCol.data() + m_nevt, selcol );
-    }
+    std::copy( m_hstMEs.data(), m_hstMEs.data() + m_nevt, mes );
+    std::copy( m_hstSelHel.data(), m_hstSelHel.data() + m_nevt, selhel );
+    std::copy( m_hstSelCol.data(), m_hstSelCol.data() + m_nevt, selcol );
   }
 #endif
 
