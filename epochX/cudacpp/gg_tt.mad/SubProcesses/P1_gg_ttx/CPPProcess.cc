@@ -928,6 +928,9 @@ namespace mg5amcCpu
 #define _OMPLIST2
 #endif
 #pragma omp parallel for default( none ) shared( _OMPLIST0 _OMPLIST1 _OMPLIST2 )
+#undef _OMPLIST0
+#undef _OMPLIST1
+#undef _OMPLIST2
 #endif // _OPENMP
     for( int ipagV2 = 0; ipagV2 < npagV2; ++ipagV2 )
     {
