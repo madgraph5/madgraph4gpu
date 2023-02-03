@@ -24,7 +24,7 @@ index a6907622e..3c1e4fdf8 100644
 +      PARAMETER (VECSIZE_MEMMAX=16384) ! NB: 16k events per GPU grid is the minimum required to fill a V100 GPU
 +c     PARAMETER (VECSIZE_MEMMAX=32) ! NB: workaround for out-of-memory on Juwels: 32 is enough for no-CUDA builds (issue #498)
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
-index 6f5e1f832..5331cdf04 100644
+index 6f5e1f832..9d244e949 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 @@ -1,6 +1,19 @@
@@ -167,11 +167,9 @@ index 6f5e1f832..5331cdf04 100644
  
  # Add source so that the compiler finds the DiscreteSampler module.
  $(MATRIX): %.o: %.f
--	$(FC) $(FFLAGS) $(MATRIX_FLAG) -c $< -I../../Source/ -I../../Source/PDF/gammaUPC
-+	$(FC) $(FFLAGS) $(MATRIX_FLAG) -c $< -I../../Source/ -I../../Source/PDF/gammaUPC $(OMPFLAGS)
+ 	$(FC) $(FFLAGS) $(MATRIX_FLAG) -c $< -I../../Source/ -I../../Source/PDF/gammaUPC
  %.o: %.f
--	$(FC) $(FFLAGS) -c $< -I../../Source/ -I../../Source/PDF/gammaUPC
-+	$(FC) $(FFLAGS) -c $< -I../../Source/ -I../../Source/PDF/gammaUPC $(OMPFLAGS)
+ 	$(FC) $(FFLAGS) -c $< -I../../Source/ -I../../Source/PDF/gammaUPC
 +%_cudacpp.o: %.f
 +	$(FC) $(FFLAGS) -c -DMG5AMC_MEEXPORTER_CUDACPP $< -I../../Source/ $(OMPFLAGS) -o $@
  
