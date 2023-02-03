@@ -61,7 +61,7 @@ generate g g > t t~
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.006797313690185547 [0m
+[1;32mDEBUG: model prefixing  takes 0.00682520866394043 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -201,7 +201,7 @@ Generated helas calls for 1 subprocesses (3 diagrams) in 0.007 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
 ALOHA: aloha creates FFV1 routines[0m
-ALOHA: aloha creates 2 routines in  0.176 s
+ALOHA: aloha creates 2 routines in  0.172 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -215,6 +215,6 @@ INFO: /data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_gg_tt/src/. a
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.finalize [1;30m[output.py at line 190][0m [0m
 quit
 
-real	0m0.796s
-user	0m0.680s
-sys	0m0.084s
+real	0m0.789s
+user	0m0.672s
+sys	0m0.083s
