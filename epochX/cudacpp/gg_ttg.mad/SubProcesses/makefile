@@ -58,7 +58,7 @@ CUDACPP_COMMONLIB=mg5amc_common
 CUDACPP_CXXLIB=mg5amc_$(processid_short)_cpp
 CUDACPP_CULIB=mg5amc_$(processid_short)_cuda
 
-LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS)
+LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libgammaUPC.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS)
 
 ifneq ("$(wildcard ../../Source/RUNNING)","")
     LINKLIBS += -lrunning
@@ -153,13 +153,16 @@ $(LIBDIR)libgeneric.$(libext): ../../Cards/run_card.dat
 
 $(LIBDIR)libpdf.$(libext): 
 	cd ../../Source/PDF; make
+
+$(LIBDIR)libgammaUPC.$(libext):
+	cd ../../Source/PDF/gammaUPC; make
 endif
 
 # Add source so that the compiler finds the DiscreteSampler module.
 $(MATRIX): %.o: %.f
-	$(FC) $(FFLAGS) $(MATRIX_FLAG) -c $< -I../../Source/ $(OMPFLAGS)
+	$(FC) $(FFLAGS) $(MATRIX_FLAG) -c $< -I../../Source/ -I../../Source/PDF/gammaUPC
 %.o: %.f
-	$(FC) $(FFLAGS) -c $< -I../../Source/ $(OMPFLAGS) -o $@
+	$(FC) $(FFLAGS) -c $< -I../../Source/ -I../../Source/PDF/gammaUPC
 %_cudacpp.o: %.f
 	$(FC) $(FFLAGS) -c -DMG5AMC_MEEXPORTER_CUDACPP $< -I../../Source/ $(OMPFLAGS) -o $@
 

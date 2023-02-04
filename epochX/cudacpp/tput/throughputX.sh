@@ -9,7 +9,7 @@ topdir=$(cd $scrdir; cd ../../..; pwd)
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-heftggh]> [-nocpp|[-avxall][-nocuda][-noneonly][-sse4only][-avx2only][-512yonly][-512zonly]] [-sa] [-noalpaka] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly|-makeclean|-makecleanonly|-dryrun] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest] [-v] [-dlp <dyld_library_path>]" # removed -omp
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-heftggh]> [-nocpp|[-avxall][-nocuda][-noneonly][-sse4only][-avx2only][-512yonly][-512zonly]] [-sa] [-noalpaka] [-flt|-fltonly|-mix|-mixonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly|-makeclean|-makecleanonly|-dryrun] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest] [-v] [-dlp <dyld_library_path>]" # removed -omp
   exit 1
 }
 
@@ -141,12 +141,20 @@ while [ "$1" != "" ]; do
     alpaka=0
     shift
   elif [ "$1" == "-flt" ]; then
-    if [ "${fptypes}" == "f" ]; then echo "ERROR! Options -flt and -fltonly are incompatible"; usage; fi
+    if [ "${fptypes}" != "d" ] && [ "${fptypes}" != "d f" ]; then echo "ERROR! Options -flt, -fltonly, -mix and -mixonly are incompatible"; usage; fi
     fptypes="d f"
     shift
   elif [ "$1" == "-fltonly" ]; then
-    if [ "${fptypes}" == "d f" ]; then echo "ERROR! Options -flt and -fltonly are incompatible"; usage; fi
+    if [ "${fptypes}" != "d" ] && [ "${fptypes}" != "f" ]; then echo "ERROR! Options -flt, -fltonly, -mix and -mixonly are incompatible"; usage; fi
     fptypes="f"
+    shift
+  elif [ "$1" == "-mix" ]; then
+    if [ "${fptypes}" != "d" ] && [ "${fptypes}" != "d f m" ]; then echo "ERROR! Options -flt, -fltonly, -mix and -mixonly are incompatible"; usage; fi
+    fptypes="d f m"
+    shift
+  elif [ "$1" == "-mixonly" ]; then
+    if [ "${fptypes}" != "d" ] && [ "${fptypes}" != "m" ]; then echo "ERROR! Options -flt, -fltonly, -mix and -mixonly are incompatible"; usage; fi
+    fptypes="m"
     shift
   elif [ "$1" == "-inl" ]; then
     if [ "${helinls}" == "1" ]; then echo "ERROR! Options -inl and -inlonly are incompatible"; usage; fi

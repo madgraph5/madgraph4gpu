@@ -6,7 +6,7 @@ cd $scrdir
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-heftggh]> [-sa] [-noalpaka] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly] [-makeclean] [-makej] [-dlp <dyld_library_path>]"
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-heftggh]> [-sa] [-noalpaka] [-flt|-fltonly|-mix|-mixonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly] [-makeclean] [-makej] [-dlp <dyld_library_path>]"
   exit 1
 }
 
@@ -58,11 +58,17 @@ for arg in $*; do
   elif [ "$arg" == "-noalpaka" ]; then
     alpaka=$arg
   elif [ "$arg" == "-flt" ]; then
-    if [ "${fptypes}" == "f" ]; then echo "ERROR! Options -flt and -fltonly are incompatible"; usage; fi
+    if [ "${fptypes}" != "d" ] && [ "${fptypes}" != "d f" ]; then echo "ERROR! Options -flt, -fltonly, -mix and -mixonly are incompatible"; usage; fi
     fptypes="d f"
   elif [ "$arg" == "-fltonly" ]; then
-    if [ "${fptypes}" == "d f" ]; then echo "ERROR! Options -flt and -fltonly are incompatible"; usage; fi
+    if [ "${fptypes}" != "d" ] && [ "${fptypes}" != "f" ]; then echo "ERROR! Options -flt, -fltonly, -mix and -mixonly are incompatible"; usage; fi
     fptypes="f"
+  elif [ "$arg" == "-mix" ]; then
+    if [ "${fptypes}" != "d" ] && [ "${fptypes}" != "d f m" ]; then echo "ERROR! Options -flt, -fltonly, -mix and -mixonly are incompatible"; usage; fi
+    fptypes="d f m"
+  elif [ "$arg" == "-mixonly" ]; then
+    if [ "${fptypes}" != "d" ] && [ "${fptypes}" != "m" ]; then echo "ERROR! Options -flt, -fltonly, -mix and -mixonly are incompatible"; usage; fi
+    fptypes="m"
   elif [ "$arg" == "-inl" ]; then
     if [ "${helinls}" == "1" ]; then echo "ERROR! Options -inl and -inlonly are incompatible"; usage; fi
     helinls="0 1"
@@ -130,7 +136,7 @@ for step in $steps; do
     for suff in $suffs; do
       sa=; if [ "${suff}" == "sa" ]; then sa=" -sa"; sufflog=manu; else sufflog=${suff}; fi
       for fptype in $fptypes; do
-        flt=; if [ "${fptype}" == "f" ]; then flt=" -fltonly"; fi
+        flt=; if [ "${fptype}" == "f" ]; then flt=" -fltonly"; elif [ "${fptype}" == "m" ]; then flt=" -mixonly"; fi
         for helinl in $helinls; do
           inl=; if [ "${helinl}" == "1" ]; then inl=" -inlonly"; fi
           for hrdcod in $hrdcods; do
