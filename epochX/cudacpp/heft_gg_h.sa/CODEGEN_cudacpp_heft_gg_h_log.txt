@@ -14,7 +14,7 @@ Running MG5 in debug mode
 *                   *        * *        *                  *
 *                 *                       *                *
 *                                                          *
-*         VERSION 3.4.0_lo_vect         2022-05-06         *
+*         VERSION 3.5.0_lo_vect         2023-01-26         *
 [1;31m*                                                          *[1;0m
 [1;31m*          WARNING: UNKNOWN DEVELOPMENT VERSION.           *[1;0m
 [1;31m*            WARNING: DO NOT USE FOR PRODUCTION            *[1;0m
@@ -35,6 +35,10 @@ load MG5 configuration from input/mg5_configuration.txt
 fastjet-config does not seem to correspond to a valid fastjet-config executable (v3+). We will use fjcore instead.
  Please set the 'fastjet'variable to the full (absolute) /PATH/TO/fastjet-config (including fastjet-config).
  MG5_aMC> set fastjet /PATH/TO/fastjet-config
+
+eMELA-config does not seem to correspond to a valid eMELA-config executable.
+ Please set the 'fastjet'variable to the full (absolute) /PATH/TO/eMELA-config (including eMELA-config).
+ MG5_aMC> set eMELA /PATH/TO/eMELA-config
 
 lhapdf-config does not seem to correspond to a valid lhapdf-config executable. 
 Please set the 'lhapdf' variable to the (absolute) /PATH/TO/lhapdf-config (including lhapdf-config).
@@ -179,6 +183,6 @@ INFO: /data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_heft_gg_h/src
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.finalize [1;30m[output.py at line 190][0m [0m
 quit
 
-real	0m0.834s
-user	0m0.528s
-sys	0m0.098s
+real	0m0.793s
+user	0m0.563s
+sys	0m0.093s

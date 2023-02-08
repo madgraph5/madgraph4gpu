@@ -14,7 +14,7 @@ Running MG5 in debug mode
 *                   *        * *        *                  *
 *                 *                       *                *
 *                                                          *
-*         VERSION 3.4.0_lo_vect         2022-05-06         *
+*         VERSION 3.5.0_lo_vect         2023-01-26         *
 [1;31m*                                                          *[1;0m
 [1;31m*          WARNING: UNKNOWN DEVELOPMENT VERSION.           *[1;0m
 [1;31m*            WARNING: DO NOT USE FOR PRODUCTION            *[1;0m
@@ -35,6 +35,10 @@ load MG5 configuration from input/mg5_configuration.txt
 fastjet-config does not seem to correspond to a valid fastjet-config executable (v3+). We will use fjcore instead.
  Please set the 'fastjet'variable to the full (absolute) /PATH/TO/fastjet-config (including fastjet-config).
  MG5_aMC> set fastjet /PATH/TO/fastjet-config
+
+eMELA-config does not seem to correspond to a valid eMELA-config executable.
+ Please set the 'fastjet'variable to the full (absolute) /PATH/TO/eMELA-config (including eMELA-config).
+ MG5_aMC> set eMELA /PATH/TO/eMELA-config
 
 lhapdf-config does not seem to correspond to a valid lhapdf-config executable. 
 Please set the 'lhapdf' variable to the (absolute) /PATH/TO/lhapdf-config (including lhapdf-config).
@@ -57,7 +61,7 @@ generate g g > t t~ g
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.006867170333862305 [0m
+[1;32mDEBUG: model prefixing  takes 0.0069122314453125 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -150,7 +154,7 @@ INFO: Please specify coupling orders to bypass this step.
 INFO: Trying coupling order WEIGHTED<=3: WEIGTHED IS QCD+2*QED 
 INFO: Trying process: g g > t t~ g WEIGHTED<=3 @1  
 INFO: Process has 16 diagrams 
-1 processes with 16 diagrams generated in 0.027 s
+1 processes with 16 diagrams generated in 0.028 s
 Total: 1 processes with 16 diagrams
 output madevent CODEGEN_mad_gg_ttg --hel_recycling=False --vector_size=16384 --me_exporter=standalone_cudacpp
 Load PLUGIN.CUDACPP_SA_OUTPUT
@@ -169,7 +173,7 @@ INFO: Organizing processes into subprocess groups
 INFO: Generating Helas calls for process: g g > t t~ g WEIGHTED<=3 @1 
 INFO: Processing color information for process: g g > t t~ g @1 
 INFO: Creating files in directory P1_gg_ttxg 
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7fb2d33123d0> [1;30m[export_v4.py at line 6126][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f995fb78c70> [1;30m[export_v4.py at line 6155][0m [0m
 INFO: Creating files in directory . 
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 1199][0m [0m
 [1;32mDEBUG:  self.include_multi_channel is already defined: this is madevent+second_exporter mode [1;30m[model_handling.py at line 1201][0m [0m
@@ -207,14 +211,14 @@ INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./.
 INFO: Generating Feynman diagrams for Process: g g > t t~ g WEIGHTED<=3 @1 
 INFO: Finding symmetric diagrams for subprocess group gg_ttxg 
 Generated helas calls for 1 subprocesses (16 diagrams) in 0.048 s
-Wrote files for 36 helas calls in 0.201 s
+Wrote files for 36 helas calls in 0.205 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 set of routines with options: P0[0m
 ALOHA: aloha creates VVVV3 set of routines with options: P0[0m
 ALOHA: aloha creates VVVV4 set of routines with options: P0[0m
-ALOHA: aloha creates 5 routines in  0.467 s
+ALOHA: aloha creates 5 routines in  0.397 s
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 181][0m [0m
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
@@ -222,7 +226,7 @@ ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 set of routines with options: P0[0m
 ALOHA: aloha creates VVVV3 set of routines with options: P0[0m
 ALOHA: aloha creates VVVV4 set of routines with options: P0[0m
-ALOHA: aloha creates 10 routines in  0.376 s
+ALOHA: aloha creates 10 routines in  0.377 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -251,6 +255,6 @@ Type "launch" to generate events from this process, or see
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m2.963s
-user	0m2.548s
-sys	0m0.312s
+real	0m2.976s
+user	0m2.608s
+sys	0m0.305s
