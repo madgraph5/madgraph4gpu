@@ -239,6 +239,7 @@ C     ARGUMENTS
 C     
       DOUBLE PRECISION ALL_PP(0:3,NEXTERNAL,VECSIZE_MEMMAX)
       DOUBLE PRECISION ALL_WGT(VECSIZE_MEMMAX)
+      DOUBLE PRECISION ALL_JACANDPDF(VECSIZE_MEMMAX)
       DOUBLE PRECISION ALL_XBK(2,VECSIZE_MEMMAX)
       DOUBLE PRECISION ALL_Q2FACT(2,VECSIZE_MEMMAX)
       DOUBLE PRECISION ALL_CM_RAP(VECSIZE_MEMMAX)
@@ -384,8 +385,15 @@ C       Select a flavor combination (need to do here for right sign)
         CALL RANMAR(HEL_RAND(IVEC))
         CALL RANMAR(COL_RAND(IVEC))
       ENDDO
+
+      ! Prepare computation of max weight on GPU
+      ! This requires the jacobian and PDF weights
+      DO IVEC=1,VECSIZE_USED
+        ALL_JACANDPDF(IVEC) = ALL_WGT(IVEC)*ALL_PD(0,IVEC)
+      ENDDO
+
       CALL SMATRIX1_MULTI(P_MULTI, HEL_RAND, COL_RAND, CHANNEL,
-     $  ALL_OUT , SELECTED_HEL, SELECTED_COL, VECSIZE_USED)
+     $  ALL_OUT , SELECTED_HEL, SELECTED_COL, VECSIZE_USED, ALL_JACANDPDF)
 
 
       DO IVEC=1,VECSIZE_USED
@@ -452,7 +460,7 @@ C
 
 
       SUBROUTINE SMATRIX1_MULTI(P_MULTI, HEL_RAND, COL_RAND, CHANNEL,
-     $  OUT, SELECTED_HEL, SELECTED_COL, VECSIZE_USED)
+     $  OUT, SELECTED_HEL, SELECTED_COL, VECSIZE_USED, ALL_WGT)
       USE OMP_LIB
       IMPLICIT NONE
 
@@ -469,6 +477,8 @@ C
       INTEGER SELECTED_HEL(VECSIZE_MEMMAX)
       INTEGER SELECTED_COL(VECSIZE_MEMMAX)
       INTEGER VECSIZE_USED
+      DOUBLE PRECISION ALL_WGT(VECSIZE_MEMMAX)
+
 
       INTEGER IVEC
       INTEGER IEXT
@@ -492,6 +502,11 @@ C
       INTEGER SELECTED_COL2(VECSIZE_MEMMAX)
       DOUBLE PRECISION CBYF1
       INTEGER*4 NGOODHEL, NTOTHEL
+
+C     Pull in twgt to allow for more efficient unweighting
+      double precision twgt, maxwgt,swgt(maxevents)
+      integer                             lun, nw, itmin
+      common/to_unwgt/twgt, maxwgt, swgt, lun, nw, itmin
 
       INTEGER*4 NWARNINGS
       SAVE NWARNINGS
@@ -561,6 +576,12 @@ c         ! This is a workaround for https://github.com/oliviermattelaer/mg5amc_
      &      SELECTED_HEL2, SELECTED_COL2 ) ! 1-N: multi channel enabled
         ENDIF
         call counters_smatrix1multi_stop( 0 ) ! cudacpp=0
+
+        ! Compute the maximum weight of this batch. It needs to be
+        ! rescaled by CONV=389379660d0 to be compatible with the scale
+        ! used in the common block to_unwgt
+        CALL FBRIDGECOMPUTEMAXWEIGHT(FBRIDGE_PBRIDGE, ALL_WGT, twgt)
+        twgt = twgt * 389379660d0
       ENDIF
 
       IF( FBRIDGE_MODE .LT. 0 ) THEN ! (BothQuiet=-1 or BothDebug=-2)
