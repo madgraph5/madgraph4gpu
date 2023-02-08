@@ -232,7 +232,7 @@ c     Data
 c
       data idum/-1/
       data yran/1d0/
-      data fudge/10d0/
+      data fudge/0.5d0/
 C-----
 C  BEGIN CODE
 C-----
