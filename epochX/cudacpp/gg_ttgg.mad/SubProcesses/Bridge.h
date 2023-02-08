@@ -47,6 +47,41 @@ namespace mg5amcCpu
     virtual ~CppObjectInFortran() {}
   };
 
+#ifdef __CUDACC__
+  template<typename T, typename U>
+  __global__ void computeFinalWeightKernel(T const * matrixElmSq, U * weights, const std::size_t n) {
+    for( unsigned int i = threadIdx.x + blockIdx.x * blockDim.x; i < n; i += blockDim.x * gridDim.x) {
+      weights[i] = weights[i] * matrixElmSq[i];
+    }
+  }
+
+  template<typename T>
+  __device__ T max(T a, T b) {
+    return a < b ? b : a;
+  }
+
+  template<typename T>
+  __global__ void computeMaxWeightKernel(T * weights, const std::size_t n) {
+    T maxWeight = 0;
+    __shared__ T sharedMaxWeight[1024];
+
+    for( unsigned int i = threadIdx.x; blockIdx.x == 0 && i < n; i += blockDim.x )
+    {
+      maxWeight = max(maxWeight, weights[i]);
+    }
+    sharedMaxWeight[threadIdx.x] = maxWeight;
+
+    __syncthreads();
+
+    if (threadIdx.x == 0) {
+      for( unsigned int i = 0; i < blockDim.x; ++i) {
+        maxWeight = max( maxWeight, sharedMaxWeight[i] );
+      }
+      weights[0] = maxWeight;
+    }
+  }
+#endif
+
   //--------------------------------------------------------------------------
   /**
    * A templated class for calling the CUDA/C++ matrix element calculations of the event generation workflow.
@@ -122,6 +157,14 @@ namespace mg5amcCpu
                        int* selhel,
                        int* selcol,
                        const bool goodHelOnly = false );
+
+    /**
+     * Compute the maximum event weight on the device.
+     *
+     * @param jacobianWeights Jacobian and PDF weights from madevent
+     */
+    FORTRANFPTYPE computeMaxWeight( const FORTRANFPTYPE* jacobianWeights );
+
 #else
     /**
      * Sequence to be executed for the vectorized CPU matrix element calculation
@@ -168,6 +211,7 @@ namespace mg5amcCpu
     DeviceBufferMatrixElements m_devMEs;
     DeviceBufferSelectedHelicity m_devSelHel;
     DeviceBufferSelectedColor m_devSelCol;
+    std::unique_ptr<mg5amcGpu::DeviceBuffer<FORTRANFPTYPE, 1U>> m_devJacobianWeights = nullptr;
     PinnedHostBufferGs m_hstGs;
     PinnedHostBufferRndNumHelicity m_hstRndHel;
     PinnedHostBufferRndNumColor m_hstRndCol;
@@ -337,6 +381,22 @@ namespace mg5amcCpu
     std::copy( m_hstSelHel.data(), m_hstSelHel.data() + m_nevt, selhel );
     std::copy( m_hstSelCol.data(), m_hstSelCol.data() + m_nevt, selcol );
   }
+
+  template<typename FORTRANFPTYPE>
+  FORTRANFPTYPE Bridge<FORTRANFPTYPE>::computeMaxWeight( const FORTRANFPTYPE* jacobianWeights )
+  {
+    if( !m_devJacobianWeights ) m_devJacobianWeights = std::make_unique<DeviceBuffer<FORTRANFPTYPE, 1U>>( m_nevt );
+    checkCuda( cudaMemcpy(m_devJacobianWeights->data(), jacobianWeights, m_nevt*sizeof(FORTRANFPTYPE), cudaMemcpyDefault) );
+
+    computeFinalWeightKernel<<<m_gpublocks, m_gputhreads>>>( m_devMEs.data(), m_devJacobianWeights->data(), m_nevt );
+    computeMaxWeightKernel<<<m_gpublocks, m_gputhreads>>>( m_devJacobianWeights->data(), m_nevt );
+
+    FORTRANFPTYPE maxWeight = 0.;
+    checkCuda( cudaMemcpy( &maxWeight, m_devJacobianWeights->data(), sizeof( FORTRANFPTYPE ), cudaMemcpyDefault ) );
+
+    return maxWeight;
+  }
+
 #endif
 
 #ifndef MGONGPUCPP_GPUIMPL
