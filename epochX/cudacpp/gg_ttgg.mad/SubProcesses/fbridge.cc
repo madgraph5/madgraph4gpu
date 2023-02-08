@@ -110,6 +110,19 @@ extern "C"
 #endif
   }
 
+  void fbridgecomputemaxweight_( CppObjectInFortran** ppbridge,
+                                  const FORTRANFPTYPE* jacobianWeights,
+                                  double * maxWeight)
+  {
+#ifdef __CUDACC__
+    Bridge<FORTRANFPTYPE>* pbridge = static_cast<Bridge<FORTRANFPTYPE>*>( *ppbridge );
+    *maxWeight = pbridge->computeMaxWeight(jacobianWeights);
+#else
+    std::cerr << __func__ << " only implemented on GPU.\n";
+    *maxWeight = 0.;
+#endif
+  }
+
   /**
    * Execute the matrix-element calculation "sequence" via a Bridge on GPU/CUDA or CUDA/C++, without multi-channel mode.
    * This is a C symbol that should be called from the Fortran code (in auto_dsig1.f).
