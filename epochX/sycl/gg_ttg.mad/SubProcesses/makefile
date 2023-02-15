@@ -35,23 +35,9 @@ else
     MADLOOP_LIB =
 endif
 
-LINKLIBS = $(LINK_MADLOOP_LIB) $(LINK_LOOP_LIBS) -L$(LIBDIR) -ldhelas -ldsample -lmodel -lgeneric -lpdf -lcernlib $(llhapdf) -lbias 
+LINKLIBS = $(LINK_MADLOOP_LIB) $(LINK_LOOP_LIBS) -L../../lib/ -ldhelas -ldsample -lmodel -lgeneric -lpdf -lgammaUPC -lcernlib $(llhapdf) -lbias 
 
-processid_short=$(shell basename $(CURDIR) | awk -F_ '{print $$(NF-1)"_"$$NF}')
-SYCL_MAKEFILE=sycl.mk
-# NB1 Using ":=" below instead of "=" is much faster (it only runs the subprocess once instead of many times)
-# NB2 Do not add a comment inlined "SYCL_BUILDDIR=$(shell ...) # comment" as otherwise a trailing space is included...
-# NB3 The variables relevant to the sycl Makefile must be explicitly passed to $(shell...)
-SYCL_MAKEENV:=$(shell echo '$(.VARIABLES)' | tr " " "\n" | egrep "(USEBUILDDIR|FPTYPE|HELINL|HRDCOD|NTPBMAX)")
-###$(info SYCL_MAKEENV=$(SYCL_MAKEENV))
-###$(info $(foreach v,$(SYCL_MAKEENV),$(v)="$($(v))"))
-SYCL_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(SYCL_MAKEENV),$(v)="$($(v))") -f $(SYCL_MAKEFILE) -pn | awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
-###$(info SYCL_BUILDDIR='$(SYCL_BUILDDIR)')
-SYCL_COMMONLIB=mg5amc_common
-###SYCL_CXXLIB=mg5amc_$(processid_short)_sycl
-SYCL_SYCLLIB=mg5amc_$(processid_short)_sycl
-
-LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS)
+LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libgammaUPC.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS)
 
 ifneq ("$(wildcard ../../Source/RUNNING)","")
     LINKLIBS += -lrunning
@@ -137,15 +123,15 @@ $(LIBDIR)libgeneric.$(libext): ../../Cards/run_card.dat
 
 $(LIBDIR)libpdf.$(libext): 
 	cd ../../Source/PDF; make
-endif
+
+$(LIBDIR)libgammaUPC.$(libext):
+	cd ../../Source/PDF/gammaUPC; make
 
 # Add source so that the compiler finds the DiscreteSampler module.
 $(MATRIX): %.o: %.f
-	$(FC) $(FFLAGS) $(MATRIX_FLAG) -c $< -I../../Source/ -fopenmp
+	$(FC) $(FFLAGS) $(MATRIX_FLAG) -c $< -I../../Source/ -I../../Source/PDF/gammaUPC
 %.o: %.f
-	$(FC) $(FFLAGS) -c $< -I../../Source/ -fopenmp -o $@
-%_sycl.o: %.f
-	$(FC) $(FFLAGS) -c -DMG5AMC_MEEXPORTER_SYCL $< -I../../Source/ -fopenmp -o $@
+	$(FC) $(FFLAGS) -c $< -I../../Source/ -I../../Source/PDF/gammaUPC
 
 # Dependencies
 

@@ -1,6 +1,6 @@
 //==========================================================================
 // This file has been automatically generated for SYCL standalone by
-// MadGraph5_aMC@NLO v. 3.4.0_lo_vect, 2022-05-06
+// MadGraph5_aMC@NLO v. 3.5.0_lo_vect, 2023-01-26
 // By the MadGraph5_aMC@NLO Development Team
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
