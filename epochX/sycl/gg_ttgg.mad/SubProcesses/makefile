@@ -1,8 +1,10 @@
+SHELL := /bin/bash
+
 include ../../Source/make_opts
 FFLAGS+= -w
 
 # Enable the C preprocessor https://gcc.gnu.org/onlinedocs/gfortran/Preprocessing-Options.html
-FFLAGS+= -cpp 
+FFLAGS+= -cpp
 
 # Enable ccache if USECCACHE=1
 ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
@@ -35,7 +37,25 @@ else
     MADLOOP_LIB =
 endif
 
-LINKLIBS = $(LINK_MADLOOP_LIB) $(LINK_LOOP_LIBS) -L../../lib/ -ldhelas -ldsample -lmodel -lgeneric -lpdf -lgammaUPC -lcernlib $(llhapdf) -lbias 
+LINKLIBS = $(LINK_MADLOOP_LIB) $(LINK_LOOP_LIBS) -L$(LIBDIR) -ldhelas -ldsample -lmodel -lgeneric -lpdf -lcernlib $(llhapdf) -lbias
+
+processid_short=$(shell basename $(CURDIR) | awk -F_ '{print $$(NF-1)"_"$$NF}')
+SYCL_MAKEFILE=sycl.mk
+# NB1 Using ":=" below instead of "=" is much faster (it only runs the subprocess once instead of many times)
+# NB2 Use '|&' in SYCL_BUILDDIR to avoid confusing errors about googletest #507
+# NB3 Do not add a comment inlined "SYCL_BUILDDIR=$(shell ...) # comment" as otherwise a trailing space is included...
+# NB4 The variables relevant to the sycl Makefile must be explicitly passed to $(shell...)
+SYCL_MAKEENV:=$(shell echo '$(.VARIABLES)' | tr " " "\n" | egrep "(USEBUILDDIR|FPTYPE|HELINL|HRDCOD|NTPBMAX|CXTYPE|VECLVL)")
+###$(info SYCL_MAKEENV=$(SYCL_MAKEENV))
+###$(info $(foreach v,$(SYCL_MAKEENV),$(v)="$($(v))"))
+SYCL_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(SYCL_MAKEENV),$(v)="$($(v))") -f $(SYCL_MAKEFILE) -pn |& awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
+ifeq ($(SYCL_BUILDDIR),)
+$(error SYCL_BUILDDIR='$(SYCL_BUILDDIR)' should not be empty!)
+else
+$(info SYCL_BUILDDIR='$(SYCL_BUILDDIR)')
+endif
+SYCL_COMMONLIB=mg5amc_common
+SYCL_SYCLLIB=mg5amc_$(processid_short)_sycl
 
 LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libgammaUPC.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS)
 
@@ -72,6 +92,7 @@ all: $(PROG)
 else
 all: $(PROG) $(SYCL_BUILDDIR)/$(PROG)_sycl
 endif
+
 
 $(PROG): $(PROCESS) $(DSIG) auto_dsig.o $(LIBS) $(MATRIX) counters.o
 	$(FC) -o $(PROG) $(PROCESS) $(DSIG) auto_dsig.o $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o
@@ -126,12 +147,15 @@ $(LIBDIR)libpdf.$(libext):
 
 $(LIBDIR)libgammaUPC.$(libext):
 	cd ../../Source/PDF/gammaUPC; make
+endif
 
 # Add source so that the compiler finds the DiscreteSampler module.
 $(MATRIX): %.o: %.f
-	$(FC) $(FFLAGS) $(MATRIX_FLAG) -c $< -I../../Source/ -I../../Source/PDF/gammaUPC
+	$(FC) $(FFLAGS) $(MATRIX_FLAG) -c $< -I../../Source/ -I../../Source/PDF/gammaUPC -fopenmp
 %.o: %.f
-	$(FC) $(FFLAGS) -c $< -I../../Source/ -I../../Source/PDF/gammaUPC
+	$(FC) $(FFLAGS) -c $< -I../../Source/ -I../../Source/PDF/gammaUPC -fopenmp -o $@
+%_sycl.o: %.f
+	$(FC) $(FFLAGS) -c -DMG5AMC_MEEXPORTER_SYCL $< -I../../Source/ -fopenmp -o $@
 
 # Dependencies
 
