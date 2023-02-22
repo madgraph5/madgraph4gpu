@@ -1,5 +1,0 @@
-#!/bin/sh
-export PATH=/cvmfs/sft.cern.ch/lcg/releases/clang/13.0.1-721c8/x86_64-centos7/bin:/cvmfs/sft.cern.ch/lcg/releases/gcc/11.2.0-8a51a/x86_64-centos7/bin:/cvmfs/sft.cern.ch/lcg/releases/binutils/2.37-355ed/x86_64-centos7/bin${PATH:+:$PATH}
-LD_LIBRARY_PATH=$(printenv LD_LIBRARY_PATH | sed 's-[^:]*/\(gcc\|llvm\|clang\|binutils\)/[^:]*:\?--g')
-export LD_LIBRARY_PATH=/cvmfs/sft.cern.ch/lcg/releases/clang/13.0.1-721c8/x86_64-centos7/lib:/cvmfs/sft.cern.ch/lcg/releases/gcc/11.2.0-8a51a/x86_64-centos7/lib64:/cvmfs/sft.cern.ch/lcg/releases/binutils/2.37-355ed/x86_64-centos7/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
-exec /cvmfs/sft.cern.ch/lcg/releases/clang/13.0.1-721c8/x86_64-centos7/bin/clang++ --gcc-toolchain=/cvmfs/sft.cern.ch/lcg/releases/gcc/11.2.0-8a51a/x86_64-centos7 "$@"
