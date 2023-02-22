@@ -34,3 +34,8 @@ elif [ "$short" == "-1" ]; then
 else
   ${scrdir}/teeMadX.sh -eemumu -ggtt -ggttg -ggttgg -ggttggg $flts $makeclean $rmrdat $add10x
 fi
+
+
+# Print out the number of "OK!"s in each log (expect 24)
+echo
+for f in ${scrdir}/logs_*_mad/log_*; do echo $(cat $f | grep OK  | wc -l) $f; done # expect 24

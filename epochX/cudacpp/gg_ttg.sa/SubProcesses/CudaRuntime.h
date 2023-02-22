@@ -9,13 +9,14 @@
 
 //--------------------------------------------------------------------------
 
+// See https://stackoverflow.com/a/14038590
 #ifdef __CUDACC__ /* clang-format off */
 #define checkCuda( code ) { assertCuda( code, __FILE__, __LINE__ ); }
 inline void assertCuda( cudaError_t code, const char* file, int line, bool abort = true )
 {
   if( code != cudaSuccess )
   {
-    printf( "ERROR! GPUassert: %s %s:%d\n", cudaGetErrorString( code ), file, line );
+    printf( "ERROR! assertCuda: '%s' (%d) in %s:%d\n", cudaGetErrorString( code ), code, file, line );
     if( abort ) assert( code == cudaSuccess );
   }
 }

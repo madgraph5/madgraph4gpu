@@ -24,7 +24,7 @@ index a6907622e..3c1e4fdf8 100644
 +      PARAMETER (VECSIZE_MEMMAX=16384) ! NB: 16k events per GPU grid is the minimum required to fill a V100 GPU
 +c     PARAMETER (VECSIZE_MEMMAX=32) ! NB: workaround for out-of-memory on Juwels: 32 is enough for no-CUDA builds (issue #498)
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
-index 6f5e1f832..9d244e949 100644
+index 6f5e1f832..643282c25 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 @@ -1,6 +1,19 @@
@@ -145,7 +145,7 @@ index 6f5e1f832..9d244e949 100644
 +	$(CXX) -std=c++11 -Wall -Wshadow -Wextra -c $< -o $@
 +
 +ompnumthreads.o: ompnumthreads.cc ompnumthreads.h
-+	$(CXX) -std=c++11 -Wall -Wshadow -Wextra $(OMPFLAGS) -c $< -o $@
++	$(CXX) -I. -std=c++11 -Wall -Wshadow -Wextra $(OMPFLAGS) -c $< -o $@
  
  $(PROG)_forhel: $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX_HEL)
 -	$(FC) -o $(PROG)_forhel $(PROCESS) $(MATRIX_HEL) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp
