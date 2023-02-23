@@ -3,7 +3,7 @@ Building in /data/avalassi/GPU2023/madgraph4gpuX/test
 make: Nothing to be done for 'all'.
 
 Building in /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttg.mad/SubProcesses/P1_gg_ttxg
-CUDACPP_BUILDDIR='build.avx2_d_inl0_hrd0'
+CUDACPP_BUILDDIR='build.512y_d_inl0_hrd0'
 
 make USEBUILDDIR=1 AVX=none
 make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttg.mad/SubProcesses/P1_gg_ttxg'
@@ -35,7 +35,7 @@ CUDACPP_BUILDDIR='build.512z_d_inl0_hrd0'
 make[1]: Nothing to be done for 'all'.
 make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttg.mad/SubProcesses/P1_gg_ttxg'
 
-DATE: 2023-02-23_01:51:01
+DATE: 2023-02-22_09:45:17
 
 On itscrd90.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
 =========================================================================
@@ -44,17 +44,17 @@ WARNING! Bridge selected: cannot use RamboDevice, will use RamboHost
 WARNING! RamboHost selected: cannot use CurandDevice, will use CurandHost
 WARNING! Instantiate device Bridge (nevt=16384, gpublocks=64, gputhreads=256, gpublocks*gputhreads=16384)
 WARNING! Set grid in Bridge (nevt=16384, gpublocks=64, gputhreads=256, gpublocks*gputhreads=16384)
-Process                     = SIGMA_SM_GG_TTXG_CUDA [nvcc 12.0.140 (clang 14.0.6, gcc 12.1.0)] [inlineHel=0] [hardcodePARAM=0]
+Process                     = SIGMA_SM_GG_TTXG_CUDA [nvcc 12.0.140 (gcc 11.3.1)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:DBL+THX:CURHST+RMBHST+BRDDEV/none+NAVBRK
 FP precision                = DOUBLE (NaN/abnormal=0, zero=0)
-EvtsPerSec[Rmb+ME]     (23) = ( 2.566251e+06                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 8.188426e+06                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 8.188426e+06                 )  sec^-1
+EvtsPerSec[Rmb+ME]     (23) = ( 2.680723e+06                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 8.293873e+06                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 8.293873e+06                 )  sec^-1
 MeanMatrixElemValue         = ( 1.008920e+02 +- 5.001681e+01 )  GeV^-2
-TOTAL       :     0.534521 sec
-     2,018,576,209      cycles                    #    2.643 GHz                    
-     3,044,094,566      instructions              #    1.51  insn per cycle         
-       0.811238074 seconds time elapsed
+TOTAL       :     0.509493 sec
+     1,953,167,631      cycles                    #    2.649 GHz                    
+     2,994,794,123      instructions              #    1.53  insn per cycle         
+       0.793740279 seconds time elapsed
 ==PROF== Profiling "sigmaKin": launch__registers_per_thread 255
 ==PROF== Profiling "sigmaKin": sm__sass_average_branch_targets_threads_uniform.pct 100%
 .........................................................................
@@ -63,17 +63,17 @@ WARNING! Bridge selected: cannot use RamboDevice, will use RamboHost
 WARNING! RamboHost selected: cannot use CurandDevice, will use CurandHost
 WARNING! Instantiate device Bridge (nevt=524288, gpublocks=2048, gputhreads=256, gpublocks*gputhreads=524288)
 WARNING! Set grid in Bridge (nevt=524288, gpublocks=2048, gputhreads=256, gpublocks*gputhreads=524288)
-Process                     = SIGMA_SM_GG_TTXG_CUDA [nvcc 12.0.140 (clang 14.0.6, gcc 12.1.0)] [inlineHel=0] [hardcodePARAM=0]
+Process                     = SIGMA_SM_GG_TTXG_CUDA [nvcc 12.0.140 (gcc 11.3.1)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:DBL+THX:CURHST+RMBHST+BRDDEV/none+NAVBRK
 FP precision                = DOUBLE (NaN/abnormal=0, zero=0)
-EvtsPerSec[Rmb+ME]     (23) = ( 2.504002e+06                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 9.617270e+06                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 9.617270e+06                 )  sec^-1
+EvtsPerSec[Rmb+ME]     (23) = ( 2.625258e+06                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 9.828396e+06                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 9.828396e+06                 )  sec^-1
 MeanMatrixElemValue         = ( 6.734461e+02 +- 4.775415e+02 )  GeV^-2
-TOTAL       :     0.888447 sec
-     3,073,790,164      cycles                    #    2.646 GHz                    
-     4,908,145,970      instructions              #    1.60  insn per cycle         
-       1.209365314 seconds time elapsed
+TOTAL       :     0.868943 sec
+     2,977,702,641      cycles                    #    2.623 GHz                    
+     4,799,984,995      instructions              #    1.61  insn per cycle         
+       1.192940120 seconds time elapsed
 -------------------------------------------------------------------------
 cmpExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttg.mad/SubProcesses/P1_gg_ttxg/build.none_d_inl0_hrd0/gcheck.exe --common -p 2 64 2
 cmpExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttg.mad/SubProcesses/P1_gg_ttxg/build.none_d_inl0_hrd0/fgcheck.exe 2 64 2
@@ -84,19 +84,20 @@ OK (relative difference <= 2E-4)
 =========================================================================
 runExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttg.mad/SubProcesses/P1_gg_ttxg/build.none_d_inl0_hrd0/check.exe -p 64 256 10 --bridge OMP=
 WARNING! Instantiate host Bridge (nevt=16384)
-Process                     = SIGMA_SM_GG_TTXG_CPP [clang 14.0.6 (gcc 12.1.0)] [inlineHel=0] [hardcodePARAM=0]
+Process                     = SIGMA_SM_GG_TTXG_CPP [gcc 11.3.1] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+BRDHST/none+NAVBRK
 FP precision                = DOUBLE (NaN/abnormal=0, zero=0)
 Internal loops fptype_sv    = SCALAR ('none': ~vector[1], no SIMD)
-EvtsPerSec[Rmb+ME]     (23) = ( 1.973641e+04                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 1.982004e+04                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 1.982004e+04                 )  sec^-1
+OMP threads / `nproc --all` = 1 / 4
+EvtsPerSec[Rmb+ME]     (23) = ( 2.228057e+04                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 2.239167e+04                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 2.239167e+04                 )  sec^-1
 MeanMatrixElemValue         = ( 1.008920e+02 +- 5.001681e+01 )  GeV^-2
-TOTAL       :     8.354577 sec
-    19,106,298,420      cycles                    #    2.285 GHz                    
-    56,122,038,907      instructions              #    2.94  insn per cycle         
-       8.359546609 seconds time elapsed
-=Symbols in CPPProcess.o= (~sse4: 1976) (avx2:    0) (512y:    0) (512z:    0)
+TOTAL       :     7.385909 sec
+    19,788,292,014      cycles                    #    2.678 GHz                    
+    59,027,555,667      instructions              #    2.98  insn per cycle         
+       7.390012140 seconds time elapsed
+=Symbols in CPPProcess.o= (~sse4: 1177) (avx2:    0) (512y:    0) (512z:    0)
 -------------------------------------------------------------------------
 runExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttg.mad/SubProcesses/P1_gg_ttxg/build.none_d_inl0_hrd0/runTest.exe
 [  PASSED  ] 6 tests.
@@ -104,25 +105,26 @@ runExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttg.mad/SubProcess
 cmpExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttg.mad/SubProcesses/P1_gg_ttxg/build.none_d_inl0_hrd0/check.exe --common -p 2 64 2
 cmpExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttg.mad/SubProcesses/P1_gg_ttxg/build.none_d_inl0_hrd0/fcheck.exe 2 64 2
 Avg ME (C++/C++)    = 1.413122e+00
-Avg ME (F77/C++)    = 1.4131213684430313
-Relative difference = 4.4692317345712553e-07
+Avg ME (F77/C++)    = 1.4131213684432433
+Relative difference = 4.46923023397472e-07
 OK (relative difference <= 2E-4)
 -------------------------------------------------------------------------
 runExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttg.mad/SubProcesses/P1_gg_ttxg/build.sse4_d_inl0_hrd0/check.exe -p 64 256 10 --bridge OMP=
 WARNING! Instantiate host Bridge (nevt=16384)
-Process                     = SIGMA_SM_GG_TTXG_CPP [clang 14.0.6 (gcc 12.1.0)] [inlineHel=0] [hardcodePARAM=0]
-Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+BRDHST/sse4+NOVBRK
+Process                     = SIGMA_SM_GG_TTXG_CPP [gcc 11.3.1] [inlineHel=0] [hardcodePARAM=0]
+Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+BRDHST/sse4+CXVBRK
 FP precision                = DOUBLE (NaN/abnormal=0, zero=0)
-Internal loops fptype_sv    = VECTOR[2] ('sse4': SSE4.2, 128bit) [cxtype_ref=NO]
-EvtsPerSec[Rmb+ME]     (23) = ( 3.719294e+04                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 3.750059e+04                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 3.750059e+04                 )  sec^-1
+Internal loops fptype_sv    = VECTOR[2] ('sse4': SSE4.2, 128bit) [cxtype_ref=YES]
+OMP threads / `nproc --all` = 1 / 4
+EvtsPerSec[Rmb+ME]     (23) = ( 4.262236e+04                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 4.303832e+04                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 4.303832e+04                 )  sec^-1
 MeanMatrixElemValue         = ( 1.008920e+02 +- 5.001681e+01 )  GeV^-2
-TOTAL       :     4.457765 sec
-    10,221,479,100      cycles                    #    2.287 GHz                    
-    28,962,665,930      instructions              #    2.83  insn per cycle         
-       4.462643734 seconds time elapsed
-=Symbols in CPPProcess.o= (~sse4: 7034) (avx2:    0) (512y:    0) (512z:    0)
+TOTAL       :     3.876235 sec
+    10,381,774,114      cycles                    #    2.676 GHz                    
+    30,656,133,562      instructions              #    2.95  insn per cycle         
+       3.880353125 seconds time elapsed
+=Symbols in CPPProcess.o= (~sse4: 5148) (avx2:    0) (512y:    0) (512z:    0)
 -------------------------------------------------------------------------
 runExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttg.mad/SubProcesses/P1_gg_ttxg/build.sse4_d_inl0_hrd0/runTest.exe
 [  PASSED  ] 6 tests.
@@ -130,25 +132,26 @@ runExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttg.mad/SubProcess
 cmpExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttg.mad/SubProcesses/P1_gg_ttxg/build.sse4_d_inl0_hrd0/check.exe --common -p 2 64 2
 cmpExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttg.mad/SubProcesses/P1_gg_ttxg/build.sse4_d_inl0_hrd0/fcheck.exe 2 64 2
 Avg ME (C++/C++)    = 1.413122e+00
-Avg ME (F77/C++)    = 1.4131213684429755
-Relative difference = 4.4692321289688786e-07
+Avg ME (F77/C++)    = 1.4131213684432433
+Relative difference = 4.46923023397472e-07
 OK (relative difference <= 2E-4)
 -------------------------------------------------------------------------
 runExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttg.mad/SubProcesses/P1_gg_ttxg/build.avx2_d_inl0_hrd0/check.exe -p 64 256 10 --bridge OMP=
 WARNING! Instantiate host Bridge (nevt=16384)
-Process                     = SIGMA_SM_GG_TTXG_CPP [clang 14.0.6 (gcc 12.1.0)] [inlineHel=0] [hardcodePARAM=0]
-Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+BRDHST/avx2+NOVBRK
+Process                     = SIGMA_SM_GG_TTXG_CPP [gcc 11.3.1] [inlineHel=0] [hardcodePARAM=0]
+Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+BRDHST/avx2+CXVBRK
 FP precision                = DOUBLE (NaN/abnormal=0, zero=0)
-Internal loops fptype_sv    = VECTOR[4] ('avx2': AVX2, 256bit) [cxtype_ref=NO]
-EvtsPerSec[Rmb+ME]     (23) = ( 9.060400e+04                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 9.242204e+04                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 9.242204e+04                 )  sec^-1
+Internal loops fptype_sv    = VECTOR[4] ('avx2': AVX2, 256bit) [cxtype_ref=YES]
+OMP threads / `nproc --all` = 1 / 4
+EvtsPerSec[Rmb+ME]     (23) = ( 8.113413e+04                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 8.264625e+04                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 8.264625e+04                 )  sec^-1
 MeanMatrixElemValue         = ( 1.008920e+02 +- 5.001681e+01 )  GeV^-2
-TOTAL       :     1.948271 sec
-     4,338,779,130      cycles                    #    2.280 GHz                    
-    10,431,679,496      instructions              #    2.40  insn per cycle         
-       1.953032180 seconds time elapsed
-=Symbols in CPPProcess.o= (~sse4:    0) (avx2: 5252) (512y:    0) (512z:    0)
+TOTAL       :     2.054307 sec
+     4,718,686,521      cycles                    #    2.293 GHz                    
+    10,923,325,804      instructions              #    2.31  insn per cycle         
+       2.058820453 seconds time elapsed
+=Symbols in CPPProcess.o= (~sse4:    0) (avx2: 4155) (512y:    0) (512z:    0)
 -------------------------------------------------------------------------
 runExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttg.mad/SubProcesses/P1_gg_ttxg/build.avx2_d_inl0_hrd0/runTest.exe
 [  PASSED  ] 6 tests.
@@ -156,25 +159,26 @@ runExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttg.mad/SubProcess
 cmpExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttg.mad/SubProcesses/P1_gg_ttxg/build.avx2_d_inl0_hrd0/check.exe --common -p 2 64 2
 cmpExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttg.mad/SubProcesses/P1_gg_ttxg/build.avx2_d_inl0_hrd0/fcheck.exe 2 64 2
 Avg ME (C++/C++)    = 1.413122e+00
-Avg ME (F77/C++)    = 1.4131213684417903
-Relative difference = 4.469240516596423e-07
+Avg ME (F77/C++)    = 1.4131213684416466
+Relative difference = 4.469241533230934e-07
 OK (relative difference <= 2E-4)
 -------------------------------------------------------------------------
 runExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttg.mad/SubProcesses/P1_gg_ttxg/build.512y_d_inl0_hrd0/check.exe -p 64 256 10 --bridge OMP=
 WARNING! Instantiate host Bridge (nevt=16384)
-Process                     = SIGMA_SM_GG_TTXG_CPP [clang 14.0.6 (gcc 12.1.0)] [inlineHel=0] [hardcodePARAM=0]
-Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+BRDHST/512y+NOVBRK
+Process                     = SIGMA_SM_GG_TTXG_CPP [gcc 11.3.1] [inlineHel=0] [hardcodePARAM=0]
+Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+BRDHST/512y+CXVBRK
 FP precision                = DOUBLE (NaN/abnormal=0, zero=0)
-Internal loops fptype_sv    = VECTOR[4] ('512y': AVX512, 256bit) [cxtype_ref=NO]
-EvtsPerSec[Rmb+ME]     (23) = ( 9.784292e+04                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 1.000008e+05                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 1.000008e+05                 )  sec^-1
+Internal loops fptype_sv    = VECTOR[4] ('512y': AVX512, 256bit) [cxtype_ref=YES]
+OMP threads / `nproc --all` = 1 / 4
+EvtsPerSec[Rmb+ME]     (23) = ( 9.216294e+04                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 9.406848e+04                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 9.406848e+04                 )  sec^-1
 MeanMatrixElemValue         = ( 1.008920e+02 +- 5.001681e+01 )  GeV^-2
-TOTAL       :     1.728676 sec
-     3,999,802,822      cycles                    #    2.299 GHz                    
-     9,144,050,389      instructions              #    2.29  insn per cycle         
-       1.733466587 seconds time elapsed
-=Symbols in CPPProcess.o= (~sse4:    0) (avx2: 4635) (512y:    6) (512z:    0)
+TOTAL       :     1.810643 sec
+     4,159,698,211      cycles                    #    2.295 GHz                    
+    10,112,715,763      instructions              #    2.43  insn per cycle         
+       1.814790804 seconds time elapsed
+=Symbols in CPPProcess.o= (~sse4:    0) (avx2: 3950) (512y:   32) (512z:    0)
 -------------------------------------------------------------------------
 runExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttg.mad/SubProcesses/P1_gg_ttxg/build.512y_d_inl0_hrd0/runTest.exe
 [  PASSED  ] 6 tests.
@@ -182,25 +186,26 @@ runExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttg.mad/SubProcess
 cmpExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttg.mad/SubProcesses/P1_gg_ttxg/build.512y_d_inl0_hrd0/check.exe --common -p 2 64 2
 cmpExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttg.mad/SubProcesses/P1_gg_ttxg/build.512y_d_inl0_hrd0/fcheck.exe 2 64 2
 Avg ME (C++/C++)    = 1.413122e+00
-Avg ME (F77/C++)    = 1.4131213684417903
-Relative difference = 4.469240516596423e-07
+Avg ME (F77/C++)    = 1.4131213684416466
+Relative difference = 4.469241533230934e-07
 OK (relative difference <= 2E-4)
 -------------------------------------------------------------------------
 runExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttg.mad/SubProcesses/P1_gg_ttxg/build.512z_d_inl0_hrd0/check.exe -p 64 256 10 --bridge OMP=
 WARNING! Instantiate host Bridge (nevt=16384)
-Process                     = SIGMA_SM_GG_TTXG_CPP [clang 14.0.6 (gcc 12.1.0)] [inlineHel=0] [hardcodePARAM=0]
-Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+BRDHST/512z+NOVBRK
+Process                     = SIGMA_SM_GG_TTXG_CPP [gcc 11.3.1] [inlineHel=0] [hardcodePARAM=0]
+Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+BRDHST/512z+CXVBRK
 FP precision                = DOUBLE (NaN/abnormal=0, zero=0)
-Internal loops fptype_sv    = VECTOR[8] ('512z': AVX512, 512bit) [cxtype_ref=NO]
-EvtsPerSec[Rmb+ME]     (23) = ( 7.028328e+04                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 7.138156e+04                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 7.138156e+04                 )  sec^-1
+Internal loops fptype_sv    = VECTOR[8] ('512z': AVX512, 512bit) [cxtype_ref=YES]
+OMP threads / `nproc --all` = 1 / 4
+EvtsPerSec[Rmb+ME]     (23) = ( 6.882770e+04                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 6.994320e+04                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 6.994320e+04                 )  sec^-1
 MeanMatrixElemValue         = ( 1.008920e+02 +- 5.001681e+01 )  GeV^-2
-TOTAL       :     2.385753 sec
-     3,895,987,156      cycles                    #    1.626 GHz                    
-     8,008,920,376      instructions              #    2.06  insn per cycle         
-       2.390391256 seconds time elapsed
-=Symbols in CPPProcess.o= (~sse4:    0) (avx2: 4446) (512y:   10) (512z: 2616)
+TOTAL       :     2.415267 sec
+     3,900,807,427      cycles                    #    1.613 GHz                    
+     5,545,899,160      instructions              #    1.42  insn per cycle         
+       2.419194500 seconds time elapsed
+=Symbols in CPPProcess.o= (~sse4:    0) (avx2: 1116) (512y:   62) (512z: 3429)
 -------------------------------------------------------------------------
 runExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttg.mad/SubProcesses/P1_gg_ttxg/build.512z_d_inl0_hrd0/runTest.exe
 [  PASSED  ] 6 tests.
@@ -208,8 +213,8 @@ runExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttg.mad/SubProcess
 cmpExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttg.mad/SubProcesses/P1_gg_ttxg/build.512z_d_inl0_hrd0/check.exe --common -p 2 64 2
 cmpExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttg.mad/SubProcesses/P1_gg_ttxg/build.512z_d_inl0_hrd0/fcheck.exe 2 64 2
 Avg ME (C++/C++)    = 1.413122e+00
-Avg ME (F77/C++)    = 1.4131213684417903
-Relative difference = 4.469240516596423e-07
+Avg ME (F77/C++)    = 1.4131213684416484
+Relative difference = 4.469241520660492e-07
 OK (relative difference <= 2E-4)
 =========================================================================
 
