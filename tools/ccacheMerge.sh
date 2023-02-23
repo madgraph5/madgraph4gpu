@@ -32,11 +32,16 @@ ccache -d $dst -s | grep 'Cache size'
 
 echo
 echo "=== Merging..."
-cd $src
 # Note1: ? is a glob for single-character directories 0 1 2 3 4 5 6 7 8 9 a b c d e f
 # Note2: cp uses the default settings and overwrites by default
 # Note3: any files already present in the dst directory but not in the source directory are kept
-cp -a --parents ? $dst
+###cd $src; cp -a --parents ? $dst # original implementation do-nothing 80s for 9000 files
+# Note1: -a == -rlptgoD (recursive; keep links/perms/times/group/owner/special), use this
+# Note2: -P == --partial --progress (verbose progress display), use this
+# Note3: -u == --update (skip files that are newer on the receiver), use this
+# Note4: --delete (delete files that only exist on the receiver), do NOT use this
+# Note5: trailing / in src, no trailing slash in dst!
+rsync -aPu $src/ $dst # new faster implementation do-nothing 1s for 9000 files
 ccache -d $dst -c
 
 echo
