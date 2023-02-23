@@ -205,7 +205,7 @@ inline fptype_v
 fpsqrt( const fptype_v& v )
 {
   // See https://stackoverflow.com/questions/18921049/gcc-vector-extensions-sqrt
-  fptype_v out;
+  fptype_v out = {}; // avoid warning 'out' may be used uninitialized: see #594
   for( int i = 0; i < neppV; i++ ) out[i] = fpsqrt( v[i] );
   return out;
 }
@@ -216,7 +216,7 @@ fpsqrt( const fptype_v& v )
 inline fptype_v
 fpvmake( const fptype v[neppV] )
 {
-  fptype_v out;
+  fptype_v out = {}; // see #594
   for ( int i=0; i<neppV; i++ ) out[i] = v[i];
   return out;
 }
@@ -443,7 +443,7 @@ operator/( const cxtype_v& a, const fptype& b )
 inline fptype_v
 fpternary( const bool_v& mask, const fptype_v& a, const fptype_v& b )
 {
-  fptype_v out;
+  fptype_v out = {}; // see #594
   for( int i = 0; i < neppV; i++ ) out[i] = ( mask[i] ? a[i] : b[i] );
   return out;
 }
@@ -451,7 +451,7 @@ fpternary( const bool_v& mask, const fptype_v& a, const fptype_v& b )
 inline fptype_v
 fpternary( const bool_v& mask, const fptype_v& a, const fptype& b )
 {
-  fptype_v out;
+  fptype_v out = {}; // see #594
   for( int i = 0; i < neppV; i++ ) out[i] = ( mask[i] ? a[i] : b );
   return out;
 }
@@ -459,7 +459,7 @@ fpternary( const bool_v& mask, const fptype_v& a, const fptype& b )
 inline fptype_v
 fpternary( const bool_v& mask, const fptype& a, const fptype_v& b )
 {
-  fptype_v out;
+  fptype_v out = {}; // see #594
   for( int i = 0; i < neppV; i++ ) out[i] = ( mask[i] ? a : b[i] );
   return out;
 }
@@ -467,7 +467,7 @@ fpternary( const bool_v& mask, const fptype& a, const fptype_v& b )
 inline fptype_v
 fpternary( const bool_v& mask, const fptype& a, const fptype& b )
 {
-  fptype_v out;
+  fptype_v out = {}; // see #594
   for( int i = 0; i < neppV; i++ ) out[i] = ( mask[i] ? a : b );
   return out;
 }
@@ -481,7 +481,8 @@ cxternary( const bool_v& mask, const cxtype_v& a, const cxtype_v& b )
   for( int i = 0; i < neppV; i++ ) out[i] = cxtype( mask[i] ? a[i] : b[i] );
   return out;
 #else
-  fptype_v outr, outi;
+  fptype_v outr = {}; // see #594
+  fptype_v outi = {}; // see #594
   for( int i = 0; i < neppV; i++ )
   {
     outr[i] = ( mask[i] ? a.real()[i] : b.real()[i] );
@@ -499,7 +500,8 @@ cxternary( const bool_v& mask, const cxtype_v& a, const cxtype& b )
   for( int i = 0; i < neppV; i++ ) out[i] = ( mask[i] ? a[i] : b );
   return out;
 #else
-  fptype_v outr, outi;
+  fptype_v outr = {}; // see #594
+  fptype_v outi = {}; // see #594
   for( int i = 0; i < neppV; i++ )
   {
     outr[i] = ( mask[i] ? a.real()[i] : b.real() );
@@ -517,7 +519,8 @@ cxternary( const bool_v& mask, const cxtype& a, const cxtype_v& b )
   for( int i = 0; i < neppV; i++ ) out[i] = ( mask[i] ? a : b[i] );
   return out;
 #else
-  fptype_v outr, outi;
+  fptype_v outr = {}; // see #594
+  fptype_v outi = {}; // see #594
   for( int i = 0; i < neppV; i++ )
   {
     outr[i] = ( mask[i] ? a.real() : b.real()[i] );
@@ -535,7 +538,8 @@ cxternary( const bool_v& mask, const cxtype& a, const cxtype& b )
   for( int i = 0; i < neppV; i++ ) out[i] = ( mask[i] ? a : b );
   return out;
 #else
-  fptype_v outr, outi;
+  fptype_v outr = {}; // see #594
+  fptype_v outi = {}; // see #594
   for( int i = 0; i < neppV; i++ )
   {
     outr[i] = ( mask[i] ? a.real() : b.real() );
@@ -691,7 +695,7 @@ inline fptype_v
 fpvsplit0( const fptype2_v& v )
 {
   /*
-  fptype_v out;
+  fptype_v out = {}; // see #594
   for( int ieppV = 0; ieppV < neppV; ieppV++ )
   {
     out[ieppV] = v[ieppV];
@@ -714,7 +718,7 @@ inline fptype_v
 fpvsplit1( const fptype2_v& v )
 {
   /*
-  fptype_v out;
+  fptype_v out = {}; // see #594
   for( int ieppV = 0; ieppV < neppV; ieppV++ )
   {
     out[ieppV] = v[ieppV+neppV];
