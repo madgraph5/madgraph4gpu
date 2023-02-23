@@ -436,6 +436,13 @@ $(BUILDDIR)/gCrossSectionKernels.o: CUFLAGS += -Xcompiler -fno-fast-math
 endif
 endif
 
+# Avoid "warning: builtin __has_trivial_... is deprecated; use __is_trivially_... instead" in nvcc with icx2023 (#592)
+ifneq ($(shell $(CXX) --version | egrep '^(Intel)'),)
+ifneq ($(NVCC),)
+CUFLAGS += -Xcompiler -Wno-deprecated-builtins
+endif
+endif
+
 # Avoid clang warning "overriding '-ffp-contract=fast' option with '-ffp-contract=on'" (#516)
 # This patch does remove the warning, but I prefer to keep it disabled for the moment...
 ###ifneq ($(shell $(CXX) --version | egrep '^(clang|Apple clang|Intel)'),)
