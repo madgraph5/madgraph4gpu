@@ -61,43 +61,6 @@ set zerowidth_tchannel F
 set auto_convert_model T; import model heft; generate g g > h
 save options auto_convert_model
 save configuration file to /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/input/mg5_configuration.txt
-[1;60mINFO: download model from http://madgraph.phys.ucl.ac.be/Downloads/models/heft.tgz to the following directory: /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/models [0m
---2023-02-23 11:32:44--  http://madgraph.phys.ucl.ac.be/Downloads/models/heft.tgz
-Resolving madgraph.phys.ucl.ac.be (madgraph.phys.ucl.ac.be)... 130.104.1.243
-Connecting to madgraph.phys.ucl.ac.be (madgraph.phys.ucl.ac.be)|130.104.1.243|:80... connected.
-HTTP request sent, awaiting response... 200 OK
-Length: 13558 (13K) [application/x-gzip]
-Saving to: ‘tmp.tgz’
-
-     0K .......... ...                                        100%  248M=0s
-
-2023-02-23 11:32:45 (248 MB/s) - ‘tmp.tgz’ saved [13558/13558]
-
-heft/
-heft/__init__.py
-heft/coupling_orders.py
-heft/couplings.py
-heft/function_library.py
-heft/HEFT_UFO.log
-heft/lorentz.py
-heft/object_library.py
-heft/parameters.py
-heft/particles.py
-heft/restrict_ckm.dat
-heft/restrict_default.dat
-heft/restrict_no_b_mass.dat
-heft/restrict_no_masses.dat
-heft/restrict_no_tau_mass.dat
-heft/restrict_zeromass_ckm.dat
-heft/vertices.py
-heft/write_param_card.py
-fail to load model but auto_convert_model is on True. Trying to convert the model
-convert model /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/models/heft
-retry the load of the model
-import model heft
-INFO: load particles 
-INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.007078409194946289 [0m
 INFO: Restrict model heft with file models/heft/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: s u w+ at order: QED=1 [0m
@@ -160,9 +123,6 @@ Defined multiparticle l- = e- mu-
 Defined multiparticle vl = ve vm vt
 Defined multiparticle vl~ = ve~ vm~ vt~
 Defined multiparticle all = g u c d s u~ c~ d~ s~ a ve vm vt e- mu- ve~ vm~ vt~ e+ mu+ t b t~ b~ z w+ h h1 w- ta- ta+
-INFO: Change particles name to pass to MG5 convention 
-Kept definitions of multiparticles p / j / l+ / l- / vl / vl~ unchanged
-Defined multiparticle all = g u c d s u~ c~ d~ s~ a ve vm vt e- mu- ve~ vm~ vt~ e+ mu+ t b t~ b~ z w+ h h1 w- ta- ta+
 INFO: Checking for minimal orders which gives processes. 
 INFO: Please specify coupling orders to bypass this step. 
 INFO: Trying process: g g > h HIG<=1 HIW<=1 WEIGHTED<=2 @1  
@@ -224,6 +184,6 @@ INFO: /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_heft_gg_h/src
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.finalize [1;30m[output.py at line 190][0m [0m
 quit
 
-real	0m1.452s
-user	0m0.659s
-sys	0m0.145s
+real	0m0.768s
+user	0m0.594s
+sys	0m0.104s
