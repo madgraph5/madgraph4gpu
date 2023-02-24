@@ -95,4 +95,4 @@ fi
 
 # Print out any errors in the logs
 echo
-egrep -i 'error' ./tput/logs_* -r
+if ! egrep -i 'error' ./tput/logs_* -r; then echo "No errors found in logs"; fi
