@@ -492,7 +492,7 @@ for suff in $suffs; do
 	  ${scrdir}/lheFloat.sh events.lhe0 events.lhe # FIXME #537
 	fi
         \mv events.lhe events.lhe.cpp.$xfac
-        if ! diff events.lhe.cpp.$xfac events.lhe.ref.$xfac; then echo "ERROR! events.lhe.cpp.$xfac and events.lhe.ref.$xfac differ!"; exit 1; else echo -e "\nOK! events.lhe.cpp.$xfac and events.lhe.ref.$xfac are identical"; fi
+        if ! diff events.lhe.cpp.$xfac events.lhe.ref.$xfac &> /dev/null; then echo "ERROR! events.lhe.cpp.$xfac and events.lhe.ref.$xfac differ!"; echo "diff $(pwd)/events.lhe.cpp.$xfac $(pwd)/events.lhe.ref.$xfac | head -20"; diff $(pwd)/events.lhe.cpp.$xfac $(pwd)/events.lhe.ref.$xfac | head -20; exit 1; else echo -e "\nOK! events.lhe.cpp.$xfac and events.lhe.ref.$xfac are identical"; fi
       done
     fi
     runcheck ./check.exe
@@ -536,7 +536,7 @@ for suff in $suffs; do
         ${scrdir}/lheFloat.sh events.lhe0 events.lhe # FIXME #537
       fi
       \mv events.lhe events.lhe.cuda.$xfac
-      if ! diff events.lhe.cuda.$xfac events.lhe.ref.$xfac; then echo "ERROR! events.lhe.cuda.$xfac and events.lhe.ref.$xfac differ!"; exit 1; else echo -e "\nOK! events.lhe.cuda.$xfac and events.lhe.ref.$xfac are identical"; fi
+      if ! diff events.lhe.cuda.$xfac events.lhe.ref.$xfac &> /dev/null; then echo "ERROR! events.lhe.cuda.$xfac and events.lhe.ref.$xfac differ!"; echo "diff $(pwd)/events.lhe.cuda.$xfac $(pwd)/events.lhe.ref.$xfac | head -20"; diff $(pwd)/events.lhe.cuda.$xfac $(pwd)/events.lhe.ref.$xfac | head -20; exit 1; else echo -e "\nOK! events.lhe.cuda.$xfac and events.lhe.ref.$xfac are identical"; fi
     done
   fi
   runcheck ./gcheck.exe
