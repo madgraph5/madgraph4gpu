@@ -172,9 +172,11 @@ endif
 ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
 override OMPFLAGS = -fopenmp
 ###override OMPFLAGS = # disable OpenMP MT on Intel (was ok without nvcc but not ok with nvcc before #578)
-else ifneq ($(shell $(CXX) --version | egrep '^(clang|Apple clang)'),)
+else ifneq ($(shell $(CXX) --version | egrep '^(clang)'),)
 override OMPFLAGS = -fopenmp
 ###override OMPFLAGS = # disable OpenMP MT on clang (was not ok without or with nvcc before #578)
+else ifneq ($(shell $(CXX) --version | egrep '^(Apple clang)'),)
+override OMPFLAGS = # disable OpenMP MT on Apple clang (builds fail in the CI #578)
 else
 override OMPFLAGS = -fopenmp
 ###override OMPFLAGS = # disable OpenMP MT (default before #575)
@@ -615,8 +617,10 @@ endif
 ifneq ($(OMPFLAGS),)
 ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
 $(testmain): LIBFLAGS += -liomp5 # see #578 (not '-qopenmp -static-intel' as in https://stackoverflow.com/questions/45909648)
-else ifneq ($(shell $(CXX) --version | egrep '^(clang|Apple clang)'),)
+else ifneq ($(shell $(CXX) --version | egrep '^(clang)'),)
 $(testmain): LIBFLAGS += -lomp # see #578
+###else ifneq ($(shell $(CXX) --version | egrep '^(Apple clang)'),)
+###$(testmain): LIBFLAGS += ???? # see #578
 else
 $(testmain): LIBFLAGS += -lgomp
 endif

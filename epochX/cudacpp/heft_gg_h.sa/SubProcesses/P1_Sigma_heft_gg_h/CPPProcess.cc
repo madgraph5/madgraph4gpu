@@ -850,13 +850,11 @@ namespace mg5amcCpu
 #else // CUDA OR C++
 
     // *** START OF PART 1b - C++ (loop on event pages)
-    fptype_sv MEs_ighel[ncomb] = { 0 }; // sum of MEs for all good helicities up to ighel (for the first - and/or only - neppV page)
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
     // Mixed fptypes #537: float for color algebra and double elsewhere
     // Delay color algebra and ME updates (only on even pages)
-    assert( npagV % 2 == 0 );            // SANITY CHECK for mixed fptypes: two neppV-pages are merged to one 2*neppV-page
-    const int npagV2 = npagV / 2;        // loop on two SIMD pages (neppV events) at a time
-    fptype_sv MEs_ighel2[ncomb] = { 0 }; // sum of MEs for all good helicities up to ighel (for the second neppV page)
+    assert( npagV % 2 == 0 );     // SANITY CHECK for mixed fptypes: two neppV-pages are merged to one 2*neppV-page
+    const int npagV2 = npagV / 2; // loop on two SIMD pages (neppV events) at a time
 #else
     const int npagV2 = npagV;            // loop on one SIMD page (neppV events) at a time
 #endif
@@ -867,28 +865,24 @@ namespace mg5amcCpu
     // - shared: as the name says
     // - private: give each thread its own copy, without initialising
     // - firstprivate: give each thread its own copy, and initialise with value from outside
-#define _OMPLIST0 allcouplings, allMEs, allmomenta, allrndcol, allrndhel, allselcol, allselhel, cGoodHel, cNGoodHel, MEs_ighel, npagV2
+#define _OMPLIST0 allcouplings, allMEs, allmomenta, allrndcol, allrndhel, allselcol, allselhel, cGoodHel, cNGoodHel, npagV2
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
 #define _OMPLIST1 , allDenominators, allNumerators, channelId, mgOnGpu::icolamp
 #else
 #define _OMPLIST1
 #endif
-#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
-#define _OMPLIST2 , MEs_ighel2
-#else
-#define _OMPLIST2
-#endif
-#pragma omp parallel for default( none ) shared( _OMPLIST0 _OMPLIST1 _OMPLIST2 )
+#pragma omp parallel for default( none ) shared( _OMPLIST0 _OMPLIST1 )
 #undef _OMPLIST0
 #undef _OMPLIST1
-#undef _OMPLIST2
 #endif // _OPENMP
     for( int ipagV2 = 0; ipagV2 < npagV2; ++ipagV2 )
     {
       // Running sum of partial amplitudes squared for event by event color selection (#402)
       // (jamp2[nParity][ncolor][neppV] for the SIMD vector - or the two SIMD vectors - of events processed in calculate_wavefunctions)
       fptype_sv jamp2_sv[nParity * ncolor] = { 0 };
+      fptype_sv MEs_ighel[ncomb] = { 0 };    // sum of MEs for all good helicities up to ighel (for the first - and/or only - neppV page)
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+      fptype_sv MEs_ighel2[ncomb] = { 0 };   // sum of MEs for all good helicities up to ighel (for the second neppV page)
       const int ievt00 = ipagV2 * neppV * 2; // loop on two SIMD pages (neppV events) at a time
 #else
       const int ievt00 = ipagV2 * neppV; // loop on one SIMD page (neppV events) at a time
