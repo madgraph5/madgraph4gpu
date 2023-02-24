@@ -17,6 +17,7 @@ if [ "${host/juwels}" != "${host}" ]; then NLOOP=32; fi # workaround for #498
 function usage()
 {
   echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-d] [-fltonly|-mixonly] [-makeonly|-makeclean|-makecleanonly] [-rmrdat] [+10x] [-checkonly] [-nocleanup]" > /dev/stderr
+  echo "(NB: OMP_NUM_THREADS is taken as-is from the caller's environment)"
   exit 1
 }
 
@@ -316,6 +317,7 @@ function runmadevent()
   $timecmd $cmd < ${tmpin} > ${tmp}
   if [ "$?" != "0" ]; then echo "ERROR! '$timecmd $cmd < ${tmpin} > ${tmp}' failed"; tail -10 $tmp; exit 1; fi
   omp=$(cat ${tmp} | grep --binary-files=text 'omp_get_max_threads() =' | awk '{print $NF}')
+  if [ "${omp}" == "" ]; then omp=1; fi # _OPENMP not defined in the Fortran #579
   nghel=$(cat ${tmp} | grep --binary-files=text 'NGOODHEL =' | awk '{print $NF}')
   ncomb=$(cat ${tmp} | grep --binary-files=text 'NCOMB =' | awk '{print $NF}')
   fbm=$(cat ${tmp} | grep --binary-files=text 'FBRIDGE_MODE =' | awk '{print $NF}')
@@ -323,7 +325,7 @@ function runmadevent()
   mch=$(cat ${tmp} | grep --binary-files=text 'MULTI_CHANNEL =' | awk '{print $NF}')
   conf=$(cat ${tmp} | grep --binary-files=text 'Running Configuration Number:' | awk '{print $NF}')
   chid=$(cat ${tmp} | grep --binary-files=text 'CHANNEL_ID =' | awk '{print $NF}')
-  echo " [OPENMPTH] omp_get_max_threads/nproc = ${omp}/$(nproc)"
+  echo " [OPENMPTH] omp_get_max_threads/nproc = ${omp}/$(nproc --all)"
   echo " [NGOODHEL] ngoodhel/ncomb = ${nghel}/${ncomb}"
   echo " [XSECTION] VECSIZE_USED = ${nbp}"
   echo " [XSECTION] MultiChannel = ${mch}"
@@ -383,6 +385,8 @@ if [ "${maketype}" == "-makeonly" ]; then printf "\nMAKE COMPLETED\n"; exit 0; f
 # PART 2 - run madevent
 ##########################################################################
 
+printf "\nOMP_NUM_THREADS=$OMP_NUM_THREADS\n"
+
 printf "\nDATE: $(date '+%Y-%m-%d_%H:%M:%S')\n\n"
 
 if nvidia-smi -L > /dev/null 2>&1; then gpuTxt="$(nvidia-smi -L | wc -l)x $(nvidia-smi -L | awk '{print $3,$4}' | sort -u)"; else gpuTxt=none; fi
@@ -402,9 +406,6 @@ for suff in $suffs; do
   if [ ! -d $dir ]; then echo "WARNING! Skip missing directory $dir"; continue; fi
   echo "Working directory (run): $dir"
   cd $dir
-
-  # Disable OpenMP multithreading in Fortran
-  ###export OMP_NUM_THREADS=1 # not needed in .mad directories (OpenMP MT disabled in the code)
 
   # Use the time command?
   ###timecmd=time
@@ -492,7 +493,7 @@ for suff in $suffs; do
 	  ${scrdir}/lheFloat.sh events.lhe0 events.lhe # FIXME #537
 	fi
         \mv events.lhe events.lhe.cpp.$xfac
-        if ! diff events.lhe.cpp.$xfac events.lhe.ref.$xfac; then echo "ERROR! events.lhe.cpp.$xfac and events.lhe.ref.$xfac differ!"; exit 1; else echo -e "\nOK! events.lhe.cpp.$xfac and events.lhe.ref.$xfac are identical"; fi
+        if ! diff events.lhe.cpp.$xfac events.lhe.ref.$xfac &> /dev/null; then echo "ERROR! events.lhe.cpp.$xfac and events.lhe.ref.$xfac differ!"; echo "diff $(pwd)/events.lhe.cpp.$xfac $(pwd)/events.lhe.ref.$xfac | head -20"; diff $(pwd)/events.lhe.cpp.$xfac $(pwd)/events.lhe.ref.$xfac | head -20; exit 1; else echo -e "\nOK! events.lhe.cpp.$xfac and events.lhe.ref.$xfac are identical"; fi
       done
     fi
     runcheck ./check.exe
@@ -536,7 +537,7 @@ for suff in $suffs; do
         ${scrdir}/lheFloat.sh events.lhe0 events.lhe # FIXME #537
       fi
       \mv events.lhe events.lhe.cuda.$xfac
-      if ! diff events.lhe.cuda.$xfac events.lhe.ref.$xfac; then echo "ERROR! events.lhe.cuda.$xfac and events.lhe.ref.$xfac differ!"; exit 1; else echo -e "\nOK! events.lhe.cuda.$xfac and events.lhe.ref.$xfac are identical"; fi
+      if ! diff events.lhe.cuda.$xfac events.lhe.ref.$xfac &> /dev/null; then echo "ERROR! events.lhe.cuda.$xfac and events.lhe.ref.$xfac differ!"; echo "diff $(pwd)/events.lhe.cuda.$xfac $(pwd)/events.lhe.ref.$xfac | head -20"; diff $(pwd)/events.lhe.cuda.$xfac $(pwd)/events.lhe.ref.$xfac | head -20; exit 1; else echo -e "\nOK! events.lhe.cuda.$xfac and events.lhe.ref.$xfac are identical"; fi
     done
   fi
   runcheck ./gcheck.exe
