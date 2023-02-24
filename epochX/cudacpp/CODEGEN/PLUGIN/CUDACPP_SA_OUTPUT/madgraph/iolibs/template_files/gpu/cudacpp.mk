@@ -170,9 +170,11 @@ endif
 
 # Set the default OMPFLAGS choice
 ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
-override OMPFLAGS = # disable OpenMP MT on Intel (ok without nvcc, not ok with nvcc)
+override OMPFLAGS = -fopenmp
+###override OMPFLAGS = # disable OpenMP MT on Intel (was ok without nvcc but not ok with nvcc before #578)
 else ifneq ($(shell $(CXX) --version | egrep '^(clang|Apple clang)'),)
-override OMPFLAGS = # disable OpenMP MT on clang (not ok without or with nvcc)
+override OMPFLAGS = -fopenmp
+###override OMPFLAGS = # disable OpenMP MT on clang (was not ok without or with nvcc before #578)
 else
 override OMPFLAGS = -fopenmp
 ###override OMPFLAGS = # disable OpenMP MT (default before #575)
@@ -612,9 +614,9 @@ endif
 
 ifneq ($(OMPFLAGS),)
 ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
-###$(testmain): LIBFLAGS += -qopenmp -static-intel # see https://stackoverflow.com/questions/45909648/explicitly-link-intel-icpc-openmp
+$(testmain): LIBFLAGS += -liomp5 # see #578 (not '-qopenmp -static-intel' as in https://stackoverflow.com/questions/45909648)
 else ifneq ($(shell $(CXX) --version | egrep '^(clang|Apple clang)'),)
-###$(testmain): LIBFLAGS += ??? # OpenMP on clang is not yet supported in cudacpp...
+$(testmain): LIBFLAGS += -lomp # see #578
 else
 $(testmain): LIBFLAGS += -lgomp
 endif
