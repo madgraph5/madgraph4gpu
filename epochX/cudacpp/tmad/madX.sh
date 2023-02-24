@@ -17,6 +17,7 @@ if [ "${host/juwels}" != "${host}" ]; then NLOOP=32; fi # workaround for #498
 function usage()
 {
   echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-d] [-fltonly|-mixonly] [-makeonly|-makeclean|-makecleanonly] [-rmrdat] [+10x] [-checkonly] [-nocleanup]" > /dev/stderr
+  echo "(NB: OMP_NUM_THREADS is taken as-is from the caller's environment)"
   exit 1
 }
 
@@ -323,7 +324,7 @@ function runmadevent()
   mch=$(cat ${tmp} | grep --binary-files=text 'MULTI_CHANNEL =' | awk '{print $NF}')
   conf=$(cat ${tmp} | grep --binary-files=text 'Running Configuration Number:' | awk '{print $NF}')
   chid=$(cat ${tmp} | grep --binary-files=text 'CHANNEL_ID =' | awk '{print $NF}')
-  echo " [OPENMPTH] omp_get_max_threads/nproc = ${omp}/$(nproc)"
+  echo " [OPENMPTH] omp_get_max_threads/nproc = ${omp}/$(nproc --all)"
   echo " [NGOODHEL] ngoodhel/ncomb = ${nghel}/${ncomb}"
   echo " [XSECTION] VECSIZE_USED = ${nbp}"
   echo " [XSECTION] MultiChannel = ${mch}"
@@ -383,6 +384,8 @@ if [ "${maketype}" == "-makeonly" ]; then printf "\nMAKE COMPLETED\n"; exit 0; f
 # PART 2 - run madevent
 ##########################################################################
 
+printf "\nOMP_NUM_THREADS=$OMP_NUM_THREADS\n"
+
 printf "\nDATE: $(date '+%Y-%m-%d_%H:%M:%S')\n\n"
 
 if nvidia-smi -L > /dev/null 2>&1; then gpuTxt="$(nvidia-smi -L | wc -l)x $(nvidia-smi -L | awk '{print $3,$4}' | sort -u)"; else gpuTxt=none; fi
@@ -402,9 +405,6 @@ for suff in $suffs; do
   if [ ! -d $dir ]; then echo "WARNING! Skip missing directory $dir"; continue; fi
   echo "Working directory (run): $dir"
   cd $dir
-
-  # Disable OpenMP multithreading in Fortran
-  ###export OMP_NUM_THREADS=1 # not needed in .mad directories (OpenMP MT disabled in the code)
 
   # Use the time command?
   ###timecmd=time
