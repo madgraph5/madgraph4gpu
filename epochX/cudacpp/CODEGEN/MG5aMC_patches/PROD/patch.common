@@ -24,7 +24,7 @@ index a6907622e..3c1e4fdf8 100644
 +      PARAMETER (VECSIZE_MEMMAX=16384) ! NB: 16k events per GPU grid is the minimum required to fill a V100 GPU
 +c     PARAMETER (VECSIZE_MEMMAX=32) ! NB: workaround for out-of-memory on Juwels: 32 is enough for no-CUDA builds (issue #498)
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
-index 6f5e1f832..643282c25 100644
+index 6f5e1f832..b7c7c67b5 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 @@ -1,6 +1,19 @@
@@ -75,7 +75,7 @@ index 6f5e1f832..643282c25 100644
  
  LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libgammaUPC.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS)
  
-@@ -43,24 +75,76 @@ ifeq ($(strip $(MATRIX_HEL)),)
+@@ -43,24 +75,80 @@ ifeq ($(strip $(MATRIX_HEL)),)
  endif
  
  
@@ -105,7 +105,11 @@ index 6f5e1f832..643282c25 100644
 +
 +ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
 +override OMPFLAGS = -fopenmp
++LINKLIBS += -liomp5 # see #578
 +LINKLIBS += -lintlc # undefined reference to `_intel_fast_memcpy'
++else ifneq ($(shell $(CXX) --version | egrep '^(clang|Apple clang)'),)
++override OMPFLAGS = -fopenmp
++LINKLIBS += -lomp # see #578
 +else
 +override OMPFLAGS = -fopenmp
 +endif
@@ -159,7 +163,7 @@ index 6f5e1f832..643282c25 100644
  $(LIBDIR)libmodel.$(libext): ../../Cards/param_card.dat
  	cd ../../Source/MODEL; make
  
-@@ -72,12 +156,15 @@ $(LIBDIR)libpdf.$(libext):
+@@ -72,12 +160,15 @@ $(LIBDIR)libpdf.$(libext):
  
  $(LIBDIR)libgammaUPC.$(libext):
  	cd ../../Source/PDF/gammaUPC; make
@@ -175,7 +179,7 @@ index 6f5e1f832..643282c25 100644
  
  # Dependencies
  
-@@ -97,5 +184,71 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
+@@ -97,5 +188,71 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
  	 run_config.inc
  initcluster.o: message.inc
  
