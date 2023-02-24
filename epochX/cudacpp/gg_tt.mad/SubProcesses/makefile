@@ -96,10 +96,11 @@ endif
 
 ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
 override OMPFLAGS = -fopenmp
+LINKLIBS += -liomp5 # see #578
 LINKLIBS += -lintlc # undefined reference to `_intel_fast_memcpy'
-else ifneq ($(shell $(CXX) --version | egrep '^(clang|Apple clang)'),) # see #578
+else ifneq ($(shell $(CXX) --version | egrep '^(clang|Apple clang)'),)
 override OMPFLAGS = -fopenmp
-LINKLIBS += -lomp
+LINKLIBS += -lomp # see #578
 else
 override OMPFLAGS = -fopenmp
 endif

@@ -170,7 +170,8 @@ endif
 
 # Set the default OMPFLAGS choice
 ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
-override OMPFLAGS = # disable OpenMP MT on Intel (ok without nvcc, not ok with nvcc)
+override OMPFLAGS = -fopenmp
+###override OMPFLAGS = # disable OpenMP MT on Intel (ok without nvcc, not ok with nvcc, see #578)
 else
 override OMPFLAGS = -fopenmp
 ###override OMPFLAGS = # disable OpenMP MT (default before #575)
@@ -610,9 +611,9 @@ endif
 
 ifneq ($(OMPFLAGS),)
 ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
-###$(testmain): LIBFLAGS += -qopenmp -static-intel # see https://stackoverflow.com/questions/45909648/explicitly-link-intel-icpc-openmp
-else ifneq ($(shell $(CXX) --version | egrep '^(clang|Apple clang)'),) # see #578
-$(testmain): LIBFLAGS += -lomp
+$(testmain): LIBFLAGS += -liomp5 # see #578
+else ifneq ($(shell $(CXX) --version | egrep '^(clang|Apple clang)'),)
+$(testmain): LIBFLAGS += -lomp # see #578
 else
 $(testmain): LIBFLAGS += -lgomp
 endif
