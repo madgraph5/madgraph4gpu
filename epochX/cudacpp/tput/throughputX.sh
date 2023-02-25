@@ -12,7 +12,7 @@ topdir=$(cd $scrdir; cd ../../..; pwd)
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggh]> [-nocpp|[-avxall][-nocuda][-noneonly][-sse4only][-avx2only][-512yonly][-512zonly]] [-sa] [-noalpaka] [-flt|-fltonly|-mix|-mixonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-omp] [-makeonly|-makeclean|-makecleanonly|-dryrun] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest] [-nofpe] [-v] [-dlp <dyld_library_path>]"
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-ggttgggg][-gqttq][-heftggh]> [-nocpp|[-avxall][-nocuda][-noneonly][-sse4only][-avx2only][-512yonly][-512zonly]] [-sa] [-noalpaka] [-flt|-fltonly|-mix|-mixonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-omp] [-makeonly|-makeclean|-makecleanonly|-dryrun] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest] [-nofpe] [-v] [-dlp <dyld_library_path>]"
   exit 1
 }
 
@@ -26,6 +26,7 @@ ggtt=0
 ggttg=0
 ggttgg=0
 ggttggg=0
+ggttgggg=0
 gqttq=0
 heftggh=0
 
@@ -86,6 +87,9 @@ while [ "$1" != "" ]; do
     if [ "$ggttggg" == "0" ]; then procs+=${procs:+ }$1; fi
     ggttggg=1
     shift
+  elif [ "$1" == "-ggttgggg" ]; then
+    if [ "$ggttgggg" == "0" ]; then procs+=${procs:+ }$1; fi
+    ggttgggg=1
   elif [ "$1" == "-gqttq" ]; then
     if [ "$gqttq" == "0" ]; then procs+=${procs:+ }$1; fi
     gqttq=1
@@ -253,7 +257,7 @@ else
 fi
 
 # Check that at least one process has been selected
-if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ] && [ "${gqttq}" == "0" ] && [ "${heftggh}" == "0" ]; then usage; fi
+if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ] && [ "${ggttgggg}" == "0" ] && [ "${gqttq}" == "0" ] && [ "${heftggh}" == "0" ]; then usage; fi
 
 # Check that heftggh does not run in .mad mode
 if [ "${heftggh}" == "1" ] && [ "${suffs/.mad\/}" != "${suffs}" ]; then
@@ -308,6 +312,8 @@ function showdir()
       dir=$topdir/epochX/${bckend}/gg_ttgg${suff}SubProcesses/P1_gg_ttxgg
     elif [ "${proc}" == "-ggttggg" ]; then 
       dir=$topdir/epochX/${bckend}/gg_ttggg${suff}SubProcesses/P1_gg_ttxggg
+    elif [ "${proc}" == "-ggttgggg" ]; then 
+      dir=$topdir/epochX/${bckend}/gg_ttgggg${suff}SubProcesses/P1_gg_ttxgggg
     elif [ "${proc}" == "-gqttq" ]; then 
       ###dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_gu_ttxu
       dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_gux_ttxux # only 1 out of 2 for now
@@ -325,6 +331,8 @@ function showdir()
       dir=$topdir/epochX/${bckend}/gg_ttgg${suff}SubProcesses/P1_Sigma_sm_gg_ttxgg
     elif [ "${proc}" == "-ggttggg" ]; then 
       dir=$topdir/epochX/${bckend}/gg_ttggg${suff}SubProcesses/P1_Sigma_sm_gg_ttxggg
+    elif [ "${proc}" == "-ggttgggg" ]; then 
+      dir=$topdir/epochX/${bckend}/gg_ttgggg${suff}SubProcesses/P1_Sigma_sm_gg_ttxgggg
     elif [ "${proc}" == "-gqttq" ]; then 
       ###dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_Sigma_sm_gu_ttxu
       dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_Sigma_sm_gux_ttxux # only 1 out of 2 for now
@@ -623,6 +631,12 @@ for exe in $exes; do
     # For heftggh: 2->1 process, hence all events are identical and random numbers are ignored, use bare minimum 1 8 1
     exeArgs="-p 1 8 1"
     ncuArgs="-p 1 8 1"
+  elif [ "${exe%%/gg_ttgggg*}" != "${exe}" ]; then 
+    # For ggttgggg: initially try the same settings as ggttggg
+    exeArgs="-p 1 256 2"
+    ncuArgs="-p 1 256 1"
+    # For ggttgggg: initially try the same settings as ggttggg
+    exeArgs2="-p 64 256 1"
   elif [ "${exe%%/gq_ttq*}" != "${exe}" ]; then 
     # For gqttq, use the same settings as for ggttg
     exeArgs="-p 64 256 10"
