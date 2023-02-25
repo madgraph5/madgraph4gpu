@@ -44,6 +44,8 @@ function checkProcdir()
   badfiles=
   out=$(mktemp)
   for file in $files; do
+    if [ "$quiet" == "0" ]; then echo "-----------------------------------------------------------------"; fi
+    if [ $quiet -lt 2 ]; then echo "[......] Check formatting in: $file"; fi
     filebak=${file}.bak
     \rm -f $filebak
     \cp $file $filebak
