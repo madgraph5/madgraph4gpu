@@ -60,6 +60,9 @@ endif
 # Note: AR, CXX and FC are implicitly defined if not set externally
 # See https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
 
+# Optionally collect debug information for bug reports if an internal compiler error (ICE) occurs
+CXXFLAGS+= -freport-bug
+
 #-------------------------------------------------------------------------------
 
 #=== Configure the CUDA compiler
