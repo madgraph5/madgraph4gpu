@@ -53,6 +53,40 @@ endif
 $(info NTPBMAX=$(NTPBMAX))
 CXXFLAGS += -DMGONGPU_NTPBMAX=$(NTPBMAX)
 
+# Set the build flags appropriate to each VECLVL choice (example: "make VECLVL=1")
+$(info VECLVL=$(VECLVL))
+ifeq ($(VECLVL),1)
+  CXXFLAGS += -DMGONGPU_VEC_DIM=1
+else ifeq ($(VECLVL),2)
+  CXXFLAGS += -DMGONGPU_VEC_DIM=2
+else ifeq ($(VECLVL),4)
+  CXXFLAGS += -DMGONGPU_VEC_DIM=4
+else ifeq ($(VECLVL),8)
+  CXXFLAGS += -DMGONGPU_VEC_DIM=8
+else ifeq ($(VECLVL),16)
+  CXXFLAGS += -DMGONGPU_VEC_DIM=16
+else
+  $(error Unknown VECLVL='$(VECLVL)': only '1', '2', '4', '8', and '16' are supported)
+endif
+
+# Set the build flags appropriate to each CXTYPE choice (example: "make CXTYPE=std")
+$(info CXTYPE=$(CXTYPE))
+ifeq ($(CXTYPE),smpl)
+  CXXFLAGS += -DMGONGPU_COMPLEX_CXSMPL
+else ifeq ($(CXTYPE),extras)
+  CXXFLAGS += -DMGONGPU_COMPLEX_EXTRAS
+else ifeq ($(CXTYPE),std)
+  CXXFLAGS += -DMGONGPU_COMPLEX_STD
+else ifeq ($(CXTYPE),oneapi)
+  CXXFLAGS += -DMGONGPU_COMPLEX_ONEAPI
+else ifeq ($(CXTYPE),thrust)
+  CXXFLAGS += -DMGONGPU_COMPLEX_CUTHRUST
+else ifeq ($(CXTYPE),cucomplex)
+  CXXFLAGS += -DMGONGPU_COMPLEX_CUCOMPLEX
+else
+  $(error Unknown CXTYPE='$(CXTYPE)': only 'smpl', 'extras', 'std', 'oneapi', 'thrust', and 'cucomplex' are supported)
+endif
+
 #-------------------------------------------------------------------------------
 
 #=== Configure build directories and build lockfiles ===

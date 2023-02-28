@@ -84,15 +84,27 @@ ifeq ($(NTPBMAX),)
   override NTPBMAX = 1024
 endif
 
-# Export FPTYPE, HELINL, HRDCOD, NTPBMAX so that it is not necessary to pass them to the src Makefile too
+# Set the default VECLVL choice
+ifeq ($(VECLVL),)
+  override VECLVL = 1
+endif
+
+# Set the default CXTYPE choice
+ifeq ($(CXTYPE),)
+  override CXTYPE = std
+endif
+
+# Export FPTYPE, HELINL, HRDCOD, NTPBMAX, VECLVL, CXTYPE so that it is not necessary to pass them to the src Makefile too
 export FPTYPE
 export HELINL
 export HRDCOD
 export NTPBMAX
+export VECLVL
+export CXTYPE
 
 #-------------------------------------------------------------------------------
 
-#=== Set the SYCL/C++ compiler flags appropriate to user-defined choices of FPTYPE, HELINL, HRDCOD, NTPBMAX
+#=== Set the SYCL/C++ compiler flags appropriate to user-defined choices of FPTYPE, HELINL, HRDCOD, NTPBMAX, VECLVL, CXTYPE
 
 # Set the build flags appropriate to each FPTYPE choice (example: "make FPTYPE=f")
 $(info FPTYPE=$(FPTYPE))
@@ -123,6 +135,40 @@ endif
 # Set the build flags appropriate to each NTPBMAX choice (example: "make NTPBMAX=1024")
 $(info NTPBMAX=$(NTPBMAX))
 CXXFLAGS += -DMGONGPU_NTPBMAX=$(NTPBMAX)
+
+# Set the build flags appropriate to each VECLVL choice (example: "make VECLVL=1")
+$(info VECLVL=$(VECLVL))
+ifeq ($(VECLVL),1)
+  CXXFLAGS += -DMGONGPU_VEC_DIM=1
+else ifeq ($(VECLVL),2)
+  CXXFLAGS += -DMGONGPU_VEC_DIM=2
+else ifeq ($(VECLVL),4)
+  CXXFLAGS += -DMGONGPU_VEC_DIM=4
+else ifeq ($(VECLVL),8)
+  CXXFLAGS += -DMGONGPU_VEC_DIM=8
+else ifeq ($(VECLVL),16)
+  CXXFLAGS += -DMGONGPU_VEC_DIM=16
+else
+  $(error Unknown VECLVL='$(VECLVL)': only '1', '2', '4', '8', and '16' are supported)
+endif
+
+# Set the build flags appropriate to each CXTYPE choice (example: "make CXTYPE=std")
+$(info CXTYPE=$(CXTYPE))
+ifeq ($(CXTYPE),smpl)
+  CXXFLAGS += -DMGONGPU_COMPLEX_CXSMPL
+else ifeq ($(CXTYPE),extras)
+  CXXFLAGS += -DMGONGPU_COMPLEX_EXTRAS
+else ifeq ($(CXTYPE),std)
+  CXXFLAGS += -DMGONGPU_COMPLEX_STD
+else ifeq ($(CXTYPE),oneapi)
+  CXXFLAGS += -DMGONGPU_COMPLEX_ONEAPI
+else ifeq ($(CXTYPE),thrust)
+  CXXFLAGS += -DMGONGPU_COMPLEX_CUTHRUST
+else ifeq ($(CXTYPE),cucomplex)
+  CXXFLAGS += -DMGONGPU_COMPLEX_CUCOMPLEX
+else
+  $(error Unknown CXTYPE='$(CXTYPE)': only 'smpl', 'extras', 'std', 'oneapi', 'thrust', and 'cucomplex' are supported)
+endif
 
 #-------------------------------------------------------------------------------
 
