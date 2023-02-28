@@ -9,24 +9,24 @@
 //------------------------------
 // Vector types
 //------------------------------
-#if MGONGPU_MARRAY_DIM > 1
+#if MGONGPU_VEC_DIM > 1
     #if defined MGONGPU_COMPLEX_CXSMPL
-        typedef sycl::vec<fptype, MGONGPU_MARRAY_DIM> fptype_sv;
+        typedef sycl::vec<fptype, MGONGPU_VEC_DIM> fptype_sv;
         typedef mgOnGpu::cxsmpl<fptype_sv> cxtype_sv;
-        typedef sycl::vec<long, MGONGPU_MARRAY_DIM> int_sv;
-        typedef sycl::vec<long, MGONGPU_MARRAY_DIM> bool_sv;
+        typedef sycl::vec<long, MGONGPU_VEC_DIM> int_sv;
+        typedef sycl::vec<long, MGONGPU_VEC_DIM> bool_sv;
     #elif defined MGONGPU_COMPLEX_EXTRAS
-        typedef sycl::vec<fptype, MGONGPU_MARRAY_DIM> fptype_sv;
+        typedef sycl::vec<fptype, MGONGPU_VEC_DIM> fptype_sv;
         typedef extras::complex<fptype_sv> cxtype_sv;
-        typedef sycl::vec<long, MGONGPU_MARRAY_DIM> int_sv;
-        typedef sycl::vec<long, MGONGPU_MARRAY_DIM> bool_sv;
+        typedef sycl::vec<long, MGONGPU_VEC_DIM> int_sv;
+        typedef sycl::vec<long, MGONGPU_VEC_DIM> bool_sv;
     #elif defined MGONGPU_COMPLEX_STD
-        typedef sycl::vec<fptype, MGONGPU_MARRAY_DIM> fptype_sv;
+        typedef sycl::vec<fptype, MGONGPU_VEC_DIM> fptype_sv;
         typedef std::complex<fptype_sv> cxtype_sv;
-        typedef sycl::vec<long, MGONGPU_MARRAY_DIM> int_sv;
-        typedef sycl::vec<long, MGONGPU_MARRAY_DIM> bool_sv;
+        typedef sycl::vec<long, MGONGPU_VEC_DIM> int_sv;
+        typedef sycl::vec<long, MGONGPU_VEC_DIM> bool_sv;
     #else
-        #error Unconfigured vector complex type. Add details to `mgOnGpuVectors.h` or set MGONGPU_MARRAY_DIM to 1 in `mgOnGpuConfig.h`.
+        #error Unconfigured vector complex type. Add details to `mgOnGpuVectors.h` or set MGONGPU_VEC_DIM to 1 in `mgOnGpuConfig.h`.
     #endif
 #else
     typedef fptype fptype_sv;
@@ -46,7 +46,7 @@ struct vector4 {
 // Vector operators
 //------------------------------
 
-#if MGONGPU_MARRAY_DIM > 1
+#if MGONGPU_VEC_DIM > 1
     SYCL_EXTERNAL inline cxtype_sv operator*(const cxtype_sv& __x, const cxtype& __y) {
         cxtype_sv __r = __x;
         __r *= __y;

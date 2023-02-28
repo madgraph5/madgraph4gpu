@@ -8,11 +8,11 @@
 
 //FIXME add logic for various CXTypes and vectorization
 #define MGONGPU_COMPLEX_STD 1
-#define MGONGPU_MARRAY_DIM 1
+#define MGONGPU_VEC_DIM 1
 
 //#define MGONGPU_COMPLEX_STDVEC 1
 //#define MGONGPU_USE_VEC 1 
-//#define MGONGPU_MARRAY_DIM 1 // Sets vectorization level when using vectorizable complex types FIXME check for allowable 1,2,3,4,8,16
+//#define MGONGPU_VEC_DIM 1 // Sets vectorization level when using vectorizable complex types FIXME check for allowable 1,2,3,4,8,16
 
 
 // HARDCODED AT CODE GENERATION TIME: DO NOT MODIFY (#473)

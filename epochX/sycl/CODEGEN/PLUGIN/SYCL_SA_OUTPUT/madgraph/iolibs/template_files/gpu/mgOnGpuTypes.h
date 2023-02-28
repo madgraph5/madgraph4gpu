@@ -98,14 +98,14 @@ using mgOnGpu::cxtype;
 #define FPONE_SV fptype_sv(1.0)
 
 // fpmax FIXME add description
-#if MGONGPU_MARRAY_DIM > 1
+#if MGONGPU_VEC_DIM > 1
     #define FPMAX(a, b) sycl::fmax(a, b)
 #else
     #define FPMAX(a, b) (b < a) ? a : b
 #endif
 
 // fpmin FIXME add description
-#if MGONGPU_MARRAY_DIM > 1
+#if MGONGPU_VEC_DIM > 1
     #define FPMIN(a, b) sycl::fmin(a, b)
 #else
     #define FPMIN(a, b) (a < b) ? a : b
@@ -117,7 +117,7 @@ using mgOnGpu::cxtype;
 // fpternary or fpconditional FIXME add better description
 // fpconditional(a, b, c) = c ? b : a
 #define FPCONDITIONAL(a, b, c) c ? b : a
-#if MGONGPU_MARRAY_DIM > 1
+#if MGONGPU_VEC_DIM > 1
     #define FPCONDITIONAL_SV(a, b, c) sycl::select(a, b, c)
 #else
     #define FPCONDITIONAL_SV(a, b, c) FPCONDITIONAL(a, b, c)
@@ -125,7 +125,7 @@ using mgOnGpu::cxtype;
 
 // fpany
 #define FPANY(a) a
-#if MGONGPU_MARRAY_DIM > 1
+#if MGONGPU_VEC_DIM > 1
     #define FPANY_SV(a) sycl::any(a)
 #else
     #define FPANY_SV(a) FPANY(a)
@@ -310,7 +310,7 @@ cxtype operator / (const cxtype& a, const fptype& b) {
 // cxternary or cxconditional FIXME better description 
 // cxconditional(a, b, c) = c ? b : a
 #define CXCONDITIONAL(a, b, c) c ? b : a
-#if MGONGPU_MARRAY_DIM > 1
+#if MGONGPU_VEC_DIM > 1
     #define CXCONDITIONAL_SV(a, b, c) CXMAKE_SV_2ARG(FPCONDITIONAL_SV(CXREAL(a), CXREAL(b), c), FPCONDITIONAL_SV(CXIMAG(a), CXIMAG(b), c))
 #else
     #define CXCONDITIONAL_SV(a, b, c) CXCONDITIONAL(a, b, c)
