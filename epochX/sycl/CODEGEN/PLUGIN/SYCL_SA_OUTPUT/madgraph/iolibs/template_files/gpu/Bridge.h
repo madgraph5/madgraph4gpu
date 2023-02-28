@@ -211,7 +211,7 @@ namespace mg5amcGpu
         , m_q( sycl::queue(m_devices[0]) )
     #endif
     , m_gputhreads( 256 )                  // default number of gpu threads
-    #if defined MGONGPU_USE_VEC && MGONGPU_MARRAY_DIM > 1
+    #if MGONGPU_MARRAY_DIM > 1
         , m_gpublocks( m_nevt / m_gputhreads / MGONGPU_MARRAY_DIM) // this ensures m_nevt <= m_gpublocks*m_gputhreads
     #else
         , m_gpublocks( m_nevt / m_gputhreads ) // this ensures m_nevt <= m_gpublocks*m_gputhreads
@@ -239,7 +239,7 @@ namespace mg5amcGpu
     if( np4F != mgOnGpu::np4 ) throw std::runtime_error( "Bridge constructor: np4 mismatch" );
     if( ( m_nevt < s_gputhreadsmin ) || ( m_nevt % s_gputhreadsmin != 0 ) )
       throw std::runtime_error( "Bridge constructor: nevt should be a multiple of " + std::to_string( s_gputhreadsmin ) );
-    #if defined MGONGPU_USE_VEC && MGONGPU_MARRAY_DIM > 1
+    #if MGONGPU_MARRAY_DIM > 1
         while( m_nevt != m_gpublocks * m_gputhreads * MGONGPU_MARRAY_DIM) {
     #else
         while( m_nevt != m_gpublocks * m_gputhreads ) {
@@ -247,7 +247,7 @@ namespace mg5amcGpu
       m_gputhreads /= 2;
       if( m_gputhreads < s_gputhreadsmin )
         throw std::logic_error( "Bridge constructor: FIXME! cannot choose gputhreads" ); // this should never happen!
-      #if defined MGONGPU_USE_VEC && MGONGPU_MARRAY_DIM > 1
+      #if MGONGPU_MARRAY_DIM > 1
           m_gpublocks = m_nevt / m_gputhreads / MGONGPU_MARRAY_DIM;
       #else
           m_gpublocks = m_nevt / m_gputhreads;
@@ -291,7 +291,7 @@ namespace mg5amcGpu
     static constexpr size_t npar = mgOnGpu::npar;
     static constexpr size_t ncomb = mgOnGpu::ncomb;
 
-    #if defined MGONGPU_USE_VEC && MGONGPU_MARRAY_DIM > 1
+    #if MGONGPU_MARRAY_DIM > 1
         host_buffer<fptype> hstMomentaC(NPAR*MGONGPU_FOURVECTOR_DIM*m_nevt, m_q);
         hst_transposeMomenta(hstMomentaC.data(), momenta, m_nevt);
         m_q.memcpy(m_devMomentaC.data(), hstMomentaC.data(), NPAR*MGONGPU_FOURVECTOR_DIM*m_nevt*sizeof(fptype));

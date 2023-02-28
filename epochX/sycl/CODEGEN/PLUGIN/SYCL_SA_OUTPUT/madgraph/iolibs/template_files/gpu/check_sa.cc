@@ -588,7 +588,7 @@ int main(int argc, char **argv)
       
       // ... 0d1. Compute good helicity mask on the device
       q.submit([&](sycl::handler& cgh) {
-          #if defined MGONGPU_USE_VEC && MGONGPU_MARRAY_DIM > 1
+          #if MGONGPU_MARRAY_DIM > 1
           cgh.parallel_for_work_group(sycl::range<1>{gpublocks/MGONGPU_MARRAY_DIM}, sycl::range<1>{gputhreads}, ([=](sycl::group<1> wGroup) {
           #else
           cgh.parallel_for_work_group(sycl::range<1>{gpublocks}, sycl::range<1>{gputhreads}, ([=](sycl::group<1> wGroup) {
@@ -650,7 +650,7 @@ int main(int argc, char **argv)
     timermap.start( skinKey );
 
     q.submit([&](sycl::handler& cgh) {
-        #if defined MGONGPU_USE_VEC && MGONGPU_MARRAY_DIM > 1
+        #if MGONGPU_MARRAY_DIM > 1
         cgh.parallel_for_work_group(sycl::range<1>{gpublocks/MGONGPU_MARRAY_DIM}, sycl::range<1>{gputhreads}, ([=](sycl::group<1> wGroup) {
         #else
         cgh.parallel_for_work_group(sycl::range<1>{gpublocks}, sycl::range<1>{gputhreads}, ([=](sycl::group<1> wGroup) {
