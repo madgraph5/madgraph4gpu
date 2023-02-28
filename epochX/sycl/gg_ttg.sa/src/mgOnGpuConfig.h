@@ -12,11 +12,11 @@
     #define MGONGPU_VEC_DIM 1
 #endif
 #if \
-    MGONGPU_VEC_DIM !=  1 || \
-    MGONGPU_VEC_DIM !=  2 || \
-    MGONGPU_VEC_DIM !=  3 || \
-    MGONGPU_VEC_DIM !=  4 || \
-    MGONGPU_VEC_DIM !=  8 || \
+    MGONGPU_VEC_DIM !=  1 && \
+    MGONGPU_VEC_DIM !=  2 && \
+    MGONGPU_VEC_DIM !=  3 && \
+    MGONGPU_VEC_DIM !=  4 && \
+    MGONGPU_VEC_DIM !=  8 && \
     MGONGPU_VEC_DIM != 16
 
     #error You must set MGONGPU_VEC_DIM to 1, 2, 3, 4, 8, or 16.
@@ -35,7 +35,6 @@
 #endif
 
 #if\
-    defined() + \
     defined(MGONGPU_COMPLEX_CXSMPL)   + \
     defined(MGONGPU_COMPLEX_EXTRAS)   + \
     defined(MGONGPU_COMPLEX_STD)      + \
