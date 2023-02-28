@@ -420,14 +420,14 @@ int main(int argc, char **argv)
 
   auto devRnarray   = sycl::malloc_device<fptype    >( nRnarray,   q ); 
   auto devMomentaRn = sycl::malloc_device<fptype    >( nMomenta,   q );
-  auto devMomenta   = sycl::malloc_device<vector4   >( nMomenta/MGONGPU_MARRAY_DIM/MGONGPU_FOURVECTOR_DIM,   q );
-  auto devRndHel    = sycl::malloc_device<fptype_sv >( nMEs/MGONGPU_MARRAY_DIM,       q );
-  auto devRndCol    = sycl::malloc_device<fptype_sv >( nMEs/MGONGPU_MARRAY_DIM,       q );
+  auto devMomenta   = sycl::malloc_device<vector4   >( nMomenta/MGONGPU_VEC_DIM/MGONGPU_FOURVECTOR_DIM,   q );
+  auto devRndHel    = sycl::malloc_device<fptype_sv >( nMEs/MGONGPU_VEC_DIM,       q );
+  auto devRndCol    = sycl::malloc_device<fptype_sv >( nMEs/MGONGPU_VEC_DIM,       q );
   auto devIsGoodHel = sycl::malloc_device<bool      >( ncomb,      q );
   auto devWeights   = sycl::malloc_device<fptype    >( nWeights,   q );
-  auto devMEs       = sycl::malloc_device<fptype_sv >( nMEs/MGONGPU_MARRAY_DIM,       q );
-  auto devSelHel    = sycl::malloc_device<int_sv    >( nMEs/MGONGPU_MARRAY_DIM,       q );
-  auto devSelCol    = sycl::malloc_device<int_sv    >( nMEs/MGONGPU_MARRAY_DIM,       q );
+  auto devMEs       = sycl::malloc_device<fptype_sv >( nMEs/MGONGPU_VEC_DIM,       q );
+  auto devSelHel    = sycl::malloc_device<int_sv    >( nMEs/MGONGPU_VEC_DIM,       q );
+  auto devSelCol    = sycl::malloc_device<int_sv    >( nMEs/MGONGPU_VEC_DIM,       q );
 #ifndef MGONGPU_HARDCODE_PARAM
   auto dev_independent_couplings  = sycl::malloc_device<cxtype>( Proc::independentCouplings::nicoup, q );
   auto dev_independent_parameters = sycl::malloc_device<fptype>( mgOnGpu::nparams,          q );
@@ -588,8 +588,8 @@ int main(int argc, char **argv)
       
       // ... 0d1. Compute good helicity mask on the device
       q.submit([&](sycl::handler& cgh) {
-          #if defined MGONGPU_USE_VEC && MGONGPU_MARRAY_DIM > 1
-          cgh.parallel_for_work_group(sycl::range<1>{gpublocks/MGONGPU_MARRAY_DIM}, sycl::range<1>{gputhreads}, ([=](sycl::group<1> wGroup) {
+          #if MGONGPU_VEC_DIM > 1
+          cgh.parallel_for_work_group(sycl::range<1>{gpublocks/MGONGPU_VEC_DIM}, sycl::range<1>{gputhreads}, ([=](sycl::group<1> wGroup) {
           #else
           cgh.parallel_for_work_group(sycl::range<1>{gpublocks}, sycl::range<1>{gputhreads}, ([=](sycl::group<1> wGroup) {
           #endif
@@ -650,8 +650,8 @@ int main(int argc, char **argv)
     timermap.start( skinKey );
 
     q.submit([&](sycl::handler& cgh) {
-        #if defined MGONGPU_USE_VEC && MGONGPU_MARRAY_DIM > 1
-        cgh.parallel_for_work_group(sycl::range<1>{gpublocks/MGONGPU_MARRAY_DIM}, sycl::range<1>{gputhreads}, ([=](sycl::group<1> wGroup) {
+        #if MGONGPU_VEC_DIM > 1
+        cgh.parallel_for_work_group(sycl::range<1>{gpublocks/MGONGPU_VEC_DIM}, sycl::range<1>{gputhreads}, ([=](sycl::group<1> wGroup) {
         #else
         cgh.parallel_for_work_group(sycl::range<1>{gpublocks}, sycl::range<1>{gputhreads}, ([=](sycl::group<1> wGroup) {
         #endif

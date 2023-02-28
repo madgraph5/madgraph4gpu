@@ -211,18 +211,18 @@ namespace mg5amcGpu
         , m_q( sycl::queue(m_devices[0]) )
     #endif
     , m_gputhreads( 256 )                  // default number of gpu threads
-    #if defined MGONGPU_USE_VEC && MGONGPU_MARRAY_DIM > 1
-        , m_gpublocks( m_nevt / m_gputhreads / MGONGPU_MARRAY_DIM) // this ensures m_nevt <= m_gpublocks*m_gputhreads
+    #if MGONGPU_VEC_DIM > 1
+        , m_gpublocks( m_nevt / m_gputhreads / MGONGPU_VEC_DIM) // this ensures m_nevt <= m_gpublocks*m_gputhreads
     #else
         , m_gpublocks( m_nevt / m_gputhreads ) // this ensures m_nevt <= m_gpublocks*m_gputhreads
     #endif
-    , m_devMomentaC( m_nevt*NPAR/MGONGPU_MARRAY_DIM, m_q )
-    , m_devGsC( m_nevt/MGONGPU_MARRAY_DIM, m_q )
-    , m_devRndHel( m_nevt/MGONGPU_MARRAY_DIM, m_q )
-    , m_devRndCol( m_nevt/MGONGPU_MARRAY_DIM, m_q )
-    , m_devMEsC( m_nevt/MGONGPU_MARRAY_DIM, m_q )
-    , m_devSelHel( m_nevt/MGONGPU_MARRAY_DIM, m_q )
-    , m_devSelCol( m_nevt/MGONGPU_MARRAY_DIM, m_q )
+    , m_devMomentaC( m_nevt*NPAR/MGONGPU_VEC_DIM, m_q )
+    , m_devGsC( m_nevt/MGONGPU_VEC_DIM, m_q )
+    , m_devRndHel( m_nevt/MGONGPU_VEC_DIM, m_q )
+    , m_devRndCol( m_nevt/MGONGPU_VEC_DIM, m_q )
+    , m_devMEsC( m_nevt/MGONGPU_VEC_DIM, m_q )
+    , m_devSelHel( m_nevt/MGONGPU_VEC_DIM, m_q )
+    , m_devSelCol( m_nevt/MGONGPU_VEC_DIM, m_q )
     , m_hstMEsC( m_nevt, m_q )
     , m_hstSelHel( m_nevt, m_q )
     , m_hstSelCol( m_nevt, m_q )
@@ -239,16 +239,16 @@ namespace mg5amcGpu
     if( np4F != mgOnGpu::np4 ) throw std::runtime_error( "Bridge constructor: np4 mismatch" );
     if( ( m_nevt < s_gputhreadsmin ) || ( m_nevt % s_gputhreadsmin != 0 ) )
       throw std::runtime_error( "Bridge constructor: nevt should be a multiple of " + std::to_string( s_gputhreadsmin ) );
-    #if defined MGONGPU_USE_VEC && MGONGPU_MARRAY_DIM > 1
-        while( m_nevt != m_gpublocks * m_gputhreads * MGONGPU_MARRAY_DIM) {
+    #if MGONGPU_VEC_DIM > 1
+        while( m_nevt != m_gpublocks * m_gputhreads * MGONGPU_VEC_DIM) {
     #else
         while( m_nevt != m_gpublocks * m_gputhreads ) {
     #endif
       m_gputhreads /= 2;
       if( m_gputhreads < s_gputhreadsmin )
         throw std::logic_error( "Bridge constructor: FIXME! cannot choose gputhreads" ); // this should never happen!
-      #if defined MGONGPU_USE_VEC && MGONGPU_MARRAY_DIM > 1
-          m_gpublocks = m_nevt / m_gputhreads / MGONGPU_MARRAY_DIM;
+      #if MGONGPU_VEC_DIM > 1
+          m_gpublocks = m_nevt / m_gputhreads / MGONGPU_VEC_DIM;
       #else
           m_gpublocks = m_nevt / m_gputhreads;
       #endif
@@ -291,7 +291,7 @@ namespace mg5amcGpu
     static constexpr size_t npar = mgOnGpu::npar;
     static constexpr size_t ncomb = mgOnGpu::ncomb;
 
-    #if defined MGONGPU_USE_VEC && MGONGPU_MARRAY_DIM > 1
+    #if MGONGPU_VEC_DIM > 1
         host_buffer<fptype> hstMomentaC(NPAR*MGONGPU_FOURVECTOR_DIM*m_nevt, m_q);
         hst_transposeMomenta(hstMomentaC.data(), momenta, m_nevt);
         m_q.memcpy(m_devMomentaC.data(), hstMomentaC.data(), NPAR*MGONGPU_FOURVECTOR_DIM*m_nevt*sizeof(fptype));
@@ -458,25 +458,25 @@ namespace mg5amcGpu
   template<typename FPTypeDst, typename FPTypeSrc>
   void hst_transposeMomenta(FPTypeDst* __restrict__ dst, const FPTypeSrc* __restrict__ src, const size_t N ) {
   /* Transpose from [ evt0par0wxyz, evt0par1wxyz, ... , evt0parNPARwxyz, evt1par0wxyz, ... ] to
-     [ evt0par0w, evt1par0w, ... , evt(MGONGPU_MARRAY_DIM - 1)par0w,
-       evt0par0x, evt1par0x, ... , evt(MGONGPU_MARRAY_DIM - 1)par0x,
-       evt0par0y, evt1par0y, ... , evt(MGONGPU_MARRAY_DIM - 1)par0y,
-       evt0par0z, evt1par0z, ... , evt(MGONGPU_MARRAY_DIM - 1)par0z,
-       evt0par1w, evt1par1w, ... , evt(MGONGPU_MARRAY_DIM - 1)par1w,
+     [ evt0par0w, evt1par0w, ... , evt(MGONGPU_VEC_DIM - 1)par0w,
+       evt0par0x, evt1par0x, ... , evt(MGONGPU_VEC_DIM - 1)par0x,
+       evt0par0y, evt1par0y, ... , evt(MGONGPU_VEC_DIM - 1)par0y,
+       evt0par0z, evt1par0z, ... , evt(MGONGPU_VEC_DIM - 1)par0z,
+       evt0par1w, evt1par1w, ... , evt(MGONGPU_VEC_DIM - 1)par1w,
        ... ,
-       evt0parNPARz, evt1parNPARz, ... , evtMGONGPU_MARRAY_DIMparNPARz,
-       evt(MGONGPU_MARRAY_DIM)par0w, evt(MGONGPU_MARRAY_DIM + 1)par0w, ... , evt(2*MGONGPU_MARRAY_DIM - 1)par0w,
+       evt0parNPARz, evt1parNPARz, ... , evtMGONGPU_VEC_DIMparNPARz,
+       evt(MGONGPU_VEC_DIM)par0w, evt(MGONGPU_VEC_DIM + 1)par0w, ... , evt(2*MGONGPU_VEC_DIM - 1)par0w,
        ... ,
-       evt(N - MGONGPU_MARRAY_DIM)parNPARz, evt(N - MGONGPU_MARRAY_DIM + 1)parNPARz, ... , evtNparNPARz
+       evt(N - MGONGPU_VEC_DIM)parNPARz, evt(N - MGONGPU_VEC_DIM + 1)parNPARz, ... , evtNparNPARz
      ]
   */
-      for ( size_t h = 0; h < N/MGONGPU_MARRAY_DIM; h++ ) {
-          for ( size_t i = 0; i < MGONGPU_MARRAY_DIM; i++ ) {
-              size_t idx_evt = h*MGONGPU_MARRAY_DIM + i;
+      for ( size_t h = 0; h < N/MGONGPU_VEC_DIM; h++ ) {
+          for ( size_t i = 0; i < MGONGPU_VEC_DIM; i++ ) {
+              size_t idx_evt = h*MGONGPU_VEC_DIM + i;
               for ( size_t j = 0; j < NPAR; j++ ) { // size_t idx_par = j
                   for ( size_t k = 0; k < MGONGPU_FOURVECTOR_DIM; k++ ) { // size_t idx_wxyz = k
                       size_t idx_src = NPAR*MGONGPU_FOURVECTOR_DIM*idx_evt + MGONGPU_FOURVECTOR_DIM*j + k;
-                      size_t idx_dst = NPAR*MGONGPU_FOURVECTOR_DIM*MGONGPU_MARRAY_DIM*h + MGONGPU_FOURVECTOR_DIM*MGONGPU_MARRAY_DIM*j + MGONGPU_MARRAY_DIM*k + i;
+                      size_t idx_dst = NPAR*MGONGPU_FOURVECTOR_DIM*MGONGPU_VEC_DIM*h + MGONGPU_FOURVECTOR_DIM*MGONGPU_VEC_DIM*j + MGONGPU_VEC_DIM*k + i;
                       dst[idx_dst] = src[idx_src];
                   }
               }

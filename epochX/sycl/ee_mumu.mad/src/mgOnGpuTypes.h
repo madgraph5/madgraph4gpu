@@ -2,11 +2,11 @@
 #define MGONGPUTYPES_H 1
 
 #include <CL/sycl.hpp>
-#if defined MGONGPU_COMPLEX_EXTRAS || defined MGONGPU_COMPLEX_EXTRASVEC
+#if defined MGONGPU_COMPLEX_EXTRAS
     #include "extras.h"
 #endif
 
-#if defined MGONGPU_COMPLEX_STD || defined MGONGPU_COMPLEX_STDVEC
+#if defined MGONGPU_COMPLEX_STD
     #include <complex>
 #endif
 
@@ -30,15 +30,15 @@ namespace mgOnGpu
 {
 
   // --- Type definitions (complex type: cxtype)
-  #if defined MGONGPU_COMPLEX_CXSMPL || defined MGONGPU_COMPLEX_CXSMPLVEC
+  #if defined MGONGPU_COMPLEX_CXSMPL
       typedef mgOnGpu::cxsmpl<fptype> cxtype;
   #endif
 
-  #if defined MGONGPU_COMPLEX_EXTRAS || defined MGONGPU_COMPLEX_EXTRASVEC
+  #if defined MGONGPU_COMPLEX_EXTRAS
       typedef extras::complex<fptype> cxtype;
   #endif
 
-  #if defined MGONGPU_COMPLEX_STD || defined MGONGPU_COMPLEX_STDVEC
+  #if defined MGONGPU_COMPLEX_STD
       typedef std::complex<fptype> cxtype;
   #endif
 
@@ -98,14 +98,14 @@ using mgOnGpu::cxtype;
 #define FPONE_SV fptype_sv(1.0)
 
 // fpmax FIXME add description
-#if defined MGONGPU_COMPLEX_CXSMPLVEC || defined MGONGPU_COMPLEX_EXTRASVEC || defined MGONGPU_COMPLEX_STDVEC
+#if MGONGPU_VEC_DIM > 1
     #define FPMAX(a, b) sycl::fmax(a, b)
 #else
     #define FPMAX(a, b) (b < a) ? a : b
 #endif
 
 // fpmin FIXME add description
-#if defined MGONGPU_COMPLEX_CXSMPLVEC || defined MGONGPU_COMPLEX_EXTRASVEC || defined MGONGPU_COMPLEX_STDVEC
+#if MGONGPU_VEC_DIM > 1
     #define FPMIN(a, b) sycl::fmin(a, b)
 #else
     #define FPMIN(a, b) (a < b) ? a : b
@@ -117,7 +117,7 @@ using mgOnGpu::cxtype;
 // fpternary or fpconditional FIXME add better description
 // fpconditional(a, b, c) = c ? b : a
 #define FPCONDITIONAL(a, b, c) c ? b : a
-#if defined MGONGPU_COMPLEX_CXSMPLVEC || defined MGONGPU_COMPLEX_EXTRASVEC || defined MGONGPU_COMPLEX_STDVEC
+#if MGONGPU_VEC_DIM > 1
     #define FPCONDITIONAL_SV(a, b, c) sycl::select(a, b, c)
 #else
     #define FPCONDITIONAL_SV(a, b, c) FPCONDITIONAL(a, b, c)
@@ -125,13 +125,8 @@ using mgOnGpu::cxtype;
 
 // fpany
 #define FPANY(a) a
-#if defined MGONGPU_COMPLEX_CXSMPLVEC || defined MGONGPU_COMPLEX_EXTRASVEC || defined MGONGPU_COMPLEX_STDVEC
-    #if MGONGPU_MARRAY_DIM == 1
-    //    #define FPANY_SV(a) FPANY(a)
-        #define FPANY_SV(a) sycl::any((a)[0])
-    #else
-        #define FPANY_SV(a) sycl::any(a)
-    #endif
+#if MGONGPU_VEC_DIM > 1
+    #define FPANY_SV(a) sycl::any(a)
 #else
     #define FPANY_SV(a) FPANY(a)
 #endif
@@ -280,15 +275,15 @@ cxtype operator / (const cxtype& a, const fptype& b) {
 #endif
 
 // cxconj FIXME better description
-#if defined MGONGPU_COMPLEX_EXTRAS || defined MGONGPU_COMPLEX_EXTRASVEC
+#if defined MGONGPU_COMPLEX_EXTRAS
     #define CXCONJ(c) extras::conj(c)
 #endif
 
-#if defined MGONGPU_COMPLEX_CXSMPL || defined MGONGPU_COMPLEX_CXSMPLVEC
+#if defined MGONGPU_COMPLEX_CXSMPL
     #define CXCONJ(c) mgOnGpu::conj(c)
 #endif
 
-#if defined MGONGPU_COMPLEX_STD || defined MGONGPU_COMPLEX_STDVEC
+#if defined MGONGPU_COMPLEX_STD
     #define CXCONJ(c) std::conj(c)
 #endif
 
@@ -315,7 +310,7 @@ cxtype operator / (const cxtype& a, const fptype& b) {
 // cxternary or cxconditional FIXME better description 
 // cxconditional(a, b, c) = c ? b : a
 #define CXCONDITIONAL(a, b, c) c ? b : a
-#if defined MGONGPU_COMPLEX_CXSMPLVEC || defined MGONGPU_COMPLEX_EXTRASVEC || defined MGONGPU_COMPLEX_STDVEC
+#if MGONGPU_VEC_DIM > 1
     #define CXCONDITIONAL_SV(a, b, c) CXMAKE_SV_2ARG(FPCONDITIONAL_SV(CXREAL(a), CXREAL(b), c), FPCONDITIONAL_SV(CXIMAG(a), CXIMAG(b), c))
 #else
     #define CXCONDITIONAL_SV(a, b, c) CXCONDITIONAL(a, b, c)
@@ -324,7 +319,7 @@ cxtype operator / (const cxtype& a, const fptype& b) {
 // cxabs2
 #define CXABS2(c) CXREAL(c)*CXREAL(c) + CXIMAG(c)*CXIMAG(c)
 
-#if not defined MGONGPU_COMPLEX_CXSMPL or not defined MGONGPU_COMPLEX_CXSMPLVEC
+#if not defined MGONGPU_COMPLEX_CXSMPL
 inline // NOT __device__
 cxtype cxmake( const mgOnGpu::cxsmpl<fptype>& c ) { // mgOnGpu::cxsmpl to cxtype (float-to-float or double-to-double)
     return CXMAKE_2ARG( c.real(), c.imag() );

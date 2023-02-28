@@ -6,14 +6,46 @@
 #define MGONGPU_FOURVECTOR_DIM 4
 #define NPAR 7
 
-//FIXME add logic for various CXTypes and vectorization
-#define MGONGPU_COMPLEX_STD 1
-#define MGONGPU_MARRAY_DIM 1
 
-//#define MGONGPU_COMPLEX_STDVEC 1
-//#define MGONGPU_USE_VEC 1 
-//#define MGONGPU_MARRAY_DIM 1 // Sets vectorization level when using vectorizable complex types FIXME check for allowable 1,2,3,4,8,16
+//Sets vectorization level when using vectorizable complex types
+#if not defined MGONGPU_VEC_DIM
+    #define MGONGPU_VEC_DIM 1
+#endif
+#if \
+    MGONGPU_VEC_DIM !=  1 || \
+    MGONGPU_VEC_DIM !=  2 || \
+    MGONGPU_VEC_DIM !=  3 || \
+    MGONGPU_VEC_DIM !=  4 || \
+    MGONGPU_VEC_DIM !=  8 || \
+    MGONGPU_VEC_DIM != 16
 
+    #error You must set MGONGPU_VEC_DIM to 1, 2, 3, 4, 8, or 16.
+#endif
+
+// Set complex number library
+#if\
+    not defined MGONGPU_COMPLEX_CXSMPL    || \
+    not defined MGONGPU_COMPLEX_EXTRAS    || \
+    not defined MGONGPU_COMPLEX_STD       || \
+    not defined MGONGPU_COMPLEX_ONEAPI    || \
+    not defined MGONGPU_COMPLEX_CUTHRUST  || \
+    not defined MGONGPU_COMPLEX_CUCOMPLEX
+
+    #define MGONGPU_COMPLEX_STD 1
+#endif
+
+#if\
+    defined() + \
+    defined(MGONGPU_COMPLEX_CXSMPL)   + \
+    defined(MGONGPU_COMPLEX_EXTRAS)   + \
+    defined(MGONGPU_COMPLEX_STD)      + \
+    defined(MGONGPU_COMPLEX_ONEAPI)   + \
+    defined(MGONGPU_COMPLEX_CUTHRUST) + \
+    defined(MGONGPU_COMPLEX_CUCOMPLEX)  \
+    != 1
+
+    #error You must CHOOSE (ONE AND) ONLY ONE complex number library
+#endif
 
 // HARDCODED AT CODE GENERATION TIME: DO NOT MODIFY (#473)
 // There are two different code bases for standalone_sycl (without multichannel) and madevent+sycl (with multichannel)
