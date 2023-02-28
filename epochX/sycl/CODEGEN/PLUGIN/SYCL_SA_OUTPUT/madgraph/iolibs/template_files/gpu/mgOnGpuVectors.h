@@ -10,21 +10,19 @@
 // Vector types
 //------------------------------
 #if MGONGPU_VEC_DIM > 1
+    typedef sycl::vec<fptype, MGONGPU_VEC_DIM> fptype_sv;
+    typedef sycl::vec<long, MGONGPU_VEC_DIM> int_sv;
+    typedef sycl::vec<long, MGONGPU_VEC_DIM> bool_sv;
     #if defined MGONGPU_COMPLEX_CXSMPL
-        typedef sycl::vec<fptype, MGONGPU_VEC_DIM> fptype_sv;
         typedef mgOnGpu::cxsmpl<fptype_sv> cxtype_sv;
-        typedef sycl::vec<long, MGONGPU_VEC_DIM> int_sv;
-        typedef sycl::vec<long, MGONGPU_VEC_DIM> bool_sv;
     #elif defined MGONGPU_COMPLEX_EXTRAS
-        typedef sycl::vec<fptype, MGONGPU_VEC_DIM> fptype_sv;
         typedef extras::complex<fptype_sv> cxtype_sv;
-        typedef sycl::vec<long, MGONGPU_VEC_DIM> int_sv;
-        typedef sycl::vec<long, MGONGPU_VEC_DIM> bool_sv;
     #elif defined MGONGPU_COMPLEX_STD
-        typedef sycl::vec<fptype, MGONGPU_VEC_DIM> fptype_sv;
         typedef std::complex<fptype_sv> cxtype_sv;
-        typedef sycl::vec<long, MGONGPU_VEC_DIM> int_sv;
-        typedef sycl::vec<long, MGONGPU_VEC_DIM> bool_sv;
+    #elif MGONGPU_COMPLEX_ONEAPI
+        typedef sycl::ext::oneapi::experimental::complex<fptype_sv> cxtype_sv;
+    #elif MGONGPU_COMPLEX_CUTHRUST
+        typedef thrust::complex<fptype_sv> cxtype_sv;
     #else
         #error Unconfigured vector complex type. Add details to `mgOnGpuVectors.h` or set MGONGPU_VEC_DIM to 1 in `mgOnGpuConfig.h`.
     #endif
