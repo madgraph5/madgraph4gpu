@@ -24,11 +24,11 @@
 
 // Set complex number library
 #if\
-    not defined MGONGPU_COMPLEX_CXSMPL    || \
-    not defined MGONGPU_COMPLEX_EXTRAS    || \
-    not defined MGONGPU_COMPLEX_STD       || \
-    not defined MGONGPU_COMPLEX_ONEAPI    || \
-    not defined MGONGPU_COMPLEX_CUTHRUST  || \
+    not defined MGONGPU_COMPLEX_CXSMPL    && \
+    not defined MGONGPU_COMPLEX_EXTRAS    && \
+    not defined MGONGPU_COMPLEX_STD       && \
+    not defined MGONGPU_COMPLEX_ONEAPI    && \
+    not defined MGONGPU_COMPLEX_CUTHRUST  && \
     not defined MGONGPU_COMPLEX_CUCOMPLEX
 
     #define MGONGPU_COMPLEX_STD 1
