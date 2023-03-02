@@ -72,13 +72,13 @@ export CUDA_PATH=/usr/local/cuda-11.8/
 export WORKSPACE=$prefix/workspace_mg4gpu
 
 # Compilation using OneAPI Toolkit through CVMFS
-#export CXX=/cvmfs/projects.cern.ch/intelsw/oneAPI/linux/x86_64/2023/compiler/2023.0.0/linux/bin-llvm/clang++
-#export SYCLFLAGS="-fsycl -Xsycl-target-backend=nvptx64-nvidia-cuda --cuda-gpu-arch=$SM_LEVEL"
+export CXX=/cvmfs/projects.cern.ch/intelsw/oneAPI/linux/x86_64/2023/compiler/2023.0.0/linux/bin-llvm/clang++
+export SYCLFLAGS="-fsycl -Xsycl-target-backend=nvptx64-nvidia-cuda --cuda-gpu-arch=$SM_LEVEL"
 
 # Compilation for OneAPI LLVM compiler
-export DPCPP_HOME=/afs/cern.ch/work/j/jteig/sycl_workspace
-export CXX=$DPCPP_HOME/llvm/build/bin/clang++
-export SYCLFLAGS="-fsycl -fsycl-targets=nvptx64-nvidia-cuda -Xsycl-target-backend '--cuda-gpu-arch=$SM_LEVEL' -fgpu-rdc --cuda-path=$CUDA_PATH"
+#export DPCPP_HOME=/afs/cern.ch/work/j/jteig/sycl_workspace
+#export CXX=$DPCPP_HOME/llvm/build/bin/clang++
+#export SYCLFLAGS="-fsycl -fsycl-targets=nvptx64-nvidia-cuda -Xsycl-target-backend '--cuda-gpu-arch=$SM_LEVEL' -fgpu-rdc --cuda-path=$CUDA_PATH"
 
 # Branch should be enviroment variable in main script and then passed down if none then it is not displayed in prefix
 REPORT_FOLDER="${WORKSPACE}/$(date +"%y-%m-%d")_${SYCL_NAME_PREFIX}_${branch}"
