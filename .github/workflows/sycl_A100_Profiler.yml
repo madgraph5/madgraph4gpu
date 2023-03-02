@@ -18,6 +18,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Runs SYCL performanceProfiler.py script
-      run: cd tools/profiling/; source /cvmfs/sft.cern.ch/lcg/releases/gcc/11.3.0-ad0f5/x86_64-centos8/setup.sh; source /cvmfs/projects.cern.ch/intelsw/oneAPI/linux/23-all-setup.sh --include-intel-llvm; python3 performanceProfiler.py -l 'SYCL' -b 'master'
+      run: cd tools/profiling/; source /cvmfs/sft.cern.ch/lcg/releases/gcc/11.3.0-ad0f5/x86_64-centos8/setup.sh; source /cvmfs/projects.cern.ch/intelsw/oneAPI/linux/x86_64/2023/setvars.sh --include-intel-llvm; python3 performanceProfiler.py -l 'SYCL' -b 'master'
     - name: Uploads SYCL JSON files to DB
       run: cd tools/profiling/; python3 sendData.py --absLayer SYCL --profiler 1 --branch master
