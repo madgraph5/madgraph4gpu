@@ -26,6 +26,12 @@ endif
 
 #=== Set the SYCL compiler flags appropriate to user-defined choices of FPTYPE, HELINL, HRDCOD
 
+# Add option to enable CI profiler use
+$(info ENABLE_CI_PROFILER=$(ENABLE_CI_PROFILER))
+ifeq ($(ENABLE_CI_PROFILER),1)
+  CXXFLAGS += --gcc-toolchain="/cvmfs/sft.cern.ch/lcg/releases/gcc/11.3.0-ad0f5/x86_64-centos8"
+endif
+
 # Set the build flags appropriate to each FPTYPE choice (example: "make FPTYPE=f")
 ifeq ($(FPTYPE),d)
   CXXFLAGS += -DMGONGPU_FPTYPE_DOUBLE
