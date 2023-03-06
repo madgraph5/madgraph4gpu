@@ -158,28 +158,18 @@ fi
 # Kernel function
 function oneTable()
 {
-  filesall=""
+  files=""
   if [ "$brd" == "brdg" ]; then brdsuf="_bridge"; else brdsuf=""; fi
   if [ "${bckend/.*}" == "$(basename $(pwd))" ]; then bckdir=""; else bckdir=../${bckend/.*}/; fi
   for proc in $procs; do
     file=${bckdir}tput/logs_${proc}_${suff}/log_${proc}_${suff}_${fpt}_${inl}_${hrd}${brdsuf}.txt
-    if [ "$file" == "$(git ls-tree --name-only $rev $file)" ]; then filesall="$filesall $file"; fi
+    if [ "$file" == "$(git ls-tree --name-only $rev $file)" ]; then files="$files $file"; fi
   done
-  ###echo "*** FILESALL $filesall ***" >> $out
-  if [ "$filesall" == "" ]; then return; fi
-  if [ "$table" != "juwels" ]; then
-    ###echo "git checkout $rev $filesall"
-    git checkout $rev $filesall >& /dev/null
-    if [ "$?" != "0" ]; then echo "ERROR! 'git checkout $rev' failed!"; exit 1; fi
-    files=$filesall
-  else
-    files=""
-    for file in $filesall; do
-      ###echo "git checkout $rev $file"
-      if git checkout $rev $file >& /dev/null; then files="$files $file"; else echo "WARNING! 'git checkout $rev $file' failed!"; fi
-    done
-  fi
   ###echo "*** FILES $files ***" >> $out
+  if [ "$files" == "" ]; then return; fi
+  ###echo "git checkout $rev $files"
+  git checkout $rev $files >& /dev/null
+  if [ "$?" != "0" ]; then echo "ERROR! 'git checkout $rev' failed!"; exit 1; fi
   if [ "$files" == "" ]; then return; fi
   node=$(cat $files | grep ^On | sort -u)
   if [ "$nodelast" != "$node" ]; then echo -e "$node\n" >> $out; nodelast=$node; fi
