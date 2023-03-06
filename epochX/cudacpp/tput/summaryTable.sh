@@ -160,19 +160,22 @@ function oneTable()
 {
   filesall=""
   if [ "$brd" == "brdg" ]; then brdsuf="_bridge"; else brdsuf=""; fi
+  if [ "${bckend/.*}" == "$(basename $(pwd))" ]; then bckdir=""; else bckdir=../${bckend/.*}/; fi
   for proc in $procs; do
-    file=../${bckend/.*}/tput/logs_${proc}_${suff}/log_${proc}_${suff}_${fpt}_${inl}_${hrd}${brdsuf}.txt
-    if [ -f $file ]; then filesall="$filesall $file"; fi
+    file=${bckdir}tput/logs_${proc}_${suff}/log_${proc}_${suff}_${fpt}_${inl}_${hrd}${brdsuf}.txt
+    if [ "$file" == "$(git ls-tree --name-only $rev $file)" ]; then filesall="$filesall $file"; fi
   done
   ###echo "*** FILESALL $filesall ***" >> $out
   if [ "$filesall" == "" ]; then return; fi
   if [ "$table" != "juwels" ]; then
+    ###echo "git checkout $rev $filesall"
     git checkout $rev $filesall >& /dev/null
     if [ "$?" != "0" ]; then echo "ERROR! 'git checkout $rev' failed!"; exit 1; fi
     files=$filesall
   else
     files=""
     for file in $filesall; do
+      ###echo "git checkout $rev $file"
       if git checkout $rev $file >& /dev/null; then files="$files $file"; else echo "WARNING! 'git checkout $rev $file' failed!"; fi
     done
   fi
@@ -281,6 +284,10 @@ for fpt in $fpts; do
     fi
   done
 done
-git checkout HEAD ../cudacpp/tput/logs* >& /dev/null
-git checkout HEAD ../alpaka/tput/logs* >& /dev/null
+###echo TEST >> ${out}
+cp ${0} ${0}.NEW
+cp ${out} ${out}.NEW
+git reset --hard HEAD >& /dev/null
+mv ${0}.NEW ${0}
+mv ${out}.NEW ${out}
 cat $out
