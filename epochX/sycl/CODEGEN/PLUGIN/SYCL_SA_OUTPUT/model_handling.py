@@ -1486,14 +1486,24 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                 call = call
             call = call + "%+d, w_sv[%d]);" # AV vectorize
             if argument.get('spin') == 1:
+                misc.sprint("spin")
+                misc.sprint(call)
+                misc.sprint(
+                                (wf.get('number_external')-1,
+                                 #wf.get('mass'),
+                                 #wf.get('number_external')-1,
+                                 # For boson, need initial/final here
+                                 (-1) ** (wf.get('state') == 'initial'),
+                                 wf.get('me_id')-1))
                 return call % \
                                 (wf.get('number_external')-1,
-                                 wf.get('mass'),
-                                 wf.get('number_external')-1,
+                                 #wf.get('mass'),
+                                 #wf.get('number_external')-1,
                                  # For boson, need initial/final here
                                  (-1) ** (wf.get('state') == 'initial'),
                                  wf.get('me_id')-1)
             elif argument.is_boson():
+                misc.sprint("boson")
                 misc.sprint(call)
                 misc.sprint( 
                                 (wf.get('number_external')-1,
@@ -1510,6 +1520,15 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                                  (-1) ** (wf.get('state') == 'initial'),
                                  wf.get('me_id')-1))
             else:
+                misc.sprint("fermion")
+                misc.sprint(call)
+                misc.sprint( 
+                                (wf.get('number_external')-1,
+                                 wf.get('mass'),
+                                 wf.get('number_external')-1,
+                                 # For fermions, need particle/antiparticle
+                                 - (-1) ** wf.get_with_flow('is_part'),
+                                 wf.get('me_id')-1))
                 return self.format_coupling(call % \
                                 (wf.get('number_external')-1,
                                  wf.get('mass'),
