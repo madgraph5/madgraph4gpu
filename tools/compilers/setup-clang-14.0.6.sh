@@ -3,8 +3,8 @@ if [ "$BASH_SOURCE" = "" ]; then echo "ERROR! This script was not sourced from b
 scrdir=$(cd $(dirname ${BASH_SOURCE}); pwd)
 redrel=$(cat /etc/redhat-release 2> /dev/null)
 if [ "${redrel##*release 7}" != "${redrel}" ]; then
-  source /cvmfs/sft.cern.ch/lcg/releases/binutils/2.37-355ed/x86_64-centos9/setup.sh
-  source /cvmfs/sft.cern.ch/lcg/releases/gcc/12.1.0-57c96/x86_64-centos9/setup.sh
+  source /cvmfs/sft.cern.ch/lcg/releases/binutils/2.37-355ed/x86_64-centos7/setup.sh
+  source /cvmfs/sft.cern.ch/lcg/releases/gcc/12.1.0-57c96/x86_64-centos7/setup.sh
 elif [ "${redrel##*release 9}" != "${redrel}" ]; then
   source /cvmfs/sft.cern.ch/lcg/releases/binutils/2.37-355ed/x86_64-centos9/setup.sh
   source /cvmfs/sft.cern.ch/lcg/releases/gcc/12.1.0-57c96/x86_64-centos9/setup.sh
