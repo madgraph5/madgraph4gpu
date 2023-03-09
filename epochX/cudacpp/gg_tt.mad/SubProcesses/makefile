@@ -98,9 +98,9 @@ ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
 override OMPFLAGS = -fopenmp
 LINKLIBS += -liomp5 # see #578
 LINKLIBS += -lintlc # undefined reference to `_intel_fast_memcpy'
-else ifneq ($(shell $(CXX) --version | egrep '^(clang)'),)
+else ifneq ($(shell $(CXX) --version | egrep '^clang'),)
 override OMPFLAGS = -fopenmp
-#$(PROG): LINKLIBS += # see #604, no need to add OMP libraries when linking madevent with gfortran
+$(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp: LINKLIBS += -L $(shell dirname $(shell $(CXX) -print-file-name=libc++.so)) -lomp # see #604
 ###else ifneq ($(shell $(CXX) --version | egrep '^(Apple clang)'),)
 ###override OMPFLAGS = -fopenmp # OMP is not supported yet by cudacpp for Apple clang
 else
