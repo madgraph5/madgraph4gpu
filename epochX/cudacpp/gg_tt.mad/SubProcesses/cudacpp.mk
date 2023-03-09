@@ -620,7 +620,7 @@ $(testmain): LIBFLAGS += -liomp5 # see #578 (not '-qopenmp -static-intel' as in 
 else ifneq ($(shell $(CXX) --version | egrep '^(clang)'),)
 $(testmain): LIBFLAGS += -lomp # see #578
 ###else ifneq ($(shell $(CXX) --version | egrep '^(Apple clang)'),)
-###$(testmain): LIBFLAGS += ???? # see #578
+###$(testmain): LIBFLAGS += ???? # OMP is not supported yet by cudacpp for Apple clang (see #578 and #604)
 else
 $(testmain): LIBFLAGS += -lgomp
 endif

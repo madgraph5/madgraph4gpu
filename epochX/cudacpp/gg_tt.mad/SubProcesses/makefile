@@ -102,7 +102,7 @@ else ifneq ($(shell $(CXX) --version | egrep '^(clang)'),)
 override OMPFLAGS = -fopenmp
 LINKLIBS += -lomp # see #578
 ###else ifneq ($(shell $(CXX) --version | egrep '^(Apple clang)'),)
-###override OMPFLAGS = -fopenmp
+###override OMPFLAGS = -fopenmp # OMP is not supported yet by cudacpp for Apple clang (see #578 and #604)
 else
 override OMPFLAGS = -fopenmp
 endif
