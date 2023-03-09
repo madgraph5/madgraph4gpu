@@ -616,7 +616,7 @@ ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
 $(testmain): LIBFLAGS += -liomp5 # see #578 (not '-qopenmp -static-intel' as in https://stackoverflow.com/questions/45909648)
 else ifneq ($(shell $(CXX) --version | egrep '^clang'),)
 $(testmain): LIBFLAGS += -L $(shell dirname $(shell $(CXX) -print-file-name=libc++.so)) -lomp # see #604
-###else ifneq ($(shell $(CXX) --version | egrep '^(Apple clang)'),)
+###else ifneq ($(shell $(CXX) --version | egrep '^Apple clang'),)
 ###$(testmain): LIBFLAGS += ???? # OMP is not supported yet by cudacpp for Apple clang (see #578 and #604)
 else
 $(testmain): LIBFLAGS += -lgomp
