@@ -24,7 +24,7 @@ index a6907622e..3c1e4fdf8 100644
 +      PARAMETER (VECSIZE_MEMMAX=16384) ! NB: 16k events per GPU grid is the minimum required to fill a V100 GPU
 +c     PARAMETER (VECSIZE_MEMMAX=32) ! NB: workaround for out-of-memory on Juwels: 32 is enough for no-CUDA builds (issue #498)
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
-index 6f5e1f832..c72e18a21 100644
+index 6f5e1f832..e33418342 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 @@ -1,6 +1,19 @@
@@ -107,11 +107,11 @@ index 6f5e1f832..c72e18a21 100644
 +override OMPFLAGS = -fopenmp
 +LINKLIBS += -liomp5 # see #578
 +LINKLIBS += -lintlc # undefined reference to `_intel_fast_memcpy'
-+else ifneq ($(shell $(CXX) --version | egrep '^(clang)'),)
++else ifneq ($(shell $(CXX) --version | egrep '^clang'),)
 +override OMPFLAGS = -fopenmp
-+LINKLIBS += -lomp # see #578
-+###else ifneq ($(shell $(CXX) --version | egrep '^(Apple clang)'),)
-+###override OMPFLAGS = -fopenmp
++$(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp: LINKLIBS += -L $(shell dirname $(shell $(CXX) -print-file-name=libc++.so)) -lomp # see #604
++###else ifneq ($(shell $(CXX) --version | egrep '^Apple clang'),)
++###override OMPFLAGS = -fopenmp # OMP is not supported yet by cudacpp for Apple clang
 +else
 +override OMPFLAGS = -fopenmp
 +endif
