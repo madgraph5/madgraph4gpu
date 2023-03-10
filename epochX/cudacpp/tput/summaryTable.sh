@@ -14,7 +14,8 @@ if [ "$1" == "-ALL" ] && [ "$2" == "" ]; then
   $0 -macm1
   $0 -alphas
   $0 -3xcomp
-  $0 -openlab23
+  $0 -ol23silv
+  ###$0 -ol23gold
   exit 0
 elif [ "$1" == "-latest" ]; then
   table="latest"; shift
@@ -32,10 +33,12 @@ elif [ "$1" == "-alphas" ]; then
   table="alphas"; shift
 elif [ "$1" == "-3xcomp" ]; then
   table="3xcomp"; shift
-elif [ "$1" == "-openlab23" ]; then
-  table="openlab23"; shift
+elif [ "$1" == "-ol23silv" ]; then
+  table="ol23silv"; shift
+elif [ "$1" == "-ol23gold" ]; then
+  table="ol23gold"; shift
 else
-  echo "Usage: $0 <table [-ALL|-latest|-bridge|-hrdcod|-juwels|-alpaka|-macm1|-alphas|-3xcomp|-openlab23]>"; exit 1
+  echo "Usage: $0 <table [-ALL|-latest|-bridge|-hrdcod|-juwels|-alpaka|-macm1|-alphas|-3xcomp|-ol23silv|ol23gold]>"; exit 1
 fi
 
 unames=$(uname -s)
@@ -94,11 +97,15 @@ elif [ "$table" == "3xcomp" ]; then
   mrevs="$mrevs d250d2d" # cuda117/gcc112  (26 Aug 2022) GCC112   60 logs allTees.sh
   mrevs="$mrevs 2c77b32" # cuda117/clang13 (27 Aug 2022) CLANG13  60 logs allTees.sh
   mrevs="$mrevs f3ee68c" # cuda117/icx2022 (27 Aug 2022) ICX2022  60 logs allTees.sh
-elif [ "$table" == "openlab23" ]; then
+elif [ "$table" == "ol23silv" ]; then
   mrevs="$mrevs 49e4381" # cuda120/gcc112  (23 Feb 2023 itscrd90)
+  ###mrevs="$mrevs 2a6ddd0" # cuda120/gcc121  (24 Feb 2023 itscrd90)
   mrevs="$mrevs aed7c84" # cuda120/clang14 (23 Feb 2023 itscrd90)
   mrevs="$mrevs 32e098f" # cuda120/icx2023 (23 Feb 2023 itscrd90)
-  ###mrevs="$mrevs 2a6ddd0" # cuda120/gcc121  (24 Feb 2023 itscrd90)
+elif [ "$table" == "ol23gold" ]; then
+  mrevs="$mrevs e67558d" # nocuda/gcc121   (10 Mar 2023 bmkGold6130)
+  mrevs="$mrevs aa4a5c4" # nocuda/clang14  (09 Mar 2023 bmkGold6130)
+  mrevs="$mrevs 99c1bd6" # nocuda/icx2023  (10 Mar 2023 bmkGold6130)
 else
   echo "ERROR! Unknown table '$table'"; exit 1
 fi
@@ -148,7 +155,7 @@ elif [ "$table" == "3xcomp" ]; then
   inls="inl0 inl1"
   hrds="hrd0 hrd1"
   brds="nobr"
-elif [ "$table" == "openlab23" ]; then
+elif [ "$table" == "ol23silv" ] || [ "$table" == "ol23gold" ]; then
   ###fpts="d f m"
   fpts="d f"
   inls="inl0 inl1"
@@ -245,7 +252,7 @@ for fpt in $fpts; do
     fi
     if [ "$revs" == "" ]; then continue; fi
     ### DIFFERENT SORTINGS
-    if [ "$table" == "3xcomp" ] || [ "$table" == "openlab23" ]; then
+    if [ "$table" == "3xcomp" ] || [ "$table" == "ol23silv" ] || [ "$table" == "ol23gold" ]; then
       ### New sorting (3xcomp)
       for inl in $inls; do
         for hrd in $hrds; do
@@ -274,7 +281,7 @@ for fpt in $fpts; do
         done
       done
     else
-      ### Old sorting (all but alphas, 3xcomp, openlab23)
+      ### Old sorting (all but alphas, 3xcomp, ol23silv, ol23gold)
       for rev in $revs; do
         echo -e "+++ $bckend REVISION $rev (commit date: $(git log $rev --pretty=format:'%ci' --abbrev-commit -n1)) +++" >> $out
         nodelast=
