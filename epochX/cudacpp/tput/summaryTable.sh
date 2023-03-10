@@ -98,8 +98,8 @@ elif [ "$table" == "3xcomp" ]; then
   mrevs="$mrevs 2c77b32" # cuda117/clang13 (27 Aug 2022) CLANG13  60 logs allTees.sh
   mrevs="$mrevs f3ee68c" # cuda117/icx2022 (27 Aug 2022) ICX2022  60 logs allTees.sh
 elif [ "$table" == "ol23silv" ]; then
-  mrevs="$mrevs 49e4381" # cuda120/gcc112  (23 Feb 2023 itscrd90)
-  ###mrevs="$mrevs 2a6ddd0" # cuda120/gcc121  (24 Feb 2023 itscrd90)
+  ###mrevs="$mrevs 49e4381" # cuda120/gcc112  (23 Feb 2023 itscrd90)
+  mrevs="$mrevs 2a6ddd0" # cuda120/gcc121  (24 Feb 2023 itscrd90)
   mrevs="$mrevs aed7c84" # cuda120/clang14 (23 Feb 2023 itscrd90)
   mrevs="$mrevs 32e098f" # cuda120/icx2023 (23 Feb 2023 itscrd90)
 elif [ "$table" == "ol23gold" ]; then
