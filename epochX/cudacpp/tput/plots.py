@@ -79,7 +79,9 @@ def axesOneProc( ax, tputs, fptype='d', proc='ggttgg', tputabs=True ):
     ymax = 0
     yval0 = None
     desc0 = None
-    for ih, helinl in enumerate( [ '0', '1' ] ):
+    if proc == 'ggttg' or proc == 'ggttggg' : helinls = [ '0' ]
+    else: helinls = [ '0', '1' ]
+    for ih, helinl in enumerate( helinls ):
         for ic, comp in enumerate( [ 'gcc12.1', 'clang14', 'icx2023' ] ):
             desc = '%s-inl%s'%( comp, helinl )
             xvals = []
@@ -148,5 +150,7 @@ if __name__ == '__main__':
     ###loadOneTableFile( 'ol23gold', debug=True )
 
     # Production plots
-    figOneProc( loadOneTableFile( 'ol23silv' ) )
-    figOneProc( loadOneTableFile( 'ol23gold' ) )
+    #figOneProc( loadOneTableFile( 'ol23silv' ), 'ggttgg' )
+    #figOneProc( loadOneTableFile( 'ol23gold' ), 'ggttgg' )
+    figOneProc( loadOneTableFile( 'ol23silv' ), 'ggttggg' )
+    figOneProc( loadOneTableFile( 'ol23gold' ), 'ggttggg' )
