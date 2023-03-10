@@ -71,21 +71,22 @@ def fptypeDesc( fptype ):
 def axesOneProc( ax, tputs, fptype='d', proc='ggttgg', tputabs=True ):
     metal = list( set( key[0] for key in tputs ) )[0] # assume all results come from the same node
     avxs = ( 'none', 'sse4', 'avx2', '512y', '512z' )
+    markers = ( 'o', 'X' ) 
     xmin = 0
     ymin = 0
     xmax = 0
     ymax = 0
     yval0 = None
     desc0 = None
-    for helinl in '0', '1':
+    for ih, helinl in enumerate( [ '0', '1' ] ):
         for comp in 'gcc12.1', 'clang14', 'icx2023' :
             desc = '%s-inl%s'%( comp, helinl )
             xvals = []
             yvals = []
-            for i, avx in enumerate( avxs ) :
+            for ia, avx in enumerate( avxs ) :
                 key = ( metal, fptype, helinl, comp, avx, '%-7s'%proc )
                 tput = tputs[key]
-                xval = i+1
+                xval = ia+1
                 yval = float( tput )
                 if yval0 is None : yval0 = yval
                 if desc0 is None : desc0 = desc
@@ -95,7 +96,7 @@ def axesOneProc( ax, tputs, fptype='d', proc='ggttgg', tputabs=True ):
                 ###print( key, xval, yval )
             xmax = max( xmax, max( xvals ) )
             ymax = max( ymax, max( yvals ) )
-            p = ax.plot( xvals, yvals, marker='o', label=desc )
+            p = ax.plot( xvals, yvals, marker=markers[ih], label=desc )
     # Prepare axis ticks
     xmax = xmax + 1
     ymax = ymax * 1.2
