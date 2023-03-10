@@ -109,7 +109,7 @@ def axesOneProc( ax, tputs, fptype='d', proc='ggttgg', tputabs=True ):
     ax.legend( loc=loc, fontsize=plots_legendsize )
     ax.set_xticks( xvals, avxs )
     # Prepare axis labels and title
-    ax.set_title( '%s %s %s'%( metal, proc, fptypeDesc( fptype ) ) )
+    ax.set_title( '%s %s %s'%( 'Gold6130' if metal == 'Gold' else 'Silver4216', proc, fptypeDesc( fptype ) ) )
     ax.set_xlabel('SIMD level', size=plots_labelsize )
     if tputabs : ax.set_ylabel('Throughput (E6 events per second)', size=plots_labelsize )
     else : ax.set_ylabel('Throughput / Throughput-%s'%desc0, size=plots_labelsize )
@@ -150,7 +150,7 @@ if __name__ == '__main__':
     ###loadOneTableFile( 'ol23gold', debug=True )
 
     # Production plots
-    #figOneProc( loadOneTableFile( 'ol23silv' ), 'ggttgg' )
-    #figOneProc( loadOneTableFile( 'ol23gold' ), 'ggttgg' )
+    figOneProc( loadOneTableFile( 'ol23silv' ), 'ggttgg' )
+    figOneProc( loadOneTableFile( 'ol23gold' ), 'ggttgg' )
     figOneProc( loadOneTableFile( 'ol23silv' ), 'ggttggg' )
     figOneProc( loadOneTableFile( 'ol23gold' ), 'ggttggg' )
