@@ -113,10 +113,12 @@ def axesOneProc( ax, tputs, fptype='d', proc='ggttgg', tputabs=True ):
 
 def figOneProc( tputs, proc='ggttgg' ):
     metal = list( set( key[0] for key in tputs ) )[0] # assume all results come from the same node
-    fig = plt.figure( figsize = ( 12, 8 ) )
+    ###abstputs = [ True, False ]
+    abstputs = [ False ]
+    fig = plt.figure( figsize = ( 10, 8 ) ) # keep same height with one or two rows (NB units are inches)
     fig.set_tight_layout( True )
     offset = 0
-    for abstput in True, False :
+    for abstput in abstputs :
         ax1 = fig.add_subplot( 221 + offset )
         ax2 = fig.add_subplot( 222 + offset )
         axesOneProc( ax1, tputs, 'd', proc, abstput )
