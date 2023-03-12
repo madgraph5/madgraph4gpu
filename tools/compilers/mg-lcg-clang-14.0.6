@@ -1,5 +1,16 @@
 #!/bin/sh
-export PATH=/cvmfs/sft.cern.ch/lcg/releases/clang/14.0.6-14bdb/x86_64-centos9/bin:/cvmfs/sft.cern.ch/lcg/releases/gcc/12.1.0-57c96/x86_64-centos9/bin:/cvmfs/sft.cern.ch/lcg/releases/binutils/2.37-355ed/x86_64-centos9/bin${PATH:+:$PATH}
-LD_LIBRARY_PATH=$(printenv LD_LIBRARY_PATH | sed 's-[^:]*/\(gcc\|llvm\|clang\|binutils\)/[^:]*:\?--g')
-export LD_LIBRARY_PATH=/cvmfs/sft.cern.ch/lcg/releases/clang/14.0.6-14bdb/x86_64-centos9/lib:/cvmfs/sft.cern.ch/lcg/releases/gcc/12.1.0-57c96/x86_64-centos9/lib64:/cvmfs/sft.cern.ch/lcg/releases/binutils/2.37-355ed/x86_64-centos9/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
-exec /cvmfs/sft.cern.ch/lcg/releases/clang/14.0.6-14bdb/x86_64-centos9/bin/clang --gcc-toolchain=/cvmfs/sft.cern.ch/lcg/releases/gcc/12.1.0-57c96/x86_64-centos9 "$@"
+redrel=$(cat /etc/redhat-release 2> /dev/null)
+if [ "${redrel##*release 7}" != "${redrel}" ]; then
+  export PATH=/cvmfs/sft.cern.ch/lcg/releases/clang/14.0.6-14bdb/x86_64-centos7/bin:/cvmfs/sft.cern.ch/lcg/releases/gcc/12.1.0-57c96/x86_64-centos7/bin:/cvmfs/sft.cern.ch/lcg/releases/binutils/2.37-355ed/x86_64-centos7/bin${PATH:+:$PATH}
+  LD_LIBRARY_PATH=$(printenv LD_LIBRARY_PATH | sed 's-[^:]*/\(gcc\|llvm\|clang\|binutils\)/[^:]*:\?--g')
+  export LD_LIBRARY_PATH=/cvmfs/sft.cern.ch/lcg/releases/clang/14.0.6-14bdb/x86_64-centos7/lib:/cvmfs/sft.cern.ch/lcg/releases/gcc/12.1.0-57c96/x86_64-centos7/lib64:/cvmfs/sft.cern.ch/lcg/releases/binutils/2.37-355ed/x86_64-centos7/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+  exec /cvmfs/sft.cern.ch/lcg/releases/clang/14.0.6-14bdb/x86_64-centos7/bin/clang --gcc-toolchain=/cvmfs/sft.cern.ch/lcg/releases/gcc/12.1.0-57c96/x86_64-centos7 "$@"
+elif [ "${redrel##*release 9}" != "${redrel}" ]; then
+  export PATH=/cvmfs/sft.cern.ch/lcg/releases/clang/14.0.6-14bdb/x86_64-centos9/bin:/cvmfs/sft.cern.ch/lcg/releases/gcc/12.1.0-57c96/x86_64-centos9/bin:/cvmfs/sft.cern.ch/lcg/releases/binutils/2.37-355ed/x86_64-centos9/bin${PATH:+:$PATH}
+  LD_LIBRARY_PATH=$(printenv LD_LIBRARY_PATH | sed 's-[^:]*/\(gcc\|llvm\|clang\|binutils\)/[^:]*:\?--g')
+  export LD_LIBRARY_PATH=/cvmfs/sft.cern.ch/lcg/releases/clang/14.0.6-14bdb/x86_64-centos9/lib:/cvmfs/sft.cern.ch/lcg/releases/gcc/12.1.0-57c96/x86_64-centos9/lib64:/cvmfs/sft.cern.ch/lcg/releases/binutils/2.37-355ed/x86_64-centos9/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+  exec /cvmfs/sft.cern.ch/lcg/releases/clang/14.0.6-14bdb/x86_64-centos9/bin/clang --gcc-toolchain=/cvmfs/sft.cern.ch/lcg/releases/gcc/12.1.0-57c96/x86_64-centos9 "$@"
+else
+  echo "ERROR! RedHat release ${redrel} is not supported by $0"
+  exit 1
+fi

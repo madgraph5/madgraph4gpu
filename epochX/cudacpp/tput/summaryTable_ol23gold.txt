@@ -1,0 +1,180 @@
+*** FPTYPE=d ******************************************************************
+
+-------------------------------------------------------------------------------
+
++++ cudacpp.mad REVISION e67558d (commit date: 2023-03-10 07:34:04 +0100) +++
+On bmk-ironic-0731f1ce3b.cern.ch [CPU: Intel(R) Xeon(R) Gold 6130 CPU] [GPU: none]:
+
+[gcc 12.1.0] 
+HELINL=0 HRDCOD=0 BRIDGE=no
+                eemumu          ggtt         ggttg        ggttgg       ggttggg
+CUD/none      --------      --------      --------      --------      --------
+         [2048/256/12]  [2048/256/2]   [64/256/10]    [64/256/1]     [1/256/2]
+CPP/none      1.49e+06      2.18e+05      2.82e+04      2.19e+03      9.82e+01
+CPP/sse4      3.25e+06      4.23e+05      5.70e+04      3.96e+03      1.88e+02
+CPP/avx2      6.25e+06      7.79e+05      1.13e+05      9.47e+03      4.08e+02
+CPP/512y      6.06e+06      7.77e+05      1.14e+05      8.65e+03      3.80e+02
+CPP/512z      8.45e+06      8.14e+05      1.34e+05      1.24e+04      5.99e+02
+
++++ cudacpp.mad REVISION aa4a5c4 (commit date: 2023-03-09 21:37:28 +0100) +++
+On bmk-ironic-0731f1ce3b.cern.ch [CPU: Intel(R) Xeon(R) Gold 6130 CPU] [GPU: none]:
+
+[clang 14.0.6 (gcc 12.1.0)] 
+HELINL=0 HRDCOD=0 BRIDGE=no
+                eemumu          ggtt         ggttg        ggttgg       ggttggg
+CUD/none      --------      --------      --------      --------      --------
+         [2048/256/12]  [2048/256/2]   [64/256/10]    [64/256/1]     [1/256/2]
+CPP/none      1.52e+06      2.54e+05      3.12e+04      2.38e+03      1.02e+02
+CPP/sse4      2.85e+06      4.28e+05      5.73e+04      4.45e+03      1.34e+02
+CPP/avx2      5.07e+06      6.29e+05      1.23e+05      1.13e+04      3.32e+02
+CPP/512y      5.03e+06      6.90e+05      1.31e+05      1.16e+04      3.82e+02
+CPP/512z      5.23e+06      7.18e+05      1.39e+05      1.41e+04      4.94e+02
+
++++ cudacpp.mad REVISION 99c1bd6 (commit date: 2023-03-10 06:41:24 +0100) +++
+On bmk-ironic-0731f1ce3b.cern.ch [CPU: Intel(R) Xeon(R) Gold 6130 CPU] [GPU: none]:
+
+[icx 20230000 (clang 16.0.0, gcc 10.2.0)] 
+HELINL=0 HRDCOD=0 BRIDGE=no
+                eemumu          ggtt         ggttg        ggttgg       ggttggg
+CUD/none      --------      --------      --------      --------      --------
+         [2048/256/12]  [2048/256/2]   [64/256/10]    [64/256/1]     [1/256/2]
+CPP/none      4.80e+06      2.67e+05      3.26e+04      2.38e+03      1.05e+02
+CPP/sse4      9.55e+06      4.57e+05      5.77e+04      4.32e+03      1.31e+02
+CPP/avx2      1.63e+07      9.14e+05      1.40e+05      9.23e+03      3.48e+02
+CPP/512y      1.79e+07      9.02e+05      1.42e+05      1.22e+04      3.72e+02
+CPP/512z      1.90e+07      1.14e+06      1.54e+05      1.42e+04      5.18e+02
+
+-------------------------------------------------------------------------------
+
++++ cudacpp.mad REVISION e67558d (commit date: 2023-03-10 07:34:04 +0100) +++
+On bmk-ironic-0731f1ce3b.cern.ch [CPU: Intel(R) Xeon(R) Gold 6130 CPU] [GPU: none]:
+
+[gcc 12.1.0] 
+HELINL=1 HRDCOD=0 BRIDGE=no
+                eemumu          ggtt         ggttg        ggttgg       ggttggg
+CUD/none      --------      --------      --------      --------      --------
+         [2048/256/12]  [2048/256/2]      [------]    [64/256/1]      [------]
+CPP/none      4.19e+06      3.00e+05      --------      5.18e+02      --------
+CPP/sse4      8.23e+06      4.97e+05      --------      3.66e+03      --------
+CPP/avx2      1.18e+07      7.50e+05      --------      8.23e+03      --------
+CPP/512y      1.55e+07      8.58e+05      --------      1.13e+04      --------
+CPP/512z      1.13e+07      9.10e+05      --------      1.62e+04      --------
+
++++ cudacpp.mad REVISION aa4a5c4 (commit date: 2023-03-09 21:37:28 +0100) +++
+On bmk-ironic-0731f1ce3b.cern.ch [CPU: Intel(R) Xeon(R) Gold 6130 CPU] [GPU: none]:
+
+[clang 14.0.6 (gcc 12.1.0)] 
+HELINL=1 HRDCOD=0 BRIDGE=no
+                eemumu          ggtt         ggttg        ggttgg       ggttggg
+CUD/none      --------      --------      --------      --------      --------
+         [2048/256/12]  [2048/256/2]      [------]    [64/256/1]      [------]
+CPP/none      5.06e+06      3.35e+05      --------      3.23e+03      --------
+CPP/sse4      8.47e+06      5.69e+05      --------      6.20e+03      --------
+CPP/avx2      1.14e+07      9.06e+05      --------      1.60e+04      --------
+CPP/512y      1.15e+07      9.31e+05      --------      1.72e+04      --------
+CPP/512z      1.30e+07      1.07e+06      --------      2.77e+04      --------
+
++++ cudacpp.mad REVISION 99c1bd6 (commit date: 2023-03-10 06:41:24 +0100) +++
+On bmk-ironic-0731f1ce3b.cern.ch [CPU: Intel(R) Xeon(R) Gold 6130 CPU] [GPU: none]:
+
+[icx 20230000 (clang 16.0.0, gcc 10.2.0)] 
+HELINL=1 HRDCOD=0 BRIDGE=no
+                eemumu          ggtt         ggttg        ggttgg       ggttggg
+CUD/none      --------      --------      --------      --------      --------
+         [2048/256/12]  [2048/256/2]      [------]    [64/256/1]      [------]
+CPP/none      4.79e+06      3.50e+05      --------      2.87e+03      --------
+CPP/sse4      9.26e+06      6.05e+05      --------      6.19e+03      --------
+CPP/avx2      1.58e+07      1.15e+06      --------      1.60e+04      --------
+CPP/512y      1.77e+07      1.17e+06      --------      1.78e+04      --------
+CPP/512z      1.90e+07      1.37e+06      --------      2.92e+04      --------
+
+*** FPTYPE=f ******************************************************************
+
+-------------------------------------------------------------------------------
+
++++ cudacpp.mad REVISION e67558d (commit date: 2023-03-10 07:34:04 +0100) +++
+On bmk-ironic-0731f1ce3b.cern.ch [CPU: Intel(R) Xeon(R) Gold 6130 CPU] [GPU: none]:
+
+[gcc 12.1.0] 
+HELINL=0 HRDCOD=0 BRIDGE=no
+                eemumu          ggtt         ggttg        ggttgg       ggttggg
+CUD/none      --------      --------      --------      --------      --------
+         [2048/256/12]  [2048/256/2]   [64/256/10]    [64/256/1]     [1/256/2]
+CPP/none      1.68e+06      2.25e+05      3.23e+04      2.47e+03      1.06e+02
+CPP/sse4      6.11e+06      6.58e+05      8.98e+04      8.70e+03      3.72e+02
+CPP/avx2      1.19e+07      1.41e+06      1.83e+05      1.93e+04      7.38e+02
+CPP/512y      1.27e+07      1.41e+06      1.97e+05      1.86e+04      7.07e+02
+CPP/512z      1.45e+07      1.38e+06      2.51e+05      2.34e+04      1.04e+03
+
++++ cudacpp.mad REVISION aa4a5c4 (commit date: 2023-03-09 21:37:28 +0100) +++
+On bmk-ironic-0731f1ce3b.cern.ch [CPU: Intel(R) Xeon(R) Gold 6130 CPU] [GPU: none]:
+
+[clang 14.0.6 (gcc 12.1.0)] 
+HELINL=0 HRDCOD=0 BRIDGE=no
+                eemumu          ggtt         ggttg        ggttgg       ggttggg
+CUD/none      --------      --------      --------      --------      --------
+         [2048/256/12]  [2048/256/2]   [64/256/10]    [64/256/1]     [1/256/2]
+CPP/none      1.64e+06      2.53e+05      3.14e+04      2.42e+03      1.05e+02
+CPP/sse4      5.60e+06      8.12e+05      1.17e+05      9.39e+03      3.10e+02
+CPP/avx2      1.03e+07      1.52e+06      2.62e+05      2.04e+04      6.72e+02
+CPP/512y      1.08e+07      1.58e+06      2.73e+05      2.49e+04      7.55e+02
+CPP/512z      1.17e+07      1.07e+06      2.30e+05      2.59e+04      1.02e+03
+
++++ cudacpp.mad REVISION 99c1bd6 (commit date: 2023-03-10 06:41:24 +0100) +++
+On bmk-ironic-0731f1ce3b.cern.ch [CPU: Intel(R) Xeon(R) Gold 6130 CPU] [GPU: none]:
+
+[icx 20230000 (clang 16.0.0, gcc 10.2.0)] 
+HELINL=0 HRDCOD=0 BRIDGE=no
+                eemumu          ggtt         ggttg        ggttgg       ggttggg
+CUD/none      --------      --------      --------      --------      --------
+         [2048/256/12]  [2048/256/2]   [64/256/10]    [64/256/1]     [1/256/2]
+CPP/none      4.30e+06      2.53e+05      3.02e+04      2.16e+03      9.66e+01
+CPP/sse4      1.64e+07      8.44e+05      1.17e+05      9.16e+03      3.13e+02
+CPP/avx2      3.56e+07      1.67e+06      2.70e+05      2.27e+04      6.80e+02
+CPP/512y      3.88e+07      1.73e+06      2.74e+05      2.43e+04      7.61e+02
+CPP/512z      4.27e+07      1.80e+06      2.92e+05      2.82e+04      1.02e+03
+
+-------------------------------------------------------------------------------
+
++++ cudacpp.mad REVISION e67558d (commit date: 2023-03-10 07:34:04 +0100) +++
+On bmk-ironic-0731f1ce3b.cern.ch [CPU: Intel(R) Xeon(R) Gold 6130 CPU] [GPU: none]:
+
+[gcc 12.1.0] 
+HELINL=1 HRDCOD=0 BRIDGE=no
+                eemumu          ggtt         ggttg        ggttgg       ggttggg
+CUD/none      --------      --------      --------      --------      --------
+         [2048/256/12]  [2048/256/2]      [------]    [64/256/1]      [------]
+CPP/none      4.72e+06      2.99e+05      --------      7.26e+02      --------
+CPP/sse4      1.43e+07      8.29e+05      --------      8.86e+03      --------
+CPP/avx2      2.69e+07      1.24e+06      --------      1.54e+04      --------
+CPP/512y      2.83e+07      1.32e+06      --------      1.90e+04      --------
+CPP/512z      2.81e+07      1.17e+06      --------      2.55e+04      --------
+
++++ cudacpp.mad REVISION aa4a5c4 (commit date: 2023-03-09 21:37:28 +0100) +++
+On bmk-ironic-0731f1ce3b.cern.ch [CPU: Intel(R) Xeon(R) Gold 6130 CPU] [GPU: none]:
+
+[clang 14.0.6 (gcc 12.1.0)] 
+HELINL=1 HRDCOD=0 BRIDGE=no
+                eemumu          ggtt         ggttg        ggttgg       ggttggg
+CUD/none      --------      --------      --------      --------      --------
+         [2048/256/12]  [2048/256/2]      [------]    [64/256/1]      [------]
+CPP/none      3.97e+06      3.31e+05      --------      3.52e+03      --------
+CPP/sse4      1.62e+07      1.09e+06      --------      1.39e+04      --------
+CPP/avx2      3.23e+07      2.07e+06      --------      3.15e+04      --------
+CPP/512y      3.46e+07      2.26e+06      --------      3.55e+04      --------
+CPP/512z      3.32e+07      1.44e+06      --------      5.31e+04      --------
+
++++ cudacpp.mad REVISION 99c1bd6 (commit date: 2023-03-10 06:41:24 +0100) +++
+On bmk-ironic-0731f1ce3b.cern.ch [CPU: Intel(R) Xeon(R) Gold 6130 CPU] [GPU: none]:
+
+[icx 20230000 (clang 16.0.0, gcc 10.2.0)] 
+HELINL=1 HRDCOD=0 BRIDGE=no
+                eemumu          ggtt         ggttg        ggttgg       ggttggg
+CUD/none      --------      --------      --------      --------      --------
+         [2048/256/12]  [2048/256/2]      [------]    [64/256/1]      [------]
+CPP/none      4.30e+06      3.19e+05      --------      3.20e+03      --------
+CPP/sse4      1.65e+07      1.08e+06      --------      1.37e+04      --------
+CPP/avx2      3.53e+07      1.96e+06      --------      3.11e+04      --------
+CPP/512y      3.81e+07      2.17e+06      --------      3.51e+04      --------
+CPP/512z      4.20e+07      2.16e+06      --------      5.71e+04      --------
+
