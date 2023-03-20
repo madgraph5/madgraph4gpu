@@ -156,7 +156,7 @@ endif
 
 cleanall:
 	@echo
-	make clean
+	make -f sycl_src.mk clean
 	@echo
 	rm -rf build.*
 
