@@ -8,8 +8,8 @@ if command -v nvidia-smi > /dev/null 2>&1; then
     # Get the name of the GPU
     GPU_NAME=$(nvidia-smi --query-gpu=name --format=csv,noheader)
 
-    # GPU
-    export DEVICE_ID=0
+    # GPU (DEVICE_ID=2 for oneAPI toolkit runs on GPUs, else DEVICE_ID=0)
+    export DEVICE_ID=2
     # CPU
     #export DEVICE_ID=1
 else
@@ -74,6 +74,10 @@ export WORKSPACE=$prefix/workspace_mg4gpu
 # Compilation using OneAPI Toolkit through CVMFS
 export CXX=/cvmfs/projects.cern.ch/intelsw/oneAPI/linux/x86_64/2023/compiler/2023.0.0/linux/bin-llvm/clang++
 export SYCLFLAGS="-fsycl -Xsycl-target-backend=nvptx64-nvidia-cuda --cuda-gpu-arch=$SM_LEVEL"
+
+# Gets no erros with this:
+export SYCLFLAGS="-fsycl -fsycl-targets=nvptx64-nvidia-cuda -Xsycl-target-backend \"--cuda-gpu-arch=$SM_LEVEL\""
+
 
 # Compilation for OneAPI LLVM compiler
 #export DPCPP_HOME=/afs/cern.ch/work/j/jteig/sycl_workspace
