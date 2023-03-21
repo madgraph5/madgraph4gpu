@@ -2,10 +2,12 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c      written by the UFO converter
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-C     
+C
 C     NB: VECSIZE_MEMMAX is defined in vector.inc
 C     NB: vector.inc must be included before coupl.inc
-C     
+C
+
+      include '../../Source/vector.inc'
 
       DOUBLE PRECISION G, ALL_G(VECSIZE_MEMMAX)
       COMMON/STRONG/ G, ALL_G
@@ -34,4 +36,3 @@ C
       DOUBLE COMPLEX GC_10(VECSIZE_MEMMAX), GC_11(VECSIZE_MEMMAX)
 
       COMMON/COUPLINGS/ GC_10, GC_11
-
