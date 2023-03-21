@@ -68,7 +68,7 @@ prefix=$(pwd)
 
 export USEBUILDDIR=1
 export NTPBMAX=1024
-export CUDA_PATH=/usr/local/cuda-11.8/
+export CUDA_PATH=/usr/local/cuda-12.0/
 export WORKSPACE=$prefix/workspace_mg4gpu
 
 # Compilation using OneAPI Toolkit through CVMFS

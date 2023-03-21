@@ -10,7 +10,7 @@ jobs:
   cuda_a100_Profiling:
     name: CUDA A100 Profiling
     env:
-      CUDA_NAME_PREFIX: cudacpp_AMD-Epyc-7313_a100_gcc-11.3_cuda-11.8
+      CUDA_NAME_PREFIX: cudacpp_AMD-Epyc-7313_a100_gcc-11.3_cuda-12.0.1
       ENABLE_CI_PROFILER: 1
 
       MADGRAPH4GPU_DB_SECRET: ${{ secrets.MADGRAPH4GPU_DB_SECRET }}

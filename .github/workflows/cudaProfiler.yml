@@ -8,7 +8,7 @@ jobs:
   cuda_v100s_Profiling:
     name: CUDA V100S Profiling
     env:
-      CUDA_NAME_PREFIX: cudacpp_Xeon-Silver-4216_v100s_gcc-11.3_cuda-11.8
+      CUDA_NAME_PREFIX: cudacpp_Xeon-Silver-4216_v100s_gcc-11.3_cuda-12.0.1
       ENABLE_CI_PROFILER: 1
 
       MADGRAPH4GPU_DB_SECRET: ${{ secrets.MADGRAPH4GPU_DB_SECRET }}
