@@ -64,7 +64,7 @@ for process in mgProcesses:
 
                 time = str(datetime.datetime.now().strftime("%H:%M:%S"))
 
-                build = subprocess.run(bashArgs, check=True, stdout=subprocess.DEVNULL)
+                build = subprocess.run(bashArgs, check=True)#, stdout=subprocess.DEVNULL)
                 if build.returncode != 0:
                     print(time + " " + process + " FAILED!, threadsPerBlock: " + str(TPB) + ", blocksPerGrid: " + str(BPG) + ", Product: " + str(TPB * BPG))
                 else:
