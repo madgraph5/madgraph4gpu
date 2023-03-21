@@ -2,10 +2,10 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c      written by the UFO converter
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-C
+C     
 C     NB: VECSIZE_MEMMAX is defined in vector.inc
 C     NB: vector.inc must be included before coupl.inc
-C
+C     
 
       include '../../Source/vector.inc'
 
