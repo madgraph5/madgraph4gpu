@@ -76,7 +76,7 @@ export CXX=/cvmfs/projects.cern.ch/intelsw/oneAPI/linux/x86_64/2023/compiler/202
 #export SYCLFLAGS="-fsycl -Xsycl-target-backend=nvptx64-nvidia-cuda --cuda-gpu-arch=$SM_LEVEL"
 
 # Gets no erros with this:
-export SYCLFLAGS="-fsycl -fsycl-targets=nvptx64-nvidia-cuda -Xsycl-target-backend --cuda-gpu-arch=$SM_LEVEL"
+export SYCLFLAGS="-fsycl -fsycl-targets=nvptx64-nvidia-cuda -Xsycl-target-backend --cuda-gpu-arch=$SM_LEVEL -Xclang -fdenormal-fp-math=ieee"
 
 # Compilation for OneAPI LLVM compiler
 #export DPCPP_HOME=/afs/cern.ch/work/j/jteig/sycl_workspace
