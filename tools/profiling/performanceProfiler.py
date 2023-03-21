@@ -26,7 +26,7 @@ parser = argparse.ArgumentParser(description='A program for profiling GPUs using
 parser.add_argument("-l", help="Choose which abstraction layer you want to use (CUDA/SYCL).", default=absLayer)
 parser.add_argument("-b", help="Choose which branch the madgraph4gpu repo is in.", default=branch)
 
-#Add profiler option in python and build scripts so that correct gcc toolchain can be set through makefile and still not disturb the compilation on Github machines
+# Add profiler option in python and build scripts so that correct gcc toolchain can be set through makefile and still not disturb the compilation on Github machines
 
 pyArgs = parser.parse_args()
 
@@ -36,7 +36,7 @@ count = 0
 for process in mgProcesses:
     for TPB in threadsPerBlock:
         for BPG in blocksPerGrid:
-            if (TPB * BPG > doublePrecisionConstant):
+            if TPB * BPG > doublePrecisionConstant:
 
                 if pyArgs.l.upper() == 'SYCL':
 
@@ -51,7 +51,7 @@ for process in mgProcesses:
                     #if pyArgs.b != 'br_golden_epochX4':
                     if ".sa" not in process:
                         process = process + ".sa"
-                    
+
                     bashArgs = ["./buildCUDAProcess.sh", "-n",  process, "-i",  str(iterations), "-t",  str(TPB), "-b", str(BPG), "-r", str(pyArgs.b).lower()]
 
                     #if len(pyArgs.b) > 0:
@@ -61,12 +61,14 @@ for process in mgProcesses:
                 else: sys.exit("No abstraction layer matching the supplied string!")
 
                 print(str(datetime.datetime.now().strftime("%H:%M:%S")) + " Started " + process + " with TPB("+ str(TPB) +") * BPG("+ str(BPG) +"): " + str(TPB * BPG) + "!")
-                
-                build = subprocess.run(bashArgs)#, stdout=subprocess.DEVNULL)
+
+                time = str(datetime.datetime.now().strftime("%H:%M:%S"))
+
+                build = subprocess.run(bashArgs, check=True, stdout=subprocess.DEVNULL)
                 if build.returncode != 0:
-                    print(str(datetime.datetime.now().strftime("%H:%M:%S")) + " " + process + " FAILED!, threadsPerBlock: " + str(TPB) + ", blocksPerGrid: " + str(BPG) + ", Product: " + str(TPB * BPG))
+                    print(time + " " + process + " FAILED!, threadsPerBlock: " + str(TPB) + ", blocksPerGrid: " + str(BPG) + ", Product: " + str(TPB * BPG))
                 else:
-                    print(str(datetime.datetime.now().strftime("%H:%M:%S")) + " " + process + " COMPLETED!, threadsPerBlock: " + str(TPB) + ", blocksPerGrid: " + str(BPG) + ", Product: " + str(TPB * BPG))
+                    print(time + " " + process + " COMPLETED!, threadsPerBlock: " + str(TPB) + ", blocksPerGrid: " + str(BPG) + ", Product: " + str(TPB * BPG))
                 count += 1
 
 print("Builded " + str(count) + " processes!")
