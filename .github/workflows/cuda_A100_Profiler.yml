@@ -1,10 +1,8 @@
 name: CUDA A100 Profiler
 
 on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+  schedule:
+    - cron:  '00 00 * * *'
 
 jobs:
   cuda_a100_Profiling:
