@@ -64,7 +64,7 @@
 #       include <experimental/filesystem>
 
 // We need the alias from std::experimental::filesystem to std::filesystem
-namespace filsys = experimental::filesystem;
+namespace filsys = std::experimental::filesystem;
 
 // We have a decent compiler and can use the normal version
 #   else
