@@ -16,6 +16,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Runs CUDA performanceProfiler.py script
-      run: cd tools/profiling/; source /cvmfs/sft.cern.ch/lcg/contrib/gcc/11.3.0/x86_64-centos8/setup.sh; python3 performanceProfiler.py -l 'CUDA' -b 'master'
+      run: cd tools/profiling/; source /cvmfs/sft.cern.ch/lcg/releases/gcc/11.3.0-ad0f5/x86_64-centos8/setup.sh; python3 performanceProfiler.py -l 'CUDA' -b 'master'
     - name: Uploads CUDA JSON files to DB
       run: cd tools/profiling/; python3 sendData.py --absLayer CUDA --profiler 1 --branch master
