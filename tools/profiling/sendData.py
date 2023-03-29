@@ -118,10 +118,10 @@ if __name__=='__main__':
 
                 for field in fields:
                     value = float(re.findall(r'[\d.]+',data[0][field])[0])
-
+                    
                     DBdata = DBdata + ',' + args.absLayer + "_" + field.replace(" ", "_") + '=' + str(value)
 
-                requestInfo = ["curl", "-i",  '-XPOST', "-i",  URL, "--header",  "Authorization: Token "+Auth[0]+":"+Auth[1], "--data-raw", DBdata]
+                requestInfo = ["curl", "-i", "-k",  '-XPOST', "-i",  URL, "--header",  "Authorization: Token "+Auth[0]+":"+Auth[1], "--data-raw", DBdata]
                 
                 request = subprocess.run(requestInfo, stdout=subprocess.DEVNULL)
 
