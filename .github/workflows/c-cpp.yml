@@ -66,8 +66,8 @@ jobs:
     - name: path
       run: echo "PATH=$PATH"
     - name: make info
-      run: source /cvmfs/sft.cern.ch/lcg/contrib/gcc/11.3.0/x86_64-centos8/setup.sh; export CUDA_HOME=/usr/local/cuda-11.6/; make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} info
+      run: source /cvmfs/sft.cern.ch/lcg/releases/gcc/11.3.0-ad0f5/x86_64-centos8/setup.sh; export CUDA_HOME=/usr/local/cuda-12.0/; make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} info
     - name: make
-      run: source /cvmfs/sft.cern.ch/lcg/contrib/gcc/11.3.0/x86_64-centos8/setup.sh; export CUDA_HOME=/usr/local/cuda-11.6/; make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }}
+      run: source /cvmfs/sft.cern.ch/lcg/releases/gcc/11.3.0-ad0f5/x86_64-centos8/setup.sh; export CUDA_HOME=/usr/local/cuda-12.0/; make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }}
     - name: make check
-      run: source /cvmfs/sft.cern.ch/lcg/contrib/gcc/11.3.0/x86_64-centos8/setup.sh; export CUDA_HOME=/usr/local/cuda-11.6/; make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} check
+      run: source /cvmfs/sft.cern.ch/lcg/releases/gcc/11.3.0-ad0f5/x86_64-centos8/setup.sh; export CUDA_HOME=/usr/local/cuda-12.0/; make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} check
