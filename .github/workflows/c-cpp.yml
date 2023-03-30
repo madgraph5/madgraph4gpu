@@ -23,7 +23,7 @@ jobs:
     strategy:
       matrix:
         folder: [ epochX/cudacpp/ee_mumu.sa/SubProcesses/P1_Sigma_sm_epem_mupmum , epochX/cudacpp/gg_tt.sa/SubProcesses/P1_Sigma_sm_gg_ttx , epochX/cudacpp/gg_ttg.sa/SubProcesses/P1_Sigma_sm_gg_ttxg , epochX/cudacpp/gg_ttgg.sa/SubProcesses/P1_Sigma_sm_gg_ttxgg , epochX/cudacpp/gg_ttggg.sa/SubProcesses/P1_Sigma_sm_gg_ttxggg ]
-        precision: [ d , f ]
+        precision: [ d , f , m ]
       fail-fast: false
     steps:
     - uses: actions/checkout@v2
@@ -40,7 +40,7 @@ jobs:
     strategy:
       matrix:
         folder: [ epochX/cudacpp/ee_mumu.sa/SubProcesses/P1_Sigma_sm_epem_mupmum , epochX/cudacpp/gg_tt.sa/SubProcesses/P1_Sigma_sm_gg_ttx , epochX/cudacpp/gg_ttg.sa/SubProcesses/P1_Sigma_sm_gg_ttxg , epochX/cudacpp/gg_ttgg.sa/SubProcesses/P1_Sigma_sm_gg_ttxgg , epochX/cudacpp/gg_ttggg.sa/SubProcesses/P1_Sigma_sm_gg_ttxggg ]
-        precision: [ d ]
+        precision: [ d , f , m ]
       fail-fast: false
     steps:
     - uses: actions/checkout@v2
@@ -53,15 +53,18 @@ jobs:
   GPU:
     runs-on: [self-hosted, linux, v100s]
     env:
+      CUDA_HOME: /usr/local/cuda/
       FC: gfortran
       REQUIRE_CUDA: 1
     strategy:
       matrix:
         folder: [ epochX/cudacpp/ee_mumu.sa/SubProcesses/P1_Sigma_sm_epem_mupmum , epochX/cudacpp/gg_tt.sa/SubProcesses/P1_Sigma_sm_gg_ttx , epochX/cudacpp/gg_ttg.sa/SubProcesses/P1_Sigma_sm_gg_ttxg , epochX/cudacpp/gg_ttgg.sa/SubProcesses/P1_Sigma_sm_gg_ttxgg , epochX/cudacpp/gg_ttggg.sa/SubProcesses/P1_Sigma_sm_gg_ttxggg ]
-        precision: [ d , f ]
+        precision: [ d , f , m ]
       fail-fast: false
     steps:
     - uses: actions/checkout@v2
+    - name: path
+      run: echo "PATH=$PATH"
     - name: make info
       run: source /cvmfs/sft.cern.ch/lcg/contrib/gcc/11.3.0/x86_64-centos8/setup.sh; export CUDA_HOME=/usr/local/cuda-11.6/; make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} info
     - name: make

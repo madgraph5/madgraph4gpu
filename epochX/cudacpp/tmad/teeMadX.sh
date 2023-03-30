@@ -159,4 +159,6 @@ ended="ENDED   AT $(date)"
 echo
 echo "$started"
 echo "$ended"
+echo
+echo "Status=$status"
 exit $status

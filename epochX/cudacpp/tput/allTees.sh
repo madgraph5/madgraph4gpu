@@ -35,15 +35,15 @@ done
 cd $scrdir/..
 started="STARTED  AT $(date)"
 
-# (20/56) Four logs (double/float x hrd0/hrd1 x inl0) in each of the five processes
+# (30/70) Four logs (double/float/mixed x hrd0/hrd1 x inl0) in each of the five processes
 \rm -rf gg_ttggg${suff}/lib/build.none_*
-cmd="./tput/teeThroughputX.sh -flt -hrd -makej -eemumu -ggtt -ggttg -ggttgg $ggttggg -makeclean ${sa}"
+cmd="./tput/teeThroughputX.sh -mix -hrd -makej -eemumu -ggtt -ggttg -ggttgg $ggttggg -makeclean ${sa}"
 $cmd; status=$?
 ended1="$cmd\nENDED(1) AT $(date) [Status=$status]"
 tmp1=$(mktemp)
 ls -ltr ee_mumu${suff}/lib/build.none_*_inl0_hrd* gg_tt${suff}/lib/build.none_*_inl0_hrd* gg_tt*g${suff}/lib/build.none_*_inl0_hrd* | egrep -v '(total|\./|\.build|_common|^$)' > $tmp1
 
-# (32/56) Four extra logs (double/float x hrd0/hrd1 x inl1) only in three of the five processes
+# (42/70) Four extra logs (double/float x hrd0/hrd1 x inl1) only in three of the five processes
 \rm -rf gg_ttg${suff}/lib/build.none_*
 \rm -rf gg_ttggg${suff}/lib/build.none_*
 cmd="./tput/teeThroughputX.sh -flt -hrd -makej -eemumu -ggtt -ggttgg -inlonly -makeclean ${sa}"
@@ -52,22 +52,22 @@ ended2="$cmd\nENDED(2) AT $(date) [Status=$status]"
 tmp2=$(mktemp)
 ls -ltr ee_mumu${suff}/lib/build.none_*_inl1_hrd* gg_tt${suff}/lib/build.none_*_inl1_hrd* gg_tt*g${suff}/lib/build.none_*_inl1_hrd* | egrep -v '(total|\./|\.build|_common|^$)' > $tmp2
 
-# (42/60) Two extra logs (double/float x hrd0 x inl0 + bridge) in all five processes (rebuild from cache)
+# (52/70) Two extra logs (double/float x hrd0 x inl0 + bridge) in all five processes (rebuild from cache)
 cmd="./tput/teeThroughputX.sh -makej -eemumu -ggtt -ggttg -ggttgg $ggttggg -flt -bridge -makeclean ${sa}"
 $cmd; status=$?
 ended3="$cmd\nENDED(3) AT $(date) [Status=$status]"
 
-# (48/60) Two extra logs (double/float x hrd0 x inl0 + rmbhst) only in three of the five processes (no rebuild needed)
+# (58/70) Two extra logs (double/float x hrd0 x inl0 + rmbhst) only in three of the five processes (no rebuild needed)
 cmd="./tput/teeThroughputX.sh -eemumu -ggtt -ggttgg -flt -rmbhst ${sa}"
 $cmd; status=$?
 ended4="$cmd\nENDED(4) AT $(date) [Status=$status]"
 
-# (54/60) Two extra logs (double/float x hrd0 x inl0 + curhst) only in three of the five processes (no rebuild needed)
+# (64/70) Two extra logs (double/float x hrd0 x inl0 + curhst) only in three of the five processes (no rebuild needed)
 cmd="./tput/teeThroughputX.sh -eemumu -ggtt -ggttgg -flt -curhst ${sa}"
 $cmd; status=$?
 ended5="$cmd\nENDED(5) AT $(date) [Status=$status]"
 
-# (60/60) Two extra logs (double/float x hrd0 x inl0 + common) only in three of the five processes (no rebuild needed)
+# (70/70) Two extra logs (double/float x hrd0 x inl0 + common) only in three of the five processes (no rebuild needed)
 cmd="./tput/teeThroughputX.sh -eemumu -ggtt -ggttgg -flt -common ${sa}"
 $cmd; status=$?
 ended6="$cmd\nENDED(6) AT $(date) [Status=$status]"
@@ -92,3 +92,7 @@ if [ "$ggttggg" == "" ]; then
   echo "  ./tput/teeThroughputX.sh -flt -hrd -makej -ggttggg -makeclean ${sa}"
   echo "  ./tput/teeThroughputX.sh -makej -ggttggg -flt -bridge -makeclean ${sa}"
 fi
+
+# Print out any errors in the logs
+echo
+if ! egrep -i 'error' ./tput/logs_* -r; then echo "No errors found in logs"; fi

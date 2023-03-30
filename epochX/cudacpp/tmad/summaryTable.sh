@@ -24,6 +24,7 @@ if [ "$1" == "-ALL" ] && [ "$2" == "" ]; then
   $0 -acat22
   $0 -ggttgg
   $0 -ggttggg
+  ###$0 -openlab23
   exit 0
 elif [ "$1" == "-default" ]; then
   table="default"; shift
@@ -37,8 +38,10 @@ elif [ "$1" == "-ggttgg" ]; then
   table="ggttgg"; shift
 elif [ "$1" == "-ggttggg" ]; then
   table="ggttggg"; shift
+elif [ "$1" == "-openlab23" ]; then
+  table="openlab23"; shift
 else
-  echo "Usage: $0 [--long] <table [-ALL|-default|-juwels|-ichep22|-acat22|-ggttgg|-ggttggg]>"; exit 1
+  echo "Usage: $0 [--long] <table [-ALL|-default|-juwels|-ichep22|-acat22|-ggttgg|-ggttggg|-openlab23]>"; exit 1
 fi
 
 # Select revisions and characteristics of mad logs
@@ -104,6 +107,15 @@ elif [ "$table" == "ggttggg" ]; then
   # -- After implementing 'm'
   ###mrevs="$mrevs 68c9859"  # cuda117/gcc112  (18 Oct 2022 itscrd70)  add hack3/mixedfps (only ggttggg)
   mrevs="$mrevs bb15ee2"  # cuda117/gcc112  (21 Oct 2022 itscrd70)  rerun add hack3/mixedfps (all processes)
+  fpts="d f m"
+elif [ "$table" == "openlab23" ]; then
+  procs="ggttgg ggttggg"
+  ###taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/8192 CUDA/max $cuda8tpb"
+  taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z"
+  mrevs="$mrevs 49e4381" # cuda120/gcc112  (23 Feb 2023 itscrd90) baseline
+  mrevs="$mrevs aed7c84" # cuda120/clang14 (23 Feb 2023 itscrd90)
+  mrevs="$mrevs 32e098f" # cuda120/icx2023 (23 Feb 2023 itscrd90)
+  mrevs="$mrevs 2a6ddd0" # cuda120/gcc121  (24 Feb 2023 itscrd90)
   fpts="d f m"
 fi
 revs="$mrevs"

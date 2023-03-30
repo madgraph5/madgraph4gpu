@@ -24,7 +24,7 @@ index a6907622e..3c1e4fdf8 100644
 +      PARAMETER (VECSIZE_MEMMAX=16384) ! NB: 16k events per GPU grid is the minimum required to fill a V100 GPU
 +c     PARAMETER (VECSIZE_MEMMAX=32) ! NB: workaround for out-of-memory on Juwels: 32 is enough for no-CUDA builds (issue #498)
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
-index dd709f52c..365e9d0ed 100644
+index 6f5e1f832..e33418342 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 @@ -1,6 +1,19 @@
@@ -51,7 +51,7 @@ index dd709f52c..365e9d0ed 100644
      MADLOOP_LIB =
  endif
  
--LINKLIBS = $(LINK_MADLOOP_LIB) $(LINK_LOOP_LIBS) -L../../lib/ -ldhelas -ldsample -lmodel -lgeneric -lpdf -lcernlib $(llhapdf) -lbias 
+-LINKLIBS = $(LINK_MADLOOP_LIB) $(LINK_LOOP_LIBS) -L../../lib/ -ldhelas -ldsample -lmodel -lgeneric -lpdf -lgammaUPC -lcernlib $(llhapdf) -lbias 
 +LINKLIBS = $(LINK_MADLOOP_LIB) $(LINK_LOOP_LIBS) -L$(LIBDIR) -ldhelas -ldsample -lmodel -lgeneric -lpdf -lcernlib $(llhapdf) -lbias 
 +
 +processid_short=$(shell basename $(CURDIR) | awk -F_ '{print $$(NF-1)"_"$$NF}')
@@ -73,9 +73,9 @@ index dd709f52c..365e9d0ed 100644
 +CUDACPP_CXXLIB=mg5amc_$(processid_short)_cpp
 +CUDACPP_CULIB=mg5amc_$(processid_short)_cuda
  
- LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS)
+ LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libgammaUPC.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS)
  
-@@ -43,24 +75,76 @@ ifeq ($(strip $(MATRIX_HEL)),)
+@@ -43,24 +75,82 @@ ifeq ($(strip $(MATRIX_HEL)),)
  endif
  
  
@@ -105,7 +105,13 @@ index dd709f52c..365e9d0ed 100644
 +
 +ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
 +override OMPFLAGS = -fopenmp
++LINKLIBS += -liomp5 # see #578
 +LINKLIBS += -lintlc # undefined reference to `_intel_fast_memcpy'
++else ifneq ($(shell $(CXX) --version | egrep '^clang'),)
++override OMPFLAGS = -fopenmp
++$(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp: LINKLIBS += -L $(shell dirname $(shell $(CXX) -print-file-name=libc++.so)) -lomp # see #604
++###else ifneq ($(shell $(CXX) --version | egrep '^Apple clang'),)
++###override OMPFLAGS = -fopenmp # OMP is not supported yet by cudacpp for Apple clang
 +else
 +override OMPFLAGS = -fopenmp
 +endif
@@ -145,7 +151,7 @@ index dd709f52c..365e9d0ed 100644
 +	$(CXX) -std=c++11 -Wall -Wshadow -Wextra -c $< -o $@
 +
 +ompnumthreads.o: ompnumthreads.cc ompnumthreads.h
-+	$(CXX) -std=c++11 -Wall -Wshadow -Wextra $(OMPFLAGS) -c $< -o $@
++	$(CXX) -I. -std=c++11 -Wall -Wshadow -Wextra $(OMPFLAGS) -c $< -o $@
  
  $(PROG)_forhel: $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX_HEL)
 -	$(FC) -o $(PROG)_forhel $(PROCESS) $(MATRIX_HEL) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp
@@ -159,25 +165,23 @@ index dd709f52c..365e9d0ed 100644
  $(LIBDIR)libmodel.$(libext): ../../Cards/param_card.dat
  	cd ../../Source/MODEL; make
  
-@@ -69,12 +153,15 @@ $(LIBDIR)libgeneric.$(libext): ../../Cards/run_card.dat
+@@ -72,12 +162,15 @@ $(LIBDIR)libpdf.$(libext):
  
- $(LIBDIR)libpdf.$(libext): 
- 	cd ../../Source/PDF; make
+ $(LIBDIR)libgammaUPC.$(libext):
+ 	cd ../../Source/PDF/gammaUPC; make
 +endif
  
  # Add source so that the compiler finds the DiscreteSampler module.
  $(MATRIX): %.o: %.f
--	$(FC) $(FFLAGS) $(MATRIX_FLAG) -c $< -I../../Source/ -fopenmp
-+	$(FC) $(FFLAGS) $(MATRIX_FLAG) -c $< -I../../Source/ $(OMPFLAGS)
+ 	$(FC) $(FFLAGS) $(MATRIX_FLAG) -c $< -I../../Source/ -I../../Source/PDF/gammaUPC
  %.o: %.f
--	$(FC) $(FFLAGS) -c $< -I../../Source/ -fopenmp
-+	$(FC) $(FFLAGS) -c $< -I../../Source/ $(OMPFLAGS) -o $@
+ 	$(FC) $(FFLAGS) -c $< -I../../Source/ -I../../Source/PDF/gammaUPC
 +%_cudacpp.o: %.f
 +	$(FC) $(FFLAGS) -c -DMG5AMC_MEEXPORTER_CUDACPP $< -I../../Source/ $(OMPFLAGS) -o $@
  
  # Dependencies
  
-@@ -94,5 +181,71 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
+@@ -97,5 +190,71 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
  	 run_config.inc
  initcluster.o: message.inc
  

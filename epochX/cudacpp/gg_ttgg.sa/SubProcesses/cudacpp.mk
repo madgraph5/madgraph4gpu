@@ -170,9 +170,13 @@ endif
 
 # Set the default OMPFLAGS choice
 ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
-override OMPFLAGS = # disable OpenMP MT on Intel (ok without nvcc, not ok with nvcc)
-else ifneq ($(shell $(CXX) --version | egrep '^(clang|Apple clang)'),)
-override OMPFLAGS = # disable OpenMP MT on clang (not ok without or with nvcc)
+override OMPFLAGS = -fopenmp
+###override OMPFLAGS = # disable OpenMP MT on Intel (was ok without nvcc but not ok with nvcc before #578)
+else ifneq ($(shell $(CXX) --version | egrep '^(clang)'),)
+override OMPFLAGS = -fopenmp
+###override OMPFLAGS = # disable OpenMP MT on clang (was not ok without or with nvcc before #578)
+else ifneq ($(shell $(CXX) --version | egrep '^(Apple clang)'),)
+override OMPFLAGS = # disable OpenMP MT on Apple clang (builds fail in the CI #578)
 else
 override OMPFLAGS = -fopenmp
 ###override OMPFLAGS = # disable OpenMP MT (default before #575)
@@ -273,7 +277,9 @@ else ifneq ($(shell $(CXX) --version | grep ^nvc++),) # support nvc++ #531
     $(error Unknown AVX='$(AVX)': only 'none', 'sse4', 'avx2', '512y' and '512z' are supported)
   endif
 else
-  ifeq ($(AVX),sse4)
+  ifeq ($(AVX),none)
+    override AVXFLAGS = -march=x86-64 # no SIMD (see #588)
+  else ifeq ($(AVX),sse4)
     override AVXFLAGS = -march=nehalem # SSE4.2 with 128 width (xmm registers)
   else ifeq ($(AVX),avx2)
     override AVXFLAGS = -march=haswell # AVX2 with 256 width (ymm registers) [DEFAULT for clang]
@@ -281,7 +287,7 @@ else
     override AVXFLAGS = -march=skylake-avx512 -mprefer-vector-width=256 # AVX512 with 256 width (ymm registers) [DEFAULT for gcc]
   else ifeq ($(AVX),512z)
     override AVXFLAGS = -march=skylake-avx512 -DMGONGPU_PVW512 # AVX512 with 512 width (zmm registers)
-  else ifneq ($(AVX),none)
+  else
     $(error Unknown AVX='$(AVX)': only 'none', 'sse4', 'avx2', '512y' and '512z' are supported)
   endif
 endif
@@ -431,6 +437,13 @@ $(BUILDDIR)/CrossSectionKernels.o: CXXFLAGS += -fno-fast-math
 $(BUILDDIR)/CrossSectionKernels.o: CXXFLAGS += -fno-fast-math
 ifneq ($(NVCC),)
 $(BUILDDIR)/gCrossSectionKernels.o: CUFLAGS += -Xcompiler -fno-fast-math
+endif
+endif
+
+# Avoid "warning: builtin __has_trivial_... is deprecated; use __is_trivially_... instead" in nvcc with icx2023 (#592)
+ifneq ($(shell $(CXX) --version | egrep '^(Intel)'),)
+ifneq ($(NVCC),)
+CUFLAGS += -Xcompiler -Wno-deprecated-builtins
 endif
 endif
 
@@ -597,15 +610,14 @@ endif
 $(testmain): $(GTESTLIBS)
 $(testmain): INCFLAGS += -I$(TESTDIR)/googletest/googletest/include
 $(testmain): LIBFLAGS += -L$(GTESTLIBDIR) -lgtest -lgtest_main
-ifneq ($(shell $(CXX) --version | grep ^clang),)
-$(testmain): LIBFLAGS += -L$(patsubst %bin/clang++,%lib,$(shell which $(firstword $(subst ccache ,,$(CXX))) | tail -1))
-endif
 
 ifneq ($(OMPFLAGS),)
 ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
-###$(testmain): LIBFLAGS += -qopenmp -static-intel # see https://stackoverflow.com/questions/45909648/explicitly-link-intel-icpc-openmp
-else ifneq ($(shell $(CXX) --version | egrep '^(clang|Apple clang)'),)
-###$(testmain): LIBFLAGS += ??? # OpenMP on clang is not yet supported in cudacpp...
+$(testmain): LIBFLAGS += -liomp5 # see #578 (not '-qopenmp -static-intel' as in https://stackoverflow.com/questions/45909648)
+else ifneq ($(shell $(CXX) --version | egrep '^clang'),)
+$(testmain): LIBFLAGS += -L $(shell dirname $(shell $(CXX) -print-file-name=libc++.so)) -lomp # see #604
+###else ifneq ($(shell $(CXX) --version | egrep '^Apple clang'),)
+###$(testmain): LIBFLAGS += ???? # OMP is not supported yet by cudacpp for Apple clang (see #578 and #604)
 else
 $(testmain): LIBFLAGS += -lgomp
 endif

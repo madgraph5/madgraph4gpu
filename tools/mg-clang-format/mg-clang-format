@@ -1,4 +1,4 @@
 #!/bin/bash
-clangDir=/cvmfs/sft.cern.ch/lcg/releases/clang/13.0.0-7985e/x86_64-centos7
+clangDir=/cvmfs/sft.cern.ch/lcg/releases/clang/14.0.6-14bdb/x86_64-centos9
 source ${clangDir}/setup.sh
 exec ${clangDir}/bin/clang-format "$@"
