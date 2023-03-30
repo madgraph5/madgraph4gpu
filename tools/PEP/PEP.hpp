@@ -5,49 +5,7 @@
  *     |  __/| |___|  __/ 
  *     |_|   |_____|_|    
  * 
- *** 
- * Welcome to PEP, the Particle Extraction Protocol header for reading and 
- * writing Les Houches Event (.lhe) format files [hep-ph/0609017] for formatting
- * event information as defined by the Les Houches Accord [hep-ph/0609017]
- * 
- * PEP is a C++ library with no external dependencies, making use of features 
- * from the C++ standard library up to C++17. It is written for the specific
- * purpose of creating a general framework for interfacing event generators
- * and detector simulators in high energy physics, assuming only the official
- * structure of the LHE file format. Particularly, there is functionality for
- * extraction of relevant event data, i.e. that which was defined as part of
- * the original LHE standard. All other data can nevertheless be accessed as
- * standard XML nodes, the contained data stored as an std::string_view of the
- * relevant LHE file.
- * 
- * This library makes heavy use of the std::basic_string_view class introduced
- * in C++17, and it is recommended that any software built with PEP or any
- * extensions to the PEP library continues this trend as far as LHE file 
- * manipulation is concerned. This ensures both minimal memory manipulation 
- * (as only pointers to relevant strings are passed around), but also that 
- * write access is only established at extreme locations, e.g. on read and write.
- * When used as-is, PEP already guarantees that data on disk can only be written
- * on actual file output.
- * 
- * 
- * Copyright © 2023 CERN, CERN Author Zenny Wettersten. 
- * All rights not covered under the Lesser GPL license reserved
- * 
- * 
- * This program is free software: you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation, either version 3 
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program. If not, see <https://www.gnu.org/licenses/>. 
- * 
- */
+ ***/
 #include <vector>
 #include <iostream>
 #include <fstream>
