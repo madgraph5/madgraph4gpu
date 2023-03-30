@@ -11,7 +11,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        folder: [ epochX/cudacpp/ee_mumu.sa/SubProcesses/P1_Sigma_sm_epem_mupmum , epochX/cudacpp/gg_tt.sa/SubProcesses/P1_Sigma_sm_gg_ttx , epochX/cudacpp/gg_ttg.sa/SubProcesses/P1_Sigma_sm_gg_ttxg , epochX/cudacpp/gg_ttgg.sa/SubProcesses/P1_Sigma_sm_gg_ttxgg , epochX/cudacpp/gg_ttggg.sa/SubProcesses/P1_Sigma_sm_gg_ttxggg ]
+        folder: [ epochX/cudacpp/ee_mumu.sa/SubProcesses/P1_Sigma_sm_epem_mupmum,
+                  epochX/cudacpp/gg_tt.sa/SubProcesses/P1_Sigma_sm_gg_ttx,
+                  epochX/cudacpp/gg_ttg.sa/SubProcesses/P1_Sigma_sm_gg_ttxg,
+                  epochX/cudacpp/gg_ttgg.sa/SubProcesses/P1_Sigma_sm_gg_ttxgg,
+                  epochX/cudacpp/gg_ttggg.sa/SubProcesses/P1_Sigma_sm_gg_ttxggg ]
       fail-fast: false
     steps:
 
@@ -22,7 +26,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        folder: [ epochX/cudacpp/ee_mumu.sa/SubProcesses/P1_Sigma_sm_epem_mupmum , epochX/cudacpp/gg_tt.sa/SubProcesses/P1_Sigma_sm_gg_ttx , epochX/cudacpp/gg_ttg.sa/SubProcesses/P1_Sigma_sm_gg_ttxg , epochX/cudacpp/gg_ttgg.sa/SubProcesses/P1_Sigma_sm_gg_ttxgg , epochX/cudacpp/gg_ttggg.sa/SubProcesses/P1_Sigma_sm_gg_ttxggg ]
+        folder: [ epochX/cudacpp/ee_mumu.sa/SubProcesses/P1_Sigma_sm_epem_mupmum,
+                  epochX/cudacpp/gg_tt.sa/SubProcesses/P1_Sigma_sm_gg_ttx,
+                  epochX/cudacpp/gg_ttg.sa/SubProcesses/P1_Sigma_sm_gg_ttxg,
+                  epochX/cudacpp/gg_ttgg.sa/SubProcesses/P1_Sigma_sm_gg_ttxgg,
+                  epochX/cudacpp/gg_ttggg.sa/SubProcesses/P1_Sigma_sm_gg_ttxggg ]
         precision: [ d , f , m ]
       fail-fast: false
     steps:
@@ -39,7 +47,11 @@ jobs:
       FC: gfortran-11
     strategy:
       matrix:
-        folder: [ epochX/cudacpp/ee_mumu.sa/SubProcesses/P1_Sigma_sm_epem_mupmum , epochX/cudacpp/gg_tt.sa/SubProcesses/P1_Sigma_sm_gg_ttx , epochX/cudacpp/gg_ttg.sa/SubProcesses/P1_Sigma_sm_gg_ttxg , epochX/cudacpp/gg_ttgg.sa/SubProcesses/P1_Sigma_sm_gg_ttxgg , epochX/cudacpp/gg_ttggg.sa/SubProcesses/P1_Sigma_sm_gg_ttxggg ]
+        folder: [ epochX/cudacpp/ee_mumu.sa/SubProcesses/P1_Sigma_sm_epem_mupmum,
+                  epochX/cudacpp/gg_tt.sa/SubProcesses/P1_Sigma_sm_gg_ttx,
+                  epochX/cudacpp/gg_ttg.sa/SubProcesses/P1_Sigma_sm_gg_ttxg,
+                  epochX/cudacpp/gg_ttgg.sa/SubProcesses/P1_Sigma_sm_gg_ttxgg,
+                  epochX/cudacpp/gg_ttggg.sa/SubProcesses/P1_Sigma_sm_gg_ttxggg ]
         precision: [ d , f , m ]
       fail-fast: false
     steps:
@@ -51,20 +63,22 @@ jobs:
     - name: make check
       run: make AVX=none OMPFLAGS= FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} check
   GPU:
-    runs-on: [self-hosted, linux, v100s]
+    runs-on: [self-hosted, linux, a100]
     env:
       CUDA_HOME: /usr/local/cuda/
       FC: gfortran
       REQUIRE_CUDA: 1
     strategy:
       matrix:
-        folder: [ epochX/cudacpp/ee_mumu.sa/SubProcesses/P1_Sigma_sm_epem_mupmum , epochX/cudacpp/gg_tt.sa/SubProcesses/P1_Sigma_sm_gg_ttx , epochX/cudacpp/gg_ttg.sa/SubProcesses/P1_Sigma_sm_gg_ttxg , epochX/cudacpp/gg_ttgg.sa/SubProcesses/P1_Sigma_sm_gg_ttxgg , epochX/cudacpp/gg_ttggg.sa/SubProcesses/P1_Sigma_sm_gg_ttxggg ]
+        folder: [ epochX/cudacpp/ee_mumu.sa/SubProcesses/P1_Sigma_sm_epem_mupmum,
+                  epochX/cudacpp/gg_tt.sa/SubProcesses/P1_Sigma_sm_gg_ttx,
+                  epochX/cudacpp/gg_ttg.sa/SubProcesses/P1_Sigma_sm_gg_ttxg,
+                  epochX/cudacpp/gg_ttgg.sa/SubProcesses/P1_Sigma_sm_gg_ttxgg,
+                  epochX/cudacpp/gg_ttggg.sa/SubProcesses/P1_Sigma_sm_gg_ttxggg ]
         precision: [ d , f , m ]
       fail-fast: false
     steps:
     - uses: actions/checkout@v2
-    - name: path
-      run: echo "PATH=$PATH"
     - name: make info
       run: source /cvmfs/sft.cern.ch/lcg/releases/gcc/11.3.0-ad0f5/x86_64-centos8/setup.sh; make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} info
     - name: make
