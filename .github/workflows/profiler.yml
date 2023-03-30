@@ -56,7 +56,6 @@ jobs:
     - name: Uploads SYCL JSON files to DB
       run: cd tools/profiling/; python3 sendData.py --absLayer SYCL --profiler 1 --branch master
 
-jobs:
   cuda_v100s_Profiling:
     name: CUDA V100S Profiling
     env:
