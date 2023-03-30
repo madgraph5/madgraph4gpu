@@ -26,19 +26,19 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: make info
-      run: source /cvmfs/sft.cern.ch/lcg/contrib/gcc/11.3.0/x86_64-centos8/setup.sh;
+      run: source /cvmfs/sft.cern.ch/lcg/releases/gcc/11.3.0-ad0f5/x86_64-centos8/setup.sh;
            source /cvmfs/projects.cern.ch/intelsw/oneAPI/linux/x86_64/2023/setvars.sh --include-intel-llvm;
            CXX=/cvmfs/projects.cern.ch/intelsw/oneAPI/linux/x86_64/2023/compiler/2023.0.0/linux/bin-llvm/clang++;
            LD_LIBRARY_PATH=${{ github.workspace }}/${{ matrix.folder }}/../../lib:$LD_LIBRARY_PATH;
            make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} info
     - name: make
-      run: source /cvmfs/sft.cern.ch/lcg/contrib/gcc/11.3.0/x86_64-centos8/setup.sh;
+      run: source /cvmfs/sft.cern.ch/lcg/releases/gcc/11.3.0-ad0f5/x86_64-centos8/setup.sh;
            source /cvmfs/projects.cern.ch/intelsw/oneAPI/linux/x86_64/2023/setvars.sh --include-intel-llvm;
            CXX=/cvmfs/projects.cern.ch/intelsw/oneAPI/linux/x86_64/2023/compiler/2023.0.0/linux/bin-llvm/clang++;
            LD_LIBRARY_PATH=${{ github.workspace }}/${{ matrix.folder }}/../../lib:$LD_LIBRARY_PATH;
            make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }}
     - name: make check
-      run: source /cvmfs/sft.cern.ch/lcg/contrib/gcc/11.3.0/x86_64-centos8/setup.sh;
+      run: source /cvmfs/sft.cern.ch/lcg/releases/gcc/11.3.0-ad0f5/x86_64-centos8/setup.sh;
            source /cvmfs/projects.cern.ch/intelsw/oneAPI/linux/x86_64/2023/setvars.sh --include-intel-llvm;
            CXX=/cvmfs/projects.cern.ch/intelsw/oneAPI/linux/x86_64/2023/compiler/2023.0.0/linux/bin-llvm/clang++;
            LD_LIBRARY_PATH=${{ github.workspace }}/${{ matrix.folder }}/../../lib:$LD_LIBRARY_PATH;
