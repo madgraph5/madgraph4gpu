@@ -5,7 +5,49 @@
  *     |  __/| |___|  __/ 
  *     |_|   |_____|_|    
  * 
- ***/
+ *** 
+ * Welcome to PEP, the Particle Extraction Protocol header for reading and 
+ * writing Les Houches Event (.lhe) format files [hep-ph/0609017] for formatting
+ * event information as defined by the Les Houches Accord [hep-ph/0609017]
+ * 
+ * PEP is a C++ library with no external dependencies, making use of features 
+ * from the C++ standard library up to C++17. It is written for the specific
+ * purpose of creating a general framework for interfacing event generators
+ * and detector simulators in high energy physics, assuming only the official
+ * structure of the LHE file format. Particularly, there is functionality for
+ * extraction of relevant event data, i.e. that which was defined as part of
+ * the original LHE standard. All other data can nevertheless be accessed as
+ * standard XML nodes, the contained data stored as an std::string_view of the
+ * relevant LHE file.
+ * 
+ * This library makes heavy use of the std::basic_string_view class introduced
+ * in C++17, and it is recommended that any software built with PEP or any
+ * extensions to the PEP library continues this trend as far as LHE file 
+ * manipulation is concerned. This ensures both minimal memory manipulation 
+ * (as only pointers to relevant strings are passed around), but also that 
+ * write access is only established at extreme locations, e.g. on read and write.
+ * When used as-is, PEP already guarantees that data on disk can only be written
+ * on actual file output.
+ * 
+ * 
+ * Copyright © 2023 CERN, CERN Author Zenny Wettersten. 
+ * All rights not covered under the Lesser GPL license reserved
+ * 
+ * 
+ * This program is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License 
+ * as published by the Free Software Foundation, either version 3 
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
+ * GNU Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License 
+ * along with this program. If not, see <https://www.gnu.org/licenses/>. 
+ * 
+ */
 #include <vector>
 #include <iostream>
 #include <fstream>
@@ -337,7 +379,7 @@ namespace PEP
         void setName( std::string_view newName ){ modded = true; name = newName; }
         void setCont( std::string_view cont ){ modded = true; content = cont; }
     protected:
-        virtual bool parse(){
+        virtual bool parse(){ 
             auto topStat = parseTop();
             auto contStat = parseContent();
             return ( topStat && contStat );
@@ -357,15 +399,16 @@ namespace PEP
             return true;
         }
         virtual bool parseContent(){
+            if( xmlFile == "" ){ return false; }
             auto firstR = xmlFile.find_first_of( ">/", start );
             auto nodeStrEnd = xmlFile.find(">", firstR);
-            if( firstR < nodeStrEnd ){ content = ""; end = nodeStrEnd; parsed = true; return true; }
+            if( firstR < nodeStrEnd ){ content = ""; end = nodeStrEnd + 2; parsed = true; return true; }
             auto endNode = *nodeEndFind( xmlFile, start );
             auto startNode = *nodeStartFind( xmlFile, start + 1 );
-            if( startNode > endNode ){ end = xmlFile.find( ">", endNode ); content = xmlFile.substr( xmlFile.find( ">", start ) + 1, endNode - xmlFile.find( ">", start ) - 1  ); return true; }
+            if( startNode > endNode ){end = xmlFile.find( ">", endNode ) + 2; content = xmlFile.substr( xmlFile.find( ">", start ) + 1, endNode - xmlFile.find( ">", start ) - 1  ); return true; }
             auto endPt = xmlFile.find( std::string("</") + std::string(name), start );
-            content = xmlFile.substr( xmlFile.find(">", start) + 1, startNode - xmlFile.find(">") - 1 );
-            end = xmlFile.find( ">", endPt );
+            content = xmlFile.substr( xmlFile.find(">", start) + 1, startNode - xmlFile.find(">") - 1 ); 
+            end = xmlFile.find( ">", endPt ) + 2; 
             while( startNode < endNode ){
                 auto nextNode = std::make_shared<xmlNode>( xmlFile, startNode );
                 children.push_back( nextNode );
@@ -431,6 +474,12 @@ namespace PEP
                 nodeContent += (*child->nodeWriter());
             }
         }
+        virtual void endFinder(){
+            auto headEnd = xmlFile.find(">", start);
+            auto slashPos = xmlFile.find("/", start);
+            if( headEnd > slashPos ){ end = headEnd + 2; return; }
+            end = xmlFile.find( ">", xmlFile.find( "</" + std::string(name), start )) + 2;
+        }
         virtual void fullWriter(){
             if( isModded() ){
             headWriter();
@@ -441,6 +490,7 @@ namespace PEP
             written = true;
             modded = false;
             } else if( !isWritten() ){
+            endFinder();
             writtenSelf = std::make_shared<std::string>( xmlFile.substr( start, end - start ) );
             written = true;
             }
@@ -1093,7 +1143,6 @@ namespace PEP
                 auto comStart = realLine.find("#");
                 comStart = realLine.find_first_not_of( " #", comStart );
                 comment = realLine.substr( comStart, realLine.find("\n", comStart) - comStart );
-                //std::cout << "\nCOMMENTSTART:" << comment << ":COMMENTEND\n";
             }
             parse(); }
         }
@@ -1272,7 +1321,7 @@ namespace PEP
             if( xmlFile.substr(start,1).find_first_of("BbDd#") == std::string_view::npos ){ start = clStringFindIf( xmlFile, std::string("\n"), lambdaNu ); }
             auto blockPts = clFindEach( xmlFile, std::string("\nblock") );
             auto decLines = clFindEach( xmlFile, std::string("\ndecay") );
-            header = xmlFile.substr( start, std::min( blockPts->at(0), decLines->at(0) ) );
+            header = xmlFile.substr( start, std::min( blockPts->at(0), decLines->at(0) ) - start );
             auto startPt = blockStart;
             for( int k  = 0 ; k < blockPts->size() - 1 ; ++k )
             {
@@ -1320,6 +1369,15 @@ namespace PEP
             parameterCard = parameters;
             pCardInit = true;
         }
+        slhaNode( xmlNode& node, bool parseOnline = false ) : xmlNode( node ){ 
+            parameterCard = std::make_shared<lesHouchesCard>( node.getFile(), node.getStart(), parseOnline );
+        }
+        slhaNode( xmlNode* node, bool parseOnline = false ) : xmlNode( *node ){ 
+            parameterCard = std::make_shared<lesHouchesCard>( node->getFile(), node->getStart(), parseOnline );
+        }
+        slhaNode( std::shared_ptr<xmlNode> node, bool parseOnline = false ) : xmlNode( *node ){ 
+            parameterCard = std::make_shared<lesHouchesCard>( node->getFile(), node->getStart(), parseOnline );
+        }
         slhaNode( const std::string_view originFile, const size_t& begin = 0, bool parseOnline = false )
         : xmlNode( originFile, begin ){
             if( parse() ){ parameterCard = std::make_shared<lesHouchesCard>( content, begin, parseOnline ); pCardInit = true; }
@@ -1332,9 +1390,9 @@ namespace PEP
             for( auto tag : tags ){
                 nodeHeader += " " + std::string(tag->getId()) + "=\"" + std::string(tag->getVal()) + "\"";
             }
-            nodeHeader += "/>";
+            nodeHeader += ">";
         }
-        void endWriter() override{ nodeEnd += "</slha>"; }
+        void endWriter() override{ nodeEnd += "</slha>\n"; }
         void contWriter() override{
             if( pCardInit ){
                 nodeContent = *parameterCard->selfWrite();
@@ -1554,15 +1612,12 @@ namespace PEP
         {
             auto nuStrtPos =  *nodeStartFind( parseFile, initPos);
             currNode->addChild(xmlPtrParser( parseFile, initPos, endPos ));
-            if( currNode->getChildren()[ currNode->getChildren().size() - 1 ]->getName() == "init" )
-            { continue; }
-            if( currNode->getChildren()[ currNode->getChildren().size() - 1 ]->getName() == "slha" )
-            {
+            if( currNode->getChildren()[ currNode->getChildren().size() - 1 ]->getName() == "init" ){ continue; }
+            if( currNode->getChildren()[ currNode->getChildren().size() - 1 ]->getName() == "slha" ){
                 auto nuLine = parseFile.find("\n", parseFile.find("<", initPos));
-                currNode->parameters = std::make_shared<slhaNode>(parseFile.substr( nuLine + 1, parseFile.find("</", nuLine) - nuLine - 1 ));
+                currNode->parameters = std::make_shared<slhaNode>(currNode->getChildren()[ currNode->getChildren().size() - 1 ]);\
             }
-            if( currNode->getChildren()[ currNode->getChildren().size() - 1 ]->getName() == "initrwgt" )
-            {
+            if( currNode->getChildren()[ currNode->getChildren().size() - 1 ]->getName() == "initrwgt" ){
                 currNode->hasRwgt = true;
                 currNode->rwgtPre = currNode->getChildren()[ currNode->getChildren().size() - 1 ];
             }
@@ -1589,16 +1644,17 @@ namespace PEP
             if( nuStrtPos == parseFile.find("<event", initPos) ){
                 currNode->events.push_back( evPtrParsor( parseFile, initPos, endPos ) );
                 continue;
-            }
-            if( nuStrtPos == parseFile.find("<header", initPos) ){
+            } else if( nuStrtPos == parseFile.find("<header", initPos) ){
                 currNode->header = lheHeadParser( parseFile, initPos, endPos );
                 continue;
-            }
-            if( nuStrtPos == parseFile.find("<init", initPos) ){
-                currNode->init = std::make_shared<initNode>( parseFile.substr( initPos, endPos - initPos ), initPos );
+            } else if( nuStrtPos == parseFile.find("<init", initPos) ){
+                currNode->init = std::make_shared<initNode>( parseFile, initPos );
+                initPos = *nodeStartFind( parseFile, endPos );
+                endPos = *nodeEndFind( parseFile, endPos + 1 );
                 continue;
-            }
+            } else {
             currNode->addChild(xmlPtrParser( parseFile, initPos, endPos ));
+            }
         }
         size_t equalSign = parseFile.find("=", initPos);
         size_t nodeInitEnd = parseFile.find(">", initPos);
