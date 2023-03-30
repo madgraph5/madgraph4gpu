@@ -80,8 +80,11 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: make info
-      run: source /cvmfs/sft.cern.ch/lcg/releases/gcc/11.3.0-ad0f5/x86_64-centos8/setup.sh; make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} info
+      run: source /cvmfs/sft.cern.ch/lcg/releases/gcc/11.3.0-ad0f5/x86_64-centos8/setup.sh;
+           make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} info
     - name: make
-      run: source /cvmfs/sft.cern.ch/lcg/releases/gcc/11.3.0-ad0f5/x86_64-centos8/setup.sh; make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }}
+      run: source /cvmfs/sft.cern.ch/lcg/releases/gcc/11.3.0-ad0f5/x86_64-centos8/setup.sh;
+           make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }}
     - name: make check
-      run: source /cvmfs/sft.cern.ch/lcg/releases/gcc/11.3.0-ad0f5/x86_64-centos8/setup.sh; make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} check
+      run: source /cvmfs/sft.cern.ch/lcg/releases/gcc/11.3.0-ad0f5/x86_64-centos8/setup.sh;
+           make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} check
