@@ -1,3 +1,21 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+#
+#   __  __               _    ____                          _       _  _      ____   ____    _   _ 
+#  |  \/  |   __ _    __| |  / ___|  _ __    __ _   _ __   | |__   | || |    / ___| |  _ \  | | | |
+#  | |\/| |  / _` |  / _` | | |  _  | '__|  / _` | | '_ \  | '_ \  | || |_  | |  _  | |_) | | | | |
+#  | |  | | | (_| | | (_| | | |_| | | |    | (_| | | |_) | | | | | |__   _| | |_| | |  __/  | |_| |
+#  |_|  |_|  \__,_|  \__,_|  \____| |_|     \__,_| | .__/  |_| |_|    |_|    \____| |_|      \___/ 
+#                                                  |_|                                             
+#
+#
+#   Python script for sending generated reports from performance profiling to InfluxDB instance 
+#   using the MadGraph5_aMC@NLO GPU development framework
+#
+#   Author: Jorgen Teig, CERN 2023
+#
+
 import os
 import glob
 import json
@@ -6,31 +24,27 @@ import logging
 import subprocess
 import datetime
 import argparse
-
 import sys
 
 # Parameter defaults
 URL = 'https://dbod-madgraph4gpu-db.cern.ch:8082/api/v2/write?bucket=ProfilerData'
-secret = 'fV8dKViWTVdnA3Rw*qCeA@MYtZki@q'
-Auth = ['db_user', secret]
-physicsProcesses = ['ee_mumu', 'gg_ttggg', 'gg_ttgg', 'gg_ttg', 'gg_tt']
-absLayers = ['SYCL', 'CUDA']
-branch = 'master'
-fields = ['EvtsPerSec[MatrixElems] (3)', 'EvtsPerSec[MECalcOnly] (3)']
-reportPath = 'C:\\Users\\jteig\\cernbox\\Documents\\test\\22-12-07_cudacpp_Xeon-Silver-4216_v100s_gcc-11.3_cuda-11.6.2_master'
+secret = os.environ.get('MADGRAPH4GPU_DB_SECRET')
+AUTH = ['db_user', secret]
+PHYS_PROCESSES = ['ee_mumu', 'gg_ttggg', 'gg_ttgg', 'gg_ttg', 'gg_tt']
+ABS_LAYERS = ['SYCL', 'CUDA']
+BRANCH = 'master'
+FIELDS = ['EvtsPerSec[MatrixElems] (3)', 'EvtsPerSec[MECalcOnly] (3)']
+
+# Default reportPath (Useful for testing)
+REPORT_PATH = 'C:\\Users\\jteig\\cernbox\\Documents\\test\\22-12-07_cudacpp_Xeon-Silver-4216_v100s_gcc-11.3_cuda-11.6.2_master'
 
 # Argument parser
 parser = argparse.ArgumentParser(description='A script for sending data from profiler to InfluxDB.')
 
-parser.add_argument('-r', '--reportPath', help="Path for the reports that is being put into the database.", default=reportPath)
-parser.add_argument('-f', '--fields', help="Fields in the JSON to be put into the database.", default=fields)
-#parser.add_argument('-g', '--gpu', help="GPU used when profiling.", default=GPU)
-#parser.add_argument('--GCCVersion', help="GCC version used when profiling.", default=GCCVersion)
-#parser.add_argument('--CUDAVersion', help="CUDA version used when profiling.", default=CUDAVersion)
-parser.add_argument('-a', '--absLayer', help="Abstraction layer used when profiling.", default=absLayers[0])
-parser.add_argument('-b', '--branch', help="Branch the profiler data is in.", default=branch)
-
-# Fix this
+parser.add_argument('-r', '--reportPath', help="Path for the reports that is being put into the database.", default=REPORT_PATH)
+parser.add_argument('-f', '--fields', help="Fields in the JSON to be put into the database.", default=FIELDS)
+parser.add_argument('-a', '--absLayer', help="Abstraction layer used when profiling.", default=ABS_LAYERS[0])
+parser.add_argument('-b', '--branch', help="Branch the profiler data is in.", default=BRANCH)
 parser.add_argument('-p', '--profiler', help="Enable CI profiling defaults.", default='0')
 
 args = parser.parse_args()
@@ -40,20 +54,18 @@ args = parser.parse_args()
 #
 if __name__=='__main__':
 
-    # Fix this
+    # Sets report path for extracting the reports generated from performanceProfiler.py 
     if args.profiler == '1':
 
         if args.absLayer.upper() == "SYCL":
 
             syclNamePrefix = os.getenv('SYCL_NAME_PREFIX')
             
-            if syclNamePrefix == None:
+            if syclNamePrefix is None:
                 logging.error('Sycl name prefix has not been set!')
                 sys.exit(1)
 
-            # Fix the branch detection from the file name here
             reportfolder= "workspace_mg4gpu/" + datetime.datetime.now().strftime('%y-%m-%d') + '_' + syclNamePrefix + '_' + args.branch
-            print(reportfolder)
 
             if not os.path.exists(reportfolder):
                 logging.error('SYCL report path does not exist!')
@@ -62,7 +74,8 @@ if __name__=='__main__':
         elif args.absLayer.upper() == "CUDA":
 
             cudaNamePrefix = os.getenv('CUDA_NAME_PREFIX')
-            if cudaNamePrefix == None:
+
+            if cudaNamePrefix is None:
                 logging.error('Cuda name prefix has not been set!')
                 sys.exit(1)
 
@@ -88,7 +101,7 @@ if __name__=='__main__':
 
     for file in files:
 
-        with open(file, "r") as f:
+        with open(file, "r", encoding='utf-8') as f:
 
             fileContents = f.read()
 
@@ -97,7 +110,7 @@ if __name__=='__main__':
 
                 fileName = (os.path.basename(file))
 
-                for process in physicsProcesses:
+                for process in PHYS_PROCESSES:
                     if process in fileName.lower():
                         physicsProcess = process
                         break
@@ -116,17 +129,17 @@ if __name__=='__main__':
 
                 DBdata = f'{physicsProcess},CPU={CPU},GPU={GPU},AbstractionLayer={args.absLayer},GCCVersion={GCCVersion},CUDAVersion={CUDAVersion},NumThreadsPerBlock={data[0]["NumThreadsPerBlock"]},NumBlocksPerGrid={data[0]["NumBlocksPerGrid"]},NumIterations={data[0]["NumIterations"]} Gridsize={gridsize}'
 
-                for field in fields:
+                for field in FIELDS:
                     value = float(re.findall(r'[\d.]+',data[0][field])[0])
-                    
+                   
                     DBdata = DBdata + ',' + args.absLayer + "_" + field.replace(" ", "_") + '=' + str(value)
 
-                requestInfo = ["curl", "-i", "-k",  '-XPOST', "-i",  URL, "--header",  "Authorization: Token "+Auth[0]+":"+Auth[1], "--data-raw", DBdata]
-                
-                request = subprocess.run(requestInfo, stdout=subprocess.DEVNULL)
+                requestInfo = ["curl", "-i", "-k",  '-XPOST', "-i",  URL, "--header",  "Authorization: Token "+AUTH[0]+":"+AUTH[1], "--data-raw", DBdata]
+               
+                request = subprocess.run(requestInfo, stdout=subprocess.DEVNULL, check=True)
 
                 f.close()
-                
+               
                 if request.returncode != 0:
                     print(str(datetime.datetime.now().strftime("%H:%M:%S")) + " Request FAILED! Data: " + DBdata)
                 else:
