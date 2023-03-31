@@ -1,1 +1,1 @@
-../Makefile
+kokkos.mk
