@@ -1,28 +1,19 @@
 #!/bin/bash
 
-# Assign correct SM level for NVIDIA GPUs
-
-# Check if nvidia-smi command exists
-if command -v nvidia-smi > /dev/null 2>&1; then
-
-    # Get the name of the GPU
-    GPU_NAME=$(nvidia-smi --query-gpu=name --format=csv,noheader)
-
-    # GPU (DEVICE_ID=2 for oneAPI toolkit runs on GPUs, else DEVICE_ID=0)
-    export DEVICE_ID=2
-    # CPU
-    #export DEVICE_ID=1
-else
-    echo "nvidia-smi non existent on system, Nvidia GPU possibly not present!"
-    exit
-fi
-
-case $GPU_NAME in
-    *V100S* ) export SM_LEVEL="sm_70" ;;
-    *A100* ) export SM_LEVEL="sm_80" ;;
-esac
-
-##################################################################
+#
+#   __  __               _    ____                          _       _  _      ____   ____    _   _ 
+#  |  \/  |   __ _    __| |  / ___|  _ __    __ _   _ __   | |__   | || |    / ___| |  _ \  | | | |
+#  | |\/| |  / _` |  / _` | | |  _  | '__|  / _` | | '_ \  | '_ \  | || |_  | |  _  | |_) | | | | |
+#  | |  | | | (_| | | (_| | | |_| | | |    | (_| | | |_) | | | | | |__   _| | |_| | |  __/  | |_| |
+#  |_|  |_|  \__,_|  \__,_|  \____| |_|     \__,_| | .__/  |_| |_|    |_|    \____| |_|      \___/ 
+#                                                  |_|                                             
+#
+#
+#   Bash script for compiling and executing physics processes using the MadGraph5_aMC@NLO GPU development framework
+#   using oneAPI/SYCL
+#
+#   Author: Jorgen Teig, CERN 2023
+#
 
 helpFunction()
 {
@@ -57,6 +48,32 @@ then
     helpFunction
 fi
 
+##################################################################
+
+# Assign correct SM level for NVIDIA GPUs
+
+# Check if nvidia-smi command exists
+if command -v nvidia-smi > /dev/null 2>&1; then
+
+    # Get the name of the GPU
+    GPU_NAME=$(nvidia-smi --query-gpu=name --format=csv,noheader)
+
+    # GPU (DEVICE_ID=2 for oneAPI toolkit runs on GPUs, else DEVICE_ID=0 with LLVM compiler)
+    export DEVICE_ID=2
+    # CPU
+    #export DEVICE_ID=1
+else
+    echo "nvidia-smi non existent on system, Nvidia GPU possibly not present!"
+    exit
+fi
+
+case $GPU_NAME in
+    *V100S* ) export SM_LEVEL="sm_70" ;;
+    *A100* ) export SM_LEVEL="sm_80" ;;
+esac
+
+##################################################################
+
 # Begin script in case all parameters and GPU specific settings are set
 
 ##################################################################
@@ -71,17 +88,20 @@ export NTPBMAX=1024
 export CUDA_PATH=/usr/local/cuda-12.0/
 export WORKSPACE=$prefix/workspace_mg4gpu
 
+# Old SYCLFLAGS
+# export SYCLFLAGS="-fsycl -fsycl-targets=nvptx64-nvidia-cuda -Xsycl-target-backend '--cuda-gpu-arch=$SM_LEVEL' -fgpu-rdc --cuda-path=$CUDA_PATH"
+
+export SYCLFLAGS="-fsycl -fsycl-targets=nvptx64-nvidia-cuda -Xsycl-target-backend --cuda-gpu-arch=$SM_LEVEL -Xclang -fdenormal-fp-math=ieee"
+
 # Compilation using OneAPI Toolkit through CVMFS
 export CXX=/cvmfs/projects.cern.ch/intelsw/oneAPI/linux/x86_64/2023/compiler/2023.0.0/linux/bin-llvm/clang++
-#export SYCLFLAGS="-fsycl -Xsycl-target-backend=nvptx64-nvidia-cuda --cuda-gpu-arch=$SM_LEVEL"
-
-# Gets no erros with this:
-export SYCLFLAGS="-fsycl -fsycl-targets=nvptx64-nvidia-cuda -Xsycl-target-backend --cuda-gpu-arch=$SM_LEVEL -Xclang -fdenormal-fp-math=ieee"
 
 # Compilation for OneAPI LLVM compiler
 #export DPCPP_HOME=/afs/cern.ch/work/j/jteig/sycl_workspace
 #export CXX=$DPCPP_HOME/llvm/build/bin/clang++
-#export SYCLFLAGS="-fsycl -fsycl-targets=nvptx64-nvidia-cuda -Xsycl-target-backend '--cuda-gpu-arch=$SM_LEVEL' -fgpu-rdc --cuda-path=$CUDA_PATH"
+
+# Sets CUDA in PATH
+export PATH=$CUDA_HOME:$PATH
 
 # Branch should be enviroment variable in main script and then passed down if none then it is not displayed in prefix
 REPORT_FOLDER="${WORKSPACE}/$(date +"%y-%m-%d")_${SYCL_NAME_PREFIX}_${branch}"
@@ -125,14 +145,14 @@ export MG5AMC_CARD_PATH=$MG_PROC_DIR/Cards
 # Build executable
 cd $MG_SP_DIR
 make -j
-mv ../../lib/build.d_inl0*/ $MG_LIBS_DIR #2>/dev/null; true
-mv build.d_inl0*/ $MG_EXE_DIR #2>/dev/null; true
+mv -f ../../lib/build.*/ $MG_LIBS_DIR #2>/dev/null; true
+mv -f build.*/ $MG_EXE_DIR
 
 # Run executable
 cd $WORKSPACE
 
 if [ $DEVICE_ID == "info" ]; then
-    # Display the devices
+    # Add MG Libs to linker library path and display the devices
     LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MG_LIBS $MG_EXE --param_card $MG5AMC_CARD_PATH/param_card.dat --device_info 32 32 10
 
 else
