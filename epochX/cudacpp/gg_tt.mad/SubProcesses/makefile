@@ -133,6 +133,19 @@ else
   override LIBFLAGSRPATH = -Wl,-rpath,'$$ORIGIN/$(LIBDIR)'
 endif
 
+.PHONY: madeventfortran madeventcuda madeventcpp
+
+madeventfortran: $(PROG)
+
+madeventcpp: $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp
+	rm -f $(CUDACPP_BUILDDIR)/$(PROG)
+	cd $(CUDACPP_BUILDDIR); ln -s c$(PROG)_cudacpp madevent
+
+madeventcuda: $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp
+	rm -f $(CUDACPP_BUILDDIR)/$(PROG)
+	cd $(CUDACPP_BUILDDIR); ln -s g$(PROG)_cudacpp madevent
+
+
 # Also builds g$(PROG)_cudacpp if $(CUDACPP_CULIB) exists (improved patch for cpp-only builds #503)
 $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o ompnumthreads.o $(CUDACPP_BUILDDIR)/.cudacpplibs
 	$(FC) -o $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_CXXLIB) $(LIBFLAGSRPATH) $(LDFLAGS)
