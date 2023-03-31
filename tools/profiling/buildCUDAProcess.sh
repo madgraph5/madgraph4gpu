@@ -1,5 +1,20 @@
 #!/bin/bash
 
+#
+#   __  __               _    ____                          _       _  _      ____   ____    _   _ 
+#  |  \/  |   __ _    __| |  / ___|  _ __    __ _   _ __   | |__   | || |    / ___| |  _ \  | | | |
+#  | |\/| |  / _` |  / _` | | |  _  | '__|  / _` | | '_ \  | '_ \  | || |_  | |  _  | |_) | | | | |
+#  | |  | | | (_| | | (_| | | |_| | | |    | (_| | | |_) | | | | | |__   _| | |_| | |  __/  | |_| |
+#  |_|  |_|  \__,_|  \__,_|  \____| |_|     \__,_| | .__/  |_| |_|    |_|    \____| |_|      \___/ 
+#                                                  |_|                                             
+#
+#
+#   Bash script for compiling and executing physics processes using the MadGraph5_aMC@NLO GPU development framework
+#   using CUDA
+#
+#   Author: Jorgen Teig, CERN 2023
+#
+
 helpFunction()
 {
     echo ""
@@ -47,10 +62,9 @@ export NTPBMAX=1024
 export CXX=/cvmfs/sft.cern.ch/lcg/releases/gcc/11.3.0-ad0f5/x86_64-centos8/bin/g++
 export MG_EXE="./gcheck.exe" #GPU
 #export MG_EXE="./check.exe" #CPU
-export CUDA_HOME=/usr/local/cuda/
+export CUDA_HOME=/usr/local/cuda-12.0/
 export FC=`which gfortran`
 export WORKSPACE=$prefix/workspace_mg4gpu
-#export NAME_PREFIX="cudacpp_v100s_cuda_11.6.2_gcc_11.3"
 
 REPORT_FOLDER="${WORKSPACE}/$(date +"%y-%m-%d")_${CUDA_NAME_PREFIX}_${branch}"
 
