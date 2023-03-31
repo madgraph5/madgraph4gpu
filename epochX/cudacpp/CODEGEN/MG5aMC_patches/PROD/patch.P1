@@ -427,3 +427,30 @@ index e33418342..d156445e3 100644
  # Also builds g$(PROG)_cudacpp if $(CUDACPP_CULIB) exists (improved patch for cpp-only builds #503)
  $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o ompnumthreads.o $(CUDACPP_BUILDDIR)/.cudacpplibs
         $(FC) -o $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_CXXLIB) $(LIBFLAGSRPATH) $(LDFLAGS)
+diff --git a/epochX/cudacpp/gg_tt.mad/bin/internal/gen_ximprove.py b/epochX/cudacpp/gg_tt.mad/bin/internal/gen_ximprove.py
+index 398fac798..deda76917 100755
+--- a/epochX/cudacpp/gg_tt.mad/bin/internal/gen_ximprove.py
++++ b/epochX/cudacpp/gg_tt.mad/bin/internal/gen_ximprove.py
+@@ -367,8 +367,20 @@ class gensym(object):
+                         done = True
+                 if not done:
+                     raise Exception('Parsing error in gensym: %s' % stdout)
+-                     
+-            self.cmd.compile(['madevent'], cwd=Pdir)
++
++            exec_mode = 0
++            if 'exec_mode' in self.run_card:
++                exec_mode = self.run_card['exec_mode']
++
++            if exec_mode == 0:
++                self.cmd.compile(['madeventfortran'], cwd=Pdir)
++            elif exec_mode == 1:
++                self.cmd.compile(['madeventcpp'], cwd=Pdir)
++            elif exec_mode == 2:
++                self.cmd.compile(['madeventcuda'], cwd=Pdir)
++            else:
++                self.cmd.compile(['all'], cwd=Pdir)
++
+             if to_submit:
+                 self.submit_to_cluster(job_list)
+                 job_list = {}
