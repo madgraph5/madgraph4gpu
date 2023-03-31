@@ -389,3 +389,17 @@ index 7d91ea6a1..4a312d473 100755
                     'gridmode': 2,
                     'channel': ''
                     }
+diff --git a/epochX/cudacpp/gg_tt.mad/Cards/run_card.dat b/epochX/cudacpp/gg_tt.mad/Cards/run_card.dat
+index af32b29dd..dc8bd8932 100644
+--- a/epochX/cudacpp/gg_tt.mad/Cards/run_card.dat
++++ b/epochX/cudacpp/gg_tt.mad/Cards/run_card.dat
+@@ -139,3 +139,9 @@
+ #
+ systematics = systematics_program ! none, systematics [python], SysCalc [depreceted, C++]
+ ['--mur=0.5,1,2', '--muf=0.5,1,2', '--pdf=errorset'] = systematics_arguments ! see: https://cp3.irmp.ucl.ac.be/projects/madgraph/wiki/Systematics#Systematicspythonmodule
++#
++#*********************************************************************
++# settings for the C++/GPU acceleration                              *
++#*********************************************************************
++1 = bridge_mode           ! modes are fortran=0, cpp/gpu=1, both=-1, bothdebug=-2
++32 = vector_size          ! set the number of parallel executions
