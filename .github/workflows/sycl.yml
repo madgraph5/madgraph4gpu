@@ -12,7 +12,7 @@ jobs:
     env:
       FC: gfortran
       REQUIRE_CUDA: 1
-      SYCLFLAGS: export SYCLFLAGS="-fsycl -fsycl-targets=nvptx64-nvidia-cuda -Xsycl-target-backend --cuda-gpu-arch=sm_80 -Xclang -fdenormal-fp-math=ieee"
+      SYCLFLAGS: -fsycl -fsycl-targets=nvptx64-nvidia-cuda -Xsycl-target-backend --cuda-gpu-arch=sm_80 -Xclang -fdenormal-fp-math=ieee
       ENABLE_CI_PROFILER: 1
     strategy:
       matrix:
