@@ -14,7 +14,6 @@ jobs:
       REQUIRE_CUDA: 1
       SYCLFLAGS: -fsycl -fsycl-targets=nvptx64-nvidia-cuda -Xsycl-target-backend --cuda-gpu-arch=sm_80 -Xclang -fdenormal-fp-math=ieee
       ENABLE_CI_PROFILER: 1
-      device_id: 2
     strategy:
       matrix:
         folder: [ epochX/sycl/ee_mumu.sa/SubProcesses/P1_Sigma_sm_epem_mupmum,
