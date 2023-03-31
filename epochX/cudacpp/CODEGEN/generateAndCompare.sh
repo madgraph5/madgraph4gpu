@@ -25,6 +25,9 @@ function codeGenAndDiff()
     gg_ttggg)
       cmd="generate g g > t t~ g g g"
       ;;
+    gq_ttq)
+      cmd="define q = u c d s u~ c~ d~ s~; generate g q > t t~ q"
+      ;;
     pp_tt)
       cmd="generate p p > t t~"
       ;;
