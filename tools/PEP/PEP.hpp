@@ -499,6 +499,33 @@ namespace PEP
         headWeight( std::string_view paramSet, std::string_view idText, int idNo, const size_t& begin = 0 ) : xmlNode(){
             xmlFile = paramSet; content = paramSet; idTag = idText; id = idNo;
         }
+        headWeight( xmlNode& node ) : xmlNode( node ){
+            parser( false );
+            for (auto tag : tags ){
+                if( tag->getId() == "id" ){
+                    idTag = tag->getVal().substr(0, tag->getVal().find_last_of("_") - 1 );
+                    id = std::stoi( std::string( tag->getVal().substr( idTag.size() + 1 ) ) );
+                }
+            }
+        }
+        headWeight( xmlNode* node ) : xmlNode( *node ){
+            parser( false );
+            for (auto tag : tags ){
+                if( tag->getId() == "id" ){
+                    idTag = tag->getVal().substr(0, tag->getVal().find_last_of("_") - 1 );
+                    id = std::stoi( std::string( tag->getVal().substr( idTag.size() + 1 ) ) );
+                }
+            }
+        }
+        headWeight( std::shared_ptr<xmlNode> node ) : xmlNode( *node ){
+            parser( false );
+            for (auto tag : tags ){
+                if( tag->getId() == "id" ){
+                    idTag = tag->getVal().substr(0, tag->getVal().find_last_of("_") - 1 );
+                    id = std::stoi( std::string( tag->getVal().substr( idTag.size() + 1 ) ) );
+                }
+            }
+        }
         headWeight( std::string_view paramSet, int idNo, std::string_view idText, const size_t& begin = 0 ) : xmlNode(){
             xmlFile = paramSet; content = paramSet; idTag = idText; id = idNo;
         }
@@ -506,12 +533,22 @@ namespace PEP
         std::string_view idTag;
         int id;
         void headWriter() override{
-            nodeHeader = "<weight>";
+            if( tags.size() == 0 ){ nodeHeader = "<weight>"; return; }
+            nodeHeader = "<weight";
+            for( auto tag : tags ){
+                nodeHeader += " " + std::string(tag->getId()) + "=\"" + std::string(tag->getVal()) + "\"";
+            }
+            nodeHeader += ">";
         }
         void headWriter( bool incId ){
             if( !incId ){ headWriter(); return; }
             if( idTag == "" ){ headWriter(); return; }
-            nodeHeader = "<weight id=\"" + std::string( idTag ) + "_" + std::to_string(id) + "\">";
+            nodeHeader = "<weight id=\"" + std::string( idTag ) + "_" + std::to_string(id);
+            for( auto tag : tags ){
+                if( tag->getId() == "id" ){ continue; }
+                nodeHeader += " " + std::string(tag->getId()) + "=\"" + std::string(tag->getVal()) + "\"";
+            }
+            nodeHeader += ">";
         }
         void endWriter() override{
             nodeEnd = "</weight>\n";
@@ -552,6 +589,13 @@ namespace PEP
                 paramSets.push_back( std::make_shared<headWeight>( wgt ) );
             }
         }
+        weightGroup( xmlNode& wgtNode ) : xmlNode( wgtNode ){
+            parser( true );
+            paramSets.reserve( children.size() );
+            for(  auto child : children ){
+                paramSets.push_back( std::make_shared<headWeight>( *child ) );
+            }
+        }
         weightGroup( const std::string_view originFile, const size_t& begin = 0, const std::vector<std::shared_ptr<xmlNode>>& childs = {} )
         : xmlNode( originFile, begin, childs ){
             if( parseTop() ){
@@ -589,6 +633,45 @@ namespace PEP
             return;
         }
         void endWriter() override{ nodeEnd = "</weightgroup>\n"; }
+    };
+
+    struct initRwgt : xmlNode {
+    public:
+        std::vector<std::shared_ptr<weightGroup>> getGroups(){ return groups; }
+        void addGroup( weightGroup nuGroup ){ modded = true; groups.push_back( std::make_shared<weightGroup>( nuGroup ) ); }
+        void addGroup( std::shared_ptr<weightGroup> nuGroup ){ modded = true; groups.push_back( nuGroup ); }
+        initRwgt() : xmlNode(){ return; }
+        initRwgt( std::vector<std::shared_ptr<xmlNode>> nuGroups ) : xmlNode(){
+            name = "initrwgt";
+            for( auto group : nuGroups ){
+                groups.push_back( std::make_shared<weightGroup>( *group ) );
+            }
+        }
+        initRwgt( xmlNode& wgtNode ) : xmlNode( wgtNode ){
+            parser( true );
+            groups.reserve( children.size() );
+            for(  auto child : children ){
+                groups.push_back( std::make_shared<weightGroup>( *child ) );
+            }
+        }
+    protected:
+        std::vector<std::shared_ptr<weightGroup>> groups;
+        void contWriter() override{
+            nodeContent = "";
+            for( auto group : groups ){
+                nodeContent += (*group->nodeWriter());
+            }
+        }
+        void childWriter() override{
+            for( auto child : children ){
+                if( child->getName() == "weightgroup" ){ continue; }
+                nodeContent += (*child->nodeWriter());
+            }
+        }
+        void childWriter( bool hasChildren ){
+            if( hasChildren ){ childWriter(); }
+            return;
+        }
     };
 
     // ZW: struct for handling event weights
@@ -1397,19 +1480,24 @@ namespace PEP
     // ZW: struct for explicitly handling LHE header nodes
     struct lheHead : xmlNode {
     public:
-        void addWgtGroup( std::shared_ptr<weightGroup> wgtGroup ){ modded = true; initrwgt.push_back( wgtGroup ); }
-        void addWgtGroup( weightGroup wgtGroup ){ modded = true; initrwgt.push_back( std::make_shared<weightGroup>( wgtGroup ) ); }
-        std::vector<std::shared_ptr<weightGroup>> getWgtGroups(){ return initrwgt; }
-        std::shared_ptr<slhaNode> parameters;
-        bool hasRwgt = false;
-        std::shared_ptr<xmlNode> rwgtPre;
+        void addWgtGroup( std::shared_ptr<weightGroup> wgtGroup ){ hasRwgt = true; modded = true; initrwgt.push_back( wgtGroup ); }
+        void addWgtGroup( weightGroup wgtGroup ){ hasRwgt = true; modded = true; initrwgt.push_back( std::make_shared<weightGroup>( wgtGroup ) ); }
+        void setInitRwgt( initRwgt initWgt ){  hasRwgt = true; modded = true; rwgtNodes = std::make_shared<initRwgt>(initWgt); }
+        void setInitRwgt( std::shared_ptr<initRwgt> initWgt ){ hasRwgt = true; modded = true; rwgtNodes = initWgt; }
+        std::vector<std::shared_ptr<weightGroup>> getWgtGroups(){ return rwgtNodes->getGroups(); }
+        std::shared_ptr<initRwgt> getInitRwgt(){ return rwgtNodes; }
+        std::shared_ptr<slhaNode> getParameters(){ return parameters; }
+        void setParameters( std::shared_ptr<slhaNode> parameters ){ parameters = parameters; }
+        bool rwgtInc(){ return hasRwgt; }
         lheHead(){ return; }
         lheHead( const std::string_view originFile, const size_t& begin = 0, const std::vector<std::shared_ptr<xmlNode>>& childs = {} )
         : xmlNode(originFile, begin, childs){
             xmlFile = originFile; start = begin; children = childs; size_t trueStart = originFile.find_first_not_of(" ", begin+1);
             if( trueStart != std::string_view::npos ){name = originFile.substr( trueStart, originFile.find_first_of(">/ ", trueStart) - trueStart );}
         }
-    protected:
+    protected:std::shared_ptr<slhaNode> parameters;
+        bool hasRwgt = false;
+        std::shared_ptr<initRwgt> rwgtNodes;
         std::vector<std::shared_ptr<weightGroup>> initrwgt;
         std::vector<int> relChild;
         void setRelChild(){
@@ -1437,8 +1525,8 @@ namespace PEP
                 nodeContent += *(children[relKid]->nodeWriter());
             }
             nodeContent += *parameters->nodeWriter();
-            if( initrwgt.size() > 0 ){ for( auto wgt : initrwgt ){
-                    nodeContent += *wgt->nodeWriter(); }
+            if( hasRwgt ){ 
+                nodeContent += *rwgtNodes->nodeWriter();
             }
         }
         void fullWriter() override{
@@ -1570,11 +1658,10 @@ namespace PEP
             if( currNode->getChildren()[ currNode->getChildren().size() - 1 ]->getName() == "init" ){ continue; }
             if( currNode->getChildren()[ currNode->getChildren().size() - 1 ]->getName() == "slha" ){
                 auto nuLine = parseFile.find("\n", parseFile.find("<", initPos));
-                currNode->parameters = std::make_shared<slhaNode>(currNode->getChildren()[ currNode->getChildren().size() - 1 ]);\
+                currNode->setParameters( std::make_shared<slhaNode>(currNode->getChildren()[ currNode->getChildren().size() - 1 ]) );
             }
             if( currNode->getChildren()[ currNode->getChildren().size() - 1 ]->getName() == "initrwgt" ){
-                currNode->hasRwgt = true;
-                currNode->rwgtPre = currNode->getChildren()[ currNode->getChildren().size() - 1 ];
+                currNode->setInitRwgt( std::make_shared<initRwgt>( currNode->getChildren()[ currNode->getChildren().size() - 1 ] ) );
             }
         }
         size_t equalSign = parseFile.find("=", initPos);

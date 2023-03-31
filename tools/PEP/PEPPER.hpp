@@ -1,6 +1,5 @@
-// ZW: header for the PEPPER library
+// ZW: headers for the PEPPER library
 #include <unistd.h>
-
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -10,7 +9,6 @@
 
 namespace PEP::PER
 {
-
     template<typename T1, typename T2>
     std::shared_ptr<std::vector<T1>> scatAmpEval(std::vector<T2>& momenta, std::function<std::shared_ptr<std::vector<T1>>(std::vector<T2>&)> evalFunc)
     { return evalFunc(momenta); }
