@@ -36,3 +36,4 @@ local/
 *.BKP
 .DS_Store
 *.bak
+.vscode
