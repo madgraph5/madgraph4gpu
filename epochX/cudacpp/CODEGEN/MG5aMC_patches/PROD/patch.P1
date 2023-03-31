@@ -337,3 +337,31 @@ index 5e888278c..2d9ce6ff3 100644
        END
  
        SUBROUTINE PRINT_ZERO_AMP_1()
+diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/symmetry.f b/epochX/cudacpp/gg_tt.mad/SubProcesses/symmetry.f
+index 351706c55..23c2da942 100644
+--- a/epochX/cudacpp/gg_tt.mad/SubProcesses/symmetry.f
++++ b/epochX/cudacpp/gg_tt.mad/SubProcesses/symmetry.f
+@@ -38,6 +38,7 @@ c
+ c
+ c     Global
+ c
++      include 'vector.inc'
+       include 'coupl.inc'
+       logical gridpack
+       common/to_gridpack/gridpack
+@@ -322,6 +323,7 @@ c
+ c
+ c     Global
+ c
++      include 'vector.inc'
+       include 'coupl.inc'                     !Mass and width info
+       double precision stot
+       common/to_stot/stot
+@@ -459,6 +461,7 @@ c
+       common/to_bwcutoff/bwcutoff
+       double precision stot
+       common/to_stot/stot
++      include 'vector.inc'
+       include 'coupl.inc'                     !Mass and width info
+ 
+ c-----
