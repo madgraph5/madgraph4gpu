@@ -3620,11 +3620,11 @@ Beware that this can be dangerous for local multicore runs.""")
                     if 'exec_mode' in self.run_card:
                         exec_mode = self.run_card['exec_mode']
 
-                    if exec_mode == 0:
+                    if exec_mode == '0':
                         self.compile(['madeventfortran'], cwd=Pdir)
-                    elif exec_mode == 1:
+                    elif exec_mode == '1':
                         self.compile(['madeventcpp'], cwd=Pdir)
-                    elif exec_mode == 2:
+                    elif exec_mode == '2':
                         self.compile(['madeventcuda'], cwd=Pdir)
                     else:
                         self.compile(['all'], cwd=Pdir)
