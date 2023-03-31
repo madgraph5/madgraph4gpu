@@ -1,3 +1,20 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+#
+#   __  __               _    ____                          _       _  _      ____   ____    _   _ 
+#  |  \/  |   __ _    __| |  / ___|  _ __    __ _   _ __   | |__   | || |    / ___| |  _ \  | | | |
+#  | |\/| |  / _` |  / _` | | |  _  | '__|  / _` | | '_ \  | '_ \  | || |_  | |  _  | |_) | | | | |
+#  | |  | | | (_| | | (_| | | |_| | | |    | (_| | | |_) | | | | | |__   _| | |_| | |  __/  | |_| |
+#  |_|  |_|  \__,_|  \__,_|  \____| |_|     \__,_| | .__/  |_| |_|    |_|    \____| |_|      \___/ 
+#                                                  |_|                                             
+#
+#
+#   Python script for performance profiling using the MadGraph5_aMC@NLO GPU development framework
+#
+#   Author: Jorgen Teig, CERN 2023
+#
+
 import sys
 import subprocess
 import datetime
