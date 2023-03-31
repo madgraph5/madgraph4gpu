@@ -39,16 +39,16 @@ for arg in $*; do
     if [ "$eemumu" == "" ]; then procs+=${procs:+ }${arg}; fi
     eemumu=$arg
   elif [ "$arg" == "-ggtt" ]; then
-    #if [ "$ggtt" == "" ]; then procs+=${procs:+ }${arg}; fi
+    if [ "$ggtt" == "" ]; then procs+=${procs:+ }${arg}; fi
     ggtt=$arg
   elif [ "$arg" == "-ggttg" ]; then
-    #if [ "$ggttg" == "" ]; then procs+=${procs:+ }${arg}; fi
+    if [ "$ggttg" == "" ]; then procs+=${procs:+ }${arg}; fi
     ggttg=$arg
   elif [ "$arg" == "-ggttgg" ]; then
-    #if [ "$ggttgg" == "" ]; then procs+=${procs:+ }${arg}; fi
+    if [ "$ggttgg" == "" ]; then procs+=${procs:+ }${arg}; fi
     ggttgg=$arg
   elif [ "$arg" == "-ggttggg" ]; then
-    #if [ "$ggttggg" == "" ]; then procs+=${procs:+ }${arg}; fi
+    if [ "$ggttggg" == "" ]; then procs+=${procs:+ }${arg}; fi
     ggttggg=$arg
   elif [ "$arg" == "-heftggh" ]; then
     if [ "$heftggh" == "" ]; then procs+=${procs:+ }${arg}; fi
