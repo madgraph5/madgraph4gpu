@@ -1816,12 +1816,12 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                     if coup in coup_list:
                         if "aS" in key:
                             if usesdepcoupl is None: usesdepcoupl = True
-                            elif not usesdepcoupl: raise "PANIC! this call seems to use both aS-dependent and aS-independent couplings?"
+                            elif not usesdepcoupl: raise Exception('PANIC! this call seems to use both aS-dependent and aS-independent couplings?')
                         else:
                             if usesdepcoupl is None: usesdepcoupl = False
-                            elif usesdepcoupl: raise "PANIC! this call seems to use both aS-dependent and aS-independent couplings?"
+                            elif usesdepcoupl: raise Exception('PANIC! this call seems to use both aS-dependent and aS-independent couplings?')
             # AV FOR PR #434: CI_ACCESS for independent couplings and CD_ACCESS for dependent couplings
-            if usesdepcoupl is None: raise "PANIC! could not determine if this call uses aS-dependent or aS-independent couplings?"
+            if usesdepcoupl is None: raise Exception('PANIC! could not determine if this call uses aS-dependent or aS-independent couplings?')
             elif usesdepcoupl: caccess = 'CD_ACCESS'
             else: caccess = 'CI_ACCESS'
             ###if arg['routine_name'].endswith( '_0' ) : arg['routine_name'] += '<W_ACCESS, A_ACCESS, C_ACCESS>'
