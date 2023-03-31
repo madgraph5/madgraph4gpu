@@ -719,13 +719,16 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         for iline, line in enumerate(parset.split('\n')):
             ###print(iline, line) # for debugging
             if skipnextline:
-                print('WARNING! Skip line after "if"     :', line)
+                print('WARNING! Skip line after leading "if" :', line)
                 skipnextline = False
-                continue # skip line after if, assuming a two-line if statement (#622)
+                continue # skip line after leading "if", assuming a two-line if statement (#622)
             elif line.startswith('if'):
-                print('WARNING! Skip line including "if" :', line)
+                print('WARNING! Skip line with leading "if"  :', line)
                 skipnextline = True
-                continue # skip line containing if (#622)
+                continue # skip line with leading "if" (#622)
+            if line.startswith('indices'):
+                ###print('WARNING! Skip line with leading "indices" :', line)
+                continue # skip line with leading "indices", before slha.get_block_entry (#622)
             par, parval = line.split(' = ')
             ###misc.sprint(len(parset_pars), len(parset_lines), par, parval) # for debugging
             if parval.startswith('slha.get_block_entry'): parval = parval.split(',')[2].lstrip(' ').rstrip(');') + ';'
