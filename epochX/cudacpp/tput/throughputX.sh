@@ -272,7 +272,7 @@ function showdir()
 {
   if [ "${suff}" == ".mad/" ]; then
     if [ "${proc}" == "-eemumu" ]; then 
-      dir=$topdir/epochX/${bckend}/ee_mumu${suff}SubProcesses/P1_ll_ll
+      dir=$topdir/epochX/${bckend}/ee_mumu${suff}SubProcesses/P1_epem_mupmum
     elif [ "${proc}" == "-ggtt" ]; then 
       dir=$topdir/epochX/${bckend}/gg_tt${suff}SubProcesses/P1_gg_ttx
     elif [ "${proc}" == "-ggttg" ]; then 
