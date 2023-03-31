@@ -3,8 +3,12 @@ name: SYCL CI
 on:
   push:
     branches: [ master ]
+    paths:
+      - 'epochX/sycl/**'
   pull_request:
     branches: [ master ]
+    paths:
+      - 'epochX/sycl/**'
 
 jobs:
   GPU:
