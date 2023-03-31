@@ -4,6 +4,7 @@
 Created on Tue Mar 30 09:59:03 2021
 
 @author: andy
+@edited: Jorgen Teig
 """
 import json
 import os
@@ -26,15 +27,15 @@ import math
 
 physicsProcesses = ['ee_mumu', 'gg_tt', 'gg_ttg', 'gg_ttgg', 'gg_ttggg']
 
-reportPath = 'C:\\Users\\jteig\\cernbox\\Documents\\CERN\\reports\\Sycl_v100s_Profiling_18.10.GCC11.3_CUDA11.6.2_MASTER\\'
+reportPath = 'C:\\Users\\jteig\\cernbox\\Documents\\Report folder 2023\\Merged_23-02-07'
 
-savePath = 'C:\\Users\\jteig\\cernbox\\Documents\\CERN\\Graphs\\'
+savePath = 'C:\\Users\\jteig\\cernbox\\Documents\\Report folder 2023\\Graphs\\Graphs but big\\'
 
-filePrefix = 'test_ATS-P_sycl_11.5'
+filePrefix = 'test_A100_sycl_11.5'
 
 # 'test_v100s_sycl_11.5'
 
-hardware = 'ATS-P'
+hardware = 'Nvidia A100'
 #hardware = 'NVIDIA v100s'
 
 #############################
@@ -43,9 +44,11 @@ hardware = 'ATS-P'
 #
 #############################
 
-compare = False
+compare = True
 
-graphsToCompare = ['test_v100s_cuda_11.5_gg_ttgg', 'test_v100s_sycl_11.5_gg_ttgg']
+processToCompare = 'gg_tt'
+
+graphsToCompare = ['test_A100_SYCL_' + processToCompare , 'test_A100_CUDA_' + processToCompare]
 
 stat = 'MECalcOnly'
 #stat = 'MatrixElems'
@@ -67,6 +70,10 @@ args = parser.parse_args()
 #exit(0)
 
 class Evaluation:
+
+    # Remove warnings regarding chained assignment using pandas dataframes
+    # The code is still working as expected
+    pd.set_option('mode.chained_assignment', None)
     
     list_results=[]     #List results
     Data=pd.DataFrame() #To store all results in one DataFrame
@@ -330,11 +337,13 @@ class Evaluation:
         
         #enable grid
         plt.rcParams['grid.linestyle']=':'
+        plt.rc('font', size=15)
+        plt.rc('axes', labelsize=50)
         plt.grid()
         
         #setup x axis
         ax1.set_xscale('log')
-        plt.xticks(df_dict[list(df_dict.keys())[0]]['gridsize'])
+        plt.xticks(df_dict[list(df_dict.keys())[0]]['gridsize'],size=15)
         ax1.set_xticklabels(df_dict[list(df_dict.keys())[0]]['gridsize'],rotation=75)
         
         #setup y axis
@@ -350,14 +359,14 @@ class Evaluation:
         ax1.set_yscale('log')
         
         #Add labels and title
-        plt.ylabel('Throughput\n'+ stat +' [s-1]')
-        plt.xlabel('Gridsize (nBlocksGPU * nThreadsGPU)')
-        plt.title("SYCL vs CUDA throughput for "+ graph1[4] + '_' + graph1[5] +" on " + hardware + "\n")
+        plt.ylabel('Throughput\n'+ stat +' [s-1]', size=30)
+        plt.xlabel('Gridsize (nBlocksGPU * nThreadsGPU)', size=30)
+        plt.title("SYCL vs CUDA throughput for "+ graph1[3] + '_' + graph1[4] +" on " + hardware + "\n", size=30,wrap=True)
         
         #Change colormap. More info here https://matplotlib.org/stable/tutorials/colors/colormaps.html 
         cmap=plt.get_cmap('Set1')
         
-        i=1
+        i=2
         for data in compare_list:
 
             tempVar  = 'EvtsPerSec['+ stat +'] (3)'
@@ -370,13 +379,21 @@ class Evaluation:
             length=len(str(maxima_y))-1
             label_maximas=str(round(maxima_y*10**-(length),3))+'e'+str(length)
             
+            if i == 2:
+                markerType='o'
+            else:
+                markerType='X'
+
             #plot datasets
             ax1.scatter(df_dict[data]['gridsize'].to_list(),df_dict[data][tempVar].to_list(),
                         label=data+ ' (max = %s)'%label_maximas,
                         color=cmap(i),
-                        s=150,alpha=0.9)
+                        s=150,alpha=0.9, marker=markerType)
+
+            ax1.plot(df_dict[data]['gridsize'].to_list(),df_dict[data][tempVar].to_list(), color=cmap(i))
+
             #Get next cmap color
-            i+=1 
+            i+=2
             
             #plot max values
             ax1.scatter(maxima_x,maxima_y,c='r',marker='o',s=50)
@@ -385,8 +402,9 @@ class Evaluation:
             
         ax1.legend(loc='best')
 
-        plt.tight_layout()
+
         plt.autoscale()
+        plt.tight_layout()
         
         
         plt.show()
@@ -397,7 +415,7 @@ class Evaluation:
 
         # args.s + graph1[3] + '_' + graph1[4] + '_vs_' + graph2[3] + '_' + graph2[4]
 
-        fig.savefig(args.s + 'SYCL_' + graph1[4] + '_' + graph1[5] + '_vs_CUDA_' + graph2[4] + '_' + graph2[5] + '_' + stat +'.png')
+        fig.savefig(args.s + 'SYCL_' + graph1[3] + '_' + graph1[4] + '_vs_CUDA_' + graph2[3] + '_' + graph2[4] + '_' + stat +'.png', bbox_inches="tight")
         
     def dataframes_statistical_transfomation(self,df_dict,stat):
         #This functions takes a dictionary of dataframes and returns a dictionary with dataframes
@@ -473,7 +491,7 @@ if __name__=='__main__':
         # To be done
         #test_df=Ev.data_compare(dataframes_conv,list_to_compare,'max')
     
-        #print(dataframes_statisical)
+        print(dataframes_statisical)
 
         Ev.data_compare2(dataframes_statisical,graphsToCompare)
     
