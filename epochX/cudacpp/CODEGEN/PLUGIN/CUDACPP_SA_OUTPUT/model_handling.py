@@ -685,7 +685,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         ###print( '"' + pardef + '"' )
         ###print( '"' + parset + '"' )
         if ( pardef == '' ):
-            assert( parset == '' ) # AV sanity check (both are empty)
+            assert parset == '', "pardef is empty but parset is not: '%s'"%parset # AV sanity check (both are empty)
             res = '// (none)\n'
             return res
         pardef = pardef.replace('std::complex<','cxsmpl<') # custom simplex complex class (with constexpr arithmetics)
