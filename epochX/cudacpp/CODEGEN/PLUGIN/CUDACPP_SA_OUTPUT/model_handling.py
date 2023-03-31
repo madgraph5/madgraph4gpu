@@ -712,6 +712,8 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         parset_pars = []
         parset_lines = {}
         for line in parset.split('\n'):
+            ###misc.sprint(line) # for debugging
+            if line.startswith('if'): continue # fix #622
             par, parval = line.split(' = ')
             if parval.startswith('slha.get_block_entry'): parval = parval.split(',')[2].lstrip(' ').rstrip(');') + ';'
             parset_pars.append( par )
