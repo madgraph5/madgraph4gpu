@@ -1,0 +1,40 @@
+name: V100s Performance Profiler
+
+on:
+  schedule:
+    - cron:  '00 00 * * *'
+
+jobs:
+
+  sycl_v100s_Profiling:
+    name: SYCL V100S Profiling
+    env:
+      SYCL_NAME_PREFIX: sycl_Xeon-Silver-4216_v100s_gcc-11.3_cuda-12.0.1
+      ENABLE_CI_PROFILER: 1
+
+      MADGRAPH4GPU_DB_SECRET: ${{ secrets.MADGRAPH4GPU_DB_SECRET }}
+    runs-on: [self-hosted, linux, v100s]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Runs SYCL performanceProfiler.py script
+      run: cd tools/profiling/; source /cvmfs/sft.cern.ch/lcg/releases/gcc/11.3.0-ad0f5/x86_64-centos8/setup.sh;
+           source /cvmfs/projects.cern.ch/intelsw/oneAPI/linux/x86_64/2023/setvars.sh --include-intel-llvm;
+           python3 performanceProfiler.py -l 'SYCL' -b 'master'
+    - name: Uploads SYCL JSON files to DB
+      run: cd tools/profiling/; python3 sendData.py --absLayer SYCL --profiler 1 --branch master
+
+  cuda_v100s_Profiling:
+    name: CUDA V100S Profiling
+    env:
+      CUDA_NAME_PREFIX: cudacpp_Xeon-Silver-4216_v100s_gcc-11.3_cuda-12.0.1
+      ENABLE_CI_PROFILER: 1
+
+      MADGRAPH4GPU_DB_SECRET: ${{ secrets.MADGRAPH4GPU_DB_SECRET }}
+    runs-on: [self-hosted, linux, v100s]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Runs CUDA performanceProfiler.py script
+      run: cd tools/profiling/; source /cvmfs/sft.cern.ch/lcg/releases/gcc/11.3.0-ad0f5/x86_64-centos8/setup.sh;
+           python3 performanceProfiler.py -l 'CUDA' -b 'master'
+    - name: Uploads CUDA JSON files to DB
+      run: cd tools/profiling/; python3 sendData.py --absLayer CUDA --profiler 1 --branch master
