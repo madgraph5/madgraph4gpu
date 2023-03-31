@@ -1811,6 +1811,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             # AV FOR PR #434: determine if this call needs aS-dependent or aS-independent parameters
             usesdepcoupl = None
             for coup in argument.get('coupling'):
+                if coup.startswith('-'): coup = coup[1:]
                 # Use the same implementation as in UFOModelConverterCPP.prepare_couplings (assume self.model is the same)
                 for key, coup_list in self.get('model')['couplings'].items():
                     if coup in coup_list:
