@@ -715,9 +715,17 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         ###for line in pardef_lines: misc.sprint(line) # for debugging
         parset_pars = []
         parset_lines = {}
+        skipnextline = False
         for iline, line in enumerate(parset.split('\n')):
             ###print(iline, line) # for debugging
-            if line.startswith('if'): continue # fix #622
+            if skipnextline:
+                print('WARNING! Skip line after "if"     :', line)
+                skipnextline = False
+                continue # skip line after if, assuming a two-line if statement (#622)
+            elif line.startswith('if'):
+                print('WARNING! Skip line including "if" :', line)
+                skipnextline = True
+                continue # skip line containing if (#622)
             par, parval = line.split(' = ')
             ###misc.sprint(len(parset_pars), len(parset_lines), par, parval) # for debugging
             if parval.startswith('slha.get_block_entry'): parval = parval.split(',')[2].lstrip(' ').rstrip(');') + ';'
