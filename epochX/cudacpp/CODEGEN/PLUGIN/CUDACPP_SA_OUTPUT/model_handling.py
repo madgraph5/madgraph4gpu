@@ -705,21 +705,29 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         parset = parset.replace(',',', ')
         pardef_lines = {}
         for line in pardef.split('\n'):
+            ###print(line) # for debugging
             type, pars = line.rstrip(';').split(' ') # strip trailing ';'
             for par in pars.split(','):
+                ###print(len(pardef_lines), par) # for debugging
                 pardef_lines[par] = ( 'constexpr ' + type + ' ' + par )
-        ###print( pardef_lines )
+        misc.sprint( 'pardef_lines size =', len(pardef_lines), ', keys size =', len(pardef_lines.keys()) )
+        ###print( pardef_lines ) # for debugging
+        ###for line in pardef_lines: misc.sprint(line) # for debugging
         parset_pars = []
         parset_lines = {}
-        for line in parset.split('\n'):
-            ###misc.sprint(line) # for debugging
+        for iline, line in enumerate(parset.split('\n')):
+            ###print(iline, line) # for debugging
             if line.startswith('if'): continue # fix #622
             par, parval = line.split(' = ')
+            ###misc.sprint(len(parset_pars), len(parset_lines), par, parval) # for debugging
             if parval.startswith('slha.get_block_entry'): parval = parval.split(',')[2].lstrip(' ').rstrip(');') + ';'
             parset_pars.append( par )
             parset_lines[par] = parval # includes a trailing ';'
-        ###print( parset_lines )
-        assert( len(pardef_lines) == len(parset_lines) ) # AV sanity check (same number of parameters)
+        misc.sprint( 'parset_pars size =', len(parset_pars) )
+        misc.sprint( 'parset_lines size =', len(parset_lines), ', keys size =', len(parset_lines.keys()) )
+        ###print( parset_lines ) # for debugging
+        ###for line in parset_lines: misc.sprint(line) # for debugging
+        assert len(pardef_lines) == len(parset_lines), 'len(pardef_lines) != len(parset_lines)' # AV sanity check (same number of parameters)
         res = '  '.join( pardef_lines[par] + ' = ' + parset_lines[par] + '\n' for par in parset_pars ) # no leading '  ' on first row
         res = res.replace(' ;',';')
         ###print(res); assert(False)
