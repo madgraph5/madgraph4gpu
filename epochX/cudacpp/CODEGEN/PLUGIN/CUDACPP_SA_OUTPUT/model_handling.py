@@ -660,7 +660,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
 
     # AV - overload export_cpp.UFOModelConverterCPP method (improve formatting)
     def write_set_parameters(self, params):
-        res = super_write_set_parameters(params)
+        res = self.super_write_set_parameters_donotfixMajorana(params)
         res = res.replace('(','( ')
         res = res.replace(')',' )')
         res = res.replace('+',' + ')
@@ -682,7 +682,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
     def write_hardcoded_parameters(self, params):
         ###misc.sprint(params) # for debugging
         pardef = super().write_parameters(params)
-        parset = super_write_set_parameters(params)
+        parset = self.super_write_set_parameters_donotfixMajorana(params)
         ###print( '"' + pardef + '"' )
         ###print( '"' + parset + '"' )
         if ( pardef == '' ):
@@ -719,14 +719,14 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         skipnextline = False
         for iline, line in enumerate(parset.split('\n')):
             ###print(iline, line) # for debugging
-            if skipnextline:
-                print('WARNING! Skip line after leading "if" :', line)
-                skipnextline = False
-                continue # skip line after leading "if", assuming a two-line if statement (#622)
-            elif line.startswith('if'):
-                print('WARNING! Skip line with leading "if"  :', line)
-                skipnextline = True
-                continue # skip line with leading "if" (#622)
+            #if skipnextline:
+            #    print('WARNING! Skip line after leading "if" :', line)
+            #    skipnextline = False
+            #    continue # skip line after leading "if", assuming a two-line if statement (#622)
+            #elif line.startswith('if'):
+            #    print('WARNING! Skip line with leading "if"  :', line)
+            #    skipnextline = True
+            #    continue # skip line with leading "if" (#622)
             if line.startswith('indices'):
                 ###print('WARNING! Skip line with leading "indices" :', line)
                 continue # skip line with leading "indices", before slha.get_block_entry (#622)
@@ -745,13 +745,19 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         ###print(res); assert(False)
         return res
 
-    # AV - replace export_cpp.UFOModelConverterCPP method (eventually split writing of parameters and fixes for Majorana particles)
-    def super_write_set_parameters(self, params):
+    # AV - replace export_cpp.UFOModelConverterCPP method (split writing of parameters and fixes for Majorana particles #622)
+    def super_write_set_parameters_donotfixMajorana(self, params):
         """Write out the lines of independent parameters"""
-        # For each parameter, write name = expr;
         res_strings = []
+        # For each parameter, write name = expr;
         for param in params:
             res_strings.append("%s" % param.expr)
+        return "\n".join(res_strings)
+
+    # AV - replace export_cpp.UFOModelConverterCPP method (eventually split writing of parameters and fixes for Majorana particles #622)
+    def super_write_set_parameters_onlyfixMajorana(self):
+        """Write out the lines of independent parameters"""
+        res_strings = []
         # Correct width sign for Majorana particles (where the width and mass need to have the same sign)        
         for particle in self.model.get('particles'):
             if particle.is_fermion() and particle.get('self_antipart') and \
@@ -792,7 +798,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         if 'include_prefix' not in replace_dict:
             replace_dict['include_prefix'] = ''
         assert super().write_parameters([]) == '', 'super().write_parameters([]) is not empty' # AV sanity check (#622)
-        assert super_write_set_parameters([]) == '', 'super_write_set_parameters([]) is not empty' # AV sanity check (#622)
+        assert self.super_write_set_parameters_donotfixMajorana([]) == '', 'super_write_set_parameters_donotfixMajorana([]) is not empty' # AV sanity check (#622)
         ###misc.sprint(self.params_indep) # for debugging
         hrd_params_indep = [ line.replace('constexpr','//constexpr') + ' // now retrieved event-by-event (as G) from Fortran (running alphas #373)' if 'aS =' in line else line for line in self.write_hardcoded_parameters(self.params_indep).split('\n') ]
         replace_dict['hardcoded_independent_parameters'] = '\n'.join( hrd_params_indep )
