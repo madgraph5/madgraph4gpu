@@ -660,7 +660,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
 
     # AV - overload export_cpp.UFOModelConverterCPP method (improve formatting)
     def write_set_parameters(self, params):
-        res = super().write_set_parameters(params)
+        res = super_write_set_parameters(params)
         res = res.replace('(','( ')
         res = res.replace(')',' )')
         res = res.replace('+',' + ')
@@ -682,7 +682,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
     def write_hardcoded_parameters(self, params):
         ###misc.sprint(params) # for debugging
         pardef = super().write_parameters(params)
-        parset = super().write_set_parameters(params)
+        parset = super_write_set_parameters(params)
         ###print( '"' + pardef + '"' )
         ###print( '"' + parset + '"' )
         if ( pardef == '' ):
@@ -745,6 +745,22 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         ###print(res); assert(False)
         return res
 
+    # AV - replace export_cpp.UFOModelConverterCPP method (eventually split writing of parameters and fixes for Majorana particles)
+    def super_write_set_parameters(self, params):
+        """Write out the lines of independent parameters"""
+        # For each parameter, write name = expr;
+        res_strings = []
+        for param in params:
+            res_strings.append("%s" % param.expr)
+        # Correct width sign for Majorana particles (where the width and mass need to have the same sign)        
+        for particle in self.model.get('particles'):
+            if particle.is_fermion() and particle.get('self_antipart') and \
+                   particle.get('width').lower() != 'zero':
+                res_strings.append("if (%s < 0)" % particle.get('mass'))
+                res_strings.append("%(width)s = -abs(%(width)s);" % \
+                                   {"width": particle.get('width')})
+        return "\n".join(res_strings)
+
     # AV - replace export_cpp.UFOModelConverterCPP method (add hardcoded parameters and couplings)
     def super_generate_parameters_class_files(self):
         """Create the content of the Parameters_model.h and .cc files"""
@@ -776,7 +792,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         if 'include_prefix' not in replace_dict:
             replace_dict['include_prefix'] = ''
         assert super().write_parameters([]) == '', 'super().write_parameters([]) is not empty' # AV sanity check (#622)
-        assert super().write_set_parameters([]) == '', 'super().write_set_parameters([]) is not empty' # AV sanity check (#622)
+        assert super_write_set_parameters([]) == '', 'super_write_set_parameters([]) is not empty' # AV sanity check (#622)
         ###misc.sprint(self.params_indep) # for debugging
         hrd_params_indep = [ line.replace('constexpr','//constexpr') + ' // now retrieved event-by-event (as G) from Fortran (running alphas #373)' if 'aS =' in line else line for line in self.write_hardcoded_parameters(self.params_indep).split('\n') ]
         replace_dict['hardcoded_independent_parameters'] = '\n'.join( hrd_params_indep )
