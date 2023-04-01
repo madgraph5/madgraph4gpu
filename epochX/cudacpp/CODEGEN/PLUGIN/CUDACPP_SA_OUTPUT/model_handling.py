@@ -680,6 +680,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
 
     # AV - new method (merging write_parameters and write_set_parameters)
     def write_hardcoded_parameters(self, params):
+        ###misc.sprint(params) # for debugging
         pardef = super().write_parameters(params)
         parset = super().write_set_parameters(params)
         ###print( '"' + pardef + '"' )
