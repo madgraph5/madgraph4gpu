@@ -775,6 +775,8 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         replace_dict['print_dependent_couplings'] = self.write_print_parameters(list(self.coups_dep.values()))
         if 'include_prefix' not in replace_dict:
             replace_dict['include_prefix'] = ''
+        assert super().write_parameters([]) == '', 'super().write_parameters([]) is not empty' # AV sanity check (#622)
+        assert super().write_set_parameters([]) == '', 'super().write_set_parameters([]) is not empty' # AV sanity check (#622)
         ###misc.sprint(self.params_indep) # for debugging
         hrd_params_indep = [ line.replace('constexpr','//constexpr') + ' // now retrieved event-by-event (as G) from Fortran (running alphas #373)' if 'aS =' in line else line for line in self.write_hardcoded_parameters(self.params_indep).split('\n') ]
         replace_dict['hardcoded_independent_parameters'] = '\n'.join( hrd_params_indep )
