@@ -676,6 +676,8 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         res = res.replace('std::complex<','cxsmpl<') # custom simplex complex class (with constexpr arithmetics)
         if res == '' : res = '// (none)'
         res = res.replace('\n','\n  ')
+        res = res.replace('(  - ','( -') # post-fix for susy
+        res = res.replace(',  - ',', -') # post-fix for susy
         return res
 
     # AV - new method (merging write_parameters and write_set_parameters)
@@ -734,6 +736,8 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         assert len(pardef_lines) == len(parset_lines), 'len(pardef_lines) != len(parset_lines)' # AV sanity check (same number of parameters)
         res = '  '.join( pardef_lines[par] + ' = ' + parset_lines[par] + '\n' for par in parset_pars ) # no leading '  ' on first row
         res = res.replace(' ;',';')
+        res = res.replace('= - ','= -') # post-fix for susy
+        res = res.replace('(  - ','( -') # post-fix for susy
         ###print(res); assert(False)
         return res
 
