@@ -762,7 +762,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
                 res_strings.append("if (%s < 0)" % particle.get('mass'))
                 res_strings.append("%(width)s = -abs(%(width)s);" % \
                                    {"width": particle.get('width')})
-        return "\n".join(res_strings)
+        return '\n' + '\n'.join(res_strings) if res_strings else ''
 
     # AV - replace export_cpp.UFOModelConverterCPP method (add hardcoded parameters and couplings)
     def super_generate_parameters_class_files(self):
