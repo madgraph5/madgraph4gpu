@@ -43,6 +43,9 @@ function codeGenAndDiff()
     susy_gg_tt)
       cmd="import model MSSM_SLHA2; generate g g > t t~"
       ;;
+    susy_gq_ttllq)
+      cmd="import model MSSM_SLHA2; define q = u c d s u~ c~ d~ s~; generate g q > t t~ l- l+ q"
+      ;;
     *)
       echo -e "\nWARNING! Skipping unknown process '$proc'"
       return
