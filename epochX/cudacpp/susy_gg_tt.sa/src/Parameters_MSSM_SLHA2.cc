@@ -793,6 +793,14 @@ Parameters_MSSM_SLHA2::setIndependentParameters( SLHAReader& slha )
   mdl_vd = mdl_vev * mdl_cos__beta;
   mdl_vu = mdl_vev * mdl_sin__beta;
   mdl_ee__exp__2 = ( ( mdl_ee ) * ( mdl_ee ) );
+  if( mdl_Mneu2 < 0 )
+    mdl_Wneu2 = -abs( mdl_Wneu2 );
+  if( mdl_Mneu3 < 0 )
+    mdl_Wneu3 = -abs( mdl_Wneu3 );
+  if( mdl_Mneu4 < 0 )
+    mdl_Wneu4 = -abs( mdl_Wneu4 );
+  if( mdl_Mgo < 0 )
+    mdl_Wgo = -abs( mdl_Wgo );
 }
 
 void
@@ -1443,14 +1451,6 @@ Parameters_MSSM_SLHA2::printIndependentParameters()
   std::cout << std::setw( 20 ) << "mdl_vd = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << mdl_vd << std::endl;
   std::cout << std::setw( 20 ) << "mdl_vu = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << mdl_vu << std::endl;
   std::cout << std::setw( 20 ) << "mdl_ee__exp__2 = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << mdl_ee__exp__2 << std::endl;
-  if( mdl_Mneu2 < 0 )
-    mdl_Wneu2 = -abs( mdl_Wneu2 );
-  if( mdl_Mneu3 < 0 )
-    mdl_Wneu3 = -abs( mdl_Wneu3 );
-  if( mdl_Mneu4 < 0 )
-    mdl_Wneu4 = -abs( mdl_Wneu4 );
-  if( mdl_Mgo < 0 )
-    mdl_Wgo = -abs( mdl_Wgo );
 }
 
 void
