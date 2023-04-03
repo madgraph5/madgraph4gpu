@@ -759,9 +759,8 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         for particle in self.model.get('particles'):
             if particle.is_fermion() and particle.get('self_antipart') and \
                    particle.get('width').lower() != 'zero':
-                res_strings.append("if (%s < 0)" % particle.get('mass'))
-                res_strings.append("%(width)s = -abs(%(width)s);" % \
-                                   {"width": particle.get('width')})
+                res_strings.append("  if( %s < 0 )" % particle.get('mass'))
+                res_strings.append("    %(width)s = -abs( %(width)s );" % {"width": particle.get('width')})
         return '\n' + '\n'.join(res_strings) if res_strings else ''
 
     # AV - replace export_cpp.UFOModelConverterCPP method (add hardcoded parameters and couplings)
