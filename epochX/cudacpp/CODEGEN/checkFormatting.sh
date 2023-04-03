@@ -11,23 +11,24 @@ function checkProcdir()
   else
     proc=${procdir%.sa}
   fi
-  case "${proc}" in
-    ee_mumu) ;;
-    gg_tt) ;;
-    gg_ttg) ;;
-    gg_ttgg) ;;
-    gg_ttggg) ;;
-    pp_tt) ;;
-    uu_tt) ;;
-    uu_dd) ;;
-    bb_tt) ;;
-    heft_gg_h) ;;
-    *)
-      echo "ERROR! Unknown process: '$proc'"
-      exit 1
-      return
-      ;;
-  esac
+  # Check if this is a "known" process
+  #case "${proc}" in
+  #  ee_mumu) ;;
+  #  gg_tt) ;;
+  #  gg_ttg) ;;
+  #  gg_ttgg) ;;
+  #  gg_ttggg) ;;
+  #  pp_tt) ;;
+  #  uu_tt) ;;
+  #  uu_dd) ;;
+  #  bb_tt) ;;
+  #  heft_gg_h) ;;
+  #  *)
+  #    echo "ERROR! Unknown process: '$proc'"
+  #    exit 1
+  #    return
+  #    ;;
+  #esac
   # Check if the chosen procdir exists
   cd $TOPDIR
   if [ ! -d $procdir ]; then echo "ERROR! Directory not found $TOPDIR/$procdir"; exit 1; fi
