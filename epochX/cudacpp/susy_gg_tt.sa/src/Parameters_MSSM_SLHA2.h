@@ -805,7 +805,7 @@ namespace Parameters_MSSM_SLHA2_dependentCouplings
       // Model parameters dependent on aS
       //const fptype_sv mdl_sqrt__aS = constexpr_sqrt( aS );
       //const fptype_sv G = 2. * mdl_sqrt__aS * constexpr_sqrt( M_PI );
-      constexpr cxsmpl<double> mdl_G__exp__2 = ( ( G ) * ( G ) );
+      const fptype_sv mdl_G__exp__2 = ( ( G ) * ( G ) );
       // Model couplings dependent on aS
       out.GC_6 = -G;
       out.GC_51 = -( cI * G * mdl_I51x11 );
