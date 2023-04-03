@@ -149,6 +149,8 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             if not abs(tmp - number) / abs(tmp + number) < 1e-8: out = '%.9f' % (number)
             elif tmp.numerator == 1 and tmp.denominator == 2 : out = 'half' # AV
             elif tmp.numerator == -1 and tmp.denominator == 2 : out = '-half' # AV
+            elif tmp.numerator == 1 and tmp.denominator == 4 : out = 'quarter' # AV
+            elif tmp.numerator == -1 and tmp.denominator == 4 : out = '-quarter' # AV
             else: out = '%s./%s.' % (tmp.numerator, tmp.denominator)
         return out
 
@@ -486,11 +488,12 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         out.write('    mgDebug( 1, __FUNCTION__ );\n') # AV
         out.write('    return;\n') # AV
         ###return out.getvalue() # AV
-        # AV check if one, two or half are used and need to be defined (ugly hack for #291: can this be done better?)
+        # AV check if one, two, half or quarter are used and need to be defined (ugly hack for #291: can this be done better?)
         out2 = StringIO()
         if 'one' in out.getvalue(): out2.write('    constexpr fptype one( 1. );\n')
         if 'two' in out.getvalue(): out2.write('    constexpr fptype two( 2. );\n')
         if 'half' in out.getvalue(): out2.write('    constexpr fptype half( 1. / 2. );\n')
+        if 'quarter' in out.getvalue(): out2.write('    constexpr fptype quarter( 1. / 4. );\n')
         out2.write( out.getvalue() )
         return out2.getvalue()
 
