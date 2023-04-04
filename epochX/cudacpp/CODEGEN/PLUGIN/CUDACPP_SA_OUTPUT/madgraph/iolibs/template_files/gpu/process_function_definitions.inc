@@ -400,10 +400,17 @@ namespace mg5amcCpu
   {
     mgDebugInitialise();
 
+    // SANITY CHECKS for cudacpp code generation (see issues #272 and #343 and PRs #619 and #626)
+    // - codegen_nproc (a.k.a. 'nprocesses') has always been found equal to 1 for all processes generated so far
+    // - codegen_procid corresponds to the index of DSIG1 Fortran functions (cudacpp is unable to handle DSIG2)
+    // NB: neither codegen_nproc nor codegen_procid are used anywhere else in the code
+    constexpr int codegen_nproc = %(nproc)i;
+    static_assert( codegen_nproc == 1, "Assume codegen_nproc == 1" );
+    constexpr int codegen_procid = %(proc_id)i;
+    static_assert( codegen_procid == 1, "Assume codegen_procid == 1" );
+
     // Denominators: spins, colors and identical particles
-    constexpr int nprocesses = %(nproc)i;
-    static_assert( nprocesses == 1, "Assume nprocesses == 1" ); // FIXME (#343): assume nprocesses == 1
-    constexpr int helcolDenominators[%(nproc)i] = { %(den_factors)s };
+    constexpr int helcolDenominators[1] = { %(den_factors)s };
 
 #ifdef __CUDACC__
     // Remember: in CUDA this is a kernel for one event, in c++ this processes n events
