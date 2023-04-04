@@ -1,9 +1,11 @@
 /***
- *      ____  _____ ____  
- *     |  _ \| ____|  _ \ 
- *     | |_) |  _| | |_) |
- *     |  __/| |___|  __/ 
- *     |_|   |_____|_|    
+ *      _____  ______ _____  
+ *     |  __ \|  ____|  __ \ 
+ *     | |__) | |__  | |__) |
+ *     |  ___/|  __| |  ___/ 
+ *     | |    | |____| |     
+ *     |_|    |______|_|     
+ *                                                     
  ***/
 #include <vector>
 #include <iostream>
@@ -18,6 +20,7 @@
 #include <algorithm>
 #include <cctype>
 #include <functional>
+#include <stdexcept>
 
 // ZW: all fcns within the PEP standard sit in the
 // namespace PEP
@@ -1737,7 +1740,7 @@ namespace PEP
         std::stringstream buffer;
         buffer << fileLoad.rdbuf();
         auto fileContent = std::make_shared<std::string>(buffer.str());
-        std::transform( fileContent->begin(), fileContent->end(), fileContent->begin(), ::tolower );
+        //std::transform( fileContent->begin(), fileContent->end(), fileContent->begin(), ::tolower );
         buffer.str(std::string());
         fileLoad.close();
         return fileContent;
@@ -2070,6 +2073,8 @@ namespace PEP
     // from LHE file
     std::shared_ptr<std::vector<std::shared_ptr<std::vector<double>>>> lheValDoubles( lheNode& lheFile, lheRetDs vals = lheRetDs() )
     {
+        // ZW: hard-setting returning g_S instead of a_S for now
+        bool aStogS = true;
         auto boolVec = vals.getBools();
         const int noVals = std::count(boolVec.begin(), boolVec.end(), true);
         auto lheAOS = transLHE( lheFile );
@@ -2106,7 +2111,15 @@ namespace PEP
             if( boolVec[4] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsHead.wgts ); ++currInd; }
             if( boolVec[5] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsHead.scales ); ++currInd; }
             if( boolVec[6] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsHead.aQEDs ); ++currInd; }
-            if( boolVec[7] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsHead.aQCDs ); ++currInd; }
+            if( boolVec[7] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsHead.aQCDs ); ++currInd;
+                if( aStogS ){
+                    std::transform( lheDs[currInd]->begin(), lheDs[currInd]->end(), lheDs[currInd]->begin(), 
+                    []( double alphaS ){
+                        auto gS = std::sqrt( 4. * M_PI * alphaS );
+                        return gS;
+                    } );
+                }
+            }
             if( boolVec[8] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsData.moms ); ++currInd; }
             if( boolVec[9] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsData.masses ); ++currInd; }
             if( boolVec[10] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsData.vtims ); ++currInd; }

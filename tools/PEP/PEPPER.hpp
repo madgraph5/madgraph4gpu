@@ -1,4 +1,12 @@
-// ZW: headers for the PEPPER library
+/***
+ *      _____  ______ _____  _____  ______ _____  
+ *     |  __ \|  ____|  __ \|  __ \|  ____|  __ \ 
+ *     | |__) | |__  | |__) | |__) | |__  | |__) |
+ *     |  ___/|  __| |  ___/|  ___/|  __| |  _  / 
+ *     | |    | |____| |    | |    | |____| | \ \ 
+ *     |_|    |______|_|    |_|    |______|_|  \_\                              
+ *                                                
+ ***/
 #include <unistd.h>
 #include <algorithm>
 #include <array>
@@ -169,8 +177,10 @@ namespace PEP::PER
                 rwgtRuns.push_back( rwgtProc( slhaCard, srcCard.substr( lnchPos[lnchPos.size()-1], endLi - lnchPos[lnchPos.size()-1] ), parseOnline ) );
             }
         }
-        rwgtCard( std::string_view reweight_card, PEP::lesHouchesCard slhaParams, bool parseOnline = false )
-        {
+        rwgtCard( std::string_view reweight_card ){
+            srcCard = reweight_card;
+        }
+        rwgtCard( std::string_view reweight_card, PEP::lesHouchesCard slhaParams, bool parseOnline = false ){
             srcCard = reweight_card;
             slhaCard = slhaParams;
             if( parseOnline ){ parse( parseOnline ); }
@@ -185,6 +195,71 @@ namespace PEP::PER
             }
             return cardVec;
         }
+    };
+
+    struct rwgtCollection {
+    public:
+        void setRwgt( std::shared_ptr<rwgtCard> rwgts ){ rwgtSets = rwgts; }
+        void setRwgt( rwgtCard rwgts ){ setRwgt( std::make_shared<rwgtCard>( rwgts ) ); }
+        void setSlha( std::shared_ptr<PEP::lesHouchesCard> slha ){ slhaParameters = slha; }
+        void setSlha( PEP::lesHouchesCard slha ){ setSlha( std::make_shared<PEP::lesHouchesCard>( slha ) ); }
+        void setLhe( std::shared_ptr<PEP::lheNode> lhe ){ lheFile = lhe; }
+        void setLhe( PEP::lheNode lhe ){ setLhe( std::make_shared<PEP::lheNode>( lhe ) ); }
+        rwgtCollection(){ return; }
+        rwgtCollection( std::shared_ptr<PEP::lheNode> lhe, std::shared_ptr<PEP::lesHouchesCard> slha, std::shared_ptr<rwgtCard> rwgts ){
+            setLhe( lhe );
+            setSlha( slha );
+            setRwgt( rwgts );
+        }
+    protected:
+        std::shared_ptr<rwgtCard> rwgtSets;
+        std::shared_ptr<PEP::lesHouchesCard> slhaParameters;
+        std::shared_ptr<PEP::lheNode> lheFile;
+        std::shared_ptr<std::vector<double>> wgts;
+        std::shared_ptr<std::vector<double>> momenta;
+    };
+
+    struct rwgtFiles : rwgtCollection {
+        void setRwgtPath( std::string_view path ){ rwgtPath = path; }
+        void setSlhaPath( std::string_view path ){ slhaPath = path; }
+        void setLhePath( std::string_view path ){ lhePath = path; }
+        rwgtFiles() : rwgtCollection(){ return; }
+        rwgtFiles( std::string_view lhe_card, std::string_view slha_card, std::string_view reweight_card ) : rwgtCollection(){
+            setRwgtPath( reweight_card );
+            setSlhaPath( slha_card );
+            setLhePath( lhe_card );
+        }
+        void initCards(){
+            if( rwgtPath == "" || slhaPath == "" || lhePath == "" )
+                throw std::runtime_error( "rwgtPath, slhaPath and lhePath must have not been set" );
+            setLhe( std::make_shared<PEP::lheNode> ( *lheCard ) );
+            setSlha( std::make_shared<PEP::lesHouchesCard>( *slhaCard ) );
+            setRwgt( std::make_shared<rwgtCard>( *rewgtCard, *slhaParameters, true ) );
+        }
+        void initCards( std::string_view lhe_card, std::string_view slha_card, std::string_view reweight_card ){
+            setLhePath( lhe_card );
+            setSlhaPath( slha_card );
+            setRwgtPath( reweight_card );
+            setLhe( std::make_shared<PEP::lheNode> ( *lheCard ) );
+            setSlha( std::make_shared<PEP::lesHouchesCard>( *slhaCard ) );
+            setRwgt( std::make_shared<rwgtCard>( *rewgtCard, *slhaParameters, true ) );
+        }
+    protected:
+        void pullRwgt(){
+            rewgtCard = PEP::filePuller( rwgtPath );
+        }
+        void pullSlha(){
+            rewgtCard = PEP::filePuller( slhaPath );
+        }
+        void pullLhe(){
+            rewgtCard = PEP::filePuller( lhePath );
+        }
+        std::string rwgtPath;
+        std::string lhePath;
+        std::string slhaPath;
+        std::shared_ptr<std::string> lheCard;
+        std::shared_ptr<std::string> slhaCard;
+        std::shared_ptr<std::string> rewgtCard;
     };
 
 }
