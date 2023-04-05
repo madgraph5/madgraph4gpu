@@ -1116,7 +1116,13 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         misc.sprint('Entering PLUGIN_OneProcessExporter.get_sigmaKin_lines')
         misc.sprint(self.include_multi_channel)
         misc.sprint(self.support_multichannel)
-        return super().get_sigmaKin_lines(color_amplitudes, write)
+        replace_dict = super().get_sigmaKin_lines(color_amplitudes, write=False)
+        replace_dict['proc_id'] = self.proc_id if self.proc_id>0 else 1
+        if write:
+            file = self.read_template_file(self.process_sigmaKin_function_template) % replace_dict
+            return file, replace_dict
+        else:
+            return replace_dict
 
     # AV - modify export_cpp.OneProcessExporterGPU method (fix gCPPProcess.cu)
     def get_all_sigmaKin_lines(self, color_amplitudes, class_name):
