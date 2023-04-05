@@ -62,7 +62,7 @@ generate g g > t t~ g g
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.005003690719604492 [0m
+[1;32mDEBUG: model prefixing  takes 0.0058786869049072266 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -155,7 +155,7 @@ INFO: Please specify coupling orders to bypass this step.
 INFO: Trying coupling order WEIGHTED<=4: WEIGTHED IS QCD+2*QED 
 INFO: Trying process: g g > t t~ g g WEIGHTED<=4 @1  
 INFO: Process has 123 diagrams 
-1 processes with 123 diagrams generated in 0.148 s
+1 processes with 123 diagrams generated in 0.169 s
 Total: 1 processes with 123 diagrams
 output standalone_cudacpp CODEGEN_cudacpp_gg_ttgg
 Load PLUGIN.CUDACPP_SA_OUTPUT
@@ -172,36 +172,36 @@ INFO: Processing color information for process: g g > t t~ g g @1
 [1;32mDEBUG:    type(fortran_model)=<class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_GPUFOHelasCallWriter'> [1;30m[output.py at line 175][0m [0m
 [1;32mDEBUG:    type(me)=<class 'int'> me=0 [1;30m[output.py at line 176][0m [0m
 INFO: Creating files in directory /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 1246][0m [0m
-[1;32mDEBUG:  self.include_multi_channel is not yet defined: this is standalone_cudacpp mode [1;30m[model_handling.py at line 1250][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 1199][0m [0m
+[1;32mDEBUG:  self.include_multi_channel is not yet defined: this is standalone_cudacpp mode [1;30m[model_handling.py at line 1203][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/./CPPProcess.h
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_h_file [1;30m[model_handling.py at line 1389][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_h_file [1;30m[model_handling.py at line 1342][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/./CPPProcess.cc
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_cc_file [1;30m[model_handling.py at line 1411][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.get_sigmaKin_lines [1;30m[model_handling.py at line 1107][0m [0m
-[1;32mDEBUG:  self.include_multi_channel = [0m False [1;30m[model_handling.py at line 1108][0m [0m
-[1;32mDEBUG:  self.support_multichannel = [0m True [1;30m[model_handling.py at line 1109][0m [0m
-[1;32mDEBUG:  type(self.helas_call_writer) = [0m <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_GPUFOHelasCallWriter'> [1;30m[model_handling.py at line 1203][0m [0m
-[1;32mDEBUG:  self.support_multichannel, self.include_multi_channel = [0m True False [1;30m[model_handling.py at line 1204][0m [0m
-[1;32mDEBUG:  multi_channel_map = [0m None [1;30m[model_handling.py at line 1590][0m [0m
-[1;32mDEBUG:  diag_to_config = [0m {} [1;30m[model_handling.py at line 1645][0m [0m
-[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1757][0m [0m
-[1;32mDEBUG:  ('ZERO', 0, -1, 0, 0) [1;30m[model_handling.py at line 1758][0m [0m
-[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1757][0m [0m
-[1;32mDEBUG:  ('ZERO', 1, -1, 1, 1) [1;30m[model_handling.py at line 1758][0m [0m
-[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1757][0m [0m
-[1;32mDEBUG:  ('ZERO', 4, 1, 4, 4) [1;30m[model_handling.py at line 1758][0m [0m
-[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1757][0m [0m
-[1;32mDEBUG:  ('ZERO', 5, 1, 5, 5) [1;30m[model_handling.py at line 1758][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_cc_file [1;30m[model_handling.py at line 1364][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.get_sigmaKin_lines [1;30m[model_handling.py at line 1060][0m [0m
+[1;32mDEBUG:  self.include_multi_channel = [0m False [1;30m[model_handling.py at line 1061][0m [0m
+[1;32mDEBUG:  self.support_multichannel = [0m True [1;30m[model_handling.py at line 1062][0m [0m
+[1;32mDEBUG:  type(self.helas_call_writer) = [0m <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_GPUFOHelasCallWriter'> [1;30m[model_handling.py at line 1156][0m [0m
+[1;32mDEBUG:  self.support_multichannel, self.include_multi_channel = [0m True False [1;30m[model_handling.py at line 1157][0m [0m
+[1;32mDEBUG:  multi_channel_map = [0m None [1;30m[model_handling.py at line 1543][0m [0m
+[1;32mDEBUG:  diag_to_config = [0m {} [1;30m[model_handling.py at line 1598][0m [0m
+[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1710][0m [0m
+[1;32mDEBUG:  ('ZERO', 0, -1, 0, 0) [1;30m[model_handling.py at line 1711][0m [0m
+[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1710][0m [0m
+[1;32mDEBUG:  ('ZERO', 1, -1, 1, 1) [1;30m[model_handling.py at line 1711][0m [0m
+[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1710][0m [0m
+[1;32mDEBUG:  ('ZERO', 4, 1, 4, 4) [1;30m[model_handling.py at line 1711][0m [0m
+[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1710][0m [0m
+[1;32mDEBUG:  ('ZERO', 5, 1, 5, 5) [1;30m[model_handling.py at line 1711][0m [0m
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/. 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_CMakeLists [1;30m[model_handling.py at line 1279][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_check_sa [1;30m[model_handling.py at line 1288][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_mgonGPU [1;30m[model_handling.py at line 1305][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_processidfile [1;30m[model_handling.py at line 1325][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_testxxx [1;30m[model_handling.py at line 1355][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memorybuffers [1;30m[model_handling.py at line 1366][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memoryaccesscouplings [1;30m[model_handling.py at line 1377][0m [0m
-Generated helas calls for 1 subprocesses (123 diagrams) in 0.396 s
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_CMakeLists [1;30m[model_handling.py at line 1232][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_check_sa [1;30m[model_handling.py at line 1241][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_mgonGPU [1;30m[model_handling.py at line 1258][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_processidfile [1;30m[model_handling.py at line 1278][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_testxxx [1;30m[model_handling.py at line 1308][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memorybuffers [1;30m[model_handling.py at line 1319][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memoryaccesscouplings [1;30m[model_handling.py at line 1330][0m [0m
+Generated helas calls for 1 subprocesses (123 diagrams) in 0.454 s
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 181][0m [0m
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
@@ -209,7 +209,7 @@ ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 routines[0m
 ALOHA: aloha creates VVVV3 routines[0m
 ALOHA: aloha creates VVVV4 routines[0m
-ALOHA: aloha creates 5 routines in  0.298 s
+ALOHA: aloha creates 5 routines in  0.340 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -224,26 +224,6 @@ ALOHA: aloha creates 5 routines in  0.298 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVVV4
 FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_gg_ttgg/src/./HelAmps_sm.h
 INFO: Created file HelAmps_sm.h in directory /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_gg_ttgg/src/. 
-super_write_set_parameters_onlyfixMajorana (hardcoded=False)
-[1;32mDEBUG:  'pardef_lines size =', len(pardef_lines), ', keys size =', len(pardef_lines.keys())  = [0m pardef_lines size = 48 , keys size = 48 [1;30m[model_handling.py at line 716][0m [0m
-[1;32mDEBUG:  'parset_pars size =', len(parset_pars)  = [0m parset_pars size = 48 [1;30m[model_handling.py at line 732][0m [0m
-[1;32mDEBUG:  'parset_lines size =', len(parset_lines), ', keys size =', len(parset_lines.keys())  = [0m parset_lines size = 48 , keys size = 48 [1;30m[model_handling.py at line 733][0m [0m
-super_write_set_parameters_onlyfixMajorana (hardcoded=True)
-[1;32mDEBUG:  'pardef_lines size =', len(pardef_lines), ', keys size =', len(pardef_lines.keys())  = [0m pardef_lines size = 3 , keys size = 3 [1;30m[model_handling.py at line 716][0m [0m
-[1;32mDEBUG:  'parset_pars size =', len(parset_pars)  = [0m parset_pars size = 3 [1;30m[model_handling.py at line 732][0m [0m
-[1;32mDEBUG:  'parset_lines size =', len(parset_lines), ', keys size =', len(parset_lines.keys())  = [0m parset_lines size = 3 , keys size = 3 [1;30m[model_handling.py at line 733][0m [0m
-[1;32mDEBUG:  'pardef_lines size =', len(pardef_lines), ', keys size =', len(pardef_lines.keys())  = [0m pardef_lines size = 3 , keys size = 3 [1;30m[model_handling.py at line 716][0m [0m
-[1;32mDEBUG:  'parset_pars size =', len(parset_pars)  = [0m parset_pars size = 3 [1;30m[model_handling.py at line 732][0m [0m
-[1;32mDEBUG:  'parset_lines size =', len(parset_lines), ', keys size =', len(parset_lines.keys())  = [0m parset_lines size = 3 , keys size = 3 [1;30m[model_handling.py at line 733][0m [0m
-[1;32mDEBUG:  'pardef_lines size =', len(pardef_lines), ', keys size =', len(pardef_lines.keys())  = [0m pardef_lines size = 3 , keys size = 3 [1;30m[model_handling.py at line 716][0m [0m
-[1;32mDEBUG:  'parset_pars size =', len(parset_pars)  = [0m parset_pars size = 3 [1;30m[model_handling.py at line 732][0m [0m
-[1;32mDEBUG:  'parset_lines size =', len(parset_lines), ', keys size =', len(parset_lines.keys())  = [0m parset_lines size = 3 , keys size = 3 [1;30m[model_handling.py at line 733][0m [0m
-[1;32mDEBUG:  'pardef_lines size =', len(pardef_lines), ', keys size =', len(pardef_lines.keys())  = [0m pardef_lines size = 3 , keys size = 3 [1;30m[model_handling.py at line 716][0m [0m
-[1;32mDEBUG:  'parset_pars size =', len(parset_pars)  = [0m parset_pars size = 3 [1;30m[model_handling.py at line 732][0m [0m
-[1;32mDEBUG:  'parset_lines size =', len(parset_lines), ', keys size =', len(parset_lines.keys())  = [0m parset_lines size = 3 , keys size = 3 [1;30m[model_handling.py at line 733][0m [0m
-[1;32mDEBUG:  'pardef_lines size =', len(pardef_lines), ', keys size =', len(pardef_lines.keys())  = [0m pardef_lines size = 3 , keys size = 3 [1;30m[model_handling.py at line 716][0m [0m
-[1;32mDEBUG:  'parset_pars size =', len(parset_pars)  = [0m parset_pars size = 3 [1;30m[model_handling.py at line 732][0m [0m
-[1;32mDEBUG:  'parset_lines size =', len(parset_lines), ', keys size =', len(parset_lines.keys())  = [0m parset_lines size = 3 , keys size = 3 [1;30m[model_handling.py at line 733][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_gg_ttgg/src/./Parameters_sm.h
 FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_gg_ttgg/src/./Parameters_sm.cc
 INFO: Created files Parameters_sm.h and Parameters_sm.cc in directory 
@@ -251,6 +231,6 @@ INFO: /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_gg_ttgg/src/.
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.finalize [1;30m[output.py at line 190][0m [0m
 quit
 
-real	0m1.439s
-user	0m1.361s
-sys	0m0.066s
+real	0m1.590s
+user	0m1.515s
+sys	0m0.061s
