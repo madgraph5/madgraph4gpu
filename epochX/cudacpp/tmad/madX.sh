@@ -123,7 +123,7 @@ function showdir()
 {
   if [ "${suff}" == ".mad/" ]; then
     if [ "${eemumu}" == "1" ]; then 
-      dir=$topdir/epochX/${bckend}/ee_mumu${suff}SubProcesses/P1_ll_ll
+      dir=$topdir/epochX/${bckend}/ee_mumu${suff}SubProcesses/P1_epem_mupmum
     elif [ "${ggtt}" == "1" ]; then 
       dir=$topdir/epochX/${bckend}/gg_tt${suff}SubProcesses/P1_gg_ttx
     elif [ "${ggttg}" == "1" ]; then 
