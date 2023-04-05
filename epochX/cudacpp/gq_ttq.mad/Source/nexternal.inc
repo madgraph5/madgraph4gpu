@@ -1,1 +1,1 @@
-../SubProcesses/P1_gq_ttxq/nexternal.inc
+../SubProcesses/P1_gux_ttxux/nexternal.inc

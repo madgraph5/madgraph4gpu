@@ -37,10 +37,10 @@
 
 //==========================================================================
 // Class member functions for calculating the matrix elements for
-// Process: g u~ > t t~ u~ WEIGHTED<=3 @1
-// Process: g c~ > t t~ c~ WEIGHTED<=3 @1
-// Process: g d~ > t t~ d~ WEIGHTED<=3 @1
-// Process: g s~ > t t~ s~ WEIGHTED<=3 @1
+// Process: g u > t t~ u WEIGHTED<=3 @1
+// Process: g c > t t~ c WEIGHTED<=3 @1
+// Process: g d > t t~ d WEIGHTED<=3 @1
+// Process: g s > t t~ s WEIGHTED<=3 @1
 
 #ifdef __CUDACC__
 namespace mg5amcGpu
@@ -232,31 +232,38 @@ namespace mg5amcCpu
       // Wavefunction(s) for diagram number 1
       vxxxxx<M_ACCESS, W_ACCESS>( momenta, 0., cHel[ihel][0], -1, w_fp[0], 0 );
 
-      omzxxx<M_ACCESS, W_ACCESS>( momenta, cHel[ihel][1], -1, w_fp[1], 1 ); // NB: omzxxx only uses pz
+#if not( defined __CUDACC__ and defined MGONGPU_TEST_DIVERGENCE )
+      imzxxx<M_ACCESS, W_ACCESS>( momenta, cHel[ihel][1], +1, w_fp[1], 1 ); // NB: imzxxx only uses pz
+#else
+      if( ( blockDim.x * blockIdx.x + threadIdx.x ) % 2 == 0 )
+        imzxxx<M_ACCESS, W_ACCESS>( momenta, cHel[ihel][1], +1, w_fp[1], 1 ); // NB: imzxxx only uses pz
+      else
+        ixxxxx<M_ACCESS, W_ACCESS>( momenta, 0, cHel[ihel][1], +1, w_fp[1], 1 );
+#endif
 
       oxxxxx<M_ACCESS, W_ACCESS>( momenta, cIPD[0], cHel[ihel][2], +1, w_fp[2], 2 );
 
       ixxxxx<M_ACCESS, W_ACCESS>( momenta, cIPD[0], cHel[ihel][3], -1, w_fp[3], 3 );
 
-      ixzxxx<M_ACCESS, W_ACCESS>( momenta, cHel[ihel][4], -1, w_fp[4], 4 );
+      oxzxxx<M_ACCESS, W_ACCESS>( momenta, cHel[ihel][4], +1, w_fp[4], 4 );
 
-      FFV1_2<W_ACCESS, CD_ACCESS>( w_fp[4], w_fp[0], COUPs[0], 0., 0., w_fp[5] );
+      FFV1_2<W_ACCESS, CD_ACCESS>( w_fp[1], w_fp[0], COUPs[0], 0., 0., w_fp[5] );
       FFV1P0_3<W_ACCESS, CD_ACCESS>( w_fp[3], w_fp[2], COUPs[0], 0., 0., w_fp[6] );
 
       // Amplitude(s) for diagram number 1
-      FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[5], w_fp[1], w_fp[6], COUPs[0], &amp_fp[0] );
+      FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[5], w_fp[4], w_fp[6], COUPs[0], &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[1] -= 1. / 6. * amp_sv[0];
-      jamp_sv[3] += 1. / 2. * amp_sv[0];
+      jamp_sv[0] -= 1. / 2. * amp_sv[0];
+      jamp_sv[2] += 1. / 6. * amp_sv[0];
 
       // *** DIAGRAM 2 OF 5 ***
 
       // Wavefunction(s) for diagram number 2
       FFV1_1<W_ACCESS, CD_ACCESS>( w_fp[2], w_fp[0], COUPs[0], cIPD[0], cIPD[1], w_fp[5] );
-      FFV1P0_3<W_ACCESS, CD_ACCESS>( w_fp[4], w_fp[1], COUPs[0], 0., 0., w_fp[7] );
+      FFV1P0_3<W_ACCESS, CD_ACCESS>( w_fp[1], w_fp[4], COUPs[0], 0., 0., w_fp[7] );
 
       // Amplitude(s) for diagram number 2
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[5], w_fp[7], COUPs[0], &amp_fp[0] );
@@ -264,8 +271,8 @@ namespace mg5amcCpu
       if( channelId == 2 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[2] -= 1. / 6. * amp_sv[0];
-      jamp_sv[3] += 1. / 2. * amp_sv[0];
+      jamp_sv[0] -= 1. / 2. * amp_sv[0];
+      jamp_sv[1] += 1. / 6. * amp_sv[0];
 
       // *** DIAGRAM 3 OF 5 ***
 
@@ -278,22 +285,22 @@ namespace mg5amcCpu
       if( channelId == 3 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[0] += 1. / 2. * amp_sv[0];
-      jamp_sv[2] -= 1. / 6. * amp_sv[0];
+      jamp_sv[1] += 1. / 6. * amp_sv[0];
+      jamp_sv[3] -= 1. / 2. * amp_sv[0];
 
       // *** DIAGRAM 4 OF 5 ***
 
       // Wavefunction(s) for diagram number 4
-      FFV1_1<W_ACCESS, CD_ACCESS>( w_fp[1], w_fp[0], COUPs[0], 0., 0., w_fp[5] );
+      FFV1_1<W_ACCESS, CD_ACCESS>( w_fp[4], w_fp[0], COUPs[0], 0., 0., w_fp[5] );
 
       // Amplitude(s) for diagram number 4
-      FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[4], w_fp[5], w_fp[6], COUPs[0], &amp_fp[0] );
+      FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[1], w_fp[5], w_fp[6], COUPs[0], &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 4 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[0] += 1. / 2. * amp_sv[0];
-      jamp_sv[1] -= 1. / 6. * amp_sv[0];
+      jamp_sv[2] += 1. / 6. * amp_sv[0];
+      jamp_sv[3] -= 1. / 2. * amp_sv[0];
 
       // *** DIAGRAM 5 OF 5 ***
 
@@ -316,7 +323,7 @@ namespace mg5amcCpu
           jamp2_sv[ncolor * iParity + icolC] += cxabs2( jamp_sv[icolC] );
 
       // *** COLOR MATRIX BELOW ***
-      // (This method used to be called CPPProcess::matrix_1_gux_ttxux()?)
+      // (This method used to be called CPPProcess::matrix_1_gu_ttxu()?)
 
       // The color denominators (initialize all array elements, with ncolor=4)
       // [NB do keep 'static' for these constexpr arrays, see issue #283]
@@ -478,38 +485,38 @@ namespace mg5amcCpu
     // Helicities for the process [NB do keep 'static' for this constexpr array, see issue #283]
     // *** NB There is no automatic check yet that these are in the same order as Fortran! #569 ***
     static constexpr short tHel[ncomb][mgOnGpu::npar] = {
-      { -1, -1, -1, 1, 1 },
-      { -1, -1, -1, 1, -1 },
-      { -1, -1, -1, -1, 1 },
-      { -1, -1, -1, -1, -1 },
-      { -1, -1, 1, 1, 1 },
-      { -1, -1, 1, 1, -1 },
-      { -1, -1, 1, -1, 1 },
-      { -1, -1, 1, -1, -1 },
-      { -1, 1, -1, 1, 1 },
       { -1, 1, -1, 1, -1 },
-      { -1, 1, -1, -1, 1 },
+      { -1, 1, -1, 1, 1 },
       { -1, 1, -1, -1, -1 },
-      { -1, 1, 1, 1, 1 },
+      { -1, 1, -1, -1, 1 },
       { -1, 1, 1, 1, -1 },
-      { -1, 1, 1, -1, 1 },
+      { -1, 1, 1, 1, 1 },
       { -1, 1, 1, -1, -1 },
-      { 1, -1, -1, 1, 1 },
-      { 1, -1, -1, 1, -1 },
-      { 1, -1, -1, -1, 1 },
-      { 1, -1, -1, -1, -1 },
-      { 1, -1, 1, 1, 1 },
-      { 1, -1, 1, 1, -1 },
-      { 1, -1, 1, -1, 1 },
-      { 1, -1, 1, -1, -1 },
-      { 1, 1, -1, 1, 1 },
+      { -1, 1, 1, -1, 1 },
+      { -1, -1, -1, 1, -1 },
+      { -1, -1, -1, 1, 1 },
+      { -1, -1, -1, -1, -1 },
+      { -1, -1, -1, -1, 1 },
+      { -1, -1, 1, 1, -1 },
+      { -1, -1, 1, 1, 1 },
+      { -1, -1, 1, -1, -1 },
+      { -1, -1, 1, -1, 1 },
       { 1, 1, -1, 1, -1 },
-      { 1, 1, -1, -1, 1 },
+      { 1, 1, -1, 1, 1 },
       { 1, 1, -1, -1, -1 },
-      { 1, 1, 1, 1, 1 },
+      { 1, 1, -1, -1, 1 },
       { 1, 1, 1, 1, -1 },
+      { 1, 1, 1, 1, 1 },
+      { 1, 1, 1, -1, -1 },
       { 1, 1, 1, -1, 1 },
-      { 1, 1, 1, -1, -1 } };
+      { 1, -1, -1, 1, -1 },
+      { 1, -1, -1, 1, 1 },
+      { 1, -1, -1, -1, -1 },
+      { 1, -1, -1, -1, 1 },
+      { 1, -1, 1, 1, -1 },
+      { 1, -1, 1, 1, 1 },
+      { 1, -1, 1, -1, -1 },
+      { 1, -1, 1, -1, 1 } };
 #ifdef __CUDACC__
     checkCuda( cudaMemcpyToSymbol( cHel, tHel, ncomb * mgOnGpu::npar * sizeof( short ) ) );
 #else
@@ -856,7 +863,7 @@ namespace mg5amcCpu
       constexpr int nprocesses = 1;
       static_assert( nprocesses == 1, "Assume nprocesses == 1" );
       // process_id corresponds to the index of DSIG1 Fortran functions (must be 1 because cudacpp is unable to handle DSIG2)
-      constexpr int process_id = 2; // code generation source: madevent + cudacpp exporter
+      constexpr int process_id = 1; // code generation source: madevent + cudacpp exporter
       static_assert( process_id == 1, "Assume process_id == 1" );
     }
 

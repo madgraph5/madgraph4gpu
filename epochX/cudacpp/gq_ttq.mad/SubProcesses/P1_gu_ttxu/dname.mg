@@ -1,1 +1,1 @@
-DIRNAME=P1_gq_ttxq
+DIRNAME=P1_gu_ttxu

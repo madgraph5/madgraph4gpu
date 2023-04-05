@@ -12,10 +12,10 @@ C      state/symmetry factor
 C     and helicities
 C     for the point in phase space P(0:3,NEXTERNAL)
 C     
-C     Process: g u > t t~ u WEIGHTED<=3 @1
-C     Process: g c > t t~ c WEIGHTED<=3 @1
-C     Process: g d > t t~ d WEIGHTED<=3 @1
-C     Process: g s > t t~ s WEIGHTED<=3 @1
+C     Process: g u~ > t t~ u~ WEIGHTED<=3 @1
+C     Process: g c~ > t t~ c~ WEIGHTED<=3 @1
+C     Process: g d~ > t t~ d~ WEIGHTED<=3 @1
+C     Process: g s~ > t t~ s~ WEIGHTED<=3 @1
 C     
       USE DISCRETESAMPLER
       IMPLICIT NONE
@@ -119,38 +119,38 @@ C     2 means approximation by the	denominator of the propagator
       DATA NGOOD /0,0/
       DATA ISHEL/0,0/
       SAVE YFRAC, IGOOD, JHEL
-      DATA (NHEL(I,   1),I=1,5) /-1, 1,-1, 1,-1/
-      DATA (NHEL(I,   2),I=1,5) /-1, 1,-1, 1, 1/
-      DATA (NHEL(I,   3),I=1,5) /-1, 1,-1,-1,-1/
-      DATA (NHEL(I,   4),I=1,5) /-1, 1,-1,-1, 1/
-      DATA (NHEL(I,   5),I=1,5) /-1, 1, 1, 1,-1/
-      DATA (NHEL(I,   6),I=1,5) /-1, 1, 1, 1, 1/
-      DATA (NHEL(I,   7),I=1,5) /-1, 1, 1,-1,-1/
-      DATA (NHEL(I,   8),I=1,5) /-1, 1, 1,-1, 1/
-      DATA (NHEL(I,   9),I=1,5) /-1,-1,-1, 1,-1/
-      DATA (NHEL(I,  10),I=1,5) /-1,-1,-1, 1, 1/
-      DATA (NHEL(I,  11),I=1,5) /-1,-1,-1,-1,-1/
-      DATA (NHEL(I,  12),I=1,5) /-1,-1,-1,-1, 1/
-      DATA (NHEL(I,  13),I=1,5) /-1,-1, 1, 1,-1/
-      DATA (NHEL(I,  14),I=1,5) /-1,-1, 1, 1, 1/
-      DATA (NHEL(I,  15),I=1,5) /-1,-1, 1,-1,-1/
-      DATA (NHEL(I,  16),I=1,5) /-1,-1, 1,-1, 1/
-      DATA (NHEL(I,  17),I=1,5) / 1, 1,-1, 1,-1/
-      DATA (NHEL(I,  18),I=1,5) / 1, 1,-1, 1, 1/
-      DATA (NHEL(I,  19),I=1,5) / 1, 1,-1,-1,-1/
-      DATA (NHEL(I,  20),I=1,5) / 1, 1,-1,-1, 1/
-      DATA (NHEL(I,  21),I=1,5) / 1, 1, 1, 1,-1/
-      DATA (NHEL(I,  22),I=1,5) / 1, 1, 1, 1, 1/
-      DATA (NHEL(I,  23),I=1,5) / 1, 1, 1,-1,-1/
-      DATA (NHEL(I,  24),I=1,5) / 1, 1, 1,-1, 1/
-      DATA (NHEL(I,  25),I=1,5) / 1,-1,-1, 1,-1/
-      DATA (NHEL(I,  26),I=1,5) / 1,-1,-1, 1, 1/
-      DATA (NHEL(I,  27),I=1,5) / 1,-1,-1,-1,-1/
-      DATA (NHEL(I,  28),I=1,5) / 1,-1,-1,-1, 1/
-      DATA (NHEL(I,  29),I=1,5) / 1,-1, 1, 1,-1/
-      DATA (NHEL(I,  30),I=1,5) / 1,-1, 1, 1, 1/
-      DATA (NHEL(I,  31),I=1,5) / 1,-1, 1,-1,-1/
-      DATA (NHEL(I,  32),I=1,5) / 1,-1, 1,-1, 1/
+      DATA (NHEL(I,   1),I=1,5) /-1,-1,-1, 1, 1/
+      DATA (NHEL(I,   2),I=1,5) /-1,-1,-1, 1,-1/
+      DATA (NHEL(I,   3),I=1,5) /-1,-1,-1,-1, 1/
+      DATA (NHEL(I,   4),I=1,5) /-1,-1,-1,-1,-1/
+      DATA (NHEL(I,   5),I=1,5) /-1,-1, 1, 1, 1/
+      DATA (NHEL(I,   6),I=1,5) /-1,-1, 1, 1,-1/
+      DATA (NHEL(I,   7),I=1,5) /-1,-1, 1,-1, 1/
+      DATA (NHEL(I,   8),I=1,5) /-1,-1, 1,-1,-1/
+      DATA (NHEL(I,   9),I=1,5) /-1, 1,-1, 1, 1/
+      DATA (NHEL(I,  10),I=1,5) /-1, 1,-1, 1,-1/
+      DATA (NHEL(I,  11),I=1,5) /-1, 1,-1,-1, 1/
+      DATA (NHEL(I,  12),I=1,5) /-1, 1,-1,-1,-1/
+      DATA (NHEL(I,  13),I=1,5) /-1, 1, 1, 1, 1/
+      DATA (NHEL(I,  14),I=1,5) /-1, 1, 1, 1,-1/
+      DATA (NHEL(I,  15),I=1,5) /-1, 1, 1,-1, 1/
+      DATA (NHEL(I,  16),I=1,5) /-1, 1, 1,-1,-1/
+      DATA (NHEL(I,  17),I=1,5) / 1,-1,-1, 1, 1/
+      DATA (NHEL(I,  18),I=1,5) / 1,-1,-1, 1,-1/
+      DATA (NHEL(I,  19),I=1,5) / 1,-1,-1,-1, 1/
+      DATA (NHEL(I,  20),I=1,5) / 1,-1,-1,-1,-1/
+      DATA (NHEL(I,  21),I=1,5) / 1,-1, 1, 1, 1/
+      DATA (NHEL(I,  22),I=1,5) / 1,-1, 1, 1,-1/
+      DATA (NHEL(I,  23),I=1,5) / 1,-1, 1,-1, 1/
+      DATA (NHEL(I,  24),I=1,5) / 1,-1, 1,-1,-1/
+      DATA (NHEL(I,  25),I=1,5) / 1, 1,-1, 1, 1/
+      DATA (NHEL(I,  26),I=1,5) / 1, 1,-1, 1,-1/
+      DATA (NHEL(I,  27),I=1,5) / 1, 1,-1,-1, 1/
+      DATA (NHEL(I,  28),I=1,5) / 1, 1,-1,-1,-1/
+      DATA (NHEL(I,  29),I=1,5) / 1, 1, 1, 1, 1/
+      DATA (NHEL(I,  30),I=1,5) / 1, 1, 1, 1,-1/
+      DATA (NHEL(I,  31),I=1,5) / 1, 1, 1,-1, 1/
+      DATA (NHEL(I,  32),I=1,5) / 1, 1, 1,-1,-1/
       DATA IDEN/96/
 
 C     To be able to control when the matrix<i> subroutine can add
@@ -340,10 +340,10 @@ C
 C     Returns amplitude squared summed/avg over colors
 C     for the point with external lines W(0:6,NEXTERNAL)
 C     
-C     Process: g u > t t~ u WEIGHTED<=3 @1
-C     Process: g c > t t~ c WEIGHTED<=3 @1
-C     Process: g d > t t~ d WEIGHTED<=3 @1
-C     Process: g s > t t~ s WEIGHTED<=3 @1
+C     Process: g u~ > t t~ u~ WEIGHTED<=3 @1
+C     Process: g c~ > t t~ c~ WEIGHTED<=3 @1
+C     Process: g d~ > t t~ d~ WEIGHTED<=3 @1
+C     Process: g s~ > t t~ s~ WEIGHTED<=3 @1
 C     
       IMPLICIT NONE
 C     
@@ -425,19 +425,19 @@ C
       DATA (CF(I,  1),I=  1,  4) /1.200000000000000D+01
      $ ,4.000000000000000D+00,4.000000000000000D+00,0.000000000000000D
      $ +00/
-C     1 T(1,3,2) T(5,4)
+C     1 T(1,2,4) T(3,5)
       DATA (CF(I,  2),I=  1,  4) /4.000000000000000D+00
      $ ,1.200000000000000D+01,0.000000000000000D+00,4.000000000000000D
      $ +00/
-C     1 T(1,3,4) T(5,2)
+C     1 T(1,2,5) T(3,4)
       DATA (CF(I,  3),I=  1,  4) /4.000000000000000D+00
      $ ,0.000000000000000D+00,1.200000000000000D+01,4.000000000000000D
      $ +00/
-C     1 T(1,5,2) T(3,4)
+C     1 T(1,3,4) T(2,5)
       DATA (CF(I,  4),I=  1,  4) /0.000000000000000D+00
      $ ,4.000000000000000D+00,4.000000000000000D+00,1.200000000000000D
      $ +01/
-C     1 T(1,5,4) T(3,2)
+C     1 T(1,3,5) T(2,4)
 C     ----------
 C     BEGIN CODE
 C     ----------
@@ -456,38 +456,38 @@ C     ----------
 
 
       CALL VXXXXX(P(0,1),ZERO,NHEL(1),-1*IC(1),W(1,1))
-      CALL IXXXXX(P(0,2),ZERO,NHEL(2),+1*IC(2),W(1,2))
+      CALL OXXXXX(P(0,2),ZERO,NHEL(2),-1*IC(2),W(1,2))
       CALL OXXXXX(P(0,3),MDL_MT,NHEL(3),+1*IC(3),W(1,3))
       CALL IXXXXX(P(0,4),MDL_MT,NHEL(4),-1*IC(4),W(1,4))
-      CALL OXXXXX(P(0,5),ZERO,NHEL(5),+1*IC(5),W(1,5))
-      CALL FFV1_2(W(1,2),W(1,1),GC_11(IVEC),ZERO, FK_ZERO,W(1,6))
+      CALL IXXXXX(P(0,5),ZERO,NHEL(5),-1*IC(5),W(1,5))
+      CALL FFV1_2(W(1,5),W(1,1),GC_11(IVEC),ZERO, FK_ZERO,W(1,6))
       CALL FFV1P0_3(W(1,4),W(1,3),GC_11(IVEC),ZERO, FK_ZERO,W(1,7))
 C     Amplitude(s) for diagram number 1
-      CALL FFV1_0(W(1,6),W(1,5),W(1,7),GC_11(IVEC),AMP(1))
+      CALL FFV1_0(W(1,6),W(1,2),W(1,7),GC_11(IVEC),AMP(1))
       CALL FFV1_1(W(1,3),W(1,1),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,6))
-      CALL FFV1P0_3(W(1,2),W(1,5),GC_11(IVEC),ZERO, FK_ZERO,W(1,8))
+      CALL FFV1P0_3(W(1,5),W(1,2),GC_11(IVEC),ZERO, FK_ZERO,W(1,8))
 C     Amplitude(s) for diagram number 2
       CALL FFV1_0(W(1,4),W(1,6),W(1,8),GC_11(IVEC),AMP(2))
       CALL FFV1_2(W(1,4),W(1,1),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,6))
 C     Amplitude(s) for diagram number 3
       CALL FFV1_0(W(1,6),W(1,3),W(1,8),GC_11(IVEC),AMP(3))
-      CALL FFV1_1(W(1,5),W(1,1),GC_11(IVEC),ZERO, FK_ZERO,W(1,6))
+      CALL FFV1_1(W(1,2),W(1,1),GC_11(IVEC),ZERO, FK_ZERO,W(1,6))
 C     Amplitude(s) for diagram number 4
-      CALL FFV1_0(W(1,2),W(1,6),W(1,7),GC_11(IVEC),AMP(4))
+      CALL FFV1_0(W(1,5),W(1,6),W(1,7),GC_11(IVEC),AMP(4))
 C     Amplitude(s) for diagram number 5
       CALL VVV1_0(W(1,1),W(1,8),W(1,7),GC_10(IVEC),AMP(5))
 
       JAMP(:,:) = (0D0,0D0)
 C     JAMPs contributing to orders ALL_ORDERS=1
-      JAMP(1,1) = (-5.000000000000000D-01)*AMP(1)+(-5.000000000000000D
-     $ -01)*AMP(2)+((0.000000000000000D+00,5.000000000000000D-01))
+      JAMP(1,1) = (5.000000000000000D-01)*AMP(3)+(5.000000000000000D
+     $ -01)*AMP(4)+((0.000000000000000D+00,5.000000000000000D-01))
      $ *AMP(5)
-      JAMP(2,1) = (1.666666666666667D-01)*AMP(2)+(1.666666666666667D
-     $ -01)*AMP(3)
-      JAMP(3,1) = (1.666666666666667D-01)*AMP(1)+(1.666666666666667D
+      JAMP(2,1) = (-1.666666666666667D-01)*AMP(1)+(-1.666666666666667D
      $ -01)*AMP(4)
-      JAMP(4,1) = (-5.000000000000000D-01)*AMP(3)+(-5.000000000000000D
-     $ -01)*AMP(4)+((0.000000000000000D+00,-5.000000000000000D-01))
+      JAMP(3,1) = (-1.666666666666667D-01)*AMP(2)+(-1.666666666666667D
+     $ -01)*AMP(3)
+      JAMP(4,1) = (5.000000000000000D-01)*AMP(1)+(5.000000000000000D
+     $ -01)*AMP(2)+((0.000000000000000D+00,-5.000000000000000D-01))
      $ *AMP(5)
 
       IF(INIT_MODE)THEN

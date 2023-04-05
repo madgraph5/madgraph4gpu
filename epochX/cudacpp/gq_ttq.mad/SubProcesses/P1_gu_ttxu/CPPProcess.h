@@ -5,8 +5,8 @@
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
 
-#ifndef MG5_Sigma_sm_gux_ttxux_H
-#define MG5_Sigma_sm_gux_ttxux_H 1
+#ifndef MG5_Sigma_sm_gu_ttxu_H
+#define MG5_Sigma_sm_gu_ttxu_H 1
 
 #include "mgOnGpuConfig.h"
 
@@ -26,10 +26,10 @@ namespace mg5amcCpu
 {
   //==========================================================================
   // A class for calculating the matrix elements for
-  // Process: g u~ > t t~ u~ WEIGHTED<=3 @1
-  // Process: g c~ > t t~ c~ WEIGHTED<=3 @1
-  // Process: g d~ > t t~ d~ WEIGHTED<=3 @1
-  // Process: g s~ > t t~ s~ WEIGHTED<=3 @1
+  // Process: g u > t t~ u WEIGHTED<=3 @1
+  // Process: g c > t t~ c WEIGHTED<=3 @1
+  // Process: g d > t t~ d WEIGHTED<=3 @1
+  // Process: g s > t t~ s WEIGHTED<=3 @1
   //--------------------------------------------------------------------------
 
   class CPPProcess
@@ -166,4 +166,4 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 }
 
-#endif // MG5_Sigma_sm_gux_ttxux_H
+#endif // MG5_Sigma_sm_gu_ttxu_H

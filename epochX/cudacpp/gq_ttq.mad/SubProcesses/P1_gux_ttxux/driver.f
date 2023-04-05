@@ -369,7 +369,7 @@ c        initialize the discrete sampler module
 c        Also set the minimum number of points for which each helicity
 c        should be probed before the grid is used for sampling.
 C        Typically 10 * n_matrix<i>
-         call DS_set_min_points(40,'Helicity')
+         call DS_set_min_points(20,'Helicity')
       endif
 
       write(*,10) 'Enter Configuration Number: '

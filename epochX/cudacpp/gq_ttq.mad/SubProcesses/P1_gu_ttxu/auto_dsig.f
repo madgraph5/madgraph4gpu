@@ -357,10 +357,6 @@ C     Process: g u > t t~ u WEIGHTED<=3 @1
 C     Process: g c > t t~ c WEIGHTED<=3 @1
 C     Process: g d > t t~ d WEIGHTED<=3 @1
 C     Process: g s > t t~ s WEIGHTED<=3 @1
-C     Process: g u~ > t t~ u~ WEIGHTED<=3 @1
-C     Process: g c~ > t t~ c~ WEIGHTED<=3 @1
-C     Process: g d~ > t t~ d~ WEIGHTED<=3 @1
-C     Process: g s~ > t t~ s~ WEIGHTED<=3 @1
 C     
 C     RETURNS DIFFERENTIAL CROSS SECTION 
 C     FOR MULTIPLE PROCESSES IN PROCESS GROUP
@@ -523,7 +519,7 @@ C       Output weights and number of events
         WRITE(*,*)'Relative summed weights:'
         IF (SUMPROB.NE.0D0)THEN
           DO J=1,SYMCONF(0)
-            WRITE(*,'(4E12.4)')((SUMWGT(K,I,J)/SUMPROB,K=1,2),I=1
+            WRITE(*,'(2E12.4)')((SUMWGT(K,I,J)/SUMPROB,K=1,2),I=1
      $       ,MAXSPROC)
           ENDDO
         ENDIF
@@ -538,13 +534,13 @@ C       Output weights and number of events
         WRITE(*,*)'Relative number of events:'
         IF (SUMPROB.NE.0D0)THEN
           DO J=1,SYMCONF(0)
-            WRITE(*,'(4E12.4)')((NUMEVTS(K,I,J)/SUMPROB,K=1,2),I=1
+            WRITE(*,'(2E12.4)')((NUMEVTS(K,I,J)/SUMPROB,K=1,2),I=1
      $       ,MAXSPROC)
           ENDDO
         ENDIF
         WRITE(*,*)'Events:'
         DO J=1,SYMCONF(0)
-          WRITE(*,'(4I12)')((NUMEVTS(K,I,J),K=1,2),I=1,MAXSPROC)
+          WRITE(*,'(2I12)')((NUMEVTS(K,I,J),K=1,2),I=1,MAXSPROC)
         ENDDO
 C       Reset weights and number of events
         DO J=1,SYMCONF(0)
@@ -816,7 +812,7 @@ C      called from elsewhere) and when set to 0, it resets the cache.
 C     
 C     EXTERNAL FUNCTIONS
 C     
-      DOUBLE PRECISION DSIG1,DSIG2
+      DOUBLE PRECISION DSIG1
       LOGICAL PASSCUTS
 C     
 C     LOCAL VARIABLES 
@@ -882,7 +878,6 @@ C     and update the couplings accordingly
         NB_PASS_CUTS = NB_PASS_CUTS + 1
       ENDIF
       IF(IPROC.EQ.1) DSIGPROC=DSIG1(P1,WGT,IMODE)  ! g u > t t~ u
-      IF(IPROC.EQ.2) DSIGPROC=DSIG2(P1,WGT,IMODE)  ! g u~ > t t~ u~
 C     ENDIF
 
       IF (LAST_ICONF.NE.-1.AND.IMIRROR.EQ.2) THEN
@@ -963,7 +958,7 @@ C      called from elsewhere) and when set to 0, it resets the cache.
 C     
 C     EXTERNAL FUNCTIONS
 C     
-      DOUBLE PRECISION DSIG1,DSIG2
+      DOUBLE PRECISION DSIG1
       LOGICAL PASSCUTS
 C     
 C     LOCAL VARIABLES 
@@ -1025,8 +1020,6 @@ C     IF (PASSCUTS(P1)) THEN
 
       IF(IPROC.EQ.1) CALL DSIG1_VEC(ALL_P1,ALL_XBK,ALL_Q2FACT
      $ ,ALL_CM_RAP,ALL_WGT,IMODE,ALL_OUT,VECSIZE_USED)  ! g u > t t~ u
-      IF(IPROC.EQ.2) CALL DSIG2_VEC(ALL_P1,ALL_XBK,ALL_Q2FACT
-     $ ,ALL_CM_RAP,ALL_WGT,IMODE,ALL_OUT,VECSIZE_USED)  ! g u~ > t t~ u~
 C     ENDIF
 
       IF (LAST_ICONF.NE.-1.AND.IMIRROR.EQ.2) THEN
@@ -1145,7 +1138,6 @@ C
       SUBROUTINE PRINT_ZERO_AMP()
 
       CALL PRINT_ZERO_AMP1()
-      CALL PRINT_ZERO_AMP2()
       RETURN
       END
 
@@ -1230,15 +1222,10 @@ C     all subleading color.
       INTEGER NHEL(NEXTERNAL)
       INTEGER I
       INTEGER GET_NHEL1
-      INTEGER GET_NHEL2
 
       IF(IPROC.EQ.1)THEN
         DO I=1,NEXTERNAL
           NHEL(I) = GET_NHEL1(IHEL,I)
-        ENDDO
-      ELSEIF(IPROC.EQ.2)THEN
-        DO I=1,NEXTERNAL
-          NHEL(I) = GET_NHEL2(IHEL,I)
         ENDDO
       ENDIF
 
