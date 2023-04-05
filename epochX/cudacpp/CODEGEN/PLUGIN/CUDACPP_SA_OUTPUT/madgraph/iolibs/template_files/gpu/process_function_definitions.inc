@@ -401,13 +401,15 @@ namespace mg5amcCpu
     mgDebugInitialise();
 
     // SANITY CHECKS for cudacpp code generation (see issues #272 and #343 and PRs #619 and #626)
-    // - codegen_nproc (a.k.a. 'nprocesses') has always been found equal to 1 for all processes generated so far
-    // - codegen_procid corresponds to the index of DSIG1 Fortran functions (cudacpp is unable to handle DSIG2)
-    // NB: neither codegen_nproc nor codegen_procid are used anywhere else in the code
-    constexpr int codegen_nproc = %(nproc)i;
-    static_assert( codegen_nproc == 1, "Assume codegen_nproc == 1" );
-    constexpr int codegen_procid = %(proc_id)i;
-    static_assert( codegen_procid == 1, "Assume codegen_procid == 1" );
+    // These variable are not used anywhere else in the code and their scope is limited to this sanity check
+    {
+      // nprocesses has always been found equal to 1 for all processes generated so far in all code versions
+      constexpr int nprocesses = %(nproc)i;
+      static_assert( nprocesses == 1, "Assume nprocesses == 1" );
+      // process_id corresponds to the index of DSIG1 Fortran functions (must be 1 because cudacpp is unable to handle DSIG2)
+      constexpr int process_id = %(proc_id)i;
+      static_assert( process_id == 1, "Assume process_id == 1" );
+    }
 
     // Denominators: spins, colors and identical particles
     constexpr int helcolDenominators[1] = { %(den_factors)s };
