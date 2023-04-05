@@ -851,9 +851,18 @@ namespace mg5amcCpu
   {
     mgDebugInitialise();
 
+    // SANITY CHECKS for cudacpp code generation (see issues #272 and #343 and PRs #619 and #626)
+    // These variable are not used anywhere else in the code and their scope is limited to this sanity check
+    {
+      // nprocesses has always been found equal to 1 for all processes generated so far in all code versions
+      constexpr int nprocesses = 1;
+      static_assert( nprocesses == 1, "Assume nprocesses == 1" );
+      // process_id corresponds to the index of DSIG1 Fortran functions (must be 1 because cudacpp is unable to handle DSIG2)
+      constexpr int process_id = 1; // code generation source: standalone_cudacpp
+      static_assert( process_id == 1, "Assume process_id == 1" );
+    }
+
     // Denominators: spins, colors and identical particles
-    constexpr int nprocesses = 1;
-    static_assert( nprocesses == 1, "Assume nprocesses == 1" ); // FIXME (#343): assume nprocesses == 1
     constexpr int helcolDenominators[1] = { 96 };
 
 #ifdef __CUDACC__
