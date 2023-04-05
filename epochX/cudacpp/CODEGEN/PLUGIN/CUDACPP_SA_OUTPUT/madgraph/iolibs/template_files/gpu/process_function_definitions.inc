@@ -407,7 +407,7 @@ namespace mg5amcCpu
       constexpr int nprocesses = %(nproc)i;
       static_assert( nprocesses == 1, "Assume nprocesses == 1" );
       // process_id corresponds to the index of DSIG1 Fortran functions (must be 1 because cudacpp is unable to handle DSIG2)
-      constexpr int process_id = %(proc_id)i;
+      constexpr int process_id = %(proc_id)i; // code generation source: %(proc_id_source)s
       static_assert( process_id == 1, "Assume process_id == 1" );
     }
 
