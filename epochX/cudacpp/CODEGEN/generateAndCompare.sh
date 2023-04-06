@@ -47,7 +47,7 @@ function codeGenAndDiff()
       cmd="set auto_convert_model T; import model heft; generate g g > h"
       ;;
     smeft_gg_tttt)
-      cmd="import model SMEFTsim_topU3l_MwScheme_UFO -massless_4t; generate g g > t t~ t t~"
+      cmd="set auto_convert_model T; import model SMEFTsim_topU3l_MwScheme_UFO -massless_4t; generate g g > t t~ t t~"
       ;;
     susy_gg_tt)
       cmd="import model MSSM_SLHA2; generate g g > t t~"
