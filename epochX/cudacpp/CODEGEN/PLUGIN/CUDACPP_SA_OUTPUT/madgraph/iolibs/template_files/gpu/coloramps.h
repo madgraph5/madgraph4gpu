@@ -4,7 +4,7 @@
 namespace mgOnGpu
 {
 
-  __device__ constexpr bool icolamp[%(nb_channel)s][%(nb_color)s] = { // FIXME: assume process.nprocesses == 1 for the moment
+  __device__ constexpr bool icolamp[%(nb_channel)s][%(nb_color)s] = {
 %(is_LC)s
   };
 
