@@ -1,0 +1,186 @@
+[1;31mNote that this is a development version.
+This version is intended for development/beta testing and NOT for production.
+This version has not been fully tested (if at all) and might have limited user support (if at all)[0m
+Running MG5 in debug mode
+************************************************************
+*                                                          *
+*                     W E L C O M E to                     *
+*              M A D G R A P H 5 _ a M C @ N L O           *
+*                                                          *
+*                                                          *
+*                 *                       *                *
+*                   *        * *        *                  *
+*                     * * * * 5 * * * *                    *
+*                   *        * *        *                  *
+*                 *                       *                *
+*                                                          *
+*         VERSION 3.5.0_lo_vect         2023-01-26         *
+[1;31m*                                                          *[1;0m
+[1;31m*          WARNING: UNKNOWN DEVELOPMENT VERSION.           *[1;0m
+[1;31m*            WARNING: DO NOT USE FOR PRODUCTION            *[1;0m
+[1;31m*                                                          *[1;0m
+*                                                          *
+*    The MadGraph5_aMC@NLO Development Team - Find us at   *
+*    https://server06.fynu.ucl.ac.be/projects/madgraph     *
+*                            and                           *
+*            http://amcatnlo.web.cern.ch/amcatnlo/         *
+*                                                          *
+*               Type 'help' for in-line help.              *
+*           Type 'tutorial' to learn how MG5 works         *
+*    Type 'tutorial aMCatNLO' to learn how aMC@NLO works   *
+*    Type 'tutorial MadLoop' to learn how MadLoop works    *
+*                                                          *
+************************************************************
+load MG5 configuration from input/mg5_configuration.txt 
+fastjet-config does not seem to correspond to a valid fastjet-config executable (v3+). We will use fjcore instead.
+ Please set the 'fastjet'variable to the full (absolute) /PATH/TO/fastjet-config (including fastjet-config).
+ MG5_aMC> set fastjet /PATH/TO/fastjet-config
+
+eMELA-config does not seem to correspond to a valid eMELA-config executable.
+ Please set the 'fastjet'variable to the full (absolute) /PATH/TO/eMELA-config (including eMELA-config).
+ MG5_aMC> set eMELA /PATH/TO/eMELA-config
+
+lhapdf-config does not seem to correspond to a valid lhapdf-config executable. 
+Please set the 'lhapdf' variable to the (absolute) /PATH/TO/lhapdf-config (including lhapdf-config).
+Note that you can still compile and run aMC@NLO with the built-in PDFs
+ MG5_aMC> set lhapdf /PATH/TO/lhapdf-config
+
+None does not seem to correspond to a valid lhapdf-config executable. 
+Please set the 'lhapdf' variable to the (absolute) /PATH/TO/lhapdf-config (including lhapdf-config).
+Note that you can still compile and run aMC@NLO with the built-in PDFs
+ MG5_aMC> set lhapdf /PATH/TO/lhapdf-config
+
+Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
+No valid eps viewer found. Please set in ./input/mg5_configuration.txt
+No valid web browser found. Please set in ./input/mg5_configuration.txt
+import /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_smeft_gg_tttt.mg
+The import format was not given, so we guess it as command
+set stdout_level DEBUG
+set output information to level: 10
+set zerowidth_tchannel F
+set auto_convert_model T; import model SMEFTsim_topU3l_MwScheme_UFO -massless_4t; generate g g > t t~ t t~
+save options auto_convert_model
+save configuration file to /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/input/mg5_configuration.txt
+INFO: load particles 
+INFO: load vertices 
+[1;31mCRITICAL: Model with non QCD emission of gluon (found 14 of those).
+  This type of model is not fully supported within MG5aMC.
+  Restriction on LO dynamical scale and MLM matching/merging can occur for some processes.
+  Use such features with care. [0m
+[1;32mDEBUG: MG5 converter defines FFFF110 to Gamma(-1,2,-2)*Gamma(-1,4,-3)*ProjM(-2,3)*ProjP(-3,1) + Gamma(-1,2,-3)*Gamma(-1,4,-2)*ProjM(-2,1)*ProjP(-3,3) [0m
+[1;32mDEBUG: MG5 converter defines FFFF111 to Gamma(-1,2,-3)*Gamma(-1,4,-2)*ProjM(-2,3)*ProjP(-3,1) + Gamma(-1,2,-2)*Gamma(-1,4,-3)*ProjM(-2,1)*ProjP(-3,3) [0m
+[1;32mDEBUG: MG5 converter defines FFFF22 to ProjM(2,1)*ProjP(4,3) + ProjM(4,3)*ProjP(2,1) [0m
+[1;32mDEBUG: MG5 converter defines FFFF23 to Gamma(-2,-4,-3)*Gamma(-2,2,-6)*Gamma(-1,-6,-5)*Gamma(-1,4,-4)*ProjM(-5,1)*ProjM(-3,3) + Gamma(-2,-4,-3)*Gamma(-2,4,-6)*Gamma(-1,-6,-5)*Gamma(-1,2,-4)*ProjM(-5,3)*ProjM(-3,1) [0m
+[1;32mDEBUG: MG5 converter defines FFFF24 to Gamma(-2,-4,-3)*Gamma(-2,2,-6)*Gamma(-1,-6,-5)*Gamma(-1,4,-4)*ProjP(-5,1)*ProjP(-3,3) + Gamma(-2,-4,-3)*Gamma(-2,4,-6)*Gamma(-1,-6,-5)*Gamma(-1,2,-4)*ProjP(-5,3)*ProjP(-3,1) [0m
+[1;32mDEBUG: MG5 converter defines FFFF25 to Gamma(-2,-6,-5)*Gamma(-2,-4,-3)*Gamma(-1,2,-4)*Gamma(-1,4,-6)*ProjP(-5,3)*ProjP(-3,1) + Gamma(-2,-6,-5)*Gamma(-2,-4,-3)*Gamma(-1,2,-4)*Gamma(-1,4,-6)*ProjM(-5,3)*ProjM(-3,1) [0m
+[1;32mDEBUG: MG5 converter defines FFFF26 to Gamma(-2,-4,-3)*Gamma(-2,2,-6)*Gamma(-1,-6,-5)*Gamma(-1,4,-4)*ProjP(-5,1)*ProjP(-3,3) + Gamma(-2,-4,-3)*Gamma(-2,4,-6)*Gamma(-1,-6,-5)*Gamma(-1,2,-4)*ProjP(-5,3)*ProjP(-3,1) + Gamma(-2,-4,-3)*Gamma(-2,2,-6)*Gamma(-1,-6,-5)*Gamma(-1,4,-4)*ProjM(-5,1)*ProjM(-3,3) + Gamma(-2,-4,-3)*Gamma(-2,4,-6)*Gamma(-1,-6,-5)*Gamma(-1,2,-4)*ProjM(-5,3)*ProjM(-3,1) [0m
+[1;32mDEBUG: MG5 converter defines FFFF27 to ProjP(2,1)*ProjP(4,3) + ProjM(2,1)*ProjM(4,3) [0m
+[1;32mDEBUG: MG5 converter defines FFFF112 to ProjM(2,3)*ProjM(4,1) + ProjP(2,3)*ProjP(4,1) [0m
+[1;32mDEBUG: model prefixing  takes 0.15017271041870117 [0m
+INFO: Change particles name to pass to MG5 convention 
+Defined multiparticle p = g u c d s u~ c~ d~ s~
+Defined multiparticle j = g u c d s u~ c~ d~ s~
+Defined multiparticle l+ = e+ mu+
+Defined multiparticle l- = e- mu-
+Defined multiparticle vl = ve vm vt
+Defined multiparticle vl~ = ve~ vm~ vt~
+Defined multiparticle all = g a ve vm vt ve~ vm~ vt~ u c t d s b t1 u~ c~ t~ d~ s~ b~ t1~ z w+ z1 w1+ h h1 w- w1- e- mu- ta- e+ mu+ ta+
+INFO: Checking for minimal orders which gives processes. 
+INFO: Please specify coupling orders to bypass this step. 
+INFO: Trying coupling order WEIGHTED<=4: WEIGTHED IS QCD+2*QED+99*SMHLOOP+99*NP+99*NPshifts+99*NPprop+99*NPcpv+NPcbb+NPcbB+NPcbBB+NPcbd1+NPcbd8+NPcbe+NPcbG+NPcbH+NPcbj1+NPcbj8+NPcbl+NPcbu1+NPcbu8+NPcbW+NPcdB+NPcdd1+NPcdd8+NPcdG+NPcdH+NPcdW+NPceB+NPced+NPcee+NPceH+NPceu+NPceW+NPcG+NPcGtil+NPcH+NPcHB+NPcHbox+NPcHbq+NPcHBtil+NPcHd+NPcHDD+NPcHe+NPcHG+NPcHGtil+NPcHj1+NPcHj3+NPcHl1+NPcHl3+NPcHQ1+NPcHQ3+NPcHt+NPcHtb+NPcHu+NPcHud+NPcHW+NPcHWB+NPcHWBtil+NPcHWtil+NPcjd1+NPcjd8+NPcje+NPcjj11+NPcjj18+NPcjj31+NPcjj38+NPcjQbd1+NPcjQbd8+NPcjQtu1+NPcjQtu8+NPcjtQd1+NPcjtQd8+NPcju1+NPcju8+NPcjujd1+NPcjujd11+NPcjujd8+NPcjujd81+NPcjuQb1+NPcjuQb8+NPcld+NPcle+NPclebQ+NPcledj+NPcleju1+NPcleju3+NPcleQt1+NPcleQt3+NPclj1+NPclj3+NPcll+NPcll1+NPclu+NPcQb1+NPcQb8+NPcQd1+NPcQd8+NPcQe+NPcQj11+NPcQj18+NPcQj31+NPcQj38+NPcQl1+NPcQl3+NPcQQ1+NPcQQ8+NPcQt1+NPcQt8+NPcQtjd1+NPcQtjd8+NPcQtQb1+NPcQtQb8+NPcQu1+NPcQu8+NPcQujb1+NPcQujb8+NPctB+NPctb1+NPctb8+NPctd1+NPctd8+NPcte+NPctG+NPctH+NPctj1+NPctj8+NPctl+NPctt+NPctu1+NPctu8+NPctW+NPcuB+NPcud1+NPcud8+NPcuG+NPcuH+NPcutbd1+NPcutbd8+NPcuu1+NPcuu8+NPcuW+NPcW+NPcWtil+NPQjujb8 
+INFO: Trying process: g g > t t~ t t~ WEIGHTED<=4 @1  
+INFO: Process has 72 diagrams 
+1 processes with 72 diagrams generated in 4.222 s
+Total: 1 processes with 72 diagrams
+output standalone_cudacpp CODEGEN_cudacpp_smeft_gg_tttt
+Load PLUGIN.CUDACPP_SA_OUTPUT
+[1mOutput will be done with PLUGIN: CUDACPP_SA_OUTPUT[0m
+[1;32mDEBUG:  cformat = [0m plugin [1;30m[export_cpp.py at line 3071][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter) [1;30m[output.py at line 143][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.copy_template (initialise the directory) [1;30m[output.py at line 148][0m [0m
+INFO: Creating subdirectories in directory /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_smeft_gg_tttt 
+INFO: Organizing processes into subprocess groups 
+INFO: Generating Helas calls for process: g g > t t~ t t~ WEIGHTED<=4 @1 
+INFO: Processing color information for process: g g > t t~ t t~ @1 
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.generate_subprocess_directory (create the directory) [1;30m[output.py at line 173][0m [0m
+[1;32mDEBUG:    type(subproc_group)=<class 'madgraph.core.helas_objects.HelasMatrixElement'> [1;30m[output.py at line 174][0m [0m
+[1;32mDEBUG:    type(fortran_model)=<class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_GPUFOHelasCallWriter'> [1;30m[output.py at line 175][0m [0m
+[1;32mDEBUG:    type(me)=<class 'int'> me=0 [1;30m[output.py at line 176][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.__init__ [1;30m[model_handling.py at line 1027][0m [0m
+[1;32mDEBUG:  proc_id = [0m 0 [1;30m[model_handling.py at line 1033][0m [0m
+INFO: Creating files in directory /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_smeft_gg_tttt/SubProcesses/P1_Sigma_SMEFTsim_topU3l_MwScheme_UFO_gg_ttxttx 
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 1268][0m [0m
+[1;32mDEBUG:  self.include_multi_channel is not yet defined: this is standalone_cudacpp mode [1;30m[model_handling.py at line 1272][0m [0m
+FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_smeft_gg_tttt/SubProcesses/P1_Sigma_SMEFTsim_topU3l_MwScheme_UFO_gg_ttxttx/./CPPProcess.h
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_h_file [1;30m[model_handling.py at line 1411][0m [0m
+FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_smeft_gg_tttt/SubProcesses/P1_Sigma_SMEFTsim_topU3l_MwScheme_UFO_gg_ttxttx/./CPPProcess.cc
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_cc_file [1;30m[model_handling.py at line 1433][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.get_sigmaKin_lines [1;30m[model_handling.py at line 1122][0m [0m
+[1;32mDEBUG:  self.include_multi_channel = [0m False [1;30m[model_handling.py at line 1123][0m [0m
+[1;32mDEBUG:  self.support_multichannel = [0m True [1;30m[model_handling.py at line 1124][0m [0m
+[1;32mDEBUG:  type(self.helas_call_writer) = [0m <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_GPUFOHelasCallWriter'> [1;30m[model_handling.py at line 1225][0m [0m
+[1;32mDEBUG:  self.support_multichannel, self.include_multi_channel = [0m True False [1;30m[model_handling.py at line 1226][0m [0m
+[1;32mDEBUG:  multi_channel_map = [0m None [1;30m[model_handling.py at line 1612][0m [0m
+[1;32mDEBUG:  diag_to_config = [0m {} [1;30m[model_handling.py at line 1667][0m [0m
+[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1779][0m [0m
+[1;32mDEBUG:  ('ZERO', 0, -1, 0, 0) [1;30m[model_handling.py at line 1780][0m [0m
+[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1779][0m [0m
+[1;32mDEBUG:  ('ZERO', 1, -1, 1, 1) [1;30m[model_handling.py at line 1780][0m [0m
+INFO: Created files CPPProcess.h and CPPProcess.cc in directory /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_smeft_gg_tttt/SubProcesses/P1_Sigma_SMEFTsim_topU3l_MwScheme_UFO_gg_ttxttx/. 
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_CMakeLists [1;30m[model_handling.py at line 1301][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_check_sa [1;30m[model_handling.py at line 1310][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_mgonGPU [1;30m[model_handling.py at line 1327][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_processidfile [1;30m[model_handling.py at line 1347][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_testxxx [1;30m[model_handling.py at line 1377][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memorybuffers [1;30m[model_handling.py at line 1388][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memoryaccesscouplings [1;30m[model_handling.py at line 1399][0m [0m
+Generated helas calls for 1 subprocesses (72 diagrams) in 0.212 s
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 181][0m [0m
+ALOHA: aloha starts to compute helicity amplitudes
+ALOHA: aloha creates VVV5 routines[0m
+ALOHA: aloha creates FFV1 routines[0m
+ALOHA: aloha creates VVVV1 routines[0m
+ALOHA: aloha creates VVVV9 routines[0m
+ALOHA: aloha creates VVVV10 routines[0m
+ALOHA: aloha creates 5 routines in  0.340 s
+<class 'aloha.create_aloha.AbstractRoutine'> VVV5
+<class 'aloha.create_aloha.AbstractRoutine'> VVV5
+<class 'aloha.create_aloha.AbstractRoutine'> FFV1
+<class 'aloha.create_aloha.AbstractRoutine'> FFV1
+<class 'aloha.create_aloha.AbstractRoutine'> FFV1
+<class 'aloha.create_aloha.AbstractRoutine'> FFV1
+<class 'aloha.create_aloha.AbstractRoutine'> VVVV1
+<class 'aloha.create_aloha.AbstractRoutine'> VVVV9
+<class 'aloha.create_aloha.AbstractRoutine'> VVVV10
+FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_smeft_gg_tttt/src/./HelAmps_SMEFTsim_topU3l_MwScheme_UFO.h
+INFO: Created file HelAmps_SMEFTsim_topU3l_MwScheme_UFO.h in directory /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_smeft_gg_tttt/src/. 
+super_write_set_parameters_onlyfixMajorana (hardcoded=False)
+[1;32mDEBUG:  'pardef_lines size =', len(pardef_lines), ', keys size =', len(pardef_lines.keys())  = [0m pardef_lines size = 344 , keys size = 344 [1;30m[model_handling.py at line 722][0m [0m
+[1;32mDEBUG:  'parset_pars size =', len(parset_pars)  = [0m parset_pars size = 344 [1;30m[model_handling.py at line 738][0m [0m
+[1;32mDEBUG:  'parset_lines size =', len(parset_lines), ', keys size =', len(parset_lines.keys())  = [0m parset_lines size = 344 , keys size = 344 [1;30m[model_handling.py at line 739][0m [0m
+super_write_set_parameters_onlyfixMajorana (hardcoded=True)
+[1;32mDEBUG:  'pardef_lines size =', len(pardef_lines), ', keys size =', len(pardef_lines.keys())  = [0m pardef_lines size = 10 , keys size = 10 [1;30m[model_handling.py at line 722][0m [0m
+[1;32mDEBUG:  'parset_pars size =', len(parset_pars)  = [0m parset_pars size = 10 [1;30m[model_handling.py at line 738][0m [0m
+[1;32mDEBUG:  'parset_lines size =', len(parset_lines), ', keys size =', len(parset_lines.keys())  = [0m parset_lines size = 10 , keys size = 10 [1;30m[model_handling.py at line 739][0m [0m
+[1;32mDEBUG:  'pardef_lines size =', len(pardef_lines), ', keys size =', len(pardef_lines.keys())  = [0m pardef_lines size = 3 , keys size = 3 [1;30m[model_handling.py at line 722][0m [0m
+[1;32mDEBUG:  'parset_pars size =', len(parset_pars)  = [0m parset_pars size = 3 [1;30m[model_handling.py at line 738][0m [0m
+[1;32mDEBUG:  'parset_lines size =', len(parset_lines), ', keys size =', len(parset_lines.keys())  = [0m parset_lines size = 3 , keys size = 3 [1;30m[model_handling.py at line 739][0m [0m
+[1;32mDEBUG:  'pardef_lines size =', len(pardef_lines), ', keys size =', len(pardef_lines.keys())  = [0m pardef_lines size = 10 , keys size = 10 [1;30m[model_handling.py at line 722][0m [0m
+[1;32mDEBUG:  'parset_pars size =', len(parset_pars)  = [0m parset_pars size = 10 [1;30m[model_handling.py at line 738][0m [0m
+[1;32mDEBUG:  'parset_lines size =', len(parset_lines), ', keys size =', len(parset_lines.keys())  = [0m parset_lines size = 10 , keys size = 10 [1;30m[model_handling.py at line 739][0m [0m
+[1;32mDEBUG:  'pardef_lines size =', len(pardef_lines), ', keys size =', len(pardef_lines.keys())  = [0m pardef_lines size = 3 , keys size = 3 [1;30m[model_handling.py at line 722][0m [0m
+[1;32mDEBUG:  'parset_pars size =', len(parset_pars)  = [0m parset_pars size = 3 [1;30m[model_handling.py at line 738][0m [0m
+[1;32mDEBUG:  'parset_lines size =', len(parset_lines), ', keys size =', len(parset_lines.keys())  = [0m parset_lines size = 3 , keys size = 3 [1;30m[model_handling.py at line 739][0m [0m
+[1;32mDEBUG:  'pardef_lines size =', len(pardef_lines), ', keys size =', len(pardef_lines.keys())  = [0m pardef_lines size = 3 , keys size = 3 [1;30m[model_handling.py at line 722][0m [0m
+[1;32mDEBUG:  'parset_pars size =', len(parset_pars)  = [0m parset_pars size = 3 [1;30m[model_handling.py at line 738][0m [0m
+[1;32mDEBUG:  'parset_lines size =', len(parset_lines), ', keys size =', len(parset_lines.keys())  = [0m parset_lines size = 3 , keys size = 3 [1;30m[model_handling.py at line 739][0m [0m
+FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_smeft_gg_tttt/src/./Parameters_SMEFTsim_topU3l_MwScheme_UFO.h
+FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_smeft_gg_tttt/src/./Parameters_SMEFTsim_topU3l_MwScheme_UFO.cc
+INFO: Created files Parameters_SMEFTsim_topU3l_MwScheme_UFO.h and Parameters_SMEFTsim_topU3l_MwScheme_UFO.cc in directory 
+INFO: /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_smeft_gg_tttt/src/. and /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_smeft_gg_tttt/src/. 
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.finalize [1;30m[output.py at line 190][0m [0m
+quit
+
+real	0m5.957s
+user	0m5.786s
+sys	0m0.085s
