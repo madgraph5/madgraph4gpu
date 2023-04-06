@@ -92,3 +92,7 @@ if [ "$ggttggg" == "" ]; then
   echo "  ./tput/teeThroughputX.sh -flt -hrd -makej -ggttggg -makeclean ${sa}"
   echo "  ./tput/teeThroughputX.sh -makej -ggttggg -flt -bridge -makeclean ${sa}"
 fi
+
+# Print out any errors in the logs
+echo
+if ! egrep -i 'error' ./tput/logs_* -r; then echo "No errors found in logs"; fi

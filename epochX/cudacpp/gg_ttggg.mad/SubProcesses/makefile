@@ -96,7 +96,13 @@ endif
 
 ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
 override OMPFLAGS = -fopenmp
+LINKLIBS += -liomp5 # see #578
 LINKLIBS += -lintlc # undefined reference to `_intel_fast_memcpy'
+else ifneq ($(shell $(CXX) --version | egrep '^clang'),)
+override OMPFLAGS = -fopenmp
+$(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp: LINKLIBS += -L $(shell dirname $(shell $(CXX) -print-file-name=libc++.so)) -lomp # see #604
+###else ifneq ($(shell $(CXX) --version | egrep '^Apple clang'),)
+###override OMPFLAGS = -fopenmp # OMP is not supported yet by cudacpp for Apple clang
 else
 override OMPFLAGS = -fopenmp
 endif
@@ -136,7 +142,7 @@ counters.o: counters.cc timer.h
 	$(CXX) -std=c++11 -Wall -Wshadow -Wextra -c $< -o $@
 
 ompnumthreads.o: ompnumthreads.cc ompnumthreads.h
-	$(CXX) -std=c++11 -Wall -Wshadow -Wextra $(OMPFLAGS) -c $< -o $@
+	$(CXX) -I. -std=c++11 -Wall -Wshadow -Wextra $(OMPFLAGS) -c $< -o $@
 
 $(PROG)_forhel: $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX_HEL)
 	$(FC) -o $(PROG)_forhel $(PROCESS) $(MATRIX_HEL) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) $(OMPFLAGS)

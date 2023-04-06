@@ -50,9 +50,10 @@ Please set the 'lhapdf' variable to the (absolute) /PATH/TO/lhapdf-config (inclu
 Note that you can still compile and run aMC@NLO with the built-in PDFs
  MG5_aMC> set lhapdf /PATH/TO/lhapdf-config
 
+Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
 No valid eps viewer found. Please set in ./input/mg5_configuration.txt
 Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
-import /data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo/CODEGEN_mad_ee_mumu.mg
+import /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_mad_ee_mumu.mg
 The import format was not given, so we guess it as command
 set stdout_level DEBUG
 set output information to level: 10
@@ -61,7 +62,7 @@ generate e+ e- > mu+ mu-
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.0069811344146728516 [0m
+[1;32mDEBUG: model prefixing  takes 0.0058441162109375 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -164,15 +165,15 @@ Load PLUGIN.CUDACPP_SA_OUTPUT
 INFO: initialize a new directory: CODEGEN_mad_ee_mumu 
 INFO: remove old information in CODEGEN_mad_ee_mumu 
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.copy_template (initialise the directory) [1;30m[output.py at line 148][0m [0m
-[1;34mWARNING: File exists /data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo/CODEGEN_mad_ee_mumu [0m
-INFO: Creating subdirectories in directory /data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo/CODEGEN_mad_ee_mumu 
-[1;34mWARNING: File exists /data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo/CODEGEN_mad_ee_mumu/Cards [0m
-[1;34mWARNING: File exists /data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo/CODEGEN_mad_ee_mumu/SubProcesses [0m
+[1;34mWARNING: File exists /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_mad_ee_mumu [0m
+INFO: Creating subdirectories in directory /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_mad_ee_mumu 
+[1;34mWARNING: File exists /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_mad_ee_mumu/Cards [0m
+[1;34mWARNING: File exists /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_mad_ee_mumu/SubProcesses [0m
 INFO: Organizing processes into subprocess groups 
 INFO: Generating Helas calls for process: e+ e- > mu+ mu- WEIGHTED<=4 @1 
 INFO: Processing color information for process: e+ e- > mu+ mu- @1 
-INFO: Creating files in directory P1_ll_ll 
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7fc8c28c7100> [1;30m[export_v4.py at line 6155][0m [0m
+INFO: Creating files in directory P1_epem_mupmum 
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f1c391e59d0> [1;30m[export_v4.py at line 6155][0m [0m
 INFO: Creating files in directory . 
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 1199][0m [0m
 [1;32mDEBUG:  self.include_multi_channel is already defined: this is madevent+second_exporter mode [1;30m[model_handling.py at line 1201][0m [0m
@@ -203,21 +204,21 @@ INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./.
 [1;32mDEBUG:  Done [1;30m[export_cpp.py at line 713][0m [0m
 [1;34mWARNING: vector code for lepton pdf not implemented. We removed the option to run dressed lepton [0m
 INFO: Generating Feynman diagrams for Process: e+ e- > mu+ mu- WEIGHTED<=4 @1 
-INFO: Finding symmetric diagrams for subprocess group ll_ll 
-Generated helas calls for 1 subprocesses (2 diagrams) in 0.005 s
-Wrote files for 8 helas calls in 0.119 s
+INFO: Finding symmetric diagrams for subprocess group epem_mupmum 
+Generated helas calls for 1 subprocesses (2 diagrams) in 0.004 s
+Wrote files for 8 helas calls in 0.094 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFV2 routines[0m
 ALOHA: aloha creates FFV4 routines[0m
-ALOHA: aloha creates 3 routines in  0.244 s
+ALOHA: aloha creates 3 routines in  0.210 s
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 181][0m [0m
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFV2 routines[0m
 ALOHA: aloha creates FFV4 routines[0m
 ALOHA: aloha creates FFV2_4 routines[0m
-ALOHA: aloha creates 7 routines in  0.311 s
+ALOHA: aloha creates 7 routines in  0.267 s
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV2
@@ -226,25 +227,24 @@ ALOHA: aloha creates 7 routines in  0.311 s
 <class 'aloha.create_aloha.AbstractRoutine'> FFV4
 <class 'aloha.create_aloha.AbstractRoutine'> FFV2_4
 <class 'aloha.create_aloha.AbstractRoutine'> FFV2_4
-FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo/CODEGEN_mad_ee_mumu/src/./HelAmps_sm.h
-INFO: Created file HelAmps_sm.h in directory /data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo/CODEGEN_mad_ee_mumu/src/. 
-FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo/CODEGEN_mad_ee_mumu/src/./Parameters_sm.h
-FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo/CODEGEN_mad_ee_mumu/src/./Parameters_sm.cc
+FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_mad_ee_mumu/src/./HelAmps_sm.h
+INFO: Created file HelAmps_sm.h in directory /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_mad_ee_mumu/src/. 
+FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_mad_ee_mumu/src/./Parameters_sm.h
+FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_mad_ee_mumu/src/./Parameters_sm.cc
 INFO: Created files Parameters_sm.h and Parameters_sm.cc in directory 
-INFO: /data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo/CODEGEN_mad_ee_mumu/src/. and /data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo/CODEGEN_mad_ee_mumu/src/. 
+INFO: /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_mad_ee_mumu/src/. and /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_mad_ee_mumu/src/. 
 The option zerowidth_tchannel is modified [True] but will not be written in the configuration files.
 If you want to make this value the default for future session, you can run 'save options --all'
-save configuration file to /data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo/CODEGEN_mad_ee_mumu/Cards/me5_configuration.txt
+save configuration file to /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_mad_ee_mumu/Cards/me5_configuration.txt
 INFO: Use Fortran compiler gfortran 
 INFO: Use c++ compiler g++ 
-INFO: Generate jpeg diagrams 
 INFO: Generate web pages 
-Output to directory /data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo/CODEGEN_mad_ee_mumu done.
+Output to directory /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_mad_ee_mumu done.
 Type "launch" to generate events from this process, or see
-/data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo/CODEGEN_mad_ee_mumu/README
+/data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_mad_ee_mumu/README
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m2.499s
-user	0m2.159s
-sys	0m0.316s
+real	0m1.978s
+user	0m1.772s
+sys	0m0.198s
