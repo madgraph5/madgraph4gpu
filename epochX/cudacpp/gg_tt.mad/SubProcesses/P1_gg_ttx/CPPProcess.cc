@@ -786,10 +786,10 @@ namespace mg5amcCpu
   {
     mgDebugInitialise();
 
-    // SANITY CHECKS for cudacpp code generation (see issues #272 and #343 and PRs #619 and #626)
+    // SANITY CHECKS for cudacpp code generation (see issues #272 and #343 and PRs #619, #626, #360 and #396)
     // These variable are not used anywhere else in the code and their scope is limited to this sanity check
     {
-      // nprocesses has always been found equal to 1 for all processes generated so far in all code versions
+      // nprocesses>1 was last observed for "mirror processes" in uux_ttx in the 270 branch (see issue #343 and PRs #360 and #396)
       constexpr int nprocesses = 1;
       static_assert( nprocesses == 1, "Assume nprocesses == 1" );
       // process_id corresponds to the index of DSIG1 Fortran functions (must be 1 because cudacpp is unable to handle DSIG2)
