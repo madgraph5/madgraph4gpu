@@ -27,8 +27,6 @@ namespace
   std::map<unsigned int, ReferenceData> readReferenceData( const std::string& refFileName )
   {
     std::ifstream referenceFile( refFileName.c_str() );
-    if ( !referenceFile.is_open() )
-      std::cout << "ERROR! Reference file not found: set env variable MADGRAPHTEST_CREATEREF and rerun to create it" << std::endl;
     EXPECT_TRUE( referenceFile.is_open() ) << refFileName;
     std::map<unsigned int, ReferenceData> referenceData;
     unsigned int evtNo;
@@ -196,7 +194,7 @@ protected:
 TEST_P( MadgraphTest, CompareMomentaAndME )
 {
   // Set to true to dump events:
-  const bool dumpEvents = ( getenv( "MADGRAPHTEST_CREATEREF" ) != 0 );
+  constexpr bool dumpEvents = false;
   constexpr fptype energy = 1500; // historical default, Ecms = 1500 GeV = 1.5 TeV (above the Z peak)
   const fptype toleranceMomenta = std::is_same<double, fptype>::value ? 1.E-10 : 3.E-2;
 #ifdef __APPLE__
@@ -294,7 +292,6 @@ TEST_P( MadgraphTest, CompareMomentaAndME )
   if( dumpEvents )
   {
     std::cout << "Event dump written to " << dumpFileName << std::endl;
-    std::cout << "(to use it in the next test, move it to " << refFileName << ")" << std::endl;
   }
 }
 
