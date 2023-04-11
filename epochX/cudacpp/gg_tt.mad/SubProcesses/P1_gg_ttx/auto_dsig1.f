@@ -80,7 +80,7 @@ C     Keep track of whether cuts already calculated for this event
 
       INTEGER SUBDIAG(MAXSPROC),IB(2)
       COMMON/TO_SUB_DIAG/SUBDIAG,IB
-      INCLUDE 'vector.inc' ! defines VECSIZE_MEMMAX
+      INCLUDE 'vector.inc'  ! defines VECSIZE_MEMMAX
       INCLUDE 'coupl.inc'  ! defines VECSIZE_MEMMAX_COUPL
       INCLUDE 'run.inc'
 C     Common blocks
