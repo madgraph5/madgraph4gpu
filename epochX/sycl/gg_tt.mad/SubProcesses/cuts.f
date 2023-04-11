@@ -69,6 +69,7 @@ C     GLOBAL
 C
       include 'run.inc'
       include 'cuts.inc'
+      include '../../Source/vector.inc'
       
       double precision ptjet(nexternal)
       double precision ptheavyjet(nexternal)
@@ -180,7 +181,6 @@ C     Sort array of results: ismode>0 for real, isway=0 for ascending order
       parameter (isway=0)
       parameter (izero=0)
 
-      include 'vector.inc'
       include 'coupl.inc'
 
 C
@@ -256,11 +256,15 @@ c               fixed_ren_scale=.true.
 c               call set_ren_scale(P,scale)
 c            endif
 c         endif
-         
+
+c     If scale is fixed, update G-dependent couplings for VECSIZE_MEMMAX events
+c     This is called only once in the application (FIRSTTIME=.true.)
+c     Only VECSIZE_USED events are needed, but this variable is unknown here
+c     Using VECSIZE_MEMMAX is correct and has a negligible performance overhead
 
          if(fixed_ren_scale) then
             G = SQRT(4d0*PI*ALPHAS(scale))
-            do i =1, nb_page_loop
+            do i =1, VECSIZE_MEMMAX ! no need to use VECSIZE_USED here
                call update_as_param(i)
             enddo
          endif
