@@ -3,17 +3,21 @@ c      written by the UFO converter
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 C     
-C     NB: VECSIZE_MEMMAX is defined in vector.inc
-C     NB: vector.inc must be included before coupl.inc
+C     NB: VECSIZE_MEMMAX_COUPL must be set equal to VECSIZE_MEMMAX, which is defined in vector.inc
+C     NB: vector.inc is not included in coupl.inc because Fortran has no include guards
 C     
 
-      DOUBLE PRECISION G, ALL_G(VECSIZE_MEMMAX)
+      INTEGER VECSIZE_MEMMAX_COUPL
+      PARAMETER (VECSIZE_MEMMAX_COUPL=16384) ! NB: 16k events per GPU grid is the minimum required to fill a V100 GPU
+c     PARAMETER (VECSIZE_MEMMAX_COUPL=32) ! NB: workaround for out-of-memory on Juwels: 32 is enough for no-CUDA builds (issue #498)
+
+      DOUBLE PRECISION G, ALL_G(VECSIZE_MEMMAX_COUPL)
       COMMON/STRONG/ G, ALL_G
 
       DOUBLE COMPLEX GAL(2)
       COMMON/WEAK/ GAL
 
-      DOUBLE PRECISION MU_R, ALL_MU_R(VECSIZE_MEMMAX)
+      DOUBLE PRECISION MU_R, ALL_MU_R(VECSIZE_MEMMAX_COUPL)
       COMMON/RSCALE/ MU_R, ALL_MU_R
 
       DOUBLE PRECISION NF
@@ -22,16 +26,10 @@ C
       PARAMETER(NL=2D0)
 
       DOUBLE PRECISION MDL_MB,MDL_MH,MDL_MT,MDL_MTA,MDL_MW,MDL_MZ
-
       COMMON/MASSES/ MDL_MB,MDL_MH,MDL_MT,MDL_MTA,MDL_MW,MDL_MZ
 
-
       DOUBLE PRECISION MDL_WH,MDL_WT,MDL_WW,MDL_WZ
-
       COMMON/WIDTHS/ MDL_WH,MDL_WT,MDL_WW,MDL_WZ
 
-
-      DOUBLE COMPLEX GC_10(VECSIZE_MEMMAX), GC_11(VECSIZE_MEMMAX)
-
+      DOUBLE COMPLEX GC_10(VECSIZE_MEMMAX_COUPL), GC_11(VECSIZE_MEMMAX_COUPL)
       COMMON/COUPLINGS/ GC_10, GC_11
-
