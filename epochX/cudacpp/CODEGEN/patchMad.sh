@@ -92,7 +92,7 @@ done
 cd ${dir}/Source/MODEL > /dev/null
 gcs=$(cat coupl_write.inc | awk '{if($1=="WRITE(*,2)") print $NF}') # different printouts for scalar/vector couplings #456
 for gc in $gcs; do
-  if grep -q "$gc(VECSIZE_MEMMAX)" coupl.inc; then
+  if grep -q "$gc(VECSIZE_MEMMAX_COUPL)" coupl.inc; then
     ###echo "DEBUG: Coupling $gc is a vector"
     cat coupl_write.inc | awk -vgc=$gc '{if($1=="WRITE(*,2)" && $NF==gc) print $0"(1)"; else print $0}' > coupl_write.inc.new
     \mv coupl_write.inc.new coupl_write.inc
