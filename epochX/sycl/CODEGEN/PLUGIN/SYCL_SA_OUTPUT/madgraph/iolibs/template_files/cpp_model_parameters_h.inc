@@ -137,7 +137,13 @@ namespace Parameters_%(model_name)s_dependentCouplings
 #endif
     // NB: hardcode cxtype cI(0,1) instead of cxtype (or hardcoded cxsmpl) mdl_complexi (which exists in Parameters_%(model_name)s) because:
     // (1) mdl_complexi is always (0,1); (2) mdl_complexi is undefined in device code; (3) need cxsmpl conversion to cxtype in code below
-    static constexpr CXType cI( 0., 1. );
+    #if defined MGONGPU_COMPLEX_CUTHRUST
+        const CXType cI( FPType(0.0), FPType(1.0));
+    #elif defined MGONGPU_COMPLEX_CUCOMPLEX
+        const CXType cI = CXMAKE_SV_2ARG(FPType(0.0), FPType(1.0)); //FIXME CXMAKE_SV_2ARG not included in this header file, perhaps overload assignment operator = in mgOnGpuTypes.h
+    #else
+        static constexpr CXType cI(FPType(0.0), FPType(1.0));
+    #endif
 
     // Model parameters dependent on aS
 %(dcoupsetdpar)s

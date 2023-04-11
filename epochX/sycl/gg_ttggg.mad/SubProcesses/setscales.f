@@ -11,7 +11,7 @@ c     INCLUDE and COMMON
 c
       include 'genps.inc'
       include 'nexternal.inc'
-      include 'vector.inc'
+      include 'vector.inc' ! needed by coupl.inc (defines VECSIZE_MEMMAX)
       include 'coupl.inc'
 
       integer i
@@ -38,12 +38,11 @@ c
 c
 c     EXTERNAL
 c
-      REAL*8 R2,DOT,ET,ETA,DJ,SumDot,PT
+      REAL*8 R2,DOT,ET,ETA,DJ,SumDot,PT,user_dynamical_scale
 
 c----------
 c     start
 c----------
-
       if (dynamical_scale_choice.eq.-1) then
 c         Cluster external states until reducing the system to a 2->2 topology whose transverse mass is used for setting the scale.
 c         This is not done in this file due to the clustering.
@@ -83,9 +82,7 @@ cc      to use this code you must set                                           
 cc                 dynamical_scale_choice = 0                                    cc
 cc      in the run_card (run_card.dat)                                           cc
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-         write(*,*) "User-defined scale not set"
-         stop 21
-         rscale = 0
+         rscale = user_dynamical_scale(P)
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cc      USER-DEFINED SCALE: END OF USER CODE                                     cc
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -109,7 +106,7 @@ c     INCLUDE and COMMON
 c
       include 'genps.inc'
       include 'nexternal.inc'
-      include 'vector.inc'
+      include 'vector.inc' ! needed by coupl.inc (defines VECSIZE_MEMMAX)
       include 'coupl.inc'
       include 'run.inc'
 c--masses and poles
