@@ -68,6 +68,7 @@ if [ "${patchlevel}" == "2" ]; then
   cd ${dir}
   echo "DEBUG: cd ${PWD}; patch -p4 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.common"
   if ! patch -p4 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.common; then status=1; fi  
+  \rm -f Source/*.orig
   cd - > /dev/null
 fi
 for p1dir in ${dir}/SubProcesses/P1_*; do
