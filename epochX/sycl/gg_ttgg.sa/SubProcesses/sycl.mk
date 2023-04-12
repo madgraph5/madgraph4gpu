@@ -94,15 +94,6 @@ export NTPBMAX
 
 #=== Set the SYCL/C++ compiler flags appropriate to user-defined choices of FPTYPE, HELINL, HRDCOD, NTPBMAX
 
-# Add option to enable CI profiler use
-$(info ENABLE_CI_PROFILER=$(ENABLE_CI_PROFILER))
-ifeq ($(ENABLE_CI_PROFILER),1)
-  CXXFLAGS += --gcc-toolchain="/cvmfs/sft.cern.ch/lcg/releases/gcc/11.3.0-ad0f5/x86_64-centos8"
-
-  # Sets the device ID to the GPU (oneAPI Toolkit) when running check/cmpFcheck in the GitHub CI
-  ENABLE_DEVICE_ID = "--device_id=2"
-endif
-
 # Set the build flags appropriate to each FPTYPE choice (example: "make FPTYPE=f")
 $(info FPTYPE=$(FPTYPE))
 ifeq ($(FPTYPE),d)
@@ -264,7 +255,7 @@ $(BUILDDIR)/%.o : %.f *.inc
 
 $(fsycl_main): LIBFLAGS += $(CXXLIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(fsycl_main): $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).a $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so
-	$(CXX) $(CXXFLAGS) $(SYCLFLAGS) -o $@ $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).a $(LIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_COMMONLIB) -lstdc++fs
+	$(CXX) $(SYCLFLAGS) -o $@ $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).a $(LIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_COMMONLIB) -lstdc++fs
 
 #-------------------------------------------------------------------------------
 
@@ -346,8 +337,8 @@ check: cmpFcheck
 # Target: cmpFcheck (compare ME results from the C++ and Fortran with C++ MEs standalone executables, with a small number of events)
 cmpFcheck: all.$(TAG)
 	@echo
-	@echo "$(BUILDDIR)/check.exe -p 2 32 2 ${ENABLE_DEVICE_ID}"
+	@echo "$(BUILDDIR)/check.exe -p 2 32 2"
 	@echo "$(BUILDDIR)/fcheck.exe 2 32 2"
-	@me1=$(shell $(RUNTIME) $(BUILDDIR)/check.exe ${ENABLE_DEVICE_ID} -p 2 32 2 | grep MeanMatrix | awk '{print $$4}'); me2=$(shell $(RUNTIME) $(BUILDDIR)/fcheck.exe 2 32 2 | grep Average | awk '{print $$4}'); echo "Avg ME (C++/C++)    = $${me1}"; echo "Avg ME (F77/C++)    = $${me2}"; if [ "$${me2}" == "NaN" ]; then echo "ERROR! Fortran calculation (F77/C++) returned NaN"; elif [ "$${me2}" == "" ]; then echo "ERROR! Fortran calculation (F77/C++) crashed"; else python3 -c "me1=$${me1}; me2=$${me2}; reldif=abs((me2-me1)/me1); print('Relative difference =', reldif); ok = reldif <= 2E-4; print ( '%s (relative difference %s 2E-4)' % ( ('OK','<=') if ok else ('ERROR','>') ) ); import sys; sys.exit(0 if ok else 1)"; fi
+	@me1=$(shell $(RUNTIME) $(BUILDDIR)/check.exe -p 2 32 2 | grep MeanMatrix | awk '{print $$4}'); me2=$(shell $(RUNTIME) $(BUILDDIR)/fcheck.exe 2 32 2 | grep Average | awk '{print $$4}'); echo "Avg ME (C++/C++)    = $${me1}"; echo "Avg ME (F77/C++)    = $${me2}"; if [ "$${me2}" == "NaN" ]; then echo "ERROR! Fortran calculation (F77/C++) returned NaN"; elif [ "$${me2}" == "" ]; then echo "ERROR! Fortran calculation (F77/C++) crashed"; else python3 -c "me1=$${me1}; me2=$${me2}; reldif=abs((me2-me1)/me1); print('Relative difference =', reldif); ok = reldif <= 2E-4; print ( '%s (relative difference %s 2E-4)' % ( ('OK','<=') if ok else ('ERROR','>') ) ); import sys; sys.exit(0 if ok else 1)"; fi
 
 #-------------------------------------------------------------------------------
