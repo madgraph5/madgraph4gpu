@@ -21,8 +21,11 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-makeclean" ]; then
     makeclean=$1
     shift
+  elif [ "$1" == "-no10x" ]; then
+    add10x=""
+    shift
   else
-    echo "Usage: $0 [-short|-ggttggg] [-makeclean]"
+    echo "Usage: $0 [-short|-ggttggg] [-makeclean] [-no10x]"
     exit 1
   fi
 done
