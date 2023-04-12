@@ -1,6 +1,5 @@
     // === PART 0 - INITIALISATION (before calculate_wavefunctions) ===
     // Reset the "matrix elements" - running sums of |M|^2 over helicities for the given event
-    // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
 #ifdef __CUDACC__
     allMEs[ievt] = 0;
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
@@ -28,7 +27,6 @@
 
     // === PART 1 - HELICITY LOOP: CALCULATE WAVEFUNCTIONS ===
     // (in both CUDA and C++, using precomputed good helicities)
-    // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here#ifdef __CUDACC__
 
 #ifdef __CUDACC__ // CUDA OR C++
 
@@ -234,11 +232,10 @@
     // Get the final |M|^2 as an average over helicities/colors of the running sum of |M|^2 over helicities for the given event
     // [NB 'sum over final spins, average over initial spins', eg see
     // https://www.uzh.ch/cmsssl/physik/dam/jcr:2e24b7b1-f4d7-4160-817e-47b13dbf1d7c/Handout_4_2016-UZH.pdf]
-    // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
 #ifdef __CUDACC__
-    allMEs[ievt] /= helcolDenominators[0]; // FIXME (#343): assume nprocesses == 1
+    allMEs[ievt] /= helcolDenominators[0];
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    if( channelId > 0 ) allMEs[ievt] *= allNumerators[ievt] / allDenominators[ievt]; // FIXME (#343): assume nprocesses == 1
+    if( channelId > 0 ) allMEs[ievt] *= allNumerators[ievt] / allDenominators[ievt];
 #endif
 #else
     for( int ipagV = 0; ipagV < npagV; ++ipagV )
@@ -246,7 +243,7 @@
       const int ievt0 = ipagV * neppV;
       fptype* MEs = E_ACCESS::ieventAccessRecord( allMEs, ievt0 );
       fptype_sv& MEs_sv = E_ACCESS::kernelAccess( MEs );
-      MEs_sv /= helcolDenominators[0]; // FIXME (#343): assume nprocesses == 1
+      MEs_sv /= helcolDenominators[0];
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId > 0 )
       {
@@ -254,7 +251,7 @@
         fptype* denominators = DEN_ACCESS::ieventAccessRecord( allDenominators, ievt0 );
         fptype_sv& numerators_sv = NUM_ACCESS::kernelAccess( numerators );
         fptype_sv& denominators_sv = DEN_ACCESS::kernelAccess( denominators );
-        MEs_sv *= numerators_sv / denominators_sv; // FIXME (#343): assume nprocesses == 1
+        MEs_sv *= numerators_sv / denominators_sv;
       }
 #endif
       //for( int ieppV = 0; ieppV < neppV; ieppV++ )

@@ -1,15 +1,19 @@
-c NB vector.inc (defining nb_page_max) must be included before coupl.inc (#458)
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c      written by the UFO converter
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-      DOUBLE PRECISION G, ALL_G(NB_PAGE_MAX)
+C     
+C     NB: VECSIZE_MEMMAX is defined in vector.inc
+C     NB: vector.inc must be included before coupl.inc
+C     
+
+      DOUBLE PRECISION G, ALL_G(VECSIZE_MEMMAX)
       COMMON/STRONG/ G, ALL_G
 
       DOUBLE COMPLEX GAL(2)
       COMMON/WEAK/ GAL
 
-      DOUBLE PRECISION MU_R, ALL_MU_R(NB_PAGE_MAX)
+      DOUBLE PRECISION MU_R, ALL_MU_R(VECSIZE_MEMMAX)
       COMMON/RSCALE/ MU_R, ALL_MU_R
 
       DOUBLE PRECISION NF

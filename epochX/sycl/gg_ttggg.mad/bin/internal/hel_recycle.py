@@ -437,6 +437,8 @@ class HelicityRecycler():
 
     def set_output(self, file):
         self.output_file = file
+        if os.path.islink(self.output_file):
+            os.remove(self.output_file)
 
     def set_template(self, file):
         self.template_file = file
@@ -634,12 +636,12 @@ class HelicityRecycler():
             self.nhel_started = False
             
             if self.hel_filt:
-                External.good_hel = [ self.all_hel[int(i)-1] for i in self.good_elements ]
+                External.good_hel = dict([ (self.all_hel[int(i)-1],int(i)) for i in self.good_elements ])
             else:
-                External.good_hel = self.all_hel
+                External.good_hel = dict([(v,i) for i,v in enumerate(self.all_hel)])
 
             External.map_hel=dict([(hel,i) for i,hel in  enumerate(External.good_hel)])
-            External.hel_ranges = [set() for hel in External.good_hel[0]]
+            External.hel_ranges = [set() for hel in next(iter(External.good_hel))]
             for comb in External.good_hel:
                 for i, hel in enumerate(comb):
                     External.hel_ranges[i].add(hel)
@@ -653,10 +655,12 @@ class HelicityRecycler():
             self.template_dict['ncomb'] = len(External.good_hel)
 
     def nhel_string(self, hel_comb):
+        print("656",hel_comb)
+        old_id = External.good_hel[hel_comb]
         self.counter += 1
         formatted_hel = [f'{hel}' if hel < 0 else f' {hel}' for hel in hel_comb]
         nexternal = len(hel_comb)
-        return (f'      DATA (NHEL(I,{self.counter}),I=1,{nexternal}) /{",".join(formatted_hel)}/')
+        return (f'      DATA (NHEL(I,{self.counter}),I=0,{nexternal}) /{old_id},{",".join(formatted_hel)}/')
 
     def read_orig(self):
 
@@ -766,7 +770,7 @@ def get_arguments(line):
             element += 1
             arguments.append('')
             continue
-        if bracket_depth > 0:
+        if bracket_depth > 0 and char != ' ':
             arguments[element] += char
     return arguments
 
@@ -881,7 +885,7 @@ def undo_multiline(old_line, new_line):
 def do_multiline(line):
     char_limit = 72
     num_splits = len(line)//char_limit
-    if num_splits != 0 and len(line) != 72 and '!' not in line:
+    if num_splits != 0 and len(line) != 72 and '!' not in line[0:char_limit]:
         split_line = [line[i*char_limit:char_limit*(i+1)] for i in range(num_splits+1)]
         indent = ''
         for char in line[6:]:

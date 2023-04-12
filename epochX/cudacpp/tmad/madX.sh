@@ -16,7 +16,7 @@ if [ "${host/juwels}" != "${host}" ]; then NLOOP=32; fi # workaround for #498
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-d] [-fltonly|-mixonly] [-makeonly|-makeclean|-makecleanonly] [-rmrdat] [+10x] [-checkonly] [-nocleanup]" > /dev/stderr
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq]> [-d] [-fltonly|-mixonly] [-makeonly|-makeclean|-makecleanonly] [-rmrdat] [+10x] [-checkonly] [-nocleanup]" > /dev/stderr
   echo "(NB: OMP_NUM_THREADS is taken as-is from the caller's environment)"
   exit 1
 }
@@ -32,6 +32,7 @@ ggtt=0
 ggttg=0
 ggttgg=0
 ggttggg=0
+gqttq=0
 
 fptype="d"
 
@@ -64,6 +65,9 @@ while [ "$1" != "" ]; do
     shift
   elif [ "$1" == "-ggttggg" ]; then
     ggttggg=1
+    shift
+  elif [ "$1" == "-gqttq" ]; then
+    gqttq=1
     shift
   elif [ "$1" == "-fltonly" ]; then
     if [ "${fptype}" != "d" ] && [ "${fptype}" != "$1" ]; then
@@ -102,7 +106,7 @@ done
 ###exit 1
 
 # Check that at least one process has been selected
-if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ]; then usage; fi
+if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ]&& [ "${gqttq}" == "0" ] ; then usage; fi
 
 # Always test only the .mad/ directories (hardcoded)
 suffs=".mad/"
@@ -123,7 +127,7 @@ function showdir()
 {
   if [ "${suff}" == ".mad/" ]; then
     if [ "${eemumu}" == "1" ]; then 
-      dir=$topdir/epochX/${bckend}/ee_mumu${suff}SubProcesses/P1_ll_ll
+      dir=$topdir/epochX/${bckend}/ee_mumu${suff}SubProcesses/P1_epem_mupmum
     elif [ "${ggtt}" == "1" ]; then 
       dir=$topdir/epochX/${bckend}/gg_tt${suff}SubProcesses/P1_gg_ttx
     elif [ "${ggttg}" == "1" ]; then 
@@ -132,19 +136,12 @@ function showdir()
       dir=$topdir/epochX/${bckend}/gg_ttgg${suff}SubProcesses/P1_gg_ttxgg
     elif [ "${ggttggg}" == "1" ]; then 
       dir=$topdir/epochX/${bckend}/gg_ttggg${suff}SubProcesses/P1_gg_ttxggg
+    elif [ "${gqttq}" == "1" ]; then 
+      ###dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_gu_ttxu
+      dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_gux_ttxux # only 1 out of 2 for now
     fi
   else
-    if [ "${eemumu}" == "1" ]; then 
-      dir=$topdir/epochX/${bckend}/ee_mumu${suff}SubProcesses/P1_Sigma_sm_epem_mupmum
-    elif [ "${ggtt}" == "1" ]; then 
-      dir=$topdir/epochX/${bckend}/gg_tt${suff}SubProcesses/P1_Sigma_sm_gg_ttx
-    elif [ "${ggttg}" == "1" ]; then 
-      dir=$topdir/epochX/${bckend}/gg_ttg${suff}SubProcesses/P1_Sigma_sm_gg_ttxg
-    elif [ "${ggttgg}" == "1" ]; then 
-      dir=$topdir/epochX/${bckend}/gg_ttgg${suff}SubProcesses/P1_Sigma_sm_gg_ttxgg
-    elif [ "${ggttggg}" == "1" ]; then 
-      dir=$topdir/epochX/${bckend}/gg_ttggg${suff}SubProcesses/P1_Sigma_sm_gg_ttxggg
-    fi
+    echo "INTERNAL ERROR! tmad tests only make sense in .mad directories"; exit 1 # this should never happen (suff=.mad/ is hardcoded)
   fi
   echo $dir
 }
@@ -162,6 +159,8 @@ function getnevt()
     nevt=8192 # Fortran (x1, x10) computes (8192, 90112) MEs and writes to file (49, 217) events in (5.8s, 58s)
   elif [ "${ggttggg}" == "1" ]; then
     nevt=8192 # Fortran (x1, x10) computes (8192, 90112) MEs and writes to file (14, 97) events in (121s, 1222s)
+  elif [ "${gqttq}" == "1" ]; then
+    nevt=8192 # use the same settings as for ggttg
   else
     echo "ERROR! Unknown process" > /dev/stderr; usage
   fi
@@ -181,6 +180,8 @@ function getgridmax()
     echo 16384 32 # same total grid dimension as 2048 256
   elif [ "${ggttggg}" == "1" ]; then
     echo 512 32 # same total grid dimension as 64 256
+  elif [ "${gqttq}" == "1" ]; then
+    echo 16384 32 # same total grid dimension as 2048 256
   else
     echo "ERROR! Unknown process" > /dev/stderr; usage
   fi
@@ -202,6 +203,8 @@ function getinputfile()
     tmp=$tmpdir/input_ggttgg
   elif [ "${ggttggg}" == "1" ]; then 
     tmp=$tmpdir/input_ggttggg
+  elif [ "${gqttq}" == "1" ]; then 
+    tmp=$tmpdir/input_gqttq
   else
     echo "ERROR! cannot determine input file name"; exit 1
   fi
