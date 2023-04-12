@@ -1,3 +1,7 @@
+C Copyright (C) 2020-2023 CERN and UCLouvain.
+C Licensed under the GNU Lesser General Public License (version 3 or later).
+C Created by: A. Valassi (Feb 2022) for the MG5aMC CUDACPP plugin.
+
       PROGRAM FCHECK_SA
       IMPLICIT NONE
       INCLUDE 'fsampler.inc'
