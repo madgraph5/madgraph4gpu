@@ -1,3 +1,7 @@
+# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Licensed under the GNU Lesser General Public License (version 3 or later).
+# Created by: S. Roiser (Feb 2022) for the MG5aMC CUDACPP plugin.
+
 file(GLOB_RECURSE HEADERS "*.h")
 add_library(mg5amc_common Parameters_sm.cc read_slha.cc ${HEADERS})
 
