@@ -21,14 +21,17 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-makeclean" ]; then
     makeclean=$1
     shift
+  elif [ "$1" == "-no10x" ]; then
+    add10x=""
+    shift
   else
-    echo "Usage: $0 [-short|-ggttggg] [-makeclean]"
+    echo "Usage: $0 [-short|-ggttggg] [-makeclean] [-no10x]"
     exit 1
   fi
 done
 
 if [ "$short" == "1" ]; then
-  ${scrdir}/teeMadX.sh -eemumu -ggtt -ggttg -ggttgg $flts $makeclean $rmrdat $add10x
+  ${scrdir}/teeMadX.sh -eemumu -ggtt -ggttg -ggttgg -gqttq $flts $makeclean $rmrdat $add10x
 elif [ "$short" == "-1" ]; then
   ${scrdir}/teeMadX.sh -ggttggg $flts $makeclean $rmrdat $add10x
 else

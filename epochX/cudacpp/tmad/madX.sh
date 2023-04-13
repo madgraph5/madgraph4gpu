@@ -377,7 +377,8 @@ for suff in $suffs; do
 
   if [ "${maketype}" == "-makeclean" ]; then make cleanall; echo; fi
   if [ "${maketype}" == "-makecleanonly" ]; then make cleanall; echo; continue; fi
-  make -j avxall
+  ###make -j avxall
+  make -j5 avxall # limit build parallelism to avoid "cudafe++ died due to signal 9" (#639)
 
 done
 

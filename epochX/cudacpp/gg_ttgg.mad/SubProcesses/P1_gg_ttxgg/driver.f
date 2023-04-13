@@ -71,8 +71,8 @@ c      double precision xsec,xerr
 c      integer ncols,ncolflow(maxamps),ncolalt(maxamps),ic
 c      common/to_colstats/ncols,ncolflow,ncolalt,ic
 
-      include 'vector.inc' ! needed by coupl.inc (defines VECSIZE_MEMMAX)
-      include 'coupl.inc'
+      INCLUDE 'vector.inc'  ! defines VECSIZE_MEMMAX
+      INCLUDE 'coupl.inc'  ! defines VECSIZE_MEMMAX_COUPL
       INTEGER VECSIZE_USED
       DATA VECSIZE_USED/VECSIZE_MEMMAX/ ! initial value
 
@@ -87,6 +87,13 @@ C  BEGIN CODE
 C----- 
       call cpu_time(t_before)
       CUMULATED_TIMING = t_before
+
+c Sanity check (see https://github.com/madgraph5/madgraph4gpu/issues/629)
+      IF ( VECSIZE_MEMMAX .NE. VECSIZE_MEMMAX_COUPL ) THEN
+        WRITE(6,*) 'ERROR! Stopping in program DRIVER: VECSIZE_MEMMAX != VECSIZE_MEMMAX_COUPL!'
+        WRITE(6,*) 'ERROR! VECSIZE_MEMMAX       =', VECSIZE_MEMMAX
+        WRITE(6,*) 'ERROR! VECSIZE_MEMMAX_COUPL =', VECSIZE_MEMMAX_COUPL
+      ENDIF
 
 #ifdef _OPENMP
       CALL OMPNUMTHREADS_NOT_SET_MEANS_ONE_THREAD()
