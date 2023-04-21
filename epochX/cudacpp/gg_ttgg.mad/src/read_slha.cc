@@ -1,3 +1,11 @@
+// Copyright (C) 2016 The MadGraph5_aMC@NLO development team and contributors.
+// Created by: O. Mattelaer (Oct 2016) for the CPP backend.
+//==========================================================================
+// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Modified by: O. Mattelaer, A. Valassi (2020-2021) for the MG5aMC CUDACPP plugin.
+//==========================================================================
+
 #include "read_slha.h"
 
 #include <algorithm>
