@@ -1,3 +1,8 @@
+// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Created by: A. Valassi (Nov 2020) for the MG5aMC CUDACPP plugin.
+// Modified by: Z. Wettersten (Sep 2022) for the MG5aMC CUDACPP plugin.
+
 #ifndef MGONGPUVECTORS_H
 #define MGONGPUVECTORS_H 1
 
