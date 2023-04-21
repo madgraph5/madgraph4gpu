@@ -40,6 +40,9 @@ function codeGenAndDiff()
     heft_gg_h)
       cmd="set auto_convert_model T; import model heft; generate g g > h"
       ;;
+    susy_gg_tt)
+      cmd="import model MSSM_SLHA2; generate g g > t t~"
+      ;;
     *)
       echo -e "\nWARNING! Skipping unknown process '$proc'"
       return
