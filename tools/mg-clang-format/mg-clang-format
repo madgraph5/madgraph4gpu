@@ -1,4 +1,12 @@
 #!/bin/bash
-clangDir=/cvmfs/sft.cern.ch/lcg/releases/clang/14.0.6-14bdb/x86_64-centos9
+redrel=$(cat /etc/redhat-release 2> /dev/null)
+if [ "${redrel##*release 8}" != "${redrel}" ]; then
+  clangDir=/cvmfs/sft.cern.ch/lcg/releases/clang/13.0.1-721c8/x86_64-centos8
+elif [ "${redrel##*release 9}" != "${redrel}" ]; then
+  clangDir=/cvmfs/sft.cern.ch/lcg/releases/clang/14.0.6-14bdb/x86_64-centos9
+else
+  echo "ERROR! RedHat release could not be identified (${redrel})"
+  exit 1
+fi
 source ${clangDir}/setup.sh
 exec ${clangDir}/bin/clang-format "$@"

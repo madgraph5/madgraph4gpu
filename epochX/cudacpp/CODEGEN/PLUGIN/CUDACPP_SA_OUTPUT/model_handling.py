@@ -149,6 +149,8 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             if not abs(tmp - number) / abs(tmp + number) < 1e-8: out = '%.9f' % (number)
             elif tmp.numerator == 1 and tmp.denominator == 2 : out = 'half' # AV
             elif tmp.numerator == -1 and tmp.denominator == 2 : out = '-half' # AV
+            elif tmp.numerator == 1 and tmp.denominator == 4 : out = 'quarter' # AV
+            elif tmp.numerator == -1 and tmp.denominator == 4 : out = '-quarter' # AV
             else: out = '%s./%s.' % (tmp.numerator, tmp.denominator)
         return out
 
@@ -486,11 +488,12 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         out.write('    mgDebug( 1, __FUNCTION__ );\n') # AV
         out.write('    return;\n') # AV
         ###return out.getvalue() # AV
-        # AV check if one, two or half are used and need to be defined (ugly hack for #291: can this be done better?)
+        # AV check if one, two, half or quarter are used and need to be defined (ugly hack for #291: can this be done better?)
         out2 = StringIO()
         if 'one' in out.getvalue(): out2.write('    constexpr fptype one( 1. );\n')
         if 'two' in out.getvalue(): out2.write('    constexpr fptype two( 2. );\n')
         if 'half' in out.getvalue(): out2.write('    constexpr fptype half( 1. / 2. );\n')
+        if 'quarter' in out.getvalue(): out2.write('    constexpr fptype quarter( 1. / 4. );\n')
         out2.write( out.getvalue() )
         return out2.getvalue()
 
@@ -1015,8 +1018,14 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
 
     # AV - overload export_cpp.OneProcessExporterGPU constructor (rename gCPPProcess to CPPProcess, set include_multi_channel)
     def __init__(self, *args, **kwargs):
+        misc.sprint('Entering PLUGIN_OneProcessExporter.__init__')
+        for kwarg in kwargs: misc.sprint( 'kwargs[%s] = %s' %( kwarg, kwargs[kwarg] ) )
         super().__init__(*args, **kwargs)
         self.process_class = 'CPPProcess'
+        if 'prefix' in kwargs: proc_id = kwargs['prefix']+1 # madevent+cudacpp (ime+1 from ProcessExporterFortranMEGroup.generate_subprocess_directory)
+        else: proc_id = 0 # standalone_cudacpp
+        misc.sprint(proc_id)
+        self.proc_id = proc_id
 
     # AV - overload export_cpp.OneProcessExporterGPU method (indent comments in process_lines)
     def get_process_class_definitions(self, write=True):
@@ -1107,7 +1116,14 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         misc.sprint('Entering PLUGIN_OneProcessExporter.get_sigmaKin_lines')
         misc.sprint(self.include_multi_channel)
         misc.sprint(self.support_multichannel)
-        return super().get_sigmaKin_lines(color_amplitudes, write)
+        replace_dict = super().get_sigmaKin_lines(color_amplitudes, write=False)
+        replace_dict['proc_id'] = self.proc_id if self.proc_id>0 else 1
+        replace_dict['proc_id_source'] = 'madevent + cudacpp exporter' if self.proc_id>0 else 'standalone_cudacpp'
+        if write:
+            file = self.read_template_file(self.process_sigmaKin_function_template) % replace_dict
+            return file, replace_dict
+        else:
+            return replace_dict
 
     # AV - modify export_cpp.OneProcessExporterGPU method (fix gCPPProcess.cu)
     def get_all_sigmaKin_lines(self, color_amplitudes, class_name):

@@ -8,7 +8,6 @@ c     INCLUDE
 c
       include 'genps.inc'
       include 'nexternal.inc'
-      include 'vector.inc' ! needed by coupl.inc (defines VECSIZE_MEMMAX)
       include 'coupl.inc'
       include 'run.inc'
       include 'cuts.inc'

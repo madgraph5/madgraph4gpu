@@ -4,7 +4,7 @@
 namespace mgOnGpu
 {
 
-  __device__ constexpr bool icolamp[105][24] = { // FIXME: assume process.nprocesses == 1 for the moment
+  __device__ constexpr bool icolamp[105][24] = {
     { true, false, false, false, false, false, true, false, false, false, false, false, true, false, true, false, false, false, true, false, true, false, true, true },
     { false, true, false, false, false, false, false, true, false, false, false, false, true, false, true, false, true, true, true, false, true, false, false, false },
     { true, true, false, false, false, false, true, true, false, false, false, false, false, false, false, false, true, true, false, false, false, false, true, true },

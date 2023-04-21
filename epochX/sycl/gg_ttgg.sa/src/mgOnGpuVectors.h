@@ -7,64 +7,90 @@
 //==========================================================================
 
 //------------------------------
-// Vector types - C++
+// Vector types
+//------------------------------
+#if MGONGPU_VEC_DIM > 1
+    typedef sycl::vec<fptype, MGONGPU_VEC_DIM> fptype_sv;
+    typedef sycl::vec<long, MGONGPU_VEC_DIM> int_sv;
+    typedef sycl::vec<long, MGONGPU_VEC_DIM> bool_sv;
+    #if defined MGONGPU_COMPLEX_CXSMPL
+        typedef mgOnGpu::cxsmpl<fptype_sv> cxtype_sv;
+    #elif defined MGONGPU_COMPLEX_EXTRAS
+        typedef extras::complex<fptype_sv> cxtype_sv;
+    #elif defined MGONGPU_COMPLEX_STD
+        typedef std::complex<fptype_sv> cxtype_sv;
+    #elif MGONGPU_COMPLEX_ONEAPI
+        typedef sycl::ext::oneapi::experimental::complex<fptype_sv> cxtype_sv;
+    #elif MGONGPU_COMPLEX_CUTHRUST
+        typedef thrust::complex<fptype_sv> cxtype_sv;
+    #else
+        #error Unconfigured vector complex type. Add details to `mgOnGpuVectors.h` or set MGONGPU_VEC_DIM to 1 in `mgOnGpuConfig.h`.
+    #endif
+#else
+    typedef fptype fptype_sv;
+    typedef cxtype cxtype_sv;
+    typedef long int_sv;
+    typedef long bool_sv;
+#endif
+
+struct vector4 {
+    fptype_sv w;
+    fptype_sv x;
+    fptype_sv y;
+    fptype_sv z;
+};
+
+//------------------------------
+// Vector operators
 //------------------------------
 
-namespace mgOnGpu
-{
-  const int neppV = 1;
-}
+#if MGONGPU_VEC_DIM > 1
+    SYCL_EXTERNAL inline cxtype_sv operator*(const cxtype_sv& __x, const cxtype& __y) {
+        cxtype_sv __r = __x;
+        __r *= __y;
+        return __r;
+    }
+    
+    SYCL_EXTERNAL inline cxtype_sv operator*(const cxtype& __x, const cxtype_sv& __y) {
+        return __y*__x;
+    }
+    
+    SYCL_EXTERNAL inline cxtype_sv operator/(const cxtype_sv& __x, const cxtype& __y) {
+        return __x/cxtype_sv(__y);
+    }
+    
+    SYCL_EXTERNAL inline cxtype_sv& operator/=(cxtype_sv& __x, const cxtype& __y) {
+        __x /= cxtype_sv(__y);
+        return __x;
+    }
+    
+    SYCL_EXTERNAL inline cxtype_sv operator/(const cxtype& __x, const cxtype_sv& __y) {
+        return cxtype_sv(__x)/__y;
+    }
+    
+    SYCL_EXTERNAL inline cxtype_sv operator+(const cxtype_sv& __x, const cxtype& __y) {
+        cxtype_sv __r = __x;
+        __r += __y;
+        return __r;
+    }
+    
+    SYCL_EXTERNAL inline cxtype_sv operator+(const cxtype& __x, const cxtype_sv& __y) {
+        return __y + __x;
+    }
+    
+    SYCL_EXTERNAL inline cxtype_sv operator-(const cxtype_sv& __x, const cxtype& __y) {
+        cxtype_sv __r = __x;
+        __r -= __y;
+        return __r;
+    }
+    
+    SYCL_EXTERNAL inline cxtype_sv operator-(const cxtype& __x, const cxtype_sv& __y) {
+        return -__y + __x;
+    }
+#endif
 
 //--------------------------------------------------------------------------
 
-// Expose typedefs outside the namespace
-using mgOnGpu::neppV;
-
-//--------------------------------------------------------------------------
-
-//==========================================================================
-
-//------------------------------
-// Vector types - SYCL
-//------------------------------
-
-// Printout to std::cout for user defined types
-inline void print( const fptype& f ){ printf( "%f\n", f ); }
-inline void print( const cxtype& c ){ printf( "[%f, %f]\n", cxreal(c), cximag(c) ); }
-
-/*
-SYCL_EXTERNAL inline
-const cxtype& cxvmake( const cxtype& c )
-{
-  return c;
-}
-*/
-
-SYCL_EXTERNAL inline
-fptype fpternary( const bool& mask, const fptype& a, const fptype& b )
-{
-  return ( mask ? a : b );
-}
-
-SYCL_EXTERNAL inline
-cxtype cxternary( const bool& mask, const cxtype& a, const cxtype& b )
-{
-  return ( mask ? a : b );
-}
-
-//==========================================================================
-
-// Scalar-or-vector types: scalar in SYCL
-typedef bool bool_sv;
-typedef fptype fptype_sv;
-typedef cxtype cxtype_sv;
-
-// Scalar-or-vector zeros: scalar in SYCL
-SYCL_EXTERNAL inline cxtype cxzero_sv(){ return cxtype( 0, 0 ); }
-
-SYCL_EXTERNAL inline fptype_sv cxabs2( const cxtype_sv& c ) {
-    return cxreal( c ) * cxreal( c ) + cximag( c ) * cximag( c );
-}
 
 //==========================================================================
 #endif // MGONGPUVECTORS_H
