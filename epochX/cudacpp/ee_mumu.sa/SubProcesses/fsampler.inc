@@ -1,3 +1,7 @@
+C Copyright (C) 2020-2023 CERN and UCLouvain.
+C Licensed under the GNU Lesser General Public License (version 3 or later).
+C Created by: A. Valassi (Feb 2022) for the MG5aMC CUDACPP plugin.
+
 C
 C Create a Sampler and return its pointer
 C - PSAMPLER:  the memory address of the C++ Sampler
