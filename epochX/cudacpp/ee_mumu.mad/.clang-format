@@ -1,4 +1,6 @@
-# AV's draft .clang-format
+# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Licensed under the GNU Lesser General Public License (version 3 or later).
+# Created by: A. Valassi (Feb 2022) for the MG5aMC CUDACPP plugin.
 # --- 
 # February 2022: latest draft for clang 13.0.0 (BasedOnStyle: Google)
 # See https://releases.llvm.org/13.0.0/tools/clang/docs/ClangFormatStyleOptions.html
