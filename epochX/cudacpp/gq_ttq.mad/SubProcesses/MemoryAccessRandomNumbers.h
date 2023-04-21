@@ -1,3 +1,7 @@
+// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Created by: A. Valassi (Dec 2021) for the MG5aMC CUDACPP plugin.
+
 #ifndef MemoryAccessRandomNumbers_H
 #define MemoryAccessRandomNumbers_H 1
 
