@@ -308,6 +308,9 @@ namespace PEP
             if( xmlFile.substr(start, 1) != "<" ){ start = *nodeStartFind( xmlFile, size_t(start) ); }
             size_t trueStart = xmlFile.find_first_not_of(" ", start+1);
             name = xmlFile.substr( trueStart, xmlFile.find_first_of(">/ ", trueStart) - trueStart );
+            if( xmlFile.find( ">", trueStart ) < xmlFile.find( "/", trueStart ) ){
+                content = xmlFile.substr( xmlFile.find( ">", trueStart ) + 1, xmlFile.find( "</", trueStart ) - xmlFile.find( ">", trueStart ) - 1 );
+            }
         }
         std::vector<std::shared_ptr<xmlNode>> getChildren(){ return children; }
         std::vector<std::shared_ptr<xmlTag>> getTags(){ return tags; }
@@ -316,7 +319,7 @@ namespace PEP
         std::string_view getContent(){ return content; }
         size_t getStart(){ return start; }
         size_t getEnd(){ return end; }
-        bool isModded(){ return modded; }
+        virtual bool isModded(){ return modded; }
         virtual bool isModded( bool deep ){
             bool modStat = isModded();
             if( !deep ){ return modStat; }
@@ -363,7 +366,7 @@ namespace PEP
             if( firstR < nodeStrEnd ){ content = ""; end = nodeStrEnd + 2; parsed = true; return true; }
             auto endNode = *nodeEndFind( xmlFile, start );
             auto startNode = *nodeStartFind( xmlFile, start + 1 );
-            if( startNode > endNode ){end = xmlFile.find( ">", endNode ) + 2; content = xmlFile.substr( xmlFile.find( ">", start ) + 1, endNode - xmlFile.find( ">", start ) - 1  ); return true; }
+            if( startNode > endNode ){end = xmlFile.find( ">", endNode ) + 1; content = xmlFile.substr( xmlFile.find( ">", start ) + 1, endNode - xmlFile.find( ">", start ) - 1  ); return true; }
             auto endPt = xmlFile.find( std::string("</") + std::string(name), start );
             content = xmlFile.substr( xmlFile.find(">", start) + 1, startNode - xmlFile.find(">") - 1 ); 
             end = xmlFile.find( ">", endPt ) + 2; 
@@ -425,7 +428,11 @@ namespace PEP
             nodeEnd = "</" + std::string(name) + ">\n";
         }
         virtual void contWriter() {
+            if( children.size() > 0 ){
             nodeContent = std::string(content.substr(0, children[0]->start - 1 ));
+            } else {
+            nodeContent = std::string(content);
+            }
         }
         virtual void childWriter() {
             for(auto child : children){
@@ -435,8 +442,10 @@ namespace PEP
         virtual void endFinder(){
             auto headEnd = xmlFile.find(">", start);
             auto slashPos = xmlFile.find("/", start);
-            if( headEnd > slashPos ){ end = headEnd + 2; return; }
-            end = xmlFile.find( ">", xmlFile.find( "</" + std::string(name), start )) + 2;
+            if( headEnd > slashPos ){ end = headEnd; }
+            else{ end = xmlFile.find( ">", xmlFile.find( "</" + std::string(name), start )); }
+            if( end == std::string_view::npos ){ end = xmlFile.size(); return; }
+            end += 2;
         }
         virtual void fullWriter(){
             if( isModded() ){
@@ -449,6 +458,7 @@ namespace PEP
             modded = false;
             } else if( !isWritten() ){
             endFinder();
+            if( start > xmlFile.size() ){ start = 0; }
             writtenSelf = std::make_shared<std::string>( xmlFile.substr( start, end - start ) );
             written = true;
             }
@@ -464,7 +474,7 @@ namespace PEP
             noChilds += children.size();
         }    
         virtual std::shared_ptr<std::string> nodeWriter() {
-            if( isModded() || !isWritten() ){ fullWriter(); }
+            if( isModded( true ) || !isWritten() ){ fullWriter(); }
             return writtenSelf;
         }
     };
@@ -476,16 +486,17 @@ namespace PEP
     std::shared_ptr<xmlNode> xmlPtrParser( std::string_view parseFile, size_t& initPos, size_t& endPos )
     {
         auto currNode = std::make_shared<xmlNode>(parseFile, initPos);
+        size_t equalSign = parseFile.find("=", initPos);
+        size_t nodeInitEnd = parseFile.find(">", initPos);
         initPos = *nodeStartFind( parseFile, initPos + 1 );
+        while( equalSign < nodeInitEnd ){
+            currNode->addTag( xmlTagParser(parseFile, equalSign) );
+        }
         while( initPos < endPos )
         {
             currNode->addChild(xmlPtrParser( parseFile, initPos, endPos ));
         }
-        size_t equalSign = parseFile.find("=", initPos);
-        size_t nodeInitEnd = parseFile.find(">", initPos);
-        while( equalSign < nodeInitEnd ){
-            currNode->addTag( xmlTagParser(parseFile, equalSign) );
-        }
+        
         initPos = *nodeStartFind( parseFile, endPos );
         endPos = *nodeEndFind( parseFile, endPos + 1 );
         return currNode;
@@ -497,13 +508,14 @@ namespace PEP
     public:
         int getId(){ return id; }
         std::string_view getTag(){ return idTag; }
-        headWeight(){ return; }
-        headWeight( std::string_view paramSet, const size_t& begin = 0 ) : xmlNode(){  xmlFile = paramSet; content = paramSet; return; }
+        headWeight(){ name = "weight"; return; }
+        headWeight( std::string_view paramSet, const size_t& begin = 0 ) : xmlNode(){ name = "weight"; xmlFile = paramSet; content = paramSet; return; }
         headWeight( std::string_view paramSet, std::string_view idText, int idNo, const size_t& begin = 0 ) : xmlNode(){
-            xmlFile = paramSet; content = paramSet; idTag = idText; id = idNo;
+            name = "weight"; xmlFile = paramSet; content = paramSet; idTag = idText; id = idNo;
         }
         headWeight( xmlNode& node ) : xmlNode( node ){
             parser( false );
+            name = "weight";
             for (auto tag : tags ){
                 if( tag->getId() == "id" ){
                     idTag = tag->getVal().substr(0, tag->getVal().find_last_of("_") - 1 );
@@ -513,6 +525,7 @@ namespace PEP
         }
         headWeight( xmlNode* node ) : xmlNode( *node ){
             parser( false );
+            name = "weight";
             for (auto tag : tags ){
                 if( tag->getId() == "id" ){
                     idTag = tag->getVal().substr(0, tag->getVal().find_last_of("_") - 1 );
@@ -522,6 +535,7 @@ namespace PEP
         }
         headWeight( std::shared_ptr<xmlNode> node ) : xmlNode( *node ){
             parser( false );
+            name = "weight";
             for (auto tag : tags ){
                 if( tag->getId() == "id" ){
                     idTag = tag->getVal().substr(0, tag->getVal().find_last_of("_") - 1 );
@@ -529,14 +543,21 @@ namespace PEP
                 }
             }
         }
-        headWeight( std::string_view paramSet, int idNo, std::string_view idText, const size_t& begin = 0 ) : xmlNode(){
-            xmlFile = paramSet; content = paramSet; idTag = idText; id = idNo;
+        headWeight( std::string_view paramSet, std::string& idText, unsigned int idNo, const size_t& begin = 0 ) : xmlNode(){
+            name = "weight"; xmlFile = paramSet; content = paramSet; idTag = idText; id = idNo;
+        }
+        headWeight( std::string_view paramSet, std::string& idText){
+            name = "weight"; xmlFile = paramSet; content = paramSet; idTag = idText;
         }
     protected:
-        std::string_view idTag;
-        int id;
+        std::string idTag;
+        unsigned int id = -1;
         void headWriter() override{
-            if( tags.size() == 0 ){ nodeHeader = "<weight>"; return; }
+            if( tags.size() == 0 ){
+                if( idTag == "" ){ nodeHeader = "<weight>"; return; }
+                if( id == -1 ){ nodeHeader = "<weight id=\"" + std::string(idTag) + "\">"; return; }
+                nodeHeader = "<weight id=\"" + std::string(idTag) + std::to_string(id) + "\">";
+            }
             nodeHeader = "<weight";
             for( auto tag : tags ){
                 nodeHeader += " " + std::string(tag->getId()) + "=\"" + std::string(tag->getVal()) + "\"";
@@ -546,7 +567,8 @@ namespace PEP
         void headWriter( bool incId ){
             if( !incId ){ headWriter(); return; }
             if( idTag == "" ){ headWriter(); return; }
-            nodeHeader = "<weight id=\"" + std::string( idTag ) + "_" + std::to_string(id);
+            if( id == -1 ){ nodeHeader = "<weight id=\"" + std::string( idTag ) + "\""; }
+            else{ nodeHeader = "<weight id=\"" + std::string( idTag ) + "_" + std::to_string(id) + "\""; }
             for( auto tag : tags ){
                 if( tag->getId() == "id" ){ continue; }
                 nodeHeader += " " + std::string(tag->getId()) + "=\"" + std::string(tag->getVal()) + "\"";
@@ -559,15 +581,32 @@ namespace PEP
         void contWriter() override{ 
             nodeContent = std::string( content );
         }
-        void childWriter( bool hasChildren = false ){
-            if( hasChildren ){ childWriter(); }
-            return;
+        void childWriter() override{
+            for( auto child : children){
+                if( child->getName() == "weight" ){ continue; }
+                nodeContent += *(child->nodeWriter());
+            }
         }
-        void fullWriter( bool incId=true, bool hasChildren=false ){
+        void childWriter( bool hasChildren ){
+            if( hasChildren ){ childWriter(); }
+        }
+        void fullWriter() override{
+            if( isModded() || !isWritten() ){
+                headWriter();
+                contWriter();
+                childWriter();
+                endWriter();
+                writtenSelf = std::make_shared<std::string>( nodeHeader + nodeContent + nodeEnd );
+                writtenSelf = std::make_shared<std::string>( nodeHeader + nodeContent + nodeEnd );
+                written = true;
+                modded = false;
+            }
+        }
+        void fullWriter( bool incId, bool hasChildren=true ){
             if( isModded() || !isWritten() ){
             headWriter( incId );
             contWriter();
-            childWriter( hasChildren );
+            childWriter( );
             endWriter();
             writtenSelf = std::make_shared<std::string>( nodeHeader + nodeContent + nodeEnd );
             modded = false;
@@ -585,22 +624,25 @@ namespace PEP
         std::vector<std::shared_ptr<headWeight>> getWgts(){ return paramSets; }
         void addWgt( headWeight nuWgt ){ modded = true; paramSets.push_back( std::make_shared<headWeight>( nuWgt ) ); }
         void addWgt( std::shared_ptr<headWeight> nuWgt ){ modded = true; paramSets.push_back( nuWgt); }
-        weightGroup() : xmlNode(){ return; }
-        weightGroup( std::vector<std::shared_ptr<headWeight>> nuWgts ) : xmlNode(){ paramSets = nuWgts; }
+        weightGroup() : xmlNode(){ name = "weightgroup"; return; }
+        weightGroup( std::vector<std::shared_ptr<headWeight>> nuWgts ) : xmlNode(){ name = "weightgroup"; paramSets = nuWgts; }
         weightGroup( std::vector<std::string> nuWgts ) : xmlNode(){
+            name = "weightgroup";
             for( auto wgt : nuWgts ){
                 paramSets.push_back( std::make_shared<headWeight>( wgt ) );
             }
         }
         weightGroup( xmlNode& wgtNode ) : xmlNode( wgtNode ){
             parser( true );
+            name = "weightgroup";
             paramSets.reserve( children.size() );
             for(  auto child : children ){
-                paramSets.push_back( std::make_shared<headWeight>( *child ) );
+                if( child->getName() == "weight" ){ paramSets.push_back( std::make_shared<headWeight>( *child ) ); }
             }
         }
         weightGroup( const std::string_view originFile, const size_t& begin = 0, const std::vector<std::shared_ptr<xmlNode>>& childs = {} )
         : xmlNode( originFile, begin, childs ){
+            name = "weightgroup";
             if( parseTop() ){
                 int checker = 0;
                 for( auto tag : tags ){
@@ -621,8 +663,8 @@ namespace PEP
         int id;
         void headWriter() override{
             nodeHeader = "<weightgroup";
-            if( rwgtName !="" ){ nodeHeader += " name=\"" + std::string( rwgtName ) +"\""; }
-            if( wgtNamStrat!="" ){ nodeHeader += " weight_name_strategy=\"" + std::string( wgtNamStrat ) +"\""; } else if( isModded() ){ nodeHeader += " weight_name_strategy=\"pep_reweighting\""; }
+            if( rwgtName !="" ){ nodeHeader += " name=\"" + std::string( rwgtName ) +"\""; }else if( isModded() ){ nodeHeader += " name=\"pep_reweighting\""; }
+            if( wgtNamStrat!="" ){ nodeHeader += " weight_name_strategy=\"" + std::string( wgtNamStrat ) +"\""; } 
             nodeHeader += ">";
         }
         void contWriter() override{
@@ -641,9 +683,25 @@ namespace PEP
     struct initRwgt : xmlNode {
     public:
         std::vector<std::shared_ptr<weightGroup>> getGroups(){ return groups; }
-        void addGroup( weightGroup nuGroup ){ modded = true; groups.push_back( std::make_shared<weightGroup>( nuGroup ) ); }
-        void addGroup( std::shared_ptr<weightGroup> nuGroup ){ modded = true; groups.push_back( nuGroup ); }
-        initRwgt() : xmlNode(){ return; }
+        size_t noGrps(){ return groups.size(); }
+        void addGroup( weightGroup nuGroup ){ 
+            modded = true;
+            auto nuGrpPtr = std::make_shared<weightGroup>( nuGroup );
+            if( grpInit( nuGrpPtr ) ){ groups.push_back( std::make_shared<weightGroup>( nuGroup ) );  }
+        }
+        void addGroup( std::shared_ptr<weightGroup> nuGroup ){ 
+            modded = true;
+            if( grpInit( nuGroup ) ){ groups.push_back( nuGroup ); }
+        }
+        void addWgt( unsigned int index, std::shared_ptr<headWeight> nuWgt ){
+            if( index < groups.size() ){ modded = true; groups[index]->addWgt( nuWgt ); }
+            else throw std::out_of_range( "Appending weight to uninitialised weightgroup." );
+        }
+        void addWgt( unsigned int index, headWeight nuWgt ){
+            if( index < groups.size() ){ modded = true; groups[index]->addWgt( nuWgt ); }
+            else throw std::out_of_range( "Appending weight to uninitialised weightgroup." );
+        }
+        initRwgt() : xmlNode(){ name = "initrwgt"; return; }
         initRwgt( std::vector<std::shared_ptr<xmlNode>> nuGroups ) : xmlNode(){
             name = "initrwgt";
             for( auto group : nuGroups ){
@@ -652,15 +710,33 @@ namespace PEP
         }
         initRwgt( xmlNode& wgtNode ) : xmlNode( wgtNode ){
             parser( true );
+            name = "initrwgt";
+            groups.reserve( children.size() );
+            for(  auto child : children ){
+                groups.push_back( std::make_shared<weightGroup>( *child ) );
+            }
+        }
+        initRwgt( std::shared_ptr<xmlNode> wgtNode ) : xmlNode( *wgtNode ){
+            parser( true );
+            name = "initrwgt";
             groups.reserve( children.size() );
             for(  auto child : children ){
                 groups.push_back( std::make_shared<weightGroup>( *child ) );
             }
         }
     protected:
+        bool grpIsInit = false;
+        bool grpInit( std::shared_ptr<weightGroup>& wgt ){
+            if( grpIsInit ){ return true; }
+            else{
+                groups = std::vector<std::shared_ptr<weightGroup>>( 1, wgt );
+                grpIsInit = true;
+                return false;
+            }
+        }
         std::vector<std::shared_ptr<weightGroup>> groups;
         void contWriter() override{
-            nodeContent = "";
+            nodeContent = "\n";
             for( auto group : groups ){
                 nodeContent += (*group->nodeWriter());
             }
@@ -677,7 +753,7 @@ namespace PEP
         }
     };
 
-    // ZW: struct for handling event weights
+    // ZW: struct for handling event
     // in event blocks of LHE files
     struct bodyWgt : xmlNode {
     public:
@@ -702,6 +778,11 @@ namespace PEP
             valS = originFile.substr( strtPt, originFile.find(" ", strtPt) - strtPt );
             valD = std::stod( valS );
         }
+        bodyWgt( double value, std::string& idTag ){
+            setVal( value );
+            id = idTag;
+            addTag( std::make_shared<xmlTag>("id",id) );
+        }
         void appendWgt( std::shared_ptr<std::string> document ){
             if( !isWritten() ){ fullWriter(); }
             *document += *writtenSelf;
@@ -719,6 +800,7 @@ namespace PEP
     protected:
         std::string_view comment;
         std::string valS;
+        std::string id;
         double valD;
         void fullWriter() override {
             writtenSelf = std::make_shared<std::string>( "<wgt" );
@@ -799,11 +881,13 @@ namespace PEP
             return content;
         }
         evHead(){ return; }
-        evHead( const std::string_view originFile, const size_t& beginLine = 0, const size_t& endLine = std::string_view::npos )
+        evHead( const std::string_view originFile, size_t beginLine = 0, size_t endLine = std::string_view::npos )
         {
             if( originFile.size() == 0){ return; }
-            sourceFile = originFile.substr( originFile.find_first_not_of("\n ") );
-            auto evLine = nuWordSplitter( originFile.substr(beginLine, endLine - beginLine ) );
+            beginLine = originFile.find_first_not_of("\n ", beginLine);
+            if( endLine == std::string_view::npos ){ endLine = originFile.find("\n", beginLine ) + 1; }
+            sourceFile = originFile.substr( beginLine, endLine - beginLine );
+            auto evLine = nuWordSplitter( sourceFile );
             nprt = evLine->at(0) ;
             procid = evLine->at(1);
             weight = evLine->at(2);
@@ -825,7 +909,7 @@ namespace PEP
         bool written = false;
         void writer(){
             if( isWritten() && !isModded() ){ return; }
-            if( !isModded() ){ *content = std::string( sourceFile ); return; }
+            if( !isModded() ){ content = std::make_shared<std::string>( sourceFile ); return; }
             auto retText = std::make_shared<std::string>( " " );
             *content = " " + std::string( nprt );
             for( int k ; k < 8 - procid.length() ; ++k ){ *content += " "; }
@@ -903,7 +987,7 @@ namespace PEP
         bool written = false;
         void writer(){
             if( isWritten() && !isModded() ){ return; }
-            if( !isModded() ){ *content = std::string( sourceFile ); return; }
+            if( !isModded() ){ content = std::make_shared<std::string>( sourceFile ); return; }
             *content = "";
             for( int k = 0; k < 10 - pdg.length() ; ++k ){ *content += " "; }
             *content += std::string(pdg) + " " + std::string(status);
@@ -950,11 +1034,22 @@ namespace PEP
             xmlFile = originFile; start = begin; children = childs; size_t trueStart = originFile.find_first_not_of(" ", begin+1);
             if( trueStart != std::string_view::npos ){name = originFile.substr( trueStart, originFile.find_first_of(">/ ", trueStart) - trueStart );}
             auto vals = lineFinder( originFile.substr( trueStart, originFile.find("<", trueStart +  3 ) - trueStart + 3 ));
-            header = evHead(originFile, vals->at(0) + trueStart, vals->at(1) + trueStart );
+            header = evHead(originFile, vals->at(0) + trueStart, vals->at(1) + trueStart + 1 );
             prts.reserve(vals->size());
             for( int k = 1 ; k < std::stoi(std::string(header.getNprt())) + 1; ++k)
             {
-                prts.push_back( std::make_shared<lhePrt>(originFile, vals->at(k) + trueStart + 1, vals->at(k+1) + trueStart) );
+                prts.push_back( std::make_shared<lhePrt>(originFile, vals->at(k) + trueStart + 1, vals->at(k+1) + trueStart + 1) );
+            }
+        }
+        event( const xmlNode& originFile )
+        : xmlNode( originFile ) {
+            size_t trueStart = xmlFile.find_first_not_of(" ", start+1);
+            auto vals = lineFinder( xmlFile.substr( trueStart, xmlFile.find("<", trueStart +  3 ) - trueStart + 3 ));
+            header = evHead(xmlFile, vals->at(0) + trueStart, vals->at(1) + trueStart );
+            prts.reserve(vals->size());
+            for( int k = 1 ; k < std::stoi(std::string(header.getNprt())) + 1; ++k)
+            {
+                prts.push_back( std::make_shared<lhePrt>(xmlFile, vals->at(k) + trueStart + 1, vals->at(k+1) + trueStart) );
             }
         }
         bool prtsAreMod(){
@@ -1021,7 +1116,7 @@ namespace PEP
         }
         void childWriter() override {
             for( auto child : children ){
-                if( clStringComp( child->getName(), std::string("rwgt") ) ){ continue; }
+                if( clStringComp( child->getName(), std::string("wgt") ) ){ continue; }
                 nodeContent += *child->nodeWriter();
             }
         }
@@ -1050,6 +1145,7 @@ namespace PEP
                 endWriter();
                 writtenSelf = std::make_shared<std::string>( nodeHeader + nodeContent + nodeEnd );
                 modded = false;
+                written = true;
             } else if( !isWritten() ){
             writtenSelf = std::make_shared<std::string>( xmlFile.substr( start, end - start ) );
             written = true;
@@ -1172,8 +1268,18 @@ namespace PEP
             id = std::stoi( std::string(idStr) );
             value = std::stod( std::string(valStr) );
         }
-        paramVal( std::string_view paramLine = "", bool parseOnline = false )
+        paramVal(){ realLine = ""; idStr = ""; valStr = ""; }
+        paramVal( std::string_view paramLine, bool parseOnline = false )
         {
+            if( paramLine.find("\n") != std::string_view::npos ){
+                auto startPos = paramLine.find_first_not_of(" \n", paramLine.find("\n"));
+                if( startPos!= std::string_view::npos ){
+                auto endPos = paramLine.find("\n", startPos);
+                realLine = paramLine.substr(startPos, endPos - startPos - 1);
+                } else{
+                    realLine = paramLine.substr( 0, paramLine.find("\n") - 1 );
+                }
+            }
             realLine = paramLine;
             auto vals = *nuBlankSplitter( realLine );
             idStr = vals[0];
@@ -1262,7 +1368,8 @@ namespace PEP
                 params.push_back( paramVal( line, parseOnline ) );
             }
         }
-        paramBlock( std::string_view paramSet = "", bool parseOnline = false )
+        paramBlock(){ return; }
+        paramBlock( std::string_view paramSet, bool parseOnline = false )
         {
             realBlock = paramSet;
             startPt = clStringFind( realBlock, std::string("\nB") );
@@ -1471,7 +1578,7 @@ namespace PEP
             return true;
         }
         void contWriter() override{
-            if( isModded() ){ nodeContent = std::string( content ); return; }
+            if( isModded() ){nodeContent = std::string( content ); return; }
             nodeContent = *initHead->getContent();
             for( auto line : initLines ){
                 nodeContent += *line->getContent();
@@ -1479,18 +1586,46 @@ namespace PEP
         }
     };
     
-
     // ZW: struct for explicitly handling LHE header nodes
     struct lheHead : xmlNode {
     public:
-        void addWgtGroup( std::shared_ptr<weightGroup> wgtGroup ){ hasRwgt = true; modded = true; initrwgt.push_back( wgtGroup ); }
-        void addWgtGroup( weightGroup wgtGroup ){ hasRwgt = true; modded = true; initrwgt.push_back( std::make_shared<weightGroup>( wgtGroup ) ); }
+        size_t addWgtGroup( std::shared_ptr<weightGroup>& wgtGroup ){
+            hasRwgt = true; 
+            modded = true; 
+            if( wgtGrpInit( wgtGroup ) ){
+                rwgtNodes->addGroup( wgtGroup );
+            }
+            return (rwgtNodes->noGrps() - 1);
+        }
+        size_t addWgtGroup( weightGroup wgtGroup ){
+            hasRwgt = true;
+            modded = true;
+            auto wgtGrpPtr = std::make_shared<weightGroup>( wgtGroup );
+            if( wgtGrpInit( wgtGrpPtr ) ){
+                rwgtNodes->addGroup( std::make_shared<weightGroup>( wgtGroup ) );
+            }
+            return (rwgtNodes->noGrps() - 1);
+        }
+        void addWgt( unsigned int index, std::shared_ptr<headWeight> nuWgt ){
+            if( index >= (int)rwgtNodes->getGroups().size() )
+                throw std::runtime_error( "Appending weight to uninitialised weightgroup." );
+            hasRwgt = true;
+            modded = true;
+            rwgtNodes->addWgt( index, nuWgt );
+        }
+        void addWgt( unsigned int index, headWeight nuWgt ){
+            if( index >= (int)rwgtNodes->getGroups().size() )
+                throw std::runtime_error( "Appending weight to uninitialised weightgroup." );
+            hasRwgt = true;
+            modded = true;
+            rwgtNodes->addWgt( index, nuWgt );
+        }
         void setInitRwgt( initRwgt initWgt ){  hasRwgt = true; modded = true; rwgtNodes = std::make_shared<initRwgt>(initWgt); }
         void setInitRwgt( std::shared_ptr<initRwgt> initWgt ){ hasRwgt = true; modded = true; rwgtNodes = initWgt; }
         std::vector<std::shared_ptr<weightGroup>> getWgtGroups(){ return rwgtNodes->getGroups(); }
         std::shared_ptr<initRwgt> getInitRwgt(){ return rwgtNodes; }
         std::shared_ptr<slhaNode> getParameters(){ return parameters; }
-        void setParameters( std::shared_ptr<slhaNode> parameters ){ parameters = parameters; }
+        void setParameters( std::shared_ptr<slhaNode> params ){ parameters = params; }
         bool rwgtInc(){ return hasRwgt; }
         lheHead(){ return; }
         lheHead( const std::string_view originFile, const size_t& begin = 0, const std::vector<std::shared_ptr<xmlNode>>& childs = {} )
@@ -1498,12 +1633,25 @@ namespace PEP
             xmlFile = originFile; start = begin; children = childs; size_t trueStart = originFile.find_first_not_of(" ", begin+1);
             if( trueStart != std::string_view::npos ){name = originFile.substr( trueStart, originFile.find_first_of(">/ ", trueStart) - trueStart );}
         }
-    protected:std::shared_ptr<slhaNode> parameters;
+    protected:
+        bool wgtGrpIsInit = false;
+        bool wgtGrpInit( std::shared_ptr<weightGroup>& wgtGrp ){
+            if( wgtGrpIsInit ){ return true; }
+            if( rwgtNodes == nullptr ){
+                rwgtNodes = std::make_shared<initRwgt>();
+                wgtGrpIsInit = true;
+                rwgtNodes->addGroup( wgtGrp );
+                return false;
+            } else throw std::runtime_error( "Error while initiating return LHE file header (initrwgt node is defined in an unrecognised manner)." );
+        }
+        std::shared_ptr<slhaNode> parameters;
         bool hasRwgt = false;
         std::shared_ptr<initRwgt> rwgtNodes;
         std::vector<std::shared_ptr<weightGroup>> initrwgt;
+        bool relChildSet = false;
         std::vector<int> relChild;
         void setRelChild(){
+            if( relChildSet ){ return; }
             relChild.reserve( children.size() );
             for( int k = 0 ; k < children.size() ; ++k ){
                 auto child = &children[k];
@@ -1511,6 +1659,7 @@ namespace PEP
                 if( (*child)->getName() == "initrwgt" ){ continue; }
                 relChild.push_back( k );
             }
+            relChildSet = true;
         }
         bool parseChildren( bool recursive ){
             bool status = true;
@@ -1522,12 +1671,19 @@ namespace PEP
             }
             return status;
         }
+        void headWriter() override{
+            nodeHeader =  "<header";
+            for( auto tag : tags ){
+                nodeHeader += " " + std::string(tag->getId()) + "=\"" + std::string(tag->getVal()) + "\"";
+            }
+            nodeHeader += ">\n";
+        }
         void childWriter() override{
             setRelChild();
             for( auto relKid : relChild ){
                 nodeContent += *(children[relKid]->nodeWriter());
             }
-            nodeContent += *parameters->nodeWriter();
+            if( parameters != nullptr ){ nodeContent += *parameters->nodeWriter(); }
             if( hasRwgt ){ 
                 nodeContent += *rwgtNodes->nodeWriter();
             }
@@ -1544,6 +1700,68 @@ namespace PEP
         }
     };
 
+    // ZW: struct for keeping track of appended weights in LHE node,
+    // since weight information is stored both in the header 
+    // and in the individual events
+    struct newWgt{
+    protected:
+        std::shared_ptr<headWeight> headWgt;
+        std::vector<std::shared_ptr<bodyWgt>> bodyWgts;
+    public:
+        newWgt( std::shared_ptr<headWeight> heaWgt, std::vector<std::shared_ptr<bodyWgt>> bodWgts ){
+            headWgt = heaWgt; bodyWgts = bodWgts;
+        }
+        newWgt( std::shared_ptr<headWeight> heaWgt, std::shared_ptr<std::vector<double>> wgts ){
+            headWgt = heaWgt;
+            bodyWgts = std::vector<std::shared_ptr<bodyWgt>>(wgts->size());
+            auto idTag = std::string(headWgt->getTag());
+            if( idTag != "" ){
+                for( size_t i = 0 ; i < wgts->size() ; ++i ){
+                    bodyWgts[i] = std::make_shared<bodyWgt>(wgts->at(i), idTag);
+                }
+            } else{
+                for( size_t i = 0 ; i < wgts->size() ; ++i ){
+                    bodyWgts[i] = std::make_shared<bodyWgt>(wgts->at(i));
+                }
+            }
+        }
+        newWgt( std::string_view parameters, std::shared_ptr<std::vector<double>> wgts, std::string idTag = "pep_rwgt" ){
+            headWgt = std::make_shared<headWeight>(parameters, idTag);
+            bodyWgts = std::vector<std::shared_ptr<bodyWgt>>(wgts->size());
+            for( size_t i = 0 ; i < wgts->size() ; ++i ){
+                bodyWgts[i] = std::make_shared<bodyWgt>(wgts->at(i), idTag);
+            }
+        }
+        newWgt( std::string_view parameters, int idNum, std::shared_ptr<std::vector<double>> wgts, std::string idTag = "pep_rwgt" ){
+            std::string newTag = std::string( idTag ) + "_" + std::to_string( idNum );
+            headWgt = std::make_shared<headWeight>(parameters, newTag);
+            bodyWgts = std::vector<std::shared_ptr<bodyWgt>>(wgts->size());
+            for( size_t i = 0 ; i < wgts->size() ; ++i ){
+                bodyWgts[i] = std::make_shared<bodyWgt>(wgts->at(i), newTag);
+            }
+        }
+        newWgt( std::string& parameters ){
+            headWgt = std::make_shared<headWeight>(parameters);
+        }
+        newWgt( std::string& parameters, std::string& idTag ){
+            headWgt = std::make_shared<headWeight>(parameters, idTag);
+        }
+        std::shared_ptr<headWeight> getHeadWgt(){ return headWgt; }
+        std::vector<std::shared_ptr<bodyWgt>> getBodyWgts(){ return bodyWgts; }
+        void addBdyWgts( std::shared_ptr<std::vector<double>> wgts ){
+            auto idTag = std::string(headWgt->getTag());
+            if( idTag != "" ){
+                for( size_t i = 0 ; i < wgts->size() ; ++i ){
+                    bodyWgts[i] = std::make_shared<bodyWgt>(wgts->at(i), idTag);
+                }
+            } else{
+                for( size_t i = 0 ; i < wgts->size() ; ++i ){
+                    bodyWgts[i] = std::make_shared<bodyWgt>(wgts->at(i));
+                }
+            }
+        }
+    };
+
     // ZW: general struct for handling LHE files explicitly
     struct lheNode : xmlNode {
     public:
@@ -1556,9 +1774,24 @@ namespace PEP
             xmlFile = originFile; start = begin; children = childs; size_t trueStart = originFile.find_first_not_of(" ", begin+1);
             if( trueStart != std::string_view::npos ){name = originFile.substr( trueStart, originFile.find_first_of(">/ ", trueStart) - trueStart );}
         }
+        bool isModded() override{ return modded; }
+        bool isModded( bool deep ) override{
+            if( !deep ){ return isModded(); }
+            bool modStat = isModded();
+            for( auto child : children ){ modStat = ( modStat || child->isModded( deep ) ); }
+            for( auto event : events ){ modStat = ( modStat || event->isModded( deep ) ); }
+            return modStat;
+        }
+        void addWgt( size_t index, newWgt& addedWgt ){
+            header->addWgt( index, addedWgt.getHeadWgt() );
+            auto wgtsVec = addedWgt.getBodyWgts();
+            for( int k = 0 ; k < wgtsVec.size() ; ++k ){
+                events[k]->addWgt( wgtsVec[k] );
+            }
+        }
     protected:
         virtual void headerWriter(){
-            nodeContent += *header->nodeWriter();
+            nodeContent += "\n" + *header->nodeWriter();
         }
         virtual void initWriter(){
             nodeContent += *init->nodeWriter();
@@ -1569,12 +1802,13 @@ namespace PEP
             }
         }
         void contWriter() override{
+            nodeContent = "";
             headerWriter();
             initWriter();
             eventWriter();
         }
         void fullWriter() override{
-            if( isModded() ){
+            if( isModded( true ) ){
             headWriter();
             contWriter();
             endWriter();
@@ -1585,6 +1819,11 @@ namespace PEP
                 writtenSelf = std::make_shared<std::string>( xmlFile.substr(start, end - start ) );
                 written = true;
             }
+        }
+    public:    
+        virtual std::shared_ptr<std::string> nodeWriter() {
+            if( isModded( true ) || !isWritten() ){ fullWriter(); }
+            return writtenSelf;
         }
     };
 
@@ -1610,7 +1849,6 @@ namespace PEP
                 for( int p = 0 ; p < 3 ; ++p )
                 { momVec->push_back(std::stod(std::string(prt->getMom()[p]))); }
             }
-            
         }
         } else{
         for( auto event : lheFile.events )
@@ -1695,7 +1933,7 @@ namespace PEP
             } else if( nuStrtPos == parseFile.find("<init", initPos) ){
                 currNode->init = std::make_shared<initNode>( parseFile, initPos );
                 initPos = *nodeStartFind( parseFile, endPos );
-                endPos = *nodeEndFind( parseFile, endPos + 1 );
+                endPos = *nodeEndFind( parseFile, *nodeEndFind( parseFile, endPos + 1 ) + 1);
                 continue;
             } else {
             currNode->addChild(xmlPtrParser( parseFile, initPos, endPos ));
@@ -1747,7 +1985,7 @@ namespace PEP
     }
 
     // ZW: fcn for saving std::string to disk
-    bool filePusher( const std::string& fileLoc, const std::string& fileCont )
+    bool filePusher( std::string fileLoc, std::string fileCont )
     {
         std::ofstream fileWrite( fileLoc );
         if(!fileWrite){return false;}
@@ -1904,11 +2142,11 @@ namespace PEP
     // ZW: wrapper for eventReOrder
     std::vector<std::shared_ptr<std::vector<std::shared_ptr<event>>>> lheReOrder( const lheNode& lheFile )
     {
-        auto procSets = processPull( lheFile );
-        auto relProcs = procOrder( lheFile, procSets );
+        auto procSets = processPull( lheFile ); 
+        auto relProcs = procOrder( lheFile, procSets ); 
         std::vector<std::shared_ptr<std::vector<std::shared_ptr<event>>>> ordProcs(procSets.size());
         for( int k = 0 ; k < relProcs.size() ; ++k )
-        {
+        { 
             ordProcs[k] = eventReOrder( lheFile, *relProcs[k] );
         }
         return ordProcs;
@@ -1994,10 +2232,10 @@ namespace PEP
         transLHE( lheNode& lheFile )
         {
             xmlFile = lheFile.getFile();
-            auto procsOrdered = lheReOrder( lheFile );
-            subProcs = std::vector<std::shared_ptr<transMonoLHE>>( procsOrdered.size() );
+            auto procsOrdered = lheReOrder( lheFile ); 
+            subProcs = std::vector<std::shared_ptr<transMonoLHE>>( procsOrdered.size() ); 
             for( int k = 0 ; k < procsOrdered.size() ; ++k )
-            {
+            { 
                 subProcs[k] = std::make_shared<transMonoLHE>( *procsOrdered[k], procsOrdered[k]->at(0)->getNprt() );
             }
         }
@@ -2019,6 +2257,18 @@ namespace PEP
         auto valVec = std::make_shared<std::vector<int>>( dataVec.size() );
         std::transform( dataVec.begin(), dataVec.end(), valVec->begin(), []( const std::string_view& stv ){
             return std::stoi(std::string(stv));
+        } );
+        return valVec;
+    }
+    
+    // ZW: templated fcn for multiplying two vectors elementwise,
+    // assuming T has a multiplication operator*
+    template<typename T>
+    std::shared_ptr<std::vector<T>> vecElemMult( const std::vector<T>& vec1, const std::vector<T>& vec2){
+        if( vec1.size() < vec2.size() ){ return vecElemMult( vec2, vec1 ); }
+        auto valVec = std::make_shared<std::vector<T>>( vec1.size() );
+        std::transform( vec1.begin(), vec1.end(), vec2.begin(), valVec->begin(), []( const T& v1, const T& v2 ){
+            return v1 * v2;
         } );
         return valVec;
     }
@@ -2078,7 +2328,7 @@ namespace PEP
         auto boolVec = vals.getBools();
         const int noVals = std::count(boolVec.begin(), boolVec.end(), true);
         auto lheAOS = transLHE( lheFile );
-        auto lheDos = std::make_shared<std::vector<std::shared_ptr<std::vector<double>>>>(noVals * lheAOS.subProcs.size() );
+        auto lheDos = std::make_shared<std::vector<std::shared_ptr<std::vector<double>>>>(noVals * lheAOS.subProcs.size() ); 
         std::vector<std::shared_ptr<std::vector<double>>> &lheDs = *lheDos;
         int currInd = 0;
         if( boolVec[0] ){ lheDs[currInd] = vecStoD( { lheFile.init->getHead()->ebmup[0], lheFile.init->getHead()->ebmup[1] } ); ++currInd; }
@@ -2105,13 +2355,13 @@ namespace PEP
                 xmaxVec.push_back(line->xmaxup);
             }
             lheDs[currInd] = vecStoD( xmaxVec );
-             ++currInd; }
+             ++currInd; } 
         for( int k = 0 ; k < lheAOS.subProcs.size() ; ++k )
         {
             if( boolVec[4] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsHead.wgts ); ++currInd; }
             if( boolVec[5] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsHead.scales ); ++currInd; }
             if( boolVec[6] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsHead.aQEDs ); ++currInd; }
-            if( boolVec[7] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsHead.aQCDs ); ++currInd;
+            if( boolVec[7] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsHead.aQCDs ); 
                 if( aStogS ){
                     std::transform( lheDs[currInd]->begin(), lheDs[currInd]->end(), lheDs[currInd]->begin(), 
                     []( double alphaS ){
@@ -2119,12 +2369,14 @@ namespace PEP
                         return gS;
                     } );
                 }
+                ++currInd;
             }
             if( boolVec[8] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsData.moms ); ++currInd; }
             if( boolVec[9] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsData.masses ); ++currInd; }
             if( boolVec[10] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsData.vtims ); ++currInd; }
             if( boolVec[11] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsData.spins ); ++currInd; }
         }
+
         return lheDos;
     }
 
