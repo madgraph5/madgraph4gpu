@@ -90,9 +90,6 @@ for p1dir in ${dir}/SubProcesses/P1_*; do
   \rm -f *.orig
   cd - > /dev/null
 done
-for fcopy in COPYRIGHT COPYING COPYING.LESSER AUTHORS; do
-  if [ -f ${scrdir}/${fcopy} ]; then \cp -dpr ${scrdir}/${fcopy} ${dir}/src; fi # new file
-done
 
 # Patch the default Fortran code to provide the integration with the cudacpp plugin
 # (2) Process-dependent patches
