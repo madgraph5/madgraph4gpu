@@ -16,12 +16,13 @@ for procdir in $procdirs; do
   if [ ! -d $TOPDIR/$procdir ]; then echo "ERROR! Directory not found $TOPDIR/$procdir"; exit 1; fi
 done
 
-# Add to the git repo the copyright files in <procdir>/src if they exist
+# In the git repo, move the copyright files from <procdir>/src to <procdir>
 for procdir in $procdirs; do
   echo "=== $TOPDIR/$procdir"
   cd $TOPDIR/$procdir
-  for fcopy in COPYRIGHT COPYING COPYING.LESSER AUTHORS; do
-    if [ -f src/${fcopy} ]; then git add src/${fcopy}; fi
+  for fcopy in COPYRIGHT COPYING COPYING.LESSER; do
+    git mv src/${fcopy} .
   done
+  git rm src/AUTHORS
 done
 
