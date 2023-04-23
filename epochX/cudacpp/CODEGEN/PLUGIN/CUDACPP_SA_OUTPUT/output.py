@@ -82,7 +82,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
     ###s = MG5DIR + '/madgraph/iolibs/template_files/'
     s = PLUGINDIR + '/madgraph/iolibs/template_files/'
     from_template = {'.': [s+'.clang-format', s+'CMake/CMakeLists.txt',
-                           s+'AUTHORS', s+'COPYRIGHT', s+'COPYING', s+'COPYING.LESSER' ],
+                           s+'COPYRIGHT', s+'COPYING', s+'COPYING.LESSER' ],
                      'CMake': [s+'CMake/Compilers.txt', s+'CMake/Platforms.txt', s+'CMake/Macros.txt'],
                      'src': [s+'gpu/rambo.h', s+'read_slha.h', s+'read_slha.cc',
                              s+'gpu/mgOnGpuFptypes.h', s+'gpu/mgOnGpuCxtypes.h', s+'gpu/mgOnGpuVectors.h',
