@@ -7,22 +7,25 @@ of the MadGraph5_aMC@NLO (in the following "MG5aMC") software framework, and
 all code generated using that plugin. These are referred to as "this work" or
 "the MG5aMC CUDACPP plugin [and the code that it generates]" in the following.
 
+The MG5aMC CUDACPP plugin and the code that it generates are based on the
+initial work on porting MG5aMC to GPUs using CUDA and on speeding up MG5aMC on
+CPUs using vectorized C++ by three original authors from CERN and UCLouvain.
+The full development team currently includes the following authors :
+  Stephan Hageboeck (CERN)
+  Olivier Mattelaer (Universite Catholique de Louvain, original author)
+  Stefan Roiser (CERN, original author)
+  Andrea Valassi (CERN, original author)
+  Zenny Wettersten (CERN)
+See https://github.com/madgraph5/madgraph4gpu for more details. For the full
+list of authors and collaborators of this work, see the file "AUTHORS" in the
+same directory as this "COPYRIGHT" file in the source code of the plugin.
+
 The MG5aMC CUDACPP plugin and the code that it generates are derived from, and
-are intended to be used in conjunction with, the MG5aMC software framework and
+are intended to be used in combination with, the MG5aMC software framework and
 other work, previous and future, by the MadGraph5_aMC@NLO development team and
-contributors (also known as the "MadTeam"). The MadTeam hold the copyright for
+contributors (also known as the "MadTeam"). The MadTeam own the copyright for
 the development of the MG5aMC software framework, which they licensed as
 specified in https://github.com/mg5amcnlo/mg5amcnlo/blob/main/madgraph/LICENSE.
-
-The MG5aMC CUDACPP plugin and the code that it generates are based on the
-initial development work on porting MG5aMC to GPUs using CUDA and on speeding
-up MG5aMC on CPUs using vectorized C++ by three original authors:
-  Olivier Mattelaer (Universite Catholique de Louvain)
-  Stefan Roiser (CERN)
-  Andrea Valassi (CERN)
-See https://github.com/madgraph5/madgraph4gpu for more details. For the full
-list of authors and collaborators of this work, see file the "AUTHORS" in the
-same directory as this "COPYRIGHT" file.
 
 The MG5aMC CUDACPP plugin and the code that it generates are free software;
 you can redistribute them and/or modify them under the terms of the GNU Lesser

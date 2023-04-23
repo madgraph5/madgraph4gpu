@@ -1,3 +1,6 @@
+  // Copyright (C) 2020-2023 CERN and UCLouvain.
+  // Licensed under the GNU Lesser General Public License (version 3 or later).
+  // Created by: A. Valassi (Apr 2021) for the MG5aMC CUDACPP plugin.
   expwfs.push_back( {                                   // ---------
      5.000000000000000e+02,  5.000000000000000e+02,     // itest=0: ixxxxx#0 nsp=-1 mass=0
      0.000000000000000e+00,  0.000000000000000e+00,     // itest=0: ixxxxx#0 nsp=-1 mass=0
