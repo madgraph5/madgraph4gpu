@@ -3,7 +3,8 @@
 //==========================================================================
 // Copyright (C) 2020-2023 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
-// Modified by: S. Hageboeck, O. Mattelaer, S. Roiser, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
+// Modified by: O. Mattelaer (Nov 2020) for the MG5aMC CUDACPP plugin.
+// Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
 //==========================================================================
 
 #include "mgOnGpuConfig.h"
