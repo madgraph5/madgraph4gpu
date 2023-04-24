@@ -59,9 +59,9 @@ namespace mg5amcCpu
   public: /* clang-format on */
 
     // Hardcoded parameters for this process (constant class variables)
+    // [NB: this class assumes nprocesses==1 i.e. a single DSIG1 and no DSIG2 in Fortran (#272 and #343)]
     //static const int ninitial = mgOnGpu::npari;
     //static const int nexternal = 5; // mgOnGpu::npar (nexternal was nioparticles)
-    //static const int nprocesses = 1; // FIXME: assume process.nprocesses == 1
     //static const int nwavefuncs = 6; // mgOnGpu::nwf
     //static const int namplitudes = 18;
     //static const int ncomb = 32; // mgOnGpu::ncomb

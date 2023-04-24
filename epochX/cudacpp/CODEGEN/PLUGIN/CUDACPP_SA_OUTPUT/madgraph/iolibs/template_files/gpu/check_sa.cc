@@ -633,7 +633,7 @@ main( int argc, char** argv )
         std::cout << std::string( SEP79, '-' ) << std::endl;
         // Display matrix elements
         std::cout << " Matrix element = " << MemoryAccessMatrixElements::ieventAccessConst( hstMatrixElements.data(), ievt )
-                  << " GeV^" << meGeVexponent << std::endl; // FIXME: assume process.nprocesses == 1
+                  << " GeV^" << meGeVexponent << std::endl;
         std::cout << std::string( SEP79, '-' ) << std::endl;
       }
     }
@@ -955,7 +955,7 @@ main( int argc, char** argv )
               //<< "StdDevTimeInMECalcOnly      = ( " << stdw3atim << std::string(16, ' ') << " )  sec" << std::endl
               << std::string( SEP79, '-' ) << std::endl
               //<< "ProcessID:                  = " << getpid() << std::endl
-              //<< "NProcesses                  = " << process.nprocesses << std::endl
+              //<< "NProcesses                  = " << process.nprocesses << std::endl // assume nprocesses == 1 (#272 and #343)
               << "TotalEventsComputed         = " << nevtALL << std::endl
               << "EvtsPerSec[Rnd+Rmb+ME](123) = ( " << nevtALL / ( sumgtim + sumrtim + sumwtim )
               << std::string( 16, ' ' ) << " )  sec^-1" << std::endl
@@ -1070,7 +1070,7 @@ main( int argc, char** argv )
              << "\"MaxTimeInMatrixElems\": \""
              << std::to_string( maxwtim ) << " sec\"," << std::endl
              //<< "ProcessID:                = " << getpid() << std::endl
-             //<< "NProcesses                = " << process.nprocesses << std::endl
+             //<< "NProcesses                = " << process.nprocesses << std::endl // assume nprocesses == 1 (#272 and #343)
              << "\"TotalEventsComputed\": " << nevtALL << "," << std::endl
              << "\"EvtsPerSec[Rnd+Rmb+ME](123)\": \""
              << std::to_string( nevtALL / ( sumgtim + sumrtim + sumwtim ) ) << " sec^-1\"," << std::endl

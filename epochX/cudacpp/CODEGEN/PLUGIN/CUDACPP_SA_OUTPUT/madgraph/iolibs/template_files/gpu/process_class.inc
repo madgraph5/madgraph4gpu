@@ -33,9 +33,9 @@
   public: /* clang-format on */
 
     // Hardcoded parameters for this process (constant class variables)
+    // [NB: this class assumes nprocesses==1 i.e. a single DSIG1 and no DSIG2 in Fortran (#272 and #343)]
     //static const int ninitial = mgOnGpu::npari;
     //static const int nexternal = %(nexternal)d; // mgOnGpu::npar (nexternal was nioparticles)
-    //static const int nprocesses = %(nprocesses)d; // FIXME: assume process.nprocesses == 1
     //static const int nwavefuncs = %(nwavefuncs)d; // mgOnGpu::nwf
     //static const int namplitudes = %(namp)d;
     //static const int ncomb = %(ncomb)d; // mgOnGpu::ncomb
