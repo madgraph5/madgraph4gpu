@@ -1128,6 +1128,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         replace_dict['proc_id_source'] = 'madevent + cudacpp exporter' if self.proc_id>0 else 'standalone_cudacpp'
         if write:
             file = self.read_template_file(self.process_sigmaKin_function_template) % replace_dict
+            file = '\n'.join( file.split('\n')[7:] ) # skip first 7 lines in process_sigmaKin_function.inc (copyright)
             return file, replace_dict
         else:
             return replace_dict
