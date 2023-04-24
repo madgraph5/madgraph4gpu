@@ -1037,6 +1037,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         replace_dict = super().get_process_class_definitions(write=False)
         replace_dict['process_lines'] = replace_dict['process_lines'].replace('\n','\n  ')
         file = self.read_template_file(self.process_class_template) % replace_dict # HACK! ignore write=False case
+        file = '\n'.join( file.split('\n')[7:] ) # skip first 7 lines in process_class.inc (copyright)
         return file
 
     # AV - replace export_cpp.OneProcessExporterGPU method (fix gCPPProcess.cu)
