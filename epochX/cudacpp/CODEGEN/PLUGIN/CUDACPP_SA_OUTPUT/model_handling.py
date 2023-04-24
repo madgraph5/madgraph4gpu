@@ -636,17 +636,17 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
     ###aloha_writer = 'cudac' # WriterFactory will use ALOHAWriterForGPU
     aloha_writer = PLUGIN_ALOHAWriter # WriterFactory will use ALOHAWriterForGPU
 
-    # AV - use template files from PLUGINDIR instead of MG5DIR
+    # AV - use template files from PLUGINDIR instead of MG5DIR; strip leading copyright lines
     def read_aloha_template_files(self, ext):
         """Read all ALOHA template files with extension ext, strip them of
         compiler options and namespace options, and return in a list"""
         ###path = pjoin(MG5DIR, 'aloha','template_files')
         path = pjoin(PLUGINDIR, 'aloha', 'template_files')
         out = []
-        if ext == 'h':
-            out.append(open(pjoin(path, self.helas_h)).read())
-        else:
-            out.append(open(pjoin(path, self.helas_cc)).read())
+        if ext == 'h': file = open(pjoin(path, self.helas_h)).read()
+        else: file = open(pjoin(path, self.helas_cc)).read()
+        file = '\n'.join( file.split('\n')[7:] ) # skip first 7 lines in helas.h/cu (copyright)
+        out.append( file )
         return out
 
     # AV - use the plugin's PLUGIN_OneProcessExporter template_path and __template_path (for aloha_template_h/cc)
