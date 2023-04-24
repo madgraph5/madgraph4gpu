@@ -549,6 +549,7 @@ namespace PEP
         headWeight( std::string_view paramSet, std::string& idText){
             name = "weight"; xmlFile = paramSet; content = paramSet; idTag = idText;
         }
+        void setId( std::string identity ){ modded = true; idTag = identity; }
     protected:
         std::string idTag;
         unsigned int id = -1;
@@ -761,6 +762,13 @@ namespace PEP
         void setVal( std::string nuVal ){ modded = true; valS = nuVal; valD = std::stod(valS);}
         void setVal( std::string_view nuVal ){ modded = true; valS = std::string(nuVal); valD = std::stod(valS);}
         void setVal( double nuVal ){ modded = true; valD = nuVal; valS = std::to_string(valD);}
+        void setId( std::string nuId ){ 
+            modded = true; id = nuId;
+            for( auto tag : tags ){
+                if( tag->getId() == "id" ){ tag->setVal( id ); return; }
+            }
+            addTag( std::make_shared<xmlTag>( "id", id ) );
+        }
         void setModded( bool nuModded ){ modded = nuModded; }
         std::string_view getComment(){ return comment; }
         std::string_view getValS(){ return valS; }
@@ -1014,11 +1022,10 @@ namespace PEP
         void setPrts( std::vector<std::shared_ptr<lhePrt>> prtcls ){ modded = true; prts = prtcls; }
         void addWgt( bodyWgt nuWgt ){ addedWgt = true; rwgt.push_back( std::make_shared<bodyWgt>(nuWgt) ); }
         void addWgt( std::shared_ptr<bodyWgt> nuWgt ){ modded = true; rwgt.push_back( nuWgt ); }
+        void addWgt( bodyWgt nuWgt, std::string& id ){ addedWgt = true; nuWgt.setId( id ); rwgt.push_back( std::make_shared<bodyWgt>(nuWgt) ); }
+        void addWgt( std::shared_ptr<bodyWgt> nuWgt, std::string& id ){ modded = true; nuWgt->setId( id ); rwgt.push_back( nuWgt ); }
         bool newWeight(){ return addedWgt; }
-        int getNprt()
-        {
-            return prts.size();
-        }
+        int getNprt(){ return prts.size(); }
         bool isModded( bool deep ) override {
             bool modStat = modded;
             if( !deep ){ return modStat; }
@@ -1620,6 +1627,22 @@ namespace PEP
             modded = true;
             rwgtNodes->addWgt( index, nuWgt );
         }
+        void addWgt( unsigned int index, std::shared_ptr<headWeight> nuWgt, std::string idTagg ){
+            if( index >= (int)rwgtNodes->getGroups().size() )
+                throw std::runtime_error( "Appending weight to uninitialised weightgroup." );
+            hasRwgt = true;
+            modded = true;
+            nuWgt->setId( idTagg );
+            rwgtNodes->addWgt( index, nuWgt );
+        }
+        void addWgt( unsigned int index, headWeight nuWgt, std::string idTagg ){
+            if( index >= (int)rwgtNodes->getGroups().size() )
+                throw std::runtime_error( "Appending weight to uninitialised weightgroup." );
+            hasRwgt = true;
+            modded = true;
+            nuWgt.setId( idTagg );
+            rwgtNodes->addWgt( index, nuWgt );
+        }
         void setInitRwgt( initRwgt initWgt ){  hasRwgt = true; modded = true; rwgtNodes = std::make_shared<initRwgt>(initWgt); }
         void setInitRwgt( std::shared_ptr<initRwgt> initWgt ){ hasRwgt = true; modded = true; rwgtNodes = initWgt; }
         std::vector<std::shared_ptr<weightGroup>> getWgtGroups(){ return rwgtNodes->getGroups(); }
@@ -1784,6 +1807,13 @@ namespace PEP
         }
         void addWgt( size_t index, newWgt& addedWgt ){
             header->addWgt( index, addedWgt.getHeadWgt() );
+            auto wgtsVec = addedWgt.getBodyWgts();
+            for( int k = 0 ; k < wgtsVec.size() ; ++k ){
+                events[k]->addWgt( wgtsVec[k] );
+            }
+        }
+        void addWgt( size_t index, newWgt& addedWgt, std::string& idTag ){
+            header->addWgt( index, addedWgt.getHeadWgt(), idTag );
             auto wgtsVec = addedWgt.getBodyWgts();
             for( int k = 0 ; k < wgtsVec.size() ; ++k ){
                 events[k]->addWgt( wgtsVec[k] );

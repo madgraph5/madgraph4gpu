@@ -120,6 +120,8 @@ namespace PEP::PER
     public:
         std::vector<rwgtBlock> rwgtParams;
         std::string_view procString;
+        std::string_view rwgtName;
+        std::vector<std::string_view> rwgtOpts;
         void parse(){
             std::vector<std::string_view> blocks;
             std::vector<std::shared_ptr<std::vector<rwgtVal>>> params;
@@ -175,6 +177,7 @@ namespace PEP::PER
         std::vector<rwgtProc> rwgtRuns;
         std::vector<std::string_view> rwgtProcs;
         std::vector<std::string_view> opts;
+        std::vector<std::string> rwgtNames;
         std::string_view srcCard;
         void parse( bool parseOnline = false ) {
             auto strt = srcCard.find("launch");
@@ -192,8 +195,25 @@ namespace PEP::PER
             }
             for( int k = 0 ; k < lnchPos.size() - 1 ; ++k )
             {
+                bool noName = true;
                 auto strtLi = srcCard.find( "set", lnchPos[k] );
                 rwgtRuns.push_back( rwgtProc( slhaCard, srcCard.substr( strtLi, lnchPos[k+1] - strtLi ), parseOnline ) );
+                if( srcCard.find( "--", lnchPos[k] ) < strtLi ){
+                    auto strtPos = srcCard.find( "--", lnchPos[k] );
+                    while( (strtPos < strtLi ) && (strtPos!= std::string_view::npos) ){
+                        auto nuStrtPos = std::min( srcCard.find( "\n", strtPos ), srcCard.find( "--", strtPos + 1 ));
+                        rwgtRuns[ rwgtRuns.size() - 1 ].rwgtOpts.push_back( srcCard.substr( strtPos, nuStrtPos - strtPos ) );
+                        if( rwgtRuns[ rwgtRuns.size() - 1 ].rwgtOpts[ rwgtRuns[ rwgtRuns.size() - 1 ].rwgtOpts.size() - 1 ].substr(2,11) == "rwgt_name"){
+                            rwgtRuns[ rwgtRuns.size() - 1 ].rwgtName = rwgtRuns[ rwgtRuns.size() - 1 ].
+                                rwgtOpts[ rwgtRuns[ rwgtRuns.size() - 1 ].rwgtOpts.size() - 1 ].substr( 11, nuStrtPos - strtPos - 11 );
+                            rwgtNames.push_back( std::string(rwgtRuns[ rwgtRuns.size() - 1].rwgtName) );
+                            noName = false;
+                        }
+                        if( nuStrtPos == srcCard.find( "\n", strtPos ) ){ break; }
+                        strtPos = nuStrtPos;
+                    }
+                }
+                if( noName ){ rwgtNames.push_back( "pep_rwgt_" + std::to_string(k) ); }
             }
             size_t endLi = srcCard.find( "\n", lnchPos[ lnchPos.size() - 1 ] );
             if( srcCard.substr( endLi + 1, 3 ) == "set" ){
@@ -277,7 +297,7 @@ namespace PEP::PER
         }
         void initCards(){
             if( rwgtPath == "" || slhaPath == "" || lhePath == "" )
-                throw std::runtime_error( "Paths te reweight card, parameter card, or LHE file have not been set" );
+                throw std::runtime_error( "Paths to reweight card, parameter card, or LHE file have not been set" );
             pullRwgt(); pullSlha(); pullLhe();
             setLhe( *lheCard );
             setSlha( std::make_shared<PEP::lesHouchesCard>( *slhaCard ) );
@@ -363,8 +383,18 @@ namespace PEP::PER
                 throw std::runtime_error( "Failed to rewrite parameter card." );
             auto newMEs = meEval( *momenta, *gS );
             auto newWGTs = PEP::vecElemMult( *newMEs, *meNormWgts );
-            //int random = rand() % 20;
-            PEP::newWgt nuWgt( rwgtSets->rwgtRuns[currId].comRunProc(), newWGTs, "hoopla" );
+            PEP::newWgt nuWgt( rwgtSets->rwgtRuns[currId].comRunProc(), newWGTs );
+            lheFile->addWgt( 0, nuWgt );
+            return true;
+        }
+        bool singleRwgtIter( std::shared_ptr<PEP::lesHouchesCard> slhaParams, std::shared_ptr<lheNode> lheFile, size_t currId, std::string& id ){
+            if( !normWgtSet )
+                throw std::runtime_error( "Normalised original weights (wgt/|ME|) not evaluated -- new weights cannot be calculated." );
+            if( !setParamCard( slhaParams ) )
+                throw std::runtime_error( "Failed to rewrite parameter card." );
+            auto newMEs = meEval( *momenta, *gS );
+            auto newWGTs = PEP::vecElemMult( *newMEs, *meNormWgts );
+            PEP::newWgt nuWgt( rwgtSets->rwgtRuns[currId].comRunProc(), newWGTs, id );
             lheFile->addWgt( 0, nuWgt );
             return true;
         }
@@ -383,7 +413,7 @@ namespace PEP::PER
             auto currInd = lheFile->header->addWgtGroup( rwgtGroup );
             auto paramSets = rwgtSets->writeCards( *slhaParameters );
             for( int k = 0 ; k < paramSets.size(); k++ ){
-                singleRwgtIter( paramSets[k], lheFile, k );
+                singleRwgtIter( paramSets[k], lheFile, k, rwgtSets->rwgtNames[currInd] );
                 std::cout << ".";
             }
             lheFileWriter( lheFile, output );
