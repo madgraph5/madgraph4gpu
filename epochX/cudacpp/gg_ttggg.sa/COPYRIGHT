@@ -3,9 +3,10 @@ Licensed under the GNU Lesser General Public License (version 3 or later).
 All rights not expressly granted are reserved.
 
 The copyright and license notice above cover the CUDACPP code-generating plugin
-of the MadGraph5_aMC@NLO (in the following "MG5aMC") software framework, and
-all code generated using that plugin. These are referred to as "this work" or
-"the MG5aMC CUDACPP plugin [and the code that it generates]" in the following.
+of the MadGraph5_aMC@NLO (in the following "MG5aMC") software, and all code
+generated using that plugin. These are collectively referred to as "this work"
+or "the MG5aMC CUDACPP plugin and the code that it generates", or more simply
+as "the MG5aMC CUDACPP plugin", in the following and throughout this work.
 
 The MG5aMC CUDACPP plugin and the code that it generates are based on the
 initial work on porting MG5aMC to GPUs using CUDA and on speeding up MG5aMC on
@@ -21,11 +22,11 @@ list of authors and collaborators of this work, see the file "AUTHORS" in the
 same directory as this "COPYRIGHT" file in the source code of the plugin.
 
 The MG5aMC CUDACPP plugin and the code that it generates are derived from, and
-are intended to be used in combination with, the MG5aMC software framework and
-other work, previous and future, by the MadGraph5_aMC@NLO development team and
-contributors (also known as the "MadTeam"). The MadTeam own the copyright for
-the development of the MG5aMC software framework, which they licensed as
-specified in https://github.com/mg5amcnlo/mg5amcnlo/blob/main/madgraph/LICENSE.
+are intended to be used in combination with, the MG5aMC software and the code
+that it generates. The MG5aMC software is developed by the MadGraph5_aMC@NLO
+development team and contributors, also known as the "MadTeam", who are the
+owners of its copyright and have licensed it as specified in
+https://github.com/mg5amcnlo/mg5amcnlo/blob/main/madgraph/LICENSE.
 
 The MG5aMC CUDACPP plugin and the code that it generates are free software;
 you can redistribute them and/or modify them under the terms of the GNU Lesser
