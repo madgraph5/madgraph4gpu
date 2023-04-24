@@ -59,7 +59,8 @@ prefix=$(pwd)
 
 export USEBUILDDIR=1
 export NTPBMAX=1024
-export CXX=/cvmfs/sft.cern.ch/lcg/releases/gcc/11.3.0-ad0f5/x86_64-centos8/bin/g++
+#export CXX=/cvmfs/sft.cern.ch/lcg/releases/gcc/11.3.0-ad0f5/x86_64-centos8/bin/g++
+export CXX=`which g++`
 export MG_EXE="./gcheck.exe" #GPU
 #export MG_EXE="./check.exe" #CPU
 export CUDA_HOME=/usr/local/cuda-12.0/
