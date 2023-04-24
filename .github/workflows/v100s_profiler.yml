@@ -17,8 +17,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Runs SYCL performanceProfiler.py script
-      run: cd tools/profiling/; source /cvmfs/sft.cern.ch/lcg/releases/gcc/11.3.0-ad0f5/x86_64-centos8/setup.sh;
-           source /cvmfs/projects.cern.ch/intelsw/oneAPI/linux/x86_64/2023/setvars.sh --include-intel-llvm;
+      run: cd tools/profiling/;
            python3 performanceProfiler.py -l 'SYCL' -b 'master'
     - name: Uploads SYCL JSON files to DB
       run: cd tools/profiling/; python3 sendData.py --absLayer SYCL --profiler 1 --branch master
@@ -34,7 +33,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Runs CUDA performanceProfiler.py script
-      run: cd tools/profiling/; source /cvmfs/sft.cern.ch/lcg/releases/gcc/11.3.0-ad0f5/x86_64-centos8/setup.sh;
+      run: cd tools/profiling/;
            python3 performanceProfiler.py -l 'CUDA' -b 'master'
     - name: Uploads CUDA JSON files to DB
       run: cd tools/profiling/; python3 sendData.py --absLayer CUDA --profiler 1 --branch master
