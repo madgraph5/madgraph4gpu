@@ -1245,15 +1245,16 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         else:
             ret_lines.extend([self.get_sigmaKin_single_process(i, me) \
                                   for i, me in enumerate(self.matrix_elements)])
-        ###to_add = [] # AV - what is this for? comment it out
-        ###to_add.extend([self.get_matrix_single_process(i, me,
-        ###                                                 color_amplitudes[i],
-        ###                                                 class_name) \
-        ###                        for i, me in enumerate(self.matrix_elements)])
-        ret_lines.extend([self.get_matrix_single_process(i, me,
-                                                         color_amplitudes[i],
-                                                         class_name) \
-                                for i, me in enumerate(self.matrix_elements)])
+        #ret_lines.extend([self.get_matrix_single_process(i, me,
+        #                                                 color_amplitudes[i],
+        #                                                 class_name) \
+        #                        for i, me in enumerate(self.matrix_elements)])
+        file_extend = []
+        for i, me in enumerate(self.matrix_elements):
+            file = self.get_matrix_single_process( i, me, color_amplitudes[i], class_name )
+            file = '\n'.join( file.split('\n')[7:] ) # skip first 7 lines in process_matrix.inc (copyright)
+            file_extend.append( file )
+        ret_lines.extend( file_extend )
         return '\n'.join(ret_lines)
 
     # AV - modify export_cpp.OneProcessExporterGPU method (replace '# Process' by '// Process')
