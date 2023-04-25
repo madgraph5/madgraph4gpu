@@ -1,3 +1,8 @@
+// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Created by: A. Valassi (Aug 2020, based on earlier work by Peter Heywood) for the MG5aMC CUDACPP plugin.
+// Further modified by: A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
+
 #ifndef MGONGPUNVTX_H
 #define MGONGPUNVTX_H 1
 
