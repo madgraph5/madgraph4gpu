@@ -27,6 +27,8 @@ that it generates. The MG5aMC software is developed by the MadGraph5_aMC@NLO
 development team and contributors, also known as the "MadTeam", who are the
 owners of its copyright and have licensed it as specified in
 https://github.com/mg5amcnlo/mg5amcnlo/blob/main/madgraph/LICENSE.
+For the full list of authors and contributors of the MG5aMC software, see
+https://github.com/mg5amcnlo/mg5amcnlo/blob/main/madgraph/AUTHORS.
 
 The MG5aMC CUDACPP plugin and the code that it generates are free software;
 you can redistribute them and/or modify them under the terms of the GNU Lesser
