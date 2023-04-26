@@ -62,15 +62,15 @@ struct fbridgeRunner{
     }
     std::shared_ptr<std::vector<FORTRANFPTYPE>> scatAmp( std::vector<double>& momenta, std::vector<double>& alphaS ){
         if( typeid(FORTRANFPTYPE(0)) == typeid(float(0)) ){
-            std::vector<float> nuMom( nEvt );
-            std::vector<float> nuAlphaS( nEvt );
+            auto nuMom = std::vector<float>( nEvt );
+            auto nuAlphaS = std::vector<float>( nEvt );
             std::transform( momenta.begin(), momenta.end(), nuMom.begin(), [](double mom){ return static_cast<float>(mom); })
             std::transform( alphaS.begin(), alphaS.end(), nuAlphaS.begin(), [](double gs){ return static_cast<float>(gs); });
             return scatAmp( nuMom, nuAlphaS );
         }
-        std::shared_ptr<std::vector<FORTRANFPTYPE>> evalScatAmps( nEvt );
+        auto evalScatAmps = std::shared_ptr<std::vector<FORTRANFPTYPE>>( nEvt );
         fbridgecreate_( &fBridge, &nEvt, &nPar, &nMom );
-        fbridgesequence_( &fBridge, &momenta->at(0), &alphaS->at(0), &rndHel[0], &rndCol[0], &chanId, &evalScatAmps->at(0), &selHel[0], &selCol[0] );
+        fbridgesequence_( &fBridge, &momenta[0], &alphaS[0], &rndHel[0], &rndCol[0], &chanId, &evalScatAmps->at(0), &selHel[0], &selCol[0] );
         fbridgedelete_( &fBridge );
         return evalScatAmps;
     }
@@ -132,7 +132,7 @@ int main( int argc, char** argv ){
 
     std::string currPath = argv[0];
 
-    size_t slashPos = currpath.find_last_of( "/" ); 
+    size_t slashPos = currPath.find_last_of( "/" ); 
     bool onWindows = false;
     if( slashPos == std::string::npos ){ slashPos = currpath.find_last_of( "\\" ); onWindows = true; }
     if( slashPos == std::string::npos )
@@ -158,7 +158,7 @@ int main( int argc, char** argv ){
 
     auto bridgeCont = fbridgeRunner( fileCol.getLhe() );
 
-    std::function<std::shared_ptr<std::vector<FORTRANFPTYPE>>( std::vector<double>&, std::vector<double>& )> scatteringAmplitude = &bridgeCont.scatAmp;
+    std::function<std::shared_ptr<std::vector<FORTRANFPTYPE>>( std::vector<double>&, std::vector<double>& )> scatteringAmplitude = bridgeCont.scatAmp;
     PEP::PER::rwgtRunner nuRun( fileCol, scatteringAmplitude );
 
 

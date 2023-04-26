@@ -683,7 +683,12 @@ namespace PEP
                 nodeContent += (*wgt->nodeWriter());
             }
         }
-        void childWriter( bool hasChildren = false ){
+        void childWriter() override{
+            for(auto child : children){
+                nodeContent += (*child->nodeWriter());
+            }
+        }
+        void childWriter( bool hasChildren ){
             if( hasChildren ){ childWriter(); }
             return;
         }
@@ -1035,7 +1040,7 @@ namespace PEP
         void addWgt( std::shared_ptr<bodyWgt> nuWgt, std::string& id ){ modded = true; nuWgt->setId( id ); rwgt.push_back( nuWgt ); }
         bool newWeight(){ return addedWgt; }
         int getNprt(){ return prts.size(); }
-        bool isModded( bool deep ) override {
+        bool isModded( bool deep = false ) override {
             bool modStat = modded;
             if( !deep ){ return modStat; }
             for( auto child : children ){ modStat = (modStat || child->isModded( deep )); }
@@ -1486,7 +1491,6 @@ namespace PEP
             auto blockPts = clFindEach( xmlFile, std::string("\nblock") );
             auto decLines = clFindEach( xmlFile, std::string("\ndecay") );
             header = xmlFile.substr( start, std::min( blockPts->at(0), decLines->at(0) ) - start );
-            auto startPt = blockStart;
             for( int k  = 0 ; k < blockPts->size() - 1 ; ++k )
             {
                 blocks.push_back( paramBlock( xmlFile.substr( blockPts->at(k), blockPts->at(k+1) - blockPts->at(k) ), parseOnline ) );
@@ -2131,7 +2135,6 @@ namespace PEP
     int procPos( const std::vector<std::shared_ptr<lheProc>>& evtSet, lheProc& currProc, 
         const std::vector<std::string>& pdgVec )
     {
-        int truPos = 0;
         for( auto k = 0 ; k < evtSet.size() ; ++k )
         {
             for( auto stat : pdgVec )
