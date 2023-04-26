@@ -42,9 +42,13 @@
 
     // Hardcoded parameters for this process (constant class variables)
     // [NB: this class assumes nprocesses==1 i.e. a single DSIG1 and no DSIG2 in Fortran (#272 and #343)]
+    // [NB: these parameters (e.g. nwf) are P1-specific, i.e. they are different for different P1 subdirectories (#644)]
+    static const int nwf = %(nwavefunc)d; // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
+
+    // Other variables of this instance (???)
     //static const int ninitial = mgOnGpu::npari;
     //static const int nexternal = %(nexternal)d; // mgOnGpu::npar (nexternal was nioparticles)
-    //static const int nwavefuncs = %(nwavefuncs)d; // mgOnGpu::nwf
+    //static const int nwavefuncs = %(nwavefuncs)d; // (?!?! this is not nwf: nwavefuncs vs nwavefunc in python code ?!?!)
     //static const int namplitudes = %(namp)d;
     //static const int ncomb = %(ncomb)d; // mgOnGpu::ncomb
 

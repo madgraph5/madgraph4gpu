@@ -73,7 +73,7 @@ namespace mg5amcCpu
     // Other variables of this instance (???)
     //static const int ninitial = mgOnGpu::npari;
     //static const int nexternal = 4; // mgOnGpu::npar (nexternal was nioparticles)
-    //static const int nwavefuncs = 6; // (??? this is not nwf ???)
+    //static const int nwavefuncs = 6; // (?!?! this is not nwf: nwavefuncs vs nwavefunc in python code ?!?!)
     //static const int namplitudes = 3;
     //static const int ncomb = 16; // mgOnGpu::ncomb
 
