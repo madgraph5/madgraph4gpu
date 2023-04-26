@@ -1037,7 +1037,8 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     def get_process_class_definitions(self, write=True):
         replace_dict = super().get_process_class_definitions(write=False)
         replace_dict['process_lines'] = replace_dict['process_lines'].replace('\n','\n  ')
-        replace_dict['nwavefunc'] = self.matrix_elements[0].get_number_of_wavefunctions() # this is the correct P1-specific nwf, now in CPPProcess.h (#644)
+        replace_dict['nwavefunc'] = self.nwavefuncP1 # this is the correct P1-specific nwf, now in CPPProcess.h (#644)
+        ###replace_dict['nwavefunc'] = self.matrix_elements[0].get_number_of_wavefunctions() # this is the WRONG P1-specific nwf (?!?!)
         file = self.read_template_file(self.process_class_template) % replace_dict # HACK! ignore write=False case
         file = '\n'.join( file.split('\n')[8:] ) # skip first 8 lines in process_class.inc (copyright)
         return file
@@ -1242,7 +1243,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             assert len(self.matrix_elements) == 1 # how to handle if this is not true?
             self.couplings2order = self.helas_call_writer.couplings2order
             self.params2order = self.helas_call_writer.params2order
-            nwavefuncs = self.matrix_elements[0].get_number_of_wavefunctions()
+            self.nwavefuncP1 = self.matrix_elements[0].get_number_of_wavefunctions() # this is the correct P1-specific nwf, now in CPPProcess.h (#644)
             ret_lines += helas_calls
         else:
             ret_lines.extend([self.get_sigmaKin_single_process(i, me) \
