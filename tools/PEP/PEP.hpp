@@ -7,6 +7,11 @@
  *     |_|    |______|_|     
  *                                                     
  ***/
+
+// THIS IS NOT A LICENSED RELEASE
+// IF YOU SEE THIS FILE, IT HAS BEEN SPREAD
+// FROM A DIFFERENT SOURCE THAN THE UPSTREAM RELEASE
+
 #include <vector>
 #include <iostream>
 #include <fstream>
@@ -508,6 +513,7 @@ namespace PEP
     public:
         int getId(){ return id; }
         std::string_view getTag(){ return idTag; }
+        bool hasTag(){ return (idTag.size() > 0); }
         headWeight(){ name = "weight"; return; }
         headWeight( std::string_view paramSet, const size_t& begin = 0 ) : xmlNode(){ name = "weight"; xmlFile = paramSet; content = paramSet; return; }
         headWeight( std::string_view paramSet, std::string_view idText, int idNo, const size_t& begin = 0 ) : xmlNode(){
@@ -623,15 +629,16 @@ namespace PEP
         bool getIncId(){ return includeId; }
         void setIncId( bool nuIncId ){ includeId = nuIncId; }
         std::vector<std::shared_ptr<headWeight>> getWgts(){ return paramSets; }
-        void addWgt( headWeight nuWgt ){ modded = true; paramSets.push_back( std::make_shared<headWeight>( nuWgt ) ); }
-        void addWgt( std::shared_ptr<headWeight> nuWgt ){ modded = true; paramSets.push_back( nuWgt); }
+        void addWgt( headWeight nuWgt ){ modded = true; paramSets.push_back( std::make_shared<headWeight>( nuWgt ) ); if( nuWgt.hasTag() ){ includeId = true; } }
+        void addWgt( std::shared_ptr<headWeight> nuWgt ){ modded = true; paramSets.push_back( nuWgt); if( nuWgt->hasTag() ){ includeId = true; }}
         weightGroup() : xmlNode(){ name = "weightgroup"; return; }
-        weightGroup( std::vector<std::shared_ptr<headWeight>> nuWgts ) : xmlNode(){ name = "weightgroup"; paramSets = nuWgts; }
+        weightGroup( std::vector<std::shared_ptr<headWeight>> nuWgts ) : xmlNode(){ name = "weightgroup"; paramSets = nuWgts; for( auto wgt : nuWgts ){ if( wgt->hasTag() ){ includeId = true; } } }
         weightGroup( std::vector<std::string> nuWgts ) : xmlNode(){
             name = "weightgroup";
             for( auto wgt : nuWgts ){
                 paramSets.push_back( std::make_shared<headWeight>( wgt ) );
             }
+            for( auto wgt : paramSets ){ if( wgt->hasTag() ){ includeId = true; } }
         }
         weightGroup( xmlNode& wgtNode ) : xmlNode( wgtNode ){
             parser( true );
@@ -640,6 +647,7 @@ namespace PEP
             for(  auto child : children ){
                 if( child->getName() == "weight" ){ paramSets.push_back( std::make_shared<headWeight>( *child ) ); }
             }
+            for( auto wgt : paramSets ){ if( wgt->hasTag() ){ includeId = true; } }
         }
         weightGroup( const std::string_view originFile, const size_t& begin = 0, const std::vector<std::shared_ptr<xmlNode>>& childs = {} )
         : xmlNode( originFile, begin, childs ){
@@ -664,8 +672,9 @@ namespace PEP
         int id;
         void headWriter() override{
             nodeHeader = "<weightgroup";
-            if( rwgtName !="" ){ nodeHeader += " name=\"" + std::string( rwgtName ) +"\""; }else if( isModded() ){ nodeHeader += " name=\"pep_reweighting\""; }
-            if( wgtNamStrat!="" ){ nodeHeader += " weight_name_strategy=\"" + std::string( wgtNamStrat ) +"\""; } 
+            if( rwgtName != "" ){ nodeHeader += " name=\"" + std::string( rwgtName ) +"\""; }else if( isModded() ){ nodeHeader += " name=\"pep_reweighting\""; }
+            if( wgtNamStrat != "" ){ nodeHeader += " weight_name_strategy=\"" + std::string( wgtNamStrat ) +"\""; }
+            else if( wgtNamStrat == "" && includeId ){ nodeHeader += " weight_name_strategy=\"includeIdInWeightName\"";}
             nodeHeader += ">";
         }
         void contWriter() override{
@@ -696,11 +705,11 @@ namespace PEP
         }
         void addWgt( unsigned int index, std::shared_ptr<headWeight> nuWgt ){
             if( index < groups.size() ){ modded = true; groups[index]->addWgt( nuWgt ); }
-            else throw std::out_of_range( "Appending weight to uninitialised weightgroup." );
+            else throw std::range_error( "Appending weight to uninitialised weightgroup." );
         }
         void addWgt( unsigned int index, headWeight nuWgt ){
             if( index < groups.size() ){ modded = true; groups[index]->addWgt( nuWgt ); }
-            else throw std::out_of_range( "Appending weight to uninitialised weightgroup." );
+            else throw std::range_error( "Appending weight to uninitialised weightgroup." );
         }
         initRwgt() : xmlNode(){ name = "initrwgt"; return; }
         initRwgt( std::vector<std::shared_ptr<xmlNode>> nuGroups ) : xmlNode(){
@@ -1615,21 +1624,21 @@ namespace PEP
         }
         void addWgt( unsigned int index, std::shared_ptr<headWeight> nuWgt ){
             if( index >= (int)rwgtNodes->getGroups().size() )
-                throw std::runtime_error( "Appending weight to uninitialised weightgroup." );
+                throw std::range_error( "Appending weight to uninitialised weightgroup." );
             hasRwgt = true;
             modded = true;
             rwgtNodes->addWgt( index, nuWgt );
         }
         void addWgt( unsigned int index, headWeight nuWgt ){
             if( index >= (int)rwgtNodes->getGroups().size() )
-                throw std::runtime_error( "Appending weight to uninitialised weightgroup." );
+                throw std::range_error( "Appending weight to uninitialised weightgroup." );
             hasRwgt = true;
             modded = true;
             rwgtNodes->addWgt( index, nuWgt );
         }
         void addWgt( unsigned int index, std::shared_ptr<headWeight> nuWgt, std::string idTagg ){
             if( index >= (int)rwgtNodes->getGroups().size() )
-                throw std::runtime_error( "Appending weight to uninitialised weightgroup." );
+                throw std::range_error( "Appending weight to uninitialised weightgroup." );
             hasRwgt = true;
             modded = true;
             nuWgt->setId( idTagg );
@@ -1637,7 +1646,7 @@ namespace PEP
         }
         void addWgt( unsigned int index, headWeight nuWgt, std::string idTagg ){
             if( index >= (int)rwgtNodes->getGroups().size() )
-                throw std::runtime_error( "Appending weight to uninitialised weightgroup." );
+                throw std::range_error( "Appending weight to uninitialised weightgroup." );
             hasRwgt = true;
             modded = true;
             nuWgt.setId( idTagg );

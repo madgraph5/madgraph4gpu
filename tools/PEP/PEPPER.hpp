@@ -7,6 +7,11 @@
  *     |_|    |______|_|    |_|    |______|_|  \_\                              
  *                                                
  ***/
+
+// THIS IS NOT A LICENSED RELEASE
+// IF YOU SEE THIS FILE, IT HAS BEEN SPREAD
+// FROM A DIFFERENT SOURCE THAN THE UPSTREAM RELEASE
+
 #include <unistd.h>
 #include <algorithm>
 #include <array>
@@ -14,7 +19,6 @@
 #include <cstring>
 #include <variant>
 #include "PEP.hpp"
-#include <cstdlib>
 
 namespace PEP::PER
 {
@@ -195,7 +199,6 @@ namespace PEP::PER
             }
             for( int k = 0 ; k < lnchPos.size() - 1 ; ++k )
             {
-                bool noName = true;
                 auto strtLi = srcCard.find( "set", lnchPos[k] );
                 rwgtRuns.push_back( rwgtProc( slhaCard, srcCard.substr( strtLi, lnchPos[k+1] - strtLi ), parseOnline ) );
                 if( srcCard.find( "--", lnchPos[k] ) < strtLi ){
@@ -206,14 +209,11 @@ namespace PEP::PER
                         if( rwgtRuns[ rwgtRuns.size() - 1 ].rwgtOpts[ rwgtRuns[ rwgtRuns.size() - 1 ].rwgtOpts.size() - 1 ].substr(2,11) == "rwgt_name"){
                             rwgtRuns[ rwgtRuns.size() - 1 ].rwgtName = rwgtRuns[ rwgtRuns.size() - 1 ].
                                 rwgtOpts[ rwgtRuns[ rwgtRuns.size() - 1 ].rwgtOpts.size() - 1 ].substr( 11, nuStrtPos - strtPos - 11 );
-                            rwgtNames.push_back( std::string(rwgtRuns[ rwgtRuns.size() - 1].rwgtName) );
-                            noName = false;
                         }
                         if( nuStrtPos == srcCard.find( "\n", strtPos ) ){ break; }
                         strtPos = nuStrtPos;
                     }
                 }
-                if( noName ){ rwgtNames.push_back( "pep_rwgt_" + std::to_string(k) ); }
             }
             size_t endLi = srcCard.find( "\n", lnchPos[ lnchPos.size() - 1 ] );
             if( srcCard.substr( endLi + 1, 3 ) == "set" ){
@@ -224,8 +224,15 @@ namespace PEP::PER
                 rwgtRuns.push_back( rwgtProc( slhaCard, srcCard.substr( lnchPos[lnchPos.size()-1], endLi - lnchPos[lnchPos.size()-1] ), parseOnline ) );
             }
             rwgtProcs = std::vector<std::string_view>(); rwgtProcs.reserve( rwgtRuns.size() );
+            rwgtNames.reserve( rwgtRuns.size() );
+            int p = 1;
             for( auto run : rwgtRuns ){
                 rwgtProcs.push_back( run.comRunProc() );
+                if( run.rwgtName == "" ){
+                    rwgtNames.push_back( "rwgt_" + std::to_string( p++ ) );
+                } else {
+                    rwgtNames.push_back( std::string(run.rwgtName) );
+                }
             }
         }
         rwgtCard( std::string_view reweight_card ){
@@ -261,6 +268,9 @@ namespace PEP::PER
             size_t post = *PEP::nodeEndFind( lhe_file, strt );
             lheFile = PEP::lheParser( lhe_file, strt, post );
         }
+        std::shared_ptr<rwgtCard> getRwgt(){ return rwgtSets; }
+        std::shared_ptr<PEP::lesHouchesCard> getSlha(){ return slhaParameters; }
+        std::shared_ptr<PEP::lheNode> getLhe(){ return lheFile; }
         rwgtCollection(){ return; }
         rwgtCollection( std::shared_ptr<PEP::lheNode> lhe, std::shared_ptr<PEP::lesHouchesCard> slha, std::shared_ptr<rwgtCard> rwgts ){
             setLhe( lhe );
@@ -270,7 +280,7 @@ namespace PEP::PER
     protected:
         void setDoubles(){
             if( lheFile == nullptr || rwgtSets == nullptr || slhaParameters == nullptr )
-                throw std::runtime_error( "One or more of the necessary files (SLHA parameter card, LHE event storage file, and MadGraph-format reweight card) have not been initialised" );
+                throw std::runtime_error( "One or more of the necessary files (SLHA parameter card, LHE event storage file, and MadGraph-format reweight card) have not been initialised." );
             PEP::lheRetDs returnBools; returnBools.xwgtup = true; returnBools.aqcdup = true; returnBools.pup = true;
             auto vecOfVecs = PEP::lheValDoubles( *lheFile, returnBools );
             if( vecOfVecs->size() != 3 )
@@ -413,7 +423,7 @@ namespace PEP::PER
             auto currInd = lheFile->header->addWgtGroup( rwgtGroup );
             auto paramSets = rwgtSets->writeCards( *slhaParameters );
             for( int k = 0 ; k < paramSets.size(); k++ ){
-                singleRwgtIter( paramSets[k], lheFile, k, rwgtSets->rwgtNames[currInd] );
+                singleRwgtIter( paramSets[k], lheFile, k, rwgtSets->rwgtNames[k] );
                 std::cout << ".";
             }
             lheFileWriter( lheFile, output );
