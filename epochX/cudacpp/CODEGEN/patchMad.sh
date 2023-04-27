@@ -75,7 +75,7 @@ if [ "${patchlevel}" == "2" ]; then
   \rm -f Source/*.orig
   cd - > /dev/null
 fi
-for p1dir in ${dir}/SubProcesses/P1_*; do
+for p1dir in ${dir}/SubProcesses/P*; do
   cd $p1dir
   echo -e "madevent\n*madevent_cudacpp" > .gitignore # new file
   ln -sf ../fbridge_common.inc . # new file
@@ -86,7 +86,7 @@ for p1dir in ${dir}/SubProcesses/P1_*; do
   fi
   if [ "${patchlevel}" == "2" ]; then
     echo "DEBUG: cd ${PWD}; patch -p6 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.P1"
-    if ! patch -p6 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.P1; then status=1; fi  
+    if ! patch -p6 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.P1; then status=1; fi      
   fi
   \rm -f *.orig
   cd - > /dev/null
@@ -109,7 +109,7 @@ cd - > /dev/null
 
 # Patch the default cudacpp code to fix a bug in coloramps
 # (3) Process-dependent patches
-for p1dir in ${dir}/SubProcesses/P1_*; do
+for p1dir in ${dir}/SubProcesses/P*; do
   cd $p1dir
   cat coloramps.h | awk -vp=1 '{if (p==1) print $0; if ($1=="__device__") p=0}' > coloramps.h.new
   cat coloramps.inc | sed 's|)/|)/ {|' | sed 's|/$|}, /|' \
