@@ -310,7 +310,7 @@ diff --git a/epochX/cudacpp/gg_tt.mad/Cards/run_card.dat b/epochX/cudacpp/gg_tt.
 index af32b29dd..dc8bd8932 100644
 --- a/epochX/cudacpp/gg_tt.mad/Cards/run_card.dat
 +++ b/epochX/cudacpp/gg_tt.mad/Cards/run_card.dat
-@@ -139,3 +139,9 @@
+@@ -139,3 +139,10 @@
  #
  systematics = systematics_program ! none, systematics [python], SysCalc [depreceted, C++]
  ['--mur=0.5,1,2', '--muf=0.5,1,2', '--pdf=errorset'] = systematics_arguments ! see: https://cp3.irmp.ucl.ac.be/projects/madgraph/wiki/Systematics#Systematicspythonmodule
@@ -318,6 +318,7 @@ index af32b29dd..dc8bd8932 100644
 +#*********************************************************************
 +# settings for the C++/GPU acceleration                              *
 +#*********************************************************************
++1 = exec_mode             ! modes are fortran=0, cpp=1, cuda=2, both=-1, bothdebug=-2
 +1 = bridge_mode           ! modes are fortran=0, cpp/gpu=1, both=-1, bothdebug=-2
 +32 = vector_size          ! set the number of parallel executions
 diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
@@ -371,3 +372,31 @@ index 398fac798..deda76917 100755
              if to_submit:
                  self.submit_to_cluster(job_list)
                  job_list = {}
+diff --git a/epochX/cudacpp/gg_tt.mad/bin/internal/madevent_interface.py b/epochX/cudacpp/gg_tt.mad/bin/internal/madevent_interface.py
+index eecfd3249..9a308cc60 100755
+--- a/epochX/cudacpp/gg_tt.mad/bin/internal/madevent_interface.py
++++ b/epochX/cudacpp/gg_tt.mad/bin/internal/madevent_interface.py
+@@ -3615,8 +3615,20 @@ Beware that this can be dangerous for local multicore runs.""")
+                 logger.info('    %s ' % subdir)
+     
+                 if os.path.exists(pjoin(Pdir, 'ajob1')):
++
++                    exec_mode = 0
++                    if 'exec_mode' in self.run_card:
++                        exec_mode = self.run_card['exec_mode']
++
++                    if exec_mode == 0:
++                        self.compile(['madeventfortran'], cwd=Pdir)
++                    elif exec_mode == 1:
++                        self.compile(['madeventcpp'], cwd=Pdir)
++                    elif exec_mode == 2:
++                        self.compile(['madeventcuda'], cwd=Pdir)
++                    else:
++                        self.compile(['all'], cwd=Pdir)
++
+-                    self.compile(['madevent'], cwd=Pdir)
+-                    
+                     alljobs = misc.glob('ajob*', Pdir)
+                     
+                     #remove associated results.dat (ensure to not mix with all data)
+
