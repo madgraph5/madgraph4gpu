@@ -358,7 +358,7 @@ index 398fac798..deda76917 100755
 +
 +            exec_mode = 0
 +            if 'exec_mode' in self.run_card:
-+                exec_mode = self.run_card['exec_mode']
++                exec_mode = int(self.run_card['exec_mode'])
 +
 +            if exec_mode == 0:
 +                self.cmd.compile(['madeventfortran'], cwd=Pdir)
@@ -383,7 +383,7 @@ index eecfd3249..9a308cc60 100755
 +
 +                    exec_mode = 0
 +                    if 'exec_mode' in self.run_card:
-+                        exec_mode = self.run_card['exec_mode']
++                        exec_mode = int(self.run_card['exec_mode'])
 +
 +                    if exec_mode == 0:
 +                        self.compile(['madeventfortran'], cwd=Pdir)
