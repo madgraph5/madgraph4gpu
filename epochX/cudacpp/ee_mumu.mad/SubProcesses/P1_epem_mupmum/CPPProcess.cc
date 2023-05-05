@@ -11,6 +11,7 @@
 
 #include "CudaRuntime.h"
 #include "HelAmps_sm.h"
+#include "gpu_abstraction.h"
 #include "MemoryAccessAmplitudes.h"
 #include "MemoryAccessCouplings.h"
 #include "MemoryAccessCouplingsFixed.h"
@@ -487,8 +488,8 @@ namespace mg5amcCpu
     const fptype tIPD[2] = { (fptype)m_pars->mdl_MZ, (fptype)m_pars->mdl_WZ };
     const cxtype tIPC[3] = { cxmake( m_pars->GC_3 ), cxmake( m_pars->GC_50 ), cxmake( m_pars->GC_59 ) };
 #ifdef __CUDACC__
-    checkCuda( cudaMemcpyToSymbol( cIPD, tIPD, 2 * sizeof( fptype ) ) );
-    checkCuda( cudaMemcpyToSymbol( cIPC, tIPC, 3 * sizeof( cxtype ) ) );
+    checkCuda( gpuMemcpyToSymbol( cIPD, tIPD, 2 * sizeof( fptype ) ) );
+    checkCuda( gpuMemcpyToSymbol( cIPC, tIPC, 3 * sizeof( cxtype ) ) );
 #else
     memcpy( cIPD, tIPD, 2 * sizeof( fptype ) );
     memcpy( cIPC, tIPC, 3 * sizeof( cxtype ) );
@@ -746,8 +747,8 @@ namespace mg5amcCpu
       }
     }
 #ifdef __CUDACC__
-    checkCuda( cudaMemcpyToSymbol( cNGoodHel, &nGoodHel, sizeof( int ) ) );
-    checkCuda( cudaMemcpyToSymbol( cGoodHel, goodHel, ncomb * sizeof( int ) ) );
+    checkCuda( gpuMemcpyToSymbol( cNGoodHel, &nGoodHel, sizeof( int ) ) );
+    checkCuda( gpuMemcpyToSymbol( cGoodHel, goodHel, ncomb * sizeof( int ) ) );
 #else
     cNGoodHel = nGoodHel;
     for( int ihel = 0; ihel < ncomb; ihel++ ) cGoodHel[ihel] = goodHel[ihel];
