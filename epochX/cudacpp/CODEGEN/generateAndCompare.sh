@@ -14,6 +14,12 @@ function codeGenAndDiff()
   # Process-dependent hardcoded configuration
   echo -e "\n================================================================"
   case "${proc}" in
+    pp_ttjj)
+      cmd="generate p p > t t~ j j"
+      ;;
+    pp_ttjjj)
+      cmd="generate p p > t t~ j j j"
+      ;;
     cms)
       cmd="define vl = ve vm vt
 define vl~ = ve~ vm~ vt~
