@@ -88,17 +88,19 @@ export NTPBMAX=1024
 export CUDA_PATH=/usr/local/cuda-12.0/
 export WORKSPACE=$prefix/workspace_mg4gpu
 
+export CXTYPE="thrust"
+
 # Old SYCLFLAGS
 # export SYCLFLAGS="-fsycl -fsycl-targets=nvptx64-nvidia-cuda -Xsycl-target-backend '--cuda-gpu-arch=$SM_LEVEL' -fgpu-rdc --cuda-path=$CUDA_PATH"
 
-export SYCLFLAGS="-fsycl -fsycl-targets=nvptx64-nvidia-cuda -Xsycl-target-backend --cuda-gpu-arch=$SM_LEVEL -Xclang -fdenormal-fp-math=ieee"
+export SYCLFLAGS="-fsycl -fsycl-targets=nvptx64-nvidia-cuda -Xcuda-ptxas --maxrregcount=255 -Xcuda-ptxas --verbose -Xsycl-target-backend --cuda-gpu-arch=$SM_LEVEL"
 
 # Compilation using OneAPI Toolkit through CVMFS
-export CXX=/cvmfs/projects.cern.ch/intelsw/oneAPI/linux/x86_64/2023/compiler/2023.0.0/linux/bin-llvm/clang++
+#export CXX=/cvmfs/projects.cern.ch/intelsw/oneAPI/linux/x86_64/2023/compiler/2023.0.0/linux/bin-llvm/clang++
 
-# Compilation for OneAPI LLVM compiler
-#export DPCPP_HOME=/afs/cern.ch/work/j/jteig/sycl_workspace
-#export CXX=$DPCPP_HOME/llvm/build/bin/clang++
+# Compilation with LLVM DPC++ compiler
+export DPCPP_HOME=/afs/cern.ch/work/j/jteig/sycl_workspace
+export CXX=$DPCPP_HOME/llvm/llvm-20230418-fea99cc9ad67-gcc-11.2.1-cuda-12.0/bin/clang++
 
 # Sets CUDA in PATH
 export PATH=$CUDA_HOME:$PATH
@@ -144,7 +146,7 @@ export MG5AMC_CARD_PATH=$MG_PROC_DIR/Cards
 
 # Build executable
 cd $MG_SP_DIR
-make -j
+make -j build.d_inl0_hrd1/check.exe
 mv -f ../../lib/build.*/ $MG_LIBS_DIR #2>/dev/null; true
 mv -f build.*/ $MG_EXE_DIR
 

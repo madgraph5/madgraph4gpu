@@ -9,9 +9,8 @@
 
 #include "mgOnGpuConfig.h"
 
-#include "CudaRuntime.h"
 #include "HelAmps_sm.h"
-#include "gpu_abstraction.h"
+#include "gpu_abstraction.h" // for GPU abstraction, checkCuda is run on macros defined here
 #include "MemoryAccessAmplitudes.h"
 #include "MemoryAccessCouplings.h"
 #include "MemoryAccessCouplingsFixed.h"
@@ -28,6 +27,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cassert>
 #include <cstring>
 #include <iostream>
 #include <memory>
@@ -447,7 +447,7 @@ namespace mg5amcCpu
       { 1, -1, -1, -1 },
       { 1, -1, -1, 1 } };
 #ifdef __CUDACC__
-    checkCuda( cudaMemcpyToSymbol( cHel, tHel, ncomb * mgOnGpu::npar * sizeof( short ) ) );
+    gpuMemcpyToSymbol( cHel, tHel, ncomb * mgOnGpu::npar * sizeof( short ) );
 #else
     memcpy( cHel, tHel, ncomb * mgOnGpu::npar * sizeof( short ) );
 #endif
@@ -488,8 +488,8 @@ namespace mg5amcCpu
     const fptype tIPD[2] = { (fptype)m_pars->mdl_MZ, (fptype)m_pars->mdl_WZ };
     const cxtype tIPC[3] = { cxmake( m_pars->GC_3 ), cxmake( m_pars->GC_50 ), cxmake( m_pars->GC_59 ) };
 #ifdef __CUDACC__
-    checkCuda( gpuMemcpyToSymbol( cIPD, tIPD, 2 * sizeof( fptype ) ) );
-    checkCuda( gpuMemcpyToSymbol( cIPC, tIPC, 3 * sizeof( cxtype ) ) );
+    gpuMemcpyToSymbol( cIPD, tIPD, 2 * sizeof( fptype ) );
+    gpuMemcpyToSymbol( cIPC, tIPC, 3 * sizeof( cxtype ) );
 #else
     memcpy( cIPD, tIPD, 2 * sizeof( fptype ) );
     memcpy( cIPC, tIPC, 3 * sizeof( cxtype ) );
@@ -747,8 +747,8 @@ namespace mg5amcCpu
       }
     }
 #ifdef __CUDACC__
-    checkCuda( gpuMemcpyToSymbol( cNGoodHel, &nGoodHel, sizeof( int ) ) );
-    checkCuda( gpuMemcpyToSymbol( cGoodHel, goodHel, ncomb * sizeof( int ) ) );
+    gpuMemcpyToSymbol( cNGoodHel, &nGoodHel, sizeof( int ) );
+    gpuMemcpyToSymbol( cGoodHel, goodHel, ncomb * sizeof( int ) );
 #else
     cNGoodHel = nGoodHel;
     for( int ihel = 0; ihel < ncomb; ihel++ ) cGoodHel[ihel] = goodHel[ihel];

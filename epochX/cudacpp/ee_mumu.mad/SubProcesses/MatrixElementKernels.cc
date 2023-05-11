@@ -2,6 +2,7 @@
 
 #include "CPPProcess.h"
 #include "CudaRuntime.h"
+#include "gpu_abstraction.h"
 #include "MemoryAccessMomenta.h"
 #include "MemoryBuffers.h"
 
@@ -203,7 +204,7 @@ namespace mg5amcGpu
 #else
     sigmaKin_getGoodHel<<<m_gpublocks, m_gputhreads>>>( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), devIsGoodHel.data() );
 #endif
-    checkCuda( cudaPeekAtLastError() );
+    gpuPeekAtLastError();
     // ... 0d2. Copy back good helicity mask to the host
     copyHostFromDevice( hstIsGoodHel, devIsGoodHel );
     // ... 0d3. Copy back good helicity list to constant memory on the device
@@ -225,8 +226,8 @@ namespace mg5amcGpu
 #else
     sigmaKin<<<m_gpublocks, m_gputhreads, sharedMemSize>>>( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), m_selhel.data(), m_selcol.data() );
 #endif
-    checkCuda( cudaPeekAtLastError() );
-    checkCuda( cudaDeviceSynchronize() );
+    gpuPeekAtLastError();
+    gpuDeviceSynchronize();
   }
 
   //--------------------------------------------------------------------------

@@ -5,7 +5,6 @@
 
 #include "mgOnGpuCxtypes.h"
 
-#include "CudaRuntime.h"
 #include "gpu_abstraction.h"
 #include "Parameters_sm.h"
 
@@ -122,11 +121,11 @@ namespace mg5amcCpu
     PinnedHostBufferBase( const size_t size )
       : BufferBase<T>( size, false )
     {
-      checkCuda( gpuMallocHost( &( this->m_data ), this->bytes() ) );
+      gpuMallocHost( &( this->m_data ), this->bytes() );
     }
     virtual ~PinnedHostBufferBase()
     {
-      checkCuda( gpuFreeHost( this->m_data ) );
+      gpuFreeHost( this->m_data );
     }
   };
 #endif
@@ -142,11 +141,11 @@ namespace mg5amcCpu
     DeviceBufferBase( const size_t size )
       : BufferBase<T>( size, true )
     {
-      checkCuda( gpuMalloc( &( this->m_data ), this->bytes() ) );
+      gpuMalloc( &( this->m_data ), this->bytes() );
     }
     virtual ~DeviceBufferBase()
     {
-      checkCuda( gpuFree( this->m_data ) );
+      gpuFree( this->m_data );
     }
   };
 #endif
@@ -498,7 +497,7 @@ namespace mg5amcCpu
       throw std::runtime_error( sstr.str() );
     }
     // NB (PR #45): cudaMemcpy involves an intermediate memcpy to pinned memory if host array is a not a pinned host array
-    checkCuda( gpuMemcpy( dst.data(), src.data(), src.bytes(), gpuMemcpyHostToDevice ) );
+    gpuMemcpy( dst.data(), src.data(), src.bytes(), gpuMemcpyHostToDevice );
   }
 #endif
 
@@ -521,7 +520,7 @@ namespace mg5amcCpu
       throw std::runtime_error( sstr.str() );
     }
     // NB (PR #45): cudaMemcpy involves an intermediate memcpy to pinned memory if host array is a not a pinned host array
-    checkCuda( gpuMemcpy( dst.data(), src.data(), src.bytes(), gpuMemcpyDeviceToHost ) );
+    gpuMemcpy( dst.data(), src.data(), src.bytes(), gpuMemcpyDeviceToHost );
   }
 #endif
 

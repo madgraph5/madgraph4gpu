@@ -1,6 +1,7 @@
 #include "mgOnGpuConfig.h"
 
 #include "CPPProcess.h"
+#include "gpu_abstraction.h" // for GPU abstraction, checkCuda is run on macros defined here
 #include "MadgraphTest.h"
 #include "MatrixElementKernels.h"
 #include "MemoryAccessMatrixElements.h"
@@ -118,7 +119,7 @@ struct CUDATest : public CUDA_CPU_TestBase
   {
     ~DeviceReset()
     {
-      checkCuda( cudaDeviceReset() ); // this is needed by cuda-memcheck --leak-check full
+      gpuDeviceReset(); // this is needed by cuda-memcheck --leak-check full
     }
   } deviceResetter;
 
