@@ -20,6 +20,12 @@ function codeGenAndDiff()
     pp_ttjjj)
       cmd="generate p p > t t~ j j j"
       ;;
+    pp_ttjjjall)
+      cmd="generate p p > t t~
+      generate p p > t t~ j
+      generate p p > t t~ j j
+      generate p p > t t~ j j j"
+      ;;
     cms)
       cmd="define vl = ve vm vt
 define vl~ = ve~ vm~ vt~
