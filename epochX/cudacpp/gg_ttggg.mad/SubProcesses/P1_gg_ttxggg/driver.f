@@ -183,8 +183,7 @@ c   If CKKW-type matching, read IS Sudakov grid
           exit
  30       issgridfile='../'//issgridfile
           if(i.eq.5)then
-            print *,
-     &        'ERROR: No Sudakov grid file found in lib with ickkw=2'
+            print *,'ERROR: No Sudakov grid file found in lib with ickkw=2'
             stop
           endif
         enddo
