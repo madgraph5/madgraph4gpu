@@ -157,7 +157,7 @@ index a3431a204..c008d4e1b 100644
        END
  
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
-index 7d4427a6e..9d698418b 100644
+index 7d4427a6e..8473ec999 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
 @@ -74,7 +74,13 @@ c      common/to_colstats/ncols,ncolflow,ncolalt,ic
@@ -216,7 +216,7 @@ index 7d4427a6e..9d698418b 100644
  c
  c     Read process number
  c
-@@ -210,8 +251,33 @@ c      call sample_result(xsec,xerr)
+@@ -210,8 +250,33 @@ c      call sample_result(xsec,xerr)
  c      write(*,*) 'Final xsec: ',xsec
  
        rewind(lun)
@@ -251,7 +251,7 @@ index 7d4427a6e..9d698418b 100644
        end
  
  c     $B$ get_user_params $B$ ! tag for MadWeight
-@@ -389,7 +455,7 @@ c
+@@ -389,7 +454,7 @@ c
        fopened=.false.
        tempname=filename 	 
        fine=index(tempname,' ') 	 
