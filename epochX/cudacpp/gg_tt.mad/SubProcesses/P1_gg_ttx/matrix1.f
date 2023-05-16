@@ -86,7 +86,7 @@ C     GLOBAL VARIABLES
 C     
       LOGICAL INIT_MODE
       COMMON /TO_DETERMINE_ZERO_HEL/INIT_MODE
-      INCLUDE '../../Source/vector.inc'
+      INCLUDE '../../Source/vector.inc'  ! defines VECSIZE_MEMMAX
       DOUBLE PRECISION AMP2(MAXAMPS), JAMP2(0:MAXFLOW)
 
 
@@ -294,7 +294,7 @@ C           Set right sign for ANS, based on sign of chosen helicity
         ENDIF
       ENDIF
       ANS=ANS/DBLE(IDEN)
-      CALL SELECT_COLOR(RCOL, JAMP2, CHANNEL,1,  ICOL)
+      CALL SELECT_COLOR(RCOL, JAMP2, ICONFIG,1,  ICOL)
       call counters_smatrix1_stop()
       END
 
@@ -366,7 +366,7 @@ C
 C     
 C     GLOBAL VARIABLES
 C     
-      INCLUDE '../../Source/vector.inc'
+      INCLUDE '../../Source/vector.inc'  ! defines VECSIZE_MEMMAX
       DOUBLE PRECISION AMP2(MAXAMPS), JAMP2(0:MAXFLOW)
       INCLUDE 'coupl.inc'
 
@@ -509,6 +509,7 @@ C     JAMPs contributing to orders ALL_ORDERS=1
 
       RETURN
       END
+
 C     Set of functions to handle the array indices of the split orders
 
 
