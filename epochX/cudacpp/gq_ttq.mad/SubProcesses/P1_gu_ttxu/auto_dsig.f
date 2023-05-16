@@ -441,6 +441,7 @@ C     Common blocks
       DATA  NB_SPIN_STATE /2,2/
       COMMON /NB_HEL_STATE/ NB_SPIN_STATE
 
+      INCLUDE 'vector.inc'  ! needed by coupl.inc (defines VECSIZE_MEMMAX)
       INCLUDE 'coupl.inc'
       INCLUDE 'run.inc'
 C     ICONFIG has this config number
@@ -784,9 +785,9 @@ C     ****************************************************
       INCLUDE 'maxconfigs.inc'
       INCLUDE 'nexternal.inc'
       INCLUDE 'maxamps.inc'
+      INCLUDE 'vector.inc'  ! needed by coupl.inc (defines VECSIZE_MEMMAX)
       INCLUDE 'coupl.inc'
       INCLUDE 'run.inc'
-      INCLUDE 'vector.inc'  ! defines VECSIZE_MEMMAX
 C     
 C     ARGUMENTS 
 C     
@@ -869,10 +870,9 @@ C       Flip CM_RAP (to get rapidity right)
 
 C     not needed anymore ... can be removed ... set for debugging only
 C        
-C     IF (.not.PASSCUTS(P1)) THEN
-C     stop 1
-C     endif
-
+      IF (.NOT.PASSCUTS(P1)) THEN
+        STOP 1
+      ENDIF
 C     set the running scale 
 C     and update the couplings accordingly
       IF (VECSIZE_MEMMAX.LE.1) THEN  ! no-vector (NB not VECSIZE_USED!)
@@ -924,9 +924,9 @@ C     ****************************************************
       INCLUDE 'maxconfigs.inc'
       INCLUDE 'nexternal.inc'
       INCLUDE 'maxamps.inc'
+      INCLUDE 'vector.inc'  ! needed by coupl.inc (defines VECSIZE_MEMMAX)
       INCLUDE 'coupl.inc'
       INCLUDE 'run.inc'
-      INCLUDE '../../Source/vector.inc'  ! defines VECSIZE_MEMMAX
 C     
 C     ARGUMENTS 
 C     

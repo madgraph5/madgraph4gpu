@@ -71,8 +71,8 @@ c      double precision xsec,xerr
 c      integer ncols,ncolflow(maxamps),ncolalt(maxamps),ic
 c      common/to_colstats/ncols,ncolflow,ncolalt,ic
 
-      INCLUDE 'vector.inc'  ! defines VECSIZE_MEMMAX
-      INCLUDE 'coupl.inc'  ! defines VECSIZE_MEMMAX_COUPL
+      include 'vector.inc' ! needed by coupl.inc (defines VECSIZE_MEMMAX)
+      include 'coupl.inc'
       INTEGER VECSIZE_USED
       DATA VECSIZE_USED/VECSIZE_MEMMAX/ ! initial value
 
@@ -87,48 +87,6 @@ C  BEGIN CODE
 C----- 
       call cpu_time(t_before)
       CUMULATED_TIMING = t_before
-
-c Sanity check (see https://github.com/madgraph5/madgraph4gpu/issues/629)
-      IF ( VECSIZE_MEMMAX .NE. VECSIZE_MEMMAX_COUPL ) THEN
-        WRITE(6,*) 'ERROR! Stopping in program DRIVER: VECSIZE_MEMMAX != VECSIZE_MEMMAX_COUPL!'
-        WRITE(6,*) 'ERROR! VECSIZE_MEMMAX       =', VECSIZE_MEMMAX
-        WRITE(6,*) 'ERROR! VECSIZE_MEMMAX_COUPL =', VECSIZE_MEMMAX_COUPL
-      ENDIF
-
-#ifdef _OPENMP
-      CALL OMPNUMTHREADS_NOT_SET_MEANS_ONE_THREAD()
-#endif
-      CALL COUNTERS_INITIALISE()
-
-c#ifdef MG5AMC_MEEXPORTER_CUDACPP
-      write(*,*) 'Enter fbridge_mode'
-      read(*,*) FBRIDGE_MODE ! (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
-      write(*,'(a16,i6)') ' FBRIDGE_MODE = ', FBRIDGE_MODE
-#ifndef MG5AMC_MEEXPORTER_CUDACPP
-      if( fbridge_mode.ne.0 ) then
-        write(*,*) 'ERROR! Invalid fbridge_mode = ', fbridge_mode
-        STOP
-      endif
-#endif
-      write(*,*) 'Enter #events in a vector loop (max=',VECSIZE_MEMMAX,',)'
-      read(*,*) VECSIZE_USED
-c#else
-c      VECSIZE_USED = 32
-c#endif
-      write(*,'(a16,i6)') ' VECSIZE_USED = ', VECSIZE_USED
-      if( VECSIZE_USED.gt.VECSIZE_MEMMAX .or. VECSIZE_USED.le.0 ) then
-        write(*,*) 'ERROR! Invalid VECSIZE_USED = ', VECSIZE_USED
-        STOP
-      endif
-
-#ifdef MG5AMC_MEEXPORTER_CUDACPP
-      CALL FBRIDGECREATE(FBRIDGE_PBRIDGE, VECSIZE_USED, NEXTERNAL, 4) ! this must be at the beginning as it initialises the CUDA device
-      FBRIDGE_NCBYF1 = 0
-      FBRIDGE_CBYF1SUM = 0
-      FBRIDGE_CBYF1SUM2 = 0
-      FBRIDGE_CBYF1MAX = -1D100
-      FBRIDGE_CBYF1MIN = 1D100
-#endif
 c
 c     Read process number
 c
@@ -234,6 +192,40 @@ c         itmin = itmin + 1
       write(*,*) "about to integrate ", ndim,ncall,itmax,itmin,ninvar,nconfigs
       call sample_full(ndim,ncall,itmax,itmin,dsig,ninvar,nconfigs,VECSIZE_USED)
 
+#ifdef _OPENMP
+      CALL OMPNUMTHREADS_NOT_SET_MEANS_ONE_THREAD()
+#endif
+      CALL COUNTERS_INITIALISE()
+
+c#ifdef MG5AMC_MEEXPORTER_CUDACPP
+      write(*,*) 'Enter fbridge_mode'
+      read(*,*) FBRIDGE_MODE ! (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
+      write(*,'(a16,i6)') ' FBRIDGE_MODE = ', FBRIDGE_MODE
+#ifndef MG5AMC_MEEXPORTER_CUDACPP
+      if( fbridge_mode.ne.0 ) then
+        write(*,*) 'ERROR! Invalid fbridge_mode = ', fbridge_mode
+        STOP
+      endif
+#endif
+      write(*,*) 'Enter #events in a vector loop (max=',VECSIZE_MEMMAX,',)'
+      read(*,*) VECSIZE_USED
+c#else
+c      VECSIZE_USED = 32
+c#endif
+      write(*,'(a16,i6)') ' VECSIZE_USED = ', VECSIZE_USED
+      if( VECSIZE_USED.gt.VECSIZE_MEMMAX .or. VECSIZE_USED.le.0 ) then
+        write(*,*) 'ERROR! Invalid VECSIZE_USED = ', VECSIZE_USED
+        STOP
+      endif
+
+#ifdef MG5AMC_MEEXPORTER_CUDACPP
+      CALL FBRIDGECREATE(FBRIDGE_PBRIDGE, VECSIZE_USED, NEXTERNAL, 4) ! this must be at the beginning as it initialises the CUDA device
+      FBRIDGE_NCBYF1 = 0
+      FBRIDGE_CBYF1SUM = 0
+      FBRIDGE_CBYF1SUM2 = 0
+      FBRIDGE_CBYF1MAX = -1D100
+      FBRIDGE_CBYF1MIN = 1D100
+#endif
 c
 c     Now write out events to permanent file
 c
