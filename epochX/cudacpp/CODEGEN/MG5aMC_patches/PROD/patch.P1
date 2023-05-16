@@ -216,16 +216,6 @@ index 7d4427a6e..9d698418b 100644
  c
  c     Read process number
  c
-@@ -143,7 +183,8 @@ c   If CKKW-type matching, read IS Sudakov grid
-           exit
-  30       issgridfile='../'//issgridfile
-           if(i.eq.5)then
--            print *,'ERROR: No Sudakov grid file found in lib with ickkw=2'
-+            print *,
-+     &        'ERROR: No Sudakov grid file found in lib with ickkw=2'
-             stop
-           endif
-         enddo
 @@ -210,8 +251,33 @@ c      call sample_result(xsec,xerr)
  c      write(*,*) 'Final xsec: ',xsec
  
