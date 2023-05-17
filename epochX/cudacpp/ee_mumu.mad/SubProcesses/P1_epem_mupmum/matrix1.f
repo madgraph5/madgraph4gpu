@@ -86,7 +86,7 @@ C     GLOBAL VARIABLES
 C     
       LOGICAL INIT_MODE
       COMMON /TO_DETERMINE_ZERO_HEL/INIT_MODE
-      INCLUDE '../../Source/vector.inc'
+      INCLUDE '../../Source/vector.inc'  ! defines VECSIZE_MEMMAX
       DOUBLE PRECISION AMP2(MAXAMPS), JAMP2(0:MAXFLOW)
 
 
@@ -384,9 +384,9 @@ C
 C     
 C     GLOBAL VARIABLES
 C     
-      INCLUDE '../../Source/vector.inc'
+      INCLUDE '../../Source/vector.inc'  ! defines VECSIZE_MEMMAX
       DOUBLE PRECISION AMP2(MAXAMPS), JAMP2(0:MAXFLOW)
-      INCLUDE 'coupl.inc'
+      INCLUDE 'coupl.inc'  ! needs VECSIZE_MEMMAX (defined in vector.inc)
 
       DOUBLE PRECISION SMALL_WIDTH_TREATMENT
       COMMON/NARROW_WIDTH/SMALL_WIDTH_TREATMENT
@@ -517,6 +517,7 @@ C     JAMPs contributing to orders ALL_ORDERS=1
 
       RETURN
       END
+
 C     Set of functions to handle the array indices of the split orders
 
 
