@@ -5,5 +5,5 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       WRITE(*,*)  ' Couplings of sm'
       WRITE(*,*)  ' ---------------------------------'
       WRITE(*,*)  ' '
-      WRITE(*,2) 'GC_10 = ', GC_10
-      WRITE(*,2) 'GC_11 = ', GC_11
+      WRITE(*,2) 'GC_10 = ', GC_10(1)
+      WRITE(*,2) 'GC_11 = ', GC_11(1)
