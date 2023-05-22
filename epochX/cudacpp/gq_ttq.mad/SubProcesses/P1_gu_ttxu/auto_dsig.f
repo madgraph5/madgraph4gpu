@@ -255,6 +255,11 @@ C     ******************************************************
       INTEGER CONFSUB(MAXSPROC,LMAXCONFIGS)
       INCLUDE 'config_subproc_map.inc'
 
+C     SUBDIAG is vector of diagram numbers for this config
+C     IB gives which beam is which (for mirror processes)
+      INTEGER SUBDIAG(MAXSPROC),IB(2)
+      COMMON/TO_SUB_DIAG/SUBDIAG,IB
+
       INTEGER MAPCONFIG(0:LMAXCONFIGS), ICONFIG
       COMMON/TO_MCONFIGS/MAPCONFIG, ICONFIG
 
@@ -298,7 +303,10 @@ C      entries to the grid for the MC over helicity configuration
       GROUPED_MC_GRID_STATUS = DS_GET_DIM_STATUS('grouped_processes')
       IMIRROR_GLOBAL = IMIRROR
       IPROC_GLOBAL = IPROC
-      ICONFIG = ICONF
+      ICONFIG=SYMCONF(ICONF)
+      DO I=1,MAXSPROC
+        SUBDIAG(I) = CONFSUB(I,SYMCONF(ICONF))
+      ENDDO
 
 C     set the running scale 
 C     and update the couplings accordingly
@@ -433,7 +441,8 @@ C     Common blocks
       DATA  NB_SPIN_STATE /2,2/
       COMMON /NB_HEL_STATE/ NB_SPIN_STATE
 
-      INCLUDE 'coupl.inc'
+      INCLUDE 'vector.inc'  ! defines VECSIZE_MEMMAX
+      INCLUDE 'coupl.inc'  ! needs VECSIZE_MEMMAX (defined in vector.inc)
       INCLUDE 'run.inc'
 C     ICONFIG has this config number
       INTEGER MAPCONFIG(0:LMAXCONFIGS), ICONFIG
@@ -776,9 +785,9 @@ C     ****************************************************
       INCLUDE 'maxconfigs.inc'
       INCLUDE 'nexternal.inc'
       INCLUDE 'maxamps.inc'
-      INCLUDE 'coupl.inc'
+      INCLUDE 'vector.inc'  ! defines VECSIZE_MEMMAX
+      INCLUDE 'coupl.inc'  ! needs VECSIZE_MEMMAX (defined in vector.inc)
       INCLUDE 'run.inc'
-      INCLUDE 'vector.inc'
 C     
 C     ARGUMENTS 
 C     
@@ -916,9 +925,9 @@ C     ****************************************************
       INCLUDE 'maxconfigs.inc'
       INCLUDE 'nexternal.inc'
       INCLUDE 'maxamps.inc'
-      INCLUDE 'coupl.inc'
+      INCLUDE 'vector.inc'  ! defines VECSIZE_MEMMAX
+      INCLUDE 'coupl.inc'  ! needs VECSIZE_MEMMAX (defined in vector.inc)
       INCLUDE 'run.inc'
-      INCLUDE '../../Source/vector.inc'
 C     
 C     ARGUMENTS 
 C     

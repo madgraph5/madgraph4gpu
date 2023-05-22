@@ -83,8 +83,7 @@ C     Keep track of whether cuts already calculated for this event
 
       INTEGER SUBDIAG(MAXSPROC),IB(2)
       COMMON/TO_SUB_DIAG/SUBDIAG,IB
-      INCLUDE 'vector.inc'  ! defines VECSIZE_MEMMAX
-      INCLUDE 'coupl.inc'  ! defines VECSIZE_MEMMAX_COUPL
+      INCLUDE '../../Source/vector.inc'  ! defines VECSIZE_MEMMAX
       INCLUDE 'run.inc'
 C     Common blocks
       CHARACTER*7         PDLABEL,EPA_LABEL
@@ -244,7 +243,7 @@ C     ****************************************************
 C     
 C     CONSTANTS
 C     
-      INCLUDE '../../Source/vector.inc'
+      INCLUDE '../../Source/vector.inc'  ! defines VECSIZE_MEMMAX
       INCLUDE 'genps.inc'
       INCLUDE 'nexternal.inc'
       INCLUDE 'maxconfigs.inc'
@@ -312,7 +311,6 @@ C     Keep track of whether cuts already calculated for this event
 
       INTEGER SUBDIAG(MAXSPROC),IB(2)
       COMMON/TO_SUB_DIAG/SUBDIAG,IB
-      INCLUDE 'coupl.inc'
       INCLUDE 'run.inc'
 
       DOUBLE PRECISION P_MULTI(0:3, NEXTERNAL, VECSIZE_MEMMAX)
@@ -320,6 +318,7 @@ C     Keep track of whether cuts already calculated for this event
       DOUBLE PRECISION COL_RAND(VECSIZE_MEMMAX)
       INTEGER SELECTED_HEL(VECSIZE_MEMMAX)
       INTEGER SELECTED_COL(VECSIZE_MEMMAX)
+      DOUBLE PRECISION ALL_RWGT(VECSIZE_MEMMAX)
 
 C     Common blocks
       CHARACTER*7         PDLABEL,EPA_LABEL
@@ -415,6 +414,10 @@ C       Select a flavor combination (need to do here for right sign)
           IPSEL=IPSEL+1
           R=R-DABS(ALL_PD(IPSEL,IVEC))/ALL_PD(0,IVEC)
         ENDDO
+        CHANNEL = SUBDIAG(1)
+
+
+        ALL_RWGT(IVEC) = REWGT(ALL_PP(0,1,IVEC))
 
         IF(FRAME_ID.NE.6)THEN
           CALL BOOST_TO_FRAME(ALL_PP(0,1,IVEC), FRAME_ID, P_MULTI(0,1
@@ -425,8 +428,6 @@ C       Select a flavor combination (need to do here for right sign)
         CALL RANMAR(HEL_RAND(IVEC))
         CALL RANMAR(COL_RAND(IVEC))
       ENDDO
-      CHANNEL = SUBDIAG(1)
-
       CALL SMATRIX1_MULTI(P_MULTI, HEL_RAND, COL_RAND, CHANNEL,
      $  ALL_OUT , SELECTED_HEL, SELECTED_COL, VECSIZE_USED)
 
@@ -452,7 +453,8 @@ C       CM_RAP = ALL_CM_RAP(IVEC)
           P1 = ALL_PP(:,:,IVEC)
         ENDIF
 C       call restore_cl_val_to(ivec)
-        DSIGUU=DSIGUU*REWGT(P1)
+C       DSIGUU=DSIGUU*REWGT(P1)
+        DSIGUU=DSIGUU*ALL_RWGT(IVEC)
 
 C       Apply the bias weight specified in the run card (default is
 C        1.0)
@@ -499,7 +501,7 @@ C
       IMPLICIT NONE
 
       INCLUDE 'nexternal.inc'
-      INCLUDE '../../Source/vector.inc'
+      INCLUDE '../../Source/vector.inc'  ! defines VECSIZE_MEMMAX
       INCLUDE 'maxamps.inc'
       INTEGER                 NCOMB
       PARAMETER (             NCOMB=32)

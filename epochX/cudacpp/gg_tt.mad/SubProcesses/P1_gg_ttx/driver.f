@@ -71,8 +71,8 @@ c      double precision xsec,xerr
 c      integer ncols,ncolflow(maxamps),ncolalt(maxamps),ic
 c      common/to_colstats/ncols,ncolflow,ncolalt,ic
 
-      INCLUDE 'vector.inc'  ! defines VECSIZE_MEMMAX
-      INCLUDE 'coupl.inc'  ! defines VECSIZE_MEMMAX_COUPL
+      include 'vector.inc' ! defines VECSIZE_MEMMAX
+      include 'coupl.inc' ! needs VECSIZE_MEMMAX (defined in vector.inc)
       INTEGER VECSIZE_USED
       DATA VECSIZE_USED/VECSIZE_MEMMAX/ ! initial value
 
@@ -87,13 +87,6 @@ C  BEGIN CODE
 C----- 
       call cpu_time(t_before)
       CUMULATED_TIMING = t_before
-
-c Sanity check (see https://github.com/madgraph5/madgraph4gpu/issues/629)
-      IF ( VECSIZE_MEMMAX .NE. VECSIZE_MEMMAX_COUPL ) THEN
-        WRITE(6,*) 'ERROR! Stopping in program DRIVER: VECSIZE_MEMMAX != VECSIZE_MEMMAX_COUPL!'
-        WRITE(6,*) 'ERROR! VECSIZE_MEMMAX       =', VECSIZE_MEMMAX
-        WRITE(6,*) 'ERROR! VECSIZE_MEMMAX_COUPL =', VECSIZE_MEMMAX_COUPL
-      ENDIF
 
 #ifdef _OPENMP
       CALL OMPNUMTHREADS_NOT_SET_MEANS_ONE_THREAD()
@@ -183,8 +176,7 @@ c   If CKKW-type matching, read IS Sudakov grid
           exit
  30       issgridfile='../'//issgridfile
           if(i.eq.5)then
-            print *,
-     &        'ERROR: No Sudakov grid file found in lib with ickkw=2'
+            print *,'ERROR: No Sudakov grid file found in lib with ickkw=2'
             stop
           endif
         enddo
