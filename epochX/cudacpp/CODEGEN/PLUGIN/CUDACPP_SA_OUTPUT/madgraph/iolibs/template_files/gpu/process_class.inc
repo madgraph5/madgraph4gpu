@@ -49,7 +49,7 @@
     // Other variables of this instance (???)
     //static const int ninitial = mgOnGpu::npari;
     //static const int nexternal = %(nexternal)d; // mgOnGpu::npar (nexternal was nioparticles)
-    //static const int nwavefuncs = %(nwavefuncs)d; // (?!?! this is not nwf: nwavefuncs vs nwavefunc in python code ?!?!)
+    //static const int nwavefuncs = %(nwavefuncs)d; // (?!?! this should be nwf but export_cpp gives the wrong value here)
     //static const int namplitudes = %(namp)d;
     //static const int ncomb = %(ncomb)d; // mgOnGpu::ncomb
 
