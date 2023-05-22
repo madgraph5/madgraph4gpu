@@ -1,16 +1,19 @@
 /***
- *      _____  ______ _____  
- *     |  __ \|  ____|  __ \ 
- *     | |__) | |__  | |__) |
- *     |  ___/|  __| |  ___/ 
- *     | |    | |____| |     
- *     |_|    |______|_|     
- *                                                     
+ *    ______ _______   __
+ *    | ___ \  ___\ \ / /
+ *    | |_/ / |__  \ V / 
+ *    |    /|  __| /   \ 
+ *    | |\ \| |___/ /^\ \
+ *    \_| \_\____/\/   \/
+ *                                             
  ***/
 
 // THIS IS NOT A LICENSED RELEASE
 // IF YOU SEE THIS FILE, IT HAS BEEN SPREAD
-// FROM A DIFFERENT SOURCE THAN THE UPSTREAM RELEASE
+// FROM AN IMPROPER RELEASE.
+
+// Copyright © 2023 CERN, CERN Author Zenny Wettersten. 
+// All rights reserved.
 
 #include <vector>
 #include <iostream>
@@ -27,14 +30,17 @@
 #include <functional>
 #include <stdexcept>
 
-// ZW: all fcns within the PEP standard sit in the
-// namespace PEP
+// ZW: all fcns within the REX standard sit in the
+// namespace REX
 // note that as a convention, std::string_view objects
 // will be referred to as strings unless the difference
 // is relevant
-namespace PEP
+namespace REX
 {
-
+    #pragma warning( push )
+    #pragma warning( disable : 4101)
+    static const size_t npos = -1;
+    #pragma warning( pop ) 
     // ZW: minimal fcn for counting the amount
     // of times a given search term appears in
     // a string
@@ -42,7 +48,7 @@ namespace PEP
     {
         int count = 0;
         size_t pos = 0;
-        while((pos = searchString.find(searchTerm, pos)) != std::string::npos ){
+        while((pos = searchString.find(searchTerm, pos)) != npos ){
             ++count;
             ++pos;
         }
@@ -59,7 +65,7 @@ namespace PEP
         eachPos->reserve( nuStrCount(textFile, searchTerm) );
         eachPos->push_back( textFile.find( searchTerm ) );
         size_t currPos = textFile.find( searchTerm, eachPos->at(0) + 1 );
-        while( currPos != std::string_view::npos )
+        while( currPos != npos )
         {
             eachPos->push_back( currPos );
             currPos = textFile.find( searchTerm, currPos + 1 );
@@ -98,7 +104,7 @@ namespace PEP
     // returning a vector of the positions of "\n" characters
     // Ignores sequential linebreaks, ie would only return { }
     // for the string "\n\n\n\n"
-    std::shared_ptr<std::vector<size_t>> lineFinder( std::string_view currEvt, size_t startPos = 0, size_t endPos = std::string_view::npos )
+    std::shared_ptr<std::vector<size_t>> lineFinder( std::string_view currEvt, size_t startPos = 0, size_t endPos = npos )
     {
         auto lineBreaks = nuFindEach( currEvt.substr( startPos, endPos - startPos), "\n" );
         auto truBreaks = std::make_shared<std::vector<size_t>>();
@@ -129,7 +135,7 @@ namespace PEP
         size_t nuEnd = currEvt.find(" ", nuStart+1 );
         auto splitWords = std::make_shared<std::vector<std::string_view>>();
         splitWords->reserve(13);
-        while( nuStart != std::string_view::npos )
+        while( nuStart != npos )
         {
             std::string_view word = currEvt.substr( nuStart, nuEnd - nuStart );
             if( word == "" || word == "\n" || word == " " ){
@@ -179,17 +185,17 @@ namespace PEP
 
     // ZW: templated function for finding a 
     // caseless substring searchTerm in srcFile
-    // with size_t(-1) returned on failure to find
+    // with npos returned on failure to find
     // the considered substring
     template<typename Str1, typename Str2>
     size_t clStringFind( const Str1& srcFile, const Str2& searchTerm, size_t strtPt = 0 ){
         size_t strLen = searchTerm.size();
-        if( srcFile.size() == 0  || srcFile.size() < strLen ){ return size_t(-1); }
+        if( srcFile.size() == 0  || srcFile.size() < strLen ){ return npos; }
         for( size_t k = strtPt ; k < srcFile.size()  - strLen; ++k )
         {
             if( clStringComp( srcFile.substr(k, strLen), searchTerm ) ){ return k; }
         }
-        return size_t(-1);
+        return npos;
     }
 
     // ZW: templated fcn for finding a caseless
@@ -200,7 +206,7 @@ namespace PEP
     {
         auto currPt = clStringFind( srcFile, searchTerm, strtPt ); 
         bool condStat = cond( currPt, srcFile );
-        while( !( condStat ) && currPt != size_t(-1))
+        while( !( condStat ) && currPt != npos)
         {
             currPt = clStringFind( srcFile, searchTerm, currPt + 1 );
             condStat = cond( currPt, srcFile );
@@ -216,7 +222,7 @@ namespace PEP
     {
         int count = 0;
         size_t pos = 0;
-        while((pos = clStringFind( srcFile, searchTerm, pos ) ) != size_t(-1) ){
+        while((pos = clStringFind( srcFile, searchTerm, pos ) ) != npos ){
             ++count;
             ++pos;
         }
@@ -235,7 +241,7 @@ namespace PEP
         eachPos->reserve( nos );
         eachPos->push_back( clStringFind( srcFile, searchTerm ) );
         size_t currPos = clStringFind( srcFile, searchTerm, eachPos->at(0) + 1);
-        while( currPos != size_t(-1) )
+        while( currPos != npos )
         {
             eachPos->push_back( currPos );
             currPos = clStringFind( srcFile, searchTerm, currPos + 1 );
@@ -414,7 +420,7 @@ namespace PEP
         std::string_view name;
         std::string_view content;
         size_t start;
-        size_t end = std::string_view::npos;
+        size_t end = npos;
         bool modded = false;
         bool written = false;
         bool parsed = false;
@@ -449,7 +455,7 @@ namespace PEP
             auto slashPos = xmlFile.find("/", start);
             if( headEnd > slashPos ){ end = headEnd; }
             else{ end = xmlFile.find( ">", xmlFile.find( "</" + std::string(name), start )); }
-            if( end == std::string_view::npos ){ end = xmlFile.size(); return; }
+            if( end == npos ){ end = xmlFile.size(); return; }
             end += 2;
         }
         virtual void fullWriter(){
@@ -558,11 +564,11 @@ namespace PEP
         void setId( std::string identity ){ modded = true; idTag = identity; }
     protected:
         std::string idTag;
-        unsigned int id = -1;
+        long unsigned int id = npos;
         void headWriter() override{
             if( tags.size() == 0 ){
                 if( idTag == "" ){ nodeHeader = "<weight>"; return; }
-                if( id == -1 ){ nodeHeader = "<weight id=\"" + std::string(idTag) + "\">"; return; }
+                if( id == npos ){ nodeHeader = "<weight id=\"" + std::string(idTag) + "\">"; return; }
                 nodeHeader = "<weight id=\"" + std::string(idTag) + std::to_string(id) + "\">";
             }
             nodeHeader = "<weight";
@@ -574,7 +580,7 @@ namespace PEP
         void headWriter( bool incId ){
             if( !incId ){ headWriter(); return; }
             if( idTag == "" ){ headWriter(); return; }
-            if( id == -1 ){ nodeHeader = "<weight id=\"" + std::string( idTag ) + "\""; }
+            if( id == npos ){ nodeHeader = "<weight id=\"" + std::string( idTag ) + "\""; }
             else{ nodeHeader = "<weight id=\"" + std::string( idTag ) + "_" + std::to_string(id) + "\""; }
             for( auto tag : tags ){
                 if( tag->getId() == "id" ){ continue; }
@@ -672,7 +678,7 @@ namespace PEP
         int id;
         void headWriter() override{
             nodeHeader = "<weightgroup";
-            if( rwgtName != "" ){ nodeHeader += " name=\"" + std::string( rwgtName ) +"\""; }else if( isModded() ){ nodeHeader += " name=\"pep_reweighting\""; }
+            if( rwgtName != "" ){ nodeHeader += " name=\"" + std::string( rwgtName ) +"\""; }else if( isModded() ){ nodeHeader += " name=\"rex_reweighting\""; }
             if( wgtNamStrat != "" ){ nodeHeader += " weight_name_strategy=\"" + std::string( wgtNamStrat ) +"\""; }
             else if( wgtNamStrat == "" && includeId ){ nodeHeader += " weight_name_strategy=\"includeIdInWeightName\"";}
             nodeHeader += ">";
@@ -867,7 +873,7 @@ namespace PEP
         std::vector<std::string_view> paramLines;
         paramLines.reserve( nuStrCount( parseFile, "\n" ) );
         std::shared_ptr<std::vector<std::string_view>> parLines;
-        if( newBlock == size_t(-1) ){ parLines = nuLineSplitter( parseFile.substr( blockStrt ) ); }
+        if( newBlock == npos ){ parLines = nuLineSplitter( parseFile.substr( blockStrt ) ); }
         else{ parLines = nuLineSplitter( parseFile.substr( blockStrt, newBlock - blockStrt ) ); }
         for( auto line : *parLines )
         {
@@ -903,11 +909,11 @@ namespace PEP
             return content;
         }
         evHead(){ return; }
-        evHead( const std::string_view originFile, size_t beginLine = 0, size_t endLine = std::string_view::npos )
+        evHead( const std::string_view originFile, size_t beginLine = 0, size_t endLine = npos )
         {
             if( originFile.size() == 0){ return; }
             beginLine = originFile.find_first_not_of("\n ", beginLine);
-            if( endLine == std::string_view::npos ){ endLine = originFile.find("\n", beginLine ) + 1; }
+            if( endLine == npos ){ endLine = originFile.find("\n", beginLine ) + 1; }
             sourceFile = originFile.substr( beginLine, endLine - beginLine );
             auto evLine = nuWordSplitter( sourceFile );
             nprt = evLine->at(0) ;
@@ -934,7 +940,7 @@ namespace PEP
             if( !isModded() ){ content = std::make_shared<std::string>( sourceFile ); return; }
             auto retText = std::make_shared<std::string>( " " );
             *content = " " + std::string( nprt );
-            for( int k ; k < 8 - procid.length() ; ++k ){ *content += " "; }
+            for( int k = 0 ; k < 8 - procid.length() ; ++k ){ *content += " "; }
             *content +=  std::string( procid ) + " " + std::string( weight ) + " " + std::string( scale ) + " " + std::string( aqed ) + " " + std::string( aqcd );
             if( comment != "" ){ *content += " # " + std::string( comment ); }
             *content += "\n";
@@ -975,7 +981,7 @@ namespace PEP
             return content;
         }
         lhePrt(){ return; }
-        lhePrt( const std::string_view originFile, const size_t& beginLine = 0, const size_t& endLine = std::string_view::npos )
+        lhePrt( const std::string_view originFile, const size_t& beginLine = 0, const size_t& endLine = npos )
         {
             sourceFile = originFile.substr( beginLine, endLine - beginLine );
             auto evLine = nuWordSplitter( sourceFile );
@@ -1040,20 +1046,21 @@ namespace PEP
         void addWgt( std::shared_ptr<bodyWgt> nuWgt, std::string& id ){ modded = true; nuWgt->setId( id ); rwgt.push_back( nuWgt ); }
         bool newWeight(){ return addedWgt; }
         int getNprt(){ return prts.size(); }
-        bool isModded( bool deep = false ) override {
+        bool isModded() override{ return modded; }
+        bool isModded( bool deep ) override {
+            if( !deep ){ return modded; }
             bool modStat = modded;
-            if( !deep ){ return modStat; }
-            for( auto child : children ){ modStat = (modStat || child->isModded( deep )); }
+            for( auto child : children ){ if(modStat){ return modStat; }; modStat = (modStat || child->isModded( deep )); }
             modStat = (modStat || header.isModded());
-            for( auto prt : prts ){ modStat = (modStat || prt->isModded()); }
-            for( auto wgt : rwgt ){ modStat = (modStat || wgt->isModded()); }
+            for( auto prt : prts ){ if(modStat){ return modStat; }; modStat = (modStat || prt->isModded()); }
+            for( auto wgt : rwgt ){ if(modStat){ return modStat; }; modStat = (modStat || wgt->isModded()); }
             return modStat;
         }
         event(){ return; }
         event( const std::string_view originFile, const size_t& begin = 0, const std::vector<std::shared_ptr<xmlNode>>& childs = {} ) 
         : xmlNode(originFile, begin, childs) {
             xmlFile = originFile; start = begin; children = childs; size_t trueStart = originFile.find_first_not_of(" ", begin+1);
-            if( trueStart != std::string_view::npos ){name = originFile.substr( trueStart, originFile.find_first_of(">/ ", trueStart) - trueStart );}
+            if( trueStart == npos ){ return; }
             auto vals = lineFinder( originFile.substr( trueStart, originFile.find("<", trueStart +  3 ) - trueStart + 3 ));
             header = evHead(originFile, vals->at(0) + trueStart, vals->at(1) + trueStart + 1 );
             prts.reserve(vals->size());
@@ -1292,9 +1299,9 @@ namespace PEP
         paramVal(){ realLine = ""; idStr = ""; valStr = ""; }
         paramVal( std::string_view paramLine, bool parseOnline = false )
         {
-            if( paramLine.find("\n") != std::string_view::npos ){
+            if( paramLine.find("\n") != npos ){
                 auto startPos = paramLine.find_first_not_of(" \n", paramLine.find("\n"));
-                if( startPos!= std::string_view::npos ){
+                if( startPos!= npos ){
                 auto endPos = paramLine.find("\n", startPos);
                 realLine = paramLine.substr(startPos, endPos - startPos - 1);
                 } else{
@@ -1412,7 +1419,7 @@ namespace PEP
                     *writeBlock += *val.selfWrite();
                 } 
             }
-            else{ if( startPt == size_t(-1) ){
+            else{ if( startPt == npos ){
                 *writeBlock += realBlock;
             } else {
                 *writeBlock = realBlock.substr( startPt );
@@ -1435,7 +1442,7 @@ namespace PEP
             for( auto pts : *decLines )
             {
                 auto lineBr = realBlock.find( "\n", pts + 1 );
-                if( lineBr == size_t(-1) ){ decays.push_back( decVal( realBlock.substr( pts + 1), parseOnline ) ); continue; }
+                if( lineBr == npos ){ decays.push_back( decVal( realBlock.substr( pts + 1), parseOnline ) ); continue; }
                 decays.push_back( decVal( realBlock.substr( pts + 1, lineBr - pts - 1 ), parseOnline ) );
             }
         }
@@ -1446,7 +1453,7 @@ namespace PEP
             for( auto pts : *decLines )
             {
                 auto lineBr = realBlock.find( "\n", pts + 1 );
-                if( lineBr == size_t(-1) ){ decays.push_back( decVal( realBlock.substr( pts + 1), parseOnline ) ); continue; }
+                if( lineBr == npos ){ decays.push_back( decVal( realBlock.substr( pts + 1), parseOnline ) ); continue; }
                 decays.push_back( decVal( realBlock.substr( pts + 1, lineBr - pts - 1 ), parseOnline ) );
             }
         }
@@ -1487,7 +1494,7 @@ namespace PEP
         void parse( bool parseOnline = false )
         {
             if( parsed ){ return; }
-            if( xmlFile.substr(start,1).find_first_of("BbDd#") == std::string_view::npos ){ start = clStringFindIf( xmlFile, std::string("\n"), lambdaNu ); }
+            if( xmlFile.substr(start,1).find_first_of("BbDd#") == npos ){ start = clStringFindIf( xmlFile, std::string("\n"), lambdaNu ); }
             auto blockPts = clFindEach( xmlFile, std::string("\nblock") );
             auto decLines = clFindEach( xmlFile, std::string("\ndecay") );
             header = xmlFile.substr( start, std::min( blockPts->at(0), decLines->at(0) ) - start );
@@ -1515,7 +1522,7 @@ namespace PEP
                 { *writeCard += *block.selfWrite(); }
                 *writeCard += *decays.selfWrite(); }
             else{
-                if( end != size_t(-1) ){ *writeCard += std::string( xmlFile.substr( blockStart, end - blockStart ) );
+                if( end != npos ){ *writeCard += std::string( xmlFile.substr( blockStart, end - blockStart ) );
                 } else{ *writeCard += std::string( xmlFile.substr( blockStart ) ); }
             }
             return writeCard;
@@ -1667,7 +1674,7 @@ namespace PEP
         lheHead( const std::string_view originFile, const size_t& begin = 0, const std::vector<std::shared_ptr<xmlNode>>& childs = {} )
         : xmlNode(originFile, begin, childs){
             xmlFile = originFile; start = begin; children = childs; size_t trueStart = originFile.find_first_not_of(" ", begin+1);
-            if( trueStart != std::string_view::npos ){name = originFile.substr( trueStart, originFile.find_first_of(">/ ", trueStart) - trueStart );}
+            if( trueStart != npos ){name = originFile.substr( trueStart, originFile.find_first_of(">/ ", trueStart) - trueStart );}
         }
     protected:
         bool wgtGrpIsInit = false;
@@ -1761,14 +1768,14 @@ namespace PEP
                 }
             }
         }
-        newWgt( std::string_view parameters, std::shared_ptr<std::vector<double>> wgts, std::string idTag = "pep_rwgt" ){
+        newWgt( std::string_view parameters, std::shared_ptr<std::vector<double>> wgts, std::string idTag = "rex_rwgt" ){
             headWgt = std::make_shared<headWeight>(parameters, idTag);
             bodyWgts = std::vector<std::shared_ptr<bodyWgt>>(wgts->size());
             for( size_t i = 0 ; i < wgts->size() ; ++i ){
                 bodyWgts[i] = std::make_shared<bodyWgt>(wgts->at(i), idTag);
             }
         }
-        newWgt( std::string_view parameters, int idNum, std::shared_ptr<std::vector<double>> wgts, std::string idTag = "pep_rwgt" ){
+        newWgt( std::string_view parameters, int idNum, std::shared_ptr<std::vector<double>> wgts, std::string idTag = "rex_rwgt" ){
             std::string newTag = std::string( idTag ) + "_" + std::to_string( idNum );
             headWgt = std::make_shared<headWeight>(parameters, newTag);
             bodyWgts = std::vector<std::shared_ptr<bodyWgt>>(wgts->size());
@@ -1808,7 +1815,7 @@ namespace PEP
         lheNode( const std::string_view originFile, const size_t& begin = 0, const std::vector<std::shared_ptr<xmlNode>>& childs = {} )
         : xmlNode(originFile, begin, childs){
             xmlFile = originFile; start = begin; children = childs; size_t trueStart = originFile.find_first_not_of(" ", begin+1);
-            if( trueStart != std::string_view::npos ){name = originFile.substr( trueStart, originFile.find_first_of(">/ ", trueStart) - trueStart );}
+            if( trueStart != npos ){name = originFile.substr( trueStart, originFile.find_first_of(">/ ", trueStart) - trueStart );}
         }
         bool isModded() override{ return modded; }
         bool isModded( bool deep ) override{
@@ -1910,7 +1917,7 @@ namespace PEP
     }
 
     // ZW: fcn for parsing an LHE format event block
-    // and return a PEP format event object
+    // and return a REX format event object
     std::shared_ptr<event> evPtrParsor( std::string_view parseFile, size_t& initPos, size_t& endPos )
     {
         auto currNode = std::make_shared<event>(parseFile, initPos);
@@ -1919,7 +1926,7 @@ namespace PEP
         {
             currNode->addChild(xmlPtrParser( parseFile, initPos, endPos ));
         }
-        size_t equalSign = parseFile.find("=", initPos);
+        size_t equalSign = parseFile.find_first_of("=>", initPos);
         size_t nodeInitEnd = parseFile.find(">", initPos);
         while( equalSign < nodeInitEnd ){
             currNode->addTag( xmlTagParser(parseFile, equalSign) );
@@ -1930,7 +1937,7 @@ namespace PEP
     }
 
     // ZW: fcn for parsing an LHE format header
-    // and return a PEP format lheHead object
+    // and return a REX format lheHead object
     std::shared_ptr<lheHead> lheHeadParser( std::string_view parseFile, size_t& initPos, size_t& endPos )
     {
         auto currNode = std::make_shared<lheHead>(parseFile, initPos);
@@ -1959,7 +1966,7 @@ namespace PEP
     }
 
     // ZW: fcn for parsing an LHE format file
-    // and return a PEP format LHE node object
+    // and return a REX format LHE node object
     std::shared_ptr<lheNode> lheParser( std::string_view parseFile, size_t& initPos, size_t& endPos )
     {
         auto currNode = std::make_shared<lheNode>(parseFile, initPos);
@@ -1967,13 +1974,25 @@ namespace PEP
         while( initPos < endPos )
         {
             auto nuStrtPos =  *nodeStartFind( parseFile, initPos);
-            if( nuStrtPos == parseFile.find("<event", initPos) ){
+            //if( nuStrtPos == parseFile.find("<event", initPos) ){
+            //    currNode->events.push_back( evPtrParsor( parseFile, initPos, endPos ) );
+            //    continue;
+            //} else if( nuStrtPos == parseFile.find("<header", initPos) ){
+            //    currNode->header = lheHeadParser( parseFile, initPos, endPos );
+            //    continue;
+            //} else if( nuStrtPos == parseFile.find("<init", initPos) ){
+            //    currNode->init = std::make_shared<initNode>( parseFile, initPos );
+            //    initPos = *nodeStartFind( parseFile, endPos );
+            //    endPos = *nodeEndFind( parseFile, *nodeEndFind( parseFile, endPos + 1 ) + 1);
+            //    continue;
+            //}
+            if( parseFile.substr( initPos, 6 ) == "<event" ){
                 currNode->events.push_back( evPtrParsor( parseFile, initPos, endPos ) );
                 continue;
-            } else if( nuStrtPos == parseFile.find("<header", initPos) ){
+            } else if( parseFile.substr( initPos, 7 ) == "<header"  ){
                 currNode->header = lheHeadParser( parseFile, initPos, endPos );
                 continue;
-            } else if( nuStrtPos == parseFile.find("<init", initPos) ){
+            } else if( parseFile.substr( initPos, 5 ) == "<init"  ){
                 currNode->init = std::make_shared<initNode>( parseFile, initPos );
                 initPos = *nodeStartFind( parseFile, endPos );
                 endPos = *nodeEndFind( parseFile, *nodeEndFind( parseFile, endPos + 1 ) + 1);
@@ -2101,7 +2120,7 @@ namespace PEP
     }
 
     // ZW: fcn for extracting the different processes
-    // in a given PEP format LHE file in the pdgXtract format
+    // in a given REX format LHE file in the pdgXtract format
     std::vector<std::shared_ptr<std::map<std::string_view, std::vector<std::string_view>>>> procExtractor( const lheNode& lheFile )
     {
         std::vector<std::shared_ptr<std::map<std::string_view, std::vector<std::string_view>>>> procList;
@@ -2116,7 +2135,7 @@ namespace PEP
     }
 
     // ZW: fcn for extracting the differenty processes
-    // in a given PEP format LHE file in the lheProc format
+    // in a given REX format LHE file in the lheProc format
     std::vector<std::shared_ptr<lheProc>> processPull( const lheNode& lheFile )
     {
         const static std::vector<std::string> pdgVec = { "-1", "1", "-2", "2", "3", "-9" };
@@ -2203,7 +2222,7 @@ namespace PEP
         std::vector<std::string_view> aQCDs;
         std::vector<std::string_view> nprts;
         std::vector<std::string_view> procIDs;
-        evtInfo( const std::vector<std::shared_ptr<PEP::event>>& lheFile = {} ){
+        evtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile = {} ){
             int nEvt = lheFile.size();
             wgts.reserve(nEvt); scales.reserve(nEvt); aQEDs.reserve(nEvt); aQCDs.reserve(nEvt); procIDs.reserve(nEvt);
             for( auto evt : lheFile )
@@ -2229,7 +2248,7 @@ namespace PEP
         std::vector<std::string_view> mothers;
         std::vector<std::string_view> icols;
         std::vector<std::string_view> pdgs;
-        prtInfo( const std::vector<std::shared_ptr<PEP::event>>& lheFile = {}, const int nPrt = 8 ){
+        prtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile = {}, const int nPrt = 8 ){
             int nEvt = lheFile.size(); 
             moms.reserve(4*nPrt*nEvt); vtims.reserve(nPrt*nEvt); masses.reserve(nPrt*nEvt); pdgs.reserve(nPrt*nEvt); 
             spins.reserve(nPrt*nEvt); statuses.reserve(nPrt*nEvt); mothers.reserve(2*nPrt*nEvt); icols.reserve(2*nPrt*nEvt);
@@ -2260,7 +2279,7 @@ namespace PEP
     public:
         evtInfo evtsHead;
         prtInfo evtsData;
-        transMonoLHE( const std::vector<std::shared_ptr<PEP::event>>& lheFile = {}, const int nPrt = 8 ){
+        transMonoLHE( const std::vector<std::shared_ptr<REX::event>>& lheFile = {}, const int nPrt = 8 ){
             evtsHead = evtInfo(lheFile);
             evtsData = prtInfo(lheFile, nPrt);
         }

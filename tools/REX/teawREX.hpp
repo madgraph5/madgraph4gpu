@@ -1,16 +1,19 @@
 /***
- *      _____  ______ _____  _____  ______ _____  
- *     |  __ \|  ____|  __ \|  __ \|  ____|  __ \ 
- *     | |__) | |__  | |__) | |__) | |__  | |__) |
- *     |  ___/|  __| |  ___/|  ___/|  __| |  _  / 
- *     | |    | |____| |    | |    | |____| | \ \ 
- *     |_|    |______|_|    |_|    |______|_|  \_\                              
- *                                                
+ *     _                     ______ _______   __
+ *    | |                    | ___ \  ___\ \ / /
+ *    | |_ ___  __ ___      _| |_/ / |__  \ V / 
+ *    | __/ _ \/ _` \ \ /\ / /    /|  __| /   \ 
+ *    | ||  __/ (_| |\ V  V /| |\ \| |___/ /^\ \
+ *     \__\___|\__,_| \_/\_/ \_| \_\____/\/   \/
+ *                                              
  ***/
 
 // THIS IS NOT A LICENSED RELEASE
 // IF YOU SEE THIS FILE, IT HAS BEEN SPREAD
-// FROM A DIFFERENT SOURCE THAN THE UPSTREAM RELEASE
+// FROM AN IMPROPER RELEASE.
+
+// Copyright © 2023 CERN, CERN Author Zenny Wettersten. 
+// All rights reserved.
 
 #include <unistd.h>
 #include <algorithm>
@@ -18,9 +21,9 @@
 #include <cmath>
 #include <cstring>
 #include <variant>
-#include "PEP.hpp"
+#include "REX.hpp"
 
-namespace PEP::PER
+namespace REX::teaw
 {
     template<typename T1, typename T2>
     std::shared_ptr<std::vector<T1>> scatAmpEval(std::vector<T2>& momenta, std::function<std::shared_ptr<std::vector<T1>>(std::vector<T2>&)> evalFunc)
@@ -38,7 +41,7 @@ namespace PEP::PER
     std::shared_ptr<std::vector<T1>> scatAmpEval(std::vector<T2>& momenta, std::function<std::vector<T1>(std::vector<T2>&, std::vector<T2>&)> evalFunc)
     { return evalFunc(momenta); }
 
-    struct rwgtVal : PEP::paramVal{
+    struct rwgtVal : REX::paramVal{
     public:
         std::string_view blockName;
         bool allStat;
@@ -47,13 +50,13 @@ namespace PEP::PER
         rwgtVal( std::string_view paramLine )
         : paramVal( paramLine, false ){if( paramLine.size() == 0 ){ return; }
             realLine = paramLine;
-            auto vals = *PEP::nuBlankSplitter( realLine );
+            auto vals = *REX::nuBlankSplitter( realLine );
             blockName = vals[1];
             idStr = vals[2];
             valStr = vals[3];
         }
         std::string_view getLine(){ return realLine; }
-        void selfWrite( PEP::paramBlock& srcBlock ) override{
+        void outWrite( REX::paramBlock& srcBlock ){
             if ( isAll() )
             {
                 for( auto param : srcBlock.params )
@@ -64,9 +67,9 @@ namespace PEP::PER
                 return;
             } 
             auto currPar = std::find_if( srcBlock.params.begin(), srcBlock.params.end(), 
-            [&]( const PEP::paramVal& parPar ){ return (parPar.idStr == idStr ); } );
+            [&]( const REX::paramVal& parPar ){ return (parPar.idStr == idStr ); } );
             if( currPar == srcBlock.params.end() ){ 
-                srcBlock.params.push_back( PEP::paramVal( realLine.substr(realLine.find("set") + 4) ) );
+                srcBlock.params.push_back( REX::paramVal( realLine.substr(realLine.find("set") + 4) ) );
                 srcBlock.params[ srcBlock.params.size() - 1 ].modded = true; 
                 srcBlock.modded = true;
                 return;
@@ -105,11 +108,11 @@ namespace PEP::PER
             written = true;
             return runBlock;
         }
-        void selfWrite( PEP::paramBlock& srcBlock, const std::map<std::string_view, int>& blocks )
+        void outWrite( REX::paramBlock& srcBlock, const std::map<std::string_view, int>& blocks )
         {
             for( auto parm : rwgtVals )
             {
-                parm.selfWrite( srcBlock );
+                parm.outWrite( srcBlock );
             }
             srcBlock.modded = true;
             return;
@@ -128,11 +131,11 @@ namespace PEP::PER
         void parse(){
             std::vector<std::string_view> blocks;
             std::vector<std::shared_ptr<std::vector<rwgtVal>>> params;
-            auto procLines = *PEP::nuLineSplitter( procString );
+            auto procLines = *REX::nuLineSplitter( procString );
             for( auto line : procLines )
             {
                 auto strtPt = line.find("set");
-                auto words = *PEP::nuWordSplitter( line );
+                auto words = *REX::nuWordSplitter( line );
                 auto currBlock = words[1]; 
                 auto loc = std::find_if( blocks.begin(), blocks.end(), 
                 [&]( std::string_view block ){ return (block == currBlock); } );
@@ -149,7 +152,7 @@ namespace PEP::PER
                 rwgtParams.push_back( rwgtBlock( *params[k], blocks[k] ) );
             }
         }
-        rwgtProc( PEP::lesHouchesCard slhaSet, std::string_view rwgtSet = "", bool parseOnline = false )
+        rwgtProc( REX::lesHouchesCard slhaSet, std::string_view rwgtSet = "", bool parseOnline = false )
         {
             if( rwgtSet == "" ){ return; }
             auto strtLi = rwgtSet.find( "\n", rwgtSet.find("launch") ) + 1;
@@ -159,15 +162,15 @@ namespace PEP::PER
             procString = rwgtSet.substr( strtLi, endLi - strtLi );
             if( parseOnline ){ parse(); }
         }
-        std::shared_ptr<PEP::lesHouchesCard> selfWrite( const PEP::lesHouchesCard& paramOrig ){
-            auto slhaOrig = std::make_shared<PEP::lesHouchesCard>( paramOrig );
+        std::shared_ptr<REX::lesHouchesCard> outWrite( const REX::lesHouchesCard& paramOrig ){
+            auto slhaOrig = std::make_shared<REX::lesHouchesCard>( paramOrig );
             std::map<std::string_view, int> blockIds;
             for( int k = 0 ; k < slhaOrig->blocks.size() ; ++k )
             {   slhaOrig->blocks[k].parse( true );
                 auto nyama = std::pair<std::string_view, int>( slhaOrig->blocks[k].name, k);
                 blockIds.insert( nyama ); }
             for( auto rwgts : rwgtParams )
-            { rwgts.selfWrite( slhaOrig->blocks[ blockIds.at( rwgts.name ) ], blockIds ); }
+            { rwgts.outWrite( slhaOrig->blocks[ blockIds.at( rwgts.name ) ], blockIds ); }
             slhaOrig->modded = true;
             return slhaOrig;
         }
@@ -176,7 +179,7 @@ namespace PEP::PER
 
     struct rwgtCard{
     public:
-        PEP::lesHouchesCard slhaCard;
+        REX::lesHouchesCard slhaCard;
         std::vector<rwgtProc> rwgtRuns;
         std::vector<std::string_view> rwgtProcs;
         std::vector<std::string_view> opts;
@@ -184,7 +187,12 @@ namespace PEP::PER
         std::string_view srcCard;
         void parse( bool parseOnline = false ) {
             auto strt = srcCard.find("launch");
-            while( srcCard.find_last_of("#", strt) > srcCard.find_last_of("\n", strt) ){ strt = srcCard.find("launch", strt + 6 ); }
+            while( auto commPos = srcCard.find_last_of("#", strt) > srcCard.find_last_of("\n", strt) ){ 
+                if( commPos == REX::npos ){
+                    break;
+                }
+                strt = srcCard.find("launch", strt + 6 );
+            }
             while( auto chPos = srcCard.find( "set" ) < strt ){
                 if( srcCard.find_last_of("#", chPos) > srcCard.find_last_of("\n", chPos) ){ chPos = srcCard.find("change", strt + 6 ); continue; }
                 opts.push_back( srcCard.substr( chPos, srcCard.find("\n", chPos) - chPos ) );
@@ -237,18 +245,18 @@ namespace PEP::PER
         rwgtCard( std::string_view reweight_card ){
             srcCard = reweight_card;
         }
-        rwgtCard( std::string_view reweight_card, PEP::lesHouchesCard slhaParams, bool parseOnline = false ){
+        rwgtCard( std::string_view reweight_card, REX::lesHouchesCard slhaParams, bool parseOnline = false ){
             srcCard = reweight_card;
             slhaCard = slhaParams;
             if( parseOnline ){ parse( parseOnline ); }
         }
-        std::vector<std::shared_ptr<PEP::lesHouchesCard>> writeCards( PEP::lesHouchesCard& slhaOrig ){
-            std::vector<std::shared_ptr<PEP::lesHouchesCard>> cardVec;
+        std::vector<std::shared_ptr<REX::lesHouchesCard>> writeCards( REX::lesHouchesCard& slhaOrig ){
+            std::vector<std::shared_ptr<REX::lesHouchesCard>> cardVec;
             slhaOrig.parse();
             cardVec.reserve( rwgtRuns.size() );
             for( auto rwgt : rwgtRuns )
             {
-                cardVec.push_back( rwgt.selfWrite( slhaOrig ) );
+                cardVec.push_back( rwgt.outWrite( slhaOrig ) );
             }
             return cardVec;
         }
@@ -256,22 +264,48 @@ namespace PEP::PER
 
     struct rwgtCollection {
     public:
-        void setRwgt( std::shared_ptr<rwgtCard> rwgts ){ rwgtSets = rwgts; }
-        void setRwgt( rwgtCard rwgts ){ setRwgt( std::make_shared<rwgtCard>( rwgts ) ); }
-        void setSlha( std::shared_ptr<PEP::lesHouchesCard> slha ){ slhaParameters = slha; slhaParameters->parse(); }
-        void setSlha( PEP::lesHouchesCard slha ){ setSlha( std::make_shared<PEP::lesHouchesCard>( slha ) ); }
-        void setLhe( std::shared_ptr<PEP::lheNode> lhe ){ lheFile = lhe; }
-        void setLhe( PEP::lheNode lhe ){ setLhe( std::make_shared<PEP::lheNode>( lhe ) ); }
+        void setRwgt( std::shared_ptr<rwgtCard> rwgts ){ 
+            if( rwgtSet ){ return; }
+            rwgtSets = rwgts; 
+            rwgtSet = true;
+        }
+        void setRwgt( rwgtCard rwgts ){ 
+            if( rwgtSet ){ return; }
+            setRwgt( std::make_shared<rwgtCard>( rwgts ) ); rwgtSet = true; 
+        }
+        void setSlha( std::shared_ptr<REX::lesHouchesCard> slha ){ 
+            if( slhaSet ){ return; }
+            slhaParameters = slha; 
+            slhaParameters->parse(); 
+            slhaSet = true; 
+        }
+        void setSlha( REX::lesHouchesCard slha ){ 
+            if( slhaSet ){ return; }
+            setSlha( std::make_shared<REX::lesHouchesCard>( slha ) ); 
+            slhaSet = true;
+        }
+        void setLhe( std::shared_ptr<REX::lheNode> lhe ){ 
+            if( lheFileSet ){ return; }
+            lheFile = lhe;
+            lheFileSet = true;
+        }
+        void setLhe( REX::lheNode lhe ){ 
+            if( lheFileSet ){ return; } 
+            setLhe( std::make_shared<REX::lheNode>( lhe ) ); 
+            lheFileSet = true;
+        }
         void setLhe( std::string_view lhe_file ){
+            if( lheFileSet ){ return; }
             size_t strt = 0;
-            size_t post = *PEP::nodeEndFind( lhe_file, strt );
-            lheFile = PEP::lheParser( lhe_file, strt, post );
+            size_t post = *REX::nodeEndFind( lhe_file, strt );
+            lheFile = REX::lheParser( lhe_file, strt, post );
+            lheFileSet = true;
         }
         std::shared_ptr<rwgtCard> getRwgt(){ return rwgtSets; }
-        std::shared_ptr<PEP::lesHouchesCard> getSlha(){ return slhaParameters; }
-        std::shared_ptr<PEP::lheNode> getLhe(){ return lheFile; }
+        std::shared_ptr<REX::lesHouchesCard> getSlha(){ return slhaParameters; }
+        std::shared_ptr<REX::lheNode> getLhe(){ return lheFile; }
         rwgtCollection(){ return; }
-        rwgtCollection( std::shared_ptr<PEP::lheNode> lhe, std::shared_ptr<PEP::lesHouchesCard> slha, std::shared_ptr<rwgtCard> rwgts ){
+        rwgtCollection( std::shared_ptr<REX::lheNode> lhe, std::shared_ptr<REX::lesHouchesCard> slha, std::shared_ptr<rwgtCard> rwgts ){
             setLhe( lhe );
             setSlha( slha );
             setRwgt( rwgts );
@@ -280,18 +314,21 @@ namespace PEP::PER
         void setDoubles(){
             if( lheFile == nullptr || rwgtSets == nullptr || slhaParameters == nullptr )
                 throw std::runtime_error( "One or more of the necessary files (SLHA parameter card, LHE event storage file, and MadGraph-format reweight card) have not been initialised." );
-            PEP::lheRetDs returnBools; returnBools.xwgtup = true; returnBools.aqcdup = true; returnBools.pup = true;
-            auto vecOfVecs = PEP::lheValDoubles( *lheFile, returnBools );
+            REX::lheRetDs returnBools; returnBools.xwgtup = true; returnBools.aqcdup = true; returnBools.pup = true;
+            auto vecOfVecs = REX::lheValDoubles( *lheFile, returnBools );
             if( vecOfVecs->size() != 3 )
                 throw std::runtime_error( "LHE file appears to contain multiple types of processes. This has not yet been implemented." );
             wgts = vecOfVecs->at( 0 ); gS = vecOfVecs->at( 1 ); momenta = vecOfVecs->at( 2 );
         }
         std::shared_ptr<rwgtCard> rwgtSets;
-        std::shared_ptr<PEP::lesHouchesCard> slhaParameters;
-        std::shared_ptr<PEP::lheNode> lheFile;
+        std::shared_ptr<REX::lesHouchesCard> slhaParameters;
+        std::shared_ptr<REX::lheNode> lheFile;
         std::shared_ptr<std::vector<double>> wgts;
         std::shared_ptr<std::vector<double>> gS;
         std::shared_ptr<std::vector<double>> momenta;
+        bool lheFileSet = false;
+        bool slhaSet = false;
+        bool rwgtSet = false;
     };
 
     struct rwgtFiles : rwgtCollection {
@@ -309,7 +346,7 @@ namespace PEP::PER
                 throw std::runtime_error( "Paths to reweight card, parameter card, or LHE file have not been set" );
             pullRwgt(); pullSlha(); pullLhe();
             setLhe( *lheCard );
-            setSlha( std::make_shared<PEP::lesHouchesCard>( *slhaCard ) );
+            setSlha( std::make_shared<REX::lesHouchesCard>( *slhaCard ) );
             setRwgt( std::make_shared<rwgtCard>( *rewgtCard, *slhaParameters, true ) );
             setDoubles();
         }
@@ -321,13 +358,13 @@ namespace PEP::PER
         }
     protected:
         void pullRwgt(){
-            rewgtCard = PEP::filePuller( rwgtPath );
+            rewgtCard = REX::filePuller( rwgtPath );
         }
         void pullSlha(){
-            slhaCard = PEP::filePuller( slhaPath );
+            slhaCard = REX::filePuller( slhaPath );
         }
         void pullLhe(){
-            lheCard = PEP::filePuller( lhePath );
+            lheCard = REX::filePuller( lhePath );
         }
         std::string rwgtPath;
         std::string lhePath;
@@ -358,20 +395,21 @@ namespace PEP::PER
         std::function<std::shared_ptr<std::vector<double>>(std::vector<double>&, std::vector<double>&)> meEval;
         std::shared_ptr<std::vector<double>> initMEs;
         std::shared_ptr<std::vector<double>> meNormWgts;
-        std::shared_ptr<PEP::weightGroup> rwgtGroup;
+        std::shared_ptr<REX::weightGroup> rwgtGroup;
         void setMEs(){
             initCards(); 
             if( !meInit )
                 throw std::runtime_error( "No function for evaluating scattering amplitudes has been provided." );
-            initMEs = meEval( *momenta, *gS );
+            auto ins = meEval( *momenta, *gS );
+            initMEs = std::make_shared<std::vector<double>>( ins->begin(), ins->begin() + wgts->size() );
             meSet = true;
         }
-        bool setParamCard( std::shared_ptr<PEP::lesHouchesCard> slhaParams ){
+        bool setParamCard( std::shared_ptr<REX::lesHouchesCard> slhaParams ){
             if( slhaPath == "" )
                 throw std::runtime_error( "No parameter card path has been provided." );
             if( slhaParameters == nullptr )
                 throw std::runtime_error( "No SLHA parameter card has been provided." );
-            if( !PEP::filePusher( slhaPath, *slhaParams->selfWrite() ) )
+            if( !REX::filePusher( slhaPath, *slhaParams->selfWrite() ) )
                 throw std::runtime_error( "Failed to overwrite parameter card." );
             return true;
         }
@@ -385,40 +423,39 @@ namespace PEP::PER
             }
             normWgtSet = true;
         }
-        bool singleRwgtIter( std::shared_ptr<PEP::lesHouchesCard> slhaParams, std::shared_ptr<lheNode> lheFile, size_t currId ){
+        bool singleRwgtIter( std::shared_ptr<REX::lesHouchesCard> slhaParams, std::shared_ptr<lheNode> lheFile, size_t currId ){
             if( !normWgtSet )
                 throw std::runtime_error( "Normalised original weights (wgt/|ME|) not evaluated -- new weights cannot be calculated." );
             if( !setParamCard( slhaParams ) )
                 throw std::runtime_error( "Failed to rewrite parameter card." );
             auto newMEs = meEval( *momenta, *gS );
-            auto newWGTs = PEP::vecElemMult( *newMEs, *meNormWgts );
-            PEP::newWgt nuWgt( rwgtSets->rwgtRuns[currId].comRunProc(), newWGTs );
+            auto newWGTs = REX::vecElemMult( *newMEs, *meNormWgts );
+            REX::newWgt nuWgt( rwgtSets->rwgtRuns[currId].comRunProc(), newWGTs );
             lheFile->addWgt( 0, nuWgt );
             return true;
         }
-        bool singleRwgtIter( std::shared_ptr<PEP::lesHouchesCard> slhaParams, std::shared_ptr<lheNode> lheFile, size_t currId, std::string& id ){
+        bool singleRwgtIter( std::shared_ptr<REX::lesHouchesCard> slhaParams, std::shared_ptr<lheNode> lheFile, size_t currId, std::string& id ){
             if( !normWgtSet )
                 throw std::runtime_error( "Normalised original weights (wgt/|ME|) not evaluated -- new weights cannot be calculated." );
             if( !setParamCard( slhaParams ) )
                 throw std::runtime_error( "Failed to rewrite parameter card." );
             auto newMEs = meEval( *momenta, *gS );
-            auto newWGTs = PEP::vecElemMult( *newMEs, *meNormWgts );
-            PEP::newWgt nuWgt( rwgtSets->rwgtRuns[currId].comRunProc(), newWGTs, id );
+            auto newWGTs = REX::vecElemMult( *newMEs, *meNormWgts );
+            REX::newWgt nuWgt( rwgtSets->rwgtRuns[currId].comRunProc(), newWGTs, id );
             lheFile->addWgt( 0, nuWgt );
             return true;
         }
-        bool lheFileWriter( std::shared_ptr<PEP::lheNode> lheFile, std::string outputDir = "rwgt_evts.lhe" ){
-            bool writeSuccess = PEP::filePusher( outputDir, *lheFile->nodeWriter() );
+        bool lheFileWriter( std::shared_ptr<REX::lheNode> lheFile, std::string outputDir = "rwgt_evts.lhe" ){
+            bool writeSuccess = REX::filePusher( outputDir, *lheFile->nodeWriter() );
             if( !writeSuccess )
                 throw std::runtime_error( "Failed to write LHE file." );
             return true;
         }
     public:
         void runRwgt( const std::string& output ){
-            srand((unsigned) time(NULL));
             setMEs();
             setNormWgts();
-            rwgtGroup = std::make_shared<PEP::weightGroup>();
+            rwgtGroup = std::make_shared<REX::weightGroup>();
             auto currInd = lheFile->header->addWgtGroup( rwgtGroup );
             auto paramSets = rwgtSets->writeCards( *slhaParameters );
             for( int k = 0 ; k < paramSets.size(); k++ ){
@@ -426,7 +463,7 @@ namespace PEP::PER
                 std::cout << ".";
             }
             lheFileWriter( lheFile, output );
-            PEP::filePusher( slhaPath, *slhaCard );
+            REX::filePusher( slhaPath, *slhaCard );
             std::cout << "\nReweighting done.\n";
         }
     };
