@@ -1,12 +1,10 @@
-/*
- * CommonRandomNumbers.h
- *
- *  Created on: 04.11.2020
- *      Author: Stephan Hageboeck
- */
+// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Created by: S. Hageboeck (Nov 2020) for the MG5aMC CUDACPP plugin.
+// Further modified by: A. Valassi (2023) for the MG5aMC CUDACPP plugin.
 
 #ifndef COMMONRANDOMNUMBERS_H_
-#define COMMONRANDOMNUMBERS_H_
+#define COMMONRANDOMNUMBERS_H_ 1
 
 #include <future>
 #include <random>
