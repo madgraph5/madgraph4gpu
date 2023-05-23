@@ -38,6 +38,9 @@ function codeGenAndDiff()
     pp_tt)
       cmd="generate p p > t t~"
       ;;
+    pp_tttt)
+      cmd="generate p p > t t~ t t~"
+      ;;
     uu_tt)
       cmd="generate u u~ > t t~"
       ;;
