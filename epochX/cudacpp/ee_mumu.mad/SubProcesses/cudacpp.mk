@@ -39,10 +39,6 @@ MG5AMC_COMMONLIB = mg5amc_common
 LIBFLAGS = -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
 INCFLAGS += -I../../src
 
-# Dependency on tools directory
-TOOLSDIR = ../../../../../tools
-INCFLAGS += -I$(TOOLSDIR)
-
 # Dependency on test directory
 TESTDIR  = ../../../../../test
 GTESTLIBDIR = $(TESTDIR)/googletest/build/lib/
