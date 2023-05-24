@@ -11,6 +11,6 @@
 #define MG_EPOCH_PROCESS_ID %(processid_uppercase)s
 
 // For simplicity, define here the name of the process-dependent reference file for tests
-#define MG_EPOCH_REFERENCE_FILE_NAME "../../../../../test/ref/dump_CPUTest.%(processid)s.txt"
+#define MG_EPOCH_REFERENCE_FILE_NAME "../../test/ref/dump_CPUTest.%(processid)s.txt"
 
 #endif // EPOCH_PROCESS_ID_H
