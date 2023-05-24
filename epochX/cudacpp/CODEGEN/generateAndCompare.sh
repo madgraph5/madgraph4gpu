@@ -14,6 +14,14 @@ function codeGenAndDiff()
   # Process-dependent hardcoded configuration
   echo -e "\n================================================================"
   case "${proc}" in
+    atlas)
+      cmd="import model sm-no_b_mass
+      define p = g u c d s b u~ c~ d~ s~ b~
+      define j = g u c d s b u~ c~ d~ s~ b~
+      generate p p > t t~
+      add process p p > t t~ j
+      add process p p > t t~ j j"
+      ;;
     pp_ttjj)
       cmd="generate p p > t t~ j j"
       ;;
