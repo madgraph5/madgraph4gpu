@@ -63,7 +63,17 @@ namespace mg5amcCpu
     //bool verbose() const { return m_verbose; }
     bool debug() const { return m_debug; }
 
-  public: /* clang-format on */
+  public:
+
+    // Process-independent compile-time constants
+    static constexpr size_t np4 = 4; // dimensions of 4-momenta (E,px,py,pz)
+    static constexpr size_t nw6 = 6; // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
+
+    // Process-dependent compile-time constants
+    static constexpr size_t npari = 2; // #particles in the initial state (incoming): e.g. 2 (e+ e-) for e+ e- -> mu+ mu-
+    static constexpr size_t nparf = 1; // #particles in the final state (outgoing): e.g. 2 (mu+ mu-) for e+ e- -> mu+ mu-
+    static constexpr size_t npar = npari + nparf; // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
+    static constexpr size_t ncomb = 4; // #helicity combinations: e.g. 16 for e+ e- -> mu+ mu- (2**4 = fermion spin up/down ** npar)
 
     // Hardcoded parameters for this process (constant class variables)
     // [NB: this class assumes nprocesses==1 i.e. a single DSIG1 and no DSIG2 in Fortran (#272 and #343)]
@@ -72,13 +82,13 @@ namespace mg5amcCpu
     //static const int nwf = ??; // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
 
     // Other variables of this instance (???)
-    //static const int ninitial = mgOnGpu::npari;
-    //static const int nexternal = 3; // mgOnGpu::npar (nexternal was nioparticles)
+    //static const int ninitial = CPPProcess::npari;
+    //static const int nexternal = 3; // CPPProcess::npar (nexternal was nioparticles)
     //static const int nwavefuncs = 6; // (?!?! this should be nwf but export_cpp gives the wrong value here)
     //static const int namplitudes = 1;
-    //static const int ncomb = 4; // mgOnGpu::ncomb
+    //static const int ncomb = 4; // CPPProcess::ncomb
 
-  private:
+  private: /* clang-format on */
 
     // Command line arguments (constructor)
     bool m_verbose;
