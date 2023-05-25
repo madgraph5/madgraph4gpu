@@ -36,7 +36,7 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
   // Constant parameters
   constexpr int neppM = MemoryAccessMomenta::neppM; // AOSOA layout
   using mgOnGpu::neppV;
-  constexpr size_t np4 = CPPProcess::np4; // dimensions of 4-momenta (E,px,py,pz)
+  constexpr size_t np4 = CPPProcess::np4;
   const int nevt = 16;         // 12 independent tests plus 4 duplicates (need a multiple of 8 for floats or for '512z')
   assert( nevt %% neppM == 0 ); // nevt must be a multiple of neppM
   assert( nevt %% neppV == 0 ); // nevt must be a multiple of neppV

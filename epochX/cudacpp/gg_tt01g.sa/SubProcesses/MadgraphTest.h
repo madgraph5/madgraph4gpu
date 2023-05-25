@@ -6,11 +6,11 @@
 #ifndef MADGRAPHTEST_H_
 #define MADGRAPHTEST_H_ 1
 
-#include <gtest/gtest.h>
-
 #include "mgOnGpuConfig.h"
 
 #include "CPPProcess.h"
+
+#include <gtest/gtest.h>
 
 #include <array>
 #include <cmath>

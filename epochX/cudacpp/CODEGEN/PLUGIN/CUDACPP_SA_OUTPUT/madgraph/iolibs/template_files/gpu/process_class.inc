@@ -38,7 +38,7 @@
     //bool verbose() const { return m_verbose; }
     bool debug() const { return m_debug; }
 
-  public: /* clang-format on */
+  public:
 
     // Process-independent compile-time constants
     static constexpr size_t np4 = 4; // dimensions of 4-momenta (E,px,py,pz)
@@ -63,7 +63,7 @@
     //static const int namplitudes = %(namp)d;
     //static const int ncomb = %(ncomb)d; // mgOnGpu::ncomb
 
-  private:
+  private: /* clang-format on */
 
     // Command line arguments (constructor)
     bool m_verbose;
