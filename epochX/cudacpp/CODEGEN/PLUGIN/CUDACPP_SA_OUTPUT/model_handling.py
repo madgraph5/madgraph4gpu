@@ -1040,6 +1040,10 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         ###misc.sprint( replace_dict['nwavefuncs'] ) # NB: this (from export_cpp) is the WRONG value of nwf, e.g. 6 for gg_tt (#644)
         ###misc.sprint( self.matrix_elements[0].get_number_of_wavefunctions() ) # NB: this is a different WRONG value of nwf, e.g. 7 for gg_tt (#644)
         ###replace_dict['nwavefunc'] = self.matrix_elements[0].get_number_of_wavefunctions() # how do I get HERE the right value of nwf, e.g. 5 for gg_tt?
+        nexternal, nincoming = self.matrix_elements[0].get_nexternal_ninitial()
+        replace_dict['nincoming'] = nincoming
+        replace_dict['noutcoming'] = nexternal - nincoming
+        replace_dict['nbhel'] = self.matrix_elements[0].get_helicity_combinations() # number of helicity combinations
         file = self.read_template_file(self.process_class_template) % replace_dict # HACK! ignore write=False case
         file = '\n'.join( file.split('\n')[8:] ) # skip first 8 lines in process_class.inc (copyright)
         return file
