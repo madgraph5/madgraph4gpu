@@ -41,8 +41,13 @@ INCFLAGS += -I../../src
 
 # Dependency on test directory
 TESTDIR  = ../../../../../test
+ifneq ($(wildcard $(TESTDIR)),)
 GTESTLIBDIR = $(TESTDIR)/googletest/build/lib/
 GTESTLIBS   = $(GTESTLIBDIR)/libgtest.a $(GTESTLIBDIR)/libgtest_main.a
+else
+GTESTLIBDIR =
+GTESTLIBS   =
+endif
 
 #-------------------------------------------------------------------------------
 
@@ -400,7 +405,11 @@ endif
 
 testmain=$(BUILDDIR)/runTest.exe
 
-all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cu_main) $(cxx_main) $(testmain) $(fcu_main) $(fcxx_main)
+ifneq ($(GTESTLIBS),)
+all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cu_main) $(cxx_main) $(fcu_main) $(fcxx_main) $(testmain)
+else
+all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cu_main) $(cxx_main) $(fcu_main) $(fcxx_main)
+endif
 
 # Target (and build options): debug
 MAKEDEBUG=
