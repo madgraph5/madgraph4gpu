@@ -24,8 +24,8 @@ using namespace mg5amcCpu;
 struct CUDA_CPU_TestBase : public TestDriverBase
 {
   static constexpr int neppM = MemoryAccessMomenta::neppM; // AOSOA layout
-  static constexpr int np4 = mgOnGpu::np4;
-  static constexpr int npar = mgOnGpu::npar;
+  static constexpr size_t np4 = CPPProcess::np4;
+  static constexpr size_t npar = CPPProcess::npar;
   static_assert( gputhreads % neppM == 0, "ERROR! #threads/block should be a multiple of neppM" );
   static_assert( gputhreads <= mgOnGpu::ntpbMAX, "ERROR! #threads/block should be <= ntpbMAX" );
   CUDA_CPU_TestBase( const std::string& refFileName )
@@ -66,7 +66,7 @@ struct CPUTest : public CUDA_CPU_TestBase
     , hstMatrixElements( nevt )
     , hstSelHel( nevt )
     , hstSelCol( nevt )
-    , hstIsGoodHel( mgOnGpu::ncomb )
+    , hstIsGoodHel( CPPProcess::ncomb )
   {
     process.initProc( "../../Cards/param_card.dat" );
   }
@@ -168,7 +168,7 @@ struct CUDATest : public CUDA_CPU_TestBase
     , hstMatrixElements( nevt )
     , hstSelHel( nevt )
     , hstSelCol( nevt )
-    , hstIsGoodHel( mgOnGpu::ncomb )
+    , hstIsGoodHel( CPPProcess::ncomb )
     , devRndmom( nevt )
     , devMomenta( nevt )
     , devGs( nevt )
@@ -178,7 +178,7 @@ struct CUDATest : public CUDA_CPU_TestBase
     , devMatrixElements( nevt )
     , devSelHel( nevt )
     , devSelCol( nevt )
-    , devIsGoodHel( mgOnGpu::ncomb )
+    , devIsGoodHel( CPPProcess::ncomb )
   {
     process.initProc( "../../Cards/param_card.dat" );
   }

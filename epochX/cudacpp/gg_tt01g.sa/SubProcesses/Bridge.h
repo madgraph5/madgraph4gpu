@@ -144,7 +144,7 @@ namespace mg5amcCpu
     int nGoodHel() const { return m_nGoodHel; }
 
     // Return the total number of helicities (expose cudacpp ncomb in the Bridge interface to Fortran)
-    constexpr int nTotHel() const { return mgOnGpu::ncomb; }
+    constexpr int nTotHel() const { return CPPProcess::ncomb; }
 
   private:
     unsigned int m_nevt; // number of events
@@ -231,8 +231,8 @@ namespace mg5amcCpu
     , m_hstSelCol( m_nevt )
     , m_pmek( nullptr )
   {
-    if( nparF != mgOnGpu::npar ) throw std::runtime_error( "Bridge constructor: npar mismatch" );
-    if( np4F != mgOnGpu::np4 ) throw std::runtime_error( "Bridge constructor: np4 mismatch" );
+    if( nparF != CPPProcess::npar ) throw std::runtime_error( "Bridge constructor: npar mismatch" );
+    if( np4F != CPPProcess::np4 ) throw std::runtime_error( "Bridge constructor: np4 mismatch" );
 #ifdef __CUDACC__
     if( ( m_nevt < s_gputhreadsmin ) || ( m_nevt % s_gputhreadsmin != 0 ) )
       throw std::runtime_error( "Bridge constructor: nevt should be a multiple of " + std::to_string( s_gputhreadsmin ) );
@@ -289,7 +289,7 @@ namespace mg5amcCpu
     else
     {
       checkCuda( cudaMemcpy( m_devMomentaF.data(), momenta, m_devMomentaF.bytes(), cudaMemcpyHostToDevice ) );
-      const int thrPerEvt = mgOnGpu::npar * mgOnGpu::np4; // AV: transpose alg does 1 element per thread (NOT 1 event per thread)
+      const int thrPerEvt = CPPProcess::npar * CPPProcess::np4; // AV: transpose alg does 1 element per thread (NOT 1 event per thread)
       //const int thrPerEvt = 1; // AV: try new alg with 1 event per thread... this seems slower
       dev_transposeMomentaF2C<<<m_gpublocks * thrPerEvt, m_gputhreads>>>( m_devMomentaF.data(), m_devMomentaC.data(), m_nevt );
     }
@@ -397,8 +397,8 @@ namespace mg5amcCpu
     if constexpr( oldImplementation )
     {
       // SR initial implementation
-      constexpr int part = mgOnGpu::npar;
-      constexpr int mome = mgOnGpu::np4;
+      constexpr int part = CPPProcess::npar;
+      constexpr int mome = CPPProcess::np4;
       constexpr int strd = MemoryAccessMomenta::neppM;
       int pos = blockDim.x * blockIdx.x + threadIdx.x;
       int arrlen = nevt * part * mome;
@@ -423,8 +423,8 @@ namespace mg5amcCpu
       // AV attempt another implementation with 1 event per thread: this seems slower...
       // F-style: AOS[nevtF][nparF][np4F]
       // C-style: AOSOA[npagM][npar][np4][neppM] with nevt=npagM*neppM
-      constexpr int npar = mgOnGpu::npar;
-      constexpr int np4 = mgOnGpu::np4;
+      constexpr int npar = CPPProcess::npar;
+      constexpr int np4 = CPPProcess::np4;
       constexpr int neppM = MemoryAccessMomenta::neppM;
       assert( nevt % neppM == 0 ); // number of events is not a multiple of neppM???
       int ievt = blockDim.x * blockIdx.x + threadIdx.x;
@@ -448,9 +448,9 @@ namespace mg5amcCpu
     if constexpr( oldImplementation )
     {
       // SR initial implementation
-      constexpr unsigned int part = mgOnGpu::npar;
-      constexpr unsigned int mome = mgOnGpu::np4;
-      constexpr unsigned int strd = MemoryAccessMomenta::neppM;
+      constexpr size_t part = CPPProcess::npar;
+      constexpr size_t mome = CPPProcess::np4;
+      constexpr size_t strd = MemoryAccessMomenta::neppM;
       unsigned int arrlen = nevt * part * mome;
       for( unsigned int pos = 0; pos < arrlen; ++pos )
       {
@@ -477,9 +477,9 @@ namespace mg5amcCpu
       // [NB! this is not a transposition, it is an AOS to AOSOA conversion: if neppM=1, a memcpy is enough]
       // F-style: AOS[nevtF][nparF][np4F]
       // C-style: AOSOA[npagM][npar][np4][neppM] with nevt=npagM*neppM
-      constexpr unsigned int npar = mgOnGpu::npar;
-      constexpr unsigned int np4 = mgOnGpu::np4;
-      constexpr unsigned int neppM = MemoryAccessMomenta::neppM;
+      constexpr size_t npar = CPPProcess::npar;
+      constexpr size_t np4 = CPPProcess::np4;
+      constexpr size_t neppM = MemoryAccessMomenta::neppM;
       if constexpr( neppM == 1 && std::is_same_v<Tin, Tout> )
       {
         memcpy( out, in, nevt * npar * np4 * sizeof( Tin ) );
