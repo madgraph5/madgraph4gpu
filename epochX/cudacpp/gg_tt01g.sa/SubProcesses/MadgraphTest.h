@@ -137,21 +137,21 @@ public:
   // ------------------------------------------------
   // Interface for retrieving info from madgraph
   // ------------------------------------------------
-  virtual fptype getMomentum( std::size_t evtNo, unsigned int particleNo, unsigned int component ) const = 0;
-  virtual fptype getMatrixElement( std::size_t evtNo ) const = 0;
+  virtual fptype getMomentum( size_t evtNo, size_t ipar, size_t ip4 ) const = 0;
+  virtual fptype getMatrixElement( size_t evtNo ) const = 0;
 
   // ------------------------------------------------
   // Interface for steering madgraph run
   // ------------------------------------------------
   virtual void prepareRandomNumbers( unsigned int iiter ) = 0;
   virtual void prepareMomenta( fptype energy ) = 0;
-  virtual void runSigmaKin( std::size_t iiter ) = 0;
+  virtual void runSigmaKin( size_t iiter ) = 0;
 
   /// Print the requested event into the stream. If the reference data has enough events, it will be printed as well.
-  void dumpParticles( std::ostream& stream, std::size_t ievt, unsigned int numParticles, unsigned int nDigit, const ReferenceData& referenceData ) const
+  void dumpParticles( std::ostream& stream, size_t ievt, unsigned int numParticles, unsigned int nDigit, const ReferenceData& referenceData ) const
   {
     const auto width = nDigit + 8;
-    for( unsigned int ipar = 0; ipar < numParticles; ipar++ )
+    for( size_t ipar = 0; ipar < numParticles; ipar++ )
     {
       // NB: 'setw' affects only the next field (of any type)
       stream << std::scientific // fixed format: affects all floats (default nDigit: 6)
@@ -242,7 +242,7 @@ TEST_P( MadgraphTest, CompareMomentaAndME )
     testDriver->prepareMomenta( energy );
     testDriver->runSigmaKin( iiter );
     // --- Run checks on all events produced in this iteration
-    for( std::size_t ievt = 0; ievt < testDriver->nevt && !HasFailure(); ++ievt )
+    for( size_t ievt = 0; ievt < testDriver->nevt && !HasFailure(); ++ievt )
     {
       if( dumpEvents )
       {
@@ -278,17 +278,17 @@ TEST_P( MadgraphTest, CompareMomentaAndME )
                  << std::defaultfloat;
       SCOPED_TRACE( eventTrace.str() );
       // Compare Momenta
-      for( unsigned int ipar = 0; ipar < testDriver->nparticle; ++ipar )
+      for( size_t ipar = 0; ipar < testDriver->nparticle; ++ipar )
       {
         std::stringstream momentumErrors;
-        for( unsigned int icomp = 0; icomp < CPPProcess::np4; ++icomp )
+        for( size_t ip4 = 0; ip4 < CPPProcess::np4; ++ip4 )
         {
-          const fptype pMadg = testDriver->getMomentum( ievt, ipar, icomp );
-          const fptype pOrig = referenceData[iiter].momenta[ievt][ipar][icomp];
+          const fptype pMadg = testDriver->getMomentum( ievt, ipar, ip4 );
+          const fptype pOrig = referenceData[iiter].momenta[ievt][ipar][ip4];
           const fptype relDelta = fabs( ( pMadg - pOrig ) / pOrig );
           if( relDelta > toleranceMomenta )
           {
-            momentumErrors << std::setprecision( 15 ) << std::scientific << "\nparticle " << ipar << "\tcomponent " << icomp
+            momentumErrors << std::setprecision( 15 ) << std::scientific << "\nparticle " << ipar << "\tcomponent " << ip4
                            << "\n\t madGraph:  " << std::setw( 22 ) << pMadg
                            << "\n\t reference: " << std::setw( 22 ) << pOrig
                            << "\n\t rel delta: " << std::setw( 22 ) << relDelta << " exceeds tolerance of " << toleranceMomenta;

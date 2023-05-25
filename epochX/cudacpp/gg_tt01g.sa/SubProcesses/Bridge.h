@@ -430,8 +430,8 @@ namespace mg5amcCpu
       int ievt = blockDim.x * blockIdx.x + threadIdx.x;
       int ipagM = ievt / neppM;
       int ieppM = ievt % neppM;
-      for( int ip4 = 0; ip4 < np4; ip4++ )
-        for( int ipar = 0; ipar < npar; ipar++ )
+      for( size_t ip4 = 0; ip4 < np4; ip4++ )
+        for( size_t ipar = 0; ipar < npar; ipar++ )
         {
           int cpos = ipagM * npar * np4 * neppM + ipar * np4 * neppM + ip4 * neppM + ieppM;
           int fpos = ievt * npar * np4 + ipar * np4 + ip4;
@@ -489,8 +489,8 @@ namespace mg5amcCpu
         const unsigned int npagM = nevt / neppM;
         assert( nevt % neppM == 0 ); // number of events is not a multiple of neppM???
         for( unsigned int ipagM = 0; ipagM < npagM; ipagM++ )
-          for( unsigned int ip4 = 0; ip4 < np4; ip4++ )
-            for( unsigned int ipar = 0; ipar < npar; ipar++ )
+          for( size_t ip4 = 0; ip4 < np4; ip4++ )
+            for( size_t ipar = 0; ipar < npar; ipar++ )
               for( unsigned int ieppM = 0; ieppM < neppM; ieppM++ )
               {
                 unsigned int ievt = ipagM * neppM + ieppM;

@@ -100,7 +100,7 @@ struct CPUTest : public CUDA_CPU_TestBase
     mek.computeMatrixElements( channelId );
   }
 
-  fptype getMomentum( std::size_t ievt, unsigned int ipar, unsigned int ip4 ) const override
+  fptype getMomentum( std::size_t ievt, size_t ipar, size_t ip4 ) const override
   {
     assert( ipar < npar );
     assert( ip4 < np4 );
@@ -219,7 +219,7 @@ struct CUDATest : public CUDA_CPU_TestBase
     copyHostFromDevice( hstMatrixElements, devMatrixElements );
   }
 
-  fptype getMomentum( std::size_t ievt, unsigned int ipar, unsigned int ip4 ) const override
+  fptype getMomentum( std::size_t ievt, size_t ipar, size_t ip4 ) const override
   {
     assert( ipar < npar );
     assert( ip4 < np4 );

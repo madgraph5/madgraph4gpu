@@ -82,7 +82,7 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
     ispzlt0[ievt] = ( p3 < 0 );
     isptgt0[ievt] = ( p1 != 0 ) || ( p2 != 0 );
   }
-  const int ipar0 = 0; // use only particle0 for this test
+  const size_t ipar0 = 0; // use only particle0 for this test
   for( int ievt = 0; ievt < nevt; ievt++ )
   {
     for( size_t ip4 = 0; ip4 < np4; ip4++ )
