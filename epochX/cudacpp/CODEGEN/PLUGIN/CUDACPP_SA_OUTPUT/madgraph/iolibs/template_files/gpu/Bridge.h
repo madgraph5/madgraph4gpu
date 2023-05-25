@@ -7,7 +7,7 @@
 #define BRIDGE_H 1
 
 // Includes from Cuda/C++ matrix element calculations
-#include "mgOnGpuConfig.h" // for mgOnGpu::npar, mgOnGpu::np4
+#include "mgOnGpuConfig.h"
 
 #include "CPPProcess.h"           // for CPPProcess
 #include "CrossSectionKernels.h"  // for flagAbnormalMEs

@@ -82,11 +82,11 @@ namespace mg5amcCpu
     //static const int nwf = ??; // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
 
     // Other variables of this instance (???)
-    //static const int ninitial = mgOnGpu::npari;
-    //static const int nexternal = 5; // mgOnGpu::npar (nexternal was nioparticles)
+    //static const int ninitial = CPPProcess::npari;
+    //static const int nexternal = 5; // CPPProcess::npar (nexternal was nioparticles)
     //static const int nwavefuncs = 6; // (?!?! this should be nwf but export_cpp gives the wrong value here)
     //static const int namplitudes = 18;
-    //static const int ncomb = 32; // mgOnGpu::ncomb
+    //static const int ncomb = 32; // CPPProcess::ncomb
 
   private: /* clang-format on */
 

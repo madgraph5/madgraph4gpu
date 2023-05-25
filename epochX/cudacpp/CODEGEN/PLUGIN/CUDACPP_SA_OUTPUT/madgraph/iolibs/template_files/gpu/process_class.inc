@@ -57,11 +57,11 @@
     //static const int nwf = ??; // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
 
     // Other variables of this instance (???)
-    //static const int ninitial = mgOnGpu::npari;
-    //static const int nexternal = %(nexternal)d; // mgOnGpu::npar (nexternal was nioparticles)
+    //static const int ninitial = CPPProcess::npari;
+    //static const int nexternal = %(nexternal)d; // CPPProcess::npar (nexternal was nioparticles)
     //static const int nwavefuncs = %(nwavefuncs)d; // (?!?! this should be nwf but export_cpp gives the wrong value here)
     //static const int namplitudes = %(namp)d;
-    //static const int ncomb = %(ncomb)d; // mgOnGpu::ncomb
+    //static const int ncomb = %(ncomb)d; // CPPProcess::ncomb
 
   private: /* clang-format on */
 
