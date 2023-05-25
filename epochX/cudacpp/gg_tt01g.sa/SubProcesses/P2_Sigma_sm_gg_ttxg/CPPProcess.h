@@ -65,6 +65,16 @@ namespace mg5amcCpu
 
   public: /* clang-format on */
 
+    // Process-independent compile-time constants
+    static constexpr size_t np4 = 4; // dimensions of 4-momenta (E,px,py,pz)
+    static constexpr size_t nw6 = 6; // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
+
+    // Process-dependent compile-time constants
+    static constexpr size_t npari = 2;            // #particles in the initial state (incoming): e.g. 2 (e+ e-) for e+ e- -> mu+ mu-
+    static constexpr size_t nparf = 3;            // #particles in the final state (outgoing): e.g. 2 (mu+ mu-) for e+ e- -> mu+ mu-
+    static constexpr size_t npar = npari + nparf; // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
+    static constexpr size_t ncomb = 32;           // #helicity combinations: e.g. 16 for e+ e- -> mu+ mu- (2**4 = fermion spin up/down ** npar)
+
     // Hardcoded parameters for this process (constant class variables)
     // [NB: this class assumes nprocesses==1 i.e. a single DSIG1 and no DSIG2 in Fortran (#272 and #343)]
     // [NB: these parameters (e.g. nwf) are P1-specific, i.e. they are different for different P1 subdirectories (#644)]
