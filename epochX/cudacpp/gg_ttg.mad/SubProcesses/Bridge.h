@@ -6,7 +6,6 @@
 #ifndef BRIDGE_H
 #define BRIDGE_H 1
 
-// Includes from Cuda/C++ matrix element calculations
 #include "mgOnGpuConfig.h"
 
 #include "CPPProcess.h"           // for CPPProcess
@@ -430,8 +429,8 @@ namespace mg5amcCpu
       int ievt = blockDim.x * blockIdx.x + threadIdx.x;
       int ipagM = ievt / neppM;
       int ieppM = ievt % neppM;
-      for( size_t ip4 = 0; ip4 < np4; ip4++ )
-        for( size_t ipar = 0; ipar < npar; ipar++ )
+      for( int ip4 = 0; ip4 < np4; ip4++ )
+        for( int ipar = 0; ipar < npar; ipar++ )
         {
           int cpos = ipagM * npar * np4 * neppM + ipar * np4 * neppM + ip4 * neppM + ieppM;
           int fpos = ievt * npar * np4 + ipar * np4 + ip4;
@@ -448,9 +447,9 @@ namespace mg5amcCpu
     if constexpr( oldImplementation )
     {
       // SR initial implementation
-      constexpr size_t part = CPPProcess::npar;
-      constexpr size_t mome = CPPProcess::np4;
-      constexpr size_t strd = MemoryAccessMomenta::neppM;
+      constexpr unsigned int part = CPPProcess::npar;
+      constexpr unsigned int mome = CPPProcess::np4;
+      constexpr unsigned int strd = MemoryAccessMomenta::neppM;
       unsigned int arrlen = nevt * part * mome;
       for( unsigned int pos = 0; pos < arrlen; ++pos )
       {
@@ -477,9 +476,9 @@ namespace mg5amcCpu
       // [NB! this is not a transposition, it is an AOS to AOSOA conversion: if neppM=1, a memcpy is enough]
       // F-style: AOS[nevtF][nparF][np4F]
       // C-style: AOSOA[npagM][npar][np4][neppM] with nevt=npagM*neppM
-      constexpr size_t npar = CPPProcess::npar;
-      constexpr size_t np4 = CPPProcess::np4;
-      constexpr size_t neppM = MemoryAccessMomenta::neppM;
+      constexpr unsigned int npar = CPPProcess::npar;
+      constexpr unsigned int np4 = CPPProcess::np4;
+      constexpr unsigned int neppM = MemoryAccessMomenta::neppM;
       if constexpr( neppM == 1 && std::is_same_v<Tin, Tout> )
       {
         memcpy( out, in, nevt * npar * np4 * sizeof( Tin ) );
@@ -489,8 +488,8 @@ namespace mg5amcCpu
         const unsigned int npagM = nevt / neppM;
         assert( nevt % neppM == 0 ); // number of events is not a multiple of neppM???
         for( unsigned int ipagM = 0; ipagM < npagM; ipagM++ )
-          for( size_t ip4 = 0; ip4 < np4; ip4++ )
-            for( size_t ipar = 0; ipar < npar; ipar++ )
+          for( unsigned int ip4 = 0; ip4 < np4; ip4++ )
+            for( unsigned int ipar = 0; ipar < npar; ipar++ )
               for( unsigned int ieppM = 0; ieppM < neppM; ieppM++ )
               {
                 unsigned int ievt = ipagM * neppM + ieppM;
