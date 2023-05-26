@@ -36,7 +36,7 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
   // Constant parameters
   constexpr int neppM = MemoryAccessMomenta::neppM; // AOSOA layout
   using mgOnGpu::neppV;
-  constexpr size_t np4 = CPPProcess::np4;
+  constexpr int np4 = CPPProcess::np4;
   const int nevt = 16;         // 12 independent tests plus 4 duplicates (need a multiple of 8 for floats or for '512z')
   assert( nevt % neppM == 0 ); // nevt must be a multiple of neppM
   assert( nevt % neppV == 0 ); // nevt must be a multiple of neppV
@@ -82,10 +82,10 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
     ispzlt0[ievt] = ( p3 < 0 );
     isptgt0[ievt] = ( p1 != 0 ) || ( p2 != 0 );
   }
-  const size_t ipar0 = 0; // use only particle0 for this test
+  const int ipar0 = 0; // use only particle0 for this test
   for( int ievt = 0; ievt < nevt; ievt++ )
   {
-    for( size_t ip4 = 0; ip4 < np4; ip4++ )
+    for( int ip4 = 0; ip4 < np4; ip4++ )
     {
       MemoryAccessMomenta::ieventAccessIp4Ipar( hstMomenta.data(), ievt, ip4, ipar0 ) = par0[ievt * np4 + ip4]; // AOS to AOSOA
     }
@@ -96,8 +96,8 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
   std::string dumpFileName = "testxxx_cc_ref.txt.new";
   // Compute the output wavefunctions
   // Dump new reference file if requested
-  constexpr size_t nw6 = CPPProcess::nw6; // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
-  int itest = 0;                          // index on the expected output vector
+  constexpr int nw6 = CPPProcess::nw6; // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
+  int itest = 0;      // index on the expected output vector
   std::ofstream dumpFile;
   if( dumpEvents ) dumpFile.open( dumpFileName, std::ios::trunc );
   auto dumpwf6 = [&]( std::ostream& out, const cxtype_sv wf[6], const char* xxx, int ievt, int nsp, fptype mass )
@@ -105,7 +105,7 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
     out << std::setprecision( 15 ) << std::scientific;
     out << "  expwfs.push_back( {";
     out << "                                   // ---------" << std::endl;
-    for( size_t iw6 = 0; iw6 < nw6; iw6++ )
+    for( int iw6 = 0; iw6 < nw6; iw6++ )
     {
 #ifdef MGONGPU_CPPSIMD
       const int ieppV = ievt % neppV; // #event in the current event vector in this iteration
@@ -136,11 +136,11 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
     {
       std::array<fptype, 12>& expwf = expwfs[itest];
       //std::cout << "Testing " << std::setw(3) << itest << ": " << xxx << " #" << ievt << std::endl;
-      ////for ( size_t iw6 = 0; iw6<nw6; iw6++ ) std::cout << wf[iw6] << std::endl;
+      ////for ( int iw6 = 0; iw6<nw6; iw6++ ) std::cout << wf[iw6] << std::endl;
       ////std::cout << "against" << std::endl;
-      ////for ( size_t iw6 = 0; iw6<nw6; iw6++ )
+      ////for ( int iw6 = 0; iw6<nw6; iw6++ )
       ////  std::cout << "[" << expwf[iw6*2] << "," << expwf[iw6*2+1] << "]" << std::endl; // NB: expwf[iw6*2], expwf[iw6*2+1] are fp
-      for( size_t iw6 = 0; iw6 < nw6; iw6++ )
+      for( int iw6 = 0; iw6 < nw6; iw6++ )
       {
         const fptype expReal = expwf[iw6 * 2];
         const fptype expImag = expwf[iw6 * 2 + 1];
@@ -177,10 +177,10 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
       const std::string xxxFull( xxx[0] == 'i' ? "ixxxxx" : "oxxxxx" );
       //std::cout << "Testing " << std::setw(3) << itest << ": ";
       //std::cout << xxx << " #" << ievt << " against " << xxxFull << std::endl;
-      ////for ( size_t iw6 = 0; iw6<nw6; iw6++ ) std::cout << wf[iw6] << std::endl;
+      ////for ( int iw6 = 0; iw6<nw6; iw6++ ) std::cout << wf[iw6] << std::endl;
       ////std::cout << "against" << std::endl;
-      ////for ( size_t iw6 = 0; iw6<nw6; iw6++ ) std::cout << expwf[iw6] << std::endl; // NB: expwf[iw6] is cx
-      for( size_t iw6 = 0; iw6 < nw6; iw6++ )
+      ////for ( int iw6 = 0; iw6<nw6; iw6++ ) std::cout << expwf[iw6] << std::endl; // NB: expwf[iw6] is cx
+      for( int iw6 = 0; iw6 < nw6; iw6++ )
       {
         if( true )
         {
@@ -236,7 +236,7 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
       if( false )
       {
         std::cout << std::endl;
-        for( size_t ip4 = 0; ip4 < np4; ip4++ ) std::cout << par0[ievt * np4 + ip4] << ", ";
+        for( int ip4 = 0; ip4 < np4; ip4++ ) std::cout << par0[ievt * np4 + ip4] << ", ";
         std::cout << std::endl;
       }
       const int ipagV = ievt / neppV; // #event vector in this iteration
