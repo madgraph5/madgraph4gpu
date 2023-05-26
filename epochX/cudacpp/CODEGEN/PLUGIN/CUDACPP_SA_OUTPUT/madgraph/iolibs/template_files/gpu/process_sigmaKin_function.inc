@@ -45,7 +45,7 @@
     fptype MEs_ighel[ncomb] = { 0 }; // sum of MEs for all good helicities up to ighel (for this event)
     for( int ighel = 0; ighel < cNGoodHel; ighel++ )
     {
-      const size_t ihel = cGoodHel[ighel];
+      const int ihel = cGoodHel[ighel];
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators, jamp2_sv );
 #else
@@ -59,7 +59,7 @@
     {
       if( allrndhel[ievt] < ( MEs_ighel[ighel] / MEs_ighel[cNGoodHel - 1] ) )
       {
-        const size_t ihelF = cGoodHel[ighel] + 1; // NB Fortran [1,ncomb], cudacpp [0,ncomb-1]
+        const int ihelF = cGoodHel[ighel] + 1; // NB Fortran [1,ncomb], cudacpp [0,ncomb-1]
         allselhel[ievt] = ihelF;
         //printf( "sigmaKin: ievt=%%4d ihel=%%4d\n", ievt, ihelF );
         break;
@@ -131,7 +131,7 @@
 #endif
       for( int ighel = 0; ighel < cNGoodHel; ighel++ )
       {
-        const size_t ihel = cGoodHel[ighel];
+        const int ihel = cGoodHel[ighel];
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
         calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators, jamp2_sv, ievt00 );
 #else
@@ -156,7 +156,7 @@
 #endif
           if( okhel )
           {
-            const size_t ihelF = cGoodHel[ighel] + 1; // NB Fortran [1,ncomb], cudacpp [0,ncomb-1]
+            const int ihelF = cGoodHel[ighel] + 1; // NB Fortran [1,ncomb], cudacpp [0,ncomb-1]
             allselhel[ievt] = ihelF;
             //printf( "sigmaKin: ievt=%%4d ihel=%%4d\n", ievt, ihelF );
             break;
@@ -169,7 +169,7 @@
         {
           if( allrndhel[ievt2] < ( MEs_ighel2[ighel][ieppV] / MEs_ighel2[cNGoodHel - 1][ieppV] ) )
           {
-            const size_t ihelF = cGoodHel[ighel] + 1; // NB Fortran [1,ncomb], cudacpp [0,ncomb-1]
+            const int ihelF = cGoodHel[ighel] + 1; // NB Fortran [1,ncomb], cudacpp [0,ncomb-1]
             allselhel[ievt2] = ihelF;
             //printf( "sigmaKin: ievt=%%4d ihel=%%4d\n", ievt, ihelF );
             break;
