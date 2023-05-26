@@ -97,7 +97,7 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
   // Compute the output wavefunctions
   // Dump new reference file if requested
   constexpr int nw6 = CPPProcess::nw6; // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
-  int itest = 0;      // index on the expected output vector
+  int itest = 0;                       // index on the expected output vector
   std::ofstream dumpFile;
   if( dumpEvents ) dumpFile.open( dumpFileName, std::ios::trunc );
   auto dumpwf6 = [&]( std::ostream& out, const cxtype_sv wf[6], const char* xxx, int ievt, int nsp, fptype mass )
