@@ -11,8 +11,6 @@
 
 #include "mgOnGpuFptypes.h"
 
-#include "CPPProcess.h"
-
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
@@ -24,10 +22,10 @@ namespace mg5amcGpu
 namespace mg5amcCpu
 #endif
 {
-  constexpr size_t np4 = CPPProcess::np4;     // dimensions of 4-momenta (E,px,py,pz)
-  constexpr size_t npari = CPPProcess::npari; // #particles in the initial state (incoming): e.g. 2 (e+ e-) for e+ e- -> mu+ mu-
-  constexpr size_t nparf = CPPProcess::nparf; // #particles in the final state (outgoing): e.g. 2 (mu+ mu-) for e+ e- -> mu+ mu-
-  constexpr size_t npar = CPPProcess::npar;   // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
+  using mgOnGpu::np4;
+  using mgOnGpu::npari;
+  using mgOnGpu::nparf;
+  using mgOnGpu::npar;
 
   //--------------------------------------------------------------------------
 
@@ -98,11 +96,11 @@ namespace mg5amcCpu
         }
         first = false;
       }
-      const size_t iparf = 0;
-      for( size_t i4 = 0; i4 < np4; i4++ )
+      const int iparf = 0;
+      for( int i4 = 0; i4 < np4; i4++ )
       {
         M_ACCESS::kernelAccessIp4Ipar( momenta, i4, iparf + npari ) = 0;
-        for( size_t ipari = 0; ipari < npari; ipari++ )
+        for( int ipari = 0; ipari < npari; ipari++ )
         {
           M_ACCESS::kernelAccessIp4Ipar( momenta, i4, iparf + npari ) += M_ACCESS::kernelAccessIp4Ipar( momenta, i4, ipari );
         }
@@ -117,12 +115,12 @@ namespace mg5amcCpu
     fptype z[nparf];
     if constexpr( nparf > 1 ) // avoid build warning on clang (related to #358)
       z[1] = po2log;
-    for( size_t kpar = 2; kpar < nparf; kpar++ ) z[kpar] = z[kpar - 1] + po2log - 2. * log( fptype( kpar - 1 ) );
-    for( size_t kpar = 2; kpar < nparf; kpar++ ) z[kpar] = ( z[kpar] - log( fptype( kpar ) ) );
+    for( int kpar = 2; kpar < nparf; kpar++ ) z[kpar] = z[kpar - 1] + po2log - 2. * log( fptype( kpar - 1 ) );
+    for( int kpar = 2; kpar < nparf; kpar++ ) z[kpar] = ( z[kpar] - log( fptype( kpar ) ) );
 
     // generate n massless momenta in infinite phase space
     fptype q[nparf][np4];
-    for( size_t iparf = 0; iparf < nparf; iparf++ )
+    for( int iparf = 0; iparf < nparf; iparf++ )
     {
       const fptype r1 = R_ACCESS::kernelAccessIp4IparfConst( rndmom, 0, iparf );
       const fptype r2 = R_ACCESS::kernelAccessIp4IparfConst( rndmom, 1, iparf );
@@ -140,22 +138,22 @@ namespace mg5amcCpu
     // calculate the parameters of the conformal transformation
     fptype r[np4];
     fptype b[np4 - 1];
-    for( size_t i4 = 0; i4 < np4; i4++ ) r[i4] = 0.;
-    for( size_t iparf = 0; iparf < nparf; iparf++ )
+    for( int i4 = 0; i4 < np4; i4++ ) r[i4] = 0.;
+    for( int iparf = 0; iparf < nparf; iparf++ )
     {
-      for( size_t i4 = 0; i4 < np4; i4++ ) r[i4] = r[i4] + q[iparf][i4];
+      for( int i4 = 0; i4 < np4; i4++ ) r[i4] = r[i4] + q[iparf][i4];
     }
     const fptype rmas = sqrt( pow( r[0], 2 ) - pow( r[3], 2 ) - pow( r[2], 2 ) - pow( r[1], 2 ) );
-    for( size_t i4 = 1; i4 < np4; i4++ ) b[i4 - 1] = -r[i4] / rmas;
+    for( int i4 = 1; i4 < np4; i4++ ) b[i4 - 1] = -r[i4] / rmas;
     const fptype g = r[0] / rmas;
     const fptype a = 1. / ( 1. + g );
     const fptype x0 = energy / rmas;
 
     // transform the q's conformally into the p's (i.e. the 'momenta')
-    for( size_t iparf = 0; iparf < nparf; iparf++ )
+    for( int iparf = 0; iparf < nparf; iparf++ )
     {
       fptype bq = b[0] * q[iparf][1] + b[1] * q[iparf][2] + b[2] * q[iparf][3];
-      for( size_t i4 = 1; i4 < np4; i4++ )
+      for( int i4 = 1; i4 < np4; i4++ )
       {
         M_ACCESS::kernelAccessIp4Ipar( momenta, i4, iparf + npari ) = x0 * ( q[iparf][i4] + b[i4 - 1] * ( q[iparf][0] + a * bq ) );
       }

@@ -6,9 +6,7 @@
 #ifndef EventStatistics_H
 #define EventStatistics_H 1
 
-#include "mgOnGpuConfig.h"
-
-#include "CPPProcess.h" // for npar (meGeVexponent)
+#include "mgOnGpuConfig.h" // for npar (meGeVexponent)
 
 #include <algorithm>
 #include <cmath>
@@ -134,7 +132,7 @@ namespace mg5amcCpu
     void printout( std::ostream& out ) const
     {
       const EventStatistics& s = *this;
-      constexpr size_t meGeVexponent = -( 2 * CPPProcess::npar - 8 );
+      constexpr int meGeVexponent = -( 2 * mgOnGpu::npar - 8 );
       out << s.tag << "NumMatrixElems(notAbnormal) = " << s.nevtOK() << std::endl
           << std::scientific // fixed format: affects all floats (default precision: 6)
           << s.tag << "MeanMatrixElemValue         = ( " << s.meanME()

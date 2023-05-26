@@ -8,14 +8,7 @@
 
 #include "mgOnGpuConfig.h"
 
-#include "CPPProcess.h"
 #include "MemoryAccessHelpers.h"
-
-#ifdef __CUDACC__
-using mg5amcGpu::CPPProcess;
-#else
-using mg5amcCpu::CPPProcess;
-#endif
 
 //----------------------------------------------------------------------------
 
@@ -39,10 +32,10 @@ private: /* clang-format on */
   friend class KernelAccessHelper<MemoryAccessRandomNumbersBase, false>;
 
   // The number of components of a 4-momentum
-  static constexpr int np4 = CPPProcess::np4;
+  static constexpr int np4 = mgOnGpu::np4;
 
   // The number of final state particles in this physics process
-  static constexpr int nparf = CPPProcess::nparf;
+  static constexpr int nparf = mgOnGpu::nparf;
 
   //--------------------------------------------------------------------------
   // NB all KernelLaunchers assume that memory access can be decomposed as "accessField = decodeRecord( accessRecord )"
@@ -57,8 +50,8 @@ private: /* clang-format on */
   {
     const int ipagR = ievt / neppR; // #event "R-page"
     const int ieppR = ievt % neppR; // #event in the current event R-page
-    constexpr size_t ip4 = 0;
-    constexpr size_t iparf = 0;
+    constexpr int ip4 = 0;
+    constexpr int iparf = 0;
     return &( buffer[ipagR * nparf * np4 * neppR + iparf * np4 * neppR + ip4 * neppR + ieppR] ); // AOSOA[ipagR][iparf][ip4][ieppR]
   }
 
@@ -66,11 +59,11 @@ private: /* clang-format on */
 
   // Locate a field (output) of an event record (input) from the given field indexes (input)
   // [Signature (non-const) ===> fptype& decodeRecord( fptype* buffer, Ts... args ) <===]
-  // [NB: expand variadic template "Ts... args" to "const size_t ip4, const size_t iparf" and rename "Field" as "Ip4Iparf"]
+  // [NB: expand variadic template "Ts... args" to "const int ip4, const int iparf" and rename "Field" as "Ip4Iparf"]
   static __host__ __device__ inline fptype&
   decodeRecord( fptype* buffer,
-                const size_t ip4,
-                const size_t iparf )
+                const int ip4,
+                const int iparf )
   {
     constexpr int ipagR = 0;
     constexpr int ieppR = 0;
@@ -95,21 +88,21 @@ public:
   static constexpr auto ieventAccessRecordConst = MemoryAccessHelper<MemoryAccessRandomNumbersBase>::ieventAccessRecordConst;
 
   // Locate a field (output) of an event record (input) from the given field indexes (input)
-  // [Signature (non-const) ===> fptype& decodeRecord( fptype* buffer, const size_t ipar, const size_t iparf ) <===]
+  // [Signature (non-const) ===> fptype& decodeRecord( fptype* buffer, const int ipar, const int iparf ) <===]
   static constexpr auto decodeRecordIp4Iparf = MemoryAccessHelper<MemoryAccessRandomNumbersBase>::decodeRecord;
 
   // Locate a field (output) of an event record (input) from the given field indexes (input)
-  // [Signature (const) ===> const fptype& decodeRecordConst( const fptype* buffer, const size_t ipar, const size_t iparf ) <===]
+  // [Signature (const) ===> const fptype& decodeRecordConst( const fptype* buffer, const int ipar, const int iparf ) <===]
   static constexpr auto decodeRecordIp4IparfConst =
     MemoryAccessHelper<MemoryAccessRandomNumbersBase>::template decodeRecordConst<int, int>;
 
   // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
-  // [Signature (non-const) ===> fptype& ieventAccessIp4Iparf( fptype* buffer, const ievt, const size_t ipar, const size_t iparf ) <===]
+  // [Signature (non-const) ===> fptype& ieventAccessIp4Iparf( fptype* buffer, const ievt, const int ipar, const int iparf ) <===]
   static constexpr auto ieventAccessIp4Iparf =
     MemoryAccessHelper<MemoryAccessRandomNumbersBase>::template ieventAccessField<int, int>;
 
   // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
-  // [Signature (const) ===> const fptype& ieventAccessIp4IparfConst( const fptype* buffer, const ievt, const size_t ipar, const size_t iparf ) <===]
+  // [Signature (const) ===> const fptype& ieventAccessIp4IparfConst( const fptype* buffer, const ievt, const int ipar, const int iparf ) <===]
   static constexpr auto ieventAccessIp4IparfConst =
     MemoryAccessHelper<MemoryAccessRandomNumbersBase>::template ieventAccessFieldConst<int, int>;
 };
@@ -124,12 +117,12 @@ class KernelAccessRandomNumbers
 public:
 
   // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
-  // [Signature (non-const) ===> fptype& kernelAccessIp4Iparf( fptype* buffer, const size_t ipar, const size_t iparf ) <===]
+  // [Signature (non-const) ===> fptype& kernelAccessIp4Iparf( fptype* buffer, const int ipar, const int iparf ) <===]
   static constexpr auto kernelAccessIp4Iparf =
     KernelAccessHelper<MemoryAccessRandomNumbersBase, onDevice>::template kernelAccessField<int, int>;
 
   // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
-  // [Signature (const) ===> const fptype& kernelAccessIp4IparfConst( const fptype* buffer, const size_t ipar, const size_t iparf ) <===]
+  // [Signature (const) ===> const fptype& kernelAccessIp4IparfConst( const fptype* buffer, const int ipar, const int iparf ) <===]
   static constexpr auto kernelAccessIp4IparfConst =
     KernelAccessHelper<MemoryAccessRandomNumbersBase, onDevice>::template kernelAccessFieldConst<int, int>;
 };
