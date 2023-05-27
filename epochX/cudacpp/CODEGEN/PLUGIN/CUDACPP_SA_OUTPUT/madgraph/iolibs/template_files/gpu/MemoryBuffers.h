@@ -10,6 +10,7 @@
 
 #include "mgOnGpuCxtypes.h"
 
+#include "CPPProcess.h"
 #include "CudaRuntime.h"
 #include "Parameters_%(model_name)s.h"
 
@@ -23,14 +24,15 @@ namespace mg5amcCpu
 {
   //--------------------------------------------------------------------------
 
-  // TEMPORARY? Take this from a PhysicsProcess class? Define them here directly in codegen?
   namespace MemoryBuffers
   {
-    static constexpr size_t np4 = mgOnGpu::np4;
-    static constexpr size_t nparf = mgOnGpu::nparf;
-    static constexpr size_t npar = mgOnGpu::npar;
-    static constexpr size_t nw6 = mgOnGpu::nw6;
+    // Process-independent compile-time constants
+    static constexpr size_t np4 = CPPProcess::np4;
+    static constexpr size_t nw6 = CPPProcess::nw6;
     static constexpr size_t nx2 = mgOnGpu::nx2;
+    // Process-dependent compile-time constants
+    static constexpr size_t nparf = CPPProcess::nparf;
+    static constexpr size_t npar = CPPProcess::npar;
     static constexpr size_t ndcoup = Parameters_%(model_name)s_dependentCouplings::ndcoup;
   }
 
