@@ -1,6 +1,6 @@
 #include "Bridge.h"
 #include "CPPProcess.h"
-#include "CudaRuntime.h"
+#include "GpuRuntime.h"
 
 extern "C"
 {
@@ -42,7 +42,7 @@ extern "C"
   void fbridgecreate_( CppObjectInFortran** ppbridge, const int* pnevtF, const int* pnparF, const int* pnp4F )
   {
 #ifdef __CUDACC__
-    CudaRuntime::setUp();
+    GpuRuntime::setUp();
 #endif
     // Create a process object, read parm card and set parameters
     // FIXME: the process instance can happily go out of scope because it is only needed to read parameters?

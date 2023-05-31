@@ -1,7 +1,7 @@
 #include "RandomNumberKernels.h"
 
 #include "CommonRandomNumbers.h"
-#include "CudaRuntime.h"
+#include "GpuRuntime.h"
 #include "MemoryBuffers.h"
 
 #include <cassert>

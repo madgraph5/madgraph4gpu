@@ -5,7 +5,7 @@
 
 #include "mgOnGpuCxtypes.h"
 
-#include "gpu_abstraction.h"
+#include "GpuRuntime.h"
 #include "Parameters_sm.h"
 
 #include <sstream>

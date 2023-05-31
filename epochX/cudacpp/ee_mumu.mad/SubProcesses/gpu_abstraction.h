@@ -1,46 +1,72 @@
 // gpu_abstraction.h
 #pragma once
 
+#include <cassert>
+#include <iostream>
+
 #ifdef __CUDACC__
-    // NVIDIA GPU using CUDA
-    #include <CudaRuntime.h>
 
-    #define gpuError_t cudaError_t
-    #define gpuPeekAtLastError cudaPeekAtLastError
+  // Defines correct compiler
+  #define __CUDACC__ __CUDACC__
 
-    #define gpuMallocHost(ptr, size) checkCuda( cudaMallocHost(ptr, size) )
-    #define gpuMalloc(ptr, size) checkCuda( cudaMalloc(ptr, size) )
+  //--------------------------------------------------------------------------
 
-    #define gpuMemcpy(dstData, srcData, srcBytes, func) checkCuda( cudaMemcpy(dstData, srcData, srcBytes, func) )
-    #define gpuMemcpyHostToDevice cudaMemcpyHostToDevice
-    #define gpuMemcpyDeviceToHost cudaMemcpyDeviceToHost
-    #define gpuMemcpyToSymbol(type1, type2, size) checkCuda( cudaMemcpyToSymbol(type1, type2, size) )
+  #define gpuError_t cudaError_t
+  #define gpuPeekAtLastError cudaPeekAtLastError
+  #define gpuGetErrorString cudaGetErrorString
+  #define gpuSuccess cudaSuccess
 
-    #define gpuFree(ptr) checkCuda( cudaFree(ptr) )
-    #define gpuFreeHost(ptr) checkCuda( cudaFreeHost(ptr) )
+  #define gpuMallocHost(ptr, size) checkGpu( cudaMallocHost(ptr, size) )
+  #define gpuMalloc(ptr, size) checkGpu( cudaMalloc(ptr, size) )
 
-    #define gpuDeviceSynchronize cudaDeviceSynchronize
-    #define gpuDeviceReset cudaDeviceReset
+  #define gpuMemcpy(dstData, srcData, srcBytes, func) checkGpu( cudaMemcpy(dstData, srcData, srcBytes, func) )
+  #define gpuMemcpyHostToDevice cudaMemcpyHostToDevice
+  #define gpuMemcpyDeviceToHost cudaMemcpyDeviceToHost
+  #define gpuMemcpyToSymbol(type1, type2, size) checkGpu( cudaMemcpyToSymbol(type1, type2, size) )
 
-#elif defined(__HIP__)
-    // AMD GPU using HIP
-    #include <hip/hip_runtime.h>
+  #define gpuFree(ptr) checkGpu( cudaFree(ptr) )
+  #define gpuFreeHost(ptr) checkGpu( cudaFreeHost(ptr) )
 
-    #define gpuError_t hipError_t
-    #define gpuPeekAtLastError hipPeekAtLastError
+  #define gpuSetDevice cudaSetDevice
+  #define gpuDeviceSynchronize cudaDeviceSynchronize
+  #define gpuDeviceReset cudaDeviceReset
 
-    #define gpuMallocHost(ptr, size) checkHip( hipMallocHost(ptr, size) )
-    #define gpuMalloc(ptr, size) checkHip( hipMalloc(ptr, size) )
+  #define gpuLaunchKernel( kernel, blocks, threads, ...)                    kernel<<<blocks, threads>>> (__VA_ARGS__)
+  #define gpuLaunchKernelSharedMem(kernel, blocks, threads, sharedMem, ...) kernel<<<blocks, threads, sharedMem>>>(__VA_ARGS__)
 
-    #define gpuMemcpy(dstData, srcData, srcBytes, func) checkHip( hipMemcpy(dstData, srcData, srcBytes, func) )
-    #define gpuMemcpyHostToDevice hipMemcpyHostToDevice
-    #define gpuMemcpyDeviceToHost hipMemcpyDeviceToHost
-    #define gpuMemcpyToSymbol(type1, type2, size) checkHip( hipMemcpyToSymbol(type1, type2, size) )
+//--------------------------------------------------------------------------
 
-    #define gpuFree(ptr) checkHip( hipFree(ptr) )
-    #define gpuFreeHost(ptr) checkHip( hipFreeHost(ptr) )
+#elif defined(__HIPCC__)
 
-    #define gpuDeviceSynchronize hipDeviceSynchronize
-    #define gpuDeviceReset hipDeviceReset
+  // Defines correct compiler
+  #define __CUDACC__ __HIPCC__
+
+  //--------------------------------------------------------------------------
+
+  #define gpuError_t hipError_t
+  #define gpuPeekAtLastError hipPeekAtLastError
+  #define gpuGetErrorString hipGetErrorString
+  #define gpuSuccess hipSuccess
+
+  #define gpuMallocHost(ptr, size) checkGpu( hipHostMalloc(ptr, size) ) // HostMalloc better
+  #define gpuMalloc(ptr, size) checkGpu( hipMalloc(ptr, size) )
+
+  #define gpuMemcpy(dstData, srcData, srcBytes, func) checkGpu( hipMemcpy(dstData, srcData, srcBytes, func) )
+  #define gpuMemcpyHostToDevice hipMemcpyHostToDevice
+  #define gpuMemcpyDeviceToHost hipMemcpyDeviceToHost
+  #define gpuMemcpyToSymbol(type1, type2, size) checkGpu( hipMemcpyToSymbol(type1, type2, size) )
+
+  #define gpuFree(ptr) checkGpu( hipFree(ptr) )
+  #define gpuFreeHost(ptr) checkGpu( hipFreeHost(ptr) )
+
+  #define gpuSetDevice hipSetDevice
+  #define gpuDeviceSynchronize hipDeviceSynchronize
+  #define gpuDeviceReset hipDeviceReset
+
+  #define gpuLaunchKernel(kernel, blocks, threads, sharedMemSize, ...) \
+          hipLaunchKernelGGL(kernel, blocks, threads, __VA_ARGS__);
+
+  #define gpuLaunchKernelSharedMem(kernel, blocks, threads, ...) \
+          hipLaunchKernelGGL(kernel, blocks, threads, sharedMemSize, __VA_ARGS__);
 
 #endif

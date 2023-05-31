@@ -10,7 +10,7 @@
 #include "mgOnGpuConfig.h"
 
 #include "HelAmps_sm.h"
-#include "gpu_abstraction.h" // for GPU abstraction, checkCuda is run on macros defined here
+#include "GpuRuntime.h" // for GPU abstraction, checkCuda is run on macros defined here
 #include "MemoryAccessAmplitudes.h"
 #include "MemoryAccessCouplings.h"
 #include "MemoryAccessCouplingsFixed.h"
@@ -40,7 +40,7 @@
 // Class member functions for calculating the matrix elements for
 // Process: e+ e- > mu+ mu- WEIGHTED<=4 @1
 
-#ifdef __CUDACC__
+#ifdef __CUDACC__ 
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
