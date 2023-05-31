@@ -42,9 +42,10 @@ INCFLAGS += -I../../src
 # Dependency on test directory
 TESTDIR  = ../../../../../test
 ifneq ($(wildcard $(TESTDIR)),)
-GTESTLIBDIR = $(TESTDIR)/googletest/build/lib/
+GTESTDIR = $(TESTDIR)/googletest/install
+GTESTLIBDIR = $(GTESTDIR)/lib64/
 GTESTLIBS   = $(GTESTLIBDIR)/libgtest.a $(GTESTLIBDIR)/libgtest_main.a
-GTESTINC    = -I$(TESTDIR)/googletest/googletest/include
+GTESTINC    = -I$(GTESTDIR)/include
 else
 GTESTLIBDIR =
 GTESTLIBS   =
