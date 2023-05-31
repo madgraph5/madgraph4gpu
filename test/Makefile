@@ -20,4 +20,3 @@ googletest/build/lib/libgtest.a: googletest/build
 
 clean:
 	rm -rf googletest
-	rm -f src/*.o
