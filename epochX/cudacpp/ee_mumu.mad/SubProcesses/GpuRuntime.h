@@ -11,7 +11,7 @@
 //--------------------------------------------------------------------------
 
 // See https://stackoverflow.com/a/14038590
-#ifdef __CUDACC__ /* clang-format off */
+#ifdef __GPUCC__ /* clang-format off */
 #define checkGpu( code ) { assertGpu( code, __FILE__, __LINE__ ); }
 inline void assertGpu( gpuError_t code, const char* file, int line, bool abort = true )
 {
@@ -25,7 +25,7 @@ inline void assertGpu( gpuError_t code, const char* file, int line, bool abort =
 
 //--------------------------------------------------------------------------
 
-#ifdef __CUDACC__
+#ifdef __GPUCC__
 namespace mg5amcGpu
 {
   // Instantiate a CudaRuntime at the beginnining of the application's main to

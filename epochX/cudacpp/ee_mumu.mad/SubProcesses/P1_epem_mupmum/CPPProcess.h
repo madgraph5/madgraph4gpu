@@ -18,7 +18,7 @@
 
 //--------------------------------------------------------------------------
 
-#ifdef __CUDACC__
+#ifdef __GPUCC__
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
@@ -85,7 +85,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-#ifdef __CUDACC__
+#ifdef __GPUCC__
   __global__ void
   computeDependentCouplings( const fptype* allgs,    // input: Gs[nevt]
                              fptype* allcouplings ); // output: couplings[nevt*ndcoup*2]
@@ -98,7 +98,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-#ifdef __CUDACC__ /* clang-format off */
+#ifdef __GPUCC__ /* clang-format off */
   __global__ void
   sigmaKin_getGoodHel( const fptype* allmomenta,   // input: momenta[nevt*npar*4]
                        const fptype* allcouplings, // input: couplings[nevt*ndcoup*2]
@@ -128,7 +128,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-#ifdef __CUDACC__ /* clang-format off */
+#ifdef __GPUCC__ /* clang-format off */
   __global__ void
   sigmaKin( const fptype* allmomenta,      // input: momenta[nevt*npar*4]
             const fptype* allcouplings,    // input: couplings[nevt*ndcoup*2]

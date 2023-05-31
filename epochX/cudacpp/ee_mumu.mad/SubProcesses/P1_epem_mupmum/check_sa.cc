@@ -55,7 +55,7 @@ usage( char* argv0, int ret = 1 )
   std::cout << std::endl;
   std::cout << "Summary stats are always computed: '-p' and '-j' only control their printout" << std::endl;
   std::cout << "The '-d' flag only enables NaN/abnormal warnings and OMP debugging" << std::endl;
-#ifndef __CUDACC__
+#ifndef __GPUCC__
 #ifdef _OPENMP
   std::cout << std::endl;
   std::cout << "Use the OMP_NUM_THREADS environment variable to control OMP multi-threading" << std::endl;
@@ -69,7 +69,7 @@ int
 main( int argc, char** argv )
 {
   // Namespaces for CUDA and C++ (FIXME - eventually use the same namespace everywhere...)
-#ifdef __CUDACC__
+#ifdef __GPUCC__
   using namespace mg5amcGpu;
 #else
   using namespace mg5amcCpu;
@@ -94,7 +94,7 @@ main( int argc, char** argv )
     CurandHost = 1,
     CurandDevice = 2
   };
-#ifdef __CUDACC__
+#ifdef __GPUCC__
   RandomNumberMode rndgen = RandomNumberMode::CurandDevice; // default on GPU
 #elif not defined MGONGPU_HAS_NO_CURAND
   RandomNumberMode rndgen = RandomNumberMode::CurandHost;  // default on CPU if build has curand
@@ -107,7 +107,7 @@ main( int argc, char** argv )
     RamboHost = 1,
     RamboDevice = 2
   };
-#ifdef __CUDACC__
+#ifdef __GPUCC__
   RamboSamplingMode rmbsmp = RamboSamplingMode::RamboDevice; // default on GPU
 #else
   RamboSamplingMode rmbsmp = RamboSamplingMode::RamboHost; // default on CPU
@@ -137,7 +137,7 @@ main( int argc, char** argv )
     }
     else if( arg == "--curdev" )
     {
-#ifdef __CUDACC__
+#ifdef __GPUCC__
       rndgen = RandomNumberMode::CurandDevice;
 #else
       throw std::runtime_error( "CurandDevice is not supported on CPUs" );
@@ -157,7 +157,7 @@ main( int argc, char** argv )
     }
     else if( arg == "--rmbdev" )
     {
-#ifdef __CUDACC__
+#ifdef __GPUCC__
       rmbsmp = RamboSamplingMode::RamboDevice;
 #else
       throw std::runtime_error( "RamboDevice is not supported on CPUs" );
@@ -231,13 +231,13 @@ main( int argc, char** argv )
     return usage( argv[0] );
   }
 
-#ifndef __CUDACC__
+#ifndef __GPUCC__
 #ifdef _OPENMP
   ompnumthreadsNotSetMeansOneThread( debug ? 1 : 0 ); // quiet(-1), info(0), debug(1)
 #endif
 #endif
 
-#ifndef __CUDACC__
+#ifndef __GPUCC__
   // Fail gently and avoid "Illegal instruction (core dumped)" if the host does not support the SIMD used in the ME calculation
   // Note: this prevents a crash on pmpe04 but not on some github CI nodes?
   // [NB: SIMD vectorization in mg5amc C++ code is only used in the ME calculation below MatrixElementKernelHost!]
@@ -255,7 +255,7 @@ main( int argc, char** argv )
 
   // === STEP 0 - INITIALISE
 
-#ifdef __CUDACC__
+#ifdef __GPUCC__
 
   // --- 00. Initialise cuda
   // Instantiate a GpuRuntime (CUDA or HIP based on target arch) at the beginnining of the application's main to
@@ -284,7 +284,7 @@ main( int argc, char** argv )
   timermap.start( alloKey );
 
   // Memory buffers for random numbers for momenta
-#ifndef __CUDACC__
+#ifndef __GPUCC__
   HostBufferRndNumMomenta hstRndmom( nevt );
 #else
   PinnedHostBufferRndNumMomenta hstRndmom( nevt );
@@ -292,7 +292,7 @@ main( int argc, char** argv )
 #endif
 
   // Memory buffers for sampling weights
-#ifndef __CUDACC__
+#ifndef __GPUCC__
   HostBufferWeights hstWeights( nevt );
 #else
   PinnedHostBufferWeights hstWeights( nevt );
@@ -300,7 +300,7 @@ main( int argc, char** argv )
 #endif
 
   // Memory buffers for momenta
-#ifndef __CUDACC__
+#ifndef __GPUCC__
   HostBufferMomenta hstMomenta( nevt );
 #else
   PinnedHostBufferMomenta hstMomenta( nevt );
@@ -308,7 +308,7 @@ main( int argc, char** argv )
 #endif
 
   // Memory buffers for Gs
-#ifndef __CUDACC__
+#ifndef __GPUCC__
   HostBufferGs hstGs( nevt );
 #else
   PinnedHostBufferGs hstGs( nevt );
@@ -325,7 +325,7 @@ main( int argc, char** argv )
   }
 
   // Memory buffers for matrix elements
-#ifndef __CUDACC__
+#ifndef __GPUCC__
   HostBufferMatrixElements hstMatrixElements( nevt );
 #else
   PinnedHostBufferMatrixElements hstMatrixElements( nevt );
@@ -334,7 +334,7 @@ main( int argc, char** argv )
 
   // Memory buffers for random numbers for helicity selection
   // *** NB #403 these buffers always remain initialised at 0: no need for helicity choice in gcheck/check (no LHE produced) ***
-#ifndef __CUDACC__
+#ifndef __GPUCC__
   HostBufferRndNumHelicity hstRndHel( nevt );
 #else
   PinnedHostBufferRndNumHelicity hstRndHel( nevt );
@@ -343,7 +343,7 @@ main( int argc, char** argv )
 
   // Memory buffers for random numbers for color selection
   // *** NB #402 these buffers always remain initialised at 0: no need for color choice in gcheck/check (no LHE produced) ***
-#ifndef __CUDACC__
+#ifndef __GPUCC__
   HostBufferRndNumColor hstRndCol( nevt );
 #else
   PinnedHostBufferRndNumColor hstRndCol( nevt );
@@ -351,7 +351,7 @@ main( int argc, char** argv )
 #endif
 
   // Memory buffers for helicity selection
-#ifndef __CUDACC__
+#ifndef __GPUCC__
   HostBufferSelectedHelicity hstSelHel( nevt );
 #else
   PinnedHostBufferSelectedHelicity hstSelHel( nevt );
@@ -359,7 +359,7 @@ main( int argc, char** argv )
 #endif
 
   // Memory buffers for color selection
-#ifndef __CUDACC__
+#ifndef __GPUCC__
   HostBufferSelectedColor hstSelCol( nevt );
 #else
   PinnedHostBufferSelectedColor hstSelCol( nevt );
@@ -386,7 +386,7 @@ main( int argc, char** argv )
     const bool onDevice = false;
     prnk.reset( new CurandRandomNumberKernel( hstRndmom, onDevice ) );
   }
-#ifdef __CUDACC__
+#ifdef __GPUCC__
   else
   {
     const bool onDevice = true;
@@ -413,7 +413,7 @@ main( int argc, char** argv )
   }
   else
   {
-#ifdef __CUDACC__
+#ifdef __GPUCC__
     prsk.reset( new RamboSamplingKernelDevice( energy, devRndmom, devMomenta, devWeights, gpublocks, gputhreads ) );
 #else
     throw std::logic_error( "RamboDevice is not supported on CPUs" ); // INTERNAL ERROR (no path to this statement)
@@ -424,7 +424,7 @@ main( int argc, char** argv )
   std::unique_ptr<MatrixElementKernelBase> pmek;
   if( !bridge )
   {
-#ifdef __CUDACC__
+#ifdef __GPUCC__
     pmek.reset( new MatrixElementKernelDevice( devMomenta, devGs, devRndHel, devRndCol, devMatrixElements, devSelHel, devSelCol, gpublocks, gputhreads ) );
 #else
     pmek.reset( new MatrixElementKernelHost( hstMomenta, hstGs, hstRndHel, hstRndCol, hstMatrixElements, hstSelHel, hstSelCol, nevt ) );
@@ -432,7 +432,7 @@ main( int argc, char** argv )
   }
   else
   {
-#ifdef __CUDACC__
+#ifdef __GPUCC__
     pmek.reset( new BridgeKernelDevice( hstMomenta, hstGs, hstRndHel, hstRndCol, hstMatrixElements, hstSelHel, hstSelCol, gpublocks, gputhreads ) );
 #else
     pmek.reset( new BridgeKernelHost( hstMomenta, hstGs, hstRndHel, hstRndCol, hstMatrixElements, hstSelHel, hstSelCol, nevt ) );
@@ -474,7 +474,7 @@ main( int argc, char** argv )
     prnk->generateRnarray();
     //std::cout << "Got random numbers" << std::endl;
 
-#ifdef __CUDACC__
+#ifdef __GPUCC__
     if( rndgen != RandomNumberMode::CurandDevice && rmbsmp == RamboSamplingMode::RamboDevice )
     {
       // --- 1c. Copy rndmom from host to device
@@ -506,7 +506,7 @@ main( int argc, char** argv )
     prsk->getMomentaFinal();
     //std::cout << "Got final momenta" << std::endl;
 
-#ifdef __CUDACC__
+#ifdef __GPUCC__
     if( rmbsmp == RamboSamplingMode::RamboDevice )
     {
       // --- 2c. CopyDToH Weights
@@ -551,7 +551,7 @@ main( int argc, char** argv )
       dynamic_cast<BridgeKernelBase*>( pmek.get() )->transposeInputMomentaC2F();
     }
 
-#ifdef __CUDACC__
+#ifdef __GPUCC__
     // --- 2d. CopyHToD Momenta
     const std::string gKey = "0.. CpHTDg";
     rambtime += timermap.start( gKey ); // FIXME! NOT A RAMBO TIMER!
@@ -580,7 +580,7 @@ main( int argc, char** argv )
     wv3atime += timermap.stop(); // calc only
     wavetime += wv3atime;        // calc plus copy
 
-#ifdef __CUDACC__
+#ifdef __GPUCC__
     if( !bridge )
     {
       // --- 3b. CopyDToH MEs
@@ -721,7 +721,7 @@ main( int argc, char** argv )
     rndgentxt = "CURAND HOST";
   else if( rndgen == RandomNumberMode::CurandDevice )
     rndgentxt = "CURAND DEVICE";
-#ifdef __CUDACC__
+#ifdef __GPUCC__
   rndgentxt += " (CUDA code)";
 #else
   rndgentxt += " (C++ code)";
@@ -730,7 +730,7 @@ main( int argc, char** argv )
   // Workflow description summary
   std::string wrkflwtxt;
   // -- CUDA or C++?
-#ifdef __CUDACC__
+#ifdef __GPUCC__
   wrkflwtxt += "CUD:";
 #else
   wrkflwtxt += "CPP:";
@@ -746,7 +746,7 @@ main( int argc, char** argv )
   wrkflwtxt += "???+"; // no path to this statement
 #endif
   // -- CUCOMPLEX or THRUST or STD complex numbers?
-#ifdef __CUDACC__
+#ifdef __GPUCC__
 #if defined MGONGPU_CUCXTYPE_CUCOMPLEX
   wrkflwtxt += "CUX:";
 #elif defined MGONGPU_CUCXTYPE_THRUST
@@ -781,7 +781,7 @@ main( int argc, char** argv )
     wrkflwtxt += "RMBDEV+";
   else
     wrkflwtxt += "??????+"; // no path to this statement
-#ifdef __CUDACC__
+#ifdef __GPUCC__
   // -- HOST or DEVICE matrix elements? Standalone MEs or BRIDGE?
   if( !bridge )
     wrkflwtxt += "MESDEV";
@@ -837,7 +837,7 @@ main( int argc, char** argv )
 
   if( perf )
   {
-#ifndef __CUDACC__
+#ifndef __GPUCC__
 #ifdef _OPENMP
     // Get the output of "nproc --all" (https://stackoverflow.com/a/478960)
     std::string nprocall;
@@ -856,7 +856,7 @@ main( int argc, char** argv )
 #endif
     // Dump all configuration parameters and all results
     std::cout << std::string( SEP79, '*' ) << std::endl
-#ifdef __CUDACC__
+#ifdef __GPUCC__
               << "Process                     = " << XSTRINGIFY( MG_EPOCH_PROCESS_ID ) << "_CUDA"
 #else
               << "Process                     = " << XSTRINGIFY( MG_EPOCH_PROCESS_ID ) << "_CPP"
@@ -884,7 +884,7 @@ main( int argc, char** argv )
 #elif defined MGONGPU_FPTYPE_FLOAT
               << "FP precision                = FLOAT (NaN/abnormal=" << nabn << ", zero=" << nzero << ")" << std::endl
 #endif
-#ifdef __CUDACC__
+#ifdef __GPUCC__
 #if defined MGONGPU_CUCXTYPE_CUCOMPLEX
               << "Complex type                = CUCOMPLEX" << std::endl
 #elif defined MGONGPU_CUCXTYPE_THRUST
@@ -898,7 +898,7 @@ main( int argc, char** argv )
               << " [HARDCODED FOR REPRODUCIBILITY]" << std::endl
               << "Momenta memory layout       = AOSOA[" << neppM << "]"
               << ( neppM == 1 ? " == AOS" : "" ) << std::endl
-#ifdef __CUDACC__
+#ifdef __GPUCC__
     //<< "Wavefunction GPU memory     = LOCAL" << std::endl
 #else
 #if !defined MGONGPU_CPPSIMD
@@ -929,7 +929,7 @@ main( int argc, char** argv )
 #endif
 #endif
               << "Random number generation    = " << rndgentxt << std::endl
-#ifndef __CUDACC__
+#ifndef __GPUCC__
 #ifdef _OPENMP
               << "OMP threads / `nproc --all` = " << omp_get_max_threads() << " / " << nprocall // includes a newline
 #endif
@@ -1025,7 +1025,7 @@ main( int argc, char** argv )
              << "\"FLOAT (NaN/abnormal=" << nabn << ")\"," << std::endl
 #endif
              << "\"Complex type\": "
-#ifdef __CUDACC__
+#ifdef __GPUCC__
 #if defined MGONGPU_CUCXTYPE_CUCOMPLEX
              << "\"CUCOMPLEX\"," << std::endl
 #elif defined MGONGPU_CUCXTYPE_THRUST
@@ -1040,7 +1040,7 @@ main( int argc, char** argv )
              << "\"Momenta memory layout\": "
              << "\"AOSOA[" << neppM << "]\""
              << ( neppM == 1 ? " == AOS" : "" ) << ", " << std::endl
-#ifdef __CUDACC__
+#ifdef __GPUCC__
     //<< "\"Wavefunction GPU memory\": " << "\"LOCAL\"," << std::endl
 #endif
              << "\"Curand generation\": "

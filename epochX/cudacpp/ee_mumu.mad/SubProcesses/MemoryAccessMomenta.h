@@ -17,7 +17,7 @@ public:
 
   // Number of Events Per Page in the momenta AOSOA memory buffer layout
   // (these are all best kept as a compile-time constants: see issue #23)
-#ifdef __CUDACC__ /* clang-format off */
+#ifdef __GPUCC__ /* clang-format off */
   // -----------------------------------------------------------------------------------------------
   // --- GPUs: neppM is best set to a power of 2 times the number of fptype's in a 32-byte cacheline
   // --- This is relevant to ensure coalesced access to momenta in global memory

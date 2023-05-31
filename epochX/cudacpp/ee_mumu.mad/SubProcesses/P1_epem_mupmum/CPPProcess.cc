@@ -40,7 +40,7 @@
 // Class member functions for calculating the matrix elements for
 // Process: e+ e- > mu+ mu- WEIGHTED<=4 @1
 
-#ifdef __CUDACC__ 
+#ifdef __GPUCC__ 
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
@@ -74,7 +74,7 @@ namespace mg5amcCpu
   __device__ const fptype cIPD[2] = { (fptype)Parameters_sm::mdl_MZ, (fptype)Parameters_sm::mdl_WZ };
   __device__ const fptype cIPC[6] = { (fptype)Parameters_sm::GC_3.real(), (fptype)Parameters_sm::GC_3.imag(), (fptype)Parameters_sm::GC_50.real(), (fptype)Parameters_sm::GC_50.imag(), (fptype)Parameters_sm::GC_59.real(), (fptype)Parameters_sm::GC_59.imag() };
 #else
-#ifdef __CUDACC__
+#ifdef __GPUCC__
   __device__ __constant__ fptype cIPD[2];
   __device__ __constant__ fptype cIPC[6];
 #else
@@ -84,7 +84,7 @@ namespace mg5amcCpu
 #endif
 
   // Helicity combinations (and filtering of "good" helicity combinations)
-#ifdef __CUDACC__
+#ifdef __GPUCC__
   __device__ __constant__ short cHel[ncomb][npar];
   __device__ __constant__ int cNGoodHel;
   __device__ __constant__ int cGoodHel[ncomb];
@@ -112,13 +112,13 @@ namespace mg5amcCpu
                            fptype* allDenominators,       // output: multichannel denominators[nevt], running_sum_over_helicities
 #endif
                            fptype_sv* jamp2_sv            // output: jamp2[nParity][ncolor][neppV] for color choice (nullptr if disabled)
-#ifndef __CUDACC__
+#ifndef __GPUCC__
                            , const int ievt00             // input: first event number in current C++ event page (for CUDA, ievt depends on threadid)
 #endif
                            )
   //ALWAYS_INLINE // attributes are not permitted in a function definition
   {
-#ifdef __CUDACC__
+#ifdef __GPUCC__
     using namespace mg5amcGpu;
     using M_ACCESS = DeviceAccessMomenta;         // non-trivial access: buffer includes all events
     using E_ACCESS = DeviceAccessMatrixElements;  // non-trivial access: buffer includes all events
@@ -145,7 +145,7 @@ namespace mg5amcCpu
 #endif /* clang-format on */
     mgDebug( 0, __FUNCTION__ );
     //printf( "calculate_wavefunctions: ihel=%2d\n", ihel );
-#ifndef __CUDACC__
+#ifndef __GPUCC__
     //printf( "calculate_wavefunctions: ievt00=%d\n", ievt00 );
 #endif
 
@@ -177,12 +177,12 @@ namespace mg5amcCpu
 #endif
     for( int iParity = 0; iParity < nParity; ++iParity )
     { // START LOOP ON IPARITY
-#ifndef __CUDACC__
+#ifndef __GPUCC__
       const int ievt0 = ievt00 + iParity * neppV;
 #endif
       constexpr size_t nxcoup = ndcoup + nicoup; // both dependent and independent couplings
       const fptype* allCOUPs[nxcoup];
-#ifdef __CUDACC__
+#ifdef __GPUCC__
 #pragma nv_diagnostic push
 #pragma nv_diag_suppress 186 // e.g. <<warning #186-D: pointless comparison of unsigned integer with zero>>
 #endif
@@ -190,7 +190,7 @@ namespace mg5amcCpu
         allCOUPs[idcoup] = CD_ACCESS::idcoupAccessBufferConst( allcouplings, idcoup ); // dependent couplings, vary event-by-event
       for( size_t iicoup = 0; iicoup < nicoup; iicoup++ )
         allCOUPs[ndcoup + iicoup] = CI_ACCESS::iicoupAccessBufferConst( cIPC, iicoup ); // independent couplings, fixed for all events
-#ifdef __CUDACC__
+#ifdef __GPUCC__
 #pragma nv_diagnostic pop
       // CUDA kernels take input/output buffers with momenta/MEs for all events
       const fptype* momenta = allmomenta;
@@ -228,7 +228,7 @@ namespace mg5amcCpu
       // *** DIAGRAM 1 OF 2 ***
 
       // Wavefunction(s) for diagram number 1
-#if not( defined __CUDACC__ and defined MGONGPU_TEST_DIVERGENCE )
+#if not( defined __GPUCC__ and defined MGONGPU_TEST_DIVERGENCE )
       opzxxx<M_ACCESS, W_ACCESS>( momenta, cHel[ihel][0], -1, w_fp[0], 0 ); // NB: opzxxx only uses pz
 #else
       if( ( blockDim.x * blockIdx.x + threadIdx.x ) % 2 == 0 )
@@ -283,7 +283,7 @@ namespace mg5amcCpu
       // [NB do keep 'static' for these constexpr arrays, see issue #283]
       static constexpr fptype2 cf[ncolor][ncolor] = { { 1 } }; // 2-D array[1][1]
 
-#ifndef __CUDACC__
+#ifndef __GPUCC__
       // Pre-compute a constexpr triangular color matrix properly normalized #475
       struct TriangularNormalizedColorMatrix
       {
@@ -340,7 +340,7 @@ namespace mg5amcCpu
 #endif
       for( int icol = 0; icol < ncolor; icol++ )
       {
-#ifndef __CUDACC__
+#ifndef __GPUCC__
         // === C++ START ===
         // Diagonal terms
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
@@ -399,7 +399,7 @@ namespace mg5amcCpu
       MEs_sv_previous += deltaMEs_previous;
 #endif
       /*
-#ifdef __CUDACC__
+#ifdef __GPUCC__
       if ( cNGoodHel > 0 ) printf( "calculate_wavefunctions: ievt=%6d ihel=%2d me_running=%f\n", blockDim.x * blockIdx.x + threadIdx.x, ihel, MEs_sv );
 #else
 #ifdef MGONGPU_CPPSIMD
@@ -446,7 +446,7 @@ namespace mg5amcCpu
       { 1, -1, 1, 1 },
       { 1, -1, -1, -1 },
       { 1, -1, -1, 1 } };
-#ifdef __CUDACC__
+#ifdef __GPUCC__
     gpuMemcpyToSymbol( cHel, tHel, ncomb * mgOnGpu::npar * sizeof( short ) );
 #else
     memcpy( cHel, tHel, ncomb * mgOnGpu::npar * sizeof( short ) );
@@ -487,7 +487,7 @@ namespace mg5amcCpu
     // Then copy them to CUDA constant memory (issue #39) or its C++ emulation in file-scope static memory
     const fptype tIPD[2] = { (fptype)m_pars->mdl_MZ, (fptype)m_pars->mdl_WZ };
     const cxtype tIPC[3] = { cxmake( m_pars->GC_3 ), cxmake( m_pars->GC_50 ), cxmake( m_pars->GC_59 ) };
-#ifdef __CUDACC__
+#ifdef __GPUCC__
     gpuMemcpyToSymbol( cIPD, tIPD, 2 * sizeof( fptype ) );
     gpuMemcpyToSymbol( cIPC, tIPC, 3 * sizeof( cxtype ) );
 #else
@@ -526,7 +526,7 @@ namespace mg5amcCpu
   {
     std::stringstream out;
     // CUDA version (NVCC)
-    // [Use __NVCC__ instead of __CUDACC__ here!]
+    // [Use __NVCC__ instead of __GPUCC__ here!]
     // [This tests if 'nvcc' was used even to build a .cc file, even if not necessarily 'nvcc -x cu' for a .cu file]
     // [Check 'nvcc --compiler-options -dM -E dummy.c | grep CUDA': see https://stackoverflow.com/a/53713712]
 #ifdef __NVCC__
@@ -591,12 +591,12 @@ namespace mg5amcCpu
   __global__ void /* clang-format off */
   computeDependentCouplings( const fptype* allgs, // input: Gs[nevt]
                              fptype* allcouplings // output: couplings[nevt*ndcoup*2]
-#ifndef __CUDACC__
+#ifndef __GPUCC__
                              , const int nevt     // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
   ) /* clang-format on */
   {
-#ifdef __CUDACC__
+#ifdef __GPUCC__
     using namespace mg5amcGpu;
     using G_ACCESS = DeviceAccessGs;
     using C_ACCESS = DeviceAccessCouplings;
@@ -617,7 +617,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-#ifdef __CUDACC__ /* clang-format off */
+#ifdef __GPUCC__ /* clang-format off */
   __global__ void
   sigmaKin_getGoodHel( const fptype* allmomenta,   // input: momenta[nevt*npar*4]
                        const fptype* allcouplings, // input: couplings[nevt*ndcoup*2]
@@ -746,7 +746,7 @@ namespace mg5amcCpu
         nGoodHel++;
       }
     }
-#ifdef __CUDACC__
+#ifdef __GPUCC__
     gpuMemcpyToSymbol( cNGoodHel, &nGoodHel, sizeof( int ) );
     gpuMemcpyToSymbol( cGoodHel, goodHel, ncomb * sizeof( int ) );
 #else
@@ -772,7 +772,7 @@ namespace mg5amcCpu
 #endif
             int* allselhel,                // output: helicity selection[nevt]
             int* allselcol                 // output: helicity selection[nevt]
-#ifndef __CUDACC__
+#ifndef __GPUCC__
             , const int nevt               // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
             ) /* clang-format on */
@@ -793,7 +793,7 @@ namespace mg5amcCpu
     // Denominators: spins, colors and identical particles
     constexpr int helcolDenominators[1] = { 4 }; // assume nprocesses == 1 (#272 and #343)
 
-#ifdef __CUDACC__
+#ifdef __GPUCC__
     // Remember: in CUDA this is a kernel for one event, in c++ this processes n events
     const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
 #else
@@ -809,7 +809,7 @@ namespace mg5amcCpu
     // Start sigmaKin_lines
     // === PART 0 - INITIALISATION (before calculate_wavefunctions) ===
     // Reset the "matrix elements" - running sums of |M|^2 over helicities for the given event
-#ifdef __CUDACC__
+#ifdef __GPUCC__
     allMEs[ievt] = 0;
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     allNumerators[ievt] = 0;
@@ -837,7 +837,7 @@ namespace mg5amcCpu
     // === PART 1 - HELICITY LOOP: CALCULATE WAVEFUNCTIONS ===
     // (in both CUDA and C++, using precomputed good helicities)
 
-#ifdef __CUDACC__ // CUDA OR C++
+#ifdef __GPUCC__ // CUDA OR C++
 
     // *** START OF PART 1a - CUDA (one event per CPU thread) ***
     // Running sum of partial amplitudes squared for event by event color selection (#402)
@@ -1041,7 +1041,7 @@ namespace mg5amcCpu
     // Get the final |M|^2 as an average over helicities/colors of the running sum of |M|^2 over helicities for the given event
     // [NB 'sum over final spins, average over initial spins', eg see
     // https://www.uzh.ch/cmsssl/physik/dam/jcr:2e24b7b1-f4d7-4160-817e-47b13dbf1d7c/Handout_4_2016-UZH.pdf]
-#ifdef __CUDACC__
+#ifdef __GPUCC__
     allMEs[ievt] /= helcolDenominators[0];
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     if( channelId > 0 ) allMEs[ievt] *= allNumerators[ievt] / allDenominators[ievt];

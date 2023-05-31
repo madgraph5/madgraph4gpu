@@ -72,7 +72,7 @@ debug_me_is_abnormal( const fptype& me, size_t ievtALL )
 
 //============================================================================
 
-#ifdef __CUDACC__
+#ifdef __GPUCC__
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
@@ -180,7 +180,7 @@ namespace mg5amcCpu
 
 //============================================================================
 
-#ifdef __CUDACC__
+#ifdef __GPUCC__
 namespace mg5amcGpu
 {
 

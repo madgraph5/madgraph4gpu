@@ -9,7 +9,7 @@ using mgOnGpu::np4;  // the number of dimensions of 4-momenta (E,px,py,pz)
 
 //============================================================================
 
-#ifdef __CUDACC__
+#ifdef __GPUCC__
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
@@ -40,7 +40,7 @@ namespace mg5amcCpu
 
 //============================================================================
 
-#ifndef __CUDACC__
+#ifndef __GPUCC__
 namespace mg5amcCpu
 {
 
@@ -91,7 +91,7 @@ namespace mg5amcCpu
 
 //============================================================================
 
-#ifdef __CUDACC__
+#ifdef __GPUCC__
 namespace mg5amcGpu
 {
 

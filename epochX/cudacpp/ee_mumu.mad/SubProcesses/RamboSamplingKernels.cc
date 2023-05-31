@@ -9,7 +9,7 @@
 
 #include <sstream>
 
-#ifdef __CUDACC__
+#ifdef __GPUCC__
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
@@ -87,7 +87,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-#ifdef __CUDACC__
+#ifdef __GPUCC__
   RamboSamplingKernelDevice::RamboSamplingKernelDevice( const fptype energy,               // input: energy
                                                         const BufferRndNumMomenta& rndmom, // input: random numbers in [0,1]
                                                         BufferMomenta& momenta,            // output: momenta
@@ -130,7 +130,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-#ifdef __CUDACC__
+#ifdef __GPUCC__
   __global__ void
   getMomentaInitialDevice( const fptype energy,
                            fptype* momenta )
@@ -142,7 +142,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-#ifdef __CUDACC__
+#ifdef __GPUCC__
   void
   RamboSamplingKernelDevice::getMomentaInitial()
   {
@@ -152,7 +152,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-#ifdef __CUDACC__
+#ifdef __GPUCC__
   __global__ void
   getMomentaFinalDevice( const fptype energy,
                          const fptype* rndmom,
@@ -166,7 +166,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-#ifdef __CUDACC__
+#ifdef __GPUCC__
   void
   RamboSamplingKernelDevice::getMomentaFinal()
   {

@@ -5,7 +5,7 @@
 
 #include "MemoryBuffers.h"
 
-#ifdef __CUDACC__
+#ifdef __GPUCC__
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
@@ -88,7 +88,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-#ifdef __CUDACC__
+#ifdef __GPUCC__
   // A class encapsulating RAMBO phase space sampling on a GPU device
   class RamboSamplingKernelDevice final : public SamplingKernelBase, public NumberOfEvents
   {

@@ -9,7 +9,7 @@
 
 //============================================================================
 
-#ifndef __CUDACC__
+#ifndef __GPUCC__
 namespace mg5amcCpu
 {
 
@@ -138,7 +138,7 @@ namespace mg5amcCpu
 
 //============================================================================
 
-#ifdef __CUDACC__
+#ifdef __GPUCC__
 namespace mg5amcGpu
 {
 

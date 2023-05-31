@@ -9,7 +9,7 @@
 #include <limits>
 #include <string>
 
-#ifdef __CUDACC__
+#ifdef __GPUCC__
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu

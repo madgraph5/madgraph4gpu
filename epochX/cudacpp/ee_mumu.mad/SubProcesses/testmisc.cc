@@ -11,7 +11,7 @@
 #include <sstream>
 #include <typeinfo>
 
-#ifdef __CUDACC__
+#ifdef __GPUCC__
 #define TESTID( s ) s##_GPU_MISC
 #else
 #define TESTID( s ) s##_CPU_MISC

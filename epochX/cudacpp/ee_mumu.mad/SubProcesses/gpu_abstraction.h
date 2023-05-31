@@ -4,10 +4,10 @@
 #include <cassert>
 #include <iostream>
 
-#ifdef __CUDACC__
+#ifdef __GPUCC__
 
   // Defines correct compiler
-  #define __CUDACC__ __CUDACC__
+  #define __GPUCC__ __GPUCC__
 
   //--------------------------------------------------------------------------
 
@@ -39,7 +39,7 @@
 #elif defined(__HIPCC__)
 
   // Defines correct compiler
-  #define __CUDACC__ __HIPCC__
+  #define __GPUCC__ __HIPCC__
 
   //--------------------------------------------------------------------------
 
