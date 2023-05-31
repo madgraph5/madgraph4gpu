@@ -131,8 +131,6 @@ namespace mgOnGpu
 
   const int nw6 = 6; // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
 
-  const int nwf = 121; // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
-
   // --- Platform-specific software implementation details
 
   // Maximum number of blocks per grid

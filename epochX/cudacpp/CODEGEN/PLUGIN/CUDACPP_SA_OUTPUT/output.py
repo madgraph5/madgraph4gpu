@@ -1,7 +1,7 @@
 # Copyright (C) 2020-2023 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: O. Mattelaer (Sep 2021) for the MG5aMC CUDACPP plugin.
-# Further modified by: O. Mattelaer, A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
+# Further modified by: O. Mattelaer, A. Valassi, Z. Wettersten (2021-2023) for the MG5aMC CUDACPP plugin.
 
 import os
 
@@ -95,7 +95,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                                       s+'gpu/MemoryAccessAmplitudes.h', s+'gpu/MemoryAccessWavefunctions.h',
                                       s+'gpu/MemoryAccessGs.h', s+'gpu/MemoryAccessCouplingsFixed.h',
                                       s+'gpu/MemoryAccessNumerators.h', s+'gpu/MemoryAccessDenominators.h',
-                                      s+'gpu/EventStatistics.h',
+                                      s+'gpu/EventStatistics.h', s+'gpu/CommonRandomNumbers.h',
                                       s+'gpu/CrossSectionKernels.cc', s+'gpu/CrossSectionKernels.h',
                                       s+'gpu/MatrixElementKernels.cc', s+'gpu/MatrixElementKernels.h',
                                       s+'gpu/RamboSamplingKernels.cc', s+'gpu/RamboSamplingKernels.h',
@@ -114,7 +114,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                     'MemoryAccessAmplitudes.h', 'MemoryAccessWavefunctions.h',
                     'MemoryAccessGs.h', 'MemoryAccessCouplingsFixed.h',
                     'MemoryAccessNumerators.h', 'MemoryAccessDenominators.h',
-                    'EventStatistics.h',
+                    'EventStatistics.h', 'CommonRandomNumbers.h',
                     'CrossSectionKernels.cc', 'CrossSectionKernels.h',
                     'MatrixElementKernels.cc', 'MatrixElementKernels.h',
                     'RamboSamplingKernels.cc', 'RamboSamplingKernels.h',

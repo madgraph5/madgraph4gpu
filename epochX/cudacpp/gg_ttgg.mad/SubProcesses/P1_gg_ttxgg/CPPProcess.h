@@ -67,9 +67,14 @@ namespace mg5amcCpu
 
     // Hardcoded parameters for this process (constant class variables)
     // [NB: this class assumes nprocesses==1 i.e. a single DSIG1 and no DSIG2 in Fortran (#272 and #343)]
+    // [NB: these parameters (e.g. nwf) are P1-specific, i.e. they are different for different P1 subdirectories (#644)]
+    // [NB: I am currently unable to get the right value of nwf in CPPProcess.h - will hardcode it in CPPProcess.cc instead (#644)]
+    //static const int nwf = ??; // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
+
+    // Other variables of this instance (???)
     //static const int ninitial = mgOnGpu::npari;
     //static const int nexternal = 6; // mgOnGpu::npar (nexternal was nioparticles)
-    //static const int nwavefuncs = 6; // mgOnGpu::nwf
+    //static const int nwavefuncs = 6; // (?!?! this should be nwf but export_cpp gives the wrong value here)
     //static const int namplitudes = 159;
     //static const int ncomb = 64; // mgOnGpu::ncomb
 
