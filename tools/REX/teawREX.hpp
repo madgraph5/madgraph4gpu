@@ -423,7 +423,7 @@ namespace REX::teaw
             }
             normWgtSet = true;
         }
-        bool singleRwgtIter( std::shared_ptr<REX::lesHouchesCard> slhaParams, std::shared_ptr<lheNode> lheFile, size_t currId ){
+        bool singleRwgtIter( std::shared_ptr<REX::lesHouchesCard> slhaParams, std::shared_ptr<REX::lheNode> lheFile, size_t currId ){
             if( !normWgtSet )
                 throw std::runtime_error( "Normalised original weights (wgt/|ME|) not evaluated -- new weights cannot be calculated." );
             if( !setParamCard( slhaParams ) )
@@ -434,7 +434,7 @@ namespace REX::teaw
             lheFile->addWgt( 0, nuWgt );
             return true;
         }
-        bool singleRwgtIter( std::shared_ptr<REX::lesHouchesCard> slhaParams, std::shared_ptr<lheNode> lheFile, size_t currId, std::string& id ){
+        bool singleRwgtIter( std::shared_ptr<REX::lesHouchesCard> slhaParams, std::shared_ptr<REX::lheNode> lheFile, size_t currId, std::string& id ){
             if( !normWgtSet )
                 throw std::runtime_error( "Normalised original weights (wgt/|ME|) not evaluated -- new weights cannot be calculated." );
             if( !setParamCard( slhaParams ) )
