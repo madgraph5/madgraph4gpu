@@ -3,6 +3,8 @@
 # Created by: S. Hageboeck (Dec 2020) for the CUDACPP plugin.
 # Modified by: A. Valassi (2020-2023) for the CUDACPP plugin.
 
+THISDIR = $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+
 CXXFLAGS += -Igoogletest/googletest/include/ -std=c++11
 
 all: googletest/build/lib/libgtest.a
@@ -12,11 +14,12 @@ googletest:
 
 googletest/build: googletest
 	mkdir -p $@
-	cd googletest/build && cmake -DBUILD_GMOCK=OFF ../
-#	cd googletest/build && cmake -DBUILD_GMOCK=OFF -DBUILD_SHARED_LIBS=ON ../ # for nvc++ #531
+	cd googletest/build && cmake -DCMAKE_INSTALL_PREFIX:PATH=$(THISDIR)/googletest/install -DBUILD_GMOCK=OFF ../
 
 googletest/build/lib/libgtest.a: googletest/build
 	$(MAKE) -C googletest/build
+	$(MAKE) -C googletest/build install
 
 clean:
 	rm -rf googletest
+
