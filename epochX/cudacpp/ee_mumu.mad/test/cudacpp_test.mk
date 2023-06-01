@@ -7,18 +7,21 @@ THISDIR = $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
 CXXFLAGS += -Igoogletest/googletest/include/ -std=c++11
 
-all: googletest/build/lib/libgtest.a
+all: googletest/install/lib64/libgtest.a
 
-googletest:
+googletest/CMakeLists.txt:
 	git clone https://github.com/google/googletest.git -b release-1.11.0 googletest
 
-googletest/build: googletest
-	mkdir -p $@
+googletest/build/Makefile: googletest/CMakeLists.txt
+	mkdir -p googletest/build
 	cd googletest/build && cmake -DCMAKE_INSTALL_PREFIX:PATH=$(THISDIR)/googletest/install -DBUILD_GMOCK=OFF ../
 
-googletest/build/lib/libgtest.a: googletest/build
+googletest/build/lib/libgtest.a: googletest/build/Makefile
 	$(MAKE) -C googletest/build
+
+googletest/install/lib64/libgtest.a: googletest/build/lib/libgtest.a
 	$(MAKE) -C googletest/build install
+	touch $@
 
 clean:
 	rm -rf googletest
