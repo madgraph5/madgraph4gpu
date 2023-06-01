@@ -1,3 +1,8 @@
+# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Licensed under the GNU Lesser General Public License (version 3 or later).
+# Created by: O. Mattelaer (Sep 2021) for the MG5aMC CUDACPP plugin.
+# Further modified by: O. Mattelaer, A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
+
 import os
 
 # AV - use templates for source code, scripts and Makefiles from PLUGINDIR instead of MG5DIR
@@ -631,17 +636,17 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
     ###aloha_writer = 'cudac' # WriterFactory will use ALOHAWriterForGPU
     aloha_writer = PLUGIN_ALOHAWriter # WriterFactory will use ALOHAWriterForGPU
 
-    # AV - use template files from PLUGINDIR instead of MG5DIR
+    # AV - use template files from PLUGINDIR instead of MG5DIR; strip leading copyright lines
     def read_aloha_template_files(self, ext):
         """Read all ALOHA template files with extension ext, strip them of
         compiler options and namespace options, and return in a list"""
         ###path = pjoin(MG5DIR, 'aloha','template_files')
         path = pjoin(PLUGINDIR, 'aloha', 'template_files')
         out = []
-        if ext == 'h':
-            out.append(open(pjoin(path, self.helas_h)).read())
-        else:
-            out.append(open(pjoin(path, self.helas_cc)).read())
+        if ext == 'h': file = open(pjoin(path, self.helas_h)).read()
+        else: file = open(pjoin(path, self.helas_cc)).read()
+        file = '\n'.join( file.split('\n')[8:] ) # skip first 8 lines in helas.h/cu (copyright)
+        out.append( file )
         return out
 
     # AV - use the plugin's PLUGIN_OneProcessExporter template_path and __template_path (for aloha_template_h/cc)
@@ -956,6 +961,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         replace_dict['function_definitions'] = '\n'.join(template_cc_files)
         file_h = self.read_template_file(self.aloha_template_h) % replace_dict
         file_cc = self.read_template_file(self.aloha_template_cc) % replace_dict
+        file_cc = '\n'.join( file_cc.split('\n')[8:] ) # skip first 8 lines in cpp_hel_amps_cc.inc (copyright)
         # Write the HelAmps_sm.h and HelAmps_sm.cc files
         ###PLUGIN_writers.CPPWriter(model_h_file).writelines(file_h)
         ###PLUGIN_writers.CPPWriter(model_cc_file).writelines(file_cc)
@@ -1032,6 +1038,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         replace_dict = super().get_process_class_definitions(write=False)
         replace_dict['process_lines'] = replace_dict['process_lines'].replace('\n','\n  ')
         file = self.read_template_file(self.process_class_template) % replace_dict # HACK! ignore write=False case
+        file = '\n'.join( file.split('\n')[8:] ) # skip first 8 lines in process_class.inc (copyright)
         return file
 
     # AV - replace export_cpp.OneProcessExporterGPU method (fix gCPPProcess.cu)
@@ -1109,6 +1116,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             file_lines = file.split('\n')
             file_lines = [l.replace('cIPC, cIPD','cIPC') for l in file_lines] # remove cIPD from OpenMP pragma
             file = '\n'.join( file_lines )
+        file = '\n'.join( file.split('\n')[8:] ) # skip first 8 lines in process_function_definitions.inc (copyright)
         return file
 
     # AV - modify export_cpp.OneProcessExporterGPU method (add debug printouts for multichannel #342)
@@ -1121,6 +1129,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         replace_dict['proc_id_source'] = 'madevent + cudacpp exporter' if self.proc_id>0 else 'standalone_cudacpp'
         if write:
             file = self.read_template_file(self.process_sigmaKin_function_template) % replace_dict
+            file = '\n'.join( file.split('\n')[8:] ) # skip first 8 lines in process_sigmaKin_function.inc (copyright)
             return file, replace_dict
         else:
             return replace_dict
@@ -1237,15 +1246,16 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         else:
             ret_lines.extend([self.get_sigmaKin_single_process(i, me) \
                                   for i, me in enumerate(self.matrix_elements)])
-        ###to_add = [] # AV - what is this for? comment it out
-        ###to_add.extend([self.get_matrix_single_process(i, me,
-        ###                                                 color_amplitudes[i],
-        ###                                                 class_name) \
-        ###                        for i, me in enumerate(self.matrix_elements)])
-        ret_lines.extend([self.get_matrix_single_process(i, me,
-                                                         color_amplitudes[i],
-                                                         class_name) \
-                                for i, me in enumerate(self.matrix_elements)])
+        #ret_lines.extend([self.get_matrix_single_process(i, me,
+        #                                                 color_amplitudes[i],
+        #                                                 class_name) \
+        #                        for i, me in enumerate(self.matrix_elements)])
+        file_extend = []
+        for i, me in enumerate(self.matrix_elements):
+            file = self.get_matrix_single_process( i, me, color_amplitudes[i], class_name )
+            file = '\n'.join( file.split('\n')[8:] ) # skip first 8 lines in process_matrix.inc (copyright)
+            file_extend.append( file )
+        ret_lines.extend( file_extend )
         return '\n'.join(ret_lines)
 
     # AV - modify export_cpp.OneProcessExporterGPU method (replace '# Process' by '// Process')

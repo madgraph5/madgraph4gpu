@@ -1,4 +1,7 @@
 #!/bin/bash
+# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Licensed under the GNU Lesser General Public License (version 3 or later).
+# Created by: A. Valassi (Oct 2022) for the MG5aMC CUDACPP plugin.
 
 # Temporary workaround for #403 (NB precision must be increased however see #542)
 # Replace event-by-event helicity information in <events.lhe.in> by a dummy helicity "0." (floating point) in <events.lhe.out>

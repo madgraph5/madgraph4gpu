@@ -1,4 +1,7 @@
 #!/bin/bash
+# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Licensed under the GNU Lesser General Public License (version 3 or later).
+# Created by: A. Valassi (Mar 2022) for the MG5aMC CUDACPP plugin.
 
 set +x # not verbose
 set -e # fail on error
@@ -377,7 +380,8 @@ for suff in $suffs; do
 
   if [ "${maketype}" == "-makeclean" ]; then make cleanall; echo; fi
   if [ "${maketype}" == "-makecleanonly" ]; then make cleanall; echo; continue; fi
-  make -j avxall
+  ###make -j avxall
+  make -j5 avxall # limit build parallelism to avoid "cudafe++ died due to signal 9" (#639)
 
 done
 

@@ -1,4 +1,8 @@
 #!/bin/bash
+# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Licensed under the GNU Lesser General Public License (version 3 or later).
+# Created by: A. Valassi (Mar 2022) for the MG5aMC CUDACPP plugin.
+# Further modified by: A. Valassi (2022-2023) for the MG5aMC CUDACPP plugin.
 
 status=0
 
@@ -59,7 +63,7 @@ cat ${dir}/Source/make_opts >> ${dir}/Source/make_opts.new
 # Patch the default Fortran code to provide the integration with the cudacpp plugin
 # (1) Process-independent patches
 echo -e "index.html\n.libs\n.cudacpplibs" > ${dir}/.gitignore
-touch ${dir}/Events/.keepme
+touch ${dir}/Events/.keep # this file should already be present (mg5amcnlo copies it from Template/LO/Events/.keep) 
 \cp -dpr ${scrdir}/PLUGIN/CUDACPP_SA_OUTPUT/madgraph/iolibs/template_files/.clang-format ${dir} # new file
 \cp -dpr ${scrdir}/MG5aMC_patches/${dir_patches}/fbridge_common.inc ${dir}/SubProcesses # new file
 cd ${dir}/SubProcesses
@@ -68,6 +72,7 @@ if [ "${patchlevel}" == "2" ]; then
   cd ${dir}
   echo "DEBUG: cd ${PWD}; patch -p4 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.common"
   if ! patch -p4 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.common; then status=1; fi  
+  \rm -f Source/*.orig
   cd - > /dev/null
 fi
 for p1dir in ${dir}/SubProcesses/P1_*; do
@@ -92,7 +97,7 @@ done
 cd ${dir}/Source/MODEL > /dev/null
 gcs=$(cat coupl_write.inc | awk '{if($1=="WRITE(*,2)") print $NF}') # different printouts for scalar/vector couplings #456
 for gc in $gcs; do
-  if grep -q "$gc(VECSIZE_MEMMAX)" coupl.inc; then
+  if grep -q "$gc(VECSIZE_MEMMAX_COUPL)" coupl.inc; then
     ###echo "DEBUG: Coupling $gc is a vector"
     cat coupl_write.inc | awk -vgc=$gc '{if($1=="WRITE(*,2)" && $NF==gc) print $0"(1)"; else print $0}' > coupl_write.inc.new
     \mv coupl_write.inc.new coupl_write.inc

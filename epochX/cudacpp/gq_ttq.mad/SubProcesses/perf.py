@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 
+# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Licensed under the GNU Lesser General Public License (version 3 or later).
+# Created by: S. Roiser (Apr 2020) for the MG5aMC CUDACPP plugin.
+# Further modified by: S. Roiser (2020-2023) for the MG5aMC CUDACPP plugin.
+
 from optparse import OptionParser
 from datetime import datetime
 from mpl_toolkits.mplot3d import Axes3D  # noqa: F401

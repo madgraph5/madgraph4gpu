@@ -1,4 +1,7 @@
 #!/bin/bash
+# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Licensed under the GNU Lesser General Public License (version 3 or later).
+# Created by: A. Valassi (Apr 2021) for the MG5aMC CUDACPP plugin.
 
 set +x # not verbose
 set -e # fail on error
@@ -196,7 +199,8 @@ while [ "$1" != "" ]; do
     maketype="$1"
     shift
   elif [ "$1" == "-makej" ]; then
-    makej=-j
+    ###makej=-j
+    makej=-j5 # limit build parallelism to avoid "cudafe++ died due to signal 9" (#639)
     shift
   elif [ "$1" == "-3a3b" ]; then
     ab3=1

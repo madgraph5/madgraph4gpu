@@ -35,7 +35,6 @@ C
       double precision xzoomfact
       common/to_zoom/  xzoomfact
       include 'run.inc'
-      include 'vector.inc' ! needed by coupl.inc (defines VECSIZE_MEMMAX)
       include 'coupl.inc'
 c
 c     DATA

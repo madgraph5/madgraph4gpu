@@ -1,3 +1,8 @@
+# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Licensed under the GNU Lesser General Public License (version 3 or later).
+# Created by: S. Hageboeck (Dec 2020) for the CUDACPP plugin.
+# Modified by: A. Valassi (2020-2023) for the CUDACPP plugin.
+
 CXXFLAGS += -Igoogletest/googletest/include/ -std=c++11
 
 all: googletest/build/lib/libgtest.a
