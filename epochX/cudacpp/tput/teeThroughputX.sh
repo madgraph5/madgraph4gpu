@@ -115,6 +115,11 @@ for arg in $*; do
   fi  
 done
 
+# Check that heftggh does not run in .mad mode
+if [ "${heftggh}" != "" ] && [ "${suffs/mad}" != "${suffs}" ]; then
+  echo "ERROR! Invalid option -heftggh for .mad directories"; exit 1
+fi
+
 # Workaround for MacOS SIP (SystemIntegrity Protection): set DYLD_LIBRARY_PATH In subprocesses
 if [ "${dlpset}" == "1" ]; then usage; fi
 

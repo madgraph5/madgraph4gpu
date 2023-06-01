@@ -39,6 +39,7 @@ namespace
   /// Read batches of reference data from a file and store them in a map.
   std::map<unsigned int, ReferenceData> readReferenceData( const std::string& refFileName )
   {
+    std::cout << "INFO: Opening reference file " << refFileName << std::endl;
     std::ifstream referenceFile( refFileName.c_str() );
     EXPECT_TRUE( referenceFile.is_open() ) << refFileName;
     std::map<unsigned int, ReferenceData> referenceData;

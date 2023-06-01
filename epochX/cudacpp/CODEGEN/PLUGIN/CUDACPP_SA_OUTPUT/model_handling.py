@@ -1300,7 +1300,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         self.edit_testxxx() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
         self.edit_memorybuffers() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
         self.edit_memoryaccesscouplings() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
-        # Add symbolic links
+        # Add symbolic links in the P1 directory
         files.ln(pjoin(self.path, 'check_sa.cc'), self.path, 'gcheck_sa.cu')
         files.ln(pjoin(self.path, 'CPPProcess.cc'), self.path, 'gCPPProcess.cu')
         files.ln(pjoin(self.path, 'CrossSectionKernels.cc'), self.path, 'gCrossSectionKernels.cu')
@@ -1311,6 +1311,18 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         # NB: symlink of cudacpp.mk to makefile is overwritten by madevent makefile if this exists (#480)
         # NB: this relies on the assumption that cudacpp code is generated before madevent code
         files.ln(pjoin(self.path, 'cudacpp.mk'), self.path, 'makefile')
+        # Add symbolic links in the test directory
+        files.ln(pjoin(self.path + '/../../test', 'cudacpp_test.mk'), self.path + '/../../test', 'makefile')
+        # Add reference file in the test directory (if it exists for this process)
+        import pathlib
+        pathlib.Path(self.path + '/../../test/ref/.keepme').touch()
+        ###template_ref = 'dump_CPUTest.'+self.process_name+'.txt'
+        template_ref = self.template_path + '/../../../test/ref/' + 'dump_CPUTest.' + self.process_name + '.txt'
+        if os.path.exists( template_ref ):
+            misc.sprint( 'Copying test reference file: ', template_ref )
+            PLUGIN_export_cpp.cp( template_ref, self.path + '/../../test/ref' )
+        else:
+            misc.sprint( 'Test reference file does not exist and will not be copied: ', template_ref )
 
     # SR - generate CMakeLists.txt file inside the P* directory
     def edit_CMakeLists(self):
