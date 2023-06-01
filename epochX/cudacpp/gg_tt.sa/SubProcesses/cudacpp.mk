@@ -40,34 +40,35 @@ LIBFLAGS = -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
 INCFLAGS += -I../../src
 
 # Dependency on test directory
-# Within the madgraph4gpu git repo: by default use a common gtest installation in <topdir>/test
-# Outside the madgraph4gpu git repo: by default do not build the tests (optionally use a local gtest installation)
-###LOCALGTEST=yes # comment this out (or use make LOCALGTEST=yes) to build tests using a local gtest installation
-TESTDIRCOMMON=../../../../../test
-TESTDIRLOCAL=../../test
+# Within the madgraph4gpu git repo: by default use a common gtest installation in <topdir>/test (optionally use an external or local gtest)
+# Outside the madgraph4gpu git repo: by default do not build the tests (optionally use an external or local gtest)
+###GTEST_ROOT = /cvmfs/sft.cern.ch/lcg/releases/gtest/1.11.0-21e8c/x86_64-centos8-gcc11-opt/# example of an external gtest installation
+###LOCALGTEST = yes# comment this out (or use make LOCALGTEST=yes) to build tests using a local gtest installation
+TESTDIRCOMMON = ../../../../../test
+TESTDIRLOCAL = ../../test
 ifneq ($(wildcard $(GTEST_ROOT)),)
-TESTDIR=
+TESTDIR =
 else ifneq ($(LOCALGTEST),)
 TESTDIR=$(TESTDIRLOCAL)
 GTEST_ROOT = $(TESTDIR)/googletest/install
 else ifneq ($(wildcard ../../../../../epochX/cudacpp/CODEGEN),)
-TESTDIR=$(TESTDIRCOMMON)
+TESTDIR = $(TESTDIRCOMMON)
 GTEST_ROOT = $(TESTDIR)/googletest/install
 else
-TESTDIR=
+TESTDIR =
 endif
 ifneq ($(GTEST_ROOT),)
 GTESTLIBDIR = $(GTEST_ROOT)/lib64/
-GTESTLIBS   = $(GTESTLIBDIR)/libgtest.a $(GTESTLIBDIR)/libgtest_main.a
-GTESTINC    = -I$(GTEST_ROOT)/include
+GTESTLIBS = $(GTESTLIBDIR)/libgtest.a $(GTESTLIBDIR)/libgtest_main.a
+GTESTINC = -I$(GTEST_ROOT)/include
 else
 GTESTLIBDIR =
-GTESTLIBS   =
-GTESTINC    =
+GTESTLIBS =
+GTESTINC =
 endif
-$(info GTEST_ROOT=$(GTEST_ROOT))
-$(info LOCALGTEST=$(LOCALGTEST))
-$(info TESTDIR=$(TESTDIR))
+###$(info GTEST_ROOT = $(GTEST_ROOT))
+###$(info LOCALGTEST = $(LOCALGTEST))
+###$(info TESTDIR = $(TESTDIR))
 
 #-------------------------------------------------------------------------------
 
@@ -729,7 +730,7 @@ cleanall:
 	$(MAKE) USEBUILDDIR=0 -C ../../src cleanall -f $(CUDACPP_SRC_MAKEFILE)
 	rm -rf build.*
 
-# Target: clean the builds as well as the googletest installation(s)
+# Target: clean the builds as well as the gtest installation(s)
 distclean: cleanall
 ifneq ($(wildcard $(TESTDIRCOMMON)),)
 	$(MAKE) -C $(TESTDIRCOMMON) clean
