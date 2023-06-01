@@ -242,6 +242,11 @@ fi
 # Check that at least one process has been selected
 if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ] && [ "${gqttq}" == "0" ] && [ "${heftggh}" == "0" ]; then usage; fi
 
+# Check that heftggh does not run in .mad mode
+if [ "${heftggh}" == "1" ] && [ "${suffs/.mad\/}" != "${suffs}" ]; then
+  echo "ERROR! Invalid option -heftggh for .mad directories"; exit 1
+fi
+
 # Define the default simds if none are defined
 if [ "${simds}" == "" ]; then simds="none 512y"; fi
 
