@@ -41,12 +41,16 @@ INCFLAGS += -I../../src
 
 # Dependency on test directory
 # Within the madgraph4gpu git repo: by default use a common gtest installation in <topdir>/test
-# Outside the madgraph4gpu git repo: by default do not build the tests (optionally use a local installation)
-###LOCALGTEST=yes # comment this out (or use make LOCALGTEST=yes) to build tests outside the madgraph4gpu repo
-ifneq ($(LOCALGTEST),)
-TESTDIR=../../test
+# Outside the madgraph4gpu git repo: by default do not build the tests (optionally use a local gtest installation)
+###LOCALGTEST=yes # comment this out (or use make LOCALGTEST=yes) to build tests using a local gtest installation
+TESTDIRCOMMON=../../../../../test
+TESTDIRLOCAL=../../test
+ifneq ($(wildcard $(GTEST_ROOT)),)
+TESTDIR=
+else ifneq ($(LOCALGTEST),)
+TESTDIR=$(TESTDIRLOCAL)
 else ifneq ($(wildcard ../../../../../epochX/cudacpp/CODEGEN),)
-TESTDIR=../../../../../test
+TESTDIR=$(TESTDIRCOMMON)
 else
 TESTDIR=
 endif
@@ -721,9 +725,12 @@ cleanall:
 	$(MAKE) USEBUILDDIR=0 -C ../../src cleanall -f $(CUDACPP_SRC_MAKEFILE)
 	rm -rf build.*
 
-# Target: clean the builds as well as the googletest installation
+# Target: clean the builds as well as the googletest installation(s)
 distclean: cleanall
-	$(MAKE) -C $(TESTDIR) clean
+ifneq ($(wildcard $(TESTDIRCOMMON)),)
+	$(MAKE) -C $(TESTDIRCOMMON) clean
+endif
+	$(MAKE) -C $(TESTDIRLOCAL) clean
 
 #-------------------------------------------------------------------------------
 
