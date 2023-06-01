@@ -371,6 +371,9 @@ function runmadevent()
 # PART 1 - build madevent
 ##########################################################################
 
+unset GTEST_ROOT
+unset LOCALGTEST
+
 for suff in $suffs; do
 
   dir=$(showdir)

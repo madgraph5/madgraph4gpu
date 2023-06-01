@@ -380,6 +380,9 @@ done
 # PART 2 - build the executables which should be run
 ##########################################################################
 
+unset GTEST_ROOT
+unset LOCALGTEST
+
 if [ "${maketype}" == "-dryrun" ]; then
 
   printf "DRYRUN: SKIP MAKE\n\n"
