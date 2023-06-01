@@ -4,14 +4,14 @@
 // MG5AMC on GPU uses the CUDA runtime API, not the lower level CUDA driver API
 // See https://docs.nvidia.com/cuda/cuda-runtime-api/driver-vs-runtime-api.html#driver-vs-runtime-api
 
-#include <cassert>
+#include "GpuAbstraction.h"
+
 #include <iostream>
-#include "gpu_abstraction.h"
 
 //--------------------------------------------------------------------------
 
 // See https://stackoverflow.com/a/14038590
-#ifdef __GPUCC__ /* clang-format off */
+#ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
 #define checkGpu( code ) { assertGpu( code, __FILE__, __LINE__ ); }
 inline void assertGpu( gpuError_t code, const char* file, int line, bool abort = true )
 {
@@ -25,7 +25,7 @@ inline void assertGpu( gpuError_t code, const char* file, int line, bool abort =
 
 //--------------------------------------------------------------------------
 
-#ifdef __GPUCC__
+#ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 {
   // Instantiate a CudaRuntime at the beginnining of the application's main to

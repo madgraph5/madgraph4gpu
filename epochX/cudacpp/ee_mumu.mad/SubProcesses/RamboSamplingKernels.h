@@ -5,7 +5,9 @@
 
 #include "MemoryBuffers.h"
 
-#ifdef __GPUCC__
+#include "GpuAbstraction.h"
+
+#ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
@@ -88,7 +90,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-#ifdef __GPUCC__
+#ifdef MGONGPUCPP_GPUIMPL
   // A class encapsulating RAMBO phase space sampling on a GPU device
   class RamboSamplingKernelDevice final : public SamplingKernelBase, public NumberOfEvents
   {

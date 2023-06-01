@@ -3,13 +3,15 @@
 
 #include "mgOnGpuConfig.h" // for npar (meGeVexponent)
 
+#include "GpuAbstraction.h"
+
 #include <algorithm>
 #include <cmath>
 #include <iostream>
 #include <limits>
 #include <string>
 
-#ifdef __GPUCC__
+#ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu

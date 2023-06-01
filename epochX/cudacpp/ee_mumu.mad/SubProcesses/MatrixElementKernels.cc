@@ -9,7 +9,7 @@
 
 //============================================================================
 
-#ifndef __GPUCC__
+#ifndef MGONGPUCPP_GPUIMPL
 namespace mg5amcCpu
 {
 
@@ -138,7 +138,7 @@ namespace mg5amcCpu
 
 //============================================================================
 
-#ifdef __GPUCC__
+#ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 {
 

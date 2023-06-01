@@ -18,7 +18,7 @@ inline void assertCurand( curandStatus_t code, const char *file, int line, bool 
 }
 #endif /* clang-format on */
 
-#ifdef __GPUCC__
+#ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
@@ -51,7 +51,7 @@ namespace mg5amcCpu
   {
     if( m_isOnDevice )
     {
-#ifdef __GPUCC__
+#ifdef MGONGPUCPP_GPUIMPL
       if( !m_rnarray.isOnDevice() )
         throw std::runtime_error( "CurandRandomNumberKernel on device with a host random number array" );
 #else
@@ -129,7 +129,7 @@ namespace mg5amcCpu
     /*
     printf( "\nCurandRandomNumberKernel::generateRnarray size = %d\n", (int)m_rnarray.size() );
     fptype* data = m_rnarray.data();
-#ifdef __GPUCC__
+#ifdef MGONGPUCPP_GPUIMPL
     if( m_rnarray.isOnDevice() )
     {
       data = new fptype[m_rnarray.size()]();
@@ -138,7 +138,7 @@ namespace mg5amcCpu
 #endif
     for( int i = 0; i < ( (int)m_rnarray.size() / 4 ); i++ )
       printf( "[%4d] %f %f %f %f\n", i * 4, data[i * 4], data[i * 4 + 2], data[i * 4 + 2], data[i * 4 + 3] );
-#ifdef __GPUCC__
+#ifdef MGONGPUCPP_GPUIMPL
     if( m_rnarray.isOnDevice() ) delete[] data;
 #endif
     */

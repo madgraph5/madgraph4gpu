@@ -1,5 +1,7 @@
 #include "BridgeKernels.h"
 
+#include "GpuAbstraction.h"
+
 #include "MemoryAccessMomenta.h"
 
 #include <sstream>
@@ -9,7 +11,7 @@ using mgOnGpu::np4;  // the number of dimensions of 4-momenta (E,px,py,pz)
 
 //============================================================================
 
-#ifdef __GPUCC__
+#ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
@@ -40,7 +42,7 @@ namespace mg5amcCpu
 
 //============================================================================
 
-#ifndef __GPUCC__
+#ifndef MGONGPUCPP_GPUIMPL
 namespace mg5amcCpu
 {
 
@@ -91,7 +93,7 @@ namespace mg5amcCpu
 
 //============================================================================
 
-#ifdef __GPUCC__
+#ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 {
 

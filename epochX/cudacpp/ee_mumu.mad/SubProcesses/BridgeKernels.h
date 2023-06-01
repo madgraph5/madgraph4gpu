@@ -4,10 +4,11 @@
 #include "mgOnGpuConfig.h"
 
 #include "Bridge.h"
+#include "GpuAbstraction.h"
 #include "MatrixElementKernels.h"
 #include "MemoryBuffers.h"
 
-#ifdef __GPUCC__
+#ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
@@ -44,7 +45,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-#ifndef __GPUCC__
+#ifndef MGONGPUCPP_GPUIMPL
   // A Bridge wrapper class encapsulating matrix element calculations on a CPU host
   class BridgeKernelHost final : public BridgeKernelBase
   {
@@ -84,7 +85,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-#ifdef __GPUCC__
+#ifdef MGONGPUCPP_GPUIMPL
   // A Bridge wrapper class encapsulating matrix element calculations on a GPU device
   class BridgeKernelDevice : public BridgeKernelBase
   {

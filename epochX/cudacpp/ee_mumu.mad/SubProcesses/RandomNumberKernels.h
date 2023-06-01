@@ -3,14 +3,16 @@
 
 #include "mgOnGpuConfig.h"
 
-// NB This must come AFTER mgOnGpuConfig.h which contains our definition of __global__ when __GPUCC__ is not defined
+#include "GpuAbstraction.h"
+
+// NB This must come AFTER mgOnGpuConfig.h which contains our definition of __global__ when MGONGPUCPP_GPUIMPL is not defined
 #ifndef MGONGPU_HAS_NO_CURAND
 #include "curand.h"
 #endif
 
 #include "MemoryBuffers.h"
 
-#ifdef __GPUCC__
+#ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu

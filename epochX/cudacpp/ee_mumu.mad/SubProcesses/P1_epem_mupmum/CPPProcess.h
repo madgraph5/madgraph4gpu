@@ -9,6 +9,7 @@
 #define MG5_Sigma_sm_epem_mupmum_H 1
 
 #include "mgOnGpuConfig.h"
+#include "GpuRuntime.h"
 
 #include "mgOnGpuVectors.h"
 
@@ -18,7 +19,7 @@
 
 //--------------------------------------------------------------------------
 
-#ifdef __GPUCC__
+#ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
@@ -85,7 +86,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-#ifdef __GPUCC__
+#ifdef MGONGPUCPP_GPUIMPL
   __global__ void
   computeDependentCouplings( const fptype* allgs,    // input: Gs[nevt]
                              fptype* allcouplings ); // output: couplings[nevt*ndcoup*2]
@@ -98,7 +99,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-#ifdef __GPUCC__ /* clang-format off */
+#ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
   __global__ void
   sigmaKin_getGoodHel( const fptype* allmomenta,   // input: momenta[nevt*npar*4]
                        const fptype* allcouplings, // input: couplings[nevt*ndcoup*2]
@@ -128,7 +129,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-#ifdef __GPUCC__ /* clang-format off */
+#ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
   __global__ void
   sigmaKin( const fptype* allmomenta,      // input: momenta[nevt*npar*4]
             const fptype* allcouplings,    // input: couplings[nevt*ndcoup*2]

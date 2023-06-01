@@ -1,7 +1,7 @@
 #include "mgOnGpuConfig.h"
 
 #include "CPPProcess.h"
-#include "gpu_abstraction.h" // for GPU abstraction, checkCuda is run on macros defined here
+#include "GpuAbstraction.h" // for CUDA/HIP runtime, also includes GPU abstraction
 #include "MadgraphTest.h"
 #include "MatrixElementKernels.h"
 #include "MemoryAccessMatrixElements.h"
@@ -11,7 +11,7 @@
 #include "RandomNumberKernels.h"
 #include "epoch_process_id.h"
 
-#ifdef __GPUCC__
+#ifdef MGONGPUCPP_GPUIMPL
 using namespace mg5amcGpu;
 #else
 using namespace mg5amcCpu;
@@ -28,7 +28,7 @@ struct CUDA_CPU_TestBase : public TestDriverBase
     : TestDriverBase( npar, refFileName ) {}
 };
 
-#ifndef __GPUCC__
+#ifndef MGONGPUCPP_GPUIMPL
 struct CPUTest : public CUDA_CPU_TestBase
 {
   // Struct data members (process, and memory structures for random numbers, momenta, matrix elements and weights on host and device)
@@ -110,7 +110,7 @@ struct CPUTest : public CUDA_CPU_TestBase
 };
 #endif
 
-#ifdef __GPUCC__
+#ifdef MGONGPUCPP_GPUIMPL
 struct CUDATest : public CUDA_CPU_TestBase
 {
   // Reset the device when our test goes out of scope. Note that this should happen after
@@ -245,7 +245,7 @@ INSTANTIATE_TEST_SUITE_P( prefix, \
                           test_suite_name, \
                           testing::Values( new CUDATest( MG_EPOCH_REFERENCE_FILE_NAME ) ) );
 
-#ifdef __GPUCC__
+#ifdef MGONGPUCPP_GPUIMPL
 MG_INSTANTIATE_TEST_SUITE_GPU( XTESTID_GPU( MG_EPOCH_PROCESS_ID ), MadgraphTest );
 #else
 MG_INSTANTIATE_TEST_SUITE_CPU( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), MadgraphTest );
