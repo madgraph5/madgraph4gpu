@@ -1,13 +1,11 @@
-// gpu_abstraction.h
-#pragma once
+// GpuAbstraction.h
 
 #include <cassert>
-#include <iostream>
 
-#ifdef __GPUCC__
+#ifdef __CUDACC__
 
   // Defines correct compiler
-  #define __GPUCC__ __GPUCC__
+  #define MGONGPUCPP_GPUIMPL __CUDACC__
 
   //--------------------------------------------------------------------------
 
@@ -39,7 +37,7 @@
 #elif defined(__HIPCC__)
 
   // Defines correct compiler
-  #define __GPUCC__ __HIPCC__
+  #define MGONGPUCPP_GPUIMPL __HIPCC__
 
   //--------------------------------------------------------------------------
 
