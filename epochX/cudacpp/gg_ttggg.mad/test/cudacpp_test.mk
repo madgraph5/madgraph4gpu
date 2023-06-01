@@ -19,9 +19,13 @@ googletest/build/Makefile: googletest/CMakeLists.txt
 googletest/build/lib/libgtest.a: googletest/build/Makefile
 	$(MAKE) -C googletest/build
 
+# NB 'make install' is no longer supported in googletest (issue 328)
+# NB keep 'lib64' instead of 'lib' as in LCG cvmfs installations
 googletest/install/lib64/libgtest.a: googletest/build/lib/libgtest.a
-	$(MAKE) -C googletest/build install
-	touch $@
+	mkdir -p googletest/install/lib64
+	cp googletest/build/lib/lib*.a googletest/install/lib64/
+	mkdir -p googletest/install/include
+	cp -r googletest/googletest/include/gtest googletest/install/include/
 
 clean:
 	rm -rf googletest
