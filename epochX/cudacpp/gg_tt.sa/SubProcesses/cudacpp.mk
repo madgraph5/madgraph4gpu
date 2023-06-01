@@ -40,12 +40,21 @@ LIBFLAGS = -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
 INCFLAGS += -I../../src
 
 # Dependency on test directory
-TESTDIR  = ../../../../../test
+# Within the madgraph4gpu git repo: by default use a common gtest installation in <topdir>/test
+# Outside the madgraph4gpu git repo: by default do not build the tests (optionally use a local installation)
+###LOCALGTEST=yes # comment this out (or use make LOCALGTEST=yes) to build tests outside the madgraph4gpu repo
+ifneq ($(LOCALGTEST),)
+TESTDIR=../../test
+else ifneq ($(wildcard ../../../../../epochX/cudacpp/CODEGEN),)
+TESTDIR=../../../../../test
+else
+TESTDIR=
+endif
 ifneq ($(wildcard $(TESTDIR)),)
-GTESTDIR = $(TESTDIR)/googletest/install
-GTESTLIBDIR = $(GTESTDIR)/lib64/
+GTEST_ROOT  = $(TESTDIR)/googletest/install
+GTESTLIBDIR = $(GTEST_ROOT)/lib64/
 GTESTLIBS   = $(GTESTLIBDIR)/libgtest.a $(GTESTLIBDIR)/libgtest_main.a
-GTESTINC    = -I$(GTESTDIR)/include
+GTESTINC    = -I$(GTEST_ROOT)/include
 else
 GTESTLIBDIR =
 GTESTLIBS   =
