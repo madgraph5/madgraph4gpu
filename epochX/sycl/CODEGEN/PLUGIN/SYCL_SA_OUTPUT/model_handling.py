@@ -1,3 +1,12 @@
+# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Licensed under the GNU Lesser General Public License (version 3 or later).
+# Created by: O. Mattelaer (Sep 2021) for the MG5aMC CUDACPP plugin.
+# Further modified by: O. Mattelaer, A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
+#
+# Copyright (C) 2021-2023 Argonne National Laboratory.
+# Licensed under the GNU Lesser General Public License (version 3 or later).
+# Modified by: N. Nichols (2021-2023) for the MG5aMC SYCL plugin.
+
 import os
 pjoin = os.path.join
 
@@ -573,10 +582,14 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         compiler options and namespace options, and return in a list"""
         path = pjoin(PLUGINDIR, 'aloha', 'template_files')
         out = []
+        file = ''
         if ext == 'h':
             out.append(open(pjoin(path, self.helas_h)).read())
+            file = '\n'.join( file.split('\n')[12:] ) # skip first 12 lines in helas.h (copyright)
         else:
             out.append(open(pjoin(path, self.helas_cc)).read())
+            file = '\n'.join( file.split('\n')[8:] ) # skip first 8 lines in helas.cu (copyright)
+        out.append( file )
         return out
 
     # Use the plugin's PLUGIN_OneProcessExporter template_path and __template_path (for aloha_template_h/cc)
@@ -787,6 +800,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         replace_dict['function_definitions'] = '\n'.join(template_cc_files)
         file_h = self.read_template_file(self.aloha_template_h) % replace_dict
         file_cc = self.read_template_file(self.aloha_template_cc) % replace_dict
+        file_cc = '\n'.join( file_cc.split('\n')[8:] ) # skip first 8 lines in cpp_hel_amps_cc.inc (copyright)
         # Write the files
         file_h_lines = file_h.split('\n')
         file_h = '\n'.join( file_h_lines[:-3]) # skip the trailing '//---'
@@ -839,6 +853,14 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.process_class = "CPPProcess"
+
+    # Modify export_cpp.OneProcessExporterGPU method (indent comments in process_lines)
+    def get_process_class_definitions(self, write=True):
+        replace_dict = super().get_process_class_definitions(write=False)
+        replace_dict['process_lines'] = replace_dict['process_lines'].replace('\n','\n  ')
+        file = self.read_template_file(self.process_class_template) % replace_dict # HACK! ignore write=False case
+        file = '\n'.join( file.split('\n')[12:] ) # skip first 12 lines in process_class.inc (copyright)
+        return file
 
     # Modify export_cpp.OneProcessExporterGPU method (fix CPPProcess.cc)
     def get_process_function_definitions(self, write=True):
@@ -893,8 +915,23 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         color_amplitudes = [me.get_color_amplitudes() for me in self.matrix_elements] # as in OneProcessExporterCPP.get_process_function_definitions
         replace_dict['ncolor'] = len(color_amplitudes[0])
         file = self.read_template_file(self.process_definition_template) % replace_dict
-        misc.sprint('test3')
+        file = '\n'.join( file.split('\n')[12:] ) # skip first 12 lines in process_function_definitions.inc (copyright)
         return file
+
+    # Modify export_cpp.OneProcessExporterGPU method (add debug printouts for multichannel #342)
+    def get_sigmaKin_lines(self, color_amplitudes, write=True):
+        misc.sprint('Entering PLUGIN_OneProcessExporter.get_sigmaKin_lines')
+        misc.sprint(self.include_multi_channel)
+        misc.sprint(self.support_multichannel)
+        replace_dict = super().get_sigmaKin_lines(color_amplitudes, write=False)
+        replace_dict['proc_id'] = self.proc_id if self.proc_id>0 else 1
+        replace_dict['proc_id_source'] = 'madevent + cudacpp exporter' if self.proc_id>0 else 'standalone_cudacpp'
+        if write:
+            file = self.read_template_file(self.process_sigmaKin_function_template) % replace_dict
+            file = '\n'.join( file.split('\n')[12:] ) # skip first 12 lines in process_sigmaKin_function.inc (copyright)
+            return file, replace_dict
+        else:
+            return replace_dict
 
     # Modify export_cpp.OneProcessExporterGPU method (fix CPPProcess.cc)
     def get_all_sigmaKin_lines(self, color_amplitudes, class_name):
@@ -950,7 +987,12 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
                                   for i, me in enumerate(self.matrix_elements)])
         #to_add = [] # FIXME - what is this for? comment it out
         #to_add.extend([self.get_matrix_single_process(i, me, color_amplitudes[i], class_name) for i, me in enumerate(self.matrix_elements)])
-        ret_lines.extend([self.get_matrix_single_process(i, me, color_amplitudes[i], class_name) for i, me in enumerate(self.matrix_elements)])
+        file_extend = []
+        for i, me in enumerate(self.matrix_elements):
+            file = self.get_matrix_single_process( i, me, color_amplitudes[i], class_name )
+            file = '\n'.join( file.split('\n')[12:] ) # skip first 12 lines in process_matrix.inc (copyright)
+            file_extend.append( file )
+        ret_lines.extend( file_extend )
         return "\n".join(ret_lines)
 
     # Modify export_cpp.OneProcessExporterGPU method (replace '# Process' by '// Process')
