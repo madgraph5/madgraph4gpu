@@ -6,8 +6,11 @@
 #ifndef MADGRAPHTEST_H_
 #define MADGRAPHTEST_H_ 1
 
+#include "mgOnGpuConfig.h"
+
+#include "CPPProcess.h"
+
 #include <gtest/gtest.h>
-#include <mgOnGpuConfig.h>
 
 #include <array>
 #include <cmath>
@@ -18,18 +21,25 @@
 #include <string>
 #include <vector>
 
+#ifdef __CUDACC__
+using mg5amcGpu::CPPProcess;
+#else
+using mg5amcCpu::CPPProcess;
+#endif
+
 namespace
 {
 
   struct ReferenceData
   {
-    std::vector<std::vector<std::array<fptype, mgOnGpu::np4>>> momenta;
+    std::vector<std::vector<std::array<fptype, CPPProcess::np4>>> momenta;
     std::vector<fptype> MEs;
   };
 
   /// Read batches of reference data from a file and store them in a map.
   std::map<unsigned int, ReferenceData> readReferenceData( const std::string& refFileName )
   {
+    std::cout << "INFO: Opening reference file " << refFileName << std::endl;
     std::ifstream referenceFile( refFileName.c_str() );
     EXPECT_TRUE( referenceFile.is_open() ) << refFileName;
     std::map<unsigned int, ReferenceData> referenceData;
@@ -272,7 +282,7 @@ TEST_P( MadgraphTest, CompareMomentaAndME )
       for( unsigned int ipar = 0; ipar < testDriver->nparticle; ++ipar )
       {
         std::stringstream momentumErrors;
-        for( unsigned int icomp = 0; icomp < mgOnGpu::np4; ++icomp )
+        for( unsigned int icomp = 0; icomp < CPPProcess::np4; ++icomp )
         {
           const fptype pMadg = testDriver->getMomentum( ievt, ipar, icomp );
           const fptype pOrig = referenceData[iiter].momenta[ievt][ipar][icomp];

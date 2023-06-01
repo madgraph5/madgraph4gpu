@@ -11,6 +11,6 @@
 #define MG_EPOCH_PROCESS_ID SIGMA_SM_GG_TTXGG
 
 // For simplicity, define here the name of the process-dependent reference file for tests
-#define MG_EPOCH_REFERENCE_FILE_NAME "../../../../../test/ref/dump_CPUTest.Sigma_sm_gg_ttxgg.txt"
+#define MG_EPOCH_REFERENCE_FILE_NAME "../../test/ref/dump_CPUTest.Sigma_sm_gg_ttxgg.txt"
 
 #endif // EPOCH_PROCESS_ID_H

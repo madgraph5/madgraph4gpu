@@ -285,7 +285,7 @@ main( int argc, char** argv )
   const fptype energy = 1500; // historical default, Ecms = 1500 GeV = 1.5 TeV (above the Z peak)
   //const fptype energy = 91.2; // Ecms = 91.2 GeV (Z peak)
   //const fptype energy = 0.100; // Ecms = 100 MeV (well below the Z peak, pure em scattering)
-  const int meGeVexponent = -( 2 * mgOnGpu::npar - 8 );
+  const int meGeVexponent = -( 2 * CPPProcess::npar - 8 );
 
   // --- 0b. Allocate memory structures
   const std::string alloKey = "0b MemAlloc";
@@ -627,7 +627,7 @@ main( int argc, char** argv )
       {
         // Display momenta
         std::cout << "Momenta:" << std::endl;
-        for( int ipar = 0; ipar < mgOnGpu::npar; ipar++ )
+        for( int ipar = 0; ipar < CPPProcess::npar; ipar++ )
         {
           // NB: 'setw' affects only the next field (of any type)
           std::cout << std::scientific // fixed format: affects all floats (default precision: 6)
@@ -944,7 +944,7 @@ main( int argc, char** argv )
 #endif
               //<< "MatrixElements compiler     = " << process.getCompiler() << std::endl
               << std::string( SEP79, '-' ) << std::endl
-              << "HelicityComb Good/Tot       = " << nGoodHel << "/" << mgOnGpu::ncomb << std::endl
+              << "HelicityComb Good/Tot       = " << nGoodHel << "/" << CPPProcess::ncomb << std::endl
               << std::string( SEP79, '-' ) << std::endl
               << "NumberOfEntries             = " << niter << std::endl
               << std::scientific // fixed format: affects all floats (default precision: 6)
