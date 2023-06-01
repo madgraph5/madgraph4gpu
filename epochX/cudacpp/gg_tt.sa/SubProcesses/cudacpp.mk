@@ -49,13 +49,14 @@ ifneq ($(wildcard $(GTEST_ROOT)),)
 TESTDIR=
 else ifneq ($(LOCALGTEST),)
 TESTDIR=$(TESTDIRLOCAL)
+GTEST_ROOT = $(TESTDIR)/googletest/install
 else ifneq ($(wildcard ../../../../../epochX/cudacpp/CODEGEN),)
 TESTDIR=$(TESTDIRCOMMON)
+GTEST_ROOT = $(TESTDIR)/googletest/install
 else
 TESTDIR=
 endif
-ifneq ($(wildcard $(TESTDIR)),)
-GTEST_ROOT  = $(TESTDIR)/googletest/install
+ifneq ($(GTEST_ROOT),)
 GTESTLIBDIR = $(GTEST_ROOT)/lib64/
 GTESTLIBS   = $(GTESTLIBDIR)/libgtest.a $(GTESTLIBDIR)/libgtest_main.a
 GTESTINC    = -I$(GTEST_ROOT)/include
@@ -64,6 +65,9 @@ GTESTLIBDIR =
 GTESTLIBS   =
 GTESTINC    =
 endif
+$(info GTEST_ROOT=$(GTEST_ROOT))
+$(info LOCALGTEST=$(LOCALGTEST))
+$(info TESTDIR=$(TESTDIR))
 
 #-------------------------------------------------------------------------------
 
