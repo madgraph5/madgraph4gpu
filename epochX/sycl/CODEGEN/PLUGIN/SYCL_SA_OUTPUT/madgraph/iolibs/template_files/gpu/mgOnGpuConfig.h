@@ -13,7 +13,6 @@
 #define MGONGPU_NDCOUP %(number_dependent_couplings)s
 #define MGONGPU_NICOUP %(number_independent_couplings)s
 #define MGONGPU_FOURVECTOR_DIM 4
-#define NPAR %(nexternal)d
 
 
 //Sets vectorization level when using vectorizable complex types
@@ -92,17 +91,6 @@ namespace mgOnGpu
 
   // --- Physics process-specific constants that are best declared at compile time
 
-  static constexpr unsigned int np4 = 4; // dimensions of 4-momenta (E,px,py,pz)
-
-  static constexpr unsigned int npari = %(nincoming)d; // #particles in the initial state (incoming): e.g. 2 (e+ e-) for e+ e- -> mu+ mu-
-  static constexpr unsigned int nparf = %(noutcoming)d; // #particles in the final state (outgoing): e.g. 2 (mu+ mu-) for e+ e- -> mu+ mu-
-  static constexpr unsigned int npar = npari + nparf; // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
-
-  static constexpr unsigned int ncomb = %(nbhel)d; // #helicity combinations: e.g. 16 for e+ e- -> mu+ mu- (2**4 = fermion spin up/down ** npar)
-
-  static constexpr unsigned int nw6 = %(wavefuncsize)d; // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
-  static constexpr unsigned int nwf = %(nwavefunc)d; // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
-  
   static constexpr unsigned int ncouplings = %(ncouplings)d;
   static constexpr unsigned int ncouplingstimes2 = %(ncouplingstimes2)d;
   static constexpr unsigned int nparams = %(nparams)d;

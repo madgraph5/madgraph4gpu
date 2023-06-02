@@ -2,6 +2,11 @@
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: A. Valassi (Feb 2022) for the MG5aMC CUDACPP plugin.
 // Further modified by: A. Valassi (2022-2023) for the MG5aMC CUDACPP plugin.
+//==========================================================================
+// Copyright (C) 2021-2023 Argonne National Laboratory.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Modified by: N. Nichols (2021-2023) for the MG5aMC SYCL plugin.
+//==========================================================================
 
 #include "Bridge.h"
 #include "Memory.h"
@@ -46,12 +51,12 @@ namespace mg5amcGpu
   Sampler<FORTRANFPTYPE>::Sampler( int nevtF, int nparF, int np4F )
     : m_nevt( nevtF )
     , m_iiter( 0 )
-    , m_hstRnarray( mgOnGpu::np4*mgOnGpu::nparf*m_nevt )
-    , m_hstMomenta( mgOnGpu::np4*mgOnGpu::npar*m_nevt )
+    , m_hstRnarray( CPPPROCESS_NP4*CPPPROCESS_NPARF*m_nevt )
+    , m_hstMomenta( CPPPROCESS_NP4*CPPPROCESS_NPAR*m_nevt )
     , m_hstWeights( m_nevt )
   {
-    if( nparF != mgOnGpu::npar ) throw std::runtime_error( "Sampler constructor: npar mismatch" );
-    if( np4F != mgOnGpu::np4 ) throw std::runtime_error( "Sampler constructor: np4 mismatch" );
+    if( nparF != CPPPROCESS_NPAR ) throw std::runtime_error( "Sampler constructor: npar mismatch" );
+    if( np4F != CPPPROCESS_NP4 ) throw std::runtime_error( "Sampler constructor: np4 mismatch" );
     std::cout << "WARNING! Instantiate host Sampler (nevt=" << m_nevt << ")" << std::endl;
   }
 

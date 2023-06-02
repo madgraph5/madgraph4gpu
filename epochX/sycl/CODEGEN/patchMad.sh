@@ -63,7 +63,7 @@ cat ${dir}/Source/make_opts >> ${dir}/Source/make_opts.new
 # Patch the default Fortran code to provide the integration with the sycl plugin
 # (1) Process-independent patches
 echo -e "index.html\n.libs\n.sycllibs" > ${dir}/.gitignore
-touch ${dir}/Events/.keepme
+touch ${dir}/Events/.keep # this file should already be present (mg5amcnlo copies it from Template/LO/Events/.keep) 
 \cp -dpr ${scrdir}/PLUGIN/SYCL_SA_OUTPUT/madgraph/iolibs/template_files/.clang-format ${dir} # new file
 \cp -dpr ${scrdir}/MG5aMC_patches/${dir_patches}/fbridge_common.inc ${dir}/SubProcesses # new file
 cd ${dir}/SubProcesses
@@ -72,6 +72,7 @@ if [ "${patchlevel}" == "2" ]; then
   cd ${dir}
   echo "DEBUG: cd ${PWD}; patch -p4 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.common"
   if ! patch -p4 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.common; then status=1; fi  
+  \rm -f Source/*.orig
   cd - > /dev/null
 fi
 for p1dir in ${dir}/SubProcesses/P1_*; do

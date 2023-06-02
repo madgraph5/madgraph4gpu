@@ -43,10 +43,6 @@ MG5AMC_COMMONLIB = mg5amc_common
 LIBFLAGS = -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
 INCFLAGS += -I../../src
 
-# Dependency on tools directory
-TOOLSDIR = ../../../../../tools
-INCFLAGS += -I$(TOOLSDIR)
-
 #-------------------------------------------------------------------------------
 
 #=== Configure the C++ compiler
@@ -336,10 +332,9 @@ cleanall:
 	$(MAKE) USEBUILDDIR=0 -C ../../src cleanall -f $(SYCL_SRC_MAKEFILE)
 	rm -rf build.*
 
-# Target: clean the builds as well as the googletest installation
+# Target: clean the builds
 distclean: cleanall
 	$(MAKE) -C $(TOOLSDIR) clean
-	$(MAKE) -C $(TESTDIR) clean
 
 #-------------------------------------------------------------------------------
 

@@ -130,11 +130,13 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                              s+'CMake/src/CMakeLists.txt'],
                      'SubProcesses': [s+'gpu/timer.h', s+'gpu/timermap.h', s+'gpu/Memory.h', 
                                       s+'gpu/runTest.cc', s+'gpu/testxxx.cc', s+'gpu/testxxx_cc_ref.txt',
+                                      s+'gpu/CommonRandomNumbers.h',
                                       s+'gpu/Bridge.h',
                                       s+'gpu/fbridge.cc', s+'gpu/fbridge.inc', s+'gpu/fsampler.cc', s+'gpu/fsampler.inc',
                                       s+'gpu/perf.py', s+'gpu/profile.sh',
                                       s+'CMake/SubProcesses/CMakeLists.txt']}
     to_link_in_P = ['timer.h', 'timermap.h', 'Memory.h', 'runTest.cc', 'testxxx.cc', 'testxxx_cc_ref.txt', 'perf.py', 'profile.sh',
+                    'CommonRandomNumbers.h',
                     'Bridge.h',
                     'fbridge.cc', 'fbridge.inc', 'fsampler.cc', 'fsampler.inc',
 

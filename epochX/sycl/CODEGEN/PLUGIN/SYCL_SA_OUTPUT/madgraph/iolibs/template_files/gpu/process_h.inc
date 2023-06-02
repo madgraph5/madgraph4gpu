@@ -40,6 +40,7 @@ namespace Proc
   template <typename FPType>
 %(independent_parameters_hrdcod)s
 #endif
+}
 
 %(process_class_definitions)s
   //--------------------------------------------------------------------------

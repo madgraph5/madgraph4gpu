@@ -162,7 +162,7 @@ namespace mg5amcGpu
   int nGoodHel() const { return m_nGoodHel; }
 
   // Return the total number of helicities (expose cudacpp ncomb in the Bridge interface to Fortran)
-  constexpr int nTotHel() const { return int(mgOnGpu::ncomb); }
+  constexpr int nTotHel() const { return int(CPPPROCESS_NCOMB); }
 
   private:
     size_t m_nevt;       // number of events
@@ -226,7 +226,7 @@ namespace mg5amcGpu
     #else
         , m_gpublocks( m_nevt / m_gputhreads ) // this ensures m_nevt <= m_gpublocks*m_gputhreads
     #endif
-    , m_devMomentaC( m_nevt*NPAR/MGONGPU_VEC_DIM, m_q )
+    , m_devMomentaC( m_nevt*CPPPROCESS_NPAR/MGONGPU_VEC_DIM, m_q )
     , m_devGsC( m_nevt/MGONGPU_VEC_DIM, m_q )
     , m_devRndHel( m_nevt/MGONGPU_VEC_DIM, m_q )
     , m_devRndCol( m_nevt/MGONGPU_VEC_DIM, m_q )
@@ -236,17 +236,17 @@ namespace mg5amcGpu
     , m_hstMEsC( m_nevt, m_q )
     , m_hstSelHel( m_nevt, m_q )
     , m_hstSelCol( m_nevt, m_q )
-    , m_devIsGoodHel( mgOnGpu::ncomb, m_q )
-    , m_hstIsGoodHel( mgOnGpu::ncomb, m_q )
+    , m_devIsGoodHel( CPPPROCESS_NCOMB, m_q )
+    , m_hstIsGoodHel( CPPPROCESS_NCOMB, m_q )
     #ifndef MGONGPU_HARDCODE_PARAM
     , m_dev_independent_couplings( Proc::independentCouplings::nicoup, m_q )
-    , m_dev_independent_parameters( mgOnGpu::nparams, m_q )
+    , m_dev_independent_parameters( CPPPROCESS_NPARAMS, m_q )
     #endif
     , m_devcNGoodHel( 1, m_q ) 
-    , m_devcGoodHel( mgOnGpu::ncomb, m_q ) 
+    , m_devcGoodHel( CPPPROCESS_NCOMB, m_q ) 
   {
-    if( nparF != mgOnGpu::npar ) throw std::runtime_error( "Bridge constructor: npar mismatch" );
-    if( np4F != mgOnGpu::np4 ) throw std::runtime_error( "Bridge constructor: np4 mismatch" );
+    if( nparF != CPPPROCESS_NPAR ) throw std::runtime_error( "Bridge constructor: npar mismatch" );
+    if( np4F != CPPPROCESS_NP4 ) throw std::runtime_error( "Bridge constructor: np4 mismatch" );
     if( ( m_nevt < s_gputhreadsmin ) || ( m_nevt % s_gputhreadsmin != 0 ) )
       throw std::runtime_error( "Bridge constructor: nevt should be a multiple of " + std::to_string( s_gputhreadsmin ) );
     #if MGONGPU_VEC_DIM > 1
@@ -271,7 +271,7 @@ namespace mg5amcGpu
     process.initProc( "../../Cards/param_card.dat" );
 
     m_q.memcpy( m_dev_independent_couplings.data(), process.get_tIPC_ptr(), 2*Proc::independentCouplings::nicoup*sizeof(fptype) );
-    m_q.memcpy( m_dev_independent_parameters.data(), process.get_tIPD_ptr(), mgOnGpu::nparams*sizeof(fptype) ).wait();
+    m_q.memcpy( m_dev_independent_parameters.data(), process.get_tIPD_ptr(), CPPPROCESS_NPARAMS*sizeof(fptype) ).wait();
     #endif
   }
 
@@ -296,23 +296,18 @@ namespace mg5amcGpu
                                             int* __restrict__ selhel,
                                             int* __restrict__ selcol,
                                             const bool goodHelOnly ) {
-    static constexpr size_t np4 =  mgOnGpu::np4;
-    static constexpr size_t nparf = mgOnGpu::nparf;
-    static constexpr size_t npar = mgOnGpu::npar;
-    static constexpr size_t ncomb = mgOnGpu::ncomb;
-
     #if MGONGPU_VEC_DIM > 1
-        host_buffer<fptype> hstMomentaC(NPAR*MGONGPU_FOURVECTOR_DIM*m_nevt, m_q);
+        host_buffer<fptype> hstMomentaC(CPPPROCESS_NPAR*MGONGPU_FOURVECTOR_DIM*m_nevt, m_q);
         hst_transposeMomenta(hstMomentaC.data(), momenta, m_nevt);
-        m_q.memcpy(m_devMomentaC.data(), hstMomentaC.data(), NPAR*MGONGPU_FOURVECTOR_DIM*m_nevt*sizeof(fptype));
+        m_q.memcpy(m_devMomentaC.data(), hstMomentaC.data(), CPPPROCESS_NPAR*MGONGPU_FOURVECTOR_DIM*m_nevt*sizeof(fptype));
     #else
         if constexpr (std::is_same_v<FORTRANFPTYPE, fptype>) {
-            m_q.memcpy(m_devMomentaC.data(), momenta, NPAR*MGONGPU_FOURVECTOR_DIM*m_nevt*sizeof(fptype));
+            m_q.memcpy(m_devMomentaC.data(), momenta, CPPPROCESS_NPAR*MGONGPU_FOURVECTOR_DIM*m_nevt*sizeof(fptype));
         }
         else {
-            host_buffer<fptype> hstMomentaC(NPAR*MGONGPU_FOURVECTOR_DIM*m_nevt, m_q);
-            std::copy(momenta, momenta + NPAR*MGONGPU_FOURVECTOR_DIM*m_nevt, hstMomentaC.data());
-            m_q.memcpy(m_devMomentaC.data(), hstMomentaC.data(), NPAR*MGONGPU_FOURVECTOR_DIM*m_nevt*sizeof(fptype));
+            host_buffer<fptype> hstMomentaC(CPPPROCESS_NPAR*MGONGPU_FOURVECTOR_DIM*m_nevt, m_q);
+            std::copy(momenta, momenta + CPPPROCESS_NPAR*MGONGPU_FOURVECTOR_DIM*m_nevt, hstMomentaC.data());
+            m_q.memcpy(m_devMomentaC.data(), hstMomentaC.data(), CPPPROCESS_NPAR*MGONGPU_FOURVECTOR_DIM*m_nevt*sizeof(fptype));
         }
     #endif
 
@@ -375,20 +370,20 @@ namespace mg5amcGpu
                         }
                     #endif
 
-                    Proc::sigmaKin_getGoodHel( devMomentaC + npar*ievt, devIsGoodHel, dev_helicities, dev_couplings, dev_parameters );
+                    Proc::sigmaKin_getGoodHel( devMomentaC + CPPPROCESS_NPAR*ievt, devIsGoodHel, dev_helicities, dev_couplings, dev_parameters );
                 });
             }));
         });
         m_q.wait();
 
-        m_q.memcpy(m_hstIsGoodHel.data(), m_devIsGoodHel.data(), ncomb*sizeof(bool)).wait();
+        m_q.memcpy(m_hstIsGoodHel.data(), m_devIsGoodHel.data(), CPPPROCESS_NCOMB*sizeof(bool)).wait();
 
-        size_t goodHel[mgOnGpu::ncomb] = {0};
+        size_t goodHel[CPPPROCESS_NCOMB] = {0};
         size_t nGoodHel = Proc::sigmaKin_setGoodHel( m_hstIsGoodHel.data(), goodHel );
         m_nGoodHel = int(nGoodHel);
 
         m_q.memcpy( m_devcNGoodHel.data(), &nGoodHel, sizeof(size_t) ).wait();
-        m_q.memcpy( m_devcGoodHel.data(), goodHel, ncomb*sizeof(size_t) ).wait();
+        m_q.memcpy( m_devcGoodHel.data(), goodHel, CPPPROCESS_NCOMB*sizeof(size_t) ).wait();
         m_goodHelsCalculated = true;
     }
     if( goodHelOnly ) return;
@@ -442,9 +437,9 @@ namespace mg5amcGpu
                 #endif
 
                 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                    devMEsC[ievt] = Proc::sigmaKin( devMomentaC + npar*ievt, devRndHel + ievt, devRndCol + ievt, devSelHel + ievt, devSelCol + ievt, l_channelId, dev_helicities, dev_couplings, dev_parameters, devcNGoodHel, devcGoodHel );
+                    devMEsC[ievt] = Proc::sigmaKin( devMomentaC + CPPPROCESS_NPAR*ievt, devRndHel + ievt, devRndCol + ievt, devSelHel + ievt, devSelCol + ievt, l_channelId, dev_helicities, dev_couplings, dev_parameters, devcNGoodHel, devcGoodHel );
                 #else
-                    devMEsC[ievt] = Proc::sigmaKin( devMomentaC + npar*ievt, devRndHel + ievt, devRndCol + ievt, devSelHel + ievt, devSelCol + ievt, dev_helicities, dev_couplings, dev_parameters, devcNGoodHel, devcGoodHel );
+                    devMEsC[ievt] = Proc::sigmaKin( devMomentaC + CPPPROCESS_NPAR*ievt, devRndHel + ievt, devRndCol + ievt, devSelHel + ievt, devSelCol + ievt, dev_helicities, dev_couplings, dev_parameters, devcNGoodHel, devcGoodHel );
                 #endif
             });
         }));
@@ -483,10 +478,10 @@ namespace mg5amcGpu
       for ( size_t h = 0; h < N/MGONGPU_VEC_DIM; h++ ) {
           for ( size_t i = 0; i < MGONGPU_VEC_DIM; i++ ) {
               size_t idx_evt = h*MGONGPU_VEC_DIM + i;
-              for ( size_t j = 0; j < NPAR; j++ ) { // size_t idx_par = j
+              for ( size_t j = 0; j < CPPPROCESS_NPAR; j++ ) { // size_t idx_par = j
                   for ( size_t k = 0; k < MGONGPU_FOURVECTOR_DIM; k++ ) { // size_t idx_wxyz = k
-                      size_t idx_src = NPAR*MGONGPU_FOURVECTOR_DIM*idx_evt + MGONGPU_FOURVECTOR_DIM*j + k;
-                      size_t idx_dst = NPAR*MGONGPU_FOURVECTOR_DIM*MGONGPU_VEC_DIM*h + MGONGPU_FOURVECTOR_DIM*MGONGPU_VEC_DIM*j + MGONGPU_VEC_DIM*k + i;
+                      size_t idx_src = CPPPROCESS_NPAR*MGONGPU_FOURVECTOR_DIM*idx_evt + MGONGPU_FOURVECTOR_DIM*j + k;
+                      size_t idx_dst = CPPPROCESS_NPAR*MGONGPU_FOURVECTOR_DIM*MGONGPU_VEC_DIM*h + MGONGPU_FOURVECTOR_DIM*MGONGPU_VEC_DIM*j + MGONGPU_VEC_DIM*k + i;
                       dst[idx_dst] = src[idx_src];
                   }
               }

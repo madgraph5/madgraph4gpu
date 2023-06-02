@@ -10,6 +10,32 @@
 ! Licensed under the GNU Lesser General Public License (version 3 or later).
 ! Modified by: N. Nichols (2021-2023) for the MG5aMC SYCL plugin.
 !==========================================================================
+
+// --- Physics process-specific constants that are best declared at compile time
+// dimensions of 4-momenta (E,px,py,pz)
+#define CPPPROCESS_NP4 4
+
+// #particles in the initial state (incoming): e.g. 2 (e+ e-) for e+ e- -> mu+ mu-
+#define CPPPROCESS_NPARI %(nincoming)d
+
+// #particles in the final state (outgoing): e.g. 2 (mu+ mu-) for e+ e- -> mu+ mu-
+#define CPPPROCESS_NPARF %(noutcoming)d
+
+// #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
+#define CPPPROCESS_NPAR CPPPROCESS_NPARI + CPPPROCESS_NPARF 
+
+// #helicity combinations: e.g. 16 for e+ e- -> mu+ mu- (2**4 = fermion spin up/down ** npar)
+#define CPPPROCESS_NCOMB %(nbhel)d
+
+// dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
+#define CPPPROCESS_NW6 %(wavefuncsize)d
+
+// #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
+#define CPPPROCESS_NWF %(nwavefunc)d
+  
+
+namespace Proc
+{
   //==========================================================================
   // A class for calculating the matrix elements for
   %(process_lines)s
@@ -54,13 +80,6 @@
   public:
 
     // Hardcoded parameters for this process (constant class variables)
-    //static const int ninitial = mgOnGpu::npari;
-    //static const int nexternal = %(nexternal)d; // mgOnGpu::npar (nexternal was nioparticles)
-    //static const int nprocesses = %(nprocesses)d; // FIXME: assume process.nprocesses == 1
-    //static const int nwavefuncs = %(nwavefuncs)d; // mgOnGpu::nwf
-    //static const int namplitudes = %(namp)d;
-    //static const int ncomb = %(ncomb)d; // mgOnGpu::ncomb
-    //static const int wrows = %(sizew)d; // mgOnGpu::nw6;
 
   private:
 
