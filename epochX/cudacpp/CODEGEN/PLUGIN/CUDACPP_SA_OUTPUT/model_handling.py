@@ -120,6 +120,11 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
     ###nodeclare = False # old behaviour (separate declaration with no initialization)
     nodeclare = True # new behaviour (delayed declaration with initialisation)
 
+    # AV - add a printout when entering __init__
+    def __init__(self, *args, **kwargs):
+        misc.sprint('Entering PLUGIN_ALOHAWriter.__init__')
+        super().__init__(*args, **kwargs)
+
     # AV - modify aloha_writers.ALOHAWriterForCPP method (improve formatting)
     def change_number_format(self, number):
         """Formatting the number"""
