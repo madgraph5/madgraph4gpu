@@ -849,10 +849,16 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     template_path = os.path.join( PLUGINDIR, 'madgraph', 'iolibs', 'template_files' )
     __template_path = os.path.join( PLUGINDIR, 'madgraph', 'iolibs', 'template_files' )
 
-    # Overload export_cpp.OneProcessExporterGPU constructor (rename gCPPProcess to CPPProcess)
+    # Overload export_cpp.OneProcessExporterGPU constructor (rename gCPPProcess to CPPProcess, set include_multi_channel)
     def __init__(self, *args, **kwargs):
+        misc.sprint('Entering PLUGIN_OneProcessExporter.__init__')
+        for kwarg in kwargs: misc.sprint( 'kwargs[%s] = %s' %( kwarg, kwargs[kwarg] ) )
         super().__init__(*args, **kwargs)
-        self.process_class = "CPPProcess"
+        self.process_class = 'CPPProcess'
+        if 'prefix' in kwargs: proc_id = kwargs['prefix']+1 # madevent+sycl (ime+1 from ProcessExporterFortranMEGroup.generate_subprocess_directory)
+        else: proc_id = 0 # standalone_sycl
+        misc.sprint(proc_id)
+        self.proc_id = proc_id
 
     # Modify export_cpp.OneProcessExporterGPU method (indent comments in process_lines)
     def get_process_class_definitions(self, write=True):
@@ -930,7 +936,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         misc.sprint(self.support_multichannel)
         replace_dict = super().get_sigmaKin_lines(color_amplitudes, write=False)
         replace_dict['proc_id'] = self.proc_id if self.proc_id>0 else 1
-        replace_dict['proc_id_source'] = 'madevent + cudacpp exporter' if self.proc_id>0 else 'standalone_cudacpp'
+        replace_dict['proc_id_source'] = 'madevent + sycl exporter' if self.proc_id>0 else 'standalone_sycl'
         if write:
             file = self.read_template_file(self.process_sigmaKin_function_template) % replace_dict
             file = '\n'.join( file.split('\n')[12:] ) # skip first 12 lines in process_sigmaKin_function.inc (copyright)
