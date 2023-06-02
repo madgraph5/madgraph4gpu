@@ -137,6 +137,9 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
     template_Sub_make = pjoin(PLUGINDIR, 'madgraph', 'iolibs', 'template_files','gpu','cudacpp.mk')
     template_tst_make = pjoin(PLUGINDIR, 'madgraph', 'iolibs', 'template_files','gpu','cudacpp_test.mk')
 
+    # AV - add the path to the modified Fortran templates
+    templatelo_Sub = pjoin(PLUGINDIR, 'Template', 'LO', 'SubProcesses')
+
     # AV - use a custom UFOModelConverter (model/aloha exporter)
     ###create_model_class =  PLUGIN_export_cpp.UFOModelConverterGPU
     create_model_class = model_handling.PLUGIN_UFOModelConverter
@@ -151,15 +154,15 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
         misc.sprint('Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter)')
         return super().__init__(*args, **kwargs)
 
-    # AV - overload the default version: create CMake directory, do not create lib directory; patch the fortran templates
+    # AV - overload the default version: create CMake directory, do not create lib directory; copy the patched fortran templates
     def copy_template(self, model):
         misc.sprint('Entering PLUGIN_ProcessExporter.copy_template (initialise the directory)')
         if os.path.exists(self.dir_path):
             misc.sprint('Top-level directory %s already exists: this is madevent + cudacpp' % self.dir_path)
-            self.standalone_cudacpp = True
+            self.standalone_cudacpp = False
         else:
             misc.sprint('Top-level directory %s does not exist yet: this is standalone_cudacpp' % self.dir_path)
-            self.standalone_cudacpp = False
+            self.standalone_cudacpp = True
         try: os.mkdir(self.dir_path)
         except os.error as error: logger.warning(error.strerror + ' ' + self.dir_path)
         with misc.chdir(self.dir_path):
@@ -185,6 +188,11 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
             if self.template_tst_make:
                 makefile_test = self.read_template_file(self.template_tst_make) % {'model': self.get_model_name(model.get('name'))}
                 open(os.path.join('test', 'cudacpp_test.mk'), 'w').write(makefile_test)
+            # For madevent + cudacpp: copy the modified Fortran templates (replacing patchMad.sh #656)
+            if not self.standalone_cudacpp:
+                misc.sprint('In PLUGIN_ProcessExporter.copy_template: copy the modified Fortran templates')
+                txt = self.read_template_file(self.templatelo_Sub+'/makefile')
+                open(os.path.join('SubProcesses', 'makefile'), 'w').write(txt)
 
     # AV - add debug printouts (in addition to the default one from OM's tutorial)
     # (NB: this is only called in standalone_cudacpp, not in madevent + cudacpp)
