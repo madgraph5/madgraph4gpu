@@ -138,7 +138,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
     template_tst_make = pjoin(PLUGINDIR, 'madgraph', 'iolibs', 'template_files','gpu','cudacpp_test.mk')
 
     # AV - add the path to the modified Fortran templates
-    templatelo_Sub = pjoin(PLUGINDIR, 'Template', 'LO', 'SubProcesses')
+    templatelo_dir = pjoin(PLUGINDIR, 'Template', 'LO') + '/'
 
     # AV - use a custom UFOModelConverter (model/aloha exporter)
     ###create_model_class =  PLUGIN_export_cpp.UFOModelConverterGPU
@@ -191,8 +191,15 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
             # For madevent + cudacpp: copy the modified Fortran templates (replacing patchMad.sh #656)
             if not self.standalone_cudacpp:
                 misc.sprint('In PLUGIN_ProcessExporter.copy_template: copy the modified Fortran templates')
-                txt = self.read_template_file(self.templatelo_Sub+'/makefile')
-                open(os.path.join('SubProcesses', 'makefile'), 'w').write(txt)
+                for file in ('SubProcesses/makefile',):
+       	            self.copy_patched_template( self.templatelo_dir+file, file )
+
+    # AV - new utility function for patching fortran files
+    def copy_patched_template(self, src, dst):
+        import filecmp, shutil
+        if not filecmp.cmp(src+'.ORIGINAL', dst):
+            raise Exception('File %s.ORIGINAL from cudacpp differs from the unmodified version from mg5amcnlo: please use a different cudacpp version'%src)
+        shutil.copyfile(src, dst)
 
     # AV - add debug printouts (in addition to the default one from OM's tutorial)
     # (NB: this is only called in standalone_cudacpp, not in madevent + cudacpp)
