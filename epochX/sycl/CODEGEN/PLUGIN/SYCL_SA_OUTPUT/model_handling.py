@@ -864,9 +864,8 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     def get_process_class_definitions(self, write=True):
         replace_dict = super().get_process_class_definitions(write=False)
         replace_dict['process_lines'] = replace_dict['process_lines'].replace('\n','\n  ')
-        misc.sprint( "CHECK NUMBER WAVEFUNCTIONS" )
-        misc.sprint( replace_dict['nwavefuncs'] ) # NB: this (from export_cpp) is the WRONG value of nwf, e.g. 6 for gg_tt (#644)
-        misc.sprint( self.matrix_elements[0].get_number_of_wavefunctions() ) # NB: this is a different WRONG value of nwf, e.g. 7 for gg_tt (#644)
+        replace_dict['nwavefunc'] = self.matrix_elements[0].get_number_of_wavefunctions()
+        replace_dict['wavefuncsize'] = 6
         nexternal, nincoming = self.matrix_elements[0].get_nexternal_ninitial()
         replace_dict['nincoming'] = nincoming
         replace_dict['noutcoming'] = nexternal - nincoming
