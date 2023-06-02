@@ -151,9 +151,15 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
         misc.sprint('Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter)')
         return super().__init__(*args, **kwargs)
 
-    # AV - overload the default version: create CMake directory, do not create lib directory
+    # AV - overload the default version: create CMake directory, do not create lib directory; patch the fortran templates
     def copy_template(self, model):
         misc.sprint('Entering PLUGIN_ProcessExporter.copy_template (initialise the directory)')
+        if os.path.exists(self.dir_path):
+            misc.sprint('Top-level directory %s already exists: this is madevent + cudacpp' % self.dir_path)
+            self.standalone_cudacpp = True
+        else:
+            misc.sprint('Top-level directory %s does not exist yet: this is standalone_cudacpp' % self.dir_path)
+            self.standalone_cudacpp = False
         try: os.mkdir(self.dir_path)
         except os.error as error: logger.warning(error.strerror + ' ' + self.dir_path)
         with misc.chdir(self.dir_path):
@@ -181,6 +187,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                 open(os.path.join('test', 'cudacpp_test.mk'), 'w').write(makefile_test)
 
     # AV - add debug printouts (in addition to the default one from OM's tutorial)
+    # (NB: this is only called in standalone_cudacpp, not in madevent + cudacpp)
     def generate_subprocess_directory(self, subproc_group, fortran_model, me=None):
         misc.sprint('Entering PLUGIN_ProcessExporter.generate_subprocess_directory (create the directory)')
         misc.sprint('  type(subproc_group)=%s'%type(subproc_group)) # e.g. madgraph.core.helas_objects.HelasMatrixElement
