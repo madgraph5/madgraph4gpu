@@ -62,7 +62,7 @@ generate e+ e- > mu+ mu-
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.004634380340576172 [0m
+[1;32mDEBUG: model prefixing  takes 0.004980564117431641 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -231,6 +231,6 @@ INFO: /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_ee_mumu/src/.
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.finalize [1;30m[output.py at line 202][0m [0m
 quit
 
-real	0m0.665s
-user	0m0.586s
-sys	0m0.060s
+real	0m0.678s
+user	0m0.597s
+sys	0m0.051s
