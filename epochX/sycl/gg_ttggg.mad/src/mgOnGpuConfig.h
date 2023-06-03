@@ -1,10 +1,18 @@
+// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Created by: A. Valassi (Jul 2020) for the MG5aMC CUDACPP plugin.
+// Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
+//
+// Copyright (C) 2021-2023 Argonne National Laboratory.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Modified by: N. Nichols (2021-2023) for the MG5aMC SYCL plugin.
+
 #ifndef MGONGPUCONFIG_H
 #define MGONGPUCONFIG_H 1
 
 #define MGONGPU_NDCOUP 3
 #define MGONGPU_NICOUP 0
 #define MGONGPU_FOURVECTOR_DIM 4
-#define NPAR 7
 
 
 //Sets vectorization level when using vectorizable complex types
@@ -83,17 +91,6 @@ namespace mgOnGpu
 
   // --- Physics process-specific constants that are best declared at compile time
 
-  static constexpr unsigned int np4 = 4; // dimensions of 4-momenta (E,px,py,pz)
-
-  static constexpr unsigned int npari = 2; // #particles in the initial state (incoming): e.g. 2 (e+ e-) for e+ e- -> mu+ mu-
-  static constexpr unsigned int nparf = 5; // #particles in the final state (outgoing): e.g. 2 (mu+ mu-) for e+ e- -> mu+ mu-
-  static constexpr unsigned int npar = npari + nparf; // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
-
-  static constexpr unsigned int ncomb = 128; // #helicity combinations: e.g. 16 for e+ e- -> mu+ mu- (2**4 = fermion spin up/down ** npar)
-
-  static constexpr unsigned int nw6 = 6; // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
-  static constexpr unsigned int nwf = 121; // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
-  
   static constexpr unsigned int ncouplings = 3;
   static constexpr unsigned int ncouplingstimes2 = 6;
   static constexpr unsigned int nparams = 2;

@@ -1,3 +1,14 @@
+// Copyright (C) 2010 The MadGraph5_aMC@NLO development team and contributors.
+// Created by: J. Alwall (Sep 2010) for the MG5aMC backend.
+//==========================================================================
+// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Modified by: A. Valassi (Sep 2021) for the MG5aMC CUDACPP plugin.
+// Further modified by: A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
+//==========================================================================
+// Copyright (C) 2021-2023 Argonne National Laboratory.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Modified by: N. Nichols (2021-2023) for the MG5aMC SYCL plugin.
 //==========================================================================
 // This file has been automatically generated for SYCL standalone by
 // MadGraph5_aMC@NLO v. 3.5.0_lo_vect, 2023-01-26
@@ -15,6 +26,18 @@
 
 namespace MG5_sm
 {
+! Copyright (C) 2010 The MadGraph5_aMC@NLO development team and contributors.
+! Created by: J. Alwall (Sep 2010) for the MG5aMC CPP backend.
+!==========================================================================
+! Copyright (C) 2020-2023 CERN and UCLouvain.
+! Licensed under the GNU Lesser General Public License (version 3 or later).
+! Modified by: O. Mattelaer (Mar 2020) for the MG5aMC CUDACPP plugin.
+! Further modified by: O. Mattelaer, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
+!==========================================================================
+! Copyright (C) 2021-2023 Argonne National Laboratory.
+! Licensed under the GNU Lesser General Public License (version 3 or later).
+! Modified by: N. Nichols (2021-2023) for the MG5aMC SYCL plugin.
+!==========================================================================
   //--------------------------------------------------------------------------
 
 #ifdef MGONGPU_INLINE_HELAMPS
@@ -525,6 +548,7 @@ namespace MG5_sm
 
   //==========================================================================
 
+
   // Compute the output amplitude 'vertex' from the input wavefunctions V1[6], V2[6], V3[6]
   SYCL_EXTERNAL INLINE
   void VVV1_0( const cxtype_sv V1[],
@@ -622,8 +646,17 @@ namespace MG5_sm
                   const fptype M1,
                   const fptype W1,
                   cxtype_sv V1[] ) ALWAYS_INLINE;
+! Copyright (C) 2010 The MadGraph5_aMC@NLO development team and contributors.
+! Created by: J. Alwall (Sep 2010) for the MG5aMC CPP backend.
+!==========================================================================
+! Copyright (C) 2020-2023 CERN and UCLouvain.
+! Licensed under the GNU Lesser General Public License (version 3 or later).
+! Modified by: O. Mattelaer (Mar 2020) for the MG5aMC CUDACPP plugin.
+! Further modified by: O. Mattelaer, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
+!==========================================================================
 
   //==========================================================================
+
 
   // Compute the output amplitude 'vertex' from the input wavefunctions V1[6], V2[6], V3[6]
   SYCL_EXTERNAL

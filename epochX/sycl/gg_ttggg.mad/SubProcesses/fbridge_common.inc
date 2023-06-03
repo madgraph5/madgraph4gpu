@@ -1,3 +1,12 @@
+C Copyright (C) 2020-2023 CERN and UCLouvain.
+C Licensed under the GNU Lesser General Public License (version 3 or later).
+C Created by: A. Valassi (Dec 2022) for the MG5aMC CUDACPP plugin.
+C Further modified by: A. Valassi (2022-2023) for the MG5aMC CUDACPP plugin.
+C
+C Copyright (C) 2021-2023 Argonne National Laboratory.
+C Licensed under the GNU Lesser General Public License (version 3 or later).
+C Modified by: N. Nichols (2022-2023) for the MG5aMC SYCL plugin.
+
 C
 C Common block for internal communication between MadEvent components
 C - FBRIDGE_MODE: the operation mode of MEs from Fortran and from the C++ Bridge

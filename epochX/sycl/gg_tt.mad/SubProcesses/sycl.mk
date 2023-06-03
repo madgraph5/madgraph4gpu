@@ -1,3 +1,12 @@
+# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Licensed under the GNU Lesser General Public License (version 3 or later).
+# Created by: S. Roiser (Feb 2020) for the MG5aMC CUDACPP plugin.
+# Further modified by: O. Mattelaer, S. Roiser, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
+#
+# Copyright (C) 2021-2023 Argonne National Laboratory.
+# Licensed under the GNU Lesser General Public License (version 3 or later).
+# Modified by: N. Nichols for the MG5aMC SYCL plugin.
+
 #=== Determine the name of this makefile (https://ftp.gnu.org/old-gnu/Manuals/make-3.80/html_node/make_17.html)
 #=== NB: different names (e.g. cudacpp.mk and cudacpp_src.mk) are used in the Subprocess and src directories
 
@@ -33,10 +42,6 @@ OPTFLAGS = -O3 -march=native
 MG5AMC_COMMONLIB = mg5amc_common
 LIBFLAGS = -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
 INCFLAGS += -I../../src
-
-# Dependency on tools directory
-TOOLSDIR = ../../../../../tools
-INCFLAGS += -I$(TOOLSDIR)
 
 #-------------------------------------------------------------------------------
 
@@ -327,10 +332,9 @@ cleanall:
 	$(MAKE) USEBUILDDIR=0 -C ../../src cleanall -f $(SYCL_SRC_MAKEFILE)
 	rm -rf build.*
 
-# Target: clean the builds as well as the googletest installation
+# Target: clean the builds
 distclean: cleanall
 	$(MAKE) -C $(TOOLSDIR) clean
-	$(MAKE) -C $(TESTDIR) clean
 
 #-------------------------------------------------------------------------------
 

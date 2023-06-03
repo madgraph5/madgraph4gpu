@@ -1,3 +1,8 @@
+// Copyright (C) 2021-2023 Argonne National Laboratory.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Created by: N. Nichols (Oct 2021) for the MG5aMC SYCL plugin.
+// Further modified by: N. Nichols (2021-2023) for the MG5aMC SYCL plugin.
+
 #ifndef EXTRAS_H
 #define EXTRAS_H 1
 

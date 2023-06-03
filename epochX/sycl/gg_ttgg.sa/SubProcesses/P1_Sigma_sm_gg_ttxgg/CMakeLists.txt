@@ -1,3 +1,12 @@
+# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Licensed under the GNU Lesser General Public License (version 3 or later).
+# Created by: S. Roiser (Feb 2022) for the MG5aMC CUDACPP plugin.
+# Further modified by: S. Roiser (2022-2023) for the MG5aMC CUDACPP plugin.
+#
+# Copyright (C) 2021-2023 Argonne National Laboratory.
+# Licensed under the GNU Lesser General Public License (version 3 or later).
+# Modified by: N. Nichols (2021-2023) for the MG5aMC SYCL plugin.
+
 get_filename_component(basename ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 string(TOLOWER ${basename} targadd)
 

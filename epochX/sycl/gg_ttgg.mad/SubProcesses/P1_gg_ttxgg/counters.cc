@@ -1,3 +1,12 @@
+// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Created by: A. Valassi (Dec 2022) for the MG5aMC CUDACPP plugin.
+// Further modified by: A. Valassi (2022-2023) for the MG5aMC CUDACPP plugin.
+//
+// Copyright (C) 2021-2023 Argonne National Laboratory.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Modified by: N. Nichols (2022-2023) for the MG5aMC SYCL plugin.
+
 #include "timer.h"
 #define TIMERTYPE std::chrono::high_resolution_clock
 
@@ -99,7 +108,10 @@ extern "C"
     for ( unsigned int iimplC=0; iimplC<nimplC; iimplC++ )
       if ( smatrix1multi_counter[iimplC] > 0 )
         printf( " [COUNTERS] %7s MEs      ( %1d ) : %9.4fs for %8d events => throughput is %8.2E events/s\n",
-                iimplC2TXT( iimplC ), iimplC+1, smatrix1multi_totaltime[iimplC], smatrix1multi_counter[iimplC],
+                iimplC2TXT( iimplC ),
+                iimplC + 1,
+                smatrix1multi_totaltime[iimplC],
+                smatrix1multi_counter[iimplC],
                 smatrix1multi_counter[iimplC] / smatrix1multi_totaltime[iimplC] );
     return;
   }
