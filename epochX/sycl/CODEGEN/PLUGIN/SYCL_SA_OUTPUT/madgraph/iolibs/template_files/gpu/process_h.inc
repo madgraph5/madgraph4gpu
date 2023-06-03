@@ -46,8 +46,8 @@ namespace Proc
   //--------------------------------------------------------------------------
 
   SYCL_EXTERNAL
-  void sigmaKin_getGoodHel( const vector4* __restrict__ allmomenta, // input: momenta[nevt*npar*4]
-                            bool* isGoodHel,                        // output: isGoodHel[ncomb] - device array
+  void sigmaKin_getGoodHel( const vector4* __restrict__ allmomenta, // input: momenta[nevt*CPPPROCESS_NPAR*4]
+                            bool* isGoodHel,                        // output: isGoodHel[CPPPROCESS_NCOMB] - device array
                             const signed char* __restrict__ cHel,
                             const cxtype_sv* __restrict__ COUPs,
                             const fptype* __restrict__ cIPD
@@ -55,7 +55,7 @@ namespace Proc
 
   //--------------------------------------------------------------------------
 
-  size_t sigmaKin_setGoodHel( const bool* isGoodHel, size_t* goodHel ); // input: isGoodHel[ncomb] - host array
+  size_t sigmaKin_setGoodHel( const bool* isGoodHel, size_t* goodHel ); // input: isGoodHel[CPPPROCESS_NCOMB] - host array
 
   //--------------------------------------------------------------------------
 

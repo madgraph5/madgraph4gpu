@@ -66,7 +66,7 @@ namespace Proc
 
       // Local TEMPORARY variables for a subset of Feynman diagrams in the given SYCL event (ievt)
       // [NB these variables are reused several times (and re-initialised each time) within the same event or event page]
-      cxtype_sv w_sv[nwf][nw6]; // particle wavefunctions within Feynman diagrams (nw6 is often 6, the dimension of spin 1/2 or spin 1 particles)
+      cxtype_sv w_sv[CPPPROCESS_NWF][CPPPROCESS_NW6]; // particle wavefunctions within Feynman diagrams (CPPPROCESS_NW6 is often 6, the dimension of spin 1/2 or spin 1 particles)
       cxtype_sv amp_sv[1]; // invariant amplitude for one given Feynman diagram
 
       // Local variables for the given SYCL event (ievt)
@@ -31939,13 +31939,13 @@ namespace Proc
           jamp2_sv[icolC] = FPZERO_SV;
       }
 
-      fptype_sv MEs_ighel[ncomb]; // sum of MEs for all good helicities up to ighel (for this event)
+      fptype_sv MEs_ighel[CPPPROCESS_NCOMB]; // sum of MEs for all good helicities up to ighel (for this event)
       for (size_t ighel = 0; ighel < cNGoodHel[0]; ighel++) {
           const size_t ihel = cGoodHel[ighel];
           #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-              allMEs += calculate_wavefunctions( allmomenta, &allNumerators, &allDenominators, channelId, cHel + ihel*npar, COUPs, cIPD, jamp2_sv );
+              allMEs += calculate_wavefunctions( allmomenta, &allNumerators, &allDenominators, channelId, cHel + ihel*CPPPROCESS_NPAR, COUPs, cIPD, jamp2_sv );
           #else
-              allMEs += calculate_wavefunctions( allmomenta, cHel + ihel*npar, COUPs, cIPD, jamp2_sv );
+              allMEs += calculate_wavefunctions( allmomenta, cHel + ihel*CPPPROCESS_NPAR, COUPs, cIPD, jamp2_sv );
           #endif
           MEs_ighel[ighel] = allMEs;
       }

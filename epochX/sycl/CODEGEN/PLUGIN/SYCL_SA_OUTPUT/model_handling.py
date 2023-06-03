@@ -584,10 +584,10 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         out = []
         file = ''
         if ext == 'h':
-            out.append(open(pjoin(path, self.helas_h)).read())
+            file = open(pjoin(path, self.helas_h)).read()
             file = '\n'.join( file.split('\n')[12:] ) # skip first 12 lines in helas.h (copyright)
         else:
-            out.append(open(pjoin(path, self.helas_cc)).read())
+            file = open(pjoin(path, self.helas_cc)).read()
             file = '\n'.join( file.split('\n')[8:] ) # skip first 8 lines in helas.cu (copyright)
         out.append( file )
         return out
@@ -969,7 +969,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             ret_lines.append("""
       // Local TEMPORARY variables for a subset of Feynman diagrams in the given SYCL event (ievt)
       // [NB these variables are reused several times (and re-initialised each time) within the same event or event page]
-      cxtype_sv w_sv[nwf][nw6]; // particle wavefunctions within Feynman diagrams (nw6 is often 6, the dimension of spin 1/2 or spin 1 particles)
+      cxtype_sv w_sv[CPPPROCESS_NWF][CPPPROCESS_NW6]; // particle wavefunctions within Feynman diagrams (CPPPROCESS_NW6 is often 6, the dimension of spin 1/2 or spin 1 particles)
       cxtype_sv amp_sv[1]; // invariant amplitude for one given Feynman diagram
 
       // Local variables for the given SYCL event (ievt)

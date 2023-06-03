@@ -26,18 +26,6 @@
 
 namespace MG5_sm
 {
-! Copyright (C) 2010 The MadGraph5_aMC@NLO development team and contributors.
-! Created by: J. Alwall (Sep 2010) for the MG5aMC CPP backend.
-!==========================================================================
-! Copyright (C) 2020-2023 CERN and UCLouvain.
-! Licensed under the GNU Lesser General Public License (version 3 or later).
-! Modified by: O. Mattelaer (Mar 2020) for the MG5aMC CUDACPP plugin.
-! Further modified by: O. Mattelaer, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
-!==========================================================================
-! Copyright (C) 2021-2023 Argonne National Laboratory.
-! Licensed under the GNU Lesser General Public License (version 3 or later).
-! Modified by: N. Nichols (2021-2023) for the MG5aMC SYCL plugin.
-!==========================================================================
   //--------------------------------------------------------------------------
 
 #ifdef MGONGPU_INLINE_HELAMPS
@@ -548,7 +536,6 @@ namespace MG5_sm
 
   //==========================================================================
 
-
   // Compute the output amplitude 'vertex' from the input wavefunctions F1[6], F2[6], V3[6]
   SYCL_EXTERNAL INLINE
   void FFV1_0( const cxtype_sv F1[],
@@ -632,17 +619,8 @@ namespace MG5_sm
                  const fptype M3,
                  const fptype W3,
                  cxtype_sv V3[] ) ALWAYS_INLINE;
-! Copyright (C) 2010 The MadGraph5_aMC@NLO development team and contributors.
-! Created by: J. Alwall (Sep 2010) for the MG5aMC CPP backend.
-!==========================================================================
-! Copyright (C) 2020-2023 CERN and UCLouvain.
-! Licensed under the GNU Lesser General Public License (version 3 or later).
-! Modified by: O. Mattelaer (Mar 2020) for the MG5aMC CUDACPP plugin.
-! Further modified by: O. Mattelaer, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
-!==========================================================================
 
   //==========================================================================
-
 
   // Compute the output amplitude 'vertex' from the input wavefunctions F1[6], F2[6], V3[6]
   SYCL_EXTERNAL

@@ -28,13 +28,13 @@
           jamp2_sv[icolC] = FPZERO_SV;
       }
 
-      fptype_sv MEs_ighel[ncomb]; // sum of MEs for all good helicities up to ighel (for this event)
+      fptype_sv MEs_ighel[CPPPROCESS_NCOMB]; // sum of MEs for all good helicities up to ighel (for this event)
       for (size_t ighel = 0; ighel < cNGoodHel[0]; ighel++) {
           const size_t ihel = cGoodHel[ighel];
           #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-              allMEs += calculate_wavefunctions( allmomenta, &allNumerators, &allDenominators, channelId, cHel + ihel*npar, COUPs, cIPD, jamp2_sv );
+              allMEs += calculate_wavefunctions( allmomenta, &allNumerators, &allDenominators, channelId, cHel + ihel*CPPPROCESS_NPAR, COUPs, cIPD, jamp2_sv );
           #else
-              allMEs += calculate_wavefunctions( allmomenta, cHel + ihel*npar, COUPs, cIPD, jamp2_sv );
+              allMEs += calculate_wavefunctions( allmomenta, cHel + ihel*CPPPROCESS_NPAR, COUPs, cIPD, jamp2_sv );
           #endif
           MEs_ighel[ighel] = allMEs;
       }
