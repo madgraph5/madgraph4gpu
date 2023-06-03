@@ -240,7 +240,7 @@ namespace mg5amcGpu
     , m_hstIsGoodHel( CPPPROCESS_NCOMB, m_q )
     #ifndef MGONGPU_HARDCODE_PARAM
     , m_dev_independent_couplings( Proc::independentCouplings::nicoup, m_q )
-    , m_dev_independent_parameters( CPPPROCESS_NPARAMS, m_q )
+    , m_dev_independent_parameters( mgOnGpu::nparams, m_q )
     #endif
     , m_devcNGoodHel( 1, m_q ) 
     , m_devcGoodHel( CPPPROCESS_NCOMB, m_q ) 
@@ -271,7 +271,7 @@ namespace mg5amcGpu
     process.initProc( "../../Cards/param_card.dat" );
 
     m_q.memcpy( m_dev_independent_couplings.data(), process.get_tIPC_ptr(), 2*Proc::independentCouplings::nicoup*sizeof(fptype) );
-    m_q.memcpy( m_dev_independent_parameters.data(), process.get_tIPD_ptr(), CPPPROCESS_NPARAMS*sizeof(fptype) ).wait();
+    m_q.memcpy( m_dev_independent_parameters.data(), process.get_tIPD_ptr(), mgOnGpu::nparams*sizeof(fptype) ).wait();
     #endif
   }
 
