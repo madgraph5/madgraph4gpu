@@ -74,13 +74,54 @@ c      common/to_colstats/ncols,ncolflow,ncolalt,ic
       include 'vector.inc' ! defines VECSIZE_MEMMAX
       include 'coupl.inc' ! needs VECSIZE_MEMMAX (defined in vector.inc)
       INTEGER VECSIZE_USED
-      DATA VECSIZE_USED/VECSIZE_MEMMAX/ ! can be changed at runtime
+      DATA VECSIZE_USED/VECSIZE_MEMMAX/ ! initial value
+
+#ifdef MG5AMC_MEEXPORTER_CUDACPP
+      INCLUDE 'fbridge.inc'
+c     INCLUDE 'fbridge_common.inc'
+#endif
+      INCLUDE 'fbridge_common.inc'
 
 C-----
 C  BEGIN CODE
 C----- 
       call cpu_time(t_before)
       CUMULATED_TIMING = t_before
+
+#ifdef _OPENMP
+      CALL OMPNUMTHREADS_NOT_SET_MEANS_ONE_THREAD()
+#endif
+      CALL COUNTERS_INITIALISE()
+
+c#ifdef MG5AMC_MEEXPORTER_CUDACPP
+      write(*,*) 'Enter fbridge_mode'
+      read(*,*) FBRIDGE_MODE ! (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
+      write(*,'(a16,i6)') ' FBRIDGE_MODE = ', FBRIDGE_MODE
+#ifndef MG5AMC_MEEXPORTER_CUDACPP
+      if( fbridge_mode.ne.0 ) then
+        write(*,*) 'ERROR! Invalid fbridge_mode = ', fbridge_mode
+        STOP
+      endif
+#endif
+      write(*,*) 'Enter #events in a vector loop (max=',VECSIZE_MEMMAX,',)'
+      read(*,*) VECSIZE_USED
+c#else
+c      VECSIZE_USED = 32
+c#endif
+      write(*,'(a16,i6)') ' VECSIZE_USED = ', VECSIZE_USED
+      if( VECSIZE_USED.gt.VECSIZE_MEMMAX .or. VECSIZE_USED.le.0 ) then
+        write(*,*) 'ERROR! Invalid VECSIZE_USED = ', VECSIZE_USED
+        STOP
+      endif
+
+#ifdef MG5AMC_MEEXPORTER_CUDACPP
+      CALL FBRIDGECREATE(FBRIDGE_PBRIDGE, VECSIZE_USED, NEXTERNAL, 4) ! this must be at the beginning as it initialises the CUDA device
+      FBRIDGE_NCBYF1 = 0
+      FBRIDGE_CBYF1SUM = 0
+      FBRIDGE_CBYF1SUM2 = 0
+      FBRIDGE_CBYF1MAX = -1D100
+      FBRIDGE_CBYF1MIN = 1D100
+#endif
 c
 c     Read process number
 c
@@ -202,8 +243,33 @@ c      call sample_result(xsec,xerr)
 c      write(*,*) 'Final xsec: ',xsec
 
       rewind(lun)
-
       close(lun)
+
+#ifdef MG5AMC_MEEXPORTER_CUDACPP
+      CALL FBRIDGEDELETE(FBRIDGE_PBRIDGE) ! this must be at the end as it shuts down the CUDA device
+      IF( FBRIDGE_MODE .LE. -1 ) THEN ! (BothQuiet=-1 or BothDebug=-2)
+        WRITE(*,'(a,f10.8,a,e8.2)')
+     &    ' [MERATIOS] ME ratio CudaCpp/Fortran: MIN = ',
+     &    FBRIDGE_CBYF1MIN + 1, ' = 1 - ', -FBRIDGE_CBYF1MIN
+        WRITE(*,'(a,f10.8,a,e8.2)')
+     &    ' [MERATIOS] ME ratio CudaCpp/Fortran: MAX = ',
+     &    FBRIDGE_CBYF1MAX + 1, ' = 1 + ', FBRIDGE_CBYF1MAX
+        WRITE(*,'(a,i6)')
+     &    ' [MERATIOS] ME ratio CudaCpp/Fortran: NENTRIES = ',
+     &    FBRIDGE_NCBYF1
+c        WRITE(*,'(a,e8.2)')
+c    &    ' [MERATIOS] ME ratio CudaCpp/Fortran - 1: AVG = ',
+c    &    FBRIDGE_CBYF1SUM / FBRIDGE_NCBYF1
+c       WRITE(*,'(a,e8.2)')
+c    &    ' [MERATIOS] ME ratio CudaCpp/Fortran - 1: STD = ',
+c    &    SQRT( FBRIDGE_CBYF1SUM2 / FBRIDGE_NCBYF1 ) ! ~standard deviation
+        WRITE(*,'(a,e8.2,a,e8.2)')
+     &    ' [MERATIOS] ME ratio CudaCpp/Fortran - 1: AVG = ',
+     &    FBRIDGE_CBYF1SUM / FBRIDGE_NCBYF1, ' +- ',
+     &    SQRT( FBRIDGE_CBYF1SUM2 ) / FBRIDGE_NCBYF1 ! ~standard error
+      ENDIF
+#endif
+      CALL COUNTERS_FINALISE()
       end
 
 c     $B$ get_user_params $B$ ! tag for MadWeight
@@ -381,7 +447,7 @@ c
       fopened=.false.
       tempname=filename 	 
       fine=index(tempname,' ') 	 
-      fine2=index(path,' ')-1	 
+c     fine2=index(path,' ')-1 ! AV remove valgrind "Conditional jump or move depends on uninitialised value(s)"
       if(fine.eq.0) fine=len(tempname)
       open(unit=lun,file=tempname,status='old',ERR=20)
       fopened=.true.
