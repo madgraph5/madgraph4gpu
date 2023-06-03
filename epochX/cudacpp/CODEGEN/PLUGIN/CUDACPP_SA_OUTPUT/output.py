@@ -1,7 +1,7 @@
 # Copyright (C) 2020-2023 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: O. Mattelaer (Sep 2021) for the MG5aMC CUDACPP plugin.
-# Further modified by: O. Mattelaer, A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
+# Further modified by: O. Mattelaer, A. Valassi, Z. Wettersten (2021-2023) for the MG5aMC CUDACPP plugin.
 
 import os
 
@@ -95,7 +95,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                                       s+'gpu/MemoryAccessAmplitudes.h', s+'gpu/MemoryAccessWavefunctions.h',
                                       s+'gpu/MemoryAccessGs.h', s+'gpu/MemoryAccessCouplingsFixed.h',
                                       s+'gpu/MemoryAccessNumerators.h', s+'gpu/MemoryAccessDenominators.h',
-                                      s+'gpu/EventStatistics.h',
+                                      s+'gpu/EventStatistics.h', s+'gpu/CommonRandomNumbers.h',
                                       s+'gpu/CrossSectionKernels.cc', s+'gpu/CrossSectionKernels.h',
                                       s+'gpu/MatrixElementKernels.cc', s+'gpu/MatrixElementKernels.h',
                                       s+'gpu/RamboSamplingKernels.cc', s+'gpu/RamboSamplingKernels.h',
@@ -105,7 +105,8 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                                       s+'gpu/MadgraphTest.h', s+'gpu/runTest.cc',
                                       s+'gpu/testmisc.cc', s+'gpu/testxxx_cc_ref.txt',
                                       s+'gpu/perf.py', s+'gpu/profile.sh',
-                                      s+'CMake/SubProcesses/CMakeLists.txt']}
+                                      s+'CMake/SubProcesses/CMakeLists.txt'],
+                     'test': [s+'gpu/cudacpp_test.mk']}
     to_link_in_P = ['nvtx.h', 'timer.h', 'timermap.h',
                     'ompnumthreads.h', 'CudaRuntime.h',
                     'MemoryAccessHelpers.h', 'MemoryAccessVectors.h',
@@ -114,7 +115,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                     'MemoryAccessAmplitudes.h', 'MemoryAccessWavefunctions.h',
                     'MemoryAccessGs.h', 'MemoryAccessCouplingsFixed.h',
                     'MemoryAccessNumerators.h', 'MemoryAccessDenominators.h',
-                    'EventStatistics.h',
+                    'EventStatistics.h', 'CommonRandomNumbers.h',
                     'CrossSectionKernels.cc', 'CrossSectionKernels.h',
                     'MatrixElementKernels.cc', 'MatrixElementKernels.h',
                     'RamboSamplingKernels.cc', 'RamboSamplingKernels.h',
@@ -123,10 +124,10 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                     'fbridge.cc', 'fbridge.inc', 'fsampler.cc', 'fsampler.inc',
                     'MadgraphTest.h', 'runTest.cc',
                     'testmisc.cc', 'testxxx_cc_ref.txt',
-                    'cudacpp.mk', # this is generated from a template in Subprocesses but we still link it in Sigma
-                    'testxxx.cc', # this is generated from a template in Subprocesses but we still link it in Sigma
-                    'MemoryBuffers.h', # this is generated from a template in Subprocesses but we still link it in Sigma
-                    'MemoryAccessCouplings.h', # this is generated from a template in Subprocesses but we still link it in Sigma
+                    'cudacpp.mk', # this is generated from a template in Subprocesses but we still link it in P1
+                    'testxxx.cc', # this is generated from a template in Subprocesses but we still link it in P1
+                    'MemoryBuffers.h', # this is generated from a template in Subprocesses but we still link it in P1
+                    'MemoryAccessCouplings.h', # this is generated from a template in Subprocesses but we still link it in P1
                     'perf.py', 'profile.sh']
 
     # AV - use template files from PLUGINDIR instead of MG5DIR and change their names
@@ -134,6 +135,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
     ###template_Sub_make = pjoin(MG5DIR, 'madgraph', 'iolibs', 'template_files','gpu','Makefile')
     template_src_make = pjoin(PLUGINDIR, 'madgraph' ,'iolibs', 'template_files','gpu','cudacpp_src.mk')
     template_Sub_make = pjoin(PLUGINDIR, 'madgraph', 'iolibs', 'template_files','gpu','cudacpp.mk')
+    template_tst_make = pjoin(PLUGINDIR, 'madgraph', 'iolibs', 'template_files','gpu','cudacpp_test.mk')
 
     # AV - use a custom UFOModelConverter (model/aloha exporter)
     ###create_model_class =  PLUGIN_export_cpp.UFOModelConverterGPU
@@ -156,7 +158,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
         except os.error as error: logger.warning(error.strerror + ' ' + self.dir_path)
         with misc.chdir(self.dir_path):
             logger.info('Creating subdirectories in directory %s' % self.dir_path)
-            for d in ['src', 'Cards', 'SubProcesses', 'CMake']: # AV - added CMake, removed lib
+            for d in ['src', 'Cards', 'SubProcesses', 'CMake', 'test', 'test/ref']: # AV - added CMake, test, test/ref; removed lib
                 try: os.mkdir(d)
                 except os.error as error: logger.warning(error.strerror + ' ' + os.path.join(self.dir_path,d))
             # Write param_card
@@ -173,6 +175,10 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
             if self.template_Sub_make:
                 makefile = self.read_template_file(self.template_Sub_make) % {'model': self.get_model_name(model.get('name'))}
                 open(os.path.join('SubProcesses', 'cudacpp.mk'), 'w').write(makefile)
+            # Copy test makefile
+            if self.template_tst_make:
+                makefile_test = self.read_template_file(self.template_tst_make) % {'model': self.get_model_name(model.get('name'))}
+                open(os.path.join('test', 'cudacpp_test.mk'), 'w').write(makefile_test)
 
     # AV - add debug printouts (in addition to the default one from OM's tutorial)
     def generate_subprocess_directory(self, subproc_group, fortran_model, me=None):

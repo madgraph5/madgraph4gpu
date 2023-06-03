@@ -9,8 +9,8 @@
 
 #include <sstream>
 
-using mgOnGpu::npar; // the number of particles (external = initial + final)
-using mgOnGpu::np4;  // the number of dimensions of 4-momenta (E,px,py,pz)
+constexpr int np4 = CPPProcess::np4;   // dimensions of 4-momenta (E,px,py,pz)
+constexpr int npar = CPPProcess::npar; // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
 
 //============================================================================
 

@@ -8,7 +8,14 @@
 
 #include "mgOnGpuConfig.h"
 
+#include "CPPProcess.h"
 #include "MemoryAccessHelpers.h"
+
+#ifdef __CUDACC__
+using mg5amcGpu::CPPProcess;
+#else
+using mg5amcCpu::CPPProcess;
+#endif
 
 //----------------------------------------------------------------------------
 
@@ -32,10 +39,10 @@ private: /* clang-format on */
   friend class KernelAccessHelper<MemoryAccessRandomNumbersBase, false>;
 
   // The number of components of a 4-momentum
-  static constexpr int np4 = mgOnGpu::np4;
+  static constexpr int np4 = CPPProcess::np4;
 
   // The number of final state particles in this physics process
-  static constexpr int nparf = mgOnGpu::nparf;
+  static constexpr int nparf = CPPProcess::nparf;
 
   //--------------------------------------------------------------------------
   // NB all KernelLaunchers assume that memory access can be decomposed as "accessField = decodeRecord( accessRecord )"

@@ -1037,6 +1037,13 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     def get_process_class_definitions(self, write=True):
         replace_dict = super().get_process_class_definitions(write=False)
         replace_dict['process_lines'] = replace_dict['process_lines'].replace('\n','\n  ')
+        ###misc.sprint( replace_dict['nwavefuncs'] ) # NB: this (from export_cpp) is the WRONG value of nwf, e.g. 6 for gg_tt (#644)
+        ###misc.sprint( self.matrix_elements[0].get_number_of_wavefunctions() ) # NB: this is a different WRONG value of nwf, e.g. 7 for gg_tt (#644)
+        ###replace_dict['nwavefunc'] = self.matrix_elements[0].get_number_of_wavefunctions() # how do I get HERE the right value of nwf, e.g. 5 for gg_tt?
+        nexternal, nincoming = self.matrix_elements[0].get_nexternal_ninitial()
+        replace_dict['nincoming'] = nincoming
+        replace_dict['noutcoming'] = nexternal - nincoming
+        replace_dict['nbhel'] = self.matrix_elements[0].get_helicity_combinations() # number of helicity combinations
         file = self.read_template_file(self.process_class_template) % replace_dict # HACK! ignore write=False case
         file = '\n'.join( file.split('\n')[8:] ) # skip first 8 lines in process_class.inc (copyright)
         return file
@@ -1140,6 +1147,24 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         ret_lines = []
         if self.single_helicities:
             ###assert self.include_multi_channel # remove this assert: must handle both cases and produce two different code bases (#473)
+            misc.sprint(type(self.helas_call_writer))
+            misc.sprint(self.support_multichannel, self.include_multi_channel)
+            multi_channel = None
+            if self.include_multi_channel:
+                if not self.support_multichannel:
+                    raise Exception("link with madevent not supported")
+                multi_channel = self.get_multi_channel_dictionary(self.matrix_elements[0].get('diagrams'), self.include_multi_channel)
+                misc.sprint(multi_channel)
+            ###misc.sprint( 'before get_matrix_element_calls', self.matrix_elements[0].get_number_of_wavefunctions() ) # WRONG value of nwf, eg 7 for gg_tt
+            helas_calls = self.helas_call_writer.get_matrix_element_calls(\
+                                                    self.matrix_elements[0],
+                                                    color_amplitudes[0],
+                                                    multi_channel_map = multi_channel
+                                                    )
+            ###misc.sprint( 'after get_matrix_element_calls', self.matrix_elements[0].get_number_of_wavefunctions() ) # CORRECT value of nwf, eg 5 for gg_tt
+            assert len(self.matrix_elements) == 1 # how to handle if this is not true?
+            self.couplings2order = self.helas_call_writer.couplings2order
+            self.params2order = self.helas_call_writer.params2order
             ret_lines.append("""
   // Evaluate |M|^2 for each subprocess
   // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
@@ -1192,8 +1217,13 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     //printf( \"calculate_wavefunctions: ihel=%2d\\n\", ihel );
 #ifndef __CUDACC__
     //printf( \"calculate_wavefunctions: ievt00=%d\\n\", ievt00 );
-#endif
-
+#endif""")
+            nwavefuncs = self.matrix_elements[0].get_number_of_wavefunctions()
+            ret_lines.append("""
+    // The variable nwf (which is specific to each P1 subdirectory, #644) is only used here
+    // It is hardcoded here because various attempts to hardcode it in CPPProcess.h at generation time gave the wrong result...
+    static const int nwf = %i; // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)"""%nwavefuncs )
+            ret_lines.append("""
     // Local TEMPORARY variables for a subset of Feynman diagrams in the given CUDA event (ievt) or C++ event page (ipagV)
     // [NB these variables are reused several times (and re-initialised each time) within the same event or event page]
     // ** NB: in other words, amplitudes and wavefunctions still have TRIVIAL ACCESS: there is currently no need
@@ -1225,23 +1255,6 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
 #ifndef __CUDACC__
       const int ievt0 = ievt00 + iParity * neppV;
 #endif""")
-            misc.sprint(type(self.helas_call_writer))
-            misc.sprint(self.support_multichannel, self.include_multi_channel)
-            multi_channel = None
-            if self.include_multi_channel:
-                if not self.support_multichannel:
-                    raise Exception("link with madevent not supported")
-                multi_channel = self.get_multi_channel_dictionary(self.matrix_elements[0].get('diagrams'), self.include_multi_channel)
-                misc.sprint(multi_channel)
-            helas_calls = self.helas_call_writer.get_matrix_element_calls(\
-                                                    self.matrix_elements[0],
-                                                    color_amplitudes[0],
-                                                    multi_channel_map = multi_channel
-                                                    )
-            assert len(self.matrix_elements) == 1 # how to handle if this is not true?
-            self.couplings2order = self.helas_call_writer.couplings2order
-            self.params2order = self.helas_call_writer.params2order
-            nwavefuncs = self.matrix_elements[0].get_number_of_wavefunctions()
             ret_lines += helas_calls
         else:
             ret_lines.extend([self.get_sigmaKin_single_process(i, me) \
@@ -1287,7 +1300,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         self.edit_testxxx() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
         self.edit_memorybuffers() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
         self.edit_memoryaccesscouplings() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
-        # Add symbolic links
+        # Add symbolic links in the P1 directory
         files.ln(pjoin(self.path, 'check_sa.cc'), self.path, 'gcheck_sa.cu')
         files.ln(pjoin(self.path, 'CPPProcess.cc'), self.path, 'gCPPProcess.cu')
         files.ln(pjoin(self.path, 'CrossSectionKernels.cc'), self.path, 'gCrossSectionKernels.cu')
@@ -1298,6 +1311,18 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         # NB: symlink of cudacpp.mk to makefile is overwritten by madevent makefile if this exists (#480)
         # NB: this relies on the assumption that cudacpp code is generated before madevent code
         files.ln(pjoin(self.path, 'cudacpp.mk'), self.path, 'makefile')
+        # Add symbolic links in the test directory
+        files.ln(pjoin(self.path + '/../../test', 'cudacpp_test.mk'), self.path + '/../../test', 'makefile')
+        # Add reference file in the test directory (if it exists for this process)
+        import pathlib
+        pathlib.Path(self.path + '/../../test/ref/.keepme').touch()
+        ###template_ref = 'dump_CPUTest.'+self.process_name+'.txt'
+        template_ref = self.template_path + '/../../../test/ref/' + 'dump_CPUTest.' + self.process_name + '.txt'
+        if os.path.exists( template_ref ):
+            misc.sprint( 'Copying test reference file: ', template_ref )
+            PLUGIN_export_cpp.cp( template_ref, self.path + '/../../test/ref' )
+        else:
+            misc.sprint( 'Test reference file does not exist and will not be copied: ', template_ref )
 
     # SR - generate CMakeLists.txt file inside the P* directory
     def edit_CMakeLists(self):
@@ -1335,7 +1360,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         replace_dict['nincoming'] = nincoming
         replace_dict['noutcoming'] = nexternal - nincoming
         replace_dict['nbhel'] = self.matrix_elements[0].get_helicity_combinations() # number of helicity combinations
-        replace_dict['nwavefunc'] = self.matrix_elements[0].get_number_of_wavefunctions()
+        ###replace_dict['nwavefunc'] = self.matrix_elements[0].get_number_of_wavefunctions() # this is the correct P1-specific nwf, now in CPPProcess.h (#644)
         replace_dict['wavefuncsize'] = 6
         if self.include_multi_channel:
             replace_dict['mgongpu_supports_multichannel'] = '#define MGONGPU_SUPPORTS_MULTICHANNEL 1'
@@ -1508,7 +1533,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     # AV - replace the export_cpp.OneProcessExporterCPP method (fix helicity order and improve formatting)
     def get_helicity_matrix(self, matrix_element):
         """Return the Helicity matrix definition lines for this matrix element"""
-        helicity_line = '    static constexpr short helicities[ncomb][mgOnGpu::npar] = {\n      '; # AV (this is tHel)
+        helicity_line = '    static constexpr short helicities[ncomb][npar] = {\n      '; # AV (this is tHel)
         helicity_line_list = []
         for helicities in matrix_element.get_helicity_matrix(allow_reverse=True): # AV was False: different order in Fortran and cudacpp! #569
             helicity_line_list.append( '{ ' + ', '.join(['%d'] * len(helicities)) % tuple(helicities) + ' }' ) # AV

@@ -24,7 +24,8 @@ c**************************************************
       include 'nexternal.inc'
       include 'message.inc'
       include 'maxamps.inc'
-      include 'cluster.inc'
+c     include 'vector.inc' ! defines VECSIZE_MEMMAX
+      include 'cluster.inc' ! includes vector.inc that defines VECSIZE_MEMMAX
       include 'sudakov.inc'
       include 'maxparticles.inc'
       include 'run.inc'
@@ -97,7 +98,8 @@ c**************************************************
       include 'message.inc'
       include 'nexternal.inc'
       include 'maxamps.inc'
-      include 'cluster.inc'      
+c     include 'vector.inc' ! defines VECSIZE_MEMMAX
+      include 'cluster.inc' ! includes vector.inc that defines VECSIZE_MEMMAX
       integer ipdg,imode
       double precision q0, Q11
       double precision gamma,DGAUSS
@@ -562,9 +564,10 @@ c**************************************************
       include 'genps.inc'
       include 'nexternal.inc'
       include 'maxamps.inc'
-      include 'cluster.inc'
+c     include 'vector.inc' ! defines VECSIZE_MEMMAX
+      include 'cluster.inc' ! includes vector.inc that defines VECSIZE_MEMMAX
       include 'run.inc'
-      include 'coupl.inc'
+      include 'coupl.inc' ! needs VECSIZE_MEMMAX (defined in vector.inc)
       include 'run_config.inc'
 C   
 C   ARGUMENTS 
@@ -1315,9 +1318,10 @@ c**************************************************
       include 'genps.inc'
       include 'nexternal.inc'
       include 'maxamps.inc'
-      include 'cluster.inc'
+c     include 'vector.inc' ! defines VECSIZE_MEMMAX
+      include 'cluster.inc' ! includes vector.inc that defines VECSIZE_MEMMAX
       include 'run.inc'
-      include 'coupl.inc'
+      include 'coupl.inc' ! needs VECSIZE_MEMMAX (defined in vector.inc)
       include 'run_config.inc'
 C   
 C   ARGUMENTS 
@@ -1790,8 +1794,10 @@ C
       include 'genps.inc'
       include 'run.inc'
       include 'nexternal.inc'
-      include 'vector.inc'
-      include 'coupl.inc'
+      include 'maxamps.inc'
+c     include 'vector.inc' ! defines VECSIZE_MEMMAX
+      include 'cluster.inc' ! includes vector.inc that defines VECSIZE_MEMMAX
+      include 'coupl.inc' ! needs VECSIZE_MEMMAX (defined in vector.inc)
 C      include 'maxparticles.inc'
       
       double precision all_p(4*maxdim/3+14,1), all_wgt(1)
@@ -1817,8 +1823,10 @@ C
       include 'genps.inc'
       include 'run.inc'
       include 'nexternal.inc'
-      include 'vector.inc'
-      include 'coupl.inc'
+      include 'maxamps.inc'
+c     include 'vector.inc' ! defines VECSIZE_MEMMAX
+      include 'cluster.inc' ! includes vector.inc that defines VECSIZE_MEMMAX
+      include 'coupl.inc' ! needs VECSIZE_MEMMAX (defined in vector.inc)
 C      include 'maxparticles.inc'
       
       double precision all_p(4*maxdim/3+14,*), all_wgt(*)
@@ -1853,6 +1861,7 @@ c      save firsttime
          else
             all_q2fact(1,i) = q2fact(1)
             all_q2fact(2,i) = q2fact(2)
+            vec_igraph1(i) = igraphs(1)
          endif
 c         call save_cl_val_to(i)
 c      endif
@@ -1877,135 +1886,3 @@ c      ENDIF
       return
       end
       
-      subroutine save_cl_val_to(ivec)
-      implicit none
-      integer ivec
-
-      include 'nexternal.inc'
-      include 'maxamps.inc'
-      include 'cluster.inc'
-c     Common block for reweighting info
-c     q2bck holds the central q2fact scales
-      integer jlast(2)
-      integer njetstore(lmaxconfigs),iqjetstore(nexternal-2,lmaxconfigs)
-      real*8 q2bck(2)
-      integer njets,iqjets(nexternal)
-      common /to_rw/jlast,njetstore,iqjetstore,njets,iqjets,q2bck
-      
-c     cl_map
-      v_id_cl(:,:,:,ivec) = id_cl(:,:,:)
-      v_heavyrad(:,ivec) = heavyrad(:)
-c     res_map
-      v_resmap(:,:,ivec) = resmap(:,:)
-c     cl_val
-      v_pcl(:,:,ivec) = pcl(:,:)
-      v_pt2ijcl(:,ivec) = pt2ijcl(:)
-      v_zcl(:,ivec) = zcl(:)
-      v_mt2ij(:,ivec) = mt2ij(:)
-      v_mt2last(ivec) = mt2last
-      v_imocl(:,ivec) = imocl(:)
-      v_idacl(:,:,ivec) = idacl(:,:)
-      v_igraphs(:,ivec) = igraphs(:)
-      v_ipdgcl(:,:,:,ivec) = ipdgcl(:,:,:)
-      v_clustered(ivec) = clustered
-c     cl_isbw
-      v_nbw(ivec) = nbw
-      v_isbw(:,ivec) = isbw(:)
-      v_ibwlist(:,:,ivec) = ibwlist(:,:)
-c     cl_iclus
-      v_icluster(:,:,ivec) = icluster(:,:)
-c     cl_jets
-      v_ptclus(:,ivec) = ptclus(:)
-c     cl_sud
-c      v_m_colfac(:,ivec) = m_colfac(:)
-c      v_m_dlog(:,ivec) = m_dlog(:)
-c      v_m_slog(:,ivec) = m_slog(:)
-c      v_m_power(:,:,:,ivec) = m_power(:,:,:)
-c      v_m_qmass(:,ivec) = m_qmass(:)
-c      v_m_as_factor(ivec) = m_as_factor
-c      v_m_kfac(ivec) = m_kfac
-c      v_m_lastas(ivec) = m_lastas
-c      v_m_pca(:,:,ivec) = m_pca(:,:)      
-c     gamma_args
-c      v_Q1(ivec) = Q1
-c      v_iipdg(ivec) = iipdg
-c      v_iimode(ivec) = iimode
-c     to_rw
-      v_jlast(:,ivec) = jlast(:)
-      v_njetstore(:,ivec) = njetstore(:)
-      v_iqjetstore(:,:,ivec) = iqjetstore(:,:)
-      v_q2bck(:,ivec) = q2bck(:)
-      v_njets(ivec) = njets
-      v_iqjets(:,ivec) = iqjets(:)
-
-
-      return
-      end
-
-      subroutine restore_cl_val_to(ivec)
-      implicit none
-      integer ivec
-
-      include 'nexternal.inc'
-      include 'maxamps.inc'
-      include 'cluster.inc'
-c     Common block for reweighting info
-c     q2bck holds the central q2fact scales
-      integer jlast(2)
-      integer njetstore(lmaxconfigs),iqjetstore(nexternal-2,lmaxconfigs)
-      real*8 q2bck(2)
-      integer njets,iqjets(nexternal)
-      common /to_rw/jlast,njetstore,iqjetstore,njets,iqjets,q2bck
-
-      DOUBLE PRECISION G, ALL_G(VECSIZE_MEMMAX)
-      COMMON/STRONG/ G, ALL_G
-
-c     strong coupling is needed for the reweighting function      
-      G = ALL_G(ivec)
-c     cl_map
-      id_cl(:,:,:) = v_id_cl(:,:,:,ivec)
-      heavyrad(:) = v_heavyrad(:,ivec)
-c     res_map
-      resmap(:,:) = v_resmap(:,:,ivec)
-c     cl_val
-      pcl(:,:) = v_pcl(:,:,ivec)
-      pt2ijcl(:) = v_pt2ijcl(:,ivec)
-      zcl(:) = v_zcl(:,ivec)
-      mt2ij(:) = v_mt2ij(:,ivec)
-      mt2last =       v_mt2last(ivec)
-      imocl(:) = v_imocl(:,ivec)
-      idacl(:,:) = v_idacl(:,:,ivec)
-      igraphs(:) = v_igraphs(:,ivec)
-      ipdgcl(:,:,:) = v_ipdgcl(:,:,:,ivec)
-      clustered =      v_clustered(ivec)
-c     cl_isbw
-      nbw = v_nbw(ivec)
-      isbw(:) = v_isbw(:,ivec)
-      ibwlist(:,:) = v_ibwlist(:,:,ivec)
-c     cl_iclus
-      icluster(:,:) = v_icluster(:,:,ivec)
-c     cl_jets
-      ptclus(:) = v_ptclus(:,ivec)
-c     cl_sud      
-c      m_colfac(:) = v_m_colfac(:,ivec)
-c      m_dlog(:) = v_m_dlog(:,ivec)
-c      m_slog(:) = v_m_slog(:,ivec)
-c      m_power(:,:,:) = v_m_power(:,:,:,ivec) 
-c      m_qmass(:) = v_m_qmass(:,ivec) 
-c      m_as_factor = v_m_as_factor(ivec) 
-c      m_kfac = v_m_kfac(ivec) 
-c      m_lastas = v_m_lastas(ivec) 
-c      m_pca(:,:) = v_m_pca(:,:,ivec) 
-c     gamma_args
-c      Q1= v_Q1(ivec)
-c      iipdg = v_iipdg(ivec)
-c      iimode = v_iimode(ivec)
-c     to_rw
-      jlast(:) = v_jlast(:,ivec)      
-      njetstore(:) = v_njetstore(:,ivec) 
-      iqjetstore(:,:) = v_iqjetstore(:,:,ivec) 
-      q2bck(:) = v_q2bck(:,ivec)
-      njets = v_njets(ivec)      
-      iqjets(:) = v_iqjets(:,ivec)
-      return
-      end

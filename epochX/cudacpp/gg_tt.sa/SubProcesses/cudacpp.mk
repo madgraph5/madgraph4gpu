@@ -39,14 +39,36 @@ MG5AMC_COMMONLIB = mg5amc_common
 LIBFLAGS = -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
 INCFLAGS += -I../../src
 
-# Dependency on tools directory
-TOOLSDIR = ../../../../../tools
-INCFLAGS += -I$(TOOLSDIR)
-
 # Dependency on test directory
-TESTDIR  = ../../../../../test
-GTESTLIBDIR = $(TESTDIR)/googletest/build/lib/
-GTESTLIBS   = $(GTESTLIBDIR)/libgtest.a $(GTESTLIBDIR)/libgtest_main.a
+# Within the madgraph4gpu git repo: by default use a common gtest installation in <topdir>/test (optionally use an external or local gtest)
+# Outside the madgraph4gpu git repo: by default do not build the tests (optionally use an external or local gtest)
+###GTEST_ROOT = /cvmfs/sft.cern.ch/lcg/releases/gtest/1.11.0-21e8c/x86_64-centos8-gcc11-opt/# example of an external gtest installation
+###LOCALGTEST = yes# comment this out (or use make LOCALGTEST=yes) to build tests using a local gtest installation
+TESTDIRCOMMON = ../../../../../test
+TESTDIRLOCAL = ../../test
+ifneq ($(wildcard $(GTEST_ROOT)),)
+TESTDIR =
+else ifneq ($(LOCALGTEST),)
+TESTDIR=$(TESTDIRLOCAL)
+GTEST_ROOT = $(TESTDIR)/googletest/install
+else ifneq ($(wildcard ../../../../../epochX/cudacpp/CODEGEN),)
+TESTDIR = $(TESTDIRCOMMON)
+GTEST_ROOT = $(TESTDIR)/googletest/install
+else
+TESTDIR =
+endif
+ifneq ($(GTEST_ROOT),)
+GTESTLIBDIR = $(GTEST_ROOT)/lib64/
+GTESTLIBS = $(GTESTLIBDIR)/libgtest.a $(GTESTLIBDIR)/libgtest_main.a
+GTESTINC = -I$(GTEST_ROOT)/include
+else
+GTESTLIBDIR =
+GTESTLIBS =
+GTESTINC =
+endif
+###$(info GTEST_ROOT = $(GTEST_ROOT))
+###$(info LOCALGTEST = $(LOCALGTEST))
+###$(info TESTDIR = $(TESTDIR))
 
 #-------------------------------------------------------------------------------
 
@@ -404,7 +426,11 @@ endif
 
 testmain=$(BUILDDIR)/runTest.exe
 
-all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cu_main) $(cxx_main) $(testmain) $(fcu_main) $(fcxx_main)
+ifneq ($(GTESTLIBS),)
+all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cu_main) $(cxx_main) $(fcu_main) $(fcxx_main) $(testmain)
+else
+all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cu_main) $(cxx_main) $(fcu_main) $(fcxx_main)
+endif
 
 # Target (and build options): debug
 MAKEDEBUG=
@@ -569,39 +595,39 @@ endif
 
 # Target (and build rules): test objects and test executable
 $(BUILDDIR)/testxxx.o: $(GTESTLIBS)
-$(BUILDDIR)/testxxx.o: INCFLAGS += -I$(TESTDIR)/googletest/googletest/include
+$(BUILDDIR)/testxxx.o: INCFLAGS += $(GTESTINC)
 $(BUILDDIR)/testxxx.o: testxxx_cc_ref.txt
 $(testmain): $(BUILDDIR)/testxxx.o
 $(testmain): cxx_objects_exe += $(BUILDDIR)/testxxx.o # Comment out this line to skip the C++ test of xxx functions
 
 ifneq ($(NVCC),)
 $(BUILDDIR)/testxxx_cu.o: $(GTESTLIBS)
-$(BUILDDIR)/testxxx_cu.o: INCFLAGS += -I$(TESTDIR)/googletest/googletest/include
+$(BUILDDIR)/testxxx_cu.o: INCFLAGS += $(GTESTINC)
 $(BUILDDIR)/testxxx_cu.o: testxxx_cc_ref.txt
 $(testmain): $(BUILDDIR)/testxxx_cu.o
 $(testmain): cu_objects_exe += $(BUILDDIR)/testxxx_cu.o # Comment out this line to skip the CUDA test of xxx functions
 endif
 
 $(BUILDDIR)/testmisc.o: $(GTESTLIBS)
-$(BUILDDIR)/testmisc.o: INCFLAGS += -I$(TESTDIR)/googletest/googletest/include
+$(BUILDDIR)/testmisc.o: INCFLAGS += $(GTESTINC)
 $(testmain): $(BUILDDIR)/testmisc.o
 $(testmain): cxx_objects_exe += $(BUILDDIR)/testmisc.o # Comment out this line to skip the C++ miscellaneous tests
 
 ifneq ($(NVCC),)
 $(BUILDDIR)/testmisc_cu.o: $(GTESTLIBS)
-$(BUILDDIR)/testmisc_cu.o: INCFLAGS += -I$(TESTDIR)/googletest/googletest/include
+$(BUILDDIR)/testmisc_cu.o: INCFLAGS += $(GTESTINC)
 $(testmain): $(BUILDDIR)/testmisc_cu.o
 $(testmain): cu_objects_exe += $(BUILDDIR)/testmisc_cu.o # Comment out this line to skip the CUDA miscellaneous tests
 endif
 
 $(BUILDDIR)/runTest.o: $(GTESTLIBS)
-$(BUILDDIR)/runTest.o: INCFLAGS += -I$(TESTDIR)/googletest/googletest/include
+$(BUILDDIR)/runTest.o: INCFLAGS += $(GTESTINC)
 $(testmain): $(BUILDDIR)/runTest.o
 $(testmain): cxx_objects_exe += $(BUILDDIR)/runTest.o
 
 ifneq ($(NVCC),)
 $(BUILDDIR)/runTest_cu.o: $(GTESTLIBS)
-$(BUILDDIR)/runTest_cu.o: INCFLAGS += -I$(TESTDIR)/googletest/googletest/include
+$(BUILDDIR)/runTest_cu.o: INCFLAGS += $(GTESTINC)
 ifneq ($(shell $(CXX) --version | grep ^Intel),)
 $(testmain): LIBFLAGS += -lintlc # compile with icpx and link with nvcc (undefined reference to `_intel_fast_memcpy')
 $(testmain): LIBFLAGS += -lsvml # compile with icpx and link with nvcc (undefined reference to `__svml_cos4_l9')
@@ -613,7 +639,7 @@ $(testmain): cu_objects_exe  += $(BUILDDIR)/runTest_cu.o
 endif
 
 $(testmain): $(GTESTLIBS)
-$(testmain): INCFLAGS += -I$(TESTDIR)/googletest/googletest/include
+$(testmain): INCFLAGS +=  $(GTESTINC)
 $(testmain): LIBFLAGS += -L$(GTESTLIBDIR) -lgtest -lgtest_main
 
 ifneq ($(OMPFLAGS),)
@@ -704,9 +730,12 @@ cleanall:
 	$(MAKE) USEBUILDDIR=0 -C ../../src cleanall -f $(CUDACPP_SRC_MAKEFILE)
 	rm -rf build.*
 
-# Target: clean the builds as well as the googletest installation
+# Target: clean the builds as well as the gtest installation(s)
 distclean: cleanall
-	$(MAKE) -C $(TESTDIR) clean
+ifneq ($(wildcard $(TESTDIRCOMMON)),)
+	$(MAKE) -C $(TESTDIRCOMMON) clean
+endif
+	$(MAKE) -C $(TESTDIRLOCAL) clean
 
 #-------------------------------------------------------------------------------
 

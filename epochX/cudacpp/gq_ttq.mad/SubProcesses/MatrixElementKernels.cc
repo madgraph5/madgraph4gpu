@@ -60,7 +60,7 @@ namespace mg5amcCpu
 
   int MatrixElementKernelHost::computeGoodHelicities()
   {
-    using mgOnGpu::ncomb; // the number of helicity combinations
+    constexpr int ncomb = CPPProcess::ncomb; // the number of helicity combinations
     HostBufferHelicityMask hstIsGoodHel( ncomb );
     // ... 0d1. Compute good helicity mask on the host
     computeDependentCouplings( m_gs.data(), m_couplings.data(), m_gs.size() );
@@ -198,7 +198,7 @@ namespace mg5amcGpu
 
   int MatrixElementKernelDevice::computeGoodHelicities()
   {
-    using mgOnGpu::ncomb; // the number of helicity combinations
+    constexpr int ncomb = CPPProcess::ncomb; // the number of helicity combinations
     PinnedHostBufferHelicityMask hstIsGoodHel( ncomb );
     DeviceBufferHelicityMask devIsGoodHel( ncomb );
     // ... 0d1. Compute good helicity mask on the device
