@@ -22,7 +22,7 @@
 #define CPPPROCESS_NPARF %(noutcoming)d
 
 // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
-#define CPPPROCESS_NPAR CPPPROCESS_NPARI + CPPPROCESS_NPARF 
+#define CPPPROCESS_NPAR %(nexternal)d
 
 // #helicity combinations: e.g. 16 for e+ e- -> mu+ mu- (2**4 = fermion spin up/down ** npar)
 #define CPPPROCESS_NCOMB %(nbhel)d

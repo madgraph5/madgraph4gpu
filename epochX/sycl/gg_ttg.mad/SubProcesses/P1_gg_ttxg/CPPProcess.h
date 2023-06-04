@@ -88,7 +88,7 @@ namespace Proc
 #define CPPPROCESS_NPARF 3
 
 // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
-#define CPPPROCESS_NPAR CPPPROCESS_NPARI + CPPPROCESS_NPARF 
+#define CPPPROCESS_NPAR 5
 
 // #helicity combinations: e.g. 16 for e+ e- -> mu+ mu- (2**4 = fermion spin up/down ** npar)
 #define CPPPROCESS_NCOMB 32
