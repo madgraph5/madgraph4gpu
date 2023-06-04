@@ -360,8 +360,10 @@ endif
 # Set the build flags appropriate to each RNDGEN choice (example: "make RNDGEN=hasNoCurand")
 $(info RNDGEN=$(RNDGEN))
 ifeq ($(RNDGEN),hasNoCurand)
-  CXXFLAGS += -DMGONGPU_HAS_NO_CURAND
-else ifneq ($(RNDGEN),hasCurand)
+  override CXXFLAGSCURAND = -DMGONGPU_HAS_NO_CURAND
+else ifeq ($(RNDGEN),hasCurand)
+  override CXXFLAGSCURAND =
+else
   $(error Unknown RNDGEN='$(RNDGEN)': only 'hasCurand' and 'hasNoCurand' are supported)
 endif
 
@@ -479,7 +481,10 @@ endif
 $(BUILDDIR)/check_sa.o: CXXFLAGS += $(USE_NVTX) $(CUINC)
 $(BUILDDIR)/gcheck_sa.o: CXXFLAGS += $(USE_NVTX) $(CUINC)
 
-# Apply special build flags only to CurandRandomNumberKernel.cc (curand headers, #679)
+# Apply special build flags only to check_sa and CurandRandomNumberKernel (curand headers, #679)
+$(BUILDDIR)/check_sa.o: CXXFLAGS += $(CXXFLAGSCURAND)
+$(BUILDDIR)/gcheck_sa.o: CXXFLAGS += $(CXXFLAGSCURAND)
+$(BUILDDIR)/CurandRandomNumberKernel.o: CXXFLAGS += $(CXXFLAGSCURAND)
 ifeq ($(RNDGEN),hasCurand)
 $(BUILDDIR)/CurandRandomNumberKernel.o: CXXFLAGS += $(CUINC)
 endif
