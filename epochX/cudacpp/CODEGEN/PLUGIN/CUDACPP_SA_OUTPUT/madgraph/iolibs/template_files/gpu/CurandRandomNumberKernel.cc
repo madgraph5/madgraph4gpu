@@ -3,15 +3,14 @@
 // Created by: A. Valassi (Dec 2021) for the MG5aMC CUDACPP plugin.
 // Further modified by: A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
 
-#include "RandomNumberKernels.h"
-
-#include "CommonRandomNumbers.h"
 #include "CudaRuntime.h"
 #include "MemoryBuffers.h"
+#include "RandomNumberKernels.h"
 
 #include <cassert>
 
 #ifndef MGONGPU_HAS_NO_CURAND /* clang-format off */
+#include "curand.h"
 #define checkCurand( code ){ assertCurand( code, __FILE__, __LINE__ ); }
 inline void assertCurand( curandStatus_t code, const char *file, int line, bool abort = true )
 {
@@ -30,25 +29,6 @@ namespace mg5amcCpu
 #endif
 {
   //--------------------------------------------------------------------------
-
-  CommonRandomNumberKernel::CommonRandomNumberKernel( BufferRndNumMomenta& rnarray )
-    : RandomNumberKernelBase( rnarray )
-    , m_seed( 20211220 )
-  {
-    if( m_rnarray.isOnDevice() )
-      throw std::runtime_error( "CommonRandomNumberKernel on host with a device random number array" );
-  }
-
-  //--------------------------------------------------------------------------
-
-  void CommonRandomNumberKernel::generateRnarray()
-  {
-    std::vector<double> rnd = CommonRandomNumbers::generate<double>( m_rnarray.size(), m_seed ); // NB: generate as double (HARDCODED)
-    std::copy( rnd.begin(), rnd.end(), m_rnarray.data() );                                       // NB: copy may imply a double-to-float conversion
-  }
-
-  //--------------------------------------------------------------------------
-
 #ifndef MGONGPU_HAS_NO_CURAND
   CurandRandomNumberKernel::CurandRandomNumberKernel( BufferRndNumMomenta& rnarray, const bool onDevice )
     : RandomNumberKernelBase( rnarray )
