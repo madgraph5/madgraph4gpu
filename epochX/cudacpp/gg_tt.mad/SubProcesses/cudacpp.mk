@@ -589,7 +589,7 @@ $(fcxx_main): LIBFLAGS += -L$(shell dirname $(shell $(FC) --print-file-name libg
 endif
 $(fcxx_main): LIBFLAGS += $(CXXLIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(fcxx_main): $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).so $(cxx_objects_exe)
-	$(CXX) -o $@ $(BUILDDIR)/fcheck_sa.o $(OMPFLAGS) $(BUILDDIR)/fsampler.o $(LIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_CXXLIB) $(cxx_objects_exe) $(CURANDLIBFLAGS)
+	$(CXX) -o $@ $(BUILDDIR)/fcheck_sa.o $(OMPFLAGS) $(BUILDDIR)/fsampler.o $(LIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_CXXLIB) $(cxx_objects_exe)
 
 ifneq ($(NVCC),)
 ifneq ($(shell $(CXX) --version | grep ^Intel),)
@@ -601,7 +601,7 @@ $(fcu_main): LIBFLAGS += -L$(shell dirname $(shell $(FC) --print-file-name libgf
 endif
 $(fcu_main): LIBFLAGS += $(CULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(fcu_main): $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler_cu.o $(LIBDIR)/lib$(MG5AMC_CULIB).so $(cu_objects_exe)
-	$(NVCC) -o $@ $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler_cu.o $(LIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_CULIB) $(cu_objects_exe) $(CURANDLIBFLAGS)
+	$(NVCC) -o $@ $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler_cu.o $(LIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_CULIB) $(cu_objects_exe)
 endif
 
 #-------------------------------------------------------------------------------
@@ -670,11 +670,11 @@ endif
 ifeq ($(NVCC),) # link only runTest.o
 $(testmain): LIBFLAGS += $(CXXLIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects_lib) $(cxx_objects_exe) $(GTESTLIBS)
-	$(CXX) -o $@ $(cxx_objects_lib) $(cxx_objects_exe) -ldl -pthread $(LIBFLAGS) $(CURANDLIBFLAGS)
+	$(CXX) -o $@ $(cxx_objects_lib) $(cxx_objects_exe) -ldl -pthread $(LIBFLAGS)
 else # link both runTest.o and runTest_cu.o
 $(testmain): LIBFLAGS += $(CULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects_lib) $(cxx_objects_exe) $(cu_objects_lib) $(cu_objects_exe) $(GTESTLIBS)
-	$(NVCC) -o $@ $(cxx_objects_lib) $(cxx_objects_exe) $(cu_objects_lib) $(cu_objects_exe) -ldl $(LIBFLAGS) -lcuda $(CURANDLIBFLAGS)
+	$(NVCC) -o $@ $(cxx_objects_lib) $(cxx_objects_exe) $(cu_objects_lib) $(cu_objects_exe) -ldl $(LIBFLAGS) -lcuda
 endif
 
 # Use flock (Linux only, no Mac) to allow 'make -j' if googletest has not yet been downloaded https://stackoverflow.com/a/32666215
