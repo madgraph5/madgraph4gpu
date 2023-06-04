@@ -450,17 +450,17 @@ $(BUILDDIR)/.build.$(TAG):
 
 # Generic target and build rules: objects from CUDA compilation
 ifneq ($(NVCC),)
-$(BUILDDIR)/%.o : %.cu *.h ../../src/*.h
+$(BUILDDIR)/%.o : %.cu *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -Xcompiler -fPIC -c $< -o $@
 
-$(BUILDDIR)/%_cu.o : %.cc *.h ../../src/*.h
+$(BUILDDIR)/%_cu.o : %.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -Xcompiler -fPIC -c -x cu $< -o $@
 endif
 
 # Generic target and build rules: objects from C++ compilation
-$(BUILDDIR)/%.o : %.cc *.h ../../src/*.h
+$(BUILDDIR)/%.o : %.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CUINC) -fPIC -c $< -o $@
 
