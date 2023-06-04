@@ -80,7 +80,7 @@ CXXFLAGS+= -ffast-math # see issue #117
 endif
 ###CXXFLAGS+= -Ofast # performance is not different from --fast-math
 ###CXXFLAGS+= -g # FOR DEBUGGING ONLY
-###CXXFLAGS+= $(USE_NVTX) # OPTIONALLY enable NVTX in C++ builds (but disable it by default #679)
+###CXXFLAGS+= $(USE_NVTX) $(CUINC) # OPTIONALLY enable NVTX in C++ builds (but disable it by default #679)
 
 # Optionally add debug flags to display the full list of flags (eg on Darwin)
 ###CXXFLAGS+= -v
