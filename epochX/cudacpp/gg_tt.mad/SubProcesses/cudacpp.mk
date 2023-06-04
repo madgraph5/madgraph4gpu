@@ -475,11 +475,8 @@ $(BUILDDIR)/gCrossSectionKernels.o: CUFLAGS += -Xcompiler -fno-fast-math
 endif
 endif
 
-# Apply special build flags only to check_sa.cc fsampler.cc runTest.cc and RandomNumberKernels.cc (curand headers, #679)
+# Apply special build flags only to RandomNumberKernels.cc (curand headers, #679)
 ifeq ($(RNDGEN),hasCurand)
-$(BUILDDIR)/check_sa.o: CXXFLAGS += $(CUINC)
-$(BUILDDIR)/fsampler.o: CXXFLAGS += $(CUINC)
-$(BUILDDIR)/runTest.o: CXXFLAGS += $(CUINC)
 $(BUILDDIR)/RandomNumberKernels.o: CXXFLAGS += $(CUINC)
 endif
 
