@@ -236,7 +236,7 @@ $(LIBDIR)/.build.$(TAG):
 #-------------------------------------------------------------------------------
 
 # Generic target and build rules: objects from C++ compilation
-$(BUILDDIR)/%.o : %.cc *.h
+$(BUILDDIR)/%.o : %.cc *.h $(BUILDDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
