@@ -144,7 +144,6 @@ namespace mg5amcCpu
     // The curand generator
     // (NB: curand.h defines typedef generator_t as a pointer to forward-defined 'struct curandGenerator_st')
     curandGenerator_st* m_rnGen;
-
   };
 
 #endif

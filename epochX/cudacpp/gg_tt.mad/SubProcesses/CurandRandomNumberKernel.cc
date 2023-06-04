@@ -3,10 +3,9 @@
 // Created by: A. Valassi (Dec 2021) for the MG5aMC CUDACPP plugin.
 // Further modified by: A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
 
-#include "RandomNumberKernels.h"
-
 #include "CudaRuntime.h"
 #include "MemoryBuffers.h"
+#include "RandomNumberKernels.h"
 
 #include <cassert>
 
