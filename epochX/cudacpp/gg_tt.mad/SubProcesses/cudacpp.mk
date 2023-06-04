@@ -251,10 +251,12 @@ ifeq ($(HRDCOD),)
 endif
 
 # Set the default RNDGEN (random number generator) choice
-ifeq ($(NVCC),)
-  override RNDGEN = hasNoCurand
-else ifeq ($(RNDGEN),)
-  override RNDGEN = hasCurand
+ifeq ($(RNDGEN),)
+  ifeq ($(NVCC),)
+    override RNDGEN = hasNoCurand
+  else ifeq ($(RNDGEN),)
+    override RNDGEN = hasCurand
+  endif
 endif
 
 # Export AVX, FPTYPE, HELINL, HRDCOD, RNDGEN, OMPFLAGS so that it is not necessary to pass them to the src Makefile too
