@@ -80,7 +80,6 @@ CXXFLAGS+= -ffast-math # see issue #117
 endif
 ###CXXFLAGS+= -Ofast # performance is not different from --fast-math
 ###CXXFLAGS+= -g # FOR DEBUGGING ONLY
-###CXXFLAGS+= $(USE_NVTX) $(CUINC) # OPTIONALLY enable NVTX in C++ builds (but disable it by default #679)
 
 # Optionally add debug flags to display the full list of flags (eg on Darwin)
 ###CXXFLAGS+= -v
@@ -140,6 +139,7 @@ else
   $(warning CUDA_HOME is not set or is invalid: export CUDA_HOME to compile with cuda)
   override NVCC=
   override USE_NVTX=
+  override CUINC=
   override CURANDLIBFLAGS=
 endif
 
@@ -474,6 +474,10 @@ ifneq ($(NVCC),)
 $(BUILDDIR)/gCrossSectionKernels.o: CUFLAGS += -Xcompiler -fno-fast-math
 endif
 endif
+
+# Apply special build flags only to check_sa.o and gcheck_sa.o (NVTX in timermap.h, #679)
+$(BUILDDIR)/check_sa.o: CXXFLAGS += $(USE_NVTX) $(CUINC)
+$(BUILDDIR)/gcheck_sa.o: CXXFLAGS += $(USE_NVTX) $(CUINC)
 
 # Apply special build flags only to RandomNumberKernels.cc (curand headers, #679)
 ifeq ($(RNDGEN),hasCurand)
