@@ -8,7 +8,7 @@
 
 //==========================================================================
 
-#ifdef __CUDACC__ // cuda
+#ifdef MGONGPUCPP_GPUIMPL // cuda
 
 //------------------------------
 // Floating point types - Cuda
@@ -52,11 +52,11 @@ fpsqrt( const fptype& f )
 #endif
 }
 
-#endif // #ifdef __CUDACC__
+#endif // #ifdef MGONGPUCPP_GPUIMPL
 
 //==========================================================================
 
-#ifndef __CUDACC__
+#ifndef MGONGPUCPP_GPUIMPL
 
 //------------------------------
 // Floating point types - C++
@@ -80,7 +80,7 @@ fpsqrt( const fptype& f )
   return std::sqrt( f );
 }
 
-#endif // #ifndef __CUDACC__
+#endif // #ifndef MGONGPUCPP_GPUIMPL
 
 //==========================================================================
 
