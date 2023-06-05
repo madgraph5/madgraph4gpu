@@ -254,34 +254,6 @@ index 6f5e1f832..e33418342 100644
 +distclean: cleanall
 +	$(MAKE) -f $(CUDACPP_MAKEFILE) distclean
 +endif
-diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/symmetry.f b/epochX/cudacpp/gg_tt.mad/SubProcesses/symmetry.f
-index 351706c55..23c2da942 100644
---- a/epochX/cudacpp/gg_tt.mad/SubProcesses/symmetry.f
-+++ b/epochX/cudacpp/gg_tt.mad/SubProcesses/symmetry.f
-@@ -38,6 +38,7 @@ c
- c
- c     Global
- c
-+      include 'vector.inc'
-       include 'coupl.inc'
-       logical gridpack
-       common/to_gridpack/gridpack
-@@ -322,6 +323,7 @@ c
- c
- c     Global
- c
-+      include 'vector.inc'
-       include 'coupl.inc'                     !Mass and width info
-       double precision stot
-       common/to_stot/stot
-@@ -459,6 +461,7 @@ c
-       common/to_bwcutoff/bwcutoff
-       double precision stot
-       common/to_stot/stot
-+      include 'vector.inc'
-       include 'coupl.inc'                     !Mass and width info
- 
- c-----
 diff --git a/epochX/cudacpp/gg_tt.mad/bin/internal/gen_ximprove.py b/epochX/cudacpp/gg_tt.mad/bin/internal/gen_ximprove.py
 index 7d91ea6a1..4a312d473 100755
 --- a/epochX/cudacpp/gg_tt.mad/bin/internal/gen_ximprove.py
