@@ -1,8 +1,8 @@
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
-index 48eb2d573..cbcedf384 100644
+index 9c0f26b3b..6b7635158 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
-@@ -467,23 +467,140 @@ C
+@@ -471,23 +471,140 @@ C
        INTEGER VECSIZE_USED
  
        INTEGER IVEC
@@ -157,12 +157,12 @@ index 48eb2d573..cbcedf384 100644
        END
  
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
-index a76de8ec5..aae7286d2 100644
+index 79e883e5b..60e57bd20 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
 @@ -74,13 +74,54 @@ c      common/to_colstats/ncols,ncolflow,ncolalt,ic
-       include 'vector.inc' ! needed by coupl.inc (defines VECSIZE_MEMMAX)
-       include 'coupl.inc'
+       include 'vector.inc' ! defines VECSIZE_MEMMAX
+       include 'coupl.inc' ! needs VECSIZE_MEMMAX (defined in vector.inc)
        INTEGER VECSIZE_USED
 -      DATA VECSIZE_USED/VECSIZE_MEMMAX/ ! can be changed at runtime
 +      DATA VECSIZE_USED/VECSIZE_MEMMAX/ ! initial value
@@ -261,7 +261,7 @@ index a76de8ec5..aae7286d2 100644
        open(unit=lun,file=tempname,status='old',ERR=20)
        fopened=.true.
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
-index 5e888278c..2d9ce6ff3 100644
+index 4d6caf19b..3e0b2f5cf 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
 @@ -72,7 +72,10 @@ C
