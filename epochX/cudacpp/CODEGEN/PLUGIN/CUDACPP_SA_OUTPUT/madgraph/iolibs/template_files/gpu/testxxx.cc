@@ -1,3 +1,8 @@
+// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Created by: A. Valassi (Apr 2021) for the MG5aMC CUDACPP plugin.
+// Further modified by: A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
+
 #include "mgOnGpuConfig.h"
 
 #include "CPPProcess.h"
@@ -31,8 +36,7 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
   // Constant parameters
   constexpr int neppM = MemoryAccessMomenta::neppM; // AOSOA layout
   using mgOnGpu::neppV;
-  using mgOnGpu::np4;
-  using mgOnGpu::npar;
+  constexpr int np4 = CPPProcess::np4;
   const int nevt = 16;         // 12 independent tests plus 4 duplicates (need a multiple of 8 for floats or for '512z')
   assert( nevt %% neppM == 0 ); // nevt must be a multiple of neppM
   assert( nevt %% neppV == 0 ); // nevt must be a multiple of neppV
@@ -92,8 +96,8 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
   std::string dumpFileName = "testxxx_cc_ref.txt.new";
   // Compute the output wavefunctions
   // Dump new reference file if requested
-  using mgOnGpu::nw6; // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
-  int itest = 0;      // index on the expected output vector
+  constexpr int nw6 = CPPProcess::nw6; // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
+  int itest = 0;                       // index on the expected output vector
   std::ofstream dumpFile;
   if( dumpEvents ) dumpFile.open( dumpFileName, std::ios::trunc );
   auto dumpwf6 = [&]( std::ostream& out, const cxtype_sv wf[6], const char* xxx, int ievt, int nsp, fptype mass )

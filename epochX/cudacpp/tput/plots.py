@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Licensed under the GNU Lesser General Public License (version 3 or later).
+# Created by: A. Valassi (Mar 2023) for the MG5aMC CUDACPP plugin.
 
 import os, sys
 os.chdir( os.path.dirname( __file__ ) ) # go to the tput directory

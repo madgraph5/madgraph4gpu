@@ -1,4 +1,8 @@
 #!/bin/bash
+# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Licensed under the GNU Lesser General Public License (version 3 or later).
+# Created by: A. Valassi (Mar 2022) for the MG5aMC CUDACPP plugin.
+# Further modified by: A. Valassi (2022-2023) for the MG5aMC CUDACPP plugin.
 
 status=0
 
@@ -59,7 +63,7 @@ cat ${dir}/Source/make_opts >> ${dir}/Source/make_opts.new
 # Patch the default Fortran code to provide the integration with the cudacpp plugin
 # (1) Process-independent patches
 echo -e "index.html\n.libs\n.cudacpplibs" > ${dir}/.gitignore
-touch ${dir}/Events/.keepme
+touch ${dir}/Events/.keep # this file should already be present (mg5amcnlo copies it from Template/LO/Events/.keep) 
 \cp -dpr ${scrdir}/PLUGIN/CUDACPP_SA_OUTPUT/madgraph/iolibs/template_files/.clang-format ${dir} # new file
 \cp -dpr ${scrdir}/MG5aMC_patches/${dir_patches}/fbridge_common.inc ${dir}/SubProcesses # new file
 cd ${dir}/SubProcesses
@@ -68,9 +72,10 @@ if [ "${patchlevel}" == "2" ]; then
   cd ${dir}
   echo "DEBUG: cd ${PWD}; patch -p4 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.common"
   if ! patch -p4 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.common; then status=1; fi  
+  \rm -f Source/*.orig
   cd - > /dev/null
 fi
-for p1dir in ${dir}/SubProcesses/P1_*; do
+for p1dir in ${dir}/SubProcesses/P*; do
   cd $p1dir
   echo -e "madevent\n*madevent_cudacpp" > .gitignore # new file
   ln -sf ../fbridge_common.inc . # new file
@@ -81,7 +86,7 @@ for p1dir in ${dir}/SubProcesses/P1_*; do
   fi
   if [ "${patchlevel}" == "2" ]; then
     echo "DEBUG: cd ${PWD}; patch -p6 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.P1"
-    if ! patch -p6 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.P1; then status=1; fi  
+    if ! patch -p6 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.P1; then status=1; fi      
   fi
   \rm -f *.orig
   cd - > /dev/null
@@ -104,7 +109,7 @@ cd - > /dev/null
 
 # Patch the default cudacpp code to fix a bug in coloramps
 # (3) Process-dependent patches
-for p1dir in ${dir}/SubProcesses/P1_*; do
+for p1dir in ${dir}/SubProcesses/P*; do
   cd $p1dir
   cat coloramps.h | awk -vp=1 '{if (p==1) print $0; if ($1=="__device__") p=0}' > coloramps.h.new
   cat coloramps.inc | sed 's|)/|)/ {|' | sed 's|/$|}, /|' \

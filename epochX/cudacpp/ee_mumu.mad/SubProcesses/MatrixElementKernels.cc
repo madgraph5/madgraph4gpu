@@ -1,3 +1,8 @@
+// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Created by: A. Valassi (Jan 2022) for the MG5aMC CUDACPP plugin.
+// Further modified by: A. Valassi (2022-2023) for the MG5aMC CUDACPP plugin.
+
 #include "MatrixElementKernels.h"
 
 #include "CPPProcess.h"
@@ -55,7 +60,7 @@ namespace mg5amcCpu
 
   int MatrixElementKernelHost::computeGoodHelicities()
   {
-    using mgOnGpu::ncomb; // the number of helicity combinations
+    constexpr int ncomb = CPPProcess::ncomb; // the number of helicity combinations
     HostBufferHelicityMask hstIsGoodHel( ncomb );
     // ... 0d1. Compute good helicity mask on the host
     computeDependentCouplings( m_gs.data(), m_couplings.data(), m_gs.size() );
@@ -193,7 +198,7 @@ namespace mg5amcGpu
 
   int MatrixElementKernelDevice::computeGoodHelicities()
   {
-    using mgOnGpu::ncomb; // the number of helicity combinations
+    constexpr int ncomb = CPPProcess::ncomb; // the number of helicity combinations
     PinnedHostBufferHelicityMask hstIsGoodHel( ncomb );
     DeviceBufferHelicityMask devIsGoodHel( ncomb );
     // ... 0d1. Compute good helicity mask on the device

@@ -1,4 +1,11 @@
+<<<<<<< HEAD
 #include "GpuAbstraction.h" // Includes required macros for GPU abstraction
+=======
+// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Created by: A. Valassi (Jul 2020) for the MG5aMC CUDACPP plugin.
+// Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
+>>>>>>> master
 
 #ifndef MGONGPUCONFIG_H
 #define MGONGPUCONFIG_H 1
@@ -113,22 +120,6 @@ namespace mgOnGpu
 #elif defined MGONGPU_FPTYPE2_FLOAT
   typedef float fptype2; // single precision (4 bytes, fp32)
 #endif
-
-  // --- Physics process-specific constants that are best declared at compile time
-
-  const int np4 = 4; // dimensions of 4-momenta (E,px,py,pz)
-
-  const int npari = 2; // #particles in the initial state (incoming): e.g. 2 (e+ e-) for e+ e- -> mu+ mu-
-
-  const int nparf = 2; // #particles in the final state (outgoing): e.g. 2 (mu+ mu-) for e+ e- -> mu+ mu-
-
-  const int npar = npari + nparf; // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
-
-  const int ncomb = 16; // #helicity combinations: e.g. 16 for e+ e- -> mu+ mu- (2**4 = fermion spin up/down ** npar)
-
-  const int nw6 = 6; // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
-
-  const int nwf = 5; // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
 
   // --- Platform-specific software implementation details
 
