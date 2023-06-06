@@ -1,4 +1,7 @@
 #!/bin/bash
+# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Licensed under the GNU Lesser General Public License (version 3 or later).
+# Created by: A. Valassi (Sep 2021) for the MG5aMC CUDACPP plugin.
 
 scrdir=$(cd $(dirname $0); pwd)
 bckend=$(basename $(cd $scrdir; cd ..; pwd)) # cudacpp or alpaka
@@ -111,6 +114,11 @@ for arg in $*; do
     echo "ERROR! Invalid option '$arg'"; usage
   fi  
 done
+
+# Check that heftggh does not run in .mad mode
+if [ "${heftggh}" != "" ] && [ "${suffs/mad}" != "${suffs}" ]; then
+  echo "ERROR! Invalid option -heftggh for .mad directories"; exit 1
+fi
 
 # Workaround for MacOS SIP (SystemIntegrity Protection): set DYLD_LIBRARY_PATH In subprocesses
 if [ "${dlpset}" == "1" ]; then usage; fi

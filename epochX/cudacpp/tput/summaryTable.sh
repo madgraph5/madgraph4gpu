@@ -1,4 +1,7 @@
 #!/bin/sh
+# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Licensed under the GNU Lesser General Public License (version 3 or later).
+# Created by: A. Valassi (Jan 2022) for the MG5aMC CUDACPP plugin.
 
 # NB: some PRs include many log modifications but eventually go back to the initial logs (overall noop)
 # NB: use 'git log --full-history' to show all intermediate commits (which are pruned by a simple 'git log')

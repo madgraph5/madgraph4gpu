@@ -1,6 +1,8 @@
 #!/bin/bash
 redrel=$(cat /etc/redhat-release 2> /dev/null)
-if [ "${redrel##*release 8}" != "${redrel}" ]; then
+if [ "${redrel##*release 7}" != "${redrel}" ]; then
+  clangDir=/cvmfs/sft.cern.ch/lcg/releases/clang/13.0.1-721c8/x86_64-centos7
+elif [ "${redrel##*release 8}" != "${redrel}" ]; then
   clangDir=/cvmfs/sft.cern.ch/lcg/releases/clang/13.0.1-721c8/x86_64-centos8
 elif [ "${redrel##*release 9}" != "${redrel}" ]; then
   clangDir=/cvmfs/sft.cern.ch/lcg/releases/clang/14.0.6-14bdb/x86_64-centos9

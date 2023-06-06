@@ -1,3 +1,10 @@
+// Copyright (C) 2010 The MadGraph5_aMC@NLO development team and contributors.
+// Created by: J. Alwall (Oct 2010) for the MG5aMC CPP backend.
+//==========================================================================
+// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Modified by: S. Roiser (Feb 2020) for the MG5aMC CUDACPP plugin.
+// Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, A. Valassi, Z. Wettersten (2020-2023) for the MG5aMC CUDACPP plugin.
 //==========================================================================
 // This file has been automatically generated for CUDA/C++ standalone by
 // MadGraph5_aMC@NLO v. 3.5.0_lo_vect, 2023-01-26
@@ -45,12 +52,12 @@ namespace mg5amcGpu
 namespace mg5amcCpu
 #endif
 {
-  using mgOnGpu::np4;   // dimensions of 4-momenta (E,px,py,pz)
-  using mgOnGpu::npar;  // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
-  using mgOnGpu::ncomb; // #helicity combinations: e.g. 16 for e+ e- -> mu+ mu- (2**4 = fermion spin up/down ** npar)
+  constexpr int nw6 = CPPProcess::nw6;     // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
+  constexpr int npar = CPPProcess::npar;   // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
+  constexpr int ncomb = CPPProcess::ncomb; // #helicity combinations: e.g. 16 for e+ e- -> mu+ mu- (2**4 = fermion spin up/down ** npar)
 
-  using mgOnGpu::nwf; // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
-  using mgOnGpu::nw6; // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
+  // [NB: I am currently unable to get the right value of nwf in CPPProcess.h - will hardcode it in CPPProcess.cc instead (#644)]
+  //using CPPProcess::nwf; // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
 
   using Parameters_heft_dependentCouplings::ndcoup;   // #couplings that vary event by event (depend on running alphas QCD)
   using Parameters_heft_independentCouplings::nicoup; // #couplings that are fixed for all events (do not depend on running alphas QCD)
@@ -147,6 +154,10 @@ namespace mg5amcCpu
 #ifndef __CUDACC__
     //printf( "calculate_wavefunctions: ievt00=%d\n", ievt00 );
 #endif
+
+    // The variable nwf (which is specific to each P1 subdirectory, #644) is only used here
+    // It is hardcoded here because various attempts to hardcode it in CPPProcess.h at generation time gave the wrong result...
+    static const int nwf = 3; // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
 
     // Local TEMPORARY variables for a subset of Feynman diagrams in the given CUDA event (ievt) or C++ event page (ipagV)
     // [NB these variables are reused several times (and re-initialised each time) within the same event or event page]
@@ -403,15 +414,15 @@ namespace mg5amcCpu
   {
     // Helicities for the process [NB do keep 'static' for this constexpr array, see issue #283]
     // *** NB There is no automatic check yet that these are in the same order as Fortran! #569 ***
-    static constexpr short tHel[ncomb][mgOnGpu::npar] = {
+    static constexpr short tHel[ncomb][npar] = {
       { -1, -1, 0 },
       { -1, 1, 0 },
       { 1, -1, 0 },
       { 1, 1, 0 } };
 #ifdef __CUDACC__
-    checkCuda( cudaMemcpyToSymbol( cHel, tHel, ncomb * mgOnGpu::npar * sizeof( short ) ) );
+    checkCuda( cudaMemcpyToSymbol( cHel, tHel, ncomb * npar * sizeof( short ) ) );
 #else
-    memcpy( cHel, tHel, ncomb * mgOnGpu::npar * sizeof( short ) );
+    memcpy( cHel, tHel, ncomb * npar * sizeof( short ) );
 #endif
   }
 

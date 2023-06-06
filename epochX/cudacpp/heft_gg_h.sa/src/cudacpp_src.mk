@@ -1,3 +1,8 @@
+# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Licensed under the GNU Lesser General Public License (version 3 or later).
+# Created by: S. Roiser (Feb 2020) for the MG5aMC CUDACPP plugin.
+# Further modified by: O. Mattelaer, S. Roiser, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
+
 #=== Determine the name of this makefile (https://ftp.gnu.org/old-gnu/Manuals/make-3.80/html_node/make_17.html)
 #=== NB: assume that the same name (e.g. cudacpp.mk, Makefile...) is used in the Subprocess and src directories
 
@@ -231,7 +236,7 @@ $(LIBDIR)/.build.$(TAG):
 #-------------------------------------------------------------------------------
 
 # Generic target and build rules: objects from C++ compilation
-$(BUILDDIR)/%.o : %.cc *.h
+$(BUILDDIR)/%.o : %.cc *.h $(BUILDDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 

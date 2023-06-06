@@ -1,4 +1,7 @@
 #!/bin/bash
+# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Licensed under the GNU Lesser General Public License (version 3 or later).
+# Created by: A. Valassi (Apr 2021) for the MG5aMC CUDACPP plugin.
 
 set +x # not verbose
 set -e # fail on error
@@ -196,7 +199,8 @@ while [ "$1" != "" ]; do
     maketype="$1"
     shift
   elif [ "$1" == "-makej" ]; then
-    makej=-j
+    ###makej=-j
+    makej=-j5 # limit build parallelism to avoid "cudafe++ died due to signal 9" (#639)
     shift
   elif [ "$1" == "-3a3b" ]; then
     ab3=1
@@ -237,6 +241,11 @@ fi
 
 # Check that at least one process has been selected
 if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ] && [ "${gqttq}" == "0" ] && [ "${heftggh}" == "0" ]; then usage; fi
+
+# Check that heftggh does not run in .mad mode
+if [ "${heftggh}" == "1" ] && [ "${suffs/.mad\/}" != "${suffs}" ]; then
+  echo "ERROR! Invalid option -heftggh for .mad directories"; exit 1
+fi
 
 # Define the default simds if none are defined
 if [ "${simds}" == "" ]; then simds="none 512y"; fi
@@ -375,6 +384,9 @@ done
 ##########################################################################
 # PART 2 - build the executables which should be run
 ##########################################################################
+
+unset GTEST_ROOT
+unset LOCALGTEST
 
 if [ "${maketype}" == "-dryrun" ]; then
 

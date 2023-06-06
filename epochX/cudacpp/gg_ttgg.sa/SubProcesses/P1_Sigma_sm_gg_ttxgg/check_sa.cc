@@ -1,3 +1,12 @@
+// Copyright (C) 2010 The MadGraph5_aMC@NLO development team and contributors.
+// Created by: J. Alwall (Oct 2010) for the MG5aMC CPP backend.
+//==========================================================================
+// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Modified by: O. Mattelaer (Nov 2020) for the MG5aMC CUDACPP plugin.
+// Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
+//==========================================================================
+
 #include "mgOnGpuConfig.h"
 
 #include "BridgeKernels.h"
@@ -276,7 +285,7 @@ main( int argc, char** argv )
   const fptype energy = 1500; // historical default, Ecms = 1500 GeV = 1.5 TeV (above the Z peak)
   //const fptype energy = 91.2; // Ecms = 91.2 GeV (Z peak)
   //const fptype energy = 0.100; // Ecms = 100 MeV (well below the Z peak, pure em scattering)
-  const int meGeVexponent = -( 2 * mgOnGpu::npar - 8 );
+  const int meGeVexponent = -( 2 * CPPProcess::npar - 8 );
 
   // --- 0b. Allocate memory structures
   const std::string alloKey = "0b MemAlloc";
@@ -618,7 +627,7 @@ main( int argc, char** argv )
       {
         // Display momenta
         std::cout << "Momenta:" << std::endl;
-        for( int ipar = 0; ipar < mgOnGpu::npar; ipar++ )
+        for( int ipar = 0; ipar < CPPProcess::npar; ipar++ )
         {
           // NB: 'setw' affects only the next field (of any type)
           std::cout << std::scientific // fixed format: affects all floats (default precision: 6)
@@ -935,7 +944,7 @@ main( int argc, char** argv )
 #endif
               //<< "MatrixElements compiler     = " << process.getCompiler() << std::endl
               << std::string( SEP79, '-' ) << std::endl
-              << "HelicityComb Good/Tot       = " << nGoodHel << "/" << mgOnGpu::ncomb << std::endl
+              << "HelicityComb Good/Tot       = " << nGoodHel << "/" << CPPProcess::ncomb << std::endl
               << std::string( SEP79, '-' ) << std::endl
               << "NumberOfEntries             = " << niter << std::endl
               << std::scientific // fixed format: affects all floats (default precision: 6)

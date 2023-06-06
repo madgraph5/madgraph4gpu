@@ -1,4 +1,7 @@
 #!/bin/bash
+# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Licensed under the GNU Lesser General Public License (version 3 or later).
+# Created by: A. Valassi (Mar 2022) for the MG5aMC CUDACPP plugin.
 
 set +x # not verbose
 set -e # fail on error
@@ -368,6 +371,9 @@ function runmadevent()
 # PART 1 - build madevent
 ##########################################################################
 
+unset GTEST_ROOT
+unset LOCALGTEST
+
 for suff in $suffs; do
 
   dir=$(showdir)
@@ -377,7 +383,8 @@ for suff in $suffs; do
 
   if [ "${maketype}" == "-makeclean" ]; then make cleanall; echo; fi
   if [ "${maketype}" == "-makecleanonly" ]; then make cleanall; echo; continue; fi
-  make -j avxall
+  ###make -j avxall
+  make -j5 avxall # limit build parallelism to avoid "cudafe++ died due to signal 9" (#639)
 
 done
 
@@ -525,7 +532,8 @@ for suff in $suffs; do
       else
         echo "ERROR! Unknown xfac=$xfac"; exit 1
       fi
-      if delta=$(python -c "d=abs(1-$xsecnew/$xsecref); print(d); assert(d<${xsecthr})" 2>/dev/null); then
+      delta=$(python3 -c "print(abs(1-$xsecnew/$xsecref))")
+      if python3 -c "assert(${delta}<${xsecthr})" 2>/dev/null; then
         echo -e "\nOK! xsec from fortran ($xsecref) and cpp ($xsecnew) differ by less than ${xsecthr} ($delta)"
       else
         echo -e "\nERROR! xsec from fortran ($xsecref) and cpp ($xsecnew) differ by more than ${xsecthr} ($delta)"
