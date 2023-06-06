@@ -139,7 +139,7 @@ $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(L
 	if [ -f $(LIBDIR)/$(CUDACPP_BUILDDIR)/lib$(CUDACPP_CULIB).* ]; then $(FC) -o $(CUDACPP_BUILDDIR)/g$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_CULIB) $(LIBFLAGSRPATH) $(LDFLAGS); fi
 
 counters.o: counters.cc timer.h
-	$(CXX) -O3 -std=c++11 -Wall -Wshadow -Wextra -c $< -o $@
+	$(CXX) -std=c++11 -Wall -Wshadow -Wextra -c $< -o $@
 
 ompnumthreads.o: ompnumthreads.cc ompnumthreads.h
 	$(CXX) -O3 -I. -std=c++11 -Wall -Wshadow -Wextra $(OMPFLAGS) -c $< -o $@
