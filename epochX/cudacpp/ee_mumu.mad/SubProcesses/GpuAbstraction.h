@@ -3,6 +3,14 @@
 #include <cassert>
 
 #ifdef __CUDACC__
+  #define MGONGPUCPP_CUDACC 1
+#endif
+
+#ifdef __HIPCC__
+  #define MGONGPUCPP_HIPCC 1
+#endif
+
+#ifdef MGONGPUCPP_CUDACC
 
   // Defines correct compiler
   #define MGONGPUCPP_GPUIMPL __CUDACC__
@@ -34,7 +42,7 @@
 
 //--------------------------------------------------------------------------
 
-#elif defined(__HIPCC__)
+#elif defined MGONGPUCPP_HIPCC
 
   // Defines correct compiler
   #define MGONGPUCPP_GPUIMPL __HIPCC__
