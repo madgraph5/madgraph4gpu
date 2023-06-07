@@ -89,7 +89,9 @@ endif
 
 #-------------------------------------------------------------------------------
 
-ifeq ($(COMPILER),cuda)
+CUDA_COMPILER := $(shell which nvcc > /dev/null 2>&1; echo $$?)
+
+ifeq ($(CUDA_COMPILER),1)
   #=== Configure the CUDA compiler
 
   # If CXX is not a single word (example "clang++ --gcc-toolchain...") then disable CUDA builds (issue #505)
@@ -153,7 +155,7 @@ endif
   CUFLAGS += -allow-unsupported-compiler
   endif
 
-else ifeq ($(variable),hip)
+else
     #=== Configure the HIP compiler
 
     NVCC=/usr/bin/hipcc
