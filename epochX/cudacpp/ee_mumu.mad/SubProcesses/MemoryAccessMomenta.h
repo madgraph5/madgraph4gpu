@@ -12,7 +12,7 @@
 #include "MemoryAccessHelpers.h"
 #include "MemoryAccessVectors.h"
 
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 using mg5amcGpu::CPPProcess;
 #else
 using mg5amcCpu::CPPProcess;

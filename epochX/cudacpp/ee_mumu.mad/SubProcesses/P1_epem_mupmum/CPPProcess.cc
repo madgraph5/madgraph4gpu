@@ -17,7 +17,7 @@
 #include "mgOnGpuConfig.h"
 
 #include "HelAmps_sm.h"
-#include "GpuRuntime.h" // for GPU abstraction, checkCuda is run on macros defined here
+#include "GpuRuntime.h" // for GPU abstraction, checkGpu is run on macros defined here
 #include "MemoryAccessAmplitudes.h"
 #include "MemoryAccessCouplings.h"
 #include "MemoryAccessCouplingsFixed.h"
@@ -457,8 +457,8 @@ namespace mg5amcCpu
       { 1, -1, 1, 1 },
       { 1, -1, -1, -1 },
       { 1, -1, -1, 1 } };
-#ifdef __CUDACC__
-    checkCuda( cudaMemcpyToSymbol( cHel, tHel, ncomb * npar * sizeof( short ) ) );
+#ifdef MGONGPUCPP_GPUIMPL
+    gpuMemcpyToSymbol( cHel, tHel, ncomb * npar * sizeof( short ) );
 #else
     memcpy( cHel, tHel, ncomb * npar * sizeof( short ) );
 #endif
