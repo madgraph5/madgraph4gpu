@@ -457,13 +457,8 @@ namespace mg5amcCpu
       { 1, -1, 1, 1 },
       { 1, -1, -1, -1 },
       { 1, -1, -1, 1 } };
-<<<<<<< HEAD
-#ifdef MGONGPUCPP_GPUIMPL
-    gpuMemcpyToSymbol( cHel, tHel, ncomb * mgOnGpu::npar * sizeof( short ) );
-=======
 #ifdef __CUDACC__
     checkCuda( cudaMemcpyToSymbol( cHel, tHel, ncomb * npar * sizeof( short ) ) );
->>>>>>> master
 #else
     memcpy( cHel, tHel, ncomb * npar * sizeof( short ) );
 #endif
