@@ -10,5 +10,7 @@ echo "Execute $(basename $0) for process ${proc} in directory $(pwd)"
 set -x # verbose
 
 rm -rf $proc; git checkout $proc; cd $proc
+
 MG5AMC_CARD_PATH=$(pwd)/Cards ./bin/generate_events 
+###MG5AMC_CARD_PATH=$(pwd)/Cards strace -f ./bin/generate_events >& ../strace_out_${proc}.txt
 
