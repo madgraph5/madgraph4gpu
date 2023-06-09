@@ -140,9 +140,15 @@
 systematics = systematics_program ! none, systematics [python], SysCalc [depreceted, C++]
 ['--mur=0.5,1,2', '--muf=0.5,1,2', '--pdf=errorset'] = systematics_arguments ! see: https://cp3.irmp.ucl.ac.be/projects/madgraph/wiki/Systematics#Systematicspythonmodule
 #
+
 #*********************************************************************
-# settings for the C++/GPU acceleration                              *
+# Options for the cudacpp plugin
 #*********************************************************************
+
+# Set cudacpp-specific values of non-cudacpp-specific options
+-O3 -ffast-math -fbounds-check = global_flag ! build flags for Fortran code (for a fair comparison to cudacpp)
+
+# New cudacpp-specific options
 1 = exec_mode             ! modes are fortran=0, cpp=1, cuda=2, both=-1, bothdebug=-2
 1 = bridge_mode           ! modes are fortran=0, cpp/cuda=1, both=-1, bothdebug=-2
 32 = vector_size          ! set the number of parallel executions
