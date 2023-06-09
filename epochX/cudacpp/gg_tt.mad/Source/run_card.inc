@@ -362,3 +362,9 @@
 
       MXXPART_ANTIPART(1) = .FALSE.
 
+      EXEC_MODE = 1
+
+      BRIDGE_MODE = 1
+
+      VECTOR_SIZE = 32
+

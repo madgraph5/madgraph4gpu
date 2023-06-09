@@ -1,109 +1,123 @@
-c**************************************************************
-c    run.inc 
-c**************************************************************
-c
-c     Scales
-c
-      real*8          scale,scalefact,alpsfact,mue_ref_fixed,mue_over_ref
-      logical         fixed_ren_scale,fixed_fac_scale1, fixed_fac_scale2,fixed_couplings,hmult
-      logical         fixed_extra_scale
-      integer         ickkw,nhmult,asrwgtflavor, dynamical_scale_choice,ievo_eva
-      
-      common/to_scale/scale,scalefact,alpsfact, mue_ref_fixed, mue_over_ref,
+C     **************************************************************
+C     run.inc 
+C     **************************************************************
+C     
+C     Scales
+C     
+      REAL*8          SCALE,SCALEFACT,ALPSFACT,MUE_REF_FIXED
+     $ ,MUE_OVER_REF
+      LOGICAL         FIXED_REN_SCALE,FIXED_FAC_SCALE1,
+     $  FIXED_FAC_SCALE2,FIXED_COUPLINGS,HMULT
+      LOGICAL         FIXED_EXTRA_SCALE
+      INTEGER         ICKKW,NHMULT,ASRWGTFLAVOR,
+     $  DYNAMICAL_SCALE_CHOICE,IEVO_EVA
+
+      COMMON/TO_SCALE/SCALE,SCALEFACT,ALPSFACT, MUE_REF_FIXED,
+     $  MUE_OVER_REF,
      $                fixed_ren_scale,fixed_fac_scale1, fixed_fac_scale2,
      $                fixed_couplings, fixed_extra_scale,ickkw,nhmult,hmult,asrwgtflavor,
      $                dynamical_scale_choice
-      common/to_eva/ievo_eva
-c
-c     Collider
-c
-      integer                                        lpp(2)
-      double precision    ebeam(2), xbk(2),q2fact(2)
-      common/to_collider/ ebeam   , xbk   ,q2fact,   lpp
+      COMMON/TO_EVA/IEVO_EVA
+C     
+C     Collider
+C     
+      INTEGER                                        LPP(2)
+      DOUBLE PRECISION    EBEAM(2), XBK(2),Q2FACT(2)
+      COMMON/TO_COLLIDER/ EBEAM   , XBK   ,Q2FACT,   LPP
 
-      integer frame_id
-      common/to_frame_me/frame_id
-c
-c     Number of events
-c
-      integer nevents, gevents
-c
-c     BW treatment
-c      
-      double precision bwcutoff
-      common/to_bwcutoff/ bwcutoff
-c
-c     Sudakov grid file name
-c
-      character*130 issgridfile
-      common/to_sgridfile/issgridfile
-c
-c     kT/pT scheme for xqcut, clustering according to channel
-c
-      integer ktscheme
-      logical chcluster,pdfwgt
-      common/to_cluster/ktscheme,chcluster,pdfwgt
+      INTEGER FRAME_ID
+      COMMON/TO_FRAME_ME/FRAME_ID
+C     
+C     Number of events
+C     
+      INTEGER NEVENTS, GEVENTS
+C     
+C     BW treatment
+C     
+      DOUBLE PRECISION BWCUTOFF
+      COMMON/TO_BWCUTOFF/ BWCUTOFF
+C     
+C     Sudakov grid file name
+C     
+      CHARACTER*130 ISSGRIDFILE
+      COMMON/TO_SGRIDFILE/ISSGRIDFILE
+C     
+C     kT/pT scheme for xqcut, clustering according to channel
+C     
+      INTEGER KTSCHEME
+      LOGICAL CHCLUSTER,PDFWGT
+      COMMON/TO_CLUSTER/KTSCHEME,CHCLUSTER,PDFWGT
 
-c
-c     Parameters for systematics variations info
-c
-      logical use_syst
-c     Common block for systematics variations
-      DOUBLE PRECISION s_scale
-      INTEGER n_qcd,n_alpsem
-      DOUBLE PRECISION s_qalps(max_particles-2)
-      INTEGER n_pdfrw(2),i_pdgpdf(max_particles-2,2)
-      DOUBLE PRECISION s_xpdf(max_particles-2,2),s_qpdf(max_particles-2,2)
-      DOUBLE PRECISION s_rwfact
-      COMMON/TO_SYST/use_syst,n_qcd,n_alpsem,n_pdfrw,i_pdgpdf,
+C     
+C     Parameters for systematics variations info
+C     
+      LOGICAL USE_SYST
+C     Common block for systematics variations
+      DOUBLE PRECISION S_SCALE
+      INTEGER N_QCD,N_ALPSEM
+      DOUBLE PRECISION S_QALPS(MAX_PARTICLES-2)
+      INTEGER N_PDFRW(2),I_PDGPDF(MAX_PARTICLES-2,2)
+      DOUBLE PRECISION S_XPDF(MAX_PARTICLES-2,2),S_QPDF(MAX_PARTICLES
+     $ -2,2)
+      DOUBLE PRECISION S_RWFACT
+      COMMON/TO_SYST/USE_SYST,N_QCD,N_ALPSEM,N_PDFRW,I_PDGPDF,
      $               s_scale,s_qalps,s_xpdf,s_qpdf,s_rwfact
-c
-c     Flag on how to write the LHE events 
-c     Include <clustering> tag for Pythia 8 CKKW-L matching
-c
-      logical clusinfo
-      double precision lhe_version
-      COMMON/TO_LHEFORMAT/lhe_version,clusinfo
+C     
+C     Flag on how to write the LHE events 
+C     Include <clustering> tag for Pythia 8 CKKW-L matching
+C     
+      LOGICAL CLUSINFO
+      DOUBLE PRECISION LHE_VERSION
+      COMMON/TO_LHEFORMAT/LHE_VERSION,CLUSINFO
 
-c     
-C     Controls wheter to perform Monte-Carlo sampling over grouped subprocesses
-C
-      logical MC_grouped_subproc
-      common/to_MC_grouped_subproc/MC_grouped_subproc
+C     
+C     Controls wheter to perform Monte-Carlo sampling over grouped
+C      subprocesses
+C     
+      LOGICAL MC_GROUPED_SUBPROC
+      COMMON/TO_MC_GROUPED_SUBPROC/MC_GROUPED_SUBPROC
 
-C
+C     
 C     block for heavy ion beam
-C
-      integer nb_proton(2), nb_neutron(2)
-      common/to_heavyion_pdg/ nb_proton, nb_neutron
-      double precision mass_ion(2)
-      common/to_heavyion_mass/mass_ion
+C     
+      INTEGER NB_PROTON(2), NB_NEUTRON(2)
+      COMMON/TO_HEAVYION_PDG/ NB_PROTON, NB_NEUTRON
+      DOUBLE PRECISION MASS_ION(2)
+      COMMON/TO_HEAVYION_MASS/MASS_ION
 
-C
-C Controls what are the PDGs included in the CKKWl merging procedure, i.e. what
-C are the PDGs subject to the ktdurham cut
-C
-      integer pdgs_for_merging_cut(0:1000)
-      common/TO_MERGE/pdgs_for_merging_cut
-c
-c
-c
-      integer pdg_cut(0:25)
-      double precision ptmin4pdg(0:25) 
-      double precision ptmax4pdg(0:25) 
-      double precision Emin4pdg(0:25) 
-      double precision Emax4pdg(0:25) 
-      double precision etamin4pdg(0:25) 
-      double precision etamax4pdg(0:25) 
-      double precision mxxmin4pdg(0:25) 
-      logical mxxpart_antipart(1:25)
-      common/TO_PDG_SPECIFIC_CUT/pdg_cut, ptmin4pdg,ptmax4pdg, Emin4pdg, Emax4pdg, etamin4pdg,
+C     
+C     Controls what are the PDGs included in the CKKWl merging
+C      procedure, i.e. what
+C     are the PDGs subject to the ktdurham cut
+C     
+      INTEGER PDGS_FOR_MERGING_CUT(0:1000)
+      COMMON/TO_MERGE/PDGS_FOR_MERGING_CUT
+C     
+C     
+C     
+      INTEGER PDG_CUT(0:25)
+      DOUBLE PRECISION PTMIN4PDG(0:25)
+      DOUBLE PRECISION PTMAX4PDG(0:25)
+      DOUBLE PRECISION EMIN4PDG(0:25)
+      DOUBLE PRECISION EMAX4PDG(0:25)
+      DOUBLE PRECISION ETAMIN4PDG(0:25)
+      DOUBLE PRECISION ETAMAX4PDG(0:25)
+      DOUBLE PRECISION MXXMIN4PDG(0:25)
+      LOGICAL MXXPART_ANTIPART(1:25)
+      COMMON/TO_PDG_SPECIFIC_CUT/PDG_CUT, PTMIN4PDG,PTMAX4PDG,
+     $  EMIN4PDG, EMAX4PDG, ETAMIN4PDG,
      &etamax4pdg, mxxmin4pdg,mxxpart_antipart
 
-       double precision small_width_treatment
-       common/narrow_width/small_width_treatment
+      DOUBLE PRECISION SMALL_WIDTH_TREATMENT
+      COMMON/NARROW_WIDTH/SMALL_WIDTH_TREATMENT
 
-       double precision tmin_for_channel
-       integer sde_strat ! 1 means standard single diagram enhancement strategy,
-c                          2 means approximation by the denominator of the propagator
-       common/TO_CHANNEL_STRAT/tmin_for_channel, sde_strat
+      DOUBLE PRECISION TMIN_FOR_CHANNEL
+      INTEGER SDE_STRAT  ! 1 means standard single diagram enhancement strategy,
+C     2 means approximation by the denominator of the propagator
+      COMMON/TO_CHANNEL_STRAT/TMIN_FOR_CHANNEL, SDE_STRAT
+      INTEGER EXEC_MODE  ! added by autodef
+      INTEGER BRIDGE_MODE  ! added by autodef
+      INTEGER VECTOR_SIZE  ! added by autodef
+C     START USER COMMON BLOCK
+      COMMON/USER_CUSTOM_RUN/EXEC_MODE,BRIDGE_MODE,VECTOR_SIZE
+C     STOP USER COMMON BLOCK
