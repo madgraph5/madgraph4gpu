@@ -147,6 +147,7 @@ systematics = systematics_program ! none, systematics [python], SysCalc [deprece
 
 # Set cudacpp-specific values of non-cudacpp-specific options
 -O3 -ffast-math -fbounds-check = global_flag ! build flags for Fortran code (for a fair comparison to cudacpp)
+None = bias_module ! equivalent to dummy? (just to keep proc_characteristics unchanged)
 
 # New cudacpp-specific options
 1 = exec_mode             ! modes are fortran=0, cpp=1, cuda=2, both=-1, bothdebug=-2
