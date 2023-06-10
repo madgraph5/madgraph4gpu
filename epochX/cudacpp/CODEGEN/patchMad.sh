@@ -48,9 +48,12 @@ ${dir}/bin/madevent treatcards param
 \rm -f ${dir}/crossx.html
 \rm -f ${dir}/index.html
 \rm -f ${dir}/madevent.tar.gz
+\rm -f ${dir}/Cards/delphes_trigger.dat
+\rm -f ${dir}/Cards/plot_card.dat
+\rm -f ${dir}/HTML/*
 \rm -rf ${dir}/bin/internal/__pycache__
 \rm -rf ${dir}/bin/internal/ufomodel/__pycache__
-\rm -rf ${dir}/HTML
+touch ${dir}/HTML/.keepme # new file
 
 # Exit here for patchlevel 0 (--upstream)
 if [ "${patchlevel}" == "0" ]; then exit $status; fi
