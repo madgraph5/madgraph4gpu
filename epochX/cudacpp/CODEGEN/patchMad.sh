@@ -62,7 +62,7 @@ cat ${dir}/Source/make_opts >> ${dir}/Source/make_opts.new
 
 # Patch the default Fortran code to provide the integration with the cudacpp plugin
 # (1) Process-independent patches
-echo -e "index.html\n.libs\n.cudacpplibs" > ${dir}/.gitignore
+echo -e ".libs\n.cudacpplibs\nindex.html\nrandinit" > ${dir}/.gitignore # ONLY NEEDED IN MADGRAPH4GPU GIT REPO
 touch ${dir}/Events/.keep # this file should already be present (mg5amcnlo copies it from Template/LO/Events/.keep) 
 \cp -dpr ${scrdir}/PLUGIN/CUDACPP_SA_OUTPUT/madgraph/iolibs/template_files/.clang-format ${dir} # new file
 \cp -dpr ${scrdir}/MG5aMC_patches/${dir_patches}/fbridge_common.inc ${dir}/SubProcesses # new file
@@ -77,7 +77,7 @@ if [ "${patchlevel}" == "2" ]; then
 fi
 for p1dir in ${dir}/SubProcesses/P*; do
   cd $p1dir
-  echo -e "madevent\n*madevent_cudacpp" > .gitignore # new file
+  echo -e "madevent\n*madevent_cudacpp" > .gitignore # ONLY NEEDED IN MADGRAPH4GPU GIT REPO
   ln -sf ../fbridge_common.inc . # new file
   \cp -dpr ${scrdir}/MG5aMC_patches/${dir_patches}/counters.cc . # new file
   \cp -dpr ${scrdir}/MG5aMC_patches/${dir_patches}/ompnumthreads.cc . # new file
