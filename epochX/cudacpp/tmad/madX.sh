@@ -412,10 +412,14 @@ echo -e "On $HOSTNAME [CPU: $cpuTxt] [GPU: $gpuTxt]:"
 
 for suff in $suffs; do
 
+  # DEFAULT IMPLEMENTATION : compute cross section and then generate events
   dir=$(showdir)
   if [ ! -d $dir ]; then echo "WARNING! Skip missing directory $dir"; continue; fi
   echo "Working directory (run): $dir"
   cd $dir
+
+  # Hardcode randinit (no longer in the git repo after adding tlau/lauX.sh tests)
+  echo "r=21" > ../randinit
 
   # Use the time command?
   ###timecmd=time
@@ -424,9 +428,6 @@ for suff in $suffs; do
   # Show results.dat?
   ###rdatcmd="stat results.dat"
   rdatcmd="echo"
-
-  # DEFAULT IMPLEMENTATION : compute cross section and then generate events
-  cd $dir
 
   # (1) MADEVENT
   if [ "${checkonly}" == "0" ]; then
