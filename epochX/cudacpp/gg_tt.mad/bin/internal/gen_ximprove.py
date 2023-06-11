@@ -368,11 +368,8 @@ class gensym(object):
                 if not done:
                     raise Exception('Parsing error in gensym: %s' % stdout)
 
-            exec_mode = 0
-            if 'exec_mode' in self.run_card:
-                exec_mode = self.run_card['exec_mode']
-
             logger.info("Building madevent in gen_ximprove.py")
+            exec_mode = self.run_card['exec_mode'] # the default mode is defined in banner.py
             if exec_mode == '0':
                 logger.info("Building madevent with FORTRAN matrix elements (exec_mode=%s)"%exec_mode)
                 self.cmd.compile(['madevent_fortran_link'], cwd=Pdir)

@@ -3616,11 +3616,8 @@ Beware that this can be dangerous for local multicore runs.""")
     
                 if os.path.exists(pjoin(Pdir, 'ajob1')):
 
-                    exec_mode = 0
-                    if 'exec_mode' in self.run_card:
-                        exec_mode = self.run_card['exec_mode']
-
                     logger.info("Building madevent in madevent_interface.py")
+                    exec_mode = self.run_card['exec_mode'] # the default mode is defined in banner.py
                     if exec_mode == '0':
                         logger.info("Building madevent with FORTRAN matrix elements (exec_mode=%s)"%exec_mode)
                         self.compile(['madevent_fortran_link'], cwd=Pdir)
