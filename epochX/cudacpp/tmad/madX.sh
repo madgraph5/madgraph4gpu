@@ -217,10 +217,17 @@ function getinputfile()
   fi
   tmp=${tmp}_x${xfac}
   \rm -f ${tmp}; touch ${tmp}
-  if [ "$1" != "-fortran" ] && [ "$1" == "-cuda" ] && [ "$1" == "-cpp" ]; then
-    # Keep the argument if there is nothing to do anymore that is backend-specific as
-    # fbridge_mode and vecsize_used have been removed from the input file to madevent (#658):
-    # previously fbridge_mode was set here to 0 for fortran and to 1 for cuda/cpp
+  if [ "$1" == "-fortran" ]; then
+    # Keep the argument but there is nothing to do specific to fortran
+    # Previously fbridge_mode=0 was set here (#658)
+    mv ${tmp} ${tmp}_fortran
+    tmp=${tmp}_fortran
+  elif [ "$1" == "-cuda" ] || [ "$1" == "-cpp" ]; then # NB: new script, use the same input for cuda and cpp
+    # Keep the argument but there is nothing to do specific to cuda/cpp
+    # Previously fbridge_mode=1 was set here (#658)
+    mv ${tmp} ${tmp}_cudacpp
+    tmp=${tmp}_cudacpp
+  else
     echo "Usage: getinputfile <backend [-fortran][-cuda][-cpp]>"
     exit 1
   fi
@@ -314,6 +321,9 @@ function runmadevent()
   \rm -f ${tmp}; touch ${tmp}  
   set +e # do not fail on error
   if [ "${debug}" == "1" ]; then
+    echo "--------------------"
+    echo CUDACPP_RUNTIME_FBRIDGEMODE = ${CUDACPP_RUNTIME_FBRIDGEMODE:-(not set)}
+    echo CUDACPP_RUNTIME_VECSIZEUSED = ${CUDACPP_RUNTIME_VECSIZEUSED:-(not set)}
     echo "--------------------"; cat ${tmpin}; echo "--------------------"
     echo "Executing '$timecmd $cmd < ${tmpin} > ${tmp}'"
   fi
@@ -323,8 +333,8 @@ function runmadevent()
   if [ "${omp}" == "" ]; then omp=1; fi # _OPENMP not defined in the Fortran #579
   nghel=$(cat ${tmp} | grep --binary-files=text 'NGOODHEL =' | awk '{print $NF}')
   ncomb=$(cat ${tmp} | grep --binary-files=text 'NCOMB =' | awk '{print $NF}')
-  fbm=$(cat ${tmp} | grep --binary-files=text 'FBRIDGE_MODE =' | awk '{print $NF}')
-  nbp=$(cat ${tmp} | grep --binary-files=text 'VECSIZE_USED =' | awk '{print $NF}')
+  fbm=$(cat ${tmp} | grep --binary-files=text 'FBRIDGE_MODE (.*) =' | awk '{print $NF}')
+  nbp=$(cat ${tmp} | grep --binary-files=text 'VECSIZE_USED (.*) =' | awk '{print $NF}')
   mch=$(cat ${tmp} | grep --binary-files=text 'MULTI_CHANNEL =' | awk '{print $NF}')
   conf=$(cat ${tmp} | grep --binary-files=text 'Running Configuration Number:' | awk '{print $NF}')
   chid=$(cat ${tmp} | grep --binary-files=text 'CHANNEL_ID =' | awk '{print $NF}')
