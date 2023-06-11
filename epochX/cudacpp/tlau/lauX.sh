@@ -3,6 +3,8 @@
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: A. Valassi (Jun 2023) for the MG5aMC CUDACPP plugin.
 
+set -e # fail on error
+
 cd $(dirname $0)/..
 proc=gg_tt.mad
 echo "Execute $(basename $0) for process ${proc} in directory $(pwd)"
