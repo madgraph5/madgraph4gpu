@@ -53,7 +53,7 @@ ${dir}/bin/madevent treatcards param
 \rm -f ${dir}/HTML/*
 \rm -rf ${dir}/bin/internal/__pycache__
 \rm -rf ${dir}/bin/internal/ufomodel/__pycache__
-touch ${dir}/HTML/.keepme # new file
+touch ${dir}/HTML/.keep # new file
 
 # Exit here for patchlevel 0 (--upstream)
 if [ "${patchlevel}" == "0" ]; then exit $status; fi
