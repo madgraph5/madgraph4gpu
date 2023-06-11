@@ -3628,8 +3628,9 @@ Beware that this can be dangerous for local multicore runs.""")
                         logger.info("Building madevent with CUDA matrix elements (exec_mode=%s)"%exec_mode)
                         self.compile(['madevent_cuda_link'], cwd=Pdir)
                     else:
-                        logger.info("Building madevent with ALL (FORTRAN/CPP/CUDA) matrix elements (exec_mode=%s)"%exec_mode)
-                        self.compile(['all'], cwd=Pdir)
+                        raise self.InvalidCmd("Invalid exec_mode='%s': only '0', '1', '2' are supported")
+                        ###logger.info("Building madevent with ALL (FORTRAN/CPP/CUDA) matrix elements (exec_mode=%s)"%exec_mode)
+                        ###self.compile(['all'], cwd=Pdir)
 
                     alljobs = misc.glob('ajob*', Pdir)
                     

@@ -380,8 +380,9 @@ class gensym(object):
                 logger.info("Building madevent with CUDA matrix elements (exec_mode=%s)"%exec_mode)
                 self.cmd.compile(['madevent_cuda_link'], cwd=Pdir)
             else:
-                logger.info("Building madevent with ALL(FORTRAN/CPP/CUDA) matrix elements (exec_mode=%s)"%exec_mode)
-                self.cmd.compile(['all'], cwd=Pdir)
+                raise self.InvalidCmd("Invalid exec_mode='%s': only '0', '1', '2' are supported")
+                ###logger.info("Building madevent with ALL(FORTRAN/CPP/CUDA) matrix elements (exec_mode=%s)"%exec_mode)
+                ###self.cmd.compile(['all'], cwd=Pdir)
 
             if to_submit:
                 self.submit_to_cluster(job_list)
