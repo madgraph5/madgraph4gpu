@@ -1,8 +1,0 @@
-.libs
-.cudacpplibs
-
-events.lhe*
-results.dat*
-results.pkl
-crossx.html
-index.html

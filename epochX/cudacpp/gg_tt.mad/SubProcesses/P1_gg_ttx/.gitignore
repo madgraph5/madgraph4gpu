@@ -1,8 +1,0 @@
-madevent
-*madevent_cudacpp
-
-G[0-9]*
-ajob[0-9]*
-input_app.txt
-symfact.dat
-gensym
