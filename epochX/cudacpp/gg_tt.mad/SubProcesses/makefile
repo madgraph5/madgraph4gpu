@@ -138,12 +138,12 @@ endif
 madeventfortran: $(PROG)
 
 madeventcpp: $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp
-	rm -f $(CUDACPP_BUILDDIR)/$(PROG)
-	cd $(CUDACPP_BUILDDIR); ln -s c$(PROG)_cudacpp madevent
+	rm -f $(PROG)
+	ln -s $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp madevent
 
 madeventcuda: $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp
-	rm -f $(CUDACPP_BUILDDIR)/$(PROG)
-	cd $(CUDACPP_BUILDDIR); ln -s g$(PROG)_cudacpp madevent
+	rm -f $(PROG)
+	ln -s $(CUDACPP_BUILDDIR)/g$(PROG)_cudacpp madevent
 
 
 # Also builds g$(PROG)_cudacpp if $(CUDACPP_CULIB) exists (improved patch for cpp-only builds #503)
