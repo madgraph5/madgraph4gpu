@@ -4165,7 +4165,7 @@ class RunCardLO(RunCard):
         self.add_param('mxxpart_antipart', [False], system=True)
                      
         # CUDACPP parameters
-        self.add_param('cudacpp_backend', 'FORTRAN', include=False, hidden=False)
+        self.add_param('cudacpp_backend', 'CPP', include=False, hidden=False)
              
     def check_validity(self):
         """ """
