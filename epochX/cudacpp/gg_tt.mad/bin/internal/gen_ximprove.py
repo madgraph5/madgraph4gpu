@@ -372,13 +372,18 @@ class gensym(object):
             if 'exec_mode' in self.run_card:
                 exec_mode = self.run_card['exec_mode']
 
+            logger.info("Building madevent in gen_ximprove.py")
             if exec_mode == '0':
+                logger.info("Building madevent with FORTRAN matrix elements (exec_mode=%s)"%exec_mode)
                 self.cmd.compile(['madevent_fortran_link'], cwd=Pdir)
             elif exec_mode == '1':
+                logger.info("Building madevent with CPP matrix elements (exec_mode=%s)"%exec_mode)
                 self.cmd.compile(['madevent_cpp_link'], cwd=Pdir)
             elif exec_mode == '2':
+                logger.info("Building madevent with CUDA matrix elements (exec_mode=%s)"%exec_mode)
                 self.cmd.compile(['madevent_cuda_link'], cwd=Pdir)
             else:
+                logger.info("Building madevent with ALL(FORTRAN/CPP/CUDA) matrix elements (exec_mode=%s)"%exec_mode)
                 self.cmd.compile(['all'], cwd=Pdir)
 
             if to_submit:

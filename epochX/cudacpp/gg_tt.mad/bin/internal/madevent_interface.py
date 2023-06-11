@@ -3620,13 +3620,18 @@ Beware that this can be dangerous for local multicore runs.""")
                     if 'exec_mode' in self.run_card:
                         exec_mode = self.run_card['exec_mode']
 
+                    logger.info("Building madevent in madevent_interface.py")
                     if exec_mode == '0':
+                        logger.info("Building madevent with FORTRAN matrix elements (exec_mode=%s)"%exec_mode)
                         self.compile(['madevent_fortran_link'], cwd=Pdir)
                     elif exec_mode == '1':
+                        logger.info("Building madevent with CPP matrix elements (exec_mode=%s)"%exec_mode)
                         self.compile(['madevent_cpp_link'], cwd=Pdir)
                     elif exec_mode == '2':
+                        logger.info("Building madevent with CUDA matrix elements (exec_mode=%s)"%exec_mode)
                         self.compile(['madevent_cuda_link'], cwd=Pdir)
                     else:
+                        logger.info("Building madevent with ALL (FORTRAN/CPP/CUDA) matrix elements (exec_mode=%s)"%exec_mode)
                         self.compile(['all'], cwd=Pdir)
 
                     alljobs = misc.glob('ajob*', Pdir)
