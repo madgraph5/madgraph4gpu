@@ -91,7 +91,7 @@ LDFLAGS+=-Wl,--no-relax # avoid 'failed to convert GOTPCREL relocation' error #4
 ifeq (,$(wildcard fbridge.inc))
 all: $(PROG)_fortran
 else
-all: $(PROG)_fortran $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp # also builds g$(PROG)_cudacpp if $(CUDACPP_CULIB) exists (#503)
+all: $(PROG)_fortran $(CUDACPP_BUILDDIR)/$(PROG)_cpp # also builds $(PROG)_cuda if $(CUDACPP_CULIB) exists (#503)
 endif
 
 ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
@@ -100,7 +100,7 @@ LINKLIBS += -liomp5 # see #578
 LINKLIBS += -lintlc # undefined reference to `_intel_fast_memcpy'
 else ifneq ($(shell $(CXX) --version | egrep '^clang'),)
 override OMPFLAGS = -fopenmp
-$(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp: LINKLIBS += -L $(shell dirname $(shell $(CXX) -print-file-name=libc++.so)) -lomp # see #604
+$(CUDACPP_BUILDDIR)/$(PROG)_cpp: LINKLIBS += -L $(shell dirname $(shell $(CXX) -print-file-name=libc++.so)) -lomp # see #604
 ###else ifneq ($(shell $(CXX) --version | egrep '^Apple clang'),)
 ###override OMPFLAGS = -fopenmp # OMP is not supported yet by cudacpp for Apple clang
 else
@@ -139,20 +139,20 @@ madevent_fortran_link: $(PROG)_fortran
 	rm -f $(PROG)
 	ln -s $(PROG)_fortran $(PROG)
 
-madevent_cpp_link: $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp
+madevent_cpp_link: $(CUDACPP_BUILDDIR)/$(PROG)_cpp
 	rm -f $(PROG)
-	ln -s $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp $(PROG)
+	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
 
-madevent_cuda_link: $(CUDACPP_BUILDDIR)/g$(PROG)_cudacpp
+madevent_cuda_link: $(CUDACPP_BUILDDIR)/$(PROG)_cuda
 	rm -f $(PROG)
-	ln -s $(CUDACPP_BUILDDIR)/g$(PROG)_cudacpp $(PROG)
+	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cuda $(PROG)
 
-# Also builds g$(PROG)_cudacpp if $(CUDACPP_CULIB) exists (improved patch for cpp-only builds #503)
-$(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o ompnumthreads.o $(CUDACPP_BUILDDIR)/.cudacpplibs
-	$(FC) -o $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_CXXLIB) $(LIBFLAGSRPATH) $(LDFLAGS)
-	if [ -f $(LIBDIR)/$(CUDACPP_BUILDDIR)/lib$(CUDACPP_CULIB).* ]; then $(FC) -o $(CUDACPP_BUILDDIR)/g$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_CULIB) $(LIBFLAGSRPATH) $(LDFLAGS); fi
+# Building $(PROG)_cpp also builds $(PROG)_cuda if $(CUDACPP_CULIB) exists (improved patch for cpp-only builds #503)
+$(CUDACPP_BUILDDIR)/$(PROG)_cpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o ompnumthreads.o $(CUDACPP_BUILDDIR)/.cudacpplibs
+	$(FC) -o $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_CXXLIB) $(LIBFLAGSRPATH) $(LDFLAGS)
+	if [ -f $(LIBDIR)/$(CUDACPP_BUILDDIR)/lib$(CUDACPP_CULIB).* ]; then $(FC) -o $(CUDACPP_BUILDDIR)/$(PROG)_cuda $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_CULIB) $(LIBFLAGSRPATH) $(LDFLAGS); fi
 
-$(CUDACPP_BUILDDIR)/g$(PROG)_cudacpp: $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp
+$(CUDACPP_BUILDDIR)/$(PROG)_cuda: $(CUDACPP_BUILDDIR)/$(PROG)_cpp
 
 counters.o: counters.cc timer.h
 	$(CXX) -std=c++11 -Wall -Wshadow -Wextra -c $< -o $@
@@ -255,7 +255,7 @@ clean:
 ifeq (,$(wildcard fbridge.inc))
 	$(RM) *.o gensym $(PROG) $(PROG)_fortran $(PROG)_forhel
 else
-	$(RM) *.o gensym $(PROG) $(PROG)_fortran $(PROG)_forhel $(CUDACPP_BUILDDIR)/*$(PROG)_cudacpp
+	$(RM) *.o gensym $(PROG) $(PROG)_fortran $(PROG)_forhel $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(CUDACPP_BUILDDIR)/$(PROG)_cuda
 endif
 
 cleanall:
