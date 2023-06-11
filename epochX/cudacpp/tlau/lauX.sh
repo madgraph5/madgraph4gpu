@@ -7,18 +7,17 @@ cd $(dirname $0)/..
 proc=gg_tt.mad
 echo "Execute $(basename $0) for process ${proc} in directory $(pwd)"
 procdir=$(pwd)/gg_tt.mad
-
-# Cleanup before launch (save the initial randinit)
-rm -rf $proc; git checkout $proc
 cd $procdir
-cp SubProcesses/randinit SubProcesses/randinit.BKP
+
+# Cleanup before launch
+rm -rf Events HTML; mkdir Events HTML; touch Events/.keep HTML/.keep
+rm -f SubProcesses/ME5_debug
+cp SubProcesses/randinit SubProcesses/randinit.BKP # save the initial randinit
 
 # Launch (generate_events)
 set -x # verbose
 MG5AMC_CARD_PATH=$(pwd)/Cards ./bin/generate_events -f
 set +x # not verbose
 
-# Cleanup after launch (restore the initial randinit)
-mv SubProcesses/randinit.BKP SubProcesses/randinit
-
-
+# Cleanup after launch
+mv SubProcesses/randinit.BKP SubProcesses/randinit # restore the initial randinit
