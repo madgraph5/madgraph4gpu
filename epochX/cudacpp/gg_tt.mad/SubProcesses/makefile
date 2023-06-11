@@ -89,9 +89,9 @@ SYMMETRY = symmetry.o idenparts.o
 LDFLAGS+=-Wl,--no-relax # avoid 'failed to convert GOTPCREL relocation' error #458
 
 ifeq (,$(wildcard fbridge.inc))
-all: $(PROG)
+all: $(PROG)_fortran madeventfortran
 else
-all: $(PROG) $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp # also builds g$(PROG)_cudacpp if $(CUDACPP_CULIB) exists (#503)
+all: $(PROG)_fortran madeventfortran $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp # also builds g$(PROG)_cudacpp if $(CUDACPP_CULIB) exists (#503)
 endif
 
 ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
@@ -107,8 +107,8 @@ else
 override OMPFLAGS = -fopenmp
 endif
 
-$(PROG): $(PROCESS) $(DSIG) auto_dsig.o $(LIBS) $(MATRIX) counters.o ompnumthreads.o
-	$(FC) -o $(PROG) $(PROCESS) $(DSIG) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o $(LDFLAGS)
+$(PROG)_fortran: $(PROCESS) $(DSIG) auto_dsig.o $(LIBS) $(MATRIX) counters.o ompnumthreads.o
+	$(FC) -o $(PROG)_fortran $(PROCESS) $(DSIG) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o $(LDFLAGS)
 
 $(LIBS): .libs
 
@@ -135,16 +135,17 @@ endif
 
 .PHONY: madeventfortran madeventcuda madeventcpp
 
-madeventfortran: $(PROG)
+madeventfortran: $(PROG)_fortran
+	rm -f $(PROG)
+	ln -s $(PROG)_fortran $(PROG)
 
 madeventcpp: $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp
 	rm -f $(PROG)
-	ln -s $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp madevent
+	ln -s $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp $(PROG)
 
 madeventcuda: $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp
 	rm -f $(PROG)
-	ln -s $(CUDACPP_BUILDDIR)/g$(PROG)_cudacpp madevent
-
+	ln -s $(CUDACPP_BUILDDIR)/g$(PROG)_cudacpp $(PROG)
 
 # Also builds g$(PROG)_cudacpp if $(CUDACPP_CULIB) exists (improved patch for cpp-only builds #503)
 $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o ompnumthreads.o $(CUDACPP_BUILDDIR)/.cudacpplibs
@@ -250,9 +251,9 @@ endif
 
 clean:
 ifeq (,$(wildcard fbridge.inc))
-	$(RM) *.o gensym $(PROG) $(PROG)_forhel
+	$(RM) *.o gensym $(PROG) $(PROG)_fortran $(PROG)_forhel
 else
-	$(RM) *.o gensym $(PROG) $(PROG)_forhel $(CUDACPP_BUILDDIR)/*$(PROG)_cudacpp
+	$(RM) *.o gensym $(PROG) $(PROG)_fortran $(PROG)_forhel $(CUDACPP_BUILDDIR)/*$(PROG)_cudacpp
 endif
 
 cleanall:
