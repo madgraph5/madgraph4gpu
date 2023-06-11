@@ -5,10 +5,11 @@
 
 set -e # fail on error
 
-cd $(dirname $0)/..
 proc=gg_tt.mad
+
+cd $(dirname $0)/..
 echo "Execute $(basename $0) for process ${proc} in directory $(pwd)"
-procdir=$(pwd)/gg_tt.mad
+procdir=$(pwd)/${proc}
 cd $procdir
 
 function lauX_cleanup()
