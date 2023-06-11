@@ -133,17 +133,17 @@ else
   override LIBFLAGSRPATH = -Wl,-rpath,'$$ORIGIN/$(LIBDIR)'
 endif
 
-.PHONY: madeventfortran madeventcuda madeventcpp
+.PHONY: madevent_fortran_link madevent_cuda_link madevent_cpp_link
 
-madeventfortran: $(PROG)_fortran
+madevent_fortran_link: $(PROG)_fortran
 	rm -f $(PROG)
 	ln -s $(PROG)_fortran $(PROG)
 
-madeventcpp: $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp
+madevent_cpp_link: $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp
 	rm -f $(PROG)
 	ln -s $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp $(PROG)
 
-madeventcuda: $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp
+madevent_cuda_link: $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp
 	rm -f $(PROG)
 	ln -s $(CUDACPP_BUILDDIR)/g$(PROG)_cudacpp $(PROG)
 
