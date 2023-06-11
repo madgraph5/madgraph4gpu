@@ -17,6 +17,10 @@ NLOOP=8192
 host=$(hostname)
 if [ "${host/juwels}" != "${host}" ]; then NLOOP=32; fi # workaround for #498
 
+# These two environment variables used to be input parameters to madevent (#658)
+unset CUDACPP_RUNTIME_FBRIDGEMODE
+export CUDACPP_RUNTIME_VECSIZEUSED=${NLOOP}
+
 function usage()
 {
   echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq]> [-d] [-fltonly|-mixonly] [-makeonly|-makeclean|-makecleanonly] [-rmrdat] [+10x] [-checkonly] [-nocleanup]" > /dev/stderr
@@ -213,17 +217,10 @@ function getinputfile()
   fi
   tmp=${tmp}_x${xfac}
   \rm -f ${tmp}; touch ${tmp}
-  if [ "$1" == "-fortran" ]; then
-    mv ${tmp} ${tmp}_fortran
-    tmp=${tmp}_fortran
-    echo "0 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)" >> ${tmp}
-    echo "${NLOOP} ! Number of events in a single Fortran iteration (VECSIZE_USED)" >> ${tmp}
-  elif [ "$1" == "-cuda" ] || [ "$1" == "-cpp" ]; then # NB: new script, use the same input for cuda and cpp
-    mv ${tmp} ${tmp}_cudacpp
-    tmp=${tmp}_cudacpp
-    echo "+1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)" >> ${tmp}
-    echo "${NLOOP} ! Number of events in a single C++ or CUDA iteration (VECSIZE_USED)" >> ${tmp}
-  else
+  if [ "$1" != "-fortran" ] && [ "$1" == "-cuda" ] && [ "$1" == "-cpp" ]; then
+    # Keep the argument if there is nothing to do anymore that is backend-specific as
+    # fbridge_mode and vecsize_used have been removed from the input file to madevent (#658):
+    # previously fbridge_mode was set here to 0 for fortran and to 1 for cuda/cpp
     echo "Usage: getinputfile <backend [-fortran][-cuda][-cpp]>"
     exit 1
   fi
