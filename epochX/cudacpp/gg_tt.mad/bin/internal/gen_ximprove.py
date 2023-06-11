@@ -926,8 +926,7 @@ For offline investigation, the problematic discarded events are stored in:
     def write_parameter_file(self, path, options):
         """ """
         
-        #template ="""  %(bridge_mode)s     ! bridge mode for compute accelerator mode
-        template ="""  0     ! bridge mode for compute accelerator mode
+        template ="""  %(bridge_mode)s     ! bridge mode for compute accelerator mode
   %(vector_size)s     ! vector width for parallel execution 
   %(event)s         %(maxiter)s           %(miniter)s      !Number of events and max and min iterations
   %(accuracy)s    !Accuracy
