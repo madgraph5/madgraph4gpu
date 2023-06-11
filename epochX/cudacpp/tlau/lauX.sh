@@ -9,8 +9,16 @@ echo "Execute $(basename $0) for process ${proc} in directory $(pwd)"
 procdir=$(pwd)/gg_tt.mad
 cd $procdir
 
+function lauX_cleanup()
+{
+  rm -f crossx.html index.html
+  rm -f SubProcesses/results.dat
+  rm -rf Events HTML; mkdir Events HTML; touch Events/.keep HTML/.keep
+  for d in SubProcesses/P*; do cd $d; rm -rf gensym input_app.txt symfact.dat G[0-9]* ajob[0-9]*; cd -; done
+}
+
 # Cleanup before launch
-rm -rf Events HTML; mkdir Events HTML; touch Events/.keep HTML/.keep
+lauX_cleanup
 rm -f SubProcesses/ME5_debug
 cp SubProcesses/randinit SubProcesses/randinit.BKP # save the initial randinit
 
@@ -20,8 +28,5 @@ MG5AMC_CARD_PATH=$(pwd)/Cards ./bin/generate_events -f
 set +x # not verbose
 
 # Cleanup after launch
-rm -f crossx.html index.html
-rm -f SubProcesses/results.dat
-rm -rf HTML/results.pkl HTML/run_[0-9]* Events/run_[0-9]*
-for d in SubProcesses/P*; do cd $d; rm -rf gensym input_app.txt symfact.dat G[0-9]* ajob[0-9]*; cd -; done
+lauX_cleanup
 mv SubProcesses/randinit.BKP SubProcesses/randinit # restore the initial randinit
