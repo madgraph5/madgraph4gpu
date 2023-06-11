@@ -373,11 +373,11 @@ class gensym(object):
                 exec_mode = self.run_card['exec_mode']
 
             if exec_mode == '0':
-                self.cmd.compile(['madeventfortran'], cwd=Pdir)
+                self.cmd.compile(['madevent_fortran_link'], cwd=Pdir)
             elif exec_mode == '1':
-                self.cmd.compile(['madeventcpp'], cwd=Pdir)
+                self.cmd.compile(['madevent_cpp_link'], cwd=Pdir)
             elif exec_mode == '2':
-                self.cmd.compile(['madeventcuda'], cwd=Pdir)
+                self.cmd.compile(['madevent_cuda_link'], cwd=Pdir)
             else:
                 self.cmd.compile(['all'], cwd=Pdir)
 
