@@ -1,5 +1,8 @@
 .libs
 .cudacpplibs
+
+events.lhe*
+results.dat*
 crossx.html
 index.html
 randinit
