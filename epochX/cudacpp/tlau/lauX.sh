@@ -26,7 +26,7 @@ cp SubProcesses/randinit SubProcesses/randinit.BKP # save the initial randinit
 
 # Launch (generate_events)
 set -x # verbose
-MG5AMC_CARD_PATH=$(pwd)/Cards ./bin/generate_events -f
+MG5AMC_CARD_PATH=$(pwd)/Cards ./bin/generate_events -f # (BUG #683: this does not return an error code even if it fails)
 set +x # not verbose
 
 # Cleanup after launch
