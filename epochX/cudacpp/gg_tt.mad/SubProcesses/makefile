@@ -89,9 +89,9 @@ SYMMETRY = symmetry.o idenparts.o
 LDFLAGS+=-Wl,--no-relax # avoid 'failed to convert GOTPCREL relocation' error #458
 
 ifeq (,$(wildcard fbridge.inc))
-all: $(PROG)_fortran madeventfortran
+all: $(PROG)_fortran
 else
-all: $(PROG)_fortran madeventfortran $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp # also builds g$(PROG)_cudacpp if $(CUDACPP_CULIB) exists (#503)
+all: $(PROG)_fortran $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp # also builds g$(PROG)_cudacpp if $(CUDACPP_CULIB) exists (#503)
 endif
 
 ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
