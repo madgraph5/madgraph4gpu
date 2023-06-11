@@ -368,20 +368,17 @@ class gensym(object):
                 if not done:
                     raise Exception('Parsing error in gensym: %s' % stdout)
 
-            logger.info("Building madevent in gen_ximprove.py")
-            exec_mode = self.run_card['exec_mode'] # the default mode is defined in banner.py
-            if exec_mode == '0':
-                logger.info("Building madevent with FORTRAN matrix elements (exec_mode=%s)"%exec_mode)
+            cudacpp_backend = self.run_card['cudacpp_backend'] # the default value is defined in banner.py
+            logger.info("Building madevent in madevent_interface.py with '%s' matrix elements"%cudacpp_backend)
+            if cudacpp_backend == 'FORTRAN':
                 self.cmd.compile(['madevent_fortran_link'], cwd=Pdir)
-            elif exec_mode == '1':
-                logger.info("Building madevent with CPP matrix elements (exec_mode=%s)"%exec_mode)
+            elif cudacpp_backend == 'CPP':
                 self.cmd.compile(['madevent_cpp_link'], cwd=Pdir)
-            elif exec_mode == '2':
-                logger.info("Building madevent with CUDA matrix elements (exec_mode=%s)"%exec_mode)
+            elif cudacpp_backend == 'CUDA':
                 self.cmd.compile(['madevent_cuda_link'], cwd=Pdir)
             else:
-                raise self.InvalidCmd("Invalid exec_mode='%s': only '0', '1', '2' are supported")
-                ###logger.info("Building madevent with ALL(FORTRAN/CPP/CUDA) matrix elements (exec_mode=%s)"%exec_mode)
+                raise Exception("Invalid cudacpp_backend='%s': only 'FORTRAN', 'CPP', 'CUDA' are supported")
+                ###logger.info("Building madevent with ALL(FORTRAN/CPP/CUDA) matrix elements (cudacpp_backend=%s)"%cudacpp_backend)
                 ###self.cmd.compile(['all'], cwd=Pdir)
 
             if to_submit:

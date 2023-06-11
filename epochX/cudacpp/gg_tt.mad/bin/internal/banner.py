@@ -4165,7 +4165,7 @@ class RunCardLO(RunCard):
         self.add_param('mxxpart_antipart', [False], system=True)
                      
         # GPU/CPP parameters
-        self.add_param('exec_mode', '1', include=False, hidden=False)
+        self.add_param('cudacpp_backend', 'FORTRAN', include=False, hidden=False)
         self.add_param('bridge_mode', '1', include=False, hidden=False)
         self.add_param('vector_size', '32', include=False, hidden=False)
              
