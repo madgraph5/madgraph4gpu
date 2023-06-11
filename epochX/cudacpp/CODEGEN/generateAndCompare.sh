@@ -174,7 +174,7 @@ function codeGenAndDiff()
     $SCRDIR/patchMad.sh ${OUTDIR}/${proc}.${autosuffix} ${vecsize} ${dir_patches} ${PATCHLEVEL}
   fi
   # Additional patches that are ONLY NEEDED IN THE MADGRAPH4GPU GIT REPO
-  cat << EOF > ${OUTDIR}/${proc}.${autosuffix}/.gitignore # ONLY NEEDED IN THE MADGRAPH4GPU GIT REPO
+  cat << EOF > ${OUTDIR}/${proc}.${autosuffix}/.gitignore
 crossx.html
 index.html
 results.dat*
@@ -182,8 +182,11 @@ results.pkl
 run_[0-9]*
 events.lhe*
 EOF
+  if [ -f ${OUTDIR}/${proc}.${autosuffix}/SubProcesses/proc_characteristics ]; then 
+    sed -i 's/bias_module = None/bias_module = dummy/' ${OUTDIR}/${proc}.${autosuffix}/SubProcesses/proc_characteristics
+  fi
   for p1dir in ${OUTDIR}/${proc}.${autosuffix}/SubProcesses/P*; do
-    cat << EOF > ${p1dir}/.gitignore # ONLY NEEDED IN THE MADGRAPH4GPU GIT REPO
+    cat << EOF > ${p1dir}/.gitignore
 .libs
 .cudacpplibs
 madevent
