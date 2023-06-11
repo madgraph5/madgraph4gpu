@@ -143,7 +143,7 @@ madevent_cpp_link: $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp
 	rm -f $(PROG)
 	ln -s $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp $(PROG)
 
-madevent_cuda_link: $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp
+madevent_cuda_link: $(CUDACPP_BUILDDIR)/g$(PROG)_cudacpp
 	rm -f $(PROG)
 	ln -s $(CUDACPP_BUILDDIR)/g$(PROG)_cudacpp $(PROG)
 
@@ -151,6 +151,8 @@ madevent_cuda_link: $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp
 $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o ompnumthreads.o $(CUDACPP_BUILDDIR)/.cudacpplibs
 	$(FC) -o $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_CXXLIB) $(LIBFLAGSRPATH) $(LDFLAGS)
 	if [ -f $(LIBDIR)/$(CUDACPP_BUILDDIR)/lib$(CUDACPP_CULIB).* ]; then $(FC) -o $(CUDACPP_BUILDDIR)/g$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_CULIB) $(LIBFLAGSRPATH) $(LDFLAGS); fi
+
+$(CUDACPP_BUILDDIR)/g$(PROG)_cudacpp: $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp
 
 counters.o: counters.cc timer.h
 	$(CXX) -std=c++11 -Wall -Wshadow -Wextra -c $< -o $@
