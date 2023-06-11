@@ -190,7 +190,9 @@ EOF
 .libs
 .cudacpplibs
 madevent
-*madevent_cudacpp
+madevent_fortran
+madevent_cpp
+madevent_cuda
 
 G[0-9]*
 ajob[0-9]*
