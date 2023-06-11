@@ -173,6 +173,29 @@ function codeGenAndDiff()
   if [ "${OUTBCK}" == "mad" ]; then
     $SCRDIR/patchMad.sh ${OUTDIR}/${proc}.${autosuffix} ${vecsize} ${dir_patches} ${PATCHLEVEL}
   fi
+  # Additional patches that are ONLY NEEDED IN THE MADGRAPH4GPU GIT REPO
+  cat << EOF > ${OUTDIR}/${proc}.${autosuffix}/.gitignore # ONLY NEEDED IN THE MADGRAPH4GPU GIT REPO
+crossx.html
+index.html
+results.dat*
+results.pkl
+run_[0-9]*
+events.lhe*
+EOF
+  for p1dir in ${OUTDIR}/${proc}.${autosuffix}/SubProcesses/P*; do
+    cat << EOF > ${p1dir}/.gitignore # ONLY NEEDED IN THE MADGRAPH4GPU GIT REPO
+.libs
+.cudacpplibs
+madevent
+*madevent_cudacpp
+
+G[0-9]*
+ajob[0-9]*
+input_app.txt
+symfact.dat
+gensym
+EOF
+  done
   # Compare the existing generated code to the newly generated code for the specific process
   pushd ${OUTDIR} >& /dev/null
   echo -e "\n+++ Compare old and new code generation log for $proc\n"

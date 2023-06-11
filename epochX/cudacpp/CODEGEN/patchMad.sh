@@ -80,7 +80,6 @@ if [ "${patchlevel}" == "2" ]; then
 fi
 for p1dir in ${dir}/SubProcesses/P*; do
   cd $p1dir
-  echo -e "madevent\n*madevent_cudacpp" > .gitignore # ONLY NEEDED IN MADGRAPH4GPU GIT REPO
   ln -sf ../fbridge_common.inc . # new file
   \cp -dpr ${scrdir}/MG5aMC_patches/${dir_patches}/counters.cc . # new file
   \cp -dpr ${scrdir}/MG5aMC_patches/${dir_patches}/ompnumthreads.cc . # new file
