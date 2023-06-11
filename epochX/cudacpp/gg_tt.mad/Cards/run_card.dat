@@ -150,5 +150,3 @@ systematics = systematics_program ! none, systematics [python], SysCalc [deprece
 
 # New cudacpp-specific options (default values are defined in banner.py)
 FORTRAN = cudacpp_backend ! valid backends are FORTRAN, CPP, CUDA
-1 = bridge_mode           ! modes are fortran=0, cpp/cuda=1, both=-1, bothdebug=-2
-32 = vector_size          ! set the number of parallel executions
