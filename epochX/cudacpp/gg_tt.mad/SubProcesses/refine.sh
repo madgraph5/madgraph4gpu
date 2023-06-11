@@ -39,9 +39,7 @@ j=%(directory)s
           cp ftn26 ftn25
      fi
      # create the input file
-         echo "    1" >& input_sg.txt # fbridge_mode
-         echo "    32" >> input_sg.txt # vecsize_used
-         echo "    %(nevents)s       %(maxiter)s       %(miniter)s" >> input_sg.txt
+         echo "    %(nevents)s       %(maxiter)s       %(miniter)s" >& input_sg.txt
          echo "    %(precision)s" >> input_sg.txt
      if [[ ! -e ftn25 ]]; then
          echo "2" >> input_sg.txt   # grid refinement
