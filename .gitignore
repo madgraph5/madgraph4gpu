@@ -37,27 +37,3 @@ local/
 .DS_Store
 *.bak
 .vscode
-
-#=== generic MG5, mostly related to gridpack generation ===
-***/SubProcesses/*_results.dat
-***/SubProcesses/P*/G[0-9]*
-***/SubProcesses/P*/input_app.txt
-***/SubProcesses/P*/symfact.dat
-***/SubProcesses/P*/gensym
-***/Cards/.delphes_trigger.dat
-***/Cards/.plot_card.dat
-***/Cards/run_card.dat.orig
-***/Events
-***/HTML
-***/bin/TheChopper-pl
-***/bin/clean4grid
-***/bin/compile
-***/bin/compile
-***/bin/internal/gen_ximprove
-***/bin/refine4grid
-***/bin/replace.pl
-***/bin/run.sh
-***/bin/gridrun
-*_gridpack.tar.gz
-crossx.html
-
