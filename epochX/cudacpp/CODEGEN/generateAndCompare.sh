@@ -62,6 +62,21 @@ function codeGenAndDiff()
     susy_gg_tt)
       cmd="import model MSSM_SLHA2; generate g g > t t~"
       ;;
+    atlas)
+      cmd="import model sm-no_b_mass
+      define p = g u c d s b u~ c~ d~ s~ b~
+      define j = g u c d s b u~ c~ d~ s~ b~
+      generate p p > t t~
+      add process p p > t t~ j
+      add process p p > t t~ j j"
+      ;;
+    cms)
+      cmd="define vl = ve vm vt
+      define vl~ = ve~ vm~ vt~
+      define ell+ = e+ mu+ ta+
+      define ell- = e- mu- ta-
+      generate p p > ell+ ell- @0"
+      ;;
     *)
       echo -e "\nWARNING! Skipping unknown process '$proc'"
       return
