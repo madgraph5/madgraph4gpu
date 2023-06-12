@@ -157,15 +157,17 @@ index 9c0f26b3b..6b7635158 100644
        END
  
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
-index 79e883e5b..60e57bd20 100644
+index 79e883e5b..a221a127a 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
-@@ -74,13 +74,54 @@ c      common/to_colstats/ncols,ncolflow,ncolalt,ic
+@@ -74,13 +74,77 @@ c      common/to_colstats/ncols,ncolflow,ncolalt,ic
        include 'vector.inc' ! defines VECSIZE_MEMMAX
        include 'coupl.inc' ! needs VECSIZE_MEMMAX (defined in vector.inc)
        INTEGER VECSIZE_USED
 -      DATA VECSIZE_USED/VECSIZE_MEMMAX/ ! can be changed at runtime
-+      DATA VECSIZE_USED/VECSIZE_MEMMAX/ ! initial value
++
++      character*255 env_name, env_value
++      integer env_length, env_status
 +
 +#ifdef MG5AMC_MEEXPORTER_CUDACPP
 +      INCLUDE 'fbridge.inc'
@@ -184,22 +186,43 @@ index 79e883e5b..60e57bd20 100644
 +#endif
 +      CALL COUNTERS_INITIALISE()
 +
-+c#ifdef MG5AMC_MEEXPORTER_CUDACPP
-+      write(*,*) 'Enter fbridge_mode'
-+      read(*,*) FBRIDGE_MODE ! (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
-+      write(*,'(a16,i6)') ' FBRIDGE_MODE = ', FBRIDGE_MODE
++#ifdef MG5AMC_MEEXPORTER_CUDACPP
++      fbridge_mode = 1 ! CppOnly=1, default for CUDACPP
++#else
++      fbridge_mode = 0 ! FortranOnly=0, default for FORTRAN
++#endif
++      env_name = 'CUDACPP_RUNTIME_FBRIDGEMODE'
++      call get_environment_variable(env_name, env_value, env_length, env_status)
++      if( env_status.eq.0 ) then
++        write(*,*) 'Found environment variable "', trim(env_name), '" with value "', trim(env_value), '"'
++        read(env_value,'(I255)') FBRIDGE_MODE ! see https://gcc.gnu.org/onlinedocs/gfortran/ICHAR.html
++        write(*,*) 'FBRIDGE_MODE (from env) = ', FBRIDGE_MODE
++      else if( env_status.eq.1 ) then ! 1 = not defined
++        write(*,*) 'FBRIDGE_MODE (default) = ', FBRIDGE_MODE
++      else ! -1 = too long for env_value, 2 = not supported by O/S
++        write(*,*) 'ERROR! get_environment_variable failed for "', trim(env_name), '"'
++        STOP
++      endif
 +#ifndef MG5AMC_MEEXPORTER_CUDACPP
 +      if( fbridge_mode.ne.0 ) then
-+        write(*,*) 'ERROR! Invalid fbridge_mode = ', fbridge_mode
++        write(*,*) 'ERROR! Invalid fbridge_mode (in FORTRAN backend mode) = ', fbridge_mode
 +        STOP
 +      endif
 +#endif
-+      write(*,*) 'Enter #events in a vector loop (max=',VECSIZE_MEMMAX,',)'
-+      read(*,*) VECSIZE_USED
-+c#else
-+c      VECSIZE_USED = 32
-+c#endif
-+      write(*,'(a16,i6)') ' VECSIZE_USED = ', VECSIZE_USED
++
++      vecsize_used = vecsize_memmax ! default ! CppOnly=1, default for CUDACPP
++      env_name = 'CUDACPP_RUNTIME_VECSIZEUSED'
++      call get_environment_variable(env_name, env_value, env_length, env_status)
++      if( env_status.eq.0 ) then
++        write(*,*) 'Found environment variable "', trim(env_name), '" with value "', trim(env_value), '"'
++        read(env_value,'(I255)') VECSIZE_USED ! see https://gcc.gnu.org/onlinedocs/gfortran/ICHAR.html
++        write(*,*) 'VECSIZE_USED (from env) = ', VECSIZE_USED
++      else if( env_status.eq.1 ) then ! 1 = not defined
++        write(*,*) 'VECSIZE_USED (default) = ', VECSIZE_USED
++      else ! -1 = too long for env_value, 2 = not supported by O/S
++        write(*,*) 'ERROR! get_environment_variable failed for "', trim(env_name), '"'
++        STOP
++      endif
 +      if( VECSIZE_USED.gt.VECSIZE_MEMMAX .or. VECSIZE_USED.le.0 ) then
 +        write(*,*) 'ERROR! Invalid VECSIZE_USED = ', VECSIZE_USED
 +        STOP
@@ -216,7 +239,7 @@ index 79e883e5b..60e57bd20 100644
  c
  c     Read process number
  c
-@@ -202,8 +243,33 @@ c      call sample_result(xsec,xerr)
+@@ -202,8 +266,33 @@ c      call sample_result(xsec,xerr)
  c      write(*,*) 'Final xsec: ',xsec
  
        rewind(lun)
@@ -251,7 +274,7 @@ index 79e883e5b..60e57bd20 100644
        end
  
  c     $B$ get_user_params $B$ ! tag for MadWeight
-@@ -381,7 +447,7 @@ c
+@@ -381,7 +470,7 @@ c
        fopened=.false.
        tempname=filename 	 
        fine=index(tempname,' ') 	 
