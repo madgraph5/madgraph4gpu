@@ -48,9 +48,12 @@ ${dir}/bin/madevent treatcards param
 \rm -f ${dir}/crossx.html
 \rm -f ${dir}/index.html
 \rm -f ${dir}/madevent.tar.gz
+\rm -f ${dir}/Cards/delphes_trigger.dat
+\rm -f ${dir}/Cards/plot_card.dat
+\rm -f ${dir}/HTML/*
 \rm -rf ${dir}/bin/internal/__pycache__
 \rm -rf ${dir}/bin/internal/ufomodel/__pycache__
-\rm -rf ${dir}/HTML
+touch ${dir}/HTML/.keep # new file
 
 # Exit here for patchlevel 0 (--upstream)
 if [ "${patchlevel}" == "0" ]; then exit $status; fi
@@ -62,22 +65,28 @@ cat ${dir}/Source/make_opts >> ${dir}/Source/make_opts.new
 
 # Patch the default Fortran code to provide the integration with the cudacpp plugin
 # (1) Process-independent patches
-echo -e "index.html\n.libs\n.cudacpplibs" > ${dir}/.gitignore
 touch ${dir}/Events/.keep # this file should already be present (mg5amcnlo copies it from Template/LO/Events/.keep) 
 \cp -dpr ${scrdir}/PLUGIN/CUDACPP_SA_OUTPUT/madgraph/iolibs/template_files/.clang-format ${dir} # new file
 \cp -dpr ${scrdir}/MG5aMC_patches/${dir_patches}/fbridge_common.inc ${dir}/SubProcesses # new file
-cd ${dir}/SubProcesses
-cd - > /dev/null
 if [ "${patchlevel}" == "2" ]; then
   cd ${dir}
   echo "DEBUG: cd ${PWD}; patch -p4 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.common"
   if ! patch -p4 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.common; then status=1; fi  
   \rm -f Source/*.orig
+  echo "
+#*********************************************************************
+# Options for the cudacpp plugin
+#*********************************************************************
+
+# Set cudacpp-specific values of non-cudacpp-specific options
+-O3 -ffast-math -fbounds-check = global_flag ! build flags for Fortran code (for a fair comparison to cudacpp)
+
+# New cudacpp-specific options (default values are defined in banner.py)
+CPP = cudacpp_backend ! valid backends are FORTRAN, CPP, CUDA" >> Cards/run_card.dat
   cd - > /dev/null
 fi
 for p1dir in ${dir}/SubProcesses/P*; do
   cd $p1dir
-  echo -e "madevent\n*madevent_cudacpp" > .gitignore # new file
   ln -sf ../fbridge_common.inc . # new file
   \cp -dpr ${scrdir}/MG5aMC_patches/${dir_patches}/counters.cc . # new file
   \cp -dpr ${scrdir}/MG5aMC_patches/${dir_patches}/ompnumthreads.cc . # new file

@@ -173,6 +173,34 @@ function codeGenAndDiff()
   if [ "${OUTBCK}" == "mad" ]; then
     $SCRDIR/patchMad.sh ${OUTDIR}/${proc}.${autosuffix} ${vecsize} ${dir_patches} ${PATCHLEVEL}
   fi
+  # Additional patches that are ONLY NEEDED IN THE MADGRAPH4GPU GIT REPO
+  cat << EOF > ${OUTDIR}/${proc}.${autosuffix}/.gitignore
+crossx.html
+index.html
+results.dat*
+results.pkl
+run_[0-9]*
+events.lhe*
+EOF
+  if [ -f ${OUTDIR}/${proc}.${autosuffix}/SubProcesses/proc_characteristics ]; then 
+    sed -i 's/bias_module = None/bias_module = dummy/' ${OUTDIR}/${proc}.${autosuffix}/SubProcesses/proc_characteristics
+  fi
+  for p1dir in ${OUTDIR}/${proc}.${autosuffix}/SubProcesses/P*; do
+    cat << EOF > ${p1dir}/.gitignore
+.libs
+.cudacpplibs
+madevent
+madevent_fortran
+madevent_cpp
+madevent_cuda
+
+G[0-9]*
+ajob[0-9]*
+input_app.txt
+symfact.dat
+gensym
+EOF
+  done
   # Compare the existing generated code to the newly generated code for the specific process
   pushd ${OUTDIR} >& /dev/null
   echo -e "\n+++ Compare old and new code generation log for $proc\n"
@@ -357,9 +385,11 @@ if ! git log -n1 >& /dev/null; then
 fi
 echo -e "MG5AMC patches in this plugin refer to git branch '${branch_patches}'"
 echo -e "Reset MG5AMC_HOME to git commit '${branch_patches}'"
+#...[COMMENT OUT THE THREE LINES BELOW TO USE A MODIFIED VERSION OF MG5AMC]...
 if ! git reset --hard ${branch_patches}; then
   echo -e "ERROR! 'git reset --hard ${branch_patches}' failed\n"; exit 1
 fi
+#...[COMMENT OUT THE THREE LINES ABOVE TO USE A MODIFIED VERSION OF MG5AMC]...
 echo -e "Check out branch ${branch_patches} in MG5AMC_HOME"
 if ! git checkout ${branch_patches}; then
   echo -e "ERROR! 'git checkout ${branch_patches}' failed\n"; exit 1
@@ -374,9 +404,11 @@ else
   echo -e "MG5AMC patches in this plugin refer to git commit '${commit_patches}' (i.e. '${commit_patches2}')"
 fi  
 echo -e "Reset MG5AMC_HOME to git commit '${commit_patches}'"
+#...[COMMENT OUT THE THREE LINES BELOW TO USE A MODIFIED VERSION OF MG5AMC]...
 if ! git reset --hard ${commit_patches}; then
   echo -e "ERROR! 'git reset --hard ${commit_patches}' failed\n"; exit 1
 fi
+#...[COMMENT OUT THE THREE LINES ABOVE TO USE A MODIFIED VERSION OF MG5AMC]...
 commit_mg5amc=$(git log --oneline -n1 | awk '{print $1}')
 echo -e "Current git commit of MG5AMC_HOME is '${commit_mg5amc}'"
 if [ "${commit_patches2}" != "${commit_mg5amc}" ]; then echo -e "\nERROR! git commit mismatch!"; exit 1; fi
