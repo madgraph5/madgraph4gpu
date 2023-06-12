@@ -425,7 +425,7 @@ for suff in $suffs; do
   echo "Working directory (run): $dir"
   cd $dir
 
-  # Hardcode randinit (no longer in the git repo after adding tlau/lauX.sh tests)
+  # Hardcode randinit (just in case it is disturbed by tlau/lauX.sh tests)
   echo "r=21" > ../randinit
 
   # Use the time command?

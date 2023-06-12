@@ -41,6 +41,7 @@ function lauX_cleanup()
 # Cleanup before launch
 lauX_cleanup
 rm -f SubProcesses/ME5_debug
+echo "r=21" > SubProcesses/randinit # just in case a previous test was not cleaned up
 cp SubProcesses/randinit SubProcesses/randinit.BKP # save the initial randinit
 cp Cards/run_card.dat Cards/run_card.dat.BKP # save the initial run_card.dat
 
