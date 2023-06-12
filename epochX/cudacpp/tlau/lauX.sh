@@ -45,7 +45,7 @@ cp SubProcesses/randinit SubProcesses/randinit.BKP # save the initial randinit
 cp Cards/run_card.dat Cards/run_card.dat.BKP # save the initial run_card.dat
 
 # Set the backend in run_card.dat
-sed -i "s/FORTRAN = cudacpp_backend/${bckend} = cudacpp_backend/" Cards/run_card.dat
+sed -i "s/CPP = cudacpp_backend/${bckend} = cudacpp_backend/" Cards/run_card.dat
 
 # Launch (generate_events)
 ###set -x # verbose
