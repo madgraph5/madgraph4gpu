@@ -73,6 +73,16 @@ if [ "${patchlevel}" == "2" ]; then
   echo "DEBUG: cd ${PWD}; patch -p4 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.common"
   if ! patch -p4 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.common; then status=1; fi  
   \rm -f Source/*.orig
+  echo "
+#*********************************************************************
+# Options for the cudacpp plugin
+#*********************************************************************
+
+# Set cudacpp-specific values of non-cudacpp-specific options
+-O3 -ffast-math -fbounds-check = global_flag ! build flags for Fortran code (for a fair comparison to cudacpp)
+
+# New cudacpp-specific options (default values are defined in banner.py)
+CPP = cudacpp_backend ! valid backends are FORTRAN, CPP, CUDA" >> Cards/run_card.dat
   cd - > /dev/null
 fi
 for p1dir in ${dir}/SubProcesses/P*; do
