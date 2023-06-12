@@ -1,3 +1,6 @@
+crossx.html
 index.html
-.libs
-.cudacpplibs
+results.dat*
+results.pkl
+run_[0-9]*
+events.lhe*

@@ -74,7 +74,9 @@ c      common/to_colstats/ncols,ncolflow,ncolalt,ic
       include 'vector.inc' ! defines VECSIZE_MEMMAX
       include 'coupl.inc' ! needs VECSIZE_MEMMAX (defined in vector.inc)
       INTEGER VECSIZE_USED
-      DATA VECSIZE_USED/VECSIZE_MEMMAX/ ! initial value
+
+      character*255 env_name, env_value
+      integer env_length, env_status
 
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
       INCLUDE 'fbridge.inc'
@@ -93,22 +95,43 @@ C-----
 #endif
       CALL COUNTERS_INITIALISE()
 
-c#ifdef MG5AMC_MEEXPORTER_CUDACPP
-      write(*,*) 'Enter fbridge_mode'
-      read(*,*) FBRIDGE_MODE ! (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
-      write(*,'(a16,i6)') ' FBRIDGE_MODE = ', FBRIDGE_MODE
+#ifdef MG5AMC_MEEXPORTER_CUDACPP
+      fbridge_mode = 1 ! CppOnly=1, default for CUDACPP
+#else
+      fbridge_mode = 0 ! FortranOnly=0, default for FORTRAN
+#endif
+      env_name = 'CUDACPP_RUNTIME_FBRIDGEMODE'
+      call get_environment_variable(env_name, env_value, env_length, env_status)
+      if( env_status.eq.0 ) then
+        write(*,*) 'Found environment variable "', trim(env_name), '" with value "', trim(env_value), '"'
+        read(env_value,'(I255)') FBRIDGE_MODE ! see https://gcc.gnu.org/onlinedocs/gfortran/ICHAR.html
+        write(*,*) 'FBRIDGE_MODE (from env) = ', FBRIDGE_MODE
+      else if( env_status.eq.1 ) then ! 1 = not defined
+        write(*,*) 'FBRIDGE_MODE (default) = ', FBRIDGE_MODE
+      else ! -1 = too long for env_value, 2 = not supported by O/S
+        write(*,*) 'ERROR! get_environment_variable failed for "', trim(env_name), '"'
+        STOP
+      endif
 #ifndef MG5AMC_MEEXPORTER_CUDACPP
       if( fbridge_mode.ne.0 ) then
-        write(*,*) 'ERROR! Invalid fbridge_mode = ', fbridge_mode
+        write(*,*) 'ERROR! Invalid fbridge_mode (in FORTRAN backend mode) = ', fbridge_mode
         STOP
       endif
 #endif
-      write(*,*) 'Enter #events in a vector loop (max=',VECSIZE_MEMMAX,',)'
-      read(*,*) VECSIZE_USED
-c#else
-c      VECSIZE_USED = 32
-c#endif
-      write(*,'(a16,i6)') ' VECSIZE_USED = ', VECSIZE_USED
+
+      vecsize_used = vecsize_memmax ! default ! CppOnly=1, default for CUDACPP
+      env_name = 'CUDACPP_RUNTIME_VECSIZEUSED'
+      call get_environment_variable(env_name, env_value, env_length, env_status)
+      if( env_status.eq.0 ) then
+        write(*,*) 'Found environment variable "', trim(env_name), '" with value "', trim(env_value), '"'
+        read(env_value,'(I255)') VECSIZE_USED ! see https://gcc.gnu.org/onlinedocs/gfortran/ICHAR.html
+        write(*,*) 'VECSIZE_USED (from env) = ', VECSIZE_USED
+      else if( env_status.eq.1 ) then ! 1 = not defined
+        write(*,*) 'VECSIZE_USED (default) = ', VECSIZE_USED
+      else ! -1 = too long for env_value, 2 = not supported by O/S
+        write(*,*) 'ERROR! get_environment_variable failed for "', trim(env_name), '"'
+        STOP
+      endif
       if( VECSIZE_USED.gt.VECSIZE_MEMMAX .or. VECSIZE_USED.le.0 ) then
         write(*,*) 'ERROR! Invalid VECSIZE_USED = ', VECSIZE_USED
         STOP
