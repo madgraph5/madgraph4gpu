@@ -331,43 +331,40 @@ PATCHLEVEL=
 if [ "${SCRBCK}" == "gridpack" ]; then export HELREC=1; else export HELREC=0; fi
 
 # Process command line arguments (https://unix.stackexchange.com/a/258514)
-for arg in "$@"; do
-  shift
-  if [ "$arg" == "-h" ] || [ "$arg" == "--help" ]; then
+while [ "$1" != "" ]; do
+  if [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
     usage
-  elif [ "$arg" == "--nobrief" ]; then
+  elif [ "$1" == "--nobrief" ]; then
     BRIEF=
-  elif [ "$arg" == "--nopatch" ] && [ "${PATCHLEVEL}" == "" ]; then
+  elif [ "$1" == "--nopatch" ] && [ "${PATCHLEVEL}" == "" ]; then
     PATCHLEVEL=--nopatch
-  elif [ "$arg" == "--upstream" ] && [ "${PATCHLEVEL}" == "" ]; then
+  elif [ "$1" == "--upstream" ] && [ "${PATCHLEVEL}" == "" ]; then
     PATCHLEVEL=--upstream
-  elif [ "$arg" == "--nountaronly" ] && [ "${SCRBCK}" == "gridpack" ]; then
+  elif [ "$1" == "--nountaronly" ] && [ "${SCRBCK}" == "gridpack" ]; then
     UNTARONLY=0
-  elif [ "$arg" == "--nohelrec" ] && [ "${SCRBCK}" == "gridpack" ]; then
+  elif [ "$1" == "--nohelrec" ] && [ "${SCRBCK}" == "gridpack" ]; then
     export HELREC=0
-  elif [ "$arg" == "--cpp" ] && [ "${SCRBCK}" == "cudacpp" ]; then
-    export OUTBCK=${arg#--}
-  elif [ "$arg" == "--gpu" ] && [ "${SCRBCK}" == "cudacpp" ]; then
-    export OUTBCK=${arg#--}
-  elif [ "$arg" == "--madnovec" ] && [ "${SCRBCK}" == "cudacpp" ]; then
-    export OUTBCK=${arg#--}
-  elif [ "$arg" == "--madonly" ] && [ "${SCRBCK}" == "cudacpp" ]; then
-    export OUTBCK=${arg#--}
-  elif [ "$arg" == "--mad" ] && [ "${SCRBCK}" == "cudacpp" ]; then
-    export OUTBCK=${arg#--}
-  elif [ "$arg" == "--madcpp" ] && [ "${SCRBCK}" == "cudacpp" ]; then
-    export OUTBCK=${arg#--}
-  elif [ "$arg" == "--madgpu" ] && [ "${SCRBCK}" == "cudacpp" ]; then
-    export OUTBCK=${arg#--}
+  elif [ "$1" == "--cpp" ] && [ "${SCRBCK}" == "cudacpp" ]; then
+    export OUTBCK=${1#--}
+  elif [ "$1" == "--gpu" ] && [ "${SCRBCK}" == "cudacpp" ]; then
+    export OUTBCK=${1#--}
+  elif [ "$1" == "--madnovec" ] && [ "${SCRBCK}" == "cudacpp" ]; then
+    export OUTBCK=${1#--}
+  elif [ "$1" == "--madonly" ] && [ "${SCRBCK}" == "cudacpp" ]; then
+    export OUTBCK=${1#--}
+  elif [ "$1" == "--mad" ] && [ "${SCRBCK}" == "cudacpp" ]; then
+    export OUTBCK=${1#--}
+  elif [ "$1" == "--madcpp" ] && [ "${SCRBCK}" == "cudacpp" ]; then
+    export OUTBCK=${1#--}
+  elif [ "$1" == "--madgpu" ] && [ "${SCRBCK}" == "cudacpp" ]; then
+    export OUTBCK=${1#--}
+  elif [ "$proc" == "" ]; then
+    proc = "$1"
   else
-    # Keep the possibility to collect more then one process
-    # However, require a single process to be chosen (allow full cleanup before/after code generation)
-    set -- "$@" "$arg"
+    usage
   fi
+  shift
 done
-###procs=$@
-if [ "$1" == "" ] || [ "$2" != "" ]; then usage; fi # New: only one process
-proc=$1
 
 echo "SCRDIR=${SCRDIR}"
 echo "OUTDIR=${OUTDIR}"
