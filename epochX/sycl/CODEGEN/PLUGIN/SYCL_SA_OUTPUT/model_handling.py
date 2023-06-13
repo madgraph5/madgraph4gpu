@@ -610,7 +610,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
 
     # Overload export_cpp.UFOModelConverterCPP method (improve formatting)
     def write_set_parameters(self, params):
-        res = super().write_set_parameters(params)
+        res = self.super_write_set_parameters_donotfixMajorana(params)
         res = res.replace('std::complex<','mgOnGpu::cxsmpl<') # custom simplex complex class (with constexpr arithmetics)
         if res == '' : res = '// (none)'
         res = res.replace('\n','\n  ')
@@ -618,10 +618,10 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
 
     def write_hardcoded_parameters(self, params):
         pardef = super().write_parameters(params)
-        parset = super().write_set_parameters(params)
+        parset = self.super_write_set_parameters_donotfixMajorana(params)
         if ( pardef == '' ):
             misc.sprint('assert parset == \'\'')
-            assert( parset == '' ) # sanity check (both are empty)
+            assert parset == '', "pardef is empty but parset is not: '%s'"%parset # AV sanity check (both are empty)
             res = '// (none)\n'
             return res
         pardef = pardef.replace('std::complex<','mgOnGpu::cxsmpl<') # custom simplex complex class (with constexpr arithmetics)
@@ -639,26 +639,58 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         #parset = parset.replace('*',' * ')
         #parset = parset.replace('/',' / ')
         parset = parset.replace(',',', ')
+
         pardef_lines = {}
         for line in pardef.split('\n'):
             type, pars = line.rstrip(';').split(' ') # strip trailing ';'
             for par in pars.split(','):
                 pardef_lines[par] = ( 'constexpr ' + type + ' ' + par )
-        ###print( pardef_lines )
+        misc.sprint( 'pardef_lines size =', len(pardef_lines), ', keys size =', len(pardef_lines.keys()) )
+
         parset_pars = []
         parset_lines = {}
+        skipnextline = False
+        for iline, line in enumerate(parset.split('\n')):
         for line in parset.split('\n'):
+            if line.startswith('indices'):
+                continue # skip line with leading "indices", before slha.get_block_entry (#622)
             par, parval = line.split(' = ')
             if parval.startswith('slha.get_block_entry'): parval = parval.split(',')[2].lstrip(' ').rstrip(');') + ';'
             parset_pars.append( par )
             parset_lines[par] = parval # includes a trailing ';'
-        ###print( parset_lines )
-        misc.sprint('assert len(pardef_lines) == len(parset_lines)')
-        assert( len(pardef_lines) == len(parset_lines) ) # AV sanity check (same number of parameters)
+        misc.sprint( 'parset_pars size =', len(parset_pars) )
+        misc.sprint( 'parset_lines size =', len(parset_lines), ', keys size =', len(parset_lines.keys()) )
+        assert len(pardef_lines) == len(parset_lines), 'len(pardef_lines) != len(parset_lines)' # sanity check (same number of parameters)
+
         res = '  '.join( pardef_lines[par] + ' = ' + parset_lines[par] + '\n' for par in parset_pars ) # no leading '  ' on first row
         res = res.replace(' ;',';')
-        ###print(res); assert(False)
+        res = res.replace('= - ','= -') # post-fix for susy
+        res = res.replace('(  - ','( -') # post-fix for susy
+        res = res.replace(',  - ',', -') # post-fix for SM no_b_mass
         return res
+
+    # replace export_cpp.UFOModelConverterCPP method (split writing of parameters and fixes for Majorana particles #622)
+    def super_write_set_parameters_donotfixMajorana(self, params):
+        """Write out the lines of independent parameters"""
+        res_strings = []
+        # For each parameter, write name = expr;
+        for param in params:
+            res_strings.append("%s" % param.expr)
+        return "\n".join(res_strings)
+
+    # replace export_cpp.UFOModelConverterCPP method (eventually split writing of parameters and fixes for Majorana particles #622)
+    def super_write_set_parameters_onlyfixMajorana(self, hardcoded): # FIXME! split hardcoded (constexpr) and not-hardcoded code
+        """Write out the lines of independent parameters"""
+        print( 'super_write_set_parameters_onlyfixMajorana (hardcoded=%s)'%hardcoded )
+        res_strings = []
+        # Correct width sign for Majorana particles (where the width and mass need to have the same sign)        
+        for particle in self.model.get('particles'):
+            if particle.is_fermion() and particle.get('self_antipart') and \
+                   particle.get('width').lower() != 'zero':
+                res_strings.append("  if( %s < 0 )" % particle.get('mass'))
+                res_strings.append("    %(width)s = -abs( %(width)s );" % {"width": particle.get('width')})
+        return '\n' + '\n'.join(res_strings) if res_strings else ''
+
 
     def super_generate_parameters_class_files(self):
         """Create the content of the Parameters_model.h and .cc files"""
@@ -684,13 +716,16 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
                                if '"aS =' in line else
                                line for line in self.write_print_parameters(self.params_indep).split('\n') ]
         replace_dict['print_independent_parameters'] = '\n'.join( print_params_indep )
+        replace_dict['print_independent_parameters'] += self.super_write_set_parameters_onlyfixMajorana( hardcoded=False ) # add fixes for Majorana particles only in the aS-indep parameters #622
         replace_dict['print_independent_couplings'] = self.write_print_parameters(self.coups_indep)
         replace_dict['print_dependent_parameters'] = self.write_print_parameters(self.params_dep)
         replace_dict['print_dependent_couplings'] = self.write_print_parameters(list(self.coups_dep.values()))
         if 'include_prefix' not in replace_dict:
             replace_dict['include_prefix'] = ''
+        assert super().write_parameters([]) == '', 'super().write_parameters([]) is not empty' # sanity check (#622)
+        assert self.super_write_set_parameters_donotfixMajorana([]) == '', 'super_write_set_parameters_donotfixMajorana([]) is not empty' # sanity check (#622)
         hrd_params_indep = [ line.replace('constexpr','//constexpr') + ' // now retrieved event-by-event (as G) from Fortran (running alphas #373)' if 'aS =' in line else line for line in self.write_hardcoded_parameters(self.params_indep).split('\n') ]
-        replace_dict['hardcoded_independent_parameters'] = '\n'.join( hrd_params_indep )
+        replace_dict['hardcoded_independent_parameters'] = '\n'.join( hrd_params_indep ) + self.super_write_set_parameters_onlyfixMajorana( hardcoded=True ) # add fixes for Majorana particles only in the aS-indep parameters #622
         replace_dict['hardcoded_independent_couplings'] = self.write_hardcoded_parameters(self.coups_indep)
         hrd_params_dep = [ line.replace('constexpr','//constexpr') + ' // now computed event-by-event (running alphas #373)' if line != '' else line for line in self.write_hardcoded_parameters(self.params_dep).split('\n') ]
         replace_dict['hardcoded_dependent_parameters'] = '\n'.join( hrd_params_dep )
@@ -1616,6 +1651,20 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                    'wf': ("w_sv[%%(%d)d], " * len(argument.get('mothers'))) % tuple(range(len(argument.get('mothers')))),
                    'coup': ("m_pars->%%(coup%d)s, " * len(argument.get('coupling'))) % tuple(range(len(argument.get('coupling'))))
                    }
+            # determine if this call needs aS-dependent or aS-independent parameters
+            usesdepcoupl = None
+            for coup in argument.get('coupling'):
+                if coup.startswith('-'): coup = coup[1:]
+                # Use the same implementation as in UFOModelConverterCPP.prepare_couplings (assume self.model is the same)
+                for key, coup_list in self.get('model')['couplings'].items():
+                    if coup in coup_list:
+                        if "aS" in key:
+                            if usesdepcoupl is None: usesdepcoupl = True
+                            elif not usesdepcoupl: raise Exception('PANIC! this call seems to use both aS-dependent and aS-independent couplings?')
+                        else:
+                            if usesdepcoupl is None: usesdepcoupl = False
+                            elif usesdepcoupl: raise Exception('PANIC! this call seems to use both aS-dependent and aS-independent couplings?')
+            if usesdepcoupl is None: raise Exception('PANIC! could not determine if this call uses aS-dependent or aS-independent couplings?')
             if isinstance(argument, helas_objects.HelasWavefunction):
                 arg['out'] = 'w_sv[%(out)d]'
                 if aloha.complex_mass:
