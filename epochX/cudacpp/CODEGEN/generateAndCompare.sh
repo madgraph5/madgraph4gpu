@@ -70,11 +70,11 @@ function codeGenAndDiff()
       cmd="generate b b~ > t t~"
       ;;
     nobm_gg_tt)
-      cmd="import model loop_sm-no_b_mass
+      cmd="import model sm-no_b_mass
       generate g g > t t~"
       ;;
     nobm_pp_ttW)
-      cmd="import model loop_sm-no_b_mass
+      cmd="import model sm-no_b_mass
       define p = p b b~
       define j = p
       define w = w+ w- # W case only
@@ -82,6 +82,25 @@ function codeGenAndDiff()
       add process p p > t t~ w j @1"
       ;;
     nobm_pp_ttZ)
+      cmd="import model sm-no_b_mass
+      define p = p b b~
+      define j = p
+      generate p p > t t~ z @0
+      add process p p > t t~ z j @1"
+      ;;
+    loop_nobm_gg_tt)
+      cmd="import model loop_sm-no_b_mass
+      generate g g > t t~"
+      ;;
+    loop_nobm_pp_ttW)
+      cmd="import model loop_sm-no_b_mass
+      define p = p b b~
+      define j = p
+      define w = w+ w- # W case only
+      generate p p > t t~ w @0
+      add process p p > t t~ w j @1"
+      ;;
+    loop_nobm_pp_ttZ)
       cmd="import model loop_sm-no_b_mass
       define p = p b b~
       define j = p
