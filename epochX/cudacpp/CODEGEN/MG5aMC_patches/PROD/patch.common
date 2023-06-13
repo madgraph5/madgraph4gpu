@@ -13,10 +13,10 @@ index a59181c70..af7e0efbc 100644
        PARAMETER(MAXTRIES=25)
  C     To pass the helicity configuration chosen by the DiscreteSampler to 
 diff --git b/epochX/cudacpp/gg_tt.mad/Source/vector.inc a/epochX/cudacpp/gg_tt.mad/Source/vector.inc
-index a6907622e..3c1e4fdf8 100644
+index 863eebbc7..92254c0f2 100644
 --- b/epochX/cudacpp/gg_tt.mad/Source/vector.inc
 +++ a/epochX/cudacpp/gg_tt.mad/Source/vector.inc
-@@ -20,4 +20,5 @@ C     BECAUSE IT DOES NOT GO THROUGH THE CPP PREPROCESSOR
+@@ -28,4 +28,5 @@ C     BECAUSE IT DOES NOT GO THROUGH THE CPP PREPROCESSOR
  C     (see https://github.com/madgraph5/madgraph4gpu/issues/458).
  C     
        INTEGER VECSIZE_MEMMAX
@@ -24,7 +24,7 @@ index a6907622e..3c1e4fdf8 100644
 +      PARAMETER (VECSIZE_MEMMAX=16384) ! NB: 16k events per GPU grid is the minimum required to fill a V100 GPU
 +c     PARAMETER (VECSIZE_MEMMAX=32) ! NB: workaround for out-of-memory on Juwels: 32 is enough for no-CUDA builds (issue #498)
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
-index 6f5e1f832..e33418342 100644
+index 6f5e1f832..6dd050c89 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 @@ -1,6 +1,19 @@
@@ -75,7 +75,7 @@ index 6f5e1f832..e33418342 100644
  
  LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libgammaUPC.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS)
  
-@@ -43,24 +75,82 @@ ifeq ($(strip $(MATRIX_HEL)),)
+@@ -43,24 +75,98 @@ ifeq ($(strip $(MATRIX_HEL)),)
  endif
  
  
@@ -98,9 +98,9 @@ index 6f5e1f832..e33418342 100644
 +LDFLAGS+=-Wl,--no-relax # avoid 'failed to convert GOTPCREL relocation' error #458
 +
 +ifeq (,$(wildcard fbridge.inc))
-+all: $(PROG)
++all: $(PROG)_fortran
 +else
-+all: $(PROG) $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp # also builds g$(PROG)_cudacpp if $(CUDACPP_CULIB) exists (#503)
++all: $(PROG)_fortran $(CUDACPP_BUILDDIR)/$(PROG)_cpp # also builds $(PROG)_cuda if $(CUDACPP_CULIB) exists (#503)
 +endif
 +
 +ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
@@ -109,15 +109,15 @@ index 6f5e1f832..e33418342 100644
 +LINKLIBS += -lintlc # undefined reference to `_intel_fast_memcpy'
 +else ifneq ($(shell $(CXX) --version | egrep '^clang'),)
 +override OMPFLAGS = -fopenmp
-+$(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp: LINKLIBS += -L $(shell dirname $(shell $(CXX) -print-file-name=libc++.so)) -lomp # see #604
++$(CUDACPP_BUILDDIR)/$(PROG)_cpp: LINKLIBS += -L $(shell dirname $(shell $(CXX) -print-file-name=libc++.so)) -lomp # see #604
 +###else ifneq ($(shell $(CXX) --version | egrep '^Apple clang'),)
 +###override OMPFLAGS = -fopenmp # OMP is not supported yet by cudacpp for Apple clang
 +else
 +override OMPFLAGS = -fopenmp
 +endif
 +
-+$(PROG): $(PROCESS) $(DSIG) auto_dsig.o $(LIBS) $(MATRIX) counters.o ompnumthreads.o
-+	$(FC) -o $(PROG) $(PROCESS) $(DSIG) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o $(LDFLAGS)
++$(PROG)_fortran: $(PROCESS) $(DSIG) auto_dsig.o $(LIBS) $(MATRIX) counters.o ompnumthreads.o
++	$(FC) -o $(PROG)_fortran $(PROCESS) $(DSIG) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o $(LDFLAGS)
 +
 +$(LIBS): .libs
 +
@@ -142,10 +142,26 @@ index 6f5e1f832..e33418342 100644
 +  override LIBFLAGSRPATH = -Wl,-rpath,'$$ORIGIN/$(LIBDIR)'
 +endif
 +
-+# Also builds g$(PROG)_cudacpp if $(CUDACPP_CULIB) exists (improved patch for cpp-only builds #503)
-+$(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o ompnumthreads.o $(CUDACPP_BUILDDIR)/.cudacpplibs
-+	$(FC) -o $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_CXXLIB) $(LIBFLAGSRPATH) $(LDFLAGS)
-+	if [ -f $(LIBDIR)/$(CUDACPP_BUILDDIR)/lib$(CUDACPP_CULIB).* ]; then $(FC) -o $(CUDACPP_BUILDDIR)/g$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_CULIB) $(LIBFLAGSRPATH) $(LDFLAGS); fi
++.PHONY: madevent_fortran_link madevent_cuda_link madevent_cpp_link
++
++madevent_fortran_link: $(PROG)_fortran
++	rm -f $(PROG)
++	ln -s $(PROG)_fortran $(PROG)
++
++madevent_cpp_link: $(CUDACPP_BUILDDIR)/$(PROG)_cpp
++	rm -f $(PROG)
++	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
++
++madevent_cuda_link: $(CUDACPP_BUILDDIR)/$(PROG)_cuda
++	rm -f $(PROG)
++	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cuda $(PROG)
++
++# Building $(PROG)_cpp also builds $(PROG)_cuda if $(CUDACPP_CULIB) exists (improved patch for cpp-only builds #503)
++$(CUDACPP_BUILDDIR)/$(PROG)_cpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o ompnumthreads.o $(CUDACPP_BUILDDIR)/.cudacpplibs
++	$(FC) -o $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_CXXLIB) $(LIBFLAGSRPATH) $(LDFLAGS)
++	if [ -f $(LIBDIR)/$(CUDACPP_BUILDDIR)/lib$(CUDACPP_CULIB).* ]; then $(FC) -o $(CUDACPP_BUILDDIR)/$(PROG)_cuda $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_CULIB) $(LIBFLAGSRPATH) $(LDFLAGS); fi
++
++$(CUDACPP_BUILDDIR)/$(PROG)_cuda: $(CUDACPP_BUILDDIR)/$(PROG)_cpp
 +
 +counters.o: counters.cc timer.h
 +	$(CXX) -std=c++11 -Wall -Wshadow -Wextra -c $< -o $@
@@ -165,7 +181,7 @@ index 6f5e1f832..e33418342 100644
  $(LIBDIR)libmodel.$(libext): ../../Cards/param_card.dat
  	cd ../../Source/MODEL; make
  
-@@ -72,12 +162,15 @@ $(LIBDIR)libpdf.$(libext):
+@@ -72,12 +178,15 @@ $(LIBDIR)libpdf.$(libext):
  
  $(LIBDIR)libgammaUPC.$(libext):
  	cd ../../Source/PDF/gammaUPC; make
@@ -181,7 +197,7 @@ index 6f5e1f832..e33418342 100644
  
  # Dependencies
  
-@@ -97,5 +190,71 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
+@@ -97,5 +206,71 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
  	 run_config.inc
  initcluster.o: message.inc
  
@@ -206,23 +222,23 @@ index 6f5e1f832..e33418342 100644
 +avxall: avxnone avxsse4 avxavx2 avx512y avx512z
 +endif
 +
-+avxnone: $(PROG) $(DSIG_cudacpp)
++avxnone: $(PROG)_fortran $(DSIG_cudacpp)
 +	@echo
 +	$(MAKE) USEBUILDDIR=1 AVX=none
 +
-+avxsse4: $(PROG) $(DSIG_cudacpp)
++avxsse4: $(PROG)_fortran $(DSIG_cudacpp)
 +	@echo
 +	$(MAKE) USEBUILDDIR=1 AVX=sse4
 +
-+avxavx2: $(PROG) $(DSIG_cudacpp)
++avxavx2: $(PROG)_fortran $(DSIG_cudacpp)
 +	@echo
 +	$(MAKE) USEBUILDDIR=1 AVX=avx2
 +
-+avx512y: $(PROG) $(DSIG_cudacpp)
++avx512y: $(PROG)_fortran $(DSIG_cudacpp)
 +	@echo
 +	$(MAKE) USEBUILDDIR=1 AVX=512y
 +
-+avx512z: $(PROG) $(DSIG_cudacpp)
++avx512z: $(PROG)_fortran $(DSIG_cudacpp)
 +	@echo
 +	$(MAKE) USEBUILDDIR=1 AVX=512z
 +
@@ -233,9 +249,9 @@ index 6f5e1f832..e33418342 100644
  clean:
 -	$(RM) *.o gensym madevent madevent_forhel
 +ifeq (,$(wildcard fbridge.inc))
-+	$(RM) *.o gensym $(PROG) $(PROG)_forhel
++	$(RM) *.o gensym $(PROG) $(PROG)_fortran $(PROG)_forhel
 +else
-+	$(RM) *.o gensym $(PROG) $(PROG)_forhel $(CUDACPP_BUILDDIR)/*$(PROG)_cudacpp
++	$(RM) *.o gensym $(PROG) $(PROG)_fortran $(PROG)_forhel $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(CUDACPP_BUILDDIR)/$(PROG)_cuda
 +endif
 +
 +cleanall:
@@ -254,3 +270,95 @@ index 6f5e1f832..e33418342 100644
 +distclean: cleanall
 +	$(MAKE) -f $(CUDACPP_MAKEFILE) distclean
 +endif
+diff --git b/epochX/cudacpp/gg_tt.mad/Source/make_opts a/epochX/cudacpp/gg_tt.mad/Source/make_opts
+index 1c3c559ee..c22e31c37 100644
+--- b/epochX/cudacpp/gg_tt.mad/Source/make_opts
++++ a/epochX/cudacpp/gg_tt.mad/Source/make_opts
+@@ -1,12 +1,17 @@
++pdlabel1=
++pdlabel2=
++lhapdf=
++PYTHIA8_PATH=NotInstalled
++MG5AMC_VERSION=3.5.0_lo_vect
+ GLOBAL_FLAG=-O3 -ffast-math -fbounds-check
++ALOHA_FLAG=
++MATRIX_FLAG=
+ DEFAULT_CPP_COMPILER=g++
+ MACFLAG=
+ STDLIB=-lstdc++
+ STDLIB_FLAG=
+ DEFAULT_F2PY_COMPILER=f2py
+ DEFAULT_F_COMPILER=gfortran
+-MG5AMC_VERSION=SpecifiedByMG5aMCAtRunTime
+-PYTHIA8_PATH=NotInstalled
+ #end_of_make_opts_variables
+ 
+ BIASLIBDIR=../../../lib/
+diff --git b/epochX/cudacpp/gg_tt.mad/bin/internal/banner.py a/epochX/cudacpp/gg_tt.mad/bin/internal/banner.py
+index dc15d3183..dbcc9ca3b 100755
+--- b/epochX/cudacpp/gg_tt.mad/bin/internal/banner.py
++++ a/epochX/cudacpp/gg_tt.mad/bin/internal/banner.py
+@@ -4164,7 +4164,8 @@ class RunCardLO(RunCard):
+         self.add_param('mxxmin4pdg',[-1.], system=True)
+         self.add_param('mxxpart_antipart', [False], system=True)
+                      
+-        
++        # CUDACPP parameters
++        self.add_param('cudacpp_backend', 'CPP', include=False, hidden=False)
+              
+     def check_validity(self):
+         """ """
+diff --git b/epochX/cudacpp/gg_tt.mad/bin/internal/gen_ximprove.py a/epochX/cudacpp/gg_tt.mad/bin/internal/gen_ximprove.py
+index 7d91ea6a1..ce7cb5735 100755
+--- b/epochX/cudacpp/gg_tt.mad/bin/internal/gen_ximprove.py
++++ a/epochX/cudacpp/gg_tt.mad/bin/internal/gen_ximprove.py
+@@ -367,8 +367,20 @@ class gensym(object):
+                         done = True
+                 if not done:
+                     raise Exception('Parsing error in gensym: %s' % stdout)
+-                     
+-            self.cmd.compile(['madevent'], cwd=Pdir)
++
++            cudacpp_backend = self.run_card['cudacpp_backend'] # the default value is defined in banner.py
++            logger.info("Building madevent in madevent_interface.py with '%s' matrix elements"%cudacpp_backend)
++            if cudacpp_backend == 'FORTRAN':
++                self.cmd.compile(['madevent_fortran_link'], cwd=Pdir)
++            elif cudacpp_backend == 'CPP':
++                self.cmd.compile(['madevent_cpp_link'], cwd=Pdir)
++            elif cudacpp_backend == 'CUDA':
++                self.cmd.compile(['madevent_cuda_link'], cwd=Pdir)
++            else:
++                raise Exception("Invalid cudacpp_backend='%s': only 'FORTRAN', 'CPP', 'CUDA' are supported")
++                ###logger.info("Building madevent with ALL(FORTRAN/CPP/CUDA) matrix elements (cudacpp_backend=%s)"%cudacpp_backend)
++                ###self.cmd.compile(['all'], cwd=Pdir)
++
+             if to_submit:
+                 self.submit_to_cluster(job_list)
+                 job_list = {}
+diff --git b/epochX/cudacpp/gg_tt.mad/bin/internal/madevent_interface.py a/epochX/cudacpp/gg_tt.mad/bin/internal/madevent_interface.py
+index 9a308cc60..9f8762642 100755
+--- b/epochX/cudacpp/gg_tt.mad/bin/internal/madevent_interface.py
++++ a/epochX/cudacpp/gg_tt.mad/bin/internal/madevent_interface.py
+@@ -3615,8 +3615,20 @@ Beware that this can be dangerous for local multicore runs.""")
+                 logger.info('    %s ' % subdir)
+     
+                 if os.path.exists(pjoin(Pdir, 'ajob1')):
+-                    self.compile(['madevent'], cwd=Pdir)
+-                    
++
++                    cudacpp_backend = self.run_card['cudacpp_backend'] # the default value is defined in banner.py
++                    logger.info("Building madevent in madevent_interface.py with '%s' matrix elements"%cudacpp_backend)
++                    if cudacpp_backend == 'FORTRAN':
++                        self.compile(['madevent_fortran_link'], cwd=Pdir)
++                    elif cudacpp_backend == 'CPP':
++                        self.compile(['madevent_cpp_link'], cwd=Pdir)
++                    elif cudacpp_backend == 'CUDA':
++                        self.compile(['madevent_cuda_link'], cwd=Pdir)
++                    else:
++                        raise Exception("Invalid cudacpp_backend='%s': only 'FORTRAN', 'CPP', 'CUDA' are supported")
++                        ###logger.info("Building madevent with ALL (FORTRAN/CPP/CUDA) matrix elements (cudacpp_backend=%s)"%cudacpp_backend)
++                        ###self.compile(['all'], cwd=Pdir)
++
+                     alljobs = misc.glob('ajob*', Pdir)
+                     
+                     #remove associated results.dat (ensure to not mix with all data)
