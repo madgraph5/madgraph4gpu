@@ -110,6 +110,7 @@ function codeGenAndDiff()
       return
       ;;
   esac
+  if [ "$2" != "" ]; then echo -e "INTERNAL ERROR!\nUsage: ${FUNCNAME[0]} <proc>"; exit 1; fi
   echo -e "\n+++ Generate code for '$proc'\n"
   ###exit 0 # FOR DEBUGGING
   # Vector size for mad/madonly meexporter (VECSIZE_MEMMAX)
