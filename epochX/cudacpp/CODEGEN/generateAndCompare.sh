@@ -11,8 +11,11 @@ set -e # fail on error
 function codeGenAndDiff()
 {
   proc=$1
+  cmdext="$2"
+  if [ "$3" != "" ]; then echo -e "INTERNAL ERROR!\nUsage: ${FUNCNAME[0]} <proc> [<cmd>]"; exit 1; fi
   # Process-dependent hardcoded configuration
   echo -e "\n================================================================"
+  cmd=
   case "${proc}" in
     ee_mumu)
       cmd="generate e+ e- > mu+ mu-"
@@ -106,10 +109,22 @@ function codeGenAndDiff()
       generate p p > ell+ ell- @0"
       ;;
     *)
-      echo -e "\nWARNING! Skipping unknown process '$proc'"
-      return
+      if [ "$cmdext" == "" ]; then
+        echo "ERROR! Unknown process '$proc' and no external process specified with '-c <cmd>'"
+        usage
+      fi
       ;;
   esac
+  if [ "$cmdext" != "" ]; then
+    if [ "$cmd" != "" ]; then 
+      echo "ERROR! Invalid option '-c <cmd>' to predefined process '$proc'"
+      echo "Predefined cmd='$cmd'"
+      echo "User-defined cmd='$cmdext'"
+      usage
+    else
+      cmd="$cmdext"
+    fi
+  fi
   echo -e "\n+++ Generate code for '$proc'\n"
   ###exit 0 # FOR DEBUGGING
   # Vector size for mad/madonly meexporter (VECSIZE_MEMMAX)
@@ -279,8 +294,10 @@ function usage()
     echo "Usage: $0 [--nobrief] <proc>"
   else
     # NB: all options with $SCRBCK=cudacpp use the 311 branch by default and always disable helicity recycling
-    echo "Usage: $0 [--nobrief] [--cpp|--gpu|--madnovec|--madonly|--mad|--madgpu] [--nopatch|--upstream] <proc>"
-    echo "(NB: a --madcpp option also exists but code generation fails for it)"
+    echo "Usage:   $0 [--nobrief] [--cpp|--gpu|--madnovec|--madonly|--mad|--madcpp*|--madgpu] [--nopatch|--upstream] [-c '<cmd>'] <proc>"
+    echo "         (*Note: the --madcpp option exists but code generation fails for it)"
+    echo "Example: $0 gg_tt --mad"
+    echo "Example: $0 gg_bb --mad -c 'generate g g > b b~'"
   fi
   exit 1
 }
@@ -331,43 +348,45 @@ PATCHLEVEL=
 if [ "${SCRBCK}" == "gridpack" ]; then export HELREC=1; else export HELREC=0; fi
 
 # Process command line arguments (https://unix.stackexchange.com/a/258514)
-for arg in "$@"; do
-  shift
-  if [ "$arg" == "-h" ] || [ "$arg" == "--help" ]; then
+cmd=
+proc=
+while [ "$1" != "" ]; do
+  if [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
     usage
-  elif [ "$arg" == "--nobrief" ]; then
+  elif [ "$1" == "--nobrief" ]; then
     BRIEF=
-  elif [ "$arg" == "--nopatch" ] && [ "${PATCHLEVEL}" == "" ]; then
+  elif [ "$1" == "--nopatch" ] && [ "${PATCHLEVEL}" == "" ]; then
     PATCHLEVEL=--nopatch
-  elif [ "$arg" == "--upstream" ] && [ "${PATCHLEVEL}" == "" ]; then
+  elif [ "$1" == "--upstream" ] && [ "${PATCHLEVEL}" == "" ]; then
     PATCHLEVEL=--upstream
-  elif [ "$arg" == "--nountaronly" ] && [ "${SCRBCK}" == "gridpack" ]; then
+  elif [ "$1" == "--nountaronly" ] && [ "${SCRBCK}" == "gridpack" ]; then
     UNTARONLY=0
-  elif [ "$arg" == "--nohelrec" ] && [ "${SCRBCK}" == "gridpack" ]; then
+  elif [ "$1" == "--nohelrec" ] && [ "${SCRBCK}" == "gridpack" ]; then
     export HELREC=0
-  elif [ "$arg" == "--cpp" ] && [ "${SCRBCK}" == "cudacpp" ]; then
-    export OUTBCK=${arg#--}
-  elif [ "$arg" == "--gpu" ] && [ "${SCRBCK}" == "cudacpp" ]; then
-    export OUTBCK=${arg#--}
-  elif [ "$arg" == "--madnovec" ] && [ "${SCRBCK}" == "cudacpp" ]; then
-    export OUTBCK=${arg#--}
-  elif [ "$arg" == "--madonly" ] && [ "${SCRBCK}" == "cudacpp" ]; then
-    export OUTBCK=${arg#--}
-  elif [ "$arg" == "--mad" ] && [ "${SCRBCK}" == "cudacpp" ]; then
-    export OUTBCK=${arg#--}
-  elif [ "$arg" == "--madcpp" ] && [ "${SCRBCK}" == "cudacpp" ]; then
-    export OUTBCK=${arg#--}
-  elif [ "$arg" == "--madgpu" ] && [ "${SCRBCK}" == "cudacpp" ]; then
-    export OUTBCK=${arg#--}
+  elif [ "$1" == "--cpp" ] && [ "${SCRBCK}" == "cudacpp" ]; then
+    export OUTBCK=${1#--}
+  elif [ "$1" == "--gpu" ] && [ "${SCRBCK}" == "cudacpp" ]; then
+    export OUTBCK=${1#--}
+  elif [ "$1" == "--madnovec" ] && [ "${SCRBCK}" == "cudacpp" ]; then
+    export OUTBCK=${1#--}
+  elif [ "$1" == "--madonly" ] && [ "${SCRBCK}" == "cudacpp" ]; then
+    export OUTBCK=${1#--}
+  elif [ "$1" == "--mad" ] && [ "${SCRBCK}" == "cudacpp" ]; then
+    export OUTBCK=${1#--}
+  elif [ "$1" == "--madcpp" ] && [ "${SCRBCK}" == "cudacpp" ]; then
+    export OUTBCK=${1#--}
+  elif [ "$1" == "--madgpu" ] && [ "${SCRBCK}" == "cudacpp" ]; then
+    export OUTBCK=${1#--}
+  elif [ "$1" == "-c" ] && [ "$2" != "" ]; then
+    cmd="$2"
+    shift
+  elif [ "$proc" == "" ]; then
+    proc="$1"
   else
-    # Keep the possibility to collect more then one process
-    # However, require a single process to be chosen (allow full cleanup before/after code generation)
-    set -- "$@" "$arg"
+    usage
   fi
+  shift
 done
-###procs=$@
-if [ "$1" == "" ] || [ "$2" != "" ]; then usage; fi # New: only one process
-proc=$1
 
 echo "SCRDIR=${SCRDIR}"
 echo "OUTDIR=${OUTDIR}"
@@ -375,7 +394,6 @@ echo "SCRBCK=${SCRBCK} (uppercase=${SCRBCK^^})"
 echo "OUTBCK=${OUTBCK}"
 
 echo "BRIEF=${BRIEF}"
-###echo "procs=${procs}"
 echo "proc=${proc}"
 
 # Make sure that python3 is installed
@@ -510,7 +528,7 @@ if [ "${SCRBCK}" == "gridpack" ]; then
 fi
 
 # Generate the chosen process (this will always replace the existing code directory and create a .BKP)
-codeGenAndDiff $proc
+codeGenAndDiff $proc "$cmd"
 
 # Clean up after code generation
 cleanup_MG5AMC_HOME
