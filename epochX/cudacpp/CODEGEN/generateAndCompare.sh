@@ -279,8 +279,8 @@ function usage()
     echo "Usage: $0 [--nobrief] <proc>"
   else
     # NB: all options with $SCRBCK=cudacpp use the 311 branch by default and always disable helicity recycling
-    echo "Usage: $0 [--nobrief] [--cpp|--gpu|--madnovec|--madonly|--mad|--madgpu] [--nopatch|--upstream] <proc>"
-    echo "(NB: a --madcpp option also exists but code generation fails for it)"
+    echo "Usage: $0 [--nobrief] [--cpp|--gpu|--madnovec|--madonly|--mad|--madcpp*|--madgpu] [--nopatch|--upstream] <proc>"
+    echo "(*Note: the --madcpp option exists but code generation fails for it)"
   fi
   exit 1
 }
