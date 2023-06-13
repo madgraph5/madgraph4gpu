@@ -44,6 +44,19 @@ function codeGenAndDiff()
     pp_tttt)
       cmd="generate p p > t t~ t t~"
       ;;
+    pp_ttW) # TEMPORARY! until no_b_mass #695 and/or #696 are fixed
+      cmd="define p = p b b~
+      define j = p
+      define w = w+ w- # W case only
+      generate p p > t t~ w @0
+      add process p p > t t~ w j @1"
+      ;;
+    pp_ttZ) # TEMPORARY! until no_b_mass #695 and/or #696 are fixed
+      cmd="define p = p b b~
+      define j = p
+      generate p p > t t~ z @0
+      add process p p > t t~ z j @1"
+      ;;
     uu_tt)
       cmd="generate u u~ > t t~"
       ;;
@@ -52,6 +65,21 @@ function codeGenAndDiff()
       ;;
     bb_tt)
       cmd="generate b b~ > t t~"
+      ;;
+    nobm_pp_ttW)
+      cmd="import model loop_sm-no_b_mass
+      define p = p b b~
+      define j = p
+      define w = w+ w- # W case only
+      generate p p > t t~ w @0
+      add process p p > t t~ w j @1"
+      ;;
+    nobm_pp_ttZ)
+      cmd="import model loop_sm-no_b_mass
+      define p = p b b~
+      define j = p
+      generate p p > t t~ z @0
+      add process p p > t t~ z j @1"
       ;;
     heft_gg_h)
       cmd="set auto_convert_model T; import model heft; generate g g > h"
