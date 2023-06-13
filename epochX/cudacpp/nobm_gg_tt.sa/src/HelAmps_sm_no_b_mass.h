@@ -12,14 +12,14 @@
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
 
-#ifndef HelAmps_loop_sm_no_b_mass_H
-#define HelAmps_loop_sm_no_b_mass_H 1
+#ifndef HelAmps_sm_no_b_mass_H
+#define HelAmps_sm_no_b_mass_H 1
 
 #include "mgOnGpuConfig.h"
 
 #include "mgOnGpuVectors.h"
 
-#include "Parameters_loop_sm_no_b_mass.h"
+#include "Parameters_sm_no_b_mass.h"
 
 //#include <cmath>
 //#include <cstdlib>
@@ -967,4 +967,4 @@ namespace mg5amcCpu
 
 } // end namespace
 
-#endif // HelAmps_loop_sm_no_b_mass_H
+#endif // HelAmps_sm_no_b_mass_H

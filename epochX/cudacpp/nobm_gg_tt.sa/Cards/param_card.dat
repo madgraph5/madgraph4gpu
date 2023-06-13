@@ -9,12 +9,6 @@
 ######################################################################
 
 ###################################
-## INFORMATION FOR LOOP
-###################################
-Block loop 
-    1 9.118800e+01 # MU_R 
-
-###################################
 ## INFORMATION FOR MASS
 ###################################
 Block mass 
@@ -81,12 +75,3 @@ DECAY  15 0.000000e+00 # ta- : 0.0
 DECAY  16 0.000000e+00 # vt : 0.0 
 DECAY  21 0.000000e+00 # g : 0.0 
 DECAY  22 0.000000e+00 # a : 0.0 
-#===========================================================
-# QUANTUM NUMBERS OF NEW STATE(S) (NON SM PDG CODE)
-#===========================================================
-
-Block QNUMBERS 82  # gh 
-        1 0  # 3 times electric charge
-        2 1  # number of spin states (2S+1)
-        3 8  # colour rep (1: singlet, 3: triplet, 8: octet)
-        4 1  # Particle/Antiparticle distinction (0=own anti)
