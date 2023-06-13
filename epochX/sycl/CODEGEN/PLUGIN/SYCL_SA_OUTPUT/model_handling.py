@@ -651,7 +651,6 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         parset_lines = {}
         skipnextline = False
         for iline, line in enumerate(parset.split('\n')):
-        for line in parset.split('\n'):
             if line.startswith('indices'):
                 continue # skip line with leading "indices", before slha.get_block_entry (#622)
             par, parval = line.split(' = ')
