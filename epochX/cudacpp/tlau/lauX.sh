@@ -10,19 +10,18 @@ scrdir=$(cd $(dirname $0); pwd)
 
 function usage()
 {
-  echo "Usage:   $0 <-FORTRAN|-CUDA|-CPP> <proc>"
-  echo "Example: $0 -CPP gg_tt"
+  echo "Usage:   $0 <-FORTRAN|-CUDA|-CPP> <procdir>"
+  echo "Example: $0 -CPP gg_tt.mad"
   exit 1
 }
 
 bckend=
 proc=
-suff=.mad
 while [ "$1" != "" ]; do
   if [ "$1" == "-FORTRAN" ] || [ "$1" == "-CUDA" ] || [ "$1" == "-CPP" ]; then
     if [ "$bckend" == "" ]; then bckend=${1/-/}; else echo "ERROR! Backend already set"; usage; fi
   elif [ "$proc" == "" ]; then
-    proc=${1}
+    proc=$1
   else
     echo "ERROR! Invalid option '$1': process directory already set to '${proc}'"
     usage
@@ -31,7 +30,7 @@ while [ "$1" != "" ]; do
 done
 if [ "$bckend" == "" ]; then echo "ERROR! No backend was specified"; usage; fi
 if [ "$proc" == "" ]; then echo "ERROR! No process directory was specified"; usage; fi
-if [ ! -d ${proc}${suff} ]; then echo "ERROR! Process directory '${proc}' does not exist"; usage; fi
+if [ ! -d $proc ]; then echo "ERROR! Process directory '${proc}' does not exist"; usage; fi
 
 cd $(dirname $0)/..
 echo "Execute $(basename $0) for process ${proc} and backend ${bckend} in directory $(pwd)"
