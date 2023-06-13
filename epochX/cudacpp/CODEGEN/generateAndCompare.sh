@@ -106,8 +106,8 @@ function codeGenAndDiff()
       generate p p > ell+ ell- @0"
       ;;
     *)
-      echo -e "\nWARNING! Skipping unknown process '$proc'"
-      return
+      echo -e "\nERROR! Unknown process '$proc'"
+      exit 1
       ;;
   esac
   if [ "$2" != "" ]; then echo -e "INTERNAL ERROR!\nUsage: ${FUNCNAME[0]} <proc>"; exit 1; fi
