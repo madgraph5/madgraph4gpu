@@ -84,6 +84,10 @@ function codeGenAndDiff()
     bb_tt)
       cmd="generate b b~ > t t~"
       ;;
+    nobm_gg_tt)
+      cmd="import model loop_sm-no_b_mass
+      generate g g > t t~"
+      ;;
     nobm_pp_ttW)
       cmd="import model loop_sm-no_b_mass
       define p = p b b~
