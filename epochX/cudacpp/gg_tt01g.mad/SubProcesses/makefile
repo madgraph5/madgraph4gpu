@@ -88,11 +88,11 @@ SYMMETRY = symmetry.o idenparts.o
 
 LDFLAGS+=-Wl,--no-relax # avoid 'failed to convert GOTPCREL relocation' error #458
 
-ifeq (,$(wildcard fbridge.inc))
-all: $(PROG)_fortran
-else
+###ifeq (,$(wildcard fbridge.inc)) # Pointless: fbridge.inc always exists as this is the cudacpp-modified makefile!
+###all: $(PROG)_fortran
+###else
 all: $(PROG)_fortran $(CUDACPP_BUILDDIR)/$(PROG)_cpp # also builds $(PROG)_cuda if $(CUDACPP_CULIB) exists (#503)
-endif
+###endif
 
 ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
 override OMPFLAGS = -fopenmp
@@ -116,11 +116,11 @@ $(LIBS): .libs
 	cd ../../Source; make
 	touch $@
 
-ifneq (,$(wildcard fbridge.inc))
+###ifneq (,$(wildcard fbridge.inc)) # Pointless: fbridge.inc always exists as this is the cudacpp-modified makefile!
 $(CUDACPP_BUILDDIR)/.cudacpplibs:
 	$(MAKE) -f $(CUDACPP_MAKEFILE)
 	touch $@
-endif
+###endif
 
 # On Linux, set rpath to LIBDIR to make it unnecessary to use LD_LIBRARY_PATH
 # Use relative paths with respect to the executables ($ORIGIN on Linux)
@@ -166,19 +166,19 @@ $(PROG)_forhel: $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX_HEL)
 gensym: $(SYMMETRY) configs.inc $(LIBS)
 	$(FC) -o gensym $(SYMMETRY) -L$(LIBDIR) $(LINKLIBS) $(LDFLAGS)
 
-ifeq (,$(wildcard fbridge.inc))
-$(LIBDIR)libmodel.$(libext): ../../Cards/param_card.dat
-	cd ../../Source/MODEL; make
-
-$(LIBDIR)libgeneric.$(libext): ../../Cards/run_card.dat
-	cd ../../Source; make
-
-$(LIBDIR)libpdf.$(libext): 
-	cd ../../Source/PDF; make
-
-$(LIBDIR)libgammaUPC.$(libext):
-	cd ../../Source/PDF/gammaUPC; make
-endif
+###ifeq (,$(wildcard fbridge.inc)) # Pointless: fbridge.inc always exists as this is the cudacpp-modified makefile!
+###$(LIBDIR)libmodel.$(libext): ../../Cards/param_card.dat
+###	cd ../../Source/MODEL; make
+###
+###$(LIBDIR)libgeneric.$(libext): ../../Cards/run_card.dat
+###	cd ../../Source; make
+###
+###$(LIBDIR)libpdf.$(libext): 
+###	cd ../../Source/PDF; make
+###
+###$(LIBDIR)libgammaUPC.$(libext):
+###	cd ../../Source/PDF/gammaUPC; make
+###endif
 
 # Add source so that the compiler finds the DiscreteSampler module.
 $(MATRIX): %.o: %.f
@@ -216,7 +216,7 @@ genps.o: .libs
 
 # Cudacpp avxall targets
 
-ifneq (,$(wildcard fbridge.inc))
+###ifneq (,$(wildcard fbridge.inc)) # Pointless: fbridge.inc always exists as this is the cudacpp-modified makefile!
 
 UNAME_P := $(shell uname -p)
 ifeq ($(UNAME_P),ppc64le)
@@ -247,30 +247,30 @@ avx512z: $(PROG)_fortran $(DSIG_cudacpp)
 	@echo
 	$(MAKE) USEBUILDDIR=1 AVX=512z
 
-endif
+###endif
 
 # Clean
 
 clean:
-ifeq (,$(wildcard fbridge.inc))
-	$(RM) *.o gensym $(PROG) $(PROG)_fortran $(PROG)_forhel
-else
+###ifeq (,$(wildcard fbridge.inc)) # Pointless: fbridge.inc always exists as this is the cudacpp-modified makefile!
+###	$(RM) *.o gensym $(PROG) $(PROG)_fortran $(PROG)_forhel
+###else
 	$(RM) *.o gensym $(PROG) $(PROG)_fortran $(PROG)_forhel $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(CUDACPP_BUILDDIR)/$(PROG)_cuda
-endif
+###endif
 
 cleanall:
 	make clean
 	make -C ../../Source clean
 	rm -rf $(LIBDIR)libbias.$(libext)
-ifneq (,$(wildcard fbridge.inc))
+###ifneq (,$(wildcard fbridge.inc)) # Pointless: fbridge.inc always exists as this is the cudacpp-modified makefile!
 	$(MAKE) -f $(CUDACPP_MAKEFILE) cleanall
 	rm -f $(CUDACPP_BUILDDIR)/.cudacpplibs
-endif
+###endif
 	rm -f ../../Source/*.mod ../../Source/*/*.mod
 	rm -f .libs
 
-ifneq (,$(wildcard fbridge.inc))
+###ifneq (,$(wildcard fbridge.inc)) # Pointless: fbridge.inc always exists as this is the cudacpp-modified makefile!
 # Target: clean the builds as well as the googletest installation
 distclean: cleanall
 	$(MAKE) -f $(CUDACPP_MAKEFILE) distclean
-endif
+###endif
