@@ -19,6 +19,7 @@
 #include <complex>
 
 // Complex type in cuda: thrust or cucomplex or cxsmpl
+#define THRUST_IGNORE_CUB_VERSION_CHECK
 #ifdef MGONGPUCPP_CUDACC
 #if defined MGONGPU_CUCXTYPE_THRUST
 #pragma clang diagnostic push
