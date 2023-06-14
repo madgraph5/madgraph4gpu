@@ -6,7 +6,7 @@
   #define MGONGPUCPP_CUDACC 1
 #endif
 
-#ifdef __HIPCC__
+#ifdef __HCC__
   #define MGONGPUCPP_HIPCC 1
 #endif
 
