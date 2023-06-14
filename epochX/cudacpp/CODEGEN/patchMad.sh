@@ -50,6 +50,7 @@ ${dir}/bin/madevent treatcards param
 \rm -f ${dir}/madevent.tar.gz
 \rm -f ${dir}/Cards/delphes_trigger.dat
 \rm -f ${dir}/Cards/plot_card.dat
+\rm -f ${dir}/bin/internal/run_plot*
 \rm -f ${dir}/HTML/*
 \rm -rf ${dir}/bin/internal/__pycache__
 \rm -rf ${dir}/bin/internal/ufomodel/__pycache__
@@ -73,6 +74,7 @@ if [ "${patchlevel}" == "2" ]; then
   echo "DEBUG: cd ${PWD}; patch -p4 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.common"
   if ! patch -p4 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.common; then status=1; fi  
   \rm -f Source/*.orig
+  \rm -f bin/internal/*.orig
   echo "
 #*********************************************************************
 # Options for the cudacpp plugin

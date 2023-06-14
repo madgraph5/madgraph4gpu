@@ -287,8 +287,8 @@ index 1c3c559ee..c22e31c37 100644
  MACFLAG=
  STDLIB=-lstdc++
  STDLIB_FLAG=
- DEFAULT_F2PY_COMPILER=f2py
  DEFAULT_F_COMPILER=gfortran
+ DEFAULT_F2PY_COMPILER=f2py3
 -MG5AMC_VERSION=SpecifiedByMG5aMCAtRunTime
 -PYTHIA8_PATH=NotInstalled
  #end_of_make_opts_variables
