@@ -18,6 +18,7 @@ host=$(hostname)
 if [ "${host/juwels}" != "${host}" ]; then NLOOP=32; fi # workaround for #498
 
 # These two environment variables used to be input parameters to madevent (#658)
+# (Possible values for FBRIDGEMODE: CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
 unset CUDACPP_RUNTIME_FBRIDGEMODE
 export CUDACPP_RUNTIME_VECSIZEUSED=${NLOOP}
 
