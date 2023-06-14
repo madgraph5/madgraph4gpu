@@ -144,8 +144,9 @@ function showdir()
     elif [ "${ggttggg}" == "1" ]; then 
       dir=$topdir/epochX/${bckend}/gg_ttggg${suff}SubProcesses/P1_gg_ttxggg
     elif [ "${gqttq}" == "1" ]; then 
-      dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_gu_ttxu # 1st of two (test only one for now)
+      ###dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_gu_ttxu # 1st of two (test only one for now)
       ###dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_gux_ttxux # 2nd of two (test only one for now)
+      dir=$topdir/epochX/${bckend}/gu_ttu${suff}SubProcesses/P1_gu_ttxu # as in gq_ttq (here u actually means u c s d)
     fi
   else
     echo "INTERNAL ERROR! tmad tests only make sense in .mad directories"; exit 1 # this should never happen (suff=.mad/ is hardcoded)
