@@ -164,7 +164,7 @@ else
     $(warning HIP_HOME was not set: using "$(HIP_HOME)")
   endif
 
-    HIP_HOME=/opt/rocm-5.4.3/
+    HIP_HOME=/opt/rocm-5.4.3
 
   # Set GPUCC as $(HIP_HOME)/bin/hipcc if it exists
   ifneq ($(wildcard $(HIP_HOME)/bin/hipcc),)
@@ -176,10 +176,10 @@ else
     ###CUARCHFLAGS = -gencode arch=compute_$(MADGRAPH_CUDA_ARCHITECTURE),code=compute_$(MADGRAPH_CUDA_ARCHITECTURE) -gencode arch=compute_$(MADGRAPH_CUDA_ARCHITECTURE),code=sm_$(MADGRAPH_CUDA_ARCHITECTURE) # Older implementation (AV): go back to this one for multi-GPU support #533
     ###CUARCHFLAGS = --gpu-architecture=compute_$(MADGRAPH_CUDA_ARCHITECTURE) --gpu-code=sm_$(MADGRAPH_CUDA_ARCHITECTURE),compute_$(MADGRAPH_CUDA_ARCHITECTURE) # Newer implementation (SH): cannot use this as-is for multi-GPU support #533
     comma:=,
-    CUARCHFLAGS = gfx90a
+    CUARCHFLAGS = --genco --offload-arch=gfx90a
     CUINC = -I$(HIP_HOME)/include/
     CURANDLIBFLAGS = -L$(HIP_HOME)/lib64/ # NB: -lcuda is not needed here!
-    CUOPTFLAGS = -lineinfo
+    #CUOPTFLAGS = -lineinfo
     CUFLAGS = $(OPTFLAGS) $(CUOPTFLAGS) $(INCFLAGS) $(CUINC) $(CUARCHFLAGS) -use_fast_math
     ###CUFLAGS += -Xcompiler -Wall -Xcompiler -Wextra -Xcompiler -Wshadow
     ###GPUCC_VERSION = $(shell $(GPUCC) --version | grep 'Cuda compilation tools' | cut -d' ' -f5 | cut -d, -f1)
