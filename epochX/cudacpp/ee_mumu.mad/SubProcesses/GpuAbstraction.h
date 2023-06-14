@@ -45,7 +45,7 @@
 #elif defined MGONGPUCPP_HIPCC
 
   // Defines correct compiler
-  #define MGONGPUCPP_GPUIMPL __HIPCC__
+  #define MGONGPUCPP_GPUIMPL __HCC__
 
   //--------------------------------------------------------------------------
 
