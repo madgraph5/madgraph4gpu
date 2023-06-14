@@ -168,7 +168,7 @@ else
 
   # Set GPUCC as $(HIP_HOME)/bin/hipcc if it exists
   ifneq ($(wildcard $(HIP_HOME)/bin/hipcc),)
-    GPUCC = $(CUDA_HOME)/bin/nvcc
+    GPUCC = $(HIP_HOME)/bin/hipcc
     # Should maybe find something equivelant to this in HIP
     #USE_NVTX ?=-DUSE_NVTX
 
