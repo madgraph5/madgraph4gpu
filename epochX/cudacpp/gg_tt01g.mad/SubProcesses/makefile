@@ -243,17 +243,18 @@ avx512z: $(PROG)_fortran $(DSIG_cudacpp)
 
 # Clean (NB: 'make clean' in Source calls 'make clean' in all P*)
 
-clean: # Clean builds: fortran in this Pn; cudacpp for one AVX in this Pn and in src
+clean: # Clean builds: fortran in this Pn; cudacpp executables for one AVX in this Pn
 	$(RM) *.o gensym $(PROG) $(PROG)_fortran $(PROG)_forhel $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(CUDACPP_BUILDDIR)/$(PROG)_cuda
 
-cleanall: # Clean builds: fortran in all P* and in Source; cudacpp for one AVX in all P*; cudacpp for all AVX in this Pn and in src
-	make clean
-	make -C ../../Source clean
-	rm -rf $(LIBDIR)libbias.$(libext)
+cleanavxs: clean # Clean builds: fortran in this Pn; cudacpp for all AVX in this Pn and in src
 	$(MAKE) -f $(CUDACPP_MAKEFILE) cleanall
 	rm -f $(CUDACPP_BUILDDIR)/.cudacpplibs
-	rm -f ../../Source/*.mod ../../Source/*/*.mod
 	rm -f .libs
+
+cleanall: # Clean builds: fortran in all P* and in Source; cudacpp for all AVX in all P* and in src
+	make -C ../../Source cleanall
+	rm -rf $(LIBDIR)libbias.$(libext)
+	rm -f ../../Source/*.mod ../../Source/*/*.mod
 
 distclean: cleanall # Clean all fortran and cudacpp builds as well as the googletest installation
 	$(MAKE) -f $(CUDACPP_MAKEFILE) distclean
