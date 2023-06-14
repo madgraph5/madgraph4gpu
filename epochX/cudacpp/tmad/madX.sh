@@ -23,7 +23,7 @@ export CUDACPP_RUNTIME_VECSIZEUSED=${NLOOP}
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq]> [-d] [-fltonly|-mixonly] [-makeonly|-makeclean|-makecleanonly] [-rmrdat] [+10x] [-checkonly] [-nocleanup]" > /dev/stderr
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-guttu][-gqttq]> [-d] [-fltonly|-mixonly] [-makeonly|-makeclean|-makecleanonly] [-rmrdat] [+10x] [-checkonly] [-nocleanup]" > /dev/stderr
   echo "(NB: OMP_NUM_THREADS is taken as-is from the caller's environment)"
   exit 1
 }
@@ -39,6 +39,7 @@ ggtt=0
 ggttg=0
 ggttgg=0
 ggttggg=0
+guttu=0
 gqttq=0
 
 fptype="d"
@@ -72,6 +73,9 @@ while [ "$1" != "" ]; do
     shift
   elif [ "$1" == "-ggttggg" ]; then
     ggttggg=1
+    shift
+  elif [ "$1" == "-guttu" ]; then
+    guttu=1
     shift
   elif [ "$1" == "-gqttq" ]; then
     gqttq=1
@@ -113,7 +117,7 @@ done
 ###exit 1
 
 # Check that at least one process has been selected
-if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ]&& [ "${gqttq}" == "0" ] ; then usage; fi
+if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ] && [ "${guttu}" == "0" ] && [ "${gqttq}" == "0" ]; then usage; fi
 
 # Always test only the .mad/ directories (hardcoded)
 suffs=".mad/"
@@ -143,10 +147,11 @@ function showdir()
       dir=$topdir/epochX/${bckend}/gg_ttgg${suff}SubProcesses/P1_gg_ttxgg
     elif [ "${ggttggg}" == "1" ]; then 
       dir=$topdir/epochX/${bckend}/gg_ttggg${suff}SubProcesses/P1_gg_ttxggg
+    elif [ "${guttu}" == "1" ]; then 
+      dir=$topdir/epochX/${bckend}/gu_ttu${suff}SubProcesses/P1_gu_ttxu
     elif [ "${gqttq}" == "1" ]; then 
-      ###dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_gu_ttxu # 1st of two (test only one for now)
+      dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_gu_ttxu # 1st of two (test only one for now)
       ###dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_gux_ttxux # 2nd of two (test only one for now)
-      dir=$topdir/epochX/${bckend}/gu_ttu${suff}SubProcesses/P1_gu_ttxu # as in gq_ttq (here u actually means u c s d)
     fi
   else
     echo "INTERNAL ERROR! tmad tests only make sense in .mad directories"; exit 1 # this should never happen (suff=.mad/ is hardcoded)
@@ -167,6 +172,8 @@ function getnevt()
     nevt=8192 # Fortran (x1, x10) computes (8192, 90112) MEs and writes to file (49, 217) events in (5.8s, 58s)
   elif [ "${ggttggg}" == "1" ]; then
     nevt=8192 # Fortran (x1, x10) computes (8192, 90112) MEs and writes to file (14, 97) events in (121s, 1222s)
+  elif [ "${guttu}" == "1" ]; then
+    nevt=8192 # use the same settings as for ggttg
   elif [ "${gqttq}" == "1" ]; then
     nevt=8192 # use the same settings as for ggttg
   else
@@ -188,6 +195,8 @@ function getgridmax()
     echo 16384 32 # same total grid dimension as 2048 256
   elif [ "${ggttggg}" == "1" ]; then
     echo 512 32 # same total grid dimension as 64 256
+  elif [ "${guttu}" == "1" ]; then
+    echo 16384 32 # same total grid dimension as 2048 256
   elif [ "${gqttq}" == "1" ]; then
     echo 16384 32 # same total grid dimension as 2048 256
   else
@@ -211,6 +220,8 @@ function getinputfile()
     tmp=$tmpdir/input_ggttgg
   elif [ "${ggttggg}" == "1" ]; then 
     tmp=$tmpdir/input_ggttggg
+  elif [ "${guttu}" == "1" ]; then 
+    tmp=$tmpdir/input_guttu
   elif [ "${gqttq}" == "1" ]; then 
     tmp=$tmpdir/input_gqttq
   else
