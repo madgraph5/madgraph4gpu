@@ -243,15 +243,16 @@ namespace mg5amcCpu
       vxxxxx<M_ACCESS, W_ACCESS>( momenta, 0., cHel[ihel][1], -1, w_fp[1], 1 );
 
 #if not( defined __CUDACC__ and defined MGONGPU_TEST_DIVERGENCE )
-      oxzxxx<M_ACCESS, W_ACCESS>( momenta, cHel[ihel][2], +1, w_fp[2], 2 );
+      //oxzxxx<M_ACCESS, W_ACCESS>( momenta, cHel[ihel][2], +1, w_fp[2], 2 );
+      oxxxxx<M_ACCESS, W_ACCESS>( momenta, 0, cHel[ihel][2], +1, w_fp[2], 2 );      
 #else
       if( ( blockDim.x * blockIdx.x + threadIdx.x ) % 2 == 0 )
         oxzxxx<M_ACCESS, W_ACCESS>( momenta, cHel[ihel][2], +1, w_fp[2], 2 );
       else
         oxxxxx<M_ACCESS, W_ACCESS>( momenta, 0, cHel[ihel][2], +1, w_fp[2], 2 )
 #endif
-
-      ixzxxx<M_ACCESS, W_ACCESS>( momenta, cHel[ihel][3], -1, w_fp[3], 3 );
+      //ixzxxx<M_ACCESS, W_ACCESS>( momenta, cHel[ihel][3], -1, w_fp[3], 3 );
+      ixxxxx<M_ACCESS, W_ACCESS>( momenta, 0, cHel[ihel][3], -1, w_fp[3], 3 );
 
       VVV1P0_1<W_ACCESS, CD_ACCESS>( w_fp[0], w_fp[1], COUPs[0], 0., 0., w_fp[4] );
 
