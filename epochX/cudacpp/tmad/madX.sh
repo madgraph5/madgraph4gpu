@@ -152,7 +152,8 @@ function showdir()
       #dir=$topdir/epochX/${bckend}/gu_ttu${suff}SubProcesses/P1_gu_ttxu
       #dir=$topdir/epochX/${bckend}/uu_ttg${suff}SubProcesses/P1_uux_ttxg
       #dir=$topdir/epochX/${bckend}/uu_tt${suff}SubProcesses/P1_uux_ttx
-      dir=$topdir/epochX/${bckend}/gu_gu${suff}SubProcesses/P1_gu_gu
+      #dir=$topdir/epochX/${bckend}/gu_gu${suff}SubProcesses/P1_gu_gu
+      dir=$topdir/epochX/${bckend}/gg_gg${suff}SubProcesses/P1_gg_gg
     elif [ "${gqttq}" == "1" ]; then 
       dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_gu_ttxu # 1st of two (test only one for now)
       ###dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_gux_ttxux # 2nd of two (test only one for now)
