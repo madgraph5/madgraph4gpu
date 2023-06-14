@@ -161,10 +161,11 @@ else
     # If HIP_HOME is not set, try to set it from the location of GPUCC
   ifndef HIP_HOME
     HIP_HOME = $(patsubst %bin/hipcc,%,$(shell which hipcc 2>/dev/null))
-    $(warning HIP_HOME was not set: using "$(HIP_HOME)")
+    #$(warning HIP_HOME was not set: using "$(HIP_HOME)")
   endif
 
     HIP_HOME=/opt/rocm-5.4.3
+    $(warning HIP_HOME was not set: using "$(HIP_HOME)")
 
   # Set GPUCC as $(HIP_HOME)/bin/hipcc if it exists
   ifneq ($(wildcard $(HIP_HOME)/bin/hipcc),)
@@ -511,8 +512,9 @@ $(BUILDDIR)/%.o : %.cu *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
 
 $(BUILDDIR)/%_cu.o : %.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	$(GPUCC) $(CPPFLAGS) $(CUFLAGS) -Xcompiler -fPIC -c -x cu $< -o $@
+	$(GPUCC) $(CPPFLAGS) $(CUFLAGS) -Xcompiler -fPIC -c $< -o $@
 endif
+# -x cu in line above
 
 # Generic target and build rules: objects from C++ compilation
 # (NB do not include CUINC here! add it only for NVTX or curand #679)
