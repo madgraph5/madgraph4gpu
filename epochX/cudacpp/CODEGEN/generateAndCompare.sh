@@ -63,11 +63,14 @@ function codeGenAndDiff()
       generate p p > t t~ z @0
       add process p p > t t~ z j @1"
       ;;
+    uu_dd)
+      cmd="generate u u~ > d d~"
+      ;;
     uu_tt)
       cmd="generate u u~ > t t~"
       ;;
-    uu_dd)
-      cmd="generate u u~ > d d~"
+    uu_ttg)
+      cmd="generate u u~ > t t~ g"
       ;;
     bb_tt)
       cmd="generate b b~ > t t~"
