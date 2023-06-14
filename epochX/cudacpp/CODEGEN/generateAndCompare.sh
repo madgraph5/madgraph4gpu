@@ -38,6 +38,9 @@ function codeGenAndDiff()
     gq_ttq)
       cmd="define q = u c d s u~ c~ d~ s~; generate g q > t t~ q"
       ;;
+    gu_ttu)
+      cmd="define q = u c d s u~ c~ d~ s~; generate g u > t t~ u"
+      ;;
     gq_ttllq)
       cmd="define q = u c d s u~ c~ d~ s~; generate g q > t t~ l- l+ q"
       ;;
