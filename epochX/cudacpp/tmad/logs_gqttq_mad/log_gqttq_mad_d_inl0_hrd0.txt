@@ -1,4 +1,4 @@
-Working directory (build): /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gu_ttxu
+Working directory (build): /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gu_ttu.mad/SubProcesses/P1_gu_ttxu
 CUDACPP_BUILDDIR='.'
 
 
@@ -10,33 +10,33 @@ make USEBUILDDIR=1 AVX=avx2
 make USEBUILDDIR=1 AVX=512y
 
 make USEBUILDDIR=1 AVX=512z
-make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gu_ttxu'
-make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gu_ttxu'
-make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gu_ttxu'
-make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gu_ttxu'
-make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gu_ttxu'
-CUDACPP_BUILDDIR='build.512y_d_inl0_hrd0'
+make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gu_ttu.mad/SubProcesses/P1_gu_ttxu'
+make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gu_ttu.mad/SubProcesses/P1_gu_ttxu'
+make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gu_ttu.mad/SubProcesses/P1_gu_ttxu'
+make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gu_ttu.mad/SubProcesses/P1_gu_ttxu'
+make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gu_ttu.mad/SubProcesses/P1_gu_ttxu'
 CUDACPP_BUILDDIR='build.sse4_d_inl0_hrd0'
+CUDACPP_BUILDDIR='build.512z_d_inl0_hrd0'
 CUDACPP_BUILDDIR='build.avx2_d_inl0_hrd0'
 make[1]: Nothing to be done for 'all'.
-make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gu_ttxu'
-CUDACPP_BUILDDIR='build.512z_d_inl0_hrd0'
+make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gu_ttu.mad/SubProcesses/P1_gu_ttxu'
 make[1]: Nothing to be done for 'all'.
-make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gu_ttxu'
+make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gu_ttu.mad/SubProcesses/P1_gu_ttxu'
+CUDACPP_BUILDDIR='build.512y_d_inl0_hrd0'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gu_ttu.mad/SubProcesses/P1_gu_ttxu'
 CUDACPP_BUILDDIR='build.none_d_inl0_hrd0'
 make[1]: Nothing to be done for 'all'.
-make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gu_ttxu'
+make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gu_ttu.mad/SubProcesses/P1_gu_ttxu'
 make[1]: Nothing to be done for 'all'.
-make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gu_ttxu'
-make[1]: Nothing to be done for 'all'.
-make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gu_ttxu'
+make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gu_ttu.mad/SubProcesses/P1_gu_ttxu'
 
 OMP_NUM_THREADS=
 
-DATE: 2023-06-14_16:17:18
+DATE: 2023-06-14_16:30:13
 
 On itscrd90.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
-Working directory (run): /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gu_ttxu
+Working directory (run): /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gu_ttu.mad/SubProcesses/P1_gu_ttxu
 
 *** (1) EXECUTE MADEVENT_FORTRAN (create results.dat) ***
 --------------------
@@ -58,9 +58,9 @@ Executing ' ./madevent_fortran < /tmp/avalassi/input_gqttq_x1_fortran > /tmp/ava
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 0.2605 [] fbridge_mode=0
- [COUNTERS] PROGRAM TOTAL          :    0.2476s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.1643s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.0833s for     8192 events => throughput is 9.84E+04 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.2490s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.1651s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.0839s for     8192 events => throughput is 9.76E+04 events/s
 
 *** (1) EXECUTE MADEVENT_FORTRAN x1 (create events.lhe) ***
 --------------------
@@ -83,9 +83,9 @@ Executing ' ./madevent_fortran < /tmp/avalassi/input_gqttq_x1_fortran > /tmp/ava
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 0.2605 [0.26050333309703716] fbridge_mode=0
  [UNWEIGHT] Wrote 81 events (found 765 events)
- [COUNTERS] PROGRAM TOTAL          :    0.3277s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.2445s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.0833s for     8192 events => throughput is 9.84E+04 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.3287s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.2456s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.0831s for     8192 events => throughput is 9.86E+04 events/s
 
 *** (1) EXECUTE MADEVENT_FORTRAN x10 (create events.lhe) ***
 --------------------
@@ -108,9 +108,9 @@ Executing ' ./madevent_fortran < /tmp/avalassi/input_gqttq_x10_fortran > /tmp/av
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 0.218 [0.21801182648615874] fbridge_mode=0
  [UNWEIGHT] Wrote 853 events (found 1849 events)
- [COUNTERS] PROGRAM TOTAL          :    2.2883s
- [COUNTERS] Fortran Overhead ( 0 ) :    1.3827s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.9057s for    90112 events => throughput is 9.95E+04 events/s
+ [COUNTERS] PROGRAM TOTAL          :    2.2990s
+ [COUNTERS] Fortran Overhead ( 0 ) :    1.3904s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.9086s for    90112 events => throughput is 9.92E+04 events/s
 
 *** (2-none) EXECUTE MADEVENT_CPP x1 (create events.lhe) ***
 --------------------
@@ -133,9 +133,9 @@ Executing ' ./build.none_d_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_gqttq_x1
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 1.276 [1.2757941949814184] fbridge_mode=1
  [UNWEIGHT] Wrote 112 events (found 1776 events)
- [COUNTERS] PROGRAM TOTAL          :    0.4952s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.4220s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0732s for     8192 events => throughput is 1.12E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.4923s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.4203s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0721s for     8192 events => throughput is 1.14E+05 events/s
 
 *** (2-none) Compare MADEVENT_CPP x1 xsec to MADEVENT_FORTRAN xsec ***
 
