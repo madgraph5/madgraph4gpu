@@ -17,9 +17,11 @@
 
 // Choose if curand is supported for generating random numbers
 // For C++, by default, do not inline, but allow this macro to be set from outside with e.g. -DMGONGPU_HAS_NO_CURAND
-#ifdef MGONGPUCPP_GPUIMPL
-#undef MGONGPU_HAS_NO_CURAND
-#else
+// Added support for HIP compilation by defining MGONGPU_HAS_NO_CURAND
+#ifdef MGONGPUCPP_CUDACC
+#undef MGONGPU_HAS_NO_CURAND 
+#else defined MGONGPUCPP_HIPCC
+#define MGONGPU_HAS_NO_CURAND
 //#undef MGONGPU_HAS_NO_CURAND // default
 ////#define MGONGPU_HAS_NO_CURAND 1
 #endif

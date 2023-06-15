@@ -5,7 +5,6 @@
 
 #include "CommonRandomNumbers.h"
 #include "GpuRuntime.h"
-#include "CudaRuntime.h"
 #include "MemoryBuffers.h"
 #include "RandomNumberKernels.h"
 
