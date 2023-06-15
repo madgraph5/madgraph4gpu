@@ -177,7 +177,7 @@ else
     ###CUARCHFLAGS = -gencode arch=compute_$(MADGRAPH_CUDA_ARCHITECTURE),code=compute_$(MADGRAPH_CUDA_ARCHITECTURE) -gencode arch=compute_$(MADGRAPH_CUDA_ARCHITECTURE),code=sm_$(MADGRAPH_CUDA_ARCHITECTURE) # Older implementation (AV): go back to this one for multi-GPU support #533
     ###CUARCHFLAGS = --gpu-architecture=compute_$(MADGRAPH_CUDA_ARCHITECTURE) --gpu-code=sm_$(MADGRAPH_CUDA_ARCHITECTURE),compute_$(MADGRAPH_CUDA_ARCHITECTURE) # Newer implementation (SH): cannot use this as-is for multi-GPU support #533
     comma:=,
-    CUARCHFLAGS = --genco --offload-arch=gfx90a
+    CUARCHFLAGS = -target x86_64-linux-gnu --offload-arch=gfx90a
     CUINC = -I$(HIP_HOME)/include/
     CURANDLIBFLAGS = -L$(HIP_HOME)/lib64/ # NB: -lcuda is not needed here!
     #CUOPTFLAGS = -lineinfo
