@@ -65,7 +65,9 @@ sed -i "s/CPP = cudacpp_backend/${bckend} = cudacpp_backend/" Cards/run_card.dat
 # Launch (generate_events)
 # (BUG #683: generate_events does not return an error code even if it fails)
 ###set -x # verbose
-MG5AMC_CARD_PATH=$(pwd)/Cards ./bin/generate_events -f |& tee ${resultsdir}/output.txt
+date > ${resultsdir}/output.txt
+MG5AMC_CARD_PATH=$(pwd)/Cards time ./bin/generate_events -f |& tee -a ${resultsdir}/output.txt
+date >> ${resultsdir}/output.txt
 ###set +x # not verbose
 
 # Clean config after launch
