@@ -7,7 +7,7 @@
 #endif
 
 #ifdef __HIPCC__
-  #include "hip_runtime.h"
+  #include "hip/hip_runtime.h"
   #define MGONGPUCPP_HIPCC 1
 #endif
 
