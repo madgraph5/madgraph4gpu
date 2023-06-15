@@ -46,7 +46,6 @@
 
   // Defines correct compiler
   #define MGONGPUCPP_GPUIMPL __HCC__
-  #warning MGONGPUCPP_GPUIMPL defined to __HCC__!
 
   //--------------------------------------------------------------------------
 
@@ -71,9 +70,9 @@
   #define gpuDeviceReset hipDeviceReset
 
   #define gpuLaunchKernel(kernel, blocks, threads, sharedMemSize, ...) \
-          hipLaunchKernelGGL(kernel, blocks, threads, __VA_ARGS__);
+          hipLaunchKernelGGL(kernel, blocks, threads, __VA_ARGS__)
 
   #define gpuLaunchKernelSharedMem(kernel, blocks, threads, ...) \
-          hipLaunchKernelGGL(kernel, blocks, threads, sharedMemSize, __VA_ARGS__);
+          hipLaunchKernelGGL(kernel, blocks, threads, sharedMemSize, __VA_ARGS__)
 
 #endif
