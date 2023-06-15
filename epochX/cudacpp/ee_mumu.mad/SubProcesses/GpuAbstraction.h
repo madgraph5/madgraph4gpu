@@ -1,7 +1,7 @@
 // GpuAbstraction.h
 
 #include <cassert>
-#include <hip_runtime.h>
+#include <hip/hip_runtime.h>
 
 #warning Before __CUDACC__ definition!
 #ifdef __CUDACC__
