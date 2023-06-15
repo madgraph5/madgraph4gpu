@@ -103,7 +103,7 @@ main( int argc, char** argv )
     CurandHost = 1,
     CurandDevice = 2
   };
-#ifdef MGONGPUCPP_GPUIMPL
+#ifdef MGONGPUCPP_CUDACPP
   RandomNumberMode rndgen = RandomNumberMode::CurandDevice; // default on GPU
 #elif not defined MGONGPU_HAS_NO_CURAND
   RandomNumberMode rndgen = RandomNumberMode::CurandHost;  // default on CPU if build has curand
