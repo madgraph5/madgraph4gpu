@@ -3,13 +3,12 @@
 #include <cassert>
 #include <hip/hip_runtime.h>
 
-#warning Before __CUDACC__ definition!
 #ifdef __CUDACC__
   #define MGONGPUCPP_CUDACC 1
 #endif
 
 #warning Before __HCC__ definition!
-#ifdef __HCC__
+#ifdef __HIP_PLATFORM_HCC___
   #define MGONGPUCPP_HIPCC 1
   #warning HCC Defined!
 #endif
