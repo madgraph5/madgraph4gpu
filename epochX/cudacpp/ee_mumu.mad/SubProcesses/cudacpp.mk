@@ -458,7 +458,8 @@ ifeq ($(UNAME_S),Darwin)
 else
   # RPATH to cuda/cpp libs when linking executables
   override CXXLIBFLAGSRPATH = -Wl,-rpath,$(LIBDIRRPATH)
-  override CULIBFLAGSRPATH = -Xlinker -rpath,$(LIBDIRRPATH)
+  override CULIBFLAGSRPATH = 
+  # -Xlinker -rpath,$(LIBDIRRPATH)
   # RPATH to common lib when linking cuda/cpp libs
   override CXXLIBFLAGSRPATH2 = -Wl,-rpath,'$$ORIGIN'
   override CULIBFLAGSRPATH2 = 
