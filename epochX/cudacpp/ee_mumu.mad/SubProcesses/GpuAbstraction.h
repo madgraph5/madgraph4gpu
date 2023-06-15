@@ -1,16 +1,13 @@
 // GpuAbstraction.h
 
 #include <cassert>
-#include <hip/hip_runtime.h>
 
 #ifdef __CUDACC__
   #define MGONGPUCPP_CUDACC 1
 #endif
 
-#warning Before __HCC__ definition!
 #ifdef __HIPCC__
   #define MGONGPUCPP_HIPCC 1
-  #warning HCC Defined!
 #endif
 
 #ifdef MGONGPUCPP_CUDACC
