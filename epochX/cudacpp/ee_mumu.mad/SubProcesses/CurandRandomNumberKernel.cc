@@ -14,6 +14,7 @@
 #warning MGONGPU_HAS_NO_CURAND is DEFINED!
 #endif
 
+#ifdef MGONGPUCPP_CUDACC
 #ifndef MGONGPU_HAS_NO_CURAND /* clang-format off */
 #include "curand.h"
 #define checkCurand( code ){ assertCurand( code, __FILE__, __LINE__ ); }
@@ -41,7 +42,7 @@ namespace mg5amcCpu
   {
     if( m_isOnDevice )
     {
-#ifdef MGONGPUCPP_GPUIMPL
+#ifdef MGONGPUCPP_CUDACC
       if( !m_rnarray.isOnDevice() )
         throw std::runtime_error( "CurandRandomNumberKernel on device with a host random number array" );
 #else
@@ -135,5 +136,6 @@ namespace mg5amcCpu
   }
 
   //--------------------------------------------------------------------------
+#endif
 #endif
 }
