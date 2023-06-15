@@ -390,6 +390,7 @@ main( int argc, char** argv )
     prnk.reset( new CommonRandomNumberKernel( hstRndmom ) );
   }
 #ifndef MGONGPU_HAS_NO_CURAND
+  #warning THIS SHOULD NOT TRIGGER!!!
   else if( rndgen == RandomNumberMode::CurandHost )
   {
     const bool onDevice = false;
