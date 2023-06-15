@@ -19,7 +19,7 @@
 #include <complex>
 
 // Complex type in cuda: thrust or cucomplex or cxsmpl
-#define THRUST_IGNORE_CUB_VERSION_CHECK
+// #define THRUST_IGNORE_CUB_VERSION_CHECK
 #ifdef MGONGPUCPP_CUDACC
 #if defined MGONGPU_CUCXTYPE_THRUST
 #pragma clang diagnostic push
@@ -33,7 +33,7 @@
 #endif
 #else
 // Complex type in c++: std::complex or cxsmpl
-#if defined MGONGPU_CPPCXTYPE_STDCOMPLEX
+#if defined MGONGPU_CPPCXTYPE_STDCOMPLEX or MGONGPUCPP_HIPCC
 #include <cmath>
 #elif not defined MGONGPU_CPPCXTYPE_CXSMPL
 #error You must CHOOSE (ONE AND) ONLY ONE of MGONGPU_CPPCXTYPE_STDCOMPLEX or MGONGPU_CPPCXTYPE_CXSMPL
