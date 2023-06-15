@@ -106,8 +106,10 @@ main( int argc, char** argv )
 #ifdef MGONGPUCPP_CUDACPP
   RandomNumberMode rndgen = RandomNumberMode::CurandDevice; // default on GPU
 #elif not defined MGONGPU_HAS_NO_CURAND
+  #warning Using CurandHost
   RandomNumberMode rndgen = RandomNumberMode::CurandHost;  // default on CPU if build has curand
 #else
+  #warning Using CommonRandom
   RandomNumberMode rndgen = RandomNumberMode::CommonRandom; // default on CPU if build has no curand
 #endif
   // Rambo sampling mode (NB RamboHost implies CommonRandom or CurandHost!)
