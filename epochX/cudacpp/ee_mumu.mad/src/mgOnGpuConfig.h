@@ -19,9 +19,12 @@
 // For C++, by default, do not inline, but allow this macro to be set from outside with e.g. -DMGONGPU_HAS_NO_CURAND
 // Added support for HIP compilation by defining MGONGPU_HAS_NO_CURAND
 #ifdef MGONGPUCPP_CUDACC
+#warning CUDACC IS DEFINED!
 #undef MGONGPU_HAS_NO_CURAND 
 #elif defined MGONGPUCPP_HIPCC
+#warning HIPCC IS DEFINED!
 #define MGONGPU_HAS_NO_CURAND 1
+#warning CURANC IFDEF IS DEFINED!
 //#undef MGONGPU_HAS_NO_CURAND // default
 ////#define MGONGPU_HAS_NO_CURAND 1
 #endif
