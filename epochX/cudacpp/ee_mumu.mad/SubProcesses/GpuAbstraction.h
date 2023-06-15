@@ -8,6 +8,7 @@
 
 #ifdef __HCC__
   #define MGONGPUCPP_HIPCC 1
+  #warning HCC Defined!
 #endif
 
 #ifdef MGONGPUCPP_CUDACC
@@ -46,6 +47,7 @@
 
   // Defines correct compiler
   #define MGONGPUCPP_GPUIMPL __HCC__
+  #warning MGONGPUCPP_GPUIMPL defined to __HCC__!
 
   //--------------------------------------------------------------------------
 
