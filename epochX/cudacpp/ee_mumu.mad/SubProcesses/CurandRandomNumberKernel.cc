@@ -10,7 +10,11 @@
 
 #include <cassert>
 
-#ifndef MGONGPU_HAS_NO_CURAND and MGONGPUCPP_HIPCC /* clang-format off */
+#ifdef MGONGPU_HAS_NO_CURAND
+#warning MGONGPU_HAS_NO_CURAND is DEFINED!
+#endif
+
+#ifndef MGONGPU_HAS_NO_CURAND /* clang-format off */
 #include "curand.h"
 #define checkCurand( code ){ assertCurand( code, __FILE__, __LINE__ ); }
 inline void assertCurand( curandStatus_t code, const char *file, int line, bool abort = true )
