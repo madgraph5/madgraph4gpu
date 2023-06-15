@@ -10,7 +10,7 @@
 
 #include <cassert>
 
-#ifndef MGONGPU_HAS_NO_CURAND /* clang-format off */
+#ifndef MGONGPU_HAS_NO_CURAND and MGONGPUCPP_HIPCC /* clang-format off */
 #include "curand.h"
 #define checkCurand( code ){ assertCurand( code, __FILE__, __LINE__ ); }
 inline void assertCurand( curandStatus_t code, const char *file, int line, bool abort = true )
@@ -23,7 +23,7 @@ inline void assertCurand( curandStatus_t code, const char *file, int line, bool 
 }
 #endif /* clang-format on */
 
-#ifdef MGONGPUCPP_GPUIMPL
+#ifdef MGONGPUCPP_CUDACC
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
