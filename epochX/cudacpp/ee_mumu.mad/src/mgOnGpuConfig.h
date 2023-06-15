@@ -20,7 +20,7 @@
 // Added support for HIP compilation by defining MGONGPU_HAS_NO_CURAND
 #ifdef MGONGPUCPP_CUDACC
 #undef MGONGPU_HAS_NO_CURAND 
-#else defined MGONGPUCPP_HIPCC
+#else if defined MGONGPUCPP_HIPCC
 #define MGONGPU_HAS_NO_CURAND
 //#undef MGONGPU_HAS_NO_CURAND // default
 ////#define MGONGPU_HAS_NO_CURAND 1
