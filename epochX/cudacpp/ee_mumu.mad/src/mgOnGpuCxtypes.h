@@ -20,7 +20,7 @@
 
 // Complex type in cuda: thrust or cucomplex or cxsmpl
 // #define THRUST_IGNORE_CUB_VERSION_CHECK
-#ifdef MGONGPUCPP_CUDACC
+#ifdef MGONGPUCPP_GPUIMPL
 #if defined MGONGPU_CUCXTYPE_THRUST
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wtautological-compare" // for icpx2021/clang13 (https://stackoverflow.com/a/15864661)
@@ -33,7 +33,7 @@
 #endif
 #else
 // Complex type in c++: std::complex or cxsmpl
-#if defined MGONGPU_CPPCXTYPE_STDCOMPLEX or MGONGPUCPP_HIPCC
+#if defined MGONGPU_CPPCXTYPE_STDCOMPLEX
 #include <cmath>
 #elif not defined MGONGPU_CPPCXTYPE_CXSMPL
 #error You must CHOOSE (ONE AND) ONLY ONE of MGONGPU_CPPCXTYPE_STDCOMPLEX or MGONGPU_CPPCXTYPE_CXSMPL
@@ -236,7 +236,7 @@ using mgOnGpu::cxtype;
 // COMPLEX TYPES: (PLATFORM-SPECIFIC) FUNCTIONS AND OPERATORS
 //==========================================================================
 
-#if defined MGONGPU_CUCXTYPE_CXSMPL or defined MGONGPU_CPPCXTYPE_CXSMPL
+#if defined MGONGPU_CUCXTYPE_CXSMPL or defined MGONGPU_CPPCXTYPE_CXSMPL or MGONGPUCPP_HIPCC
 
 //------------------------------
 // CUDA or C++ - using cxsmpl
