@@ -33,6 +33,7 @@ cd $(dirname $0)/..
 echo "Execute $(basename $0) for process ${proc} in directory $(pwd)"
 procdir=$(pwd)/${proc}
 cd $procdir
+resultsdir=$(pwd)/LAUX_${bckend}
 
 function lauX_makeclean()
 {
@@ -48,9 +49,10 @@ function lauX_cleanup()
 }
 
 # Clean builds before launch
-lauX_makeclean
+lauX_makeclean >& /dev/null
 
 # Clean config before launch
+rm -rf ${resultsdir}; mkdir ${resultsdir}
 lauX_cleanup
 rm -f SubProcesses/ME5_debug
 echo "r=21" > SubProcesses/randinit # just in case a previous test was not cleaned up
@@ -61,11 +63,13 @@ cp Cards/run_card.dat Cards/run_card.dat.BKP # save the initial run_card.dat
 sed -i "s/CPP = cudacpp_backend/${bckend} = cudacpp_backend/" Cards/run_card.dat
 
 # Launch (generate_events)
+# (BUG #683: generate_events does not return an error code even if it fails)
 ###set -x # verbose
-MG5AMC_CARD_PATH=$(pwd)/Cards ./bin/generate_events -f # (BUG #683: this does not return an error code even if it fails)
+MG5AMC_CARD_PATH=$(pwd)/Cards ./bin/generate_events -f |& tee ${resultsdir}/output.txt
 ###set +x # not verbose
 
 # Clean config after launch
+mv Events ${resultsdir}; mv HTML ${resultsdir}
 lauX_cleanup
 mv SubProcesses/randinit.BKP SubProcesses/randinit # restore the initial randinit
 mv Cards/run_card.dat.BKP Cards/run_card.dat # restore the initial run_card.dat
