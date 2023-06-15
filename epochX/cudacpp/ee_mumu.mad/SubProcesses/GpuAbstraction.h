@@ -8,7 +8,7 @@
 #endif
 
 #warning Before __HCC__ definition!
-#ifdef __HIP_PLATFORM_HCC___
+#ifdef __HIPCC__
   #define MGONGPUCPP_HIPCC 1
   #warning HCC Defined!
 #endif
