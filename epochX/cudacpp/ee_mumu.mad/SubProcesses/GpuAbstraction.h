@@ -73,10 +73,8 @@
   #define gpuLaunchKernel( kernel, blocks, threads, ...)                    kernel<<<blocks, threads>>> (__VA_ARGS__)
   #define gpuLaunchKernelSharedMem(kernel, blocks, threads, sharedMem, ...) kernel<<<blocks, threads, sharedMem>>>(__VA_ARGS__)
 
-  //#define gpuLaunchKernel(kernel, blocks, threads, sharedMemSize, ...) \
-          hipLaunchKernelGGL(kernel, blocks, threads, __VA_ARGS__)
+  //#define gpuLaunchKernel(kernel, blocks, threads, sharedMemSize, ...) hipLaunchKernelGGL(kernel, blocks, threads, __VA_ARGS__)
 
-  //#define gpuLaunchKernelSharedMem(kernel, blocks, threads, ...) \
-          hipLaunchKernelGGL(kernel, blocks, threads, sharedMemSize, __VA_ARGS__)
+  //#define gpuLaunchKernelSharedMem(kernel, blocks, threads, ...) hipLaunchKernelGGL(kernel, blocks, threads, sharedMemSize, __VA_ARGS__)
 
 #endif

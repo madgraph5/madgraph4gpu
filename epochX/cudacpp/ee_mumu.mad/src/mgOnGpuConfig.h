@@ -21,7 +21,7 @@
 #ifdef MGONGPUCPP_CUDACC
 #undef MGONGPU_HAS_NO_CURAND 
 #elif defined MGONGPUCPP_HIPCC
-#define MGONGPU_HAS_NO_CURAND
+#define MGONGPU_HAS_NO_CURAND 1
 //#undef MGONGPU_HAS_NO_CURAND // default
 ////#define MGONGPU_HAS_NO_CURAND 1
 #endif
