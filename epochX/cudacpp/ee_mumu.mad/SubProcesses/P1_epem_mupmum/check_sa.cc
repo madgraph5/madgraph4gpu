@@ -146,7 +146,7 @@ main( int argc, char** argv )
     }
     else if( arg == "--curdev" )
     {
-#ifdef MGONGPUCPP_GPUIMPL
+#ifdef MGONGPUCPP_CUDACC
       rndgen = RandomNumberMode::CurandDevice;
 #else
       throw std::runtime_error( "CurandDevice is not supported on CPUs" );
@@ -395,7 +395,7 @@ main( int argc, char** argv )
     const bool onDevice = false;
     prnk.reset( new CurandRandomNumberKernel( hstRndmom, onDevice ) );
   }
-#ifdef MGONGPUCPP_GPUIMPL
+#ifdef MGONGPUCPP_CUDACC
   else
   {
     const bool onDevice = true;
