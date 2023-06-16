@@ -14,14 +14,14 @@ Running MG5 in debug mode
 *                   *        * *        *                  *
 *                 *                       *                *
 *                                                          *
-*         VERSION 3.5.0_lo_vect         2023-01-26         *
+*         VERSION 3.5.0_lo_vect         2023-06-09         *
 [1;31m*                                                          *[1;0m
 [1;31m*          WARNING: UNKNOWN DEVELOPMENT VERSION.           *[1;0m
 [1;31m*            WARNING: DO NOT USE FOR PRODUCTION            *[1;0m
 [1;31m*                                                          *[1;0m
 *                                                          *
 *    The MadGraph5_aMC@NLO Development Team - Find us at   *
-*    https://server06.fynu.ucl.ac.be/projects/madgraph     *
+*              http://madgraph.phys.ucl.ac.be/             *
 *                            and                           *
 *            http://amcatnlo.web.cern.ch/amcatnlo/         *
 *                                                          *
@@ -62,7 +62,7 @@ generate g g > t t~; add process g g > t t~ g
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.00500035285949707 [0m
+[1;32mDEBUG: model prefixing  takes 0.0047130584716796875 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -183,41 +183,41 @@ INFO: Processing color information for process: g g > t t~ g @2
 INFO: Generating Helas calls for process: g g > t t~ WEIGHTED<=2 @1 
 INFO: Processing color information for process: g g > t t~ @1 
 INFO: Creating files in directory P2_gg_ttxg 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.__init__ [1;30m[model_handling.py at line 1027][0m [0m
-[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1028][0m [0m
-[1;32mDEBUG:  proc_id = [0m 1 [1;30m[model_handling.py at line 1033][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f0e1e5753a0> [1;30m[export_v4.py at line 6163][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.__init__ [1;30m[model_handling.py at line 1028][0m [0m
+[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1029][0m [0m
+[1;32mDEBUG:  proc_id = [0m 1 [1;30m[model_handling.py at line 1034][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7fd881ca5730> [1;30m[export_v4.py at line 6174][0m [0m
 INFO: Creating files in directory . 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 1285][0m [0m
-[1;32mDEBUG:  self.include_multi_channel is already defined: this is madevent+second_exporter mode [1;30m[model_handling.py at line 1287][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 1286][0m [0m
+[1;32mDEBUG:  self.include_multi_channel is already defined: this is madevent+second_exporter mode [1;30m[model_handling.py at line 1288][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_h_file [1;30m[model_handling.py at line 1441][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_h_file [1;30m[model_handling.py at line 1442][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_cc_file [1;30m[model_handling.py at line 1463][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.get_sigmaKin_lines [1;30m[model_handling.py at line 1131][0m [0m
-[1;32mDEBUG:  self.include_multi_channel = [0m [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0] [1;30m[model_handling.py at line 1132][0m [0m
-[1;32mDEBUG:  self.support_multichannel = [0m True [1;30m[model_handling.py at line 1133][0m [0m
-[1;32mDEBUG:  type(self.helas_call_writer) = [0m <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_GPUFOHelasCallWriter'> [1;30m[model_handling.py at line 1150][0m [0m
-[1;32mDEBUG:  self.support_multichannel, self.include_multi_channel = [0m True [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0] [1;30m[model_handling.py at line 1151][0m [0m
-[1;32mDEBUG:  multi_channel = [0m {1: [0], 2: [1], 3: [2], 4: [3], 5: [4], 6: [5], 7: [6], 8: [7], 9: [8], 10: [9], 11: [10], 12: [11], 13: [12], 14: [13], 15: [14]} [1;30m[model_handling.py at line 1157][0m [0m
-[1;32mDEBUG:  multi_channel_map = [0m {1: [0], 2: [1], 3: [2], 4: [3], 5: [4], 6: [5], 7: [6], 8: [7], 9: [8], 10: [9], 11: [10], 12: [11], 13: [12], 14: [13], 15: [14]} [1;30m[model_handling.py at line 1642][0m [0m
-[1;32mDEBUG:  diag_to_config = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15} [1;30m[model_handling.py at line 1697][0m [0m
-[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1809][0m [0m
-[1;32mDEBUG:  ('ZERO', 0, -1, 0, 0) [1;30m[model_handling.py at line 1810][0m [0m
-[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1809][0m [0m
-[1;32mDEBUG:  ('ZERO', 1, -1, 1, 1) [1;30m[model_handling.py at line 1810][0m [0m
-[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1809][0m [0m
-[1;32mDEBUG:  ('ZERO', 4, 1, 4, 4) [1;30m[model_handling.py at line 1810][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_cc_file [1;30m[model_handling.py at line 1464][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.get_sigmaKin_lines [1;30m[model_handling.py at line 1132][0m [0m
+[1;32mDEBUG:  self.include_multi_channel = [0m [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0] [1;30m[model_handling.py at line 1133][0m [0m
+[1;32mDEBUG:  self.support_multichannel = [0m True [1;30m[model_handling.py at line 1134][0m [0m
+[1;32mDEBUG:  type(self.helas_call_writer) = [0m <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_GPUFOHelasCallWriter'> [1;30m[model_handling.py at line 1151][0m [0m
+[1;32mDEBUG:  self.support_multichannel, self.include_multi_channel = [0m True [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0] [1;30m[model_handling.py at line 1152][0m [0m
+[1;32mDEBUG:  multi_channel = [0m {1: [0], 2: [1], 3: [2], 4: [3], 5: [4], 6: [5], 7: [6], 8: [7], 9: [8], 10: [9], 11: [10], 12: [11], 13: [12], 14: [13], 15: [14]} [1;30m[model_handling.py at line 1158][0m [0m
+[1;32mDEBUG:  multi_channel_map = [0m {1: [0], 2: [1], 3: [2], 4: [3], 5: [4], 6: [5], 7: [6], 8: [7], 9: [8], 10: [9], 11: [10], 12: [11], 13: [12], 14: [13], 15: [14]} [1;30m[model_handling.py at line 1643][0m [0m
+[1;32mDEBUG:  diag_to_config = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15} [1;30m[model_handling.py at line 1698][0m [0m
+[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1810][0m [0m
+[1;32mDEBUG:  ('ZERO', 0, -1, 0, 0) [1;30m[model_handling.py at line 1811][0m [0m
+[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1810][0m [0m
+[1;32mDEBUG:  ('ZERO', 1, -1, 1, 1) [1;30m[model_handling.py at line 1811][0m [0m
+[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1810][0m [0m
+[1;32mDEBUG:  ('ZERO', 4, 1, 4, 4) [1;30m[model_handling.py at line 1811][0m [0m
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_CMakeLists [1;30m[model_handling.py at line 1331][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_check_sa [1;30m[model_handling.py at line 1340][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_mgonGPU [1;30m[model_handling.py at line 1357][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_processidfile [1;30m[model_handling.py at line 1377][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_coloramps [1;30m[model_handling.py at line 1389][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_testxxx [1;30m[model_handling.py at line 1407][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memorybuffers [1;30m[model_handling.py at line 1418][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memoryaccesscouplings [1;30m[model_handling.py at line 1429][0m [0m
-[1;32mDEBUG:  'Copying test reference file: ', template_ref  = [0m Copying test reference file:  /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/PLUGIN/CUDACPP_SA_OUTPUT/madgraph/iolibs/template_files/../../../test/ref/dump_CPUTest.Sigma_sm_gg_ttxg.txt [1;30m[model_handling.py at line 1323][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_CMakeLists [1;30m[model_handling.py at line 1332][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_check_sa [1;30m[model_handling.py at line 1341][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_mgonGPU [1;30m[model_handling.py at line 1358][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_processidfile [1;30m[model_handling.py at line 1378][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_coloramps [1;30m[model_handling.py at line 1390][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_testxxx [1;30m[model_handling.py at line 1408][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memorybuffers [1;30m[model_handling.py at line 1419][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memoryaccesscouplings [1;30m[model_handling.py at line 1430][0m [0m
+[1;32mDEBUG:  'Copying test reference file: ', template_ref  = [0m Copying test reference file:  /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/PLUGIN/CUDACPP_SA_OUTPUT/madgraph/iolibs/template_files/../../../test/ref/dump_CPUTest.Sigma_sm_gg_ttxg.txt [1;30m[model_handling.py at line 1324][0m [0m
 [1;32mDEBUG:  proc_id = [0m 1 [1;30m[export_cpp.py at line 710][0m [0m
 [1;32mDEBUG:  config_map = [0m [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0] [1;30m[export_cpp.py at line 711][0m [0m
 [1;32mDEBUG:  subproc_number = [0m 0 [1;30m[export_cpp.py at line 712][0m [0m
@@ -225,39 +225,39 @@ INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./.
 INFO: Generating Feynman diagrams for Process: g g > t t~ g WEIGHTED<=3 @2 
 INFO: Finding symmetric diagrams for subprocess group gg_ttxg 
 INFO: Creating files in directory P1_gg_ttx 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.__init__ [1;30m[model_handling.py at line 1027][0m [0m
-[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1028][0m [0m
-[1;32mDEBUG:  proc_id = [0m 1 [1;30m[model_handling.py at line 1033][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f0e1e5753a0> [1;30m[export_v4.py at line 6163][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.__init__ [1;30m[model_handling.py at line 1028][0m [0m
+[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1029][0m [0m
+[1;32mDEBUG:  proc_id = [0m 1 [1;30m[model_handling.py at line 1034][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7fd881bea220> [1;30m[export_v4.py at line 6174][0m [0m
 INFO: Creating files in directory . 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 1285][0m [0m
-[1;32mDEBUG:  self.include_multi_channel is already defined: this is madevent+second_exporter mode [1;30m[model_handling.py at line 1287][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 1286][0m [0m
+[1;32mDEBUG:  self.include_multi_channel is already defined: this is madevent+second_exporter mode [1;30m[model_handling.py at line 1288][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_h_file [1;30m[model_handling.py at line 1441][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_h_file [1;30m[model_handling.py at line 1442][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_cc_file [1;30m[model_handling.py at line 1463][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.get_sigmaKin_lines [1;30m[model_handling.py at line 1131][0m [0m
-[1;32mDEBUG:  self.include_multi_channel = [0m [1, 2, 3] [1;30m[model_handling.py at line 1132][0m [0m
-[1;32mDEBUG:  self.support_multichannel = [0m True [1;30m[model_handling.py at line 1133][0m [0m
-[1;32mDEBUG:  type(self.helas_call_writer) = [0m <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_GPUFOHelasCallWriter'> [1;30m[model_handling.py at line 1150][0m [0m
-[1;32mDEBUG:  self.support_multichannel, self.include_multi_channel = [0m True [1, 2, 3] [1;30m[model_handling.py at line 1151][0m [0m
-[1;32mDEBUG:  multi_channel = [0m {1: [0], 2: [1], 3: [2]} [1;30m[model_handling.py at line 1157][0m [0m
-[1;32mDEBUG:  multi_channel_map = [0m {1: [0], 2: [1], 3: [2]} [1;30m[model_handling.py at line 1642][0m [0m
-[1;32mDEBUG:  diag_to_config = [0m {1: 1, 2: 2, 3: 3} [1;30m[model_handling.py at line 1697][0m [0m
-[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1809][0m [0m
-[1;32mDEBUG:  ('ZERO', 0, -1, 0, 0) [1;30m[model_handling.py at line 1810][0m [0m
-[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1809][0m [0m
-[1;32mDEBUG:  ('ZERO', 1, -1, 1, 1) [1;30m[model_handling.py at line 1810][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_cc_file [1;30m[model_handling.py at line 1464][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.get_sigmaKin_lines [1;30m[model_handling.py at line 1132][0m [0m
+[1;32mDEBUG:  self.include_multi_channel = [0m [1, 2, 3] [1;30m[model_handling.py at line 1133][0m [0m
+[1;32mDEBUG:  self.support_multichannel = [0m True [1;30m[model_handling.py at line 1134][0m [0m
+[1;32mDEBUG:  type(self.helas_call_writer) = [0m <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_GPUFOHelasCallWriter'> [1;30m[model_handling.py at line 1151][0m [0m
+[1;32mDEBUG:  self.support_multichannel, self.include_multi_channel = [0m True [1, 2, 3] [1;30m[model_handling.py at line 1152][0m [0m
+[1;32mDEBUG:  multi_channel = [0m {1: [0], 2: [1], 3: [2]} [1;30m[model_handling.py at line 1158][0m [0m
+[1;32mDEBUG:  multi_channel_map = [0m {1: [0], 2: [1], 3: [2]} [1;30m[model_handling.py at line 1643][0m [0m
+[1;32mDEBUG:  diag_to_config = [0m {1: 1, 2: 2, 3: 3} [1;30m[model_handling.py at line 1698][0m [0m
+[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1810][0m [0m
+[1;32mDEBUG:  ('ZERO', 0, -1, 0, 0) [1;30m[model_handling.py at line 1811][0m [0m
+[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1810][0m [0m
+[1;32mDEBUG:  ('ZERO', 1, -1, 1, 1) [1;30m[model_handling.py at line 1811][0m [0m
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_CMakeLists [1;30m[model_handling.py at line 1331][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_check_sa [1;30m[model_handling.py at line 1340][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_mgonGPU [1;30m[model_handling.py at line 1357][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_processidfile [1;30m[model_handling.py at line 1377][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_coloramps [1;30m[model_handling.py at line 1389][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_testxxx [1;30m[model_handling.py at line 1407][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memorybuffers [1;30m[model_handling.py at line 1418][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memoryaccesscouplings [1;30m[model_handling.py at line 1429][0m [0m
-[1;32mDEBUG:  'Copying test reference file: ', template_ref  = [0m Copying test reference file:  /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/PLUGIN/CUDACPP_SA_OUTPUT/madgraph/iolibs/template_files/../../../test/ref/dump_CPUTest.Sigma_sm_gg_ttx.txt [1;30m[model_handling.py at line 1323][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_CMakeLists [1;30m[model_handling.py at line 1332][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_check_sa [1;30m[model_handling.py at line 1341][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_mgonGPU [1;30m[model_handling.py at line 1358][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_processidfile [1;30m[model_handling.py at line 1378][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_coloramps [1;30m[model_handling.py at line 1390][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_testxxx [1;30m[model_handling.py at line 1408][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memorybuffers [1;30m[model_handling.py at line 1419][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memoryaccesscouplings [1;30m[model_handling.py at line 1430][0m [0m
+[1;32mDEBUG:  'Copying test reference file: ', template_ref  = [0m Copying test reference file:  /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/PLUGIN/CUDACPP_SA_OUTPUT/madgraph/iolibs/template_files/../../../test/ref/dump_CPUTest.Sigma_sm_gg_ttx.txt [1;30m[model_handling.py at line 1324][0m [0m
 [1;32mDEBUG:  proc_id = [0m 1 [1;30m[export_cpp.py at line 710][0m [0m
 [1;32mDEBUG:  config_map = [0m [1, 2, 3] [1;30m[export_cpp.py at line 711][0m [0m
 [1;32mDEBUG:  subproc_number = [0m 1 [1;30m[export_cpp.py at line 712][0m [0m
@@ -265,14 +265,14 @@ INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./.
 INFO: Generating Feynman diagrams for Process: g g > t t~ WEIGHTED<=2 @1 
 INFO: Finding symmetric diagrams for subprocess group gg_ttx 
 Generated helas calls for 2 subprocesses (19 diagrams) in 0.039 s
-Wrote files for 46 helas calls in 0.250 s
+Wrote files for 46 helas calls in 0.249 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 set of routines with options: P0[0m
 ALOHA: aloha creates VVVV3 set of routines with options: P0[0m
 ALOHA: aloha creates VVVV4 set of routines with options: P0[0m
-ALOHA: aloha creates 5 routines in  0.281 s
+ALOHA: aloha creates 5 routines in  0.278 s
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 194][0m [0m
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
@@ -328,6 +328,6 @@ Type "launch" to generate events from this process, or see
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m2.162s
-user	0m1.922s
-sys	0m0.228s
+real	0m2.331s
+user	0m1.921s
+sys	0m0.229s

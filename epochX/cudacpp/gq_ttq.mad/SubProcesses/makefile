@@ -88,11 +88,7 @@ SYMMETRY = symmetry.o idenparts.o
 
 LDFLAGS+=-Wl,--no-relax # avoid 'failed to convert GOTPCREL relocation' error #458
 
-ifeq (,$(wildcard fbridge.inc))
-all: $(PROG)_fortran
-else
 all: $(PROG)_fortran $(CUDACPP_BUILDDIR)/$(PROG)_cpp # also builds $(PROG)_cuda if $(CUDACPP_CULIB) exists (#503)
-endif
 
 ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
 override OMPFLAGS = -fopenmp
@@ -116,11 +112,9 @@ $(LIBS): .libs
 	cd ../../Source; make
 	touch $@
 
-ifneq (,$(wildcard fbridge.inc))
 $(CUDACPP_BUILDDIR)/.cudacpplibs:
 	$(MAKE) -f $(CUDACPP_MAKEFILE)
 	touch $@
-endif
 
 # On Linux, set rpath to LIBDIR to make it unnecessary to use LD_LIBRARY_PATH
 # Use relative paths with respect to the executables ($ORIGIN on Linux)
@@ -166,19 +160,19 @@ $(PROG)_forhel: $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX_HEL)
 gensym: $(SYMMETRY) configs.inc $(LIBS)
 	$(FC) -o gensym $(SYMMETRY) -L$(LIBDIR) $(LINKLIBS) $(LDFLAGS)
 
-ifeq (,$(wildcard fbridge.inc))
-$(LIBDIR)libmodel.$(libext): ../../Cards/param_card.dat
-	cd ../../Source/MODEL; make
-
-$(LIBDIR)libgeneric.$(libext): ../../Cards/run_card.dat
-	cd ../../Source; make
-
-$(LIBDIR)libpdf.$(libext): 
-	cd ../../Source/PDF; make
-
-$(LIBDIR)libgammaUPC.$(libext):
-	cd ../../Source/PDF/gammaUPC; make
-endif
+###ifeq (,$(wildcard fbridge.inc)) # Pointless: fbridge.inc always exists as this is the cudacpp-modified makefile!
+###$(LIBDIR)libmodel.$(libext): ../../Cards/param_card.dat
+###	cd ../../Source/MODEL; make
+###
+###$(LIBDIR)libgeneric.$(libext): ../../Cards/run_card.dat
+###	cd ../../Source; make
+###
+###$(LIBDIR)libpdf.$(libext): 
+###	cd ../../Source/PDF; make
+###
+###$(LIBDIR)libgammaUPC.$(libext):
+###	cd ../../Source/PDF/gammaUPC; make
+###endif
 
 # Add source so that the compiler finds the DiscreteSampler module.
 $(MATRIX): %.o: %.f
@@ -191,7 +185,7 @@ $(MATRIX): %.o: %.f
 # Dependencies
 
 driver.f: genps.inc
-symmetry.o: genps.inc nexternal.inc configs.inc run_config.inc
+symmetry.o: genps.inc nexternal.inc configs.inc run_config.inc ../../Source/run_card.inc
 genps.o: genps.inc nexternal.inc configs.inc
 dummy_fct.0: run.inc genps.inc
 cuts.o: genps.inc nexternal.inc pmass.inc
@@ -215,8 +209,6 @@ $(MATRIX): .libs
 genps.o: .libs
 
 # Cudacpp avxall targets
-
-ifneq (,$(wildcard fbridge.inc))
 
 UNAME_P := $(shell uname -p)
 ifeq ($(UNAME_P),ppc64le)
@@ -247,30 +239,22 @@ avx512z: $(PROG)_fortran $(DSIG_cudacpp)
 	@echo
 	$(MAKE) USEBUILDDIR=1 AVX=512z
 
-endif
+###endif
 
-# Clean
+# Clean (NB: 'make clean' in Source calls 'make clean' in all P*)
 
-clean:
-ifeq (,$(wildcard fbridge.inc))
-	$(RM) *.o gensym $(PROG) $(PROG)_fortran $(PROG)_forhel
-else
+clean: # Clean builds: fortran in this Pn; cudacpp executables for one AVX in this Pn
 	$(RM) *.o gensym $(PROG) $(PROG)_fortran $(PROG)_forhel $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(CUDACPP_BUILDDIR)/$(PROG)_cuda
-endif
 
-cleanall:
-	make clean
-	make -C ../../Source clean
-	rm -rf $(LIBDIR)libbias.$(libext)
-ifneq (,$(wildcard fbridge.inc))
+cleanavxs: clean # Clean builds: fortran in this Pn; cudacpp for all AVX in this Pn and in src
 	$(MAKE) -f $(CUDACPP_MAKEFILE) cleanall
 	rm -f $(CUDACPP_BUILDDIR)/.cudacpplibs
-endif
-	rm -f ../../Source/*.mod ../../Source/*/*.mod
 	rm -f .libs
 
-ifneq (,$(wildcard fbridge.inc))
-# Target: clean the builds as well as the googletest installation
-distclean: cleanall
+cleanall: # Clean builds: fortran in all P* and in Source; cudacpp for all AVX in all P* and in src
+	make -C ../../Source cleanall
+	rm -rf $(LIBDIR)libbias.$(libext)
+	rm -f ../../Source/*.mod ../../Source/*/*.mod
+
+distclean: cleanall # Clean all fortran and cudacpp builds as well as the googletest installation
 	$(MAKE) -f $(CUDACPP_MAKEFILE) distclean
-endif
