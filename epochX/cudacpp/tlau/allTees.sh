@@ -3,9 +3,9 @@
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: A. Valassi (June 2023) for the MG5aMC CUDACPP plugin.
 
-for dir in gg_tt.mad gg_ttg.mad gg_ttgg.mad gg_ttggg.mad; do
-  ./tlau/lauX.sh -CUDA ${dir}
-  ./tlau/lauX.sh -FORTRAN ${dir}
-  ./tlau/lauX.sh -CPP ${dir}
+for proc in gg_tt gg_ttg gg_ttgg gg_ttggg; do
+  ./tlau/lauX.sh -CUDA ${proc}
+  ./tlau/lauX.sh -FORTRAN ${proc}
+  ./tlau/lauX.sh -CPP ${proc}
 done
 
