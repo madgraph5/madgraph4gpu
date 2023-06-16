@@ -1,0 +1,90 @@
+Thu Jun 15 08:02:42 CEST 2023
+************************************************************
+*                                                          *
+*                      W E L C O M E to                    *
+*             M A D G R A P H 5 _ a M C @ N L O            *
+*                      M A D E V E N T                     *
+*                                                          *
+*                 *                       *                *
+*                   *        * *        *                  *
+*                     * * * * 5 * * * *                    *
+*                   *        * *        *                  *
+*                 *                       *                *
+*                                                          *
+*         VERSION 3.5.0_lo_vect                            *
+*                                                          *
+*    The MadGraph5_aMC@NLO Development Team - Find us at   *
+*    https://server06.fynu.ucl.ac.be/projects/madgraph     *
+*                                                          *
+*               Type 'help' for in-line help.              *
+*                                                          *
+************************************************************
+INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttgg.mad/Cards/me5_configuration.txt  
+INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttgg.mad/Cards/me5_configuration.txt  
+Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
+No valid eps viewer found. Please set in ./input/mg5_configuration.txt
+Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
+generate_events -f
+Generating 10000 events with run name run_01
+survey  run_01 
+INFO: compile directory 
+compile Source Directory
+Using random number seed offset = 21
+INFO: Running Survey 
+Creating Jobs
+Working on SubProcesses
+INFO:     P1_gg_ttxgg  
+INFO: Building madevent in madevent_interface.py with 'CPP' matrix elements 
+INFO:  Idle: 14,  Running: 4,  Completed: 0 [ current time: 08h02 ] 
+INFO:  Idle: 13,  Running: 4,  Completed: 1 [  28.8s  ] 
+INFO:  Idle: 10,  Running: 4,  Completed: 4 [  1m 1s  ] 
+INFO:  Idle: 9,  Running: 4,  Completed: 5 [  1m 14s  ] 
+INFO:  Idle: 7,  Running: 4,  Completed: 7 [  1m 31s  ] 
+INFO:  Idle: 6,  Running: 4,  Completed: 8 [  2m 5s  ] 
+INFO:  Idle: 5,  Running: 4,  Completed: 9 [  2m 14s  ] 
+INFO:  Idle: 3,  Running: 4,  Completed: 11 [  2m 21s  ] 
+INFO:  Idle: 2,  Running: 4,  Completed: 12 [  2m 50s  ] 
+INFO:  Idle: 1,  Running: 4,  Completed: 13 [  2m 58s  ] 
+INFO:  Idle: 0,  Running: 4,  Completed: 14 [  3m 6s  ] 
+INFO:  Idle: 0,  Running: 2,  Completed: 16 [  3m 20s  ] 
+INFO:  Idle: 0,  Running: 1,  Completed: 17 [  3m 29s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 18 [  3m 34s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 18 [  3m 34s  ] 
+INFO: End survey 
+refine 10000
+Creating Jobs
+INFO: Refine results to 10000 
+INFO: Generating 10000.0 unweighted events. 
+sum of cpu time of last step: 13m27s
+INFO: Effective Luminosity 47.57523835538049 pb^-1 
+INFO: need to improve 2 channels 
+- Current estimate of cross-section: 252.23205210999996 +- 0.4838982830608721
+    P1_gg_ttxgg 
+Building madevent in madevent_interface.py with 'CPP' matrix elements
+INFO:  Idle: 1,  Running: 3,  Completed: 0 [ current time: 08h06 ] 
+INFO:  Idle: 0,  Running: 3,  Completed: 1 [  21.2s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 4 [  22s  ] 
+INFO: Combining runs 
+sum of cpu time of last step: 13m52s
+INFO: finish refine 
+refine 10000 --treshold=0.9
+No need for second refine due to stability of cross-section
+INFO: Combining Events 
+  === Results Summary for run: run_01 tag: tag_1 ===
+
+     Cross-section :   252.3 +- 0.3483 pb
+     Nb of events :  10000
+ 
+INFO: No version of lhapdf. Can not run systematics computation 
+store_events
+INFO: Storing parton level results 
+INFO: End Parton 
+reweight -from_cards
+decay_events -from_cards
+INFO: storing files of previous run 
+INFO: Done 
+quit
+INFO:  
+931.76user 8.78system 4:38.81elapsed 337%CPU (0avgtext+0avgdata 102804maxresident)k
+0inputs+3828256outputs (0major+752295minor)pagefaults 0swaps
+Thu Jun 15 08:07:21 CEST 2023

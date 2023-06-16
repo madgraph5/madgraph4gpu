@@ -1,0 +1,87 @@
+Thu Jun 15 07:48:43 CEST 2023
+************************************************************
+*                                                          *
+*                      W E L C O M E to                    *
+*             M A D G R A P H 5 _ a M C @ N L O            *
+*                      M A D E V E N T                     *
+*                                                          *
+*                 *                       *                *
+*                   *        * *        *                  *
+*                     * * * * 5 * * * *                    *
+*                   *        * *        *                  *
+*                 *                       *                *
+*                                                          *
+*         VERSION 3.5.0_lo_vect                            *
+*                                                          *
+*    The MadGraph5_aMC@NLO Development Team - Find us at   *
+*    https://server06.fynu.ucl.ac.be/projects/madgraph     *
+*                                                          *
+*               Type 'help' for in-line help.              *
+*                                                          *
+************************************************************
+INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttgg.mad/Cards/me5_configuration.txt  
+INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttgg.mad/Cards/me5_configuration.txt  
+Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
+No valid eps viewer found. Please set in ./input/mg5_configuration.txt
+Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
+generate_events -f
+Generating 10000 events with run name run_01
+survey  run_01 
+INFO: compile directory 
+compile Source Directory
+Using random number seed offset = 21
+INFO: Running Survey 
+Creating Jobs
+Working on SubProcesses
+INFO:     P1_gg_ttxgg  
+INFO: Building madevent in madevent_interface.py with 'CUDA' matrix elements 
+INFO:  Idle: 14,  Running: 4,  Completed: 0 [ current time: 07h48 ] 
+INFO:  Idle: 13,  Running: 4,  Completed: 1 [  8.2s  ] 
+INFO:  Idle: 10,  Running: 4,  Completed: 4 [  19.4s  ] 
+INFO:  Idle: 8,  Running: 4,  Completed: 6 [  22.6s  ] 
+INFO:  Idle: 7,  Running: 4,  Completed: 7 [  26.8s  ] 
+INFO:  Idle: 6,  Running: 4,  Completed: 8 [  39.2s  ] 
+INFO:  Idle: 3,  Running: 4,  Completed: 11 [  45.6s  ] 
+INFO:  Idle: 2,  Running: 4,  Completed: 12 [  51.3s  ] 
+INFO:  Idle: 0,  Running: 4,  Completed: 14 [  57.3s  ] 
+INFO:  Idle: 0,  Running: 2,  Completed: 16 [  1m 0s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 18 [  1m 4s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 18 [  1m 4s  ] 
+INFO: End survey 
+refine 10000
+Creating Jobs
+INFO: Refine results to 10000 
+INFO: Generating 10000.0 unweighted events. 
+sum of cpu time of last step: 4m07s
+INFO: Effective Luminosity 47.60279369991978 pb^-1 
+INFO: need to improve 1 channels 
+- Current estimate of cross-section: 252.08604510999996 +- 0.4833081845268459
+    P1_gg_ttxgg 
+Building madevent in madevent_interface.py with 'CUDA' matrix elements
+INFO:  Idle: 1,  Running: 2,  Completed: 0 [ current time: 07h50 ] 
+INFO:  Idle: 0,  Running: 2,  Completed: 1 [  8.1s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 3 [  8.7s  ] 
+INFO: Combining runs 
+sum of cpu time of last step: 4m21s
+INFO: finish refine 
+refine 10000 --treshold=0.9
+No need for second refine due to stability of cross-section
+INFO: Combining Events 
+  === Results Summary for run: run_01 tag: tag_1 ===
+
+     Cross-section :   252.3 +- 0.3624 pb
+     Nb of events :  10000
+ 
+INFO: No version of lhapdf. Can not run systematics computation 
+store_events
+INFO: Storing parton level results 
+INFO: End Parton 
+reweight -from_cards
+decay_events -from_cards
+INFO: storing files of previous run 
+INFO: Done 
+quit
+INFO:  
+305.68user 14.63system 1:55.22elapsed 277%CPU (0avgtext+0avgdata 246328maxresident)k
+0inputs+3724040outputs (0major+989073minor)pagefaults 0swaps
+Thu Jun 15 07:50:39 CEST 2023

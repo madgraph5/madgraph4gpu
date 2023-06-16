@@ -1,0 +1,985 @@
+Thu Jun 15 08:52:28 CEST 2023
+************************************************************
+*                                                          *
+*                      W E L C O M E to                    *
+*             M A D G R A P H 5 _ a M C @ N L O            *
+*                      M A D E V E N T                     *
+*                                                          *
+*                 *                       *                *
+*                   *        * *        *                  *
+*                     * * * * 5 * * * *                    *
+*                   *        * *        *                  *
+*                 *                       *                *
+*                                                          *
+*         VERSION 3.5.0_lo_vect                            *
+*                                                          *
+*    The MadGraph5_aMC@NLO Development Team - Find us at   *
+*    https://server06.fynu.ucl.ac.be/projects/madgraph     *
+*                                                          *
+*               Type 'help' for in-line help.              *
+*                                                          *
+************************************************************
+INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttggg.mad/Cards/me5_configuration.txt  
+INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttggg.mad/Cards/me5_configuration.txt  
+Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
+No valid eps viewer found. Please set in ./input/mg5_configuration.txt
+Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
+generate_events -f
+Generating 10000 events with run name run_01
+survey  run_01 
+INFO: compile directory 
+compile Source Directory
+Using random number seed offset = 21
+INFO: Running Survey 
+Creating Jobs
+Working on SubProcesses
+INFO:     P1_gg_ttxggg  
+INFO: Building madevent in madevent_interface.py with 'FORTRAN' matrix elements 
+INFO:  Idle: 56,  Running: 4,  Completed: 0 [ current time: 08h54 ] 
+INFO:  Idle: 55,  Running: 4,  Completed: 1 [  35m 53s  ] 
+INFO:  Idle: 51,  Running: 4,  Completed: 5 [  1h 11m  ] 
+INFO:  Idle: 49,  Running: 4,  Completed: 7 [  1h 11m  ] 
+INFO:  Idle: 48,  Running: 4,  Completed: 8 [  1h 33m  ] 
+INFO:  Idle: 47,  Running: 4,  Completed: 9 [  2h 30m  ] 
+INFO:  Idle: 46,  Running: 4,  Completed: 10 [  2h 30m  ] 
+INFO:  Idle: 44,  Running: 4,  Completed: 12 [  2h 51m  ] 
+INFO:  Idle: 43,  Running: 4,  Completed: 13 [  3h 27m  ] 
+INFO:  Idle: 42,  Running: 4,  Completed: 14 [  3h 49m  ] 
+INFO:  Idle: 41,  Running: 4,  Completed: 15 [  3h 49m  ] 
+INFO:  Idle: 39,  Running: 4,  Completed: 17 [  4h 25m  ] 
+INFO:  Idle: 38,  Running: 4,  Completed: 18 [  4h 46m  ] 
+INFO:  Idle: 37,  Running: 4,  Completed: 19 [  5h 8m  ] 
+INFO:  Idle: 36,  Running: 4,  Completed: 20 [  5h 8m  ] 
+INFO:  Idle: 35,  Running: 4,  Completed: 21 [  5h 43m  ] 
+INFO:  Idle: 34,  Running: 4,  Completed: 22 [  6h 5m  ] 
+INFO:  Idle: 33,  Running: 4,  Completed: 23 [  6h 26m  ] 
+INFO:  Idle: 32,  Running: 4,  Completed: 24 [  6h 27m  ] 
+INFO:  Idle: 31,  Running: 4,  Completed: 25 [  7h 2m  ] 
+INFO:  Idle: 30,  Running: 4,  Completed: 26 [  7h 23m  ] 
+INFO:  Idle: 29,  Running: 4,  Completed: 27 [  7h 45m  ] 
+INFO:  Idle: 28,  Running: 4,  Completed: 28 [  7h 46m  ] 
+INFO:  Idle: 27,  Running: 4,  Completed: 29 [  8h 20m  ] 
+INFO:  Idle: 26,  Running: 4,  Completed: 30 [  8h 21m  ] 
+INFO:  Idle: 25,  Running: 4,  Completed: 31 [  8h 42m  ] 
+INFO:  Idle: 24,  Running: 4,  Completed: 32 [  8h 56m  ] 
+INFO:  Idle: 23,  Running: 4,  Completed: 33 [  9h 5m  ] 
+INFO:  Idle: 22,  Running: 4,  Completed: 34 [  9h 39m  ] 
+INFO:  Idle: 21,  Running: 4,  Completed: 35 [  9h 53m  ] 
+INFO:  Idle: 20,  Running: 4,  Completed: 36 [  10h 1m  ] 
+INFO:  Idle: 19,  Running: 4,  Completed: 37 [  10h 2m  ] 
+INFO:  Idle: 18,  Running: 4,  Completed: 38 [  10h 37m  ] 
+INFO:  Idle: 17,  Running: 4,  Completed: 39 [  10h 58m  ] 
+INFO:  Idle: 16,  Running: 4,  Completed: 40 [  10h 59m  ] 
+INFO:  Idle: 15,  Running: 4,  Completed: 41 [  11h 12m  ] 
+At line 1197 of file auto_dsig.f
+Fortran runtime error: Index '954' of dimension 2 of array 'icolamp' above upper bound of 945
+
+Error termination. Backtrace:
+#0  0x45fc34 in ???
+#1  0x4d9abe in ???
+#2  0x45aeec in ???
+#3  0x45bdd6 in ???
+#4  0x45ced7 in ???
+#5  0x45db09 in ???
+#6  0x4efb58 in ???
+#7  0x45a4bc in ???
+#8  0x4026ce in ???
+#9  0x7fd488acad84 in ???
+#10  0x40270d in ???
+#11  0xffffffffffffffff in ???
+rm: cannot remove 'results.dat': No such file or directory
+ERROR DETECTED
+At line 1197 of file auto_dsig.f
+Fortran runtime error: Index '958' of dimension 2 of array 'icolamp' above upper bound of 945
+
+Error termination. Backtrace:
+#0  0x45fc34 in ???
+#1  0x4d9abe in ???
+#2  0x45aeec in ???
+#3  0x45bdd6 in ???
+#4  0x45ced7 in ???
+#5  0x45db09 in ???
+#6  0x4efb58 in ???
+#7  0x45a4bc in ???
+#8  0x4026ce in ???
+#9  0x7fc1d2f9bd84 in ???
+#10  0x40270d in ???
+#11  0xffffffffffffffff in ???
+rm: cannot remove 'results.dat': No such file or directory
+ERROR DETECTED
+INFO:  Idle: 14,  Running: 4,  Completed: 42 [  11h 16m  ] 
+At line 1197 of file auto_dsig.f
+Fortran runtime error: Index '964' of dimension 2 of array 'icolamp' above upper bound of 945
+
+Error termination. Backtrace:
+#0  0x45fc34 in ???
+#1  0x4d9abe in ???
+#2  0x45aeec in ???
+#3  0x45bdd6 in ???
+#4  0x45ced7 in ???
+#5  0x45db09 in ???
+#6  0x4efb58 in ???
+#7  0x45a4bc in ???
+#8  0x4026ce in ???
+#9  0x7f7a58c60d84 in ???
+#10  0x40270d in ???
+#11  0xffffffffffffffff in ???
+rm: cannot remove 'results.dat': No such file or directory
+ERROR DETECTED
+At line 1197 of file auto_dsig.f
+Fortran runtime error: Index '965' of dimension 2 of array 'icolamp' above upper bound of 945
+
+Error termination. Backtrace:
+#0  0x45fc34 in ???
+#1  0x4d9abe in ???
+#2  0x45aeec in ???
+#3  0x45bdd6 in ???
+#4  0x45ced7 in ???
+#5  0x45db09 in ???
+#6  0x4efb58 in ???
+#7  0x45a4bc in ???
+#8  0x4026ce in ???
+#9  0x7f2f91361d84 in ???
+#10  0x40270d in ???
+#11  0xffffffffffffffff in ???
+rm: cannot remove 'results.dat': No such file or directory
+ERROR DETECTED
+INFO:  Idle: 13,  Running: 4,  Completed: 43 [  11h 34m  ] 
+INFO:  Idle: 12,  Running: 4,  Completed: 44 [  11h 34m  ] 
+At line 1197 of file auto_dsig.f
+Fortran runtime error: Index '952' of dimension 2 of array 'icolamp' above upper bound of 945
+
+Error termination. Backtrace:
+#0  0x45fc34 in ???
+#1  0x4d9abe in ???
+#2  0x45aeec in ???
+#3  0x45bdd6 in ???
+#4  0x45ced7 in ???
+#5  0x45db09 in ???
+#6  0x4efb58 in ???
+#7  0x45a4bc in ???
+#8  0x4026ce in ???
+#9  0x7fa27366ed84 in ???
+#10  0x40270d in ???
+#11  0xffffffffffffffff in ???
+rm: cannot remove 'results.dat': No such file or directory
+ERROR DETECTED
+INFO:  Idle: 11,  Running: 4,  Completed: 45 [  11h 39m  ] 
+At line 1197 of file auto_dsig.f
+Fortran runtime error: Index '997' of dimension 2 of array 'icolamp' above upper bound of 945
+
+Error termination. Backtrace:
+#0  0x45fc34 in ???
+#1  0x4d9abe in ???
+#2  0x45aeec in ???
+#3  0x45bdd6 in ???
+#4  0x45ced7 in ???
+#5  0x45db09 in ???
+#6  0x4efb58 in ???
+#7  0x45a4bc in ???
+#8  0x4026ce in ???
+#9  0x7f3435a6ad84 in ???
+#10  0x40270d in ???
+#11  0xffffffffffffffff in ???
+rm: cannot remove 'results.dat': No such file or directory
+ERROR DETECTED
+At line 1197 of file auto_dsig.f
+Fortran runtime error: Index '966' of dimension 2 of array 'icolamp' above upper bound of 945
+
+Error termination. Backtrace:
+#0  0x45fc34 in ???
+#1  0x4d9abe in ???
+#2  0x45aeec in ???
+#3  0x45bdd6 in ???
+#4  0x45ced7 in ???
+#5  0x45db09 in ???
+#6  0x4efb58 in ???
+#7  0x45a4bc in ???
+#8  0x4026ce in ???
+#9  0x7f289fd9bd84 in ???
+#10  0x40270d in ???
+#11  0xffffffffffffffff in ???
+rm: cannot remove 'results.dat': No such file or directory
+ERROR DETECTED
+At line 1197 of file auto_dsig.f
+Fortran runtime error: Index '988' of dimension 2 of array 'icolamp' above upper bound of 945
+
+Error termination. Backtrace:
+#0  0x45fc34 in ???
+#1  0x4d9abe in ???
+#2  0x45aeec in ???
+#3  0x45bdd6 in ???
+#4  0x45ced7 in ???
+#5  0x45db09 in ???
+#6  0x4efb58 in ???
+#7  0x45a4bc in ???
+#8  0x4026ce in ???
+#9  0x7f56883dbd84 in ???
+#10  0x40270d in ???
+#11  0xffffffffffffffff in ???
+rm: cannot remove 'results.dat': No such file or directory
+ERROR DETECTED
+At line 1197 of file auto_dsig.f
+Fortran runtime error: Index '979' of dimension 2 of array 'icolamp' above upper bound of 945
+
+Error termination. Backtrace:
+#0  0x45fc34 in ???
+#1  0x4d9abe in ???
+#2  0x45aeec in ???
+#3  0x45bdd6 in ???
+#4  0x45ced7 in ???
+#5  0x45db09 in ???
+#6  0x4efb58 in ???
+#7  0x45a4bc in ???
+#8  0x4026ce in ???
+#9  0x7fa6efd3dd84 in ???
+#10  0x40270d in ???
+#11  0xffffffffffffffff in ???
+rm: cannot remove 'results.dat': No such file or directory
+ERROR DETECTED
+INFO:  Idle: 10,  Running: 4,  Completed: 46 [  11h 45m  ] 
+At line 1197 of file auto_dsig.f
+Fortran runtime error: Index '967' of dimension 2 of array 'icolamp' above upper bound of 945
+
+Error termination. Backtrace:
+#0  0x45fc34 in ???
+#1  0x4d9abe in ???
+#2  0x45aeec in ???
+#3  0x45bdd6 in ???
+#4  0x45ced7 in ???
+#5  0x45db09 in ???
+#6  0x4efb58 in ???
+#7  0x45a4bc in ???
+#8  0x4026ce in ???
+#9  0x7fb6b7b75d84 in ???
+#10  0x40270d in ???
+#11  0xffffffffffffffff in ???
+rm: cannot remove 'results.dat': No such file or directory
+ERROR DETECTED
+INFO:  Idle: 9,  Running: 4,  Completed: 47 [  11h 48m  ] 
+At line 1197 of file auto_dsig.f
+Fortran runtime error: Index '986' of dimension 2 of array 'icolamp' above upper bound of 945
+
+Error termination. Backtrace:
+#0  0x45fc34 in ???
+#1  0x4d9abe in ???
+#2  0x45aeec in ???
+#3  0x45bdd6 in ???
+#4  0x45ced7 in ???
+#5  0x45db09 in ???
+#6  0x4efb58 in ???
+#7  0x45a4bc in ???
+#8  0x4026ce in ???
+#9  0x7fb111ce3d84 in ???
+#10  0x40270d in ???
+#11  0xffffffffffffffff in ???
+rm: cannot remove 'results.dat': No such file or directory
+ERROR DETECTED
+At line 1197 of file auto_dsig.f
+Fortran runtime error: Index '1002' of dimension 2 of array 'icolamp' above upper bound of 945
+
+Error termination. Backtrace:
+#0  0x45fc34 in ???
+#1  0x4d9abe in ???
+#2  0x45aeec in ???
+#3  0x45bdd6 in ???
+#4  0x45ced7 in ???
+#5  0x45db09 in ???
+#6  0x4efb58 in ???
+#7  0x45a4bc in ???
+#8  0x4026ce in ???
+#9  0x7f87917c7d84 in ???
+#10  0x40270d in ???
+#11  0xffffffffffffffff in ???
+rm: cannot remove 'results.dat': No such file or directory
+ERROR DETECTED
+At line 1197 of file auto_dsig.f
+Fortran runtime error: Index '947' of dimension 2 of array 'icolamp' above upper bound of 945
+
+Error termination. Backtrace:
+#0  0x45fc34 in ???
+#1  0x4d9abe in ???
+#2  0x45aeec in ???
+#3  0x45bdd6 in ???
+#4  0x45ced7 in ???
+#5  0x45db09 in ???
+#6  0x4efb58 in ???
+#7  0x45a4bc in ???
+#8  0x4026ce in ???
+#9  0x7fdc210c1d84 in ???
+#10  0x40270d in ???
+#11  0xffffffffffffffff in ???
+rm: cannot remove 'results.dat': No such file or directory
+ERROR DETECTED
+At line 1197 of file auto_dsig.f
+Fortran runtime error: Index '950' of dimension 2 of array 'icolamp' above upper bound of 945
+
+Error termination. Backtrace:
+#0  0x45fc34 in ???
+#1  0x4d9abe in ???
+#2  0x45aeec in ???
+#3  0x45bdd6 in ???
+#4  0x45ced7 in ???
+#5  0x45db09 in ???
+#6  0x4efb58 in ???
+#7  0x45a4bc in ???
+#8  0x4026ce in ???
+#9  0x7fb02e297d84 in ???
+#10  0x40270d in ???
+#11  0xffffffffffffffff in ???
+rm: cannot remove 'results.dat': No such file or directory
+ERROR DETECTED
+INFO:  Idle: 7,  Running: 4,  Completed: 49 [  11h 48m  ] 
+At line 1197 of file auto_dsig.f
+Fortran runtime error: Index '1007' of dimension 2 of array 'icolamp' above upper bound of 945
+
+Error termination. Backtrace:
+#0  0x45fc34 in ???
+#1  0x4d9abe in ???
+#2  0x45aeec in ???
+#3  0x45bdd6 in ???
+#4  0x45ced7 in ???
+#5  0x45db09 in ???
+#6  0x4efb58 in ???
+#7  0x45a4bc in ???
+#8  0x4026ce in ???
+#9  0x7f9a83fe7d84 in ???
+#10  0x40270d in ???
+#11  0xffffffffffffffff in ???
+rm: cannot remove 'results.dat': No such file or directory
+ERROR DETECTED
+At line 1197 of file auto_dsig.f
+Fortran runtime error: Index '1008' of dimension 2 of array 'icolamp' above upper bound of 945
+
+Error termination. Backtrace:
+#0  0x45fc34 in ???
+#1  0x4d9abe in ???
+#2  0x45aeec in ???
+#3  0x45bdd6 in ???
+#4  0x45ced7 in ???
+#5  0x45db09 in ???
+#6  0x4efb58 in ???
+#7  0x45a4bc in ???
+#8  0x4026ce in ???
+#9  0x7fc252a9bd84 in ???
+#10  0x40270d in ???
+#11  0xffffffffffffffff in ???
+rm: cannot remove 'results.dat': No such file or directory
+ERROR DETECTED
+At line 1197 of file auto_dsig.f
+Fortran runtime error: Index '1022' of dimension 2 of array 'icolamp' above upper bound of 945
+
+Error termination. Backtrace:
+#0  0x45fc34 in ???
+#1  0x4d9abe in ???
+#2  0x45aeec in ???
+#3  0x45bdd6 in ???
+#4  0x45ced7 in ???
+#5  0x45db09 in ???
+#6  0x4efb58 in ???
+#7  0x45a4bc in ???
+#8  0x4026ce in ???
+#9  0x7f1ce3876d84 in ???
+#10  0x40270d in ???
+#11  0xffffffffffffffff in ???
+rm: cannot remove 'results.dat': No such file or directory
+ERROR DETECTED
+At line 1197 of file auto_dsig.f
+Fortran runtime error: Index '1023' of dimension 2 of array 'icolamp' above upper bound of 945
+
+Error termination. Backtrace:
+#0  0x45fc34 in ???
+#1  0x4d9abe in ???
+#2  0x45aeec in ???
+#3  0x45bdd6 in ???
+#4  0x45ced7 in ???
+#5  0x45db09 in ???
+#6  0x4efb58 in ???
+#7  0x45a4bc in ???
+#8  0x4026ce in ???
+#9  0x7fc848dbcd84 in ???
+#10  0x40270d in ???
+#11  0xffffffffffffffff in ???
+rm: cannot remove 'results.dat': No such file or directory
+ERROR DETECTED
+INFO:  Idle: 5,  Running: 4,  Completed: 51 [  11h 48m  ] 
+At line 1197 of file auto_dsig.f
+Fortran runtime error: Index '1037' of dimension 2 of array 'icolamp' above upper bound of 945
+
+Error termination. Backtrace:
+#0  0x45fc34 in ???
+#1  0x4d9abe in ???
+#2  0x45aeec in ???
+#3  0x45bdd6 in ???
+#4  0x45ced7 in ???
+#5  0x45db09 in ???
+#6  0x4efb58 in ???
+#7  0x45a4bc in ???
+#8  0x4026ce in ???
+#9  0x7f321cb81d84 in ???
+#10  0x40270d in ???
+#11  0xffffffffffffffff in ???
+rm: cannot remove 'results.dat': No such file or directory
+ERROR DETECTED
+At line 1197 of file auto_dsig.f
+Fortran runtime error: Index '1026' of dimension 2 of array 'icolamp' above upper bound of 945
+
+Error termination. Backtrace:
+#0  0x45fc34 in ???
+#1  0x4d9abe in ???
+#2  0x45aeec in ???
+#3  0x45bdd6 in ???
+#4  0x45ced7 in ???
+#5  0x45db09 in ???
+#6  0x4efb58 in ???
+#7  0x45a4bc in ???
+#8  0x4026ce in ???
+#9  0x7f26a3af0d84 in ???
+#10  0x40270d in ???
+#11  0xffffffffffffffff in ???
+rm: cannot remove 'results.dat': No such file or directory
+ERROR DETECTED
+At line 1197 of file auto_dsig.f
+Fortran runtime error: Index '1086' of dimension 2 of array 'icolamp' above upper bound of 945
+
+Error termination. Backtrace:
+#0  0x45fc34 in ???
+#1  0x4d9abe in ???
+#2  0x45aeec in ???
+#3  0x45bdd6 in ???
+#4  0x45ced7 in ???
+#5  0x45db09 in ???
+#6  0x4efb58 in ???
+#7  0x45a4bc in ???
+#8  0x4026ce in ???
+#9  0x7fdcd60e5d84 in ???
+#10  0x40270d in ???
+#11  0xffffffffffffffff in ???
+rm: cannot remove 'results.dat': No such file or directory
+ERROR DETECTED
+At line 1197 of file auto_dsig.f
+Fortran runtime error: Index '1074' of dimension 2 of array 'icolamp' above upper bound of 945
+
+Error termination. Backtrace:
+#0  0x45fc34 in ???
+#1  0x4d9abe in ???
+#2  0x45aeec in ???
+#3  0x45bdd6 in ???
+#4  0x45ced7 in ???
+#5  0x45db09 in ???
+#6  0x4efb58 in ???
+#7  0x45a4bc in ???
+#8  0x4026ce in ???
+#9  0x7f3fbb8afd84 in ???
+#10  0x40270d in ???
+#11  0xffffffffffffffff in ???
+rm: cannot remove 'results.dat': No such file or directory
+ERROR DETECTED
+INFO:  Idle: 3,  Running: 4,  Completed: 53 [  11h 48m  ] 
+At line 1197 of file auto_dsig.f
+Fortran runtime error: Index '1089' of dimension 2 of array 'icolamp' above upper bound of 945
+
+Error termination. Backtrace:
+#0  0x45fc34 in ???
+#1  0x4d9abe in ???
+#2  0x45aeec in ???
+#3  0x45bdd6 in ???
+#4  0x45ced7 in ???
+#5  0x45db09 in ???
+#6  0x4efb58 in ???
+#7  0x45a4bc in ???
+#8  0x4026ce in ???
+#9  0x7fdeb88d3d84 in ???
+#10  0x40270d in ???
+#11  0xffffffffffffffff in ???
+rm: cannot remove 'results.dat': No such file or directory
+ERROR DETECTED
+At line 1197 of file auto_dsig.f
+Fortran runtime error: Index '1110' of dimension 2 of array 'icolamp' above upper bound of 945
+
+Error termination. Backtrace:
+#0  0x45fc34 in ???
+#1  0x4d9abe in ???
+#2  0x45aeec in ???
+#3  0x45bdd6 in ???
+#4  0x45ced7 in ???
+#5  0x45db09 in ???
+#6  0x4efb58 in ???
+#7  0x45a4bc in ???
+#8  0x4026ce in ???
+#9  0x7f4420eddd84 in ???
+#10  0x40270d in ???
+#11  0xffffffffffffffff in ???
+rm: cannot remove 'results.dat': No such file or directory
+ERROR DETECTED
+At line 1197 of file auto_dsig.f
+Fortran runtime error: Index '1111' of dimension 2 of array 'icolamp' above upper bound of 945
+
+Error termination. Backtrace:
+#0  0x45fc34 in ???
+#1  0x4d9abe in ???
+#2  0x45aeec in ???
+#3  0x45bdd6 in ???
+#4  0x45ced7 in ???
+#5  0x45db09 in ???
+#6  0x4efb58 in ???
+#7  0x45a4bc in ???
+#8  0x4026ce in ???
+#9  0x7f61600e5d84 in ???
+#10  0x40270d in ???
+#11  0xffffffffffffffff in ???
+rm: cannot remove 'results.dat': No such file or directory
+ERROR DETECTED
+At line 1197 of file auto_dsig.f
+Fortran runtime error: Index '1060' of dimension 2 of array 'icolamp' above upper bound of 945
+
+Error termination. Backtrace:
+#0  0x45fc34 in ???
+#1  0x4d9abe in ???
+#2  0x45aeec in ???
+#3  0x45bdd6 in ???
+#4  0x45ced7 in ???
+#5  0x45db09 in ???
+#6  0x4efb58 in ???
+#7  0x45a4bc in ???
+#8  0x4026ce in ???
+#9  0x7f9efe6a4d84 in ???
+#10  0x40270d in ???
+#11  0xffffffffffffffff in ???
+rm: cannot remove 'results.dat': No such file or directory
+ERROR DETECTED
+INFO:  Idle: 1,  Running: 4,  Completed: 55 [  11h 48m  ] 
+At line 1197 of file auto_dsig.f
+Fortran runtime error: Index '1080' of dimension 2 of array 'icolamp' above upper bound of 945
+
+Error termination. Backtrace:
+#0  0x45fc34 in ???
+#1  0x4d9abe in ???
+#2  0x45aeec in ???
+#3  0x45bdd6 in ???
+#4  0x45ced7 in ???
+#5  0x45db09 in ???
+#6  0x4efb58 in ???
+#7  0x45a4bc in ???
+#8  0x4026ce in ???
+#9  0x7f27bf8a2d84 in ???
+#10  0x40270d in ???
+#11  0xffffffffffffffff in ???
+rm: cannot remove 'results.dat': No such file or directory
+ERROR DETECTED
+At line 1197 of file auto_dsig.f
+Fortran runtime error: Index '1081' of dimension 2 of array 'icolamp' above upper bound of 945
+
+Error termination. Backtrace:
+#0  0x45fc34 in ???
+#1  0x4d9abe in ???
+#2  0x45aeec in ???
+#3  0x45bdd6 in ???
+#4  0x45ced7 in ???
+#5  0x45db09 in ???
+#6  0x4efb58 in ???
+#7  0x45a4bc in ???
+#8  0x4026ce in ???
+#9  0x7f0da3809d84 in ???
+#10  0x40270d in ???
+#11  0xffffffffffffffff in ???
+rm: cannot remove 'results.dat': No such file or directory
+ERROR DETECTED
+At line 1197 of file auto_dsig.f
+Fortran runtime error: Index '1082' of dimension 2 of array 'icolamp' above upper bound of 945
+
+Error termination. Backtrace:
+#0  0x45fc34 in ???
+#1  0x4d9abe in ???
+#2  0x45aeec in ???
+#3  0x45bdd6 in ???
+#4  0x45ced7 in ???
+#5  0x45db09 in ???
+#6  0x4efb58 in ???
+#7  0x45a4bc in ???
+#8  0x4026ce in ???
+#9  0x7f24e2084d84 in ???
+#10  0x40270d in ???
+#11  0xffffffffffffffff in ???
+rm: cannot remove 'results.dat': No such file or directory
+ERROR DETECTED
+At line 1197 of file auto_dsig.f
+Fortran runtime error: Index '971' of dimension 2 of array 'icolamp' above upper bound of 945
+
+Error termination. Backtrace:
+#0  0x45fc34 in ???
+#1  0x4d9abe in ???
+#2  0x45aeec in ???
+#3  0x45bdd6 in ???
+#4  0x45ced7 in ???
+#5  0x45db09 in ???
+#6  0x4efb58 in ???
+#7  0x45a4bc in ???
+#8  0x4026ce in ???
+#9  0x7f48431eed84 in ???
+#10  0x40270d in ???
+#11  0xffffffffffffffff in ???
+rm: cannot remove 'results.dat': No such file or directory
+ERROR DETECTED
+INFO:  Idle: 0,  Running: 2,  Completed: 58 [  11h 49m  ] 
+At line 1197 of file auto_dsig.f
+Fortran runtime error: Index '972' of dimension 2 of array 'icolamp' above upper bound of 945
+
+Error termination. Backtrace:
+#0  0x45fc34 in ???
+#1  0x4d9abe in ???
+#2  0x45aeec in ???
+#3  0x45bdd6 in ???
+#4  0x45ced7 in ???
+#5  0x45db09 in ???
+#6  0x4efb58 in ???
+#7  0x45a4bc in ???
+#8  0x4026ce in ???
+#9  0x7ff640b6bd84 in ???
+#10  0x40270d in ???
+#11  0xffffffffffffffff in ???
+rm: cannot remove 'results.dat': No such file or directory
+ERROR DETECTED
+At line 1197 of file auto_dsig.f
+Fortran runtime error: Index '974' of dimension 2 of array 'icolamp' above upper bound of 945
+
+Error termination. Backtrace:
+#0  0x45fc34 in ???
+#1  0x4d9abe in ???
+#2  0x45aeec in ???
+#3  0x45bdd6 in ???
+#4  0x45ced7 in ???
+#5  0x45db09 in ???
+#6  0x4efb58 in ???
+#7  0x45a4bc in ???
+#8  0x4026ce in ???
+#9  0x7fd930697d84 in ???
+#10  0x40270d in ???
+#11  0xffffffffffffffff in ???
+rm: cannot remove 'results.dat': No such file or directory
+ERROR DETECTED
+INFO:  Idle: 0,  Running: 1,  Completed: 59 [  11h 55m  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 60 [  12h 16m  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 60 [  12h 16m  ] 
+INFO: End survey 
+refine 10000
+Creating Jobs
+INFO: Refine results to 10000 
+INFO: Generating 10000.0 unweighted events. 
+[1;31mError when reading /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttggg.mad/SubProcesses/P1_gg_ttxggg/G721/results.dat[0m
+[1;31mCommand "generate_events -f" interrupted with error:
+Exception : Reported error: End code 2.0 
+	 Full associated log: 
+	 FBRIDGE_MODE (default) =            0
+	 VECSIZE_USED (default) =        16384
+	 Process in group number            1
+	 A PDF is used, so alpha_s(MZ) is going to be modified
+	 Old value of alpha_s from param_card:   0.11799999999999999     
+	  ****************************************
+	 
+	       NNPDFDriver version 1.0.3
+	   Grid: NNPDF23_lo_as_0130_qed_mem0.grid
+	  ****************************************
+	 New value of alpha_s from PDF nn23lo1:  0.13000000000000000     
+	 Define smin to   119716.00000000000     
+	 *****************************************************
+	 *               MadGraph/MadEvent                   *
+	 *        --------------------------------           *
+	 *          http://madgraph.hep.uiuc.edu             *
+	 *          http://madgraph.phys.ucl.ac.be           *
+	 *          http://madgraph.roma2.infn.it            *
+	 *        --------------------------------           *
+	 *                                                   *
+	 *          PARAMETER AND COUPLING VALUES            *
+	 *                                                   *
+	 *****************************************************
+	
+	  External Params
+	  ---------------------------------
+	  
+	 mdl_MB =    4.7000000000000002     
+	 mdl_MT =    173.00000000000000     
+	 mdl_MTA =    1.7769999999999999     
+	 mdl_MZ =    91.188000000000002     
+	 mdl_MH =    125.00000000000000     
+	 aEWM1 =    132.50700000000001     
+	 mdl_Gf =    1.1663900000000000E-005
+	 aS =   0.11799999999999999     
+	 mdl_ymb =    4.7000000000000002     
+	 mdl_ymt =    173.00000000000000     
+	 mdl_ymtau =    1.7769999999999999     
+	 mdl_WT =    1.4915000000000000     
+	 mdl_WZ =    2.4414039999999999     
+	 mdl_WW =    2.0476000000000001     
+	 mdl_WH =    6.3823389999999999E-003
+	  Internal Params
+	  ---------------------------------
+	  
+	 mdl_conjg__CKM3x3 =    1.0000000000000000     
+	 mdl_conjg__CKM1x1 =    1.0000000000000000     
+	 mdl_CKM3x3 =    1.0000000000000000     
+	 mdl_complexi =                (0.0000000000000000,1.0000000000000000)
+	 mdl_MZ__exp__2 =    8315.2513440000002     
+	 mdl_MZ__exp__4 =    69143404.913893804     
+	 mdl_sqrt__2 =    1.4142135623730951     
+	 mdl_MH__exp__2 =    15625.000000000000     
+	 mdl_aEW =    7.5467711139788835E-003
+	 mdl_MW =    80.419002445756163     
+	 mdl_sqrt__aEW =    8.6872153846781555E-002
+	 mdl_ee =   0.30795376724436879     
+	 mdl_MW__exp__2 =    6467.2159543705357     
+	 mdl_sw2 =   0.22224648578577766     
+	 mdl_cw =   0.88190334743339216     
+	 mdl_sqrt__sw2 =   0.47143025548407230     
+	 mdl_sw =   0.47143025548407230     
+	 mdl_g1 =   0.34919219678733299     
+	 mdl_gw =   0.65323293034757990     
+	 mdl_vev =    246.21845810181637     
+	 mdl_vev__exp__2 =    60623.529110035903     
+	 mdl_lam =   0.12886910601690263     
+	 mdl_yb =    2.6995554250465487E-002
+	 mdl_yt =   0.99366614581500612     
+	 mdl_ytau =    1.0206617000654715E-002
+	 mdl_muH =    88.388347648318430     
+	 mdl_I1x33 =          (2.69955542504654866E-002,0.0000000000000000)
+	 mdl_I2x33 =               (0.99366614581500612,0.0000000000000000)
+	 mdl_I3x33 =               (0.99366614581500612,0.0000000000000000)
+	 mdl_I4x33 =          (2.69955542504654866E-002,0.0000000000000000)
+	 mdl_ee__exp__2 =    9.4835522759998875E-002
+	 mdl_sw__exp__2 =   0.22224648578577769     
+	 mdl_cw__exp__2 =   0.77775351421422245     
+	  Internal Params evaluated point by point
+	  ----------------------------------------
+	  
+	 mdl_sqrt__aS =   0.34351128074635334     
+	 mdl_G__exp__2 =    1.4828317324943823     
+	  Couplings of sm
+	  ---------------------------------
+	  
+	        GC_10 =  -0.12177E+01   0.00000E+00
+	        GC_11 =   0.00000E+00   0.12177E+01
+	        GC_12 =   0.00000E+00   0.14828E+01
+	
+	 Collider parameters:
+	 --------------------
+	
+	 Running at P P   machine @    13000.000000000000       GeV
+	 PDF set = nn23lo1
+	 alpha_s(Mz)= 0.1300 running at 2 loops.
+	 alpha_s(Mz)= 0.1300 running at 2 loops.
+	 Renormalization scale set on event-by-event basis
+	 Factorization   scale set on event-by-event basis
+	
+	
+	 getting user params
+	Enter number of events and max and min iterations: 
+	 Number of events and iterations         1000           5           3
+	Enter desired fractional accuracy: 
+	 Desired fractional accuracy:   0.10000000000000001     
+	Enter 0 for fixed, 2 for adjustable grid: 
+	Suppress amplitude (0 no, 1 yes)? 
+	 Using suppressed amplitude.
+	Exact helicity sum (0 yes, n = number/event)? 
+	 Explicitly summing over helicities
+	Enter Configuration Number: 
+	Running Configuration Number:  721
+	 Not subdividing B.W.
+	 Attempting mappinvarients           1           7
+	 Determine nb_t
+	 T-channel found:            1
+	 Completed mapping           7
+	 about to integrate           13        1000           5           3          13           1
+	 Using non-zero grid deformation.
+	 13 dimensions   1000 events 13 invarients  5 iterations  1 config(s),  (0.99)
+	 Using h-tuple random number sequence.
+	 Error opening grid
+	 Using Uniform Grid!          28
+	 Using uniform alpha   1.0000000000000000     
+	 Grid defined OK
+	 Masses: 0.000E+00 0.000E+00 0.173E+03 0.173E+03 0.000E+00 0.000E+00 0.000E+00
+	 Set CM energy to      13000.00
+	 Mapping Graph         721  to config         721
+	 Determine nb_t
+	 T-channel found:            1
+	Setting grid   1    0.70838E-03   1
+	Setting grid   2    0.70838E-03   1
+	Setting grid   3    0.70838E-03   1
+	Setting grid   4    0.23669E-05   1
+	 Transforming s_hat 1/s           12   9.7536094674556236E-004   119716.00000000000        168999999.99999997     
+	Using random seed offsets   721 :      1
+	  with seed                   24
+	 Ranmar initialization seeds         451        9398
+	  Particle       3       4       5       6       7
+	      Et >     0.0     0.0    20.0    20.0    20.0
+	       E >     0.0     0.0     0.0     0.0     0.0
+	     Eta <    -1.0    -1.0     5.0     5.0     5.0
+	   xqcut:      0.0     0.0     0.0     0.0     0.0
+	d R # 3  >    -0.0     0.0     0.0     0.0     0.0
+	d R # 4  >    -0.0    -0.0     0.0     0.0     0.0
+	d R # 5  >    -0.0    -0.0    -0.0     0.4     0.4
+	d R # 6  >    -0.0    -0.0    -0.0    -0.0     0.4
+	s min # 3>     0.0119716.0 29929.0 29929.0     0.0
+	s min # 4>     0.0     0.0 29929.0 29929.0     0.0
+	s min # 5>     0.0     0.0     0.0     0.0     0.0
+	s min # 6>     0.0     0.0     0.0     0.0     0.0
+	xqcutij # 3>     0.0     0.0     0.0     0.0     0.0
+	xqcutij # 4>     0.0     0.0     0.0     0.0     0.0
+	xqcutij # 5>     0.0     0.0     0.0     0.0     0.0
+	xqcutij # 6>     0.0     0.0     0.0     0.0     0.0
+	 Added good helicity            1  0.94423298227593067       in event            1 local:           1
+	 Added good helicity            2  0.15663171311888013       in event            1 local:           1
+	 Added good helicity            3  0.58353746437130027       in event            1 local:           1
+	 Added good helicity            4  0.13573333807537677       in event            1 local:           1
+	 Added good helicity            5   7.3329906494873767E-002  in event            1 local:           1
+	 Added good helicity            6   7.6931987522559494E-003  in event            1 local:           1
+	 Added good helicity            7   4.3679964614372471E-002  in event            1 local:           1
+	 Added good helicity            8   6.2645736228617256E-003  in event            1 local:           1
+	 Added good helicity            9   11.651975975885252       in event            1 local:           1
+	 Added good helicity           10   1.6889618950500871       in event            1 local:           1
+	 Added good helicity           11   6.8477419624222735       in event            1 local:           1
+	 Added good helicity           12   1.5279604742824091       in event            1 local:           1
+	 Added good helicity           13   3.2132718623006866       in event            1 local:           1
+	 Added good helicity           14  0.49673597005280623       in event            1 local:           1
+	 Added good helicity           15   1.6953859667194722       in event            1 local:           1
+	 Added good helicity           16  0.39087795257566071       in event            1 local:           1
+	 Added good helicity           17  0.26976360433629210       in event            1 local:           1
+	 Added good helicity           18   2.3020591276742910E-002  in event            1 local:           1
+	 Added good helicity           19  0.16113110187972035       in event            1 local:           1
+	 Added good helicity           20   2.0701030836399126E-002  in event            1 local:           1
+	 Added good helicity           21   4.9420025867270997E-002  in event            1 local:           1
+	 Added good helicity           22   5.2403430552531022E-003  in event            1 local:           1
+	 Added good helicity           23   2.9526156978969584E-002  in event            1 local:           1
+	 Added good helicity           24   4.6553594247140560E-003  in event            1 local:           1
+	 Added good helicity           25   1.3340314757276428       in event            1 local:           1
+	 Added good helicity           26   3.3959726147187778E-002  in event            1 local:           1
+	 Added good helicity           27  0.76876532028526390       in event            1 local:           1
+	 Added good helicity           28   2.7724442626142740E-002  in event            1 local:           1
+	 Added good helicity           29  0.31761238154437271       in event            1 local:           1
+	 Added good helicity           30   6.5979884372620494E-003  in event            1 local:           1
+	 Added good helicity           31  0.17945796123305885       in event            1 local:           1
+	 Added good helicity           32   6.1205867950063983E-003  in event            1 local:           1
+	 Added good helicity           33   1.3054692320030088       in event            1 local:           1
+	 Added good helicity           34  0.85577438540108586       in event            1 local:           1
+	 Added good helicity           35   1.5023922802851111       in event            1 local:           1
+	 Added good helicity           36   1.4381744212332113       in event            1 local:           1
+	 Added good helicity           37   3.9880172647399887       in event            1 local:           1
+	 Added good helicity           38   3.7356919137506850       in event            1 local:           1
+	 Added good helicity           39   4.0089793636082787       in event            1 local:           1
+	 Added good helicity           40   5.5548217278647352       in event            1 local:           1
+	 Added good helicity           41  0.23362092458007530       in event            1 local:           1
+	 Added good helicity           42  0.31605993085028816       in event            1 local:           1
+	 Added good helicity           43  0.31148365039254938       in event            1 local:           1
+	 Added good helicity           44  0.63737915849260640       in event            1 local:           1
+	 Added good helicity           45  0.40059576475419101       in event            1 local:           1
+	 Added good helicity           46  0.56291514680592802       in event            1 local:           1
+	 Added good helicity           47  0.43339808085587345       in event            1 local:           1
+	 Added good helicity           48  0.95407031088766081       in event            1 local:           1
+	 Added good helicity           49   6.3154695466181937E-002  in event            1 local:           1
+	 Added good helicity           50  0.12225077120472135       in event            1 local:           1
+	 Added good helicity           51   8.5738156038974195E-002  in event            1 local:           1
+	 Added good helicity           52  0.23984669406954665       in event            1 local:           1
+	 Added good helicity           53  0.12154845987796158       in event            1 local:           1
+	 Added good helicity           54  0.30502338669126389       in event            1 local:           1
+	 Added good helicity           55  0.14393530368952648       in event            1 local:           1
+	 Added good helicity           56  0.51704121413075754       in event            1 local:           1
+	 Added good helicity           57  0.12036738827064015       in event            1 local:           1
+	 Added good helicity           58  0.34495979338537891       in event            1 local:           1
+	 Added good helicity           59  0.18563138234297469       in event            1 local:           1
+	 Added good helicity           60  0.73747085344390950       in event            1 local:           1
+	 Added good helicity           61  0.12900070028651697       in event            1 local:           1
+	 Added good helicity           62  0.63320849963076176       in event            1 local:           1
+	 Added good helicity           63  0.17569682203576173       in event            1 local:           1
+	 Added good helicity           64   1.1316025282755180       in event            1 local:           1
+	 Added good helicity           65   1.1259567866567424       in event            1 local:           1
+	 Added good helicity           66  0.17618564085118141       in event            1 local:           1
+	 Added good helicity           67  0.62877765525657126       in event            1 local:           1
+	 Added good helicity           68  0.12882439216948419       in event            1 local:           1
+	 Added good helicity           69  0.73842034609283480       in event            1 local:           1
+	 Added good helicity           70  0.18704532511317651       in event            1 local:           1
+	 Added good helicity           71  0.34468147743043615       in event            1 local:           1
+	 Added good helicity           72  0.12114894755777592       in event            1 local:           1
+	 Added good helicity           73  0.51485615283913155       in event            1 local:           1
+	 Added good helicity           74  0.14446504172854405       in event            1 local:           1
+	 Added good helicity           75  0.30298124957055012       in event            1 local:           1
+	 Added good helicity           76  0.12154037794990519       in event            1 local:           1
+	 Added good helicity           77  0.23988559843490187       in event            1 local:           1
+	 Added good helicity           78   8.6234351481861288E-002  in event            1 local:           1
+	 Added good helicity           79  0.12206398021293513       in event            1 local:           1
+	 Added good helicity           80   6.3412638723481823E-002  in event            1 local:           1
+	 Added good helicity           81  0.94888413054985532       in event            1 local:           1
+	 Added good helicity           82  0.43355252582856690       in event            1 local:           1
+	 Added good helicity           83  0.55954524880144696       in event            1 local:           1
+	 Added good helicity           84  0.40028249554671413       in event            1 local:           1
+	 Added good helicity           85  0.63943931676930787       in event            1 local:           1
+	 Added good helicity           86  0.31421562672226144       in event            1 local:           1
+	 Added good helicity           87  0.31602155127624221       in event            1 local:           1
+	 Added good helicity           88  0.23476251382533872       in event            1 local:           1
+	 Added good helicity           89   5.5318449064906270       in event            1 local:           1
+	 Added good helicity           90   4.0158949305870637       in event            1 local:           1
+	 Added good helicity           91   3.7123040849492979       in event            1 local:           1
+	 Added good helicity           92   3.9800468448288382       in event            1 local:           1
+	 Added good helicity           93   1.4391795721805869       in event            1 local:           1
+	 Added good helicity           94   1.5129672249295902       in event            1 local:           1
+	 Added good helicity           95  0.85537757823382510       in event            1 local:           1
+	 Added good helicity           96   1.3105402342653196       in event            1 local:           1
+	 Added good helicity           97   6.0706295436703857E-003  in event            1 local:           1
+	 Added good helicity           98  0.17713836674534711       in event            1 local:           1
+	 Added good helicity           99   6.5431901454707092E-003  in event            1 local:           1
+	 Added good helicity          100  0.31303887824716875       in event            1 local:           1
+	At line 1197 of file auto_dsig.f
+	Fortran runtime error: Index '952' of dimension 2 of array 'icolamp' above upper bound of 945
+	
+	Error termination. Backtrace:
+	 Added good helicity          101   2.7615721060424616E-002  in event            1 local:           1
+	 Added good helicity          102  0.76474849005931222       in event            1 local:           1
+	 Added good helicity          103   3.3623260054760538E-002  in event            1 local:           1
+	 Added good helicity          104   1.3251376917597710       in event            1 local:           1
+	 Added good helicity          105   4.6618910113859560E-003  in event            1 local:           1
+	 Added good helicity          106   2.9363283196417730E-002  in event            1 local:           1
+	 Added good helicity          107   5.2396527534321015E-003  in event            1 local:           1
+	 Added good helicity          108   4.9061234659265388E-002  in event            1 local:           1
+	 Added good helicity          109   2.0744339339494954E-002  in event            1 local:           1
+	 Added good helicity          110  0.16101722799686555       in event            1 local:           1
+	 Added good helicity          111   2.3008497253880298E-002  in event            1 local:           1
+	 Added good helicity          112  0.26948992816914757       in event            1 local:           1
+	 Added good helicity          113  0.38962905605332626       in event            1 local:           1
+	 Added good helicity          114   1.6955538170569784       in event            1 local:           1
+	 Added good helicity          115  0.49355531176706197       in event            1 local:           1
+	 Added good helicity          116   3.2051290280781912       in event            1 local:           1
+	 Added good helicity          117   1.5324067629508555       in event            1 local:           1
+	 Added good helicity          118   6.8907139151362689       in event            1 local:           1
+	 Added good helicity          119   1.6902514105090494       in event            1 local:           1
+	 Added good helicity          120   11.699752809823385       in event            1 local:           1
+	 Added good helicity          121   6.1501293277667832E-003  in event            1 local:           1
+	 Added good helicity          122   4.3116892443310899E-002  in event            1 local:           1
+	 Added good helicity          123   7.6404592246549653E-003  in event            1 local:           1
+	 Added good helicity          124   7.2606065284638172E-002  in event            1 local:           1
+	 Added good helicity          125  0.13497646557921184       in event            1 local:           1
+	 Added good helicity          126  0.58035115228147927       in event            1 local:           1
+	 Added good helicity          127  0.15537676028139266       in event            1 local:           1
+	 Added good helicity          128  0.93788543194075336       in event            1 local:           1
+	#0  0x45fc34 in ???
+	#1  0x4d9abe in ???
+	#2  0x45aeec in ???
+	#3  0x45bdd6 in ???
+	#4  0x45ced7 in ???
+	#5  0x45db09 in ???
+	#6  0x4efb58 in ???
+	#7  0x45a4bc in ???
+	#8  0x4026ce in ???
+	#9  0x7fa27366ed84 in ???
+	#10  0x40270d in ???
+	#11  0xffffffffffffffff in ???
+	
+	ls status:
+	input_app.txt
+	run1_app.log
+	
+Please report this bug on https://bugs.launchpad.net/mg5amcnlo
+More information is found in '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttggg.mad/run_01_tag_1_debug.log'.
+Please attach this file to your report.[0m
+quit
+INFO:  
+169164.25user 136.14system 12:17:57elapsed 382%CPU (0avgtext+0avgdata 827540maxresident)k
+40584inputs+11943408outputs (141major+1320577minor)pagefaults 0swaps
+Thu Jun 15 21:10:26 CEST 2023
