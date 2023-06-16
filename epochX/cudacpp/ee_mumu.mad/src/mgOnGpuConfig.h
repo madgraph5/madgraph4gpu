@@ -3,10 +3,10 @@
 // Created by: A. Valassi (Jul 2020) for the MG5aMC CUDACPP plugin.
 // Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
 
-#include "GpuAbstraction.h"
-
 #ifndef MGONGPUCONFIG_H
 #define MGONGPUCONFIG_H 1
+
+#include "GpuAbstraction.h"
 
 // HARDCODED AT CODE GENERATION TIME: DO NOT MODIFY (#473)
 // There are two different code bases for standalone_cudacpp (without multichannel) and madevent+cudacpp (with multichannel)
@@ -19,13 +19,9 @@
 // For C++, by default, do not inline, but allow this macro to be set from outside with e.g. -DMGONGPU_HAS_NO_CURAND
 // Added support for HIP compilation by defining MGONGPU_HAS_NO_CURAND
 #ifdef MGONGPUCPP_CUDACC
-#warning CUDACC IS DEFINED!
 #undef MGONGPU_HAS_NO_CURAND 
 #elif defined MGONGPUCPP_HIPCC
-#warning HIPCC IS DEFINED!
 #define MGONGPU_HAS_NO_CURAND 1
-#define STRINGIFY(x) #x
-#pragma message "MGONGPU_HAS_NO_CURAND =" STRINGIFY(MGONGPU_HAS_NO_CURAND)
 //#undef MGONGPU_HAS_NO_CURAND // default
 ////#define MGONGPU_HAS_NO_CURAND 1
 #endif
