@@ -1,4 +1,4 @@
-Thu Jun 15 07:45:46 CEST 2023
+START: Fri Jun 16 19:03:45 CEST 2023
 ************************************************************
 *                                                          *
 *                      W E L C O M E to                    *
@@ -35,9 +35,9 @@ Creating Jobs
 Working on SubProcesses
 INFO:     P1_gg_ttx  
 INFO: Building madevent in madevent_interface.py with 'CUDA' matrix elements 
-INFO:  Idle: 1,  Running: 0,  Completed: 0 [ current time: 07h45 ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 1 [  4.3s  ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 1 [  4.3s  ] 
+INFO:  Idle: 1,  Running: 0,  Completed: 0 [ current time: 19h03 ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 1 [  4.2s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 1 [  4.2s  ] 
 INFO: End survey 
 refine 10000
 Creating Jobs
@@ -49,11 +49,11 @@ INFO: need to improve 1 channels
 - Current estimate of cross-section: 440.565 +- 0.5350139479490231
     P1_gg_ttx 
 Building madevent in madevent_interface.py with 'CUDA' matrix elements
-INFO:  Idle: 7,  Running: 4,  Completed: 0 [ current time: 07h45 ] 
-INFO:  Idle: 2,  Running: 4,  Completed: 5 [  3.6s  ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 11 [  5.4s  ] 
+INFO:  Idle: 7,  Running: 4,  Completed: 0 [ current time: 19h03 ] 
+INFO:  Idle: 2,  Running: 4,  Completed: 5 [  4.2s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 11 [  6s  ] 
 INFO: Combining runs 
-sum of cpu time of last step: 21 seconds
+sum of cpu time of last step: 22 seconds
 INFO: finish refine 
 refine 10000 --treshold=0.9
 No need for second refine due to stability of cross-section
@@ -73,6 +73,7 @@ INFO: storing files of previous run
 INFO: Done 
 quit
 INFO:  
-38.53user 7.83system 0:23.65elapsed 196%CPU (0avgtext+0avgdata 233416maxresident)k
-0inputs+348576outputs (0major+684145minor)pagefaults 0swaps
-Thu Jun 15 07:46:10 CEST 2023
+38.31user 8.41system 0:23.91elapsed 195%CPU (0avgtext+0avgdata 230472maxresident)k
+0inputs+348576outputs (0major+683419minor)pagefaults 0swaps
+END: Fri Jun 16 19:04:09 CEST 2023
+ELAPSED: 24 seconds
