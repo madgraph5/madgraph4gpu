@@ -151,4 +151,4 @@ systematics = systematics_program ! none, systematics [python], SysCalc [deprece
 -O3 -ffast-math -fbounds-check = global_flag ! build flags for Fortran code (for a fair comparison to cudacpp)
 
 # New cudacpp-specific options (default values are defined in banner.py)
-CUDA = cudacpp_backend ! valid backends are FORTRAN, CPP, CUDA
+CPP = cudacpp_backend ! valid backends are FORTRAN, CPP, CUDA
