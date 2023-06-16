@@ -38,6 +38,23 @@ procdir=$(pwd)/${proc}${suff}
 cd $procdir
 resultsdir=${scrdir}/logs_${proc/_}_${bckend/}
 
+function getnevt()
+{
+  if [ "${proc}" == "gg_tt" ]; then
+    nevt=10000
+  elif [ "${proc}" == "gg_ttg" ]; then
+    nevt=10000
+  elif [ "${proc}" == "gg_ttgg" ]; then
+    nevt=1000
+  elif [ "${proc}" == "gg_ttggg" ]; then
+    nevt=500
+  else
+    echo "WARNING! Unknown process ${proc}" > /dev/stderr
+    nevt=500
+  fi
+  echo $nevt
+}
+
 function lauX_makeclean()
 {
   for d in SubProcesses/P*; do cd $d; make cleanall; cd -; break; done
@@ -60,8 +77,13 @@ lauX_cleanup
 rm -f SubProcesses/ME5_debug
 echo "r=21" > SubProcesses/randinit # just in case a previous test was not cleaned up
 cp SubProcesses/randinit SubProcesses/randinit.BKP # save the initial randinit
+sed -i "s/.* = nevents/ 10000 = nevents/" Cards/run_card.dat # just in case a previous test was not cleaned up
 sed -i "s/.* = cudacpp_backend/CPP = cudacpp_backend/" Cards/run_card.dat # just in case a previous test was not cleaned up
 cp Cards/run_card.dat Cards/run_card.dat.BKP # save the initial run_card.dat
+
+# Set the number of events in run_card.dat
+nevt=$(getnevt)
+sed -i "s/ 10000 = nevents/ ${nevt} = nevents/" Cards/run_card.dat
 
 # Set the backend in run_card.dat
 sed -i "s/CPP = cudacpp_backend/${bckend} = cudacpp_backend/" Cards/run_card.dat
