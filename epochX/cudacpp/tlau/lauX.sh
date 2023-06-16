@@ -77,9 +77,11 @@ lauX_cleanup
 rm -f SubProcesses/ME5_debug
 echo "r=21" > SubProcesses/randinit # just in case a previous test was not cleaned up
 cp SubProcesses/randinit SubProcesses/randinit.BKP # save the initial randinit
-sed -i "s/.* = nevents/ 10000 = nevents/" Cards/run_card.dat # just in case a previous test was not cleaned up
+sed -i "s/.* = nevents/  10000 = nevents/" Cards/run_card.dat # just in case a previous test was not cleaned up
 sed -i "s/.* = cudacpp_backend/CPP = cudacpp_backend/" Cards/run_card.dat # just in case a previous test was not cleaned up
 cp Cards/run_card.dat Cards/run_card.dat.BKP # save the initial run_card.dat
+sed -i "s/      NEVENTS = .*/      NEVENTS = 10000/" Source/run_card.inc # just in case a previous test was not cleaned up
+cp Source/run_card.inc Source/run_card.inc.BKP # save the initial run_card.inc
 
 # Set the number of events in run_card.dat
 nevt=$(getnevt)
@@ -108,3 +110,4 @@ gunzip ${resultsdir}/Events/run_01/unweighted_events.lhe.gz
 lauX_cleanup
 mv SubProcesses/randinit.BKP SubProcesses/randinit # restore the initial randinit
 mv Cards/run_card.dat.BKP Cards/run_card.dat # restore the initial run_card.dat
+mv Source/run_card.inc.BKP Source/run_card.inc # restore the initial run_card.inc
