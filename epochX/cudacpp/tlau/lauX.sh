@@ -45,12 +45,12 @@ function getnevt()
   elif [ "${proc}" == "gg_ttg" ]; then
     nevt=10000
   elif [ "${proc}" == "gg_ttgg" ]; then
-    nevt=1000
+    nevt=10000
   elif [ "${proc}" == "gg_ttggg" ]; then
-    nevt=500
+    nevt=10000
   else
-    echo "WARNING! Unknown process ${proc}" > /dev/stderr
-    nevt=500
+    ###echo "WARNING! Unknown process ${proc}" > /dev/stderr
+    nevt=10000
   fi
   echo $nevt
 }
