@@ -5,20 +5,23 @@
 
 set -e # fail on error
 
+scrdir=$(cd $(dirname $0); pwd)
+
 function usage()
 {
-  echo "Usage:   $0 <-FORTRAN|-CUDA|-CPP> <procdir>"
-  echo "Example: $0 -CPP gg_tt.mad"
+  echo "Usage:   $0 <-FORTRAN|-CUDA|-CPP> <proc>"
+  echo "Example: $0 -CPP gg_tt"
   exit 1
 }
 
 bckend=
 proc=
+suff=.mad
 while [ "$1" != "" ]; do
   if [ "$1" == "-FORTRAN" ] || [ "$1" == "-CUDA" ] || [ "$1" == "-CPP" ]; then
     if [ "$bckend" == "" ]; then bckend=${1/-/}; else echo "ERROR! Backend already set"; usage; fi
   elif [ "$proc" == "" ]; then
-    proc=$1
+    proc=${1}
   else
     echo "ERROR! Invalid option '$1': process directory already set to '${proc}'"
     usage
@@ -27,13 +30,13 @@ while [ "$1" != "" ]; do
 done
 if [ "$bckend" == "" ]; then echo "ERROR! No backend was specified"; usage; fi
 if [ "$proc" == "" ]; then echo "ERROR! No process directory was specified"; usage; fi
-if [ ! -d $proc ]; then echo "ERROR! Process directory '${proc}' does not exist"; usage; fi
+if [ ! -d ${proc}${suff} ]; then echo "ERROR! Process directory '${proc}' does not exist"; usage; fi
 
 cd $(dirname $0)/..
 echo "Execute $(basename $0) for process ${proc} in directory $(pwd)"
-procdir=$(pwd)/${proc}
+procdir=$(pwd)/${proc}${suff}
 cd $procdir
-resultsdir=$(pwd)/LAUX_${bckend}
+resultsdir=${scrdir}/logs_${proc/_}_${bckend/}
 
 function lauX_makeclean()
 {
@@ -45,7 +48,7 @@ function lauX_cleanup()
   rm -f crossx.html index.html
   rm -f SubProcesses/results.dat
   rm -rf Events HTML; mkdir Events HTML; touch Events/.keep HTML/.keep
-  for d in SubProcesses/P*; do cd $d; rm -rf gensym input_app.txt symfact.dat G[0-9]* ajob[0-9]*; cd -; done
+  for d in SubProcesses/P*; do cd $d; rm -rf gensym input_app.txt symfact.dat G[0-9]* ajob[0-9]*; cd - > /dev/null; done
 }
 
 # Clean builds before launch
@@ -57,6 +60,7 @@ lauX_cleanup
 rm -f SubProcesses/ME5_debug
 echo "r=21" > SubProcesses/randinit # just in case a previous test was not cleaned up
 cp SubProcesses/randinit SubProcesses/randinit.BKP # save the initial randinit
+sed -i "s/.* = cudacpp_backend/CPP = cudacpp_backend/" Cards/run_card.dat # just in case a previous test was not cleaned up
 cp Cards/run_card.dat Cards/run_card.dat.BKP # save the initial run_card.dat
 
 # Set the backend in run_card.dat
@@ -65,13 +69,20 @@ sed -i "s/CPP = cudacpp_backend/${bckend} = cudacpp_backend/" Cards/run_card.dat
 # Launch (generate_events)
 # (BUG #683: generate_events does not return an error code even if it fails)
 ###set -x # verbose
-date > ${resultsdir}/output.txt
+START=$(date +%s)
+echo "START: $(date)"  |& tee ${resultsdir}/output.txt
 MG5AMC_CARD_PATH=$(pwd)/Cards time ./bin/generate_events -f |& tee -a ${resultsdir}/output.txt
-date >> ${resultsdir}/output.txt
+echo "END: $(date)" |& tee -a ${resultsdir}/output.txt
+END=$(date +%s)
+echo "ELAPSED: $((END-START)) seconds" |& tee -a ${resultsdir}/output.txt
 ###set +x # not verbose
 
-# Clean config after launch
+# Process and keep results
+\rm HTML/results.pkl
 mv Events ${resultsdir}; mv HTML ${resultsdir}
+gunzip ${resultsdir}/Events/run_01/unweighted_events.lhe.gz
+
+# Clean config after launch
 lauX_cleanup
 mv SubProcesses/randinit.BKP SubProcesses/randinit # restore the initial randinit
 mv Cards/run_card.dat.BKP Cards/run_card.dat # restore the initial run_card.dat
