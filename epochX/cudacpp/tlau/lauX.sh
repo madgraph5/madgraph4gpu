@@ -76,14 +76,26 @@ rm -rf ${resultsdir}; mkdir ${resultsdir}
 lauX_cleanup
 rm -f SubProcesses/ME5_debug
 echo "r=21" > SubProcesses/randinit # just in case a previous test was not cleaned up
-cp SubProcesses/randinit SubProcesses/randinit.BKP # save the initial randinit
-sed -i "s/.* = nevents/  10000 = nevents/" Cards/run_card.dat # just in case a previous test was not cleaned up
-sed -i "s/.* = cudacpp_backend/CPP = cudacpp_backend/" Cards/run_card.dat # just in case a previous test was not cleaned up
-cp Cards/run_card.dat Cards/run_card.dat.BKP # save the initial run_card.dat
-sed -i "s/      NEVENTS = .*/      NEVENTS = 10000/" Source/run_card.inc # just in case a previous test was not cleaned up
-cp Source/run_card.inc Source/run_card.inc.BKP # save the initial run_card.inc
+cp SubProcesses/randinit SubProcesses/randinit.BKP # save the initial file
+sed -i "s/.* = nevents/  10000 = nevents/" Cards/run_card.dat # just in case
+sed -i "s/.* = cudacpp_backend/CPP = cudacpp_backend/" Cards/run_card.dat # just in case
+cp Cards/run_card.dat Cards/run_card.dat.BKP # save the initial file
+sed -i "s/      NEVENTS = .*/      NEVENTS = 10000/" Source/run_card.inc # just in case
+cp Source/run_card.inc Source/run_card.inc.BKP # save the initial file
+sed -i "s/8192 1 1/%(event)s         %(maxiter)s           %(miniter)s/" bin/internal/gen_ximprove.py # just in case
+cp bin/internal/gen_ximprove.py bin/internal/gen_ximprove.py.BKP # save the initial file
+sed -i "s/'int', 8192,'Number of points/'int', 1000,'Number of points/" bin/internal/madevent_interface.py # just in case
+sed -i "s/'int', 1, 'Number of iterations'/'int', 5, 'Number of iterations'/" bin/internal/madevent_interface.py # just in case
+cp bin/internal/madevent_interface.py bin/internal/madevent_interface.py.BKP # save the initial file
 
-# Set the number of events in run_card.dat
+# Set the number of events and iterations in the survey step
+sed -i "s/'int', 1000,'Number of points/'int', 8192,'Number of points/" bin/internal/madevent_interface.py
+sed -i "s/'int', 5, 'Number of iterations'/'int', 1, 'Number of iterations'/" bin/internal/madevent_interface.py
+
+# Set the number of events and iterations in the refine step
+sed -i "s/%(event)s         %(maxiter)s           %(miniter)s/8192 1 1/" bin/internal/gen_ximprove.py
+
+# Set the number of unweighted events in run_card.dat
 nevt=$(getnevt)
 sed -i "s/ 10000 = nevents/ ${nevt} = nevents/" Cards/run_card.dat
 
@@ -108,6 +120,8 @@ gunzip ${resultsdir}/Events/run_01/unweighted_events.lhe.gz
 
 # Clean config after launch
 lauX_cleanup
-mv SubProcesses/randinit.BKP SubProcesses/randinit # restore the initial randinit
-mv Cards/run_card.dat.BKP Cards/run_card.dat # restore the initial run_card.dat
-mv Source/run_card.inc.BKP Source/run_card.inc # restore the initial run_card.inc
+mv SubProcesses/randinit.BKP SubProcesses/randinit # restore the initial file
+mv Cards/run_card.dat.BKP Cards/run_card.dat # restore the initial file
+mv Source/run_card.inc.BKP Source/run_card.inc # restore the initial file
+mv bin/internal/gen_ximprove.py.BKP bin/internal/gen_ximprove.py # restore the initial file
+mv bin/internal/madevent_interface.py.BKP bin/internal/madevent_interface.py # restore the initial file
