@@ -1,4 +1,4 @@
-Thu Jun 15 07:47:33 CEST 2023
+START: Sat Jun 17 03:42:49 CEST 2023
 ************************************************************
 *                                                          *
 *                      W E L C O M E to                    *
@@ -34,24 +34,26 @@ INFO: Running Survey
 Creating Jobs
 Working on SubProcesses
 INFO:     P1_gg_ttxg  
-INFO: Building madevent in madevent_interface.py with 'CUDA' matrix elements 
-INFO:  Idle: 2,  Running: 3,  Completed: 0 [ current time: 07h47 ] 
-INFO:  Idle: 0,  Running: 4,  Completed: 1 [  4.8s  ] 
-INFO:  Idle: 0,  Running: 1,  Completed: 4 [  9.5s  ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 5 [  12.4s  ] 
+INFO: Building madevent in madevent_interface.py with 'FORTRAN' matrix elements 
+INFO:  Idle: 2,  Running: 3,  Completed: 0 [ current time: 03h42 ] 
+INFO:  Idle: 0,  Running: 4,  Completed: 1 [  10.9s  ] 
+INFO:  Idle: 0,  Running: 2,  Completed: 3 [  17.1s  ] 
+INFO:  Idle: 0,  Running: 1,  Completed: 4 [  20.6s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 5 [  27.5s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 5 [  27.5s  ] 
 INFO: End survey 
 refine 10000
 Creating Jobs
 INFO: Refine results to 10000 
 INFO: Generating 10000.0 unweighted events. 
-sum of cpu time of last step: 34 seconds
-INFO: Effective Luminosity 28.973330329507217 pb^-1 
+sum of cpu time of last step: 1m18s
+INFO: Effective Luminosity 28.97333746486687 pb^-1 
 INFO: need to improve 0 channels 
-- Current estimate of cross-section: 414.173996 +- 0.7846625828795712
+- Current estimate of cross-section: 414.173894 +- 0.7846553165305898
     P1_gg_ttxg 
-INFO:  Idle: 0,  Running: 0,  Completed: 0 [ current time: 07h47 ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 0 [ current time: 03h43 ] 
 INFO: Combining runs 
-sum of cpu time of last step: 34 seconds
+sum of cpu time of last step: 1m18s
 INFO: finish refine 
 refine 10000 --treshold=0.9
 No need for second refine due to stability of cross-section
@@ -71,6 +73,7 @@ INFO: storing files of previous run
 INFO: Done 
 quit
 INFO:  
-60.33user 5.69system 0:33.73elapsed 195%CPU (0avgtext+0avgdata 233728maxresident)k
-0inputs+594112outputs (0major+640403minor)pagefaults 0swaps
-Thu Jun 15 07:48:07 CEST 2023
+104.52user 3.12system 0:48.70elapsed 221%CPU (0avgtext+0avgdata 95368maxresident)k
+0inputs+566680outputs (0major+476581minor)pagefaults 0swaps
+END: Sat Jun 17 03:43:38 CEST 2023
+ELAPSED: 49 seconds

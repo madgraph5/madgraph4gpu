@@ -1,4 +1,4 @@
-Thu Jun 15 08:02:42 CEST 2023
+START: Sat Jun 17 04:00:34 CEST 2023
 ************************************************************
 *                                                          *
 *                      W E L C O M E to                    *
@@ -35,17 +35,18 @@ Creating Jobs
 Working on SubProcesses
 INFO:     P1_gg_ttxgg  
 INFO: Building madevent in madevent_interface.py with 'CPP' matrix elements 
-INFO:  Idle: 14,  Running: 4,  Completed: 0 [ current time: 08h02 ] 
-INFO:  Idle: 13,  Running: 4,  Completed: 1 [  28.8s  ] 
+INFO:  Idle: 14,  Running: 4,  Completed: 0 [ current time: 04h00 ] 
+INFO:  Idle: 13,  Running: 4,  Completed: 1 [  28.5s  ] 
 INFO:  Idle: 10,  Running: 4,  Completed: 4 [  1m 1s  ] 
-INFO:  Idle: 9,  Running: 4,  Completed: 5 [  1m 14s  ] 
-INFO:  Idle: 7,  Running: 4,  Completed: 7 [  1m 31s  ] 
+INFO:  Idle: 9,  Running: 4,  Completed: 5 [  1m 13s  ] 
+INFO:  Idle: 7,  Running: 4,  Completed: 7 [  1m 30s  ] 
 INFO:  Idle: 6,  Running: 4,  Completed: 8 [  2m 5s  ] 
 INFO:  Idle: 5,  Running: 4,  Completed: 9 [  2m 14s  ] 
-INFO:  Idle: 3,  Running: 4,  Completed: 11 [  2m 21s  ] 
+INFO:  Idle: 3,  Running: 4,  Completed: 11 [  2m 22s  ] 
 INFO:  Idle: 2,  Running: 4,  Completed: 12 [  2m 50s  ] 
-INFO:  Idle: 1,  Running: 4,  Completed: 13 [  2m 58s  ] 
+INFO:  Idle: 1,  Running: 4,  Completed: 13 [  2m 59s  ] 
 INFO:  Idle: 0,  Running: 4,  Completed: 14 [  3m 6s  ] 
+INFO:  Idle: 0,  Running: 3,  Completed: 15 [  3m 9s  ] 
 INFO:  Idle: 0,  Running: 2,  Completed: 16 [  3m 20s  ] 
 INFO:  Idle: 0,  Running: 1,  Completed: 17 [  3m 29s  ] 
 INFO:  Idle: 0,  Running: 0,  Completed: 18 [  3m 34s  ] 
@@ -55,17 +56,17 @@ refine 10000
 Creating Jobs
 INFO: Refine results to 10000 
 INFO: Generating 10000.0 unweighted events. 
-sum of cpu time of last step: 13m27s
+sum of cpu time of last step: 13m29s
 INFO: Effective Luminosity 47.57523835538049 pb^-1 
 INFO: need to improve 2 channels 
 - Current estimate of cross-section: 252.23205210999996 +- 0.4838982830608721
     P1_gg_ttxgg 
 Building madevent in madevent_interface.py with 'CPP' matrix elements
-INFO:  Idle: 1,  Running: 3,  Completed: 0 [ current time: 08h06 ] 
-INFO:  Idle: 0,  Running: 3,  Completed: 1 [  21.2s  ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 4 [  22s  ] 
+INFO:  Idle: 1,  Running: 3,  Completed: 0 [ current time: 04h04 ] 
+INFO:  Idle: 0,  Running: 3,  Completed: 1 [  21.4s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 4 [  22.2s  ] 
 INFO: Combining runs 
-sum of cpu time of last step: 13m52s
+sum of cpu time of last step: 13m54s
 INFO: finish refine 
 refine 10000 --treshold=0.9
 No need for second refine due to stability of cross-section
@@ -85,6 +86,7 @@ INFO: storing files of previous run
 INFO: Done 
 quit
 INFO:  
-931.76user 8.78system 4:38.81elapsed 337%CPU (0avgtext+0avgdata 102804maxresident)k
-0inputs+3828256outputs (0major+752295minor)pagefaults 0swaps
-Thu Jun 15 08:07:21 CEST 2023
+930.54user 11.66system 4:39.34elapsed 337%CPU (0avgtext+0avgdata 105948maxresident)k
+0inputs+3828944outputs (0major+790392minor)pagefaults 0swaps
+END: Sat Jun 17 04:05:14 CEST 2023
+ELAPSED: 280 seconds

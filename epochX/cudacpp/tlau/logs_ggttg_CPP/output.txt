@@ -1,4 +1,4 @@
-Thu Jun 15 07:48:08 CEST 2023
+START: Sat Jun 17 03:43:40 CEST 2023
 ************************************************************
 *                                                          *
 *                      W E L C O M E to                    *
@@ -34,31 +34,32 @@ INFO: Running Survey
 Creating Jobs
 Working on SubProcesses
 INFO:     P1_gg_ttxg  
-INFO: Building madevent in madevent_interface.py with 'CUDA' matrix elements 
-INFO:  Idle: 2,  Running: 3,  Completed: 0 [ current time: 07h48 ] 
-INFO:  Idle: 0,  Running: 4,  Completed: 1 [  4.8s  ] 
-INFO:  Idle: 0,  Running: 1,  Completed: 4 [  9.4s  ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 5 [  12.4s  ] 
+INFO: Building madevent in madevent_interface.py with 'CPP' matrix elements 
+INFO:  Idle: 2,  Running: 3,  Completed: 0 [ current time: 03h43 ] 
+INFO:  Idle: 0,  Running: 4,  Completed: 1 [  5.8s  ] 
+INFO:  Idle: 0,  Running: 2,  Completed: 3 [  9.2s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 5 [  15s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 5 [  15s  ] 
 INFO: End survey 
 refine 10000
 Creating Jobs
 INFO: Refine results to 10000 
 INFO: Generating 10000.0 unweighted events. 
-sum of cpu time of last step: 34 seconds
-INFO: Effective Luminosity 28.973330329507217 pb^-1 
+sum of cpu time of last step: 44 seconds
+INFO: Effective Luminosity 28.973330399461705 pb^-1 
 INFO: need to improve 0 channels 
-- Current estimate of cross-section: 414.173996 +- 0.7846625828795712
+- Current estimate of cross-section: 414.173995 +- 0.7846188663660911
     P1_gg_ttxg 
-INFO:  Idle: 0,  Running: 0,  Completed: 0 [ current time: 07h48 ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 0 [ current time: 03h44 ] 
 INFO: Combining runs 
-sum of cpu time of last step: 34 seconds
+sum of cpu time of last step: 44 seconds
 INFO: finish refine 
 refine 10000 --treshold=0.9
 No need for second refine due to stability of cross-section
 INFO: Combining Events 
   === Results Summary for run: run_01 tag: tag_1 ===
 
-     Cross-section :   414.2 +- 0.7847 pb
+     Cross-section :   414.2 +- 0.7846 pb
      Nb of events :  10000
  
 INFO: No version of lhapdf. Can not run systematics computation 
@@ -71,6 +72,7 @@ INFO: storing files of previous run
 INFO: Done 
 quit
 INFO:  
-60.48user 5.70system 0:33.95elapsed 194%CPU (0avgtext+0avgdata 234540maxresident)k
-0inputs+594144outputs (0major+639120minor)pagefaults 0swaps
-Thu Jun 15 07:48:42 CEST 2023
+71.16user 4.00system 0:36.92elapsed 203%CPU (0avgtext+0avgdata 99652maxresident)k
+0inputs+595728outputs (0major+612818minor)pagefaults 0swaps
+END: Sat Jun 17 03:44:16 CEST 2023
+ELAPSED: 36 seconds

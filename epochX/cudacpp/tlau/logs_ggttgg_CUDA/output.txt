@@ -1,4 +1,4 @@
-Thu Jun 15 07:48:43 CEST 2023
+START: Sat Jun 17 03:44:18 CEST 2023
 ************************************************************
 *                                                          *
 *                      W E L C O M E to                    *
@@ -35,34 +35,34 @@ Creating Jobs
 Working on SubProcesses
 INFO:     P1_gg_ttxgg  
 INFO: Building madevent in madevent_interface.py with 'CUDA' matrix elements 
-INFO:  Idle: 14,  Running: 4,  Completed: 0 [ current time: 07h48 ] 
-INFO:  Idle: 13,  Running: 4,  Completed: 1 [  8.2s  ] 
-INFO:  Idle: 10,  Running: 4,  Completed: 4 [  19.4s  ] 
-INFO:  Idle: 8,  Running: 4,  Completed: 6 [  22.6s  ] 
-INFO:  Idle: 7,  Running: 4,  Completed: 7 [  26.8s  ] 
-INFO:  Idle: 6,  Running: 4,  Completed: 8 [  39.2s  ] 
-INFO:  Idle: 3,  Running: 4,  Completed: 11 [  45.6s  ] 
-INFO:  Idle: 2,  Running: 4,  Completed: 12 [  51.3s  ] 
-INFO:  Idle: 0,  Running: 4,  Completed: 14 [  57.3s  ] 
-INFO:  Idle: 0,  Running: 2,  Completed: 16 [  1m 0s  ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 18 [  1m 4s  ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 18 [  1m 4s  ] 
+INFO:  Idle: 14,  Running: 4,  Completed: 0 [ current time: 03h44 ] 
+INFO:  Idle: 13,  Running: 4,  Completed: 1 [  8.3s  ] 
+INFO:  Idle: 10,  Running: 4,  Completed: 4 [  19.7s  ] 
+INFO:  Idle: 8,  Running: 4,  Completed: 6 [  23s  ] 
+INFO:  Idle: 7,  Running: 4,  Completed: 7 [  27s  ] 
+INFO:  Idle: 6,  Running: 4,  Completed: 8 [  39.3s  ] 
+INFO:  Idle: 3,  Running: 4,  Completed: 11 [  46.4s  ] 
+INFO:  Idle: 2,  Running: 4,  Completed: 12 [  52.1s  ] 
+INFO:  Idle: 0,  Running: 4,  Completed: 14 [  57.9s  ] 
+INFO:  Idle: 0,  Running: 2,  Completed: 16 [  1m 1s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 18 [  1m 5s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 18 [  1m 5s  ] 
 INFO: End survey 
 refine 10000
 Creating Jobs
 INFO: Refine results to 10000 
 INFO: Generating 10000.0 unweighted events. 
-sum of cpu time of last step: 4m07s
+sum of cpu time of last step: 4m10s
 INFO: Effective Luminosity 47.60279369991978 pb^-1 
 INFO: need to improve 1 channels 
 - Current estimate of cross-section: 252.08604510999996 +- 0.4833081845268459
     P1_gg_ttxgg 
 Building madevent in madevent_interface.py with 'CUDA' matrix elements
-INFO:  Idle: 1,  Running: 2,  Completed: 0 [ current time: 07h50 ] 
-INFO:  Idle: 0,  Running: 2,  Completed: 1 [  8.1s  ] 
+INFO:  Idle: 1,  Running: 2,  Completed: 0 [ current time: 03h45 ] 
+INFO:  Idle: 0,  Running: 2,  Completed: 1 [  8.3s  ] 
 INFO:  Idle: 0,  Running: 0,  Completed: 3 [  8.7s  ] 
 INFO: Combining runs 
-sum of cpu time of last step: 4m21s
+sum of cpu time of last step: 4m25s
 INFO: finish refine 
 refine 10000 --treshold=0.9
 No need for second refine due to stability of cross-section
@@ -82,6 +82,7 @@ INFO: storing files of previous run
 INFO: Done 
 quit
 INFO:  
-305.68user 14.63system 1:55.22elapsed 277%CPU (0avgtext+0avgdata 246328maxresident)k
-0inputs+3724040outputs (0major+989073minor)pagefaults 0swaps
-Thu Jun 15 07:50:39 CEST 2023
+308.79user 15.50system 1:56.02elapsed 279%CPU (0avgtext+0avgdata 249528maxresident)k
+0inputs+3722352outputs (0major+1247069minor)pagefaults 0swaps
+END: Sat Jun 17 03:46:14 CEST 2023
+ELAPSED: 116 seconds

@@ -1,4 +1,4 @@
-START: Fri Jun 16 21:50:05 CEST 2023
+START: Sat Jun 17 03:46:15 CEST 2023
 ************************************************************
 *                                                          *
 *                      W E L C O M E to                    *
@@ -25,7 +25,7 @@ Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
 No valid eps viewer found. Please set in ./input/mg5_configuration.txt
 Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
 generate_events -f
-Generating 1000 events with run name run_01
+Generating 10000 events with run name run_01
 survey  run_01 
 INFO: compile directory 
 compile Source Directory
@@ -35,45 +35,47 @@ Creating Jobs
 Working on SubProcesses
 INFO:     P1_gg_ttxgg  
 INFO: Building madevent in madevent_interface.py with 'FORTRAN' matrix elements 
-INFO:  Idle: 14,  Running: 4,  Completed: 0 [ current time: 21h50 ] 
+INFO:  Idle: 15,  Running: 3,  Completed: 0 [ current time: 03h46 ] 
 INFO:  Idle: 13,  Running: 4,  Completed: 1 [  1m 36s  ] 
-INFO:  Idle: 10,  Running: 4,  Completed: 4 [  3m 35s  ] 
-INFO:  Idle: 9,  Running: 4,  Completed: 5 [  4m 13s  ] 
-INFO:  Idle: 7,  Running: 4,  Completed: 7 [  5m 12s  ] 
-INFO:  Idle: 6,  Running: 4,  Completed: 8 [  7m 14s  ] 
+INFO:  Idle: 10,  Running: 4,  Completed: 4 [  3m 36s  ] 
+INFO:  Idle: 9,  Running: 4,  Completed: 5 [  4m 12s  ] 
+INFO:  Idle: 7,  Running: 4,  Completed: 7 [  5m 13s  ] 
+INFO:  Idle: 6,  Running: 4,  Completed: 8 [  7m 15s  ] 
 INFO:  Idle: 5,  Running: 4,  Completed: 9 [  7m 47s  ] 
-INFO:  Idle: 3,  Running: 4,  Completed: 11 [  7m 54s  ] 
-INFO:  Idle: 2,  Running: 4,  Completed: 12 [  9m 49s  ] 
-INFO:  Idle: 1,  Running: 4,  Completed: 13 [  10m 22s  ] 
-INFO:  Idle: 0,  Running: 4,  Completed: 14 [  10m 28s  ] 
-INFO:  Idle: 0,  Running: 2,  Completed: 16 [  11m 16s  ] 
-INFO:  Idle: 0,  Running: 1,  Completed: 17 [  11m 58s  ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 18 [  12m 20s  ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 18 [  12m 20s  ] 
+INFO:  Idle: 4,  Running: 4,  Completed: 10 [  7m 50s  ] 
+INFO:  Idle: 3,  Running: 4,  Completed: 11 [  7m 55s  ] 
+INFO:  Idle: 2,  Running: 4,  Completed: 12 [  9m 51s  ] 
+INFO:  Idle: 1,  Running: 4,  Completed: 13 [  10m 24s  ] 
+INFO:  Idle: 0,  Running: 4,  Completed: 14 [  10m 31s  ] 
+INFO:  Idle: 0,  Running: 2,  Completed: 16 [  11m 19s  ] 
+INFO:  Idle: 0,  Running: 1,  Completed: 17 [  12m 1s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 18 [  12m 25s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 18 [  12m 25s  ] 
 INFO: End survey 
-refine 1000
+refine 10000
 Creating Jobs
-INFO: Refine results to 1000 
-INFO: Generating 1000.0 unweighted events. 
-sum of cpu time of last step: 45m38s
-INFO: Effective Luminosity 4.75680525374908 pb^-1 
-INFO: need to improve 1 channels 
+INFO: Refine results to 10000 
+INFO: Generating 10000.0 unweighted events. 
+sum of cpu time of last step: 45m42s
+INFO: Effective Luminosity 47.5680525374908 pb^-1 
+INFO: need to improve 2 channels 
 - Current estimate of cross-section: 252.27015527999995 +- 0.4858645064415314
     P1_gg_ttxgg 
 Building madevent in madevent_interface.py with 'FORTRAN' matrix elements
-INFO:  Idle: 1,  Running: 0,  Completed: 0 [ current time: 22h02 ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 1 [  36.7s  ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 1 [  36.7s  ] 
+INFO:  Idle: 1,  Running: 3,  Completed: 0 [ current time: 03h58 ] 
+INFO:  Idle: 0,  Running: 3,  Completed: 1 [  39.5s  ] 
+INFO:  Idle: 0,  Running: 2,  Completed: 2 [  1m 10s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 4 [  1m 10s  ] 
 INFO: Combining runs 
-sum of cpu time of last step: 44m28s
+sum of cpu time of last step: 46m16s
 INFO: finish refine 
-refine 1000 --treshold=0.9
+refine 10000 --treshold=0.9
 No need for second refine due to stability of cross-section
 INFO: Combining Events 
   === Results Summary for run: run_01 tag: tag_1 ===
 
-     Cross-section :   252.3 +- 0.6969 pb
-     Nb of events :  1000
+     Cross-section :   252.4 +- 0.3528 pb
+     Nb of events :  10000
  
 INFO: No version of lhapdf. Can not run systematics computation 
 store_events
@@ -85,7 +87,7 @@ INFO: storing files of previous run
 INFO: Done 
 quit
 INFO:  
-2796.39user 10.37system 13:25.23elapsed 348%CPU (0avgtext+0avgdata 99112maxresident)k
-0inputs+3395448outputs (0major+598765minor)pagefaults 0swaps
-END: Fri Jun 16 22:03:30 CEST 2023
-ELAPSED: 805 seconds
+3018.91user 14.81system 14:17.01elapsed 353%CPU (0avgtext+0avgdata 99124maxresident)k
+0inputs+3741568outputs (0major+691292minor)pagefaults 0swaps
+END: Sat Jun 17 04:00:32 CEST 2023
+ELAPSED: 857 seconds

@@ -1,4 +1,4 @@
-Thu Jun 15 07:46:11 CEST 2023
+START: Sat Jun 17 03:41:25 CEST 2023
 ************************************************************
 *                                                          *
 *                      W E L C O M E to                    *
@@ -35,9 +35,9 @@ Creating Jobs
 Working on SubProcesses
 INFO:     P1_gg_ttx  
 INFO: Building madevent in madevent_interface.py with 'FORTRAN' matrix elements 
-INFO:  Idle: 1,  Running: 0,  Completed: 0 [ current time: 07h46 ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 1 [  3.9s  ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 1 [  3.9s  ] 
+INFO:  Idle: 1,  Running: 0,  Completed: 0 [ current time: 03h41 ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 1 [  3.8s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 1 [  3.8s  ] 
 INFO: End survey 
 refine 10000
 Creating Jobs
@@ -49,11 +49,11 @@ INFO: need to improve 1 channels
 - Current estimate of cross-section: 440.565 +- 0.5350139479490231
     P1_gg_ttx 
 Building madevent in madevent_interface.py with 'FORTRAN' matrix elements
-INFO:  Idle: 7,  Running: 4,  Completed: 0 [ current time: 07h46 ] 
+INFO:  Idle: 7,  Running: 4,  Completed: 0 [ current time: 03h41 ] 
 INFO:  Idle: 2,  Running: 4,  Completed: 5 [  3.6s  ] 
 INFO:  Idle: 0,  Running: 0,  Completed: 11 [  5.5s  ] 
 INFO: Combining runs 
-sum of cpu time of last step: 25 seconds
+sum of cpu time of last step: 24 seconds
 INFO: finish refine 
 refine 10000 --treshold=0.9
 No need for second refine due to stability of cross-section
@@ -73,6 +73,7 @@ INFO: storing files of previous run
 INFO: Done 
 quit
 INFO:  
-43.24user 2.97system 0:22.65elapsed 204%CPU (0avgtext+0avgdata 89720maxresident)k
-0inputs+324424outputs (0major+477397minor)pagefaults 0swaps
-Thu Jun 15 07:46:34 CEST 2023
+43.31user 3.12system 0:22.98elapsed 202%CPU (0avgtext+0avgdata 91808maxresident)k
+0inputs+325120outputs (0major+496135minor)pagefaults 0swaps
+END: Sat Jun 17 03:41:48 CEST 2023
+ELAPSED: 23 seconds

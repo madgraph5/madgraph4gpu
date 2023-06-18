@@ -1,4 +1,4 @@
-Thu Jun 15 07:46:58 CEST 2023
+START: Sat Jun 17 03:42:13 CEST 2023
 ************************************************************
 *                                                          *
 *                      W E L C O M E to                    *
@@ -35,11 +35,10 @@ Creating Jobs
 Working on SubProcesses
 INFO:     P1_gg_ttxg  
 INFO: Building madevent in madevent_interface.py with 'CUDA' matrix elements 
-INFO:  Idle: 2,  Running: 3,  Completed: 0 [ current time: 07h47 ] 
-INFO:  Idle: 0,  Running: 4,  Completed: 1 [  4.9s  ] 
-INFO:  Idle: 0,  Running: 1,  Completed: 4 [  9.4s  ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 5 [  12.5s  ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 5 [  12.5s  ] 
+INFO:  Idle: 2,  Running: 3,  Completed: 0 [ current time: 03h42 ] 
+INFO:  Idle: 0,  Running: 4,  Completed: 1 [  5s  ] 
+INFO:  Idle: 0,  Running: 1,  Completed: 4 [  10s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 5 [  12.6s  ] 
 INFO: End survey 
 refine 10000
 Creating Jobs
@@ -50,7 +49,7 @@ INFO: Effective Luminosity 28.973330329507217 pb^-1
 INFO: need to improve 0 channels 
 - Current estimate of cross-section: 414.173996 +- 0.7846625828795712
     P1_gg_ttxg 
-INFO:  Idle: 0,  Running: 0,  Completed: 0 [ current time: 07h47 ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 0 [ current time: 03h42 ] 
 INFO: Combining runs 
 sum of cpu time of last step: 35 seconds
 INFO: finish refine 
@@ -72,6 +71,7 @@ INFO: storing files of previous run
 INFO: Done 
 quit
 INFO:  
-60.42user 5.55system 0:33.60elapsed 196%CPU (0avgtext+0avgdata 233776maxresident)k
-0inputs+594304outputs (0major+642040minor)pagefaults 0swaps
-Thu Jun 15 07:47:32 CEST 2023
+61.15user 6.03system 0:34.46elapsed 194%CPU (0avgtext+0avgdata 236824maxresident)k
+0inputs+595680outputs (0major+692941minor)pagefaults 0swaps
+END: Sat Jun 17 03:42:48 CEST 2023
+ELAPSED: 35 seconds
