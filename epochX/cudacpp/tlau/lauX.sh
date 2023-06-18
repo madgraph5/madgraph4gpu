@@ -33,7 +33,7 @@ if [ "$proc" == "" ]; then echo "ERROR! No process directory was specified"; usa
 if [ ! -d ${proc}${suff} ]; then echo "ERROR! Process directory '${proc}' does not exist"; usage; fi
 
 cd $(dirname $0)/..
-echo "Execute $(basename $0) for process ${proc} in directory $(pwd)"
+echo "Execute $(basename $0) for process ${proc} and backend ${bckend} in directory $(pwd)"
 procdir=$(pwd)/${proc}${suff}
 cd $procdir
 resultsdir=${scrdir}/logs_${proc/_}_${bckend/}
@@ -125,3 +125,8 @@ mv Cards/run_card.dat.BKP Cards/run_card.dat # restore the initial file
 mv Source/run_card.inc.BKP Source/run_card.inc # restore the initial file
 mv bin/internal/gen_ximprove.py.BKP bin/internal/gen_ximprove.py # restore the initial file
 mv bin/internal/madevent_interface.py.BKP bin/internal/madevent_interface.py # restore the initial file
+
+# Add an 80-character separator
+echo ""
+echo "********************************************************************************"
+echo ""
