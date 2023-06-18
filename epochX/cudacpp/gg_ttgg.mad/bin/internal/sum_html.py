@@ -276,7 +276,8 @@ class OneResult(object):
     #@cluster.multiple_try(nb_try=5,sleep=20)
     def read_results(self, filepath):
         """read results.dat and fullfill information"""
-        
+        l=filepath.split('/')
+        if len(l[len(l)-2]) > 2 : return # select channels Gn and reject channels Gnn+
         if isinstance(filepath, str):
             finput = open(filepath)
         elif hasattr(filepath, 'read') and hasattr(filepath, 'name'):
