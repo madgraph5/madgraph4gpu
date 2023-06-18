@@ -926,7 +926,7 @@ For offline investigation, the problematic discarded events are stored in:
     def write_parameter_file(self, path, options):
         """ """
         
-        template ="""         8192 1 1      !Number of events and max and min iterations
+        template ="""         %(event)s         %(maxiter)s           %(miniter)s      !Number of events and max and min iterations
   %(accuracy)s    !Accuracy
   %(gridmode)s       !Grid Adjustment 0=none, 2=adjust
   1       !Suppress Amplitude 1=yes
@@ -1109,7 +1109,6 @@ class gen_ximprove(object):
                           
         to_refine = []
         for C in all_channels:
-            print(C.name, C.get('axsec'))
             if C.get('axsec') == 0:
                 continue
             if goal_lum/(C.get('luminosity')+1e-99) >= 1 + (self.gen_events_security-1)/2:
@@ -1120,7 +1119,6 @@ class gen_ximprove(object):
                 to_refine.append(C)
          
         logger.info('need to improve %s channels' % len(to_refine))        
-        sys.exit(-1)
         return goal_lum, to_refine
 
     def update_html(self):

@@ -243,7 +243,7 @@ class RunStatistics(dict):
         return ('\n'.join(to_print)).replace("'"," ") 
 
 class OneResult(object):
-    nread = 0    
+    
     def __init__(self, name):
         """Initialize all data """
         
@@ -276,8 +276,7 @@ class OneResult(object):
     #@cluster.multiple_try(nb_try=5,sleep=20)
     def read_results(self, filepath):
         """read results.dat and fullfill information"""
-        OneResult.nread = OneResult.nread+1
-        if OneResult.nread > 3 : return # select at most three channels
+        
         if isinstance(filepath, str):
             finput = open(filepath)
         elif hasattr(filepath, 'read') and hasattr(filepath, 'name'):
