@@ -1113,10 +1113,10 @@ class gen_ximprove(object):
                 continue
             if goal_lum/(C.get('luminosity')+1e-99) >= 1 + (self.gen_events_security-1)/2:
                 logger.debug("channel %s need to improve by %.2f (xsec=%s pb, iter=%s)", C.name, goal_lum/(C.get('luminosity')+1e-99), C.get('xsec'), int(C.get('maxit')))
-                to_refine.append(C)
+                logger.info('WARNING: will not refine channel %s',C.get('name'))
             elif C.get('xerr') > max(C.get('axsec'),
               (1/(100*math.sqrt(self.err_goal)))*all_channels[-1].get('axsec')):
-                to_refine.append(C)
+                logger.info('WARNING: will not refine channel %s',C.get('name'))
          
         logger.info('need to improve %s channels' % len(to_refine))        
         return goal_lum, to_refine
@@ -1398,7 +1398,7 @@ class gen_ximprove_v4(gen_ximprove):
         for C in all_channels:
             cerr = C.mfactor*(C.xerru + len(all_channels)*C.xerrc)
             if  cerr > abs(limit):
-                to_refine.append(C)
+                logger.info('WARNING: will not refine channel %s',C.get('name'))
             else:
                 rerr += cerr
         rerr *=rerr
@@ -1861,7 +1861,7 @@ class gen_ximprove_gridpack(gen_ximprove_v4):
             #need to generate events
             logger.debug('request events for ', C.get('name'), 'cross=',
                   C.get('axsec'), 'needed events = ', goal_lum * C.get('axsec'))
-            to_refine.append(C) 
+            logger.info('WARNING: will not refine channel %s',C.get('name')) 
          
         logger.info('need to improve %s channels' % len(to_refine))    
         return goal_lum, to_refine
