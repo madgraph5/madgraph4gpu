@@ -364,7 +364,7 @@ DECAY  22 0.000000e+00 # a : 0.0
 </slha>
 <MGGenerationInfo>
 #  Number of Events        :       10000
-#  Integrated weight (pb)  :       414.173894
+#  Integrated weight (pb)  :       413.93173400000006
 </MGGenerationInfo>
 </header>
 </LesHouchesEvents>

@@ -151,7 +151,7 @@ sm
 # Number of events and rnd seed                                      *
 # Warning: Do not generate more than 1M events in a single run       *
 #*********************************************************************
-  10000 = nevents ! Number of unweighted events requested 
+  1000 = nevents ! Number of unweighted events requested 
  21 = iseed   ! rnd seed (0=assigned automatically=default))
 #*********************************************************************
 # Collider type and energy                                           *
@@ -388,8 +388,8 @@ DECAY  21 0.000000e+00 # g : 0.0
 DECAY  22 0.000000e+00 # a : 0.0
 </slha>
 <MGGenerationInfo>
-#  Number of Events        :       10000
-#  Integrated weight (pb)  :       252.31804510999993
+#  Number of Events        :       1000
+#  Integrated weight (pb)  :       251.68241347000006
 </MGGenerationInfo>
 </header>
 </LesHouchesEvents>

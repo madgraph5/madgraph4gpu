@@ -1,4 +1,4 @@
-START: Sat Jun 17 03:42:13 CEST 2023
+START: Sat Jun 17 11:08:22 PM CEST 2023
 ************************************************************
 *                                                          *
 *                      W E L C O M E to                    *
@@ -22,12 +22,13 @@ START: Sat Jun 17 03:42:13 CEST 2023
 INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttg.mad/Cards/me5_configuration.txt  
 INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttg.mad/Cards/me5_configuration.txt  
 Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
-No valid eps viewer found. Please set in ./input/mg5_configuration.txt
-Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
+Using default eps viewer "evince". Set another one in ./input/mg5_configuration.txt
+No valid web browser found. Please set in ./input/mg5_configuration.txt
 generate_events -f
 Generating 10000 events with run name run_01
 survey  run_01 
 INFO: compile directory 
+[1;34mNot able to open file /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttg.mad/crossx.html since no program configured.Please set one in ./input/mg5_configuration.txt[0m
 compile Source Directory
 Using random number seed offset = 21
 INFO: Running Survey 
@@ -35,30 +36,36 @@ Creating Jobs
 Working on SubProcesses
 INFO:     P1_gg_ttxg  
 INFO: Building madevent in madevent_interface.py with 'CUDA' matrix elements 
-INFO:  Idle: 2,  Running: 3,  Completed: 0 [ current time: 03h42 ] 
-INFO:  Idle: 0,  Running: 4,  Completed: 1 [  5s  ] 
-INFO:  Idle: 0,  Running: 1,  Completed: 4 [  10s  ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 5 [  12.6s  ] 
+INFO:  Idle: 1,  Running: 4,  Completed: 0 [ current time: 23h08 ] 
+INFO:  Idle: 0,  Running: 4,  Completed: 1 [  1.4s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 5 [  2.1s  ] 
 INFO: End survey 
 refine 10000
 Creating Jobs
 INFO: Refine results to 10000 
 INFO: Generating 10000.0 unweighted events. 
-sum of cpu time of last step: 35 seconds
-INFO: Effective Luminosity 28.973330329507217 pb^-1 
-INFO: need to improve 0 channels 
-- Current estimate of cross-section: 414.173996 +- 0.7846625828795712
+sum of cpu time of last step: 7 seconds
+INFO: Effective Luminosity 15.024962284527486 pb^-1 
+INFO: need to improve 9 channels 
+- Current estimate of cross-section: 798.67089 +- 5.893756606153417
     P1_gg_ttxg 
-INFO:  Idle: 0,  Running: 0,  Completed: 0 [ current time: 03h42 ] 
+Building madevent in madevent_interface.py with 'CUDA' matrix elements
+INFO:  Idle: 15,  Running: 4,  Completed: 0 [ current time: 23h08 ] 
+INFO:  Idle: 14,  Running: 4,  Completed: 1 [  3.6s  ] 
+INFO:  Idle: 10,  Running: 4,  Completed: 5 [  7.9s  ] 
+INFO:  Idle: 7,  Running: 4,  Completed: 8 [  11.8s  ] 
+INFO:  Idle: 3,  Running: 4,  Completed: 12 [  16s  ] 
+INFO:  Idle: 0,  Running: 3,  Completed: 16 [  20.4s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 19 [  22.2s  ] 
 INFO: Combining runs 
-sum of cpu time of last step: 35 seconds
+sum of cpu time of last step: 1m28s
 INFO: finish refine 
 refine 10000 --treshold=0.9
 No need for second refine due to stability of cross-section
 INFO: Combining Events 
   === Results Summary for run: run_01 tag: tag_1 ===
 
-     Cross-section :   414.2 +- 0.7847 pb
+     Cross-section :   413.9 +- 0.471 pb
      Nb of events :  10000
  
 INFO: No version of lhapdf. Can not run systematics computation 
@@ -71,7 +78,7 @@ INFO: storing files of previous run
 INFO: Done 
 quit
 INFO:  
-61.15user 6.03system 0:34.46elapsed 194%CPU (0avgtext+0avgdata 236824maxresident)k
-0inputs+595680outputs (0major+692941minor)pagefaults 0swaps
-END: Sat Jun 17 03:42:48 CEST 2023
-ELAPSED: 35 seconds
+171.82user 16.54system 1:06.80elapsed 281%CPU (0avgtext+0avgdata 399372maxresident)k
+0inputs+1987544outputs (5major+3563608minor)pagefaults 0swaps
+END: Sat Jun 17 11:09:29 PM CEST 2023
+ELAPSED: 67 seconds

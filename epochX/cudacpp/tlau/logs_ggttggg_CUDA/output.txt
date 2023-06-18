@@ -1,4 +1,4 @@
-START: Sat Jun 17 04:05:15 CEST 2023
+START: Sat Jun 17 11:24:24 PM CEST 2023
 ************************************************************
 *                                                          *
 *                      W E L C O M E to                    *
@@ -22,12 +22,13 @@ START: Sat Jun 17 04:05:15 CEST 2023
 INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttggg.mad/Cards/me5_configuration.txt  
 INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttggg.mad/Cards/me5_configuration.txt  
 Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
-No valid eps viewer found. Please set in ./input/mg5_configuration.txt
-Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
+Using default eps viewer "evince". Set another one in ./input/mg5_configuration.txt
+No valid web browser found. Please set in ./input/mg5_configuration.txt
 generate_events -f
-Generating 10000 events with run name run_01
+Generating 100 events with run name run_01
 survey  run_01 
 INFO: compile directory 
+[1;34mNot able to open file /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttggg.mad/crossx.html since no program configured.Please set one in ./input/mg5_configuration.txt[0m
 compile Source Directory
 Using random number seed offset = 21
 INFO: Running Survey 
@@ -35,86 +36,166 @@ Creating Jobs
 Working on SubProcesses
 INFO:     P1_gg_ttxggg  
 INFO: Building madevent in madevent_interface.py with 'CUDA' matrix elements 
-INFO:  Idle: 56,  Running: 4,  Completed: 0 [ current time: 04h06 ] 
-INFO:  Idle: 55,  Running: 4,  Completed: 1 [  1m 47s  ] 
-INFO:  Idle: 53,  Running: 4,  Completed: 3 [  1m 54s  ] 
-INFO:  Idle: 51,  Running: 4,  Completed: 5 [  3m 34s  ] 
-INFO:  Idle: 50,  Running: 4,  Completed: 6 [  3m 39s  ] 
-INFO:  Idle: 49,  Running: 4,  Completed: 7 [  3m 49s  ] 
-INFO:  Idle: 48,  Running: 4,  Completed: 8 [  4m 36s  ] 
-INFO:  Idle: 47,  Running: 4,  Completed: 9 [  6m 58s  ] 
-INFO:  Idle: 46,  Running: 4,  Completed: 10 [  7m 7s  ] 
-INFO:  Idle: 44,  Running: 4,  Completed: 12 [  7m 58s  ] 
-INFO:  Idle: 43,  Running: 4,  Completed: 13 [  9m 38s  ] 
-INFO:  Idle: 42,  Running: 4,  Completed: 14 [  10m 29s  ] 
-INFO:  Idle: 40,  Running: 4,  Completed: 16 [  10m 32s  ] 
-INFO:  Idle: 39,  Running: 4,  Completed: 17 [  12m 17s  ] 
-INFO:  Idle: 38,  Running: 4,  Completed: 18 [  12m 55s  ] 
-INFO:  Idle: 37,  Running: 4,  Completed: 19 [  14m 2s  ] 
-INFO:  Idle: 36,  Running: 4,  Completed: 20 [  14m 7s  ] 
-INFO:  Idle: 35,  Running: 4,  Completed: 21 [  15m 35s  ] 
-INFO:  Idle: 34,  Running: 4,  Completed: 22 [  16m 9s  ] 
-INFO:  Idle: 33,  Running: 4,  Completed: 23 [  17m 17s  ] 
-INFO:  Idle: 32,  Running: 4,  Completed: 24 [  17m 41s  ] 
-INFO:  Idle: 31,  Running: 4,  Completed: 25 [  18m 55s  ] 
-INFO:  Idle: 30,  Running: 4,  Completed: 26 [  19m 34s  ] 
-INFO:  Idle: 29,  Running: 4,  Completed: 27 [  20m 46s  ] 
-INFO:  Idle: 28,  Running: 4,  Completed: 28 [  21m 2s  ] 
-INFO:  Idle: 27,  Running: 4,  Completed: 29 [  22m 3s  ] 
-INFO:  Idle: 26,  Running: 4,  Completed: 30 [  22m 17s  ] 
-INFO:  Idle: 25,  Running: 4,  Completed: 31 [  23m 20s  ] 
-INFO:  Idle: 24,  Running: 4,  Completed: 32 [  23m 46s  ] 
-INFO:  Idle: 23,  Running: 4,  Completed: 33 [  24m 39s  ] 
-INFO:  Idle: 22,  Running: 4,  Completed: 34 [  25m 37s  ] 
-INFO:  Idle: 21,  Running: 4,  Completed: 35 [  26m 20s  ] 
-INFO:  Idle: 20,  Running: 4,  Completed: 36 [  26m 44s  ] 
-INFO:  Idle: 19,  Running: 4,  Completed: 37 [  27m 17s  ] 
-INFO:  Idle: 18,  Running: 4,  Completed: 38 [  28m 19s  ] 
-INFO:  Idle: 17,  Running: 4,  Completed: 39 [  29m 17s  ] 
-INFO:  Idle: 16,  Running: 4,  Completed: 40 [  29m 36s  ] 
-INFO:  Idle: 15,  Running: 4,  Completed: 41 [  29m 55s  ] 
-INFO:  Idle: 14,  Running: 4,  Completed: 42 [  31m 1s  ] 
-INFO:  Idle: 13,  Running: 4,  Completed: 43 [  32m 11s  ] 
-INFO:  Idle: 12,  Running: 4,  Completed: 44 [  32m 43s  ] 
-INFO:  Idle: 11,  Running: 4,  Completed: 45 [  33m 13s  ] 
-INFO:  Idle: 10,  Running: 4,  Completed: 46 [  33m 32s  ] 
-INFO:  Idle: 9,  Running: 4,  Completed: 47 [  34m 52s  ] 
-INFO:  Idle: 8,  Running: 4,  Completed: 48 [  35m 16s  ] 
-INFO:  Idle: 7,  Running: 4,  Completed: 49 [  36m 4s  ] 
-INFO:  Idle: 6,  Running: 4,  Completed: 50 [  36m 36s  ] 
-INFO:  Idle: 5,  Running: 4,  Completed: 51 [  37m 23s  ] 
-INFO:  Idle: 4,  Running: 4,  Completed: 52 [  38m 38s  ] 
-INFO:  Idle: 3,  Running: 4,  Completed: 53 [  38m 59s  ] 
-INFO:  Idle: 1,  Running: 4,  Completed: 55 [  39m 12s  ] 
-INFO:  Idle: 0,  Running: 4,  Completed: 56 [  41m 1s  ] 
-INFO:  Idle: 0,  Running: 3,  Completed: 57 [  41m 11s  ] 
-INFO:  Idle: 0,  Running: 2,  Completed: 58 [  41m 32s  ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 60 [  41m 37s  ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 60 [  41m 37s  ] 
+INFO:  Idle: 56,  Running: 4,  Completed: 0 [ current time: 23h37 ] 
+INFO:  Idle: 55,  Running: 4,  Completed: 1 [  48.4s  ] 
+INFO:  Idle: 51,  Running: 4,  Completed: 5 [  1m 35s  ] 
+INFO:  Idle: 47,  Running: 4,  Completed: 9 [  2m 19s  ] 
+INFO:  Idle: 46,  Running: 4,  Completed: 10 [  2m 24s  ] 
+INFO:  Idle: 43,  Running: 4,  Completed: 13 [  3m 2s  ] 
+INFO:  Idle: 42,  Running: 4,  Completed: 14 [  3m 11s  ] 
+INFO:  Idle: 39,  Running: 4,  Completed: 17 [  3m 45s  ] 
+INFO:  Idle: 38,  Running: 4,  Completed: 18 [  3m 59s  ] 
+INFO:  Idle: 35,  Running: 4,  Completed: 21 [  4m 27s  ] 
+INFO:  Idle: 34,  Running: 4,  Completed: 22 [  4m 47s  ] 
+INFO:  Idle: 31,  Running: 4,  Completed: 25 [  5m 12s  ] 
+INFO:  Idle: 30,  Running: 4,  Completed: 26 [  5m 32s  ] 
+INFO:  Idle: 29,  Running: 4,  Completed: 27 [  5m 35s  ] 
+INFO:  Idle: 27,  Running: 4,  Completed: 29 [  5m 59s  ] 
+INFO:  Idle: 26,  Running: 4,  Completed: 30 [  6m 14s  ] 
+INFO:  Idle: 25,  Running: 4,  Completed: 31 [  6m 23s  ] 
+INFO:  Idle: 23,  Running: 4,  Completed: 33 [  6m 47s  ] 
+INFO:  Idle: 22,  Running: 4,  Completed: 34 [  6m 56s  ] 
+INFO:  Idle: 21,  Running: 4,  Completed: 35 [  7m 11s  ] 
+INFO:  Idle: 19,  Running: 4,  Completed: 37 [  7m 35s  ] 
+INFO:  Idle: 18,  Running: 4,  Completed: 38 [  7m 39s  ] 
+INFO:  Idle: 17,  Running: 4,  Completed: 39 [  7m 59s  ] 
+INFO:  Idle: 15,  Running: 4,  Completed: 41 [  8m 23s  ] 
+INFO:  Idle: 13,  Running: 4,  Completed: 43 [  8m 46s  ] 
+INFO:  Idle: 11,  Running: 4,  Completed: 45 [  9m 11s  ] 
+INFO:  Idle: 9,  Running: 4,  Completed: 47 [  9m 30s  ] 
+INFO:  Idle: 8,  Running: 4,  Completed: 48 [  9m 35s  ] 
+INFO:  Idle: 7,  Running: 4,  Completed: 49 [  9m 59s  ] 
+INFO:  Idle: 5,  Running: 4,  Completed: 51 [  10m 12s  ] 
+INFO:  Idle: 4,  Running: 4,  Completed: 52 [  10m 23s  ] 
+INFO:  Idle: 3,  Running: 4,  Completed: 53 [  10m 47s  ] 
+INFO:  Idle: 1,  Running: 4,  Completed: 55 [  10m 54s  ] 
+INFO:  Idle: 0,  Running: 4,  Completed: 56 [  11m 11s  ] 
+INFO:  Idle: 0,  Running: 3,  Completed: 57 [  11m 35s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 60 [  11m 37s  ] 
 INFO: End survey 
-refine 10000
+refine 100
 Creating Jobs
-INFO: Refine results to 10000 
-INFO: Generating 10000.0 unweighted events. 
-sum of cpu time of last step: 2h43m40s
-INFO: Effective Luminosity 95.14995234074645 pb^-1 
-INFO: need to improve 2 channels 
-- Current estimate of cross-section: 126.11672107859997 +- 0.17423434158388254
+INFO: Refine results to 100 
+INFO: Generating 100.0 unweighted events. 
+sum of cpu time of last step: 46m35s
+INFO: Effective Luminosity 0.12205643917421105 pb^-1 
+INFO: need to improve 119 channels 
+- Current estimate of cross-section: 983.1517354748004 +- 9.88525528315308
     P1_gg_ttxggg 
 Building madevent in madevent_interface.py with 'CUDA' matrix elements
-INFO:  Idle: 1,  Running: 1,  Completed: 0 [ current time: 04h48 ] 
-INFO:  Idle: 0,  Running: 1,  Completed: 1 [  40.8s  ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 2 [  42.5s  ] 
+INFO:  Idle: 115,  Running: 4,  Completed: 0 [ current time: 23h48 ] 
+INFO:  Idle: 114,  Running: 4,  Completed: 1 [  1m 5s  ] 
+INFO:  Idle: 112,  Running: 4,  Completed: 3 [  1m 15s  ] 
+INFO:  Idle: 110,  Running: 4,  Completed: 5 [  2m 12s  ] 
+INFO:  Idle: 109,  Running: 4,  Completed: 6 [  2m 17s  ] 
+INFO:  Idle: 108,  Running: 4,  Completed: 7 [  2m 27s  ] 
+INFO:  Idle: 106,  Running: 4,  Completed: 9 [  3m 21s  ] 
+INFO:  Idle: 104,  Running: 4,  Completed: 11 [  3m 42s  ] 
+INFO:  Idle: 102,  Running: 4,  Completed: 13 [  4m 30s  ] 
+INFO:  Idle: 100,  Running: 4,  Completed: 15 [  4m 50s  ] 
+INFO:  Idle: 99,  Running: 4,  Completed: 16 [  4m 55s  ] 
+INFO:  Idle: 98,  Running: 4,  Completed: 17 [  5m 41s  ] 
+INFO:  Idle: 96,  Running: 4,  Completed: 19 [  5m 59s  ] 
+INFO:  Idle: 95,  Running: 4,  Completed: 20 [  6m 4s  ] 
+INFO:  Idle: 94,  Running: 4,  Completed: 21 [  6m 53s  ] 
+INFO:  Idle: 92,  Running: 4,  Completed: 23 [  7m 6s  ] 
+INFO:  Idle: 91,  Running: 4,  Completed: 24 [  7m 13s  ] 
+INFO:  Idle: 90,  Running: 4,  Completed: 25 [  8m 4s  ] 
+INFO:  Idle: 88,  Running: 4,  Completed: 27 [  8m 15s  ] 
+INFO:  Idle: 87,  Running: 4,  Completed: 28 [  8m 23s  ] 
+INFO:  Idle: 86,  Running: 4,  Completed: 29 [  9m 13s  ] 
+INFO:  Idle: 84,  Running: 4,  Completed: 31 [  9m 27s  ] 
+INFO:  Idle: 83,  Running: 4,  Completed: 32 [  9m 35s  ] 
+INFO:  Idle: 82,  Running: 4,  Completed: 33 [  10m 22s  ] 
+INFO:  Idle: 80,  Running: 4,  Completed: 35 [  10m 35s  ] 
+INFO:  Idle: 79,  Running: 4,  Completed: 36 [  10m 47s  ] 
+INFO:  Idle: 78,  Running: 4,  Completed: 37 [  11m 34s  ] 
+INFO:  Idle: 76,  Running: 4,  Completed: 39 [  11m 45s  ] 
+INFO:  Idle: 75,  Running: 4,  Completed: 40 [  11m 55s  ] 
+INFO:  Idle: 74,  Running: 4,  Completed: 41 [  12m 42s  ] 
+INFO:  Idle: 73,  Running: 4,  Completed: 42 [  12m 47s  ] 
+INFO:  Idle: 72,  Running: 4,  Completed: 43 [  12m 56s  ] 
+INFO:  Idle: 71,  Running: 4,  Completed: 44 [  13m 5s  ] 
+INFO:  Idle: 70,  Running: 4,  Completed: 45 [  13m 52s  ] 
+INFO:  Idle: 68,  Running: 4,  Completed: 47 [  14m 9s  ] 
+INFO:  Idle: 67,  Running: 4,  Completed: 48 [  14m 17s  ] 
+INFO:  Idle: 66,  Running: 4,  Completed: 49 [  14m 58s  ] 
+INFO:  Idle: 65,  Running: 4,  Completed: 50 [  15m 4s  ] 
+INFO:  Idle: 64,  Running: 4,  Completed: 51 [  15m 21s  ] 
+INFO:  Idle: 63,  Running: 4,  Completed: 52 [  15m 30s  ] 
+INFO:  Idle: 62,  Running: 4,  Completed: 53 [  16m 8s  ] 
+INFO:  Idle: 61,  Running: 4,  Completed: 54 [  16m 16s  ] 
+INFO:  Idle: 60,  Running: 4,  Completed: 55 [  16m 36s  ] 
+INFO:  Idle: 58,  Running: 4,  Completed: 57 [  17m 17s  ] 
+INFO:  Idle: 57,  Running: 4,  Completed: 58 [  17m 25s  ] 
+INFO:  Idle: 56,  Running: 4,  Completed: 59 [  17m 44s  ] 
+INFO:  Idle: 55,  Running: 4,  Completed: 60 [  17m 48s  ] 
+INFO:  Idle: 54,  Running: 4,  Completed: 61 [  18m 28s  ] 
+INFO:  Idle: 53,  Running: 4,  Completed: 62 [  18m 35s  ] 
+INFO:  Idle: 52,  Running: 4,  Completed: 63 [  18m 55s  ] 
+INFO:  Idle: 51,  Running: 4,  Completed: 64 [  18m 58s  ] 
+INFO:  Idle: 50,  Running: 4,  Completed: 65 [  19m 40s  ] 
+INFO:  Idle: 49,  Running: 4,  Completed: 66 [  19m 44s  ] 
+INFO:  Idle: 48,  Running: 4,  Completed: 67 [  20m 3s  ] 
+INFO:  Idle: 47,  Running: 4,  Completed: 68 [  20m 7s  ] 
+INFO:  Idle: 46,  Running: 4,  Completed: 69 [  20m 51s  ] 
+INFO:  Idle: 45,  Running: 4,  Completed: 70 [  20m 54s  ] 
+INFO:  Idle: 44,  Running: 4,  Completed: 71 [  21m 13s  ] 
+INFO:  Idle: 43,  Running: 4,  Completed: 72 [  21m 17s  ] 
+INFO:  Idle: 42,  Running: 4,  Completed: 73 [  22m 2s  ] 
+INFO:  Idle: 40,  Running: 4,  Completed: 75 [  22m 22s  ] 
+INFO:  Idle: 39,  Running: 4,  Completed: 76 [  22m 29s  ] 
+INFO:  Idle: 38,  Running: 4,  Completed: 77 [  23m 10s  ] 
+INFO:  Idle: 37,  Running: 4,  Completed: 78 [  23m 17s  ] 
+INFO:  Idle: 36,  Running: 4,  Completed: 79 [  23m 32s  ] 
+INFO:  Idle: 35,  Running: 4,  Completed: 80 [  23m 37s  ] 
+INFO:  Idle: 34,  Running: 4,  Completed: 81 [  24m 20s  ] 
+INFO:  Idle: 33,  Running: 4,  Completed: 82 [  24m 29s  ] 
+INFO:  Idle: 32,  Running: 4,  Completed: 83 [  24m 42s  ] 
+INFO:  Idle: 31,  Running: 4,  Completed: 84 [  24m 46s  ] 
+INFO:  Idle: 30,  Running: 4,  Completed: 85 [  25m 28s  ] 
+INFO:  Idle: 29,  Running: 4,  Completed: 86 [  25m 43s  ] 
+INFO:  Idle: 28,  Running: 4,  Completed: 87 [  25m 49s  ] 
+INFO:  Idle: 27,  Running: 4,  Completed: 88 [  25m 58s  ] 
+INFO:  Idle: 26,  Running: 4,  Completed: 89 [  26m 38s  ] 
+INFO:  Idle: 25,  Running: 4,  Completed: 90 [  26m 53s  ] 
+INFO:  Idle: 24,  Running: 4,  Completed: 91 [  26m 57s  ] 
+INFO:  Idle: 23,  Running: 4,  Completed: 92 [  27m 12s  ] 
+INFO:  Idle: 22,  Running: 4,  Completed: 93 [  27m 47s  ] 
+INFO:  Idle: 21,  Running: 4,  Completed: 94 [  28m 4s  ] 
+INFO:  Idle: 19,  Running: 4,  Completed: 96 [  28m 22s  ] 
+INFO:  Idle: 18,  Running: 4,  Completed: 97 [  28m 54s  ] 
+INFO:  Idle: 17,  Running: 4,  Completed: 98 [  29m 18s  ] 
+INFO:  Idle: 15,  Running: 4,  Completed: 100 [  29m 28s  ] 
+INFO:  Idle: 14,  Running: 4,  Completed: 101 [  30m 3s  ] 
+INFO:  Idle: 13,  Running: 4,  Completed: 102 [  30m 28s  ] 
+INFO:  Idle: 11,  Running: 4,  Completed: 104 [  30m 39s  ] 
+INFO:  Idle: 10,  Running: 4,  Completed: 105 [  31m 11s  ] 
+INFO:  Idle: 9,  Running: 4,  Completed: 106 [  31m 36s  ] 
+INFO:  Idle: 8,  Running: 4,  Completed: 107 [  31m 42s  ] 
+INFO:  Idle: 7,  Running: 4,  Completed: 108 [  31m 49s  ] 
+INFO:  Idle: 6,  Running: 4,  Completed: 109 [  32m 23s  ] 
+INFO:  Idle: 5,  Running: 4,  Completed: 110 [  32m 45s  ] 
+INFO:  Idle: 4,  Running: 4,  Completed: 111 [  32m 53s  ] 
+INFO:  Idle: 3,  Running: 4,  Completed: 112 [  33m 1s  ] 
+INFO:  Idle: 2,  Running: 4,  Completed: 113 [  33m 35s  ] 
+INFO:  Idle: 1,  Running: 4,  Completed: 114 [  33m 52s  ] 
+INFO:  Idle: 0,  Running: 4,  Completed: 115 [  34m 2s  ] 
+INFO:  Idle: 0,  Running: 3,  Completed: 116 [  34m 12s  ] 
+INFO:  Idle: 0,  Running: 2,  Completed: 117 [  34m 36s  ] 
+INFO:  Idle: 0,  Running: 1,  Completed: 118 [  34m 46s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 119 [  34m 50s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 119 [  34m 50s  ] 
 INFO: Combining runs 
-sum of cpu time of last step: 2h41m40s
+sum of cpu time of last step: 2h18m18s
 INFO: finish refine 
-refine 10000 --treshold=0.9
+refine 100 --treshold=0.9
 No need for second refine due to stability of cross-section
 INFO: Combining Events 
   === Results Summary for run: run_01 tag: tag_1 ===
 
-     Cross-section :   126.1 +- 0.1732 pb
-     Nb of events :  10000
+     Cross-section :   126.2 +- 0.3116 pb
+     Nb of events :  100
  
 INFO: No version of lhapdf. Can not run systematics computation 
 store_events
@@ -126,7 +207,7 @@ INFO: storing files of previous run
 INFO: Done 
 quit
 INFO:  
-10058.16user 59.55system 45:04.91elapsed 374%CPU (0avgtext+0avgdata 827232maxresident)k
-0inputs+16026256outputs (0major+2949760minor)pagefaults 0swaps
-END: Sat Jun 17 04:50:20 CEST 2023
-ELAPSED: 2705 seconds
+11950.82user 62.13system 59:32.08elapsed 336%CPU (0avgtext+0avgdata 2416876maxresident)k
+0inputs+9814824outputs (13major+8010629minor)pagefaults 0swaps
+END: Sun Jun 18 12:23:56 AM CEST 2023
+ELAPSED: 3572 seconds
