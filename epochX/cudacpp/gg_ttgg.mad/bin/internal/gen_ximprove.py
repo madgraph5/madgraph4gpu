@@ -1111,15 +1111,14 @@ class gen_ximprove(object):
         for C in all_channels:
             if C.get('axsec') == 0:
                 continue
-            if goal_lum/(C.get('luminosity')+1e99) >= 1 + (self.gen_events_security-1)/2:
-                logger.info("channel %s need to improve by %.2f (xsec=%s pb, iter=%s)", C.name, goal_lum/(C.get('luminosity')+1e-99), C.get('xsec'), int(C.get('maxit')))
+            if goal_lum/(C.get('luminosity')+1e-99) >= 1 + (self.gen_events_security-1)/2:
+                logger.debug("channel %s need to improve by %.2f (xsec=%s pb, iter=%s)", C.name, goal_lum/(C.get('luminosity')+1e-99), C.get('xsec'), int(C.get('maxit')))
                 to_refine.append(C)
-            elif C.get('xerr')/1000 > max(C.get('axsec'),
+            elif C.get('xerr') > max(C.get('axsec'),
               (1/(100*math.sqrt(self.err_goal)))*all_channels[-1].get('axsec')):
-                logger.info("channel %s need to improve (xerr=%s pb, axsec=%s pb)", C.name, C.get('xerr'), C.get('axsec'))
                 to_refine.append(C)
          
-        logger.info('need to improve aaa %s channels' % len(to_refine))        
+        logger.info('need to improve %s channels' % len(to_refine))        
         return goal_lum, to_refine
 
     def update_html(self):
