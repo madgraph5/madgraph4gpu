@@ -32,7 +32,7 @@ UNAME_P := $(shell uname -p)
 #=== Configure common compiler flags for C++ and CUDA
 
 INCFLAGS = -I.
-OPTFLAGS = -O3 # this ends up in CUFLAGS too (should it?), cannot add -Ofast or -ffast-math here
+OPTFLAGS = -O3 # this ends up in GPUFLAGS too (should it?), cannot add -Ofast or -ffast-math here
 
 # Dependency on src directory
 MG5AMC_COMMONLIB = mg5amc_common
@@ -90,12 +90,13 @@ endif
 #-------------------------------------------------------------------------------
 
 CUDA_COMPILER := $(shell which nvcc > /dev/null 2>&1; echo $$?)
+HIP_COMPILER := $(shell which hipcc > /dev/null 2>&1; echo $$?)
 
 ifeq ($(CUDA_COMPILER),test)
   #=== Configure the CUDA compiler
 
   # If CXX is not a single word (example "clang++ --gcc-toolchain...") then disable CUDA builds (issue #505)
-  # This is because it is impossible to pass this to "CUFLAGS += -ccbin <host-compiler>" below
+  # This is because it is impossible to pass this to "GPUFLAGS += -ccbin <host-compiler>" below
   ifneq ($(words $(subst ccache ,,$(CXX))),1) # allow at most "CXX=ccache <host-compiler>" from outside
     $(warning CUDA builds are not supported for multi-word CXX "$(CXX)")
     override CUDA_HOME=disabled
@@ -125,15 +126,15 @@ ifeq ($(CUDA_COMPILER),test)
     CUINC = -I$(CUDA_HOME)/include/
     CURANDLIBFLAGS = -L$(CUDA_HOME)/lib64/ -lcurand # NB: -lcuda is not needed here!
     CUOPTFLAGS = -lineinfo
-    CUFLAGS = $(OPTFLAGS) $(CUOPTFLAGS) $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math
-    ###CUFLAGS += -Xcompiler -Wall -Xcompiler -Wextra -Xcompiler -Wshadow
+    GPUFLAGS = $(OPTFLAGS) $(CUOPTFLAGS) $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math
+    ###GPUFLAGS += -Xcompiler -Wall -Xcompiler -Wextra -Xcompiler -Wshadow
     ###GPUCC_VERSION = $(shell $(GPUCC) --version | grep 'Cuda compilation tools' | cut -d' ' -f5 | cut -d, -f1)
-    CUFLAGS += -std=c++17 # need CUDA >= 11.2 (see #333): this is enforced in mgOnGpuConfig.h
+    GPUFLAGS += -std=c++17 # need CUDA >= 11.2 (see #333): this is enforced in mgOnGpuConfig.h
     # Without -maxrregcount: baseline throughput: 6.5E8 (16384 32 12) up to 7.3E8 (65536 128 12)
-    ###CUFLAGS+= --maxrregcount 160 # improves throughput: 6.9E8 (16384 32 12) up to 7.7E8 (65536 128 12)
-    ###CUFLAGS+= --maxrregcount 128 # improves throughput: 7.3E8 (16384 32 12) up to 7.6E8 (65536 128 12)
-    ###CUFLAGS+= --maxrregcount 96 # degrades throughput: 4.1E8 (16384 32 12) up to 4.5E8 (65536 128 12)
-    ###CUFLAGS+= --maxrregcount 64 # degrades throughput: 1.7E8 (16384 32 12) flat at 1.7E8 (65536 128 12)
+    ###GPUFLAGS+= --maxrregcount 160 # improves throughput: 6.9E8 (16384 32 12) up to 7.7E8 (65536 128 12)
+    ###GPUFLAGS+= --maxrregcount 128 # improves throughput: 7.3E8 (16384 32 12) up to 7.6E8 (65536 128 12)
+    ###GPUFLAGS+= --maxrregcount 96 # degrades throughput: 4.1E8 (16384 32 12) up to 4.5E8 (65536 128 12)
+    ###GPUFLAGS+= --maxrregcount 64 # degrades throughput: 1.7E8 (16384 32 12) flat at 1.7E8 (65536 128 12)
   else ifneq ($(origin REQUIRE_CUDA),undefined)
     # If REQUIRE_CUDA is set but no cuda is found, stop here (e.g. for CI tests on GPU #443)
     $(error No cuda installation found (set CUDA_HOME or make GPUCC visible in PATH))
@@ -148,14 +149,14 @@ ifeq ($(CUDA_COMPILER),test)
 
   # Set the host C++ compiler for GPUCC via "-ccbin <host-compiler>"
   # (NB issue #505: this must be a single word, "clang++ --gcc-toolchain..." is not supported)
-  CUFLAGS += -ccbin $(shell which $(subst ccache ,,$(CXX)))
+  GPUFLAGS += -ccbin $(shell which $(subst ccache ,,$(CXX)))
 
   # Allow newer (unsupported) C++ compilers with older versions of CUDA if ALLOW_UNSUPPORTED_COMPILER_IN_CUDA is set (#504)
   ifneq ($(origin ALLOW_UNSUPPORTED_COMPILER_IN_CUDA),undefined)
-  CUFLAGS += -allow-unsupported-compiler
+  GPUFLAGS += -allow-unsupported-compiler
   endif
 
-else
+else ifeq ($(HIP_COMPILER),0)
     #=== Configure the HIP compiler
 
     # If HIP_HOME is not set, try to set it from the location of GPUCC
@@ -173,23 +174,20 @@ else
     # Should maybe find something equivelant to this in HIP
     #USE_NVTX ?=-DUSE_NVTX
 
-    #MADGRAPH_CUDA_ARCHITECTURE ?= 70
-    ###CUARCHFLAGS = -gencode arch=compute_$(MADGRAPH_CUDA_ARCHITECTURE),code=compute_$(MADGRAPH_CUDA_ARCHITECTURE) -gencode arch=compute_$(MADGRAPH_CUDA_ARCHITECTURE),code=sm_$(MADGRAPH_CUDA_ARCHITECTURE) # Older implementation (AV): go back to this one for multi-GPU support #533
-    ###CUARCHFLAGS = --gpu-architecture=compute_$(MADGRAPH_CUDA_ARCHITECTURE) --gpu-code=sm_$(MADGRAPH_CUDA_ARCHITECTURE),compute_$(MADGRAPH_CUDA_ARCHITECTURE) # Newer implementation (SH): cannot use this as-is for multi-GPU support #533
-    comma:=,
-    CUARCHFLAGS = -target x86_64-linux-gnu --offload-arch=gfx90a
-    CUINC = -I$(HIP_HOME)/include/
-    CURANDLIBFLAGS = -L$(HIP_HOME)/lib64/ # NB: -lcuda is not needed here!
-    #CUOPTFLAGS = -lineinfo
-    CUFLAGS = $(OPTFLAGS) $(CUOPTFLAGS) $(INCFLAGS) $(CUINC) $(CUARCHFLAGS) -use_fast_math
-    ###CUFLAGS += -Xcompiler -Wall -Xcompiler -Wextra -Xcompiler -Wshadow
+    CXXFLAGS += -DMGONGPU_HAS_NO_CURAND -DHIP_PLATFORM=amd
+
+    HIPARCHFLAGS = -target x86_64-linux-gnu --offload-arch=gfx90a
+    HIPINC = -I$(HIP_HOME)/include/
+    
+    GPUFLAGS = $(OPTFLAGS) $(CUOPTFLAGS) $(INCFLAGS) $(HIPINC) $(HIPARCHFLAGS) -use_fast_math
+    ###GPUFLAGS += -Xcompiler -Wall -Xcompiler -Wextra -Xcompiler -Wshadow
     ###GPUCC_VERSION = $(shell $(GPUCC) --version | grep 'Cuda compilation tools' | cut -d' ' -f5 | cut -d, -f1)
-    CUFLAGS += -std=c++17 # need CUDA >= 11.2 (see #333): this is enforced in mgOnGpuConfig.h
+    GPUFLAGS += -std=c++17 # need CUDA >= 11.2 (see #333): this is enforced in mgOnGpuConfig.h
     # Without -maxrregcount: baseline throughput: 6.5E8 (16384 32 12) up to 7.3E8 (65536 128 12)
-    ###CUFLAGS+= --maxrregcount 160 # improves throughput: 6.9E8 (16384 32 12) up to 7.7E8 (65536 128 12)
-    ###CUFLAGS+= --maxrregcount 128 # improves throughput: 7.3E8 (16384 32 12) up to 7.6E8 (65536 128 12)
-    ###CUFLAGS+= --maxrregcount 96 # degrades throughput: 4.1E8 (16384 32 12) up to 4.5E8 (65536 128 12)
-    ###CUFLAGS+= --maxrregcount 64 # degrades throughput: 1.7E8 (16384 32 12) flat at 1.7E8 (65536 128 12)
+    ###GPUFLAGS+= --maxrregcount 160 # improves throughput: 6.9E8 (16384 32 12) up to 7.7E8 (65536 128 12)
+    ###GPUFLAGS+= --maxrregcount 128 # improves throughput: 7.3E8 (16384 32 12) up to 7.6E8 (65536 128 12)
+    ###GPUFLAGS+= --maxrregcount 96 # degrades throughput: 4.1E8 (16384 32 12) up to 4.5E8 (65536 128 12)
+    ###GPUFLAGS+= --maxrregcount 64 # degrades throughput: 1.7E8 (16384 32 12) flat at 1.7E8 (65536 128 12)
   else ifneq ($(origin REQUIRE_CUDA),undefined)
     # If REQUIRE_CUDA is set but no cuda is found, stop here (e.g. for CI tests on GPU #443)
     $(error No cuda installation found (set CUDA_HOME or make GPUCC visible in PATH))
@@ -242,7 +240,7 @@ endif
 
 # PowerPC-specific CUDA compiler flags (to be reviewed!)
 ifeq ($(UNAME_P),ppc64le)
-  CUFLAGS+= -Xcompiler -mno-float128
+  GPUFLAGS+= -Xcompiler -mno-float128
 endif
 
 #-------------------------------------------------------------------------------
@@ -307,6 +305,8 @@ endif
 # Set the default RNDGEN (random number generator) choice
 ifeq ($(RNDGEN),)
   ifeq ($(GPUCC),)
+    override RNDGEN = hasNoCurand
+  else ifeq ($(findstring hipcc,$(GPUCC)),hipcc)
     override RNDGEN = hasNoCurand
   else ifeq ($(RNDGEN),)
     override RNDGEN = hasCurand
@@ -381,13 +381,13 @@ CXXFLAGS+= $(AVXFLAGS)
 $(info FPTYPE=$(FPTYPE))
 ifeq ($(FPTYPE),d)
   CXXFLAGS += -DMGONGPU_FPTYPE_DOUBLE -DMGONGPU_FPTYPE2_DOUBLE
-  CUFLAGS  += -DMGONGPU_FPTYPE_DOUBLE -DMGONGPU_FPTYPE2_DOUBLE
+  GPUFLAGS  += -DMGONGPU_FPTYPE_DOUBLE -DMGONGPU_FPTYPE2_DOUBLE
 else ifeq ($(FPTYPE),f)
   CXXFLAGS += -DMGONGPU_FPTYPE_FLOAT -DMGONGPU_FPTYPE2_FLOAT
-  CUFLAGS  += -DMGONGPU_FPTYPE_FLOAT -DMGONGPU_FPTYPE2_FLOAT
+  GPUFLAGS  += -DMGONGPU_FPTYPE_FLOAT -DMGONGPU_FPTYPE2_FLOAT
 else ifeq ($(FPTYPE),m)
   CXXFLAGS += -DMGONGPU_FPTYPE_DOUBLE -DMGONGPU_FPTYPE2_FLOAT
-  CUFLAGS  += -DMGONGPU_FPTYPE_DOUBLE -DMGONGPU_FPTYPE2_FLOAT
+  GPUFLAGS  += -DMGONGPU_FPTYPE_DOUBLE -DMGONGPU_FPTYPE2_FLOAT
 else
   $(error Unknown FPTYPE='$(FPTYPE)': only 'd', 'f' and 'm' are supported)
 endif
@@ -396,7 +396,7 @@ endif
 $(info HELINL=$(HELINL))
 ifeq ($(HELINL),1)
   CXXFLAGS += -DMGONGPU_INLINE_HELAMPS
-  CUFLAGS  += -DMGONGPU_INLINE_HELAMPS
+  GPUFLAGS  += -DMGONGPU_INLINE_HELAMPS
 else ifneq ($(HELINL),0)
   $(error Unknown HELINL='$(HELINL)': only '0' and '1' are supported)
 endif
@@ -405,7 +405,7 @@ endif
 $(info HRDCOD=$(HRDCOD))
 ifeq ($(HRDCOD),1)
   CXXFLAGS += -DMGONGPU_HARDCODE_PARAM
-  CUFLAGS  += -DMGONGPU_HARDCODE_PARAM
+  GPUFLAGS  += -DMGONGPU_HARDCODE_PARAM
 else ifneq ($(HRDCOD),0)
   $(error Unknown HRDCOD='$(HRDCOD)': only '0' and '1' are supported)
 endif
@@ -510,11 +510,11 @@ $(BUILDDIR)/.build.$(TAG):
 ifneq ($(GPUCC),)
 $(BUILDDIR)/%.o : %.cu *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	$(GPUCC) $(CPPFLAGS) $(CUFLAGS) -Xcompiler -fPIC -c $< -o $@
+	$(GPUCC) $(CPPFLAGS) $(GPUFLAGS) -Xcompiler -fPIC -c $< -o $@
 
 $(BUILDDIR)/%_cu.o : %.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	$(GPUCC) $(CPPFLAGS) $(CUFLAGS) -Xcompiler -fPIC -c $< -o $@
+	$(GPUCC) $(CPPFLAGS) $(GPUFLAGS) -Xcompiler -fPIC -c $< -o $@
 endif
 # -x cu in line above
 
@@ -529,7 +529,7 @@ ifeq ($(shell $(CXX) --version | grep ^nvc++),)
 $(BUILDDIR)/CrossSectionKernels.o: CXXFLAGS += -fno-fast-math
 $(BUILDDIR)/CrossSectionKernels.o: CXXFLAGS += -fno-fast-math
 ifneq ($(GPUCC),)
-$(BUILDDIR)/gCrossSectionKernels.o: CUFLAGS += -Xcompiler -fno-fast-math
+$(BUILDDIR)/gCrossSectionKernels.o: GPUFLAGS += -Xcompiler -fno-fast-math
 endif
 endif
 
@@ -548,7 +548,7 @@ endif
 # Avoid "warning: builtin __has_trivial_... is deprecated; use __is_trivially_... instead" in GPUCC with icx2023 (#592)
 ifneq ($(shell $(CXX) --version | egrep '^(Intel)'),)
 ifneq ($(GPUCC),)
-CUFLAGS += -Xcompiler -Wno-deprecated-builtins
+GPUFLAGS += -Xcompiler -Wno-deprecated-builtins
 endif
 endif
 
@@ -557,7 +557,7 @@ endif
 ###ifneq ($(shell $(CXX) --version | egrep '^(clang|Apple clang|Intel)'),)
 ###$(BUILDDIR)/CrossSectionKernels.o: CXXFLAGS += -Wno-overriding-t-option
 ###ifneq ($(GPUCC),)
-###$(BUILDDIR)/gCrossSectionKernels.o: CUFLAGS += -Xcompiler -Wno-overriding-t-option
+###$(BUILDDIR)/gCrossSectionKernels.o: GPUFLAGS += -Xcompiler -Wno-overriding-t-option
 ###endif
 ###endif
 
