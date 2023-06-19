@@ -1,6 +1,6 @@
       GRIDPACK = .FALSE.
 
-      NEVENTS = 10
+      NEVENTS = 100
 
       ISEED = 0
 
