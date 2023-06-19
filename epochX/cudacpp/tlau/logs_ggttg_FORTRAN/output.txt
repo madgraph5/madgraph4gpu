@@ -1,4 +1,4 @@
-START: Sat Jun 17 11:09:30 PM CEST 2023
+START: Sun Jun 18 19:35:25 CEST 2023
 ************************************************************
 *                                                          *
 *                      W E L C O M E to                    *
@@ -22,13 +22,12 @@ START: Sat Jun 17 11:09:30 PM CEST 2023
 INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttg.mad/Cards/me5_configuration.txt  
 INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttg.mad/Cards/me5_configuration.txt  
 Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
-Using default eps viewer "evince". Set another one in ./input/mg5_configuration.txt
-No valid web browser found. Please set in ./input/mg5_configuration.txt
+No valid eps viewer found. Please set in ./input/mg5_configuration.txt
+Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
 generate_events -f
 Generating 10000 events with run name run_01
 survey  run_01 
 INFO: compile directory 
-[1;34mNot able to open file /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttg.mad/crossx.html since no program configured.Please set one in ./input/mg5_configuration.txt[0m
 compile Source Directory
 Using random number seed offset = 21
 INFO: Running Survey 
@@ -36,7 +35,7 @@ Creating Jobs
 Working on SubProcesses
 INFO:     P1_gg_ttxg  
 INFO: Building madevent in madevent_interface.py with 'FORTRAN' matrix elements 
-INFO:  Idle: 2,  Running: 3,  Completed: 0 [ current time: 23h09 ] 
+INFO:  Idle: 2,  Running: 3,  Completed: 0 [ current time: 19h35 ] 
 INFO:  Idle: 0,  Running: 4,  Completed: 1 [  2.1s  ] 
 INFO:  Idle: 0,  Running: 0,  Completed: 5 [  3.1s  ] 
 INFO: End survey 
@@ -50,26 +49,26 @@ INFO: need to improve 9 channels
 - Current estimate of cross-section: 798.67089 +- 5.893756606153417
     P1_gg_ttxg 
 Building madevent in madevent_interface.py with 'FORTRAN' matrix elements
-INFO:  Idle: 15,  Running: 4,  Completed: 0 [ current time: 23h09 ] 
-INFO:  Idle: 14,  Running: 4,  Completed: 1 [  4.3s  ] 
-INFO:  Idle: 11,  Running: 4,  Completed: 4 [  9.2s  ] 
-INFO:  Idle: 10,  Running: 4,  Completed: 5 [  13.5s  ] 
+INFO:  Idle: 15,  Running: 4,  Completed: 0 [ current time: 19h35 ] 
+INFO:  Idle: 14,  Running: 4,  Completed: 1 [  4.5s  ] 
+INFO:  Idle: 13,  Running: 4,  Completed: 2 [  9.1s  ] 
+INFO:  Idle: 10,  Running: 4,  Completed: 5 [  13.9s  ] 
 INFO:  Idle: 8,  Running: 4,  Completed: 7 [  18.8s  ] 
-INFO:  Idle: 6,  Running: 4,  Completed: 9 [  23.1s  ] 
-INFO:  Idle: 4,  Running: 4,  Completed: 11 [  28.3s  ] 
-INFO:  Idle: 2,  Running: 4,  Completed: 13 [  32.6s  ] 
-INFO:  Idle: 0,  Running: 4,  Completed: 15 [  37.3s  ] 
-INFO:  Idle: 0,  Running: 1,  Completed: 18 [  41.8s  ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 19 [  42.2s  ] 
+INFO:  Idle: 5,  Running: 4,  Completed: 10 [  23.7s  ] 
+INFO:  Idle: 4,  Running: 4,  Completed: 11 [  28.5s  ] 
+INFO:  Idle: 1,  Running: 4,  Completed: 14 [  33.1s  ] 
+INFO:  Idle: 0,  Running: 3,  Completed: 16 [  37.9s  ] 
+INFO:  Idle: 0,  Running: 1,  Completed: 18 [  43s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 19 [  45s  ] 
 INFO: Combining runs 
-sum of cpu time of last step: 2m47s
+sum of cpu time of last step: 2m48s
 INFO: finish refine 
 refine 10000 --treshold=0.9
 No need for second refine due to stability of cross-section
 INFO: Combining Events 
   === Results Summary for run: run_01 tag: tag_1 ===
 
-     Cross-section :   413.9 +- 0.4789 pb
+     Cross-section :   413.9 +- 0.4792 pb
      Nb of events :  10000
  
 INFO: No version of lhapdf. Can not run systematics computation 
@@ -82,7 +81,7 @@ INFO: storing files of previous run
 INFO: Done 
 quit
 INFO:  
-200.34user 4.11system 1:09.59elapsed 293%CPU (0avgtext+0avgdata 95456maxresident)k
-0inputs+1529128outputs (0major+715791minor)pagefaults 0swaps
-END: Sat Jun 17 11:10:39 PM CEST 2023
-ELAPSED: 69 seconds
+201.17user 4.94system 1:12.24elapsed 285%CPU (0avgtext+0avgdata 95400maxresident)k
+0inputs+1527776outputs (0major+547289minor)pagefaults 0swaps
+END: Sun Jun 18 19:36:37 CEST 2023
+ELAPSED: 72 seconds

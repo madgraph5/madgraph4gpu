@@ -1,4 +1,4 @@
-START: Sat Jun 17 11:06:58 PM CEST 2023
+START: Sun Jun 18 19:33:21 CEST 2023
 ************************************************************
 *                                                          *
 *                      W E L C O M E to                    *
@@ -22,13 +22,12 @@ START: Sat Jun 17 11:06:58 PM CEST 2023
 INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_tt.mad/Cards/me5_configuration.txt  
 INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_tt.mad/Cards/me5_configuration.txt  
 Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
-Using default eps viewer "evince". Set another one in ./input/mg5_configuration.txt
-No valid web browser found. Please set in ./input/mg5_configuration.txt
+No valid eps viewer found. Please set in ./input/mg5_configuration.txt
+Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
 generate_events -f
 Generating 10000 events with run name run_01
 survey  run_01 
 INFO: compile directory 
-[1;34mNot able to open file /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_tt.mad/crossx.html since no program configured.Please set one in ./input/mg5_configuration.txt[0m
 compile Source Directory
 Using random number seed offset = 21
 INFO: Running Survey 
@@ -36,9 +35,9 @@ Creating Jobs
 Working on SubProcesses
 INFO:     P1_gg_ttx  
 INFO: Building madevent in madevent_interface.py with 'CUDA' matrix elements 
-INFO:  Idle: 1,  Running: 0,  Completed: 0 [ current time: 23h07 ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 1 [  1.8s  ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 1 [  1.8s  ] 
+INFO:  Idle: 1,  Running: 0,  Completed: 0 [ current time: 19h33 ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 1 [  2s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 1 [  2s  ] 
 INFO: End survey 
 refine 10000
 Creating Jobs
@@ -50,10 +49,10 @@ INFO: need to improve 2 channels
 - Current estimate of cross-section: 443.78400000000005 +- 4.146007168348844
     P1_gg_ttx 
 Building madevent in madevent_interface.py with 'CUDA' matrix elements
-INFO:  Idle: 9,  Running: 4,  Completed: 0 [ current time: 23h07 ] 
-INFO:  Idle: 4,  Running: 4,  Completed: 5 [  3.4s  ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 13 [  6.5s  ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 13 [  6.5s  ] 
+INFO:  Idle: 9,  Running: 4,  Completed: 0 [ current time: 19h33 ] 
+INFO:  Idle: 4,  Running: 4,  Completed: 5 [  3.7s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 13 [  7s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 13 [  7s  ] 
 INFO: Combining runs 
 sum of cpu time of last step: 23 seconds
 INFO: finish refine 
@@ -75,7 +74,7 @@ INFO: storing files of previous run
 INFO: Done 
 quit
 INFO:  
-104.11user 14.96system 0:40.37elapsed 294%CPU (0avgtext+0avgdata 399412maxresident)k
-0inputs+619848outputs (1major+3604956minor)pagefaults 0swaps
-END: Sat Jun 17 11:07:38 PM CEST 2023
-ELAPSED: 40 seconds
+39.79user 8.18system 0:23.82elapsed 201%CPU (0avgtext+0avgdata 231176maxresident)k
+0inputs+354992outputs (0major+714852minor)pagefaults 0swaps
+END: Sun Jun 18 19:33:45 CEST 2023
+ELAPSED: 24 seconds
