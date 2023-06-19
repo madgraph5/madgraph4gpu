@@ -296,6 +296,7 @@ function usage()
     # NB: all options with $SCRBCK=cudacpp use the 311 branch by default and always disable helicity recycling
     echo "Usage:   $0 [--nobrief] [--cpp|--gpu|--madnovec|--madonly|--mad|--madcpp*|--madgpu] [--nopatch|--upstream] [-c '<cmd>'] <proc>"
     echo "         (*Note: the --madcpp option exists but code generation fails for it)"
+    echo "         (**Note: <proc> will be used as a relative path in ${OUTDIR} and should not contain '/' characters"
     echo "Example: $0 gg_tt --mad"
     echo "Example: $0 gg_bb --mad -c 'generate g g > b b~'"
   fi
@@ -387,6 +388,8 @@ while [ "$1" != "" ]; do
   fi
   shift
 done
+if [ "$proc" == "" ]; then usage; fi
+if [ "${proc/\/}" != "${proc}" ]; then echo "ERROR! <proc> '${proc}' should not contain '/' characters"; usage; fi
 
 echo "SCRDIR=${SCRDIR}"
 echo "OUTDIR=${OUTDIR}"

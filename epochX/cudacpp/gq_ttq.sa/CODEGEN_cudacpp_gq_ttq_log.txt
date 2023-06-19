@@ -61,7 +61,7 @@ set zerowidth_tchannel F
 define q = u c d s u~ c~ d~ s~; generate g q > t t~ q
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.0046787261962890625 [0m
+[1;32mDEBUG: model prefixing  takes 0.004653215408325195 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -169,7 +169,7 @@ INFO: Crossed process found for g u~ > t t~ u~, reuse diagrams.
 INFO: Crossed process found for g c~ > t t~ c~, reuse diagrams. 
 INFO: Crossed process found for g d~ > t t~ d~, reuse diagrams. 
 INFO: Crossed process found for g s~ > t t~ s~, reuse diagrams. 
-8 processes with 40 diagrams generated in 0.072 s
+8 processes with 40 diagrams generated in 0.071 s
 Total: 8 processes with 40 diagrams
 output standalone_cudacpp CODEGEN_cudacpp_gq_ttq
 Load PLUGIN.CUDACPP_SA_OUTPUT
@@ -251,7 +251,7 @@ INFO: Created files CPPProcess.h and CPPProcess.cc in directory /data/avalassi/G
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memorybuffers [1;30m[model_handling.py at line 1419][0m [0m
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memoryaccesscouplings [1;30m[model_handling.py at line 1430][0m [0m
 [1;32mDEBUG:  'Copying test reference file: ', template_ref  = [0m Copying test reference file:  /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/PLUGIN/CUDACPP_SA_OUTPUT/madgraph/iolibs/template_files/../../../test/ref/dump_CPUTest.Sigma_sm_gux_ttxux.txt [1;30m[model_handling.py at line 1324][0m [0m
-Generated helas calls for 2 subprocesses (10 diagrams) in 0.028 s
+Generated helas calls for 2 subprocesses (10 diagrams) in 0.027 s
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 194][0m [0m
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV1 routines[0m
@@ -291,6 +291,6 @@ INFO: /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_gq_ttq/src/. 
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.finalize [1;30m[output.py at line 203][0m [0m
 quit
 
-real	0m0.726s
-user	0m0.653s
-sys	0m0.059s
+real	0m0.722s
+user	0m0.635s
+sys	0m0.075s
