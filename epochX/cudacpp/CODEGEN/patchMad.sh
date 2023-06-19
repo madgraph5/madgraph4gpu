@@ -19,7 +19,7 @@ function usage()
 ###patchlevel=1 # [--nopatch] modify upstream MG5AMC but do not apply patch commands (reference to prepare new patches)
 patchlevel=2 # [DEFAULT] complete generation of cudacpp .sa/.mad (copy templates and apply patch commands)
 
-if [ "${1%.madonly}" == "$1" ] && [ "${1%.mad}" == "$1" ] && [ "${1%.mad2}" == "$1" ]; then
+if [ "${1%.madonly}" == "$1" ] && [ "${1%.mad}" == "$1" ]; then
   usage
 elif [ "$3" == "" ]; then
   usage
@@ -92,7 +92,7 @@ for p1dir in ${dir}/SubProcesses/P*; do
   ln -sf ../fbridge_common.inc . # new file
   \cp -dpr ${scrdir}/MG5aMC_patches/${dir_patches}/counters.cc . # new file
   \cp -dpr ${scrdir}/MG5aMC_patches/${dir_patches}/ompnumthreads.cc . # new file
-  if [ "${dir%.mad}" == "$1" ] && [ "${dir%.mad2}" == "$1" ]; then
+  if [ "${dir%.mad}" == "$1" ]; then
     \cp -dpr ${scrdir}/PLUGIN/CUDACPP_SA_OUTPUT/madgraph/iolibs/template_files/gpu/timer.h . # new file, already present via cudacpp in *.mad
   fi
   if [ "${patchlevel}" == "2" ]; then
