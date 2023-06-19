@@ -152,7 +152,7 @@ counters.o: counters.cc timer.h
 	$(CXX) -std=c++11 -Wall -Wshadow -Wextra -c $< -o $@
 
 ompnumthreads.o: ompnumthreads.cc ompnumthreads.h
-	$(CXX) -I. -std=c++11 -Wall -Wshadow -Wextra $(OMPFLAGS) -c $< -o $@
+	$(CXX) -O3 -I. -std=c++11 -Wall -Wshadow -Wextra $(OMPFLAGS) -c $< -o $@
 
 $(PROG)_forhel: $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX_HEL)
 	$(FC) -o $(PROG)_forhel $(PROCESS) $(MATRIX_HEL) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) $(OMPFLAGS)

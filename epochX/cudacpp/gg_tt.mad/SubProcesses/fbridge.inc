@@ -57,6 +57,20 @@ C
       END INTERFACE
 
 C
+C Compute the maximum event weight of the batch on the GPU
+C - PBRIDGE: the memory address of the C++ Bridge
+C - ALL_WGT: the Jacobian+PDF weights from Fortran
+C - MAX_WGT: maximum observed weight on GPU (output)
+C
+      INTERFACE
+         SUBROUTINE FBRIDGECOMPUTEMAXWEIGHT(PBRIDGE, ALL_WGT, MAX_WGT)
+         INTEGER*8 PBRIDGE
+         DOUBLE PRECISION ALL_WGT(*)
+         DOUBLE_PRECISION MAX_WGT
+         END SUBROUTINE FBRIDGECOMPUTEMAXWEIGHT
+      END INTERFACE
+
+C
 C Retrieve the number of good helicities for helicity filtering in the Bridge.
 C - PBRIDGE:  the memory address of the C++ Bridge
 C - NGOODHEL: the output number of good helicities
