@@ -92,7 +92,7 @@ endif
 CUDA_COMPILER := $(shell which nvcc > /dev/null 2>&1; echo $$?)
 HIP_COMPILER := $(shell which hipcc > /dev/null 2>&1; echo $$?)
 
-ifeq ($(CUDA_COMPILER),0)
+ifeq ($(CUDA_COMPILER),test)
   #=== Configure the CUDA compiler
 
   # If CXX is not a single word (example "clang++ --gcc-toolchain...") then disable CUDA builds (issue #505)
@@ -126,7 +126,7 @@ ifeq ($(CUDA_COMPILER),0)
     CUINC = -I$(CUDA_HOME)/include/
     CURANDLIBFLAGS = -L$(CUDA_HOME)/lib64/ -lcurand # NB: -lcuda is not needed here!
     CUOPTFLAGS = -lineinfo
-    GPUFLAGS = $(OPTFLAGS) $(CUOPTFLAGS) $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -Xcompiler -fPIC
+     = $(OPTFLAGS) $(CUOPTFLAGS) $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -Xcompiler -fPIC
     ###GPUFLAGS += -Xcompiler -Wall -Xcompiler -Wextra -Xcompiler -Wshadow
     ###GPUCC_VERSION = $(shell $(GPUCC) --version | grep 'Cuda compilation tools' | cut -d' ' -f5 | cut -d, -f1)
     GPUFLAGS += -std=c++17 # need CUDA >= 11.2 (see #333): this is enforced in mgOnGpuConfig.h
@@ -179,7 +179,7 @@ else ifeq ($(HIP_COMPILER),0)
     #CURANDLIBFLAGS = -L$(HIP_HOME)/lib64/ # NB: -lcuda is not needed here!
     # Not using CURAND in HIP
 
-    GPUFLAGS = $(OPTFLAGS) $(INCFLAGS) $(HIPINC) $(HIPARCHFLAGS) -fPIC
+    GPUFLAGS = $(OPTFLAGS) $(INCFLAGS) $(HIPINC) $(HIPARCHFLAGS) -fPIC -DMGONGPU_HAS_NO_CURAND -DHIP_PLATFORM=amd
     ###GPUFLAGS += -Xcompiler -Wall -Xcompiler -Wextra -Xcompiler -Wshadow
     ###GPUCC_VERSION = $(shell $(GPUCC) --version | grep 'Cuda compilation tools' | cut -d' ' -f5 | cut -d, -f1)
     GPUFLAGS += -std=c++17 # need CUDA >= 11.2 (see #333): this is enforced in mgOnGpuConfig.h
