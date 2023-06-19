@@ -10,6 +10,11 @@
 
 #include <cassert>
 
+#ifdef MGONGPU_HAS_NO_CURAND
+#warning MGONGPU_HAS_NO_CURAND is DEFINED!
+#endif
+
+#ifdef MGONGPUCPP_CUDACC
 #ifndef MGONGPU_HAS_NO_CURAND /* clang-format off */
 #include "curand.h"
 #define checkCurand( code ){ assertCurand( code, __FILE__, __LINE__ ); }
@@ -133,3 +138,4 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 #endif
 }
+#endif
