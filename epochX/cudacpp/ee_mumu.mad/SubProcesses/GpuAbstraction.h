@@ -1,4 +1,5 @@
-// GpuAbstraction.h
+#ifndef MG5AMC_GPUABSTRACTION_H
+#define MG5AMC_GPUABSTRACTION_H 1
 
 #include <cassert>
 
@@ -78,3 +79,5 @@
   //#define gpuLaunchKernelSharedMem(kernel, blocks, threads, ...) hipLaunchKernelGGL(kernel, blocks, threads, sharedMemSize, __VA_ARGS__)
 
 #endif
+
+#endif // MG5AMC_GPUABSTRACTION_H
