@@ -40,6 +40,10 @@ cd madgraph4gpu/epochX/cudacpp/
 
 cd USER_gg_tt.mad
 
+--------------------------------------------------------------------------------
+
+EITHER: run the process directly
+
 4a. Launch your process for FORTRAN
 
 sed -i "s/.* = cudacpp_backend/FORTRAN = cudacpp_backend/" Cards/run_card.dat
@@ -58,4 +62,29 @@ sed -i "s/.* = cudacpp_backend/CUDA = cudacpp_backend/" Cards/run_card.dat
 echo "r=21" > SubProcesses/randinit
 MG5AMC_CARD_PATH=$(pwd)/Cards ./bin/generate_events -f
 
+--------------------------------------------------------------------------------
 
+OR: create gridpacks
+
+5a. Create a gridpack using FORTRAN
+
+sed -i "s/.* = gridpack/True = gridpack/" Cards/run_card.dat
+sed -i "s/.* = cudacpp_backend/FORTRAN = cudacpp_backend/" Cards/run_card.dat
+echo "r=21" > SubProcesses/randinit
+./bin/generate_events -f
+
+5b. Create a gridpack using CPP (with avx2)
+
+sed -i "s/.* = gridpack/True = gridpack/" Cards/run_card.dat
+sed -i "s/.* = cudacpp_backend/CPP = cudacpp_backend/" Cards/run_card.dat
+echo "r=21" > SubProcesses/randinit
+AVX=avx2 MG5AMC_CARD_PATH=$(pwd)/Cards ./bin/generate_events -f
+
+5c. Create a gridpack using CUDA
+
+sed -i "s/.* = gridpack/True = gridpack/" Cards/run_card.dat
+sed -i "s/.* = cudacpp_backend/CUDA = cudacpp_backend/" Cards/run_card.dat
+echo "r=21" > SubProcesses/randinit
+MG5AMC_CARD_PATH=$(pwd)/Cards ./bin/generate_events -f
+
+--------------------------------------------------------------------------------

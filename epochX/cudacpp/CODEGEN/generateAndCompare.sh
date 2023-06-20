@@ -108,6 +108,15 @@ function codeGenAndDiff()
       define ell- = e- mu- ta-
       generate p p > ell+ ell- @0"
       ;;
+    pp_ttjjj) # From Sapta for CMS
+      cmd="define p = g u c d s u~ c~ d~ s~
+      define j = g u c d s u~ c~ d~ s~
+      define l+ = e+ mu+
+      define l- = e- mu-
+      define vl = ve vm vt
+      define vl~ = ve~ vm~ vt~
+      generate p p > t t~ j j j"
+      ;;
     *)
       if [ "$cmdext" == "" ]; then
         echo "ERROR! Unknown process '$proc' and no external process specified with '-c <cmd>'"
