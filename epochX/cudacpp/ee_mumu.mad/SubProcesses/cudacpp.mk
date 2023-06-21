@@ -177,19 +177,19 @@ else ifeq ($(HIP_COMPILER),0)
     HIPARCHFLAGS = -target x86_64-linux-gnu --offload-arch=gfx90a
     HIPINC = -I$(HIP_HOME)/include/
 
-    # -DHIP_FAST_MATH equivelant to -use_fast_math in HIP
+    # -DHIP_FAST_MATH equivelant to -use_fast_math in HIP 
+    # (But only for single precision line 208: https://rocm-developer-tools.github.io/HIP/hcc__detail_2math__functions_8h_source.html)
     GPUFLAGS = $(OPTFLAGS) $(CUOPTFLAGS) $(INCFLAGS) $(HIPINC) $(HIPARCHFLAGS) -DHIP_FAST_MATH -DHIP_PLATFORM=amd -fPIC
     ###GPUFLAGS += -Xcompiler -Wall -Xcompiler -Wextra -Xcompiler -Wshadow
-    ###GPUCC_VERSION = $(shell $(GPUCC) --version | grep 'Cuda compilation tools' | cut -d' ' -f5 | cut -d, -f1)
-    GPUFLAGS += -std=c++17 # need CUDA >= 11.2 (see #333): this is enforced in mgOnGpuConfig.h
+    GPUFLAGS += -std=c++17
     # Without -maxrregcount: baseline throughput: 6.5E8 (16384 32 12) up to 7.3E8 (65536 128 12)
     ###GPUFLAGS+= --maxrregcount 160 # improves throughput: 6.9E8 (16384 32 12) up to 7.7E8 (65536 128 12)
     ###GPUFLAGS+= --maxrregcount 128 # improves throughput: 7.3E8 (16384 32 12) up to 7.6E8 (65536 128 12)
     ###GPUFLAGS+= --maxrregcount 96 # degrades throughput: 4.1E8 (16384 32 12) up to 4.5E8 (65536 128 12)
     ###GPUFLAGS+= --maxrregcount 64 # degrades throughput: 1.7E8 (16384 32 12) flat at 1.7E8 (65536 128 12)
-  else ifneq ($(origin REQUIRE_CUDA),undefined)
-    # If REQUIRE_CUDA is set but no cuda is found, stop here (e.g. for CI tests on GPU #443)
-    $(error No cuda installation found (set CUDA_HOME or make GPUCC visible in PATH))
+  else ifneq ($(origin REQUIRE_HIP),undefined)
+    # If REQUIRE_HIP is set but no cuda is found, stop here (e.g. for CI tests on GPU #443)
+    $(error No hip installation found (set HIP_HOME or make GPUCC visible in PATH))
   else
     # No hip. Switch hip compilation off and go to common random numbers in C++
     $(warning HIP_HOME is not set or is invalid: export HIP_HOME to compile with hip)
