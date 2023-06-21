@@ -72,11 +72,11 @@
   #define gpuMemcpyToSymbol(type1, type2, size) checkGpu( hipMemcpyToSymbol(type1, type2, size) )
 
   #define gpuFree(ptr) checkGpu( hipFree(ptr) )
-  #define gpuFreeHost(ptr) checkGpu( hipFreeHost(ptr) )
+  #define gpuFreeHost(ptr) checkGpu( hipHostFree(ptr) )
 
   #define gpuSetDevice hipSetDevice
   #define gpuDeviceSynchronize hipDeviceSynchronize
-  #define gpuDeviceReset hipDeviceReset
+  #define gpuDeviceReset checkGpu( hipDeviceReset )
 
   #define gpuLaunchKernel( kernel, blocks, threads, ...)                    kernel<<<blocks, threads>>> (__VA_ARGS__)
   #define gpuLaunchKernelSharedMem(kernel, blocks, threads, sharedMem, ...) kernel<<<blocks, threads, sharedMem>>>(__VA_ARGS__)

@@ -126,7 +126,7 @@ ifeq ($(CUDA_COMPILER),test)
     CUINC = -I$(CUDA_HOME)/include/
     CURANDLIBFLAGS = -L$(CUDA_HOME)/lib64/ -lcurand # NB: -lcuda is not needed here!
     CUOPTFLAGS = -lineinfo
-    GPUFLAGS = $(OPTFLAGS) $(CUOPTFLAGS) $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math
+    GPUFLAGS = $(OPTFLAGS) $(CUOPTFLAGS) $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math -Xcompiler -fPIC
     ###GPUFLAGS += -Xcompiler -Wall -Xcompiler -Wextra -Xcompiler -Wshadow
     ###GPUCC_VERSION = $(shell $(GPUCC) --version | grep 'Cuda compilation tools' | cut -d' ' -f5 | cut -d, -f1)
     GPUFLAGS += -std=c++17 # need CUDA >= 11.2 (see #333): this is enforced in mgOnGpuConfig.h
@@ -178,9 +178,8 @@ else ifeq ($(HIP_COMPILER),0)
     HIPARCHFLAGS = -target x86_64-linux-gnu --offload-arch=gfx90a
     HIPINC = -I$(HIP_HOME)/include/
 
-    CXXFLAGS += -DHIP_PLATFORM=amd
-    
-    GPUFLAGS = $(OPTFLAGS) $(CUOPTFLAGS) $(INCFLAGS) $(HIPINC) $(HIPARCHFLAGS) -use_fast_math -DHIP_PLATFORM=amd
+    # -DHIP_FAST_MATH equivelant to -use_fast_math in HIP
+    GPUFLAGS = $(OPTFLAGS) $(CUOPTFLAGS) $(INCFLAGS) $(HIPINC) $(HIPARCHFLAGS) -DHIP_FAST_MATH -DHIP_PLATFORM=amd -fPIC
     ###GPUFLAGS += -Xcompiler -Wall -Xcompiler -Wextra -Xcompiler -Wshadow
     ###GPUCC_VERSION = $(shell $(GPUCC) --version | grep 'Cuda compilation tools' | cut -d' ' -f5 | cut -d, -f1)
     GPUFLAGS += -std=c++17 # need CUDA >= 11.2 (see #333): this is enforced in mgOnGpuConfig.h
@@ -530,7 +529,7 @@ ifeq ($(shell $(CXX) --version | grep ^nvc++),)
 $(BUILDDIR)/CrossSectionKernels.o: CXXFLAGS += -fno-fast-math
 $(BUILDDIR)/CrossSectionKernels.o: CXXFLAGS += -fno-fast-math
 ifneq ($(GPUCC),)
-$(BUILDDIR)/gCrossSectionKernels.o: GPUFLAGS += -Xcompiler -fno-fast-math
+$(BUILDDIR)/gCrossSectionKernels.o: GPUFLAGS += -fno-fast-math
 endif
 endif
 
@@ -549,7 +548,7 @@ endif
 # Avoid "warning: builtin __has_trivial_... is deprecated; use __is_trivially_... instead" in GPUCC with icx2023 (#592)
 ifneq ($(shell $(CXX) --version | egrep '^(Intel)'),)
 ifneq ($(GPUCC),)
-GPUFLAGS += -Xcompiler -Wno-deprecated-builtins
+GPUFLAGS += -Wno-deprecated-builtins
 endif
 endif
 
