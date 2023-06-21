@@ -165,7 +165,6 @@ else ifeq ($(HIP_COMPILER),0)
     #$(warning HIP_HOME was not set: using "$(HIP_HOME)")
   endif
 
-    HIP_HOME=/opt/rocm-5.4.3
     $(warning HIP_HOME was not set: using "$(HIP_HOME)")
 
   # Set GPUCC as $(HIP_HOME)/bin/hipcc if it exists
