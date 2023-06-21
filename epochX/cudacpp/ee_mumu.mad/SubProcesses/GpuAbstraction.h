@@ -42,9 +42,9 @@
   #define gpuFree(ptr) checkGpu( cudaFree(ptr) )
   #define gpuFreeHost(ptr) checkGpu( cudaFreeHost(ptr) )
 
-  #define gpuSetDevice checkGpu( cudaSetDevice )
+  #define gpuSetDevice checkGpu( cudaSetDevice( int ) )
   #define gpuDeviceSynchronize cudaDeviceSynchronize
-  #define gpuDeviceReset checkGpu( cudaDeviceReset )
+  #define gpuDeviceReset checkGpu( cudaDeviceReset() )
 
   #define gpuLaunchKernel( kernel, blocks, threads, ...)                    kernel<<<blocks, threads>>> (__VA_ARGS__)
   #define gpuLaunchKernelSharedMem(kernel, blocks, threads, sharedMem, ...) kernel<<<blocks, threads, sharedMem>>>(__VA_ARGS__)
@@ -74,9 +74,9 @@
   #define gpuFree(ptr) checkGpu( hipFree(ptr) )
   #define gpuFreeHost(ptr) checkGpu( hipHostFree(ptr) )
 
-  #define gpuSetDevice checkGpu( hipSetDevice )
+  #define gpuSetDevice checkGpu( hipSetDevice( int ) )
   #define gpuDeviceSynchronize hipDeviceSynchronize
-  #define gpuDeviceReset checkGpu( hipDeviceReset )
+  #define gpuDeviceReset checkGpu( hipDeviceReset() )
 
   #define gpuLaunchKernel( kernel, blocks, threads, ...)                    kernel<<<blocks, threads>>> (__VA_ARGS__)
   #define gpuLaunchKernelSharedMem(kernel, blocks, threads, sharedMem, ...) kernel<<<blocks, threads, sharedMem>>>(__VA_ARGS__)
