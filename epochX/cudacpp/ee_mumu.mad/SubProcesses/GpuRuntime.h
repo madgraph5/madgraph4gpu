@@ -59,7 +59,7 @@ namespace mg5amcGpu
       // Replace cudaFree(0) by cudaSetDevice(0), even if it is not really needed either
       // (but see https://developer.nvidia.com/blog/cuda-pro-tip-always-set-current-device-avoid-multithreading-bugs)
       if( debug ) std::cout << "__GpuRuntime: calling GpuSetDevice(0)" << std::endl;
-      checkGpu( gpuSetDevice( 0 ) ); // SLOW!
+      gpuSetDevice( 0 ); // SLOW!
     }
 
     // Tear down CUDA application (call cudaDeviceReset)
@@ -69,7 +69,7 @@ namespace mg5amcGpu
     static void tearDown( const bool debug = true )
     {
       if( debug ) std::cout << "__GpuRuntime: calling GpuDeviceReset()" << std::endl;
-      checkGpu( gpuDeviceReset() );
+      gpuDeviceReset();
     }
   };
 }
