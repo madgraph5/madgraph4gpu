@@ -510,11 +510,11 @@ $(BUILDDIR)/.build.$(TAG):
 ifneq ($(GPUCC),)
 $(BUILDDIR)/%.o : %.cu *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	$(GPUCC) $(CPPFLAGS) $(GPUFLAGS) -Xcompiler -fPIC -c $< -o $@
+	$(GPUCC) $(CPPFLAGS) $(GPUFLAGS) -c $< -o $@
 
 $(BUILDDIR)/%_cu.o : %.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	$(GPUCC) $(CPPFLAGS) $(GPUFLAGS) -Xcompiler -fPIC -c $< -o $@
+	$(GPUCC) $(CPPFLAGS) $(GPUFLAGS) -c $< -o $@
 endif
 # -x cu in line above
 
