@@ -367,8 +367,20 @@ class gensym(object):
                         done = True
                 if not done:
                     raise Exception('Parsing error in gensym: %s' % stdout)
-                     
-            self.cmd.compile(['madevent'], cwd=Pdir)
+
+            cudacpp_backend = self.run_card['cudacpp_backend'] # the default value is defined in banner.py
+            logger.info("Building madevent in madevent_interface.py with '%s' matrix elements"%cudacpp_backend)
+            if cudacpp_backend == 'FORTRAN':
+                self.cmd.compile(['madevent_fortran_link'], cwd=Pdir)
+            elif cudacpp_backend == 'CPP':
+                self.cmd.compile(['madevent_cpp_link'], cwd=Pdir)
+            elif cudacpp_backend == 'CUDA':
+                self.cmd.compile(['madevent_cuda_link'], cwd=Pdir)
+            else:
+                raise Exception("Invalid cudacpp_backend='%s': only 'FORTRAN', 'CPP', 'CUDA' are supported")
+                ###logger.info("Building madevent with ALL(FORTRAN/CPP/CUDA) matrix elements (cudacpp_backend=%s)"%cudacpp_backend)
+                ###self.cmd.compile(['all'], cwd=Pdir)
+
             if to_submit:
                 self.submit_to_cluster(job_list)
                 job_list = {}
@@ -914,7 +926,7 @@ For offline investigation, the problematic discarded events are stored in:
     def write_parameter_file(self, path, options):
         """ """
         
-        template ="""         %(event)s         %(maxiter)s           %(miniter)s      !Number of events and max and min iterations
+        template ="""         8192 1 1      !Number of events and max and min iterations
   %(accuracy)s    !Accuracy
   %(gridmode)s       !Grid Adjustment 0=none, 2=adjust
   1       !Suppress Amplitude 1=yes

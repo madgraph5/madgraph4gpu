@@ -146,10 +146,11 @@ c
 c     Global
 c
 C     Common blocks
-      CHARACTER*7         PDLABEL,EPA_LABEL
-      INTEGER       LHAID
-      character*7 pdsublabel(2)
-      COMMON/TO_PDF/LHAID,PDLABEL,EPA_LABEL, pdsublabel
+      include '../../Source/PDF/pdf.inc'
+c      CHARACTER*7         PDLABEL,EPA_LABEL
+c      INTEGER       LHAID
+c      character*7 pdsublabel(2)
+c      COMMON/TO_PDF/LHAID,PDLABEL,EPA_LABEL, pdsublabel
 
       double precision pmass(nexternal)
       common/to_mass/  pmass
@@ -170,7 +171,8 @@ C     Common blocks
       integer mothup(2,nexternal)
       integer icolup(2,nexternal,maxflow,maxsproc)
       include 'leshouche.inc'
-      
+
+      include 'vector.inc'
       include 'run.inc'
 
 
@@ -604,6 +606,7 @@ c**************************************************************************
       include 'maxconfigs.inc'
       include 'nexternal.inc'
       include 'maxamps.inc'
+      include 'vector.inc'
       include 'run.inc'
 
 c     local
@@ -748,6 +751,7 @@ c
       double precision stot,m1,m2
       common/to_stot/stot,m1,m2
 
+      include 'vector.inc'
       include 'run.inc'
 
 c-----
