@@ -171,15 +171,14 @@ else ifeq ($(HIP_COMPILER),0)
   # Set GPUCC as $(HIP_HOME)/bin/hipcc if it exists
   ifneq ($(wildcard $(HIP_HOME)/bin/hipcc),)
     GPUCC = $(HIP_HOME)/bin/hipcc
+
     # Should maybe find something equivelant to this in HIP
     #USE_NVTX ?=-DUSE_NVTX
-
-    CXXFLAGS += -DMGONGPU_HAS_NO_CURAND -DHIP_PLATFORM=amd
 
     HIPARCHFLAGS = -target x86_64-linux-gnu --offload-arch=gfx90a
     HIPINC = -I$(HIP_HOME)/include/
     
-    GPUFLAGS = $(OPTFLAGS) $(CUOPTFLAGS) $(INCFLAGS) $(HIPINC) $(HIPARCHFLAGS) -use_fast_math
+    GPUFLAGS = $(OPTFLAGS) $(CUOPTFLAGS) $(INCFLAGS) $(HIPINC) $(HIPARCHFLAGS) -use_fast_math -DHIP_PLATFORM=amd
     ###GPUFLAGS += -Xcompiler -Wall -Xcompiler -Wextra -Xcompiler -Wshadow
     ###GPUCC_VERSION = $(shell $(GPUCC) --version | grep 'Cuda compilation tools' | cut -d' ' -f5 | cut -d, -f1)
     GPUFLAGS += -std=c++17 # need CUDA >= 11.2 (see #333): this is enforced in mgOnGpuConfig.h
@@ -192,8 +191,8 @@ else ifeq ($(HIP_COMPILER),0)
     # If REQUIRE_CUDA is set but no cuda is found, stop here (e.g. for CI tests on GPU #443)
     $(error No cuda installation found (set CUDA_HOME or make GPUCC visible in PATH))
   else
-    # No cuda. Switch cuda compilation off and go to common random numbers in C++
-    $(warning CUDA_HOME is not set or is invalid: export CUDA_HOME to compile with cuda)
+    # No hip. Switch hip compilation off and go to common random numbers in C++
+    $(warning HIP_HOME is not set or is invalid: export HIP_HOME to compile with hip)
     override GPUCC=
     override USE_NVTX=
     override CUINC=

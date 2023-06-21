@@ -3,6 +3,13 @@
 
 #include <cassert>
 
+/*
+  ToDo:
+      * Fix rpath in makefile when compiling with HIP
+      * Fix warnings with improper hip function return code handling
+*/
+
+
 #ifdef __CUDACC__
   #define MGONGPUCPP_CUDACC 1
 #endif
@@ -73,10 +80,6 @@
 
   #define gpuLaunchKernel( kernel, blocks, threads, ...)                    kernel<<<blocks, threads>>> (__VA_ARGS__)
   #define gpuLaunchKernelSharedMem(kernel, blocks, threads, sharedMem, ...) kernel<<<blocks, threads, sharedMem>>>(__VA_ARGS__)
-
-  //#define gpuLaunchKernel(kernel, blocks, threads, sharedMemSize, ...) hipLaunchKernelGGL(kernel, blocks, threads, __VA_ARGS__)
-
-  //#define gpuLaunchKernelSharedMem(kernel, blocks, threads, ...) hipLaunchKernelGGL(kernel, blocks, threads, sharedMemSize, __VA_ARGS__)
 
 #endif
 
