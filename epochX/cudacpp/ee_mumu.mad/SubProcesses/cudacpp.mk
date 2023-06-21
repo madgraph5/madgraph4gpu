@@ -177,6 +177,8 @@ else ifeq ($(HIP_COMPILER),0)
 
     HIPARCHFLAGS = -target x86_64-linux-gnu --offload-arch=gfx90a
     HIPINC = -I$(HIP_HOME)/include/
+
+    CXXFLAGS += -DHIP_PLATFORM=amd
     
     GPUFLAGS = $(OPTFLAGS) $(CUOPTFLAGS) $(INCFLAGS) $(HIPINC) $(HIPARCHFLAGS) -use_fast_math -DHIP_PLATFORM=amd
     ###GPUFLAGS += -Xcompiler -Wall -Xcompiler -Wextra -Xcompiler -Wshadow
