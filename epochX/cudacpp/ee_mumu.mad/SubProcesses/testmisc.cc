@@ -12,12 +12,14 @@
 
 #include "epoch_process_id.h"
 
+#include "GpuAbstraction.h"
+
 #include <gtest/gtest.h>
 
 #include <sstream>
 #include <typeinfo>
 
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 #define TESTID( s ) s##_GPU_MISC
 #else
 #define TESTID( s ) s##_CPU_MISC

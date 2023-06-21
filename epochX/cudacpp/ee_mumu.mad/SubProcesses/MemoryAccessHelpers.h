@@ -10,6 +10,8 @@
 
 #include "mgOnGpuFptypes.h"
 
+#include "GpuAbstraction.h"
+
 //----------------------------------------------------------------------------
 
 // A templated helper class that includes the boilerplate code for MemoryAccess classes
@@ -105,7 +107,7 @@ public:
     }
     else
     {
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
       //printf( "kernelAccessRecord: ievt=%d threadId=%d\n", ievt, threadIdx.x );
       return T::ieventAccessRecord( buffer, ievt ); // NB fptype and fptype_sv coincide for CUDA

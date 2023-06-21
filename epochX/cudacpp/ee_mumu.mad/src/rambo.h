@@ -18,7 +18,7 @@
 #include <iostream>
 
 // Simplified rambo version for 2 to N (with N>=2) processes with massless particles
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
@@ -83,7 +83,7 @@ namespace mg5amcCpu
       static bool first = true;
       if( first )
       {
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
         if constexpr( M_ACCESS::isOnDevice() ) // avoid
         {
           const int ievt0 = 0;
@@ -166,7 +166,7 @@ namespace mg5amcCpu
     wt = po2log;
     if( nparf != 2 ) wt = ( 2. * nparf - 4. ) * log( energy ) + z[nparf - 1];
 
-#ifndef __CUDACC__
+#ifndef MGONGPUCPP_GPUIMPL
     // issue warnings if weight is too small or too large
     static int iwarn[5] = { 0, 0, 0, 0, 0 };
     if( wt < -180. )

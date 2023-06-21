@@ -12,6 +12,8 @@
 
 #include <gtest/gtest.h>
 
+#include "GpuAbstraction.h"
+
 #include <array>
 #include <cmath>
 #include <fstream>
@@ -21,7 +23,7 @@
 #include <string>
 #include <vector>
 
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 using mg5amcGpu::CPPProcess;
 #else
 using mg5amcCpu::CPPProcess;
@@ -200,7 +202,7 @@ protected:
 
 // Since we link both the CPU-only and GPU tests into the same executable, we prevent
 // a multiply defined symbol by only compiling this in the non-CUDA phase:
-#ifndef __CUDACC__
+#ifndef MGONGPUCPP_GPUIMPL
 
 /// Compare momenta and matrix elements.
 /// This uses an implementation of TestDriverBase to run a madgraph workflow,
@@ -309,6 +311,6 @@ TEST_P( MadgraphTest, CompareMomentaAndME )
   }
 }
 
-#endif // __CUDACC__
+#endif // MGONGPUCPP_GPUIMPL
 
 #endif /* MADGRAPHTEST_H_ */

@@ -10,7 +10,9 @@
 
 #include "MemoryBuffers.h"
 
-#ifdef __CUDACC__
+#include "GpuAbstraction.h"
+
+#ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
@@ -81,7 +83,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-#ifndef __CUDACC__
+#ifndef MGONGPUCPP_GPUIMPL
   // A class encapsulating matrix element calculations on a CPU host
   class MatrixElementKernelHost final : public MatrixElementKernelBase, public NumberOfEvents
   {
@@ -130,7 +132,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
   // A class encapsulating matrix element calculations on a GPU device
   class MatrixElementKernelDevice : public MatrixElementKernelBase, public NumberOfEvents
   {

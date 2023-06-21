@@ -3,6 +3,8 @@
 // Created by: A. Valassi (Jul 2020) for the MG5aMC CUDACPP plugin.
 // Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
 
+#include "GpuAbstraction.h"
+
 #ifndef MGONGPUCONFIG_H
 #define MGONGPUCONFIG_H 1
 
@@ -15,9 +17,11 @@
 
 // Choose if curand is supported for generating random numbers
 // For C++, by default, do not inline, but allow this macro to be set from outside with e.g. -DMGONGPU_HAS_NO_CURAND
-#ifdef __CUDACC__
-#undef MGONGPU_HAS_NO_CURAND
-#else
+// Added support for HIP compilation by defining MGONGPU_HAS_NO_CURAND
+#ifdef MGONGPUCPP_CUDACC
+#undef MGONGPU_HAS_NO_CURAND 
+#elif defined MGONGPUCPP_HIPCC
+#define MGONGPU_HAS_NO_CURAND 1
 //#undef MGONGPU_HAS_NO_CURAND // default
 ////#define MGONGPU_HAS_NO_CURAND 1
 #endif
@@ -53,20 +57,21 @@
 ////#define MGONGPU_HARDCODE_PARAM 1
 
 // Complex type in c++: std::complex or cxsmpl (CHOOSE ONLY ONE)
-#ifndef __CUDACC__
+#ifndef MGONGPUCPP_GPUIMPL
 //#define MGONGPU_CPPCXTYPE_STDCOMPLEX 1 // ~8 percent slower on float, same on double (5.1E6/double, 9.4E6/float)
 #define MGONGPU_CPPCXTYPE_CXSMPL 1 // new default (5.1E6/double, 10.2E6/float)
 #endif
 
 // Complex type in cuda: thrust or cucomplex or cxsmpl (CHOOSE ONLY ONE)
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_CUDACC
 #define MGONGPU_CUCXTYPE_THRUST 1 // default (~1.15E9/double, ~3.2E9/float)
 //#define MGONGPU_CUCXTYPE_CUCOMPLEX 1 // ~10 percent slower (1.03E9/double, ~2.8E9/float)
-//#define MGONGPU_CUCXTYPE_CXSMPL 1 // ~10 percent slower (1.00E9/double, ~2.9E9/float)
+#elif defined MGONGPUCPP_HIPCC
+#define MGONGPU_CUCXTYPE_CXSMPL 1 // ~10 percent slower (1.00E9/double, ~2.9E9/float)
 #endif
 
 // Cuda nsight compute (ncu) debug: add dummy lines to ease SASS program flow navigation
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_CUDACC
 #undef MGONGPU_NSIGHT_DEBUG // default
 //#define MGONGPU_NSIGHT_DEBUG 1
 #endif
@@ -85,14 +90,14 @@
 #endif
 
 // SANITY CHECKS (c++ complex number implementation)
-#ifndef __CUDACC__
+#ifndef MGONGPUCPP_GPUIMPL
 #if defined MGONGPU_CPPCXTYPE_STDCOMPLEX and defined MGONGPU_CPPCXTYPE_CXSMPL
 #error You must CHOOSE (ONE AND) ONLY ONE of MGONGPU_CPPCXTYPE_STDCOMPLEX or MGONGPU_CPPCXTYPE_CXSMPL
 #endif
 #endif
 
 // SANITY CHECKS (cuda complex number implementation)
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 #if defined MGONGPU_CUCXTYPE_THRUST and defined MGONGPU_CUCXTYPE_CUCOMPLEX and defined MGONGPU_CUCXTYPE_CXSMPL
 #error You must CHOOSE (ONE AND) ONLY ONE of MGONGPU_CUCXTYPE_THRUST or MGONGPU_CUCXTYPE_CUCOMPLEX or MGONGPU_CUCXTYPE_CXSMPL
 #endif
@@ -131,7 +136,7 @@ namespace mgOnGpu
   // Alignment requirement for using reinterpret_cast with SIMD vectorized code
   // (using reinterpret_cast with non aligned memory may lead to segmentation faults!)
   // Only needed for C++ code but can be enforced also in NVCC builds of C++ code using CUDA>=11.2 and C++17 (#318, #319, #333)
-#ifndef __CUDACC__
+#ifndef MGONGPUCPP_GPUIMPL
   constexpr int cppAlign = 64; // alignment requirement for SIMD vectorization (64-byte i.e. 512-bit)
 #endif
 
@@ -142,7 +147,7 @@ using mgOnGpu::fptype;
 using mgOnGpu::fptype2;
 
 // C++ SIMD vectorization width (this will be used to set neppV)
-#ifdef __CUDACC__ // CUDA implementation has no SIMD
+#ifdef MGONGPUCPP_GPUIMPL // CUDA implementation has no SIMD
 #undef MGONGPU_CPPSIMD
 #elif defined __AVX512VL__ && defined MGONGPU_PVW512 // C++ "512z" AVX512 with 512 width (512-bit ie 64-byte): 8 (DOUBLE) or 16 (FLOAT)
 #ifdef MGONGPU_FPTYPE_DOUBLE
@@ -174,7 +179,7 @@ using mgOnGpu::fptype2;
 
 // Cuda nsight compute (ncu) debug: add dummy lines to ease SASS program flow navigation
 // Arguments (not used so far): text is __FUNCTION__, code is 0 (start) or 1 (end)
-#if defined __CUDACC__ && defined MGONGPU_NSIGHT_DEBUG /* clang-format off */
+#if defined MGONGPUCPP_GPUIMPL && defined MGONGPU_NSIGHT_DEBUG /* clang-format off */
 #define mgDebugDeclare() __shared__ float mgDebugCounter[mgOnGpu::ntpbMAX];
 #define mgDebugInitialise() { mgDebugCounter[threadIdx.x] = 0; }
 #define mgDebug( code, text ) { mgDebugCounter[threadIdx.x] += 1; }
@@ -187,7 +192,7 @@ using mgOnGpu::fptype2;
 #endif /* clang-format on */
 
 // Define empty CUDA declaration specifiers for C++
-#ifndef __CUDACC__
+#ifndef MGONGPUCPP_GPUIMPL
 #define __global__
 #define __host__
 #define __device__
