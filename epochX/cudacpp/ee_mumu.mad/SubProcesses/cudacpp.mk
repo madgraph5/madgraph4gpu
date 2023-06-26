@@ -89,8 +89,8 @@ endif
 
 #-------------------------------------------------------------------------------
 
-CUDA_COMPILER_PATH := $(shell compiler="`which nvcc`" && while [ -L "$$compiler" ]; do compiler=`readlink "$$compiler"`; done && echo "$$compiler")
-HIP_COMPILER_PATH := $(shell compiler="`which hipcc`" && while [ -L "$$compiler" ]; do compiler=`readlink "$$compiler"`; done && echo "$$compiler")
+CUDA_COMPILER_PATH := $(shell compiler="`which nvcc 2>/dev/null`" && while [ -L "$$compiler" ]; do compiler=`readlink "$$compiler"`; done && echo "$$compiler")
+HIP_COMPILER_PATH := $(shell compiler="`which hipcc 2>/dev/null`" && while [ -L "$$compiler" ]; do compiler=`readlink "$$compiler"`; done && echo "$$compiler")
 
 ifeq ($(findstring nvcc,$(CUDA_COMPILER_PATH)),nvcc)
   #=== Configure the CUDA compiler
