@@ -138,7 +138,7 @@ ifeq ($(findstring nvcc,$(CUDA_COMPILER_PATH)),nvcc)
 
     CUBUILDRULEFLAGS = -Xcompiler -fPIC -c
 
-    CCBUILDRULEFLAGS = -Xcompiler -fPIC -c -x -cu
+    CCBUILDRULEFLAGS = -Xcompiler -fPIC -c -x cu
 
   else ifneq ($(origin REQUIRE_CUDA),undefined)
     # If REQUIRE_CUDA is set but no cuda is found, stop here (e.g. for CI tests on GPU #443)
@@ -200,7 +200,7 @@ else ifeq ($(findstring hipcc,$(HIP_COMPILER_PATH)),hipcc)
 
     CUBUILDRULEFLAGS = -fPIC -c
 
-    CCBUILDRULEFLAGS = -fPIC -c -x -cu
+    CCBUILDRULEFLAGS = -fPIC -c -x cu
 
   else ifneq ($(origin REQUIRE_HIP),undefined)
     # If REQUIRE_HIP is set but no cuda is found, stop here (e.g. for CI tests on GPU #443)
