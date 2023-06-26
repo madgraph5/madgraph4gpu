@@ -89,10 +89,10 @@ endif
 
 #-------------------------------------------------------------------------------
 
-CUDA_COMPILER := $(shell which nvcc > /dev/null 2>&1; echo $$?)
-HIP_COMPILER := $(shell which hipcc > /dev/null 2>&1; echo $$?)
+CUDA_COMPILER := $(shell compiler=`which nvcc` && while [[ -L $file ]]; do file=$(readlink "$file"); done && echo "$file")
+HIP_COMPILER := $(shell compiler=`which hipcc` && while [[ -L $file ]]; do file=$(readlink "$file"); done && echo "$file")
 
-ifeq ($(CUDA_COMPILER),test)
+ifeq ($(CUDA_COMPILER),0)
   #=== Configure the CUDA compiler
 
   # If CXX is not a single word (example "clang++ --gcc-toolchain...") then disable CUDA builds (issue #505)
