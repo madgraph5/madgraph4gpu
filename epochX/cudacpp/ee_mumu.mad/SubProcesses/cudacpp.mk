@@ -112,7 +112,7 @@ ifeq ($(findstring nvcc,$(CUDA_COMPILER_PATH)),nvcc)
   ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
     GPUCC = $(CUDA_HOME)/bin/nvcc
     USE_NVTX ?=-DUSE_NVTX
-    # See https://docs.nvidia.com/cuda/cuda-compiler-driver-GPUCC/index.html
+    # See https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html
     # See https://arnon.dk/matching-sm-architectures-arch-and-gencode-for-various-nvidia-cards/
     # Default: use compute capability 70 for V100 (CERN lxbatch, CERN itscrd, Juwels Cluster).
     # Embed device code for 70, and PTX for 70+.
@@ -137,8 +137,9 @@ ifeq ($(findstring nvcc,$(CUDA_COMPILER_PATH)),nvcc)
     ###GPUFLAGS+= --maxrregcount 64 # degrades throughput: 1.7E8 (16384 32 12) flat at 1.7E8 (65536 128 12)
 
     CUBUILDRULEFLAGS = -Xcompiler -fPIC -c
-
     CCBUILDRULEFLAGS = -Xcompiler -fPIC -c -x cu
+
+    CUDATESTFLAGS = -lcuda
 
   else ifneq ($(origin REQUIRE_CUDA),undefined)
     # If REQUIRE_CUDA is set but no cuda is found, stop here (e.g. for CI tests on GPU #443)
@@ -199,7 +200,6 @@ else ifeq ($(findstring hipcc,$(HIP_COMPILER_PATH)),hipcc)
     ###GPUFLAGS+= --maxrregcount 64 # degrades throughput: 1.7E8 (16384 32 12) flat at 1.7E8 (65536 128 12)
 
     CUBUILDRULEFLAGS = -fPIC -c
-
     CCBUILDRULEFLAGS = -fPIC -c
 
   else ifneq ($(origin REQUIRE_HIP),undefined)
@@ -749,10 +749,6 @@ $(testmain): LIBFLAGS += -lgomp
 endif
 endif
 
-ifeq ($(findstring nvcc,$(GPUCC)),nvcc)
-  LIBFLAGS += -lcuda
-endif
-
 ifeq ($(GPUCC),) # link only runTest.o
 $(testmain): LIBFLAGS += $(CXXLIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects_lib) $(cxx_objects_exe) $(GTESTLIBS)
@@ -760,7 +756,7 @@ $(testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects_lib) $(cxx_object
 else # link both runTest.o and runTest_cu.o
 $(testmain): LIBFLAGS += $(CULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects_lib) $(cxx_objects_exe) $(cu_objects_lib) $(cu_objects_exe) $(GTESTLIBS)
-	  $(GPUCC) -o $@ $(cxx_objects_lib) $(cxx_objects_exe) $(cu_objects_lib) $(cu_objects_exe) -ldl $(LIBFLAGS)
+	  $(GPUCC) -o $@ $(cxx_objects_lib) $(cxx_objects_exe) $(cu_objects_lib) $(cu_objects_exe) -ldl $(LIBFLAGS) $(CUDATESTFLAGS)
 endif
 
 # Use flock (Linux only, no Mac) to allow 'make -j' if googletest has not yet been downloaded https://stackoverflow.com/a/32666215
