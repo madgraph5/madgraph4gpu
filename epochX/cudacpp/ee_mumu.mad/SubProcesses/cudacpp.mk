@@ -89,10 +89,10 @@ endif
 
 #-------------------------------------------------------------------------------
 
-CUDA_COMPILER := $(shell compiler="`which nvcc`" && while [ -L "$$compiler" ]; do compiler=`readlink "$$compiler"`; done && echo "$$compiler")
-HIP_COMPILER := $(shell compiler="`which hipcc`" && while [ -L "$$compiler" ]; do compiler=`readlink "$$compiler"`; done && echo "$$compiler")
+CUDA_COMPILER_PATH := $(shell compiler="`which nvcc`" && while [ -L "$$compiler" ]; do compiler=`readlink "$$compiler"`; done && echo "$$compiler")
+HIP_COMPILER_PATH := $(shell compiler="`which hipcc`" && while [ -L "$$compiler" ]; do compiler=`readlink "$$compiler"`; done && echo "$$compiler")
 
-ifeq ($(CUDA_COMPILER),0)
+ifeq ($(findstring nvcc,$(CUDA_COMPILER_PATH)),nvcc)
   #=== Configure the CUDA compiler
 
   # If CXX is not a single word (example "clang++ --gcc-toolchain...") then disable CUDA builds (issue #505)
@@ -102,7 +102,7 @@ ifeq ($(CUDA_COMPILER),0)
     override CUDA_HOME=disabled
   endif
 
-  # If CUDA_HOME is not set, try to set it from the location of GPUCC
+  # If CUDA_HOME is not set, try to set it from the location of NVCC
   ifndef CUDA_HOME
     CUDA_HOME = $(patsubst %bin/nvcc,%,$(shell which nvcc 2>/dev/null))
     $(warning CUDA_HOME was not set: using "$(CUDA_HOME)")
@@ -156,16 +156,21 @@ ifeq ($(CUDA_COMPILER),0)
   GPUFLAGS += -allow-unsupported-compiler
   endif
 
-else ifeq ($(HIP_COMPILER),0)
-    #=== Configure the HIP compiler
+else ifeq ($(findstring hipcc,$(HIP_COMPILER_PATH)),hipcc)
+  #=== Configure the HIP compiler
 
-    # If HIP_HOME is not set, try to set it from the location of GPUCC
-  ifndef HIP_HOME
-    HIP_HOME = $(patsubst %bin/hipcc,%,$(shell which hipcc 2>/dev/null))
-    #$(warning HIP_HOME was not set: using "$(HIP_HOME)")
+  # If CXX is not a single word (example "clang++ --gcc-toolchain...") then disable CUDA builds (issue #505)
+  # This is because it is impossible to pass this to "GPUFLAGS += -ccbin <host-compiler>" below
+  ifneq ($(words $(subst ccache ,,$(CXX))),1) # allow at most "CXX=ccache <host-compiler>" from outside
+    $(warning CUDA builds are not supported for multi-word CXX "$(CXX)")
+    override CUDA_HOME=disabled
   endif
 
+  # If HIP_HOME is not set, try to set it from the location of GPUCC
+  ifndef HIP_HOME
+    HIP_HOME = $(patsubst %bin/hipcc,%,$(HIP_COMPILER_PATH))
     $(warning HIP_HOME was not set: using "$(HIP_HOME)")
+  endif
 
   # Set GPUCC as $(HIP_HOME)/bin/hipcc if it exists
   ifneq ($(wildcard $(HIP_HOME)/bin/hipcc),)
@@ -197,6 +202,15 @@ else ifeq ($(HIP_COMPILER),0)
     override USE_NVTX=
     override CUINC=
     override CURANDLIBFLAGS=
+  endif
+
+  # Set the host C++ compiler for GPUCC via "-ccbin <host-compiler>"
+  # (NB issue #505: this must be a single word, "clang++ --gcc-toolchain..." is not supported)
+  GPUFLAGS += -ccbin $(shell which $(subst ccache ,,$(CXX)))
+
+  # Allow newer (unsupported) C++ compilers with older versions of CUDA if ALLOW_UNSUPPORTED_COMPILER_IN_CUDA is set (#504)
+  ifneq ($(origin ALLOW_UNSUPPORTED_COMPILER_IN_CUDA),undefined)
+  GPUFLAGS += -allow-unsupported-compiler
   endif
 
 endif
