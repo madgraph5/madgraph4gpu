@@ -204,10 +204,6 @@ else ifeq ($(findstring hipcc,$(HIP_COMPILER_PATH)),hipcc)
     override CURANDLIBFLAGS=
   endif
 
-  # Set the host C++ compiler for GPUCC via "-ccbin <host-compiler>"
-  # (NB issue #505: this must be a single word, "clang++ --gcc-toolchain..." is not supported)
-  GPUFLAGS += -ccbin $(shell which $(subst ccache ,,$(CXX)))
-
   # Allow newer (unsupported) C++ compilers with older versions of CUDA if ALLOW_UNSUPPORTED_COMPILER_IN_CUDA is set (#504)
   ifneq ($(origin ALLOW_UNSUPPORTED_COMPILER_IN_CUDA),undefined)
   GPUFLAGS += -allow-unsupported-compiler
