@@ -315,6 +315,7 @@ endif
 ifeq ($(RNDGEN),)
   ifeq ($(GPUCC),)
     override RNDGEN = hasNoCurand
+  # Edgecase for HIP compilation
   else ifeq ($(findstring hipcc,$(GPUCC)),hipcc)
     override RNDGEN = hasNoCurand
   else ifeq ($(RNDGEN),)
@@ -532,11 +533,14 @@ $(BUILDDIR)/%.o : %.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -fPIC -c $< -o $@
 
 # Apply special build flags only to CrossSectionKernel.cc and gCrossSectionKernel.cu (no fast math, see #117)
+# Added edgecase for HIP compilation
 ifeq ($(shell $(CXX) --version | grep ^nvc++),)
 $(BUILDDIR)/CrossSectionKernels.o: CXXFLAGS += -fno-fast-math
 $(BUILDDIR)/CrossSectionKernels.o: CXXFLAGS += -fno-fast-math
-ifneq ($(GPUCC),)
-$(BUILDDIR)/gCrossSectionKernels.o: GPUFLAGS += -fno-fast-math
+ifeq ($(findstring nvcc,$(GPUCC)),nvcc)
+  $(BUILDDIR)/gCrossSectionKernels.o: GPUFLAGS += -Xcompiler -fno-fast-math
+else
+  $(BUILDDIR)/gCrossSectionKernels.o: GPUFLAGS += -fno-fast-math
 endif
 endif
 
