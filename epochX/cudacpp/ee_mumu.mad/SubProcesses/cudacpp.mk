@@ -126,7 +126,7 @@ ifeq ($(findstring nvcc,$(CUDA_COMPILER_PATH)),nvcc)
     CUINC = -I$(CUDA_HOME)/include/
     CURANDLIBFLAGS = -L$(CUDA_HOME)/lib64/ -lcurand # NB: -lcuda is not needed here!
     CUOPTFLAGS = -lineinfo
-    GPUFLAGS = $(OPTFLAGS) $(CUOPTFLAGS) $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math -Xcompiler -fPIC
+    GPUFLAGS = $(OPTFLAGS) $(CUOPTFLAGS) $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math
     ###GPUFLAGS += -Xcompiler -Wall -Xcompiler -Wextra -Xcompiler -Wshadow
     ###GPUCC_VERSION = $(shell $(GPUCC) --version | grep 'Cuda compilation tools' | cut -d' ' -f5 | cut -d, -f1)
     GPUFLAGS += -std=c++17 # need CUDA >= 11.2 (see #333): this is enforced in mgOnGpuConfig.h
@@ -135,6 +135,11 @@ ifeq ($(findstring nvcc,$(CUDA_COMPILER_PATH)),nvcc)
     ###GPUFLAGS+= --maxrregcount 128 # improves throughput: 7.3E8 (16384 32 12) up to 7.6E8 (65536 128 12)
     ###GPUFLAGS+= --maxrregcount 96 # degrades throughput: 4.1E8 (16384 32 12) up to 4.5E8 (65536 128 12)
     ###GPUFLAGS+= --maxrregcount 64 # degrades throughput: 1.7E8 (16384 32 12) flat at 1.7E8 (65536 128 12)
+
+    CUBUILDRULEFLAGS = -Xcompiler -fPIC -c
+
+    CCBUILDRULEFLAGS = -Xcompiler -fPIC -c -x -cu
+
   else ifneq ($(origin REQUIRE_CUDA),undefined)
     # If REQUIRE_CUDA is set but no cuda is found, stop here (e.g. for CI tests on GPU #443)
     $(error No cuda installation found (set CUDA_HOME or make GPUCC visible in PATH))
@@ -192,6 +197,11 @@ else ifeq ($(findstring hipcc,$(HIP_COMPILER_PATH)),hipcc)
     ###GPUFLAGS+= --maxrregcount 128 # improves throughput: 7.3E8 (16384 32 12) up to 7.6E8 (65536 128 12)
     ###GPUFLAGS+= --maxrregcount 96 # degrades throughput: 4.1E8 (16384 32 12) up to 4.5E8 (65536 128 12)
     ###GPUFLAGS+= --maxrregcount 64 # degrades throughput: 1.7E8 (16384 32 12) flat at 1.7E8 (65536 128 12)
+
+    CUBUILDRULEFLAGS = -fPIC -c
+
+    CCBUILDRULEFLAGS = -fPIC -c -x -cu
+
   else ifneq ($(origin REQUIRE_HIP),undefined)
     # If REQUIRE_HIP is set but no cuda is found, stop here (e.g. for CI tests on GPU #443)
     $(error No hip installation found (set HIP_HOME or make GPUCC visible in PATH))
@@ -518,11 +528,11 @@ $(BUILDDIR)/.build.$(TAG):
 ifneq ($(GPUCC),)
 $(BUILDDIR)/%.o : %.cu *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	$(GPUCC) $(CPPFLAGS) $(GPUFLAGS) -c $< -o $@
+	$(GPUCC) $(CPPFLAGS) $(GPUFLAGS) $(CUBUILDRULEFLAGS) $< -o $@
 
 $(BUILDDIR)/%_cu.o : %.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	$(GPUCC) $(CPPFLAGS) $(GPUFLAGS) -c $< -o $@
+	$(GPUCC) $(CPPFLAGS) $(GPUFLAGS) $(CCBUILDRULEFLAGS) $< -o $@
 endif
 # -x cu in line above
 
