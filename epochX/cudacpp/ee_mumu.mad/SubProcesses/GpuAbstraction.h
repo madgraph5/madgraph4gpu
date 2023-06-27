@@ -59,8 +59,8 @@
   //--------------------------------------------------------------------------
 
   #define gpuError_t hipError_t
-  #define gpuPeekAtLastError hipPeekAtLastError
-  #define gpuGetErrorString hipGetErrorString
+  #define gpuPeekAtLastError checkGpu( hipPeekAtLastError )
+  #define gpuGetErrorString checkGpu( hipGetErrorString )
   #define gpuSuccess hipSuccess
 
   #define gpuMallocHost(ptr, size) checkGpu( hipHostMalloc(ptr, size) ) // HostMalloc better
@@ -75,8 +75,8 @@
   #define gpuFreeHost(ptr) checkGpu( hipHostFree(ptr) )
 
   #define gpuSetDevice hipSetDevice
-  #define gpuDeviceSynchronize hipDeviceSynchronize
-  #define gpuDeviceReset hipDeviceReset
+  #define gpuDeviceSynchronize checkGpu( hipDeviceSynchronize )
+  #define gpuDeviceReset checkGpu(hipDeviceReset)
 
   #define gpuLaunchKernel( kernel, blocks, threads, ...)                    kernel<<<blocks, threads>>> (__VA_ARGS__)
   #define gpuLaunchKernelSharedMem(kernel, blocks, threads, sharedMem, ...) kernel<<<blocks, threads, sharedMem>>>(__VA_ARGS__)
