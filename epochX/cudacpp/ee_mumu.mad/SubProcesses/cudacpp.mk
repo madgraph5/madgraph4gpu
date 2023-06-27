@@ -477,11 +477,11 @@ ifeq ($(UNAME_S),Darwin)
   override CULIBFLAGSRPATH2 =
 else
   # RPATH to cuda/cpp libs when linking executables
-  override CXXLIBFLAGSRPATH = -Wl,-rpath,$(LIBDIRRPATH)
-  override CULIBFLAGSRPATH = -Xlinker -rpath,$(LIBDIRRPATH)
+  override CXXLIBFLAGSRPATH = -Wl,-rpath=$(LIBDIRRPATH)
+  override CULIBFLAGSRPATH = -Xlinker -rpath=$(LIBDIRRPATH)
   # RPATH to common lib when linking cuda/cpp libs
-  override CXXLIBFLAGSRPATH2 = -Wl,-rpath,'$$ORIGIN'
-  override CULIBFLAGSRPATH2 = -Xlinker -rpath,'$$ORIGIN'
+  override CXXLIBFLAGSRPATH2 = -Wl,-rpath='$$ORIGIN'
+  override CULIBFLAGSRPATH2 = -Xlinker -rpath='$$ORIGIN'
 endif
 
 # Setting LD_LIBRARY_PATH or DYLD_LIBRARY_PATH in the RUNTIME is no longer necessary (neither on Linux nor on Mac)
