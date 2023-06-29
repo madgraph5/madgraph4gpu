@@ -89,10 +89,10 @@ endif
 
 #-------------------------------------------------------------------------------
 
-CUDA_COMPILER := $(shell which nvcc > /dev/null 2>&1; echo $$?)
-HIP_COMPILER := $(shell which hipcc > /dev/null 2>&1; echo $$?)
+CUDA_COMPILER_PATH := $(shell compiler="`which nvcc 2>/dev/null`" && while [ -L "$$compiler" ]; do compiler=`readlink "$$compiler"`; done && echo "$$compiler")
+HIP_COMPILER_PATH := $(shell compiler="`which hipcc 2>/dev/null`" && while [ -L "$$compiler" ]; do compiler=`readlink "$$compiler"`; done && echo "$$compiler")
 
-ifeq ($(CUDA_COMPILER),test)
+ifeq ($(findstring nvcc,$(CUDA_COMPILER_PATH)),nvcc)
   #=== Configure the CUDA compiler
 
   # If CXX is not a single word (example "clang++ --gcc-toolchain...") then disable CUDA builds (issue #505)
@@ -102,7 +102,7 @@ ifeq ($(CUDA_COMPILER),test)
     override CUDA_HOME=disabled
   endif
 
-  # If CUDA_HOME is not set, try to set it from the location of GPUCC
+  # If CUDA_HOME is not set, try to set it from the location of NVCC
   ifndef CUDA_HOME
     CUDA_HOME = $(patsubst %bin/nvcc,%,$(shell which nvcc 2>/dev/null))
     $(warning CUDA_HOME was not set: using "$(CUDA_HOME)")
@@ -112,7 +112,7 @@ ifeq ($(CUDA_COMPILER),test)
   ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
     GPUCC = $(CUDA_HOME)/bin/nvcc
     USE_NVTX ?=-DUSE_NVTX
-    # See https://docs.nvidia.com/cuda/cuda-compiler-driver-GPUCC/index.html
+    # See https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html
     # See https://arnon.dk/matching-sm-architectures-arch-and-gencode-for-various-nvidia-cards/
     # Default: use compute capability 70 for V100 (CERN lxbatch, CERN itscrd, Juwels Cluster).
     # Embed device code for 70, and PTX for 70+.
@@ -126,7 +126,7 @@ ifeq ($(CUDA_COMPILER),test)
     CUINC = -I$(CUDA_HOME)/include/
     CURANDLIBFLAGS = -L$(CUDA_HOME)/lib64/ -lcurand # NB: -lcuda is not needed here!
     CUOPTFLAGS = -lineinfo
-    GPUFLAGS = $(OPTFLAGS) $(CUOPTFLAGS) $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math -Xcompiler -fPIC
+    GPUFLAGS = $(OPTFLAGS) $(CUOPTFLAGS) $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math
     ###GPUFLAGS += -Xcompiler -Wall -Xcompiler -Wextra -Xcompiler -Wshadow
     ###GPUCC_VERSION = $(shell $(GPUCC) --version | grep 'Cuda compilation tools' | cut -d' ' -f5 | cut -d, -f1)
     GPUFLAGS += -std=c++17 # need CUDA >= 11.2 (see #333): this is enforced in mgOnGpuConfig.h
@@ -135,6 +135,12 @@ ifeq ($(CUDA_COMPILER),test)
     ###GPUFLAGS+= --maxrregcount 128 # improves throughput: 7.3E8 (16384 32 12) up to 7.6E8 (65536 128 12)
     ###GPUFLAGS+= --maxrregcount 96 # degrades throughput: 4.1E8 (16384 32 12) up to 4.5E8 (65536 128 12)
     ###GPUFLAGS+= --maxrregcount 64 # degrades throughput: 1.7E8 (16384 32 12) flat at 1.7E8 (65536 128 12)
+
+    CUBUILDRULEFLAGS = -Xcompiler -fPIC -c
+    CCBUILDRULEFLAGS = -Xcompiler -fPIC -c -x cu
+
+    CUDATESTFLAGS = -lcuda
+
   else ifneq ($(origin REQUIRE_CUDA),undefined)
     # If REQUIRE_CUDA is set but no cuda is found, stop here (e.g. for CI tests on GPU #443)
     $(error No cuda installation found (set CUDA_HOME or make GPUCC visible in PATH))
@@ -156,16 +162,21 @@ ifeq ($(CUDA_COMPILER),test)
   GPUFLAGS += -allow-unsupported-compiler
   endif
 
-else ifeq ($(HIP_COMPILER),0)
-    #=== Configure the HIP compiler
+else ifeq ($(findstring hipcc,$(HIP_COMPILER_PATH)),hipcc)
+  #=== Configure the HIP compiler
 
-    # If HIP_HOME is not set, try to set it from the location of GPUCC
-  ifndef HIP_HOME
-    HIP_HOME = $(patsubst %bin/hipcc,%,$(shell which hipcc 2>/dev/null))
-    #$(warning HIP_HOME was not set: using "$(HIP_HOME)")
+  # If CXX is not a single word (example "clang++ --gcc-toolchain...") then disable CUDA builds (issue #505)
+  # This is because it is impossible to pass this to "GPUFLAGS += -ccbin <host-compiler>" below
+  ifneq ($(words $(subst ccache ,,$(CXX))),1) # allow at most "CXX=ccache <host-compiler>" from outside
+    $(warning CUDA builds are not supported for multi-word CXX "$(CXX)")
+    override CUDA_HOME=disabled
   endif
 
+  # If HIP_HOME is not set, try to set it from the location of GPUCC
+  ifndef HIP_HOME
+    HIP_HOME = $(patsubst %bin/hipcc,%,$(HIP_COMPILER_PATH))
     $(warning HIP_HOME was not set: using "$(HIP_HOME)")
+  endif
 
   # Set GPUCC as $(HIP_HOME)/bin/hipcc if it exists
   ifneq ($(wildcard $(HIP_HOME)/bin/hipcc),)
@@ -187,6 +198,10 @@ else ifeq ($(HIP_COMPILER),0)
     ###GPUFLAGS+= --maxrregcount 128 # improves throughput: 7.3E8 (16384 32 12) up to 7.6E8 (65536 128 12)
     ###GPUFLAGS+= --maxrregcount 96 # degrades throughput: 4.1E8 (16384 32 12) up to 4.5E8 (65536 128 12)
     ###GPUFLAGS+= --maxrregcount 64 # degrades throughput: 1.7E8 (16384 32 12) flat at 1.7E8 (65536 128 12)
+
+    CUBUILDRULEFLAGS = -fPIC -c
+    CCBUILDRULEFLAGS = -fPIC -c
+
   else ifneq ($(origin REQUIRE_HIP),undefined)
     # If REQUIRE_HIP is set but no cuda is found, stop here (e.g. for CI tests on GPU #443)
     $(error No hip installation found (set HIP_HOME or make GPUCC visible in PATH))
@@ -197,6 +212,11 @@ else ifeq ($(HIP_COMPILER),0)
     override USE_NVTX=
     override CUINC=
     override CURANDLIBFLAGS=
+  endif
+
+  # Allow newer (unsupported) C++ compilers with older versions of CUDA if ALLOW_UNSUPPORTED_COMPILER_IN_CUDA is set (#504)
+  ifneq ($(origin ALLOW_UNSUPPORTED_COMPILER_IN_CUDA),undefined)
+  GPUFLAGS += -allow-unsupported-compiler
   endif
 
 endif
@@ -305,6 +325,7 @@ endif
 ifeq ($(RNDGEN),)
   ifeq ($(GPUCC),)
     override RNDGEN = hasNoCurand
+  # Edgecase for HIP compilation
   else ifeq ($(findstring hipcc,$(GPUCC)),hipcc)
     override RNDGEN = hasNoCurand
   else ifeq ($(RNDGEN),)
@@ -456,13 +477,11 @@ ifeq ($(UNAME_S),Darwin)
   override CULIBFLAGSRPATH2 =
 else
   # RPATH to cuda/cpp libs when linking executables
-  override CXXLIBFLAGSRPATH = -Wl,-rpath,$(LIBDIRRPATH)
-  override CULIBFLAGSRPATH = 
-  # -Xlinker -rpath,$(LIBDIRRPATH)
+  override CXXLIBFLAGSRPATH = -Wl,-rpath=$(LIBDIRRPATH)
+  override CULIBFLAGSRPATH = -Xlinker -rpath=$(LIBDIRRPATH)
   # RPATH to common lib when linking cuda/cpp libs
-  override CXXLIBFLAGSRPATH2 = -Wl,-rpath,'$$ORIGIN'
-  override CULIBFLAGSRPATH2 = 
-  #-Xlinker -rpath,'$$ORIGIN'
+  override CXXLIBFLAGSRPATH2 = -Wl,-rpath='$$ORIGIN'
+  override CULIBFLAGSRPATH2 = -Xlinker -rpath='$$ORIGIN'
 endif
 
 # Setting LD_LIBRARY_PATH or DYLD_LIBRARY_PATH in the RUNTIME is no longer necessary (neither on Linux nor on Mac)
@@ -509,11 +528,11 @@ $(BUILDDIR)/.build.$(TAG):
 ifneq ($(GPUCC),)
 $(BUILDDIR)/%.o : %.cu *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	$(GPUCC) $(CPPFLAGS) $(GPUFLAGS) -c $< -o $@
+	$(GPUCC) $(CPPFLAGS) $(GPUFLAGS) $(CUBUILDRULEFLAGS) $< -o $@
 
 $(BUILDDIR)/%_cu.o : %.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	$(GPUCC) $(CPPFLAGS) $(GPUFLAGS) -c $< -o $@
+	$(GPUCC) $(CPPFLAGS) $(GPUFLAGS) $(CCBUILDRULEFLAGS) $< -o $@
 endif
 # -x cu in line above
 
@@ -524,11 +543,14 @@ $(BUILDDIR)/%.o : %.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -fPIC -c $< -o $@
 
 # Apply special build flags only to CrossSectionKernel.cc and gCrossSectionKernel.cu (no fast math, see #117)
+# Added edgecase for HIP compilation
 ifeq ($(shell $(CXX) --version | grep ^nvc++),)
 $(BUILDDIR)/CrossSectionKernels.o: CXXFLAGS += -fno-fast-math
 $(BUILDDIR)/CrossSectionKernels.o: CXXFLAGS += -fno-fast-math
-ifneq ($(GPUCC),)
-$(BUILDDIR)/gCrossSectionKernels.o: GPUFLAGS += -fno-fast-math
+ifeq ($(findstring nvcc,$(GPUCC)),nvcc)
+  $(BUILDDIR)/gCrossSectionKernels.o: GPUFLAGS += -Xcompiler -fno-fast-math
+else
+  $(BUILDDIR)/gCrossSectionKernels.o: GPUFLAGS += -fno-fast-math
 endif
 endif
 
@@ -734,11 +756,7 @@ $(testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects_lib) $(cxx_object
 else # link both runTest.o and runTest_cu.o
 $(testmain): LIBFLAGS += $(CULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects_lib) $(cxx_objects_exe) $(cu_objects_lib) $(cu_objects_exe) $(GTESTLIBS)
-  ifeq ($(findstring hipcc,$(GPUCC)),hipcc)
-	  $(GPUCC) -o $@ $(cxx_objects_lib) $(cxx_objects_exe) $(cu_objects_lib) $(cu_objects_exe) -ldl $(LIBFLAGS)
-  else
-    $(GPUCC) -o $@ $(cxx_objects_lib) $(cxx_objects_exe) $(cu_objects_lib) $(cu_objects_exe) -ldl $(LIBFLAGS) -lcuda
-  endif
+	  $(GPUCC) -o $@ $(cxx_objects_lib) $(cxx_objects_exe) $(cu_objects_lib) $(cu_objects_exe) -ldl $(LIBFLAGS) $(CUDATESTFLAGS)
 endif
 
 # Use flock (Linux only, no Mac) to allow 'make -j' if googletest has not yet been downloaded https://stackoverflow.com/a/32666215
