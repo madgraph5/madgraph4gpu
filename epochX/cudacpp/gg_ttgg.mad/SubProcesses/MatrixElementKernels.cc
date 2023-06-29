@@ -6,7 +6,7 @@
 #include "MatrixElementKernels.h"
 
 #include "CPPProcess.h"
-#include "CudaRuntime.h"
+#include "GpuRuntime.h"
 #include "MemoryAccessMomenta.h"
 #include "MemoryBuffers.h"
 
@@ -14,7 +14,7 @@
 
 //============================================================================
 
-#ifndef __CUDACC__
+#ifndef MGONGPUCPP_GPUIMPL
 namespace mg5amcCpu
 {
 
@@ -143,7 +143,7 @@ namespace mg5amcCpu
 
 //============================================================================
 
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 {
 
