@@ -266,11 +266,11 @@ main( int argc, char** argv )
 #ifdef MGONGPUCPP_GPUIMPL
 
   // --- 00. Initialise cuda
-  // Instantiate a CudaRuntime at the beginnining of the application's main to
+  // Instantiate a GpuRuntime at the beginnining of the application's main to
   // invoke cudaSetDevice(0) in the constructor and book a cudaDeviceReset() call in the destructor
   const std::string cdinKey = "00 CudaInit";
   timermap.start( cdinKey );
-  CudaRuntime cudaRuntime( debug );
+  GpuRuntime GpuRuntime( debug );
 #endif
 
   // --- 0a. Initialise physics process
