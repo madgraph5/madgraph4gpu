@@ -746,6 +746,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         res = res.replace(' ;',';')
         res = res.replace('= - ','= -') # post-fix for susy
         res = res.replace('(  - ','( -') # post-fix for susy
+        res = res.replace(',  - ',', -') # post-fix for SM no_b_mass
         ###print(res); assert(False)
         return res
 
