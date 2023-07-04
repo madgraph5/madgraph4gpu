@@ -283,11 +283,11 @@ namespace mg5amcCpu
     constexpr int neppM = MemoryAccessMomenta::neppM;
     if constexpr( neppM == 1 && std::is_same_v<FORTRANFPTYPE, fptype> )
     {
-      gpuMemcpy( m_devMomentaC.data(), momenta, m_devMomentaC.bytes(), gpuMemcpyHostToDevice ) );
+      gpuMemcpy( m_devMomentaC.data(), momenta, m_devMomentaC.bytes(), gpuMemcpyHostToDevice );
     }
     else
     {
-      gpuMemcpy( m_devMomentaF.data(), momenta, m_devMomentaF.bytes(), gpuMemcpyHostToDevice ) );
+      gpuMemcpy( m_devMomentaF.data(), momenta, m_devMomentaF.bytes(), gpuMemcpyHostToDevice );
       const int thrPerEvt = CPPProcess::npar * CPPProcess::np4; // AV: transpose alg does 1 element per thread (NOT 1 event per thread)
       //const int thrPerEvt = 1; // AV: try new alg with 1 event per thread... this seems slower
       gpuLaunchKernel( dev_transposeMomentaF2C, m_gpublocks * thrPerEvt, m_gputhreads, m_devMomentaF.data(), m_devMomentaC.data(), m_nevt );

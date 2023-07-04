@@ -503,7 +503,7 @@ namespace mg5amcCpu
       throw std::runtime_error( sstr.str() );
     }
     // NB (PR #45): cudaMemcpy involves an intermediate memcpy to pinned memory if host array is a not a pinned host array
-    gpuMemcpy( dst.data(), src.data(), src.bytes(), gpuMemcpyHostToDevice ) );
+    gpuMemcpy( dst.data(), src.data(), src.bytes(), gpuMemcpyHostToDevice );
   }
 #endif
 
@@ -526,7 +526,7 @@ namespace mg5amcCpu
       throw std::runtime_error( sstr.str() );
     }
     // NB (PR #45): cudaMemcpy involves an intermediate memcpy to pinned memory if host array is a not a pinned host array
-    gpuMemcpy( dst.data(), src.data(), src.bytes(), gpuMemcpyDeviceToHost ) );
+    gpuMemcpy( dst.data(), src.data(), src.bytes(), gpuMemcpyDeviceToHost );
   }
 #endif
 
