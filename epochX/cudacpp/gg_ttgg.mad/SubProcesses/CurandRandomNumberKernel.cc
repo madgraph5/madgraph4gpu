@@ -36,7 +36,7 @@ namespace mg5amcCpu
   {
     if( m_isOnDevice )
     {
-#ifdef MGONGPUCPP_GPUIMPL
+#ifdef MGONGPUCPP_CUDACC
       if( !m_rnarray.isOnDevice() )
         throw std::runtime_error( "CurandRandomNumberKernel on device with a host random number array" );
 #else
