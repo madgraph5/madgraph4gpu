@@ -116,7 +116,7 @@ export MG4GPU_LIB=$WORKSPACE/mg4gpu/lib
 export MG4GPU_BIN=$WORKSPACE/mg4gpu/bin
 
 export MG_PROC_DIR=$prefix/../../epochX/sycl/$MG_PROC
-export MG_SP_DIR=$MG_PROC_DIR/SubProcesses/P1_Sigma_sm_*
+export MG_SP_DIR=$MG_PROC_DIR/SubProcesses/P1_*
 
 export MG_LIBS_DIR="${MG4GPU_LIB}/build_${MG_PROC}_${SYCL_NAME_PREFIX}"
 

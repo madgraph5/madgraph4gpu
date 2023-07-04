@@ -76,7 +76,7 @@ elif [[ "${gpuCompiler,,}" == "hip" ]]; then
 fi
 
 # Prefix for saving the JSON files in workspace folder in the tools/profiling directory
-prefix=$(dirname "$0")
+prefix="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 
 export USEBUILDDIR=1
 export NTPBMAX=1024
@@ -94,7 +94,7 @@ mkdir $WORKSPACE 2>/dev/null; true
 mkdir $REPORT_FOLDER 2>/dev/null; true
 
 export MG_PROC_DIR=$prefix/../../epochX/cudacpp/$MG_PROC
-export MG_SP_DIR=$MG_PROC_DIR/SubProcesses/P1_Sigma_sm_*
+export MG_SP_DIR=$MG_PROC_DIR/SubProcesses/P1_*
 export MG5AMC_CARD_PATH=$MG_PROC_DIR/Cards
 
 # Build executable
