@@ -22,7 +22,7 @@ inline void assertCurand( curandStatus_t code, const char *file, int line, bool 
 }
 #endif /* clang-format on */
 
-#ifdef MGONGPUCPP_GPUIMPL
+#ifdef MGONGPUCPP_CUDACC
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
