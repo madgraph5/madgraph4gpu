@@ -60,7 +60,9 @@ fi
 if [[ -z "${gpuCompiler}" ]] || [[ "${gpuCompiler,,}" == "cuda" ]]; then
     if [[ -z "$CUDA_HOME" ]]; then
         # Check if CUDA_HOME has not been set from the outside, usefull in CI/CD
-        export CUDA_HOME="`which nvcc 2>/dev/null`" && while [ -L "$compiler" ]; do compiler=`readlink "$compiler"`; done && echo "$$compiler"
+        COMPILER_PATH="`which nvcc 2>/dev/null`" && while [ -L "$compiler" ]; do compiler=`readlink "$compiler"`; done && echo "$$compiler"
+        export CUDA_HOME=$(dirname $(dirname $COMPILER_PATH))
+        echo CUDA_HOME
     fi
     # Sets CUDA in PATH
     export PATH=$CUDA_HOME:$PATH
