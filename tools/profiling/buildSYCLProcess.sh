@@ -108,20 +108,6 @@ export PATH=$CUDA_HOME:$PATH
 # Branch should be enviroment variable in main script and then passed down if none then it is not displayed in prefix
 REPORT_FOLDER="${WORKSPACE}/$(date +"%y-%m-%d")_${SYCL_NAME_PREFIX}_${branch}"
 
-# Finds correct subprocess
-case $MG_PROC in
-    ee_mumu ) export MG_SUBPROC="P1_Sigma_sm_epem_mupmum" ;;
-    ee_mumu.sa ) export MG_SUBPROC="P1_Sigma_sm_epem_mupmum" ;;
-    gg_tt ) export MG_SUBPROC="P1_Sigma_sm_gg_ttx" ;;
-    gg_tt.sa ) export MG_SUBPROC="P1_Sigma_sm_gg_ttx" ;;
-    gg_ttg ) export MG_SUBPROC="P1_Sigma_sm_gg_ttxg" ;;
-    gg_ttg.sa ) export MG_SUBPROC="P1_Sigma_sm_gg_ttxg" ;;
-    gg_ttgg ) export MG_SUBPROC="P1_Sigma_sm_gg_ttxgg" ;;
-    gg_ttgg.sa ) export MG_SUBPROC="P1_Sigma_sm_gg_ttxgg" ;;
-    gg_ttggg ) export MG_SUBPROC="P1_Sigma_sm_gg_ttxggg" ;;
-    gg_ttggg.sa ) export MG_SUBPROC="P1_Sigma_sm_gg_ttxggg" ;;
-esac
-
 mkdir -p $WORKSPACE/mg4gpu/lib 2>/dev/null; true
 mkdir -p $WORKSPACE/mg4gpu/bin 2>/dev/null; true
 mkdir $REPORT_FOLDER 2>/dev/null; true
@@ -130,7 +116,7 @@ export MG4GPU_LIB=$WORKSPACE/mg4gpu/lib
 export MG4GPU_BIN=$WORKSPACE/mg4gpu/bin
 
 export MG_PROC_DIR=$prefix/../../epochX/sycl/$MG_PROC
-export MG_SP_DIR=$MG_PROC_DIR/SubProcesses/$MG_SUBPROC
+export MG_SP_DIR=$MG_PROC_DIR/SubProcesses/P1_Sigma_sm_*
 
 export MG_LIBS_DIR="${MG4GPU_LIB}/build_${MG_PROC}_${SYCL_NAME_PREFIX}"
 
