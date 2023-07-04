@@ -208,7 +208,7 @@ namespace mg5amcGpu
 #else
     gpuLaunchKernel( sigmaKin_getGoodHel, m_gpublocks, m_gputhreads, m_momenta.data(), m_couplings.data(), m_matrixElements.data(), devIsGoodHel.data() );
 #endif
-    checkgpu( gpuPeekAtLastError() );
+    gpuPeekAtLastError();
     // ... 0d2. Copy back good helicity mask to the host
     copyHostFromDevice( hstIsGoodHel, devIsGoodHel );
     // ... 0d3. Copy back good helicity list to constant memory on the device
@@ -230,8 +230,8 @@ namespace mg5amcGpu
 #else
     gpuLaunchKernelSharedMem( sigmaKin, m_gpublocks, m_gputhreads, sharedMemSize, m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), m_selhel.data(), m_selcol.data() );
 #endif
-    checkGpu( gpuPeekAtLastError() );
-    checkGpu( gpuDeviceSynchronize() );
+    gpuPeekAtLastError();
+    gpuDeviceSynchronize();
   }
 
   //--------------------------------------------------------------------------
