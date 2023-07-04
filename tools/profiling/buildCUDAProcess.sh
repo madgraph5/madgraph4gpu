@@ -66,7 +66,7 @@ if [[ -z "${gpuCompiler}" ]] || [[ "${gpuCompiler,,}" == "cuda" ]]; then
     export PATH=$CUDA_HOME:$PATH
 
 # HIP
-else if [[ "${gpuCompiler,,}" == "hip" ]]
+elif [[ "${gpuCompiler,,}" == "hip" ]]
     if [[ -z "$HIP_HOME" ]]; then
         # Check if HIP_HOME has not been set from the outside, usefull in CI/CD
         export HIP_HOME="`which hipcc 2>/dev/null`" && while [ -L "$compiler" ]; do compiler=`readlink "$compiler"`; done && echo "$$compiler"
