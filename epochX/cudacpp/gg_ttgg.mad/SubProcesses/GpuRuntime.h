@@ -28,8 +28,8 @@ inline void assertGpu( gpuError_t code, const char* file, int line, bool abort =
 #ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 {
-  // Instantiate a CudaRuntime at the beginnining of the application's main to
-  // invoke cudaSetDevice(0) in the constructor and book a cudaDeviceReset() call in the destructor
+  // Instantiate a GpuRuntime at the beginnining of the application's main to
+  // invoke gpuSetDevice(0) in the constructor and book a gpuDeviceReset() call in the destructor
   // *** FIXME! This will all need to be designed differently when going to multi-GPU nodes! ***
   struct GpuRuntime final
   {

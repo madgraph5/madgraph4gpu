@@ -151,7 +151,7 @@ namespace mg5amcCpu
   void
   RamboSamplingKernelDevice::getMomentaInitial()
   {
-    getMomentaInitialDevice<<<m_gpublocks, m_gputhreads>>>( m_energy, m_momenta.data() );
+    gpuLaunchKernel( getMomentaInitialDevice, m_gpublocks, m_gputhreads, m_energy, m_momenta.data() );
   }
 #endif
 
@@ -175,7 +175,7 @@ namespace mg5amcCpu
   void
   RamboSamplingKernelDevice::getMomentaFinal()
   {
-    getMomentaFinalDevice<<<m_gpublocks, m_gputhreads>>>( m_energy, m_rndmom.data(), m_momenta.data(), m_weights.data() );
+    gpuLaunchKernel( getMomentaFinalDevice, m_gpublocks, m_gputhreads, m_energy, m_rndmom.data(), m_momenta.data(), m_weights.data() );
   }
 #endif
 

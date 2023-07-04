@@ -2628,7 +2628,7 @@ namespace mg5amcCpu
       { 1, 1, 1, -1, 1, -1 },
       { 1, 1, 1, -1, 1, 1 } };
 #ifdef MGONGPUCPP_GPUIMPL
-    checkCuda( cudaMemcpyToSymbol( cHel, tHel, ncomb * npar * sizeof( short ) ) );
+    gpuMemcpyToSymbol( cHel, tHel, ncomb * npar * sizeof( short ) );
 #else
     memcpy( cHel, tHel, ncomb * npar * sizeof( short ) );
 #endif
@@ -2671,7 +2671,7 @@ namespace mg5amcCpu
     const fptype tIPD[2] = { (fptype)m_pars->mdl_MT, (fptype)m_pars->mdl_WT };
     //const cxtype tIPC[0] = { ... }; // nicoup=0
 #ifdef MGONGPUCPP_GPUIMPL
-    checkCuda( cudaMemcpyToSymbol( cIPD, tIPD, 2 * sizeof( fptype ) ) );
+    gpuMemcpyToSymbol( cIPD, tIPD, 2 * sizeof( fptype ) );
     //checkCuda( cudaMemcpyToSymbol( cIPC, tIPC, 0 * sizeof( cxtype ) ) ); // nicoup=0
 #else
     memcpy( cIPD, tIPD, 2 * sizeof( fptype ) );
@@ -2931,8 +2931,8 @@ namespace mg5amcCpu
       }
     }
 #ifdef MGONGPUCPP_GPUIMPL
-    checkCuda( cudaMemcpyToSymbol( cNGoodHel, &nGoodHel, sizeof( int ) ) );
-    checkCuda( cudaMemcpyToSymbol( cGoodHel, goodHel, ncomb * sizeof( int ) ) );
+    gpuMemcpyToSymbol( cNGoodHel, &nGoodHel, sizeof( int ) );
+    gpuMemcpyToSymbol( cGgpuoodHel, goodHel, ncomb * sizeof( int ) );
 #else
     cNGoodHel = nGoodHel;
     for( int ihel = 0; ihel < ncomb; ihel++ ) cGoodHel[ihel] = goodHel[ihel];
