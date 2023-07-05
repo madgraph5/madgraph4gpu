@@ -24,7 +24,6 @@ helpFunction()
     echo -e "\t-t Threads per block"
     echo -e "\t-i Iterations"
     echo -e "\t-r Branch"
-    echo -e "\t-c CUDA or HIP compilation"
     echo -e "\t-m Makefile arguments"
     exit 1 # Exit script after printing help
 }
@@ -37,7 +36,6 @@ do
         t ) threadsPerBlock="$OPTARG" ;;
         i ) iterations="$OPTARG" ;;
         r ) branch="$OPTARG" ;;
-        a ) gpuCompiler="$OPTARG" ;;
         m ) makeArgs="$OPTARG" ;;
         ? ) helpFunction ;; # Print helpFunction in case parameter is non-existent
     esac
@@ -57,24 +55,25 @@ fi
 # Set variables for later use
 
 # CUDA
-if [[ -z "${gpuCompiler}" ]] || [[ "${gpuCompiler,,}" == "cuda" ]]; then
-    if [[ -z "$CUDA_HOME" ]]; then
-        # Check if CUDA_HOME has not been set from the outside, usefull in CI/CD
-        COMPILER_PATH="`which nvcc 2>/dev/null`" && while [ -L "$compiler" ]; do compiler=`readlink "$compiler"`; done && echo "$$compiler"
-        export CUDA_HOME=$(dirname $(dirname $COMPILER_PATH))
-        echo CUDA_HOME
+# Check if CUDA_HOME has not been set from the outside, usefull in CI/CD
+if [[ -z "$CUDA_HOME" ]]; then
+    export COMPILER_PATH="`which nvcc 2>/dev/null`" && while [ -L "$compiler" ]; do compiler=`readlink "$compiler"`; done && echo "$$compiler"
+
+    if [[ "$COMPILER_PATH" ]]; then
+    export CUDA_HOME=$(dirname $(dirname $COMPILER_PATH))
+    export PATH=$CUDA_HOME${PATH:+:${PATH}}
     fi
-    # Sets CUDA in PATH
-    export PATH=$CUDA_HOME:$PATH
+fi
 
 # HIP
-elif [[ "${gpuCompiler,,}" == "hip" ]]; then
-    if [[ -z "$HIP_HOME" ]]; then
-        # Check if HIP_HOME has not been set from the outside, usefull in CI/CD
-        export HIP_HOME="`which hipcc 2>/dev/null`" && while [ -L "$compiler" ]; do compiler=`readlink "$compiler"`; done && echo "$$compiler"
+# Check if HIP_HOME has not been set from the outside, usefull in CI/CD
+if [[ -z "$HIP_HOME" ]]; then
+    export COMPILER_PATH="`which hipcc 2>/dev/null`" && while [ -L "$compiler" ]; do compiler=`readlink "$compiler"`; done && echo "$$compiler"
+
+    if [[ "$COMPILER_PATH" ]]; then
+    export HIP_HOME=$(dirname $(dirname $COMPILER_PATH))
+    export PATH=$HIP_HOME${PATH:+:${PATH}}
     fi
-    # Sets HIP to PATH
-    export PATH=$HIP_HOME:$PATH
 fi
 
 # Prefix for saving the JSON files in workspace folder in the tools/profiling directory
