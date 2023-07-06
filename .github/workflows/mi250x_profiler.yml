@@ -1,0 +1,22 @@
+name: MI250X Performance Profiler
+
+on:
+  schedule:
+    - cron:  '00 00 * * *'
+
+jobs:
+  HIP_MI250X_Profiling:
+    name: HIP MI250X Profiling
+    env:
+      CUDA_NAME_PREFIX: sycl_AMD-Epyc-7A53_MI250X_gcc-11.3_cuda-12.0.1
+      ENABLE_CI_PROFILER: 1
+
+      MADGRAPH4GPU_DB_SECRET: ${{ secrets.MADGRAPH4GPU_DB_SECRET }}
+    runs-on: [self-hosted, linux, mi250x]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Runs SYCL performanceProfiler.py script
+      run: cd tools/profiling/;
+           python3 performanceProfiler.py -l 'HIP' -b 'master'
+    - name: Uploads HIP JSON files to DB
+      run: cd tools/profiling/; python3 sendData.py --absLayer HIP --profiler 1 --branch master

@@ -46,9 +46,9 @@ hardware = 'Nvidia A100'
 
 compare = True
 
-processToCompare = 'gg_tt'
+processToCompare = 'gg_ttgg.mad'
 
-graphsToCompare = ['test_A100_SYCL_' + processToCompare , 'test_A100_CUDA_' + processToCompare]
+graphsToCompare = ['test_' + processToCompare , 'test_A100_CUDA_' + processToCompare]
 
 stat = 'MECalcOnly'
 #stat = 'MatrixElems'

@@ -24,7 +24,7 @@ import argparse
 ABS_LAYER = "SYCL"
 BRANCH = "master"
 
-# Physics processes
+# Physics processes defaults
 MG_PROCESSES_SA = ["ee_mumu.sa", "gg_tt.sa", "gg_ttg.sa", "gg_ttgg.sa", "gg_ttggg.sa"]
 
 DOUBLE_PRECISION_CONSTANT = 2560
@@ -37,6 +37,7 @@ BLOCKS_PER_GRID = [16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384]
 parser = argparse.ArgumentParser(description='A program for profiling GPUs using MadGraph.')
 
 parser.add_argument("-l", help="Choose which abstraction layer you want to use (CUDA/SYCL).", default=ABS_LAYER)
+parser.add_argument("-p", help="Choose which processes you want to profile.", default=MG_PROCESSES_SA, nargs='+')
 parser.add_argument("-b", help="Choose which branch the madgraph4gpu repo is in.", default=BRANCH)
 
 pyArgs = parser.parse_args()
@@ -44,7 +45,7 @@ pyArgs = parser.parse_args()
 # How many runs in total the program made
 count = 0
 
-for process in MG_PROCESSES_SA:
+for process in args.p:
     for TPB in THREADS_PER_BLOCK:
         for BPG in BLOCKS_PER_GRID:
             if TPB * BPG > DOUBLE_PRECISION_CONSTANT:

@@ -31,7 +31,7 @@ URL = 'https://dbod-madgraph4gpu-db.cern.ch:8082/api/v2/write?bucket=ProfilerDat
 secret = os.environ.get('MADGRAPH4GPU_DB_SECRET')
 AUTH = ['db_user', secret]
 PHYS_PROCESSES = ['ee_mumu', 'gg_ttggg', 'gg_ttgg', 'gg_ttg', 'gg_tt']
-ABS_LAYERS = ['SYCL', 'CUDA']
+ABS_LAYERS = ['SYCL', 'CUDA', 'HIP']
 BRANCH = 'master'
 FIELDS = ['EvtsPerSec[MatrixElems] (3)', 'EvtsPerSec[MECalcOnly] (3)']
 
