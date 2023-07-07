@@ -124,8 +124,7 @@ def print_cpu_info():
     print(f' Memory usage {cpu_info["CPUusage"]} % \n Total disk space: {cpu_info["totspace"]} GB \n Used disk space: {cpu_info["usedspace"]} GB \n ')
     print(f' Free disk space:  {cpu_info["freespace"]} GB \n Disk utilisation: {cpu_info["diskutil"]} GB  \n Network Information: ')
     print(f' Bytes Sent: {cpu_info["bytessent"]} \n Bytes received: {cpu_info["bytesreceived"]}')
-    print(f' Vectoring level: {cpu_info.get("maxavxstring", "")} {cpu_info.get("maxssestring", "")} 
-{cpu_info.get("sseavxnotfound", "")}')
+    print(f' Vectoring level: {cpu_info.get("maxavxstring", "")} {cpu_info.get("maxssestring", "")} {cpu_info.get("sseavxnotfound", "")}')
 
 
 print_cpu_info()
