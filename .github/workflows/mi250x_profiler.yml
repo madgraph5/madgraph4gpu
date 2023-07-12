@@ -5,12 +5,34 @@ on:
     - cron:  '00 00 * * *'
 
 jobs:
+  Container Setup:
+  runs-on: [self-hosted, linux]
+  steps:
+  - name: Generate runner token
+    id: generate_token
+    run: |
+      TOKEN=$(curl -XPOST -fsSL -H "Authorization: token ${{ secrets.PAT }}" -H "Accept: application/vnd.github.v3+json" "https://api.github.com/repos/${{ github.repository }}/actions/runners/registration-token" | jq -r '.token')
+      echo "::set-output name=token::$TOKEN"
+  - name: SSH and run Docker container
+    run: |
+      echo "${{ secrets.SSH_KEY }}" > id_rsa
+      chmod 600 id_rsa
+      ssh -o StrictHostKeyChecking=no -i id_rsa ${{ secrets.MI250X_PROFILING_HOST }} "\
+        singularity pull ghcr.io/${{ github.repository_owner }}/github_runner:latest && \
+        singularity run -d --name my_container --rm \
+        -e GITHUB_TOKEN=${{ steps.generate_token.outputs.token }} \
+        -e REPO_URL=https://github.com/${{ github.repository }} \
+        -e RUNNER_NAME=github_runner \
+        -e GITHUB_RUNNER_TAGS='Linux,x64,mi250x' \
+        -e RUNNER_URL=https://github.com/actions/runner/releases/download/v2.303.0/actions-runner-linux-x64-2.303.0.tar.gz \
+        ghcr.io/${{ github.repository_owner }}/github_runner:latest"
+
   HIP_MI250X_Profiling:
+    needs: setup
     name: HIP MI250X Profiling
     env:
       CUDA_NAME_PREFIX: sycl_AMD-Epyc-7A53_MI250X_gcc-11.3_cuda-12.0.1
       ENABLE_CI_PROFILER: 1
-
       MADGRAPH4GPU_DB_SECRET: ${{ secrets.MADGRAPH4GPU_DB_SECRET }}
     runs-on: [self-hosted, linux, mi250x]
     steps:
