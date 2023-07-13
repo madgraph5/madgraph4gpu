@@ -12,7 +12,7 @@
 #include "MemoryAccessHelpers.h"
 #include "MemoryAccessVectors.h"
 
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 using mg5amcGpu::CPPProcess;
 #else
 using mg5amcCpu::CPPProcess;
@@ -29,7 +29,7 @@ public:
 
   // Number of Events Per Page in the momenta AOSOA memory buffer layout
   // (these are all best kept as a compile-time constants: see issue #23)
-#ifdef __CUDACC__ /* clang-format off */
+#ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
   // -----------------------------------------------------------------------------------------------
   // --- GPUs: neppM is best set to a power of 2 times the number of fptype's in a 32-byte cacheline
   // --- This is relevant to ensure coalesced access to momenta in global memory

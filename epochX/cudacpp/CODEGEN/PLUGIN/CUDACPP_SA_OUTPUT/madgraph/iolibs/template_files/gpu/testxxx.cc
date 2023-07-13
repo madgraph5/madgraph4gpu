@@ -20,7 +20,7 @@
 #include <iomanip>
 #include <iostream>
 #include <vector>
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 #define TESTID( s ) s##_GPU_XXX
 #else
 #define TESTID( s ) s##_CPU_XXX
@@ -41,7 +41,7 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
   assert( nevt %% neppM == 0 ); // nevt must be a multiple of neppM
   assert( nevt %% neppV == 0 ); // nevt must be a multiple of neppV
   // Fill in the input momenta
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
   mg5amcGpu::PinnedHostBufferMomenta hstMomenta( nevt ); // AOSOA[npagM][npar=4][np4=4][neppM]
 #else
   mg5amcCpu::HostBufferMomenta hstMomenta( nevt ); // AOSOA[npagM][npar=4][np4=4][neppM]
@@ -228,7 +228,7 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
   {
     for( int ievt = 0; ievt < nevt; ievt++ )
     {
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
       using namespace mg5amcGpu;
 #else
       using namespace mg5amcCpu;

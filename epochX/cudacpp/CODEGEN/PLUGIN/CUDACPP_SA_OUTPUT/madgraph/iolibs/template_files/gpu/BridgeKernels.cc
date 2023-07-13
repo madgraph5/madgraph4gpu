@@ -5,6 +5,7 @@
 
 #include "BridgeKernels.h"
 
+#include "GpuAbstraction.h"
 #include "MemoryAccessMomenta.h"
 
 #include <sstream>
@@ -14,7 +15,7 @@ constexpr int npar = CPPProcess::npar; // #particles in total (external = initia
 
 //============================================================================
 
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
@@ -45,7 +46,7 @@ namespace mg5amcCpu
 
 //============================================================================
 
-#ifndef __CUDACC__
+#ifndef MGONGPUCPP_GPUIMPL
 namespace mg5amcCpu
 {
 
@@ -96,7 +97,7 @@ namespace mg5amcCpu
 
 //============================================================================
 
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 {
 
