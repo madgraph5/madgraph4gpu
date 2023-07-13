@@ -2053,8 +2053,8 @@ class MadEventCmd(CompleteForCmd, CmdExtended, HelpToCmd, common_run.CommonRunCm
     _save_opts = ['options']
     _initMadLoop_opts = ['-f','-r','--nPS=']
     # survey options, dict from name to type, default value, and help text
-    _survey_options = {'points':('int', 8192,'Number of points for first iteration'),
-                       'iterations':('int', 1, 'Number of iterations'),
+    _survey_options = {'points':('int', 1000,'Number of points for first iteration'),
+                       'iterations':('int', 5, 'Number of iterations'),
                        'accuracy':('float', 0.1, 'Required accuracy'),
                        'gridpack':('str', '.false.', 'Gridpack generation')}
     # Variables to store object information
