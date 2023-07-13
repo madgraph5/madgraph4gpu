@@ -926,7 +926,7 @@ For offline investigation, the problematic discarded events are stored in:
     def write_parameter_file(self, path, options):
         """ """
         
-        template ="""         8192 1 1      !Number of events and max and min iterations
+        template ="""         %(event)s         %(maxiter)s           %(miniter)s      !Number of events and max and min iterations
   %(accuracy)s    !Accuracy
   %(gridmode)s       !Grid Adjustment 0=none, 2=adjust
   1       !Suppress Amplitude 1=yes

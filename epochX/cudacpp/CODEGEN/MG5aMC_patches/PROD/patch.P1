@@ -157,11 +157,11 @@ index a5c686eb1..20d101dcf 100644
        END
  
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
-index 3a7d7e2c9..ebbf8876a 100644
+index a04c93011..2825f59d0 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
 @@ -74,13 +74,77 @@ c      common/to_colstats/ncols,ncolflow,ncolalt,ic
-       include 'vector.inc' ! defines VECSIZE_MEMMAX
+ 
        include 'coupl.inc' ! needs VECSIZE_MEMMAX (defined in vector.inc)
        INTEGER VECSIZE_USED
 -      DATA VECSIZE_USED/VECSIZE_MEMMAX/ ! can be changed at runtime
@@ -284,7 +284,7 @@ index 3a7d7e2c9..ebbf8876a 100644
        open(unit=lun,file=tempname,status='old',ERR=20)
        fopened=.true.
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
-index beef47998..905badeff 100644
+index b6b52f2df..582e2b564 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
 @@ -72,7 +72,10 @@ C
