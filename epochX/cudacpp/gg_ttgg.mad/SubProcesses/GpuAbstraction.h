@@ -3,14 +3,7 @@
 
 #include <cassert>
 
-/*
-  ToDo:
-      * Fix rpath in makefile when compiling with HIP
-      * Fix warnings with improper hip function return code handling
-*/
-
-
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
   #define MGONGPUCPP_CUDACC 1
 #endif
 
@@ -22,7 +15,7 @@
 #ifdef MGONGPUCPP_CUDACC
 
   // Defines correct compiler
-  #define MGONGPUCPP_GPUIMPL __CUDACC__
+  #define MGONGPUCPP_GPUIMPL MGONGPUCPP_GPUIMPL
 
   //--------------------------------------------------------------------------
 
