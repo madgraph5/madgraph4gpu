@@ -4,12 +4,13 @@
 // Further modified by: A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
 
 #include "CommonRandomNumbers.h"
+#include "GpuAbstraction.h"
 #include "MemoryBuffers.h"
 #include "RandomNumberKernels.h"
 
 #include <cassert>
 
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu

@@ -9,6 +9,8 @@
 #include "mgOnGpuCxtypes.h"
 #include "mgOnGpuFptypes.h"
 
+#include "GpuAbstraction.h"
+
 #include <iostream>
 
 //==========================================================================
@@ -131,7 +133,7 @@ namespace mg5amcCpu
 #endif
 #endif
 
-#else // i.e #ifndef MGONGPU_CPPSIMD (this includes #ifdef __CUDACC__)
+#else // i.e #ifndef MGONGPU_CPPSIMD (this includes #ifdef MGONGPUCPP_GPUIMPL)
 
   const int neppV = 1;
 
@@ -153,13 +155,13 @@ namespace mg5amcCpu
 //==========================================================================
 
 // NB: namespaces mg5amcGpu and mg5amcCpu includes types which are defined in different ways for CPU and GPU builds (see #318 and #725)
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
 #endif
 {
-#ifndef __CUDACC__
+#ifndef MGONGPUCPP_GPUIMPL
 
   // Printout to stream for user defined types
 
@@ -805,11 +807,11 @@ namespace mg5amcCpu
 
 #endif // #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
 
-#endif // #ifndef __CUDACC__
+#endif // #ifndef MGONGPUCPP_GPUIMPL
 
   //==========================================================================
 
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 
   //------------------------------
   // Vector types - CUDA
@@ -853,12 +855,12 @@ namespace mg5amcCpu
     return mask;
   }
 
-#endif // #ifdef __CUDACC__
+#endif // #ifdef MGONGPUCPP_GPUIMPL
 
   //==========================================================================
 
   // Scalar-or-vector types: scalar in CUDA, vector or scalar in C++
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
   typedef bool bool_sv;
   typedef fptype fptype_sv;
   typedef fptype2 fptype2_sv;
@@ -879,7 +881,7 @@ namespace mg5amcCpu
 #endif
 
   // Scalar-or-vector zeros: scalar in CUDA, vector or scalar in C++
-#ifdef __CUDACC__ /* clang-format off */
+#ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
   inline __host__ __device__ cxtype cxzero_sv(){ return cxtype( 0, 0 ); }
 #elif defined MGONGPU_CPPSIMD
   inline cxtype_v cxzero_sv() { return cxtype_v(); } // RRRR=0000 IIII=0000

@@ -14,7 +14,7 @@
 
 #include "mgOnGpuConfig.h"
 
-#include "CudaRuntime.h"
+#include "GpuRuntime.h"
 %(hel_amps_h)s
 #include "MemoryAccessAmplitudes.h"
 #include "MemoryAccessCouplings.h"

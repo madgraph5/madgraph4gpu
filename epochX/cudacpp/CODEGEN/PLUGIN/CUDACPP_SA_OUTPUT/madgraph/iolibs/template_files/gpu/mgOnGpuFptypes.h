@@ -20,7 +20,7 @@ namespace mg5amcCpu
 {
   //==========================================================================
 
-#ifdef __CUDACC__ // cuda
+#ifdef MGONGPUCPP_GPUIMPL // cuda
 
   //------------------------------
   // Floating point types - Cuda
@@ -64,11 +64,11 @@ namespace mg5amcCpu
 #endif
   }
 
-#endif // #ifdef __CUDACC__
+#endif // #ifdef MGONGPUCPP_GPUIMPL
 
   //==========================================================================
 
-#ifndef __CUDACC__
+#ifndef MGONGPUCPP_GPUIMPL
 
   //------------------------------
   // Floating point types - C++
@@ -92,7 +92,7 @@ namespace mg5amcCpu
     return std::sqrt( f );
   }
 
-#endif // #ifndef __CUDACC__
+#endif // #ifndef MGONGPUCPP_GPUIMPL
 
   //==========================================================================
 

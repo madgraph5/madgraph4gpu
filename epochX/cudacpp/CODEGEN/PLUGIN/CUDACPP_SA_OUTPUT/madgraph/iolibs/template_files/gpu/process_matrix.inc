@@ -7,6 +7,8 @@
 ! Further modified by: A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
 !==========================================================================
 
+#include "GpuAbstraction.h"
+
       // *** COLOR CHOICE BELOW ***
       // Store the leading color flows for choice of color
       if( jamp2_sv ) // disable color choice if nullptr
@@ -17,7 +19,7 @@
       // (This method used to be called %(process_class_name)s::matrix_%(proc_name)s(%(matrix_args)s)?)
 %(color_matrix_lines)s
 
-#ifndef __CUDACC__
+#ifndef MGONGPUCPP_GPUIMPL
       // Pre-compute a constexpr triangular color matrix properly normalized #475
       struct TriangularNormalizedColorMatrix
       {
@@ -74,7 +76,7 @@
 #endif
       for( int icol = 0; icol < ncolor; icol++ )
       {
-#ifndef __CUDACC__
+#ifndef MGONGPUCPP_GPUIMPL
         // === C++ START ===
         // Diagonal terms
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
@@ -133,7 +135,7 @@
       MEs_sv_previous += deltaMEs_previous;
 #endif
       /*
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
       if ( cNGoodHel > 0 ) printf( "calculate_wavefunctions: ievt=%%6d ihel=%%2d me_running=%%f\n", blockDim.x * blockIdx.x + threadIdx.x, ihel, MEs_sv );
 #else
 #ifdef MGONGPU_CPPSIMD

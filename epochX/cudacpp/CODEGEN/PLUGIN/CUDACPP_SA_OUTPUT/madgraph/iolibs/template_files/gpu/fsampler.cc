@@ -13,7 +13,7 @@
 
 //--------------------------------------------------------------------------
 
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
@@ -40,7 +40,7 @@ namespace mg5amcCpu
   private:
     const int m_nevt; // The number of events in each iteration
     int m_iiter;      // The iteration counter (for random number seeding)
-#ifndef __CUDACC__
+#ifndef MGONGPUCPP_GPUIMPL
     HostBufferRndNumMomenta m_hstRndmom; // Memory buffers for random numbers
     HostBufferMomenta m_hstMomenta;      // Memory buffers for momenta
     HostBufferWeights m_hstWeights;      // Memory buffers for sampling weights
@@ -105,7 +105,7 @@ namespace mg5amcCpu
 
 extern "C"
 {
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
   using namespace mg5amcGpu;
 #else
   using namespace mg5amcCpu;

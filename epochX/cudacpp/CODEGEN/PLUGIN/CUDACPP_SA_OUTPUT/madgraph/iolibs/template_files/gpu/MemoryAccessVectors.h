@@ -10,7 +10,7 @@
 
 #include "mgOnGpuVectors.h"
 
-#ifndef __CUDACC__
+#ifndef MGONGPUCPP_GPUIMPL
 namespace mg5amcCpu // this is only needed for CPU SIMD vectorization
 {
 

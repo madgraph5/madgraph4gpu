@@ -19,7 +19,7 @@
 #include <complex>
 
 // Complex type in cuda: thrust or cucomplex or cxsmpl
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 #if defined MGONGPU_CUCXTYPE_THRUST
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wtautological-compare" // for icpx2021/clang13 (https://stackoverflow.com/a/15864661)
@@ -216,7 +216,7 @@ namespace mg5amcCpu
 #endif
 {
   // --- Type definitions (complex type: cxtype)
-#ifdef __CUDACC__ // cuda
+#ifdef MGONGPUCPP_GPUIMPL // cuda
 #if defined MGONGPU_CUCXTYPE_THRUST
   typedef thrust::complex<fptype> cxtype;
 #elif defined MGONGPU_CUCXTYPE_CUCOMPLEX
@@ -301,7 +301,7 @@ namespace mg5amcCpu
 
   //==========================================================================
 
-#if defined __CUDACC__ and defined MGONGPU_CUCXTYPE_THRUST // cuda + thrust
+#if defined MGONGPUCPP_GPUIMPL and defined MGONGPU_CUCXTYPE_THRUST // cuda + thrust
 
   //------------------------------
   // CUDA - using thrust::complex
@@ -337,11 +337,11 @@ namespace mg5amcCpu
     return c;
   }
 
-#endif // #if defined __CUDACC__ and defined MGONGPU_CUCXTYPE_THRUST
+#endif // #if defined MGONGPUCPP_GPUIMPL and defined MGONGPU_CUCXTYPE_THRUST
 
   //==========================================================================
 
-#if defined __CUDACC__ and defined MGONGPU_CUCXTYPE_CUCOMPLEX // cuda + cucomplex
+#if defined MGONGPUCPP_GPUIMPL and defined MGONGPU_CUCXTYPE_CUCOMPLEX // cuda + cucomplex
 
   //------------------------------
   // CUDA - using cuComplex
@@ -556,11 +556,11 @@ namespace mg5amcCpu
     return cxmake( c.real(), c.imag() );
   }
 
-#endif // #if defined __CUDACC__ and defined MGONGPU_CUCXTYPE_CUCOMPLEX
+#endif // #if defined MGONGPUCPP_GPUIMPL and defined MGONGPU_CUCXTYPE_CUCOMPLEX
 
   //==========================================================================
 
-#if not defined __CUDACC__ and defined MGONGPU_CPPCXTYPE_STDCOMPLEX // c++ + stdcomplex
+#if not defined MGONGPUCPP_GPUIMPL and defined MGONGPU_CPPCXTYPE_STDCOMPLEX // c++ + stdcomplex
 
   //------------------------------
   // C++ - using std::complex
@@ -604,7 +604,7 @@ namespace mg5amcCpu
   }
 #endif
 
-#endif // #if not defined __CUDACC__ and defined MGONGPU_CPPCXTYPE_STDCOMPLEX
+#endif // #if not defined MGONGPUCPP_GPUIMPL and defined MGONGPU_CPPCXTYPE_STDCOMPLEX
 
   //==========================================================================
 
