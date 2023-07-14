@@ -274,9 +274,12 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
 #else
       using namespace mg5amcCpu;
 #endif
-      if( false )
+      //const bool debug = false;
+      const bool debug = true;
+      if( debug )
       {
         std::cout << std::endl;
+        std::cout << "nsp=" << nsp << " ievt=" << ievt << ": ";
         for( int ip4 = 0; ip4 < np4; ip4++ ) std::cout << par0[ievt * np4 + ip4] << ", ";
         std::cout << std::endl;
       }
