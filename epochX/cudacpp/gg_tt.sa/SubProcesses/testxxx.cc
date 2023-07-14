@@ -39,11 +39,12 @@ namespace mg5amcCpu
 #endif
 {
   std::string FPEhandlerMessage = "unknown";
+  int FPEhandlerIevt = -1;
   inline void FPEhandler( int sig ) {
 #ifdef __CUDACC__
-    std::cerr << "Floating Point Exception (GPU): '" << FPEhandlerMessage << "'" << std::endl;
+    std::cerr << "Floating Point Exception (GPU): '" << FPEhandlerMessage << "' ievt=" << FPEhandlerIevt << std::endl;
 #else
-    std::cerr << "Floating Point Exception (CPU neppV=" << neppV << "): '" << FPEhandlerMessage << "'" << std::endl;
+    std::cerr << "Floating Point Exception (CPU neppV=" << neppV << "): '" << FPEhandlerMessage << "' ievt=" << FPEhandlerIevt << std::endl;
 #endif
     exit( 0 );
   }
@@ -54,9 +55,11 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
 #ifdef __CUDACC__
   auto FPEhandler = mg5amcGpu::FPEhandler;
   std::string& FPEhandlerMessage = mg5amcGpu::FPEhandlerMessage;
+  int& FPEhandlerIevt = mg5amcGpu::FPEhandlerIevt;
 #else
   auto FPEhandler = mg5amcCpu::FPEhandler;
   std::string& FPEhandlerMessage = mg5amcCpu::FPEhandlerMessage;
+  int& FPEhandlerIevt = mg5amcCpu::FPEhandlerIevt;
 #endif
   const bool enableFPE = !getenv( "CUDACPP_RUNTIME_DISABLEFPE" );
   if ( enableFPE )
@@ -141,6 +144,7 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
              << "  // Created by: A. Valassi (Apr 2021) for the MG5aMC CUDACPP plugin." << std::endl
              << "  // Further modified by: A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin." << std::endl;
   }
+  // Lambda function for dumping wavefunctions
   auto dumpwf6 = [&]( std::ostream& out, const cxtype_sv wf[6], const char* xxx, int ievt, int nsp, fptype mass )
   {
     out << std::setprecision( 15 ) << std::scientific;
@@ -170,6 +174,7 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
     }
     out << std::defaultfloat;
   };
+  // Lambda function for testing wavefunctions (1)
   auto testwf6 = [&]( const cxtype_sv wf[6], const char* xxx, int ievt, int nsp, fptype mass )
   {
     if( dumpEvents ) dumpwf6( dumpFile, wf, xxx, ievt, nsp, mass );
@@ -211,6 +216,7 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
     }
     itest++;
   };
+  // Lambda function for testing wavefunctions (2)
   auto testwf6two = [&]( const cxtype_sv wf[6], const cxtype_sv expwf[6], const char* xxx, int ievt )
   {
     if( testEvents )
@@ -254,6 +260,21 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
       }
     }
   };
+  // Lambda function for resetting hstMomenta to the values of par0
+  // This is needed in each test because hstMomenta may have been modified to ensure a function like ipzxxx can be used (#701)
+  //auto resetHstMomentaToPar0 = [&]()
+  //{
+  //  for( int ievt = 0; ievt < nevt; ievt++ )
+  //    for( int ip4 = 0; ip4 < np4; ip4++ )
+  //      MemoryAccessMomenta::ieventAccessIp4Ipar( hstMomenta.data(), ievt, ip4, ipar0 ) = par0[ievt * np4 + ip4]; // AOS to AOSOA
+  //};
+  // Lambda function for preparing the test of one specific function
+  auto prepareTest = [&]( const char* xxx, int ievt )
+  {
+    //resetHstMomentaToPar0();
+    FPEhandlerMessage = xxx;
+    FPEhandlerIevt = ievt;
+  };
   // Array initialization: zero-out as "{0}" (C and C++) or as "{}" (C++ only)
   // See https://en.cppreference.com/w/c/language/array_initialization#Notes
   cxtype_sv outwfI[6] = {}; // last result of ixxxxx (mass==0)
@@ -265,6 +286,7 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
   fptype* fp_outwf = reinterpret_cast<fptype*>( outwf );   // proof of concept for using fptype* in the interface
   fptype* fp_outwf3 = reinterpret_cast<fptype*>( outwf3 ); // proof of concept for using fptype* in the interface
   const int nhel = 1;
+  // *** START OF TESTING LOOP 
   for( auto nsp: { -1, +1 } ) // antifermion/fermion (or initial/final for scalar and vector)
   {
     for( int ievt = 0; ievt < nevt; ievt++ )
@@ -287,8 +309,8 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
       const fptype* ievt0Momenta = MemoryAccessMomenta::ieventAccessRecordConst( hstMomenta.data(), ipagV * neppV );
       // Test ixxxxx - NO ASSUMPTIONS
       {
+        prepareTest( "ixxxxx", ievt );
         const fptype fmass = mass0[ievt];
-        FPEhandlerMessage = "ixxxxx";
         ixxxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, fmass, nhel, nsp, fp_outwfI, ipar0 );
         testwf6( outwfI, "ixxxxx", ievt, nsp, fmass );
         ixxxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, -fmass, nhel, nsp, fp_outwfI, ipar0 );
@@ -297,7 +319,7 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
       // Test ipzxxx - ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
       if( mass0[ievt] == 0 && !isptgt0[ievt] && ispzgt0[ievt] )
       {
-        FPEhandlerMessage = "ipzxxx";
+        prepareTest( "ipzxxx", ievt );
         ipzxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, nhel, nsp, fp_outwf, ipar0 );
         testwf6two( outwf, outwfI, "ipzxxx", ievt );
         testwf6( outwf, "ipzxxx", ievt, nsp, 0 );
@@ -305,7 +327,7 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
       // Test imzxxx - ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
       if( mass0[ievt] == 0 && !isptgt0[ievt] && ispzlt0[ievt] )
       {
-        FPEhandlerMessage = "imzxxx";
+        prepareTest( "imzxxx", ievt );
         imzxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, nhel, nsp, fp_outwf, ipar0 );
         testwf6two( outwf, outwfI, "imzxxx", ievt );
         testwf6( outwf, "imzxxx", ievt, nsp, 0 );
@@ -313,14 +335,14 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
       // Test ixzxxx - ASSUMPTIONS: (FMASS == 0) and (PT > 0)
       if( mass0[ievt] == 0 && isptgt0[ievt] )
       {
-        FPEhandlerMessage = "ixzxxx";
+        prepareTest( "ixzxxx", ievt );
         ixzxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, nhel, nsp, fp_outwf, ipar0 );
         testwf6two( outwf, outwfI, "ixzxxx", ievt );
         testwf6( outwf, "ixzxxx", ievt, nsp, 0 );
       }
       // Test vxxxxx - NO ASSUMPTIONS
       {
-        FPEhandlerMessage = "vxxxxx";
+        prepareTest( "vxxxxx", ievt );
         const fptype vmass = mass0[ievt];
         vxxxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, vmass, nhel, nsp, fp_outwf, ipar0 );
         testwf6( outwf, "vxxxxx", ievt, nsp, vmass );
@@ -329,7 +351,7 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
       }
       // Test sxxxxx - NO ASSUMPTIONS
       {
-        FPEhandlerMessage = "sxxxxx";
+        prepareTest( "sxxxxx", ievt );
         const fptype smass = mass0[ievt];
         sxxxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, nsp, fp_outwf3, ipar0 ); // no mass, no helicity (was "smass>0")
         testwf6( outwf3, "sxxxxx", ievt, nsp, smass );
@@ -338,7 +360,7 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
       }
       // Test oxxxxx - NO ASSUMPTIONS
       {
-        FPEhandlerMessage = "oxxxxx";
+        prepareTest( "oxxxxx", ievt );
         const fptype fmass = mass0[ievt];
         oxxxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, fmass, nhel, nsp, fp_outwfO, ipar0 );
         testwf6( outwfO, "oxxxxx", ievt, nsp, fmass );
@@ -348,7 +370,7 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
       // Test opzxxx - ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
       if( mass0[ievt] == 0 && !isptgt0[ievt] && ispzgt0[ievt] )
       {
-        FPEhandlerMessage = "opzxxx";
+        prepareTest( "opzxxx", ievt );
         opzxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, nhel, nsp, fp_outwf, ipar0 );
         testwf6two( outwf, outwfO, "opzxxx", ievt );
         testwf6( outwf, "opzxxx", ievt, nsp, 0 );
@@ -356,7 +378,7 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
       // Test omzxxx - ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
       if( mass0[ievt] == 0 && !isptgt0[ievt] && ispzlt0[ievt] )
       {
-        FPEhandlerMessage = "omzxxx";
+        prepareTest( "omzxxx", ievt );
         omzxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, nhel, nsp, fp_outwf, ipar0 );
         testwf6two( outwf, outwfO, "omzxxx", ievt );
         testwf6( outwf, "omzxxx", ievt, nsp, 0 );
@@ -364,13 +386,14 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
       // Test oxzxxx - ASSUMPTIONS: (FMASS == 0) and (PT > 0)
       if( mass0[ievt] == 0 && isptgt0[ievt] )
       {
-        FPEhandlerMessage = "oxzxxx";
+        prepareTest( "oxzxxx", ievt );
         oxzxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, nhel, nsp, fp_outwf, ipar0 );
         testwf6two( outwf, outwfO, "oxzxxx", ievt );
         testwf6( outwf, "oxzxxx", ievt, nsp, 0 );
       }
     }
   }
+  // *** END OF TESTING LOOP 
   if( dumpEvents )
   {
     dumpFile.close();
