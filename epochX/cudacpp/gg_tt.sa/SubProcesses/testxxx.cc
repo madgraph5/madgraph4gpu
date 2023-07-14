@@ -102,7 +102,14 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
   constexpr int nw6 = CPPProcess::nw6; // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
   int itest = 0;                       // index on the expected output vector
   std::ofstream dumpFile;
-  if( dumpEvents ) dumpFile.open( dumpFileName, std::ios::trunc );
+  if( dumpEvents )
+  {
+    dumpFile.open( dumpFileName, std::ios::trunc );
+    dumpFile << "  // Copyright (C) 2020-2023 CERN and UCLouvain." << std::endl
+             << "  // Licensed under the GNU Lesser General Public License (version 3 or later)." << std::endl
+             << "  // Created by: A. Valassi (Apr 2021) for the MG5aMC CUDACPP plugin." << std::endl
+             << "  // Further modified by: A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin." << std::endl;
+  }
   auto dumpwf6 = [&]( std::ostream& out, const cxtype_sv wf[6], const char* xxx, int ievt, int nsp, fptype mass )
   {
     out << std::setprecision( 15 ) << std::scientific;
