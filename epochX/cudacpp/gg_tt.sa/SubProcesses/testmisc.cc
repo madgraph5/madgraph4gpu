@@ -3,7 +3,7 @@
 // Created by: A. Valassi (Jan 2022) for the MG5aMC CUDACPP plugin.
 // Further modified by: A. Valassi (2022-2023) for the MG5aMC CUDACPP plugin.
 //----------------------------------------------------------------------------
-// Use ./runTest.exe --gtest_filter=*misc to run only this test
+// Use ./runTest.exe --gtest_filter=*misc to run only testmisc.cc tests
 //----------------------------------------------------------------------------
 
 #include "mgOnGpuConfig.h"
