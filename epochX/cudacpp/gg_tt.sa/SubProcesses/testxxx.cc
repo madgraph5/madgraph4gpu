@@ -365,7 +365,7 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
       if( mass0[ievt] == 0 && isptgt0[ievt] )
       {
         FPEhandlerMessage = "oxzxxx";
-        oxzxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, nhel, nsp, reinterpret_cast<fptype*>( outwf ), ipar0 );
+        oxzxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, nhel, nsp, fp_outwf, ipar0 );
         testwf6two( outwf, outwfO, "oxzxxx", ievt );
         testwf6( outwf, "oxzxxx", ievt, nsp, 0 );
       }
