@@ -277,6 +277,15 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
     resetHstMomentaToPar0();
     FPEhandlerMessage = xxx;
     FPEhandlerIevt = ievt;
+    if ( std::string( xxx ) == "ipzxxx" )
+    {
+      // Modify hstMomenta so that ALL events have the momenta of a single ievt
+      // This ensures that a function like ipzxxx (which assumes pZ>0) can be used without triggering FPEs (#701)
+      // This is done by filling the full SIMD vector with the value of ievt, which was already tested to respect the relevant assumptions
+      for( int jevt = 0; jevt < nevt; jevt++ )
+        for( int ip4 = 0; ip4 < np4; ip4++ )
+          MemoryAccessMomenta::ieventAccessIp4Ipar( hstMomenta.data(), jevt, ip4, ipar0 ) = par0[ievt * np4 + ip4]; // AOS to AOSOA
+    }
   };
   // Array initialization: zero-out as "{0}" (C and C++) or as "{}" (C++ only)
   // See https://en.cppreference.com/w/c/language/array_initialization#Notes
