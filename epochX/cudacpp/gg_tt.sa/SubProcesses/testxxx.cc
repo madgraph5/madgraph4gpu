@@ -19,6 +19,7 @@
 
 #include <array>
 #include <cassert>
+#include <cfenv> // debug #701 (see https://stackoverflow.com/a/17473528)
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -33,6 +34,7 @@
 
 TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
 {
+  feenableexcept( FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW ); // debug #701
   constexpr bool dumpEvents = false;       // dump the expected output of the test?
   constexpr bool testEvents = !dumpEvents; // run the test?
   constexpr fptype toleranceXXXs = std::is_same<fptype, double>::value ? 1.E-15 : 1.E-5;
