@@ -269,8 +269,11 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
   //      MemoryAccessMomenta::ieventAccessIp4Ipar( hstMomenta.data(), ievt, ip4, ipar0 ) = par0[ievt * np4 + ip4]; // AOS to AOSOA
   //};
   // Lambda function for preparing the test of one specific function
+  //const bool debug = false;
+  const bool debug = true;
   auto prepareTest = [&]( const char* xxx, int ievt )
   {
+    if ( debug ) std::cout << "Prepare test " << xxx << " ievt=" << ievt << std::endl;
     //resetHstMomentaToPar0();
     FPEhandlerMessage = xxx;
     FPEhandlerIevt = ievt;
@@ -296,8 +299,6 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
 #else
       using namespace mg5amcCpu;
 #endif
-      //const bool debug = false;
-      const bool debug = true;
       if( debug )
       {
         std::cout << std::endl;
