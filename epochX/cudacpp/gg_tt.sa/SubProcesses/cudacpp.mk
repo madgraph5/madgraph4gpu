@@ -615,6 +615,7 @@ endif
 $(BUILDDIR)/testxxx.o: $(GTESTLIBS)
 $(BUILDDIR)/testxxx.o: INCFLAGS += $(GTESTINC)
 $(BUILDDIR)/testxxx.o: testxxx_cc_ref.txt
+$(BUILDDIR)/testxxx.o: CXXFLAGS += -ffpe-trap=invalid,zero,overflow -ffpe-summary=none # try to debug #701 IEEE_DIVIDE_BY_ZERO
 $(testmain): $(BUILDDIR)/testxxx.o
 $(testmain): cxx_objects_exe += $(BUILDDIR)/testxxx.o # Comment out this line to skip the C++ test of xxx functions
 
