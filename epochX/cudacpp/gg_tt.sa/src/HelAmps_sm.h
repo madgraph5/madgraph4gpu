@@ -45,9 +45,13 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
+#define NOVECTOR __attribute__((optimize("no-tree-vectorize")))
+
+  //--------------------------------------------------------------------------
+
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
   template<class M_ACCESS, class W_ACCESS>
-  __host__ __device__ INLINE void
+  __host__ __device__ INLINE NOVECTOR void
   ixxxxx( const fptype momenta[], // input: momenta
           const fptype fmass,     // input: fermion mass
           const int nhel,         // input: -1 or +1 (helicity of fermion)
@@ -294,7 +298,7 @@ namespace mg5amcCpu
                                              fpsqrt( fpmax( pvec0_sv + pvec3_sv, 0. ) ) * (fptype)nsf );
 #ifdef MGONGPU_CPPSIMD
       cxtype_sv chi_sv[2] = { cxmake( sqp0p3_sv, 0. ), cxmake( -(fptype)nhel * fpsqrt( 2. * pvec0_sv ), 0. ) };
-      for( int ieppV = 0; ieppV < neppV; ieppV++ )
+      for( int ieppV = 0; ieppV < neppV; ieppV++ ) // THIS LOOP MUST NOT BE VECTORIZED! (but '#pragma GCC unroll' does not work)
       {
         if( sqp0p3_sv[ieppV] != 0. )
         {
