@@ -564,6 +564,14 @@ maskor( const bool_v& mask )
 }
 */
 
+inline bool
+maskand( const bool_v& mask )
+{
+  bool out = true;
+  for ( int i=0; i<neppV; i++ ) out = out && mask[i];
+  return out;
+}
+
 #else // i.e. #ifndef MGONGPU_CPPSIMD
 
 inline fptype
@@ -585,6 +593,12 @@ maskor( const bool& mask )
   return mask;
 }
 */
+
+inline bool
+maskand( const bool& mask )
+{
+  return mask;
+}
 
 #endif // #ifdef MGONGPU_CPPSIMD
 
