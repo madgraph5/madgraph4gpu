@@ -211,8 +211,7 @@ namespace mg5amcCpu
       {
         // NB: Do not use "abs" for floats! It returns an integer with no build warning! Use std::abs!
         fptype sqm[2] = { fpsqrt( std::abs( fmass ) ), 0. }; // possibility of negative fermion masses
-        //sqm[1] = ( fmass < 0. ? -abs( sqm[0] ) : abs( sqm[0] ) ); // AV: why abs here?
-        sqm[1] = ( fmass < 0. ? -sqm[0] : sqm[0] ); // AV: removed an abs here
+        sqm[1] = ( fmass < 0. ? -sqm[0] : sqm[0] ); // AV: removed an abs around sqm[0] here
         fi_sv[2] = cxtype_sv( ip * sqm[ip] );       // IIII=0000
         fi_sv[3] = cxtype_sv( im * nsf * sqm[ip] ); // IIII=0000
         fi_sv[4] = cxtype_sv( ip * nsf * sqm[im] ); // IIII=0000
@@ -642,8 +641,7 @@ namespace mg5amcCpu
         const int im = ( 1 + nh ) / 2 * nhel;       // NB: same as in Fortran! Fortran sqm(0:1) also has indexes 0,1 as in C++
         // NB: Do not use "abs" for floats! It returns an integer with no build warning! Use std::abs!
         fptype sqm[2] = { fpsqrt( std::abs( fmass ) ), 0. }; // possibility of negative fermion masses
-        //sqm[1] = ( fmass < 0. ? -abs( sqm[0] ) : abs( sqm[0] ) ); // AV: why abs here?
-        sqm[1] = ( fmass < 0. ? -sqm[0] : sqm[0] ); // AV: removed an abs here
+        sqm[1] = ( fmass < 0. ? -sqm[0] : sqm[0] ); // AV: removed an abs around sqm[0] here
         fo_sv[2] = cxtype_sv( im * sqm[std::abs( ip )] );       // IIII=0000
         fo_sv[3] = cxtype_sv( ip * nsf * sqm[std::abs( ip )] ); // IIII=0000
         fo_sv[4] = cxtype_sv( im * nsf * sqm[std::abs( im )] ); // IIII=0000
