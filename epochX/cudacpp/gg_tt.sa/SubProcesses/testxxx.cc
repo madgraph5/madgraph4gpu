@@ -409,6 +409,10 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
     dumpFile.close();
     std::cout << "INFO: New reference data dumped to file '" << dumpFileName << "'" << std::endl;
   }
+  if ( enableFPE )
+  {
+    fedisableexcept( FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW ); // debug #701
+  }
 }
 
 //==========================================================================
