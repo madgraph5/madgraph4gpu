@@ -297,7 +297,9 @@ namespace mg5amcCpu
       for( int ieppV = 0; ieppV < neppV; ieppV++ )
       {
         if( sqp0p3_sv[ieppV] != 0. )
+        {
           chi_sv[1][ieppV] = cxmake( (fptype)nh * pvec1_sv[ieppV], pvec2_sv[ieppV] ) / sqp0p3_sv[ieppV];
+        }
       }
 #else
       const cxtype_sv chi_sv[2] = { cxmake( sqp0p3_sv, 0. ),
