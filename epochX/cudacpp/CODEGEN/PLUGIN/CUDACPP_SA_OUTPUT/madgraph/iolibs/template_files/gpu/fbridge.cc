@@ -47,7 +47,7 @@ extern "C"
   void fbridgecreate_( CppObjectInFortran** ppbridge, const int* pnevtF, const int* pnparF, const int* pnp4F )
   {
 #ifdef MGONGPUCPP_GPUIMPL
-    CudaRuntime::setUp();
+    GpuRuntime::setUp();
 #endif
     // Create a process object, read parm card and set parameters
     // FIXME: the process instance can happily go out of scope because it is only needed to read parameters?
@@ -70,7 +70,7 @@ extern "C"
     if( pbridge == 0 ) throw std::runtime_error( "fbridgedelete_: invalid Bridge address" );
     delete pbridge;
 #ifdef MGONGPUCPP_GPUIMPL
-    CudaRuntime::tearDown();
+    GpuRuntime::tearDown();
 #endif
   }
 

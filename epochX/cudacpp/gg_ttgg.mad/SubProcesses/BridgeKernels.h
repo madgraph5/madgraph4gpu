@@ -9,7 +9,6 @@
 #include "mgOnGpuConfig.h"
 
 #include "Bridge.h"
-#include "GpuAbstraction.h"
 #include "MatrixElementKernels.h"
 #include "MemoryBuffers.h"
 

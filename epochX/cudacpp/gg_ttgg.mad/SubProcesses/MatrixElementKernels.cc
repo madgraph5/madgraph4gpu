@@ -6,7 +6,7 @@
 #include "MatrixElementKernels.h"
 
 #include "CPPProcess.h"
-#include "GpuRuntime.h"
+#include "GpuRuntime.h" // Includes the abstraction for Nvidia/AMD compilation
 #include "MemoryAccessMomenta.h"
 #include "MemoryBuffers.h"
 
@@ -202,7 +202,7 @@ namespace mg5amcGpu
     PinnedHostBufferHelicityMask hstIsGoodHel( ncomb );
     DeviceBufferHelicityMask devIsGoodHel( ncomb );
     // ... 0d1. Compute good helicity mask on the device
-    gpuLaunchKernel( computeDependentCouplings, m_gpublocks, m_gputhreads,  m_gs.data(), m_couplings.data() );
+    gpuLaunchKernel( computeDependentCouplings, m_gpublocks, m_gputhreads, m_gs.data(), m_couplings.data() );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     gpuLaunchKernel( sigmaKin_getGoodHel, m_gpublocks, m_gputhreads, m_momenta.data(), m_couplings.data(), m_matrixElements.data(), m_numerators.data(), m_denominators.data(), devIsGoodHel.data() );
 #else
