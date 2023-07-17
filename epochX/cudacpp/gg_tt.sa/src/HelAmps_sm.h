@@ -205,8 +205,11 @@ namespace mg5amcCpu
     {
       const fptype_sv pp_sv = fpmin( pvec0_sv, fpsqrt( pvec1_sv * pvec1_sv + pvec2_sv * pvec2_sv + pvec3_sv * pvec3_sv ) );
       const fptype_sv pp3_sv = fpmax( pp_sv + pvec3_sv, 0. );
-      const int ip = ( 1 + nh ) / 2; // NB: Fortran is (3+nh)/2 because omega(2) has indexes 1,2 and not 0,1
-      const int im = ( 1 - nh ) / 2; // NB: Fortran is (3-nh)/2 because omega(2) has indexes 1,2 and not 0,1
+      // In C++ ixxxxx, use a single ip/im numbering that is valid both for pp==0 and pp>0, which have two numbering schemes in Fortran ixxxxx:
+      // for pp==0, Fortran sqm(0:1) has indexes 0,1 as in C++; but for Fortran pp>0, omega(2) has indexes 1,2 and not 0,1
+      // NB: this is only possible in ixxxx, but in oxxxxx two different numbering schemes must be used
+      const int ip = ( 1 + nh ) / 2; // NB: same as in Fortran pp==0, differs from Fortran pp>0, which is (3+nh)/2 because omega(2) has indexes 1,2
+      const int im = ( 1 - nh ) / 2; // NB: same as in Fortran pp==0, differs from Fortran pp>0, which is (3-nh)/2 because omega(2) has indexes 1,2
       if( maskand( pp_sv == 0. ) )
       {
         // NB: Do not use "abs" for floats! It returns an integer with no build warning! Use std::abs!
