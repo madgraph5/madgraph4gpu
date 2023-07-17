@@ -673,7 +673,7 @@ namespace mg5amcCpu
         omega_sv[1] = fmass / omega_sv[0];
         const fptype_sv sfomega_sv[2] = { sf[0] * omega_sv[ip], sf[1] * omega_sv[im] };
         const cxtype_sv chi_sv[2] = { cxmake( fpsqrt( pp3_sv * (fptype)0.5 / pp_sv ), 0. ),
-                                      cxmake( nh * pvec1_sv, pvec2_sv ) / fpsqrt( 2. * pp_sv * pp3_sv ) };
+                                      cxmake( nh * pvec1_sv, -pvec2_sv ) / fpsqrt( 2. * pp_sv * pp3_sv ) };
         fo_sv[2] = sfomega_sv[0] * chi_sv[im];
         fo_sv[3] = sfomega_sv[0] * chi_sv[ip];
         fo_sv[4] = sfomega_sv[1] * chi_sv[im];
@@ -709,7 +709,7 @@ namespace mg5amcCpu
             const fptype& pvec1 = pvec1_sv[ieppV];
             const fptype& pvec2 = pvec2_sv[ieppV];
             const cxtype chi[2] = { cxmake( fpsqrt( pp3 * (fptype)0.5 / pp ), 0. ),
-                                    ( pp3 == 0. ? cxmake( -nh, 0. ) : cxmake( nh * pvec1, pvec2 ) / fpsqrt( 2. * pp * pp3 ) ) };
+                                    ( pp3 == 0. ? cxmake( -nh, 0. ) : cxmake( nh * pvec1, -pvec2 ) / fpsqrt( 2. * pp * pp3 ) ) };
             fo_sv[2][ieppV] = sfomega[0] * chi[im];
             fo_sv[3][ieppV] = sfomega[0] * chi[ip];
             fo_sv[4][ieppV] = sfomega[1] * chi[im];
