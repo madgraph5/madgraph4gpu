@@ -1,3 +1,4 @@
+// Copyright (C) 2010 The ALOHA Development team and Contributors.
 // Copyright (C) 2010 The MadGraph5_aMC@NLO development team and contributors.
 // Created by: J. Alwall (Sep 2010) for the MG5aMC backend.
 //==========================================================================
@@ -635,10 +636,10 @@ namespace mg5amcCpu
     {
       const fptype_sv pp_sv = fpmin( pvec0_sv, fpsqrt( pvec1_sv * pvec1_sv + pvec2_sv * pvec2_sv + pvec3_sv * pvec3_sv ) );
       const fptype_sv pp3_sv = fpmax( pp_sv + pvec3_sv, 0. );
-      const int ip = ( 1 + nh ) / 2; // NB: Fortran is (3+nh)/2 because omega(2) has indexes 1,2 and not 0,1
-      const int im = ( 1 - nh ) / 2; // NB: Fortran is (3-nh)/2 because omega(2) has indexes 1,2 and not 0,1
       if( maskand( pp_sv == 0. ) )
       {
+        const int ip = -( ( 1 - nh ) / 2 ) * nhel;  // NB: same as in Fortran! Fortran sqm(0:1) also has indexes 0,1 as in C++
+        const int im = ( 1 + nh ) / 2 * nhel;       // NB: same as in Fortran! Fortran sqm(0:1) also has indexes 0,1 as in C++
         // NB: Do not use "abs" for floats! It returns an integer with no build warning! Use std::abs!
         fptype sqm[2] = { fpsqrt( std::abs( fmass ) ), 0. }; // possibility of negative fermion masses
         //sqm[1] = ( fmass < 0. ? -abs( sqm[0] ) : abs( sqm[0] ) ); // AV: why abs here?
@@ -650,6 +651,8 @@ namespace mg5amcCpu
       }
       else if( maskand( pp_sv != 0. ) and maskand( pp3_sv == 0. ) )
       {
+        const int ip = ( 1 + nh ) / 2; // NB: differs from Fortran! Fortran is (3+nh)/2 because omega(2) has indexes 1,2 and not 0,1
+        const int im = ( 1 - nh ) / 2; // NB: differs from Fortran! Fortran is (3-nh)/2 because omega(2) has indexes 1,2 and not 0,1
         const fptype sf[2] = { fptype( 1 + nsf + ( 1 - nsf ) * nh ) * (fptype)0.5,
                                fptype( 1 + nsf - ( 1 - nsf ) * nh ) * (fptype)0.5 };
         fptype_sv omega_sv[2] = { fpsqrt( pvec0_sv + pp_sv ), 0. };
@@ -664,6 +667,8 @@ namespace mg5amcCpu
       }
       else if( maskand( pp_sv != 0. ) and maskand( pp3_sv != 0. ) )
       {
+        const int ip = ( 1 + nh ) / 2; // NB: differs from Fortran! Fortran is (3+nh)/2 because omega(2) has indexes 1,2 and not 0,1
+        const int im = ( 1 - nh ) / 2; // NB: differs from Fortran! Fortran is (3-nh)/2 because omega(2) has indexes 1,2 and not 0,1
         const fptype sf[2] = { fptype( 1 + nsf + ( 1 - nsf ) * nh ) * (fptype)0.5,
                                fptype( 1 + nsf - ( 1 - nsf ) * nh ) * (fptype)0.5 };
         fptype_sv omega_sv[2] = { fpsqrt( pvec0_sv + pp_sv ), 0. };
@@ -685,12 +690,13 @@ namespace mg5amcCpu
                                fptype( 1 + nsf - ( 1 - nsf ) * nh ) * (fptype)0.5 };
         fptype_sv omega_sv[2] = { fpsqrt( pvec0_sv + pp_sv ), 0. };
         omega_sv[1] = fmass / omega_sv[0];
-        const fptype_sv sfomega_sv[2] = { sf[0] * omega_sv[ip], sf[1] * omega_sv[im] };
         for( int ieppV = 0; ieppV < neppV; ieppV++ )
         {
           const fptype& pp = pp_sv[ieppV];
           if( pp == 0. )
           {
+            const int ip = -( ( 1 - nh ) / 2 ) * nhel;  // NB: same as in Fortran! Fortran sqm(0:1) also has indexes 0,1 as in C++
+            const int im = ( 1 + nh ) / 2 * nhel;       // NB: same as in Fortran! Fortran sqm(0:1) also has indexes 0,1 as in C++
             fo_sv[2][ieppV] = cxtype( im * sqm[std::abs( ip )], 0 );
             fo_sv[3][ieppV] = cxtype( ip * nsf * sqm[std::abs( ip )], 0 );
             fo_sv[4][ieppV] = cxtype( im * nsf * sqm[std::abs( im )], 0 );
@@ -698,15 +704,18 @@ namespace mg5amcCpu
           }
           else
           {
+            const int ip = ( 1 + nh ) / 2; // NB: differs from Fortran! Fortran is (3+nh)/2 because omega(2) has indexes 1,2 and not 0,1
+            const int im = ( 1 - nh ) / 2; // NB: differs from Fortran! Fortran is (3-nh)/2 because omega(2) has indexes 1,2 and not 0,1
+            const fptype sfomega[2] = { sf[0] * omega_sv[ip][ieppV], sf[1] * omega_sv[im][ieppV] };
             const fptype& pp3 = pp3_sv[ieppV];
             const fptype& pvec1 = pvec1_sv[ieppV];
             const fptype& pvec2 = pvec2_sv[ieppV];
             const cxtype chi[2] = { cxmake( fpsqrt( pp3 * (fptype)0.5 / pp ), 0. ),
                                     ( pp3 == 0. ? cxmake( -nh, 0. ) : cxmake( nh * pvec1, pvec2 ) / fpsqrt( 2. * pp * pp3 ) ) };
-            fo_sv[2][ieppV] = sfomega_sv[0][ieppV] * chi[im];
-            fo_sv[3][ieppV] = sfomega_sv[0][ieppV] * chi[ip];
-            fo_sv[4][ieppV] = sfomega_sv[1][ieppV] * chi[im];
-            fo_sv[5][ieppV] = sfomega_sv[1][ieppV] * chi[ip];
+            fo_sv[2][ieppV] = sfomega[0] * chi[im];
+            fo_sv[3][ieppV] = sfomega[0] * chi[ip];
+            fo_sv[4][ieppV] = sfomega[1] * chi[im];
+            fo_sv[5][ieppV] = sfomega[1] * chi[ip];
           }
         }
 #else
