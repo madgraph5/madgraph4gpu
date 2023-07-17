@@ -265,6 +265,7 @@ else
 	rm -f $(LIBDIR)/.build.* $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so
 	rm -f $(BUILDDIR)/.build.* $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
 endif
+	rm -f *.gcov *.gcda *.gcno
 
 cleanall:
 	@echo

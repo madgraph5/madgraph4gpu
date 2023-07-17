@@ -744,6 +744,7 @@ else
 endif
 	$(MAKE) -C ../../src clean -f $(CUDACPP_SRC_MAKEFILE)
 ###	rm -rf $(INCDIR)
+	rm -f *.gcov *.gcda *.gcno
 
 cleanall:
 	@echo
