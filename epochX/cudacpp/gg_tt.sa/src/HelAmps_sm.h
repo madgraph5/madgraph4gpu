@@ -504,11 +504,10 @@ namespace mg5amcCpu
       else
       {
 #ifdef MGONGPU_CPPSIMD
-        const fptype_sv emp_sv = pvec0_sv / ( vmass * pp_sv );
         for( int ieppV = 0; ieppV < neppV; ieppV++ )
         {
           const fptype& pp = pp_sv[ieppV];
-          const fptype& emp = emp_sv[ieppV];
+          const fptype& pvec0 = pvec0_sv[ieppV];
           const fptype& pvec1 = pvec1_sv[ieppV];
           const fptype& pvec2 = pvec2_sv[ieppV];
           const fptype& pvec3 = pvec3_sv[ieppV];
@@ -522,6 +521,7 @@ namespace mg5amcCpu
           else
           {
             const fptype& pt = pt_sv[ieppV];
+            const fptype emp = pvec0 / ( vmass * pp );
             vc_sv[2][ieppV] = cxtype( hel0 * pp / vmass, 0. );
             vc_sv[5][ieppV] = cxtype( hel0 * pvec3 * emp + hel * pt / pp * sqh );
             if ( pt == 0. )
