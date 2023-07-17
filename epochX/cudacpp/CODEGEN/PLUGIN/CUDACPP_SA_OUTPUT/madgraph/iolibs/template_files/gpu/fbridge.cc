@@ -47,7 +47,7 @@ extern "C"
   void fbridgecreate_( CppObjectInFortran** ppbridge, const int* pnevtF, const int* pnparF, const int* pnp4F )
   {
 #ifdef MGONGPUCPP_GPUIMPL
-    CudaRuntime::setUp();
+    GpuRuntime::setUp();
 #endif
     // (NB: CPPProcess::initProc no longer needs to be executed here because it is called in the Bridge constructor)
     // FIXME: disable OMP in Bridge when called from Fortran
@@ -66,7 +66,7 @@ extern "C"
     if( pbridge == 0 ) throw std::runtime_error( "fbridgedelete_: invalid Bridge address" );
     delete pbridge;
 #ifdef MGONGPUCPP_GPUIMPL
-    CudaRuntime::tearDown();
+    GpuRuntime::tearDown();
 #endif
   }
 
