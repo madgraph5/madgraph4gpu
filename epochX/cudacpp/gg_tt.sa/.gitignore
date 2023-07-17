@@ -4,3 +4,7 @@ results.dat*
 results.pkl
 run_[0-9]*
 events.lhe*
+
+*.gcov
+*.gcda
+*.gcno
