@@ -14,6 +14,7 @@
 
 #include <gtest/gtest.h>
 
+#include <cfenv> // debug #701 (see https://stackoverflow.com/a/17473528)
 #include <sstream>
 #include <typeinfo>
 
@@ -49,8 +50,24 @@ boolTF( const bool_v& v )
 }
 #endif
 
+inline void simpleFPEhandler( int /*sig*/ ) {
+#ifdef __CUDACC__
+  std::cerr << "Floating Point Exception (GPU)" << std::endl;
+#else
+  std::cerr << "Floating Point Exception (CPU)" << std::endl;
+#endif
+  exit( 0 );
+}
+
 TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testmisc )
 {
+  const bool enableFPE = !getenv( "CUDACPP_RUNTIME_DISABLEFPE" );
+  if ( enableFPE )
+  {
+    feenableexcept( FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW ); // debug #701
+    signal( SIGFPE, simpleFPEhandler );
+  }
+
   EXPECT_TRUE( true );
 
   //--------------------------------------------------------------------------
