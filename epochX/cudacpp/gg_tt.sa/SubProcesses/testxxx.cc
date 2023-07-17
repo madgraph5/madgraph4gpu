@@ -262,19 +262,19 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
   };
   // Lambda function for resetting hstMomenta to the values of par0
   // This is needed in each test because hstMomenta may have been modified to ensure a function like ipzxxx can be used (#701)
-  //auto resetHstMomentaToPar0 = [&]()
-  //{
-  //  for( int ievt = 0; ievt < nevt; ievt++ )
-  //    for( int ip4 = 0; ip4 < np4; ip4++ )
-  //      MemoryAccessMomenta::ieventAccessIp4Ipar( hstMomenta.data(), ievt, ip4, ipar0 ) = par0[ievt * np4 + ip4]; // AOS to AOSOA
-  //};
+  auto resetHstMomentaToPar0 = [&]()
+  {
+    for( int ievt = 0; ievt < nevt; ievt++ )
+      for( int ip4 = 0; ip4 < np4; ip4++ )
+        MemoryAccessMomenta::ieventAccessIp4Ipar( hstMomenta.data(), ievt, ip4, ipar0 ) = par0[ievt * np4 + ip4]; // AOS to AOSOA
+  };
   // Lambda function for preparing the test of one specific function
   //const bool debug = false;
   const bool debug = true;
   auto prepareTest = [&]( const char* xxx, int ievt )
   {
     if ( debug ) std::cout << "Prepare test " << xxx << " ievt=" << ievt << std::endl;
-    //resetHstMomentaToPar0();
+    resetHstMomentaToPar0();
     FPEhandlerMessage = xxx;
     FPEhandlerIevt = ievt;
   };
