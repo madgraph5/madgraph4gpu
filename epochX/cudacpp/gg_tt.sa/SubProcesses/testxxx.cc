@@ -277,7 +277,7 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
     resetHstMomentaToPar0();
     FPEhandlerMessage = xxx;
     FPEhandlerIevt = ievt;
-    if ( std::string( xxx ) == "ipzxxx" )
+    if ( std::string( xxx ) == "ipzxxx" || std::string( xxx ) == "opzxxx" )
     {
       // Modify hstMomenta so that ALL events have the momenta of a single ievt
       // This ensures that a function like ipzxxx (which assumes pZ>0) can be used without triggering FPEs (#701)
