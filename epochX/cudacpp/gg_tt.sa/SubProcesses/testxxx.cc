@@ -67,14 +67,14 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
     feenableexcept( FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW ); // debug #701
     signal( SIGFPE, FPEhandler );
   }
-  constexpr bool dumpEvents = false;       // dump the expected output of the test?
+  constexpr bool dumpEvents = true;       // dump the expected output of the test?
   constexpr bool testEvents = !dumpEvents; // run the test?
   constexpr fptype toleranceXXXs = std::is_same<fptype, double>::value ? 1.E-15 : 1.E-5;
   // Constant parameters
   constexpr int neppM = MemoryAccessMomenta::neppM; // AOSOA layout
   using mgOnGpu::neppV;
   constexpr int np4 = CPPProcess::np4;
-  const int nevt = 16;         // 12 independent tests plus 4 duplicates (need a multiple of 8 for floats or for '512z')
+  const int nevt = 32;         // 12 independent tests plus 20 duplicates (need a multiple of 16 for floats '512z')
   assert( nevt % neppM == 0 ); // nevt must be a multiple of neppM
   assert( nevt % neppV == 0 ); // nevt must be a multiple of neppV
   // Fill in the input momenta
@@ -83,24 +83,41 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
 #else
   mg5amcCpu::HostBufferMomenta hstMomenta( nevt ); // AOSOA[npagM][npar=4][np4=4][neppM]
 #endif /* clang-format off */
+  // NB NEW TESTS FOR DEBUGGING #701: KEEP TWO SEPARATE SETS (16-SIMD-VECTORS!) OF TESTS FOR M==0 AND M!=0!
   const fptype par0[np4 * nevt] = // AOS[nevt][np4]
     {
-      500, 0, 0, 500,      // #0 (m=0 pT=0 E=pz>0)
-      500, 0, 0, -500,     // #1 (m=0 pT=0 -E=pz<0)
-      500, 300, 400, 0,    // #2 (m=0 pT>0 pz=0)
-      500, 180, 240, 400,  // #3 (m=0 pT>0 pz>0)
-      500, 180, 240, -400, // #4 (m=0 pT>0 pz<0)
-      500, 0, 0, 0,        // #5 (m=50>0 pT=0 pz=0)
-      500, 0, 0, 300,      // #6 (m=40>0 pT=0 pz>0)
-      500, 0, 0, -300,     // #7 (m=40>0 pT=0 pz<0)
-      500, 180, 240, 0,    // #8 (m=40>0 pT>0 pz=0)
-      500, -240, -180, 0,  // #9 (m=40>0 pT>0 pz=0)
-      500, 180, 192, 144,  // #10 (m=40>0 pT>0 pz>0)
-      500, 180, 192, -144, // #11 (m=40>0 pT>0 pz<0)
-      500, 0, 0, 500,      // DUPLICATE #12 == #0 (m=0 pT=0 E=pz>0)
-      500, 0, 0, -500,     // DUPLICATE #13 == #1 (m=0 pT=0 -E=pz<0)
-      500, 300, 400, 0,    // DUPLICATE #14 == #2 (m=0 pT>0 pz=0)
-      500, 180, 240, 400   // DUPLICATE #15 == #3 (m=0 pT>0 pz>0)
+      500, 0, 0, 500,      // #0  (m=0 pT=0 E=pz>0)
+      500, 0, 0, -500,     // #1  (m=0 pT=0 -E=pz<0)
+      500, 300, 400, 0,    // #2  (m=0 pT>0 pz=0)
+      500, 180, 240, 400,  // #3  (m=0 pT>0 pz>0)
+      500, 180, 240, -400, // #4  (m=0 pT>0 pz<0)
+      500, 0, 0, 500,      // #5  DUPLICATE == #0 (m=0 pT=0 E=pz>0)
+      500, 0, 0, -500,     // #6  DUPLICATE == #1 (m=0 pT=0 -E=pz<0)
+      500, 300, 400, 0,    // #7  DUPLICATE == #2 (m=0 pT>0 pz=0)
+      500, 180, 240, 400,  // #8  DUPLICATE == #3 (m=0 pT>0 pz>0)
+      500, 180, 240, -400, // #9  DUPLICATE == #4 (m=0 pT>0 pz<0)
+      500, 0, 0, 500,      // #10 DUPLICATE == #0 (m=0 pT=0 E=pz>0)
+      500, 0, 0, -500,     // #11 DUPLICATE == #1 (m=0 pT=0 -E=pz<0)
+      500, 300, 400, 0,    // #12 DUPLICATE == #2 (m=0 pT>0 pz=0)
+      500, 180, 240, 400,  // #13 DUPLICATE == #3 (m=0 pT>0 pz>0)
+      500, 180, 240, -400, // #14 DUPLICATE == #4 (m=0 pT>0 pz<0)
+      500, 0, 0, 500,      // #15 DUPLICATE == #0 (m=0 pT=0 E=pz>0)
+      500, 0, 0, 0,        // #16 (m=50>0 pT=0 pz=0)
+      500, 0, 0, 300,      // #17 (m=40>0 pT=0 pz>0)
+      500, 0, 0, -300,     // #18 (m=40>0 pT=0 pz<0)
+      500, 180, 240, 0,    // #19 (m=40>0 pT>0 pz=0)
+      500, -240, -180, 0,  // #20 (m=40>0 pT>0 pz=0)
+      500, 180, 192, 144,  // #21 (m=40>0 pT>0 pz>0)
+      500, 180, 192, -144, // #22 (m=40>0 pT>0 pz<0)
+      500, 0, 0, 0,        // #23 DUPLICATE == #16 (m=50>0 pT=0 pz=0)
+      500, 0, 0, 300,      // #24 DUPLICATE == #17 (m=40>0 pT=0 pz>0)
+      500, 0, 0, -300,     // #25 DUPLICATE == #18 (m=40>0 pT=0 pz<0)
+      500, 180, 240, 0,    // #26 DUPLICATE == #19 (m=40>0 pT>0 pz=0)
+      500, -240, -180, 0,  // #27 DUPLICATE == #20 (m=40>0 pT>0 pz=0)
+      500, 180, 192, 144,  // #28 DUPLICATE == #21 (m=40>0 pT>0 pz>0)
+      500, 180, 192, -144, // #29 DUPLICATE == #22 (m=40>0 pT>0 pz<0)
+      500, 0, 0, 0,        // #30 DUPLICATE == #16 (m=50>0 pT=0 pz=0)
+      500, 0, 0, 300       // #31 DUPLICATE == #17 (m=40>0 pT=0 pz>0)
     }; /* clang-format on */
   // Array initialization: zero-out as "{0}" (C and C++) or as "{}" (C++ only)
   // See https://en.cppreference.com/w/c/language/array_initialization#Notes
