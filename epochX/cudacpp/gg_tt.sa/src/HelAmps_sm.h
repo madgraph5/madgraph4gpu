@@ -266,7 +266,9 @@ namespace mg5amcCpu
       const fptype_sv sqp0p3 = fpternary( ( pvec1_sv == 0. and pvec2_sv == 0. and pvec3_sv < 0. ),
                                           fptype_sv{ 0 },
                                           fpsqrt( fpmax( pvec0_sv + pvec3_sv, 0. ) ) * (fptype)nsf );
+      std::cout << "IXXXXX: sqp0p3=" << sqp0p3 << std::endl;
       const cxtype_sv chi[2] = { cxmake( sqp0p3, 0. ), cxternary( ( sqp0p3 == 0. ), cxmake( -(fptype)nhel * fpsqrt( 2. * pvec0_sv ), 0. ), cxmake( (fptype)nh * pvec1_sv, pvec2_sv ) / sqp0p3 ) };
+      std::cout << "IXXXXX: chi[2]=" << chi[2] << std::endl;
       if( nh == 1 )
       {
         fi_sv[2] = cxzero_sv();
