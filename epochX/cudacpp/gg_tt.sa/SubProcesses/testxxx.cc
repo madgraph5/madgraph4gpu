@@ -51,14 +51,19 @@ namespace mg5amcCpu
 
 TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
 {
-  feenableexcept( FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW ); // debug #701
 #ifdef __CUDACC__
-  signal( SIGFPE, mg5amcGpu::FPEhandler );
+  auto FPEhandler = mg5amcGpu::FPEhandler;
   std::string& FPEhandlerMessage = mg5amcGpu::FPEhandlerMessage;
 #else
-  signal( SIGFPE, mg5amcCpu::FPEhandler );
+  auto FPEhandler = mg5amcCpu::FPEhandler;
   std::string& FPEhandlerMessage = mg5amcCpu::FPEhandlerMessage;
 #endif
+  const bool enableFPE = !getenv( "CUDACPP_RUNTIME_DISABLEFPE" );
+  if ( enableFPE )
+  {
+    feenableexcept( FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW ); // debug #701
+    signal( SIGFPE, FPEhandler );
+  }
   constexpr bool dumpEvents = false;       // dump the expected output of the test?
   constexpr bool testEvents = !dumpEvents; // run the test?
   constexpr fptype toleranceXXXs = std::is_same<fptype, double>::value ? 1.E-15 : 1.E-5;
