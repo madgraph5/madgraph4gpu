@@ -22,6 +22,7 @@
 
 #include "Parameters_sm.h"
 
+#include <cassert>
 //#include <cmath>
 //#include <cstdlib>
 //#include <iomanip>
@@ -481,7 +482,7 @@ namespace mg5amcCpu
       {
         vc_sv[2] = cxzero_sv();
         vc_sv[3] = cxtype_sv( -hel * sqh );                              // IIII=0000
-        vc_sv[4] = cxtype_sv( fptype_v{}, fptype_v{} + (nsvahl * sqh) ); // RRRR=0000
+        vc_sv[4] = cxtype_sv( fptype_sv{}, fptype_sv{} + (nsvahl * sqh) ); // RRRR=0000
         vc_sv[5] = cxtype_sv( hel0 );                                    // IIII=0000
       }
       else if( maskand( pp_sv != 0. ) && maskand( pt_sv == 0. ) )
@@ -490,7 +491,7 @@ namespace mg5amcCpu
         vc_sv[2] = cxtype_sv( hel0 * pp_sv / vmass );                                       // IIII=0000
         vc_sv[5] = cxtype_sv( hel0 * pvec3_sv * emp_sv + hel * pt_sv / pp_sv * sqh );       // IIII=0000
         vc_sv[3] = cxtype_sv( -hel * sqh );                                                 // IIII=0000
-        vc_sv[4] = cxtype_sv( fptype_v{}, nsvahl * fpternary( pvec3_sv < 0., -sqh, sqh ) ); // AV: removed an abs here
+        vc_sv[4] = cxtype_sv( fptype_sv{}, nsvahl * fpternary( pvec3_sv < 0., -sqh, sqh ) ); // AV: removed an abs here
       }
       else if( maskand( pp_sv != 0. ) && maskand( pt_sv != 0. ) )
       {
@@ -552,7 +553,7 @@ namespace mg5amcCpu
       if( maskand( pt_sv == 0. ) )
       {
         vc_sv[3] = cxtype_sv( -hel * sqh );                                              // IIII=0000
-        vc_sv[4] = cxtype_sv( fptype_v{}, nsv * fpternary( pvec3_sv < 0., -sqh, sqh ) ); // AV: removed an abs here
+        vc_sv[4] = cxtype_sv( fptype_sv{}, nsv * fpternary( pvec3_sv < 0., -sqh, sqh ) ); // AV: removed an abs here
       }
       else if( maskand( pt_sv != 0. ) )
       {
