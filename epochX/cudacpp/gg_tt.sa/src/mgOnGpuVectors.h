@@ -800,6 +800,12 @@ cxternary( const bool& mask, const cxtype& a, const cxtype& b )
   return ( mask ? a : b );
 }
 
+inline __host__ __device__ bool
+maskand( const bool& mask )
+{
+  return mask;
+}
+
 #endif // #ifdef __CUDACC__
 
 //==========================================================================
