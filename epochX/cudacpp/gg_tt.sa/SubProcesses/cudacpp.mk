@@ -437,16 +437,12 @@ else
 all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cu_main) $(cxx_main) $(fcu_main) $(fcxx_main)
 endif
 
-# Target (and build options): debug and gcov
-MAKETARGET=
-debug: OPTFLAGS = -g -O0 -DDEBUG2
+# Target (and build options): debug
+MAKEDEBUG=
+debug: OPTFLAGS   = -g -O0 -DDEBUG2
 debug: CUOPTFLAGS = -G
-debug: MAKETARGET := debug
+debug: MAKEDEBUG := debug
 debug: all.$(TAG)
-gcov: OPTFLAGS = --coverage
-gcov: LIBFLAGS += --coverage
-gcov: MAKETARGET := gcov
-gcov: all.$(TAG)
 
 # Target: tag-specific build lockfiles
 override oldtagsb=`if [ -d $(BUILDDIR) ]; then find $(BUILDDIR) -maxdepth 1 -name '.build.*' ! -name '.build.$(TAG)' -exec echo $(shell pwd)/{} \; ; fi`
@@ -521,7 +517,7 @@ endif
 commonlib : $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so
 
 $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so: ../../src/*.h ../../src/*.cc $(BUILDDIR)/.build.$(TAG)
-	$(MAKE) -C ../../src $(MAKETARGET) -f $(CUDACPP_SRC_MAKEFILE)
+	$(MAKE) -C ../../src $(MAKEDEBUG) -f $(CUDACPP_SRC_MAKEFILE)
 
 #-------------------------------------------------------------------------------
 
@@ -542,7 +538,7 @@ endif
 $(LIBDIR)/lib$(MG5AMC_CXXLIB).so: $(BUILDDIR)/fbridge.o
 $(LIBDIR)/lib$(MG5AMC_CXXLIB).so: cxx_objects_lib += $(BUILDDIR)/fbridge.o
 $(LIBDIR)/lib$(MG5AMC_CXXLIB).so: $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects_lib)
-	$(CXX) $(LIBFLAGS) -shared -o $@ $(cxx_objects_lib) $(CXXLIBFLAGSRPATH2) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
+	$(CXX) -shared -o $@ $(cxx_objects_lib) $(CXXLIBFLAGSRPATH2) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
 
 ifneq ($(NVCC),)
 $(LIBDIR)/lib$(MG5AMC_CULIB).so: $(BUILDDIR)/fbridge_cu.o
@@ -744,7 +740,6 @@ else
 endif
 	$(MAKE) -C ../../src clean -f $(CUDACPP_SRC_MAKEFILE)
 ###	rm -rf $(INCDIR)
-	rm -f *.gcov *.gcda *.gcno
 
 cleanall:
 	@echo

@@ -215,12 +215,9 @@ MG5AMC_COMMONLIB = mg5amc_common
 # First target (default goal)
 all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/.build.$(TAG) $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so
 
-# Target (and build options): debug and gcov
+# Target (and build options): debug
 debug: OPTFLAGS = -g -O0 -DDEBUG2
 debug: all.$(TAG)
-gcov: OPTFLAGS = --coverage
-gcov: LIBFLAGS += --coverage
-gcov: all.$(TAG)
 
 # Target: tag-specific build lockfiles
 override oldtagsb=`if [ -d $(BUILDDIR) ]; then find $(BUILDDIR) -maxdepth 1 -name '.build.*' ! -name '.build.$(TAG)' -exec echo $(shell pwd)/{} \; ; fi`
@@ -250,7 +247,7 @@ cxx_objects=$(addprefix $(BUILDDIR)/, Parameters_sm.o read_slha.o)
 # Target (and build rules): common (src) library
 $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so : $(cxx_objects)
 	@if [ ! -d $(LIBDIR) ]; then echo "mkdir -p $(LIBDIR)"; mkdir -p $(LIBDIR); fi
-	$(CXX) $(LIBFLAGS) -shared -o$@ $(cxx_objects)
+	$(CXX) -shared -o$@ $(cxx_objects)
 
 #-------------------------------------------------------------------------------
 
@@ -265,7 +262,6 @@ else
 	rm -f $(LIBDIR)/.build.* $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so
 	rm -f $(BUILDDIR)/.build.* $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
 endif
-	rm -f *.gcov *.gcda *.gcno
 
 cleanall:
 	@echo
