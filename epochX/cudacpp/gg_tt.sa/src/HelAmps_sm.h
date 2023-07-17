@@ -247,7 +247,7 @@ namespace mg5amcCpu
         omega_sv[1] = fmass / omega_sv[0];
         const fptype_sv sfomega_sv[2] = { sf[0] * omega_sv[ip], sf[1] * omega_sv[im] };
         const cxtype_sv chi_sv[2] = { cxmake( fpsqrt( pp3_sv * (fptype)0.5 / pp_sv ), 0. ),
-                                      cxmake( nh * pvec1_sv, pvec2_sv ) / fpsqrt( 2. * pp_sv * pp3_sv ) };
+                                      cxmake( (fptype)nh * pvec1_sv, pvec2_sv ) / fpsqrt( 2. * pp_sv * pp3_sv ) };
         fi_sv[2] = sfomega_sv[0] * chi_sv[im];
         fi_sv[3] = sfomega_sv[0] * chi_sv[ip];
         fi_sv[4] = sfomega_sv[1] * chi_sv[im];
@@ -481,17 +481,17 @@ namespace mg5amcCpu
       if( maskand( pp_sv == 0. ) )
       {
         vc_sv[2] = cxzero_sv();
-        vc_sv[3] = cxtype_sv( -hel * sqh );                              // IIII=0000
+        vc_sv[3] = cxtype_sv( -hel * sqh );                                // IIII=0000
         vc_sv[4] = cxtype_sv( fptype_sv{}, fptype_sv{} + (nsvahl * sqh) ); // RRRR=0000
-        vc_sv[5] = cxtype_sv( hel0 );                                    // IIII=0000
+        vc_sv[5] = cxtype_sv( hel0 );                                      // IIII=0000
       }
       else if( maskand( pp_sv != 0. ) && maskand( pt_sv == 0. ) )
       {
         const fptype_sv emp_sv = pvec0_sv / ( vmass * pp_sv );
-        vc_sv[2] = cxtype_sv( hel0 * pp_sv / vmass );                                       // IIII=0000
-        vc_sv[5] = cxtype_sv( hel0 * pvec3_sv * emp_sv + hel * pt_sv / pp_sv * sqh );       // IIII=0000
-        vc_sv[3] = cxtype_sv( -hel * sqh );                                                 // IIII=0000
-        vc_sv[4] = cxtype_sv( fptype_sv{}, nsvahl * fpternary( pvec3_sv < 0., -sqh, sqh ) ); // AV: removed an abs here
+        vc_sv[2] = cxtype_sv( hel0 * pp_sv / vmass );                                                // IIII=0000
+        vc_sv[5] = cxtype_sv( hel0 * pvec3_sv * emp_sv + hel * pt_sv / pp_sv * sqh );                // IIII=0000
+        vc_sv[3] = cxtype_sv( -hel * sqh );                                                          // IIII=0000
+        vc_sv[4] = cxtype_sv( fptype_sv{}, (fptype)nsvahl * fpternary( pvec3_sv < 0., -sqh, sqh ) ); // AV: removed an abs here
       }
       else if( maskand( pp_sv != 0. ) && maskand( pt_sv != 0. ) )
       {
@@ -499,8 +499,8 @@ namespace mg5amcCpu
         vc_sv[2] = cxtype_sv( hel0 * pp_sv / vmass );                                 // IIII=0000
         vc_sv[5] = cxtype_sv( hel0 * pvec3_sv * emp_sv + hel * pt_sv / pp_sv * sqh ); // IIII=0000
         const fptype_sv pzpt_sv = pvec3_sv / ( pp_sv * pt_sv ) * sqh * hel;
-        vc_sv[3] = cxmake( hel0 * pvec1_sv * emp_sv - pvec1_sv * pzpt_sv, -nsvahl * pvec2_sv / pt_sv * sqh );
-        vc_sv[4] = cxmake( hel0 * pvec2_sv * emp_sv - pvec2_sv * pzpt_sv, nsvahl * pvec1_sv / pt_sv * sqh );
+        vc_sv[3] = cxmake( hel0 * pvec1_sv * emp_sv - pvec1_sv * pzpt_sv, -(fptype)nsvahl * pvec2_sv / pt_sv * sqh );
+        vc_sv[4] = cxmake( hel0 * pvec2_sv * emp_sv - pvec2_sv * pzpt_sv, (fptype)nsvahl * pvec1_sv / pt_sv * sqh );
       }
       else
       {
@@ -552,14 +552,14 @@ namespace mg5amcCpu
       vc_sv[5] = cxmake( hel * pt_sv / pp_sv * sqh, 0. );
       if( maskand( pt_sv == 0. ) )
       {
-        vc_sv[3] = cxtype_sv( -hel * sqh );                                              // IIII=0000
-        vc_sv[4] = cxtype_sv( fptype_sv{}, nsv * fpternary( pvec3_sv < 0., -sqh, sqh ) ); // AV: removed an abs here
+        vc_sv[3] = cxtype_sv( -hel * sqh );                                                       // IIII=0000
+        vc_sv[4] = cxtype_sv( fptype_sv{}, (fptype)nsv * fpternary( pvec3_sv < 0., -sqh, sqh ) ); // AV: removed an abs here
       }
       else if( maskand( pt_sv != 0. ) )
       {
         const fptype_sv pzpt_sv = pvec3_sv / ( pp_sv * pt_sv ) * sqh * hel;
-        vc_sv[3] = cxmake( -pvec1_sv * pzpt_sv, -nsv * pvec2_sv / pt_sv * sqh );
-        vc_sv[4] = cxmake( -pvec2_sv * pzpt_sv, nsv * pvec1_sv / pt_sv * sqh );
+        vc_sv[3] = cxmake( -pvec1_sv * pzpt_sv, -(fptype)nsv * pvec2_sv / pt_sv * sqh );
+        vc_sv[4] = cxmake( -pvec2_sv * pzpt_sv, (fptype)nsv * pvec1_sv / pt_sv * sqh );
       }        
       else
       {
@@ -683,7 +683,7 @@ namespace mg5amcCpu
         omega_sv[1] = fmass / omega_sv[0];
         const fptype_sv sfomega_sv[2] = { sf[0] * omega_sv[ip], sf[1] * omega_sv[im] };
         const cxtype_sv chi_sv[2] = { cxmake( fpsqrt( pp3_sv * (fptype)0.5 / pp_sv ), 0. ),
-                                      cxmake( nh * pvec1_sv, -pvec2_sv ) / fpsqrt( 2. * pp_sv * pp3_sv ) };
+                                      cxmake( (fptype)nh * pvec1_sv, -pvec2_sv ) / fpsqrt( 2. * pp_sv * pp3_sv ) };
         fo_sv[2] = sfomega_sv[1] * chi_sv[im];
         fo_sv[3] = sfomega_sv[1] * chi_sv[ip];
         fo_sv[4] = sfomega_sv[0] * chi_sv[im];
