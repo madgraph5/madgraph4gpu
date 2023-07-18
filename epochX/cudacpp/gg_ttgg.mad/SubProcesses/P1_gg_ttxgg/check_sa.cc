@@ -745,7 +745,7 @@ main( int argc, char** argv )
   wrkflwtxt += "CUD:";
 #elif defined __HIPCC__
   wrkflwtxt += "HIP:";
-else
+#else
   wrkflwtxt += "CPP:";
 #endif
   // -- DOUBLE or FLOAT?
@@ -1053,7 +1053,7 @@ else
 #elif defined MGONGPU_CUCXTYPE_CXSMPL
              << "\"STD::COMPLEX\"," << std::endl
 #else
-             << "\"???\"," << std::endl // no path to this statement...
+             << "\"???\"," << std::endl                           // no path to this statement...
 #endif
              << "\"RanNumb memory layout\": "
              << "\"AOSOA[" << neppR << "]\""

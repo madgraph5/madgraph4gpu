@@ -10,8 +10,6 @@
 // Class member functions for calculating the matrix elements for
 %(process_lines)s
 
-#include "GpuRuntime.h"
-
 #ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 #else

@@ -3,21 +3,9 @@
 
 #include <cassert>
 
-#ifdef MGONGPUCPP_GPUIMPL
-#define MGONGPUCPP_CUDACC 1
-#endif
-
-#ifdef __HIPCC__
-#include "hip/hip_runtime.h"
-#define MGONGPUCPP_HIPCC 1
-#endif
-
-#ifdef MGONGPUCPP_CUDACC
-
-// Defines correct compiler
-#define MGONGPUCPP_GPUIMPL MGONGPUCPP_GPUIMPL
-
 //--------------------------------------------------------------------------
+
+#ifdef __CUDACC__
 
 #define gpuError_t cudaError_t
 #define gpuPeekAtLastError cudaPeekAtLastError
@@ -44,12 +32,9 @@
 
 //--------------------------------------------------------------------------
 
-#elif defined MGONGPUCPP_HIPCC
+#elif defined __HIPCC__
 
-// Defines correct compiler
-#define MGONGPUCPP_GPUIMPL __HCC__
-
-//--------------------------------------------------------------------------
+#include "hip/hip_runtime.h"
 
 #define gpuError_t hipError_t
 #define gpuPeekAtLastError hipPeekAtLastError
@@ -73,6 +58,8 @@
 
 #define gpuLaunchKernel( kernel, blocks, threads, ... ) kernel<<<blocks, threads>>>( __VA_ARGS__ )
 #define gpuLaunchKernelSharedMem( kernel, blocks, threads, sharedMem, ... ) kernel<<<blocks, threads, sharedMem>>>( __VA_ARGS__ )
+
+//--------------------------------------------------------------------------
 
 #endif
 

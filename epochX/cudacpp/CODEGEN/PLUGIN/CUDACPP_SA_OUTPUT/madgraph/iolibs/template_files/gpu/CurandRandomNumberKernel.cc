@@ -22,7 +22,7 @@ inline void assertCurand( curandStatus_t code, const char *file, int line, bool 
 }
 #endif /* clang-format on */
 
-#ifdef MGONGPUCPP_CUDACC
+#ifdef __CUDACC__
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
@@ -36,7 +36,7 @@ namespace mg5amcCpu
   {
     if( m_isOnDevice )
     {
-#ifdef MGONGPUCPP_CUDACC
+#ifdef __CUDACC__
       if( !m_rnarray.isOnDevice() )
         throw std::runtime_error( "CurandRandomNumberKernel on device with a host random number array" );
 #else

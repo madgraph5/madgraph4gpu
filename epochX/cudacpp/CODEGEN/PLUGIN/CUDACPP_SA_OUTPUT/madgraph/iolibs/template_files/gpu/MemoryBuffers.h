@@ -11,6 +11,7 @@
 #include "mgOnGpuCxtypes.h"
 
 #include "CPPProcess.h"
+#include "GpuRuntime.h"
 #include "Parameters_%(model_name)s.h"
 
 #include <sstream>

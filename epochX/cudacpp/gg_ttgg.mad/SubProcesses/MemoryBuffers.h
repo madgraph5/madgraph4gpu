@@ -7,6 +7,7 @@
 #define MemoryBuffers_H 1
 
 #include "mgOnGpuConfig.h"
+
 #include "mgOnGpuCxtypes.h"
 
 #include "CPPProcess.h"
