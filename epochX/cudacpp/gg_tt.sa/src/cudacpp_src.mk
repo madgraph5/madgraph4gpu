@@ -115,7 +115,9 @@ else ifneq ($(shell $(CXX) --version | grep ^nvc++),) # support nvc++ #531
     $(error Unknown AVX='$(AVX)': only 'none', 'sse4', 'avx2', '512y' and '512z' are supported)
   endif
 else
-  ifeq ($(AVX),sse4)
+  ifeq ($(AVX),none)
+    override AVXFLAGS = -march=x86-64 # no SIMD (see #588)
+  else ifeq ($(AVX),sse4)
     override AVXFLAGS = -march=nehalem # SSE4.2 with 128 width (xmm registers)
   else ifeq ($(AVX),avx2)
     override AVXFLAGS = -march=haswell # AVX2 with 256 width (ymm registers) [DEFAULT for clang]
