@@ -6,9 +6,10 @@
 #ifndef MGONGPUVECTORS_H
 #define MGONGPUVECTORS_H 1
 
-#include "GpuAbstraction.h"
 #include "mgOnGpuCxtypes.h"
 #include "mgOnGpuFptypes.h"
+
+#include "GpuAbstraction.h"
 
 #include <iostream>
 

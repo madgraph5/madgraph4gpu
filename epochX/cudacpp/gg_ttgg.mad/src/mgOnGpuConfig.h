@@ -86,7 +86,7 @@
 #undef MGONGPU_NSIGHT_DEBUG // default in CUDA
 //#define MGONGPU_NSIGHT_DEBUG 1
 #else
-#undef MGONGPU_NSIGHT_DEBUG // only option in HIP or C++ 
+#undef MGONGPU_NSIGHT_DEBUG // only option in HIP or C++
 #endif
 
 // SANITY CHECKS (floating point precision for everything but color algebra #537)
