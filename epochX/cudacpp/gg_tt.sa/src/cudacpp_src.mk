@@ -216,7 +216,7 @@ MG5AMC_COMMONLIB = mg5amc_common
 all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/.build.$(TAG) $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so
 
 # Target (and build options): debug
-debug: OPTFLAGS = -g -O0 -DDEBUG2
+debug: OPTFLAGS = -g -O0
 debug: all.$(TAG)
 
 # Target: tag-specific build lockfiles

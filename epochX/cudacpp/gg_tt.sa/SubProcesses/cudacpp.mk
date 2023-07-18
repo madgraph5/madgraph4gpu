@@ -439,8 +439,8 @@ endif
 
 # Target (and build options): debug
 MAKEDEBUG=
-debug: OPTFLAGS   = -g -O0 -DDEBUG2
-debug: CUOPTFLAGS = -G
+debug: OPTFLAGS   = -g -O0
+debug: CUOPTFLAGS += -G
 debug: MAKEDEBUG := debug
 debug: all.$(TAG)
 
