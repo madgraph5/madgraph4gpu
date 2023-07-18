@@ -1,3 +1,8 @@
+// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Created by: J. Teig (Jul 2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: J. Teig, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
+
 #ifndef MG5AMC_GPUABSTRACTION_H
 #define MG5AMC_GPUABSTRACTION_H 1
 

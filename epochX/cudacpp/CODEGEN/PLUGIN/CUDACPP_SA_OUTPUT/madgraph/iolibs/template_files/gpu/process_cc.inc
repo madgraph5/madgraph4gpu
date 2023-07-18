@@ -4,7 +4,7 @@
 // Copyright (C) 2020-2023 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Modified by: S. Roiser (Feb 2020) for the MG5aMC CUDACPP plugin.
-// Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, A. Valassi, Z. Wettersten (2020-2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, J. Teig, A. Valassi, Z. Wettersten (2020-2023) for the MG5aMC CUDACPP plugin.
 //==========================================================================
 // This file has been automatically generated for CUDA/C++ standalone by
 %(info_lines)s
