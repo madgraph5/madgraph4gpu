@@ -761,7 +761,7 @@ main( int argc, char** argv )
     rndgentxt = "CURAND HOST";
   else if( rndgen == RandomNumberMode::CurandDevice )
     rndgentxt = "CURAND DEVICE";
-#ifdef MGONGPUCPP_GPUIMPL
+#ifdef __CUDACC__
   rndgentxt += " (CUDA code)";
 #elif defined __HIPCC__
   rndgentxt += " (HIP code)";
@@ -771,8 +771,8 @@ main( int argc, char** argv )
 
   // Workflow description summary
   std::string wrkflwtxt;
-  // -- CUDA or C++?
-#ifdef MGONGPUCPP_GPUIMPL
+  // -- CUDA or HIP or C++?
+#ifdef __CUDACC__
   wrkflwtxt += "CUD:";
 #elif defined __HIPCC__
   wrkflwtxt += "HIP:";
@@ -790,7 +790,7 @@ main( int argc, char** argv )
   wrkflwtxt += "???+"; // no path to this statement
 #endif
   // -- CUCOMPLEX or THRUST or STD complex numbers?
-#ifdef MGONGPUCPP_GPUIMPL
+#ifdef __CUDACC__
 #if defined MGONGPU_CUCXTYPE_CUCOMPLEX
   wrkflwtxt += "CUX:";
 #elif defined MGONGPU_CUCXTYPE_THRUST
@@ -800,6 +800,12 @@ main( int argc, char** argv )
 #else
   wrkflwtxt += "???:"; // no path to this statement
 #endif /* clang-format on */
+#elif defined __HIPCC__
+#if defined MGONGPU_CUCXTYPE_CXSMPL
+  wrkflwtxt += "CXS:";
+#else
+  wrkflwtxt += "???:"; // no path to this statement
+#endif
 #elif defined __HIPCC__
 #if defined MGONGPU_CUCXTYPE_CXSMPL
   wrkflwtxt += "CXS:";
@@ -906,7 +912,7 @@ main( int argc, char** argv )
 #endif
     // Dump all configuration parameters and all results
     std::cout << std::string( SEP79, '*' ) << std::endl
-#ifdef MGONGPUCPP_GPUIMPL
+#ifdef __CUDACC__
               << "Process                     = " << XSTRINGIFY( MG_EPOCH_PROCESS_ID ) << "_CUDA"
 #elif defined __HIPCC__
               << "Process                     = " << XSTRINGIFY( MG_EPOCH_PROCESS_ID ) << "_HIP"
@@ -936,7 +942,6 @@ main( int argc, char** argv )
 #elif defined MGONGPU_FPTYPE_FLOAT
               << "FP precision                = FLOAT (NaN/abnormal=" << nabn << ", zero=" << nzero << ")" << std::endl
 #endif
-#ifdef MGONGPUCPP_GPUIMPL
 #if defined MGONGPU_CUCXTYPE_CUCOMPLEX
               << "Complex type                = CUCOMPLEX" << std::endl
 #elif defined MGONGPU_CUCXTYPE_THRUST
@@ -1078,7 +1083,6 @@ main( int argc, char** argv )
              << "\"FLOAT (NaN/abnormal=" << nabn << ")\"," << std::endl
 #endif
              << "\"Complex type\": "
-#ifdef MGONGPUCPP_GPUIMPL
 #if defined MGONGPU_CUCXTYPE_CUCOMPLEX
              << "\"CUCOMPLEX\"," << std::endl
 #elif defined MGONGPU_CUCXTYPE_THRUST

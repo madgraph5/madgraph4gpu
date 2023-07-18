@@ -6,8 +6,6 @@
 #ifndef MGONGPUCONFIG_H
 #define MGONGPUCONFIG_H 1
 
-#include "GpuRuntime.h" // Includes the GPU abstraction
-
 // HARDCODED AT CODE GENERATION TIME: DO NOT MODIFY (#473)
 // There are two different code bases for standalone_cudacpp (without multichannel) and madevent+cudacpp (with multichannel)
 %(mgongpu_supports_multichannel)s
@@ -17,7 +15,6 @@
 #define MGONGPUCPP_GPUIMPL cuda
 #elif defined __HIPCC__
 #define MGONGPUCPP_GPUIMPL hip
-#include "hip/hip_runtime.h"
 #else
 #undef MGONGPUCPP_GPUIMPL
 #endif
