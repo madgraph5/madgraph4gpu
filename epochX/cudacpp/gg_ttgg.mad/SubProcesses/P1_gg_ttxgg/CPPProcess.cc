@@ -191,7 +191,7 @@ namespace mg5amcCpu
 #endif
       constexpr size_t nxcoup = ndcoup + nicoup; // both dependent and independent couplings
       const fptype* allCOUPs[nxcoup];
-#ifdef MGONGPUCPP_GPUIMPL
+#ifdef __CUDACC__
 #pragma nv_diagnostic push
 #pragma nv_diag_suppress 186 // e.g. <<warning #186-D: pointless comparison of unsigned integer with zero>>
 #endif
@@ -200,7 +200,9 @@ namespace mg5amcCpu
       for( size_t iicoup = 0; iicoup < nicoup; iicoup++ )
         allCOUPs[ndcoup + iicoup] = CI_ACCESS::iicoupAccessBufferConst( cIPC, iicoup ); // independent couplings, fixed for all events
 #ifdef MGONGPUCPP_GPUIMPL
+#ifdef __CUDACC__
 #pragma nv_diagnostic pop
+#endif
       // CUDA kernels take input/output buffers with momenta/MEs for all events
       const fptype* momenta = allmomenta;
       const fptype* COUPs[nxcoup];
@@ -2672,7 +2674,7 @@ namespace mg5amcCpu
     //const cxtype tIPC[0] = { ... }; // nicoup=0
 #ifdef MGONGPUCPP_GPUIMPL
     gpuMemcpyToSymbol( cIPD, tIPD, 2 * sizeof( fptype ) );
-    //checkCuda( cudaMemcpyToSymbol( cIPC, tIPC, 0 * sizeof( cxtype ) ) ); // nicoup=0
+    //gpuMemcpyToSymbol( cIPC, tIPC, 0 * sizeof( cxtype ) ); // nicoup=0
 #else
     memcpy( cIPD, tIPD, 2 * sizeof( fptype ) );
     //memcpy( cIPC, tIPC, 0 * sizeof( cxtype ) ); // nicoup=0
@@ -2991,6 +2993,9 @@ namespace mg5amcCpu
 #endif
 
     // Start sigmaKin_lines
+
+#include "GpuAbstraction.h"
+
     // === PART 0 - INITIALISATION (before calculate_wavefunctions) ===
     // Reset the "matrix elements" - running sums of |M|^2 over helicities for the given event
 #ifdef MGONGPUCPP_GPUIMPL
