@@ -1,12 +1,11 @@
 // Copyright (C) 2020-2023 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: A. Valassi (Jan 2022) for the MG5aMC CUDACPP plugin.
-// Further modified by: A. Valassi (2022-2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: J. Teig, A. Valassi (2022-2023) for the MG5aMC CUDACPP plugin.
 
 #include "CrossSectionKernels.h"
 
 #include "GpuAbstraction.h"
-
 #include "MemoryAccessMatrixElements.h"
 #include "MemoryAccessWeights.h"
 #include "MemoryBuffers.h"

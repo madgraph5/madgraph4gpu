@@ -1,7 +1,7 @@
 // Copyright (C) 2020-2023 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: A. Valassi (Dec 2021) for the MG5aMC CUDACPP plugin.
-// Further modified by: A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: J. Teig, A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
 
 #include "RamboSamplingKernels.h"
 
@@ -151,7 +151,7 @@ namespace mg5amcCpu
   void
   RamboSamplingKernelDevice::getMomentaInitial()
   {
-    gpuLaunchKernel(getMomentaInitialDevice, m_gpublocks, m_gputhreads, m_energy, m_momenta.data() );
+    gpuLaunchKernel( getMomentaInitialDevice, m_gpublocks, m_gputhreads, m_energy, m_momenta.data() );
   }
 #endif
 
@@ -175,7 +175,7 @@ namespace mg5amcCpu
   void
   RamboSamplingKernelDevice::getMomentaFinal()
   {
-    gpuLaunchKernel(getMomentaFinalDevice, m_gpublocks, m_gputhreads, m_energy, m_rndmom.data(), m_momenta.data(), m_weights.data() );
+    gpuLaunchKernel( getMomentaFinalDevice, m_gpublocks, m_gputhreads, m_energy, m_rndmom.data(), m_momenta.data(), m_weights.data() );
   }
 #endif
 

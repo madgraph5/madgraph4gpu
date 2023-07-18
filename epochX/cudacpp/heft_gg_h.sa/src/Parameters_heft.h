@@ -222,7 +222,7 @@ namespace Parameters_heft_dependentCouplings
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-variable"  // e.g. <<warning: unused variable ‘mdl_G__exp__2’ [-Wunused-variable]>>
 #pragma GCC diagnostic ignored "-Wunused-parameter" // e.g. <<warning: unused parameter ‘G’ [-Wunused-parameter]>>
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 #pragma nv_diagnostic push
 #pragma nv_diag_suppress 177 // e.g. <<warning #177-D: variable "mdl_G__exp__2" was declared but never referenced>>
 #endif
@@ -273,7 +273,7 @@ namespace Parameters_heft_dependentCouplings
     // End non-SM (e.g. EFT) implementation - special handling of vectors of floats (#439)
     return out;
   }
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 #pragma GCC diagnostic pop
 #pragma nv_diagnostic pop
 #endif
@@ -289,7 +289,7 @@ namespace Parameters_heft_independentCouplings
 
 //==========================================================================
 
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu

@@ -4,15 +4,15 @@
 // Copyright (C) 2020-2023 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Modified by: O. Mattelaer (Nov 2020) for the MG5aMC CUDACPP plugin.
-// Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, J. Teig, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
 //==========================================================================
 
 #include "mgOnGpuConfig.h"
 
 #include "BridgeKernels.h"
 #include "CPPProcess.h"
-#include "GpuRuntime.h"
 #include "CrossSectionKernels.h"
+#include "GpuRuntime.h"
 #include "MatrixElementKernels.h"
 #include "MemoryAccessMatrixElements.h"
 #include "MemoryAccessMomenta.h"
@@ -103,12 +103,12 @@ main( int argc, char** argv )
     CurandHost = 1,
     CurandDevice = 2
   };
-#ifdef MGONGPUCPP_CUDACPP
-  RandomNumberMode rndgen = RandomNumberMode::CurandDevice; // default on GPU
+#ifdef __CUDACC__
+  RandomNumberMode rndgen = RandomNumberMode::CurandDevice; // default on CUDA GPU
 #elif not defined MGONGPU_HAS_NO_CURAND
   RandomNumberMode rndgen = RandomNumberMode::CurandHost;  // default on CPU if build has curand
 #else
-  RandomNumberMode rndgen = RandomNumberMode::CommonRandom; // default on CPU if build has no curand
+  RandomNumberMode rndgen = RandomNumberMode::CommonRandom; // default on CPU if build has no curand and on HIP GPU
 #endif
   // Rambo sampling mode (NB RamboHost implies CommonRandom or CurandHost!)
   enum class RamboSamplingMode
@@ -146,10 +146,10 @@ main( int argc, char** argv )
     }
     else if( arg == "--curdev" )
     {
-#ifdef MGONGPUCPP_CUDACC
+#ifdef __CUDACC__
       rndgen = RandomNumberMode::CurandDevice;
 #else
-      throw std::runtime_error( "CurandDevice is not supported on CPUs" );
+      throw std::runtime_error( "CurandDevice is not supported on CPUs or on HIP GPUs" );
 #endif
     }
     else if( arg == "--curhst" )
@@ -266,12 +266,12 @@ main( int argc, char** argv )
 
 #ifdef MGONGPUCPP_GPUIMPL
 
-  // --- 00. Initialise cuda
-  // Instantiate a GpuRuntime (CUDA or HIP based on target arch) at the beginnining of the application's main to
-  // invoke gpuSetDevice(0) in the constructor and book a gpuDeviceReset() call in the destructor
-  const std::string cdinKey = "00 CudaInit";
+  // --- 00. Initialise GPU
+  // Instantiate a GpuRuntime at the beginnining of the application's main.
+  // For CUDA this invokes cudaSetDevice(0) in the constructor and books a cudaDeviceReset() call in the destructor.
+  const std::string cdinKey = "00 GpuInit";
   timermap.start( cdinKey );
-  GpuRuntime gpuRuntime( debug );
+  GpuRuntime GpuRuntime( debug );
 #endif
 
   // --- 0a. Initialise physics process
@@ -395,7 +395,7 @@ main( int argc, char** argv )
     const bool onDevice = false;
     prnk.reset( new CurandRandomNumberKernel( hstRndmom, onDevice ) );
   }
-#ifdef MGONGPUCPP_CUDACC
+#ifdef __CUDACC__
   else
   {
     const bool onDevice = true;
@@ -404,7 +404,7 @@ main( int argc, char** argv )
 #else
   else
   {
-    throw std::logic_error( "CurandDevice is not supported on CPUs" ); // INTERNAL ERROR (no path to this statement)
+    throw std::logic_error( "CurandDevice is not supported on CPUs or HIP GPUs" ); // INTERNAL ERROR (no path to this statement)
   }
 #endif
 #else
@@ -730,17 +730,21 @@ main( int argc, char** argv )
     rndgentxt = "CURAND HOST";
   else if( rndgen == RandomNumberMode::CurandDevice )
     rndgentxt = "CURAND DEVICE";
-#ifdef MGONGPUCPP_GPUIMPL
+#ifdef __CUDACC__
   rndgentxt += " (CUDA code)";
+#elif defined __HIPCC__
+  rndgentxt += " (HIP code)";
 #else
   rndgentxt += " (C++ code)";
 #endif
 
   // Workflow description summary
   std::string wrkflwtxt;
-  // -- CUDA or C++?
-#ifdef MGONGPUCPP_GPUIMPL
+  // -- CUDA or HIP or C++?
+#ifdef __CUDACC__
   wrkflwtxt += "CUD:";
+#elif defined __HIPCC__
+  wrkflwtxt += "HIP:";
 #else
   wrkflwtxt += "CPP:";
 #endif
@@ -755,12 +759,18 @@ main( int argc, char** argv )
   wrkflwtxt += "???+"; // no path to this statement
 #endif
   // -- CUCOMPLEX or THRUST or STD complex numbers?
-#ifdef MGONGPUCPP_GPUIMPL
+#ifdef __CUDACC__
 #if defined MGONGPU_CUCXTYPE_CUCOMPLEX
   wrkflwtxt += "CUX:";
 #elif defined MGONGPU_CUCXTYPE_THRUST
   wrkflwtxt += "THX:";
 #elif defined MGONGPU_CUCXTYPE_CXSMPL
+  wrkflwtxt += "CXS:";
+#else
+  wrkflwtxt += "???:"; // no path to this statement
+#endif
+#elif defined __HIPCC__
+#if defined MGONGPU_CUCXTYPE_CXSMPL
   wrkflwtxt += "CXS:";
 #else
   wrkflwtxt += "???:"; // no path to this statement
@@ -865,8 +875,10 @@ main( int argc, char** argv )
 #endif
     // Dump all configuration parameters and all results
     std::cout << std::string( SEP79, '*' ) << std::endl
-#ifdef MGONGPUCPP_GPUIMPL
+#ifdef __CUDACC__
               << "Process                     = " << XSTRINGIFY( MG_EPOCH_PROCESS_ID ) << "_CUDA"
+#elif defined __HIPCC__
+              << "Process                     = " << XSTRINGIFY( MG_EPOCH_PROCESS_ID ) << "_HIP"
 #else
               << "Process                     = " << XSTRINGIFY( MG_EPOCH_PROCESS_ID ) << "_CPP"
 #endif
@@ -893,14 +905,14 @@ main( int argc, char** argv )
 #elif defined MGONGPU_FPTYPE_FLOAT
               << "FP precision                = FLOAT (NaN/abnormal=" << nabn << ", zero=" << nzero << ")" << std::endl
 #endif
-#ifdef MGONGPUCPP_GPUIMPL
 #if defined MGONGPU_CUCXTYPE_CUCOMPLEX
               << "Complex type                = CUCOMPLEX" << std::endl
 #elif defined MGONGPU_CUCXTYPE_THRUST
               << "Complex type                = THRUST::COMPLEX" << std::endl
-#endif
-#else
+#elif defined MGONGPU_CUCXTYPE_CXSMPL
               << "Complex type                = STD::COMPLEX" << std::endl
+#else
+              << "Complex type                = ???" << std::endl // no path to this statement...
 #endif
               << "RanNumb memory layout       = AOSOA[" << neppR << "]"
               << ( neppR == 1 ? " == AOS" : "" )
@@ -1034,14 +1046,14 @@ main( int argc, char** argv )
              << "\"FLOAT (NaN/abnormal=" << nabn << ")\"," << std::endl
 #endif
              << "\"Complex type\": "
-#ifdef MGONGPUCPP_GPUIMPL
 #if defined MGONGPU_CUCXTYPE_CUCOMPLEX
              << "\"CUCOMPLEX\"," << std::endl
 #elif defined MGONGPU_CUCXTYPE_THRUST
              << "\"THRUST::COMPLEX\"," << std::endl
-#endif
-#else
+#elif defined MGONGPU_CUCXTYPE_CXSMPL
              << "\"STD::COMPLEX\"," << std::endl
+#else
+             << "\"???\"," << std::endl                           // no path to this statement...
 #endif
              << "\"RanNumb memory layout\": "
              << "\"AOSOA[" << neppR << "]\""
