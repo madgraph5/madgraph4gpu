@@ -440,7 +440,7 @@ endif
 # Target (and build options): debug
 MAKEDEBUG=
 debug: OPTFLAGS   = -g -O0
-debug: CUOPTFLAGS += -G
+debug: CUOPTFLAGS = -G
 debug: MAKEDEBUG := debug
 debug: all.$(TAG)
 
