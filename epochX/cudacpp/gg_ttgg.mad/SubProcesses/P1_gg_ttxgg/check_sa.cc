@@ -740,6 +740,8 @@ main( int argc, char** argv )
   // -- CUDA or C++?
 #ifdef __CUDACC__
   wrkflwtxt += "CUD:";
+#elif defined __HIPCC__
+  wrkflwtxt += "HIP:";
 #else
   wrkflwtxt += "CPP:";
 #endif
@@ -1040,7 +1042,7 @@ main( int argc, char** argv )
              << "\"THRUST::COMPLEX\"," << std::endl
 #endif
 #else
-             << "\"STD::COMPLEX\"," << std::endl
+             << "\"???\"," << std::endl                           // no path to this statement...
 #endif
              << "\"RanNumb memory layout\": "
              << "\"AOSOA[" << neppR << "]\""

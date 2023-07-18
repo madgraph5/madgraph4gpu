@@ -7,8 +7,6 @@
 ! Further modified by: A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
 !==========================================================================
 
-#include "GpuAbstraction.h"
-
       // *** COLOR CHOICE BELOW ***
       // Store the leading color flows for choice of color
       if( jamp2_sv ) // disable color choice if nullptr
