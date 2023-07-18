@@ -1,3 +1,8 @@
+// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Created by: J. Teig (Jun 2023, based on earlier work by S. Roiser) for the MG5aMC CUDACPP plugin.
+// Further modified by: O. Mattelaer, S. Roiser, J. Teig, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
+
 #ifndef MG5AMC_GPURUNTIME_H
 #define MG5AMC_GPURUNTIME_H 1
 
