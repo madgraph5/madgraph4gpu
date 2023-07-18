@@ -7,10 +7,10 @@
 #define MemoryBuffers_H 1
 
 #include "mgOnGpuConfig.h"
-
 #include "mgOnGpuCxtypes.h"
 
 #include "CPPProcess.h"
+#include "GpuRuntime.h"
 #include "Parameters_sm.h"
 
 #include <sstream>

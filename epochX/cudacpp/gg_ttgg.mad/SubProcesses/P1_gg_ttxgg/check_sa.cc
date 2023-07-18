@@ -12,6 +12,7 @@
 #include "BridgeKernels.h"
 #include "CPPProcess.h"
 #include "CrossSectionKernels.h"
+#include "GpuRuntime.h"
 #include "MatrixElementKernels.h"
 #include "MemoryAccessMatrixElements.h"
 #include "MemoryAccessMomenta.h"
