@@ -46,13 +46,9 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-#define NOVECTOR __attribute__((optimize("no-tree-vectorize")))
-
-  //--------------------------------------------------------------------------
-
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
   template<class M_ACCESS, class W_ACCESS>
-  __host__ __device__ INLINE NOVECTOR void
+  __host__ __device__ INLINE void
   ixxxxx( const fptype momenta[], // input: momenta
           const fptype fmass,     // input: fermion mass
           const int nhel,         // input: -1 or +1 (helicity of fermion)
@@ -107,7 +103,7 @@ namespace mg5amcCpu
 
   // Compute the output wavefunction vc[6] from the input momenta[npar*4*nevt]
   template<class M_ACCESS, class W_ACCESS>
-  __host__ __device__ INLINE NOVECTOR void
+  __host__ __device__ INLINE void
   vxxxxx( const fptype momenta[], // input: momenta
           const fptype vmass,     // input: vector boson mass
           const int nhel,         // input: -1, 0 (only if vmass!=0) or +1 (helicity of vector boson)
@@ -133,7 +129,7 @@ namespace mg5amcCpu
 
   // Compute the output wavefunction fo[6] from the input momenta[npar*4*nevt]
   template<class M_ACCESS, class W_ACCESS>
-  __host__ __device__ INLINE NOVECTOR void
+  __host__ __device__ INLINE void
   oxxxxx( const fptype momenta[], // input: momenta
           const fptype fmass,     // input: fermion mass
           const int nhel,         // input: -1, 0 (only if vmass!=0) or +1 (helicity of vector boson)
