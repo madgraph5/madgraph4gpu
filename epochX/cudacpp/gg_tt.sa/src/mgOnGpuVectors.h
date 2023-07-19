@@ -827,19 +827,19 @@ namespace mg5amcCpu
   typedef fptype fptype_sv;
   typedef fptype2 fptype2_sv;
   typedef cxtype cxtype_sv;
-  typedef mgOnGpu::cxtype_ref cxtype_sv_ref;
+  typedef cxtype_ref cxtype_sv_ref;
 #elif defined MGONGPU_CPPSIMD
   typedef bool_v bool_sv;
   typedef fptype_v fptype_sv;
   typedef fptype2_v fptype2_sv;
   typedef cxtype_v cxtype_sv;
-  typedef mgOnGpu::cxtype_v_ref cxtype_sv_ref;
+  typedef cxtype_v_ref cxtype_sv_ref;
 #else
   typedef bool bool_sv;
   typedef fptype fptype_sv;
   typedef fptype2 fptype2_sv;
   typedef cxtype cxtype_sv;
-  typedef mgOnGpu::cxtype_ref cxtype_sv_ref;
+  typedef cxtype_ref cxtype_sv_ref;
 #endif
 
   // Scalar-or-vector zeros: scalar in CUDA, vector or scalar in C++
