@@ -240,19 +240,19 @@ $(LIBDIR)/.build.$(TAG):
 
 # Generic target and build rules: objects from C++ compilation
 $(BUILDDIR)/%.o : %.cc *.h $(BUILDDIR)/.build.$(TAG)
-	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -fPIC -c $< -o $@
 
-# Generic target and build rules: objects from C++ compilation
-$(BUILDDIR)/%.o : %.cu *.h $(BUILDDIR)/.build.$(TAG)
-	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
-	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -Xcompiler -fPIC -c $< -o $@
+# Generic target and build rules: objects from CUDA compilation
+$(BUILDDIR)/%_cu.o : %.cc *.h $(BUILDDIR)/.build.$(TAG)
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
+	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -Xcompiler -fPIC -c -x cu $< -o $@
 
 #-------------------------------------------------------------------------------
 
 cxx_objects=$(addprefix $(BUILDDIR)/, Parameters_sm.o read_slha.o)
 ifneq ($(NVCC),)
-cu_objects=$(addprefix $(BUILDDIR)/, gParameters_sm.o)
+cu_objects=$(addprefix $(BUILDDIR)/, Parameters_sm_cu.o)
 endif
 
 # Target (and build rules): common (src) library
