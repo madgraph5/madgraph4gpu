@@ -43,6 +43,7 @@
 // COMPLEX TYPES: SIMPLE COMPLEX CLASS (cxsmpl)
 //==========================================================================
 
+// NB: namespace mgOnGpu includes types which are defined in exactly the same way for CPU and GPU builds (see #318 and #725)
 namespace mgOnGpu /* clang-format off */
 {
   // --- Type definition (simple complex type derived from cxtype_v)
@@ -197,7 +198,12 @@ operator/( const cxsmpl<FP>& a, const FP& b )
 // COMPLEX TYPES: (PLATFORM-SPECIFIC) TYPEDEFS
 //==========================================================================
 
-namespace mgOnGpu
+// NB: namespaces mg5amcGpu and mg5amcCpu includes types which are defined in different ways for CPU and GPU builds (see #318 and #725)
+#ifdef __CUDACC__
+namespace mg5amcGpu
+#else
+namespace mg5amcCpu
+#endif
 {
 
   // --- Type definitions (complex type: cxtype)
@@ -228,8 +234,9 @@ namespace mgOnGpu
   static_assert( sizeof( cxtype ) == nx2 * sizeof( fptype ), "sizeof(cxtype) is not 2*sizeof(fptype)" );
 }
 
-// Expose typedefs and operators outside the namespace
-using mgOnGpu::cxtype;
+// DANGEROUS! this was mixing different cxtype definitions for CPU and GPU builds (see #318 and #725)
+// DO NOT expose typedefs and operators outside the namespace
+//using mgOnGpu::cxtype;
 
 //==========================================================================
 // COMPLEX TYPES: (PLATFORM-SPECIFIC) FUNCTIONS AND OPERATORS
