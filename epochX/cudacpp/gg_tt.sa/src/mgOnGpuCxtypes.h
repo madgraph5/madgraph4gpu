@@ -645,15 +645,16 @@ namespace mg5amcCpu
   private:
     fptype *m_preal, *m_pimag; // RI
   };
-}
 
-// Printout to stream for user defined types
-inline __host__ __device__ std::ostream&
-operator<<( std::ostream& out, const mgOnGpu::cxtype_ref& c )
-{
-  out << (cxtype)c;
-  return out;
-}
+  // Printout to stream for user defined types
+  inline __host__ __device__ std::ostream&
+  operator<<( std::ostream& out, const mgOnGpu::cxtype_ref& c )
+  {
+    out << (cxtype)c;
+    return out;
+  }
+
+} // end namespace mg5amcGpu/mg5amcCpu
 
 //==========================================================================
 
