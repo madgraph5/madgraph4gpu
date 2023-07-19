@@ -262,37 +262,30 @@ namespace mg5amcCpu
 
   //==========================================================================
 
-#ifdef __CUDACC__
-  namespace mg5amcGpu
-#else
-  namespace mg5amcCpu
-#endif
-  {
 #pragma GCC diagnostic push
 #ifndef __clang__
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable" // e.g. <<warning: variable ‘couplings_sv’ set but not used [-Wunused-but-set-variable]>>
 #endif
-    // Compute the output couplings (e.g. gc10 and gc11) from the input gs
-    template<class G_ACCESS, class C_ACCESS>
-    __device__ inline void
-    G2COUP( const fptype gs[],
-            fptype couplings[] )
-    {
-      mgDebug( 0, __FUNCTION__ );
-      using namespace Parameters_sm_dependentCouplings;
-      const fptype_sv& gs_sv = G_ACCESS::kernelAccessConst( gs );
-      DependentCouplings_sv couplings_sv = computeDependentCouplings_fromG( gs_sv );
-      fptype* GC_10s = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_GC_10 );
-      fptype* GC_11s = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_GC_11 );
-      cxtype_sv_ref GC_10s_sv = C_ACCESS::kernelAccess( GC_10s );
-      cxtype_sv_ref GC_11s_sv = C_ACCESS::kernelAccess( GC_11s );
-      GC_10s_sv = couplings_sv.GC_10;
-      GC_11s_sv = couplings_sv.GC_11;
-      mgDebug( 1, __FUNCTION__ );
-      return;
-    }
-#pragma GCC diagnostic pop
+  // Compute the output couplings (e.g. gc10 and gc11) from the input gs
+  template<class G_ACCESS, class C_ACCESS>
+  __device__ inline void
+  G2COUP( const fptype gs[],
+          fptype couplings[] )
+  {
+    mgDebug( 0, __FUNCTION__ );
+    using namespace Parameters_sm_dependentCouplings;
+    const fptype_sv& gs_sv = G_ACCESS::kernelAccessConst( gs );
+    DependentCouplings_sv couplings_sv = computeDependentCouplings_fromG( gs_sv );
+    fptype* GC_10s = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_GC_10 );
+    fptype* GC_11s = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_GC_11 );
+    cxtype_sv_ref GC_10s_sv = C_ACCESS::kernelAccess( GC_10s );
+    cxtype_sv_ref GC_11s_sv = C_ACCESS::kernelAccess( GC_11s );
+    GC_10s_sv = couplings_sv.GC_10;
+    GC_11s_sv = couplings_sv.GC_11;
+    mgDebug( 1, __FUNCTION__ );
+    return;
   }
+#pragma GCC diagnostic pop
 
 } // end namespace mg5amcGpu/mg5amcCpu
 
