@@ -46,6 +46,9 @@
 // NB: namespace mgOnGpu includes types which are defined in exactly the same way for CPU and GPU builds (see #318 and #725)
 namespace mgOnGpu /* clang-format off */
 {
+  // The number of floating point types in a complex type (real, imaginary)
+  constexpr int nx2 = 2;
+
   // --- Type definition (simple complex type derived from cxtype_v)
   template<typename FP>
   class cxsmpl
@@ -234,11 +237,8 @@ namespace mg5amcCpu
 #endif
 #endif
 
-  // The number of floating point types in a complex type (real, imaginary)
-  constexpr int nx2 = 2;
-
   // SANITY CHECK: memory access may be based on casts of fptype[2] to cxtype (e.g. for wavefunctions)
-  static_assert( sizeof( cxtype ) == nx2 * sizeof( fptype ), "sizeof(cxtype) is not 2*sizeof(fptype)" );
+  static_assert( sizeof( cxtype ) == mgOnGpu::nx2 * sizeof( fptype ), "sizeof(cxtype) is not 2*sizeof(fptype)" );
 }
 
 // DANGEROUS! this was mixing different cxtype definitions for CPU and GPU builds (see #318 and #725)
