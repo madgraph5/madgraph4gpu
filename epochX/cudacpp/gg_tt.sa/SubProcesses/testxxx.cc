@@ -30,12 +30,16 @@
 
 TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
 {
+#ifdef __CUDACC__
+  using namespace mg5amcGpu;
+#else
+  using namespace mg5amcCpu;
+#endif
   constexpr bool dumpEvents = false;       // dump the expected output of the test?
   constexpr bool testEvents = !dumpEvents; // run the test?
   constexpr fptype toleranceXXXs = std::is_same<fptype, double>::value ? 1.E-15 : 1.E-5;
   // Constant parameters
   constexpr int neppM = MemoryAccessMomenta::neppM; // AOSOA layout
-  using mgOnGpu::neppV;
   constexpr int np4 = CPPProcess::np4;
   const int nevt = 16;         // 12 independent tests plus 4 duplicates (need a multiple of 8 for floats or for '512z')
   assert( nevt % neppM == 0 ); // nevt must be a multiple of neppM

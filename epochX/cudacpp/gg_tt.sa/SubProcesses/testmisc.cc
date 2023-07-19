@@ -25,32 +25,50 @@
 
 #define XTESTID( s ) TESTID( s )
 
+// NB: namespaces mg5amcGpu and mg5amcCpu includes types which are defined in different ways for CPU and GPU builds (see #318 and #725)
+#ifdef __CUDACC__
+namespace mg5amcGpu
+#else
+namespace mg5amcCpu
+#endif
+{
+
 #ifdef MGONGPU_CPPSIMD /* clang-format off */
 #define EXPECT_TRUE_sv( cond ) { bool_v mask( cond ); EXPECT_TRUE( maskand( mask ) ); }
 #else
 #define EXPECT_TRUE_sv( cond ) { EXPECT_TRUE( cond ); }
 #endif /* clang-format on */
 
-inline const std::string
-boolTF( const bool& b )
-{
-  return ( b ? "T" : "F" );
-}
+  inline const std::string
+  boolTF( const bool& b )
+  {
+    return ( b ? "T" : "F" );
+  }
 
 #ifdef MGONGPU_CPPSIMD
-inline const std::string
-boolTF( const bool_v& v )
-{
-  std::stringstream out;
-  out << "{ " << ( v[0] ? "T" : "F" );
-  for( int i = 1; i < neppV; i++ ) out << ", " << ( v[i] ? "T" : "F" );
-  out << " }";
-  return out.str();
-}
+  inline const std::string
+  boolTF( const bool_v& v )
+  {
+    std::stringstream out;
+    out << "{ " << ( v[0] ? "T" : "F" );
+    for( int i = 1; i < neppV; i++ ) out << ", " << ( v[i] ? "T" : "F" );
+    out << " }";
+    return out.str();
+  }
 #endif
 
+}
+
 TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testmisc )
-{
+{  
+#ifdef __CUDACC__
+  using namespace mg5amcGpu;
+#else
+  using namespace mg5amcCpu;
+#endif
+
+  //--------------------------------------------------------------------------
+
   EXPECT_TRUE( true );
 
   //--------------------------------------------------------------------------
