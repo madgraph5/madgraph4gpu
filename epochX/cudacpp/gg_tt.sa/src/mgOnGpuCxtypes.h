@@ -89,7 +89,7 @@ namespace mg5amcCpu
 #endif
 {
   template<typename FP>
-  inline __host__ __device__ std::ostream&
+  inline __host__ std::ostream&
   operator<<( std::ostream& out, const cxsmpl<FP>& c )
   {
     out << std::complex( c.real(), c.imag() );
