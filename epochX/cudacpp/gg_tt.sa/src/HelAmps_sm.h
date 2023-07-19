@@ -294,7 +294,7 @@ namespace mg5amcCpu
                                              fptype_sv{ 0 },
                                              fpsqrt( fpmax( pvec0_sv + pvec3_sv, 0. ) ) * (fptype)nsf );
 #ifdef MGONGPU_CPPSIMD
-      const fptype_sv denom_sv = fpternary( sqp0p3_sv != 0, sqp0p3_sv, 1. ); // hack to avoid division-by-0 FPE while preserving speed (
+      const fptype_sv denom_sv = fpternary( sqp0p3_sv != 0, sqp0p3_sv, 1. ); // hack to avoid division-by-0 FPE while preserving speed (#701 and #727)
       cxtype_sv chi_sv[2] = { cxmake( sqp0p3_sv, 0. ),
                               cxternary( sqp0p3_sv == 0, cxmake( -(fptype)nhel * fpsqrt( 2. * pvec0_sv ), 0. ), cxmake( (fptype)nh * pvec1_sv, pvec2_sv ) / denom_sv ) };
 #else
@@ -555,6 +555,7 @@ namespace mg5amcCpu
       else
       {
 #ifdef MGONGPU_CPPSIMD
+        const fptype_sv denom_sv = fpternary( pt_sv != 0, pt_sv, 1. ); // hack to avoid division-by-0 FPE while preserving speed (#701 and #727)
         std::cout << "Entering loop" << std::endl;
         for( int ieppV = 0; ieppV < neppV; ieppV++ )
         {
@@ -563,6 +564,7 @@ namespace mg5amcCpu
           const fptype& pvec1 = pvec1_sv[ieppV];
           const fptype& pvec2 = pvec2_sv[ieppV];
           const fptype& pvec3 = pvec3_sv[ieppV];
+          const fptype& denom = denom_sv[ieppV];
           if( pt == 0. )
           {
             vc_sv[3][ieppV] = cxtype( -hel * sqh );
@@ -570,9 +572,9 @@ namespace mg5amcCpu
           }
           else
           {
-            const fptype pzpt = pvec3 / ( pp * pt ) * sqh * hel;
-            vc_sv[3][ieppV] = cxtype( -pvec1 * pzpt, -nsv * pvec2 / pt * sqh );
-            vc_sv[4][ieppV] = cxtype( -pvec2 * pzpt, nsv * pvec1 / pt * sqh );
+            const fptype pzpt = pvec3 / ( pp * denom ) * sqh * hel;
+            vc_sv[3][ieppV] = cxtype( -pvec1 * pzpt, -nsv * pvec2 / denom * sqh );
+            vc_sv[4][ieppV] = cxtype( -pvec2 * pzpt, nsv * pvec1 / denom * sqh );
           }
         }
         std::cout << "Completed loop" << std::endl;
