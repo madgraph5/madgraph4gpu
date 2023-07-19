@@ -717,11 +717,13 @@ namespace mg5amcCpu
                                              fpsqrt( fpmax( pvec0_sv + pvec3_sv, 0. ) ) * (fptype)nsf );
 #ifdef MGONGPU_CPPSIMD
       cxtype_sv chi_sv[2] = { cxmake( sqp0p3_sv, 0. ), cxmake( -(fptype)nhel * fpsqrt( 2. * pvec0_sv ), 0. ) };
+      std::cout << "Entering loop" << std::endl;
       for( int ieppV = 0; ieppV < neppV; ieppV++ )
       {
         if( sqp0p3_sv[ieppV] != 0. )
           chi_sv[1][ieppV] = cxmake( (fptype)nh * pvec1_sv[ieppV], -pvec2_sv[ieppV] ) / sqp0p3_sv[ieppV];
       }
+      std::cout << "Completed loop" << std::endl;
 #else
       const cxtype_sv chi_sv[2] = { cxmake( sqp0p3_sv, 0. ),
                                     ( sqp0p3_sv == 0. ? cxmake( -(fptype)nhel * fpsqrt( 2. * pvec0_sv ), 0. ) : cxmake( (fptype)nh * pvec1_sv, -pvec2_sv ) / sqp0p3_sv ) };
