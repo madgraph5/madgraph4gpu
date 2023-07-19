@@ -53,13 +53,9 @@ namespace mg5amcCpu
 TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
 {
 #ifdef __CUDACC__
-  auto FPEhandler = mg5amcGpu::FPEhandler;
-  std::string& FPEhandlerMessage = mg5amcGpu::FPEhandlerMessage;
-  int& FPEhandlerIevt = mg5amcGpu::FPEhandlerIevt;
+  using namespace mg5amcGpu;
 #else
-  auto FPEhandler = mg5amcCpu::FPEhandler;
-  std::string& FPEhandlerMessage = mg5amcCpu::FPEhandlerMessage;
-  int& FPEhandlerIevt = mg5amcCpu::FPEhandlerIevt;
+  using namespace mg5amcCpu;
 #endif
   const bool enableFPE = !getenv( "CUDACPP_RUNTIME_DISABLEFPE" );
   if ( enableFPE )
@@ -72,7 +68,6 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
   constexpr fptype toleranceXXXs = std::is_same<fptype, double>::value ? 1.E-15 : 1.E-5;
   // Constant parameters
   constexpr int neppM = MemoryAccessMomenta::neppM; // AOSOA layout
-  using mgOnGpu::neppV;
   constexpr int np4 = CPPProcess::np4;
   const int nevt = 32;         // 12 independent tests plus 20 duplicates (need a multiple of 16 for floats '512z')
   assert( nevt % neppM == 0 ); // nevt must be a multiple of neppM
