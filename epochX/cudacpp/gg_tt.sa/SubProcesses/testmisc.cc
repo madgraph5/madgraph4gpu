@@ -32,7 +32,6 @@ namespace mg5amcGpu
 namespace mg5amcCpu
 #endif
 {
-
 #ifdef MGONGPU_CPPSIMD /* clang-format off */
 #define EXPECT_TRUE_sv( cond ) { bool_v mask( cond ); EXPECT_TRUE( maskand( mask ) ); }
 #else
@@ -56,11 +55,10 @@ namespace mg5amcCpu
     return out.str();
   }
 #endif
-
 }
 
 TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testmisc )
-{  
+{
 #ifdef __CUDACC__
   using namespace mg5amcGpu;
 #else

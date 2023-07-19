@@ -40,7 +40,8 @@ namespace mg5amcCpu
 {
   std::string FPEhandlerMessage = "unknown";
   int FPEhandlerIevt = -1;
-  inline void FPEhandler( int sig ) {
+  inline void FPEhandler( int sig )
+  {
 #ifdef __CUDACC__
     std::cerr << "Floating Point Exception (GPU): '" << FPEhandlerMessage << "' ievt=" << FPEhandlerIevt << std::endl;
 #else
@@ -58,7 +59,7 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
   using namespace mg5amcCpu;
 #endif
   const bool enableFPE = !getenv( "CUDACPP_RUNTIME_DISABLEFPE" );
-  if ( enableFPE )
+  if( enableFPE )
   {
     feenableexcept( FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW ); // debug #701
     signal( SIGFPE, FPEhandler );
@@ -285,11 +286,11 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
   const bool debug = true;
   auto prepareTest = [&]( const char* xxx, int ievt )
   {
-    if ( debug ) std::cout << "Prepare test " << xxx << " ievt=" << ievt << std::endl;
+    if( debug ) std::cout << "Prepare test " << xxx << " ievt=" << ievt << std::endl;
     resetHstMomentaToPar0();
     FPEhandlerMessage = xxx;
     FPEhandlerIevt = ievt;
-    if ( std::string( xxx ) == "ipzxxx" || std::string( xxx ) == "opzxxx" || std::string( xxx ) == "imzxxx" || std::string( xxx ) == "omzxxx" || std::string( xxx ) == "ixzxxx" || std::string( xxx ) == "oxzxxx" )
+    if( std::string( xxx ) == "ipzxxx" || std::string( xxx ) == "opzxxx" || std::string( xxx ) == "imzxxx" || std::string( xxx ) == "omzxxx" || std::string( xxx ) == "ixzxxx" || std::string( xxx ) == "oxzxxx" )
     {
       // Modify hstMomenta so that ALL events have the momenta of a single ievt
       // This ensures that a function like ipzxxx (which assumes pZ>0) can be used without triggering FPEs (#701)
@@ -310,7 +311,7 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
   fptype* fp_outwf = reinterpret_cast<fptype*>( outwf );   // proof of concept for using fptype* in the interface
   fptype* fp_outwf3 = reinterpret_cast<fptype*>( outwf3 ); // proof of concept for using fptype* in the interface
   const int nhel = 1;
-  // *** START OF TESTING LOOP 
+  // *** START OF TESTING LOOP
   for( auto nsp: { -1, +1 } ) // antifermion/fermion (or initial/final for scalar and vector)
   {
     for( int ievt = 0; ievt < nevt; ievt++ )
@@ -415,13 +416,13 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
       }
     }
   }
-  // *** END OF TESTING LOOP 
+  // *** END OF TESTING LOOP
   if( dumpEvents )
   {
     dumpFile.close();
     std::cout << "INFO: New reference data dumped to file '" << dumpFileName << "'" << std::endl;
   }
-  if ( enableFPE )
+  if( enableFPE )
   {
     fedisableexcept( FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW ); // debug #701
   }
