@@ -95,113 +95,114 @@ namespace mg5amcCpu
     out << std::complex( c.real(), c.imag() );
     return out;
   }
-}
 
-// Operators for cxsmpl
-template<typename FP>
-inline __host__ __device__ constexpr cxsmpl<FP>
-operator+( const cxsmpl<FP> a )
-{
-  return a;
-}
+  // Operators for cxsmpl
+  template<typename FP>
+  inline __host__ __device__ constexpr cxsmpl<FP>
+  operator+( const cxsmpl<FP> a )
+  {
+    return a;
+  }
 
-template<typename FP>
-inline __host__ __device__ constexpr cxsmpl<FP>
-operator-( const cxsmpl<FP>& a )
-{
-  return cxsmpl<FP>( -a.real(), -a.imag() );
-}
+  template<typename FP>
+  inline __host__ __device__ constexpr cxsmpl<FP>
+  operator-( const cxsmpl<FP>& a )
+  {
+    return cxsmpl<FP>( -a.real(), -a.imag() );
+  }
 
-template<typename FP>
-inline __host__ __device__ constexpr cxsmpl<FP>
-operator+( const cxsmpl<FP>& a, const cxsmpl<FP>& b )
-{
-  return cxsmpl<FP>( a.real() + b.real(), a.imag() + b.imag() );
-}
+  template<typename FP>
+  inline __host__ __device__ constexpr cxsmpl<FP>
+  operator+( const cxsmpl<FP>& a, const cxsmpl<FP>& b )
+  {
+    return cxsmpl<FP>( a.real() + b.real(), a.imag() + b.imag() );
+  }
 
-template<typename FP>
-inline __host__ __device__ constexpr cxsmpl<FP>
-operator+( const FP& a, const cxsmpl<FP>& b )
-{
-  return cxsmpl<FP>( a, 0 ) + b;
-}
+  template<typename FP>
+  inline __host__ __device__ constexpr cxsmpl<FP>
+  operator+( const FP& a, const cxsmpl<FP>& b )
+  {
+    return cxsmpl<FP>( a, 0 ) + b;
+  }
 
-template<typename FP>
-inline __host__ __device__ constexpr cxsmpl<FP>
-operator-( const cxsmpl<FP>& a, const cxsmpl<FP>& b )
-{
-  return cxsmpl<FP>( a.real() - b.real(), a.imag() - b.imag() );
-}
+  template<typename FP>
+  inline __host__ __device__ constexpr cxsmpl<FP>
+  operator-( const cxsmpl<FP>& a, const cxsmpl<FP>& b )
+  {
+    return cxsmpl<FP>( a.real() - b.real(), a.imag() - b.imag() );
+  }
 
-template<typename FP>
-inline __host__ __device__ constexpr cxsmpl<FP>
-operator-( const FP& a, const cxsmpl<FP>& b )
-{
-  return cxsmpl<FP>( a, 0 ) - b;
-}
+  template<typename FP>
+  inline __host__ __device__ constexpr cxsmpl<FP>
+  operator-( const FP& a, const cxsmpl<FP>& b )
+  {
+    return cxsmpl<FP>( a, 0 ) - b;
+  }
 
-template<typename FP>
-inline __host__ __device__ constexpr cxsmpl<FP>
-operator*( const cxsmpl<FP>& a, const cxsmpl<FP>& b )
-{
-  return cxsmpl<FP>( a.real() * b.real() - a.imag() * b.imag(), a.imag() * b.real() + a.real() * b.imag() );
-}
+  template<typename FP>
+  inline __host__ __device__ constexpr cxsmpl<FP>
+  operator*( const cxsmpl<FP>& a, const cxsmpl<FP>& b )
+  {
+    return cxsmpl<FP>( a.real() * b.real() - a.imag() * b.imag(), a.imag() * b.real() + a.real() * b.imag() );
+  }
 
-template<typename FP>
-inline __host__ __device__ constexpr cxsmpl<FP>
-operator*( const FP& a, const cxsmpl<FP>& b )
-{
-  return cxsmpl<FP>( a, 0 ) * b;
-}
+  template<typename FP>
+  inline __host__ __device__ constexpr cxsmpl<FP>
+  operator*( const FP& a, const cxsmpl<FP>& b )
+  {
+    return cxsmpl<FP>( a, 0 ) * b;
+  }
 
-inline __host__ __device__ constexpr cxsmpl<float>
-operator*( const double& a, const cxsmpl<float>& b )
-{
-  return cxsmpl<float>( a, 0 ) * b;
-}
+  inline __host__ __device__ constexpr cxsmpl<float>
+  operator*( const double& a, const cxsmpl<float>& b )
+  {
+    return cxsmpl<float>( a, 0 ) * b;
+  }
 
-template<typename FP>
-inline __host__ __device__ constexpr cxsmpl<FP>
-operator/( const cxsmpl<FP>& a, const cxsmpl<FP>& b )
-{
-  FP bnorm = b.real() * b.real() + b.imag() * b.imag();
-  return cxsmpl<FP>( ( a.real() * b.real() + a.imag() * b.imag() ) / bnorm,
-                     ( a.imag() * b.real() - a.real() * b.imag() ) / bnorm );
-}
+  template<typename FP>
+  inline __host__ __device__ constexpr cxsmpl<FP>
+  operator/( const cxsmpl<FP>& a, const cxsmpl<FP>& b )
+  {
+    FP bnorm = b.real() * b.real() + b.imag() * b.imag();
+    return cxsmpl<FP>( ( a.real() * b.real() + a.imag() * b.imag() ) / bnorm,
+                       ( a.imag() * b.real() - a.real() * b.imag() ) / bnorm );
+  }
 
-template<typename FP>
-inline __host__ __device__ constexpr cxsmpl<FP>
-operator/( const FP& a, const cxsmpl<FP>& b )
-{
-  return cxsmpl<FP>( a, 0 ) / b;
-}
+  template<typename FP>
+  inline __host__ __device__ constexpr cxsmpl<FP>
+  operator/( const FP& a, const cxsmpl<FP>& b )
+  {
+    return cxsmpl<FP>( a, 0 ) / b;
+  }
 
-template<typename FP>
-inline __host__ __device__ constexpr cxsmpl<FP>
-operator+( const cxsmpl<FP>& a, const FP& b )
-{
-  return a + cxsmpl<FP>( b, 0 );
-}
+  template<typename FP>
+  inline __host__ __device__ constexpr cxsmpl<FP>
+  operator+( const cxsmpl<FP>& a, const FP& b )
+  {
+    return a + cxsmpl<FP>( b, 0 );
+  }
 
-template<typename FP>
-inline __host__ __device__ constexpr cxsmpl<FP>
-operator-( const cxsmpl<FP>& a, const FP& b )
-{
-  return a - cxsmpl<FP>( b, 0 );
-}
+  template<typename FP>
+  inline __host__ __device__ constexpr cxsmpl<FP>
+  operator-( const cxsmpl<FP>& a, const FP& b )
+  {
+    return a - cxsmpl<FP>( b, 0 );
+  }
 
-template<typename FP>
-inline __host__ __device__ constexpr cxsmpl<FP>
-operator*( const cxsmpl<FP>& a, const FP& b )
-{
-  return a * cxsmpl<FP>( b, 0 );
-}
+  template<typename FP>
+  inline __host__ __device__ constexpr cxsmpl<FP>
+  operator*( const cxsmpl<FP>& a, const FP& b )
+  {
+    return a * cxsmpl<FP>( b, 0 );
+  }
 
-template<typename FP>
-inline __host__ __device__ constexpr cxsmpl<FP>
-operator/( const cxsmpl<FP>& a, const FP& b )
-{
-  return a / cxsmpl<FP>( b, 0 );
+  template<typename FP>
+  inline __host__ __device__ constexpr cxsmpl<FP>
+  operator/( const cxsmpl<FP>& a, const FP& b )
+  {
+    return a / cxsmpl<FP>( b, 0 );
+  }
+
 }
 
 //==========================================================================
@@ -215,7 +216,6 @@ namespace mg5amcGpu
 namespace mg5amcCpu
 #endif
 {
-
   // --- Type definitions (complex type: cxtype)
 #ifdef __CUDACC__ // cuda
 #if defined MGONGPU_CUCXTYPE_THRUST
