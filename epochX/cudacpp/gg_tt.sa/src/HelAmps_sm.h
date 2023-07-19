@@ -497,6 +497,7 @@ namespace mg5amcCpu
       else
       {
 #ifdef MGONGPU_CPPSIMD
+        std::cout << "Entering loop" << std::endl;
         for( int ieppV = 0; ieppV < neppV; ieppV++ )
         {
           const fptype& pp = pp_sv[ieppV];
@@ -530,6 +531,7 @@ namespace mg5amcCpu
             }
           }
         }        
+        std::cout << "Completed loop" << std::endl;
 #else
         printf( "INTERNAL ERROR in ixxxxx: no path to this statement on GPUs or scalar C++!\n" );
         assert( false );
