@@ -648,7 +648,7 @@ namespace mg5amcCpu
 
   // Printout to stream for user defined types
   inline __host__ __device__ std::ostream&
-  operator<<( std::ostream& out, const mgOnGpu::cxtype_ref& c )
+  operator<<( std::ostream& out, const cxtype_ref& c )
   {
     out << (cxtype)c;
     return out;
