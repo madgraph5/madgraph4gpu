@@ -556,7 +556,12 @@ namespace mg5amcCpu
       {
 #ifdef MGONGPU_CPPSIMD
         const fptype_sv denom_sv = fpternary( pt_sv != 0, pt_sv, 1. ); // hack to avoid division-by-0 FPE while preserving speed (#701 and #727)
+        const fptype_sv pzpt_sv = pvec3_sv / ( pp_sv * denom_sv ) * sqh * hel; // hack
+        std::cout << "Entering noloop" << std::endl;
+        vc_sv[3] = cxternary( pt_sv == 0., cxtype_sv( -hel * sqh ), cxtype_sv( -pvec1_sv * pzpt_sv, -nsv * pvec2_sv / denom_sv * sqh ) );
+        vc_sv[4] = cxternary( pt_sv == 0., cxtype_sv( fptype_sv{ 0. }, nsv * fpternary( pvec3_sv < 0., -sqh, sqh ) ), cxtype_sv( -pvec2_sv * pzpt_sv, nsv * pvec1_sv / denom_sv * sqh ) );
         std::cout << "Entering loop" << std::endl;
+        /*
         for( int ieppV = 0; ieppV < neppV; ieppV++ )
         {
           const fptype& pp = pp_sv[ieppV];
@@ -565,9 +570,6 @@ namespace mg5amcCpu
           const fptype& pvec2 = pvec2_sv[ieppV];
           const fptype& pvec3 = pvec3_sv[ieppV];
           const fptype& denom = denom_sv[ieppV];
-          std::cout << "pp=" << pp << std::endl;
-          std::cout << "pt=" << pt << std::endl;
-          std::cout << "denom=" << denom << std::endl;
           if( pt == 0. )
           {
             vc_sv[3][ieppV] = cxtype( -hel * sqh );
@@ -580,6 +582,7 @@ namespace mg5amcCpu
             vc_sv[4][ieppV] = cxtype( -pvec2 * pzpt, nsv * pvec1 / denom * sqh );
           }
         }
+        */
         std::cout << "Completed loop" << std::endl;
 #else
         printf( "INTERNAL ERROR in vxxxxx: no path to this statement on GPUs or scalar C++!\n" );
