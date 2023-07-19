@@ -142,6 +142,7 @@ else
   override CUINC=
   override CURANDLIBFLAGS=
 endif
+export NVCC
 
 # Set the host C++ compiler for nvcc via "-ccbin <host-compiler>"
 # (NB issue #505: this must be a single word, "clang++ --gcc-toolchain..." is not supported)
@@ -439,7 +440,7 @@ endif
 
 # Target (and build options): debug
 MAKEDEBUG=
-debug: OPTFLAGS   = -g -O0 -DDEBUG2
+debug: OPTFLAGS   = -g -O0
 debug: CUOPTFLAGS = -G
 debug: MAKEDEBUG := debug
 debug: all.$(TAG)
