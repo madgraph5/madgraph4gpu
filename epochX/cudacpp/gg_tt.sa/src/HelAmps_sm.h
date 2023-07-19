@@ -294,7 +294,8 @@ namespace mg5amcCpu
                                              fptype_sv{ 0 },
                                              fpsqrt( fpmax( pvec0_sv + pvec3_sv, 0. ) ) * (fptype)nsf );
 #ifdef MGONGPU_CPPSIMD
-      const fptype_sv denom_sv = fpternary( sqp0p3_sv != 0, sqp0p3_sv, 1. ); // hack to avoid division-by-0 FPE while preserving speed (#701 and #727)
+      // This is a hack to avoid division-by-0 FPE while preserving speed (#701 and #727)
+      const fptype_sv denom_sv = fpternary( sqp0p3_sv != 0, sqp0p3_sv, 1. ); // hack: dummy denom_sv[ieppV]=1 if sqp0p3_sv[ieppV]==0
       cxtype_sv chi_sv[2] = { cxmake( sqp0p3_sv, 0. ),
                               cxternary( sqp0p3_sv == 0, cxmake( -(fptype)nhel * fpsqrt( 2. * pvec0_sv ), 0. ), cxmake( (fptype)nh * pvec1_sv, pvec2_sv ) / denom_sv ) };
 #else
@@ -555,35 +556,11 @@ namespace mg5amcCpu
       else
       {
 #ifdef MGONGPU_CPPSIMD
-        const fptype_sv denom_sv = fpternary( pt_sv != 0, pt_sv, 1. ); // hack to avoid division-by-0 FPE while preserving speed (#701 and #727)
-        const fptype_sv pzpt_sv = pvec3_sv / ( pp_sv * denom_sv ) * sqh * hel; // hack
-        std::cout << "Entering noloop" << std::endl;
+        // This is a hack to avoid division-by-0 FPE while preserving speed (#701 and #727)
+        const fptype_sv denom_sv = fpternary( pt_sv != 0, pt_sv, 1. ); // hack: dummy denom_sv[ieppV]=1 if pt_sv[ieppV]==0
+        const fptype_sv pzpt_sv = pvec3_sv / ( pp_sv * denom_sv ) * sqh * hel; // hack: dummy pzpt_sv[ieppV] is not used if pt_sv[ieppV]==0
         vc_sv[3] = cxternary( pt_sv == 0., cxtype_sv( -hel * sqh ), cxtype_sv( -pvec1_sv * pzpt_sv, -nsv * pvec2_sv / denom_sv * sqh ) );
         vc_sv[4] = cxternary( pt_sv == 0., cxtype_sv( fptype_sv{ 0. }, nsv * fpternary( pvec3_sv < 0., -sqh, sqh ) ), cxtype_sv( -pvec2_sv * pzpt_sv, nsv * pvec1_sv / denom_sv * sqh ) );
-        std::cout << "Entering loop" << std::endl;
-        /*
-        for( int ieppV = 0; ieppV < neppV; ieppV++ )
-        {
-          const fptype& pp = pp_sv[ieppV];
-          const fptype& pt = pt_sv[ieppV];
-          const fptype& pvec1 = pvec1_sv[ieppV];
-          const fptype& pvec2 = pvec2_sv[ieppV];
-          const fptype& pvec3 = pvec3_sv[ieppV];
-          const fptype& denom = denom_sv[ieppV];
-          if( pt == 0. )
-          {
-            vc_sv[3][ieppV] = cxtype( -hel * sqh );
-            vc_sv[4][ieppV] = cxtype( 0., nsv * ( pvec3 < 0. ? -sqh : sqh ) ); // AV: removed an abs here
-          }
-          else
-          {
-            const fptype pzpt = pvec3 / ( pp * denom ) * sqh * hel;
-            vc_sv[3][ieppV] = cxtype( -pvec1 * pzpt, -nsv * pvec2 / denom * sqh );
-            vc_sv[4][ieppV] = cxtype( -pvec2 * pzpt, nsv * pvec1 / denom * sqh );
-          }
-        }
-        */
-        std::cout << "Completed loop" << std::endl;
 #else
         printf( "INTERNAL ERROR in vxxxxx: no path to this statement on GPUs or scalar C++!\n" );
         assert( false );
