@@ -9,9 +9,6 @@
 
 #include <sstream>
 
-constexpr int np4 = CPPProcess::np4;   // dimensions of 4-momenta (E,px,py,pz)
-constexpr int npar = CPPProcess::npar; // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
-
 //============================================================================
 
 #ifdef __CUDACC__
@@ -20,6 +17,10 @@ namespace mg5amcGpu
 namespace mg5amcCpu
 #endif
 {
+
+  constexpr int np4 = CPPProcess::np4;   // dimensions of 4-momenta (E,px,py,pz)
+  constexpr int npar = CPPProcess::npar; // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
+
   //--------------------------------------------------------------------------
 
   BridgeKernelBase::BridgeKernelBase( const BufferMomenta& momenta,         // input: momenta
