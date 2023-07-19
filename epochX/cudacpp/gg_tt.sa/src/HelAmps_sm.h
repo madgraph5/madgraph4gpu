@@ -565,6 +565,9 @@ namespace mg5amcCpu
           const fptype& pvec2 = pvec2_sv[ieppV];
           const fptype& pvec3 = pvec3_sv[ieppV];
           const fptype& denom = denom_sv[ieppV];
+          std::cout << "pp=" << pp << std::endl;
+          std::cout << "pt=" << pt << std::endl;
+          std::cout << "denom=" << denom << std::endl;
           if( pt == 0. )
           {
             vc_sv[3][ieppV] = cxtype( -hel * sqh );
