@@ -18,7 +18,6 @@ namespace mg5amcGpu
 namespace mg5amcCpu
 #endif
 {
-
   //==========================================================================
 
 #ifdef __CUDACC__ // cuda

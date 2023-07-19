@@ -77,23 +77,40 @@ namespace mg5amcCpu
   public:
     // Array initialization: zero-out as "{0}" (C and C++) or as "{}" (C++ only)
     // See https://en.cppreference.com/w/c/language/array_initialization#Notes
-    cxtype_v() : m_real{ 0 }, m_imag{ 0 } {} // RRRR=0000 IIII=0000
+    cxtype_v()
+      : m_real{ 0 }, m_imag{ 0 } {} // RRRR=0000 IIII=0000
     cxtype_v( const cxtype_v& ) = default;
     cxtype_v( cxtype_v&& ) = default;
-    cxtype_v( const fptype_v& r, const fptype_v& i ) : m_real( r ), m_imag( i ) {}
-    cxtype_v( const fptype_v& r ) : m_real( r ), m_imag{ 0 } {} // IIII=0000
-    cxtype_v( const fptype& r ) : m_real( fptype_v{} + r ), m_imag{ 0 } {} // IIII=0000
+    cxtype_v( const fptype_v& r, const fptype_v& i )
+      : m_real( r ), m_imag( i ) {}
+    cxtype_v( const fptype_v& r )
+      : m_real( r ), m_imag{ 0 } {} // IIII=0000
+    cxtype_v( const fptype& r )
+      : m_real( fptype_v{} + r ), m_imag{ 0 } {} // IIII=0000
     cxtype_v& operator=( const cxtype_v& ) = default;
     cxtype_v& operator=( cxtype_v&& ) = default;
-    cxtype_v& operator+=( const cxtype_v& c ) { m_real += c.real(); m_imag += c.imag(); return *this; }
-    cxtype_v& operator-=( const cxtype_v& c ) { m_real -= c.real(); m_imag -= c.imag(); return *this; }
+    cxtype_v& operator+=( const cxtype_v& c )
+    {
+      m_real += c.real();
+      m_imag += c.imag();
+      return *this;
+    }
+    cxtype_v& operator-=( const cxtype_v& c )
+    {
+      m_real -= c.real();
+      m_imag -= c.imag();
+      return *this;
+    }
 #ifdef MGONGPU_HAS_CPPCXTYPEV_BRK
     // NB: THIS IS THE FUNDAMENTAL DIFFERENCE BETWEEN MGONGPU_HAS_CPPCXTYPEV_BRK DEFINED AND NOT DEFINED
     // NB: the alternative "clang" implementation is simpler: it simply does not have any bracket operator[]
     // NB: ** do NOT implement operator[] to return a value: it does not fail the build (why?) and gives unexpected results! **
     cxtype_ref operator[]( size_t i ) const { return cxtype_ref( m_real[i], m_imag[i] ); }
 #endif
-    const fptype_v& real() const { return m_real; }
+    const fptype_v& real() const
+    {
+      return m_real;
+    }
     const fptype_v& imag() const { return m_imag; }
   private:
     fptype_v m_real, m_imag; // RRRRIIII
@@ -104,7 +121,7 @@ namespace mg5amcCpu
 #if defined MGONGPU_FPTYPE_DOUBLE
   typedef long int bool_v __attribute__( ( ext_vector_type( neppV ) ) ); // bbbb
 #elif defined MGONGPU_FPTYPE_FLOAT
-  typedef int bool_v __attribute__( ( ext_vector_type( neppV ) ) ); // bbbb
+  typedef int bool_v __attribute__( ( ext_vector_type( neppV ) ) );                         // bbbb
 #endif
 #else // gcc
 #if defined MGONGPU_FPTYPE_DOUBLE
@@ -119,7 +136,6 @@ namespace mg5amcCpu
   const int neppV = 1;
 
 #endif // #ifdef MGONGPU_CPPSIMD
-
 }
 
 //--------------------------------------------------------------------------
@@ -143,7 +159,6 @@ namespace mg5amcGpu
 namespace mg5amcCpu
 #endif
 {
-
 #ifndef __CUDACC__
 
   // Printout to stream for user defined types
@@ -583,7 +598,7 @@ namespace mg5amcCpu
   maskand( const bool_v& mask )
   {
     bool out = true;
-    for ( int i=0; i<neppV; i++ ) out = out && mask[i];
+    for( int i = 0; i < neppV; i++ ) out = out && mask[i];
     return out;
   }
 
@@ -673,10 +688,16 @@ namespace mg5amcCpu
     cxtype_v_ref() = delete;
     cxtype_v_ref( const cxtype_v_ref& ) = delete;
     cxtype_v_ref( cxtype_v_ref&& ) = default; // copy refs
-    cxtype_v_ref( fptype_v& r, fptype_v& i ) : m_preal( &r ), m_pimag( &i ) {} // copy refs
+    cxtype_v_ref( fptype_v& r, fptype_v& i )
+      : m_preal( &r ), m_pimag( &i ) {} // copy refs
     cxtype_v_ref& operator=( const cxtype_v_ref& ) = delete;
     cxtype_v_ref& operator=( cxtype_v_ref&& c ) = delete;
-    cxtype_v_ref& operator=( const cxtype_v& c ) { *m_preal = cxreal( c ); *m_pimag = cximag( c ); return *this; } // copy values
+    cxtype_v_ref& operator=( const cxtype_v& c )
+    {
+      *m_preal = cxreal( c );
+      *m_pimag = cximag( c );
+      return *this;
+    } // copy values
     __host__ __device__ operator cxtype_v() const { return cxmake( *m_preal, *m_pimag ); }
   private:
     fptype_v *m_preal, *m_pimag; // RRRRIIII
