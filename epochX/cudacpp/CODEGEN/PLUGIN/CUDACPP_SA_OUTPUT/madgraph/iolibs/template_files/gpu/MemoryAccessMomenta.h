@@ -19,7 +19,6 @@ namespace mg5amcGpu
 namespace mg5amcCpu
 #endif
 {
-
   //----------------------------------------------------------------------------
 
   // A class describing the internal layout of memory buffers for momenta
@@ -249,7 +248,7 @@ namespace mg5amcCpu
         constexpr int ievt0 = 0; // just make it explicit in the code that buffer refers to a given ievt0 and decoderIeppV fetches event ievt0+ieppV
         auto decoderIeppv = [buffer, ip4, ipar]( int ieppV )
           -> const fptype&
-                            { return MemoryAccessMomenta::ieventAccessIp4IparConst( buffer, ievt0 + ieppV, ip4, ipar ); };
+        { return MemoryAccessMomenta::ieventAccessIp4IparConst( buffer, ievt0 + ieppV, ip4, ipar ); };
         return mg5amcCpu::fptypevFromArbitraryArray( decoderIeppv ); // iterate over ieppV in neppV (no SIMD)
       }
 #endif

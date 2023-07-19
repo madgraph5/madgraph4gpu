@@ -21,7 +21,6 @@ namespace mg5amcGpu
 namespace mg5amcCpu
 #endif
 {
-
   //----------------------------------------------------------------------------
 
 #ifndef MGONGPU_TRIVIAL_WAVEFUNCTIONS

@@ -21,7 +21,6 @@ namespace mg5amcGpu
 namespace mg5amcCpu
 #endif
 {
-
   //----------------------------------------------------------------------------
 
   // A class describing the internal layout of memory buffers for couplings
@@ -192,7 +191,7 @@ namespace mg5amcCpu
       static_assert( neppC >= neppV );                              // ASSUME CONTIGUOUS ARRAYS
       static_assert( neppC % neppV == 0 );                          // ASSUME CONTIGUOUS ARRAYS
       static_assert( mg5amcCpu::HostBufferCouplings::isaligned() ); // ASSUME ALIGNED ARRAYS (reinterpret_cast will segfault otherwise!)
-      //assert( (size_t)( buffer ) % mgOnGpu::cppAlign == 0 ); // ASSUME ALIGNED ARRAYS (reinterpret_cast will segfault otherwise!)
+      //assert( (size_t)( buffer ) % mgOnGpu::cppAlign == 0 );      // ASSUME ALIGNED ARRAYS (reinterpret_cast will segfault otherwise!)
       return mg5amcCpu::fptypevFromAlignedArray( out ); // SIMD bulk load of neppV, use reinterpret_cast
 #endif
     }

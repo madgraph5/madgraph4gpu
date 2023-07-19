@@ -20,7 +20,6 @@ namespace mg5amcGpu
 namespace mg5amcCpu
 #endif
 {
-
   //----------------------------------------------------------------------------
 
   // A class describing the internal layout of memory buffers for fixed couplings
