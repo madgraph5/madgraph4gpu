@@ -79,12 +79,19 @@ namespace mgOnGpu /* clang-format off */
 using mgOnGpu::cxsmpl;
 
 // Printout to stream for user defined types
-template<typename FP>
-inline __host__ __device__ std::ostream&
-operator<<( std::ostream& out, const cxsmpl<FP>& c )
+#ifdef __CUDACC__
+namespace mg5amcGpu
+#else
+namespace mg5amcCpu
+#endif
 {
-  out << std::complex( c.real(), c.imag() );
-  return out;
+  template<typename FP>
+  inline __host__ __device__ std::ostream&
+  operator<<( std::ostream& out, const cxsmpl<FP>& c )
+  {
+    out << std::complex( c.real(), c.imag() );
+    return out;
+  }
 }
 
 // Operators for cxsmpl
