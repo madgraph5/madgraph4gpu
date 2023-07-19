@@ -38,7 +38,13 @@ endif
 
 #-------------------------------------------------------------------------------
 
-#=== Configure ccache for CUDA and C++ builds
+#=== Configure the CUDA compiler (note: NVCC is already exported including ccache)
+
+###$(info NVCC=$(NVCC))
+
+#-------------------------------------------------------------------------------
+
+#=== Configure ccache for C++ builds (note: NVCC is already exported including ccache)
 
 # Enable ccache if USECCACHE=1
 ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
@@ -46,11 +52,6 @@ ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
 endif
 #ifeq ($(USECCACHE)$(shell echo $(AR) | grep ccache),1)
 #  override AR:=ccache $(AR)
-#endif
-#ifneq ($(NVCC),)
-#  ifeq ($(USECCACHE)$(shell echo $(NVCC) | grep ccache),1)
-#    override NVCC:=ccache $(NVCC)
-#  endif
 #endif
 
 #-------------------------------------------------------------------------------
@@ -240,16 +241,30 @@ $(LIBDIR)/.build.$(TAG):
 # Generic target and build rules: objects from C++ compilation
 $(BUILDDIR)/%.o : %.cc *.h $(BUILDDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -fPIC -c $< -o $@
+
+# Generic target and build rules: objects from C++ compilation
+$(BUILDDIR)/%.o : %.cu *.h $(BUILDDIR)/.build.$(TAG)
+	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
+	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -Xcompiler -fPIC -c $< -o $@
 
 #-------------------------------------------------------------------------------
 
 cxx_objects=$(addprefix $(BUILDDIR)/, Parameters_sm.o read_slha.o)
+ifneq ($(NVCC),)
+cu_objects=$(addprefix $(BUILDDIR)/, gParameters_sm.o)
+endif
 
 # Target (and build rules): common (src) library
+ifneq ($(NVCC),)
+$(LIBDIR)/lib$(MG5AMC_COMMONLIB).so : $(cxx_objects) $(cu_objects)
+	@if [ ! -d $(LIBDIR) ]; then echo "mkdir -p $(LIBDIR)"; mkdir -p $(LIBDIR); fi
+	$(NVCC) -shared -o $@ $(cxx_objects) $(cu_objects)
+else
 $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so : $(cxx_objects)
 	@if [ ! -d $(LIBDIR) ]; then echo "mkdir -p $(LIBDIR)"; mkdir -p $(LIBDIR); fi
-	$(CXX) -shared -o$@ $(cxx_objects)
+	$(CXX) -shared -o $@ $(cxx_objects)
+endif
 
 #-------------------------------------------------------------------------------
 
