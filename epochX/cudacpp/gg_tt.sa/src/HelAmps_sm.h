@@ -1,4 +1,3 @@
-// Copyright (C) 2010 The ALOHA Development team and Contributors.
 // Copyright (C) 2010 The MadGraph5_aMC@NLO development team and contributors.
 // Created by: J. Alwall (Sep 2010) for the MG5aMC backend.
 //==========================================================================
@@ -22,7 +21,6 @@
 
 #include "Parameters_sm.h"
 
-#include <cassert>
 //#include <cmath>
 //#include <cstdlib>
 //#include <iomanip>
@@ -192,129 +190,101 @@ namespace mg5amcCpu
           const int ipar )        // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
-    // NEW IMPLEMENTATION FIXING FLOATING POINT EXCEPTIONS IN SIMD CODE (#701)
-    // USE _SV SUFFIXES EVERYWHERE AND ITERATE EXPLICITLY OVER ALL ELEMENTS OF SIMD VECTORS IF NEEDED
-    const fptype_sv& pvec0_sv = M_ACCESS::kernelAccessIp4IparConst( momenta, 0, ipar );
-    const fptype_sv& pvec1_sv = M_ACCESS::kernelAccessIp4IparConst( momenta, 1, ipar );
-    const fptype_sv& pvec2_sv = M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar );
-    const fptype_sv& pvec3_sv = M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar );
-    cxtype_sv* fi_sv = W_ACCESS::kernelAccess( wavefunctions );
-    fi_sv[0] = cxmake( -pvec0_sv * (fptype)nsf, -pvec3_sv * (fptype)nsf );
-    fi_sv[1] = cxmake( -pvec1_sv * (fptype)nsf, -pvec2_sv * (fptype)nsf );
+    const fptype_sv& pvec0 = M_ACCESS::kernelAccessIp4IparConst( momenta, 0, ipar );
+    const fptype_sv& pvec1 = M_ACCESS::kernelAccessIp4IparConst( momenta, 1, ipar );
+    const fptype_sv& pvec2 = M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar );
+    const fptype_sv& pvec3 = M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar );
+    cxtype_sv* fi = W_ACCESS::kernelAccess( wavefunctions );
+    fi[0] = cxmake( -pvec0 * (fptype)nsf, -pvec3 * (fptype)nsf );
+    fi[1] = cxmake( -pvec1 * (fptype)nsf, -pvec2 * (fptype)nsf );
     const int nh = nhel * nsf;
     if( fmass != 0. )
     {
-      const fptype_sv pp_sv = fpmin( pvec0_sv, fpsqrt( pvec1_sv * pvec1_sv + pvec2_sv * pvec2_sv + pvec3_sv * pvec3_sv ) );
-      const fptype_sv pp3_sv = fpmax( pp_sv + pvec3_sv, 0. );
-      // In C++ ixxxxx, use a single ip/im numbering that is valid both for pp==0 and pp>0, which have two numbering schemes in Fortran ixxxxx:
-      // for pp==0, Fortran sqm(0:1) has indexes 0,1 as in C++; but for Fortran pp>0, omega(2) has indexes 1,2 and not 0,1
-      // NB: this is only possible in ixxxx, but in oxxxxx two different numbering schemes must be used
-      const int ip = ( 1 + nh ) / 2; // NB: same as in Fortran pp==0, differs from Fortran pp>0, which is (3+nh)/2 because omega(2) has indexes 1,2
-      const int im = ( 1 - nh ) / 2; // NB: same as in Fortran pp==0, differs from Fortran pp>0, which is (3-nh)/2 because omega(2) has indexes 1,2
-      if( maskand( pp_sv == 0. ) )
+      const fptype_sv pp = fpmin( pvec0, fpsqrt( pvec1 * pvec1 + pvec2 * pvec2 + pvec3 * pvec3 ) );
+#ifndef MGONGPU_CPPSIMD
+      if( pp == 0. )
       {
         // NB: Do not use "abs" for floats! It returns an integer with no build warning! Use std::abs!
         fptype sqm[2] = { fpsqrt( std::abs( fmass ) ), 0. }; // possibility of negative fermion masses
-        sqm[1] = ( fmass < 0. ? -sqm[0] : sqm[0] ); // AV: removed an abs around sqm[0] here
-        fi_sv[2] = cxtype_sv( ip * sqm[ip] );       // IIII=0000
-        fi_sv[3] = cxtype_sv( im * nsf * sqm[ip] ); // IIII=0000
-        fi_sv[4] = cxtype_sv( ip * nsf * sqm[im] ); // IIII=0000
-        fi_sv[5] = cxtype_sv( im * sqm[im] );       // IIII=0000
-      }
-      else if( maskand( pp_sv != 0. ) and maskand( pp3_sv == 0. ) )
-      {
-        const fptype sf[2] = { fptype( 1 + nsf + ( 1 - nsf ) * nh ) * (fptype)0.5,
-                               fptype( 1 + nsf - ( 1 - nsf ) * nh ) * (fptype)0.5 };
-        fptype_sv omega_sv[2] = { fpsqrt( pvec0_sv + pp_sv ), 0. };
-        omega_sv[1] = fmass / omega_sv[0];
-        const fptype_sv sfomega_sv[2] = { sf[0] * omega_sv[ip], sf[1] * omega_sv[im] };
-        const cxtype_sv chi_sv[2] = { cxmake( fpsqrt( pp3_sv * (fptype)0.5 / pp_sv ), 0. ),
-                                      cxtype_sv( -nh ) }; // IIII=0000
-        fi_sv[2] = sfomega_sv[0] * chi_sv[im];
-        fi_sv[3] = sfomega_sv[0] * chi_sv[ip];
-        fi_sv[4] = sfomega_sv[1] * chi_sv[im];
-        fi_sv[5] = sfomega_sv[1] * chi_sv[ip];
-      }
-      else if( maskand( pp_sv != 0. ) and maskand( pp3_sv != 0. ) )
-      {
-        const fptype sf[2] = { fptype( 1 + nsf + ( 1 - nsf ) * nh ) * (fptype)0.5,
-                               fptype( 1 + nsf - ( 1 - nsf ) * nh ) * (fptype)0.5 };
-        fptype_sv omega_sv[2] = { fpsqrt( pvec0_sv + pp_sv ), 0. };
-        omega_sv[1] = fmass / omega_sv[0];
-        const fptype_sv sfomega_sv[2] = { sf[0] * omega_sv[ip], sf[1] * omega_sv[im] };
-        const cxtype_sv chi_sv[2] = { cxmake( fpsqrt( pp3_sv * (fptype)0.5 / pp_sv ), 0. ),
-                                      cxmake( (fptype)nh * pvec1_sv, pvec2_sv ) / fpsqrt( 2. * pp_sv * pp3_sv ) };
-        fi_sv[2] = sfomega_sv[0] * chi_sv[im];
-        fi_sv[3] = sfomega_sv[0] * chi_sv[ip];
-        fi_sv[4] = sfomega_sv[1] * chi_sv[im];
-        fi_sv[5] = sfomega_sv[1] * chi_sv[ip];
+        //sqm[1] = ( fmass < 0. ? -abs( sqm[0] ) : abs( sqm[0] ) ); // AV: why abs here?
+        sqm[1] = ( fmass < 0. ? -sqm[0] : sqm[0] ); // AV: removed an abs here
+        const int ip = ( 1 + nh ) / 2;              // NB: Fortran sqm(0:1) also has indexes 0,1 as in C++
+        const int im = ( 1 - nh ) / 2;              // NB: Fortran sqm(0:1) also has indexes 0,1 as in C++
+        fi[2] = cxmake( ip * sqm[ip], 0 );
+        fi[3] = cxmake( im * nsf * sqm[ip], 0 );
+        fi[4] = cxmake( ip * nsf * sqm[im], 0 );
+        fi[5] = cxmake( im * sqm[im], 0 );
       }
       else
       {
-#ifdef MGONGPU_CPPSIMD
-        fptype sqm[2] = { fpsqrt( std::abs( fmass ) ), 0. }; // possibility of negative fermion masses (NB: use std::abs!)
-        sqm[1] = ( fmass < 0. ? -sqm[0] : sqm[0] ); // AV: removed an abs here
         const fptype sf[2] = { fptype( 1 + nsf + ( 1 - nsf ) * nh ) * (fptype)0.5,
                                fptype( 1 + nsf - ( 1 - nsf ) * nh ) * (fptype)0.5 };
-        fptype_sv omega_sv[2] = { fpsqrt( pvec0_sv + pp_sv ), 0. };
-        omega_sv[1] = fmass / omega_sv[0];
-        const fptype_sv sfomega_sv[2] = { sf[0] * omega_sv[ip], sf[1] * omega_sv[im] };
-        for( int ieppV = 0; ieppV < neppV; ieppV++ )
-        {
-          const fptype& pp = pp_sv[ieppV];
-          if( pp == 0. )
-          {
-            fi_sv[2][ieppV] = cxmake( ip * sqm[ip], 0 );
-            fi_sv[3][ieppV] = cxmake( im * nsf * sqm[ip], 0 );
-            fi_sv[4][ieppV] = cxmake( ip * nsf * sqm[im], 0 );
-            fi_sv[5][ieppV] = cxmake( im * sqm[im], 0 );
-          }
-          else
-          {
-            const fptype& pp3 = pp3_sv[ieppV];
-            const fptype& pvec1 = pvec1_sv[ieppV];
-            const fptype& pvec2 = pvec2_sv[ieppV];
-            const cxtype chi[2] = { cxmake( fpsqrt( pp3 * (fptype)0.5 / pp ), 0. ),
-                                    ( pp3 == 0. ? cxmake( -nh, 0. ) : cxmake( nh * pvec1, pvec2 ) / fpsqrt( 2. * pp * pp3 ) ) };
-            fi_sv[2][ieppV] = sfomega_sv[0][ieppV] * chi[im];
-            fi_sv[3][ieppV] = sfomega_sv[0][ieppV] * chi[ip];
-            fi_sv[4][ieppV] = sfomega_sv[1][ieppV] * chi[im];
-            fi_sv[5][ieppV] = sfomega_sv[1][ieppV] * chi[ip];
-          }
-        }
-#else
-        printf( "INTERNAL ERROR in ixxxxx: no path to this statement on GPUs or scalar C++!\n" );
-        assert( false );
-#endif
+        fptype omega[2] = { fpsqrt( pvec0 + pp ), 0. };
+        omega[1] = fmass / omega[0];
+        const int ip = ( 1 + nh ) / 2; // NB: Fortran is (3+nh)/2 because omega(2) has indexes 1,2 and not 0,1
+        const int im = ( 1 - nh ) / 2; // NB: Fortran is (3-nh)/2 because omega(2) has indexes 1,2 and not 0,1
+        const fptype sfomega[2] = { sf[0] * omega[ip], sf[1] * omega[im] };
+        const fptype pp3 = fpmax( pp + pvec3, 0. );
+        const cxtype chi[2] = { cxmake( fpsqrt( pp3 * (fptype)0.5 / pp ), 0. ),
+                                ( pp3 == 0. ? cxmake( -nh, 0. ) : cxmake( nh * pvec1, pvec2 ) / fpsqrt( 2. * pp * pp3 ) ) };
+        fi[2] = sfomega[0] * chi[im];
+        fi[3] = sfomega[0] * chi[ip];
+        fi[4] = sfomega[1] * chi[im];
+        fi[5] = sfomega[1] * chi[ip];
       }
+#else
+      const int ip = ( 1 + nh ) / 2;
+      const int im = ( 1 - nh ) / 2;
+      // Branch A: pp == 0.
+      // NB: Do not use "abs" for floats! It returns an integer with no build warning! Use std::abs!
+      fptype sqm[2] = { fpsqrt( std::abs( fmass ) ), 0 }; // possibility of negative fermion masses (NB: SCALAR!)
+      sqm[1] = ( fmass < 0 ? -sqm[0] : sqm[0] );          // AV: removed an abs here (as above)
+      const cxtype fiA_2 = ip * sqm[ip];                  // scalar cxtype: real part initialised from fptype, imag part = 0
+      const cxtype fiA_3 = im * nsf * sqm[ip];            // scalar cxtype: real part initialised from fptype, imag part = 0
+      const cxtype fiA_4 = ip * nsf * sqm[im];            // scalar cxtype: real part initialised from fptype, imag part = 0
+      const cxtype fiA_5 = im * sqm[im];                  // scalar cxtype: real part initialised from fptype, imag part = 0
+      // Branch B: pp != 0.
+      const fptype sf[2] = { fptype( 1 + nsf + ( 1 - nsf ) * nh ) * (fptype)0.5,
+                             fptype( 1 + nsf - ( 1 - nsf ) * nh ) * (fptype)0.5 };
+      fptype_v omega[2] = { fpsqrt( pvec0 + pp ), 0 };
+      omega[1] = fmass / omega[0];
+      const fptype_v sfomega[2] = { sf[0] * omega[ip], sf[1] * omega[im] };
+      const fptype_v pp3 = fpmax( pp + pvec3, 0 );
+      const cxtype_v chi[2] = { cxmake( fpsqrt( pp3 * 0.5 / pp ), 0 ),
+                                cxternary( ( pp3 == 0. ),
+                                           cxmake( -nh, 0 ),
+                                           cxmake( (fptype)nh * pvec1, pvec2 ) / fpsqrt( 2. * pp * pp3 ) ) };
+      const cxtype_v fiB_2 = sfomega[0] * chi[im];
+      const cxtype_v fiB_3 = sfomega[0] * chi[ip];
+      const cxtype_v fiB_4 = sfomega[1] * chi[im];
+      const cxtype_v fiB_5 = sfomega[1] * chi[ip];
+      // Choose between the results from branch A and branch B
+      const bool_v mask = ( pp == 0. );
+      fi[2] = cxternary( mask, fiA_2, fiB_2 );
+      fi[3] = cxternary( mask, fiA_3, fiB_3 );
+      fi[4] = cxternary( mask, fiA_4, fiB_4 );
+      fi[5] = cxternary( mask, fiA_5, fiB_5 );
+#endif
     }
     else
     {
-      const fptype_sv sqp0p3_sv = fpternary( ( pvec1_sv == 0. and pvec2_sv == 0. and pvec3_sv < 0. ),
-                                             fptype_sv{ 0 },
-                                             fpsqrt( fpmax( pvec0_sv + pvec3_sv, 0. ) ) * (fptype)nsf );
-#ifdef MGONGPU_CPPSIMD
-      // This is a hack to avoid division-by-0 FPE while preserving speed (#701 and #727)
-      const fptype_sv denom_sv = fpternary( sqp0p3_sv != 0, sqp0p3_sv, 1. ); // hack: dummy denom_sv[ieppV]=1 if sqp0p3_sv[ieppV]==0
-      cxtype_sv chi_sv[2] = { cxmake( sqp0p3_sv, 0. ),
-                              cxternary( sqp0p3_sv == 0, cxmake( -(fptype)nhel * fpsqrt( 2. * pvec0_sv ), 0. ), cxmake( (fptype)nh * pvec1_sv, pvec2_sv ) / denom_sv ) };
-#else
-      const cxtype_sv chi_sv[2] = { cxmake( sqp0p3_sv, 0. ),
-                                    ( sqp0p3_sv == 0. ? cxmake( -(fptype)nhel * fpsqrt( 2. * pvec0_sv ), 0. ) : cxmake( (fptype)nh * pvec1_sv, pvec2_sv ) / sqp0p3_sv ) };
-#endif
+      const fptype_sv sqp0p3 = fpternary( ( pvec1 == 0. and pvec2 == 0. and pvec3 < 0. ),
+                                          fptype_sv{ 0 },
+                                          fpsqrt( fpmax( pvec0 + pvec3, 0. ) ) * (fptype)nsf );
+      const cxtype_sv chi[2] = { cxmake( sqp0p3, 0. ), cxternary( ( sqp0p3 == 0. ), cxmake( -(fptype)nhel * fpsqrt( 2. * pvec0 ), 0. ), cxmake( (fptype)nh * pvec1, pvec2 ) / sqp0p3 ) };
       if( nh == 1 )
       {
-        fi_sv[2] = cxzero_sv();
-        fi_sv[3] = cxzero_sv();
-        fi_sv[4] = chi_sv[0];
-        fi_sv[5] = chi_sv[1];
+        fi[2] = cxzero_sv();
+        fi[3] = cxzero_sv();
+        fi[4] = chi[0];
+        fi[5] = chi[1];
       }
       else
       {
-        fi_sv[2] = chi_sv[1];
-        fi_sv[3] = chi_sv[0];
-        fi_sv[4] = cxzero_sv();
-        fi_sv[5] = cxzero_sv();
+        fi[2] = chi[1];
+        fi[3] = chi[0];
+        fi[4] = cxzero_sv();
+        fi[5] = cxzero_sv();
       }
     }
     mgDebug( 1, __FUNCTION__ );
@@ -452,122 +422,108 @@ namespace mg5amcCpu
           const int ipar )        // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
-    // NEW IMPLEMENTATION FIXING FLOATING POINT EXCEPTIONS IN SIMD CODE (#701)
-    // USE _SV SUFFIXES EVERYWHERE AND ITERATE EXPLICITLY OVER ALL ELEMENTS OF SIMD VECTORS IF NEEDED
-    const fptype_sv& pvec0_sv = M_ACCESS::kernelAccessIp4IparConst( momenta, 0, ipar );
-    const fptype_sv& pvec1_sv = M_ACCESS::kernelAccessIp4IparConst( momenta, 1, ipar );
-    const fptype_sv& pvec2_sv = M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar );
-    const fptype_sv& pvec3_sv = M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar );
-    cxtype_sv* vc_sv = W_ACCESS::kernelAccess( wavefunctions );
+    const fptype_sv& pvec0 = M_ACCESS::kernelAccessIp4IparConst( momenta, 0, ipar );
+    const fptype_sv& pvec1 = M_ACCESS::kernelAccessIp4IparConst( momenta, 1, ipar );
+    const fptype_sv& pvec2 = M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar );
+    const fptype_sv& pvec3 = M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar );
+    cxtype_sv* vc = W_ACCESS::kernelAccess( wavefunctions );
     const fptype sqh = fpsqrt( 0.5 ); // AV this is > 0!
     const fptype hel = nhel;
-    vc_sv[0] = cxmake( pvec0_sv * (fptype)nsv, pvec3_sv * (fptype)nsv );
-    vc_sv[1] = cxmake( pvec1_sv * (fptype)nsv, pvec2_sv * (fptype)nsv );
+    vc[0] = cxmake( pvec0 * (fptype)nsv, pvec3 * (fptype)nsv );
+    vc[1] = cxmake( pvec1 * (fptype)nsv, pvec2 * (fptype)nsv );
     if( vmass != 0. )
     {
       const int nsvahl = nsv * std::abs( hel );
-      const fptype_sv pt2_sv = ( pvec1_sv * pvec1_sv ) + ( pvec2_sv * pvec2_sv );
-      const fptype_sv pp_sv = fpmin( pvec0_sv, fpsqrt( pt2_sv + ( pvec3_sv * pvec3_sv ) ) );
-      const fptype_sv pt_sv = fpmin( pp_sv, fpsqrt( pt2_sv ) );
+      const fptype_sv pt2 = ( pvec1 * pvec1 ) + ( pvec2 * pvec2 );
+      const fptype_sv pp = fpmin( pvec0, fpsqrt( pt2 + ( pvec3 * pvec3 ) ) );
+      const fptype_sv pt = fpmin( pp, fpsqrt( pt2 ) );
       const fptype hel0 = 1. - std::abs( hel );
-      if( maskand( pp_sv == 0. ) )
+#ifndef MGONGPU_CPPSIMD
+      if( pp == 0. )
       {
-        vc_sv[2] = cxzero_sv();
-        vc_sv[3] = cxtype_sv( -hel * sqh );                                // IIII=0000
-        vc_sv[4] = cxtype_sv( fptype_sv{}, fptype_sv{} + (nsvahl * sqh) ); // RRRR=0000
-        vc_sv[5] = cxtype_sv( hel0 );                                      // IIII=0000
-      }
-      else if( maskand( pp_sv != 0. ) && maskand( pt_sv == 0. ) )
-      {
-        const fptype_sv emp_sv = pvec0_sv / ( vmass * pp_sv );
-        vc_sv[2] = cxtype_sv( hel0 * pp_sv / vmass );                                                // IIII=0000
-        vc_sv[5] = cxtype_sv( hel0 * pvec3_sv * emp_sv + hel * pt_sv / pp_sv * sqh );                // IIII=0000
-        vc_sv[3] = cxtype_sv( -hel * sqh );                                                          // IIII=0000
-        vc_sv[4] = cxtype_sv( fptype_sv{}, (fptype)nsvahl * fpternary( pvec3_sv < 0., -sqh, sqh ) ); // AV: removed an abs here
-      }
-      else if( maskand( pp_sv != 0. ) && maskand( pt_sv != 0. ) )
-      {
-        const fptype_sv emp_sv = pvec0_sv / ( vmass * pp_sv );
-        vc_sv[2] = cxtype_sv( hel0 * pp_sv / vmass );                                 // IIII=0000
-        vc_sv[5] = cxtype_sv( hel0 * pvec3_sv * emp_sv + hel * pt_sv / pp_sv * sqh ); // IIII=0000
-        const fptype_sv pzpt_sv = pvec3_sv / ( pp_sv * pt_sv ) * sqh * hel;
-        vc_sv[3] = cxmake( hel0 * pvec1_sv * emp_sv - pvec1_sv * pzpt_sv, -(fptype)nsvahl * pvec2_sv / pt_sv * sqh );
-        vc_sv[4] = cxmake( hel0 * pvec2_sv * emp_sv - pvec2_sv * pzpt_sv, (fptype)nsvahl * pvec1_sv / pt_sv * sqh );
+        vc[2] = cxmake( 0., 0. );
+        vc[3] = cxmake( -hel * sqh, 0. );
+        vc[4] = cxmake( 0., nsvahl * sqh );
+        vc[5] = cxmake( hel0, 0. );
       }
       else
       {
-#ifdef MGONGPU_CPPSIMD
-        std::cout << "Entering loop" << std::endl;
-        for( int ieppV = 0; ieppV < neppV; ieppV++ )
+        const fptype emp = pvec0 / ( vmass * pp );
+        vc[2] = cxmake( hel0 * pp / vmass, 0. );
+        vc[5] = cxmake( hel0 * pvec3 * emp + hel * pt / pp * sqh, 0. );
+        if( pt != 0. )
         {
-          const fptype& pp = pp_sv[ieppV];
-          const fptype& pvec0 = pvec0_sv[ieppV];
-          const fptype& pvec1 = pvec1_sv[ieppV];
-          const fptype& pvec2 = pvec2_sv[ieppV];
-          const fptype& pvec3 = pvec3_sv[ieppV];
-          if( pp == 0. )
-          {
-            vc_sv[2][ieppV] = cxtype( 0., 0. );
-            vc_sv[3][ieppV] = cxtype( -hel * sqh, 0. );
-            vc_sv[4][ieppV] = cxtype( 0., nsvahl * sqh );
-            vc_sv[5][ieppV] = cxtype( hel0, 0. );
-          }
-          else
-          {
-            const fptype& pt = pt_sv[ieppV];
-            const fptype emp = pvec0 / ( vmass * pp );
-            vc_sv[2][ieppV] = cxtype( hel0 * pp / vmass, 0. );
-            vc_sv[5][ieppV] = cxtype( hel0 * pvec3 * emp + hel * pt / pp * sqh );
-            if ( pt == 0. )
-            {
-              vc_sv[3][ieppV] = cxtype( -hel * sqh, 0. );
-              vc_sv[4][ieppV] = cxtype( 0., nsvahl * ( pvec3 < 0. ? -sqh : sqh ) ); // AV: removed an abs here
-            }
-            else
-            {
-              const fptype pzpt = pvec3 / ( pp * pt ) * sqh * hel;
-              vc_sv[3][ieppV] = cxtype( hel0 * pvec1 * emp - pvec1 * pzpt, -nsvahl * pvec2 / pt * sqh );
-              vc_sv[4][ieppV] = cxtype( hel0 * pvec2 * emp - pvec2 * pzpt, nsvahl * pvec1 / pt * sqh );
-            }
-          }
-        }        
-        std::cout << "Completed loop" << std::endl;
-#else
-        printf( "INTERNAL ERROR in ixxxxx: no path to this statement on GPUs or scalar C++!\n" );
-        assert( false );
-#endif
+          const fptype pzpt = pvec3 / ( pp * pt ) * sqh * hel;
+          vc[3] = cxmake( hel0 * pvec1 * emp - pvec1 * pzpt, -nsvahl * pvec2 / pt * sqh );
+          vc[4] = cxmake( hel0 * pvec2 * emp - pvec2 * pzpt, nsvahl * pvec1 / pt * sqh );
+        }
+        else
+        {
+          vc[3] = cxmake( -hel * sqh, 0. );
+          // NB: Do not use "abs" for floats! It returns an integer with no build warning! Use std::abs!
+          //vc[4] = cxmake( 0., nsvahl * ( pvec3 < 0. ? -std::abs( sqh ) : std::abs( sqh ) ) ); // AV: why abs here?
+          vc[4] = cxmake( 0., nsvahl * ( pvec3 < 0. ? -sqh : sqh ) ); // AV: removed an abs here
+        }
       }
+#else
+      // Branch A: pp == 0.
+      const cxtype vcA_2 = cxmake( 0, 0 );
+      const cxtype vcA_3 = cxmake( -hel * sqh, 0 );
+      const cxtype vcA_4 = cxmake( 0, nsvahl * sqh );
+      const cxtype vcA_5 = cxmake( hel0, 0 );
+      // Branch B: pp != 0.
+      const fptype_v emp = pvec0 / ( vmass * pp );
+      const cxtype_v vcB_2 = cxmake( hel0 * pp / vmass, 0 );
+      const cxtype_v vcB_5 = cxmake( hel0 * pvec3 * emp + hel * pt / pp * sqh, 0 );
+      // Branch B1: pp != 0. and pt != 0.
+      const fptype_v pzpt = pvec3 / ( pp * pt ) * sqh * hel;
+      const cxtype_v vcB1_3 = cxmake( hel0 * pvec1 * emp - pvec1 * pzpt, -(fptype)nsvahl * pvec2 / pt * sqh );
+      const cxtype_v vcB1_4 = cxmake( hel0 * pvec2 * emp - pvec2 * pzpt, (fptype)nsvahl * pvec1 / pt * sqh );
+      // Branch B2: pp != 0. and pt == 0.
+      const cxtype vcB2_3 = cxmake( -hel * sqh, 0. );
+      const cxtype_v vcB2_4 = cxmake( 0., (fptype)nsvahl * fpternary( ( pvec3 < 0 ), -sqh, sqh ) ); // AV: removed an abs here
+      // Choose between the results from branch A and branch B (and from branch B1 and branch B2)
+      const bool_v mask = ( pp == 0. );
+      const bool_v maskB = ( pt != 0. );
+      vc[2] = cxternary( mask, vcA_2, vcB_2 );
+      vc[3] = cxternary( mask, vcA_3, cxternary( maskB, vcB1_3, vcB2_3 ) );
+      vc[4] = cxternary( mask, vcA_4, cxternary( maskB, vcB1_4, vcB2_4 ) );
+      vc[5] = cxternary( mask, vcA_5, vcB_5 );
+#endif
     }
     else
     {
-      const fptype_sv& pp_sv = pvec0_sv; // NB: rewrite the following as in Fortran, using pp instead of pvec0
-      const fptype_sv pt_sv = fpsqrt( ( pvec1_sv * pvec1_sv ) + ( pvec2_sv * pvec2_sv ) );
-      vc_sv[2] = cxzero_sv();
-      vc_sv[5] = cxmake( hel * pt_sv / pp_sv * sqh, 0. );
-      if( maskand( pt_sv == 0. ) )
+      const fptype_sv& pp = pvec0; // NB: rewrite the following as in Fortran, using pp instead of pvec0
+      const fptype_sv pt = fpsqrt( ( pvec1 * pvec1 ) + ( pvec2 * pvec2 ) );
+      vc[2] = cxzero_sv();
+      vc[5] = cxmake( hel * pt / pp * sqh, 0. );
+#ifndef MGONGPU_CPPSIMD
+      if( pt != 0. )
       {
-        vc_sv[3] = cxtype_sv( -hel * sqh );                                                       // IIII=0000
-        vc_sv[4] = cxtype_sv( fptype_sv{}, (fptype)nsv * fpternary( pvec3_sv < 0., -sqh, sqh ) ); // AV: removed an abs here
+        const fptype pzpt = pvec3 / ( pp * pt ) * sqh * hel;
+        vc[3] = cxmake( -pvec1 * pzpt, -nsv * pvec2 / pt * sqh );
+        vc[4] = cxmake( -pvec2 * pzpt, nsv * pvec1 / pt * sqh );
       }
-      else if( maskand( pt_sv != 0. ) )
-      {
-        const fptype_sv pzpt_sv = pvec3_sv / ( pp_sv * pt_sv ) * sqh * hel;
-        vc_sv[3] = cxmake( -pvec1_sv * pzpt_sv, -(fptype)nsv * pvec2_sv / pt_sv * sqh );
-        vc_sv[4] = cxmake( -pvec2_sv * pzpt_sv, (fptype)nsv * pvec1_sv / pt_sv * sqh );
-      }        
       else
       {
-#ifdef MGONGPU_CPPSIMD
-        // This is a hack to avoid division-by-0 FPE while preserving speed (#701 and #727)
-        const fptype_sv denom_sv = fpternary( pt_sv != 0, pt_sv, 1. ); // hack: dummy denom_sv[ieppV]=1 if pt_sv[ieppV]==0
-        const fptype_sv pzpt_sv = pvec3_sv / ( pp_sv * denom_sv ) * sqh * hel; // hack: dummy pzpt_sv[ieppV] is not used if pt_sv[ieppV]==0
-        vc_sv[3] = cxternary( pt_sv == 0., cxtype_sv( -hel * sqh ), cxtype_sv( -pvec1_sv * pzpt_sv, -nsv * pvec2_sv / denom_sv * sqh ) );
-        vc_sv[4] = cxternary( pt_sv == 0., cxtype_sv( fptype_sv{ 0. }, nsv * fpternary( pvec3_sv < 0., -sqh, sqh ) ), cxtype_sv( -pvec2_sv * pzpt_sv, nsv * pvec1_sv / denom_sv * sqh ) );
-#else
-        printf( "INTERNAL ERROR in vxxxxx: no path to this statement on GPUs or scalar C++!\n" );
-        assert( false );
-#endif
+        vc[3] = cxmake( -hel * sqh, 0. );
+        // NB: Do not use "abs" for floats! It returns an integer with no build warning! Use std::abs!
+        //vc[4] = cxmake( 0, nsv * ( pvec3 < 0. ? -std::abs( sqh ) : std::abs( sqh ) ) ); // AV why abs here?
+        vc[4] = cxmake( 0., nsv * ( pvec3 < 0. ? -sqh : sqh ) ); // AV: removed an abs here
       }
+#else
+      // Branch A: pt != 0.
+      const fptype_v pzpt = pvec3 / ( pp * pt ) * sqh * hel;
+      const cxtype_v vcA_3 = cxmake( -pvec1 * pzpt, -(fptype)nsv * pvec2 / pt * sqh );
+      const cxtype_v vcA_4 = cxmake( -pvec2 * pzpt, (fptype)nsv * pvec1 / pt * sqh );
+      // Branch B: pt == 0.
+      const cxtype vcB_3 = cxmake( -(fptype)hel * sqh, 0 );
+      const cxtype_v vcB_4 = cxmake( 0, (fptype)nsv * fpternary( ( pvec3 < 0 ), -sqh, sqh ) ); // AV: removed an abs here
+      // Choose between the results from branch A and branch B
+      const bool_v mask = ( pt != 0. );
+      vc[3] = cxternary( mask, vcA_3, vcB_3 );
+      vc[4] = cxternary( mask, vcA_4, vcB_4 );
+#endif
     }
     mgDebug( 1, __FUNCTION__ );
     return;
@@ -611,134 +567,107 @@ namespace mg5amcCpu
           const int ipar )        // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
-    // NEW IMPLEMENTATION FIXING FLOATING POINT EXCEPTIONS IN SIMD CODE (#701)
-    // USE _SV SUFFIXES EVERYWHERE AND ITERATE EXPLICITLY OVER ALL ELEMENTS OF SIMD VECTORS IF NEEDED
-    const fptype_sv& pvec0_sv = M_ACCESS::kernelAccessIp4IparConst( momenta, 0, ipar );
-    const fptype_sv& pvec1_sv = M_ACCESS::kernelAccessIp4IparConst( momenta, 1, ipar );
-    const fptype_sv& pvec2_sv = M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar );
-    const fptype_sv& pvec3_sv = M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar );
-    cxtype_sv* fo_sv = W_ACCESS::kernelAccess( wavefunctions );
-    fo_sv[0] = cxmake( pvec0_sv * (fptype)nsf, pvec3_sv * (fptype)nsf );
-    fo_sv[1] = cxmake( pvec1_sv * (fptype)nsf, pvec2_sv * (fptype)nsf );
+    const fptype_sv& pvec0 = M_ACCESS::kernelAccessIp4IparConst( momenta, 0, ipar );
+    const fptype_sv& pvec1 = M_ACCESS::kernelAccessIp4IparConst( momenta, 1, ipar );
+    const fptype_sv& pvec2 = M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar );
+    const fptype_sv& pvec3 = M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar );
+    cxtype_sv* fo = W_ACCESS::kernelAccess( wavefunctions );
+    fo[0] = cxmake( pvec0 * (fptype)nsf, pvec3 * (fptype)nsf );
+    fo[1] = cxmake( pvec1 * (fptype)nsf, pvec2 * (fptype)nsf );
     const int nh = nhel * nsf;
     if( fmass != 0. )
     {
-      const fptype_sv pp_sv = fpmin( pvec0_sv, fpsqrt( pvec1_sv * pvec1_sv + pvec2_sv * pvec2_sv + pvec3_sv * pvec3_sv ) );
-      const fptype_sv pp3_sv = fpmax( pp_sv + pvec3_sv, 0. );
-      if( maskand( pp_sv == 0. ) )
+      const fptype_sv pp = fpmin( pvec0, fpsqrt( ( pvec1 * pvec1 ) + ( pvec2 * pvec2 ) + ( pvec3 * pvec3 ) ) );
+#ifndef MGONGPU_CPPSIMD
+      if( pp == 0. )
       {
-        const int ip = -( ( 1 - nh ) / 2 ) * nhel;  // NB: same as in Fortran! Fortran sqm(0:1) also has indexes 0,1 as in C++
-        const int im = ( 1 + nh ) / 2 * nhel;       // NB: same as in Fortran! Fortran sqm(0:1) also has indexes 0,1 as in C++
         // NB: Do not use "abs" for floats! It returns an integer with no build warning! Use std::abs!
         fptype sqm[2] = { fpsqrt( std::abs( fmass ) ), 0. }; // possibility of negative fermion masses
-        sqm[1] = ( fmass < 0. ? -sqm[0] : sqm[0] ); // AV: removed an abs around sqm[0] here
-        fo_sv[2] = cxtype_sv( im * sqm[std::abs( ip )] );       // IIII=0000
-        fo_sv[3] = cxtype_sv( ip * nsf * sqm[std::abs( ip )] ); // IIII=0000
-        fo_sv[4] = cxtype_sv( im * nsf * sqm[std::abs( im )] ); // IIII=0000
-        fo_sv[5] = cxtype_sv( ip * sqm[std::abs( im )] );       // IIII=0000
-      }
-      else if( maskand( pp_sv != 0. ) and maskand( pp3_sv == 0. ) )
-      {
-        const int ip = ( 1 + nh ) / 2; // NB: differs from Fortran! Fortran is (3+nh)/2 because omega(2) has indexes 1,2 and not 0,1
-        const int im = ( 1 - nh ) / 2; // NB: differs from Fortran! Fortran is (3-nh)/2 because omega(2) has indexes 1,2 and not 0,1
-        const fptype sf[2] = { fptype( 1 + nsf + ( 1 - nsf ) * nh ) * (fptype)0.5,
-                               fptype( 1 + nsf - ( 1 - nsf ) * nh ) * (fptype)0.5 };
-        fptype_sv omega_sv[2] = { fpsqrt( pvec0_sv + pp_sv ), 0. };
-        omega_sv[1] = fmass / omega_sv[0];
-        const fptype_sv sfomega_sv[2] = { sf[0] * omega_sv[ip], sf[1] * omega_sv[im] };
-        const cxtype_sv chi_sv[2] = { cxmake( fpsqrt( pp3_sv * (fptype)0.5 / pp_sv ), 0. ),
-                                      cxtype_sv( -nh ) }; // IIII=0000
-        fo_sv[2] = sfomega_sv[1] * chi_sv[im];
-        fo_sv[3] = sfomega_sv[1] * chi_sv[ip];
-        fo_sv[4] = sfomega_sv[0] * chi_sv[im];
-        fo_sv[5] = sfomega_sv[0] * chi_sv[ip];
-      }
-      else if( maskand( pp_sv != 0. ) and maskand( pp3_sv != 0. ) )
-      {
-        const int ip = ( 1 + nh ) / 2; // NB: differs from Fortran! Fortran is (3+nh)/2 because omega(2) has indexes 1,2 and not 0,1
-        const int im = ( 1 - nh ) / 2; // NB: differs from Fortran! Fortran is (3-nh)/2 because omega(2) has indexes 1,2 and not 0,1
-        const fptype sf[2] = { fptype( 1 + nsf + ( 1 - nsf ) * nh ) * (fptype)0.5,
-                               fptype( 1 + nsf - ( 1 - nsf ) * nh ) * (fptype)0.5 };
-        fptype_sv omega_sv[2] = { fpsqrt( pvec0_sv + pp_sv ), 0. };
-        omega_sv[1] = fmass / omega_sv[0];
-        const fptype_sv sfomega_sv[2] = { sf[0] * omega_sv[ip], sf[1] * omega_sv[im] };
-        const cxtype_sv chi_sv[2] = { cxmake( fpsqrt( pp3_sv * (fptype)0.5 / pp_sv ), 0. ),
-                                      cxmake( (fptype)nh * pvec1_sv, -pvec2_sv ) / fpsqrt( 2. * pp_sv * pp3_sv ) };
-        fo_sv[2] = sfomega_sv[1] * chi_sv[im];
-        fo_sv[3] = sfomega_sv[1] * chi_sv[ip];
-        fo_sv[4] = sfomega_sv[0] * chi_sv[im];
-        fo_sv[5] = sfomega_sv[0] * chi_sv[ip];
+        //sqm[1] = ( fmass < 0. ? -abs( sqm[0] ) : abs( sqm[0] ) ); // AV: why abs here?
+        sqm[1] = ( fmass < 0. ? -sqm[0] : sqm[0] ); // AV: removed an abs here
+        const int ip = -( ( 1 - nh ) / 2 ) * nhel;  // NB: Fortran sqm(0:1) also has indexes 0,1 as in C++
+        const int im = ( 1 + nh ) / 2 * nhel;       // NB: Fortran sqm(0:1) also has indexes 0,1 as in C++
+        fo[2] = cxmake( im * sqm[std::abs( ip )], 0 );
+        fo[3] = cxmake( ip * nsf * sqm[std::abs( ip )], 0 );
+        fo[4] = cxmake( im * nsf * sqm[std::abs( im )], 0 );
+        fo[5] = cxmake( ip * sqm[std::abs( im )], 0 );
       }
       else
       {
-#ifdef MGONGPU_CPPSIMD
-        fptype sqm[2] = { fpsqrt( std::abs( fmass ) ), 0. }; // possibility of negative fermion masses (NB: use std::abs!)
-        sqm[1] = ( fmass < 0. ? -sqm[0] : sqm[0] ); // AV: removed an abs here
         const fptype sf[2] = { fptype( 1 + nsf + ( 1 - nsf ) * nh ) * (fptype)0.5,
                                fptype( 1 + nsf - ( 1 - nsf ) * nh ) * (fptype)0.5 };
-        fptype_sv omega_sv[2] = { fpsqrt( pvec0_sv + pp_sv ), 0. };
-        omega_sv[1] = fmass / omega_sv[0];
-        for( int ieppV = 0; ieppV < neppV; ieppV++ )
-        {
-          const fptype& pp = pp_sv[ieppV];
-          if( pp == 0. )
-          {
-            const int ip = -( ( 1 - nh ) / 2 ) * nhel;  // NB: same as in Fortran! Fortran sqm(0:1) also has indexes 0,1 as in C++
-            const int im = ( 1 + nh ) / 2 * nhel;       // NB: same as in Fortran! Fortran sqm(0:1) also has indexes 0,1 as in C++
-            fo_sv[2][ieppV] = cxtype( im * sqm[std::abs( ip )], 0 );
-            fo_sv[3][ieppV] = cxtype( ip * nsf * sqm[std::abs( ip )], 0 );
-            fo_sv[4][ieppV] = cxtype( im * nsf * sqm[std::abs( im )], 0 );
-            fo_sv[5][ieppV] = cxtype( ip * sqm[std::abs( im )], 0 );
-          }
-          else
-          {
-            const int ip = ( 1 + nh ) / 2; // NB: differs from Fortran! Fortran is (3+nh)/2 because omega(2) has indexes 1,2 and not 0,1
-            const int im = ( 1 - nh ) / 2; // NB: differs from Fortran! Fortran is (3-nh)/2 because omega(2) has indexes 1,2 and not 0,1
-            const fptype sfomega[2] = { sf[0] * omega_sv[ip][ieppV], sf[1] * omega_sv[im][ieppV] };
-            const fptype& pp3 = pp3_sv[ieppV];
-            const fptype& pvec1 = pvec1_sv[ieppV];
-            const fptype& pvec2 = pvec2_sv[ieppV];
-            const cxtype chi[2] = { cxmake( fpsqrt( pp3 * (fptype)0.5 / pp ), 0. ),
-                                    ( pp3 == 0. ? cxmake( -nh, 0. ) : cxmake( nh * pvec1, -pvec2 ) / fpsqrt( 2. * pp * pp3 ) ) };
-            fo_sv[2][ieppV] = sfomega[1] * chi[im];
-            fo_sv[3][ieppV] = sfomega[1] * chi[ip];
-            fo_sv[4][ieppV] = sfomega[0] * chi[im];
-            fo_sv[5][ieppV] = sfomega[0] * chi[ip];
-          }
-        }
-#else
-        printf( "INTERNAL ERROR in oxxxxx: no path to this statement on GPUs or scalar C++!\n" );
-        assert( false );
-#endif
+        fptype omega[2] = { fpsqrt( pvec0 + pp ), 0. };
+        omega[1] = fmass / omega[0];
+        const int ip = ( 1 + nh ) / 2; // NB: Fortran is (3+nh)/2 because omega(2) has indexes 1,2 and not 0,1
+        const int im = ( 1 - nh ) / 2; // NB: Fortran is (3-nh)/2 because omega(2) has indexes 1,2 and not 0,1
+        const fptype sfomeg[2] = { sf[0] * omega[ip], sf[1] * omega[im] };
+        const fptype pp3 = fpmax( pp + pvec3, 0. );
+        const cxtype chi[2] = { cxmake( fpsqrt( pp3 * (fptype)0.5 / pp ), 0. ),
+                                ( ( pp3 == 0. ) ? cxmake( -nh, 0. )
+                                                : cxmake( nh * pvec1, -pvec2 ) / fpsqrt( 2. * pp * pp3 ) ) };
+        fo[2] = sfomeg[1] * chi[im];
+        fo[3] = sfomeg[1] * chi[ip];
+        fo[4] = sfomeg[0] * chi[im];
+        fo[5] = sfomeg[0] * chi[ip];
       }
+#else
+      // Branch A: pp == 0.
+      // NB: Do not use "abs" for floats! It returns an integer with no build warning! Use std::abs!
+      fptype sqm[2] = { fpsqrt( std::abs( fmass ) ), 0 }; // possibility of negative fermion masses
+      sqm[1] = ( fmass < 0 ? -sqm[0] : sqm[0] );          // AV: removed an abs here (as above)
+      const int ipA = -( ( 1 - nh ) / 2 ) * nhel;
+      const int imA = ( 1 + nh ) / 2 * nhel;
+      const cxtype foA_2 = imA * sqm[std::abs( ipA )];
+      const cxtype foA_3 = ipA * nsf * sqm[std::abs( ipA )];
+      const cxtype foA_4 = imA * nsf * sqm[std::abs( imA )];
+      const cxtype foA_5 = ipA * sqm[std::abs( imA )];
+      // Branch B: pp != 0.
+      const fptype sf[2] = { fptype( 1 + nsf + ( 1 - nsf ) * nh ) * (fptype)0.5,
+                             fptype( 1 + nsf - ( 1 - nsf ) * nh ) * (fptype)0.5 };
+      fptype_v omega[2] = { fpsqrt( pvec0 + pp ), 0 };
+      omega[1] = fmass / omega[0];
+      const int ipB = ( 1 + nh ) / 2;
+      const int imB = ( 1 - nh ) / 2;
+      const fptype_v sfomeg[2] = { sf[0] * omega[ipB], sf[1] * omega[imB] };
+      const fptype_v pp3 = fpmax( pp + pvec3, 0. );
+      const cxtype_v chi[2] = { cxmake( fpsqrt( pp3 * 0.5 / pp ), 0. ),
+                                ( cxternary( ( pp3 == 0. ),
+                                             cxmake( -nh, 0. ),
+                                             cxmake( (fptype)nh * pvec1, -pvec2 ) / fpsqrt( 2. * pp * pp3 ) ) ) };
+      const cxtype_v foB_2 = sfomeg[1] * chi[imB];
+      const cxtype_v foB_3 = sfomeg[1] * chi[ipB];
+      const cxtype_v foB_4 = sfomeg[0] * chi[imB];
+      const cxtype_v foB_5 = sfomeg[0] * chi[ipB];
+      // Choose between the results from branch A and branch B
+      const bool_v mask = ( pp == 0. );
+      fo[2] = cxternary( mask, foA_2, foB_2 );
+      fo[3] = cxternary( mask, foA_3, foB_3 );
+      fo[4] = cxternary( mask, foA_4, foB_4 );
+      fo[5] = cxternary( mask, foA_5, foB_5 );
+#endif
     }
     else
     {
-      const fptype_sv sqp0p3_sv = fpternary( ( pvec1_sv == 0. ) and ( pvec2_sv == 0. ) and ( pvec3_sv < 0. ),
-                                             fptype_sv{ 0 },
-                                             fpsqrt( fpmax( pvec0_sv + pvec3_sv, 0. ) ) * (fptype)nsf );
-#ifdef MGONGPU_CPPSIMD
-      // This is a hack to avoid division-by-0 FPE while preserving speed (#701 and #727)
-      const fptype_sv denom_sv = fpternary( sqp0p3_sv != 0, sqp0p3_sv, 1. ); // hack: dummy denom_sv[ieppV]=1 if sqp0p3_sv[ieppV]==0
-      const cxtype_sv chi_sv[2] = { cxmake( sqp0p3_sv, 0. ),
-                                    cxternary( sqp0p3_sv == 0., cxmake( -(fptype)nhel * fpsqrt( 2. * pvec0_sv ), 0. ), cxmake( (fptype)nh * pvec1_sv, -pvec2_sv ) / denom_sv ) };
-#else
-      const cxtype_sv chi_sv[2] = { cxmake( sqp0p3_sv, 0. ),
-                                    ( sqp0p3_sv == 0. ? cxmake( -(fptype)nhel * fpsqrt( 2. * pvec0_sv ), 0. ) : cxmake( (fptype)nh * pvec1_sv, -pvec2_sv ) / sqp0p3_sv ) };
-#endif
+      const fptype_sv sqp0p3 = fpternary( ( pvec1 == 0. ) and ( pvec2 == 0. ) and ( pvec3 < 0. ),
+                                          0,
+                                          fpsqrt( fpmax( pvec0 + pvec3, 0. ) ) * (fptype)nsf );
+      const cxtype_sv chi[2] = { cxmake( sqp0p3, 0. ),
+                                 cxternary( ( sqp0p3 == 0. ),
+                                            cxmake( -nhel, 0. ) * fpsqrt( 2. * pvec0 ),
+                                            cxmake( (fptype)nh * pvec1, -pvec2 ) / sqp0p3 ) };
       if( nh == 1 )
       {
-        fo_sv[2] = chi_sv[0];
-        fo_sv[3] = chi_sv[1];
-        fo_sv[4] = cxzero_sv();
-        fo_sv[5] = cxzero_sv();
+        fo[2] = chi[0];
+        fo[3] = chi[1];
+        fo[4] = cxzero_sv();
+        fo[5] = cxzero_sv();
       }
       else
       {
-        fo_sv[2] = cxzero_sv();
-        fo_sv[3] = cxzero_sv();
-        fo_sv[4] = chi_sv[1];
-        fo_sv[5] = chi_sv[0];
+        fo[2] = cxzero_sv();
+        fo[3] = cxzero_sv();
+        fo[4] = chi[1];
+        fo[5] = chi[0];
       }
     }
     mgDebug( 1, __FUNCTION__ );
