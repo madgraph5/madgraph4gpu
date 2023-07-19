@@ -621,7 +621,12 @@ namespace mg5amcCpu
 // COMPLEX TYPES: WRAPPER OVER RI FLOATING POINT PAIR (cxtype_ref)
 //==========================================================================
 
-namespace mgOnGpu /* clang-format off */
+// NB: namespaces mg5amcGpu and mg5amcCpu includes types which are defined in different ways for CPU and GPU builds (see #318 and #725)
+#ifdef __CUDACC__
+namespace mg5amcGpu
+#else
+namespace mg5amcCpu
+#endif
 {
   // The cxtype_ref class (a non-const reference to two fp variables) was originally designed for cxtype_v::operator[]
   // It used to be included in the code only when MGONGPU_HAS_CPPCXTYPEV_BRK (originally MGONGPU_HAS_CPPCXTYPE_REF) is defined
@@ -640,7 +645,7 @@ namespace mgOnGpu /* clang-format off */
   private:
     fptype *m_preal, *m_pimag; // RI
   };
-} /* clang-format on */
+}
 
 // Printout to stream for user defined types
 inline __host__ __device__ std::ostream&
