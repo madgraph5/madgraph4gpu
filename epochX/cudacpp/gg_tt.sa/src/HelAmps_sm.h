@@ -297,7 +297,8 @@ namespace mg5amcCpu
       cxtype_sv chi_sv[2] = { cxmake( sqp0p3_sv, 0. ), cxmake( -(fptype)nhel * fpsqrt( 2. * pvec0_sv ), 0. ) };
       std::cout << "Entering loop" << std::endl;
       // This loop triggers a FPE in no-debug builds (most likely because it is auto-vectorized)
-#pragma GCC unroll 0
+#pragma GCC push_options
+#pragma GCC optimize("O0")
       for( int ieppV = 0; ieppV < neppV; ieppV++ )
       {
         if( sqp0p3_sv[ieppV] != 0. )
@@ -305,6 +306,7 @@ namespace mg5amcCpu
           chi_sv[1][ieppV] = cxmake( (fptype)nh * pvec1_sv[ieppV], pvec2_sv[ieppV] ) / sqp0p3_sv[ieppV];
         }
       }
+#pragma GCC pop_options
       std::cout << "Completed loop" << std::endl;
 #else
       const cxtype_sv chi_sv[2] = { cxmake( sqp0p3_sv, 0. ),
