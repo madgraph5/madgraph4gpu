@@ -122,7 +122,7 @@ ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   CUINC = -I$(CUDA_HOME)/include/
   CURANDLIBFLAGS = -L$(CUDA_HOME)/lib64/ -lcurand # NB: -lcuda is not needed here!
   CUOPTFLAGS = -lineinfo
-  CUFLAGS = $(OPTFLAGS) $(CUOPTFLAGS) $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math
+  CUFLAGS = $(foreach opt, $(OPTFLAGS), -Xcompiler $(opt)) $(CUOPTFLAGS) $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math
   ###CUFLAGS += -Xcompiler -Wall -Xcompiler -Wextra -Xcompiler -Wshadow
   ###NVCC_VERSION = $(shell $(NVCC) --version | grep 'Cuda compilation tools' | cut -d' ' -f5 | cut -d, -f1)
   CUFLAGS += -std=c++17 # need CUDA >= 11.2 (see #333): this is enforced in mgOnGpuConfig.h
