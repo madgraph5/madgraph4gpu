@@ -767,12 +767,14 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         print( 'super_write_set_parameters_onlyfixMajorana (hardcoded=%s)'%hardcoded )
         res_strings = []
         # Correct width sign for Majorana particles (where the width and mass need to have the same sign)        
+        prefix = "  " if hardcoded else "" # hardcoded code goes into Parameters.h and needs two extra leading spaces due to a namespace...
         for particle in self.model.get('particles'):
             if particle.is_fermion() and particle.get('self_antipart') and \
                    particle.get('width').lower() != 'zero':
-                res_strings.append("  if( %s < 0 )" % particle.get('mass'))
-                res_strings.append("    %(width)s = -abs( %(width)s );" % {"width": particle.get('width')})
-        return '\n' + '\n'.join(res_strings) if res_strings else ''
+                res_strings.append( prefix+"  if( %s < 0 )" % particle.get('mass'))
+                res_strings.append( prefix+"    %(width)s = -abs( %(width)s );" % {"width": particle.get('width')})
+        if not hardcoded: return '\n' + '\n'.join(res_strings) if res_strings else ''
+        else: return '\n'.join(res_strings)
 
     # AV - replace export_cpp.UFOModelConverterCPP method (add hardcoded parameters and couplings)
     def super_generate_parameters_class_files(self):
@@ -849,7 +851,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             dcoupoutfptypev2 = [ '      fptype_v %sr_v;\n      fptype_v %si_v;'%(name,name) for name in self.coups_dep ]
             replace_dict['dcoupoutfptypev2'] = '\n' + '\n'.join( dcoupoutfptypev2 )
             replace_dict['dcoupsetdpar2'] = replace_dict['dcoupsetdpar'].replace('fptype_sv','fptype')
-            dcoupsetdcoup2 = [ '      ' + line.replace('constexpr cxsmpl<double> ','const cxtype ').replace('mdl_complexi', 'cI') for line in self.write_hardcoded_parameters(list(self.coups_dep.values())).split('\n') if line != '' ]
+            dcoupsetdcoup2 = [ '    ' + line.replace('constexpr cxsmpl<double> ','const cxtype ').replace('mdl_complexi', 'cI') for line in self.write_hardcoded_parameters(list(self.coups_dep.values())).split('\n') if line != '' ]
             dcoupsetdcoup2 += [ '        %sr_v[i] = cxreal( %s );\n        %si_v[i] = cximag( %s );'%(name,name,name,name) for name in self.coups_dep ]
             replace_dict['dcoupsetdcoup2'] = '  ' + '\n'.join( dcoupsetdcoup2 )
             dcoupoutdcoup2 = [ '      out.%s = cxtype_v( %sr_v, %si_v );'%(name,name,name) for name in self.coups_dep ]
@@ -886,7 +888,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         // Model parameters dependent on aS
 %(dcoupsetdpar2)s
         // Model couplings dependent on aS
-%(dcoupsetdcoup2)s
+  %(dcoupsetdcoup2)s
       }%(dcoupoutdcoup2)s
 #endif""" % replace_dict
             replace_dict['eftspecial2'] += '\n      // End non-SM (e.g. EFT) implementation - special handling of vectors of floats (#439)'
