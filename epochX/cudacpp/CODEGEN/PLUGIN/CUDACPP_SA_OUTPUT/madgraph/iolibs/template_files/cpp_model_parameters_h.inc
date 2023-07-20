@@ -31,7 +31,6 @@ namespace mg5amcGpu
 namespace mg5amcCpu
 #endif
 {
-
   class Parameters_%(model_name)s
   {
   public:
@@ -78,11 +77,20 @@ namespace mg5amcCpu
     static Parameters_%(model_name)s* instance;
   };
 
+} // end namespace mg5amcGpu/mg5amcCpu
+
 #else
 
 #include <cassert>
 #include <limits>
 
+// NB: namespaces mg5amcGpu and mg5amcCpu includes types which are defined in different ways for CPU and GPU builds (see #318 and #725)
+#ifdef __CUDACC__
+namespace mg5amcGpu
+#else
+namespace mg5amcCpu
+#endif
+{
   // Hardcoded constexpr physics parameters
   namespace Parameters_%(model_name)s // keep the same name rather than HardcodedParameters_%(model_name)s for simplicity
   {
@@ -140,10 +148,19 @@ namespace mg5amcCpu
     //void printDependentCouplings(); // now computed event-by-event (running alphas #373)
   }
 
+} // end namespace mg5amcGpu/mg5amcCpu
+
 #endif
 
-  //==========================================================================
+//==========================================================================
 
+// NB: namespaces mg5amcGpu and mg5amcCpu includes types which are defined in different ways for CPU and GPU builds (see #318 and #725)
+#ifdef __CUDACC__
+namespace mg5amcGpu
+#else
+namespace mg5amcCpu
+#endif
+{
   namespace Parameters_%(model_name)s_dependentCouplings
   {
     constexpr size_t ndcoup = %(ndcoup)d; // #couplings that vary event by event because they depend on the running alphas QCD
