@@ -47,7 +47,7 @@ namespace mg5amcCpu
 
     %(dependent_parameters)s
 
-    %(dependent_couplings)s    
+    %(dependent_couplings)s
 
     // Set parameters that are unchanged during the run
     void setIndependentParameters( SLHAReader& slha );
