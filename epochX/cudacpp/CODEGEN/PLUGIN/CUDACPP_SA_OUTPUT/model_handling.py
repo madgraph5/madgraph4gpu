@@ -686,6 +686,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         res = res.replace('\n','\n  ')
         res = res.replace('(  - ','( -') # post-fix for susy
         res = res.replace(',  - ',', -') # post-fix for susy
+        ###misc.sprint( "'"+res+"'" )
         return res
 
     # AV - new method (merging write_parameters and write_set_parameters)
@@ -822,12 +823,12 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             iicoup = [ '  //constexpr size_t ixcoup_%s = %d + Parameters_%s_dependentCouplings::ndcoup; // out of ndcoup+nicoup' % (par.name, id, self.model_name) for (id, par) in enumerate(self.coups_indep) ]
             replace_dict['iicoup'] = '\n'.join( iicoup )
         else:
-            replace_dict['iicoup'] = '  // NB: there are no aS-independent couplings in this physics process'
+            replace_dict['iicoup'] = '    // NB: there are no aS-independent couplings in this physics process'
         replace_dict['ndcoup'] = len( self.coups_dep )
         if len( self.coups_dep ) > 0 :
-            idcoup = [ '  constexpr size_t idcoup_%s = %d;' % (name, id) for (id, name) in enumerate(self.coups_dep) ]
+            idcoup = [ '    constexpr size_t idcoup_%s = %d;' % (name, id) for (id, name) in enumerate(self.coups_dep) ]
             replace_dict['idcoup'] = '\n'.join( idcoup )
-            dcoupdecl = [ '    cxtype_sv %s;' % name for name in self.coups_dep ]
+            dcoupdecl = [ '      cxtype_sv %s;' % name for name in self.coups_dep ]
             replace_dict['dcoupdecl'] = '\n'.join( dcoupdecl )
             dcoupsetdpar = []
             foundG = False
@@ -835,9 +836,9 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
                 if line != '':
                     dcoupsetdpar.append( '    ' + line.replace('constexpr double', 'const fptype_sv' if foundG else '//const fptype_sv' ) )
                     if 'constexpr double G =' in line: foundG = True
-            replace_dict['dcoupsetdpar'] = '  ' + '\n'.join( dcoupsetdpar )
+            replace_dict['dcoupsetdpar'] = '    ' + '\n'.join( dcoupsetdpar )
             dcoupsetdcoup = [ '    ' + line.replace('constexpr cxsmpl<double> ','out.').replace('mdl_complexi', 'cI') for line in self.write_hardcoded_parameters(list(self.coups_dep.values())).split('\n') if line != '' ]
-            replace_dict['dcoupsetdcoup'] = '  ' + '\n'.join( dcoupsetdcoup )
+            replace_dict['dcoupsetdcoup'] = '    ' + '\n'.join( dcoupsetdcoup )
             dcoupaccessbuffer = [ '    fptype* %ss = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_%s );'%( name, name ) for name in self.coups_dep ]
             replace_dict['dcoupaccessbuffer'] = '\n'.join( dcoupaccessbuffer ) + '\n'
             dcoupkernelaccess = [ '    cxtype_sv_ref %ss_sv = C_ACCESS::kernelAccess( %ss );'%( name, name ) for name in self.coups_dep ]
@@ -869,11 +870,11 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         # Require HRDCOD=1 in EFT and special handling in EFT for fptype=float using SIMD
         if self.model_name == 'sm' :
             replace_dict['efterror'] = ''
-            replace_dict['eftspecial1'] = '    // Begin SM implementation - no special handling of vectors of floats as in EFT (#439)'
-            replace_dict['eftspecial2'] = '    // End SM implementation - no special handling of vectors of floats as in EFT (#439)'
+            replace_dict['eftspecial1'] = '      // Begin SM implementation - no special handling of vectors of floats as in EFT (#439)'
+            replace_dict['eftspecial2'] = '      // End SM implementation - no special handling of vectors of floats as in EFT (#439)'
         else:
             replace_dict['efterror'] = '\n#error This non-SM physics process only supports MGONGPU_HARDCODE_PARAM builds (#439): please run "make HRDCOD=1"'
-            replace_dict['eftspecial1'] = '    // Begin non-SM (e.g. EFT) implementation - special handling of vectors of floats (#439)'
+            replace_dict['eftspecial1'] = '      // Begin non-SM (e.g. EFT) implementation - special handling of vectors of floats (#439)'
             replace_dict['eftspecial1'] += '\n#if not( defined MGONGPU_CPPSIMD && defined MGONGPU_FPTYPE_FLOAT )'
             replace_dict['eftspecial2'] = """#else
     // ** NB #439: special handling is necessary ONLY FOR VECTORS OF FLOATS (variable Gs are vector floats, fixed parameters are scalar doubles)
