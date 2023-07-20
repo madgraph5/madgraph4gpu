@@ -686,6 +686,10 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         res = res.replace('\n','\n  ')
         res = res.replace('(  - ','( -') # post-fix for susy
         res = res.replace(',  - ',', -') # post-fix for susy
+        res = res.replace('Re+mdl','Re + mdl') # post-fix for smeft
+        res = res.replace('Re+0','Re + 0') # post-fix for smeft
+        res = res.replace('He-2','He - 2') # post-fix for smeft
+        res = res.replace(', - ',', -') # post-fix for smeft
         ###misc.sprint( "'"+res+"'" )
         return res
 
@@ -748,6 +752,9 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         res = res.replace('= - ','= -') # post-fix for susy
         res = res.replace('(  - ','( -') # post-fix for susy
         res = res.replace(',  - ',', -') # post-fix for SM no_b_mass
+        res = res.replace('Re+mdl','Re + mdl') # post-fix for smeft
+        res = res.replace('Re+0','Re + 0') # post-fix for smeft
+        res = res.replace('He-2','He - 2') # post-fix for smeft
         ###print(res); assert(False)
         ###misc.sprint( "'"+res+"'" )
         return res
