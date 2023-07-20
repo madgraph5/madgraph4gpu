@@ -792,6 +792,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
                              if line.startswith( '  aS =' ) else
                              line for line in self.write_set_parameters(self.params_indep).split('\n') ]
         replace_dict['set_independent_parameters'] = '\n'.join( set_params_indep )
+        replace_dict['set_independent_parameters'] += self.super_write_set_parameters_onlyfixMajorana( hardcoded=False ) # add fixes for Majorana particles only in the aS-indep parameters #622
         replace_dict['set_independent_couplings'] = self.write_set_parameters(self.coups_indep)
         replace_dict['set_dependent_parameters'] = self.write_set_parameters(self.params_dep)
         replace_dict['set_dependent_couplings'] = self.write_set_parameters(list(self.coups_dep.values()))
@@ -799,7 +800,6 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
                                if '"aS =' in line else
                                line for line in self.write_print_parameters(self.params_indep).split('\n') ]
         replace_dict['print_independent_parameters'] = '\n'.join( print_params_indep )
-        replace_dict['print_independent_parameters'] += self.super_write_set_parameters_onlyfixMajorana( hardcoded=False ) # add fixes for Majorana particles only in the aS-indep parameters #622
         replace_dict['print_independent_couplings'] = self.write_print_parameters(self.coups_indep)
         replace_dict['print_dependent_parameters'] = self.write_print_parameters(self.params_dep)
         replace_dict['print_dependent_couplings'] = self.write_print_parameters(list(self.coups_dep.values()))
