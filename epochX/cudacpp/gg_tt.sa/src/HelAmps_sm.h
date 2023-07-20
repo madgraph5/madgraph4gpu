@@ -254,8 +254,8 @@ namespace mg5amcCpu
       omega[1] = fmass / omega[0];
       const fptype_v sfomega[2] = { sf[0] * omega[ip], sf[1] * omega[im] };
       const fptype_v pp3 = fpmax( pp + pvec3, 0 );
-      volatile fptype_v ppDENOM = fpternary( pp != 0, pp, 1. ); // hack: ppDENOM[ieppV]=1 if pp[ieppV]==0
-      volatile fptype_v pp3DENOM = fpternary( pp3 != 0, pp3, 1. ); // hack: pp3DENOM[ieppV]=1 if pp3[ieppV]==0
+      volatile fptype_v ppDENOM = fpternary( pp != 0, pp, 1. );             // hack: ppDENOM[ieppV]=1 if pp[ieppV]==0
+      volatile fptype_v pp3DENOM = fpternary( pp3 != 0, pp3, 1. );          // hack: pp3DENOM[ieppV]=1 if pp3[ieppV]==0
       const cxtype_v chi[2] = { cxmake( fpsqrt( pp3 * 0.5 / ppDENOM ), 0 ), // hack: dummy[ieppV] is not used if pp[ieppV]==0
                                 cxternary( ( pp3 == 0. ),
                                            cxmake( -nh, 0 ),
@@ -491,14 +491,14 @@ namespace mg5amcCpu
       const cxtype vcA_5 = cxmake( hel0, 0 );
       // Branch B: pp != 0.
       volatile fptype_v ppDENOM = fpternary( pp != 0, pp, 1. ); // hack: ppDENOM[ieppV]=1 if pp[ieppV]==0
-      const fptype_v emp = pvec0 / ( vmass * ppDENOM ); // hack: dummy[ieppV] is not used if pp[ieppV]==0
+      const fptype_v emp = pvec0 / ( vmass * ppDENOM );         // hack: dummy[ieppV] is not used if pp[ieppV]==0
       const cxtype_v vcB_2 = cxmake( hel0 * pp / vmass, 0 );
       const cxtype_v vcB_5 = cxmake( hel0 * pvec3 * emp + hel * pt / ppDENOM * sqh, 0 ); // hack: dummy[ieppV] is not used if pp[ieppV]==0
       // Branch B1: pp != 0. and pt != 0.
-      volatile fptype_v ptDENOM = fpternary( pt != 0, pt, 1. ); // hack: ptDENOM[ieppV]=1 if pt[ieppV]==0
-      const fptype_v pzpt = pvec3 / ( ppDENOM * ptDENOM ) * sqh * hel; // hack: dummy[ieppV] is not used if pp[ieppV]==0
+      volatile fptype_v ptDENOM = fpternary( pt != 0, pt, 1. );                                                     // hack: ptDENOM[ieppV]=1 if pt[ieppV]==0
+      const fptype_v pzpt = pvec3 / ( ppDENOM * ptDENOM ) * sqh * hel;                                              // hack: dummy[ieppV] is not used if pp[ieppV]==0
       const cxtype_v vcB1_3 = cxmake( hel0 * pvec1 * emp - pvec1 * pzpt, -(fptype)nsvahl * pvec2 / ptDENOM * sqh ); // hack: dummy[ieppV] is not used if pt[ieppV]==0
-      const cxtype_v vcB1_4 = cxmake( hel0 * pvec2 * emp - pvec2 * pzpt, (fptype)nsvahl * pvec1 / ptDENOM * sqh ); // hack: dummy[ieppV] is not used if pt[ieppV]==0
+      const cxtype_v vcB1_4 = cxmake( hel0 * pvec2 * emp - pvec2 * pzpt, (fptype)nsvahl * pvec1 / ptDENOM * sqh );  // hack: dummy[ieppV] is not used if pt[ieppV]==0
       // Branch B2: pp != 0. and pt == 0.
       const cxtype vcB2_3 = cxmake( -hel * sqh, 0. );
       const cxtype_v vcB2_4 = cxmake( 0., (fptype)nsvahl * fpternary( ( pvec3 < 0 ), -sqh, sqh ) ); // AV: removed an abs here
@@ -533,10 +533,10 @@ namespace mg5amcCpu
       }
 #else
       // Branch A: pt != 0.
-      volatile fptype_v ptDENOM = fpternary( pt != 0, pt, 1. ); // hack: ptDENOM[ieppV]=1 if pt[ieppV]==0
-      const fptype_v pzpt = pvec3 / ( pp * ptDENOM ) * sqh * hel; // hack: dummy[ieppV] is not used if pt[ieppV]==0
+      volatile fptype_v ptDENOM = fpternary( pt != 0, pt, 1. );                             // hack: ptDENOM[ieppV]=1 if pt[ieppV]==0
+      const fptype_v pzpt = pvec3 / ( pp * ptDENOM ) * sqh * hel;                           // hack: dummy[ieppV] is not used if pt[ieppV]==0
       const cxtype_v vcA_3 = cxmake( -pvec1 * pzpt, -(fptype)nsv * pvec2 / ptDENOM * sqh ); // hack: dummy[ieppV] is not used if pt[ieppV]==0
-      const cxtype_v vcA_4 = cxmake( -pvec2 * pzpt, (fptype)nsv * pvec1 / ptDENOM * sqh ); // hack: dummy[ieppV] is not used if pt[ieppV]==0
+      const cxtype_v vcA_4 = cxmake( -pvec2 * pzpt, (fptype)nsv * pvec1 / ptDENOM * sqh );  // hack: dummy[ieppV] is not used if pt[ieppV]==0
       // Branch B: pt == 0.
       const cxtype vcB_3 = cxmake( -(fptype)hel * sqh, 0 );
       const cxtype_v vcB_4 = cxmake( 0, (fptype)nsv * fpternary( ( pvec3 < 0 ), -sqh, sqh ) ); // AV: removed an abs here
@@ -654,8 +654,8 @@ namespace mg5amcCpu
       const int imB = ( 1 - nh ) / 2;
       const fptype_v sfomeg[2] = { sf[0] * omega[ipB], sf[1] * omega[imB] };
       const fptype_v pp3 = fpmax( pp + pvec3, 0. );
-      volatile fptype_v ppDENOM = fpternary( pp != 0, pp, 1. ); // hack: ppDENOM[ieppV]=1 if pp[ieppV]==0
-      volatile fptype_v pp3DENOM = fpternary( pp3 != 0, pp3, 1. ); // hack: pp3DENOM[ieppV]=1 if pp3[ieppV]==0
+      volatile fptype_v ppDENOM = fpternary( pp != 0, pp, 1. );              // hack: ppDENOM[ieppV]=1 if pp[ieppV]==0
+      volatile fptype_v pp3DENOM = fpternary( pp3 != 0, pp3, 1. );           // hack: pp3DENOM[ieppV]=1 if pp3[ieppV]==0
       const cxtype_v chi[2] = { cxmake( fpsqrt( pp3 * 0.5 / ppDENOM ), 0. ), // hack: dummy[ieppV] is not used if pp[ieppV]==0
                                 ( cxternary( ( pp3 == 0. ),
                                              cxmake( -nh, 0. ),
