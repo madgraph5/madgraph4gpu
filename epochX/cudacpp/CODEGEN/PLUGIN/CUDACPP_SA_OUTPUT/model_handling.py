@@ -737,17 +737,18 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             if parval.startswith('slha.get_block_entry'): parval = parval.split(',')[2].lstrip(' ').rstrip(');') + ';'
             parset_pars.append( par )
             parset_lines[par] = parval # includes a trailing ';'
-        misc.sprint( 'parset_pars size =', len(parset_pars) )
-        misc.sprint( 'parset_lines size =', len(parset_lines), ', keys size =', len(parset_lines.keys()) )
+        ###misc.sprint( 'parset_pars size =', len(parset_pars) )
+        ###misc.sprint( 'parset_lines size =', len(parset_lines), ', keys size =', len(parset_lines.keys()) )
         ###print( parset_lines ) # for debugging
         ###for line in parset_lines: misc.sprint(line) # for debugging
         assert len(pardef_lines) == len(parset_lines), 'len(pardef_lines) != len(parset_lines)' # AV sanity check (same number of parameters)
-        res = '  '.join( pardef_lines[par] + ' = ' + parset_lines[par] + '\n' for par in parset_pars ) # no leading '  ' on first row
+        res = '    '.join( pardef_lines[par] + ' = ' + parset_lines[par] + '\n' for par in parset_pars ) # no leading '    ' on first row
         res = res.replace(' ;',';')
         res = res.replace('= - ','= -') # post-fix for susy
         res = res.replace('(  - ','( -') # post-fix for susy
         res = res.replace(',  - ',', -') # post-fix for SM no_b_mass
         ###print(res); assert(False)
+        ###misc.sprint( "'"+res+"'" )
         return res
 
     # AV - replace export_cpp.UFOModelConverterCPP method (split writing of parameters and fixes for Majorana particles #622)
