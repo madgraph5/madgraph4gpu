@@ -282,8 +282,7 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
         MemoryAccessMomenta::ieventAccessIp4Ipar( hstMomenta.data(), ievt, ip4, ipar0 ) = par0[ievt * np4 + ip4]; // AOS to AOSOA
   };
   // Lambda function for preparing the test of one specific function
-  //const bool debug = false;
-  const bool debug = true;
+  const bool debug = false;
   auto prepareTest = [&]( const char* xxx, int ievt )
   {
     if( debug ) std::cout << "Prepare test " << xxx << " ievt=" << ievt << std::endl;
