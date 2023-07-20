@@ -280,7 +280,7 @@ namespace mg5amcCpu
       std::cout << "Entering loop" << std::endl;
       volatile fptype_v sqp0p3DENOM = fpternary( sqp0p3 != 0, sqp0p3, 1. ); // hack: dummy sqp0p3DENOM[ieppV]=1 if sqp0p3[ieppV]==0
       cxtype_sv chi[2] = { cxmake( sqp0p3, 0. ),
-                           cxternary( sqp0p3 == 0, cxmake( -(fptype)nhel * fpsqrt( 2. * pvec0 ), 0. ), cxmake( (fptype)nh * pvec1, pvec2 ) / sqp0p3DENOM ) }; // hack: dummy[ieppV] is not used if sqp0p3[ieppV]==0
+                           cxternary( sqp0p3 == 0, cxmake( -(fptype)nhel * fpsqrt( 2. * pvec0 ), 0. ), cxmake( (fptype)nh * pvec1, pvec2 ) / (const fptype_v)sqp0p3DENOM ) }; // hack: dummy[ieppV] is not used if sqp0p3[ieppV]==0
       std::cout << "Completed loop" << std::endl;
 #else
       const cxtype_sv chi[2] = { cxmake( sqp0p3, 0. ),
