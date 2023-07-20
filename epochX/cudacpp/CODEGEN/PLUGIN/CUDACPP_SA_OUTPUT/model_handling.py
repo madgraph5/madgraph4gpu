@@ -645,7 +645,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         out = []
         if ext == 'h': file = open(pjoin(path, self.helas_h)).read()
         else: file = open(pjoin(path, self.helas_cc)).read()
-        file = '\n'.join( file.split('\n')[8:] ) # skip first 8 lines in helas.h/cu (copyright)
+        file = '\n'.join( file.split('\n')[9:] ) # skip first 9 lines in helas.h/cu (copyright including ALOHA)
         out.append( file )
         return out
 
@@ -964,7 +964,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         replace_dict['function_definitions'] = '\n'.join(template_cc_files)
         file_h = self.read_template_file(self.aloha_template_h) % replace_dict
         file_cc = self.read_template_file(self.aloha_template_cc) % replace_dict
-        file_cc = '\n'.join( file_cc.split('\n')[8:] ) # skip first 8 lines in cpp_hel_amps_cc.inc (copyright)
+        file_cc = '\n'.join( file_cc.split('\n')[9:] ) # skip first 9 lines in cpp_hel_amps_cc.inc (copyright including ALOHA)
         # Write the HelAmps_sm.h and HelAmps_sm.cc files
         ###PLUGIN_writers.CPPWriter(model_h_file).writelines(file_h)
         ###PLUGIN_writers.CPPWriter(model_cc_file).writelines(file_cc)

@@ -1,3 +1,4 @@
+! Copyright (C) 2010 The ALOHA Development team and Contributors.
 ! Copyright (C) 2010 The MadGraph5_aMC@NLO development team and contributors.
 ! Created by: J. Alwall (Sep 2010) for the MG5aMC CPP backend.
 !==========================================================================
