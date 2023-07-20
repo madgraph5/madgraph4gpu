@@ -864,10 +864,10 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             dcoupoutdcoup2 = [ '      out.%s = cxtype_v( %sr_v, %si_v );'%(name,name,name) for name in self.coups_dep ]
             replace_dict['dcoupoutdcoup2'] = '\n' + '\n'.join( dcoupoutdcoup2 )
         else:
-            replace_dict['idcoup'] = '  // NB: there are no aS-dependent couplings in this physics process'
-            replace_dict['dcoupdecl'] = '    // (none)'
-            replace_dict['dcoupsetdpar'] = '      // (none)'
-            replace_dict['dcoupsetdcoup'] = '      // (none)'
+            replace_dict['idcoup'] = '    // NB: there are no aS-dependent couplings in this physics process'
+            replace_dict['dcoupdecl'] = '      // (none)'
+            replace_dict['dcoupsetdpar'] = '        // (none)'
+            replace_dict['dcoupsetdcoup'] = '        // (none)'
             replace_dict['dcoupaccessbuffer'] = ''
             replace_dict['dcoupkernelaccess'] = ''
             replace_dict['dcoupcompute'] = '    // NB: there are no aS-dependent couplings in this physics process'
