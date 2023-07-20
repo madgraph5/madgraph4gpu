@@ -194,6 +194,7 @@ namespace mg5amcCpu
     mgDebug( 0, __FUNCTION__ );
     // NEW IMPLEMENTATION FIXING FLOATING POINT EXCEPTIONS IN SIMD CODE (#701)
     // Variables xxxDENOM are a hack to avoid division-by-0 FPE while preserving speed (#701 and #727)
+    // Variables xxxDENOM are declared as 'volatile' to make sure they are not optimized away!
     const fptype_sv& pvec0 = M_ACCESS::kernelAccessIp4IparConst( momenta, 0, ipar );
     const fptype_sv& pvec1 = M_ACCESS::kernelAccessIp4IparConst( momenta, 1, ipar );
     const fptype_sv& pvec2 = M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar );
@@ -277,11 +278,9 @@ namespace mg5amcCpu
                                           fptype_sv{ 0 },
                                           fpsqrt( fpmax( pvec0 + pvec3, 0. ) ) * (fptype)nsf );
 #ifdef MGONGPU_CPPSIMD
-      std::cout << "Entering loop" << std::endl;
       volatile fptype_v sqp0p3DENOM = fpternary( sqp0p3 != 0, sqp0p3, 1. ); // hack: dummy sqp0p3DENOM[ieppV]=1 if sqp0p3[ieppV]==0
       cxtype_sv chi[2] = { cxmake( sqp0p3, 0. ),
                            cxternary( sqp0p3 == 0, cxmake( -(fptype)nhel * fpsqrt( 2. * pvec0 ), 0. ), cxmake( (fptype)nh * pvec1, pvec2 ) / (const fptype_v)sqp0p3DENOM ) }; // hack: dummy[ieppV] is not used if sqp0p3[ieppV]==0
-      std::cout << "Completed loop" << std::endl;
 #else
       const cxtype_sv chi[2] = { cxmake( sqp0p3, 0. ),
                                  ( sqp0p3 == 0. ? cxmake( -(fptype)nhel * fpsqrt( 2. * pvec0 ), 0. ) : cxmake( (fptype)nh * pvec1, pvec2 ) / sqp0p3 ) };
