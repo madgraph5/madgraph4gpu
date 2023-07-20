@@ -846,13 +846,13 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             dcoupcompute = [ '    %ss_sv = couplings_sv.%s;'%( name, name ) for name in self.coups_dep ]
             replace_dict['dcoupcompute'] = '\n'.join( dcoupcompute )
             # Special handling in EFT for fptype=float using SIMD
-            dcoupoutfptypev2 = [ '    fptype_v %sr_v;\n    fptype_v %si_v;'%(name,name) for name in self.coups_dep ]
+            dcoupoutfptypev2 = [ '      fptype_v %sr_v;\n      fptype_v %si_v;'%(name,name) for name in self.coups_dep ]
             replace_dict['dcoupoutfptypev2'] = '\n' + '\n'.join( dcoupoutfptypev2 )
             replace_dict['dcoupsetdpar2'] = replace_dict['dcoupsetdpar'].replace('fptype_sv','fptype')
-            dcoupsetdcoup2 = [ '    ' + line.replace('constexpr cxsmpl<double> ','const cxtype ').replace('mdl_complexi', 'cI') for line in self.write_hardcoded_parameters(list(self.coups_dep.values())).split('\n') if line != '' ]
-            dcoupsetdcoup2 += [ '      %sr_v[i] = cxreal( %s );\n      %si_v[i] = cximag( %s );'%(name,name,name,name) for name in self.coups_dep ]
+            dcoupsetdcoup2 = [ '      ' + line.replace('constexpr cxsmpl<double> ','const cxtype ').replace('mdl_complexi', 'cI') for line in self.write_hardcoded_parameters(list(self.coups_dep.values())).split('\n') if line != '' ]
+            dcoupsetdcoup2 += [ '        %sr_v[i] = cxreal( %s );\n        %si_v[i] = cximag( %s );'%(name,name,name,name) for name in self.coups_dep ]
             replace_dict['dcoupsetdcoup2'] = '  ' + '\n'.join( dcoupsetdcoup2 )
-            dcoupoutdcoup2 = [ '    out.%s = cxtype_v( %sr_v, %si_v );'%(name,name,name) for name in self.coups_dep ]
+            dcoupoutdcoup2 = [ '      out.%s = cxtype_v( %sr_v, %si_v );'%(name,name,name) for name in self.coups_dep ]
             replace_dict['dcoupoutdcoup2'] = '\n' + '\n'.join( dcoupoutdcoup2 )
         else:
             replace_dict['idcoup'] = '  // NB: there are no aS-dependent couplings in this physics process'
@@ -877,19 +877,19 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             replace_dict['eftspecial1'] = '      // Begin non-SM (e.g. EFT) implementation - special handling of vectors of floats (#439)'
             replace_dict['eftspecial1'] += '\n#if not( defined MGONGPU_CPPSIMD && defined MGONGPU_FPTYPE_FLOAT )'
             replace_dict['eftspecial2'] = """#else
-    // ** NB #439: special handling is necessary ONLY FOR VECTORS OF FLOATS (variable Gs are vector floats, fixed parameters are scalar doubles)
-    // Use an explicit loop to avoid <<error: conversion of scalar ‘double’ to vector ‘fptype_sv’ {aka ‘__vector(8) float’} involves truncation>>
-    // Problems may come e.g. in EFTs from multiplying a vector float (related to aS-dependent G) by a scalar double (aS-independent parameters)%(dcoupoutfptypev2)s
-    for( int i = 0; i < neppV; i++ )
-    {
-      const fptype& G = G_sv[i];
-      // Model parameters dependent on aS
+      // ** NB #439: special handling is necessary ONLY FOR VECTORS OF FLOATS (variable Gs are vector floats, fixed parameters are scalar doubles)
+      // Use an explicit loop to avoid <<error: conversion of scalar ‘double’ to vector ‘fptype_sv’ {aka ‘__vector(8) float’} involves truncation>>
+      // Problems may come e.g. in EFTs from multiplying a vector float (related to aS-dependent G) by a scalar double (aS-independent parameters)%(dcoupoutfptypev2)s
+      for( int i = 0; i < neppV; i++ )
+      {
+        const fptype& G = G_sv[i];
+        // Model parameters dependent on aS
 %(dcoupsetdpar2)s
-      // Model couplings dependent on aS
+        // Model couplings dependent on aS
 %(dcoupsetdcoup2)s
-    }%(dcoupoutdcoup2)s
+      }%(dcoupoutdcoup2)s
 #endif""" % replace_dict
-            replace_dict['eftspecial2'] += '\n    // End non-SM (e.g. EFT) implementation - special handling of vectors of floats (#439)'
+            replace_dict['eftspecial2'] += '\n      // End non-SM (e.g. EFT) implementation - special handling of vectors of floats (#439)'
         file_h = self.read_template_file(self.param_template_h) % replace_dict
         file_cc = self.read_template_file(self.param_template_cc) % replace_dict
         return file_h, file_cc
