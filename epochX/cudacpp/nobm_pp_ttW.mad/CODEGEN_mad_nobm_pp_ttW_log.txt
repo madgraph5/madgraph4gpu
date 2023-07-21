@@ -61,7 +61,7 @@ set zerowidth_tchannel F
 import model sm-no_b_mass
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.004799604415893555 [0m
+[1;32mDEBUG: model prefixing  takes 0.00470733642578125 [0m
 INFO: Restrict model sm-no_b_mass with file models/sm/restrict_no_b_mass.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -227,7 +227,7 @@ INFO: Process d~ g > t t~ w+ u~ added to mirror process g d~ > t t~ w+ u~
 INFO: Process d~ u > t t~ w+ g added to mirror process u d~ > t t~ w+ g 
 INFO: Process s~ g > t t~ w+ c~ added to mirror process g s~ > t t~ w+ c~ 
 INFO: Process s~ c > t t~ w+ g added to mirror process c s~ > t t~ w+ g 
-12 processes with 144 diagrams generated in 0.590 s
+12 processes with 144 diagrams generated in 0.593 s
 Total: 16 processes with 152 diagrams
 output madevent CODEGEN_mad_nobm_pp_ttW --hel_recycling=False --vector_size=16384 --me_exporter=standalone_cudacpp
 Load PLUGIN.CUDACPP_SA_OUTPUT
@@ -271,7 +271,7 @@ INFO: Creating files in directory P1_gu_ttxwpd
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.__init__ [1;30m[model_handling.py at line 1039][0m [0m
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1040][0m [0m
 [1;32mDEBUG:  proc_id = [0m 1 [1;30m[model_handling.py at line 1045][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f116d414c40> [1;30m[export_v4.py at line 6174][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f26da4c1c40> [1;30m[export_v4.py at line 6174][0m [0m
 INFO: Creating files in directory . 
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 1297][0m [0m
 [1;32mDEBUG:  self.include_multi_channel is already defined: this is madevent+second_exporter mode [1;30m[model_handling.py at line 1299][0m [0m
@@ -311,7 +311,7 @@ INFO: Creating files in directory P1_gd_ttxwmu
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.__init__ [1;30m[model_handling.py at line 1039][0m [0m
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1040][0m [0m
 [1;32mDEBUG:  proc_id = [0m 1 [1;30m[model_handling.py at line 1045][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f116d2afc70> [1;30m[export_v4.py at line 6174][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f26da35bc70> [1;30m[export_v4.py at line 6174][0m [0m
 INFO: Creating files in directory . 
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 1297][0m [0m
 [1;32mDEBUG:  self.include_multi_channel is already defined: this is madevent+second_exporter mode [1;30m[model_handling.py at line 1299][0m [0m
@@ -351,7 +351,7 @@ INFO: Creating files in directory P1_gux_ttxwmdx
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.__init__ [1;30m[model_handling.py at line 1039][0m [0m
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1040][0m [0m
 [1;32mDEBUG:  proc_id = [0m 1 [1;30m[model_handling.py at line 1045][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f116d4eb0d0> [1;30m[export_v4.py at line 6174][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f26da5970d0> [1;30m[export_v4.py at line 6174][0m [0m
 INFO: Creating files in directory . 
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 1297][0m [0m
 [1;32mDEBUG:  self.include_multi_channel is already defined: this is madevent+second_exporter mode [1;30m[model_handling.py at line 1299][0m [0m
@@ -391,7 +391,7 @@ INFO: Creating files in directory P1_gdx_ttxwpux
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.__init__ [1;30m[model_handling.py at line 1039][0m [0m
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1040][0m [0m
 [1;32mDEBUG:  proc_id = [0m 1 [1;30m[model_handling.py at line 1045][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f116d4eb0d0> [1;30m[export_v4.py at line 6174][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f26da5970d0> [1;30m[export_v4.py at line 6174][0m [0m
 INFO: Creating files in directory . 
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 1297][0m [0m
 [1;32mDEBUG:  self.include_multi_channel is already defined: this is madevent+second_exporter mode [1;30m[model_handling.py at line 1299][0m [0m
@@ -431,7 +431,7 @@ INFO: Creating files in directory P1_udx_ttxwpg
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.__init__ [1;30m[model_handling.py at line 1039][0m [0m
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1040][0m [0m
 [1;32mDEBUG:  proc_id = [0m 1 [1;30m[model_handling.py at line 1045][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f116d4eb1f0> [1;30m[export_v4.py at line 6174][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f26da5971f0> [1;30m[export_v4.py at line 6174][0m [0m
 INFO: Creating files in directory . 
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 1297][0m [0m
 [1;32mDEBUG:  self.include_multi_channel is already defined: this is madevent+second_exporter mode [1;30m[model_handling.py at line 1299][0m [0m
@@ -471,7 +471,7 @@ INFO: Creating files in directory P1_dux_ttxwmg
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.__init__ [1;30m[model_handling.py at line 1039][0m [0m
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1040][0m [0m
 [1;32mDEBUG:  proc_id = [0m 1 [1;30m[model_handling.py at line 1045][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f116d4eb1f0> [1;30m[export_v4.py at line 6174][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f26da5971f0> [1;30m[export_v4.py at line 6174][0m [0m
 INFO: Creating files in directory . 
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 1297][0m [0m
 [1;32mDEBUG:  self.include_multi_channel is already defined: this is madevent+second_exporter mode [1;30m[model_handling.py at line 1299][0m [0m
@@ -511,7 +511,7 @@ INFO: Creating files in directory P0_udx_ttxwp
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.__init__ [1;30m[model_handling.py at line 1039][0m [0m
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1040][0m [0m
 [1;32mDEBUG:  proc_id = [0m 1 [1;30m[model_handling.py at line 1045][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f116d36d4c0> [1;30m[export_v4.py at line 6174][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f26da4194c0> [1;30m[export_v4.py at line 6174][0m [0m
 INFO: Creating files in directory . 
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 1297][0m [0m
 [1;32mDEBUG:  self.include_multi_channel is already defined: this is madevent+second_exporter mode [1;30m[model_handling.py at line 1299][0m [0m
@@ -549,7 +549,7 @@ INFO: Creating files in directory P0_dux_ttxwm
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.__init__ [1;30m[model_handling.py at line 1039][0m [0m
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1040][0m [0m
 [1;32mDEBUG:  proc_id = [0m 1 [1;30m[model_handling.py at line 1045][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f116d385d00> [1;30m[export_v4.py at line 6174][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f26da431d00> [1;30m[export_v4.py at line 6174][0m [0m
 INFO: Creating files in directory . 
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 1297][0m [0m
 [1;32mDEBUG:  self.include_multi_channel is already defined: this is madevent+second_exporter mode [1;30m[model_handling.py at line 1299][0m [0m
@@ -583,19 +583,19 @@ INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./.
 [1;32mDEBUG:  Done [1;30m[export_cpp.py at line 713][0m [0m
 INFO: Generating Feynman diagrams for Process: d u~ > t t~ w- WEIGHTED<=4 
 INFO: Finding symmetric diagrams for subprocess group dux_ttxwm 
-Generated helas calls for 8 subprocesses (76 diagrams) in 0.181 s
-Wrote files for 212 helas calls in 1.020 s
+Generated helas calls for 8 subprocesses (76 diagrams) in 0.183 s
+Wrote files for 212 helas calls in 1.027 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFV2 routines[0m
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
-ALOHA: aloha creates 3 routines in  0.177 s
+ALOHA: aloha creates 3 routines in  0.178 s
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 194][0m [0m
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFV2 routines[0m
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
-ALOHA: aloha creates 6 routines in  0.173 s
+ALOHA: aloha creates 6 routines in  0.174 s
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -630,6 +630,6 @@ Type "launch" to generate events from this process, or see
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m3.610s
-user	0m3.280s
-sys	0m0.301s
+real	0m3.635s
+user	0m3.313s
+sys	0m0.295s

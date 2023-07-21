@@ -58,12 +58,14 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
 #else
   using namespace mg5amcCpu;
 #endif
+#ifndef __APPLE__ // test #701 (except on MacOS where feenableexcept is not defined #730)
   const bool enableFPE = !getenv( "CUDACPP_RUNTIME_DISABLEFPE" );
   if( enableFPE )
   {
     feenableexcept( FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW ); // debug #701
     signal( SIGFPE, FPEhandler );
   }
+#endif
   constexpr bool dumpEvents = false;       // dump the expected output of the test?
   constexpr bool testEvents = !dumpEvents; // run the test?
   constexpr fptype toleranceXXXs = std::is_same<fptype, double>::value ? 1.E-15 : 1.E-5;
@@ -421,10 +423,12 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
     dumpFile.close();
     std::cout << "INFO: New reference data dumped to file '" << dumpFileName << "'" << std::endl;
   }
+#ifndef __APPLE__ // test #701 (except on MacOS where fedisableexcept is not defined #730)
   if( enableFPE )
   {
     fedisableexcept( FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW ); // debug #701
   }
+#endif
 }
 
 //==========================================================================
