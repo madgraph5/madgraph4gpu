@@ -1114,7 +1114,11 @@ namespace mg5amcCpu
     const cxtype_sv TMP3 = ( P1[0] * V2[2] - P1[1] * V2[3] - P1[2] * V2[4] - P1[3] * V2[5] );
     const cxtype_sv TMP4 = ( V2[2] * P3[0] - V2[3] * P3[1] - V2[4] * P3[2] - V2[5] * P3[3] );
     const cxtype_sv TMP5 = ( V3[2] * V2[2] - V3[3] * V2[3] - V3[4] * V2[4] - V3[5] * V2[5] );
+    std::cout << " Compute denom = COUP / x" << std::endl;
+    std::cout << " x = " << ( ( P1[0] * P1[0] ) - ( P1[1] * P1[1] ) - ( P1[2] * P1[2] ) - ( P1[3] * P1[3] ) - M1 * ( M1 - cI * W1 ) ) << std::endl;
+    std::cout << " COUP = " << COUP << std::endl;
     const cxtype_sv denom = COUP / ( ( P1[0] * P1[0] ) - ( P1[1] * P1[1] ) - ( P1[2] * P1[2] ) - ( P1[3] * P1[3] ) - M1 * ( M1 - cI * W1 ) );
+    std::cout << " Computed denom" << std::endl;
     V1[2] = denom * ( TMP5 * ( -cI * P2[0] + cI * P3[0] ) + ( V2[2] * ( -cI * TMP1 + cI * TMP2 ) + V3[2] * ( +cI * TMP3 - cI * TMP4 ) ) );
     V1[3] = denom * ( TMP5 * ( -cI * P2[1] + cI * P3[1] ) + ( V2[3] * ( -cI * TMP1 + cI * TMP2 ) + V3[3] * ( +cI * TMP3 - cI * TMP4 ) ) );
     V1[4] = denom * ( TMP5 * ( -cI * P2[2] + cI * P3[2] ) + ( V2[4] * ( -cI * TMP1 + cI * TMP2 ) + V3[4] * ( +cI * TMP3 - cI * TMP4 ) ) );
