@@ -76,7 +76,7 @@ endif
 
 CXXFLAGS = $(OPTFLAGS) -std=c++17 $(INCFLAGS) -Wall -Wshadow -Wextra
 ifeq ($(shell $(CXX) --version | grep ^nvc++),)
-CXXFLAGS+= -ffast-math # see issue #117
+CXXFLAGS += -ffast-math # see issue #117
 endif
 ###CXXFLAGS+= -Ofast # performance is not different from --fast-math
 ###CXXFLAGS+= -g # FOR DEBUGGING ONLY
@@ -122,7 +122,7 @@ ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   CUINC = -I$(CUDA_HOME)/include/
   CURANDLIBFLAGS = -L$(CUDA_HOME)/lib64/ -lcurand # NB: -lcuda is not needed here!
   CUOPTFLAGS = -lineinfo
-  CUFLAGS = $(OPTFLAGS) $(CUOPTFLAGS) $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math
+  CUFLAGS = $(foreach opt, $(OPTFLAGS), -Xcompiler $(opt)) $(CUOPTFLAGS) $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math
   ###CUFLAGS += -Xcompiler -Wall -Xcompiler -Wextra -Xcompiler -Wshadow
   ###NVCC_VERSION = $(shell $(NVCC) --version | grep 'Cuda compilation tools' | cut -d' ' -f5 | cut -d, -f1)
   CUFLAGS += -std=c++17 # need CUDA >= 11.2 (see #333): this is enforced in mgOnGpuConfig.h
@@ -142,6 +142,7 @@ else
   override CUINC=
   override CURANDLIBFLAGS=
 endif
+export NVCC
 
 # Set the host C++ compiler for nvcc via "-ccbin <host-compiler>"
 # (NB issue #505: this must be a single word, "clang++ --gcc-toolchain..." is not supported)
@@ -439,7 +440,7 @@ endif
 
 # Target (and build options): debug
 MAKEDEBUG=
-debug: OPTFLAGS   = -g -O0 -DDEBUG2
+debug: OPTFLAGS   = -g -O0
 debug: CUOPTFLAGS = -G
 debug: MAKEDEBUG := debug
 debug: all.$(TAG)
@@ -468,9 +469,9 @@ $(BUILDDIR)/%.o : %.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -fPIC -c $< -o $@
 
-# Apply special build flags only to CrossSectionKernel.cc and gCrossSectionKernel.cu (no fast math, see #117)
+# Apply special build flags only to CrossSectionKernel.cc and gCrossSectionKernel.cu (no fast math, see #117 and #516)
 ifeq ($(shell $(CXX) --version | grep ^nvc++),)
-$(BUILDDIR)/CrossSectionKernels.o: CXXFLAGS += -fno-fast-math
+$(BUILDDIR)/CrossSectionKernels.o: CXXFLAGS := $(filter-out -ffast-math,$(CXXFLAGS))
 $(BUILDDIR)/CrossSectionKernels.o: CXXFLAGS += -fno-fast-math
 ifneq ($(NVCC),)
 $(BUILDDIR)/gCrossSectionKernels.o: CUFLAGS += -Xcompiler -fno-fast-math
