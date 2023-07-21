@@ -466,13 +466,13 @@ C     ----------
       CALL OXXXXX(P(0,3),MDL_MT,NHEL(3),+1*IC(3),W(1,3))
       CALL IXXXXX(P(0,4),MDL_MT,NHEL(4),-1*IC(4),W(1,4))
       CALL VXXXXX(P(0,5),MDL_MW,NHEL(5),+1*IC(5),W(1,5))
-      CALL FFV2_2(W(1,1),W(1,5),GC_11,ZERO, FK_ZERO,W(1,6))
-      CALL FFV1P0_3(W(1,4),W(1,3),GC_5(IVEC),ZERO, FK_ZERO,W(1,7))
+      CALL FFV2_2(W(1,1),W(1,5),GC_100,ZERO, FK_ZERO,W(1,6))
+      CALL FFV1P0_3(W(1,4),W(1,3),GC_11(IVEC),ZERO, FK_ZERO,W(1,7))
 C     Amplitude(s) for diagram number 1
-      CALL FFV1_0(W(1,6),W(1,2),W(1,7),GC_5(IVEC),AMP(1))
-      CALL FFV2_1(W(1,2),W(1,5),GC_11,ZERO, FK_ZERO,W(1,6))
+      CALL FFV1_0(W(1,6),W(1,2),W(1,7),GC_11(IVEC),AMP(1))
+      CALL FFV2_1(W(1,2),W(1,5),GC_100,ZERO, FK_ZERO,W(1,6))
 C     Amplitude(s) for diagram number 2
-      CALL FFV1_0(W(1,1),W(1,6),W(1,7),GC_5(IVEC),AMP(2))
+      CALL FFV1_0(W(1,1),W(1,6),W(1,7),GC_11(IVEC),AMP(2))
 
       JAMP(:,:) = (0D0,0D0)
 C     JAMPs contributing to orders ALL_ORDERS=1

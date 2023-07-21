@@ -6,7 +6,7 @@
 #include "mgOnGpuConfig.h"
 
 #include "CPPProcess.h"
-#include "HelAmps_loop_sm_no_b_mass.h"
+#include "HelAmps_sm_no_b_mass.h"
 #include "MemoryAccessMomenta.h"
 #include "MemoryAccessWavefunctions.h"
 #include "MemoryBuffers.h"

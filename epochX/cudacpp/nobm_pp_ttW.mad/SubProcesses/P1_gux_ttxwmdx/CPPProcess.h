@@ -12,14 +12,14 @@
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
 
-#ifndef MG5_Sigma_loop_sm_no_b_mass_gux_ttxwmdx_H
-#define MG5_Sigma_loop_sm_no_b_mass_gux_ttxwmdx_H 1
+#ifndef MG5_Sigma_sm_no_b_mass_gux_ttxwmdx_H
+#define MG5_Sigma_sm_no_b_mass_gux_ttxwmdx_H 1
 
 #include "mgOnGpuConfig.h"
 
 #include "mgOnGpuVectors.h"
 
-#include "Parameters_loop_sm_no_b_mass.h"
+#include "Parameters_sm_no_b_mass.h"
 
 #include <vector>
 
@@ -97,7 +97,7 @@ namespace mg5amcCpu
 
     // Physics model parameters to be read from file (initProc function)
 #ifndef MGONGPU_HARDCODE_PARAM
-    Parameters_loop_sm_no_b_mass* m_pars;
+    Parameters_sm_no_b_mass* m_pars;
 #endif
     std::vector<fptype> m_masses; // external particle masses
 
@@ -186,4 +186,4 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 }
 
-#endif // MG5_Sigma_loop_sm_no_b_mass_gux_ttxwmdx_H
+#endif // MG5_Sigma_sm_no_b_mass_gux_ttxwmdx_H

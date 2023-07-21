@@ -14,6 +14,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       INCLUDE 'input.inc'
       INCLUDE '../vector.inc'
       INCLUDE 'coupl.inc'
-      GC_4(VECID) = -G
-      GC_5(VECID) = MDL_COMPLEXI*G
+      GC_10(VECID) = -G
+      GC_11(VECID) = MDL_COMPLEXI*G
       END

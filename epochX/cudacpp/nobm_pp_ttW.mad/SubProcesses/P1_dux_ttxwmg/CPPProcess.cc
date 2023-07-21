@@ -17,7 +17,7 @@
 #include "mgOnGpuConfig.h"
 
 #include "CudaRuntime.h"
-#include "HelAmps_loop_sm_no_b_mass.h"
+#include "HelAmps_sm_no_b_mass.h"
 #include "MemoryAccessAmplitudes.h"
 #include "MemoryAccessCouplings.h"
 #include "MemoryAccessCouplingsFixed.h"
@@ -60,8 +60,8 @@ namespace mg5amcCpu
   // [NB: I am currently unable to get the right value of nwf in CPPProcess.h - will hardcode it in CPPProcess.cc instead (#644)]
   //using CPPProcess::nwf; // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
 
-  using Parameters_loop_sm_no_b_mass_dependentCouplings::ndcoup;   // #couplings that vary event by event (depend on running alphas QCD)
-  using Parameters_loop_sm_no_b_mass_independentCouplings::nicoup; // #couplings that are fixed for all events (do not depend on running alphas QCD)
+  using Parameters_sm_no_b_mass_dependentCouplings::ndcoup;   // #couplings that vary event by event (depend on running alphas QCD)
+  using Parameters_sm_no_b_mass_independentCouplings::nicoup; // #couplings that are fixed for all events (do not depend on running alphas QCD)
 
   // The number of colors
   constexpr int ncolor = 4;
@@ -78,8 +78,8 @@ namespace mg5amcCpu
   // However, physics parameters are user-defined through card files: use CUDA constant memory instead (issue #39)
   // [NB if hardcoded parameters are used, it's better to define them here to avoid silent shadowing (issue #263)]
 #ifdef MGONGPU_HARDCODE_PARAM
-  __device__ const fptype cIPD[3] = { (fptype)Parameters_loop_sm_no_b_mass::mdl_MT, (fptype)Parameters_loop_sm_no_b_mass::mdl_MW, (fptype)Parameters_loop_sm_no_b_mass::mdl_WT };
-  __device__ const fptype cIPC[2] = { (fptype)Parameters_loop_sm_no_b_mass::GC_11.real(), (fptype)Parameters_loop_sm_no_b_mass::GC_11.imag() };
+  __device__ const fptype cIPD[3] = { (fptype)Parameters_sm_no_b_mass::mdl_MT, (fptype)Parameters_sm_no_b_mass::mdl_MW, (fptype)Parameters_sm_no_b_mass::mdl_WT };
+  __device__ const fptype cIPC[2] = { (fptype)Parameters_sm_no_b_mass::GC_100.real(), (fptype)Parameters_sm_no_b_mass::GC_100.imag() };
 #else
 #ifdef __CUDACC__
   __device__ __constant__ fptype cIPD[3];
@@ -704,7 +704,7 @@ namespace mg5amcCpu
   CPPProcess::initProc( const std::string& param_card_name )
   {
     // Instantiate the model class and set parameters that stay fixed during run
-    m_pars = Parameters_loop_sm_no_b_mass::getInstance();
+    m_pars = Parameters_sm_no_b_mass::getInstance();
     SLHAReader slha( param_card_name, m_verbose );
     m_pars->setIndependentParameters( slha );
     m_pars->setIndependentCouplings();
@@ -727,7 +727,7 @@ namespace mg5amcCpu
     // Read physics parameters like masses and couplings from user configuration files (static: initialize once)
     // Then copy them to CUDA constant memory (issue #39) or its C++ emulation in file-scope static memory
     const fptype tIPD[3] = { (fptype)m_pars->mdl_MT, (fptype)m_pars->mdl_MW, (fptype)m_pars->mdl_WT };
-    const cxtype tIPC[1] = { cxmake( m_pars->GC_11 ) };
+    const cxtype tIPC[1] = { cxmake( m_pars->GC_100 ) };
 #ifdef __CUDACC__
     checkCuda( cudaMemcpyToSymbol( cIPD, tIPD, 3 * sizeof( fptype ) ) );
     checkCuda( cudaMemcpyToSymbol( cIPC, tIPC, 1 * sizeof( cxtype ) ) );
@@ -746,18 +746,18 @@ namespace mg5amcCpu
     // Use hardcoded physics parameters
     if( m_verbose )
     {
-      Parameters_loop_sm_no_b_mass::printIndependentParameters();
-      Parameters_loop_sm_no_b_mass::printIndependentCouplings();
-      //Parameters_loop_sm_no_b_mass::printDependentParameters(); // now computed event-by-event (running alphas #373)
-      //Parameters_loop_sm_no_b_mass::printDependentCouplings(); // now computed event-by-event (running alphas #373)
+      Parameters_sm_no_b_mass::printIndependentParameters();
+      Parameters_sm_no_b_mass::printIndependentCouplings();
+      //Parameters_sm_no_b_mass::printDependentParameters(); // now computed event-by-event (running alphas #373)
+      //Parameters_sm_no_b_mass::printDependentCouplings(); // now computed event-by-event (running alphas #373)
     }
     // Set external particle masses for this matrix element
-    m_masses.push_back( Parameters_loop_sm_no_b_mass::ZERO );
-    m_masses.push_back( Parameters_loop_sm_no_b_mass::ZERO );
-    m_masses.push_back( Parameters_loop_sm_no_b_mass::mdl_MT );
-    m_masses.push_back( Parameters_loop_sm_no_b_mass::mdl_MT );
-    m_masses.push_back( Parameters_loop_sm_no_b_mass::mdl_MW );
-    m_masses.push_back( Parameters_loop_sm_no_b_mass::ZERO );
+    m_masses.push_back( Parameters_sm_no_b_mass::ZERO );
+    m_masses.push_back( Parameters_sm_no_b_mass::ZERO );
+    m_masses.push_back( Parameters_sm_no_b_mass::mdl_MT );
+    m_masses.push_back( Parameters_sm_no_b_mass::mdl_MT );
+    m_masses.push_back( Parameters_sm_no_b_mass::mdl_MW );
+    m_masses.push_back( Parameters_sm_no_b_mass::ZERO );
   }
 #endif
 

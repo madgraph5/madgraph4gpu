@@ -10,7 +10,7 @@
  has_loops = False 
  bias_module = dummy 
  max_n_matched_jets = 1 
- colored_pdgs = [1, 2, 3, 4, 5, 6, 21, 82] 
+ colored_pdgs = [1, 2, 3, 4, 5, 6, 21] 
  complex_mass_scheme = False 
  pdg_initial1 = [21, 21, 21, 21, 21, 21, 21, 21, 2, 4, 1, 3, 2, 4, 1, 3] 
  pdg_initial2 = [2, 4, 1, 3, -2, -4, -1, -3, -1, -3, -2, -4, -1, -3, -2, -4] 

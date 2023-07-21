@@ -525,44 +525,44 @@ C     ----------
       CALL IXXXXX(P(0,4),MDL_MT,NHEL(4),-1*IC(4),W(1,4))
       CALL VXXXXX(P(0,5),MDL_MW,NHEL(5),+1*IC(5),W(1,5))
       CALL VXXXXX(P(0,6),ZERO,NHEL(6),+1*IC(6),W(1,6))
-      CALL FFV1_2(W(1,1),W(1,6),GC_5(IVEC),ZERO, FK_ZERO,W(1,7))
-      CALL FFV1P0_3(W(1,4),W(1,3),GC_5(IVEC),ZERO, FK_ZERO,W(1,8))
-      CALL FFV2_2(W(1,7),W(1,5),GC_11,ZERO, FK_ZERO,W(1,9))
+      CALL FFV1_2(W(1,1),W(1,6),GC_11(IVEC),ZERO, FK_ZERO,W(1,7))
+      CALL FFV1P0_3(W(1,4),W(1,3),GC_11(IVEC),ZERO, FK_ZERO,W(1,8))
+      CALL FFV2_2(W(1,7),W(1,5),GC_100,ZERO, FK_ZERO,W(1,9))
 C     Amplitude(s) for diagram number 1
-      CALL FFV1_0(W(1,9),W(1,2),W(1,8),GC_5(IVEC),AMP(1))
-      CALL FFV2_1(W(1,2),W(1,5),GC_11,ZERO, FK_ZERO,W(1,9))
+      CALL FFV1_0(W(1,9),W(1,2),W(1,8),GC_11(IVEC),AMP(1))
+      CALL FFV2_1(W(1,2),W(1,5),GC_100,ZERO, FK_ZERO,W(1,9))
 C     Amplitude(s) for diagram number 2
-      CALL FFV1_0(W(1,7),W(1,9),W(1,8),GC_5(IVEC),AMP(2))
-      CALL FFV1_1(W(1,3),W(1,6),GC_5(IVEC),MDL_MT, FK_MDL_WT,W(1,7))
-      CALL FFV2_2(W(1,1),W(1,5),GC_11,ZERO, FK_ZERO,W(1,10))
-      CALL FFV1P0_3(W(1,4),W(1,7),GC_5(IVEC),ZERO, FK_ZERO,W(1,11))
+      CALL FFV1_0(W(1,7),W(1,9),W(1,8),GC_11(IVEC),AMP(2))
+      CALL FFV1_1(W(1,3),W(1,6),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,7))
+      CALL FFV2_2(W(1,1),W(1,5),GC_100,ZERO, FK_ZERO,W(1,10))
+      CALL FFV1P0_3(W(1,4),W(1,7),GC_11(IVEC),ZERO, FK_ZERO,W(1,11))
 C     Amplitude(s) for diagram number 3
-      CALL FFV1_0(W(1,10),W(1,2),W(1,11),GC_5(IVEC),AMP(3))
+      CALL FFV1_0(W(1,10),W(1,2),W(1,11),GC_11(IVEC),AMP(3))
 C     Amplitude(s) for diagram number 4
-      CALL FFV1_0(W(1,1),W(1,9),W(1,11),GC_5(IVEC),AMP(4))
-      CALL FFV1_2(W(1,4),W(1,6),GC_5(IVEC),MDL_MT, FK_MDL_WT,W(1,11))
-      CALL FFV1P0_3(W(1,11),W(1,3),GC_5(IVEC),ZERO, FK_ZERO,W(1,4))
+      CALL FFV1_0(W(1,1),W(1,9),W(1,11),GC_11(IVEC),AMP(4))
+      CALL FFV1_2(W(1,4),W(1,6),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,11))
+      CALL FFV1P0_3(W(1,11),W(1,3),GC_11(IVEC),ZERO, FK_ZERO,W(1,4))
 C     Amplitude(s) for diagram number 5
-      CALL FFV1_0(W(1,10),W(1,2),W(1,4),GC_5(IVEC),AMP(5))
+      CALL FFV1_0(W(1,10),W(1,2),W(1,4),GC_11(IVEC),AMP(5))
 C     Amplitude(s) for diagram number 6
-      CALL FFV1_0(W(1,1),W(1,9),W(1,4),GC_5(IVEC),AMP(6))
-      CALL FFV1_1(W(1,2),W(1,6),GC_5(IVEC),ZERO, FK_ZERO,W(1,4))
+      CALL FFV1_0(W(1,1),W(1,9),W(1,4),GC_11(IVEC),AMP(6))
+      CALL FFV1_1(W(1,2),W(1,6),GC_11(IVEC),ZERO, FK_ZERO,W(1,4))
 C     Amplitude(s) for diagram number 7
-      CALL FFV1_0(W(1,10),W(1,4),W(1,8),GC_5(IVEC),AMP(7))
-      CALL FFV2_1(W(1,4),W(1,5),GC_11,ZERO, FK_ZERO,W(1,11))
+      CALL FFV1_0(W(1,10),W(1,4),W(1,8),GC_11(IVEC),AMP(7))
+      CALL FFV2_1(W(1,4),W(1,5),GC_100,ZERO, FK_ZERO,W(1,11))
 C     Amplitude(s) for diagram number 8
-      CALL FFV1_0(W(1,1),W(1,11),W(1,8),GC_5(IVEC),AMP(8))
-      CALL FFV1_2(W(1,10),W(1,6),GC_5(IVEC),ZERO, FK_ZERO,W(1,11))
+      CALL FFV1_0(W(1,1),W(1,11),W(1,8),GC_11(IVEC),AMP(8))
+      CALL FFV1_2(W(1,10),W(1,6),GC_11(IVEC),ZERO, FK_ZERO,W(1,11))
 C     Amplitude(s) for diagram number 9
-      CALL FFV1_0(W(1,11),W(1,2),W(1,8),GC_5(IVEC),AMP(9))
-      CALL VVV1P0_1(W(1,6),W(1,8),GC_4(IVEC),ZERO, FK_ZERO,W(1,11))
+      CALL FFV1_0(W(1,11),W(1,2),W(1,8),GC_11(IVEC),AMP(9))
+      CALL VVV1P0_1(W(1,6),W(1,8),GC_10(IVEC),ZERO, FK_ZERO,W(1,11))
 C     Amplitude(s) for diagram number 10
-      CALL FFV1_0(W(1,10),W(1,2),W(1,11),GC_5(IVEC),AMP(10))
+      CALL FFV1_0(W(1,10),W(1,2),W(1,11),GC_11(IVEC),AMP(10))
 C     Amplitude(s) for diagram number 11
-      CALL FFV1_0(W(1,1),W(1,9),W(1,11),GC_5(IVEC),AMP(11))
-      CALL FFV1_1(W(1,9),W(1,6),GC_5(IVEC),ZERO, FK_ZERO,W(1,11))
+      CALL FFV1_0(W(1,1),W(1,9),W(1,11),GC_11(IVEC),AMP(11))
+      CALL FFV1_1(W(1,9),W(1,6),GC_11(IVEC),ZERO, FK_ZERO,W(1,11))
 C     Amplitude(s) for diagram number 12
-      CALL FFV1_0(W(1,1),W(1,11),W(1,8),GC_5(IVEC),AMP(12))
+      CALL FFV1_0(W(1,1),W(1,11),W(1,8),GC_11(IVEC),AMP(12))
 
       JAMP(:,:) = (0D0,0D0)
 C     JAMPs contributing to orders ALL_ORDERS=1

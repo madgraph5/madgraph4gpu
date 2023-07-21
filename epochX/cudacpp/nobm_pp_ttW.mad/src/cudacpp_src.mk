@@ -242,7 +242,7 @@ $(BUILDDIR)/%.o : %.cc *.h $(BUILDDIR)/.build.$(TAG)
 
 #-------------------------------------------------------------------------------
 
-cxx_objects=$(addprefix $(BUILDDIR)/, Parameters_loop_sm_no_b_mass.o read_slha.o)
+cxx_objects=$(addprefix $(BUILDDIR)/, Parameters_sm_no_b_mass.o read_slha.o)
 
 # Target (and build rules): common (src) library
 $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so : $(cxx_objects)

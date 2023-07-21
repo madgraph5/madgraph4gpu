@@ -14,5 +14,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       INCLUDE 'input.inc'
       INCLUDE '../vector.inc'
       INCLUDE 'coupl.inc'
-      GC_11 = (MDL_EE*MDL_COMPLEXI)/(MDL_SW*MDL_SQRT__2)
+      GC_100 = (MDL_EE*MDL_COMPLEXI*MDL_CONJG__CKM1X1)/(MDL_SW
+     $ *MDL_SQRT__2)
       END

@@ -88,7 +88,7 @@
  -1.0  =  ktdurham
  0.4   =  dparameter
  -1.0  =  ptlund
- 1, 2, 3, 4, 5, 6, 21, 82  =  pdgs_for_merging_cut ! PDGs for two cuts above
+ 1, 2, 3, 4, 5, 6, 21  =  pdgs_for_merging_cut ! PDGs for two cuts above
 
 #*********************************************************************
 #

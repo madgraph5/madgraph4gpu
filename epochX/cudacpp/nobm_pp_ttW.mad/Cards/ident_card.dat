@@ -14,12 +14,10 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 
 
-
 decay 23 mdl_WZ
 decay 24 mdl_WW
 decay 25 mdl_WH
 decay 6 mdl_WT
-loop 1 MU_R
 mass 15 mdl_MTA
 mass 23 mdl_MZ
 mass 25 mdl_MH

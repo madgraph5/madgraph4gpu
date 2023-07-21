@@ -8,29 +8,11 @@ C
 
         G = 2 * DSQRT(AS*PI)  ! for the first init
 
-        MDL_LHV = 1.000000D+00
-
         MDL_CONJG__CKM3X3 = 1.000000D+00
 
-        MDL_CONJG__CKM22 = 1.000000D+00
-
-        MDL_I4X33 = 0.000000D+00
-
-        MDL_I1X33 = 0.000000D+00
+        MDL_CONJG__CKM1X1 = 1.000000D+00
 
         MDL_CKM3X3 = 1.000000D+00
-
-        MDL_CKM33 = 1.000000D+00
-
-        MDL_CKM22 = 1.000000D+00
-
-        MDL_NCOL = 3.000000D+00
-
-        MDL_CA = 3.000000D+00
-
-        MDL_TF = 5.000000D-01
-
-        MDL_CF = (4.000000D+00/3.000000D+00)
 
         MDL_COMPLEXI = DCMPLX(0.000000D+00,1.000000D+00)
 
@@ -41,10 +23,6 @@ C
         MDL_SQRT__2 = SQRT(DCMPLX(2.000000D+00))
 
         MDL_MH__EXP__2 = MDL_MH**2
-
-        MDL_NCOL__EXP__2 = MDL_NCOL**2
-
-        MDL_MT__EXP__2 = MDL_MT**2
 
         MDL_AEW = 1.000000D+00/AEWM1
 
@@ -70,71 +48,27 @@ C
 
         MDL_GW = MDL_EE/MDL_SW
 
-        MDL_V = (2.000000D+00*MDL_MW*MDL_SW)/MDL_EE
+        MDL_VEV = (2.000000D+00*MDL_MW*MDL_SW)/MDL_EE
 
-        MDL_V__EXP__2 = MDL_V**2
+        MDL_VEV__EXP__2 = MDL_VEV**2
 
-        MDL_LAM = MDL_MH__EXP__2/(2.000000D+00*MDL_V__EXP__2)
+        MDL_LAM = MDL_MH__EXP__2/(2.000000D+00*MDL_VEV__EXP__2)
 
-        MDL_YT = (MDL_YMT*MDL_SQRT__2)/MDL_V
+        MDL_YT = (MDL_YMT*MDL_SQRT__2)/MDL_VEV
 
-        MDL_YTAU = (MDL_YMTAU*MDL_SQRT__2)/MDL_V
+        MDL_YTAU = (MDL_YMTAU*MDL_SQRT__2)/MDL_VEV
 
-        MDL_MUH = SQRT(DCMPLX(MDL_LAM*MDL_V__EXP__2))
-
-        MDL_AXIALZUP = (3.000000D+00/2.000000D+00)*(-(MDL_EE*MDL_SW)
-     $   /(6.000000D+00*MDL_CW))-(1.000000D+00/2.000000D+00)*((MDL_CW
-     $   *MDL_EE)/(2.000000D+00*MDL_SW))
-
-        MDL_AXIALZDOWN = (-1.000000D+00/2.000000D+00)*(-(MDL_CW*MDL_EE)
-     $   /(2.000000D+00*MDL_SW))+(-3.000000D+00/2.000000D+00)*(
-     $   -(MDL_EE*MDL_SW)/(6.000000D+00*MDL_CW))
-
-        MDL_VECTORZUP = (1.000000D+00/2.000000D+00)*((MDL_CW*MDL_EE)
-     $   /(2.000000D+00*MDL_SW))+(5.000000D+00/2.000000D+00)*(-(MDL_EE
-     $   *MDL_SW)/(6.000000D+00*MDL_CW))
-
-        MDL_VECTORZDOWN = (1.000000D+00/2.000000D+00)*(-(MDL_CW*MDL_EE)
-     $   /(2.000000D+00*MDL_SW))+(-1.000000D+00/2.000000D+00)*(
-     $   -(MDL_EE*MDL_SW)/(6.000000D+00*MDL_CW))
-
-        MDL_VECTORAUP = (2.000000D+00*MDL_EE)/3.000000D+00
-
-        MDL_VECTORADOWN = -(MDL_EE)/3.000000D+00
-
-        MDL_VECTORWMDXU = (1.000000D+00/2.000000D+00)*((MDL_EE)
-     $   /(MDL_SW*MDL_SQRT__2))
-
-        MDL_AXIALWMDXU = (-1.000000D+00/2.000000D+00)*((MDL_EE)
-     $   /(MDL_SW*MDL_SQRT__2))
-
-        MDL_VECTORWPUXD = (1.000000D+00/2.000000D+00)*((MDL_EE)
-     $   /(MDL_SW*MDL_SQRT__2))
-
-        MDL_AXIALWPUXD = -(1.000000D+00/2.000000D+00)*((MDL_EE)
-     $   /(MDL_SW*MDL_SQRT__2))
+        MDL_MUH = SQRT(DCMPLX(MDL_LAM*MDL_VEV__EXP__2))
 
         MDL_I2X33 = MDL_YT*MDL_CONJG__CKM3X3
 
         MDL_I3X33 = MDL_CKM3X3*MDL_YT
 
-        MDL_VECTOR_TBGP = MDL_I1X33-MDL_I2X33
-
-        MDL_AXIAL_TBGP = -MDL_I2X33-MDL_I1X33
-
-        MDL_VECTOR_TBGM = MDL_I3X33-MDL_I4X33
-
-        MDL_AXIAL_TBGM = -MDL_I4X33-MDL_I3X33
-
-        MDL_GW__EXP__2 = MDL_GW**2
-
-        MDL_CW__EXP__2 = MDL_CW**2
-
         MDL_EE__EXP__2 = MDL_EE**2
 
         MDL_SW__EXP__2 = MDL_SW**2
 
-        MDL_YT__EXP__2 = MDL_YT**2
+        MDL_CW__EXP__2 = MDL_CW**2
 
       ENDIF
 C     
@@ -144,13 +78,7 @@ C
 
       MDL_SQRT__AS = SQRT(DCMPLX(AS))
 
-      MDL_G__EXP__4 = G**4
-
       MDL_G__EXP__2 = G**2
-
-      MDL_G__EXP__3 = G**3
-
-      MDL_MU_R__EXP__2 = MU_R**2
 
 C     
 C     Parameters that should be updated for the loops.

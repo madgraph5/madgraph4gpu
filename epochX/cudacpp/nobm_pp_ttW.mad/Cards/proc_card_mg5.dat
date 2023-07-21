@@ -38,7 +38,7 @@ set max_t_for_channel 99
 set nlo_mixed_expansion True
 set stdout_level DEBUG
 set zerowidth_tchannel F
-import model loop_sm-no_b_mass
+import model sm-no_b_mass
 define p = g u c d s u~ c~ d~ s~
 define j = g u c d s u~ c~ d~ s~
 define l+ = e+ mu+
