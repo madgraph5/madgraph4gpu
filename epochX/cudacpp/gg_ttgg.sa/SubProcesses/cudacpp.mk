@@ -143,6 +143,7 @@ else
   override CURANDLIBFLAGS=
 endif
 export NVCC
+export CUFLAGS
 
 # Set the host C++ compiler for nvcc via "-ccbin <host-compiler>"
 # (NB issue #505: this must be a single word, "clang++ --gcc-toolchain..." is not supported)
