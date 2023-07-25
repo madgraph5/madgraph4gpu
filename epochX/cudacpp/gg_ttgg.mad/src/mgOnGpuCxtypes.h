@@ -82,7 +82,7 @@ namespace mgOnGpu /* clang-format off */
 using mgOnGpu::cxsmpl;
 
 // Printout to stream for user defined types
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
@@ -209,7 +209,7 @@ namespace mg5amcCpu
 //==========================================================================
 
 // NB: namespaces mg5amcGpu and mg5amcCpu includes types which are defined in different ways for CPU and GPU builds (see #318 and #725)
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
@@ -249,7 +249,7 @@ namespace mg5amcCpu
 //==========================================================================
 
 // NB: namespaces mg5amcGpu and mg5amcCpu includes types which are defined in different ways for CPU and GPU builds (see #318 and #725)
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
@@ -627,7 +627,7 @@ namespace mg5amcCpu
 //==========================================================================
 
 // NB: namespaces mg5amcGpu and mg5amcCpu includes types which are defined in different ways for CPU and GPU builds (see #318 and #725)
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu

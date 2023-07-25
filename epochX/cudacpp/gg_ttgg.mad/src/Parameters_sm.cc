@@ -17,7 +17,7 @@
 #include <iomanip>
 #include <iostream>
 
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 using namespace mg5amcGpu;
 #else
 using namespace mg5amcCpu;
