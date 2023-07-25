@@ -5,6 +5,7 @@
 
 THISDIR = $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
+# Compiler-specific googletest build directory (#125 and #738)
 # Note: AR, CXX and FC are implicitly defined if not set externally
 # See https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
 ifneq ($(shell $(CXX) --version | grep '^Intel(R) oneAPI DPC++/C++ Compiler'),)
@@ -19,10 +20,12 @@ endif
 $(info CXXNAME=$(CXXNAME))
 BUILDDIR = build_$(CXXNAME)
 $(info BUILDDIR=$(BUILDDIR))
+INSTALLDIR = install_$(CXXNAME)
+$(info INSTALLDIR=$(INSTALLDIR))
 
 CXXFLAGS += -Igoogletest/googletest/include/ -std=c++11
 
-all: googletest/install/lib64/libgtest.a
+all: googletest/$(INSTALLDIR)/lib64/libgtest.a
 
 googletest/CMakeLists.txt:
 	git clone https://github.com/google/googletest.git -b release-1.11.0 googletest
@@ -36,11 +39,11 @@ googletest/$(BUILDDIR)/lib/libgtest.a: googletest/$(BUILDDIR)/Makefile
 
 # NB 'make install' is no longer supported in googletest (issue 328)
 # NB keep 'lib64' instead of 'lib' as in LCG cvmfs installations
-googletest/install/lib64/libgtest.a: googletest/$(BUILDDIR)/lib/libgtest.a
-	mkdir -p googletest/install/lib64
-	cp googletest/$(BUILDDIR)/lib/lib*.a googletest/install/lib64/
-	mkdir -p googletest/install/include
-	cp -r googletest/googletest/include/gtest googletest/install/include/
+googletest/$(INSTALLDIR)/lib64/libgtest.a: googletest/$(BUILDDIR)/lib/libgtest.a
+	mkdir -p googletest/$(INSTALLDIR)/lib64
+	cp googletest/$(BUILDDIR)/lib/lib*.a googletest/$(INSTALLDIR)/lib64/
+	mkdir -p googletest/$(INSTALLDIR)/include
+	cp -r googletest/googletest/include/gtest googletest/$(INSTALLDIR)/include/
 
 clean:
 	rm -rf googletest
