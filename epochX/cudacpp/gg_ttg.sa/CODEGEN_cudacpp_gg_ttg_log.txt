@@ -51,8 +51,8 @@ Note that you can still compile and run aMC@NLO with the built-in PDFs
  MG5_aMC> set lhapdf /PATH/TO/lhapdf-config
 
 Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
-No valid eps viewer found. Please set in ./input/mg5_configuration.txt
-Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
+Using default eps viewer "evince". Set another one in ./input/mg5_configuration.txt
+No valid web browser found. Please set in ./input/mg5_configuration.txt
 import /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_gg_ttg.mg
 The import format was not given, so we guess it as command
 set stdout_level DEBUG
@@ -62,7 +62,7 @@ generate g g > t t~ g
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.004968166351318359 [0m
+[1;32mDEBUG: model prefixing  takes 0.0050811767578125 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -210,7 +210,7 @@ ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 set of routines with options: P0[0m
 ALOHA: aloha creates VVVV3 set of routines with options: P0[0m
 ALOHA: aloha creates VVVV4 set of routines with options: P0[0m
-ALOHA: aloha creates 5 routines in  0.292 s
+ALOHA: aloha creates 5 routines in  0.265 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -237,6 +237,6 @@ INFO: /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_gg_ttg/src/. 
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.finalize [1;30m[output.py at line 203][0m [0m
 quit
 
-real	0m0.907s
-user	0m0.720s
-sys	0m0.069s
+real	0m1.177s
+user	0m0.880s
+sys	0m0.122s
