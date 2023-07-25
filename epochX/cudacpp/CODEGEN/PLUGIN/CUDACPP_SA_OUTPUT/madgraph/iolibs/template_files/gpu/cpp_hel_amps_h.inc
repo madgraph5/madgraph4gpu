@@ -1,3 +1,4 @@
+// Copyright (C) 2010 The ALOHA Development team and Contributors.
 // Copyright (C) 2010 The MadGraph5_aMC@NLO development team and contributors.
 // Created by: J. Alwall (Sep 2010) for the MG5aMC backend.
 //==========================================================================
@@ -19,6 +20,7 @@
 
 #include "Parameters_%(model_name)s.h"
 
+#include <cassert>
 //#include <cmath>
 //#include <cstdlib>
 //#include <iomanip>

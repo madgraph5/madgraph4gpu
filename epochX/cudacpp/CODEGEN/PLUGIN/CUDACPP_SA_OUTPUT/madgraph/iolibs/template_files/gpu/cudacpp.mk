@@ -76,7 +76,7 @@ endif
 
 CXXFLAGS = $(OPTFLAGS) -std=c++17 $(INCFLAGS) -Wall -Wshadow -Wextra
 ifeq ($(shell $(CXX) --version | grep ^nvc++),)
-CXXFLAGS+= -ffast-math # see issue #117
+CXXFLAGS += -ffast-math # see issue #117
 endif
 ###CXXFLAGS+= -Ofast # performance is not different from --fast-math
 ###CXXFLAGS+= -g # FOR DEBUGGING ONLY
@@ -102,7 +102,7 @@ ifeq ($(findstring nvcc,$(CUDA_COMPILER_PATH)),nvcc)
     override CUDA_HOME=disabled
   endif
 
-  # If CUDA_HOME is not set, try to set it from the location of NVCC
+  # If CUDA_HOME is not set, try to set it from the location of nvcc
   ifndef CUDA_HOME
     CUDA_HOME = $(patsubst %%bin/nvcc,%%,$(shell which nvcc 2>/dev/null))
     $(warning CUDA_HOME was not set: using "$(CUDA_HOME)")
@@ -126,7 +126,7 @@ ifeq ($(findstring nvcc,$(CUDA_COMPILER_PATH)),nvcc)
     CUINC = -I$(CUDA_HOME)/include/
     CURANDLIBFLAGS = -L$(CUDA_HOME)/lib64/ -lcurand # NB: -lcuda is not needed here!
     CUOPTFLAGS = -lineinfo
-    GPUFLAGS = $(OPTFLAGS) $(CUOPTFLAGS) $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math
+    GPUFLAGS = $(foreach opt, $(OPTFLAGS), -Xcompiler $(opt)) $(CUOPTFLAGS) $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math
     ###GPUFLAGS += -Xcompiler -Wall -Xcompiler -Wextra -Xcompiler -Wshadow
     ###GPUCC_VERSION = $(shell $(GPUCC) --version | grep 'Cuda compilation tools' | cut -d' ' -f5 | cut -d, -f1)
     GPUFLAGS += -std=c++17 # need CUDA >= 11.2 (see #333): this is enforced in mgOnGpuConfig.h
@@ -135,12 +135,9 @@ ifeq ($(findstring nvcc,$(CUDA_COMPILER_PATH)),nvcc)
     ###GPUFLAGS+= --maxrregcount 128 # improves throughput: 7.3E8 (16384 32 12) up to 7.6E8 (65536 128 12)
     ###GPUFLAGS+= --maxrregcount 96 # degrades throughput: 4.1E8 (16384 32 12) up to 4.5E8 (65536 128 12)
     ###GPUFLAGS+= --maxrregcount 64 # degrades throughput: 1.7E8 (16384 32 12) flat at 1.7E8 (65536 128 12)
-
     CUBUILDRULEFLAGS = -Xcompiler -fPIC -c
     CCBUILDRULEFLAGS = -Xcompiler -fPIC -c -x cu
-
     CUDATESTFLAGS = -lcuda
-
   else ifneq ($(origin REQUIRE_CUDA),undefined)
     # If REQUIRE_CUDA is set but no cuda is found, stop here (e.g. for CI tests on GPU #443)
     $(error No cuda installation found (set CUDA_HOME or make GPUCC visible in PATH))
@@ -152,6 +149,8 @@ ifeq ($(findstring nvcc,$(CUDA_COMPILER_PATH)),nvcc)
     override CUINC=
     override CURANDLIBFLAGS=
   endif
+  export GPUCC
+  export GPUFLAGS
 
   # Set the host C++ compiler for GPUCC via "-ccbin <host-compiler>"
   # (NB issue #505: this must be a single word, "clang++ --gcc-toolchain..." is not supported)
@@ -221,7 +220,6 @@ else ifeq ($(findstring hipcc,$(HIP_COMPILER_PATH)),hipcc)
 
 endif
 
-  
 #-------------------------------------------------------------------------------
 
 #=== Configure ccache for C++ and CUDA builds
@@ -512,7 +510,7 @@ endif
 
 # Target (and build options): debug
 MAKEDEBUG=
-debug: OPTFLAGS   = -g -O0 -DDEBUG2
+debug: OPTFLAGS   = -g -O0
 debug: CUOPTFLAGS = -G
 debug: MAKEDEBUG := debug
 debug: all.$(TAG)
@@ -542,10 +540,10 @@ $(BUILDDIR)/%%.o : %%.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -fPIC -c $< -o $@
 
-# Apply special build flags only to CrossSectionKernel.cc and gCrossSectionKernel.cu (no fast math, see #117)
+# Apply special build flags only to CrossSectionKernel.cc and gCrossSectionKernel.cu (no fast math, see #117 and #516)
 # Added edgecase for HIP compilation
 ifeq ($(shell $(CXX) --version | grep ^nvc++),)
-$(BUILDDIR)/CrossSectionKernels.o: CXXFLAGS += -fno-fast-math
+$(BUILDDIR)/CrossSectionKernels.o: CXXFLAGS := $(filter-out -ffast-math,$(CXXFLAGS))
 $(BUILDDIR)/CrossSectionKernels.o: CXXFLAGS += -fno-fast-math
 ifeq ($(findstring nvcc,$(GPUCC)),nvcc)
   $(BUILDDIR)/gCrossSectionKernels.o: GPUFLAGS += -Xcompiler -fno-fast-math
