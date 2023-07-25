@@ -241,7 +241,12 @@ namespace mg5amcCpu
   {
     // See https://stackoverflow.com/questions/18921049/gcc-vector-extensions-sqrt
     fptype_v out = {}; // avoid warning 'out' may be used uninitialized: see #594
-    for( int i = 0; i < neppV; i++ ) out[i] = fpsqrt( (fptype)v[i] );
+    for( int i = 0; i < neppV; i++ )
+    {
+      volatile fptype outi = 0; // volatile fixes #736
+      if( v[i] > 0 ) outi = fpsqrt( (fptype)v[i] );
+      out[i] = outi;
+    }
     return out;
   }
 
