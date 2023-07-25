@@ -619,8 +619,8 @@ namespace mg5amcCpu
     const int nh = nhel * nsf;
     if( fmass != 0. )
     {
-      const fptype_sv pp = fpmin( pvec0, fpsqrt( ( pvec1 * pvec1 ) + ( pvec2 * pvec2 ) + ( pvec3 * pvec3 ) ) );
 #ifndef MGONGPU_CPPSIMD
+      const fptype_sv pp = fpmin( pvec0, fpsqrt( ( pvec1 * pvec1 ) + ( pvec2 * pvec2 ) + ( pvec3 * pvec3 ) ) );
       if( pp == 0. )
       {
         // NB: Do not use "abs" for floats! It returns an integer with no build warning! Use std::abs!
@@ -653,6 +653,8 @@ namespace mg5amcCpu
         fo[5] = sfomeg[0] * chi[ip];
       }
 #else
+      volatile fptype_sv p2 = pvec1 * pvec1 + pvec2 * pvec2 + pvec3 * pvec3; // volatile fixes #736
+      const fptype_sv pp = fpmin( pvec0, fpsqrt( p2 ) );
       // Branch A: pp == 0.
       // NB: Do not use "abs" for floats! It returns an integer with no build warning! Use std::abs!
       fptype sqm[2] = { fpsqrt( std::abs( fmass ) ), 0 }; // possibility of negative fermion masses
