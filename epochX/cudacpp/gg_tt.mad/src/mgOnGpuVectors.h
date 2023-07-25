@@ -237,6 +237,15 @@ namespace mg5amcCpu
 
 #ifdef MGONGPU_CPPSIMD
   inline fptype_v
+  fpsqrt( const volatile fptype_v& v ) // volatile fixes #736
+  {
+    // See https://stackoverflow.com/questions/18921049/gcc-vector-extensions-sqrt
+    fptype_v out = {}; // avoid warning 'out' may be used uninitialized: see #594
+    for( int i = 0; i < neppV; i++ ) out[i] = fpsqrt( (fptype)v[i] );
+    return out;
+  }
+
+  inline fptype_v
   fpsqrt( const fptype_v& v )
   {
     // See https://stackoverflow.com/questions/18921049/gcc-vector-extensions-sqrt
