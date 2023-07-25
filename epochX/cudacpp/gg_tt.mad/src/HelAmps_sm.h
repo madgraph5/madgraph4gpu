@@ -195,6 +195,7 @@ namespace mg5amcCpu
     // NEW IMPLEMENTATION FIXING FLOATING POINT EXCEPTIONS IN SIMD CODE (#701)
     // Variables xxxDENOM are a hack to avoid division-by-0 FPE while preserving speed (#701 and #727)
     // Variables xxxDENOM are declared as 'volatile' to make sure they are not optimized away on clang! (#724)
+    // A few additional variables are declared as 'volatile' to avoid sqrt-of-negative-number FPEs (#736)
     const fptype_sv& pvec0 = M_ACCESS::kernelAccessIp4IparConst( momenta, 0, ipar );
     const fptype_sv& pvec1 = M_ACCESS::kernelAccessIp4IparConst( momenta, 1, ipar );
     const fptype_sv& pvec2 = M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar );
@@ -259,9 +260,10 @@ namespace mg5amcCpu
       omega[1] = fmass / omega[0];
       const fptype_v sfomega[2] = { sf[0] * omega[ip], sf[1] * omega[im] };
       const fptype_v pp3 = fpmax( pp + pvec3, 0 );
-      volatile fptype_v ppDENOM = fpternary( pp != 0, pp, 1. );                  // hack: ppDENOM[ieppV]=1 if pp[ieppV]==0
-      volatile fptype_v pp3DENOM = fpternary( pp3 != 0, pp3, 1. );               // hack: pp3DENOM[ieppV]=1 if pp3[ieppV]==0
-      const cxtype_v chi[2] = { cxmake( fpsqrt( pp3DENOM * 0.5 / ppDENOM ), 0 ), // hack: dummy[ieppV] is not used if pp[ieppV]==0
+      volatile fptype_v ppDENOM = fpternary( pp != 0, pp, 1. );    // hack: ppDENOM[ieppV]=1 if pp[ieppV]==0
+      volatile fptype_v pp3DENOM = fpternary( pp3 != 0, pp3, 1. ); // hack: pp3DENOM[ieppV]=1 if pp3[ieppV]==0
+      volatile fptype_v chi0r2 = pp3 * 0.5 / ppDENOM;              // volatile fixes #736
+      const cxtype_v chi[2] = { cxmake( fpsqrt( chi0r2 ), 0 ),     // hack: dummy[ieppV] is not used if pp[ieppV]==0
                                 cxternary( ( pp3 == 0. ),
                                            cxmake( -nh, 0 ),
                                            cxmake( (fptype)nh * pvec1, pvec2 ) / fpsqrt( 2. * ppDENOM * pp3DENOM ) ) }; // hack: dummy[ieppV] is not used if pp[ieppV]==0
@@ -449,6 +451,7 @@ namespace mg5amcCpu
     // NEW IMPLEMENTATION FIXING FLOATING POINT EXCEPTIONS IN SIMD CODE (#701)
     // Variables xxxDENOM are a hack to avoid division-by-0 FPE while preserving speed (#701 and #727)
     // Variables xxxDENOM are declared as 'volatile' to make sure they are not optimized away on clang! (#724)
+    // A few additional variables are declared as 'volatile' to avoid sqrt-of-negative-number FPEs (#736)
     const fptype_sv& pvec0 = M_ACCESS::kernelAccessIp4IparConst( momenta, 0, ipar );
     const fptype_sv& pvec1 = M_ACCESS::kernelAccessIp4IparConst( momenta, 1, ipar );
     const fptype_sv& pvec2 = M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar );
@@ -609,6 +612,7 @@ namespace mg5amcCpu
     // NEW IMPLEMENTATION FIXING FLOATING POINT EXCEPTIONS IN SIMD CODE (#701)
     // Variables xxxDENOM are a hack to avoid division-by-0 FPE while preserving speed (#701 and #727)
     // Variables xxxDENOM are declared as 'volatile' to make sure they are not optimized away on clang! (#724)
+    // A few additional variables are declared as 'volatile' to avoid sqrt-of-negative-number FPEs (#736)
     const fptype_sv& pvec0 = M_ACCESS::kernelAccessIp4IparConst( momenta, 0, ipar );
     const fptype_sv& pvec1 = M_ACCESS::kernelAccessIp4IparConst( momenta, 1, ipar );
     const fptype_sv& pvec2 = M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar );
@@ -674,9 +678,10 @@ namespace mg5amcCpu
       const int imB = ( 1 - nh ) / 2;
       const fptype_v sfomeg[2] = { sf[0] * omega[ipB], sf[1] * omega[imB] };
       const fptype_v pp3 = fpmax( pp + pvec3, 0. );
-      volatile fptype_v ppDENOM = fpternary( pp != 0, pp, 1. );                   // hack: ppDENOM[ieppV]=1 if pp[ieppV]==0
-      volatile fptype_v pp3DENOM = fpternary( pp3 != 0, pp3, 1. );                // hack: pp3DENOM[ieppV]=1 if pp3[ieppV]==0
-      const cxtype_v chi[2] = { cxmake( fpsqrt( pp3DENOM * 0.5 / ppDENOM ), 0. ), // hack: dummy[ieppV] is not used if pp[ieppV]==0
+      volatile fptype_v ppDENOM = fpternary( pp != 0, pp, 1. );    // hack: ppDENOM[ieppV]=1 if pp[ieppV]==0
+      volatile fptype_v pp3DENOM = fpternary( pp3 != 0, pp3, 1. ); // hack: pp3DENOM[ieppV]=1 if pp3[ieppV]==0
+      volatile fptype_v chi0r2 = pp3 * 0.5 / ppDENOM;              // volatile fixes #736
+      const cxtype_v chi[2] = { cxmake( fpsqrt( chi0r2 ), 0. ),    // hack: dummy[ieppV] is not used if pp[ieppV]==0
                                 ( cxternary( ( pp3 == 0. ),
                                              cxmake( -nh, 0. ),
                                              cxmake( (fptype)nh * pvec1, -pvec2 ) / fpsqrt( 2. * ppDENOM * pp3DENOM ) ) ) }; // hack: dummy[ieppV] is not used if pp[ieppV]==0
