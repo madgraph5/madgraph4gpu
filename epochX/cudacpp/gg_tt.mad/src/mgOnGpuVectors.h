@@ -244,7 +244,7 @@ namespace mg5amcCpu
     for( int i = 0; i < neppV; i++ )
     {
       volatile fptype outi = 0; // volatile fixes #736
-      if ( v[i] > 0 ) outi = fpsqrt( (fptype)v[i] );
+      if( v[i] > 0 ) outi = fpsqrt( (fptype)v[i] );
       out[i] = outi;
     }
     return out;

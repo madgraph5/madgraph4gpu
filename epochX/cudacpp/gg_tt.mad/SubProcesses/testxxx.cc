@@ -130,8 +130,10 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
     const fptype p2 = par0[ievt * np4 + 2];
     const fptype p3 = par0[ievt * np4 + 3];
     volatile fptype m2 = fpmax( p0 * p0 - p1 * p1 - p2 * p2 - p3 * p3, 0 ); // see #736
-    if ( m2 > 0 ) mass0[ievt] = fpsqrt( (fptype)m2 );
-    else mass0[ievt] = 0;
+    if( m2 > 0 )
+      mass0[ievt] = fpsqrt( (fptype)m2 );
+    else
+      mass0[ievt] = 0;
     ispzgt0[ievt] = ( p3 > 0 );
     ispzlt0[ievt] = ( p3 < 0 );
     isptgt0[ievt] = ( p1 != 0 ) || ( p2 != 0 );
