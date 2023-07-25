@@ -461,11 +461,11 @@ namespace mg5amcCpu
     if( vmass != 0. )
     {
       const int nsvahl = nsv * std::abs( hel );
+      const fptype hel0 = 1. - std::abs( hel );
+#ifndef MGONGPU_CPPSIMD
       const fptype_sv pt2 = ( pvec1 * pvec1 ) + ( pvec2 * pvec2 );
       const fptype_sv pp = fpmin( pvec0, fpsqrt( pt2 + ( pvec3 * pvec3 ) ) );
       const fptype_sv pt = fpmin( pp, fpsqrt( pt2 ) );
-      const fptype hel0 = 1. - std::abs( hel );
-#ifndef MGONGPU_CPPSIMD
       if( pp == 0. )
       {
         vc[2] = cxmake( 0., 0. );
@@ -493,6 +493,10 @@ namespace mg5amcCpu
         }
       }
 #else
+      volatile fptype_sv pt2 = ( pvec1 * pvec1 ) + ( pvec2 * pvec2 );
+      volatile fptype_sv p2 = pt2 + ( pvec3 * pvec3 ); // volatile fixes #736
+      const fptype_sv pp = fpmin( pvec0, fpsqrt( p2 ) );
+      const fptype_sv pt = fpmin( pp, fpsqrt( pt2 ) );
       // Branch A: pp == 0.
       const cxtype vcA_2 = cxmake( 0, 0 );
       const cxtype vcA_3 = cxmake( -hel * sqh, 0 );
