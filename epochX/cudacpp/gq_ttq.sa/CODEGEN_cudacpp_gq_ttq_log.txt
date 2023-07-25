@@ -61,7 +61,7 @@ set zerowidth_tchannel F
 define q = u c d s u~ c~ d~ s~; generate g q > t t~ q
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.0054094791412353516 [0m
+[1;32mDEBUG: model prefixing  takes 0.005094289779663086 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -169,7 +169,7 @@ INFO: Crossed process found for g u~ > t t~ u~, reuse diagrams.
 INFO: Crossed process found for g c~ > t t~ c~, reuse diagrams. 
 INFO: Crossed process found for g d~ > t t~ d~, reuse diagrams. 
 INFO: Crossed process found for g s~ > t t~ s~, reuse diagrams. 
-8 processes with 40 diagrams generated in 0.072 s
+8 processes with 40 diagrams generated in 0.071 s
 Total: 8 processes with 40 diagrams
 output standalone_cudacpp CODEGEN_cudacpp_gq_ttq
 Load PLUGIN.CUDACPP_SA_OUTPUT
@@ -256,7 +256,7 @@ Generated helas calls for 2 subprocesses (10 diagrams) in 0.028 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVV1 routines[0m
-ALOHA: aloha creates 2 routines in  0.113 s
+ALOHA: aloha creates 2 routines in  0.117 s
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -279,6 +279,6 @@ INFO: /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_gq_ttq/src/. 
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.finalize [1;30m[output.py at line 203][0m [0m
 quit
 
-real	0m1.007s
-user	0m0.794s
-sys	0m0.124s
+real	0m0.994s
+user	0m0.805s
+sys	0m0.121s
