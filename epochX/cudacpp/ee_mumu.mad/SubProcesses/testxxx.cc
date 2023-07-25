@@ -129,7 +129,8 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
     const fptype p1 = par0[ievt * np4 + 1];
     const fptype p2 = par0[ievt * np4 + 2];
     const fptype p3 = par0[ievt * np4 + 3];
-    mass0[ievt] = sqrt( p0 * p0 - p1 * p1 - p2 * p2 - p3 * p3 );
+    volatile fptype m2 = p0 * p0 - p1 * p1 - p2 * p2 - p3 * p3; // see #736
+    mass0[ievt] = sqrt( m2 );
     ispzgt0[ievt] = ( p3 > 0 );
     ispzlt0[ievt] = ( p3 < 0 );
     isptgt0[ievt] = ( p1 != 0 ) || ( p2 != 0 );
