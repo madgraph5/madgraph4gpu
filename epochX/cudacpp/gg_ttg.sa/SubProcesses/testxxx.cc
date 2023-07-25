@@ -47,7 +47,7 @@ namespace mg5amcCpu
 #else
     std::cerr << "Floating Point Exception (CPU neppV=" << neppV << "): '" << FPEhandlerMessage << "' ievt=" << FPEhandlerIevt << std::endl;
 #endif
-    exit( 0 );
+    exit( 1 );
   }
 }
 

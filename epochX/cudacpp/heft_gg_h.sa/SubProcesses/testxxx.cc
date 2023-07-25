@@ -9,7 +9,7 @@
 #include "mgOnGpuConfig.h"
 
 #include "CPPProcess.h"
-#include "HelAmps_heft.h"
+#include "HelAmps_sm.h"
 #include "MemoryAccessMomenta.h"
 #include "MemoryAccessWavefunctions.h"
 #include "MemoryBuffers.h"
@@ -47,7 +47,7 @@ namespace mg5amcCpu
 #else
     std::cerr << "Floating Point Exception (CPU neppV=" << neppV << "): '" << FPEhandlerMessage << "' ievt=" << FPEhandlerIevt << std::endl;
 #endif
-    exit( 0 );
+    exit( 1 );
   }
 }
 
