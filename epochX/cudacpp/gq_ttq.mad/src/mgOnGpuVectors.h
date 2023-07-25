@@ -108,7 +108,7 @@ namespace mgOnGpu /* clang-format off */
 #endif
 #endif
 
-#else // i.e #ifndef MGONGPU_CPPSIMD (this includes #ifdef MGONGPUCPP_GPUIMPL)
+#else // i.e #ifndef MGONGPU_CPPSIMD (this includes #ifdef __CUDACC__)
 
   const int neppV = 1;
 
@@ -129,7 +129,7 @@ using mgOnGpu::bool_v;
 
 //--------------------------------------------------------------------------
 
-#ifndef MGONGPUCPP_GPUIMPL
+#ifndef __CUDACC__
 
 // Printout to stream for user defined types
 
@@ -744,11 +744,11 @@ fpvsplit1( const fptype2_v& v )
 
 #endif // #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
 
-#endif // #ifndef MGONGPUCPP_GPUIMPL
+#endif // #ifndef __CUDACC__
 
 //==========================================================================
 
-#ifdef MGONGPUCPP_GPUIMPL
+#ifdef __CUDACC__
 
 //------------------------------
 // Vector types - CUDA
@@ -786,12 +786,12 @@ cxternary( const bool& mask, const cxtype& a, const cxtype& b )
   return ( mask ? a : b );
 }
 
-#endif // #ifdef MGONGPUCPP_GPUIMPL
+#endif // #ifdef __CUDACC__
 
 //==========================================================================
 
 // Scalar-or-vector types: scalar in CUDA, vector or scalar in C++
-#ifdef MGONGPUCPP_GPUIMPL
+#ifdef __CUDACC__
 typedef bool bool_sv;
 typedef fptype fptype_sv;
 typedef fptype2 fptype2_sv;
@@ -812,7 +812,7 @@ typedef mgOnGpu::cxtype_ref cxtype_sv_ref;
 #endif
 
 // Scalar-or-vector zeros: scalar in CUDA, vector or scalar in C++
-#ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
+#ifdef __CUDACC__ /* clang-format off */
 inline __host__ __device__ cxtype cxzero_sv(){ return cxtype( 0, 0 ); }
 #elif defined MGONGPU_CPPSIMD
 inline cxtype_v cxzero_sv() { return cxtype_v(); } // RRRR=0000 IIII=0000

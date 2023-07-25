@@ -1,7 +1,7 @@
 // Copyright (C) 2020-2023 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: A. Valassi (Apr 2021) for the MG5aMC CUDACPP plugin.
-// Further modified by: J. Teig, A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
 
 #include "mgOnGpuConfig.h"
 
@@ -20,7 +20,7 @@
 #include <iomanip>
 #include <iostream>
 #include <vector>
-#ifdef MGONGPUCPP_GPUIMPL
+#ifdef __CUDACC__
 #define TESTID( s ) s##_GPU_XXX
 #else
 #define TESTID( s ) s##_CPU_XXX
@@ -41,7 +41,7 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
   assert( nevt % neppM == 0 ); // nevt must be a multiple of neppM
   assert( nevt % neppV == 0 ); // nevt must be a multiple of neppV
   // Fill in the input momenta
-#ifdef MGONGPUCPP_GPUIMPL
+#ifdef __CUDACC__
   mg5amcGpu::PinnedHostBufferMomenta hstMomenta( nevt ); // AOSOA[npagM][npar=4][np4=4][neppM]
 #else
   mg5amcCpu::HostBufferMomenta hstMomenta( nevt ); // AOSOA[npagM][npar=4][np4=4][neppM]
@@ -228,7 +228,7 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
   {
     for( int ievt = 0; ievt < nevt; ievt++ )
     {
-#ifdef MGONGPUCPP_GPUIMPL
+#ifdef __CUDACC__
       using namespace mg5amcGpu;
 #else
       using namespace mg5amcCpu;

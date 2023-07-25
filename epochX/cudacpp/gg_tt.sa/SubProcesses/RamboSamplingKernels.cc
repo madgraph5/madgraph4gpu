@@ -1,11 +1,11 @@
 // Copyright (C) 2020-2023 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: A. Valassi (Dec 2021) for the MG5aMC CUDACPP plugin.
-// Further modified by: J. Teig, A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
 
 #include "RamboSamplingKernels.h"
 
-#include "GpuRuntime.h"
+#include "CudaRuntime.h"
 #include "MemoryAccessMomenta.h"
 #include "MemoryAccessRandomNumbers.h"
 #include "MemoryAccessWeights.h"
@@ -14,7 +14,7 @@
 
 #include <sstream>
 
-#ifdef MGONGPUCPP_GPUIMPL
+#ifdef __CUDACC__
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
@@ -92,7 +92,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-#ifdef MGONGPUCPP_GPUIMPL
+#ifdef __CUDACC__
   RamboSamplingKernelDevice::RamboSamplingKernelDevice( const fptype energy,               // input: energy
                                                         const BufferRndNumMomenta& rndmom, // input: random numbers in [0,1]
                                                         BufferMomenta& momenta,            // output: momenta
@@ -135,7 +135,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-#ifdef MGONGPUCPP_GPUIMPL
+#ifdef __CUDACC__
   __global__ void
   getMomentaInitialDevice( const fptype energy,
                            fptype* momenta )
@@ -147,17 +147,17 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-#ifdef MGONGPUCPP_GPUIMPL
+#ifdef __CUDACC__
   void
   RamboSamplingKernelDevice::getMomentaInitial()
   {
-    gpuLaunchKernel( getMomentaInitialDevice, m_gpublocks, m_gputhreads, m_energy, m_momenta.data() );
+    getMomentaInitialDevice<<<m_gpublocks, m_gputhreads>>>( m_energy, m_momenta.data() );
   }
 #endif
 
   //--------------------------------------------------------------------------
 
-#ifdef MGONGPUCPP_GPUIMPL
+#ifdef __CUDACC__
   __global__ void
   getMomentaFinalDevice( const fptype energy,
                          const fptype* rndmom,
@@ -171,11 +171,11 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-#ifdef MGONGPUCPP_GPUIMPL
+#ifdef __CUDACC__
   void
   RamboSamplingKernelDevice::getMomentaFinal()
   {
-    gpuLaunchKernel( getMomentaFinalDevice, m_gpublocks, m_gputhreads, m_energy, m_rndmom.data(), m_momenta.data(), m_weights.data() );
+    getMomentaFinalDevice<<<m_gpublocks, m_gputhreads>>>( m_energy, m_rndmom.data(), m_momenta.data(), m_weights.data() );
   }
 #endif
 
