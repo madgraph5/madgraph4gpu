@@ -274,9 +274,10 @@ namespace mg5amcCpu
     }
     else
     {
+      volatile fptype_sv p0p3 = fpmax( pvec0 + pvec3, 0. ); // #736
       const fptype_sv sqp0p3 = fpternary( ( pvec1 == 0. and pvec2 == 0. and pvec3 < 0. ),
                                           fptype_sv{ 0 },
-                                          fpsqrt( fpmax( pvec0 + pvec3, 0. ) ) * (fptype)nsf );
+                                          fpsqrt( (fptype_sv)p0p3 ) * (fptype)nsf );
 #ifdef MGONGPU_CPPSIMD
       volatile fptype_v sqp0p3DENOM = fpternary( sqp0p3 != 0, sqp0p3, 1. ); // hack: dummy sqp0p3DENOM[ieppV]=1 if sqp0p3[ieppV]==0
       cxtype_sv chi[2] = { cxmake( sqp0p3, 0. ),
