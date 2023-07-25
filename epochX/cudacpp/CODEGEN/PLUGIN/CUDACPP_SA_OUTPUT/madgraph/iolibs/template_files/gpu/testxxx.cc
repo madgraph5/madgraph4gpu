@@ -32,7 +32,7 @@
 
 #define XTESTID( s ) TESTID( s )
 
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
@@ -42,7 +42,7 @@ namespace mg5amcCpu
   int FPEhandlerIevt = -1;
   inline void FPEhandler( int sig )
   {
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
     std::cerr << "Floating Point Exception (GPU): '" << FPEhandlerMessage << "' ievt=" << FPEhandlerIevt << std::endl;
 #else
     std::cerr << "Floating Point Exception (CPU neppV=" << neppV << "): '" << FPEhandlerMessage << "' ievt=" << FPEhandlerIevt << std::endl;
@@ -53,7 +53,7 @@ namespace mg5amcCpu
 
 TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
 {
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
   using namespace mg5amcGpu;
 #else
   using namespace mg5amcCpu;

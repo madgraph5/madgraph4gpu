@@ -20,7 +20,7 @@ namespace mg5amcCpu
 {
   //==========================================================================
 
-#ifdef __CUDACC__ // cuda
+#ifdef MGONGPUCPP_GPUIMPL // cuda
 
   //------------------------------
   // Floating point types - Cuda
