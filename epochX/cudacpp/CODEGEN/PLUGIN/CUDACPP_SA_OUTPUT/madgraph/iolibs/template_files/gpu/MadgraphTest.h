@@ -207,15 +207,15 @@ protected:
 /// and compares momenta and matrix elements with a reference file.
 TEST_P( MadgraphTest, CompareMomentaAndME )
 {
-  // Set to true to dump events:
-  constexpr bool dumpEvents = false;
-  constexpr fptype energy = 1500; // historical default, Ecms = 1500 GeV = 1.5 TeV (above the Z peak)
   const fptype toleranceMomenta = std::is_same<double, fptype>::value ? 1.E-10 : 4.E-2; // see #735
 #ifdef __APPLE__
   const fptype toleranceMEs = std::is_same<double, fptype>::value ? 1.E-6 : 3.E-2; // see #583
 #else
   const fptype toleranceMEs = std::is_same<double, fptype>::value ? 1.E-6 : 2.E-3;
 #endif
+  constexpr fptype energy = 1500; // historical default, Ecms = 1500 GeV = 1.5 TeV (above the Z peak)
+  // Dump events to a new reference file?
+  constexpr bool dumpEvents = false;
   std::string dumpFileName = std::string( "dump_" ) + testing::UnitTest::GetInstance()->current_test_info()->test_suite_name() + '.' + testing::UnitTest::GetInstance()->current_test_info()->name() + ".txt";
   while( dumpFileName.find( '/' ) != std::string::npos )
   {
