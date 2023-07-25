@@ -205,7 +205,12 @@ namespace mg5amcCpu
     const int nh = nhel * nsf;
     if( fmass != 0. )
     {
+#ifndef MGONGPU_CPPSIMD
       const fptype_sv pp = fpmin( pvec0, fpsqrt( pvec1 * pvec1 + pvec2 * pvec2 + pvec3 * pvec3 ) );
+#else
+      volatile fptype_sv p2 = pvec1 * pvec1 + pvec2 * pvec2 + pvec3 * pvec3; // volatile fixes #736
+      const fptype_sv pp = fpmin( pvec0, fpsqrt( p2 ) );
+#endif
       // In C++ ixxxxx, use a single ip/im numbering that is valid both for pp==0 and pp>0, which have two numbering schemes in Fortran ixxxxx:
       // for pp==0, Fortran sqm(0:1) has indexes 0,1 as in C++; but for Fortran pp>0, omega(2) has indexes 1,2 and not 0,1
       // NB: this is only possible in ixxxx, but in oxxxxx two different numbering schemes must be used
