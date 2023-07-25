@@ -518,7 +518,12 @@ namespace mg5amcCpu
     else
     {
       const fptype_sv& pp = pvec0; // NB: rewrite the following as in Fortran, using pp instead of pvec0
+#ifndef MGONGPU_CPPSIMD
       const fptype_sv pt = fpsqrt( ( pvec1 * pvec1 ) + ( pvec2 * pvec2 ) );
+#else
+      volatile fptype_sv pt2 = pvec1 * pvec1 + pvec2 * pvec2; // volatile fixes #736
+      const fptype_sv pt = fpsqrt( pt2 );
+#endif
       vc[2] = cxzero_sv();
       vc[5] = cxmake( hel * pt / pp * sqh, 0. );
 #ifndef MGONGPU_CPPSIMD
