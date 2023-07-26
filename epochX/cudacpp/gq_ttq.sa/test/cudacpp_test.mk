@@ -6,22 +6,13 @@
 THISDIR = $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
 # Compiler-specific googletest build directory (#125 and #738)
-# Note: AR, CXX and FC are implicitly defined if not set externally
-# See https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
-ifneq ($(shell $(CXX) --version | grep '^Intel(R) oneAPI DPC++/C++ Compiler'),)
-CXXNAME = icpx$(shell $(CXX) --version | head -1 | cut -d' ' -f5)
-else ifneq ($(shell $(CXX) --version | egrep '^clang'),)
-CXXNAME = clang$(shell $(CXX) --version | head -1 | cut -d' ' -f3)
-else ifneq ($(shell $(CXX) --version | grep '^g++ (GCC)'),)
-CXXNAME = gcc$(shell $(CXX) --version | head -1 | cut -d' ' -f3)
-else
-CXXNAME = unknown
-endif
-$(info CXXNAME=$(CXXNAME))
-BUILDDIR = build_$(CXXNAME)
-$(info BUILDDIR=$(BUILDDIR))
-INSTALLDIR = install_$(CXXNAME)
-$(info INSTALLDIR=$(INSTALLDIR))
+# In epochX, CXXNAMESUFFIX=_$(CXXNAME) is exported from cudacpp.mk
+# In epoch1/epoch2, CXXNAMESUFFIX is undefined
+$(info CXXNAMESUFFIX=$(CXXNAMESUFFIX))
+BUILDDIR = build$(CXXNAMESUFFIX)
+###$(info BUILDDIR=$(BUILDDIR))
+INSTALLDIR = install$(CXXNAMESUFFIX)
+###$(info INSTALLDIR=$(INSTALLDIR))
 
 CXXFLAGS += -Igoogletest/googletest/include/ -std=c++11
 
@@ -47,4 +38,3 @@ googletest/$(INSTALLDIR)/lib64/libgtest.a: googletest/$(BUILDDIR)/lib/libgtest.a
 
 clean:
 	rm -rf googletest
-
