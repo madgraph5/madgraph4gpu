@@ -41,15 +41,17 @@ INCFLAGS += -I../../src
 
 # Compiler-specific googletest build directory (#125 and #738)
 ifneq ($(shell $(CXX) --version | grep '^Intel(R) oneAPI DPC++/C++ Compiler'),)
-CXXNAME = icpx$(shell $(CXX) --version | head -1 | cut -d' ' -f5)
+override CXXNAME = icpx$(shell $(CXX) --version | head -1 | cut -d' ' -f5)
 else ifneq ($(shell $(CXX) --version | egrep '^clang'),)
-CXXNAME = clang$(shell $(CXX) --version | head -1 | cut -d' ' -f3)
+override CXXNAME = clang$(shell $(CXX) --version | head -1 | cut -d' ' -f3)
 else ifneq ($(shell $(CXX) --version | grep '^g++ (GCC)'),)
-CXXNAME = gcc$(shell $(CXX) --version | head -1 | cut -d' ' -f3)
+override CXXNAME = gcc$(shell $(CXX) --version | head -1 | cut -d' ' -f3)
 else
-CXXNAME = unknown
+override CXXNAME = unknown
 endif
 ###$(info CXXNAME=$(CXXNAME))
+override CXXNAMESUFFIX = _$(CXXNAME)
+export CXXNAMESUFFIX
 
 # Dependency on test directory
 # Within the madgraph4gpu git repo: by default use a common gtest installation in <topdir>/test (optionally use an external or local gtest)
@@ -62,10 +64,10 @@ ifneq ($(wildcard $(GTEST_ROOT)),)
 TESTDIR =
 else ifneq ($(LOCALGTEST),)
 TESTDIR=$(TESTDIRLOCAL)
-GTEST_ROOT = $(TESTDIR)/googletest/install_$(CXXNAME)
+GTEST_ROOT = $(TESTDIR)/googletest/install$(CXXNAMESUFFIX)
 else ifneq ($(wildcard ../../../../../epochX/cudacpp/CODEGEN),)
 TESTDIR = $(TESTDIRCOMMON)
-GTEST_ROOT = $(TESTDIR)/googletest/install_$(CXXNAME)
+GTEST_ROOT = $(TESTDIR)/googletest/install$(CXXNAMESUFFIX)
 else
 TESTDIR =
 endif
