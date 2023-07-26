@@ -664,6 +664,7 @@ for exe in $exes; do
       exe2=${exe/check/runTest}
       echo "runExe $exe2"
       $exe2 2>&1 | tail -1
+      if [ ${PIPESTATUS[0]} -ne "0" ]; then exit 1; fi 
     fi
   elif [ "${exe%%/gcheck*}" != "${exe}" ] ||  [ "${exe%%/alpcheck*}" != "${exe}" ]; then 
     runNcu $exe "$ncuArgs"
