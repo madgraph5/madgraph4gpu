@@ -20,18 +20,21 @@ jobs:
         echo "token=$TOKEN" >> $GITHUB_OUTPUT
     - name: SSH and run Docker container
       env:
-        SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY }}
+        SSH_PRIVATE_KEY:       ${{ secrets.SSH_KEY }}
         MI250X_PROFILING_HOST: ${{ secrets.MI250X_PROFILING_HOST }}
-        HPC_ACCOUNT: ${{ secrets.HPC_ACCOUNT }}
-        HPC_PROJECT: ${{ secrets.HPC_PROJECT }}
+        HPC_ACCOUNT:           ${{ secrets.HPC_ACCOUNT }}
+        HPC_PROJECT:           ${{ secrets.HPC_PROJECT }}
+        GITHUB_TOKEN:          ${{ steps.generate_token.outputs.token }}
+        REPO_URL:              https://github.com/${{ github.repository }}
+        RUNNER_NAME:           github_runner_mi250x
+        GITHUB_RUNNER_TAGS:    Linux,x64,mi250x
+        RUNNER_URL:            https://github.com/actions/runner/releases/download/v2.303.0/actions-runner-linux-x64-2.303.0.tar.gz
       run: |
         echo "$SSH_PRIVATE_KEY" > id_rsa
         chmod 600 id_rsa
         ssh -o StrictHostKeyChecking=no -i id_rsa $MI250X_PROFILING_HOST "\
           singularity pull --force oras://ghcr.io/${{ github.repository_owner }}/github_runner_mi250x:latest && \
-          srun --account=$HPC_ACCOUNT -p $HPC_PROJECT --time=03:00:00 singularity exec \
-          --env GITHUB_TOKEN='${{ steps.generate_token.outputs.token }}',REPO_URL='https://github.com/${{ github.repository }}',RUNNER_NAME='github_runner_mi250x',GITHUB_RUNNER_TAGS='Linux,x64,mi250x',RUNNER_URL='https://github.com/actions/runner/releases/download/v2.303.0/actions-runner-linux-x64-2.303.0.tar.gz' \
-          github_runner_mi250x_latest.sif"
+          srun --account=$HPC_ACCOUNT -p $HPC_PROJECT --time=03:00:00 singularity exec github_runner_mi250x_latest.sif"
 
   HIP_MI250X_Profiling:
     needs: Container_Setup
