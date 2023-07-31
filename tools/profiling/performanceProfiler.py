@@ -65,7 +65,7 @@ for process in pyArgs.p:
                                 "-b", str(BPG),
                                 "-r", str(pyArgs.b).lower()]
 
-                elif pyArgs.l.upper() == 'CUDA':
+                elif pyArgs.l.upper() == 'CUDA' or pyArgs.l.upper() == 'HIP':
 
                     bashArgs = ["./buildCUDAProcess.sh",
                                 "-n", process,
