@@ -44,7 +44,7 @@ jobs:
     runs-on: [self-hosted, linux, mi250x]
     name: HIP MI250X Profiling
     env:
-      CUDA_NAME_PREFIX: sycl_AMD-Epyc-7A53_MI250X_gcc-11.2.1_cuda-12.0.1
+      CUDA_NAME_PREFIX: sycl_AMD-Epyc-7A53_MI250X_gcc-11.2.0_rocm-5.2.3
       ENABLE_CI_PROFILER: 1
       MADGRAPH4GPU_DB_SECRET: ${{ secrets.MADGRAPH4GPU_DB_SECRET }}
     steps:
