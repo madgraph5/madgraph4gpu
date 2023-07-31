@@ -34,7 +34,7 @@ jobs:
         chmod 600 id_rsa
         ssh -o StrictHostKeyChecking=no -i id_rsa $MI250X_PROFILING_HOST "\
           singularity pull --force oras://ghcr.io/${{ github.repository_owner }}/github_runner_mi250x:latest && \
-          srun --account=$HPC_ACCOUNT -p $HPC_PROJECT --time=03:00:00 singularity exec github_runner_mi250x_latest.sif"
+          srun --account=$HPC_ACCOUNT -p $HPC_PROJECT --time=03:00:00 singularity run github_runner_mi250x_latest.sif"
 
   HIP_MI250X_Profiling:
     needs: Container_Setup
