@@ -26,11 +26,11 @@ jobs:
         ssh -o StrictHostKeyChecking=no -i id_rsa ${{ secrets.MI250X_PROFILING_HOST }} "\
           singularity pull --force oras://ghcr.io/${{ github.repository_owner }}/github_runner_mi250x:latest && \
           srun --pty --account=${{ secrets.HPC_ACCOUNT }} -p ${{ secrets.HPC_PROJECT }} --time=03:00:00 singularity exec github_runner_mi250x_latest.sif \
-          --env=GITHUB_TOKEN=${{ steps.generate_token.outputs.token }} \
-          --env=REPO_URL=https://github.com/${{ github.repository }} \
-          --env=RUNNER_NAME=github_runner_mi250x \
-          --env=GITHUB_RUNNER_TAGS='Linux,x64,mi250x' \
-          --env=RUNNER_URL=https://github.com/actions/runner/releases/download/v2.303.0/actions-runner-linux-x64-2.303.0.tar.gz"
+          --env GITHUB_TOKEN='${{ steps.generate_token.outputs.token }}' \
+          --env REPO_URL='https://github.com/${{ github.repository }}' \
+          --env RUNNER_NAME='github_runner_mi250x' \
+          --env GITHUB_RUNNER_TAGS='Linux,x64,mi250x' \
+          --env RUNNER_URL='https://github.com/actions/runner/releases/download/v2.303.0/actions-runner-linux-x64-2.303.0.tar.gz'"
 
   HIP_MI250X_Profiling:
     needs: Container_Setup
