@@ -1,8 +1,8 @@
 name: MI250X Performance Profiler
 
 on:
-  schedule:
-    - cron:  '00 00 * * *'
+  push:
+    branches: [ gpu_abstraction ]
 
 jobs:
   Container_Setup:
