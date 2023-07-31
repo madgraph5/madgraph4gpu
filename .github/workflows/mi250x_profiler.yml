@@ -5,9 +5,9 @@ on:
     branches: [ gpu_abstraction ]
 
 jobs:
-  Container_Setup_&_Execution:
+  Container_Setup_and_Execution:
     runs-on: [self-hosted, linux, a100]
-    name: Container Setup & Execution
+    name: Container Setup and Execution
     steps:
     - name: Generate runner token
       id: generate_token
