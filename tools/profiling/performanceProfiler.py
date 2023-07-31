@@ -45,7 +45,7 @@ pyArgs = parser.parse_args()
 # How many runs in total the program made
 count = 0
 
-for process in args.p:
+for process in pyArgs.p:
     for TPB in THREADS_PER_BLOCK:
         for BPG in BLOCKS_PER_GRID:
             if TPB * BPG > DOUBLE_PRECISION_CONSTANT:

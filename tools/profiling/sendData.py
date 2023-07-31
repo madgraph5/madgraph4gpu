@@ -123,11 +123,11 @@ if __name__=='__main__':
 
                 GCCVersion = fileNameParts[6].split('-')[1]
 
-                CUDAVersion = fileNameParts[7].split('-')[1]
+                GPUVersion = fileNameParts[7].split('-')[1]
 
                 gridsize = data[0]["NumThreadsPerBlock"] * data[0]["NumBlocksPerGrid"]
 
-                DBdata = f'{physicsProcess},CPU={CPU},GPU={GPU},AbstractionLayer={args.absLayer},GCCVersion={GCCVersion},CUDAVersion={CUDAVersion},NumThreadsPerBlock={data[0]["NumThreadsPerBlock"]},NumBlocksPerGrid={data[0]["NumBlocksPerGrid"]},NumIterations={data[0]["NumIterations"]} Gridsize={gridsize}'
+                DBdata = f'{physicsProcess},CPU={CPU},GPU={GPU},AbstractionLayer={args.absLayer},GCCVersion={GCCVersion},GPUVersion={GPUVersion},NumThreadsPerBlock={data[0]["NumThreadsPerBlock"]},NumBlocksPerGrid={data[0]["NumBlocksPerGrid"]},NumIterations={data[0]["NumIterations"]} Gridsize={gridsize}'
 
                 for field in FIELDS:
                     value = float(re.findall(r'[\d.]+',data[0][field])[0])
