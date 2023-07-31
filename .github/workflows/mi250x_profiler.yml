@@ -25,7 +25,7 @@ jobs:
         chmod 600 id_rsa
         ssh -o StrictHostKeyChecking=no -i id_rsa ${{ secrets.MI250X_PROFILING_HOST }} "\
           singularity pull --force oras://ghcr.io/${{ github.repository_owner }}/github_runner_mi250x:latest && \
-          srun --pty --account=${{ secrets.HPC_ACCOUNT }} -p ${{ secrets.HPC_PROJECT }} --time=03:00:00 singularity exec github_runner_mi250x.sif \
+          srun --pty --account=${{ secrets.HPC_ACCOUNT }} -p ${{ secrets.HPC_PROJECT }} --time=03:00:00 singularity exec github_runner_mi250x_latest.sif \
           --env=GITHUB_TOKEN=${{ steps.generate_token.outputs.token }} \
           --env=REPO_URL=https://github.com/${{ github.repository }} \
           --env=RUNNER_NAME=github_runner_mi250x \
