@@ -30,7 +30,7 @@ jobs:
           --env=REPO_URL=https://github.com/${{ github.repository }} \
           --env=RUNNER_NAME=github_runner_mi250x \
           --env=GITHUB_RUNNER_TAGS='Linux,x64,mi250x' \
-          --env=RUNNER_URL=https://github.com/actions/runner/releases/download/v2.303.0/actions-runner-linux-x64-2.303.0.tar.gz
+          --env=RUNNER_URL=https://github.com/actions/runner/releases/download/v2.303.0/actions-runner-linux-x64-2.303.0.tar.gz"
 
   HIP_MI250X_Profiling:
     needs: Container_Setup
