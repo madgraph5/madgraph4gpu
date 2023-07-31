@@ -29,7 +29,7 @@ jobs:
           ghcr.io/${{ github.repository_owner }}/github_runner_mi250x:latest"
 
   HIP_MI250X_Profiling:
-    needs: Container Setup
+    needs: Container_Setup
     runs-on: [self-hosted, linux, mi250x]
     name: HIP MI250X Profiling
     env:
