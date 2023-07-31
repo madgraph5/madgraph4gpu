@@ -34,7 +34,7 @@ jobs:
                 REPO_URL='https://github.com/${{ github.repository }}', \
                 RUNNER_NAME='github_runner_mi250x', \
                 GITHUB_RUNNER_TAGS='Linux,x64,mi250x', \
-                RUNNER_URL='https://github.com/actions/runner/releases/download/v2.303.0/actions-runner-linux-x64-2.303.0.tar.gz'
+                RUNNER_URL='https://github.com/actions/runner/releases/download/v2.303.0/actions-runner-linux-x64-2.303.0.tar.gz' \
           github_runner_mi250x_latest.sif"
 
   HIP_MI250X_Profiling:
