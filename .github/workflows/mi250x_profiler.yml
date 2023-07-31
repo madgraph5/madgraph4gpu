@@ -22,13 +22,15 @@ jobs:
       env:
         SSH_PRIVATE_KEY:       ${{ secrets.SSH_KEY }}
         MI250X_PROFILING_HOST: ${{ secrets.MI250X_PROFILING_HOST }}
+        MI250X_PROFILING_USER: ${{ secrets.MI250X_PROFILING_USER }}
         HPC_ACCOUNT:           ${{ secrets.HPC_ACCOUNT }}
         HPC_PROJECT:           ${{ secrets.HPC_PROJECT }}
       continue-on-error: true
       run: |
         echo "$SSH_PRIVATE_KEY" > id_rsa
         chmod 600 id_rsa
-        ssh -o StrictHostKeyChecking=no -i id_rsa $MI250X_PROFILING_HOST "\
+        ssh -o StrictHostKeyChecking=no -i id_rsa $MI250X_PROFILING_USER@$MI250X_PROFILING_HOST "\
+          cd /scratch/$HPC_ACCOUNT/$MI250X_PROFILING_USER/ && \
           singularity pull --force oras://ghcr.io/${{ github.repository_owner }}/github_runner_mi250x:latest && \
           module load gcc/11.2.0 && \
           export FC=`which gfortran` && \
