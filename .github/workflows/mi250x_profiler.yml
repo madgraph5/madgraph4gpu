@@ -5,9 +5,9 @@ on:
     branches: [ gpu_abstraction ]
 
 jobs:
-  Container_Setup:
+  Container_Setup_&_Execution:
     runs-on: [self-hosted, linux, a100]
-    name: Container Setup
+    name: Container Setup & Execution
     steps:
     - name: Generate runner token
       id: generate_token
@@ -24,6 +24,7 @@ jobs:
         MI250X_PROFILING_HOST: ${{ secrets.MI250X_PROFILING_HOST }}
         HPC_ACCOUNT:           ${{ secrets.HPC_ACCOUNT }}
         HPC_PROJECT:           ${{ secrets.HPC_PROJECT }}
+      continue-on-error: true
       run: |
         echo "$SSH_PRIVATE_KEY" > id_rsa
         chmod 600 id_rsa
@@ -38,7 +39,6 @@ jobs:
             github_runner_mi250x_latest.sif"
 
   HIP_MI250X_Profiling:
-    needs: Container_Setup
     runs-on: [self-hosted, linux, mi250x]
     name: HIP MI250X Profiling
     env:
