@@ -52,9 +52,9 @@ jobs:
     - uses: actions/checkout@v2
     - name: Runs SYCL performanceProfiler.py script
       run: cd tools/profiling/;
-           module load gcc/11.2.0
-           export CXX=`which g++`
-           export FC=`which gfortran`
+           module load gcc/11.2.0;
+           export CXX=`which g++`;
+           export FC=`which gfortran`;
            python3 performanceProfiler.py -l 'HIP' -b 'master'
 
     - name: Uploads workplace_mg4gpu directory as an artifact
