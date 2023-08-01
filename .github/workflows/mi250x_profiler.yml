@@ -25,6 +25,7 @@ jobs:
         MI250X_PROFILING_USER: ${{ secrets.MI250X_PROFILING_USER }}
         HPC_ACCOUNT:           ${{ secrets.HPC_ACCOUNT }}
         HPC_PROJECT:           ${{ secrets.HPC_PROJECT }}
+        SINGULARITY_CACHEDIR:  /scratch/$HPC_ACCOUNT/$MI250X_PROFILING_USER/
       continue-on-error: true
       run: |
         echo "$SSH_PRIVATE_KEY" > id_rsa
@@ -33,6 +34,7 @@ jobs:
           cd /scratch/$HPC_ACCOUNT/$MI250X_PROFILING_USER/ && \
           singularity pull --force oras://ghcr.io/${{ github.repository_owner }}/github_runner_mi250x:latest && \
           module load gcc/11.2.0 && \
+          export CXX=`which g++` && \
           export FC=`which gfortran` && \
           srun --account=$HPC_ACCOUNT -p $HPC_PROJECT --time=03:00:00 singularity run \
             --env GITHUB_TOKEN=${{ steps.generate_token.outputs.token }} \
