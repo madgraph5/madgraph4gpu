@@ -33,9 +33,6 @@ jobs:
         ssh -o StrictHostKeyChecking=no -i id_rsa $MI250X_PROFILING_USER@$MI250X_PROFILING_HOST "\
           cd /scratch/$HPC_ACCOUNT/$MI250X_PROFILING_USER/ && \
           singularity pull --force oras://ghcr.io/${{ github.repository_owner }}/github_runner_mi250x:latest && \
-          module load gcc/11.2.0 && \
-          export CXX=`which g++` && \
-          export FC=`which gfortran` && \
           srun --account=$HPC_ACCOUNT -p $HPC_PROJECT --time=03:00:00 singularity run \
             --env GITHUB_TOKEN=${{ steps.generate_token.outputs.token }} \
             --env REPO_URL=https://github.com/${{ github.repository }} \
@@ -55,6 +52,9 @@ jobs:
     - uses: actions/checkout@v2
     - name: Runs SYCL performanceProfiler.py script
       run: cd tools/profiling/;
+           module load gcc/11.2.0
+           export CXX=`which g++`
+           export FC=`which gfortran`
            python3 performanceProfiler.py -l 'HIP' -b 'master'
 
     - name: Uploads workplace_mg4gpu directory as an artifact
