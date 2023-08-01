@@ -26,6 +26,7 @@ jobs:
         HPC_ACCOUNT:           ${{ secrets.HPC_ACCOUNT }}
         HPC_PROJECT:           ${{ secrets.HPC_PROJECT }}
         SINGULARITY_CACHEDIR:  /scratch/$HPC_ACCOUNT/$MI250X_PROFILING_USER/
+        SINGULARITY_TMPDIR:    /scratch/$HPC_ACCOUNT/$MI250X_PROFILING_USER/
       continue-on-error: true
       run: |
         echo "$SSH_PRIVATE_KEY" > id_rsa
