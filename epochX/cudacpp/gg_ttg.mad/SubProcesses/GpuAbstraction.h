@@ -39,8 +39,6 @@
 
 #elif defined __HIPCC__
 
-#include "hip/hip_runtime.h"
-
 #define gpuError_t hipError_t
 #define gpuPeekAtLastError hipPeekAtLastError
 #define gpuGetErrorString hipGetErrorString
