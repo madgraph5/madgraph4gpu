@@ -37,18 +37,20 @@
     not defined MGONGPU_COMPLEX_STD       && \
     not defined MGONGPU_COMPLEX_ONEAPI    && \
     not defined MGONGPU_COMPLEX_CUTHRUST  && \
-    not defined MGONGPU_COMPLEX_CUCOMPLEX
+    not defined MGONGPU_COMPLEX_CUCOMPLEX && \
+    not defined MGONGPU_COMPLEX_SYCLCPLX
 
     #define MGONGPU_COMPLEX_STD 1
 #endif
 
 #if\
-    defined(MGONGPU_COMPLEX_CXSMPL)   + \
-    defined(MGONGPU_COMPLEX_EXTRAS)   + \
-    defined(MGONGPU_COMPLEX_STD)      + \
-    defined(MGONGPU_COMPLEX_ONEAPI)   + \
-    defined(MGONGPU_COMPLEX_CUTHRUST) + \
-    defined(MGONGPU_COMPLEX_CUCOMPLEX)  \
+    defined(MGONGPU_COMPLEX_CXSMPL)    + \
+    defined(MGONGPU_COMPLEX_EXTRAS)    + \
+    defined(MGONGPU_COMPLEX_STD)       + \
+    defined(MGONGPU_COMPLEX_ONEAPI)    + \
+    defined(MGONGPU_COMPLEX_CUTHRUST)  + \
+    defined(MGONGPU_COMPLEX_CUCOMPLEX) + \
+    defined(MGONGPU_COMPLEX_SYCLCPLX)    \
     != 1
 
     #error You must CHOOSE (ONE AND) ONLY ONE complex number library

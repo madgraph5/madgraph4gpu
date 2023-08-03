@@ -697,7 +697,7 @@ int main(int argc, char **argv)
                 #endif
 
                 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                    devMEs[ievt] = Proc::sigmaKin( devMomenta + CPPPROCESS_NPAR*ievt, devRndHel + ievt, devRndCol + ievt, devSelHel + ievt, devSelCol + ievt, 1, dev_helicities, dev_couplings, dev_parameters, devcNGoodHel, devcGoodHel );
+                    devMEs[ievt] = Proc::sigmaKin( devMomenta + CPPPROCESS_NPAR*ievt, devRndHel + ievt, devRndCol + ievt, devSelHel + ievt, devSelCol + ievt, 0, dev_helicities, dev_couplings, dev_parameters, devcNGoodHel, devcGoodHel );
                 #else
                     devMEs[ievt] = Proc::sigmaKin( devMomenta + CPPPROCESS_NPAR*ievt, devRndHel + ievt, devRndCol + ievt, devSelHel + ievt, devSelCol + ievt, dev_helicities, dev_couplings, dev_parameters, devcNGoodHel, devcGoodHel );
                 #endif

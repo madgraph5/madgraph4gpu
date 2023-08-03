@@ -2529,30 +2529,32 @@ namespace Proc
       }
 
       #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-          auto l_icolamp = mgOnGpu::icolamp<bool>;
+          if (channelId > 0) {
+              auto l_icolamp = mgOnGpu::icolamp<bool>;
 
-          // Event-by-event random choice of color #402
-          const size_t channelIdC = channelId - 1; // coloramps.h uses the C array indexing starting at 0
-          fptype_sv targetamp[ncolor];
-          for (size_t icolC = 0; icolC < ncolor; icolC++) {
-              if (icolC == 0) {
-                  targetamp[icolC] = FPZERO_SV;
+              // Event-by-event random choice of color #402
+              const size_t channelIdC = channelId - 1; // coloramps.h uses the C array indexing starting at 0
+              fptype_sv targetamp[ncolor];
+              for (size_t icolC = 0; icolC < ncolor; icolC++) {
+                  if (icolC == 0) {
+                      targetamp[icolC] = FPZERO_SV;
+                  }
+                  else {
+                      targetamp[icolC] = targetamp[icolC - 1];
+                  }
+                  if (l_icolamp[ncolor*channelIdC + icolC]) { targetamp[icolC] += jamp2_sv[icolC]; }
               }
-              else {
-                  targetamp[icolC] = targetamp[icolC - 1];
-              }
-              if (l_icolamp[ncolor*channelIdC + icolC]) { targetamp[icolC] += jamp2_sv[icolC]; }
-          }
 
-          bool_sv selcol_unset = bool_sv(-1);
-          for (size_t icolC = 0; icolC < ncolor; icolC++) {
-              if (FPANY_SV(selcol_unset)) {
-                  bool_sv selcol_flip = selcol_unset & (rndcol[0] < (targetamp[icolC]/targetamp[ncolor - 1]));
-                  selcol[0] = FPCONDITIONAL_SV(selcol[0], int_sv(icolC + 1), selcol_flip);
-                  selcol_unset = selcol_unset & !(selcol_flip);
-              }
-              else {
-                  break;
+              bool_sv selcol_unset = bool_sv(-1);
+              for (size_t icolC = 0; icolC < ncolor; icolC++) {
+                  if (FPANY_SV(selcol_unset)) {
+                      bool_sv selcol_flip = selcol_unset & (rndcol[0] < (targetamp[icolC]/targetamp[ncolor - 1]));
+                      selcol[0] = FPCONDITIONAL_SV(selcol[0], int_sv(icolC + 1), selcol_flip);
+                      selcol_unset = selcol_unset & !(selcol_flip);
+                  }
+                  else {
+                      break;
+                  }
               }
           }
       #endif

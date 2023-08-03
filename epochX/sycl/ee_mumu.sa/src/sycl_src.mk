@@ -92,8 +92,10 @@ else ifeq ($(CXTYPE),thrust)
   CXXFLAGS += -DMGONGPU_COMPLEX_CUTHRUST
 else ifeq ($(CXTYPE),cucomplex)
   CXXFLAGS += -DMGONGPU_COMPLEX_CUCOMPLEX
+else ifeq ($(CXTYPE),syclcplx)
+  CXXFLAGS += -DMGONGPU_COMPLEX_SYCLCPLX
 else
-  $(error Unknown CXTYPE='$(CXTYPE)': only 'smpl', 'extras', 'std', 'oneapi', 'thrust', and 'cucomplex' are supported)
+  $(error Unknown CXTYPE='$(CXTYPE)': only 'smpl', 'extras', 'std', 'oneapi', 'thrust', 'cucomplex', and 'syclcplx' are supported)
 endif
 
 #-------------------------------------------------------------------------------
@@ -165,7 +167,7 @@ $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so : $(cxx_objects)
 #-------------------------------------------------------------------------------
 
 # Target (and build rules): install libraries and headers (for use by MadEvent in Fortran)
-INSTALL_HEADERS=Parameters_sm.h mgOnGpuConfig.h mgOnGpuFptypes.h mgOnGpuCxtypes.h mgOnGpuVectors.h read_slha.h extras.h
+INSTALL_HEADERS=Parameters_sm.h mgOnGpuConfig.h mgOnGpuFptypes.h mgOnGpuCxtypes.h mgOnGpuVectors.h read_slha.h extras.h sycl_ext_complex.hpp
 INSTALL_INC_DIR=../include
 
 install: all.$(TAG) $(INSTALL_INC_DIR) $(addprefix $(INSTALL_INC_DIR)/, $(INSTALL_HEADERS))

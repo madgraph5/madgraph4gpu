@@ -28,6 +28,10 @@
     #include <cuComplex.h>
 #endif
 
+#ifdef MGONGPU_COMPLEX_SYCLCPLX
+    #include "sycl_ext_complex.hpp"
+#endif
+
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuCxtypes.h"
 
@@ -61,6 +65,10 @@ namespace mgOnGpu
       #elif defined MGONGPU_FPTYPE_FLOAT
           typedef cuFloatComplex cxtype;
       #endif
+  #endif
+
+  #ifdef MGONGPU_COMPLEX_SYCLCPLX
+      typedef sycl::ext::cplx::complex<fptype> cxtype;
   #endif
 
   // The number of floating point types in a complex type (real, imaginary)
