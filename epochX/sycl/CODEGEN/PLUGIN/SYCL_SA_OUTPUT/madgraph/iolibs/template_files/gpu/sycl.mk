@@ -171,8 +171,10 @@ else ifeq ($(CXTYPE),thrust)
   CXXFLAGS += -DMGONGPU_COMPLEX_CUTHRUST
 else ifeq ($(CXTYPE),cucomplex)
   CXXFLAGS += -DMGONGPU_COMPLEX_CUCOMPLEX
+else ifeq ($(CXTYPE),syclcplx)
+  CXXFLAGS += -DMGONGPU_COMPLEX_SYCLCPLX
 else
-  $(error Unknown CXTYPE='$(CXTYPE)': only 'smpl', 'extras', 'std', 'oneapi', 'thrust', and 'cucomplex' are supported)
+  $(error Unknown CXTYPE='$(CXTYPE)': only 'smpl', 'extras', 'std', 'oneapi', 'thrust', 'cucomplex', and 'syclcplx' are supported)
 endif
 
 #-------------------------------------------------------------------------------

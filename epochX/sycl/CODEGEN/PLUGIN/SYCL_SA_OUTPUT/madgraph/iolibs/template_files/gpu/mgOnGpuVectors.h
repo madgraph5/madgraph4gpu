@@ -28,6 +28,8 @@
         typedef sycl::ext::oneapi::experimental::complex<fptype_sv> cxtype_sv;
     #elif MGONGPU_COMPLEX_CUTHRUST
         typedef thrust::complex<fptype_sv> cxtype_sv;
+    #elif MGONGPU_COMPLEX_SYCLCPLX
+        typedef sycl::ext::cplx::complex<fptype_sv> cxtype_sv;
     #else
         #error Unconfigured vector complex type. Add details to `mgOnGpuVectors.h` or set MGONGPU_VEC_DIM to 1 in `mgOnGpuConfig.h`.
     #endif
