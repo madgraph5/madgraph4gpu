@@ -85,6 +85,20 @@ if __name__=='__main__':
                 logging.error('CUDA report path does not exist!')
                 sys.exit(1)
 
+        elif args.absLayer.upper() == "HIP":
+
+            hipNamePrefix = os.getenv('HIP_NAME_PREFIX')
+
+            if cudaNamePrefix is None:
+                logging.error('HIP name prefix has not been set!')
+                sys.exit(1)
+
+            reportfolder= "workspace_mg4gpu/" + datetime.datetime.now().strftime('%y-%m-%d') + '_' + hipNamePrefix + '_' + args.branch
+
+            if not os.path.exists(reportfolder):
+                logging.error('CUDA report path does not exist!')
+                sys.exit(1)
+
         else:
             logging.error('No abstraction layer that is supported has been selected!')
             sys.exit(1)

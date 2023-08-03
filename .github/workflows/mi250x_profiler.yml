@@ -46,12 +46,12 @@ jobs:
     runs-on: [self-hosted, linux, mi250x]
     name: HIP MI250X Profiling
     env:
-      CUDA_NAME_PREFIX: sycl_AMD-Epyc-7A53_MI250X_gcc-11.2.1_rocm-5.2.3
+      HIP_NAME_PREFIX: hip_AMD-Epyc-7A53_MI250X_gcc-11.2.1_rocm-5.2.3
       ENABLE_CI_PROFILER: 1
       MADGRAPH4GPU_DB_SECRET: ${{ secrets.MADGRAPH4GPU_DB_SECRET }}
     steps:
     - uses: actions/checkout@v2
-    - name: Runs SYCL performanceProfiler.py script
+    - name: Runs HIP performanceProfiler.py script
       run: cd tools/profiling/;
            python3 performanceProfiler.py -l 'HIP' -b 'master'
 
@@ -66,7 +66,7 @@ jobs:
     runs-on: [self-hosted, linux]
     name: Upload JSON files to DB
     env:
-      CUDA_NAME_PREFIX: sycl_AMD-Epyc-7A53_MI250X_gcc-11.2.1_rocm-5.2.3
+      HIP_NAME_PREFIX: hip_AMD-Epyc-7A53_MI250X_gcc-11.2.1_rocm-5.2.3
       ENABLE_CI_PROFILER: 1
       MADGRAPH4GPU_DB_SECRET: ${{ secrets.MADGRAPH4GPU_DB_SECRET }}
     steps:
