@@ -34,7 +34,7 @@ jobs:
         ssh -o StrictHostKeyChecking=no -i id_rsa $MI250X_PROFILING_USER@$MI250X_PROFILING_HOST "\
           cd /scratch/$HPC_ACCOUNT/$MI250X_PROFILING_USER/ && \
           singularity pull --force oras://ghcr.io/${{ github.repository_owner }}/github_runner_mi250x:latest && \
-          srun --account=$HPC_ACCOUNT -p $HPC_PROJECT --rocm --time=03:00:00 singularity run \
+          srun --rocm --account=$HPC_ACCOUNT -p $HPC_PROJECT --time=03:00:00 singularity run \
             --env GITHUB_TOKEN=${{ steps.generate_token.outputs.token }} \
             --env REPO_URL=https://github.com/${{ github.repository }} \
             --env RUNNER_NAME=github_runner_mi250x \
