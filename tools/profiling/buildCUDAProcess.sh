@@ -57,22 +57,30 @@ fi
 # CUDA
 # Check if CUDA_HOME has not been set from the outside, usefull in CI/CD
 if [[ -z "$CUDA_HOME" ]]; then
-    export COMPILER_PATH="`which nvcc 2>/dev/null`" && while [ -L "$compiler" ]; do compiler=`readlink "$compiler"`; done
+    COMPILER=$(which nvcc 2>/dev/null)
+    while [ -L "$COMPILER" ]; do
+        COMPILER=$(readlink "$COMPILER")
+    done
+    export COMPILER_PATH=$COMPILER
 
     if [[ "$COMPILER_PATH" ]]; then
-    export CUDA_HOME=$(dirname $(dirname $COMPILER_PATH))
-    export PATH=$CUDA_HOME${PATH:+:${PATH}}
+        export CUDA_HOME=$(dirname $(dirname $COMPILER_PATH))
+        export PATH=$CUDA_HOME${PATH:+:${PATH}}
     fi
 fi
 
 # HIP
 # Check if HIP_HOME has not been set from the outside, usefull in CI/CD
 if [[ -z "$HIP_HOME" ]]; then
-    export COMPILER_PATH="`which hipcc 2>/dev/null`" && while [ -L "$compiler" ]; do compiler=`readlink "$compiler"`; done
+    COMPILER=$(which hipcc 2>/dev/null)
+    while [ -L "$COMPILER" ]; do
+        COMPILER=$(readlink "$COMPILER")
+    done
+    export COMPILER_PATH=$COMPILER
 
     if [[ "$COMPILER_PATH" ]]; then
-    export HIP_HOME=$(dirname $(dirname $COMPILER_PATH))
-    export PATH=$HIP_HOME${PATH:+:${PATH}}
+        export HIP_HOME=$(dirname $(dirname $COMPILER_PATH))
+        export PATH=$HIP_HOME${PATH:+:${PATH}}
     fi
 fi
 
