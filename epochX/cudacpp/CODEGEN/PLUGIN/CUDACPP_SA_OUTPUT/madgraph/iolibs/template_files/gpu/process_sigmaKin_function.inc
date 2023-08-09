@@ -4,11 +4,14 @@
 ! Copyright (C) 2020-2023 CERN and UCLouvain.
 ! Licensed under the GNU Lesser General Public License (version 3 or later).
 ! Modified by: A. Valassi (Sep 2021) for the MG5aMC CUDACPP plugin.
-! Further modified by: A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
+! Further modified by: J. Teig, A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
 !==========================================================================
+
+#include "GpuAbstraction.h"
+
     // === PART 0 - INITIALISATION (before calculate_wavefunctions) ===
     // Reset the "matrix elements" - running sums of |M|^2 over helicities for the given event
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
     allMEs[ievt] = 0;
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     allNumerators[ievt] = 0;
@@ -36,7 +39,7 @@
     // === PART 1 - HELICITY LOOP: CALCULATE WAVEFUNCTIONS ===
     // (in both CUDA and C++, using precomputed good helicities)
 
-#ifdef __CUDACC__ // CUDA OR C++
+#ifdef MGONGPUCPP_GPUIMPL // CUDA OR C++
 
     // *** START OF PART 1a - CUDA (one event per CPU thread) ***
     // Running sum of partial amplitudes squared for event by event color selection (#402)
@@ -240,7 +243,7 @@
     // Get the final |M|^2 as an average over helicities/colors of the running sum of |M|^2 over helicities for the given event
     // [NB 'sum over final spins, average over initial spins', eg see
     // https://www.uzh.ch/cmsssl/physik/dam/jcr:2e24b7b1-f4d7-4160-817e-47b13dbf1d7c/Handout_4_2016-UZH.pdf]
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
     allMEs[ievt] /= helcolDenominators[0];
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     if( channelId > 0 ) allMEs[ievt] *= allNumerators[ievt] / allDenominators[ievt];

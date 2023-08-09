@@ -66,7 +66,6 @@ jobs:
     runs-on: [self-hosted, linux, a100]
     env:
       CUDA_HOME: /usr/local/cuda/
-      FC: gfortran
       REQUIRE_CUDA: 1
     strategy:
       matrix:
@@ -80,11 +79,11 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: make info
-      run: source /cvmfs/sft.cern.ch/lcg/releases/gcc/11.3.0-ad0f5/x86_64-centos8/setup.sh;
+      run: FC=`which gfortran`;
            make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} info
     - name: make
-      run: source /cvmfs/sft.cern.ch/lcg/releases/gcc/11.3.0-ad0f5/x86_64-centos8/setup.sh;
+      run: FC=`which gfortran`;
            make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }}
     - name: make check
-      run: source /cvmfs/sft.cern.ch/lcg/releases/gcc/11.3.0-ad0f5/x86_64-centos8/setup.sh;
+      run: FC=`which gfortran`;
            make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} check

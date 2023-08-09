@@ -4,7 +4,7 @@
 // Copyright (C) 2020-2023 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Modified by: S. Roiser (Feb 2020) for the MG5aMC CUDACPP plugin.
-// Further modified by: O. Mattelaer, S. Roiser, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: O. Mattelaer, S. Roiser, J. Teig, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
 //==========================================================================
 // This file has been automatically generated for CUDA/C++ standalone by
 // MadGraph5_aMC@NLO v. 3.5.0_lo_vect, 2023-06-09
@@ -16,7 +16,6 @@
 #define MG5_Sigma_sm_epem_mupmum_H 1
 
 #include "mgOnGpuConfig.h"
-#include "GpuRuntime.h"
 
 #include "mgOnGpuVectors.h"
 

@@ -10,7 +10,7 @@
 #
 #
 #   Bash script for compiling and executing physics processes using the MadGraph5_aMC@NLO GPU development framework
-#   using CUDA
+#   using CUDA/HIP
 #
 #   Author: Jorgen Teig, CERN 2023
 #
@@ -28,7 +28,7 @@ helpFunction()
     exit 1 # Exit script after printing help
 }
 
-while getopts "n:b:t:i:r:m:" opt
+while getopts "n:b:t:i:r:m:a:" opt
 do
     case "$opt" in
         n ) MG_PROC="$OPTARG" ;; #process to target
@@ -54,43 +54,56 @@ fi
 
 # Set variables for later use
 
-# Assumes that this is run from profiling directory in the repo
-prefix=$(pwd)
+# CUDA
+# Check if CUDA_HOME has not been set from the outside, usefull in CI/CD
+if [[ -z "$CUDA_HOME" ]]; then
+    COMPILER=$(which nvcc 2>/dev/null)
+    while [ -L "$COMPILER" ]; do
+        COMPILER=$(readlink "$COMPILER")
+    done
+    export COMPILER_PATH=$COMPILER
+
+    if [[ "$COMPILER_PATH" ]]; then
+        export CUDA_HOME=$(dirname $(dirname $COMPILER_PATH))
+        export PATH=$CUDA_HOME${PATH:+:${PATH}}
+    fi
+fi
+
+# HIP
+# Check if HIP_HOME has not been set from the outside, usefull in CI/CD
+if [[ -z "$HIP_HOME" ]]; then
+    COMPILER=$(which hipcc 2>/dev/null)
+    while [ -L "$COMPILER" ]; do
+        COMPILER=$(readlink "$COMPILER")
+    done
+    export COMPILER_PATH=$COMPILER
+
+    if [[ "$COMPILER_PATH" ]]; then
+        export HIP_HOME=$(dirname $(dirname $COMPILER_PATH))
+        export PATH=$HIP_HOME${PATH:+:${PATH}}
+    fi
+fi
+
+# Prefix for saving the JSON files in workspace folder in the tools/profiling directory
+prefix="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 
 export USEBUILDDIR=1
 export NTPBMAX=1024
-#export CXX=/cvmfs/sft.cern.ch/lcg/releases/gcc/11.3.0-ad0f5/x86_64-centos8/bin/g++
 export CXX=`which g++`
+export FC=`which gfortran`
+
 export MG_EXE="./gcheck.exe" #GPU
 #export MG_EXE="./check.exe" #CPU
-export CUDA_HOME=/usr/local/cuda-12.0/
-export FC=`which gfortran`
+
 export WORKSPACE=$prefix/workspace_mg4gpu
 
 REPORT_FOLDER="${WORKSPACE}/$(date +"%y-%m-%d")_${CUDA_NAME_PREFIX}_${branch}"
 
-# Sets CUDA in PATH
-export PATH=$CUDA_HOME:$PATH
-
 mkdir $WORKSPACE 2>/dev/null; true
 mkdir $REPORT_FOLDER 2>/dev/null; true
 
-# Finds correct subprocess
-case $MG_PROC in
-    ee_mumu ) export MG_SUBPROC="P1_Sigma_sm_epem_mupmum" ;;
-    ee_mumu.sa ) export MG_SUBPROC="P1_Sigma_sm_epem_mupmum" ;;
-    gg_tt ) export MG_SUBPROC="P1_Sigma_sm_gg_ttx" ;;
-    gg_tt.sa ) export MG_SUBPROC="P1_Sigma_sm_gg_ttx" ;;
-    gg_ttg ) export MG_SUBPROC="P1_Sigma_sm_gg_ttxg" ;;
-    gg_ttg.sa ) export MG_SUBPROC="P1_Sigma_sm_gg_ttxg" ;;
-    gg_ttgg ) export MG_SUBPROC="P1_Sigma_sm_gg_ttxgg" ;;
-    gg_ttgg.sa ) export MG_SUBPROC="P1_Sigma_sm_gg_ttxgg" ;;
-    gg_ttggg ) export MG_SUBPROC="P1_Sigma_sm_gg_ttxggg" ;;
-    gg_ttggg.sa ) export MG_SUBPROC="P1_Sigma_sm_gg_ttxggg" ;;
-esac
-
 export MG_PROC_DIR=$prefix/../../epochX/cudacpp/$MG_PROC
-export MG_SP_DIR=$MG_PROC_DIR/SubProcesses/$MG_SUBPROC
+export MG_SP_DIR=$MG_PROC_DIR/SubProcesses/P1_*
 export MG5AMC_CARD_PATH=$MG_PROC_DIR/Cards
 
 # Build executable

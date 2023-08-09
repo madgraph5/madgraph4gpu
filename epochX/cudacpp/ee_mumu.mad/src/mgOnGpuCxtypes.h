@@ -1,7 +1,7 @@
 // Copyright (C) 2020-2023 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: A. Valassi (Jan 2022, based on earlier work by D. Smith) for the MG5aMC CUDACPP plugin.
-// Further modified by: A. Valassi (2022-2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: J. Teig, A. Valassi (2022-2023) for the MG5aMC CUDACPP plugin.
 
 #ifndef MGONGPUCXTYPES_H
 #define MGONGPUCXTYPES_H 1
@@ -19,7 +19,6 @@
 #include <complex>
 
 // Complex type in cuda: thrust or cucomplex or cxsmpl
-// #define THRUST_IGNORE_CUB_VERSION_CHECK
 #ifdef MGONGPUCPP_GPUIMPL
 #if defined MGONGPU_CUCXTYPE_THRUST
 #pragma clang diagnostic push
@@ -202,7 +201,7 @@ namespace mgOnGpu
 {
 
   // --- Type definitions (complex type: cxtype)
-#ifdef MGONGPUCPP_CUDACC // cuda
+#ifdef MGONGPUCPP_GPUIMPL // cuda
 #if defined MGONGPU_CUCXTYPE_THRUST
   typedef thrust::complex<fptype> cxtype;
 #elif defined MGONGPU_CUCXTYPE_CUCOMPLEX
@@ -236,7 +235,7 @@ using mgOnGpu::cxtype;
 // COMPLEX TYPES: (PLATFORM-SPECIFIC) FUNCTIONS AND OPERATORS
 //==========================================================================
 
-#if defined MGONGPU_CUCXTYPE_CXSMPL or defined MGONGPU_CPPCXTYPE_CXSMPL or MGONGPUCPP_HIPCC
+#if defined MGONGPU_CUCXTYPE_CXSMPL or defined MGONGPU_CPPCXTYPE_CXSMPL
 
 //------------------------------
 // CUDA or C++ - using cxsmpl

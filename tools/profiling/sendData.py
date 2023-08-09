@@ -31,7 +31,7 @@ URL = 'https://dbod-madgraph4gpu-db.cern.ch:8082/api/v2/write?bucket=ProfilerDat
 secret = os.environ.get('MADGRAPH4GPU_DB_SECRET')
 AUTH = ['db_user', secret]
 PHYS_PROCESSES = ['ee_mumu', 'gg_ttggg', 'gg_ttgg', 'gg_ttg', 'gg_tt']
-ABS_LAYERS = ['SYCL', 'CUDA']
+ABS_LAYERS = ['SYCL', 'CUDA', 'HIP']
 BRANCH = 'master'
 FIELDS = ['EvtsPerSec[MatrixElems] (3)', 'EvtsPerSec[MECalcOnly] (3)']
 
@@ -85,6 +85,20 @@ if __name__=='__main__':
                 logging.error('CUDA report path does not exist!')
                 sys.exit(1)
 
+        elif args.absLayer.upper() == "HIP":
+
+            hipNamePrefix = os.getenv('HIP_NAME_PREFIX')
+
+            if cudaNamePrefix is None:
+                logging.error('HIP name prefix has not been set!')
+                sys.exit(1)
+
+            reportfolder= "workspace_mg4gpu/" + datetime.datetime.now().strftime('%y-%m-%d') + '_' + hipNamePrefix + '_' + args.branch
+
+            if not os.path.exists(reportfolder):
+                logging.error('CUDA report path does not exist!')
+                sys.exit(1)
+
         else:
             logging.error('No abstraction layer that is supported has been selected!')
             sys.exit(1)
@@ -123,11 +137,11 @@ if __name__=='__main__':
 
                 GCCVersion = fileNameParts[6].split('-')[1]
 
-                CUDAVersion = fileNameParts[7].split('-')[1]
+                GPUVersion = fileNameParts[7].split('-')[1]
 
                 gridsize = data[0]["NumThreadsPerBlock"] * data[0]["NumBlocksPerGrid"]
 
-                DBdata = f'{physicsProcess},CPU={CPU},GPU={GPU},AbstractionLayer={args.absLayer},GCCVersion={GCCVersion},CUDAVersion={CUDAVersion},NumThreadsPerBlock={data[0]["NumThreadsPerBlock"]},NumBlocksPerGrid={data[0]["NumBlocksPerGrid"]},NumIterations={data[0]["NumIterations"]} Gridsize={gridsize}'
+                DBdata = f'{physicsProcess},CPU={CPU},GPU={GPU},AbstractionLayer={args.absLayer},GCCVersion={GCCVersion},GPUVersion={GPUVersion},NumThreadsPerBlock={data[0]["NumThreadsPerBlock"]},NumBlocksPerGrid={data[0]["NumBlocksPerGrid"]},NumIterations={data[0]["NumIterations"]} Gridsize={gridsize}'
 
                 for field in FIELDS:
                     value = float(re.findall(r'[\d.]+',data[0][field])[0])

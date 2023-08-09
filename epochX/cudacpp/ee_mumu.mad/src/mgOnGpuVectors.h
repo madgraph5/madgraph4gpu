@@ -9,8 +9,6 @@
 #include "mgOnGpuCxtypes.h"
 #include "mgOnGpuFptypes.h"
 
-#include "GpuAbstraction.h" // Includes required macros for GPU abstraction
-
 #include <iostream>
 
 //==========================================================================

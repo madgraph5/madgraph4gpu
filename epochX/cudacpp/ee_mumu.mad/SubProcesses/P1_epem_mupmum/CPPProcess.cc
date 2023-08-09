@@ -4,7 +4,7 @@
 // Copyright (C) 2020-2023 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Modified by: S. Roiser (Feb 2020) for the MG5aMC CUDACPP plugin.
-// Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, A. Valassi, Z. Wettersten (2020-2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, J. Teig, A. Valassi, Z. Wettersten (2020-2023) for the MG5aMC CUDACPP plugin.
 //==========================================================================
 // This file has been automatically generated for CUDA/C++ standalone by
 // MadGraph5_aMC@NLO v. 3.5.0_lo_vect, 2023-06-09
@@ -17,7 +17,6 @@
 #include "mgOnGpuConfig.h"
 
 #include "HelAmps_sm.h"
-#include "GpuRuntime.h" // for GPU abstraction, checkGpu is run on macros defined here
 #include "MemoryAccessAmplitudes.h"
 #include "MemoryAccessCouplings.h"
 #include "MemoryAccessCouplingsFixed.h"
@@ -34,7 +33,6 @@
 
 #include <algorithm>
 #include <array>
-#include <cassert>
 #include <cstring>
 #include <iostream>
 #include <memory>
@@ -47,7 +45,7 @@
 // Class member functions for calculating the matrix elements for
 // Process: e+ e- > mu+ mu- WEIGHTED<=4 @1
 
-#ifdef MGONGPUCPP_GPUIMPL 
+#ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
@@ -193,7 +191,7 @@ namespace mg5amcCpu
 #endif
       constexpr size_t nxcoup = ndcoup + nicoup; // both dependent and independent couplings
       const fptype* allCOUPs[nxcoup];
-#ifdef MGONGPUCPP_GPUIMPL
+#ifdef __CUDACC__
 #pragma nv_diagnostic push
 #pragma nv_diag_suppress 186 // e.g. <<warning #186-D: pointless comparison of unsigned integer with zero>>
 #endif
@@ -202,7 +200,9 @@ namespace mg5amcCpu
       for( size_t iicoup = 0; iicoup < nicoup; iicoup++ )
         allCOUPs[ndcoup + iicoup] = CI_ACCESS::iicoupAccessBufferConst( cIPC, iicoup ); // independent couplings, fixed for all events
 #ifdef MGONGPUCPP_GPUIMPL
+#ifdef __CUDACC__
 #pragma nv_diagnostic pop
+#endif
       // CUDA kernels take input/output buffers with momenta/MEs for all events
       const fptype* momenta = allmomenta;
       const fptype* COUPs[nxcoup];
@@ -818,6 +818,9 @@ namespace mg5amcCpu
 #endif
 
     // Start sigmaKin_lines
+
+#include "GpuAbstraction.h"
+
     // === PART 0 - INITIALISATION (before calculate_wavefunctions) ===
     // Reset the "matrix elements" - running sums of |M|^2 over helicities for the given event
 #ifdef MGONGPUCPP_GPUIMPL
