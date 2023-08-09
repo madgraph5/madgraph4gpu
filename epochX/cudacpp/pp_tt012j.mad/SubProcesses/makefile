@@ -6,6 +6,7 @@ FFLAGS+= -w
 # Enable the C preprocessor https://gcc.gnu.org/onlinedocs/gfortran/Preprocessing-Options.html
 FFLAGS+= -cpp
 
+# Compile counters with -O3 as in the cudacpp makefile (avoid being "unfair" to Fortran #740)
 CXXFLAGS = -O3 -Wall -Wshadow -Wextra
 
 # Enable ccache if USECCACHE=1
