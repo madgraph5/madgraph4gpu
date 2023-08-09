@@ -18,6 +18,7 @@
 #include <cassert>
 #include <cmath>
 #include <cstring>
+#include <filesystem>
 #include <iostream>
 #include <memory>
 #include <type_traits>
@@ -251,7 +252,13 @@ namespace mg5amcCpu
     CPPProcess process( /*verbose=*/false );
     m_pmek.reset( new MatrixElementKernelHost( m_hstMomentaC, m_hstGs, m_hstRndHel, m_hstRndCol, m_hstMEs, m_hstSelHel, m_hstSelCol, m_nevt ) );
 #endif // __CUDACC__
-    process.initProc( "../../Cards/param_card.dat" );
+
+    std::string paramCard = "../../Cards/param_card.dat";
+    if( !std::filesystem::exists( paramCard ) )
+    {
+      paramCard = "../" + paramCard;
+    }
+    process.initProc( paramCard );
   }
 
 #ifdef __CUDACC__
