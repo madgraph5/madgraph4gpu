@@ -1,7 +1,7 @@
 // Copyright (C) 2020-2023 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: A. Valassi (Jan 2022) for the MG5aMC CUDACPP plugin.
-// Further modified by: J. Teig, A. Valassi (2022-2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: A. Valassi (2022-2023) for the MG5aMC CUDACPP plugin.
 
 #ifndef BRIDGEKERNELS_H
 #define BRIDGEKERNELS_H 1
@@ -12,7 +12,7 @@
 #include "MatrixElementKernels.h"
 #include "MemoryBuffers.h"
 
-#ifdef MGONGPUCPP_GPUIMPL
+#ifdef __CUDACC__
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
@@ -49,7 +49,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-#ifndef MGONGPUCPP_GPUIMPL
+#ifndef __CUDACC__
   // A Bridge wrapper class encapsulating matrix element calculations on a CPU host
   class BridgeKernelHost final : public BridgeKernelBase
   {
@@ -89,7 +89,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-#ifdef MGONGPUCPP_GPUIMPL
+#ifdef __CUDACC__
   // A Bridge wrapper class encapsulating matrix element calculations on a GPU device
   class BridgeKernelDevice : public BridgeKernelBase
   {

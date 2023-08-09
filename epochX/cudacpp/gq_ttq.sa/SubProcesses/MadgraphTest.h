@@ -1,7 +1,7 @@
 // Copyright (C) 2020-2023 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: S. Hageboeck (Dec 2020) for the MG5aMC CUDACPP plugin.
-// Further modified by: S. Hageboeck, J. Teig, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: S. Hageboeck, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
 
 #ifndef MADGRAPHTEST_H_
 #define MADGRAPHTEST_H_ 1
@@ -21,7 +21,7 @@
 #include <string>
 #include <vector>
 
-#ifdef MGONGPUCPP_GPUIMPL
+#ifdef __CUDACC__
 using mg5amcGpu::CPPProcess;
 #else
 using mg5amcCpu::CPPProcess;
@@ -200,22 +200,22 @@ protected:
 
 // Since we link both the CPU-only and GPU tests into the same executable, we prevent
 // a multiply defined symbol by only compiling this in the non-CUDA phase:
-#ifndef MGONGPUCPP_GPUIMPL
+#ifndef __CUDACC__
 
 /// Compare momenta and matrix elements.
 /// This uses an implementation of TestDriverBase to run a madgraph workflow,
 /// and compares momenta and matrix elements with a reference file.
 TEST_P( MadgraphTest, CompareMomentaAndME )
 {
-  // Set to true to dump events:
-  constexpr bool dumpEvents = false;
-  constexpr fptype energy = 1500; // historical default, Ecms = 1500 GeV = 1.5 TeV (above the Z peak)
-  const fptype toleranceMomenta = std::is_same<double, fptype>::value ? 1.E-10 : 3.E-2;
+  const fptype toleranceMomenta = std::is_same<double, fptype>::value ? 1.E-10 : 4.E-2; // see #735
 #ifdef __APPLE__
   const fptype toleranceMEs = std::is_same<double, fptype>::value ? 1.E-6 : 3.E-2; // see #583
 #else
   const fptype toleranceMEs = std::is_same<double, fptype>::value ? 1.E-6 : 2.E-3;
 #endif
+  constexpr fptype energy = 1500; // historical default, Ecms = 1500 GeV = 1.5 TeV (above the Z peak)
+  // Dump events to a new reference file?
+  constexpr bool dumpEvents = false;
   std::string dumpFileName = std::string( "dump_" ) + testing::UnitTest::GetInstance()->current_test_info()->test_suite_name() + '.' + testing::UnitTest::GetInstance()->current_test_info()->name() + ".txt";
   while( dumpFileName.find( '/' ) != std::string::npos )
   {
@@ -309,6 +309,6 @@ TEST_P( MadgraphTest, CompareMomentaAndME )
   }
 }
 
-#endif // MGONGPUCPP_GPUIMPL
+#endif // __CUDACC__
 
 #endif /* MADGRAPHTEST_H_ */

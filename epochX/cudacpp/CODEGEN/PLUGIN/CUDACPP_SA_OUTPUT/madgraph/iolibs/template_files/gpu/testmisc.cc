@@ -3,7 +3,7 @@
 // Created by: A. Valassi (Jan 2022) for the MG5aMC CUDACPP plugin.
 // Further modified by: J. Teig, A. Valassi (2022-2023) for the MG5aMC CUDACPP plugin.
 //----------------------------------------------------------------------------
-// Use ./runTest.exe --gtest_filter=*misc to run only this test
+// Use ./runTest.exe --gtest_filter=*misc to run only testmisc.cc tests
 //----------------------------------------------------------------------------
 
 #include "mgOnGpuConfig.h"
@@ -25,33 +25,48 @@
 
 #define XTESTID( s ) TESTID( s )
 
+// NB: namespaces mg5amcGpu and mg5amcCpu includes types which are defined in different ways for CPU and GPU builds (see #318 and #725)
+#ifdef MGONGPUCPP_GPUIMPL
+namespace mg5amcGpu
+#else
+namespace mg5amcCpu
+#endif
+{
 #ifdef MGONGPU_CPPSIMD /* clang-format off */
-bool maskand( const bool_v& mask ){ bool out = true; for ( int i=0; i<neppV; i++ ) out = out && mask[i]; return out; }
 #define EXPECT_TRUE_sv( cond ) { bool_v mask( cond ); EXPECT_TRUE( maskand( mask ) ); }
 #else
 #define EXPECT_TRUE_sv( cond ) { EXPECT_TRUE( cond ); }
 #endif /* clang-format on */
 
-inline const std::string
-boolTF( const bool& b )
-{
-  return ( b ? "T" : "F" );
-}
+  inline const std::string
+  boolTF( const bool& b )
+  {
+    return ( b ? "T" : "F" );
+  }
 
 #ifdef MGONGPU_CPPSIMD
-inline const std::string
-boolTF( const bool_v& v )
-{
-  std::stringstream out;
-  out << "{ " << ( v[0] ? "T" : "F" );
-  for( int i = 1; i < neppV; i++ ) out << ", " << ( v[i] ? "T" : "F" );
-  out << " }";
-  return out.str();
-}
+  inline const std::string
+  boolTF( const bool_v& v )
+  {
+    std::stringstream out;
+    out << "{ " << ( v[0] ? "T" : "F" );
+    for( int i = 1; i < neppV; i++ ) out << ", " << ( v[i] ? "T" : "F" );
+    out << " }";
+    return out.str();
+  }
 #endif
+}
 
 TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testmisc )
 {
+#ifdef MGONGPUCPP_GPUIMPL
+  using namespace mg5amcGpu;
+#else
+  using namespace mg5amcCpu;
+#endif
+
+  //--------------------------------------------------------------------------
+
   EXPECT_TRUE( true );
 
   //--------------------------------------------------------------------------

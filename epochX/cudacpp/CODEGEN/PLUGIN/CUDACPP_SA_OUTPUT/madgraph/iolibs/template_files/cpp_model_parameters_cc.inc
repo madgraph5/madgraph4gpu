@@ -15,6 +15,12 @@
 #include <iomanip>
 #include <iostream>
 
+#ifdef MGONGPUCPP_GPUIMPL
+using namespace mg5amcGpu;
+#else
+using namespace mg5amcCpu;
+#endif
+
 #ifndef MGONGPU_HARDCODE_PARAM
 
 // Initialize static instance

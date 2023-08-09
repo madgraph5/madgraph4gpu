@@ -38,7 +38,13 @@ endif
 
 #-------------------------------------------------------------------------------
 
-#=== Configure ccache for CUDA and C++ builds
+#=== Configure the CUDA compiler (note: GPUCC is already exported including ccache)
+
+###$(info GPUCC=$(GPUCC))
+
+#-------------------------------------------------------------------------------
+
+#=== Configure ccache for C++ builds (note: GPUCC is already exported including ccache)
 
 # Enable ccache if USECCACHE=1
 ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
@@ -46,11 +52,6 @@ ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
 endif
 #ifeq ($(USECCACHE)$(shell echo $(AR) | grep ccache),1)
 #  override AR:=ccache $(AR)
-#endif
-#ifneq ($(NVCC),)
-#  ifeq ($(USECCACHE)$(shell echo $(NVCC) | grep ccache),1)
-#    override NVCC:=ccache $(NVCC)
-#  endif
 #endif
 
 #-------------------------------------------------------------------------------
@@ -115,7 +116,9 @@ else ifneq ($(shell $(CXX) --version | grep ^nvc++),) # support nvc++ #531
     $(error Unknown AVX='$(AVX)': only 'none', 'sse4', 'avx2', '512y' and '512z' are supported)
   endif
 else
-  ifeq ($(AVX),sse4)
+  ifeq ($(AVX),none)
+    override AVXFLAGS = -march=x86-64 # no SIMD (see #588)
+  else ifeq ($(AVX),sse4)
     override AVXFLAGS = -march=nehalem # SSE4.2 with 128 width (xmm registers)
   else ifeq ($(AVX),avx2)
     override AVXFLAGS = -march=haswell # AVX2 with 256 width (ymm registers) [DEFAULT for clang]
@@ -216,7 +219,7 @@ MG5AMC_COMMONLIB = mg5amc_common
 all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/.build.$(TAG) $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so
 
 # Target (and build options): debug
-debug: OPTFLAGS = -g -O0 -DDEBUG2
+debug: OPTFLAGS = -g -O0
 debug: all.$(TAG)
 
 # Target: tag-specific build lockfiles
@@ -237,17 +240,31 @@ $(LIBDIR)/.build.$(TAG):
 
 # Generic target and build rules: objects from C++ compilation
 $(BUILDDIR)/%.o : %.cc *.h $(BUILDDIR)/.build.$(TAG)
-	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -fPIC -c $< -o $@
+
+# Generic target and build rules: objects from CUDA compilation
+$(BUILDDIR)/%_cu.o : %.cc *.h $(BUILDDIR)/.build.$(TAG)
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
+	$(GPUCC) $(CPPFLAGS) $(CUFLAGS) -Xcompiler -fPIC -c -x cu $< -o $@
 
 #-------------------------------------------------------------------------------
 
 cxx_objects=$(addprefix $(BUILDDIR)/, Parameters_sm.o read_slha.o)
+ifneq ($(GPUCC),)
+cu_objects=$(addprefix $(BUILDDIR)/, Parameters_sm_cu.o)
+endif
 
 # Target (and build rules): common (src) library
+ifneq ($(GPUCC),)
+$(LIBDIR)/lib$(MG5AMC_COMMONLIB).so : $(cxx_objects) $(cu_objects)
+	@if [ ! -d $(LIBDIR) ]; then echo "mkdir -p $(LIBDIR)"; mkdir -p $(LIBDIR); fi
+	$(GPUCC) -shared -o $@ $(cxx_objects) $(cu_objects)
+else
 $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so : $(cxx_objects)
 	@if [ ! -d $(LIBDIR) ]; then echo "mkdir -p $(LIBDIR)"; mkdir -p $(LIBDIR); fi
-	$(CXX) -shared -o$@ $(cxx_objects)
+	$(CXX) -shared -o $@ $(cxx_objects)
+endif
 
 #-------------------------------------------------------------------------------
 

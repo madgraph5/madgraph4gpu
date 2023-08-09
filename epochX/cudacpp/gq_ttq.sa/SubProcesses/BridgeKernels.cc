@@ -1,26 +1,25 @@
 // Copyright (C) 2020-2023 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: A. Valassi (Jan 2022) for the MG5aMC CUDACPP plugin.
-// Further modified by: J. Teig, A. Valassi (2022-2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: A. Valassi (2022-2023) for the MG5aMC CUDACPP plugin.
 
 #include "BridgeKernels.h"
 
-#include "GpuAbstraction.h"
 #include "MemoryAccessMomenta.h"
 
 #include <sstream>
 
-constexpr int np4 = CPPProcess::np4;   // dimensions of 4-momenta (E,px,py,pz)
-constexpr int npar = CPPProcess::npar; // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
-
 //============================================================================
 
-#ifdef MGONGPUCPP_GPUIMPL
+#ifdef __CUDACC__
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
 #endif
 {
+  constexpr int np4 = CPPProcess::np4;   // dimensions of 4-momenta (E,px,py,pz)
+  constexpr int npar = CPPProcess::npar; // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
+
   //--------------------------------------------------------------------------
 
   BridgeKernelBase::BridgeKernelBase( const BufferMomenta& momenta,         // input: momenta
@@ -46,7 +45,7 @@ namespace mg5amcCpu
 
 //============================================================================
 
-#ifndef MGONGPUCPP_GPUIMPL
+#ifndef __CUDACC__
 namespace mg5amcCpu
 {
 
@@ -97,7 +96,7 @@ namespace mg5amcCpu
 
 //============================================================================
 
-#ifdef MGONGPUCPP_GPUIMPL
+#ifdef __CUDACC__
 namespace mg5amcGpu
 {
 
