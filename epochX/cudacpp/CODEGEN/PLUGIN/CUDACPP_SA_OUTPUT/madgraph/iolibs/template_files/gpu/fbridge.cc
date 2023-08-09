@@ -49,11 +49,6 @@ extern "C"
 #ifdef __CUDACC__
     CudaRuntime::setUp();
 #endif
-    // Create a process object, read parm card and set parameters
-    // FIXME: the process instance can happily go out of scope because it is only needed to read parameters?
-    // FIXME: the CPPProcess should really be a singleton? what if fbridgecreate is called from several Fortran threads?
-    CPPProcess process( /*verbose=*/false );
-    process.initProc( "../../Cards/param_card.dat" );
     // FIXME: disable OMP in Bridge when called from Fortran
     *ppbridge = new Bridge<FORTRANFPTYPE>( *pnevtF, *pnparF, *pnp4F );
   }
