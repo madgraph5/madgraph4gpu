@@ -4,7 +4,9 @@ include ../../Source/make_opts
 FFLAGS+= -w
 
 # Enable the C preprocessor https://gcc.gnu.org/onlinedocs/gfortran/Preprocessing-Options.html
-FFLAGS+= -cpp 
+FFLAGS+= -cpp
+
+CXXFLAGS = -O3 -Wall -Wshadow -Wextra
 
 # Enable ccache if USECCACHE=1
 ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
@@ -149,10 +151,10 @@ $(CUDACPP_BUILDDIR)/$(PROG)_cpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) 
 $(CUDACPP_BUILDDIR)/$(PROG)_cuda: $(CUDACPP_BUILDDIR)/$(PROG)_cpp
 
 counters.o: counters.cc timer.h
-	$(CXX) -std=c++11 -Wall -Wshadow -Wextra -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 ompnumthreads.o: ompnumthreads.cc ompnumthreads.h
-	$(CXX) -I. -std=c++11 -Wall -Wshadow -Wextra $(OMPFLAGS) -c $< -o $@
+	$(CXX) -I. $(CXXFLAGS) $(OMPFLAGS) -c $< -o $@
 
 $(PROG)_forhel: $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX_HEL)
 	$(FC) -o $(PROG)_forhel $(PROCESS) $(MATRIX_HEL) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) $(OMPFLAGS)
