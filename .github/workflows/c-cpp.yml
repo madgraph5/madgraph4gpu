@@ -67,6 +67,7 @@ jobs:
     env:
       CUDA_HOME: /usr/local/cuda/
       REQUIRE_CUDA: 1
+      FC: gfortran
     strategy:
       matrix:
         folder: [ epochX/cudacpp/ee_mumu.sa/SubProcesses/P1_Sigma_sm_epem_mupmum,
@@ -79,11 +80,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: make info
-      run: FC=`which gfortran`;
-           make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} info
+      run: make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} info
     - name: make
-      run: FC=`which gfortran`;
-           make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }}
+      run: make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }}
     - name: make check
-      run: FC=`which gfortran`;
-           make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} check
+      run: make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} check
