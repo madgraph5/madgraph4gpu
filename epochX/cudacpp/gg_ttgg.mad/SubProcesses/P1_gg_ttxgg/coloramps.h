@@ -10,7 +10,6 @@ namespace mgOnGpu
 {
 
   __device__ constexpr bool icolamp[105][24] = {
-    { true, true, false, false, false, false, true, true, false, false, false, false, true, false, true, false, true, true, true, false, true, false, true, true },
     { true, false, false, false, false, false, true, false, false, false, false, false, true, false, true, false, false, false, true, false, true, false, true, true },
     { false, true, false, false, false, false, false, true, false, false, false, false, true, false, true, false, true, true, true, false, true, false, false, false },
     { true, true, false, false, false, false, true, true, false, false, false, false, false, false, false, false, true, true, false, false, false, false, true, true },
@@ -41,7 +40,6 @@ namespace mgOnGpu
     { false, false, true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false },
     { true, true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false },
     { true, true, false, true, false, true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false },
-    { true, true, true, true, true, true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false },
     { false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, false, false, false, false, false, false, false, false, false },
     { false, false, false, false, false, false, false, false, false, true, false, false, false, false, false, false, false, false, false, false, false, false, false, false },
     { false, false, false, false, false, false, false, false, false, true, false, true, false, false, false, false, false, false, false, false, false, false, false, false },
@@ -57,7 +55,6 @@ namespace mgOnGpu
     { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false },
     { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, false, false, true },
     { false, false, false, false, false, false, false, false, false, true, false, true, false, false, false, false, false, true, false, false, false, false, false, true },
-    { false, false, false, false, false, false, false, false, false, true, false, true, false, false, false, true, false, true, false, false, false, true, false, true },
     { false, false, false, false, false, false, false, false, false, false, true, true, false, false, false, false, false, false, false, false, false, false, false, false },
     { false, false, false, false, false, false, true, false, true, false, true, true, false, false, false, false, false, false, false, false, false, false, false, false },
     { false, false, false, false, false, false, true, false, true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false },
@@ -67,7 +64,6 @@ namespace mgOnGpu
     { false, false, true, true, false, false, false, false, false, false, false, false, true, true, false, false, false, false, false, false, false, false, false, false },
     { false, false, false, false, false, false, false, false, false, false, true, true, false, false, false, false, false, false, false, false, true, true, false, false },
     { false, false, true, true, false, false, false, false, false, false, true, true, true, true, false, false, false, false, false, false, true, true, false, false },
-    { false, false, true, true, false, false, true, false, true, false, true, true, true, true, false, false, false, false, false, true, true, true, true, false },
     { false, false, true, false, false, false, true, false, true, false, false, false, true, false, false, false, false, false, false, true, true, true, true, false },
     { false, false, false, true, false, false, true, false, true, false, true, true, false, true, false, false, false, false, false, true, false, false, true, false },
     { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, true, true, true, false },
@@ -83,7 +79,6 @@ namespace mgOnGpu
     { false, false, false, false, true, true, false, false, false, false, false, false, false, false, false, false, false, false, true, true, false, false, false, false },
     { false, false, false, false, false, false, false, false, true, true, false, false, false, false, true, true, false, false, false, false, false, false, false, false },
     { false, false, false, false, true, true, false, false, true, true, false, false, false, false, true, true, false, false, true, true, false, false, false, false },
-    { false, false, false, false, true, true, false, true, true, true, true, false, false, true, true, true, true, false, true, true, false, false, false, false },
     { false, false, false, false, true, false, false, true, false, false, true, false, false, true, true, true, true, false, true, false, false, false, false, false },
     { false, false, false, false, false, true, false, true, true, true, true, false, false, true, false, false, true, false, false, true, false, false, false, false },
     { false, false, false, false, false, false, false, false, false, false, false, false, false, true, true, true, true, false, false, false, false, false, false, false },
@@ -102,19 +97,24 @@ namespace mgOnGpu
     { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, false },
     { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, false, false, true, false },
     { false, false, false, true, false, true, false, false, false, false, false, false, false, false, false, false, true, false, false, false, false, false, true, false },
-    { true, false, true, false, true, true, false, false, true, true, false, false, false, false, true, true, false, false, true, true, false, true, false, true },
     { true, false, true, false, false, false, false, false, true, false, false, false, false, false, true, false, false, false, true, true, false, true, false, true },
     { true, false, true, false, true, true, false, false, false, true, false, false, false, false, false, true, false, false, false, false, false, true, false, true },
     { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, true, false, true, false, true },
     { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, true, false, false, false, false },
     { true, false, true, false, false, false, false, false, true, false, false, false, false, false, true, false, false, false, false, false, false, false, false, false },
     { false, false, false, false, false, false, false, false, true, false, false, false, false, false, true, false, false, false, false, false, false, false, false, false },
-    { false, true, true, true, true, false, false, false, false, false, true, true, true, true, false, true, false, true, false, false, true, true, false, false },
     { false, true, false, false, true, false, false, false, false, false, true, false, true, true, false, true, false, true, false, false, true, false, false, false },
     { false, true, true, true, true, false, false, false, false, false, false, true, false, false, false, true, false, true, false, false, false, true, false, false },
     { false, false, false, false, false, false, false, false, false, false, false, false, true, true, false, true, false, true, false, false, false, false, false, false },
     { false, false, false, false, false, false, false, false, false, false, false, false, true, true, false, false, false, false, false, false, false, false, false, false },
-    { false, true, false, false, true, false, false, false, false, false, true, false, false, false, false, false, false, false, false, false, true, false, false, false }
+    { false, true, false, false, true, false, false, false, false, false, true, false, false, false, false, false, false, false, false, false, true, false, false, false },
+    { false, false, false, false, false, false, false, false, false, false, true, false, false, false, false, false, false, false, false, false, true, false, false, false },
+    { true, true, false, true, false, true, false, false, false, true, false, true, false, false, false, false, false, true, false, false, false, false, false, true },
+    { false, false, false, true, false, true, true, true, false, true, false, true, false, false, false, false, true, false, false, false, false, false, true, false },
+    { false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, false, false, false, false, false, false, false, false },
+    { false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, false, false, false, false, false, false },
+    { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, false, false },
+    { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false }
   };
 
 }
