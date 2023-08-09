@@ -61,10 +61,6 @@ set zerowidth_tchannel F
 set auto_convert_model T; import model heft; generate g g > h
 save options auto_convert_model
 save configuration file to /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/input/mg5_configuration.txt
-INFO: reload from .py file 
-INFO: load particles 
-INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.00494837760925293 [0m
 INFO: Restrict model heft with file models/heft/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: s u w+ at order: QED=1 [0m
@@ -199,6 +195,6 @@ INFO: /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_heft_gg_h/src
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.finalize [1;30m[output.py at line 203][0m [0m
 quit
 
-real	0m0.479s
-user	0m0.419s
-sys	0m0.048s
+real	0m0.849s
+user	0m0.399s
+sys	0m0.046s
