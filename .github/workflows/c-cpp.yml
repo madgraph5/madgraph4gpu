@@ -65,7 +65,7 @@ jobs:
   GPU:
     runs-on: [self-hosted, linux, a100]
     env:
-      CUDA_HOME: /usr/local/cuda-12.0/
+      CUDA_HOME: /usr/local/cuda/
       REQUIRE_CUDA: 1
     strategy:
       matrix:
