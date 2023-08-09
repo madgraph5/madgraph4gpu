@@ -38,13 +38,13 @@ endif
 
 #-------------------------------------------------------------------------------
 
-#=== Configure the CUDA compiler (note: NVCC is already exported including ccache)
+#=== Configure the CUDA compiler (note: GPUCC is already exported including ccache)
 
-###$(info NVCC=$(NVCC))
+###$(info GPUCC=$(GPUCC))
 
 #-------------------------------------------------------------------------------
 
-#=== Configure ccache for C++ builds (note: NVCC is already exported including ccache)
+#=== Configure ccache for C++ builds (note: GPUCC is already exported including ccache)
 
 # Enable ccache if USECCACHE=1
 ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
@@ -246,20 +246,20 @@ $(BUILDDIR)/%.o : %.cc *.h $(BUILDDIR)/.build.$(TAG)
 # Generic target and build rules: objects from CUDA compilation
 $(BUILDDIR)/%_cu.o : %.cc *.h $(BUILDDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -Xcompiler -fPIC -c -x cu $< -o $@
+	$(GPUCC) $(CPPFLAGS) $(CUFLAGS) -Xcompiler -fPIC -c -x cu $< -o $@
 
 #-------------------------------------------------------------------------------
 
 cxx_objects=$(addprefix $(BUILDDIR)/, Parameters_sm.o read_slha.o)
-ifneq ($(NVCC),)
+ifneq ($(GPUCC),)
 cu_objects=$(addprefix $(BUILDDIR)/, Parameters_sm_cu.o)
 endif
 
 # Target (and build rules): common (src) library
-ifneq ($(NVCC),)
+ifneq ($(GPUCC),)
 $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so : $(cxx_objects) $(cu_objects)
 	@if [ ! -d $(LIBDIR) ]; then echo "mkdir -p $(LIBDIR)"; mkdir -p $(LIBDIR); fi
-	$(NVCC) -shared -o $@ $(cxx_objects) $(cu_objects)
+	$(GPUCC) -shared -o $@ $(cxx_objects) $(cu_objects)
 else
 $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so : $(cxx_objects)
 	@if [ ! -d $(LIBDIR) ]; then echo "mkdir -p $(LIBDIR)"; mkdir -p $(LIBDIR); fi
