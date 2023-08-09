@@ -1,7 +1,7 @@
 // Copyright (C) 2020-2023 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: S. Roiser (Nov 2021) for the MG5aMC CUDACPP plugin.
-// Further modified by: S. Roiser, J. Teig, A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: S. Roiser, A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
 
 #ifndef BRIDGE_H
 #define BRIDGE_H 1
@@ -22,7 +22,7 @@
 #include <memory>
 #include <type_traits>
 
-#ifdef MGONGPUCPP_GPUIMPL
+#ifdef __CUDACC__
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
@@ -82,7 +82,7 @@ namespace mg5amcCpu
     Bridge& operator=( const Bridge& ) = delete;
     Bridge& operator=( Bridge&& ) = delete;
 
-#ifdef MGONGPUCPP_GPUIMPL
+#ifdef __CUDACC__
     /**
      * Set the gpublocks and gputhreads for the gpusequence - throws if evnt != gpublocks*gputhreads
      * (this is needed for BridgeKernel tests rather than for actual production use in Fortran)
@@ -149,35 +149,35 @@ namespace mg5amcCpu
     unsigned int m_nevt; // number of events
     int m_nGoodHel;      // the number of good helicities (-1 initially when they have not yet been calculated)
 
-#ifdef MGONGPUCPP_GPUIMPL
+#ifdef __CUDACC__
     int m_gputhreads; // number of gpu threads (default set from number of events, can be modified)
     int m_gpublocks;  // number of gpu blocks (default set from number of events, can be modified)
-    mg5amcGpu::DeviceBuffer<FORTRANFPTYPE, sizePerEventMomenta> m_devMomentaF;
-    mg5amcGpu::DeviceBufferMomenta m_devMomentaC;
-    mg5amcGpu::DeviceBufferGs m_devGs;
-    mg5amcGpu::DeviceBufferRndNumHelicity m_devRndHel;
-    mg5amcGpu::DeviceBufferRndNumColor m_devRndCol;
-    mg5amcGpu::DeviceBufferMatrixElements m_devMEs;
-    mg5amcGpu::DeviceBufferSelectedHelicity m_devSelHel;
-    mg5amcGpu::DeviceBufferSelectedColor m_devSelCol;
-    mg5amcGpu::PinnedHostBufferGs m_hstGs;
-    mg5amcGpu::PinnedHostBufferRndNumHelicity m_hstRndHel;
-    mg5amcGpu::PinnedHostBufferRndNumColor m_hstRndCol;
-    mg5amcGpu::PinnedHostBufferMatrixElements m_hstMEs;
-    mg5amcGpu::PinnedHostBufferSelectedHelicity m_hstSelHel;
-    mg5amcGpu::PinnedHostBufferSelectedColor m_hstSelCol;
-    std::unique_ptr<mg5amcGpu::MatrixElementKernelDevice> m_pmek;
+    DeviceBuffer<FORTRANFPTYPE, sizePerEventMomenta> m_devMomentaF;
+    DeviceBufferMomenta m_devMomentaC;
+    DeviceBufferGs m_devGs;
+    DeviceBufferRndNumHelicity m_devRndHel;
+    DeviceBufferRndNumColor m_devRndCol;
+    DeviceBufferMatrixElements m_devMEs;
+    DeviceBufferSelectedHelicity m_devSelHel;
+    DeviceBufferSelectedColor m_devSelCol;
+    PinnedHostBufferGs m_hstGs;
+    PinnedHostBufferRndNumHelicity m_hstRndHel;
+    PinnedHostBufferRndNumColor m_hstRndCol;
+    PinnedHostBufferMatrixElements m_hstMEs;
+    PinnedHostBufferSelectedHelicity m_hstSelHel;
+    PinnedHostBufferSelectedColor m_hstSelCol;
+    std::unique_ptr<MatrixElementKernelDevice> m_pmek;
     //static constexpr int s_gputhreadsmin = 16; // minimum number of gpu threads (TEST VALUE FOR MADEVENT)
     static constexpr int s_gputhreadsmin = 32; // minimum number of gpu threads (DEFAULT)
 #else
-    mg5amcCpu::HostBufferMomenta m_hstMomentaC;
-    mg5amcCpu::HostBufferGs m_hstGs;
-    mg5amcCpu::HostBufferRndNumHelicity m_hstRndHel;
-    mg5amcCpu::HostBufferRndNumColor m_hstRndCol;
-    mg5amcCpu::HostBufferMatrixElements m_hstMEs;
-    mg5amcCpu::HostBufferSelectedHelicity m_hstSelHel;
-    mg5amcCpu::HostBufferSelectedColor m_hstSelCol;
-    std::unique_ptr<mg5amcCpu::MatrixElementKernelHost> m_pmek;
+    HostBufferMomenta m_hstMomentaC;
+    HostBufferGs m_hstGs;
+    HostBufferRndNumHelicity m_hstRndHel;
+    HostBufferRndNumColor m_hstRndCol;
+    HostBufferMatrixElements m_hstMEs;
+    HostBufferSelectedHelicity m_hstSelHel;
+    HostBufferSelectedColor m_hstSelCol;
+    std::unique_ptr<MatrixElementKernelHost> m_pmek;
 #endif
   };
 
@@ -186,12 +186,12 @@ namespace mg5amcCpu
   // Forward declare transposition methods
   //
 
-#ifdef MGONGPUCPP_GPUIMPL
+#ifdef __CUDACC__
 
   template<typename Tin, typename Tout>
   __global__ void dev_transposeMomentaF2C( const Tin* in, Tout* out, const unsigned int nevt );
 
-#endif // MGONGPUCPP_GPUIMPL
+#endif // __CUDACC__
 
   template<typename Tin, typename Tout>
   void hst_transposeMomentaF2C( const Tin* in, Tout* out, const unsigned int nevt );
@@ -208,7 +208,7 @@ namespace mg5amcCpu
   Bridge<FORTRANFPTYPE>::Bridge( unsigned int nevtF, unsigned int nparF, unsigned int np4F )
     : m_nevt( nevtF )
     , m_nGoodHel( -1 )
-#ifdef MGONGPUCPP_GPUIMPL
+#ifdef __CUDACC__
     , m_gputhreads( 256 )                  // default number of gpu threads
     , m_gpublocks( m_nevt / m_gputhreads ) // this ensures m_nevt <= m_gpublocks*m_gputhreads
     , m_devMomentaF( m_nevt )
@@ -232,7 +232,7 @@ namespace mg5amcCpu
   {
     if( nparF != CPPProcess::npar ) throw std::runtime_error( "Bridge constructor: npar mismatch" );
     if( np4F != CPPProcess::np4 ) throw std::runtime_error( "Bridge constructor: np4 mismatch" );
-#ifdef MGONGPUCPP_GPUIMPL
+#ifdef __CUDACC__
     if( ( m_nevt < s_gputhreadsmin ) || ( m_nevt % s_gputhreadsmin != 0 ) )
       throw std::runtime_error( "Bridge constructor: nevt should be a multiple of " + std::to_string( s_gputhreadsmin ) );
     while( m_nevt != m_gpublocks * m_gputhreads )
@@ -244,17 +244,17 @@ namespace mg5amcCpu
     }
     std::cout << "WARNING! Instantiate device Bridge (nevt=" << m_nevt << ", gpublocks=" << m_gpublocks << ", gputhreads=" << m_gputhreads
               << ", gpublocks*gputhreads=" << m_gpublocks * m_gputhreads << ")" << std::endl;
-    mg5amcGpu::CPPProcess process( /*verbose=*/false );
-    m_pmek.reset( new mg5amcGpu::MatrixElementKernelDevice( m_devMomentaC, m_devGs, m_devRndHel, m_devRndCol, m_devMEs, m_devSelHel, m_devSelCol, m_gpublocks, m_gputhreads ) );
+    CPPProcess process( /*verbose=*/false );
+    m_pmek.reset( new MatrixElementKernelDevice( m_devMomentaC, m_devGs, m_devRndHel, m_devRndCol, m_devMEs, m_devSelHel, m_devSelCol, m_gpublocks, m_gputhreads ) );
 #else
     std::cout << "WARNING! Instantiate host Bridge (nevt=" << m_nevt << ")" << std::endl;
-    mg5amcCpu::CPPProcess process( /*verbose=*/false );
-    m_pmek.reset( new mg5amcCpu::MatrixElementKernelHost( m_hstMomentaC, m_hstGs, m_hstRndHel, m_hstRndCol, m_hstMEs, m_hstSelHel, m_hstSelCol, m_nevt ) );
-#endif // MGONGPUCPP_GPUIMPL
+    CPPProcess process( /*verbose=*/false );
+    m_pmek.reset( new MatrixElementKernelHost( m_hstMomentaC, m_hstGs, m_hstRndHel, m_hstRndCol, m_hstMEs, m_hstSelHel, m_hstSelCol, m_nevt ) );
+#endif // __CUDACC__
     process.initProc( "../../Cards/param_card.dat" );
   }
 
-#ifdef MGONGPUCPP_GPUIMPL
+#ifdef __CUDACC__
   template<typename FORTRANFPTYPE>
   void Bridge<FORTRANFPTYPE>::set_gpugrid( const int gpublocks, const int gputhreads )
   {
@@ -268,7 +268,7 @@ namespace mg5amcCpu
   }
 #endif
 
-#ifdef MGONGPUCPP_GPUIMPL
+#ifdef __CUDACC__
   template<typename FORTRANFPTYPE>
   void Bridge<FORTRANFPTYPE>::gpu_sequence( const FORTRANFPTYPE* momenta,
                                             const FORTRANFPTYPE* gs,
@@ -283,14 +283,14 @@ namespace mg5amcCpu
     constexpr int neppM = MemoryAccessMomenta::neppM;
     if constexpr( neppM == 1 && std::is_same_v<FORTRANFPTYPE, fptype> )
     {
-      gpuMemcpy( m_devMomentaC.data(), momenta, m_devMomentaC.bytes(), gpuMemcpyHostToDevice );
+      checkCuda( cudaMemcpy( m_devMomentaC.data(), momenta, m_devMomentaC.bytes(), cudaMemcpyHostToDevice ) );
     }
     else
     {
-      gpuMemcpy( m_devMomentaF.data(), momenta, m_devMomentaF.bytes(), gpuMemcpyHostToDevice );
+      checkCuda( cudaMemcpy( m_devMomentaF.data(), momenta, m_devMomentaF.bytes(), cudaMemcpyHostToDevice ) );
       const int thrPerEvt = CPPProcess::npar * CPPProcess::np4; // AV: transpose alg does 1 element per thread (NOT 1 event per thread)
       //const int thrPerEvt = 1; // AV: try new alg with 1 event per thread... this seems slower
-      gpuLaunchKernel( dev_transposeMomentaF2C, m_gpublocks * thrPerEvt, m_gputhreads, m_devMomentaF.data(), m_devMomentaC.data(), m_nevt );
+      dev_transposeMomentaF2C<<<m_gpublocks * thrPerEvt, m_gputhreads>>>( m_devMomentaF.data(), m_devMomentaC.data(), m_nevt );
     }
     if constexpr( std::is_same_v<FORTRANFPTYPE, fptype> )
     {
@@ -333,7 +333,7 @@ namespace mg5amcCpu
   }
 #endif
 
-#ifndef MGONGPUCPP_GPUIMPL
+#ifndef __CUDACC__
   template<typename FORTRANFPTYPE>
   void Bridge<FORTRANFPTYPE>::cpu_sequence( const FORTRANFPTYPE* momenta,
                                             const FORTRANFPTYPE* gs,
@@ -388,7 +388,7 @@ namespace mg5amcCpu
   // - C++ array: momenta[npagM][npar][np4][neppM] with nevt=npagM*neppM (AOSOA)
   //
 
-#ifdef MGONGPUCPP_GPUIMPL
+#ifdef __CUDACC__
   template<typename Tin, typename Tout>
   __global__ void dev_transposeMomentaF2C( const Tin* in, Tout* out, const unsigned int nevt )
   {

@@ -176,7 +176,8 @@ for step in $steps; do
               printf "*** ./throughputX.sh $args | tee $logfile"
               printf "\n%80s\n" |tr " " "*"
               mkdir -p $(dirname $logfile)
-              if ! ./throughputX.sh $args -gtest | tee $logfile; then status=2; fi
+              ./throughputX.sh $args -gtest | tee $logfile 
+              if [ ${PIPESTATUS[0]} -ne "0" ]; then status=2; fi
             fi
           done
         done

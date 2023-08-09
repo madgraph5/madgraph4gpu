@@ -1,12 +1,12 @@
 // Copyright (C) 2020-2023 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: A. Valassi (Jan 2022) for the MG5aMC CUDACPP plugin.
-// Further modified by: J. Teig, A. Valassi (2022-2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: A. Valassi (2022-2023) for the MG5aMC CUDACPP plugin.
 
 #include "MatrixElementKernels.h"
 
 #include "CPPProcess.h"
-#include "GpuRuntime.h" // Includes the abstraction for Nvidia/AMD compilation
+#include "CudaRuntime.h"
 #include "MemoryAccessMomenta.h"
 #include "MemoryBuffers.h"
 
@@ -14,7 +14,7 @@
 
 //============================================================================
 
-#ifndef MGONGPUCPP_GPUIMPL
+#ifndef __CUDACC__
 namespace mg5amcCpu
 {
 
@@ -143,7 +143,7 @@ namespace mg5amcCpu
 
 //============================================================================
 
-#ifdef MGONGPUCPP_GPUIMPL
+#ifdef __CUDACC__
 namespace mg5amcGpu
 {
 
@@ -202,13 +202,13 @@ namespace mg5amcGpu
     PinnedHostBufferHelicityMask hstIsGoodHel( ncomb );
     DeviceBufferHelicityMask devIsGoodHel( ncomb );
     // ... 0d1. Compute good helicity mask on the device
-    gpuLaunchKernel( computeDependentCouplings, m_gpublocks, m_gputhreads, m_gs.data(), m_couplings.data() );
+    computeDependentCouplings<<<m_gpublocks, m_gputhreads>>>( m_gs.data(), m_couplings.data() );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    gpuLaunchKernel( sigmaKin_getGoodHel, m_gpublocks, m_gputhreads, m_momenta.data(), m_couplings.data(), m_matrixElements.data(), m_numerators.data(), m_denominators.data(), devIsGoodHel.data() );
+    sigmaKin_getGoodHel<<<m_gpublocks, m_gputhreads>>>( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), m_numerators.data(), m_denominators.data(), devIsGoodHel.data() );
 #else
-    gpuLaunchKernel( sigmaKin_getGoodHel, m_gpublocks, m_gputhreads, m_momenta.data(), m_couplings.data(), m_matrixElements.data(), devIsGoodHel.data() );
+    sigmaKin_getGoodHel<<<m_gpublocks, m_gputhreads>>>( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), devIsGoodHel.data() );
 #endif
-    checkGpu( gpuPeekAtLastError() );
+    checkCuda( cudaPeekAtLastError() );
     // ... 0d2. Copy back good helicity mask to the host
     copyHostFromDevice( hstIsGoodHel, devIsGoodHel );
     // ... 0d3. Copy back good helicity list to constant memory on the device
@@ -219,19 +219,19 @@ namespace mg5amcGpu
 
   void MatrixElementKernelDevice::computeMatrixElements( const unsigned int channelId )
   {
-    gpuLaunchKernel( computeDependentCouplings, m_gpublocks, m_gputhreads, m_gs.data(), m_couplings.data() );
+    computeDependentCouplings<<<m_gpublocks, m_gputhreads>>>( m_gs.data(), m_couplings.data() );
 #ifndef MGONGPU_NSIGHT_DEBUG
     constexpr unsigned int sharedMemSize = 0;
 #else
     constexpr unsigned int sharedMemSize = ntpbMAX * sizeof( float );
 #endif
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    gpuLaunchKernelSharedMem( sigmaKin, m_gpublocks, m_gputhreads, sharedMemSize, m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), channelId, m_numerators.data(), m_denominators.data(), m_selhel.data(), m_selcol.data() );
+    sigmaKin<<<m_gpublocks, m_gputhreads, sharedMemSize>>>( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), channelId, m_numerators.data(), m_denominators.data(), m_selhel.data(), m_selcol.data() );
 #else
-    gpuLaunchKernelSharedMem( sigmaKin, m_gpublocks, m_gputhreads, sharedMemSize, m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), m_selhel.data(), m_selcol.data() );
+    sigmaKin<<<m_gpublocks, m_gputhreads, sharedMemSize>>>( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), m_selhel.data(), m_selcol.data() );
 #endif
-    checkGpu( gpuPeekAtLastError() );
-    checkGpu( gpuDeviceSynchronize() );
+    checkCuda( cudaPeekAtLastError() );
+    checkCuda( cudaDeviceSynchronize() );
   }
 
   //--------------------------------------------------------------------------
