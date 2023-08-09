@@ -120,6 +120,7 @@ done
 cd - > /dev/null
 
 # Patch the default cudacpp code to fix a bug in coloramps
+# ** NEW AUG 2023: DISABLING THE COLORAMPS PATCH FIXES THE LHE COLOR MISMATCH IN GG_TTGG (#655 and #713) **
 # (3) Process-dependent patches
 #for p1dir in ${dir}/SubProcesses/P*; do
 #  cd $p1dir
