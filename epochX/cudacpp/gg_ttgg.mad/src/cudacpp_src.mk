@@ -86,8 +86,10 @@ endif
 CXXFLAGS += $(OMPFLAGS)
 
 # Add correct -DHIP_LATFORM when compiling for HIP
-ifeq ($(findstring hipcc,$(GPUCC)),hipcc)
-  CUFLAGS += -DHIP_PLATFORM=amd
+ifeq ($(findstring nvcc,$(GPUCC)),nvcc)
+  CUFLAGS += -Xcompiler -fPIC -c -x cu
+else ifeq ($(findstring hipcc,$(GPUCC)),hipcc)
+  CUFLAGS += -DHIP_PLATFORM=amd -Xcompiler -fPIC
 endif
 
 # Set the build flags appropriate to each AVX choice (example: "make AVX=none")
@@ -251,7 +253,7 @@ $(BUILDDIR)/%.o : %.cc *.h $(BUILDDIR)/.build.$(TAG)
 # Generic target and build rules: objects from CUDA compilation
 $(BUILDDIR)/%_cu.o : %.cc *.h $(BUILDDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	$(GPUCC) $(CPPFLAGS) $(CUFLAGS) -Xcompiler -fPIC -c -x cu $< -o $@
+	$(GPUCC) $(CPPFLAGS) $(CUFLAGS) $< -o $@
 
 #-------------------------------------------------------------------------------
 
