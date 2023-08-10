@@ -19,7 +19,7 @@ SHELL := /bin/bash
 #=== Configure common compiler flags for CUDA and C++
 
 INCFLAGS = -I.
-OPTFLAGS = -O3 # this ends up in CUFLAGS too (should it?), cannot add -Ofast or -ffast-math here
+OPTFLAGS = -O3 # this ends up in GPUFLAGS too (should it?), cannot add -Ofast or -ffast-math here
 
 #-------------------------------------------------------------------------------
 
@@ -84,6 +84,13 @@ endif
 # Set the build flags appropriate to OMPFLAGS
 ###$(info OMPFLAGS=$(OMPFLAGS))
 CXXFLAGS += $(OMPFLAGS)
+
+# Add correct -DHIP_LATFORM when compiling for HIP
+ifeq ($(findstring nvcc,$(GPUCC)),nvcc)
+  GPUFLAGS += -Xcompiler -fPIC -c -x cu
+else ifeq ($(findstring hipcc,$(GPUCC)),hipcc)
+  GPUFLAGS += $(HIPARCHFLAGS) -DHIP_PLATFORM=amd -fPIC -c
+endif
 
 # Set the build flags appropriate to each AVX choice (example: "make AVX=none")
 # [NB MGONGPU_PVW512 is needed because "-mprefer-vector-width=256" is not exposed in a macro]
@@ -246,7 +253,7 @@ $(BUILDDIR)/%%.o : %%.cc *.h $(BUILDDIR)/.build.$(TAG)
 # Generic target and build rules: objects from CUDA compilation
 $(BUILDDIR)/%%_cu.o : %%.cc *.h $(BUILDDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	$(GPUCC) $(CPPFLAGS) $(CUFLAGS) -Xcompiler -fPIC -c -x cu $< -o $@
+	$(GPUCC) $(CPPFLAGS) $(GPUFLAGS) $< -o $@
 
 #-------------------------------------------------------------------------------
 

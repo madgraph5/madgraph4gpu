@@ -163,8 +163,6 @@ ifeq ($(findstring nvcc,$(CUDA_COMPILER_PATH)),nvcc)
     override CUINC=
     override CURANDLIBFLAGS=
   endif
-  export GPUCC
-  export GPUFLAGS
 
   # Set the host C++ compiler for GPUCC via "-ccbin <host-compiler>"
   # (NB issue #505: this must be a single word, "clang++ --gcc-toolchain..." is not supported)
@@ -215,6 +213,8 @@ else ifeq ($(findstring hipcc,$(HIP_COMPILER_PATH)),hipcc)
     CUBUILDRULEFLAGS = -fPIC -c
     CCBUILDRULEFLAGS = -fPIC -c
 
+    export HIPARCHFLAGS
+
   else ifneq ($(origin REQUIRE_HIP),undefined)
     # If REQUIRE_HIP is set but no cuda is found, stop here (e.g. for CI tests on GPU #443)
     $(error No hip installation found (set HIP_HOME or make GPUCC visible in PATH))
@@ -233,6 +233,9 @@ else ifeq ($(findstring hipcc,$(HIP_COMPILER_PATH)),hipcc)
   endif
 
 endif
+
+export GPUCC
+export GPUFLAGS
 
 #-------------------------------------------------------------------------------
 
