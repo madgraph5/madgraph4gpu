@@ -89,7 +89,7 @@ CXXFLAGS += $(OMPFLAGS)
 ifeq ($(findstring nvcc,$(GPUCC)),nvcc)
   GPUFLAGS += -Xcompiler -fPIC -c -x cu
 else ifeq ($(findstring hipcc,$(GPUCC)),hipcc)
-  GPUFLAGS += -std=c++17 $(HIPARCHFLAGS) -DHIP_PLATFORM=amd -fPIC -c
+  GPUFLAGS += -fPIC -c
 endif
 
 # Set the build flags appropriate to each AVX choice (example: "make AVX=none")
