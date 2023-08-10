@@ -92,7 +92,7 @@ namespace mg5amcCpu
   inline __host__ std::ostream&
   operator<<( std::ostream& out, const cxsmpl<FP>& c )
   {
-    out << std::complex( c.real(), c.imag() );
+    out << std::complex<FP>( c.real(), c.imag() );
     return out;
   }
 
