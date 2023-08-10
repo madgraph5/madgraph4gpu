@@ -213,6 +213,8 @@ else ifeq ($(findstring hipcc,$(HIP_COMPILER_PATH)),hipcc)
     CUBUILDRULEFLAGS = -fPIC -c
     CCBUILDRULEFLAGS = -fPIC -c
 
+    export HIPARCHFLAGS
+
   else ifneq ($(origin REQUIRE_HIP),undefined)
     # If REQUIRE_HIP is set but no cuda is found, stop here (e.g. for CI tests on GPU #443)
     $(error No hip installation found (set HIP_HOME or make GPUCC visible in PATH))
