@@ -163,8 +163,6 @@ ifeq ($(findstring nvcc,$(CUDA_COMPILER_PATH)),nvcc)
     override CUINC=
     override CURANDLIBFLAGS=
   endif
-  export GPUCC
-  export GPUFLAGS
 
   # Set the host C++ compiler for GPUCC via "-ccbin <host-compiler>"
   # (NB issue #505: this must be a single word, "clang++ --gcc-toolchain..." is not supported)
@@ -235,6 +233,9 @@ else ifeq ($(findstring hipcc,$(HIP_COMPILER_PATH)),hipcc)
   endif
 
 endif
+
+export GPUCC
+export GPUFLAGS
 
 #-------------------------------------------------------------------------------
 
