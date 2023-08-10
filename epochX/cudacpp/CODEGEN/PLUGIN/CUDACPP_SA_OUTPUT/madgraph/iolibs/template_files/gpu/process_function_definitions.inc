@@ -251,7 +251,7 @@ namespace mg5amcCpu
                        fptype* allDenominators,    // output: multichannel denominators[nevt], running_sum_over_helicities
 #endif
                        bool* isGoodHel )           // output: isGoodHel[ncomb] - device array (CUDA implementation)
-  { /* clang-format on */
+  {                                                         /* clang-format on */
     const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
     for( int ihel = 0; ihel < ncomb; ihel++ )
     {
