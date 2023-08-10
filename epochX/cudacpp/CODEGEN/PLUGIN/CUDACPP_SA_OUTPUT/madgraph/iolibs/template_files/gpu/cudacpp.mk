@@ -179,11 +179,11 @@ ifeq ($(findstring nvcc,$(CUDA_COMPILER_PATH)),nvcc)
 else ifeq ($(findstring hipcc,$(HIP_COMPILER_PATH)),hipcc)
   #=== Configure the HIP compiler
 
-  # If CXX is not a single word (example "clang++ --gcc-toolchain...") then disable CUDA builds (issue #505)
+  # If CXX is not a single word (example "clang++ --gcc-toolchain...") then disable CUDA/HIP builds (issue #505)
   # This is because it is impossible to pass this to "GPUFLAGS += -ccbin <host-compiler>" below
   ifneq ($(words $(subst ccache ,,$(CXX))),1) # allow at most "CXX=ccache <host-compiler>" from outside
-    $(warning CUDA builds are not supported for multi-word CXX "$(CXX)")
-    override CUDA_HOME=disabled
+    $(warning HIP builds are not supported for multi-word CXX "$(CXX)")
+    override HIP_HOME=disabled
   endif
 
   # If HIP_HOME is not set, try to set it from the location of GPUCC
@@ -216,8 +216,6 @@ else ifeq ($(findstring hipcc,$(HIP_COMPILER_PATH)),hipcc)
     CUBUILDRULEFLAGS = -fPIC -c
     CCBUILDRULEFLAGS = -fPIC -c
 
-    export HIPARCHFLAGS
-
   else ifneq ($(origin REQUIRE_HIP),undefined)
     # If REQUIRE_HIP is set but no cuda is found, stop here (e.g. for CI tests on GPU #443)
     $(error No hip installation found (set HIP_HOME or make GPUCC visible in PATH))
@@ -239,6 +237,8 @@ endif
 
 export GPUCC
 export GPUFLAGS
+
+export HIPARCHFLAGS
 
 #-------------------------------------------------------------------------------
 
