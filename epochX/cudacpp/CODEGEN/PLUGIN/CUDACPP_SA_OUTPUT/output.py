@@ -149,6 +149,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
 
     # AV (default from OM's tutorial) - add a debug printout
     def __init__(self, *args, **kwargs):
+        self.in_madevent_mode = False
         misc.sprint('Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter)')
         return super().__init__(*args, **kwargs)
 
@@ -200,7 +201,10 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
 	    cmdhistory is the list of command used so far.
 	    MG5options are all the options of the main interface
 	    outputflags is a list of options provided when doing the output command"""
-        misc.sprint('Entering PLUGIN_ProcessExporter.finalize')
+        misc.sprint('Entering PLUGIN_ProcessExporter.finalize', self.in_madevent_mode)
+        if self.in_madevent_mode:
+            self.add_input_for_banner()
+        
         return super().finalize(matrix_element, cmdhistory, MG5options, outputflag)
 
     # AV (default from OM's tutorial) - overload settings and add a debug printout
@@ -213,4 +217,17 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
         misc.sprint('Entering PLUGIN_ProcessExporter.modify_grouping')
         return False, matrix_element
 
+
+    def add_input_for_banner(self):
+        # Note only for madevent mode
+        new_parameters = ["{'name':'cudacpp_backend', 'value':'CPP', 'include':False, 'hidden':False}"
+            ]
+
+        finput = open(pjoin(self.dir_path, 'bin', 'internal', 'plugin_run_card'), 'w')
+        
+        for entry in new_parameters:
+            finput.write(entry)
+
+        
+    
 #------------------------------------------------------------------------------------
