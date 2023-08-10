@@ -19,7 +19,7 @@
 #include <complex>
 
 // Complex type in cuda: thrust or cucomplex or cxsmpl
-#ifdef MGONGPUCPP_GPUIMPL
+#ifdef __CUDACC__
 #if defined MGONGPU_CUCXTYPE_THRUST
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wtautological-compare" // for icpx2021/clang13 (https://stackoverflow.com/a/15864661)
