@@ -238,8 +238,6 @@ endif
 export GPUCC
 export GPUFLAGS
 
-export HIPARCHFLAGS
-
 #-------------------------------------------------------------------------------
 
 #=== Configure ccache for C++ and CUDA builds
