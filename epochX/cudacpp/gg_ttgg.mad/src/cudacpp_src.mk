@@ -85,6 +85,11 @@ endif
 ###$(info OMPFLAGS=$(OMPFLAGS))
 CXXFLAGS += $(OMPFLAGS)
 
+# Add correct -DHIP_LATFORM when compiling for HIP
+ifeq ($(findstring hipcc,$(GPUCC)),hipcc)
+  CUFLAGS += -DHIP_PLATFORM=amd
+endif
+
 # Set the build flags appropriate to each AVX choice (example: "make AVX=none")
 # [NB MGONGPU_PVW512 is needed because "-mprefer-vector-width=256" is not exposed in a macro]
 # [See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=96476]
