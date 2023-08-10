@@ -665,7 +665,7 @@ namespace mg5amcCpu
 #else
       calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, jamp2_sv );
 #endif
-      //if( allMEs[ievt] != allMEsLast )
+      if( allMEs[ievt] != allMEsLast )
       {
         //if ( !isGoodHel[ihel] ) std::cout << "sigmaKin_getGoodHel ihel=" << ihel << " TRUE" << std::endl;
         isGoodHel[ihel] = true;
@@ -732,7 +732,7 @@ namespace mg5amcCpu
         {
           const int ievt = ievt00 + ieppV;
           const bool differs = ( allMEs[ievt] != allMEsLast[ievt] );
-          //if( differs )
+          if( differs )
           {
             //if ( !isGoodHel[ihel] ) std::cout << "sigmaKin_getGoodHel ihel=" << ihel << " TRUE" << std::endl;
             isGoodHel[ihel] = true;
@@ -741,7 +741,7 @@ namespace mg5amcCpu
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
           const int ievt2 = ievt00 + ieppV + neppV;
           const bool differs2 = ( allMEs[ievt2] != allMEsLast[ievt2] );
-          //if( differs2 )
+          if( differs2 )
           {
             //if ( !isGoodHel[ihel] ) std::cout << "sigmaKin_getGoodHel ihel=" << ihel << " TRUE" << std::endl;
             isGoodHel[ihel] = true;
