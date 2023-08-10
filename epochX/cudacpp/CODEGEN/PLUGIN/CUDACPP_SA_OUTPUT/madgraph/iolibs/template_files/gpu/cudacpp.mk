@@ -237,7 +237,9 @@ else ifeq ($(findstring hipcc,$(HIP_COMPILER_PATH)),hipcc)
 
 endif
 
-  
+export GPUCC
+export GPUFLAGS
+
 #-------------------------------------------------------------------------------
 
 #=== Configure ccache for C++ and CUDA builds
