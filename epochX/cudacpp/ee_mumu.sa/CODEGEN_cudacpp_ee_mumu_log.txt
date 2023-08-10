@@ -62,7 +62,7 @@ generate e+ e- > mu+ mu-
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.003462553024291992 [0m
+[1;32mDEBUG: model prefixing  takes 0.003403902053833008 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -195,14 +195,14 @@ INFO: Created files CPPProcess.h and CPPProcess.cc in directory /afs/cern.ch/wor
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memorybuffers [1;30m[model_handling.py at line 1430][0m [0m
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memoryaccesscouplings [1;30m[model_handling.py at line 1441][0m [0m
 [1;32mDEBUG:  'Copying test reference file: ', template_ref  = [0m Copying test reference file:  /afs/cern.ch/work/j/jteig/mg5amcnlo/PLUGIN/CUDACPP_SA_OUTPUT/madgraph/iolibs/template_files/../../../test/ref/dump_CPUTest.Sigma_sm_epem_mupmum.txt [1;30m[model_handling.py at line 1335][0m [0m
-Generated helas calls for 1 subprocesses (2 diagrams) in 0.003 s
+Generated helas calls for 1 subprocesses (2 diagrams) in 0.004 s
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 194][0m [0m
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFV2 routines[0m
 ALOHA: aloha creates FFV4 routines[0m
 ALOHA: aloha creates FFV2_4 routines[0m
-ALOHA: aloha creates 4 routines in  0.191 s
+ALOHA: aloha creates 4 routines in  0.194 s
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV2
@@ -225,6 +225,6 @@ INFO: /afs/cern.ch/work/j/jteig/mg5amcnlo/CODEGEN_cudacpp_ee_mumu/src/. and /afs
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.finalize [1;30m[output.py at line 203][0m [0m
 quit
 
-real	0m0.940s
-user	0m0.430s
-sys	0m0.166s
+real	0m0.880s
+user	0m0.446s
+sys	0m0.188s
