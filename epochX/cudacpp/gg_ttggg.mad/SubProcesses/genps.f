@@ -171,7 +171,8 @@ c      COMMON/TO_PDF/LHAID,PDLABEL,EPA_LABEL, pdsublabel
       integer mothup(2,nexternal)
       integer icolup(2,nexternal,maxflow,maxsproc)
       include 'leshouche.inc'
-      
+
+      include 'vector.inc'
       include 'run.inc'
 
 
@@ -605,6 +606,7 @@ c**************************************************************************
       include 'maxconfigs.inc'
       include 'nexternal.inc'
       include 'maxamps.inc'
+      include 'vector.inc'
       include 'run.inc'
 
 c     local
@@ -682,6 +684,12 @@ c        Start graph mapping
          nconfigs = 1
          mincfig=iconfig
          maxcfig=iconfig
+         if (mincfig.eq.0) then
+            iconfig = 1
+            nconfigs = mapconfig(mapconfig(0))
+            mincfig=1
+            maxcfig=mapconfig(0)
+         endif
          call map_invarients(minvar,nconfigs,ninvar,mincfig,maxcfig,nexternal,nincoming,nb_tchannel)
 c         maxwgt=0d0
 c         nparticles   = nexternal
@@ -749,6 +757,7 @@ c
       double precision stot,m1,m2
       common/to_stot/stot,m1,m2
 
+      include 'vector.inc'
       include 'run.inc'
 
 c-----

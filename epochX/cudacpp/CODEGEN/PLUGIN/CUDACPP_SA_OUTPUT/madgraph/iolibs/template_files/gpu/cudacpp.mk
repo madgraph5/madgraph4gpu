@@ -39,6 +39,20 @@ MG5AMC_COMMONLIB = mg5amc_common
 LIBFLAGS = -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
 INCFLAGS += -I../../src
 
+# Compiler-specific googletest build directory (#125 and #738)
+ifneq ($(shell $(CXX) --version | grep '^Intel(R) oneAPI DPC++/C++ Compiler'),)
+override CXXNAME = icpx$(shell $(CXX) --version | head -1 | cut -d' ' -f5)
+else ifneq ($(shell $(CXX) --version | egrep '^clang'),)
+override CXXNAME = clang$(shell $(CXX) --version | head -1 | cut -d' ' -f3)
+else ifneq ($(shell $(CXX) --version | grep '^g++ (GCC)'),)
+override CXXNAME = gcc$(shell $(CXX) --version | head -1 | cut -d' ' -f3)
+else
+override CXXNAME = unknown
+endif
+###$(info CXXNAME=$(CXXNAME))
+override CXXNAMESUFFIX = _$(CXXNAME)
+export CXXNAMESUFFIX
+
 # Dependency on test directory
 # Within the madgraph4gpu git repo: by default use a common gtest installation in <topdir>/test (optionally use an external or local gtest)
 # Outside the madgraph4gpu git repo: by default do not build the tests (optionally use an external or local gtest)
@@ -50,10 +64,10 @@ ifneq ($(wildcard $(GTEST_ROOT)),)
 TESTDIR =
 else ifneq ($(LOCALGTEST),)
 TESTDIR=$(TESTDIRLOCAL)
-GTEST_ROOT = $(TESTDIR)/googletest/install
+GTEST_ROOT = $(TESTDIR)/googletest/install$(CXXNAMESUFFIX)
 else ifneq ($(wildcard ../../../../../epochX/cudacpp/CODEGEN),)
 TESTDIR = $(TESTDIRCOMMON)
-GTEST_ROOT = $(TESTDIR)/googletest/install
+GTEST_ROOT = $(TESTDIR)/googletest/install$(CXXNAMESUFFIX)
 else
 TESTDIR =
 endif
@@ -76,7 +90,7 @@ endif
 
 CXXFLAGS = $(OPTFLAGS) -std=c++17 $(INCFLAGS) -Wall -Wshadow -Wextra
 ifeq ($(shell $(CXX) --version | grep ^nvc++),)
-CXXFLAGS+= -ffast-math # see issue #117
+CXXFLAGS += -ffast-math # see issue #117
 endif
 ###CXXFLAGS+= -Ofast # performance is not different from --fast-math
 ###CXXFLAGS+= -g # FOR DEBUGGING ONLY
@@ -122,7 +136,7 @@ ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   CUINC = -I$(CUDA_HOME)/include/
   CURANDLIBFLAGS = -L$(CUDA_HOME)/lib64/ -lcurand # NB: -lcuda is not needed here!
   CUOPTFLAGS = -lineinfo
-  CUFLAGS = $(OPTFLAGS) $(CUOPTFLAGS) $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math
+  CUFLAGS = $(foreach opt, $(OPTFLAGS), -Xcompiler $(opt)) $(CUOPTFLAGS) $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math
   ###CUFLAGS += -Xcompiler -Wall -Xcompiler -Wextra -Xcompiler -Wshadow
   ###NVCC_VERSION = $(shell $(NVCC) --version | grep 'Cuda compilation tools' | cut -d' ' -f5 | cut -d, -f1)
   CUFLAGS += -std=c++17 # need CUDA >= 11.2 (see #333): this is enforced in mgOnGpuConfig.h
@@ -142,6 +156,8 @@ else
   override CUINC=
   override CURANDLIBFLAGS=
 endif
+export NVCC
+export CUFLAGS
 
 # Set the host C++ compiler for nvcc via "-ccbin <host-compiler>"
 # (NB issue #505: this must be a single word, "clang++ --gcc-toolchain..." is not supported)
@@ -439,7 +455,7 @@ endif
 
 # Target (and build options): debug
 MAKEDEBUG=
-debug: OPTFLAGS   = -g -O0 -DDEBUG2
+debug: OPTFLAGS   = -g -O0
 debug: CUOPTFLAGS = -G
 debug: MAKEDEBUG := debug
 debug: all.$(TAG)
@@ -468,9 +484,9 @@ $(BUILDDIR)/%%.o : %%.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -fPIC -c $< -o $@
 
-# Apply special build flags only to CrossSectionKernel.cc and gCrossSectionKernel.cu (no fast math, see #117)
+# Apply special build flags only to CrossSectionKernel.cc and gCrossSectionKernel.cu (no fast math, see #117 and #516)
 ifeq ($(shell $(CXX) --version | grep ^nvc++),)
-$(BUILDDIR)/CrossSectionKernels.o: CXXFLAGS += -fno-fast-math
+$(BUILDDIR)/CrossSectionKernels.o: CXXFLAGS := $(filter-out -ffast-math,$(CXXFLAGS))
 $(BUILDDIR)/CrossSectionKernels.o: CXXFLAGS += -fno-fast-math
 ifneq ($(NVCC),)
 $(BUILDDIR)/gCrossSectionKernels.o: CUFLAGS += -Xcompiler -fno-fast-math

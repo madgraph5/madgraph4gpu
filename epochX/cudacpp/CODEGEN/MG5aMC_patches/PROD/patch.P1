@@ -1,5 +1,5 @@
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
-index a5c686eb1..20d101dcf 100644
+index 27ed1439e..3b24a9924 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
 @@ -469,23 +469,140 @@ C
@@ -157,11 +157,11 @@ index a5c686eb1..20d101dcf 100644
        END
  
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
-index 3a7d7e2c9..ebbf8876a 100644
+index 71fbf2b25..0f1d199fc 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
 @@ -74,13 +74,77 @@ c      common/to_colstats/ncols,ncolflow,ncolalt,ic
-       include 'vector.inc' ! defines VECSIZE_MEMMAX
+ 
        include 'coupl.inc' ! needs VECSIZE_MEMMAX (defined in vector.inc)
        INTEGER VECSIZE_USED
 -      DATA VECSIZE_USED/VECSIZE_MEMMAX/ ! can be changed at runtime
@@ -239,7 +239,7 @@ index 3a7d7e2c9..ebbf8876a 100644
  c
  c     Read process number
  c
-@@ -202,8 +266,33 @@ c      call sample_result(xsec,xerr)
+@@ -207,8 +271,33 @@ c      call sample_result(xsec,xerr)
  c      write(*,*) 'Final xsec: ',xsec
  
        rewind(lun)
@@ -274,7 +274,7 @@ index 3a7d7e2c9..ebbf8876a 100644
        end
  
  c     $B$ get_user_params $B$ ! tag for MadWeight
-@@ -381,7 +470,7 @@ c
+@@ -386,7 +475,7 @@ c
        fopened=.false.
        tempname=filename 	 
        fine=index(tempname,' ') 	 
@@ -284,7 +284,7 @@ index 3a7d7e2c9..ebbf8876a 100644
        open(unit=lun,file=tempname,status='old',ERR=20)
        fopened=.true.
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
-index beef47998..905badeff 100644
+index 3ac962688..ef18aff22 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
 @@ -72,7 +72,10 @@ C
@@ -338,7 +338,7 @@ index beef47998..905badeff 100644
        ENDIF
        ANS=ANS/DBLE(IDEN)
 -
-       CALL SELECT_COLOR(RCOL, JAMP2, CHANNEL,1,  ICOL)
+       CALL SELECT_COLOR(RCOL, JAMP2, ICONFIG,1,  ICOL)
 -
 +      call counters_smatrix1_stop()
        END

@@ -48,7 +48,8 @@ c     PARAM_CARD
 c
       character*30 param_card_name
       common/to_param_card_name/param_card_name
-cc
+c     c
+      include 'vector.inc'
       include 'run.inc'
       
       integer           mincfig, maxcfig
@@ -71,7 +72,6 @@ c      double precision xsec,xerr
 c      integer ncols,ncolflow(maxamps),ncolalt(maxamps),ic
 c      common/to_colstats/ncols,ncolflow,ncolalt,ic
 
-      include 'vector.inc' ! defines VECSIZE_MEMMAX
       include 'coupl.inc' ! needs VECSIZE_MEMMAX (defined in vector.inc)
       INTEGER VECSIZE_USED
 
@@ -227,6 +227,11 @@ c
       maxcfig=mincfig
       minvar(1,1) = 0              !This tells it to map things invarients
       write(*,*) 'Attempting mappinvarients',nconfigs,nexternal
+      if (mincfig.lt.0)then
+         maxcfig = -1*mincfig
+         mincfig= 1
+         nconfigs=maxcfig-mincfig +1
+      endif
       call map_invarients(minvar,nconfigs,ninvar,mincfig,maxcfig,nexternal,nincoming,nb_tchannel)
       write(*,*) "Completed mapping",nexternal
       ndim = 3*(nexternal-nincoming)-4

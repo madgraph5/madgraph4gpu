@@ -1,0 +1,71 @@
+C Copyright (C) 2020-2023 CERN and UCLouvain.
+C Licensed under the GNU Lesser General Public License (version 3 or later).
+C Created by: A. Valassi (Feb 2022) for the MG5aMC CUDACPP plugin.
+C Further modified by: A. Valassi (2022-2023) for the MG5aMC CUDACPP plugin.
+
+C
+C Create a Bridge and return its pointer
+C - PBRIDGE: the memory address of the C++ Bridge
+C - NEVT:    the number of events in the Fortran arrays
+C - NPAR:    the number of external particles in the Fortran arrays (KEPT FOR SANITY CHECKS ONLY: remove it?)
+C - NP4:     the number of momenta components, usually 4, in the Fortran arrays (KEPT FOR SANITY CHECKS ONLY: remove it?)
+C
+      INTERFACE
+         SUBROUTINE FBRIDGECREATE(PBRIDGE, NEVT, NPAR, NP4)
+         INTEGER*8 PBRIDGE
+         INTEGER*4 NEVT
+         INTEGER*4 NPAR
+         INTEGER*4 NP4
+         END SUBROUTINE FBRIDGECREATE
+      END INTERFACE
+      
+C
+C Delete a Bridge.
+C - PBRIDGE: the memory address of the C++ Bridge
+C
+      INTERFACE
+         SUBROUTINE FBRIDGEDELETE(PBRIDGE)
+         INTEGER*8 PBRIDGE
+         END SUBROUTINE FBRIDGEDELETE
+      END INTERFACE
+      
+C
+C Execute the matrix-element calculation "sequence" via a Bridge on GPU/CUDA or CUDA/C++.
+C - PBRIDGE: the memory address of the C++ Bridge
+C - MOMENTA: the input 4-momenta Fortran array
+C - GS:      the input Gs (running QCD coupling constant alphas) Fortran array
+C - RNDHEL:  the input random number Fortran array for helicity selection
+C - RNDCOL:  the input random number Fortran array for color selection
+C - CHANID:  the input Feynman diagram to enhance in multi-channel mode if 1 to n (disable multi-channel if 0)
+C - MES:     the output matrix element Fortran array
+C - SELHEL:  the output selected helicity Fortran array
+C - SELCOL:  the output selected color Fortran array
+C
+      INTERFACE
+         SUBROUTINE FBRIDGESEQUENCE(PBRIDGE, MOMENTA, GS,
+     &     RNDHEL, RNDCOL, CHANID, MES, SELHEL, SELCOL)
+         INTEGER*8 PBRIDGE
+         DOUBLE PRECISION MOMENTA(*)
+         DOUBLE PRECISION GS(*)
+         DOUBLE PRECISION RNDHEL(*)
+         DOUBLE PRECISION RNDCOL(*)
+         INTEGER*4 CHANID
+         DOUBLE PRECISION MES(*)
+         INTEGER*4 SELHEL(*)
+         INTEGER*4 SELCOL(*)
+         END SUBROUTINE FBRIDGESEQUENCE
+      END INTERFACE
+
+C
+C Retrieve the number of good helicities for helicity filtering in the Bridge.
+C - PBRIDGE:  the memory address of the C++ Bridge
+C - NGOODHEL: the output number of good helicities
+C - NTOTHEL:  the output total number of helicities in cudacpp (aka NCOMB in Fortran)
+C
+      INTERFACE
+         SUBROUTINE FBRIDGEGETNGOODHEL(PBRIDGE, NGOODHEL, NTOTHEL)
+         INTEGER*8 PBRIDGE
+         INTEGER*4 NGOODHEL
+         INTEGER*4 NTOTHEL
+         END SUBROUTINE FBRIDGEGETNGOODHEL
+      END INTERFACE

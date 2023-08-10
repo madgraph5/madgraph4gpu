@@ -71,6 +71,7 @@ touch ${dir}/Events/.keep # this file should already be present (mg5amcnlo copie
 \cp -dpr ${scrdir}/MG5aMC_patches/${dir_patches}/fbridge_common.inc ${dir}/SubProcesses # new file
 if [ "${patchlevel}" == "2" ]; then
   cd ${dir}
+  sed -i 's/DEFAULT_F2PY_COMPILER=f2py3.*/DEFAULT_F2PY_COMPILER=f2py3/' Source/make_opts
   echo "DEBUG: cd ${PWD}; patch -p4 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.common"
   if ! patch -p4 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.common; then status=1; fi  
   \rm -f Source/*.orig
@@ -119,17 +120,18 @@ done
 cd - > /dev/null
 
 # Patch the default cudacpp code to fix a bug in coloramps
+# ** NEW AUG 2023: DISABLING THE COLORAMPS PATCH FIXES THE LHE COLOR MISMATCH IN GG_TTGG (#655 and #713) **
 # (3) Process-dependent patches
-for p1dir in ${dir}/SubProcesses/P*; do
-  cd $p1dir
-  cat coloramps.h | awk -vp=1 '{if (p==1) print $0; if ($1=="__device__") p=0}' > coloramps.h.new
-  cat coloramps.inc | sed 's|)/|)/ {|' | sed 's|/$|}, /|' \
-    | awk -vb= '{if($1~")/"){b=$2}; if($1=="$"){b=b$2}; if($3=="/"){print "    "b}}' \
-    | sed 's/.TRUE./ true/g' | sed 's/.FALSE./ false/g' | sed 's/}/ }/' >> coloramps.h.new
-  truncate -s -2 coloramps.h.new
-  echo "">> coloramps.h.new
-  cat coloramps.h | awk -vp=0 '{if ($1=="};") p=1; if (p==1) print $0}' >> coloramps.h.new
-  \mv coloramps.h.new coloramps.h
-done
+#for p1dir in ${dir}/SubProcesses/P*; do
+#  cd $p1dir
+#  cat coloramps.h | awk -vp=1 '{if (p==1) print $0; if ($1=="__device__") p=0}' > coloramps.h.new
+#  cat coloramps.inc | sed 's|)/|)/ {|' | sed 's|/$|}, /|' \
+#    | awk -vb= '{if($1~")/"){b=$2}; if($1=="$"){b=b$2}; if($3=="/"){print "    "b}}' \
+#    | sed 's/.TRUE./ true/g' | sed 's/.FALSE./ false/g' | sed 's/}/ }/' >> coloramps.h.new
+#  truncate -s -2 coloramps.h.new
+#  echo "">> coloramps.h.new
+#  cat coloramps.h | awk -vp=0 '{if ($1=="};") p=1; if (p==1) print $0}' >> coloramps.h.new
+#  \mv coloramps.h.new coloramps.h
+#done
 
 exit $status
