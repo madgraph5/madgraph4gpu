@@ -175,8 +175,7 @@ function getnevt()
   elif [ "${ggttggg}" == "1" ]; then
     nevt=8192 # Fortran (x1, x10) computes (8192, 90112) MEs and writes to file (14, 97) events in (121s, 1222s)
   elif [ "${gguu}" == "1" ]; then
-    nevt=8 # TEST
-    #nevt=8192 # use the same settings as for ggttg
+    nevt=8192 # use the same settings as for ggttg
   elif [ "${gqttq}" == "1" ]; then
     nevt=8192 # use the same settings as for ggttg
   else
