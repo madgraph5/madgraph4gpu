@@ -734,7 +734,7 @@ namespace mg5amcCpu
         for( int ieppV = 0; ieppV < neppV; ++ieppV )
         {
           const int ievt = ievt00 + ieppV;
-          std::cout << "DEBUG ievt=" << ievt << " ihel=" << ihel << ": " << allMEs[ievt] << ", " << allMEsLast[ievt] << ", " << allMEsLast[ievt] + allMEs[ievt] << std::endl;
+          if ( ievt==0 ) std::cout << "DEBUG ievt=" << ievt << " ihel=" << ihel << ": " << allMEs[ievt] << ", " << allMEsLast[ievt] << ", " << allMEsLast[ievt] + allMEs[ievt] << std::endl;
           if( allMEs[ievt] != 0 ) // NEW IMPLEMENTATION OF GETGOODHEL (#630): COMPARE EACH HELICITY CONTRIBUTION TO 0
           {
             //if ( !isGoodHel[ihel] ) std::cout << "sigmaKin_getGoodHel ihel=" << ihel << " TRUE" << std::endl;
