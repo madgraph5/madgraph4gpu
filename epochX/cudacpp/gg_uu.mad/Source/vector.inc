@@ -28,6 +28,6 @@ C     BECAUSE IT DOES NOT GO THROUGH THE CPP PREPROCESSOR
 C     (see https://github.com/madgraph5/madgraph4gpu/issues/458).
 C     
       INTEGER VECSIZE_MEMMAX
-      PARAMETER (VECSIZE_MEMMAX=8192) ! NB: 16k events per GPU grid is the minimum required to fill a V100 GPU
+      PARAMETER (VECSIZE_MEMMAX=8193) ! NB: 16k events per GPU grid is the minimum required to fill a V100 GPU
 c     PARAMETER (VECSIZE_MEMMAX=16384) ! NB: 16k events per GPU grid is the minimum required to fill a V100 GPU
 c     PARAMETER (VECSIZE_MEMMAX=32) ! NB: workaround for out-of-memory on Juwels: 32 is enough for no-CUDA builds (issue #498)
