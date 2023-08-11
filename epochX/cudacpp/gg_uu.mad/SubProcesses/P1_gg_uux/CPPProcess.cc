@@ -969,7 +969,7 @@ namespace mg5amcCpu
 #endif
 #ifndef MGONGPU_CPPSIMD
         if ( ievt00<64 && ighel==0 ) std::cout << "DEBUG" << std::endl;
-        if ( ievt00<64 ) std::cout << "DEBUG_sigmakin ievt00=" << ievt00 << " ighel/nghel=" << ighel << "/" << cNGoodHel << " ihel/ncomb=" << ihel << "/" << ncomb << " sumMEs=" << MEs_ighel[ighel] << std::endl;
+        if ( ievt00<64 ) std::cout << "DEBUG_sigmakin ievt00=" << ievt00 << " ighel=" << ighel << " ihel/ncomb=" << ihel << "/" << ncomb << " sumMEs=" << MEs_ighel[ighel] << std::endl;
 #endif
       }
       // Event-by-event random choice of helicity #403
