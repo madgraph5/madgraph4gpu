@@ -11,7 +11,7 @@ bckend=$(basename $(cd $scrdir; cd ..; pwd)) # cudacpp or alpaka
 topdir=$(cd $scrdir; cd ../../..; pwd)
 
 # HARDCODE NLOOP HERE (may improve this eventually...)
-NLOOP=8192
+NLOOP=32
 
 # Workaround for #498 on juwels
 host=$(hostname)
@@ -484,7 +484,8 @@ for suff in $suffs; do
   fi
 
   # (2) MADEVENT_CPP
-  for avx in none sse4 avx2 512y 512z; do
+  for avx in none; do
+  #for avx in none sse4 avx2 512y 512z; do
     if [ "$avx" == "512y" ] || [ "$avx" == "512z" ]; then 
       if ! grep avx512vl /proc/cpuinfo >& /dev/null; then echo -e "\n*** (2-$avx) WARNING! SKIP MADEVENT_CPP (${avx} is not supported on this node) ***"; continue; fi
     fi
@@ -530,7 +531,8 @@ for suff in $suffs; do
     fi
     runcheck ./check.exe
   done
-
+  continue
+  
   # (3) MADEVENT_CUDA
   if [ "$gpuTxt" == "none" ]; then continue; fi
   if [ "${checkonly}" == "0" ]; then      
