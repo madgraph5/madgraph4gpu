@@ -11,7 +11,7 @@ bckend=$(basename $(cd $scrdir; cd ..; pwd)) # cudacpp or alpaka
 topdir=$(cd $scrdir; cd ../../..; pwd)
 
 # HARDCODE NLOOP HERE (may improve this eventually...)
-NLOOP=16
+NLOOP=32
 
 # Workaround for #498 on juwels
 host=$(hostname)
@@ -175,7 +175,7 @@ function getnevt()
     nevt=8192 # Fortran (x1, x10) computes (8192, 90112) MEs and writes to file (14, 97) events in (121s, 1222s)
   elif [ "${gguu}" == "1" ]; then
     #nevt=8192 # use the same settings as for ggttg
-    nevt=16 # TEST
+    nevt=32 # TEST
   elif [ "${gqttq}" == "1" ]; then
     nevt=8192 # use the same settings as for ggttg
   else

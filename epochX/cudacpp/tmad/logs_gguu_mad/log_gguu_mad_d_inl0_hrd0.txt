@@ -1,29 +1,29 @@
 Working directory (build): /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_uu.mad/SubProcesses/P1_gg_uux
 CUDACPP_BUILDDIR='.'
 
-
-
 make USEBUILDDIR=1 AVX=none
-make USEBUILDDIR=1 AVX=sse4
-make USEBUILDDIR=1 AVX=avx2
-make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_uu.mad/SubProcesses/P1_gg_uux'
-make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_uu.mad/SubProcesses/P1_gg_uux'
-make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_uu.mad/SubProcesses/P1_gg_uux'
 
+
+make USEBUILDDIR=1 AVX=sse4
+
+make USEBUILDDIR=1 AVX=avx2
 make USEBUILDDIR=1 AVX=512y
+make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_uu.mad/SubProcesses/P1_gg_uux'
+make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_uu.mad/SubProcesses/P1_gg_uux'
+make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_uu.mad/SubProcesses/P1_gg_uux'
 make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_uu.mad/SubProcesses/P1_gg_uux'
 
 make USEBUILDDIR=1 AVX=512z
 make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_uu.mad/SubProcesses/P1_gg_uux'
-CUDACPP_BUILDDIR='build.avx2_d_inl0_hrd0'
-CUDACPP_BUILDDIR='build.512y_d_inl0_hrd0'
+CUDACPP_BUILDDIR='build.512z_d_inl0_hrd0'
 CUDACPP_BUILDDIR='build.none_d_inl0_hrd0'
+CUDACPP_BUILDDIR='build.512y_d_inl0_hrd0'
+CUDACPP_BUILDDIR='build.avx2_d_inl0_hrd0'
 CUDACPP_BUILDDIR='build.sse4_d_inl0_hrd0'
 make[1]: Nothing to be done for 'all'.
 make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_uu.mad/SubProcesses/P1_gg_uux'
 make[1]: Nothing to be done for 'all'.
 make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_uu.mad/SubProcesses/P1_gg_uux'
-CUDACPP_BUILDDIR='build.512z_d_inl0_hrd0'
 make[1]: Nothing to be done for 'all'.
 make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_uu.mad/SubProcesses/P1_gg_uux'
 make[1]: Nothing to be done for 'all'.
@@ -33,7 +33,7 @@ make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/
 
 OMP_NUM_THREADS=
 
-DATE: 2023-08-11_18:26:36
+DATE: 2023-08-11_18:19:21
 
 On itscrd80.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
 Working directory (run): /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_uu.mad/SubProcesses/P1_gg_uux
@@ -41,9 +41,9 @@ Working directory (run): /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_
 *** (1) EXECUTE MADEVENT_FORTRAN (create results.dat) ***
 --------------------
 CUDACPP_RUNTIME_FBRIDGEMODE = (not set)
-CUDACPP_RUNTIME_VECSIZEUSED = 16
+CUDACPP_RUNTIME_VECSIZEUSED = 32
 --------------------
-16 1 1 ! Number of events and max and min iterations
+32 1 1 ! Number of events and max and min iterations
 0.000001 ! Accuracy (ignored because max iterations = min iterations)
 0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
 1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
@@ -53,22 +53,22 @@ CUDACPP_RUNTIME_VECSIZEUSED = 16
 Executing ' ./madevent_fortran < /tmp/avalassi/input_gguu_x1_fortran > /tmp/avalassi/output_gguu_x1_fortran'
  [OPENMPTH] omp_get_max_threads/nproc = 1/4
  [NGOODHEL] ngoodhel/ncomb = 8/16
- [XSECTION] VECSIZE_USED = 16
+ [XSECTION] VECSIZE_USED = 32
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 426900 [426879.42474782316] fbridge_mode=0
- [UNWEIGHT] Wrote 17 events (found 48 events)
- [COUNTERS] PROGRAM TOTAL          :    0.0701s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.0697s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.0004s for       64 events => throughput is 1.56E+05 events/s
+ [XSECTION] Cross section = 2246000 [2246476.0691319485] fbridge_mode=0
+ [UNWEIGHT] Wrote 4 events (found 23 events)
+ [COUNTERS] PROGRAM TOTAL          :    0.0661s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.0658s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.0003s for       32 events => throughput is 1.24E+05 events/s
 
 *** (1) EXECUTE MADEVENT_FORTRAN x1 (create events.lhe) ***
 --------------------
 CUDACPP_RUNTIME_FBRIDGEMODE = (not set)
-CUDACPP_RUNTIME_VECSIZEUSED = 16
+CUDACPP_RUNTIME_VECSIZEUSED = 32
 --------------------
-16 1 1 ! Number of events and max and min iterations
+32 1 1 ! Number of events and max and min iterations
 0.000001 ! Accuracy (ignored because max iterations = min iterations)
 0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
 1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
@@ -78,22 +78,22 @@ CUDACPP_RUNTIME_VECSIZEUSED = 16
 Executing ' ./madevent_fortran < /tmp/avalassi/input_gguu_x1_fortran > /tmp/avalassi/output_gguu_x1_fortran'
  [OPENMPTH] omp_get_max_threads/nproc = 1/4
  [NGOODHEL] ngoodhel/ncomb = 8/16
- [XSECTION] VECSIZE_USED = 16
+ [XSECTION] VECSIZE_USED = 32
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 426900 [426879.42474782316] fbridge_mode=0
- [UNWEIGHT] Wrote 14 events (found 43 events)
- [COUNTERS] PROGRAM TOTAL          :    0.0687s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.0684s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.0004s for       64 events => throughput is 1.83E+05 events/s
+ [XSECTION] Cross section = 2246000 [2246476.0691319485] fbridge_mode=0
+ [UNWEIGHT] Wrote 5 events (found 10 events)
+ [COUNTERS] PROGRAM TOTAL          :    0.0651s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.0649s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.0002s for       32 events => throughput is 1.31E+05 events/s
 
 *** (2-none) EXECUTE MADEVENT_CPP x1 (create events.lhe) ***
 --------------------
 CUDACPP_RUNTIME_FBRIDGEMODE = (not set)
-CUDACPP_RUNTIME_VECSIZEUSED = 16
+CUDACPP_RUNTIME_VECSIZEUSED = 32
 --------------------
-16 1 1 ! Number of events and max and min iterations
+32 1 1 ! Number of events and max and min iterations
 0.000001 ! Accuracy (ignored because max iterations = min iterations)
 0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
 1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
@@ -103,16 +103,32 @@ CUDACPP_RUNTIME_VECSIZEUSED = 16
 Executing ' ./build.none_d_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_gguu_x1_cudacpp > /tmp/avalassi/output_gguu_x1_cudacpp'
  [OPENMPTH] omp_get_max_threads/nproc = 1/4
  [NGOODHEL] ngoodhel/ncomb = 8/16
- [XSECTION] VECSIZE_USED = 16
+ [XSECTION] VECSIZE_USED = 32
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 483400 [483449.39726281527] fbridge_mode=1
- [UNWEIGHT] Wrote 15 events (found 34 events)
- [COUNTERS] PROGRAM TOTAL          :    0.0678s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.0676s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0001s for       48 events => throughput is 3.47E+05 events/s
+ [XSECTION] Cross section = 2246000 [2246476.0691319490] fbridge_mode=1
+ [UNWEIGHT] Wrote 5 events (found 10 events)
+ [COUNTERS] PROGRAM TOTAL          :    0.0656s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.0655s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0001s for       32 events => throughput is 4.29E+05 events/s
 
 *** (2-none) Compare MADEVENT_CPP x1 xsec to MADEVENT_FORTRAN xsec ***
 
-ERROR! xsec from fortran (426879.42474782316) and cpp (483449.39726281527) differ by more than 2E-14 (0.1325197918555352)
+OK! xsec from fortran (2246476.0691319485) and cpp (2246476.0691319490) differ by less than 2E-14 (2.220446049250313e-16)
+
+*** (2-none) Compare MADEVENT_CPP x1 events.lhe to MADEVENT_FORTRAN events.lhe reference (including colors and helicities) ***
+
+OK! events.lhe.cpp.1 and events.lhe.ref.1 are identical
+
+*** EXECUTE CHECK(32) -p 1 32 1 --bridge ***
+Process                     = SIGMA_SM_GG_UUX_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
+Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+BRDHST/none+NAVBRK
+EvtsPerSec[MECalcOnly] (3a) = ( 3.748960e+05                 )  sec^-1
+
+*** EXECUTE CHECK(32) -p 1 32 1 ***
+Process                     = SIGMA_SM_GG_UUX_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
+Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/none+NAVBRK
+EvtsPerSec[MECalcOnly] (3a) = ( 3.801875e+05                 )  sec^-1
+
+TEST COMPLETED
