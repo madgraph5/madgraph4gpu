@@ -716,6 +716,7 @@ namespace mg5amcCpu
         for( int ieppV = 0; ieppV < neppV; ++ieppV )
         {
           const int ievt = ievt00 + ieppV;
+          allMEsLast[ievt] += allMEs[ievt];
           allMEs[ievt] = 0;
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
           const int ievt2 = ievt00 + ieppV + neppV;
@@ -733,7 +734,9 @@ namespace mg5amcCpu
         for( int ieppV = 0; ieppV < neppV; ++ieppV )
         {
           const int ievt = ievt00 + ieppV;
-          if( allMEs[ievt] != 0 ) // NEW IMPLEMENTATION OF GETGOODHEL (#630): COMPARE EACH HELICITY CONTRIBUTION TO 0
+          if ( ievt==0 ) std::cout << "DEBUG_getgoodhel ievt=" << ievt << " ihel=" << ihel << ": " << allMEs[ievt] << ", " << allMEsLast[ievt] << ", " << allMEsLast[ievt] + allMEs[ievt] << std::endl;
+          //if( allMEs[ievt] != 0 ) // NEW IMPLEMENTATION OF GETGOODHEL (#630): COMPARE EACH HELICITY CONTRIBUTION TO 0
+          if( allMEsLast[ievt] + allMEs[ievt] > allMEsLast[ievt] ) // OLD IMPLEMENTATION OF GETGOODHEL
           {
             //if ( !isGoodHel[ihel] ) std::cout << "sigmaKin_getGoodHel ihel=" << ihel << " TRUE" << std::endl;
             isGoodHel[ihel] = true;
@@ -936,7 +939,7 @@ namespace mg5amcCpu
 #else
 #define _OMPLIST1
 #endif
-#pragma omp parallel for default( none ) shared( _OMPLIST0 _OMPLIST1 )
+    //#pragma omp parallel for default( none ) shared( _OMPLIST0 _OMPLIST1 )
 #undef _OMPLIST0
 #undef _OMPLIST1
 #endif // _OPENMP
@@ -963,6 +966,9 @@ namespace mg5amcCpu
         MEs_ighel[ighel] = E_ACCESS::kernelAccess( E_ACCESS::ieventAccessRecord( allMEs, ievt00 ) );
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
         MEs_ighel2[ighel] = E_ACCESS::kernelAccess( E_ACCESS::ieventAccessRecord( allMEs, ievt00 + neppV ) );
+#endif
+#ifndef MGONGPU_CPPSIMD
+        if ( ievt00==0 ) std::cout << "DEBUG_sigmakin ievt00=" << ievt00 << " ighel/nghel=" << ighel << "/" << cNGoodHel << " ihel/ncomb=" << ihel << "/" << ncomb << " sumMEs=" << MEs_ighel[ighel] << std::endl;
 #endif
       }
       // Event-by-event random choice of helicity #403
