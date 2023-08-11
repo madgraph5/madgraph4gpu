@@ -15,25 +15,25 @@ make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp
 
 make USEBUILDDIR=1 AVX=512z
 make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_uu.mad/SubProcesses/P1_gg_uux'
-CUDACPP_BUILDDIR='build.avx2_d_inl0_hrd0'
 CUDACPP_BUILDDIR='build.none_d_inl0_hrd0'
+CUDACPP_BUILDDIR='build.512z_d_inl0_hrd0'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_uu.mad/SubProcesses/P1_gg_uux'
 CUDACPP_BUILDDIR='build.512y_d_inl0_hrd0'
 make[1]: Nothing to be done for 'all'.
 make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_uu.mad/SubProcesses/P1_gg_uux'
 make[1]: Nothing to be done for 'all'.
 make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_uu.mad/SubProcesses/P1_gg_uux'
-make[1]: Nothing to be done for 'all'.
-make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_uu.mad/SubProcesses/P1_gg_uux'
-CUDACPP_BUILDDIR='build.512z_d_inl0_hrd0'
-make[1]: Nothing to be done for 'all'.
-make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_uu.mad/SubProcesses/P1_gg_uux'
+CUDACPP_BUILDDIR='build.avx2_d_inl0_hrd0'
 CUDACPP_BUILDDIR='build.sse4_d_inl0_hrd0'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_uu.mad/SubProcesses/P1_gg_uux'
 make[1]: Nothing to be done for 'all'.
 make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_uu.mad/SubProcesses/P1_gg_uux'
 
 OMP_NUM_THREADS=
 
-DATE: 2023-08-11_14:37:13
+DATE: 2023-08-11_16:01:04
 
 On itscrd80.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
 Working directory (run): /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_uu.mad/SubProcesses/P1_gg_uux
@@ -59,9 +59,9 @@ Executing ' ./madevent_fortran < /tmp/avalassi/input_gguu_x1_fortran > /tmp/aval
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 2756000 [2755752.8574748533] fbridge_mode=0
  [UNWEIGHT] Wrote 1504 events (found 4628 events)
- [COUNTERS] PROGRAM TOTAL          :    0.6901s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.6666s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.0235s for     8192 events => throughput is 3.48E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.6907s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.6675s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.0232s for     8192 events => throughput is 3.53E+05 events/s
 
 *** (1) EXECUTE MADEVENT_FORTRAN x1 (create events.lhe) ***
 --------------------
@@ -84,9 +84,9 @@ Executing ' ./madevent_fortran < /tmp/avalassi/input_gguu_x1_fortran > /tmp/aval
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 2756000 [2755752.8574748533] fbridge_mode=0
  [UNWEIGHT] Wrote 1492 events (found 1585 events)
- [COUNTERS] PROGRAM TOTAL          :    0.5889s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.5652s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.0237s for     8192 events => throughput is 3.46E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.4221s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.3989s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.0231s for     8192 events => throughput is 3.54E+05 events/s
 
 *** (1) EXECUTE MADEVENT_FORTRAN x10 (create events.lhe) ***
 --------------------
@@ -109,9 +109,9 @@ Executing ' ./madevent_fortran < /tmp/avalassi/input_gguu_x10_fortran > /tmp/ava
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 307300 [307281.60874575964] fbridge_mode=0
  [UNWEIGHT] Wrote 1816 events (found 1821 events)
- [COUNTERS] PROGRAM TOTAL          :    2.1896s
- [COUNTERS] Fortran Overhead ( 0 ) :    1.9362s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.2534s for    90112 events => throughput is 3.56E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    2.2105s
+ [COUNTERS] Fortran Overhead ( 0 ) :    1.9544s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.2560s for    90112 events => throughput is 3.52E+05 events/s
 
 *** (2-none) EXECUTE MADEVENT_CPP x1 (create events.lhe) ***
 --------------------
@@ -126,22 +126,38 @@ CUDACPP_RUNTIME_VECSIZEUSED = 8192
 1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 --------------------
 Executing ' ./build.none_d_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_gguu_x1_cudacpp > /tmp/avalassi/output_gguu_x1_cudacpp'
-DEBUG ievt=0 ihel=0: 3.84434e-30, 0, 3.84434e-30
-DEBUG ievt=0 ihel=1: 0, 3.84434e-30, 3.84434e-30
-DEBUG ievt=0 ihel=2: 0, 3.84434e-30, 3.84434e-30
-DEBUG ievt=0 ihel=3: 2.49265e-30, 3.84434e-30, 6.337e-30
-DEBUG ievt=0 ihel=4: 290.303, 6.337e-30, 290.303
-DEBUG ievt=0 ihel=5: 0, 290.303, 290.303
-DEBUG ievt=0 ihel=6: 0, 290.303, 290.303
-DEBUG ievt=0 ihel=7: 10.3671, 290.303, 300.67
-DEBUG ievt=0 ihel=8: 10.3671, 300.67, 311.037
-DEBUG ievt=0 ihel=9: 0, 311.037, 311.037
-DEBUG ievt=0 ihel=10: 0, 311.037, 311.037
-DEBUG ievt=0 ihel=11: 290.303, 311.037, 601.34
-DEBUG ievt=0 ihel=12: 2.49265e-30, 601.34, 601.34
-DEBUG ievt=0 ihel=13: 0, 601.34, 601.34
-DEBUG ievt=0 ihel=14: 0, 601.34, 601.34
-DEBUG ievt=0 ihel=15: 3.84434e-30, 601.34, 601.34
+DEBUG_getgoodhel ievt=0 ihel=0: 3.84434e-30, 0, 3.84434e-30
+DEBUG_getgoodhel ievt=0 ihel=1: 0, 3.84434e-30, 3.84434e-30
+DEBUG_getgoodhel ievt=0 ihel=2: 0, 3.84434e-30, 3.84434e-30
+DEBUG_getgoodhel ievt=0 ihel=3: 2.49265e-30, 3.84434e-30, 6.337e-30
+DEBUG_getgoodhel ievt=0 ihel=4: 290.303, 6.337e-30, 290.303
+DEBUG_getgoodhel ievt=0 ihel=5: 0, 290.303, 290.303
+DEBUG_getgoodhel ievt=0 ihel=6: 0, 290.303, 290.303
+DEBUG_getgoodhel ievt=0 ihel=7: 10.3671, 290.303, 300.67
+DEBUG_getgoodhel ievt=0 ihel=8: 10.3671, 300.67, 311.037
+DEBUG_getgoodhel ievt=0 ihel=9: 0, 311.037, 311.037
+DEBUG_getgoodhel ievt=0 ihel=10: 0, 311.037, 311.037
+DEBUG_getgoodhel ievt=0 ihel=11: 290.303, 311.037, 601.34
+DEBUG_getgoodhel ievt=0 ihel=12: 2.49265e-30, 601.34, 601.34
+DEBUG_getgoodhel ievt=0 ihel=13: 0, 601.34, 601.34
+DEBUG_getgoodhel ievt=0 ihel=14: 0, 601.34, 601.34
+DEBUG_getgoodhel ievt=0 ihel=15: 3.84434e-30, 601.34, 601.34
+DEBUG_sigmakin ievt00=0 ighel/nghel=0/8 ihel/ncomb=0/16 sumMEs=3.84434e-30
+DEBUG_sigmakin ievt00=0 ighel/nghel=1/8 ihel/ncomb=3/16 sumMEs=6.337e-30
+DEBUG_sigmakin ievt00=0 ighel/nghel=2/8 ihel/ncomb=4/16 sumMEs=290.303
+DEBUG_sigmakin ievt00=0 ighel/nghel=3/8 ihel/ncomb=7/16 sumMEs=300.67
+DEBUG_sigmakin ievt00=0 ighel/nghel=4/8 ihel/ncomb=8/16 sumMEs=311.037
+DEBUG_sigmakin ievt00=0 ighel/nghel=5/8 ihel/ncomb=11/16 sumMEs=601.34
+DEBUG_sigmakin ievt00=0 ighel/nghel=6/8 ihel/ncomb=12/16 sumMEs=601.34
+DEBUG_sigmakin ievt00=0 ighel/nghel=7/8 ihel/ncomb=15/16 sumMEs=601.34
+DEBUG_sigmakin ievt00=0 ighel/nghel=0/8 ihel/ncomb=0/16 sumMEs=3.84434e-30
+DEBUG_sigmakin ievt00=0 ighel/nghel=1/8 ihel/ncomb=3/16 sumMEs=6.337e-30
+DEBUG_sigmakin ievt00=0 ighel/nghel=2/8 ihel/ncomb=4/16 sumMEs=290.303
+DEBUG_sigmakin ievt00=0 ighel/nghel=3/8 ihel/ncomb=7/16 sumMEs=300.67
+DEBUG_sigmakin ievt00=0 ighel/nghel=4/8 ihel/ncomb=8/16 sumMEs=311.037
+DEBUG_sigmakin ievt00=0 ighel/nghel=5/8 ihel/ncomb=11/16 sumMEs=601.34
+DEBUG_sigmakin ievt00=0 ighel/nghel=6/8 ihel/ncomb=12/16 sumMEs=601.34
+DEBUG_sigmakin ievt00=0 ighel/nghel=7/8 ihel/ncomb=15/16 sumMEs=601.34
  [OPENMPTH] omp_get_max_threads/nproc = 1/4
  [NGOODHEL] ngoodhel/ncomb = 8/16
  [XSECTION] VECSIZE_USED = 8192
@@ -150,9 +166,9 @@ DEBUG ievt=0 ihel=15: 3.84434e-30, 601.34, 601.34
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 2756000 [2755752.8574748533] fbridge_mode=1
  [UNWEIGHT] Wrote 1492 events (found 1585 events)
- [COUNTERS] PROGRAM TOTAL          :    0.4358s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.4171s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0187s for     8192 events => throughput is 4.39E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.4348s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.4164s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0184s for     8192 events => throughput is 4.45E+05 events/s
 
 *** (2-none) Compare MADEVENT_CPP x1 xsec to MADEVENT_FORTRAN xsec ***
 
@@ -175,22 +191,118 @@ CUDACPP_RUNTIME_VECSIZEUSED = 8192
 1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 --------------------
 Executing ' ./build.none_d_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_gguu_x10_cudacpp > /tmp/avalassi/output_gguu_x10_cudacpp'
-DEBUG ievt=0 ihel=0: 3.84434e-30, 0, 3.84434e-30
-DEBUG ievt=0 ihel=1: 0, 3.84434e-30, 3.84434e-30
-DEBUG ievt=0 ihel=2: 0, 3.84434e-30, 3.84434e-30
-DEBUG ievt=0 ihel=3: 2.49265e-30, 3.84434e-30, 6.337e-30
-DEBUG ievt=0 ihel=4: 290.303, 6.337e-30, 290.303
-DEBUG ievt=0 ihel=5: 0, 290.303, 290.303
-DEBUG ievt=0 ihel=6: 0, 290.303, 290.303
-DEBUG ievt=0 ihel=7: 10.3671, 290.303, 300.67
-DEBUG ievt=0 ihel=8: 10.3671, 300.67, 311.037
-DEBUG ievt=0 ihel=9: 0, 311.037, 311.037
-DEBUG ievt=0 ihel=10: 0, 311.037, 311.037
-DEBUG ievt=0 ihel=11: 290.303, 311.037, 601.34
-DEBUG ievt=0 ihel=12: 2.49265e-30, 601.34, 601.34
-DEBUG ievt=0 ihel=13: 0, 601.34, 601.34
-DEBUG ievt=0 ihel=14: 0, 601.34, 601.34
-DEBUG ievt=0 ihel=15: 3.84434e-30, 601.34, 601.34
+DEBUG_getgoodhel ievt=0 ihel=0: 3.84434e-30, 0, 3.84434e-30
+DEBUG_getgoodhel ievt=0 ihel=1: 0, 3.84434e-30, 3.84434e-30
+DEBUG_getgoodhel ievt=0 ihel=2: 0, 3.84434e-30, 3.84434e-30
+DEBUG_getgoodhel ievt=0 ihel=3: 2.49265e-30, 3.84434e-30, 6.337e-30
+DEBUG_getgoodhel ievt=0 ihel=4: 290.303, 6.337e-30, 290.303
+DEBUG_getgoodhel ievt=0 ihel=5: 0, 290.303, 290.303
+DEBUG_getgoodhel ievt=0 ihel=6: 0, 290.303, 290.303
+DEBUG_getgoodhel ievt=0 ihel=7: 10.3671, 290.303, 300.67
+DEBUG_getgoodhel ievt=0 ihel=8: 10.3671, 300.67, 311.037
+DEBUG_getgoodhel ievt=0 ihel=9: 0, 311.037, 311.037
+DEBUG_getgoodhel ievt=0 ihel=10: 0, 311.037, 311.037
+DEBUG_getgoodhel ievt=0 ihel=11: 290.303, 311.037, 601.34
+DEBUG_getgoodhel ievt=0 ihel=12: 2.49265e-30, 601.34, 601.34
+DEBUG_getgoodhel ievt=0 ihel=13: 0, 601.34, 601.34
+DEBUG_getgoodhel ievt=0 ihel=14: 0, 601.34, 601.34
+DEBUG_getgoodhel ievt=0 ihel=15: 3.84434e-30, 601.34, 601.34
+DEBUG_sigmakin ievt00=0 ighel/nghel=0/8 ihel/ncomb=0/16 sumMEs=3.84434e-30
+DEBUG_sigmakin ievt00=0 ighel/nghel=1/8 ihel/ncomb=3/16 sumMEs=6.337e-30
+DEBUG_sigmakin ievt00=0 ighel/nghel=2/8 ihel/ncomb=4/16 sumMEs=290.303
+DEBUG_sigmakin ievt00=0 ighel/nghel=3/8 ihel/ncomb=7/16 sumMEs=300.67
+DEBUG_sigmakin ievt00=0 ighel/nghel=4/8 ihel/ncomb=8/16 sumMEs=311.037
+DEBUG_sigmakin ievt00=0 ighel/nghel=5/8 ihel/ncomb=11/16 sumMEs=601.34
+DEBUG_sigmakin ievt00=0 ighel/nghel=6/8 ihel/ncomb=12/16 sumMEs=601.34
+DEBUG_sigmakin ievt00=0 ighel/nghel=7/8 ihel/ncomb=15/16 sumMEs=601.34
+DEBUG_sigmakin ievt00=0 ighel/nghel=0/8 ihel/ncomb=0/16 sumMEs=3.84434e-30
+DEBUG_sigmakin ievt00=0 ighel/nghel=1/8 ihel/ncomb=3/16 sumMEs=6.337e-30
+DEBUG_sigmakin ievt00=0 ighel/nghel=2/8 ihel/ncomb=4/16 sumMEs=290.303
+DEBUG_sigmakin ievt00=0 ighel/nghel=3/8 ihel/ncomb=7/16 sumMEs=300.67
+DEBUG_sigmakin ievt00=0 ighel/nghel=4/8 ihel/ncomb=8/16 sumMEs=311.037
+DEBUG_sigmakin ievt00=0 ighel/nghel=5/8 ihel/ncomb=11/16 sumMEs=601.34
+DEBUG_sigmakin ievt00=0 ighel/nghel=6/8 ihel/ncomb=12/16 sumMEs=601.34
+DEBUG_sigmakin ievt00=0 ighel/nghel=7/8 ihel/ncomb=15/16 sumMEs=601.34
+DEBUG_sigmakin ievt00=0 ighel/nghel=0/8 ihel/ncomb=0/16 sumMEs=1.1774e-30
+DEBUG_sigmakin ievt00=0 ighel/nghel=1/8 ihel/ncomb=3/16 sumMEs=3.7353e-30
+DEBUG_sigmakin ievt00=0 ighel/nghel=2/8 ihel/ncomb=4/16 sumMEs=21.7492
+DEBUG_sigmakin ievt00=0 ighel/nghel=3/8 ihel/ncomb=7/16 sumMEs=84.7482
+DEBUG_sigmakin ievt00=0 ighel/nghel=4/8 ihel/ncomb=8/16 sumMEs=147.747
+DEBUG_sigmakin ievt00=0 ighel/nghel=5/8 ihel/ncomb=11/16 sumMEs=169.496
+DEBUG_sigmakin ievt00=0 ighel/nghel=6/8 ihel/ncomb=12/16 sumMEs=169.496
+DEBUG_sigmakin ievt00=0 ighel/nghel=7/8 ihel/ncomb=15/16 sumMEs=169.496
+DEBUG_sigmakin ievt00=0 ighel/nghel=0/8 ihel/ncomb=0/16 sumMEs=3.18998e-32
+DEBUG_sigmakin ievt00=0 ighel/nghel=1/8 ihel/ncomb=3/16 sumMEs=9.76382e-32
+DEBUG_sigmakin ievt00=0 ighel/nghel=2/8 ihel/ncomb=4/16 sumMEs=1334.74
+DEBUG_sigmakin ievt00=0 ighel/nghel=3/8 ihel/ncomb=7/16 sumMEs=1338.59
+DEBUG_sigmakin ievt00=0 ighel/nghel=4/8 ihel/ncomb=8/16 sumMEs=1342.43
+DEBUG_sigmakin ievt00=0 ighel/nghel=5/8 ihel/ncomb=11/16 sumMEs=2677.17
+DEBUG_sigmakin ievt00=0 ighel/nghel=6/8 ihel/ncomb=12/16 sumMEs=2677.17
+DEBUG_sigmakin ievt00=0 ighel/nghel=7/8 ihel/ncomb=15/16 sumMEs=2677.17
+DEBUG_sigmakin ievt00=0 ighel/nghel=0/8 ihel/ncomb=0/16 sumMEs=1.31907e-30
+DEBUG_sigmakin ievt00=0 ighel/nghel=1/8 ihel/ncomb=3/16 sumMEs=3.68565e-30
+DEBUG_sigmakin ievt00=0 ighel/nghel=2/8 ihel/ncomb=4/16 sumMEs=104.492
+DEBUG_sigmakin ievt00=0 ighel/nghel=3/8 ihel/ncomb=7/16 sumMEs=125.757
+DEBUG_sigmakin ievt00=0 ighel/nghel=4/8 ihel/ncomb=8/16 sumMEs=147.021
+DEBUG_sigmakin ievt00=0 ighel/nghel=5/8 ihel/ncomb=11/16 sumMEs=251.513
+DEBUG_sigmakin ievt00=0 ighel/nghel=6/8 ihel/ncomb=12/16 sumMEs=251.513
+DEBUG_sigmakin ievt00=0 ighel/nghel=7/8 ihel/ncomb=15/16 sumMEs=251.513
+DEBUG_sigmakin ievt00=0 ighel/nghel=0/8 ihel/ncomb=0/16 sumMEs=2.62954e-31
+DEBUG_sigmakin ievt00=0 ighel/nghel=1/8 ihel/ncomb=3/16 sumMEs=4.40502e-30
+DEBUG_sigmakin ievt00=0 ighel/nghel=2/8 ihel/ncomb=4/16 sumMEs=9.99991
+DEBUG_sigmakin ievt00=0 ighel/nghel=3/8 ihel/ncomb=7/16 sumMEs=566.08
+DEBUG_sigmakin ievt00=0 ighel/nghel=4/8 ihel/ncomb=8/16 sumMEs=1122.16
+DEBUG_sigmakin ievt00=0 ighel/nghel=5/8 ihel/ncomb=11/16 sumMEs=1132.16
+DEBUG_sigmakin ievt00=0 ighel/nghel=6/8 ihel/ncomb=12/16 sumMEs=1132.16
+DEBUG_sigmakin ievt00=0 ighel/nghel=7/8 ihel/ncomb=15/16 sumMEs=1132.16
+DEBUG_sigmakin ievt00=0 ighel/nghel=0/8 ihel/ncomb=0/16 sumMEs=2.66713e-31
+DEBUG_sigmakin ievt00=0 ighel/nghel=1/8 ihel/ncomb=3/16 sumMEs=5.33426e-31
+DEBUG_sigmakin ievt00=0 ighel/nghel=2/8 ihel/ncomb=4/16 sumMEs=609.92
+DEBUG_sigmakin ievt00=0 ighel/nghel=3/8 ihel/ncomb=7/16 sumMEs=618.708
+DEBUG_sigmakin ievt00=0 ighel/nghel=4/8 ihel/ncomb=8/16 sumMEs=627.496
+DEBUG_sigmakin ievt00=0 ighel/nghel=5/8 ihel/ncomb=11/16 sumMEs=1237.42
+DEBUG_sigmakin ievt00=0 ighel/nghel=6/8 ihel/ncomb=12/16 sumMEs=1237.42
+DEBUG_sigmakin ievt00=0 ighel/nghel=7/8 ihel/ncomb=15/16 sumMEs=1237.42
+DEBUG_sigmakin ievt00=0 ighel/nghel=0/8 ihel/ncomb=0/16 sumMEs=4.20726e-30
+DEBUG_sigmakin ievt00=0 ighel/nghel=1/8 ihel/ncomb=3/16 sumMEs=6.69663e-30
+DEBUG_sigmakin ievt00=0 ighel/nghel=2/8 ihel/ncomb=4/16 sumMEs=147.454
+DEBUG_sigmakin ievt00=0 ighel/nghel=3/8 ihel/ncomb=7/16 sumMEs=160.93
+DEBUG_sigmakin ievt00=0 ighel/nghel=4/8 ihel/ncomb=8/16 sumMEs=174.407
+DEBUG_sigmakin ievt00=0 ighel/nghel=5/8 ihel/ncomb=11/16 sumMEs=321.861
+DEBUG_sigmakin ievt00=0 ighel/nghel=6/8 ihel/ncomb=12/16 sumMEs=321.861
+DEBUG_sigmakin ievt00=0 ighel/nghel=7/8 ihel/ncomb=15/16 sumMEs=321.861
+DEBUG_sigmakin ievt00=0 ighel/nghel=0/8 ihel/ncomb=0/16 sumMEs=2.4345e-30
+DEBUG_sigmakin ievt00=0 ighel/nghel=1/8 ihel/ncomb=3/16 sumMEs=4.86899e-30
+DEBUG_sigmakin ievt00=0 ighel/nghel=2/8 ihel/ncomb=4/16 sumMEs=238.255
+DEBUG_sigmakin ievt00=0 ighel/nghel=3/8 ihel/ncomb=7/16 sumMEs=247.536
+DEBUG_sigmakin ievt00=0 ighel/nghel=4/8 ihel/ncomb=8/16 sumMEs=256.817
+DEBUG_sigmakin ievt00=0 ighel/nghel=5/8 ihel/ncomb=11/16 sumMEs=495.072
+DEBUG_sigmakin ievt00=0 ighel/nghel=6/8 ihel/ncomb=12/16 sumMEs=495.072
+DEBUG_sigmakin ievt00=0 ighel/nghel=7/8 ihel/ncomb=15/16 sumMEs=495.072
+DEBUG_sigmakin ievt00=0 ighel/nghel=0/8 ihel/ncomb=0/16 sumMEs=4.52255e-30
+DEBUG_sigmakin ievt00=0 ighel/nghel=1/8 ihel/ncomb=3/16 sumMEs=7.20443e-30
+DEBUG_sigmakin ievt00=0 ighel/nghel=2/8 ihel/ncomb=4/16 sumMEs=62.5752
+DEBUG_sigmakin ievt00=0 ighel/nghel=3/8 ihel/ncomb=7/16 sumMEs=90.9246
+DEBUG_sigmakin ievt00=0 ighel/nghel=4/8 ihel/ncomb=8/16 sumMEs=119.274
+DEBUG_sigmakin ievt00=0 ighel/nghel=5/8 ihel/ncomb=11/16 sumMEs=181.849
+DEBUG_sigmakin ievt00=0 ighel/nghel=6/8 ihel/ncomb=12/16 sumMEs=181.849
+DEBUG_sigmakin ievt00=0 ighel/nghel=7/8 ihel/ncomb=15/16 sumMEs=181.849
+DEBUG_sigmakin ievt00=0 ighel/nghel=0/8 ihel/ncomb=0/16 sumMEs=2.62954e-31
+DEBUG_sigmakin ievt00=0 ighel/nghel=1/8 ihel/ncomb=3/16 sumMEs=2.81782e-30
+DEBUG_sigmakin ievt00=0 ighel/nghel=2/8 ihel/ncomb=4/16 sumMEs=86.8043
+DEBUG_sigmakin ievt00=0 ighel/nghel=3/8 ihel/ncomb=7/16 sumMEs=103.966
+DEBUG_sigmakin ievt00=0 ighel/nghel=4/8 ihel/ncomb=8/16 sumMEs=121.128
+DEBUG_sigmakin ievt00=0 ighel/nghel=5/8 ihel/ncomb=11/16 sumMEs=207.933
+DEBUG_sigmakin ievt00=0 ighel/nghel=6/8 ihel/ncomb=12/16 sumMEs=207.933
+DEBUG_sigmakin ievt00=0 ighel/nghel=7/8 ihel/ncomb=15/16 sumMEs=207.933
+DEBUG_sigmakin ievt00=0 ighel/nghel=0/8 ihel/ncomb=0/16 sumMEs=1.55362e-32
+DEBUG_sigmakin ievt00=0 ighel/nghel=1/8 ihel/ncomb=3/16 sumMEs=1.08289e-30
+DEBUG_sigmakin ievt00=0 ighel/nghel=2/8 ihel/ncomb=4/16 sumMEs=25.0386
+DEBUG_sigmakin ievt00=0 ighel/nghel=3/8 ihel/ncomb=7/16 sumMEs=123.55
+DEBUG_sigmakin ievt00=0 ighel/nghel=4/8 ihel/ncomb=8/16 sumMEs=222.061
+DEBUG_sigmakin ievt00=0 ighel/nghel=5/8 ihel/ncomb=11/16 sumMEs=247.1
+DEBUG_sigmakin ievt00=0 ighel/nghel=6/8 ihel/ncomb=12/16 sumMEs=247.1
+DEBUG_sigmakin ievt00=0 ighel/nghel=7/8 ihel/ncomb=15/16 sumMEs=247.1
  [OPENMPTH] omp_get_max_threads/nproc = 1/4
  [NGOODHEL] ngoodhel/ncomb = 8/16
  [XSECTION] VECSIZE_USED = 8192
@@ -199,9 +311,9 @@ DEBUG ievt=0 ihel=15: 3.84434e-30, 601.34, 601.34
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 307300 [307281.60874575953] fbridge_mode=1
  [UNWEIGHT] Wrote 1816 events (found 1821 events)
- [COUNTERS] PROGRAM TOTAL          :    2.2836s
- [COUNTERS] Fortran Overhead ( 0 ) :    2.0818s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.2018s for    90112 events => throughput is 4.46E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    2.1692s
+ [COUNTERS] Fortran Overhead ( 0 ) :    1.9645s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.2047s for    90112 events => throughput is 4.40E+05 events/s
 
 *** (2-none) Compare MADEVENT_CPP x10 xsec to MADEVENT_FORTRAN xsec ***
 
@@ -214,12 +326,12 @@ OK! events.lhe.cpp.10 and events.lhe.ref.10 are identical
 *** EXECUTE CHECK(8192) -p 256 32 1 --bridge ***
 Process                     = SIGMA_SM_GG_UUX_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+BRDHST/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 4.489976e+05                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 4.268633e+05                 )  sec^-1
 
 *** EXECUTE CHECK(8192) -p 256 32 1 ***
 Process                     = SIGMA_SM_GG_UUX_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 4.364914e+05                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 4.278961e+05                 )  sec^-1
 
 *** (2-sse4) EXECUTE MADEVENT_CPP x1 (create events.lhe) ***
 --------------------
@@ -234,22 +346,22 @@ CUDACPP_RUNTIME_VECSIZEUSED = 8192
 1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 --------------------
 Executing ' ./build.sse4_d_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_gguu_x1_cudacpp > /tmp/avalassi/output_gguu_x1_cudacpp'
-DEBUG ievt=0 ihel=0: 3.84434e-30, 0, 3.84434e-30
-DEBUG ievt=0 ihel=1: 0, 3.84434e-30, 3.84434e-30
-DEBUG ievt=0 ihel=2: 0, 3.84434e-30, 3.84434e-30
-DEBUG ievt=0 ihel=3: 2.49265e-30, 3.84434e-30, 6.337e-30
-DEBUG ievt=0 ihel=4: 290.303, 6.337e-30, 290.303
-DEBUG ievt=0 ihel=5: 0, 290.303, 290.303
-DEBUG ievt=0 ihel=6: 0, 290.303, 290.303
-DEBUG ievt=0 ihel=7: 10.3671, 290.303, 300.67
-DEBUG ievt=0 ihel=8: 10.3671, 300.67, 311.037
-DEBUG ievt=0 ihel=9: 0, 311.037, 311.037
-DEBUG ievt=0 ihel=10: 0, 311.037, 311.037
-DEBUG ievt=0 ihel=11: 290.303, 311.037, 601.34
-DEBUG ievt=0 ihel=12: 2.49265e-30, 601.34, 601.34
-DEBUG ievt=0 ihel=13: 0, 601.34, 601.34
-DEBUG ievt=0 ihel=14: 0, 601.34, 601.34
-DEBUG ievt=0 ihel=15: 3.84434e-30, 601.34, 601.34
+DEBUG_getgoodhel ievt=0 ihel=0: 3.84434e-30, 0, 3.84434e-30
+DEBUG_getgoodhel ievt=0 ihel=1: 0, 3.84434e-30, 3.84434e-30
+DEBUG_getgoodhel ievt=0 ihel=2: 0, 3.84434e-30, 3.84434e-30
+DEBUG_getgoodhel ievt=0 ihel=3: 2.49265e-30, 3.84434e-30, 6.337e-30
+DEBUG_getgoodhel ievt=0 ihel=4: 290.303, 6.337e-30, 290.303
+DEBUG_getgoodhel ievt=0 ihel=5: 0, 290.303, 290.303
+DEBUG_getgoodhel ievt=0 ihel=6: 0, 290.303, 290.303
+DEBUG_getgoodhel ievt=0 ihel=7: 10.3671, 290.303, 300.67
+DEBUG_getgoodhel ievt=0 ihel=8: 10.3671, 300.67, 311.037
+DEBUG_getgoodhel ievt=0 ihel=9: 0, 311.037, 311.037
+DEBUG_getgoodhel ievt=0 ihel=10: 0, 311.037, 311.037
+DEBUG_getgoodhel ievt=0 ihel=11: 290.303, 311.037, 601.34
+DEBUG_getgoodhel ievt=0 ihel=12: 2.49265e-30, 601.34, 601.34
+DEBUG_getgoodhel ievt=0 ihel=13: 0, 601.34, 601.34
+DEBUG_getgoodhel ievt=0 ihel=14: 0, 601.34, 601.34
+DEBUG_getgoodhel ievt=0 ihel=15: 3.84434e-30, 601.34, 601.34
  [OPENMPTH] omp_get_max_threads/nproc = 1/4
  [NGOODHEL] ngoodhel/ncomb = 8/16
  [XSECTION] VECSIZE_USED = 8192
@@ -258,9 +370,9 @@ DEBUG ievt=0 ihel=15: 3.84434e-30, 601.34, 601.34
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 2756000 [2755752.8574748533] fbridge_mode=1
  [UNWEIGHT] Wrote 1492 events (found 1585 events)
- [COUNTERS] PROGRAM TOTAL          :    0.4150s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.4057s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0093s for     8192 events => throughput is 8.81E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.4141s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.4048s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0093s for     8192 events => throughput is 8.80E+05 events/s
 
 *** (2-sse4) Compare MADEVENT_CPP x1 xsec to MADEVENT_FORTRAN xsec ***
 
@@ -283,22 +395,22 @@ CUDACPP_RUNTIME_VECSIZEUSED = 8192
 1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 --------------------
 Executing ' ./build.sse4_d_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_gguu_x10_cudacpp > /tmp/avalassi/output_gguu_x10_cudacpp'
-DEBUG ievt=0 ihel=0: 3.84434e-30, 0, 3.84434e-30
-DEBUG ievt=0 ihel=1: 0, 3.84434e-30, 3.84434e-30
-DEBUG ievt=0 ihel=2: 0, 3.84434e-30, 3.84434e-30
-DEBUG ievt=0 ihel=3: 2.49265e-30, 3.84434e-30, 6.337e-30
-DEBUG ievt=0 ihel=4: 290.303, 6.337e-30, 290.303
-DEBUG ievt=0 ihel=5: 0, 290.303, 290.303
-DEBUG ievt=0 ihel=6: 0, 290.303, 290.303
-DEBUG ievt=0 ihel=7: 10.3671, 290.303, 300.67
-DEBUG ievt=0 ihel=8: 10.3671, 300.67, 311.037
-DEBUG ievt=0 ihel=9: 0, 311.037, 311.037
-DEBUG ievt=0 ihel=10: 0, 311.037, 311.037
-DEBUG ievt=0 ihel=11: 290.303, 311.037, 601.34
-DEBUG ievt=0 ihel=12: 2.49265e-30, 601.34, 601.34
-DEBUG ievt=0 ihel=13: 0, 601.34, 601.34
-DEBUG ievt=0 ihel=14: 0, 601.34, 601.34
-DEBUG ievt=0 ihel=15: 3.84434e-30, 601.34, 601.34
+DEBUG_getgoodhel ievt=0 ihel=0: 3.84434e-30, 0, 3.84434e-30
+DEBUG_getgoodhel ievt=0 ihel=1: 0, 3.84434e-30, 3.84434e-30
+DEBUG_getgoodhel ievt=0 ihel=2: 0, 3.84434e-30, 3.84434e-30
+DEBUG_getgoodhel ievt=0 ihel=3: 2.49265e-30, 3.84434e-30, 6.337e-30
+DEBUG_getgoodhel ievt=0 ihel=4: 290.303, 6.337e-30, 290.303
+DEBUG_getgoodhel ievt=0 ihel=5: 0, 290.303, 290.303
+DEBUG_getgoodhel ievt=0 ihel=6: 0, 290.303, 290.303
+DEBUG_getgoodhel ievt=0 ihel=7: 10.3671, 290.303, 300.67
+DEBUG_getgoodhel ievt=0 ihel=8: 10.3671, 300.67, 311.037
+DEBUG_getgoodhel ievt=0 ihel=9: 0, 311.037, 311.037
+DEBUG_getgoodhel ievt=0 ihel=10: 0, 311.037, 311.037
+DEBUG_getgoodhel ievt=0 ihel=11: 290.303, 311.037, 601.34
+DEBUG_getgoodhel ievt=0 ihel=12: 2.49265e-30, 601.34, 601.34
+DEBUG_getgoodhel ievt=0 ihel=13: 0, 601.34, 601.34
+DEBUG_getgoodhel ievt=0 ihel=14: 0, 601.34, 601.34
+DEBUG_getgoodhel ievt=0 ihel=15: 3.84434e-30, 601.34, 601.34
  [OPENMPTH] omp_get_max_threads/nproc = 1/4
  [NGOODHEL] ngoodhel/ncomb = 8/16
  [XSECTION] VECSIZE_USED = 8192
@@ -307,9 +419,9 @@ DEBUG ievt=0 ihel=15: 3.84434e-30, 601.34, 601.34
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 307300 [307281.60874575953] fbridge_mode=1
  [UNWEIGHT] Wrote 1816 events (found 1821 events)
- [COUNTERS] PROGRAM TOTAL          :    2.0610s
- [COUNTERS] Fortran Overhead ( 0 ) :    1.9595s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.1015s for    90112 events => throughput is 8.88E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    2.1317s
+ [COUNTERS] Fortran Overhead ( 0 ) :    2.0290s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.1027s for    90112 events => throughput is 8.77E+05 events/s
 
 *** (2-sse4) Compare MADEVENT_CPP x10 xsec to MADEVENT_FORTRAN xsec ***
 
@@ -322,12 +434,12 @@ OK! events.lhe.cpp.10 and events.lhe.ref.10 are identical
 *** EXECUTE CHECK(8192) -p 256 32 1 --bridge ***
 Process                     = SIGMA_SM_GG_UUX_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+BRDHST/sse4+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 8.951165e+05                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 8.654945e+05                 )  sec^-1
 
 *** EXECUTE CHECK(8192) -p 256 32 1 ***
 Process                     = SIGMA_SM_GG_UUX_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/sse4+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 8.732954e+05                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 8.713822e+05                 )  sec^-1
 
 *** (2-avx2) EXECUTE MADEVENT_CPP x1 (create events.lhe) ***
 --------------------
@@ -342,22 +454,22 @@ CUDACPP_RUNTIME_VECSIZEUSED = 8192
 1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 --------------------
 Executing ' ./build.avx2_d_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_gguu_x1_cudacpp > /tmp/avalassi/output_gguu_x1_cudacpp'
-DEBUG ievt=0 ihel=0: 7.39422e-30, 0, 7.39422e-30
-DEBUG ievt=0 ihel=1: 0, 7.39422e-30, 7.39422e-30
-DEBUG ievt=0 ihel=2: 0, 7.39422e-30, 7.39422e-30
-DEBUG ievt=0 ihel=3: 2.49265e-30, 7.39422e-30, 9.88687e-30
-DEBUG ievt=0 ihel=4: 290.303, 9.88687e-30, 290.303
-DEBUG ievt=0 ihel=5: 0, 290.303, 290.303
-DEBUG ievt=0 ihel=6: 0, 290.303, 290.303
-DEBUG ievt=0 ihel=7: 10.3671, 290.303, 300.67
-DEBUG ievt=0 ihel=8: 10.3671, 300.67, 311.037
-DEBUG ievt=0 ihel=9: 0, 311.037, 311.037
-DEBUG ievt=0 ihel=10: 0, 311.037, 311.037
-DEBUG ievt=0 ihel=11: 290.303, 311.037, 601.34
-DEBUG ievt=0 ihel=12: 4.85923e-30, 601.34, 601.34
-DEBUG ievt=0 ihel=13: 0, 601.34, 601.34
-DEBUG ievt=0 ihel=14: 0, 601.34, 601.34
-DEBUG ievt=0 ihel=15: 3.84434e-30, 601.34, 601.34
+DEBUG_getgoodhel ievt=0 ihel=0: 7.39422e-30, 0, 7.39422e-30
+DEBUG_getgoodhel ievt=0 ihel=1: 0, 7.39422e-30, 7.39422e-30
+DEBUG_getgoodhel ievt=0 ihel=2: 0, 7.39422e-30, 7.39422e-30
+DEBUG_getgoodhel ievt=0 ihel=3: 2.49265e-30, 7.39422e-30, 9.88687e-30
+DEBUG_getgoodhel ievt=0 ihel=4: 290.303, 9.88687e-30, 290.303
+DEBUG_getgoodhel ievt=0 ihel=5: 0, 290.303, 290.303
+DEBUG_getgoodhel ievt=0 ihel=6: 0, 290.303, 290.303
+DEBUG_getgoodhel ievt=0 ihel=7: 10.3671, 290.303, 300.67
+DEBUG_getgoodhel ievt=0 ihel=8: 10.3671, 300.67, 311.037
+DEBUG_getgoodhel ievt=0 ihel=9: 0, 311.037, 311.037
+DEBUG_getgoodhel ievt=0 ihel=10: 0, 311.037, 311.037
+DEBUG_getgoodhel ievt=0 ihel=11: 290.303, 311.037, 601.34
+DEBUG_getgoodhel ievt=0 ihel=12: 4.85923e-30, 601.34, 601.34
+DEBUG_getgoodhel ievt=0 ihel=13: 0, 601.34, 601.34
+DEBUG_getgoodhel ievt=0 ihel=14: 0, 601.34, 601.34
+DEBUG_getgoodhel ievt=0 ihel=15: 3.84434e-30, 601.34, 601.34
  [OPENMPTH] omp_get_max_threads/nproc = 1/4
  [NGOODHEL] ngoodhel/ncomb = 8/16
  [XSECTION] VECSIZE_USED = 8192
@@ -366,9 +478,9 @@ DEBUG ievt=0 ihel=15: 3.84434e-30, 601.34, 601.34
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 2756000 [2755752.8574748524] fbridge_mode=1
  [UNWEIGHT] Wrote 1492 events (found 1585 events)
- [COUNTERS] PROGRAM TOTAL          :    0.4095s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.4045s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0049s for     8192 events => throughput is 1.66E+06 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.4086s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.4037s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0049s for     8192 events => throughput is 1.68E+06 events/s
 
 *** (2-avx2) Compare MADEVENT_CPP x1 xsec to MADEVENT_FORTRAN xsec ***
 
@@ -391,22 +503,22 @@ CUDACPP_RUNTIME_VECSIZEUSED = 8192
 1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 --------------------
 Executing ' ./build.avx2_d_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_gguu_x10_cudacpp > /tmp/avalassi/output_gguu_x10_cudacpp'
-DEBUG ievt=0 ihel=0: 7.39422e-30, 0, 7.39422e-30
-DEBUG ievt=0 ihel=1: 0, 7.39422e-30, 7.39422e-30
-DEBUG ievt=0 ihel=2: 0, 7.39422e-30, 7.39422e-30
-DEBUG ievt=0 ihel=3: 2.49265e-30, 7.39422e-30, 9.88687e-30
-DEBUG ievt=0 ihel=4: 290.303, 9.88687e-30, 290.303
-DEBUG ievt=0 ihel=5: 0, 290.303, 290.303
-DEBUG ievt=0 ihel=6: 0, 290.303, 290.303
-DEBUG ievt=0 ihel=7: 10.3671, 290.303, 300.67
-DEBUG ievt=0 ihel=8: 10.3671, 300.67, 311.037
-DEBUG ievt=0 ihel=9: 0, 311.037, 311.037
-DEBUG ievt=0 ihel=10: 0, 311.037, 311.037
-DEBUG ievt=0 ihel=11: 290.303, 311.037, 601.34
-DEBUG ievt=0 ihel=12: 4.85923e-30, 601.34, 601.34
-DEBUG ievt=0 ihel=13: 0, 601.34, 601.34
-DEBUG ievt=0 ihel=14: 0, 601.34, 601.34
-DEBUG ievt=0 ihel=15: 3.84434e-30, 601.34, 601.34
+DEBUG_getgoodhel ievt=0 ihel=0: 7.39422e-30, 0, 7.39422e-30
+DEBUG_getgoodhel ievt=0 ihel=1: 0, 7.39422e-30, 7.39422e-30
+DEBUG_getgoodhel ievt=0 ihel=2: 0, 7.39422e-30, 7.39422e-30
+DEBUG_getgoodhel ievt=0 ihel=3: 2.49265e-30, 7.39422e-30, 9.88687e-30
+DEBUG_getgoodhel ievt=0 ihel=4: 290.303, 9.88687e-30, 290.303
+DEBUG_getgoodhel ievt=0 ihel=5: 0, 290.303, 290.303
+DEBUG_getgoodhel ievt=0 ihel=6: 0, 290.303, 290.303
+DEBUG_getgoodhel ievt=0 ihel=7: 10.3671, 290.303, 300.67
+DEBUG_getgoodhel ievt=0 ihel=8: 10.3671, 300.67, 311.037
+DEBUG_getgoodhel ievt=0 ihel=9: 0, 311.037, 311.037
+DEBUG_getgoodhel ievt=0 ihel=10: 0, 311.037, 311.037
+DEBUG_getgoodhel ievt=0 ihel=11: 290.303, 311.037, 601.34
+DEBUG_getgoodhel ievt=0 ihel=12: 4.85923e-30, 601.34, 601.34
+DEBUG_getgoodhel ievt=0 ihel=13: 0, 601.34, 601.34
+DEBUG_getgoodhel ievt=0 ihel=14: 0, 601.34, 601.34
+DEBUG_getgoodhel ievt=0 ihel=15: 3.84434e-30, 601.34, 601.34
  [OPENMPTH] omp_get_max_threads/nproc = 1/4
  [NGOODHEL] ngoodhel/ncomb = 8/16
  [XSECTION] VECSIZE_USED = 8192
@@ -415,9 +527,9 @@ DEBUG ievt=0 ihel=15: 3.84434e-30, 601.34, 601.34
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 307300 [307281.60874575964] fbridge_mode=1
  [UNWEIGHT] Wrote 1816 events (found 1821 events)
- [COUNTERS] PROGRAM TOTAL          :    2.0219s
- [COUNTERS] Fortran Overhead ( 0 ) :    1.9667s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0551s for    90112 events => throughput is 1.63E+06 events/s
+ [COUNTERS] PROGRAM TOTAL          :    2.0406s
+ [COUNTERS] Fortran Overhead ( 0 ) :    1.9856s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0550s for    90112 events => throughput is 1.64E+06 events/s
 
 *** (2-avx2) Compare MADEVENT_CPP x10 xsec to MADEVENT_FORTRAN xsec ***
 
@@ -430,12 +542,12 @@ OK! events.lhe.cpp.10 and events.lhe.ref.10 are identical
 *** EXECUTE CHECK(8192) -p 256 32 1 --bridge ***
 Process                     = SIGMA_SM_GG_UUX_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+BRDHST/avx2+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 1.606034e+06                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.583762e+06                 )  sec^-1
 
 *** EXECUTE CHECK(8192) -p 256 32 1 ***
 Process                     = SIGMA_SM_GG_UUX_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/avx2+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 1.723575e+06                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.666651e+06                 )  sec^-1
 
 *** (2-512y) EXECUTE MADEVENT_CPP x1 (create events.lhe) ***
 --------------------
@@ -450,22 +562,22 @@ CUDACPP_RUNTIME_VECSIZEUSED = 8192
 1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 --------------------
 Executing ' ./build.512y_d_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_gguu_x1_cudacpp > /tmp/avalassi/output_gguu_x1_cudacpp'
-DEBUG ievt=0 ihel=0: 7.39422e-30, 0, 7.39422e-30
-DEBUG ievt=0 ihel=1: 0, 7.39422e-30, 7.39422e-30
-DEBUG ievt=0 ihel=2: 0, 7.39422e-30, 7.39422e-30
-DEBUG ievt=0 ihel=3: 2.49265e-30, 7.39422e-30, 9.88687e-30
-DEBUG ievt=0 ihel=4: 290.303, 9.88687e-30, 290.303
-DEBUG ievt=0 ihel=5: 0, 290.303, 290.303
-DEBUG ievt=0 ihel=6: 0, 290.303, 290.303
-DEBUG ievt=0 ihel=7: 10.3671, 290.303, 300.67
-DEBUG ievt=0 ihel=8: 10.3671, 300.67, 311.037
-DEBUG ievt=0 ihel=9: 0, 311.037, 311.037
-DEBUG ievt=0 ihel=10: 0, 311.037, 311.037
-DEBUG ievt=0 ihel=11: 290.303, 311.037, 601.34
-DEBUG ievt=0 ihel=12: 4.85923e-30, 601.34, 601.34
-DEBUG ievt=0 ihel=13: 0, 601.34, 601.34
-DEBUG ievt=0 ihel=14: 0, 601.34, 601.34
-DEBUG ievt=0 ihel=15: 3.84434e-30, 601.34, 601.34
+DEBUG_getgoodhel ievt=0 ihel=0: 7.39422e-30, 0, 7.39422e-30
+DEBUG_getgoodhel ievt=0 ihel=1: 0, 7.39422e-30, 7.39422e-30
+DEBUG_getgoodhel ievt=0 ihel=2: 0, 7.39422e-30, 7.39422e-30
+DEBUG_getgoodhel ievt=0 ihel=3: 2.49265e-30, 7.39422e-30, 9.88687e-30
+DEBUG_getgoodhel ievt=0 ihel=4: 290.303, 9.88687e-30, 290.303
+DEBUG_getgoodhel ievt=0 ihel=5: 0, 290.303, 290.303
+DEBUG_getgoodhel ievt=0 ihel=6: 0, 290.303, 290.303
+DEBUG_getgoodhel ievt=0 ihel=7: 10.3671, 290.303, 300.67
+DEBUG_getgoodhel ievt=0 ihel=8: 10.3671, 300.67, 311.037
+DEBUG_getgoodhel ievt=0 ihel=9: 0, 311.037, 311.037
+DEBUG_getgoodhel ievt=0 ihel=10: 0, 311.037, 311.037
+DEBUG_getgoodhel ievt=0 ihel=11: 290.303, 311.037, 601.34
+DEBUG_getgoodhel ievt=0 ihel=12: 4.85923e-30, 601.34, 601.34
+DEBUG_getgoodhel ievt=0 ihel=13: 0, 601.34, 601.34
+DEBUG_getgoodhel ievt=0 ihel=14: 0, 601.34, 601.34
+DEBUG_getgoodhel ievt=0 ihel=15: 3.84434e-30, 601.34, 601.34
  [OPENMPTH] omp_get_max_threads/nproc = 1/4
  [NGOODHEL] ngoodhel/ncomb = 8/16
  [XSECTION] VECSIZE_USED = 8192
@@ -474,9 +586,9 @@ DEBUG ievt=0 ihel=15: 3.84434e-30, 601.34, 601.34
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 2756000 [2755752.8574748524] fbridge_mode=1
  [UNWEIGHT] Wrote 1492 events (found 1585 events)
- [COUNTERS] PROGRAM TOTAL          :    0.4060s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.4012s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0048s for     8192 events => throughput is 1.72E+06 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.4116s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.4069s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0047s for     8192 events => throughput is 1.74E+06 events/s
 
 *** (2-512y) Compare MADEVENT_CPP x1 xsec to MADEVENT_FORTRAN xsec ***
 
@@ -499,22 +611,22 @@ CUDACPP_RUNTIME_VECSIZEUSED = 8192
 1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 --------------------
 Executing ' ./build.512y_d_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_gguu_x10_cudacpp > /tmp/avalassi/output_gguu_x10_cudacpp'
-DEBUG ievt=0 ihel=0: 7.39422e-30, 0, 7.39422e-30
-DEBUG ievt=0 ihel=1: 0, 7.39422e-30, 7.39422e-30
-DEBUG ievt=0 ihel=2: 0, 7.39422e-30, 7.39422e-30
-DEBUG ievt=0 ihel=3: 2.49265e-30, 7.39422e-30, 9.88687e-30
-DEBUG ievt=0 ihel=4: 290.303, 9.88687e-30, 290.303
-DEBUG ievt=0 ihel=5: 0, 290.303, 290.303
-DEBUG ievt=0 ihel=6: 0, 290.303, 290.303
-DEBUG ievt=0 ihel=7: 10.3671, 290.303, 300.67
-DEBUG ievt=0 ihel=8: 10.3671, 300.67, 311.037
-DEBUG ievt=0 ihel=9: 0, 311.037, 311.037
-DEBUG ievt=0 ihel=10: 0, 311.037, 311.037
-DEBUG ievt=0 ihel=11: 290.303, 311.037, 601.34
-DEBUG ievt=0 ihel=12: 4.85923e-30, 601.34, 601.34
-DEBUG ievt=0 ihel=13: 0, 601.34, 601.34
-DEBUG ievt=0 ihel=14: 0, 601.34, 601.34
-DEBUG ievt=0 ihel=15: 3.84434e-30, 601.34, 601.34
+DEBUG_getgoodhel ievt=0 ihel=0: 7.39422e-30, 0, 7.39422e-30
+DEBUG_getgoodhel ievt=0 ihel=1: 0, 7.39422e-30, 7.39422e-30
+DEBUG_getgoodhel ievt=0 ihel=2: 0, 7.39422e-30, 7.39422e-30
+DEBUG_getgoodhel ievt=0 ihel=3: 2.49265e-30, 7.39422e-30, 9.88687e-30
+DEBUG_getgoodhel ievt=0 ihel=4: 290.303, 9.88687e-30, 290.303
+DEBUG_getgoodhel ievt=0 ihel=5: 0, 290.303, 290.303
+DEBUG_getgoodhel ievt=0 ihel=6: 0, 290.303, 290.303
+DEBUG_getgoodhel ievt=0 ihel=7: 10.3671, 290.303, 300.67
+DEBUG_getgoodhel ievt=0 ihel=8: 10.3671, 300.67, 311.037
+DEBUG_getgoodhel ievt=0 ihel=9: 0, 311.037, 311.037
+DEBUG_getgoodhel ievt=0 ihel=10: 0, 311.037, 311.037
+DEBUG_getgoodhel ievt=0 ihel=11: 290.303, 311.037, 601.34
+DEBUG_getgoodhel ievt=0 ihel=12: 4.85923e-30, 601.34, 601.34
+DEBUG_getgoodhel ievt=0 ihel=13: 0, 601.34, 601.34
+DEBUG_getgoodhel ievt=0 ihel=14: 0, 601.34, 601.34
+DEBUG_getgoodhel ievt=0 ihel=15: 3.84434e-30, 601.34, 601.34
  [OPENMPTH] omp_get_max_threads/nproc = 1/4
  [NGOODHEL] ngoodhel/ncomb = 8/16
  [XSECTION] VECSIZE_USED = 8192
@@ -523,9 +635,9 @@ DEBUG ievt=0 ihel=15: 3.84434e-30, 601.34, 601.34
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 307300 [307281.60874575964] fbridge_mode=1
  [UNWEIGHT] Wrote 1816 events (found 1821 events)
- [COUNTERS] PROGRAM TOTAL          :    1.9926s
- [COUNTERS] Fortran Overhead ( 0 ) :    1.9411s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0514s for    90112 events => throughput is 1.75E+06 events/s
+ [COUNTERS] PROGRAM TOTAL          :    2.0081s
+ [COUNTERS] Fortran Overhead ( 0 ) :    1.9556s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0525s for    90112 events => throughput is 1.72E+06 events/s
 
 *** (2-512y) Compare MADEVENT_CPP x10 xsec to MADEVENT_FORTRAN xsec ***
 
@@ -538,12 +650,12 @@ OK! events.lhe.cpp.10 and events.lhe.ref.10 are identical
 *** EXECUTE CHECK(8192) -p 256 32 1 --bridge ***
 Process                     = SIGMA_SM_GG_UUX_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+BRDHST/512y+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 1.706902e+06                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.713044e+06                 )  sec^-1
 
 *** EXECUTE CHECK(8192) -p 256 32 1 ***
 Process                     = SIGMA_SM_GG_UUX_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/512y+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 1.754866e+06                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.765646e+06                 )  sec^-1
 
 *** (2-512z) EXECUTE MADEVENT_CPP x1 (create events.lhe) ***
 --------------------
@@ -558,22 +670,22 @@ CUDACPP_RUNTIME_VECSIZEUSED = 8192
 1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 --------------------
 Executing ' ./build.512z_d_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_gguu_x1_cudacpp > /tmp/avalassi/output_gguu_x1_cudacpp'
-DEBUG ievt=0 ihel=0: 7.39422e-30, 0, 7.39422e-30
-DEBUG ievt=0 ihel=1: 0, 7.39422e-30, 7.39422e-30
-DEBUG ievt=0 ihel=2: 0, 7.39422e-30, 7.39422e-30
-DEBUG ievt=0 ihel=3: 2.49265e-30, 7.39422e-30, 9.88687e-30
-DEBUG ievt=0 ihel=4: 290.303, 9.88687e-30, 290.303
-DEBUG ievt=0 ihel=5: 0, 290.303, 290.303
-DEBUG ievt=0 ihel=6: 0, 290.303, 290.303
-DEBUG ievt=0 ihel=7: 10.3671, 290.303, 300.67
-DEBUG ievt=0 ihel=8: 10.3671, 300.67, 311.037
-DEBUG ievt=0 ihel=9: 0, 311.037, 311.037
-DEBUG ievt=0 ihel=10: 0, 311.037, 311.037
-DEBUG ievt=0 ihel=11: 290.303, 311.037, 601.34
-DEBUG ievt=0 ihel=12: 4.85923e-30, 601.34, 601.34
-DEBUG ievt=0 ihel=13: 0, 601.34, 601.34
-DEBUG ievt=0 ihel=14: 0, 601.34, 601.34
-DEBUG ievt=0 ihel=15: 3.84434e-30, 601.34, 601.34
+DEBUG_getgoodhel ievt=0 ihel=0: 7.39422e-30, 0, 7.39422e-30
+DEBUG_getgoodhel ievt=0 ihel=1: 0, 7.39422e-30, 7.39422e-30
+DEBUG_getgoodhel ievt=0 ihel=2: 0, 7.39422e-30, 7.39422e-30
+DEBUG_getgoodhel ievt=0 ihel=3: 2.49265e-30, 7.39422e-30, 9.88687e-30
+DEBUG_getgoodhel ievt=0 ihel=4: 290.303, 9.88687e-30, 290.303
+DEBUG_getgoodhel ievt=0 ihel=5: 0, 290.303, 290.303
+DEBUG_getgoodhel ievt=0 ihel=6: 0, 290.303, 290.303
+DEBUG_getgoodhel ievt=0 ihel=7: 10.3671, 290.303, 300.67
+DEBUG_getgoodhel ievt=0 ihel=8: 10.3671, 300.67, 311.037
+DEBUG_getgoodhel ievt=0 ihel=9: 0, 311.037, 311.037
+DEBUG_getgoodhel ievt=0 ihel=10: 0, 311.037, 311.037
+DEBUG_getgoodhel ievt=0 ihel=11: 290.303, 311.037, 601.34
+DEBUG_getgoodhel ievt=0 ihel=12: 4.85923e-30, 601.34, 601.34
+DEBUG_getgoodhel ievt=0 ihel=13: 0, 601.34, 601.34
+DEBUG_getgoodhel ievt=0 ihel=14: 0, 601.34, 601.34
+DEBUG_getgoodhel ievt=0 ihel=15: 3.84434e-30, 601.34, 601.34
  [OPENMPTH] omp_get_max_threads/nproc = 1/4
  [NGOODHEL] ngoodhel/ncomb = 8/16
  [XSECTION] VECSIZE_USED = 8192
@@ -582,9 +694,9 @@ DEBUG ievt=0 ihel=15: 3.84434e-30, 601.34, 601.34
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 2756000 [2755752.8574748524] fbridge_mode=1
  [UNWEIGHT] Wrote 1492 events (found 1585 events)
- [COUNTERS] PROGRAM TOTAL          :    0.4077s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.4017s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0061s for     8192 events => throughput is 1.35E+06 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.4113s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.4054s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0059s for     8192 events => throughput is 1.39E+06 events/s
 
 *** (2-512z) Compare MADEVENT_CPP x1 xsec to MADEVENT_FORTRAN xsec ***
 
@@ -607,22 +719,22 @@ CUDACPP_RUNTIME_VECSIZEUSED = 8192
 1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 --------------------
 Executing ' ./build.512z_d_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_gguu_x10_cudacpp > /tmp/avalassi/output_gguu_x10_cudacpp'
-DEBUG ievt=0 ihel=0: 7.39422e-30, 0, 7.39422e-30
-DEBUG ievt=0 ihel=1: 0, 7.39422e-30, 7.39422e-30
-DEBUG ievt=0 ihel=2: 0, 7.39422e-30, 7.39422e-30
-DEBUG ievt=0 ihel=3: 2.49265e-30, 7.39422e-30, 9.88687e-30
-DEBUG ievt=0 ihel=4: 290.303, 9.88687e-30, 290.303
-DEBUG ievt=0 ihel=5: 0, 290.303, 290.303
-DEBUG ievt=0 ihel=6: 0, 290.303, 290.303
-DEBUG ievt=0 ihel=7: 10.3671, 290.303, 300.67
-DEBUG ievt=0 ihel=8: 10.3671, 300.67, 311.037
-DEBUG ievt=0 ihel=9: 0, 311.037, 311.037
-DEBUG ievt=0 ihel=10: 0, 311.037, 311.037
-DEBUG ievt=0 ihel=11: 290.303, 311.037, 601.34
-DEBUG ievt=0 ihel=12: 4.85923e-30, 601.34, 601.34
-DEBUG ievt=0 ihel=13: 0, 601.34, 601.34
-DEBUG ievt=0 ihel=14: 0, 601.34, 601.34
-DEBUG ievt=0 ihel=15: 3.84434e-30, 601.34, 601.34
+DEBUG_getgoodhel ievt=0 ihel=0: 7.39422e-30, 0, 7.39422e-30
+DEBUG_getgoodhel ievt=0 ihel=1: 0, 7.39422e-30, 7.39422e-30
+DEBUG_getgoodhel ievt=0 ihel=2: 0, 7.39422e-30, 7.39422e-30
+DEBUG_getgoodhel ievt=0 ihel=3: 2.49265e-30, 7.39422e-30, 9.88687e-30
+DEBUG_getgoodhel ievt=0 ihel=4: 290.303, 9.88687e-30, 290.303
+DEBUG_getgoodhel ievt=0 ihel=5: 0, 290.303, 290.303
+DEBUG_getgoodhel ievt=0 ihel=6: 0, 290.303, 290.303
+DEBUG_getgoodhel ievt=0 ihel=7: 10.3671, 290.303, 300.67
+DEBUG_getgoodhel ievt=0 ihel=8: 10.3671, 300.67, 311.037
+DEBUG_getgoodhel ievt=0 ihel=9: 0, 311.037, 311.037
+DEBUG_getgoodhel ievt=0 ihel=10: 0, 311.037, 311.037
+DEBUG_getgoodhel ievt=0 ihel=11: 290.303, 311.037, 601.34
+DEBUG_getgoodhel ievt=0 ihel=12: 4.85923e-30, 601.34, 601.34
+DEBUG_getgoodhel ievt=0 ihel=13: 0, 601.34, 601.34
+DEBUG_getgoodhel ievt=0 ihel=14: 0, 601.34, 601.34
+DEBUG_getgoodhel ievt=0 ihel=15: 3.84434e-30, 601.34, 601.34
  [OPENMPTH] omp_get_max_threads/nproc = 1/4
  [NGOODHEL] ngoodhel/ncomb = 8/16
  [XSECTION] VECSIZE_USED = 8192
@@ -631,9 +743,9 @@ DEBUG ievt=0 ihel=15: 3.84434e-30, 601.34, 601.34
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 307300 [307281.60874575964] fbridge_mode=1
  [UNWEIGHT] Wrote 1816 events (found 1821 events)
- [COUNTERS] PROGRAM TOTAL          :    2.1871s
- [COUNTERS] Fortran Overhead ( 0 ) :    2.1190s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0681s for    90112 events => throughput is 1.32E+06 events/s
+ [COUNTERS] PROGRAM TOTAL          :    2.0200s
+ [COUNTERS] Fortran Overhead ( 0 ) :    1.9521s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0679s for    90112 events => throughput is 1.33E+06 events/s
 
 *** (2-512z) Compare MADEVENT_CPP x10 xsec to MADEVENT_FORTRAN xsec ***
 
@@ -646,12 +758,12 @@ OK! events.lhe.cpp.10 and events.lhe.ref.10 are identical
 *** EXECUTE CHECK(8192) -p 256 32 1 --bridge ***
 Process                     = SIGMA_SM_GG_UUX_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+BRDHST/512z+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 1.231371e+06                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.221560e+06                 )  sec^-1
 
 *** EXECUTE CHECK(8192) -p 256 32 1 ***
 Process                     = SIGMA_SM_GG_UUX_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/512z+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 1.276062e+06                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.251433e+06                 )  sec^-1
 
 *** (3) EXECUTE MADEVENT_CUDA x1 (create events.lhe) ***
 --------------------
@@ -674,9 +786,9 @@ Executing ' ./build.none_d_inl0_hrd0/madevent_cuda < /tmp/avalassi/input_gguu_x1
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 2756000 [2755752.8574748538] fbridge_mode=1
  [UNWEIGHT] Wrote 1492 events (found 1585 events)
- [COUNTERS] PROGRAM TOTAL          :    0.8680s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.8675s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0005s for     8192 events => throughput is 1.51E+07 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.8554s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.8549s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0006s for     8192 events => throughput is 1.46E+07 events/s
 
 *** (3) Compare MADEVENT_CUDA x1 xsec to MADEVENT_FORTRAN xsec ***
 
@@ -707,9 +819,9 @@ Executing ' ./build.none_d_inl0_hrd0/madevent_cuda < /tmp/avalassi/input_gguu_x1
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 307300 [307281.60874575964] fbridge_mode=1
  [UNWEIGHT] Wrote 1816 events (found 1821 events)
- [COUNTERS] PROGRAM TOTAL          :    2.4064s
- [COUNTERS] Fortran Overhead ( 0 ) :    2.4009s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0055s for    90112 events => throughput is 1.65E+07 events/s
+ [COUNTERS] PROGRAM TOTAL          :    2.4044s
+ [COUNTERS] Fortran Overhead ( 0 ) :    2.3989s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0055s for    90112 events => throughput is 1.64E+07 events/s
 
 *** (3) Compare MADEVENT_CUDA x10 xsec to MADEVENT_FORTRAN xsec ***
 
@@ -722,41 +834,41 @@ OK! events.lhe.cuda.10 and events.lhe.ref.10 are identical
 *** EXECUTE GCHECK(8192) -p 256 32 1 --bridge ***
 Process                     = SIGMA_SM_GG_UUX_CUDA [nvcc 12.0.140 (gcc 11.2.0)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:DBL+THX:CURHST+RMBHST+BRDDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 2.070742e+07                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 2.233443e+07                 )  sec^-1
 
 *** EXECUTE GCHECK(8192) -p 256 32 1 ***
 Process                     = SIGMA_SM_GG_UUX_CUDA [nvcc 12.0.140 (gcc 11.2.0)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:DBL+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 6.949322e+07                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 6.586268e+07                 )  sec^-1
 
 *** EXECUTE GCHECK(MAX) -p 16384 32 1 --bridge ***
 Process                     = SIGMA_SM_GG_UUX_CUDA [nvcc 12.0.140 (gcc 11.2.0)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:DBL+THX:CURHST+RMBHST+BRDDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 3.558345e+07                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 3.599023e+07                 )  sec^-1
 
 *** EXECUTE GCHECK(MAX) -p 16384 32 1 ***
 Process                     = SIGMA_SM_GG_UUX_CUDA [nvcc 12.0.140 (gcc 11.2.0)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:DBL+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 2.656281e+08                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 2.666509e+08                 )  sec^-1
 
 *** EXECUTE GCHECK(MAX128THR) -p 4096 128 1 --bridge ***
 Process                     = SIGMA_SM_GG_UUX_CUDA [nvcc 12.0.140 (gcc 11.2.0)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:DBL+THX:CURHST+RMBHST+BRDDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 3.537559e+07                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 3.621675e+07                 )  sec^-1
 
 *** EXECUTE GCHECK(MAX128THR) -p 4096 128 1 ***
 Process                     = SIGMA_SM_GG_UUX_CUDA [nvcc 12.0.140 (gcc 11.2.0)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:DBL+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 2.732121e+08                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 2.757469e+08                 )  sec^-1
 
 *** EXECUTE GCHECK(MAX8THR) -p 65536 8 1 --bridge ***
 Process                     = SIGMA_SM_GG_UUX_CUDA [nvcc 12.0.140 (gcc 11.2.0)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:DBL+THX:CURHST+RMBHST+BRDDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 3.561273e+07                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 3.591108e+07                 )  sec^-1
 
 *** EXECUTE GCHECK(MAX8THR) -p 65536 8 1 ***
 Process                     = SIGMA_SM_GG_UUX_CUDA [nvcc 12.0.140 (gcc 11.2.0)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:DBL+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 7.433510e+07                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 7.427118e+07                 )  sec^-1
 
 TEST COMPLETED
