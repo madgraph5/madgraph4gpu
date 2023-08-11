@@ -968,6 +968,7 @@ namespace mg5amcCpu
         MEs_ighel2[ighel] = E_ACCESS::kernelAccess( E_ACCESS::ieventAccessRecord( allMEs, ievt00 + neppV ) );
 #endif
 #ifndef MGONGPU_CPPSIMD
+        if ( ievt00==0 && ighel==0 ) std::cout << "DEBUG_sigmakin" << std::endl;
         if ( ievt00==0 ) std::cout << "DEBUG_sigmakin ievt00=" << ievt00 << " ighel/nghel=" << ighel << "/" << cNGoodHel << " ihel/ncomb=" << ihel << "/" << ncomb << " sumMEs=" << MEs_ighel[ighel] << std::endl;
 #endif
       }
