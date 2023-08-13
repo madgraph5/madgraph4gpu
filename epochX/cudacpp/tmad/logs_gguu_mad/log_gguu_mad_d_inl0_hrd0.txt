@@ -15,15 +15,15 @@ make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp
 
 make USEBUILDDIR=1 AVX=512z
 make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_uu.mad/SubProcesses/P1_gg_uux'
-CUDACPP_BUILDDIR='build.none_d_inl0_hrd0'
-CUDACPP_BUILDDIR='build.sse4_d_inl0_hrd0'
-CUDACPP_BUILDDIR='build.512z_d_inl0_hrd0'
-make[1]: Nothing to be done for 'all'.
-make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_uu.mad/SubProcesses/P1_gg_uux'
-make[1]: Nothing to be done for 'all'.
-make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_uu.mad/SubProcesses/P1_gg_uux'
-CUDACPP_BUILDDIR='build.512y_d_inl0_hrd0'
 CUDACPP_BUILDDIR='build.avx2_d_inl0_hrd0'
+CUDACPP_BUILDDIR='build.none_d_inl0_hrd0'
+CUDACPP_BUILDDIR='build.512y_d_inl0_hrd0'
+CUDACPP_BUILDDIR='build.512z_d_inl0_hrd0'
+CUDACPP_BUILDDIR='build.sse4_d_inl0_hrd0'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_uu.mad/SubProcesses/P1_gg_uux'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_uu.mad/SubProcesses/P1_gg_uux'
 make[1]: Nothing to be done for 'all'.
 make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_uu.mad/SubProcesses/P1_gg_uux'
 make[1]: Nothing to be done for 'all'.
@@ -33,7 +33,7 @@ make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/
 
 OMP_NUM_THREADS=
 
-DATE: 2023-08-13_20:07:35
+DATE: 2023-08-13_20:14:30
 
 On itscrd80.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
 Working directory (run): /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_uu.mad/SubProcesses/P1_gg_uux
@@ -59,9 +59,9 @@ Executing ' ./madevent_fortran < /tmp/avalassi/input_gguu_x1_fortran > /tmp/aval
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 2246000 [2246476.0691319485] fbridge_mode=0
  [UNWEIGHT] Wrote 4 events (found 23 events)
- [COUNTERS] PROGRAM TOTAL          :    0.0655s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.0653s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.0002s for       32 events => throughput is 1.30E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.0662s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.0659s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.0002s for       32 events => throughput is 1.29E+05 events/s
 
 *** (1) EXECUTE MADEVENT_FORTRAN x1 (create events.lhe) ***
 --------------------
@@ -84,9 +84,9 @@ Executing ' ./madevent_fortran < /tmp/avalassi/input_gguu_x1_fortran > /tmp/aval
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 2246000 [2246476.0691319485] fbridge_mode=0
  [UNWEIGHT] Wrote 5 events (found 10 events)
- [COUNTERS] PROGRAM TOTAL          :    0.0653s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.0651s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.0002s for       32 events => throughput is 1.30E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.0639s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.0636s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.0002s for       32 events => throughput is 1.32E+05 events/s
 
 *** (2-none) EXECUTE MADEVENT_CPP x1 (create events.lhe) ***
 --------------------
@@ -149,66 +149,50 @@ DEBUG sigmaKin: ievt=28 me=2.629724
 DEBUG sigmaKin: ievt=29 me=3.997598
 DEBUG sigmaKin: ievt=30 me=1.249763
 DEBUG sigmaKin: ievt=31 me=6.763613
-DEBUG sigmaKin: ievt= 0 me=0.130362
-DEBUG sigmaKin: ievt= 1 me=0.114276
-DEBUG sigmaKin: ievt= 2 me=0.030529
-DEBUG sigmaKin: ievt= 3 me=0.094645
-DEBUG sigmaKin: ievt= 4 me=0.010394
-DEBUG sigmaKin: ievt= 5 me=0.109082
-DEBUG sigmaKin: ievt= 6 me=0.104096
-DEBUG sigmaKin: ievt= 7 me=0.143780
-DEBUG sigmaKin: ievt= 8 me=0.142978
-DEBUG sigmaKin: ievt= 9 me=0.102919
-DEBUG sigmaKin: ievt=10 me=0.135903
-DEBUG sigmaKin: ievt=11 me=0.144457
-DEBUG sigmaKin: ievt=12 me=0.091411
-DEBUG sigmaKin: ievt=13 me=0.092856
-DEBUG sigmaKin: ievt=14 me=0.141081
-DEBUG sigmaKin: ievt=15 me=0.148110
-DEBUG sigmaKin: ievt=16 me=0.150741
-DEBUG sigmaKin: ievt=17 me=0.066228
-DEBUG sigmaKin: ievt=18 me=0.160600
-DEBUG sigmaKin: ievt=19 me=0.000234
-DEBUG sigmaKin: ievt=20 me=0.171931
-DEBUG sigmaKin: ievt=21 me=0.138440
-DEBUG sigmaKin: ievt=22 me=0.127219
-DEBUG sigmaKin: ievt=23 me=0.142833
-DEBUG sigmaKin: ievt=24 me=0.127768
-DEBUG sigmaKin: ievt=25 me=0.039430
-DEBUG sigmaKin: ievt=26 me=0.013108
-DEBUG sigmaKin: ievt=27 me=0.176301
-DEBUG sigmaKin: ievt=28 me=0.140079
-DEBUG sigmaKin: ievt=29 me=0.089365
-DEBUG sigmaKin: ievt=30 me=0.160471
-DEBUG sigmaKin: ievt=31 me=0.062852
+DEBUG sigmaKin: ievt= 0 me=0.071099
+DEBUG sigmaKin: ievt= 1 me=0.078469
+DEBUG sigmaKin: ievt= 2 me=0.015297
+DEBUG sigmaKin: ievt= 3 me=0.062683
+DEBUG sigmaKin: ievt= 4 me=0.005198
+DEBUG sigmaKin: ievt= 5 me=0.077494
+DEBUG sigmaKin: ievt= 6 me=0.073573
+DEBUG sigmaKin: ievt= 7 me=0.075881
+DEBUG sigmaKin: ievt= 8 me=0.093519
+DEBUG sigmaKin: ievt= 9 me=0.053092
+DEBUG sigmaKin: ievt=10 me=0.093965
+DEBUG sigmaKin: ievt=11 me=0.098486
+DEBUG sigmaKin: ievt=12 me=0.046807
+DEBUG sigmaKin: ievt=13 me=0.063646
+DEBUG sigmaKin: ievt=14 me=0.100464
+DEBUG sigmaKin: ievt=15 me=0.102030
+DEBUG sigmaKin: ievt=16 me=0.096614
+DEBUG sigmaKin: ievt=17 me=0.033474
+DEBUG sigmaKin: ievt=18 me=0.090369
+DEBUG sigmaKin: ievt=19 me=0.000117
+DEBUG sigmaKin: ievt=20 me=0.108010
+DEBUG sigmaKin: ievt=21 me=0.072488
+DEBUG sigmaKin: ievt=22 me=0.090747
+DEBUG sigmaKin: ievt=23 me=0.101153
+DEBUG sigmaKin: ievt=24 me=0.085130
+DEBUG sigmaKin: ievt=25 me=0.019831
+DEBUG sigmaKin: ievt=26 me=0.006557
+DEBUG sigmaKin: ievt=27 me=0.099322
+DEBUG sigmaKin: ievt=28 me=0.076121
+DEBUG sigmaKin: ievt=29 me=0.046233
+DEBUG sigmaKin: ievt=30 me=0.099376
+DEBUG sigmaKin: ievt=31 me=0.031870
  [OPENMPTH] omp_get_max_threads/nproc = 1/4
- [NGOODHEL] ngoodhel/ncomb = 8/16
+ [NGOODHEL] ngoodhel/ncomb = 6/16
  [XSECTION] VECSIZE_USED = 32
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 2246000 [2246476.0691319490] fbridge_mode=1
- [UNWEIGHT] Wrote 5 events (found 10 events)
- [COUNTERS] PROGRAM TOTAL          :    0.0654s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.0653s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0001s for       32 events => throughput is 3.66E+05 events/s
+ [XSECTION] Cross section = 1440000 [1440124.1054312044] fbridge_mode=1
+ [UNWEIGHT] Wrote 2 events (found 7 events)
+ [COUNTERS] PROGRAM TOTAL          :    0.0646s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.0646s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0001s for       32 events => throughput is 4.29E+05 events/s
 
 *** (2-none) Compare MADEVENT_CPP x1 xsec to MADEVENT_FORTRAN xsec ***
 
-OK! xsec from fortran (2246476.0691319485) and cpp (2246476.0691319490) differ by less than 2E-14 (2.220446049250313e-16)
-
-*** (2-none) Compare MADEVENT_CPP x1 events.lhe to MADEVENT_FORTRAN events.lhe reference (including colors and helicities) ***
-
-OK! events.lhe.cpp.1 and events.lhe.ref.1 are identical
-
-*** EXECUTE CHECK(32) -p 1 32 1 --bridge ***
-Process                     = SIGMA_SM_GG_UUX_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
-Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+BRDHST/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 3.296081e+05                 )  sec^-1
-
-*** EXECUTE CHECK(32) -p 1 32 1 ***
-Process                     = SIGMA_SM_GG_UUX_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
-Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 3.439381e+05                 )  sec^-1
-
-TEST COMPLETED
+ERROR! xsec from fortran (2246476.0691319485) and cpp (1440124.1054312044) differ by more than 2E-14 (0.35894082059477406)
