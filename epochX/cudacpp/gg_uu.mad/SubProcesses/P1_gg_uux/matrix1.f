@@ -204,7 +204,9 @@ C     ----------
           JHEL(IMIRROR) = 1
           IF(NTRY(IMIRROR).LE.MAXTRIES.OR.THIS_NTRY(IMIRROR).LE.10)THEN
             DO I=1,NCOMB
-              IF(INIT_MODE) THEN
+              IF (I.EQ.16) THEN
+                PRINT *, 'DEBUG SKIP 16'
+              ELSE IF(INIT_MODE) THEN
                 IF (DABS(TS(I)).GT.ANS*LIMHEL/NCOMB) THEN
                   PRINT *, 'Matrix Element/Good Helicity: 1 ', I,
      $              'IMIRROR', IMIRROR
