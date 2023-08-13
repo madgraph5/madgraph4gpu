@@ -1092,6 +1092,9 @@ namespace mg5amcCpu
         fptype* denominators = DEN_ACCESS::ieventAccessRecord( allDenominators, ievt0 );
         fptype_sv& numerators_sv = NUM_ACCESS::kernelAccess( numerators );
         fptype_sv& denominators_sv = DEN_ACCESS::kernelAccess( denominators );
+#ifndef MGONGPU_CPPSIMD
+      std::cout << "DEBUG_sigmakin ievt0=" << ievt0 << " num=" << numerators_sv << " den=" << denominators_sv << std::endl;
+#endif
         MEs_sv *= numerators_sv / denominators_sv;
       }
 #endif
