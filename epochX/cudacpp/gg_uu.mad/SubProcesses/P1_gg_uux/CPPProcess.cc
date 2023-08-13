@@ -968,8 +968,8 @@ namespace mg5amcCpu
         MEs_ighel2[ighel] = E_ACCESS::kernelAccess( E_ACCESS::ieventAccessRecord( allMEs, ievt00 + neppV ) );
 #endif
 #ifndef MGONGPU_CPPSIMD
-        if ( ievt00<64 && ighel==0 ) std::cout << "DEBUG" << std::endl;
-        if ( ievt00<64 ) std::cout << "DEBUG_sigmakin ievt00=" << ievt00 << " ighel=" << ighel << " ihel/ncomb=" << ihel << "/" << ncomb << " sumMEs=" << MEs_ighel[ighel] << std::endl;
+        //if ( ievt00<64 && ighel==0 ) std::cout << "DEBUG" << std::endl;
+        //if ( ievt00<64 ) std::cout << "DEBUG_sigmakin ievt00=" << ievt00 << " ighel=" << ighel << " ihel/ncomb=" << ihel << "/" << ncomb << " sumMEs=" << MEs_ighel[ighel] << std::endl;
 #endif
       }
       // Event-by-event random choice of helicity #403
@@ -1092,11 +1092,11 @@ namespace mg5amcCpu
         MEs_sv *= numerators_sv / denominators_sv;
       }
 #endif
-      //for( int ieppV = 0; ieppV < neppV; ieppV++ )
-      //{
-      //  const unsigned int ievt = ipagV * neppV + ieppV;
-      //  printf( "sigmaKin: ievt=%2d me=%f\n", ievt, allMEs[ievt] );
-      //}
+      for( int ieppV = 0; ieppV < neppV; ieppV++ )
+      {
+        const unsigned int ievt = ipagV * neppV + ieppV;
+        printf( "DEBUG sigmaKin: ievt=%2d me=%f\n", ievt, allMEs[ievt] );
+      }
     }
 #endif
     mgDebugFinalise();
