@@ -522,10 +522,10 @@ C
       ENDIF
 
       IF( FBRIDGE_MODE .EQ. 1 .OR. FBRIDGE_MODE .LT. 0 ) THEN ! (CppOnly=1 or BothQuiet=-1 or BothDebug=-2)
-        IF( LIMHEL.NE.0 ) THEN
-          WRITE(6,*) 'ERROR! The cudacpp bridge only supports LIMHEL=0'
-          STOP
-        ENDIF
+c       IF( LIMHEL.NE.0 ) THEN
+c         WRITE(6,*) 'ERROR! The cudacpp bridge only supports LIMHEL=0'
+c         STOP
+c       ENDIF
         IF ( FIRST ) THEN ! exclude first pass (helicity filtering) from timers (#461)
           CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE, P_MULTI, ALL_G,
      &      HEL_RAND, COL_RAND, 0, OUT2,

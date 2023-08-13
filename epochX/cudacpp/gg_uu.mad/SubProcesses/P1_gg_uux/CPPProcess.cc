@@ -730,7 +730,8 @@ namespace mg5amcCpu
         calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, jamp2_sv, ievt00 );
 #endif
         // FIXME: this is not the same LIMHEL definition as in matrix1.f (there the comparison is ME[ihel]>LIMHEL*sum_ihel ME[ihel]/ncomb)
-        constexpr fptype LIMHEL = 0; // NEW IMPLEMENTATION OF GETGOODHEL (#630): COMPARE EACH HELICITY CONTRIBUTION TO LIMHEL=0
+        //constexpr fptype LIMHEL = 0; // NEW IMPLEMENTATION OF GETGOODHEL (#630): COMPARE EACH HELICITY CONTRIBUTION TO LIMHEL=0
+        constexpr fptype LIMHEL = 1E-8;
         for( int ieppV = 0; ieppV < neppV; ++ieppV )
         {
           const int ievt = ievt00 + ieppV;
