@@ -1081,6 +1081,9 @@ namespace mg5amcCpu
       const int ievt0 = ipagV * neppV;
       fptype* MEs = E_ACCESS::ieventAccessRecord( allMEs, ievt0 );
       fptype_sv& MEs_sv = E_ACCESS::kernelAccess( MEs );
+#ifndef MGONGPU_CPPSIMD
+      std::cout << "DEBUG_sigmakin ievt0=" << ievt0 << " MEs=" << MEs_sv << " helcolden[0]=" << helcolDenominators[0] << std::endl;
+#endif
       MEs_sv /= helcolDenominators[0];
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId > 0 )
