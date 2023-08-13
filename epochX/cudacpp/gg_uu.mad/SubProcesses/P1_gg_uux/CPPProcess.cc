@@ -731,7 +731,6 @@ namespace mg5amcCpu
 #endif
         for( int ieppV = 0; ieppV < neppV; ++ieppV )
         {
-          if ( ihel == 15 ) continue;
           const int ievt = ievt00 + ieppV;
           if( allMEs[ievt] != 0 ) // NEW IMPLEMENTATION OF GETGOODHEL (#630): COMPARE EACH HELICITY CONTRIBUTION TO 0
           {
