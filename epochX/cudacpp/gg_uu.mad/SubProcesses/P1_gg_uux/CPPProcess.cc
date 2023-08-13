@@ -235,9 +235,6 @@ namespace mg5amcCpu
       fptype_sv& denominators_sv = DEN_ACCESS::kernelAccess( denominators );
 #endif
 
-      static int ncalls[ncomb] = { 0 };
-      ncalls[ihel]++;
-      
       // *** DIAGRAM 1 OF 3 ***
 
       // Wavefunction(s) for diagram number 1
@@ -266,10 +263,7 @@ namespace mg5amcCpu
 #endif
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
-#ifndef __CUDACC__
-      if( ncalls[ihel] <= 16 ) std::cout << "DEBUG calcwvf ihel=" << ihel << " icall=" << ncalls[ihel] << " diag1 amp_sv[0]=" << amp_sv[0] << std::endl;
-#endif
-      
+
       // *** DIAGRAM 2 OF 3 ***
 
       // Wavefunction(s) for diagram number 2
@@ -282,9 +276,6 @@ namespace mg5amcCpu
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[0] -= amp_sv[0];
-#ifndef __CUDACC__
-      if( ncalls[ihel] <= 16 ) std::cout << "DEBUG calcwvf ihel=" << ihel << " icall=" << ncalls[ihel] << " diag2 amp_sv[0]=" << amp_sv[0] << std::endl;
-#endif
 
       // *** DIAGRAM 3 OF 3 ***
 
@@ -298,10 +289,6 @@ namespace mg5amcCpu
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[1] -= amp_sv[0];
-#ifndef __CUDACC__
-      if( ncalls[ihel] <= 16 ) std::cout << "DEBUG calcwvf ihel=" << ihel << " icall=" << ncalls[ihel] << " diag3 amp_sv[0]=" << amp_sv[0] << std::endl;
-      if( ncalls[ihel] <= 16 ) std::cout << "DEBUG calcwvf ihel=" << ihel << " icall=" << ncalls[ihel] << " jamp_sv[0]=" << jamp_sv[0] << " jamp_sv[1]=" << jamp_sv[1] << std::endl;
-#endif
 
       // *** COLOR CHOICE BELOW ***
       // Store the leading color flows for choice of color
@@ -729,7 +716,6 @@ namespace mg5amcCpu
         for( int ieppV = 0; ieppV < neppV; ++ieppV )
         {
           const int ievt = ievt00 + ieppV;
-          allMEsLast[ievt] += allMEs[ievt];
           allMEs[ievt] = 0;
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
           const int ievt2 = ievt00 + ieppV + neppV;
@@ -747,9 +733,7 @@ namespace mg5amcCpu
         for( int ieppV = 0; ieppV < neppV; ++ieppV )
         {
           const int ievt = ievt00 + ieppV;
-          if ( ievt==0 ) std::cout << "DEBUG_getgoodhel ievt=" << ievt << " ihel=" << ihel << ": " << allMEs[ievt] << ", " << allMEsLast[ievt] << ", " << allMEsLast[ievt] + allMEs[ievt] << std::endl;
-          //if( allMEs[ievt] != 0 ) // NEW IMPLEMENTATION OF GETGOODHEL (#630): COMPARE EACH HELICITY CONTRIBUTION TO 0
-          if( allMEsLast[ievt] + allMEs[ievt] > allMEsLast[ievt] ) // OLD IMPLEMENTATION OF GETGOODHEL
+          if( allMEs[ievt] != 0 ) // NEW IMPLEMENTATION OF GETGOODHEL (#630): COMPARE EACH HELICITY CONTRIBUTION TO 0
           {
             //if ( !isGoodHel[ihel] ) std::cout << "sigmaKin_getGoodHel ihel=" << ihel << " TRUE" << std::endl;
             isGoodHel[ihel] = true;
@@ -952,7 +936,7 @@ namespace mg5amcCpu
 #else
 #define _OMPLIST1
 #endif
-    //#pragma omp parallel for default( none ) shared( _OMPLIST0 _OMPLIST1 )
+#pragma omp parallel for default( none ) shared( _OMPLIST0 _OMPLIST1 )
 #undef _OMPLIST0
 #undef _OMPLIST1
 #endif // _OPENMP
@@ -979,10 +963,6 @@ namespace mg5amcCpu
         MEs_ighel[ighel] = E_ACCESS::kernelAccess( E_ACCESS::ieventAccessRecord( allMEs, ievt00 ) );
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
         MEs_ighel2[ighel] = E_ACCESS::kernelAccess( E_ACCESS::ieventAccessRecord( allMEs, ievt00 + neppV ) );
-#endif
-#ifndef MGONGPU_CPPSIMD
-        //if ( ievt00<64 && ighel==0 ) std::cout << "DEBUG" << std::endl;
-        //if ( ievt00<64 ) std::cout << "DEBUG_sigmakin ievt00=" << ievt00 << " ighel=" << ighel << " ihel/ncomb=" << ihel << "/" << ncomb << " sumMEs=" << MEs_ighel[ighel] << std::endl;
 #endif
       }
       // Event-by-event random choice of helicity #403
@@ -1094,9 +1074,6 @@ namespace mg5amcCpu
       const int ievt0 = ipagV * neppV;
       fptype* MEs = E_ACCESS::ieventAccessRecord( allMEs, ievt0 );
       fptype_sv& MEs_sv = E_ACCESS::kernelAccess( MEs );
-#ifndef MGONGPU_CPPSIMD
-      std::cout << "DEBUG_sigmakin ievt0=" << ievt0 << " MEs=" << MEs_sv << " helcolden[0]=" << helcolDenominators[0] << std::endl;
-#endif
       MEs_sv /= helcolDenominators[0];
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId > 0 )
@@ -1105,17 +1082,14 @@ namespace mg5amcCpu
         fptype* denominators = DEN_ACCESS::ieventAccessRecord( allDenominators, ievt0 );
         fptype_sv& numerators_sv = NUM_ACCESS::kernelAccess( numerators );
         fptype_sv& denominators_sv = DEN_ACCESS::kernelAccess( denominators );
-#ifndef MGONGPU_CPPSIMD
-      std::cout << "DEBUG_sigmakin ievt0=" << ievt0 << " num=" << numerators_sv << " den=" << denominators_sv << std::endl;
-#endif
         MEs_sv *= numerators_sv / denominators_sv;
       }
 #endif
-      for( int ieppV = 0; ieppV < neppV; ieppV++ )
-      {
-        const unsigned int ievt = ipagV * neppV + ieppV;
-        printf( "DEBUG sigmaKin: ievt=%2d me=%f\n", ievt, allMEs[ievt] );
-      }
+      //for( int ieppV = 0; ieppV < neppV; ieppV++ )
+      //{
+      //  const unsigned int ievt = ipagV * neppV + ieppV;
+      //  printf( "sigmaKin: ievt=%2d me=%f\n", ievt, allMEs[ievt] );
+      //}
     }
 #endif
     mgDebugFinalise();

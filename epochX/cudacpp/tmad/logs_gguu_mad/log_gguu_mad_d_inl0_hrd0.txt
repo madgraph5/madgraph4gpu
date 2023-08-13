@@ -2,10 +2,10 @@ Working directory (build): /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/g
 CUDACPP_BUILDDIR='.'
 
 
-
 make USEBUILDDIR=1 AVX=none
-make USEBUILDDIR=1 AVX=sse4
 
+
+make USEBUILDDIR=1 AVX=sse4
 make USEBUILDDIR=1 AVX=avx2
 make USEBUILDDIR=1 AVX=512y
 make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_uu.mad/SubProcesses/P1_gg_uux'
@@ -15,17 +15,17 @@ make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp
 
 make USEBUILDDIR=1 AVX=512z
 make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_uu.mad/SubProcesses/P1_gg_uux'
-CUDACPP_BUILDDIR='build.512y_d_inl0_hrd0'
-CUDACPP_BUILDDIR='build.avx2_d_inl0_hrd0'
-make[1]: Nothing to be done for 'all'.
-make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_uu.mad/SubProcesses/P1_gg_uux'
 CUDACPP_BUILDDIR='build.none_d_inl0_hrd0'
-make[1]: Nothing to be done for 'all'.
-make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_uu.mad/SubProcesses/P1_gg_uux'
 CUDACPP_BUILDDIR='build.sse4_d_inl0_hrd0'
 make[1]: Nothing to be done for 'all'.
 make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_uu.mad/SubProcesses/P1_gg_uux'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_uu.mad/SubProcesses/P1_gg_uux'
 CUDACPP_BUILDDIR='build.512z_d_inl0_hrd0'
+CUDACPP_BUILDDIR='build.avx2_d_inl0_hrd0'
+CUDACPP_BUILDDIR='build.512y_d_inl0_hrd0'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_uu.mad/SubProcesses/P1_gg_uux'
 make[1]: Nothing to be done for 'all'.
 make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_uu.mad/SubProcesses/P1_gg_uux'
 make[1]: Nothing to be done for 'all'.
@@ -33,7 +33,7 @@ make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/
 
 OMP_NUM_THREADS=
 
-DATE: 2023-08-13_21:46:45
+DATE: 2023-08-10_22:43:47
 
 On itscrd80.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
 Working directory (run): /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_uu.mad/SubProcesses/P1_gg_uux
@@ -41,9 +41,9 @@ Working directory (run): /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_
 *** (1) EXECUTE MADEVENT_FORTRAN (create results.dat) ***
 --------------------
 CUDACPP_RUNTIME_FBRIDGEMODE = (not set)
-CUDACPP_RUNTIME_VECSIZEUSED = 32
+CUDACPP_RUNTIME_VECSIZEUSED = 8192
 --------------------
-32 1 1 ! Number of events and max and min iterations
+8192 1 1 ! Number of events and max and min iterations
 0.000001 ! Accuracy (ignored because max iterations = min iterations)
 0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
 1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
@@ -53,22 +53,22 @@ CUDACPP_RUNTIME_VECSIZEUSED = 32
 Executing ' ./madevent_fortran < /tmp/avalassi/input_gguu_x1_fortran > /tmp/avalassi/output_gguu_x1_fortran'
  [OPENMPTH] omp_get_max_threads/nproc = 1/4
  [NGOODHEL] ngoodhel/ncomb = 8/16
- [XSECTION] VECSIZE_USED = 32
+ [XSECTION] VECSIZE_USED = 8192
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 2246000 [2246476.0691319485] fbridge_mode=0
- [UNWEIGHT] Wrote 4 events (found 23 events)
- [COUNTERS] PROGRAM TOTAL          :    0.0662s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.0659s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.0003s for       32 events => throughput is 1.17E+05 events/s
+ [XSECTION] Cross section = 2756000 [2755752.8574748533] fbridge_mode=0
+ [UNWEIGHT] Wrote 1504 events (found 4628 events)
+ [COUNTERS] PROGRAM TOTAL          :    0.6861s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.6628s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.0233s for     8192 events => throughput is 3.52E+05 events/s
 
 *** (1) EXECUTE MADEVENT_FORTRAN x1 (create events.lhe) ***
 --------------------
 CUDACPP_RUNTIME_FBRIDGEMODE = (not set)
-CUDACPP_RUNTIME_VECSIZEUSED = 32
+CUDACPP_RUNTIME_VECSIZEUSED = 8192
 --------------------
-32 1 1 ! Number of events and max and min iterations
+8192 1 1 ! Number of events and max and min iterations
 0.000001 ! Accuracy (ignored because max iterations = min iterations)
 0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
 1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
@@ -78,22 +78,47 @@ CUDACPP_RUNTIME_VECSIZEUSED = 32
 Executing ' ./madevent_fortran < /tmp/avalassi/input_gguu_x1_fortran > /tmp/avalassi/output_gguu_x1_fortran'
  [OPENMPTH] omp_get_max_threads/nproc = 1/4
  [NGOODHEL] ngoodhel/ncomb = 8/16
- [XSECTION] VECSIZE_USED = 32
+ [XSECTION] VECSIZE_USED = 8192
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 2246000 [2246476.0691319485] fbridge_mode=0
- [UNWEIGHT] Wrote 5 events (found 10 events)
- [COUNTERS] PROGRAM TOTAL          :    0.0640s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.0638s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.0003s for       32 events => throughput is 1.23E+05 events/s
+ [XSECTION] Cross section = 2756000 [2755752.8574748533] fbridge_mode=0
+ [UNWEIGHT] Wrote 1492 events (found 1585 events)
+ [COUNTERS] PROGRAM TOTAL          :    0.4167s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.3930s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.0237s for     8192 events => throughput is 3.45E+05 events/s
+
+*** (1) EXECUTE MADEVENT_FORTRAN x10 (create events.lhe) ***
+--------------------
+CUDACPP_RUNTIME_FBRIDGEMODE = (not set)
+CUDACPP_RUNTIME_VECSIZEUSED = 8192
+--------------------
+81920 1 1 ! Number of events and max and min iterations
+0.000001 ! Accuracy (ignored because max iterations = min iterations)
+0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
+1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
+0 ! Helicity Sum/event 0=exact
+1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
+--------------------
+Executing ' ./madevent_fortran < /tmp/avalassi/input_gguu_x10_fortran > /tmp/avalassi/output_gguu_x10_fortran'
+ [OPENMPTH] omp_get_max_threads/nproc = 1/4
+ [NGOODHEL] ngoodhel/ncomb = 8/16
+ [XSECTION] VECSIZE_USED = 8192
+ [XSECTION] MultiChannel = TRUE
+ [XSECTION] Configuration = 1
+ [XSECTION] ChannelId = 1
+ [XSECTION] Cross section = 307300 [307281.60874575964] fbridge_mode=0
+ [UNWEIGHT] Wrote 1816 events (found 1821 events)
+ [COUNTERS] PROGRAM TOTAL          :    2.1947s
+ [COUNTERS] Fortran Overhead ( 0 ) :    1.9415s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.2532s for    90112 events => throughput is 3.56E+05 events/s
 
 *** (2-none) EXECUTE MADEVENT_CPP x1 (create events.lhe) ***
 --------------------
 CUDACPP_RUNTIME_FBRIDGEMODE = (not set)
-CUDACPP_RUNTIME_VECSIZEUSED = 32
+CUDACPP_RUNTIME_VECSIZEUSED = 8192
 --------------------
-32 1 1 ! Number of events and max and min iterations
+8192 1 1 ! Number of events and max and min iterations
 0.000001 ! Accuracy (ignored because max iterations = min iterations)
 0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
 1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
@@ -101,1218 +126,477 @@ CUDACPP_RUNTIME_VECSIZEUSED = 32
 1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 --------------------
 Executing ' ./build.none_d_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_gguu_x1_cudacpp > /tmp/avalassi/output_gguu_x1_cudacpp'
-DEBUG calcwvf ihel=0 icall=1 diag1 amp_sv[0]=(0,1.40232)
-DEBUG calcwvf ihel=0 icall=1 diag2 amp_sv[0]=(-1.40232,0)
-DEBUG calcwvf ihel=0 icall=1 diag3 amp_sv[0]=(1.40232,-7.68732e-17)
-DEBUG calcwvf ihel=0 icall=1 jamp_sv[0]=(-6.66134e-16,0) jamp_sv[1]=(4.44089e-16,7.68732e-17)
-DEBUG_getgoodhel ievt=0 ihel=0: 3.84434e-30, 0, 3.84434e-30
-DEBUG calcwvf ihel=1 icall=1 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=1 icall=1 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=1 icall=1 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=1 icall=1 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG_getgoodhel ievt=0 ihel=1: 0, 3.84434e-30, 3.84434e-30
-DEBUG calcwvf ihel=2 icall=1 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=2 icall=1 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=2 icall=1 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=2 icall=1 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG_getgoodhel ievt=0 ihel=2: 0, 3.84434e-30, 3.84434e-30
-DEBUG calcwvf ihel=3 icall=1 diag1 amp_sv[0]=(0,1.40232)
-DEBUG calcwvf ihel=3 icall=1 diag2 amp_sv[0]=(-1.40232,1.53746e-16)
-DEBUG calcwvf ihel=3 icall=1 diag3 amp_sv[0]=(1.40232,0)
-DEBUG calcwvf ihel=3 icall=1 jamp_sv[0]=(0,-1.53746e-16) jamp_sv[1]=(6.66134e-16,-0)
-DEBUG_getgoodhel ievt=0 ihel=3: 2.49265e-30, 3.84434e-30, 6.337e-30
-DEBUG calcwvf ihel=4 icall=1 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=4 icall=1 diag2 amp_sv[0]=(3.20573,6.69254)
-DEBUG calcwvf ihel=4 icall=1 diag3 amp_sv[0]=(0.605801,1.26472)
-DEBUG calcwvf ihel=4 icall=1 jamp_sv[0]=(-3.20573,-6.69254) jamp_sv[1]=(-0.605801,-1.26472)
-DEBUG_getgoodhel ievt=0 ihel=4: 290.303, 6.337e-30, 290.303
-DEBUG calcwvf ihel=5 icall=1 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=5 icall=1 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=5 icall=1 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=5 icall=1 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG_getgoodhel ievt=0 ihel=5: 0, 290.303, 290.303
-DEBUG calcwvf ihel=6 icall=1 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=6 icall=1 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=6 icall=1 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=6 icall=1 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG_getgoodhel ievt=0 ihel=6: 0, 290.303, 290.303
-DEBUG calcwvf ihel=7 icall=1 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=7 icall=1 diag2 amp_sv[0]=(-0.605801,-1.26472)
-DEBUG calcwvf ihel=7 icall=1 diag3 amp_sv[0]=(-0.114481,-0.239)
-DEBUG calcwvf ihel=7 icall=1 jamp_sv[0]=(0.605801,1.26472) jamp_sv[1]=(0.114481,0.239)
-DEBUG_getgoodhel ievt=0 ihel=7: 10.3671, 290.303, 300.67
-DEBUG calcwvf ihel=8 icall=1 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=8 icall=1 diag2 amp_sv[0]=(-0.605801,1.26472)
-DEBUG calcwvf ihel=8 icall=1 diag3 amp_sv[0]=(-0.114481,0.239)
-DEBUG calcwvf ihel=8 icall=1 jamp_sv[0]=(0.605801,-1.26472) jamp_sv[1]=(0.114481,-0.239)
-DEBUG_getgoodhel ievt=0 ihel=8: 10.3671, 300.67, 311.037
-DEBUG calcwvf ihel=9 icall=1 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=9 icall=1 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=9 icall=1 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=9 icall=1 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG_getgoodhel ievt=0 ihel=9: 0, 311.037, 311.037
-DEBUG calcwvf ihel=10 icall=1 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=10 icall=1 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=10 icall=1 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=10 icall=1 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG_getgoodhel ievt=0 ihel=10: 0, 311.037, 311.037
-DEBUG calcwvf ihel=11 icall=1 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=11 icall=1 diag2 amp_sv[0]=(3.20573,-6.69254)
-DEBUG calcwvf ihel=11 icall=1 diag3 amp_sv[0]=(0.605801,-1.26472)
-DEBUG calcwvf ihel=11 icall=1 jamp_sv[0]=(-3.20573,6.69254) jamp_sv[1]=(-0.605801,1.26472)
-DEBUG_getgoodhel ievt=0 ihel=11: 290.303, 311.037, 601.34
-DEBUG calcwvf ihel=12 icall=1 diag1 amp_sv[0]=(0,1.40232)
-DEBUG calcwvf ihel=12 icall=1 diag2 amp_sv[0]=(-1.40232,-1.53746e-16)
-DEBUG calcwvf ihel=12 icall=1 diag3 amp_sv[0]=(1.40232,0)
-DEBUG calcwvf ihel=12 icall=1 jamp_sv[0]=(0,1.53746e-16) jamp_sv[1]=(6.66134e-16,-0)
-DEBUG_getgoodhel ievt=0 ihel=12: 2.49265e-30, 601.34, 601.34
-DEBUG calcwvf ihel=13 icall=1 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=13 icall=1 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=13 icall=1 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=13 icall=1 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG_getgoodhel ievt=0 ihel=13: 0, 601.34, 601.34
-DEBUG calcwvf ihel=14 icall=1 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=14 icall=1 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=14 icall=1 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=14 icall=1 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG_getgoodhel ievt=0 ihel=14: 0, 601.34, 601.34
-DEBUG calcwvf ihel=15 icall=1 diag1 amp_sv[0]=(0,1.40232)
-DEBUG calcwvf ihel=15 icall=1 diag2 amp_sv[0]=(-1.40232,0)
-DEBUG calcwvf ihel=15 icall=1 diag3 amp_sv[0]=(1.40232,7.68732e-17)
-DEBUG calcwvf ihel=15 icall=1 jamp_sv[0]=(-6.66134e-16,0) jamp_sv[1]=(4.44089e-16,-7.68732e-17)
-DEBUG_getgoodhel ievt=0 ihel=15: 3.84434e-30, 601.34, 601.34
-DEBUG calcwvf ihel=0 icall=2 diag1 amp_sv[0]=(0,1.839)
-DEBUG calcwvf ihel=0 icall=2 diag2 amp_sv[0]=(-1.839,0)
-DEBUG calcwvf ihel=0 icall=2 diag3 amp_sv[0]=(1.839,0)
-DEBUG calcwvf ihel=0 icall=2 jamp_sv[0]=(0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=1 icall=2 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=1 icall=2 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=1 icall=2 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=1 icall=2 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=2 icall=2 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=2 icall=2 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=2 icall=2 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=2 icall=2 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=3 icall=2 diag1 amp_sv[0]=(0,1.839)
-DEBUG calcwvf ihel=3 icall=2 diag2 amp_sv[0]=(-1.839,7.64015e-17)
-DEBUG calcwvf ihel=3 icall=2 diag3 amp_sv[0]=(1.839,0)
-DEBUG calcwvf ihel=3 icall=2 jamp_sv[0]=(0,-7.64015e-17) jamp_sv[1]=(2.22045e-16,-0)
-DEBUG calcwvf ihel=4 icall=2 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=4 icall=2 diag2 amp_sv[0]=(-2.15844,2.0825)
-DEBUG calcwvf ihel=4 icall=2 diag3 amp_sv[0]=(-1.32344,1.27688)
-DEBUG calcwvf ihel=4 icall=2 jamp_sv[0]=(2.15844,-2.0825) jamp_sv[1]=(1.32344,-1.27688)
-DEBUG calcwvf ihel=5 icall=2 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=5 icall=2 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=5 icall=2 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=5 icall=2 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=6 icall=2 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=6 icall=2 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=6 icall=2 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=6 icall=2 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=7 icall=2 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=7 icall=2 diag2 amp_sv[0]=(1.32344,-1.27688)
-DEBUG calcwvf ihel=7 icall=2 diag3 amp_sv[0]=(0.811467,-0.782918)
-DEBUG calcwvf ihel=7 icall=2 jamp_sv[0]=(-1.32344,1.27688) jamp_sv[1]=(-0.811467,0.782918)
-DEBUG calcwvf ihel=8 icall=2 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=8 icall=2 diag2 amp_sv[0]=(1.32344,1.27688)
-DEBUG calcwvf ihel=8 icall=2 diag3 amp_sv[0]=(0.811467,0.782918)
-DEBUG calcwvf ihel=8 icall=2 jamp_sv[0]=(-1.32344,-1.27688) jamp_sv[1]=(-0.811467,-0.782918)
-DEBUG calcwvf ihel=9 icall=2 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=9 icall=2 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=9 icall=2 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=9 icall=2 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=10 icall=2 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=10 icall=2 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=10 icall=2 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=10 icall=2 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=11 icall=2 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=11 icall=2 diag2 amp_sv[0]=(-2.15844,-2.0825)
-DEBUG calcwvf ihel=11 icall=2 diag3 amp_sv[0]=(-1.32344,-1.27688)
-DEBUG calcwvf ihel=11 icall=2 jamp_sv[0]=(2.15844,2.0825) jamp_sv[1]=(1.32344,1.27688)
-DEBUG calcwvf ihel=12 icall=2 diag1 amp_sv[0]=(0,1.839)
-DEBUG calcwvf ihel=12 icall=2 diag2 amp_sv[0]=(-1.839,-7.64015e-17)
-DEBUG calcwvf ihel=12 icall=2 diag3 amp_sv[0]=(1.839,0)
-DEBUG calcwvf ihel=12 icall=2 jamp_sv[0]=(2.22045e-16,7.64015e-17) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=13 icall=2 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=13 icall=2 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=13 icall=2 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=13 icall=2 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=14 icall=2 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=14 icall=2 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=14 icall=2 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=14 icall=2 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=15 icall=2 diag1 amp_sv[0]=(0,1.839)
-DEBUG calcwvf ihel=15 icall=2 diag2 amp_sv[0]=(-1.839,0)
-DEBUG calcwvf ihel=15 icall=2 diag3 amp_sv[0]=(1.839,0)
-DEBUG calcwvf ihel=15 icall=2 jamp_sv[0]=(-2.22045e-16,0) jamp_sv[1]=(2.22045e-16,-0)
-DEBUG calcwvf ihel=0 icall=3 diag1 amp_sv[0]=(1.9192e-17,0.608591)
-DEBUG calcwvf ihel=0 icall=3 diag2 amp_sv[0]=(-0.608591,0)
-DEBUG calcwvf ihel=0 icall=3 diag3 amp_sv[0]=(0.608591,3.83841e-17)
-DEBUG calcwvf ihel=0 icall=3 jamp_sv[0]=(-1.11022e-15,1.9192e-17) jamp_sv[1]=(-3.33067e-16,-5.75761e-17)
-DEBUG calcwvf ihel=1 icall=3 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=1 icall=3 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=1 icall=3 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=1 icall=3 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=2 icall=3 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=2 icall=3 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=2 icall=3 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=2 icall=3 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=3 icall=3 diag1 amp_sv[0]=(-1.9192e-17,0.608591)
-DEBUG calcwvf ihel=3 icall=3 diag2 amp_sv[0]=(-0.608591,7.67681e-17)
-DEBUG calcwvf ihel=3 icall=3 diag3 amp_sv[0]=(0.608591,0)
-DEBUG calcwvf ihel=3 icall=3 jamp_sv[0]=(-4.44089e-16,-9.59602e-17) jamp_sv[1]=(2.22045e-16,1.9192e-17)
-DEBUG calcwvf ihel=4 icall=3 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=4 icall=3 diag2 amp_sv[0]=(12.2025,19.2678)
-DEBUG calcwvf ihel=4 icall=3 diag3 amp_sv[0]=(0.32562,0.514154)
-DEBUG calcwvf ihel=4 icall=3 jamp_sv[0]=(-12.2025,-19.2678) jamp_sv[1]=(-0.32562,-0.514154)
-DEBUG calcwvf ihel=5 icall=3 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=5 icall=3 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=5 icall=3 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=5 icall=3 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=6 icall=3 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=6 icall=3 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=6 icall=3 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=6 icall=3 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=7 icall=3 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=7 icall=3 diag2 amp_sv[0]=(-0.32562,-0.514154)
-DEBUG calcwvf ihel=7 icall=3 diag3 amp_sv[0]=(-0.00868906,-0.01372)
-DEBUG calcwvf ihel=7 icall=3 jamp_sv[0]=(0.32562,0.514154) jamp_sv[1]=(0.00868906,0.01372)
-DEBUG calcwvf ihel=8 icall=3 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=8 icall=3 diag2 amp_sv[0]=(-0.32562,0.514154)
-DEBUG calcwvf ihel=8 icall=3 diag3 amp_sv[0]=(-0.00868906,0.01372)
-DEBUG calcwvf ihel=8 icall=3 jamp_sv[0]=(0.32562,-0.514154) jamp_sv[1]=(0.00868906,-0.01372)
-DEBUG calcwvf ihel=9 icall=3 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=9 icall=3 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=9 icall=3 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=9 icall=3 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=10 icall=3 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=10 icall=3 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=10 icall=3 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=10 icall=3 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=11 icall=3 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=11 icall=3 diag2 amp_sv[0]=(12.2025,-19.2678)
-DEBUG calcwvf ihel=11 icall=3 diag3 amp_sv[0]=(0.32562,-0.514154)
-DEBUG calcwvf ihel=11 icall=3 jamp_sv[0]=(-12.2025,19.2678) jamp_sv[1]=(-0.32562,0.514154)
-DEBUG calcwvf ihel=12 icall=3 diag1 amp_sv[0]=(1.9192e-17,0.608591)
-DEBUG calcwvf ihel=12 icall=3 diag2 amp_sv[0]=(-0.608591,-7.67681e-17)
-DEBUG calcwvf ihel=12 icall=3 diag3 amp_sv[0]=(0.608591,0)
-DEBUG calcwvf ihel=12 icall=3 jamp_sv[0]=(-4.44089e-16,9.59602e-17) jamp_sv[1]=(2.22045e-16,-1.9192e-17)
-DEBUG calcwvf ihel=13 icall=3 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=13 icall=3 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=13 icall=3 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=13 icall=3 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=14 icall=3 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=14 icall=3 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=14 icall=3 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=14 icall=3 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=15 icall=3 diag1 amp_sv[0]=(-1.9192e-17,0.608591)
-DEBUG calcwvf ihel=15 icall=3 diag2 amp_sv[0]=(-0.608591,0)
-DEBUG calcwvf ihel=15 icall=3 diag3 amp_sv[0]=(0.608591,-3.83841e-17)
-DEBUG calcwvf ihel=15 icall=3 jamp_sv[0]=(-1.11022e-15,-1.9192e-17) jamp_sv[1]=(-3.33067e-16,5.75761e-17)
-DEBUG calcwvf ihel=0 icall=4 diag1 amp_sv[0]=(0,1.57324)
-DEBUG calcwvf ihel=0 icall=4 diag2 amp_sv[0]=(-1.57324,0)
-DEBUG calcwvf ihel=0 icall=4 diag3 amp_sv[0]=(1.57324,1.79254e-17)
-DEBUG calcwvf ihel=0 icall=4 jamp_sv[0]=(-8.88178e-16,0) jamp_sv[1]=(-6.66134e-16,-1.79254e-17)
-DEBUG calcwvf ihel=1 icall=4 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=1 icall=4 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=1 icall=4 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=1 icall=4 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=2 icall=4 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=2 icall=4 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=2 icall=4 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=2 icall=4 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=3 icall=4 diag1 amp_sv[0]=(0,1.57324)
-DEBUG calcwvf ihel=3 icall=4 diag2 amp_sv[0]=(-1.57324,0)
-DEBUG calcwvf ihel=3 icall=4 diag3 amp_sv[0]=(1.57324,0)
-DEBUG calcwvf ihel=3 icall=4 jamp_sv[0]=(0,0) jamp_sv[1]=(2.22045e-16,-0)
-DEBUG calcwvf ihel=4 icall=4 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=4 icall=4 diag2 amp_sv[0]=(-3.11696,-0.405287)
-DEBUG calcwvf ihel=4 icall=4 diag3 amp_sv[0]=(-1.56011,-0.202855)
-DEBUG calcwvf ihel=4 icall=4 jamp_sv[0]=(3.11696,0.405287) jamp_sv[1]=(1.56011,0.202855)
-DEBUG calcwvf ihel=5 icall=4 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=5 icall=4 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=5 icall=4 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=5 icall=4 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=6 icall=4 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=6 icall=4 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=6 icall=4 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=6 icall=4 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=7 icall=4 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=7 icall=4 diag2 amp_sv[0]=(1.56011,0.202855)
-DEBUG calcwvf ihel=7 icall=4 diag3 amp_sv[0]=(0.780867,0.101533)
-DEBUG calcwvf ihel=7 icall=4 jamp_sv[0]=(-1.56011,-0.202855) jamp_sv[1]=(-0.780867,-0.101533)
-DEBUG calcwvf ihel=8 icall=4 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=8 icall=4 diag2 amp_sv[0]=(1.56011,-0.202855)
-DEBUG calcwvf ihel=8 icall=4 diag3 amp_sv[0]=(0.780867,-0.101533)
-DEBUG calcwvf ihel=8 icall=4 jamp_sv[0]=(-1.56011,0.202855) jamp_sv[1]=(-0.780867,0.101533)
-DEBUG calcwvf ihel=9 icall=4 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=9 icall=4 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=9 icall=4 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=9 icall=4 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=10 icall=4 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=10 icall=4 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=10 icall=4 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=10 icall=4 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=11 icall=4 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=11 icall=4 diag2 amp_sv[0]=(-3.11696,0.405287)
-DEBUG calcwvf ihel=11 icall=4 diag3 amp_sv[0]=(-1.56011,0.202855)
-DEBUG calcwvf ihel=11 icall=4 jamp_sv[0]=(3.11696,-0.405287) jamp_sv[1]=(1.56011,-0.202855)
-DEBUG calcwvf ihel=12 icall=4 diag1 amp_sv[0]=(0,1.57324)
-DEBUG calcwvf ihel=12 icall=4 diag2 amp_sv[0]=(-1.57324,0)
-DEBUG calcwvf ihel=12 icall=4 diag3 amp_sv[0]=(1.57324,0)
-DEBUG calcwvf ihel=12 icall=4 jamp_sv[0]=(0,0) jamp_sv[1]=(2.22045e-16,-0)
-DEBUG calcwvf ihel=13 icall=4 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=13 icall=4 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=13 icall=4 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=13 icall=4 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=14 icall=4 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=14 icall=4 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=14 icall=4 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=14 icall=4 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=15 icall=4 diag1 amp_sv[0]=(0,1.57324)
-DEBUG calcwvf ihel=15 icall=4 diag2 amp_sv[0]=(-1.57324,0)
-DEBUG calcwvf ihel=15 icall=4 diag3 amp_sv[0]=(1.57324,-1.79254e-17)
-DEBUG calcwvf ihel=15 icall=4 jamp_sv[0]=(-8.88178e-16,0) jamp_sv[1]=(-6.66134e-16,1.79254e-17)
-DEBUG calcwvf ihel=0 icall=5 diag1 amp_sv[0]=(0,0.353508)
-DEBUG calcwvf ihel=0 icall=5 diag2 amp_sv[0]=(-0.353508,0)
-DEBUG calcwvf ihel=0 icall=5 diag3 amp_sv[0]=(0.353508,-2.04505e-17)
-DEBUG calcwvf ihel=0 icall=5 jamp_sv[0]=(1.88738e-15,0) jamp_sv[1]=(7.21645e-16,2.04505e-17)
-DEBUG calcwvf ihel=1 icall=5 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=1 icall=5 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=1 icall=5 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=1 icall=5 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=2 icall=5 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=2 icall=5 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=2 icall=5 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=2 icall=5 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=3 icall=5 diag1 amp_sv[0]=(0,0.353508)
-DEBUG calcwvf ihel=3 icall=5 diag2 amp_sv[0]=(-0.353508,-2.04505e-17)
-DEBUG calcwvf ihel=3 icall=5 diag3 amp_sv[0]=(0.353508,0)
-DEBUG calcwvf ihel=3 icall=5 jamp_sv[0]=(6.10623e-16,2.04505e-17) jamp_sv[1]=(-6.10623e-16,-0)
-DEBUG calcwvf ihel=4 icall=5 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=4 icall=5 diag2 amp_sv[0]=(22.6083,47.547)
-DEBUG calcwvf ihel=4 icall=5 diag3 amp_sv[0]=(0.151804,0.319254)
-DEBUG calcwvf ihel=4 icall=5 jamp_sv[0]=(-22.6083,-47.547) jamp_sv[1]=(-0.151804,-0.319254)
-DEBUG calcwvf ihel=5 icall=5 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=5 icall=5 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=5 icall=5 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=5 icall=5 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=6 icall=5 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=6 icall=5 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=6 icall=5 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=6 icall=5 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=7 icall=5 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=7 icall=5 diag2 amp_sv[0]=(-0.151804,-0.319254)
-DEBUG calcwvf ihel=7 icall=5 diag3 amp_sv[0]=(-0.00101929,-0.00214364)
-DEBUG calcwvf ihel=7 icall=5 jamp_sv[0]=(0.151804,0.319254) jamp_sv[1]=(0.00101929,0.00214364)
-DEBUG calcwvf ihel=8 icall=5 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=8 icall=5 diag2 amp_sv[0]=(-0.151804,0.319254)
-DEBUG calcwvf ihel=8 icall=5 diag3 amp_sv[0]=(-0.00101929,0.00214364)
-DEBUG calcwvf ihel=8 icall=5 jamp_sv[0]=(0.151804,-0.319254) jamp_sv[1]=(0.00101929,-0.00214364)
-DEBUG calcwvf ihel=9 icall=5 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=9 icall=5 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=9 icall=5 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=9 icall=5 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=10 icall=5 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=10 icall=5 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=10 icall=5 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=10 icall=5 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=11 icall=5 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=11 icall=5 diag2 amp_sv[0]=(22.6083,-47.547)
-DEBUG calcwvf ihel=11 icall=5 diag3 amp_sv[0]=(0.151804,-0.319254)
-DEBUG calcwvf ihel=11 icall=5 jamp_sv[0]=(-22.6083,47.547) jamp_sv[1]=(-0.151804,0.319254)
-DEBUG calcwvf ihel=12 icall=5 diag1 amp_sv[0]=(0,0.353508)
-DEBUG calcwvf ihel=12 icall=5 diag2 amp_sv[0]=(-0.353508,2.04505e-17)
-DEBUG calcwvf ihel=12 icall=5 diag3 amp_sv[0]=(0.353508,0)
-DEBUG calcwvf ihel=12 icall=5 jamp_sv[0]=(6.10623e-16,-2.04505e-17) jamp_sv[1]=(-6.10623e-16,-0)
-DEBUG calcwvf ihel=13 icall=5 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=13 icall=5 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=13 icall=5 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=13 icall=5 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=14 icall=5 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=14 icall=5 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=14 icall=5 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=14 icall=5 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=15 icall=5 diag1 amp_sv[0]=(0,0.353508)
-DEBUG calcwvf ihel=15 icall=5 diag2 amp_sv[0]=(-0.353508,0)
-DEBUG calcwvf ihel=15 icall=5 diag3 amp_sv[0]=(0.353508,2.04505e-17)
-DEBUG calcwvf ihel=15 icall=5 jamp_sv[0]=(1.88738e-15,0) jamp_sv[1]=(7.21645e-16,-2.04505e-17)
-DEBUG calcwvf ihel=0 icall=6 diag1 amp_sv[0]=(-7.69429e-17,1.91361)
-DEBUG calcwvf ihel=0 icall=6 diag2 amp_sv[0]=(-1.91361,0)
-DEBUG calcwvf ihel=0 icall=6 diag3 amp_sv[0]=(1.91361,3.07772e-16)
-DEBUG calcwvf ihel=0 icall=6 jamp_sv[0]=(-8.88178e-16,-7.69429e-17) jamp_sv[1]=(0,-2.30829e-16)
-DEBUG calcwvf ihel=1 icall=6 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=1 icall=6 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=1 icall=6 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=1 icall=6 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=2 icall=6 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=2 icall=6 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=2 icall=6 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=2 icall=6 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=3 icall=6 diag1 amp_sv[0]=(7.69429e-17,1.91361)
-DEBUG calcwvf ihel=3 icall=6 diag2 amp_sv[0]=(-1.91361,-1.53886e-16)
-DEBUG calcwvf ihel=3 icall=6 diag3 amp_sv[0]=(1.91361,0)
-DEBUG calcwvf ihel=3 icall=6 jamp_sv[0]=(-4.44089e-16,2.30829e-16) jamp_sv[1]=(4.44089e-16,-7.69429e-17)
-DEBUG calcwvf ihel=4 icall=6 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=4 icall=6 diag2 amp_sv[0]=(1.56054,-1.6719)
-DEBUG calcwvf ihel=4 icall=6 diag3 amp_sv[0]=(1.30573,-1.39892)
-DEBUG calcwvf ihel=4 icall=6 jamp_sv[0]=(-1.56054,1.6719) jamp_sv[1]=(-1.30573,1.39892)
-DEBUG calcwvf ihel=5 icall=6 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=5 icall=6 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=5 icall=6 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=5 icall=6 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=6 icall=6 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=6 icall=6 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=6 icall=6 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=6 icall=6 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=7 icall=6 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=7 icall=6 diag2 amp_sv[0]=(-1.30573,1.39892)
-DEBUG calcwvf ihel=7 icall=6 diag3 amp_sv[0]=(-1.09254,1.1705)
-DEBUG calcwvf ihel=7 icall=6 jamp_sv[0]=(1.30573,-1.39892) jamp_sv[1]=(1.09254,-1.1705)
-DEBUG calcwvf ihel=8 icall=6 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=8 icall=6 diag2 amp_sv[0]=(-1.30573,-1.39892)
-DEBUG calcwvf ihel=8 icall=6 diag3 amp_sv[0]=(-1.09254,-1.1705)
-DEBUG calcwvf ihel=8 icall=6 jamp_sv[0]=(1.30573,1.39892) jamp_sv[1]=(1.09254,1.1705)
-DEBUG calcwvf ihel=9 icall=6 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=9 icall=6 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=9 icall=6 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=9 icall=6 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=10 icall=6 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=10 icall=6 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=10 icall=6 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=10 icall=6 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=11 icall=6 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=11 icall=6 diag2 amp_sv[0]=(1.56054,1.6719)
-DEBUG calcwvf ihel=11 icall=6 diag3 amp_sv[0]=(1.30573,1.39892)
-DEBUG calcwvf ihel=11 icall=6 jamp_sv[0]=(-1.56054,-1.6719) jamp_sv[1]=(-1.30573,-1.39892)
-DEBUG calcwvf ihel=12 icall=6 diag1 amp_sv[0]=(-7.69429e-17,1.91361)
-DEBUG calcwvf ihel=12 icall=6 diag2 amp_sv[0]=(-1.91361,1.53886e-16)
-DEBUG calcwvf ihel=12 icall=6 diag3 amp_sv[0]=(1.91361,0)
-DEBUG calcwvf ihel=12 icall=6 jamp_sv[0]=(-6.66134e-16,-2.30829e-16) jamp_sv[1]=(6.66134e-16,7.69429e-17)
-DEBUG calcwvf ihel=13 icall=6 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=13 icall=6 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=13 icall=6 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=13 icall=6 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=14 icall=6 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=14 icall=6 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=14 icall=6 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=14 icall=6 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=15 icall=6 diag1 amp_sv[0]=(7.69429e-17,1.91361)
-DEBUG calcwvf ihel=15 icall=6 diag2 amp_sv[0]=(-1.91361,0)
-DEBUG calcwvf ihel=15 icall=6 diag3 amp_sv[0]=(1.91361,-3.07772e-16)
-DEBUG calcwvf ihel=15 icall=6 jamp_sv[0]=(-6.66134e-16,7.69429e-17) jamp_sv[1]=(-2.22045e-16,2.30829e-16)
-DEBUG calcwvf ihel=0 icall=7 diag1 amp_sv[0]=(3.79088e-17,1.85102)
-DEBUG calcwvf ihel=0 icall=7 diag2 amp_sv[0]=(-1.85102,0)
-DEBUG calcwvf ihel=0 icall=7 diag3 amp_sv[0]=(1.85102,7.58176e-17)
-DEBUG calcwvf ihel=0 icall=7 jamp_sv[0]=(4.44089e-16,3.79088e-17) jamp_sv[1]=(-4.44089e-16,-1.13726e-16)
-DEBUG calcwvf ihel=1 icall=7 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=1 icall=7 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=1 icall=7 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=1 icall=7 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=2 icall=7 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=2 icall=7 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=2 icall=7 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=2 icall=7 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=3 icall=7 diag1 amp_sv[0]=(-3.79088e-17,1.85102)
-DEBUG calcwvf ihel=3 icall=7 diag2 amp_sv[0]=(-1.85102,-7.58176e-17)
-DEBUG calcwvf ihel=3 icall=7 diag3 amp_sv[0]=(1.85102,0)
-DEBUG calcwvf ihel=3 icall=7 jamp_sv[0]=(2.22045e-16,3.79088e-17) jamp_sv[1]=(-4.44089e-16,3.79088e-17)
-DEBUG calcwvf ihel=4 icall=7 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=4 icall=7 diag2 amp_sv[0]=(1.72117,1.63717)
-DEBUG calcwvf ihel=4 icall=7 diag3 amp_sv[0]=(1.34118,1.27573)
-DEBUG calcwvf ihel=4 icall=7 jamp_sv[0]=(-1.72117,-1.63717) jamp_sv[1]=(-1.34118,-1.27573)
-DEBUG calcwvf ihel=5 icall=7 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=5 icall=7 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=5 icall=7 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=5 icall=7 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=6 icall=7 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=6 icall=7 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=6 icall=7 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=6 icall=7 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=7 icall=7 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=7 icall=7 diag2 amp_sv[0]=(-1.34118,-1.27573)
-DEBUG calcwvf ihel=7 icall=7 diag3 amp_sv[0]=(-1.04509,-0.994088)
-DEBUG calcwvf ihel=7 icall=7 jamp_sv[0]=(1.34118,1.27573) jamp_sv[1]=(1.04509,0.994088)
-DEBUG calcwvf ihel=8 icall=7 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=8 icall=7 diag2 amp_sv[0]=(-1.34118,1.27573)
-DEBUG calcwvf ihel=8 icall=7 diag3 amp_sv[0]=(-1.04509,0.994088)
-DEBUG calcwvf ihel=8 icall=7 jamp_sv[0]=(1.34118,-1.27573) jamp_sv[1]=(1.04509,-0.994088)
-DEBUG calcwvf ihel=9 icall=7 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=9 icall=7 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=9 icall=7 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=9 icall=7 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=10 icall=7 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=10 icall=7 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=10 icall=7 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=10 icall=7 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=11 icall=7 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=11 icall=7 diag2 amp_sv[0]=(1.72117,-1.63717)
-DEBUG calcwvf ihel=11 icall=7 diag3 amp_sv[0]=(1.34118,-1.27573)
-DEBUG calcwvf ihel=11 icall=7 jamp_sv[0]=(-1.72117,1.63717) jamp_sv[1]=(-1.34118,1.27573)
-DEBUG calcwvf ihel=12 icall=7 diag1 amp_sv[0]=(3.79088e-17,1.85102)
-DEBUG calcwvf ihel=12 icall=7 diag2 amp_sv[0]=(-1.85102,7.58176e-17)
-DEBUG calcwvf ihel=12 icall=7 diag3 amp_sv[0]=(1.85102,0)
-DEBUG calcwvf ihel=12 icall=7 jamp_sv[0]=(2.22045e-16,-3.79088e-17) jamp_sv[1]=(-4.44089e-16,-3.79088e-17)
-DEBUG calcwvf ihel=13 icall=7 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=13 icall=7 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=13 icall=7 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=13 icall=7 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=14 icall=7 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=14 icall=7 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=14 icall=7 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=14 icall=7 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=15 icall=7 diag1 amp_sv[0]=(-3.79088e-17,1.85102)
-DEBUG calcwvf ihel=15 icall=7 diag2 amp_sv[0]=(-1.85102,0)
-DEBUG calcwvf ihel=15 icall=7 diag3 amp_sv[0]=(1.85102,-7.58176e-17)
-DEBUG calcwvf ihel=15 icall=7 jamp_sv[0]=(4.44089e-16,-3.79088e-17) jamp_sv[1]=(-4.44089e-16,1.13726e-16)
-DEBUG calcwvf ihel=0 icall=8 diag1 amp_sv[0]=(-8.11529e-17,1.41355)
-DEBUG calcwvf ihel=0 icall=8 diag2 amp_sv[0]=(-1.41355,0)
-DEBUG calcwvf ihel=0 icall=8 diag3 amp_sv[0]=(1.41355,0)
-DEBUG calcwvf ihel=0 icall=8 jamp_sv[0]=(-4.44089e-16,-8.11529e-17) jamp_sv[1]=(-2.22045e-16,8.11529e-17)
-DEBUG calcwvf ihel=1 icall=8 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=1 icall=8 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=1 icall=8 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=1 icall=8 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=2 icall=8 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=2 icall=8 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=2 icall=8 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=2 icall=8 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=3 icall=8 diag1 amp_sv[0]=(8.11529e-17,1.41355)
-DEBUG calcwvf ihel=3 icall=8 diag2 amp_sv[0]=(-1.41355,0)
-DEBUG calcwvf ihel=3 icall=8 diag3 amp_sv[0]=(1.41355,0)
-DEBUG calcwvf ihel=3 icall=8 jamp_sv[0]=(-2.22045e-16,8.11529e-17) jamp_sv[1]=(-2.22045e-16,-8.11529e-17)
-DEBUG calcwvf ihel=4 icall=8 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=4 icall=8 diag2 amp_sv[0]=(-0.0448302,0.196864)
-DEBUG calcwvf ihel=4 icall=8 diag3 amp_sv[0]=(-0.313861,1.37827)
-DEBUG calcwvf ihel=4 icall=8 jamp_sv[0]=(0.0448302,-0.196864) jamp_sv[1]=(0.313861,-1.37827)
-DEBUG calcwvf ihel=5 icall=8 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=5 icall=8 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=5 icall=8 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=5 icall=8 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=6 icall=8 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=6 icall=8 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=6 icall=8 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=6 icall=8 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=7 icall=8 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=7 icall=8 diag2 amp_sv[0]=(0.313861,-1.37827)
-DEBUG calcwvf ihel=7 icall=8 diag3 amp_sv[0]=(2.19737,-9.64937)
-DEBUG calcwvf ihel=7 icall=8 jamp_sv[0]=(-0.313861,1.37827) jamp_sv[1]=(-2.19737,9.64937)
-DEBUG calcwvf ihel=8 icall=8 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=8 icall=8 diag2 amp_sv[0]=(0.313861,1.37827)
-DEBUG calcwvf ihel=8 icall=8 diag3 amp_sv[0]=(2.19737,9.64937)
-DEBUG calcwvf ihel=8 icall=8 jamp_sv[0]=(-0.313861,-1.37827) jamp_sv[1]=(-2.19737,-9.64937)
-DEBUG calcwvf ihel=9 icall=8 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=9 icall=8 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=9 icall=8 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=9 icall=8 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=10 icall=8 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=10 icall=8 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=10 icall=8 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=10 icall=8 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=11 icall=8 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=11 icall=8 diag2 amp_sv[0]=(-0.0448302,-0.196864)
-DEBUG calcwvf ihel=11 icall=8 diag3 amp_sv[0]=(-0.313861,-1.37827)
-DEBUG calcwvf ihel=11 icall=8 jamp_sv[0]=(0.0448302,0.196864) jamp_sv[1]=(0.313861,1.37827)
-DEBUG calcwvf ihel=12 icall=8 diag1 amp_sv[0]=(-8.11529e-17,1.41355)
-DEBUG calcwvf ihel=12 icall=8 diag2 amp_sv[0]=(-1.41355,0)
-DEBUG calcwvf ihel=12 icall=8 diag3 amp_sv[0]=(1.41355,0)
-DEBUG calcwvf ihel=12 icall=8 jamp_sv[0]=(-2.22045e-16,-8.11529e-17) jamp_sv[1]=(-2.22045e-16,8.11529e-17)
-DEBUG calcwvf ihel=13 icall=8 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=13 icall=8 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=13 icall=8 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=13 icall=8 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=14 icall=8 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=14 icall=8 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=14 icall=8 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=14 icall=8 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=15 icall=8 diag1 amp_sv[0]=(8.11529e-17,1.41355)
-DEBUG calcwvf ihel=15 icall=8 diag2 amp_sv[0]=(-1.41355,0)
-DEBUG calcwvf ihel=15 icall=8 diag3 amp_sv[0]=(1.41355,0)
-DEBUG calcwvf ihel=15 icall=8 jamp_sv[0]=(-4.44089e-16,8.11529e-17) jamp_sv[1]=(-2.22045e-16,-8.11529e-17)
-DEBUG calcwvf ihel=0 icall=9 diag1 amp_sv[0]=(0,1.89475)
-DEBUG calcwvf ihel=0 icall=9 diag2 amp_sv[0]=(-1.89475,0)
-DEBUG calcwvf ihel=0 icall=9 diag3 amp_sv[0]=(1.89475,0)
-DEBUG calcwvf ihel=0 icall=9 jamp_sv[0]=(6.66134e-16,0) jamp_sv[1]=(-6.66134e-16,-0)
-DEBUG calcwvf ihel=1 icall=9 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=1 icall=9 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=1 icall=9 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=1 icall=9 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=2 icall=9 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=2 icall=9 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=2 icall=9 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=2 icall=9 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=3 icall=9 diag1 amp_sv[0]=(0,1.89475)
-DEBUG calcwvf ihel=3 icall=9 diag2 amp_sv[0]=(-1.89475,1.58215e-16)
-DEBUG calcwvf ihel=3 icall=9 diag3 amp_sv[0]=(1.89475,0)
-DEBUG calcwvf ihel=3 icall=9 jamp_sv[0]=(2.22045e-16,-1.58215e-16) jamp_sv[1]=(-8.88178e-16,-0)
-DEBUG calcwvf ihel=4 icall=9 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=4 icall=9 diag2 amp_sv[0]=(2.64781,3.03196)
-DEBUG calcwvf ihel=4 icall=9 diag3 amp_sv[0]=(1.24632,1.42714)
-DEBUG calcwvf ihel=4 icall=9 jamp_sv[0]=(-2.64781,-3.03196) jamp_sv[1]=(-1.24632,-1.42714)
-DEBUG calcwvf ihel=5 icall=9 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=5 icall=9 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=5 icall=9 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=5 icall=9 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=6 icall=9 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=6 icall=9 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=6 icall=9 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=6 icall=9 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=7 icall=9 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=7 icall=9 diag2 amp_sv[0]=(-1.24632,-1.42714)
-DEBUG calcwvf ihel=7 icall=9 diag3 amp_sv[0]=(-0.586645,-0.671756)
-DEBUG calcwvf ihel=7 icall=9 jamp_sv[0]=(1.24632,1.42714) jamp_sv[1]=(0.586645,0.671756)
-DEBUG calcwvf ihel=8 icall=9 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=8 icall=9 diag2 amp_sv[0]=(-1.24632,1.42714)
-DEBUG calcwvf ihel=8 icall=9 diag3 amp_sv[0]=(-0.586645,0.671756)
-DEBUG calcwvf ihel=8 icall=9 jamp_sv[0]=(1.24632,-1.42714) jamp_sv[1]=(0.586645,-0.671756)
-DEBUG calcwvf ihel=9 icall=9 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=9 icall=9 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=9 icall=9 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=9 icall=9 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=10 icall=9 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=10 icall=9 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=10 icall=9 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=10 icall=9 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=11 icall=9 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=11 icall=9 diag2 amp_sv[0]=(2.64781,-3.03196)
-DEBUG calcwvf ihel=11 icall=9 diag3 amp_sv[0]=(1.24632,-1.42714)
-DEBUG calcwvf ihel=11 icall=9 jamp_sv[0]=(-2.64781,3.03196) jamp_sv[1]=(-1.24632,1.42714)
-DEBUG calcwvf ihel=12 icall=9 diag1 amp_sv[0]=(0,1.89475)
-DEBUG calcwvf ihel=12 icall=9 diag2 amp_sv[0]=(-1.89475,-1.58215e-16)
-DEBUG calcwvf ihel=12 icall=9 diag3 amp_sv[0]=(1.89475,0)
-DEBUG calcwvf ihel=12 icall=9 jamp_sv[0]=(2.22045e-16,1.58215e-16) jamp_sv[1]=(-8.88178e-16,-0)
-DEBUG calcwvf ihel=13 icall=9 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=13 icall=9 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=13 icall=9 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=13 icall=9 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=14 icall=9 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=14 icall=9 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=14 icall=9 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=14 icall=9 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=15 icall=9 diag1 amp_sv[0]=(0,1.89475)
-DEBUG calcwvf ihel=15 icall=9 diag2 amp_sv[0]=(-1.89475,0)
-DEBUG calcwvf ihel=15 icall=9 diag3 amp_sv[0]=(1.89475,0)
-DEBUG calcwvf ihel=15 icall=9 jamp_sv[0]=(6.66134e-16,0) jamp_sv[1]=(-6.66134e-16,-0)
-DEBUG calcwvf ihel=0 icall=10 diag1 amp_sv[0]=(-4.87811e-18,1.16244)
-DEBUG calcwvf ihel=0 icall=10 diag2 amp_sv[0]=(-1.16244,0)
-DEBUG calcwvf ihel=0 icall=10 diag3 amp_sv[0]=(1.16244,9.75622e-18)
-DEBUG calcwvf ihel=0 icall=10 jamp_sv[0]=(6.66134e-16,-4.87811e-18) jamp_sv[1]=(0,-4.87811e-18)
-DEBUG calcwvf ihel=1 icall=10 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=1 icall=10 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=1 icall=10 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=1 icall=10 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=2 icall=10 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=2 icall=10 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=2 icall=10 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=2 icall=10 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=3 icall=10 diag1 amp_sv[0]=(4.87811e-18,1.16244)
-DEBUG calcwvf ihel=3 icall=10 diag2 amp_sv[0]=(-1.16244,1.95124e-17)
-DEBUG calcwvf ihel=3 icall=10 diag3 amp_sv[0]=(1.16244,0)
-DEBUG calcwvf ihel=3 icall=10 jamp_sv[0]=(4.44089e-16,-1.46343e-17) jamp_sv[1]=(0,-4.87811e-18)
-DEBUG calcwvf ihel=4 icall=10 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=4 icall=10 diag2 amp_sv[0]=(-10.8929,-1.53243)
-DEBUG calcwvf ihel=4 icall=10 diag3 amp_sv[0]=(-1.1511,-0.161939)
-DEBUG calcwvf ihel=4 icall=10 jamp_sv[0]=(10.8929,1.53243) jamp_sv[1]=(1.1511,0.161939)
-DEBUG calcwvf ihel=5 icall=10 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=5 icall=10 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=5 icall=10 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=5 icall=10 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=6 icall=10 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=6 icall=10 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=6 icall=10 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=6 icall=10 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=7 icall=10 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=7 icall=10 diag2 amp_sv[0]=(1.1511,0.161939)
-DEBUG calcwvf ihel=7 icall=10 diag3 amp_sv[0]=(0.121642,0.0171128)
-DEBUG calcwvf ihel=7 icall=10 jamp_sv[0]=(-1.1511,-0.161939) jamp_sv[1]=(-0.121642,-0.0171128)
-DEBUG calcwvf ihel=8 icall=10 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=8 icall=10 diag2 amp_sv[0]=(1.1511,-0.161939)
-DEBUG calcwvf ihel=8 icall=10 diag3 amp_sv[0]=(0.121642,-0.0171128)
-DEBUG calcwvf ihel=8 icall=10 jamp_sv[0]=(-1.1511,0.161939) jamp_sv[1]=(-0.121642,0.0171128)
-DEBUG calcwvf ihel=9 icall=10 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=9 icall=10 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=9 icall=10 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=9 icall=10 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=10 icall=10 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=10 icall=10 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=10 icall=10 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=10 icall=10 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=11 icall=10 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=11 icall=10 diag2 amp_sv[0]=(-10.8929,1.53243)
-DEBUG calcwvf ihel=11 icall=10 diag3 amp_sv[0]=(-1.1511,0.161939)
-DEBUG calcwvf ihel=11 icall=10 jamp_sv[0]=(10.8929,-1.53243) jamp_sv[1]=(1.1511,-0.161939)
-DEBUG calcwvf ihel=12 icall=10 diag1 amp_sv[0]=(-4.87811e-18,1.16244)
-DEBUG calcwvf ihel=12 icall=10 diag2 amp_sv[0]=(-1.16244,-1.95124e-17)
-DEBUG calcwvf ihel=12 icall=10 diag3 amp_sv[0]=(1.16244,0)
-DEBUG calcwvf ihel=12 icall=10 jamp_sv[0]=(4.44089e-16,1.46343e-17) jamp_sv[1]=(0,4.87811e-18)
-DEBUG calcwvf ihel=13 icall=10 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=13 icall=10 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=13 icall=10 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=13 icall=10 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=14 icall=10 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=14 icall=10 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=14 icall=10 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=14 icall=10 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=15 icall=10 diag1 amp_sv[0]=(4.87811e-18,1.16244)
-DEBUG calcwvf ihel=15 icall=10 diag2 amp_sv[0]=(-1.16244,0)
-DEBUG calcwvf ihel=15 icall=10 diag3 amp_sv[0]=(1.16244,-9.75622e-18)
-DEBUG calcwvf ihel=15 icall=10 jamp_sv[0]=(6.66134e-16,4.87811e-18) jamp_sv[1]=(0,4.87811e-18)
-DEBUG calcwvf ihel=0 icall=11 diag1 amp_sv[0]=(2.00167e-17,2.03044)
-DEBUG calcwvf ihel=0 icall=11 diag2 amp_sv[0]=(-2.03044,0)
-DEBUG calcwvf ihel=0 icall=11 diag3 amp_sv[0]=(2.03044,0)
-DEBUG calcwvf ihel=0 icall=11 jamp_sv[0]=(0,2.00167e-17) jamp_sv[1]=(4.44089e-16,-2.00167e-17)
-DEBUG calcwvf ihel=1 icall=11 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=1 icall=11 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=1 icall=11 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=1 icall=11 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=2 icall=11 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=2 icall=11 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=2 icall=11 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=2 icall=11 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=3 icall=11 diag1 amp_sv[0]=(-2.00167e-17,2.03044)
-DEBUG calcwvf ihel=3 icall=11 diag2 amp_sv[0]=(-2.03044,8.00666e-17)
-DEBUG calcwvf ihel=3 icall=11 diag3 amp_sv[0]=(2.03044,0)
-DEBUG calcwvf ihel=3 icall=11 jamp_sv[0]=(0,-1.00083e-16) jamp_sv[1]=(4.44089e-16,2.00167e-17)
-DEBUG calcwvf ihel=4 icall=11 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=4 icall=11 diag2 amp_sv[0]=(-3.0306,-0.898976)
-DEBUG calcwvf ihel=4 icall=11 diag3 amp_sv[0]=(-1.9466,-0.577426)
-DEBUG calcwvf ihel=4 icall=11 jamp_sv[0]=(3.0306,0.898976) jamp_sv[1]=(1.9466,0.577426)
-DEBUG calcwvf ihel=5 icall=11 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=5 icall=11 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=5 icall=11 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=5 icall=11 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=6 icall=11 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=6 icall=11 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=6 icall=11 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=6 icall=11 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=7 icall=11 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=7 icall=11 diag2 amp_sv[0]=(1.9466,0.577426)
-DEBUG calcwvf ihel=7 icall=11 diag3 amp_sv[0]=(1.25033,0.37089)
-DEBUG calcwvf ihel=7 icall=11 jamp_sv[0]=(-1.9466,-0.577426) jamp_sv[1]=(-1.25033,-0.37089)
-DEBUG calcwvf ihel=8 icall=11 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=8 icall=11 diag2 amp_sv[0]=(1.9466,-0.577426)
-DEBUG calcwvf ihel=8 icall=11 diag3 amp_sv[0]=(1.25033,-0.37089)
-DEBUG calcwvf ihel=8 icall=11 jamp_sv[0]=(-1.9466,0.577426) jamp_sv[1]=(-1.25033,0.37089)
-DEBUG calcwvf ihel=9 icall=11 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=9 icall=11 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=9 icall=11 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=9 icall=11 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=10 icall=11 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=10 icall=11 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=10 icall=11 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=10 icall=11 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=11 icall=11 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=11 icall=11 diag2 amp_sv[0]=(-3.0306,0.898976)
-DEBUG calcwvf ihel=11 icall=11 diag3 amp_sv[0]=(-1.9466,0.577426)
-DEBUG calcwvf ihel=11 icall=11 jamp_sv[0]=(3.0306,-0.898976) jamp_sv[1]=(1.9466,-0.577426)
-DEBUG calcwvf ihel=12 icall=11 diag1 amp_sv[0]=(2.00167e-17,2.03044)
-DEBUG calcwvf ihel=12 icall=11 diag2 amp_sv[0]=(-2.03044,-8.00666e-17)
-DEBUG calcwvf ihel=12 icall=11 diag3 amp_sv[0]=(2.03044,0)
-DEBUG calcwvf ihel=12 icall=11 jamp_sv[0]=(0,1.00083e-16) jamp_sv[1]=(4.44089e-16,-2.00167e-17)
-DEBUG calcwvf ihel=13 icall=11 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=13 icall=11 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=13 icall=11 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=13 icall=11 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=14 icall=11 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=14 icall=11 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=14 icall=11 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=14 icall=11 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=15 icall=11 diag1 amp_sv[0]=(-2.00167e-17,2.03044)
-DEBUG calcwvf ihel=15 icall=11 diag2 amp_sv[0]=(-2.03044,0)
-DEBUG calcwvf ihel=15 icall=11 diag3 amp_sv[0]=(2.03044,0)
-DEBUG calcwvf ihel=15 icall=11 jamp_sv[0]=(0,-2.00167e-17) jamp_sv[1]=(4.44089e-16,2.00167e-17)
-DEBUG calcwvf ihel=0 icall=12 diag1 amp_sv[0]=(8.07268e-17,2.04166)
-DEBUG calcwvf ihel=0 icall=12 diag2 amp_sv[0]=(-2.04166,0)
-DEBUG calcwvf ihel=0 icall=12 diag3 amp_sv[0]=(2.04166,-1.61454e-16)
-DEBUG calcwvf ihel=0 icall=12 jamp_sv[0]=(0,8.07268e-17) jamp_sv[1]=(8.88178e-16,8.07268e-17)
-DEBUG calcwvf ihel=1 icall=12 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=1 icall=12 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=1 icall=12 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=1 icall=12 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=2 icall=12 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=2 icall=12 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=2 icall=12 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=2 icall=12 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=3 icall=12 diag1 amp_sv[0]=(-8.07268e-17,2.04166)
-DEBUG calcwvf ihel=3 icall=12 diag2 amp_sv[0]=(-2.04166,0)
-DEBUG calcwvf ihel=3 icall=12 diag3 amp_sv[0]=(2.04166,0)
-DEBUG calcwvf ihel=3 icall=12 jamp_sv[0]=(0,-8.07268e-17) jamp_sv[1]=(0,8.07268e-17)
-DEBUG calcwvf ihel=4 icall=12 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=4 icall=12 diag2 amp_sv[0]=(1.89792,2.9193)
-DEBUG calcwvf ihel=4 icall=12 diag3 amp_sv[0]=(1.11284,1.71172)
-DEBUG calcwvf ihel=4 icall=12 jamp_sv[0]=(-1.89792,-2.9193) jamp_sv[1]=(-1.11284,-1.71172)
-DEBUG calcwvf ihel=5 icall=12 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=5 icall=12 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=5 icall=12 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=5 icall=12 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=6 icall=12 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=6 icall=12 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=6 icall=12 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=6 icall=12 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=7 icall=12 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=7 icall=12 diag2 amp_sv[0]=(-1.11284,-1.71172)
-DEBUG calcwvf ihel=7 icall=12 diag3 amp_sv[0]=(-0.652507,-1.00366)
-DEBUG calcwvf ihel=7 icall=12 jamp_sv[0]=(1.11284,1.71172) jamp_sv[1]=(0.652507,1.00366)
-DEBUG calcwvf ihel=8 icall=12 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=8 icall=12 diag2 amp_sv[0]=(-1.11284,1.71172)
-DEBUG calcwvf ihel=8 icall=12 diag3 amp_sv[0]=(-0.652507,1.00366)
-DEBUG calcwvf ihel=8 icall=12 jamp_sv[0]=(1.11284,-1.71172) jamp_sv[1]=(0.652507,-1.00366)
-DEBUG calcwvf ihel=9 icall=12 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=9 icall=12 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=9 icall=12 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=9 icall=12 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=10 icall=12 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=10 icall=12 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=10 icall=12 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=10 icall=12 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=11 icall=12 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=11 icall=12 diag2 amp_sv[0]=(1.89792,-2.9193)
-DEBUG calcwvf ihel=11 icall=12 diag3 amp_sv[0]=(1.11284,-1.71172)
-DEBUG calcwvf ihel=11 icall=12 jamp_sv[0]=(-1.89792,2.9193) jamp_sv[1]=(-1.11284,1.71172)
-DEBUG calcwvf ihel=12 icall=12 diag1 amp_sv[0]=(8.07268e-17,2.04166)
-DEBUG calcwvf ihel=12 icall=12 diag2 amp_sv[0]=(-2.04166,0)
-DEBUG calcwvf ihel=12 icall=12 diag3 amp_sv[0]=(2.04166,0)
-DEBUG calcwvf ihel=12 icall=12 jamp_sv[0]=(-4.44089e-16,8.07268e-17) jamp_sv[1]=(4.44089e-16,-8.07268e-17)
-DEBUG calcwvf ihel=13 icall=12 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=13 icall=12 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=13 icall=12 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=13 icall=12 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=14 icall=12 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=14 icall=12 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=14 icall=12 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=14 icall=12 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=15 icall=12 diag1 amp_sv[0]=(-8.07268e-17,2.04166)
-DEBUG calcwvf ihel=15 icall=12 diag2 amp_sv[0]=(-2.04166,0)
-DEBUG calcwvf ihel=15 icall=12 diag3 amp_sv[0]=(2.04166,1.61454e-16)
-DEBUG calcwvf ihel=15 icall=12 jamp_sv[0]=(4.44089e-16,-8.07268e-17) jamp_sv[1]=(4.44089e-16,-8.07268e-17)
-DEBUG calcwvf ihel=0 icall=13 diag1 amp_sv[0]=(-1.94193e-17,1.08528)
-DEBUG calcwvf ihel=0 icall=13 diag2 amp_sv[0]=(-1.08528,0)
-DEBUG calcwvf ihel=0 icall=13 diag3 amp_sv[0]=(1.08528,0)
-DEBUG calcwvf ihel=0 icall=13 jamp_sv[0]=(-2.22045e-16,-1.94193e-17) jamp_sv[1]=(2.22045e-16,1.94193e-17)
-DEBUG calcwvf ihel=1 icall=13 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=1 icall=13 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=1 icall=13 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=1 icall=13 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=2 icall=13 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=2 icall=13 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=2 icall=13 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=2 icall=13 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=3 icall=13 diag1 amp_sv[0]=(1.94193e-17,1.08528)
-DEBUG calcwvf ihel=3 icall=13 diag2 amp_sv[0]=(-1.08528,-3.88386e-17)
-DEBUG calcwvf ihel=3 icall=13 diag3 amp_sv[0]=(1.08528,0)
-DEBUG calcwvf ihel=3 icall=13 jamp_sv[0]=(-2.22045e-16,5.8258e-17) jamp_sv[1]=(-2.22045e-16,-1.94193e-17)
-DEBUG calcwvf ihel=4 icall=13 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=4 icall=13 diag2 amp_sv[0]=(-9.89069,6.54672)
-DEBUG calcwvf ihel=4 icall=13 diag3 amp_sv[0]=(-0.904995,0.599023)
-DEBUG calcwvf ihel=4 icall=13 jamp_sv[0]=(9.89069,-6.54672) jamp_sv[1]=(0.904995,-0.599023)
-DEBUG calcwvf ihel=5 icall=13 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=5 icall=13 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=5 icall=13 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=5 icall=13 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=6 icall=13 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=6 icall=13 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=6 icall=13 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=6 icall=13 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=7 icall=13 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=7 icall=13 diag2 amp_sv[0]=(0.904995,-0.599023)
-DEBUG calcwvf ihel=7 icall=13 diag3 amp_sv[0]=(0.0828067,-0.0548104)
-DEBUG calcwvf ihel=7 icall=13 jamp_sv[0]=(-0.904995,0.599023) jamp_sv[1]=(-0.0828067,0.0548104)
-DEBUG calcwvf ihel=8 icall=13 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=8 icall=13 diag2 amp_sv[0]=(0.904995,0.599023)
-DEBUG calcwvf ihel=8 icall=13 diag3 amp_sv[0]=(0.0828067,0.0548104)
-DEBUG calcwvf ihel=8 icall=13 jamp_sv[0]=(-0.904995,-0.599023) jamp_sv[1]=(-0.0828067,-0.0548104)
-DEBUG calcwvf ihel=9 icall=13 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=9 icall=13 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=9 icall=13 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=9 icall=13 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=10 icall=13 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=10 icall=13 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=10 icall=13 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=10 icall=13 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=11 icall=13 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=11 icall=13 diag2 amp_sv[0]=(-9.89069,-6.54672)
-DEBUG calcwvf ihel=11 icall=13 diag3 amp_sv[0]=(-0.904995,-0.599023)
-DEBUG calcwvf ihel=11 icall=13 jamp_sv[0]=(9.89069,6.54672) jamp_sv[1]=(0.904995,0.599023)
-DEBUG calcwvf ihel=12 icall=13 diag1 amp_sv[0]=(-1.94193e-17,1.08528)
-DEBUG calcwvf ihel=12 icall=13 diag2 amp_sv[0]=(-1.08528,3.88386e-17)
-DEBUG calcwvf ihel=12 icall=13 diag3 amp_sv[0]=(1.08528,0)
-DEBUG calcwvf ihel=12 icall=13 jamp_sv[0]=(-2.22045e-16,-5.8258e-17) jamp_sv[1]=(-2.22045e-16,1.94193e-17)
-DEBUG calcwvf ihel=13 icall=13 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=13 icall=13 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=13 icall=13 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=13 icall=13 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=14 icall=13 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=14 icall=13 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=14 icall=13 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=14 icall=13 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=15 icall=13 diag1 amp_sv[0]=(1.94193e-17,1.08528)
-DEBUG calcwvf ihel=15 icall=13 diag2 amp_sv[0]=(-1.08528,0)
-DEBUG calcwvf ihel=15 icall=13 diag3 amp_sv[0]=(1.08528,0)
-DEBUG calcwvf ihel=15 icall=13 jamp_sv[0]=(-2.22045e-16,1.94193e-17) jamp_sv[1]=(2.22045e-16,-1.94193e-17)
-DEBUG calcwvf ihel=0 icall=14 diag1 amp_sv[0]=(-3.62366e-17,1.65245)
-DEBUG calcwvf ihel=0 icall=14 diag2 amp_sv[0]=(-1.65245,0)
-DEBUG calcwvf ihel=0 icall=14 diag3 amp_sv[0]=(1.65245,-7.24731e-17)
-DEBUG calcwvf ihel=0 icall=14 jamp_sv[0]=(0,-3.62366e-17) jamp_sv[1]=(0,1.0871e-16)
-DEBUG calcwvf ihel=1 icall=14 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=1 icall=14 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=1 icall=14 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=1 icall=14 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=2 icall=14 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=2 icall=14 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=2 icall=14 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=2 icall=14 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=3 icall=14 diag1 amp_sv[0]=(3.62366e-17,1.65245)
-DEBUG calcwvf ihel=3 icall=14 diag2 amp_sv[0]=(-1.65245,0)
-DEBUG calcwvf ihel=3 icall=14 diag3 amp_sv[0]=(1.65245,0)
-DEBUG calcwvf ihel=3 icall=14 jamp_sv[0]=(0,3.62366e-17) jamp_sv[1]=(6.66134e-16,-3.62366e-17)
-DEBUG calcwvf ihel=4 icall=14 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=4 icall=14 diag2 amp_sv[0]=(1.77726,-2.06714)
-DEBUG calcwvf ihel=4 icall=14 diag3 amp_sv[0]=(1.0773,-1.25301)
-DEBUG calcwvf ihel=4 icall=14 jamp_sv[0]=(-1.77726,2.06714) jamp_sv[1]=(-1.0773,1.25301)
-DEBUG calcwvf ihel=5 icall=14 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=5 icall=14 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=5 icall=14 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=5 icall=14 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=6 icall=14 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=6 icall=14 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=6 icall=14 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=6 icall=14 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=7 icall=14 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=7 icall=14 diag2 amp_sv[0]=(-1.0773,1.25301)
-DEBUG calcwvf ihel=7 icall=14 diag3 amp_sv[0]=(-0.653009,0.759517)
-DEBUG calcwvf ihel=7 icall=14 jamp_sv[0]=(1.0773,-1.25301) jamp_sv[1]=(0.653009,-0.759517)
-DEBUG calcwvf ihel=8 icall=14 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=8 icall=14 diag2 amp_sv[0]=(-1.0773,-1.25301)
-DEBUG calcwvf ihel=8 icall=14 diag3 amp_sv[0]=(-0.653009,-0.759517)
-DEBUG calcwvf ihel=8 icall=14 jamp_sv[0]=(1.0773,1.25301) jamp_sv[1]=(0.653009,0.759517)
-DEBUG calcwvf ihel=9 icall=14 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=9 icall=14 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=9 icall=14 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=9 icall=14 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=10 icall=14 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=10 icall=14 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=10 icall=14 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=10 icall=14 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=11 icall=14 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=11 icall=14 diag2 amp_sv[0]=(1.77726,2.06714)
-DEBUG calcwvf ihel=11 icall=14 diag3 amp_sv[0]=(1.0773,1.25301)
-DEBUG calcwvf ihel=11 icall=14 jamp_sv[0]=(-1.77726,-2.06714) jamp_sv[1]=(-1.0773,-1.25301)
-DEBUG calcwvf ihel=12 icall=14 diag1 amp_sv[0]=(-3.62366e-17,1.65245)
-DEBUG calcwvf ihel=12 icall=14 diag2 amp_sv[0]=(-1.65245,0)
-DEBUG calcwvf ihel=12 icall=14 diag3 amp_sv[0]=(1.65245,0)
-DEBUG calcwvf ihel=12 icall=14 jamp_sv[0]=(4.44089e-16,-3.62366e-17) jamp_sv[1]=(2.22045e-16,3.62366e-17)
-DEBUG calcwvf ihel=13 icall=14 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=13 icall=14 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=13 icall=14 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=13 icall=14 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=14 icall=14 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=14 icall=14 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=14 icall=14 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=14 icall=14 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=15 icall=14 diag1 amp_sv[0]=(3.62366e-17,1.65245)
-DEBUG calcwvf ihel=15 icall=14 diag2 amp_sv[0]=(-1.65245,0)
-DEBUG calcwvf ihel=15 icall=14 diag3 amp_sv[0]=(1.65245,7.24731e-17)
-DEBUG calcwvf ihel=15 icall=14 jamp_sv[0]=(-4.44089e-16,3.62366e-17) jamp_sv[1]=(4.44089e-16,-1.0871e-16)
-DEBUG calcwvf ihel=0 icall=15 diag1 amp_sv[0]=(0,2.18621)
-DEBUG calcwvf ihel=0 icall=15 diag2 amp_sv[0]=(-2.18621,0)
-DEBUG calcwvf ihel=0 icall=15 diag3 amp_sv[0]=(2.18621,4.1085e-17)
-DEBUG calcwvf ihel=0 icall=15 jamp_sv[0]=(0,0) jamp_sv[1]=(4.44089e-16,-4.1085e-17)
-DEBUG calcwvf ihel=1 icall=15 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=1 icall=15 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=1 icall=15 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=1 icall=15 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=2 icall=15 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=2 icall=15 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=2 icall=15 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=2 icall=15 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=3 icall=15 diag1 amp_sv[0]=(0,2.18621)
-DEBUG calcwvf ihel=3 icall=15 diag2 amp_sv[0]=(-2.18621,4.1085e-17)
-DEBUG calcwvf ihel=3 icall=15 diag3 amp_sv[0]=(2.18621,0)
-DEBUG calcwvf ihel=3 icall=15 jamp_sv[0]=(-4.44089e-16,-4.1085e-17) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=4 icall=15 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=4 icall=15 diag2 amp_sv[0]=(-1.86188,0.435429)
-DEBUG calcwvf ihel=4 icall=15 diag3 amp_sv[0]=(-2.12877,0.497845)
-DEBUG calcwvf ihel=4 icall=15 jamp_sv[0]=(1.86188,-0.435429) jamp_sv[1]=(2.12877,-0.497845)
-DEBUG calcwvf ihel=5 icall=15 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=5 icall=15 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=5 icall=15 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=5 icall=15 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=6 icall=15 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=6 icall=15 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=6 icall=15 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=6 icall=15 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=7 icall=15 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=7 icall=15 diag2 amp_sv[0]=(2.12877,-0.497845)
-DEBUG calcwvf ihel=7 icall=15 diag3 amp_sv[0]=(2.43392,-0.569209)
-DEBUG calcwvf ihel=7 icall=15 jamp_sv[0]=(-2.12877,0.497845) jamp_sv[1]=(-2.43392,0.569209)
-DEBUG calcwvf ihel=8 icall=15 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=8 icall=15 diag2 amp_sv[0]=(2.12877,0.497845)
-DEBUG calcwvf ihel=8 icall=15 diag3 amp_sv[0]=(2.43392,0.569209)
-DEBUG calcwvf ihel=8 icall=15 jamp_sv[0]=(-2.12877,-0.497845) jamp_sv[1]=(-2.43392,-0.569209)
-DEBUG calcwvf ihel=9 icall=15 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=9 icall=15 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=9 icall=15 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=9 icall=15 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=10 icall=15 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=10 icall=15 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=10 icall=15 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=10 icall=15 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=11 icall=15 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=11 icall=15 diag2 amp_sv[0]=(-1.86188,-0.435429)
-DEBUG calcwvf ihel=11 icall=15 diag3 amp_sv[0]=(-2.12877,-0.497845)
-DEBUG calcwvf ihel=11 icall=15 jamp_sv[0]=(1.86188,0.435429) jamp_sv[1]=(2.12877,0.497845)
-DEBUG calcwvf ihel=12 icall=15 diag1 amp_sv[0]=(0,2.18621)
-DEBUG calcwvf ihel=12 icall=15 diag2 amp_sv[0]=(-2.18621,-4.1085e-17)
-DEBUG calcwvf ihel=12 icall=15 diag3 amp_sv[0]=(2.18621,0)
-DEBUG calcwvf ihel=12 icall=15 jamp_sv[0]=(-4.44089e-16,4.1085e-17) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=13 icall=15 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=13 icall=15 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=13 icall=15 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=13 icall=15 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=14 icall=15 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=14 icall=15 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=14 icall=15 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=14 icall=15 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=15 icall=15 diag1 amp_sv[0]=(0,2.18621)
-DEBUG calcwvf ihel=15 icall=15 diag2 amp_sv[0]=(-2.18621,0)
-DEBUG calcwvf ihel=15 icall=15 diag3 amp_sv[0]=(2.18621,-4.1085e-17)
-DEBUG calcwvf ihel=15 icall=15 jamp_sv[0]=(0,0) jamp_sv[1]=(4.44089e-16,4.1085e-17)
-DEBUG calcwvf ihel=0 icall=16 diag1 amp_sv[0]=(0,2.10572)
-DEBUG calcwvf ihel=0 icall=16 diag2 amp_sv[0]=(-2.10572,0)
-DEBUG calcwvf ihel=0 icall=16 diag3 amp_sv[0]=(2.10572,0)
-DEBUG calcwvf ihel=0 icall=16 jamp_sv[0]=(-4.44089e-16,0) jamp_sv[1]=(4.44089e-16,-0)
-DEBUG calcwvf ihel=1 icall=16 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=1 icall=16 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=1 icall=16 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=1 icall=16 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=2 icall=16 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=2 icall=16 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=2 icall=16 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=2 icall=16 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=3 icall=16 diag1 amp_sv[0]=(0,2.10572)
-DEBUG calcwvf ihel=3 icall=16 diag2 amp_sv[0]=(-2.10572,-1.02066e-17)
-DEBUG calcwvf ihel=3 icall=16 diag3 amp_sv[0]=(2.10572,0)
-DEBUG calcwvf ihel=3 icall=16 jamp_sv[0]=(-4.44089e-16,1.02066e-17) jamp_sv[1]=(4.44089e-16,-0)
-DEBUG calcwvf ihel=4 icall=16 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=4 icall=16 diag2 amp_sv[0]=(-1.31424,-0.1107)
-DEBUG calcwvf ihel=4 icall=16 diag3 amp_sv[0]=(-2.09829,-0.176741)
-DEBUG calcwvf ihel=4 icall=16 jamp_sv[0]=(1.31424,0.1107) jamp_sv[1]=(2.09829,0.176741)
-DEBUG calcwvf ihel=5 icall=16 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=5 icall=16 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=5 icall=16 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=5 icall=16 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=6 icall=16 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=6 icall=16 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=6 icall=16 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=6 icall=16 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=7 icall=16 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=7 icall=16 diag2 amp_sv[0]=(2.09829,0.176741)
-DEBUG calcwvf ihel=7 icall=16 diag3 amp_sv[0]=(3.35011,0.282183)
-DEBUG calcwvf ihel=7 icall=16 jamp_sv[0]=(-2.09829,-0.176741) jamp_sv[1]=(-3.35011,-0.282183)
-DEBUG calcwvf ihel=8 icall=16 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=8 icall=16 diag2 amp_sv[0]=(2.09829,-0.176741)
-DEBUG calcwvf ihel=8 icall=16 diag3 amp_sv[0]=(3.35011,-0.282183)
-DEBUG calcwvf ihel=8 icall=16 jamp_sv[0]=(-2.09829,0.176741) jamp_sv[1]=(-3.35011,0.282183)
-DEBUG calcwvf ihel=9 icall=16 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=9 icall=16 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=9 icall=16 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=9 icall=16 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=10 icall=16 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=10 icall=16 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=10 icall=16 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=10 icall=16 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=11 icall=16 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=11 icall=16 diag2 amp_sv[0]=(-1.31424,0.1107)
-DEBUG calcwvf ihel=11 icall=16 diag3 amp_sv[0]=(-2.09829,0.176741)
-DEBUG calcwvf ihel=11 icall=16 jamp_sv[0]=(1.31424,-0.1107) jamp_sv[1]=(2.09829,-0.176741)
-DEBUG calcwvf ihel=12 icall=16 diag1 amp_sv[0]=(0,2.10572)
-DEBUG calcwvf ihel=12 icall=16 diag2 amp_sv[0]=(-2.10572,1.02066e-17)
-DEBUG calcwvf ihel=12 icall=16 diag3 amp_sv[0]=(2.10572,0)
-DEBUG calcwvf ihel=12 icall=16 jamp_sv[0]=(-4.44089e-16,-1.02066e-17) jamp_sv[1]=(4.44089e-16,-0)
-DEBUG calcwvf ihel=13 icall=16 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=13 icall=16 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=13 icall=16 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=13 icall=16 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=14 icall=16 diag1 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=14 icall=16 diag2 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=14 icall=16 diag3 amp_sv[0]=(0,0)
-DEBUG calcwvf ihel=14 icall=16 jamp_sv[0]=(-0,0) jamp_sv[1]=(0,-0)
-DEBUG calcwvf ihel=15 icall=16 diag1 amp_sv[0]=(0,2.10572)
-DEBUG calcwvf ihel=15 icall=16 diag2 amp_sv[0]=(-2.10572,0)
-DEBUG calcwvf ihel=15 icall=16 diag3 amp_sv[0]=(2.10572,0)
-DEBUG calcwvf ihel=15 icall=16 jamp_sv[0]=(-4.44089e-16,0) jamp_sv[1]=(4.44089e-16,-0)
-DEBUG_sigmakin ievt0=0 MEs=601.34 helcolden[0]=256
-DEBUG sigmaKin: ievt= 0 me=2.348983
-DEBUG_sigmakin ievt0=1 MEs=161.426 helcolden[0]=256
-DEBUG sigmaKin: ievt= 1 me=0.630568
-DEBUG_sigmakin ievt0=2 MEs=5519.12 helcolden[0]=256
-DEBUG sigmaKin: ievt= 2 me=21.559061
-DEBUG_sigmakin ievt0=3 MEs=148.309 helcolden[0]=256
-DEBUG sigmaKin: ievt= 3 me=0.579331
-DEBUG_sigmakin ievt0=4 MEs=29519.4 helcolden[0]=256
-DEBUG sigmaKin: ievt= 4 me=115.310290
-DEBUG_sigmakin ievt0=5 MEs=141.418 helcolden[0]=256
-DEBUG sigmaKin: ievt= 5 me=0.552414
-DEBUG_sigmakin ievt0=6 MEs=136.629 helcolden[0]=256
-DEBUG sigmaKin: ievt= 6 me=0.533708
-DEBUG_sigmakin ievt0=7 MEs=1049.68 helcolden[0]=256
-DEBUG sigmaKin: ievt= 7 me=4.100300
-DEBUG_sigmakin ievt0=8 MEs=233.066 helcolden[0]=256
-DEBUG sigmaKin: ievt= 8 me=0.910415
-DEBUG_sigmakin ievt0=9 MEs=1285.22 helcolden[0]=256
-DEBUG sigmaKin: ievt= 9 me=5.020387
-DEBUG_sigmakin ievt0=10 MEs=188.505 helcolden[0]=256
-DEBUG sigmaKin: ievt=10 me=0.736348
-DEBUG_sigmakin ievt0=11 MEs=208.064 helcolden[0]=256
-DEBUG sigmaKin: ievt=11 me=0.812749
-DEBUG_sigmakin ievt0=12 MEs=1491.26 helcolden[0]=256
-DEBUG sigmaKin: ievt=12 me=5.825236
-DEBUG_sigmakin ievt0=13 MEs=131.799 helcolden[0]=256
-DEBUG sigmaKin: ievt=13 me=0.514841
-DEBUG_sigmakin ievt0=14 MEs=181.888 helcolden[0]=256
-DEBUG sigmaKin: ievt=14 me=0.710499
-DEBUG_sigmakin ievt0=15 MEs=207.427 helcolden[0]=256
-DEBUG sigmaKin: ievt=15 me=0.810262
-DEBUG_sigmakin ievt0=16 MEs=263.254 helcolden[0]=256
-DEBUG sigmaKin: ievt=16 me=1.028334
-DEBUG_sigmakin ievt0=17 MEs=2360.53 helcolden[0]=256
-DEBUG sigmaKin: ievt=17 me=9.220831
-DEBUG_sigmakin ievt0=18 MEs=553.475 helcolden[0]=256
-DEBUG sigmaKin: ievt=18 me=2.162012
-DEBUG_sigmakin ievt0=19 MEs=1.21305e+06 helcolden[0]=256
-DEBUG sigmaKin: ievt=19 me=4738.463348
-DEBUG_sigmakin ievt0=20 MEs=323.48 helcolden[0]=256
-DEBUG sigmaKin: ievt=20 me=1.263594
-DEBUG_sigmakin ievt0=21 MEs=1179.19 helcolden[0]=256
-DEBUG sigmaKin: ievt=21 me=4.606216
-DEBUG_sigmakin ievt0=22 MEs=163.358 helcolden[0]=256
-DEBUG sigmaKin: ievt=22 me=0.638117
-DEBUG_sigmakin ievt0=23 MEs=186.573 helcolden[0]=256
-DEBUG sigmaKin: ievt=23 me=0.728802
-DEBUG_sigmakin ievt0=24 MEs=196.589 helcolden[0]=256
-DEBUG sigmaKin: ievt=24 me=0.767928
-DEBUG_sigmakin ievt0=25 MEs=2596.31 helcolden[0]=256
-DEBUG sigmaKin: ievt=25 me=10.141853
-DEBUG_sigmakin ievt0=26 MEs=10867 helcolden[0]=256
-DEBUG sigmaKin: ievt=26 me=42.449073
-DEBUG_sigmakin ievt0=27 MEs=601.865 helcolden[0]=256
-DEBUG sigmaKin: ievt=27 me=2.351036
-DEBUG_sigmakin ievt0=28 MEs=673.209 helcolden[0]=256
-DEBUG sigmaKin: ievt=28 me=2.629724
-DEBUG_sigmakin ievt0=29 MEs=1023.39 helcolden[0]=256
-DEBUG sigmaKin: ievt=29 me=3.997598
-DEBUG_sigmakin ievt0=30 MEs=319.939 helcolden[0]=256
-DEBUG sigmaKin: ievt=30 me=1.249763
-DEBUG_sigmakin ievt0=31 MEs=1731.48 helcolden[0]=256
-DEBUG sigmaKin: ievt=31 me=6.763613
-DEBUG_sigmakin ievt0=0 MEs=601.34 helcolden[0]=256
-DEBUG_sigmakin ievt0=0 num=3.93303 den=129.939
-DEBUG sigmaKin: ievt= 0 me=0.071099
-DEBUG_sigmakin ievt0=1 MEs=161.426 helcolden[0]=256
-DEBUG_sigmakin ievt0=1 num=6.76386 den=54.3535
-DEBUG sigmaKin: ievt= 1 me=0.078469
-DEBUG_sigmakin ievt0=2 MEs=5519.12 helcolden[0]=256
-DEBUG_sigmakin ievt0=2 num=0.740765 den=1044
-DEBUG sigmaKin: ievt= 2 me=0.015297
-DEBUG_sigmakin ievt0=3 MEs=148.309 helcolden[0]=256
-DEBUG_sigmakin ievt0=3 num=4.95016 den=45.7503
-DEBUG sigmaKin: ievt= 3 me=0.062683
-DEBUG_sigmakin ievt0=4 MEs=29519.4 helcolden[0]=256
-DEBUG_sigmakin ievt0=4 num=0.249936 den=5544.95
-DEBUG sigmaKin: ievt= 4 me=0.005198
-DEBUG_sigmakin ievt0=5 MEs=141.418 helcolden[0]=256
-DEBUG_sigmakin ievt0=5 num=7.32382 den=52.2076
-DEBUG sigmaKin: ievt= 5 me=0.077494
-DEBUG_sigmakin ievt0=6 MEs=136.629 helcolden[0]=256
-DEBUG_sigmakin ievt0=6 num=6.85254 den=49.709
-DEBUG sigmaKin: ievt= 6 me=0.073573
-DEBUG_sigmakin ievt0=7 MEs=1049.68 helcolden[0]=256
-DEBUG_sigmakin ievt0=7 num=3.99625 den=215.94
-DEBUG sigmaKin: ievt= 7 me=0.075881
-DEBUG_sigmakin ievt0=8 MEs=233.066 helcolden[0]=256
-DEBUG_sigmakin ievt0=8 num=7.18012 den=69.8987
-DEBUG sigmaKin: ievt= 8 me=0.093519
-DEBUG_sigmakin ievt0=9 MEs=1285.22 helcolden[0]=256
-DEBUG_sigmakin ievt0=9 num=2.70253 den=255.551
-DEBUG sigmaKin: ievt= 9 me=0.053092
-DEBUG_sigmakin ievt0=10 MEs=188.505 helcolden[0]=256
-DEBUG_sigmakin ievt0=10 num=8.24538 den=64.6141
-DEBUG sigmaKin: ievt=10 me=0.093965
-DEBUG_sigmakin ievt0=11 MEs=208.064 helcolden[0]=256
-DEBUG_sigmakin ievt0=11 num=8.33678 den=68.7989
-DEBUG sigmaKin: ievt=11 me=0.098486
-DEBUG_sigmakin ievt0=12 MEs=1491.26 helcolden[0]=256
-DEBUG_sigmakin ievt0=12 num=2.35569 den=293.169
-DEBUG sigmaKin: ievt=12 me=0.046807
-DEBUG_sigmakin ievt0=13 MEs=131.799 helcolden[0]=256
-DEBUG_sigmakin ievt0=13 num=5.46118 den=44.1759
-DEBUG sigmaKin: ievt=13 me=0.063646
-DEBUG_sigmakin ievt0=14 MEs=181.888 helcolden[0]=256
-DEBUG_sigmakin ievt0=14 num=9.55904 den=67.6036
-DEBUG sigmaKin: ievt=14 me=0.100464
-DEBUG_sigmakin ievt0=15 MEs=207.427 helcolden[0]=256
-DEBUG_sigmakin ievt0=15 num=8.86813 den=70.4253
-DEBUG sigmaKin: ievt=15 me=0.102030
-DEBUG_sigmakin ievt0=16 MEs=263.254 helcolden[0]=256
-DEBUG_sigmakin ievt0=16 num=7.09954 den=75.5657
-DEBUG sigmaKin: ievt=16 me=0.096614
-DEBUG_sigmakin ievt0=17 MEs=2360.53 helcolden[0]=256
-DEBUG_sigmakin ievt0=17 num=1.64945 den=454.355
-DEBUG sigmaKin: ievt=17 me=0.033474
-DEBUG_sigmakin ievt0=18 MEs=553.475 helcolden[0]=256
-DEBUG_sigmakin ievt0=18 num=5.24636 den=125.515
-DEBUG sigmaKin: ievt=18 me=0.090369
-DEBUG_sigmakin ievt0=19 MEs=1.21305e+06 helcolden[0]=256
-DEBUG_sigmakin ievt0=19 num=0.00562788 den=227455
-DEBUG sigmaKin: ievt=19 me=0.000117
-DEBUG_sigmakin ievt0=20 MEs=323.48 helcolden[0]=256
-DEBUG_sigmakin ievt0=20 num=7.61826 den=89.1245
-DEBUG sigmaKin: ievt=20 me=0.108010
-DEBUG_sigmakin ievt0=21 MEs=1179.19 helcolden[0]=256
-DEBUG_sigmakin ievt0=21 num=3.77304 den=239.757
-DEBUG sigmaKin: ievt=21 me=0.072488
-DEBUG_sigmakin ievt0=22 MEs=163.358 helcolden[0]=256
-DEBUG_sigmakin ievt0=22 num=8.67734 den=61.0175
-DEBUG sigmaKin: ievt=22 me=0.090747
-DEBUG_sigmakin ievt0=23 MEs=186.573 helcolden[0]=256
-DEBUG_sigmakin ievt0=23 num=9.47448 den=68.263
-DEBUG sigmaKin: ievt=23 me=0.101153
-DEBUG_sigmakin ievt0=24 MEs=196.589 helcolden[0]=256
-DEBUG_sigmakin ievt0=24 num=6.8169 den=61.4929
-DEBUG sigmaKin: ievt=24 me=0.085130
-DEBUG_sigmakin ievt0=25 MEs=2596.31 helcolden[0]=256
-DEBUG_sigmakin ievt0=25 num=0.968223 den=495.172
-DEBUG sigmaKin: ievt=25 me=0.019831
-DEBUG_sigmakin ievt0=26 MEs=10867 helcolden[0]=256
-DEBUG_sigmakin ievt0=26 num=0.315875 den=2044.86
-DEBUG sigmaKin: ievt=26 me=0.006557
-DEBUG_sigmakin ievt0=27 MEs=601.865 helcolden[0]=256
-DEBUG_sigmakin ievt0=27 num=5.77706 den=136.747
-DEBUG sigmaKin: ievt=27 me=0.099322
-DEBUG_sigmakin ievt0=28 MEs=673.209 helcolden[0]=256
-DEBUG_sigmakin ievt0=28 num=4.1877 den=144.67
-DEBUG sigmaKin: ievt=28 me=0.076121
-DEBUG_sigmakin ievt0=29 MEs=1023.39 helcolden[0]=256
-DEBUG_sigmakin ievt0=29 num=2.36362 den=204.374
-DEBUG sigmaKin: ievt=29 me=0.046233
-DEBUG_sigmakin ievt0=30 MEs=319.939 helcolden[0]=256
-DEBUG_sigmakin ievt0=30 num=6.81494 den=85.7057
-DEBUG sigmaKin: ievt=30 me=0.099376
-DEBUG_sigmakin ievt0=31 MEs=1731.48 helcolden[0]=256
-DEBUG_sigmakin ievt0=31 num=1.57901 den=335.1
-DEBUG sigmaKin: ievt=31 me=0.031870
  [OPENMPTH] omp_get_max_threads/nproc = 1/4
- [NGOODHEL] ngoodhel/ncomb = 6/16
- [XSECTION] VECSIZE_USED = 32
+ [NGOODHEL] ngoodhel/ncomb = 8/16
+ [XSECTION] VECSIZE_USED = 8192
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 1440000 [1440124.1054312044] fbridge_mode=1
- [UNWEIGHT] Wrote 2 events (found 7 events)
- [COUNTERS] PROGRAM TOTAL          :    0.0679s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.0677s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0002s for       32 events => throughput is 1.55E+05 events/s
+ [XSECTION] Cross section = 2756000 [2755752.8574748533] fbridge_mode=1
+ [UNWEIGHT] Wrote 1492 events (found 1585 events)
+ [COUNTERS] PROGRAM TOTAL          :    0.4329s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.4145s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0184s for     8192 events => throughput is 4.46E+05 events/s
 
 *** (2-none) Compare MADEVENT_CPP x1 xsec to MADEVENT_FORTRAN xsec ***
 
-ERROR! xsec from fortran (2246476.0691319485) and cpp (1440124.1054312044) differ by more than 2E-14 (0.35894082059477406)
+OK! xsec from fortran (2755752.8574748533) and cpp (2755752.8574748533) differ by less than 2E-14 (0.0)
+
+*** (2-none) Compare MADEVENT_CPP x1 events.lhe to MADEVENT_FORTRAN events.lhe reference (including colors and helicities) ***
+
+OK! events.lhe.cpp.1 and events.lhe.ref.1 are identical
+
+*** (2-none) EXECUTE MADEVENT_CPP x10 (create events.lhe) ***
+--------------------
+CUDACPP_RUNTIME_FBRIDGEMODE = (not set)
+CUDACPP_RUNTIME_VECSIZEUSED = 8192
+--------------------
+81920 1 1 ! Number of events and max and min iterations
+0.000001 ! Accuracy (ignored because max iterations = min iterations)
+0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
+1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
+0 ! Helicity Sum/event 0=exact
+1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
+--------------------
+Executing ' ./build.none_d_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_gguu_x10_cudacpp > /tmp/avalassi/output_gguu_x10_cudacpp'
+ [OPENMPTH] omp_get_max_threads/nproc = 1/4
+ [NGOODHEL] ngoodhel/ncomb = 8/16
+ [XSECTION] VECSIZE_USED = 8192
+ [XSECTION] MultiChannel = TRUE
+ [XSECTION] Configuration = 1
+ [XSECTION] ChannelId = 1
+ [XSECTION] Cross section = 307300 [307281.60874575953] fbridge_mode=1
+ [UNWEIGHT] Wrote 1816 events (found 1821 events)
+ [COUNTERS] PROGRAM TOTAL          :    2.1513s
+ [COUNTERS] Fortran Overhead ( 0 ) :    1.9488s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.2025s for    90112 events => throughput is 4.45E+05 events/s
+
+*** (2-none) Compare MADEVENT_CPP x10 xsec to MADEVENT_FORTRAN xsec ***
+
+OK! xsec from fortran (307281.60874575964) and cpp (307281.60874575953) differ by less than 2E-14 (3.3306690738754696e-16)
+
+*** (2-none) Compare MADEVENT_CPP x10 events.lhe to MADEVENT_FORTRAN events.lhe reference (including colors and helicities) ***
+
+OK! events.lhe.cpp.10 and events.lhe.ref.10 are identical
+
+*** EXECUTE CHECK(8192) -p 256 32 1 --bridge ***
+Process                     = SIGMA_SM_GG_UUX_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
+Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+BRDHST/none+NAVBRK
+EvtsPerSec[MECalcOnly] (3a) = ( 4.479985e+05                 )  sec^-1
+
+*** EXECUTE CHECK(8192) -p 256 32 1 ***
+Process                     = SIGMA_SM_GG_UUX_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
+Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/none+NAVBRK
+EvtsPerSec[MECalcOnly] (3a) = ( 4.435299e+05                 )  sec^-1
+
+*** (2-sse4) EXECUTE MADEVENT_CPP x1 (create events.lhe) ***
+--------------------
+CUDACPP_RUNTIME_FBRIDGEMODE = (not set)
+CUDACPP_RUNTIME_VECSIZEUSED = 8192
+--------------------
+8192 1 1 ! Number of events and max and min iterations
+0.000001 ! Accuracy (ignored because max iterations = min iterations)
+0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
+1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
+0 ! Helicity Sum/event 0=exact
+1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
+--------------------
+Executing ' ./build.sse4_d_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_gguu_x1_cudacpp > /tmp/avalassi/output_gguu_x1_cudacpp'
+ [OPENMPTH] omp_get_max_threads/nproc = 1/4
+ [NGOODHEL] ngoodhel/ncomb = 8/16
+ [XSECTION] VECSIZE_USED = 8192
+ [XSECTION] MultiChannel = TRUE
+ [XSECTION] Configuration = 1
+ [XSECTION] ChannelId = 1
+ [XSECTION] Cross section = 2756000 [2755752.8574748533] fbridge_mode=1
+ [UNWEIGHT] Wrote 1492 events (found 1585 events)
+ [COUNTERS] PROGRAM TOTAL          :    0.4186s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.4095s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0090s for     8192 events => throughput is 9.05E+05 events/s
+
+*** (2-sse4) Compare MADEVENT_CPP x1 xsec to MADEVENT_FORTRAN xsec ***
+
+OK! xsec from fortran (2755752.8574748533) and cpp (2755752.8574748533) differ by less than 2E-14 (0.0)
+
+*** (2-sse4) Compare MADEVENT_CPP x1 events.lhe to MADEVENT_FORTRAN events.lhe reference (including colors and helicities) ***
+
+OK! events.lhe.cpp.1 and events.lhe.ref.1 are identical
+
+*** (2-sse4) EXECUTE MADEVENT_CPP x10 (create events.lhe) ***
+--------------------
+CUDACPP_RUNTIME_FBRIDGEMODE = (not set)
+CUDACPP_RUNTIME_VECSIZEUSED = 8192
+--------------------
+81920 1 1 ! Number of events and max and min iterations
+0.000001 ! Accuracy (ignored because max iterations = min iterations)
+0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
+1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
+0 ! Helicity Sum/event 0=exact
+1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
+--------------------
+Executing ' ./build.sse4_d_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_gguu_x10_cudacpp > /tmp/avalassi/output_gguu_x10_cudacpp'
+ [OPENMPTH] omp_get_max_threads/nproc = 1/4
+ [NGOODHEL] ngoodhel/ncomb = 8/16
+ [XSECTION] VECSIZE_USED = 8192
+ [XSECTION] MultiChannel = TRUE
+ [XSECTION] Configuration = 1
+ [XSECTION] ChannelId = 1
+ [XSECTION] Cross section = 307300 [307281.60874575953] fbridge_mode=1
+ [UNWEIGHT] Wrote 1816 events (found 1821 events)
+ [COUNTERS] PROGRAM TOTAL          :    2.0908s
+ [COUNTERS] Fortran Overhead ( 0 ) :    1.9878s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.1030s for    90112 events => throughput is 8.75E+05 events/s
+
+*** (2-sse4) Compare MADEVENT_CPP x10 xsec to MADEVENT_FORTRAN xsec ***
+
+OK! xsec from fortran (307281.60874575964) and cpp (307281.60874575953) differ by less than 2E-14 (3.3306690738754696e-16)
+
+*** (2-sse4) Compare MADEVENT_CPP x10 events.lhe to MADEVENT_FORTRAN events.lhe reference (including colors and helicities) ***
+
+OK! events.lhe.cpp.10 and events.lhe.ref.10 are identical
+
+*** EXECUTE CHECK(8192) -p 256 32 1 --bridge ***
+Process                     = SIGMA_SM_GG_UUX_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
+Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+BRDHST/sse4+CXVBRK
+EvtsPerSec[MECalcOnly] (3a) = ( 8.581820e+05                 )  sec^-1
+
+*** EXECUTE CHECK(8192) -p 256 32 1 ***
+Process                     = SIGMA_SM_GG_UUX_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
+Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/sse4+CXVBRK
+EvtsPerSec[MECalcOnly] (3a) = ( 8.642229e+05                 )  sec^-1
+
+*** (2-avx2) EXECUTE MADEVENT_CPP x1 (create events.lhe) ***
+--------------------
+CUDACPP_RUNTIME_FBRIDGEMODE = (not set)
+CUDACPP_RUNTIME_VECSIZEUSED = 8192
+--------------------
+8192 1 1 ! Number of events and max and min iterations
+0.000001 ! Accuracy (ignored because max iterations = min iterations)
+0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
+1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
+0 ! Helicity Sum/event 0=exact
+1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
+--------------------
+Executing ' ./build.avx2_d_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_gguu_x1_cudacpp > /tmp/avalassi/output_gguu_x1_cudacpp'
+ [OPENMPTH] omp_get_max_threads/nproc = 1/4
+ [NGOODHEL] ngoodhel/ncomb = 8/16
+ [XSECTION] VECSIZE_USED = 8192
+ [XSECTION] MultiChannel = TRUE
+ [XSECTION] Configuration = 1
+ [XSECTION] ChannelId = 1
+ [XSECTION] Cross section = 2756000 [2755752.8574748524] fbridge_mode=1
+ [UNWEIGHT] Wrote 1492 events (found 1585 events)
+ [COUNTERS] PROGRAM TOTAL          :    0.4052s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.4004s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0048s for     8192 events => throughput is 1.69E+06 events/s
+
+*** (2-avx2) Compare MADEVENT_CPP x1 xsec to MADEVENT_FORTRAN xsec ***
+
+OK! xsec from fortran (2755752.8574748533) and cpp (2755752.8574748524) differ by less than 2E-14 (3.3306690738754696e-16)
+
+*** (2-avx2) Compare MADEVENT_CPP x1 events.lhe to MADEVENT_FORTRAN events.lhe reference (including colors and helicities) ***
+
+OK! events.lhe.cpp.1 and events.lhe.ref.1 are identical
+
+*** (2-avx2) EXECUTE MADEVENT_CPP x10 (create events.lhe) ***
+--------------------
+CUDACPP_RUNTIME_FBRIDGEMODE = (not set)
+CUDACPP_RUNTIME_VECSIZEUSED = 8192
+--------------------
+81920 1 1 ! Number of events and max and min iterations
+0.000001 ! Accuracy (ignored because max iterations = min iterations)
+0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
+1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
+0 ! Helicity Sum/event 0=exact
+1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
+--------------------
+Executing ' ./build.avx2_d_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_gguu_x10_cudacpp > /tmp/avalassi/output_gguu_x10_cudacpp'
+ [OPENMPTH] omp_get_max_threads/nproc = 1/4
+ [NGOODHEL] ngoodhel/ncomb = 8/16
+ [XSECTION] VECSIZE_USED = 8192
+ [XSECTION] MultiChannel = TRUE
+ [XSECTION] Configuration = 1
+ [XSECTION] ChannelId = 1
+ [XSECTION] Cross section = 307300 [307281.60874575964] fbridge_mode=1
+ [UNWEIGHT] Wrote 1816 events (found 1821 events)
+ [COUNTERS] PROGRAM TOTAL          :    1.9856s
+ [COUNTERS] Fortran Overhead ( 0 ) :    1.9309s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0547s for    90112 events => throughput is 1.65E+06 events/s
+
+*** (2-avx2) Compare MADEVENT_CPP x10 xsec to MADEVENT_FORTRAN xsec ***
+
+OK! xsec from fortran (307281.60874575964) and cpp (307281.60874575964) differ by less than 2E-14 (0.0)
+
+*** (2-avx2) Compare MADEVENT_CPP x10 events.lhe to MADEVENT_FORTRAN events.lhe reference (including colors and helicities) ***
+
+OK! events.lhe.cpp.10 and events.lhe.ref.10 are identical
+
+*** EXECUTE CHECK(8192) -p 256 32 1 --bridge ***
+Process                     = SIGMA_SM_GG_UUX_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
+Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+BRDHST/avx2+CXVBRK
+EvtsPerSec[MECalcOnly] (3a) = ( 1.625231e+06                 )  sec^-1
+
+*** EXECUTE CHECK(8192) -p 256 32 1 ***
+Process                     = SIGMA_SM_GG_UUX_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
+Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/avx2+CXVBRK
+EvtsPerSec[MECalcOnly] (3a) = ( 1.650526e+06                 )  sec^-1
+
+*** (2-512y) EXECUTE MADEVENT_CPP x1 (create events.lhe) ***
+--------------------
+CUDACPP_RUNTIME_FBRIDGEMODE = (not set)
+CUDACPP_RUNTIME_VECSIZEUSED = 8192
+--------------------
+8192 1 1 ! Number of events and max and min iterations
+0.000001 ! Accuracy (ignored because max iterations = min iterations)
+0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
+1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
+0 ! Helicity Sum/event 0=exact
+1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
+--------------------
+Executing ' ./build.512y_d_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_gguu_x1_cudacpp > /tmp/avalassi/output_gguu_x1_cudacpp'
+ [OPENMPTH] omp_get_max_threads/nproc = 1/4
+ [NGOODHEL] ngoodhel/ncomb = 8/16
+ [XSECTION] VECSIZE_USED = 8192
+ [XSECTION] MultiChannel = TRUE
+ [XSECTION] Configuration = 1
+ [XSECTION] ChannelId = 1
+ [XSECTION] Cross section = 2756000 [2755752.8574748524] fbridge_mode=1
+ [UNWEIGHT] Wrote 1492 events (found 1585 events)
+ [COUNTERS] PROGRAM TOTAL          :    0.4059s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.4011s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0048s for     8192 events => throughput is 1.70E+06 events/s
+
+*** (2-512y) Compare MADEVENT_CPP x1 xsec to MADEVENT_FORTRAN xsec ***
+
+OK! xsec from fortran (2755752.8574748533) and cpp (2755752.8574748524) differ by less than 2E-14 (3.3306690738754696e-16)
+
+*** (2-512y) Compare MADEVENT_CPP x1 events.lhe to MADEVENT_FORTRAN events.lhe reference (including colors and helicities) ***
+
+OK! events.lhe.cpp.1 and events.lhe.ref.1 are identical
+
+*** (2-512y) EXECUTE MADEVENT_CPP x10 (create events.lhe) ***
+--------------------
+CUDACPP_RUNTIME_FBRIDGEMODE = (not set)
+CUDACPP_RUNTIME_VECSIZEUSED = 8192
+--------------------
+81920 1 1 ! Number of events and max and min iterations
+0.000001 ! Accuracy (ignored because max iterations = min iterations)
+0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
+1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
+0 ! Helicity Sum/event 0=exact
+1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
+--------------------
+Executing ' ./build.512y_d_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_gguu_x10_cudacpp > /tmp/avalassi/output_gguu_x10_cudacpp'
+ [OPENMPTH] omp_get_max_threads/nproc = 1/4
+ [NGOODHEL] ngoodhel/ncomb = 8/16
+ [XSECTION] VECSIZE_USED = 8192
+ [XSECTION] MultiChannel = TRUE
+ [XSECTION] Configuration = 1
+ [XSECTION] ChannelId = 1
+ [XSECTION] Cross section = 307300 [307281.60874575964] fbridge_mode=1
+ [UNWEIGHT] Wrote 1816 events (found 1821 events)
+ [COUNTERS] PROGRAM TOTAL          :    2.0078s
+ [COUNTERS] Fortran Overhead ( 0 ) :    1.9554s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0524s for    90112 events => throughput is 1.72E+06 events/s
+
+*** (2-512y) Compare MADEVENT_CPP x10 xsec to MADEVENT_FORTRAN xsec ***
+
+OK! xsec from fortran (307281.60874575964) and cpp (307281.60874575964) differ by less than 2E-14 (0.0)
+
+*** (2-512y) Compare MADEVENT_CPP x10 events.lhe to MADEVENT_FORTRAN events.lhe reference (including colors and helicities) ***
+
+OK! events.lhe.cpp.10 and events.lhe.ref.10 are identical
+
+*** EXECUTE CHECK(8192) -p 256 32 1 --bridge ***
+Process                     = SIGMA_SM_GG_UUX_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
+Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+BRDHST/512y+CXVBRK
+EvtsPerSec[MECalcOnly] (3a) = ( 1.706500e+06                 )  sec^-1
+
+*** EXECUTE CHECK(8192) -p 256 32 1 ***
+Process                     = SIGMA_SM_GG_UUX_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
+Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/512y+CXVBRK
+EvtsPerSec[MECalcOnly] (3a) = ( 1.754210e+06                 )  sec^-1
+
+*** (2-512z) EXECUTE MADEVENT_CPP x1 (create events.lhe) ***
+--------------------
+CUDACPP_RUNTIME_FBRIDGEMODE = (not set)
+CUDACPP_RUNTIME_VECSIZEUSED = 8192
+--------------------
+8192 1 1 ! Number of events and max and min iterations
+0.000001 ! Accuracy (ignored because max iterations = min iterations)
+0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
+1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
+0 ! Helicity Sum/event 0=exact
+1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
+--------------------
+Executing ' ./build.512z_d_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_gguu_x1_cudacpp > /tmp/avalassi/output_gguu_x1_cudacpp'
+ [OPENMPTH] omp_get_max_threads/nproc = 1/4
+ [NGOODHEL] ngoodhel/ncomb = 8/16
+ [XSECTION] VECSIZE_USED = 8192
+ [XSECTION] MultiChannel = TRUE
+ [XSECTION] Configuration = 1
+ [XSECTION] ChannelId = 1
+ [XSECTION] Cross section = 2756000 [2755752.8574748524] fbridge_mode=1
+ [UNWEIGHT] Wrote 1492 events (found 1585 events)
+ [COUNTERS] PROGRAM TOTAL          :    0.4102s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.4040s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0062s for     8192 events => throughput is 1.33E+06 events/s
+
+*** (2-512z) Compare MADEVENT_CPP x1 xsec to MADEVENT_FORTRAN xsec ***
+
+OK! xsec from fortran (2755752.8574748533) and cpp (2755752.8574748524) differ by less than 2E-14 (3.3306690738754696e-16)
+
+*** (2-512z) Compare MADEVENT_CPP x1 events.lhe to MADEVENT_FORTRAN events.lhe reference (including colors and helicities) ***
+
+OK! events.lhe.cpp.1 and events.lhe.ref.1 are identical
+
+*** (2-512z) EXECUTE MADEVENT_CPP x10 (create events.lhe) ***
+--------------------
+CUDACPP_RUNTIME_FBRIDGEMODE = (not set)
+CUDACPP_RUNTIME_VECSIZEUSED = 8192
+--------------------
+81920 1 1 ! Number of events and max and min iterations
+0.000001 ! Accuracy (ignored because max iterations = min iterations)
+0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
+1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
+0 ! Helicity Sum/event 0=exact
+1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
+--------------------
+Executing ' ./build.512z_d_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_gguu_x10_cudacpp > /tmp/avalassi/output_gguu_x10_cudacpp'
+ [OPENMPTH] omp_get_max_threads/nproc = 1/4
+ [NGOODHEL] ngoodhel/ncomb = 8/16
+ [XSECTION] VECSIZE_USED = 8192
+ [XSECTION] MultiChannel = TRUE
+ [XSECTION] Configuration = 1
+ [XSECTION] ChannelId = 1
+ [XSECTION] Cross section = 307300 [307281.60874575964] fbridge_mode=1
+ [UNWEIGHT] Wrote 1816 events (found 1821 events)
+ [COUNTERS] PROGRAM TOTAL          :    2.0031s
+ [COUNTERS] Fortran Overhead ( 0 ) :    1.9366s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0665s for    90112 events => throughput is 1.36E+06 events/s
+
+*** (2-512z) Compare MADEVENT_CPP x10 xsec to MADEVENT_FORTRAN xsec ***
+
+OK! xsec from fortran (307281.60874575964) and cpp (307281.60874575964) differ by less than 2E-14 (0.0)
+
+*** (2-512z) Compare MADEVENT_CPP x10 events.lhe to MADEVENT_FORTRAN events.lhe reference (including colors and helicities) ***
+
+OK! events.lhe.cpp.10 and events.lhe.ref.10 are identical
+
+*** EXECUTE CHECK(8192) -p 256 32 1 --bridge ***
+Process                     = SIGMA_SM_GG_UUX_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
+Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+BRDHST/512z+CXVBRK
+EvtsPerSec[MECalcOnly] (3a) = ( 1.211301e+06                 )  sec^-1
+
+*** EXECUTE CHECK(8192) -p 256 32 1 ***
+Process                     = SIGMA_SM_GG_UUX_CPP [gcc 11.2.0] [inlineHel=0] [hardcodePARAM=0]
+Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/512z+CXVBRK
+EvtsPerSec[MECalcOnly] (3a) = ( 1.250737e+06                 )  sec^-1
+
+*** (3) EXECUTE MADEVENT_CUDA x1 (create events.lhe) ***
+--------------------
+CUDACPP_RUNTIME_FBRIDGEMODE = (not set)
+CUDACPP_RUNTIME_VECSIZEUSED = 8192
+--------------------
+8192 1 1 ! Number of events and max and min iterations
+0.000001 ! Accuracy (ignored because max iterations = min iterations)
+0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
+1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
+0 ! Helicity Sum/event 0=exact
+1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
+--------------------
+Executing ' ./build.none_d_inl0_hrd0/madevent_cuda < /tmp/avalassi/input_gguu_x1_cudacpp > /tmp/avalassi/output_gguu_x1_cudacpp'
+ [OPENMPTH] omp_get_max_threads/nproc = 1/4
+ [NGOODHEL] ngoodhel/ncomb = 8/16
+ [XSECTION] VECSIZE_USED = 8192
+ [XSECTION] MultiChannel = TRUE
+ [XSECTION] Configuration = 1
+ [XSECTION] ChannelId = 1
+ [XSECTION] Cross section = 2756000 [2755752.8574748538] fbridge_mode=1
+ [UNWEIGHT] Wrote 1492 events (found 1585 events)
+ [COUNTERS] PROGRAM TOTAL          :    0.8540s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.8534s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0006s for     8192 events => throughput is 1.48E+07 events/s
+
+*** (3) Compare MADEVENT_CUDA x1 xsec to MADEVENT_FORTRAN xsec ***
+
+OK! xsec from fortran (2755752.8574748533) and cpp (2755752.8574748538) differ by less than 2E-14 (2.220446049250313e-16)
+
+*** (3) Compare MADEVENT_CUDA x1 events.lhe to MADEVENT_FORTRAN events.lhe reference (including colors and helicities) ***
+
+OK! events.lhe.cuda.1 and events.lhe.ref.1 are identical
+
+*** (3) EXECUTE MADEVENT_CUDA x10 (create events.lhe) ***
+--------------------
+CUDACPP_RUNTIME_FBRIDGEMODE = (not set)
+CUDACPP_RUNTIME_VECSIZEUSED = 8192
+--------------------
+81920 1 1 ! Number of events and max and min iterations
+0.000001 ! Accuracy (ignored because max iterations = min iterations)
+0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
+1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
+0 ! Helicity Sum/event 0=exact
+1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
+--------------------
+Executing ' ./build.none_d_inl0_hrd0/madevent_cuda < /tmp/avalassi/input_gguu_x10_cudacpp > /tmp/avalassi/output_gguu_x10_cudacpp'
+ [OPENMPTH] omp_get_max_threads/nproc = 1/4
+ [NGOODHEL] ngoodhel/ncomb = 8/16
+ [XSECTION] VECSIZE_USED = 8192
+ [XSECTION] MultiChannel = TRUE
+ [XSECTION] Configuration = 1
+ [XSECTION] ChannelId = 1
+ [XSECTION] Cross section = 307300 [307281.60874575964] fbridge_mode=1
+ [UNWEIGHT] Wrote 1816 events (found 1821 events)
+ [COUNTERS] PROGRAM TOTAL          :    2.4004s
+ [COUNTERS] Fortran Overhead ( 0 ) :    2.3950s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0054s for    90112 events => throughput is 1.67E+07 events/s
+
+*** (3) Compare MADEVENT_CUDA x10 xsec to MADEVENT_FORTRAN xsec ***
+
+OK! xsec from fortran (307281.60874575964) and cpp (307281.60874575964) differ by less than 2E-14 (0.0)
+
+*** (3) Compare MADEVENT_CUDA x10 events.lhe to MADEVENT_FORTRAN events.lhe reference (including colors and helicities) ***
+
+OK! events.lhe.cuda.10 and events.lhe.ref.10 are identical
+
+*** EXECUTE GCHECK(8192) -p 256 32 1 --bridge ***
+Process                     = SIGMA_SM_GG_UUX_CUDA [nvcc 12.0.140 (gcc 11.2.0)] [inlineHel=0] [hardcodePARAM=0]
+Workflow summary            = CUD:DBL+THX:CURHST+RMBHST+BRDDEV/none+NAVBRK
+EvtsPerSec[MECalcOnly] (3a) = ( 2.236144e+07                 )  sec^-1
+
+*** EXECUTE GCHECK(8192) -p 256 32 1 ***
+Process                     = SIGMA_SM_GG_UUX_CUDA [nvcc 12.0.140 (gcc 11.2.0)] [inlineHel=0] [hardcodePARAM=0]
+Workflow summary            = CUD:DBL+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
+EvtsPerSec[MECalcOnly] (3a) = ( 7.046700e+07                 )  sec^-1
+
+*** EXECUTE GCHECK(MAX) -p 16384 32 1 --bridge ***
+Process                     = SIGMA_SM_GG_UUX_CUDA [nvcc 12.0.140 (gcc 11.2.0)] [inlineHel=0] [hardcodePARAM=0]
+Workflow summary            = CUD:DBL+THX:CURHST+RMBHST+BRDDEV/none+NAVBRK
+EvtsPerSec[MECalcOnly] (3a) = ( 3.400677e+07                 )  sec^-1
+
+*** EXECUTE GCHECK(MAX) -p 16384 32 1 ***
+Process                     = SIGMA_SM_GG_UUX_CUDA [nvcc 12.0.140 (gcc 11.2.0)] [inlineHel=0] [hardcodePARAM=0]
+Workflow summary            = CUD:DBL+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
+EvtsPerSec[MECalcOnly] (3a) = ( 2.655970e+08                 )  sec^-1
+
+*** EXECUTE GCHECK(MAX128THR) -p 4096 128 1 --bridge ***
+Process                     = SIGMA_SM_GG_UUX_CUDA [nvcc 12.0.140 (gcc 11.2.0)] [inlineHel=0] [hardcodePARAM=0]
+Workflow summary            = CUD:DBL+THX:CURHST+RMBHST+BRDDEV/none+NAVBRK
+EvtsPerSec[MECalcOnly] (3a) = ( 3.382197e+07                 )  sec^-1
+
+*** EXECUTE GCHECK(MAX128THR) -p 4096 128 1 ***
+Process                     = SIGMA_SM_GG_UUX_CUDA [nvcc 12.0.140 (gcc 11.2.0)] [inlineHel=0] [hardcodePARAM=0]
+Workflow summary            = CUD:DBL+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
+EvtsPerSec[MECalcOnly] (3a) = ( 2.752794e+08                 )  sec^-1
+
+*** EXECUTE GCHECK(MAX8THR) -p 65536 8 1 --bridge ***
+Process                     = SIGMA_SM_GG_UUX_CUDA [nvcc 12.0.140 (gcc 11.2.0)] [inlineHel=0] [hardcodePARAM=0]
+Workflow summary            = CUD:DBL+THX:CURHST+RMBHST+BRDDEV/none+NAVBRK
+EvtsPerSec[MECalcOnly] (3a) = ( 3.399676e+07                 )  sec^-1
+
+*** EXECUTE GCHECK(MAX8THR) -p 65536 8 1 ***
+Process                     = SIGMA_SM_GG_UUX_CUDA [nvcc 12.0.140 (gcc 11.2.0)] [inlineHel=0] [hardcodePARAM=0]
+Workflow summary            = CUD:DBL+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
+EvtsPerSec[MECalcOnly] (3a) = ( 7.431455e+07                 )  sec^-1
+
+TEST COMPLETED
