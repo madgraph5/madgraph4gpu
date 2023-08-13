@@ -235,6 +235,9 @@ namespace mg5amcCpu
       fptype_sv& denominators_sv = DEN_ACCESS::kernelAccess( denominators );
 #endif
 
+      static int ncalls[ncomb] = { 0 };
+      ncalls[ihel]++;
+      
       // *** DIAGRAM 1 OF 3 ***
 
       // Wavefunction(s) for diagram number 1
@@ -263,7 +266,10 @@ namespace mg5amcCpu
 #endif
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
-
+#ifndef __CUDACC__
+      if( ncalls[ihel] <= 16 ) std::cout << "DEBUG calcwvf ihel=" << ihel << " icall=" << ncalls[ihel] << " diag1 amp_sv[0]=" << amp_sv[0] << std::endl;
+#endif
+      
       // *** DIAGRAM 2 OF 3 ***
 
       // Wavefunction(s) for diagram number 2
@@ -276,6 +282,9 @@ namespace mg5amcCpu
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[0] -= amp_sv[0];
+#ifndef __CUDACC__
+      if( ncalls[ihel] <= 16 ) std::cout << "DEBUG calcwvf ihel=" << ihel << " icall=" << ncalls[ihel] << " diag2 amp_sv[0]=" << amp_sv[0] << std::endl;
+#endif
 
       // *** DIAGRAM 3 OF 3 ***
 
@@ -289,6 +298,10 @@ namespace mg5amcCpu
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[1] -= amp_sv[0];
+#ifndef __CUDACC__
+      if( ncalls[ihel] <= 16 ) std::cout << "DEBUG calcwvf ihel=" << ihel << " icall=" << ncalls[ihel] << " diag3 amp_sv[0]=" << amp_sv[0] << std::endl;
+      if( ncalls[ihel] <= 16 ) std::cout << "DEBUG calcwvf ihel=" << ihel << " icall=" << ncalls[ihel] << " jamp_sv[0]=" << jamp_sv[0] << " jamp_sv[1]=" << jamp_sv[1] << std::endl;
+#endif
 
       // *** COLOR CHOICE BELOW ***
       // Store the leading color flows for choice of color
