@@ -30,7 +30,8 @@ c*************************************************************************
 c	Parameters for helicity sums in matrixN.f
 c*************************************************************************
       REAL*8 LIMHEL
-      PARAMETER(LIMHEL=1e-8) ! ME threshold for helicity filtering
+c     PARAMETER(LIMHEL=1e-8) ! ME threshold for helicity filtering (Fortran default)
+      PARAMETER(LIMHEL=0) ! ME threshold for helicity filtering (force Fortran to mimic cudacpp, see #419)
       INTEGER MAXTRIES
       PARAMETER(MAXTRIES=25)
 C     To pass the helicity configuration chosen by the DiscreteSampler to 
