@@ -152,7 +152,7 @@ function codeGenAndDiff()
   echo -e "\n+++ Generate code for '$proc'\n"
   ###exit 0 # FOR DEBUGGING
   # Vector size for mad/madonly meexporter (VECSIZE_MEMMAX)
-  vecsize=16384 # NB THIS IS IGNORED ANYWAY (ALL HARDCODED VALUES ARE REPLACED IN PATCHMAD.SH)...
+  vecsize=16384 # NB THIS IS NO LONGER IGNORED (but will eventually be tunable via runcards)
   # Generate code for the specific process
   pushd $MG5AMC_HOME >& /dev/null
   outproc=CODEGEN_${OUTBCK}_${proc}

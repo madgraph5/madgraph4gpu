@@ -12,7 +12,7 @@ scrdir=$(cd $(dirname $0); pwd)
 
 function usage()
 {
-  echo "Usage: $0 <process_dir> <vecsize> <patch_dir> [--nopatch|--upstream]"
+  echo "Usage: $0 <process_dir> <patch_dir> [--nopatch|--upstream]"
   exit 1 
 }
 
@@ -21,20 +21,19 @@ function usage()
 ###patchlevel=1 # [--nopatch] modify upstream MG5AMC but do not apply patch commands (reference to prepare new patches)
 patchlevel=2 # [DEFAULT] complete generation of cudacpp .sa/.mad (copy templates and apply patch commands)
 
-if [ "$3" == "" ]; then
+if [ "$2" == "" ]; then
   usage
-elif [ "$4" == "--nopatch" ]; then
-  if [ "$5" != "" ]; then usage; fi
+elif [ "$3" == "--nopatch" ]; then
+  if [ "$4" != "" ]; then usage; fi
   patchlevel=1
-elif [ "$4" == "--upstream" ]; then
-  if [ "$5" != "" ]; then usage; fi
+elif [ "$3" == "--upstream" ]; then
+  if [ "$4" != "" ]; then usage; fi
   patchlevel=0
-elif [ "$4" != "" ]; then
+elif [ "$3" != "" ]; then
   usage
 fi
 dir=$1
-vecsize=$2
-dir_patches=$3
+dir_patches=$2
 ###echo "Current dir: $pwd"
 ###echo "Input dir to patch: $dir"
 
