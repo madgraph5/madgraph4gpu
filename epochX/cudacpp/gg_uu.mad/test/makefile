@@ -1,1 +1,0 @@
-cudacpp_test.mk
