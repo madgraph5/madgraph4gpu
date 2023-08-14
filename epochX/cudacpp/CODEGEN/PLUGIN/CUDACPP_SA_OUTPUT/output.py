@@ -1,7 +1,7 @@
 # Copyright (C) 2020-2023 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: O. Mattelaer (Sep 2021) for the MG5aMC CUDACPP plugin.
-# Further modified by: O. Mattelaer, A. Valassi, Z. Wettersten (2021-2023) for the MG5aMC CUDACPP plugin.
+# Further modified by: O. Mattelaer, S. Roiser, A. Valassi, Z. Wettersten (2021-2023) for the MG5aMC CUDACPP plugin.
 
 import os
 
@@ -149,7 +149,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
 
     # AV (default from OM's tutorial) - add a debug printout
     def __init__(self, *args, **kwargs):
-        self.in_madevent_mode = False
+        self.in_madevent_mode = False # see MR #747
         misc.sprint('Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter)')
         return super().__init__(*args, **kwargs)
 
@@ -221,17 +221,12 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
         misc.sprint('Entering PLUGIN_ProcessExporter.modify_grouping')
         return False, matrix_element
 
-
+    # OM additional fixes for madevent+cudacpp mode
     def add_input_for_banner(self):
-        # Note only for madevent mode
-        new_parameters = ["{'name':'cudacpp_backend', 'value':'CPP', 'include':False, 'hidden':False}"
-            ]
-
+        # Note: this is only called in madevent mode (self.in_madevent_mode = True)
+        new_parameters = ["{'name':'cudacpp_backend', 'value':'CPP', 'include':False, 'hidden':False}"]
         finput = open(pjoin(self.dir_path, 'bin', 'internal', 'plugin_run_card'), 'w')
-        
         for entry in new_parameters:
             finput.write(entry)
 
-        
-    
 #------------------------------------------------------------------------------------
