@@ -205,7 +205,8 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
         if self.in_madevent_mode:
             self.add_input_for_banner()
             path = os.path.realpath(os.curdir + os.sep + 'PLUGIN' + os.sep + 'CUDACPP_SA_OUTPUT')
-            os.system(path + os.sep + 'patchMad.sh ' + self.dir_path + ' 32 PROD')
+            if os.system(path + os.sep + 'patchMad.sh ' + self.dir_path + ' 32 PROD') != 0:
+                raise Exception('ERROR! the O/S call to patchMad.sh failed')
         return super().finalize(matrix_element, cmdhistory, MG5options, outputflag)
 
     # AV (default from OM's tutorial) - overload settings and add a debug printout
