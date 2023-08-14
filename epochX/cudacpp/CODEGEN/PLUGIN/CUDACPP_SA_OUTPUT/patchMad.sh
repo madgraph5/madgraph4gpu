@@ -92,9 +92,6 @@ for p1dir in ${dir}/SubProcesses/P*; do
   ln -sf ../fbridge_common.inc . # new file
   \cp -dpr ${scrdir}/MG5aMC_patches/${dir_patches}/counters.cc . # new file
   \cp -dpr ${scrdir}/MG5aMC_patches/${dir_patches}/ompnumthreads.cc . # new file
-  if [ "${dir%.mad}" == "$1" ]; then
-    \cp -dpr ${scrdir}/PLUGIN/CUDACPP_SA_OUTPUT/madgraph/iolibs/template_files/gpu/timer.h . # new file, already present via cudacpp in *.mad
-  fi
   if [ "${patchlevel}" == "2" ]; then
     echo "DEBUG: cd ${PWD}; patch -p6 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.P1"
     if ! patch -p6 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.P1; then status=1; fi      
