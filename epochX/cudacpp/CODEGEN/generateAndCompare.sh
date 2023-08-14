@@ -245,11 +245,6 @@ function codeGenAndDiff()
     cat ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat | tail -n+4 | sort >> ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat.new
     \mv ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat.new ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat
   fi
-  # Use strategy SDE=1 in multichannel mode (see #419)
-  if [ "${OUTBCK}" == "mad" ]; then
-    sed -i 's/2  = sde_strategy/1  = sde_strategy/' ${OUTDIR}/${proc}.${autosuffix}/Cards/run_card.dat
-    sed -i 's/SDE_STRAT = 2/SDE_STRAT = 1/' ${OUTDIR}/${proc}.${autosuffix}/Source/run_card.inc
-  fi
   # Additional patches for mad directory (integration of Fortran and cudacpp)
   # [NB: these patches are not applied to madnovec/madonly, which are meant as out-of-the-box references]
   ###if [ "${OUTBCK}" == "mad" ]; then
