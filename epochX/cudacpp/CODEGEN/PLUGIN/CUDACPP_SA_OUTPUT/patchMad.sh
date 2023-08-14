@@ -4,6 +4,8 @@
 # Created by: A. Valassi (Mar 2022) for the MG5aMC CUDACPP plugin.
 # Further modified by: A. Valassi (2022-2023) for the MG5aMC CUDACPP plugin.
 
+set -e # immediate exit on error
+
 status=0
 
 scrdir=$(cd $(dirname $0); pwd)
