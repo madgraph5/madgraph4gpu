@@ -12,6 +12,7 @@ scrdir=$(cd $(dirname $0); pwd)
 
 function usage()
 {
+  echo "ERROR! Unknown command '$0 $*'"
   echo "Usage: $0 <process_dir> <patch_dir> [--nopatch|--upstream]"
   exit 1 
 }
@@ -22,7 +23,7 @@ function usage()
 patchlevel=2 # [DEFAULT] complete generation of cudacpp .sa/.mad (copy templates and apply patch commands)
 
 if [ "$2" == "" ]; then
-  usage
+  usage $*
 elif [ "$3" == "--nopatch" ]; then
   if [ "$4" != "" ]; then usage; fi
   patchlevel=1
@@ -30,7 +31,7 @@ elif [ "$3" == "--upstream" ]; then
   if [ "$4" != "" ]; then usage; fi
   patchlevel=0
 elif [ "$3" != "" ]; then
-  usage
+  usage $*
 fi
 dir=$1
 dir_patches=$2

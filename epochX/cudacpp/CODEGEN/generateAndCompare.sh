@@ -555,6 +555,7 @@ if [ "${SCRBCK}" == "gridpack" ]; then
 fi
 
 # Generate the chosen process (this will always replace the existing code directory and create a .BKP)
+export CUDACPP_CODEGEN_PATCHLEVEL=${PATCHLEVEL}
 codeGenAndDiff $proc "$cmd"
 
 # Clean up after code generation
