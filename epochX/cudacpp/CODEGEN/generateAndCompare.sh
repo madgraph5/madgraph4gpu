@@ -157,7 +157,8 @@ function codeGenAndDiff()
   pushd $MG5AMC_HOME >& /dev/null
   outproc=CODEGEN_${OUTBCK}_${proc}
   if [ "${SCRBCK}" == "gridpack" ] && [ "${UNTARONLY}" == "1" ]; then
-    echo -e "WARNING! Skip generation of gridpack.tar.gz (--nountaronly was not specified)\n"
+    ###echo -e "WARNING! Skip generation of gridpack.tar.gz (--nountaronly was not specified)\n"
+    echo "ERROR! gridpack mode is no longer supported by this script!"; exit 1
   else
     \rm -rf ${outproc} ${outproc}.* ${outproc}_*
     if [ "${HELREC}" == "0" ]; then
@@ -169,14 +170,15 @@ function codeGenAndDiff()
     echo "set zerowidth_tchannel F" >> ${outproc}.mg # workaround for #476: do not use a zero top quark width in fortran (~E-3 effect on physics)
     echo "${cmd}" >> ${outproc}.mg
     if [ "${SCRBCK}" == "gridpack" ]; then # $SCRBCK=$OUTBCK=gridpack
-      echo "output ${outproc} ${helrecopt}" >> ${outproc}.mg
-      ###echo "!cp -dpr ${outproc} ${outproc}_prelaunch" >> ${outproc}.mg
-      echo "launch" >> ${outproc}.mg
-      echo "set gridpack True" >> ${outproc}.mg
-      echo "set ebeam1 750" >> ${outproc}.mg
-      echo "set ebeam2 750" >> ${outproc}.mg
+      ###echo "output ${outproc} ${helrecopt}" >> ${outproc}.mg
+      ###echo "launch" >> ${outproc}.mg
+      ###echo "set gridpack True" >> ${outproc}.mg
+      ###echo "set ebeam1 750" >> ${outproc}.mg
+      ###echo "set ebeam2 750" >> ${outproc}.mg
+      echo "ERROR! gridpack mode is no longer supported by this script!"; exit 1
     elif [ "${SCRBCK}" == "alpaka" ]; then # $SCRBCK=$OUTBCK=alpaka
-      echo "output standalone_${SCRBCK}_cudacpp ${outproc}" >> ${outproc}.mg
+      ###echo "output standalone_${SCRBCK}_cudacpp ${outproc}" >> ${outproc}.mg
+      echo "ERROR! alpaka mode is no longer supported by this script!"; exit 1
     elif [ "${OUTBCK}" == "madnovec" ]; then # $SCRBCK=cudacpp and $OUTBCK=madnovec
       echo "output madevent ${outproc} ${helrecopt}" >> ${outproc}.mg
     elif [ "${OUTBCK}" == "madonly" ]; then # $SCRBCK=cudacpp and $OUTBCK=madonly
@@ -210,8 +212,9 @@ function codeGenAndDiff()
   popd >& /dev/null
   # Choose which directory must be copied (for gridpack generation: untar and modify the gridpack)
   if [ "${SCRBCK}" == "gridpack" ]; then
-    outprocauto=${MG5AMC_HOME}/${outproc}/run_01_gridpack
-    if ! $SCRDIR/untarGridpack.sh ${outprocauto}.tar.gz; then echo "ERROR! untarGridpack.sh failed"; exit 1; fi
+    ###outprocauto=${MG5AMC_HOME}/${outproc}/run_01_gridpack
+    ###if ! $SCRDIR/untarGridpack.sh ${outprocauto}.tar.gz; then echo "ERROR! untarGridpack.sh failed"; exit 1; fi
+    echo "ERROR! gridpack mode is no longer supported by this script!"; exit 1
   else
     outprocauto=${MG5AMC_HOME}/${outproc}
   fi
@@ -219,9 +222,11 @@ function codeGenAndDiff()
   # Output directories: examples ee_mumu.sa for cudacpp, eemumu.auto for alpaka and gridpacks, eemumu.cpp or eemumu.gpu for cpp and gpu
   autosuffix=sa
   if [ "${SCRBCK}" == "gridpack" ]; then
-    autosuffix=auto
+    ###autosuffix=auto
+    echo "ERROR! gridpack mode is no longer supported by this script!"; exit 1
   elif [ "${SCRBCK}" == "alpaka" ]; then
-    autosuffix=auto
+    ###autosuffix=auto
+    echo "ERROR! alpaka mode is no longer supported by this script!"; exit 1
   elif [ "${OUTBCK}" == "cpp" ]; then
     autosuffix=cpp # no special suffix for the 311 branch any longer
   elif [ "${OUTBCK}" == "gpu" ]; then
@@ -307,10 +312,12 @@ function usage()
   # NB: Generate only one process at a time
   if [ "${SCRBCK}" == "gridpack" ]; then
     # NB: gridpack generation uses the 311 branch by default
-    echo "Usage: $0 [--nobrief] [--nountaronly] [--nohelrec] <proc>"
+    ###echo "Usage: $0 [--nobrief] [--nountaronly] [--nohelrec] <proc>"
+    echo "ERROR! gridpack mode is no longer supported by this script!"; exit 1
   elif [ "${SCRBCK}" == "alpaka" ]; then
     # NB: alpaka generation uses the 311 branch by default
-    echo "Usage: $0 [--nobrief] <proc>"
+    ###echo "Usage: $0 [--nobrief] <proc>"
+    echo "ERROR! alpaka mode is no longer supported by this script!"; exit 1
   else
     # NB: all options with $SCRBCK=cudacpp use the 311 branch by default and always disable helicity recycling
     echo "Usage:   $0 [--nobrief] [--cpp|--gpu|--madnovec|--madonly|--mad|--madcpp*|--madgpu] [--nopatch|--upstream] [-c '<cmd>'] <proc>"
@@ -384,9 +391,11 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "--upstream" ] && [ "${PATCHLEVEL}" == "" ]; then
     PATCHLEVEL=--upstream
   elif [ "$1" == "--nountaronly" ] && [ "${SCRBCK}" == "gridpack" ]; then
-    UNTARONLY=0
+    ###UNTARONLY=0
+    echo "ERROR! gridpack mode is no longer supported by this script!"; exit 1
   elif [ "$1" == "--nohelrec" ] && [ "${SCRBCK}" == "gridpack" ]; then
-    export HELREC=0
+    ###export HELREC=0
+    echo "ERROR! gridpack mode is no longer supported by this script!"; exit 1
   elif [ "$1" == "--cpp" ] && [ "${SCRBCK}" == "cudacpp" ]; then
     export OUTBCK=${1#--}
   elif [ "$1" == "--gpu" ] && [ "${SCRBCK}" == "cudacpp" ]; then
@@ -442,22 +451,22 @@ if [ ! -d $MG5AMC_HOME ]; then
 fi
 
 # Make sure that $ALPAKA_ROOT and $CUPLA_ROOT exist if alpaka is used
-if [ "${SCRBCK}" == "alpaka" ]; then
-  if [ "$ALPAKA_ROOT" == "" ]; then
-    echo "ERROR! ALPAKA_ROOT is not defined"
-    echo "To download ALPAKA please run 'git clone -b 0.8.0 https://github.com/alpaka-group/alpaka.git'"
-    exit 1
-  fi
-  echo -e "Using ALPAKA_ROOT=$ALPAKA_ROOT on $(hostname)\n"
-  if [ ! -d $ALPAKA_ROOT ]; then echo "ERROR! Directory $ALPAKA_ROOT does not exist"; exit 1; fi
-  if [ "$CUPLA_ROOT" == "" ]; then
-    echo "ERROR! CUPLA_ROOT is not defined"
-    echo "To download CUPLA please run 'git clone -b 0.3.0 https://github.com/alpaka-group/cupla.git'"
-    exit 1
-  fi
-  echo -e "Using CUPLA_ROOT=$CUPLA_ROOT on $(hostname)\n"
-  if [ ! -d $CUPLA_ROOT ]; then echo "ERROR! Directory $CUPLA_ROOT does not exist"; exit 1; fi
-fi
+###if [ "${SCRBCK}" == "alpaka" ]; then
+###  if [ "$ALPAKA_ROOT" == "" ]; then
+###    echo "ERROR! ALPAKA_ROOT is not defined"
+###    echo "To download ALPAKA please run 'git clone -b 0.8.0 https://github.com/alpaka-group/alpaka.git'"
+###    exit 1
+###  fi
+###  echo -e "Using ALPAKA_ROOT=$ALPAKA_ROOT on $(hostname)\n"
+###  if [ ! -d $ALPAKA_ROOT ]; then echo "ERROR! Directory $ALPAKA_ROOT does not exist"; exit 1; fi
+###  if [ "$CUPLA_ROOT" == "" ]; then
+###    echo "ERROR! CUPLA_ROOT is not defined"
+###    echo "To download CUPLA please run 'git clone -b 0.3.0 https://github.com/alpaka-group/cupla.git'"
+###    exit 1
+###  fi
+###  echo -e "Using CUPLA_ROOT=$CUPLA_ROOT on $(hostname)\n"
+###  if [ ! -d $CUPLA_ROOT ]; then echo "ERROR! Directory $CUPLA_ROOT does not exist"; exit 1; fi
+###fi
 
 # Check that MG5aMC uses the git 311 branch (default for all of cudacpp, alpaka, gridpack)
 # Revert MG5aMC to the appropriate git commit
@@ -539,20 +548,20 @@ if [ "${SCRBCK}" == "cudacpp" ]; then
     cp -dpr ${SCRDIR}/PLUGIN/${SCRBCK^^}_SA_OUTPUT ${MG5AMC_HOME}/PLUGIN/
     ls -l ${MG5AMC_HOME}/PLUGIN
   fi
-elif [ "${SCRBCK}" == "alpaka" ]; then
-  cp -dpr ${SCRDIR}/PLUGIN/${SCRBCK^^}_CUDACPP_SA_OUTPUT ${MG5AMC_HOME}/PLUGIN/
-  ls -l ${MG5AMC_HOME}/PLUGIN
+###elif [ "${SCRBCK}" == "alpaka" ]; then
+###  cp -dpr ${SCRDIR}/PLUGIN/${SCRBCK^^}_CUDACPP_SA_OUTPUT ${MG5AMC_HOME}/PLUGIN/
+###  ls -l ${MG5AMC_HOME}/PLUGIN
 fi
 
 # For gridpacks, use separate output directories for MG 29x and MG 3xx
-if [ "${SCRBCK}" == "gridpack" ]; then
-  if [ "${HELREC}" == "0" ]; then
-    OUTDIR=${OUTDIR}/3xx_nohelrec
-  else
-    OUTDIR=${OUTDIR}/3xx
-  fi
-  echo "OUTDIR=${OUTDIR} (redefined)"
-fi
+###if [ "${SCRBCK}" == "gridpack" ]; then
+###  if [ "${HELREC}" == "0" ]; then
+###    OUTDIR=${OUTDIR}/3xx_nohelrec
+###  else
+###    OUTDIR=${OUTDIR}/3xx
+###  fi
+###  echo "OUTDIR=${OUTDIR} (redefined)"
+###fi
 
 # Generate the chosen process (this will always replace the existing code directory and create a .BKP)
 export CUDACPP_CODEGEN_PATCHLEVEL=${PATCHLEVEL}
