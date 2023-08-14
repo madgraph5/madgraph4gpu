@@ -308,10 +308,10 @@ index 57f5f7bb9..bd3c24228 100644
  
  BIASLIBDIR=../../../lib/
 diff --git b/epochX/cudacpp/gg_tt.mad/bin/internal/banner.py a/epochX/cudacpp/gg_tt.mad/bin/internal/banner.py
-index 27cd896a7..c1e54d3cb 100755
+index 8f8df219d..7624b9f55 100755
 --- b/epochX/cudacpp/gg_tt.mad/bin/internal/banner.py
 +++ a/epochX/cudacpp/gg_tt.mad/bin/internal/banner.py
-@@ -4164,7 +4164,8 @@ class RunCardLO(RunCard):
+@@ -4187,7 +4187,8 @@ class RunCardLO(RunCard):
          self.add_param('mxxmin4pdg',[-1.], system=True)
          self.add_param('mxxpart_antipart', [False], system=True)
                       
