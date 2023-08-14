@@ -252,9 +252,9 @@ function codeGenAndDiff()
   fi
   # Additional patches for mad directory (integration of Fortran and cudacpp)
   # [NB: these patches are not applied to madnovec/madonly, which are meant as out-of-the-box references]
-  if [ "${OUTBCK}" == "mad" ]; then
-    $SCRDIR/patchMad.sh ${OUTDIR}/${proc}.${autosuffix} ${vecsize} ${dir_patches} ${PATCHLEVEL}
-  fi
+  ###if [ "${OUTBCK}" == "mad" ]; then
+  ###  $SCRDIR/patchMad.sh ${OUTDIR}/${proc}.${autosuffix} ${vecsize} ${dir_patches} ${PATCHLEVEL}
+  ###fi
   # Additional patches that are ONLY NEEDED IN THE MADGRAPH4GPU GIT REPO
   cat << EOF > ${OUTDIR}/${proc}.${autosuffix}/.gitignore
 crossx.html
