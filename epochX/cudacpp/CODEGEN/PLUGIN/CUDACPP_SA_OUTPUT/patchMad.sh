@@ -10,7 +10,7 @@ scrdir=$(cd $(dirname $0); pwd)
 
 function usage()
 {
-  echo "Usage: $0 <process.[madonly|mad]> <vecsize> <patch_dir> [--nopatch|--upstream]"
+  echo "Usage: $0 <process_dir> <vecsize> <patch_dir> [--nopatch|--upstream]"
   exit 1 
 }
 
@@ -19,9 +19,7 @@ function usage()
 ###patchlevel=1 # [--nopatch] modify upstream MG5AMC but do not apply patch commands (reference to prepare new patches)
 patchlevel=2 # [DEFAULT] complete generation of cudacpp .sa/.mad (copy templates and apply patch commands)
 
-if [ "${1%.madonly}" == "$1" ] && [ "${1%.mad}" == "$1" ]; then
-  usage
-elif [ "$3" == "" ]; then
+if [ "$3" == "" ]; then
   usage
 elif [ "$4" == "--nopatch" ]; then
   if [ "$5" != "" ]; then usage; fi
