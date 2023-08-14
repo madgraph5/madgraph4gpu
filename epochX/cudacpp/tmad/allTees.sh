@@ -34,11 +34,11 @@ while [ "$1" != "" ]; do
 done
 
 if [ "$short" == "1" ]; then
-  ${scrdir}/teeMadX.sh -eemumu -ggtt -ggttg -ggttgg -gqttq -gguu $flts $makeclean $rmrdat $add10x
+  ${scrdir}/teeMadX.sh -eemumu -ggtt -ggttg -ggttgg -gqttq $flts $makeclean $rmrdat $add10x
 elif [ "$short" == "-1" ]; then
   ${scrdir}/teeMadX.sh -ggttggg $flts $makeclean $rmrdat $add10x
 else
-  ${scrdir}/teeMadX.sh -eemumu -ggtt -ggttg -ggttgg -gqttq -gguu -ggttggg $flts $makeclean $rmrdat $add10x
+  ${scrdir}/teeMadX.sh -eemumu -ggtt -ggttg -ggttgg -gqttq -ggttggg $flts $makeclean $rmrdat $add10x
 fi
 
 
