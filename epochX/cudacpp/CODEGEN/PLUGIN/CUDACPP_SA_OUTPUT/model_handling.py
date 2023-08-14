@@ -1040,8 +1040,8 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         for kwarg in kwargs: misc.sprint( 'kwargs[%s] = %s' %( kwarg, kwargs[kwarg] ) )
         super().__init__(*args, **kwargs)
         self.process_class = 'CPPProcess'
-        ###if 'prefix' in kwargs: proc_id = kwargs['prefix']+1 # madevent+cudacpp (ime+1 from ProcessExporterFortranMEGroup.generate_subprocess_directory)
-        if self.in_madevent_mode: proc_id = kwargs['prefix']+1 # madevent+cudacpp
+        ###if self.in_madevent_mode: proc_id = kwargs['prefix']+1 # madevent+cudacpp (NB: HERE SELF.IN_MADEVENT_MODE DOES NOT WORK!)
+        if 'prefix' in kwargs: proc_id = kwargs['prefix']+1 # madevent+cudacpp (ime+1 from ProcessExporterFortranMEGroup.generate_subprocess_directory)
         else: proc_id = 0 # standalone_cudacpp
         misc.sprint(proc_id)
         self.proc_id = proc_id
