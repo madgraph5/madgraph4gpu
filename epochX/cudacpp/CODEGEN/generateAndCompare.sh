@@ -502,21 +502,21 @@ if [ "${commit_patches2}" != "${commit_mg5amc}" ]; then echo -e "\nERROR! git co
 cd - > /dev/null
 
 # Copy MG5AMC ad-hoc patches if any (unless --upstream is specified)
-if [ "${PATCHLEVEL}" != "--upstream" ] && [ "${SCRBCK}" == "cudacpp" ]; then
-  patches=$(cd $SCRDIR/MG5aMC_patches/${dir_patches}; find . -mindepth 2 -type f)
-  echo -e "Copy MG5aMC_patches/${dir_patches} patches..."
-  for patch in $patches; do
-    ###echo "DEBUG: $patch"
-    patch=${patch#./} # strip leading "./"
-    if [ "${patch}" != "${patch%~}" ]; then continue; fi # skip *~ files
-    ###if [ "${patch}" != "${patch%.GIT}" ]; then continue; fi # skip *.GIT files
-    ###if [ "${patch}" != "${patch%.py}" ]; then continue; fi # skip *.py files
-    ###if [ "${patch}" != "${patch#patch.}" ]; then continue; fi # skip patch.* files
-    echo cp -dpr $SCRDIR/MG5aMC_patches/${dir_patches}/$patch $MG5AMC_HOME/$patch
-    cp -dpr $SCRDIR/MG5aMC_patches/${dir_patches}/$patch $MG5AMC_HOME/$patch
-  done
-  echo -e "Copy MG5aMC_patches/${dir_patches} patches... done\n"
-fi
+###if [ "${PATCHLEVEL}" != "--upstream" ] && [ "${SCRBCK}" == "cudacpp" ]; then
+###  patches=$(cd $SCRDIR/MG5aMC_patches/${dir_patches}; find . -mindepth 2 -type f)
+###  echo -e "Copy MG5aMC_patches/${dir_patches} patches..."
+###  for patch in $patches; do
+###    ###echo "DEBUG: $patch"
+###    patch=${patch#./} # strip leading "./"
+###    if [ "${patch}" != "${patch%~}" ]; then continue; fi # skip *~ files
+###    ###if [ "${patch}" != "${patch%.GIT}" ]; then continue; fi # skip *.GIT files
+###    ###if [ "${patch}" != "${patch%.py}" ]; then continue; fi # skip *.py files
+###    ###if [ "${patch}" != "${patch#patch.}" ]; then continue; fi # skip patch.* files
+###    echo cp -dpr $SCRDIR/MG5aMC_patches/${dir_patches}/$patch $MG5AMC_HOME/$patch
+###    cp -dpr $SCRDIR/MG5aMC_patches/${dir_patches}/$patch $MG5AMC_HOME/$patch
+###  done
+###  echo -e "Copy MG5aMC_patches/${dir_patches} patches... done\n"
+###fi
 
 # Clean up before code generation
 cleanup_MG5AMC_HOME
