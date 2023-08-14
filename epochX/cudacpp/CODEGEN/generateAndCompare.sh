@@ -336,12 +336,16 @@ function cleanup_MG5AMC_HOME()
   rm -f ${MG5AMC_HOME}/Template/LO/Source/make_opts
   rm -f ${MG5AMC_HOME}/input/mg5_configuration.txt
   rm -f ${MG5AMC_HOME}/models/sm/py3_model.pkl
+   # Remove any *~ files in MG5AMC_HOME
+  rm -rf $(find ${MG5AMC_HOME} -name '*~')
+}
+
+function cleanup_MG5AMC_PLUGIN()
+{
   # Remove and recreate MG5AMC_HOME/PLUGIN
   rm -rf ${MG5AMC_HOME}/PLUGIN
   mkdir ${MG5AMC_HOME}/PLUGIN
   touch ${MG5AMC_HOME}/PLUGIN/__init__.py
-  # Remove any *~ files in MG5AMC_HOME
-  rm -rf $(find ${MG5AMC_HOME} -name '*~')
 }
 
 #--------------------------------------------------------------------------------------
@@ -521,6 +525,7 @@ fi
 
 # Clean up before code generation
 cleanup_MG5AMC_HOME
+cleanup_MG5AMC_PLUGIN
 
 # Print differences in MG5AMC with respect to git after copying ad-hoc patches
 cd ${MG5AMC_HOME}
@@ -559,6 +564,7 @@ codeGenAndDiff $proc "$cmd"
 
 # Clean up after code generation
 cleanup_MG5AMC_HOME
+###cleanup_MG5AMC_PLUGIN
 
 # Check formatting in the auto-generated code
 if [ "${OUTBCK}" == "cudacpp" ]; then
