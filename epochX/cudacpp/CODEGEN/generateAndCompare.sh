@@ -434,21 +434,19 @@ echo "proc=${proc}"
 # Make sure that python3 is installed
 if ! python3 --version >& /dev/null; then echo "ERROR! python3 is not installed"; exit 1; fi
 
+# Define MG5AMC_HOME as a path to the mg5amcnlo git submodule in this repo (NEW IMPLEMENTATION BASED ON SUBMODULES)
 # Make sure that $MG5AMC_HOME exists
-dir_patches=PROD
-branch_patches=$(cat $SCRDIR/MG5aMC_patches/${dir_patches}/branch.GIT)
-commit_patches=$(cat $SCRDIR/MG5aMC_patches/${dir_patches}/commit.GIT) # e.g. <commit> or <branch>
 if [ "$MG5AMC_HOME" == "" ]; then
-  echo "ERROR! MG5AMC_HOME is not defined"
-  echo -e "To download MG5AMC please run\n  git clone git@github.com:mg5amcnlo/mg5amcnlo.git\n  cd mg5amcnlo; git checkout ${branch_patches}; git reset --hard ${commit_patches}"
-  exit 1
+  # (FIXME: in a future implementation, this will not be ignored - e.g. to share a single git submodule in different madgraph4gpu directories)
+  echo "WARNING! Environment variable MG5AMC_HOME is already defined as '$MG5AMC_HOME' but it will be redefined"
 fi
-echo -e "\nDefault MG5AMC_HOME=$MG5AMC_HOME on $(hostname)\n"
+MG5AMC_HOME=${SCRDIR}/../../../MG5aMC/mg5amcnlo
 if [ ! -d $MG5AMC_HOME ]; then
   echo "ERROR! Directory $MG5AMC_HOME does not exist"
-  echo -e "To download MG5AMC please run\n  git clone git@github.com:mg5amcnlo/mg5amcnlo.git\n  cd mg5amcnlo; git checkout ${branch_patches}; git reset --hard ${commit_patches}"
   exit 1
 fi
+export MG5AMC_HOME=$(cd $MG5AMC_HOME; pwd)
+echo -e "\nDefault MG5AMC_HOME=$MG5AMC_HOME on $(hostname)\n"
 
 # Make sure that $ALPAKA_ROOT and $CUPLA_ROOT exist if alpaka is used
 ###if [ "${SCRBCK}" == "alpaka" ]; then
@@ -468,8 +466,10 @@ fi
 ###  if [ ! -d $CUPLA_ROOT ]; then echo "ERROR! Directory $CUPLA_ROOT does not exist"; exit 1; fi
 ###fi
 
-# Check that MG5aMC uses the git 311 branch (default for all of cudacpp, alpaka, gridpack)
+# Check that MG5aMC uses the git gpucpp branch (default for all of cudacpp, alpaka, gridpack)
 # Revert MG5aMC to the appropriate git commit
+dir_patches=PROD
+commit_patches=$(cat $SCRDIR/MG5aMC_patches/${dir_patches}/commit.GIT) # e.g. <commit> or <branch>
 if ! git --version >& /dev/null; then
   echo -e "ERROR! git is not installed: cannot retrieve git properties of MG5aMC_HOME\n"; exit 1
 fi
@@ -479,32 +479,14 @@ echo -e "Retrieving git information about MG5AMC_HOME"
 if ! git log -n1 >& /dev/null; then
   echo -e "ERROR! MG5AMC_HOME is not a git clone\n"; exit 1
 fi
-echo -e "MG5AMC patches in this plugin refer to git branch '${branch_patches}'"
-echo -e "Reset MG5AMC_HOME to git commit '${branch_patches}'"
-#...[COMMENT OUT THE THREE LINES BELOW TO USE A MODIFIED VERSION OF MG5AMC]...
-if ! git reset --hard ${branch_patches}; then
-  echo -e "ERROR! 'git reset --hard ${branch_patches}' failed\n"; exit 1
-fi
-#...[COMMENT OUT THE THREE LINES ABOVE TO USE A MODIFIED VERSION OF MG5AMC]...
-echo -e "Check out branch ${branch_patches} in MG5AMC_HOME"
-if ! git checkout ${branch_patches}; then
-  echo -e "ERROR! 'git checkout ${branch_patches}' failed\n"; exit 1
-fi
 branch_mg5amc=$(git branch --no-color | \grep ^* | awk '{print $2}')
 echo -e "Current git branch of MG5AMC_HOME is '${branch_mg5amc}'"
-if [ "${branch_patches}" != "${branch_mg5amc}" ]; then echo -e "\nERROR! git branch mismatch!"; exit 1; fi
 commit_patches2=$(git log --oneline -n1 ${commit_patches} | awk '{print $1}') # translate to <commit>
 if [ "${commit_patches2}" == "${commit_patches}" ]; then
   echo -e "MG5AMC patches in this plugin refer to git commit '${commit_patches}'"
 else
   echo -e "MG5AMC patches in this plugin refer to git commit '${commit_patches}' (i.e. '${commit_patches2}')"
 fi  
-echo -e "Reset MG5AMC_HOME to git commit '${commit_patches}'"
-#...[COMMENT OUT THE THREE LINES BELOW TO USE A MODIFIED VERSION OF MG5AMC]...
-if ! git reset --hard ${commit_patches}; then
-  echo -e "ERROR! 'git reset --hard ${commit_patches}' failed\n"; exit 1
-fi
-#...[COMMENT OUT THE THREE LINES ABOVE TO USE A MODIFIED VERSION OF MG5AMC]...
 commit_mg5amc=$(git log --oneline -n1 | awk '{print $1}')
 echo -e "Current git commit of MG5AMC_HOME is '${commit_mg5amc}'"
 if [ "${commit_patches2}" != "${commit_mg5amc}" ]; then echo -e "\nERROR! git commit mismatch!"; exit 1; fi
