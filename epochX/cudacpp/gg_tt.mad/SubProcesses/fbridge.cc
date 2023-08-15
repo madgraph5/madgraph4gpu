@@ -49,6 +49,7 @@ extern "C"
 #ifdef __CUDACC__
     CudaRuntime::setUp();
 #endif
+    // (NB: CPPProcess::initProc no longer needs to be executed here because it is called in the Bridge constructor)
     // FIXME: disable OMP in Bridge when called from Fortran
     *ppbridge = new Bridge<FORTRANFPTYPE>( *pnevtF, *pnparF, *pnp4F );
   }
