@@ -1040,6 +1040,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         for kwarg in kwargs: misc.sprint( 'kwargs[%s] = %s' %( kwarg, kwargs[kwarg] ) )
         super().__init__(*args, **kwargs)
         self.process_class = 'CPPProcess'
+        ###if self.in_madevent_mode: proc_id = kwargs['prefix']+1 # madevent+cudacpp (NB: HERE SELF.IN_MADEVENT_MODE DOES NOT WORK!)
         if 'prefix' in kwargs: proc_id = kwargs['prefix']+1 # madevent+cudacpp (ime+1 from ProcessExporterFortranMEGroup.generate_subprocess_directory)
         else: proc_id = 0 # standalone_cudacpp
         misc.sprint(proc_id)
@@ -1145,7 +1146,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         misc.sprint(self.support_multichannel)
         replace_dict = super().get_sigmaKin_lines(color_amplitudes, write=False)
         replace_dict['proc_id'] = self.proc_id if self.proc_id>0 else 1
-        replace_dict['proc_id_source'] = 'madevent + cudacpp exporter' if self.proc_id>0 else 'standalone_cudacpp'
+        replace_dict['proc_id_source'] = 'madevent + cudacpp exporter' if self.proc_id>0 else 'standalone_cudacpp' # FIXME? use self.in_madevent_mode instead?
         if write:
             file = self.read_template_file(self.process_sigmaKin_function_template) % replace_dict
             file = '\n'.join( file.split('\n')[8:] ) # skip first 8 lines in process_sigmaKin_function.inc (copyright)
@@ -1296,7 +1297,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         """Generate mgOnGpuConfig.h, CPPProcess.cc, CPPProcess.h, check_sa.cc, gXXX.cu links"""
         misc.sprint('Entering PLUGIN_OneProcessExporter.generate_process_files')
         if self.include_multi_channel:
-            misc.sprint('self.include_multi_channel is already defined: this is madevent+second_exporter mode')
+            misc.sprint('self.include_multi_channel is already defined: this is madevent+second_exporter mode') # FIXME? use self.in_madevent_mode instead?
         else:
             misc.sprint('self.include_multi_channel is not yet defined: this is standalone_cudacpp mode') # see issue #473
         if self.matrix_elements[0].get('has_mirror_process'):

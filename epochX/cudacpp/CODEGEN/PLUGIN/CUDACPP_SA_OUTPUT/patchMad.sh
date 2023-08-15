@@ -4,13 +4,16 @@
 # Created by: A. Valassi (Mar 2022) for the MG5aMC CUDACPP plugin.
 # Further modified by: A. Valassi (2022-2023) for the MG5aMC CUDACPP plugin.
 
+set -e # immediate exit on error
+
 status=0
 
 scrdir=$(cd $(dirname $0); pwd)
 
 function usage()
 {
-  echo "Usage: $0 <process.[madonly|mad]> <vecsize> <patch_dir> [--nopatch|--upstream]"
+  echo "ERROR! Unknown command '$0 $*'"
+  echo "Usage: $0 <process_dir> <patch_dir> [--nopatch|--upstream]"
   exit 1 
 }
 
@@ -19,22 +22,19 @@ function usage()
 ###patchlevel=1 # [--nopatch] modify upstream MG5AMC but do not apply patch commands (reference to prepare new patches)
 patchlevel=2 # [DEFAULT] complete generation of cudacpp .sa/.mad (copy templates and apply patch commands)
 
-if [ "${1%.madonly}" == "$1" ] && [ "${1%.mad}" == "$1" ]; then
-  usage
-elif [ "$3" == "" ]; then
-  usage
-elif [ "$4" == "--nopatch" ]; then
-  if [ "$5" != "" ]; then usage; fi
+if [ "$2" == "" ]; then
+  usage $*
+elif [ "$3" == "--nopatch" ]; then
+  if [ "$4" != "" ]; then usage; fi
   patchlevel=1
-elif [ "$4" == "--upstream" ]; then
-  if [ "$5" != "" ]; then usage; fi
+elif [ "$3" == "--upstream" ]; then
+  if [ "$4" != "" ]; then usage; fi
   patchlevel=0
-elif [ "$4" != "" ]; then
-  usage
+elif [ "$3" != "" ]; then
+  usage $*
 fi
 dir=$1
-vecsize=$2
-dir_patches=$3
+dir_patches=$2
 ###echo "Current dir: $pwd"
 ###echo "Input dir to patch: $dir"
 
@@ -67,8 +67,9 @@ cat ${dir}/Source/make_opts >> ${dir}/Source/make_opts.new
 # Patch the default Fortran code to provide the integration with the cudacpp plugin
 # (1) Process-independent patches
 touch ${dir}/Events/.keep # this file should already be present (mg5amcnlo copies it from Template/LO/Events/.keep) 
-\cp -dpr ${scrdir}/PLUGIN/CUDACPP_SA_OUTPUT/madgraph/iolibs/template_files/.clang-format ${dir} # new file
 \cp -dpr ${scrdir}/MG5aMC_patches/${dir_patches}/fbridge_common.inc ${dir}/SubProcesses # new file
+sed -i 's/2  = sde_strategy/1  = sde_strategy/' ${dir}/Cards/run_card.dat # use strategy SDE=1 in multichannel mode (see #419)
+sed -i 's/SDE_STRAT = 2/SDE_STRAT = 1/' ${dir}/Source/run_card.inc # use strategy SDE=1 in multichannel mode (see #419)
 if [ "${patchlevel}" == "2" ]; then
   cd ${dir}
   sed -i 's/DEFAULT_F2PY_COMPILER=f2py3.*/DEFAULT_F2PY_COMPILER=f2py3/' Source/make_opts
@@ -93,9 +94,6 @@ for p1dir in ${dir}/SubProcesses/P*; do
   ln -sf ../fbridge_common.inc . # new file
   \cp -dpr ${scrdir}/MG5aMC_patches/${dir_patches}/counters.cc . # new file
   \cp -dpr ${scrdir}/MG5aMC_patches/${dir_patches}/ompnumthreads.cc . # new file
-  if [ "${dir%.mad}" == "$1" ]; then
-    \cp -dpr ${scrdir}/PLUGIN/CUDACPP_SA_OUTPUT/madgraph/iolibs/template_files/gpu/timer.h . # new file, already present via cudacpp in *.mad
-  fi
   if [ "${patchlevel}" == "2" ]; then
     echo "DEBUG: cd ${PWD}; patch -p6 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.P1"
     if ! patch -p6 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.P1; then status=1; fi      
