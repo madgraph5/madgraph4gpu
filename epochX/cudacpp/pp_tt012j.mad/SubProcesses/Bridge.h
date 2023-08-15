@@ -245,14 +245,15 @@ namespace mg5amcCpu
     }
     std::cout << "WARNING! Instantiate device Bridge (nevt=" << m_nevt << ", gpublocks=" << m_gpublocks << ", gputhreads=" << m_gputhreads
               << ", gpublocks*gputhreads=" << m_gpublocks * m_gputhreads << ")" << std::endl;
-    CPPProcess process( /*verbose=*/false );
     m_pmek.reset( new MatrixElementKernelDevice( m_devMomentaC, m_devGs, m_devRndHel, m_devRndCol, m_devMEs, m_devSelHel, m_devSelCol, m_gpublocks, m_gputhreads ) );
 #else
     std::cout << "WARNING! Instantiate host Bridge (nevt=" << m_nevt << ")" << std::endl;
-    CPPProcess process( /*verbose=*/false );
     m_pmek.reset( new MatrixElementKernelHost( m_hstMomentaC, m_hstGs, m_hstRndHel, m_hstRndCol, m_hstMEs, m_hstSelHel, m_hstSelCol, m_nevt ) );
 #endif // __CUDACC__
-
+    // Create a process object, read param card and set parameters
+    // FIXME: the process instance can happily go out of scope because it is only needed to read parameters?
+    // FIXME: the CPPProcess should really be a singleton? what if fbridgecreate is called from several Fortran threads?
+    CPPProcess process( /*verbose=*/false );
     std::string paramCard = "../../Cards/param_card.dat";
     if( !std::filesystem::exists( paramCard ) )
     {
