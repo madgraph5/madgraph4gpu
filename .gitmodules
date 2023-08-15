@@ -1,3 +1,4 @@
 [submodule "MG5aMC/mg5amcnlo"]
 	path = MG5aMC/mg5amcnlo
 	url = https://github.com/mg5amcnlo/mg5amcnlo
+	branch = gpucpp
