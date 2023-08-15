@@ -50,6 +50,11 @@ fi
 
 # Begin script in case all parameters are correct
 
+# Added check if the CUDA_NAME_PREFIX/HIP_NAME_PREFIX variable are not set
+if [ -z "$CUDA_NAME_PREFIX" -o -z "$HIP_NAME_PREFIX" ]; then
+    echo "WARNING: CUDA_NAME_PREFIX/HIP_NAME_PREFIX is not set. Cannot append system info to JSON file names!"
+fi
+
 ##################################################################
 
 # Set variables for later use
@@ -120,4 +125,11 @@ $MG_EXE -j $blocksPerGrid $threadsPerBlock $iterations
 echo "${MG_EXE} -j ${blocksPerGrid} ${threadsPerBlock} ${iterations}"
 
 cd perf/data/
-mv 0-perf-test-run0.json ${REPORT_FOLDER}/test_${MG_PROC}_${CUDA_NAME_PREFIX}_${blocksPerGrid}_${threadsPerBlock}_${iterations}.json
+
+if [ -n "$CUDA_NAME_PREFIX" ]; then
+    mv 0-perf-test-run0.json "${REPORT_FOLDER}/test_${MG_PROC}_${CUDA_NAME_PREFIX}_${blocksPerGrid}_${threadsPerBlock}_${iterations}.json"
+elif [ -n "$HIP_NAME_PREFIX" ]; then
+    mv 0-perf-test-run0.json "${REPORT_FOLDER}/test_${MG_PROC}_${HIP_NAME_PREFIX}_${blocksPerGrid}_${threadsPerBlock}_${iterations}.json"
+else
+    mv 0-perf-test-run0.json "${REPORT_FOLDER}/test_${MG_PROC}_undefined_${blocksPerGrid}_${threadsPerBlock}_${iterations}.json"
+fi

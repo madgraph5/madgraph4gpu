@@ -47,6 +47,12 @@ function codeGenAndDiff()
     pp_tttt)
       cmd="generate p p > t t~ t t~"
       ;;
+    pp_tt012j)
+      cmd="define j = p
+      generate p p > t t~ @0
+      add process p p > t t~ j @1
+      add process p p > t t~ j j @2"
+      ;;
     pp_ttW) # TEMPORARY! until no_b_mass #695 and/or #696 are fixed
       cmd="define p = p b b~
       define j = p
