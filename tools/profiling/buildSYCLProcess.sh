@@ -48,6 +48,11 @@ then
     helpFunction
 fi
 
+# Added check if the SYCL_NAME_PREFIX variable are not set
+if [ -z "$SYCL_NAME_PREFIX" ]; then
+    echo "WARNING: SYCL_NAME_PREFIX is not set. Cannot append system info to JSON file names!"
+fi
+
 ##################################################################
 
 # Assign correct SM level for NVIDIA GPUs
