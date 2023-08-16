@@ -519,7 +519,7 @@ if [ "${SCRBCK}" == "cudacpp" ]; then
     echo -e "\nWARNING! '${OUTBCK}' mode selected: do not copy the cudacpp plugin (workaround for #341)"
   else # currently succeeds also for madcpp and madgpu (#341 has been fixed)
     echo -e "\nINFO! '${OUTBCK}' mode selected: copy the cudacpp plugin\n"
-    cp -dpr ${SCRDIR}/PLUGIN/${SCRBCK^^}_SA_OUTPUT ${MG5AMC_HOME}/PLUGIN/
+    cp -dpr ${SCRDIR}/PLUGIN/${SCRBCK^^}_SA_OUTPUT ${MG5AMC_HOME}/PLUGIN/${SCRBCK^^}_OUTPUT
     ls -l ${MG5AMC_HOME}/PLUGIN
   fi
 ###elif [ "${SCRBCK}" == "alpaka" ]; then
