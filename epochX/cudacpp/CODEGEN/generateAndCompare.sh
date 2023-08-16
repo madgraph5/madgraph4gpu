@@ -155,7 +155,8 @@ function codeGenAndDiff()
   vecsize=16384 # NB THIS IS NO LONGER IGNORED (but will eventually be tunable via runcards)
   # Generate code for the specific process
   pushd $MG5AMC_HOME >& /dev/null
-  outproc=CODEGEN_${OUTBCK}_${proc}
+  mkdir -p ../TMPOUT
+  outproc=../TMPOUT/CODEGEN_${OUTBCK}_${proc}
   if [ "${SCRBCK}" == "gridpack" ] && [ "${UNTARONLY}" == "1" ]; then
     ###echo -e "WARNING! Skip generation of gridpack.tar.gz (--nountaronly was not specified)\n"
     echo "ERROR! gridpack mode is no longer supported by this script!"; exit 1
