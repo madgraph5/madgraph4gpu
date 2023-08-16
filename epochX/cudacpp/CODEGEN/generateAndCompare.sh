@@ -552,7 +552,7 @@ codeGenAndDiff $proc "$cmd"
 
 # Clean up after code generation
 cleanup_MG5AMC_HOME
-###cleanup_MG5AMC_PLUGIN
+cleanup_MG5AMC_PLUGIN
 
 # Check formatting in the auto-generated code
 if [ "${OUTBCK}" == "cudacpp" ]; then
