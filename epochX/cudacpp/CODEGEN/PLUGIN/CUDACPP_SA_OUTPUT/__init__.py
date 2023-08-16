@@ -3,7 +3,10 @@
 # Created by: O. Mattelaer (Sep 2021) for the MG5aMC CUDACPP plugin.
 # Further modified by: O. Mattelaer, A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
 
-print('Load PLUGIN.CUDACPP_SA_OUTPUT')
+# AV - Rename the plugin as CUDACPP_OUTPUT (was CUDACPP_SA_OUTPUT)
+# [NB: madgraph4gpu's directory CUDACPP_SA_OUTPUT is copied to mg5amcnlo as directory CUDACPP_OUTPUT]
+# [NB: eventually, the git repo mg5amcnlo_cudacpp will become mg5amcnlo's submodule CUDACPP_OUTPUT]
+print('Load PLUGIN.CUDACPP_OUTPUT')
 
 # AV - Require Python >= 3.8 to ensure that {} dictionaries preserve the order of item insertion
 # (note: python3.7 would probably be enough but this plugin has only been tested using python3.8)
@@ -11,7 +14,7 @@ import sys
 minpython = (3,8)
 if sys.version_info < minpython :
 
-    print('ERROR! Cannot load PLUGIN.CUDACPP_SA_OUTPUT: Python >= %s.%s is required' % minpython)
+    print('ERROR! Cannot load PLUGIN.CUDACPP_OUTPUT: Python >= %s.%s is required' % minpython)
 
 else:
 
@@ -28,7 +31,7 @@ else:
     #    Example: new_output = {'myformat': MYCLASS}
     #    allows the command "output myformat PATH" in madgraph.
     #    MYCLASS should inherit from class madgraph.iolibs.export_v4.VirtualExporter
-    import PLUGIN.CUDACPP_SA_OUTPUT.output as output
+    import PLUGIN.CUDACPP_OUTPUT.output as output
     new_output = { 'standalone_cudacpp' : output.PLUGIN_ProcessExporter }
 
     # 2. Define new way to handle the cluster.

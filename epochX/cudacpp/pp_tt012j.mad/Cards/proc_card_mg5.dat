@@ -49,5 +49,5 @@ define j = p
 generate p p > t t~ @0
 add process p p > t t~ j @1
 add process p p > t t~ j j @2
-output madevent CODEGEN_mad_pp_tt012j --hel_recycling=False --vector_s\
-ize=16384 --me_exporter=standalone_cudacpp
+output madevent ../TMPOUT/CODEGEN_mad_pp_tt012j --hel_recycling=False \
+--vector_size=16384 --me_exporter=standalone_cudacpp
