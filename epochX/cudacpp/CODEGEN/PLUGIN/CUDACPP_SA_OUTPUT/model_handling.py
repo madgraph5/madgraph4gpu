@@ -11,14 +11,14 @@ PLUGINDIR = os.path.dirname( __file__ )
 
 # AV - create a plugin-specific logger
 import logging
-logger = logging.getLogger('madgraph.PLUGIN.CUDACPP_SA_OUTPUT.model_handling')
+logger = logging.getLogger('madgraph.PLUGIN.CUDACPP_OUTPUT.model_handling')
 
 #------------------------------------------------------------------------------------
 
 # AV - import the independent 2nd copy of the export_cpp module (as PLUGIN_export_cpp), previously loaded in output.py
 ###import madgraph.iolibs.export_cpp as export_cpp # 1st copy
 ######import madgraph.iolibs.export_cpp as PLUGIN_export_cpp # this is not enough to define an independent 2nd copy: id(export_cpp)==id(PLUGIN_export_cpp)
-import PLUGIN.CUDACPP_SA_OUTPUT.PLUGIN_export_cpp as PLUGIN_export_cpp # 2nd copy loaded in the plugin's output.py
+import PLUGIN.CUDACPP_OUTPUT.PLUGIN_export_cpp as PLUGIN_export_cpp # 2nd copy loaded in the plugin's output.py
 ###print('id(export_cpp)=%s'%id(export_cpp))
 ###print('id(PLUGIN_export_cpp)=%s'%id(PLUGIN_export_cpp))
 
@@ -41,7 +41,7 @@ import importlib.util
 SPEC_WRITERS = importlib.util.find_spec('madgraph.iolibs.file_writers')
 PLUGIN_writers = importlib.util.module_from_spec(SPEC_WRITERS)
 SPEC_WRITERS.loader.exec_module(PLUGIN_writers)
-###sys.modules['PLUGIN.CUDACPP_SA_OUTPUT.PLUGIN_writers'] = PLUGIN_writers # would allow 'import PLUGIN.CUDACPP_SA_OUTPUT.PLUGIN_writers' (not needed)
+###sys.modules['PLUGIN.CUDACPP_OUTPUT.PLUGIN_writers'] = PLUGIN_writers # would allow 'import PLUGIN.CUDACPP_OUTPUT.PLUGIN_writers' (not needed)
 del SPEC_WRITERS
 
 # AV - use the independent 2nd copy of the writers module within the PLUGIN_export_cpp module (workaround for #341)

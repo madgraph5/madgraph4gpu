@@ -155,7 +155,8 @@ function codeGenAndDiff()
   vecsize=16384 # NB THIS IS NO LONGER IGNORED (but will eventually be tunable via runcards)
   # Generate code for the specific process
   pushd $MG5AMC_HOME >& /dev/null
-  outproc=CODEGEN_${OUTBCK}_${proc}
+  mkdir -p ../TMPOUT
+  outproc=../TMPOUT/CODEGEN_${OUTBCK}_${proc}
   if [ "${SCRBCK}" == "gridpack" ] && [ "${UNTARONLY}" == "1" ]; then
     ###echo -e "WARNING! Skip generation of gridpack.tar.gz (--nountaronly was not specified)\n"
     echo "ERROR! gridpack mode is no longer supported by this script!"; exit 1
@@ -247,6 +248,7 @@ function codeGenAndDiff()
   # Additional patches for mad directory (integration of Fortran and cudacpp)
   # [NB: these patches are not applied to madnovec/madonly, which are meant as out-of-the-box references]
   ###if [ "${OUTBCK}" == "mad" ]; then
+  ###  dir_patches=PROD
   ###  $SCRDIR/patchMad.sh ${OUTDIR}/${proc}.${autosuffix} ${vecsize} ${dir_patches} ${PATCHLEVEL}
   ###fi
   # Add a workaround for https://github.com/oliviermattelaer/mg5amc_test/issues/2 (these are ONLY NEEDED IN THE MADGRAPH4GPU GIT REPO)
@@ -434,21 +436,19 @@ echo "proc=${proc}"
 # Make sure that python3 is installed
 if ! python3 --version >& /dev/null; then echo "ERROR! python3 is not installed"; exit 1; fi
 
+# Define MG5AMC_HOME as a path to the mg5amcnlo git submodule in this repo (NEW IMPLEMENTATION BASED ON SUBMODULES)
 # Make sure that $MG5AMC_HOME exists
-dir_patches=PROD
-branch_patches=$(cat $SCRDIR/MG5aMC_patches/${dir_patches}/branch.GIT)
-commit_patches=$(cat $SCRDIR/MG5aMC_patches/${dir_patches}/commit.GIT) # e.g. <commit> or <branch>
 if [ "$MG5AMC_HOME" == "" ]; then
-  echo "ERROR! MG5AMC_HOME is not defined"
-  echo -e "To download MG5AMC please run\n  git clone git@github.com:mg5amcnlo/mg5amcnlo.git\n  cd mg5amcnlo; git checkout ${branch_patches}; git reset --hard ${commit_patches}"
-  exit 1
+  # (FIXME: in a future implementation, this will not be ignored - e.g. to share a single git submodule in different madgraph4gpu directories)
+  echo "WARNING! Environment variable MG5AMC_HOME is already defined as '$MG5AMC_HOME' but it will be redefined"
 fi
-echo -e "\nDefault MG5AMC_HOME=$MG5AMC_HOME on $(hostname)\n"
+MG5AMC_HOME=${SCRDIR}/../../../MG5aMC/mg5amcnlo
 if [ ! -d $MG5AMC_HOME ]; then
   echo "ERROR! Directory $MG5AMC_HOME does not exist"
-  echo -e "To download MG5AMC please run\n  git clone git@github.com:mg5amcnlo/mg5amcnlo.git\n  cd mg5amcnlo; git checkout ${branch_patches}; git reset --hard ${commit_patches}"
   exit 1
 fi
+export MG5AMC_HOME=$(cd $MG5AMC_HOME; pwd)
+echo -e "\nDefault MG5AMC_HOME=$MG5AMC_HOME on $(hostname)\n"
 
 # Make sure that $ALPAKA_ROOT and $CUPLA_ROOT exist if alpaka is used
 ###if [ "${SCRBCK}" == "alpaka" ]; then
@@ -468,8 +468,7 @@ fi
 ###  if [ ! -d $CUPLA_ROOT ]; then echo "ERROR! Directory $CUPLA_ROOT does not exist"; exit 1; fi
 ###fi
 
-# Check that MG5aMC uses the git 311 branch (default for all of cudacpp, alpaka, gridpack)
-# Revert MG5aMC to the appropriate git commit
+# Show the git branch and commit of MG5aMC
 if ! git --version >& /dev/null; then
   echo -e "ERROR! git is not installed: cannot retrieve git properties of MG5aMC_HOME\n"; exit 1
 fi
@@ -479,35 +478,10 @@ echo -e "Retrieving git information about MG5AMC_HOME"
 if ! git log -n1 >& /dev/null; then
   echo -e "ERROR! MG5AMC_HOME is not a git clone\n"; exit 1
 fi
-echo -e "MG5AMC patches in this plugin refer to git branch '${branch_patches}'"
-echo -e "Reset MG5AMC_HOME to git commit '${branch_patches}'"
-#...[COMMENT OUT THE THREE LINES BELOW TO USE A MODIFIED VERSION OF MG5AMC]...
-if ! git reset --hard ${branch_patches}; then
-  echo -e "ERROR! 'git reset --hard ${branch_patches}' failed\n"; exit 1
-fi
-#...[COMMENT OUT THE THREE LINES ABOVE TO USE A MODIFIED VERSION OF MG5AMC]...
-echo -e "Check out branch ${branch_patches} in MG5AMC_HOME"
-if ! git checkout ${branch_patches}; then
-  echo -e "ERROR! 'git checkout ${branch_patches}' failed\n"; exit 1
-fi
 branch_mg5amc=$(git branch --no-color | \grep ^* | awk '{print $2}')
 echo -e "Current git branch of MG5AMC_HOME is '${branch_mg5amc}'"
-if [ "${branch_patches}" != "${branch_mg5amc}" ]; then echo -e "\nERROR! git branch mismatch!"; exit 1; fi
-commit_patches2=$(git log --oneline -n1 ${commit_patches} | awk '{print $1}') # translate to <commit>
-if [ "${commit_patches2}" == "${commit_patches}" ]; then
-  echo -e "MG5AMC patches in this plugin refer to git commit '${commit_patches}'"
-else
-  echo -e "MG5AMC patches in this plugin refer to git commit '${commit_patches}' (i.e. '${commit_patches2}')"
-fi  
-echo -e "Reset MG5AMC_HOME to git commit '${commit_patches}'"
-#...[COMMENT OUT THE THREE LINES BELOW TO USE A MODIFIED VERSION OF MG5AMC]...
-if ! git reset --hard ${commit_patches}; then
-  echo -e "ERROR! 'git reset --hard ${commit_patches}' failed\n"; exit 1
-fi
-#...[COMMENT OUT THE THREE LINES ABOVE TO USE A MODIFIED VERSION OF MG5AMC]...
 commit_mg5amc=$(git log --oneline -n1 | awk '{print $1}')
 echo -e "Current git commit of MG5AMC_HOME is '${commit_mg5amc}'"
-if [ "${commit_patches2}" != "${commit_mg5amc}" ]; then echo -e "\nERROR! git commit mismatch!"; exit 1; fi
 cd - > /dev/null
 
 # Copy MG5AMC ad-hoc patches if any (unless --upstream is specified)
@@ -545,7 +519,7 @@ if [ "${SCRBCK}" == "cudacpp" ]; then
     echo -e "\nWARNING! '${OUTBCK}' mode selected: do not copy the cudacpp plugin (workaround for #341)"
   else # currently succeeds also for madcpp and madgpu (#341 has been fixed)
     echo -e "\nINFO! '${OUTBCK}' mode selected: copy the cudacpp plugin\n"
-    cp -dpr ${SCRDIR}/PLUGIN/${SCRBCK^^}_SA_OUTPUT ${MG5AMC_HOME}/PLUGIN/
+    cp -dpr ${SCRDIR}/PLUGIN/${SCRBCK^^}_SA_OUTPUT ${MG5AMC_HOME}/PLUGIN/${SCRBCK^^}_OUTPUT
     ls -l ${MG5AMC_HOME}/PLUGIN
   fi
 ###elif [ "${SCRBCK}" == "alpaka" ]; then
@@ -569,7 +543,7 @@ codeGenAndDiff $proc "$cmd"
 
 # Clean up after code generation
 cleanup_MG5AMC_HOME
-###cleanup_MG5AMC_PLUGIN
+cleanup_MG5AMC_PLUGIN
 
 # Check formatting in the auto-generated code
 if [ "${OUTBCK}" == "cudacpp" ]; then
