@@ -248,6 +248,7 @@ function codeGenAndDiff()
   # Additional patches for mad directory (integration of Fortran and cudacpp)
   # [NB: these patches are not applied to madnovec/madonly, which are meant as out-of-the-box references]
   ###if [ "${OUTBCK}" == "mad" ]; then
+  ###  dir_patches=PROD
   ###  $SCRDIR/patchMad.sh ${OUTDIR}/${proc}.${autosuffix} ${vecsize} ${dir_patches} ${PATCHLEVEL}
   ###fi
   # Add a workaround for https://github.com/oliviermattelaer/mg5amc_test/issues/2 (these are ONLY NEEDED IN THE MADGRAPH4GPU GIT REPO)
@@ -467,10 +468,7 @@ echo -e "\nDefault MG5AMC_HOME=$MG5AMC_HOME on $(hostname)\n"
 ###  if [ ! -d $CUPLA_ROOT ]; then echo "ERROR! Directory $CUPLA_ROOT does not exist"; exit 1; fi
 ###fi
 
-# Check that MG5aMC uses the git gpucpp branch (default for all of cudacpp, alpaka, gridpack)
-# Revert MG5aMC to the appropriate git commit
-dir_patches=PROD
-commit_patches=$(cat $SCRDIR/MG5aMC_patches/${dir_patches}/commit.GIT) # e.g. <commit> or <branch>
+# Show the git branch and commit of MG5aMC
 if ! git --version >& /dev/null; then
   echo -e "ERROR! git is not installed: cannot retrieve git properties of MG5aMC_HOME\n"; exit 1
 fi
@@ -482,15 +480,8 @@ if ! git log -n1 >& /dev/null; then
 fi
 branch_mg5amc=$(git branch --no-color | \grep ^* | awk '{print $2}')
 echo -e "Current git branch of MG5AMC_HOME is '${branch_mg5amc}'"
-commit_patches2=$(git log --oneline -n1 ${commit_patches} | awk '{print $1}') # translate to <commit>
-if [ "${commit_patches2}" == "${commit_patches}" ]; then
-  echo -e "MG5AMC patches in this plugin refer to git commit '${commit_patches}'"
-else
-  echo -e "MG5AMC patches in this plugin refer to git commit '${commit_patches}' (i.e. '${commit_patches2}')"
-fi  
 commit_mg5amc=$(git log --oneline -n1 | awk '{print $1}')
 echo -e "Current git commit of MG5AMC_HOME is '${commit_mg5amc}'"
-if [ "${commit_patches2}" != "${commit_mg5amc}" ]; then echo -e "\nERROR! git commit mismatch!"; exit 1; fi
 cd - > /dev/null
 
 # Copy MG5AMC ad-hoc patches if any (unless --upstream is specified)
