@@ -71,6 +71,8 @@ struct CPUTest : public CUDA_CPU_TestBase
     , hstSelCol( nevt )
     , hstIsGoodHel( CPPProcess::ncomb )
   {
+    // FIXME: the process instance can happily go out of scope because it is only needed to read parameters?
+    // FIXME: the CPPProcess should really be a singleton?
     process.initProc( "../../Cards/param_card.dat" );
   }
 
@@ -183,6 +185,8 @@ struct CUDATest : public CUDA_CPU_TestBase
     , devSelCol( nevt )
     , devIsGoodHel( CPPProcess::ncomb )
   {
+    // FIXME: the process instance can happily go out of scope because it is only needed to read parameters?
+    // FIXME: the CPPProcess should really be a singleton?
     process.initProc( "../../Cards/param_card.dat" );
   }
 

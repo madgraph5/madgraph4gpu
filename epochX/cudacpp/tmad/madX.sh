@@ -18,12 +18,13 @@ host=$(hostname)
 if [ "${host/juwels}" != "${host}" ]; then NLOOP=32; fi # workaround for #498
 
 # These two environment variables used to be input parameters to madevent (#658)
+# (Possible values for FBRIDGEMODE: CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
 unset CUDACPP_RUNTIME_FBRIDGEMODE
 export CUDACPP_RUNTIME_VECSIZEUSED=${NLOOP}
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq]> [-d] [-fltonly|-mixonly] [-makeonly|-makeclean|-makecleanonly] [-rmrdat] [+10x] [-checkonly] [-nocleanup]" > /dev/stderr
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gguu][-gqttq]> [-d] [-fltonly|-mixonly] [-makeonly|-makeclean|-makecleanonly] [-rmrdat] [+10x] [-checkonly] [-nocleanup]" > /dev/stderr
   echo "(NB: OMP_NUM_THREADS is taken as-is from the caller's environment)"
   exit 1
 }
@@ -39,6 +40,7 @@ ggtt=0
 ggttg=0
 ggttgg=0
 ggttggg=0
+gguu=0
 gqttq=0
 
 fptype="d"
@@ -72,6 +74,9 @@ while [ "$1" != "" ]; do
     shift
   elif [ "$1" == "-ggttggg" ]; then
     ggttggg=1
+    shift
+  elif [ "$1" == "-gguu" ]; then
+    gguu=1
     shift
   elif [ "$1" == "-gqttq" ]; then
     gqttq=1
@@ -113,7 +118,7 @@ done
 ###exit 1
 
 # Check that at least one process has been selected
-if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ]&& [ "${gqttq}" == "0" ] ; then usage; fi
+if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ] && [ "${gguu}" == "0" ] && [ "${gqttq}" == "0" ]; then usage; fi
 
 # Always test only the .mad/ directories (hardcoded)
 suffs=".mad/"
@@ -144,8 +149,10 @@ function showdir()
     elif [ "${ggttggg}" == "1" ]; then 
       dir=$topdir/epochX/${bckend}/gg_ttggg${suff}SubProcesses/P1_gg_ttxggg
     elif [ "${gqttq}" == "1" ]; then 
-      ###dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_gu_ttxu
-      dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_gux_ttxux # only 1 out of 2 for now
+      dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_gu_ttxu # 1st of two (test only one for now)
+      ###dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_gux_ttxux # 2nd of two (test only one for now)
+    elif [ "${gguu}" == "1" ]; then 
+      dir=$topdir/epochX/${bckend}/gg_uu${suff}SubProcesses/P1_gg_uux
     fi
   else
     echo "INTERNAL ERROR! tmad tests only make sense in .mad directories"; exit 1 # this should never happen (suff=.mad/ is hardcoded)
@@ -166,6 +173,8 @@ function getnevt()
     nevt=8192 # Fortran (x1, x10) computes (8192, 90112) MEs and writes to file (49, 217) events in (5.8s, 58s)
   elif [ "${ggttggg}" == "1" ]; then
     nevt=8192 # Fortran (x1, x10) computes (8192, 90112) MEs and writes to file (14, 97) events in (121s, 1222s)
+  elif [ "${gguu}" == "1" ]; then
+    nevt=8192 # use the same settings as for ggttg
   elif [ "${gqttq}" == "1" ]; then
     nevt=8192 # use the same settings as for ggttg
   else
@@ -187,6 +196,8 @@ function getgridmax()
     echo 16384 32 # same total grid dimension as 2048 256
   elif [ "${ggttggg}" == "1" ]; then
     echo 512 32 # same total grid dimension as 64 256
+  elif [ "${gguu}" == "1" ]; then
+    echo 16384 32 # same total grid dimension as 2048 256
   elif [ "${gqttq}" == "1" ]; then
     echo 16384 32 # same total grid dimension as 2048 256
   else
@@ -210,6 +221,8 @@ function getinputfile()
     tmp=$tmpdir/input_ggttgg
   elif [ "${ggttggg}" == "1" ]; then 
     tmp=$tmpdir/input_ggttggg
+  elif [ "${gguu}" == "1" ]; then 
+    tmp=$tmpdir/input_gguu
   elif [ "${gqttq}" == "1" ]; then 
     tmp=$tmpdir/input_gqttq
   else
@@ -329,6 +342,7 @@ function runmadevent()
   fi
   $timecmd $cmd < ${tmpin} > ${tmp}
   if [ "$?" != "0" ]; then echo "ERROR! '$timecmd $cmd < ${tmpin} > ${tmp}' failed"; tail -10 $tmp; exit 1; fi
+  cat ${tmp} | grep --binary-files=text '^DEBUG'
   omp=$(cat ${tmp} | grep --binary-files=text 'omp_get_max_threads() =' | awk '{print $NF}')
   if [ "${omp}" == "" ]; then omp=1; fi # _OPENMP not defined in the Fortran #579
   nghel=$(cat ${tmp} | grep --binary-files=text 'NGOODHEL =' | awk '{print $NF}')

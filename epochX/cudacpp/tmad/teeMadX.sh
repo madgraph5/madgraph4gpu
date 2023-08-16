@@ -9,7 +9,7 @@ cd $scrdir
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq]> [-flt|-fltonly|-mix|-mixonly] [-makeonly] [-makeclean] [-rmrdat] [+10x] [-checkonly]" > /dev/stderr
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gguu][-gqttq]> [-flt|-fltonly|-mix|-mixonly] [-makeonly] [-makeclean] [-rmrdat] [+10x] [-checkonly]" > /dev/stderr
   exit 1
 }
 
@@ -19,6 +19,7 @@ ggtt=
 ggttg=
 ggttgg=
 ggttggg=
+gguu=
 gqttq=
 
 suffs="mad"
@@ -56,6 +57,9 @@ for arg in $*; do
   elif [ "$arg" == "-ggttggg" ]; then
     if [ "$ggttggg" == "" ]; then procs+=${procs:+ }${arg}; fi
     ggttggg=$arg
+  elif [ "$arg" == "-gguu" ]; then
+    if [ "$gguu" == "" ]; then procs+=${procs:+ }${arg}; fi
+    gguu=$arg
   elif [ "$arg" == "-gqttq" ]; then
     if [ "$gqttq" == "" ]; then procs+=${procs:+ }${arg}; fi
     gqttq=$arg
