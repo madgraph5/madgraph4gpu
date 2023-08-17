@@ -16,21 +16,14 @@ SHELL := /bin/bash
 
 #-------------------------------------------------------------------------------
 
-#=== Configure common compiler flags for CUDA and C++
-
-INCFLAGS = -I.
-OPTFLAGS = -O3 # this ends up in CUFLAGS too (should it?), cannot add -Ofast or -ffast-math here
-
-#-------------------------------------------------------------------------------
-
 #=== Configure the C++ compiler
 
-CXXFLAGS = $(OPTFLAGS) -std=c++17 $(INCFLAGS) $(USE_NVTX) -fPIC -Wall -Wshadow -Wextra
+include ../Source/make_opts
+
+MG_CXXFLAGS += -fPIC -I. $(USE_NVTX)
 ifeq ($(shell $(CXX) --version | grep ^nvc++),)
-CXXFLAGS+= -ffast-math # see issue #117
+MG_CXXFLAGS += -ffast-math # see issue #117
 endif
-###CXXFLAGS+= -Ofast # performance is not different from --fast-math
-###CXXFLAGS+= -g # FOR DEBUGGING ONLY
 
 # Note: AR, CXX and FC are implicitly defined if not set externally
 # See https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
@@ -63,18 +56,18 @@ UNAME_P := $(shell uname -p)
 
 # PowerPC-specific CXX compiler flags (being reviewed)
 ifeq ($(UNAME_P),ppc64le)
-  CXXFLAGS+= -mcpu=power9 -mtune=power9 # gains ~2-3% both for none and sse4
+  MG_CXXFLAGS+= -mcpu=power9 -mtune=power9 # gains ~2-3% both for none and sse4
   # Throughput references without the extra flags below: none=1.41-1.42E6, sse4=2.15-2.19E6
-  ###CXXFLAGS+= -DNO_WARN_X86_INTRINSICS # no change
-  ###CXXFLAGS+= -fpeel-loops # no change
-  ###CXXFLAGS+= -funroll-loops # gains ~1% for none, loses ~1% for sse4
-  ###CXXFLAGS+= -ftree-vectorize # no change
-  ###CXXFLAGS+= -flto # BUILD ERROR IF THIS ADDED IN SRC?!
+  ###MG_CXXFLAGS+= -DNO_WARN_X86_INTRINSICS # no change
+  ###MG_CXXFLAGS+= -fpeel-loops # no change
+  ###MG_CXXFLAGS+= -funroll-loops # gains ~1% for none, loses ~1% for sse4
+  ###MG_CXXFLAGS+= -ftree-vectorize # no change
+  ###MG_CXXFLAGS+= -flto # BUILD ERROR IF THIS ADDED IN SRC?!
 else
   ###AR=gcc-ar # needed by -flto
   ###RANLIB=gcc-ranlib # needed by -flto
-  ###CXXFLAGS+= -flto # NB: build error from src/Makefile unless gcc-ar and gcc-ranlib are used
-  ######CXXFLAGS+= -fno-semantic-interposition # no benefit (neither alone, nor combined with -flto)
+  ###MG_CXXFLAGS+= -flto # NB: build error from src/Makefile unless gcc-ar and gcc-ranlib are used
+  ######MG_CXXFLAGS+= -fno-semantic-interposition # no benefit (neither alone, nor combined with -flto)
 endif
 
 #-------------------------------------------------------------------------------
@@ -83,7 +76,7 @@ endif
 
 # Set the build flags appropriate to OMPFLAGS
 ###$(info OMPFLAGS=$(OMPFLAGS))
-CXXFLAGS += $(OMPFLAGS)
+MG_CXXFLAGS += $(OMPFLAGS)
 
 # Set the build flags appropriate to each AVX choice (example: "make AVX=none")
 # [NB MGONGPU_PVW512 is needed because "-mprefer-vector-width=256" is not exposed in a macro]
@@ -132,17 +125,17 @@ ifeq ($(NVCC),)
     endif
   endif
   # For the moment, use AVXFLAGS everywhere: eventually, use them only in encapsulated implementations?
-  CXXFLAGS+= $(AVXFLAGS)
+  MG_CXXFLAGS+= $(AVXFLAGS)
 endif
 
 # Set the build flags appropriate to each FPTYPE choice (example: "make FPTYPE=f")
 ###$(info FPTYPE=$(FPTYPE))
 ifeq ($(FPTYPE),d)
-  CXXFLAGS += -DMGONGPU_FPTYPE_DOUBLE -DMGONGPU_FPTYPE2_DOUBLE
+  MG_CXXFLAGS += -DMGONGPU_FPTYPE_DOUBLE -DMGONGPU_FPTYPE2_DOUBLE
 else ifeq ($(FPTYPE),f)
-  CXXFLAGS += -DMGONGPU_FPTYPE_FLOAT -DMGONGPU_FPTYPE2_FLOAT
+  MG_CXXFLAGS += -DMGONGPU_FPTYPE_FLOAT -DMGONGPU_FPTYPE2_FLOAT
 else ifeq ($(FPTYPE),m)
-  CXXFLAGS += -DMGONGPU_FPTYPE_DOUBLE -DMGONGPU_FPTYPE2_FLOAT
+  MG_CXXFLAGS += -DMGONGPU_FPTYPE_DOUBLE -DMGONGPU_FPTYPE2_FLOAT
 else
   $(error Unknown FPTYPE='$(FPTYPE)': only 'd', 'f' and 'm' are supported)
 endif
@@ -150,7 +143,7 @@ endif
 # Set the build flags appropriate to each HELINL choice (example: "make HELINL=1")
 ###$(info HELINL=$(HELINL))
 ifeq ($(HELINL),1)
-  CXXFLAGS += -DMGONGPU_INLINE_HELAMPS
+  MG_CXXFLAGS += -DMGONGPU_INLINE_HELAMPS
 else ifneq ($(HELINL),0)
   $(error Unknown HELINL='$(HELINL)': only '0' and '1' are supported)
 endif
@@ -158,7 +151,7 @@ endif
 # Set the build flags appropriate to each HRDCOD choice (example: "make HRDCOD=1")
 ###$(info HRDCOD=$(HRDCOD))
 ifeq ($(HRDCOD),1)
-  CXXFLAGS += -DMGONGPU_HARDCODE_PARAM
+  MG_CXXFLAGS += -DMGONGPU_HARDCODE_PARAM
 else ifneq ($(HRDCOD),0)
   $(error Unknown HRDCOD='$(HRDCOD)': only '0' and '1' are supported)
 endif
@@ -166,7 +159,7 @@ endif
 # Set the build flags appropriate to each RNDGEN choice (example: "make RNDGEN=hasNoCurand")
 ###$(info RNDGEN=$(RNDGEN))
 ifeq ($(RNDGEN),hasNoCurand)
-  CXXFLAGS += -DMGONGPU_HAS_NO_CURAND
+  MG_CXXFLAGS += -DMGONGPU_HAS_NO_CURAND
 else ifneq ($(RNDGEN),hasCurand)
   $(error Unknown RNDGEN='$(RNDGEN)': only 'hasCurand' and 'hasNoCurand' are supported)
 endif
@@ -228,21 +221,17 @@ MG5AMC_COMMONLIB = mg5amc_common
 # First target (default goal)
 all.$(TAG): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so
 
-# Target (and build options): debug
-debug: OPTFLAGS = -g -O0
-debug: all.$(TAG)
-
 #-------------------------------------------------------------------------------
 
 # Generic target and build rules: objects from C++ compilation
 $(BUILDDIR)/%.o : %.cc *.h
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -fPIC -c $< -o $@
+	$(CXX) $(MG_CXXFLAGS) $(CXXFLAGS) -c $< -o $@
 
 # Generic target and build rules: objects from CUDA compilation
 $(BUILDDIR)/%_cu.o : %.cc *.h
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -Xcompiler -fPIC -c -x cu $< -o $@
+	$(NVCC) $(MG_NVCCFLAGS) $(NVCCFLAGS) -c -x cu $< -o $@
 
 #-------------------------------------------------------------------------------
 
@@ -259,7 +248,7 @@ $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so : $(cxx_objects) $(cu_objects)
 else
 $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so : $(cxx_objects)
 	@if [ ! -d $(LIBDIR) ]; then echo "mkdir -p $(LIBDIR)"; mkdir -p $(LIBDIR); fi
-	$(CXX) -shared -o $@ $(cxx_objects)
+	$(CXX) $(MG_LDFLAGS) $(LDFLAGS) -shared -o $@ $(cxx_objects)
 endif
 
 #-------------------------------------------------------------------------------

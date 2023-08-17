@@ -11,13 +11,6 @@ PYTHIA8_PATH=NotInstalled
 BIASLIBDIR=../../../lib/
 BIASLIBRARY=libbias.$(libext)
 
-# Rest of the makefile
-ifeq ($(origin FFLAGS),undefined)
-FFLAGS= -w -fPIC
-#FFLAGS+= -g -fbounds-check -ffpe-trap=invalid,zero,overflow,underflow,denormal -Wall -fimplicit-none
-endif
-
-FFLAGS += $(GLOBAL_FLAG)
 
 # REMOVE MACFLAG IF NOT ON MAC OR FOR F2PY
 UNAME := $(shell uname -s)
@@ -29,14 +22,33 @@ MACFLAG=
 endif
 endif
 
+############################################################
+# Default compiler flags
+# To change optimisation level, override these as follows:
+#   make CXXFLAGS="-O0 -g"
+# or export them as environment variables
+# For debugging Fortran, one could e.g. use:
+# FCFLAGS="-g -fbounds-check -ffpe-trap=invalid,zero,overflow,underflow,denormal -Wall -fimplicit-none"
+############################################################
 
-ifeq ($(origin CXXFLAGS),undefined)
-CXXFLAGS= -O $(STDLIB_FLAG) $(MACFLAG)
+FCFLAGS   ?= -O3 -ffast-math -fbounds-check
+CXXFLAGS  ?= -O3 -ffast-math -DNDEBUG $(STDLIB_FLAG) $(MACFLAG)
+NVCCFLAGS ?= -O3 -ffast-math -use_fast_math -DNDEBUG -lineinfo
+LDFLAGS   ?= $(STDLIB) $(MACFLAG)
+
+ifneq ($(FFLAGS),)
+# Madgraph used to use FFLAGS, so the user probably tries to change the flags specifically for madgraph:
+FCFLAGS = $(FFLAGS)
 endif
 
-ifeq ($(origin CFLAGS),undefined)
-CFLAGS= -O $(STDLIB_FLAG) $(MACFLAG)
+# Madgraph-specific flags:
+WARNFLAGS = -Wall -Wshadow -Wextra
+ifeq (,$(findstring -std=,$(CXXFLAGS)))
+  CXXSTANDARD= -std=c++17
 endif
+MG_FCFLAGS   += -fPIC -w
+MG_CXXFLAGS  += -fPIC $(CXXSTANDARD) $(WARNFLAGS)
+MG_NVCCFLAGS += -fPIC $(CXXSTANDARD) --forward-unknown-to-host-compiler $(WARNFLAGS)
 
 # Set FC unless it's defined by an environment variable
 ifeq ($(origin FC),default)
@@ -48,21 +60,18 @@ endif
 
 # Increase the number of allowed charcters in a Fortran line
 ifeq ($(FC), ftn)
-FFLAGS+= -extend-source # for ifort type of compiler
+MG_FCFLAGS += -extend-source # for ifort type of compiler
 else
 VERS="$(shell $(FC) --version | grep ifort -i)"
 ifeq ($(VERS), "")
-FFLAGS+= -ffixed-line-length-132
+MG_FCFLAGS += -ffixed-line-length-132
 else
-FFLAGS+= -extend-source # for ifort type of compiler
+MG_FCFLAGS += -extend-source # for ifort type of compiler
 endif
 endif
 
 
 UNAME := $(shell uname -s)
-ifeq ($(origin LDFLAGS), undefined)
-LDFLAGS=$(STDLIB) $(MACFLAG)
-endif
 
 # Options: dynamic, lhapdf
 # Option dynamic
@@ -76,17 +85,17 @@ endif
 ifdef dynamic
 ifeq ($(UNAME), Darwin)
 libext=dylib
-FFLAGS+= -fno-common
-LDFLAGS += -bundle
+MG_FCFLAGS += -fno-common
+MG_LDFLAGS += -bundle
 define CREATELIB
 $(FC) -dynamiclib -undefined dynamic_lookup -o $(1) $(2)
 endef
 else
 libext=so
-FFLAGS+= -fPIC
-LDFLAGS += -shared
+MG_FCFLAGS += -fPIC
+MG_LDFLAGS += -shared
 define CREATELIB
-$(FC) $(FFLAGS) $(LDFLAGS) -o $(1) $(2)
+$(FC) $(MG_FCFLAGS) $(FCFLAGS) $(MG_LDFLAGS) $(LDFLAGS) -o $(1) $(2)
 endef
 endif
 else
@@ -100,17 +109,9 @@ endif
 # Option lhapdf
 
 ifneq ($(lhapdf),)
-CXXFLAGS += $(shell $(lhapdf) --cppflags)
+MG_CXXFLAGS += $(shell $(lhapdf) --cppflags)
 alfas_functions=alfas_functions_lhapdf
 llhapdf+= $(shell $(lhapdf) --cflags --libs) -lLHAPDF
-# check if we need to activate c++11 (for lhapdf6.2)
-ifeq ($(origin CXX),default)
-ifeq ($lhapdfversion$lhapdfsubversion,62)
-CXX=$(DEFAULT_CPP_COMPILER) -std=c++11
-else
-CXX=$(DEFAULT_CPP_COMPILER)
-endif
-endif
 else
 alfas_functions=alfas_functions
 llhapdf=

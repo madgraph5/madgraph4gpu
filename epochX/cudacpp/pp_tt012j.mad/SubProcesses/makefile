@@ -1,13 +1,10 @@
 SHELL := /bin/bash
 
 include ../../Source/make_opts
-FFLAGS+= -w
 
 # Enable the C preprocessor https://gcc.gnu.org/onlinedocs/gfortran/Preprocessing-Options.html
-FFLAGS+= -cpp
-
-# Compile counters with -O3 as in the cudacpp makefile (avoid being "unfair" to Fortran #740)
-CXXFLAGS = -O3 -Wall -Wshadow -Wextra
+MG_FCFLAGS  += -cpp
+MG_CXXFLAGS += -I.
 
 # Sets correct target based on MAKECMDGOALS
 ifeq ($(MAKECMDGOALS),)
@@ -67,7 +64,7 @@ else
     MADLOOP_LIB =
 endif
 
-LINKLIBS = $(LINK_MADLOOP_LIB) $(LINK_LOOP_LIBS) -L$(LIBDIR) -ldhelas -ldsample -lmodel -lgeneric -lpdf -lcernlib $(llhapdf) -lbias 
+LINKLIBS = $(LINK_MADLOOP_LIB) $(LINK_LOOP_LIBS) -L$(LIBDIR) -ldhelas -ldsample -lmodel -lgeneric -lpdf -lcernlib $(llhapdf) -lbias
 
 processid_short=$(shell basename $(CURDIR) | awk -F_ '{print $$(NF-1)"_"$$NF}')
 CUDACPP_MAKEFILE=cudacpp.mk
@@ -92,7 +89,7 @@ LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsamp
 
 ifneq ("$(wildcard ../../Source/RUNNING)","")
     LINKLIBS += -lrunning
-    LIBS += $(LIBDIR)librunning.$(libext) 
+    LIBS += $(LIBDIR)librunning.$(libext)
 endif
 
 
@@ -112,13 +109,13 @@ PROCESS= myamp.o genps.o unwgt.o setcuts.o get_color.o \
 DSIG=driver.o $(patsubst %.f, %.o, $(filter-out auto_dsig.f, $(wildcard auto_dsig*.f)))
 DSIG_cudacpp=driver_cudacpp.o $(patsubst %.f, %_cudacpp.o, $(filter-out auto_dsig.f, $(wildcard auto_dsig*.f)))
 
-SYMMETRY = symmetry.o idenparts.o 
+SYMMETRY = symmetry.o idenparts.o
 
 # Binaries
 
 #LDFLAGS+=-Wl,--no-relax # avoid 'failed to convert GOTPCREL relocation' error #458 (flag not universal -> skip?)
 
-all: $(PROG)_fortran $(CUDACPP_BUILDDIR)/$(PROG)_cpp # also builds $(PROG)_cuda if $(CUDACPP_CULIB) exists (#503)
+all: $(PROG)_fortran $(CUDACPP_BUILDDIR)/$(PROG)_cpp# also builds $(PROG)_cuda if $(CUDACPP_CULIB) exists (#503)
 
 ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
 override OMPFLAGS = -fopenmp
@@ -134,13 +131,12 @@ override OMPFLAGS = -fopenmp
 endif
 
 $(PROG)_fortran: $(PROCESS) $(DSIG) auto_dsig.o $(LIBS) $(MATRIX) counters.o ompnumthreads.o
-	$(FC) -o $(PROG)_fortran $(PROCESS) $(DSIG) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o $(LDFLAGS)
+	$(FC) $(MG_FCFLAGS) $(FCFLAGS) -o $(PROG)_fortran $(PROCESS) $(DSIG) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o $(LDFLAGS)
 
-$(LIBS): .libs
+$(LIBS): ../../Source
 
-.libs: ../../Cards/param_card.dat ../../Cards/run_card.dat
-	cd ../../Source; make
-	touch $@
+../../Source: ../../Source/*.f ../../Cards/param_card.dat ../../Cards/run_card.dat
+	$(MAKE) -C ../../Source
 
 # On Linux, set rpath to LIBDIR to make it unnecessary to use LD_LIBRARY_PATH
 # Use relative paths with respect to the executables ($ORIGIN on Linux)
@@ -188,18 +184,17 @@ madevent_cuda_link: $(CUDACPP_BUILDDIR)/$(PROG)_cuda
 	rm -f $(PROG)
 	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cuda $(PROG)
 
-# Building $(PROG)_cpp also builds $(PROG)_cuda if $(CUDACPP_CULIB) exists (improved patch for cpp-only builds #503)
 $(CUDACPP_BUILDDIR)/$(PROG)_cpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o ompnumthreads.o $(CPPTARGET)
-	$(FC) -o $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_CXXLIB) $(LIBFLAGSRPATH) $(LDFLAGS)
+	$(FC) -o $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_CXXLIB) $(LIBFLAGSRPATH) $(MG_LDFLAGS) $(LDFLAGS)
 
 $(CUDACPP_BUILDDIR)/$(PROG)_cuda: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o ompnumthreads.o cuda
-	$(FC) -o $(CUDACPP_BUILDDIR)/$(PROG)_cuda $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_CULIB) $(LIBFLAGSRPATH) $(LDFLAGS)
+	$(FC) -o $(CUDACPP_BUILDDIR)/$(PROG)_cuda $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_CULIB) $(LIBFLAGSRPATH) $(MG_LDFLAGS) $(LDFLAGS)
 
 counters.o: counters.cc timer.h
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(MG_CXXFLAGS) $(CXXFLAGS) -c $< -o $@
 
 ompnumthreads.o: ompnumthreads.cc ompnumthreads.h
-	$(CXX) -I. $(CXXFLAGS) $(OMPFLAGS) -c $< -o $@
+	$(CXX) $(MG_CXXFLAGS) $(CXXFLAGS) $(OMPFLAGS) -c $< -o $@
 
 $(PROG)_forhel: $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX_HEL)
 	$(FC) -o $(PROG)_forhel $(PROCESS) $(MATRIX_HEL) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) $(OMPFLAGS)
@@ -207,27 +202,14 @@ $(PROG)_forhel: $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX_HEL)
 gensym: $(SYMMETRY) configs.inc $(LIBS)
 	$(FC) -o gensym $(SYMMETRY) -L$(LIBDIR) $(LINKLIBS) $(LDFLAGS)
 
-###ifeq (,$(wildcard fbridge.inc)) # Pointless: fbridge.inc always exists as this is the cudacpp-modified makefile!
-###$(LIBDIR)libmodel.$(libext): ../../Cards/param_card.dat
-###	cd ../../Source/MODEL; make
-###
-###$(LIBDIR)libgeneric.$(libext): ../../Cards/run_card.dat
-###	cd ../../Source; make
-###
-###$(LIBDIR)libpdf.$(libext): 
-###	cd ../../Source/PDF; make
-###
-###$(LIBDIR)libgammaUPC.$(libext):
-###	cd ../../Source/PDF/gammaUPC; make
-###endif
 
 # Add source so that the compiler finds the DiscreteSampler module.
 $(MATRIX): %.o: %.f
-	$(FC) $(FFLAGS) $(MATRIX_FLAG) -c $< -I../../Source/ -I../../Source/PDF/gammaUPC
+	$(FC) $(MG_FCFLAGS) $(FCFLAGS) $(MATRIX_FLAG) -c $< -I../../Source/ -I../../Source/PDF/gammaUPC
 %.o: %.f
-	$(FC) $(FFLAGS) -c $< -I../../Source/ -I../../Source/PDF/gammaUPC
+	$(FC) $(MG_FCFLAGS) $(FCFLAGS) -I../../Source/ -I../../Source/PDF/gammaUPC -c $< -o $@
 %_cudacpp.o: %.f
-	$(FC) $(FFLAGS) -c -DMG5AMC_MEEXPORTER_CUDACPP $< -I../../Source/ $(OMPFLAGS) -o $@
+	$(FC) $(MG_FCFLAGS) $(FCFLAGS) -c -DMG5AMC_MEEXPORTER_CUDACPP $< -I../../Source/ $(OMPFLAGS) -o $@
 
 # Dependencies
 
@@ -248,12 +230,14 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
 initcluster.o: message.inc
 
 # Extra dependencies on discretesampler.mod
+../../Source/discretesampler.mod: ../../Source/DiscreteSampler.f
+	$(MAKE) -C ../../Source
 
-auto_dsig.o: .libs
-driver.o: .libs
-driver_cudacpp.o: .libs
-$(MATRIX): .libs
-genps.o: .libs
+auto_dsig.o: ../../Source/discretesampler.mod
+driver.o: ../../Source/discretesampler.mod
+driver_cudacpp.o: ../../Source/discretesampler.mod
+$(MATRIX): ../../Source/discretesampler.mod
+genps.o: ../../Source/discretesampler.mod
 
 # Cudacpp avxall targets
 
