@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        folder: [ epochX/cudacpp/ee_mumu.sa/SubProcesses/P1_Sigma_sm_epem_mupmum , epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum , epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum ]
+        folder: [ epochX/cudacpp/ee_mumu.sa/SubProcesses/P1_Sigma_sm_epem_mupmum , epochX/cudacpp/pp_tt012j.mad/SubProcesses/P0_gg_ttx , epochX/cudacpp/pp_tt012j.mad/SubProcesses/P2_uux_ttxgg  ]
       fail-fast: false
     steps:
     - uses: actions/checkout@v2
@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        folder: [ epochX/cudacpp/ee_mumu.sa/SubProcesses/P1_Sigma_sm_epem_mupmum , epochX/cudacpp/gg_ttgg.sa/SubProcesses/P1_Sigma_sm_gg_ttxgg ]
+        folder: [ epochX/cudacpp/ee_mumu.sa/SubProcesses/P1_Sigma_sm_epem_mupmum , epochX/cudacpp/gg_ttgg.sa/SubProcesses/P1_Sigma_sm_gg_ttxgg, epochX/cudacpp/pp_tt012j.mad/SubProcesses/P0_gg_ttx ]
         precision: [ d , f , m ]
       fail-fast: false
     steps:
@@ -57,7 +57,7 @@ jobs:
       REQUIRE_CUDA: 1
     strategy:
       matrix:
-        folder: [ epochX/cudacpp/ee_mumu.sa/SubProcesses/P1_Sigma_sm_epem_mupmum , epochX/cudacpp/gg_ttgg.sa/SubProcesses/P1_Sigma_sm_gg_ttxgg ]
+        folder: [ epochX/cudacpp/ee_mumu.sa/SubProcesses/P1_Sigma_sm_epem_mupmum , epochX/cudacpp/gg_ttgg.sa/SubProcesses/P1_Sigma_sm_gg_ttxgg , epochX/cudacpp/pp_tt012j.mad/SubProcesses/P0_gg_ttx , epochX/cudacpp/pp_tt012j.mad/SubProcesses/P2_uux_ttxgg ]
         precision: [ d , f , m ]
       fail-fast: false
     steps:
@@ -67,6 +67,6 @@ jobs:
     - name: make info
       run: make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} info
     - name: make
-      run: make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }}
-    - name: make check
-      run: make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} check
+      run: make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} cuda
+    - name: make gcheck
+      run: make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} gcheck
