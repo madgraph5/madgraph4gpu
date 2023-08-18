@@ -236,7 +236,7 @@ namespace mg5amcCpu
 #ifdef __CUDACC__
     if( ( m_nevt < s_gputhreadsmin ) || ( m_nevt % s_gputhreadsmin != 0 ) )
       throw std::runtime_error( "Bridge constructor: nevt should be a multiple of " + std::to_string( s_gputhreadsmin ) );
-    while( m_nevt != m_gpublocks * m_gputhreads )
+    while( m_nevt != static_cast<unsigned int>( m_gpublocks * m_gputhreads ) )
     {
       m_gputhreads /= 2;
       if( m_gputhreads < s_gputhreadsmin )
