@@ -729,23 +729,23 @@ endif
 # (Hack: add a fbridge.inc dependency to avxall, to ensure it is only copied once for all AVX modes)
 cppnone:
 	@echo
-	$(MAKE) USEBUILDDIR=1 AVX=none -f $(CUDACPP_MAKEFILE)
+	$(MAKE) USEBUILDDIR=1 AVX=none -f $(CUDACPP_MAKEFILE) $(cxx_main)
 
 cppsse4:
 	@echo
-	$(MAKE) USEBUILDDIR=1 AVX=sse4 -f $(CUDACPP_MAKEFILE)
+	$(MAKE) USEBUILDDIR=1 AVX=sse4 -f $(CUDACPP_MAKEFILE) $(cxx_main)
 
 cppavx2:
 	@echo
-	$(MAKE) USEBUILDDIR=1 AVX=avx2 -f $(CUDACPP_MAKEFILE)
+	$(MAKE) USEBUILDDIR=1 AVX=avx2 -f $(CUDACPP_MAKEFILE) $(cxx_main)
 
 cpp512y:
 	@echo
-	$(MAKE) USEBUILDDIR=1 AVX=512y -f $(CUDACPP_MAKEFILE)
+	$(MAKE) USEBUILDDIR=1 AVX=512y -f $(CUDACPP_MAKEFILE) $(cxx_main)
 
 cpp512z:
 	@echo
-	$(MAKE) USEBUILDDIR=1 AVX=512z -f $(CUDACPP_MAKEFILE)
+	$(MAKE) USEBUILDDIR=1 AVX=512z -f $(CUDACPP_MAKEFILE) $(cxx_main)
 
 ifeq ($(UNAME_P),ppc64le)
 ###avxall: $(INCDIR)/fbridge.inc avxnone avxsse4
