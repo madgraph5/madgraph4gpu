@@ -86,6 +86,12 @@ endif
 
 #-------------------------------------------------------------------------------
 
+# Target if user does not specify target
+usage:
+	$(error You must specify a target! 'cuda', 'cppnone', 'cppsse4', 'cppavx2', 'cpp512y', 'cpp512z' are the targets currently supported!)
+
+#-------------------------------------------------------------------------------
+
 #=== Configure the C++ compiler
 
 CXXFLAGS = $(OPTFLAGS) -std=c++17 $(INCFLAGS) -Wall -Wshadow -Wextra
@@ -719,35 +725,35 @@ endif
 # Target: build all targets in all AVX modes (each AVX mode in a separate build directory)
 # Split the avxall target into five separate targets to allow parallel 'make -j avxall' builds
 # (Hack: add a fbridge.inc dependency to avxall, to ensure it is only copied once for all AVX modes)
-avxnone:
+cppnone:
 	@echo
 	$(MAKE) USEBUILDDIR=1 AVX=none -f $(CUDACPP_MAKEFILE)
 
-avxsse4:
+cppsse4:
 	@echo
 	$(MAKE) USEBUILDDIR=1 AVX=sse4 -f $(CUDACPP_MAKEFILE)
 
-avxavx2:
+cppavx2:
 	@echo
 	$(MAKE) USEBUILDDIR=1 AVX=avx2 -f $(CUDACPP_MAKEFILE)
 
-avx512y:
+cpp512y:
 	@echo
 	$(MAKE) USEBUILDDIR=1 AVX=512y -f $(CUDACPP_MAKEFILE)
 
-avx512z:
+cpp512z:
 	@echo
 	$(MAKE) USEBUILDDIR=1 AVX=512z -f $(CUDACPP_MAKEFILE)
 
 ifeq ($(UNAME_P),ppc64le)
 ###avxall: $(INCDIR)/fbridge.inc avxnone avxsse4
-avxall: avxnone avxsse4
+cppall: cppnone cppsse4
 else ifeq ($(UNAME_P),arm)
 ###avxall: $(INCDIR)/fbridge.inc avxnone avxsse4
-avxall: avxnone avxsse4
+cppall: cppnone cppsse4
 else
 ###avxall: $(INCDIR)/fbridge.inc avxnone avxsse4 avxavx2 avx512y avx512z
-avxall: avxnone avxsse4 avxavx2 avx512y avx512z
+cppall: cppnone cppsse4 cppavx2 cpp512y cpp512z
 endif
 
 #
