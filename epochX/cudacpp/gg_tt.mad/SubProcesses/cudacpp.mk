@@ -86,6 +86,8 @@ endif
 
 #-------------------------------------------------------------------------------
 
+.DEFAULT_GOAL := usage
+
 # Target if user does not specify target
 usage:
 	$(error You must specify a target! 'cuda', 'cppnone', 'cppsse4', 'cppavx2', 'cpp512y', 'cpp512z' are the targets currently supported!)
