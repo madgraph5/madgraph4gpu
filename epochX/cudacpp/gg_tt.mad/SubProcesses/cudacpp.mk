@@ -728,24 +728,24 @@ endif
 # Split the avxall target into five separate targets to allow parallel 'make -j avxall' builds
 # (Hack: add a fbridge.inc dependency to avxall, to ensure it is only copied once for all AVX modes)
 cppnone:
-	@echo
-	$(MAKE) USEBUILDDIR=1 AVX=none -f $(CUDACPP_MAKEFILE) $(cxx_main)
+  CXXFLAGS += -march=x86-64
+	$(cxx_main)
 
 cppsse4:
-	@echo
-	$(MAKE) USEBUILDDIR=1 AVX=sse4 -f $(CUDACPP_MAKEFILE) $(cxx_main)
+  CXXFLAGS += -march=nehalem
+	$(cxx_main)
 
 cppavx2:
-	@echo
-	$(MAKE) USEBUILDDIR=1 AVX=avx2 -f $(CUDACPP_MAKEFILE) $(cxx_main)
+  CXXFLAGS += -march=haswell
+	$(cxx_main)
 
 cpp512y:
-	@echo
-	$(MAKE) USEBUILDDIR=1 AVX=512y -f $(CUDACPP_MAKEFILE) $(cxx_main)
+  CXXFLAGS += -march=skylake-avx512 -mprefer-vector-width=256
+	$(cxx_main)
 
 cpp512z:
-	@echo
-	$(MAKE) USEBUILDDIR=1 AVX=512z -f $(CUDACPP_MAKEFILE) $(cxx_main)
+  CXXFLAGS += -march=skylake-avx512 -DMGONGPU_PVW512
+	$(cxx_main)
 
 ifeq ($(UNAME_P),ppc64le)
 ###avxall: $(INCDIR)/fbridge.inc avxnone avxsse4
