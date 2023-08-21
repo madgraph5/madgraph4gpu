@@ -691,12 +691,12 @@ cuda:
 
     # Generic target and build rules: objects from CUDA compilation
     $(BUILDDIR)/%.o : %.cu *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
-      @if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-      $(NVCC) $(CPPFLAGS) $(CUFLAGS) -Xcompiler -fPIC -c $< -o $@
+			@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
+			$(NVCC) $(CPPFLAGS) $(CUFLAGS) -Xcompiler -fPIC -c $< -o $@
 
     $(BUILDDIR)/%_cu.o : %.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
-      @if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-      $(NVCC) $(CPPFLAGS) $(CUFLAGS) -Xcompiler -fPIC -c -x cu $< -o $@
+			@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
+			$(NVCC) $(CPPFLAGS) $(CUFLAGS) -Xcompiler -fPIC -c -x cu $< -o $@
 
     $(BUILDDIR)/gCrossSectionKernels.o: CUFLAGS += -Xcompiler -fno-fast-math
     $(BUILDDIR)/gcheck_sa.o: CXXFLAGS += $(USE_NVTX) $(CUINC)
@@ -717,7 +717,7 @@ cuda:
     $(LIBDIR)/lib$(MG5AMC_CULIB).so: $(BUILDDIR)/fbridge_cu.o
     $(LIBDIR)/lib$(MG5AMC_CULIB).so: cu_objects_lib += $(BUILDDIR)/fbridge_cu.o
     $(LIBDIR)/lib$(MG5AMC_CULIB).so: $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cu_objects_lib)
-      $(NVCC) --shared -o $@ $(cu_objects_lib) $(CULIBFLAGSRPATH2) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
+			$(NVCC) --shared -o $@ $(cu_objects_lib) $(CULIBFLAGSRPATH2) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
 
     ifneq ($(shell $(CXX) --version | grep ^Intel),)
       $(cu_main): LIBFLAGS += -lintlc # compile with icpx and link with nvcc (undefined reference to `_intel_fast_memcpy')
@@ -727,7 +727,7 @@ cuda:
     endif
     $(cu_main): LIBFLAGS += $(CULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
     $(cu_main): $(BUILDDIR)/gcheck_sa.o $(LIBDIR)/lib$(MG5AMC_CULIB).so $(cu_objects_exe) $(BUILDDIR)/gCurandRandomNumberKernel.o
-      $(NVCC) -o $@ $(BUILDDIR)/gcheck_sa.o $(CUARCHFLAGS) $(LIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CULIB) $(cu_objects_exe) $(BUILDDIR)/gCurandRandomNumberKernel.o $(CURANDLIBFLAGS)
+			$(NVCC) -o $@ $(BUILDDIR)/gcheck_sa.o $(CUARCHFLAGS) $(LIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CULIB) $(cu_objects_exe) $(BUILDDIR)/gCurandRandomNumberKernel.o $(CURANDLIBFLAGS)
 
     ifneq ($(shell $(CXX) --version | grep ^Intel),)
       $(fcu_main): LIBFLAGS += -lintlc # compile with icpx and link with nvcc (undefined reference to `_intel_fast_memcpy')
@@ -738,7 +738,7 @@ cuda:
     endif
     $(fcu_main): LIBFLAGS += $(CULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
     $(fcu_main): $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler_cu.o $(LIBDIR)/lib$(MG5AMC_CULIB).so $(cu_objects_exe)
-      $(NVCC) -o $@ $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler_cu.o $(LIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_CULIB) $(cu_objects_exe)
+			$(NVCC) -o $@ $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler_cu.o $(LIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_CULIB) $(cu_objects_exe)
 
 	endif # ifneq ($(NVCC),)
 
