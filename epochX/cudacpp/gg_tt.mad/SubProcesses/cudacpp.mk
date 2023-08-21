@@ -750,6 +750,12 @@ else
 avxall: avxnone avxsse4 avxavx2 avx512y avx512z
 endif
 
+#
+#	CUDA Target
+#
+
+cuda: $(cu_main)
+
 #-------------------------------------------------------------------------------
 
 # Target: clean the builds
