@@ -261,6 +261,20 @@ ifeq ($(RNDGEN),)
   endif
 endif
 
+# set the correct AVX based on avxcpp target
+ifeq ($(MAKECMDGOALS),cppnone)
+  override AVX = none # no SIMD
+else ifeq ($(MAKECMDGOALS),cppsse4)
+  override AVX = sse4 # SSE4.2 with 128 width (xmm registers)
+else ifeq ($(MAKECMDGOALS),cppavx2)
+  override AVX = avx2 # AVX2 with 256 width (ymm registers) [DEFAULT for clang]
+else ifeq ($(MAKECMDGOALS),cpp512y)
+  override AVX = 512y # AVX512 with 256 width (ymm registers) [DEFAULT for gcc]
+else ifeq ($(MAKECMDGOALS),cpp512z)
+  override AVX = 512z # AVX512 with 512 width (zmm registers)
+else ifeq ($(MAKECMDGOALS),cuda)
+  override AVX = none # no SIMD
+
 # Export AVX, FPTYPE, HELINL, HRDCOD, RNDGEN, OMPFLAGS so that it is not necessary to pass them to the src Makefile too
 export AVX
 export FPTYPE
@@ -282,42 +296,44 @@ CXXFLAGS += $(OMPFLAGS)
 # [See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=96476]
 $(info AVX=$(AVX))
 ifeq ($(UNAME_P),ppc64le)
-  ifeq ($(MAKECMDGOALS),cppsse4)
+  ifeq ($(AVX),sse4)
     override AVXFLAGS = -D__SSE4_2__ # Power9 VSX with 128 width (VSR registers)
-  else ifneq ($(MAKECMDGOALS),cppnone)
+  else ifneq ($(AVX),none)
     $(error Unknown AVX='$(AVX)': only 'none' and 'sse4' are supported on PowerPC for the moment)
   endif
 else ifeq ($(UNAME_P),arm)
-  ifeq ($(MAKECMDGOALS),cppsse4)
+  ifeq ($(AVX),sse4)
     override AVXFLAGS = -D__SSE4_2__ # ARM NEON with 128 width (Q/quadword registers)
-  else ifneq ($(MAKECMDGOALS),cppnone)
+  else ifneq ($(AVX),none)
     $(error Unknown AVX='$(AVX)': only 'none' and 'sse4' are supported on ARM for the moment)
   endif
 else ifneq ($(shell $(CXX) --version | grep ^nvc++),) # support nvc++ #531
-  ifeq ($(MAKECMDGOALS),cppnone)
+  ifeq ($(AVX),none)
     override AVXFLAGS = -mno-sse3 # no SIMD
-  else ifeq ($(MAKECMDGOALS),cppsse4)
+  else ifeq ($(AVX),sse4)
     override AVXFLAGS = -mno-avx # SSE4.2 with 128 width (xmm registers)
-  else ifeq ($(MAKECMDGOALS),cppavx2)
+  else ifeq ($(AVX),avx2)
     override AVXFLAGS = -march=haswell # AVX2 with 256 width (ymm registers) [DEFAULT for clang]
-  else ifeq ($(MAKECMDGOALS),cpp512y)
+  else ifeq ($(AVX),512y)
     override AVXFLAGS = -march=skylake -mprefer-vector-width=256 # AVX512 with 256 width (ymm registers) [DEFAULT for gcc]
-  else ifeq ($(MAKECMDGOALS),cpp512z)
+  else ifeq ($(AVX),512z)
     override AVXFLAGS = -march=skylake -DMGONGPU_PVW512 # AVX512 with 512 width (zmm registers)
   else
     $(error Unknown AVX='$(AVX)': only 'none', 'sse4', 'avx2', '512y' and '512z' are supported)
   endif
 else
-  ifeq ($(MAKECMDGOALS),cppnone)
+  ifeq ($(AVX),none)
     override AVXFLAGS = -march=x86-64 # no SIMD (see #588)
-  else ifeq ($(MAKECMDGOALS),cppsse4)
+  else ifeq ($(AVX),sse4)
     override AVXFLAGS = -march=nehalem # SSE4.2 with 128 width (xmm registers)
-  else ifeq ($(MAKECMDGOALS),cppavx2)
+  else ifeq ($(AVX),avx2)
     override AVXFLAGS = -march=haswell # AVX2 with 256 width (ymm registers) [DEFAULT for clang]
-  else ifeq ($(MAKECMDGOALS),cpp512y)
+  else ifeq ($(AVX),512y)
     override AVXFLAGS = -march=skylake-avx512 -mprefer-vector-width=256 # AVX512 with 256 width (ymm registers) [DEFAULT for gcc]
-  else ifeq ($(MAKECMDGOALS),cpp512z)
+  else ifeq ($(AVX),512z)
     override AVXFLAGS = -march=skylake-avx512 -DMGONGPU_PVW512 # AVX512 with 512 width (zmm registers)
+  else
+    $(error Unknown AVX='$(AVX)': only 'none', 'sse4', 'avx2', '512y' and '512z' are supported)
   endif
 endif
 # For the moment, use AVXFLAGS everywhere: eventually, use them only in encapsulated implementations?
