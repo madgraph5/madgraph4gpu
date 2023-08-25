@@ -237,32 +237,6 @@ override OMPFLAGS = -fopenmp
 ###override OMPFLAGS = # disable OpenMP MT (default before #575)
 endif
 
-# Set the default AVX (vectorization) choice
-ifeq ($(AVX),)
-  ifeq ($(UNAME_P),ppc64le)
-    ###override AVX = none
-    override AVX = sse4
-  else ifeq ($(UNAME_P),arm)
-    ###override AVX = none
-    override AVX = sse4
-  else ifeq ($(wildcard /proc/cpuinfo),)
-    override AVX = none
-    $(warning Using AVX='$(AVX)' because host SIMD features cannot be read from /proc/cpuinfo)
-  else ifeq ($(shell grep -m1 -c avx512vl /proc/cpuinfo)$(shell $(CXX) --version | grep ^clang),1)
-    override AVX = 512y
-    ###$(info Using AVX='$(AVX)' as no user input exists)
-  else
-    override AVX = avx2
-    ifneq ($(shell grep -m1 -c avx512vl /proc/cpuinfo),1)
-      $(warning Using AVX='$(AVX)' because host does not support avx512vl)
-    else
-      $(warning Using AVX='$(AVX)' because this is faster than avx512vl for clang)
-    endif
-  endif
-else
-  ###$(info Using AVX='$(AVX)' according to user input)
-endif
-
 # Set the default FPTYPE (floating point type) choice
 ifeq ($(FPTYPE),)
   override FPTYPE = d
