@@ -262,16 +262,16 @@ ifeq ($(RNDGEN),)
 endif
 
 # set the correct AVX based on avxcpp target
-ifeq ($(MAKECMDGOALS),cppnone)
-  override AVX = none # no SIMD
-else ifeq ($(MAKECMDGOALS),cppsse4)
-  override AVX = sse4 # SSE4.2 with 128 width (xmm registers)
-else ifeq ($(MAKECMDGOALS),cppavx2)
-  override AVX = avx2 # AVX2 with 256 width (ymm registers) [DEFAULT for clang]
-else ifeq ($(MAKECMDGOALS),cpp512y)
-  override AVX = 512y # AVX512 with 256 width (ymm registers) [DEFAULT for gcc]
-else ifeq ($(MAKECMDGOALS),cpp512z)
-  override AVX = 512z # AVX512 with 512 width (zmm registers)
+ifeq ($(MAKECMDGOALS),cppnone) # no SIMD
+  override AVX = none
+else ifeq ($(MAKECMDGOALS),cppsse4) # SSE4.2 with 128 width (xmm registers)
+  override AVX = sse4
+else ifeq ($(MAKECMDGOALS),cppavx2) # AVX2 with 256 width (ymm registers) [DEFAULT for clang]
+  override AVX = avx2
+else ifeq ($(MAKECMDGOALS),cpp512y) # AVX512 with 256 width (ymm registers) [DEFAULT for gcc]
+  override AVX = 512y
+else ifeq ($(MAKECMDGOALS),cpp512z) # AVX512 with 512 width (zmm registers)
+  override AVX = 512z
 endif
 
 # Export AVX, FPTYPE, HELINL, HRDCOD, RNDGEN, OMPFLAGS so that it is not necessary to pass them to the src Makefile too
