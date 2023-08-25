@@ -293,7 +293,7 @@ CXXFLAGS += $(OMPFLAGS)
 # Set the build flags appropriate to each AVX choice (example: "make AVX=none")
 # [NB MGONGPU_PVW512 is needed because "-mprefer-vector-width=256" is not exposed in a macro]
 # [See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=96476]
-ifeq ($(filter cppnone cppsse4 cppavx2 cpp512y cpp512z,$(MAKECMDGOALS)),$(MAKECMDGOALS))
+ifeq ($(findstring cpp,$(MAKECMDGOALS)),cpp)
   $(info AVX=$(AVX))
   ifeq ($(UNAME_P),ppc64le)
     ifeq ($(AVX),sse4)
