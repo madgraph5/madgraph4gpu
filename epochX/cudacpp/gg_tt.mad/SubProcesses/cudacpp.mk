@@ -769,9 +769,10 @@ endif
 
 cleanall:
 	@echo
-	$(MAKE) USEBUILDDIR=0 clean -f $(CUDACPP_MAKEFILE)
+	rm -f $(BUILDDIR)/.build.* $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
+	rm -f $(LIBDIR)/lib$(MG5AMC_CXXLIB).so $(LIBDIR)/lib$(MG5AMC_CULIB).so
 	@echo
-	$(MAKE) USEBUILDDIR=0 -C ../../src cleanall -f $(CUDACPP_SRC_MAKEFILE)
+	$(MAKE) -C ../../src cleanall -f $(CUDACPP_SRC_MAKEFILE)
 	rm -rf build.*
 
 # Target: clean the builds as well as the gtest installation(s)

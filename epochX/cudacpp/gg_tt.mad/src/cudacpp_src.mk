@@ -296,7 +296,8 @@ endif
 
 cleanall:
 	@echo
-	$(MAKE) clean -f $(THISMK)
+	rm -f $(LIBDIR)/.build.* $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so
+	rm -f $(BUILDDIR)/.build.* $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
 	@echo
 	rm -rf $(LIBDIR)/build.*
 	rm -rf build.*
