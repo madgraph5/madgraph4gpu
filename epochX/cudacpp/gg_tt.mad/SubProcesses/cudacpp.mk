@@ -755,7 +755,11 @@ cuda: $(cu_main)
 
 clean:
 ifeq ($(USEBUILDDIR),1)
-	rm -rf $(BUILDDIR)
+  ifeq ($(shell test $$(words $$(wildcard build.*)) -gt 1; echo $$?), 0)
+    $(error Multiple BUILDDIR's found! Use 'cleannone', 'cleansse4', 'cleanavx2', 'clean512y','clean512z', 'cleancuda' or 'cleanall'.)
+  else
+    rm -rf build.*
+  endif
 else
 	rm -f $(BUILDDIR)/.build.* $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
 	rm -f $(LIBDIR)/lib$(MG5AMC_CXXLIB).so $(LIBDIR)/lib$(MG5AMC_CULIB).so
@@ -776,6 +780,27 @@ ifneq ($(wildcard $(TESTDIRCOMMON)),)
 	$(MAKE) -C $(TESTDIRCOMMON) clean
 endif
 	$(MAKE) -C $(TESTDIRLOCAL) clean
+
+# Target: clean different builds
+cleannone:
+  rm -rf build.none_*
+  $(MAKE) -C ../../src cleannone -f $(CUDACPP_SRC_MAKEFILE)
+
+cleansse4:
+  rm -rf build.sse4_*
+  $(MAKE) -C ../../src cleansse4 -f $(CUDACPP_SRC_MAKEFILE)
+
+cleanavx2:
+  rm -rf build.avx2_*
+  $(MAKE) -C ../../src cleanavx2 -f $(CUDACPP_SRC_MAKEFILE)
+
+clean512y:
+  rm -rf build.512y_*
+  $(MAKE) -C ../../src clean512y -f $(CUDACPP_SRC_MAKEFILE)
+
+clean512z:
+  rm -rf build.512z_*
+  $(MAKE) -C ../../src clean512z -f $(CUDACPP_SRC_MAKEFILE)
 
 #-------------------------------------------------------------------------------
 
