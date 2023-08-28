@@ -272,6 +272,8 @@ else ifeq ($(MAKECMDGOALS),cpp512y) # AVX512 with 256 width (ymm registers) [DEF
   override AVX = 512y
 else ifeq ($(MAKECMDGOALS),cpp512z) # AVX512 with 512 width (zmm registers)
   override AVX = 512z
+else
+  override AVX = none
 endif
 
 # Export AVX, FPTYPE, HELINL, HRDCOD, RNDGEN, OMPFLAGS so that it is not necessary to pass them to the src Makefile too
