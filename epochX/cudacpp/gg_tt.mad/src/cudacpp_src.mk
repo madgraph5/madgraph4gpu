@@ -283,7 +283,7 @@ endif
 
 clean:
 ifeq ($(USEBUILDDIR),1)
-  BUILD_DIRS := $(wildcard build.*)
+	BUILD_DIRS := $(wildcard build.*)
 	NUM_BUILD_DIRS := $(words $(BUILD_DIRS))
 
 	ifeq ($(NUM_BUILD_DIRS),1)
