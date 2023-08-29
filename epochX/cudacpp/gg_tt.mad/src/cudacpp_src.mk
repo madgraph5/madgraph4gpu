@@ -283,12 +283,16 @@ endif
 
 clean:
 ifeq ($(USEBUILDDIR),1)
-  ifeq ($(shell test $$(words $$(wildcard build.*)) -gt 1; echo $$?), 0)
-    $(error Multiple BUILDDIR's found! Use 'cleannone', 'cleansse4', 'cleanavx2', 'clean512y','clean512z', 'cleancuda' or 'cleanall'.)
-  else
-    rm -rf $(LIBDIR)/build.*
+  BUILD_DIRS := $(wildcard build.*)
+	NUM_BUILD_DIRS := $(words $(BUILD_DIRS))
+
+	ifeq ($(NUM_BUILD_DIRS),1)
+		$(info Only one build directory found.)
+		rm -rf $(LIBDIR)/build.*
 		rm -rf build.*
-  endif
+	else
+			$(error Multiple BUILDDIR's found! Use 'cleannone', 'cleansse4', 'cleanavx2', 'clean512y','clean512z', 'cleancuda' or 'cleanall'.)
+	endif
 else
 	rm -f $(LIBDIR)/.build.* $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so
 	rm -f $(BUILDDIR)/.build.* $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
