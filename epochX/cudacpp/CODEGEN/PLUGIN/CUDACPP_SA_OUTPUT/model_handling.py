@@ -1001,6 +1001,12 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         logger.info('Created file %s in directory %s' \
                     % (os.path.split(model_h_file)[-1], os.path.split(model_h_file)[0] ) )
 
+    def prepare_couplings(self, wanted_couplings = []):
+        super().prepare_couplings(wanted_couplings)
+        # the two lines below fix #748, i.e. they re-order the dictionary keys following the order in wanted_couplings
+        ordered_dict = [(k, self.coups_dep[k]) for k in wanted_couplings]
+        self.coups_dep = dict((x, y) for x, y in ordered_dict)
+
 #------------------------------------------------------------------------------------
 
 import madgraph.iolibs.files as files
