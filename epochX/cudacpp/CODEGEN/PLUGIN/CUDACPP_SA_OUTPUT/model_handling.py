@@ -1306,9 +1306,10 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             misc.sprint('self.include_multi_channel is already defined: this is madevent+second_exporter mode') # FIXME? use self.in_madevent_mode instead?
         else:
             misc.sprint('self.include_multi_channel is not yet defined: this is standalone_cudacpp mode') # see issue #473
-        if self.matrix_elements[0].get('has_mirror_process'):
-            self.matrix_elements[0].set('has_mirror_process', False)
-            self.nprocesses/=2
+            # I move those line to standalone_cudacpp mode (but do we need those at all???)
+            if self.matrix_elements[0].get('has_mirror_process'):
+                self.matrix_elements[0].set('has_mirror_process', False)
+                self.nprocesses/=2
         super(PLUGIN_export_cpp.OneProcessExporterGPU, self).generate_process_files()
         self.edit_CMakeLists()
         self.edit_check_sa()
