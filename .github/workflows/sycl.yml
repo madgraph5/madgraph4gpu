@@ -1,0 +1,49 @@
+name: SYCL CI
+
+on:
+  push:
+    branches: [ master ]
+    paths:
+      - 'epochX/sycl/**'
+  pull_request:
+    branches: [ master ]
+    paths:
+      - 'epochX/sycl/**'
+
+jobs:
+  GPU:
+    runs-on: [self-hosted, linux, a100]
+    env:
+      FC: gfortran
+      REQUIRE_CUDA: 1
+      SYCLFLAGS: -fsycl -fsycl-targets=nvptx64-nvidia-cuda -Xsycl-target-backend --cuda-gpu-arch=sm_80 -Xclang -fdenormal-fp-math=ieee
+      ENABLE_CI_PROFILER: 1
+    strategy:
+      matrix:
+        folder: [ epochX/sycl/ee_mumu.sa/SubProcesses/P1_Sigma_sm_epem_mupmum,
+                  epochX/sycl/gg_tt.sa/SubProcesses/P1_Sigma_sm_gg_ttx,
+                  epochX/sycl/gg_ttg.sa/SubProcesses/P1_Sigma_sm_gg_ttxg,
+                  epochX/sycl/gg_ttgg.sa/SubProcesses/P1_Sigma_sm_gg_ttxgg,
+                  epochX/sycl/gg_ttggg.sa/SubProcesses/P1_Sigma_sm_gg_ttxggg ]
+        precision: [ d , f ]
+      fail-fast: false
+    steps:
+    - uses: actions/checkout@v2
+    - name: make info
+      run: source /cvmfs/sft.cern.ch/lcg/releases/gcc/11.3.0-ad0f5/x86_64-centos8/setup.sh;
+           source /cvmfs/projects.cern.ch/intelsw/oneAPI/linux/x86_64/2023/setvars.sh --include-intel-llvm;
+           CXX=/cvmfs/projects.cern.ch/intelsw/oneAPI/linux/x86_64/2023/compiler/2023.0.0/linux/bin-llvm/clang++;
+           LD_LIBRARY_PATH=${{ github.workspace }}/${{ matrix.folder }}/../../lib:$LD_LIBRARY_PATH;
+           make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} info
+    - name: make
+      run: source /cvmfs/sft.cern.ch/lcg/releases/gcc/11.3.0-ad0f5/x86_64-centos8/setup.sh;
+           source /cvmfs/projects.cern.ch/intelsw/oneAPI/linux/x86_64/2023/setvars.sh --include-intel-llvm;
+           CXX=/cvmfs/projects.cern.ch/intelsw/oneAPI/linux/x86_64/2023/compiler/2023.0.0/linux/bin-llvm/clang++;
+           LD_LIBRARY_PATH=${{ github.workspace }}/${{ matrix.folder }}/../../lib:$LD_LIBRARY_PATH;
+           make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }}
+    - name: make check
+      run: source /cvmfs/sft.cern.ch/lcg/releases/gcc/11.3.0-ad0f5/x86_64-centos8/setup.sh;
+           source /cvmfs/projects.cern.ch/intelsw/oneAPI/linux/x86_64/2023/setvars.sh --include-intel-llvm;
+           CXX=/cvmfs/projects.cern.ch/intelsw/oneAPI/linux/x86_64/2023/compiler/2023.0.0/linux/bin-llvm/clang++;
+           LD_LIBRARY_PATH=${{ github.workspace }}/${{ matrix.folder }}/../../lib:$LD_LIBRARY_PATH;
+           make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} check

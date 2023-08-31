@@ -175,7 +175,7 @@ INFO: Generating Helas calls for process: g g > t t~ g g g WEIGHTED<=5 @1
 INFO: Processing color information for process: g g > t t~ g g g @1 
 INFO: Creating files in directory P1_gg_ttxggg 
 INFO: Computing Color-Flow optimization [15120 term] 
-INFO: Color-Flow passed to 1592 term in 30s. Introduce 2768 contraction 
+INFO: Color-Flow passed to 1592 term in 21s. Introduce 2768 contraction 
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.__init__ [1;30m[model_handling.py at line 1039][0m [0m
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1040][0m [0m
 [1;32mDEBUG:  proc_id = [0m 1 [1;30m[model_handling.py at line 1046][0m [0m

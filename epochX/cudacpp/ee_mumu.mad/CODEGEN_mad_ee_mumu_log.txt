@@ -154,7 +154,7 @@ INFO: Checking for minimal orders which gives processes.
 INFO: Please specify coupling orders to bypass this step. 
 INFO: Trying process: e+ e- > mu+ mu- WEIGHTED<=4 @1  
 INFO: Process has 2 diagrams 
-1 processes with 2 diagrams generated in 0.004 s
+1 processes with 2 diagrams generated in 0.003 s
 Total: 1 processes with 2 diagrams
 output madevent ../TMPOUT/CODEGEN_mad_ee_mumu --hel_recycling=False --vector_size=16384 --me_exporter=standalone_cudacpp
 Load PLUGIN.CUDACPP_OUTPUT
@@ -210,7 +210,7 @@ INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./.
 INFO: Generating Feynman diagrams for Process: e+ e- > mu+ mu- WEIGHTED<=4 @1 
 INFO: Finding symmetric diagrams for subprocess group epem_mupmum 
 Generated helas calls for 1 subprocesses (2 diagrams) in 0.004 s
-Wrote files for 8 helas calls in 0.094 s
+Wrote files for 8 helas calls in 0.221 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFV2 routines[0m

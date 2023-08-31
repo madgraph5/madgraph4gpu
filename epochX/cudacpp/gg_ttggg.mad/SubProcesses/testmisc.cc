@@ -1,7 +1,7 @@
 // Copyright (C) 2020-2023 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: A. Valassi (Jan 2022) for the MG5aMC CUDACPP plugin.
-// Further modified by: A. Valassi (2022-2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: J. Teig, A. Valassi (2022-2023) for the MG5aMC CUDACPP plugin.
 //----------------------------------------------------------------------------
 // Use ./runTest.exe --gtest_filter=*misc to run only testmisc.cc tests
 //----------------------------------------------------------------------------
@@ -17,7 +17,7 @@
 #include <sstream>
 #include <typeinfo>
 
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 #define TESTID( s ) s##_GPU_MISC
 #else
 #define TESTID( s ) s##_CPU_MISC
@@ -26,7 +26,7 @@
 #define XTESTID( s ) TESTID( s )
 
 // NB: namespaces mg5amcGpu and mg5amcCpu includes types which are defined in different ways for CPU and GPU builds (see #318 and #725)
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
@@ -59,7 +59,7 @@ namespace mg5amcCpu
 
 TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testmisc )
 {
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
   using namespace mg5amcGpu;
 #else
   using namespace mg5amcCpu;

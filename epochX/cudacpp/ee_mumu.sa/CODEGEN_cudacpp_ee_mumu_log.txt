@@ -154,7 +154,7 @@ INFO: Checking for minimal orders which gives processes.
 INFO: Please specify coupling orders to bypass this step. 
 INFO: Trying process: e+ e- > mu+ mu- WEIGHTED<=4 @1  
 INFO: Process has 2 diagrams 
-1 processes with 2 diagrams generated in 0.004 s
+1 processes with 2 diagrams generated in 0.003 s
 Total: 1 processes with 2 diagrams
 output standalone_cudacpp ../TMPOUT/CODEGEN_cudacpp_ee_mumu
 Load PLUGIN.CUDACPP_OUTPUT

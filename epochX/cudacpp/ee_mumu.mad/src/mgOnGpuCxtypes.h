@@ -1,7 +1,7 @@
 // Copyright (C) 2020-2023 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: A. Valassi (Jan 2022, based on earlier work by D. Smith) for the MG5aMC CUDACPP plugin.
-// Further modified by: A. Valassi (2022-2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: J. Teig, A. Valassi (2022-2023) for the MG5aMC CUDACPP plugin.
 
 #ifndef MGONGPUCXTYPES_H
 #define MGONGPUCXTYPES_H 1
@@ -19,7 +19,7 @@
 #include <complex>
 
 // Complex type in cuda: thrust or cucomplex or cxsmpl
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 #if defined MGONGPU_CUCXTYPE_THRUST
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wtautological-compare" // for icpx2021/clang13 (https://stackoverflow.com/a/15864661)
@@ -82,7 +82,7 @@ namespace mgOnGpu /* clang-format off */
 using mgOnGpu::cxsmpl;
 
 // Printout to stream for user defined types
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
@@ -92,7 +92,7 @@ namespace mg5amcCpu
   inline __host__ std::ostream&
   operator<<( std::ostream& out, const cxsmpl<FP>& c )
   {
-    out << std::complex( c.real(), c.imag() );
+    out << std::complex<FP>( c.real(), c.imag() );
     return out;
   }
 
@@ -209,14 +209,14 @@ namespace mg5amcCpu
 //==========================================================================
 
 // NB: namespaces mg5amcGpu and mg5amcCpu includes types which are defined in different ways for CPU and GPU builds (see #318 and #725)
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
 #endif
 {
   // --- Type definitions (complex type: cxtype)
-#ifdef __CUDACC__ // cuda
+#ifdef MGONGPUCPP_GPUIMPL // cuda
 #if defined MGONGPU_CUCXTYPE_THRUST
   typedef thrust::complex<fptype> cxtype;
 #elif defined MGONGPU_CUCXTYPE_CUCOMPLEX
@@ -249,7 +249,7 @@ namespace mg5amcCpu
 //==========================================================================
 
 // NB: namespaces mg5amcGpu and mg5amcCpu includes types which are defined in different ways for CPU and GPU builds (see #318 and #725)
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
@@ -301,7 +301,7 @@ namespace mg5amcCpu
 
   //==========================================================================
 
-#if defined __CUDACC__ and defined MGONGPU_CUCXTYPE_THRUST // cuda + thrust
+#if defined MGONGPUCPP_GPUIMPL and defined MGONGPU_CUCXTYPE_THRUST // cuda + thrust
 
   //------------------------------
   // CUDA - using thrust::complex
@@ -337,11 +337,11 @@ namespace mg5amcCpu
     return c;
   }
 
-#endif // #if defined __CUDACC__ and defined MGONGPU_CUCXTYPE_THRUST
+#endif // #if defined MGONGPUCPP_GPUIMPL and defined MGONGPU_CUCXTYPE_THRUST
 
   //==========================================================================
 
-#if defined __CUDACC__ and defined MGONGPU_CUCXTYPE_CUCOMPLEX // cuda + cucomplex
+#if defined MGONGPUCPP_GPUIMPL and defined MGONGPU_CUCXTYPE_CUCOMPLEX // cuda + cucomplex
 
   //------------------------------
   // CUDA - using cuComplex
@@ -556,11 +556,11 @@ namespace mg5amcCpu
     return cxmake( c.real(), c.imag() );
   }
 
-#endif // #if defined __CUDACC__ and defined MGONGPU_CUCXTYPE_CUCOMPLEX
+#endif // #if defined MGONGPUCPP_GPUIMPL and defined MGONGPU_CUCXTYPE_CUCOMPLEX
 
   //==========================================================================
 
-#if not defined __CUDACC__ and defined MGONGPU_CPPCXTYPE_STDCOMPLEX // c++ + stdcomplex
+#if not defined MGONGPUCPP_GPUIMPL and defined MGONGPU_CPPCXTYPE_STDCOMPLEX // c++ + stdcomplex
 
   //------------------------------
   // C++ - using std::complex
@@ -604,7 +604,7 @@ namespace mg5amcCpu
   }
 #endif
 
-#endif // #if not defined __CUDACC__ and defined MGONGPU_CPPCXTYPE_STDCOMPLEX
+#endif // #if not defined MGONGPUCPP_GPUIMPL and defined MGONGPU_CPPCXTYPE_STDCOMPLEX
 
   //==========================================================================
 
@@ -627,7 +627,7 @@ namespace mg5amcCpu
 //==========================================================================
 
 // NB: namespaces mg5amcGpu and mg5amcCpu includes types which are defined in different ways for CPU and GPU builds (see #318 and #725)
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
