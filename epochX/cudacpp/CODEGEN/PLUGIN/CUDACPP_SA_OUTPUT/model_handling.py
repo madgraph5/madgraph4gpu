@@ -1146,6 +1146,13 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         replace_dict = super().get_sigmaKin_lines(color_amplitudes, write=False)
         replace_dict['proc_id'] = self.proc_id if self.proc_id>0 else 1
         replace_dict['proc_id_source'] = 'madevent + cudacpp exporter' if self.proc_id>0 else 'standalone_cudacpp' # FIXME? use self.in_madevent_mode instead?
+
+        # Extract denominator (avoid to extend size for mirroring)
+        den_factors = [str(me.get_denominator_factor()) for me in \
+                            self.matrix_elements]
+        replace_dict['den_factors'] = ",".join(den_factors)
+        misc.sprint(replace_dict['den_factors'])
+
         if write:
             file = self.read_template_file(self.process_sigmaKin_function_template) % replace_dict
             file = '\n'.join( file.split('\n')[8:] ) # skip first 8 lines in process_sigmaKin_function.inc (copyright)
