@@ -21,7 +21,7 @@ class CPPMEInterface(madevent_interface.MadEventCmdShell):
             self.options['nb_core'] = multiprocessing.cpu_count()
     
         if args and args[0][0] == 'madevent' and hasattr(self, 'run_card'):
-            cudacpp_backend = self.run_card['cudacpp_backend'] # the default value is defined in banner.py
+            cudacpp_backend = self.run_card['cudacpp_backend'].upper() # the default value is defined in banner.py
             logger.info("Building madevent in madevent_interface.py with '%s' matrix elements"%cudacpp_backend)
             if cudacpp_backend == 'FORTRAN':
                 args[0][0] = 'madevent_fortran_link'

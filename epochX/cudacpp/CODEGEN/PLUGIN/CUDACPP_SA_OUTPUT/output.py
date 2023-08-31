@@ -254,6 +254,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
         plugin_path = os.path.dirname(os.path.realpath( __file__ ))
         files.cp(pjoin(plugin_path, 'plugin_interface.py'), pjoin(self.dir_path, 'bin', 'internal'))
         files.cp(pjoin(plugin_path, 'launch_plugin.py'), pjoin(self.dir_path, 'bin', 'internal'))
+        files.ln( pjoin(self.dir_path, 'lib'),  pjoin(self.dir_path, 'SubProcesses'))
 
 
 #------------------------------------------------------------------------------------
