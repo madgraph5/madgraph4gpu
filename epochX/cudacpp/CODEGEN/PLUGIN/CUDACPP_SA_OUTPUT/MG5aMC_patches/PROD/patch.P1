@@ -344,19 +344,3 @@ index 3ac962688..ef18aff22 100644
        END
  
  
-@@ -381,6 +396,7 @@ C     1 T(2,1,3,4)
- C     ----------
- C     BEGIN CODE
- C     ----------
-+      call counters_matrix1_start()
-       IF (FIRST) THEN
-         FIRST=.FALSE.
-         IF(ZERO.NE.0D0) FK_ZERO = SIGN(MAX(ABS(ZERO), ABS(ZERO
-@@ -454,6 +470,7 @@ C     JAMPs contributing to orders ALL_ORDERS=1
-         ENDDO
-       ENDDO
- 
-+      call counters_matrix1_stop()
-       END
- 
-       SUBROUTINE PRINT_ZERO_AMP_1()
