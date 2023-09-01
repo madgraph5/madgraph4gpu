@@ -36,8 +36,6 @@ extern "C"
 
   static mgOnGpu::Timer<TIMERTYPE> program_timer;
   static float program_totaltime = 0;
-  static mgOnGpu::Timer<TIMERTYPE> matrix1_timer;
-  static float matrix1_totaltime = 0;
   static mgOnGpu::Timer<TIMERTYPE> smatrix1_timer;
   static float smatrix1_totaltime = 0;
   static mgOnGpu::Timer<TIMERTYPE> smatrix1multi_timer[nimplC];
@@ -49,19 +47,6 @@ extern "C"
   void counters_initialise_()
   {
     program_timer.Start();
-    return;
-  }
-
-  void counters_matrix1_start_()
-  {
-    matrix1_counter++;
-    matrix1_timer.Start();
-    return;
-  }
-
-  void counters_matrix1_stop_()
-  {
-    matrix1_totaltime += matrix1_timer.GetDuration();
     return;
   }
 
