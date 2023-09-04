@@ -259,21 +259,33 @@ cuda:
 
 # Clean (NB: 'make clean' in Source calls 'make clean' in all P*)
 
-clean: # Clean builds: fortran in this Pn; cudacpp executables for one AVX in this Pn
-	$(RM) *.o gensym $(PROG) $(PROG)_fortran $(PROG)_forhel $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(CUDACPP_BUILDDIR)/$(PROG)_cuda
+clean: # Clean builds: fortran in this Pn; cpp executables for one AVX in this Pn
+	$(RM) *.o gensym $(PROG) $(PROG)_fortran $(PROG)_forhel build.none_*/$(PROG)_cpp
 
-clean: # Clean builds: fortran in this Pn; cudacpp executables for one AVX in this Pn
-	$(RM) *.o gensym $(PROG) $(PROG)_fortran $(PROG)_forhel $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(CUDACPP_BUILDDIR)/$(PROG)_cuda
+cleansse4: # Clean build: fortran in this Pn; cpp executables for cppsse4 in this Pn
+	$(RM) *.o gensym $(PROG) $(PROG)_fortran $(PROG)_forhel build.sse4_*/$(PROG)_cpp
+
+cleanavx2: # Clean build: fortran in this Pn; cpp executables for cppavx2 in this Pn
+	$(RM) *.o gensym $(PROG) $(PROG)_fortran $(PROG)_forhel build.avx2_*/$(PROG)_cpp
+
+clean512y: # Clean build: fortran in this Pn; cpp executables for cpp512y in this Pn
+	$(RM) *.o gensym $(PROG) $(PROG)_fortran $(PROG)_forhel build.512y_*/$(PROG)_cpp
+
+clean512z: # Clean build: fortran in this Pn; cpp executables for cpp512z in this Pn
+	$(RM) *.o gensym $(PROG) $(PROG)_fortran $(PROG)_forhel build.512z_*/$(PROG)_cpp
+
+cleancuda: # Clean build: fortran in this Pn; cuda executables in this Pn
+	$(RM) *.o gensym $(PROG) $(PROG)_fortran $(PROG)_forhel build.cuda_*/$(PROG)_cuda
 
 cleancpp: clean # Clean builds: fortran in this Pn; cudacpp for all AVX in this Pn and in src
 	$(MAKE) -f $(CUDACPP_MAKEFILE) cleanall
-	rm -f $(CUDACPP_BUILDDIR)/.cudacpplibs
-	rm -f .libs
+	$(RM) $(CUDACPP_BUILDDIR)/.cudacpplibs
+	$(RM) .libs
 
 cleanall: # Clean builds: fortran in all P* and in Source; cudacpp for all AVX in all P* and in src
 	make -C ../../Source cleanall
 	rm -rf $(LIBDIR)libbias.$(libext)
-	rm -f ../../Source/*.mod ../../Source/*/*.mod
+	$(RM) ../../Source/*.mod ../../Source/*/*.mod
 
 distclean: cleanall # Clean all fortran and cudacpp builds as well as the googletest installation
 	$(MAKE) -f $(CUDACPP_MAKEFILE) distclean
