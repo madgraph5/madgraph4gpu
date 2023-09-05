@@ -13,9 +13,15 @@ CXXFLAGS = -O3 -Wall -Wshadow -Wextra
 
 .DEFAULT_GOAL := usage
 
+ifndef $(MAKECMDGOAL)
+	TARGET := undefined
+else
+	TARGET := $(MAKECMDGOAL)
+endif
+
 # Target if user does not specify target
 usage:
-	$(error Unknown target='$(MAKECMDGOALS)': only 'cppnone', 'cppsse4', 'cppavx2', 'cpp512y', 'cpp512z' and 'cuda' are supported!)
+	$(error Unknown target='$(TARGET)': only 'cppnone', 'cppsse4', 'cppavx2', 'cpp512y', 'cpp512z' and 'cuda' are supported!)
 
 # Enable ccache if USECCACHE=1
 ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
@@ -59,7 +65,7 @@ CUDACPP_MAKEFILE=cudacpp.mk
 CUDACPP_MAKEENV:=$(shell echo '$(.VARIABLES)' | tr " " "\n" | egrep "(USEBUILDDIR|FPTYPE|HELINL|HRDCOD)")
 ###$(info CUDACPP_MAKEENV=$(CUDACPP_MAKEENV))
 ###$(info $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))"))
-CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn $(MAKECMDGOALS) |& awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
+CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn $(TARGET) |& awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
 ifeq ($(CUDACPP_BUILDDIR),)
 $(error CUDACPP_BUILDDIR='$(CUDACPP_BUILDDIR)' should not be empty!)
 else
@@ -123,8 +129,8 @@ $(LIBS): .libs
 	cd ../../Source; make
 	touch $@
 
-$(CUDACPP_BUILDDIR)/.$(MAKECMDGOALS)libs:
-	$(MAKE) -f $(CUDACPP_MAKEFILE) $(MAKECMDGOALS)
+$(CUDACPP_BUILDDIR)/.$(TARGET)libs:
+	$(MAKE) -f $(CUDACPP_MAKEFILE) $(TARGET)
 	touch $@
 
 # On Linux, set rpath to LIBDIR to make it unnecessary to use LD_LIBRARY_PATH
@@ -284,7 +290,7 @@ cleancpp: clean # Clean builds: fortran in this Pn; cudacpp for all AVX in this 
 
 cleanall: # Clean builds: fortran in all P* and in Source; cudacpp for all AVX in all P* and in src
 	make -C ../../Source cleanall
-	rm -rf $(LIBDIR)libbias.$(libext)
+	$(RM) -r $(LIBDIR)libbias.$(libext)
 	$(RM) ../../Source/*.mod ../../Source/*/*.mod
 
 distclean: cleanall # Clean all fortran and cudacpp builds as well as the googletest installation
