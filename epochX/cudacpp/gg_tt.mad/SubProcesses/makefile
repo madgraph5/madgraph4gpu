@@ -239,27 +239,16 @@ endif
 ALL: cppnone cppsse4 cppavx2 cpp512y cpp512z cuda
 
 cppnone: $(PROG)_fortran $(DSIG_cudacpp)
-	@echo
-	$(MAKE) USEBUILDDIR=1 cppnone
 
 cppsse4: $(PROG)_fortran $(DSIG_cudacpp)
-	@echo
-	$(MAKE) USEBUILDDIR=1 cppsse4
 
 cppavx2: $(PROG)_fortran $(DSIG_cudacpp)
-	@echo
-	$(MAKE) USEBUILDDIR=1 cppavx2
 
 cpp512y: $(PROG)_fortran $(DSIG_cudacpp)
-	@echo
-	$(MAKE) USEBUILDDIR=1 cpp512y
 
 cpp512z: $(PROG)_fortran $(DSIG_cudacpp)
-	@echo
-	$(MAKE) USEBUILDDIR=1 cpp512z
 
-cuda:
-	$(CUDACPP_BUILDDIR)/$(PROG)_cuda
+cuda: $(CUDACPP_BUILDDIR)/$(PROG)_cuda
 
 ###endif
 
