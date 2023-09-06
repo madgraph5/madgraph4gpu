@@ -329,7 +329,7 @@ clean512z:
 	rm -rf build.512z_*
 
 cleancuda:
-  rm -rf $(LIBDIR)/build.cuda_*
+	rm -rf $(LIBDIR)/build.cuda_*
 	rm -rf build.cuda_*
 
 #-------------------------------------------------------------------------------
