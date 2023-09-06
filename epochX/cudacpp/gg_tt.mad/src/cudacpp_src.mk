@@ -281,11 +281,11 @@ endif
 # Target: clean the builds
 .PHONY: clean
 
+BUILD_DIRS := $(wildcard build.*)
+NUM_BUILD_DIRS := $(words $(BUILD_DIRS))
+
 clean:
 ifeq ($(USEBUILDDIR),1)
-	BUILD_DIRS := $(wildcard build.*)
-	NUM_BUILD_DIRS := $(words $(BUILD_DIRS))
-
 	ifeq ($(NUM_BUILD_DIRS),1)
 		$(info Only one build directory found.)
 		rm -rf $(LIBDIR)/build.*
@@ -327,5 +327,9 @@ clean512y:
 clean512z:
 	rm -rf $(LIBDIR)/build.512z_*
 	rm -rf build.512z_*
+
+cleancuda:
+  rm -rf $(LIBDIR)/build.cuda_*
+	rm -rf build.cuda_*
 
 #-------------------------------------------------------------------------------

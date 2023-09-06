@@ -753,11 +753,11 @@ cuda: $(cu_main)
 # Target: clean the builds
 .PHONY: clean
 
+BUILD_DIRS := $(wildcard build.*)
+NUM_BUILD_DIRS := $(words $(BUILD_DIRS))
+
 clean:
 ifeq ($(USEBUILDDIR),1)
-	BUILD_DIRS := $(wildcard build.*)
-	NUM_BUILD_DIRS := $(words $(BUILD_DIRS))
-
 	ifeq ($(NUM_BUILD_DIRS),1)
 		$(info Only one build directory found.)
 		rm -rf build.*
@@ -806,6 +806,10 @@ clean512y:
 clean512z:
 	rm -rf build.512z_*
 	$(MAKE) -C ../../src clean512z -f $(CUDACPP_SRC_MAKEFILE)
+
+cleancuda:
+	rm -rf build.cuda_*
+	$(MAKE) -C ../../src cleancuda -f $(CUDACPP_SRC_MAKEFILE)
 
 #-------------------------------------------------------------------------------
 
