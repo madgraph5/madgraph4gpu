@@ -206,8 +206,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
             self.add_input_for_banner()
             if 'CUDACPP_CODEGEN_PATCHLEVEL' in os.environ: patchlevel = os.environ['CUDACPP_CODEGEN_PATCHLEVEL']
             else: patchlevel = ''
-            path = os.path.realpath(os.curdir + os.sep + 'PLUGIN' + os.sep + 'CUDACPP_OUTPUT')
-            if os.system(path + os.sep + 'patchMad.sh ' + self.dir_path + ' PROD ' + patchlevel) != 0:
+            if os.system(PLUGINDIR + os.sep + 'patchMad.sh ' + self.dir_path + ' PROD ' + patchlevel) != 0:
                 raise Exception('ERROR! the O/S call to patchMad.sh failed')
         return super().finalize(matrix_element, cmdhistory, MG5options, outputflag)
 
