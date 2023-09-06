@@ -758,12 +758,12 @@ NUM_BUILD_DIRS := $(words $(BUILD_DIRS))
 
 clean:
 ifeq ($(USEBUILDDIR),1)
-	ifeq ($(NUM_BUILD_DIRS),1)
-		$(info Only one build directory found.)
-		rm -rf build.*
-	else
-		$(error Multiple BUILDDIR's found! Use 'cleannone', 'cleansse4', 'cleanavx2', 'clean512y','clean512z', 'cleancuda' or 'cleanall'.)
-	endif
+ifeq ($(NUM_BUILD_DIRS),1)
+	$(info Only one build directory found.)
+	rm -rf build.*
+else
+	$(error Multiple BUILDDIR's found! Use 'cleannone', 'cleansse4', 'cleanavx2', 'clean512y','clean512z', 'cleancuda' or 'cleanall'.)
+endif
 else
 	rm -f $(BUILDDIR)/.build.* $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
 	rm -f $(LIBDIR)/lib$(MG5AMC_CXXLIB).so $(LIBDIR)/lib$(MG5AMC_CULIB).so
