@@ -1,16 +1,18 @@
 
-import madgraph.various.misc as misc
-import madgraph.interface.extended_cmd as extended_cmd
 import logging
 
 logger = logging.getLogger('cmdprint') # for stdout
 
 try:
     import madgraph
-except:
+except ImportError:
     import internal.madevent_interface as madevent_interface
+    import internal.misc as misc
+    import internal.extended_cmd as extended_cmd
 else:
     import madgraph.interface.madevent_interface as madevent_interface
+    import madgraph.various.misc as misc
+    import madgraph.interface.extended_cmd as extended_cmd
 
 class CPPMEInterface(madevent_interface.MadEventCmdShell):
     

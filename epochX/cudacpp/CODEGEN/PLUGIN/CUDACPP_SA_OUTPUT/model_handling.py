@@ -196,6 +196,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 list_arg = '[]' # AV from cxtype_sv to fptype array (running alphas #373)
                 point = self.type2def['pointer_coup']
                 args.append('%s %s%s%s'% (type, point, argname, list_arg))
+                args.append('double Ccoeff%s'% argname[7:])
             else:
                 args.append('%s %s%s'% (type, argname, list_arg))
         if not self.offshell:
@@ -533,6 +534,15 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         else:
             text = '%(factors)s'
         return text % data
+
+    def change_var_format(self, obj):
+        """ """
+        if obj.startswith('COUP'):
+            out = super().change_var_format(obj)
+            postfix = out[4:]
+            return "Ccoeff%s*%s" % (postfix, out)
+        else:
+            return super().change_var_format(obj)
 
     # AV - new method (based on implementation of write_obj and write_MultVariable)
     def objIsSimpleVariable(self, obj) :
@@ -1621,13 +1631,15 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                 alias[coup] = len(alias)
             if name == 'cIPD':
                 call = call.replace('m_pars->%s%s' % (sign, coup),
-                                    '%s%s[%s]' % (sign, name, alias[coup]))
+                                    '%s%s[%s]' % (sign, name, alias[coup]))                        
             else:
                 ###call = call.replace('m_pars->%s%s' % (sign, coup),
                 ###                    '%scxmake( cIPC[%s], cIPC[%s] )' %
                 ###                    (sign, 2*alias[coup],2*alias[coup]+1))
+                misc.sprint(name, alias[coup])
+                # AV from cIPCs to COUP array (running alphas #373)
                 call = call.replace('m_pars->%s%s' % (sign, coup),
-                                    '%sCOUPs[%s]' % (sign, alias[coup])) # AV from cIPCs to COUP array (running alphas #373)
+                                    'COUPs[%s], %s' % (alias[coup], '1.0' if not sign else '-1.0')) 
         return call
 
     # AV - new method for formatting wavefunction/amplitude calls
@@ -1907,7 +1919,8 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             # AV FOR PR #434: determine if this call needs aS-dependent or aS-independent parameters
             usesdepcoupl = None
             for coup in argument.get('coupling'):
-                if coup.startswith('-'): coup = coup[1:]
+                if coup.startswith('-'): 
+                    coup = coup[1:]
                 # Use the same implementation as in UFOModelConverterCPP.prepare_couplings (assume self.model is the same)
                 for key, coup_list in self.get('model')['couplings'].items():
                     if coup in coup_list:
