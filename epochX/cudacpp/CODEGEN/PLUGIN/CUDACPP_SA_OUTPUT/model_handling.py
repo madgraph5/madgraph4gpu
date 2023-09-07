@@ -1161,7 +1161,6 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         den_factors = [str(me.get_denominator_factor()) for me in \
                             self.matrix_elements]
         replace_dict['den_factors'] = ",".join(den_factors)
-        misc.sprint(replace_dict['den_factors'])
 
         if write:
             file = self.read_template_file(self.process_sigmaKin_function_template) % replace_dict
@@ -1636,7 +1635,6 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                 ###call = call.replace('m_pars->%s%s' % (sign, coup),
                 ###                    '%scxmake( cIPC[%s], cIPC[%s] )' %
                 ###                    (sign, 2*alias[coup],2*alias[coup]+1))
-                misc.sprint(name, alias[coup])
                 # AV from cIPCs to COUP array (running alphas #373)
                 call = call.replace('m_pars->%s%s' % (sign, coup),
                                     'COUPs[%s], %s' % (alias[coup], '1.0' if not sign else '-1.0')) 
