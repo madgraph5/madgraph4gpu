@@ -1,2 +1,2 @@
 1       u c~ > t t~ u c~,u d~ > t t~ u d~,u s~ > t t~ u s~,c u~ > t t~ c u~,c d~ > t t~ c d~,c s~ > t t~ c s~,d u~ > t t~ d u~,d c~ > t t~ d c~,d s~ > t t~ d s~,s u~ > t t~ s u~,s c~ > t t~ s c~,s d~ > t t~ s d~
-mirror  none
+mirror  c~ u > t t~ u c~,d~ u > t t~ u d~,s~ u > t t~ u s~,u~ c > t t~ c u~,d~ c > t t~ c d~,s~ c > t t~ c s~,u~ d > t t~ d u~,c~ d > t t~ d c~,s~ d > t t~ d s~,u~ s > t t~ s u~,c~ s > t t~ s c~,d~ s > t t~ s d~
