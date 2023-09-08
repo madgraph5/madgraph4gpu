@@ -35,10 +35,9 @@ set loop_color_flows False
 set max_npoint_for_channel 0
 set default_unset_couplings 99
 set max_t_for_channel 99
+set zerowidth_tchannel True
 set nlo_mixed_expansion True
-set stdout_level DEBUG
-set zerowidth_tchannel F
-define j = p
+import model sm
 define p = g u c d s u~ c~ d~ s~
 define j = g u c d s u~ c~ d~ s~
 define l+ = e+ mu+
@@ -49,5 +48,5 @@ define j = p
 generate p p > t t~ @0
 add process p p > t t~ j @1
 add process p p > t t~ j j @2
-output madevent ../TMPOUT/CODEGEN_mad_pp_tt012j --hel_recycling=False \
---vector_size=16384 --me_exporter=standalone_cudacpp
+output madevent pp_tt012j.mad_gen --hel_recycling=False --vector_size=\
+16384 --me_exporter=standalone_cudacpp
