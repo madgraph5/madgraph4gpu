@@ -995,7 +995,8 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
     def prepare_couplings(self, wanted_couplings = []):
         super().prepare_couplings(wanted_couplings)
         # the two lines below fix #748, i.e. they re-order the dictionary keys following the order in wanted_couplings
-        ordered_dict = [(k, self.coups_dep[k]) for k in wanted_couplings]
+        running_wanted_couplings = [value for value in self.coups_dep.keys() if value in wanted_couplings]
+        ordered_dict = [(k, self.coups_dep[k]) for k in running_wanted_couplings]
         self.coups_dep = dict((x, y) for x, y in ordered_dict)
 
 #------------------------------------------------------------------------------------
