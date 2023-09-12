@@ -9862,7 +9862,6 @@ C     1 T(7,6,5,2,1,3,4)
 C     ----------
 C     BEGIN CODE
 C     ----------
-      call counters_matrix1_start()
       IF (FIRST) THEN
         FIRST=.FALSE.
         IF(ZERO.NE.0D0) FK_ZERO = SIGN(MAX(ABS(ZERO), ABS(ZERO
@@ -10245,22 +10244,22 @@ C     Amplitude(s) for diagram number 123
       CALL FFV1_0(W(1,35),W(1,3),W(1,31),GC_11(IVEC),AMP(157))
       CALL FFV1_0(W(1,35),W(1,3),W(1,32),GC_11(IVEC),AMP(158))
       CALL FFV1_0(W(1,35),W(1,3),W(1,33),GC_11(IVEC),AMP(159))
-      CALL FFV1_1(W(1,3),W(1,1),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,35))
-      CALL FFV1_2(W(1,4),W(1,2),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,53))
-      CALL FFV1_1(W(1,35),W(1,5),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,10))
-      CALL FFV1_2(W(1,53),W(1,6),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,23))
+      CALL FFV1_1(W(1,3),W(1,1),GC_11(IVEC),MDL_MT, ZERO,W(1,35))
+      CALL FFV1_2(W(1,4),W(1,2),GC_11(IVEC),MDL_MT, ZERO,W(1,53))
+      CALL FFV1_1(W(1,35),W(1,5),GC_11(IVEC),MDL_MT, ZERO,W(1,10))
+      CALL FFV1_2(W(1,53),W(1,6),GC_11(IVEC),MDL_MT, ZERO,W(1,23))
 C     Amplitude(s) for diagram number 124
       CALL FFV1_0(W(1,23),W(1,10),W(1,7),GC_11(IVEC),AMP(160))
-      CALL FFV1_2(W(1,53),W(1,7),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,22))
+      CALL FFV1_2(W(1,53),W(1,7),GC_11(IVEC),MDL_MT, ZERO,W(1,22))
 C     Amplitude(s) for diagram number 125
       CALL FFV1_0(W(1,22),W(1,10),W(1,6),GC_11(IVEC),AMP(161))
-      CALL FFV1_1(W(1,35),W(1,6),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,56))
-      CALL FFV1_2(W(1,53),W(1,5),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,57))
+      CALL FFV1_1(W(1,35),W(1,6),GC_11(IVEC),MDL_MT, ZERO,W(1,56))
+      CALL FFV1_2(W(1,53),W(1,5),GC_11(IVEC),MDL_MT, ZERO,W(1,57))
 C     Amplitude(s) for diagram number 126
       CALL FFV1_0(W(1,57),W(1,56),W(1,7),GC_11(IVEC),AMP(162))
 C     Amplitude(s) for diagram number 127
       CALL FFV1_0(W(1,22),W(1,56),W(1,5),GC_11(IVEC),AMP(163))
-      CALL FFV1_1(W(1,35),W(1,7),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,58))
+      CALL FFV1_1(W(1,35),W(1,7),GC_11(IVEC),MDL_MT, ZERO,W(1,58))
 C     Amplitude(s) for diagram number 128
       CALL FFV1_0(W(1,57),W(1,58),W(1,6),GC_11(IVEC),AMP(164))
 C     Amplitude(s) for diagram number 129
@@ -10268,16 +10267,14 @@ C     Amplitude(s) for diagram number 129
       CALL FFV1P0_3(W(1,53),W(1,35),GC_11(IVEC),ZERO, FK_ZERO,W(1,59))
 C     Amplitude(s) for diagram number 130
       CALL VVV1_0(W(1,25),W(1,7),W(1,59),GC_10(IVEC),AMP(166))
-      CALL FFV1_1(W(1,35),W(1,25),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,60)
-     $ )
+      CALL FFV1_1(W(1,35),W(1,25),GC_11(IVEC),MDL_MT, ZERO,W(1,60))
 C     Amplitude(s) for diagram number 131
       CALL FFV1_0(W(1,53),W(1,60),W(1,7),GC_11(IVEC),AMP(167))
 C     Amplitude(s) for diagram number 132
       CALL FFV1_0(W(1,53),W(1,58),W(1,25),GC_11(IVEC),AMP(168))
 C     Amplitude(s) for diagram number 133
       CALL VVV1_0(W(1,28),W(1,6),W(1,59),GC_10(IVEC),AMP(169))
-      CALL FFV1_1(W(1,35),W(1,28),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,61)
-     $ )
+      CALL FFV1_1(W(1,35),W(1,28),GC_11(IVEC),MDL_MT, ZERO,W(1,61))
 C     Amplitude(s) for diagram number 134
       CALL FFV1_0(W(1,53),W(1,61),W(1,6),GC_11(IVEC),AMP(170))
 C     Amplitude(s) for diagram number 135
@@ -10286,8 +10283,7 @@ C     Amplitude(s) for diagram number 136
       CALL VVV1_0(W(1,5),W(1,30),W(1,59),GC_10(IVEC),AMP(172))
 C     Amplitude(s) for diagram number 137
       CALL FFV1_0(W(1,53),W(1,10),W(1,30),GC_11(IVEC),AMP(173))
-      CALL FFV1_1(W(1,35),W(1,30),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,59)
-     $ )
+      CALL FFV1_1(W(1,35),W(1,30),GC_11(IVEC),MDL_MT, ZERO,W(1,59))
 C     Amplitude(s) for diagram number 138
       CALL FFV1_0(W(1,53),W(1,59),W(1,5),GC_11(IVEC),AMP(174))
 C     Amplitude(s) for diagram number 139
@@ -10306,7 +10302,7 @@ C     Amplitude(s) for diagram number 142
       CALL VVVV1_0(W(1,62),W(1,6),W(1,7),W(1,63),GC_12(IVEC),AMP(180))
       CALL VVVV3_0(W(1,62),W(1,6),W(1,7),W(1,63),GC_12(IVEC),AMP(181))
       CALL VVVV4_0(W(1,62),W(1,6),W(1,7),W(1,63),GC_12(IVEC),AMP(182))
-      CALL FFV1_2(W(1,4),W(1,62),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,66))
+      CALL FFV1_2(W(1,4),W(1,62),GC_11(IVEC),MDL_MT, ZERO,W(1,66))
 C     Amplitude(s) for diagram number 143
       CALL FFV1_0(W(1,66),W(1,56),W(1,7),GC_11(IVEC),AMP(183))
 C     Amplitude(s) for diagram number 144
@@ -10348,7 +10344,7 @@ C     Amplitude(s) for diagram number 158
       CALL VVVV1_0(W(1,67),W(1,5),W(1,7),W(1,63),GC_12(IVEC),AMP(198))
       CALL VVVV3_0(W(1,67),W(1,5),W(1,7),W(1,63),GC_12(IVEC),AMP(199))
       CALL VVVV4_0(W(1,67),W(1,5),W(1,7),W(1,63),GC_12(IVEC),AMP(200))
-      CALL FFV1_2(W(1,4),W(1,67),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,72))
+      CALL FFV1_2(W(1,4),W(1,67),GC_11(IVEC),MDL_MT, ZERO,W(1,72))
 C     Amplitude(s) for diagram number 159
       CALL FFV1_0(W(1,72),W(1,10),W(1,7),GC_11(IVEC),AMP(201))
 C     Amplitude(s) for diagram number 160
@@ -10389,7 +10385,7 @@ C     Amplitude(s) for diagram number 174
       CALL VVVV1_0(W(1,73),W(1,5),W(1,6),W(1,63),GC_12(IVEC),AMP(216))
       CALL VVVV3_0(W(1,73),W(1,5),W(1,6),W(1,63),GC_12(IVEC),AMP(217))
       CALL VVVV4_0(W(1,73),W(1,5),W(1,6),W(1,63),GC_12(IVEC),AMP(218))
-      CALL FFV1_2(W(1,4),W(1,73),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,77))
+      CALL FFV1_2(W(1,4),W(1,73),GC_11(IVEC),MDL_MT, ZERO,W(1,77))
 C     Amplitude(s) for diagram number 175
       CALL FFV1_0(W(1,77),W(1,10),W(1,6),GC_11(IVEC),AMP(219))
 C     Amplitude(s) for diagram number 176
@@ -10423,7 +10419,7 @@ C     Amplitude(s) for diagram number 188
       CALL FFV1_0(W(1,8),W(1,78),W(1,7),GC_11(IVEC),AMP(232))
 C     Amplitude(s) for diagram number 189
       CALL FFV1_0(W(1,54),W(1,78),W(1,6),GC_11(IVEC),AMP(233))
-      CALL FFV1_2(W(1,47),W(1,2),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,79))
+      CALL FFV1_2(W(1,47),W(1,2),GC_11(IVEC),MDL_MT, ZERO,W(1,79))
 C     Amplitude(s) for diagram number 190
       CALL FFV1_0(W(1,79),W(1,56),W(1,7),GC_11(IVEC),AMP(234))
 C     Amplitude(s) for diagram number 191
@@ -10442,7 +10438,7 @@ C     Amplitude(s) for diagram number 197
       CALL FFV1_0(W(1,26),W(1,78),W(1,7),GC_11(IVEC),AMP(241))
 C     Amplitude(s) for diagram number 198
       CALL FFV1_0(W(1,49),W(1,78),W(1,5),GC_11(IVEC),AMP(242))
-      CALL FFV1_2(W(1,39),W(1,2),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,59))
+      CALL FFV1_2(W(1,39),W(1,2),GC_11(IVEC),MDL_MT, ZERO,W(1,59))
 C     Amplitude(s) for diagram number 199
       CALL FFV1_0(W(1,59),W(1,10),W(1,7),GC_11(IVEC),AMP(243))
 C     Amplitude(s) for diagram number 200
@@ -10461,7 +10457,7 @@ C     Amplitude(s) for diagram number 206
       CALL FFV1_0(W(1,29),W(1,78),W(1,6),GC_11(IVEC),AMP(250))
 C     Amplitude(s) for diagram number 207
       CALL FFV1_0(W(1,41),W(1,78),W(1,5),GC_11(IVEC),AMP(251))
-      CALL FFV1_2(W(1,42),W(1,2),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,61))
+      CALL FFV1_2(W(1,42),W(1,2),GC_11(IVEC),MDL_MT, ZERO,W(1,61))
 C     Amplitude(s) for diagram number 208
       CALL FFV1_0(W(1,61),W(1,10),W(1,6),GC_11(IVEC),AMP(252))
 C     Amplitude(s) for diagram number 209
@@ -10589,22 +10585,22 @@ C     Amplitude(s) for diagram number 246
       CALL VVV1_0(W(1,2),W(1,31),W(1,63),GC_10(IVEC),AMP(316))
       CALL VVV1_0(W(1,2),W(1,32),W(1,63),GC_10(IVEC),AMP(317))
       CALL VVV1_0(W(1,2),W(1,33),W(1,63),GC_10(IVEC),AMP(318))
-      CALL FFV1_2(W(1,4),W(1,1),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,63))
-      CALL FFV1_1(W(1,3),W(1,2),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,78))
-      CALL FFV1_2(W(1,63),W(1,5),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,35))
-      CALL FFV1_1(W(1,78),W(1,6),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,10))
+      CALL FFV1_2(W(1,4),W(1,1),GC_11(IVEC),MDL_MT, ZERO,W(1,63))
+      CALL FFV1_1(W(1,3),W(1,2),GC_11(IVEC),MDL_MT, ZERO,W(1,78))
+      CALL FFV1_2(W(1,63),W(1,5),GC_11(IVEC),MDL_MT, ZERO,W(1,35))
+      CALL FFV1_1(W(1,78),W(1,6),GC_11(IVEC),MDL_MT, ZERO,W(1,10))
 C     Amplitude(s) for diagram number 247
       CALL FFV1_0(W(1,35),W(1,10),W(1,7),GC_11(IVEC),AMP(319))
-      CALL FFV1_1(W(1,78),W(1,7),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,86))
+      CALL FFV1_1(W(1,78),W(1,7),GC_11(IVEC),MDL_MT, ZERO,W(1,86))
 C     Amplitude(s) for diagram number 248
       CALL FFV1_0(W(1,35),W(1,86),W(1,6),GC_11(IVEC),AMP(320))
-      CALL FFV1_2(W(1,63),W(1,6),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,87))
-      CALL FFV1_1(W(1,78),W(1,5),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,88))
+      CALL FFV1_2(W(1,63),W(1,6),GC_11(IVEC),MDL_MT, ZERO,W(1,87))
+      CALL FFV1_1(W(1,78),W(1,5),GC_11(IVEC),MDL_MT, ZERO,W(1,88))
 C     Amplitude(s) for diagram number 249
       CALL FFV1_0(W(1,87),W(1,88),W(1,7),GC_11(IVEC),AMP(321))
 C     Amplitude(s) for diagram number 250
       CALL FFV1_0(W(1,87),W(1,86),W(1,5),GC_11(IVEC),AMP(322))
-      CALL FFV1_2(W(1,63),W(1,7),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,89))
+      CALL FFV1_2(W(1,63),W(1,7),GC_11(IVEC),MDL_MT, ZERO,W(1,89))
 C     Amplitude(s) for diagram number 251
       CALL FFV1_0(W(1,89),W(1,88),W(1,6),GC_11(IVEC),AMP(323))
 C     Amplitude(s) for diagram number 252
@@ -10612,16 +10608,14 @@ C     Amplitude(s) for diagram number 252
       CALL FFV1P0_3(W(1,63),W(1,78),GC_11(IVEC),ZERO, FK_ZERO,W(1,90))
 C     Amplitude(s) for diagram number 253
       CALL VVV1_0(W(1,25),W(1,7),W(1,90),GC_10(IVEC),AMP(325))
-      CALL FFV1_2(W(1,63),W(1,25),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,91)
-     $ )
+      CALL FFV1_2(W(1,63),W(1,25),GC_11(IVEC),MDL_MT, ZERO,W(1,91))
 C     Amplitude(s) for diagram number 254
       CALL FFV1_0(W(1,91),W(1,78),W(1,7),GC_11(IVEC),AMP(326))
 C     Amplitude(s) for diagram number 255
       CALL FFV1_0(W(1,89),W(1,78),W(1,25),GC_11(IVEC),AMP(327))
 C     Amplitude(s) for diagram number 256
       CALL VVV1_0(W(1,28),W(1,6),W(1,90),GC_10(IVEC),AMP(328))
-      CALL FFV1_2(W(1,63),W(1,28),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,92)
-     $ )
+      CALL FFV1_2(W(1,63),W(1,28),GC_11(IVEC),MDL_MT, ZERO,W(1,92))
 C     Amplitude(s) for diagram number 257
       CALL FFV1_0(W(1,92),W(1,78),W(1,6),GC_11(IVEC),AMP(329))
 C     Amplitude(s) for diagram number 258
@@ -10630,8 +10624,7 @@ C     Amplitude(s) for diagram number 259
       CALL VVV1_0(W(1,5),W(1,30),W(1,90),GC_10(IVEC),AMP(331))
 C     Amplitude(s) for diagram number 260
       CALL FFV1_0(W(1,35),W(1,78),W(1,30),GC_11(IVEC),AMP(332))
-      CALL FFV1_2(W(1,63),W(1,30),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,90)
-     $ )
+      CALL FFV1_2(W(1,63),W(1,30),GC_11(IVEC),MDL_MT, ZERO,W(1,90))
 C     Amplitude(s) for diagram number 261
       CALL FFV1_0(W(1,90),W(1,78),W(1,5),GC_11(IVEC),AMP(333))
 C     Amplitude(s) for diagram number 262
@@ -10647,7 +10640,7 @@ C     Amplitude(s) for diagram number 265
       CALL VVVV1_0(W(1,62),W(1,6),W(1,7),W(1,93),GC_12(IVEC),AMP(339))
       CALL VVVV3_0(W(1,62),W(1,6),W(1,7),W(1,93),GC_12(IVEC),AMP(340))
       CALL VVVV4_0(W(1,62),W(1,6),W(1,7),W(1,93),GC_12(IVEC),AMP(341))
-      CALL FFV1_1(W(1,3),W(1,62),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,94))
+      CALL FFV1_1(W(1,3),W(1,62),GC_11(IVEC),MDL_MT, ZERO,W(1,94))
 C     Amplitude(s) for diagram number 266
       CALL FFV1_0(W(1,87),W(1,94),W(1,7),GC_11(IVEC),AMP(342))
 C     Amplitude(s) for diagram number 267
@@ -10686,7 +10679,7 @@ C     Amplitude(s) for diagram number 281
       CALL VVVV1_0(W(1,67),W(1,5),W(1,7),W(1,93),GC_12(IVEC),AMP(357))
       CALL VVVV3_0(W(1,67),W(1,5),W(1,7),W(1,93),GC_12(IVEC),AMP(358))
       CALL VVVV4_0(W(1,67),W(1,5),W(1,7),W(1,93),GC_12(IVEC),AMP(359))
-      CALL FFV1_1(W(1,3),W(1,67),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,95))
+      CALL FFV1_1(W(1,3),W(1,67),GC_11(IVEC),MDL_MT, ZERO,W(1,95))
 C     Amplitude(s) for diagram number 282
       CALL FFV1_0(W(1,35),W(1,95),W(1,7),GC_11(IVEC),AMP(360))
 C     Amplitude(s) for diagram number 283
@@ -10724,7 +10717,7 @@ C     Amplitude(s) for diagram number 297
       CALL VVVV1_0(W(1,73),W(1,5),W(1,6),W(1,93),GC_12(IVEC),AMP(375))
       CALL VVVV3_0(W(1,73),W(1,5),W(1,6),W(1,93),GC_12(IVEC),AMP(376))
       CALL VVVV4_0(W(1,73),W(1,5),W(1,6),W(1,93),GC_12(IVEC),AMP(377))
-      CALL FFV1_1(W(1,3),W(1,73),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,98))
+      CALL FFV1_1(W(1,3),W(1,73),GC_11(IVEC),MDL_MT, ZERO,W(1,98))
 C     Amplitude(s) for diagram number 298
       CALL FFV1_0(W(1,35),W(1,98),W(1,6),GC_11(IVEC),AMP(378))
 C     Amplitude(s) for diagram number 299
@@ -10759,8 +10752,7 @@ C     Amplitude(s) for diagram number 311
       CALL FFV1_0(W(1,100),W(1,36),W(1,7),GC_11(IVEC),AMP(391))
 C     Amplitude(s) for diagram number 312
       CALL FFV1_0(W(1,100),W(1,37),W(1,6),GC_11(IVEC),AMP(392))
-      CALL FFV1_1(W(1,34),W(1,2),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,101)
-     $ )
+      CALL FFV1_1(W(1,34),W(1,2),GC_11(IVEC),MDL_MT, ZERO,W(1,101))
 C     Amplitude(s) for diagram number 313
       CALL FFV1_0(W(1,87),W(1,101),W(1,7),GC_11(IVEC),AMP(393))
 C     Amplitude(s) for diagram number 314
@@ -10779,7 +10771,7 @@ C     Amplitude(s) for diagram number 320
       CALL FFV1_0(W(1,100),W(1,44),W(1,7),GC_11(IVEC),AMP(400))
 C     Amplitude(s) for diagram number 321
       CALL FFV1_0(W(1,100),W(1,45),W(1,5),GC_11(IVEC),AMP(401))
-      CALL FFV1_1(W(1,40),W(1,2),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,90))
+      CALL FFV1_1(W(1,40),W(1,2),GC_11(IVEC),MDL_MT, ZERO,W(1,90))
 C     Amplitude(s) for diagram number 322
       CALL FFV1_0(W(1,35),W(1,90),W(1,7),GC_11(IVEC),AMP(402))
 C     Amplitude(s) for diagram number 323
@@ -10798,7 +10790,7 @@ C     Amplitude(s) for diagram number 329
       CALL FFV1_0(W(1,100),W(1,50),W(1,6),GC_11(IVEC),AMP(409))
 C     Amplitude(s) for diagram number 330
       CALL FFV1_0(W(1,100),W(1,51),W(1,5),GC_11(IVEC),AMP(410))
-      CALL FFV1_1(W(1,48),W(1,2),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,92))
+      CALL FFV1_1(W(1,48),W(1,2),GC_11(IVEC),MDL_MT, ZERO,W(1,92))
 C     Amplitude(s) for diagram number 331
       CALL FFV1_0(W(1,35),W(1,92),W(1,6),GC_11(IVEC),AMP(411))
 C     Amplitude(s) for diagram number 332
@@ -10906,8 +10898,7 @@ C     Amplitude(s) for diagram number 369
       CALL VVV1_0(W(1,2),W(1,32),W(1,93),GC_10(IVEC),AMP(476))
       CALL VVV1_0(W(1,2),W(1,33),W(1,93),GC_10(IVEC),AMP(477))
       CALL VVV1P0_1(W(1,1),W(1,5),GC_10(IVEC),ZERO, FK_ZERO,W(1,93))
-      CALL FFV1_2(W(1,4),W(1,93),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,100)
-     $ )
+      CALL FFV1_2(W(1,4),W(1,93),GC_11(IVEC),MDL_MT, ZERO,W(1,100))
 C     Amplitude(s) for diagram number 370
       CALL FFV1_0(W(1,100),W(1,10),W(1,7),GC_11(IVEC),AMP(478))
 C     Amplitude(s) for diagram number 371
@@ -10937,16 +10928,14 @@ C     Amplitude(s) for diagram number 376
      $ )
 C     Amplitude(s) for diagram number 377
       CALL FFV1_0(W(1,39),W(1,96),W(1,7),GC_11(IVEC),AMP(487))
-      CALL FFV1_2(W(1,39),W(1,93),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,99)
-     $ )
+      CALL FFV1_2(W(1,39),W(1,93),GC_11(IVEC),MDL_MT, ZERO,W(1,99))
 C     Amplitude(s) for diagram number 378
       CALL FFV1_0(W(1,99),W(1,78),W(1,7),GC_11(IVEC),AMP(488))
 C     Amplitude(s) for diagram number 379
       CALL FFV1_0(W(1,39),W(1,78),W(1,87),GC_11(IVEC),AMP(489))
 C     Amplitude(s) for diagram number 380
       CALL FFV1_0(W(1,42),W(1,96),W(1,6),GC_11(IVEC),AMP(490))
-      CALL FFV1_2(W(1,42),W(1,93),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1
-     $ ,102))
+      CALL FFV1_2(W(1,42),W(1,93),GC_11(IVEC),MDL_MT, ZERO,W(1,102))
 C     Amplitude(s) for diagram number 381
       CALL FFV1_0(W(1,102),W(1,78),W(1,6),GC_11(IVEC),AMP(491))
 C     Amplitude(s) for diagram number 382
@@ -10958,8 +10947,7 @@ C     Amplitude(s) for diagram number 384
       CALL VVV1P0_1(W(1,93),W(1,30),GC_10(IVEC),ZERO, FK_ZERO,W(1,96))
 C     Amplitude(s) for diagram number 385
       CALL FFV1_0(W(1,4),W(1,78),W(1,96),GC_11(IVEC),AMP(495))
-      CALL FFV1_1(W(1,3),W(1,93),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,103)
-     $ )
+      CALL FFV1_1(W(1,3),W(1,93),GC_11(IVEC),MDL_MT, ZERO,W(1,103))
 C     Amplitude(s) for diagram number 386
       CALL FFV1_0(W(1,23),W(1,103),W(1,7),GC_11(IVEC),AMP(496))
 C     Amplitude(s) for diagram number 387
@@ -10981,16 +10969,14 @@ C     Amplitude(s) for diagram number 392
      $ ,105))
 C     Amplitude(s) for diagram number 393
       CALL FFV1_0(W(1,105),W(1,40),W(1,7),GC_11(IVEC),AMP(505))
-      CALL FFV1_1(W(1,40),W(1,93),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1
-     $ ,106))
+      CALL FFV1_1(W(1,40),W(1,93),GC_11(IVEC),MDL_MT, ZERO,W(1,106))
 C     Amplitude(s) for diagram number 394
       CALL FFV1_0(W(1,53),W(1,106),W(1,7),GC_11(IVEC),AMP(506))
 C     Amplitude(s) for diagram number 395
       CALL FFV1_0(W(1,53),W(1,40),W(1,87),GC_11(IVEC),AMP(507))
 C     Amplitude(s) for diagram number 396
       CALL FFV1_0(W(1,105),W(1,48),W(1,6),GC_11(IVEC),AMP(508))
-      CALL FFV1_1(W(1,48),W(1,93),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1
-     $ ,107))
+      CALL FFV1_1(W(1,48),W(1,93),GC_11(IVEC),MDL_MT, ZERO,W(1,107))
 C     Amplitude(s) for diagram number 397
       CALL FFV1_0(W(1,53),W(1,107),W(1,6),GC_11(IVEC),AMP(509))
 C     Amplitude(s) for diagram number 398
@@ -11233,8 +11219,7 @@ C     Amplitude(s) for diagram number 492
       CALL VVV1_0(W(1,93),W(1,84),W(1,9),GC_10(IVEC),AMP(635))
       CALL VVV1_0(W(1,93),W(1,85),W(1,9),GC_10(IVEC),AMP(636))
       CALL VVV1P0_1(W(1,1),W(1,6),GC_10(IVEC),ZERO, FK_ZERO,W(1,93))
-      CALL FFV1_2(W(1,4),W(1,93),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,100)
-     $ )
+      CALL FFV1_2(W(1,4),W(1,93),GC_11(IVEC),MDL_MT, ZERO,W(1,100))
 C     Amplitude(s) for diagram number 493
       CALL FFV1_0(W(1,100),W(1,88),W(1,7),GC_11(IVEC),AMP(637))
 C     Amplitude(s) for diagram number 494
@@ -11263,16 +11248,14 @@ C     Amplitude(s) for diagram number 499
      $ )
 C     Amplitude(s) for diagram number 500
       CALL FFV1_0(W(1,47),W(1,63),W(1,7),GC_11(IVEC),AMP(646))
-      CALL FFV1_2(W(1,47),W(1,93),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1
-     $ ,115))
+      CALL FFV1_2(W(1,47),W(1,93),GC_11(IVEC),MDL_MT, ZERO,W(1,115))
 C     Amplitude(s) for diagram number 501
       CALL FFV1_0(W(1,115),W(1,78),W(1,7),GC_11(IVEC),AMP(647))
 C     Amplitude(s) for diagram number 502
       CALL FFV1_0(W(1,47),W(1,78),W(1,105),GC_11(IVEC),AMP(648))
 C     Amplitude(s) for diagram number 503
       CALL FFV1_0(W(1,42),W(1,63),W(1,5),GC_11(IVEC),AMP(649))
-      CALL FFV1_2(W(1,42),W(1,93),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1
-     $ ,114))
+      CALL FFV1_2(W(1,42),W(1,93),GC_11(IVEC),MDL_MT, ZERO,W(1,114))
 C     Amplitude(s) for diagram number 504
       CALL FFV1_0(W(1,114),W(1,78),W(1,5),GC_11(IVEC),AMP(650))
 C     Amplitude(s) for diagram number 505
@@ -11284,8 +11267,7 @@ C     Amplitude(s) for diagram number 507
       CALL VVV1P0_1(W(1,93),W(1,28),GC_10(IVEC),ZERO, FK_ZERO,W(1,63))
 C     Amplitude(s) for diagram number 508
       CALL FFV1_0(W(1,4),W(1,78),W(1,63),GC_11(IVEC),AMP(654))
-      CALL FFV1_1(W(1,3),W(1,93),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,113)
-     $ )
+      CALL FFV1_1(W(1,3),W(1,93),GC_11(IVEC),MDL_MT, ZERO,W(1,113))
 C     Amplitude(s) for diagram number 509
       CALL FFV1_0(W(1,57),W(1,113),W(1,7),GC_11(IVEC),AMP(655))
 C     Amplitude(s) for diagram number 510
@@ -11306,16 +11288,14 @@ C     Amplitude(s) for diagram number 515
      $ )
 C     Amplitude(s) for diagram number 516
       CALL FFV1_0(W(1,87),W(1,34),W(1,7),GC_11(IVEC),AMP(664))
-      CALL FFV1_1(W(1,34),W(1,93),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,99)
-     $ )
+      CALL FFV1_1(W(1,34),W(1,93),GC_11(IVEC),MDL_MT, ZERO,W(1,99))
 C     Amplitude(s) for diagram number 517
       CALL FFV1_0(W(1,53),W(1,99),W(1,7),GC_11(IVEC),AMP(665))
 C     Amplitude(s) for diagram number 518
       CALL FFV1_0(W(1,53),W(1,34),W(1,105),GC_11(IVEC),AMP(666))
 C     Amplitude(s) for diagram number 519
       CALL FFV1_0(W(1,87),W(1,48),W(1,5),GC_11(IVEC),AMP(667))
-      CALL FFV1_1(W(1,48),W(1,93),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1
-     $ ,107))
+      CALL FFV1_1(W(1,48),W(1,93),GC_11(IVEC),MDL_MT, ZERO,W(1,107))
 C     Amplitude(s) for diagram number 520
       CALL FFV1_0(W(1,53),W(1,107),W(1,5),GC_11(IVEC),AMP(668))
 C     Amplitude(s) for diagram number 521
@@ -11557,8 +11537,7 @@ C     Amplitude(s) for diagram number 615
       CALL VVV1_0(W(1,93),W(1,82),W(1,9),GC_10(IVEC),AMP(794))
       CALL VVV1_0(W(1,93),W(1,83),W(1,9),GC_10(IVEC),AMP(795))
       CALL VVV1P0_1(W(1,1),W(1,7),GC_10(IVEC),ZERO, FK_ZERO,W(1,93))
-      CALL FFV1_2(W(1,4),W(1,93),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,100)
-     $ )
+      CALL FFV1_2(W(1,4),W(1,93),GC_11(IVEC),MDL_MT, ZERO,W(1,100))
 C     Amplitude(s) for diagram number 616
       CALL FFV1_0(W(1,100),W(1,88),W(1,6),GC_11(IVEC),AMP(796))
 C     Amplitude(s) for diagram number 617
@@ -11587,16 +11566,14 @@ C     Amplitude(s) for diagram number 622
      $ ,103))
 C     Amplitude(s) for diagram number 623
       CALL FFV1_0(W(1,47),W(1,103),W(1,6),GC_11(IVEC),AMP(805))
-      CALL FFV1_2(W(1,47),W(1,93),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,89)
-     $ )
+      CALL FFV1_2(W(1,47),W(1,93),GC_11(IVEC),MDL_MT, ZERO,W(1,89))
 C     Amplitude(s) for diagram number 624
       CALL FFV1_0(W(1,89),W(1,78),W(1,6),GC_11(IVEC),AMP(806))
 C     Amplitude(s) for diagram number 625
       CALL FFV1_0(W(1,47),W(1,78),W(1,87),GC_11(IVEC),AMP(807))
 C     Amplitude(s) for diagram number 626
       CALL FFV1_0(W(1,39),W(1,103),W(1,5),GC_11(IVEC),AMP(808))
-      CALL FFV1_2(W(1,39),W(1,93),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,91)
-     $ )
+      CALL FFV1_2(W(1,39),W(1,93),GC_11(IVEC),MDL_MT, ZERO,W(1,91))
 C     Amplitude(s) for diagram number 627
       CALL FFV1_0(W(1,91),W(1,78),W(1,5),GC_11(IVEC),AMP(809))
 C     Amplitude(s) for diagram number 628
@@ -11608,7 +11585,7 @@ C     Amplitude(s) for diagram number 630
       CALL VVV1P0_1(W(1,93),W(1,25),GC_10(IVEC),ZERO, FK_ZERO,W(1,103))
 C     Amplitude(s) for diagram number 631
       CALL FFV1_0(W(1,4),W(1,78),W(1,103),GC_11(IVEC),AMP(813))
-      CALL FFV1_1(W(1,3),W(1,93),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,97))
+      CALL FFV1_1(W(1,3),W(1,93),GC_11(IVEC),MDL_MT, ZERO,W(1,97))
 C     Amplitude(s) for diagram number 632
       CALL FFV1_0(W(1,57),W(1,97),W(1,6),GC_11(IVEC),AMP(814))
 C     Amplitude(s) for diagram number 633
@@ -11629,16 +11606,14 @@ C     Amplitude(s) for diagram number 638
      $ ,105))
 C     Amplitude(s) for diagram number 639
       CALL FFV1_0(W(1,105),W(1,34),W(1,6),GC_11(IVEC),AMP(823))
-      CALL FFV1_1(W(1,34),W(1,93),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1
-     $ ,115))
+      CALL FFV1_1(W(1,34),W(1,93),GC_11(IVEC),MDL_MT, ZERO,W(1,115))
 C     Amplitude(s) for diagram number 640
       CALL FFV1_0(W(1,53),W(1,115),W(1,6),GC_11(IVEC),AMP(824))
 C     Amplitude(s) for diagram number 641
       CALL FFV1_0(W(1,53),W(1,34),W(1,87),GC_11(IVEC),AMP(825))
 C     Amplitude(s) for diagram number 642
       CALL FFV1_0(W(1,105),W(1,40),W(1,5),GC_11(IVEC),AMP(826))
-      CALL FFV1_1(W(1,40),W(1,93),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1
-     $ ,107))
+      CALL FFV1_1(W(1,40),W(1,93),GC_11(IVEC),MDL_MT, ZERO,W(1,107))
 C     Amplitude(s) for diagram number 643
       CALL FFV1_0(W(1,53),W(1,107),W(1,5),GC_11(IVEC),AMP(827))
 C     Amplitude(s) for diagram number 644
@@ -11884,8 +11859,7 @@ C     Amplitude(s) for diagram number 739
       CALL FFV1_0(W(1,8),W(1,93),W(1,7),GC_11(IVEC),AMP(955))
 C     Amplitude(s) for diagram number 740
       CALL FFV1_0(W(1,54),W(1,93),W(1,6),GC_11(IVEC),AMP(956))
-      CALL FFV1_2(W(1,47),W(1,1),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,100)
-     $ )
+      CALL FFV1_2(W(1,47),W(1,1),GC_11(IVEC),MDL_MT, ZERO,W(1,100))
 C     Amplitude(s) for diagram number 741
       CALL FFV1_0(W(1,100),W(1,10),W(1,7),GC_11(IVEC),AMP(957))
 C     Amplitude(s) for diagram number 742
@@ -11905,8 +11879,7 @@ C     Amplitude(s) for diagram number 748
       CALL FFV1_0(W(1,26),W(1,93),W(1,7),GC_11(IVEC),AMP(964))
 C     Amplitude(s) for diagram number 749
       CALL FFV1_0(W(1,49),W(1,93),W(1,5),GC_11(IVEC),AMP(965))
-      CALL FFV1_2(W(1,39),W(1,1),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,105)
-     $ )
+      CALL FFV1_2(W(1,39),W(1,1),GC_11(IVEC),MDL_MT, ZERO,W(1,105))
 C     Amplitude(s) for diagram number 750
       CALL FFV1_0(W(1,105),W(1,88),W(1,7),GC_11(IVEC),AMP(966))
 C     Amplitude(s) for diagram number 751
@@ -11926,7 +11899,7 @@ C     Amplitude(s) for diagram number 757
       CALL FFV1_0(W(1,29),W(1,93),W(1,6),GC_11(IVEC),AMP(973))
 C     Amplitude(s) for diagram number 758
       CALL FFV1_0(W(1,41),W(1,93),W(1,5),GC_11(IVEC),AMP(974))
-      CALL FFV1_2(W(1,42),W(1,1),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,63))
+      CALL FFV1_2(W(1,42),W(1,1),GC_11(IVEC),MDL_MT, ZERO,W(1,63))
 C     Amplitude(s) for diagram number 759
       CALL FFV1_0(W(1,63),W(1,88),W(1,6),GC_11(IVEC),AMP(975))
 C     Amplitude(s) for diagram number 760
@@ -12024,8 +11997,7 @@ C     Amplitude(s) for diagram number 789
       CALL FFV1_0(W(1,91),W(1,36),W(1,7),GC_11(IVEC),AMP(1015))
 C     Amplitude(s) for diagram number 790
       CALL FFV1_0(W(1,91),W(1,37),W(1,6),GC_11(IVEC),AMP(1016))
-      CALL FFV1_1(W(1,34),W(1,1),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,115)
-     $ )
+      CALL FFV1_1(W(1,34),W(1,1),GC_11(IVEC),MDL_MT, ZERO,W(1,115))
 C     Amplitude(s) for diagram number 791
       CALL FFV1_0(W(1,23),W(1,115),W(1,7),GC_11(IVEC),AMP(1017))
 C     Amplitude(s) for diagram number 792
@@ -12044,8 +12016,7 @@ C     Amplitude(s) for diagram number 798
       CALL FFV1_0(W(1,91),W(1,44),W(1,7),GC_11(IVEC),AMP(1024))
 C     Amplitude(s) for diagram number 799
       CALL FFV1_0(W(1,91),W(1,45),W(1,5),GC_11(IVEC),AMP(1025))
-      CALL FFV1_1(W(1,40),W(1,1),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,103)
-     $ )
+      CALL FFV1_1(W(1,40),W(1,1),GC_11(IVEC),MDL_MT, ZERO,W(1,103))
 C     Amplitude(s) for diagram number 800
       CALL FFV1_0(W(1,57),W(1,103),W(1,7),GC_11(IVEC),AMP(1026))
 C     Amplitude(s) for diagram number 801
@@ -12064,8 +12035,7 @@ C     Amplitude(s) for diagram number 807
       CALL FFV1_0(W(1,91),W(1,50),W(1,6),GC_11(IVEC),AMP(1033))
 C     Amplitude(s) for diagram number 808
       CALL FFV1_0(W(1,91),W(1,51),W(1,5),GC_11(IVEC),AMP(1034))
-      CALL FFV1_1(W(1,48),W(1,1),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,114)
-     $ )
+      CALL FFV1_1(W(1,48),W(1,1),GC_11(IVEC),MDL_MT, ZERO,W(1,114))
 C     Amplitude(s) for diagram number 809
       CALL FFV1_0(W(1,57),W(1,114),W(1,6),GC_11(IVEC),AMP(1035))
 C     Amplitude(s) for diagram number 810
@@ -13187,9 +13157,9 @@ C     Amplitude(s) for diagram number 1171
      $ ,W(1,25))
       CALL VVVV4P0_1(W(1,1),W(1,5),W(1,6),GC_12(IVEC),ZERO, FK_ZERO
      $ ,W(1,21))
-      CALL FFV1_2(W(1,4),W(1,61),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,17))
-      CALL FFV1_2(W(1,4),W(1,25),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,28))
-      CALL FFV1_2(W(1,4),W(1,21),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,99))
+      CALL FFV1_2(W(1,4),W(1,61),GC_11(IVEC),MDL_MT, ZERO,W(1,17))
+      CALL FFV1_2(W(1,4),W(1,25),GC_11(IVEC),MDL_MT, ZERO,W(1,28))
+      CALL FFV1_2(W(1,4),W(1,21),GC_11(IVEC),MDL_MT, ZERO,W(1,99))
 C     Amplitude(s) for diagram number 1172
       CALL FFV1_0(W(1,17),W(1,78),W(1,7),GC_11(IVEC),AMP(1648))
       CALL FFV1_0(W(1,28),W(1,78),W(1,7),GC_11(IVEC),AMP(1649))
@@ -13205,9 +13175,9 @@ C     Amplitude(s) for diagram number 1174
       CALL FFV1_0(W(1,42),W(1,78),W(1,61),GC_11(IVEC),AMP(1654))
       CALL FFV1_0(W(1,42),W(1,78),W(1,25),GC_11(IVEC),AMP(1655))
       CALL FFV1_0(W(1,42),W(1,78),W(1,21),GC_11(IVEC),AMP(1656))
-      CALL FFV1_1(W(1,3),W(1,61),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,60))
-      CALL FFV1_1(W(1,3),W(1,25),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,72))
-      CALL FFV1_1(W(1,3),W(1,21),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,22))
+      CALL FFV1_1(W(1,3),W(1,61),GC_11(IVEC),MDL_MT, ZERO,W(1,60))
+      CALL FFV1_1(W(1,3),W(1,25),GC_11(IVEC),MDL_MT, ZERO,W(1,72))
+      CALL FFV1_1(W(1,3),W(1,21),GC_11(IVEC),MDL_MT, ZERO,W(1,22))
 C     Amplitude(s) for diagram number 1175
       CALL FFV1_0(W(1,53),W(1,60),W(1,7),GC_11(IVEC),AMP(1657))
       CALL FFV1_0(W(1,53),W(1,72),W(1,7),GC_11(IVEC),AMP(1658))
@@ -13275,9 +13245,9 @@ C     Amplitude(s) for diagram number 1187
      $ ,W(1,72))
       CALL VVVV4P0_1(W(1,1),W(1,5),W(1,7),GC_12(IVEC),ZERO, FK_ZERO
      $ ,W(1,60))
-      CALL FFV1_2(W(1,4),W(1,22),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,25))
-      CALL FFV1_2(W(1,4),W(1,72),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,61))
-      CALL FFV1_2(W(1,4),W(1,60),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,73))
+      CALL FFV1_2(W(1,4),W(1,22),GC_11(IVEC),MDL_MT, ZERO,W(1,25))
+      CALL FFV1_2(W(1,4),W(1,72),GC_11(IVEC),MDL_MT, ZERO,W(1,61))
+      CALL FFV1_2(W(1,4),W(1,60),GC_11(IVEC),MDL_MT, ZERO,W(1,73))
 C     Amplitude(s) for diagram number 1188
       CALL FFV1_0(W(1,25),W(1,78),W(1,6),GC_11(IVEC),AMP(1702))
       CALL FFV1_0(W(1,61),W(1,78),W(1,6),GC_11(IVEC),AMP(1703))
@@ -13293,9 +13263,9 @@ C     Amplitude(s) for diagram number 1190
       CALL FFV1_0(W(1,39),W(1,78),W(1,22),GC_11(IVEC),AMP(1708))
       CALL FFV1_0(W(1,39),W(1,78),W(1,72),GC_11(IVEC),AMP(1709))
       CALL FFV1_0(W(1,39),W(1,78),W(1,60),GC_11(IVEC),AMP(1710))
-      CALL FFV1_1(W(1,3),W(1,22),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,30))
-      CALL FFV1_1(W(1,3),W(1,72),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,69))
-      CALL FFV1_1(W(1,3),W(1,60),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,24))
+      CALL FFV1_1(W(1,3),W(1,22),GC_11(IVEC),MDL_MT, ZERO,W(1,30))
+      CALL FFV1_1(W(1,3),W(1,72),GC_11(IVEC),MDL_MT, ZERO,W(1,69))
+      CALL FFV1_1(W(1,3),W(1,60),GC_11(IVEC),MDL_MT, ZERO,W(1,24))
 C     Amplitude(s) for diagram number 1191
       CALL FFV1_0(W(1,53),W(1,30),W(1,6),GC_11(IVEC),AMP(1711))
       CALL FFV1_0(W(1,53),W(1,69),W(1,6),GC_11(IVEC),AMP(1712))
@@ -13363,9 +13333,9 @@ C     Amplitude(s) for diagram number 1203
      $ ,W(1,69))
       CALL VVVV4P0_1(W(1,1),W(1,6),W(1,7),GC_12(IVEC),ZERO, FK_ZERO
      $ ,W(1,30))
-      CALL FFV1_2(W(1,4),W(1,24),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,72))
-      CALL FFV1_2(W(1,4),W(1,69),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,22))
-      CALL FFV1_2(W(1,4),W(1,30),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,67))
+      CALL FFV1_2(W(1,4),W(1,24),GC_11(IVEC),MDL_MT, ZERO,W(1,72))
+      CALL FFV1_2(W(1,4),W(1,69),GC_11(IVEC),MDL_MT, ZERO,W(1,22))
+      CALL FFV1_2(W(1,4),W(1,30),GC_11(IVEC),MDL_MT, ZERO,W(1,67))
 C     Amplitude(s) for diagram number 1204
       CALL FFV1_0(W(1,72),W(1,78),W(1,5),GC_11(IVEC),AMP(1756))
       CALL FFV1_0(W(1,22),W(1,78),W(1,5),GC_11(IVEC),AMP(1757))
@@ -13381,9 +13351,9 @@ C     Amplitude(s) for diagram number 1206
       CALL FFV1_0(W(1,47),W(1,78),W(1,24),GC_11(IVEC),AMP(1762))
       CALL FFV1_0(W(1,47),W(1,78),W(1,69),GC_11(IVEC),AMP(1763))
       CALL FFV1_0(W(1,47),W(1,78),W(1,30),GC_11(IVEC),AMP(1764))
-      CALL FFV1_1(W(1,3),W(1,24),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,78))
-      CALL FFV1_1(W(1,3),W(1,69),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,17))
-      CALL FFV1_1(W(1,3),W(1,30),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,28))
+      CALL FFV1_1(W(1,3),W(1,24),GC_11(IVEC),MDL_MT, ZERO,W(1,78))
+      CALL FFV1_1(W(1,3),W(1,69),GC_11(IVEC),MDL_MT, ZERO,W(1,17))
+      CALL FFV1_1(W(1,3),W(1,30),GC_11(IVEC),MDL_MT, ZERO,W(1,28))
 C     Amplitude(s) for diagram number 1207
       CALL FFV1_0(W(1,53),W(1,78),W(1,5),GC_11(IVEC),AMP(1765))
       CALL FFV1_0(W(1,53),W(1,17),W(1,5),GC_11(IVEC),AMP(1766))
@@ -19616,7 +19586,6 @@ C     JAMPs contributing to orders ALL_ORDERS=1
         ENDDO
       ENDDO
 
-      call counters_matrix1_stop()
       END
 
       SUBROUTINE PRINT_ZERO_AMP_1()

@@ -67,7 +67,8 @@ if [ "${patchlevel}" == "0" ]; then exit $status; fi
 # Patch the default Fortran code to provide the integration with the cudacpp plugin
 # (1) Process-independent patches
 touch ${dir}/Events/.keep # this file should already be present (mg5amcnlo copies it from Template/LO/Events/.keep) 
-cp -pr ${scrdir}/MG5aMC_patches/${dir_patches}/fbridge_common.inc ${dir}/SubProcesses # new file
+\cp -pr ${scrdir}/MG5aMC_patches/${dir_patches}/fbridge_common.inc ${dir}/SubProcesses # new file
+\cp -dpr ${scrdir}/MG5aMC_patches/${dir_patches}/{counters.cc,ompnumthreads.cc} ${dir}/SubProcesses/
 #sed -i 's/2  = sde_strategy/1  = sde_strategy/' ${dir}/Cards/run_card.dat # use strategy SDE=1 in multichannel mode (see #419)
 #sed -i 's/SDE_STRAT = 2/SDE_STRAT = 1/' ${dir}/Source/run_card.inc # use strategy SDE=1 in multichannel mode (see #419)
 if [ "${patchlevel}" == "2" ]; then
@@ -82,8 +83,8 @@ fi
 for p1dir in ${dir}/SubProcesses/P*; do
   cd $p1dir
   ln -sf ../fbridge_common.inc . # new file
-  cp -pr ${scrdir}/MG5aMC_patches/${dir_patches}/counters.cc . # new file
-  cp -pr ${scrdir}/MG5aMC_patches/${dir_patches}/ompnumthreads.cc . # new file
+  ln -sf ../counters.cc . # new file
+  ln -sf ../ompnumthreads.cc . # new file
   if [ "${patchlevel}" == "2" ]; then
     echo "DEBUG: cd ${PWD}; patch -p6 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.P1"
     if ! patch -p6 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.P1; then status=1; fi      
