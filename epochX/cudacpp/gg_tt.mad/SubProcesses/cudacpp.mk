@@ -765,11 +765,10 @@ else
 	$(error Multiple BUILDDIR's found! Use 'cleannone', 'cleansse4', 'cleanavx2', 'clean512y','clean512z', 'cleancuda' or 'cleanall'.)
 endif
 else
-	rm -f $(BUILDDIR)/.build.* $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
+	rm -f $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
 	rm -f $(LIBDIR)/lib$(MG5AMC_CXXLIB).so $(LIBDIR)/lib$(MG5AMC_CULIB).so
 endif
 	$(MAKE) -C ../../src clean -f $(CUDACPP_SRC_MAKEFILE)
-###	rm -rf $(INCDIR)
 
 cleanall:
 	@echo
@@ -810,6 +809,11 @@ clean512z:
 cleancuda:
 	rm -rf build.cuda_*
 	$(MAKE) -C ../../src cleancuda -f $(CUDACPP_SRC_MAKEFILE)
+
+cleandir:
+	rm -f $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
+	rm -f $(LIBDIR)/lib$(MG5AMC_CXXLIB).so $(LIBDIR)/lib$(MG5AMC_CULIB).so
+	$(MAKE) -C ../../src cleannone -f $(CUDACPP_SRC_MAKEFILE)
 
 #-------------------------------------------------------------------------------
 

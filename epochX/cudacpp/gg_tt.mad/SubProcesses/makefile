@@ -19,7 +19,7 @@ usage:
 
 # Sets correct target based on MAKECMDGOALS
 
-ifndef $(MAKECMDGOALS)
+ifeq ($(MAKECMDGOALS),)
 	TARGET := undefined
 else
 	ifneq (,$(findstring madevent_*,$(MAKECMDGOALS)))
@@ -274,23 +274,48 @@ cuda: $(CUDACPP_BUILDDIR)/.$(TARGET)libs
 
 # Clean (NB: 'make clean' in Source calls 'make clean' in all P*)
 
-clean: # Clean builds: fortran in this Pn; cpp executables for one AVX in this Pn
+BUILD_DIRS := $(wildcard build.*)
+BUILD_TARGET := $(shell echo $(CUDACPP_BUILDDIR) | sed 's/.*\.\(.*\)-.*/\1/')
+NUM_BUILD_DIRS := $(words $(BUILD_DIRS))
+
+clean:
+ifeq ($(USEBUILDDIR),1)
+ifeq ($(NUM_BUILD_DIRS),1)
+	$(info USEBUILDDIR=1 only cleaning build dir.)
+	$(RM) -r $(BUILD_DIRS)
+	$(MAKE) -f $(CUDACPP_MAKEFILE) clean$(BUILD_TARGET)
+else
+	$(error Multiple BUILDDIR's found! Use 'cleannone', 'cleansse4', 'cleanavx2', 'clean512y','clean512z', 'cleancuda' or 'cleanall'.)
+endif
+else
+	$(info USEBUILDDIR=0 only cleaning build with no dir.)
+	$(RM) *.o gensym $(PROG) $(PROG)_fortran $(PROG)_forhel ./$(PROG)_*
+	$(MAKE) -f $(CUDACPP_MAKEFILE) cleandir
+endif
+
+cleannone: # Clean builds: fortran in this Pn; cpp executables for one AVX in this Pn
 	$(RM) *.o gensym $(PROG) $(PROG)_fortran $(PROG)_forhel build.none_*/$(PROG)_cpp
+	$(MAKE) -f $(CUDACPP_MAKEFILE) cleannone
 
 cleansse4: # Clean build: fortran in this Pn; cpp executables for cppsse4 in this Pn
 	$(RM) *.o gensym $(PROG) $(PROG)_fortran $(PROG)_forhel build.sse4_*/$(PROG)_cpp
+	$(MAKE) -f $(CUDACPP_MAKEFILE) cleansse4
 
 cleanavx2: # Clean build: fortran in this Pn; cpp executables for cppavx2 in this Pn
 	$(RM) *.o gensym $(PROG) $(PROG)_fortran $(PROG)_forhel build.avx2_*/$(PROG)_cpp
+	$(MAKE) -f $(CUDACPP_MAKEFILE) cleanavx2
 
 clean512y: # Clean build: fortran in this Pn; cpp executables for cpp512y in this Pn
 	$(RM) *.o gensym $(PROG) $(PROG)_fortran $(PROG)_forhel build.512y_*/$(PROG)_cpp
+	$(MAKE) -f $(CUDACPP_MAKEFILE) clean512y
 
 clean512z: # Clean build: fortran in this Pn; cpp executables for cpp512z in this Pn
 	$(RM) *.o gensym $(PROG) $(PROG)_fortran $(PROG)_forhel build.512z_*/$(PROG)_cpp
+	$(MAKE) -f $(CUDACPP_MAKEFILE) clean512z
 
 cleancuda: # Clean build: fortran in this Pn; cuda executables in this Pn
 	$(RM) *.o gensym $(PROG) $(PROG)_fortran $(PROG)_forhel build.cuda_*/$(PROG)_cuda
+	$(MAKE) -f $(CUDACPP_MAKEFILE) cleancuda
 
 cleancpp: clean # Clean builds: fortran in this Pn; cudacpp for all AVX in this Pn and in src
 	$(MAKE) -f $(CUDACPP_MAKEFILE) cleanall

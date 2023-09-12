@@ -282,6 +282,7 @@ endif
 .PHONY: clean
 
 BUILD_DIRS := $(wildcard build.*)
+
 NUM_BUILD_DIRS := $(words $(BUILD_DIRS))
 
 clean:
@@ -294,8 +295,8 @@ else
 	$(error Multiple BUILDDIR's found! Use 'cleannone', 'cleansse4', 'cleanavx2', 'clean512y','clean512z', 'cleancuda' or 'cleanall'.)
 endif
 else
-	rm -f $(LIBDIR)/.build.* $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so
-	rm -f $(BUILDDIR)/.build.* $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
+	rm -f $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so
+	rm -f $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
 endif
 
 cleanall:
@@ -331,5 +332,9 @@ clean512z:
 cleancuda:
 	rm -rf $(LIBDIR)/build.cuda_*
 	rm -rf build.cuda_*
+
+cleandir:
+  rm -f $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so
+	rm -f $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
 
 #-------------------------------------------------------------------------------
