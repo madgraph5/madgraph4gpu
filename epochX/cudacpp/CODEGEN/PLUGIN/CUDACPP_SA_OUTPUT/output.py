@@ -203,7 +203,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
 	    cmdhistory is the list of command used so far.
 	    MG5options are all the options of the main interface
 	    outputflags is a list of options provided when doing the output command"""
-        misc.sprint('Entering PLUGIN_ProcessExporter.finalize', self.in_madevent_mode)
+        misc.sprint('Entering PLUGIN_ProcessExporter.finalize', self.in_madevent_mode, type(self))
         if self.in_madevent_mode:
             self.add_input_for_banner()
             if 'CUDACPP_CODEGEN_PATCHLEVEL' in os.environ: patchlevel = os.environ['CUDACPP_CODEGEN_PATCHLEVEL']
@@ -260,3 +260,36 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
 
 
 #------------------------------------------------------------------------------------
+class SIMD_ProcessExporter(PLUGIN_ProcessExporter):
+
+    def change_output_args(args, cmd):
+        """ """
+        cmd._export_format = "madevent"
+        args.append('--hel_recycling=False')
+        args.append('--me_exporter=standalone_simd')
+        if 'vector_size' not in ''.join(args):
+            args.append('--vector_size=16')
+        return args
+
+        
+    
+class GPU_ProcessExporter(PLUGIN_ProcessExporter):
+    
+    def change_output_args(args, cmd):
+        """ """
+        cmd._export_format = "madevent"
+        args.append('--hel_recycling=False')
+        args.append('--me_exporter=standalone_cuda')
+        if 'vector_size' not in ''.join(args):
+            args.append('--vector_size=2048')
+        return args
+        
+    def finalize(self, matrix_element, cmdhistory, MG5options, outputflag):
+
+        misc.sprint("enter dedicated function")
+        out = super().finalize(matrix_element, cmdhistory, MG5options, outputflag)
+        #change RunCard class to have default for GPU
+        text = open(pjoin(self.dir_path, 'bin', 'internal', 'launch_plugin.py'), 'r').read()
+        text = text.replace('RunCard = CPPRunCard', 'RunCard = GPURunCard')
+        open(pjoin(self.dir_path, 'bin', 'internal', 'launch_plugin.py'), 'w').write(text)
+        return out

@@ -77,5 +77,24 @@ class CPPRunCard(banner_mod.RunCardLO):
             return
         super().write_one_include_file(output_dir, incname, output_file)
 
+
+    def check_validity(self):
+        """ensure that PLUGIN information are consistent"""
+        
+        super().check_validity()
+
+        if self['SDE_strategy'] != 1:
+            logger.warning('SDE_strategy different of 1 is not supported with SMD/GPU mode')
+            self['sde_strategy'] = 1
+
+        if self['hel_recycling']:
+            self['hel_recycling'] = False
+            
+class GPURunCard(CPPRunCard):
+
+    def default_setup(self):
+        super(CPPRunCard, self).default_setup()
+        self.add_param('cudacpp_backend', 'CUDA', include=False, hidden=False)
+        
 MEINTERFACE = CPPMEInterface
 RunCard = CPPRunCard
