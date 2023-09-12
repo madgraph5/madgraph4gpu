@@ -13,19 +13,21 @@ CXXFLAGS = -O3 -Wall -Wshadow -Wextra
 
 .DEFAULT_GOAL := usage
 
-ifndef $(MAKECMDGOAL)
-	TARGET := undefined
-else
-	ifneq (,$(findstring madevent_*,$(MAKECMDGOAL)))
-		TARGET := $(patsubst %_%,%,$(MAKECMDGOAL))
-	else
-		TARGET := $(MAKECMDGOAL)
-	endif
-endif
-
 # Target if user does not specify target
 usage:
 	$(error Unknown target='$(TARGET)': only 'cppnone', 'cppsse4', 'cppavx2', 'cpp512y', 'cpp512z' and 'cuda' are supported!)
+
+# Sets correct target based on MAKECMDGOALS
+
+ifndef $(MAKECMDGOALS)
+	TARGET := undefined
+else
+	ifneq (,$(findstring madevent_*,$(MAKECMDGOALS)))
+		TARGET := $(patsubst %_%,%,$(MAKECMDGOALS))
+	else
+		TARGET := $(MAKECMDGOALS)
+	endif
+endif
 
 # Enable ccache if USECCACHE=1
 ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
@@ -269,8 +271,6 @@ cpp512y: $(CUDACPP_BUILDDIR)/.$(TARGET)libs
 cpp512z: $(CUDACPP_BUILDDIR)/.$(TARGET)libs
 
 cuda: $(CUDACPP_BUILDDIR)/.$(TARGET)libs
-
-###endif
 
 # Clean (NB: 'make clean' in Source calls 'make clean' in all P*)
 
