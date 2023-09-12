@@ -68,7 +68,7 @@ if [ "${patchlevel}" == "0" ]; then exit $status; fi
 # (1) Process-independent patches
 touch ${dir}/Events/.keep # this file should already be present (mg5amcnlo copies it from Template/LO/Events/.keep) 
 \cp -pr ${scrdir}/MG5aMC_patches/${dir_patches}/fbridge_common.inc ${dir}/SubProcesses # new file
-\cp -dpr ${scrdir}/MG5aMC_patches/${dir_patches}/{counters.cc,ompnumthreads.cc} ${dir}/SubProcesses/
+\cp -pr ${scrdir}/MG5aMC_patches/${dir_patches}/{counters.cc,ompnumthreads.cc} ${dir}/SubProcesses/
 #sed -i 's/2  = sde_strategy/1  = sde_strategy/' ${dir}/Cards/run_card.dat # use strategy SDE=1 in multichannel mode (see #419)
 #sed -i 's/SDE_STRAT = 2/SDE_STRAT = 1/' ${dir}/Source/run_card.inc # use strategy SDE=1 in multichannel mode (see #419)
 if [ "${patchlevel}" == "2" ]; then

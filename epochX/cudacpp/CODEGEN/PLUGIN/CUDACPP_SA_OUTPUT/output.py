@@ -211,11 +211,13 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
             plugin_path = os.path.dirname(os.path.realpath( __file__ ))
 #            path = os.path.realpath(os.curdir + os.sep + 'PLUGIN' + os.sep + 'CUDACPP_OUTPUT')
 #            misc.sprint(path)
-            p = subprocess.Popen([pjoin(plugin_path, 'patchMad.sh'), self.dir_path , 'PROD', str(patchlevel)])
+            p = subprocess.Popen([pjoin(plugin_path, 'patchMad.sh'), self.dir_path , 'PROD', str(patchlevel)],
+                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             stdout, stderr = p.communicate()
-            if not p.returncode:
+            if p.returncode != 0:
                 logger.debug("####### \n stdout is \n %s", stdout)
                 logger.info("####### \n stderr is \n %s", stderr)
+                logger.info("return code is %s\n", p.returncode)
                 raise Exception('ERROR! the O/S call to patchMad.sh failed')
             
             self.add_madevent_plugin_fct()
