@@ -69,6 +69,13 @@ class CPPRunCard(banner_mod.RunCardLO):
         super().default_setup()
         self.add_param('cudacpp_backend', 'CPP', include=False, hidden=False)
         
-        
+
+    def write_one_include_file(self, output_dir, incname, output_file=None):
+        """write one include file at the time"""
+
+        if incname == "vector.inc" and 'vector_size' not in self.user_set:
+            return
+        super().write_one_include_file(output_dir, incname, output_file)
+
 MEINTERFACE = CPPMEInterface
 RunCard = CPPRunCard
