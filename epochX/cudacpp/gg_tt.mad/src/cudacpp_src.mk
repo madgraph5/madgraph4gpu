@@ -334,7 +334,7 @@ cleancuda:
 	rm -rf build.cuda_*
 
 cleandir:
-  rm -f $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so
+	rm -f $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so
 	rm -f $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
 
 #-------------------------------------------------------------------------------

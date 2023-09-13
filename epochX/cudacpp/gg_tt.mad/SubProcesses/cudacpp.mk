@@ -813,7 +813,7 @@ cleancuda:
 cleandir:
 	rm -f $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
 	rm -f $(LIBDIR)/lib$(MG5AMC_CXXLIB).so $(LIBDIR)/lib$(MG5AMC_CULIB).so
-	$(MAKE) -C ../../src cleannone -f $(CUDACPP_SRC_MAKEFILE)
+	$(MAKE) -C ../../src cleandir -f $(CUDACPP_SRC_MAKEFILE)
 
 #-------------------------------------------------------------------------------
 
