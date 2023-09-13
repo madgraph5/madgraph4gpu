@@ -291,6 +291,7 @@ else
 	$(info USEBUILDDIR=0 only cleaning build with no dir.)
 	$(RM) *.o gensym $(PROG) $(PROG)_fortran $(PROG)_forhel ./$(PROG)_*
 	$(MAKE) -f $(CUDACPP_MAKEFILE) cleandir
+	$(RM) $(CUDACPP_BUILDDIR)/.*libs
 endif
 
 cleannone: # Clean builds: fortran in this Pn; cpp executables for one AVX in this Pn
@@ -319,7 +320,7 @@ cleancuda: # Clean build: fortran in this Pn; cuda executables in this Pn
 
 cleancpp: clean # Clean builds: fortran in this Pn; cudacpp for all AVX in this Pn and in src
 	$(MAKE) -f $(CUDACPP_MAKEFILE) cleanall
-	$(RM) $(CUDACPP_BUILDDIR)/.cudacpplibs
+	$(RM) $(CUDACPP_BUILDDIR)/.*libs
 	$(RM) .libs
 
 cleanall: # Clean builds: fortran in all P* and in Source; cudacpp for all AVX in all P* and in src
