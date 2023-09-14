@@ -275,7 +275,7 @@ cuda: $(CUDACPP_BUILDDIR)/.$(TARGET)libs
 # Clean (NB: 'make clean' in Source calls 'make clean' in all P*)
 
 BUILD_DIRS := $(wildcard build.*)
-BUILD_TARGET_DIR := $(shell echo $(BUILD_DIRS) | sed 's/.*\.\(.*\)-.*/\1/')
+BUILD_TARGET_DIR := $(shell echo $(BUILD_DIRS) | awk -F '[._]' '{print $$2})
 NUM_BUILD_DIRS := $(words $(BUILD_DIRS))
 
 clean:
