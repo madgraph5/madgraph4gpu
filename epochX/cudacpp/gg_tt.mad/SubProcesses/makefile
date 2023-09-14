@@ -275,7 +275,7 @@ cuda: $(CUDACPP_BUILDDIR)/.$(TARGET)libs
 # Clean (NB: 'make clean' in Source calls 'make clean' in all P*)
 
 BUILD_DIRS := $(wildcard build.*)
-BUILD_TARGET_DIR := $(shell echo $(CUDACPP_BUILDDIR) | sed 's/.*\.\(.*\)-.*/\1/')
+BUILD_TARGET_DIR := $(shell echo $(BUILD_DIRS) | sed 's/.*\.\(.*\)-.*/\1/')
 NUM_BUILD_DIRS := $(words $(BUILD_DIRS))
 
 clean:
@@ -284,6 +284,8 @@ ifeq ($(NUM_BUILD_DIRS),1)
 	$(info USEBUILDDIR=1 only cleaning build dir.)
 	$(RM) -r $(BUILD_DIRS)
 	$(MAKE) -f $(CUDACPP_MAKEFILE) clean$(BUILD_TARGET_DIR)
+else ifeq ($(NUM_BUILD_DIRS),0)
+	$(error USEBUILDDIR=1, but no build directories are found.)
 else
 	$(error Multiple BUILDDIR's found! Use 'cleannone', 'cleansse4', 'cleanavx2', 'clean512y','clean512z', 'cleancuda' or 'cleanall'.)
 endif
