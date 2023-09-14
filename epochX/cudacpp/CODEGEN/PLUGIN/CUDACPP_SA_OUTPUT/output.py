@@ -281,7 +281,7 @@ class GPU_ProcessExporter(PLUGIN_ProcessExporter):
         args.append('--hel_recycling=False')
         args.append('--me_exporter=standalone_cuda')
         if 'vector_size' not in ''.join(args):
-            args.append('--vector_size=2048')
+            args.append('--vector_size=16384')
         return args
         
     def finalize(self, matrix_element, cmdhistory, MG5options, outputflag):
