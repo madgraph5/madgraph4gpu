@@ -55,10 +55,15 @@ class CPPRunCard(banner_mod.RunCardLO):
         if not hasattr(self, 'path'):
             raise Exception
 
-        if name == "vector_size" and new_value <= int(old_value):
-            # code can handle the new size -> do not recompile
+        if name != 'vecsize_memmax':
+            # this will be control by that value only
             return
         
+        if name == "vecsize_memax" and new_value <= int(old_value):
+            # code can handle the new size -> do not recompile
+            return
+
+        # ok need to force recompilation of the cpp part
         Sourcedir = pjoin(os.path.dirname(os.path.dirname(self.path)), 'Source')
         subprocess.call(['make', 'cleanavx'], cwd=Sourcedir, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         
@@ -73,7 +78,8 @@ class CPPRunCard(banner_mod.RunCardLO):
     def write_one_include_file(self, output_dir, incname, output_file=None):
         """write one include file at the time"""
 
-        if incname == "vector.inc" and 'vector_size' not in self.user_set:
+        if incname == "vector.inc" and 'vector_size' not in self.user_set and\
+           'wrap_size' not in self.user_set:
             return
         super().write_one_include_file(output_dir, incname, output_file)
 

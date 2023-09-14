@@ -269,6 +269,8 @@ class SIMD_ProcessExporter(PLUGIN_ProcessExporter):
         args.append('--me_exporter=standalone_simd')
         if 'vector_size' not in ''.join(args):
             args.append('--vector_size=16')
+        if 'nb_wrap' not in ''.join(args):
+            args.append('--nb_wrap=1')            
         return args
 
         
@@ -281,7 +283,9 @@ class GPU_ProcessExporter(PLUGIN_ProcessExporter):
         args.append('--hel_recycling=False')
         args.append('--me_exporter=standalone_cuda')
         if 'vector_size' not in ''.join(args):
-            args.append('--vector_size=16384')
+            args.append('--vector_size=32')
+        if 'nb_wrap' not in ''.join(args):
+            args.append('--nb_wrap=512')                        
         return args
         
     def finalize(self, matrix_element, cmdhistory, MG5options, outputflag):
