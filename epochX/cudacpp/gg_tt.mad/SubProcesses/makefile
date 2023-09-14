@@ -20,13 +20,13 @@ usage:
 # Sets correct target based on MAKECMDGOALS
 
 ifeq ($(MAKECMDGOALS),)
-	TARGET := undefined
+    TARGET := undefined
 else
-	ifneq (,$(findstring madevent_*,$(MAKECMDGOALS)))
-		TARGET := $(patsubst %_%,%,$(MAKECMDGOALS))
-	else
-		TARGET := $(MAKECMDGOALS)
-	endif
+    ifneq (,$(findstring madevent_*,$(MAKECMDGOALS)))
+        TARGET := $(patsubst %_%,%,$(MAKECMDGOALS))
+    else
+        TARGET := $(MAKECMDGOALS)
+    endif
 endif
 
 # Enable ccache if USECCACHE=1
@@ -275,7 +275,7 @@ cuda: $(CUDACPP_BUILDDIR)/.$(TARGET)libs
 # Clean (NB: 'make clean' in Source calls 'make clean' in all P*)
 
 BUILD_DIRS := $(wildcard build.*)
-BUILD_TARGET := $(shell echo $(CUDACPP_BUILDDIR) | sed 's/.*\.\(.*\)-.*/\1/')
+BUILD_TARGET_DIR := $(shell echo $(CUDACPP_BUILDDIR) | sed 's/.*\.\(.*\)-.*/\1/')
 NUM_BUILD_DIRS := $(words $(BUILD_DIRS))
 
 clean:
@@ -283,7 +283,7 @@ ifeq ($(USEBUILDDIR),1)
 ifeq ($(NUM_BUILD_DIRS),1)
 	$(info USEBUILDDIR=1 only cleaning build dir.)
 	$(RM) -r $(BUILD_DIRS)
-	$(MAKE) -f $(CUDACPP_MAKEFILE) clean$(BUILD_TARGET)
+	$(MAKE) -f $(CUDACPP_MAKEFILE) clean$(BUILD_TARGET_DIR)
 else
 	$(error Multiple BUILDDIR's found! Use 'cleannone', 'cleansse4', 'cleanavx2', 'clean512y','clean512z', 'cleancuda' or 'cleanall'.)
 endif
