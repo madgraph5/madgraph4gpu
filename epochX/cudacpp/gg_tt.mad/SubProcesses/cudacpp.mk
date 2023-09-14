@@ -761,6 +761,8 @@ ifeq ($(USEBUILDDIR),1)
 ifeq ($(NUM_BUILD_DIRS),1)
 	$(info Only one build directory found.)
 	rm -rf build.*
+else ifeq ($(NUM_BUILD_DIRS),0)
+	$(error USEBUILDDIR=1, but no build directories are found.)
 else
 	$(error Multiple BUILDDIR's found! Use 'cleannone', 'cleansse4', 'cleanavx2', 'clean512y','clean512z', 'cleancuda' or 'cleanall'.)
 endif

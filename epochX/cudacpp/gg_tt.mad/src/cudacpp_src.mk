@@ -282,59 +282,60 @@ endif
 .PHONY: clean
 
 BUILD_DIRS := $(wildcard build.*)
-
 NUM_BUILD_DIRS := $(words $(BUILD_DIRS))
 
 clean:
 ifeq ($(USEBUILDDIR),1)
 ifeq ($(NUM_BUILD_DIRS),1)
 	$(info Only one build directory found.)
-	rm -rf $(LIBDIR)/build.*
+	rm -rf ../lib/build.*
 	rm -rf build.*
+else ifeq ($(NUM_BUILD_DIRS),0)
+	$(error USEBUILDDIR=1, but no build directories are found.)
 else
 	$(error Multiple BUILDDIR's found! Use 'cleannone', 'cleansse4', 'cleanavx2', 'clean512y','clean512z', 'cleancuda' or 'cleanall'.)
 endif
 else
-	rm -f $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so
+	rm -f ../lib/lib$(MG5AMC_COMMONLIB).so
 	rm -f $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
 endif
 
 cleanall:
 	@echo
-	rm -f $(LIBDIR)/.build.* $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so
+	rm -f ../lib/.build.* ../lib/lib$(MG5AMC_COMMONLIB).so
 	rm -f $(BUILDDIR)/.build.* $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
 	@echo
-	rm -rf $(LIBDIR)/build.*
+	rm -rf ../lib/build.*
 	rm -rf build.*
 
 # Target: clean different builds
 
 cleannone:
-	rm -rf $(LIBDIR)/build.none_*
+	rm -rf ../lib/build.none_*
 	rm -rf build.none_*
 
 cleansse4:
-	rm -rf $(LIBDIR)/build.sse4_*
+	rm -rf ../lib/build.sse4_*
 	rm -rf build.sse4_*
 
 cleanavx2:
-	rm -rf $(LIBDIR)/build.avx2_*
+	rm -rf ../lib/build.avx2_*
 	rm -rf build.avx2_*
 
 clean512y:
-	rm -rf $(LIBDIR)/build.512y_*
+	rm -rf ../lib/build.512y_*
 	rm -rf build.512y_*
 
 clean512z:
-	rm -rf $(LIBDIR)/build.512z_*
+	rm -rf ../lib/build.512z_*
 	rm -rf build.512z_*
 
 cleancuda:
-	rm -rf $(LIBDIR)/build.cuda_*
+	rm -rf ../lib/build.cuda_*
 	rm -rf build.cuda_*
 
 cleandir:
-	rm -f $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so
+	rm -f ../lib/lib$(MG5AMC_COMMONLIB).so
 	rm -f $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
 
 #-------------------------------------------------------------------------------
