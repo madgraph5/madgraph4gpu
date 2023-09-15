@@ -41,53 +41,43 @@ dir_patches=$2
 if [ ! -e ${dir} ]; then echo "ERROR! Directory $dir does not exist"; exit 1; fi
 
 # These two steps are part of "cd Source; make" but they actually are code-generating steps
-${dir}/bin/madevent treatcards run
-${dir}/bin/madevent treatcards param
+#${dir}/bin/madevent treatcards run
+#${dir}/bin/madevent treatcards param
 
 # Cleanup
-\rm -f ${dir}/crossx.html
-\rm -f ${dir}/index.html
-\rm -f ${dir}/madevent.tar.gz
-\rm -f ${dir}/Cards/delphes_trigger.dat
-\rm -f ${dir}/Cards/plot_card.dat
-\rm -f ${dir}/bin/internal/run_plot*
-\rm -f ${dir}/HTML/*
-\rm -rf ${dir}/bin/internal/__pycache__
-\rm -rf ${dir}/bin/internal/ufomodel/__pycache__
-touch ${dir}/HTML/.keep # new file
+#\rm -f ${dir}/crossx.html
+#\rm -f ${dir}/index.html
+#\rm -f ${dir}/madevent.tar.gz
+#\rm -f ${dir}/Cards/delphes_trigger.dat
+#\rm -f ${dir}/Cards/plot_card.dat
+#\rm -f ${dir}/bin/internal/run_plot*
+#\rm -f ${dir}/HTML/*
+#\rm -rf ${dir}/bin/internal/__pycache__
+#\rm -rf ${dir}/bin/internal/ufomodel/__pycache__
+#touch ${dir}/HTML/.keep # new file
 
 # Exit here for patchlevel 0 (--upstream)
 if [ "${patchlevel}" == "0" ]; then exit $status; fi
 
 # Add global flag '-O3 -ffast-math -fbounds-check' as in previous gridpacks
-echo "GLOBAL_FLAG=-O3 -ffast-math -fbounds-check" > ${dir}/Source/make_opts.new
-cat ${dir}/Source/make_opts >> ${dir}/Source/make_opts.new
-\mv ${dir}/Source/make_opts.new ${dir}/Source/make_opts
+#echo "GLOBAL_FLAG=-O3 -ffast-math -fbounds-check" > ${dir}/Source/make_opts.new
+#cat ${dir}/Source/make_opts >> ${dir}/Source/make_opts.new
+#\mv ${dir}/Source/make_opts.new ${dir}/Source/make_opts
 
 # Patch the default Fortran code to provide the integration with the cudacpp plugin
 # (1) Process-independent patches
 touch ${dir}/Events/.keep # this file should already be present (mg5amcnlo copies it from Template/LO/Events/.keep) 
-\cp -dpr ${scrdir}/MG5aMC_patches/${dir_patches}/fbridge_common.inc ${dir}/SubProcesses # new file
-\cp -dpr ${scrdir}/MG5aMC_patches/${dir_patches}/{counters.cc,ompnumthreads.cc} ${dir}/SubProcesses/
-sed -i 's/2  = sde_strategy/1  = sde_strategy/' ${dir}/Cards/run_card.dat # use strategy SDE=1 in multichannel mode (see #419)
-sed -i 's/SDE_STRAT = 2/SDE_STRAT = 1/' ${dir}/Source/run_card.inc # use strategy SDE=1 in multichannel mode (see #419)
+\cp -pr ${scrdir}/MG5aMC_patches/${dir_patches}/fbridge_common.inc ${dir}/SubProcesses # new file
+\cp -pr ${scrdir}/MG5aMC_patches/${dir_patches}/{counters.cc,ompnumthreads.cc} ${dir}/SubProcesses/
+#sed -i 's/2  = sde_strategy/1  = sde_strategy/' ${dir}/Cards/run_card.dat # use strategy SDE=1 in multichannel mode (see #419)
+#sed -i 's/SDE_STRAT = 2/SDE_STRAT = 1/' ${dir}/Source/run_card.inc # use strategy SDE=1 in multichannel mode (see #419)
 if [ "${patchlevel}" == "2" ]; then
   cd ${dir}
-  sed -i 's/DEFAULT_F2PY_COMPILER=f2py3.*/DEFAULT_F2PY_COMPILER=f2py3/' Source/make_opts
+  #sed -i 's/DEFAULT_F2PY_COMPILER=f2py3.*/DEFAULT_F2PY_COMPILER=f2py3/' Source/make_opts
   echo "DEBUG: cd ${PWD}; patch -p4 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.common"
   if ! patch -p4 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.common; then status=1; fi  
   \rm -f Source/*.orig
   \rm -f bin/internal/*.orig
-  echo "
-#*********************************************************************
-# Options for the cudacpp plugin
-#*********************************************************************
-
-# Set cudacpp-specific values of non-cudacpp-specific options
--O3 -ffast-math -fbounds-check = global_flag ! build flags for Fortran code (for a fair comparison to cudacpp)
-
-# New cudacpp-specific options (default values are defined in banner.py)
-CPP = cudacpp_backend ! valid backends are FORTRAN, CPP, CUDA" >> Cards/run_card.dat
   cd - > /dev/null
 fi
 for p1dir in ${dir}/SubProcesses/P*; do

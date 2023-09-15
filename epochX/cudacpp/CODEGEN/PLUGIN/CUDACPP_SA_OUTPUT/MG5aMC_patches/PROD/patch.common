@@ -25,7 +25,7 @@ index 617f10b93..dbe08b846 100644
  	$(RM) *.o $(LIBRARIES) $(BINARIES)
  	cd PDF; make clean; cd ..
  	cd PDF/gammaUPC; make clean; cd ../../
-@@ -132,4 +132,9 @@ clean:
+@@ -132,4 +132,11 @@ clean:
  	cd BIAS/ptj_bias; make clean; cd ../..
  	if [ -d $(CUTTOOLSDIR) ]; then cd $(CUTTOOLSDIR); make clean; cd ..; fi
  	if [ -d $(IREGIDIR) ]; then cd $(IREGIDIR); make clean; cd ..; fi
@@ -33,8 +33,11 @@ index 617f10b93..dbe08b846 100644
 +clean: cleanSource
  	for i in `ls -d ../SubProcesses/P*`; do cd $$i; make clean; cd -; done;
 +
-+cleanall: cleanSource
++cleanavx:
 +	for i in `ls -d ../SubProcesses/P*`; do cd $$i; make cleanavxs; cd -; done;
++cleanall: cleanSource # THIS IS THE ONE
++	for i in `ls -d ../SubProcesses/P*`; do cd $$i; make cleanavxs; cd -; done;
++
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 index 348c283be..74db44d84 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
@@ -78,12 +81,12 @@ index 348c283be..74db44d84 100644
 +CUDACPP_MAKEENV:=$(shell echo '$(.VARIABLES)' | tr " " "\n" | egrep "(USEBUILDDIR|AVX|FPTYPE|HELINL|HRDCOD)")
 +###$(info CUDACPP_MAKEENV=$(CUDACPP_MAKEENV))
 +###$(info $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))"))
-+CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn |& awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
-+ifeq ($(CUDACPP_BUILDDIR),)
-+$(error CUDACPP_BUILDDIR='$(CUDACPP_BUILDDIR)' should not be empty!)
-+else
++CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn 2>/dev/null | awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
++#ifeq ($(CUDACPP_BUILDDIR),)
++#$(error CUDACPP_BUILDDIR='$(CUDACPP_BUILDDIR)' should not be empty!)
++#else
 +$(info CUDACPP_BUILDDIR='$(CUDACPP_BUILDDIR)')
-+endif
++#endif
 +CUDACPP_COMMONLIB=mg5amc_common
 +CUDACPP_CXXLIB=mg5amc_$(processid_short)_cpp
 +CUDACPP_CULIB=mg5amc_$(processid_short)_cuda
@@ -110,7 +113,7 @@ index 348c283be..74db44d84 100644
  
 -$(PROG): $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX)
 -	$(FC) -o $(PROG) $(PROCESS) $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp
-+LDFLAGS+=-Wl,--no-relax # avoid 'failed to convert GOTPCREL relocation' error #458
++#LDFLAGS+=-Wl,--no-relax # avoid 'failed to convert GOTPCREL relocation' error #458 (flag not universal -> skip?)
  
 -$(PROG)_forhel: $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX_HEL)
 -	$(FC) -o $(PROG)_forhel $(PROCESS) $(MATRIX_HEL) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp
@@ -283,44 +286,6 @@ index 348c283be..74db44d84 100644
 +
 +distclean: cleanall # Clean all fortran and cudacpp builds as well as the googletest installation
 +	$(MAKE) -f $(CUDACPP_MAKEFILE) distclean
-diff --git b/epochX/cudacpp/gg_tt.mad/Source/make_opts a/epochX/cudacpp/gg_tt.mad/Source/make_opts
-index 57f5f7bb9..bd3c24228 100644
---- b/epochX/cudacpp/gg_tt.mad/Source/make_opts
-+++ a/epochX/cudacpp/gg_tt.mad/Source/make_opts
-@@ -1,12 +1,17 @@
-+pdlabel1=
-+pdlabel2=
-+lhapdf=
-+PYTHIA8_PATH=NotInstalled
-+MG5AMC_VERSION=3.5.0_lo_vect
- GLOBAL_FLAG=-O3 -ffast-math -fbounds-check
-+ALOHA_FLAG=
-+MATRIX_FLAG=
- DEFAULT_CPP_COMPILER=g++
- MACFLAG=
- STDLIB=-lstdc++
- STDLIB_FLAG=
- DEFAULT_F_COMPILER=gfortran
- DEFAULT_F2PY_COMPILER=f2py3
--MG5AMC_VERSION=SpecifiedByMG5aMCAtRunTime
--PYTHIA8_PATH=NotInstalled
- #end_of_make_opts_variables
- 
- BIASLIBDIR=../../../lib/
-diff --git b/epochX/cudacpp/gg_tt.mad/bin/internal/banner.py a/epochX/cudacpp/gg_tt.mad/bin/internal/banner.py
-index 8f8df219d..7624b9f55 100755
---- b/epochX/cudacpp/gg_tt.mad/bin/internal/banner.py
-+++ a/epochX/cudacpp/gg_tt.mad/bin/internal/banner.py
-@@ -4187,7 +4187,8 @@ class RunCardLO(RunCard):
-         self.add_param('mxxmin4pdg',[-1.], system=True)
-         self.add_param('mxxpart_antipart', [False], system=True)
-                      
--        
-+        # CUDACPP parameters
-+        self.add_param('cudacpp_backend', 'CPP', include=False, hidden=False)
-              
-     def check_validity(self):
-         """ """
 diff --git b/epochX/cudacpp/gg_tt.mad/bin/internal/gen_ximprove.py a/epochX/cudacpp/gg_tt.mad/bin/internal/gen_ximprove.py
 index 4dd71db86..3b8ec3121 100755
 --- b/epochX/cudacpp/gg_tt.mad/bin/internal/gen_ximprove.py
