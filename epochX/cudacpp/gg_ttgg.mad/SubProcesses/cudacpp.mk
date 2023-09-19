@@ -225,15 +225,15 @@ endif
 
 # Set the default OMPFLAGS choice
 ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
-override OMPFLAGS = -fopenmp
+OMPFLAGS = -fopenmp
 ###override OMPFLAGS = # disable OpenMP MT on Intel (was ok without nvcc but not ok with nvcc before #578)
 else ifneq ($(shell $(CXX) --version | egrep '^(clang)'),)
-override OMPFLAGS = -fopenmp
+OMPFLAGS = -fopenmp
 ###override OMPFLAGS = # disable OpenMP MT on clang (was not ok without or with nvcc before #578)
 else ifneq ($(shell $(CXX) --version | egrep '^(Apple clang)'),)
-override OMPFLAGS = # disable OpenMP MT on Apple clang (builds fail in the CI #578)
+OMPFLAGS = # disable OpenMP MT on Apple clang (builds fail in the CI #578)
 else
-override OMPFLAGS = -fopenmp
+OMPFLAGS = -fopenmp
 ###override OMPFLAGS = # disable OpenMP MT (default before #575)
 endif
 
