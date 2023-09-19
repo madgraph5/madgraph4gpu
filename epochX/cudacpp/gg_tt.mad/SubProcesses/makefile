@@ -71,12 +71,6 @@ CUDACPP_MAKEFILE=cudacpp.mk
 CUDACPP_MAKEENV:=$(shell echo '$(.VARIABLES)' | tr " " "\n" | egrep "(USEBUILDDIR|FPTYPE|HELINL|HRDCOD)")
 ###$(info CUDACPP_MAKEENV=$(CUDACPP_MAKEENV))
 ###$(info $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))"))
-CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn $(TARGET) |& awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
-ifeq ($(CUDACPP_BUILDDIR),)
-$(error CUDACPP_BUILDDIR='$(CUDACPP_BUILDDIR)' should not be empty!)
-else
-$(info CUDACPP_BUILDDIR='$(CUDACPP_BUILDDIR)')
-endif
 CUDACPP_COMMONLIB=mg5amc_common
 CUDACPP_CXXLIB=mg5amc_$(processid_short)_cpp
 CUDACPP_CULIB=mg5amc_$(processid_short)_cuda
@@ -156,26 +150,32 @@ madevent_fortran_link: $(PROG)_fortran
 	rm -f $(PROG)
 	ln -s $(PROG)_fortran $(PROG)
 
+madevent_cppnone_link: CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn cppnone |& awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
 madevent_cppnone_link: $(CUDACPP_BUILDDIR)/$(PROG)_cpp
 	rm -f $(PROG)
 	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
 
+madevent_cppsse4_link: CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn cppsse4 |& awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
 madevent_cppsse4_link: $(CUDACPP_BUILDDIR)/$(PROG)_cpp
 	rm -f $(PROG)
 	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
 
+madevent_cppavx2_link: CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn cppavx2 |& awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
 madevent_cppavx2_link: $(CUDACPP_BUILDDIR)/$(PROG)_cpp
 	rm -f $(PROG)
 	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
 
+madevent_cpp512y_link: CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn cpp512y |& awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
 madevent_cpp512y_link: $(CUDACPP_BUILDDIR)/$(PROG)_cpp
 	rm -f $(PROG)
 	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
 
+madevent_cpp512z_link: CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn cpp512z |& awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
 madevent_cpp512z_link: $(CUDACPP_BUILDDIR)/$(PROG)_cpp
 	rm -f $(PROG)
 	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
 
+madevent_cuda_link: CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn cuda |& awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
 madevent_cuda_link: $(CUDACPP_BUILDDIR)/$(PROG)_cuda
 	rm -f $(PROG)
 	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cuda $(PROG)
@@ -258,18 +258,32 @@ else
 cppall: cppnone cppsse4 cppavx2 cpp512y cpp512z
 endif
 
+ALL: USEBUILDDIR=1
 ALL: cppnone cppsse4 cppavx2 cpp512y cpp512z cuda
 
+
+cppnone: CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn cppnone |& awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
+cppnone: TARGET = cppnone
 cppnone: $(CUDACPP_BUILDDIR)/.$(TARGET)libs
 
+cppsse4: CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn cppsse4 |& awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
+cppsse4: TARGET = cppsse4
 cppsse4: $(CUDACPP_BUILDDIR)/.$(TARGET)libs
 
+cppavx2: CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn cppavx2 |& awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
+cppavx2: TARGET = cppavx2
 cppavx2: $(CUDACPP_BUILDDIR)/.$(TARGET)libs
 
+cpp512y: CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn cpp512y |& awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
+cpp512y: TARGET = cpp512y
 cpp512y: $(CUDACPP_BUILDDIR)/.$(TARGET)libs
 
+cpp512z: CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn cpp512z |& awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
+cpp512z: TARGET = cpp512z
 cpp512z: $(CUDACPP_BUILDDIR)/.$(TARGET)libs
 
+cuda: CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn cpp512z |& awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
+cuda: TARGET = cuda
 cuda: $(CUDACPP_BUILDDIR)/.$(TARGET)libs
 
 # Clean (NB: 'make clean' in Source calls 'make clean' in all P*)
