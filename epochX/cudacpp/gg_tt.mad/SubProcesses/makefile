@@ -129,10 +129,6 @@ $(LIBS): .libs
 	cd ../../Source; make
 	touch $@
 
-$(CUDACPP_BUILDDIR)/.$(TARGET)libs:
-	$(MAKE) -f $(CUDACPP_MAKEFILE) $(TARGET)
-	touch $@
-
 # On Linux, set rpath to LIBDIR to make it unnecessary to use LD_LIBRARY_PATH
 # Use relative paths with respect to the executables ($ORIGIN on Linux)
 # On Darwin, building libraries with absolute paths in LIBDIR makes this unnecessary
@@ -258,33 +254,33 @@ else
 cppall: cppnone cppsse4 cppavx2 cpp512y cpp512z
 endif
 
-ALL: USEBUILDDIR=1
-ALL: cppnone cppsse4 cppavx2 cpp512y cpp512z cuda
+all: USEBUILDDIR=1
+all: cppnone cppsse4 cppavx2 cpp512y cpp512z cuda
 
 
 cppnone: CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn cppnone |& awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
-cppnone: TARGET = cppnone
-cppnone: $(CUDACPP_BUILDDIR)/.$(TARGET)libs
+cppnone: $(MAKE) -f $(CUDACPP_MAKEFILE) cppnone
+cppnone: touch $(CUDACPP_BUILDDIR)/.$(TARGET)libs
 
 cppsse4: CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn cppsse4 |& awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
-cppsse4: TARGET = cppsse4
-cppsse4: $(CUDACPP_BUILDDIR)/.$(TARGET)libs
+cppsse4: $(MAKE) -f $(CUDACPP_MAKEFILE) cppsse4
+cppsse4: touch $(CUDACPP_BUILDDIR)/.$(TARGET)libs
 
 cppavx2: CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn cppavx2 |& awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
-cppavx2: TARGET = cppavx2
-cppavx2: $(CUDACPP_BUILDDIR)/.$(TARGET)libs
+cppavx2: $(MAKE) -f $(CUDACPP_MAKEFILE) cppavx2
+cppavx2: touch $(CUDACPP_BUILDDIR)/.$(TARGET)libs
 
 cpp512y: CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn cpp512y |& awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
-cpp512y: TARGET = cpp512y
-cpp512y: $(CUDACPP_BUILDDIR)/.$(TARGET)libs
+cpp512y: $(MAKE) -f $(CUDACPP_MAKEFILE) cpp512y
+cpp512y: touch $(CUDACPP_BUILDDIR)/.$(TARGET)libs
 
 cpp512z: CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn cpp512z |& awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
-cpp512z: TARGET = cpp512z
-cpp512z: $(CUDACPP_BUILDDIR)/.$(TARGET)libs
+cpp512z: $(MAKE) -f $(CUDACPP_MAKEFILE) cpp512z
+cpp512z: touch $(CUDACPP_BUILDDIR)/.$(TARGET)libs
 
 cuda: CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn cpp512z |& awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
-cuda: TARGET = cuda
-cuda: $(CUDACPP_BUILDDIR)/.$(TARGET)libs
+cuda: $(MAKE) -f $(CUDACPP_MAKEFILE) cppnone
+cuda: touch $(CUDACPP_BUILDDIR)/.$(TARGET)libs
 
 # Clean (NB: 'make clean' in Source calls 'make clean' in all P*)
 
