@@ -242,9 +242,13 @@ else
 cppall: cppnone cppsse4 cppavx2 cpp512y cpp512z
 endif
 
-ALL: USEBUILDDIR=1
-ALL: cppnone cppsse4 cppavx2 cpp512y cpp512z cuda
-
+ALL:
+	$(MAKE) USEBUILDDIR=1 cppnone
+	$(MAKE) USEBUILDDIR=1 cppsse4
+	$(MAKE) USEBUILDDIR=1 cppavx2
+	$(MAKE) USEBUILDDIR=1 cpp512y
+	$(MAKE) USEBUILDDIR=1 cpp512z
+	$(MAKE) USEBUILDDIR=1 cuda
 
 cppnone: CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn cppnone |& awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
 cppnone: $(MAKE) -f $(CUDACPP_MAKEFILE) cppnone
