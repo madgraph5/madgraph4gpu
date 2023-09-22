@@ -759,8 +759,8 @@ NUM_BUILD_DIRS := $(words $(BUILD_DIRS))
 clean:
 ifeq ($(USEBUILDDIR),1)
 ifeq ($(NUM_BUILD_DIRS),1)
-	$(info Only one build directory found.)
-	rm -rf build.*
+	$(info USEBUILDDIR=1, Only one build directory found.)
+	rm -rf $(BUILD_DIRS)
 else ifeq ($(NUM_BUILD_DIRS),0)
 	$(error USEBUILDDIR=1, but no build directories are found.)
 else

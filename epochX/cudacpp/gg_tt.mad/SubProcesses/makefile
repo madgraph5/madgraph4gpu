@@ -245,11 +245,20 @@ genps.o: .libs
 
 UNAME_P := $(shell uname -p)
 ifeq ($(UNAME_P),ppc64le)
-cppall: cppnone cppsse4
+cppall:
+	$(MAKE) USEBUILDDIR=1 cppnone
+	$(MAKE) USEBUILDDIR=1 cppsse4
 else ifeq ($(UNAME_P),arm)
-cppall: cppnone cppsse4
+cppall:
+	$(MAKE) USEBUILDDIR=1 cppnone
+	$(MAKE) USEBUILDDIR=1 cppsse4
 else
-cppall: cppnone cppsse4 cppavx2 cpp512y cpp512z
+cppall:
+	$(MAKE) USEBUILDDIR=1 cppnone
+	$(MAKE) USEBUILDDIR=1 cppsse4
+	$(MAKE) USEBUILDDIR=1 cppavx2
+	$(MAKE) USEBUILDDIR=1 cpp512y
+	$(MAKE) USEBUILDDIR=1 cpp512z
 endif
 
 ALL:
@@ -293,7 +302,7 @@ NUM_BUILD_DIRS := $(words $(BUILD_DIRS))
 clean:
 ifeq ($(USEBUILDDIR),1)
 ifeq ($(NUM_BUILD_DIRS),1)
-	$(info USEBUILDDIR=1 only cleaning build dir.)
+	$(info USEBUILDDIR=1, only cleaning build dir.)
 	$(RM) -r $(BUILD_DIRS)
 	$(MAKE) -f $(CUDACPP_MAKEFILE) clean$(BUILD_TARGET_DIR)
 else ifeq ($(NUM_BUILD_DIRS),0)

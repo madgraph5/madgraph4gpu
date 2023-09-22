@@ -287,13 +287,13 @@ NUM_BUILD_DIRS := $(words $(BUILD_DIRS))
 clean:
 ifeq ($(USEBUILDDIR),1)
 ifeq ($(NUM_BUILD_DIRS),1)
-	$(info Only one build directory found.)
-	rm -rf ../lib/build.*
-	rm -rf build.*
+	$(info USEBUILDDIR=1, only one src build directory found.)
+	rm -rf ../lib/$(BUILD_DIRS)
+	rm -rf $(BUILD_DIRS)
 else ifeq ($(NUM_BUILD_DIRS),0)
-	$(error USEBUILDDIR=1, but no build directories are found.)
+	$(error USEBUILDDIR=1, but no src build directories are found.)
 else
-	$(error Multiple BUILDDIR's found! Use 'cleannone', 'cleansse4', 'cleanavx2', 'clean512y','clean512z', 'cleancuda' or 'cleanall'.)
+	$(error Multiple src BUILDDIR's found! Use 'cleannone', 'cleansse4', 'cleanavx2', 'clean512y','clean512z', 'cleancuda' or 'cleanall'.)
 endif
 else
 	rm -f ../lib/lib$(MG5AMC_COMMONLIB).so
