@@ -296,8 +296,8 @@ else
 	$(error Multiple src BUILDDIR's found! Use 'cleannone', 'cleansse4', 'cleanavx2', 'clean512y','clean512z', 'cleancuda' or 'cleanall'.)
 endif
 else
-	rm -f ../lib/lib$(MG5AMC_COMMONLIB).so
-	rm -f $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
+	rm -f ../lib/.build.* ../lib/lib$(MG5AMC_COMMONLIB).so
+	rm -f $(BUILDDIR)/.build.* $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
 endif
 
 cleanall:
@@ -335,7 +335,9 @@ cleancuda:
 	rm -rf build.cuda_*
 
 cleandir:
+  rm -f ./*.o ./*.exe
 	rm -f ../lib/lib$(MG5AMC_COMMONLIB).so
-	rm -f $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
+  rm -f ../lib/.build.*
+  rm -f ./.build.*
 
 #-------------------------------------------------------------------------------

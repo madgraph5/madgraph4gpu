@@ -790,31 +790,38 @@ endif
 # Target: clean different builds
 cleannone:
 	rm -rf build.none_*
+  rm -f ../../lib/build.none_*/lib$(MG5AMC_CXXLIB).so
 	$(MAKE) -C ../../src cleannone -f $(CUDACPP_SRC_MAKEFILE)
 
 cleansse4:
 	rm -rf build.sse4_*
+  rm -f ../../lib/build.sse4_*/lib$(MG5AMC_CXXLIB).so
 	$(MAKE) -C ../../src cleansse4 -f $(CUDACPP_SRC_MAKEFILE)
 
 cleanavx2:
 	rm -rf build.avx2_*
+  rm -f ../../lib/build.avx2_*/lib$(MG5AMC_CXXLIB).so
 	$(MAKE) -C ../../src cleanavx2 -f $(CUDACPP_SRC_MAKEFILE)
 
 clean512y:
 	rm -rf build.512y_*
+  rm -f ../../lib/build.512y_*/lib$(MG5AMC_CXXLIB).so
 	$(MAKE) -C ../../src clean512y -f $(CUDACPP_SRC_MAKEFILE)
 
 clean512z:
 	rm -rf build.512z_*
+  rm -f ../../lib/build.512z_*/lib$(MG5AMC_CXXLIB).so
 	$(MAKE) -C ../../src clean512z -f $(CUDACPP_SRC_MAKEFILE)
 
 cleancuda:
 	rm -rf build.cuda_*
+  rm -f ../../lib/build.cuda_*/lib$(MG5AMC_CULIB).so
 	$(MAKE) -C ../../src cleancuda -f $(CUDACPP_SRC_MAKEFILE)
 
 cleandir:
-	rm -f $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
-	rm -f $(LIBDIR)/lib$(MG5AMC_CXXLIB).so $(LIBDIR)/lib$(MG5AMC_CULIB).so
+	rm -f ./*.o ./*.exe
+	rm -f ../../lib/lib$(MG5AMC_CXXLIB).so ../../lib/lib$(MG5AMC_CULIB).so
+  rm -f ./.build.*
 	$(MAKE) -C ../../src cleandir -f $(CUDACPP_SRC_MAKEFILE)
 
 #-------------------------------------------------------------------------------
