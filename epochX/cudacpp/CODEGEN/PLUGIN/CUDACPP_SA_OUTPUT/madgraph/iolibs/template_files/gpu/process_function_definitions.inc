@@ -251,12 +251,12 @@ namespace mg5amcCpu
                        fptype* allDenominators,    // output: multichannel denominators[nevt], running_sum_over_helicities
 #endif
                        bool* isGoodHel )           // output: isGoodHel[ncomb] - device array (CUDA implementation)
-  { /* clang-format on */
-    fptype allMEsLast = 0;
+  {                                                         /* clang-format on */
     const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
-    allMEs[ievt] = 0;
     for( int ihel = 0; ihel < ncomb; ihel++ )
     {
+      // NEW IMPLEMENTATION OF GETGOODHEL (#630): RESET THE RUNNING SUM OVER HELICITIES TO 0 BEFORE ADDING A NEW HELICITY
+      allMEs[ievt] = 0;
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
       constexpr fptype_sv* jamp2_sv = nullptr; // no need for color selection during helicity filtering
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
@@ -265,12 +265,11 @@ namespace mg5amcCpu
 #else
       calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, jamp2_sv );
 #endif
-      if( allMEs[ievt] != allMEsLast )
+      if( allMEs[ievt] != 0 ) // NEW IMPLEMENTATION OF GETGOODHEL (#630): COMPARE EACH HELICITY CONTRIBUTION TO 0
       {
         //if ( !isGoodHel[ihel] ) std::cout << "sigmaKin_getGoodHel ihel=" << ihel << " TRUE" << std::endl;
         isGoodHel[ihel] = true;
       }
-      allMEsLast = allMEs[ievt]; // running sum up to helicity ihel for event ievt
     }
   }
 #else
@@ -289,19 +288,11 @@ namespace mg5amcCpu
     //assert( (size_t)(allMEs) %% mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
     // Allocate arrays at build time to contain at least 16 events (or at least neppV events if neppV>16, e.g. in future VPUs)
     constexpr int maxtry0 = std::max( 16, neppV ); // 16, but at least neppV (otherwise the npagV loop does not even start)
-    fptype allMEsLast[maxtry0] = { 0 };            // allocated at build time: maxtry0 must be a constexpr
     // Loop over only nevt events if nevt is < 16 (note that nevt is always >= neppV)
     assert( nevt >= neppV );
     const int maxtry = std::min( maxtry0, nevt ); // 16, but at most nevt (avoid invalid memory access if nevt<maxtry0)
 
-    // PART 0 - INITIALISATION (before calculate_wavefunctions)
-    // Reset the "matrix elements" - running sums of |M|^2 over helicities for the given event
-    for( int ievt = 0; ievt < maxtry; ++ievt )
-    {
-      allMEs[ievt] = 0; // all zeros
-    }
-
-    // PART 1 - HELICITY LOOP: CALCULATE WAVEFUNCTIONS
+    // HELICITY LOOP: CALCULATE WAVEFUNCTIONS
     const int npagV = maxtry / neppV;
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
     // Mixed fptypes #537: float for color algebra and double elsewhere
@@ -320,6 +311,16 @@ namespace mg5amcCpu
 #endif
       for( int ihel = 0; ihel < ncomb; ihel++ )
       {
+        // NEW IMPLEMENTATION OF GETGOODHEL (#630): RESET THE RUNNING SUM OVER HELICITIES TO 0 BEFORE ADDING A NEW HELICITY
+        for( int ieppV = 0; ieppV < neppV; ++ieppV )
+        {
+          const int ievt = ievt00 + ieppV;
+          allMEs[ievt] = 0;
+#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+          const int ievt2 = ievt00 + ieppV + neppV;
+          allMEs[ievt2] = 0;
+#endif
+        }
         constexpr fptype_sv* jamp2_sv = nullptr; // no need for color selection during helicity filtering
         //std::cout << "sigmaKin_getGoodHel ihel=" << ihel << ( isGoodHel[ihel] ? " true" : " false" ) << std::endl;
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
@@ -331,22 +332,18 @@ namespace mg5amcCpu
         for( int ieppV = 0; ieppV < neppV; ++ieppV )
         {
           const int ievt = ievt00 + ieppV;
-          const bool differs = ( allMEs[ievt] != allMEsLast[ievt] );
-          if( differs )
+          if( allMEs[ievt] != 0 ) // NEW IMPLEMENTATION OF GETGOODHEL (#630): COMPARE EACH HELICITY CONTRIBUTION TO 0
           {
             //if ( !isGoodHel[ihel] ) std::cout << "sigmaKin_getGoodHel ihel=" << ihel << " TRUE" << std::endl;
             isGoodHel[ihel] = true;
           }
-          allMEsLast[ievt] = allMEs[ievt]; // running sum up to helicity ihel
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
           const int ievt2 = ievt00 + ieppV + neppV;
-          const bool differs2 = ( allMEs[ievt2] != allMEsLast[ievt2] );
-          if( differs2 )
+          if( allMEs[ievt2] != 0 ) // NEW IMPLEMENTATION OF GETGOODHEL (#630): COMPARE EACH HELICITY CONTRIBUTION TO 0
           {
             //if ( !isGoodHel[ihel] ) std::cout << "sigmaKin_getGoodHel ihel=" << ihel << " TRUE" << std::endl;
             isGoodHel[ihel] = true;
           }
-          allMEsLast[ievt2] = allMEs[ievt2]; // running sum up to helicity ihel
 #endif
         }
       }
@@ -408,8 +405,7 @@ namespace mg5amcCpu
     {
       // nprocesses>1 was last observed for "mirror processes" in uux_ttx in the 270 branch (see issue #343 and PRs #360 and #396)
       constexpr int nprocesses = %(nproc)i;
-      static_assert( nprocesses == 1, "Assume nprocesses == 1" );
-      // process_id corresponds to the index of DSIG1 Fortran functions (must be 1 because cudacpp is unable to handle DSIG2)
+      static_assert( nprocesses == 1 || nprocesses == 2, "Assume nprocesses == 1 or 2" );
       constexpr int process_id = %(proc_id)i; // code generation source: %(proc_id_source)s
       static_assert( process_id == 1, "Assume process_id == 1" );
     }

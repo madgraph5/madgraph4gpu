@@ -2,6 +2,9 @@
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: S. Hageboeck (Nov 2020) for the MG5aMC CUDACPP plugin.
 // Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
+//----------------------------------------------------------------------------
+// Use ./runTest.exe --gtest_filter=*xxx to run only testxxx.cc tests
+//----------------------------------------------------------------------------
 
 #include "mgOnGpuConfig.h"
 
@@ -68,6 +71,8 @@ struct CPUTest : public CUDA_CPU_TestBase
     , hstSelCol( nevt )
     , hstIsGoodHel( CPPProcess::ncomb )
   {
+    // FIXME: the process instance can happily go out of scope because it is only needed to read parameters?
+    // FIXME: the CPPProcess should really be a singleton?
     process.initProc( "../../Cards/param_card.dat" );
   }
 
@@ -180,6 +185,8 @@ struct CUDATest : public CUDA_CPU_TestBase
     , devSelCol( nevt )
     , devIsGoodHel( CPPProcess::ncomb )
   {
+    // FIXME: the process instance can happily go out of scope because it is only needed to read parameters?
+    // FIXME: the CPPProcess should really be a singleton?
     process.initProc( "../../Cards/param_card.dat" );
   }
 

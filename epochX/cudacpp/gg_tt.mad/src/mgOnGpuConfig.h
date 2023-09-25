@@ -98,6 +98,7 @@
 #endif
 #endif
 
+// NB: namespace mgOnGpu includes types which are defined in exactly the same way for CPU and GPU builds (see #318 and #725)
 namespace mgOnGpu
 {
 

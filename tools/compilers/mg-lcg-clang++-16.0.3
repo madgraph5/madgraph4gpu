@@ -1,0 +1,16 @@
+#!/bin/sh
+redrel=$(cat /etc/redhat-release 2> /dev/null)
+if [ "${redrel##*release 7}" != "${redrel}" ]; then
+  export PATH=/cvmfs/sft.cern.ch/lcg/releases/clang/16.0.3-9dda8/x86_64-centos7/bin:/cvmfs/sft.cern.ch/lcg/releases/gcc/13.1.0-b3d18/x86_64-centos7/bin:/cvmfs/sft.cern.ch/lcg/releases/binutils/2.40-acaab/x86_64-centos7/bin${PATH:+:$PATH}
+  LD_LIBRARY_PATH=$(printenv LD_LIBRARY_PATH | sed 's-[^:]*/\(gcc\|llvm\|clang\|binutils\)/[^:]*:\?--g')
+  export LD_LIBRARY_PATH=/cvmfs/sft.cern.ch/lcg/releases/clang/16.0.3-9dda8/x86_64-centos7/lib:/cvmfs/sft.cern.ch/lcg/releases/gcc/13.1.0-b3d18/x86_64-centos7/lib64:/cvmfs/sft.cern.ch/lcg/releases/binutils/2.40-acaab/x86_64-centos7/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+  exec /cvmfs/sft.cern.ch/lcg/releases/clang/16.0.3-9dda8/x86_64-centos7/bin/clang++ --gcc-toolchain=/cvmfs/sft.cern.ch/lcg/releases/gcc/13.1.0-b3d18/x86_64-centos7 "$@"
+elif [ "${redrel##*release 9}" != "${redrel}" ]; then
+  export PATH=/cvmfs/sft.cern.ch/lcg/releases/clang/16.0.3-9dda8/x86_64-el9/bin:/cvmfs/sft.cern.ch/lcg/releases/gcc/13.1.0-b3d18/x86_64-el9/bin:/cvmfs/sft.cern.ch/lcg/releases/binutils/2.40-acaab/x86_64-el9/bin${PATH:+:$PATH}
+  LD_LIBRARY_PATH=$(printenv LD_LIBRARY_PATH | sed 's-[^:]*/\(gcc\|llvm\|clang\|binutils\)/[^:]*:\?--g')
+  export LD_LIBRARY_PATH=/cvmfs/sft.cern.ch/lcg/releases/clang/16.0.3-9dda8/x86_64-el9/lib:/cvmfs/sft.cern.ch/lcg/releases/gcc/13.1.0-b3d18/x86_64-el9/lib64:/cvmfs/sft.cern.ch/lcg/releases/binutils/2.40-acaab/x86_64-el9/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+  exec /cvmfs/sft.cern.ch/lcg/releases/clang/16.0.3-9dda8/x86_64-el9/bin/clang++ --gcc-toolchain=/cvmfs/sft.cern.ch/lcg/releases/gcc/13.1.0-b3d18/x86_64-el9 "$@"
+else
+  echo "ERROR! RedHat release ${redrel} is not supported by $0"
+  exit 1
+fi

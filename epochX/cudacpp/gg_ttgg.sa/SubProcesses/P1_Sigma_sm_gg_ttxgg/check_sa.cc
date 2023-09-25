@@ -277,10 +277,10 @@ main( int argc, char** argv )
   const std::string procKey = "0a ProcInit";
   timermap.start( procKey );
 
-  // Create a process object
+  // Create a process object, read param card and set parameters
+  // FIXME: the process instance can happily go out of scope because it is only needed to read parameters?
+  // FIXME: the CPPProcess should really be a singleton? (for instance, in bridge mode this will be called twice here?)
   CPPProcess process( verbose );
-
-  // Read param_card and set parameters
   process.initProc( "../../Cards/param_card.dat" );
   const fptype energy = 1500; // historical default, Ecms = 1500 GeV = 1.5 TeV (above the Z peak)
   //const fptype energy = 91.2; // Ecms = 91.2 GeV (Z peak)

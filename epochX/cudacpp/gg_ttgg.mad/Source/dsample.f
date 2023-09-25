@@ -69,6 +69,7 @@ c      common /to_fx/   fx
       integer                             lun, nw, itminx
       common/to_unwgt/twgt, maxwgt, swgt, lun, nw, itminx
 
+      
       integer nzoom
       double precision  tx(1:3,maxinvar)
       common/to_xpoints/tx, nzoom
@@ -666,8 +667,9 @@ c     Constants
 c
       include 'genps.inc'
       include 'maxconfigs.inc'
+      include 'vector.inc'      ! defines VECSIZE_MEMMAX
       include 'run.inc'
-      include 'vector.inc' ! defines VECSIZE_MEMMAX
+
 c
 c     Arguments
 c
@@ -713,7 +715,7 @@ c
       double precision twgt, maxwgt,swgt(maxevents)
       integer                             lun, nw, itminx
       common/to_unwgt/twgt, maxwgt, swgt, lun, nw, itminx
-      
+
       integer              icor
       common/to_correlated/icor
 
@@ -777,8 +779,10 @@ c      endif
          stop
       endif
       if (p5 .gt. maxconfigs) then
-         write(*,*) 'Too many configs requested from Sample()',p5
-         stop
+         p5=maxconfigs
+         configs = maxconfigs
+c     write(*,*) 'Too many configs requested from Sample()',p5
+c         stop
       endif
 
       write(*,'(i3,a,i7,a,i3,a,i3,a,i3,a)') dim, ' dimensions', events,
@@ -1724,6 +1728,8 @@ c
       integer                             lun, nw, itmin
       common/to_unwgt/twgt, maxwgt, swgt, lun, nw, itmin
 
+      double precision twgt_it
+      common/to_unwgt_it/twgt_it
 
       real*8             wmax                 !This is redundant
       common/to_unweight/wmax
@@ -1755,6 +1761,7 @@ c-----
 
       if (first_time) then
          first_time = .false.
+         twgt_it = 0d0
          twgt1 = 0d0       !
          iavg = 0         !Vars for averging to increase err estimate
          navg = 1      !
@@ -2056,7 +2063,8 @@ c-----
             vol = 1d0/dble(events*itm)
             knt = events
             if (use_cut.ne.-2) then
-              twgt = mean / (dble(itm)*dble(events))
+               twgt = mean / (dble(itm)*dble(events))
+               twgt_it = 0d0 ! reset the automatic finding of the maximum
             endif
 c            write(*,*) 'New number of events',events,twgt
 

@@ -47,13 +47,13 @@ C
 
       INCLUDE '../maxparticles.inc'
       INCLUDE '../cuts.inc'
+      INCLUDE '../vector.inc'
       INCLUDE '../run.inc'
 
       DOUBLE PRECISION ALPHAS
       EXTERNAL ALPHAS
 
       INCLUDE 'input.inc'
-      INCLUDE '../vector.inc'
       INCLUDE 'coupl.inc'
       READLHA = .FALSE.
 
