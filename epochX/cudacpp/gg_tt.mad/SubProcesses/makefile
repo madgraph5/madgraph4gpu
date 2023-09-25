@@ -341,7 +341,7 @@ cleancuda: # Clean build: fortran in this Pn; cuda executables in this Pn
 	$(RM) *.o gensym $(PROG) $(PROG)_fortran $(PROG)_forhel build.cuda_*/$(PROG)_cuda
 	$(MAKE) -f $(CUDACPP_MAKEFILE) cleancuda
 
-cleancpp: clean # Clean builds: fortran in this Pn; cudacpp for all AVX in this Pn and in src
+cleanavxs: clean # Clean builds: fortran in this Pn; cudacpp for all AVX in this Pn and in src
 	$(MAKE) -f $(CUDACPP_MAKEFILE) cleanall
 	$(RM) $(CUDACPP_BUILDDIR)/.*libs
 	$(RM) .libs

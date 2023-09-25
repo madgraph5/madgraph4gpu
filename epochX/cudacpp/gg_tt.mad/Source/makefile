@@ -137,4 +137,4 @@ clean: cleanSource
 	for i in `ls -d ../SubProcesses/P*`; do cd $$i; make clean; cd -; done;
 
 cleanall: cleanSource
-	for i in `ls -d ../SubProcesses/P*`; do cd $$i; make cleancpp; cd -; done;
+	for i in `ls -d ../SubProcesses/P*`; do cd $$i; make cleanavxs; cd -; done;
