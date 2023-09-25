@@ -731,6 +731,8 @@ cpp512y: $(cxx_main)
 
 cpp512z: $(cxx_main)
 
+cuda: $(cu_main)
+
 ifeq ($(UNAME_P),ppc64le)
 ###avxall: $(INCDIR)/fbridge.inc avxnone avxsse4
 cppall: cppnone cppsse4
@@ -741,12 +743,6 @@ else
 ###avxall: $(INCDIR)/fbridge.inc avxnone avxsse4 avxavx2 avx512y avx512z
 cppall: cppnone cppsse4 cppavx2 cpp512y cpp512z
 endif
-
-#
-#	CUDA Target
-#
-
-cuda: $(cu_main)
 
 #-------------------------------------------------------------------------------
 
@@ -870,10 +866,10 @@ endif
 
 #-------------------------------------------------------------------------------
 
-# Target: check (run the C++ test executable)
+# Target: check/gcheck (run the C++ test executable)
 # [NB THIS IS WHAT IS USED IN THE GITHUB CI!]
 check: runTest cmpFcheck
-gcheck: runTest cmpFcheck cmpFGcheck
+gcheck: runTest cmpFGcheck
 
 # Target: runTest (run the C++ test executable runTest.exe)
 runTest: all.$(TAG)
