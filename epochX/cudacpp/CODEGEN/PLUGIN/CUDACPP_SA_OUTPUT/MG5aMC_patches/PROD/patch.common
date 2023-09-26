@@ -340,3 +340,15 @@ index a056d3861..b70b548e5 100755
                      alljobs = misc.glob('ajob*', Pdir)
                      
                      #remove associated results.dat (ensure to not mix with all data)
+diff --git a/epochX/cudacpp/gg_tt.mad/Source/PDF/pdfwrap_lhapdf.f b/epochX/cudacpp/gg_tt.mad/Source/PDF/pdfwrap_lhapdf.f
+index 0be926e6c..3f3690534 100644
+--- a/epochX/cudacpp/gg_tt.mad/Source/PDF/pdfwrap_lhapdf.f
++++ b/epochX/cudacpp/gg_tt.mad/Source/PDF/pdfwrap_lhapdf.f
+@@ -5,6 +5,7 @@ C     INCLUDE
+ C     
+       INCLUDE 'pdf.inc'
+       INCLUDE '../alfas.inc'
++      INCLUDE '../vector.inc'
+       INCLUDE '../coupl.inc'
+       REAL*8 ZMASS
+       DATA ZMASS/91.188D0/
