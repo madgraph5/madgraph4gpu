@@ -113,7 +113,7 @@ endif
 
 #=== Configure the CUDA compiler for the CUDA target
 
-ifeq ($(MAKECMDGOALS),cuda)
+ifneq (,$(findstring $(MAKECMDGOALS),cuda-gcheck-runGcheck-runFGcheck-cmpFGcheck-memcheck))
   # If CXX is not a single word (example "clang++ --gcc-toolchain...") then disable CUDA builds (issue #505)
   # This is because it is impossible to pass this to "CUFLAGS += -ccbin <host-compiler>" below
   ifneq ($(words $(subst ccache ,,$(CXX))),1) # allow at most "CXX=ccache <host-compiler>" from outside
