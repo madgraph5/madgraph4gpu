@@ -226,35 +226,21 @@ endif
 MG5AMC_COMMONLIB = mg5amc_common
 
 # First target (default goal)
-all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/.build.$(TAG) $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so
+all.$(TAG): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so
 
 # Target (and build options): debug
 debug: OPTFLAGS = -g -O0
 debug: all.$(TAG)
 
-# Target: tag-specific build lockfiles
-override oldtagsb=`if [ -d $(BUILDDIR) ]; then find $(BUILDDIR) -maxdepth 1 -name '.build.*' ! -name '.build.$(TAG)' -exec echo $(shell pwd)/{} \; ; fi`
-override oldtagsl=`if [ -d $(LIBDIR) ]; then find $(LIBDIR) -maxdepth 1 -name '.build.*' ! -name '.build.$(TAG)' -exec echo $(shell pwd)/{} \; ; fi`
-
-$(BUILDDIR)/.build.$(TAG): $(LIBDIR)/.build.$(TAG)
-
-$(LIBDIR)/.build.$(TAG):
-	@if [ "$(oldtagsl)" != "" ]; then echo -e "Cannot build for tag=$(TAG) as old builds exist in $(LIBDIR) for other tags:\n$(oldtagsl)\nPlease run 'make clean' first\nIf 'make clean' is not enough: run 'make clean USEBUILDDIR=1 AVX=$(AVX) FPTYPE=$(FPTYPE)' or 'make cleanall'"; exit 1; fi
-	@if [ "$(oldtagsb)" != "" ]; then echo -e "Cannot build for tag=$(TAG) as old builds exist in $(BUILDDIR) for other tags:\n$(oldtagsb)\nPlease run 'make clean' first\nIf 'make clean' is not enough: run 'make clean USEBUILDDIR=1 AVX=$(AVX) FPTYPE=$(FPTYPE)' or 'make cleanall'"; exit 1; fi
-	@if [ ! -d $(LIBDIR) ]; then echo "mkdir -p $(LIBDIR)"; mkdir -p $(LIBDIR); fi
-	@touch $(LIBDIR)/.build.$(TAG)
-	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	@touch $(BUILDDIR)/.build.$(TAG)
-
 #-------------------------------------------------------------------------------
 
 # Generic target and build rules: objects from C++ compilation
-$(BUILDDIR)/%.o : %.cc *.h $(BUILDDIR)/.build.$(TAG)
+$(BUILDDIR)/%.o : %.cc *.h
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -fPIC -c $< -o $@
 
 # Generic target and build rules: objects from CUDA compilation
-$(BUILDDIR)/%_cu.o : %.cc *.h $(BUILDDIR)/.build.$(TAG)
+$(BUILDDIR)/%_cu.o : %.cc *.h
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -Xcompiler -fPIC -c -x cu $< -o $@
 
@@ -296,14 +282,14 @@ else
 	$(error Multiple src BUILDDIR's found! Use 'cleannone', 'cleansse4', 'cleanavx2', 'clean512y','clean512z', 'cleancuda' or 'cleanall'.)
 endif
 else
-	rm -f ../lib/.build.* ../lib/lib$(MG5AMC_COMMONLIB).so
-	rm -f $(BUILDDIR)/.build.* $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
+	rm -f ../lib/lib$(MG5AMC_COMMONLIB).so
+	rm -f $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
 endif
 
 cleanall:
 	@echo
-	rm -f ../lib/.build.* ../lib/lib$(MG5AMC_COMMONLIB).so
-	rm -f $(BUILDDIR)/.build.* $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
+	rm -f ../lib/lib$(MG5AMC_COMMONLIB).so
+	rm -f $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
 	@echo
 	rm -rf ../lib/build.*
 	rm -rf build.*
@@ -337,7 +323,5 @@ cleancuda:
 cleandir:
 	rm -f ./*.o ./*.exe
 	rm -f ../lib/lib$(MG5AMC_COMMONLIB).so
-	rm -f ../lib/.build.*
-	rm -f ./.build.*
 
 #-------------------------------------------------------------------------------

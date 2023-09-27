@@ -458,9 +458,9 @@ endif
 testmain=$(BUILDDIR)/runTest.exe
 
 ifneq ($(GTESTLIBS),)
-all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cu_main) $(cxx_main) $(fcu_main) $(fcxx_main) $(testmain)
+all.$(TAG): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cu_main) $(cxx_main) $(fcu_main) $(fcxx_main) $(testmain)
 else
-all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cu_main) $(cxx_main) $(fcu_main) $(fcxx_main)
+all.$(TAG): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cu_main) $(cxx_main) $(fcu_main) $(fcxx_main)
 endif
 
 # Target (and build options): debug
@@ -470,27 +470,20 @@ debug: CUOPTFLAGS = -G
 debug: MAKEDEBUG := debug
 debug: all.$(TAG)
 
-# Target: tag-specific build lockfiles
-override oldtagsb=`if [ -d $(BUILDDIR) ]; then find $(BUILDDIR) -maxdepth 1 -name '.build.*' ! -name '.build.$(TAG)' -exec echo $(shell pwd)/{} \; ; fi`
-$(BUILDDIR)/.build.$(TAG):
-	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	@if [ "$(oldtagsb)" != "" ]; then echo "Cannot build for tag=$(TAG) as old builds exist for other tags:"; echo "  $(oldtagsb)"; echo "Please run 'make clean' first\nIf 'make clean' is not enough: run 'make clean USEBUILDDIR=1 AVX=$(AVX) FPTYPE=$(FPTYPE)' or 'make cleanall'"; exit 1; fi
-	@touch $(BUILDDIR)/.build.$(TAG)
-
 # Generic target and build rules: objects from CUDA compilation
 ifneq ($(NVCC),)
-$(BUILDDIR)/%.o : %.cu *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
+$(BUILDDIR)/%.o : %.cu *.h ../../src/*.h
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -Xcompiler -fPIC -c $< -o $@
 
-$(BUILDDIR)/%_cu.o : %.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
+$(BUILDDIR)/%_cu.o : %.cc *.h ../../src/*.h
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -Xcompiler -fPIC -c -x cu $< -o $@
 endif
 
 # Generic target and build rules: objects from C++ compilation
 # (NB do not include CUINC here! add it only for NVTX or curand #679)
-$(BUILDDIR)/%.o : %.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
+$(BUILDDIR)/%.o : %.cc *.h ../../src/*.h
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -fPIC -c $< -o $@
 
@@ -542,7 +535,7 @@ endif
 # Target (and build rules): common (src) library
 commonlib : $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so
 
-$(LIBDIR)/lib$(MG5AMC_COMMONLIB).so: ../../src/*.h ../../src/*.cc $(BUILDDIR)/.build.$(TAG)
+$(LIBDIR)/lib$(MG5AMC_COMMONLIB).so: ../../src/*.h ../../src/*.cc
 	$(MAKE) -C ../../src $(MAKEDEBUG) -f $(CUDACPP_SRC_MAKEFILE)
 
 #-------------------------------------------------------------------------------
@@ -770,11 +763,10 @@ endif
 
 cleanall:
 	@echo
-	rm -f $(BUILDDIR)/.build.* $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
+	rm -f $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
 	rm -f $(LIBDIR)/lib$(MG5AMC_CXXLIB).so $(LIBDIR)/lib$(MG5AMC_CULIB).so
 	@echo
 	$(MAKE) -C ../../src cleanall -f $(CUDACPP_SRC_MAKEFILE)
-	rm -rf build.*
 
 # Target: clean the builds as well as the gtest installation(s)
 distclean: cleanall
@@ -817,7 +809,6 @@ cleancuda:
 cleandir:
 	rm -f ./*.o ./*.exe
 	rm -f ../../lib/lib$(MG5AMC_CXXLIB).so ../../lib/lib$(MG5AMC_CULIB).so
-	rm -f ./.build.*
 	$(MAKE) -C ../../src cleandir -f $(CUDACPP_SRC_MAKEFILE)
 
 #-------------------------------------------------------------------------------

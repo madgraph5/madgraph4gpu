@@ -271,27 +271,21 @@ ALL:
 
 cppnone:
 	$(MAKE) -f $(CUDACPP_MAKEFILE) cppnone
-	touch $(CUDACPP_BUILDDIR)/.cppnonelibs
 
 cppsse4:
 	$(MAKE) -f $(CUDACPP_MAKEFILE) cppsse4
-	touch $(CUDACPP_BUILDDIR)/.cppsse4libs
 
 cppavx2:
 	$(MAKE) -f $(CUDACPP_MAKEFILE) cppavx2
-	touch $(CUDACPP_BUILDDIR)/.cppavx2libs
 
 cpp512y:
 	$(MAKE) -f $(CUDACPP_MAKEFILE) cpp512y
-	touch $(CUDACPP_BUILDDIR)/.cpp512ylibs
 
 cpp512z:
 	$(MAKE) -f $(CUDACPP_MAKEFILE) cpp512z
-	touch $(CUDACPP_BUILDDIR)/.cpp512zlibs
 
 cuda:
 	$(MAKE) -f $(CUDACPP_MAKEFILE) cuda
-	touch $(CUDACPP_BUILDDIR)/.cudalibs
 
 # Clean (NB: 'make clean' in Source calls 'make clean' in all P*)
 
