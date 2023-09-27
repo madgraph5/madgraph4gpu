@@ -886,7 +886,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             replace_dict['dcoupsetdcoup2'] = '      // (none)'
             replace_dict['dcoupoutdcoup2'] = ''
         # Require HRDCOD=1 in EFT and special handling in EFT for fptype=float using SIMD
-        if self.model_name == 'sm' :
+        if self.model_name[:2] == 'sm' :
             replace_dict['efterror'] = ''
             replace_dict['eftspecial1'] = '      // Begin SM implementation - no special handling of vectors of floats as in EFT (#439)'
             replace_dict['eftspecial2'] = '      // End SM implementation - no special handling of vectors of floats as in EFT (#439)'
