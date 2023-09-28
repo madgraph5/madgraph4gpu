@@ -20,6 +20,11 @@ else
     endif
 endif
 
+# Sets correct cppavx target as dependency when compiling Fortran
+ifneq (,$(findstring cpp*,$(TARGET)))
+	CPPTARGET := $(TARGET)
+endif
+
 # Default goal
 .DEFAULT_GOAL := usage
 
@@ -151,39 +156,39 @@ madevent_fortran_link: $(PROG)_fortran
 	ln -s $(PROG)_fortran $(PROG)
 
 # Only used for testing, should be removed in the future
-madevent_cpp_link: $(CUDACPP_BUILDDIR)/$(PROG)_cpp cppavx2
+madevent_cpp_link: $(CUDACPP_BUILDDIR)/$(PROG)_cpp
 	rm -f $(PROG)
 	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
 
-madevent_cppnone_link: $(CUDACPP_BUILDDIR)/$(PROG)_cpp cppnone
+madevent_cppnone_link: $(CUDACPP_BUILDDIR)/$(PROG)_cpp
 	rm -f $(PROG)
 	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
 
-madevent_cppsse4_link: $(CUDACPP_BUILDDIR)/$(PROG)_cpp cppsse4
+madevent_cppsse4_link: $(CUDACPP_BUILDDIR)/$(PROG)_cpp
 	rm -f $(PROG)
 	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
 
-madevent_cppavx2_link: $(CUDACPP_BUILDDIR)/$(PROG)_cpp cppavx2
+madevent_cppavx2_link: $(CUDACPP_BUILDDIR)/$(PROG)_cpp
 	rm -f $(PROG)
 	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
 
-madevent_cpp512y_link: $(CUDACPP_BUILDDIR)/$(PROG)_cpp cpp512y
+madevent_cpp512y_link: $(CUDACPP_BUILDDIR)/$(PROG)_cpp
 	rm -f $(PROG)
 	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
 
-madevent_cpp512z_link: $(CUDACPP_BUILDDIR)/$(PROG)_cpp cpp512z
+madevent_cpp512z_link: $(CUDACPP_BUILDDIR)/$(PROG)_cpp
 	rm -f $(PROG)
 	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
 
-madevent_cuda_link: $(CUDACPP_BUILDDIR)/$(PROG)_cuda cuda
+madevent_cuda_link: $(CUDACPP_BUILDDIR)/$(PROG)_cuda
 	rm -f $(PROG)
 	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cuda $(PROG)
 
 # Building $(PROG)_cpp also builds $(PROG)_cuda if $(CUDACPP_CULIB) exists (improved patch for cpp-only builds #503)
-$(CUDACPP_BUILDDIR)/$(PROG)_cpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o ompnumthreads.o
+$(CUDACPP_BUILDDIR)/$(PROG)_cpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o ompnumthreads.o $(CPPTARGET)
 	$(FC) -o $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_CXXLIB) $(LIBFLAGSRPATH) $(LDFLAGS)
 
-$(CUDACPP_BUILDDIR)/$(PROG)_cuda: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o ompnumthreads.o
+$(CUDACPP_BUILDDIR)/$(PROG)_cuda: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o ompnumthreads.o cuda
 	$(FC) -o $(CUDACPP_BUILDDIR)/$(PROG)_cuda $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_CULIB) $(LIBFLAGSRPATH) $(LDFLAGS)
 
 counters.o: counters.cc timer.h
