@@ -13,15 +13,15 @@ CXXFLAGS = -O3 -Wall -Wshadow -Wextra
 ifeq ($(MAKECMDGOALS),)
     TARGET := undefined
 else
-    ifneq (,$(findstring madevent_*,$(MAKECMDGOALS)))
-        TARGET := $(patsubst madevent_cpp%,cpp%,$(filter madevent_cpp%,$(MAKECMDGOALS)))
+    ifeq ($(shell grep -q madevent_ <<< $(MAKECMDGOALS)a),)
+        TARGET := $(word 2,($(subst _, ,$(MAKECMDGOALS))))
     else
         TARGET := $(MAKECMDGOALS)
     endif
 endif
 
 # Sets correct cppavx target as dependency when compiling Fortran
-ifneq (,$(findstring cpp*,$(TARGET)))
+ifeq ($(shell grep -q cpp <<< $(MAKECMDGOALS)a),)
 	ifeq ($(TARGET),cpp)
 		CPPTARGET := cppavx2
 	else

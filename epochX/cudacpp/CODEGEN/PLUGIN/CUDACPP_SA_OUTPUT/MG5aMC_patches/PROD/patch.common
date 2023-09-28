@@ -352,7 +352,7 @@ index 74db44d84..7ae599f03 100644
 +ifeq ($(MAKECMDGOALS),)
 +    TARGET := undefined
 +else
-+    ifneq (,$(findstring madevent_*,$(MAKECMDGOALS)))
++    ifeq ($(shell grep -q madevent_ <<< $(MAKECMDGOALS)a),)
 +        TARGET := $(patsubst madevent_cpp%,cpp%,$(filter madevent_cpp%,$(MAKECMDGOALS)))
 +    else
 +        TARGET := $(MAKECMDGOALS)
@@ -360,7 +360,7 @@ index 74db44d84..7ae599f03 100644
 +endif
 +
 +# Sets correct cppavx target as dependency when compiling Fortran
-+ifneq (,$(findstring cpp*,$(TARGET)))
++ifeq ($(shell grep -q cpp <<< $(MAKECMDGOALS)a),)
 +	ifeq ($(TARGET),cpp)
 +		CPPTARGET := cppavx2
 +	else
