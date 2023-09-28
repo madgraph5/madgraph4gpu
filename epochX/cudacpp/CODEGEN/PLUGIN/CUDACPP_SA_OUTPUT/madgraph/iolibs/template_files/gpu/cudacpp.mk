@@ -766,8 +766,8 @@ cleanall:
 	rm -f $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
 	rm -f $(LIBDIR)/lib$(MG5AMC_CXXLIB).so $(LIBDIR)/lib$(MG5AMC_CULIB).so
 	@echo
-  $(MAKE) -C ../../src cleanall -f $(CUDACPP_SRC_MAKEFILE)
-  rm -rf build.*
+	$(MAKE) -C ../../src cleanall -f $(CUDACPP_SRC_MAKEFILE)
+	rm -rf build.*
 
 # Target: clean the builds as well as the gtest installation(s)
 distclean: cleanall
