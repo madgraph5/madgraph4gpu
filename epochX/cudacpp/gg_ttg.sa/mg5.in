@@ -1,0 +1,3 @@
+generate g g > t t~ g
+output standalone_cudacpp gg_ttg.sa --hel_recycling=False --vector_size=16384 --me_exporter=standalone_cudacpp
+

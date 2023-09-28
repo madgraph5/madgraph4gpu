@@ -396,7 +396,6 @@ C     1 T(2,1,3,4)
 C     ----------
 C     BEGIN CODE
 C     ----------
-      call counters_matrix1_start()
       IF (FIRST) THEN
         FIRST=.FALSE.
         IF(ZERO.NE.0D0) FK_ZERO = SIGN(MAX(ABS(ZERO), ABS(ZERO
@@ -417,10 +416,10 @@ C     ----------
       CALL VVV1P0_1(W(1,1),W(1,2),GC_10(IVEC),ZERO, FK_ZERO,W(1,5))
 C     Amplitude(s) for diagram number 1
       CALL FFV1_0(W(1,4),W(1,3),W(1,5),GC_11(IVEC),AMP(1))
-      CALL FFV1_1(W(1,3),W(1,1),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,5))
+      CALL FFV1_1(W(1,3),W(1,1),GC_11(IVEC),MDL_MT, ZERO,W(1,5))
 C     Amplitude(s) for diagram number 2
       CALL FFV1_0(W(1,4),W(1,5),W(1,2),GC_11(IVEC),AMP(2))
-      CALL FFV1_2(W(1,4),W(1,1),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,5))
+      CALL FFV1_2(W(1,4),W(1,1),GC_11(IVEC),MDL_MT, ZERO,W(1,5))
 C     Amplitude(s) for diagram number 3
       CALL FFV1_0(W(1,5),W(1,3),W(1,2),GC_11(IVEC),AMP(3))
 
@@ -470,7 +469,6 @@ C     JAMPs contributing to orders ALL_ORDERS=1
         ENDDO
       ENDDO
 
-      call counters_matrix1_stop()
       END
 
       SUBROUTINE PRINT_ZERO_AMP_1()
