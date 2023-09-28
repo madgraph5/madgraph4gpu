@@ -340,10 +340,10 @@ index a056d3861..b70b548e5 100755
                      alljobs = misc.glob('ajob*', Pdir)
                      
                      #remove associated results.dat (ensure to not mix with all data)
-diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
+diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 index 74db44d84..36a1e90b5 100644
---- a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
-+++ b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
+--- b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
++++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 @@ -9,6 +9,24 @@ FFLAGS+= -cpp
  # Compile counters with -O3 as in the cudacpp makefile (avoid being "unfair" to Fortran #740)
  CXXFLAGS = -O3 -Wall -Wshadow -Wextra
@@ -377,7 +377,7 @@ index 74db44d84..36a1e90b5 100644
 +CUDACPP_MAKEENV:=$(shell echo '$(.VARIABLES)' | tr " " "\n" | egrep "(USEBUILDDIR|FPTYPE|HELINL|HRDCOD)")
  ###$(info CUDACPP_MAKEENV=$(CUDACPP_MAKEENV))
  ###$(info $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))"))
--CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn |& awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
+-CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn 2>/dev/null |& awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
 +CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn $(TARGET) |& awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
  ifeq ($(CUDACPP_BUILDDIR),)
  $(error CUDACPP_BUILDDIR='$(CUDACPP_BUILDDIR)' should not be empty!)
