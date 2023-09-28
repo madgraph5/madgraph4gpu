@@ -14,7 +14,7 @@ ifeq ($(MAKECMDGOALS),)
     TARGET := undefined
 else
     ifneq (,$(findstring madevent_*,$(MAKECMDGOALS)))
-        TARGET := $(patsubst %_%,%,$(MAKECMDGOALS))
+        TARGET := $(patsubst madevent_cpp%,cpp%,$(filter madevent_cpp%,$(MAKECMDGOALS)))
     else
         TARGET := $(MAKECMDGOALS)
     endif
@@ -22,7 +22,7 @@ endif
 
 # Sets correct cppavx target as dependency when compiling Fortran
 ifneq (,$(findstring cpp*,$(TARGET)))
-	ifeq ($(TARGET),)
+	ifeq ($(TARGET),cpp)
 		CPPTARGET := cppavx2
 	else
 		CPPTARGET := $(TARGET)
