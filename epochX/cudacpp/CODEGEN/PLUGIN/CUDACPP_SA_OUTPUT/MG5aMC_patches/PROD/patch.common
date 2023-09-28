@@ -341,10 +341,10 @@ index a056d3861..b70b548e5 100755
                      
                      #remove associated results.dat (ensure to not mix with all data)
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
-index 74db44d84..804829327 100644
+index 74db44d84..7ae599f03 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
-@@ -9,6 +9,29 @@ FFLAGS+= -cpp
+@@ -9,6 +9,33 @@ FFLAGS+= -cpp
  # Compile counters with -O3 as in the cudacpp makefile (avoid being "unfair" to Fortran #740)
  CXXFLAGS = -O3 -Wall -Wshadow -Wextra
  
@@ -378,7 +378,7 @@ index 74db44d84..804829327 100644
  # Enable ccache if USECCACHE=1
  ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
    override CXX:=ccache $(CXX)
-@@ -48,10 +71,10 @@ CUDACPP_MAKEFILE=cudacpp.mk
+@@ -48,10 +75,10 @@ CUDACPP_MAKEFILE=cudacpp.mk
  # NB2 Use '|&' in CUDACPP_BUILDDIR to avoid confusing errors about googletest #507
  # NB3 Do not add a comment inlined "CUDACPP_BUILDDIR=$(shell ...) # comment" as otherwise a trailing space is included...
  # NB4 The variables relevant to the cudacpp Makefile must be explicitly passed to $(shell...)
@@ -391,7 +391,7 @@ index 74db44d84..804829327 100644
  ifeq ($(CUDACPP_BUILDDIR),)
  $(error CUDACPP_BUILDDIR='$(CUDACPP_BUILDDIR)' should not be empty!)
  else
-@@ -115,10 +138,6 @@ $(LIBS): .libs
+@@ -115,10 +142,6 @@ $(LIBS): .libs
  	cd ../../Source; make
  	touch $@
  
@@ -402,7 +402,7 @@ index 74db44d84..804829327 100644
  # On Linux, set rpath to LIBDIR to make it unnecessary to use LD_LIBRARY_PATH
  # Use relative paths with respect to the executables ($ORIGIN on Linux)
  # On Darwin, building libraries with absolute paths in LIBDIR makes this unnecessary
-@@ -130,26 +149,47 @@ else
+@@ -130,26 +153,47 @@ else
    override LIBFLAGSRPATH = -Wl,-rpath,'$$ORIGIN/$(LIBDIR)'
  endif
  
@@ -454,7 +454,7 @@ index 74db44d84..804829327 100644
  
  counters.o: counters.cc timer.h
  	$(CXX) $(CXXFLAGS) -c $< -o $@
-@@ -215,49 +255,105 @@ genps.o: .libs
+@@ -215,49 +259,105 @@ genps.o: .libs
  
  UNAME_P := $(shell uname -p)
  ifeq ($(UNAME_P),ppc64le)
