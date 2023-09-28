@@ -377,8 +377,8 @@ index 74db44d84..36a1e90b5 100644
 +CUDACPP_MAKEENV:=$(shell echo '$(.VARIABLES)' | tr " " "\n" | egrep "(USEBUILDDIR|FPTYPE|HELINL|HRDCOD)")
  ###$(info CUDACPP_MAKEENV=$(CUDACPP_MAKEENV))
  ###$(info $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))"))
--CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn 2>/dev/null |& awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
-+CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn $(TARGET) |& awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
+-CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn 2>/dev/null | awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
++CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn $(TARGET) 2>/dev/null | awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
  ifeq ($(CUDACPP_BUILDDIR),)
  $(error CUDACPP_BUILDDIR='$(CUDACPP_BUILDDIR)' should not be empty!)
  else
