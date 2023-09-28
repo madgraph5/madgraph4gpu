@@ -22,7 +22,11 @@ endif
 
 # Sets correct cppavx target as dependency when compiling Fortran
 ifneq (,$(findstring cpp*,$(TARGET)))
-	CPPTARGET := $(TARGET)
+	ifeq ($(TARGET),)
+		CPPTARGET := cppavx2
+	else
+		CPPTARGET := $(TARGET)
+	endif
 endif
 
 # Default goal
