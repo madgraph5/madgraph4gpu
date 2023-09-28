@@ -82,11 +82,11 @@ index 348c283be..74db44d84 100644
 +###$(info CUDACPP_MAKEENV=$(CUDACPP_MAKEENV))
 +###$(info $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))"))
 +CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn 2>/dev/null | awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
-+#ifeq ($(CUDACPP_BUILDDIR),)
-+#$(error CUDACPP_BUILDDIR='$(CUDACPP_BUILDDIR)' should not be empty!)
-+#else
++ifeq ($(CUDACPP_BUILDDIR),)
++$(error CUDACPP_BUILDDIR='$(CUDACPP_BUILDDIR)' should not be empty!)
++else
 +$(info CUDACPP_BUILDDIR='$(CUDACPP_BUILDDIR)')
-+#endif
++endif
 +CUDACPP_COMMONLIB=mg5amc_common
 +CUDACPP_CXXLIB=mg5amc_$(processid_short)_cpp
 +CUDACPP_CULIB=mg5amc_$(processid_short)_cuda
@@ -341,10 +341,10 @@ index a056d3861..b70b548e5 100755
                      
                      #remove associated results.dat (ensure to not mix with all data)
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
-index 74db44d84..36a1e90b5 100644
+index 74db44d84..804829327 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
-@@ -9,6 +9,24 @@ FFLAGS+= -cpp
+@@ -9,6 +9,29 @@ FFLAGS+= -cpp
  # Compile counters with -O3 as in the cudacpp makefile (avoid being "unfair" to Fortran #740)
  CXXFLAGS = -O3 -Wall -Wshadow -Wextra
  
@@ -359,6 +359,11 @@ index 74db44d84..36a1e90b5 100644
 +    endif
 +endif
 +
++# Sets correct cppavx target as dependency when compiling Fortran
++ifneq (,$(findstring cpp*,$(TARGET)))
++	CPPTARGET := $(TARGET)
++endif
++
 +# Default goal
 +.DEFAULT_GOAL := usage
 +
@@ -369,7 +374,7 @@ index 74db44d84..36a1e90b5 100644
  # Enable ccache if USECCACHE=1
  ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
    override CXX:=ccache $(CXX)
-@@ -48,10 +66,10 @@ CUDACPP_MAKEFILE=cudacpp.mk
+@@ -48,10 +71,10 @@ CUDACPP_MAKEFILE=cudacpp.mk
  # NB2 Use '|&' in CUDACPP_BUILDDIR to avoid confusing errors about googletest #507
  # NB3 Do not add a comment inlined "CUDACPP_BUILDDIR=$(shell ...) # comment" as otherwise a trailing space is included...
  # NB4 The variables relevant to the cudacpp Makefile must be explicitly passed to $(shell...)
@@ -382,7 +387,7 @@ index 74db44d84..36a1e90b5 100644
  ifeq ($(CUDACPP_BUILDDIR),)
  $(error CUDACPP_BUILDDIR='$(CUDACPP_BUILDDIR)' should not be empty!)
  else
-@@ -115,10 +133,6 @@ $(LIBS): .libs
+@@ -115,10 +138,6 @@ $(LIBS): .libs
  	cd ../../Source; make
  	touch $@
  
@@ -393,7 +398,7 @@ index 74db44d84..36a1e90b5 100644
  # On Linux, set rpath to LIBDIR to make it unnecessary to use LD_LIBRARY_PATH
  # Use relative paths with respect to the executables ($ORIGIN on Linux)
  # On Darwin, building libraries with absolute paths in LIBDIR makes this unnecessary
-@@ -130,26 +144,47 @@ else
+@@ -130,26 +149,47 @@ else
    override LIBFLAGSRPATH = -Wl,-rpath,'$$ORIGIN/$(LIBDIR)'
  endif
  
@@ -404,50 +409,48 @@ index 74db44d84..36a1e90b5 100644
  	rm -f $(PROG)
  	ln -s $(PROG)_fortran $(PROG)
  
--madevent_cpp_link: $(CUDACPP_BUILDDIR)/$(PROG)_cpp
 +# Only used for testing, should be removed in the future
-+madevent_cpp_link: $(CUDACPP_BUILDDIR)/$(PROG)_cpp cppavx2
-+	rm -f $(PROG)
-+	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
-+
-+madevent_cppnone_link: $(CUDACPP_BUILDDIR)/$(PROG)_cpp cppnone
-+	rm -f $(PROG)
-+	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
-+
-+madevent_cppsse4_link: $(CUDACPP_BUILDDIR)/$(PROG)_cpp cppsse4
-+	rm -f $(PROG)
-+	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
-+
-+madevent_cppavx2_link: $(CUDACPP_BUILDDIR)/$(PROG)_cpp cppavx2
-+	rm -f $(PROG)
-+	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
-+
-+madevent_cpp512y_link: $(CUDACPP_BUILDDIR)/$(PROG)_cpp cpp512y
-+	rm -f $(PROG)
-+	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
-+
-+madevent_cpp512z_link: $(CUDACPP_BUILDDIR)/$(PROG)_cpp cpp512z
+ madevent_cpp_link: $(CUDACPP_BUILDDIR)/$(PROG)_cpp
  	rm -f $(PROG)
  	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
  
--madevent_cuda_link: $(CUDACPP_BUILDDIR)/$(PROG)_cuda
-+madevent_cuda_link: $(CUDACPP_BUILDDIR)/$(PROG)_cuda cuda
++madevent_cppnone_link: $(CUDACPP_BUILDDIR)/$(PROG)_cpp
++	rm -f $(PROG)
++	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
++
++madevent_cppsse4_link: $(CUDACPP_BUILDDIR)/$(PROG)_cpp
++	rm -f $(PROG)
++	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
++
++madevent_cppavx2_link: $(CUDACPP_BUILDDIR)/$(PROG)_cpp
++	rm -f $(PROG)
++	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
++
++madevent_cpp512y_link: $(CUDACPP_BUILDDIR)/$(PROG)_cpp
++	rm -f $(PROG)
++	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
++
++madevent_cpp512z_link: $(CUDACPP_BUILDDIR)/$(PROG)_cpp
++	rm -f $(PROG)
++	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
++
+ madevent_cuda_link: $(CUDACPP_BUILDDIR)/$(PROG)_cuda
  	rm -f $(PROG)
  	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cuda $(PROG)
  
  # Building $(PROG)_cpp also builds $(PROG)_cuda if $(CUDACPP_CULIB) exists (improved patch for cpp-only builds #503)
 -$(CUDACPP_BUILDDIR)/$(PROG)_cpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o ompnumthreads.o $(CUDACPP_BUILDDIR)/.cudacpplibs
-+$(CUDACPP_BUILDDIR)/$(PROG)_cpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o ompnumthreads.o
++$(CUDACPP_BUILDDIR)/$(PROG)_cpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o ompnumthreads.o $(CPPTARGET)
  	$(FC) -o $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_CXXLIB) $(LIBFLAGSRPATH) $(LDFLAGS)
 -	if [ -f $(LIBDIR)/$(CUDACPP_BUILDDIR)/lib$(CUDACPP_CULIB).* ]; then $(FC) -o $(CUDACPP_BUILDDIR)/$(PROG)_cuda $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_CULIB) $(LIBFLAGSRPATH) $(LDFLAGS); fi
  
 -$(CUDACPP_BUILDDIR)/$(PROG)_cuda: $(CUDACPP_BUILDDIR)/$(PROG)_cpp
-+$(CUDACPP_BUILDDIR)/$(PROG)_cuda: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o ompnumthreads.o
++$(CUDACPP_BUILDDIR)/$(PROG)_cuda: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o ompnumthreads.o cuda
 +	$(FC) -o $(CUDACPP_BUILDDIR)/$(PROG)_cuda $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_CULIB) $(LIBFLAGSRPATH) $(LDFLAGS)
  
  counters.o: counters.cc timer.h
  	$(CXX) $(CXXFLAGS) -c $< -o $@
-@@ -215,49 +250,105 @@ genps.o: .libs
+@@ -215,49 +255,105 @@ genps.o: .libs
  
  UNAME_P := $(shell uname -p)
  ifeq ($(UNAME_P),ppc64le)
