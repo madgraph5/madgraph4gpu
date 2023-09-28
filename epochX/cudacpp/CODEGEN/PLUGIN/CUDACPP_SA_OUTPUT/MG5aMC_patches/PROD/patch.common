@@ -353,7 +353,7 @@ index 74db44d84..7ae599f03 100644
 +    TARGET := undefined
 +else
 +    ifeq ($(shell grep -q madevent_ <<< $(MAKECMDGOALS)a),)
-+        TARGET := $(patsubst madevent_cpp%,cpp%,$(filter madevent_cpp%,$(MAKECMDGOALS)))
++        TARGET := $(word 2,($(subst _, ,$(MAKECMDGOALS))))
 +    else
 +        TARGET := $(MAKECMDGOALS)
 +    endif
