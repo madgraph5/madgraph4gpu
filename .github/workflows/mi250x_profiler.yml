@@ -1,0 +1,80 @@
+name: MI250X Performance Profiler
+
+on:
+  push:
+    branches: [ gpu_abstraction ]
+
+jobs:
+  Container_Setup_and_Execution:
+    runs-on: [self-hosted, linux, a100]
+    name: Container Setup and Execution
+    steps:
+    - name: Generate runner token
+      id: generate_token
+      run: |
+        TOKEN=$(curl -XPOST -fsSL \
+                    -H "Authorization: token ${{ secrets.PAT }}" \
+                    -H "Accept: application/vnd.github.v3+json" \
+                    "https://api.github.com/repos/${{ github.repository }}/actions/runners/registration-token" \
+              | grep -o '"token": *"[^"]*"' | cut -d '"' -f 4)
+        echo "token=$TOKEN" >> $GITHUB_OUTPUT
+    - name: SSH and run Docker container
+      env:
+        SSH_PRIVATE_KEY:       ${{ secrets.SSH_KEY }}
+        MI250X_PROFILING_HOST: ${{ secrets.MI250X_PROFILING_HOST }}
+        MI250X_PROFILING_USER: ${{ secrets.MI250X_PROFILING_USER }}
+        HPC_ACCOUNT:           ${{ secrets.HPC_ACCOUNT }}
+        HPC_PROJECT:           ${{ secrets.HPC_PROJECT }}
+        SINGULARITY_CACHEDIR:  /scratch/$HPC_ACCOUNT/$MI250X_PROFILING_USER/
+        SINGULARITY_TMPDIR:    /scratch/$HPC_ACCOUNT/$MI250X_PROFILING_USER/
+      continue-on-error: true
+      run: |
+        echo "$SSH_PRIVATE_KEY" > id_rsa
+        chmod 600 id_rsa
+        ssh -o StrictHostKeyChecking=no -i id_rsa $MI250X_PROFILING_USER@$MI250X_PROFILING_HOST "\
+          cd /scratch/$HPC_ACCOUNT/$MI250X_PROFILING_USER/ && \
+          singularity pull --force oras://ghcr.io/${{ github.repository_owner }}/github_runner_mi250x:latest && \
+          srun --account=$HPC_ACCOUNT -p $HPC_PROJECT --gpus=1 --time=03:00:00 singularity run --rocm \
+            --env GITHUB_TOKEN=${{ steps.generate_token.outputs.token }} \
+            --env REPO_URL=https://github.com/${{ github.repository }} \
+            --env RUNNER_NAME=github_runner_mi250x \
+            --env GITHUB_RUNNER_TAGS='Linux,x64,mi250x' \
+            --env RUNNER_URL=https://github.com/actions/runner/releases/download/v2.303.0/actions-runner-linux-x64-2.303.0.tar.gz \
+            github_runner_mi250x_latest.sif"
+
+  HIP_MI250X_Profiling:
+    runs-on: [self-hosted, linux, mi250x]
+    name: HIP MI250X Profiling
+    env:
+      HIP_NAME_PREFIX: hip_AMD-Epyc-7A53_MI250X_gcc-11.2.1_rocm-5.2.3
+      ENABLE_CI_PROFILER: 1
+    steps:
+    - uses: actions/checkout@v2
+    - name: Runs HIP performanceProfiler.py script
+      run: cd tools/profiling/;
+           python3 performanceProfiler.py -l 'HIP' -b 'master'
+
+    - name: Uploads workplace_mg4gpu directory as an artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: profiling-results
+        path: tools/profiling/workplace_mg4gpu
+
+  Upload_JSON_files:
+    needs: HIP_MI250X_Profiling
+    runs-on: [self-hosted, linux]
+    name: Upload JSON files to DB
+    env:
+      HIP_NAME_PREFIX: hip_AMD-Epyc-7A53_MI250X_gcc-11.2.1_rocm-5.2.3
+      ENABLE_CI_PROFILER: 1
+      MADGRAPH4GPU_DB_URL: ${{ secrets.MADGRAPH4GPU_DB_URL }}
+      MADGRAPH4GPU_DB_SECRET: ${{ secrets.MADGRAPH4GPU_DB_SECRET }}
+    steps:
+    - uses: actions/checkout@v2
+    - name: Download artifact containing profiling data
+      uses: actions/download-artifact@v3
+      with:
+        name: profiling-results
+        path: tools/profiling
+    - name: Uploads HIP JSON files to DB
+      run: cd tools/profiling; python3 sendData.py --absLayer HIP --profiler 1 --branch master
