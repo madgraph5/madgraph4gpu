@@ -136,5 +136,7 @@ cleanSource:
 clean: cleanSource
 	for i in `ls -d ../SubProcesses/P*`; do cd $$i; make clean; cd -; done;
 
-cleanall: cleanSource
+cleanavx:
+	for i in `ls -d ../SubProcesses/P*`; do cd $$i; make cleanavxs; cd -; done;
+cleanall: cleanSource # THIS IS THE ONE
 	for i in `ls -d ../SubProcesses/P*`; do cd $$i; make cleanavxs; cd -; done;

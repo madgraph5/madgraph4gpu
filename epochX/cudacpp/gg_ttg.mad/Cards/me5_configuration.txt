@@ -234,7 +234,7 @@
 # pineappl = pineappl
 
 
-mg5_path = /data/stephan/madgraph4gpu/MG5aMC/mg5amcnlo 
+mg5_path = /afs/cern.ch/work/j/jteig/madgraph4gpu/MG5aMC/mg5amcnlo 
 
 # MG5 MAIN DIRECTORY
-mg5_path = /data/stephan/madgraph4gpu/MG5aMC/mg5amcnlo
+mg5_path = /afs/cern.ch/work/j/jteig/madgraph4gpu/MG5aMC/mg5amcnlo

@@ -144,13 +144,3 @@
 #
 systematics = systematics_program ! none, systematics [python], SysCalc [depreceted, C++]
 ['--mur=0.5,1,2', '--muf=0.5,1,2', '--pdf=errorset'] = systematics_arguments ! see: https://cp3.irmp.ucl.ac.be/projects/madgraph/wiki/Systematics#Systematicspythonmodule
-
-#*********************************************************************
-# Options for the cudacpp plugin
-#*********************************************************************
-
-# Set cudacpp-specific values of non-cudacpp-specific options
--O3 -ffast-math -fbounds-check = global_flag ! build flags for Fortran code (for a fair comparison to cudacpp)
-
-# New cudacpp-specific options (default values are defined in banner.py)
-CPP = cudacpp_backend ! valid backends are FORTRAN, CPP, CUDA

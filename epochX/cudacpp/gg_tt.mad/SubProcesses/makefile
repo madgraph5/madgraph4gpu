@@ -116,7 +116,7 @@ SYMMETRY = symmetry.o idenparts.o
 
 # Binaries
 
-LDFLAGS+=-Wl,--no-relax # avoid 'failed to convert GOTPCREL relocation' error #458
+#LDFLAGS+=-Wl,--no-relax # avoid 'failed to convert GOTPCREL relocation' error #458 (flag not universal -> skip?)
 
 all: $(PROG)_fortran $(CUDACPP_BUILDDIR)/$(PROG)_cpp # also builds $(PROG)_cuda if $(CUDACPP_CULIB) exists (#503)
 
