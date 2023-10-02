@@ -1634,15 +1634,12 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             if param:
                 alias = self.params2order
                 name = 'cIPD'
-                # logger.info("%s Param %s" % ('X'*80, param))
             elif model.is_running_coupling(coup):
                 alias = self.couporderdep
                 name = 'cIPC'
-                # logger.info("%s Dependent %s" % ('X'*80, coup))
             else:
                 alias = self.couporderindep
                 name = 'cIPC'
-                # logger.info("%s Independent %s" % ('X'*80, coup))
             if coup not in alias:
                 if alias == self.couporderindep:
                     if not len(alias):
@@ -1666,20 +1663,12 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                 call = call.replace('CI_ACCESS', 'CD_ACCESS')
                 call = call.replace('m_pars->%s%s' % (sign, coup),
                                     'COUPs[%s], %s' % (alias[coup], '1.0' if not sign else '-1.0')) 
-                # if newcoup:
-                #     #logger.info('X'*80, str(self.couporderindep))
-                #     for k in self.couporderindep:
-                #         self.couporderindep[k] += 1
-                    #logger.info("%s %s" % ('X'*80, str(self.couporderindep))
             else:
                 call = call.replace('CD_ACCESS', 'CI_ACCESS')
                 call = call.replace('m_pars->%s%s' % (sign, coup),
                                     'COUPs[ndcoup+%s], %s' % (alias[coup]-len(self.couporderdep), '1.0' if not sign else '-1.0'))
             if newcoup:
                 self.couplings2order = self.couporderdep | self.couporderindep
-        # logger.info("dependent %s %s" % ('Y'*10, str(self.couporderdep)))
-        # logger.info("independent %s %s" % ('Y'*10, str(self.couporderindep)))
-        # logger.info("couplings2order %s %s" % ('Y'*10, str(self.couplings2order)))
         return call
 
     # AV - new method for formatting wavefunction/amplitude calls
