@@ -259,11 +259,11 @@ endif
 ifneq ($(NVCC),)
 $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so : $(cxx_objects) $(cu_objects)
 	@if [ ! -d $(LIBDIR) ]; then echo "mkdir -p $(LIBDIR)"; mkdir -p $(LIBDIR); fi
-	$(NVCC) -shared -o $@ $(cxx_objects) $(cu_objects) $(LDEXTRAFLAGS)
+	$(NVCC) -shared -o $@ $(cxx_objects) $(cu_objects)
 else
 $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so : $(cxx_objects)
 	@if [ ! -d $(LIBDIR) ]; then echo "mkdir -p $(LIBDIR)"; mkdir -p $(LIBDIR); fi
-	$(CXX) -shared -o $@ $(cxx_objects) $(LDEXTRAFLAGS)
+	$(CXX) -shared -o $@ $(cxx_objects)
 endif
 
 #-------------------------------------------------------------------------------

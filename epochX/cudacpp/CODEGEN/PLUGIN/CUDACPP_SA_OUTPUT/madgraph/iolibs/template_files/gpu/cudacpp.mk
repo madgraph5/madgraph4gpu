@@ -37,7 +37,7 @@ OPTFLAGS = -O3 # this ends up in CUFLAGS too (should it?), cannot add -Ofast or 
 
 # Dependency on src directory
 MG5AMC_COMMONLIB = mg5amc_common
-LIBFLAGS = -L$(LIBDIR) -l$(MG5AMC_COMMONLIB) $(LDEXTRAFLAGS)
+LIBFLAGS = -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
 INCFLAGS += -I../../src
 
 # Compiler-specific googletest build directory (#125 and #738)
