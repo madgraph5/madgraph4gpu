@@ -1611,9 +1611,13 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         import re
         ###print(call) # FOR DEBUGGING
         model = self.get('model')
+        newcoup = False
         if not hasattr(self, 'couplings2order'):
             self.couplings2order = {}
             self.params2order = {}
+        if not hasattr(self, 'couporderdep'):
+            self.couporderdep = {}
+            self.couporderindep = {}
         for coup in re.findall(self.findcoupling, call):
             if coup == 'ZERO':
                 ###call = call.replace('pars->ZERO', '0.')
@@ -1630,21 +1634,41 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             if param:
                 alias = self.params2order
                 name = 'cIPD'
+            elif model.is_running_coupling(coup):
+                alias = self.couporderdep
+                name = 'cIPC'
             else:
-                alias = self.couplings2order
+                alias = self.couporderindep
                 name = 'cIPC'
             if coup not in alias:
-                alias[coup] = len(alias)
+                if alias == self.couporderindep:
+                    if not len(alias):
+                        alias[coup] = len(self.couporderdep)
+                    else:
+                        alias[coup] = alias[list(alias)[-1]]+1
+                else:
+                    alias[coup] = len(alias)
+                if alias == self.couporderdep:
+                    for k in self.couporderindep:
+                        self.couporderindep[k] += 1
+                newcoup = True
             if name == 'cIPD':
                 call = call.replace('m_pars->%s%s' % (sign, coup),
                                     '%s%s[%s]' % (sign, name, alias[coup]))                        
-            else:
+            elif model.is_running_coupling(coup):
                 ###call = call.replace('m_pars->%s%s' % (sign, coup),
                 ###                    '%scxmake( cIPC[%s], cIPC[%s] )' %
                 ###                    (sign, 2*alias[coup],2*alias[coup]+1))
                 # AV from cIPCs to COUP array (running alphas #373)
+                call = call.replace('CI_ACCESS', 'CD_ACCESS')
                 call = call.replace('m_pars->%s%s' % (sign, coup),
                                     'COUPs[%s], %s' % (alias[coup], '1.0' if not sign else '-1.0')) 
+            else:
+                call = call.replace('CD_ACCESS', 'CI_ACCESS')
+                call = call.replace('m_pars->%s%s' % (sign, coup),
+                                    'COUPs[ndcoup+%s], %s' % (alias[coup]-len(self.couporderdep), '1.0' if not sign else '-1.0'))
+            if newcoup:
+                self.couplings2order = self.couporderdep | self.couporderindep
         return call
 
     # AV - new method for formatting wavefunction/amplitude calls
