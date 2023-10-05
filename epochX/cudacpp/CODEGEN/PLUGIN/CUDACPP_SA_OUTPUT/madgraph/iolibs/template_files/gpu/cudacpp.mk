@@ -90,6 +90,10 @@ GTESTINC =
 ###$(info LOCALGTEST = $(LOCALGTEST))
 ###$(info TESTDIR = $(TESTDIR))
 
+TESTDIR=
+GTESTLIBDIR =
+GTESTLIBS =
+GTESTINC =
 #-------------------------------------------------------------------------------
 
 #=== Configure the C++ compiler

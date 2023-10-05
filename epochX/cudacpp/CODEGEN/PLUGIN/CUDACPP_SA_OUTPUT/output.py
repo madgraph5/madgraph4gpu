@@ -36,6 +36,7 @@ logger = logging.getLogger('madgraph.PLUGIN.CUDACPP_OUTPUT.output')
 from os.path import join as pjoin
 import madgraph.various.misc as misc
 import madgraph.iolibs.files as files
+import madgraph.iolibs.export_v4 as export_v4
 
 # AV - define the plugin's process exporter
 # (NB: this is the plugin's main class, enabled in the new_output dictionary in __init__.py)
@@ -259,12 +260,18 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
         files.ln( pjoin(self.dir_path, 'lib'),  pjoin(self.dir_path, 'SubProcesses'))
 
 
+
 #------------------------------------------------------------------------------------
 class SIMD_ProcessExporter(PLUGIN_ProcessExporter):
+    
 
     def change_output_args(args, cmd):
         """ """
-        cmd._export_format = "madevent"
+        #cmd._export_format = "madevent_forplugin"
+        cmd._export_format = 'madevent'
+        cmd._export_plugin = FortranExporterBridge
+
+
         args.append('--hel_recycling=False')
         args.append('--me_exporter=standalone_simd')
         if 'vector_size' not in ''.join(args):
@@ -272,6 +279,66 @@ class SIMD_ProcessExporter(PLUGIN_ProcessExporter):
         if 'nb_wrap' not in ''.join(args):
             args.append('--nb_wrap=1')            
         return args
+    
+class FortranExporterBridge(export_v4.ProcessExporterFortranMEGroup):
+
+    def write_auto_dsig_file(self, writer, matrix_element, proc_id = ""):
+
+        replace_dict,context = super().write_auto_dsig_file(False, matrix_element, proc_id)
+
+        replace_dict['additional_header'] = """
+      INTEGER IEXT
+
+      INTEGER                    ISUM_HEL
+      LOGICAL                    MULTI_CHANNEL
+      COMMON/TO_MATRIX/ISUM_HEL, MULTI_CHANNEL
+
+      LOGICAL FIRST_CHID
+      SAVE FIRST_CHID
+      DATA FIRST_CHID/.TRUE./
+
+#ifdef MG5AMC_MEEXPORTER_CUDACPP
+      INCLUDE 'coupl.inc' ! for ALL_G
+      INCLUDE 'fbridge.inc'
+      INCLUDE 'fbridge_common.inc'
+      INCLUDE 'genps.inc'
+      INCLUDE 'run.inc'
+      DOUBLE PRECISION OUT2(VECSIZE_MEMMAX)
+      INTEGER SELECTED_HEL2(VECSIZE_MEMMAX)
+      INTEGER SELECTED_COL2(VECSIZE_MEMMAX)
+      DOUBLE PRECISION CBYF1
+      INTEGER*4 NGOODHEL, NTOTHEL
+
+      INTEGER*4 NWARNINGS
+      SAVE NWARNINGS
+      DATA NWARNINGS/0/
+
+      LOGICAL FIRST
+      SAVE FIRST
+      DATA FIRST/.TRUE./
+#else
+      INTEGER FBRIDGE_MODE      
+#endif
+        call counters_smatrix1multi_start( -1, VECSIZE_USED ) ! fortran=-1
+"""
+        replace_dict['OMP_LIB'] = ''
+        replace_dict['OMP_PREFIX'] = """ IF( FBRIDGE_MODE .LE. 0 ) THEN ! (FortranOnly=0 or BothQuiet=-1 or BothDebug=-2)
+call counters_smatrix1multi_start( -1, VECSIZE_USED ) ! fortran=-1
+"""
+        replace_dict["OMP_POSTFIX"] = open(pjoin(PLUGINDIR,'madgraph','iolibs','template_files','gpu','smatrix_multi.f')).read()
+    
+        _file_path = export_v4._file_path
+        if writer:
+            file = open(pjoin(_file_path, \
+                          'iolibs/template_files/auto_dsig_v4.inc')).read()
+            file = file % replace_dict
+
+            # Write the file
+            writer.writelines(file, context=context)
+        else:
+            return replace_dict, context
+    
+
 
         
     
@@ -279,7 +346,9 @@ class GPU_ProcessExporter(PLUGIN_ProcessExporter):
     
     def change_output_args(args, cmd):
         """ """
-        cmd._export_format = "madevent"
+        cmd._export_format = 'plugin'
+        cmd._export_plugin = FortranExporterBridge
+
         args.append('--hel_recycling=False')
         args.append('--me_exporter=standalone_cuda')
         if 'vector_size' not in ''.join(args):
