@@ -40,7 +40,7 @@ c         ! This is a workaround for https://github.com/oliviermattelaer/mg5amc_
             STOP
           ENDIF
           CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE, P_MULTI, ALL_G,
-     &      HEL_RAND, COL_RAND, CHANNEL, OUT2,
+     &      HEL_RAND, COL_RAND, CHANNELS(1), OUT2,
      &      SELECTED_HEL2, SELECTED_COL2 ) ! 1-N: multi channel enabled
         ENDIF
         call counters_smatrix1multi_stop( 0 ) ! cudacpp=0
@@ -84,6 +84,6 @@ c         ! This is a workaround for https://github.com/oliviermattelaer/mg5amc_
         ELSE
           WRITE (*,*) 'MULTI_CHANNEL = FALSE'
         ENDIF
-        WRITE (*,*) 'CHANNEL_ID =', CHANNEL
+        WRITE (*,*) 'CHANNEL_ID =', CHANNELS(1)
         FIRST_CHID = .FALSE.
       ENDIF
