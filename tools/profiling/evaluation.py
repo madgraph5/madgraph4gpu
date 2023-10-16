@@ -4,6 +4,7 @@
 Created on Tue Mar 30 09:59:03 2021
 
 @author: andy
+@edited: Jorgen Teig
 """
 import json
 import os
@@ -14,13 +15,65 @@ import matplotlib.style
 #from matplotlib.offsetbox import TextArea, DrawingArea, OffsetImage, AnnotationBbox
 import seaborn as sns
 import configparser
+import argparse
 import re
 import math
 
+#############################
+#                           #
+#     Argument defaults     #
+#                           #
+#############################
 
+physicsProcesses = ['ee_mumu', 'gg_tt', 'gg_ttg', 'gg_ttgg', 'gg_ttggg']
 
+reportPath = 'C:\\Users\\jteig\\cernbox\\Documents\\Report folder 2023\\Merged_23-02-07'
+
+savePath = 'C:\\Users\\jteig\\cernbox\\Documents\\Report folder 2023\\Graphs\\Graphs but big\\'
+
+filePrefix = 'test_A100_sycl_11.5'
+
+# 'test_v100s_sycl_11.5'
+
+hardware = 'Nvidia A100'
+#hardware = 'NVIDIA v100s'
+
+#############################
+#
+# Compare graphs
+#
+#############################
+
+compare = True
+
+processToCompare = 'gg_ttgg.mad'
+
+graphsToCompare = ['test_' + processToCompare , 'test_A100_CUDA_' + processToCompare]
+
+stat = 'MECalcOnly'
+#stat = 'MatrixElems'
+
+#############################
+
+parser = argparse.ArgumentParser(description='A program for profiling GPUs using MadGraph.')
+
+parser.add_argument("-p", help="Physic process used for making the graphs.", default=physicsProcesses[0], choices=physicsProcesses)
+parser.add_argument("-r", help="Path for the directory containing the reports.", default=reportPath)
+parser.add_argument("-s", help="Path for the directory where the graphs will be saved.", default=savePath)
+parser.add_argument("-n", help="The prefix in the name of the files of the reports e.g test_v100s_sycl-11.5.", default=filePrefix)
+parser.add_argument("-c", help="Option for comparing graphs instead of plotting them.", default=compare)
+parser.add_argument("-d", help="What device/hardware has been used in the profiling, used as a descriptor in the plots", default=hardware)
+parser.add_argument("-g", help="Graphs to use with the compare option.")
+
+args = parser.parse_args()
+
+#exit(0)
 
 class Evaluation:
+
+    # Remove warnings regarding chained assignment using pandas dataframes
+    # The code is still working as expected
+    pd.set_option('mode.chained_assignment', None)
     
     list_results=[]     #List results
     Data=pd.DataFrame() #To store all results in one DataFrame
@@ -44,7 +97,7 @@ class Evaluation:
         listfolders = os.listdir()
         
         for datafolder in listfolders:
-            os.chdir(path+'/'+datafolder)   #Jump in datafolder
+            os.chdir(path+'\\'+datafolder)   #Jump in datafolder
             df_dict[datafolder]=pd.DataFrame()
             Data=pd.DataFrame()
             list_results =[]
@@ -123,10 +176,10 @@ class Evaluation:
             temp_df =pd.DataFrame()
             temp_df = dataframes[df][['NumIterations','NumThreadsPerBlock', 'NumBlocksPerGrid',
                                       'EvtsPerSec[MatrixElems] (3)','EvtsPerSec[Rnd+Rmb+ME](123)',
-                                      'EvtsPerSec[Rmb+ME] (23)']]
+                                      'EvtsPerSec[Rmb+ME] (23)', 'EvtsPerSec[MECalcOnly] (3)']]
             
             columns_to_convert = ['EvtsPerSec[MatrixElems] (3)','EvtsPerSec[Rnd+Rmb+ME](123)',
-                                      'EvtsPerSec[Rmb+ME] (23)']
+                                      'EvtsPerSec[Rmb+ME] (23)', 'EvtsPerSec[MECalcOnly] (3)']
             for column in columns_to_convert:
                 
                 for val in range(len(temp_df[column])):
@@ -156,8 +209,9 @@ class Evaluation:
             ax.spines['top'].set_visible(False)
             
             #enable grid
-            plt.rcParams['grid.linestyle']=':'
-            ax.yaxis.grid()
+            #plt.rcParams['grid.linestyle']=':'
+            #ax.yaxis.grid()
+            plt.grid(which='both',axis = 'y')
             
             #setup x-axis
             ax.set_xscale('log')
@@ -175,7 +229,9 @@ class Evaluation:
             #Labels and titel
             plt.xlabel('Gridsize',fontsize=15)
             plt.ylabel('Troughput\n'+yaxis,fontsize=13.5)
-            plt.title(yaxis,fontsize=15)
+
+
+            plt.title('SYCL (GCC 11.3) on ATS-P',fontsize=15)
         
             # plt.ylabel(yaxis,fontsize=30)
             # plt.xlabel('NumThreadsPerBlock*NumBlocksPerGrid',fontsize=30)
@@ -206,7 +262,13 @@ class Evaluation:
             #plt.rcParams['legend.title_fontsize']='large'
             #plt.text(16400, 250000, 'Here we have space for some\nfurther information like:\n\nCuda\nepoch2\ngg_ttgg',fontsize=25)
             plt.show()
-            fig.savefig('/home/andy/cernbox/data/raw/data'+'epoch2_ee_mumu_gcheck_float'+yaxis)
+
+            # Adjusts labels to fit
+            plt.tight_layout()
+            plt.autoscale()
+
+            # Savepath and physics process set by arguments
+            fig.savefig(args.s + args.p + '_' + yaxis)
 
     def data_compare(self,df_dict,compare_list,stat):
         #This function takes the dictinary of data frames and plots the selected df from the list
@@ -227,8 +289,8 @@ class Evaluation:
                 if temp_df.empty:
                     pass
                 else:
-                    df_to_be_plotted=df_to_be_plotted.append(temp_df[(temp_df['EvtsPerSec[MatrixElems] (3)']
-                                                               ==eval(stat)(temp_df['EvtsPerSec[MatrixElems] (3)']))])
+                    df_to_be_plotted = pd.concat([df_to_be_plotted, temp_df[(temp_df['EvtsPerSec[MatrixElems] (3)']
+                                                                    ==eval(stat)(temp_df['EvtsPerSec[MatrixElems] (3)']))]])
                     df_to_be_plotted=df_to_be_plotted.astype({'gridsize':int}) 
         
         
@@ -256,6 +318,12 @@ class Evaluation:
         
     
     def data_compare2(self,df_dict,compare_list):
+
+        # Get names of files to compare
+
+        graph1 = graphsToCompare[0].split('_')
+        graph2 = graphsToCompare[1].split('_')
+
         #Takes a dictionary with dataframes and plots it in the same scatter plot
         
         fig = plt.figure()
@@ -269,54 +337,85 @@ class Evaluation:
         
         #enable grid
         plt.rcParams['grid.linestyle']=':'
+        plt.rc('font', size=15)
+        plt.rc('axes', labelsize=50)
         plt.grid()
         
         #setup x axis
         ax1.set_xscale('log')
-        plt.xticks(df_dict[list(df_dict.keys())[0]]['gridsize'])
+        plt.xticks(df_dict[list(df_dict.keys())[0]]['gridsize'],size=15)
         ax1.set_xticklabels(df_dict[list(df_dict.keys())[0]]['gridsize'],rotation=75)
         
         #setup y axis
         #get maximum value of all df for ylim
-        max_y = [max(df_dict[df]['EvtsPerSec[MatrixElems] (3)']) for df in df_dict]
+        #max_y = max(df_dict[compare_list[0]]['EvtsPerSec[MatrixElems] (3)'], df_dict[compare_list[1]]['EvtsPerSec[MatrixElems] (3)'])
+
+        #print(max_y)
+
+        #min_y = [min(df_dict[df]['EvtsPerSec[MatrixElems] (3)']) for df in df_dict]
+
         #plt.ylim(-0.1*10**9,max(max_y)*1.3)
-        plt.ylim(10**5,max(max_y)*10)
+        #plt.ylim(min(min_y),max(max_y)*10)
         ax1.set_yscale('log')
         
         #Add labels and title
-        plt.ylabel('Throughput\nMatrix Elements [s-1]')
-        plt.xlabel('Gridsize')
-        plt.title('Cuda throughput for ee_mumu on NVIDIA T4\n')
+        plt.ylabel('Throughput\n'+ stat +' [s-1]', size=30)
+        plt.xlabel('Gridsize (nBlocksGPU * nThreadsGPU)', size=30)
+        plt.title("SYCL vs CUDA throughput for "+ graph1[3] + '_' + graph1[4] +" on " + hardware + "\n", size=30,wrap=True)
         
         #Change colormap. More info here https://matplotlib.org/stable/tutorials/colors/colormaps.html 
         cmap=plt.get_cmap('Set1')
         
-        i=1
+        i=2
         for data in compare_list:
+
+            tempVar  = 'EvtsPerSec['+ stat +'] (3)'
+
             #Get maximum values for each dataset
-            maxima_y=max(df_dict[data]['EvtsPerSec[MatrixElems] (3)'])
-            maxima_x=df_dict[data].loc[df_dict[data]['EvtsPerSec[MatrixElems] (3)']==maxima_y,'gridsize'].item()
+            maxima_y=max(df_dict[data][tempVar])
+            maxima_x=df_dict[data].loc[df_dict[data][tempVar]==maxima_y,'gridsize'].item()
             
             #label maximum values
             length=len(str(maxima_y))-1
             label_maximas=str(round(maxima_y*10**-(length),3))+'e'+str(length)
             
+            if i == 2:
+                markerType='o'
+            else:
+                markerType='X'
+
             #plot datasets
-            ax1.scatter(df_dict[data]['gridsize'].to_list(),df_dict[data]['EvtsPerSec[MatrixElems] (3)'].to_list(),
+            ax1.scatter(df_dict[data]['gridsize'].to_list(),df_dict[data][tempVar].to_list(),
                         label=data+ ' (max = %s)'%label_maximas,
                         color=cmap(i),
-                        s=150,alpha=0.9)
+                        s=150,alpha=0.9, marker=markerType)
+
+            ax1.plot(df_dict[data]['gridsize'].to_list(),df_dict[data][tempVar].to_list(), color=cmap(i))
+
             #Get next cmap color
-            i+=1 
+            i+=2
             
             #plot max values
             ax1.scatter(maxima_x,maxima_y,c='r',marker='o',s=50)
             
             
             
-        ax1.legend(loc='upper left')  
+        ax1.legend(loc='best')
+
+
+        plt.autoscale()
+        plt.tight_layout()
+        
         
         plt.show()
+
+        graph1 = graphsToCompare[0].split('_')
+
+        graph2 = graphsToCompare[1].split('_')
+
+        # args.s + graph1[3] + '_' + graph1[4] + '_vs_' + graph2[3] + '_' + graph2[4]
+
+        fig.savefig(args.s + 'SYCL_' + graph1[3] + '_' + graph1[4] + '_vs_CUDA_' + graph2[3] + '_' + graph2[4] + '_' + stat +'.png', bbox_inches="tight")
         
     def dataframes_statistical_transfomation(self,df_dict,stat):
         #This functions takes a dictionary of dataframes and returns a dictionary with dataframes
@@ -334,8 +433,8 @@ class Evaluation:
                 if temp_df.empty:
                     pass
                 else:
-                    df_dict_to_return[df]=df_dict_to_return[df].append(temp_df[(temp_df['EvtsPerSec[MatrixElems] (3)']
-                                                                      ==eval(stat)(temp_df['EvtsPerSec[MatrixElems] (3)']))])
+                    df_dict_to_return[df]=pd.concat([df_dict_to_return[df], temp_df[(temp_df['EvtsPerSec[MatrixElems] (3)']
+                                                                    ==eval(stat)(temp_df['EvtsPerSec[MatrixElems] (3)']))]])
                     df_dict_to_return[df]=df_dict_to_return[df].astype({'gridsize':int}) 
         return df_dict_to_return
 
@@ -368,28 +467,34 @@ if __name__=='__main__':
     Ev.readConfig()
     #logo=mpimg.imread('/home/andy/cernbox/Madgraph/profiler/Logo/Logo_CERN.png')
     #imagebox=OffsetImage(logo)
-    path='/home/andy/cernbox/data/Andrea'
+
+    # Gets directory containing the reports from -r argument
+    path = args.r
+    
     dataframes=Ev.load_df(path) #returns a directory that contains df for all data given in the path
     plotlist= [item for item in Ev.plot_confi['plots']if Ev.plot_confi['plots'][item] == 'on']
-    
-    
 
     dataframes_conv=Ev.convertunits_2() #returns a df directory with converted units
-    dataframes_statisical=Ev.dataframes_statistical_transfomation(dataframes_conv,'max')
-  
-    '''
-    Ev.plots(dataframes_conv['gcheck.exe_epoch1_cuda_ee_mumu_double'],plotlist)
-    '''
-    #max(df_adj_units['EvtsPerSec[MatrixElems] (3)'])
-    # To be done
-    list_to_compare=['gcheck.exe_epoch1_cuda_ee_mumu_float','gcheck.exe_epoch1_cuda_ee_mumu_double']
-    #test_df=Ev.data_compare(dataframes_conv,list_to_compare,'max')
     
-    Ev.data_compare2(dataframes_statisical,list_to_compare)
+    if not compare:
+
+        print(dataframes_conv)
+
+        # Plots the graphs in the supplied directories with the info from the config file
+        Ev.plots(dataframes_conv[args.n + '_' + args.p],plotlist)
     
-    dataframes_statisical[list(dataframes_statisical.keys())[0]]
-    dataframes_statisical[list(dataframes_statisical.keys())[0]]['gridsize']
-    dataframes_statisical['gcheck.exe_epoch1_cuda_ee_mumu_float'].dtypes
+    else:
+        # Compare graphs
+        dataframes_statisical=Ev.dataframes_statistical_transfomation(dataframes_conv,'max')
+
+        #max(df_adj_units['EvtsPerSec[MatrixElems] (3)'])
+        # To be done
+        #test_df=Ev.data_compare(dataframes_conv,list_to_compare,'max')
     
+        print(dataframes_statisical)
+
+        Ev.data_compare2(dataframes_statisical,graphsToCompare)
     
-    
+        #dataframes_statisical[list(dataframes_statisical.keys())[0]]
+        #dataframes_statisical[list(dataframes_statisical.keys())[0]]['gridsize']
+        #dataframes_statisical['check.exe_epochx_cuda_ee_mumu_float'].dtypes
