@@ -78,12 +78,12 @@ index 348c283be..74db44d84 100644
 +CUDACPP_MAKEENV:=$(shell echo '$(.VARIABLES)' | tr " " "\n" | egrep "(USEBUILDDIR|AVX|FPTYPE|HELINL|HRDCOD)")
 +###$(info CUDACPP_MAKEENV=$(CUDACPP_MAKEENV))
 +###$(info $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))"))
-+CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn |& awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
-+ifeq ($(CUDACPP_BUILDDIR),)
-+$(error CUDACPP_BUILDDIR='$(CUDACPP_BUILDDIR)' should not be empty!)
-+else
++CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn 2>/dev/null | awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
++#ifeq ($(CUDACPP_BUILDDIR),)
++#$(error CUDACPP_BUILDDIR='$(CUDACPP_BUILDDIR)' should not be empty!)
++#else
 +$(info CUDACPP_BUILDDIR='$(CUDACPP_BUILDDIR)')
-+endif
++#endif
 +CUDACPP_COMMONLIB=mg5amc_common
 +CUDACPP_CXXLIB=mg5amc_$(processid_short)_cpp
 +CUDACPP_CULIB=mg5amc_$(processid_short)_cuda
@@ -110,7 +110,7 @@ index 348c283be..74db44d84 100644
  
 -$(PROG): $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX)
 -	$(FC) -o $(PROG) $(PROCESS) $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp
-+LDFLAGS+=-Wl,--no-relax # avoid 'failed to convert GOTPCREL relocation' error #458
++#LDFLAGS+=-Wl,--no-relax # avoid 'failed to convert GOTPCREL relocation' error #458 (flag not universal -> skip?)
  
 -$(PROG)_forhel: $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX_HEL)
 -	$(FC) -o $(PROG)_forhel $(PROCESS) $(MATRIX_HEL) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp
