@@ -1805,30 +1805,29 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
     def get_external_line(self, wf, argument):
         call = ''
         call = call + helas_call_writers.HelasCallWriter.mother_dict[\
-                argument.get_spin_state_number()].lower()
-        if wf.get('mass').lower() != 'zero' or argument.get('spin') != 2:
-            # Fill out with X up to 6 positions
-            call = call + 'x' * (6 - len(call))
-            # Specify namespace for Helas calls
-            call = call + '( momenta,'
-            if argument.get('spin') != 1:
-                # For non-scalars, need mass and helicity
-                call = call + 'm_pars->%s, cHel[ihel][%d],'
-            else:
-                # AV This seems to be for scalars (spin==1???), pass neither mass nor helicity (#351)
-                ###call = call + 'm_pars->%s,'
-                call = call
-            call = call + '%+d, w_sv[%d], %d );'
-            if argument.get('spin') == 1:
-                # AV This seems to be for scalars (spin==1???), pass neither mass nor helicity (#351)
-                return call % \
-                                (
-                                 ###wf.get('mass'),
-                                 # For boson, need initial/final here
-                                 (-1) ** (wf.get('state') == 'initial'),
-                                 wf.get('me_id')-1,
-                                 wf.get('number_external')-1)
-            elif argument.is_boson():
+            argument.get_spin_state_number()].lower()
+        # Fill out with X up to 6 positions
+        call = call + 'x' * (6 - len(call))
+        # Specify namespace for Helas calls
+        call = call + '( momenta,'
+        if argument.get('spin') != 1:
+            # For non-scalars, need mass and helicity
+            call = call + 'm_pars->%s, cHel[ihel][%d],'
+        else:
+            # AV This seems to be for scalars (spin==1???), pass neither mass nor helicity (#351)
+            ###call = call + 'm_pars->%s,'
+            call = call
+        call = call + '%+d, w_sv[%d], %d );'
+        if argument.get('spin') == 1:
+            # AV This seems to be for scalars (spin==1???), pass neither mass nor helicity (#351)
+            return call % \
+                            (
+                                ###wf.get('mass'),
+                                # For boson, need initial/final here
+                                (-1) ** (wf.get('state') == 'initial'),
+                                wf.get('me_id')-1,
+                                wf.get('number_external')-1)
+        elif argument.is_boson():
 #                misc.sprint(call)
 #                misc.sprint( (wf.get('mass'),
 #                                 wf.get('number_external')-1,
@@ -1836,40 +1835,21 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
 #                                 (-1) ** (wf.get('state') == 'initial'),
 #                                 wf.get('me_id')-1,
 #                                 wf.get('number_external')-1))
-                return  self.format_coupling(call % \
-                                (wf.get('mass'),
-                                 wf.get('number_external')-1,
-                                 # For boson, need initial/final here
-                                 (-1) ** (wf.get('state') == 'initial'),
-                                 wf.get('me_id')-1,
-                                 wf.get('number_external')-1))
-            else:
-                return self.format_coupling(call % \
-                                (wf.get('mass'),
-                                 wf.get('number_external')-1,
-                                 # For fermions, need particle/antiparticle
-                                 - (-1) ** wf.get_with_flow('is_part'),
-                                 wf.get('me_id')-1,
-                                 wf.get('number_external')-1))
+            return  self.format_coupling(call % \
+                            (wf.get('mass'),
+                                wf.get('number_external')-1,
+                                # For boson, need initial/final here
+                                (-1) ** (wf.get('state') == 'initial'),
+                                wf.get('me_id')-1,
+                                wf.get('number_external')-1))
         else:
-            if wf.get('number_external') == 1:
-                call += 'pz'
-            elif wf.get('number_external') == 2:
-                call += 'mz'
-            else:
-                call += 'xz'
-                comment = '' # AV
-            call = call + 'x' * (6 - len(call))
-            if wf.get('number_external') == 1 or wf.get('number_external') == 2: # AV
-                comment = ' // NB: ' + call + ' only uses pz' # AV skip '(not E,px,py)' to avoid interference with comma parsing in get_external
-            # Specify namespace for Helas calls
-            call = call + '( momenta, cHel[ihel][%d], %+d, w_sv[%d], %d );' + comment # AV vectorize and add comment
             return self.format_coupling(call % \
-                                (wf.get('number_external')-1,
-                                 # For fermions, need particle/antiparticle
-                                 - (-1) ** wf.get_with_flow('is_part'),
-                                 wf.get('me_id')-1,
-                                 wf.get('number_external')-1))
+                            (wf.get('mass'),
+                                wf.get('number_external')-1,
+                                # For fermions, need particle/antiparticle
+                                - (-1) ** wf.get_with_flow('is_part'),
+                                wf.get('me_id')-1,
+                                wf.get('number_external')-1))
 
     # AV - replace helas_call_writers.GPUFOHelasCallWriter method (vectorize w_sv and amp_sv)
     def generate_helas_call(self, argument):
