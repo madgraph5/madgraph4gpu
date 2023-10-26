@@ -27,7 +27,6 @@ UNAME_S := $(shell uname -s)
 UNAME_P := $(shell uname -p)
 ###$(info UNAME_P='$(UNAME_P)')
 
-include ../../Source/make_opts
 #-------------------------------------------------------------------------------
 
 #=== Configure common compiler flags for C++ and CUDA
@@ -221,7 +220,7 @@ else ifneq ($(shell $(CXX) --version | egrep '^(clang)'),)
 override OMPFLAGS = -fopenmp
 ###override OMPFLAGS = # disable OpenMP MT on clang (was not ok without or with nvcc before #578)
 else ifneq ($(shell $(CXX) --version | egrep '^(Apple clang)'),)
-override OMPFLAGS = -fopenmp # disable OpenMP MT on Apple clang (builds fail in the CI #578)
+override OMPFLAGS = # disable OpenMP MT on Apple clang (builds fail in the CI #578)
 else
 override OMPFLAGS = -fopenmp
 ###override OMPFLAGS = # disable OpenMP MT (default before #575)
@@ -555,7 +554,7 @@ endif
 $(LIBDIR)/lib$(MG5AMC_CXXLIB).so: $(BUILDDIR)/fbridge.o
 $(LIBDIR)/lib$(MG5AMC_CXXLIB).so: cxx_objects_lib += $(BUILDDIR)/fbridge.o
 $(LIBDIR)/lib$(MG5AMC_CXXLIB).so: $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects_lib)
-	$(CXX) -shared -o $@ $(cxx_objects_lib) $(CXXLIBFLAGSRPATH2) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB) $(LIBFLAGS) -fopenmp
+	$(CXX) -shared -o $@ $(cxx_objects_lib) $(CXXLIBFLAGSRPATH2) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
 
 ifneq ($(NVCC),)
 $(LIBDIR)/lib$(MG5AMC_CULIB).so: $(BUILDDIR)/fbridge_cu.o
