@@ -62,7 +62,7 @@ generate g g > t t~ g g
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.005277156829833984 [0m
+[1;32mDEBUG: model prefixing  takes 0.005362749099731445 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -177,7 +177,7 @@ INFO: Creating files in directory P1_gg_ttxgg
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.__init__ [1;30m[model_handling.py at line 1045][0m [0m
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1046][0m [0m
 [1;32mDEBUG:  proc_id = [0m 1 [1;30m[model_handling.py at line 1052][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f6328639e50> [1;30m[export_v4.py at line 6180][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7efe708afe50> [1;30m[export_v4.py at line 6180][0m [0m
 INFO: Creating files in directory . 
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 1311][0m [0m
 [1;32mDEBUG:  self.include_multi_channel is already defined: this is madevent+second_exporter mode [1;30m[model_handling.py at line 1313][0m [0m
@@ -218,15 +218,15 @@ INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./.
 [1;32mDEBUG:  Done [1;30m[export_cpp.py at line 713][0m [0m
 INFO: Generating Feynman diagrams for Process: g g > t t~ g g WEIGHTED<=4 @1 
 INFO: Finding symmetric diagrams for subprocess group gg_ttxgg 
-Generated helas calls for 1 subprocesses (123 diagrams) in 0.419 s
-Wrote files for 222 helas calls in 0.724 s
+Generated helas calls for 1 subprocesses (123 diagrams) in 0.423 s
+Wrote files for 222 helas calls in 0.735 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 routines[0m
 ALOHA: aloha creates VVVV3 routines[0m
 ALOHA: aloha creates VVVV4 routines[0m
-ALOHA: aloha creates 5 routines in  0.322 s
+ALOHA: aloha creates 5 routines in  0.330 s
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 195][0m [0m
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
@@ -234,7 +234,7 @@ ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 routines[0m
 ALOHA: aloha creates VVVV3 routines[0m
 ALOHA: aloha creates VVVV4 routines[0m
-ALOHA: aloha creates 10 routines in  0.307 s
+ALOHA: aloha creates 10 routines in  0.314 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -296,6 +296,7 @@ Using default eps viewer "evince". Set another one in ./input/mg5_configuration.
 No valid web browser found. Please set in ./input/mg5_configuration.txt
 treatcards run
 [1;34mrun_card missed argument cudacpp_backend. Takes default: CPP[0m
+[1;34mrun_card missed argument cudacpp_backend. Takes default: CPP[0m
 quit
 INFO:  
 launch in debug mode
@@ -335,6 +336,7 @@ patching file Source/makefile
 patching file SubProcesses/makefile
 patching file Source/make_opts
 patching file bin/internal/banner.py
+Hunk #1 succeeded at 4188 (offset 1 line).
 patching file bin/internal/gen_ximprove.py
 patching file bin/internal/madevent_interface.py
 DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_gg_ttgg/SubProcesses/P1_gg_ttxgg; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/MG5aMC_patches/PROD/patch.P1
@@ -353,6 +355,6 @@ Type "launch" to generate events from this process, or see
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m4.067s
-user	0m3.594s
-sys	0m0.311s
+real	0m3.973s
+user	0m3.649s
+sys	0m0.299s
