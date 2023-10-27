@@ -1169,7 +1169,6 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         den_factors = [str(me.get_denominator_factor()) for me in \
                             self.matrix_elements]
         replace_dict['den_factors'] = ",".join(den_factors)
-        misc.sprint(replace_dict['den_factors'])
 
         if write:
             file = self.read_template_file(self.process_sigmaKin_function_template) % replace_dict
