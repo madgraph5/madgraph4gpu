@@ -49,8 +49,10 @@ fi
 
 # These two steps are part of "cd Source; make" but they actually are code-generating steps
 if [ "${tmadmode}" != "0" ]; then
-  ${dir}/bin/madevent treatcards run
-  ${dir}/bin/madevent treatcards param
+  ${dir}/bin/madevent treatcards run # AV BUG! THIS MAY SILENTLY FAIL (should check if output contains "Please report this bug")
+  ###echo status=$?
+  ${dir}/bin/madevent treatcards param # AV BUG! THIS MAY SILENTLY FAIL (should check if output contains "Please report this bug")
+  ###echo status=$?
 fi
 
 # Cleanup

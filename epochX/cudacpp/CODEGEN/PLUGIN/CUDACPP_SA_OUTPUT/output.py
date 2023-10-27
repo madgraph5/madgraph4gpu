@@ -204,6 +204,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
 	    MG5options are all the options of the main interface
 	    outputflags is a list of options provided when doing the output command"""
         misc.sprint('Entering PLUGIN_ProcessExporter.finalize', self.in_madevent_mode, type(self))
+        misc.sprint(self.in_madevent_mode)
         if self.in_madevent_mode:
             self.add_input_for_banner()
             if 'CUDACPP_CODEGEN_PATCHLEVEL' in os.environ: patchlevel = os.environ['CUDACPP_CODEGEN_PATCHLEVEL']
@@ -221,11 +222,16 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
             #    logger.info("####### \n stderr is \n %s", stderr)
             #    raise Exception('ERROR! the O/S call to patchMad.sh failed')
             # NEW implementation (OM PR #764)
+            # **NB** AV: patchMad.sh may silently fail, for instance because 'madevent treatcards run' may silently fail
+            # **NB** AV: currently, error checking is done by looking for error strings on the full generation log
+            # **NB** AV: for this reason, but also because I want to always see the output, I change the Popen call to always dump stdout and stderr
             plugin_path = os.path.dirname(os.path.realpath( __file__ ))
-            p = subprocess.Popen([pjoin(plugin_path, 'patchMad.sh'), self.dir_path , 'PROD', str(patchlevel)],
-                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            ###p = subprocess.Popen([pjoin(plugin_path, 'patchMad.sh'), self.dir_path , 'PROD', str(patchlevel)],
+            ###                     stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            p = subprocess.Popen([pjoin(plugin_path, 'patchMad.sh'), self.dir_path , 'PROD', str(patchlevel)]) # AV always dump patchMad.sh stdout/stderr
             stdout, stderr = p.communicate()
-            if p.returncode != 0:
+            misc.sprint(p.returncode)
+            if p.returncode != 0: # AV: WARNING! this may silently fail, for instance because 'madevent treatcards run' may silently fail
                 logger.debug("####### \n stdout is \n %s", stdout)
                 logger.info("####### \n stderr is \n %s", stderr)
                 logger.info("return code is %s\n", p.returncode)
