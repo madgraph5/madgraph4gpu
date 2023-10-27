@@ -541,7 +541,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         if obj.startswith('COUP'):
             out = super().change_var_format(obj)
             postfix = out[4:]
-            return "Ccoeff%s*%s" % (postfix, out) # OM for 'unary minus' #628
+            return "Ccoeff%s * %s" % (postfix, out) # OM for 'unary minus' #628
         else:
             return super().change_var_format(obj)
 
