@@ -151,7 +151,7 @@ Generated helas calls for 1 subprocesses (1 diagrams) in 0.002 s
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 197][0m [0m
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVS3 routines[0m
-ALOHA: aloha creates 1 routines in  0.060 s
+ALOHA: aloha creates 1 routines in  0.061 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVS3
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg_h/src/./HelAmps_heft.h
 INFO: Created file HelAmps_heft.h in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg_h/src/. 
@@ -164,6 +164,6 @@ INFO: /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg
 [1;32mDEBUG:  'Entering PLUGIN_ProcessExporter.finalize', self.in_madevent_mode = [0m Entering PLUGIN_ProcessExporter.finalize False [1;30m[output.py at line 206][0m [0m
 quit
 
-real	0m0.430s
-user	0m0.370s
-sys	0m0.050s
+real	0m0.899s
+user	0m0.362s
+sys	0m0.062s
