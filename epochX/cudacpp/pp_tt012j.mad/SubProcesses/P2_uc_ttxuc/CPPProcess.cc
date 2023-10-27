@@ -935,7 +935,7 @@ namespace mg5amcCpu
     // These variable are not used anywhere else in the code and their scope is limited to this sanity check
     {
       // nprocesses>1 was last observed for "mirror processes" in uux_ttx in the 270 branch (see issue #343 and PRs #360 and #396)
-      constexpr int nprocesses = 1;
+      constexpr int nprocesses = 2;
       static_assert( nprocesses == 1, "Assume nprocesses == 1" );
       // process_id corresponds to the index of DSIG1 Fortran functions (must be 1 because cudacpp is unable to handle DSIG2)
       constexpr int process_id = 1; // code generation source: madevent + cudacpp exporter
@@ -943,7 +943,7 @@ namespace mg5amcCpu
     }
 
     // Denominators: spins, colors and identical particles
-    constexpr int helcolDenominators[1] = { 36 }; // assume nprocesses == 1 (#272 and #343)
+    constexpr int helcolDenominators[1] = { 36,36 }; // assume nprocesses == 1 (#272 and #343)
 
 #ifdef __CUDACC__
     // Remember: in CUDA this is a kernel for one event, in c++ this processes n events
