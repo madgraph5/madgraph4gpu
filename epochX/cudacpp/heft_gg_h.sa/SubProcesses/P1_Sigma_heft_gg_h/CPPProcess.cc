@@ -245,7 +245,7 @@ namespace mg5amcCpu
       sxxxxx<M_ACCESS, W_ACCESS>( momenta, +1, w_fp[2], 2 );
 
       // Amplitude(s) for diagram number 1
-      VVS3_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[0], w_fp[1], w_fp[2], COUPs[0], &amp_fp[0] );
+      VVS3_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[0], w_fp[1], w_fp[2], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
