@@ -294,7 +294,7 @@ EOF
   pushd ${OUTDIR} >& /dev/null
   echo -e "\n+++ Compare old and new code generation log for $proc\n"
   ###if diff -c ${proc}.${autosuffix}.BKP/${outproc}_log.txt ${proc}.${autosuffix}; then echo "Old and new code generation logs are identical"; fi # context diff
-  if diff ${proc}.${autosuffix}.BKP/${outproc}_log.txt ${proc}.${autosuffix}; then echo "Old and new code generation logs are identical"; fi # context diff
+  if diff ${proc}.${autosuffix}.BKP/$(basename ${outproc})_log.txt ${proc}.${autosuffix}; then echo "Old and new code generation logs are identical"; fi # context diff
   echo -e "\n+++ Compare old and new generated code for $proc\n"
   if $SCRDIR/diffCode.sh ${BRIEF} -r -c ${proc}.${autosuffix}.BKP ${proc}.${autosuffix}; then echo "Old and new generated codes are identical"; else echo -e "\nWARNING! Old and new generated codes differ"; fi
   popd >& /dev/null
