@@ -372,17 +372,17 @@ function cleanup_MG5AMC_HOME()
   rm -f ${MG5AMC_HOME}/Template/LO/Source/make_opts
   rm -f ${MG5AMC_HOME}/input/mg5_configuration.txt
   rm -f ${MG5AMC_HOME}/models/sm/py3_model.pkl
-   # Remove any *~ files in MG5AMC_HOME
+  # Remove any *~ files in MG5AMC_HOME
   rm -rf $(find ${MG5AMC_HOME} -name '*~')
 }
 
-function cleanup_MG5AMC_PLUGIN()
-{
-  # Remove and recreate MG5AMC_HOME/PLUGIN
-  rm -rf ${MG5AMC_HOME}/PLUGIN
-  mkdir ${MG5AMC_HOME}/PLUGIN
-  touch ${MG5AMC_HOME}/PLUGIN/__init__.py
-}
+#function cleanup_MG5AMC_PLUGIN()
+#{
+#  # Remove and recreate MG5AMC_HOME/PLUGIN
+#  rm -rf ${MG5AMC_HOME}/PLUGIN
+#  mkdir ${MG5AMC_HOME}/PLUGIN
+#  touch ${MG5AMC_HOME}/PLUGIN/__init__.py
+#}
 
 #--------------------------------------------------------------------------------------
 
@@ -535,7 +535,7 @@ cd - > /dev/null
 
 # Clean up before code generation
 cleanup_MG5AMC_HOME
-cleanup_MG5AMC_PLUGIN
+###cleanup_MG5AMC_PLUGIN
 
 # Print differences in MG5AMC with respect to git after copying ad-hoc patches
 cd ${MG5AMC_HOME}
@@ -546,18 +546,18 @@ echo -e "***************** Differences to the current git commit ${commit_patche
 cd - > /dev/null
 
 # Copy the new plugin to MG5AMC_HOME (if the script directory backend is cudacpp or alpaka)
-if [ "${SCRBCK}" == "cudacpp" ]; then
-  if [ "${OUTBCK}" == "no-path-to-this-statement" ]; then
-    echo -e "\nWARNING! '${OUTBCK}' mode selected: do not copy the cudacpp plugin (workaround for #341)"
-  else # currently succeeds also for madcpp and madgpu (#341 has been fixed)
-    echo -e "\nINFO! '${OUTBCK}' mode selected: copy the cudacpp plugin\n"
-    cp -dpr ${SCRDIR}/PLUGIN/${SCRBCK^^}_SA_OUTPUT ${MG5AMC_HOME}/PLUGIN/${SCRBCK^^}_OUTPUT
-    ls -l ${MG5AMC_HOME}/PLUGIN
-  fi
+#if [ "${SCRBCK}" == "cudacpp" ]; then
+#  if [ "${OUTBCK}" == "no-path-to-this-statement" ]; then
+#    echo -e "\nWARNING! '${OUTBCK}' mode selected: do not copy the cudacpp plugin (workaround for #341)"
+#  else # currently succeeds also for madcpp and madgpu (#341 has been fixed)
+#    echo -e "\nINFO! '${OUTBCK}' mode selected: copy the cudacpp plugin\n"
+#    cp -dpr ${SCRDIR}/PLUGIN/${SCRBCK^^}_SA_OUTPUT ${MG5AMC_HOME}/PLUGIN/${SCRBCK^^}_OUTPUT
+#    ls -l ${MG5AMC_HOME}/PLUGIN
+#  fi
 ###elif [ "${SCRBCK}" == "alpaka" ]; then
 ###  cp -dpr ${SCRDIR}/PLUGIN/${SCRBCK^^}_CUDACPP_SA_OUTPUT ${MG5AMC_HOME}/PLUGIN/
 ###  ls -l ${MG5AMC_HOME}/PLUGIN
-fi
+#fi
 
 # For gridpacks, use separate output directories for MG 29x and MG 3xx
 ###if [ "${SCRBCK}" == "gridpack" ]; then
@@ -575,7 +575,7 @@ codeGenAndDiff $proc "$cmd"
 
 # Clean up after code generation
 cleanup_MG5AMC_HOME
-cleanup_MG5AMC_PLUGIN
+###cleanup_MG5AMC_PLUGIN
 
 # Check formatting in the auto-generated code
 if [ "${OUTBCK}" == "cudacpp" ]; then
