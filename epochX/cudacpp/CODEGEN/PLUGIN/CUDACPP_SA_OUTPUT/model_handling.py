@@ -196,7 +196,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 list_arg = '[]' # AV from cxtype_sv to fptype array (running alphas #373)
                 point = self.type2def['pointer_coup']
                 args.append('%s %s%s%s'% (type, point, argname, list_arg))
-                args.append('double Ccoeff%s'% argname[7:])
+                args.append('double Ccoeff%s'% argname[7:]) # OM for 'unary minus' #628
             else:
                 args.append('%s %s%s'% (type, argname, list_arg))
         if not self.offshell:
@@ -535,12 +535,13 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             text = '%(factors)s'
         return text % data
 
+    # OM - overload aloha_writers.WriteALOHA and ALOHAWriterForCPP methods (handle 'unary minus' #628)
     def change_var_format(self, obj):
         """ """
         if obj.startswith('COUP'):
             out = super().change_var_format(obj)
             postfix = out[4:]
-            return "Ccoeff%s*%s" % (postfix, out)
+            return "Ccoeff%s*%s" % (postfix, out) # OM for 'unary minus' #628
         else:
             return super().change_var_format(obj)
 
@@ -1642,13 +1643,14 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                 alias[coup] = len(alias)
             if name == 'cIPD':
                 call = call.replace('m_pars->%s%s' % (sign, coup),
-                                    '%s%s[%s]' % (sign, name, alias[coup]))                        
+                                    '%s%s[%s]' % (sign, name, alias[coup]))
             else:
                 ###call = call.replace('m_pars->%s%s' % (sign, coup),
                 ###                    '%scxmake( cIPC[%s], cIPC[%s] )' %
                 ###                    (sign, 2*alias[coup],2*alias[coup]+1))
-                misc.sprint(name, alias[coup])
+                ###misc.sprint(name, alias[coup])
                 # AV from cIPCs to COUP array (running alphas #373)
+                # OM fix handling of 'unary minus' #628
                 call = call.replace('m_pars->%s%s' % (sign, coup),
                                     'COUPs[%s], %s' % (alias[coup], '1.0' if not sign else '-1.0')) 
         return call
