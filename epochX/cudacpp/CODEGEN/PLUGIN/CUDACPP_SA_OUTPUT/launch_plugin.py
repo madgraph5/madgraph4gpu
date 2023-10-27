@@ -49,7 +49,7 @@ class CPPMEInterface(madevent_interface.MadEventCmdShell):
 class CPPRunCard(banner_mod.RunCardLO):
     def reset_simd(self, old_value, new_value, name):
         if not hasattr(self, 'path'):
-            raise Exception
+            raise Exception('INTERNAL ERROR! CPPRunCard instance has no attribute path')
         if name == "vector_size" and new_value <= int(old_value):
             # code can handle the new size -> do not recompile
             return
