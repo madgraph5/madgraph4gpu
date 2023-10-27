@@ -1674,7 +1674,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             else:
                 call = call.replace('CD_ACCESS', 'CI_ACCESS')
                 call = call.replace('m_pars->%s%s' % (sign, coup),
-                                    'COUPs[ndcoup+%s], %s' % (alias[coup]-len(self.couporderdep), '1.0' if not sign else '-1.0'))
+                                    'COUPs[ndcoup + %s], %s' % (alias[coup]-len(self.couporderdep), '1.0' if not sign else '-1.0'))
             if newcoup:
                 self.couplings2order = self.couporderdep | self.couporderindep
         return call
