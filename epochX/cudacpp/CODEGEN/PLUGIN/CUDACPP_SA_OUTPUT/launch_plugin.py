@@ -1,3 +1,7 @@
+# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Licensed under the GNU Lesser General Public License (version 3 or later).
+# Created by: O. Mattelaer (Aug 2023) for the MG5aMC CUDACPP plugin.
+# Further modified by: O. Mattelaer, A. Valassi (2023) for the MG5aMC CUDACPP plugin.
 
 import logging
 import os
