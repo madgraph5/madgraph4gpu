@@ -238,18 +238,25 @@ namespace mg5amcCpu
       // *** DIAGRAM 1 OF 2 ***
 
       // Wavefunction(s) for diagram number 1
-      oxxxxx<M_ACCESS, W_ACCESS>( momenta, 0., cHel[ihel][0], -1, w_fp[0], 0 );
+#if not( defined __CUDACC__ and defined MGONGPU_TEST_DIVERGENCE )
+      opzxxx<M_ACCESS, W_ACCESS>( momenta, cHel[ihel][0], -1, w_fp[0], 0 ); // NB: opzxxx only uses pz
+#else
+      if( ( blockDim.x * blockIdx.x + threadIdx.x ) % 2 == 0 )
+        opzxxx<M_ACCESS, W_ACCESS>( momenta, cHel[ihel][0], -1, w_fp[0], 0 ); // NB: opzxxx only uses pz
+      else
+        oxxxxx<M_ACCESS, W_ACCESS>( momenta, 0, cHel[ihel][0], -1, w_fp[0], 0 );
+#endif
 
-      ixxxxx<M_ACCESS, W_ACCESS>( momenta, 0., cHel[ihel][1], +1, w_fp[1], 1 );
+      imzxxx<M_ACCESS, W_ACCESS>( momenta, cHel[ihel][1], +1, w_fp[1], 1 ); // NB: imzxxx only uses pz
 
-      ixxxxx<M_ACCESS, W_ACCESS>( momenta, 0., cHel[ihel][2], -1, w_fp[2], 2 );
+      ixzxxx<M_ACCESS, W_ACCESS>( momenta, cHel[ihel][2], -1, w_fp[2], 2 );
 
-      oxxxxx<M_ACCESS, W_ACCESS>( momenta, 0., cHel[ihel][3], +1, w_fp[3], 3 );
+      oxzxxx<M_ACCESS, W_ACCESS>( momenta, cHel[ihel][3], +1, w_fp[3], 3 );
 
-      FFV1P0_3<W_ACCESS, CI_ACCESS>( w_fp[1], w_fp[0], COUPs[0], 1.0, 0., 0., w_fp[4] );
+      FFV1P0_3<W_ACCESS, CI_ACCESS>( w_fp[1], w_fp[0], COUPs[0], 0., 0., w_fp[4] );
 
       // Amplitude(s) for diagram number 1
-      FFV1_0<W_ACCESS, A_ACCESS, CI_ACCESS>( w_fp[2], w_fp[3], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
+      FFV1_0<W_ACCESS, A_ACCESS, CI_ACCESS>( w_fp[2], w_fp[3], w_fp[4], COUPs[0], &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -259,10 +266,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 2 OF 2 ***
 
       // Wavefunction(s) for diagram number 2
-      FFV2_4_3<W_ACCESS, CI_ACCESS>( w_fp[1], w_fp[0], COUPs[1], 1.0, COUPs[2], 1.0, cIPD[0], cIPD[1], w_fp[4] );
+      FFV2_4_3<W_ACCESS, CI_ACCESS>( w_fp[1], w_fp[0], COUPs[1], COUPs[2], cIPD[0], cIPD[1], w_fp[4] );
 
       // Amplitude(s) for diagram number 2
-      FFV2_4_0<W_ACCESS, A_ACCESS, CI_ACCESS>( w_fp[2], w_fp[3], w_fp[4], COUPs[1], 1.0, COUPs[2], 1.0, &amp_fp[0] );
+      FFV2_4_0<W_ACCESS, A_ACCESS, CI_ACCESS>( w_fp[2], w_fp[3], w_fp[4], COUPs[1], COUPs[2], &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 2 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -779,12 +786,13 @@ namespace mg5amcCpu
   {
     mgDebugInitialise();
 
-    // SANITY CHECKS for cudacpp code generation (see issues #272 and #343 and PRs #619, #626, #360, #396 and #754)
+    // SANITY CHECKS for cudacpp code generation (see issues #272 and #343 and PRs #619, #626, #360 and #396)
     // These variable are not used anywhere else in the code and their scope is limited to this sanity check
     {
-      // nprocesses == 2 may happen for "mirror processes" such as P0_uux_ttx within pp_tt012j (see PR #754)
+      // nprocesses>1 was last observed for "mirror processes" in uux_ttx in the 270 branch (see issue #343 and PRs #360 and #396)
       constexpr int nprocesses = 1;
-      static_assert( nprocesses == 1 || nprocesses == 2, "Assume nprocesses == 1 or 2" );
+      static_assert( nprocesses == 1, "Assume nprocesses == 1" );
+      // process_id corresponds to the index of DSIG1 Fortran functions (must be 1 because cudacpp is unable to handle DSIG2)
       constexpr int process_id = 1; // code generation source: madevent + cudacpp exporter
       static_assert( process_id == 1, "Assume process_id == 1" );
     }

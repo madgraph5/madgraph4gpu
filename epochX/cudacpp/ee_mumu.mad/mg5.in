@@ -1,4 +1,2 @@
-set stdout_level DEBUG
-set zerowidth_tchannel F
 generate e+ e- > mu+ mu-
 output madevent ee_mumu.mad --hel_recycling=False --vector_size=16384 --me_exporter=standalone_cudacpp

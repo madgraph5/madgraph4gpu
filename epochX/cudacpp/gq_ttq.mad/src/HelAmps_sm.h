@@ -863,7 +863,6 @@ namespace mg5amcCpu
           const fptype allF2[],
           const fptype allV3[],
           const fptype allCOUP[],
-          const double Ccoeff,
           fptype allvertexes[] ) ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
@@ -874,7 +873,6 @@ namespace mg5amcCpu
   FFV1_1( const fptype allF2[],
           const fptype allV3[],
           const fptype allCOUP[],
-          const double Ccoeff,
           const fptype M1,
           const fptype W1,
           fptype allF1[] ) ALWAYS_INLINE;
@@ -887,7 +885,6 @@ namespace mg5amcCpu
   FFV1_2( const fptype allF1[],
           const fptype allV3[],
           const fptype allCOUP[],
-          const double Ccoeff,
           const fptype M2,
           const fptype W2,
           fptype allF2[] ) ALWAYS_INLINE;
@@ -900,7 +897,6 @@ namespace mg5amcCpu
   FFV1P0_3( const fptype allF1[],
             const fptype allF2[],
             const fptype allCOUP[],
-            const double Ccoeff,
             const fptype M3,
             const fptype W3,
             fptype allV3[] ) ALWAYS_INLINE;
@@ -914,7 +910,6 @@ namespace mg5amcCpu
           const fptype allV2[],
           const fptype allV3[],
           const fptype allCOUP[],
-          const double Ccoeff,
           fptype allvertexes[] ) ALWAYS_INLINE;
 
   //==========================================================================
@@ -926,7 +921,6 @@ namespace mg5amcCpu
           const fptype allF2[],
           const fptype allV3[],
           const fptype allCOUP[],
-          const double Ccoeff,
           fptype allvertexes[] )
   {
     mgDebug( 0, __FUNCTION__ );
@@ -950,7 +944,6 @@ namespace mg5amcCpu
   FFV1_1( const fptype allF2[],
           const fptype allV3[],
           const fptype allCOUP[],
-          const double Ccoeff,
           const fptype M1,
           const fptype W1,
           fptype allF1[] )
@@ -982,7 +975,6 @@ namespace mg5amcCpu
   FFV1_2( const fptype allF1[],
           const fptype allV3[],
           const fptype allCOUP[],
-          const double Ccoeff,
           const fptype M2,
           const fptype W2,
           fptype allF2[] )
@@ -1014,7 +1006,6 @@ namespace mg5amcCpu
   FFV1P0_3( const fptype allF1[],
             const fptype allF2[],
             const fptype allCOUP[],
-            const double Ccoeff,
             const fptype M3,
             const fptype W3,
             fptype allV3[] )
@@ -1046,7 +1037,6 @@ namespace mg5amcCpu
           const fptype allV2[],
           const fptype allV3[],
           const fptype allCOUP[],
-          const double Ccoeff,
           fptype allvertexes[] )
   {
     mgDebug( 0, __FUNCTION__ );

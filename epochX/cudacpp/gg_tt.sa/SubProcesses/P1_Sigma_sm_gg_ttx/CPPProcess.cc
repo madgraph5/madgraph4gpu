@@ -246,10 +246,10 @@ namespace mg5amcCpu
 
       ixxxxx<M_ACCESS, W_ACCESS>( momenta, cIPD[0], cHel[ihel][3], -1, w_fp[3], 3 );
 
-      VVV1P0_1<W_ACCESS, CD_ACCESS>( w_fp[0], w_fp[1], COUPs[0], 1.0, 0., 0., w_fp[4] );
+      VVV1P0_1<W_ACCESS, CD_ACCESS>( w_fp[0], w_fp[1], COUPs[0], 0., 0., w_fp[4] );
 
       // Amplitude(s) for diagram number 1
-      FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[2], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[2], w_fp[4], COUPs[1], &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -259,10 +259,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 2 OF 3 ***
 
       // Wavefunction(s) for diagram number 2
-      FFV1_1<W_ACCESS, CD_ACCESS>( w_fp[2], w_fp[0], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[4] );
+      FFV1_1<W_ACCESS, CD_ACCESS>( w_fp[2], w_fp[0], COUPs[1], cIPD[0], cIPD[1], w_fp[4] );
 
       // Amplitude(s) for diagram number 2
-      FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[4], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[4], w_fp[1], COUPs[1], &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -271,10 +271,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 3 OF 3 ***
 
       // Wavefunction(s) for diagram number 3
-      FFV1_2<W_ACCESS, CD_ACCESS>( w_fp[3], w_fp[0], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[4] );
+      FFV1_2<W_ACCESS, CD_ACCESS>( w_fp[3], w_fp[0], COUPs[1], cIPD[0], cIPD[1], w_fp[4] );
 
       // Amplitude(s) for diagram number 3
-      FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[4], w_fp[2], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[4], w_fp[2], w_fp[1], COUPs[1], &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -791,12 +791,13 @@ namespace mg5amcCpu
   {
     mgDebugInitialise();
 
-    // SANITY CHECKS for cudacpp code generation (see issues #272 and #343 and PRs #619, #626, #360, #396 and #754)
+    // SANITY CHECKS for cudacpp code generation (see issues #272 and #343 and PRs #619, #626, #360 and #396)
     // These variable are not used anywhere else in the code and their scope is limited to this sanity check
     {
-      // nprocesses == 2 may happen for "mirror processes" such as P0_uux_ttx within pp_tt012j (see PR #754)
+      // nprocesses>1 was last observed for "mirror processes" in uux_ttx in the 270 branch (see issue #343 and PRs #360 and #396)
       constexpr int nprocesses = 1;
-      static_assert( nprocesses == 1 || nprocesses == 2, "Assume nprocesses == 1 or 2" );
+      static_assert( nprocesses == 1, "Assume nprocesses == 1" );
+      // process_id corresponds to the index of DSIG1 Fortran functions (must be 1 because cudacpp is unable to handle DSIG2)
       constexpr int process_id = 1; // code generation source: standalone_cudacpp
       static_assert( process_id == 1, "Assume process_id == 1" );
     }

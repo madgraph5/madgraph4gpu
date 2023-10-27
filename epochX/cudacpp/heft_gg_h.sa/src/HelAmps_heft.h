@@ -863,7 +863,6 @@ namespace mg5amcCpu
           const fptype allV2[],
           const fptype allS3[],
           const fptype allCOUP[],
-          const double Ccoeff,
           fptype allvertexes[] ) ALWAYS_INLINE;
 
   //==========================================================================
@@ -875,7 +874,6 @@ namespace mg5amcCpu
           const fptype allV2[],
           const fptype allS3[],
           const fptype allCOUP[],
-          const double Ccoeff,
           fptype allvertexes[] )
   {
     mgDebug( 0, __FUNCTION__ );

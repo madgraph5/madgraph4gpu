@@ -51,7 +51,7 @@ CUDACPP_MAKEFILE=cudacpp.mk
 CUDACPP_MAKEENV:=$(shell echo '$(.VARIABLES)' | tr " " "\n" | egrep "(USEBUILDDIR|AVX|FPTYPE|HELINL|HRDCOD)")
 ###$(info CUDACPP_MAKEENV=$(CUDACPP_MAKEENV))
 ###$(info $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))"))
-CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn 2>&1 | awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
+CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn |& awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
 ifeq ($(CUDACPP_BUILDDIR),)
 $(error CUDACPP_BUILDDIR='$(CUDACPP_BUILDDIR)' should not be empty!)
 else
@@ -89,7 +89,7 @@ SYMMETRY = symmetry.o idenparts.o
 
 # Binaries
 
-LDFLAGS+=-Wl,--no-relax # avoid 'failed to convert GOTPCREL relocation' error #458 (OM: flag not universal, skip?)
+LDFLAGS+=-Wl,--no-relax # avoid 'failed to convert GOTPCREL relocation' error #458
 
 all: $(PROG)_fortran $(CUDACPP_BUILDDIR)/$(PROG)_cpp # also builds $(PROG)_cuda if $(CUDACPP_CULIB) exists (#503)
 

@@ -1,7 +1,7 @@
 // Copyright (C) 2020-2023 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: A. Valassi (Dec 2022) for the MG5aMC CUDACPP plugin.
-// Further modified by: S. Hageboeck, A. Valassi (2022-2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: A. Valassi (2022-2023) for the MG5aMC CUDACPP plugin.
 
 #include "timer.h"
 #define TIMERTYPE std::chrono::high_resolution_clock
@@ -36,16 +36,32 @@ extern "C"
 
   static mgOnGpu::Timer<TIMERTYPE> program_timer;
   static float program_totaltime = 0;
+  static mgOnGpu::Timer<TIMERTYPE> matrix1_timer;
+  static float matrix1_totaltime = 0;
   static mgOnGpu::Timer<TIMERTYPE> smatrix1_timer;
   static float smatrix1_totaltime = 0;
   static mgOnGpu::Timer<TIMERTYPE> smatrix1multi_timer[nimplC];
   static float smatrix1multi_totaltime[nimplC] = { 0 };
+  static int matrix1_counter = 0;
   static int smatrix1_counter = 0;
   static int smatrix1multi_counter[nimplC] = { 0 };
 
   void counters_initialise_()
   {
     program_timer.Start();
+    return;
+  }
+
+  void counters_matrix1_start_()
+  {
+    matrix1_counter++;
+    matrix1_timer.Start();
+    return;
+  }
+
+  void counters_matrix1_stop_()
+  {
+    matrix1_totaltime += matrix1_timer.GetDuration();
     return;
   }
 

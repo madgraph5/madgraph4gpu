@@ -243,24 +243,24 @@ namespace mg5amcCpu
       // *** DIAGRAM 1 OF 7 ***
 
       // Wavefunction(s) for diagram number 1
-      ixxxxx<M_ACCESS, W_ACCESS>( momenta, 0., cHel[ihel][0], +1, w_fp[0], 0 );
+      ipzxxx<M_ACCESS, W_ACCESS>( momenta, cHel[ihel][0], +1, w_fp[0], 0 ); // NB: ipzxxx only uses pz
 
-      ixxxxx<M_ACCESS, W_ACCESS>( momenta, 0., cHel[ihel][1], +1, w_fp[1], 1 );
+      imzxxx<M_ACCESS, W_ACCESS>( momenta, cHel[ihel][1], +1, w_fp[1], 1 ); // NB: imzxxx only uses pz
 
       oxxxxx<M_ACCESS, W_ACCESS>( momenta, cIPD[0], cHel[ihel][2], +1, w_fp[2], 2 );
 
       ixxxxx<M_ACCESS, W_ACCESS>( momenta, cIPD[0], cHel[ihel][3], -1, w_fp[3], 3 );
 
-      oxxxxx<M_ACCESS, W_ACCESS>( momenta, 0., cHel[ihel][4], +1, w_fp[4], 4 );
+      oxzxxx<M_ACCESS, W_ACCESS>( momenta, cHel[ihel][4], +1, w_fp[4], 4 );
 
-      oxxxxx<M_ACCESS, W_ACCESS>( momenta, 0., cHel[ihel][5], +1, w_fp[5], 5 );
+      oxzxxx<M_ACCESS, W_ACCESS>( momenta, cHel[ihel][5], +1, w_fp[5], 5 );
 
-      FFV1P0_3<W_ACCESS, CD_ACCESS>( w_fp[0], w_fp[4], COUPs[1], 1.0, 0., 0., w_fp[6] );
-      FFV1P0_3<W_ACCESS, CD_ACCESS>( w_fp[1], w_fp[5], COUPs[1], 1.0, 0., 0., w_fp[7] );
-      FFV1_1<W_ACCESS, CD_ACCESS>( w_fp[2], w_fp[6], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[8] );
+      FFV1P0_3<W_ACCESS, CD_ACCESS>( w_fp[0], w_fp[4], COUPs[1], 0., 0., w_fp[6] );
+      FFV1P0_3<W_ACCESS, CD_ACCESS>( w_fp[1], w_fp[5], COUPs[1], 0., 0., w_fp[7] );
+      FFV1_1<W_ACCESS, CD_ACCESS>( w_fp[2], w_fp[6], COUPs[1], cIPD[0], cIPD[1], w_fp[8] );
 
       // Amplitude(s) for diagram number 1
-      FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[8], w_fp[7], COUPs[1], 1.0, &amp_fp[0] );
+      FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[8], w_fp[7], COUPs[1], &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -273,10 +273,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 2 OF 7 ***
 
       // Wavefunction(s) for diagram number 2
-      FFV1_2<W_ACCESS, CD_ACCESS>( w_fp[3], w_fp[6], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[8] );
+      FFV1_2<W_ACCESS, CD_ACCESS>( w_fp[3], w_fp[6], COUPs[1], cIPD[0], cIPD[1], w_fp[8] );
 
       // Amplitude(s) for diagram number 2
-      FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[8], w_fp[2], w_fp[7], COUPs[1], 1.0, &amp_fp[0] );
+      FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[8], w_fp[2], w_fp[7], COUPs[1], &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 2 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -289,10 +289,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 3 OF 7 ***
 
       // Wavefunction(s) for diagram number 3
-      FFV1P0_3<W_ACCESS, CD_ACCESS>( w_fp[3], w_fp[2], COUPs[1], 1.0, 0., 0., w_fp[8] );
+      FFV1P0_3<W_ACCESS, CD_ACCESS>( w_fp[3], w_fp[2], COUPs[1], 0., 0., w_fp[8] );
 
       // Amplitude(s) for diagram number 3
-      VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[6], w_fp[7], w_fp[8], COUPs[0], 1.0, &amp_fp[0] );
+      VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[6], w_fp[7], w_fp[8], COUPs[0], &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 3 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -303,10 +303,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 4 OF 7 ***
 
       // Wavefunction(s) for diagram number 4
-      FFV1_2<W_ACCESS, CD_ACCESS>( w_fp[1], w_fp[6], COUPs[1], 1.0, 0., 0., w_fp[3] );
+      FFV1_2<W_ACCESS, CD_ACCESS>( w_fp[1], w_fp[6], COUPs[1], 0., 0., w_fp[3] );
 
       // Amplitude(s) for diagram number 4
-      FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[5], w_fp[8], COUPs[1], 1.0, &amp_fp[0] );
+      FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[5], w_fp[8], COUPs[1], &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 4 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -319,10 +319,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 5 OF 7 ***
 
       // Wavefunction(s) for diagram number 5
-      FFV1_1<W_ACCESS, CD_ACCESS>( w_fp[5], w_fp[6], COUPs[1], 1.0, 0., 0., w_fp[3] );
+      FFV1_1<W_ACCESS, CD_ACCESS>( w_fp[5], w_fp[6], COUPs[1], 0., 0., w_fp[3] );
 
       // Amplitude(s) for diagram number 5
-      FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[1], w_fp[3], w_fp[8], COUPs[1], 1.0, &amp_fp[0] );
+      FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[1], w_fp[3], w_fp[8], COUPs[1], &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 5 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -335,10 +335,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 6 OF 7 ***
 
       // Wavefunction(s) for diagram number 6
-      FFV1_2<W_ACCESS, CD_ACCESS>( w_fp[0], w_fp[7], COUPs[1], 1.0, 0., 0., w_fp[3] );
+      FFV1_2<W_ACCESS, CD_ACCESS>( w_fp[0], w_fp[7], COUPs[1], 0., 0., w_fp[3] );
 
       // Amplitude(s) for diagram number 6
-      FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[4], w_fp[8], COUPs[1], 1.0, &amp_fp[0] );
+      FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[4], w_fp[8], COUPs[1], &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 6 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -351,10 +351,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 7 OF 7 ***
 
       // Wavefunction(s) for diagram number 7
-      FFV1_2<W_ACCESS, CD_ACCESS>( w_fp[0], w_fp[8], COUPs[1], 1.0, 0., 0., w_fp[3] );
+      FFV1_2<W_ACCESS, CD_ACCESS>( w_fp[0], w_fp[8], COUPs[1], 0., 0., w_fp[3] );
 
       // Amplitude(s) for diagram number 7
-      FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[4], w_fp[7], COUPs[1], 1.0, &amp_fp[0] );
+      FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[4], w_fp[7], COUPs[1], &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 7 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -931,12 +931,13 @@ namespace mg5amcCpu
   {
     mgDebugInitialise();
 
-    // SANITY CHECKS for cudacpp code generation (see issues #272 and #343 and PRs #619, #626, #360, #396 and #754)
+    // SANITY CHECKS for cudacpp code generation (see issues #272 and #343 and PRs #619, #626, #360 and #396)
     // These variable are not used anywhere else in the code and their scope is limited to this sanity check
     {
-      // nprocesses == 2 may happen for "mirror processes" such as P0_uux_ttx within pp_tt012j (see PR #754)
-      constexpr int nprocesses = 2;
-      static_assert( nprocesses == 1 || nprocesses == 2, "Assume nprocesses == 1 or 2" );
+      // nprocesses>1 was last observed for "mirror processes" in uux_ttx in the 270 branch (see issue #343 and PRs #360 and #396)
+      constexpr int nprocesses = 1;
+      static_assert( nprocesses == 1, "Assume nprocesses == 1" );
+      // process_id corresponds to the index of DSIG1 Fortran functions (must be 1 because cudacpp is unable to handle DSIG2)
       constexpr int process_id = 1; // code generation source: madevent + cudacpp exporter
       static_assert( process_id == 1, "Assume process_id == 1" );
     }
