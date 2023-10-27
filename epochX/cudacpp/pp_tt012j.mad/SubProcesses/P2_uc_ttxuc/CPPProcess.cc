@@ -243,17 +243,17 @@ namespace mg5amcCpu
       // *** DIAGRAM 1 OF 7 ***
 
       // Wavefunction(s) for diagram number 1
-      ipzxxx<M_ACCESS, W_ACCESS>( momenta, cHel[ihel][0], +1, w_fp[0], 0 ); // NB: ipzxxx only uses pz
+      ixxxxx<M_ACCESS, W_ACCESS>( momenta, 0., cHel[ihel][0], +1, w_fp[0], 0 );
 
-      imzxxx<M_ACCESS, W_ACCESS>( momenta, cHel[ihel][1], +1, w_fp[1], 1 ); // NB: imzxxx only uses pz
+      ixxxxx<M_ACCESS, W_ACCESS>( momenta, 0., cHel[ihel][1], +1, w_fp[1], 1 );
 
       oxxxxx<M_ACCESS, W_ACCESS>( momenta, cIPD[0], cHel[ihel][2], +1, w_fp[2], 2 );
 
       ixxxxx<M_ACCESS, W_ACCESS>( momenta, cIPD[0], cHel[ihel][3], -1, w_fp[3], 3 );
 
-      oxzxxx<M_ACCESS, W_ACCESS>( momenta, cHel[ihel][4], +1, w_fp[4], 4 );
+      oxxxxx<M_ACCESS, W_ACCESS>( momenta, 0., cHel[ihel][4], +1, w_fp[4], 4 );
 
-      oxzxxx<M_ACCESS, W_ACCESS>( momenta, cHel[ihel][5], +1, w_fp[5], 5 );
+      oxxxxx<M_ACCESS, W_ACCESS>( momenta, 0., cHel[ihel][5], +1, w_fp[5], 5 );
 
       FFV1P0_3<W_ACCESS, CD_ACCESS>( w_fp[0], w_fp[4], COUPs[1], 0., 0., w_fp[6] );
       FFV1P0_3<W_ACCESS, CD_ACCESS>( w_fp[1], w_fp[5], COUPs[1], 0., 0., w_fp[7] );

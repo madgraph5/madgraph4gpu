@@ -243,13 +243,13 @@ namespace mg5amcCpu
       // Wavefunction(s) for diagram number 1
       vxxxxx<M_ACCESS, W_ACCESS>( momenta, 0., cHel[ihel][0], -1, w_fp[0], 0 );
 
-      omzxxx<M_ACCESS, W_ACCESS>( momenta, cHel[ihel][1], -1, w_fp[1], 1 ); // NB: omzxxx only uses pz
+      oxxxxx<M_ACCESS, W_ACCESS>( momenta, 0., cHel[ihel][1], -1, w_fp[1], 1 );
 
       oxxxxx<M_ACCESS, W_ACCESS>( momenta, cIPD[0], cHel[ihel][2], +1, w_fp[2], 2 );
 
       ixxxxx<M_ACCESS, W_ACCESS>( momenta, cIPD[0], cHel[ihel][3], -1, w_fp[3], 3 );
 
-      ixzxxx<M_ACCESS, W_ACCESS>( momenta, cHel[ihel][4], -1, w_fp[4], 4 );
+      ixxxxx<M_ACCESS, W_ACCESS>( momenta, 0., cHel[ihel][4], -1, w_fp[4], 4 );
 
       FFV1_2<W_ACCESS, CD_ACCESS>( w_fp[4], w_fp[0], COUPs[0], 0., 0., w_fp[5] );
       FFV1P0_3<W_ACCESS, CD_ACCESS>( w_fp[3], w_fp[2], COUPs[0], 0., 0., w_fp[6] );
