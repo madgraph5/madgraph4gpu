@@ -54,7 +54,7 @@ namespace mg5amcCpu
     //double mdl_sqrt__aS, G, mdl_G__exp__2; // now computed event-by-event (running alphas #373)
 
     // Model couplings dependent on aS
-    //cxsmpl<double> GC_11, GC_10; // now computed event-by-event (running alphas #373)
+    //cxsmpl<double> GC_10, GC_11; // now computed event-by-event (running alphas #373)
 
     // Set parameters that are unchanged during the run
     void setIndependentParameters( SLHAReader& slha );
@@ -194,8 +194,8 @@ namespace mg5amcCpu
     //constexpr double mdl_G__exp__2 = ( ( G ) * ( G ) ); // now computed event-by-event (running alphas #373)
 
     // Model couplings dependent on aS
-    //constexpr cxsmpl<double> GC_11 = mdl_complexi * G; // now computed event-by-event (running alphas #373)
     //constexpr cxsmpl<double> GC_10 = -G; // now computed event-by-event (running alphas #373)
+    //constexpr cxsmpl<double> GC_11 = mdl_complexi * G; // now computed event-by-event (running alphas #373)
 
     // Print parameters that are unchanged during the run
     void printIndependentParameters();
@@ -226,12 +226,12 @@ namespace mg5amcCpu
   namespace Parameters_sm_dependentCouplings
   {
     constexpr size_t ndcoup = 2; // #couplings that vary event by event because they depend on the running alphas QCD
-    constexpr size_t idcoup_GC_11 = 0;
-    constexpr size_t idcoup_GC_10 = 1;
+    constexpr size_t idcoup_GC_10 = 0;
+    constexpr size_t idcoup_GC_11 = 1;
     struct DependentCouplings_sv
     {
-      cxtype_sv GC_11;
       cxtype_sv GC_10;
+      cxtype_sv GC_11;
     };
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-variable"  // e.g. <<warning: unused variable ‘mdl_G__exp__2’ [-Wunused-variable]>>
@@ -257,8 +257,8 @@ namespace mg5amcCpu
         //const fptype_sv G = 2. * mdl_sqrt__aS * constexpr_sqrt( M_PI );
         const fptype_sv mdl_G__exp__2 = ( ( G ) * ( G ) );
         // Model couplings dependent on aS
-        out.GC_11 = cI * G;
         out.GC_10 = -G;
+        out.GC_11 = cI * G;
       }
       // End SM implementation - no special handling of vectors of floats as in EFT (#439)
       return out;
@@ -293,12 +293,12 @@ namespace mg5amcCpu
     using namespace Parameters_sm_dependentCouplings;
     const fptype_sv& gs_sv = G_ACCESS::kernelAccessConst( gs );
     DependentCouplings_sv couplings_sv = computeDependentCouplings_fromG( gs_sv );
-    fptype* GC_11s = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_GC_11 );
     fptype* GC_10s = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_GC_10 );
-    cxtype_sv_ref GC_11s_sv = C_ACCESS::kernelAccess( GC_11s );
+    fptype* GC_11s = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_GC_11 );
     cxtype_sv_ref GC_10s_sv = C_ACCESS::kernelAccess( GC_10s );
-    GC_11s_sv = couplings_sv.GC_11;
+    cxtype_sv_ref GC_11s_sv = C_ACCESS::kernelAccess( GC_11s );
     GC_10s_sv = couplings_sv.GC_10;
+    GC_11s_sv = couplings_sv.GC_11;
     mgDebug( 1, __FUNCTION__ );
     return;
   }
