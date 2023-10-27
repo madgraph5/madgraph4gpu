@@ -272,11 +272,11 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
         plugin_path = os.path.dirname(os.path.realpath( __file__ ))
         ###files.cp(pjoin(plugin_path, 'plugin_interface.py'), pjoin(self.dir_path, 'bin', 'internal')) # AV FIXME (added by OM, but file is missing?)
         files.cp(pjoin(plugin_path, 'launch_plugin.py'), pjoin(self.dir_path, 'bin', 'internal'))
-        files.ln( pjoin(self.dir_path, 'lib'),  pjoin(self.dir_path, 'SubProcesses'))
+        files.ln(pjoin(self.dir_path, 'lib'),  pjoin(self.dir_path, 'SubProcesses'))
 
 #------------------------------------------------------------------------------------
-class SIMD_ProcessExporter(PLUGIN_ProcessExporter):
 
+class SIMD_ProcessExporter(PLUGIN_ProcessExporter):
     def change_output_args(args, cmd):
         """ """
         cmd._export_format = "madevent"
@@ -285,11 +285,10 @@ class SIMD_ProcessExporter(PLUGIN_ProcessExporter):
         if 'vector_size' not in ''.join(args):
             args.append('--vector_size=16')
         return args
+    
+#------------------------------------------------------------------------------------
 
-        
-    
-class GPU_ProcessExporter(PLUGIN_ProcessExporter):
-    
+class GPU_ProcessExporter(PLUGIN_ProcessExporter):    
     def change_output_args(args, cmd):
         """ """
         cmd._export_format = "madevent"
@@ -300,11 +299,12 @@ class GPU_ProcessExporter(PLUGIN_ProcessExporter):
         return args
         
     def finalize(self, matrix_element, cmdhistory, MG5options, outputflag):
-
         misc.sprint("enter dedicated function")
         out = super().finalize(matrix_element, cmdhistory, MG5options, outputflag)
-        #change RunCard class to have default for GPU
+        # OM change RunCard class to have default for GPU
         text = open(pjoin(self.dir_path, 'bin', 'internal', 'launch_plugin.py'), 'r').read()
         text = text.replace('RunCard = CPPRunCard', 'RunCard = GPURunCard')
         open(pjoin(self.dir_path, 'bin', 'internal', 'launch_plugin.py'), 'w').write(text)
         return out
+
+#------------------------------------------------------------------------------------
