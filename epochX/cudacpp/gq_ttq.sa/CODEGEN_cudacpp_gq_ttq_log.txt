@@ -61,7 +61,7 @@ set zerowidth_tchannel F
 define q = u c d s u~ c~ d~ s~; generate g q > t t~ q
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.005368471145629883 [0m
+[1;32mDEBUG: model prefixing  takes 0.005471229553222656 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -228,6 +228,6 @@ INFO: /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_gq_ttq/
 [1;32mDEBUG:  self.in_madevent_mode = [0m False [1;30m[output.py at line 207][0m [0m
 quit
 
-real	0m0.651s
-user	0m0.582s
-sys	0m0.051s
+real	0m0.636s
+user	0m0.581s
+sys	0m0.049s
