@@ -208,7 +208,6 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
             self.add_input_for_banner()
             if 'CUDACPP_CODEGEN_PATCHLEVEL' in os.environ: patchlevel = os.environ['CUDACPP_CODEGEN_PATCHLEVEL']
             else: patchlevel = ''
-<<<<<<< HEAD
             # OLDEST implementation (AV)
             #path = os.path.realpath(os.curdir + os.sep + 'PLUGIN' + os.sep + 'CUDACPP_OUTPUT')
             #misc.sprint(path)
