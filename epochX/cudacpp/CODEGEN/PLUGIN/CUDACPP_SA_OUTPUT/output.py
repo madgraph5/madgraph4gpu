@@ -203,11 +203,12 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
 	    cmdhistory is the list of command used so far.
 	    MG5options are all the options of the main interface
 	    outputflags is a list of options provided when doing the output command"""
-        misc.sprint('Entering PLUGIN_ProcessExporter.finalize', self.in_madevent_mode)
+        misc.sprint('Entering PLUGIN_ProcessExporter.finalize', self.in_madevent_mode, type(self))
         if self.in_madevent_mode:
             self.add_input_for_banner()
             if 'CUDACPP_CODEGEN_PATCHLEVEL' in os.environ: patchlevel = os.environ['CUDACPP_CODEGEN_PATCHLEVEL']
             else: patchlevel = ''
+<<<<<<< HEAD
             # OLDEST implementation (AV)
             #path = os.path.realpath(os.curdir + os.sep + 'PLUGIN' + os.sep + 'CUDACPP_OUTPUT')
             #misc.sprint(path)
@@ -215,18 +216,20 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
             #    logger.debug("####### \n stdout is \n %s", stdout)
             #    logger.info("####### \n stderr is \n %s", stderr)
             #    raise Exception('ERROR! the O/S call to patchMad.sh failed')            
-            # OLD implementation (OM)
-            #plugin_path = os.path.dirname(os.path.realpath( __file__ ))
-            #p = subprocess.Popen([pjoin(plugin_path, 'patchMad.sh'), self.dir_path , 'PROD', str(patchlevel)])
-            #stdout, stderr = p.communicate()
-            #if not p.returncode:
+            # OLD implementation (SH PR #762)
+            #if os.system(PLUGINDIR + os.sep + 'patchMad.sh ' + self.dir_path + ' PROD ' + patchlevel) != 0:
             #    logger.debug("####### \n stdout is \n %s", stdout)
             #    logger.info("####### \n stderr is \n %s", stderr)
-            #    raise Exception('ERROR! the O/S call to patchMad.sh failed')            
-            # NEW implementation (SH)
-            if os.system(PLUGINDIR + os.sep + 'patchMad.sh ' + self.dir_path + ' PROD ' + patchlevel) != 0:
+            #    raise Exception('ERROR! the O/S call to patchMad.sh failed')
+            # NEW implementation (OM PR #764)
+            plugin_path = os.path.dirname(os.path.realpath( __file__ ))
+            p = subprocess.Popen([pjoin(plugin_path, 'patchMad.sh'), self.dir_path , 'PROD', str(patchlevel)],
+                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            stdout, stderr = p.communicate()
+            if p.returncode != 0:
                 logger.debug("####### \n stdout is \n %s", stdout)
                 logger.info("####### \n stderr is \n %s", stderr)
+                logger.info("return code is %s\n", p.returncode)
                 raise Exception('ERROR! the O/S call to patchMad.sh failed')
             # Additional patching (OM)
             self.add_madevent_plugin_fct() # Added by OM
@@ -267,3 +270,36 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
         files.ln( pjoin(self.dir_path, 'lib'),  pjoin(self.dir_path, 'SubProcesses'))
 
 #------------------------------------------------------------------------------------
+class SIMD_ProcessExporter(PLUGIN_ProcessExporter):
+
+    def change_output_args(args, cmd):
+        """ """
+        cmd._export_format = "madevent"
+        args.append('--hel_recycling=False')
+        args.append('--me_exporter=standalone_simd')
+        if 'vector_size' not in ''.join(args):
+            args.append('--vector_size=16')
+        return args
+
+        
+    
+class GPU_ProcessExporter(PLUGIN_ProcessExporter):
+    
+    def change_output_args(args, cmd):
+        """ """
+        cmd._export_format = "madevent"
+        args.append('--hel_recycling=False')
+        args.append('--me_exporter=standalone_cuda')
+        if 'vector_size' not in ''.join(args):
+            args.append('--vector_size=16384')
+        return args
+        
+    def finalize(self, matrix_element, cmdhistory, MG5options, outputflag):
+
+        misc.sprint("enter dedicated function")
+        out = super().finalize(matrix_element, cmdhistory, MG5options, outputflag)
+        #change RunCard class to have default for GPU
+        text = open(pjoin(self.dir_path, 'bin', 'internal', 'launch_plugin.py'), 'r').read()
+        text = text.replace('RunCard = CPPRunCard', 'RunCard = GPURunCard')
+        open(pjoin(self.dir_path, 'bin', 'internal', 'launch_plugin.py'), 'w').write(text)
+        return out
