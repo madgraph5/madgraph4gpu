@@ -62,7 +62,7 @@ generate g g > t t~ g
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.0058557987213134766 [0m
+[1;32mDEBUG: model prefixing  takes 0.005761861801147461 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -175,7 +175,7 @@ INFO: Generating Helas calls for process: g g > t t~ g WEIGHTED<=3 @1
 INFO: Processing color information for process: g g > t t~ g @1 
 INFO: Creating files in directory P1_gg_ttxg 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f9724bb1130> [1;30m[export_v4.py at line 6199][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f66d5a12130> [1;30m[export_v4.py at line 6199][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -190,15 +190,15 @@ INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./.
 [1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1836][0m [0m
 INFO: Generating Feynman diagrams for Process: g g > t t~ g WEIGHTED<=3 @1 
 INFO: Finding symmetric diagrams for subprocess group gg_ttxg 
-Generated helas calls for 1 subprocesses (16 diagrams) in 0.039 s
-Wrote files for 36 helas calls in 0.164 s
+Generated helas calls for 1 subprocesses (16 diagrams) in 0.037 s
+Wrote files for 36 helas calls in 0.146 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 set of routines with options: P0[0m
 ALOHA: aloha creates VVVV3 set of routines with options: P0[0m
 ALOHA: aloha creates VVVV4 set of routines with options: P0[0m
-ALOHA: aloha creates 5 routines in  0.331 s
+ALOHA: aloha creates 5 routines in  0.323 s
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 197][0m [0m
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
@@ -231,7 +231,6 @@ INFO: Use Fortran compiler gfortran
 INFO: Use c++ compiler g++ 
 INFO: Generate web pages 
 [1;32mDEBUG:  'Entering PLUGIN_ProcessExporter.finalize', self.in_madevent_mode = [0m Entering PLUGIN_ProcessExporter.finalize True [1;30m[output.py at line 206][0m [0m
-[1;32mDEBUG:  path = [0m /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT [1;30m[output.py at line 213][0m [0m
 DEBUG! Switching on tmad mode (MG5AMC_TMADMODE=1)
 ************************************************************
 *                                                          *
@@ -313,14 +312,12 @@ Hunk #2 succeeded at 159 (offset 16 lines).
 Hunk #3 succeeded at 237 (offset 16 lines).
 Hunk #4 succeeded at 265 (offset 16 lines).
 Hunk #5 succeeded at 310 (offset 16 lines).
-Hunk #6 succeeded at 434 (offset 38 lines).
-Hunk #7 succeeded at 588 (offset 118 lines).
 Output to directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_gg_ttg done.
 Type "launch" to generate events from this process, or see
 /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_gg_ttg/README
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m2.890s
-user	0m2.524s
-sys	0m0.335s
+real	0m2.947s
+user	0m2.470s
+sys	0m0.321s

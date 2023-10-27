@@ -830,7 +830,6 @@ C     1 T(6,5,2,1,3,4)
 C     ----------
 C     BEGIN CODE
 C     ----------
-      call counters_matrix1_start()
       IF (FIRST) THEN
         FIRST=.FALSE.
         IF(ZERO.NE.0D0) FK_ZERO = SIGN(MAX(ABS(ZERO), ABS(ZERO
@@ -1717,7 +1716,6 @@ C     JAMPs contributing to orders ALL_ORDERS=1
         ENDDO
       ENDDO
 
-      call counters_matrix1_stop()
       END
 
       SUBROUTINE PRINT_ZERO_AMP_1()
