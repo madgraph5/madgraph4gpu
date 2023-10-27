@@ -113,6 +113,10 @@ for p1dir in ${dir}/SubProcesses/P*; do
   ln -sf ../fbridge_common.inc . # new file
   cp -pr ${scrdir}/MG5aMC_patches/${dir_patches}/counters.cc . # new file
   cp -pr ${scrdir}/MG5aMC_patches/${dir_patches}/ompnumthreads.cc . # new file
+  ###cp -pr ${scrdir}/MG5aMC_patches/${dir_patches}/counters.cc ${dir}/SubProcesses/ # new file (SH)
+  ###cp -pr ${scrdir}/MG5aMC_patches/${dir_patches}/ompnumthreads.cc ${dir}/SubProcesses/ # new file (SH)
+  ###ln -sf ../counters.cc . # new file (SH)
+  ###ln -sf ../ompnumthreads.cc . # new file (SH)
   if [ "${patchlevel}" == "2" ]; then
     echo "DEBUG: cd ${PWD}; patch -p6 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.P1"
     if ! patch -p6 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.P1; then status=1; fi      

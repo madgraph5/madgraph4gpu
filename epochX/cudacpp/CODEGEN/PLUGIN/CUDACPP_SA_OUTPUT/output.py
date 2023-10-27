@@ -1,7 +1,7 @@
 # Copyright (C) 2020-2023 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: O. Mattelaer (Sep 2021) for the MG5aMC CUDACPP plugin.
-# Further modified by: O. Mattelaer, S. Roiser, A. Valassi, Z. Wettersten (2021-2023) for the MG5aMC CUDACPP plugin.
+# Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, A. Valassi, Z. Wettersten (2021-2023) for the MG5aMC CUDACPP plugin.
 
 import os
 import subprocess
@@ -208,14 +208,14 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
             self.add_input_for_banner()
             if 'CUDACPP_CODEGEN_PATCHLEVEL' in os.environ: patchlevel = os.environ['CUDACPP_CODEGEN_PATCHLEVEL']
             else: patchlevel = ''
-            # OLD implementation (AV)
-            path = os.path.realpath(os.curdir + os.sep + 'PLUGIN' + os.sep + 'CUDACPP_OUTPUT')
-            misc.sprint(path)
-            if os.system(path + os.sep + 'patchMad.sh ' + self.dir_path + ' PROD ' + patchlevel) != 0:
-                logger.debug("####### \n stdout is \n %s", stdout)
-                logger.info("####### \n stderr is \n %s", stderr)
-                raise Exception('ERROR! the O/S call to patchMad.sh failed')            
-            # NEW implementation (OM)
+            # OLDEST implementation (AV)
+            #path = os.path.realpath(os.curdir + os.sep + 'PLUGIN' + os.sep + 'CUDACPP_OUTPUT')
+            #misc.sprint(path)
+            #if os.system(path + os.sep + 'patchMad.sh ' + self.dir_path + ' PROD ' + patchlevel) != 0:
+            #    logger.debug("####### \n stdout is \n %s", stdout)
+            #    logger.info("####### \n stderr is \n %s", stderr)
+            #    raise Exception('ERROR! the O/S call to patchMad.sh failed')            
+            # OLD implementation (OM)
             #plugin_path = os.path.dirname(os.path.realpath( __file__ ))
             #p = subprocess.Popen([pjoin(plugin_path, 'patchMad.sh'), self.dir_path , 'PROD', str(patchlevel)])
             #stdout, stderr = p.communicate()
@@ -223,6 +223,12 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
             #    logger.debug("####### \n stdout is \n %s", stdout)
             #    logger.info("####### \n stderr is \n %s", stderr)
             #    raise Exception('ERROR! the O/S call to patchMad.sh failed')            
+            # NEW implementation (SH)
+            if os.system(PLUGINDIR + os.sep + 'patchMad.sh ' + self.dir_path + ' PROD ' + patchlevel) != 0:
+                logger.debug("####### \n stdout is \n %s", stdout)
+                logger.info("####### \n stderr is \n %s", stderr)
+                raise Exception('ERROR! the O/S call to patchMad.sh failed')
+            # Additional patching (OM)
             self.add_madevent_plugin_fct() # Added by OM
         return super().finalize(matrix_element, cmdhistory, MG5options, outputflag)
 

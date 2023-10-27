@@ -1,0 +1,2 @@
+generate g g > t t~ g g
+output madevent gg_ttgg.mad --hel_recycling=False --vector_size=16384 --me_exporter=standalone_cudacpp
