@@ -271,6 +271,11 @@ results.pkl
 run_[0-9]*
 events.lhe*
 EOF
+  if [ -d ${OUTDIR}/${proc}.${autosuffix}/bin/internal/ufomodel ]; then # see PR #762
+    cat << EOF > ${OUTDIR}/${proc}.${autosuffix}/bin/internal/ufomodel/.gitignore
+py3_model.pkl
+EOF
+  fi
   if [ -f ${OUTDIR}/${proc}.${autosuffix}/SubProcesses/proc_characteristics ]; then 
     sed -i 's/bias_module = None/bias_module = dummy/' ${OUTDIR}/${proc}.${autosuffix}/SubProcesses/proc_characteristics
   fi

@@ -63,6 +63,7 @@ if [ "${tmadmode}" != "0" ]; then
   \rm -f ${dir}/bin/internal/run_plot*
   \rm -f ${dir}/HTML/*
   \rm -rf ${dir}/bin/internal/__pycache__
+  \rm -rf ${dir}/bin/internal/ufomodel/py3_model.pkl
   \rm -rf ${dir}/bin/internal/ufomodel/__pycache__
   touch ${dir}/HTML/.keep # new file
 fi
