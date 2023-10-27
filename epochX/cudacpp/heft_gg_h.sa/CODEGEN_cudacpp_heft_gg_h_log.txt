@@ -146,7 +146,6 @@ INFO: Processing color information for process: g g > h HIG<=1 HIW<=1 @1
 INFO: Creating files in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg_h/SubProcesses/P1_Sigma_heft_gg_h 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg_h/SubProcesses/P1_Sigma_heft_gg_h/./CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg_h/SubProcesses/P1_Sigma_heft_gg_h/./CPPProcess.cc
-[1;32mDEBUG:  replace_dict['den_factors'] = [0m 256 [1;30m[model_handling.py at line 1172][0m [0m
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg_h/SubProcesses/P1_Sigma_heft_gg_h/. 
 Generated helas calls for 1 subprocesses (1 diagrams) in 0.002 s
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 197][0m [0m
@@ -165,6 +164,6 @@ INFO: /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg
 [1;32mDEBUG:  'Entering PLUGIN_ProcessExporter.finalize', self.in_madevent_mode = [0m Entering PLUGIN_ProcessExporter.finalize False [1;30m[output.py at line 206][0m [0m
 quit
 
-real	0m0.431s
-user	0m0.365s
-sys	0m0.056s
+real	0m0.477s
+user	0m0.368s
+sys	0m0.055s
