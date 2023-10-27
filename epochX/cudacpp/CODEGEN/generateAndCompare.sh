@@ -7,7 +7,7 @@
 set -e # fail on error
 
 # AV Recover special 'tmad' mode used by generateAndCompare.sh, after OM's changes that commented this out in patchMad.sh
-export MG5AMC_TMADMODE=1
+export CUDACPP_CODEGEN_TMADMODE=1
 
 #--------------------------------------------------------------------------------------
 
@@ -204,9 +204,31 @@ function codeGenAndDiff()
     cat ${outproc}_log.txt | egrep -v '(Crash Annotation)' > ${outproc}_log.txt.new # remove firefox 'glxtest: libEGL initialize failed' errors
     \mv ${outproc}_log.txt.new ${outproc}_log.txt
   fi
+  # Patches moved here from patchMad.sh after Olivier's PR #764 (THIS IS ONLY NEEDED IN THE MADGRAPH4GPU GIT REPO)  
+  if [ "${OUTBCK}" == "mad" ]; then
+    # Force the use of strategy SDE=1 in multichannel mode (see #419)
+    sed -i 's/2  = sde_strategy/1  = sde_strategy/' ${outproc}/Cards/run_card.dat
+    # Generate run_card.inc and param_card.inc (include stdout and stderr in the code generation log which is later checked for errors)
+    # These two steps are part of "cd Source; make" but they actually are code-generating steps
+    ${outproc}/bin/madevent treatcards run  >> ${outproc}_log.txt 2>&1 # AV BUG! THIS MAY SILENTLY FAIL (check if output contains "Please report this bug")
+    ${outproc}/bin/madevent treatcards param >> ${outproc}_log.txt 2>&1 # AV BUG! THIS MAY SILENTLY FAIL (check if output contains "Please report this bug")
+    # Cleanup
+    \rm -f ${outproc}/crossx.html
+    \rm -f ${outproc}/index.html
+    \rm -f ${outproc}/madevent.tar.gz
+    \rm -f ${outproc}/Cards/delphes_trigger.dat
+    \rm -f ${outproc}/Cards/plot_card.dat
+    \rm -f ${outproc}/bin/internal/run_plot*
+    \rm -f ${outproc}/HTML/*
+    \rm -rf ${outproc}/bin/internal/__pycache__
+    \rm -rf ${outproc}/bin/internal/ufomodel/py3_model.pkl
+    \rm -rf ${outproc}/bin/internal/ufomodel/__pycache__
+    touch ${outproc}/HTML/.keep # new file
+  fi
+  # Check the code generation log for errors 
   if [ -d ${outproc} ] && ! grep -q "Please report this bug" ${outproc}_log.txt; then
     ###cat ${outproc}_log.txt; exit 0 # FOR DEBUGGING
-    cat ${MG5AMC_HOME}/${outproc}_log.txt | egrep 'INFO: (Try|Creat|Organiz|Process)'
+    cat ${MG5AMC_HOME}/${outproc}_log.txt | { egrep 'INFO: (Try|Creat|Organiz|Process)' || true; }
   else
     echo "*** ERROR! Code generation failed"
     cat ${MG5AMC_HOME}/${outproc}_log.txt

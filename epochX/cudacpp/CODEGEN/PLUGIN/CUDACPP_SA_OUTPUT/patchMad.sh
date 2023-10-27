@@ -42,32 +42,9 @@ if [ ! -e ${dir} ]; then echo "ERROR! Directory $dir does not exist"; exit 1; fi
 
 # AV Recover special 'tmad' mode used by generateAndCompare.sh, after OM's changes that commented this out in patchMad.sh
 tmadmode=0
-if [ "${MG5AMC_TMADMODE}" != "" ]; then
+if [ "${CUDACPP_CODEGEN_TMADMODE}" != "" ]; then
   tmadmode=1
-  echo "DEBUG! Switching on tmad mode (MG5AMC_TMADMODE=${MG5AMC_TMADMODE})"
-fi
-
-# These two steps are part of "cd Source; make" but they actually are code-generating steps
-if [ "${tmadmode}" != "0" ]; then
-  ${dir}/bin/madevent treatcards run # AV BUG! THIS MAY SILENTLY FAIL (should check if output contains "Please report this bug")
-  ###echo status=$?
-  ${dir}/bin/madevent treatcards param # AV BUG! THIS MAY SILENTLY FAIL (should check if output contains "Please report this bug")
-  ###echo status=$?
-fi
-
-# Cleanup
-if [ "${tmadmode}" != "0" ]; then
-  \rm -f ${dir}/crossx.html
-  \rm -f ${dir}/index.html
-  \rm -f ${dir}/madevent.tar.gz
-  \rm -f ${dir}/Cards/delphes_trigger.dat
-  \rm -f ${dir}/Cards/plot_card.dat
-  \rm -f ${dir}/bin/internal/run_plot*
-  \rm -f ${dir}/HTML/*
-  \rm -rf ${dir}/bin/internal/__pycache__
-  \rm -rf ${dir}/bin/internal/ufomodel/py3_model.pkl
-  \rm -rf ${dir}/bin/internal/ufomodel/__pycache__
-  touch ${dir}/HTML/.keep # new file
+  echo "DEBUG! Switching on tmad mode (CUDACPP_CODEGEN_TMADMODE=${CUDACPP_CODEGEN_TMADMODE})"
 fi
 
 # Exit here for patchlevel 0 (--upstream)
@@ -84,10 +61,6 @@ fi
 # (1) Process-independent patches
 touch ${dir}/Events/.keep # this file should already be present (mg5amcnlo copies it from Template/LO/Events/.keep) 
 \cp -pr ${scrdir}/MG5aMC_patches/${dir_patches}/fbridge_common.inc ${dir}/SubProcesses # new file
-if [ "${tmadmode}" != "0" ]; then
-  sed -i 's/2  = sde_strategy/1  = sde_strategy/' ${dir}/Cards/run_card.dat # use strategy SDE=1 in multichannel mode (see #419)
-  sed -i 's/SDE_STRAT = 2/SDE_STRAT = 1/' ${dir}/Source/run_card.inc # use strategy SDE=1 in multichannel mode (see #419)
-fi
 if [ "${patchlevel}" == "2" ]; then
   cd ${dir}
   if [ "${tmadmode}" != "0" ]; then
