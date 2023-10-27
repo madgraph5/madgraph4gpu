@@ -51,9 +51,9 @@ Note that you can still compile and run aMC@NLO with the built-in PDFs
  MG5_aMC> set lhapdf /PATH/TO/lhapdf-config
 
 Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
-No valid eps viewer found. Please set in ./input/mg5_configuration.txt
-Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
-import /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j.mg
+Using default eps viewer "evince". Set another one in ./input/mg5_configuration.txt
+No valid web browser found. Please set in ./input/mg5_configuration.txt
+import /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j.mg
 The import format was not given, so we guess it as command
 set stdout_level DEBUG
 set output information to level: 10
@@ -61,7 +61,7 @@ set zerowidth_tchannel F
 define j = p
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.0048046112060546875 [0m
+[1;32mDEBUG: model prefixing  takes 0.005310535430908203 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -172,7 +172,7 @@ INFO: Process u~ u > t t~ added to mirror process u u~ > t t~
 INFO: Process c~ c > t t~ added to mirror process c c~ > t t~ 
 INFO: Process d~ d > t t~ added to mirror process d d~ > t t~ 
 INFO: Process s~ s > t t~ added to mirror process s s~ > t t~ 
-5 processes with 7 diagrams generated in 0.027 s
+5 processes with 7 diagrams generated in 0.029 s
 Total: 5 processes with 7 diagrams
 add process p p > t t~ j @1
 INFO: Checking for minimal orders which gives processes. 
@@ -212,7 +212,7 @@ INFO: Process d~ g > t t~ d~ added to mirror process g d~ > t t~ d~
 INFO: Process d~ d > t t~ g added to mirror process d d~ > t t~ g 
 INFO: Process s~ g > t t~ s~ added to mirror process g s~ > t t~ s~ 
 INFO: Process s~ s > t t~ g added to mirror process s s~ > t t~ g 
-13 processes with 76 diagrams generated in 0.125 s
+13 processes with 76 diagrams generated in 0.135 s
 Total: 18 processes with 83 diagrams
 add process p p > t t~ j j @2
 INFO: Checking for minimal orders which gives processes. 
@@ -378,21 +378,21 @@ INFO: Process s~ u~ > t t~ u~ s~ added to mirror process u~ s~ > t t~ u~ s~
 INFO: Process s~ c~ > t t~ c~ s~ added to mirror process c~ s~ > t t~ c~ s~ 
 INFO: Process s~ d~ > t t~ d~ s~ added to mirror process d~ s~ > t t~ d~ s~ 
 INFO: Crossed process found for s~ s~ > t t~ s~ s~, reuse diagrams. 
-65 processes with 1119 diagrams generated in 1.848 s
+65 processes with 1119 diagrams generated in 1.797 s
 Total: 83 processes with 1202 diagrams
 output madevent ../TMPOUT/CODEGEN_mad_pp_tt012j --hel_recycling=False --vector_size=16384 --me_exporter=standalone_cudacpp
 Load PLUGIN.CUDACPP_OUTPUT
 [1mAddition matrix-element will be done with PLUGIN: CUDACPP_OUTPUT[0m
 [1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
 [1;32mDEBUG:  cformat = [0m standalone_cudacpp [1;30m[export_cpp.py at line 3071][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter) [1;30m[output.py at line 153][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter) [1;30m[output.py at line 155][0m [0m
 INFO: initialize a new directory: CODEGEN_mad_pp_tt012j 
 INFO: remove old information in CODEGEN_mad_pp_tt012j 
-[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.copy_template (initialise the directory) [1;30m[output.py at line 158][0m [0m
-[1;34mWARNING: File exists /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j [0m
-INFO: Creating subdirectories in directory /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j 
-[1;34mWARNING: File exists /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/Cards [0m
-[1;34mWARNING: File exists /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses [0m
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.copy_template (initialise the directory) [1;30m[output.py at line 160][0m [0m
+[1;34mWARNING: File exists /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j [0m
+INFO: Creating subdirectories in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j 
+[1;34mWARNING: File exists /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/Cards [0m
+[1;34mWARNING: File exists /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses [0m
 INFO: Organizing processes into subprocess groups 
 INFO: Generating Helas calls for process: g g > t t~ g g WEIGHTED<=4 @2 
 INFO: Processing color information for process: g g > t t~ g g @2 
@@ -496,710 +496,328 @@ INFO: Combined process c c~ > t t~ WEIGHTED<=2 with process u u~ > t t~ WEIGHTED
 INFO: Combined process d d~ > t t~ WEIGHTED<=2 with process u u~ > t t~ WEIGHTED<=2 
 INFO: Combined process s s~ > t t~ WEIGHTED<=2 with process u u~ > t t~ WEIGHTED<=2 
 INFO: Creating files in directory P2_gg_ttxgg 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.__init__ [1;30m[model_handling.py at line 1039][0m [0m
-[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1040][0m [0m
-[1;32mDEBUG:  proc_id = [0m 1 [1;30m[model_handling.py at line 1046][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f2cb8374e50> [1;30m[export_v4.py at line 6180][0m [0m
+[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f92f06ae9a0> [1;30m[export_v4.py at line 6199][0m [0m
 INFO: Creating files in directory . 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 1298][0m [0m
-[1;32mDEBUG:  self.include_multi_channel is already defined: this is madevent+second_exporter mode [1;30m[model_handling.py at line 1300][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_h_file [1;30m[model_handling.py at line 1454][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_cc_file [1;30m[model_handling.py at line 1476][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.get_sigmaKin_lines [1;30m[model_handling.py at line 1144][0m [0m
-[1;32mDEBUG:  self.include_multi_channel = [0m [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 0, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 0, 46, 47, 48, 49, 50, 51, 52, 53, 54, 0, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 0, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 0, 88, 89, 90, 91, 92, 93, 0, 94, 95, 96, 97, 98, 99, 0, 100, 101, 102, 103, 104, 105, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] [1;30m[model_handling.py at line 1145][0m [0m
-[1;32mDEBUG:  self.support_multichannel = [0m True [1;30m[model_handling.py at line 1146][0m [0m
-[1;32mDEBUG:  type(self.helas_call_writer) = [0m <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_GPUFOHelasCallWriter'> [1;30m[model_handling.py at line 1163][0m [0m
-[1;32mDEBUG:  self.support_multichannel, self.include_multi_channel = [0m True [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 0, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 0, 46, 47, 48, 49, 50, 51, 52, 53, 54, 0, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 0, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 0, 88, 89, 90, 91, 92, 93, 0, 94, 95, 96, 97, 98, 99, 0, 100, 101, 102, 103, 104, 105, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] [1;30m[model_handling.py at line 1164][0m [0m
-[1;32mDEBUG:  multi_channel = [0m {1: [1], 2: [2], 3: [3], 4: [4], 5: [5], 6: [6], 7: [7], 8: [8], 9: [9], 10: [10], 11: [11], 12: [12], 13: [13], 14: [14], 15: [15], 16: [16], 17: [17], 18: [18], 19: [19], 20: [20], 21: [21], 22: [22], 23: [23], 24: [24], 25: [25], 26: [26], 27: [27], 28: [28], 29: [29], 30: [30], 31: [32], 32: [33], 33: [34], 34: [35], 35: [36], 36: [37], 37: [38], 38: [39], 39: [40], 40: [41], 41: [42], 42: [43], 43: [44], 44: [45], 45: [46], 46: [48], 47: [49], 48: [50], 49: [51], 50: [52], 51: [53], 52: [54], 53: [55], 54: [56], 55: [58], 56: [59], 57: [60], 58: [61], 59: [62], 60: [63], 61: [64], 62: [65], 63: [66], 64: [67], 65: [68], 66: [69], 67: [70], 68: [71], 69: [72], 70: [74], 71: [75], 72: [76], 73: [77], 74: [78], 75: [79], 76: [80], 77: [81], 78: [82], 79: [83], 80: [84], 81: [85], 82: [86], 83: [87], 84: [88], 85: [89], 86: [90], 87: [91], 88: [93], 89: [94], 90: [95], 91: [96], 92: [97], 93: [98], 94: [100], 95: [101], 96: [102], 97: [103], 98: [104], 99: [105], 100: [107], 101: [108], 102: [109], 103: [110], 104: [111], 105: [112]} [1;30m[model_handling.py at line 1170][0m [0m
-[1;32mDEBUG:  multi_channel_map = [0m {1: [1], 2: [2], 3: [3], 4: [4], 5: [5], 6: [6], 7: [7], 8: [8], 9: [9], 10: [10], 11: [11], 12: [12], 13: [13], 14: [14], 15: [15], 16: [16], 17: [17], 18: [18], 19: [19], 20: [20], 21: [21], 22: [22], 23: [23], 24: [24], 25: [25], 26: [26], 27: [27], 28: [28], 29: [29], 30: [30], 31: [32], 32: [33], 33: [34], 34: [35], 35: [36], 36: [37], 37: [38], 38: [39], 39: [40], 40: [41], 41: [42], 42: [43], 43: [44], 44: [45], 45: [46], 46: [48], 47: [49], 48: [50], 49: [51], 50: [52], 51: [53], 52: [54], 53: [55], 54: [56], 55: [58], 56: [59], 57: [60], 58: [61], 59: [62], 60: [63], 61: [64], 62: [65], 63: [66], 64: [67], 65: [68], 66: [69], 67: [70], 68: [71], 69: [72], 70: [74], 71: [75], 72: [76], 73: [77], 74: [78], 75: [79], 76: [80], 77: [81], 78: [82], 79: [83], 80: [84], 81: [85], 82: [86], 83: [87], 84: [88], 85: [89], 86: [90], 87: [91], 88: [93], 89: [94], 90: [95], 91: [96], 92: [97], 93: [98], 94: [100], 95: [101], 96: [102], 97: [103], 98: [104], 99: [105], 100: [107], 101: [108], 102: [109], 103: [110], 104: [111], 105: [112]} [1;30m[model_handling.py at line 1655][0m [0m
-[1;32mDEBUG:  diag_to_config = [0m {4: 1, 5: 2, 6: 3, 7: 4, 8: 5, 9: 6, 10: 7, 11: 8, 12: 9, 13: 10, 14: 11, 15: 12, 16: 13, 17: 14, 18: 15, 19: 16, 20: 17, 21: 18, 22: 19, 23: 20, 24: 21, 25: 22, 26: 23, 27: 24, 28: 25, 29: 26, 30: 27, 31: 28, 32: 29, 33: 30, 37: 31, 38: 32, 39: 33, 40: 34, 41: 35, 42: 36, 43: 37, 44: 38, 45: 39, 46: 40, 47: 41, 48: 42, 49: 43, 50: 44, 51: 45, 55: 46, 56: 47, 57: 48, 58: 49, 59: 50, 60: 51, 61: 52, 62: 53, 63: 54, 67: 55, 68: 56, 69: 57, 70: 58, 71: 59, 72: 60, 73: 61, 74: 62, 75: 63, 76: 64, 77: 65, 78: 66, 79: 67, 80: 68, 81: 69, 85: 70, 86: 71, 87: 72, 88: 73, 89: 74, 90: 75, 91: 76, 92: 77, 93: 78, 94: 79, 95: 80, 96: 81, 97: 82, 98: 83, 99: 84, 100: 85, 101: 86, 102: 87, 106: 88, 107: 89, 108: 90, 109: 91, 110: 92, 111: 93, 115: 94, 116: 95, 117: 96, 118: 97, 119: 98, 120: 99, 124: 100, 125: 101, 126: 102, 127: 103, 128: 104, 129: 105} [1;30m[model_handling.py at line 1710][0m [0m
-[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1822][0m [0m
-[1;32mDEBUG:  ('ZERO', 0, -1, 0, 0) [1;30m[model_handling.py at line 1823][0m [0m
-[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1822][0m [0m
-[1;32mDEBUG:  ('ZERO', 1, -1, 1, 1) [1;30m[model_handling.py at line 1823][0m [0m
-[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1822][0m [0m
-[1;32mDEBUG:  ('ZERO', 4, 1, 4, 4) [1;30m[model_handling.py at line 1823][0m [0m
-[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1822][0m [0m
-[1;32mDEBUG:  ('ZERO', 5, 1, 5, 5) [1;30m[model_handling.py at line 1823][0m [0m
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_CMakeLists [1;30m[model_handling.py at line 1344][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_check_sa [1;30m[model_handling.py at line 1353][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_mgonGPU [1;30m[model_handling.py at line 1370][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_processidfile [1;30m[model_handling.py at line 1390][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_coloramps [1;30m[model_handling.py at line 1402][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_testxxx [1;30m[model_handling.py at line 1420][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memorybuffers [1;30m[model_handling.py at line 1431][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memoryaccesscouplings [1;30m[model_handling.py at line 1442][0m [0m
-[1;32mDEBUG:  'Copying test reference file: ', template_ref  = [0m Copying test reference file:  /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/madgraph/iolibs/template_files/../../../test/ref/dump_CPUTest.Sigma_sm_gg_ttxgg.txt [1;30m[model_handling.py at line 1336][0m [0m
 [1;32mDEBUG:  proc_id = [0m 1 [1;30m[export_cpp.py at line 710][0m [0m
 [1;32mDEBUG:  config_map = [0m [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 0, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 0, 46, 47, 48, 49, 50, 51, 52, 53, 54, 0, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 0, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 0, 88, 89, 90, 91, 92, 93, 0, 94, 95, 96, 97, 98, 99, 0, 100, 101, 102, 103, 104, 105, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] [1;30m[export_cpp.py at line 711][0m [0m
 [1;32mDEBUG:  subproc_number = [0m 0 [1;30m[export_cpp.py at line 712][0m [0m
 [1;32mDEBUG:  Done [1;30m[export_cpp.py at line 713][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1836][0m [0m
 INFO: Generating Feynman diagrams for Process: g g > t t~ g g WEIGHTED<=4 @2 
 INFO: Finding symmetric diagrams for subprocess group gg_ttxgg 
 INFO: Creating files in directory P2_gg_ttxuux 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.__init__ [1;30m[model_handling.py at line 1039][0m [0m
-[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1040][0m [0m
-[1;32mDEBUG:  proc_id = [0m 1 [1;30m[model_handling.py at line 1046][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f2cb7e52cd0> [1;30m[export_v4.py at line 6180][0m [0m
+[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f92f068c700> [1;30m[export_v4.py at line 6199][0m [0m
 INFO: Creating files in directory . 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 1298][0m [0m
-[1;32mDEBUG:  self.include_multi_channel is already defined: this is madevent+second_exporter mode [1;30m[model_handling.py at line 1300][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_h_file [1;30m[model_handling.py at line 1454][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_cc_file [1;30m[model_handling.py at line 1476][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.get_sigmaKin_lines [1;30m[model_handling.py at line 1144][0m [0m
-[1;32mDEBUG:  self.include_multi_channel = [0m [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 0, 34, 35] [1;30m[model_handling.py at line 1145][0m [0m
-[1;32mDEBUG:  self.support_multichannel = [0m True [1;30m[model_handling.py at line 1146][0m [0m
-[1;32mDEBUG:  type(self.helas_call_writer) = [0m <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_GPUFOHelasCallWriter'> [1;30m[model_handling.py at line 1163][0m [0m
-[1;32mDEBUG:  self.support_multichannel, self.include_multi_channel = [0m True [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 0, 34, 35] [1;30m[model_handling.py at line 1164][0m [0m
-[1;32mDEBUG:  multi_channel = [0m {1: [0], 2: [1], 3: [2], 4: [3], 5: [4], 6: [5], 7: [6], 8: [7], 9: [8], 10: [9], 11: [10], 12: [11], 13: [12], 14: [13], 15: [14], 16: [15], 17: [16], 18: [17], 19: [18], 20: [19], 21: [20], 22: [21], 23: [22], 24: [23], 25: [24], 26: [25], 27: [26], 28: [27], 29: [28], 30: [29], 31: [30], 32: [31], 33: [32], 34: [34], 35: [35]} [1;30m[model_handling.py at line 1170][0m [0m
-[1;32mDEBUG:  multi_channel_map = [0m {1: [0], 2: [1], 3: [2], 4: [3], 5: [4], 6: [5], 7: [6], 8: [7], 9: [8], 10: [9], 11: [10], 12: [11], 13: [12], 14: [13], 15: [14], 16: [15], 17: [16], 18: [17], 19: [18], 20: [19], 21: [20], 22: [21], 23: [22], 24: [23], 25: [24], 26: [25], 27: [26], 28: [27], 29: [28], 30: [29], 31: [30], 32: [31], 33: [32], 34: [34], 35: [35]} [1;30m[model_handling.py at line 1655][0m [0m
-[1;32mDEBUG:  diag_to_config = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15, 16: 16, 17: 17, 18: 18, 19: 19, 20: 20, 21: 21, 22: 22, 23: 23, 24: 24, 25: 25, 26: 26, 27: 27, 28: 28, 29: 29, 30: 30, 31: 31, 32: 32, 33: 33, 37: 34, 38: 35} [1;30m[model_handling.py at line 1710][0m [0m
-[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1822][0m [0m
-[1;32mDEBUG:  ('ZERO', 0, -1, 0, 0) [1;30m[model_handling.py at line 1823][0m [0m
-[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1822][0m [0m
-[1;32mDEBUG:  ('ZERO', 1, -1, 1, 1) [1;30m[model_handling.py at line 1823][0m [0m
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_CMakeLists [1;30m[model_handling.py at line 1344][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_check_sa [1;30m[model_handling.py at line 1353][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_mgonGPU [1;30m[model_handling.py at line 1370][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_processidfile [1;30m[model_handling.py at line 1390][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_coloramps [1;30m[model_handling.py at line 1402][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_testxxx [1;30m[model_handling.py at line 1420][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memorybuffers [1;30m[model_handling.py at line 1431][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memoryaccesscouplings [1;30m[model_handling.py at line 1442][0m [0m
-[1;32mDEBUG:  'Test reference file does not exist and will not be copied: ', template_ref  = [0m Test reference file does not exist and will not be copied:  /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/madgraph/iolibs/template_files/../../../test/ref/dump_CPUTest.Sigma_sm_gg_ttxuux.txt [1;30m[model_handling.py at line 1339][0m [0m
 [1;32mDEBUG:  proc_id = [0m 1 [1;30m[export_cpp.py at line 710][0m [0m
 [1;32mDEBUG:  config_map = [0m [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 0, 34, 35] [1;30m[export_cpp.py at line 711][0m [0m
 [1;32mDEBUG:  subproc_number = [0m 1 [1;30m[export_cpp.py at line 712][0m [0m
 [1;32mDEBUG:  Done [1;30m[export_cpp.py at line 713][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1836][0m [0m
 INFO: Generating Feynman diagrams for Process: g g > t t~ u u~ WEIGHTED<=4 @2 
 INFO: Finding symmetric diagrams for subprocess group gg_ttxuux 
 INFO: Creating files in directory P2_gu_ttxgu 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.__init__ [1;30m[model_handling.py at line 1039][0m [0m
-[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1040][0m [0m
-[1;32mDEBUG:  proc_id = [0m 1 [1;30m[model_handling.py at line 1046][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f2cb8374e50> [1;30m[export_v4.py at line 6180][0m [0m
+[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f92f068c700> [1;30m[export_v4.py at line 6199][0m [0m
 INFO: Creating files in directory . 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 1298][0m [0m
-[1;32mDEBUG:  self.include_multi_channel is already defined: this is madevent+second_exporter mode [1;30m[model_handling.py at line 1300][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_h_file [1;30m[model_handling.py at line 1454][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_cc_file [1;30m[model_handling.py at line 1476][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.get_sigmaKin_lines [1;30m[model_handling.py at line 1144][0m [0m
-[1;32mDEBUG:  self.include_multi_channel = [0m [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 0, 34, 35] [1;30m[model_handling.py at line 1145][0m [0m
-[1;32mDEBUG:  self.support_multichannel = [0m True [1;30m[model_handling.py at line 1146][0m [0m
-[1;32mDEBUG:  type(self.helas_call_writer) = [0m <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_GPUFOHelasCallWriter'> [1;30m[model_handling.py at line 1163][0m [0m
-[1;32mDEBUG:  self.support_multichannel, self.include_multi_channel = [0m True [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 0, 34, 35] [1;30m[model_handling.py at line 1164][0m [0m
-[1;32mDEBUG:  multi_channel = [0m {1: [0], 2: [1], 3: [2], 4: [3], 5: [4], 6: [5], 7: [6], 8: [7], 9: [8], 10: [9], 11: [10], 12: [11], 13: [12], 14: [13], 15: [14], 16: [15], 17: [16], 18: [17], 19: [18], 20: [19], 21: [20], 22: [21], 23: [22], 24: [23], 25: [24], 26: [25], 27: [26], 28: [27], 29: [28], 30: [29], 31: [30], 32: [31], 33: [32], 34: [34], 35: [35]} [1;30m[model_handling.py at line 1170][0m [0m
-[1;32mDEBUG:  multi_channel_map = [0m {1: [0], 2: [1], 3: [2], 4: [3], 5: [4], 6: [5], 7: [6], 8: [7], 9: [8], 10: [9], 11: [10], 12: [11], 13: [12], 14: [13], 15: [14], 16: [15], 17: [16], 18: [17], 19: [18], 20: [19], 21: [20], 22: [21], 23: [22], 24: [23], 25: [24], 26: [25], 27: [26], 28: [27], 29: [28], 30: [29], 31: [30], 32: [31], 33: [32], 34: [34], 35: [35]} [1;30m[model_handling.py at line 1655][0m [0m
-[1;32mDEBUG:  diag_to_config = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15, 16: 16, 17: 17, 18: 18, 19: 19, 20: 20, 21: 21, 22: 22, 23: 23, 24: 24, 25: 25, 26: 26, 27: 27, 28: 28, 29: 29, 30: 30, 31: 31, 32: 32, 33: 33, 37: 34, 38: 35} [1;30m[model_handling.py at line 1710][0m [0m
-[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1822][0m [0m
-[1;32mDEBUG:  ('ZERO', 0, -1, 0, 0) [1;30m[model_handling.py at line 1823][0m [0m
-[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1822][0m [0m
-[1;32mDEBUG:  ('ZERO', 4, 1, 4, 4) [1;30m[model_handling.py at line 1823][0m [0m
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_CMakeLists [1;30m[model_handling.py at line 1344][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_check_sa [1;30m[model_handling.py at line 1353][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_mgonGPU [1;30m[model_handling.py at line 1370][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_processidfile [1;30m[model_handling.py at line 1390][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_coloramps [1;30m[model_handling.py at line 1402][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_testxxx [1;30m[model_handling.py at line 1420][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memorybuffers [1;30m[model_handling.py at line 1431][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memoryaccesscouplings [1;30m[model_handling.py at line 1442][0m [0m
-[1;32mDEBUG:  'Test reference file does not exist and will not be copied: ', template_ref  = [0m Test reference file does not exist and will not be copied:  /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/madgraph/iolibs/template_files/../../../test/ref/dump_CPUTest.Sigma_sm_gu_ttxgu.txt [1;30m[model_handling.py at line 1339][0m [0m
 [1;32mDEBUG:  proc_id = [0m 1 [1;30m[export_cpp.py at line 710][0m [0m
 [1;32mDEBUG:  config_map = [0m [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 0, 34, 35] [1;30m[export_cpp.py at line 711][0m [0m
 [1;32mDEBUG:  subproc_number = [0m 2 [1;30m[export_cpp.py at line 712][0m [0m
 [1;32mDEBUG:  Done [1;30m[export_cpp.py at line 713][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1836][0m [0m
 INFO: Generating Feynman diagrams for Process: g u > t t~ g u WEIGHTED<=4 @2 
 INFO: Finding symmetric diagrams for subprocess group gu_ttxgu 
 INFO: Creating files in directory P2_gux_ttxgux 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.__init__ [1;30m[model_handling.py at line 1039][0m [0m
-[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1040][0m [0m
-[1;32mDEBUG:  proc_id = [0m 1 [1;30m[model_handling.py at line 1046][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f2cb8374e50> [1;30m[export_v4.py at line 6180][0m [0m
+[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f92f00467c0> [1;30m[export_v4.py at line 6199][0m [0m
 INFO: Creating files in directory . 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 1298][0m [0m
-[1;32mDEBUG:  self.include_multi_channel is already defined: this is madevent+second_exporter mode [1;30m[model_handling.py at line 1300][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_h_file [1;30m[model_handling.py at line 1454][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_cc_file [1;30m[model_handling.py at line 1476][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.get_sigmaKin_lines [1;30m[model_handling.py at line 1144][0m [0m
-[1;32mDEBUG:  self.include_multi_channel = [0m [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 0, 34, 35] [1;30m[model_handling.py at line 1145][0m [0m
-[1;32mDEBUG:  self.support_multichannel = [0m True [1;30m[model_handling.py at line 1146][0m [0m
-[1;32mDEBUG:  type(self.helas_call_writer) = [0m <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_GPUFOHelasCallWriter'> [1;30m[model_handling.py at line 1163][0m [0m
-[1;32mDEBUG:  self.support_multichannel, self.include_multi_channel = [0m True [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 0, 34, 35] [1;30m[model_handling.py at line 1164][0m [0m
-[1;32mDEBUG:  multi_channel = [0m {1: [0], 2: [1], 3: [2], 4: [3], 5: [4], 6: [5], 7: [6], 8: [7], 9: [8], 10: [9], 11: [10], 12: [11], 13: [12], 14: [13], 15: [14], 16: [15], 17: [16], 18: [17], 19: [18], 20: [19], 21: [20], 22: [21], 23: [22], 24: [23], 25: [24], 26: [25], 27: [26], 28: [27], 29: [28], 30: [29], 31: [30], 32: [31], 33: [32], 34: [34], 35: [35]} [1;30m[model_handling.py at line 1170][0m [0m
-[1;32mDEBUG:  multi_channel_map = [0m {1: [0], 2: [1], 3: [2], 4: [3], 5: [4], 6: [5], 7: [6], 8: [7], 9: [8], 10: [9], 11: [10], 12: [11], 13: [12], 14: [13], 15: [14], 16: [15], 17: [16], 18: [17], 19: [18], 20: [19], 21: [20], 22: [21], 23: [22], 24: [23], 25: [24], 26: [25], 27: [26], 28: [27], 29: [28], 30: [29], 31: [30], 32: [31], 33: [32], 34: [34], 35: [35]} [1;30m[model_handling.py at line 1655][0m [0m
-[1;32mDEBUG:  diag_to_config = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15, 16: 16, 17: 17, 18: 18, 19: 19, 20: 20, 21: 21, 22: 22, 23: 23, 24: 24, 25: 25, 26: 26, 27: 27, 28: 28, 29: 29, 30: 30, 31: 31, 32: 32, 33: 33, 37: 34, 38: 35} [1;30m[model_handling.py at line 1710][0m [0m
-[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1822][0m [0m
-[1;32mDEBUG:  ('ZERO', 0, -1, 0, 0) [1;30m[model_handling.py at line 1823][0m [0m
-[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1822][0m [0m
-[1;32mDEBUG:  ('ZERO', 4, 1, 4, 4) [1;30m[model_handling.py at line 1823][0m [0m
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_CMakeLists [1;30m[model_handling.py at line 1344][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_check_sa [1;30m[model_handling.py at line 1353][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_mgonGPU [1;30m[model_handling.py at line 1370][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_processidfile [1;30m[model_handling.py at line 1390][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_coloramps [1;30m[model_handling.py at line 1402][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_testxxx [1;30m[model_handling.py at line 1420][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memorybuffers [1;30m[model_handling.py at line 1431][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memoryaccesscouplings [1;30m[model_handling.py at line 1442][0m [0m
-[1;32mDEBUG:  'Test reference file does not exist and will not be copied: ', template_ref  = [0m Test reference file does not exist and will not be copied:  /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/madgraph/iolibs/template_files/../../../test/ref/dump_CPUTest.Sigma_sm_gux_ttxgux.txt [1;30m[model_handling.py at line 1339][0m [0m
 [1;32mDEBUG:  proc_id = [0m 1 [1;30m[export_cpp.py at line 710][0m [0m
 [1;32mDEBUG:  config_map = [0m [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 0, 34, 35] [1;30m[export_cpp.py at line 711][0m [0m
 [1;32mDEBUG:  subproc_number = [0m 3 [1;30m[export_cpp.py at line 712][0m [0m
 [1;32mDEBUG:  Done [1;30m[export_cpp.py at line 713][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1836][0m [0m
 INFO: Generating Feynman diagrams for Process: g u~ > t t~ g u~ WEIGHTED<=4 @2 
 INFO: Finding symmetric diagrams for subprocess group gux_ttxgux 
 INFO: Creating files in directory P2_uux_ttxgg 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.__init__ [1;30m[model_handling.py at line 1039][0m [0m
-[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1040][0m [0m
-[1;32mDEBUG:  proc_id = [0m 1 [1;30m[model_handling.py at line 1046][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f2cb7cae910> [1;30m[export_v4.py at line 6180][0m [0m
+[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f92f00467c0> [1;30m[export_v4.py at line 6199][0m [0m
 INFO: Creating files in directory . 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 1298][0m [0m
-[1;32mDEBUG:  self.include_multi_channel is already defined: this is madevent+second_exporter mode [1;30m[model_handling.py at line 1300][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_h_file [1;30m[model_handling.py at line 1454][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_cc_file [1;30m[model_handling.py at line 1476][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.get_sigmaKin_lines [1;30m[model_handling.py at line 1144][0m [0m
-[1;32mDEBUG:  self.include_multi_channel = [0m [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 0, 34, 35] [1;30m[model_handling.py at line 1145][0m [0m
-[1;32mDEBUG:  self.support_multichannel = [0m True [1;30m[model_handling.py at line 1146][0m [0m
-[1;32mDEBUG:  type(self.helas_call_writer) = [0m <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_GPUFOHelasCallWriter'> [1;30m[model_handling.py at line 1163][0m [0m
-[1;32mDEBUG:  self.support_multichannel, self.include_multi_channel = [0m True [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 0, 34, 35] [1;30m[model_handling.py at line 1164][0m [0m
-[1;32mDEBUG:  multi_channel = [0m {1: [0], 2: [1], 3: [2], 4: [3], 5: [4], 6: [5], 7: [6], 8: [7], 9: [8], 10: [9], 11: [10], 12: [11], 13: [12], 14: [13], 15: [14], 16: [15], 17: [16], 18: [17], 19: [18], 20: [19], 21: [20], 22: [21], 23: [22], 24: [23], 25: [24], 26: [25], 27: [26], 28: [27], 29: [28], 30: [29], 31: [30], 32: [31], 33: [32], 34: [34], 35: [35]} [1;30m[model_handling.py at line 1170][0m [0m
-[1;32mDEBUG:  multi_channel_map = [0m {1: [0], 2: [1], 3: [2], 4: [3], 5: [4], 6: [5], 7: [6], 8: [7], 9: [8], 10: [9], 11: [10], 12: [11], 13: [12], 14: [13], 15: [14], 16: [15], 17: [16], 18: [17], 19: [18], 20: [19], 21: [20], 22: [21], 23: [22], 24: [23], 25: [24], 26: [25], 27: [26], 28: [27], 29: [28], 30: [29], 31: [30], 32: [31], 33: [32], 34: [34], 35: [35]} [1;30m[model_handling.py at line 1655][0m [0m
-[1;32mDEBUG:  diag_to_config = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15, 16: 16, 17: 17, 18: 18, 19: 19, 20: 20, 21: 21, 22: 22, 23: 23, 24: 24, 25: 25, 26: 26, 27: 27, 28: 28, 29: 29, 30: 30, 31: 31, 32: 32, 33: 33, 37: 34, 38: 35} [1;30m[model_handling.py at line 1710][0m [0m
-[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1822][0m [0m
-[1;32mDEBUG:  ('ZERO', 4, 1, 4, 4) [1;30m[model_handling.py at line 1823][0m [0m
-[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1822][0m [0m
-[1;32mDEBUG:  ('ZERO', 5, 1, 5, 5) [1;30m[model_handling.py at line 1823][0m [0m
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_CMakeLists [1;30m[model_handling.py at line 1344][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_check_sa [1;30m[model_handling.py at line 1353][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_mgonGPU [1;30m[model_handling.py at line 1370][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_processidfile [1;30m[model_handling.py at line 1390][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_coloramps [1;30m[model_handling.py at line 1402][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_testxxx [1;30m[model_handling.py at line 1420][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memorybuffers [1;30m[model_handling.py at line 1431][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memoryaccesscouplings [1;30m[model_handling.py at line 1442][0m [0m
-[1;32mDEBUG:  'Test reference file does not exist and will not be copied: ', template_ref  = [0m Test reference file does not exist and will not be copied:  /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/madgraph/iolibs/template_files/../../../test/ref/dump_CPUTest.Sigma_sm_uux_ttxgg.txt [1;30m[model_handling.py at line 1339][0m [0m
 [1;32mDEBUG:  proc_id = [0m 1 [1;30m[export_cpp.py at line 710][0m [0m
 [1;32mDEBUG:  config_map = [0m [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 0, 34, 35] [1;30m[export_cpp.py at line 711][0m [0m
 [1;32mDEBUG:  subproc_number = [0m 4 [1;30m[export_cpp.py at line 712][0m [0m
 [1;32mDEBUG:  Done [1;30m[export_cpp.py at line 713][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1836][0m [0m
 INFO: Generating Feynman diagrams for Process: u u~ > t t~ g g WEIGHTED<=4 @2 
 INFO: Finding symmetric diagrams for subprocess group uux_ttxgg 
 INFO: Creating files in directory P1_gg_ttxg 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.__init__ [1;30m[model_handling.py at line 1039][0m [0m
-[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1040][0m [0m
-[1;32mDEBUG:  proc_id = [0m 1 [1;30m[model_handling.py at line 1046][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f2cb7cae910> [1;30m[export_v4.py at line 6180][0m [0m
+[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f92f068c700> [1;30m[export_v4.py at line 6199][0m [0m
 INFO: Creating files in directory . 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 1298][0m [0m
-[1;32mDEBUG:  self.include_multi_channel is already defined: this is madevent+second_exporter mode [1;30m[model_handling.py at line 1300][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_h_file [1;30m[model_handling.py at line 1454][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_cc_file [1;30m[model_handling.py at line 1476][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.get_sigmaKin_lines [1;30m[model_handling.py at line 1144][0m [0m
-[1;32mDEBUG:  self.include_multi_channel = [0m [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0] [1;30m[model_handling.py at line 1145][0m [0m
-[1;32mDEBUG:  self.support_multichannel = [0m True [1;30m[model_handling.py at line 1146][0m [0m
-[1;32mDEBUG:  type(self.helas_call_writer) = [0m <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_GPUFOHelasCallWriter'> [1;30m[model_handling.py at line 1163][0m [0m
-[1;32mDEBUG:  self.support_multichannel, self.include_multi_channel = [0m True [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0] [1;30m[model_handling.py at line 1164][0m [0m
-[1;32mDEBUG:  multi_channel = [0m {1: [0], 2: [1], 3: [2], 4: [3], 5: [4], 6: [5], 7: [6], 8: [7], 9: [8], 10: [9], 11: [10], 12: [11], 13: [12], 14: [13], 15: [14]} [1;30m[model_handling.py at line 1170][0m [0m
-[1;32mDEBUG:  multi_channel_map = [0m {1: [0], 2: [1], 3: [2], 4: [3], 5: [4], 6: [5], 7: [6], 8: [7], 9: [8], 10: [9], 11: [10], 12: [11], 13: [12], 14: [13], 15: [14]} [1;30m[model_handling.py at line 1655][0m [0m
-[1;32mDEBUG:  diag_to_config = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15} [1;30m[model_handling.py at line 1710][0m [0m
-[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1822][0m [0m
-[1;32mDEBUG:  ('ZERO', 0, -1, 0, 0) [1;30m[model_handling.py at line 1823][0m [0m
-[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1822][0m [0m
-[1;32mDEBUG:  ('ZERO', 1, -1, 1, 1) [1;30m[model_handling.py at line 1823][0m [0m
-[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1822][0m [0m
-[1;32mDEBUG:  ('ZERO', 4, 1, 4, 4) [1;30m[model_handling.py at line 1823][0m [0m
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_CMakeLists [1;30m[model_handling.py at line 1344][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_check_sa [1;30m[model_handling.py at line 1353][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_mgonGPU [1;30m[model_handling.py at line 1370][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_processidfile [1;30m[model_handling.py at line 1390][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_coloramps [1;30m[model_handling.py at line 1402][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_testxxx [1;30m[model_handling.py at line 1420][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memorybuffers [1;30m[model_handling.py at line 1431][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memoryaccesscouplings [1;30m[model_handling.py at line 1442][0m [0m
-[1;32mDEBUG:  'Copying test reference file: ', template_ref  = [0m Copying test reference file:  /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/madgraph/iolibs/template_files/../../../test/ref/dump_CPUTest.Sigma_sm_gg_ttxg.txt [1;30m[model_handling.py at line 1336][0m [0m
 [1;32mDEBUG:  proc_id = [0m 1 [1;30m[export_cpp.py at line 710][0m [0m
 [1;32mDEBUG:  config_map = [0m [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0] [1;30m[export_cpp.py at line 711][0m [0m
 [1;32mDEBUG:  subproc_number = [0m 5 [1;30m[export_cpp.py at line 712][0m [0m
 [1;32mDEBUG:  Done [1;30m[export_cpp.py at line 713][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1836][0m [0m
 INFO: Generating Feynman diagrams for Process: g g > t t~ g WEIGHTED<=3 @1 
 INFO: Finding symmetric diagrams for subprocess group gg_ttxg 
 INFO: Creating files in directory P2_uu_ttxuu 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.__init__ [1;30m[model_handling.py at line 1039][0m [0m
-[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1040][0m [0m
-[1;32mDEBUG:  proc_id = [0m 1 [1;30m[model_handling.py at line 1046][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f2cb80d71f0> [1;30m[export_v4.py at line 6180][0m [0m
+[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f92f068c700> [1;30m[export_v4.py at line 6199][0m [0m
 INFO: Creating files in directory . 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 1298][0m [0m
-[1;32mDEBUG:  self.include_multi_channel is already defined: this is madevent+second_exporter mode [1;30m[model_handling.py at line 1300][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_h_file [1;30m[model_handling.py at line 1454][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_cc_file [1;30m[model_handling.py at line 1476][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.get_sigmaKin_lines [1;30m[model_handling.py at line 1144][0m [0m
-[1;32mDEBUG:  self.include_multi_channel = [0m [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14] [1;30m[model_handling.py at line 1145][0m [0m
-[1;32mDEBUG:  self.support_multichannel = [0m True [1;30m[model_handling.py at line 1146][0m [0m
-[1;32mDEBUG:  type(self.helas_call_writer) = [0m <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_GPUFOHelasCallWriter'> [1;30m[model_handling.py at line 1163][0m [0m
-[1;32mDEBUG:  self.support_multichannel, self.include_multi_channel = [0m True [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14] [1;30m[model_handling.py at line 1164][0m [0m
-[1;32mDEBUG:  multi_channel = [0m {1: [0], 2: [1], 3: [2], 4: [3], 5: [4], 6: [5], 7: [6], 8: [7], 9: [8], 10: [9], 11: [10], 12: [11], 13: [12], 14: [13]} [1;30m[model_handling.py at line 1170][0m [0m
-[1;32mDEBUG:  multi_channel_map = [0m {1: [0], 2: [1], 3: [2], 4: [3], 5: [4], 6: [5], 7: [6], 8: [7], 9: [8], 10: [9], 11: [10], 12: [11], 13: [12], 14: [13]} [1;30m[model_handling.py at line 1655][0m [0m
-[1;32mDEBUG:  diag_to_config = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14} [1;30m[model_handling.py at line 1710][0m [0m
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_CMakeLists [1;30m[model_handling.py at line 1344][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_check_sa [1;30m[model_handling.py at line 1353][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_mgonGPU [1;30m[model_handling.py at line 1370][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_processidfile [1;30m[model_handling.py at line 1390][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_coloramps [1;30m[model_handling.py at line 1402][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_testxxx [1;30m[model_handling.py at line 1420][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memorybuffers [1;30m[model_handling.py at line 1431][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memoryaccesscouplings [1;30m[model_handling.py at line 1442][0m [0m
-[1;32mDEBUG:  'Test reference file does not exist and will not be copied: ', template_ref  = [0m Test reference file does not exist and will not be copied:  /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/madgraph/iolibs/template_files/../../../test/ref/dump_CPUTest.Sigma_sm_uu_ttxuu.txt [1;30m[model_handling.py at line 1339][0m [0m
 [1;32mDEBUG:  proc_id = [0m 1 [1;30m[export_cpp.py at line 710][0m [0m
 [1;32mDEBUG:  config_map = [0m [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14] [1;30m[export_cpp.py at line 711][0m [0m
 [1;32mDEBUG:  subproc_number = [0m 6 [1;30m[export_cpp.py at line 712][0m [0m
 [1;32mDEBUG:  Done [1;30m[export_cpp.py at line 713][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1836][0m [0m
 INFO: Generating Feynman diagrams for Process: u u > t t~ u u WEIGHTED<=4 @2 
 INFO: Finding symmetric diagrams for subprocess group uu_ttxuu 
 INFO: Creating files in directory P2_uux_ttxuux 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.__init__ [1;30m[model_handling.py at line 1039][0m [0m
-[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1040][0m [0m
-[1;32mDEBUG:  proc_id = [0m 1 [1;30m[model_handling.py at line 1046][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f2cb83d54f0> [1;30m[export_v4.py at line 6180][0m [0m
+[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f92f068c700> [1;30m[export_v4.py at line 6199][0m [0m
 INFO: Creating files in directory . 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 1298][0m [0m
-[1;32mDEBUG:  self.include_multi_channel is already defined: this is madevent+second_exporter mode [1;30m[model_handling.py at line 1300][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_h_file [1;30m[model_handling.py at line 1454][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_cc_file [1;30m[model_handling.py at line 1476][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.get_sigmaKin_lines [1;30m[model_handling.py at line 1144][0m [0m
-[1;32mDEBUG:  self.include_multi_channel = [0m [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14] [1;30m[model_handling.py at line 1145][0m [0m
-[1;32mDEBUG:  self.support_multichannel = [0m True [1;30m[model_handling.py at line 1146][0m [0m
-[1;32mDEBUG:  type(self.helas_call_writer) = [0m <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_GPUFOHelasCallWriter'> [1;30m[model_handling.py at line 1163][0m [0m
-[1;32mDEBUG:  self.support_multichannel, self.include_multi_channel = [0m True [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14] [1;30m[model_handling.py at line 1164][0m [0m
-[1;32mDEBUG:  multi_channel = [0m {1: [0], 2: [1], 3: [2], 4: [3], 5: [4], 6: [5], 7: [6], 8: [7], 9: [8], 10: [9], 11: [10], 12: [11], 13: [12], 14: [13]} [1;30m[model_handling.py at line 1170][0m [0m
-[1;32mDEBUG:  multi_channel_map = [0m {1: [0], 2: [1], 3: [2], 4: [3], 5: [4], 6: [5], 7: [6], 8: [7], 9: [8], 10: [9], 11: [10], 12: [11], 13: [12], 14: [13]} [1;30m[model_handling.py at line 1655][0m [0m
-[1;32mDEBUG:  diag_to_config = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14} [1;30m[model_handling.py at line 1710][0m [0m
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_CMakeLists [1;30m[model_handling.py at line 1344][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_check_sa [1;30m[model_handling.py at line 1353][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_mgonGPU [1;30m[model_handling.py at line 1370][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_processidfile [1;30m[model_handling.py at line 1390][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_coloramps [1;30m[model_handling.py at line 1402][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_testxxx [1;30m[model_handling.py at line 1420][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memorybuffers [1;30m[model_handling.py at line 1431][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memoryaccesscouplings [1;30m[model_handling.py at line 1442][0m [0m
-[1;32mDEBUG:  'Test reference file does not exist and will not be copied: ', template_ref  = [0m Test reference file does not exist and will not be copied:  /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/madgraph/iolibs/template_files/../../../test/ref/dump_CPUTest.Sigma_sm_uux_ttxuux.txt [1;30m[model_handling.py at line 1339][0m [0m
 [1;32mDEBUG:  proc_id = [0m 1 [1;30m[export_cpp.py at line 710][0m [0m
 [1;32mDEBUG:  config_map = [0m [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14] [1;30m[export_cpp.py at line 711][0m [0m
 [1;32mDEBUG:  subproc_number = [0m 7 [1;30m[export_cpp.py at line 712][0m [0m
 [1;32mDEBUG:  Done [1;30m[export_cpp.py at line 713][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1836][0m [0m
 INFO: Generating Feynman diagrams for Process: u u~ > t t~ u u~ WEIGHTED<=4 @2 
 INFO: Finding symmetric diagrams for subprocess group uux_ttxuux 
 INFO: Creating files in directory P2_uxux_ttxuxux 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.__init__ [1;30m[model_handling.py at line 1039][0m [0m
-[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1040][0m [0m
-[1;32mDEBUG:  proc_id = [0m 1 [1;30m[model_handling.py at line 1046][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f2cb83e11c0> [1;30m[export_v4.py at line 6180][0m [0m
+[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f92f06ae9a0> [1;30m[export_v4.py at line 6199][0m [0m
 INFO: Creating files in directory . 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 1298][0m [0m
-[1;32mDEBUG:  self.include_multi_channel is already defined: this is madevent+second_exporter mode [1;30m[model_handling.py at line 1300][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_h_file [1;30m[model_handling.py at line 1454][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_cc_file [1;30m[model_handling.py at line 1476][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.get_sigmaKin_lines [1;30m[model_handling.py at line 1144][0m [0m
-[1;32mDEBUG:  self.include_multi_channel = [0m [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14] [1;30m[model_handling.py at line 1145][0m [0m
-[1;32mDEBUG:  self.support_multichannel = [0m True [1;30m[model_handling.py at line 1146][0m [0m
-[1;32mDEBUG:  type(self.helas_call_writer) = [0m <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_GPUFOHelasCallWriter'> [1;30m[model_handling.py at line 1163][0m [0m
-[1;32mDEBUG:  self.support_multichannel, self.include_multi_channel = [0m True [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14] [1;30m[model_handling.py at line 1164][0m [0m
-[1;32mDEBUG:  multi_channel = [0m {1: [0], 2: [1], 3: [2], 4: [3], 5: [4], 6: [5], 7: [6], 8: [7], 9: [8], 10: [9], 11: [10], 12: [11], 13: [12], 14: [13]} [1;30m[model_handling.py at line 1170][0m [0m
-[1;32mDEBUG:  multi_channel_map = [0m {1: [0], 2: [1], 3: [2], 4: [3], 5: [4], 6: [5], 7: [6], 8: [7], 9: [8], 10: [9], 11: [10], 12: [11], 13: [12], 14: [13]} [1;30m[model_handling.py at line 1655][0m [0m
-[1;32mDEBUG:  diag_to_config = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14} [1;30m[model_handling.py at line 1710][0m [0m
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_CMakeLists [1;30m[model_handling.py at line 1344][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_check_sa [1;30m[model_handling.py at line 1353][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_mgonGPU [1;30m[model_handling.py at line 1370][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_processidfile [1;30m[model_handling.py at line 1390][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_coloramps [1;30m[model_handling.py at line 1402][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_testxxx [1;30m[model_handling.py at line 1420][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memorybuffers [1;30m[model_handling.py at line 1431][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memoryaccesscouplings [1;30m[model_handling.py at line 1442][0m [0m
-[1;32mDEBUG:  'Test reference file does not exist and will not be copied: ', template_ref  = [0m Test reference file does not exist and will not be copied:  /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/madgraph/iolibs/template_files/../../../test/ref/dump_CPUTest.Sigma_sm_uxux_ttxuxux.txt [1;30m[model_handling.py at line 1339][0m [0m
 [1;32mDEBUG:  proc_id = [0m 1 [1;30m[export_cpp.py at line 710][0m [0m
 [1;32mDEBUG:  config_map = [0m [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14] [1;30m[export_cpp.py at line 711][0m [0m
 [1;32mDEBUG:  subproc_number = [0m 8 [1;30m[export_cpp.py at line 712][0m [0m
 [1;32mDEBUG:  Done [1;30m[export_cpp.py at line 713][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1836][0m [0m
 INFO: Generating Feynman diagrams for Process: u~ u~ > t t~ u~ u~ WEIGHTED<=4 @2 
 INFO: Finding symmetric diagrams for subprocess group uxux_ttxuxux 
 INFO: Creating files in directory P2_uc_ttxuc 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.__init__ [1;30m[model_handling.py at line 1039][0m [0m
-[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1040][0m [0m
-[1;32mDEBUG:  proc_id = [0m 1 [1;30m[model_handling.py at line 1046][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f2cb7f84880> [1;30m[export_v4.py at line 6180][0m [0m
+[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f92f02c56a0> [1;30m[export_v4.py at line 6199][0m [0m
 INFO: Creating files in directory . 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 1298][0m [0m
-[1;32mDEBUG:  self.include_multi_channel is already defined: this is madevent+second_exporter mode [1;30m[model_handling.py at line 1300][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_h_file [1;30m[model_handling.py at line 1454][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_cc_file [1;30m[model_handling.py at line 1476][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.get_sigmaKin_lines [1;30m[model_handling.py at line 1144][0m [0m
-[1;32mDEBUG:  self.include_multi_channel = [0m [1, 2, 3, 4, 5, 6, 7] [1;30m[model_handling.py at line 1145][0m [0m
-[1;32mDEBUG:  self.support_multichannel = [0m True [1;30m[model_handling.py at line 1146][0m [0m
-[1;32mDEBUG:  type(self.helas_call_writer) = [0m <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_GPUFOHelasCallWriter'> [1;30m[model_handling.py at line 1163][0m [0m
-[1;32mDEBUG:  self.support_multichannel, self.include_multi_channel = [0m True [1, 2, 3, 4, 5, 6, 7] [1;30m[model_handling.py at line 1164][0m [0m
-[1;32mDEBUG:  multi_channel = [0m {1: [0], 2: [1], 3: [2], 4: [3], 5: [4], 6: [5], 7: [6]} [1;30m[model_handling.py at line 1170][0m [0m
-[1;32mDEBUG:  multi_channel_map = [0m {1: [0], 2: [1], 3: [2], 4: [3], 5: [4], 6: [5], 7: [6]} [1;30m[model_handling.py at line 1655][0m [0m
-[1;32mDEBUG:  diag_to_config = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7} [1;30m[model_handling.py at line 1710][0m [0m
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_CMakeLists [1;30m[model_handling.py at line 1344][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_check_sa [1;30m[model_handling.py at line 1353][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_mgonGPU [1;30m[model_handling.py at line 1370][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_processidfile [1;30m[model_handling.py at line 1390][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_coloramps [1;30m[model_handling.py at line 1402][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_testxxx [1;30m[model_handling.py at line 1420][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memorybuffers [1;30m[model_handling.py at line 1431][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memoryaccesscouplings [1;30m[model_handling.py at line 1442][0m [0m
-[1;32mDEBUG:  'Test reference file does not exist and will not be copied: ', template_ref  = [0m Test reference file does not exist and will not be copied:  /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/madgraph/iolibs/template_files/../../../test/ref/dump_CPUTest.Sigma_sm_uc_ttxuc.txt [1;30m[model_handling.py at line 1339][0m [0m
 [1;32mDEBUG:  proc_id = [0m 1 [1;30m[export_cpp.py at line 710][0m [0m
 [1;32mDEBUG:  config_map = [0m [1, 2, 3, 4, 5, 6, 7] [1;30m[export_cpp.py at line 711][0m [0m
 [1;32mDEBUG:  subproc_number = [0m 9 [1;30m[export_cpp.py at line 712][0m [0m
 [1;32mDEBUG:  Done [1;30m[export_cpp.py at line 713][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1836][0m [0m
 INFO: Generating Feynman diagrams for Process: u c > t t~ u c WEIGHTED<=4 @2 
 INFO: Finding symmetric diagrams for subprocess group uc_ttxuc 
 INFO: Creating files in directory P2_uux_ttxccx 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.__init__ [1;30m[model_handling.py at line 1039][0m [0m
-[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1040][0m [0m
-[1;32mDEBUG:  proc_id = [0m 1 [1;30m[model_handling.py at line 1046][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f2cb837b070> [1;30m[export_v4.py at line 6180][0m [0m
+[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f92f03064f0> [1;30m[export_v4.py at line 6199][0m [0m
 INFO: Creating files in directory . 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 1298][0m [0m
-[1;32mDEBUG:  self.include_multi_channel is already defined: this is madevent+second_exporter mode [1;30m[model_handling.py at line 1300][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_h_file [1;30m[model_handling.py at line 1454][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_cc_file [1;30m[model_handling.py at line 1476][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.get_sigmaKin_lines [1;30m[model_handling.py at line 1144][0m [0m
-[1;32mDEBUG:  self.include_multi_channel = [0m [1, 2, 3, 4, 5, 6, 7] [1;30m[model_handling.py at line 1145][0m [0m
-[1;32mDEBUG:  self.support_multichannel = [0m True [1;30m[model_handling.py at line 1146][0m [0m
-[1;32mDEBUG:  type(self.helas_call_writer) = [0m <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_GPUFOHelasCallWriter'> [1;30m[model_handling.py at line 1163][0m [0m
-[1;32mDEBUG:  self.support_multichannel, self.include_multi_channel = [0m True [1, 2, 3, 4, 5, 6, 7] [1;30m[model_handling.py at line 1164][0m [0m
-[1;32mDEBUG:  multi_channel = [0m {1: [0], 2: [1], 3: [2], 4: [3], 5: [4], 6: [5], 7: [6]} [1;30m[model_handling.py at line 1170][0m [0m
-[1;32mDEBUG:  multi_channel_map = [0m {1: [0], 2: [1], 3: [2], 4: [3], 5: [4], 6: [5], 7: [6]} [1;30m[model_handling.py at line 1655][0m [0m
-[1;32mDEBUG:  diag_to_config = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7} [1;30m[model_handling.py at line 1710][0m [0m
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_CMakeLists [1;30m[model_handling.py at line 1344][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_check_sa [1;30m[model_handling.py at line 1353][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_mgonGPU [1;30m[model_handling.py at line 1370][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_processidfile [1;30m[model_handling.py at line 1390][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_coloramps [1;30m[model_handling.py at line 1402][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_testxxx [1;30m[model_handling.py at line 1420][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memorybuffers [1;30m[model_handling.py at line 1431][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memoryaccesscouplings [1;30m[model_handling.py at line 1442][0m [0m
-[1;32mDEBUG:  'Test reference file does not exist and will not be copied: ', template_ref  = [0m Test reference file does not exist and will not be copied:  /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/madgraph/iolibs/template_files/../../../test/ref/dump_CPUTest.Sigma_sm_uux_ttxccx.txt [1;30m[model_handling.py at line 1339][0m [0m
 [1;32mDEBUG:  proc_id = [0m 1 [1;30m[export_cpp.py at line 710][0m [0m
 [1;32mDEBUG:  config_map = [0m [1, 2, 3, 4, 5, 6, 7] [1;30m[export_cpp.py at line 711][0m [0m
 [1;32mDEBUG:  subproc_number = [0m 10 [1;30m[export_cpp.py at line 712][0m [0m
 [1;32mDEBUG:  Done [1;30m[export_cpp.py at line 713][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1836][0m [0m
 INFO: Generating Feynman diagrams for Process: u u~ > t t~ c c~ WEIGHTED<=4 @2 
 INFO: Finding symmetric diagrams for subprocess group uux_ttxccx 
 INFO: Creating files in directory P2_ucx_ttxucx 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.__init__ [1;30m[model_handling.py at line 1039][0m [0m
-[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1040][0m [0m
-[1;32mDEBUG:  proc_id = [0m 1 [1;30m[model_handling.py at line 1046][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f2cb837b070> [1;30m[export_v4.py at line 6180][0m [0m
+[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f92f0391130> [1;30m[export_v4.py at line 6199][0m [0m
 INFO: Creating files in directory . 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 1298][0m [0m
-[1;32mDEBUG:  self.include_multi_channel is already defined: this is madevent+second_exporter mode [1;30m[model_handling.py at line 1300][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_h_file [1;30m[model_handling.py at line 1454][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_cc_file [1;30m[model_handling.py at line 1476][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.get_sigmaKin_lines [1;30m[model_handling.py at line 1144][0m [0m
-[1;32mDEBUG:  self.include_multi_channel = [0m [1, 2, 3, 4, 5, 6, 7] [1;30m[model_handling.py at line 1145][0m [0m
-[1;32mDEBUG:  self.support_multichannel = [0m True [1;30m[model_handling.py at line 1146][0m [0m
-[1;32mDEBUG:  type(self.helas_call_writer) = [0m <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_GPUFOHelasCallWriter'> [1;30m[model_handling.py at line 1163][0m [0m
-[1;32mDEBUG:  self.support_multichannel, self.include_multi_channel = [0m True [1, 2, 3, 4, 5, 6, 7] [1;30m[model_handling.py at line 1164][0m [0m
-[1;32mDEBUG:  multi_channel = [0m {1: [0], 2: [1], 3: [2], 4: [3], 5: [4], 6: [5], 7: [6]} [1;30m[model_handling.py at line 1170][0m [0m
-[1;32mDEBUG:  multi_channel_map = [0m {1: [0], 2: [1], 3: [2], 4: [3], 5: [4], 6: [5], 7: [6]} [1;30m[model_handling.py at line 1655][0m [0m
-[1;32mDEBUG:  diag_to_config = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7} [1;30m[model_handling.py at line 1710][0m [0m
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_CMakeLists [1;30m[model_handling.py at line 1344][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_check_sa [1;30m[model_handling.py at line 1353][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_mgonGPU [1;30m[model_handling.py at line 1370][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_processidfile [1;30m[model_handling.py at line 1390][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_coloramps [1;30m[model_handling.py at line 1402][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_testxxx [1;30m[model_handling.py at line 1420][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memorybuffers [1;30m[model_handling.py at line 1431][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memoryaccesscouplings [1;30m[model_handling.py at line 1442][0m [0m
-[1;32mDEBUG:  'Test reference file does not exist and will not be copied: ', template_ref  = [0m Test reference file does not exist and will not be copied:  /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/madgraph/iolibs/template_files/../../../test/ref/dump_CPUTest.Sigma_sm_ucx_ttxucx.txt [1;30m[model_handling.py at line 1339][0m [0m
 [1;32mDEBUG:  proc_id = [0m 1 [1;30m[export_cpp.py at line 710][0m [0m
 [1;32mDEBUG:  config_map = [0m [1, 2, 3, 4, 5, 6, 7] [1;30m[export_cpp.py at line 711][0m [0m
 [1;32mDEBUG:  subproc_number = [0m 11 [1;30m[export_cpp.py at line 712][0m [0m
 [1;32mDEBUG:  Done [1;30m[export_cpp.py at line 713][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1836][0m [0m
 INFO: Generating Feynman diagrams for Process: u c~ > t t~ u c~ WEIGHTED<=4 @2 
 INFO: Finding symmetric diagrams for subprocess group ucx_ttxucx 
 INFO: Creating files in directory P2_uxcx_ttxuxcx 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.__init__ [1;30m[model_handling.py at line 1039][0m [0m
-[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1040][0m [0m
-[1;32mDEBUG:  proc_id = [0m 1 [1;30m[model_handling.py at line 1046][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f2cb80cd4f0> [1;30m[export_v4.py at line 6180][0m [0m
+[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f92f02c5280> [1;30m[export_v4.py at line 6199][0m [0m
 INFO: Creating files in directory . 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 1298][0m [0m
-[1;32mDEBUG:  self.include_multi_channel is already defined: this is madevent+second_exporter mode [1;30m[model_handling.py at line 1300][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_h_file [1;30m[model_handling.py at line 1454][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_cc_file [1;30m[model_handling.py at line 1476][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.get_sigmaKin_lines [1;30m[model_handling.py at line 1144][0m [0m
-[1;32mDEBUG:  self.include_multi_channel = [0m [1, 2, 3, 4, 5, 6, 7] [1;30m[model_handling.py at line 1145][0m [0m
-[1;32mDEBUG:  self.support_multichannel = [0m True [1;30m[model_handling.py at line 1146][0m [0m
-[1;32mDEBUG:  type(self.helas_call_writer) = [0m <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_GPUFOHelasCallWriter'> [1;30m[model_handling.py at line 1163][0m [0m
-[1;32mDEBUG:  self.support_multichannel, self.include_multi_channel = [0m True [1, 2, 3, 4, 5, 6, 7] [1;30m[model_handling.py at line 1164][0m [0m
-[1;32mDEBUG:  multi_channel = [0m {1: [0], 2: [1], 3: [2], 4: [3], 5: [4], 6: [5], 7: [6]} [1;30m[model_handling.py at line 1170][0m [0m
-[1;32mDEBUG:  multi_channel_map = [0m {1: [0], 2: [1], 3: [2], 4: [3], 5: [4], 6: [5], 7: [6]} [1;30m[model_handling.py at line 1655][0m [0m
-[1;32mDEBUG:  diag_to_config = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7} [1;30m[model_handling.py at line 1710][0m [0m
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_CMakeLists [1;30m[model_handling.py at line 1344][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_check_sa [1;30m[model_handling.py at line 1353][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_mgonGPU [1;30m[model_handling.py at line 1370][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_processidfile [1;30m[model_handling.py at line 1390][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_coloramps [1;30m[model_handling.py at line 1402][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_testxxx [1;30m[model_handling.py at line 1420][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memorybuffers [1;30m[model_handling.py at line 1431][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memoryaccesscouplings [1;30m[model_handling.py at line 1442][0m [0m
-[1;32mDEBUG:  'Test reference file does not exist and will not be copied: ', template_ref  = [0m Test reference file does not exist and will not be copied:  /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/madgraph/iolibs/template_files/../../../test/ref/dump_CPUTest.Sigma_sm_uxcx_ttxuxcx.txt [1;30m[model_handling.py at line 1339][0m [0m
 [1;32mDEBUG:  proc_id = [0m 1 [1;30m[export_cpp.py at line 710][0m [0m
 [1;32mDEBUG:  config_map = [0m [1, 2, 3, 4, 5, 6, 7] [1;30m[export_cpp.py at line 711][0m [0m
 [1;32mDEBUG:  subproc_number = [0m 12 [1;30m[export_cpp.py at line 712][0m [0m
 [1;32mDEBUG:  Done [1;30m[export_cpp.py at line 713][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1836][0m [0m
 INFO: Generating Feynman diagrams for Process: u~ c~ > t t~ u~ c~ WEIGHTED<=4 @2 
 INFO: Finding symmetric diagrams for subprocess group uxcx_ttxuxcx 
 INFO: Creating files in directory P1_gu_ttxu 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.__init__ [1;30m[model_handling.py at line 1039][0m [0m
-[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1040][0m [0m
-[1;32mDEBUG:  proc_id = [0m 1 [1;30m[model_handling.py at line 1046][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f2cb80cd4f0> [1;30m[export_v4.py at line 6180][0m [0m
+[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f92f00467c0> [1;30m[export_v4.py at line 6199][0m [0m
 INFO: Creating files in directory . 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 1298][0m [0m
-[1;32mDEBUG:  self.include_multi_channel is already defined: this is madevent+second_exporter mode [1;30m[model_handling.py at line 1300][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_h_file [1;30m[model_handling.py at line 1454][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_cc_file [1;30m[model_handling.py at line 1476][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.get_sigmaKin_lines [1;30m[model_handling.py at line 1144][0m [0m
-[1;32mDEBUG:  self.include_multi_channel = [0m [1, 2, 3, 4, 5] [1;30m[model_handling.py at line 1145][0m [0m
-[1;32mDEBUG:  self.support_multichannel = [0m True [1;30m[model_handling.py at line 1146][0m [0m
-[1;32mDEBUG:  type(self.helas_call_writer) = [0m <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_GPUFOHelasCallWriter'> [1;30m[model_handling.py at line 1163][0m [0m
-[1;32mDEBUG:  self.support_multichannel, self.include_multi_channel = [0m True [1, 2, 3, 4, 5] [1;30m[model_handling.py at line 1164][0m [0m
-[1;32mDEBUG:  multi_channel = [0m {1: [0], 2: [1], 3: [2], 4: [3], 5: [4]} [1;30m[model_handling.py at line 1170][0m [0m
-[1;32mDEBUG:  multi_channel_map = [0m {1: [0], 2: [1], 3: [2], 4: [3], 5: [4]} [1;30m[model_handling.py at line 1655][0m [0m
-[1;32mDEBUG:  diag_to_config = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5} [1;30m[model_handling.py at line 1710][0m [0m
-[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1822][0m [0m
-[1;32mDEBUG:  ('ZERO', 0, -1, 0, 0) [1;30m[model_handling.py at line 1823][0m [0m
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_CMakeLists [1;30m[model_handling.py at line 1344][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_check_sa [1;30m[model_handling.py at line 1353][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_mgonGPU [1;30m[model_handling.py at line 1370][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_processidfile [1;30m[model_handling.py at line 1390][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_coloramps [1;30m[model_handling.py at line 1402][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_testxxx [1;30m[model_handling.py at line 1420][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memorybuffers [1;30m[model_handling.py at line 1431][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memoryaccesscouplings [1;30m[model_handling.py at line 1442][0m [0m
-[1;32mDEBUG:  'Test reference file does not exist and will not be copied: ', template_ref  = [0m Test reference file does not exist and will not be copied:  /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/madgraph/iolibs/template_files/../../../test/ref/dump_CPUTest.Sigma_sm_gu_ttxu.txt [1;30m[model_handling.py at line 1339][0m [0m
 [1;32mDEBUG:  proc_id = [0m 1 [1;30m[export_cpp.py at line 710][0m [0m
 [1;32mDEBUG:  config_map = [0m [1, 2, 3, 4, 5] [1;30m[export_cpp.py at line 711][0m [0m
 [1;32mDEBUG:  subproc_number = [0m 13 [1;30m[export_cpp.py at line 712][0m [0m
 [1;32mDEBUG:  Done [1;30m[export_cpp.py at line 713][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1836][0m [0m
 INFO: Generating Feynman diagrams for Process: g u > t t~ u WEIGHTED<=3 @1 
 INFO: Finding symmetric diagrams for subprocess group gu_ttxu 
 INFO: Creating files in directory P1_gux_ttxux 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.__init__ [1;30m[model_handling.py at line 1039][0m [0m
-[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1040][0m [0m
-[1;32mDEBUG:  proc_id = [0m 1 [1;30m[model_handling.py at line 1046][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f2cb80cd4f0> [1;30m[export_v4.py at line 6180][0m [0m
+[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f92f068c700> [1;30m[export_v4.py at line 6199][0m [0m
 INFO: Creating files in directory . 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 1298][0m [0m
-[1;32mDEBUG:  self.include_multi_channel is already defined: this is madevent+second_exporter mode [1;30m[model_handling.py at line 1300][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_h_file [1;30m[model_handling.py at line 1454][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_cc_file [1;30m[model_handling.py at line 1476][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.get_sigmaKin_lines [1;30m[model_handling.py at line 1144][0m [0m
-[1;32mDEBUG:  self.include_multi_channel = [0m [1, 2, 3, 4, 5] [1;30m[model_handling.py at line 1145][0m [0m
-[1;32mDEBUG:  self.support_multichannel = [0m True [1;30m[model_handling.py at line 1146][0m [0m
-[1;32mDEBUG:  type(self.helas_call_writer) = [0m <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_GPUFOHelasCallWriter'> [1;30m[model_handling.py at line 1163][0m [0m
-[1;32mDEBUG:  self.support_multichannel, self.include_multi_channel = [0m True [1, 2, 3, 4, 5] [1;30m[model_handling.py at line 1164][0m [0m
-[1;32mDEBUG:  multi_channel = [0m {1: [0], 2: [1], 3: [2], 4: [3], 5: [4]} [1;30m[model_handling.py at line 1170][0m [0m
-[1;32mDEBUG:  multi_channel_map = [0m {1: [0], 2: [1], 3: [2], 4: [3], 5: [4]} [1;30m[model_handling.py at line 1655][0m [0m
-[1;32mDEBUG:  diag_to_config = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5} [1;30m[model_handling.py at line 1710][0m [0m
-[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1822][0m [0m
-[1;32mDEBUG:  ('ZERO', 0, -1, 0, 0) [1;30m[model_handling.py at line 1823][0m [0m
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_CMakeLists [1;30m[model_handling.py at line 1344][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_check_sa [1;30m[model_handling.py at line 1353][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_mgonGPU [1;30m[model_handling.py at line 1370][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_processidfile [1;30m[model_handling.py at line 1390][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_coloramps [1;30m[model_handling.py at line 1402][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_testxxx [1;30m[model_handling.py at line 1420][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memorybuffers [1;30m[model_handling.py at line 1431][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memoryaccesscouplings [1;30m[model_handling.py at line 1442][0m [0m
-[1;32mDEBUG:  'Copying test reference file: ', template_ref  = [0m Copying test reference file:  /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/madgraph/iolibs/template_files/../../../test/ref/dump_CPUTest.Sigma_sm_gux_ttxux.txt [1;30m[model_handling.py at line 1336][0m [0m
 [1;32mDEBUG:  proc_id = [0m 1 [1;30m[export_cpp.py at line 710][0m [0m
 [1;32mDEBUG:  config_map = [0m [1, 2, 3, 4, 5] [1;30m[export_cpp.py at line 711][0m [0m
 [1;32mDEBUG:  subproc_number = [0m 14 [1;30m[export_cpp.py at line 712][0m [0m
 [1;32mDEBUG:  Done [1;30m[export_cpp.py at line 713][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1836][0m [0m
 INFO: Generating Feynman diagrams for Process: g u~ > t t~ u~ WEIGHTED<=3 @1 
 INFO: Finding symmetric diagrams for subprocess group gux_ttxux 
 INFO: Creating files in directory P1_uux_ttxg 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.__init__ [1;30m[model_handling.py at line 1039][0m [0m
-[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1040][0m [0m
-[1;32mDEBUG:  proc_id = [0m 1 [1;30m[model_handling.py at line 1046][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f2cb8385cd0> [1;30m[export_v4.py at line 6180][0m [0m
+[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f92f03064f0> [1;30m[export_v4.py at line 6199][0m [0m
 INFO: Creating files in directory . 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 1298][0m [0m
-[1;32mDEBUG:  self.include_multi_channel is already defined: this is madevent+second_exporter mode [1;30m[model_handling.py at line 1300][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_h_file [1;30m[model_handling.py at line 1454][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_cc_file [1;30m[model_handling.py at line 1476][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.get_sigmaKin_lines [1;30m[model_handling.py at line 1144][0m [0m
-[1;32mDEBUG:  self.include_multi_channel = [0m [1, 2, 3, 4, 5] [1;30m[model_handling.py at line 1145][0m [0m
-[1;32mDEBUG:  self.support_multichannel = [0m True [1;30m[model_handling.py at line 1146][0m [0m
-[1;32mDEBUG:  type(self.helas_call_writer) = [0m <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_GPUFOHelasCallWriter'> [1;30m[model_handling.py at line 1163][0m [0m
-[1;32mDEBUG:  self.support_multichannel, self.include_multi_channel = [0m True [1, 2, 3, 4, 5] [1;30m[model_handling.py at line 1164][0m [0m
-[1;32mDEBUG:  multi_channel = [0m {1: [0], 2: [1], 3: [2], 4: [3], 5: [4]} [1;30m[model_handling.py at line 1170][0m [0m
-[1;32mDEBUG:  multi_channel_map = [0m {1: [0], 2: [1], 3: [2], 4: [3], 5: [4]} [1;30m[model_handling.py at line 1655][0m [0m
-[1;32mDEBUG:  diag_to_config = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5} [1;30m[model_handling.py at line 1710][0m [0m
-[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1822][0m [0m
-[1;32mDEBUG:  ('ZERO', 4, 1, 4, 4) [1;30m[model_handling.py at line 1823][0m [0m
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_CMakeLists [1;30m[model_handling.py at line 1344][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_check_sa [1;30m[model_handling.py at line 1353][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_mgonGPU [1;30m[model_handling.py at line 1370][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_processidfile [1;30m[model_handling.py at line 1390][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_coloramps [1;30m[model_handling.py at line 1402][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_testxxx [1;30m[model_handling.py at line 1420][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memorybuffers [1;30m[model_handling.py at line 1431][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memoryaccesscouplings [1;30m[model_handling.py at line 1442][0m [0m
-[1;32mDEBUG:  'Test reference file does not exist and will not be copied: ', template_ref  = [0m Test reference file does not exist and will not be copied:  /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/madgraph/iolibs/template_files/../../../test/ref/dump_CPUTest.Sigma_sm_uux_ttxg.txt [1;30m[model_handling.py at line 1339][0m [0m
 [1;32mDEBUG:  proc_id = [0m 1 [1;30m[export_cpp.py at line 710][0m [0m
 [1;32mDEBUG:  config_map = [0m [1, 2, 3, 4, 5] [1;30m[export_cpp.py at line 711][0m [0m
 [1;32mDEBUG:  subproc_number = [0m 15 [1;30m[export_cpp.py at line 712][0m [0m
 [1;32mDEBUG:  Done [1;30m[export_cpp.py at line 713][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1836][0m [0m
 INFO: Generating Feynman diagrams for Process: u u~ > t t~ g WEIGHTED<=3 @1 
 INFO: Finding symmetric diagrams for subprocess group uux_ttxg 
 INFO: Creating files in directory P0_gg_ttx 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.__init__ [1;30m[model_handling.py at line 1039][0m [0m
-[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1040][0m [0m
-[1;32mDEBUG:  proc_id = [0m 1 [1;30m[model_handling.py at line 1046][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f2cb80cd4f0> [1;30m[export_v4.py at line 6180][0m [0m
+[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f92f02f0b50> [1;30m[export_v4.py at line 6199][0m [0m
 INFO: Creating files in directory . 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 1298][0m [0m
-[1;32mDEBUG:  self.include_multi_channel is already defined: this is madevent+second_exporter mode [1;30m[model_handling.py at line 1300][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_h_file [1;30m[model_handling.py at line 1454][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_cc_file [1;30m[model_handling.py at line 1476][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.get_sigmaKin_lines [1;30m[model_handling.py at line 1144][0m [0m
-[1;32mDEBUG:  self.include_multi_channel = [0m [1, 2, 3] [1;30m[model_handling.py at line 1145][0m [0m
-[1;32mDEBUG:  self.support_multichannel = [0m True [1;30m[model_handling.py at line 1146][0m [0m
-[1;32mDEBUG:  type(self.helas_call_writer) = [0m <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_GPUFOHelasCallWriter'> [1;30m[model_handling.py at line 1163][0m [0m
-[1;32mDEBUG:  self.support_multichannel, self.include_multi_channel = [0m True [1, 2, 3] [1;30m[model_handling.py at line 1164][0m [0m
-[1;32mDEBUG:  multi_channel = [0m {1: [0], 2: [1], 3: [2]} [1;30m[model_handling.py at line 1170][0m [0m
-[1;32mDEBUG:  multi_channel_map = [0m {1: [0], 2: [1], 3: [2]} [1;30m[model_handling.py at line 1655][0m [0m
-[1;32mDEBUG:  diag_to_config = [0m {1: 1, 2: 2, 3: 3} [1;30m[model_handling.py at line 1710][0m [0m
-[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1822][0m [0m
-[1;32mDEBUG:  ('ZERO', 0, -1, 0, 0) [1;30m[model_handling.py at line 1823][0m [0m
-[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1822][0m [0m
-[1;32mDEBUG:  ('ZERO', 1, -1, 1, 1) [1;30m[model_handling.py at line 1823][0m [0m
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_CMakeLists [1;30m[model_handling.py at line 1344][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_check_sa [1;30m[model_handling.py at line 1353][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_mgonGPU [1;30m[model_handling.py at line 1370][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_processidfile [1;30m[model_handling.py at line 1390][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_coloramps [1;30m[model_handling.py at line 1402][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_testxxx [1;30m[model_handling.py at line 1420][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memorybuffers [1;30m[model_handling.py at line 1431][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memoryaccesscouplings [1;30m[model_handling.py at line 1442][0m [0m
-[1;32mDEBUG:  'Copying test reference file: ', template_ref  = [0m Copying test reference file:  /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/madgraph/iolibs/template_files/../../../test/ref/dump_CPUTest.Sigma_sm_gg_ttx.txt [1;30m[model_handling.py at line 1336][0m [0m
 [1;32mDEBUG:  proc_id = [0m 1 [1;30m[export_cpp.py at line 710][0m [0m
 [1;32mDEBUG:  config_map = [0m [1, 2, 3] [1;30m[export_cpp.py at line 711][0m [0m
 [1;32mDEBUG:  subproc_number = [0m 16 [1;30m[export_cpp.py at line 712][0m [0m
 [1;32mDEBUG:  Done [1;30m[export_cpp.py at line 713][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1836][0m [0m
 INFO: Generating Feynman diagrams for Process: g g > t t~ WEIGHTED<=2 
 INFO: Finding symmetric diagrams for subprocess group gg_ttx 
 INFO: Creating files in directory P0_uux_ttx 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.__init__ [1;30m[model_handling.py at line 1039][0m [0m
-[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1040][0m [0m
-[1;32mDEBUG:  proc_id = [0m 1 [1;30m[model_handling.py at line 1046][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f2cb80cd4f0> [1;30m[export_v4.py at line 6180][0m [0m
+[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f92f02f0b50> [1;30m[export_v4.py at line 6199][0m [0m
 INFO: Creating files in directory . 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 1298][0m [0m
-[1;32mDEBUG:  self.include_multi_channel is already defined: this is madevent+second_exporter mode [1;30m[model_handling.py at line 1300][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_h_file [1;30m[model_handling.py at line 1454][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_cc_file [1;30m[model_handling.py at line 1476][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.get_sigmaKin_lines [1;30m[model_handling.py at line 1144][0m [0m
-[1;32mDEBUG:  self.include_multi_channel = [0m [1] [1;30m[model_handling.py at line 1145][0m [0m
-[1;32mDEBUG:  self.support_multichannel = [0m True [1;30m[model_handling.py at line 1146][0m [0m
-[1;32mDEBUG:  type(self.helas_call_writer) = [0m <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_GPUFOHelasCallWriter'> [1;30m[model_handling.py at line 1163][0m [0m
-[1;32mDEBUG:  self.support_multichannel, self.include_multi_channel = [0m True [1] [1;30m[model_handling.py at line 1164][0m [0m
-[1;32mDEBUG:  multi_channel = [0m {1: [0]} [1;30m[model_handling.py at line 1170][0m [0m
-[1;32mDEBUG:  multi_channel_map = [0m {1: [0]} [1;30m[model_handling.py at line 1655][0m [0m
-[1;32mDEBUG:  diag_to_config = [0m {1: 1} [1;30m[model_handling.py at line 1710][0m [0m
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_CMakeLists [1;30m[model_handling.py at line 1344][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_check_sa [1;30m[model_handling.py at line 1353][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_mgonGPU [1;30m[model_handling.py at line 1370][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_processidfile [1;30m[model_handling.py at line 1390][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_coloramps [1;30m[model_handling.py at line 1402][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_testxxx [1;30m[model_handling.py at line 1420][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memorybuffers [1;30m[model_handling.py at line 1431][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memoryaccesscouplings [1;30m[model_handling.py at line 1442][0m [0m
-[1;32mDEBUG:  'Test reference file does not exist and will not be copied: ', template_ref  = [0m Test reference file does not exist and will not be copied:  /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/madgraph/iolibs/template_files/../../../test/ref/dump_CPUTest.Sigma_sm_uux_ttx.txt [1;30m[model_handling.py at line 1339][0m [0m
 [1;32mDEBUG:  proc_id = [0m 1 [1;30m[export_cpp.py at line 710][0m [0m
 [1;32mDEBUG:  config_map = [0m [1] [1;30m[export_cpp.py at line 711][0m [0m
 [1;32mDEBUG:  subproc_number = [0m 17 [1;30m[export_cpp.py at line 712][0m [0m
 [1;32mDEBUG:  Done [1;30m[export_cpp.py at line 713][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1836][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1836][0m [0m
 INFO: Generating Feynman diagrams for Process: u u~ > t t~ WEIGHTED<=2 
 INFO: Finding symmetric diagrams for subprocess group uux_ttx 
-Generated helas calls for 18 subprocesses (372 diagrams) in 1.145 s
-Wrote files for 810 helas calls in 3.136 s
+Generated helas calls for 18 subprocesses (372 diagrams) in 1.287 s
+Wrote files for 810 helas calls in 3.227 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 routines[0m
 ALOHA: aloha creates VVVV3 routines[0m
 ALOHA: aloha creates VVVV4 routines[0m
-ALOHA: aloha creates 5 routines in  0.287 s
-[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 195][0m [0m
+ALOHA: aloha creates 5 routines in  0.329 s
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 197][0m [0m
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 routines[0m
 ALOHA: aloha creates VVVV3 routines[0m
 ALOHA: aloha creates VVVV4 routines[0m
-ALOHA: aloha creates 10 routines in  0.671 s
+ALOHA: aloha creates 10 routines in  0.308 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -1212,27 +830,22 @@ ALOHA: aloha creates 10 routines in  0.671 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVVV3
 <class 'aloha.create_aloha.AbstractRoutine'> VVVV4
 <class 'aloha.create_aloha.AbstractRoutine'> VVVV4
-FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/src/./HelAmps_sm.h
-INFO: Created file HelAmps_sm.h in directory /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/src/. 
+FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/src/./HelAmps_sm.h
+INFO: Created file HelAmps_sm.h in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/src/. 
 super_write_set_parameters_onlyfixMajorana (hardcoded=False)
-[1;32mDEBUG:  'pardef_lines size =', len(pardef_lines), ', keys size =', len(pardef_lines.keys())  = [0m pardef_lines size = 48 , keys size = 48 [1;30m[model_handling.py at line 729][0m [0m
 super_write_set_parameters_onlyfixMajorana (hardcoded=True)
-[1;32mDEBUG:  'pardef_lines size =', len(pardef_lines), ', keys size =', len(pardef_lines.keys())  = [0m pardef_lines size = 3 , keys size = 3 [1;30m[model_handling.py at line 729][0m [0m
-[1;32mDEBUG:  'pardef_lines size =', len(pardef_lines), ', keys size =', len(pardef_lines.keys())  = [0m pardef_lines size = 3 , keys size = 3 [1;30m[model_handling.py at line 729][0m [0m
-[1;32mDEBUG:  'pardef_lines size =', len(pardef_lines), ', keys size =', len(pardef_lines.keys())  = [0m pardef_lines size = 3 , keys size = 3 [1;30m[model_handling.py at line 729][0m [0m
-[1;32mDEBUG:  'pardef_lines size =', len(pardef_lines), ', keys size =', len(pardef_lines.keys())  = [0m pardef_lines size = 3 , keys size = 3 [1;30m[model_handling.py at line 729][0m [0m
-[1;32mDEBUG:  'pardef_lines size =', len(pardef_lines), ', keys size =', len(pardef_lines.keys())  = [0m pardef_lines size = 3 , keys size = 3 [1;30m[model_handling.py at line 729][0m [0m
-FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/src/./Parameters_sm.h
-FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/src/./Parameters_sm.cc
+FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/src/./Parameters_sm.h
+FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/src/./Parameters_sm.cc
 INFO: Created files Parameters_sm.h and Parameters_sm.cc in directory 
-INFO: /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/src/. and /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/src/. 
+INFO: /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/src/. and /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/src/. 
 The option zerowidth_tchannel is modified [True] but will not be written in the configuration files.
 If you want to make this value the default for future session, you can run 'save options --all'
-save configuration file to /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/Cards/me5_configuration.txt
+save configuration file to /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/Cards/me5_configuration.txt
 INFO: Use Fortran compiler gfortran 
 INFO: Use c++ compiler g++ 
 INFO: Generate web pages 
-[1;32mDEBUG:  'Entering PLUGIN_ProcessExporter.finalize', self.in_madevent_mode = [0m Entering PLUGIN_ProcessExporter.finalize True [1;30m[output.py at line 204][0m [0m
+[1;32mDEBUG:  'Entering PLUGIN_ProcessExporter.finalize', self.in_madevent_mode = [0m Entering PLUGIN_ProcessExporter.finalize True [1;30m[output.py at line 206][0m [0m
+DEBUG! Switching on tmad mode (MG5AMC_TMADMODE=1)
 ************************************************************
 *                                                          *
 *                      W E L C O M E to                    *
@@ -1253,13 +866,14 @@ INFO: Generate web pages
 *               Type 'help' for in-line help.              *
 *                                                          *
 ************************************************************
-INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/Cards/me5_configuration.txt  
-INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/mg5amcnlo/input/mg5_configuration.txt  
-INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/Cards/me5_configuration.txt  
+INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/Cards/me5_configuration.txt  
+INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/mg5amcnlo/input/mg5_configuration.txt  
+INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/Cards/me5_configuration.txt  
 Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
-No valid eps viewer found. Please set in ./input/mg5_configuration.txt
-Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
+Using default eps viewer "evince". Set another one in ./input/mg5_configuration.txt
+No valid web browser found. Please set in ./input/mg5_configuration.txt
 treatcards run
+[1;34mrun_card missed argument cudacpp_backend. Takes default: CPP[0m
 [1;34mrun_card missed argument cudacpp_backend. Takes default: CPP[0m
 quit
 INFO:  
@@ -1284,31 +898,33 @@ launch in debug mode
 *               Type 'help' for in-line help.              *
 *                                                          *
 ************************************************************
-INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/Cards/me5_configuration.txt  
-INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/mg5amcnlo/input/mg5_configuration.txt  
-INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/Cards/me5_configuration.txt  
+INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/Cards/me5_configuration.txt  
+INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/mg5amcnlo/input/mg5_configuration.txt  
+INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/Cards/me5_configuration.txt  
 Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
-No valid eps viewer found. Please set in ./input/mg5_configuration.txt
-Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
+Using default eps viewer "evince". Set another one in ./input/mg5_configuration.txt
+No valid web browser found. Please set in ./input/mg5_configuration.txt
 treatcards param
 quit
 INFO:  
 launch in debug mode
-DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j; patch -p4 -i /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/MG5aMC_patches/PROD/patch.common
+DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j; patch -p4 -i /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/MG5aMC_patches/PROD/patch.common
 patching file Source/genps.inc
 patching file Source/makefile
 patching file SubProcesses/makefile
 patching file Source/make_opts
 patching file bin/internal/banner.py
+Hunk #1 succeeded at 4188 (offset 1 line).
 patching file bin/internal/gen_ximprove.py
 patching file bin/internal/madevent_interface.py
-DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P0_gg_ttx; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/MG5aMC_patches/PROD/patch.P1
+DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P0_gg_ttx; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/MG5aMC_patches/PROD/patch.P1
 patching file auto_dsig1.f
+Hunk #1 succeeded at 483 (offset 14 lines).
 patching file driver.f
 patching file matrix1.f
-DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P0_uux_ttx; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/MG5aMC_patches/PROD/patch.P1
+DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P0_uux_ttx; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/MG5aMC_patches/PROD/patch.P1
 patching file auto_dsig1.f
-Hunk #1 succeeded at 528 (offset 59 lines).
+Hunk #1 succeeded at 538 (offset 69 lines).
 patching file driver.f
 patching file matrix1.f
 Hunk #1 succeeded at 75 (offset 3 lines).
@@ -1316,21 +932,18 @@ Hunk #2 succeeded at 146 (offset 3 lines).
 Hunk #3 succeeded at 224 (offset 3 lines).
 Hunk #4 succeeded at 252 (offset 3 lines).
 Hunk #5 succeeded at 297 (offset 3 lines).
-Hunk #6 succeeded at 402 (offset 6 lines).
-Hunk #7 succeeded at 466 (offset -4 lines).
-DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P1_gg_ttxg; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/MG5aMC_patches/PROD/patch.P1
+DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P1_gg_ttxg; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/MG5aMC_patches/PROD/patch.P1
 patching file auto_dsig1.f
+Hunk #1 succeeded at 483 (offset 14 lines).
 patching file driver.f
 patching file matrix1.f
 Hunk #2 succeeded at 159 (offset 16 lines).
 Hunk #3 succeeded at 237 (offset 16 lines).
 Hunk #4 succeeded at 265 (offset 16 lines).
 Hunk #5 succeeded at 310 (offset 16 lines).
-Hunk #6 succeeded at 434 (offset 38 lines).
-Hunk #7 succeeded at 588 (offset 118 lines).
-DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P1_gu_ttxu; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/MG5aMC_patches/PROD/patch.P1
+DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P1_gu_ttxu; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/MG5aMC_patches/PROD/patch.P1
 patching file auto_dsig1.f
-Hunk #1 succeeded at 513 (offset 44 lines).
+Hunk #1 succeeded at 527 (offset 58 lines).
 patching file driver.f
 patching file matrix1.f
 Hunk #1 succeeded at 75 (offset 3 lines).
@@ -1338,11 +951,9 @@ Hunk #2 succeeded at 162 (offset 19 lines).
 Hunk #3 succeeded at 240 (offset 19 lines).
 Hunk #4 succeeded at 268 (offset 19 lines).
 Hunk #5 succeeded at 313 (offset 19 lines).
-Hunk #6 succeeded at 428 (offset 32 lines).
-Hunk #7 succeeded at 518 (offset 48 lines).
-DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P1_gux_ttxux; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/MG5aMC_patches/PROD/patch.P1
+DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P1_gux_ttxux; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/MG5aMC_patches/PROD/patch.P1
 patching file auto_dsig1.f
-Hunk #1 succeeded at 517 (offset 48 lines).
+Hunk #1 succeeded at 527 (offset 58 lines).
 patching file driver.f
 patching file matrix1.f
 Hunk #1 succeeded at 75 (offset 3 lines).
@@ -1350,11 +961,9 @@ Hunk #2 succeeded at 162 (offset 19 lines).
 Hunk #3 succeeded at 240 (offset 19 lines).
 Hunk #4 succeeded at 268 (offset 19 lines).
 Hunk #5 succeeded at 313 (offset 19 lines).
-Hunk #6 succeeded at 428 (offset 32 lines).
-Hunk #7 succeeded at 518 (offset 48 lines).
-DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P1_uux_ttxg; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/MG5aMC_patches/PROD/patch.P1
+DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P1_uux_ttxg; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/MG5aMC_patches/PROD/patch.P1
 patching file auto_dsig1.f
-Hunk #1 succeeded at 528 (offset 59 lines).
+Hunk #1 succeeded at 538 (offset 69 lines).
 patching file driver.f
 patching file matrix1.f
 Hunk #1 succeeded at 75 (offset 3 lines).
@@ -1362,21 +971,18 @@ Hunk #2 succeeded at 162 (offset 19 lines).
 Hunk #3 succeeded at 240 (offset 19 lines).
 Hunk #4 succeeded at 268 (offset 19 lines).
 Hunk #5 succeeded at 313 (offset 19 lines).
-Hunk #6 succeeded at 428 (offset 32 lines).
-Hunk #7 succeeded at 518 (offset 48 lines).
-DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_gg_ttxgg; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/MG5aMC_patches/PROD/patch.P1
+DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_gg_ttxgg; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/MG5aMC_patches/PROD/patch.P1
 patching file auto_dsig1.f
+Hunk #1 succeeded at 483 (offset 14 lines).
 patching file driver.f
 patching file matrix1.f
 Hunk #2 succeeded at 191 (offset 48 lines).
 Hunk #3 succeeded at 269 (offset 48 lines).
 Hunk #4 succeeded at 297 (offset 48 lines).
 Hunk #5 succeeded at 342 (offset 48 lines).
-Hunk #6 succeeded at 830 (offset 434 lines).
-Hunk #7 succeeded at 1717 (offset 1247 lines).
-DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_gg_ttxuux; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/MG5aMC_patches/PROD/patch.P1
+DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_gg_ttxuux; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/MG5aMC_patches/PROD/patch.P1
 patching file auto_dsig1.f
-Hunk #1 succeeded at 502 (offset 33 lines).
+Hunk #1 succeeded at 516 (offset 47 lines).
 patching file driver.f
 patching file matrix1.f
 Hunk #1 succeeded at 75 (offset 3 lines).
@@ -1384,11 +990,9 @@ Hunk #2 succeeded at 194 (offset 51 lines).
 Hunk #3 succeeded at 272 (offset 51 lines).
 Hunk #4 succeeded at 300 (offset 51 lines).
 Hunk #5 succeeded at 345 (offset 51 lines).
-Hunk #6 succeeded at 540 (offset 144 lines).
-Hunk #7 succeeded at 813 (offset 343 lines).
-DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_gu_ttxgu; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/MG5aMC_patches/PROD/patch.P1
+DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_gu_ttxgu; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/MG5aMC_patches/PROD/patch.P1
 patching file auto_dsig1.f
-Hunk #1 succeeded at 513 (offset 44 lines).
+Hunk #1 succeeded at 527 (offset 58 lines).
 patching file driver.f
 patching file matrix1.f
 Hunk #1 succeeded at 75 (offset 3 lines).
@@ -1396,11 +1000,9 @@ Hunk #2 succeeded at 194 (offset 51 lines).
 Hunk #3 succeeded at 272 (offset 51 lines).
 Hunk #4 succeeded at 300 (offset 51 lines).
 Hunk #5 succeeded at 345 (offset 51 lines).
-Hunk #6 succeeded at 540 (offset 144 lines).
-Hunk #7 succeeded at 815 (offset 345 lines).
-DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_gux_ttxgux; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/MG5aMC_patches/PROD/patch.P1
+DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_gux_ttxgux; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/MG5aMC_patches/PROD/patch.P1
 patching file auto_dsig1.f
-Hunk #1 succeeded at 517 (offset 48 lines).
+Hunk #1 succeeded at 527 (offset 58 lines).
 patching file driver.f
 patching file matrix1.f
 Hunk #1 succeeded at 75 (offset 3 lines).
@@ -1408,11 +1010,9 @@ Hunk #2 succeeded at 194 (offset 51 lines).
 Hunk #3 succeeded at 272 (offset 51 lines).
 Hunk #4 succeeded at 300 (offset 51 lines).
 Hunk #5 succeeded at 345 (offset 51 lines).
-Hunk #6 succeeded at 538 (offset 142 lines).
-Hunk #7 succeeded at 812 (offset 342 lines).
-DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_uc_ttxuc; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/MG5aMC_patches/PROD/patch.P1
+DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_uc_ttxuc; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/MG5aMC_patches/PROD/patch.P1
 patching file auto_dsig1.f
-Hunk #1 succeeded at 540 (offset 71 lines).
+Hunk #1 succeeded at 554 (offset 85 lines).
 patching file driver.f
 patching file matrix1.f
 Hunk #1 succeeded at 77 (offset 5 lines).
@@ -1420,11 +1020,9 @@ Hunk #2 succeeded at 196 (offset 53 lines).
 Hunk #3 succeeded at 274 (offset 53 lines).
 Hunk #4 succeeded at 302 (offset 53 lines).
 Hunk #5 succeeded at 347 (offset 53 lines).
-Hunk #6 succeeded at 472 (offset 76 lines).
-Hunk #7 succeeded at 581 (offset 111 lines).
-DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_ucx_ttxucx; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/MG5aMC_patches/PROD/patch.P1
+DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_ucx_ttxucx; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/MG5aMC_patches/PROD/patch.P1
 patching file auto_dsig1.f
-Hunk #1 succeeded at 616 (offset 147 lines).
+Hunk #1 succeeded at 626 (offset 157 lines).
 patching file driver.f
 patching file matrix1.f
 Hunk #1 succeeded at 83 (offset 11 lines).
@@ -1432,11 +1030,9 @@ Hunk #2 succeeded at 202 (offset 59 lines).
 Hunk #3 succeeded at 280 (offset 59 lines).
 Hunk #4 succeeded at 308 (offset 59 lines).
 Hunk #5 succeeded at 353 (offset 59 lines).
-Hunk #6 succeeded at 484 (offset 88 lines).
-Hunk #7 succeeded at 593 (offset 123 lines).
-DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_uu_ttxuu; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/MG5aMC_patches/PROD/patch.P1
+DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_uu_ttxuu; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/MG5aMC_patches/PROD/patch.P1
 patching file auto_dsig1.f
-Hunk #1 succeeded at 524 (offset 55 lines).
+Hunk #1 succeeded at 538 (offset 69 lines).
 patching file driver.f
 patching file matrix1.f
 Hunk #1 succeeded at 75 (offset 3 lines).
@@ -1444,11 +1040,9 @@ Hunk #2 succeeded at 194 (offset 51 lines).
 Hunk #3 succeeded at 272 (offset 51 lines).
 Hunk #4 succeeded at 300 (offset 51 lines).
 Hunk #5 succeeded at 345 (offset 51 lines).
-Hunk #6 succeeded at 468 (offset 72 lines).
-Hunk #7 succeeded at 620 (offset 150 lines).
-DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_uux_ttxccx; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/MG5aMC_patches/PROD/patch.P1
+DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_uux_ttxccx; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/MG5aMC_patches/PROD/patch.P1
 patching file auto_dsig1.f
-Hunk #1 succeeded at 616 (offset 147 lines).
+Hunk #1 succeeded at 626 (offset 157 lines).
 patching file driver.f
 patching file matrix1.f
 Hunk #1 succeeded at 83 (offset 11 lines).
@@ -1456,11 +1050,9 @@ Hunk #2 succeeded at 202 (offset 59 lines).
 Hunk #3 succeeded at 280 (offset 59 lines).
 Hunk #4 succeeded at 308 (offset 59 lines).
 Hunk #5 succeeded at 353 (offset 59 lines).
-Hunk #6 succeeded at 484 (offset 88 lines).
-Hunk #7 succeeded at 593 (offset 123 lines).
-DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_uux_ttxgg; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/MG5aMC_patches/PROD/patch.P1
+DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_uux_ttxgg; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/MG5aMC_patches/PROD/patch.P1
 patching file auto_dsig1.f
-Hunk #1 succeeded at 528 (offset 59 lines).
+Hunk #1 succeeded at 538 (offset 69 lines).
 patching file driver.f
 patching file matrix1.f
 Hunk #1 succeeded at 75 (offset 3 lines).
@@ -1468,11 +1060,9 @@ Hunk #2 succeeded at 194 (offset 51 lines).
 Hunk #3 succeeded at 272 (offset 51 lines).
 Hunk #4 succeeded at 300 (offset 51 lines).
 Hunk #5 succeeded at 345 (offset 51 lines).
-Hunk #6 succeeded at 540 (offset 144 lines).
-Hunk #7 succeeded at 821 (offset 351 lines).
-DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_uux_ttxuux; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/MG5aMC_patches/PROD/patch.P1
+DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_uux_ttxuux; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/MG5aMC_patches/PROD/patch.P1
 patching file auto_dsig1.f
-Hunk #1 succeeded at 528 (offset 59 lines).
+Hunk #1 succeeded at 538 (offset 69 lines).
 patching file driver.f
 patching file matrix1.f
 Hunk #1 succeeded at 75 (offset 3 lines).
@@ -1480,11 +1070,9 @@ Hunk #2 succeeded at 194 (offset 51 lines).
 Hunk #3 succeeded at 272 (offset 51 lines).
 Hunk #4 succeeded at 300 (offset 51 lines).
 Hunk #5 succeeded at 345 (offset 51 lines).
-Hunk #6 succeeded at 468 (offset 72 lines).
-Hunk #7 succeeded at 620 (offset 150 lines).
-DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_uxcx_ttxuxcx; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/MG5aMC_patches/PROD/patch.P1
+DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_uxcx_ttxuxcx; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/MG5aMC_patches/PROD/patch.P1
 patching file auto_dsig1.f
-Hunk #1 succeeded at 546 (offset 77 lines).
+Hunk #1 succeeded at 554 (offset 85 lines).
 patching file driver.f
 patching file matrix1.f
 Hunk #1 succeeded at 77 (offset 5 lines).
@@ -1492,11 +1080,9 @@ Hunk #2 succeeded at 196 (offset 53 lines).
 Hunk #3 succeeded at 274 (offset 53 lines).
 Hunk #4 succeeded at 302 (offset 53 lines).
 Hunk #5 succeeded at 347 (offset 53 lines).
-Hunk #6 succeeded at 472 (offset 76 lines).
-Hunk #7 succeeded at 581 (offset 111 lines).
-DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_uxux_ttxuxux; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/MG5aMC_patches/PROD/patch.P1
+DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_uxux_ttxuxux; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/mg5amcnlo/PLUGIN/CUDACPP_OUTPUT/MG5aMC_patches/PROD/patch.P1
 patching file auto_dsig1.f
-Hunk #1 succeeded at 532 (offset 63 lines).
+Hunk #1 succeeded at 538 (offset 69 lines).
 patching file driver.f
 patching file matrix1.f
 Hunk #1 succeeded at 75 (offset 3 lines).
@@ -1504,14 +1090,12 @@ Hunk #2 succeeded at 194 (offset 51 lines).
 Hunk #3 succeeded at 272 (offset 51 lines).
 Hunk #4 succeeded at 300 (offset 51 lines).
 Hunk #5 succeeded at 345 (offset 51 lines).
-Hunk #6 succeeded at 468 (offset 72 lines).
-Hunk #7 succeeded at 620 (offset 150 lines).
-Output to directory /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j done.
+Output to directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j done.
 Type "launch" to generate events from this process, or see
-/data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/README
+/data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/README
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m9.562s
-user	0m8.185s
-sys	0m0.659s
+real	0m9.420s
+user	0m8.812s
+sys	0m0.563s
