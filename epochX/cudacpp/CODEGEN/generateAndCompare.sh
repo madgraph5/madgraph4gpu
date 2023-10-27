@@ -6,6 +6,9 @@
 
 set -e # fail on error
 
+# AV Recover special 'tmad' mode used by generateAndCompare.sh, after OM's changes that commented this out in patchMad.sh
+export MG5AMC_TMADMODE=1
+
 #--------------------------------------------------------------------------------------
 
 function codeGenAndDiff()

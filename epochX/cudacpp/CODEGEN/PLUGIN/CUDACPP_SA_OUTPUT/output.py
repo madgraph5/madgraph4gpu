@@ -34,8 +34,8 @@ logger = logging.getLogger('madgraph.PLUGIN.CUDACPP_OUTPUT.output')
 #------------------------------------------------------------------------------------
 
 from os.path import join as pjoin
-import madgraph.various.misc as misc
 import madgraph.iolibs.files as files
+import madgraph.various.misc as misc
 
 # AV - define the plugin's process exporter
 # (NB: this is the plugin's main class, enabled in the new_output dictionary in __init__.py)
@@ -208,17 +208,22 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
             self.add_input_for_banner()
             if 'CUDACPP_CODEGEN_PATCHLEVEL' in os.environ: patchlevel = os.environ['CUDACPP_CODEGEN_PATCHLEVEL']
             else: patchlevel = ''
-            plugin_path = os.path.dirname(os.path.realpath( __file__ ))
-#            path = os.path.realpath(os.curdir + os.sep + 'PLUGIN' + os.sep + 'CUDACPP_OUTPUT')
-#            misc.sprint(path)
-            p = subprocess.Popen([pjoin(plugin_path, 'patchMad.sh'), self.dir_path , 'PROD', str(patchlevel)])
-            stdout, stderr = p.communicate()
-            if not p.returncode:
+            # OLD implementation (AV)
+            path = os.path.realpath(os.curdir + os.sep + 'PLUGIN' + os.sep + 'CUDACPP_OUTPUT')
+            misc.sprint(path)
+            if os.system(path + os.sep + 'patchMad.sh ' + self.dir_path + ' PROD ' + patchlevel) != 0:
                 logger.debug("####### \n stdout is \n %s", stdout)
                 logger.info("####### \n stderr is \n %s", stderr)
-                raise Exception('ERROR! the O/S call to patchMad.sh failed')
-            
-            self.add_madevent_plugin_fct()
+                raise Exception('ERROR! the O/S call to patchMad.sh failed')            
+            # NEW implementation (OM)
+            #plugin_path = os.path.dirname(os.path.realpath( __file__ ))
+            #p = subprocess.Popen([pjoin(plugin_path, 'patchMad.sh'), self.dir_path , 'PROD', str(patchlevel)])
+            #stdout, stderr = p.communicate()
+            #if not p.returncode:
+            #    logger.debug("####### \n stdout is \n %s", stdout)
+            #    logger.info("####### \n stderr is \n %s", stderr)
+            #    raise Exception('ERROR! the O/S call to patchMad.sh failed')            
+            self.add_madevent_plugin_fct() # Added by OM
         return super().finalize(matrix_element, cmdhistory, MG5options, outputflag)
 
     # AV (default from OM's tutorial) - overload settings and add a debug printout
@@ -249,12 +254,10 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
         which contains a series of functions and one dictionary variable TO_OVERWRITE
         that will be used to have temporary overwrite of all the key variable passed as string by their value.
         all variable that are file related should be called as madgraph.dir.file.variable
-        """
-        
+        """        
         plugin_path = os.path.dirname(os.path.realpath( __file__ ))
-        files.cp(pjoin(plugin_path, 'plugin_interface.py'), pjoin(self.dir_path, 'bin', 'internal'))
+        ###files.cp(pjoin(plugin_path, 'plugin_interface.py'), pjoin(self.dir_path, 'bin', 'internal')) # AV FIXME (added by OM, but file is missing?)
         files.cp(pjoin(plugin_path, 'launch_plugin.py'), pjoin(self.dir_path, 'bin', 'internal'))
         files.ln( pjoin(self.dir_path, 'lib'),  pjoin(self.dir_path, 'SubProcesses'))
-
 
 #------------------------------------------------------------------------------------
