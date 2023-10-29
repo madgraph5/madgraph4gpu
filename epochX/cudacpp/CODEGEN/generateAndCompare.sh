@@ -38,6 +38,12 @@ function codeGenAndDiff()
     gq_ttq)
       cmd="define q = u c d s u~ c~ d~ s~; generate g q > t t~ q"
       ;;
+    gu_ttu)
+      cmd="generate g u > t t~ u"
+      ;;
+    gg_uu)
+      cmd="generate g g > u u~"
+      ;;
     gq_ttllq)
       cmd="define q = u c d s u~ c~ d~ s~; generate g q > t t~ l- l+ q"
       ;;
@@ -46,6 +52,12 @@ function codeGenAndDiff()
       ;;
     pp_tttt)
       cmd="generate p p > t t~ t t~"
+      ;;
+    pp_tt012j)
+      cmd="define j = p
+      generate p p > t t~ @0
+      add process p p > t t~ j @1
+      add process p p > t t~ j j @2"
       ;;
     pp_ttW) # TEMPORARY! until no_b_mass #695 and/or #696 are fixed
       cmd="define p = p b b~
@@ -60,11 +72,14 @@ function codeGenAndDiff()
       generate p p > t t~ z @0
       add process p p > t t~ z j @1"
       ;;
+    uu_dd)
+      cmd="generate u u~ > d d~"
+      ;;
     uu_tt)
       cmd="generate u u~ > t t~"
       ;;
-    uu_dd)
-      cmd="generate u u~ > d d~"
+    uu_ttg)
+      cmd="generate u u~ > t t~ g"
       ;;
     bb_tt)
       cmd="generate b b~ > t t~"
@@ -160,12 +175,14 @@ function codeGenAndDiff()
   echo -e "\n+++ Generate code for '$proc'\n"
   ###exit 0 # FOR DEBUGGING
   # Vector size for mad/madonly meexporter (VECSIZE_MEMMAX)
-  vecsize=16384 # NB THIS IS IGNORED ANYWAY (ALL HARDCODED VALUES ARE REPLACED IN PATCHMAD.SH)...
+  vecsize=16384 # NB THIS IS NO LONGER IGNORED (but will eventually be tunable via runcards)
   # Generate code for the specific process
   pushd $MG5AMC_HOME >& /dev/null
-  outproc=CODEGEN_${OUTBCK}_${proc}
+  mkdir -p ../TMPOUT
+  outproc=../TMPOUT/CODEGEN_${OUTBCK}_${proc}
   if [ "${SCRBCK}" == "gridpack" ] && [ "${UNTARONLY}" == "1" ]; then
-    echo -e "WARNING! Skip generation of gridpack.tar.gz (--nountaronly was not specified)\n"
+    ###echo -e "WARNING! Skip generation of gridpack.tar.gz (--nountaronly was not specified)\n"
+    echo "ERROR! gridpack mode is no longer supported by this script!"; exit 1
   else
     \rm -rf ${outproc} ${outproc}.* ${outproc}_*
     if [ "${HELREC}" == "0" ]; then
@@ -177,14 +194,15 @@ function codeGenAndDiff()
     echo "set zerowidth_tchannel F" >> ${outproc}.mg # workaround for #476: do not use a zero top quark width in fortran (~E-3 effect on physics)
     echo "${cmd}" >> ${outproc}.mg
     if [ "${SCRBCK}" == "gridpack" ]; then # $SCRBCK=$OUTBCK=gridpack
-      echo "output ${outproc} ${helrecopt}" >> ${outproc}.mg
-      ###echo "!cp -dpr ${outproc} ${outproc}_prelaunch" >> ${outproc}.mg
-      echo "launch" >> ${outproc}.mg
-      echo "set gridpack True" >> ${outproc}.mg
-      echo "set ebeam1 750" >> ${outproc}.mg
-      echo "set ebeam2 750" >> ${outproc}.mg
+      ###echo "output ${outproc} ${helrecopt}" >> ${outproc}.mg
+      ###echo "launch" >> ${outproc}.mg
+      ###echo "set gridpack True" >> ${outproc}.mg
+      ###echo "set ebeam1 750" >> ${outproc}.mg
+      ###echo "set ebeam2 750" >> ${outproc}.mg
+      echo "ERROR! gridpack mode is no longer supported by this script!"; exit 1
     elif [ "${SCRBCK}" == "alpaka" ]; then # $SCRBCK=$OUTBCK=alpaka
-      echo "output standalone_${SCRBCK}_cudacpp ${outproc}" >> ${outproc}.mg
+      ###echo "output standalone_${SCRBCK}_cudacpp ${outproc}" >> ${outproc}.mg
+      echo "ERROR! alpaka mode is no longer supported by this script!"; exit 1
     elif [ "${OUTBCK}" == "madnovec" ]; then # $SCRBCK=cudacpp and $OUTBCK=madnovec
       echo "output madevent ${outproc} ${helrecopt}" >> ${outproc}.mg
     elif [ "${OUTBCK}" == "madonly" ]; then # $SCRBCK=cudacpp and $OUTBCK=madonly
@@ -218,8 +236,9 @@ function codeGenAndDiff()
   popd >& /dev/null
   # Choose which directory must be copied (for gridpack generation: untar and modify the gridpack)
   if [ "${SCRBCK}" == "gridpack" ]; then
-    outprocauto=${MG5AMC_HOME}/${outproc}/run_01_gridpack
-    if ! $SCRDIR/untarGridpack.sh ${outprocauto}.tar.gz; then echo "ERROR! untarGridpack.sh failed"; exit 1; fi
+    ###outprocauto=${MG5AMC_HOME}/${outproc}/run_01_gridpack
+    ###if ! $SCRDIR/untarGridpack.sh ${outprocauto}.tar.gz; then echo "ERROR! untarGridpack.sh failed"; exit 1; fi
+    echo "ERROR! gridpack mode is no longer supported by this script!"; exit 1
   else
     outprocauto=${MG5AMC_HOME}/${outproc}
   fi
@@ -227,9 +246,11 @@ function codeGenAndDiff()
   # Output directories: examples ee_mumu.sa for cudacpp, eemumu.auto for alpaka and gridpacks, eemumu.cpp or eemumu.gpu for cpp and gpu
   autosuffix=sa
   if [ "${SCRBCK}" == "gridpack" ]; then
-    autosuffix=auto
+    ###autosuffix=auto
+    echo "ERROR! gridpack mode is no longer supported by this script!"; exit 1
   elif [ "${SCRBCK}" == "alpaka" ]; then
-    autosuffix=auto
+    ###autosuffix=auto
+    echo "ERROR! alpaka mode is no longer supported by this script!"; exit 1
   elif [ "${OUTBCK}" == "cpp" ]; then
     autosuffix=cpp # no special suffix for the 311 branch any longer
   elif [ "${OUTBCK}" == "gpu" ]; then
@@ -247,21 +268,17 @@ function codeGenAndDiff()
     cat ${OUTDIR}/${proc}.${autosuffix}/Cards/me5_configuration.txt | sed 's/mg5_path/#mg5_path/' > ${OUTDIR}/${proc}.${autosuffix}/Cards/me5_configuration.txt.new
     \mv ${OUTDIR}/${proc}.${autosuffix}/Cards/me5_configuration.txt.new ${OUTDIR}/${proc}.${autosuffix}/Cards/me5_configuration.txt
   fi
-  # Add a workaround for https://github.com/oliviermattelaer/mg5amc_test/issues/2
+  # Additional patches for mad directory (integration of Fortran and cudacpp)
+  # [NB: these patches are not applied to madnovec/madonly, which are meant as out-of-the-box references]
+  ###if [ "${OUTBCK}" == "mad" ]; then
+  ###  dir_patches=PROD
+  ###  $SCRDIR/patchMad.sh ${OUTDIR}/${proc}.${autosuffix} ${vecsize} ${dir_patches} ${PATCHLEVEL}
+  ###fi
+  # Add a workaround for https://github.com/oliviermattelaer/mg5amc_test/issues/2 (these are ONLY NEEDED IN THE MADGRAPH4GPU GIT REPO)
   if [ "${OUTBCK}" == "madnovec" ] || [ "${OUTBCK}" == "madonly" ] || [ "${OUTBCK}" == "mad" ] || [ "${OUTBCK}" == "madcpp" ] || [ "${OUTBCK}" == "madgpu" ]; then
     cat ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat | head -3 > ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat.new
     cat ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat | tail -n+4 | sort >> ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat.new
     \mv ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat.new ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat
-  fi
-  # Use strategy SDE=1 in multichannel mode (see #419)
-  if [ "${OUTBCK}" == "mad" ]; then
-    cat ${OUTDIR}/${proc}.${autosuffix}/Cards/run_card.dat | sed 's/2  = sde_strategy/1  = sde_strategy/' > ${OUTDIR}/${proc}.${autosuffix}/Cards/run_card.dat.new
-    \mv ${OUTDIR}/${proc}.${autosuffix}/Cards/run_card.dat.new ${OUTDIR}/${proc}.${autosuffix}/Cards/run_card.dat
-  fi
-  # Additional patches for mad directory (integration of Fortran and cudacpp)
-  # [NB: these patches are not applied to madnovec/madonly, which are meant as out-of-the-box references]
-  if [ "${OUTBCK}" == "mad" ]; then
-    $SCRDIR/patchMad.sh ${OUTDIR}/${proc}.${autosuffix} ${vecsize} ${dir_patches} ${PATCHLEVEL}
   fi
   # Additional patches that are ONLY NEEDED IN THE MADGRAPH4GPU GIT REPO
   cat << EOF > ${OUTDIR}/${proc}.${autosuffix}/.gitignore
@@ -320,10 +337,12 @@ function usage()
   # NB: Generate only one process at a time
   if [ "${SCRBCK}" == "gridpack" ]; then
     # NB: gridpack generation uses the 311 branch by default
-    echo "Usage: $0 [--nobrief] [--nountaronly] [--nohelrec] <proc>"
+    ###echo "Usage: $0 [--nobrief] [--nountaronly] [--nohelrec] <proc>"
+    echo "ERROR! gridpack mode is no longer supported by this script!"; exit 1
   elif [ "${SCRBCK}" == "alpaka" ]; then
     # NB: alpaka generation uses the 311 branch by default
-    echo "Usage: $0 [--nobrief] <proc>"
+    ###echo "Usage: $0 [--nobrief] <proc>"
+    echo "ERROR! alpaka mode is no longer supported by this script!"; exit 1
   else
     # NB: all options with $SCRBCK=cudacpp use the 311 branch by default and always disable helicity recycling
     echo "Usage:   $0 [--nobrief] [--cpp|--gpu|--madnovec|--madonly|--mad|--madcpp*|--madgpu] [--nopatch|--upstream] [-c '<cmd>'] <proc>"
@@ -344,12 +363,16 @@ function cleanup_MG5AMC_HOME()
   rm -f ${MG5AMC_HOME}/Template/LO/Source/make_opts
   rm -f ${MG5AMC_HOME}/input/mg5_configuration.txt
   rm -f ${MG5AMC_HOME}/models/sm/py3_model.pkl
+   # Remove any *~ files in MG5AMC_HOME
+  rm -rf $(find ${MG5AMC_HOME} -name '*~')
+}
+
+function cleanup_MG5AMC_PLUGIN()
+{
   # Remove and recreate MG5AMC_HOME/PLUGIN
   rm -rf ${MG5AMC_HOME}/PLUGIN
   mkdir ${MG5AMC_HOME}/PLUGIN
   touch ${MG5AMC_HOME}/PLUGIN/__init__.py
-  # Remove any *~ files in MG5AMC_HOME
-  rm -rf $(find ${MG5AMC_HOME} -name '*~')
 }
 
 #--------------------------------------------------------------------------------------
@@ -393,9 +416,11 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "--upstream" ] && [ "${PATCHLEVEL}" == "" ]; then
     PATCHLEVEL=--upstream
   elif [ "$1" == "--nountaronly" ] && [ "${SCRBCK}" == "gridpack" ]; then
-    UNTARONLY=0
+    ###UNTARONLY=0
+    echo "ERROR! gridpack mode is no longer supported by this script!"; exit 1
   elif [ "$1" == "--nohelrec" ] && [ "${SCRBCK}" == "gridpack" ]; then
-    export HELREC=0
+    ###export HELREC=0
+    echo "ERROR! gridpack mode is no longer supported by this script!"; exit 1
   elif [ "$1" == "--cpp" ] && [ "${SCRBCK}" == "cudacpp" ]; then
     export OUTBCK=${1#--}
   elif [ "$1" == "--gpu" ] && [ "${SCRBCK}" == "cudacpp" ]; then
@@ -434,42 +459,39 @@ echo "proc=${proc}"
 # Make sure that python3 is installed
 if ! python3 --version >& /dev/null; then echo "ERROR! python3 is not installed"; exit 1; fi
 
+# Define MG5AMC_HOME as a path to the mg5amcnlo git submodule in this repo (NEW IMPLEMENTATION BASED ON SUBMODULES)
 # Make sure that $MG5AMC_HOME exists
-dir_patches=PROD
-branch_patches=$(cat $SCRDIR/MG5aMC_patches/${dir_patches}/branch.GIT)
-commit_patches=$(cat $SCRDIR/MG5aMC_patches/${dir_patches}/commit.GIT) # e.g. <commit> or <branch>
 if [ "$MG5AMC_HOME" == "" ]; then
-  echo "ERROR! MG5AMC_HOME is not defined"
-  echo -e "To download MG5AMC please run\n  git clone git@github.com:mg5amcnlo/mg5amcnlo.git\n  cd mg5amcnlo; git checkout ${branch_patches}; git reset --hard ${commit_patches}"
-  exit 1
+  # (FIXME: in a future implementation, this will not be ignored - e.g. to share a single git submodule in different madgraph4gpu directories)
+  echo "WARNING! Environment variable MG5AMC_HOME is already defined as '$MG5AMC_HOME' but it will be redefined"
 fi
-echo -e "\nDefault MG5AMC_HOME=$MG5AMC_HOME on $(hostname)\n"
+MG5AMC_HOME=${SCRDIR}/../../../MG5aMC/mg5amcnlo
 if [ ! -d $MG5AMC_HOME ]; then
   echo "ERROR! Directory $MG5AMC_HOME does not exist"
-  echo -e "To download MG5AMC please run\n  git clone git@github.com:mg5amcnlo/mg5amcnlo.git\n  cd mg5amcnlo; git checkout ${branch_patches}; git reset --hard ${commit_patches}"
   exit 1
 fi
+export MG5AMC_HOME=$(cd $MG5AMC_HOME; pwd)
+echo -e "\nDefault MG5AMC_HOME=$MG5AMC_HOME on $(hostname)\n"
 
 # Make sure that $ALPAKA_ROOT and $CUPLA_ROOT exist if alpaka is used
-if [ "${SCRBCK}" == "alpaka" ]; then
-  if [ "$ALPAKA_ROOT" == "" ]; then
-    echo "ERROR! ALPAKA_ROOT is not defined"
-    echo "To download ALPAKA please run 'git clone -b 0.8.0 https://github.com/alpaka-group/alpaka.git'"
-    exit 1
-  fi
-  echo -e "Using ALPAKA_ROOT=$ALPAKA_ROOT on $(hostname)\n"
-  if [ ! -d $ALPAKA_ROOT ]; then echo "ERROR! Directory $ALPAKA_ROOT does not exist"; exit 1; fi
-  if [ "$CUPLA_ROOT" == "" ]; then
-    echo "ERROR! CUPLA_ROOT is not defined"
-    echo "To download CUPLA please run 'git clone -b 0.3.0 https://github.com/alpaka-group/cupla.git'"
-    exit 1
-  fi
-  echo -e "Using CUPLA_ROOT=$CUPLA_ROOT on $(hostname)\n"
-  if [ ! -d $CUPLA_ROOT ]; then echo "ERROR! Directory $CUPLA_ROOT does not exist"; exit 1; fi
-fi
+###if [ "${SCRBCK}" == "alpaka" ]; then
+###  if [ "$ALPAKA_ROOT" == "" ]; then
+###    echo "ERROR! ALPAKA_ROOT is not defined"
+###    echo "To download ALPAKA please run 'git clone -b 0.8.0 https://github.com/alpaka-group/alpaka.git'"
+###    exit 1
+###  fi
+###  echo -e "Using ALPAKA_ROOT=$ALPAKA_ROOT on $(hostname)\n"
+###  if [ ! -d $ALPAKA_ROOT ]; then echo "ERROR! Directory $ALPAKA_ROOT does not exist"; exit 1; fi
+###  if [ "$CUPLA_ROOT" == "" ]; then
+###    echo "ERROR! CUPLA_ROOT is not defined"
+###    echo "To download CUPLA please run 'git clone -b 0.3.0 https://github.com/alpaka-group/cupla.git'"
+###    exit 1
+###  fi
+###  echo -e "Using CUPLA_ROOT=$CUPLA_ROOT on $(hostname)\n"
+###  if [ ! -d $CUPLA_ROOT ]; then echo "ERROR! Directory $CUPLA_ROOT does not exist"; exit 1; fi
+###fi
 
-# Check that MG5aMC uses the git 311 branch (default for all of cudacpp, alpaka, gridpack)
-# Revert MG5aMC to the appropriate git commit
+# Show the git branch and commit of MG5aMC
 if ! git --version >& /dev/null; then
   echo -e "ERROR! git is not installed: cannot retrieve git properties of MG5aMC_HOME\n"; exit 1
 fi
@@ -479,56 +501,32 @@ echo -e "Retrieving git information about MG5AMC_HOME"
 if ! git log -n1 >& /dev/null; then
   echo -e "ERROR! MG5AMC_HOME is not a git clone\n"; exit 1
 fi
-echo -e "MG5AMC patches in this plugin refer to git branch '${branch_patches}'"
-echo -e "Reset MG5AMC_HOME to git commit '${branch_patches}'"
-#...[COMMENT OUT THE THREE LINES BELOW TO USE A MODIFIED VERSION OF MG5AMC]...
-if ! git reset --hard ${branch_patches}; then
-  echo -e "ERROR! 'git reset --hard ${branch_patches}' failed\n"; exit 1
-fi
-#...[COMMENT OUT THE THREE LINES ABOVE TO USE A MODIFIED VERSION OF MG5AMC]...
-echo -e "Check out branch ${branch_patches} in MG5AMC_HOME"
-if ! git checkout ${branch_patches}; then
-  echo -e "ERROR! 'git checkout ${branch_patches}' failed\n"; exit 1
-fi
 branch_mg5amc=$(git branch --no-color | \grep ^* | awk '{print $2}')
 echo -e "Current git branch of MG5AMC_HOME is '${branch_mg5amc}'"
-if [ "${branch_patches}" != "${branch_mg5amc}" ]; then echo -e "\nERROR! git branch mismatch!"; exit 1; fi
-commit_patches2=$(git log --oneline -n1 ${commit_patches} | awk '{print $1}') # translate to <commit>
-if [ "${commit_patches2}" == "${commit_patches}" ]; then
-  echo -e "MG5AMC patches in this plugin refer to git commit '${commit_patches}'"
-else
-  echo -e "MG5AMC patches in this plugin refer to git commit '${commit_patches}' (i.e. '${commit_patches2}')"
-fi  
-echo -e "Reset MG5AMC_HOME to git commit '${commit_patches}'"
-#...[COMMENT OUT THE THREE LINES BELOW TO USE A MODIFIED VERSION OF MG5AMC]...
-if ! git reset --hard ${commit_patches}; then
-  echo -e "ERROR! 'git reset --hard ${commit_patches}' failed\n"; exit 1
-fi
-#...[COMMENT OUT THE THREE LINES ABOVE TO USE A MODIFIED VERSION OF MG5AMC]...
 commit_mg5amc=$(git log --oneline -n1 | awk '{print $1}')
 echo -e "Current git commit of MG5AMC_HOME is '${commit_mg5amc}'"
-if [ "${commit_patches2}" != "${commit_mg5amc}" ]; then echo -e "\nERROR! git commit mismatch!"; exit 1; fi
 cd - > /dev/null
 
 # Copy MG5AMC ad-hoc patches if any (unless --upstream is specified)
-if [ "${PATCHLEVEL}" != "--upstream" ] && [ "${SCRBCK}" == "cudacpp" ]; then
-  patches=$(cd $SCRDIR/MG5aMC_patches/${dir_patches}; find . -mindepth 2 -type f)
-  echo -e "Copy MG5aMC_patches/${dir_patches} patches..."
-  for patch in $patches; do
-    ###echo "DEBUG: $patch"
-    patch=${patch#./} # strip leading "./"
-    if [ "${patch}" != "${patch%~}" ]; then continue; fi # skip *~ files
-    ###if [ "${patch}" != "${patch%.GIT}" ]; then continue; fi # skip *.GIT files
-    ###if [ "${patch}" != "${patch%.py}" ]; then continue; fi # skip *.py files
-    ###if [ "${patch}" != "${patch#patch.}" ]; then continue; fi # skip patch.* files
-    echo cp -dpr $SCRDIR/MG5aMC_patches/${dir_patches}/$patch $MG5AMC_HOME/$patch
-    cp -dpr $SCRDIR/MG5aMC_patches/${dir_patches}/$patch $MG5AMC_HOME/$patch
-  done
-  echo -e "Copy MG5aMC_patches/${dir_patches} patches... done\n"
-fi
+###if [ "${PATCHLEVEL}" != "--upstream" ] && [ "${SCRBCK}" == "cudacpp" ]; then
+###  patches=$(cd $SCRDIR/MG5aMC_patches/${dir_patches}; find . -mindepth 2 -type f)
+###  echo -e "Copy MG5aMC_patches/${dir_patches} patches..."
+###  for patch in $patches; do
+###    ###echo "DEBUG: $patch"
+###    patch=${patch#./} # strip leading "./"
+###    if [ "${patch}" != "${patch%~}" ]; then continue; fi # skip *~ files
+###    ###if [ "${patch}" != "${patch%.GIT}" ]; then continue; fi # skip *.GIT files
+###    ###if [ "${patch}" != "${patch%.py}" ]; then continue; fi # skip *.py files
+###    ###if [ "${patch}" != "${patch#patch.}" ]; then continue; fi # skip patch.* files
+###    echo cp -dpr $SCRDIR/MG5aMC_patches/${dir_patches}/$patch $MG5AMC_HOME/$patch
+###    cp -dpr $SCRDIR/MG5aMC_patches/${dir_patches}/$patch $MG5AMC_HOME/$patch
+###  done
+###  echo -e "Copy MG5aMC_patches/${dir_patches} patches... done\n"
+###fi
 
 # Clean up before code generation
 cleanup_MG5AMC_HOME
+cleanup_MG5AMC_PLUGIN
 
 # Print differences in MG5AMC with respect to git after copying ad-hoc patches
 cd ${MG5AMC_HOME}
@@ -544,29 +542,31 @@ if [ "${SCRBCK}" == "cudacpp" ]; then
     echo -e "\nWARNING! '${OUTBCK}' mode selected: do not copy the cudacpp plugin (workaround for #341)"
   else # currently succeeds also for madcpp and madgpu (#341 has been fixed)
     echo -e "\nINFO! '${OUTBCK}' mode selected: copy the cudacpp plugin\n"
-    cp -dpr ${SCRDIR}/PLUGIN/${SCRBCK^^}_SA_OUTPUT ${MG5AMC_HOME}/PLUGIN/
+    cp -dpr ${SCRDIR}/PLUGIN/${SCRBCK^^}_SA_OUTPUT ${MG5AMC_HOME}/PLUGIN/${SCRBCK^^}_OUTPUT
     ls -l ${MG5AMC_HOME}/PLUGIN
   fi
-elif [ "${SCRBCK}" == "alpaka" ]; then
-  cp -dpr ${SCRDIR}/PLUGIN/${SCRBCK^^}_CUDACPP_SA_OUTPUT ${MG5AMC_HOME}/PLUGIN/
-  ls -l ${MG5AMC_HOME}/PLUGIN
+###elif [ "${SCRBCK}" == "alpaka" ]; then
+###  cp -dpr ${SCRDIR}/PLUGIN/${SCRBCK^^}_CUDACPP_SA_OUTPUT ${MG5AMC_HOME}/PLUGIN/
+###  ls -l ${MG5AMC_HOME}/PLUGIN
 fi
 
 # For gridpacks, use separate output directories for MG 29x and MG 3xx
-if [ "${SCRBCK}" == "gridpack" ]; then
-  if [ "${HELREC}" == "0" ]; then
-    OUTDIR=${OUTDIR}/3xx_nohelrec
-  else
-    OUTDIR=${OUTDIR}/3xx
-  fi
-  echo "OUTDIR=${OUTDIR} (redefined)"
-fi
+###if [ "${SCRBCK}" == "gridpack" ]; then
+###  if [ "${HELREC}" == "0" ]; then
+###    OUTDIR=${OUTDIR}/3xx_nohelrec
+###  else
+###    OUTDIR=${OUTDIR}/3xx
+###  fi
+###  echo "OUTDIR=${OUTDIR} (redefined)"
+###fi
 
 # Generate the chosen process (this will always replace the existing code directory and create a .BKP)
+export CUDACPP_CODEGEN_PATCHLEVEL=${PATCHLEVEL}
 codeGenAndDiff $proc "$cmd"
 
 # Clean up after code generation
 cleanup_MG5AMC_HOME
+cleanup_MG5AMC_PLUGIN
 
 # Check formatting in the auto-generated code
 if [ "${OUTBCK}" == "cudacpp" ]; then

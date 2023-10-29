@@ -168,6 +168,7 @@
     // NEW IMPLEMENTATION FIXING FLOATING POINT EXCEPTIONS IN SIMD CODE (#701)
     // Variables xxxDENOM are a hack to avoid division-by-0 FPE while preserving speed (#701 and #727)
     // Variables xxxDENOM are declared as 'volatile' to make sure they are not optimized away on clang! (#724)
+    // A few additional variables are declared as 'volatile' to avoid sqrt-of-negative-number FPEs (#736)
     const fptype_sv& pvec0 = M_ACCESS::kernelAccessIp4IparConst( momenta, 0, ipar );
     const fptype_sv& pvec1 = M_ACCESS::kernelAccessIp4IparConst( momenta, 1, ipar );
     const fptype_sv& pvec2 = M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar );
@@ -178,7 +179,12 @@
     const int nh = nhel * nsf;
     if( fmass != 0. )
     {
+#ifndef MGONGPU_CPPSIMD
       const fptype_sv pp = fpmin( pvec0, fpsqrt( pvec1 * pvec1 + pvec2 * pvec2 + pvec3 * pvec3 ) );
+#else
+      volatile fptype_sv p2 = pvec1 * pvec1 + pvec2 * pvec2 + pvec3 * pvec3; // volatile fixes #736
+      const fptype_sv pp = fpmin( pvec0, fpsqrt( p2 ) );
+#endif
       // In C++ ixxxxx, use a single ip/im numbering that is valid both for pp==0 and pp>0, which have two numbering schemes in Fortran ixxxxx:
       // for pp==0, Fortran sqm(0:1) has indexes 0,1 as in C++; but for Fortran pp>0, omega(2) has indexes 1,2 and not 0,1
       // NB: this is only possible in ixxxx, but in oxxxxx two different numbering schemes must be used
@@ -227,9 +233,10 @@
       omega[1] = fmass / omega[0];
       const fptype_v sfomega[2] = { sf[0] * omega[ip], sf[1] * omega[im] };
       const fptype_v pp3 = fpmax( pp + pvec3, 0 );
-      volatile fptype_v ppDENOM = fpternary( pp != 0, pp, 1. );             // hack: ppDENOM[ieppV]=1 if pp[ieppV]==0
-      volatile fptype_v pp3DENOM = fpternary( pp3 != 0, pp3, 1. );          // hack: pp3DENOM[ieppV]=1 if pp3[ieppV]==0
-      const cxtype_v chi[2] = { cxmake( fpsqrt( pp3 * 0.5 / ppDENOM ), 0 ), // hack: dummy[ieppV] is not used if pp[ieppV]==0
+      volatile fptype_v ppDENOM = fpternary( pp != 0, pp, 1. );    // hack: ppDENOM[ieppV]=1 if pp[ieppV]==0
+      volatile fptype_v pp3DENOM = fpternary( pp3 != 0, pp3, 1. ); // hack: pp3DENOM[ieppV]=1 if pp3[ieppV]==0
+      volatile fptype_v chi0r2 = pp3 * 0.5 / ppDENOM;              // volatile fixes #736
+      const cxtype_v chi[2] = { cxmake( fpsqrt( chi0r2 ), 0 ),     // hack: dummy[ieppV] is not used if pp[ieppV]==0
                                 cxternary( ( pp3 == 0. ),
                                            cxmake( -nh, 0 ),
                                            cxmake( (fptype)nh * pvec1, pvec2 ) / fpsqrt( 2. * ppDENOM * pp3DENOM ) ) }; // hack: dummy[ieppV] is not used if pp[ieppV]==0
@@ -247,16 +254,20 @@
     }
     else
     {
-      const fptype_sv sqp0p3 = fpternary( ( pvec1 == 0. and pvec2 == 0. and pvec3 < 0. ),
-                                          fptype_sv{ 0 },
-                                          fpsqrt( fpmax( pvec0 + pvec3, 0. ) ) * (fptype)nsf );
 #ifdef MGONGPU_CPPSIMD
-      volatile fptype_v sqp0p3DENOM = fpternary( sqp0p3 != 0, sqp0p3, 1. ); // hack: dummy sqp0p3DENOM[ieppV]=1 if sqp0p3[ieppV]==0
-      cxtype_sv chi[2] = { cxmake( sqp0p3, 0. ),
+      volatile fptype_sv p0p3 = fpmax( pvec0 + pvec3, 0 ); // volatile fixes #736
+      volatile fptype_sv sqp0p3 = fpternary( ( pvec1 == 0. and pvec2 == 0. and pvec3 < 0. ),
+                                             fptype_sv{ 0 },
+                                             fpsqrt( p0p3 ) * (fptype)nsf );
+      volatile fptype_sv sqp0p3DENOM = fpternary( sqp0p3 != 0, (fptype_sv)sqp0p3, 1. ); // hack: dummy sqp0p3DENOM[ieppV]=1 if sqp0p3[ieppV]==0
+      cxtype_sv chi[2] = { cxmake( (fptype_v)sqp0p3, 0. ),
                            cxternary( sqp0p3 == 0,
                                       cxmake( -(fptype)nhel * fpsqrt( 2. * pvec0 ), 0. ),
                                       cxmake( (fptype)nh * pvec1, pvec2 ) / (const fptype_v)sqp0p3DENOM ) }; // hack: dummy[ieppV] is not used if sqp0p3[ieppV]==0
 #else
+      const fptype_sv sqp0p3 = fpternary( ( pvec1 == 0. and pvec2 == 0. and pvec3 < 0. ),
+                                          fptype_sv{ 0 },
+                                          fpsqrt( fpmax( pvec0 + pvec3, 0. ) ) * (fptype)nsf );
       const cxtype_sv chi[2] = { cxmake( sqp0p3, 0. ),
                                  ( sqp0p3 == 0. ? cxmake( -(fptype)nhel * fpsqrt( 2. * pvec0 ), 0. ) : cxmake( (fptype)nh * pvec1, pvec2 ) / sqp0p3 ) };
 #endif
@@ -413,6 +424,7 @@
     // NEW IMPLEMENTATION FIXING FLOATING POINT EXCEPTIONS IN SIMD CODE (#701)
     // Variables xxxDENOM are a hack to avoid division-by-0 FPE while preserving speed (#701 and #727)
     // Variables xxxDENOM are declared as 'volatile' to make sure they are not optimized away on clang! (#724)
+    // A few additional variables are declared as 'volatile' to avoid sqrt-of-negative-number FPEs (#736)
     const fptype_sv& pvec0 = M_ACCESS::kernelAccessIp4IparConst( momenta, 0, ipar );
     const fptype_sv& pvec1 = M_ACCESS::kernelAccessIp4IparConst( momenta, 1, ipar );
     const fptype_sv& pvec2 = M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar );
@@ -425,11 +437,11 @@
     if( vmass != 0. )
     {
       const int nsvahl = nsv * std::abs( hel );
+      const fptype hel0 = 1. - std::abs( hel );
+#ifndef MGONGPU_CPPSIMD
       const fptype_sv pt2 = ( pvec1 * pvec1 ) + ( pvec2 * pvec2 );
       const fptype_sv pp = fpmin( pvec0, fpsqrt( pt2 + ( pvec3 * pvec3 ) ) );
       const fptype_sv pt = fpmin( pp, fpsqrt( pt2 ) );
-      const fptype hel0 = 1. - std::abs( hel );
-#ifndef MGONGPU_CPPSIMD
       if( pp == 0. )
       {
         vc[2] = cxmake( 0., 0. );
@@ -457,6 +469,10 @@
         }
       }
 #else
+      volatile fptype_sv pt2 = ( pvec1 * pvec1 ) + ( pvec2 * pvec2 );
+      volatile fptype_sv p2 = pt2 + ( pvec3 * pvec3 ); // volatile fixes #736
+      const fptype_sv pp = fpmin( pvec0, fpsqrt( p2 ) );
+      const fptype_sv pt = fpmin( pp, fpsqrt( pt2 ) );
       // Branch A: pp == 0.
       const cxtype vcA_2 = cxmake( 0, 0 );
       const cxtype vcA_3 = cxmake( -hel * sqh, 0 );
@@ -487,7 +503,12 @@
     else
     {
       const fptype_sv& pp = pvec0; // NB: rewrite the following as in Fortran, using pp instead of pvec0
+#ifndef MGONGPU_CPPSIMD
       const fptype_sv pt = fpsqrt( ( pvec1 * pvec1 ) + ( pvec2 * pvec2 ) );
+#else
+      volatile fptype_sv pt2 = pvec1 * pvec1 + pvec2 * pvec2; // volatile fixes #736
+      const fptype_sv pt = fpsqrt( pt2 );
+#endif
       vc[2] = cxzero_sv();
       vc[5] = cxmake( hel * pt / pp * sqh, 0. );
 #ifndef MGONGPU_CPPSIMD
@@ -564,6 +585,7 @@
     // NEW IMPLEMENTATION FIXING FLOATING POINT EXCEPTIONS IN SIMD CODE (#701)
     // Variables xxxDENOM are a hack to avoid division-by-0 FPE while preserving speed (#701 and #727)
     // Variables xxxDENOM are declared as 'volatile' to make sure they are not optimized away on clang! (#724)
+    // A few additional variables are declared as 'volatile' to avoid sqrt-of-negative-number FPEs (#736)
     const fptype_sv& pvec0 = M_ACCESS::kernelAccessIp4IparConst( momenta, 0, ipar );
     const fptype_sv& pvec1 = M_ACCESS::kernelAccessIp4IparConst( momenta, 1, ipar );
     const fptype_sv& pvec2 = M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar );
@@ -574,8 +596,8 @@
     const int nh = nhel * nsf;
     if( fmass != 0. )
     {
-      const fptype_sv pp = fpmin( pvec0, fpsqrt( ( pvec1 * pvec1 ) + ( pvec2 * pvec2 ) + ( pvec3 * pvec3 ) ) );
 #ifndef MGONGPU_CPPSIMD
+      const fptype_sv pp = fpmin( pvec0, fpsqrt( ( pvec1 * pvec1 ) + ( pvec2 * pvec2 ) + ( pvec3 * pvec3 ) ) );
       if( pp == 0. )
       {
         // NB: Do not use "abs" for floats! It returns an integer with no build warning! Use std::abs!
@@ -608,6 +630,8 @@
         fo[5] = sfomeg[0] * chi[ip];
       }
 #else
+      volatile fptype_sv p2 = pvec1 * pvec1 + pvec2 * pvec2 + pvec3 * pvec3; // volatile fixes #736
+      const fptype_sv pp = fpmin( pvec0, fpsqrt( p2 ) );
       // Branch A: pp == 0.
       // NB: Do not use "abs" for floats! It returns an integer with no build warning! Use std::abs!
       fptype sqm[2] = { fpsqrt( std::abs( fmass ) ), 0 }; // possibility of negative fermion masses
@@ -627,9 +651,10 @@
       const int imB = ( 1 - nh ) / 2;
       const fptype_v sfomeg[2] = { sf[0] * omega[ipB], sf[1] * omega[imB] };
       const fptype_v pp3 = fpmax( pp + pvec3, 0. );
-      volatile fptype_v ppDENOM = fpternary( pp != 0, pp, 1. );              // hack: ppDENOM[ieppV]=1 if pp[ieppV]==0
-      volatile fptype_v pp3DENOM = fpternary( pp3 != 0, pp3, 1. );           // hack: pp3DENOM[ieppV]=1 if pp3[ieppV]==0
-      const cxtype_v chi[2] = { cxmake( fpsqrt( pp3 * 0.5 / ppDENOM ), 0. ), // hack: dummy[ieppV] is not used if pp[ieppV]==0
+      volatile fptype_v ppDENOM = fpternary( pp != 0, pp, 1. );    // hack: ppDENOM[ieppV]=1 if pp[ieppV]==0
+      volatile fptype_v pp3DENOM = fpternary( pp3 != 0, pp3, 1. ); // hack: pp3DENOM[ieppV]=1 if pp3[ieppV]==0
+      volatile fptype_v chi0r2 = pp3 * 0.5 / ppDENOM;              // volatile fixes #736
+      const cxtype_v chi[2] = { cxmake( fpsqrt( chi0r2 ), 0. ),    // hack: dummy[ieppV] is not used if pp[ieppV]==0
                                 ( cxternary( ( pp3 == 0. ),
                                              cxmake( -nh, 0. ),
                                              cxmake( (fptype)nh * pvec1, -pvec2 ) / fpsqrt( 2. * ppDENOM * pp3DENOM ) ) ) }; // hack: dummy[ieppV] is not used if pp[ieppV]==0
@@ -647,16 +672,20 @@
     }
     else
     {
-      const fptype_sv sqp0p3 = fpternary( ( pvec1 == 0. ) and ( pvec2 == 0. ) and ( pvec3 < 0. ),
-                                          0,
-                                          fpsqrt( fpmax( pvec0 + pvec3, 0. ) ) * (fptype)nsf );
 #ifdef MGONGPU_CPPSIMD
-      volatile fptype_v sqp0p3DENOM = fpternary( sqp0p3 != 0, sqp0p3, 1. ); // hack: sqp0p3DENOM[ieppV]=1 if sqp0p3[ieppV]==0
-      const cxtype_v chi[2] = { cxmake( sqp0p3, 0. ),
+      volatile fptype_sv p0p3 = fpmax( pvec0 + pvec3, 0 ); // volatile fixes #736
+      volatile fptype_sv sqp0p3 = fpternary( ( pvec1 == 0. and pvec2 == 0. and pvec3 < 0. ),
+                                             fptype_sv{ 0 },
+                                             fpsqrt( p0p3 ) * (fptype)nsf );
+      volatile fptype_v sqp0p3DENOM = fpternary( sqp0p3 != 0, (fptype_sv)sqp0p3, 1. ); // hack: sqp0p3DENOM[ieppV]=1 if sqp0p3[ieppV]==0
+      const cxtype_v chi[2] = { cxmake( (fptype_v)sqp0p3, 0. ),
                                 cxternary( ( sqp0p3 == 0. ),
                                            cxmake( -nhel, 0. ) * fpsqrt( 2. * pvec0 ),
                                            cxmake( (fptype)nh * pvec1, -pvec2 ) / (const fptype_sv)sqp0p3DENOM ) }; // hack: dummy[ieppV] is not used if sqp0p3[ieppV]==0
 #else
+      const fptype_sv sqp0p3 = fpternary( ( pvec1 == 0. ) and ( pvec2 == 0. ) and ( pvec3 < 0. ),
+                                          0,
+                                          fpsqrt( fpmax( pvec0 + pvec3, 0. ) ) * (fptype)nsf );
       const cxtype_sv chi[2] = { cxmake( sqp0p3, 0. ),
                                  ( sqp0p3 == 0. ? cxmake( -nhel, 0. ) * fpsqrt( 2. * pvec0 ) : cxmake( (fptype)nh * pvec1, -pvec2 ) / sqp0p3 ) };
 #endif
