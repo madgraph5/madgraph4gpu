@@ -165,6 +165,6 @@ INFO: /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg
 [1;32mDEBUG:  self.in_madevent_mode = [0m False [1;30m[output.py at line 207][0m [0m
 quit
 
-real	0m0.415s
-user	0m0.359s
-sys	0m0.045s
+real	0m0.582s
+user	0m0.368s
+sys	0m0.042s

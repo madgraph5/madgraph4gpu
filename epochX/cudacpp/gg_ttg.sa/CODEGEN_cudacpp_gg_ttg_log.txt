@@ -62,7 +62,7 @@ generate g g > t t~ g
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.0052645206451416016 [0m
+[1;32mDEBUG: model prefixing  takes 0.005626201629638672 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -183,7 +183,7 @@ ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 set of routines with options: P0[0m
 ALOHA: aloha creates VVVV3 set of routines with options: P0[0m
 ALOHA: aloha creates VVVV4 set of routines with options: P0[0m
-ALOHA: aloha creates 5 routines in  0.319 s
+ALOHA: aloha creates 5 routines in  0.321 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -205,6 +205,6 @@ INFO: /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_ttg/
 [1;32mDEBUG:  self.in_madevent_mode = [0m False [1;30m[output.py at line 207][0m [0m
 quit
 
-real	0m0.768s
-user	0m0.709s
-sys	0m0.048s
+real	0m0.792s
+user	0m0.705s
+sys	0m0.057s
