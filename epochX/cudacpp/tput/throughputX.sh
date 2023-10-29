@@ -12,7 +12,7 @@ topdir=$(cd $scrdir; cd ../../..; pwd)
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggh]> [-nocpp|[-avxall][-nocuda][-noneonly][-sse4only][-avx2only][-512yonly][-512zonly]] [-sa] [-noalpaka] [-flt|-fltonly|-mix|-mixonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-omp] [-makeonly|-makeclean|-makecleanonly|-dryrun] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest] [-v] [-dlp <dyld_library_path>]"
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggh]> [-nocpp|[-avxall][-nocuda][-noneonly][-sse4only][-avx2only][-512yonly][-512zonly]] [-sa] [-noalpaka] [-flt|-fltonly|-mix|-mixonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-omp] [-makeonly|-makeclean|-makecleanonly|-dryrun] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest] [-nofpe] [-v] [-dlp <dyld_library_path>]"
   exit 1
 }
 
@@ -51,6 +51,7 @@ div=0
 req=0
 detailed=0
 gtest=0
+nofpe=0
 verbose=0
 
 dlp=
@@ -219,6 +220,9 @@ while [ "$1" != "" ]; do
     if [ "${cpp}" == "0" ]; then echo "ERROR! Options -gtest and -nocpp are incompatible"; usage; fi
     gtest=1
     shift
+  elif [ "$1" == "-nofpe" ]; then
+    nofpe=1
+    shift
   elif [ "$1" == "-v" ]; then
     verbose=1
     shift
@@ -237,6 +241,15 @@ done
 if [ "${dlp}" != "" ]; then
   echo "export DYLD_LIBRARY_PATH=$dlp"
   export DYLD_LIBRARY_PATH=$dlp
+fi
+
+# Enable FPEs in check.exe by default (see #733)
+if [ "${nofpe}" == "0" ]; then
+  echo "export CUDACPP_RUNTIME_ENABLEFPE=on"
+  export CUDACPP_RUNTIME_ENABLEFPE=on
+else
+  echo "unset CUDACPP_RUNTIME_ENABLEFPE"
+  unset CUDACPP_RUNTIME_ENABLEFPE
 fi
 
 # Check that at least one process has been selected
