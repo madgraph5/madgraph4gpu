@@ -7,7 +7,7 @@
 // Further modified by: A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
 //==========================================================================
 // This file has been automatically generated for CUDA/C++ standalone by
-// MadGraph5_aMC@NLO v. 3.5.0_lo_vect, 2023-06-09
+// MadGraph5_aMC@NLO v. 3.5.1_lo_vect, 2023-08-08
 // By the MadGraph5_aMC@NLO Development Team
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
@@ -106,8 +106,8 @@ Parameters_sm_no_b_mass::setDependentParameters() // now computed event-by-event
 void
 Parameters_sm_no_b_mass::setDependentCouplings() // now computed event-by-event (running alphas #373)
 {
-  GC_10 = -G;
   GC_11 = mdl_complexi * G;
+  GC_10 = -G;
 }
 */
 
@@ -185,7 +185,7 @@ void
 Parameters_sm_no_b_mass::printDependentCouplings() // now computed event-by-event (running alphas #373)
 {
   std::cout << "sm_no_b_mass model couplings dependent on event kinematics:" << std::endl;
-  std::cout << std::setw( 20 ) << "GC_10 = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << GC_10 << std::endl;
   std::cout << std::setw( 20 ) << "GC_11 = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << GC_11 << std::endl;
+  std::cout << std::setw( 20 ) << "GC_10 = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << GC_10 << std::endl;
 }
 */

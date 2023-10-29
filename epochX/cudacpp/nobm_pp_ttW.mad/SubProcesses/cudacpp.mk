@@ -27,6 +27,8 @@ UNAME_S := $(shell uname -s)
 UNAME_P := $(shell uname -p)
 ###$(info UNAME_P='$(UNAME_P)')
 
+###include ../../Source/make_opts # AV remove (added by OM)
+
 #-------------------------------------------------------------------------------
 
 #=== Configure common compiler flags for C++ and CUDA
@@ -39,6 +41,20 @@ MG5AMC_COMMONLIB = mg5amc_common
 LIBFLAGS = -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
 INCFLAGS += -I../../src
 
+# Compiler-specific googletest build directory (#125 and #738)
+ifneq ($(shell $(CXX) --version | grep '^Intel(R) oneAPI DPC++/C++ Compiler'),)
+override CXXNAME = icpx$(shell $(CXX) --version | head -1 | cut -d' ' -f5)
+else ifneq ($(shell $(CXX) --version | egrep '^clang'),)
+override CXXNAME = clang$(shell $(CXX) --version | head -1 | cut -d' ' -f3)
+else ifneq ($(shell $(CXX) --version | grep '^g++ (GCC)'),)
+override CXXNAME = gcc$(shell $(CXX) --version | head -1 | cut -d' ' -f3)
+else
+override CXXNAME = unknown
+endif
+###$(info CXXNAME=$(CXXNAME))
+override CXXNAMESUFFIX = _$(CXXNAME)
+export CXXNAMESUFFIX
+
 # Dependency on test directory
 # Within the madgraph4gpu git repo: by default use a common gtest installation in <topdir>/test (optionally use an external or local gtest)
 # Outside the madgraph4gpu git repo: by default do not build the tests (optionally use an external or local gtest)
@@ -50,10 +66,10 @@ ifneq ($(wildcard $(GTEST_ROOT)),)
 TESTDIR =
 else ifneq ($(LOCALGTEST),)
 TESTDIR=$(TESTDIRLOCAL)
-GTEST_ROOT = $(TESTDIR)/googletest/install
+GTEST_ROOT = $(TESTDIR)/googletest/install$(CXXNAMESUFFIX)
 else ifneq ($(wildcard ../../../../../epochX/cudacpp/CODEGEN),)
 TESTDIR = $(TESTDIRCOMMON)
-GTEST_ROOT = $(TESTDIR)/googletest/install
+GTEST_ROOT = $(TESTDIR)/googletest/install$(CXXNAMESUFFIX)
 else
 TESTDIR =
 endif
@@ -86,6 +102,11 @@ endif
 
 # Note: AR, CXX and FC are implicitly defined if not set externally
 # See https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
+
+# Add -mmacosx-version-min=11.3 to avoid "ld: warning: object file was built for newer macOS version than being linked"
+ifneq ($(shell $(CXX) --version | egrep '^Apple clang'),)
+CXXFLAGS += -mmacosx-version-min=11.3
+endif
 
 #-------------------------------------------------------------------------------
 
@@ -206,7 +227,8 @@ else ifneq ($(shell $(CXX) --version | egrep '^(clang)'),)
 override OMPFLAGS = -fopenmp
 ###override OMPFLAGS = # disable OpenMP MT on clang (was not ok without or with nvcc before #578)
 else ifneq ($(shell $(CXX) --version | egrep '^(Apple clang)'),)
-override OMPFLAGS = # disable OpenMP MT on Apple clang (builds fail in the CI #578)
+override OMPFLAGS = # AV disable OpenMP MT on Apple clang (builds fail in the CI #578)
+###override OMPFLAGS = -fopenmp # OM reenable OpenMP MT on Apple clang? (AV Oct 2023: this still fails in the CI)
 else
 override OMPFLAGS = -fopenmp
 ###override OMPFLAGS = # disable OpenMP MT (default before #575)

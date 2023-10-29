@@ -749,13 +749,15 @@ class CommonRunCmd(HelpToCmd, CheckValidForCmd, cmd.Cmd):
         
     class RunWebHandling(object):
         
-        def __init__(self, me_dir, crashifpresent=True, warnifpresent=True):
+        def __init__(self, me_dir, crashifpresent=True, warnifpresent=True, force_run=False):
             """raise error if RunWeb already exists
             me_dir is the directory where the write RunWeb"""
             
             self.remove_run_web = True
             self.me_dir = me_dir
-            
+            if force_run:
+                self.remove_run_web = False
+                return            
             if crashifpresent or warnifpresent:
                 if os.path.exists(pjoin(me_dir, 'RunWeb')):
                     pid = open(pjoin(me_dir, 'RunWeb')).read()
@@ -2913,7 +2915,18 @@ class CommonRunCmd(HelpToCmd, CheckValidForCmd, cmd.Cmd):
             run_analysis = "{0},{1}".format(run_analysis, analysis)
         run_analysis = run_analysis.split(",", 1)[1]
         if "$CONTUR_" in run_analysis:
-            set_env = "source {0}\n".format(pjoin(self.options['contur_path'], "contur", "data", "share", "analysis-list"))
+            if not os.path.exists(pjoin(self.options['contur_path'], 'conturenv.sh')):
+                raise Exception("contur_path is not correctly setup. Should be the directory of contur and conturenv.sh script")
+            #4 Write Rivet lines
+            shell = 'bash' if misc.get_shell_type() in ['bash',None] else 'tcsh'
+            shell = misc.which(shell)
+            p = subprocess.Popen('source {0} &>/dev/null; echo $CONTUR_USER_DIR'.format(pjoin(self.options['contur_path'], "conturenv.sh"))
+                                 , shell=True, stdout=subprocess.PIPE, executable=shell)
+            (out,_) = p.communicate()                            
+            contur_user_dir = out.decode().strip()
+            # ISSUE HERE TOO FOR DOCKER -> get from env?
+            #set_env = "source {0}\n".format(pjoin(self.options['contur_path'], "contur", "data", "share", "analysis-list"))
+            set_env = "source {0}\n".format(pjoin(contur_user_dir,"analysis-list"))
             #ATLAS_2016_I1469071 sometimes give segmentation errors and also not so safe due to neutrino truth info. Need to force remove this?
             set_env = set_env + "{0}=`echo {1} | sed 's/,ATLAS_2016_I1469071//'`\n".format(run_analysis.replace("$",""), run_analysis)
 
@@ -3112,13 +3125,19 @@ class CommonRunCmd(HelpToCmd, CheckValidForCmd, cmd.Cmd):
             MA5_lvl = MA5_opts['MA5_stdout_lvl']
 
         # Bypass initialization information
-        MA5_interpreter = CommonRunCmd.get_MadAnalysis5_interpreter(
+        try:
+            MA5_interpreter = CommonRunCmd.get_MadAnalysis5_interpreter(
                 self.options['mg5_path'], 
                 self.options['madanalysis5_path'],
                 logstream=sys.stdout,
                 loglevel=100,
                 forced=True,
                 compilation=True)
+        except SystemExit as error:
+            return
+        except Exception as error:
+            logger.warning("MA5 fails with: \n %s", error)
+            return
 
 
         # If failed to start MA5, then just leave
@@ -6557,7 +6576,7 @@ class AskforEditCard(cmd.OneLinePathCompletion):
     fail_due_to_format = 0 #parameter to avoid infinite loop
     def postcmd(self, stop, line):
 
-        if line not in [None, '0', 'done', '']:
+        if line not in [None, '0', 'done', '',0]:
             ending_question = cmd.OneLinePathCompletion.postcmd(self,stop,line)
         else:
             ending_question = True
@@ -7516,7 +7535,8 @@ You can also copy/paste, your event file here.''')
             else:
                 raise
         if time.time() - start < .5:
-            self.mother_interface.ask("Are you really that fast? If you are using an editor that returns directly. Please confirm that you have finised to edit the file", 'y')
+            self.mother_interface.ask("Are you really that fast? If you are using an editor that returns directly. Please confirm that you have finised to edit the file", 'y',
+                                      timeout=False)
         self.reload_card(path)
         
     def reload_card(self, path): 

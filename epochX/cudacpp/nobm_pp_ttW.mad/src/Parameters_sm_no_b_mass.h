@@ -7,7 +7,7 @@
 // Further modified by: A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
 //==========================================================================
 // This file has been automatically generated for CUDA/C++ standalone by
-// MadGraph5_aMC@NLO v. 3.5.0_lo_vect, 2023-06-09
+// MadGraph5_aMC@NLO v. 3.5.1_lo_vect, 2023-08-08
 // By the MadGraph5_aMC@NLO Development Team
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
@@ -23,7 +23,6 @@
 //==========================================================================
 
 #ifndef MGONGPU_HARDCODE_PARAM // this is only supported in SM processes (e.g. not in EFT models) for the moment (#439)
-#error This non-SM physics process only supports MGONGPU_HARDCODE_PARAM builds (#439): please run "make HRDCOD=1"
 
 #include "read_slha.h"
 
@@ -55,7 +54,7 @@ namespace mg5amcCpu
     //double mdl_sqrt__aS, G, mdl_G__exp__2; // now computed event-by-event (running alphas #373)
 
     // Model couplings dependent on aS
-    //cxsmpl<double> GC_10, GC_11; // now computed event-by-event (running alphas #373)
+    //cxsmpl<double> GC_11, GC_10; // now computed event-by-event (running alphas #373)
 
     // Set parameters that are unchanged during the run
     void setIndependentParameters( SLHAReader& slha );
@@ -190,8 +189,8 @@ namespace mg5amcCpu
     //constexpr double mdl_G__exp__2 = ( ( G ) * ( G ) ); // now computed event-by-event (running alphas #373)
 
     // Model couplings dependent on aS
-    //constexpr cxsmpl<double> GC_10 = -G; // now computed event-by-event (running alphas #373)
     //constexpr cxsmpl<double> GC_11 = mdl_complexi * G; // now computed event-by-event (running alphas #373)
+    //constexpr cxsmpl<double> GC_10 = -G; // now computed event-by-event (running alphas #373)
 
     // Print parameters that are unchanged during the run
     void printIndependentParameters();
@@ -222,12 +221,12 @@ namespace mg5amcCpu
   namespace Parameters_sm_no_b_mass_dependentCouplings
   {
     constexpr size_t ndcoup = 2; // #couplings that vary event by event because they depend on the running alphas QCD
-    constexpr size_t idcoup_GC_10 = 0;
-    constexpr size_t idcoup_GC_11 = 1;
+    constexpr size_t idcoup_GC_11 = 0;
+    constexpr size_t idcoup_GC_10 = 1;
     struct DependentCouplings_sv
     {
-      cxtype_sv GC_10;
       cxtype_sv GC_11;
+      cxtype_sv GC_10;
     };
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-variable"  // e.g. <<warning: unused variable ‘mdl_G__exp__2’ [-Wunused-variable]>>
@@ -245,8 +244,7 @@ namespace mg5amcCpu
       // (1) mdl_complexi is always (0,1); (2) mdl_complexi is undefined in device code; (3) need cxsmpl conversion to cxtype in code below
       const cxtype cI( 0., 1. );
       DependentCouplings_sv out;
-      // Begin non-SM (e.g. EFT) implementation - special handling of vectors of floats (#439)
-#if not( defined MGONGPU_CPPSIMD && defined MGONGPU_FPTYPE_FLOAT )
+      // Begin SM implementation - no special handling of vectors of floats as in EFT (#439)
       {
         const fptype_sv& G = G_sv;
         // Model parameters dependent on aS
@@ -254,36 +252,10 @@ namespace mg5amcCpu
         //const fptype_sv G = 2. * mdl_sqrt__aS * constexpr_sqrt( M_PI );
         const fptype_sv mdl_G__exp__2 = ( ( G ) * ( G ) );
         // Model couplings dependent on aS
-        out.GC_10 = -G;
         out.GC_11 = cI * G;
+        out.GC_10 = -G;
       }
-#else
-      // ** NB #439: special handling is necessary ONLY FOR VECTORS OF FLOATS (variable Gs are vector floats, fixed parameters are scalar doubles)
-      // Use an explicit loop to avoid <<error: conversion of scalar ‘double’ to vector ‘fptype_sv’ {aka ‘__vector(8) float’} involves truncation>>
-      // Problems may come e.g. in EFTs from multiplying a vector float (related to aS-dependent G) by a scalar double (aS-independent parameters)
-      fptype_v GC_10r_v;
-      fptype_v GC_10i_v;
-      fptype_v GC_11r_v;
-      fptype_v GC_11i_v;
-      for( int i = 0; i < neppV; i++ )
-      {
-        const fptype& G = G_sv[i];
-        // Model parameters dependent on aS
-        //const fptype mdl_sqrt__aS = constexpr_sqrt( aS );
-        //const fptype G = 2. * mdl_sqrt__aS * constexpr_sqrt( M_PI );
-        const fptype mdl_G__exp__2 = ( ( G ) * ( G ) );
-        // Model couplings dependent on aS
-        const cxtype GC_10 = -G;
-        const cxtype GC_11 = cI * G;
-        GC_10r_v[i] = cxreal( GC_10 );
-        GC_10i_v[i] = cximag( GC_10 );
-        GC_11r_v[i] = cxreal( GC_11 );
-        GC_11i_v[i] = cximag( GC_11 );
-      }
-      out.GC_10 = cxtype_v( GC_10r_v, GC_10i_v );
-      out.GC_11 = cxtype_v( GC_11r_v, GC_11i_v );
-#endif
-      // End non-SM (e.g. EFT) implementation - special handling of vectors of floats (#439)
+      // End SM implementation - no special handling of vectors of floats as in EFT (#439)
       return out;
     }
 #ifdef __CUDACC__
@@ -316,12 +288,12 @@ namespace mg5amcCpu
     using namespace Parameters_sm_no_b_mass_dependentCouplings;
     const fptype_sv& gs_sv = G_ACCESS::kernelAccessConst( gs );
     DependentCouplings_sv couplings_sv = computeDependentCouplings_fromG( gs_sv );
-    fptype* GC_10s = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_GC_10 );
     fptype* GC_11s = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_GC_11 );
-    cxtype_sv_ref GC_10s_sv = C_ACCESS::kernelAccess( GC_10s );
+    fptype* GC_10s = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_GC_10 );
     cxtype_sv_ref GC_11s_sv = C_ACCESS::kernelAccess( GC_11s );
-    GC_10s_sv = couplings_sv.GC_10;
+    cxtype_sv_ref GC_10s_sv = C_ACCESS::kernelAccess( GC_10s );
     GC_11s_sv = couplings_sv.GC_11;
+    GC_10s_sv = couplings_sv.GC_10;
     mgDebug( 1, __FUNCTION__ );
     return;
   }
