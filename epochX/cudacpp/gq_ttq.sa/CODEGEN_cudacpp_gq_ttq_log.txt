@@ -61,7 +61,7 @@ set zerowidth_tchannel F
 define q = u c d s u~ c~ d~ s~; generate g q > t t~ q
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.005471229553222656 [0m
+[1;32mDEBUG: model prefixing  takes 0.005318880081176758 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -169,7 +169,7 @@ INFO: Crossed process found for g u~ > t t~ u~, reuse diagrams.
 INFO: Crossed process found for g c~ > t t~ c~, reuse diagrams. 
 INFO: Crossed process found for g d~ > t t~ d~, reuse diagrams. 
 INFO: Crossed process found for g s~ > t t~ s~, reuse diagrams. 
-8 processes with 40 diagrams generated in 0.077 s
+8 processes with 40 diagrams generated in 0.076 s
 Total: 8 processes with 40 diagrams
 output standalone_cudacpp ../TMPOUT/CODEGEN_cudacpp_gq_ttq
 Load PLUGIN.CUDACPP_OUTPUT
@@ -228,6 +228,6 @@ INFO: /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_gq_ttq/
 [1;32mDEBUG:  self.in_madevent_mode = [0m False [1;30m[output.py at line 207][0m [0m
 quit
 
-real	0m0.636s
-user	0m0.581s
-sys	0m0.049s
+real	0m0.639s
+user	0m0.590s
+sys	0m0.039s
