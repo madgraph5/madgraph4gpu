@@ -36,6 +36,13 @@ endif
 # See https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
 ###RANLIB = ranlib
 
+# Add -mmacosx-version-min=11.3 to avoid "ld: warning: object file was built for newer macOS version than being linked"
+LDFLAGS =
+ifneq ($(shell $(CXX) --version | egrep '^Apple clang'),)
+CXXFLAGS += -mmacosx-version-min=11.3
+LDFLAGS += -mmacosx-version-min=11.3
+endif
+
 #-------------------------------------------------------------------------------
 
 #=== Configure the CUDA compiler (note: NVCC is already exported including ccache)
@@ -250,20 +257,20 @@ $(BUILDDIR)/%%_cu.o : %%.cc *.h $(BUILDDIR)/.build.$(TAG)
 
 #-------------------------------------------------------------------------------
 
-cxx_objects=$(addprefix $(BUILDDIR)/, Parameters_%(model)s.o read_slha.o)
+cxx_objects=$(addprefix $(BUILDDIR)/, Parameters_sm.o read_slha.o)
 ifneq ($(NVCC),)
-cu_objects=$(addprefix $(BUILDDIR)/, Parameters_%(model)s_cu.o)
+cu_objects=$(addprefix $(BUILDDIR)/, Parameters_sm_cu.o)
 endif
 
 # Target (and build rules): common (src) library
 ifneq ($(NVCC),)
 $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so : $(cxx_objects) $(cu_objects)
 	@if [ ! -d $(LIBDIR) ]; then echo "mkdir -p $(LIBDIR)"; mkdir -p $(LIBDIR); fi
-	$(NVCC) -shared -o $@ $(cxx_objects) $(cu_objects)
+	$(NVCC) -shared -o $@ $(cxx_objects) $(cu_objects) $(LDFLAGS)
 else
 $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so : $(cxx_objects)
 	@if [ ! -d $(LIBDIR) ]; then echo "mkdir -p $(LIBDIR)"; mkdir -p $(LIBDIR); fi
-	$(CXX) -shared -o $@ $(cxx_objects)
+	$(CXX) -shared -o $@ $(cxx_objects) $(LDFLAGS)
 endif
 
 #-------------------------------------------------------------------------------
