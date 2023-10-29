@@ -493,10 +493,10 @@ C     ----------
       CALL IXXXXX(P(0,6),ZERO,NHEL(6),-1*IC(6),W(1,6))
       CALL FFV1P0_3(W(1,5),W(1,1),GC_11(IVEC),ZERO, FK_ZERO,W(1,7))
       CALL FFV1P0_3(W(1,6),W(1,2),GC_11(IVEC),ZERO, FK_ZERO,W(1,8))
-      CALL FFV1_1(W(1,3),W(1,7),GC_11(IVEC),MDL_MT, ZERO,W(1,9))
+      CALL FFV1_1(W(1,3),W(1,7),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,9))
 C     Amplitude(s) for diagram number 1
       CALL FFV1_0(W(1,4),W(1,9),W(1,8),GC_11(IVEC),AMP(1))
-      CALL FFV1_2(W(1,4),W(1,7),GC_11(IVEC),MDL_MT, ZERO,W(1,9))
+      CALL FFV1_2(W(1,4),W(1,7),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,9))
 C     Amplitude(s) for diagram number 2
       CALL FFV1_0(W(1,9),W(1,3),W(1,8),GC_11(IVEC),AMP(2))
       CALL FFV1P0_3(W(1,4),W(1,3),GC_11(IVEC),ZERO, FK_ZERO,W(1,9))
@@ -523,14 +523,14 @@ C     JAMPs contributing to orders ALL_ORDERS=1
       TMP_JAMP(2) = AMP(2) +  AMP(5)  ! used 3 times
       TMP_JAMP(1) = AMP(1) +  AMP(2)  ! used 3 times
       TMP_JAMP(8) = TMP_JAMP(5) +  TMP_JAMP(4)  ! used 2 times
-      TMP_JAMP(7) = TMP_JAMP(4) +  TMP_JAMP(1)  ! used 2 times
-      TMP_JAMP(6) = TMP_JAMP(5) +  TMP_JAMP(1)  ! used 2 times
+      TMP_JAMP(7) = TMP_JAMP(5) +  TMP_JAMP(1)  ! used 2 times
+      TMP_JAMP(6) = TMP_JAMP(4) +  TMP_JAMP(1)  ! used 2 times
       JAMP(1,1) = ((0.000000000000000D+00,2.500000000000000D-01))
      $ *AMP(3)+(2.500000000000000D-01)*AMP(6)+(2.500000000000000D-01)
      $ *TMP_JAMP(2)
-      JAMP(2,1) = (-8.333333333333333D-02)*TMP_JAMP(6)
-      JAMP(3,1) = (-8.333333333333333D-02)*TMP_JAMP(7)
-      JAMP(4,1) = (2.777777777777778D-02)*TMP_JAMP(4)
+      JAMP(2,1) = (-8.333333333333333D-02)*TMP_JAMP(7)
+      JAMP(3,1) = (-8.333333333333333D-02)*TMP_JAMP(6)
+      JAMP(4,1) = (2.777777777777778D-02)*TMP_JAMP(5)
      $ +(2.777777777777778D-02)*TMP_JAMP(6)
       JAMP(5,1) = ((0.000000000000000D+00,-2.500000000000000D-01))
      $ *AMP(3)+(2.500000000000000D-01)*AMP(7)+(2.500000000000000D-01)

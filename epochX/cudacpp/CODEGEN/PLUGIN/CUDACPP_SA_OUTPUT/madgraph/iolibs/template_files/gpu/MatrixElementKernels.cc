@@ -116,7 +116,7 @@ namespace mg5amcCpu
     bool known = true;
     bool ok = __builtin_cpu_supports( "sse4.2" );
     const std::string tag = "nehalem (SSE4.2)";
-#else
+#else // AV FIXME! Added by OM for Mac, should identify the correct __xxx__ flag that should be targeted
     bool known = false; // __builtin_cpu_supports is not supported
     // See https://gcc.gnu.org/onlinedocs/gcc/Basic-PowerPC-Built-in-Functions-Available-on-all-Configurations.html
     // See https://stackoverflow.com/q/62783908
