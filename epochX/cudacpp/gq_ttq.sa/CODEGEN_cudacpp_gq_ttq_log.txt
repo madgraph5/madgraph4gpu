@@ -58,10 +58,10 @@ The import format was not given, so we guess it as command
 set stdout_level DEBUG
 set output information to level: 10
 set zerowidth_tchannel F
-define q = u c d s u~ c~ d~ s~; generate g q > t t~ q
+define q = u c d s u~ c~ d~ s~
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.005591869354248047 [0m
+[1;32mDEBUG: model prefixing  takes 0.0052640438079833984 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -150,6 +150,7 @@ Defined multiparticle vl = ve vm vt
 Defined multiparticle vl~ = ve~ vm~ vt~
 Defined multiparticle all = g u c d s u~ c~ d~ s~ a ve vm vt e- mu- ve~ vm~ vt~ e+ mu+ t b t~ b~ z w+ h w- ta- ta+
 Defined multiparticle q = u c d s u~ c~ d~ s~
+generate g q > t t~ q
 INFO: Checking for minimal orders which gives processes. 
 INFO: Please specify coupling orders to bypass this step. 
 INFO: Trying coupling order WEIGHTED<=3: WEIGTHED IS QCD+2*QED 
@@ -169,7 +170,7 @@ INFO: Crossed process found for g u~ > t t~ u~, reuse diagrams.
 INFO: Crossed process found for g c~ > t t~ c~, reuse diagrams. 
 INFO: Crossed process found for g d~ > t t~ d~, reuse diagrams. 
 INFO: Crossed process found for g s~ > t t~ s~, reuse diagrams. 
-8 processes with 40 diagrams generated in 0.076 s
+8 processes with 40 diagrams generated in 0.077 s
 Total: 8 processes with 40 diagrams
 output standalone_cudacpp ../TMPOUT/CODEGEN_cudacpp_gq_ttq
 Load PLUGIN.CUDACPP_OUTPUT
@@ -210,7 +211,7 @@ Generated helas calls for 2 subprocesses (10 diagrams) in 0.030 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVV1 routines[0m
-ALOHA: aloha creates 2 routines in  0.144 s
+ALOHA: aloha creates 2 routines in  0.140 s
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -228,6 +229,6 @@ INFO: /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_gq_ttq/
 [1;32mDEBUG:  self.in_madevent_mode = [0m False [1;30m[output.py at line 207][0m [0m
 quit
 
-real	0m0.998s
-user	0m0.583s
-sys	0m0.054s
+real	0m0.783s
+user	0m0.565s
+sys	0m0.062s

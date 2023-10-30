@@ -58,9 +58,10 @@ The import format was not given, so we guess it as command
 set stdout_level DEBUG
 set output information to level: 10
 set zerowidth_tchannel F
-set auto_convert_model T; import model heft; generate g g > h
+set auto_convert_model T
 save options auto_convert_model
 save configuration file to /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/mg5amcnlo/input/mg5_configuration.txt
+import model heft
 INFO: Restrict model heft with file models/heft/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: s u w+ at order: QED=1 [0m
@@ -123,6 +124,7 @@ Defined multiparticle l- = e- mu-
 Defined multiparticle vl = ve vm vt
 Defined multiparticle vl~ = ve~ vm~ vt~
 Defined multiparticle all = g u c d s u~ c~ d~ s~ a ve vm vt e- mu- ve~ vm~ vt~ e+ mu+ t b t~ b~ z w+ h h1 w- ta- ta+
+generate g g > h
 INFO: Checking for minimal orders which gives processes. 
 INFO: Please specify coupling orders to bypass this step. 
 INFO: Trying process: g g > h HIG<=1 HIW<=1 WEIGHTED<=2 @1  
@@ -165,6 +167,6 @@ INFO: /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg
 [1;32mDEBUG:  self.in_madevent_mode = [0m False [1;30m[output.py at line 207][0m [0m
 quit
 
-real	0m0.582s
-user	0m0.368s
-sys	0m0.042s
+real	0m0.417s
+user	0m0.362s
+sys	0m0.046s
