@@ -18,7 +18,7 @@ on:
     #    type: string
 
 jobs:
-  codegen:
+  manualtestsuite:
     runs-on: ubuntu-latest
     steps:
     # See https://github.com/actions/checkout
@@ -27,7 +27,9 @@ jobs:
     - uses: actions/checkout@v4
       with:
         submodules: 'true'
-    - name: codegen_step
-      run: echo Current directory is $(pwd); echo execute .github/workflows/manual.sh; .github/workflows/manual.sh
+    #- name: codegen_step
+    #  run: .github/workflows/manual.sh codegen
+    - name: tput_step
+      run: .github/workflows/manual.sh tput
     #- name: Send greeting
     #  run: echo "Hello ${{ inputs.name }}"
