@@ -44,10 +44,10 @@ for proc in $processes; do
   echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
   if [ "${proc%.mad}" != "${proc}" ]; then
     # Generate code and check clang formatting
-    ./CODEGEN/generateAndCompare.sh ${proc%.mad} --mad
+    ./CODEGEN/generateAndCompare.sh -q ${proc%.mad} --mad
   elif [ "${proc%.sa}" != "${proc}" ]; then
     # Generate code and check clang formatting
-    ./CODEGEN/generateAndCompare.sh ${proc%.sa}
+    ./CODEGEN/generateAndCompare.sh -q ${proc%.sa}
   else
     echo "WARNING! SKIP process directory '${proc}' because it does not end in .mad or .sa"
   fi
