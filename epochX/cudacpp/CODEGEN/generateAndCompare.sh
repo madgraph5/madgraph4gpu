@@ -17,7 +17,7 @@ function codeGenAndDiff()
   cmdext="$2"
   if [ "$3" != "" ]; then echo -e "INTERNAL ERROR!\nUsage: ${FUNCNAME[0]} <proc> [<cmd>]"; exit 1; fi
   # Process-dependent hardcoded configuration
-  echo -e "\n================================================================"
+  echo -e "================================================================"
   cmd=
   case "${proc}" in
     ee_mumu)
@@ -318,13 +318,15 @@ gensym
 EOF
   done
   # Compare the existing generated code to the newly generated code for the specific process
-  pushd ${OUTDIR} >& /dev/null
-  echo -e "\n+++ Compare old and new code generation log for $proc\n"
-  ###if diff -c ${proc}.${autosuffix}.BKP/${outproc}_log.txt ${proc}.${autosuffix}; then echo "Old and new code generation logs are identical"; fi # context diff
-  if diff ${proc}.${autosuffix}.BKP/$(basename ${outproc})_log.txt ${proc}.${autosuffix}; then echo "Old and new code generation logs are identical"; fi # context diff
-  echo -e "\n+++ Compare old and new generated code for $proc\n"
-  if $SCRDIR/diffCode.sh ${BRIEF} -r -c ${proc}.${autosuffix}.BKP ${proc}.${autosuffix}; then echo "Old and new generated codes are identical"; else echo -e "\nWARNING! Old and new generated codes differ"; fi
-  popd >& /dev/null
+  if [ "$QUIET" != "1" ]; then
+    pushd ${OUTDIR} >& /dev/null
+    echo -e "\n+++ Compare old and new code generation log for $proc\n"
+    ###if diff -c ${proc}.${autosuffix}.BKP/${outproc}_log.txt ${proc}.${autosuffix}; then echo "Old and new code generation logs are identical"; fi # context diff
+    if diff ${proc}.${autosuffix}.BKP/$(basename ${outproc})_log.txt ${proc}.${autosuffix}; then echo "Old and new code generation logs are identical"; fi # context diff
+    echo -e "\n+++ Compare old and new generated code for $proc\n"
+    if $SCRDIR/diffCode.sh ${BRIEF} -r -c ${proc}.${autosuffix}.BKP ${proc}.${autosuffix}; then echo "Old and new generated codes are identical"; else echo -e "\nWARNING! Old and new generated codes differ"; fi
+    popd >& /dev/null
+  fi
   # Compare the existing manually developed code to the newly generated code for the specific process
   if [ "${OUTBCK}" == "cudacpp" ] || [ "${OUTBCK}" == "gridpack" ]; then
     pushd ${OUTDIR} >& /dev/null
@@ -333,10 +335,12 @@ EOF
     popd >& /dev/null
   fi
   # Print a summary of the available code
-  echo
-  echo -e "Manually developed code is\n  ${OUTDIR}/${proc}"
-  echo -e "Old generated code moved to\n  ${OUTDIR}/${proc}.${autosuffix}.BKP"
-  echo -e "New generated code moved to\n  ${OUTDIR}/${proc}.${autosuffix}"
+  if [ "$QUIET" != "1" ]; then
+    echo
+    echo -e "Manually developed code is\n  ${OUTDIR}/${proc}"
+    echo -e "Old generated code moved to\n  ${OUTDIR}/${proc}.${autosuffix}.BKP"
+    echo -e "New generated code moved to\n  ${OUTDIR}/${proc}.${autosuffix}"
+  fi
 }
 
 #--------------------------------------------------------------------------------------
@@ -354,7 +358,7 @@ function usage()
     echo "ERROR! alpaka mode is no longer supported by this script!"; exit 1
   else
     # NB: all options with $SCRBCK=cudacpp use the 311 branch by default and always disable helicity recycling
-    echo "Usage:   $0 [--nobrief] [--cpp|--gpu|--madnovec|--madonly|--mad|--madcpp*|--madgpu] [--nopatch|--upstream] [-c '<cmd>'] <proc>"
+    echo "Usage:   $0 [-q|--nobrief] [--cpp|--gpu|--madnovec|--madonly|--mad|--madcpp*|--madgpu] [--nopatch|--upstream] [-c '<cmd>'] <proc>"
     echo "         (*Note: the --madcpp option exists but code generation fails for it)"
     echo "         (**Note: <proc> will be used as a relative path in ${OUTDIR} and should not contain '/' characters"
     echo "Example: $0 gg_tt --mad"
@@ -398,7 +402,8 @@ SCRBCK=$(basename $OUTDIR) # e.g. cudacpp if $OUTDIR=epochX/cudacpp
 # Default output backend (in the cudacpp directory this can be changed using commad line options like --cpp, --gpu or --mad)
 OUTBCK=$SCRBCK
 
-# Default: brief diffs (use --nobrief to use full diffs)
+# Default: brief diffs (use --nobrief to use full diffs, use -q to be much quieter)
+QUIET=
 BRIEF=--brief
 
 # Default for gridpacks: untar gridpack.tar.gz but do not regenerate it (use --nountaronly to regenerate it)
@@ -418,8 +423,10 @@ proc=
 while [ "$1" != "" ]; do
   if [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
     usage
-  elif [ "$1" == "--nobrief" ]; then
+  elif [ "$1" == "--nobrief" ] && [ "$QUIET" != "1" ]; then
     BRIEF=
+  elif [ "$1" == "-q" ] && [ "$BRIEF" != "" ]; then
+    QUIET=1
   elif [ "$1" == "--nopatch" ] && [ "${PATCHLEVEL}" == "" ]; then
     PATCHLEVEL=--nopatch
   elif [ "$1" == "--upstream" ] && [ "${PATCHLEVEL}" == "" ]; then
@@ -463,6 +470,7 @@ echo "SCRBCK=${SCRBCK} (uppercase=${SCRBCK^^})"
 echo "OUTBCK=${OUTBCK}"
 
 echo "BRIEF=${BRIEF}"
+echo "QUIET=${QUIET}"
 echo "proc=${proc}"
 
 # Make sure that python3 is installed
@@ -504,16 +512,20 @@ echo -e "\nDefault MG5AMC_HOME=$MG5AMC_HOME on $(hostname)\n"
 if ! git --version >& /dev/null; then
   echo -e "ERROR! git is not installed: cannot retrieve git properties of MG5aMC_HOME\n"; exit 1
 fi
-echo -e "Using $(git --version)"
 cd ${MG5AMC_HOME}
-echo -e "Retrieving git information about MG5AMC_HOME"
+if [ "$QUIET" != "1" ]; then
+  echo -e "Using $(git --version)"
+  echo -e "Retrieving git information about MG5AMC_HOME"
+fi
 if ! git log -n1 >& /dev/null; then
   echo -e "ERROR! MG5AMC_HOME is not a git clone\n"; exit 1
 fi
 branch_mg5amc=$(git branch --no-color | \grep ^* | awk '{print $2}')
-echo -e "Current git branch of MG5AMC_HOME is '${branch_mg5amc}'"
 commit_mg5amc=$(git log --oneline -n1 | awk '{print $1}')
-echo -e "Current git commit of MG5AMC_HOME is '${commit_mg5amc}'"
+if [ "$QUIET" != "1" ]; then
+  echo -e "Current git branch of MG5AMC_HOME is '${branch_mg5amc}'"
+  echo -e "Current git commit of MG5AMC_HOME is '${commit_mg5amc}'"
+fi
 cd - > /dev/null
 
 # Copy MG5AMC ad-hoc patches if any (unless --upstream is specified)
@@ -538,12 +550,14 @@ cleanup_MG5AMC_HOME
 ###cleanup_MG5AMC_PLUGIN
 
 # Print differences in MG5AMC with respect to git after copying ad-hoc patches
-cd ${MG5AMC_HOME}
-echo -e "\n***************** Differences to the current git commit ${commit_patches} [START]"
-###if [ "$(git diff)" == "" ]; then echo -e "[No differences]"; else git diff; fi
-if [ "$(git diff)" == "" ]; then echo -e "[No differences]"; else git diff --name-status; fi
-echo -e "***************** Differences to the current git commit ${commit_patches} [END]"
-cd - > /dev/null
+if [ "$QUIET" != "1" ]; then
+  cd ${MG5AMC_HOME}
+  echo -e "\n***************** Differences to the current git commit ${commit_patches} [START]"
+  ###if [ "$(git diff)" == "" ]; then echo -e "[No differences]"; else git diff; fi
+  if [ "$(git diff)" == "" ]; then echo -e "[No differences]"; else git diff --name-status; fi
+  echo -e "***************** Differences to the current git commit ${commit_patches} [END]\n"
+  cd - > /dev/null
+fi
 
 # Copy the new plugin to MG5AMC_HOME (if the script directory backend is cudacpp or alpaka)
 #if [ "${SCRBCK}" == "cudacpp" ]; then
