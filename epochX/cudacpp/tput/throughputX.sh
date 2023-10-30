@@ -407,13 +407,12 @@ if [ "${maketype}" == "-dryrun" ]; then
 
 else
 
-  pushd $topdir/test >& /dev/null
-  echo "Building in $(pwd)"
-  make; echo # avoid issues with googletest in parallel builds
-  popd >& /dev/null
+  # (1) Fixme? build googletest once and for all to avoid issues in parallel builds?
+  # However, $topdir/test is NO LONGER RELEVANT and googletest must be built from one specific process
+  # In addition, CXXNAMESUFFIX must be set by cudacpp.mk, so googletest must be built from one P1 directory
 
+  # (2) Iterate over all directories (the first one will build googletest)
   for dir in $dirs; do
-
     export USEBUILDDIR=1
     pushd $dir >& /dev/null
     echo "Building in $(pwd)"
@@ -443,7 +442,6 @@ else
     export HRDCOD=
     export HELINL=
     export FPTYPE=
-
   done
 
   if [ "${maketype}" == "-makecleanonly" ]; then printf "MAKE CLEANALL COMPLETED\n"; exit 0; fi
