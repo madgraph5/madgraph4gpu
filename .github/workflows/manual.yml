@@ -1,32 +1,33 @@
-# This is a basic workflow that is manually triggered
+# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Licensed under the GNU Lesser General Public License (version 3 or later).
+# Created by: A. Valassi (Oct 2023) for the MG5aMC CUDACPP plugin.
+# Further modified by: A. Valassi (2023) for the MG5aMC CUDACPP plugin.
 
-name: Manual workflow
+name: Manual test suite
 
-# Controls when the action will run. Workflow runs when manually triggered using the UI
-# or API.
 on:
+  push:
+    paths:
+      - '.github/workflows/manual.*'
   workflow_dispatch:
-    # Inputs the workflow accepts.
-    inputs:
-      name:
-        # Friendly description to be shown in the UI instead of 'name'
-        description: 'Person to greet'
-        # Default value if no value is explicitly provided
-        default: 'World'
-        # Input has to be provided for the workflow to run
-        required: true
-        # The data type of the input
-        type: string
+    #inputs:
+    #  name:
+    #    description: 'Person to greet'
+    #    default: 'World'
+    #    required: true
+    #    type: string
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "greet"
-  greet:
-    # The type of runner that the job will run on
+  codegen:
     runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    # Runs a single command using the runners shell
-    - name: Send greeting
-      run: echo "Hello ${{ inputs.name }}"
+    # See https://github.com/actions/checkout
+    # (NB actions/checkout@v2 is deprecated)
+    # (NB actions/checkout@v4 need "Allow owner and select non-owner" and "Allow actions created by github")
+    - uses: actions/checkout@v4
+      with:
+        submodules: 'true'
+    - name: codegen_step
+      run: echo Current directory is $(pwd); echo execute .github/workflows/manual.sh; .github/workflows/manual.sh
+    #- name: Send greeting
+    #  run: echo "Hello ${{ inputs.name }}"
