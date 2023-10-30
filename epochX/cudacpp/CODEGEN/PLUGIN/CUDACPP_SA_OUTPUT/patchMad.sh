@@ -64,7 +64,10 @@ touch ${dir}/Events/.keep # this file should already be present (mg5amcnlo copie
 if [ "${patchlevel}" == "2" ]; then
   cd ${dir}
   if [ "${tmadmode}" != "0" ]; then
-    sed -i 's/DEFAULT_F2PY_COMPILER=f2py3.*/DEFAULT_F2PY_COMPILER=f2py3/' Source/make_opts
+    sed -i 's/DEFAULT_F2PY_COMPILER=f2py.*/DEFAULT_F2PY_COMPILER=f2py3/' Source/make_opts
+    cat Source/make_opts | sed '/#end/q' | sort > Source/make_opts.new
+    cat Source/make_opts | sed -n -e '/#end/,$p' >> Source/make_opts.new
+    \mv Source/make_opts.new Source/make_opts
   fi
   echo "DEBUG: cd ${PWD}; patch -p4 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.common"
   if ! patch -p4 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.common; then status=1; fi  
