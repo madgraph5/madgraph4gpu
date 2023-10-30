@@ -413,7 +413,7 @@ else
     export USEBUILDDIR=1
     pushd $dir >& /dev/null
     echo "Building in $(pwd)"
-    if [ "${gtestlibs}" == "0" ]; then
+    if [ "${maketype}" != "-makecleanonly" ] && [ "${gtestlibs}" == "0" ]; then
       # Build googletest once and for all to avoid issues in parallel builds
       # NB1: $topdir/test is NO LONGER RELEVANT and googletest must be built from one specific process
       # NB2: CXXNAMESUFFIX must be set by cudacpp.mk, so googletest must be built from one P1 directory
