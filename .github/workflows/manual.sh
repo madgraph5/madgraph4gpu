@@ -76,6 +76,8 @@ function setup_ccache {
   export CCACHE_DIR=${topdir}/CCACHE_DIR
 }
 
+#----------------------------------------------------------------------------------------------------------------------------------
+
 function tput_ini() {
   # Install and configure ccache
   mkdir ${topdir}/BIN
@@ -88,13 +90,24 @@ function tput_ini() {
   echo "tar -xvf ccache-4.8.3-linux-x86_64.tar.xz"
   tar -xvf ccache-4.8.3-linux-x86_64.tar.xz
   ln -sf ccache-4.8.3-linux-x86_64/ccache .
-  mkdir ${topdir}/CCACHE_DIR
   # Set up ccache environment
   setup_ccache
+  # Create the CCACHE_DIR directory if it was not retrieved from the cache
+  echo
+  if [ -d ${CCACHE_DIR} ]; then
+    echo "Directory CCACHE_DIR=${CCACHE_DIR} already exists (retrieved from cache)"
+  else
+    echo "Directory CCACHE_DIR=${CCACHE_DIR} does not exist: create it"
+    mkdir ${CCACHE_DIR}
+  fi
   # Dump ccache status before the builds
   echo
   echo "ccache --version | head -1"
   ccache --version | head -1
+  echo
+  echo "CCACHE_DIR=${CCACHE_DIR}"
+  echo "du -sm ${CCACHE_DIR}"
+  du -sm ${CCACHE_DIR}
   echo
   echo "ccache -s (before the builds)"
   ccache -s
@@ -125,6 +138,10 @@ function tput_fin() {
   # Set up ccache environment
   setup_ccache
   # Dump ccache status after the builds
+  echo
+  echo "CCACHE_DIR=${CCACHE_DIR}"
+  echo "du -sm ${CCACHE_DIR}"
+  du -sm ${CCACHE_DIR}
   echo
   echo "ccache -s (after the builds)"
   ccache -s

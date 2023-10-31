@@ -5,10 +5,14 @@
 
 name: Manual test suite
 
+#----------------------------------------------------------------------------------------------------------------------------------
+
 on:
+
   push:
     paths:
       - '.github/workflows/manual.*'
+
   workflow_dispatch:
     #inputs:
     #  name:
@@ -17,25 +21,91 @@ on:
     #    required: true
     #    type: string
 
+#----------------------------------------------------------------------------------------------------------------------------------
+
 jobs:
+
+  #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+  # See https://github.com/actions/cache/blob/main/tips-and-workarounds.md#force-deletion-of-caches-overriding-default-cache-eviction-policy
+  cleanup:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write # this is required to delete caches
+      contents: read
+    steps:
+      - name: Cleanup
+        run: |
+          gh extension install actions/gh-actions-cache
+          REPO=${{ github.repository }}
+          echo "Fetching list of cache key"
+          cacheKeys=$(gh actions-cache list -R $REPO | cut -f 1 )
+          set +e # do not fail while deleting cache keys
+          echo "Deleting caches..."
+          for cacheKey in $cacheKeys; do gh actions-cache delete $cacheKey -R $REPO --confirm; done
+          echo "Deleting caches... done"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
   manualtestsuite:
     runs-on: ubuntu-latest
+
     steps:
-    # See https://github.com/actions/checkout
-    # (NB actions/checkout@v2 is deprecated)
-    # (NB actions/checkout@v4 need "Allow owner and select non-owner" and "Allow actions created by github")
-    - uses: actions/checkout@v4
+    - # See https://github.com/actions/checkout
+      # (NB actions/checkout@v2 is deprecated)
+      # (NB actions/checkout@v4 need "Allow owner and select non-owner" and "Allow actions created by github")
+      uses: actions/checkout@v4
       with:
         submodules: 'true'
+
     - name: welcome
       run: .github/workflows/manual.sh welcome
+
     - name: codegen
       run: .github/workflows/manual.sh codegen
+
+    - # See https://github.com/actions/cache/blob/main/tips-and-workarounds.md#force-deletion-of-caches-overriding-default-cache-eviction-policy
+      name: list_cached
+      run: |
+        gh extension install actions/gh-actions-cache
+        REPO=${{ github.repository }}
+        echo "List cache keys (start)"
+        gh actions-cache list -R $REPO | cut -f 1
+        echo "List cache keys (end)"
+      env:
+        GH_TOKEN: ${{ github.token }}
+
+    - # See https://github.com/actions/cache
+      # See https://github.com/actions/cache/blob/main/tips-and-workarounds.md#update-a-cache
+      name: restore_cached_ccachedir
+      id: cache-ccachedir-restore
+      uses: actions/cache/restore@v3
+      with:
+        path: CCACHE_DIR
+        key: ccachedir-${{ runner.os }}-${{ github.run_id }}
+        restore-keys:
+          ccachedir-${{ runner.os }}
+
     - name: tput_ini
       run: .github/workflows/manual.sh tput_ini
+
     - name: tput_run
       run: .github/workflows/manual.sh tput_run
+
     - name: tput_fin
       run: .github/workflows/manual.sh tput_fin
+
+    - # See https://github.com/actions/cache
+      name: update_cached_ccachedir
+      id: cache-ccachedir-update
+      uses: actions/cache/save@v3
+      with:
+        path: CCACHE_DIR
+        key: ccachedir-${{ runner.os }}-${{ github.run_id }}
+
     #- name: Send greeting
     #  run: echo "Hello ${{ inputs.name }}"
+
+#----------------------------------------------------------------------------------------------------------------------------------
