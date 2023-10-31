@@ -27,9 +27,15 @@ jobs:
     - uses: actions/checkout@v4
       with:
         submodules: 'true'
-    #- name: codegen_step
-    #  run: .github/workflows/manual.sh codegen
-    - name: tput_step
-      run: .github/workflows/manual.sh tput
+    - name: welcome
+      run: .github/workflows/manual.sh welcome
+    - name: codegen
+      run: .github/workflows/manual.sh codegen
+    - name: tput_ini
+      run: .github/workflows/manual.sh tput_ini
+    - name: tput_run
+      run: .github/workflows/manual.sh tput_run
+    - name: tput_fin
+      run: .github/workflows/manual.sh tput_fin
     #- name: Send greeting
     #  run: echo "Hello ${{ inputs.name }}"
