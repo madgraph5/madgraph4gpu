@@ -100,8 +100,9 @@ if [ "$stage" == "tput" ]; then
   echo
   echo "ccache --version | head -1"
   ccache --version | head -1
+  # Dump ccache status before the builds
   echo
-  echo "ccache -s"
+  echo "ccache -s (before the builds)"
   ccache -s
   # Configure CXX
   echo
@@ -109,8 +110,13 @@ if [ "$stage" == "tput" ]; then
   g++ --version
   export CXX=g++
   # Build and test
+  export USECCACHE=1 # enable ccache in madgraph4gpu builds
   echo "./tput/teeThroughputX.sh -makej -ggtt -makeclean"
   ./tput/teeThroughputX.sh -makej -ggtt -makeclean
+  # Dump ccache status after the builds
+  echo
+  echo "ccache -s (after the builds)"
+  ccache -s
 fi
 
 # Finalise
