@@ -16,7 +16,7 @@
 // Choose if curand is supported for generating random numbers
 // For C++, by default, do not inline, but allow this macro to be set from outside with e.g. -DMGONGPU_HAS_NO_CURAND
 #ifdef __CUDACC__
-#undef MGONGPU_HAS_NO_CURAND
+#undef MGONGPU_HAS_NO_CURAND # <-- this needs to be also removed
 #else
 //#undef MGONGPU_HAS_NO_CURAND // default
 ////#define MGONGPU_HAS_NO_CURAND 1
