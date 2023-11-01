@@ -102,12 +102,12 @@ main( int argc, char** argv )
     CurandHost = 1,
     CurandDevice = 2
   };
-#ifdef __CUDACC__
-  RandomNumberMode rndgen = RandomNumberMode::CurandDevice; // default on GPU
-#elif not defined MGONGPU_HAS_NO_CURAND
-  RandomNumberMode rndgen = RandomNumberMode::CurandHost;  // default on CPU if build has curand
+#ifdef MGONGPU_HAS_NO_CURAND
+  RandomNumberMode rndgen = RandomNumberMode::CommonRandom; // this is the only supported mode if build has no curand (PR #784)
+#elif defined __CUDACC__
+  RandomNumberMode rndgen = RandomNumberMode::CurandDevice; // default on GPU if build has curand
 #else
-  RandomNumberMode rndgen = RandomNumberMode::CommonRandom; // default on CPU if build has no curand
+  RandomNumberMode rndgen = RandomNumberMode::CurandHost; // default on CPU if build has curand
 #endif
   // Rambo sampling mode (NB RamboHost implies CommonRandom or CurandHost!)
   enum class RamboSamplingMode
@@ -145,18 +145,20 @@ main( int argc, char** argv )
     }
     else if( arg == "--curdev" )
     {
-#ifdef __CUDACC__
-      rndgen = RandomNumberMode::CurandDevice;
-#else
+#ifndef __CUDACC__
       throw std::runtime_error( "CurandDevice is not supported on CPUs" );
+#elif defined MGONGPU_HAS_NO_CURAND
+      throw std::runtime_error( "CurandDevice is not supported because this application was built without Curand support" );
+#else
+      rndgen = RandomNumberMode::CurandDevice;
 #endif
     }
     else if( arg == "--curhst" )
     {
-#ifndef MGONGPU_HAS_NO_CURAND
-      rndgen = RandomNumberMode::CurandHost;
-#else
+#ifdef MGONGPU_HAS_NO_CURAND
       throw std::runtime_error( "CurandHost is not supported because this application was built without Curand support" );
+#else
+      rndgen = RandomNumberMode::CurandHost;
 #endif
     }
     else if( arg == "--common" )
@@ -388,30 +390,26 @@ main( int argc, char** argv )
   {
     prnk.reset( new CommonRandomNumberKernel( hstRndmom ) );
   }
-#ifndef MGONGPU_HAS_NO_CURAND
   else if( rndgen == RandomNumberMode::CurandHost )
   {
+#ifdef MGONGPU_HAS_NO_CURAND
+    throw std::runtime_error( "INTERNAL ERROR! CurandHost is not supported because this application was built without Curand support" ); // INTERNAL ERROR (no path to this statement)
+#else
     const bool onDevice = false;
     prnk.reset( new CurandRandomNumberKernel( hstRndmom, onDevice ) );
+#endif
   }
-#ifdef __CUDACC__
   else
   {
+#ifdef MGONGPU_HAS_NO_CURAND
+    throw std::runtime_error( "INTERNAL ERROR! CurandDevice is not supported because this application was built without Curand support" ); // INTERNAL ERROR (no path to this statement)
+#elif defined __CUDACC__
     const bool onDevice = true;
     prnk.reset( new CurandRandomNumberKernel( devRndmom, onDevice ) );
-  }
 #else
-  else
-  {
-    throw std::logic_error( "CurandDevice is not supported on CPUs" ); // INTERNAL ERROR (no path to this statement)
-  }
+    throw std::logic_error( "INTERNAL ERROR! CurandDevice is not supported on CPUs" ); // INTERNAL ERROR (no path to this statement)
 #endif
-#else
-  else
-  {
-    throw std::logic_error( "This application was built without Curand support" ); // INTERNAL ERROR (no path to this statement)
   }
-#endif
 
   // --- 0c. Create rambo sampling kernel [keep this in 0c for the moment]
   std::unique_ptr<SamplingKernelBase> prsk;
