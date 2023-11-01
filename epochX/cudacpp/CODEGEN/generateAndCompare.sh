@@ -6,9 +6,6 @@
 
 set -e # fail on error
 
-# AV Recover special 'tmad' mode used by generateAndCompare.sh, after OM's changes that commented this out in patchMad.sh
-export CUDACPP_CODEGEN_TMADMODE=1
-
 #--------------------------------------------------------------------------------------
 
 function codeGenAndDiff()
@@ -224,6 +221,28 @@ function codeGenAndDiff()
     \rm -rf ${outproc}/bin/internal/ufomodel/py3_model.pkl
     \rm -rf ${outproc}/bin/internal/ufomodel/__pycache__
     touch ${outproc}/HTML/.keep # new file
+    if [ "${patchlevel}" != "0" ]; then
+      # Add global flag '-O3 -ffast-math -fbounds-check' as in previous gridpacks
+      echo "GLOBAL_FLAG=-O3 -ffast-math -fbounds-check" > ${outproc}/Source/make_opts.new
+      cat ${outproc}/Source/make_opts >> ${outproc}/Source/make_opts.new
+      \mv ${outproc}/Source/make_opts.new ${outproc}/Source/make_opts
+    fi
+    if [ "${patchlevel}" == "2" ]; then
+      sed -i 's/DEFAULT_F2PY_COMPILER=f2py.*/DEFAULT_F2PY_COMPILER=f2py3/' ${outproc}/Source/make_opts
+      cat ${outproc}/Source/make_opts | sed '/#end/q' | sort > ${outproc}/Source/make_opts.new
+      cat ${outproc}/Source/make_opts | sed -n -e '/#end/,$p' >> ${outproc}/Source/make_opts.new
+      \mv ${outproc}/Source/make_opts.new ${outproc}/Source/make_opts
+      echo "
+#*********************************************************************
+# Options for the cudacpp plugin
+#*********************************************************************
+
+# Set cudacpp-specific values of non-cudacpp-specific options
+-O3 -ffast-math -fbounds-check = global_flag ! build flags for Fortran code (for a fair comparison to cudacpp)
+
+# New cudacpp-specific options (default values are defined in banner.py)
+CPP = cudacpp_backend ! valid backends are FORTRAN, CPP, CUDA" >> ${outproc}/Cards/run_card.dat
+    fi
   fi
   # Check the code generation log for errors 
   if [ -d ${outproc} ] && ! grep -q "Please report this bug" ${outproc}_log.txt; then
@@ -411,6 +430,7 @@ UNTARONLY=1
 
 # Default: apply all patches in patchMad.sh (--nopatch is ignored unless --mad is also specified)
 PATCHLEVEL=
+patchlevel=2 # [DEFAULT] complete generation of cudacpp .sa/.mad (copy templates and apply patch commands)
 
 # Default for gridpacks: use helicity recycling (use --nohelrec to disable it)
 # (export the value to the untarGridpack.sh script)
@@ -429,8 +449,10 @@ while [ "$1" != "" ]; do
     QUIET=1
   elif [ "$1" == "--nopatch" ] && [ "${PATCHLEVEL}" == "" ]; then
     PATCHLEVEL=--nopatch
+    patchlevel=1 # [--nopatch] modify upstream MG5AMC but do not apply patch commands (reference to prepare new patches)
   elif [ "$1" == "--upstream" ] && [ "${PATCHLEVEL}" == "" ]; then
     PATCHLEVEL=--upstream
+    patchlevel=0 # [--upstream] out of the box codegen from upstream MG5AMC (do not even copy templates)
   elif [ "$1" == "--nountaronly" ] && [ "${SCRBCK}" == "gridpack" ]; then
     ###UNTARONLY=0
     echo "ERROR! gridpack mode is no longer supported by this script!"; exit 1
