@@ -118,7 +118,7 @@ main( int argc, char** argv )
 #ifdef __CUDACC__
   RamboSamplingMode rmbsmp = RamboSamplingMode::RamboDevice; // default on GPU
 #else
-  RamboSamplingMode rmbsmp = RamboSamplingMode::RamboHost; // default on CPU
+  RamboSamplingMode rmbsmp = RamboSamplingMode::RamboHost;  // default on CPU
 #endif
   // Bridge emulation mode (NB Bridge implies RamboHost!)
   bool bridge = false;
