@@ -102,6 +102,7 @@ function tput_ini() {
   echo "ccache -s (before the builds)"
   ccache -s
   # Check if googletest has already been installed and configured
+  echo
   if [ -d ${topdir}/test/googletest ]; then
     echo "Directory ${topdir}/test/googletest already exists (retrieved from cache)"
     echo "ls ${topdir}/test/googletest (start)"
@@ -144,6 +145,11 @@ function tput_fin() {
   echo
   echo "ccache -s (after the builds)"
   ccache -s
+  # Check contents of googletest
+  echo
+  echo "ls ${topdir}/test/googletest (start)"
+  ls ${topdir}/test/googletest
+  echo "ls ${topdir}/test/googletest (end)"
 }
 
 #----------------------------------------------------------------------------------------------------------------------------------

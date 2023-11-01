@@ -42,8 +42,8 @@ jobs:
         echo "List cache keys (start)"
         gh actions-cache list -R $REPO --sort created-at --order asc
         echo "List cache keys (end)"
-        cacheKeys=$(gh actions-cache list -R $REPO --sort created-at --order asc | cut -f 1) # delete ALL caches
-        ###cacheKeys=$(gh actions-cache list -R $REPO --sort created-at --order asc | cut -f 1 | head --lines=-1) # keep only the most recent cache
+        ###cacheKeys=$(gh actions-cache list -R $REPO --sort created-at --order asc | cut -f 1) # delete ALL caches
+        cacheKeys=$(gh actions-cache list -R $REPO --sort created-at --order asc | cut -f 1 | head --lines=-1) # keep only the most recent cache
         set +e # do not fail while deleting cache keys
         echo "Deleting caches..."
         for cacheKey in $cacheKeys; do gh actions-cache delete $cacheKey -R $REPO --confirm; done
