@@ -29,66 +29,71 @@ jobs:
 
   # See https://github.com/actions/cache/blob/main/tips-and-workarounds.md#force-deletion-of-caches-overriding-default-cache-eviction-policy
   cleanup:
+    ###if: ${{ false }} # disable the job (comment this out to enable it!)
     runs-on: ubuntu-latest
     permissions:
       actions: write # this is required to delete caches
       contents: read
     steps:
-      - name: Cleanup
-        run: |
-          gh extension install actions/gh-actions-cache
-          REPO=${{ github.repository }}
-          echo "Fetching list of cache keys"
-          cacheKeys=$(gh actions-cache list -R $REPO | cut -f 1 )
-          set +e # do not fail while deleting cache keys
-          echo "Deleting caches..."
-          for cacheKey in $cacheKeys; do gh actions-cache delete $cacheKey -R $REPO --confirm; done
-          echo "Deleting caches... done"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-  manualtestsuite:
-    runs-on: ubuntu-latest
-
-    steps:
-    - # See https://github.com/actions/checkout
-      # (NB actions/checkout@v2 is deprecated)
-      # (NB actions/checkout@v4 need "Allow owner and select non-owner" and "Allow actions created by github")
-      uses: actions/checkout@v4
-      with:
-        submodules: 'true'
-
-    - name: welcome
-      run: .github/workflows/manual.sh welcome
-
-    - name: codegen
-      run: .github/workflows/manual.sh codegen
-
-    - # See https://github.com/actions/cache/blob/main/tips-and-workarounds.md#force-deletion-of-caches-overriding-default-cache-eviction-policy
-      name: list_cached
+    - name: cleanup_cache
       run: |
         gh extension install actions/gh-actions-cache
         REPO=${{ github.repository }}
         echo "List cache keys (start)"
-        gh actions-cache list -R $REPO | cut -f 1
+        gh actions-cache list -R $REPO --sort created-at --order asc
+        echo "List cache keys (end)"
+        cacheKeys=$(gh actions-cache list -R $REPO --sort created-at --order asc | cut -f 1) # delete ALL caches
+        ###cacheKeys=$(gh actions-cache list -R $REPO --sort created-at --order asc | cut -f 1 | head --lines=-1) # keep only the most recent cache
+        set +e # do not fail while deleting cache keys
+        echo "Deleting caches..."
+        for cacheKey in $cacheKeys; do gh actions-cache delete $cacheKey -R $REPO --confirm; done
+        echo "Deleting caches... done"
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+  testsuite:
+    runs-on: ubuntu-latest
+    needs: cleanup
+
+    steps:
+    - # See https://github.com/actions/checkout
+      # (NB actions/checkout needs "Allow owner and select non-owner" and "Allow actions created by github")
+      uses: actions/checkout@v4
+      with:
+        submodules: 'true'
+
+    - name: WELCOME
+      run: |
+        echo "WELCOME! $(date)"
+        echo "Current directory is $(pwd)"
+        echo "Current git commit is $(git log --oneline -n1 | cut -d' ' -f1)"
+        # See https://github.com/actions/cache/blob/main/tips-and-workarounds.md#force-deletion-of-caches-overriding-default-cache-eviction-policy
+        gh extension install actions/gh-actions-cache
+        REPO=${{ github.repository }}
+        echo "List cache keys (start)"
+        gh actions-cache list -R $REPO --sort created-at --order asc
         echo "List cache keys (end)"
       env:
         GH_TOKEN: ${{ github.token }}
 
-    - # See https://github.com/actions/cache
-      # See https://github.com/actions/cache/blob/main/tips-and-workarounds.md#update-a-cache
-      name: restore_cache
+    - name: restore_cache
       id: cache-restore
+      # See https://github.com/actions/cache
+      # See https://github.com/actions/cache/blob/main/tips-and-workarounds.md#update-a-cache
       uses: actions/cache/restore@v3
       with:
         path: |
           CCACHE_DIR
           DOWNLOADS
+          test/googletest
         key: cache-${{ runner.os }}-${{ github.run_id }}
         restore-keys:
           cache-${{ runner.os }}
+
+    - name: codegen
+      run: .github/workflows/manual.sh codegen
 
     - name: tput_ini
       run: .github/workflows/manual.sh tput_ini
@@ -99,15 +104,28 @@ jobs:
     - name: tput_fin
       run: .github/workflows/manual.sh tput_fin
 
-    - # See https://github.com/actions/cache
-      name: update_cache
+    - name: update_cache
       id: cache-update
+      # See https://github.com/actions/cache
       uses: actions/cache/save@v3
       with:
         path: |
           CCACHE_DIR
           DOWNLOADS
+          test/googletest
         key: cache-${{ runner.os }}-${{ github.run_id }}
+
+    - name: GOODBYE
+      run: |
+        echo "GOODBYE! $(date)"
+        echo "Current directory is $(pwd)"
+        echo "Current git commit is $(git log --oneline -n1 | cut -d' ' -f1)"
+        REPO=${{ github.repository }}
+        echo "List cache keys (start)"
+        gh actions-cache list -R $REPO --sort created-at --order asc
+        echo "List cache keys (end)"
+      env:
+        GH_TOKEN: ${{ github.token }}
 
     #- name: Send greeting
     #  run: echo "Hello ${{ inputs.name }}"

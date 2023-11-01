@@ -17,23 +17,6 @@ topdir=$(cd $(dirname $0)/../..; pwd)
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
-# Welcome
-function welcome() {
-  cd ${topdir}
-  echo "Current directory is $(pwd)"
-  echo "Current git commit is $(git log --oneline -n1 | cut -d' ' -f1)"
-  #echo
-  #echo "Contents of . (start)"
-  #ls
-  #echo "Contents of . (end)"
-  #echo
-  #echo "Contents of MG5aMC/mg5amcnlo (start)"
-  #ls MG5aMC/mg5amcnlo
-  #echo "Contents of MG5aMC/mg5amcnlo (end)"
-}
-
-#----------------------------------------------------------------------------------------------------------------------------------
-
 # Code generation stage
 function codegen() {
   cd ${topdir}/epochX/cudacpp
@@ -118,6 +101,15 @@ function tput_ini() {
   echo
   echo "ccache -s (before the builds)"
   ccache -s
+  # Check if googletest has already been installed and configured
+  if [ -d ${topdir}/test/googletest ]; then
+    echo "Directory ${topdir}/test/googletest already exists (retrieved from cache)"
+    echo "ls ${topdir}/test/googletest (start)"
+    ls ${topdir}/test/googletest
+    echo "ls ${topdir}/test/googletest (end)"
+  else
+    echo "Directory ${topdir}/test/googletest does not exist: it will be created during the build"
+  fi
 }
 
 #----------------------------------------------------------------------------------------------------------------------------------
@@ -165,7 +157,7 @@ function usage() {
 #----------------------------------------------------------------------------------------------------------------------------------
 
 # Valid stages
-stages="welcome codegen tput_ini tput_run tput_fin"
+stages="codegen tput_ini tput_run tput_fin"
 
 # Check input arguments
 for astage in $stages; do
