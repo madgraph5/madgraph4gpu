@@ -233,6 +233,8 @@ override OMPFLAGS = -fopenmp
 else ifneq ($(shell $(CXX) --version | egrep '^(Apple clang)'),)
 override OMPFLAGS = # AV disable OpenMP MT on Apple clang (builds fail in the CI #578)
 ###override OMPFLAGS = -fopenmp # OM reenable OpenMP MT on Apple clang? (AV Oct 2023: this still fails in the CI)
+else ifneq ($(UNAME), 'Darwin')
+override OMPFLAGS = # AV disable OpenMP MT on mac
 else
 override OMPFLAGS = -fopenmp
 ###override OMPFLAGS = # disable OpenMP MT (default before #575)
@@ -722,7 +724,7 @@ ifneq ($(shell which flock 2>/dev/null),)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	flock $(BUILDDIR)/.make_test.lock $(MAKE) -C $(TESTDIR)
 else
-	$(MAKE) -C $(TESTDIR)
+	if [ -d $(TESTDIR) ]; then $(MAKE) -C $(TESTDIR); fi
 endif
 
 #-------------------------------------------------------------------------------
