@@ -80,16 +80,23 @@ function setup_ccache {
 
 function tput_ini() {
   # Install and configure ccache
+  if [ -d ${topdir}/DOWNLOADS ]; then
+    echo "Directory ${topdir}/DOWNLOADS already exists (retrieved from cache)"
+  else
+    echo "Directory ${topdir}/DOWNLOADS does not exist: create it"
+    mkdir ${topdir}/DOWNLOADS
+    cd ${topdir}/DOWNLOADS
+    echo "Current directory is $(pwd)"
+    echo
+    echo "wget -q https://github.com/ccache/ccache/releases/download/v4.8.3/ccache-4.8.3-linux-x86_64.tar.xz"
+    wget -q https://github.com/ccache/ccache/releases/download/v4.8.3/ccache-4.8.3-linux-x86_64.tar.xz
+    echo
+    echo "tar -xvf ccache-4.8.3-linux-x86_64.tar.xz"
+    tar -xvf ccache-4.8.3-linux-x86_64.tar.xz
+  fi
   mkdir ${topdir}/BIN
   cd ${topdir}/BIN
-  echo "Current directory is $(pwd)"
-  echo
-  echo "wget -q https://github.com/ccache/ccache/releases/download/v4.8.3/ccache-4.8.3-linux-x86_64.tar.xz"
-  wget -q https://github.com/ccache/ccache/releases/download/v4.8.3/ccache-4.8.3-linux-x86_64.tar.xz
-  echo
-  echo "tar -xvf ccache-4.8.3-linux-x86_64.tar.xz"
-  tar -xvf ccache-4.8.3-linux-x86_64.tar.xz
-  ln -sf ccache-4.8.3-linux-x86_64/ccache .
+  ln -sf ${topdir}/DOWNLOADS/ccache-4.8.3-linux-x86_64/ccache .
   # Set up ccache environment
   setup_ccache
   # Create the CCACHE_DIR directory if it was not retrieved from the cache
