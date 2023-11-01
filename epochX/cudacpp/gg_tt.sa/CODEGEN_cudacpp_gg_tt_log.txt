@@ -62,7 +62,7 @@ generate g g > t t~
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.005320310592651367 [0m
+[1;32mDEBUG: model prefixing  takes 0.0054814815521240234 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -180,7 +180,7 @@ Generated helas calls for 1 subprocesses (3 diagrams) in 0.006 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
 ALOHA: aloha creates FFV1 routines[0m
-ALOHA: aloha creates 2 routines in  0.148 s
+ALOHA: aloha creates 2 routines in  0.146 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -194,9 +194,8 @@ FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /
 INFO: Created files Parameters_sm.h and Parameters_sm.cc in directory 
 INFO: /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_tt/src/. and /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_tt/src/. 
 [1;32mDEBUG:  'Entering PLUGIN_ProcessExporter.finalize', self.in_madevent_mode, type(self) = [0m Entering PLUGIN_ProcessExporter.finalize False <class 'PLUGIN.CUDACPP_OUTPUT.output.PLUGIN_ProcessExporter'> [1;30m[output.py at line 206][0m [0m
-[1;32mDEBUG:  self.in_madevent_mode = [0m False [1;30m[output.py at line 207][0m [0m
 quit
 
-real	0m0.645s
-user	0m0.480s
-sys	0m0.053s
+real	0m0.539s
+user	0m0.468s
+sys	0m0.065s
