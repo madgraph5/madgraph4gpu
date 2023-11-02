@@ -27,7 +27,15 @@ UNAME_S := $(shell uname -s)
 UNAME_P := $(shell uname -p)
 ###$(info UNAME_P='$(UNAME_P)')
 
-include ../../Source/make_opts #put back by OM (crucial for MG5aMC flag consistency/documentation)
+#-------------------------------------------------------------------------------
+
+#=== Include the common MG5aMC Makefile options
+
+# OM: this is crucial for MG5aMC flag consistency/documentation
+# AV: temporarely comment this out because it breaks cudacpp builds
+ifneq ($(wildcard ../../Source/make_opts),)
+include ../../Source/make_opts
+endif
 
 #-------------------------------------------------------------------------------
 
