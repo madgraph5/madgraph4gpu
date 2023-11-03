@@ -4,13 +4,13 @@
 # Further modified by: O. Mattelaer, S. Roiser, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
 
 #=== Determine the name of this makefile (https://ftp.gnu.org/old-gnu/Manuals/make-3.80/html_node/make_17.html)
-#=== NB: different names (e.g. cudacpp.mk and cudacpp_src.mk) are used in the Subprocess and src directories
-#=== NB: use ':=' to ensure that the value is not modified further down after including make_opts
-
+#=== NB: use ':=' to ensure that the value of CUDACPP_MAKEFILE is not modified further down after including make_opts
+#=== NB: use 'override' to ensure that the value can not be modified from the outside
 override CUDACPP_MAKEFILE := $(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST))
-$(info CUDACPP_MAKEFILE='$(CUDACPP_MAKEFILE)')
+###$(info CUDACPP_MAKEFILE='$(CUDACPP_MAKEFILE)')
 
-CUDACPP_SRC_MAKEFILE = cudacpp_src.mk
+#=== NB: different names (e.g. cudacpp.mk and cudacpp_src.mk) are used in the Subprocess and src directories
+override CUDACPP_SRC_MAKEFILE = cudacpp_src.mk
 
 #-------------------------------------------------------------------------------
 
@@ -39,8 +39,6 @@ UNAME_P := $(shell uname -p)
 ifneq ($(wildcard ../../Source/make_opts),)
 include ../../Source/make_opts
 endif
-$(info CUDACPP_MAKEFILE='$(CUDACPP_MAKEFILE)')
-$(error exit)
 
 #-------------------------------------------------------------------------------
 
