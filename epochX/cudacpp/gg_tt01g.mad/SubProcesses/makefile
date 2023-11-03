@@ -9,6 +9,12 @@ FFLAGS+= -cpp
 # Compile counters with -O3 as in the cudacpp makefile (avoid being "unfair" to Fortran #740)
 CXXFLAGS = -O3 -Wall -Wshadow -Wextra
 
+# Add -std=c++17 explicitly to avoid build errors on macOS
+# Add -mmacosx-version-min=11.3 to avoid "ld: warning: object file was built for newer macOS version than being linked"
+ifneq ($(shell $(CXX) --version | egrep '^Apple clang'),)
+CXXFLAGS += -std=c++17 -mmacosx-version-min=11.3
+endif
+
 # Enable ccache if USECCACHE=1
 ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
   override CXX:=ccache $(CXX)
@@ -51,7 +57,7 @@ CUDACPP_MAKEFILE=cudacpp.mk
 CUDACPP_MAKEENV:=$(shell echo '$(.VARIABLES)' | tr " " "\n" | egrep "(USEBUILDDIR|AVX|FPTYPE|HELINL|HRDCOD)")
 ###$(info CUDACPP_MAKEENV=$(CUDACPP_MAKEENV))
 ###$(info $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))"))
-CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn |& awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
+CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn 2>&1 | awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
 ifeq ($(CUDACPP_BUILDDIR),)
 $(error CUDACPP_BUILDDIR='$(CUDACPP_BUILDDIR)' should not be empty!)
 else
@@ -89,7 +95,12 @@ SYMMETRY = symmetry.o idenparts.o
 
 # Binaries
 
-LDFLAGS+=-Wl,--no-relax # avoid 'failed to convert GOTPCREL relocation' error #458
+ifeq ($(UNAME),Darwin)
+LDFLAGS += -lc++ # avoid 'Undefined symbols' for chrono::steady_clock on macOS (checked with otool -L libmg5amc_gg_ttx_cpp.so) 
+LDFLAGS += -mmacosx-version-min=11.3 # avoid "ld: warning: object file was built for newer macOS version than being linked"  
+else
+LDFLAGS += -Wl,--no-relax # avoid 'failed to convert GOTPCREL relocation' error #458 (not supported on macOS)
+endif
 
 all: $(PROG)_fortran $(CUDACPP_BUILDDIR)/$(PROG)_cpp # also builds $(PROG)_cuda if $(CUDACPP_CULIB) exists (#503)
 
@@ -100,8 +111,8 @@ LINKLIBS += -lintlc # undefined reference to `_intel_fast_memcpy'
 else ifneq ($(shell $(CXX) --version | egrep '^clang'),)
 override OMPFLAGS = -fopenmp
 $(CUDACPP_BUILDDIR)/$(PROG)_cpp: LINKLIBS += -L $(shell dirname $(shell $(CXX) -print-file-name=libc++.so)) -lomp # see #604
-###else ifneq ($(shell $(CXX) --version | egrep '^Apple clang'),)
-###override OMPFLAGS = -fopenmp # OMP is not supported yet by cudacpp for Apple clang
+else ifneq ($(shell $(CXX) --version | egrep '^Apple clang'),)
+override OMPFLAGS = # OMP is not supported yet by cudacpp for Apple clang
 else
 override OMPFLAGS = -fopenmp
 endif

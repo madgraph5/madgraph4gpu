@@ -35,9 +35,10 @@ set loop_color_flows False
 set max_npoint_for_channel 0
 set default_unset_couplings 99
 set max_t_for_channel 99
-set zerowidth_tchannel True
 set nlo_mixed_expansion True
-import model sm
+set stdout_level DEBUG
+set zerowidth_tchannel F
+define q = u c d s u~ c~ d~ s~
 define p = g u c d s u~ c~ d~ s~
 define j = g u c d s u~ c~ d~ s~
 define l+ = e+ mu+
@@ -46,5 +47,5 @@ define vl = ve vm vt
 define vl~ = ve~ vm~ vt~
 define q = u c d s u~ c~ d~ s~
 generate g q > t t~ q
-output madevent gq_ttq.mad_gen --hel_recycling=False --vector_size=163\
-84 --me_exporter=standalone_cudacpp
+output madevent ../TMPOUT/CODEGEN_mad_gq_ttq --hel_recycling=False --v\
+ector_size=16384 --me_exporter=standalone_cudacpp

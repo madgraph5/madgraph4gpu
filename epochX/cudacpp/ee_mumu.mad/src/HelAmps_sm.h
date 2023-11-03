@@ -863,6 +863,7 @@ namespace mg5amcCpu
           const fptype allF2[],
           const fptype allV3[],
           const fptype allCOUP[],
+          const double Ccoeff,
           fptype allvertexes[] ) ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
@@ -873,6 +874,7 @@ namespace mg5amcCpu
   FFV1P0_3( const fptype allF1[],
             const fptype allF2[],
             const fptype allCOUP[],
+            const double Ccoeff,
             const fptype M3,
             const fptype W3,
             fptype allV3[] ) ALWAYS_INLINE;
@@ -886,6 +888,7 @@ namespace mg5amcCpu
           const fptype allF2[],
           const fptype allV3[],
           const fptype allCOUP[],
+          const double Ccoeff,
           fptype allvertexes[] ) ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
@@ -896,6 +899,7 @@ namespace mg5amcCpu
   FFV2_3( const fptype allF1[],
           const fptype allF2[],
           const fptype allCOUP[],
+          const double Ccoeff,
           const fptype M3,
           const fptype W3,
           fptype allV3[] ) ALWAYS_INLINE;
@@ -909,6 +913,7 @@ namespace mg5amcCpu
           const fptype allF2[],
           const fptype allV3[],
           const fptype allCOUP[],
+          const double Ccoeff,
           fptype allvertexes[] ) ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
@@ -919,6 +924,7 @@ namespace mg5amcCpu
   FFV4_3( const fptype allF1[],
           const fptype allF2[],
           const fptype allCOUP[],
+          const double Ccoeff,
           const fptype M3,
           const fptype W3,
           fptype allV3[] ) ALWAYS_INLINE;
@@ -932,7 +938,9 @@ namespace mg5amcCpu
             const fptype allF2[],
             const fptype allV3[],
             const fptype allCOUP1[],
+            const double Ccoeff1,
             const fptype allCOUP2[],
+            const double Ccoeff2,
             fptype allvertexes[] ) ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
@@ -943,7 +951,9 @@ namespace mg5amcCpu
   FFV2_4_3( const fptype allF1[],
             const fptype allF2[],
             const fptype allCOUP1[],
+            const double Ccoeff1,
             const fptype allCOUP2[],
+            const double Ccoeff2,
             const fptype M3,
             const fptype W3,
             fptype allV3[] ) ALWAYS_INLINE;
@@ -957,6 +967,7 @@ namespace mg5amcCpu
           const fptype allF2[],
           const fptype allV3[],
           const fptype allCOUP[],
+          const double Ccoeff,
           fptype allvertexes[] )
   {
     mgDebug( 0, __FUNCTION__ );
@@ -980,6 +991,7 @@ namespace mg5amcCpu
   FFV1P0_3( const fptype allF1[],
             const fptype allF2[],
             const fptype allCOUP[],
+            const double Ccoeff,
             const fptype M3,
             const fptype W3,
             fptype allV3[] )
@@ -1011,6 +1023,7 @@ namespace mg5amcCpu
           const fptype allF2[],
           const fptype allV3[],
           const fptype allCOUP[],
+          const double Ccoeff,
           fptype allvertexes[] )
   {
     mgDebug( 0, __FUNCTION__ );
@@ -1034,6 +1047,7 @@ namespace mg5amcCpu
   FFV2_3( const fptype allF1[],
           const fptype allF2[],
           const fptype allCOUP[],
+          const double Ccoeff,
           const fptype M3,
           const fptype W3,
           fptype allV3[] )
@@ -1067,6 +1081,7 @@ namespace mg5amcCpu
           const fptype allF2[],
           const fptype allV3[],
           const fptype allCOUP[],
+          const double Ccoeff,
           fptype allvertexes[] )
   {
     mgDebug( 0, __FUNCTION__ );
@@ -1093,6 +1108,7 @@ namespace mg5amcCpu
   FFV4_3( const fptype allF1[],
           const fptype allF2[],
           const fptype allCOUP[],
+          const double Ccoeff,
           const fptype M3,
           const fptype W3,
           fptype allV3[] )
@@ -1129,7 +1145,9 @@ namespace mg5amcCpu
             const fptype allF2[],
             const fptype allV3[],
             const fptype allCOUP1[],
+            const double Ccoeff1,
             const fptype allCOUP2[],
+            const double Ccoeff2,
             fptype allvertexes[] )
   {
     mgDebug( 0, __FUNCTION__ );
@@ -1144,7 +1162,7 @@ namespace mg5amcCpu
     constexpr fptype two( 2. );
     const cxtype_sv TMP1 = ( F1[2] * ( F2[4] * ( V3[2] + V3[5] ) + F2[5] * ( V3[3] + cI * V3[4] ) ) + F1[3] * ( F2[4] * ( V3[3] - cI * V3[4] ) + F2[5] * ( V3[2] - V3[5] ) ) );
     const cxtype_sv TMP3 = ( F1[4] * ( F2[2] * ( V3[2] - V3[5] ) - F2[3] * ( V3[3] + cI * V3[4] ) ) + F1[5] * ( F2[2] * ( -V3[3] + cI * V3[4] ) + F2[3] * ( V3[2] + V3[5] ) ) );
-    ( *vertex ) = ( -one ) * ( COUP2 * ( +cI * TMP1 + ( two * cI ) * TMP3 ) + cI * ( TMP1 * COUP1 ) );
+    ( *vertex ) = ( -one ) * ( Ccoeff2 * COUP2 * ( +cI * TMP1 + ( two * cI ) * TMP3 ) + cI * ( TMP1 * Ccoeff1 * COUP1 ) );
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -1157,7 +1175,9 @@ namespace mg5amcCpu
   FFV2_4_3( const fptype allF1[],
             const fptype allF2[],
             const fptype allCOUP1[],
+            const double Ccoeff1,
             const fptype allCOUP2[],
+            const double Ccoeff2,
             const fptype M3,
             const fptype W3,
             fptype allV3[] )
@@ -1179,10 +1199,10 @@ namespace mg5amcCpu
     const cxtype_sv TMP2 = ( F1[2] * ( F2[4] * ( P3[0] + P3[3] ) + F2[5] * ( P3[1] + cI * P3[2] ) ) + F1[3] * ( F2[4] * ( P3[1] - cI * P3[2] ) + F2[5] * ( P3[0] - P3[3] ) ) );
     const cxtype_sv TMP4 = ( F1[4] * ( F2[2] * ( P3[0] - P3[3] ) - F2[3] * ( P3[1] + cI * P3[2] ) ) + F1[5] * ( F2[2] * ( -P3[1] + cI * P3[2] ) + F2[3] * ( P3[0] + P3[3] ) ) );
     const cxtype_sv denom = one / ( ( P3[0] * P3[0] ) - ( P3[1] * P3[1] ) - ( P3[2] * P3[2] ) - ( P3[3] * P3[3] ) - M3 * ( M3 - cI * W3 ) );
-    V3[2] = denom * ( -two * cI ) * ( COUP2 * ( OM3 * -half * P3[0] * ( TMP2 + two * TMP4 ) + ( +half * ( F1[2] * F2[4] + F1[3] * F2[5] ) + F1[4] * F2[2] + F1[5] * F2[3] ) ) + half * ( COUP1 * ( F1[2] * F2[4] + F1[3] * F2[5] - P3[0] * OM3 * TMP2 ) ) );
-    V3[3] = denom * ( -two * cI ) * ( COUP2 * ( OM3 * -half * P3[1] * ( TMP2 + two * TMP4 ) + ( -half * ( F1[2] * F2[5] + F1[3] * F2[4] ) + F1[4] * F2[3] + F1[5] * F2[2] ) ) - half * ( COUP1 * ( F1[2] * F2[5] + F1[3] * F2[4] + P3[1] * OM3 * TMP2 ) ) );
-    V3[4] = denom * cI * ( COUP2 * ( OM3 * P3[2] * ( TMP2 + two * TMP4 ) + ( +cI * ( F1[2] * F2[5] ) - cI * ( F1[3] * F2[4] ) + ( -two * cI ) * ( F1[4] * F2[3] ) + ( two * cI ) * ( F1[5] * F2[2] ) ) ) + COUP1 * ( +cI * ( F1[2] * F2[5] ) - cI * ( F1[3] * F2[4] ) + P3[2] * OM3 * TMP2 ) );
-    V3[5] = denom * ( two * cI ) * ( COUP2 * ( OM3 * half * P3[3] * ( TMP2 + two * TMP4 ) + ( +half * ( F1[2] * F2[4] ) - half * ( F1[3] * F2[5] ) - F1[4] * F2[2] + F1[5] * F2[3] ) ) + half * ( COUP1 * ( F1[2] * F2[4] + P3[3] * OM3 * TMP2 - F1[3] * F2[5] ) ) );
+    V3[2] = denom * ( -two * cI ) * ( Ccoeff2 * COUP2 * ( OM3 * -half * P3[0] * ( TMP2 + two * TMP4 ) + ( +half * ( F1[2] * F2[4] + F1[3] * F2[5] ) + F1[4] * F2[2] + F1[5] * F2[3] ) ) + half * ( Ccoeff1 * COUP1 * ( F1[2] * F2[4] + F1[3] * F2[5] - P3[0] * OM3 * TMP2 ) ) );
+    V3[3] = denom * ( -two * cI ) * ( Ccoeff2 * COUP2 * ( OM3 * -half * P3[1] * ( TMP2 + two * TMP4 ) + ( -half * ( F1[2] * F2[5] + F1[3] * F2[4] ) + F1[4] * F2[3] + F1[5] * F2[2] ) ) - half * ( Ccoeff1 * COUP1 * ( F1[2] * F2[5] + F1[3] * F2[4] + P3[1] * OM3 * TMP2 ) ) );
+    V3[4] = denom * cI * ( Ccoeff2 * COUP2 * ( OM3 * P3[2] * ( TMP2 + two * TMP4 ) + ( +cI * ( F1[2] * F2[5] ) - cI * ( F1[3] * F2[4] ) + ( -two * cI ) * ( F1[4] * F2[3] ) + ( two * cI ) * ( F1[5] * F2[2] ) ) ) + Ccoeff1 * COUP1 * ( +cI * ( F1[2] * F2[5] ) - cI * ( F1[3] * F2[4] ) + P3[2] * OM3 * TMP2 ) );
+    V3[5] = denom * ( two * cI ) * ( Ccoeff2 * COUP2 * ( OM3 * half * P3[3] * ( TMP2 + two * TMP4 ) + ( +half * ( F1[2] * F2[4] ) - half * ( F1[3] * F2[5] ) - F1[4] * F2[2] + F1[5] * F2[3] ) ) + half * ( Ccoeff1 * COUP1 * ( F1[2] * F2[4] + P3[3] * OM3 * TMP2 - F1[3] * F2[5] ) ) );
     mgDebug( 1, __FUNCTION__ );
     return;
   }
