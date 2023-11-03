@@ -175,7 +175,7 @@ if [ "$stage" == "" ] || [ "$1" != "" ]; then usage; fi
 
 # Start
 echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
-echo "[manual.sh] $stage starting at $(date)"
+echo "[testsuite_oneprocess.sh] $stage starting at $(date)"
 echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
 
 # Execute stage
@@ -186,9 +186,9 @@ status=$?
 echo
 echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
 if [ $status -eq 0 ]; then
-  echo "[manual.sh] $stage finished with status=$status (OK) at $(date)"
+  echo "[testsuite_oneprocess.sh] $stage finished with status=$status (OK) at $(date)"
 else
-  echo "[manual.sh] $stage finished with status=$status (NOT OK) at $(date)"
+  echo "[testsuite_oneprocess.sh] $stage finished with status=$status (NOT OK) at $(date)"
 fi
 echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
 exit $status

@@ -3,7 +3,7 @@
 # Created by: A. Valassi (Oct 2023) for the MG5aMC CUDACPP plugin.
 # Further modified by: A. Valassi (2023) for the MG5aMC CUDACPP plugin.
 
-name: Manual test suite
+name: Test suite for one process
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
@@ -11,7 +11,7 @@ on:
 
   push:
     paths:
-      - '.github/workflows/manual.*'
+      - '.github/workflows/testsuite_oneprocess.*'
 
   workflow_dispatch:
     #inputs:
@@ -93,16 +93,16 @@ jobs:
           cache-${{ runner.os }}
 
     - name: codegen
-      run: .github/workflows/manual.sh codegen
+      run: .github/workflows/testsuite_oneprocess.sh codegen
 
     - name: tput_ini
-      run: .github/workflows/manual.sh tput_ini
+      run: .github/workflows/testsuite_oneprocess.sh tput_ini
 
     - name: tput_run
-      run: .github/workflows/manual.sh tput_run
+      run: .github/workflows/testsuite_oneprocess.sh tput_run
 
     - name: tput_fin
-      run: .github/workflows/manual.sh tput_fin
+      run: .github/workflows/testsuite_oneprocess.sh tput_fin
 
     - name: update_cache
       id: cache-update
