@@ -4,10 +4,13 @@
 # Further modified by: O. Mattelaer, S. Roiser, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
 
 #=== Determine the name of this makefile (https://ftp.gnu.org/old-gnu/Manuals/make-3.80/html_node/make_17.html)
-#=== NB: different names (e.g. cudacpp.mk and cudacpp_src.mk) are used in the Subprocess and src directories
+#=== NB: use ':=' to ensure that the value of CUDACPP_MAKEFILE is not modified further down after including make_opts
+#=== NB: use 'override' to ensure that the value can not be modified from the outside
+override CUDACPP_MAKEFILE := $(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST))
+###$(info CUDACPP_MAKEFILE='$(CUDACPP_MAKEFILE)')
 
-CUDACPP_MAKEFILE = $(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST))
-CUDACPP_SRC_MAKEFILE = cudacpp_src.mk
+#=== NB: different names (e.g. cudacpp.mk and cudacpp_src.mk) are used in the Subprocess and src directories
+override CUDACPP_SRC_MAKEFILE = cudacpp_src.mk
 
 #-------------------------------------------------------------------------------
 
@@ -27,7 +30,15 @@ UNAME_S := $(shell uname -s)
 UNAME_P := $(shell uname -p)
 ###$(info UNAME_P='$(UNAME_P)')
 
-###include ../../Source/make_opts # AV remove (added by OM)
+#-------------------------------------------------------------------------------
+
+#=== Include the common MG5aMC Makefile options
+
+# OM: this is crucial for MG5aMC flag consistency/documentation
+# AV: temporarely comment this out because it breaks cudacpp builds
+ifneq ($(wildcard ../../Source/make_opts),)
+include ../../Source/make_opts
+endif
 
 #-------------------------------------------------------------------------------
 
@@ -233,6 +244,8 @@ override OMPFLAGS = -fopenmp
 else ifneq ($(shell $(CXX) --version | egrep '^(Apple clang)'),)
 override OMPFLAGS = # AV disable OpenMP MT on Apple clang (builds fail in the CI #578)
 ###override OMPFLAGS = -fopenmp # OM reenable OpenMP MT on Apple clang? (AV Oct 2023: this still fails in the CI)
+else ifneq ($(UNAME), 'Darwin')
+override OMPFLAGS = # AV disable OpenMP MT on mac
 else
 override OMPFLAGS = -fopenmp
 ###override OMPFLAGS = # disable OpenMP MT (default before #575)
@@ -722,7 +735,7 @@ ifneq ($(shell which flock 2>/dev/null),)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	flock $(BUILDDIR)/.make_test.lock $(MAKE) -C $(TESTDIR)
 else
-	$(MAKE) -C $(TESTDIR)
+	if [ -d $(TESTDIR) ]; then $(MAKE) -C $(TESTDIR); fi
 endif
 
 #-------------------------------------------------------------------------------
