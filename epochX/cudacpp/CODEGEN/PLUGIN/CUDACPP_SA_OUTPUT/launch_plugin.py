@@ -16,11 +16,13 @@ except ImportError:
     import internal.misc as misc
     import internal.extended_cmd as extended_cmd
     import internal.banner as banner_mod
+    import internal.common_run_interface as common_run_interface
 else:
     import madgraph.interface.madevent_interface as madevent_interface
     import madgraph.various.misc as misc
     import madgraph.interface.extended_cmd as extended_cmd
     import madgraph.various.banner as banner_mod
+    import madgraph.interface.common_run_interface as common_run_interface
 
 class CPPMEInterface(madevent_interface.MadEventCmdShell):
     def compile(self, *args, **opts):
@@ -32,6 +34,11 @@ class CPPMEInterface(madevent_interface.MadEventCmdShell):
             import pathlib
             import os
             pjoin = os.path.join
+            if 'cwd' in opts:
+                path = pjoin(opts['cwd'], os.pardir, os.pardir, 'Source', 'make_opts')
+                common_run_interface.CommonRunCmd.update_make_opts_full(
+                path,
+                {'FPTYPE': self.run_card['floating_type']})
             cudacpp_backend = self.run_card['cudacpp_backend'].upper() # the default value is defined in banner.py
             logger.info("Building madevent in madevent_interface.py with '%s' matrix elements"%cudacpp_backend)
             if cudacpp_backend == 'FORTRAN':
@@ -57,13 +64,29 @@ class CPPRunCard(banner_mod.RunCardLO):
             return
         Sourcedir = pjoin(os.path.dirname(os.path.dirname(self.path)), 'Source')
         subprocess.call(['make', 'cleanavx'], cwd=Sourcedir, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        
+
+    def reset_makeopts(self, old_value, new_value, name):
+
+        misc.sprint("PASS IN RESET MAKEOPTS", old_value, new_value, name)
+        if not hasattr(self, 'path'):
+            raise Exception
+
+        if name == 'floating_type':
+            common_run_interface.CommonRunCmd.update_make_opts_full({'FPTYPE': new_value})
+        else:
+            raise Exception
+
+        Sourcedir = pjoin(os.path.dirname(os.path.dirname(self.path)), 'Source')
+        subprocess.call(['make', 'cleanavx'], cwd=Sourcedir, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
     def plugin_input(self, finput):
         return
 
     def default_setup(self):
         super().default_setup()
         self.add_param('cudacpp_backend', 'CPP', include=False, hidden=False)
+        self.add_param('floating_type', 'd', include=False, hidden=False,
+                       fct_mod=(self.reset_makeopts,(),{}))    
 
     def write_one_include_file(self, output_dir, incname, output_file=None):
         """write one include file at the time"""
@@ -79,16 +102,13 @@ class CPPRunCard(banner_mod.RunCardLO):
             self['sde_strategy'] = 1
         if self['hel_recycling']:
             self['hel_recycling'] = False
-            
+
 class GPURunCard(CPPRunCard):
     def default_setup(self):
         super(CPPRunCard, self).default_setup()
         self.add_param('cudacpp_backend', 'CUDA', include=False, hidden=False)
+        self.add_param('floating_type', 'd', include=False, hidden=False)
 
-#class CUDACPPRunCard(CPPRunCard):
-#    def default_setup(self):
-#        super(CPPRunCard, self).default_setup()
-#        self.add_param('cudacpp_backend', 'CPP', include=False, hidden=False)
 
 MEINTERFACE = CPPMEInterface
 RunCard = CPPRunCard
