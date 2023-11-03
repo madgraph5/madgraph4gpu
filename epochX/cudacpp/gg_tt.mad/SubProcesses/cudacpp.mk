@@ -6,7 +6,7 @@
 #=== Determine the name of this makefile (https://ftp.gnu.org/old-gnu/Manuals/make-3.80/html_node/make_17.html)
 #=== NB: different names (e.g. cudacpp.mk and cudacpp_src.mk) are used in the Subprocess and src directories
 
-CUDACPP_MAKEFILE = $(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST))
+override CUDACPP_MAKEFILE = $(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST))
 $(info CUDACPP_MAKEFILE='$(CUDACPP_MAKEFILE)')
 
 CUDACPP_SRC_MAKEFILE = cudacpp_src.mk
