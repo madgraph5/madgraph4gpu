@@ -7,6 +7,8 @@
 #=== NB: different names (e.g. cudacpp.mk and cudacpp_src.mk) are used in the Subprocess and src directories
 
 CUDACPP_MAKEFILE = $(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST))
+$(info CUDACPP_MAKEFILE='$(CUDACPP_MAKEFILE)')
+
 CUDACPP_SRC_MAKEFILE = cudacpp_src.mk
 
 #-------------------------------------------------------------------------------
@@ -36,6 +38,8 @@ UNAME_P := $(shell uname -p)
 ifneq ($(wildcard ../../Source/make_opts),)
 include ../../Source/make_opts
 endif
+$(info CUDACPP_MAKEFILE='$(CUDACPP_MAKEFILE)')
+$(error exit)
 
 #-------------------------------------------------------------------------------
 
