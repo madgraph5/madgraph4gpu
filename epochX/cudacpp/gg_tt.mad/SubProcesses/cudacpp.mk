@@ -7,7 +7,7 @@
 #=== NB: different names (e.g. cudacpp.mk and cudacpp_src.mk) are used in the Subprocess and src directories
 #=== NB: use ':=' to ensure that the value is not modified further down after including make_opts
 
-CUDACPP_MAKEFILE := $(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST))
+override CUDACPP_MAKEFILE := $(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST))
 $(info CUDACPP_MAKEFILE='$(CUDACPP_MAKEFILE)')
 
 CUDACPP_SRC_MAKEFILE = cudacpp_src.mk
