@@ -242,7 +242,7 @@ else ifneq ($(shell $(CXX) --version | egrep '^(clang)'),)
 override OMPFLAGS = -fopenmp
 ###override OMPFLAGS = # disable OpenMP MT on clang (was not ok without or with nvcc before #578)
 ###else ifneq ($(shell $(CXX) --version | egrep '^(Apple clang)'),) # AV for Mac (Apple clang compiler)
-else ifeq ($(UNAME_S), 'Darwin') # OM for Mac (any compiler)
+else ifeq ($(UNAME_S),Darwin) # OM for Mac (any compiler)
 override OMPFLAGS = # AV disable OpenMP MT on Apple clang (builds fail in the CI #578)
 ###override OMPFLAGS = -fopenmp # OM reenable OpenMP MT on Apple clang? (AV Oct 2023: this still fails in the CI)
 else
