@@ -14,6 +14,7 @@
 
 #include <array>
 #include <cmath>
+#include <filesystem>
 #include <fstream>
 #include <iomanip>
 #include <memory>
@@ -217,18 +218,14 @@ TEST_P( MadgraphTest, CompareMomentaAndME )
   // Dump events to a new reference file?
   const char* dumpEventsC = getenv( "CUDACPP_RUNTEST_DUMPEVENTS" );
   const bool dumpEvents = ( dumpEventsC != 0 ) && ( std::string( dumpEventsC ) != "" );
-  std::string dumpFileName = std::string( "dump_" ) + testing::UnitTest::GetInstance()->current_test_info()->test_suite_name() + '.' + testing::UnitTest::GetInstance()->current_test_info()->name() + ".txt";
-  while( dumpFileName.find( '/' ) != std::string::npos )
-  {
-    dumpFileName.replace( dumpFileName.find( '/' ), 1, "_" );
-  }
+  const std::string refFileName = testDriver->getRefFileName();
+  const std::string dumpFileName = std::filesystem::path( refFileName ).filename();
   std::ofstream dumpFile;
   if( dumpEvents )
   {
     dumpFile.open( dumpFileName, std::ios::trunc );
   }
   // Read reference data
-  const std::string refFileName = testDriver->getRefFileName();
   std::map<unsigned int, ReferenceData> referenceData;
   if( !dumpEvents )
   {
