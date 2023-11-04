@@ -102,7 +102,7 @@ jobs:
         path: |
           CCACHE_DIR
           DOWNLOADS
-          test/googletest
+          ###test/googletest
         key: cache-${{ runner.os }}-${{ inputs.process }}-${{ github.run_id }}
         restore-keys:
           cache-${{ runner.os }}-${{ inputs.process }}
@@ -127,7 +127,7 @@ jobs:
         path: |
           CCACHE_DIR
           DOWNLOADS
-          test/googletest
+          ###test/googletest
         key: cache-${{ runner.os }}-${{ inputs.process }}-${{ github.run_id }}
 
     - name: tput_test
