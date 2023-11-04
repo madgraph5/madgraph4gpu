@@ -11,13 +11,16 @@ name: Test all processes
 
 on:
 
+  # Enable the possibility to manually trigger the all-processes workflow
+  workflow_dispatch:
+
+  # Trigger the all-processes workflow for pull requests to master
+  pull_request:
+    branches: [ master ]
+
   # Trigger the all-processes workflow when new changes to the workflow are pushed
   push:
-    paths:
-      - '.github/workflows/testsuite*'
-
-  # Manually trigger the all-processes workflow
-  workflow_dispatch:
+    paths: [ .github/workflows/testsuite* ]
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
