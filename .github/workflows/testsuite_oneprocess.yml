@@ -25,7 +25,9 @@ on:
        description: 'Physics process'
        default: 'gg_tt.mad'
        required: true
-       type: string
+       ###type: string
+       type: choice
+       options: [ gg_tt.mad, gg_ttg.mad ]
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
