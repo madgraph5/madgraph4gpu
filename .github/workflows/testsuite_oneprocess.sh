@@ -199,14 +199,31 @@ function tput_test() {
     echo "Testing in $(pwd)"
     # FIXME1: this is just a quick test, eventually port here tput tests from throughputX.sh
     # (could move some throughputX.sh functions to a separate script included both here and there)
-    # FIXME2: properly iterate over all simd modes
-    # FIXME3: enable FPEs
-    # FIXME4: handle all d/f/m, inl0/1, hrd0/1 etc...
-    bdirs="$(ls -d build.*)"
-    for bdir in ${bdirs}; do
-      runExe ${bdir}/runTest.exe
-      runExe ${bdir}/check.exe -p 1 32 1
-      runExe ${bdir}/gcheck.exe -p 1 32 1
+    # FIXME2: enable FPEs
+    # FIXME3: handle all d/f/m, inl0/1, hrd0/1 etc...
+    unamep=$(uname -p)
+    unames=$(uname -s)
+    for simd in none sse4 avx2 512y 512z; do
+      # Skip tests for unsupported simd modes as done in tput tests (prevent illegal instruction crashes #791)
+      if [ "${unamep}" != "x86_64" ]; then
+        if [ "${simd}" == "avx2" ]; then echo; echo "(SKIP ${simd} which is not supported on ${unamep})"; continue; fi
+        if [ "${simd}" == "512y" ]; then echo; echo "(SKIP ${simd} which is not supported on ${unamep})"; continue; fi
+        if [ "${simd}" == "512z" ]; then echo; echo "(SKIP ${simd} which is not supported on ${unamep})"; continue; fi
+      elif [ "${unames}" == "Darwin" ]; then
+        if [ "${simd}" == "512y" ]; then echo; echo "(SKIP ${simd} which is not supported on ${unames})"; continue; fi
+        if [ "${simd}" == "512z" ]; then echo; echo "(SKIP ${simd} which is not supported on ${unames})"; continue; fi
+      elif [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" != "1" ]; then
+        if [ "${simd}" == "512y" ]; then echo; echo "(SKIP ${simd} which is not supported - no avx512vl in /proc/cpuinfo)"; continue; fi
+        if [ "${simd}" == "512z" ]; then echo; echo "(SKIP ${simd} which is not supported - no avx512vl in /proc/cpuinfo)"; continue; fi
+      fi
+      if ls -d build.${simd}* > /dev/null 2>&1; then
+        bdirs="$(ls -d build.${simd}*)"
+        for bdir in ${bdirs}; do
+          runExe ${bdir}/runTest.exe
+          runExe ${bdir}/check.exe -p 1 32 1
+          runExe ${bdir}/gcheck.exe -p 1 32 1
+        done
+      fi
     done
     popd >& /dev/null
   done
