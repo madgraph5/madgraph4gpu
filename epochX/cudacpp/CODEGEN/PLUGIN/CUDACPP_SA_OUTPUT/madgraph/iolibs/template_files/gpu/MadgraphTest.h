@@ -215,7 +215,8 @@ TEST_P( MadgraphTest, CompareMomentaAndME )
 #endif
   constexpr fptype energy = 1500; // historical default, Ecms = 1500 GeV = 1.5 TeV (above the Z peak)
   // Dump events to a new reference file?
-  constexpr bool dumpEvents = false;
+  const char* dumpEventsC = getenv( "CUDACPP_RUNTEST_DUMPEVENTS" );
+  const bool dumpEvents = ( dumpEventsC != 0 ) && ( std::string( dumpEventsC ) != "" );
   std::string dumpFileName = std::string( "dump_" ) + testing::UnitTest::GetInstance()->current_test_info()->test_suite_name() + '.' + testing::UnitTest::GetInstance()->current_test_info()->name() + ".txt";
   while( dumpFileName.find( '/' ) != std::string::npos )
   {
