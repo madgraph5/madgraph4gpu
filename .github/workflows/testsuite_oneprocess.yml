@@ -80,9 +80,9 @@ jobs:
       with:
         submodules: 'true'
 
-    - name: WELCOME
+    - name: HELLO
       run: |
-        echo "WELCOME ${{ inputs.process }}! $(date)"
+        echo "HELLO ${{ inputs.process }}! $(date)"
         echo "Current directory is $(pwd)"
         echo "Current git commit is $(git log --oneline -n1 | cut -d' ' -f1)"
         # See https://github.com/actions/cache/blob/main/tips-and-workarounds.md#force-deletion-of-caches-overriding-default-cache-eviction-policy
