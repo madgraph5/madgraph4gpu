@@ -19,36 +19,32 @@ topdir=$(cd $(dirname $0)/../..; pwd)
 
 # Code generation stage
 function codegen() {
+  if [ "$1" == "" ] || [ "$2" != "" ]; then echo "Usage: $(basename $0) <process>"; exit 1; fi
+  proc=$1
+  if [ "${proc%.mad}" == "${proc}" ] && [ "${proc%.sa}" == "${proc}" ]; then echo "Usage: $(basename $0) <process.mad|process.sa>"; exit 1; fi
+  # Generate code and check clang formatting
   cd ${topdir}/epochX/cudacpp
   echo "Current directory is $(pwd)"
-  ###processes="$(git ls-tree --name-only HEAD *.mad *.sa)"
-  processes="gg_tt.mad" # FOR QUICK TESTS
-  for proc in $processes; do
-    echo 
-    echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
-    echo "Code generation for ${proc}"
-    echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
-    if [ "${proc%.mad}" != "${proc}" ]; then
-      # Generate code and check clang formatting
-      ./CODEGEN/generateAndCompare.sh -q ${proc%.mad} --mad
-    elif [ "${proc%.sa}" != "${proc}" ]; then
-      # Generate code and check clang formatting
-      ./CODEGEN/generateAndCompare.sh -q ${proc%.sa}
-    else
-      echo "WARNING! SKIP process directory '${proc}' because it does not end in .mad or .sa"
-    fi
-    # Check if there are any differences to the current repo
-    git checkout HEAD ${proc}/CODEGEN*.txt
-    if [ "${proc%.mad}" != "${proc}" ]; then
-      git checkout HEAD ${proc}/Cards/me5_configuration.txt
-      ###sed -i 's/DEFAULT_F2PY_COMPILER=f2py.*/DEFAULT_F2PY_COMPILER=f2py3/' ${proc}/Source/make_opts
-      git checkout HEAD ${proc}/Source/make_opts
-    fi
-    echo
-    echo "git diff (start)"
-    git diff --exit-code
-    echo "git diff (end)"
-  done
+  echo 
+  echo "*******************************************************************************"
+  echo "*** code generation for ${proc}"
+  echo "*******************************************************************************"
+  if [ "${proc%.mad}" != "${proc}" ]; then
+    ./CODEGEN/generateAndCompare.sh -q ${proc%.mad} --mad
+  else
+    ./CODEGEN/generateAndCompare.sh -q ${proc%.sa}
+  fi
+  # Check if there are any differences to the current repo
+  git checkout HEAD ${proc}/CODEGEN*.txt
+  if [ "${proc%.mad}" != "${proc}" ]; then
+    git checkout HEAD ${proc}/Cards/me5_configuration.txt
+    ###sed -i 's/DEFAULT_F2PY_COMPILER=f2py.*/DEFAULT_F2PY_COMPILER=f2py3/' ${proc}/Source/make_opts
+    git checkout HEAD ${proc}/Source/make_opts
+  fi
+  echo
+  echo "git diff (start)"
+  git diff --exit-code
+  echo "git diff (end)"
 }
 
 #----------------------------------------------------------------------------------------------------------------------------------
@@ -61,7 +57,8 @@ function setup_ccache {
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
-function tput_ini() {
+# Before-build stage (analyse data retrieved from cache, download ccache executable and googletest if not retrieved from cache)
+function before_build() {
   # Install and configure ccache
   if [ -d ${topdir}/DOWNLOADS ]; then
     echo "Directory ${topdir}/DOWNLOADS already exists (retrieved from cache)"
@@ -115,26 +112,44 @@ function tput_ini() {
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
-# Tput test stage (build, runTest.exe, check.exe, gcheck.exe)
-function tput_run() {
-  cd ${topdir}/epochX/cudacpp
-  echo "Current directory is $(pwd)"
-  # Set up ccache environment
+# Build stage
+function build() {
+  if [ "$1" == "" ] || [ "$2" != "" ]; then echo "Usage: $(basename $0) <process>"; exit 1; fi
+  proc=$1
+  if [ "${proc%.mad}" == "${proc}" ] && [ "${proc%.sa}" == "${proc}" ]; then echo "Usage: $(basename $0) <process.mad|process.sa>"; exit 1; fi
+  # Set up build environment
   setup_ccache
-  # Dump g++ environment
-  echo
-  echo "g++ --version"
-  g++ --version
-  # Build and test
-  export CXX=g++ # set up CXX that is needed by cudacpp.mk
   export USECCACHE=1 # enable ccache in madgraph4gpu builds
-  echo "./tput/teeThroughputX.sh -makej -ggtt -makeclean"
-  ./tput/teeThroughputX.sh -makej -ggtt -makeclean
+  export CXX=g++ # set up CXX that is needed by cudacpp.mk
+  ###echo; echo "$CXX --version"; $CXX --version
+  export USEBUILDDIR=1
+  # Iterate over P* directories and build
+  cd ${topdir}/epochX/cudacpp/${proc}
+  echo "Current directory is $(pwd)"
+  gtestlibs=0
+  pdirs="$(ls -d SubProcesses/P*_*)"
+  for pdir in ${pdirs}; do
+    pushd $pdir >& /dev/null
+    echo
+    echo "*******************************************************************************"
+    echo "*** build ${proc} ($(basename $(pwd)))"
+    echo "*******************************************************************************"
+    echo
+    echo "Building in $(pwd)"
+    if [ "${gtestlibs}" == "0" ]; then
+      # Build googletest once and for all to avoid issues in parallel builds
+      gtestlibs=1
+      make -f cudacpp.mk gtestlibs
+    fi
+    make -j avxall
+    popd >& /dev/null
+  done
 }
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
-function tput_fin() {
+# After-build stage (analyse data to be saved in updated cache)
+function after_build() {
   # Set up ccache environment
   setup_ccache
   # Dump ccache status after the builds
@@ -150,45 +165,90 @@ function tput_fin() {
   echo "ls ${topdir}/test/googletest (start)"
   ls ${topdir}/test/googletest
   echo "ls ${topdir}/test/googletest (end)"
+  # Check contents of build directories
+  echo
+  echo "ls -d ${topdir}/epochX/cudacpp/*.*/SubProcesses/P*_*/build* (start)"
+  ls -d ${topdir}/epochX/cudacpp/*.*/SubProcesses/P*_*/build*
+  echo "ls -d ${topdir}/epochX/cudacpp/*.*/SubProcesses/P*_*/build* (end)"
+}
+
+#----------------------------------------------------------------------------------------------------------------------------------
+
+function runExe() {
+  echo
+  echo "Execute $*"
+  if [ -f $1 ]; then $*; else echo "(SKIP missing $1)"; fi
+}
+
+# Tput-test stage (runTest.exe, check.exe, gcheck.exe)
+function tput_test() {
+  if [ "$1" == "" ] || [ "$2" != "" ]; then echo "Usage: $(basename $0) <process>"; exit 1; fi
+  proc=$1
+  if [ "${proc%.mad}" == "${proc}" ] && [ "${proc%.sa}" == "${proc}" ]; then echo "Usage: $(basename $0) <process.mad|process.sa>"; exit 1; fi
+  # Iterate over P* directories and run tests
+  cd ${topdir}/epochX/cudacpp/${proc}
+  echo "Current directory is $(pwd)"
+  pdirs="$(ls -d SubProcesses/P*_*)"
+  for pdir in ${pdirs}; do
+    pushd $pdir >& /dev/null
+    echo
+    echo "*******************************************************************************"
+    echo "*** tput-test ${proc} ($(basename $(pwd)))"
+    echo "*******************************************************************************"
+    echo
+    echo "Testing in $(pwd)"
+    # FIXME1: this is just a quick test, eventually port here tput tests from throughputX.sh
+    # (could move some throughputX.sh functions to a separate script included both here and there)
+    # FIXME2: properly iterate over all simd modes
+    # FIXME3: enable FPEs
+    # FIXME4: handle all d/f/m, inl0/1, hrd0/1 etc...
+    bdirs="$(ls -d build.*)"
+    for bdir in ${bdirs}; do
+      runExe ${bdir}/runTest.exe
+      runExe ${bdir}/check.exe -p 1 32 1
+      runExe ${bdir}/gcheck.exe -p 1 32 1
+    done
+    popd >& /dev/null
+  done
 }
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
 # Usage
 function usage() {
-  echo "Usage: $(basename $0) <${stages// /|}>"
+  echo "Usage: $(basename $0) <${stages// /|}> <proc.sa|proc.mad>"
   exit 1
 }
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
 # Valid stages
-stages="codegen tput_ini tput_run tput_fin"
+stages="codegen before_build build after_build tput_test"
 
 # Check input arguments
 for astage in $stages; do
   if [ "$1" == "$astage" ]; then
-    stage=$1; shift; break
+    stage=$1; proc=$2; shift; shift; break
   fi
 done
-if [ "$stage" == "" ] || [ "$1" != "" ]; then usage; fi
+if [ "$stage" == "" ] || [ "$proc" == "" ] || [ "$1" != "" ]; then usage; fi
 
 # Start
 echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
-echo "[testsuite_oneprocess.sh] $stage starting at $(date)"
+echo "[testsuite_oneprocess.sh] $stage ($proc) starting at $(date)"
 echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
 
 # Execute stage
-( set -e; $stage ) # execute this within a subprocess and fail immediately on error
+( set -e; $stage $proc) # execute this within a subprocess and fail immediately on error
 status=$?
 
 # Finish
 echo
 echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
 if [ $status -eq 0 ]; then
-  echo "[testsuite_oneprocess.sh] $stage finished with status=$status (OK) at $(date)"
+  echo "[testsuite_oneprocess.sh] $stage ($proc) finished with status=$status (OK) at $(date)"
 else
-  echo "[testsuite_oneprocess.sh] $stage finished with status=$status (NOT OK) at $(date)"
+  echo "[testsuite_oneprocess.sh] $stage ($proc) finished with status=$status (NOT OK) at $(date)"
 fi
 echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
 exit $status

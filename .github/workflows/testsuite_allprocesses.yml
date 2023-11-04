@@ -1,0 +1,30 @@
+# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Licensed under the GNU Lesser General Public License (version 3 or later).
+# Created by: A. Valassi (Nov 2023) for the MG5aMC CUDACPP plugin.
+# Further modified by: A. Valassi (2023) for the MG5aMC CUDACPP plugin.
+
+name: Test suite for all processes
+
+#----------------------------------------------------------------------------------------------------------------------------------
+
+on:
+
+  push:
+    paths:
+      - '.github/workflows/testsuite*'
+
+#----------------------------------------------------------------------------------------------------------------------------------
+
+jobs:
+
+  # See https://stackoverflow.com/a/75337311
+  process-matrix:
+    strategy:
+      fail-fast: false # important to see all results even if one fails (fail-fast is true by default)
+      matrix:
+        process: [gg_tt.mad, gg_ttg.mad]
+    uses: ./.github/workflows/testsuite_oneprocess.yml
+    with:
+      process: ${{ matrix.process }}
+
+#----------------------------------------------------------------------------------------------------------------------------------

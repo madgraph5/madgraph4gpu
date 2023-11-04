@@ -8,18 +8,23 @@ name: Test suite for one process
 #----------------------------------------------------------------------------------------------------------------------------------
 
 on:
+  # See https://stackoverflow.com/a/75337311
+  workflow_call:
+    inputs:
+      process: # this variable is provided by the matrix in testsuite_allprocesses.yml
+        required: true
+        type: string
 
-  push:
-    paths:
-      - '.github/workflows/testsuite_oneprocess.*'
-
-  workflow_dispatch:
-    #inputs:
-    #  name:
-    #    description: 'Person to greet'
-    #    default: 'World'
-    #    required: true
-    #    type: string
+  #FIXME: add ALSO the possibility of running only one process on request...
+  
+  # From the default github manual workflow example
+  #workflow_dispatch:
+  # inputs:
+  #   process:
+  #     description: 'Physics process'
+  #     default: 'gg_tt.mad'
+  #     required: true
+  #     type: string
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
@@ -66,7 +71,7 @@ jobs:
 
     - name: WELCOME
       run: |
-        echo "WELCOME! $(date)"
+        echo "WELCOME ${{ inputs.process }}! $(date)"
         echo "Current directory is $(pwd)"
         echo "Current git commit is $(git log --oneline -n1 | cut -d' ' -f1)"
         # See https://github.com/actions/cache/blob/main/tips-and-workarounds.md#force-deletion-of-caches-overriding-default-cache-eviction-policy
@@ -88,23 +93,23 @@ jobs:
           CCACHE_DIR
           DOWNLOADS
           test/googletest
-        key: cache-${{ runner.os }}-${{ github.run_id }}
+        key: cache-${{ runner.os }}-${{ inputs.process }}-${{ github.run_id }}
         restore-keys:
-          cache-${{ runner.os }}
+          cache-${{ runner.os }}-${{ inputs.process }}
 
     - name: codegen
-      run: .github/workflows/testsuite_oneprocess.sh codegen
+      run: .github/workflows/testsuite_oneprocess.sh codegen ${{ inputs.process }}
 
-    - name: tput_ini
-      run: .github/workflows/testsuite_oneprocess.sh tput_ini
+    - name: before_build
+      run: .github/workflows/testsuite_oneprocess.sh before_build ${{ inputs.process }}
 
-    - name: tput_run
-      run: .github/workflows/testsuite_oneprocess.sh tput_run
+    - name: build
+      run: .github/workflows/testsuite_oneprocess.sh build ${{ inputs.process }}
 
-    - name: tput_fin
-      run: .github/workflows/testsuite_oneprocess.sh tput_fin
+    - name: after_build
+      run: .github/workflows/testsuite_oneprocess.sh after_build ${{ inputs.process }}
 
-    - name: update_cache
+    - name: update_cache # update caches after the builds but before the tests (which may fail even if builds succeed)
       id: cache-update
       # See https://github.com/actions/cache
       uses: actions/cache/save@v3
@@ -113,21 +118,22 @@ jobs:
           CCACHE_DIR
           DOWNLOADS
           test/googletest
-        key: cache-${{ runner.os }}-${{ github.run_id }}
+        key: cache-${{ runner.os }}-${{ inputs.process }}-${{ github.run_id }}
+
+    - name: tput_test
+      run: .github/workflows/testsuite_oneprocess.sh tput_test ${{ inputs.process }}
 
     - name: GOODBYE
       run: |
-        echo "GOODBYE! $(date)"
+        echo "GOODBYE ${{ inputs.process }}! $(date)"
         echo "Current directory is $(pwd)"
         echo "Current git commit is $(git log --oneline -n1 | cut -d' ' -f1)"
         REPO=${{ github.repository }}
         echo "List cache keys (start)"
+        # FIXME list only cache for ${{ inputs.process }}
         gh actions-cache list -R $REPO --sort created-at --order asc
         echo "List cache keys (end)"
       env:
         GH_TOKEN: ${{ github.token }}
-
-    #- name: Send greeting
-    #  run: echo "Hello ${{ inputs.name }}"
 
 #----------------------------------------------------------------------------------------------------------------------------------
