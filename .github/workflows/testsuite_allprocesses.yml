@@ -9,6 +9,11 @@ name: Test suite for all processes
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
+# See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#run-name
+run-name: Manually test all processes
+
+#----------------------------------------------------------------------------------------------------------------------------------
+
 on:
 
   # Trigger the all-processes workflow when new changes to the workflow are pushed
@@ -28,7 +33,8 @@ jobs:
     strategy:
       fail-fast: false # important to see all results even if one fails (fail-fast is true by default)
       matrix:
-        process: [gg_tt.mad, gg_ttg.mad]
+        # FIXME? Can the list of supported processes be specified only once in oneprocess.yml or allprocesses.yml?
+        process: [gg_tt.mad, gg_ttg.mad, gg_ttgg.mad, gg_ttggg.mad, ee_mumu.mad]
     uses: ./.github/workflows/testsuite_oneprocess.yml
     with:
       process: ${{ matrix.process }}
