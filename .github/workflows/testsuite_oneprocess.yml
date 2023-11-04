@@ -3,7 +3,14 @@
 # Created by: A. Valassi (Oct 2023) for the MG5aMC CUDACPP plugin.
 # Further modified by: A. Valassi (2023) for the MG5aMC CUDACPP plugin.
 
+#----------------------------------------------------------------------------------------------------------------------------------
+
 name: Test suite for one process
+
+#----------------------------------------------------------------------------------------------------------------------------------
+
+# See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#run-name
+run-name: Test process ${{ inputs.process }}
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
