@@ -8,6 +8,8 @@ name: Test suite for one process
 #----------------------------------------------------------------------------------------------------------------------------------
 
 on:
+
+  # Trigger the one-process workflow from the all-processes workflow
   # See https://stackoverflow.com/a/75337311
   workflow_call:
     inputs:
@@ -15,16 +17,15 @@ on:
         required: true
         type: string
 
-  #FIXME: add ALSO the possibility of running only one process on request...
-  
-  # From the default github manual workflow example
-  #workflow_dispatch:
-  # inputs:
-  #   process:
-  #     description: 'Physics process'
-  #     default: 'gg_tt.mad'
-  #     required: true
-  #     type: string
+  # Manually trigger the one-process workflow
+  # (the lines below are adapted rom the default github manual workflow example)
+  workflow_dispatch:
+   inputs:
+     process:
+       description: 'Physics process'
+       default: 'gg_tt.mad'
+       required: true
+       type: string
 
 #----------------------------------------------------------------------------------------------------------------------------------
 

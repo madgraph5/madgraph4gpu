@@ -9,9 +9,13 @@ name: Test suite for all processes
 
 on:
 
+  # Trigger the all-processes workflow when new changes to the workflow are pushed
   push:
     paths:
       - '.github/workflows/testsuite*'
+
+  # Manually trigger the all-processes workflow
+  workflow_dispatch:
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
