@@ -5,12 +5,12 @@
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
-name: Test suite for one process
+name: Test one process
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
 # See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#run-name
-run-name: Manually test process ${{ inputs.process }}
+run-name: Manually test one process ${{ inputs.process }}
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
