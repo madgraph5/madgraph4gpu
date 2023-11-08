@@ -203,8 +203,8 @@ function tput_test() {
     echo "Testing in $(pwd)"
     # FIXME1: this is just a quick test, eventually port here tput tests from throughputX.sh
     # (could move some throughputX.sh functions to a separate script included both here and there)
-    # FIXME2: enable FPEs
-    # FIXME3: handle all d/f/m, inl0/1, hrd0/1 etc...
+    # FIXME2: handle all d/f/m, inl0/1, hrd0/1 etc...
+    # FIXME3: add fcheck.exe tests
     unamep=$(uname -p)
     unames=$(uname -s)
     for simd in none sse4 avx2 512y 512z; do
@@ -233,6 +233,11 @@ function tput_test() {
   done
 }
 
+# Tput-test with FPEs enabled
+function tput_test_fpe() {
+  CUDACPP_RUNTIME_ENABLEFPE=1 tput_test $*
+}
+
 #----------------------------------------------------------------------------------------------------------------------------------
 
 # Usage
@@ -244,7 +249,7 @@ function usage() {
 #----------------------------------------------------------------------------------------------------------------------------------
 
 # Valid stages
-stages="codegen before_build build after_build tput_test"
+stages="codegen before_build build after_build tput_test tput_test_fpe"
 
 # Check input arguments
 for astage in $stages; do

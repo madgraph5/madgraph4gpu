@@ -37,5 +37,7 @@ jobs:
     uses: ./.github/workflows/testsuite_oneprocess.yml
     with:
       process: ${{ matrix.process }}.${{ matrix.suffix }}
+      # By default, in allprocesses tests enable FPE tests when pushing, but not in pull requests
+      enableFPE: ${{ github.event_name != 'pull_request' }}
 
 #----------------------------------------------------------------------------------------------------------------------------------

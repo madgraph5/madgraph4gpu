@@ -10,7 +10,7 @@ name: Test one process
 #----------------------------------------------------------------------------------------------------------------------------------
 
 # See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#run-name
-run-name: Manually test one process ${{ inputs.process }}
+run-name: Manually test one process ${{ inputs.process }} (enableFPE = ${{ inputs.enableFPE }}) 
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
@@ -23,19 +23,26 @@ on:
       process: # this variable is provided by the matrix in testsuite_allprocesses.yml
         required: true
         type: string
+      enableFPE:
+        required: true
+        type: boolean
 
   # Manually trigger the one-process workflow
   # (the lines below are adapted rom the default github manual workflow example)
   workflow_dispatch:
     inputs:
       process:
-        description: 'Physics process'
+        description: 'physics process'
         default: 'gg_tt.mad'
         required: true
-        ###type: string
         type: choice
         # FIXME? Can the list of supported processes be specified only once in oneprocess.yml or allprocesses.yml?
-        options: [gg_tt.mad, gg_ttg.mad, gg_ttgg.mad, gg_ttggg.mad, ee_mumu.mad]
+        options: [ee_mumu.mad, gg_tt.mad, gg_ttg.mad, gg_ttgg.mad, gg_ttggg.mad, gg_tt01g.mad, gq_ttq.mad, pp_tt012j.mad]
+      enableFPE:
+        description: 'enable FPE tests?'
+        default: true
+        required: true
+        type: boolean
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
@@ -133,6 +140,10 @@ jobs:
 
     - name: tput_test
       run: .github/workflows/testsuite_oneprocess.sh tput_test ${{ inputs.process }}
+
+    - name: tput_test_fpe
+      run: .github/workflows/testsuite_oneprocess.sh tput_test_fpe ${{ inputs.process }}
+      if: ${{ inputs.enableFPE }}
 
     - name: GOODBYE
       run: |
