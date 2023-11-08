@@ -62,21 +62,30 @@ jobs:
       run: |
         gh extension install actions/gh-actions-cache
         REPO=${{ github.repository }}
-        echo "List cache keys (start)"
-        gh actions-cache list -R $REPO --sort created-at --order asc --key cache-${{ runner.os }}-${{ inputs.process }}
-        echo "List cache keys (end)"
-        ###cacheKeys=$(gh actions-cache list -R $REPO --sort created-at --order asc --key cache-${{ runner.os }}-${{ inputs.process }} | cut -f 1) # delete ALL caches
-        cacheKeys=$(gh actions-cache list -R $REPO --sort created-at --order asc --key cache-${{ runner.os }}-${{ inputs.process }} | cut -f 1 | head --lines=-1) # keep only the most recent cache
+        #--- LIST CODEGEN CACHES
+        echo "List codegencache keys (start)"
+        gh actions-cache list -R $REPO --sort created-at --order asc --key codegencache-${{ runner.os }}-${{ inputs.process }}
+        echo "List codegencache keys (end)"
+        cacheKeysCodegen=$(gh actions-cache list -R $REPO --sort created-at --order asc --key codegencache-${{ runner.os }}-${{ inputs.process }} | cut -f 1) # delete ALL codegen caches
+        #--- LIST BUILD CACHES
+        echo "List buildcache keys (start)"
+        gh actions-cache list -R $REPO --sort created-at --order asc --key buildcache-${{ runner.os }}-${{ inputs.process }}
+        echo "List buildcache keys (end)"
+        cacheKeysBuild=$(gh actions-cache list -R $REPO --sort created-at --order asc --key buildcache-${{ runner.os }}-${{ inputs.process }} | cut -f 1 | head --lines=-1) # keep only the most recent build cache
+        #--- DELETE CODEGEN AND BUILD CACHES
         set +e # do not fail while deleting cache keys
-        echo "Deleting caches..."
-        for cacheKey in $cacheKeys; do gh actions-cache delete $cacheKey -R $REPO --confirm; done
-        echo "Deleting caches... done"
+        echo "Deleting codegen caches..."
+        for cacheKey in $cacheKeysCodegen; do gh actions-cache delete $cacheKey -R $REPO --confirm; done
+        echo "Deleting codegen caches... done"
+        echo "Deleting build caches..."
+        for cacheKey in $cacheKeysBuild; do gh actions-cache delete $cacheKey -R $REPO --confirm; done
+        echo "Deleting build caches... done"
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-  testsuite:
+  codegen:
     runs-on: ubuntu-latest
     needs: cleanup
 
@@ -87,22 +96,88 @@ jobs:
       with:
         submodules: 'true'
 
-    - name: HELLO
+    - name: HELLO_CODEGEN
       run: |
-        echo "HELLO ${{ inputs.process }}! $(date)"
+        echo "HELLO_CODEGEN ${{ inputs.process }}! $(date)"
         echo "Current directory is $(pwd)"
         echo "Current git commit is $(git log --oneline -n1 | cut -d' ' -f1)"
         # See https://github.com/actions/cache/blob/main/tips-and-workarounds.md#force-deletion-of-caches-overriding-default-cache-eviction-policy
         gh extension install actions/gh-actions-cache
         REPO=${{ github.repository }}
-        echo "List cache keys (start)"
-        gh actions-cache list -R $REPO --sort created-at --order asc --key cache-${{ runner.os }}-${{ inputs.process }}
-        echo "List cache keys (end)"
+        echo "List codegencache keys (start)"
+        gh actions-cache list -R $REPO --sort created-at --order asc --key codegencache-${{ runner.os }}-${{ inputs.process }}
+        echo "List codegencache keys (end)"
       env:
         GH_TOKEN: ${{ github.token }}
 
-    - name: restore_cache
-      id: cache-restore
+    - name: codegen
+      run: .github/workflows/testsuite_oneprocess.sh codegen ${{ inputs.process }}
+
+    - name: update_codegen_cache # update codegen caches
+      id: codegen-cache-update
+      # See https://github.com/actions/cache
+      uses: actions/cache/save@v3
+      with:
+        path: |
+          epochX/cudacpp/${{ inputs.process }}
+        key: codegencache-${{ runner.os }}-${{ inputs.process }}-${{ github.run_id }}
+
+    - name: GOODBYE_CODEGEN
+      run: |
+        echo "GOODBYE_CODEGEN ${{ inputs.process }}! $(date)"
+        echo "Current directory is $(pwd)"
+        echo "Current git commit is $(git log --oneline -n1 | cut -d' ' -f1)"
+        REPO=${{ github.repository }}
+        echo "List codegencache keys (start)"
+        gh actions-cache list -R $REPO --sort created-at --order asc --key codegencache-${{ runner.os }}-${{ inputs.process }}
+        echo "List codegencache keys (end)"
+      env:
+        GH_TOKEN: ${{ github.token }}
+
+  #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+  testsuite:
+    runs-on: ubuntu-latest
+    needs: codegen
+
+    steps:
+    - # See https://github.com/actions/checkout
+      # (NB actions/checkout needs "Allow owner and select non-owner" and "Allow actions created by github")
+      uses: actions/checkout@v4
+      with:
+        submodules: 'true'
+
+    - name: HELLO_TESTSUITE
+      run: |
+        echo "HELLO_TESTSUITE ${{ inputs.process }}! $(date)"
+        echo "Current directory is $(pwd)"
+        ###echo "Current git commit is $(git log --oneline -n1 | cut -d' ' -f1)"
+        # See https://github.com/actions/cache/blob/main/tips-and-workarounds.md#force-deletion-of-caches-overriding-default-cache-eviction-policy
+        gh extension install actions/gh-actions-cache
+        REPO=${{ github.repository }}
+        echo "List codegencache keys (start)"
+        gh actions-cache list -R $REPO --sort created-at --order asc --key codegencache-${{ runner.os }}-${{ inputs.process }}
+        echo "List codegencache keys (end)"
+        echo "List buildcache keys (start)"
+        gh actions-cache list -R $REPO --sort created-at --order asc --key buildcache-${{ runner.os }}-${{ inputs.process }}
+        echo "List buildcache keys (end)"
+      env:
+        GH_TOKEN: ${{ github.token }}
+
+    - name: restore_codegen_cache
+      id: codegen-cache-restore
+      # See https://github.com/actions/cache
+      # See https://github.com/actions/cache/blob/main/tips-and-workarounds.md#update-a-cache
+      uses: actions/cache/restore@v3
+      with:
+        path: |
+          epochX/cudacpp/${{ inputs.process }}
+        key: codegencache-${{ runner.os }}-${{ inputs.process }}-${{ github.run_id }}
+        restore-keys:
+          codegencache-${{ runner.os }}-${{ inputs.process }}
+
+    - name: restore_build_cache
+      id: build-cache-restore
       # See https://github.com/actions/cache
       # See https://github.com/actions/cache/blob/main/tips-and-workarounds.md#update-a-cache
       uses: actions/cache/restore@v3
@@ -111,12 +186,10 @@ jobs:
           CCACHE_DIR
           DOWNLOADS
           test/googletest
-        key: cache-${{ runner.os }}-${{ inputs.process }}-${{ github.run_id }}
+        key: buildcache-${{ runner.os }}-${{ inputs.process }}-${{ github.run_id }}
         restore-keys:
-          cache-${{ runner.os }}-${{ inputs.process }}
-
-    - name: codegen
-      run: .github/workflows/testsuite_oneprocess.sh codegen ${{ inputs.process }}
+          buildcache-${{ runner.os }}-${{ inputs.process }}
+          cache-${{ runner.os }}-${{ inputs.process }} # TEMPORARY!
 
     - name: before_build
       run: .github/workflows/testsuite_oneprocess.sh before_build ${{ inputs.process }}
@@ -127,8 +200,8 @@ jobs:
     - name: after_build
       run: .github/workflows/testsuite_oneprocess.sh after_build ${{ inputs.process }}
 
-    - name: update_cache # update caches after the builds but before the tests (which may fail even if builds succeed)
-      id: cache-update
+    - name: update_build_cache # update build caches after the builds but before the tests (which may fail even if builds succeed)
+      id: build-cache-update
       # See https://github.com/actions/cache
       uses: actions/cache/save@v3
       with:
@@ -136,7 +209,7 @@ jobs:
           CCACHE_DIR
           DOWNLOADS
           test/googletest
-        key: cache-${{ runner.os }}-${{ inputs.process }}-${{ github.run_id }}
+        key: buildcache-${{ runner.os }}-${{ inputs.process }}-${{ github.run_id }}
 
     - name: tput_test
       run: .github/workflows/testsuite_oneprocess.sh tput_test ${{ inputs.process }}
@@ -145,15 +218,18 @@ jobs:
       run: .github/workflows/testsuite_oneprocess.sh tput_test_fpe ${{ inputs.process }}
       if: ${{ inputs.enableFPE }}
 
-    - name: GOODBYE
+    - name: GOODBYE_TESTSUITE
       run: |
-        echo "GOODBYE ${{ inputs.process }}! $(date)"
+        echo "GOODBYE_TESTSUITE ${{ inputs.process }}! $(date)"
         echo "Current directory is $(pwd)"
         echo "Current git commit is $(git log --oneline -n1 | cut -d' ' -f1)"
         REPO=${{ github.repository }}
-        echo "List cache keys (start)"
-        gh actions-cache list -R $REPO --sort created-at --order asc --key cache-${{ runner.os }}-${{ inputs.process }}
-        echo "List cache keys (end)"
+        echo "List codegencache keys (start)"
+        gh actions-cache list -R $REPO --sort created-at --order asc --key codegencache-${{ runner.os }}-${{ inputs.process }}
+        echo "List codegencache keys (end)"
+        echo "List buildcache keys (start)"
+        gh actions-cache list -R $REPO --sort created-at --order asc --key buildcache-${{ runner.os }}-${{ inputs.process }}
+        echo "List buildcache keys (end)"
       env:
         GH_TOKEN: ${{ github.token }}
 
