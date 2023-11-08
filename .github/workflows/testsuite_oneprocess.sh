@@ -130,6 +130,7 @@ function build() {
   # Iterate over P* directories and build
   cd ${topdir}/epochX/cudacpp/${proc}
   echo "Current directory is $(pwd)"
+  echo "FPTYPE=${FPTYPE}"
   gtestlibs=0
   pdirs="$(ls -d SubProcesses/P*_*)"
   for pdir in ${pdirs}; do
@@ -192,6 +193,7 @@ function tput_test() {
   # Iterate over P* directories and run tests
   cd ${topdir}/epochX/cudacpp/${proc}
   echo "Current directory is $(pwd)"
+  echo "FPTYPE=${FPTYPE}"
   pdirs="$(ls -d SubProcesses/P*_*)"
   for pdir in ${pdirs}; do
     pushd $pdir >& /dev/null
