@@ -4,10 +4,13 @@
 # Further modified by: O. Mattelaer, S. Roiser, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
 
 #=== Determine the name of this makefile (https://ftp.gnu.org/old-gnu/Manuals/make-3.80/html_node/make_17.html)
-#=== NB: different names (e.g. cudacpp.mk and cudacpp_src.mk) are used in the Subprocess and src directories
+#=== NB: use ':=' to ensure that the value of CUDACPP_MAKEFILE is not modified further down after including make_opts
+#=== NB: use 'override' to ensure that the value can not be modified from the outside
+override CUDACPP_MAKEFILE := $(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST))
+###$(info CUDACPP_MAKEFILE='$(CUDACPP_MAKEFILE)')
 
-CUDACPP_MAKEFILE = $(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST))
-CUDACPP_SRC_MAKEFILE = cudacpp_src.mk
+#=== NB: different names (e.g. cudacpp.mk and cudacpp_src.mk) are used in the Subprocess and src directories
+override CUDACPP_SRC_MAKEFILE = cudacpp_src.mk
 
 #-------------------------------------------------------------------------------
 
@@ -27,7 +30,16 @@ UNAME_S := $(shell uname -s)
 UNAME_P := $(shell uname -p)
 ###$(info UNAME_P='$(UNAME_P)')
 
+#-------------------------------------------------------------------------------
+
+#=== Include the common MG5aMC Makefile options
+
+# OM: this is crucial for MG5aMC flag consistency/documentation
+# AV: temporarely comment this out because it breaks cudacpp builds
+ifneq ($(wildcard ../../Source/make_opts),)
 include ../../Source/make_opts
+endif
+
 #-------------------------------------------------------------------------------
 
 #=== Configure common compiler flags for C++ and CUDA
@@ -111,6 +123,11 @@ endif
 # Note: AR, CXX and FC are implicitly defined if not set externally
 # See https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
 
+# Add -mmacosx-version-min=11.3 to avoid "ld: warning: object file was built for newer macOS version than being linked"
+ifneq ($(shell $(CXX) --version | egrep '^Apple clang'),)
+CXXFLAGS += -mmacosx-version-min=11.3
+endif
+
 #-------------------------------------------------------------------------------
 
 #=== Configure the CUDA compiler
@@ -144,7 +161,11 @@ ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   comma:=,
   CUARCHFLAGS = $(foreach arch,$(subst $(comma), ,$(MADGRAPH_CUDA_ARCHITECTURE)),-gencode arch=compute_$(arch),code=compute_$(arch) -gencode arch=compute_$(arch),code=sm_$(arch))
   CUINC = -I$(CUDA_HOME)/include/
-  CURANDLIBFLAGS = -L$(CUDA_HOME)/lib64/ -lcurand # NB: -lcuda is not needed here!
+  ifeq ($(RNDGEN),hasNoCurand)
+    CURANDLIBFLAGS=
+  else
+    CURANDLIBFLAGS = -L$(CUDA_HOME)/lib64/ -lcurand # NB: -lcuda is not needed here!
+  endif
   CUOPTFLAGS = -lineinfo
   CUFLAGS = $(foreach opt, $(OPTFLAGS), -Xcompiler $(opt)) $(CUOPTFLAGS) $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math
   ###CUFLAGS += -Xcompiler -Wall -Xcompiler -Wextra -Xcompiler -Wshadow
@@ -229,11 +250,13 @@ override OMPFLAGS = -fopenmp
 else ifneq ($(shell $(CXX) --version | egrep '^(clang)'),)
 override OMPFLAGS = -fopenmp
 ###override OMPFLAGS = # disable OpenMP MT on clang (was not ok without or with nvcc before #578)
-else ifneq ($(shell $(CXX) --version | egrep '^(Apple clang)'),)
-override OMPFLAGS = -fopenmp # disable OpenMP MT on Apple clang (builds fail in the CI #578)
+###else ifneq ($(shell $(CXX) --version | egrep '^(Apple clang)'),) # AV for Mac (Apple clang compiler)
+else ifeq ($(UNAME_S),Darwin) # OM for Mac (any compiler)
+override OMPFLAGS = # AV disable OpenMP MT on Apple clang (builds fail in the CI #578)
+###override OMPFLAGS = -fopenmp # OM reenable OpenMP MT on Apple clang? (AV Oct 2023: this still fails in the CI)
 else
-override OMPFLAGS = -fopenmp
-###override OMPFLAGS = # disable OpenMP MT (default before #575)
+override OMPFLAGS = -fopenmp # enable OpenMP MT by default on all other platforms
+###override OMPFLAGS = # disable OpenMP MT on all other platforms (default before #575)
 endif
 
 # Set the default AVX (vectorization) choice
@@ -509,8 +532,9 @@ $(BUILDDIR)/gcheck_sa.o: CXXFLAGS += $(USE_NVTX) $(CUINC)
 
 # Apply special build flags only to check_sa and CurandRandomNumberKernel (curand headers, #679)
 $(BUILDDIR)/check_sa.o: CXXFLAGS += $(CXXFLAGSCURAND)
-$(BUILDDIR)/gcheck_sa.o: CXXFLAGS += $(CXXFLAGSCURAND)
+$(BUILDDIR)/gcheck_sa.o: CUFLAGS += $(CXXFLAGSCURAND)
 $(BUILDDIR)/CurandRandomNumberKernel.o: CXXFLAGS += $(CXXFLAGSCURAND)
+$(BUILDDIR)/gCurandRandomNumberKernel.o: CUFLAGS += $(CXXFLAGSCURAND)
 ifeq ($(RNDGEN),hasCurand)
 $(BUILDDIR)/CurandRandomNumberKernel.o: CXXFLAGS += $(CUINC)
 endif
@@ -564,7 +588,7 @@ endif
 $(LIBDIR)/lib$(MG5AMC_CXXLIB).so: $(BUILDDIR)/fbridge.o
 $(LIBDIR)/lib$(MG5AMC_CXXLIB).so: cxx_objects_lib += $(BUILDDIR)/fbridge.o
 $(LIBDIR)/lib$(MG5AMC_CXXLIB).so: $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects_lib)
-	$(CXX) -shared -o $@ $(cxx_objects_lib) $(CXXLIBFLAGSRPATH2) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB) $(LIBFLAGS) -fopenmp
+	$(CXX) -shared -o $@ $(cxx_objects_lib) $(CXXLIBFLAGSRPATH2) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
 
 ifneq ($(NVCC),)
 $(LIBDIR)/lib$(MG5AMC_CULIB).so: $(BUILDDIR)/fbridge_cu.o
@@ -708,12 +732,18 @@ $(testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects_lib) $(cxx_object
 	$(NVCC) -o $@ $(cxx_objects_lib) $(cxx_objects_exe) $(cu_objects_lib) $(cu_objects_exe) -ldl $(LIBFLAGS) -lcuda
 endif
 
+# Use target gtestlibs to build only googletest
+ifneq ($(GTESTLIBS),)
+gtestlibs: $(GTESTLIBS)
+endif
+
 # Use flock (Linux only, no Mac) to allow 'make -j' if googletest has not yet been downloaded https://stackoverflow.com/a/32666215
 $(GTESTLIBS):
 ifneq ($(shell which flock 2>/dev/null),)
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	flock $(BUILDDIR)/.make_test.lock $(MAKE) -C $(TESTDIR)
 else
-	$(MAKE) -C $(TESTDIR)
+	if [ -d $(TESTDIR) ]; then $(MAKE) -C $(TESTDIR); fi
 endif
 
 #-------------------------------------------------------------------------------

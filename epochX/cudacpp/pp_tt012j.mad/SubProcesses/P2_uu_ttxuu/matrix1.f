@@ -489,10 +489,10 @@ C     ----------
       CALL OXXXXX(P(0,6),ZERO,NHEL(6),+1*IC(6),W(1,6))
       CALL FFV1P0_3(W(1,1),W(1,5),GC_11(IVEC),ZERO, FK_ZERO,W(1,7))
       CALL FFV1P0_3(W(1,2),W(1,6),GC_11(IVEC),ZERO, FK_ZERO,W(1,8))
-      CALL FFV1_1(W(1,3),W(1,7),GC_11(IVEC),MDL_MT, ZERO,W(1,9))
+      CALL FFV1_1(W(1,3),W(1,7),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,9))
 C     Amplitude(s) for diagram number 1
       CALL FFV1_0(W(1,4),W(1,9),W(1,8),GC_11(IVEC),AMP(1))
-      CALL FFV1_2(W(1,4),W(1,7),GC_11(IVEC),MDL_MT, ZERO,W(1,9))
+      CALL FFV1_2(W(1,4),W(1,7),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,9))
 C     Amplitude(s) for diagram number 2
       CALL FFV1_0(W(1,9),W(1,3),W(1,8),GC_11(IVEC),AMP(2))
       CALL FFV1P0_3(W(1,4),W(1,3),GC_11(IVEC),ZERO, FK_ZERO,W(1,9))
@@ -506,10 +506,10 @@ C     Amplitude(s) for diagram number 5
       CALL FFV1_0(W(1,2),W(1,10),W(1,9),GC_11(IVEC),AMP(5))
       CALL FFV1P0_3(W(1,1),W(1,6),GC_11(IVEC),ZERO, FK_ZERO,W(1,10))
       CALL FFV1P0_3(W(1,2),W(1,5),GC_11(IVEC),ZERO, FK_ZERO,W(1,7))
-      CALL FFV1_1(W(1,3),W(1,10),GC_11(IVEC),MDL_MT, ZERO,W(1,11))
+      CALL FFV1_1(W(1,3),W(1,10),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,11))
 C     Amplitude(s) for diagram number 6
       CALL FFV1_0(W(1,4),W(1,11),W(1,7),GC_11(IVEC),AMP(6))
-      CALL FFV1_2(W(1,4),W(1,10),GC_11(IVEC),MDL_MT, ZERO,W(1,11))
+      CALL FFV1_2(W(1,4),W(1,10),GC_11(IVEC),MDL_MT, FK_MDL_WT,W(1,11))
 C     Amplitude(s) for diagram number 7
       CALL FFV1_0(W(1,11),W(1,3),W(1,7),GC_11(IVEC),AMP(7))
 C     Amplitude(s) for diagram number 8
@@ -544,30 +544,30 @@ C     JAMPs contributing to orders ALL_ORDERS=1
       TMP_JAMP(3) = AMP(2) +  AMP(5)  ! used 3 times
       TMP_JAMP(2) = AMP(1) +  AMP(4)  ! used 3 times
       TMP_JAMP(1) = AMP(1) +  AMP(2)  ! used 3 times
-      TMP_JAMP(16) = TMP_JAMP(8) +  TMP_JAMP(5)  ! used 2 times
-      TMP_JAMP(15) = TMP_JAMP(9) +  TMP_JAMP(5)  ! used 2 times
-      TMP_JAMP(14) = TMP_JAMP(9) +  TMP_JAMP(8)  ! used 2 times
-      TMP_JAMP(13) = TMP_JAMP(10) +  TMP_JAMP(4)  ! used 2 times
-      TMP_JAMP(12) = TMP_JAMP(4) +  TMP_JAMP(1)  ! used 2 times
-      TMP_JAMP(11) = TMP_JAMP(10) +  TMP_JAMP(1)  ! used 2 times
+      TMP_JAMP(16) = TMP_JAMP(10) +  TMP_JAMP(4)  ! used 2 times
+      TMP_JAMP(15) = TMP_JAMP(10) +  TMP_JAMP(1)  ! used 2 times
+      TMP_JAMP(14) = TMP_JAMP(9) +  TMP_JAMP(5)  ! used 2 times
+      TMP_JAMP(13) = TMP_JAMP(9) +  TMP_JAMP(8)  ! used 2 times
+      TMP_JAMP(12) = TMP_JAMP(8) +  TMP_JAMP(5)  ! used 2 times
+      TMP_JAMP(11) = TMP_JAMP(4) +  TMP_JAMP(1)  ! used 2 times
       JAMP(1,1) = ((0.000000000000000D+00,-2.500000000000000D-01))
      $ *AMP(3)+(2.500000000000000D-01)*AMP(14)+(2.500000000000000D-01)
-     $ *TMP_JAMP(2)+(8.333333333333333D-02)*TMP_JAMP(15)
+     $ *TMP_JAMP(2)+(8.333333333333333D-02)*TMP_JAMP(14)
       JAMP(2,1) = ((0.000000000000000D+00,2.500000000000000D-01))
      $ *AMP(8)+(-2.500000000000000D-01)*AMP(12)+(-2.500000000000000D
-     $ -01)*TMP_JAMP(6)+(-8.333333333333333D-02)*TMP_JAMP(11)
+     $ -01)*TMP_JAMP(6)+(-8.333333333333333D-02)*TMP_JAMP(15)
       JAMP(3,1) = ((0.000000000000000D+00,-2.500000000000000D-01))
      $ *AMP(8)+(-2.500000000000000D-01)*AMP(11)+(-2.500000000000000D
-     $ -01)*TMP_JAMP(7)+(-8.333333333333333D-02)*TMP_JAMP(12)
+     $ -01)*TMP_JAMP(7)+(-8.333333333333333D-02)*TMP_JAMP(11)
       JAMP(4,1) = ((0.000000000000000D+00,2.500000000000000D-01))
      $ *AMP(3)+(2.500000000000000D-01)*AMP(13)+(2.500000000000000D-01)
-     $ *TMP_JAMP(3)+(8.333333333333333D-02)*TMP_JAMP(16)
-      JAMP(5,1) = (2.777777777777778D-02)*TMP_JAMP(4)
+     $ *TMP_JAMP(3)+(8.333333333333333D-02)*TMP_JAMP(12)
+      JAMP(5,1) = (2.777777777777778D-02)*TMP_JAMP(10)
      $ +(2.777777777777778D-02)*TMP_JAMP(11)+(8.333333333333333D-02)
-     $ *TMP_JAMP(14)
-      JAMP(6,1) = (-2.777777777777778D-02)*TMP_JAMP(5)+(
-     $ -8.333333333333333D-02)*TMP_JAMP(13)+(-2.777777777777778D-02)
-     $ *TMP_JAMP(14)
+     $ *TMP_JAMP(13)
+      JAMP(6,1) = (-2.777777777777778D-02)*TMP_JAMP(9)+(
+     $ -2.777777777777778D-02)*TMP_JAMP(12)+(-8.333333333333333D-02)
+     $ *TMP_JAMP(16)
 
       IF(INIT_MODE)THEN
         DO I=1, NGRAPHS

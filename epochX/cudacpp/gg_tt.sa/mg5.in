@@ -1,3 +1,4 @@
+set stdout_level DEBUG
+set zerowidth_tchannel F
 generate g g > t t~
-output standalone_cudacpp gg_tt.sa --hel_recycling=False --vector_size=16384 --me_exporter=standalone_cudacpp
-
+output standalone_cudacpp gg_tt.sa

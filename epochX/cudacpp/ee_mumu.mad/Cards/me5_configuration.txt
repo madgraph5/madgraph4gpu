@@ -234,7 +234,7 @@
 # pineappl = pineappl
 
 
-#mg5_path = /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/mg5amcnlo 
+#mg5_path = /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/mg5amcnlo 
 
 # MG5 MAIN DIRECTORY
-#mg5_path = /data/avalassi/GPU2023/madgraph4gpuMOD/MG5aMC/mg5amcnlo
+#mg5_path = /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/mg5amcnlo

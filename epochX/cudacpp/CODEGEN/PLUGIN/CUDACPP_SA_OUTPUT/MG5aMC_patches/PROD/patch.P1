@@ -126,7 +126,7 @@ index 71fbf2b25..0f1d199fc 100644
        open(unit=lun,file=tempname,status='old',ERR=20)
        fopened=.true.
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
-index 3ac962688..ef18aff22 100644
+index 3ac962688..daea73a6d 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
 @@ -72,7 +72,10 @@ C
