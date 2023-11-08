@@ -1,6 +1,6 @@
 # Copyright (C) 2020-2023 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
-# Created by: O. Mattelaer (Sep 2021) for the MG5aMC CUDACPP plugin.
+# Created by: A. Valassi (Sep 2021) for the MG5aMC CUDACPP plugin.
 # Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, A. Valassi, Z. Wettersten (2021-2023) for the MG5aMC CUDACPP plugin.
 
 import os
@@ -204,7 +204,6 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
 	    MG5options are all the options of the main interface
 	    outputflags is a list of options provided when doing the output command"""
         misc.sprint('Entering PLUGIN_ProcessExporter.finalize', self.in_madevent_mode, type(self))
-        misc.sprint(self.in_madevent_mode)
         if self.in_madevent_mode:
             self.add_input_for_banner()
             if 'CUDACPP_CODEGEN_PATCHLEVEL' in os.environ: patchlevel = os.environ['CUDACPP_CODEGEN_PATCHLEVEL']
@@ -222,16 +221,16 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
             #    logger.info("####### \n stderr is \n %s", stderr)
             #    raise Exception('ERROR! the O/S call to patchMad.sh failed')
             # NEW implementation (OM PR #764)
-            # **NB** AV: patchMad.sh may silently fail, for instance because 'madevent treatcards run' may silently fail
-            # **NB** AV: currently, error checking is done by looking for error strings on the full generation log
-            # **NB** AV: for this reason, but also because I want to always see the output, I change the Popen call to always dump stdout and stderr
+            # **NB** AV: change the Popen call to always dump stdout and stderr, because I want to always see the output
+            # **NB** AV: this also allows error checking by looking for error strings on the generation log if patchMad.sh silently fails
+            # **NB** AV: (e.g. this did happen in the past, when patchMad.sh was calling 'madevent treatcards run', and the latter silently failed)
             plugin_path = os.path.dirname(os.path.realpath( __file__ ))
             ###p = subprocess.Popen([pjoin(plugin_path, 'patchMad.sh'), self.dir_path , 'PROD', str(patchlevel)],
             ###                     stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             p = subprocess.Popen([pjoin(plugin_path, 'patchMad.sh'), self.dir_path , 'PROD', str(patchlevel)]) # AV always dump patchMad.sh stdout/stderr
             stdout, stderr = p.communicate()
             misc.sprint(p.returncode)
-            if p.returncode != 0: # AV: WARNING! this may silently fail, for instance because 'madevent treatcards run' may silently fail
+            if p.returncode != 0: # AV: WARNING! do not fully trust this check! patchMad.sh was observed to silently fail in the past...
                 logger.debug("####### \n stdout is \n %s", stdout)
                 logger.info("####### \n stderr is \n %s", stderr)
                 logger.info("return code is %s\n", p.returncode)
@@ -270,7 +269,6 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
         all variable that are file related should be called as madgraph.dir.file.variable
         """        
         plugin_path = os.path.dirname(os.path.realpath( __file__ ))
-        ###files.cp(pjoin(plugin_path, 'plugin_interface.py'), pjoin(self.dir_path, 'bin', 'internal')) # AV FIXME (added by OM, but file is missing?)
         files.cp(pjoin(plugin_path, 'launch_plugin.py'), pjoin(self.dir_path, 'bin', 'internal'))
         files.ln(pjoin(self.dir_path, 'lib'),  pjoin(self.dir_path, 'SubProcesses'))
 

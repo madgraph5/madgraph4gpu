@@ -40,22 +40,8 @@ dir_patches=$2
 
 if [ ! -e ${dir} ]; then echo "ERROR! Directory $dir does not exist"; exit 1; fi
 
-# AV Recover special 'tmad' mode used by generateAndCompare.sh, after OM's changes that commented this out in patchMad.sh
-tmadmode=0
-if [ "${CUDACPP_CODEGEN_TMADMODE}" != "" ]; then
-  tmadmode=1
-  echo "DEBUG! Switching on tmad mode (CUDACPP_CODEGEN_TMADMODE=${CUDACPP_CODEGEN_TMADMODE})"
-fi
-
 # Exit here for patchlevel 0 (--upstream)
 if [ "${patchlevel}" == "0" ]; then exit $status; fi
-
-# Add global flag '-O3 -ffast-math -fbounds-check' as in previous gridpacks
-if [ "${tmadmode}" != "0" ]; then
-  echo "GLOBAL_FLAG=-O3 -ffast-math -fbounds-check" > ${dir}/Source/make_opts.new
-  cat ${dir}/Source/make_opts >> ${dir}/Source/make_opts.new
-  \mv ${dir}/Source/make_opts.new ${dir}/Source/make_opts
-fi
 
 # Patch the default Fortran code to provide the integration with the cudacpp plugin
 # (1) Process-independent patches
@@ -63,25 +49,10 @@ touch ${dir}/Events/.keep # this file should already be present (mg5amcnlo copie
 \cp -pr ${scrdir}/MG5aMC_patches/${dir_patches}/fbridge_common.inc ${dir}/SubProcesses # new file
 if [ "${patchlevel}" == "2" ]; then
   cd ${dir}
-  if [ "${tmadmode}" != "0" ]; then
-    sed -i 's/DEFAULT_F2PY_COMPILER=f2py3.*/DEFAULT_F2PY_COMPILER=f2py3/' Source/make_opts
-  fi
   echo "DEBUG: cd ${PWD}; patch -p4 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.common"
   if ! patch -p4 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.common; then status=1; fi  
   \rm -f Source/*.orig
   \rm -f bin/internal/*.orig
-  if [ "${tmadmode}" != "0" ]; then
-    echo "
-#*********************************************************************
-# Options for the cudacpp plugin
-#*********************************************************************
-
-# Set cudacpp-specific values of non-cudacpp-specific options
--O3 -ffast-math -fbounds-check = global_flag ! build flags for Fortran code (for a fair comparison to cudacpp)
-
-# New cudacpp-specific options (default values are defined in banner.py)
-CPP = cudacpp_backend ! valid backends are FORTRAN, CPP, CUDA" >> Cards/run_card.dat
-  fi
   cd - > /dev/null
 fi
 for p1dir in ${dir}/SubProcesses/P*; do

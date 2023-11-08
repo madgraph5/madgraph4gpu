@@ -95,7 +95,7 @@ SYMMETRY = symmetry.o idenparts.o
 
 # Binaries
 
-ifneq ($(shell $(CXX) --version | egrep '^Apple clang'),)
+ifeq ($(UNAME),Darwin)
 LDFLAGS += -lc++ # avoid 'Undefined symbols' for chrono::steady_clock on macOS (checked with otool -L libmg5amc_gg_ttx_cpp.so) 
 LDFLAGS += -mmacosx-version-min=11.3 # avoid "ld: warning: object file was built for newer macOS version than being linked"  
 else

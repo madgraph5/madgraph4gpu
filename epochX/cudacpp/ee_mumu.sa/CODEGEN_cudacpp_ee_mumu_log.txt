@@ -62,7 +62,7 @@ generate e+ e- > mu+ mu-
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.005356311798095703 [0m
+[1;32mDEBUG: model prefixing  takes 0.005533456802368164 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -174,14 +174,14 @@ INFO: Creating files in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TM
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/./CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/./CPPProcess.cc
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/. 
-Generated helas calls for 1 subprocesses (2 diagrams) in 0.003 s
+Generated helas calls for 1 subprocesses (2 diagrams) in 0.004 s
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 197][0m [0m
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFV2 routines[0m
 ALOHA: aloha creates FFV4 routines[0m
 ALOHA: aloha creates FFV2_4 routines[0m
-ALOHA: aloha creates 4 routines in  0.265 s
+ALOHA: aloha creates 4 routines in  0.271 s
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV2
@@ -199,9 +199,8 @@ FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /
 INFO: Created files Parameters_sm.h and Parameters_sm.cc in directory 
 INFO: /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_ee_mumu/src/. and /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_ee_mumu/src/. 
 [1;32mDEBUG:  'Entering PLUGIN_ProcessExporter.finalize', self.in_madevent_mode, type(self) = [0m Entering PLUGIN_ProcessExporter.finalize False <class 'PLUGIN.CUDACPP_OUTPUT.output.PLUGIN_ProcessExporter'> [1;30m[output.py at line 206][0m [0m
-[1;32mDEBUG:  self.in_madevent_mode = [0m False [1;30m[output.py at line 207][0m [0m
 quit
 
-real	0m0.648s
-user	0m0.580s
-sys	0m0.063s
+real	0m0.669s
+user	0m0.609s
+sys	0m0.053s
