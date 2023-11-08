@@ -15,8 +15,9 @@ on:
   workflow_dispatch:
 
   # Trigger the all-processes workflow for pull requests to master
-  pull_request:
-    branches: [ master ]
+  # TEMPORARILY disable these tests on PRs (gh extension install actions/gh-actions-cache gives 'HTTP 403: API rate limit exceeded')
+  ###pull_request:
+  ###  branches: [ master ]
 
   # Trigger the all-processes workflow when new changes to the workflow are pushed
   push:
