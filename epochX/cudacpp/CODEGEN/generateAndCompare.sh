@@ -201,6 +201,16 @@ function codeGenAndDiff()
     cat ${outproc}_log.txt | egrep -v '(Crash Annotation)' > ${outproc}_log.txt.new # remove firefox 'glxtest: libEGL initialize failed' errors
     \mv ${outproc}_log.txt.new ${outproc}_log.txt
   fi
+  # Check the code generation log for errors 
+  if [ -d ${outproc} ] && ! grep -q "Please report this bug" ${outproc}_log.txt; then
+    ###cat ${outproc}_log.txt; exit 0 # FOR DEBUGGING
+    cat ${MG5AMC_HOME}/${outproc}_log.txt | { egrep 'INFO: (Try|Creat|Organiz|Process)' || true; }
+  else
+    echo "*** ERROR! Code generation failed"
+    cat ${MG5AMC_HOME}/${outproc}_log.txt
+    echo "*** ERROR! Code generation failed"
+    exit 1
+  fi
   # Patches moved here from patchMad.sh after Olivier's PR #764 (THIS IS ONLY NEEDED IN THE MADGRAPH4GPU GIT REPO)  
   if [ "${OUTBCK}" == "mad" ]; then
     # Force the use of strategy SDE=1 in multichannel mode (see #419)
@@ -243,16 +253,6 @@ function codeGenAndDiff()
 # New cudacpp-specific options (default values are defined in banner.py)
 CPP = cudacpp_backend ! valid backends are FORTRAN, CPP, CUDA" >> ${outproc}/Cards/run_card.dat
     fi
-  fi
-  # Check the code generation log for errors 
-  if [ -d ${outproc} ] && ! grep -q "Please report this bug" ${outproc}_log.txt; then
-    ###cat ${outproc}_log.txt; exit 0 # FOR DEBUGGING
-    cat ${MG5AMC_HOME}/${outproc}_log.txt | { egrep 'INFO: (Try|Creat|Organiz|Process)' || true; }
-  else
-    echo "*** ERROR! Code generation failed"
-    cat ${MG5AMC_HOME}/${outproc}_log.txt
-    echo "*** ERROR! Code generation failed"
-    exit 1
   fi
   popd >& /dev/null
   # Choose which directory must be copied (for gridpack generation: untar and modify the gridpack)
