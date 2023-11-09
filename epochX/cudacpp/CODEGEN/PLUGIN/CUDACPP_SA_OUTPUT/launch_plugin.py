@@ -29,8 +29,7 @@ class CPPMEInterface(madevent_interface.MadEventCmdShell):
         """ """
         import multiprocessing
         if not self.options['nb_core'] or self.options['nb_core'] == 'None':
-            self.options['nb_core'] = multiprocessing.cpu_count()
-    
+            self.options['nb_core'] = multiprocessing.cpu_count()    
         if 'cwd' in opts and os.path.basename(opts['cwd']) == 'Source':
             path = pjoin(opts['cwd'], 'make_opts')
             avx_type = self.run_card['avx_type'] if self.run_card['avx_type'] != 'auto' else ''
@@ -38,8 +37,6 @@ class CPPMEInterface(madevent_interface.MadEventCmdShell):
                 {'FPTYPE': self.run_card['floating_type'],
                  'AVX':  avx_type })
             misc.sprint('FPTYPE checked')
-
-
         if args and args[0][0] == 'madevent' and hasattr(self, 'run_card'):            
             cudacpp_backend = self.run_card['cudacpp_backend'].upper() # the default value is defined in banner.py
             logger.info("Building madevent in madevent_interface.py with '%s' matrix elements"%cudacpp_backend)
@@ -55,7 +52,6 @@ class CPPMEInterface(madevent_interface.MadEventCmdShell):
         else:
             return misc.compile(nb_core=self.options['nb_core'], *args, **opts)
 
-
 # Phase-Space Optimization ------------------------------------------------------------------------------------
 template_on = \
 """#*********************************************************************
@@ -67,12 +63,9 @@ template_on = \
 """
 
 template_off = ''
-
 plugin_block = banner_mod.RunBlock('simd', template_on=template_on, template_off=template_off)
 
-
 class CPPRunCard(banner_mod.RunCardLO):
-
     blocks = banner_mod.RunCardLO.blocks + [plugin_block]
 
     def reset_simd(self, old_value, new_value, name):
@@ -87,12 +80,9 @@ class CPPRunCard(banner_mod.RunCardLO):
         subprocess.call(['make', 'cleanavx'], cwd=Sourcedir, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
     def reset_makeopts(self, old_value, new_value, name):
-
         if not hasattr(self, 'path'):
             raise Exception
-
         avx_value = self['avx_type'] if self['avx_type'] != 'auto' else ''
-
         if name == 'floating_type':
             common_run_interface.CommonRunCmd.update_make_opts_full({'FPTYPE': new_value, 'AVX': avx_value})
         elif name == 'avx_type':
@@ -101,7 +91,6 @@ class CPPRunCard(banner_mod.RunCardLO):
             common_run_interface.CommonRunCmd.update_make_opts_full({'FPTYPE': self['floating_type'], 'AVX': new_value})
         else:
             raise Exception
-
         Sourcedir = pjoin(os.path.dirname(os.path.dirname(self.path)), 'Source')
         subprocess.call(['make', 'cleanavx'], cwd=Sourcedir, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
@@ -124,9 +113,6 @@ class CPPRunCard(banner_mod.RunCardLO):
         self.display_block.append('simd')
         self.display_block.append('psoptim')
 
-
->>>>>>> 746f16476 (better formatting for the card from the start and adding the possiblitity to choose avx)
-
     def write_one_include_file(self, output_dir, incname, output_file=None):
         """write one include file at the time"""
         if incname == "vector.inc" and 'vector_size' not in self.user_set:
@@ -143,14 +129,11 @@ class CPPRunCard(banner_mod.RunCardLO):
             self['hel_recycling'] = False
 
 class GPURunCard(CPPRunCard):
-
     def default_setup(self):
-
         super().default_setup()
         # change default value:
         self['cudacpp_backend'] = 'CUDA'
         self['vector_size'] = 16384 # already setup in default class (just change value)
-
 
 MEINTERFACE = CPPMEInterface
 RunCard = CPPRunCard
