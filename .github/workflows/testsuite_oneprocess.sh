@@ -35,9 +35,9 @@ function codegen() {
     ./CODEGEN/generateAndCompare.sh -q ${proc%.sa}
   fi
   # Check if there are any differences to the current repo
-  ###compare=true # enable comparison to current git repo
-  compare=false # disable comparison to current git repo
-  if [ ${compare} ] && [ "$(git ls-tree --name-only HEAD ${proc})" != "" ]; then
+  ###compare=1 # enable comparison to current git repo
+  compare=0 # disable comparison to current git repo
+  if [ "${compare}" != "0" ] && [ "$(git ls-tree --name-only HEAD ${proc})" != "" ]; then
     echo
     echo "Compare newly generated code for ${proc} to that in the madgraph4gpu github repository"
     git checkout HEAD ${proc}/CODEGEN*.txt
