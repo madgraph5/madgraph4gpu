@@ -19,8 +19,9 @@ on:
     branches: [ master ]
 
   # Trigger the all-processes workflow when new changes to the workflow are pushed
-  push:
-    paths: [ .github/workflows/testsuite* ]
+  # (NB: this is now disabled to avoid triggering two jobs when pushing to a branch for which a PR is opened)
+  ###push:
+  ###  paths: [ .github/workflows/testsuite* ]
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
