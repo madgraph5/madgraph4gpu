@@ -149,9 +149,6 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
     ###helas_exporter = None
     helas_exporter = model_handling.PLUGIN_GPUFOHelasCallWriter # this is one of the main fixes for issue #341!
 
-    # AV 08 Nov 2023 add run_card_class to avoid crashes after Olivier's commit 8a18cc242 "better handling of the run_card"
-    run_card_class = None
-
     # AV (default from OM's tutorial) - add a debug printout
     def __init__(self, *args, **kwargs):
         self.in_madevent_mode = False # see MR #747
