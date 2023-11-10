@@ -57,7 +57,7 @@ class CPPRunCard(banner_mod.RunCardLO):
             return
         Sourcedir = pjoin(os.path.dirname(os.path.dirname(self.path)), 'Source')
         subprocess.call(['make', 'cleanavx'], cwd=Sourcedir, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        
+
     def plugin_input(self, finput):
         return
 
@@ -79,7 +79,7 @@ class CPPRunCard(banner_mod.RunCardLO):
             self['sde_strategy'] = 1
         if self['hel_recycling']:
             self['hel_recycling'] = False
-            
+
 class GPURunCard(CPPRunCard):
     def default_setup(self):
         super(CPPRunCard, self).default_setup()
