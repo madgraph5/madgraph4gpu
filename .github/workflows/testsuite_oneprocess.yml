@@ -147,6 +147,7 @@ jobs:
     needs: codegen
 
     strategy:
+      fail-fast: false # e.g. do not stop 'd' job if 'f' job has failed (fail-fast is true by default)
       matrix:
         fptype: [d, f]
 
