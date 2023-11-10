@@ -205,9 +205,10 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
     # AV (default from OM's tutorial) - add a debug printout
     def finalize(self, matrix_element, cmdhistory, MG5options, outputflag):
         """Typically creating jpeg/HTML output/ compilation/...
-	    cmdhistory is the list of command used so far.
-	    MG5options are all the options of the main interface
-	    outputflags is a list of options provided when doing the output command"""
+           cmdhistory is the list of command used so far.
+           MG5options are all the options of the main interface
+           outputflags is a list of options provided when doing the output command"""
+        ###misc.sprint('Entering PLUGIN_ProcessExporter.finalize', self.in_madevent_mode, type(self))
         if self.in_madevent_mode:
             self.add_input_for_banner()
             if 'CUDACPP_CODEGEN_PATCHLEVEL' in os.environ: patchlevel = os.environ['CUDACPP_CODEGEN_PATCHLEVEL']
@@ -218,7 +219,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
             #if os.system(path + os.sep + 'patchMad.sh ' + self.dir_path + ' PROD ' + patchlevel) != 0:
             #    logger.debug("####### \n stdout is \n %s", stdout)
             #    logger.info("####### \n stderr is \n %s", stderr)
-            #    raise Exception('ERROR! the O/S call to patchMad.sh failed')            
+            #    raise Exception('ERROR! the O/S call to patchMad.sh failed')
             # OLD implementation (SH PR #762)
             #if os.system(PLUGINDIR + os.sep + 'patchMad.sh ' + self.dir_path + ' PROD ' + patchlevel) != 0:
             #    logger.debug("####### \n stdout is \n %s", stdout)
@@ -272,7 +273,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
         which contains a series of functions and one dictionary variable TO_OVERWRITE
         that will be used to have temporary overwrite of all the key variable passed as string by their value.
         all variable that are file related should be called as madgraph.dir.file.variable
-        """        
+        """
         plugin_path = os.path.dirname(os.path.realpath( __file__ ))
         files.cp(pjoin(plugin_path, 'launch_plugin.py'), pjoin(self.dir_path, 'bin', 'internal'))
         files.ln(pjoin(self.dir_path, 'lib'),  pjoin(self.dir_path, 'SubProcesses'))
@@ -288,10 +289,10 @@ class SIMD_ProcessExporter(PLUGIN_ProcessExporter):
         if 'vector_size' not in ''.join(args):
             args.append('--vector_size=16')
         return args
-    
+
 #------------------------------------------------------------------------------------
 
-class GPU_ProcessExporter(PLUGIN_ProcessExporter):    
+class GPU_ProcessExporter(PLUGIN_ProcessExporter):
     def change_output_args(args, cmd):
         """ """
         cmd._export_format = "madevent"
@@ -300,7 +301,7 @@ class GPU_ProcessExporter(PLUGIN_ProcessExporter):
         if 'vector_size' not in ''.join(args):
             args.append('--vector_size=16384')
         return args
-        
+
     def finalize(self, matrix_element, cmdhistory, MG5options, outputflag):
         misc.sprint("enter dedicated function")
         out = super().finalize(matrix_element, cmdhistory, MG5options, outputflag)
