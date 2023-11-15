@@ -13,6 +13,11 @@ on:
 
   # Enable the possibility to manually trigger the all-processes workflow
   workflow_dispatch:
+    inputs:
+      enableFPE:
+        required: true
+        type: boolean
+        default: true
 
   # Trigger the all-processes workflow for pull requests to master
   pull_request:
@@ -33,10 +38,13 @@ jobs:
       fail-fast: false # important to see all results even if one fails (fail-fast is true by default)
       matrix:
         # FIXME? Can the list of supported processes be specified only once in oneprocess.yml or allprocesses.yml?
-        process: [ee_mumu, gg_tt, gg_ttg, gg_ttgg, gg_ttggg, gg_tt01g, gq_ttq, pp_tt012j]
+        process: [ee_mumu, gg_tt, gg_ttg, gg_ttgg, gg_ttggg, gg_tt01g, gq_ttq, pp_tt012j, nobm_pp_ttW]
+        ###process: [ee_mumu, gg_tt, gg_ttg, gg_ttgg, gq_ttq]
         suffix: [mad, sa]
     uses: ./.github/workflows/testsuite_oneprocess.yml
     with:
       process: ${{ matrix.process }}.${{ matrix.suffix }}
+      # By default, in allprocesses tests enable FPE tests when pushing, but not in pull requests
+      enableFPE: ${{ ( github.event_name == 'workflow_dispatch' ) && inputs.enableFPE }}
 
 #----------------------------------------------------------------------------------------------------------------------------------
