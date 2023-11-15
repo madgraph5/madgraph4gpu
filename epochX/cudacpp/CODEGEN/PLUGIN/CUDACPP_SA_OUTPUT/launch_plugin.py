@@ -70,9 +70,7 @@ class CPPRunCard(banner_mod.RunCardLO):
 
     def reset_simd(self, old_value, new_value, name):
         if not hasattr(self, 'path'):
-            logger.warning('WARNING! CPPRunCard instance has no attribute path')
-            return
-            ###raise Exception('INTERNAL ERROR! CPPRunCard instance has no attribute path')
+            raise Exception('INTERNAL ERROR! CPPRunCard instance has no attribute path') # now ok after fixing #790
         if name == "vector_size" and new_value <= int(old_value):
             # code can handle the new size -> do not recompile
             return
