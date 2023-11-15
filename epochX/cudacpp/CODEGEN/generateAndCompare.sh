@@ -215,9 +215,12 @@ function codeGenAndDiff()
   if [ "${OUTBCK}" == "mad" ]; then
     # Force the use of strategy SDE=1 in multichannel mode (see #419)
     sed -i 's/2  = sde_strategy/1  = sde_strategy/' ${outproc}/Cards/run_card.dat
+    # Force the use of VECSIZE_MEMMAX=16384
+    sed -i 's/16 = vector_size/16384 = vector_size/' ${outproc}/Cards/run_card.dat
     # Generate run_card.inc and param_card.inc (include stdout and stderr in the code generation log which is later checked for errors)
     # These two steps are part of "cd Source; make" but they actually are code-generating steps
-    ${outproc}/bin/madevent treatcards run  >> ${outproc}_log.txt 2>&1 # AV BUG! THIS MAY SILENTLY FAIL (check if output contains "Please report this bug")
+    # Note: treatcards run also regenerates vector.inc if vector_size has changed in the runcard
+    ${outproc}/bin/madevent treatcards run >> ${outproc}_log.txt 2>&1 # AV BUG! THIS MAY SILENTLY FAIL (check if output contains "Please report this bug")
     ${outproc}/bin/madevent treatcards param >> ${outproc}_log.txt 2>&1 # AV BUG! THIS MAY SILENTLY FAIL (check if output contains "Please report this bug")
     # Cleanup
     \rm -f ${outproc}/crossx.html
