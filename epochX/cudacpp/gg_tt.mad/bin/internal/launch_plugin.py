@@ -32,10 +32,10 @@ class CPPMEInterface(madevent_interface.MadEventCmdShell):
             self.options['nb_core'] = multiprocessing.cpu_count()    
         if 'cwd' in opts and os.path.basename(opts['cwd']) == 'Source':
             path = pjoin(opts['cwd'], 'make_opts')
-            avx_type = self.run_card['avx_type'] if self.run_card['avx_type'] != 'auto' else ''
+            avx_level = self.run_card['avx_level'] if self.run_card['avx_level'] != 'auto' else ''
             common_run_interface.CommonRunCmd.update_make_opts_full(path,
                 {'FPTYPE': self.run_card['floating_type'],
-                 'AVX':  avx_type })
+                 'AVX': avx_level })
             misc.sprint('FPTYPE checked')
         if args and args[0][0] == 'madevent' and hasattr(self, 'run_card'):            
             cudacpp_backend = self.run_card['cudacpp_backend'].upper() # the default value is defined in banner.py
@@ -54,12 +54,12 @@ class CPPMEInterface(madevent_interface.MadEventCmdShell):
 
 # Phase-Space Optimization ------------------------------------------------------------------------------------
 template_on = \
-"""#*********************************************************************
-# SIMD/GPU Parametrization
-#*********************************************************************
-   %(floating_type)s = floating_type ! single precision(f), double precision (d), mixed (m) [double for amplitude, single for color]
-   %(avx_type)s =  avx_type  ! for SIMD, technology to use for the vectorization
-   %(cudacpp_backend)s = cudacpp_backend ! Fortran/CPP/CUDA switch mode to use
+"""#***********************************************************************
+# SIMD/GPU configuration for the CUDACPP plugin
+#************************************************************************
+ %(floating_type)s = floating_type ! floating point precision: f (single), d (double), m (mixed: double for amplitudes, single for colors)
+ %(avx_level)s = avx_level ! SIMD vectorization level: none, sse4, avx2, 512y, 512z, auto
+ %(cudacpp_backend)s = cudacpp_backend ! CUDACPP backend: FORTRAN, CPP, CUDA
 """
 
 template_off = ''
@@ -80,12 +80,11 @@ class CPPRunCard(banner_mod.RunCardLO):
     def reset_makeopts(self, old_value, new_value, name):
         if not hasattr(self, 'path'):
             raise Exception
-        avx_value = self['avx_type'] if self['avx_type'] != 'auto' else ''
+        avx_value = self['avx_level'] if self['avx_level'] != 'auto' else ''
         if name == 'floating_type':
             common_run_interface.CommonRunCmd.update_make_opts_full({'FPTYPE': new_value, 'AVX': avx_value})
-        elif name == 'avx_type':
-            if new_value == 'Auto':
-                new_value = ''
+        elif name == 'avx_level':
+            if new_value == 'auto': new_value = ''
             common_run_interface.CommonRunCmd.update_make_opts_full({'FPTYPE': self['floating_type'], 'AVX': new_value})
         else:
             raise Exception
@@ -100,7 +99,7 @@ class CPPRunCard(banner_mod.RunCardLO):
         self.add_param('floating_type', 'd', include=False, hidden=False,
                        fct_mod=(self.reset_makeopts,(),{}),
                        allowed=['m','d','f'])
-        self.add_param('avx_type', 'auto', include=False, hidden=False,
+        self.add_param('avx_level', 'auto', include=False, hidden=False,
                        fct_mod=(self.reset_makeopts,(),{}),
                        allowed=['auto', 'none', 'sse4', 'avx2','512y','512z'])
         self.add_param('cudacpp_backend', 'CPP', include=False, hidden=False,

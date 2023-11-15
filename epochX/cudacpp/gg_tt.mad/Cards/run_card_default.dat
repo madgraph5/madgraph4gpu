@@ -95,7 +95,7 @@
    -O = global_flag ! fortran optimization flag use for the all code.
    --fast-math  = aloha_flag ! fortran optimization flag for aloha function. Suggestions: '-ffast-math'
    -O3 = matrix_flag ! fortran optimization flag for matrix.f function. Suggestions: '-O3'
-   16 = vector_size ! size designed for SIMD/OpenMP/GPU (number of events in lockstep)
+   16 = vector_size ! size of fortran arrays allocated in the multi-event API for SIMD/GPU (VECSIZE_MEMMAX)
 			     
 #*********************************************************************
 # Customization (custom cuts/scale/bias/...)                         *
@@ -156,10 +156,10 @@
 systematics = systematics_program ! none, systematics [python], SysCalc [depreceted, C++]
 ['--mur=0.5,1,2', '--muf=0.5,1,2', '--pdf=errorset'] = systematics_arguments ! see: https://cp3.irmp.ucl.ac.be/projects/madgraph/wiki/Systematics#Systematicspythonmodule
 
-#*********************************************************************
-# SIMD/GPU Parametrization
-#*********************************************************************
-   d = floating_type ! single precision(f), double precision (d), mixed (m) [double for amplitude, single for color]
-   auto =  avx_type  ! for SIMD, technology to use for the vectorization
-   CPP = cudacpp_backend ! Fortran/CPP/CUDA switch mode to use
+#***********************************************************************
+# SIMD/GPU configuration for the CUDACPP plugin
+#************************************************************************
+ d = floating_type ! floating point precision: f (single), d (double), m (mixed: double for amplitudes, single for colors)
+ auto = avx_level ! SIMD vectorization level: none, sse4, avx2, 512y, 512z, auto
+ CPP = cudacpp_backend ! CUDACPP backend: FORTRAN, CPP, CUDA
 
