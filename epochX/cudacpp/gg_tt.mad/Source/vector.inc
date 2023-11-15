@@ -28,4 +28,4 @@ C     BECAUSE IT DOES NOT GO THROUGH THE CPP PREPROCESSOR
 C     (see https://github.com/madgraph5/madgraph4gpu/issues/458).
 C     
       INTEGER VECSIZE_MEMMAX
-      PARAMETER (VECSIZE_MEMMAX=16384)
+      PARAMETER (VECSIZE_MEMMAX=16)
