@@ -54,12 +54,12 @@ class CPPMEInterface(madevent_interface.MadEventCmdShell):
 
 # Phase-Space Optimization ------------------------------------------------------------------------------------
 template_on = \
-"""#*********************************************************************
-# SIMD/GPU Parametrization
-#*********************************************************************
-   %(floating_type)s = floating_type ! single precision(f), double precision (d), mixed (m) [double for amplitude, single for color]
-   %(avx_type)s =  avx_type  ! for SIMD, technology to use for the vectorization
-   %(cudacpp_backend)s = cudacpp_backend ! Fortran/CPP/CUDA switch mode to use
+"""#***********************************************************************
+# SIMD/GPU configuration for the CUDACPP plugin
+#************************************************************************
+ %(floating_type)s = floating_type ! floating point precision: f (single), d (double), m (mixed: double for amplitudes, single for colors)
+ %(avx_type)s = avx_type ! SIMD vectorization level: none, sse4, avx2, 512y, 512z
+ %(cudacpp_backend)s = cudacpp_backend ! CUDACPP backend: FORTRAN, CPP, CUDA
 """
 
 template_off = ''
