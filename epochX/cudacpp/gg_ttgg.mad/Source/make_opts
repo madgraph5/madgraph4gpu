@@ -1,7 +1,6 @@
 DEFAULT_CPP_COMPILER=g++
 DEFAULT_F2PY_COMPILER=f2py3
 DEFAULT_F_COMPILER=gfortran
-#end_of_make_opts_variables
 GLOBAL_FLAG=-O3 -ffast-math -fbounds-check
 MACFLAG=
 MG5AMC_VERSION=SpecifiedByMG5aMCAtRunTime
