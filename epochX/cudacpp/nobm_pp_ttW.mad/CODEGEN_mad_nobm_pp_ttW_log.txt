@@ -14,7 +14,7 @@ Running MG5 in debug mode
 *                   *        * *        *                  *
 *                 *                       *                *
 *                                                          *
-*         VERSION 3.5.1_lo_vect         2023-08-08         *
+*         VERSION 3.5.2_lo_vect         2023-11-08         *
 [1;31m*                                                          *[1;0m
 [1;31m*          WARNING: UNKNOWN DEVELOPMENT VERSION.           *[1;0m
 [1;31m*            WARNING: DO NOT USE FOR PRODUCTION            *[1;0m
@@ -61,7 +61,7 @@ set zerowidth_tchannel F
 import model sm-no_b_mass
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.005337953567504883 [0m
+[1;32mDEBUG: model prefixing  takes 0.0055387020111083984 [0m
 INFO: Restrict model sm-no_b_mass with file models/sm/restrict_no_b_mass.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -185,7 +185,7 @@ INFO: Process u~ d > t t~ w- added to mirror process d u~ > t t~ w-
 INFO: Process c~ s > t t~ w- added to mirror process s c~ > t t~ w- 
 INFO: Process d~ u > t t~ w+ added to mirror process u d~ > t t~ w+ 
 INFO: Process s~ c > t t~ w+ added to mirror process c s~ > t t~ w+ 
-4 processes with 8 diagrams generated in 0.113 s
+4 processes with 8 diagrams generated in 0.106 s
 Total: 4 processes with 8 diagrams
 add process p p > t t~ w j @1
 INFO: Checking for minimal orders which gives processes. 
@@ -227,17 +227,17 @@ INFO: Process d~ g > t t~ w+ u~ added to mirror process g d~ > t t~ w+ u~
 INFO: Process d~ u > t t~ w+ g added to mirror process u d~ > t t~ w+ g 
 INFO: Process s~ g > t t~ w+ c~ added to mirror process g s~ > t t~ w+ c~ 
 INFO: Process s~ c > t t~ w+ g added to mirror process c s~ > t t~ w+ g 
-12 processes with 144 diagrams generated in 0.659 s
+12 processes with 144 diagrams generated in 0.635 s
 Total: 16 processes with 152 diagrams
-output madevent ../TMPOUT/CODEGEN_mad_nobm_pp_ttW --hel_recycling=False --vector_size=16384 --me_exporter=standalone_cudacpp
+output madevent ../TMPOUT/CODEGEN_mad_nobm_pp_ttW --hel_recycling=False --vector_size=32 --me_exporter=standalone_cudacpp
 Load PLUGIN.CUDACPP_OUTPUT
 [1mAddition matrix-element will be done with PLUGIN: CUDACPP_OUTPUT[0m
 [1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
 [1;32mDEBUG:  cformat = [0m standalone_cudacpp [1;30m[export_cpp.py at line 3071][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter) [1;30m[output.py at line 155][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter) [1;30m[output.py at line 160][0m [0m
 INFO: initialize a new directory: CODEGEN_mad_nobm_pp_ttW 
 INFO: remove old information in CODEGEN_mad_nobm_pp_ttW 
-[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.copy_template (initialise the directory) [1;30m[output.py at line 160][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.copy_template (initialise the directory) [1;30m[output.py at line 165][0m [0m
 [1;34mWARNING: File exists /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW [0m
 INFO: Creating subdirectories in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW 
 [1;34mWARNING: File exists /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW/Cards [0m
@@ -269,7 +269,7 @@ INFO: Reusing existing color information for process: d u~ > t t~ w-
 INFO: Combined process s c~ > t t~ w- WEIGHTED<=4 with process d u~ > t t~ w- WEIGHTED<=4 
 INFO: Creating files in directory P1_gu_ttxwpd 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f908dd6a2b0> [1;30m[export_v4.py at line 6226][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7fefcda5f5e0> [1;30m[export_v4.py at line 6262][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -278,15 +278,15 @@ INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./.
 [1;32mDEBUG:  config_map = [0m [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] [1;30m[export_cpp.py at line 711][0m [0m
 [1;32mDEBUG:  subproc_number = [0m 0 [1;30m[export_cpp.py at line 712][0m [0m
 [1;32mDEBUG:  Done [1;30m[export_cpp.py at line 713][0m [0m
-[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1862][0m [0m
-[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1862][0m [0m
-[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1862][0m [0m
-[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1862][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1872][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1872][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1872][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1872][0m [0m
 INFO: Generating Feynman diagrams for Process: g u > t t~ w+ d WEIGHTED<=5 @1 
 INFO: Finding symmetric diagrams for subprocess group gu_ttxwpd 
 INFO: Creating files in directory P1_gd_ttxwmu 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f908deef460> [1;30m[export_v4.py at line 6226][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7fefcdc528e0> [1;30m[export_v4.py at line 6262][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -295,15 +295,15 @@ INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./.
 [1;32mDEBUG:  config_map = [0m [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] [1;30m[export_cpp.py at line 711][0m [0m
 [1;32mDEBUG:  subproc_number = [0m 1 [1;30m[export_cpp.py at line 712][0m [0m
 [1;32mDEBUG:  Done [1;30m[export_cpp.py at line 713][0m [0m
-[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1862][0m [0m
-[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1862][0m [0m
-[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1862][0m [0m
-[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1862][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1872][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1872][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1872][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1872][0m [0m
 INFO: Generating Feynman diagrams for Process: g d > t t~ w- u WEIGHTED<=5 @1 
 INFO: Finding symmetric diagrams for subprocess group gd_ttxwmu 
 INFO: Creating files in directory P1_gux_ttxwmdx 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f908deef460> [1;30m[export_v4.py at line 6226][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7fefcdc52850> [1;30m[export_v4.py at line 6262][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -312,15 +312,15 @@ INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./.
 [1;32mDEBUG:  config_map = [0m [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] [1;30m[export_cpp.py at line 711][0m [0m
 [1;32mDEBUG:  subproc_number = [0m 2 [1;30m[export_cpp.py at line 712][0m [0m
 [1;32mDEBUG:  Done [1;30m[export_cpp.py at line 713][0m [0m
-[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1862][0m [0m
-[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1862][0m [0m
-[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1862][0m [0m
-[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1862][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1872][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1872][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1872][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1872][0m [0m
 INFO: Generating Feynman diagrams for Process: g u~ > t t~ w- d~ WEIGHTED<=5 @1 
 INFO: Finding symmetric diagrams for subprocess group gux_ttxwmdx 
 INFO: Creating files in directory P1_gdx_ttxwpux 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f908dcf6d00> [1;30m[export_v4.py at line 6226][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7fefcdc18dc0> [1;30m[export_v4.py at line 6262][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -329,15 +329,15 @@ INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./.
 [1;32mDEBUG:  config_map = [0m [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] [1;30m[export_cpp.py at line 711][0m [0m
 [1;32mDEBUG:  subproc_number = [0m 3 [1;30m[export_cpp.py at line 712][0m [0m
 [1;32mDEBUG:  Done [1;30m[export_cpp.py at line 713][0m [0m
-[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1862][0m [0m
-[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1862][0m [0m
-[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1862][0m [0m
-[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1862][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1872][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1872][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1872][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1872][0m [0m
 INFO: Generating Feynman diagrams for Process: g d~ > t t~ w+ u~ WEIGHTED<=5 @1 
 INFO: Finding symmetric diagrams for subprocess group gdx_ttxwpux 
 INFO: Creating files in directory P1_udx_ttxwpg 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f908dd6a2b0> [1;30m[export_v4.py at line 6226][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7fefcdc18dc0> [1;30m[export_v4.py at line 6262][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -346,15 +346,15 @@ INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./.
 [1;32mDEBUG:  config_map = [0m [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] [1;30m[export_cpp.py at line 711][0m [0m
 [1;32mDEBUG:  subproc_number = [0m 4 [1;30m[export_cpp.py at line 712][0m [0m
 [1;32mDEBUG:  Done [1;30m[export_cpp.py at line 713][0m [0m
-[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1862][0m [0m
-[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1862][0m [0m
-[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1862][0m [0m
-[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1862][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1872][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1872][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1872][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1872][0m [0m
 INFO: Generating Feynman diagrams for Process: u d~ > t t~ w+ g WEIGHTED<=5 @1 
 INFO: Finding symmetric diagrams for subprocess group udx_ttxwpg 
 INFO: Creating files in directory P1_dux_ttxwmg 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f908dd6ad90> [1;30m[export_v4.py at line 6226][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7fefcda5f9a0> [1;30m[export_v4.py at line 6262][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -363,15 +363,15 @@ INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./.
 [1;32mDEBUG:  config_map = [0m [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] [1;30m[export_cpp.py at line 711][0m [0m
 [1;32mDEBUG:  subproc_number = [0m 5 [1;30m[export_cpp.py at line 712][0m [0m
 [1;32mDEBUG:  Done [1;30m[export_cpp.py at line 713][0m [0m
-[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1862][0m [0m
-[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1862][0m [0m
-[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1862][0m [0m
-[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1862][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1872][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1872][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1872][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1872][0m [0m
 INFO: Generating Feynman diagrams for Process: d u~ > t t~ w- g WEIGHTED<=5 @1 
 INFO: Finding symmetric diagrams for subprocess group dux_ttxwmg 
 INFO: Creating files in directory P0_udx_ttxwp 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f908def2550> [1;30m[export_v4.py at line 6226][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7fefcdc67070> [1;30m[export_v4.py at line 6262][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -380,15 +380,15 @@ INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./.
 [1;32mDEBUG:  config_map = [0m [1, 2] [1;30m[export_cpp.py at line 711][0m [0m
 [1;32mDEBUG:  subproc_number = [0m 6 [1;30m[export_cpp.py at line 712][0m [0m
 [1;32mDEBUG:  Done [1;30m[export_cpp.py at line 713][0m [0m
-[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1862][0m [0m
-[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1862][0m [0m
-[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1862][0m [0m
-[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1862][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1872][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1872][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1872][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1872][0m [0m
 INFO: Generating Feynman diagrams for Process: u d~ > t t~ w+ WEIGHTED<=4 
 INFO: Finding symmetric diagrams for subprocess group udx_ttxwp 
 INFO: Creating files in directory P0_dux_ttxwm 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f908def2550> [1;30m[export_v4.py at line 6226][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7fefcdc4cca0> [1;30m[export_v4.py at line 6262][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -397,25 +397,25 @@ INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./.
 [1;32mDEBUG:  config_map = [0m [1, 2] [1;30m[export_cpp.py at line 711][0m [0m
 [1;32mDEBUG:  subproc_number = [0m 7 [1;30m[export_cpp.py at line 712][0m [0m
 [1;32mDEBUG:  Done [1;30m[export_cpp.py at line 713][0m [0m
-[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1862][0m [0m
-[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 16384 [1;30m[export_v4.py at line 1862][0m [0m
-[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1862][0m [0m
-[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 16384 True 16384 [1;30m[export_v4.py at line 1862][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1872][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1872][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1872][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1872][0m [0m
 INFO: Generating Feynman diagrams for Process: d u~ > t t~ w- WEIGHTED<=4 
 INFO: Finding symmetric diagrams for subprocess group dux_ttxwm 
-Generated helas calls for 8 subprocesses (76 diagrams) in 0.204 s
-Wrote files for 212 helas calls in 1.060 s
+Generated helas calls for 8 subprocesses (76 diagrams) in 0.202 s
+Wrote files for 212 helas calls in 1.053 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFV2 routines[0m
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
-ALOHA: aloha creates 3 routines in  0.208 s
-[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 197][0m [0m
+ALOHA: aloha creates 3 routines in  0.200 s
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 202][0m [0m
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFV2 routines[0m
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
-ALOHA: aloha creates 6 routines in  0.205 s
+ALOHA: aloha creates 6 routines in  0.198 s
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -437,12 +437,12 @@ save configuration file to /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CO
 INFO: Use Fortran compiler gfortran 
 INFO: Use c++ compiler g++ 
 INFO: Generate web pages 
-[1;32mDEBUG:  'Entering PLUGIN_ProcessExporter.finalize', self.in_madevent_mode, type(self) = [0m Entering PLUGIN_ProcessExporter.finalize True <class 'PLUGIN.CUDACPP_OUTPUT.output.PLUGIN_ProcessExporter'> [1;30m[output.py at line 206][0m [0m
 DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW; patch -p4 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.common
 patching file Source/genps.inc
 patching file Source/makefile
 patching file SubProcesses/makefile
 patching file bin/internal/gen_ximprove.py
+Hunk #1 succeeded at 391 (offset 6 lines).
 patching file bin/internal/madevent_interface.py
 DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW/SubProcesses/P0_dux_ttxwm; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
 patching file auto_dsig1.f
@@ -524,16 +524,16 @@ Hunk #2 succeeded at 224 (offset 81 lines).
 Hunk #3 succeeded at 309 (offset 88 lines).
 Hunk #4 succeeded at 343 (offset 94 lines).
 Hunk #5 succeeded at 388 (offset 94 lines).
-[1;32mDEBUG:  p.returncode = [0m 0 [1;30m[output.py at line 232][0m [0m
+[1;32mDEBUG:  p.returncode = [0m 0 [1;30m[output.py at line 237][0m [0m
 Output to directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW done.
 Type "launch" to generate events from this process, or see
 /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW/README
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m3.914s
-user	0m3.582s
-sys	0m0.322s
+real	0m3.870s
+user	0m3.496s
+sys	0m0.336s
 ************************************************************
 *                                                          *
 *                      W E L C O M E to                    *
@@ -546,7 +546,7 @@ sys	0m0.322s
 *                   *        * *        *                  *
 *                 *                       *                *
 *                                                          *
-*         VERSION 3.5.1_lo_vect                            *
+*         VERSION 3.5.2_lo_vect                            *
 *                                                          *
 *    The MadGraph5_aMC@NLO Development Team - Find us at   *
 *    https://server06.fynu.ucl.ac.be/projects/madgraph     *
@@ -561,9 +561,6 @@ Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
 Using default eps viewer "evince". Set another one in ./input/mg5_configuration.txt
 No valid web browser found. Please set in ./input/mg5_configuration.txt
 treatcards run
-[1;34mrun_card missed argument cudacpp_backend. Takes default: CPP[0m
-[1;34mrun_card missed argument cudacpp_backend. Takes default: CPP[0m
-[1;34mWARNING! CPPRunCard instance has no attribute path[0m
 quit
 INFO:  
 launch in debug mode
@@ -579,7 +576,7 @@ launch in debug mode
 *                   *        * *        *                  *
 *                 *                       *                *
 *                                                          *
-*         VERSION 3.5.1_lo_vect                            *
+*         VERSION 3.5.2_lo_vect                            *
 *                                                          *
 *    The MadGraph5_aMC@NLO Development Team - Find us at   *
 *    https://server06.fynu.ucl.ac.be/projects/madgraph     *
