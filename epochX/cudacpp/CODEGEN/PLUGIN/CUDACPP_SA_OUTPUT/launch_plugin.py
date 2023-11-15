@@ -113,11 +113,25 @@ class CPPRunCard(banner_mod.RunCardLO):
         self.display_block.append('simd')
         self.display_block.append('psoptim')
 
+    # OM/AV - overload the default version in banner.py
     def write_one_include_file(self, output_dir, incname, output_file=None):
         """write one include file at the time"""
-        if incname == "vector.inc" and 'vector_size' not in self.user_set:
-            return
-        super().write_one_include_file(output_dir, incname, output_file)
+        if incname == "vector.inc":
+            if 'vector_size' not in self.user_set: return
+            if output_file is None: vectorinc=pjoin(output_dir,incname)
+            else: vectorinc=output_file
+            with open(vectorinc+'.new','w') as fileout:
+                with open(vectorinc) as filein:
+                    for line in filein:
+                        if line.startswith('C'): fileout.write(line)
+            super().write_one_include_file(output_dir, incname, output_file)
+            with open(vectorinc+'.new','a') as fileout:
+                with open(vectorinc) as filein:
+                    for line in filein:
+                        if not line.startswith('\n'): fileout.write(line)
+            os.replace(vectorinc+'.new',vectorinc)
+        else:
+            super().write_one_include_file(output_dir, incname, output_file)
 
     def check_validity(self):
         """ensure that PLUGIN information are consistent"""
