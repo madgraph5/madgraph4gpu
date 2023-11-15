@@ -217,6 +217,8 @@ function codeGenAndDiff()
     sed -i 's/2  = sde_strategy/1  = sde_strategy/' ${outproc}/Cards/run_card.dat
     # Force the use of VECSIZE_MEMMAX=16384
     sed -i 's/16 = vector_size/16384 = vector_size/' ${outproc}/Cards/run_card.dat
+    # Force the use of fast-math in Fortran builds
+    sed -i 's/-O = global_flag.*/-O3 -ffast-math -fbounds-check = global_flag ! build flags for all Fortran code (for a fair comparison to cudacpp; default is -O)/' ${outproc}/Cards/run_card.dat
     # Generate run_card.inc and param_card.inc (include stdout and stderr in the code generation log which is later checked for errors)
     # These two steps are part of "cd Source; make" but they actually are code-generating steps
     # Note: treatcards run also regenerates vector.inc if vector_size has changed in the runcard
@@ -245,13 +247,6 @@ function codeGenAndDiff()
       cat ${outproc}/Source/make_opts | sed '/#end/q' | sort > ${outproc}/Source/make_opts.new
       cat ${outproc}/Source/make_opts | sed -n -e '/#end/,$p' >> ${outproc}/Source/make_opts.new
       \mv ${outproc}/Source/make_opts.new ${outproc}/Source/make_opts
-      echo "
-#*********************************************************************
-# Options for the cudacpp plugin
-#*********************************************************************
-
-# Set cudacpp-specific values of non-cudacpp-specific options
--O3 -ffast-math -fbounds-check = global_flag ! build flags for Fortran code (for a fair comparison to cudacpp)" >> ${outproc}/Cards/run_card.dat
     fi
   fi
   popd >& /dev/null
