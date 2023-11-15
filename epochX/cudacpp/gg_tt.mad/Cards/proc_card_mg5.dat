@@ -46,4 +46,4 @@ define l- = e- mu-
 define vl = ve vm vt
 define vl~ = ve~ vm~ vt~
 output madevent ../TMPOUT/CODEGEN_mad_gg_tt --hel_recycling=False --ve\
-ctor_size=16384 --me_exporter=standalone_cudacpp
+ctor_size=32 --me_exporter=standalone_cudacpp

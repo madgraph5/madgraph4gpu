@@ -149,6 +149,11 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
     ###helas_exporter = None
     helas_exporter = model_handling.PLUGIN_GPUFOHelasCallWriter # this is one of the main fixes for issue #341!
 
+    # Default class for the run_card to use
+    from . import launch_plugin
+    run_card_class = launch_plugin.CPPRunCard
+
+
     # AV (default from OM's tutorial) - add a debug printout
     def __init__(self, *args, **kwargs):
         self.in_madevent_mode = False # see MR #747
@@ -203,7 +208,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
            cmdhistory is the list of command used so far.
            MG5options are all the options of the main interface
            outputflags is a list of options provided when doing the output command"""
-        misc.sprint('Entering PLUGIN_ProcessExporter.finalize', self.in_madevent_mode, type(self))
+        ###misc.sprint('Entering PLUGIN_ProcessExporter.finalize', self.in_madevent_mode, type(self))
         if self.in_madevent_mode:
             self.add_input_for_banner()
             if 'CUDACPP_CODEGEN_PATCHLEVEL' in os.environ: patchlevel = os.environ['CUDACPP_CODEGEN_PATCHLEVEL']
@@ -237,7 +242,8 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                 raise Exception('ERROR! the O/S call to patchMad.sh failed')
             # Additional patching (OM)
             self.add_madevent_plugin_fct() # Added by OM
-        return super().finalize(matrix_element, cmdhistory, MG5options, outputflag)
+        # do not call standard finalize since is this is already done...
+        #return super().finalize(matrix_element, cmdhistory, MG5options, outputflag)
 
     # AV (default from OM's tutorial) - overload settings and add a debug printout
     def modify_grouping(self, matrix_element):

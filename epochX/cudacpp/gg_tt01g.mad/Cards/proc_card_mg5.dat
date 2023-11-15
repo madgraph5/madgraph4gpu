@@ -47,4 +47,4 @@ define vl = ve vm vt
 define vl~ = ve~ vm~ vt~
 add process g g > t t~ g
 output madevent ../TMPOUT/CODEGEN_mad_gg_tt01g --hel_recycling=False -\
--vector_size=16384 --me_exporter=standalone_cudacpp
+-vector_size=32 --me_exporter=standalone_cudacpp

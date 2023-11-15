@@ -62,7 +62,7 @@ generate g g > t t~ g g g
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.005532503128051758 [0m
+[1;32mDEBUG: model prefixing  takes 0.005609273910522461 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -155,35 +155,35 @@ INFO: Please specify coupling orders to bypass this step.
 INFO: Trying coupling order WEIGHTED<=5: WEIGTHED IS QCD+2*QED 
 INFO: Trying process: g g > t t~ g g g WEIGHTED<=5 @1  
 INFO: Process has 1240 diagrams 
-1 processes with 1240 diagrams generated in 1.880 s
+1 processes with 1240 diagrams generated in 1.857 s
 Total: 1 processes with 1240 diagrams
 output standalone_cudacpp ../TMPOUT/CODEGEN_cudacpp_gg_ttggg
 Load PLUGIN.CUDACPP_OUTPUT
 [1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
 [1;32mDEBUG:  cformat = [0m plugin [1;30m[export_cpp.py at line 3071][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter) [1;30m[output.py at line 155][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.copy_template (initialise the directory) [1;30m[output.py at line 160][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter) [1;30m[output.py at line 160][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.copy_template (initialise the directory) [1;30m[output.py at line 165][0m [0m
 INFO: Creating subdirectories in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_ttggg 
 INFO: Organizing processes into subprocess groups 
 INFO: Generating Helas calls for process: g g > t t~ g g g WEIGHTED<=5 @1 
 INFO: Processing color information for process: g g > t t~ g g g @1 
-[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.generate_subprocess_directory (create the directory) [1;30m[output.py at line 189][0m [0m
-[1;32mDEBUG:    type(subproc_group)=<class 'madgraph.core.helas_objects.HelasMatrixElement'> [1;30m[output.py at line 190][0m [0m
-[1;32mDEBUG:    type(fortran_model)=<class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_GPUFOHelasCallWriter'> [1;30m[output.py at line 191][0m [0m
-[1;32mDEBUG:    type(me)=<class 'int'> me=0 [1;30m[output.py at line 192][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.generate_subprocess_directory (create the directory) [1;30m[output.py at line 194][0m [0m
+[1;32mDEBUG:    type(subproc_group)=<class 'madgraph.core.helas_objects.HelasMatrixElement'> [1;30m[output.py at line 195][0m [0m
+[1;32mDEBUG:    type(fortran_model)=<class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_GPUFOHelasCallWriter'> [1;30m[output.py at line 196][0m [0m
+[1;32mDEBUG:    type(me)=<class 'int'> me=0 [1;30m[output.py at line 197][0m [0m
 INFO: Creating files in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_ttggg/SubProcesses/P1_Sigma_sm_gg_ttxggg 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_ttggg/SubProcesses/P1_Sigma_sm_gg_ttxggg/./CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_ttggg/SubProcesses/P1_Sigma_sm_gg_ttxggg/./CPPProcess.cc
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_ttggg/SubProcesses/P1_Sigma_sm_gg_ttxggg/. 
-Generated helas calls for 1 subprocesses (1240 diagrams) in 6.540 s
-[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 197][0m [0m
+Generated helas calls for 1 subprocesses (1240 diagrams) in 6.536 s
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 202][0m [0m
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 routines[0m
 ALOHA: aloha creates VVVV3 routines[0m
 ALOHA: aloha creates VVVV4 routines[0m
-ALOHA: aloha creates 5 routines in  0.351 s
+ALOHA: aloha creates 5 routines in  0.341 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -204,9 +204,8 @@ FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_ttggg/src/./Parameters_sm.cc
 INFO: Created files Parameters_sm.h and Parameters_sm.cc in directory 
 INFO: /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_ttggg/src/. and /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_ttggg/src/. 
-[1;32mDEBUG:  'Entering PLUGIN_ProcessExporter.finalize', self.in_madevent_mode, type(self) = [0m Entering PLUGIN_ProcessExporter.finalize False <class 'PLUGIN.CUDACPP_OUTPUT.output.PLUGIN_ProcessExporter'> [1;30m[output.py at line 206][0m [0m
 quit
 
-real	0m15.959s
-user	0m12.810s
-sys	0m0.102s
+real	0m12.866s
+user	0m12.717s
+sys	0m0.100s
