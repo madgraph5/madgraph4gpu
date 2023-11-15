@@ -251,10 +251,7 @@ function codeGenAndDiff()
 #*********************************************************************
 
 # Set cudacpp-specific values of non-cudacpp-specific options
--O3 -ffast-math -fbounds-check = global_flag ! build flags for Fortran code (for a fair comparison to cudacpp)
-
-# New cudacpp-specific options (default values are defined in banner.py)
-CPP = cudacpp_backend ! valid backends are FORTRAN, CPP, CUDA" >> ${outproc}/Cards/run_card.dat
+-O3 -ffast-math -fbounds-check = global_flag ! build flags for Fortran code (for a fair comparison to cudacpp)" >> ${outproc}/Cards/run_card.dat
     fi
   fi
   popd >& /dev/null
