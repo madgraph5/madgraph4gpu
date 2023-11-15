@@ -175,7 +175,7 @@ function codeGenAndDiff()
   echo -e "\n+++ Generate code for '$proc'\n"
   ###exit 0 # FOR DEBUGGING
   # Vector size for mad/madonly meexporter (VECSIZE_MEMMAX)
-  vecsize=16384 # NB THIS IS NO LONGER IGNORED (but will eventually be tunable via runcards)
+  vecsize=32 # NB THIS IS NO LONGER IGNORED (but will eventually be tunable via runcards)
   # Generate code for the specific process
   pushd $MG5AMC_HOME >& /dev/null
   mkdir -p ../TMPOUT
@@ -224,13 +224,28 @@ function codeGenAndDiff()
     cat ${outproc}_log.txt | egrep -v '(Crash Annotation)' > ${outproc}_log.txt.new # remove firefox 'glxtest: libEGL initialize failed' errors
     \mv ${outproc}_log.txt.new ${outproc}_log.txt
   fi
+  # Check the code generation log for errors 
+  if [ -d ${outproc} ] && ! grep -q "Please report this bug" ${outproc}_log.txt; then
+    ###cat ${outproc}_log.txt; exit 0 # FOR DEBUGGING
+    cat ${MG5AMC_HOME}/${outproc}_log.txt | { egrep 'INFO: (Try|Creat|Organiz|Process)' || true; }
+  else
+    echo "*** ERROR! Code generation failed"
+    cat ${MG5AMC_HOME}/${outproc}_log.txt
+    echo "*** ERROR! Code generation failed"
+    exit 1
+  fi
   # Patches moved here from patchMad.sh after Olivier's PR #764 (THIS IS ONLY NEEDED IN THE MADGRAPH4GPU GIT REPO)  
   if [ "${OUTBCK}" == "mad" ]; then
     # Force the use of strategy SDE=1 in multichannel mode (see #419)
     sed -i 's/2  = sde_strategy/1  = sde_strategy/' ${outproc}/Cards/run_card.dat
+    # Force the use of VECSIZE_MEMMAX=16384
+    sed -i 's/16 = vector_size/16384 = vector_size/' ${outproc}/Cards/run_card.dat
+    # Force the use of fast-math in Fortran builds
+    sed -i 's/-O = global_flag.*/-O3 -ffast-math -fbounds-check = global_flag ! build flags for all Fortran code (for a fair comparison to cudacpp; default is -O)/' ${outproc}/Cards/run_card.dat
     # Generate run_card.inc and param_card.inc (include stdout and stderr in the code generation log which is later checked for errors)
     # These two steps are part of "cd Source; make" but they actually are code-generating steps
-    ${outproc}/bin/madevent treatcards run  >> ${outproc}_log.txt 2>&1 # AV BUG! THIS MAY SILENTLY FAIL (check if output contains "Please report this bug")
+    # Note: treatcards run also regenerates vector.inc if vector_size has changed in the runcard
+    ${outproc}/bin/madevent treatcards run >> ${outproc}_log.txt 2>&1 # AV BUG! THIS MAY SILENTLY FAIL (check if output contains "Please report this bug")
     ${outproc}/bin/madevent treatcards param >> ${outproc}_log.txt 2>&1 # AV BUG! THIS MAY SILENTLY FAIL (check if output contains "Please report this bug")
     # Cleanup
     \rm -f ${outproc}/crossx.html
@@ -246,36 +261,17 @@ function codeGenAndDiff()
     touch ${outproc}/HTML/.keep # new file
     if [ "${patchlevel}" != "0" ]; then
       # Add global flag '-O3 -ffast-math -fbounds-check' as in previous gridpacks
+      # (FIXME? these flags are already set in the runcards, why are they not propagated to make_opts?)
       echo "GLOBAL_FLAG=-O3 -ffast-math -fbounds-check" > ${outproc}/Source/make_opts.new
       cat ${outproc}/Source/make_opts >> ${outproc}/Source/make_opts.new
       \mv ${outproc}/Source/make_opts.new ${outproc}/Source/make_opts
     fi
     if [ "${patchlevel}" == "2" ]; then
       sed -i 's/DEFAULT_F2PY_COMPILER=f2py.*/DEFAULT_F2PY_COMPILER=f2py3/' ${outproc}/Source/make_opts
-      cat ${outproc}/Source/make_opts | sed '/#end/q' | sort > ${outproc}/Source/make_opts.new
+      cat ${outproc}/Source/make_opts | sed '/#end/q' | head --lines=-1 | sort > ${outproc}/Source/make_opts.new
       cat ${outproc}/Source/make_opts | sed -n -e '/#end/,$p' >> ${outproc}/Source/make_opts.new
       \mv ${outproc}/Source/make_opts.new ${outproc}/Source/make_opts
-      echo "
-#*********************************************************************
-# Options for the cudacpp plugin
-#*********************************************************************
-
-# Set cudacpp-specific values of non-cudacpp-specific options
--O3 -ffast-math -fbounds-check = global_flag ! build flags for Fortran code (for a fair comparison to cudacpp)
-
-# New cudacpp-specific options (default values are defined in banner.py)
-CPP = cudacpp_backend ! valid backends are FORTRAN, CPP, CUDA" >> ${outproc}/Cards/run_card.dat
     fi
-  fi
-  # Check the code generation log for errors 
-  if [ -d ${outproc} ] && ! grep -q "Please report this bug" ${outproc}_log.txt; then
-    ###cat ${outproc}_log.txt; exit 0 # FOR DEBUGGING
-    cat ${MG5AMC_HOME}/${outproc}_log.txt | { egrep 'INFO: (Try|Creat|Organiz|Process)' || true; }
-  else
-    echo "*** ERROR! Code generation failed"
-    cat ${MG5AMC_HOME}/${outproc}_log.txt
-    echo "*** ERROR! Code generation failed"
-    exit 1
   fi
   popd >& /dev/null
   # Choose which directory must be copied (for gridpack generation: untar and modify the gridpack)
