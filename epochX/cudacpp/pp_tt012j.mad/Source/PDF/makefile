@@ -68,7 +68,7 @@ reset:
 	rm -rf $(TOREMOVE)
 
 
-$(LIBDIR)$(LIBRARY): $(PDF)
+$(LIBDIR)$(LIBRARY): $(PDF) ../make_opts
 	rm $(LIBDIR)$(LIBRARY) || echo "recompilation of $(LIBDIR)$(LIBRARY)"
 	$(call CREATELIB, $@, $^)
 

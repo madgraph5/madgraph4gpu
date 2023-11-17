@@ -121,8 +121,8 @@ $(LIBDIR)libiregi.a: $(IREGIDIR)
 	cd $(IREGIDIR); make
 	ln -sf ../Source/$(IREGIDIR)libiregi.a $(LIBDIR)libiregi.a
 
-cleanSource:
-	$(RM) *.o $(LIBRARIES) $(BINARIES)
+clean:
+	$(RM) *.o *.inc $(LIBRARIES) $(BINARIES)
 	cd PDF; make clean; cd ..
 	cd PDF/gammaUPC; make clean; cd ../../
 	cd DHELAS; make clean; cd ..
@@ -133,11 +133,3 @@ cleanSource:
 	cd BIAS/ptj_bias; make clean; cd ../..
 	if [ -d $(CUTTOOLSDIR) ]; then cd $(CUTTOOLSDIR); make clean; cd ..; fi
 	if [ -d $(IREGIDIR) ]; then cd $(IREGIDIR); make clean; cd ..; fi
-
-clean: cleanSource
-	for i in `ls -d ../SubProcesses/P*`; do cd $$i; make clean; cd -; done;
-
-cleanavx:
-	for i in `ls -d ../SubProcesses/P*`; do cd $$i; make cleanavxs; cd -; done;
-cleanall: cleanSource # THIS IS THE ONE
-	for i in `ls -d ../SubProcesses/P*`; do cd $$i; make cleanavxs; cd -; done;
