@@ -8,7 +8,7 @@
 #*                *                       *                 *
 #*                                                          *
 #*                                                          *
-#*         VERSION 3.5.1_lo_vect         2023-08-08         *
+#*         VERSION 3.5.2_lo_vect         2023-11-08         *
 [1;31m#*                                                          *[1;0m
 [1;31m#*          WARNING: UNKNOWN DEVELOPMENT VERSION.           *[1;0m
 [1;31m#*            WARNING: DO NOT USE FOR PRODUCTION            *[1;0m
@@ -46,4 +46,4 @@ define l- = e- mu-
 define vl = ve vm vt
 define vl~ = ve~ vm~ vt~
 output madevent ../TMPOUT/CODEGEN_mad_gg_ttg --hel_recycling=False --v\
-ector_size=16384 --me_exporter=standalone_cudacpp
+ector_size=32 --me_exporter=standalone_cudacpp
