@@ -545,12 +545,13 @@ def compile(arg=[], cwd=None, mode='fortran', job_specs = True, nb_core=1 ,**opt
                               ' but will not be able to compile an executable.')
                 return p.returncode
         # Other reason
-        error_text = 'A compilation Error occurs '
+        error_text = 'A compilation Error occurred '
         if cwd:
             error_text += 'when trying to compile %s.\n' % cwd
-        error_text += 'The compilation fails with the following output message:\n'
+        error_text += 'The compilation failed with the following output message:\n'
+        error_text += ' '.join(cmd) + '\n'
         error_text += '    '+out.replace('\n','\n    ')+'\n'
-        error_text += 'Please try to fix this compilations issue and retry.\n'
+        error_text += 'Please try to fix this compilation issue and retry.\n'
         error_text += 'Help might be found at https://answers.launchpad.net/mg5amcnlo.\n'
         error_text += 'If you think that this is a bug, you can report this at https://bugs.launchpad.net/mg5amcnlo'
         raise MadGraph5Error(error_text)
