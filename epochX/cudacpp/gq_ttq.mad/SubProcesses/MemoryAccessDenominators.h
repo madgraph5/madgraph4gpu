@@ -9,15 +9,24 @@
 
 #include "MemoryAccessGs.h"
 
-//----------------------------------------------------------------------------
+// NB: namespaces mg5amcGpu and mg5amcCpu includes types which are defined in different ways for CPU and GPU builds (see #318 and #725)
+#ifdef __CUDACC__
+namespace mg5amcGpu
+#else
+namespace mg5amcCpu
+#endif
+{
+  //----------------------------------------------------------------------------
 
-// A class describing the internal layout of memory buffers for denominators
-// This implementation reuses the plain ARRAY[nevt] implementation of MemoryAccessGs
+  // A class describing the internal layout of memory buffers for denominators
+  // This implementation reuses the plain ARRAY[nevt] implementation of MemoryAccessGs
 
-typedef KernelAccessGs<false> HostAccessDenominators;
-typedef KernelAccessGs<true> DeviceAccessDenominators;
+  typedef KernelAccessGs<false> HostAccessDenominators;
+  typedef KernelAccessGs<true> DeviceAccessDenominators;
 
-//----------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
+
+} // end namespace mg5amcGpu/mg5amcCpu
 
 #endif
 #endif // MemoryAccessDenominators_H

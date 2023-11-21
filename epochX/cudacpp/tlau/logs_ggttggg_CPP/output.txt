@@ -1,0 +1,186 @@
+START: Sun Jun 18 09:00:45 AM CEST 2023
+************************************************************
+*                                                          *
+*                      W E L C O M E to                    *
+*             M A D G R A P H 5 _ a M C @ N L O            *
+*                      M A D E V E N T                     *
+*                                                          *
+*                 *                       *                *
+*                   *        * *        *                  *
+*                     * * * * 5 * * * *                    *
+*                   *        * *        *                  *
+*                 *                       *                *
+*                                                          *
+*         VERSION 3.5.0_lo_vect                            *
+*                                                          *
+*    The MadGraph5_aMC@NLO Development Team - Find us at   *
+*    https://server06.fynu.ucl.ac.be/projects/madgraph     *
+*                                                          *
+*               Type 'help' for in-line help.              *
+*                                                          *
+************************************************************
+INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttggg.mad/Cards/me5_configuration.txt  
+INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttggg.mad/Cards/me5_configuration.txt  
+Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
+Using default eps viewer "evince". Set another one in ./input/mg5_configuration.txt
+No valid web browser found. Please set in ./input/mg5_configuration.txt
+generate_events -f
+Generating 100 events with run name run_01
+survey  run_01 
+INFO: compile directory 
+[1;34mNot able to open file /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttggg.mad/crossx.html since no program configured.Please set one in ./input/mg5_configuration.txt[0m
+compile Source Directory
+Using random number seed offset = 21
+INFO: Running Survey 
+Creating Jobs
+Working on SubProcesses
+INFO:     P1_gg_ttxggg  
+INFO: Building madevent in madevent_interface.py with 'CPP' matrix elements 
+INFO:  Idle: 56,  Running: 4,  Completed: 0 [ current time: 09h02 ] 
+INFO:  Idle: 55,  Running: 4,  Completed: 1 [  3m 11s  ] 
+INFO:  Idle: 51,  Running: 4,  Completed: 5 [  6m 23s  ] 
+INFO:  Idle: 47,  Running: 4,  Completed: 9 [  9m 36s  ] 
+INFO:  Idle: 43,  Running: 4,  Completed: 13 [  12m 48s  ] 
+INFO:  Idle: 39,  Running: 4,  Completed: 17 [  16m 2s  ] 
+INFO:  Idle: 35,  Running: 4,  Completed: 21 [  19m 17s  ] 
+INFO:  Idle: 31,  Running: 4,  Completed: 25 [  22m 29s  ] 
+INFO:  Idle: 27,  Running: 4,  Completed: 29 [  25m 42s  ] 
+INFO:  Idle: 23,  Running: 4,  Completed: 33 [  28m 56s  ] 
+INFO:  Idle: 19,  Running: 4,  Completed: 37 [  32m 8s  ] 
+INFO:  Idle: 15,  Running: 4,  Completed: 41 [  35m 19s  ] 
+INFO:  Idle: 12,  Running: 4,  Completed: 44 [  35m 23s  ] 
+INFO:  Idle: 11,  Running: 4,  Completed: 45 [  38m 32s  ] 
+INFO:  Idle: 9,  Running: 4,  Completed: 47 [  38m 36s  ] 
+INFO:  Idle: 7,  Running: 4,  Completed: 49 [  41m 44s  ] 
+INFO:  Idle: 5,  Running: 4,  Completed: 51 [  41m 48s  ] 
+INFO:  Idle: 3,  Running: 4,  Completed: 53 [  44m 57s  ] 
+INFO:  Idle: 1,  Running: 4,  Completed: 55 [  45m 1s  ] 
+INFO:  Idle: 0,  Running: 3,  Completed: 57 [  46m 38s  ] 
+INFO:  Idle: 0,  Running: 2,  Completed: 58 [  48m 8s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 60 [  48m 12s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 60 [  48m 12s  ] 
+INFO: End survey 
+refine 100
+Creating Jobs
+INFO: Refine results to 100 
+INFO: Generating 100.0 unweighted events. 
+sum of cpu time of last step: 3h10m13s
+INFO: Effective Luminosity 0.12205643917421105 pb^-1 
+INFO: need to improve 119 channels 
+- Current estimate of cross-section: 983.1517354748004 +- 9.88525528315308
+    P1_gg_ttxggg 
+Building madevent in madevent_interface.py with 'CPP' matrix elements
+INFO:  Idle: 115,  Running: 4,  Completed: 0 [ current time: 09h50 ] 
+INFO:  Idle: 114,  Running: 4,  Completed: 1 [  6m 53s  ] 
+INFO:  Idle: 110,  Running: 4,  Completed: 5 [  13m 48s  ] 
+INFO:  Idle: 106,  Running: 4,  Completed: 9 [  20m 42s  ] 
+INFO:  Idle: 104,  Running: 4,  Completed: 11 [  20m 48s  ] 
+INFO:  Idle: 102,  Running: 4,  Completed: 13 [  27m 37s  ] 
+INFO:  Idle: 100,  Running: 4,  Completed: 15 [  27m 43s  ] 
+INFO:  Idle: 98,  Running: 4,  Completed: 17 [  34m 32s  ] 
+INFO:  Idle: 96,  Running: 4,  Completed: 19 [  34m 40s  ] 
+INFO:  Idle: 94,  Running: 4,  Completed: 21 [  41m 28s  ] 
+INFO:  Idle: 93,  Running: 4,  Completed: 22 [  41m 32s  ] 
+INFO:  Idle: 91,  Running: 4,  Completed: 24 [  41m 38s  ] 
+INFO:  Idle: 90,  Running: 4,  Completed: 25 [  48m 24s  ] 
+INFO:  Idle: 89,  Running: 4,  Completed: 26 [  48m 27s  ] 
+INFO:  Idle: 87,  Running: 4,  Completed: 28 [  48m 33s  ] 
+INFO:  Idle: 86,  Running: 4,  Completed: 29 [  55m 25s  ] 
+INFO:  Idle: 84,  Running: 4,  Completed: 31 [  55m 33s  ] 
+INFO:  Idle: 83,  Running: 4,  Completed: 32 [  55m 36s  ] 
+INFO:  Idle: 82,  Running: 4,  Completed: 33 [  1h 2m  ] 
+INFO:  Idle: 81,  Running: 4,  Completed: 34 [  1h 2m  ] 
+INFO:  Idle: 79,  Running: 4,  Completed: 36 [  1h 2m  ] 
+INFO:  Idle: 78,  Running: 4,  Completed: 37 [  1h 9m  ] 
+INFO:  Idle: 76,  Running: 4,  Completed: 39 [  1h 9m  ] 
+INFO:  Idle: 75,  Running: 4,  Completed: 40 [  1h 9m  ] 
+INFO:  Idle: 74,  Running: 4,  Completed: 41 [  1h 16m  ] 
+INFO:  Idle: 71,  Running: 4,  Completed: 44 [  1h 16m  ] 
+INFO:  Idle: 70,  Running: 4,  Completed: 45 [  1h 23m  ] 
+INFO:  Idle: 68,  Running: 4,  Completed: 47 [  1h 23m  ] 
+INFO:  Idle: 67,  Running: 4,  Completed: 48 [  1h 23m  ] 
+INFO:  Idle: 66,  Running: 4,  Completed: 49 [  1h 30m  ] 
+INFO:  Idle: 64,  Running: 4,  Completed: 51 [  1h 30m  ] 
+INFO:  Idle: 63,  Running: 4,  Completed: 52 [  1h 30m  ] 
+INFO:  Idle: 62,  Running: 4,  Completed: 53 [  1h 37m  ] 
+INFO:  Idle: 60,  Running: 4,  Completed: 55 [  1h 37m  ] 
+INFO:  Idle: 59,  Running: 4,  Completed: 56 [  1h 37m  ] 
+INFO:  Idle: 58,  Running: 4,  Completed: 57 [  1h 43m  ] 
+INFO:  Idle: 57,  Running: 4,  Completed: 58 [  1h 43m  ] 
+INFO:  Idle: 56,  Running: 4,  Completed: 59 [  1h 44m  ] 
+INFO:  Idle: 55,  Running: 4,  Completed: 60 [  1h 44m  ] 
+INFO:  Idle: 54,  Running: 4,  Completed: 61 [  1h 50m  ] 
+INFO:  Idle: 53,  Running: 4,  Completed: 62 [  1h 50m  ] 
+INFO:  Idle: 52,  Running: 4,  Completed: 63 [  1h 50m  ] 
+INFO:  Idle: 51,  Running: 4,  Completed: 64 [  1h 51m  ] 
+INFO:  Idle: 50,  Running: 4,  Completed: 65 [  1h 57m  ] 
+INFO:  Idle: 49,  Running: 4,  Completed: 66 [  1h 57m  ] 
+INFO:  Idle: 48,  Running: 4,  Completed: 67 [  1h 57m  ] 
+INFO:  Idle: 47,  Running: 4,  Completed: 68 [  1h 57m  ] 
+INFO:  Idle: 46,  Running: 4,  Completed: 69 [  2h 4m  ] 
+INFO:  Idle: 44,  Running: 4,  Completed: 71 [  2h 4m  ] 
+INFO:  Idle: 42,  Running: 4,  Completed: 73 [  2h 11m  ] 
+INFO:  Idle: 40,  Running: 4,  Completed: 75 [  2h 11m  ] 
+INFO:  Idle: 39,  Running: 4,  Completed: 76 [  2h 11m  ] 
+INFO:  Idle: 38,  Running: 4,  Completed: 77 [  2h 18m  ] 
+INFO:  Idle: 37,  Running: 4,  Completed: 78 [  2h 18m  ] 
+INFO:  Idle: 35,  Running: 4,  Completed: 80 [  2h 18m  ] 
+INFO:  Idle: 34,  Running: 4,  Completed: 81 [  2h 25m  ] 
+INFO:  Idle: 33,  Running: 4,  Completed: 82 [  2h 25m  ] 
+INFO:  Idle: 31,  Running: 4,  Completed: 84 [  2h 25m  ] 
+INFO:  Idle: 30,  Running: 4,  Completed: 85 [  2h 32m  ] 
+INFO:  Idle: 29,  Running: 4,  Completed: 86 [  2h 32m  ] 
+INFO:  Idle: 28,  Running: 4,  Completed: 87 [  2h 32m  ] 
+INFO:  Idle: 27,  Running: 4,  Completed: 88 [  2h 32m  ] 
+INFO:  Idle: 26,  Running: 4,  Completed: 89 [  2h 39m  ] 
+INFO:  Idle: 25,  Running: 4,  Completed: 90 [  2h 39m  ] 
+INFO:  Idle: 24,  Running: 4,  Completed: 91 [  2h 39m  ] 
+INFO:  Idle: 23,  Running: 4,  Completed: 92 [  2h 39m  ] 
+INFO:  Idle: 22,  Running: 4,  Completed: 93 [  2h 46m  ] 
+INFO:  Idle: 21,  Running: 4,  Completed: 94 [  2h 46m  ] 
+INFO:  Idle: 20,  Running: 4,  Completed: 95 [  2h 46m  ] 
+INFO:  Idle: 19,  Running: 4,  Completed: 96 [  2h 46m  ] 
+INFO:  Idle: 18,  Running: 4,  Completed: 97 [  2h 53m  ] 
+INFO:  Idle: 17,  Running: 4,  Completed: 98 [  2h 53m  ] 
+INFO:  Idle: 16,  Running: 4,  Completed: 99 [  2h 53m  ] 
+INFO:  Idle: 15,  Running: 4,  Completed: 100 [  2h 53m  ] 
+INFO:  Idle: 14,  Running: 4,  Completed: 101 [  3h 0m  ] 
+INFO:  Idle: 13,  Running: 4,  Completed: 102 [  3h 0m  ] 
+INFO:  Idle: 12,  Running: 4,  Completed: 103 [  3h 0m  ] 
+INFO:  Idle: 11,  Running: 4,  Completed: 104 [  3h 0m  ] 
+INFO:  Idle: 10,  Running: 4,  Completed: 105 [  3h 6m  ] 
+INFO:  Idle: 9,  Running: 4,  Completed: 106 [  3h 7m  ] 
+INFO:  Idle: 8,  Running: 4,  Completed: 107 [  3h 7m  ] 
+INFO:  Idle: 7,  Running: 4,  Completed: 108 [  3h 7m  ] 
+INFO:  Idle: 6,  Running: 4,  Completed: 109 [  3h 13m  ] 
+INFO:  Idle: 5,  Running: 4,  Completed: 110 [  3h 14m  ] 
+INFO:  Idle: 3,  Running: 4,  Completed: 112 [  3h 14m  ] 
+INFO:  Idle: 2,  Running: 4,  Completed: 113 [  3h 20m  ] 
+INFO:  Idle: 1,  Running: 4,  Completed: 114 [  3h 21m  ] 
+INFO:  Idle: 0,  Running: 3,  Completed: 116 [  3h 21m  ] 
+INFO:  Idle: 0,  Running: 2,  Completed: 117 [  3h 27m  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 119 [  3h 28m  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 119 [  3h 28m  ] 
+INFO: Combining runs 
+sum of cpu time of last step: 13h38m56s
+INFO: finish refine 
+refine 100 --treshold=0.9
+No need for second refine due to stability of cross-section
+INFO: Combining Events 
+  === Results Summary for run: run_01 tag: tag_1 ===
+
+     Cross-section :   126.3 +- 0.3221 pb
+     Nb of events :  100
+ 
+INFO: No version of lhapdf. Can not run systematics computation 
+store_events
+INFO: Storing parton level results 
+INFO: End Parton 
+reweight -from_cards
+decay_events -from_cards
+INFO: storing files of previous run 
+INFO: Done 
+quit
+INFO:  
+60630.26user 27.95system 4:18:04elapsed 391%CPU (0avgtext+0avgdata 831376maxresident)k
+0inputs+9170168outputs (129major+2383665minor)pagefaults 0swaps

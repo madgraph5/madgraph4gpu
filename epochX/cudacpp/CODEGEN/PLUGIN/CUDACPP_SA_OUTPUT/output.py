@@ -1,9 +1,10 @@
 # Copyright (C) 2020-2023 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
-# Created by: O. Mattelaer (Sep 2021) for the MG5aMC CUDACPP plugin.
-# Further modified by: O. Mattelaer, A. Valassi, Z. Wettersten (2021-2023) for the MG5aMC CUDACPP plugin.
+# Created by: A. Valassi (Sep 2021) for the MG5aMC CUDACPP plugin.
+# Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, A. Valassi, Z. Wettersten (2021-2023) for the MG5aMC CUDACPP plugin.
 
 import os
+import subprocess
 
 # AV - load an independent 2nd copy of the export_cpp module (as PLUGIN_export_cpp) and use that within the plugin (workaround for #341)
 # See https://stackoverflow.com/a/11285504
@@ -14,7 +15,7 @@ import importlib.util
 SPEC_EXPORTCPP = importlib.util.find_spec('madgraph.iolibs.export_cpp')
 PLUGIN_export_cpp = importlib.util.module_from_spec(SPEC_EXPORTCPP)
 SPEC_EXPORTCPP.loader.exec_module(PLUGIN_export_cpp)
-sys.modules['PLUGIN.CUDACPP_SA_OUTPUT.PLUGIN_export_cpp'] = PLUGIN_export_cpp # allow 'import PLUGIN.CUDACPP_SA_OUTPUT.PLUGIN_export_cpp' in model_handling.py
+sys.modules['PLUGIN.CUDACPP_OUTPUT.PLUGIN_export_cpp'] = PLUGIN_export_cpp # allow 'import PLUGIN.CUDACPP_OUTPUT.PLUGIN_export_cpp' in model_handling.py
 del SPEC_EXPORTCPP
 ###print('id(export_cpp)=%s'%id(export_cpp))
 ###print('id(PLUGIN_export_cpp)=%s'%id(PLUGIN_export_cpp))
@@ -24,15 +25,16 @@ del SPEC_EXPORTCPP
 PLUGINDIR = os.path.dirname( __file__ )
 
 # AV - model_handling includes the custom FileWriter, ALOHAWriter, UFOModelConverter, OneProcessExporter and HelasCallWriter, plus additional patches
-import PLUGIN.CUDACPP_SA_OUTPUT.model_handling as model_handling
+import PLUGIN.CUDACPP_OUTPUT.model_handling as model_handling
 
 # AV - create a plugin-specific logger
 import logging
-logger = logging.getLogger('madgraph.PLUGIN.CUDACPP_SA_OUTPUT.output')
+logger = logging.getLogger('madgraph.PLUGIN.CUDACPP_OUTPUT.output')
 
 #------------------------------------------------------------------------------------
 
 from os.path import join as pjoin
+import madgraph.iolibs.files as files
 import madgraph.various.misc as misc
 
 # AV - define the plugin's process exporter
@@ -99,7 +101,8 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                                       s+'gpu/CrossSectionKernels.cc', s+'gpu/CrossSectionKernels.h',
                                       s+'gpu/MatrixElementKernels.cc', s+'gpu/MatrixElementKernels.h',
                                       s+'gpu/RamboSamplingKernels.cc', s+'gpu/RamboSamplingKernels.h',
-                                      s+'gpu/RandomNumberKernels.cc', s+'gpu/RandomNumberKernels.h',
+                                      s+'gpu/RandomNumberKernels.h',
+                                      s+'gpu/CommonRandomNumberKernel.cc', s+'gpu/CurandRandomNumberKernel.cc',
                                       s+'gpu/Bridge.h', s+'gpu/BridgeKernels.cc', s+'gpu/BridgeKernels.h',
                                       s+'gpu/fbridge.cc', s+'gpu/fbridge.inc', s+'gpu/fsampler.cc', s+'gpu/fsampler.inc',
                                       s+'gpu/MadgraphTest.h', s+'gpu/runTest.cc',
@@ -119,7 +122,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                     'CrossSectionKernels.cc', 'CrossSectionKernels.h',
                     'MatrixElementKernels.cc', 'MatrixElementKernels.h',
                     'RamboSamplingKernels.cc', 'RamboSamplingKernels.h',
-                    'RandomNumberKernels.h', 'RandomNumberKernels.cc',
+                    'RandomNumberKernels.h', 'CommonRandomNumberKernel.cc', 'CurandRandomNumberKernel.cc',
                     'Bridge.h', 'BridgeKernels.cc', 'BridgeKernels.h',
                     'fbridge.cc', 'fbridge.inc', 'fsampler.cc', 'fsampler.inc',
                     'MadgraphTest.h', 'runTest.cc',
@@ -146,8 +149,14 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
     ###helas_exporter = None
     helas_exporter = model_handling.PLUGIN_GPUFOHelasCallWriter # this is one of the main fixes for issue #341!
 
+    # Default class for the run_card to use
+    from . import launch_plugin
+    run_card_class = launch_plugin.CPPRunCard
+
+
     # AV (default from OM's tutorial) - add a debug printout
     def __init__(self, *args, **kwargs):
+        self.in_madevent_mode = False # see MR #747
         misc.sprint('Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter)')
         return super().__init__(*args, **kwargs)
 
@@ -196,11 +205,45 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
     # AV (default from OM's tutorial) - add a debug printout
     def finalize(self, matrix_element, cmdhistory, MG5options, outputflag):
         """Typically creating jpeg/HTML output/ compilation/...
-	    cmdhistory is the list of command used so far.
-	    MG5options are all the options of the main interface
-	    outputflags is a list of options provided when doing the output command"""
-        misc.sprint('Entering PLUGIN_ProcessExporter.finalize')
-        return super().finalize(matrix_element, cmdhistory, MG5options, outputflag)
+           cmdhistory is the list of command used so far.
+           MG5options are all the options of the main interface
+           outputflags is a list of options provided when doing the output command"""
+        ###misc.sprint('Entering PLUGIN_ProcessExporter.finalize', self.in_madevent_mode, type(self))
+        if self.in_madevent_mode:
+            self.add_input_for_banner()
+            if 'CUDACPP_CODEGEN_PATCHLEVEL' in os.environ: patchlevel = os.environ['CUDACPP_CODEGEN_PATCHLEVEL']
+            else: patchlevel = ''
+            # OLDEST implementation (AV)
+            #path = os.path.realpath(os.curdir + os.sep + 'PLUGIN' + os.sep + 'CUDACPP_OUTPUT')
+            #misc.sprint(path)
+            #if os.system(path + os.sep + 'patchMad.sh ' + self.dir_path + ' PROD ' + patchlevel) != 0:
+            #    logger.debug("####### \n stdout is \n %s", stdout)
+            #    logger.info("####### \n stderr is \n %s", stderr)
+            #    raise Exception('ERROR! the O/S call to patchMad.sh failed')
+            # OLD implementation (SH PR #762)
+            #if os.system(PLUGINDIR + os.sep + 'patchMad.sh ' + self.dir_path + ' PROD ' + patchlevel) != 0:
+            #    logger.debug("####### \n stdout is \n %s", stdout)
+            #    logger.info("####### \n stderr is \n %s", stderr)
+            #    raise Exception('ERROR! the O/S call to patchMad.sh failed')
+            # NEW implementation (OM PR #764)
+            # **NB** AV: change the Popen call to always dump stdout and stderr, because I want to always see the output
+            # **NB** AV: this also allows error checking by looking for error strings on the generation log if patchMad.sh silently fails
+            # **NB** AV: (e.g. this did happen in the past, when patchMad.sh was calling 'madevent treatcards run', and the latter silently failed)
+            plugin_path = os.path.dirname(os.path.realpath( __file__ ))
+            ###p = subprocess.Popen([pjoin(plugin_path, 'patchMad.sh'), self.dir_path , 'PROD', str(patchlevel)],
+            ###                     stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            p = subprocess.Popen([pjoin(plugin_path, 'patchMad.sh'), self.dir_path , 'PROD', str(patchlevel)]) # AV always dump patchMad.sh stdout/stderr
+            stdout, stderr = p.communicate()
+            misc.sprint(p.returncode)
+            if p.returncode != 0: # AV: WARNING! do not fully trust this check! patchMad.sh was observed to silently fail in the past...
+                logger.debug("####### \n stdout is \n %s", stdout)
+                logger.info("####### \n stderr is \n %s", stderr)
+                logger.info("return code is %s\n", p.returncode)
+                raise Exception('ERROR! the O/S call to patchMad.sh failed')
+            # Additional patching (OM)
+            self.add_madevent_plugin_fct() # Added by OM
+        # do not call standard finalize since is this is already done...
+        #return super().finalize(matrix_element, cmdhistory, MG5options, outputflag)
 
     # AV (default from OM's tutorial) - overload settings and add a debug printout
     def modify_grouping(self, matrix_element):
@@ -211,5 +254,61 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
         # Irrelevant here since group_mode=False so this function is never called
         misc.sprint('Entering PLUGIN_ProcessExporter.modify_grouping')
         return False, matrix_element
+
+    # OM additional fixes for madevent+cudacpp mode
+    def add_input_for_banner(self):
+        # Note: this is only called in madevent mode (self.in_madevent_mode = True)
+        new_parameters = ["{'name':'cudacpp_backend', 'value':'CPP', 'include':False, 'hidden':False}"]
+        finput = open(pjoin(self.dir_path, 'bin', 'internal', 'plugin_run_card'), 'w')
+        for entry in new_parameters:
+            finput.write(entry)
+
+    # OM adding a new way to "patch" python file such that the launch command of MG5aMC is working
+    # this consist in a file plugin_interface.py
+    # which contains a series of functions and one dictionary variable TO_OVERWRITE
+    # that will be used to have temporary overwrite of all the key variable passed as string by their value.
+    # all variable that are file related should be called as madgraph.dir.file.variable
+    def add_madevent_plugin_fct(self):
+        """this consist in a file plugin_interface.py
+        which contains a series of functions and one dictionary variable TO_OVERWRITE
+        that will be used to have temporary overwrite of all the key variable passed as string by their value.
+        all variable that are file related should be called as madgraph.dir.file.variable
+        """
+        plugin_path = os.path.dirname(os.path.realpath( __file__ ))
+        files.cp(pjoin(plugin_path, 'launch_plugin.py'), pjoin(self.dir_path, 'bin', 'internal'))
+        files.ln(pjoin(self.dir_path, 'lib'),  pjoin(self.dir_path, 'SubProcesses'))
+
+#------------------------------------------------------------------------------------
+
+class SIMD_ProcessExporter(PLUGIN_ProcessExporter):
+    def change_output_args(args, cmd):
+        """ """
+        cmd._export_format = "madevent"
+        args.append('--hel_recycling=False')
+        args.append('--me_exporter=standalone_simd')
+        if 'vector_size' not in ''.join(args):
+            args.append('--vector_size=16')
+        return args
+
+#------------------------------------------------------------------------------------
+
+class GPU_ProcessExporter(PLUGIN_ProcessExporter):
+    def change_output_args(args, cmd):
+        """ """
+        cmd._export_format = "madevent"
+        args.append('--hel_recycling=False')
+        args.append('--me_exporter=standalone_cuda')
+        if 'vector_size' not in ''.join(args):
+            args.append('--vector_size=16384')
+        return args
+
+    def finalize(self, matrix_element, cmdhistory, MG5options, outputflag):
+        misc.sprint("enter dedicated function")
+        out = super().finalize(matrix_element, cmdhistory, MG5options, outputflag)
+        # OM change RunCard class to have default for GPU
+        text = open(pjoin(self.dir_path, 'bin', 'internal', 'launch_plugin.py'), 'r').read()
+        text = text.replace('RunCard = CPPRunCard', 'RunCard = GPURunCard')
+        open(pjoin(self.dir_path, 'bin', 'internal', 'launch_plugin.py'), 'w').write(text)
+        return out
 
 #------------------------------------------------------------------------------------

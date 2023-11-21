@@ -48,6 +48,7 @@ function checkProcdir()
     \rm -f $filebak
     \cp $file $filebak
     ../../tools/mg-clang-format/mg-clang-format -i $file
+    if [ "$?" != "0" ]; then echo "ERROR! mg-clang-format failed"; exit 1; fi
     if [ "$quiet" == "0" ]; then
       echo "-----------------------------------------------------------------"
       ###echo "[......] Check formatting in: $file"

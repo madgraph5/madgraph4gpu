@@ -14,13 +14,15 @@
 // ** NB2 Baseline on b7g47n0004 fluctuates (probably depends on load on other VMs)
 
 // Choose if curand is supported for generating random numbers
-// For C++, by default, do not inline, but allow this macro to be set from outside with e.g. -DMGONGPU_HAS_NO_CURAND
-#ifdef __CUDACC__
-#undef MGONGPU_HAS_NO_CURAND
-#else
+// For both CUDA and C++, by default, do not inline, but allow this macro to be set from outside with e.g. -DMGONGPU_HAS_NO_CURAND
+// (there exist CUDA installations, e.g. using the HPC package, which do not include curand - see PR #784)
+//#ifdef __CUDACC__
 //#undef MGONGPU_HAS_NO_CURAND // default
 ////#define MGONGPU_HAS_NO_CURAND 1
-#endif
+//#else
+//#undef MGONGPU_HAS_NO_CURAND // default
+////#define MGONGPU_HAS_NO_CURAND 1
+//#endif
 
 // Choose floating point precision (for everything but color algebra #537)
 // If one of these macros has been set from outside with e.g. -DMGONGPU_FPTYPE_FLOAT, nothing happens (issue #167)
@@ -98,6 +100,7 @@
 #endif
 #endif
 
+// NB: namespace mgOnGpu includes types which are defined in exactly the same way for CPU and GPU builds (see #318 and #725)
 namespace mgOnGpu
 {
 

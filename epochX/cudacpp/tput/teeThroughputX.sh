@@ -9,7 +9,7 @@ cd $scrdir
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggh]> [-sa] [-noalpaka] [-flt|-fltonly|-mix|-mixonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly] [-makeclean] [-makej] [-dlp <dyld_library_path>]"
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggh]> [-sa] [-noalpaka] [-flt|-fltonly|-mix|-mixonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly] [-makeclean] [-makej] [-nofpe] [-dlp <dyld_library_path>]"
   exit 1
 }
 
@@ -30,6 +30,7 @@ rndgen=
 rmbsmp=
 steps="make test"
 makej=
+nofpe=
 dlp=
 dlpset=0
 
@@ -110,6 +111,8 @@ for arg in $*; do
     fi
   elif [ "$arg" == "-makej" ]; then
     makej=-makej
+  elif [ "$arg" == "-nofpe" ]; then
+    nofpe=-nofpe
   else
     echo "ERROR! Invalid option '$arg'"; usage
   fi  
@@ -157,6 +160,7 @@ for step in $steps; do
             args="${args} ${alpaka}" # optionally disable alpaka tests
             args="${args} ${rndgen}" # optionally use common random numbers or curand on host
             args="${args} ${rmbsmp}" # optionally use rambo or bridge on host
+            args="${args} ${nofpe}" # optionally disable FPEs
             args="${args} -avxall" # avx, fptype, helinl and hrdcod are now supported for all processes
             if [ "${step}" == "makeclean" ]; then
               printf "\n%80s\n" |tr " " "*"
@@ -176,7 +180,8 @@ for step in $steps; do
               printf "*** ./throughputX.sh $args | tee $logfile"
               printf "\n%80s\n" |tr " " "*"
               mkdir -p $(dirname $logfile)
-              if ! ./throughputX.sh $args -gtest | tee $logfile; then status=2; fi
+              ./throughputX.sh $args -gtest | tee $logfile 
+              if [ ${PIPESTATUS[0]} -ne "0" ]; then status=2; fi
             fi
           done
         done

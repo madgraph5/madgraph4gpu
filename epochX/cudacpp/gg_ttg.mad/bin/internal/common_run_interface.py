@@ -20,7 +20,6 @@ from __future__ import division
 
 
 from __future__ import absolute_import
-from __future__ import print_function
 import ast
 import logging
 import math
@@ -750,13 +749,15 @@ class CommonRunCmd(HelpToCmd, CheckValidForCmd, cmd.Cmd):
         
     class RunWebHandling(object):
         
-        def __init__(self, me_dir, crashifpresent=True, warnifpresent=True):
+        def __init__(self, me_dir, crashifpresent=True, warnifpresent=True, force_run=False):
             """raise error if RunWeb already exists
             me_dir is the directory where the write RunWeb"""
             
             self.remove_run_web = True
             self.me_dir = me_dir
-            
+            if force_run:
+                self.remove_run_web = False
+                return            
             if crashifpresent or warnifpresent:
                 if os.path.exists(pjoin(me_dir, 'RunWeb')):
                     pid = open(pjoin(me_dir, 'RunWeb')).read()
@@ -1889,11 +1890,7 @@ class CommonRunCmd(HelpToCmd, CheckValidForCmd, cmd.Cmd):
             event_per_job = nb_event // nb_submit
             nb_job_with_plus_one = nb_event % nb_submit
             start_event, stop_event = 0,0
-            if sys.version_info[1] == 6 and sys.version_info[0] == 2:
-                if input.endswith('.gz'):
-                    misc.gunzip(input)
-                    input = input[:-3]
-                    
+
             for i in range(nb_submit):
                 #computing start/stop event
                 event_requested = event_per_job
@@ -2918,7 +2915,18 @@ class CommonRunCmd(HelpToCmd, CheckValidForCmd, cmd.Cmd):
             run_analysis = "{0},{1}".format(run_analysis, analysis)
         run_analysis = run_analysis.split(",", 1)[1]
         if "$CONTUR_" in run_analysis:
-            set_env = "source {0}\n".format(pjoin(self.options['contur_path'], "contur", "data", "share", "analysis-list"))
+            if not os.path.exists(pjoin(self.options['contur_path'], 'conturenv.sh')):
+                raise Exception("contur_path is not correctly setup. Should be the directory of contur and conturenv.sh script")
+            #4 Write Rivet lines
+            shell = 'bash' if misc.get_shell_type() in ['bash',None] else 'tcsh'
+            shell = misc.which(shell)
+            p = subprocess.Popen('source {0} &>/dev/null; echo $CONTUR_USER_DIR'.format(pjoin(self.options['contur_path'], "conturenv.sh"))
+                                 , shell=True, stdout=subprocess.PIPE, executable=shell)
+            (out,_) = p.communicate()                            
+            contur_user_dir = out.decode().strip()
+            # ISSUE HERE TOO FOR DOCKER -> get from env?
+            #set_env = "source {0}\n".format(pjoin(self.options['contur_path'], "contur", "data", "share", "analysis-list"))
+            set_env = "source {0}\n".format(pjoin(contur_user_dir,"analysis-list"))
             #ATLAS_2016_I1469071 sometimes give segmentation errors and also not so safe due to neutrino truth info. Need to force remove this?
             set_env = set_env + "{0}=`echo {1} | sed 's/,ATLAS_2016_I1469071//'`\n".format(run_analysis.replace("$",""), run_analysis)
 
@@ -3117,13 +3125,19 @@ class CommonRunCmd(HelpToCmd, CheckValidForCmd, cmd.Cmd):
             MA5_lvl = MA5_opts['MA5_stdout_lvl']
 
         # Bypass initialization information
-        MA5_interpreter = CommonRunCmd.get_MadAnalysis5_interpreter(
+        try:
+            MA5_interpreter = CommonRunCmd.get_MadAnalysis5_interpreter(
                 self.options['mg5_path'], 
                 self.options['madanalysis5_path'],
                 logstream=sys.stdout,
                 loglevel=100,
                 forced=True,
                 compilation=True)
+        except SystemExit as error:
+            return
+        except Exception as error:
+            logger.warning("MA5 fails with: \n %s", error)
+            return
 
 
         # If failed to start MA5, then just leave
@@ -3907,8 +3921,15 @@ class CommonRunCmd(HelpToCmd, CheckValidForCmd, cmd.Cmd):
                 config_path = pjoin(os.environ['MADGRAPH_BASE'],'mg5_configuration.txt')
                 self.set_configuration(config_path=config_path, final=False)
             if 'HOME' in os.environ:
-                config_path = pjoin(os.environ['HOME'],'.mg5',
-                                                        'mg5_configuration.txt')
+                legacy_config_dir = os.path.join(os.environ['HOME'], '.mg5')
+
+                if os.path.exists(legacy_config_dir):
+                    config_dir = legacy_config_dir
+                else:
+                    config_dir = os.getenv('XDG_CONFIG_HOME', os.path.join(os.environ['HOME'], '.config'))
+
+                config_path = os.path.join(config_dir, 'mg5_configuration.txt')
+
                 if os.path.exists(config_path):
                     self.set_configuration(config_path=config_path,  final=False)
             if amcatnlo:
@@ -4885,6 +4906,7 @@ class AskforEditCard(cmd.OneLinePathCompletion):
         self.load_default()        
         self.define_paths(**opt)
         self.last_editline_pos = 0
+        self.update_dependent_done = False
 
         if 'allow_arg' not in opt or not opt['allow_arg']:
             # add some mininal content for this:
@@ -6555,7 +6577,7 @@ class AskforEditCard(cmd.OneLinePathCompletion):
     fail_due_to_format = 0 #parameter to avoid infinite loop
     def postcmd(self, stop, line):
 
-        if line not in [None, '0', 'done', '']:
+        if line not in [None, '0', 'done', '',0]:
             ending_question = cmd.OneLinePathCompletion.postcmd(self,stop,line)
         else:
             ending_question = True
@@ -6564,7 +6586,9 @@ class AskforEditCard(cmd.OneLinePathCompletion):
             self.check_card_consistency()
             if self.param_consistency:
                 try:
-                    self.do_update('dependent', timer=20)
+                    if not self.update_dependent_done:
+                        self.do_update('dependent', timer=20)
+                    self.update_dependent_done = False
                 except MadGraph5Error as error:
                     if 'Missing block:' in str(error):
                         self.fail_due_to_format +=1
@@ -6617,6 +6641,8 @@ class AskforEditCard(cmd.OneLinePathCompletion):
             self.update_dependent(self.mother_interface, self.me_dir, self.param_card,
                                    self.paths['param'], timer, run_card=self.run_card,
                                    lhapdfconfig=self.lhapdf)
+            self.update_dependent_done = True
+            
 
         elif args[0] == 'missing':
             self.update_missing()
@@ -6696,11 +6722,12 @@ class AskforEditCard(cmd.OneLinePathCompletion):
         def handle_alarm(signum, frame): 
             raise TimeOutError
         signal.signal(signal.SIGALRM, handle_alarm)
+
         if timer:
-            signal.alarm(timer)
             log_level=30
         else:
             log_level=20
+
 
         if run_card:
             as_for_pdf = {'cteq6_m': 0.118,
@@ -6759,6 +6786,10 @@ class AskforEditCard(cmd.OneLinePathCompletion):
                     param_card.get('sminputs').get((3,)).value = as_for_pdf[pdlabel]
                     logger.log(log_level, "update the strong coupling value (alpha_s) to the value from the pdf selected: %s",  as_for_pdf[pdlabel])
                     modify = True
+
+        if timer:
+            signal.alarm(timer)
+
 
         # Try to load the model in the limited amount of time allowed
         try:
@@ -6888,7 +6919,8 @@ class AskforEditCard(cmd.OneLinePathCompletion):
     def check_answer_consistency(self):
         """function called if the code reads a file"""
         self.check_card_consistency()
-        self.do_update('dependent', timer=20) 
+        if not self.update_dependent_done:
+            self.do_update('dependent', timer=20) 
       
     def help_set(self):
         '''help message for set'''
@@ -7495,6 +7527,7 @@ class AskforEditCard(cmd.OneLinePathCompletion):
         elif os.path.basename(answer.replace('_card.dat','')) in self.modified_card:
             self.write_card(os.path.basename(answer.replace('_card.dat','')))
 
+        start = time.time()
         try:
             self.mother_interface.exec_cmd('open %s' % path)
         except InvalidCmd as error:
@@ -7512,6 +7545,9 @@ You can also copy/paste, your event file here.''')
                 self.open_file(path)
             else:
                 raise
+        if time.time() - start < .5:
+            self.mother_interface.ask("Are you really that fast? If you are using an editor that returns directly. Please confirm that you have finised to edit the file", 'y',
+                                      timeout=False)
         self.reload_card(path)
         
     def reload_card(self, path): 

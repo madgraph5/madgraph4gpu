@@ -17,9 +17,14 @@ NLOOP=8192
 host=$(hostname)
 if [ "${host/juwels}" != "${host}" ]; then NLOOP=32; fi # workaround for #498
 
+# These two environment variables used to be input parameters to madevent (#658)
+# (Possible values for FBRIDGEMODE: CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
+unset CUDACPP_RUNTIME_FBRIDGEMODE
+export CUDACPP_RUNTIME_VECSIZEUSED=${NLOOP}
+
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq]> [-d] [-fltonly|-mixonly] [-makeonly|-makeclean|-makecleanonly] [-rmrdat] [+10x] [-checkonly] [-nocleanup]" > /dev/stderr
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gguu][-gqttq]> [-d] [-fltonly|-mixonly] [-makeonly|-makeclean|-makecleanonly] [-rmrdat] [+10x] [-checkonly] [-nocleanup]" > /dev/stderr
   echo "(NB: OMP_NUM_THREADS is taken as-is from the caller's environment)"
   exit 1
 }
@@ -35,6 +40,7 @@ ggtt=0
 ggttg=0
 ggttgg=0
 ggttggg=0
+gguu=0
 gqttq=0
 
 fptype="d"
@@ -68,6 +74,9 @@ while [ "$1" != "" ]; do
     shift
   elif [ "$1" == "-ggttggg" ]; then
     ggttggg=1
+    shift
+  elif [ "$1" == "-gguu" ]; then
+    gguu=1
     shift
   elif [ "$1" == "-gqttq" ]; then
     gqttq=1
@@ -109,7 +118,7 @@ done
 ###exit 1
 
 # Check that at least one process has been selected
-if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ]&& [ "${gqttq}" == "0" ] ; then usage; fi
+if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ] && [ "${gguu}" == "0" ] && [ "${gqttq}" == "0" ]; then usage; fi
 
 # Always test only the .mad/ directories (hardcoded)
 suffs=".mad/"
@@ -140,8 +149,10 @@ function showdir()
     elif [ "${ggttggg}" == "1" ]; then 
       dir=$topdir/epochX/${bckend}/gg_ttggg${suff}SubProcesses/P1_gg_ttxggg
     elif [ "${gqttq}" == "1" ]; then 
-      ###dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_gu_ttxu
-      dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_gux_ttxux # only 1 out of 2 for now
+      dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_gu_ttxu # 1st of two (test only one for now)
+      ###dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_gux_ttxux # 2nd of two (test only one for now)
+    elif [ "${gguu}" == "1" ]; then 
+      dir=$topdir/epochX/${bckend}/gg_uu${suff}SubProcesses/P1_gg_uux
     fi
   else
     echo "INTERNAL ERROR! tmad tests only make sense in .mad directories"; exit 1 # this should never happen (suff=.mad/ is hardcoded)
@@ -162,6 +173,8 @@ function getnevt()
     nevt=8192 # Fortran (x1, x10) computes (8192, 90112) MEs and writes to file (49, 217) events in (5.8s, 58s)
   elif [ "${ggttggg}" == "1" ]; then
     nevt=8192 # Fortran (x1, x10) computes (8192, 90112) MEs and writes to file (14, 97) events in (121s, 1222s)
+  elif [ "${gguu}" == "1" ]; then
+    nevt=8192 # use the same settings as for ggttg
   elif [ "${gqttq}" == "1" ]; then
     nevt=8192 # use the same settings as for ggttg
   else
@@ -183,6 +196,8 @@ function getgridmax()
     echo 16384 32 # same total grid dimension as 2048 256
   elif [ "${ggttggg}" == "1" ]; then
     echo 512 32 # same total grid dimension as 64 256
+  elif [ "${gguu}" == "1" ]; then
+    echo 16384 32 # same total grid dimension as 2048 256
   elif [ "${gqttq}" == "1" ]; then
     echo 16384 32 # same total grid dimension as 2048 256
   else
@@ -206,6 +221,8 @@ function getinputfile()
     tmp=$tmpdir/input_ggttgg
   elif [ "${ggttggg}" == "1" ]; then 
     tmp=$tmpdir/input_ggttggg
+  elif [ "${gguu}" == "1" ]; then 
+    tmp=$tmpdir/input_gguu
   elif [ "${gqttq}" == "1" ]; then 
     tmp=$tmpdir/input_gqttq
   else
@@ -214,15 +231,15 @@ function getinputfile()
   tmp=${tmp}_x${xfac}
   \rm -f ${tmp}; touch ${tmp}
   if [ "$1" == "-fortran" ]; then
+    # Keep the argument but there is nothing to do specific to fortran
+    # Previously fbridge_mode=0 was set here (#658)
     mv ${tmp} ${tmp}_fortran
     tmp=${tmp}_fortran
-    echo "0 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)" >> ${tmp}
-    echo "${NLOOP} ! Number of events in a single Fortran iteration (VECSIZE_USED)" >> ${tmp}
   elif [ "$1" == "-cuda" ] || [ "$1" == "-cpp" ]; then # NB: new script, use the same input for cuda and cpp
+    # Keep the argument but there is nothing to do specific to cuda/cpp
+    # Previously fbridge_mode=1 was set here (#658)
     mv ${tmp} ${tmp}_cudacpp
     tmp=${tmp}_cudacpp
-    echo "+1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)" >> ${tmp}
-    echo "${NLOOP} ! Number of events in a single C++ or CUDA iteration (VECSIZE_USED)" >> ${tmp}
   else
     echo "Usage: getinputfile <backend [-fortran][-cuda][-cpp]>"
     exit 1
@@ -298,18 +315,18 @@ function runcheck()
   $cmd -p $nblk $nthr $nite | egrep "(${pattern})"
 }
 
-# Run madevent (or cmadevent or gmadevent, depending on $1) and parse its output
+# Run madevent_fortran (or madevent_cpp or madevent_cuda, depending on $1) and parse its output
 function runmadevent()
 {
   if [ "$1" == "" ] || [ "$2" != "" ]; then echo "Usage: runmadevent <madevent executable>"; exit 1; fi
   cmd=$1
-  if [ "${cmd/cmadevent}" != "$cmd" ]; then
+  if [ "${cmd/madevent_cpp}" != "$cmd" ]; then
     tmpin=$(getinputfile -cpp)
     cmd=${cmd/.\//.\/build.${avx}_${fptype}_inl0_hrd0\/}
-  elif [ "${cmd/gmadevent}" != "$cmd" ]; then
+  elif [ "${cmd/madevent_cuda}" != "$cmd" ]; then
     cmd=${cmd/.\//.\/build.none_${fptype}_inl0_hrd0\/}
     tmpin=$(getinputfile -cuda)
-  else # assume this is madevent (do not check)
+  else # assume this is madevent_fortran (do not check)
     tmpin=$(getinputfile -fortran)
   fi
   if [ ! -f $tmpin ]; then echo "ERROR! Missing input file $tmpin"; exit 1; fi
@@ -317,17 +334,21 @@ function runmadevent()
   \rm -f ${tmp}; touch ${tmp}  
   set +e # do not fail on error
   if [ "${debug}" == "1" ]; then
+    echo "--------------------"
+    echo CUDACPP_RUNTIME_FBRIDGEMODE = ${CUDACPP_RUNTIME_FBRIDGEMODE:-(not set)}
+    echo CUDACPP_RUNTIME_VECSIZEUSED = ${CUDACPP_RUNTIME_VECSIZEUSED:-(not set)}
     echo "--------------------"; cat ${tmpin}; echo "--------------------"
     echo "Executing '$timecmd $cmd < ${tmpin} > ${tmp}'"
   fi
   $timecmd $cmd < ${tmpin} > ${tmp}
   if [ "$?" != "0" ]; then echo "ERROR! '$timecmd $cmd < ${tmpin} > ${tmp}' failed"; tail -10 $tmp; exit 1; fi
+  cat ${tmp} | grep --binary-files=text '^DEBUG'
   omp=$(cat ${tmp} | grep --binary-files=text 'omp_get_max_threads() =' | awk '{print $NF}')
   if [ "${omp}" == "" ]; then omp=1; fi # _OPENMP not defined in the Fortran #579
   nghel=$(cat ${tmp} | grep --binary-files=text 'NGOODHEL =' | awk '{print $NF}')
   ncomb=$(cat ${tmp} | grep --binary-files=text 'NCOMB =' | awk '{print $NF}')
-  fbm=$(cat ${tmp} | grep --binary-files=text 'FBRIDGE_MODE =' | awk '{print $NF}')
-  nbp=$(cat ${tmp} | grep --binary-files=text 'VECSIZE_USED =' | awk '{print $NF}')
+  fbm=$(cat ${tmp} | grep --binary-files=text 'FBRIDGE_MODE (.*) =' | awk '{print $NF}')
+  nbp=$(cat ${tmp} | grep --binary-files=text 'VECSIZE_USED (.*) =' | awk '{print $NF}')
   mch=$(cat ${tmp} | grep --binary-files=text 'MULTI_CHANNEL =' | awk '{print $NF}')
   conf=$(cat ${tmp} | grep --binary-files=text 'Running Configuration Number:' | awk '{print $NF}')
   chid=$(cat ${tmp} | grep --binary-files=text 'CHANNEL_ID =' | awk '{print $NF}')
@@ -355,7 +376,7 @@ function runmadevent()
   if [ "${evtf}" != "" ] && [ "${evtw}" != "" ]; then
     echo " [UNWEIGHT] Wrote ${evtw} events (found ${evtf} events)"  
   fi
-  if [ "${cmd/cmadevent}" != "$cmd" ] || [ "${cmd/gmadevent}" != "$cmd" ]; then
+  if [ "${cmd/madevent_cpp}" != "$cmd" ] || [ "${cmd/madevent_cuda}" != "$cmd" ]; then # this is madevent_fortran
     # Hack: use awk to convert Fortran's 0.42E-01 into 4.20e-02
     cat ${tmp} | grep --binary-files=text MERATIOS \
       | awk -v sep=" 1 - " '{i=index($0,sep); if(i>0){print substr($0,0,i-1) sep 0+substr($0,i+length(sep))} else print $0}' \
@@ -412,10 +433,14 @@ echo -e "On $HOSTNAME [CPU: $cpuTxt] [GPU: $gpuTxt]:"
 
 for suff in $suffs; do
 
+  # DEFAULT IMPLEMENTATION : compute cross section and then generate events
   dir=$(showdir)
   if [ ! -d $dir ]; then echo "WARNING! Skip missing directory $dir"; continue; fi
   echo "Working directory (run): $dir"
   cd $dir
+
+  # Hardcode randinit (just in case it is disturbed by tlau/lauX.sh tests)
+  echo "r=21" > ../randinit
 
   # Use the time command?
   ###timecmd=time
@@ -425,24 +450,21 @@ for suff in $suffs; do
   ###rdatcmd="stat results.dat"
   rdatcmd="echo"
 
-  # DEFAULT IMPLEMENTATION : compute cross section and then generate events
-  cd $dir
-
-  # (1) MADEVENT
+  # (1) MADEVENT_FORTRAN
   if [ "${checkonly}" == "0" ]; then
     xfac=1
     \rm -f results.dat # ALWAYS remove results.dat before the first madevent execution
     if [ ! -f results.dat ]; then
-      echo -e "\n*** (1) EXECUTE MADEVENT (create results.dat) ***"
+      echo -e "\n*** (1) EXECUTE MADEVENT_FORTRAN (create results.dat) ***"
       \rm -f ftn26
-      runmadevent ./madevent
+      runmadevent ./madevent_fortran
       \cp -p results.dat results.dat.ref
     fi
     for xfac in $xfacs; do
-      echo -e "\n*** (1) EXECUTE MADEVENT x$xfac (create events.lhe) ***"
+      echo -e "\n*** (1) EXECUTE MADEVENT_FORTRAN x$xfac (create events.lhe) ***"
       ${rdatcmd} | grep Modify | sed 's/Modify/results.dat /'
       \rm -f ftn26
-      runmadevent ./madevent
+      runmadevent ./madevent_fortran
       if [ "${xfac}" == "1" ]; then
         xsecref1=$xsecnew
       elif [ "${xfac}" == "10" ]; then
@@ -461,25 +483,25 @@ for suff in $suffs; do
     done
   fi
 
-  # (2) CMADEVENT_CUDACPP
+  # (2) MADEVENT_CPP
   for avx in none sse4 avx2 512y 512z; do
     if [ "$avx" == "512y" ] || [ "$avx" == "512z" ]; then 
-      if ! grep avx512vl /proc/cpuinfo >& /dev/null; then echo -e "\n*** (2-$avx) WARNING! SKIP CMADEVENT_CUDACPP (${avx} is not supported on this node) ***"; continue; fi
+      if ! grep avx512vl /proc/cpuinfo >& /dev/null; then echo -e "\n*** (2-$avx) WARNING! SKIP MADEVENT_CPP (${avx} is not supported on this node) ***"; continue; fi
     fi
     if [ "${checkonly}" == "0" ]; then      
       xfac=1
       if [ "${rmrdat}" == "0" ]; then \cp -p results.dat.ref results.dat; else \rm -f results.dat; fi  
       if [ ! -f results.dat ]; then
-        echo -e "\n*** (2-$avx) EXECUTE CMADEVENT_CUDACPP (create results.dat) ***"
+        echo -e "\n*** (2-$avx) EXECUTE MADEVENT_CPP (create results.dat) ***"
         \rm -f ftn26
-        runmadevent ./cmadevent_cudacpp
+        runmadevent ./madevent_cpp
       fi
       for xfac in $xfacs; do
-        echo -e "\n*** (2-$avx) EXECUTE CMADEVENT_CUDACPP x$xfac (create events.lhe) ***"
+        echo -e "\n*** (2-$avx) EXECUTE MADEVENT_CPP x$xfac (create events.lhe) ***"
         ${rdatcmd} | grep Modify | sed 's/Modify/results.dat /'
         \rm -f ftn26
-        runmadevent ./cmadevent_cudacpp
-        echo -e "\n*** (2-$avx) Compare CMADEVENT_CUDACPP x$xfac xsec to MADEVENT xsec ***"
+        runmadevent ./madevent_cpp
+        echo -e "\n*** (2-$avx) Compare MADEVENT_CPP x$xfac xsec to MADEVENT_FORTRAN xsec ***"
         if [ "${xfac}" == "1" ]; then
           xsecref=$xsecref1
         elif [ "${xfac}" == "10" ]; then
@@ -494,7 +516,7 @@ for suff in $suffs; do
           echo -e "\nERROR! xsec from fortran ($xsecref) and cpp ($xsecnew) differ by more than ${xsecthr} ($delta)"
           exit 1
         fi
-        echo -e "\n*** (2-$avx) Compare CMADEVENT_CUDACPP x$xfac events.lhe to MADEVENT events.lhe reference (including colors and helicities) ***"
+        echo -e "\n*** (2-$avx) Compare MADEVENT_CPP x$xfac events.lhe to MADEVENT_FORTRAN events.lhe reference (including colors and helicities) ***"
 	\cp events.lhe events.lhe0
 	if [ "${fptype}" == "f" ]; then
 	  ${scrdir}/lheFloat.sh events.lhe0 events.lhe
@@ -509,22 +531,22 @@ for suff in $suffs; do
     runcheck ./check.exe
   done
 
-  # (3) GMADEVENT_CUDACPP
+  # (3) MADEVENT_CUDA
   if [ "$gpuTxt" == "none" ]; then continue; fi
   if [ "${checkonly}" == "0" ]; then      
     xfac=1
     if [ "${rmrdat}" == "0" ]; then \cp -p results.dat.ref results.dat; else \rm -f results.dat; fi  
     if [ ! -f results.dat ]; then
-      echo -e "\n*** (3) EXECUTE GMADEVENT_CUDACPP (create results.dat) ***"
+      echo -e "\n*** (3) EXECUTE MADEVENT_CUDA (create results.dat) ***"
       \rm -f ftn26
-      runmadevent ./gmadevent_cudacpp
+      runmadevent ./madevent_cuda
     fi
     for xfac in $xfacs; do
-      echo -e "\n*** (3) EXECUTE GMADEVENT_CUDACPP x$xfac (create events.lhe) ***"
+      echo -e "\n*** (3) EXECUTE MADEVENT_CUDA x$xfac (create events.lhe) ***"
       ${rdatcmd} | grep Modify | sed 's/Modify/results.dat /'
       \rm -f ftn26
-      runmadevent ./gmadevent_cudacpp
-      echo -e "\n*** (3) Compare GMADEVENT_CUDACPP x$xfac xsec to MADEVENT xsec ***"
+      runmadevent ./madevent_cuda
+      echo -e "\n*** (3) Compare MADEVENT_CUDA x$xfac xsec to MADEVENT_FORTRAN xsec ***"
       if [ "${xfac}" == "1" ]; then
         xsecref=$xsecref1
       elif [ "${xfac}" == "10" ]; then
@@ -539,7 +561,7 @@ for suff in $suffs; do
         echo -e "\nERROR! xsec from fortran ($xsecref) and cpp ($xsecnew) differ by more than ${xsecthr} ($delta)"
         exit 1
       fi
-      echo -e "\n*** (3) Compare GMADEVENT_CUDACPP x$xfac events.lhe to MADEVENT events.lhe reference (including colors and helicities) ***"
+      echo -e "\n*** (3) Compare MADEVENT_CUDA x$xfac events.lhe to MADEVENT_FORTRAN events.lhe reference (including colors and helicities) ***"
       \cp events.lhe events.lhe0
       if [ "${fptype}" == "f" ]; then
         ${scrdir}/lheFloat.sh events.lhe0 events.lhe
