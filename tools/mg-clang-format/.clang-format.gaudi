@@ -112,4 +112,8 @@ SpacesInParentheses: true
 Standard:        Cpp11
 TabWidth:        8
 UseTab:          Never
+---
+Language: ObjC
+# Don't format Objective-C, Objective-C++ files.
+DisableFormat: true
 ...

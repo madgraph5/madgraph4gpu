@@ -1,0 +1,152 @@
+Processing files in BMKTST.none
+Workdir BMKTST.none/check-test.none.j001.t001/ 1 1
+-> Processing files in BMKTST.none/check-test.none.j001.t001/
+Workdir BMKTST.none/check-test.none.j002.t001/ 2 1
+-> Processing files in BMKTST.none/check-test.none.j002.t001/
+Workdir BMKTST.none/check-test.none.j004.t001/ 4 1
+-> Processing files in BMKTST.none/check-test.none.j004.t001/
+Workdir BMKTST.none/check-test.none.j008.t001/ 8 1
+-> Processing files in BMKTST.none/check-test.none.j008.t001/
+Workdir BMKTST.none/check-test.none.j016.t001/ 16 1
+-> Processing files in BMKTST.none/check-test.none.j016.t001/
+Workdir BMKTST.none/check-test.none.j032.t001/ 32 1
+-> Processing files in BMKTST.none/check-test.none.j032.t001/
+Workdir BMKTST.none/check-test.none.j048.t001/ 48 1
+-> Processing files in BMKTST.none/check-test.none.j048.t001/
+Processed files
+njob nthr  tput[Mev/s]    njob*nthr   tput/tput1     maxPSS[GB]
+   1    1     0.001888            1     1.000000       0.010010
+   2    1     0.003766            2     1.994514       0.019465
+   4    1     0.007324            4     3.879125       0.037264
+   8    1     0.013370            8     7.081012       0.072808
+  16    1     0.024398           16    12.921600       0.143188
+  32    1     0.025579           32    13.546871       0.286141
+  48    1     0.025781           48    13.654141       0.428315
+Processing files in BMKTST.sse4
+Workdir BMKTST.sse4/check-test.sse4.j001.t001/ 1 1
+-> Processing files in BMKTST.sse4/check-test.sse4.j001.t001/
+Workdir BMKTST.sse4/check-test.sse4.j002.t001/ 2 1
+-> Processing files in BMKTST.sse4/check-test.sse4.j002.t001/
+Workdir BMKTST.sse4/check-test.sse4.j004.t001/ 4 1
+-> Processing files in BMKTST.sse4/check-test.sse4.j004.t001/
+Workdir BMKTST.sse4/check-test.sse4.j008.t001/ 8 1
+-> Processing files in BMKTST.sse4/check-test.sse4.j008.t001/
+Workdir BMKTST.sse4/check-test.sse4.j016.t001/ 16 1
+-> Processing files in BMKTST.sse4/check-test.sse4.j016.t001/
+Workdir BMKTST.sse4/check-test.sse4.j032.t001/ 32 1
+-> Processing files in BMKTST.sse4/check-test.sse4.j032.t001/
+Workdir BMKTST.sse4/check-test.sse4.j048.t001/ 48 1
+-> Processing files in BMKTST.sse4/check-test.sse4.j048.t001/
+Processed files
+njob nthr  tput[Mev/s]    njob*nthr   tput/tput1     maxPSS[GB]
+   1    1     0.003761            1     1.000000       0.010018
+   2    1     0.007471            2     1.986454       0.018926
+   4    1     0.014390            4     3.826130       0.037846
+   8    1     0.026772            8     7.118303       0.072606
+  16    1     0.048397           16    12.868108       0.143177
+  32    1     0.049867           32    13.258985       0.286236
+  48    1     0.049769           48    13.232877       0.428962
+Processing files in BMKTST.avx2
+Workdir BMKTST.avx2/check-test.avx2.j001.t001/ 1 1
+-> Processing files in BMKTST.avx2/check-test.avx2.j001.t001/
+Workdir BMKTST.avx2/check-test.avx2.j002.t001/ 2 1
+-> Processing files in BMKTST.avx2/check-test.avx2.j002.t001/
+Workdir BMKTST.avx2/check-test.avx2.j004.t001/ 4 1
+-> Processing files in BMKTST.avx2/check-test.avx2.j004.t001/
+Workdir BMKTST.avx2/check-test.avx2.j008.t001/ 8 1
+-> Processing files in BMKTST.avx2/check-test.avx2.j008.t001/
+Workdir BMKTST.avx2/check-test.avx2.j016.t001/ 16 1
+-> Processing files in BMKTST.avx2/check-test.avx2.j016.t001/
+Workdir BMKTST.avx2/check-test.avx2.j032.t001/ 32 1
+-> Processing files in BMKTST.avx2/check-test.avx2.j032.t001/
+Workdir BMKTST.avx2/check-test.avx2.j048.t001/ 48 1
+-> Processing files in BMKTST.avx2/check-test.avx2.j048.t001/
+Processed files
+njob nthr  tput[Mev/s]    njob*nthr   tput/tput1     maxPSS[GB]
+   1    1     0.007278            1     1.000000       0.010018
+   2    1     0.014556            2     1.999984       0.018934
+   4    1     0.028300            4     3.888526       0.036744
+   8    1     0.051972            8     7.140987       0.072408
+  16    1     0.094845           16    13.031849       0.143363
+  32    1     0.111337           32    15.297844       0.286067
+  48    1     0.114178           48    15.688260       0.429082
+Plot successfully saved on BMKTST.none/pmpe-simd.png
+Processing files in BMKTST.none
+Workdir BMKTST.none/check-test.none.j001.t001/ 1 1
+-> Processing files in BMKTST.none/check-test.none.j001.t001/
+Workdir BMKTST.none/check-test.none.j002.t001/ 2 1
+-> Processing files in BMKTST.none/check-test.none.j002.t001/
+Workdir BMKTST.none/check-test.none.j004.t001/ 4 1
+-> Processing files in BMKTST.none/check-test.none.j004.t001/
+Workdir BMKTST.none/check-test.none.j008.t001/ 8 1
+-> Processing files in BMKTST.none/check-test.none.j008.t001/
+Workdir BMKTST.none/check-test.none.j016.t001/ 16 1
+-> Processing files in BMKTST.none/check-test.none.j016.t001/
+Workdir BMKTST.none/check-test.none.j032.t001/ 32 1
+-> Processing files in BMKTST.none/check-test.none.j032.t001/
+Workdir BMKTST.none/check-test.none.j048.t001/ 48 1
+-> Processing files in BMKTST.none/check-test.none.j048.t001/
+Processed files
+njob nthr  tput[Mev/s]    njob*nthr   tput/tput1     maxPSS[GB]
+   1    1     0.001888            1     1.000000       0.010010
+   2    1     0.003766            2     1.994514       0.019465
+   4    1     0.007324            4     3.879125       0.037264
+   8    1     0.013370            8     7.081012       0.072808
+  16    1     0.024398           16    12.921600       0.143188
+  32    1     0.025579           32    13.546871       0.286141
+  48    1     0.025781           48    13.654141       0.428315
+Processing files in BMKTST.sse4
+Workdir BMKTST.sse4/check-test.sse4.j001.t001/ 1 1
+-> Processing files in BMKTST.sse4/check-test.sse4.j001.t001/
+Workdir BMKTST.sse4/check-test.sse4.j002.t001/ 2 1
+-> Processing files in BMKTST.sse4/check-test.sse4.j002.t001/
+Workdir BMKTST.sse4/check-test.sse4.j004.t001/ 4 1
+-> Processing files in BMKTST.sse4/check-test.sse4.j004.t001/
+Workdir BMKTST.sse4/check-test.sse4.j008.t001/ 8 1
+-> Processing files in BMKTST.sse4/check-test.sse4.j008.t001/
+Workdir BMKTST.sse4/check-test.sse4.j016.t001/ 16 1
+-> Processing files in BMKTST.sse4/check-test.sse4.j016.t001/
+Workdir BMKTST.sse4/check-test.sse4.j032.t001/ 32 1
+-> Processing files in BMKTST.sse4/check-test.sse4.j032.t001/
+Workdir BMKTST.sse4/check-test.sse4.j048.t001/ 48 1
+-> Processing files in BMKTST.sse4/check-test.sse4.j048.t001/
+Processed files
+njob nthr  tput[Mev/s]    njob*nthr   tput/tput1     maxPSS[GB]
+   1    1     0.003761            1     1.000000       0.010018
+   2    1     0.007471            2     1.986454       0.018926
+   4    1     0.014390            4     3.826130       0.037846
+   8    1     0.026772            8     7.118303       0.072606
+  16    1     0.048397           16    12.868108       0.143177
+  32    1     0.049867           32    13.258985       0.286236
+  48    1     0.049769           48    13.232877       0.428962
+Processing files in BMKTST.avx2
+Workdir BMKTST.avx2/check-test.avx2.j001.t001/ 1 1
+-> Processing files in BMKTST.avx2/check-test.avx2.j001.t001/
+Workdir BMKTST.avx2/check-test.avx2.j002.t001/ 2 1
+-> Processing files in BMKTST.avx2/check-test.avx2.j002.t001/
+Workdir BMKTST.avx2/check-test.avx2.j004.t001/ 4 1
+-> Processing files in BMKTST.avx2/check-test.avx2.j004.t001/
+Workdir BMKTST.avx2/check-test.avx2.j008.t001/ 8 1
+-> Processing files in BMKTST.avx2/check-test.avx2.j008.t001/
+Workdir BMKTST.avx2/check-test.avx2.j016.t001/ 16 1
+-> Processing files in BMKTST.avx2/check-test.avx2.j016.t001/
+Workdir BMKTST.avx2/check-test.avx2.j032.t001/ 32 1
+-> Processing files in BMKTST.avx2/check-test.avx2.j032.t001/
+Workdir BMKTST.avx2/check-test.avx2.j048.t001/ 48 1
+-> Processing files in BMKTST.avx2/check-test.avx2.j048.t001/
+Processed files
+njob nthr  tput[Mev/s]    njob*nthr   tput/tput1     maxPSS[GB]
+   1    1     0.007278            1     1.000000       0.010018
+   2    1     0.014556            2     1.999984       0.018934
+   4    1     0.028300            4     3.888526       0.036744
+   8    1     0.051972            8     7.140987       0.072408
+  16    1     0.094845           16    13.031849       0.143363
+  32    1     0.111337           32    15.297844       0.286067
+  48    1     0.114178           48    15.688260       0.429082
+none [0.0018881495211592195, 0.0037659415819345137, 0.007324368185302089, 0.013370009991282942, 0.024397913293134225, 0.025578517132859226, 0.025781060702626046]
+none [1.0, 1.9945144914277941, 3.879125092172431, 7.081012304086222, 12.921600233309517, 13.546870545059074, 13.654141482819592]
+sse4 [0.0037610310128272416, 0.007471115007940853, 0.014390194089268837, 0.026772157475034558, 0.04839735468109539, 0.04986745244553516, 0.04976925949523443]
+sse4 [1.9919137603669101, 3.956845008415436, 7.621321260846997, 14.179045237157878, 25.63216214539095, 26.41075396132786, 26.3587491019667]
+avx2 [0.007277922419674663, 0.014555729425034695, 0.028300390054478767, 0.05197154576505401, 0.09484478463299868, 0.11133652365360547, 0.11417794156393242]
+avx2 [3.8545265288134707, 7.708991932004559, 14.98842635995474, 27.525121915740204, 50.2316069623391, 58.96594650261119, 60.470815623666006]
+Plot successfully saved on BMKTST.none/pmpe-simd-ratios.png

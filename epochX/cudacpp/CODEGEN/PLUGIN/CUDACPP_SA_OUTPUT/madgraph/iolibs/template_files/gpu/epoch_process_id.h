@@ -1,4 +1,9 @@
-#ifndef EPOCH_PROCESS_ID_H 
+// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Created by: A. Valassi (Oct 2021) for the MG5aMC CUDACPP plugin.
+// Further modified by: A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
+
+#ifndef EPOCH_PROCESS_ID_H
 #define EPOCH_PROCESS_ID_H 1
 
 // No need to indicate EPOCHX_ any longer for auto-generated code
@@ -6,6 +11,6 @@
 #define MG_EPOCH_PROCESS_ID %(processid_uppercase)s
 
 // For simplicity, define here the name of the process-dependent reference file for tests
-#define MG_EPOCH_REFERENCE_FILE_NAME "../../../../../test/ref/dump_CPUTest.%(processid)s.txt"
+#define MG_EPOCH_REFERENCE_FILE_NAME "../../test/ref/dump_CPUTest.%(processid)s.txt"
 
 #endif // EPOCH_PROCESS_ID_H

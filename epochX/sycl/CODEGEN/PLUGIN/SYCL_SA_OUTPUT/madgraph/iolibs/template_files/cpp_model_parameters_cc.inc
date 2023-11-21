@@ -1,75 +1,87 @@
 //==========================================================================
-// This file has been automatically generated for CUDA/C++ standalone by
+// This file has been automatically generated for SYCL standalone by
 %(info_lines)s
 //==========================================================================
 
-#include <iostream>
-#include <iomanip>
 #include "Parameters_%(model_name)s.h"
 
-#include "extras.h"
-#include "mgOnGpuTypes.h"
-#ifndef MGONGPU_HARDCODE_CIPC
+#include <iomanip>
+#include <iostream>
+
+#ifndef MGONGPU_HARDCODE_PARAM
 
 // Initialize static instance
 Parameters_%(model_name)s* Parameters_%(model_name)s::instance = 0;
 
 // Function to get static instance - only one instance per program
-Parameters_%(model_name)s* Parameters_%(model_name)s::getInstance()
+Parameters_%(model_name)s*
+Parameters_%(model_name)s::getInstance()
 {
-  if (instance == 0)
+  if( instance == 0 )
     instance = new Parameters_%(model_name)s();
   return instance;
 }
 
-void Parameters_%(model_name)s::setIndependentParameters(SLHAReader& slha)
+void
+Parameters_%(model_name)s::setIndependentParameters( SLHAReader& slha )
 {
-  // Define "zero"
-  zero = 0;
-  ZERO = 0;
-  // Prepare a vector for indices
-  std::vector<int> indices(2, 0);
+  zero = 0; // define "zero"
+  ZERO = 0; // define "zero"
+  //std::vector<int> indices(2, 0); // prepare a vector for indices
   %(set_independent_parameters)s
 }
 
-void Parameters_%(model_name)s::setIndependentCouplings()
+void
+Parameters_%(model_name)s::setIndependentCouplings()
 {
   %(set_independent_couplings)s
 }
 
-void Parameters_%(model_name)s::setDependentParameters()
+/*
+void
+Parameters_%(model_name)s::setDependentParameters() // now computed event-by-event (running alphas #373)
 {
   %(set_dependent_parameters)s
 }
 
-void Parameters_%(model_name)s::setDependentCouplings()
+void
+Parameters_%(model_name)s::setDependentCouplings() // now computed event-by-event (running alphas #373)
 {
   %(set_dependent_couplings)s
 }
+*/
 
 #endif
 
 // Routines for printing out parameters
-void Parameters_%(model_name)s::printIndependentParameters()
+void
+Parameters_%(model_name)s::printIndependentParameters()
 {
   std::cout << "%(model_name)s model parameters independent of event kinematics:" << std::endl;
+  std::cout << "(Warning: aS in the runcard is ignored because event-by-event Gs are hardcoded or retrieved from Fortran)" << std::endl;
   %(print_independent_parameters)s
 }
 
-void Parameters_%(model_name)s::printIndependentCouplings()
+void
+Parameters_%(model_name)s::printIndependentCouplings()
 {
   std::cout << "%(model_name)s model couplings independent of event kinematics:" << std::endl;
   %(print_independent_couplings)s
 }
 
-void Parameters_%(model_name)s::printDependentParameters()
+/*
+void
+Parameters_%(model_name)s::printDependentParameters() // now computed event-by-event (running alphas #373)
 {
   std::cout << "%(model_name)s model parameters dependent on event kinematics:" << std::endl;
   %(print_dependent_parameters)s
 }
 
-void Parameters_%(model_name)s::printDependentCouplings()
+void
+Parameters_%(model_name)s::printDependentCouplings() // now computed event-by-event (running alphas #373)
 {
   std::cout << "%(model_name)s model couplings dependent on event kinematics:" << std::endl;
   %(print_dependent_couplings)s
 }
+*/
+

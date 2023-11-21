@@ -14,6 +14,3 @@
 namespace %(namespace)s_%(model_name)s
 {
 %(function_declarations)s
-} // end namespace %(namespace)s_%(model_name)s
-
-#endif // HelAmps_%(model_name)s_H

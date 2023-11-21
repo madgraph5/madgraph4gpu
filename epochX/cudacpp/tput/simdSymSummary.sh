@@ -1,4 +1,7 @@
 #!/bin/bash
+# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Licensed under the GNU Lesser General Public License (version 3 or later).
+# Created by: A. Valassi (Apr 2021) for the MG5aMC CUDACPP plugin.
 
 #----------------------------------------------------------------------------------------------
 
@@ -19,32 +22,46 @@ function stripSyms() {
 
 function mainSummarizeSyms() {
 
-  # Command line arguments: HelAmps functions only?
-  helamps=0
-  if [ "$1" == "-helamps" ]; then
-    helamps=1
-    shift
-  fi
-
-  # Command line arguments: strip dir when showing the file name?
-  stripdir=0
-  if [ "$1" == "-stripdir" ]; then
-    stripdir=1
-    shift
-  fi
-
-  # Command line arguments: select file
-  if [ "$1" == "" ] || [ "$2" != "" ]; then
+  function usage(){
     echo "Usage:   $0 [-helamps] [-stripdir] <filename>"
     echo "Example: $0 ./check.exe"
     exit 1
-  fi
-  file=$1
+  }
+
+  # Command line arguments
+  helamps=0 # HelAmps functions only?
+  stripdir=0 # strip dir when showing the file name?
+  dumptotmp=0 # dump to /tmp instead of in situ
+  file= # select file
+  while [ "$1" != "" ]; do
+    if [ "$1" == "-helamps" ]; then
+      helamps=1
+      shift
+    elif [ "$1" == "-stripdir" ]; then
+      stripdir=1
+      shift
+    elif [ "$1" == "-dumptotmp" ]; then
+      dumptotmp=1
+      shift
+    elif [ "$file" == "" ]; then
+      file=$1
+      shift
+    elif [ "$1" == "-h" ]; then
+      usage
+    else
+      usage
+    fi
+  done
+  if [ ! -f $file ]; then echo "ERROR! File '$file' not found"; usage; fi
 
   # Disassemble selected file
   # Use cut -f3- to print only the assembly code after two leading fields separated by tabs
-  objdump -d -C $file > ${file}.objdump # unnecessary but useful for debugging
-  dumptmp=${file}.objdump.tmp
+  if [ "$dumptotmp" == "0" ]; then
+    objdump -d -C ${file} > ${file}.objdump # unnecessary but useful for debugging
+    dumptmp=${file}.objdump.tmp
+  else
+    dumptmp=$(mktemp -d)/$(basename ${file}).objdump.tmp
+  fi
   if [ "$helamps" == "0" ]; then
     objdump -d -C $file | awk '/^ +[[:xdigit:]]+:\t/' | cut -f3- > ${dumptmp}
   else
@@ -53,9 +70,15 @@ function mainSummarizeSyms() {
   ###ls -l $dumptmp
 
   unamep=$(uname -p)
+  #--- ARM ---
+  if [ "${unamep}" == "arm" ]; then 
+
+    # FIXME: classifying objdump symbols for ARM has not been done yet
+    return
+
   #--- PPC ---
   # See https://cdn.openpowerfoundation.org/wp-content/uploads/resources/Intrinsics-Reference_final/Intrinsics-Reference-20200811.pdf
-  if [ "${unamep}" == "ppc64le" ]; then 
+  elif [ "${unamep}" == "ppc64le" ]; then 
 
     # Exclude all instructions not involving "vs" registers
     cat $dumptmp | grep " vs" > ${dumptmp}.new

@@ -1,3 +1,11 @@
+! Copyright (C) 2010 The MadGraph5_aMC@NLO development team and contributors.
+! Created by: J. Alwall (Jul 2010) for the MG5aMC CPP backend.
+!==========================================================================
+! Copyright (C) 2020-2023 CERN and UCLouvain.
+! Licensed under the GNU Lesser General Public License (version 3 or later).
+! Modified by: A. Valassi (Sep 2021) for the MG5aMC CUDACPP plugin.
+! Further modified by: A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
+!==========================================================================
   //==========================================================================
   // A class for calculating the matrix elements for
   %(process_lines)s
@@ -5,10 +13,10 @@
 
   class CPPProcess
   {
-  public:
+  public: /* clang-format off */
 
     // Constructor (from command line arguments)
-    CPPProcess( int numiterations, int gpublocks, int gputhreads, bool verbose = false, bool debug = false );
+    CPPProcess( bool verbose = false, bool debug = false );
 
     // Destructor
     ~CPPProcess();
@@ -27,34 +35,42 @@
     //int getNIOParticles() const { return nexternal; } // nexternal was nioparticles
 
     // Accessors (unused so far: add four of them only to fix a clang build warning)
-    int numiterations() const { return m_numiterations; }
-    int gpublocks() const { return m_ngpublocks; }
-    int gputhreads() const { return m_ngputhreads; }
     //bool verbose() const { return m_verbose; }
     bool debug() const { return m_debug; }
 
   public:
 
-    // Hardcoded parameters for this process (constant class variables)
-    //static const int ninitial = mgOnGpu::npari;
-    //static const int nexternal = %(nexternal)d; // mgOnGpu::npar (nexternal was nioparticles)
-    //static const int nprocesses = %(nprocesses)d; // FIXME: assume process.nprocesses == 1
-    //static const int nwavefuncs = %(nwavefuncs)d; // mgOnGpu::nwf
-    //static const int namplitudes = %(namp)d;
-    //static const int ncomb = %(ncomb)d; // mgOnGpu::ncomb
-    //static const int wrows = %(sizew)d; // mgOnGpu::nw6;
+    // Process-independent compile-time constants
+    static constexpr int np4 = 4; // dimensions of 4-momenta (E,px,py,pz)
+    static constexpr int nw6 = 6; // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
 
-  private:
+    // Process-dependent compile-time constants
+    static constexpr int npari = %(nincoming)d; // #particles in the initial state (incoming): e.g. 2 (e+ e-) for e+ e- -> mu+ mu-
+    static constexpr int nparf = %(noutcoming)d; // #particles in the final state (outgoing): e.g. 2 (mu+ mu-) for e+ e- -> mu+ mu-
+    static constexpr int npar = npari + nparf; // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
+    static constexpr int ncomb = %(nbhel)d; // #helicity combinations: e.g. 16 for e+ e- -> mu+ mu- (2**4 = fermion spin up/down ** npar)
+
+    // Hardcoded parameters for this process (constant class variables)
+    // [NB: this class assumes nprocesses==1 i.e. a single DSIG1 and no DSIG2 in Fortran (#272 and #343)]
+    // [NB: these parameters (e.g. nwf) are P1-specific, i.e. they are different for different P1 subdirectories (#644)]
+    // [NB: I am currently unable to get the right value of nwf in CPPProcess.h - will hardcode it in CPPProcess.cc instead (#644)]
+    //static const int nwf = ??; // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
+
+    // Other variables of this instance (???)
+    //static const int ninitial = CPPProcess::npari;
+    //static const int nexternal = %(nexternal)d; // CPPProcess::npar (nexternal was nioparticles)
+    //static const int nwavefuncs = %(nwavefuncs)d; // (?!?! this should be nwf but export_cpp gives the wrong value here)
+    //static const int namplitudes = %(namp)d;
+    //static const int ncomb = %(ncomb)d; // CPPProcess::ncomb
+
+  private: /* clang-format on */
 
     // Command line arguments (constructor)
-    int m_numiterations; // number of iterations (each iteration has nblocks*nthreads events)
-    int m_ngpublocks; // number of GPU blocks in one grid (i.e. one iteration)
-    int m_ngputhreads; // number of GPU threads in a block
     bool m_verbose;
     bool m_debug;
 
     // Physics model parameters to be read from file (initProc function)
-#ifndef MGONGPU_HARDCODE_CIPC
+#ifndef MGONGPU_HARDCODE_PARAM
     Parameters_%(model_name)s* m_pars;
 #endif
     std::vector<fptype> m_masses; // external particle masses
@@ -62,5 +78,4 @@
     // Other variables of this instance (???)
     //int id1, id2; // initial particle ids
     //cxtype** amp; // ???
-
   };

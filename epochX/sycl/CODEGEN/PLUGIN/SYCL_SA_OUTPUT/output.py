@@ -1,7 +1,17 @@
 import os
 pjoin = os.path.join
 
-import madgraph.iolibs.export_cpp as export_cpp
+# AV - load an independent 2nd copy of the export_cpp module (as PLUGIN_export_cpp) and use that within the plugin (workaround for #341)
+# See https://stackoverflow.com/a/11285504
+###import madgraph.iolibs.export_cpp as export_cpp # 1st copy
+######import madgraph.iolibs.export_cpp as PLUGIN_export_cpp # this is not enough to define an independent 2nd copy: id(export_cpp)==id(PLUGIN_export_cpp)
+import sys
+import importlib.util
+SPEC_EXPORTCPP = importlib.util.find_spec('madgraph.iolibs.export_cpp')
+PLUGIN_export_cpp = importlib.util.module_from_spec(SPEC_EXPORTCPP)
+SPEC_EXPORTCPP.loader.exec_module(PLUGIN_export_cpp)
+sys.modules['PLUGIN.SYCL_SA_OUTPUT.PLUGIN_export_cpp'] = PLUGIN_export_cpp # allow 'import PLUGIN.SYCL_SA_OUTPUT.PLUGIN_export_cpp' in model_handling.py
+del SPEC_EXPORTCPP
 
 # AV - use template files from PLUGINDIR instead of MG5DIR
 ###from madgraph import MG5DIR
@@ -9,6 +19,10 @@ PLUGINDIR = os.path.dirname( __file__ )
 
 # AV - model_handling includes custom UFOModelConverter and OneProcessExporter, plus additional patches
 import PLUGIN.SYCL_SA_OUTPUT.model_handling as model_handling
+
+# AV - create a plugin-specific logger
+import logging
+logger = logging.getLogger('madgraph.PLUGIN.SYCL_SA_OUTPUT.output')
 
 #------------------------------------------------------------------------------------
 
@@ -38,25 +52,25 @@ misc.make_unique = PLUGIN_make_unique
 #------------------------------------------------------------------------------------
 
 # AV - modify madgraph.iolibs.files.cp (preserve symlinks)
-def PLUGIN_cp(path1, path2, log=True, error=False):
-    """ simple cp taking linux or mix entry"""
-    from madgraph.iolibs.files import format_path
-    path1 = format_path(path1)
-    path2 = format_path(path2)
-    try:
-        import shutil
-        ###shutil.copy(path1, path2)
-        shutil.copy(path1, path2, follow_symlinks=False) # AV
-    except:
-        from madgraph.iolibs.files import cp
-        cp(path1, path2, log=log, error=error)
-
-DEFAULT_cp = export_cpp.cp
-export_cpp.cp = PLUGIN_cp
+# def PLUGIN_cp(path1, path2, log=True, error=False):
+#     """ simple cp taking linux or mix entry"""
+#     from madgraph.iolibs.files import format_path
+#     path1 = format_path(path1)
+#     path2 = format_path(path2)
+#     try:
+#         import shutil
+#         ###shutil.copy(path1, path2)
+#         shutil.copy(path1, path2, follow_symlinks=False) # AV
+#     except:
+#         from madgraph.iolibs.files import cp
+#         cp(path1, path2, log=log, error=error)
+# 
+# DEFAULT_cp = export_cpp.cp
+# export_cpp.cp = PLUGIN_cp
 
 #------------------------------------------------------------------------------------
 
-class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
+class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
     # Class structure information
     #  - object
     #  - VirtualExporter(object) [in madgraph/iolibs/export_v4.py]
@@ -100,19 +114,29 @@ class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
     # [NB: mgOnGpuConfig.h and check_sa.cu are handled through dedicated methods]
     ###s = MG5DIR + '/madgraph/iolibs/template_files/'
     s = PLUGINDIR + '/madgraph/iolibs/template_files/'
-    from_template = {'src': [s+'gpu/rambo.h', s+'gpu/rambo.cc', s+'read_slha.h', s+'read_slha.cc',
-                             s+'gpu/mgOnGpuTypes.h', s+'gpu/mgOnGpuVectors.h', s+'gpu/extras.h', s+'gpu/CommonRandomNumbers.h'],
-                    'SubProcesses': [s+'gpu/timer.h', s+'gpu/timermap.h',
-                                     s+'gpu/Memory.h', s+'gpu/MemoryAccess.h', 
-                                     s+'gpu/MadgraphTest.h', s+'gpu/runTest.cc',
-                                     s+'gpu/perf.py', s+'gpu/profile.sh']}
-    to_link_in_P = ['timer.h', 'timermap.h', 'Memory.h', 'MemoryAccess.h', 'runTest.cc', 'perf.py', 'profile.sh']
+    from_template = {'.': [s+'CMake/CMakeLists.txt'],
+                     'CMake': [s+'CMake/Compilers.txt', s+'CMake/Platforms.txt', s+'CMake/Macros.txt'],
+                     'src': [s+'gpu/rambo.h', s+'read_slha.h', s+'read_slha.cc',
+                             s+'gpu/mgOnGpuTypes.h', s+'gpu/mgOnGpuCxtypes.h', s+'gpu/mgOnGpuVectors.h', s+'gpu/extras.h',
+                             s+'CMake/src/CMakeLists.txt'],
+                     'SubProcesses': [s+'gpu/timer.h', s+'gpu/timermap.h', s+'gpu/Memory.h', 
+                                      s+'gpu/runTest.cc', s+'gpu/testxxx.cc', s+'gpu/testxxx_cc_ref.txt',
+                                      s+'gpu/Bridge.h',
+                                      s+'gpu/fbridge.cc', s+'gpu/fbridge.inc', s+'gpu/fsampler.cc', s+'gpu/fsampler.inc',
+                                      s+'gpu/perf.py', s+'gpu/profile.sh',
+                                      s+'CMake/SubProcesses/CMakeLists.txt']}
+    to_link_in_P = ['timer.h', 'timermap.h', 'Memory.h', 'runTest.cc', 'testxxx.cc', 'testxxx_cc_ref.txt', 'perf.py', 'profile.sh',
+                    'Bridge.h',
+                    'fbridge.cc', 'fbridge.inc', 'fsampler.cc', 'fsampler.inc',
+
+                    'sycl.mk' # this is generated from a template in Subprocesses but we still link it in Sigma
+                   ]
 
     # AV - use template files from PLUGINDIR instead of MG5DIR
     ###template_src_make = pjoin(MG5DIR, 'madgraph' ,'iolibs', 'template_files','gpu','Makefile_src')
     ###template_Sub_make = pjoin(MG5DIR, 'madgraph', 'iolibs', 'template_files','gpu','Makefile')
-    #template_src_make = pjoin(PLUGINDIR, 'madgraph' ,'iolibs', 'template_files','gpu','Makefile_src')
-    #template_Sub_make = pjoin(PLUGINDIR, 'madgraph', 'iolibs', 'template_files','gpu','Makefile')
+    template_src_make = pjoin(PLUGINDIR, 'madgraph' ,'iolibs', 'template_files','gpu','sycl_src.mk')
+    template_Sub_make = pjoin(PLUGINDIR, 'madgraph', 'iolibs', 'template_files','gpu','sycl.mk')
 
     # AV - use a custom UFOModelConverter (model/aloha exporter)
     ###create_model_class =  export_cpp.UFOModelConverterGPU
@@ -129,10 +153,30 @@ class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
         misc.sprint('Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter)')
         return super().__init__(*args, **kwargs)
 
-    # AV (default from OM's tutorial) - add a debug printout
+    # AV - overload the default version: create CMake directory, do not create lib directory
     def copy_template(self, model):
         misc.sprint('Entering PLUGIN_ProcessExporter.copy_template (initialise the directory)')
-        return super().copy_template(model)
+        try: os.mkdir(self.dir_path)
+        except os.error as error: logger.warning(error.strerror + ' ' + self.dir_path)
+        with misc.chdir(self.dir_path):
+            logger.info('Creating subdirectories in directory %s' % self.dir_path)
+            for d in ['src', 'Cards', 'SubProcesses', 'CMake']: # AV - added CMake, removed lib
+                try: os.mkdir(d)
+                except os.error as error: logger.warning(error.strerror + ' ' + os.path.join(self.dir_path,d))
+            # Write param_card
+            open(os.path.join('Cards','param_card.dat'), 'w').write(model.write_param_card())
+            # Copy files in various subdirectories
+            for key in self.from_template:
+                for f in self.from_template[key]:
+                    PLUGIN_export_cpp.cp(f, key) # NB this assumes directory key exists...
+            # Copy src makefile
+            if self.template_src_make:
+                makefile_src = self.read_template_file(self.template_src_make) % {'model': self.get_model_name(model.get('name'))}
+                open(os.path.join('src', 'sycl_src.mk'), 'w').write(makefile_src)
+            # Copy SubProcesses makefile
+            if self.template_Sub_make:
+                makefile = self.read_template_file(self.template_Sub_make) % {'model': self.get_model_name(model.get('name'))}
+                open(os.path.join('SubProcesses', 'sycl.mk'), 'w').write(makefile)
 
     # AV - add debug printouts (in addition to the default one from OM's tutorial)
     def generate_subprocess_directory(self, subproc_group, fortran_model, me=None):
