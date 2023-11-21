@@ -1,3 +1,11 @@
+// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Created by: S. Hageboeck (Nov 2020) for the MG5aMC CUDACPP plugin.
+// Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
+//----------------------------------------------------------------------------
+// Use ./runTest.exe --gtest_filter=*xxx to run only testxxx.cc tests
+//----------------------------------------------------------------------------
+
 #include "mgOnGpuConfig.h"
 
 #include "CPPProcess.h"
@@ -19,8 +27,8 @@ using namespace mg5amcCpu;
 struct CUDA_CPU_TestBase : public TestDriverBase
 {
   static constexpr int neppM = MemoryAccessMomenta::neppM; // AOSOA layout
-  static constexpr int np4 = mgOnGpu::np4;
-  static constexpr int npar = mgOnGpu::npar;
+  static constexpr int np4 = CPPProcess::np4;
+  static constexpr int npar = CPPProcess::npar;
   static_assert( gputhreads % neppM == 0, "ERROR! #threads/block should be a multiple of neppM" );
   static_assert( gputhreads <= mgOnGpu::ntpbMAX, "ERROR! #threads/block should be <= ntpbMAX" );
   CUDA_CPU_TestBase( const std::string& refFileName )
@@ -61,8 +69,10 @@ struct CPUTest : public CUDA_CPU_TestBase
     , hstMatrixElements( nevt )
     , hstSelHel( nevt )
     , hstSelCol( nevt )
-    , hstIsGoodHel( mgOnGpu::ncomb )
+    , hstIsGoodHel( CPPProcess::ncomb )
   {
+    // FIXME: the process instance can happily go out of scope because it is only needed to read parameters?
+    // FIXME: the CPPProcess should really be a singleton?
     process.initProc( "../../Cards/param_card.dat" );
   }
 
@@ -163,7 +173,7 @@ struct CUDATest : public CUDA_CPU_TestBase
     , hstMatrixElements( nevt )
     , hstSelHel( nevt )
     , hstSelCol( nevt )
-    , hstIsGoodHel( mgOnGpu::ncomb )
+    , hstIsGoodHel( CPPProcess::ncomb )
     , devRndmom( nevt )
     , devMomenta( nevt )
     , devGs( nevt )
@@ -173,8 +183,10 @@ struct CUDATest : public CUDA_CPU_TestBase
     , devMatrixElements( nevt )
     , devSelHel( nevt )
     , devSelCol( nevt )
-    , devIsGoodHel( mgOnGpu::ncomb )
+    , devIsGoodHel( CPPProcess::ncomb )
   {
+    // FIXME: the process instance can happily go out of scope because it is only needed to read parameters?
+    // FIXME: the CPPProcess should really be a singleton?
     process.initProc( "../../Cards/param_card.dat" );
   }
 

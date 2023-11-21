@@ -19,8 +19,8 @@
 and call immediately the command line interface scripts"""
 
 import sys
-if sys.version_info[1] < 7:
-    sys.exit('MadGraph/MadEvent 5 works only with python 2.7/3.7 or later.\n\
+if sys.version_info < (3, 7):
+    sys.exit('MadGraph/MadEvent 5 works only with python 3.7 or later.\n\
                Please upgrate your version of python.')
 
 try:
@@ -32,6 +32,7 @@ except ImportError:
 
     
 import os
+pjoin = os.path.join 
 import optparse
 
 # Get the directory of the script real path (bin)
@@ -116,11 +117,19 @@ else:
     else:
         readline.__doc__ = 'GNU'
         readline.parse_and_bind("tab: complete")
-        
+
     # charge history file
     try:
-        history_file = os.path.join(os.environ['HOME'], '.mg5', 'me5history')
+        legacy_state_dir = os.path.join(os.environ['HOME'], '.mg5')
+
+        if os.path.exists(legacy_state_dir):
+            state_dir = legacy_state_dir
+        else:
+            state_dir = os.getenv('XDG_STATE_HOME', os.path.join(os.environ['HOME'], '.local', 'state'))
+
+        history_file = os.path.join(state_dir, "me5history")
         readline.read_history_file(history_file)
+
     except:
         pass
 
@@ -152,13 +161,30 @@ except:
     pass
 import internal.madevent_interface as cmd_interface
 
+# check for plugin customization of the launch command
+launch_interface = cmd_interface.MadEventCmdShell
+if os.path.exists(pjoin(root_path, 'bin','internal', 'launch_plugin.py')):
+    with  misc.TMP_variable(sys, 'path', sys.path + [pjoin(root_path, 'bin', 'internal')]):
+        from importlib import reload
+        try:
+            reload('launch_plugin')
+        except Exception as error:
+            import launch_plugin
+    launch_interface =  launch_plugin.MEINTERFACE
+
+
+#Source use this executable for compilation always allow it
+force_run = False
+if (args and args[0] == 'treatcards'):
+    force_run=True    
+
 # Call the cmd interface main loop
 try:
     if '-h' in args or '--help' in args:
-        launch = ME.MadEventCmdShell(me_dir=os.path.dirname(root_path), force_run=True)
+        launch = launch_interface(me_dir=os.path.dirname(root_path), force_run=True)
         launch.exec_cmd('help generate_events')
         sys.exit(0)
-    with cmd_interface.MadEventCmdShell.RunWebHandling(os.path.dirname(root_path), ):
+    with cmd_interface.MadEventCmdShell.RunWebHandling(os.path.dirname(root_path), force_run=force_run):
         if (args and os.path.isfile(args[0])):
             # They are an input file 
             input_file = args[0]
@@ -170,7 +196,7 @@ try:
                 cmd_line.run_cmd('import command ' + input_file)
                 cmd_line.run_cmd('quit')      
             else:
-                cmd_line = cmd_interface.MadEventCmdShell(force_run=True)
+                cmd_line = launch_interface(force_run=True)
                 cmd_line.use_rawinput = False
                 cmd_line.haspiping = False
                 cmd_line.run_cmd('import command ' + input_file)
@@ -180,7 +206,7 @@ try:
             if options.web:
                 cmd_line = cmd_interface.MadEventCmd(force_run=True)
             else:
-                cmd_line = cmd_interface.MadEventCmdShell(force_run=True)
+                cmd_line = launch_interface(force_run=True)
             if not hasattr(cmd_line, 'do_%s' % args[0]):
                 if parser_error:
                     print( parser_error)
@@ -206,20 +232,19 @@ except cmd_interface.MadEventAlreadyRunning  as  error:
     logging.error(str(error))
     sys.exit(1)
 
-try: 
+try:
     readline.set_history_length(100)
-    if not os.path.exists(os.path.join(os.environ['HOME'], '.mg5')):
-        os.mkdir(os.path.join(os.environ['HOME'], '.mg5'))
+    if not os.path.exists(state_dir):
+        os.mkdir(state_dir)
     readline.write_history_file(history_file)
 except:
     pass
-    
+
 try:
     if cmd_line.history[-1] not in ['EOF','quit','exit']:
         cmd_line.results.store_result()
 except:
     pass
-
 
 #try:
 #    # Remove lock file

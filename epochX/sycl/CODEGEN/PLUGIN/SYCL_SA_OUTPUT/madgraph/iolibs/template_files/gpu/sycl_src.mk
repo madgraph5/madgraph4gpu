@@ -1,3 +1,12 @@
+# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Licensed under the GNU Lesser General Public License (version 3 or later).
+# Created by: S. Roiser (Feb 2020) for the MG5aMC CUDACPP plugin.
+# Further modified by: O. Mattelaer, S. Roiser, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
+#
+# Copyright (C) 2021-2023 Argonne National Laboratory.
+# Licensed under the GNU Lesser General Public License (version 3 or later).
+# Modified by: N. Nichols for the MG5aMC SYCL plugin.
+
 #=== Configure common compiler flags for SYCL build
 
 INCFLAGS = -I.
@@ -83,8 +92,10 @@ else ifeq ($(CXTYPE),thrust)
   CXXFLAGS += -DMGONGPU_COMPLEX_CUTHRUST
 else ifeq ($(CXTYPE),cucomplex)
   CXXFLAGS += -DMGONGPU_COMPLEX_CUCOMPLEX
+else ifeq ($(CXTYPE),syclcplx)
+  CXXFLAGS += -DMGONGPU_COMPLEX_SYCLCPLX
 else
-  $(error Unknown CXTYPE='$(CXTYPE)': only 'smpl', 'extras', 'std', 'oneapi', 'thrust', and 'cucomplex' are supported)
+  $(error Unknown CXTYPE='$(CXTYPE)': only 'smpl', 'extras', 'std', 'oneapi', 'thrust', 'cucomplex', and 'syclcplx' are supported)
 endif
 
 #-------------------------------------------------------------------------------
@@ -156,7 +167,7 @@ $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so : $(cxx_objects)
 #-------------------------------------------------------------------------------
 
 # Target (and build rules): install libraries and headers (for use by MadEvent in Fortran)
-INSTALL_HEADERS=Parameters_%(model)s.h mgOnGpuConfig.h mgOnGpuFptypes.h mgOnGpuCxtypes.h mgOnGpuVectors.h read_slha.h extras.h
+INSTALL_HEADERS=Parameters_%(model)s.h mgOnGpuConfig.h mgOnGpuFptypes.h mgOnGpuCxtypes.h mgOnGpuVectors.h read_slha.h extras.h sycl_ext_complex.hpp
 INSTALL_INC_DIR=../include
 
 install: all.$(TAG) $(INSTALL_INC_DIR) $(addprefix $(INSTALL_INC_DIR)/, $(INSTALL_HEADERS))

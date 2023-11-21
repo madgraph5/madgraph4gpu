@@ -1,3 +1,16 @@
+// Copyright (C) 2010 The MadGraph5_aMC@NLO development team and contributors.
+// Created by: J. Alwall (Oct 2010) for the MG5aMC CPP backend.
+//==========================================================================
+// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Modified by: O. Mattelaer (Nov 2020) for the MG5aMC CUDACPP plugin.
+// Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
+//==========================================================================
+// Copyright (C) 2021-2023 Argonne National Laboratory.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Modified by: N. Nichols (2021-2023) for the MG5aMC SYCL plugin.
+//==========================================================================
+
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -395,26 +408,23 @@ int main(int argc, char **argv)
   const fptype energy = 1500; // historical default, Ecms = 1500 GeV = 1.5 TeV (above the Z peak)
   //const fptype energy = 91.2; // Ecms = 91.2 GeV (Z peak)
   //const fptype energy = 0.100; // Ecms = 100 MeV (well below the Z peak, pure em scattering)
-  const int meGeVexponent = -(2 * mgOnGpu::npar - 8);
+  const int meGeVexponent = -(2 * CPPPROCESS_NPAR - 8);
 
   // --- 0b. Allocate memory structures
   const std::string alloKey = "0b MemAlloc";
   timermap.start( alloKey );
 
   // Memory structures for random numbers, momenta, matrix elements and weights on host and device
-  static constexpr size_t np4 =  mgOnGpu::np4;
-  static constexpr size_t nparf = mgOnGpu::nparf;
-  static constexpr size_t npar = mgOnGpu::npar;
-  static constexpr size_t ncomb = mgOnGpu::ncomb; // Number of helicity combinations
-  const size_t nRnarray = np4*nparf*nevt; // (NB: AOSOA layout with nevt=npagR*neppR events per iteration)
-  const size_t nMomenta = np4*npar*nevt; // (NB: nevt=npagM*neppM for AOSOA layouts)
+
+  const size_t nRnarray = CPPPROCESS_NP4*CPPPROCESS_NPARF*nevt; // (NB: AOSOA layout with nevt=npagR*neppR events per iteration)
+  const size_t nMomenta = CPPPROCESS_NP4*CPPPROCESS_NPAR*nevt; // (NB: nevt=npagM*neppM for AOSOA layouts)
   const size_t nWeights = nevt;
   const size_t nMEs     = nevt; // FIXME: assume process.nprocesses == 1 (eventually: nMEs = nevt * nprocesses?)
 
-  auto hstRnarray   = hstMakeUnique<fptype   >( nRnarray ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
-  auto hstMomenta   = hstMakeUnique<fptype   >( nMomenta );   // AOSOA[npagM][npar][np4][neppM] (NB: nevt=npagM*neppM)
-  auto hstMomenta2  = hstMakeUnique<fptype   >( nMomenta );   // AOSOA[npagM][npar][np4][neppM] (NB: nevt=npagM*neppM)
-  auto hstIsGoodHel = hstMakeUnique<bool     >( ncomb );
+  auto hstRnarray   = hstMakeUnique<fptype   >( nRnarray ); // AOSOA[npagR][CPPPROCESS_NPARF][CPPPROCESS_NP4][neppR] (NB: nevt=npagR*neppR)
+  auto hstMomenta   = hstMakeUnique<fptype   >( nMomenta );   // AOSOA[npagM][CPPPROCESS_NPAR][CPPPROCESS_NP4][neppM] (NB: nevt=npagM*neppM)
+  auto hstMomenta2  = hstMakeUnique<fptype   >( nMomenta );   // AOSOA[npagM][CPPPROCESS_NPAR][CPPPROCESS_NP4][neppM] (NB: nevt=npagM*neppM)
+  auto hstIsGoodHel = hstMakeUnique<bool     >( CPPPROCESS_NCOMB );
   auto hstWeights   = hstMakeUnique<fptype   >( nWeights );
   auto hstMEs       = hstMakeUnique<fptype   >( nMEs ); // AOSOA[npagM][neppM] (NB: nevt=npagM*neppM)
 
@@ -423,7 +433,7 @@ int main(int argc, char **argv)
   auto devMomenta   = sycl::malloc_device<vector4   >( nMomenta/MGONGPU_VEC_DIM/MGONGPU_FOURVECTOR_DIM,   q );
   auto devRndHel    = sycl::malloc_device<fptype_sv >( nMEs/MGONGPU_VEC_DIM,       q );
   auto devRndCol    = sycl::malloc_device<fptype_sv >( nMEs/MGONGPU_VEC_DIM,       q );
-  auto devIsGoodHel = sycl::malloc_device<bool      >( ncomb,      q );
+  auto devIsGoodHel = sycl::malloc_device<bool      >( CPPPROCESS_NCOMB,      q );
   auto devWeights   = sycl::malloc_device<fptype    >( nWeights,   q );
   auto devMEs       = sycl::malloc_device<fptype_sv >( nMEs/MGONGPU_VEC_DIM,       q );
   auto devSelHel    = sycl::malloc_device<int_sv    >( nMEs/MGONGPU_VEC_DIM,       q );
@@ -433,7 +443,7 @@ int main(int argc, char **argv)
   auto dev_independent_parameters = sycl::malloc_device<fptype>( mgOnGpu::nparams,          q );
 #endif
   auto devcNGoodHel = sycl::malloc_device<size_t   >( 1,          q ); 
-  auto devcGoodHel  = sycl::malloc_device<size_t   >( ncomb,      q ); 
+  auto devcGoodHel  = sycl::malloc_device<size_t   >( CPPPROCESS_NCOMB,      q ); 
 
 #ifndef MGONGPU_HARDCODE_PARAM
   q.memcpy( dev_independent_couplings, process.get_tIPC_ptr(), 2*Proc::independentCouplings::nicoup*sizeof(fptype) );
@@ -442,11 +452,11 @@ int main(int argc, char **argv)
 
   const size_t nbytesRnarray   = nRnarray * sizeof(fptype);
   const size_t nbytesMomenta   = nMomenta * sizeof(fptype);
-  const size_t nbytesIsGoodHel = ncomb    * sizeof(bool);
+  const size_t nbytesIsGoodHel = CPPPROCESS_NCOMB    * sizeof(bool);
   const size_t nbytesWeights   = nWeights * sizeof(fptype);
   const size_t nbytesMEs       = nMEs     * sizeof(fptype);
   const size_t nbytescNGoodHel =            sizeof(size_t);
-  const size_t nbytescGoodHel  = ncomb    * sizeof(size_t);
+  const size_t nbytescGoodHel  = CPPPROCESS_NCOMB    * sizeof(size_t);
 
   constexpr fptype fixedG = 1.2177157847767195; // fixed G for aS=0.118 (hardcoded for now in check_sa.cc, fcheck_sa.f, runTest.cc)
   std::unique_ptr<double[]> genrtimes( new double[niter] );
@@ -468,7 +478,7 @@ int main(int argc, char **argv)
       //fptype* _momenta;
       if (bridge) {
           //Initialize bridge object
-          pbridge = new mg5amcGpu::Bridge<fptype>( nevt, npar, np4 );
+          pbridge = new mg5amcGpu::Bridge<fptype>( nevt, CPPPROCESS_NPAR, CPPPROCESS_NP4 );
       
           _gs      = reinterpret_cast<fptype*>(std::malloc(nevt*sizeof(fptype)));
           _mes     = reinterpret_cast<fptype*>(std::malloc(nevt*sizeof(fptype)));
@@ -476,8 +486,8 @@ int main(int argc, char **argv)
           _rndcol  = reinterpret_cast<fptype*>(std::malloc(nevt*sizeof(fptype)));
           _selhel  = reinterpret_cast<int*>(std::malloc(nevt*sizeof(int)));
           _selcol  = reinterpret_cast<int*>(std::malloc(nevt*sizeof(int)));
-          //_momenta = reinterpret_cast<fptype*>(std::malloc(nevt*npar*np4*sizeof(fptype)));
-          //for (size_t i=0; i < nevt*npar*np4; i++) {
+          //_momenta = reinterpret_cast<fptype*>(std::malloc(nevt*CPPPROCESS_NPAR*CPPPROCESS_NP4*sizeof(fptype)));
+          //for (size_t i=0; i < nevt*CPPPROCESS_NPAR*CPPPROCESS_NP4; i++) {
           //    _momenta[i] = hstMomenta[i];
           //}
           for (size_t i=0; i < nevt; i++) {
@@ -624,7 +634,7 @@ int main(int argc, char **argv)
                       }
                   #endif
 
-                  Proc::sigmaKin_getGoodHel( devMomenta + npar*ievt, devIsGoodHel, dev_helicities, dev_couplings, dev_parameters );
+                  Proc::sigmaKin_getGoodHel( devMomenta + CPPPROCESS_NPAR*ievt, devIsGoodHel, dev_helicities, dev_couplings, dev_parameters );
               });
           }));
       });
@@ -634,7 +644,7 @@ int main(int argc, char **argv)
       q.memcpy(hstIsGoodHel.get(), devIsGoodHel, nbytesIsGoodHel).wait();
 
       // ... 0d3. Copy back good helicity list to constant memory on the device
-      size_t goodHel[mgOnGpu::ncomb] = {0};
+      size_t goodHel[CPPPROCESS_NCOMB] = {0};
       size_t nGoodHel = Proc::sigmaKin_setGoodHel( hstIsGoodHel.get(), goodHel );
 
       q.memcpy( devcNGoodHel, &nGoodHel, nbytescNGoodHel ).wait();
@@ -687,9 +697,9 @@ int main(int argc, char **argv)
                 #endif
 
                 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                    devMEs[ievt] = Proc::sigmaKin( devMomenta + npar*ievt, devRndHel + ievt, devRndCol + ievt, devSelHel + ievt, devSelCol + ievt, 1, dev_helicities, dev_couplings, dev_parameters, devcNGoodHel, devcGoodHel );
+                    devMEs[ievt] = Proc::sigmaKin( devMomenta + CPPPROCESS_NPAR*ievt, devRndHel + ievt, devRndCol + ievt, devSelHel + ievt, devSelCol + ievt, 0, dev_helicities, dev_couplings, dev_parameters, devcNGoodHel, devcGoodHel );
                 #else
-                    devMEs[ievt] = Proc::sigmaKin( devMomenta + npar*ievt, devRndHel + ievt, devRndCol + ievt, devSelHel + ievt, devSelCol + ievt, dev_helicities, dev_couplings, dev_parameters, devcNGoodHel, devcGoodHel );
+                    devMEs[ievt] = Proc::sigmaKin( devMomenta + CPPPROCESS_NPAR*ievt, devRndHel + ievt, devRndCol + ievt, devSelHel + ievt, devSelCol + ievt, dev_helicities, dev_couplings, dev_parameters, devcNGoodHel, devcGoodHel );
                 #endif
             });
         }));
@@ -745,15 +755,15 @@ int main(int argc, char **argv)
       {
         // Display momenta
         std::cout << "Momenta:" << std::endl;
-        for (size_t ipar = 0; ipar < npar; ipar++)
+        for (size_t ipar = 0; ipar < CPPPROCESS_NPAR; ipar++)
         {
           // NB: 'setw' affects only the next field (of any type)
           std::cout << std::scientific // fixed format: affects all floats (default precision: 6)
                     << std::setw(4) << ipar + 1
-                    << std::setw(14) << hstMomenta[npar*np4*ievt + ipar*np4 + 0] // AOSOA[ipagM][ipar][0][ieppM]
-                    << std::setw(14) << hstMomenta[npar*np4*ievt + ipar*np4 + 1] // AOSOA[ipagM][ipar][1][ieppM]
-                    << std::setw(14) << hstMomenta[npar*np4*ievt + ipar*np4 + 2] // AOSOA[ipagM][ipar][2][ieppM]
-                    << std::setw(14) << hstMomenta[npar*np4*ievt + ipar*np4 + 3] // AOSOA[ipagM][ipar][3][ieppM]
+                    << std::setw(14) << hstMomenta[CPPPROCESS_NPAR*CPPPROCESS_NP4*ievt + ipar*CPPPROCESS_NP4 + 0] // AOSOA[ipagM][ipar][0][ieppM]
+                    << std::setw(14) << hstMomenta[CPPPROCESS_NPAR*CPPPROCESS_NP4*ievt + ipar*CPPPROCESS_NP4 + 1] // AOSOA[ipagM][ipar][1][ieppM]
+                    << std::setw(14) << hstMomenta[CPPPROCESS_NPAR*CPPPROCESS_NP4*ievt + ipar*CPPPROCESS_NP4 + 2] // AOSOA[ipagM][ipar][2][ieppM]
+                    << std::setw(14) << hstMomenta[CPPPROCESS_NPAR*CPPPROCESS_NP4*ievt + ipar*CPPPROCESS_NP4 + 3] // AOSOA[ipagM][ipar][3][ieppM]
                     << std::endl
                     << std::defaultfloat; // default format: affects all floats
         }

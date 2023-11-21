@@ -1,3 +1,11 @@
+// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Created by: A. Valassi (Apr 2021) for the MG5aMC CUDACPP plugin.
+// Further modified by: A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
+//
+// Copyright (C) 2021-2023 Argonne National Laboratory.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Modified by: N. Nichols (2021-2023) for the MG5aMC SYCL plugin.
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
 #include "mgOnGpuVectors.h"
@@ -25,14 +33,12 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
   constexpr fptype toleranceXXXs = std::is_same<fptype, double>::value ? 1.E-15 : 1.E-5;
   // Constant parameters
   using mgOnGpu::neppM;
-  using mgOnGpu::np4;
-  using mgOnGpu::npar;
   const int nevt = 16; // 12 independent tests plus 4 duplicates (need a multiple of 8 for floats or for '512z')
   assert( nevt % neppM == 0 ); // nevt must be a multiple of neppM
   // Fill in the input momenta
-  const int nMomenta = np4 * npar * nevt;
-  auto hstMomenta = hstMakeUnique<fptype_sv>( nMomenta ); // AOSOA[npagM][npar=4][np4=4][neppM]
-  const fptype par0[np4 * nevt] =                         // AOS[nevt][np4]
+  const int nMomenta = CPPPROCESS_NP4*CPPPROCESS_NPAR*nevt;
+  auto hstMomenta = hstMakeUnique<fptype_sv>( nMomenta ); // AOSOA[npagM][CPPPROCESS_NPAR=4][CPPPROCESS_NP4=4][neppM]
+  const fptype par0[CPPPROCESS_NP4* nevt] =                         // AOS[nevt][CPPPROCESS_NP4]
     { 500, 0,    0,    500,  // #0 (m=0 pT=0 E=pz>0)
       500, 0,    0,    -500, // #1 (m=0 pT=0 -E=pz<0)
       500, 300,  400,  0,    // #2 (m=0 pT>0 pz=0)
@@ -56,10 +62,10 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
   bool isptgt0[nevt]{};
   for ( int ievt = 0; ievt < nevt; ievt++ )
   {
-    const fptype p0 = par0[ievt * np4 + 0];
-    const fptype p1 = par0[ievt * np4 + 1];
-    const fptype p2 = par0[ievt * np4 + 2];
-    const fptype p3 = par0[ievt * np4 + 3];
+    const fptype p0 = par0[ievt * CPPPROCESS_NP4 + 0];
+    const fptype p1 = par0[ievt * CPPPROCESS_NP4 + 1];
+    const fptype p2 = par0[ievt * CPPPROCESS_NP4 + 2];
+    const fptype p3 = par0[ievt * CPPPROCESS_NP4 + 3];
     mass0[ievt] = sqrt( p0 * p0 - p1 * p1 - p2 * p2 - p3 * p3 );
     ispzgt0[ievt] = ( p3 > 0 );
     ispzlt0[ievt] = ( p3 < 0 );
@@ -68,14 +74,14 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
   const int ipar = 0; // use only particle0 for this test
   for ( int ievt = 0; ievt < nevt; ievt++ )
   {
-    for ( int ip4 = 0; ip4 < np4; ip4++ )
+    for ( int ip4 = 0; ip4 < CPPPROCESS_NP4; ip4++ )
     {
       const int ipagM = ievt/neppM; // #eventpage in this iteration
       const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
 #ifdef MGONGPU_CPPSIMD
-      hstMomenta[ipagM*npar*np4 + ipar*np4 + ip4][ieppM] = par0[ievt*np4 + ip4]; // AOS to AOSOA
+      hstMomenta[ipagM*CPPPROCESS_NPAR*CPPPROCESS_NP4 + ipar*CPPPROCESS_NP4 + ip4][ieppM] = par0[ievt*CPPPROCESS_NP4 + ip4]; // AOS to AOSOA
 #else
-      hstMomenta[ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM] = par0[ievt*np4 + ip4]; // AOS to AOSOA
+      hstMomenta[ipagM*CPPPROCESS_NPAR*CPPPROCESS_NP4*neppM + ipar*CPPPROCESS_NP4*neppM + ip4*neppM + ieppM] = par0[ievt*CPPPROCESS_NP4 + ip4]; // AOS to AOSOA
 #endif
     }
   }
@@ -86,7 +92,6 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
   // Compute the output wavefunctions
   // Dump new reference file if requested
   using namespace MG5_sm;
-  using mgOnGpu::nw6; // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
   int itest = 0; // index on the expected output vector
   std::ofstream dumpFile;
   if ( dumpEvents ) dumpFile.open( dumpFileName, std::ios::trunc );
@@ -94,7 +99,7 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
     out << std::setprecision(15) << std::scientific;
     out << "  expwfs.push_back( {";
     out << "                                   // ---------" << std::endl;
-    for ( int iw6 = 0; iw6<nw6; iw6++ )
+    for ( int iw6 = 0; iw6<CPPPROCESS_NW6; iw6++ )
     {
 #ifdef MGONGPU_CPPSIMD
       const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
@@ -109,7 +114,7 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
       out << std::setw(26) << wf[iw6].real();
       out << ", " << std::setw(22) << wf[iw6].imag();
 #endif
-      if ( iw6 < nw6-1 ) out << ",    ";
+      if ( iw6 < CPPPROCESS_NW6 - 1 ) out << ",    ";
       else out << " } );";
       out << " // itest=" << itest << ": " << xxx << "#" << ievt;
       out << " nsp=" << nsp << " mass=" << (int)mass << std::endl;
@@ -122,7 +127,7 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
     {
       //std::cout << "Testing " << std::setw(3) << itest << ": " << xxx << " #" << ievt << std::endl;
       std::array<fptype, 12>& expwf = expwfs[itest];
-      for ( int iw6 = 0; iw6<nw6; iw6++ )
+      for ( int iw6 = 0; iw6 < CPPPROCESS_NW6; iw6++ )
       {
         const fptype expReal = expwf[iw6*2];
         const fptype expImag = expwf[iw6*2+1];
@@ -158,10 +163,10 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
       const std::string xxxFull( xxx[0] == 'i' ? "ixxxxx" : "oxxxxx" );
       //std::cout << "Testing " << std::setw(3) << itest << ": ";
       //std::cout << xxx << " #" << ievt << " against " << xxxFull << std::endl;
-      ////for ( int iw6 = 0; iw6<nw6; iw6++ ) std::cout << wf[iw6] << std::endl;
+      ////for ( int iw6 = 0; iw6 < CPPPROCESS_NW6; iw6++ ) std::cout << wf[iw6] << std::endl;
       ////std::cout << "against" << std::endl;
-      ////for ( int iw6 = 0; iw6<nw6; iw6++ ) std::cout << expwf[iw6] << std::endl;
-      for ( int iw6 = 0; iw6<nw6; iw6++ )
+      ////for ( int iw6 = 0; iw6 < CPPPROCESS_NW6; iw6++ ) std::cout << expwf[iw6] << std::endl;
+      for ( int iw6 = 0; iw6 < CPPPROCESS_NW6; iw6++ )
       {
         if ( true )
         {
@@ -205,7 +210,7 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
       if ( false )
       {
         std::cout << std::endl;
-        for ( int ip4 = 0; ip4 < np4; ip4++ ) std::cout << par0[ievt * np4 + ip4] << ", ";
+        for ( int ip4 = 0; ip4 < CPPPROCESS_NP4; ip4++ ) std::cout << par0[ievt * CPPPROCESS_NP4 + ip4] << ", ";
         std::cout << std::endl;
       }
       // Test ixxxxx - NO ASSUMPTIONS

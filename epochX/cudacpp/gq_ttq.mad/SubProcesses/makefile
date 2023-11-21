@@ -4,7 +4,16 @@ include ../../Source/make_opts
 FFLAGS+= -w
 
 # Enable the C preprocessor https://gcc.gnu.org/onlinedocs/gfortran/Preprocessing-Options.html
-FFLAGS+= -cpp 
+FFLAGS+= -cpp
+
+# Compile counters with -O3 as in the cudacpp makefile (avoid being "unfair" to Fortran #740)
+CXXFLAGS = -O3 -Wall -Wshadow -Wextra
+
+# Add -std=c++17 explicitly to avoid build errors on macOS
+# Add -mmacosx-version-min=11.3 to avoid "ld: warning: object file was built for newer macOS version than being linked"
+ifneq ($(shell $(CXX) --version | egrep '^Apple clang'),)
+CXXFLAGS += -std=c++17 -mmacosx-version-min=11.3
+endif
 
 # Enable ccache if USECCACHE=1
 ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
@@ -48,7 +57,7 @@ CUDACPP_MAKEFILE=cudacpp.mk
 CUDACPP_MAKEENV:=$(shell echo '$(.VARIABLES)' | tr " " "\n" | egrep "(USEBUILDDIR|AVX|FPTYPE|HELINL|HRDCOD)")
 ###$(info CUDACPP_MAKEENV=$(CUDACPP_MAKEENV))
 ###$(info $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))"))
-CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn |& awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
+CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn 2>&1 | awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
 ifeq ($(CUDACPP_BUILDDIR),)
 $(error CUDACPP_BUILDDIR='$(CUDACPP_BUILDDIR)' should not be empty!)
 else
@@ -86,13 +95,14 @@ SYMMETRY = symmetry.o idenparts.o
 
 # Binaries
 
-LDFLAGS+=-Wl,--no-relax # avoid 'failed to convert GOTPCREL relocation' error #458
-
-ifeq (,$(wildcard fbridge.inc))
-all: $(PROG)
+ifeq ($(UNAME),Darwin)
+LDFLAGS += -lc++ # avoid 'Undefined symbols' for chrono::steady_clock on macOS (checked with otool -L libmg5amc_gg_ttx_cpp.so) 
+LDFLAGS += -mmacosx-version-min=11.3 # avoid "ld: warning: object file was built for newer macOS version than being linked"  
 else
-all: $(PROG) $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp # also builds g$(PROG)_cudacpp if $(CUDACPP_CULIB) exists (#503)
+LDFLAGS += -Wl,--no-relax # avoid 'failed to convert GOTPCREL relocation' error #458 (not supported on macOS)
 endif
+
+all: $(PROG)_fortran $(CUDACPP_BUILDDIR)/$(PROG)_cpp # also builds $(PROG)_cuda if $(CUDACPP_CULIB) exists (#503)
 
 ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
 override OMPFLAGS = -fopenmp
@@ -100,15 +110,15 @@ LINKLIBS += -liomp5 # see #578
 LINKLIBS += -lintlc # undefined reference to `_intel_fast_memcpy'
 else ifneq ($(shell $(CXX) --version | egrep '^clang'),)
 override OMPFLAGS = -fopenmp
-$(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp: LINKLIBS += -L $(shell dirname $(shell $(CXX) -print-file-name=libc++.so)) -lomp # see #604
-###else ifneq ($(shell $(CXX) --version | egrep '^Apple clang'),)
-###override OMPFLAGS = -fopenmp # OMP is not supported yet by cudacpp for Apple clang
+$(CUDACPP_BUILDDIR)/$(PROG)_cpp: LINKLIBS += -L $(shell dirname $(shell $(CXX) -print-file-name=libc++.so)) -lomp # see #604
+else ifneq ($(shell $(CXX) --version | egrep '^Apple clang'),)
+override OMPFLAGS = # OMP is not supported yet by cudacpp for Apple clang
 else
 override OMPFLAGS = -fopenmp
 endif
 
-$(PROG): $(PROCESS) $(DSIG) auto_dsig.o $(LIBS) $(MATRIX) counters.o ompnumthreads.o
-	$(FC) -o $(PROG) $(PROCESS) $(DSIG) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o $(LDFLAGS)
+$(PROG)_fortran: $(PROCESS) $(DSIG) auto_dsig.o $(LIBS) $(MATRIX) counters.o ompnumthreads.o
+	$(FC) -o $(PROG)_fortran $(PROCESS) $(DSIG) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o $(LDFLAGS)
 
 $(LIBS): .libs
 
@@ -116,11 +126,9 @@ $(LIBS): .libs
 	cd ../../Source; make
 	touch $@
 
-ifneq (,$(wildcard fbridge.inc))
 $(CUDACPP_BUILDDIR)/.cudacpplibs:
 	$(MAKE) -f $(CUDACPP_MAKEFILE)
 	touch $@
-endif
 
 # On Linux, set rpath to LIBDIR to make it unnecessary to use LD_LIBRARY_PATH
 # Use relative paths with respect to the executables ($ORIGIN on Linux)
@@ -133,16 +141,32 @@ else
   override LIBFLAGSRPATH = -Wl,-rpath,'$$ORIGIN/$(LIBDIR)'
 endif
 
-# Also builds g$(PROG)_cudacpp if $(CUDACPP_CULIB) exists (improved patch for cpp-only builds #503)
-$(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o ompnumthreads.o $(CUDACPP_BUILDDIR)/.cudacpplibs
-	$(FC) -o $(CUDACPP_BUILDDIR)/c$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_CXXLIB) $(LIBFLAGSRPATH) $(LDFLAGS)
-	if [ -f $(LIBDIR)/$(CUDACPP_BUILDDIR)/lib$(CUDACPP_CULIB).* ]; then $(FC) -o $(CUDACPP_BUILDDIR)/g$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_CULIB) $(LIBFLAGSRPATH) $(LDFLAGS); fi
+.PHONY: madevent_fortran_link madevent_cuda_link madevent_cpp_link
+
+madevent_fortran_link: $(PROG)_fortran
+	rm -f $(PROG)
+	ln -s $(PROG)_fortran $(PROG)
+
+madevent_cpp_link: $(CUDACPP_BUILDDIR)/$(PROG)_cpp
+	rm -f $(PROG)
+	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
+
+madevent_cuda_link: $(CUDACPP_BUILDDIR)/$(PROG)_cuda
+	rm -f $(PROG)
+	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cuda $(PROG)
+
+# Building $(PROG)_cpp also builds $(PROG)_cuda if $(CUDACPP_CULIB) exists (improved patch for cpp-only builds #503)
+$(CUDACPP_BUILDDIR)/$(PROG)_cpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o ompnumthreads.o $(CUDACPP_BUILDDIR)/.cudacpplibs
+	$(FC) -o $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_CXXLIB) $(LIBFLAGSRPATH) $(LDFLAGS)
+	if [ -f $(LIBDIR)/$(CUDACPP_BUILDDIR)/lib$(CUDACPP_CULIB).* ]; then $(FC) -o $(CUDACPP_BUILDDIR)/$(PROG)_cuda $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_CULIB) $(LIBFLAGSRPATH) $(LDFLAGS); fi
+
+$(CUDACPP_BUILDDIR)/$(PROG)_cuda: $(CUDACPP_BUILDDIR)/$(PROG)_cpp
 
 counters.o: counters.cc timer.h
-	$(CXX) -std=c++11 -Wall -Wshadow -Wextra -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 ompnumthreads.o: ompnumthreads.cc ompnumthreads.h
-	$(CXX) -I. -std=c++11 -Wall -Wshadow -Wextra $(OMPFLAGS) -c $< -o $@
+	$(CXX) -I. $(CXXFLAGS) $(OMPFLAGS) -c $< -o $@
 
 $(PROG)_forhel: $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX_HEL)
 	$(FC) -o $(PROG)_forhel $(PROCESS) $(MATRIX_HEL) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) $(OMPFLAGS)
@@ -150,19 +174,19 @@ $(PROG)_forhel: $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX_HEL)
 gensym: $(SYMMETRY) configs.inc $(LIBS)
 	$(FC) -o gensym $(SYMMETRY) -L$(LIBDIR) $(LINKLIBS) $(LDFLAGS)
 
-ifeq (,$(wildcard fbridge.inc))
-$(LIBDIR)libmodel.$(libext): ../../Cards/param_card.dat
-	cd ../../Source/MODEL; make
-
-$(LIBDIR)libgeneric.$(libext): ../../Cards/run_card.dat
-	cd ../../Source; make
-
-$(LIBDIR)libpdf.$(libext): 
-	cd ../../Source/PDF; make
-
-$(LIBDIR)libgammaUPC.$(libext):
-	cd ../../Source/PDF/gammaUPC; make
-endif
+###ifeq (,$(wildcard fbridge.inc)) # Pointless: fbridge.inc always exists as this is the cudacpp-modified makefile!
+###$(LIBDIR)libmodel.$(libext): ../../Cards/param_card.dat
+###	cd ../../Source/MODEL; make
+###
+###$(LIBDIR)libgeneric.$(libext): ../../Cards/run_card.dat
+###	cd ../../Source; make
+###
+###$(LIBDIR)libpdf.$(libext): 
+###	cd ../../Source/PDF; make
+###
+###$(LIBDIR)libgammaUPC.$(libext):
+###	cd ../../Source/PDF/gammaUPC; make
+###endif
 
 # Add source so that the compiler finds the DiscreteSampler module.
 $(MATRIX): %.o: %.f
@@ -175,7 +199,7 @@ $(MATRIX): %.o: %.f
 # Dependencies
 
 driver.f: genps.inc
-symmetry.o: genps.inc nexternal.inc configs.inc run_config.inc
+symmetry.o: genps.inc nexternal.inc configs.inc run_config.inc ../../Source/run_card.inc
 genps.o: genps.inc nexternal.inc configs.inc
 dummy_fct.0: run.inc genps.inc
 cuts.o: genps.inc nexternal.inc pmass.inc
@@ -200,8 +224,6 @@ genps.o: .libs
 
 # Cudacpp avxall targets
 
-ifneq (,$(wildcard fbridge.inc))
-
 UNAME_P := $(shell uname -p)
 ifeq ($(UNAME_P),ppc64le)
 avxall: avxnone avxsse4
@@ -211,50 +233,42 @@ else
 avxall: avxnone avxsse4 avxavx2 avx512y avx512z
 endif
 
-avxnone: $(PROG) $(DSIG_cudacpp)
+avxnone: $(PROG)_fortran $(DSIG_cudacpp)
 	@echo
 	$(MAKE) USEBUILDDIR=1 AVX=none
 
-avxsse4: $(PROG) $(DSIG_cudacpp)
+avxsse4: $(PROG)_fortran $(DSIG_cudacpp)
 	@echo
 	$(MAKE) USEBUILDDIR=1 AVX=sse4
 
-avxavx2: $(PROG) $(DSIG_cudacpp)
+avxavx2: $(PROG)_fortran $(DSIG_cudacpp)
 	@echo
 	$(MAKE) USEBUILDDIR=1 AVX=avx2
 
-avx512y: $(PROG) $(DSIG_cudacpp)
+avx512y: $(PROG)_fortran $(DSIG_cudacpp)
 	@echo
 	$(MAKE) USEBUILDDIR=1 AVX=512y
 
-avx512z: $(PROG) $(DSIG_cudacpp)
+avx512z: $(PROG)_fortran $(DSIG_cudacpp)
 	@echo
 	$(MAKE) USEBUILDDIR=1 AVX=512z
 
-endif
+###endif
 
-# Clean
+# Clean (NB: 'make clean' in Source calls 'make clean' in all P*)
 
-clean:
-ifeq (,$(wildcard fbridge.inc))
-	$(RM) *.o gensym $(PROG) $(PROG)_forhel
-else
-	$(RM) *.o gensym $(PROG) $(PROG)_forhel $(CUDACPP_BUILDDIR)/*$(PROG)_cudacpp
-endif
+clean: # Clean builds: fortran in this Pn; cudacpp executables for one AVX in this Pn
+	$(RM) *.o gensym $(PROG) $(PROG)_fortran $(PROG)_forhel $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(CUDACPP_BUILDDIR)/$(PROG)_cuda
 
-cleanall:
-	make clean
-	make -C ../../Source clean
-	rm -rf $(LIBDIR)libbias.$(libext)
-ifneq (,$(wildcard fbridge.inc))
+cleanavxs: clean # Clean builds: fortran in this Pn; cudacpp for all AVX in this Pn and in src
 	$(MAKE) -f $(CUDACPP_MAKEFILE) cleanall
 	rm -f $(CUDACPP_BUILDDIR)/.cudacpplibs
-endif
-	rm -f ../../Source/*.mod ../../Source/*/*.mod
 	rm -f .libs
 
-ifneq (,$(wildcard fbridge.inc))
-# Target: clean the builds as well as the googletest installation
-distclean: cleanall
+cleanall: # Clean builds: fortran in all P* and in Source; cudacpp for all AVX in all P* and in src
+	make -C ../../Source cleanall
+	rm -rf $(LIBDIR)libbias.$(libext)
+	rm -f ../../Source/*.mod ../../Source/*/*.mod
+
+distclean: cleanall # Clean all fortran and cudacpp builds as well as the googletest installation
 	$(MAKE) -f $(CUDACPP_MAKEFILE) distclean
-endif

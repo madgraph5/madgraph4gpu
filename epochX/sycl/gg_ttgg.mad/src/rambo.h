@@ -1,9 +1,23 @@
+// Copyright (C) 2010 The MadGraph5_aMC@NLO development team and contributors.
+// Created by: J. Alwall (Oct 2010) for the MG5aMC CPP backend.
+//==========================================================================
+// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Modified by: S. Roiser (Feb 2020) for the MG5aMC CUDACPP plugin.
+// Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
+//==========================================================================
+// Copyright (C) 2021-2023 Argonne National Laboratory.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Modified by: N. Nichols (2021-2023) for the MG5aMC SYCL plugin.
+//==========================================================================
+
 #ifndef RAMBO_H
 #define RAMBO_H 1
 
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
 #include "mgOnGpuVectors.h"
+#include "CPPProcess.h"
 
 #include <cassert>
 #include <cmath>
@@ -19,27 +33,20 @@
 namespace rambo2toNm0
 {
 
-  static constexpr int np4 = mgOnGpu::np4;
-  static constexpr int npari = mgOnGpu::npari;
-  static constexpr int nparf = mgOnGpu::nparf;
-  static constexpr int npar = mgOnGpu::npar;
-
   //--------------------------------------------------------------------------
   // Memory access functions
   SYCL_EXTERNAL
   inline fptype& kernelAccessIp4IparIevt(
-          fptype* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
+          fptype* momenta1d, // input: momenta as AOSOA[npagM][CPPPROCESS_NPAR][4][neppM]
           const int ip4,
           const int ipar,
           const size_t ievt
           ) {
     // mapping for the various schemes (AOSOA, AOS, SOA...)
-    static constexpr int np4 = mgOnGpu::np4;
-    static constexpr int npar = mgOnGpu::npar;
     static constexpr int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
     const int ipagM = ievt/neppM; // #eventpage in this iteration
     const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
-    return momenta1d[ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM]; // AOSOA[ipagM][ipar][ip4][ieppM]
+    return momenta1d[ipagM*CPPPROCESS_NPAR*CPPPROCESS_NP4*neppM + ipar*CPPPROCESS_NP4*neppM + ip4*neppM + ieppM]; // AOSOA[ipagM][ipar][ip4][ieppM]
   }
 
   SYCL_EXTERNAL
@@ -52,7 +59,7 @@ namespace rambo2toNm0
     static constexpr int neppR = 8; // FIXME HARDCODED TO GIVE ALWAYS THE SAME PHYSICS RESULTS!
     const int ipagR = ievt/neppR; // #event "R-page"
     const int ieppR = ievt%neppR; // #event in the current event R-page
-    return buffer[ipagR*nparf*np4*neppR + iparf*np4*neppR + ip4*neppR + ieppR]; // AOSOA[ipagR][iparf][ip4][ieppR]
+    return buffer[ipagR*CPPPROCESS_NPARF*CPPPROCESS_NP4*neppR + iparf*CPPPROCESS_NP4*neppR + ip4*neppR + ieppR]; // AOSOA[ipagR][iparf][ip4][ieppR]
   }
 
   // Fill in the momenta of the initial particles
@@ -101,8 +108,7 @@ namespace rambo2toNm0
     // output weight
     fptype& wt = wgts[ievt];
 
-    // AV special case nparf==1 (issue #358)
-    if constexpr ( nparf == 1 )
+    if constexpr ( CPPPROCESS_NPARF == 1 )
     {
       bool first = true;
       if ( first )
@@ -110,12 +116,12 @@ namespace rambo2toNm0
         first = false;
       }
       const int iparf = 0;
-      for ( int i4 = 0; i4 < np4; i4++ )
+      for ( int i4 = 0; i4 < CPPPROCESS_NP4; i4++ )
       {
-        kernelAccessIp4IparIevt( momenta, i4, iparf+npari, ievt ) = 0;
-        for ( int ipari = 0; ipari < npari; ipari++ )
+        kernelAccessIp4IparIevt( momenta, i4, iparf + CPPPROCESS_NPARI, ievt ) = 0;
+        for ( int ipari = 0; ipari < CPPPROCESS_NPARI; ipari++ )
         {
-          kernelAccessIp4IparIevt( momenta, i4, iparf+npari, ievt ) += kernelAccessIp4IparIevt( momenta, i4, ipari, ievt );
+          kernelAccessIp4IparIevt( momenta, i4, iparf + CPPPROCESS_NPARI, ievt ) += kernelAccessIp4IparIevt( momenta, i4, ipari, ievt );
         }
       }
       wt = 1;
@@ -125,14 +131,14 @@ namespace rambo2toNm0
     // initialization step: factorials for the phase space weight
     const fptype twopi = 8. * sycl::atan(1.);
     const fptype po2log = sycl::log(twopi / 4.);
-    fptype z[nparf];
+    fptype z[CPPPROCESS_NPARF];
     z[1] = po2log;
-    for ( int kpar = 2; kpar < nparf; kpar++ ) z[kpar] = z[kpar - 1] + po2log - 2. * sycl::log(fptype(kpar - 1));
-    for ( int kpar = 2; kpar < nparf; kpar++ ) z[kpar] = (z[kpar] - sycl::log(fptype(kpar)));
+    for ( int kpar = 2; kpar < CPPPROCESS_NPARF; kpar++ ) z[kpar] = z[kpar - 1] + po2log - 2. * sycl::log(fptype(kpar - 1));
+    for ( int kpar = 2; kpar < CPPPROCESS_NPARF; kpar++ ) z[kpar] = (z[kpar] - sycl::log(fptype(kpar)));
 
     // generate n massless momenta in infinite phase space
-    fptype q[nparf][np4];
-    for ( int iparf = 0; iparf < nparf; iparf++ )
+    fptype q[CPPPROCESS_NPARF][CPPPROCESS_NP4];
+    for ( int iparf = 0; iparf < CPPPROCESS_NPARF; iparf++ )
     {
       const fptype r1 = kernelAccessIp4IparfIevt( rnarray, 0, iparf, ievt );
       const fptype r2 = kernelAccessIp4IparfIevt( rnarray, 1, iparf, ievt );
@@ -148,33 +154,33 @@ namespace rambo2toNm0
     }
 
     // calculate the parameters of the conformal transformation
-    fptype r[np4];
-    fptype b[np4-1];
-    for ( int i4 = 0; i4 < np4; i4++ ) r[i4] = 0.;
-    for ( int iparf = 0; iparf < nparf; iparf++ )
+    fptype r[CPPPROCESS_NP4];
+    fptype b[CPPPROCESS_NP4-1];
+    for ( int i4 = 0; i4 < CPPPROCESS_NP4; i4++ ) r[i4] = 0.;
+    for ( int iparf = 0; iparf < CPPPROCESS_NPARF; iparf++ )
     {
-      for ( int i4 = 0; i4 < np4; i4++ ) r[i4] = r[i4] + q[iparf][i4];
+      for ( int i4 = 0; i4 < CPPPROCESS_NP4; i4++ ) r[i4] = r[i4] + q[iparf][i4];
     }
     const fptype rmas = sycl::sqrt(sycl::pown(r[0], 2) - sycl::pown(r[3], 2) - sycl::pown(r[2], 2) - sycl::pown(r[1], 2));
-    for ( int i4 = 1; i4 < np4; i4++ ) b[i4-1] = -r[i4] / rmas;
+    for ( int i4 = 1; i4 < CPPPROCESS_NP4; i4++ ) b[i4-1] = -r[i4] / rmas;
     const fptype g = r[0] / rmas;
     const fptype a = 1. / (1. + g);
     const fptype x0 = energy / rmas;
 
     // transform the q's conformally into the p's (i.e. the 'momenta')
-    for ( int iparf = 0; iparf < nparf; iparf++ )
+    for ( int iparf = 0; iparf < CPPPROCESS_NPARF; iparf++ )
     {
       fptype bq = b[0] * q[iparf][1] + b[1] * q[iparf][2] + b[2] * q[iparf][3];
-      for ( int i4 = 1; i4 < np4; i4++ )
+      for ( int i4 = 1; i4 < CPPPROCESS_NP4; i4++ )
       {
-        kernelAccessIp4IparIevt( momenta, i4, iparf+npari, ievt ) = x0 * (q[iparf][i4] + b[i4-1] * (q[iparf][0] + a * bq));
+        kernelAccessIp4IparIevt( momenta, i4, iparf + CPPPROCESS_NPARI, ievt ) = x0 * (q[iparf][i4] + b[i4-1] * (q[iparf][0] + a * bq));
       }
-      kernelAccessIp4IparIevt( momenta, 0, iparf+npari, ievt ) = x0 * (g * q[iparf][0] + bq);
+      kernelAccessIp4IparIevt( momenta, 0, iparf + CPPPROCESS_NPARI, ievt ) = x0 * (g * q[iparf][0] + bq);
     }
 
     // calculate weight (NB return log of weight)
     wt = po2log;
-    if ( nparf != 2 ) wt = (2. * nparf - 4.) * sycl::log(energy) + z[nparf-1];
+    if ( CPPPROCESS_NPARF != 2 ) wt = (2. * CPPPROCESS_NPARF - 4.) * sycl::log(energy) + z[CPPPROCESS_NPARF - 1];
 
     // return for weighted massless momenta
     // nothing else to do in this event if all particles are massless (nm==0)

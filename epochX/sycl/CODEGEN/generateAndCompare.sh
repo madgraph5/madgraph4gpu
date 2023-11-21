@@ -1,4 +1,12 @@
 #!/bin/bash
+# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Licensed under the GNU Lesser General Public License (version 3 or later).
+# Created by: A. Valassi (Sep 2021) for the MG5aMC CUDACPP plugin.
+# Further modified by: A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
+#
+# Copyright (C) 2021-2023 Argonne National Laboratory.
+# Licensed under the GNU Lesser General Public License (version 3 or later).
+# Modified by: N. Nichols (2021-2023) for the MG5aMC SYCL plugin.
 
 set -e # fail on error
 
@@ -28,8 +36,20 @@ function codeGenAndDiff()
     gg_ttgggg)
       cmd="generate g g > t t~ g g g g"
       ;;
+    gg_tt01g)
+      cmd="generate g g > t t~; add process g g > t t~ g"
+      ;;
+    gq_ttq)
+      cmd="define q = u c d s u~ c~ d~ s~; generate g q > t t~ q"
+      ;;
+    gq_ttllq)
+      cmd="define q = u c d s u~ c~ d~ s~; generate g q > t t~ l- l+ q"
+      ;;
     pp_tt)
       cmd="generate p p > t t~"
+      ;;
+    pp_tttt)
+      cmd="generate p p > t t~ t t~"
       ;;
     uu_tt)
       cmd="generate u u~ > t t~"
@@ -42,6 +62,12 @@ function codeGenAndDiff()
       ;;
     heft_gg_h)
       cmd="set auto_convert_model T; import model heft; generate g g > h"
+      ;;
+    smeft_gg_tttt)
+      cmd="set auto_convert_model T; import model SMEFTsim_topU3l_MwScheme_UFO -massless_4t; generate g g > t t~ t t~"
+      ;;
+    susy_gg_tt)
+      cmd="import model MSSM_SLHA2; generate g g > t t~"
       ;;
     *)
       echo -e "\nWARNING! Skipping unknown process '$proc'"

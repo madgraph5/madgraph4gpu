@@ -1,3 +1,12 @@
+// Copyright (C) 2010 The MadGraph5_aMC@NLO development team and contributors.
+// Created by: J. Alwall (Oct 2010) for the MG5aMC CPP backend.
+//==========================================================================
+// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Modified by: O. Mattelaer (Nov 2020) for the MG5aMC CUDACPP plugin.
+// Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
+//==========================================================================
+
 #include "mgOnGpuConfig.h"
 
 #include "BridgeKernels.h"
@@ -19,7 +28,9 @@
 
 #include <algorithm>
 #include <array>
+#include <cfenv> // for feenableexcept
 #include <cmath>
+#include <csignal> // for signal and SIGFPE
 #include <cstring>
 #include <fstream>
 #include <iomanip>
@@ -64,6 +75,23 @@ usage( char* argv0, int ret = 1 )
   return ret;
 }
 
+#ifdef __CUDACC__
+namespace mg5amcGpu
+#else
+namespace mg5amcCpu
+#endif
+{
+  inline void FPEhandler( int sig )
+  {
+#ifdef __CUDACC__
+    std::cerr << "Floating Point Exception (GPU)" << std::endl;
+#else
+    std::cerr << "Floating Point Exception (CPU)" << std::endl;
+#endif
+    exit( 0 );
+  }
+}
+
 int
 main( int argc, char** argv )
 {
@@ -72,6 +100,18 @@ main( int argc, char** argv )
   using namespace mg5amcGpu;
 #else
   using namespace mg5amcCpu;
+#endif
+
+  // Enable FPEs (test #701 and #733 - except on MacOS where feenableexcept is not defined #730)
+#ifndef __APPLE__
+  const char* enableFPEc = getenv( "CUDACPP_RUNTIME_ENABLEFPE" );
+  const bool enableFPE = ( enableFPEc != 0 ) && ( std::string( enableFPEc ) != "" );
+  if( enableFPE )
+  {
+    std::cout << "WARNING! CUDACPP_RUNTIME_ENABLEFPE is set: enable Floating Point Exceptions" << std::endl;
+    feenableexcept( FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW ); // debug #701
+    signal( SIGFPE, FPEhandler );
+  }
 #endif
 
   // DEFAULTS FOR COMMAND LINE ARGUMENTS
@@ -93,12 +133,12 @@ main( int argc, char** argv )
     CurandHost = 1,
     CurandDevice = 2
   };
-#ifdef __CUDACC__
-  RandomNumberMode rndgen = RandomNumberMode::CurandDevice; // default on GPU
-#elif not defined MGONGPU_HAS_NO_CURAND
-  RandomNumberMode rndgen = RandomNumberMode::CurandHost;  // default on CPU if build has curand
+#ifdef MGONGPU_HAS_NO_CURAND
+  RandomNumberMode rndgen = RandomNumberMode::CommonRandom; // this is the only supported mode if build has no curand (PR #784)
+#elif defined __CUDACC__
+  RandomNumberMode rndgen = RandomNumberMode::CurandDevice; // default on GPU if build has curand
 #else
-  RandomNumberMode rndgen = RandomNumberMode::CommonRandom; // default on CPU if build has no curand
+  RandomNumberMode rndgen = RandomNumberMode::CurandHost; // default on CPU if build has curand
 #endif
   // Rambo sampling mode (NB RamboHost implies CommonRandom or CurandHost!)
   enum class RamboSamplingMode
@@ -109,7 +149,7 @@ main( int argc, char** argv )
 #ifdef __CUDACC__
   RamboSamplingMode rmbsmp = RamboSamplingMode::RamboDevice; // default on GPU
 #else
-  RamboSamplingMode rmbsmp = RamboSamplingMode::RamboHost; // default on CPU
+  RamboSamplingMode rmbsmp = RamboSamplingMode::RamboHost;  // default on CPU
 #endif
   // Bridge emulation mode (NB Bridge implies RamboHost!)
   bool bridge = false;
@@ -136,18 +176,20 @@ main( int argc, char** argv )
     }
     else if( arg == "--curdev" )
     {
-#ifdef __CUDACC__
-      rndgen = RandomNumberMode::CurandDevice;
-#else
+#ifndef __CUDACC__
       throw std::runtime_error( "CurandDevice is not supported on CPUs" );
+#elif defined MGONGPU_HAS_NO_CURAND
+      throw std::runtime_error( "CurandDevice is not supported because this application was built without Curand support" );
+#else
+      rndgen = RandomNumberMode::CurandDevice;
 #endif
     }
     else if( arg == "--curhst" )
     {
-#ifndef MGONGPU_HAS_NO_CURAND
-      rndgen = RandomNumberMode::CurandHost;
-#else
+#ifdef MGONGPU_HAS_NO_CURAND
       throw std::runtime_error( "CurandHost is not supported because this application was built without Curand support" );
+#else
+      rndgen = RandomNumberMode::CurandHost;
 #endif
     }
     else if( arg == "--common" )
@@ -268,15 +310,15 @@ main( int argc, char** argv )
   const std::string procKey = "0a ProcInit";
   timermap.start( procKey );
 
-  // Create a process object
+  // Create a process object, read param card and set parameters
+  // FIXME: the process instance can happily go out of scope because it is only needed to read parameters?
+  // FIXME: the CPPProcess should really be a singleton? (for instance, in bridge mode this will be called twice here?)
   CPPProcess process( verbose );
-
-  // Read param_card and set parameters
   process.initProc( "../../Cards/param_card.dat" );
   const fptype energy = 1500; // historical default, Ecms = 1500 GeV = 1.5 TeV (above the Z peak)
   //const fptype energy = 91.2; // Ecms = 91.2 GeV (Z peak)
   //const fptype energy = 0.100; // Ecms = 100 MeV (well below the Z peak, pure em scattering)
-  const int meGeVexponent = -( 2 * mgOnGpu::npar - 8 );
+  const int meGeVexponent = -( 2 * CPPProcess::npar - 8 );
 
   // --- 0b. Allocate memory structures
   const std::string alloKey = "0b MemAlloc";
@@ -379,30 +421,26 @@ main( int argc, char** argv )
   {
     prnk.reset( new CommonRandomNumberKernel( hstRndmom ) );
   }
-#ifndef MGONGPU_HAS_NO_CURAND
   else if( rndgen == RandomNumberMode::CurandHost )
   {
+#ifdef MGONGPU_HAS_NO_CURAND
+    throw std::runtime_error( "INTERNAL ERROR! CurandHost is not supported because this application was built without Curand support" ); // INTERNAL ERROR (no path to this statement)
+#else
     const bool onDevice = false;
     prnk.reset( new CurandRandomNumberKernel( hstRndmom, onDevice ) );
+#endif
   }
-#ifdef __CUDACC__
   else
   {
+#ifdef MGONGPU_HAS_NO_CURAND
+    throw std::runtime_error( "INTERNAL ERROR! CurandDevice is not supported because this application was built without Curand support" ); // INTERNAL ERROR (no path to this statement)
+#elif defined __CUDACC__
     const bool onDevice = true;
     prnk.reset( new CurandRandomNumberKernel( devRndmom, onDevice ) );
-  }
 #else
-  else
-  {
-    throw std::logic_error( "CurandDevice is not supported on CPUs" ); // INTERNAL ERROR (no path to this statement)
-  }
+    throw std::logic_error( "INTERNAL ERROR! CurandDevice is not supported on CPUs" ); // INTERNAL ERROR (no path to this statement)
 #endif
-#else
-  else
-  {
-    throw std::logic_error( "This application was built without Curand support" ); // INTERNAL ERROR (no path to this statement)
   }
-#endif
 
   // --- 0c. Create rambo sampling kernel [keep this in 0c for the moment]
   std::unique_ptr<SamplingKernelBase> prsk;
@@ -618,7 +656,7 @@ main( int argc, char** argv )
       {
         // Display momenta
         std::cout << "Momenta:" << std::endl;
-        for( int ipar = 0; ipar < mgOnGpu::npar; ipar++ )
+        for( int ipar = 0; ipar < CPPProcess::npar; ipar++ )
         {
           // NB: 'setw' affects only the next field (of any type)
           std::cout << std::scientific // fixed format: affects all floats (default precision: 6)
@@ -935,7 +973,7 @@ main( int argc, char** argv )
 #endif
               //<< "MatrixElements compiler     = " << process.getCompiler() << std::endl
               << std::string( SEP79, '-' ) << std::endl
-              << "HelicityComb Good/Tot       = " << nGoodHel << "/" << mgOnGpu::ncomb << std::endl
+              << "HelicityComb Good/Tot       = " << nGoodHel << "/" << CPPProcess::ncomb << std::endl
               << std::string( SEP79, '-' ) << std::endl
               << "NumberOfEntries             = " << niter << std::endl
               << std::scientific // fixed format: affects all floats (default precision: 6)

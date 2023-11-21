@@ -1,3 +1,8 @@
+// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Created by: S. Roiser (Oct 2021) for the MG5aMC CUDACPP plugin.
+// Further modified by: S. Roiser, A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
+
 #include "Bridge.h"
 #include "CPPProcess.h"
 #include "CudaRuntime.h"
@@ -44,11 +49,7 @@ extern "C"
 #ifdef __CUDACC__
     CudaRuntime::setUp();
 #endif
-    // Create a process object, read parm card and set parameters
-    // FIXME: the process instance can happily go out of scope because it is only needed to read parameters?
-    // FIXME: the CPPProcess should really be a singleton? what if fbridgecreate is called from several Fortran threads?
-    CPPProcess process( /*verbose=*/false );
-    process.initProc( "../../Cards/param_card.dat" );
+    // (NB: CPPProcess::initProc no longer needs to be executed here because it is called in the Bridge constructor)
     // FIXME: disable OMP in Bridge when called from Fortran
     *ppbridge = new Bridge<FORTRANFPTYPE>( *pnevtF, *pnparF, *pnp4F );
   }

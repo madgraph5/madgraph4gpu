@@ -1,3 +1,8 @@
+// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Created by: A. Valassi (Dec 2021, based on earlier work by S. Hageboeck) for the MG5aMC CUDACPP plugin.
+// Further modified by: S. Roiser, A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
+
 #ifndef MemoryBuffers_H
 #define MemoryBuffers_H 1
 
@@ -5,6 +10,7 @@
 
 #include "mgOnGpuCxtypes.h"
 
+#include "CPPProcess.h"
 #include "CudaRuntime.h"
 #include "Parameters_sm.h"
 
@@ -18,14 +24,15 @@ namespace mg5amcCpu
 {
   //--------------------------------------------------------------------------
 
-  // TEMPORARY? Take this from a PhysicsProcess class? Define them here directly in codegen?
   namespace MemoryBuffers
   {
-    static constexpr size_t np4 = mgOnGpu::np4;
-    static constexpr size_t nparf = mgOnGpu::nparf;
-    static constexpr size_t npar = mgOnGpu::npar;
-    static constexpr size_t nw6 = mgOnGpu::nw6;
+    // Process-independent compile-time constants
+    static constexpr size_t np4 = CPPProcess::np4;
+    static constexpr size_t nw6 = CPPProcess::nw6;
     static constexpr size_t nx2 = mgOnGpu::nx2;
+    // Process-dependent compile-time constants
+    static constexpr size_t nparf = CPPProcess::nparf;
+    static constexpr size_t npar = CPPProcess::npar;
     static constexpr size_t ndcoup = Parameters_sm_dependentCouplings::ndcoup;
   }
 

@@ -1,3 +1,8 @@
+// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Created by: A. Valassi (Dec 2021) for the MG5aMC CUDACPP plugin.
+// Further modified by: A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
+
 #ifndef RANDOMNUMBERKERNELS_H
 #define RANDOMNUMBERKERNELS_H 1
 
@@ -5,7 +10,8 @@
 
 // NB This must come AFTER mgOnGpuConfig.h which contains our definition of __global__ when __CUDACC__ is not defined
 #ifndef MGONGPU_HAS_NO_CURAND
-#include "curand.h"
+//#include "curand.h"
+struct curandGenerator_st; // forward definition from curand.h
 #endif
 
 #include "MemoryBuffers.h"
@@ -136,7 +142,8 @@ namespace mg5amcCpu
     const bool m_isOnDevice;
 
     // The curand generator
-    curandGenerator_t m_rnGen;
+    // (NB: curand.h defines typedef generator_t as a pointer to forward-defined 'struct curandGenerator_st')
+    curandGenerator_st* m_rnGen;
   };
 
 #endif

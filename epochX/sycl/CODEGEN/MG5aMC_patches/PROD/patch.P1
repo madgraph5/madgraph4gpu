@@ -157,7 +157,7 @@ index 48eb2d573..cbcedf384 100644
        END
  
 diff --git b/epochX/sycl/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f a/epochX/sycl/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
-index a76de8ec5..ab38b2202 100644
+index a76de8ec5..aae7286d2 100644
 --- b/epochX/sycl/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
 +++ a/epochX/sycl/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
 @@ -74,13 +74,54 @@ c      common/to_colstats/ncols,ncolflow,ncolalt,ic
@@ -216,17 +216,7 @@ index a76de8ec5..ab38b2202 100644
  c
  c     Read process number
  c
-@@ -135,7 +176,8 @@ c   If CKKW-type matching, read IS Sudakov grid
-           exit
-  30       issgridfile='../'//issgridfile
-           if(i.eq.5)then
--            print *,'ERROR: No Sudakov grid file found in lib with ickkw=2'
-+            print *,
-+     &        'ERROR: No Sudakov grid file found in lib with ickkw=2'
-             stop
-           endif
-         enddo
-@@ -202,8 +244,33 @@ c      call sample_result(xsec,xerr)
+@@ -202,8 +243,33 @@ c      call sample_result(xsec,xerr)
  c      write(*,*) 'Final xsec: ',xsec
  
        rewind(lun)
@@ -261,7 +251,7 @@ index a76de8ec5..ab38b2202 100644
        end
  
  c     $B$ get_user_params $B$ ! tag for MadWeight
-@@ -381,7 +448,7 @@ c
+@@ -381,7 +447,7 @@ c
        fopened=.false.
        tempname=filename 	 
        fine=index(tempname,' ') 	 
@@ -271,7 +261,7 @@ index a76de8ec5..ab38b2202 100644
        open(unit=lun,file=tempname,status='old',ERR=20)
        fopened=.true.
 diff --git b/epochX/sycl/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f a/epochX/sycl/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
-index 9d84acc5e..4749b375d 100644
+index 5e888278c..2d9ce6ff3 100644
 --- b/epochX/sycl/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
 +++ a/epochX/sycl/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
 @@ -72,7 +72,10 @@ C
