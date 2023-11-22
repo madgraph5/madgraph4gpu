@@ -87,14 +87,9 @@ endif
 #=== Configure defaults and check if user-defined choices exist for OMPFLAGS, AVX, FPTYPE, HELINL, HRDCOD, RNDGEN
 
 # Set the default OMPFLAGS choice
-ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
 OMPFLAGS ?= -fopenmp
-else ifneq ($(shell $(CXX) --version | egrep '^(clang)'),)
-OMPFLAGS ?= -fopenmp
-else ifneq ($(shell $(CXX) --version | egrep '^(Apple clang)'),)
-OMPFLAGS ?= # disable OpenMP MT on Apple clang (builds fail in the CI #578)
-else
-OMPFLAGS ?= -fopenmp
+ifeq ($(UNAME_S),Darwin) # OM for Mac (any compiler)
+override OMPFLAGS = # AV disable OpenMP MT on Apple clang (builds fail in the CI #578)
 endif
 
 # Export here, so sub makes don't fall back to the defaults:
@@ -149,7 +144,6 @@ cppbuild: $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(cxx_main) $(fcxx_main) $(testmain)
 cudabuild: $(CUDACPP_BUILDDIR)/$(PROG)_cuda $(cu_main) $(fcu_main) $(cutestmain)
 
 # Generic target and build rules: objects from CUDA compilation
-ifneq ($(NVCC),)
 $(CUDACPP_BUILDDIR)/%.o : %.cu *.h ../../src/*.h
 	@mkdir -p $(CUDACPP_BUILDDIR)
 	$(NVCC) $(MG_NVCCFLAGS) $(NVCCFLAGS) -c $< -o $@
@@ -157,7 +151,6 @@ $(CUDACPP_BUILDDIR)/%.o : %.cu *.h ../../src/*.h
 $(CUDACPP_BUILDDIR)/%_cu.o : %.cc *.h ../../src/*.h
 	@mkdir -p $(CUDACPP_BUILDDIR)
 	$(NVCC) $(MG_NVCCFLAGS) $(NVCCFLAGS) -c -x cu $< -o $@
-endif
 
 # Generic target and build rules: objects from C++ compilation
 # (NB do not include CUINC here! add it only for NVTX or curand #679)
@@ -179,11 +172,10 @@ $(CUDACPP_BUILDDIR)/gcheck_sa.o: MG_CXXFLAGS += $(USE_NVTX) $(CUINC)
 
 # Apply special build flags only to check_sa and CurandRandomNumberKernel (curand headers, #679)
 $(CUDACPP_BUILDDIR)/check_sa.o: MG_CXXFLAGS += $(CXXFLAGSCURAND)
-$(CUDACPP_BUILDDIR)/gcheck_sa.o: MG_CXXFLAGS += $(CXXFLAGSCURAND)
+$(CUDACPP_BUILDDIR)/gcheck_sa.o: MG_NVCCFLAGS += $(CXXFLAGSCURAND)
 $(CUDACPP_BUILDDIR)/CurandRandomNumberKernel.o: MG_CXXFLAGS += $(CXXFLAGSCURAND)
-ifeq ($(RNDGEN),hasCurand)
-$(CUDACPP_BUILDDIR)/CurandRandomNumberKernel.o: MG_CXXFLAGS += $(CUINC)
-endif
+$(CUDACPP_BUILDDIR)/gCurandRandomNumberKernel.o: MG_NVCCFLAGS += $(CXXFLAGSCURAND)
+
 
 # Avoid "warning: builtin __has_trivial_... is deprecated; use __is_trivially_... instead" in nvcc with icx2023 (#592)
 ifneq ($(shell $(CXX) --version | egrep '^(Intel)'),)
@@ -324,12 +316,17 @@ $(cutestmain): MG_LDFLAGS += $(CULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_
 $(cutestmain): $(CUDACPP_LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cu_objects_lib) $(cu_objects_exe) $(GTESTLIBS)
 	$(NVCC) -o $@ $(cu_objects_lib) $(cu_objects_exe) -L$(CUDACPP_LIBDIR) -l$(MG5AMC_COMMONLIB) -ldl -lcuda $(MG_LDFLAGS) $(LDFLAGS)
 
+# Use target gtestlibs to build only googletest
+ifneq ($(GTESTLIBS),)
+gtestlibs: $(GTESTLIBS)
+endif
+
 # Use flock (Linux only, no Mac) to allow 'make -j' if googletest has not yet been downloaded https://stackoverflow.com/a/32666215
 $(GTESTLIBS):
 ifneq ($(shell which flock 2>/dev/null),)
 	flock $(CUDACPP_BUILDDIR)/.make_test.lock $(MAKE) -C $(TESTDIR)
 else
-	$(MAKE) -C $(TESTDIR)
+	if [ -d $(TESTDIR) ]; then $(MAKE) -C $(TESTDIR); fi
 endif
 
 #-------------------------------------------------------------------------------

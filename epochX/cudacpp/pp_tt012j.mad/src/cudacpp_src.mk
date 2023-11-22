@@ -23,6 +23,13 @@ endif
 # Note: AR, CXX and FC are implicitly defined if not set externally
 # See https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
 ###RANLIB = ranlib
+$(warning Unify)
+# Add -mmacosx-version-min=11.3 to avoid "ld: warning: object file was built for newer macOS version than being linked"
+LDFLAGS =
+ifneq ($(shell $(CXX) --version | egrep '^Apple clang'),)
+MG_CXXFLAGS += -mmacosx-version-min=11.3
+MG_LDFLAGS += -mmacosx-version-min=11.3
+endif
 
 #=== Set the CUDA/C++ compiler flags appropriate to user-defined choices of AVX, FPTYPE, HELINL, HRDCOD, RNDGEN
 

@@ -77,10 +77,26 @@
 #*********************************************************************
    0  = nhel          ! using helicities importance sampling or not.
                              ! 0: sum over helicity, 1: importance sampling
-   2  = sde_strategy  ! default integration strategy (hep-ph/2021.00773)
+   1  = sde_strategy  ! default integration strategy (hep-ph/2021.00773)
                              ! 1 is old strategy (using amp square)
 			     ! 2 is new strategy (using only the denominator)
-# To see advanced option for Phase-Space optimization: type "update psoptim"			     
+#*********************************************************************
+# Phase-Space Optim (advanced)
+#*********************************************************************
+   0 = job_strategy ! see appendix of 1507.00020 (page 26)
+   0 =  hard_survey ! force to have better estimate of the integral at survey for difficult mode like interference
+   -1.0 = tmin_for_channel ! limit the non-singular reach of --some-- channel of integration related to T-channel diagram (value between -1 and 0), -1 is no impact
+   -1 = survey_splitting ! for loop-induced control how many core are used at survey for the computation of a single iteration.
+   2 = survey_nchannel_per_job ! control how many Channel are integrated inside a single job on cluster/multicore
+   -1 = refine_evt_by_job ! control the maximal number of events for the first iteration of the refine (larger means less jobs)  
+#*********************************************************************
+# Compilation flag. 
+#*********************************************************************   
+   -O3 -ffast-math -fbounds-check = global_flag ! build flags for all Fortran code (for a fair comparison to cudacpp; default is -O)
+   --fast-math  = aloha_flag ! fortran optimization flag for aloha function. Suggestions: '-ffast-math'
+   -O3 = matrix_flag ! fortran optimization flag for matrix.f function. Suggestions: '-O3'
+   16384 = vector_size ! size of fortran arrays allocated in the multi-event API for SIMD/GPU (VECSIZE_MEMMAX)
+			     
 #*********************************************************************
 # Customization (custom cuts/scale/bias/...)                         *
 # list of files containing fortran function that overwrite default   *
@@ -173,3 +189,11 @@
 #
 systematics = systematics_program ! none, systematics [python], SysCalc [depreceted, C++]
 ['--mur=0.5,1,2', '--muf=0.5,1,2', '--pdf=errorset'] = systematics_arguments ! see: https://cp3.irmp.ucl.ac.be/projects/madgraph/wiki/Systematics#Systematicspythonmodule
+
+#***********************************************************************
+# SIMD/GPU configuration for the CUDACPP plugin
+#************************************************************************
+ d = floating_type ! floating point precision: f (single), d (double), m (mixed: double for amplitudes, single for colors)
+ auto = avx_level ! SIMD vectorization level: none, sse4, avx2, 512y, 512z, auto
+ CPP = cudacpp_backend ! CUDACPP backend: FORTRAN, CPP, CUDA
+

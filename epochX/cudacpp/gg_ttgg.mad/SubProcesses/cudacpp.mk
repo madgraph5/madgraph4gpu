@@ -1,13 +1,16 @@
 # Copyright (C) 2020-2023 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: S. Roiser (Feb 2020) for the MG5aMC CUDACPP plugin.
-# Further modified by: J. Teig, O. Mattelaer, S. Roiser, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
+# Further modified by: O. Mattelaer, S. Roiser, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
 
 #=== Determine the name of this makefile (https://ftp.gnu.org/old-gnu/Manuals/make-3.80/html_node/make_17.html)
-#=== NB: different names (e.g. cudacpp.mk and cudacpp_src.mk) are used in the Subprocess and src directories
+#=== NB: use ':=' to ensure that the value of CUDACPP_MAKEFILE is not modified further down after including make_opts
+#=== NB: use 'override' to ensure that the value can not be modified from the outside
+override CUDACPP_MAKEFILE := $(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST))
+###$(info CUDACPP_MAKEFILE='$(CUDACPP_MAKEFILE)')
 
-CUDACPP_MAKEFILE = $(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST))
-CUDACPP_SRC_MAKEFILE = cudacpp_src.mk
+#=== NB: different names (e.g. cudacpp.mk and cudacpp_src.mk) are used in the Subprocess and src directories
+override CUDACPP_SRC_MAKEFILE = cudacpp_src.mk
 
 #-------------------------------------------------------------------------------
 
@@ -26,6 +29,16 @@ UNAME_S := $(shell uname -s)
 # Detect architecture (x86_64, ppc64le...)
 UNAME_P := $(shell uname -p)
 ###$(info UNAME_P='$(UNAME_P)')
+
+#-------------------------------------------------------------------------------
+
+#=== Include the common MG5aMC Makefile options
+
+# OM: this is crucial for MG5aMC flag consistency/documentation
+# AV: temporarely comment this out because it breaks cudacpp builds
+ifneq ($(wildcard ../../Source/make_opts),)
+include ../../Source/make_opts
+endif
 
 #-------------------------------------------------------------------------------
 
@@ -86,14 +99,6 @@ endif
 
 #-------------------------------------------------------------------------------
 
-.DEFAULT_GOAL := usage
-
-# Target if user does not specify target
-usage:
-	$(error Unknown target='$(MAKECMDGOALS)': only 'cppnone', 'cppsse4', 'cppavx2', 'cpp512y', 'cpp512z' and 'cuda' are supported!)
-
-#-------------------------------------------------------------------------------
-
 #=== Configure the C++ compiler
 
 CXXFLAGS = $(OPTFLAGS) -std=c++17 $(INCFLAGS) -Wall -Wshadow -Wextra
@@ -109,75 +114,81 @@ endif
 # Note: AR, CXX and FC are implicitly defined if not set externally
 # See https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
 
+# Add -mmacosx-version-min=11.3 to avoid "ld: warning: object file was built for newer macOS version than being linked"
+ifneq ($(shell $(CXX) --version | egrep '^Apple clang'),)
+CXXFLAGS += -mmacosx-version-min=11.3
+endif
+
 #-------------------------------------------------------------------------------
 
-#=== Configure the CUDA compiler for the CUDA target
+#=== Configure the CUDA compiler
 
-ifneq (,$(findstring $(MAKECMDGOALS),cuda-gcheck-runGcheck-runFGcheck-cmpFGcheck-memcheck))
-  # If CXX is not a single word (example "clang++ --gcc-toolchain...") then disable CUDA builds (issue #505)
-  # This is because it is impossible to pass this to "CUFLAGS += -ccbin <host-compiler>" below
-  ifneq ($(words $(subst ccache ,,$(CXX))),1) # allow at most "CXX=ccache <host-compiler>" from outside
-    $(warning CUDA builds are not supported for multi-word CXX "$(CXX)")
-    override CUDA_HOME=disabled
-  endif
+# If CXX is not a single word (example "clang++ --gcc-toolchain...") then disable CUDA builds (issue #505)
+# This is because it is impossible to pass this to "CUFLAGS += -ccbin <host-compiler>" below
+ifneq ($(words $(subst ccache ,,$(CXX))),1) # allow at most "CXX=ccache <host-compiler>" from outside
+  $(warning CUDA builds are not supported for multi-word CXX "$(CXX)")
+  override CUDA_HOME=disabled
+endif
 
-  # If CUDA_HOME is not set, try to set it from the location of nvcc
-  ifndef CUDA_HOME
-    CUDA_HOME = $(patsubst %bin/nvcc,%,$(shell which nvcc 2>/dev/null))
-    $(warning CUDA_HOME was not set: using "$(CUDA_HOME)")
-  endif
+# If CUDA_HOME is not set, try to set it from the location of nvcc
+ifndef CUDA_HOME
+  CUDA_HOME = $(patsubst %bin/nvcc,%,$(shell which nvcc 2>/dev/null))
+  $(warning CUDA_HOME was not set: using "$(CUDA_HOME)")
+endif
 
-  # Set NVCC as $(CUDA_HOME)/bin/nvcc if it exists
-  ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
-    NVCC = $(CUDA_HOME)/bin/nvcc
-    USE_NVTX ?=-DUSE_NVTX
-    # See https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html
-    # See https://arnon.dk/matching-sm-architectures-arch-and-gencode-for-various-nvidia-cards/
-    # Default: use compute capability 70 for V100 (CERN lxbatch, CERN itscrd, Juwels Cluster).
-    # Embed device code for 70, and PTX for 70+.
-    # Export MADGRAPH_CUDA_ARCHITECTURE (comma-separated list) to use another value or list of values (see #533).
-    # Examples: use 60 for P100 (Piz Daint), 80 for A100 (Juwels Booster, NVidia raplab/Curiosity).
-    MADGRAPH_CUDA_ARCHITECTURE ?= 70
-    ###CUARCHFLAGS = -gencode arch=compute_$(MADGRAPH_CUDA_ARCHITECTURE),code=compute_$(MADGRAPH_CUDA_ARCHITECTURE) -gencode arch=compute_$(MADGRAPH_CUDA_ARCHITECTURE),code=sm_$(MADGRAPH_CUDA_ARCHITECTURE) # Older implementation (AV): go back to this one for multi-GPU support #533
-    ###CUARCHFLAGS = --gpu-architecture=compute_$(MADGRAPH_CUDA_ARCHITECTURE) --gpu-code=sm_$(MADGRAPH_CUDA_ARCHITECTURE),compute_$(MADGRAPH_CUDA_ARCHITECTURE) # Newer implementation (SH): cannot use this as-is for multi-GPU support #533
-    comma:=,
-    CUARCHFLAGS = $(foreach arch,$(subst $(comma), ,$(MADGRAPH_CUDA_ARCHITECTURE)),-gencode arch=compute_$(arch),code=compute_$(arch) -gencode arch=compute_$(arch),code=sm_$(arch))
-    CUINC = -I$(CUDA_HOME)/include/
-    CURANDLIBFLAGS = -L$(CUDA_HOME)/lib64/ -lcurand # NB: -lcuda is not needed here!
-    CUOPTFLAGS = -lineinfo
-    CUFLAGS = $(foreach opt, $(OPTFLAGS), -Xcompiler $(opt)) $(CUOPTFLAGS) $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math
-    ###CUFLAGS += -Xcompiler -Wall -Xcompiler -Wextra -Xcompiler -Wshadow
-    ###NVCC_VERSION = $(shell $(NVCC) --version | grep 'Cuda compilation tools' | cut -d' ' -f5 | cut -d, -f1)
-    CUFLAGS += -std=c++17 # need CUDA >= 11.2 (see #333): this is enforced in mgOnGpuConfig.h
-    # Without -maxrregcount: baseline throughput: 6.5E8 (16384 32 12) up to 7.3E8 (65536 128 12)
-    ###CUFLAGS+= --maxrregcount 160 # improves throughput: 6.9E8 (16384 32 12) up to 7.7E8 (65536 128 12)
-    ###CUFLAGS+= --maxrregcount 128 # improves throughput: 7.3E8 (16384 32 12) up to 7.6E8 (65536 128 12)
-    ###CUFLAGS+= --maxrregcount 96 # degrades throughput: 4.1E8 (16384 32 12) up to 4.5E8 (65536 128 12)
-    ###CUFLAGS+= --maxrregcount 64 # degrades throughput: 1.7E8 (16384 32 12) flat at 1.7E8 (65536 128 12)
-  else ifneq ($(origin REQUIRE_CUDA),undefined)
-    # If REQUIRE_CUDA is set but no cuda is found, stop here (e.g. for CI tests on GPU #443)
-    $(error No cuda installation found (set CUDA_HOME or make nvcc visible in PATH))
+# Set NVCC as $(CUDA_HOME)/bin/nvcc if it exists
+ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
+  NVCC = $(CUDA_HOME)/bin/nvcc
+  USE_NVTX ?=-DUSE_NVTX
+  # See https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html
+  # See https://arnon.dk/matching-sm-architectures-arch-and-gencode-for-various-nvidia-cards/
+  # Default: use compute capability 70 for V100 (CERN lxbatch, CERN itscrd, Juwels Cluster).
+  # Embed device code for 70, and PTX for 70+.
+  # Export MADGRAPH_CUDA_ARCHITECTURE (comma-separated list) to use another value or list of values (see #533).
+  # Examples: use 60 for P100 (Piz Daint), 80 for A100 (Juwels Booster, NVidia raplab/Curiosity).
+  MADGRAPH_CUDA_ARCHITECTURE ?= 70
+  ###CUARCHFLAGS = -gencode arch=compute_$(MADGRAPH_CUDA_ARCHITECTURE),code=compute_$(MADGRAPH_CUDA_ARCHITECTURE) -gencode arch=compute_$(MADGRAPH_CUDA_ARCHITECTURE),code=sm_$(MADGRAPH_CUDA_ARCHITECTURE) # Older implementation (AV): go back to this one for multi-GPU support #533
+  ###CUARCHFLAGS = --gpu-architecture=compute_$(MADGRAPH_CUDA_ARCHITECTURE) --gpu-code=sm_$(MADGRAPH_CUDA_ARCHITECTURE),compute_$(MADGRAPH_CUDA_ARCHITECTURE) # Newer implementation (SH): cannot use this as-is for multi-GPU support #533
+  comma:=,
+  CUARCHFLAGS = $(foreach arch,$(subst $(comma), ,$(MADGRAPH_CUDA_ARCHITECTURE)),-gencode arch=compute_$(arch),code=compute_$(arch) -gencode arch=compute_$(arch),code=sm_$(arch))
+  CUINC = -I$(CUDA_HOME)/include/
+  ifeq ($(RNDGEN),hasNoCurand)
+    CURANDLIBFLAGS=
   else
-    # No cuda. Switch cuda compilation off and go to common random numbers in C++
-    $(warning CUDA_HOME is not set or is invalid: export CUDA_HOME to compile with cuda)
-    override NVCC=
-    override USE_NVTX=
-    override CUINC=
-    override CURANDLIBFLAGS=
+    CURANDLIBFLAGS = -L$(CUDA_HOME)/lib64/ -lcurand # NB: -lcuda is not needed here!
   endif
-  export NVCC
-  export CUFLAGS
+  CUOPTFLAGS = -lineinfo
+  CUFLAGS = $(foreach opt, $(OPTFLAGS), -Xcompiler $(opt)) $(CUOPTFLAGS) $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math
+  ###CUFLAGS += -Xcompiler -Wall -Xcompiler -Wextra -Xcompiler -Wshadow
+  ###NVCC_VERSION = $(shell $(NVCC) --version | grep 'Cuda compilation tools' | cut -d' ' -f5 | cut -d, -f1)
+  CUFLAGS += -std=c++17 # need CUDA >= 11.2 (see #333): this is enforced in mgOnGpuConfig.h
+  # Without -maxrregcount: baseline throughput: 6.5E8 (16384 32 12) up to 7.3E8 (65536 128 12)
+  ###CUFLAGS+= --maxrregcount 160 # improves throughput: 6.9E8 (16384 32 12) up to 7.7E8 (65536 128 12)
+  ###CUFLAGS+= --maxrregcount 128 # improves throughput: 7.3E8 (16384 32 12) up to 7.6E8 (65536 128 12)
+  ###CUFLAGS+= --maxrregcount 96 # degrades throughput: 4.1E8 (16384 32 12) up to 4.5E8 (65536 128 12)
+  ###CUFLAGS+= --maxrregcount 64 # degrades throughput: 1.7E8 (16384 32 12) flat at 1.7E8 (65536 128 12)
+else ifneq ($(origin REQUIRE_CUDA),undefined)
+  # If REQUIRE_CUDA is set but no cuda is found, stop here (e.g. for CI tests on GPU #443)
+  $(error No cuda installation found (set CUDA_HOME or make nvcc visible in PATH))
+else
+  # No cuda. Switch cuda compilation off and go to common random numbers in C++
+  $(warning CUDA_HOME is not set or is invalid: export CUDA_HOME to compile with cuda)
+  override NVCC=
+  override USE_NVTX=
+  override CUINC=
+  override CURANDLIBFLAGS=
+endif
+export NVCC
+export CUFLAGS
 
-  # Set the host C++ compiler for nvcc via "-ccbin <host-compiler>"
-  # (NB issue #505: this must be a single word, "clang++ --gcc-toolchain..." is not supported)
-  CUFLAGS += -ccbin $(shell which $(subst ccache ,,$(CXX)))
+# Set the host C++ compiler for nvcc via "-ccbin <host-compiler>"
+# (NB issue #505: this must be a single word, "clang++ --gcc-toolchain..." is not supported)
+CUFLAGS += -ccbin $(shell which $(subst ccache ,,$(CXX)))
 
-  # Allow newer (unsupported) C++ compilers with older versions of CUDA if ALLOW_UNSUPPORTED_COMPILER_IN_CUDA is set (#504)
-  ifneq ($(origin ALLOW_UNSUPPORTED_COMPILER_IN_CUDA),undefined)
-  CUFLAGS += -allow-unsupported-compiler
-  endif
-
-endif # ($(MAKECMDGOALS),cuda)
+# Allow newer (unsupported) C++ compilers with older versions of CUDA if ALLOW_UNSUPPORTED_COMPILER_IN_CUDA is set (#504)
+ifneq ($(origin ALLOW_UNSUPPORTED_COMPILER_IN_CUDA),undefined)
+CUFLAGS += -allow-unsupported-compiler
+endif
 
 #-------------------------------------------------------------------------------
 
@@ -225,16 +236,44 @@ endif
 
 # Set the default OMPFLAGS choice
 ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
-OMPFLAGS = -fopenmp
+override OMPFLAGS = -fopenmp
 ###override OMPFLAGS = # disable OpenMP MT on Intel (was ok without nvcc but not ok with nvcc before #578)
 else ifneq ($(shell $(CXX) --version | egrep '^(clang)'),)
-OMPFLAGS = -fopenmp
+override OMPFLAGS = -fopenmp
 ###override OMPFLAGS = # disable OpenMP MT on clang (was not ok without or with nvcc before #578)
-else ifneq ($(shell $(CXX) --version | egrep '^(Apple clang)'),)
-OMPFLAGS = # disable OpenMP MT on Apple clang (builds fail in the CI #578)
+###else ifneq ($(shell $(CXX) --version | egrep '^(Apple clang)'),) # AV for Mac (Apple clang compiler)
+else ifeq ($(UNAME_S),Darwin) # OM for Mac (any compiler)
+override OMPFLAGS = # AV disable OpenMP MT on Apple clang (builds fail in the CI #578)
+###override OMPFLAGS = -fopenmp # OM reenable OpenMP MT on Apple clang? (AV Oct 2023: this still fails in the CI)
 else
-OMPFLAGS = -fopenmp
-###override OMPFLAGS = # disable OpenMP MT (default before #575)
+override OMPFLAGS = -fopenmp # enable OpenMP MT by default on all other platforms
+###override OMPFLAGS = # disable OpenMP MT on all other platforms (default before #575)
+endif
+
+# Set the default AVX (vectorization) choice
+ifeq ($(AVX),)
+  ifeq ($(UNAME_P),ppc64le)
+    ###override AVX = none
+    override AVX = sse4
+  else ifeq ($(UNAME_P),arm)
+    ###override AVX = none
+    override AVX = sse4
+  else ifeq ($(wildcard /proc/cpuinfo),)
+    override AVX = none
+    $(warning Using AVX='$(AVX)' because host SIMD features cannot be read from /proc/cpuinfo)
+  else ifeq ($(shell grep -m1 -c avx512vl /proc/cpuinfo)$(shell $(CXX) --version | grep ^clang),1)
+    override AVX = 512y
+    ###$(info Using AVX='$(AVX)' as no user input exists)
+  else
+    override AVX = avx2
+    ifneq ($(shell grep -m1 -c avx512vl /proc/cpuinfo),1)
+      $(warning Using AVX='$(AVX)' because host does not support avx512vl)
+    else
+      $(warning Using AVX='$(AVX)' because this is faster than avx512vl for clang)
+    endif
+  endif
+else
+  ###$(info Using AVX='$(AVX)' according to user input)
 endif
 
 # Set the default FPTYPE (floating point type) choice
@@ -261,21 +300,6 @@ ifeq ($(RNDGEN),)
   endif
 endif
 
-# set the correct AVX based on avxcpp target
-ifeq ($(MAKECMDGOALS),cppnone) # no SIMD
-  override AVX = none
-else ifeq ($(MAKECMDGOALS),cppsse4) # SSE4.2 with 128 width (xmm registers)
-  override AVX = sse4
-else ifeq ($(MAKECMDGOALS),cppavx2) # AVX2 with 256 width (ymm registers) [DEFAULT for clang]
-  override AVX = avx2
-else ifeq ($(MAKECMDGOALS),cpp512y) # AVX512 with 256 width (ymm registers) [DEFAULT for gcc]
-  override AVX = 512y
-else ifeq ($(MAKECMDGOALS),cpp512z) # AVX512 with 512 width (zmm registers)
-  override AVX = 512z
-else
-  override AVX = none
-endif
-
 # Export AVX, FPTYPE, HELINL, HRDCOD, RNDGEN, OMPFLAGS so that it is not necessary to pass them to the src Makefile too
 export AVX
 export FPTYPE
@@ -295,52 +319,50 @@ CXXFLAGS += $(OMPFLAGS)
 # Set the build flags appropriate to each AVX choice (example: "make AVX=none")
 # [NB MGONGPU_PVW512 is needed because "-mprefer-vector-width=256" is not exposed in a macro]
 # [See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=96476]
-ifeq ($(findstring cpp,$(MAKECMDGOALS)),cpp)
-  $(info AVX=$(AVX))
-  ifeq ($(UNAME_P),ppc64le)
-    ifeq ($(AVX),sse4)
-      override AVXFLAGS = -D__SSE4_2__ # Power9 VSX with 128 width (VSR registers)
-    else ifneq ($(AVX),none)
-      $(error Unknown AVX='$(AVX)': only 'none' and 'sse4' are supported on PowerPC for the moment)
-    endif
-  else ifeq ($(UNAME_P),arm)
-    ifeq ($(AVX),sse4)
-      override AVXFLAGS = -D__SSE4_2__ # ARM NEON with 128 width (Q/quadword registers)
-    else ifneq ($(AVX),none)
-      $(error Unknown AVX='$(AVX)': only 'none' and 'sse4' are supported on ARM for the moment)
-    endif
-  else ifneq ($(shell $(CXX) --version | grep ^nvc++),) # support nvc++ #531
-    ifeq ($(AVX),none)
-      override AVXFLAGS = -mno-sse3 # no SIMD
-    else ifeq ($(AVX),sse4)
-      override AVXFLAGS = -mno-avx # SSE4.2 with 128 width (xmm registers)
-    else ifeq ($(AVX),avx2)
-      override AVXFLAGS = -march=haswell # AVX2 with 256 width (ymm registers) [DEFAULT for clang]
-    else ifeq ($(AVX),512y)
-      override AVXFLAGS = -march=skylake -mprefer-vector-width=256 # AVX512 with 256 width (ymm registers) [DEFAULT for gcc]
-    else ifeq ($(AVX),512z)
-      override AVXFLAGS = -march=skylake -DMGONGPU_PVW512 # AVX512 with 512 width (zmm registers)
-    else
-      $(error Unknown AVX='$(AVX)': only 'none', 'sse4', 'avx2', '512y' and '512z' are supported)
-    endif
-  else
-    ifeq ($(AVX),none)
-      override AVXFLAGS = -march=x86-64 # no SIMD (see #588)
-    else ifeq ($(AVX),sse4)
-      override AVXFLAGS = -march=nehalem # SSE4.2 with 128 width (xmm registers)
-    else ifeq ($(AVX),avx2)
-      override AVXFLAGS = -march=haswell # AVX2 with 256 width (ymm registers) [DEFAULT for clang]
-    else ifeq ($(AVX),512y)
-      override AVXFLAGS = -march=skylake-avx512 -mprefer-vector-width=256 # AVX512 with 256 width (ymm registers) [DEFAULT for gcc]
-    else ifeq ($(AVX),512z)
-      override AVXFLAGS = -march=skylake-avx512 -DMGONGPU_PVW512 # AVX512 with 512 width (zmm registers)
-    else
-      $(error Unknown AVX='$(AVX)': only 'none', 'sse4', 'avx2', '512y' and '512z' are supported)
-    endif
+$(info AVX=$(AVX))
+ifeq ($(UNAME_P),ppc64le)
+  ifeq ($(AVX),sse4)
+    override AVXFLAGS = -D__SSE4_2__ # Power9 VSX with 128 width (VSR registers)
+  else ifneq ($(AVX),none)
+    $(error Unknown AVX='$(AVX)': only 'none' and 'sse4' are supported on PowerPC for the moment)
   endif
-  # For the moment, use AVXFLAGS everywhere: eventually, use them only in encapsulated implementations?
-  CXXFLAGS+= $(AVXFLAGS)
+else ifeq ($(UNAME_P),arm)
+  ifeq ($(AVX),sse4)
+    override AVXFLAGS = -D__SSE4_2__ # ARM NEON with 128 width (Q/quadword registers)
+  else ifneq ($(AVX),none)
+    $(error Unknown AVX='$(AVX)': only 'none' and 'sse4' are supported on ARM for the moment)
+  endif
+else ifneq ($(shell $(CXX) --version | grep ^nvc++),) # support nvc++ #531
+  ifeq ($(AVX),none)
+    override AVXFLAGS = -mno-sse3 # no SIMD
+  else ifeq ($(AVX),sse4)
+    override AVXFLAGS = -mno-avx # SSE4.2 with 128 width (xmm registers)
+  else ifeq ($(AVX),avx2)
+    override AVXFLAGS = -march=haswell # AVX2 with 256 width (ymm registers) [DEFAULT for clang]
+  else ifeq ($(AVX),512y)
+    override AVXFLAGS = -march=skylake -mprefer-vector-width=256 # AVX512 with 256 width (ymm registers) [DEFAULT for gcc]
+  else ifeq ($(AVX),512z)
+    override AVXFLAGS = -march=skylake -DMGONGPU_PVW512 # AVX512 with 512 width (zmm registers)
+  else
+    $(error Unknown AVX='$(AVX)': only 'none', 'sse4', 'avx2', '512y' and '512z' are supported)
+  endif
+else
+  ifeq ($(AVX),none)
+    override AVXFLAGS = -march=x86-64 # no SIMD (see #588)
+  else ifeq ($(AVX),sse4)
+    override AVXFLAGS = -march=nehalem # SSE4.2 with 128 width (xmm registers)
+  else ifeq ($(AVX),avx2)
+    override AVXFLAGS = -march=haswell # AVX2 with 256 width (ymm registers) [DEFAULT for clang]
+  else ifeq ($(AVX),512y)
+    override AVXFLAGS = -march=skylake-avx512 -mprefer-vector-width=256 # AVX512 with 256 width (ymm registers) [DEFAULT for gcc]
+  else ifeq ($(AVX),512z)
+    override AVXFLAGS = -march=skylake-avx512 -DMGONGPU_PVW512 # AVX512 with 512 width (zmm registers)
+  else
+    $(error Unknown AVX='$(AVX)': only 'none', 'sse4', 'avx2', '512y' and '512z' are supported)
+  endif
 endif
+# For the moment, use AVXFLAGS everywhere: eventually, use them only in encapsulated implementations?
+CXXFLAGS+= $(AVXFLAGS)
 
 # Set the build flags appropriate to each FPTYPE choice (example: "make FPTYPE=f")
 $(info FPTYPE=$(FPTYPE))
@@ -391,19 +413,11 @@ endif
 
 # Build directory "short" tag (defines target and path to the optional build directory)
 # (Rationale: keep directory names shorter, e.g. do not include random number generator choice)
-ifneq ($(NVCC),)
-  override DIRTAG = cuda_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)
-else
-  override DIRTAG = $(AVX)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)
-endif
+override DIRTAG = $(AVX)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)
 
 # Build lockfile "full" tag (defines full specification of build options that cannot be intermixed)
 # (Rationale: avoid mixing of CUDA and no-CUDA environment builds with different random number generators)
-ifneq ($(NVCC),)
-  override TAG = cuda_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)_$(RNDGEN)
-else
-  override TAG = $(AVX)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)_$(RNDGEN)
-endif
+override TAG = $(AVX)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)_$(RNDGEN)
 
 # Build directory: current directory by default, or build.$(DIRTAG) if USEBUILDDIR==1
 ifeq ($(USEBUILDDIR),1)
@@ -458,9 +472,9 @@ endif
 testmain=$(BUILDDIR)/runTest.exe
 
 ifneq ($(GTESTLIBS),)
-all.$(TAG): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cu_main) $(cxx_main) $(fcu_main) $(fcxx_main) $(testmain)
+all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cu_main) $(cxx_main) $(fcu_main) $(fcxx_main) $(testmain)
 else
-all.$(TAG): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cu_main) $(cxx_main) $(fcu_main) $(fcxx_main)
+all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cu_main) $(cxx_main) $(fcu_main) $(fcxx_main)
 endif
 
 # Target (and build options): debug
@@ -470,20 +484,27 @@ debug: CUOPTFLAGS = -G
 debug: MAKEDEBUG := debug
 debug: all.$(TAG)
 
+# Target: tag-specific build lockfiles
+override oldtagsb=`if [ -d $(BUILDDIR) ]; then find $(BUILDDIR) -maxdepth 1 -name '.build.*' ! -name '.build.$(TAG)' -exec echo $(shell pwd)/{} \; ; fi`
+$(BUILDDIR)/.build.$(TAG):
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
+	@if [ "$(oldtagsb)" != "" ]; then echo "Cannot build for tag=$(TAG) as old builds exist for other tags:"; echo "  $(oldtagsb)"; echo "Please run 'make clean' first\nIf 'make clean' is not enough: run 'make clean USEBUILDDIR=1 AVX=$(AVX) FPTYPE=$(FPTYPE)' or 'make cleanall'"; exit 1; fi
+	@touch $(BUILDDIR)/.build.$(TAG)
+
 # Generic target and build rules: objects from CUDA compilation
 ifneq ($(NVCC),)
-$(BUILDDIR)/%.o : %.cu *.h ../../src/*.h
+$(BUILDDIR)/%.o : %.cu *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -Xcompiler -fPIC -c $< -o $@
 
-$(BUILDDIR)/%_cu.o : %.cc *.h ../../src/*.h
+$(BUILDDIR)/%_cu.o : %.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -Xcompiler -fPIC -c -x cu $< -o $@
 endif
 
 # Generic target and build rules: objects from C++ compilation
 # (NB do not include CUINC here! add it only for NVTX or curand #679)
-$(BUILDDIR)/%.o : %.cc *.h ../../src/*.h
+$(BUILDDIR)/%.o : %.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -fPIC -c $< -o $@
 
@@ -502,8 +523,9 @@ $(BUILDDIR)/gcheck_sa.o: CXXFLAGS += $(USE_NVTX) $(CUINC)
 
 # Apply special build flags only to check_sa and CurandRandomNumberKernel (curand headers, #679)
 $(BUILDDIR)/check_sa.o: CXXFLAGS += $(CXXFLAGSCURAND)
-$(BUILDDIR)/gcheck_sa.o: CXXFLAGS += $(CXXFLAGSCURAND)
+$(BUILDDIR)/gcheck_sa.o: CUFLAGS += $(CXXFLAGSCURAND)
 $(BUILDDIR)/CurandRandomNumberKernel.o: CXXFLAGS += $(CXXFLAGSCURAND)
+$(BUILDDIR)/gCurandRandomNumberKernel.o: CUFLAGS += $(CXXFLAGSCURAND)
 ifeq ($(RNDGEN),hasCurand)
 $(BUILDDIR)/CurandRandomNumberKernel.o: CXXFLAGS += $(CUINC)
 endif
@@ -535,7 +557,7 @@ endif
 # Target (and build rules): common (src) library
 commonlib : $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so
 
-$(LIBDIR)/lib$(MG5AMC_COMMONLIB).so: ../../src/*.h ../../src/*.cc
+$(LIBDIR)/lib$(MG5AMC_COMMONLIB).so: ../../src/*.h ../../src/*.cc $(BUILDDIR)/.build.$(TAG)
 	$(MAKE) -C ../../src $(MAKEDEBUG) -f $(CUDACPP_SRC_MAKEFILE)
 
 #-------------------------------------------------------------------------------
@@ -701,12 +723,18 @@ $(testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects_lib) $(cxx_object
 	$(NVCC) -o $@ $(cxx_objects_lib) $(cxx_objects_exe) $(cu_objects_lib) $(cu_objects_exe) -ldl $(LIBFLAGS) -lcuda
 endif
 
+# Use target gtestlibs to build only googletest
+ifneq ($(GTESTLIBS),)
+gtestlibs: $(GTESTLIBS)
+endif
+
 # Use flock (Linux only, no Mac) to allow 'make -j' if googletest has not yet been downloaded https://stackoverflow.com/a/32666215
 $(GTESTLIBS):
 ifneq ($(shell which flock 2>/dev/null),)
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	flock $(BUILDDIR)/.make_test.lock $(MAKE) -C $(TESTDIR)
 else
-	$(MAKE) -C $(TESTDIR)
+	if [ -d $(TESTDIR) ]; then $(MAKE) -C $(TESTDIR); fi
 endif
 
 #-------------------------------------------------------------------------------
@@ -714,27 +742,35 @@ endif
 # Target: build all targets in all AVX modes (each AVX mode in a separate build directory)
 # Split the avxall target into five separate targets to allow parallel 'make -j avxall' builds
 # (Hack: add a fbridge.inc dependency to avxall, to ensure it is only copied once for all AVX modes)
-cppnone: $(cxx_main)
+avxnone:
+	@echo
+	$(MAKE) USEBUILDDIR=1 AVX=none -f $(CUDACPP_MAKEFILE)
 
-cppsse4: $(cxx_main)
+avxsse4:
+	@echo
+	$(MAKE) USEBUILDDIR=1 AVX=sse4 -f $(CUDACPP_MAKEFILE)
 
-cppavx2: $(cxx_main)
+avxavx2:
+	@echo
+	$(MAKE) USEBUILDDIR=1 AVX=avx2 -f $(CUDACPP_MAKEFILE)
 
-cpp512y: $(cxx_main)
+avx512y:
+	@echo
+	$(MAKE) USEBUILDDIR=1 AVX=512y -f $(CUDACPP_MAKEFILE)
 
-cpp512z: $(cxx_main)
-
-cuda: $(cu_main)
+avx512z:
+	@echo
+	$(MAKE) USEBUILDDIR=1 AVX=512z -f $(CUDACPP_MAKEFILE)
 
 ifeq ($(UNAME_P),ppc64le)
 ###avxall: $(INCDIR)/fbridge.inc avxnone avxsse4
-cppall: cppnone cppsse4
+avxall: avxnone avxsse4
 else ifeq ($(UNAME_P),arm)
 ###avxall: $(INCDIR)/fbridge.inc avxnone avxsse4
-cppall: cppnone cppsse4
+avxall: avxnone avxsse4
 else
 ###avxall: $(INCDIR)/fbridge.inc avxnone avxsse4 avxavx2 avx512y avx512z
-cppall: cppnone cppsse4 cppavx2 cpp512y cpp512z
+avxall: avxnone avxsse4 avxavx2 avx512y avx512z
 endif
 
 #-------------------------------------------------------------------------------
@@ -742,31 +778,21 @@ endif
 # Target: clean the builds
 .PHONY: clean
 
-BUILD_DIRS := $(wildcard build.*)
-NUM_BUILD_DIRS := $(words $(BUILD_DIRS))
-
 clean:
 ifeq ($(USEBUILDDIR),1)
-ifeq ($(NUM_BUILD_DIRS),1)
-	$(info USEBUILDDIR=1, Only one build directory found.)
-	rm -rf $(BUILD_DIRS)
-else ifeq ($(NUM_BUILD_DIRS),0)
-	$(error USEBUILDDIR=1, but no build directories are found.)
+	rm -rf $(BUILDDIR)
 else
-	$(error Multiple BUILDDIR's found! Use 'cleannone', 'cleansse4', 'cleanavx2', 'clean512y','clean512z', 'cleancuda' or 'cleanall'.)
-endif
-else
-	rm -f $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
+	rm -f $(BUILDDIR)/.build.* $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
 	rm -f $(LIBDIR)/lib$(MG5AMC_CXXLIB).so $(LIBDIR)/lib$(MG5AMC_CULIB).so
 endif
 	$(MAKE) -C ../../src clean -f $(CUDACPP_SRC_MAKEFILE)
+###	rm -rf $(INCDIR)
 
 cleanall:
 	@echo
-	rm -f $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
-	rm -f $(LIBDIR)/lib$(MG5AMC_CXXLIB).so $(LIBDIR)/lib$(MG5AMC_CULIB).so
+	$(MAKE) USEBUILDDIR=0 clean -f $(CUDACPP_MAKEFILE)
 	@echo
-	$(MAKE) -C ../../src cleanall -f $(CUDACPP_SRC_MAKEFILE)
+	$(MAKE) USEBUILDDIR=0 -C ../../src cleanall -f $(CUDACPP_SRC_MAKEFILE)
 	rm -rf build.*
 
 # Target: clean the builds as well as the gtest installation(s)
@@ -775,42 +801,6 @@ ifneq ($(wildcard $(TESTDIRCOMMON)),)
 	$(MAKE) -C $(TESTDIRCOMMON) clean
 endif
 	$(MAKE) -C $(TESTDIRLOCAL) clean
-
-# Target: clean different builds
-cleannone:
-	rm -rf build.none_*
-	rm -f ../../lib/build.none_*/lib$(MG5AMC_CXXLIB).so
-	$(MAKE) -C ../../src cleannone -f $(CUDACPP_SRC_MAKEFILE)
-
-cleansse4:
-	rm -rf build.sse4_*
-	rm -f ../../lib/build.sse4_*/lib$(MG5AMC_CXXLIB).so
-	$(MAKE) -C ../../src cleansse4 -f $(CUDACPP_SRC_MAKEFILE)
-
-cleanavx2:
-	rm -rf build.avx2_*
-	rm -f ../../lib/build.avx2_*/lib$(MG5AMC_CXXLIB).so
-	$(MAKE) -C ../../src cleanavx2 -f $(CUDACPP_SRC_MAKEFILE)
-
-clean512y:
-	rm -rf build.512y_*
-	rm -f ../../lib/build.512y_*/lib$(MG5AMC_CXXLIB).so
-	$(MAKE) -C ../../src clean512y -f $(CUDACPP_SRC_MAKEFILE)
-
-clean512z:
-	rm -rf build.512z_*
-	rm -f ../../lib/build.512z_*/lib$(MG5AMC_CXXLIB).so
-	$(MAKE) -C ../../src clean512z -f $(CUDACPP_SRC_MAKEFILE)
-
-cleancuda:
-	rm -rf build.cuda_*
-	rm -f ../../lib/build.cuda_*/lib$(MG5AMC_CULIB).so
-	$(MAKE) -C ../../src cleancuda -f $(CUDACPP_SRC_MAKEFILE)
-
-cleandir:
-	rm -f ./*.o ./*.exe
-	rm -f ../../lib/lib$(MG5AMC_CXXLIB).so ../../lib/lib$(MG5AMC_CULIB).so
-	$(MAKE) -C ../../src cleandir -f $(CUDACPP_SRC_MAKEFILE)
 
 #-------------------------------------------------------------------------------
 
@@ -858,10 +848,13 @@ endif
 
 #-------------------------------------------------------------------------------
 
-# Target: check/gcheck (run the C++ test executable)
+# Target: check (run the C++ test executable)
 # [NB THIS IS WHAT IS USED IN THE GITHUB CI!]
+ifneq ($(NVCC),)
+check: runTest cmpFcheck cmpFGcheck
+else
 check: runTest cmpFcheck
-gcheck: runTest cmpFGcheck
+endif
 
 # Target: runTest (run the C++ test executable runTest.exe)
 runTest: all.$(TAG)

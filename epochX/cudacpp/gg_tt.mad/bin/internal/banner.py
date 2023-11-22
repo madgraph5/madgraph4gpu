@@ -2687,17 +2687,25 @@ class RunCard(ConfigFile):
                             except Exception as error:
                                 import launch_plugin
                         target_class = launch_plugin.RunCard
-                    elif not MADEVENT and os.path.exists(path.replace('run_card.dat', '../bin/internal/launch_plugin.py')):
-                        misc.sprint('try to use plugin class')
-                        pydir = path.replace('run_card.dat', '../bin/internal/')
-                        with  misc.TMP_variable(sys, 'path', sys.path + [pydir]):
-                            from importlib import reload
-                            try:
-                                reload('launch_plugin')
-                            except Exception as error:
-                                import launch_plugin
-                        target_class = launch_plugin.RunCard
-
+                    elif not MADEVENT:
+                        if 'run_card.dat' in path:
+                            launch_plugin_path = path.replace('run_card.dat', '../bin/internal/launch_plugin.py')
+                        elif 'run_card_default.dat' in path:
+                             launch_plugin_path = path.replace('run_card_default.dat', '../bin/internal/launch_plugin.py')
+                        else:
+                            launch_plugin_path = None
+                        if launch_plugin_path and os.path.exists(launch_plugin_path):
+                            misc.sprint('try to use plugin class', path.replace('run_card.dat', '../bin/internal/launch_plugin.py'))
+                            pydir = os.path.dirname(launch_plugin_path)
+                            with  misc.TMP_variable(sys, 'path', sys.path + [pydir]):
+                                from importlib import reload
+                                try:
+                                    reload('launch_plugin')
+                                except Exception as error:
+                                    import launch_plugin
+                            target_class = launch_plugin.RunCard
+            elif issubclass(finput, RunCard):
+                target_class = finput
             else:
                 return None
 
@@ -2814,13 +2822,15 @@ class RunCard(ConfigFile):
         if fct_mod:
             self.fct_mod[name] = fct_mod
 
-    def read(self, finput, consistency=True, unknown_warning=True):
+    def read(self, finput, consistency=True, unknown_warning=True, **opt):
         """Read the input file, this can be a path to a file, 
            a file object, a str with the content of the file."""
            
         if isinstance(finput, str):
             if "\n" in finput:
                 finput = finput.split('\n')
+                if 'path' in opt:
+                    self.path = opt['path']
             elif os.path.isfile(finput):
                 self.path = finput
                 finput = open(finput)
@@ -2929,6 +2939,7 @@ class RunCard(ConfigFile):
 
 
     def reset_simd(self, old_value, new_value, name, *args, **opts):
+        #return
         raise Exception('pass in reset simd')
 
     def make_clean(self,old_value, new_value, name, dir):
@@ -2960,11 +2971,12 @@ class RunCard(ConfigFile):
         if python_template and not to_write:
             import string
             if self.blocks:
-                text = string.Template(text)
                 mapping = {}
                 for b in self.blocks:
                     mapping[b.name] =  b.get_template(self)
-                text = text.substitute(mapping)
+                    if "$%s" % b.name not in text:
+                        text += "\n$%s\n" % b.name
+                text = string.Template(text).substitute(mapping)
 
             if not self.list_parameter:
                 text = text % self
@@ -3903,7 +3915,7 @@ template_on = \
    %(global_flag)s = global_flag ! fortran optimization flag use for the all code.
    %(aloha_flag)s  = aloha_flag ! fortran optimization flag for aloha function. Suggestions: '-ffast-math'
    %(matrix_flag)s = matrix_flag ! fortran optimization flag for matrix.f function. Suggestions: '-O3'
-   %(vector_size)s = vector_size ! size designed for SIMD/OpenMP/GPU (number of events in lockstep)
+   %(vector_size)s = vector_size ! size of fortran arrays allocated in the multi-event API for SIMD/GPU (VECSIZE_MEMMAX)
 """
 
 template_off = '# To see advanced option for Phase-Space optimization: type "update psoptim"'
@@ -4866,6 +4878,9 @@ class RunCardLO(RunCard):
             else:
                 continue
             break
+
+        if proc_characteristic['ninitial'] == 1:
+            self['SDE_strategy'] =1
 
         if 'MLM' in proc_characteristic['limitations']:
             if self['dynamical_scale_choice'] ==  -1:
@@ -5932,7 +5947,7 @@ class MadLoopParam(ConfigFile):
         self.add_param("CheckCycle", 3)
         self.add_param("MaxAttempts", 10)
         self.add_param("ZeroThres", 1e-9)
-        self.add_param("OSThres", 1.0e-13)
+        self.add_param("OSThres", 1.0e-8)
         self.add_param("DoubleCheckHelicityFilter", True)
         self.add_param("WriteOutFilters", True)
         self.add_param("UseLoopFilter", False)

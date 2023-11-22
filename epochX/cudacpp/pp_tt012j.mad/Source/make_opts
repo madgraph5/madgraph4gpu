@@ -1,17 +1,12 @@
-pdlabel1=
-pdlabel2=
-lhapdf=
-PYTHIA8_PATH=NotInstalled
-MG5AMC_VERSION=3.5.1_lo_vect
-GLOBAL_FLAG=-O
-ALOHA_FLAG=
-MATRIX_FLAG=
 DEFAULT_CPP_COMPILER=g++
-MACFLAG=
-STDLIB=-lstdc++
-STDLIB_FLAG=
+DEFAULT_F2PY_COMPILER=f2py3
 DEFAULT_F_COMPILER=gfortran
-DEFAULT_F2PY_COMPILER=f2py3.9
+GLOBAL_FLAG=-O3 -ffast-math -fbounds-check
+MACFLAG=
+MG5AMC_VERSION=SpecifiedByMG5aMCAtRunTime
+PYTHIA8_PATH=NotInstalled
+STDLIB_FLAG=
+STDLIB=-lstdc++
 #end_of_make_opts_variables
 
 BIASLIBDIR=../../../lib/
@@ -36,7 +31,7 @@ endif
 # For debugging Fortran, one could e.g. use:
 # FCFLAGS="-g -fbounds-check -ffpe-trap=invalid,zero,overflow,underflow,denormal -Wall -fimplicit-none"
 ############################################################
-
+$(warning GLOBAL_FLAG is ignored here)
 FCFLAGS   ?= -O3 -ffast-math -fbounds-check
 CXXFLAGS  ?= -O3 -ffast-math -DNDEBUG
 NVCCFLAGS ?= -O3 -ffast-math -use_fast_math -DNDEBUG -lineinfo
@@ -218,8 +213,6 @@ else
   # No cuda. Switch cuda compilation off and go to common random numbers in C++
   $(warning CUDA_HOME is not set or is invalid: export CUDA_HOME to compile with cuda)
   override NVCC=
-  override USE_NVTX=
-  override CUINC=
   override CURANDLIBFLAGS=
 endif
 
@@ -251,6 +244,7 @@ endif
 
 #=== Configure PowerPC-specific compiler flags for C++ and CUDA
 
+$(warning Unify this with other makefiles)
 # PowerPC-specific CXX / CUDA compiler flags (being reviewed)
 ifeq ($(UNAME_P),ppc64le)
   MG_CXXFLAGS+= -mcpu=power9 -mtune=power9 # gains ~2-3% both for none and sse4
@@ -319,11 +313,20 @@ endif
 $(info RNDGEN=$(RNDGEN))
 ifeq ($(RNDGEN),hasNoCurand)
   override CXXFLAGSCURAND = -DMGONGPU_HAS_NO_CURAND
+  override CURANDLIBFLAGS =
 else ifeq ($(RNDGEN),hasCurand)
-  override CXXFLAGSCURAND =
+  CXXFLAGSCURAND = $(CUINC)
 else
   $(error Unknown RNDGEN='$(RNDGEN)': only 'hasCurand' and 'hasNoCurand' are supported)
 endif
 
 MG_CXXFLAGS  += $(COMMONFLAGS)
 MG_NVCCFLAGS += $(COMMONFLAGS)
+
+#-------------------------------------------------------------------------------
+$(warning Unify this with other makefiles)
+# Add -std=c++17 explicitly to avoid build errors on macOS
+# Add -mmacosx-version-min=11.3 to avoid "ld: warning: object file was built for newer macOS version than being linked"
+ifneq ($(shell $(CXX) --version | egrep '^Apple clang'),)
+MG_CXXFLAGS += -std=c++17 -mmacosx-version-min=11.3
+endif

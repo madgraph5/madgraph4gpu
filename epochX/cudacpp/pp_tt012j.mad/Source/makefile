@@ -122,7 +122,7 @@ $(LIBDIR)libiregi.a: $(IREGIDIR)
 	ln -sf ../Source/$(IREGIDIR)libiregi.a $(LIBDIR)libiregi.a
 
 clean:
-	$(RM) *.o *.inc $(LIBRARIES) $(BINARIES)
+	$(RM) *.o $(LIBRARIES) $(BINARIES)
 	cd PDF; make clean; cd ..
 	cd PDF/gammaUPC; make clean; cd ../../
 	cd DHELAS; make clean; cd ..

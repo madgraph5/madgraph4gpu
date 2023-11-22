@@ -17,6 +17,7 @@ help:
 	$(info Or 'cppall' for all C++ targets)
 	$(info Or 'ALL' for all C++ and cuda targets)
 
+
 # Enable ccache if USECCACHE=1
 ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
   override CXX:=ccache $(CXX)
@@ -95,12 +96,23 @@ CUDACPP_CULIB  := $(CUDACPP_BUILDDIR)/lib$(MG5AMC_CULIB).so
 
 # Binaries
 
+$(warning Find a place for the following)
+ifeq ($(UNAME),Darwin)
+MG_LDFLAGS += -lc++ # avoid 'Undefined symbols' for chrono::steady_clock on macOS (checked with otool -L libmg5amc_gg_ttx_cpp.so)
+MG_LDFLAGS += -mmacosx-version-min=11.3 # avoid "ld: warning: object file was built for newer macOS version than being linked"
+else
+MG_LDFLAGS += -Xlinker --no-relax # avoid 'failed to convert GOTPCREL relocation' error #458 (not supported on macOS)
+endif
+
+# Set up OpenMP if supported
 OMPFLAGS ?= -fopenmp
 ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
 LINKLIBS += -liomp5 # see #578
 LINKLIBS += -lintlc # undefined reference to `_intel_fast_memcpy'
 else ifneq ($(shell $(CXX) --version | egrep '^clang'),)
 $(CUDACPP_BUILDDIR)/$(PROG)_cpp: LINKLIBS += -L $(shell dirname $(shell $(CXX) -print-file-name=libc++.so)) -lomp # see #604
+else ifneq ($(shell $(CXX) --version | egrep '^Apple clang'),)
+OMPFLAGS = # OMP is not supported yet by cudacpp for Apple clang
 endif
 
 $(PROG)_fortran: $(PROCESS) $(DSIG) auto_dsig.o $(LIBS) $(MATRIX) counters.o ompnumthreads.o

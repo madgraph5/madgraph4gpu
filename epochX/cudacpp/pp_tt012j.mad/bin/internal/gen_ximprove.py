@@ -2,18 +2,18 @@
 #
 # Copyright (c) 2014 The MadGraph5_aMC@NLO Development team and Contributors
 #
-# This file is a part of the MadGraph5_aMC@NLO project, an application which 
+# This file is a part of the MadGraph5_aMC@NLO project, an application which
 # automatically generates Feynman diagrams and matrix elements for arbitrary
 # high-energy processes in the Standard Model and beyond.
 #
-# It is subject to the MadGraph5_aMC@NLO license which should accompany this 
+# It is subject to the MadGraph5_aMC@NLO license which should accompany this
 # distribution.
 #
 # For more information, visit madgraph.phys.ucl.ac.be and amcatnlo.web.cern.ch
 #
 ################################################################################
 """ A python file to replace the fortran script gen_ximprove.
-    This script analyses the result of the survey/ previous refine and 
+    This script analyses the result of the survey/ previous refine and
     creates the jobs for the following script.
 """
 from __future__ import division
@@ -66,77 +66,77 @@ pjoin = os.path.join
 class gensym(object):
     """a class to call the fortran gensym executable and handle it's output
     in order to create the various job that are needed for the survey"""
-    
+
     #convenient shortcut for the formatting of variable
     @ staticmethod
     def format_variable(*args):
         return bannermod.ConfigFile.format_variable(*args)
-    
+
     combining_job = 2 # number of channel by ajob
-    splitted_grid = False 
+    splitted_grid = False
     min_iterations = 3
     mode= "survey"
-    
+
 
     def __init__(self, cmd, opt=None):
-        
+
         try:
             super(gensym, self).__init__(cmd, opt)
         except TypeError:
             pass
-        
-        # Run statistics, a dictionary of RunStatistics(), with 
+
+        # Run statistics, a dictionary of RunStatistics(), with
         self.run_statistics = {}
-        
+
         self.cmd = cmd
         self.run_card = cmd.run_card
         self.me_dir = cmd.me_dir
-        
-        
+
+
         # dictionary to keep track of the precision when combining iteration
         self.cross = collections.defaultdict(int)
         self.abscross = collections.defaultdict(int)
         self.sigma = collections.defaultdict(int)
         self.chi2 = collections.defaultdict(int)
-        
+
         self.splitted_grid = False
         if self.cmd.proc_characteristics['loop_induced']:
             nexternal = self.cmd.proc_characteristics['nexternal']
             self.splitted_grid = max(2, (nexternal-2)**2)
             if hasattr(self.cmd, "opts") and self.cmd.opts['accuracy'] == 0.1:
                 self.cmd.opts['accuracy'] = 0.02
-        
+
         if isinstance(cmd.cluster, cluster.MultiCore) and self.splitted_grid > 1:
             self.splitted_grid = int(cmd.cluster.nb_core**0.5)
             if self.splitted_grid == 1 and cmd.cluster.nb_core >1:
                 self.splitted_grid = 2
-        
+
         #if the user defines it in the run_card:
         if self.run_card['survey_splitting'] != -1:
             self.splitted_grid = self.run_card['survey_splitting']
         if self.run_card['survey_nchannel_per_job'] != 1 and 'survey_nchannel_per_job' in self.run_card.user_set:
-            self.combining_job = self.run_card['survey_nchannel_per_job']        
+            self.combining_job = self.run_card['survey_nchannel_per_job']
         elif self.run_card['hard_survey'] > 1:
             self.combining_job = 1
-            
-        
+
+
         self.splitted_Pdir = {}
         self.splitted_for_dir = lambda x,y: self.splitted_grid
         self.combining_job_for_Pdir = lambda x: self.combining_job
         self.lastoffset = {}
-    
+
     done_warning_zero_coupling = False
     def get_helicity(self, to_submit=True, clean=True):
         """launch a single call to madevent to get the list of non zero helicity"""
-    
-        self.subproc = [l.strip() for l in open(pjoin(self.me_dir,'SubProcesses', 
+
+        self.subproc = [l.strip() for l in open(pjoin(self.me_dir,'SubProcesses',
                                                                  'subproc.mg'))]
         subproc = self.subproc
         P_zero_result = []
         nb_tot_proc = len(subproc)
-        job_list = {}      
-        
-          
+        job_list = {}
+
+
         for nb_proc,subdir in enumerate(subproc):
             self.cmd.update_status('Compiling for process %s/%s.' % \
                                (nb_proc+1,nb_tot_proc), level=None)
@@ -154,19 +154,23 @@ class gensym(object):
             p = misc.Popen(['./gensym'], stdout=subprocess.PIPE,
                                  stderr=subprocess.STDOUT, cwd=Pdir)
             #sym_input = "%(points)d %(iterations)d %(accuracy)f \n" % self.opts
-            
+
             (stdout, _) = p.communicate(''.encode())
             stdout = stdout.decode('ascii',errors='ignore')
-            try:
+            if stdout:
                 nb_channel = max([math.floor(float(d)) for d in stdout.split()])
-            except Exception as error:
-                misc.sprint(stdout, 'no channel or error for %s' % Pdir)
-                continue
+            else:
+                for matrix_file in misc.glob('matrix*orig.f', Pdir):
+                    files.cp(matrix_file, matrix_file.replace('orig','optim'))
+                P_zero_result.append(Pdir)
+                if os.path.exists(pjoin(self.me_dir, 'error')):
+                    os.remove(pjoin(self.me_dir, 'error'))
+                continue # bypass bad process
 
             self.cmd.compile(['madevent_forhel'], cwd=Pdir)
             if not os.path.exists(pjoin(Pdir, 'madevent_forhel')):
-                raise Exception('Error make madevent_forhel not successful')  
-            
+                raise Exception('Error make madevent_forhel not successful')
+
             if not os.path.exists(pjoin(Pdir, 'Hel')):
                 os.mkdir(pjoin(Pdir, 'Hel'))
                 ff = open(pjoin(Pdir, 'Hel', 'input_app.txt'),'w')
@@ -176,18 +180,20 @@ class gensym(object):
                 try:
                     os.remove(pjoin(Pdir, 'Hel','results.dat'))
                 except Exception:
-                    pass         
+                    pass
             # Launch gensym
-            p = misc.Popen(['../madevent_forhel < input_app.txt'], stdout=subprocess.PIPE, 
+            p = misc.Popen(['../madevent_forhel < input_app.txt'], stdout=subprocess.PIPE,
                                  stderr=subprocess.STDOUT, cwd=pjoin(Pdir,'Hel'), shell=True)
             #sym_input = "%(points)d %(iterations)d %(accuracy)f \n" % self.opts
             (stdout, _) = p.communicate(" ".encode())
             stdout = stdout.decode('ascii',errors='ignore')
-            if os.path.exists(pjoin(self.me_dir,'error')):
-                raise Exception(pjoin(self.me_dir,'error')) 
+            if os.path.exists(pjoin(self.me_dir, 'error')):
+                raise Exception(pjoin(self.me_dir,'error'))
                 # note a continue is not enough here, we have in top to link
                 # the matrixX_optim.f to matrixX_orig.f to let the code to work
                 # after this error.
+                #                for matrix_file in misc.glob('matrix*orig.f', Pdir):
+                #    files.cp(matrix_file, matrix_file.replace('orig','optim'))
 
             if 'no events passed cuts' in stdout:
                 raise Exception
@@ -197,7 +203,7 @@ class gensym(object):
             zero_gc = list()
             all_zampperhel = set()
             all_bad_amps_perhel = set()
-            
+
             for line in stdout.splitlines():
                 if "="  not in line and ":" not in line:
                     continue
@@ -223,22 +229,22 @@ class gensym(object):
                                 "%s\n" % (' '.join(zero_gc)) +\
                                "This will slow down the computation. Please consider using restricted model:\n" +\
                                "https://answers.launchpad.net/mg5amcnlo/+faq/2312")
-            
-                
+
+
             all_good_hels = collections.defaultdict(list)
             for me_index, hel in all_hel:
-                all_good_hels[me_index].append(int(hel))                           
-                               
+                all_good_hels[me_index].append(int(hel))
+
             #print(all_hel)
             if self.run_card['hel_zeroamp']:
                 all_bad_amps = collections.defaultdict(list)
                 for me_index, amp in all_zamp:
                     all_bad_amps[me_index].append(int(amp))
-                    
+
                 all_bad_amps_perhel = collections.defaultdict(list)
                 for me_index, hel, amp in all_zampperhel:
-                    all_bad_amps_perhel[me_index].append((int(hel),int(amp)))    
-                    
+                    all_bad_amps_perhel[me_index].append((int(hel),int(amp)))
+
             elif all_zamp:
                 nb_zero = sum(int(a[1]) for a in all_zamp)
                 if zero_gc:
@@ -248,7 +254,7 @@ class gensym(object):
                 else:
                     logger.warning("The optimization detected that you have %i zero matrix-element for this SubProcess: %s.\n" % nb_zero +\
                                    "This part can optimize if you set the flag  hel_zeroamp to True in the run_card.")
-            
+
             #check if we need to do something and write associate information"
             data = [all_hel, all_zamp, all_bad_amps_perhel]
             if not self.run_card['hel_zeroamp']:
@@ -260,14 +266,14 @@ class gensym(object):
                 old_data = open(pjoin(Pdir,'Hel','selection')).read()
                 if old_data == data:
                     continue
-                
-            
+
+
             with open(pjoin(Pdir,'Hel','selection'),'w') as fsock:
-                fsock.write(data)        
-                
-        
+                fsock.write(data)
+
+
             for matrix_file in misc.glob('matrix*orig.f', Pdir):
-    
+
                 split_file = matrix_file.split('/')
                 me_index = split_file[-1][len('matrix'):-len('_orig.f')]
 
@@ -283,11 +289,11 @@ class gensym(object):
                 #good_hels = sorted(list(good_hels))
                 good_hels = [str(x) for x in sorted(all_good_hels[me_index])]
                 if self.run_card['hel_zeroamp']:
-                    
+
                     bad_amps = [str(x) for x in sorted(all_bad_amps[me_index])]
                     bad_amps_perhel = [x for x in sorted(all_bad_amps_perhel[me_index])]
                 else:
-                    bad_amps = [] 
+                    bad_amps = []
                     bad_amps_perhel = []
                 if __debug__:
                     mtext = open(matrix_file).read()
@@ -304,7 +310,7 @@ class gensym(object):
 
                 recycler.set_input(matrix_file)
                 recycler.set_output(out_file)
-                recycler.set_template(templ_file)              
+                recycler.set_template(templ_file)
                 recycler.generate_output_file()
                 del recycler
 
@@ -315,19 +321,19 @@ class gensym(object):
 
         return {}, P_zero_result
 
-    
+
     def launch(self, to_submit=True, clean=True):
         """ """
 
         if not hasattr(self, 'subproc'):
-            self.subproc = [l.strip() for l in open(pjoin(self.me_dir,'SubProcesses', 
+            self.subproc = [l.strip() for l in open(pjoin(self.me_dir,'SubProcesses',
                                                                  'subproc.mg'))]
         subproc = self.subproc
-        
+
         P_zero_result = [] # check the number of times where they are no phase-space
-        
+
         nb_tot_proc = len(subproc)
-        job_list = {}        
+        job_list = {}
         for nb_proc,subdir in enumerate(subproc):
             self.cmd.update_status('Compiling for process %s/%s. <br> (previous processes already running)' % \
                                (nb_proc+1,nb_tot_proc), level=None)
@@ -335,7 +341,7 @@ class gensym(object):
             subdir = subdir.strip()
             Pdir = pjoin(self.me_dir, 'SubProcesses',subdir)
             logger.info('    %s ' % subdir)
-            
+
             # clean previous run
             if clean:
                 for match in misc.glob('*ajob*', Pdir):
@@ -343,17 +349,17 @@ class gensym(object):
                         os.remove(match)
                 for match in misc.glob('G*', Pdir):
                     if os.path.exists(pjoin(match,'results.dat')):
-                        os.remove(pjoin(match, 'results.dat')) 
+                        os.remove(pjoin(match, 'results.dat'))
                     if os.path.exists(pjoin(match, 'ftn25')):
-                        os.remove(pjoin(match, 'ftn25')) 
-                        
+                        os.remove(pjoin(match, 'ftn25'))
+
             #compile gensym
             self.cmd.compile(['gensym'], cwd=Pdir)
             if not os.path.exists(pjoin(Pdir, 'gensym')):
-                raise Exception('Error make gensym not successful')  
-            
+                raise Exception('Error make gensym not successful')
+
             # Launch gensym
-            p = misc.Popen(['./gensym'], stdout=subprocess.PIPE, 
+            p = misc.Popen(['./gensym'], stdout=subprocess.PIPE,
                                  stderr=subprocess.STDOUT, cwd=Pdir)
             #sym_input = "%(points)d %(iterations)d %(accuracy)f \n" % self.opts
             (stdout, _) = p.communicate(''.encode())
@@ -361,8 +367,8 @@ class gensym(object):
             if os.path.exists(pjoin(self.me_dir,'error')):
                 files.mv(pjoin(self.me_dir,'error'), pjoin(Pdir,'ajob.no_ps.log'))
                 P_zero_result.append(subdir)
-                continue            
-            
+                continue
+
             jobs = stdout.split()
             job_list[Pdir] = jobs
             try:
@@ -380,8 +386,8 @@ class gensym(object):
                         continue
                     else:
                         if done:
-                            raise Exception('Parsing error in gensym: %s' % stdout) 
-                        job_list[Pdir] = l.split()        
+                            raise Exception('Parsing error in gensym: %s' % stdout)
+                        job_list[Pdir] = l.split()
                         done = True
                 if not done:
                     raise Exception('Parsing error in gensym: %s' % stdout)
@@ -402,16 +408,16 @@ class gensym(object):
             if to_submit:
                 self.submit_to_cluster(job_list)
                 job_list = {}
-                
+
         return job_list, P_zero_result
-            
+
     def resubmit(self, min_precision=1.0, resubmit_zero=False):
         """collect the result of the current run and relaunch each channel
-        not completed or optionally a completed one with a precision worse than 
+        not completed or optionally a completed one with a precision worse than
         a threshold (and/or the zero result channel)"""
-        
+
         job_list, P_zero_result = self.launch(to_submit=False, clean=False)
-        
+
         for P , jobs in dict(job_list).items():
             misc.sprint(jobs)
             to_resub = []
@@ -428,7 +434,7 @@ class gensym(object):
                     elif max(one_result.xerru, one_result.xerrc)/one_result.xsec > min_precision:
                         to_resub.append(job)
                 else:
-                    to_resub.append(job)   
+                    to_resub.append(job)
             if to_resub:
                 for G in to_resub:
                     try:
@@ -436,19 +442,19 @@ class gensym(object):
                     except Exception as error:
                         misc.sprint(error)
                         pass
-            misc.sprint(to_resub) 
+            misc.sprint(to_resub)
             self.submit_to_cluster({P: to_resub})
-                    
-                    
-                    
-                    
-                
-                
-                
-        
-        
-           
-            
+
+
+
+
+
+
+
+
+
+
+
     def submit_to_cluster(self, job_list):
         """ """
 
@@ -461,7 +467,7 @@ class gensym(object):
             nexternal = self.cmd.proc_characteristics['nexternal']
             current = open(pjoin(path, "nexternal.inc")).read()
             ext = re.search(r"PARAMETER \(NEXTERNAL=(\d+)\)", current).group(1)
-            
+
             if self.run_card['job_strategy'] == 2:
                 self.splitted_grid = 2
                 if nexternal == int(ext):
@@ -492,18 +498,18 @@ class gensym(object):
             return self.submit_to_cluster_no_splitting(job_list)
         else:
             return self.submit_to_cluster_splitted(job_list)
-        
-    
+
+
     def submit_to_cluster_no_splitting(self, job_list):
         """submit the survey without the parralelization.
            This is the old mode which is still usefull in single core"""
-     
-        # write the template file for the parameter file   
+
+        # write the template file for the parameter file
         self.write_parameter(parralelization=False, Pdirs=list(job_list.keys()))
-        
-        
+
+
         # launch the job with the appropriate grouping
-        for Pdir, jobs in job_list.items():   
+        for Pdir, jobs in job_list.items():
             jobs = list(jobs)
             i=0
             while jobs:
@@ -512,16 +518,16 @@ class gensym(object):
                 for _ in range(self.combining_job_for_Pdir(Pdir)):
                     if jobs:
                         to_submit.append(jobs.pop(0))
-                        
+
                 self.cmd.launch_job(pjoin(self.me_dir, 'SubProcesses', 'survey.sh'),
                                     argument=to_submit,
                                     cwd=pjoin(self.me_dir,'SubProcesses' , Pdir))
 
-                        
+
     def create_resubmit_one_iter(self, Pdir, G, submit_ps, nb_job, step=0):
         """prepare the input_file for submitting the channel"""
 
-        
+
         if 'SubProcesses' not in Pdir:
             Pdir = pjoin(self.me_dir, 'SubProcesses', Pdir)
 
@@ -529,8 +535,8 @@ class gensym(object):
         self.splitted_Pdir[(Pdir, G)] = int(nb_job)
 
 
-        # 1. write the new input_app.txt 
-        run_card = self.cmd.run_card        
+        # 1. write the new input_app.txt
+        run_card = self.cmd.run_card
         options = {'event' : submit_ps,
                    'maxiter': 1,
                    'miniter': 1,
@@ -539,29 +545,29 @@ class gensym(object):
                             else run_card['nhel'],
                    'gridmode': -2,
                    'channel' : G
-                  } 
-        
+                  }
+
         Gdir = pjoin(Pdir, 'G%s' % G)
-        self.write_parameter_file(pjoin(Gdir, 'input_app.txt'), options)   
-        
+        self.write_parameter_file(pjoin(Gdir, 'input_app.txt'), options)
+
         # 2. check that ftn25 exists.
-        assert os.path.exists(pjoin(Gdir, "ftn25"))    
-        
-        
+        assert os.path.exists(pjoin(Gdir, "ftn25"))
+
+
         # 3. Submit the new jobs
         #call back function
-        packet = cluster.Packet((Pdir, G, step+1), 
+        packet = cluster.Packet((Pdir, G, step+1),
                                 self.combine_iteration,
                                 (Pdir, G, step+1))
-        
+
         if step ==0:
-            self.lastoffset[(Pdir, G)] = 0 
-        
-        # resubmit the new jobs            
+            self.lastoffset[(Pdir, G)] = 0
+
+        # resubmit the new jobs
         for i in range(int(nb_job)):
             name = "G%s_%s" % (G,i+1)
             self.lastoffset[(Pdir, G)] += 1
-            offset = self.lastoffset[(Pdir, G)]            
+            offset = self.lastoffset[(Pdir, G)]
             self.cmd.launch_job(pjoin(self.me_dir, 'SubProcesses', 'refine_splitted.sh'),
                                 argument=[name, 'G%s'%G, offset],
                                 cwd= Pdir,
@@ -569,9 +575,9 @@ class gensym(object):
 
 
     def submit_to_cluster_splitted(self, job_list):
-        """ submit the version of the survey with splitted grid creation 
-        """ 
-        
+        """ submit the version of the survey with splitted grid creation
+        """
+
         #if self.splitted_grid <= 1:
         #    return self.submit_to_cluster_no_splitting(job_list)
 
@@ -586,7 +592,7 @@ class gensym(object):
 
             for job in jobs:
                 packet = cluster.Packet((Pdir, job, 1), self.combine_iteration, (Pdir, job, 1))
-                for i in range(self.splitted_for_dir(Pdir, job)):    
+                for i in range(self.splitted_for_dir(Pdir, job)):
                     self.cmd.launch_job(pjoin(self.me_dir, 'SubProcesses', 'survey.sh'),
                                     argument=[i+1, job],
                                     cwd=pjoin(self.me_dir,'SubProcesses' , Pdir),
@@ -595,15 +601,15 @@ class gensym(object):
     def combine_iteration(self, Pdir, G, step):
 
         grid_calculator, cross, error = self.combine_grid(Pdir, G, step)
-        
-        # Compute the number of events used for this run.                      
+
+        # Compute the number of events used for this run.
         nb_events = grid_calculator.target_evt
 
         Gdirs = [] #build the the list of directory
         for i in range(self.splitted_for_dir(Pdir, G)):
             path = pjoin(Pdir, "G%s_%s" % (G, i+1))
             Gdirs.append(path)
-        
+
         # 4. make the submission of the next iteration
         #   Three cases - less than 3 iteration -> continue
         #               - more than 3 and less than 5 -> check error
@@ -621,15 +627,15 @@ class gensym(object):
                     need_submit = False
                 else:
                     need_submit = True
-                    
+
         elif step >= self.cmd.opts['iterations']:
             need_submit = False
         elif self.cmd.opts['accuracy'] < 0:
             #check for luminosity
             raise Exception("Not Implemented")
         elif self.abscross[(Pdir,G)] == 0:
-            need_submit = False 
-        else:   
+            need_submit = False
+        else:
             across = self.abscross[(Pdir,G)]/(self.sigma[(Pdir,G)]+1e-99)
             tot_across = self.get_current_axsec()
             if across == 0:
@@ -640,20 +646,20 @@ class gensym(object):
                 need_submit = True
             else:
                 need_submit = False
-        
-        
+
+
         if cross:
             grid_calculator.write_grid_for_submission(Pdir,G,
                         self.splitted_for_dir(Pdir, G),
                         nb_events,mode=self.mode,
                         conservative_factor=5.0)
-        
-        xsec_format = '.%ig'%(max(3,int(math.log10(1.0/float(error)))+2) 
-                              if float(cross)!=0.0 and float(error)!=0.0 else 8)        
+
+        xsec_format = '.%ig'%(max(3,int(math.log10(1.0/float(error)))+2)
+                              if float(cross)!=0.0 and float(error)!=0.0 else 8)
         if need_submit:
             message = "%%s/G%%s is at %%%s +- %%.3g pb. Now submitting iteration #%s."%(xsec_format, step+1)
             logger.info(message%\
-                        (os.path.basename(Pdir), G, float(cross), 
+                        (os.path.basename(Pdir), G, float(cross),
                                                      float(error)*float(cross)))
             self.resubmit_survey(Pdir,G, Gdirs, step)
         elif cross:
@@ -664,26 +670,26 @@ class gensym(object):
             newGpath = pjoin(self.me_dir,'SubProcesses' , Pdir, 'G%s' % G)
             if not os.path.exists(newGpath):
                 os.mkdir(newGpath)
-                
+
             # copy the new grid:
-            files.cp(pjoin(Gdirs[0], 'ftn25'), 
+            files.cp(pjoin(Gdirs[0], 'ftn25'),
                          pjoin(self.me_dir,'SubProcesses' , Pdir, 'G%s' % G, 'ftn26'))
-                        
+
             # copy the events
             fsock = open(pjoin(newGpath, 'events.lhe'), 'w')
             for Gdir in Gdirs:
-                fsock.write(open(pjoin(Gdir, 'events.lhe')).read()) 
-            
+                fsock.write(open(pjoin(Gdir, 'events.lhe')).read())
+
             # copy one log
-            files.cp(pjoin(Gdirs[0], 'log.txt'), 
+            files.cp(pjoin(Gdirs[0], 'log.txt'),
                          pjoin(self.me_dir,'SubProcesses' , Pdir, 'G%s' % G))
-            
-                               
+
+
             # create the appropriate results.dat
             self.write_results(grid_calculator, cross, error, Pdir, G, step)
         else:
             logger.info("Survey finished for %s/G%s [0 cross]", os.path.basename(Pdir),G)
-            
+
             Gdir = pjoin(self.me_dir,'SubProcesses' , Pdir, 'G%s' % G)
             if not os.path.exists(Gdir):
                 os.mkdir(Gdir)
@@ -691,21 +697,21 @@ class gensym(object):
             files.cp(pjoin(Gdirs[0], 'log.txt'), Gdir)
             # create the appropriate results.dat
             self.write_results(grid_calculator, cross, error, Pdir, G, step)
-            
+
         return 0
 
     def combine_grid(self, Pdir, G, step, exclude_sub_jobs=[]):
         """ exclude_sub_jobs is to remove some of the subjobs if a numerical
             issue is detected in one of them. Warning is issue when this occurs.
         """
-        
+
         # 1. create an object to combine the grid information and fill it
         grid_calculator = combine_grid.grid_information(self.run_card['nhel'])
-        
+
         for i in range(self.splitted_for_dir(Pdir, G)):
             if i in exclude_sub_jobs:
                     continue
-            path = pjoin(Pdir, "G%s_%s" % (G, i+1)) 
+            path = pjoin(Pdir, "G%s_%s" % (G, i+1))
             fsock  = misc.mult_try_open(pjoin(path, 'results.dat'))
             one_result = grid_calculator.add_results_information(fsock)
             fsock.close()
@@ -717,9 +723,9 @@ class gensym(object):
             fsock.close()
             os.remove(pjoin(path, 'results.dat'))
             #os.remove(pjoin(path, 'grid_information'))
-            
-            
-             
+
+
+
         #2. combine the information about the total crossection / error
         # start by keep the interation in memory
         cross, across, sigma = grid_calculator.get_cross_section()
@@ -730,12 +736,12 @@ class gensym(object):
         if maxwgt:
             nunwgt = grid_calculator.get_nunwgt(maxwgt)
         # Make sure not to apply the security below during the first step of the
-        # survey. Also, disregard channels with a contribution relative to the 
+        # survey. Also, disregard channels with a contribution relative to the
         # total cross-section smaller than 1e-8 since in this case it is unlikely
         # that this channel will need more than 1 event anyway.
         apply_instability_security = False
         rel_contrib                = 0.0
-        if (self.__class__ != gensym or step > 1):            
+        if (self.__class__ != gensym or step > 1):
             Pdir_across = 0.0
             Gdir_across = 0.0
             for (mPdir,mG) in self.abscross.keys():
@@ -744,7 +750,7 @@ class gensym(object):
                                                    (self.sigma[(mPdir,mG)]+1e-99))
                     if mG == G:
                         Gdir_across += (self.abscross[(mPdir,mG)]/
-                                                   (self.sigma[(mPdir,mG)]+1e-99)) 
+                                                   (self.sigma[(mPdir,mG)]+1e-99))
             rel_contrib = abs(Gdir_across/(Pdir_across+1e-99))
             if rel_contrib > (1.0e-8) and \
                                 nunwgt < 2 and len(grid_calculator.results) > 1:
@@ -764,14 +770,14 @@ For offline investigation, the problematic discarded events are stored in:
                 exclude_sub_jobs = list(exclude_sub_jobs)
                 exclude_sub_jobs.append(th_maxwgt[-1][1])
                 grid_calculator.results.run_statistics['skipped_subchannel'] += 1
-                
+
                 # Add some monitoring of the problematic events
-                gPath = pjoin(Pdir, "G%s_%s" % (G, th_maxwgt[-1][1]+1)) 
+                gPath = pjoin(Pdir, "G%s_%s" % (G, th_maxwgt[-1][1]+1))
                 if os.path.isfile(pjoin(gPath,'events.lhe')):
                     lhe_file = lhe_parser.EventFile(pjoin(gPath,'events.lhe'))
                     discardedPath = pjoin(Pdir,'DiscardedUnstableEvents')
                     if not os.path.exists(discardedPath):
-                        os.mkdir(discardedPath)    
+                        os.mkdir(discardedPath)
                     if os.path.isdir(discardedPath):
                         # Keep only the event with a maximum weight, as it surely
                         # is the problematic one.
@@ -784,10 +790,10 @@ For offline investigation, the problematic discarded events are stored in:
                             lhe_file.close()
                             evtRecord.write(pjoin(gPath,'events.lhe').read())
                         evtRecord.close()
-                
+
                 return self.combine_grid(Pdir, G, step, exclude_sub_jobs)
 
-        
+
         if across !=0:
             if sigma != 0:
                 self.cross[(Pdir,G)] += cross**3/sigma**2
@@ -808,10 +814,10 @@ For offline investigation, the problematic discarded events are stored in:
                 self.chi2[(Pdir,G)] = 0
                 cross = self.cross[(Pdir,G)]
                 error = 0
-                
+
         else:
             error = 0
- 
+
         grid_calculator.results.compute_values(update_statistics=True)
         if (str(os.path.basename(Pdir)), G) in self.run_statistics:
             self.run_statistics[(str(os.path.basename(Pdir)), G)]\
@@ -819,8 +825,8 @@ For offline investigation, the problematic discarded events are stored in:
         else:
             self.run_statistics[(str(os.path.basename(Pdir)), G)] = \
                                           grid_calculator.results.run_statistics
-    
-        self.warnings_from_statistics(G, grid_calculator.results.run_statistics) 
+
+        self.warnings_from_statistics(G, grid_calculator.results.run_statistics)
         stats_msg = grid_calculator.results.run_statistics.nice_output(
                                      '/'.join([os.path.basename(Pdir),'G%s'%G]))
 
@@ -830,7 +836,7 @@ For offline investigation, the problematic discarded events are stored in:
         # Clean up grid_information to avoid border effects in case of a crash
         for i in range(self.splitted_for_dir(Pdir, G)):
             path = pjoin(Pdir, "G%s_%s" % (G, i+1))
-            try: 
+            try:
                 os.remove(pjoin(path, 'grid_information'))
             except OSError as oneerror:
                 if oneerror.errno != 2:
@@ -844,7 +850,7 @@ For offline investigation, the problematic discarded events are stored in:
             return
 
         EPS_fraction = float(stats['exceptional_points'])/stats['n_madloop_calls']
-        
+
         msg =  "Channel %s has encountered a fraction of %.3g\n"+ \
          "of numerically unstable loop matrix element computations\n"+\
          "(which could not be rescued using quadruple precision).\n"+\
@@ -855,16 +861,16 @@ For offline investigation, the problematic discarded events are stored in:
         elif EPS_fraction > 0.01:
              logger.critical((msg%(G,EPS_fraction)).replace('might', 'can'))
              raise Exception((msg%(G,EPS_fraction)).replace('might', 'can'))
-    
+
     def get_current_axsec(self):
-        
+
         across = 0
         for (Pdir,G) in self.abscross:
             across += self.abscross[(Pdir,G)]/(self.sigma[(Pdir,G)]+1e-99)
         return across
-    
+
     def write_results(self, grid_calculator, cross, error, Pdir, G, step):
-        
+
         #compute the value
         if cross == 0:
             abscross,nw, luminosity = 0, 0, 0
@@ -882,7 +888,7 @@ For offline investigation, the problematic discarded events are stored in:
             maxwgt = grid_calculator.get_max_wgt()
             nunwgt = grid_calculator.get_nunwgt()
             luminosity = nunwgt/cross
-            
+
         #format the results.dat
         def fstr(nb):
             data = '%E' % nb
@@ -891,20 +897,20 @@ For offline investigation, the problematic discarded events are stored in:
             power = int(power) + 1
             return '%.5fE%+03i' %(nb,power)
         line = '%s %s %s %i %i %i %i %s %s %s %s 0.0 0\n' % \
-            (fstr(cross), fstr(error*cross), fstr(error*cross), 
+            (fstr(cross), fstr(error*cross), fstr(error*cross),
              nevents, nw, maxit,nunwgt,
              fstr(luminosity), fstr(wgt), fstr(abscross), fstr(maxwgt))
-                    
+
         fsock = open(pjoin(self.me_dir,'SubProcesses' , Pdir, 'G%s' % G,
-                       'results.dat'),'w') 
+                       'results.dat'),'w')
         fsock.writelines(line)
         fsock.close()
-     
+
     def resubmit_survey(self, Pdir, G, Gdirs, step):
         """submit the next iteration of the survey"""
 
         # 1. write the new input_app.txt to double the number of points
-        run_card = self.cmd.run_card        
+        run_card = self.cmd.run_card
         options = {'event' : 2**(step) * self.cmd.opts['points'] / self.splitted_grid,
                'maxiter': 1,
                'miniter': 1,
@@ -913,18 +919,18 @@ For offline investigation, the problematic discarded events are stored in:
                             else run_card['nhel'],
                'gridmode': -2,
                'channel' : ''
-               } 
-        
+               }
+
         if int(options['helicity']) == 1:
             options['event'] = options['event'] * 2**(self.cmd.proc_characteristics['nexternal']//3)
-            
+
         for Gdir in Gdirs:
-            self.write_parameter_file(pjoin(Gdir, 'input_app.txt'), options)   
-            
-        
+            self.write_parameter_file(pjoin(Gdir, 'input_app.txt'), options)
+
+
         #2. resubmit the new jobs
         packet = cluster.Packet((Pdir, G, step+1), self.combine_iteration, \
-                                (Pdir, G, step+1))            
+                                (Pdir, G, step+1))
         nb_step = len(Gdirs) * (step+1)
         for i,subdir in enumerate(Gdirs):
             subdir = subdir.rsplit('_',1)[1]
@@ -932,34 +938,34 @@ For offline investigation, the problematic discarded events are stored in:
             offset = nb_step+i+1
             offset=str(offset)
             tag = "%s.%s" % (subdir, offset)
-            
+
             self.cmd.launch_job(pjoin(self.me_dir, 'SubProcesses', 'survey.sh'),
                                 argument=[tag, G],
                                 cwd=pjoin(self.me_dir,'SubProcesses' , Pdir),
                                 packet_member=packet)
-    
+
 
 
 
     def write_parameter_file(self, path, options):
         """ """
-        
+
         template ="""         %(event)s         %(maxiter)s           %(miniter)s      !Number of events and max and min iterations
   %(accuracy)s    !Accuracy
   %(gridmode)s       !Grid Adjustment 0=none, 2=adjust
   1       !Suppress Amplitude 1=yes
   %(helicity)s        !Helicity Sum/event 0=exact
-  %(channel)s      """        
+  %(channel)s      """
         options['event'] = int(options['event'])
         open(path, 'w').write(template % options)
 
-    
-    
+
+
     def write_parameter(self, parralelization, Pdirs=None):
         """Write the parameter of the survey run"""
 
         run_card = self.cmd.run_card
-        
+
         options = {'event' : self.cmd.opts['points'],
                    'maxiter': self.cmd.opts['iterations'],
                    'miniter': self.min_iterations,
@@ -969,36 +975,36 @@ For offline investigation, the problematic discarded events are stored in:
                    'gridmode': 2,
                    'channel': ''
                    }
-        
+
         if int(options['helicity'])== 1:
             options['event'] = options['event'] * 2**(self.cmd.proc_characteristics['nexternal']//3)
-        
+
         if parralelization:
             options['gridmode'] = -2
             options['maxiter'] = 1 #this is automatic in dsample anyway
             options['miniter'] = 1 #this is automatic in dsample anyway
             options['event'] /= self.splitted_grid
-        
+
         if not Pdirs:
             Pdirs = self.subproc
-               
+
         for Pdir in Pdirs:
-            path =pjoin(Pdir, 'input_app.txt') 
+            path =pjoin(Pdir, 'input_app.txt')
             self.write_parameter_file(path, options)
 
-        
-        
-class gen_ximprove(object):  
-    
-    
+
+
+class gen_ximprove(object):
+
+
     # some hardcoded value which impact the generation
     gen_events_security = 1.2 # multiply the number of requested event by this number for security
     combining_job = 0         # allow to run multiple channel in sequence
-    max_request_event = 1000          # split jobs if a channel if it needs more than that 
+    max_request_event = 1000          # split jobs if a channel if it needs more than that
     max_event_in_iter = 5000
     min_event_in_iter = 1000
-    max_splitting = 130       # maximum duplication of a given channel 
-    min_iter = 3    
+    max_splitting = 130       # maximum duplication of a given channel
+    min_iter = 3
     max_iter = 9
     keep_grid_for_refine = False        # only apply if needed to split the job
 
@@ -1016,7 +1022,7 @@ class gen_ximprove(object):
                 return super(gen_ximprove, cls).__new__(gen_ximprove_gridpack)
             elif cls.force_class == 'loop_induced':
                 return super(gen_ximprove, cls).__new__(gen_ximprove_share)
-        
+
         if cmd.proc_characteristics['loop_induced']:
             return super(gen_ximprove, cls).__new__(gen_ximprove_share)
         elif gen_ximprove.format_variable(cmd.run_card['gridpack'], bool):
@@ -1025,31 +1031,31 @@ class gen_ximprove(object):
             return super(gen_ximprove, cls).__new__(gen_ximprove_share)
         else:
             return super(gen_ximprove, cls).__new__(gen_ximprove_v4)
-            
-            
+
+
     def __init__(self, cmd, opt=None):
-        
+
         try:
             super(gen_ximprove, self).__init__(cmd, opt)
         except TypeError:
             pass
-        
+
         self.run_statistics = {}
         self.cmd = cmd
         self.run_card = cmd.run_card
         run_card = self.run_card
         self.me_dir = cmd.me_dir
-        
+
         #extract from the run_card the information that we need.
         self.gridpack = run_card['gridpack']
         self.nhel = run_card['nhel']
         if "nhel_refine" in run_card:
             self.nhel = run_card["nhel_refine"]
-        
+
         if self.run_card['refine_evt_by_job'] != -1:
             self.max_request_event = run_card['refine_evt_by_job']
-            
-                
+
+
         # Default option for the run
         self.gen_events = True
         self.parralel = False
@@ -1060,7 +1066,7 @@ class gen_ximprove(object):
         # parameter for the gridpack run
         self.nreq = 2000
         self.iseed = 4321
-        
+
         # placeholder for information
         self.results = 0 #updated in launch/update_html
 
@@ -1068,16 +1074,16 @@ class gen_ximprove(object):
             self.configure(opt)
         elif isinstance(opt, bannermod.GridpackCard):
             self.configure_gridpack(opt)
-            
+
     def __call__(self):
         return self.launch()
-        
+
     def launch(self):
-        """running """  
-        
+        """running """
+
         #start the run
         self.handle_seed()
-        self.results = sum_html.collect_result(self.cmd, 
+        self.results = sum_html.collect_result(self.cmd,
                                 main_dir=pjoin(self.cmd.me_dir,'SubProcesses'))  #main_dir is for gridpack readonly mode
         if self.gen_events:
             # We run to provide a given number of events
@@ -1089,15 +1095,15 @@ class gen_ximprove(object):
 
     def configure(self, opt):
         """Defines some parameter of the run"""
-        
+
         for key, value in opt.items():
             if key in self.__dict__:
                 targettype = type(getattr(self, key))
                 setattr(self, key, self.format_variable(value, targettype, key))
             else:
                 raise Exception('%s not define' % key)
-                        
-            
+
+
         # special treatment always do outside the loop to avoid side effect
         if 'err_goal' in opt:
             if self.err_goal < 1:
@@ -1107,24 +1113,24 @@ class gen_ximprove(object):
                 logger.info("Generating %s unweighted events." % self.err_goal)
                 self.gen_events = True
                 self.err_goal = self.err_goal * self.gen_events_security # security
-                
+
     def handle_seed(self):
         """not needed but for gridpack --which is not handle here for the moment"""
         return
-                    
-    
+
+
     def find_job_for_event(self):
         """return the list of channel that need to be improved"""
-    
+
         assert self.err_goal >=1
         self.err_goal = int(self.err_goal)
-        
-        goal_lum = self.err_goal/(self.results.axsec+1e-99)    #pb^-1 
+
+        goal_lum = self.err_goal/(self.results.axsec+1e-99)    #pb^-1
         logger.info('Effective Luminosity %s pb^-1', goal_lum)
-        
+
         all_channels = sum([list(P) for P in self.results],[])
-        all_channels.sort(key= lambda x:x.get('luminosity'), reverse=True) 
-                          
+        all_channels.sort(key= lambda x:x.get('luminosity'), reverse=True)
+
         to_refine = []
         for C in all_channels:
             if C.get('axsec') == 0:
@@ -1135,61 +1141,61 @@ class gen_ximprove(object):
             elif C.get('xerr') > max(C.get('axsec'),
               (1/(100*math.sqrt(self.err_goal)))*all_channels[-1].get('axsec')):
                 to_refine.append(C)
-         
-        logger.info('need to improve %s channels' % len(to_refine))        
+
+        logger.info('need to improve %s channels' % len(to_refine))
         return goal_lum, to_refine
 
     def update_html(self):
         """update the html from this object since it contains all the information"""
-        
+
 
         run = self.cmd.results.current['run_name']
         if not os.path.exists(pjoin(self.cmd.me_dir, 'HTML', run)):
             os.mkdir(pjoin(self.cmd.me_dir, 'HTML', run))
-        
+
         unit = self.cmd.results.unit
-        P_text = "" 
-        if self.results:     
-            Presults = self.results 
+        P_text = ""
+        if self.results:
+            Presults = self.results
         else:
             self.results = sum_html.collect_result(self.cmd, None)
             Presults = self.results
-                
+
         for P_comb in Presults:
-            P_text += P_comb.get_html(run, unit, self.cmd.me_dir) 
-        
-        Presults.write_results_dat(pjoin(self.cmd.me_dir,'SubProcesses', 'results.dat'))   
-        
+            P_text += P_comb.get_html(run, unit, self.cmd.me_dir)
+
+        Presults.write_results_dat(pjoin(self.cmd.me_dir,'SubProcesses', 'results.dat'))
+
         fsock = open(pjoin(self.cmd.me_dir, 'HTML', run, 'results.html'),'w')
         fsock.write(sum_html.results_header)
         fsock.write('%s <dl>' % Presults.get_html(run, unit, self.cmd.me_dir))
-        fsock.write('%s </dl></body>' % P_text)         
-        
-        self.cmd.results.add_detail('cross', Presults.xsec)
-        self.cmd.results.add_detail('error', Presults.xerru) 
-        
-        return Presults.xsec, Presults.xerru   
+        fsock.write('%s </dl></body>' % P_text)
 
-    
+        self.cmd.results.add_detail('cross', Presults.xsec)
+        self.cmd.results.add_detail('error', Presults.xerru)
+
+        return Presults.xsec, Presults.xerru
+
+
 class gen_ximprove_v4(gen_ximprove):
-    
+
     # some hardcoded value which impact the generation
     gen_events_security = 1.2 # multiply the number of requested event by this number for security
     combining_job = 0         # allow to run multiple channel in sequence
-    max_request_event = 1000          # split jobs if a channel if it needs more than that 
+    max_request_event = 1000          # split jobs if a channel if it needs more than that
     max_event_in_iter = 5000
     min_event_in_iter = 1000
-    max_splitting = 130       # maximum duplication of a given channel 
-    min_iter = 3    
+    max_splitting = 130       # maximum duplication of a given channel
+    min_iter = 3
     max_iter = 9
     keep_grid_for_refine = False        # only apply if needed to split the job
 
 
 
-    def __init__(self, cmd, opt=None):     
-              
+    def __init__(self, cmd, opt=None):
+
         super(gen_ximprove_v4, self).__init__(cmd, opt)
-        
+
         if cmd.opts['accuracy'] < cmd._survey_options['accuracy'][1]:
             self.increase_precision(cmd._survey_options['accuracy'][1]/cmd.opts['accuracy'])
 
@@ -1197,7 +1203,7 @@ class gen_ximprove_v4(gen_ximprove):
 
         for path in misc.glob(pjoin('*', '*','multijob.dat'), pjoin(self.me_dir, 'SubProcesses')):
             open(path,'w').write('0\n')
-            
+
     def write_multijob(self, Channel, nb_split):
         """ """
         if nb_split <=1:
@@ -1205,7 +1211,7 @@ class gen_ximprove_v4(gen_ximprove):
         f = open(pjoin(self.me_dir, 'SubProcesses', Channel.get('name'), 'multijob.dat'), 'w')
         f.write('%i\n' % nb_split)
         f.close()
-    
+
     def increase_precision(self, rate=3):
         #misc.sprint(rate)
         if rate < 3:
@@ -1216,25 +1222,25 @@ class gen_ximprove_v4(gen_ximprove):
             rate = rate -2
             self.max_event_in_iter = int((rate+1) * 10000)
             self.min_events = int(rate+2) * 2500
-            self.gen_events_security = 1 + 0.1 * (rate+2) 
-                        
+            self.gen_events_security = 1 + 0.1 * (rate+2)
+
         if int(self.nhel) == 1:
             self.min_event_in_iter *= 2**(self.cmd.proc_characteristics['nexternal']//3)
             self.max_event_in_iter *= 2**(self.cmd.proc_characteristics['nexternal']//2)
 
-        
-            
+
+
     alphabet = "abcdefghijklmnopqrstuvwxyz"
     def get_job_for_event(self):
         """generate the script in order to generate a given number of event"""
         # correspond to write_gen in the fortran version
-        
-        
+
+
         goal_lum, to_refine = self.find_job_for_event()
 
         #reset the potential multijob of previous run
         self.reset_multijob()
-        
+
         jobs = [] # list of the refine if some job are split is list of
                   # dict with the parameter of the run.
 
@@ -1251,17 +1257,17 @@ class gen_ximprove_v4(gen_ximprove):
             else:
                 for i in range(len(to_refine) //3):
                     new_order.append(to_refine[i])
-                    new_order.append(to_refine[-2*i-1])                    
+                    new_order.append(to_refine[-2*i-1])
                     new_order.append(to_refine[-2*i-2])
                 if len(to_refine) % 3 == 1:
-                    new_order.append(to_refine[i+1])                                        
+                    new_order.append(to_refine[i+1])
                 elif len(to_refine) % 3 == 2:
-                    new_order.append(to_refine[i+2])  
+                    new_order.append(to_refine[i+2])
             #ensure that the reordering is done nicely
             assert set([id(C) for C in to_refine]) == set([id(C) for C in new_order])
-            to_refine = new_order      
-            
-                                                
+            to_refine = new_order
+
+
         # loop over the channel to refine
         for C in to_refine:
             #1. Compute the number of points are needed to reach target
@@ -1273,7 +1279,7 @@ class gen_ximprove_v4(gen_ximprove):
                 nb_split = self.max_splitting
             nb_split=max(1, nb_split)
 
-            
+
             #2. estimate how many points we need in each iteration
             if C.get('nunwgt') > 0:
                 nevents =  needed_event / nb_split * (C.get('nevents') / C.get('nunwgt'))
@@ -1290,21 +1296,21 @@ class gen_ximprove_v4(gen_ximprove):
             nevents = max(self.min_event_in_iter, min(self.max_event_in_iter, nevents))
             logger.debug("%s : need %s event. Need %s split job of %s points", C.name, needed_event, nb_split, nevents)
 
-            
+
             # write the multi-job information
             self.write_multijob(C, nb_split)
-            
+
             packet = cluster.Packet((C.parent_name, C.name),
                                     combine_runs.CombineRuns,
                                     (pjoin(self.me_dir, 'SubProcesses', C.parent_name)),
                                     {"subproc": C.name, "nb_split":nb_split})
-                                     
-            
+
+
             #create the  info dict  assume no splitting for the default
             info = {'name': self.cmd.results.current['run_name'],
                     'script_name': 'unknown',
                     'directory': C.name,    # need to be change for splitted job
-                    'P_dir': C.parent_name, 
+                    'P_dir': C.parent_name,
                     'Ppath': pjoin(self.cmd.me_dir, 'SubProcesses', C.parent_name),
                     'offset': 1,            # need to be change for splitted job
                     'nevents': nevents,
@@ -1315,7 +1321,7 @@ class gen_ximprove_v4(gen_ximprove):
                     'channel': C.name.replace('G',''),
                     'grid_refinment' : 0,    #no refinment of the grid
                     'base_directory': '',   #should be change in splitted job if want to keep the grid
-                    'packet': packet, 
+                    'packet': packet,
                     }
 
             if nb_split == 1:
@@ -1328,19 +1334,19 @@ class gen_ximprove_v4(gen_ximprove):
                     if self.keep_grid_for_refine:
                         new_info['base_directory'] = info['directory']
                     jobs.append(new_info)
-            
-        self.create_ajob(pjoin(self.me_dir, 'SubProcesses', 'refine.sh'), jobs)    
-                
+
+        self.create_ajob(pjoin(self.me_dir, 'SubProcesses', 'refine.sh'), jobs)
+
 
     def create_ajob(self, template, jobs, write_dir=None):
         """create the ajob"""
-        
+
         if not jobs:
             return
 
         if not write_dir:
             write_dir =  pjoin(self.me_dir, 'SubProcesses')
-        
+
         #filter the job according to their SubProcess directory # no mix submition
         P2job= collections.defaultdict(list)
         for j in jobs:
@@ -1349,11 +1355,11 @@ class gen_ximprove_v4(gen_ximprove):
             for P in P2job.values():
                 self.create_ajob(template, P, write_dir)
             return
-        
-        
+
+
         #Here we can assume that all job are for the same directory.
         path = pjoin(write_dir, jobs[0]['P_dir'])
-        
+
         template_text = open(template, 'r').read()
         # special treatment if needed to combine the script
         # computes how many submition miss one job
@@ -1378,8 +1384,8 @@ class gen_ximprove_v4(gen_ximprove):
             skip1=0
             combining_job =1
             nb_sub = len(jobs)
-            
-            
+
+
         nb_use = 0
         for i in range(nb_sub):
             script_number = i+1
@@ -1398,14 +1404,14 @@ class gen_ximprove_v4(gen_ximprove):
                     info["base_directory"] = "./"
                 fsock.write(template_text % info)
             nb_use += nb_job
-        
+
         fsock.close()
         return script_number
 
     def get_job_for_precision(self):
         """create the ajob to achieve a give precision on the total cross-section"""
 
-        
+
         assert self.err_goal <=1
         xtot = abs(self.results.xsec)
         logger.info("Working on precision:  %s %%" %(100*self.err_goal))
@@ -1422,46 +1428,46 @@ class gen_ximprove_v4(gen_ximprove):
         rerr *=rerr
         if not len(to_refine):
             return
-        
-        # change limit since most don't contribute 
+
+        # change limit since most don't contribute
         limit = math.sqrt((self.err_goal * xtot)**2 - rerr/math.sqrt(len(to_refine)))
         for C in to_refine[:]:
             cerr = C.mfactor*(C.xerru + len(to_refine)*C.xerrc)
             if cerr < limit:
                 to_refine.remove(C)
-            
+
         # all the channel are now selected. create the channel information
         logger.info('need to improve %s channels' % len(to_refine))
 
-        
+
         jobs = [] # list of the refine if some job are split is list of
                   # dict with the parameter of the run.
 
         # loop over the channel to refine
         for C in to_refine:
-            
+
             #1. Determine how many events we need in each iteration
             yerr = C.mfactor*(C.xerru+len(to_refine)*C.xerrc)
             nevents = 0.2*C.nevents*(yerr/limit)**2
-            
+
             nb_split = int((nevents*(C.nunwgt/C.nevents)/self.max_request_event/ (2**self.min_iter-1))**(2/3))
             nb_split = max(nb_split, 1)
-            # **(2/3) to slow down the increase in number of jobs            
+            # **(2/3) to slow down the increase in number of jobs
             if nb_split > self.max_splitting:
                 nb_split = self.max_splitting
-                
+
             if nb_split >1:
                 nevents = nevents / nb_split
                 self.write_multijob(C, nb_split)
             # forbid too low/too large value
             nevents = min(self.min_event_in_iter, max(self.max_event_in_iter, nevents))
-            
-            
+
+
             #create the  info dict  assume no splitting for the default
             info = {'name': self.cmd.results.current['run_name'],
                     'script_name': 'unknown',
                     'directory': C.name,    # need to be change for splitted job
-                    'P_dir': C.parent_name, 
+                    'P_dir': C.parent_name,
                     'Ppath': pjoin(self.cmd.me_dir, 'SubProcesses', C.parent_name),
                     'offset': 1,            # need to be change for splitted job
                     'nevents': nevents,
@@ -1481,38 +1487,38 @@ class gen_ximprove_v4(gen_ximprove):
                     new_info['offset'] = i+1
                     new_info['directory'] += self.alphabet[i % 26] + str((i+1)//26)
                     jobs.append(new_info)
-        self.create_ajob(pjoin(self.me_dir, 'SubProcesses', 'refine.sh'), jobs)            
-        
+        self.create_ajob(pjoin(self.me_dir, 'SubProcesses', 'refine.sh'), jobs)
+
     def update_html(self):
         """update the html from this object since it contains all the information"""
-        
+
 
         run = self.cmd.results.current['run_name']
         if not os.path.exists(pjoin(self.cmd.me_dir, 'HTML', run)):
             os.mkdir(pjoin(self.cmd.me_dir, 'HTML', run))
-        
+
         unit = self.cmd.results.unit
-        P_text = "" 
-        if self.results:     
-            Presults = self.results 
+        P_text = ""
+        if self.results:
+            Presults = self.results
         else:
             self.results = sum_html.collect_result(self.cmd, None)
             Presults = self.results
-                
+
         for P_comb in Presults:
-            P_text += P_comb.get_html(run, unit, self.cmd.me_dir) 
-        
-        Presults.write_results_dat(pjoin(self.cmd.me_dir,'SubProcesses', 'results.dat'))   
-        
+            P_text += P_comb.get_html(run, unit, self.cmd.me_dir)
+
+        Presults.write_results_dat(pjoin(self.cmd.me_dir,'SubProcesses', 'results.dat'))
+
         fsock = open(pjoin(self.cmd.me_dir, 'HTML', run, 'results.html'),'w')
         fsock.write(sum_html.results_header)
         fsock.write('%s <dl>' % Presults.get_html(run, unit, self.cmd.me_dir))
-        fsock.write('%s </dl></body>' % P_text)         
-        
+        fsock.write('%s </dl></body>' % P_text)
+
         self.cmd.results.add_detail('cross', Presults.xsec)
-        self.cmd.results.add_detail('error', Presults.xerru) 
-        
-        return Presults.xsec, Presults.xerru          
+        self.cmd.results.add_detail('error', Presults.xerru)
+
+        return Presults.xsec, Presults.xerru
 
 
 
@@ -1522,27 +1528,27 @@ class gen_ximprove_v4_nogridupdate(gen_ximprove_v4):
     # some hardcoded value which impact the generation
     gen_events_security = 1.1 # multiply the number of requested event by this number for security
     combining_job = 0         # allow to run multiple channel in sequence
-    max_request_event = 400   # split jobs if a channel if it needs more than that 
+    max_request_event = 400   # split jobs if a channel if it needs more than that
     max_event_in_iter = 500
     min_event_in_iter = 250
-    max_splitting = 260       # maximum duplication of a given channel 
-    min_iter = 2    
+    max_splitting = 260       # maximum duplication of a given channel
+    min_iter = 2
     max_iter = 6
     keep_grid_for_refine = True
 
 
-    def __init__(self, cmd, opt=None):     
-              
+    def __init__(self, cmd, opt=None):
+
         gen_ximprove.__init__(cmd, opt)
-        
+
         if cmd.proc_characteristics['loopinduced'] and \
            cmd.proc_characteristics['nexternal']  > 2:
             self.increase_parralelization(cmd.proc_characteristics['nexternal'])
-            
+
     def increase_parralelization(self, nexternal):
 
-        self.max_splitting = 1000   
-             
+        self.max_splitting = 1000
+
         if self.run_card['refine_evt_by_job'] != -1:
             pass
         elif nexternal == 3:
@@ -1557,27 +1563,27 @@ class gen_ximprove_v4_nogridupdate(gen_ximprove_v4):
 class gen_ximprove_share(gen_ximprove, gensym):
     """Doing the refine in multicore. Each core handle a couple of PS point."""
 
-    nb_ps_by_job = 2000 
+    nb_ps_by_job = 2000
     mode = "refine"
     gen_events_security = 1.15
     # Note the real security is lower since we stop the jobs if they are at 96%
     # of this target.
 
     def __init__(self, *args, **opts):
-        
+
         super(gen_ximprove_share, self).__init__(*args, **opts)
         self.generated_events = {}
         self.splitted_for_dir = lambda x,y : self.splitted_Pdir[(x,y)]
-        
+
 
     def get_job_for_event(self):
         """generate the script in order to generate a given number of event"""
         # correspond to write_gen in the fortran version
-        
+
 
         goal_lum, to_refine = self.find_job_for_event()
         self.goal_lum = goal_lum
-        
+
         # loop over the channel to refine to find the number of PS point to launch
         total_ps_points = 0
         channel_to_ps_point = []
@@ -1587,7 +1593,7 @@ class gen_ximprove_share(gen_ximprove, gensym):
                 os.remove(pjoin(self.me_dir, "SubProcesses",C.parent_name, C.name, "events.lhe"))
             except:
                 pass
-            
+
             #1. Compute the number of points are needed to reach target
             needed_event = goal_lum*C.get('axsec')
             if needed_event == 0:
@@ -1603,18 +1609,18 @@ class gen_ximprove_share(gen_ximprove, gensym):
                     nb_split = 1
                 if nb_split > self.max_splitting:
                     nb_split = self.max_splitting
-                    nevents = self.max_event_in_iter * self.max_splitting          
+                    nevents = self.max_event_in_iter * self.max_splitting
                 else:
                     nevents = self.max_event_in_iter * nb_split
 
             if nevents > self.max_splitting*self.max_event_in_iter:
                 logger.warning("Channel %s/%s has a very low efficiency of unweighting. Might not be possible to reach target" % \
                                                 (C.name, C.parent_name))
-                nevents = self.max_event_in_iter * self.max_splitting 
-                
-            total_ps_points += nevents 
-            channel_to_ps_point.append((C, nevents)) 
-        
+                nevents = self.max_event_in_iter * self.max_splitting
+
+            total_ps_points += nevents
+            channel_to_ps_point.append((C, nevents))
+
         if self.cmd.options["run_mode"] == 1:
             if self.cmd.options["cluster_size"]:
                 nb_ps_by_job = total_ps_points /int(self.cmd.options["cluster_size"])
@@ -1628,7 +1634,7 @@ class gen_ximprove_share(gen_ximprove, gensym):
                 nb_ps_by_job = total_ps_points / self.cmd.options["nb_core"]
         else:
             nb_ps_by_job = self.nb_ps_by_job
-            
+
         nb_ps_by_job = int(max(nb_ps_by_job, 500))
 
         for C, nevents in channel_to_ps_point:
@@ -1642,20 +1648,20 @@ class gen_ximprove_share(gen_ximprove, gensym):
             self.create_resubmit_one_iter(C.parent_name, C.name[1:], submit_ps, nb_job, step=0)
             needed_event = goal_lum*C.get('xsec')
             logger.debug("%s/%s : need %s event. Need %s split job of %s points", C.parent_name, C.name, needed_event, nb_job, submit_ps)
-            
-        
+
+
     def combine_iteration(self, Pdir, G, step):
-        
+
         grid_calculator, cross, error = self.combine_grid(Pdir, G, step)
-        
+
         # collect all the generated_event
         Gdirs = [] #build the the list of directory
         for i in range(self.splitted_for_dir(Pdir, G)):
             path = pjoin(Pdir, "G%s_%s" % (G, i+1))
             Gdirs.append(path)
         assert len(grid_calculator.results) == len(Gdirs) == self.splitted_for_dir(Pdir, G)
-        
-                
+
+
         # Check how many events are going to be kept after un-weighting.
         needed_event = cross * self.goal_lum
         if needed_event == 0:
@@ -1665,19 +1671,19 @@ class gen_ximprove_share(gen_ximprove, gensym):
         if self.err_goal >=1:
             if needed_event > self.gen_events_security * self.err_goal:
                 needed_event = int(self.gen_events_security * self.err_goal)
-        
+
         if (Pdir, G) in self.generated_events:
             old_nunwgt, old_maxwgt = self.generated_events[(Pdir, G)]
         else:
             old_nunwgt, old_maxwgt = 0, 0
-        
+
         if old_nunwgt == 0 and os.path.exists(pjoin(Pdir,"G%s" % G, "events.lhe")):
             # possible for second refine.
             lhe = lhe_parser.EventFile(pjoin(Pdir,"G%s" % G, "events.lhe"))
             old_nunwgt = lhe.unweight(None, trunc_error=0.005, log_level=0)
             old_maxwgt = lhe.max_wgt
-            
-              
+
+
 
         maxwgt = max(grid_calculator.get_max_wgt(), old_maxwgt)
         new_evt = grid_calculator.get_nunwgt(maxwgt)
@@ -1689,35 +1695,35 @@ class gen_ximprove_share(gen_ximprove, gensym):
         one_iter_nb_event = max(grid_calculator.get_nunwgt(),1)
         drop_previous_iteration = False
         # compare the number of events to generate if we discard the previous iteration
-        n_target_one_iter = (needed_event-one_iter_nb_event) / ( one_iter_nb_event/ sum([R.nevents for R in grid_calculator.results])) 
+        n_target_one_iter = (needed_event-one_iter_nb_event) / ( one_iter_nb_event/ sum([R.nevents for R in grid_calculator.results]))
         n_target_combined = (needed_event-nunwgt) / efficiency
         if n_target_one_iter < n_target_combined:
             # the last iteration alone has more event that the combine iteration.
-            # it is therefore interesting to drop previous iteration.          
+            # it is therefore interesting to drop previous iteration.
             drop_previous_iteration = True
             nunwgt = one_iter_nb_event
             maxwgt = grid_calculator.get_max_wgt()
             new_evt = nunwgt
-            efficiency = ( one_iter_nb_event/ sum([R.nevents for R in grid_calculator.results])) 
-            
+            efficiency = ( one_iter_nb_event/ sum([R.nevents for R in grid_calculator.results]))
+
         try:
             if drop_previous_iteration:
                 raise IOError
             output_file = open(pjoin(Pdir,"G%s" % G, "events.lhe"), 'a')
         except IOError:
             output_file = open(pjoin(Pdir,"G%s" % G, "events.lhe"), 'w')
-                
+
         misc.call(["cat"] + [pjoin(d, "events.lhe") for d in Gdirs],
                   stdout=output_file)
         output_file.close()
         # For large number of iteration. check the number of event by doing the
         # real unweighting.
-        if nunwgt < 0.6 * needed_event and step > self.min_iter:            
+        if nunwgt < 0.6 * needed_event and step > self.min_iter:
             lhe = lhe_parser.EventFile(output_file.name)
             old_nunwgt =nunwgt
             nunwgt = lhe.unweight(None, trunc_error=0.01, log_level=0)
-        
-    
+
+
         self.generated_events[(Pdir, G)] = (nunwgt, maxwgt)
 
         # misc.sprint("Adding %s event to %s. Currently at %s" % (new_evt, G, nunwgt))
@@ -1736,21 +1742,21 @@ class gen_ximprove_share(gen_ximprove, gensym):
         nevents = grid_calculator.results[0].nevents
         if nevents == 0: # possible if some integral returns 0
             nevents = max(g.nevents for g in grid_calculator.results)
-        
+
         need_ps_point = (needed_event - nunwgt)/(efficiency+1e-99)
-        need_job = need_ps_point // nevents + 1        
-        
+        need_job = need_ps_point // nevents + 1
+
         if step < self.min_iter:
             # This is normal but check if we are on the good track
-            job_at_first_iter = nb_split_before/2**(step-1) 
+            job_at_first_iter = nb_split_before/2**(step-1)
             expected_total_job = job_at_first_iter * (2**self.min_iter-1)
             done_job = job_at_first_iter * (2**step-1)
             expected_remaining_job = expected_total_job - done_job
 
-            logger.debug("efficiency status (smaller is better): %s", need_job/expected_remaining_job)            
+            logger.debug("efficiency status (smaller is better): %s", need_job/expected_remaining_job)
             # increase if needed but not too much
             need_job = min(need_job, expected_remaining_job*1.25)
-            
+
             nb_job = (need_job-0.5)//(2**(self.min_iter-step)-1) + 1
             nb_job = max(1, nb_job)
             grid_calculator.write_grid_for_submission(Pdir,G,
@@ -1762,7 +1768,7 @@ class gen_ximprove_share(gen_ximprove, gensym):
                                                                   nb_job, step))
             self.create_resubmit_one_iter(Pdir, G, nevents, nb_job, step)
             #self.create_job(Pdir, G, nb_job, nevents, step)
-        
+
         elif step < self.max_iter:
             if step + 1 == self.max_iter:
                 need_job = 1.20 * need_job # avoid to have just too few event.
@@ -1771,21 +1777,21 @@ class gen_ximprove_share(gen_ximprove, gensym):
             grid_calculator.write_grid_for_submission(Pdir,G,
                 self.splitted_for_dir(Pdir, G), nb_job*nevents ,mode=self.mode,
                                               conservative_factor=self.max_iter)
-            
-            
+
+
             logger.info("%s/G%s is at %i/%i ('%.2g%%') event. Resubmit %i job at iteration %i." \
               % (os.path.basename(Pdir), G, int(nunwgt),int(needed_event)+1,
                  (float(nunwgt)/needed_event)*100.0 if needed_event>0.0 else 0.0,
                                                                   nb_job, step))
             self.create_resubmit_one_iter(Pdir, G, nevents, nb_job, step)
-            
-            
+
+
 
         return 0
-    
-        
+
+
     def write_results(self, grid_calculator, cross, error, Pdir, G, step, efficiency):
-        
+
         #compute the value
         if cross == 0:
             abscross,nw, luminosity = 0, 0, 0
@@ -1801,7 +1807,7 @@ class gen_ximprove_share(gen_ximprove, gensym):
             nevents = nunwgt
             # make the unweighting to compute the number of events:
             luminosity = nunwgt/cross
-                      
+
         #format the results.dat
         def fstr(nb):
             data = '%E' % nb
@@ -1810,23 +1816,23 @@ class gen_ximprove_share(gen_ximprove, gensym):
             power = int(power) + 1
             return '%.5fE%+03i' %(nb,power)
         line = '%s %s %s %i %i %i %i %s %s %s 0.0 0.0 0\n' % \
-            (fstr(cross), fstr(error*cross), fstr(error*cross), 
+            (fstr(cross), fstr(error*cross), fstr(error*cross),
              nevents, nw, maxit,nunwgt,
              fstr(luminosity), fstr(wgt), fstr(abscross))
-                    
+
         fsock = open(pjoin(self.me_dir,'SubProcesses' , Pdir, 'G%s' % G,
-                       'results.dat'),'w') 
+                       'results.dat'),'w')
         fsock.writelines(line)
         fsock.close()
 
-    
-    
-    
+
+
+
 class gen_ximprove_gridpack(gen_ximprove_v4):
-    
-    min_iter = 1    
+
+    min_iter = 1
     max_iter = 13
-    max_request_event = 1e12         # split jobs if a channel if it needs more than that 
+    max_request_event = 1e12         # split jobs if a channel if it needs more than that
     max_event_in_iter = 4000
     min_event_in_iter = 500
     combining_job = sys.maxsize
@@ -1838,7 +1844,7 @@ class gen_ximprove_gridpack(gen_ximprove_v4):
         return super(gen_ximprove_gridpack, cls).__new__(cls, *args, **opts)
 
     def __init__(self, *args, **opts):
-        
+
         self.ngran = -1
         self.gscalefact = {}
         self.readonly = False
@@ -1849,23 +1855,23 @@ class gen_ximprove_gridpack(gen_ximprove_v4):
             self.readonly = opts['readonly']
         super(gen_ximprove_gridpack,self).__init__(*args, **opts)
         if self.ngran == -1:
-            self.ngran = 1 
-     
+            self.ngran = 1
+
     def find_job_for_event(self):
         """return the list of channel that need to be improved"""
         import random
-    
+
         assert self.err_goal >=1
         self.err_goal = int(self.err_goal)
         self.gscalefact = {}
-        
+
         xtot = self.results.axsec
-        goal_lum = self.err_goal/(xtot+1e-99)    #pb^-1 
+        goal_lum = self.err_goal/(xtot+1e-99)    #pb^-1
 #        logger.info('Effective Luminosity %s pb^-1', goal_lum)
-        
+
         all_channels = sum([list(P) for P in self.results],[])
         all_channels.sort(key=lambda x : x.get('luminosity'), reverse=True)
-                          
+
         to_refine = []
         for C in all_channels:
             tag = C.get('name')
@@ -1879,27 +1885,27 @@ class gen_ximprove_gridpack(gen_ximprove_v4):
             #need to generate events
             logger.debug('request events for ', C.get('name'), 'cross=',
                   C.get('axsec'), 'needed events = ', goal_lum * C.get('axsec'))
-            to_refine.append(C) 
-         
-        logger.info('need to improve %s channels' % len(to_refine))    
+            to_refine.append(C)
+
+        logger.info('need to improve %s channels' % len(to_refine))
         return goal_lum, to_refine
 
     def get_job_for_event(self):
         """generate the script in order to generate a given number of event"""
         # correspond to write_gen in the fortran version
-        
-        
+
+
         goal_lum, to_refine = self.find_job_for_event()
 
         jobs = [] # list of the refine if some job are split is list of
                   # dict with the parameter of the run.
-                                                
+
         # loop over the channel to refine
         for C in to_refine:
             #1. Compute the number of points are needed to reach target
             needed_event = max(goal_lum*C.get('axsec'), self.ngran)
             nb_split = 1
-            
+
             #2. estimate how many points we need in each iteration
             if C.get('nunwgt') > 0:
                 nevents =  needed_event / nb_split * (C.get('nevents') / C.get('nunwgt'))
@@ -1914,13 +1920,13 @@ class gen_ximprove_gridpack(gen_ximprove_v4):
             # forbid too low/too large value
             nevents = max(self.min_event_in_iter, min(self.max_event_in_iter, nevents))
             logger.debug("%s : need %s event. Need %s split job of %s points", C.name, needed_event, nb_split, nevents)
-            
+
 
             #create the  info dict  assume no splitting for the default
             info = {'name': self.cmd.results.current['run_name'],
                     'script_name': 'unknown',
                     'directory': C.name,    # need to be change for splitted job
-                    'P_dir': os.path.basename(C.parent_name), 
+                    'P_dir': os.path.basename(C.parent_name),
                     'offset': 1,            # need to be change for splitted job
                     'Ppath': pjoin(self.cmd.me_dir, 'SubProcesses', C.parent_name),
                     'nevents': nevents, #int(nevents*self.gen_events_security)+1,
@@ -1932,7 +1938,7 @@ class gen_ximprove_gridpack(gen_ximprove_v4):
                     'channel': C.name.replace('G',''),
                     'grid_refinment' : 0,    #no refinment of the grid
                     'base_directory': '',   #should be change in splitted job if want to keep the grid
-                    'packet': None, 
+                    'packet': None,
                     }
 
             if self.readonly:
@@ -1940,11 +1946,11 @@ class gen_ximprove_gridpack(gen_ximprove_v4):
                 info['base_directory'] = basedir
 
             jobs.append(info)
-          
 
-        write_dir = '.' if self.readonly else None  
-        self.create_ajob(pjoin(self.me_dir, 'SubProcesses', 'refine.sh'), jobs, write_dir) 
-        
+
+        write_dir = '.' if self.readonly else None
+        self.create_ajob(pjoin(self.me_dir, 'SubProcesses', 'refine.sh'), jobs, write_dir)
+
         done = []
         for j in jobs:
             if j['P_dir'] in done:
@@ -1961,22 +1967,22 @@ class gen_ximprove_gridpack(gen_ximprove_v4):
         write_dir = '.' if self.readonly else pjoin(self.me_dir, 'SubProcesses')
 
         self.check_events(goal_lum, to_refine, jobs, write_dir)
-    
+
     def check_events(self, goal_lum, to_refine, jobs, Sdir):
         """check that we get the number of requested events if not resubmit."""
-        
+
         new_jobs = []
-        
+
         for C, job_info in zip(to_refine, jobs):
-            P = job_info['P_dir']   
+            P = job_info['P_dir']
             G = job_info['channel']
             axsec = C.get('axsec')
-            requested_events= job_info['requested_event']          
-    
+            requested_events= job_info['requested_event']
+
 
             new_results = sum_html.OneResult((P,G))
             new_results.read_results(pjoin(Sdir,P, 'G%s'%G, 'results.dat'))
-    
+
             # need to resubmit?
             if new_results.get('nunwgt') < requested_events:
                 pwd = pjoin(os.getcwd(),job_info['P_dir'],'G%s'%G) if self.readonly else \
@@ -1986,10 +1992,10 @@ class gen_ximprove_gridpack(gen_ximprove_v4):
                 job_info['offset'] += 1
                 new_jobs.append(job_info)
                 files.mv(pjoin(pwd, 'events.lhe'), pjoin(pwd, 'events.lhe.previous'))
-        
+
         if new_jobs:
-            self.create_ajob(pjoin(self.me_dir, 'SubProcesses', 'refine.sh'), new_jobs, Sdir) 
-            
+            self.create_ajob(pjoin(self.me_dir, 'SubProcesses', 'refine.sh'), new_jobs, Sdir)
+
             done = []
             for j in new_jobs:
                 if j['P_dir'] in done:
@@ -2009,9 +2015,9 @@ class gen_ximprove_gridpack(gen_ximprove_v4):
                 files.put_at_end(pjoin(pwd, 'events.lhe'),pjoin(pwd, 'events.lhe.previous'))
 
             return self.check_events(goal_lum, to_refine, new_jobs, Sdir)
-                                 
-        
-        
 
-        
+
+
+
+
 
