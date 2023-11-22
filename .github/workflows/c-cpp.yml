@@ -21,23 +21,17 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-<<<<<<< HEAD
-        folder: [ epochX/cudacpp/ee_mumu.sa/SubProcesses/P1_Sigma_sm_epem_mupmum , epochX/cudacpp/gg_ttgg.sa/SubProcesses/P1_Sigma_sm_gg_ttxgg, epochX/cudacpp/pp_tt012j.mad/SubProcesses/P0_gg_ttx ]
-||||||| e21d34682
-        folder: [ epochX/cudacpp/ee_mumu.sa/SubProcesses/P1_Sigma_sm_epem_mupmum , epochX/cudacpp/gg_ttgg.sa/SubProcesses/P1_Sigma_sm_gg_ttxgg ]
-=======
-        folder: [ epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum , epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg ]
->>>>>>> madgraph/master
+        folder: [ epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum , epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg , epochX/cudacpp/pp_tt012j.mad/SubProcesses/P0_gg_ttx ]
         precision: [ d , f , m ]
       fail-fast: false
     steps:
     - uses: actions/checkout@v2
     - name: make info
-      run: make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} -f cudacpp.mk info
+      run: make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} info
     - name: make
       run: make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }}
     - name: make check
-      run: make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} -f cudacpp.mk check
+      run: make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} check
   CPU_MAC:
     runs-on: macos-latest
     env:
@@ -50,11 +44,11 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: make info
-      run: make AVX=none OMPFLAGS= FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} -f cudacpp.mk info
+      run: make AVX=none OMPFLAGS= FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} info
     - name: make
-      run: make AVX=none OMPFLAGS= FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }}
+      run: make AVX=none OMPFLAGS= FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} cpp
     - name: make check
-      run: make AVX=none OMPFLAGS= FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} -f cudacpp.mk check
+      run: make AVX=none OMPFLAGS= FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} check
   GPU:
     runs-on: self-hosted
     env:
@@ -63,13 +57,7 @@ jobs:
       REQUIRE_CUDA: 1
     strategy:
       matrix:
-<<<<<<< HEAD
-        folder: [ epochX/cudacpp/ee_mumu.sa/SubProcesses/P1_Sigma_sm_epem_mupmum , epochX/cudacpp/gg_ttgg.sa/SubProcesses/P1_Sigma_sm_gg_ttxgg , epochX/cudacpp/pp_tt012j.mad/SubProcesses/P0_gg_ttx , epochX/cudacpp/pp_tt012j.mad/SubProcesses/P2_uux_ttxgg ]
-||||||| e21d34682
-        folder: [ epochX/cudacpp/ee_mumu.sa/SubProcesses/P1_Sigma_sm_epem_mupmum , epochX/cudacpp/gg_ttgg.sa/SubProcesses/P1_Sigma_sm_gg_ttxgg ]
-=======
-        folder: [ epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum , epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg ]
->>>>>>> madgraph/master
+        folder: [ epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum , epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg , epochX/cudacpp/pp_tt012j.mad/SubProcesses/P0_gg_ttx , epochX/cudacpp/pp_tt012j.mad/SubProcesses/P2_uux_ttxgg ]
         precision: [ d , f , m ]
       fail-fast: false
     steps:
@@ -77,18 +65,8 @@ jobs:
     - name: path
       run: echo "PATH=$PATH"
     - name: make info
-      run: make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} -f cudacpp.mk info
-    - name: make
-<<<<<<< HEAD
+      run: make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} info
+    - name: make cuda
       run: make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} cuda
     - name: make gcheck
       run: make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} gcheck
-||||||| e21d34682
-      run: make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }}
-    - name: make check
-      run: make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} check
-=======
-      run: make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }}
-    - name: make check
-      run: make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} -f cudacpp.mk check
->>>>>>> madgraph/master
