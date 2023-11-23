@@ -23,13 +23,6 @@ endif
 # Note: AR, CXX and FC are implicitly defined if not set externally
 # See https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
 ###RANLIB = ranlib
-$(warning Unify)
-# Add -mmacosx-version-min=11.3 to avoid "ld: warning: object file was built for newer macOS version than being linked"
-LDFLAGS =
-ifneq ($(shell $(CXX) --version | egrep '^Apple clang'),)
-MG_CXXFLAGS += -mmacosx-version-min=11.3
-MG_LDFLAGS += -mmacosx-version-min=11.3
-endif
 
 #=== Set the CUDA/C++ compiler flags appropriate to user-defined choices of AVX, FPTYPE, HELINL, HRDCOD, RNDGEN
 
@@ -55,7 +48,6 @@ LIBDIRREL := ../lib/$(BUILDDIR)
 
 # Workaround for Mac #375 (I did not manage to fix rpath with @executable_path): use absolute paths for LIBDIR
 # (NB: this is quite ugly because it creates the directory if it does not exist - to avoid removing src by mistake)
-UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Darwin)
 override LIBDIR = $(shell mkdir -p $(LIBDIRREL); cd $(LIBDIRREL); pwd)
 ifeq ($(wildcard $(LIBDIR)),)

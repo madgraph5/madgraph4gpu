@@ -8,19 +8,19 @@
 CUDACPP_SRC_MAKEFILE = cudacpp_src.mk
 
 # Self-invocation with adapted flags:
-cppnative:
+cppnative: ../../Source/.sentry $(PROCESS)
 	$(MAKE) AVX=native AVXFLAGS="-march=native" cppbuild
-cppnone:
+cppnone: ../../Source/.sentry $(PROCESS)
 	$(MAKE) AVX=none AVXFLAGS= cppbuild
-cppsse4:
+cppsse4: ../../Source/.sentry $(PROCESS)
 	$(MAKE) AVX=sse4 AVXFLAGS=-march=nehalem cppbuild
-cppavx2:
+cppavx2: ../../Source/.sentry $(PROCESS)
 	$(MAKE) AVX=avx2 AVXFLAGS=-march=haswell cppbuild
-cppavx512y:
+cppavx512y: ../../Source/.sentry $(PROCESS)
 	$(MAKE) AVX=512y AVXFLAGS="-march=skylake-avx512 -mprefer-vector-width=256" cppbuild
-cppavx512z:
+cppavx512z: ../../Source/.sentry $(PROCESS)
 	$(MAKE) AVX=512z AVXFLAGS="-march=skylake-avx512 -DMGONGPU_PVW512" cppbuild
-cuda:
+cuda: ../../Source/.sentry $(PROCESS)
 	$(MAKE) AVX=cuda cudabuild
 
 #-------------------------------------------------------------------------------
@@ -324,7 +324,7 @@ endif
 # Use flock (Linux only, no Mac) to allow 'make -j' if googletest has not yet been downloaded https://stackoverflow.com/a/32666215
 $(GTESTLIBS):
 ifneq ($(shell which flock 2>/dev/null),)
-	flock $(CUDACPP_BUILDDIR)/.make_test.lock $(MAKE) -C $(TESTDIR)
+	flock $(TESTDIR)/.make_test.lock $(MAKE) -C $(TESTDIR)
 else
 	if [ -d $(TESTDIR) ]; then $(MAKE) -C $(TESTDIR); fi
 endif

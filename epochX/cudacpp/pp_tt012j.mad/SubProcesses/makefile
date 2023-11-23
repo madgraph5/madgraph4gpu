@@ -57,10 +57,16 @@ ifneq ("$(wildcard ../../Source/RUNNING)","")
     LIBS += $(LIBDIR)librunning.$(libext)
 endif
 
-SourceDir: ../../Source/*.f ../../Cards/param_card.dat ../../Cards/run_card.dat
-	$(MAKE) -C ../../Source
+# We use Source/.timestamp_proxy to figure out if Source is out of date. The Source makefile doesn't correctly
+# update all files, so we need a proxy that is updated every time we run "$(MAKE) -C ../../Source".
+../../Source/.timestamp_proxy ../../Source/discretesampler.mod &: ../../Source/*.f ../../Cards/param_card.dat ../../Cards/run_card.dat
+ifneq ($(shell which flock 2>/dev/null),)
+	flock ../../Source/.lock -c "$(MAKE) -C ../../Source; touch ../../Source/.timestamp_proxy"
+else
+	$(MAKE) -C ../../Source; touch ../../Source/.timestamp_proxy
+endif
 
-$(LIBS): SourceDir
+$(LIBS): ../../Source/.timestamp_proxy
 
 # Source files
 
@@ -94,16 +100,6 @@ CUDACPP_CXXLIB := $(CUDACPP_BUILDDIR)/lib$(MG5AMC_CXXLIB).so
 CUDACPP_CULIB  := $(CUDACPP_BUILDDIR)/lib$(MG5AMC_CULIB).so
 
 
-# Binaries
-
-$(warning Find a place for the following)
-ifeq ($(UNAME),Darwin)
-MG_LDFLAGS += -lc++ # avoid 'Undefined symbols' for chrono::steady_clock on macOS (checked with otool -L libmg5amc_gg_ttx_cpp.so)
-MG_LDFLAGS += -mmacosx-version-min=11.3 # avoid "ld: warning: object file was built for newer macOS version than being linked"
-else
-MG_LDFLAGS += -Xlinker --no-relax # avoid 'failed to convert GOTPCREL relocation' error #458 (not supported on macOS)
-endif
-
 # Set up OpenMP if supported
 OMPFLAGS ?= -fopenmp
 ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
@@ -115,6 +111,9 @@ else ifneq ($(shell $(CXX) --version | egrep '^Apple clang'),)
 OMPFLAGS = # OMP is not supported yet by cudacpp for Apple clang
 endif
 
+
+# Binaries
+
 $(PROG)_fortran: $(PROCESS) $(DSIG) auto_dsig.o $(LIBS) $(MATRIX) counters.o ompnumthreads.o
 	$(FC) $(MG_FCFLAGS) $(FCFLAGS) -o $(PROG)_fortran $(PROCESS) $(DSIG) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o $(LDFLAGS)
 
@@ -125,7 +124,7 @@ ifneq ($(UNAME_S),Darwin)
   LIBFLAGSRPATH := -Wl,-rpath,'$$ORIGIN:$$ORIGIN/../$(LIBDIR)/$(CUDACPP_BUILDDIR)'
 endif
 
-.PHONY: SourceDir madevent_fortran_link madevent_cuda_link madevent_cpp_link madevent_cppnone_link madevent_cppsse4_link madevent_cppavx2_link madevent_cpp512y_link madevent_cpp512z_link
+.PHONY: madevent_fortran_link madevent_cuda_link madevent_cpp_link madevent_cppnone_link madevent_cppsse4_link madevent_cppavx2_link madevent_cpp512y_link madevent_cpp512z_link
 
 madevent_fortran_link: $(PROG)_fortran
 	rm -f $(PROG)
@@ -198,7 +197,6 @@ initcluster.o: message.inc
 
 # Extra dependencies on discretesampler.mod
 ../../Source/discretesampler.mod: ../../Source/DiscreteSampler.f
-	$(MAKE) -C ../../Source
 
 auto_dsig.o: ../../Source/discretesampler.mod
 driver.o: ../../Source/discretesampler.mod
@@ -223,6 +221,9 @@ clean:
 	$(RM) *.o gensym $(PROG) $(PROG)_*
 	$(RM) -rf build.*/*{.o,.so,.exe,.dylib,madevent_*}
 
+cleanall:
+	for PROCESS in ../P[0-9]*; do $(MAKE) -C $${PROCESS} clean; done
+
 # Clean one architecture-specific build
 clean%:
 	$(RM) -r build.$*_*/*{.o,.so,.exe,.dylib,madevent_*}
@@ -230,6 +231,6 @@ clean%:
 # Clean common source directories (interferes with other P*)
 cleansrc:
 	make -C ../../Source clean
-	$(RM) ../../Source/*.mod ../../Source/*/*.mod
+	$(RM) -f ../../Source/{*.mod,.timestamp_proxy,.lock} ../../Source/*/*.mod
 	$(RM) -r $(LIBDIR)libbias.$(libext)
 	if [ -d ../../src ]; then $(MAKE) -C ../../src -f cudacpp_src.mk clean; fi

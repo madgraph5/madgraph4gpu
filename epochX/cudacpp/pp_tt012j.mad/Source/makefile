@@ -62,6 +62,7 @@ $(LIBDIR)libmodel.$(libext): MODEL param_card.inc
 	$(MAKE) -C $< FFLAGS="$(MG_FCFLAGS) $(FCFLAGS)" FCFLAGS="$(MG_FCFLAGS) $(FCFLAGS)"
 param_card.inc: ../Cards/param_card.dat
 	../bin/madevent treatcards param
+	touch $@ # madevent doesn't update the time stamp if there's nothing to do
 
 
 
@@ -86,6 +87,7 @@ rw_events.o: rw_events.f run_config.inc
 
 run_card.inc: ../Cards/run_card.dat
 	../bin/madevent treatcards run
+	touch $@ # madevent doesn't update the time stamp if there's nothing to do
 
 clean4pdf:
 	rm -f ../lib/libpdf.$(libext)
