@@ -99,12 +99,37 @@ extern "C"
 #ifdef __CUDACC__
     // Use the device/GPU implementation in the CUDA library
     // (there is also a host implementation in this library)
-    pbridge->gpu_sequence( momenta, gs, rndhel, rndcol, *pchannelId, mes, selhel, selcol );
+    pbridge->gpu_sequence( momenta, gs, rndhel, rndcol, ( pchannelId ? *pchannelId : 0 ), mes, selhel, selcol );
 #else
     // Use the host/CPU implementation in the C++ library
     // (there is no device implementation in this library)
-    pbridge->cpu_sequence( momenta, gs, rndhel, rndcol, *pchannelId, mes, selhel, selcol );
+    pbridge->cpu_sequence( momenta, gs, rndhel, rndcol, ( pchannelId ? *pchannelId : 0 ), mes, selhel, selcol );
 #endif
+  }
+
+  /**
+   * Execute the matrix-element calculation "sequence" via a Bridge on GPU/CUDA or CUDA/C++, without multi-channel mode.
+   * This is a C symbol that should be called from the Fortran code (in auto_dsig1.f).
+   *
+   * @param ppbridge the pointer to the Bridge pointer (the Bridge pointer is handled in Fortran as an INTEGER*8 variable)
+   * @param momenta the pointer to the input 4-momenta
+   * @param gs the pointer to the input Gs (running QCD coupling constant alphas)
+   * @param rndhel the pointer to the input random numbers for helicity selection
+   * @param rndcol the pointer to the input random numbers for color selection
+   * @param mes the pointer to the output matrix elements
+   * @param selhel the pointer to the output selected helicities
+   * @param selcol the pointer to the output selected colors
+   */
+  void fbridgesequence_nomultichannel_( CppObjectInFortran** ppbridge,
+                                        const FORTRANFPTYPE* momenta,
+                                        const FORTRANFPTYPE* gs,
+                                        const FORTRANFPTYPE* rndhel,
+                                        const FORTRANFPTYPE* rndcol,
+                                        FORTRANFPTYPE* mes,
+                                        int* selhel,
+                                        int* selcol )
+  {
+    fbridgesequence_( ppbridge, momenta, gs, rndhel, rndcol, nullptr, mes, selhel, selcol );
   }
 
   /**
