@@ -10,10 +10,8 @@
     // Reset the "matrix elements" - running sums of |M|^2 over helicities for the given event
 #ifdef __CUDACC__
     allMEs[ievt] = 0;
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     allNumerators[ievt] = 0;
     allDenominators[ievt] = 0;
-#endif
 #else
     const int npagV = nevt / neppV;
     for( int ipagV = 0; ipagV < npagV; ++ipagV )
@@ -22,14 +20,12 @@
       fptype* MEs = E_ACCESS::ieventAccessRecord( allMEs, ievt0 );
       fptype_sv& MEs_sv = E_ACCESS::kernelAccess( MEs );
       MEs_sv = fptype_sv{ 0 };
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       fptype* numerators = NUM_ACCESS::ieventAccessRecord( allNumerators, ievt0 );
       fptype* denominators = DEN_ACCESS::ieventAccessRecord( allDenominators, ievt0 );
       fptype_sv& numerators_sv = NUM_ACCESS::kernelAccess( numerators );
       fptype_sv& denominators_sv = DEN_ACCESS::kernelAccess( denominators );
       numerators_sv = fptype_sv{ 0 };
       denominators_sv = fptype_sv{ 0 };
-#endif
     }
 #endif
 
@@ -46,11 +42,7 @@
     for( int ighel = 0; ighel < cNGoodHel; ighel++ )
     {
       const int ihel = cGoodHel[ighel];
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators, jamp2_sv );
-#else
-      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, jamp2_sv );
-#endif
       MEs_ighel[ighel] = allMEs[ievt];
     }
     // Event-by-event random choice of helicity #403
@@ -65,7 +57,6 @@
         break;
       }
     }
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Event-by-event random choice of color #402
     const int channelIdC = channelId - 1; // coloramps.h uses the C array indexing starting at 0
     fptype targetamp[ncolor] = { 0 };
@@ -86,7 +77,6 @@
         break;
       }
     }
-#endif
     // *** END OF PART 1a - CUDA (one event per CPU thread) ***
 
 #else // CUDA OR C++
@@ -107,15 +97,9 @@
     // - shared: as the name says
     // - private: give each thread its own copy, without initialising
     // - firstprivate: give each thread its own copy, and initialise with value from outside
-#define _OMPLIST0 allcouplings, allMEs, allmomenta, allrndcol, allrndhel, allselcol, allselhel, cGoodHel, cNGoodHel, npagV2
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-#define _OMPLIST1 , allDenominators, allNumerators, channelId, mgOnGpu::icolamp
-#else
-#define _OMPLIST1
-#endif
-#pragma omp parallel for default( none ) shared( _OMPLIST0 _OMPLIST1 )
-#undef _OMPLIST0
-#undef _OMPLIST1
+#define _OMPLIST allcouplings, allMEs, allmomenta, allrndcol, allrndhel, allselcol, allselhel, cGoodHel, cNGoodHel, npagV2, allDenominators, allNumerators, channelId, mgOnGpu::icolamp
+#pragma omp parallel for default( none ) shared( _OMPLIST )
+#undef _OMPLIST
 #endif // _OPENMP
     for( int ipagV2 = 0; ipagV2 < npagV2; ++ipagV2 )
     {
@@ -132,11 +116,7 @@
       for( int ighel = 0; ighel < cNGoodHel; ighel++ )
       {
         const int ihel = cGoodHel[ighel];
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
         calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators, jamp2_sv, ievt00 );
-#else
-        calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, jamp2_sv, ievt00 );
-#endif
         MEs_ighel[ighel] = E_ACCESS::kernelAccess( E_ACCESS::ieventAccessRecord( allMEs, ievt00 ) );
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
         MEs_ighel2[ighel] = E_ACCESS::kernelAccess( E_ACCESS::ieventAccessRecord( allMEs, ievt00 + neppV ) );
@@ -177,7 +157,6 @@
         }
 #endif
       }
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL // multichannel enabled (random color choice)
       const int channelIdC = channelId - 1; // coloramps.h uses the C array indexing starting at 0
       // Event-by-event random choice of color #402
       fptype_sv targetamp[ncolor] = { 0 };
@@ -230,7 +209,6 @@
         }
 #endif
       }
-#endif // multichannel enabled (random color choice)
     }
     // *** END OF PART 1b - C++ (loop on event pages)
 
@@ -242,9 +220,7 @@
     // https://www.uzh.ch/cmsssl/physik/dam/jcr:2e24b7b1-f4d7-4160-817e-47b13dbf1d7c/Handout_4_2016-UZH.pdf]
 #ifdef __CUDACC__
     allMEs[ievt] /= helcolDenominators[0];
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     if( channelId > 0 ) allMEs[ievt] *= allNumerators[ievt] / allDenominators[ievt];
-#endif
 #else
     for( int ipagV = 0; ipagV < npagV; ++ipagV )
     {
@@ -252,7 +228,6 @@
       fptype* MEs = E_ACCESS::ieventAccessRecord( allMEs, ievt0 );
       fptype_sv& MEs_sv = E_ACCESS::kernelAccess( MEs );
       MEs_sv /= helcolDenominators[0];
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId > 0 )
       {
         fptype* numerators = NUM_ACCESS::ieventAccessRecord( allNumerators, ievt0 );
@@ -261,7 +236,6 @@
         fptype_sv& denominators_sv = DEN_ACCESS::kernelAccess( denominators );
         MEs_sv *= numerators_sv / denominators_sv;
       }
-#endif
       //for( int ieppV = 0; ieppV < neppV; ieppV++ )
       //{
       //  const unsigned int ievt = ipagV * neppV + ieppV;

@@ -19,16 +19,13 @@
 #include "MemoryAccessAmplitudes.h"
 #include "MemoryAccessCouplings.h"
 #include "MemoryAccessCouplingsFixed.h"
+#include "MemoryAccessDenominators.h"
 #include "MemoryAccessGs.h"
 #include "MemoryAccessMatrixElements.h"
 #include "MemoryAccessMomenta.h"
-#include "MemoryAccessWavefunctions.h"
-
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-#include "MemoryAccessDenominators.h"
 #include "MemoryAccessNumerators.h"
+#include "MemoryAccessWavefunctions.h"
 #include "coloramps.h"
-#endif
 
 #include <algorithm>
 #include <array>
