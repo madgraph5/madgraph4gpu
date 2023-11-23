@@ -6,8 +6,9 @@
 #ifndef MGONGPUCONFIG_H
 #define MGONGPUCONFIG_H 1
 
-// Note: MGONGPU_SUPPORTS_MULTICHANNEL is no longer needed as multichannel support is now always hardcoded at code generation (#473)
-// The code bases are now the same (with multichannel) for standalone_cudacpp and madevent+cudacpp
+// HARDCODED AT CODE GENERATION TIME: DO NOT MODIFY (#473)
+// There are two different code bases for standalone_cudacpp (without multichannel) and madevent+cudacpp (with multichannel)
+%(mgongpu_supports_multichannel)s
 
 // ** NB1 Throughputs (e.g. 6.8E8) are events/sec for "./gcheck.exe -p 65536 128 12"
 // ** NB2 Baseline on b7g47n0004 fluctuates (probably depends on load on other VMs)

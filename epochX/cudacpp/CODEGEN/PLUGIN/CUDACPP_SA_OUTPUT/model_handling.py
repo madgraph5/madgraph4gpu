@@ -1213,9 +1213,11 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
                            const fptype* allmomenta,      // input: momenta[nevt*npar*4]
                            const fptype* allcouplings,    // input: couplings[nevt*ndcoup*2]
                            fptype* allMEs,                // output: allMEs[nevt], |M|^2 running_sum_over_helicities
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
                            const unsigned int channelId,  // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
                            fptype* allNumerators,         // output: multichannel numerators[nevt], running_sum_over_helicities
                            fptype* allDenominators,       // output: multichannel denominators[nevt], running_sum_over_helicities
+#endif
                            fptype_sv* jamp2_sv            // output: jamp2[nParity][ncolor][neppV] for color choice (nullptr if disabled)
 #ifndef __CUDACC__
                            , const int ievt00             // input: first event number in current C++ event page (for CUDA, ievt depends on threadid)
@@ -1231,8 +1233,10 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     using A_ACCESS = DeviceAccessAmplitudes;      // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
     using CD_ACCESS = DeviceAccessCouplings;      // non-trivial access (dependent couplings): buffer includes all events
     using CI_ACCESS = DeviceAccessCouplingsFixed; // TRIVIAL access (independent couplings): buffer for one event
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     using NUM_ACCESS = DeviceAccessNumerators;    // non-trivial access: buffer includes all events
     using DEN_ACCESS = DeviceAccessDenominators;  // non-trivial access: buffer includes all events
+#endif
 #else
     using namespace mg5amcCpu;
     using M_ACCESS = HostAccessMomenta;         // non-trivial access: buffer includes all events
@@ -1241,8 +1245,10 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     using A_ACCESS = HostAccessAmplitudes;      // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
     using CD_ACCESS = HostAccessCouplings;      // non-trivial access (dependent couplings): buffer includes all events
     using CI_ACCESS = HostAccessCouplingsFixed; // TRIVIAL access (independent couplings): buffer for one event
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     using NUM_ACCESS = HostAccessNumerators;    // non-trivial access: buffer includes all events
     using DEN_ACCESS = HostAccessDenominators;  // non-trivial access: buffer includes all events
+#endif
 #endif /* clang-format on */
     mgDebug( 0, __FUNCTION__ );
     //printf( \"calculate_wavefunctions: ihel=%2d\\n\", ihel );
@@ -1396,7 +1402,10 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         replace_dict['nbhel'] = self.matrix_elements[0].get_helicity_combinations() # number of helicity combinations
         ###replace_dict['nwavefunc'] = self.matrix_elements[0].get_number_of_wavefunctions() # this is the correct P1-specific nwf, now in CPPProcess.h (#644)
         replace_dict['wavefuncsize'] = 6
-        # Note: multichannel code is now hardcoded even if "self.include_multi_channel" is False
+        if self.include_multi_channel:
+            replace_dict['mgongpu_supports_multichannel'] = '#define MGONGPU_SUPPORTS_MULTICHANNEL 1'
+        else:
+            replace_dict['mgongpu_supports_multichannel'] = '#undef MGONGPU_SUPPORTS_MULTICHANNEL'
         ff = open(pjoin(self.path, '..','..','src','mgOnGpuConfig.h'),'w')
         ff.write(template % replace_dict)
         ff.close()
@@ -1716,8 +1725,10 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
       const fptype* COUPs[nxcoup];
       for( size_t ixcoup = 0; ixcoup < nxcoup; ixcoup++ ) COUPs[ixcoup] = allCOUPs[ixcoup];
       fptype* MEs = allMEs;
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       fptype* numerators = allNumerators;
       fptype* denominators = allDenominators;
+#endif
 #else
       // C++ kernels take input/output buffers with momenta/MEs for one specific event (the first in the current event page)
       const fptype* momenta = M_ACCESS::ieventAccessRecordConst( allmomenta, ievt0 );
@@ -1727,16 +1738,20 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
       for( size_t iicoup = 0; iicoup < nicoup; iicoup++ )
         COUPs[ndcoup + iicoup] = allCOUPs[ndcoup + iicoup]; // independent couplings, fixed for all events
       fptype* MEs = E_ACCESS::ieventAccessRecord( allMEs, ievt0 );
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       fptype* numerators = NUM_ACCESS::ieventAccessRecord( allNumerators, ievt0 );
       fptype* denominators = DEN_ACCESS::ieventAccessRecord( allDenominators, ievt0 );
+#endif
 #endif
 
       // Reset color flows (reset jamp_sv) at the beginning of a new event or event page
       for( int i = 0; i < ncolor; i++ ) { jamp_sv[i] = cxzero_sv(); }
 
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Numerators and denominators for the current event (CUDA) or SIMD event page (C++)
       fptype_sv& numerators_sv = NUM_ACCESS::kernelAccess( numerators );
-      fptype_sv& denominators_sv = DEN_ACCESS::kernelAccess( denominators );""")
+      fptype_sv& denominators_sv = DEN_ACCESS::kernelAccess( denominators );
+#endif""")
         diagrams = matrix_element.get('diagrams')
         diag_to_config = {}
         if multi_channel_map:
@@ -1765,11 +1780,14 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                     if id_amp in diag_to_config:
                         ###res.append("if( channelId == %i ) numerators_sv += cxabs2( amp_sv[0] );" % diag_to_config[id_amp]) # BUG #472
                         ###res.append("if( channelId == %i ) numerators_sv += cxabs2( amp_sv[0] );" % id_amp) # wrong fix for BUG #472
+                        res.append("#ifdef MGONGPU_SUPPORTS_MULTICHANNEL")
                         res.append("if( channelId == %i ) numerators_sv += cxabs2( amp_sv[0] );" % diagram.get('number'))
                         res.append("if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );")
+                        res.append("#endif")
                 else:
-                    res.append("// This code was generated withot multichannel support: cannot update numerators_sv and denominators_sv (#473)")
-                    res.append("assert( channel_id == 0 );")
+                    res.append("#ifdef MGONGPU_SUPPORTS_MULTICHANNEL")
+                    res.append("// Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)")
+                    res.append("#endif")
                 for njamp, coeff in color[namp].items():
                     scoeff = PLUGIN_OneProcessExporter.coeff(*coeff) # AV
                     if scoeff[0] == '+' : scoeff = scoeff[1:]

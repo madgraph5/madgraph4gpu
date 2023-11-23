@@ -5,6 +5,7 @@
 
 #ifndef MemoryAccessDenominators_H
 #define MemoryAccessDenominators_H 1
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
 
 #include "MemoryAccessGs.h"
 
@@ -27,4 +28,5 @@ namespace mg5amcCpu
 
 } // end namespace mg5amcGpu/mg5amcCpu
 
+#endif
 #endif // MemoryAccessDenominators_H
