@@ -225,8 +225,10 @@ function codeGenAndDiff()
     echo "--------------------------------------------------"
     cat ${outproc}.mg
     echo -e "--------------------------------------------------\n"
+    SECONDS=0 # bash built-in
     ###{ strace -f -o ${outproc}_strace.txt python3 ./bin/mg5_aMC ${outproc}.mg ; } >& ${outproc}_log.txt
     { time python3 ./bin/mg5_aMC ${outproc}.mg || true ; } >& ${outproc}_log.txt
+    echo "Code generation completed in $SECONDS seconds" >> ${outproc}_log.txt
     cat ${outproc}_log.txt | egrep -v '(Crash Annotation)' > ${outproc}_log.txt.new # remove firefox 'glxtest: libEGL initialize failed' errors
     \mv ${outproc}_log.txt.new ${outproc}_log.txt
   fi
@@ -234,6 +236,8 @@ function codeGenAndDiff()
   if [ -d ${outproc} ] && ! grep -q "Please report this bug" ${outproc}_log.txt; then
     ###cat ${outproc}_log.txt; exit 0 # FOR DEBUGGING
     cat ${MG5AMC_HOME}/${outproc}_log.txt | { egrep 'INFO: (Try|Creat|Organiz|Process)' || true; }
+    echo ""
+    cat ${MG5AMC_HOME}/${outproc}_log.txt | grep 'Code generation'
   else
     echo "*** ERROR! Code generation failed"
     cat ${MG5AMC_HOME}/${outproc}_log.txt
