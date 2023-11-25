@@ -1,1 +1,0 @@
-DIRNAME=P1_gux_ttxwmdx

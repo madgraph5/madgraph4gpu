@@ -1,9 +1,0 @@
-set stdout_level DEBUG
-set zerowidth_tchannel F
-import model sm-no_b_mass
-define p = p b b~
-define j = p
-define w = w+ w- # W case only
-generate p p > t t~ w @0
-add process p p > t t~ w j @1
-output madevent nobm_pp_ttW.mad --hel_recycling=False --vector_size=32 --me_exporter=standalone_cudacpp

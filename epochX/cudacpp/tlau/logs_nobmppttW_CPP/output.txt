@@ -1,4 +1,4 @@
-START: Mon Oct 30 10:45:19 AM CET 2023
+START: Sat Nov 25 09:46:36 AM CET 2023
 ************************************************************
 *                                                          *
 *                      W E L C O M E to                    *
@@ -11,7 +11,7 @@ START: Mon Oct 30 10:45:19 AM CET 2023
 *                   *        * *        *                  *
 *                 *                       *                *
 *                                                          *
-*         VERSION 3.5.1_lo_vect                            *
+*         VERSION 3.5.2_lo_vect                            *
 *                                                          *
 *    The MadGraph5_aMC@NLO Development Team - Find us at   *
 *    https://server06.fynu.ucl.ac.be/projects/madgraph     *
@@ -50,8 +50,8 @@ INFO:     P0_udx_ttxwp
 INFO: Building madevent in madevent_interface.py with 'CPP' matrix elements 
 INFO:     P0_dux_ttxwm  
 INFO: Building madevent in madevent_interface.py with 'CPP' matrix elements 
-INFO:  Idle: 1,  Running: 0,  Completed: 31 [ current time: 10h46 ] 
-INFO:  Idle: 0,  Running: 1,  Completed: 31 [ current time: 10h46 ] 
+INFO:  Idle: 1,  Running: 0,  Completed: 31 [ current time: 09h47 ] 
+INFO:  Idle: 0,  Running: 1,  Completed: 31 [ current time: 09h47 ] 
 INFO:  Idle: 0,  Running: 0,  Completed: 32 [  1.2s  ] 
 INFO: End survey 
 refine 100
@@ -70,14 +70,14 @@ INFO: need to improve 0 channels
     P1_dux_ttxwmg 
     P0_udx_ttxwp 
     P0_dux_ttxwm 
-INFO:  Idle: 0,  Running: 0,  Completed: 0 [ current time: 10h46 ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 0 [ current time: 09h47 ] 
 INFO: Combining runs 
 sum of cpu time of last step: 1m13s
 INFO: finish refine 
 refine 100 --treshold=0.9
 No need for second refine due to stability of cross-section
 INFO: Combining Events 
-combine events done in 0.5746810436248779
+combination of events done in 0.5814721584320068 s 
   === Results Summary for run: run_01 tag: tag_1 ===
 
      Cross-section :   1.276 +- 0.007916 pb
@@ -93,7 +93,7 @@ INFO: storing files of previous run
 INFO: Done 
 quit
 INFO:  
-136.08user 21.00system 0:50.21elapsed 312%CPU (0avgtext+0avgdata 106004maxresident)k
-0inputs+686520outputs (45major+4609291minor)pagefaults 0swaps
-END: Mon Oct 30 10:46:10 AM CET 2023
+137.85user 20.60system 0:51.40elapsed 308%CPU (0avgtext+0avgdata 106088maxresident)k
+1192inputs+689768outputs (72major+4437573minor)pagefaults 0swaps
+END: Sat Nov 25 09:47:27 AM CET 2023
 ELAPSED: 51 seconds
