@@ -33,7 +33,7 @@ jobs:
       fail-fast: false # important to see all results even if one fails (fail-fast is true by default)
       matrix:
         # FIXME? Can the list of supported processes be specified only once in oneprocess.yml or allprocesses.yml?
-        process: [ee_mumu, gg_tt, gg_ttg, gg_ttgg, gg_ttggg, gg_tt01g, gq_ttq, pp_tt012j]
+        process: [ee_mumu, gg_tt, gg_ttg, gg_ttgg, gg_ttggg, gg_tt01g, gq_ttq, pp_tt012j, nobm_pp_ttW]
         suffix: [mad, sa]
     uses: ./.github/workflows/testsuite_oneprocess.yml
     with:
