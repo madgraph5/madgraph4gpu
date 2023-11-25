@@ -103,6 +103,12 @@ function codeGenAndDiff()
       generate p p > t t~ z @0
       add process p p > t t~ z j @1"
       ;;
+    nobm_pp_eejjj)
+      cmd="import model sm-no_b_mass
+      define p = p b b~
+      define j = p
+      generate p p > e+ e- j j j @3"
+      ;;
     nobm_pp_eejjjj)
       cmd="import model sm-no_b_mass
       define p = p b b~
