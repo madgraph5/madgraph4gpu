@@ -225,13 +225,12 @@ function codeGenAndDiff()
     echo "--------------------------------------------------"
     cat ${outproc}.mg
     echo -e "--------------------------------------------------\n"
-    SECONDS=0 # bash built-in
     ###{ strace -f -o ${outproc}_strace.txt python3 ./bin/mg5_aMC ${outproc}.mg ; } >& ${outproc}_log.txt
     { time python3 ./bin/mg5_aMC ${outproc}.mg || true ; } >& ${outproc}_log.txt
-    echo "Code generation completed in $SECONDS seconds" >> ${outproc}_log.txt
     cat ${outproc}_log.txt | egrep -v '(Crash Annotation)' > ${outproc}_log.txt.new # remove firefox 'glxtest: libEGL initialize failed' errors
     \mv ${outproc}_log.txt.new ${outproc}_log.txt
   fi
+  echo "Code generation completed in $SECONDS seconds" >> ${outproc}_log.txt
   # Check the code generation log for errors 
   if [ -d ${outproc} ] && ! grep -q "Please report this bug" ${outproc}_log.txt; then
     ###cat ${outproc}_log.txt; exit 0 # FOR DEBUGGING
@@ -635,6 +634,7 @@ fi
 ###fi
 
 # Generate the chosen process (this will always replace the existing code directory and create a .BKP)
+SECONDS=0 # bash built-in
 export CUDACPP_CODEGEN_PATCHLEVEL=${PATCHLEVEL}
 codeGenAndDiff $proc "$cmd"
 
@@ -659,4 +659,6 @@ fi
 
 echo
 echo "********************************************************************************"
+echo
+echo "Code generation and additional checks completed in $SECONDS seconds"
 echo
