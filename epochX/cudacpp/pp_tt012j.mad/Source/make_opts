@@ -1,7 +1,7 @@
 DEFAULT_CPP_COMPILER=g++
 DEFAULT_F2PY_COMPILER=f2py3
 DEFAULT_F_COMPILER=gfortran
-GLOBAL_FLAG=-O3 -ffast-math -fbounds-check
+GLOBAL_FLAG=-O3 -ffast-math
 MACFLAG=
 MG5AMC_VERSION=SpecifiedByMG5aMCAtRunTime
 PYTHIA8_PATH=NotInstalled
@@ -41,10 +41,9 @@ endif
 # For debugging Fortran, one could e.g. use:
 # FCFLAGS="-g -fbounds-check -ffpe-trap=invalid,zero,overflow,underflow,denormal -Wall -fimplicit-none"
 ############################################################
-$(warning GLOBAL_FLAG is ignored here)
-FCFLAGS   ?= -O3 -ffast-math -fbounds-check
-CXXFLAGS  ?= -O3 -ffast-math -DNDEBUG
-NVCCFLAGS ?= -O3 -ffast-math -use_fast_math -DNDEBUG -lineinfo
+FCFLAGS   ?= $(GLOBAL_FLAG) -fbounds-check
+CXXFLAGS  ?= $(GLOBAL_FLAG) -DNDEBUG
+NVCCFLAGS ?= $(GLOBAL_FLAG) -DNDEBUG -use_fast_math -lineinfo
 LDFLAGS   ?= $(STDLIB)
 
 ifneq ($(FFLAGS),)
