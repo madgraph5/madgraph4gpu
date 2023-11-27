@@ -8,19 +8,19 @@
 CUDACPP_SRC_MAKEFILE = cudacpp_src.mk
 
 # Self-invocation with adapted flags:
-cppnative: ../../Source/.sentry $(PROCESS)
+cppnative: $(SOURCEDIR_GUARD) $(PROCESS)
 	$(MAKE) AVX=native AVXFLAGS="-march=native" cppbuild
-cppnone: ../../Source/.sentry $(PROCESS)
+cppnone: $(SOURCEDIR_GUARD) $(PROCESS)
 	$(MAKE) AVX=none AVXFLAGS= cppbuild
-cppsse4: ../../Source/.sentry $(PROCESS)
+cppsse4: $(SOURCEDIR_GUARD) $(PROCESS)
 	$(MAKE) AVX=sse4 AVXFLAGS=-march=nehalem cppbuild
-cppavx2: ../../Source/.sentry $(PROCESS)
+cppavx2: $(SOURCEDIR_GUARD) $(PROCESS)
 	$(MAKE) AVX=avx2 AVXFLAGS=-march=haswell cppbuild
-cppavx512y: ../../Source/.sentry $(PROCESS)
+cppavx512y: $(SOURCEDIR_GUARD) $(PROCESS)
 	$(MAKE) AVX=512y AVXFLAGS="-march=skylake-avx512 -mprefer-vector-width=256" cppbuild
-cppavx512z: ../../Source/.sentry $(PROCESS)
+cppavx512z: $(SOURCEDIR_GUARD) $(PROCESS)
 	$(MAKE) AVX=512z AVXFLAGS="-march=skylake-avx512 -DMGONGPU_PVW512" cppbuild
-cuda: ../../Source/.sentry $(PROCESS)
+cuda: $(SOURCEDIR_GUARD) $(PROCESS)
 	$(MAKE) AVX=cuda cudabuild
 
 #-------------------------------------------------------------------------------

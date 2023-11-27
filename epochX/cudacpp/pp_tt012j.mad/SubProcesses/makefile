@@ -57,16 +57,17 @@ ifneq ("$(wildcard ../../Source/RUNNING)","")
     LIBS += $(LIBDIR)librunning.$(libext)
 endif
 
-# We use Source/.timestamp_proxy to figure out if Source is out of date. The Source makefile doesn't correctly
+SOURCEDIR_GUARD:=../../Source/.timestamp_guard
+# We use $(SOURCEDIR_GUARD) to figure out if Source is out of date. The Source makefile doesn't correctly
 # update all files, so we need a proxy that is updated every time we run "$(MAKE) -C ../../Source".
-../../Source/.timestamp_proxy ../../Source/discretesampler.mod &: ../../Source/*.f ../../Cards/param_card.dat ../../Cards/run_card.dat
+$(SOURCEDIR_GUARD) ../../Source/discretesampler.mod &: ../../Source/*.f ../../Cards/param_card.dat ../../Cards/run_card.dat
 ifneq ($(shell which flock 2>/dev/null),)
-	flock ../../Source/.lock -c "$(MAKE) -C ../../Source; touch ../../Source/.timestamp_proxy"
+	flock ../../Source/.lock -c "$(MAKE) -C ../../Source; touch $(SOURCEDIR_GUARD)"
 else
-	$(MAKE) -C ../../Source; touch ../../Source/.timestamp_proxy
+	$(MAKE) -C ../../Source; touch $(SOURCEDIR_GUARD)
 endif
 
-$(LIBS): ../../Source/.timestamp_proxy
+$(LIBS): $(SOURCEDIR_GUARD)
 
 # Source files
 
@@ -231,6 +232,6 @@ clean%:
 # Clean common source directories (interferes with other P*)
 cleansrc:
 	make -C ../../Source clean
-	$(RM) -f ../../Source/{*.mod,.timestamp_proxy,.lock} ../../Source/*/*.mod
+	$(RM) -f $(SOURCEDIR_GUARD) ../../Source/{*.mod,.lock} ../../Source/*/*.mod
 	$(RM) -r $(LIBDIR)libbias.$(libext)
 	if [ -d ../../src ]; then $(MAKE) -C ../../src -f cudacpp_src.mk clean; fi
