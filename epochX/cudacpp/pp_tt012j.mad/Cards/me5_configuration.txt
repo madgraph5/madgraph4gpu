@@ -2,11 +2,11 @@
 #
 # Copyright (c) 2009 The MadGraph5_aMC@NLO Development team and Contributors
 #
-# This file is a part of the MadGraph5_aMC@NLO project, an application which
+# This file is a part of the MadGraph5_aMC@NLO project, an application which 
 # automatically generates Feynman diagrams and matrix elements for arbitrary
 # high-energy processes in the Standard Model and beyond.
 #
-# It is subject to the MadGraph5_aMC@NLO license which should accompany this
+# It is subject to the MadGraph5_aMC@NLO license which should accompany this 
 # distribution.
 #
 # For more information, visit madgraph.phys.ucl.ac.be and amcatnlo.web.cern.ch
@@ -19,10 +19,10 @@
 # Line starting with # should be uncommented if you want to modify the default
 #    value.
 # Current value for all options can seen by typing "display options"
-#    after either ./bin/mg5_aMC or ./bin/madevent
+#    after either ./bin/mg5_aMC or ./bin/madevent 
 #
 # You can place this files in ~/.mg5/mg5_configuration.txt if you have more than
-#    one version of MG5.
+#    one version of MG5. 
 #
 ################################################################################
 
@@ -37,7 +37,7 @@
 #!
 # fortran_compiler = None
 # f2py_compiler_py2 = None
-# f2py_compiler_py3 = None
+# f2py_compiler_py3 = None 
 
 
 #! Prefered C++ Compiler
@@ -74,7 +74,7 @@
 #!  steer the Pythia8 shower.
 #!  Can be installed directly from within MG5_aMC with the following command:
 #!     MG5_aMC> install mg5amc_py8_interface
-# mg5amc_py8_interface_path = ./HEPTools/MG5aMC_PY8_interface
+# mg5amc_py8_interface_path = ./HEPTools/MG5aMC_PY8_interface 
 
 #! Herwig++/Herwig7 paths
 #!  specify here the paths also to HepMC ant ThePEG
@@ -83,9 +83,9 @@
 #!  WARNING: if Herwig7 has been installed with the bootstrap script,
 #!  then please set thepeg_path and hepmc_path to the same value as
 #!  hwpp_path
-# hwpp_path =
-# thepeg_path =
-# hepmc_path =
+# hwpp_path = 
+# thepeg_path = 
+# hepmc_path = 
 
 #! Control when MG5 checks if he is up-to-date.
 #! Enter the number of day between two check (0 means never)
@@ -93,7 +93,7 @@
 # auto_update = 7
 
 ################################################################################
-#  INFO FOR MADEVENT / aMC@NLO
+#  INFO FOR MADEVENT / aMC@NLO 
 ################################################################################
 # If this file is in a MADEVENT Template. 'main directory' is the directory
 # containing the SubProcesses directory. Otherwise this is the MadGraph5_aMC@NLO main
@@ -106,7 +106,7 @@
 # notification_center = True
 
 
-#! Default Running mode
+#! Default Running mode 
 #!  0: single machine/ 1: cluster / 2: multicore
 # run_mode = 2
 
@@ -115,7 +115,7 @@
 #!  And size of the cluster (some part of the code can adapt splitting accordingly)
 # cluster_type = condor
 # cluster_queue = madgraph
-# cluster_size = 150
+# cluster_size = 150 
 
 #! Path to a node directory to avoid direct writing on the central disk
 #!  Note that condor clusters avoid direct writing by default (therefore this
@@ -126,8 +126,8 @@
 #! to avoid to send them to the node (if cluster_temp_path is on True or condor)
 # cluster_local_path =  None # example: /cvmfs/cp3.uclouvain.be/madgraph/
 
-#! Cluster waiting time for status update
-#!  First number is when the number of waiting job is higher than the number
+#! Cluster waiting time for status update 
+#!  First number is when the number of waiting job is higher than the number 
 #!  of running one (time in second). The second number is in the second case.
 # cluster_status_update = 600 30
 
@@ -176,11 +176,11 @@
 #!  If None: try to find one available on the system
 # fastjet = fastjet-config
 
-#! eMELA-config
+#! eMELA-config 
 #!  If None: try to find one available on the system
 # eMELA = eMELA-config
 
-#! MCatNLO-utilities
+#! MCatNLO-utilities 
 #!  relative path starting from main directory
 # MCatNLO-utilities_path = ./MCatNLO-utilities
 
@@ -208,15 +208,15 @@
 # samurai = None
 
 #! Set the Ninja directory containing ninja's library
-#! if '' or None: disabling ninja
-#! if ninja=/PATH/TO/ninja/lib: use that specific installation path for ninja
+#! if '' or None: disabling ninja 
+#! if ninja=/PATH/TO/ninja/lib: use that specific installation path for ninja 
 # ninja = ./HEPTools/lib
 
 #! Set the COLLIER directory containing COLLIER's library
-#! if '' or None: disabling COLLIER
+#! if '' or None: disabling COLLIER 
 #! if ninja=/PATH/TO/ninja/lib: use that specific installation path for COLLIER
 # Note that it is necessary that you have generated a static library for COLLIER
-# collier = ./HEPTools/lib
+# collier = ./HEPTools/lib 
 
 #! Set how MadLoop dependencies (such as CutTools) should be handled
 #!  > external : ML5 places a link to the MG5_aMC-wide libraries
@@ -234,7 +234,7 @@
 # pineappl = pineappl
 
 
-#mg5_path = /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/mg5amcnlo
+#mg5_path = /data/stephan/madgraph4gpu/MG5aMC/mg5amcnlo 
 
 # MG5 MAIN DIRECTORY
-#mg5_path = /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/mg5amcnlo
+#mg5_path = /data/stephan/madgraph4gpu/MG5aMC/mg5amcnlo

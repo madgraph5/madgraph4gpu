@@ -111,8 +111,8 @@ Parameters_sm::setDependentParameters() // now computed event-by-event (running 
 void
 Parameters_sm::setDependentCouplings() // now computed event-by-event (running alphas #373)
 {
-  GC_10 = -G;
   GC_11 = mdl_complexi * G;
+  GC_10 = -G;
 }
 */
 
@@ -195,7 +195,7 @@ void
 Parameters_sm::printDependentCouplings() // now computed event-by-event (running alphas #373)
 {
   std::cout << "sm model couplings dependent on event kinematics:" << std::endl;
-  std::cout << std::setw( 20 ) << "GC_10 = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << GC_10 << std::endl;
   std::cout << std::setw( 20 ) << "GC_11 = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << GC_11 << std::endl;
+  std::cout << std::setw( 20 ) << "GC_10 = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << GC_10 << std::endl;
 }
 */

@@ -1,12 +1,12 @@
-GLOBAL_FLAG=-O3 -ffast-math
 DEFAULT_CPP_COMPILER=g++
-MACFLAG=
-STDLIB=-lstdc++
-STDLIB_FLAG=
-DEFAULT_F_COMPILER=gfortran
 DEFAULT_F2PY_COMPILER=f2py3
+DEFAULT_F_COMPILER=gfortran
+GLOBAL_FLAG=-O3 -ffast-math
+MACFLAG=
 MG5AMC_VERSION=SpecifiedByMG5aMCAtRunTime
 PYTHIA8_PATH=NotInstalled
+STDLIB_FLAG=
+STDLIB=-lstdc++
 #end_of_make_opts_variables
 
 BIASLIBDIR=../../../lib/
@@ -199,14 +199,11 @@ ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   MG_LDFLAGS += $(CURANDLIBFLAGS)
   MG_NVCCFLAGS += $(CUINC) $(USE_NVTX) $(CUARCHFLAGS)
 
-else ifneq ($(origin REQUIRE_CUDA),undefined)
-  # If REQUIRE_CUDA is set but no cuda is found, stop here (e.g. for CI tests on GPU #443)
-  $(error No cuda installation found (set CUDA_HOME or make nvcc visible in PATH))
-else
-  # No cuda. Switch cuda compilation off and go to common random numbers in C++
-  $(warning CUDA_HOME is not set or is invalid: export CUDA_HOME to compile with cuda)
-  override NVCC=
-  override CURANDLIBFLAGS=
+else ifeq ($(AVX),cuda)
+  $(error nvcc is not visible in PATH. Either add it to PATH or export CUDA_HOME to compile with cuda)
+  ifeq ($(AVX),cuda)
+    $(error Cannot compile for cuda without NVCC)
+  endif
 endif
 
 # Set the host C++ compiler for nvcc via "-ccbin <host-compiler>"
@@ -257,7 +254,7 @@ MG_CXXFLAGS += -std=c++17 -mmacosx-version-min=11.3
 endif
 
 ifeq ($(UNAME_S),Darwin)
-MG_LDFLAGS += -lc++ # avoid 'Undefined symbols' for chrono::steady_clock on macOS (checked with otool -L libmg5amc_gg_ttx_cpp.so)
+STDLIB = -lc++ # avoid 'Undefined symbols' for chrono::steady_clock on macOS (checked with otool -L libmg5amc_gg_ttx_cpp.so)
 MG_LDFLAGS += -mmacosx-version-min=11.3 # avoid "ld: warning: object file was built for newer macOS version than being linked"
 else
 MG_LDFLAGS += -Xlinker --no-relax # avoid 'failed to convert GOTPCREL relocation' error #458 (not supported on macOS)
@@ -268,7 +265,7 @@ endif
 #=== C++/CUDA-specific flags for floating-point types and random generators to use
 
 # Set the default FPTYPE (floating point type) choice
-FPTYPE ?= d
+FPTYPE ?= m
 
 # Set the default HELINL (inline helicities?) choice
 HELINL ?= 0

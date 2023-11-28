@@ -125,7 +125,7 @@ ifneq ($(UNAME_S),Darwin)
   LIBFLAGSRPATH := -Wl,-rpath,'$$ORIGIN:$$ORIGIN/../$(LIBDIR)/$(CUDACPP_BUILDDIR)'
 endif
 
-.PHONY: madevent_fortran_link madevent_cuda_link madevent_cpp_link madevent_cppnone_link madevent_cppsse4_link madevent_cppavx2_link madevent_cpp512y_link madevent_cpp512z_link
+.PHONY: madevent_fortran_link madevent_cuda_link madevent_cpp_link madevent_cppnone_link madevent_cppsse4_link madevent_cppavx2_link madevent_cpp512y_link madevent_cpp512z_link clean cleanall cleansrc
 
 madevent_fortran_link: $(PROG)_fortran
 	rm -f $(PROG)
@@ -221,13 +221,14 @@ ALL: cppall cuda
 clean:
 	$(RM) *.o gensym $(PROG) $(PROG)_*
 	$(RM) -rf build.*/*{.o,.so,.exe,.dylib,madevent_*}
+	@for dir in build.*; do if [ -z "$$(ls -A $${dir})" ]; then rm -r $${dir}; else echo "Not cleaning $${dir}; not empty"; fi; done
 
-cleanall:
+cleanall: cleansrc
 	for PROCESS in ../P[0-9]*; do $(MAKE) -C $${PROCESS} clean; done
 
 # Clean one architecture-specific build
 clean%:
-	$(RM) -r build.$*_*/*{.o,.so,.exe,.dylib,madevent_*}
+	$(RM) -r build.$*_*
 
 # Clean common source directories (interferes with other P*)
 cleansrc:

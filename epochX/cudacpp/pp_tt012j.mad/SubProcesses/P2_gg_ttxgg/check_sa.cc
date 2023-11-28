@@ -81,7 +81,7 @@ namespace mg5amcGpu
 namespace mg5amcCpu
 #endif
 {
-  inline void FPEhandler( int sig )
+  inline void FPEhandler( int )
   {
 #ifdef __CUDACC__
     std::cerr << "Floating Point Exception (GPU)" << std::endl;

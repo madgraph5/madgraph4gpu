@@ -29,7 +29,7 @@ class CPPMEInterface(madevent_interface.MadEventCmdShell):
         """ """
         import multiprocessing
         if not self.options['nb_core'] or self.options['nb_core'] == 'None':
-            self.options['nb_core'] = multiprocessing.cpu_count()
+            self.options['nb_core'] = multiprocessing.cpu_count()    
         if 'cwd' in opts and os.path.basename(opts['cwd']) == 'Source':
             path = pjoin(opts['cwd'], 'make_opts')
             avx_level = self.run_card['avx_level'] if self.run_card['avx_level'] != 'auto' else ''
@@ -37,7 +37,7 @@ class CPPMEInterface(madevent_interface.MadEventCmdShell):
                 {'FPTYPE': self.run_card['floating_type'],
                  'AVX': avx_level })
             misc.sprint('FPTYPE checked')
-        if args and args[0][0] == 'madevent' and hasattr(self, 'run_card'):
+        if args and args[0][0] == 'madevent' and hasattr(self, 'run_card'):            
             cudacpp_backend = self.run_card['cudacpp_backend'].upper() # the default value is defined in banner.py
             logger.info("Building madevent in madevent_interface.py with '%s' matrix elements"%cudacpp_backend)
             if cudacpp_backend == 'FORTRAN':

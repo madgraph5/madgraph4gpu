@@ -50,10 +50,9 @@ Please set the 'lhapdf' variable to the (absolute) /PATH/TO/lhapdf-config (inclu
 Note that you can still compile and run aMC@NLO with the built-in PDFs
  MG5_aMC> set lhapdf /PATH/TO/lhapdf-config
 
-Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
 Using default eps viewer "evince". Set another one in ./input/mg5_configuration.txt
-No valid web browser found. Please set in ./input/mg5_configuration.txt
-import /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j.mg
+Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
+import /data/stephan/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j.mg
 The import format was not given, so we guess it as command
 set stdout_level DEBUG
 set output information to level: 10
@@ -61,7 +60,7 @@ set zerowidth_tchannel F
 define j = p
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.0053882598876953125 [0m
+[1;32mDEBUG: model prefixing  takes 0.003490924835205078 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -172,7 +171,7 @@ INFO: Process u~ u > t t~ added to mirror process u u~ > t t~
 INFO: Process c~ c > t t~ added to mirror process c c~ > t t~ 
 INFO: Process d~ d > t t~ added to mirror process d d~ > t t~ 
 INFO: Process s~ s > t t~ added to mirror process s s~ > t t~ 
-5 processes with 7 diagrams generated in 0.031 s
+5 processes with 7 diagrams generated in 0.021 s
 Total: 5 processes with 7 diagrams
 add process p p > t t~ j @1
 INFO: Checking for minimal orders which gives processes. 
@@ -212,7 +211,7 @@ INFO: Process d~ g > t t~ d~ added to mirror process g d~ > t t~ d~
 INFO: Process d~ d > t t~ g added to mirror process d d~ > t t~ g 
 INFO: Process s~ g > t t~ s~ added to mirror process g s~ > t t~ s~ 
 INFO: Process s~ s > t t~ g added to mirror process s s~ > t t~ g 
-13 processes with 76 diagrams generated in 0.141 s
+13 processes with 76 diagrams generated in 0.098 s
 Total: 18 processes with 83 diagrams
 add process p p > t t~ j j @2
 INFO: Checking for minimal orders which gives processes. 
@@ -378,7 +377,7 @@ INFO: Process s~ u~ > t t~ u~ s~ added to mirror process u~ s~ > t t~ u~ s~
 INFO: Process s~ c~ > t t~ c~ s~ added to mirror process c~ s~ > t t~ c~ s~ 
 INFO: Process s~ d~ > t t~ d~ s~ added to mirror process d~ s~ > t t~ d~ s~ 
 INFO: Crossed process found for s~ s~ > t t~ s~ s~, reuse diagrams. 
-65 processes with 1119 diagrams generated in 1.922 s
+65 processes with 1119 diagrams generated in 1.271 s
 Total: 83 processes with 1202 diagrams
 output madevent ../TMPOUT/CODEGEN_mad_pp_tt012j --hel_recycling=False --vector_size=32 --me_exporter=standalone_cudacpp
 Load PLUGIN.CUDACPP_OUTPUT
@@ -389,10 +388,10 @@ Load PLUGIN.CUDACPP_OUTPUT
 INFO: initialize a new directory: CODEGEN_mad_pp_tt012j 
 INFO: remove old information in CODEGEN_mad_pp_tt012j 
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.copy_template (initialise the directory) [1;30m[output.py at line 165][0m [0m
-[1;34mWARNING: File exists /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j [0m
-INFO: Creating subdirectories in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j 
-[1;34mWARNING: File exists /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/Cards [0m
-[1;34mWARNING: File exists /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses [0m
+[1;34mWARNING: File exists /data/stephan/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j [0m
+INFO: Creating subdirectories in directory /data/stephan/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j 
+[1;34mWARNING: File exists /data/stephan/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/Cards [0m
+[1;34mWARNING: File exists /data/stephan/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses [0m
 INFO: Organizing processes into subprocess groups 
 INFO: Generating Helas calls for process: g g > t t~ g g WEIGHTED<=4 @2 
 INFO: Processing color information for process: g g > t t~ g g @2 
@@ -497,7 +496,7 @@ INFO: Combined process d d~ > t t~ WEIGHTED<=2 with process u u~ > t t~ WEIGHTED
 INFO: Combined process s s~ > t t~ WEIGHTED<=2 with process u u~ > t t~ WEIGHTED<=2 
 INFO: Creating files in directory P2_gg_ttxgg 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f33336d4c40> [1;30m[export_v4.py at line 6262][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f61ecd8f520> [1;30m[export_v4.py at line 6262][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -514,7 +513,7 @@ INFO: Generating Feynman diagrams for Process: g g > t t~ g g WEIGHTED<=4 @2
 INFO: Finding symmetric diagrams for subprocess group gg_ttxgg 
 INFO: Creating files in directory P2_gg_ttxuux 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f33336d4430> [1;30m[export_v4.py at line 6262][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f61ecf550d0> [1;30m[export_v4.py at line 6262][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -531,7 +530,7 @@ INFO: Generating Feynman diagrams for Process: g g > t t~ u u~ WEIGHTED<=4 @2
 INFO: Finding symmetric diagrams for subprocess group gg_ttxuux 
 INFO: Creating files in directory P2_gu_ttxgu 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f3333a1deb0> [1;30m[export_v4.py at line 6262][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f61ed086160> [1;30m[export_v4.py at line 6262][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -548,7 +547,7 @@ INFO: Generating Feynman diagrams for Process: g u > t t~ g u WEIGHTED<=4 @2
 INFO: Finding symmetric diagrams for subprocess group gu_ttxgu 
 INFO: Creating files in directory P2_gux_ttxgux 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f333422a1c0> [1;30m[export_v4.py at line 6262][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f61ed0961f0> [1;30m[export_v4.py at line 6262][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -565,7 +564,7 @@ INFO: Generating Feynman diagrams for Process: g u~ > t t~ g u~ WEIGHTED<=4 @2
 INFO: Finding symmetric diagrams for subprocess group gux_ttxgux 
 INFO: Creating files in directory P2_uux_ttxgg 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f3333864250> [1;30m[export_v4.py at line 6262][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f61ed073370> [1;30m[export_v4.py at line 6262][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -582,7 +581,7 @@ INFO: Generating Feynman diagrams for Process: u u~ > t t~ g g WEIGHTED<=4 @2
 INFO: Finding symmetric diagrams for subprocess group uux_ttxgg 
 INFO: Creating files in directory P1_gg_ttxg 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f3333864250> [1;30m[export_v4.py at line 6262][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f61ed4a97c0> [1;30m[export_v4.py at line 6262][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -599,7 +598,7 @@ INFO: Generating Feynman diagrams for Process: g g > t t~ g WEIGHTED<=3 @1
 INFO: Finding symmetric diagrams for subprocess group gg_ttxg 
 INFO: Creating files in directory P2_uu_ttxuu 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f3333a24ca0> [1;30m[export_v4.py at line 6262][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f61ed4a97c0> [1;30m[export_v4.py at line 6262][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -616,7 +615,7 @@ INFO: Generating Feynman diagrams for Process: u u > t t~ u u WEIGHTED<=4 @2
 INFO: Finding symmetric diagrams for subprocess group uu_ttxuu 
 INFO: Creating files in directory P2_uux_ttxuux 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f33339e5be0> [1;30m[export_v4.py at line 6262][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f61ed4a97c0> [1;30m[export_v4.py at line 6262][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -633,7 +632,7 @@ INFO: Generating Feynman diagrams for Process: u u~ > t t~ u u~ WEIGHTED<=4 @2
 INFO: Finding symmetric diagrams for subprocess group uux_ttxuux 
 INFO: Creating files in directory P2_uxux_ttxuxux 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f3333ee8f70> [1;30m[export_v4.py at line 6262][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f61ed099f10> [1;30m[export_v4.py at line 6262][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -650,7 +649,7 @@ INFO: Generating Feynman diagrams for Process: u~ u~ > t t~ u~ u~ WEIGHTED<=4 @2
 INFO: Finding symmetric diagrams for subprocess group uxux_ttxuxux 
 INFO: Creating files in directory P2_uc_ttxuc 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f3333d6d850> [1;30m[export_v4.py at line 6262][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f61ed086160> [1;30m[export_v4.py at line 6262][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -667,7 +666,7 @@ INFO: Generating Feynman diagrams for Process: u c > t t~ u c WEIGHTED<=4 @2
 INFO: Finding symmetric diagrams for subprocess group uc_ttxuc 
 INFO: Creating files in directory P2_uux_ttxccx 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f3333a1dd60> [1;30m[export_v4.py at line 6262][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f61ed040b50> [1;30m[export_v4.py at line 6262][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -684,7 +683,7 @@ INFO: Generating Feynman diagrams for Process: u u~ > t t~ c c~ WEIGHTED<=4 @2
 INFO: Finding symmetric diagrams for subprocess group uux_ttxccx 
 INFO: Creating files in directory P2_ucx_ttxucx 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f33339c4d30> [1;30m[export_v4.py at line 6262][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f61ecf0b460> [1;30m[export_v4.py at line 6262][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -701,7 +700,7 @@ INFO: Generating Feynman diagrams for Process: u c~ > t t~ u c~ WEIGHTED<=4 @2
 INFO: Finding symmetric diagrams for subprocess group ucx_ttxucx 
 INFO: Creating files in directory P2_uxcx_ttxuxcx 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f3333d6d850> [1;30m[export_v4.py at line 6262][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f61ecf0b460> [1;30m[export_v4.py at line 6262][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -718,7 +717,7 @@ INFO: Generating Feynman diagrams for Process: u~ c~ > t t~ u~ c~ WEIGHTED<=4 @2
 INFO: Finding symmetric diagrams for subprocess group uxcx_ttxuxcx 
 INFO: Creating files in directory P1_gu_ttxu 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f3333d6d850> [1;30m[export_v4.py at line 6262][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f61ed086160> [1;30m[export_v4.py at line 6262][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -735,7 +734,7 @@ INFO: Generating Feynman diagrams for Process: g u > t t~ u WEIGHTED<=3 @1
 INFO: Finding symmetric diagrams for subprocess group gu_ttxu 
 INFO: Creating files in directory P1_gux_ttxux 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f3333d6d850> [1;30m[export_v4.py at line 6262][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f61ed0ac9d0> [1;30m[export_v4.py at line 6262][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -752,7 +751,7 @@ INFO: Generating Feynman diagrams for Process: g u~ > t t~ u~ WEIGHTED<=3 @1
 INFO: Finding symmetric diagrams for subprocess group gux_ttxux 
 INFO: Creating files in directory P1_uux_ttxg 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f33339e3a00> [1;30m[export_v4.py at line 6262][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f61ed14fd60> [1;30m[export_v4.py at line 6262][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -769,7 +768,7 @@ INFO: Generating Feynman diagrams for Process: u u~ > t t~ g WEIGHTED<=3 @1
 INFO: Finding symmetric diagrams for subprocess group uux_ttxg 
 INFO: Creating files in directory P0_gg_ttx 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f3333a1dd60> [1;30m[export_v4.py at line 6262][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f61ece122b0> [1;30m[export_v4.py at line 6262][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -786,7 +785,7 @@ INFO: Generating Feynman diagrams for Process: g g > t t~ WEIGHTED<=2
 INFO: Finding symmetric diagrams for subprocess group gg_ttx 
 INFO: Creating files in directory P0_uux_ttx 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f33336d4c40> [1;30m[export_v4.py at line 6262][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f61ed086160> [1;30m[export_v4.py at line 6262][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -801,15 +800,15 @@ INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./.
 [1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1872][0m [0m
 INFO: Generating Feynman diagrams for Process: u u~ > t t~ WEIGHTED<=2 
 INFO: Finding symmetric diagrams for subprocess group uux_ttx 
-Generated helas calls for 18 subprocesses (372 diagrams) in 1.279 s
-Wrote files for 810 helas calls in 3.193 s
+Generated helas calls for 18 subprocesses (372 diagrams) in 0.884 s
+Wrote files for 810 helas calls in 2.301 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 routines[0m
 ALOHA: aloha creates VVVV3 routines[0m
 ALOHA: aloha creates VVVV4 routines[0m
-ALOHA: aloha creates 5 routines in  0.331 s
+ALOHA: aloha creates 5 routines in  0.229 s
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 202][0m [0m
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
@@ -817,7 +816,7 @@ ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 routines[0m
 ALOHA: aloha creates VVVV3 routines[0m
 ALOHA: aloha creates VVVV4 routines[0m
-ALOHA: aloha creates 10 routines in  0.310 s
+ALOHA: aloha creates 10 routines in  0.201 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -830,207 +829,212 @@ ALOHA: aloha creates 10 routines in  0.310 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVVV3
 <class 'aloha.create_aloha.AbstractRoutine'> VVVV4
 <class 'aloha.create_aloha.AbstractRoutine'> VVVV4
-FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/src/./HelAmps_sm.h
-INFO: Created file HelAmps_sm.h in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/src/. 
+FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/stephan/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/src/./HelAmps_sm.h
+INFO: Created file HelAmps_sm.h in directory /data/stephan/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/src/. 
 super_write_set_parameters_onlyfixMajorana (hardcoded=False)
 super_write_set_parameters_onlyfixMajorana (hardcoded=True)
-FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/src/./Parameters_sm.h
-FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/src/./Parameters_sm.cc
+FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/stephan/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/src/./Parameters_sm.h
+FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/stephan/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/src/./Parameters_sm.cc
 INFO: Created files Parameters_sm.h and Parameters_sm.cc in directory 
-INFO: /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/src/. and /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/src/. 
+INFO: /data/stephan/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/src/. and /data/stephan/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/src/. 
 The option zerowidth_tchannel is modified [True] but will not be written in the configuration files.
 If you want to make this value the default for future session, you can run 'save options --all'
-save configuration file to /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/Cards/me5_configuration.txt
+save configuration file to /data/stephan/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/Cards/me5_configuration.txt
 INFO: Use Fortran compiler gfortran 
 INFO: Use c++ compiler g++ 
 INFO: Generate web pages 
-DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j; patch -p4 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.common
+DEBUG: cd /data/stephan/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j; patch -p4 -i /data/stephan/madgraph4gpu/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.common
 patching file Source/genps.inc
+patching file Source/make_opts
+Hunk #1 succeeded at 12 (offset -1 lines).
+Hunk #2 succeeded at 70 (offset -1 lines).
+Hunk #3 succeeded at 117 (offset -1 lines).
+Hunk #4 succeeded at 128 (offset -1 lines).
 patching file Source/makefile
 patching file SubProcesses/makefile
+patching file bin/internal/banner.py
 patching file bin/internal/gen_ximprove.py
-Hunk #1 succeeded at 391 (offset 6 lines).
 patching file bin/internal/madevent_interface.py
-DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P0_gg_ttx; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+DEBUG: cd /data/stephan/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P0_gg_ttx; patch -p6 -i /data/stephan/madgraph4gpu/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
 patching file auto_dsig1.f
 patching file driver.f
 patching file matrix1.f
-DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P0_uux_ttx; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
-patching file auto_dsig1.f
-Hunk #1 succeeded at 539 (offset 55 lines).
-patching file driver.f
-patching file matrix1.f
-Hunk #1 succeeded at 75 (offset 3 lines).
-Hunk #2 succeeded at 146 (offset 3 lines).
-Hunk #3 succeeded at 224 (offset 3 lines).
-Hunk #4 succeeded at 252 (offset 3 lines).
-Hunk #5 succeeded at 297 (offset 3 lines).
-DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P1_gg_ttxg; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
-patching file auto_dsig1.f
-patching file driver.f
-patching file matrix1.f
-Hunk #2 succeeded at 159 (offset 16 lines).
-Hunk #3 succeeded at 237 (offset 16 lines).
-Hunk #4 succeeded at 265 (offset 16 lines).
-Hunk #5 succeeded at 310 (offset 16 lines).
-DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P1_gu_ttxu; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
-patching file auto_dsig1.f
-Hunk #1 succeeded at 528 (offset 44 lines).
-patching file driver.f
-patching file matrix1.f
-Hunk #1 succeeded at 75 (offset 3 lines).
-Hunk #2 succeeded at 162 (offset 19 lines).
-Hunk #3 succeeded at 240 (offset 19 lines).
-Hunk #4 succeeded at 268 (offset 19 lines).
-Hunk #5 succeeded at 313 (offset 19 lines).
-DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P1_gux_ttxux; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
-patching file auto_dsig1.f
-Hunk #1 succeeded at 528 (offset 44 lines).
-patching file driver.f
-patching file matrix1.f
-Hunk #1 succeeded at 75 (offset 3 lines).
-Hunk #2 succeeded at 162 (offset 19 lines).
-Hunk #3 succeeded at 240 (offset 19 lines).
-Hunk #4 succeeded at 268 (offset 19 lines).
-Hunk #5 succeeded at 313 (offset 19 lines).
-DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P1_uux_ttxg; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+Hunk #2 succeeded at 143 (offset -16 lines).
+Hunk #3 succeeded at 221 (offset -16 lines).
+Hunk #4 succeeded at 249 (offset -16 lines).
+Hunk #5 succeeded at 294 (offset -16 lines).
+DEBUG: cd /data/stephan/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P0_uux_ttx; patch -p6 -i /data/stephan/madgraph4gpu/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
 patching file auto_dsig1.f
 Hunk #1 succeeded at 539 (offset 55 lines).
 patching file driver.f
 patching file matrix1.f
 Hunk #1 succeeded at 75 (offset 3 lines).
-Hunk #2 succeeded at 162 (offset 19 lines).
-Hunk #3 succeeded at 240 (offset 19 lines).
-Hunk #4 succeeded at 268 (offset 19 lines).
-Hunk #5 succeeded at 313 (offset 19 lines).
-DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_gg_ttxgg; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+Hunk #2 succeeded at 146 (offset -13 lines).
+Hunk #3 succeeded at 224 (offset -13 lines).
+Hunk #4 succeeded at 252 (offset -13 lines).
+Hunk #5 succeeded at 297 (offset -13 lines).
+DEBUG: cd /data/stephan/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P1_gg_ttxg; patch -p6 -i /data/stephan/madgraph4gpu/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
 patching file auto_dsig1.f
 patching file driver.f
 patching file matrix1.f
-Hunk #2 succeeded at 191 (offset 48 lines).
-Hunk #3 succeeded at 269 (offset 48 lines).
-Hunk #4 succeeded at 297 (offset 48 lines).
-Hunk #5 succeeded at 342 (offset 48 lines).
-DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_gg_ttxuux; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+DEBUG: cd /data/stephan/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P1_gu_ttxu; patch -p6 -i /data/stephan/madgraph4gpu/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+patching file auto_dsig1.f
+Hunk #1 succeeded at 528 (offset 44 lines).
+patching file driver.f
+patching file matrix1.f
+Hunk #1 succeeded at 75 (offset 3 lines).
+Hunk #2 succeeded at 162 (offset 3 lines).
+Hunk #3 succeeded at 240 (offset 3 lines).
+Hunk #4 succeeded at 268 (offset 3 lines).
+Hunk #5 succeeded at 313 (offset 3 lines).
+DEBUG: cd /data/stephan/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P1_gux_ttxux; patch -p6 -i /data/stephan/madgraph4gpu/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+patching file auto_dsig1.f
+Hunk #1 succeeded at 528 (offset 44 lines).
+patching file driver.f
+patching file matrix1.f
+Hunk #1 succeeded at 75 (offset 3 lines).
+Hunk #2 succeeded at 162 (offset 3 lines).
+Hunk #3 succeeded at 240 (offset 3 lines).
+Hunk #4 succeeded at 268 (offset 3 lines).
+Hunk #5 succeeded at 313 (offset 3 lines).
+DEBUG: cd /data/stephan/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P1_uux_ttxg; patch -p6 -i /data/stephan/madgraph4gpu/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+patching file auto_dsig1.f
+Hunk #1 succeeded at 539 (offset 55 lines).
+patching file driver.f
+patching file matrix1.f
+Hunk #1 succeeded at 75 (offset 3 lines).
+Hunk #2 succeeded at 162 (offset 3 lines).
+Hunk #3 succeeded at 240 (offset 3 lines).
+Hunk #4 succeeded at 268 (offset 3 lines).
+Hunk #5 succeeded at 313 (offset 3 lines).
+DEBUG: cd /data/stephan/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_gg_ttxgg; patch -p6 -i /data/stephan/madgraph4gpu/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+patching file auto_dsig1.f
+patching file driver.f
+patching file matrix1.f
+Hunk #2 succeeded at 191 (offset 32 lines).
+Hunk #3 succeeded at 269 (offset 32 lines).
+Hunk #4 succeeded at 297 (offset 32 lines).
+Hunk #5 succeeded at 342 (offset 32 lines).
+DEBUG: cd /data/stephan/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_gg_ttxuux; patch -p6 -i /data/stephan/madgraph4gpu/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
 patching file auto_dsig1.f
 Hunk #1 succeeded at 517 (offset 33 lines).
 patching file driver.f
 patching file matrix1.f
 Hunk #1 succeeded at 75 (offset 3 lines).
-Hunk #2 succeeded at 194 (offset 51 lines).
-Hunk #3 succeeded at 272 (offset 51 lines).
-Hunk #4 succeeded at 300 (offset 51 lines).
-Hunk #5 succeeded at 345 (offset 51 lines).
-DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_gu_ttxgu; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+Hunk #2 succeeded at 194 (offset 35 lines).
+Hunk #3 succeeded at 272 (offset 35 lines).
+Hunk #4 succeeded at 300 (offset 35 lines).
+Hunk #5 succeeded at 345 (offset 35 lines).
+DEBUG: cd /data/stephan/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_gu_ttxgu; patch -p6 -i /data/stephan/madgraph4gpu/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
 patching file auto_dsig1.f
 Hunk #1 succeeded at 528 (offset 44 lines).
 patching file driver.f
 patching file matrix1.f
 Hunk #1 succeeded at 75 (offset 3 lines).
-Hunk #2 succeeded at 194 (offset 51 lines).
-Hunk #3 succeeded at 272 (offset 51 lines).
-Hunk #4 succeeded at 300 (offset 51 lines).
-Hunk #5 succeeded at 345 (offset 51 lines).
-DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_gux_ttxgux; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+Hunk #2 succeeded at 194 (offset 35 lines).
+Hunk #3 succeeded at 272 (offset 35 lines).
+Hunk #4 succeeded at 300 (offset 35 lines).
+Hunk #5 succeeded at 345 (offset 35 lines).
+DEBUG: cd /data/stephan/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_gux_ttxgux; patch -p6 -i /data/stephan/madgraph4gpu/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
 patching file auto_dsig1.f
 Hunk #1 succeeded at 528 (offset 44 lines).
 patching file driver.f
 patching file matrix1.f
 Hunk #1 succeeded at 75 (offset 3 lines).
-Hunk #2 succeeded at 194 (offset 51 lines).
-Hunk #3 succeeded at 272 (offset 51 lines).
-Hunk #4 succeeded at 300 (offset 51 lines).
-Hunk #5 succeeded at 345 (offset 51 lines).
-DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_uc_ttxuc; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+Hunk #2 succeeded at 194 (offset 35 lines).
+Hunk #3 succeeded at 272 (offset 35 lines).
+Hunk #4 succeeded at 300 (offset 35 lines).
+Hunk #5 succeeded at 345 (offset 35 lines).
+DEBUG: cd /data/stephan/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_uc_ttxuc; patch -p6 -i /data/stephan/madgraph4gpu/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
 patching file auto_dsig1.f
 Hunk #1 succeeded at 555 (offset 71 lines).
 patching file driver.f
 patching file matrix1.f
 Hunk #1 succeeded at 77 (offset 5 lines).
-Hunk #2 succeeded at 196 (offset 53 lines).
-Hunk #3 succeeded at 274 (offset 53 lines).
-Hunk #4 succeeded at 302 (offset 53 lines).
-Hunk #5 succeeded at 347 (offset 53 lines).
-DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_ucx_ttxucx; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+Hunk #2 succeeded at 196 (offset 37 lines).
+Hunk #3 succeeded at 274 (offset 37 lines).
+Hunk #4 succeeded at 302 (offset 37 lines).
+Hunk #5 succeeded at 347 (offset 37 lines).
+DEBUG: cd /data/stephan/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_ucx_ttxucx; patch -p6 -i /data/stephan/madgraph4gpu/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
 patching file auto_dsig1.f
 Hunk #1 succeeded at 627 (offset 143 lines).
 patching file driver.f
 patching file matrix1.f
 Hunk #1 succeeded at 83 (offset 11 lines).
-Hunk #2 succeeded at 202 (offset 59 lines).
-Hunk #3 succeeded at 280 (offset 59 lines).
-Hunk #4 succeeded at 308 (offset 59 lines).
-Hunk #5 succeeded at 353 (offset 59 lines).
-DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_uu_ttxuu; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+Hunk #2 succeeded at 202 (offset 43 lines).
+Hunk #3 succeeded at 280 (offset 43 lines).
+Hunk #4 succeeded at 308 (offset 43 lines).
+Hunk #5 succeeded at 353 (offset 43 lines).
+DEBUG: cd /data/stephan/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_uu_ttxuu; patch -p6 -i /data/stephan/madgraph4gpu/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
 patching file auto_dsig1.f
 Hunk #1 succeeded at 539 (offset 55 lines).
 patching file driver.f
 patching file matrix1.f
 Hunk #1 succeeded at 75 (offset 3 lines).
-Hunk #2 succeeded at 194 (offset 51 lines).
-Hunk #3 succeeded at 272 (offset 51 lines).
-Hunk #4 succeeded at 300 (offset 51 lines).
-Hunk #5 succeeded at 345 (offset 51 lines).
-DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_uux_ttxccx; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+Hunk #2 succeeded at 194 (offset 35 lines).
+Hunk #3 succeeded at 272 (offset 35 lines).
+Hunk #4 succeeded at 300 (offset 35 lines).
+Hunk #5 succeeded at 345 (offset 35 lines).
+DEBUG: cd /data/stephan/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_uux_ttxccx; patch -p6 -i /data/stephan/madgraph4gpu/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
 patching file auto_dsig1.f
 Hunk #1 succeeded at 627 (offset 143 lines).
 patching file driver.f
 patching file matrix1.f
 Hunk #1 succeeded at 83 (offset 11 lines).
-Hunk #2 succeeded at 202 (offset 59 lines).
-Hunk #3 succeeded at 280 (offset 59 lines).
-Hunk #4 succeeded at 308 (offset 59 lines).
-Hunk #5 succeeded at 353 (offset 59 lines).
-DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_uux_ttxgg; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+Hunk #2 succeeded at 202 (offset 43 lines).
+Hunk #3 succeeded at 280 (offset 43 lines).
+Hunk #4 succeeded at 308 (offset 43 lines).
+Hunk #5 succeeded at 353 (offset 43 lines).
+DEBUG: cd /data/stephan/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_uux_ttxgg; patch -p6 -i /data/stephan/madgraph4gpu/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
 patching file auto_dsig1.f
 Hunk #1 succeeded at 539 (offset 55 lines).
 patching file driver.f
 patching file matrix1.f
 Hunk #1 succeeded at 75 (offset 3 lines).
-Hunk #2 succeeded at 194 (offset 51 lines).
-Hunk #3 succeeded at 272 (offset 51 lines).
-Hunk #4 succeeded at 300 (offset 51 lines).
-Hunk #5 succeeded at 345 (offset 51 lines).
-DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_uux_ttxuux; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+Hunk #2 succeeded at 194 (offset 35 lines).
+Hunk #3 succeeded at 272 (offset 35 lines).
+Hunk #4 succeeded at 300 (offset 35 lines).
+Hunk #5 succeeded at 345 (offset 35 lines).
+DEBUG: cd /data/stephan/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_uux_ttxuux; patch -p6 -i /data/stephan/madgraph4gpu/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
 patching file auto_dsig1.f
 Hunk #1 succeeded at 539 (offset 55 lines).
 patching file driver.f
 patching file matrix1.f
 Hunk #1 succeeded at 75 (offset 3 lines).
-Hunk #2 succeeded at 194 (offset 51 lines).
-Hunk #3 succeeded at 272 (offset 51 lines).
-Hunk #4 succeeded at 300 (offset 51 lines).
-Hunk #5 succeeded at 345 (offset 51 lines).
-DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_uxcx_ttxuxcx; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+Hunk #2 succeeded at 194 (offset 35 lines).
+Hunk #3 succeeded at 272 (offset 35 lines).
+Hunk #4 succeeded at 300 (offset 35 lines).
+Hunk #5 succeeded at 345 (offset 35 lines).
+DEBUG: cd /data/stephan/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_uxcx_ttxuxcx; patch -p6 -i /data/stephan/madgraph4gpu/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
 patching file auto_dsig1.f
 Hunk #1 succeeded at 555 (offset 71 lines).
 patching file driver.f
 patching file matrix1.f
 Hunk #1 succeeded at 77 (offset 5 lines).
-Hunk #2 succeeded at 196 (offset 53 lines).
-Hunk #3 succeeded at 274 (offset 53 lines).
-Hunk #4 succeeded at 302 (offset 53 lines).
-Hunk #5 succeeded at 347 (offset 53 lines).
-DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_uxux_ttxuxux; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+Hunk #2 succeeded at 196 (offset 37 lines).
+Hunk #3 succeeded at 274 (offset 37 lines).
+Hunk #4 succeeded at 302 (offset 37 lines).
+Hunk #5 succeeded at 347 (offset 37 lines).
+DEBUG: cd /data/stephan/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_uxux_ttxuxux; patch -p6 -i /data/stephan/madgraph4gpu/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
 patching file auto_dsig1.f
 Hunk #1 succeeded at 539 (offset 55 lines).
 patching file driver.f
 patching file matrix1.f
 Hunk #1 succeeded at 75 (offset 3 lines).
-Hunk #2 succeeded at 194 (offset 51 lines).
-Hunk #3 succeeded at 272 (offset 51 lines).
-Hunk #4 succeeded at 300 (offset 51 lines).
-Hunk #5 succeeded at 345 (offset 51 lines).
+Hunk #2 succeeded at 194 (offset 35 lines).
+Hunk #3 succeeded at 272 (offset 35 lines).
+Hunk #4 succeeded at 300 (offset 35 lines).
+Hunk #5 succeeded at 345 (offset 35 lines).
 [1;32mDEBUG:  p.returncode = [0m 0 [1;30m[output.py at line 237][0m [0m
-Output to directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j done.
+Output to directory /data/stephan/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j done.
 Type "launch" to generate events from this process, or see
-/data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/README
+/data/stephan/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/README
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m8.865s
-user	0m8.358s
-sys	0m0.477s
+real	0m6.458s
+user	0m5.839s
+sys	0m0.626s
 ************************************************************
 *                                                          *
 *                      W E L C O M E to                    *
@@ -1051,12 +1055,11 @@ sys	0m0.477s
 *               Type 'help' for in-line help.              *
 *                                                          *
 ************************************************************
-INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/Cards/me5_configuration.txt  
-INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/mg5amcnlo/input/mg5_configuration.txt  
-INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/Cards/me5_configuration.txt  
-Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
+INFO: load configuration from /data/stephan/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/Cards/me5_configuration.txt  
+INFO: load configuration from /data/stephan/madgraph4gpu/MG5aMC/mg5amcnlo/input/mg5_configuration.txt  
+INFO: load configuration from /data/stephan/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/Cards/me5_configuration.txt  
 Using default eps viewer "evince". Set another one in ./input/mg5_configuration.txt
-No valid web browser found. Please set in ./input/mg5_configuration.txt
+Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
 treatcards run
 quit
 INFO:  
@@ -1081,12 +1084,11 @@ launch in debug mode
 *               Type 'help' for in-line help.              *
 *                                                          *
 ************************************************************
-INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/Cards/me5_configuration.txt  
-INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/mg5amcnlo/input/mg5_configuration.txt  
-INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/Cards/me5_configuration.txt  
-Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
+INFO: load configuration from /data/stephan/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/Cards/me5_configuration.txt  
+INFO: load configuration from /data/stephan/madgraph4gpu/MG5aMC/mg5amcnlo/input/mg5_configuration.txt  
+INFO: load configuration from /data/stephan/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/Cards/me5_configuration.txt  
 Using default eps viewer "evince". Set another one in ./input/mg5_configuration.txt
-No valid web browser found. Please set in ./input/mg5_configuration.txt
+Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
 treatcards param
 quit
 INFO:  

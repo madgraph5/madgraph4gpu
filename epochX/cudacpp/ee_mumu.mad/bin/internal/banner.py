@@ -1012,7 +1012,6 @@ class ConfigFile(dict):
 
 
 
-
     def plugin_input(self, finput=None):
         pass
 

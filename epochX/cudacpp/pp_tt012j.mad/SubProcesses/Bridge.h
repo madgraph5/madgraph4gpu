@@ -266,7 +266,7 @@ namespace mg5amcCpu
   template<typename FORTRANFPTYPE>
   void Bridge<FORTRANFPTYPE>::set_gpugrid( const int gpublocks, const int gputhreads )
   {
-    if( m_nevt != gpublocks * gputhreads )
+    if( m_nevt != static_cast<unsigned int>( gpublocks * gputhreads ) )
       throw std::runtime_error( "Bridge: gpublocks*gputhreads must equal m_nevt in set_gpugrid" );
     m_gpublocks = gpublocks;
     m_gputhreads = gputhreads;
