@@ -9,6 +9,10 @@ on:
 jobs:
   debug_builds:
     runs-on: ubuntu-latest
+    env:
+      FCFLAGS: -O0 -g
+      CXXFLAGS: -O0 -g
+      NVCCFLAGS: -O0 -g -G
     strategy:
       matrix:
         folder: [ epochX/cudacpp/ee_mumu.sa/SubProcesses/P1_Sigma_sm_epem_mupmum , epochX/cudacpp/pp_tt012j.mad/SubProcesses/P0_gg_ttx , epochX/cudacpp/pp_tt012j.mad/SubProcesses/P2_uux_ttxgg  ]
@@ -16,7 +20,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: make debug
-      run: make -C ${{ matrix.folder }} debug
+      run: make -C ${{ matrix.folder }}
+    - name: make check
+      run: make -C ${{ matrix.folder }} check
   CPU:
     runs-on: ubuntu-latest
     strategy:
