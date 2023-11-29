@@ -44,11 +44,11 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: make info
-      run: make AVX=none OMPFLAGS= FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} info
+      run: make OMPFLAGS= FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} info
     - name: make
-      run: make AVX=none OMPFLAGS= FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} cpp
+      run: make OMPFLAGS= FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} cppnative
     - name: make check
-      run: make AVX=none OMPFLAGS= FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} check
+      run: make OMPFLAGS= FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} check
   GPU:
     runs-on: self-hosted
     env:
