@@ -581,8 +581,9 @@ C
           STOP
         ENDIF
         IF ( FIRST ) THEN  ! exclude first pass (helicity filtering) from timers (#461)
+C         SR-FIXME CHANNELS needs to become 0 again
           CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE, P_MULTI, ALL_G,
-     &      HEL_RAND, COL_RAND, 0, OUT2,
+     &      HEL_RAND, COL_RAND, CHANNELS, OUT2,
      &      SELECTED_HEL2, SELECTED_COL2 ) ! 0: multi channel disabled for helicity filtering
           FIRST = .FALSE.
 C         ! This is a workaround for
@@ -602,8 +603,9 @@ C          (see PR #486)
         ENDIF
         CALL COUNTERS_SMATRIX1MULTI_START( 0, VECSIZE_USED )  ! cudacpp=0
         IF ( .NOT. MULTI_CHANNEL ) THEN
+C         SR-FIXME CHANNELS needs to become 0 again
           CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE, P_MULTI, ALL_G,
-     &      HEL_RAND, COL_RAND, 0, OUT2,
+     &      HEL_RAND, COL_RAND, CHANNELS, OUT2,
      &      SELECTED_HEL2, SELECTED_COL2 ) ! 0: multi channel disabled
         ELSE
           IF( SDE_STRAT.NE.1 ) THEN
@@ -611,7 +613,7 @@ C          (see PR #486)
             STOP
           ENDIF
           CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE, P_MULTI, ALL_G,
-     &      HEL_RAND, COL_RAND, CHANNELS(1), OUT2,
+     &      HEL_RAND, COL_RAND, CHANNELS, OUT2,
      &      SELECTED_HEL2, SELECTED_COL2 ) ! 1-N: multi channel enabled
         ENDIF
         CALL COUNTERS_SMATRIX1MULTI_STOP( 0 )  ! cudacpp=0

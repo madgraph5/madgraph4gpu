@@ -24,11 +24,12 @@ namespace mg5amcCpu
                                                     const BufferGs& gs,                   // input: gs for alphaS
                                                     const BufferRndNumHelicity& rndhel,   // input: random numbers for helicity selection
                                                     const BufferRndNumColor& rndcol,      // input: random numbers for color selection
+                                                    const BufferChannelIds& chanIds,      // input: channel Ids
                                                     BufferMatrixElements& matrixElements, // output: matrix elements
                                                     BufferSelectedHelicity& selhel,       // output: helicity selection
                                                     BufferSelectedColor& selcol,          // output: color selection
                                                     const size_t nevt )
-    : MatrixElementKernelBase( momenta, gs, rndhel, rndcol, matrixElements, selhel, selcol )
+    : MatrixElementKernelBase( momenta, gs, rndhel, rndcol, chanIds, matrixElements, selhel, selcol )
     , NumberOfEvents( nevt )
     , m_couplings( nevt )
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
@@ -76,11 +77,11 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  void MatrixElementKernelHost::computeMatrixElements( const unsigned int channelId )
+  void MatrixElementKernelHost::computeMatrixElements()
   {
     computeDependentCouplings( m_gs.data(), m_couplings.data(), m_gs.size() );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), channelId, m_numerators.data(), m_denominators.data(), m_selhel.data(), m_selcol.data(), nevt() );
+    sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), m_chanIds.data(), m_numerators.data(), m_denominators.data(), m_selhel.data(), m_selcol.data(), nevt() );
 #else
     sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), m_selhel.data(), m_selcol.data(), nevt() );
 #endif
@@ -160,12 +161,13 @@ namespace mg5amcGpu
                                                         const BufferGs& gs,                   // input: gs for alphaS
                                                         const BufferRndNumHelicity& rndhel,   // input: random numbers for helicity selection
                                                         const BufferRndNumColor& rndcol,      // input: random numbers for color selection
+                                                        const BufferChannelIds& chanIds,      // input: channel Ids
                                                         BufferMatrixElements& matrixElements, // output: matrix elements
                                                         BufferSelectedHelicity& selhel,       // output: helicity selection
                                                         BufferSelectedColor& selcol,          // output: color selection
                                                         const size_t gpublocks,
                                                         const size_t gputhreads )
-    : MatrixElementKernelBase( momenta, gs, rndhel, rndcol, matrixElements, selhel, selcol )
+    : MatrixElementKernelBase( momenta, gs, rndhel, rndcol, chanIds, matrixElements, selhel, selcol )
     , NumberOfEvents( gpublocks * gputhreads )
     , m_couplings( this->nevt() )
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
@@ -224,7 +226,7 @@ namespace mg5amcGpu
 
   //--------------------------------------------------------------------------
 
-  void MatrixElementKernelDevice::computeMatrixElements( const unsigned int channelId )
+  void MatrixElementKernelDevice::computeMatrixElements()
   {
     computeDependentCouplings<<<m_gpublocks, m_gputhreads>>>( m_gs.data(), m_couplings.data() );
 #ifndef MGONGPU_NSIGHT_DEBUG
@@ -233,7 +235,7 @@ namespace mg5amcGpu
     constexpr unsigned int sharedMemSize = ntpbMAX * sizeof( float );
 #endif
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    sigmaKin<<<m_gpublocks, m_gputhreads, sharedMemSize>>>( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), channelId, m_numerators.data(), m_denominators.data(), m_selhel.data(), m_selcol.data() );
+    sigmaKin<<<m_gpublocks, m_gputhreads, sharedMemSize>>>( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), m_chanIds.data(), m_numerators.data(), m_denominators.data(), m_selhel.data(), m_selcol.data() );
 #else
     sigmaKin<<<m_gpublocks, m_gputhreads, sharedMemSize>>>( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), m_selhel.data(), m_selcol.data() );
 #endif
