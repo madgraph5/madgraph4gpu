@@ -113,13 +113,13 @@ namespace mg5amcCpu
                            const fptype* allcouplings,    // input: couplings[nevt*ndcoup*2]
                            fptype* allMEs,                // output: allMEs[nevt], |M|^2 running_sum_over_helicities
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                           const unsigned int* channelIds, // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
-                           fptype* allNumerators,          // output: multichannel numerators[nevt], running_sum_over_helicities
-                           fptype* allDenominators,        // output: multichannel denominators[nevt], running_sum_over_helicities
+                           const unsigned int channelId,  // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
+                           fptype* allNumerators,         // output: multichannel numerators[nevt], running_sum_over_helicities
+                           fptype* allDenominators,       // output: multichannel denominators[nevt], running_sum_over_helicities
 #endif
-                           fptype_sv* jamp2_sv             // output: jamp2[nParity][ncolor][neppV] for color choice (nullptr if disabled)
+                           fptype_sv* jamp2_sv            // output: jamp2[nParity][ncolor][neppV] for color choice (nullptr if disabled)
 #ifndef __CUDACC__
-                           , const int ievt00              // input: first event number in current C++ event page (for CUDA, ievt depends on threadid)
+                           , const int ievt00             // input: first event number in current C++ event page (for CUDA, ievt depends on threadid)
 #endif
                            )
   //ALWAYS_INLINE // attributes are not permitted in a function definition
@@ -250,7 +250,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 1
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[2], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL2 // SR-FIXME
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
@@ -264,7 +264,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 2
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[4], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL2 // SR-FIXME
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 2 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
@@ -277,7 +277,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 3
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[4], w_fp[2], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL2 // SR-FIXME
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 3 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
@@ -655,7 +655,7 @@ namespace mg5amcCpu
       constexpr fptype_sv* jamp2_sv = nullptr; // no need for color selection during helicity filtering
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       constexpr unsigned int channelId = 0; // disable single-diagram channel enhancement
-      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, &channelId, allNumerators, allDenominators, jamp2_sv );
+      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators, jamp2_sv );
 #else
       calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, jamp2_sv );
 #endif
@@ -719,7 +719,7 @@ namespace mg5amcCpu
         //std::cout << "sigmaKin_getGoodHel ihel=" << ihel << ( isGoodHel[ihel] ? " true" : " false" ) << std::endl;
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
         constexpr unsigned int channelId = 0; // disable single-diagram channel enhancement
-        calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, &channelId, allNumerators, allDenominators, jamp2_sv, ievt00 );
+        calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators, jamp2_sv, ievt00 );
 #else
         calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, jamp2_sv, ievt00 );
 #endif
@@ -775,20 +775,20 @@ namespace mg5amcCpu
   // Evaluate |M|^2, part independent of incoming flavour
 
   __global__ void /* clang-format off */
-  sigmaKin( const fptype* allmomenta,       // input: momenta[nevt*npar*4]
-            const fptype* allcouplings,     // input: couplings[nevt*ndcoup*2]
-            const fptype* allrndhel,        // input: random numbers[nevt] for helicity selection
-            const fptype* allrndcol,        // input: random numbers[nevt] for color selection
-            fptype* allMEs,                 // output: allMEs[nevt], |M|^2 final_avg_over_helicities
+  sigmaKin( const fptype* allmomenta,      // input: momenta[nevt*npar*4]
+            const fptype* allcouplings,    // input: couplings[nevt*ndcoup*2]
+            const fptype* allrndhel,       // input: random numbers[nevt] for helicity selection
+            const fptype* allrndcol,       // input: random numbers[nevt] for color selection
+            fptype* allMEs,                // output: allMEs[nevt], |M|^2 final_avg_over_helicities
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-            const unsigned int* channelIds, // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
-            fptype* allNumerators,          // output: multichannel numerators[nevt], running_sum_over_helicities
-            fptype* allDenominators,        // output: multichannel denominators[nevt], running_sum_over_helicities
+            const unsigned int channelId,  // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
+            fptype* allNumerators,         // output: multichannel numerators[nevt], running_sum_over_helicities
+            fptype* allDenominators,       // output: multichannel denominators[nevt], running_sum_over_helicities
 #endif
-            int* allselhel,                 // output: helicity selection[nevt]
-            int* allselcol                  // output: helicity selection[nevt]
+            int* allselhel,                // output: helicity selection[nevt]
+            int* allselcol                 // output: helicity selection[nevt]
 #ifndef __CUDACC__
-            , const int nevt                // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+            , const int nevt               // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
             ) /* clang-format on */
   {
@@ -862,7 +862,7 @@ namespace mg5amcCpu
     {
       const int ihel = cGoodHel[ighel];
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelIds, allNumerators, allDenominators, jamp2_sv );
+      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators, jamp2_sv );
 #else
       calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, jamp2_sv );
 #endif
@@ -880,7 +880,7 @@ namespace mg5amcCpu
         break;
       }
     }
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL2 // SR-FIXME
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Event-by-event random choice of color #402
     const int channelIdC = channelId - 1; // coloramps.h uses the C array indexing starting at 0
     fptype targetamp[ncolor] = { 0 };
@@ -924,7 +924,7 @@ namespace mg5amcCpu
     // - firstprivate: give each thread its own copy, and initialise with value from outside
 #define _OMPLIST0 allcouplings, allMEs, allmomenta, allrndcol, allrndhel, allselcol, allselhel, cGoodHel, cNGoodHel, npagV2
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-#define _OMPLIST1 , allDenominators, allNumerators, channelIds, mgOnGpu::icolamp
+#define _OMPLIST1 , allDenominators, allNumerators, channelId, mgOnGpu::icolamp
 #else
 #define _OMPLIST1
 #endif
@@ -948,7 +948,7 @@ namespace mg5amcCpu
       {
         const int ihel = cGoodHel[ighel];
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-        calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelIds, allNumerators, allDenominators, jamp2_sv, ievt00 );
+        calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators, jamp2_sv, ievt00 );
 #else
         calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, jamp2_sv, ievt00 );
 #endif
@@ -992,7 +992,7 @@ namespace mg5amcCpu
         }
 #endif
       }
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL2 // SR-FIXME // multichannel enabled (random color choice)
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL // multichannel enabled (random color choice)
       const int channelIdC = channelId - 1; // coloramps.h uses the C array indexing starting at 0
       // Event-by-event random choice of color #402
       fptype_sv targetamp[ncolor] = { 0 };
@@ -1057,7 +1057,7 @@ namespace mg5amcCpu
     // https://www.uzh.ch/cmsssl/physik/dam/jcr:2e24b7b1-f4d7-4160-817e-47b13dbf1d7c/Handout_4_2016-UZH.pdf]
 #ifdef __CUDACC__
     allMEs[ievt] /= helcolDenominators[0];
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL2 // SR-FIXME
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     if( channelId > 0 ) allMEs[ievt] *= allNumerators[ievt] / allDenominators[ievt];
 #endif
 #else
@@ -1067,7 +1067,7 @@ namespace mg5amcCpu
       fptype* MEs = E_ACCESS::ieventAccessRecord( allMEs, ievt0 );
       fptype_sv& MEs_sv = E_ACCESS::kernelAccess( MEs );
       MEs_sv /= helcolDenominators[0];
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL2 // SR-FIXME
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId > 0 )
       {
         fptype* numerators = NUM_ACCESS::ieventAccessRecord( allNumerators, ievt0 );

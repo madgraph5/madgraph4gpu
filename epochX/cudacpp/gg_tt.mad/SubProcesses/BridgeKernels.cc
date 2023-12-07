@@ -26,12 +26,11 @@ namespace mg5amcCpu
                                       const BufferGs& gs,                   // input: gs for alphaS
                                       const BufferRndNumHelicity& rndhel,   // input: random numbers for helicity selection
                                       const BufferRndNumColor& rndcol,      // input: random numbers for color selection
-                                      const BufferChannelIds& chanIds,      // input: channel Ids
                                       BufferMatrixElements& matrixElements, // output: matrix elements
                                       BufferSelectedHelicity& selhel,       // output: helicity selection
                                       BufferSelectedColor& selcol,          // output: color selection
                                       const size_t nevt )
-    : MatrixElementKernelBase( momenta, gs, rndhel, rndcol, chanIds, matrixElements, selhel, selcol )
+    : MatrixElementKernelBase( momenta, gs, rndhel, rndcol, matrixElements, selhel, selcol )
     , NumberOfEvents( nevt )
     , m_bridge( nevt, npar, np4 )
   {
@@ -56,12 +55,11 @@ namespace mg5amcCpu
                                       const BufferGs& gs,                   // input: Gs for alphaS
                                       const BufferRndNumHelicity& rndhel,   // input: random numbers for helicity selection
                                       const BufferRndNumColor& rndcol,      // input: random numbers for color selection
-                                      const BufferChannelIds& chanIds,      // input: channel Ids
                                       BufferMatrixElements& matrixElements, // output: matrix elements
                                       BufferSelectedHelicity& selhel,       // output: helicity selection
                                       BufferSelectedColor& selcol,          // output: color selection
                                       const size_t nevt )
-    : BridgeKernelBase( momenta, gs, rndhel, rndcol, chanIds, matrixElements, selhel, selcol, nevt )
+    : BridgeKernelBase( momenta, gs, rndhel, rndcol, matrixElements, selhel, selcol, nevt )
     , m_fortranMomenta( nevt )
   {
   }
@@ -79,16 +77,16 @@ namespace mg5amcCpu
   {
     constexpr bool goodHelOnly = true;
     constexpr unsigned int channelId = 0; // disable multi-channel for helicity filtering
-    m_bridge.cpu_sequence( m_fortranMomenta.data(), m_gs.data(), m_rndhel.data(), m_rndcol.data(), m_chanIds.data(), m_matrixElements.data(), m_selhel.data(), m_selcol.data(), goodHelOnly );
+    m_bridge.cpu_sequence( m_fortranMomenta.data(), m_gs.data(), m_rndhel.data(), m_rndcol.data(), channelId, m_matrixElements.data(), m_selhel.data(), m_selcol.data(), goodHelOnly );
     return m_bridge.nGoodHel();
   }
 
   //--------------------------------------------------------------------------
 
-  void BridgeKernelHost::computeMatrixElements()
+  void BridgeKernelHost::computeMatrixElements( const unsigned int channelId )
   {
     constexpr bool goodHelOnly = false;
-    m_bridge.cpu_sequence( m_fortranMomenta.data(), m_gs.data(), m_rndhel.data(), m_rndcol.data(), m_chanIds.data(), m_matrixElements.data(), m_selhel.data(), m_selcol.data(), goodHelOnly );
+    m_bridge.cpu_sequence( m_fortranMomenta.data(), m_gs.data(), m_rndhel.data(), m_rndcol.data(), channelId, m_matrixElements.data(), m_selhel.data(), m_selcol.data(), goodHelOnly );
   }
 
   //--------------------------------------------------------------------------
@@ -108,13 +106,12 @@ namespace mg5amcGpu
                                           const BufferGs& gs,                   // input: Gs for alphaS
                                           const BufferRndNumHelicity& rndhel,   // input: random numbers for helicity selection
                                           const BufferRndNumColor& rndcol,      // input: random numbers for color selection
-                                          const BufferChannelIds& chanIds,      // input: channel Ids
                                           BufferMatrixElements& matrixElements, // output: matrix elements
                                           BufferSelectedHelicity& selhel,       // output: helicity selection
                                           BufferSelectedColor& selcol,          // output: color selection
                                           const size_t gpublocks,
                                           const size_t gputhreads )
-    : BridgeKernelBase( momenta, gs, rndhel, rndcol, chanIds, matrixElements, selhel, selcol, gpublocks * gputhreads )
+    : BridgeKernelBase( momenta, gs, rndhel, rndcol, matrixElements, selhel, selcol, gpublocks * gputhreads )
     , m_fortranMomenta( nevt() )
     , m_gpublocks( gpublocks )
     , m_gputhreads( gputhreads )
@@ -137,16 +134,16 @@ namespace mg5amcGpu
   {
     constexpr bool goodHelOnly = true;
     constexpr unsigned int channelId = 0; // disable multi-channel for helicity filtering
-    m_bridge.gpu_sequence( m_fortranMomenta.data(), m_gs.data(), m_rndhel.data(), m_rndcol.data(), m_chanIds.data(), m_matrixElements.data(), m_selhel.data(), m_selcol.data(), goodHelOnly );
+    m_bridge.gpu_sequence( m_fortranMomenta.data(), m_gs.data(), m_rndhel.data(), m_rndcol.data(), channelId, m_matrixElements.data(), m_selhel.data(), m_selcol.data(), goodHelOnly );
     return m_bridge.nGoodHel();
   }
 
   //--------------------------------------------------------------------------
 
-  void BridgeKernelDevice::computeMatrixElements()
+  void BridgeKernelDevice::computeMatrixElements( const unsigned int channelId )
   {
     constexpr bool goodHelOnly = false;
-    m_bridge.gpu_sequence( m_fortranMomenta.data(), m_gs.data(), m_rndhel.data(), m_rndcol.data(), m_chanIds.data(), m_matrixElements.data(), m_selhel.data(), m_selcol.data(), goodHelOnly );
+    m_bridge.gpu_sequence( m_fortranMomenta.data(), m_gs.data(), m_rndhel.data(), m_rndcol.data(), channelId, m_matrixElements.data(), m_selhel.data(), m_selcol.data(), goodHelOnly );
   }
 
   //--------------------------------------------------------------------------

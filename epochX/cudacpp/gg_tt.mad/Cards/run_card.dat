@@ -96,6 +96,7 @@
    --fast-math  = aloha_flag ! fortran optimization flag for aloha function. Suggestions: '-ffast-math'
    -O3 = matrix_flag ! fortran optimization flag for matrix.f function. Suggestions: '-O3'
    16384 = vector_size ! size of fortran arrays allocated in the multi-event API for SIMD/GPU (VECSIZE_MEMMAX)
+   1 = nb_wrap ! total number of wrap/frontwave
 			     
 #*********************************************************************
 # Customization (custom cuts/scale/bias/...)                         *
