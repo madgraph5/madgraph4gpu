@@ -1,4 +1,0 @@
-set stdout_level DEBUG
-set zerowidth_tchannel F
-generate g g > t t~
-output madevent gg_tt.mad --hel_recycling=False --vector_size=32 --me_exporter=standalone_cudacpp

@@ -495,7 +495,7 @@ C
 
       SUBROUTINE SMATRIX1_MULTI(P_MULTI, HEL_RAND, COL_RAND, CHANNELS,
      $  OUT, SELECTED_HEL, SELECTED_COL, VECSIZE_USED)
-      USE OMP_LIB
+
       IMPLICIT NONE
 
       INCLUDE 'nexternal.inc'
@@ -515,12 +515,47 @@ C
       INTEGER IVEC
 
 
+      INTEGER IEXT
+
+      INTEGER                    ISUM_HEL
+      LOGICAL                    MULTI_CHANNEL
+      COMMON/TO_MATRIX/ISUM_HEL, MULTI_CHANNEL
+
+      LOGICAL FIRST_CHID
+      SAVE FIRST_CHID
+      DATA FIRST_CHID/.TRUE./
+
+#ifdef MG5AMC_MEEXPORTER_CUDACPP
+      INCLUDE 'coupl.inc'  ! for ALL_G
+      INCLUDE 'fbridge.inc'
+      INCLUDE 'fbridge_common.inc'
+      INCLUDE 'genps.inc'
+      INCLUDE 'run.inc'
+      DOUBLE PRECISION OUT2(VECSIZE_MEMMAX)
+      INTEGER SELECTED_HEL2(VECSIZE_MEMMAX)
+      INTEGER SELECTED_COL2(VECSIZE_MEMMAX)
+      DOUBLE PRECISION CBYF1
+      INTEGER*4 NGOODHEL, NTOTHEL
+
+      INTEGER*4 NWARNINGS
+      SAVE NWARNINGS
+      DATA NWARNINGS/0/
+
+      LOGICAL FIRST
+      SAVE FIRST
+      DATA FIRST/.TRUE./
+#else
+      INTEGER FBRIDGE_MODE
+#endif
+      CALL COUNTERS_SMATRIX1MULTI_START( -1, VECSIZE_USED )  ! fortran=-1
 
 
-!$OMP PARALLEL
-!$OMP DO
-      DO IVEC=1, VECSIZE_USED
-        CALL SMATRIX1(P_MULTI(0,1,IVEC),
+
+      IF( FBRIDGE_MODE .LE. 0 ) THEN  ! (FortranOnly=0 or BothQuiet=-1 or BothDebug=-2)
+        CALL COUNTERS_SMATRIX1MULTI_START( -1, VECSIZE_USED )  ! fortran=-1
+
+        DO IVEC=1, VECSIZE_USED
+          CALL SMATRIX1(P_MULTI(0,1,IVEC),
      &	                         hel_rand(IVEC),
      &                           col_rand(IVEC),
      &				 channels(IVEC),
@@ -529,45 +564,137 @@ C
      &				 selected_hel(IVEC),
      &				 selected_col(IVEC)
      &				 )
-      ENDDO
-!$OMP END DO
-!$OMP END PARALLEL
+        ENDDO
+C       The following lines has been copy from the plugin
+C       template_file
+C        CUDACPP/madgraph/iolibs/template_files/gpu/smatrix_multi.f 
+C       and are designed to be put at the end of the smatrix$i_multi
+C        function part of the auto_dsig$i.f file
+C       
+        CALL COUNTERS_SMATRIX1MULTI_STOP( -1 )  ! fortran=-1
+      ENDIF
 
-      RETURN
-      END
+#ifdef MG5AMC_MEEXPORTER_CUDACPP
+      IF( FBRIDGE_MODE .EQ. 1 .OR. FBRIDGE_MODE .LT. 0 ) THEN  ! (CppOnly=1 or BothQuiet=-1 or BothDebug=-2)
+        IF( LIMHEL.NE.0 ) THEN
+          WRITE(6,*) 'ERROR  ! The cudacpp bridge only supports LIMHEL=0'
+          STOP
+        ENDIF
+        IF ( FIRST ) THEN  ! exclude first pass (helicity filtering) from timers (#461)
+          CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE, P_MULTI, ALL_G,
+     &      HEL_RAND, COL_RAND, 0, OUT2,
+     &      SELECTED_HEL2, SELECTED_COL2 ) ! 0: multi channel disabled for helicity filtering
+          FIRST = .FALSE.
+C         ! This is a workaround for
+C          https://github.com/oliviermattelaer/mg5amc_test/issues/22
+C          (see PR #486)
+          IF( FBRIDGE_MODE .EQ. 1 ) THEN  ! (CppOnly=1 : SMATRIX1 is not called at all)
+            CALL RESET_CUMULATIVE_VARIABLE()  ! mimic 'avoid bias of the initialization' within SMATRIX1
+          ENDIF
+          CALL FBRIDGEGETNGOODHEL(FBRIDGE_PBRIDGE,NGOODHEL,NTOTHEL)
+          IF( NTOTHEL .NE. NCOMB ) THEN
+            WRITE(6,*) 'ERROR  ! Cudacpp/Fortran mismatch',
+     &        ' in total number of helicities', NTOTHEL, NCOMB
+            STOP
+          ENDIF
+          WRITE (6,*) 'NGOODHEL =', NGOODHEL
+          WRITE (6,*) 'NCOMB =', NCOMB
+        ENDIF
+        CALL COUNTERS_SMATRIX1MULTI_START( 0, VECSIZE_USED )  ! cudacpp=0
+        IF ( .NOT. MULTI_CHANNEL ) THEN
+          CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE, P_MULTI, ALL_G,
+     &      HEL_RAND, COL_RAND, 0, OUT2,
+     &      SELECTED_HEL2, SELECTED_COL2 ) ! 0: multi channel disabled
+        ELSE
+          IF( SDE_STRAT.NE.1 ) THEN
+            WRITE(6,*) 'ERROR  ! The cudacpp bridge requires SDE=1' ! multi channel single-diagram enhancement strategy
+            STOP
+          ENDIF
+          CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE, P_MULTI, ALL_G,
+     &      HEL_RAND, COL_RAND, CHANNELS(1), OUT2,
+     &      SELECTED_HEL2, SELECTED_COL2 ) ! 1-N: multi channel enabled
+        ENDIF
+        CALL COUNTERS_SMATRIX1MULTI_STOP( 0 )  ! cudacpp=0
+      ENDIF
 
-      INTEGER FUNCTION GET_NHEL1(HEL, IPART)
-C     if hel>0 return the helicity of particule ipart for the selected
-C      helicity configuration
-C     if hel=0 return the number of helicity state possible for that
-C      particle 
-      IMPLICIT NONE
-      INTEGER HEL,I, IPART
-      INCLUDE 'nexternal.inc'
-      INTEGER ONE_NHEL(NEXTERNAL)
-      INTEGER                 NCOMB
-      PARAMETER (             NCOMB=16)
-      INTEGER NHEL(NEXTERNAL,0:NCOMB)
-      DATA (NHEL(I,0),I=1,4) / 2, 2, 2, 2/
-      DATA (NHEL(I,   1),I=1,4) /-1,-1,-1, 1/
-      DATA (NHEL(I,   2),I=1,4) /-1,-1,-1,-1/
-      DATA (NHEL(I,   3),I=1,4) /-1,-1, 1, 1/
-      DATA (NHEL(I,   4),I=1,4) /-1,-1, 1,-1/
-      DATA (NHEL(I,   5),I=1,4) /-1, 1,-1, 1/
-      DATA (NHEL(I,   6),I=1,4) /-1, 1,-1,-1/
-      DATA (NHEL(I,   7),I=1,4) /-1, 1, 1, 1/
-      DATA (NHEL(I,   8),I=1,4) /-1, 1, 1,-1/
-      DATA (NHEL(I,   9),I=1,4) / 1,-1,-1, 1/
-      DATA (NHEL(I,  10),I=1,4) / 1,-1,-1,-1/
-      DATA (NHEL(I,  11),I=1,4) / 1,-1, 1, 1/
-      DATA (NHEL(I,  12),I=1,4) / 1,-1, 1,-1/
-      DATA (NHEL(I,  13),I=1,4) / 1, 1,-1, 1/
-      DATA (NHEL(I,  14),I=1,4) / 1, 1,-1,-1/
-      DATA (NHEL(I,  15),I=1,4) / 1, 1, 1, 1/
-      DATA (NHEL(I,  16),I=1,4) / 1, 1, 1,-1/
+      IF( FBRIDGE_MODE .LT. 0 ) THEN  ! (BothQuiet=-1 or BothDebug=-2)
+        DO IVEC=1, VECSIZE_USED
+          CBYF1 = OUT2(IVEC)/OUT(IVEC) - 1
+          FBRIDGE_NCBYF1 = FBRIDGE_NCBYF1 + 1
+          FBRIDGE_CBYF1SUM = FBRIDGE_CBYF1SUM + CBYF1
+          FBRIDGE_CBYF1SUM2 = FBRIDGE_CBYF1SUM2 + CBYF1 * CBYF1
+          IF( CBYF1 .GT. FBRIDGE_CBYF1MAX ) FBRIDGE_CBYF1MAX = CBYF1
+          IF( CBYF1 .LT. FBRIDGE_CBYF1MIN ) FBRIDGE_CBYF1MIN = CBYF1
+          IF( FBRIDGE_MODE .EQ. -2 ) THEN  ! (BothDebug=-2)
+            WRITE (*,'(I4,2E16.8,F23.11,I3,I3,I4,I4)')
+     &        IVEC, OUT(IVEC), OUT2(IVEC), 1+CBYF1,
+     &        SELECTED_HEL(IVEC), SELECTED_HEL2(IVEC),
+     &        SELECTED_COL(IVEC), SELECTED_COL2(IVEC)
+          ENDIF
+          IF( ABS(CBYF1).GT.5E-5 .AND. NWARNINGS.LT.20 ) THEN
+            NWARNINGS = NWARNINGS + 1
+            WRITE (*,'(A,I4,A,I4,2E16.8,F23.11)')
+     &        'WARNING! (', NWARNINGS, '/20) Deviation more than 5E-5',
+     &        IVEC, OUT(IVEC), OUT2(IVEC), 1+CBYF1
+          ENDIF
+          END DO
+          ENDIF
 
-      GET_NHEL1 = NHEL(IPART, IABS(HEL))
-      RETURN
-      END
+          IF( FBRIDGE_MODE .EQ. 1 .OR. FBRIDGE_MODE .LT. 0 ) THEN  ! (CppOnly=1 or BothQuiet=-1 or BothDebug=-2)
+            DO IVEC=1, VECSIZE_USED
+              OUT(IVEC) = OUT2(IVEC)  ! use the cudacpp ME instead of the fortran ME!
+              SELECTED_HEL(IVEC) = SELECTED_HEL2(IVEC)  ! use the cudacpp helicity instead of the fortran helicity!
+              SELECTED_COL(IVEC) = SELECTED_COL2(IVEC)  ! use the cudacpp color instead of the fortran color!
+              END DO
+              ENDIF
+#endif
+
+              IF ( FIRST_CHID ) THEN
+                IF ( MULTI_CHANNEL ) THEN
+                  WRITE (*,*) 'MULTI_CHANNEL = TRUE'
+                ELSE
+                  WRITE (*,*) 'MULTI_CHANNEL = FALSE'
+                ENDIF
+                WRITE (*,*) 'CHANNEL_ID =', CHANNELS(1)
+                FIRST_CHID = .FALSE.
+              ENDIF
+
+
+              RETURN
+              END
+
+              INTEGER FUNCTION GET_NHEL1(HEL, IPART)
+C             if hel>0 return the helicity of particule ipart for the
+C              selected helicity configuration
+C             if hel=0 return the number of helicity state possible
+C              for that particle 
+              IMPLICIT NONE
+              INTEGER HEL,I, IPART
+              INCLUDE 'nexternal.inc'
+              INTEGER ONE_NHEL(NEXTERNAL)
+              INTEGER                 NCOMB
+              PARAMETER (             NCOMB=16)
+              INTEGER NHEL(NEXTERNAL,0:NCOMB)
+              DATA (NHEL(I,0),I=1,4) / 2, 2, 2, 2/
+              DATA (NHEL(I,   1),I=1,4) /-1,-1,-1, 1/
+              DATA (NHEL(I,   2),I=1,4) /-1,-1,-1,-1/
+              DATA (NHEL(I,   3),I=1,4) /-1,-1, 1, 1/
+              DATA (NHEL(I,   4),I=1,4) /-1,-1, 1,-1/
+              DATA (NHEL(I,   5),I=1,4) /-1, 1,-1, 1/
+              DATA (NHEL(I,   6),I=1,4) /-1, 1,-1,-1/
+              DATA (NHEL(I,   7),I=1,4) /-1, 1, 1, 1/
+              DATA (NHEL(I,   8),I=1,4) /-1, 1, 1,-1/
+              DATA (NHEL(I,   9),I=1,4) / 1,-1,-1, 1/
+              DATA (NHEL(I,  10),I=1,4) / 1,-1,-1,-1/
+              DATA (NHEL(I,  11),I=1,4) / 1,-1, 1, 1/
+              DATA (NHEL(I,  12),I=1,4) / 1,-1, 1,-1/
+              DATA (NHEL(I,  13),I=1,4) / 1, 1,-1, 1/
+              DATA (NHEL(I,  14),I=1,4) / 1, 1,-1,-1/
+              DATA (NHEL(I,  15),I=1,4) / 1, 1, 1, 1/
+              DATA (NHEL(I,  16),I=1,4) / 1, 1, 1,-1/
+
+              GET_NHEL1 = NHEL(IPART, IABS(HEL))
+              RETURN
+              END
 
 

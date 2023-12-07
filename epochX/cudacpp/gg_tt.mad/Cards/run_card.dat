@@ -77,7 +77,7 @@
 #*********************************************************************
    0  = nhel          ! using helicities importance sampling or not.
                              ! 0: sum over helicity, 1: importance sampling
-   1  = sde_strategy  ! default integration strategy (hep-ph/2021.00773)
+   2  = sde_strategy  ! default integration strategy (hep-ph/2021.00773)
                              ! 1 is old strategy (using amp square)
 			     ! 2 is new strategy (using only the denominator)
 #*********************************************************************
@@ -92,10 +92,10 @@
 #*********************************************************************
 # Compilation flag. 
 #*********************************************************************   
-   -O3 -ffast-math -fbounds-check = global_flag ! build flags for all Fortran code (for a fair comparison to cudacpp; default is -O)
+   -O = global_flag ! fortran optimization flag use for the all code.
    --fast-math  = aloha_flag ! fortran optimization flag for aloha function. Suggestions: '-ffast-math'
    -O3 = matrix_flag ! fortran optimization flag for matrix.f function. Suggestions: '-O3'
-   16384 = vector_size ! size of fortran arrays allocated in the multi-event API for SIMD/GPU (VECSIZE_MEMMAX)
+   16 = vector_size ! size of fortran arrays allocated in the multi-event API for SIMD/GPU (VECSIZE_MEMMAX)
    1 = nb_wrap ! total number of wrap/frontwave
 			     
 #*********************************************************************
