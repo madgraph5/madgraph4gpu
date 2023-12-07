@@ -136,7 +136,6 @@ namespace mg5amcGpu
   int BridgeKernelDevice::computeGoodHelicities()
   {
     constexpr bool goodHelOnly = true;
-    constexpr unsigned int channelId = 0; // disable multi-channel for helicity filtering
     m_bridge.gpu_sequence( m_fortranMomenta.data(), m_gs.data(), m_rndhel.data(), m_rndcol.data(), m_chanIds.data(), m_matrixElements.data(), m_selhel.data(), m_selcol.data(), goodHelOnly );
     return m_bridge.nGoodHel();
   }

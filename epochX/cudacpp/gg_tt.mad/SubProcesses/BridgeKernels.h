@@ -61,7 +61,7 @@ namespace mg5amcCpu
                       const BufferGs& gs,                   // input: gs for alphaS
                       const BufferRndNumHelicity& rndhel,   // input: random numbers for helicity selection
                       const BufferRndNumColor& rndcol,      // input: random numbers for color selection
-                      const HostBufferChannelIds& chanIds,  // input: channel Ids
+                      const BufferChannelIds& chanIds,      // input: channel Ids
                       BufferMatrixElements& matrixElements, // output: matrix elements
                       BufferSelectedHelicity& selhel,       // output: helicity selection
                       BufferSelectedColor& selcol,          // output: color selection
