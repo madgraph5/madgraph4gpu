@@ -605,7 +605,7 @@ index 348c283be..4cadaecf0 100644
  
 -gensym: $(SYMMETRY) configs.inc $(LIBS)
 -	$(FC) -o gensym $(SYMMETRY) -L../../lib/ $(LINKLIBS) $(LDFLAGS)
-+.PHONY: madevent_fortran_link madevent_cuda_link madevent_cpp_link madevent_cppnone_link madevent_cppsse4_link madevent_cppavx2_link madevent_cpp512y_link madevent_cpp512z_link
++.PHONY: madevent_fortran_link madevent_cuda_link madevent_cpp_link madevent_cppnone_link madevent_cppsse4_link madevent_cppavx2_link madevent_cpp512y_link madevent_cpp512z_link clean cleanall cleansrc
 +
 +madevent_fortran_link: $(PROG)_fortran
 +	rm -f $(PROG)
@@ -671,7 +671,7 @@ index 348c283be..4cadaecf0 100644
  
  # Dependencies
  
-@@ -97,5 +196,42 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
+@@ -97,5 +196,43 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
  	 run_config.inc
  initcluster.o: message.inc
  
@@ -701,13 +701,14 @@ index 348c283be..4cadaecf0 100644
 -	$(RM) *.o gensym madevent madevent_forhel
 +	$(RM) *.o gensym $(PROG) $(PROG)_*
 +	$(RM) -rf build.*/*{.o,.so,.exe,.dylib,madevent_*}
++	@for dir in build.*; do if [ -z "$$(ls -A $${dir})" ]; then rm -r $${dir}; else echo "Not cleaning $${dir}; not empty"; fi; done
 +
-+cleanall:
++cleanall: cleansrc
 +	for PROCESS in ../P[0-9]*; do $(MAKE) -C $${PROCESS} clean; done
 +
 +# Clean one architecture-specific build
 +clean%:
-+	$(RM) -r build.$*_*/*{.o,.so,.exe,.dylib,madevent_*}
++	$(RM) -r build.$*_*
 +
 +# Clean common source directories (interferes with other P*)
 +cleansrc:
