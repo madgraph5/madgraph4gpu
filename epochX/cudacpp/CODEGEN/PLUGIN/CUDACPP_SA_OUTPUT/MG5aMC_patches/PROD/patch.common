@@ -314,7 +314,7 @@ index 2607530b7..7b87725d9 100644
 +#=== C++/CUDA-specific flags for floating-point types and random generators to use
 +
 +# Set the default FPTYPE (floating point type) choice
-+FPTYPE ?= d
++FPTYPE ?= m
 +
 +# Set the default HELINL (inline helicities?) choice
 +HELINL ?= 0
