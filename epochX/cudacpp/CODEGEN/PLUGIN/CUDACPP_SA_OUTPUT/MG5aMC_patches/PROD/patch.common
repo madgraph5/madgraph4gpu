@@ -471,7 +471,7 @@ index 617f10b93..407b1b753 100644
  	if [ -d $(IREGIDIR) ]; then cd $(IREGIDIR); make clean; cd ..; fi
 -	for i in `ls -d ../SubProcesses/P*`; do cd $$i; make clean; cd -; done;
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
-index 348c283be..d229c1cf4 100644
+index 348c283be..b69917ee1 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 @@ -1,5 +1,30 @@
@@ -497,13 +497,13 @@ index 348c283be..d229c1cf4 100644
 +	$(info Or 'ALL' for all C++ and cuda targets)
 +
 +
-+# Enable ccache if USECCACHE=1
++# Enable ccache for C++ if USECCACHE=1 (do not enable it for Fortran since it is not supported for Fortran)
 +ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
 +  override CXX:=ccache $(CXX)
 +endif
-+ifeq ($(USECCACHE)$(shell echo $(FC) | grep ccache),1)
-+  override FC:=ccache $(FC)
-+endif
++###ifeq ($(USECCACHE)$(shell echo $(FC) | grep ccache),1)
++###  override FC:=ccache $(FC)
++###endif
  
  # Load additional dependencies of the bias module, if present
  ifeq (,$(wildcard ../bias_dependencies))
@@ -614,33 +614,33 @@ index 348c283be..d229c1cf4 100644
 +madevent_cpp512y_link: AVX=512y
 +madevent_cpp512y_link: cppavx512y
 +	ln -sf $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
-+
+ 
+-$(LIBDIR)libmodel.$(libext): ../../Cards/param_card.dat
+-	cd ../../Source/MODEL; make
 +madevent_cpp512z_link: AVX=512z
 +madevent_cpp512z_link: cppavx512z
 +	ln -sf $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
-+
+ 
+-$(LIBDIR)libgeneric.$(libext): ../../Cards/run_card.dat
+-	cd ../../Source; make
 +madevent_cuda_link: AVX=cuda
 +madevent_cuda_link: cuda
 +	ln -sf $(CUDACPP_BUILDDIR)/$(PROG)_cuda $(PROG)
-+
+ 
+-$(LIBDIR)libpdf.$(libext): 
+-	cd ../../Source/PDF; make
 +$(CUDACPP_BUILDDIR)/$(PROG)_cpp: $(LIBS) $(CUDACPP_CXXLIB) $(PROCESS) $(DSIG_cudacpp) auto_dsig.o  $(MATRIX) counters.o ompnumthreads.o
 +	$(FC) -o $(CUDACPP_BUILDDIR)/$(PROG)_cpp -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o -L$(CUDACPP_BUILDDIR) -l$(MG5AMC_CXXLIB) $(LIBFLAGSRPATH) $(MG_LDFLAGS) $(LDFLAGS)
 +
 +$(CUDACPP_BUILDDIR)/$(PROG)_cuda: $(LIBS) $(CUDACPP_CULIB) $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) counters.o ompnumthreads.o
 +	$(FC) -o $(CUDACPP_BUILDDIR)/$(PROG)_cuda -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o -L$(CUDACPP_BUILDDIR) -l$(MG5AMC_CULIB) $(LIBFLAGSRPATH) $(MG_LDFLAGS) $(LDFLAGS)
- 
--$(LIBDIR)libmodel.$(libext): ../../Cards/param_card.dat
--	cd ../../Source/MODEL; make
++
 +counters.o: counters.cc timer.h
 +	$(CXX) $(MG_CXXFLAGS) $(CXXFLAGS) -c $< -o $@
- 
--$(LIBDIR)libgeneric.$(libext): ../../Cards/run_card.dat
--	cd ../../Source; make
++
 +ompnumthreads.o: ompnumthreads.cc ompnumthreads.h
 +	$(CXX) $(MG_CXXFLAGS) $(CXXFLAGS) $(OMPFLAGS) -c $< -o $@
- 
--$(LIBDIR)libpdf.$(libext): 
--	cd ../../Source/PDF; make
++
 +$(PROG)_forhel: $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX_HEL)
 +	$(FC) -o $(PROG)_forhel $(PROCESS) $(MATRIX_HEL) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) $(OMPFLAGS)
 +
