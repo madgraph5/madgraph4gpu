@@ -227,11 +227,7 @@ clean:
 cleanall: cleansrc
 	for PROCESS in ../P[0-9]*; do $(MAKE) -C $${PROCESS} clean; done
 
-# Clean one architecture-specific build in this P* directory (examples: "make cleancuda" or "make cleannative")
-clean%:
-	$(RM) -r build.$*_*
-
-# Clean common source directories (interferes with other P*)
+# Clean common source directories (NB these are a dependency for all P* directories)
 cleansrc:
 	make -C ../../Source clean
 	$(RM) -f $(SOURCEDIR_GUARD) ../../Source/{*.mod,.lock} ../../Source/*/*.mod
