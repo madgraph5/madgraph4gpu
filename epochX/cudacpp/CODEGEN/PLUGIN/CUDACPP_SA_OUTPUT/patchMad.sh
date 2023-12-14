@@ -47,19 +47,19 @@ if [ "${patchlevel}" == "0" ]; then exit $status; fi
 # (1) Process-independent patches
 touch ${dir}/Events/.keep # this file should already be present (mg5amcnlo copies it from Template/LO/Events/.keep) 
 \cp -pr ${scrdir}/MG5aMC_patches/${dir_patches}/fbridge_common.inc ${dir}/SubProcesses # new file
+cd ${dir}
+echo "DEBUG: standardise ${PWD}/Source/make_opts (fix f2py3 and sort make_opts_variables) before applying patch.common" # AV moved back hare in patchMad.sh from generateAndCompare.sh (see PR #753)
+sed -i 's/DEFAULT_F2PY_COMPILER=f2py.*/DEFAULT_F2PY_COMPILER=f2py3/' Source/make_opts 
+cat Source/make_opts | sed '/#end/q' | head --lines=-1 | sort > Source/make_opts.new
+cat Source/make_opts | sed -n -e '/#end/,$p' >> Source/make_opts.new
+\mv Source/make_opts.new Source/make_opts
 if [ "${patchlevel}" == "2" ]; then
-  cd ${dir}
-  echo "DEBUG: standardise ${PWD}/Source/make_opts (fix f2py3 and sort make_opts_variables) before applying patch.common" # AV moved back hare in patchMad.sh from generateAndCompare.sh (see PR #753)
-  sed -i 's/DEFAULT_F2PY_COMPILER=f2py.*/DEFAULT_F2PY_COMPILER=f2py3/' Source/make_opts 
-  cat Source/make_opts | sed '/#end/q' | head --lines=-1 | sort > Source/make_opts.new
-  cat Source/make_opts | sed -n -e '/#end/,$p' >> Source/make_opts.new
-  \mv Source/make_opts.new Source/make_opts
   echo "DEBUG: cd ${PWD}; patch -p4 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.common"
   if ! patch -p4 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.common; then status=1; fi  
   \rm -f Source/*.orig
   \rm -f bin/internal/*.orig
-  cd - > /dev/null
 fi
+cd - > /dev/null
 for p1dir in ${dir}/SubProcesses/P*; do
   cd $p1dir
   ln -sf ../fbridge_common.inc . # new file
