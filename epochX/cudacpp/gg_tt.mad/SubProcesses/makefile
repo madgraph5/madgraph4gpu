@@ -221,7 +221,7 @@ ALL: cppall cuda
 clean:
 	$(RM) *.o gensym $(PROG) $(PROG)_*
 	$(RM) -rf build.*/*{.o,.so,.exe,.dylib,madevent_*}
-	@for dir in build.*; do if [ -z "$$(ls -A $${dir})" ]; then rm -r $${dir}; else echo "Not cleaning $${dir}; not empty"; fi; done
+	@for dir in $$(ls -d build.* 2> /dev/null); do if [ -z "$$(ls -A $${dir})" ]; then echo "Removing $${dir}"; $(RM) -r $${dir}; else echo "Not removing $${dir}; not empty"; fi; done
 
 cleanall: cleansrc
 	for PROCESS in ../P[0-9]*; do $(MAKE) -C $${PROCESS} clean; done
