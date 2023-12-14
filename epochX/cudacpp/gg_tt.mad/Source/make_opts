@@ -134,28 +134,28 @@ endef
 #-------------------------------------------------------------------------------
 
 # Set special cases for non-gcc/clang builds
-# BACKEND below gets overridden from outside in architecture-specific builds
-BACKEND ?= none
+# AVX below gets overridden from outside in architecture-specific builds
+AVX ?= none
 # [NB MGONGPU_PVW512 is needed because "-mprefer-vector-width=256" is not exposed in a macro]
 # [See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=96476]
-$(info BACKEND=$(BACKEND))
+$(info AVX=$(AVX))
 ifeq ($(UNAME_P),arm)
-  ifeq ($(BACKEND),sse4)
+  ifeq ($(AVX),sse4)
     override AVXFLAGS = -D__SSE4_2__ # ARM NEON with 128 width (Q/quadword registers)
   endif
 else ifneq ($(shell $(CXX) --version | grep ^nvc++),) # support nvc++ #531
-  ifeq ($(BACKEND),none)
+  ifeq ($(AVX),none)
     override AVXFLAGS = -mno-sse3 # no SIMD
-  else ifeq ($(BACKEND),sse4)
+  else ifeq ($(AVX),sse4)
     override AVXFLAGS = -mno-avx # SSE4.2 with 128 width (xmm registers)
-  else ifeq ($(BACKEND),avx2)
+  else ifeq ($(AVX),avx2)
     override AVXFLAGS = -march=haswell # AVX2 with 256 width (ymm registers) [DEFAULT for clang]
-  else ifeq ($(BACKEND),512y)
+  else ifeq ($(AVX),512y)
     override AVXFLAGS = -march=skylake -mprefer-vector-width=256 # AVX512 with 256 width (ymm registers) [DEFAULT for gcc]
-  else ifeq ($(BACKEND),512z)
+  else ifeq ($(AVX),512z)
     override AVXFLAGS = -march=skylake -DMGONGPU_PVW512 # AVX512 with 512 width (zmm registers)
   else
-    $(error Unknown BACKEND='$(BACKEND)': only 'none', 'sse4', 'avx2', '512y' and '512z' are supported)
+    $(error Unknown AVX='$(AVX)': only 'none', 'sse4', 'avx2', '512y' and '512z' are supported)
   endif
 endif
 
@@ -199,9 +199,9 @@ ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   MG_LDFLAGS += $(CURANDLIBFLAGS)
   MG_NVCCFLAGS += $(CUINC) $(USE_NVTX) $(CUARCHFLAGS)
 
-else ifeq ($(BACKEND),cuda)
+else ifeq ($(AVX),cuda)
   $(error nvcc is not visible in PATH. Either add it to PATH or export CUDA_HOME to compile with cuda)
-  ifeq ($(BACKEND),cuda)
+  ifeq ($(AVX),cuda)
     $(error Cannot compile for cuda without NVCC)
   endif
 endif
@@ -239,7 +239,7 @@ ifeq ($(UNAME_P),ppc64le)
   MG_CXXFLAGS+= -mcpu=power9 -mtune=power9 # gains ~2-3% both for none and sse4
   MG_NVCCFLAGS+= -Xcompiler -mno-float128
 
-  ifeq ($(BACKEND),sse4)
+  ifeq ($(AVX),sse4)
     override AVXFLAGS = -D__SSE4_2__ # Power9 VSX with 128 width (VSR registers)
   endif
 endif
@@ -280,15 +280,15 @@ else
   RNDGEN ?= hasCurand
 endif
 
-# Export BACKEND, FPTYPE, HELINL, HRDCOD, RNDGEN, OMPFLAGS so sub-makes don't go back to the defaults
-export BACKEND
+# Export AVX, FPTYPE, HELINL, HRDCOD, RNDGEN, OMPFLAGS so sub-makes don't go back to the defaults
+export AVX
 export AVXFLAGS
 export FPTYPE
 export HELINL
 export HRDCOD
 export RNDGEN
 
-#=== Set the CUDA/C++ compiler flags appropriate to user-defined choices of BACKEND, FPTYPE, HELINL, HRDCOD, RNDGEN
+#=== Set the CUDA/C++ compiler flags appropriate to user-defined choices of AVX, FPTYPE, HELINL, HRDCOD, RNDGEN
 
 # Set the build flags appropriate to each FPTYPE choice (example: "make FPTYPE=f")
 # $(info FPTYPE=$(FPTYPE))

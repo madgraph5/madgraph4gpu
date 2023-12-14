@@ -24,7 +24,7 @@ endif
 # See https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
 ###RANLIB = ranlib
 
-#=== Set the CUDA/C++ compiler flags appropriate to user-defined choices of BACKEND, FPTYPE, HELINL, HRDCOD, RNDGEN
+#=== Set the CUDA/C++ compiler flags appropriate to user-defined choices of AVX, FPTYPE, HELINL, HRDCOD, RNDGEN
 
 # Set the build flags appropriate to OMPFLAGS
 ###$(info OMPFLAGS=$(OMPFLAGS))
@@ -36,11 +36,11 @@ MG_CXXFLAGS += $(OMPFLAGS)
 
 # Build directory "short" tag (defines target and path to the optional build directory)
 # (Rationale: keep directory names shorter, e.g. do not include random number generator choice)
-DIRTAG = $(BACKEND)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)
+DIRTAG = $(AVX)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)
 
 # Build lockfile "full" tag (defines full specification of build options that cannot be intermixed)
 # (Rationale: avoid mixing of CUDA and no-CUDA environment builds with different random number generators)
-TAG = $(BACKEND)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)_$(RNDGEN)
+TAG = $(AVX)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)_$(RNDGEN)
 
 # Build directory:
 BUILDDIR := build.$(DIRTAG)
@@ -84,7 +84,7 @@ $(BUILDDIR)/%_cu.o : %.cc *.h
 #-------------------------------------------------------------------------------
 
 cxx_objects=$(addprefix $(BUILDDIR)/, Parameters_sm.o read_slha.o)
-ifeq ($(BACKEND),cuda)
+ifeq ($(AVX),cuda)
 COMPILER=$(NVCC)
 cu_objects=$(addprefix $(BUILDDIR)/, Parameters_sm_cu.o)
 else
