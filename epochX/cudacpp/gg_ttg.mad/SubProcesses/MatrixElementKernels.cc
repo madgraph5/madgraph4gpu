@@ -196,6 +196,9 @@ namespace mg5amcGpu
 
   void MatrixElementKernelDevice::setGrid( const int gpublocks, const int gputhreads )
   {
+    m_gpublocks = gpublocks;
+    m_gputhreads = gputhreads;
+
     if( m_gpublocks == 0 ) throw std::runtime_error( "MatrixElementKernelDevice: gpublocks must be > 0 in setGrid" );
     if( m_gputhreads == 0 ) throw std::runtime_error( "MatrixElementKernelDevice: gputhreads must be > 0 in setGrid" );
     if( this->nevt() != m_gpublocks * m_gputhreads ) throw std::runtime_error( "MatrixElementKernelDevice: nevt mismatch in setGrid" );

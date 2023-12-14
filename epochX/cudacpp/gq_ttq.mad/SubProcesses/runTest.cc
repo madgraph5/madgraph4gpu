@@ -243,18 +243,20 @@ struct CUDATest : public CUDA_CPU_TestBase
 // Use two levels of macros to force stringification at the right level
 // (see https://gcc.gnu.org/onlinedocs/gcc-3.0.1/cpp_3.html#SEC17 and https://stackoverflow.com/a/3419392)
 // Google macro is in https://github.com/google/googletest/blob/master/googletest/include/gtest/gtest-param-test.h
+/* clang-format off */
 #define TESTID_CPU( s ) s##_CPU
 #define XTESTID_CPU( s ) TESTID_CPU( s )
 #define MG_INSTANTIATE_TEST_SUITE_CPU( prefix, test_suite_name ) \
-INSTANTIATE_TEST_SUITE_P( prefix, \
-                          test_suite_name, \
-                          testing::Values( new CPUTest( MG_EPOCH_REFERENCE_FILE_NAME ) ) );
+  INSTANTIATE_TEST_SUITE_P( prefix, \
+                            test_suite_name, \
+                            testing::Values( new CPUTest( MG_EPOCH_REFERENCE_FILE_NAME ) ) );
 #define TESTID_GPU( s ) s##_GPU
 #define XTESTID_GPU( s ) TESTID_GPU( s )
 #define MG_INSTANTIATE_TEST_SUITE_GPU( prefix, test_suite_name ) \
-INSTANTIATE_TEST_SUITE_P( prefix, \
-                          test_suite_name, \
-                          testing::Values( new CUDATest( MG_EPOCH_REFERENCE_FILE_NAME ) ) );
+  INSTANTIATE_TEST_SUITE_P( prefix, \
+                            test_suite_name, \
+                            testing::Values( new CUDATest( MG_EPOCH_REFERENCE_FILE_NAME ) ) );
+/* clang-format on */
 
 #ifdef __CUDACC__
 MG_INSTANTIATE_TEST_SUITE_GPU( XTESTID_GPU( MG_EPOCH_PROCESS_ID ), MadgraphTest );

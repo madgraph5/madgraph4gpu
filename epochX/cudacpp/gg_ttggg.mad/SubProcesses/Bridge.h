@@ -236,7 +236,7 @@ namespace mg5amcCpu
 #ifdef __CUDACC__
     if( ( m_nevt < s_gputhreadsmin ) || ( m_nevt % s_gputhreadsmin != 0 ) )
       throw std::runtime_error( "Bridge constructor: nevt should be a multiple of " + std::to_string( s_gputhreadsmin ) );
-    while( m_nevt != m_gpublocks * m_gputhreads )
+    while( m_nevt != static_cast<unsigned int>( m_gpublocks * m_gputhreads ) )
     {
       m_gputhreads /= 2;
       if( m_gputhreads < s_gputhreadsmin )
@@ -266,7 +266,7 @@ namespace mg5amcCpu
   template<typename FORTRANFPTYPE>
   void Bridge<FORTRANFPTYPE>::set_gpugrid( const int gpublocks, const int gputhreads )
   {
-    if( m_nevt != gpublocks * gputhreads )
+    if( m_nevt != static_cast<unsigned int>( gpublocks * gputhreads ) )
       throw std::runtime_error( "Bridge: gpublocks*gputhreads must equal m_nevt in set_gpugrid" );
     m_gpublocks = gpublocks;
     m_gputhreads = gputhreads;

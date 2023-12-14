@@ -32,6 +32,8 @@ extern "C"
       case +0: return "CudaCpp"; break;
       default: assert( false ); break;
     }
+
+    return 0;
   }
 
   static mgOnGpu::Timer<TIMERTYPE> program_timer;

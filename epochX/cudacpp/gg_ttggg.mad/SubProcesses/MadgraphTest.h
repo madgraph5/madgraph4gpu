@@ -199,10 +199,6 @@ protected:
   }
 };
 
-// Since we link both the CPU-only and GPU tests into the same executable, we prevent
-// a multiply defined symbol by only compiling this in the non-CUDA phase:
-#ifndef __CUDACC__
-
 /// Compare momenta and matrix elements.
 /// This uses an implementation of TestDriverBase to run a madgraph workflow,
 /// and compares momenta and matrix elements with a reference file.
@@ -306,7 +302,5 @@ TEST_P( MadgraphTest, CompareMomentaAndME )
     std::cout << "Event dump written to " << dumpFileName << std::endl;
   }
 }
-
-#endif // __CUDACC__
 
 #endif /* MADGRAPHTEST_H_ */

@@ -1,7 +1,7 @@
 DEFAULT_CPP_COMPILER=g++
 DEFAULT_F2PY_COMPILER=f2py3
 DEFAULT_F_COMPILER=gfortran
-GLOBAL_FLAG=-O3 -ffast-math -fbounds-check
+GLOBAL_FLAG=-O3 -ffast-math
 MACFLAG=
 MG5AMC_VERSION=SpecifiedByMG5aMCAtRunTime
 PYTHIA8_PATH=NotInstalled
@@ -13,31 +13,53 @@ BIASLIBDIR=../../../lib/
 BIASLIBRARY=libbias.$(libext)
 
 # Rest of the makefile
-ifeq ($(origin FFLAGS),undefined)
-FFLAGS= -w -fPIC
-#FFLAGS+= -g -fbounds-check -ffpe-trap=invalid,zero,overflow,underflow,denormal -Wall -fimplicit-none
-endif
 
-FFLAGS += $(GLOBAL_FLAG)
+#=== Detect O/S and architecture (assuming uname is available, https://en.wikipedia.org/wiki/Uname)
+
+# Detect O/S kernel (Linux, Darwin...)
+UNAME_S := $(shell uname -s)
+
+# Detect architecture (x86_64, ppc64le...)
+UNAME_P := $(shell uname -p)
+
+#-------------------------------------------------------------------------------
 
 # REMOVE MACFLAG IF NOT ON MAC OR FOR F2PY
-UNAME := $(shell uname -s)
 ifdef f2pymode
 MACFLAG=
 else
-ifneq ($(UNAME), Darwin)
+ifneq ($(UNAME_S), Darwin)
 MACFLAG=
 endif
 endif
 
+############################################################
+# Default compiler flags
+# To change optimisation level, override these as follows:
+#   make CXXFLAGS="-O0 -g"
+# or export them as environment variables
+# For debugging Fortran, one could e.g. use:
+# FCFLAGS="-g -fbounds-check -ffpe-trap=invalid,zero,overflow,underflow,denormal -Wall -fimplicit-none"
+############################################################
+FCFLAGS   ?= $(GLOBAL_FLAG) -fbounds-check
+CXXFLAGS  ?= $(GLOBAL_FLAG) -DNDEBUG
+NVCCFLAGS ?= $(GLOBAL_FLAG) -DNDEBUG -use_fast_math -lineinfo
+LDFLAGS   ?= $(STDLIB)
 
-ifeq ($(origin CXXFLAGS),undefined)
-CXXFLAGS= -O $(STDLIB_FLAG) $(MACFLAG)
+ifneq ($(FFLAGS),)
+# Madgraph used to use FFLAGS, so the user probably tries to change the flags specifically for madgraph:
+FCFLAGS = $(FFLAGS)
 endif
 
-ifeq ($(origin CFLAGS),undefined)
-CFLAGS= -O $(STDLIB_FLAG) $(MACFLAG)
+# Madgraph-specific flags:
+WARNFLAGS = -Wall -Wshadow -Wextra
+ifeq (,$(findstring -std=,$(CXXFLAGS)))
+CXXSTANDARD= -std=c++17
 endif
+MG_FCFLAGS   += -fPIC -w
+MG_CXXFLAGS  += -fPIC $(CXXSTANDARD) $(WARNFLAGS) $(MACFLAG)
+MG_NVCCFLAGS += -fPIC $(CXXSTANDARD) --forward-unknown-to-host-compiler $(WARNFLAGS)
+MG_LDFLAGS   += $(MACFLAG)
 
 # Set FC unless it's defined by an environment variable
 ifeq ($(origin FC),default)
@@ -49,45 +71,40 @@ endif
 
 # Increase the number of allowed charcters in a Fortran line
 ifeq ($(FC), ftn)
-FFLAGS+= -extend-source # for ifort type of compiler
+MG_FCFLAGS += -extend-source # for ifort type of compiler
 else
 VERS="$(shell $(FC) --version | grep ifort -i)"
 ifeq ($(VERS), "")
-FFLAGS+= -ffixed-line-length-132
+MG_FCFLAGS += -ffixed-line-length-132
 else
-FFLAGS+= -extend-source # for ifort type of compiler
+MG_FCFLAGS += -extend-source # for ifort type of compiler
 endif
 endif
 
-
-UNAME := $(shell uname -s)
-ifeq ($(origin LDFLAGS), undefined)
-LDFLAGS=$(STDLIB) $(MACFLAG)
-endif
 
 # Options: dynamic, lhapdf
 # Option dynamic
 
-ifeq ($(UNAME), Darwin)
+ifeq ($(UNAME_S), Darwin)
 dylibext=dylib
 else
 dylibext=so
 endif
 
 ifdef dynamic
-ifeq ($(UNAME), Darwin)
+ifeq ($(UNAME_S), Darwin)
 libext=dylib
-FFLAGS+= -fno-common
-LDFLAGS += -bundle
+MG_FCFLAGS += -fno-common
+MG_LDFLAGS += -bundle
 define CREATELIB
 $(FC) -dynamiclib -undefined dynamic_lookup -o $(1) $(2)
 endef
 else
 libext=so
-FFLAGS+= -fPIC
-LDFLAGS += -shared
+MG_FCFLAGS += -fPIC
+MG_LDFLAGS += -shared
 define CREATELIB
-$(FC) $(FFLAGS) $(LDFLAGS) -o $(1) $(2)
+$(FC) $(MG_FCFLAGS) $(FCFLAGS) $(MG_LDFLAGS) $(LDFLAGS) -o $(1) $(2)
 endef
 endif
 else
@@ -101,17 +118,9 @@ endif
 # Option lhapdf
 
 ifneq ($(lhapdf),)
-CXXFLAGS += $(shell $(lhapdf) --cppflags)
+MG_CXXFLAGS += $(shell $(lhapdf) --cppflags)
 alfas_functions=alfas_functions_lhapdf
 llhapdf+= $(shell $(lhapdf) --cflags --libs) -lLHAPDF
-# check if we need to activate c++11 (for lhapdf6.2)
-ifeq ($(origin CXX),default)
-ifeq ($lhapdfversion$lhapdfsubversion,62)
-CXX=$(DEFAULT_CPP_COMPILER) -std=c++11
-else
-CXX=$(DEFAULT_CPP_COMPILER)
-endif
-endif
 else
 alfas_functions=alfas_functions
 llhapdf=
@@ -121,3 +130,206 @@ endif
 define CHECK_MG5AMC_VERSION
 python -c 'import re; from distutils.version import StrictVersion; print StrictVersion("$(MG5AMC_VERSION)") >= StrictVersion("$(1)") if re.match("^[\d\.]+$$","$(MG5AMC_VERSION)") else True;'
 endef
+
+#-------------------------------------------------------------------------------
+
+# Set special cases for non-gcc/clang builds
+# AVX below gets overridden from outside in architecture-specific builds
+AVX ?= none
+# [NB MGONGPU_PVW512 is needed because "-mprefer-vector-width=256" is not exposed in a macro]
+# [See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=96476]
+$(info AVX=$(AVX))
+ifeq ($(UNAME_P),arm)
+  ifeq ($(AVX),sse4)
+    override AVXFLAGS = -D__SSE4_2__ # ARM NEON with 128 width (Q/quadword registers)
+  endif
+else ifneq ($(shell $(CXX) --version | grep ^nvc++),) # support nvc++ #531
+  ifeq ($(AVX),none)
+    override AVXFLAGS = -mno-sse3 # no SIMD
+  else ifeq ($(AVX),sse4)
+    override AVXFLAGS = -mno-avx # SSE4.2 with 128 width (xmm registers)
+  else ifeq ($(AVX),avx2)
+    override AVXFLAGS = -march=haswell # AVX2 with 256 width (ymm registers) [DEFAULT for clang]
+  else ifeq ($(AVX),512y)
+    override AVXFLAGS = -march=skylake -mprefer-vector-width=256 # AVX512 with 256 width (ymm registers) [DEFAULT for gcc]
+  else ifeq ($(AVX),512z)
+    override AVXFLAGS = -march=skylake -DMGONGPU_PVW512 # AVX512 with 512 width (zmm registers)
+  else
+    $(error Unknown AVX='$(AVX)': only 'none', 'sse4', 'avx2', '512y' and '512z' are supported)
+  endif
+endif
+
+# For the moment, use AVXFLAGS everywhere: eventually, use them only in encapsulated implementations?
+MG_CXXFLAGS+= $(AVXFLAGS)
+
+#-------------------------------------------------------------------------------
+
+#=== Configure the CUDA compiler if available
+
+# If CXX is not a single word (example "clang++ --gcc-toolchain...") then disable CUDA builds (issue #505)
+# This is because it is impossible to pass this to "CUFLAGS += -ccbin <host-compiler>" below
+ifneq ($(words $(subst ccache ,,$(CXX))),1) # allow at most "CXX=ccache <host-compiler>" from outside
+  $(warning CUDA builds are not supported for multi-word CXX "$(CXX)")
+  override CUDA_HOME=disabled
+endif
+
+# If CUDA_HOME is not set, try to set it from the location of nvcc
+ifndef CUDA_HOME
+  CUDA_HOME = $(patsubst %bin/nvcc,%,$(shell which nvcc 2>/dev/null))
+  $(info CUDA_HOME="$(CUDA_HOME)")
+endif
+
+# Set NVCC as $(CUDA_HOME)/bin/nvcc if it exists
+ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
+  NVCC = $(CUDA_HOME)/bin/nvcc
+  USE_NVTX ?=-DUSE_NVTX
+  # See https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html
+  # See https://arnon.dk/matching-sm-architectures-arch-and-gencode-for-various-nvidia-cards/
+  # Default: use compute capability 70 (Volta architecture), and embed PTX to support later architectures, too.
+  # Set MADGRAPH_CUDA_ARCHITECTURE to the desired value to change the default.
+  # Build for multiple architectures using a space-separated list, e.g. MADGRAPH_CUDA_ARCHITECTURE="70 80"
+  MADGRAPH_CUDA_ARCHITECTURE ?= 70
+  # Generate PTX for the first architecture:
+  CUARCHFLAGS := --generate-code arch=compute_$(firstword $(MADGRAPH_CUDA_ARCHITECTURE)),code=compute_$(firstword $(MADGRAPH_CUDA_ARCHITECTURE))
+  # Generate device code for all architectures:
+  CUARCHFLAGS += $(foreach arch,$(MADGRAPH_CUDA_ARCHITECTURE), --generate-code arch=compute_$(arch),code=sm_$(arch))
+
+  CUINC = -I$(CUDA_HOME)/include/
+  CURANDLIBFLAGS = -L$(CUDA_HOME)/lib64/ -lcurand # NB: -lcuda is not needed here!
+  MG_LDFLAGS += $(CURANDLIBFLAGS)
+  MG_NVCCFLAGS += $(CUINC) $(USE_NVTX) $(CUARCHFLAGS)
+
+else ifeq ($(AVX),cuda)
+  $(error nvcc is not visible in PATH. Either add it to PATH or export CUDA_HOME to compile with cuda)
+  ifeq ($(AVX),cuda)
+    $(error Cannot compile for cuda without NVCC)
+  endif
+endif
+
+# Set the host C++ compiler for nvcc via "-ccbin <host-compiler>"
+# (NB issue #505: this must be a single word, "clang++ --gcc-toolchain..." is not supported)
+MG_NVCCFLAGS += -ccbin $(shell which $(subst ccache ,,$(CXX)))
+
+# Allow newer (unsupported) C++ compilers with older versions of CUDA if ALLOW_UNSUPPORTED_COMPILER_IN_CUDA is set (#504)
+ifneq ($(origin ALLOW_UNSUPPORTED_COMPILER_IN_CUDA),undefined)
+MG_NVCCFLAGS += -allow-unsupported-compiler
+endif
+
+#-------------------------------------------------------------------------------
+
+#=== Configure ccache for C++ and CUDA builds
+
+# Enable ccache if USECCACHE=1
+ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
+  override CXX:=ccache $(CXX)
+endif
+
+ifneq ($(NVCC),)
+  ifeq ($(USECCACHE)$(shell echo $(NVCC) | grep ccache),1)
+    override NVCC:=ccache $(NVCC)
+  endif
+endif
+
+#-------------------------------------------------------------------------------
+
+#=== Configure PowerPC-specific compiler flags for C++ and CUDA
+
+# PowerPC-specific CXX / CUDA compiler flags (being reviewed)
+ifeq ($(UNAME_P),ppc64le)
+  MG_CXXFLAGS+= -mcpu=power9 -mtune=power9 # gains ~2-3% both for none and sse4
+  MG_NVCCFLAGS+= -Xcompiler -mno-float128
+
+  ifeq ($(AVX),sse4)
+    override AVXFLAGS = -D__SSE4_2__ # Power9 VSX with 128 width (VSR registers)
+  endif
+endif
+
+#-------------------------------------------------------------------------------
+#=== Apple-specific compiler/linker options
+
+# Add -std=c++17 explicitly to avoid build errors on macOS
+# Add -mmacosx-version-min=11.3 to avoid "ld: warning: object file was built for newer macOS version than being linked"
+ifneq ($(shell $(CXX) --version | egrep '^Apple clang'),)
+MG_CXXFLAGS += -std=c++17 -mmacosx-version-min=11.3
+endif
+
+ifeq ($(UNAME_S),Darwin)
+STDLIB = -lc++ # avoid 'Undefined symbols' for chrono::steady_clock on macOS (checked with otool -L libmg5amc_gg_ttx_cpp.so)
+MG_LDFLAGS += -mmacosx-version-min=11.3 # avoid "ld: warning: object file was built for newer macOS version than being linked"
+else
+MG_LDFLAGS += -Xlinker --no-relax # avoid 'failed to convert GOTPCREL relocation' error #458 (not supported on macOS)
+endif
+
+#-------------------------------------------------------------------------------
+
+#=== C++/CUDA-specific flags for floating-point types and random generators to use
+
+# Set the default FPTYPE (floating point type) choice
+FPTYPE ?= m
+
+# Set the default HELINL (inline helicities?) choice
+HELINL ?= 0
+
+# Set the default HRDCOD (hardcode cIPD physics parameters?) choice
+HRDCOD ?= 0
+
+# Set the default RNDGEN (random number generator) choice
+ifeq ($(NVCC),)
+  RNDGEN ?= hasNoCurand
+else
+  RNDGEN ?= hasCurand
+endif
+
+# Export AVX, FPTYPE, HELINL, HRDCOD, RNDGEN, OMPFLAGS so sub-makes don't go back to the defaults
+export AVX
+export AVXFLAGS
+export FPTYPE
+export HELINL
+export HRDCOD
+export RNDGEN
+
+#=== Set the CUDA/C++ compiler flags appropriate to user-defined choices of AVX, FPTYPE, HELINL, HRDCOD, RNDGEN
+
+# Set the build flags appropriate to each FPTYPE choice (example: "make FPTYPE=f")
+# $(info FPTYPE=$(FPTYPE))
+ifeq ($(FPTYPE),d)
+  COMMONFLAGS += -DMGONGPU_FPTYPE_DOUBLE -DMGONGPU_FPTYPE2_DOUBLE
+else ifeq ($(FPTYPE),f)
+  COMMONFLAGS += -DMGONGPU_FPTYPE_FLOAT -DMGONGPU_FPTYPE2_FLOAT
+else ifeq ($(FPTYPE),m)
+  COMMONFLAGS += -DMGONGPU_FPTYPE_DOUBLE -DMGONGPU_FPTYPE2_FLOAT
+else
+  $(error Unknown FPTYPE='$(FPTYPE)': only 'd', 'f' and 'm' are supported)
+endif
+
+# Set the build flags appropriate to each HELINL choice (example: "make HELINL=1")
+# $(info HELINL=$(HELINL))
+ifeq ($(HELINL),1)
+  COMMONFLAGS += -DMGONGPU_INLINE_HELAMPS
+else ifneq ($(HELINL),0)
+  $(error Unknown HELINL='$(HELINL)': only '0' and '1' are supported)
+endif
+
+# Set the build flags appropriate to each HRDCOD choice (example: "make HRDCOD=1")
+# $(info HRDCOD=$(HRDCOD))
+ifeq ($(HRDCOD),1)
+  COMMONFLAGS += -DMGONGPU_HARDCODE_PARAM
+else ifneq ($(HRDCOD),0)
+  $(error Unknown HRDCOD='$(HRDCOD)': only '0' and '1' are supported)
+endif
+
+# Set the build flags appropriate to each RNDGEN choice (example: "make RNDGEN=hasNoCurand")
+$(info RNDGEN=$(RNDGEN))
+ifeq ($(RNDGEN),hasNoCurand)
+  override CXXFLAGSCURAND = -DMGONGPU_HAS_NO_CURAND
+  override CURANDLIBFLAGS =
+else ifeq ($(RNDGEN),hasCurand)
+  CXXFLAGSCURAND = $(CUINC)
+else
+  $(error Unknown RNDGEN='$(RNDGEN)': only 'hasCurand' and 'hasNoCurand' are supported)
+endif
+
+MG_CXXFLAGS  += $(COMMONFLAGS)
+MG_NVCCFLAGS += $(COMMONFLAGS)
+
+#-------------------------------------------------------------------------------

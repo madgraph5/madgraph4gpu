@@ -40,7 +40,7 @@ namespace mg5amcCpu
 {
   std::string FPEhandlerMessage = "unknown";
   int FPEhandlerIevt = -1;
-  inline void FPEhandler( int sig )
+  inline void FPEhandler( int )
   {
 #ifdef __CUDACC__
     std::cerr << "Floating Point Exception (GPU): '" << FPEhandlerMessage << "' ievt=" << FPEhandlerIevt << std::endl;
@@ -71,11 +71,10 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
   constexpr bool testEvents = !dumpEvents; // run the test?
   constexpr fptype toleranceXXXs = std::is_same<fptype, double>::value ? 1.E-15 : 1.E-5;
   // Constant parameters
-  constexpr int neppM = MemoryAccessMomenta::neppM; // AOSOA layout
   constexpr int np4 = CPPProcess::np4;
-  const int nevt = 32;         // 12 independent tests plus 20 duplicates (need a multiple of 16 for floats '512z')
-  assert( nevt % neppM == 0 ); // nevt must be a multiple of neppM
-  assert( nevt % neppV == 0 ); // nevt must be a multiple of neppV
+  const int nevt = 32;                              // 12 independent tests plus 20 duplicates (need a multiple of 16 for floats '512z')
+  assert( nevt % MemoryAccessMomenta::neppM == 0 ); // nevt must be a multiple of neppM
+  assert( nevt % neppV == 0 );                      // nevt must be a multiple of neppV
   // Fill in the input momenta
 #ifdef __CUDACC__
   mg5amcGpu::PinnedHostBufferMomenta hstMomenta( nevt ); // AOSOA[npagM][npar=4][np4=4][neppM]

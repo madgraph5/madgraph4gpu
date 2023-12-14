@@ -10,8 +10,8 @@ include make_opts
 
 # Source files
 
-PROCESS= hfill.o matrix.o myamp.o 
-DSAMPLE = dsample.o ranmar.o DiscreteSampler.o StringCast.o 
+PROCESS = hfill.o matrix.o myamp.o
+DSAMPLE = dsample.o ranmar.o DiscreteSampler.o StringCast.o
 HBOOK = hfill.o hcurve.o hbook1.o hbook2.o
 GENERIC = $(alfas_functions).o transpole.o invarients.o hfill.o pawgraphs.o ran1.o \
           rw_events.o rw_routines.o kin_functions.o open_file.o basecode.o setrun.o \
@@ -22,7 +22,7 @@ GENSUDGRID = gensudgrid.o is-sud.o setrun_gen.o rw_routines.o open_file.o
 
 # Locally compiled libraries
 
-LIBRARIES=$(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) 
+LIBRARIES=$(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext)
 
 # Binaries
 
@@ -32,6 +32,9 @@ BINARIES = $(BINDIR)gen_ximprove $(BINDIR)gensudgrid $(BINDIR)combine_runs
 
 all: $(LIBRARIES) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libgammaUPC.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(LIBDIR)libbias.$(libext)
 
+%.o: %.f *.inc
+	$(FC) -I. $(MG_FCFLAGS) $(FCFLAGS) -c $< -o $@
+
 # Libraries
 
 $(LIBDIR)libdsample.$(libext): $(DSAMPLE)
@@ -39,36 +42,35 @@ $(LIBDIR)libdsample.$(libext): $(DSAMPLE)
 $(LIBDIR)libgeneric.$(libext): $(GENERIC)
 	$(call CREATELIB, $@, $^)
 $(LIBDIR)libdhelas.$(libext): DHELAS
-	cd DHELAS; make; cd ..
+	$(MAKE) -C $< FFLAGS="$(MG_FCFLAGS) $(FCFLAGS)" FCFLAGS="$(MG_FCFLAGS) $(FCFLAGS)"
 $(LIBDIR)libpdf.$(libext): PDF make_opts
-	cd PDF; make; cd ..
+	$(MAKE) -C $< FFLAGS="$(MG_FCFLAGS) $(FCFLAGS)" FCFLAGS="$(MG_FCFLAGS) $(FCFLAGS)"
 ifneq (,$(filter edff chff, $(pdlabel1) $(pdlabel2)))
 $(LIBDIR)libgammaUPC.$(libext): PDF/gammaUPC
-	cd PDF/gammaUPC; make ; cd ../../
+	$(MAKE) -C $< FFLAGS="$(MG_FCFLAGS) $(FCFLAGS)" FCFLAGS="$(MG_FCFLAGS) $(FCFLAGS)"
 else
 $(LIBDIR)libgammaUPC.$(libext): PDF/gammaUPC
-				cd PDF/gammaUPC; make -f makefile_dummy; cd ../../
-endif	
+	$(MAKE) -C $< -f makefile_dummy FFLAGS="$(MG_FCFLAGS) $(FCFLAGS)" FCFLAGS="$(MG_FCFLAGS) $(FCFLAGS)"
+endif
 $(LIBDIR)libcernlib.$(libext): CERNLIB
-	cd CERNLIB; make; cd ..
+	$(MAKE) -C $< FFLAGS="$(MG_FCFLAGS) $(FCFLAGS)" FCFLAGS="$(MG_FCFLAGS) $(FCFLAGS)"
 # The bias library is here the dummy by default; compilation of other ones specified in the run_card will be done by MG5aMC directly.
 $(LIBDIR)libbias.$(libext): BIAS/dummy
-	cd BIAS/dummy; make; cd ../../
+	$(MAKE) -C $< FFLAGS="$(MG_FCFLAGS) $(FCFLAGS)" FCFLAGS="$(MG_FCFLAGS) $(FCFLAGS)"
 
 $(LIBDIR)libmodel.$(libext): MODEL param_card.inc
-	cd MODEL; make    
+	$(MAKE) -C $< FFLAGS="$(MG_FCFLAGS) $(FCFLAGS)" FCFLAGS="$(MG_FCFLAGS) $(FCFLAGS)"
 param_card.inc: ../Cards/param_card.dat
 	../bin/madevent treatcards param
+	touch $@ # madevent doesn't update the time stamp if there's nothing to do
 
 
 
 
-$(BINDIR)gen_ximprove: gen_ximprove.o ranmar.o rw_routines.o open_file.o 
-	$(FC) $(LDFLAGS) -o $@ $^
-#$(BINDIR)combine_events: $(COMBINE) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libgammaUPC.$(libext) run_card.inc $(LIBDIR)libbias.$(libext)
-#			 $(FC) -o $@ $(COMBINE) -L$(LIBDIR) -lmodel -lpdf -lgammaUPC $(llhapdf) $(LDFLAGS) -lbias
+$(BINDIR)gen_ximprove: gen_ximprove.o ranmar.o rw_routines.o open_file.o
+	$(FC) $(MG_LDFLAGS) $(LDFLAGS) -o $@ $^
 $(BINDIR)gensudgrid: $(GENSUDGRID) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libgammaUPC.$(libext) $(LIBDIR)libcernlib.$(libext)
-	$(FC) -o $@ $(GENSUDGRID) -L$(LIBDIR) -lmodel -lpdf -lgammaUPC -lcernlib $(llhapdf) $(LDFLAGS)
+	$(FC) -o $@ $(GENSUDGRID) -L$(LIBDIR) -lmodel -lpdf -lgammaUPC -lcernlib $(llhapdf) $(MG_LDFLAGS) $(LDFLAGS)
 
 # Dependencies
 
@@ -85,6 +87,7 @@ rw_events.o: rw_events.f run_config.inc
 
 run_card.inc: ../Cards/run_card.dat
 	../bin/madevent treatcards run
+	touch $@ # madevent doesn't update the time stamp if there's nothing to do
 
 clean4pdf:
 	rm -f ../lib/libpdf.$(libext)
@@ -120,7 +123,7 @@ $(LIBDIR)libiregi.a: $(IREGIDIR)
 	cd $(IREGIDIR); make
 	ln -sf ../Source/$(IREGIDIR)libiregi.a $(LIBDIR)libiregi.a
 
-cleanSource:
+clean:
 	$(RM) *.o $(LIBRARIES) $(BINARIES)
 	cd PDF; make clean; cd ..
 	cd PDF/gammaUPC; make clean; cd ../../
@@ -132,11 +135,3 @@ cleanSource:
 	cd BIAS/ptj_bias; make clean; cd ../..
 	if [ -d $(CUTTOOLSDIR) ]; then cd $(CUTTOOLSDIR); make clean; cd ..; fi
 	if [ -d $(IREGIDIR) ]; then cd $(IREGIDIR); make clean; cd ..; fi
-
-clean: cleanSource
-	for i in `ls -d ../SubProcesses/P*`; do cd $$i; make clean; cd -; done;
-
-cleanavx:
-	for i in `ls -d ../SubProcesses/P*`; do cd $$i; make cleanavxs; cd -; done;
-cleanall: cleanSource # THIS IS THE ONE
-	for i in `ls -d ../SubProcesses/P*`; do cd $$i; make cleanavxs; cd -; done;
