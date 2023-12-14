@@ -1,7 +1,7 @@
-diff --git b/epochX/cudacpp/pp_tt012j.mad/SubProcesses/P1_gg_ttxg/auto_dsig1.f a/epochX/cudacpp/pp_tt012j.mad/SubProcesses/P1_gg_ttxg/auto_dsig1.f
-index ddcb97ace..e28575ead 100644
---- b/epochX/cudacpp/pp_tt012j.mad/SubProcesses/P1_gg_ttxg/auto_dsig1.f
-+++ a/epochX/cudacpp/pp_tt012j.mad/SubProcesses/P1_gg_ttxg/auto_dsig1.f
+diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
+index 0a3dfa449..9346ee4c6 100644
+--- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
++++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
 @@ -484,23 +484,140 @@ C
        INTEGER VECSIZE_USED
  
@@ -156,10 +156,10 @@ index ddcb97ace..e28575ead 100644
        RETURN
        END
  
-diff --git b/epochX/cudacpp/pp_tt012j.mad/SubProcesses/P1_gg_ttxg/driver.f a/epochX/cudacpp/pp_tt012j.mad/SubProcesses/P1_gg_ttxg/driver.f
-index 7fb7adb7b..6c314a957 100644
---- b/epochX/cudacpp/pp_tt012j.mad/SubProcesses/P1_gg_ttxg/driver.f
-+++ a/epochX/cudacpp/pp_tt012j.mad/SubProcesses/P1_gg_ttxg/driver.f
+diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
+index 71fbf2b25..0f1d199fc 100644
+--- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
++++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
 @@ -74,13 +74,77 @@ c      common/to_colstats/ncols,ncolflow,ncolalt,ic
  
        include 'coupl.inc' ! needs VECSIZE_MEMMAX (defined in vector.inc)
@@ -283,10 +283,10 @@ index 7fb7adb7b..6c314a957 100644
        if(fine.eq.0) fine=len(tempname)
        open(unit=lun,file=tempname,status='old',ERR=20)
        fopened=.true.
-diff --git b/epochX/cudacpp/pp_tt012j.mad/SubProcesses/P1_gg_ttxg/matrix1.f a/epochX/cudacpp/pp_tt012j.mad/SubProcesses/P1_gg_ttxg/matrix1.f
-index 12641a014..a885b7fde 100644
---- b/epochX/cudacpp/pp_tt012j.mad/SubProcesses/P1_gg_ttxg/matrix1.f
-+++ a/epochX/cudacpp/pp_tt012j.mad/SubProcesses/P1_gg_ttxg/matrix1.f
+diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
+index 817af778b..0c2ce6ec4 100644
+--- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
++++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
 @@ -72,7 +72,10 @@ C
        DATA NB_FAIL /0/
        DOUBLE PRECISION GET_CHANNEL_CUT
@@ -299,7 +299,7 @@ index 12641a014..a885b7fde 100644
  C     
  C     This is just to temporarily store the reference grid for
  C      helicity of the DiscreteSampler so as to obtain its number of
-@@ -156,6 +159,7 @@ C     ----------
+@@ -140,6 +143,7 @@ C     ----------
  C     BEGIN CODE
  C     ----------
  
@@ -307,7 +307,7 @@ index 12641a014..a885b7fde 100644
        NTRY(IMIRROR)=NTRY(IMIRROR)+1
        THIS_NTRY(IMIRROR) = THIS_NTRY(IMIRROR)+1
        DO I=1,NEXTERNAL
-@@ -233,6 +237,17 @@ C     ----------
+@@ -217,6 +221,17 @@ C     ----------
            ENDIF
            IF(NTRY(IMIRROR).EQ.MAXTRIES)THEN
              ISHEL(IMIRROR)=MIN(ISUM_HEL,NGOOD(IMIRROR))
@@ -325,7 +325,7 @@ index 12641a014..a885b7fde 100644
            ENDIF
          ENDIF
        ELSE IF (.NOT.INIT_MODE) THEN  ! random helicity 
-@@ -250,6 +265,7 @@ C       Include the Jacobian from helicity sampling
+@@ -234,6 +249,7 @@ C       Include the Jacobian from helicity sampling
          IHEL = HEL_PICKED
        ELSE
          ANS = 1D0
@@ -333,7 +333,7 @@ index 12641a014..a885b7fde 100644
          RETURN
        ENDIF
        IF (ANS.NE.0D0.AND.(ISUM_HEL .NE. 1.OR.HEL_PICKED.EQ.-1)) THEN
-@@ -294,9 +310,8 @@ C           Set right sign for ANS, based on sign of chosen helicity
+@@ -278,9 +294,8 @@ C           Set right sign for ANS, based on sign of chosen helicity
          ENDIF
        ENDIF
        ANS=ANS/DBLE(IDEN)

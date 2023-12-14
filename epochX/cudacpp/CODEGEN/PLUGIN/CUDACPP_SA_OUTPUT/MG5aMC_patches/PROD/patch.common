@@ -13,7 +13,7 @@ index a59181c70..af7e0efbc 100644
        PARAMETER(MAXTRIES=25)
  C     To pass the helicity configuration chosen by the DiscreteSampler to 
 diff --git b/epochX/cudacpp/gg_tt.mad/Source/make_opts a/epochX/cudacpp/gg_tt.mad/Source/make_opts
-index 2607530b7..7b87725d9 100644
+index 75d707231..e2d77891e 100644
 --- b/epochX/cudacpp/gg_tt.mad/Source/make_opts
 +++ a/epochX/cudacpp/gg_tt.mad/Source/make_opts
 @@ -1,42 +1,65 @@
@@ -21,9 +21,9 @@ index 2607530b7..7b87725d9 100644
 -MACFLAG=
 -STDLIB=-lstdc++
 -STDLIB_FLAG=
-+DEFAULT_F2PY_COMPILER=f2py3
- DEFAULT_F_COMPILER=gfortran
--DEFAULT_F2PY_COMPILER=f2py3.9
+-DEFAULT_F_COMPILER=gfortran
+ DEFAULT_F2PY_COMPILER=f2py3
++DEFAULT_F_COMPILER=gfortran
 +GLOBAL_FLAG=-O3 -ffast-math
 +MACFLAG=
  MG5AMC_VERSION=SpecifiedByMG5aMCAtRunTime
