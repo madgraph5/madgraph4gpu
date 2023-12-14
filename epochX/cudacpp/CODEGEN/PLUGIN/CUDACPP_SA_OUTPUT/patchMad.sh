@@ -49,6 +49,7 @@ touch ${dir}/Events/.keep # this file should already be present (mg5amcnlo copie
 \cp -pr ${scrdir}/MG5aMC_patches/${dir_patches}/fbridge_common.inc ${dir}/SubProcesses # new file
 if [ "${patchlevel}" == "2" ]; then
   cd ${dir}
+  sed -i 's/DEFAULT_F2PY_COMPILER=f2py.*/DEFAULT_F2PY_COMPILER=f2py3/' Source/make_opts # AV back in patchMad.sh #753
   echo "DEBUG: cd ${PWD}; patch -p4 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.common"
   if ! patch -p4 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.common; then status=1; fi  
   \rm -f Source/*.orig
