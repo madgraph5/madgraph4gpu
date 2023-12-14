@@ -8,15 +8,15 @@ include $(OPTIONS_MAKEFILE)
 MG_FCFLAGS  += -cpp
 MG_CXXFLAGS += -I.
 
-# First target (this is the target if the user does not specify a target)
 all: help cppnative
 
 # Target if user does not specify target
 help:
-	$(info No target specified)
+	$(info No target specified.)
 	$(info Viable targets are 'cppnative' (default), 'cppnone', 'cppsse4', 'cppavx2', 'cpp512y', 'cpp512z' and 'cuda')
-	$(info Or 'cppall' for all C++/SIMD targets)
-	$(info Or 'all_backends' for all C++/SIMD and GPU targets)
+	$(info Or 'cppall' for all C++ targets)
+	$(info Or 'ALL' for all C++ and cuda targets)
+
 
 # Enable ccache for C++ if USECCACHE=1 (do not enable it for Fortran since it is not supported for Fortran)
 ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
@@ -57,9 +57,9 @@ ifneq ("$(wildcard ../../Source/RUNNING)","")
     LIBS += $(LIBDIR)librunning.$(libext)
 endif
 
+SOURCEDIR_GUARD:=../../Source/.timestamp_guard
 # We use $(SOURCEDIR_GUARD) to figure out if Source is out of date. The Source makefile doesn't correctly
 # update all files, so we need a proxy that is updated every time we run "$(MAKE) -C ../../Source".
-SOURCEDIR_GUARD:=../../Source/.timestamp_guard
 $(SOURCEDIR_GUARD) ../../Source/discretesampler.mod &: ../../Source/*.f ../../Cards/param_card.dat ../../Cards/run_card.dat
 ifneq ($(shell which flock 2>/dev/null),)
 	flock ../../Source/.lock -c "$(MAKE) -C ../../Source; touch $(SOURCEDIR_GUARD)"
@@ -169,6 +169,7 @@ $(PROG)_forhel: $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX_HEL)
 gensym: $(SYMMETRY) configs.inc $(LIBS)
 	$(FC) -o gensym $(SYMMETRY) -L$(LIBDIR) $(LINKLIBS) $(LDFLAGS)
 
+
 # Add source so that the compiler finds the DiscreteSampler module.
 $(MATRIX): %.o: %.f
 	$(FC) $(MG_FCFLAGS) $(FCFLAGS) $(MATRIX_FLAG) -c $< -I../../Source/ -I../../Source/PDF/gammaUPC
@@ -178,6 +179,7 @@ $(MATRIX): %.o: %.f
 	$(FC) $(MG_FCFLAGS) $(FCFLAGS) -c -DMG5AMC_MEEXPORTER_CUDACPP $< -I../../Source/ $(OMPFLAGS) -o $@
 
 # Dependencies
+
 driver.f: genps.inc
 symmetry.o: genps.inc nexternal.inc configs.inc run_config.inc ../../Source/run_card.inc
 genps.o: genps.inc nexternal.inc configs.inc
@@ -196,13 +198,15 @@ initcluster.o: message.inc
 
 # Extra dependencies on discretesampler.mod
 ../../Source/discretesampler.mod: ../../Source/DiscreteSampler.f
+
 auto_dsig.o: ../../Source/discretesampler.mod
 driver.o: ../../Source/discretesampler.mod
 driver_cudacpp.o: ../../Source/discretesampler.mod
 $(MATRIX): ../../Source/discretesampler.mod
 genps.o: ../../Source/discretesampler.mod
 
-# Build all CPU/SIMD backends
+# Cudacpp avxall targets
+
 ifeq ($(UNAME_P),ppc64le)
 cppall: cppnative cppnone cppsse4
 else ifeq ($(UNAME_P),arm)
@@ -211,8 +215,7 @@ else
 cppall: cppnative cppnone cppsse4 cppavx2 cpp512y cpp512z
 endif
 
-# Build all CPU/SIMD and GPU backends
-all_backends: cppall cuda
+ALL: cppall cuda
 
 # Clean all architecture-specific builds in this P* directory
 clean:
