@@ -293,12 +293,6 @@ function codeGenAndDiff()
       cat ${outproc}/Source/make_opts >> ${outproc}/Source/make_opts.new
       \mv ${outproc}/Source/make_opts.new ${outproc}/Source/make_opts
     fi
-    if [ "${patchlevel}" == "2" ]; then
-      sed -i 's/DEFAULT_F2PY_COMPILER=f2py.*/DEFAULT_F2PY_COMPILER=f2py3/' ${outproc}/Source/make_opts
-      cat ${outproc}/Source/make_opts | sed '/#end/q' | head --lines=-1 | sort > ${outproc}/Source/make_opts.new
-      cat ${outproc}/Source/make_opts | sed -n -e '/#end/,$p' >> ${outproc}/Source/make_opts.new
-      \mv ${outproc}/Source/make_opts.new ${outproc}/Source/make_opts
-    fi
   fi
   popd >& /dev/null
   # Choose which directory must be copied (for gridpack generation: untar and modify the gridpack)
