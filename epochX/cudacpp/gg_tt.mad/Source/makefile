@@ -35,6 +35,9 @@ all: $(LIBRARIES) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDI
 %.o: %.f *.inc
 	$(FC) -I. $(MG_FCFLAGS) $(FCFLAGS) -c $< -o $@
 
+DiscreteSampler.o discretesampler.mod: DiscreteSampler.f *.inc
+	$(FC) -I. $(MG_FCFLAGS) $(FCFLAGS) -c $< -o DiscreteSampler.o
+
 # Libraries
 
 $(LIBDIR)libdsample.$(libext): $(DSAMPLE)
@@ -74,7 +77,7 @@ $(BINDIR)gensudgrid: $(GENSUDGRID) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libgammaUP
 
 # Dependencies
 
-dsample.o: DiscreteSampler.o dsample.f genps.inc StringCast.o
+dsample.o: DiscreteSampler.o discretesampler.mod dsample.f genps.inc StringCast.o
 DiscreteSampler.o: StringCast.o
 invarients.o: invarients.f genps.inc
 setrun.o: setrun.f nexternal.inc leshouche.inc genps.inc
