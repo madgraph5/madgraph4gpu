@@ -13,26 +13,18 @@ index a59181c70..af7e0efbc 100644
        PARAMETER(MAXTRIES=25)
  C     To pass the helicity configuration chosen by the DiscreteSampler to 
 diff --git b/epochX/cudacpp/gg_tt.mad/Source/make_opts a/epochX/cudacpp/gg_tt.mad/Source/make_opts
-index 75d707231..e2d77891e 100644
+index d7dafe3d6..435bed0dc 100644
 --- b/epochX/cudacpp/gg_tt.mad/Source/make_opts
 +++ a/epochX/cudacpp/gg_tt.mad/Source/make_opts
-@@ -1,42 +1,65 @@
+@@ -1,6 +1,7 @@
  DEFAULT_CPP_COMPILER=g++
--MACFLAG=
--STDLIB=-lstdc++
--STDLIB_FLAG=
--DEFAULT_F_COMPILER=gfortran
  DEFAULT_F2PY_COMPILER=f2py3
-+DEFAULT_F_COMPILER=gfortran
+ DEFAULT_F_COMPILER=gfortran
 +GLOBAL_FLAG=-O3 -ffast-math
-+MACFLAG=
+ MACFLAG=
  MG5AMC_VERSION=SpecifiedByMG5aMCAtRunTime
  PYTHIA8_PATH=NotInstalled
-+STDLIB_FLAG=
-+STDLIB=-lstdc++
- #end_of_make_opts_variables
- 
- BIASLIBDIR=../../../lib/
+@@ -12,31 +13,53 @@ BIASLIBDIR=../../../lib/
  BIASLIBRARY=libbias.$(libext)
  
  # Rest of the makefile
@@ -479,7 +471,7 @@ index 617f10b93..407b1b753 100644
  	if [ -d $(IREGIDIR) ]; then cd $(IREGIDIR); make clean; cd ..; fi
 -	for i in `ls -d ../SubProcesses/P*`; do cd $$i; make clean; cd -; done;
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
-index 348c283be..4cadaecf0 100644
+index 348c283be..d229c1cf4 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 @@ -1,5 +1,30 @@
