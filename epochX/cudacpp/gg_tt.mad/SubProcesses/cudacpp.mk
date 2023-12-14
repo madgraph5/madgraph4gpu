@@ -9,19 +9,19 @@ CUDACPP_SRC_MAKEFILE = cudacpp_src.mk
 
 # Self-invocation with adapted flags:
 cppnative: $(SOURCEDIR_GUARD) $(PROCESS)
-	$(MAKE) AVX=native AVXFLAGS="-march=native" cppbuild
+	$(MAKE) BACKEND=native AVXFLAGS="-march=native" cppbuild
 cppnone: $(SOURCEDIR_GUARD) $(PROCESS)
-	$(MAKE) AVX=none AVXFLAGS= cppbuild
+	$(MAKE) BACKEND=none AVXFLAGS= cppbuild
 cppsse4: $(SOURCEDIR_GUARD) $(PROCESS)
-	$(MAKE) AVX=sse4 AVXFLAGS=-march=nehalem cppbuild
+	$(MAKE) BACKEND=sse4 AVXFLAGS=-march=nehalem cppbuild
 cppavx2: $(SOURCEDIR_GUARD) $(PROCESS)
-	$(MAKE) AVX=avx2 AVXFLAGS=-march=haswell cppbuild
+	$(MAKE) BACKEND=avx2 AVXFLAGS=-march=haswell cppbuild
 cpp512y: $(SOURCEDIR_GUARD) $(PROCESS)
-	$(MAKE) AVX=512y AVXFLAGS="-march=skylake-avx512 -mprefer-vector-width=256" cppbuild
+	$(MAKE) BACKEND=512y AVXFLAGS="-march=skylake-avx512 -mprefer-vector-width=256" cppbuild
 cpp512z: $(SOURCEDIR_GUARD) $(PROCESS)
-	$(MAKE) AVX=512z AVXFLAGS="-march=skylake-avx512 -DMGONGPU_PVW512" cppbuild
+	$(MAKE) BACKEND=512z AVXFLAGS="-march=skylake-avx512 -DMGONGPU_PVW512" cppbuild
 cuda: $(SOURCEDIR_GUARD) $(PROCESS)
-	$(MAKE) AVX=cuda cudabuild
+	$(MAKE) BACKEND=cuda cudabuild
 
 #-------------------------------------------------------------------------------
 
@@ -84,7 +84,7 @@ endif
 
 #-------------------------------------------------------------------------------
 
-#=== Configure defaults and check if user-defined choices exist for OMPFLAGS, AVX, FPTYPE, HELINL, HRDCOD, RNDGEN
+#=== Configure defaults and check if user-defined choices exist for OMPFLAGS, BACKEND, FPTYPE, HELINL, HRDCOD, RNDGEN
 
 # Set the default OMPFLAGS choice
 OMPFLAGS ?= -fopenmp
@@ -102,11 +102,11 @@ MG_CXXFLAGS += $(OMPFLAGS)
 #=== Configure build directories and build lockfiles ===
 
 # Build directory "short" tag (defines target and path to the build directory)
-DIRTAG = $(AVX)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)
+DIRTAG = $(BACKEND)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)
 CUDACPP_BUILDDIR = build.$(DIRTAG)
 CUDACPP_LIBDIR := ../../lib/$(CUDACPP_BUILDDIR)
 LIBDIRRPATH := '$$ORIGIN:$$ORIGIN/../$(CUDACPP_LIBDIR)'
-ifneq ($(AVX),)
+ifneq ($(BACKEND),)
   $(info Building CUDACPP in CUDACPP_BUILDDIR=$(CUDACPP_BUILDDIR). Libs in $(CUDACPP_LIBDIR))
 endif
 
@@ -190,7 +190,7 @@ endif
 #-------------------------------------------------------------------------------
 
 $(CUDACPP_LIBDIR)/lib$(MG5AMC_COMMONLIB).so: ../../src/*.h ../../src/*.cc
-	$(MAKE) AVX=$(AVX) AVXFLAGS="$(AVXFLAGS)" -C ../../src -f $(CUDACPP_SRC_MAKEFILE)
+	$(MAKE) BACKEND=$(BACKEND) AVXFLAGS="$(AVXFLAGS)" -C ../../src -f $(CUDACPP_SRC_MAKEFILE)
 
 #-------------------------------------------------------------------------------
 
@@ -388,10 +388,10 @@ endif
 # [NB THIS IS WHAT IS USED IN THE GITHUB CI!]
 check: runTest cmpFcheck
 gcheck:
-	$(MAKE) AVX=cuda runTest cmpFGcheck
+	$(MAKE) BACKEND=cuda runTest cmpFGcheck
 
 # Target: runTest (run the C++ test executable runTest.exe)
-ifneq ($(AVX),cuda)
+ifneq ($(BACKEND),cuda)
 runTest: cppbuild
 	$(RUNTIME) $(CUDACPP_BUILDDIR)/runTest.exe
 else
@@ -405,9 +405,9 @@ runCheck: cppbuild
 	$(RUNTIME) $(CUDACPP_BUILDDIR)/check.exe -p 2 32 2
 
 # Target: runGcheck (run the CUDA standalone executable gcheck.exe, with a small number of events)
-runGcheck: AVX=cuda
+runGcheck: BACKEND=cuda
 runGcheck:
-	$(MAKE) AVX=cuda cudabuild
+	$(MAKE) BACKEND=cuda cudabuild
 	$(RUNTIME) $(CUDACPP_BUILDDIR)/gcheck.exe -p 2 32 2
 
 # Target: runFcheck (run the Fortran standalone executable - with C++ MEs - fcheck.exe, with a small number of events)
@@ -415,9 +415,9 @@ runFcheck: cppbuild
 	$(RUNTIME) $(CUDACPP_BUILDDIR)/fcheck.exe 2 32 2
 
 # Target: runFGcheck (run the Fortran standalone executable - with CUDA MEs - fgcheck.exe, with a small number of events)
-runFGcheck: AVX=cuda
+runFGcheck: BACKEND=cuda
 runFGcheck:
-	$(MAKE) AVX=cuda cudabuild
+	$(MAKE) BACKEND=cuda cudabuild
 	$(RUNTIME) $(CUDACPP_BUILDDIR)/fgcheck.exe 2 32 2
 
 # Target: cmpFcheck (compare ME results from the C++ and Fortran with C++ MEs standalone executables, with a small number of events)
@@ -428,9 +428,9 @@ cmpFcheck: cppbuild
 	@me1=$(shell $(RUNTIME) $(CUDACPP_BUILDDIR)/check.exe --common -p 2 32 2 | grep MeanMatrix | awk '{print $$4}'); me2=$(shell $(RUNTIME) $(CUDACPP_BUILDDIR)/fcheck.exe 2 32 2 | grep Average | awk '{print $$4}'); echo "Avg ME (C++/C++)    = $${me1}"; echo "Avg ME (F77/C++)    = $${me2}"; if [ "$${me2}" == "NaN" ]; then echo "ERROR! Fortran calculation (F77/C++) returned NaN"; elif [ "$${me2}" == "" ]; then echo "ERROR! Fortran calculation (F77/C++) crashed"; else python3 -c "me1=$${me1}; me2=$${me2}; reldif=abs((me2-me1)/me1); print('Relative difference =', reldif); ok = reldif <= 2E-4; print ( '%s (relative difference %s 2E-4)' % ( ('OK','<=') if ok else ('ERROR','>') ) ); import sys; sys.exit(0 if ok else 1)"; fi
 
 # Target: cmpFGcheck (compare ME results from the CUDA and Fortran with CUDA MEs standalone executables, with a small number of events)
-cmpFGcheck: AVX=cuda
+cmpFGcheck: BACKEND=cuda
 cmpFGcheck:
-	$(MAKE) AVX=cuda cudabuild
+	$(MAKE) BACKEND=cuda cudabuild
 	@echo
 	@echo "$(CUDACPP_BUILDDIR)/gcheck.exe --common -p 2 32 2"
 	@echo "$(CUDACPP_BUILDDIR)/fgcheck.exe 2 32 2"

@@ -131,23 +131,23 @@ madevent_fortran_link: $(PROG)_fortran
 	rm -f $(PROG)
 	ln -s $(PROG)_fortran $(PROG)
 
-madevent_cppnone_link: AVX=none
+madevent_cppnone_link: BACKEND=none
 madevent_cppnone_link: cppnone
 	ln -sf $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
 
-madevent_cppavx2_link: AVX=avx2
+madevent_cppavx2_link: BACKEND=avx2
 madevent_cppavx2_link: cppavx2
 	ln -sf $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
 
-madevent_cpp512y_link: AVX=512y
+madevent_cpp512y_link: BACKEND=512y
 madevent_cpp512y_link: cpp512y
 	ln -sf $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
 
-madevent_cpp512z_link: AVX=512z
+madevent_cpp512z_link: BACKEND=512z
 madevent_cpp512z_link: cpp512z
 	ln -sf $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
 
-madevent_cuda_link: AVX=cuda
+madevent_cuda_link: BACKEND=cuda
 madevent_cuda_link: cuda
 	ln -sf $(CUDACPP_BUILDDIR)/$(PROG)_cuda $(PROG)
 
