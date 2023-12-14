@@ -140,11 +140,11 @@ madevent_cppavx2_link: cppavx2
 	ln -sf $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
 
 madevent_cpp512y_link: AVX=512y
-madevent_cpp512y_link: cppavx512y
+madevent_cpp512y_link: cpp512y
 	ln -sf $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
 
 madevent_cpp512z_link: AVX=512z
-madevent_cpp512z_link: cppavx512z
+madevent_cpp512z_link: cpp512z
 	ln -sf $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
 
 madevent_cuda_link: AVX=cuda
@@ -212,7 +212,7 @@ cppall: cppnative cppnone cppsse4
 else ifeq ($(UNAME_P),arm)
 cppall: cppnative cppnone cppsse4
 else
-cppall: cppnative cppnone cppsse4 cppavx2 cppavx512y cppavx512z
+cppall: cppnative cppnone cppsse4 cppavx2 cpp512y cpp512z
 endif
 
 ALL: cppall cuda

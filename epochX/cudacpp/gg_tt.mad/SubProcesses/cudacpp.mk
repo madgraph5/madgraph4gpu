@@ -16,9 +16,9 @@ cppsse4: $(SOURCEDIR_GUARD) $(PROCESS)
 	$(MAKE) AVX=sse4 AVXFLAGS=-march=nehalem cppbuild
 cppavx2: $(SOURCEDIR_GUARD) $(PROCESS)
 	$(MAKE) AVX=avx2 AVXFLAGS=-march=haswell cppbuild
-cppavx512y: $(SOURCEDIR_GUARD) $(PROCESS)
+cpp512y: $(SOURCEDIR_GUARD) $(PROCESS)
 	$(MAKE) AVX=512y AVXFLAGS="-march=skylake-avx512 -mprefer-vector-width=256" cppbuild
-cppavx512z: $(SOURCEDIR_GUARD) $(PROCESS)
+cpp512z: $(SOURCEDIR_GUARD) $(PROCESS)
 	$(MAKE) AVX=512z AVXFLAGS="-march=skylake-avx512 -DMGONGPU_PVW512" cppbuild
 cuda: $(SOURCEDIR_GUARD) $(PROCESS)
 	$(MAKE) AVX=cuda cudabuild
