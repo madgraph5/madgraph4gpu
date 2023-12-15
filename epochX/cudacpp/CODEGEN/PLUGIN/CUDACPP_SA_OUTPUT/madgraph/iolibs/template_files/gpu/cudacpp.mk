@@ -161,7 +161,11 @@ ifneq (,$(findstring $(MAKECMDGOALS),cuda-gcheck-runGcheck-runFGcheck-cmpFGcheck
     comma:=,
     CUARCHFLAGS = $(foreach arch,$(subst $(comma), ,$(MADGRAPH_CUDA_ARCHITECTURE)),-gencode arch=compute_$(arch),code=compute_$(arch) -gencode arch=compute_$(arch),code=sm_$(arch))
     CUINC = -I$(CUDA_HOME)/include/
-    CURANDLIBFLAGS = -L$(CUDA_HOME)/lib64/ -lcurand # NB: -lcuda is not needed here!
+    ifeq ($(RNDGEN),hasNoCurand)
+      CURANDLIBFLAGS=
+    else
+      CURANDLIBFLAGS = -L$(CUDA_HOME)/lib64/ -lcurand # NB: -lcuda is not needed here!
+    endif
     CUOPTFLAGS = -lineinfo
     CUFLAGS = $(foreach opt, $(OPTFLAGS), -Xcompiler $(opt)) $(CUOPTFLAGS) $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math
     ###CUFLAGS += -Xcompiler -Wall -Xcompiler -Wextra -Xcompiler -Wshadow
