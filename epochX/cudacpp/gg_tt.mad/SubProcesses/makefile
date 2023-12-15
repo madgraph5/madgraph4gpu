@@ -9,6 +9,12 @@ FFLAGS+= -cpp
 # Compile counters with -O3 as in the cudacpp makefile (avoid being "unfair" to Fortran #740)
 CXXFLAGS = -O3 -Wall -Wshadow -Wextra
 
+# Add -std=c++17 explicitly to avoid build errors on macOS
+# Add -mmacosx-version-min=11.3 to avoid "ld: warning: object file was built for newer macOS version than being linked"
+ifneq ($(shell $(CXX) --version | egrep '^Apple clang'),)
+CXXFLAGS += -std=c++17 -mmacosx-version-min=11.3
+endif
+
 # Sets correct target based on MAKECMDGOALS
 ifeq ($(MAKECMDGOALS),)
     TARGET := undefined
@@ -35,12 +41,6 @@ endif
 # Target if user does not specify target
 usage:
 	$(error Unknown target='$(TARGET)': only 'cppnone', 'cppsse4', 'cppavx2', 'cpp512y', 'cpp512z' and 'cuda' are supported!)
-
-# Add -std=c++17 explicitly to avoid build errors on macOS
-# Add -mmacosx-version-min=11.3 to avoid "ld: warning: object file was built for newer macOS version than being linked"
-ifneq ($(shell $(CXX) --version | egrep '^Apple clang'),)
-CXXFLAGS += -std=c++17 -mmacosx-version-min=11.3
-endif
 
 # Enable ccache if USECCACHE=1
 ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
@@ -84,7 +84,7 @@ CUDACPP_MAKEFILE=cudacpp.mk
 CUDACPP_MAKEENV:=$(shell echo '$(.VARIABLES)' | tr " " "\n" | egrep "(USEBUILDDIR|FPTYPE|HELINL|HRDCOD)")
 ###$(info CUDACPP_MAKEENV=$(CUDACPP_MAKEENV))
 ###$(info $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))"))
-CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn 2>&1 | awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
+CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn $(TARGET) 2>&1 | awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
 ifeq ($(CUDACPP_BUILDDIR),)
 $(error CUDACPP_BUILDDIR='$(CUDACPP_BUILDDIR)' should not be empty!)
 else
