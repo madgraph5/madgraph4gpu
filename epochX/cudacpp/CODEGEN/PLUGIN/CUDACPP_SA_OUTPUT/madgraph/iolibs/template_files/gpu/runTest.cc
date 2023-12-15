@@ -246,15 +246,15 @@ struct CUDATest : public CUDA_CPU_TestBase
 #define TESTID_CPU( s ) s##_CPU
 #define XTESTID_CPU( s ) TESTID_CPU( s )
 #define MG_INSTANTIATE_TEST_SUITE_CPU( prefix, test_suite_name ) \
-INSTANTIATE_TEST_SUITE_P( prefix, \
-                          test_suite_name, \
-                          testing::Values( new CPUTest( MG_EPOCH_REFERENCE_FILE_NAME ) ) );
+  INSTANTIATE_TEST_SUITE_P( prefix, \
+                            test_suite_name, \
+                            testing::Values( new CPUTest( MG_EPOCH_REFERENCE_FILE_NAME ) ) );
 #define TESTID_GPU( s ) s##_GPU
 #define XTESTID_GPU( s ) TESTID_GPU( s )
 #define MG_INSTANTIATE_TEST_SUITE_GPU( prefix, test_suite_name ) \
-INSTANTIATE_TEST_SUITE_P( prefix, \
-                          test_suite_name, \
-                          testing::Values( new CUDATest( MG_EPOCH_REFERENCE_FILE_NAME ) ) );
+  INSTANTIATE_TEST_SUITE_P( prefix, \
+                            test_suite_name, \
+                            testing::Values( new CUDATest( MG_EPOCH_REFERENCE_FILE_NAME ) ) );
 
 #ifdef __CUDACC__
 MG_INSTANTIATE_TEST_SUITE_GPU( XTESTID_GPU( MG_EPOCH_PROCESS_ID ), MadgraphTest );

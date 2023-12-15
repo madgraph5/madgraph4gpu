@@ -1,19 +1,22 @@
 SHELL := /bin/bash
 
-include ../../Source/make_opts
-FFLAGS+= -w
+# Include general setup
+OPTIONS_MAKEFILE := ../../Source/make_opts
+include $(OPTIONS_MAKEFILE)
 
 # Enable the C preprocessor https://gcc.gnu.org/onlinedocs/gfortran/Preprocessing-Options.html
-FFLAGS+= -cpp
+MG_FCFLAGS  += -cpp
+MG_CXXFLAGS += -I.
 
-# Compile counters with -O3 as in the cudacpp makefile (avoid being "unfair" to Fortran #740)
-CXXFLAGS = -O3 -Wall -Wshadow -Wextra
+all: help cppnative
 
-# Add -std=c++17 explicitly to avoid build errors on macOS
-# Add -mmacosx-version-min=11.3 to avoid "ld: warning: object file was built for newer macOS version than being linked"
-ifneq ($(shell $(CXX) --version | egrep '^Apple clang'),)
-CXXFLAGS += -std=c++17 -mmacosx-version-min=11.3
-endif
+# Target if user does not specify target
+help:
+	$(info No target specified.)
+	$(info Viable targets are 'cppnative' (default), 'cppnone', 'cppsse4', 'cppavx2', 'cpp512y', 'cpp512z' and 'cuda')
+	$(info Or 'cppall' for all C++ targets)
+	$(info Or 'ALL' for all C++ and cuda targets)
+
 
 # Enable ccache if USECCACHE=1
 ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
@@ -46,34 +49,25 @@ else
     MADLOOP_LIB =
 endif
 
-LINKLIBS = $(LINK_MADLOOP_LIB) $(LINK_LOOP_LIBS) -L$(LIBDIR) -ldhelas -ldsample -lmodel -lgeneric -lpdf -lcernlib $(llhapdf) -lbias 
-
-processid_short=$(shell basename $(CURDIR) | awk -F_ '{print $$(NF-1)"_"$$NF}')
-CUDACPP_MAKEFILE=cudacpp.mk
-# NB1 Using ":=" below instead of "=" is much faster (it only runs the subprocess once instead of many times)
-# NB2 Use '|&' in CUDACPP_BUILDDIR to avoid confusing errors about googletest #507
-# NB3 Do not add a comment inlined "CUDACPP_BUILDDIR=$(shell ...) # comment" as otherwise a trailing space is included...
-# NB4 The variables relevant to the cudacpp Makefile must be explicitly passed to $(shell...)
-CUDACPP_MAKEENV:=$(shell echo '$(.VARIABLES)' | tr " " "\n" | egrep "(USEBUILDDIR|AVX|FPTYPE|HELINL|HRDCOD)")
-###$(info CUDACPP_MAKEENV=$(CUDACPP_MAKEENV))
-###$(info $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))"))
-CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn 2>&1 | awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
-ifeq ($(CUDACPP_BUILDDIR),)
-$(error CUDACPP_BUILDDIR='$(CUDACPP_BUILDDIR)' should not be empty!)
-else
-$(info CUDACPP_BUILDDIR='$(CUDACPP_BUILDDIR)')
-endif
-CUDACPP_COMMONLIB=mg5amc_common
-CUDACPP_CXXLIB=mg5amc_$(processid_short)_cpp
-CUDACPP_CULIB=mg5amc_$(processid_short)_cuda
-
+LINKLIBS = $(LINK_MADLOOP_LIB) $(LINK_LOOP_LIBS) -L$(LIBDIR) -ldhelas -ldsample -lmodel -lgeneric -lpdf -lcernlib $(llhapdf) -lbias
 LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libgammaUPC.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS)
 
 ifneq ("$(wildcard ../../Source/RUNNING)","")
     LINKLIBS += -lrunning
-    LIBS += $(LIBDIR)librunning.$(libext) 
+    LIBS += $(LIBDIR)librunning.$(libext)
 endif
 
+SOURCEDIR_GUARD:=../../Source/.timestamp_guard
+# We use $(SOURCEDIR_GUARD) to figure out if Source is out of date. The Source makefile doesn't correctly
+# update all files, so we need a proxy that is updated every time we run "$(MAKE) -C ../../Source".
+$(SOURCEDIR_GUARD) ../../Source/discretesampler.mod &: ../../Source/*.f ../../Cards/param_card.dat ../../Cards/run_card.dat
+ifneq ($(shell which flock 2>/dev/null),)
+	flock ../../Source/.lock -c "$(MAKE) -C ../../Source; touch $(SOURCEDIR_GUARD)"
+else
+	$(MAKE) -C ../../Source; touch $(SOURCEDIR_GUARD)
+endif
+
+$(LIBS): $(SOURCEDIR_GUARD)
 
 # Source files
 
@@ -91,82 +85,83 @@ PROCESS= myamp.o genps.o unwgt.o setcuts.o get_color.o \
 DSIG=driver.o $(patsubst %.f, %.o, $(filter-out auto_dsig.f, $(wildcard auto_dsig*.f)))
 DSIG_cudacpp=driver_cudacpp.o $(patsubst %.f, %_cudacpp.o, $(filter-out auto_dsig.f, $(wildcard auto_dsig*.f)))
 
-SYMMETRY = symmetry.o idenparts.o 
+SYMMETRY = symmetry.o idenparts.o
 
-# Binaries
-
-ifeq ($(UNAME),Darwin)
-LDFLAGS += -lc++ # avoid 'Undefined symbols' for chrono::steady_clock on macOS (checked with otool -L libmg5amc_gg_ttx_cpp.so) 
-LDFLAGS += -mmacosx-version-min=11.3 # avoid "ld: warning: object file was built for newer macOS version than being linked"  
-else
-LDFLAGS += -Wl,--no-relax # avoid 'failed to convert GOTPCREL relocation' error #458 (not supported on macOS)
+# cudacpp targets:
+CUDACPP_MAKEFILE := cudacpp.mk
+ifneq (,$(wildcard $(CUDACPP_MAKEFILE)))
+include $(CUDACPP_MAKEFILE)
 endif
 
-all: $(PROG)_fortran $(CUDACPP_BUILDDIR)/$(PROG)_cpp # also builds $(PROG)_cuda if $(CUDACPP_CULIB) exists (#503)
+ifeq ($(CUDACPP_BUILDDIR),)
+$(error CUDACPP_BUILDDIR='$(CUDACPP_BUILDDIR)' should not be empty!)
+endif
+CUDACPP_COMMONLIB=mg5amc_common
+CUDACPP_CXXLIB := $(CUDACPP_BUILDDIR)/lib$(MG5AMC_CXXLIB).so
+CUDACPP_CULIB  := $(CUDACPP_BUILDDIR)/lib$(MG5AMC_CULIB).so
 
+
+# Set up OpenMP if supported
+OMPFLAGS ?= -fopenmp
 ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
-override OMPFLAGS = -fopenmp
 LINKLIBS += -liomp5 # see #578
 LINKLIBS += -lintlc # undefined reference to `_intel_fast_memcpy'
 else ifneq ($(shell $(CXX) --version | egrep '^clang'),)
-override OMPFLAGS = -fopenmp
 $(CUDACPP_BUILDDIR)/$(PROG)_cpp: LINKLIBS += -L $(shell dirname $(shell $(CXX) -print-file-name=libc++.so)) -lomp # see #604
 else ifneq ($(shell $(CXX) --version | egrep '^Apple clang'),)
-override OMPFLAGS = # OMP is not supported yet by cudacpp for Apple clang
-else
-override OMPFLAGS = -fopenmp
+OMPFLAGS = # OMP is not supported yet by cudacpp for Apple clang
 endif
 
+
+# Binaries
+
 $(PROG)_fortran: $(PROCESS) $(DSIG) auto_dsig.o $(LIBS) $(MATRIX) counters.o ompnumthreads.o
-	$(FC) -o $(PROG)_fortran $(PROCESS) $(DSIG) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o $(LDFLAGS)
-
-$(LIBS): .libs
-
-.libs: ../../Cards/param_card.dat ../../Cards/run_card.dat
-	cd ../../Source; make
-	touch $@
-
-$(CUDACPP_BUILDDIR)/.cudacpplibs:
-	$(MAKE) -f $(CUDACPP_MAKEFILE)
-	touch $@
+	$(FC) $(MG_FCFLAGS) $(FCFLAGS) -o $(PROG)_fortran $(PROCESS) $(DSIG) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o $(LDFLAGS)
 
 # On Linux, set rpath to LIBDIR to make it unnecessary to use LD_LIBRARY_PATH
 # Use relative paths with respect to the executables ($ORIGIN on Linux)
 # On Darwin, building libraries with absolute paths in LIBDIR makes this unnecessary
-ifeq ($(UNAME_S),Darwin)
-  override LIBFLAGSRPATH =
-else ifeq ($(USEBUILDDIR),1)
-  override LIBFLAGSRPATH = -Wl,-rpath,'$$ORIGIN/../$(LIBDIR)/$(CUDACPP_BUILDDIR)'
-else
-  override LIBFLAGSRPATH = -Wl,-rpath,'$$ORIGIN/$(LIBDIR)'
+ifneq ($(UNAME_S),Darwin)
+  LIBFLAGSRPATH := -Wl,-rpath,'$$ORIGIN:$$ORIGIN/../$(LIBDIR)/$(CUDACPP_BUILDDIR)'
 endif
 
-.PHONY: madevent_fortran_link madevent_cuda_link madevent_cpp_link
+.PHONY: madevent_fortran_link madevent_cuda_link madevent_cpp_link madevent_cppnone_link madevent_cppsse4_link madevent_cppavx2_link madevent_cpp512y_link madevent_cpp512z_link clean cleanall cleansrc
 
 madevent_fortran_link: $(PROG)_fortran
 	rm -f $(PROG)
 	ln -s $(PROG)_fortran $(PROG)
 
-madevent_cpp_link: $(CUDACPP_BUILDDIR)/$(PROG)_cpp
-	rm -f $(PROG)
-	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
+madevent_cppnone_link: AVX=none
+madevent_cppnone_link: cppnone
+	ln -sf $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
 
-madevent_cuda_link: $(CUDACPP_BUILDDIR)/$(PROG)_cuda
-	rm -f $(PROG)
-	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cuda $(PROG)
+madevent_cppavx2_link: AVX=avx2
+madevent_cppavx2_link: cppavx2
+	ln -sf $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
 
-# Building $(PROG)_cpp also builds $(PROG)_cuda if $(CUDACPP_CULIB) exists (improved patch for cpp-only builds #503)
-$(CUDACPP_BUILDDIR)/$(PROG)_cpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o ompnumthreads.o $(CUDACPP_BUILDDIR)/.cudacpplibs
-	$(FC) -o $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_CXXLIB) $(LIBFLAGSRPATH) $(LDFLAGS)
-	if [ -f $(LIBDIR)/$(CUDACPP_BUILDDIR)/lib$(CUDACPP_CULIB).* ]; then $(FC) -o $(CUDACPP_BUILDDIR)/$(PROG)_cuda $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_CULIB) $(LIBFLAGSRPATH) $(LDFLAGS); fi
+madevent_cpp512y_link: AVX=512y
+madevent_cpp512y_link: cppavx512y
+	ln -sf $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
 
-$(CUDACPP_BUILDDIR)/$(PROG)_cuda: $(CUDACPP_BUILDDIR)/$(PROG)_cpp
+madevent_cpp512z_link: AVX=512z
+madevent_cpp512z_link: cppavx512z
+	ln -sf $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
+
+madevent_cuda_link: AVX=cuda
+madevent_cuda_link: cuda
+	ln -sf $(CUDACPP_BUILDDIR)/$(PROG)_cuda $(PROG)
+
+$(CUDACPP_BUILDDIR)/$(PROG)_cpp: $(LIBS) $(CUDACPP_CXXLIB) $(PROCESS) $(DSIG_cudacpp) auto_dsig.o  $(MATRIX) counters.o ompnumthreads.o
+	$(FC) -o $(CUDACPP_BUILDDIR)/$(PROG)_cpp -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o -L$(CUDACPP_BUILDDIR) -l$(MG5AMC_CXXLIB) $(LIBFLAGSRPATH) $(MG_LDFLAGS) $(LDFLAGS)
+
+$(CUDACPP_BUILDDIR)/$(PROG)_cuda: $(LIBS) $(CUDACPP_CULIB) $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) counters.o ompnumthreads.o
+	$(FC) -o $(CUDACPP_BUILDDIR)/$(PROG)_cuda -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o -L$(CUDACPP_BUILDDIR) -l$(MG5AMC_CULIB) $(LIBFLAGSRPATH) $(MG_LDFLAGS) $(LDFLAGS)
 
 counters.o: counters.cc timer.h
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(MG_CXXFLAGS) $(CXXFLAGS) -c $< -o $@
 
 ompnumthreads.o: ompnumthreads.cc ompnumthreads.h
-	$(CXX) -I. $(CXXFLAGS) $(OMPFLAGS) -c $< -o $@
+	$(CXX) $(MG_CXXFLAGS) $(CXXFLAGS) $(OMPFLAGS) -c $< -o $@
 
 $(PROG)_forhel: $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX_HEL)
 	$(FC) -o $(PROG)_forhel $(PROCESS) $(MATRIX_HEL) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) $(OMPFLAGS)
@@ -174,27 +169,14 @@ $(PROG)_forhel: $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX_HEL)
 gensym: $(SYMMETRY) configs.inc $(LIBS)
 	$(FC) -o gensym $(SYMMETRY) -L$(LIBDIR) $(LINKLIBS) $(LDFLAGS)
 
-###ifeq (,$(wildcard fbridge.inc)) # Pointless: fbridge.inc always exists as this is the cudacpp-modified makefile!
-###$(LIBDIR)libmodel.$(libext): ../../Cards/param_card.dat
-###	cd ../../Source/MODEL; make
-###
-###$(LIBDIR)libgeneric.$(libext): ../../Cards/run_card.dat
-###	cd ../../Source; make
-###
-###$(LIBDIR)libpdf.$(libext): 
-###	cd ../../Source/PDF; make
-###
-###$(LIBDIR)libgammaUPC.$(libext):
-###	cd ../../Source/PDF/gammaUPC; make
-###endif
 
 # Add source so that the compiler finds the DiscreteSampler module.
 $(MATRIX): %.o: %.f
-	$(FC) $(FFLAGS) $(MATRIX_FLAG) -c $< -I../../Source/ -I../../Source/PDF/gammaUPC
-%.o: %.f
-	$(FC) $(FFLAGS) -c $< -I../../Source/ -I../../Source/PDF/gammaUPC
+	$(FC) $(MG_FCFLAGS) $(FCFLAGS) $(MATRIX_FLAG) -c $< -I../../Source/ -I../../Source/PDF/gammaUPC
+%.o $(CUDACPP_BUILDDIR)/%.o: %.f
+	$(FC) $(MG_FCFLAGS) $(FCFLAGS) -I../../Source/ -I../../Source/PDF/gammaUPC -c $< -o $@
 %_cudacpp.o: %.f
-	$(FC) $(FFLAGS) -c -DMG5AMC_MEEXPORTER_CUDACPP $< -I../../Source/ $(OMPFLAGS) -o $@
+	$(FC) $(MG_FCFLAGS) $(FCFLAGS) -c -DMG5AMC_MEEXPORTER_CUDACPP $< -I../../Source/ $(OMPFLAGS) -o $@
 
 # Dependencies
 
@@ -215,60 +197,42 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
 initcluster.o: message.inc
 
 # Extra dependencies on discretesampler.mod
+../../Source/discretesampler.mod: ../../Source/DiscreteSampler.f
 
-auto_dsig.o: .libs
-driver.o: .libs
-driver_cudacpp.o: .libs
-$(MATRIX): .libs
-genps.o: .libs
+auto_dsig.o: ../../Source/discretesampler.mod
+driver.o: ../../Source/discretesampler.mod
+driver_cudacpp.o: ../../Source/discretesampler.mod
+$(MATRIX): ../../Source/discretesampler.mod
+genps.o: ../../Source/discretesampler.mod
 
 # Cudacpp avxall targets
 
-UNAME_P := $(shell uname -p)
 ifeq ($(UNAME_P),ppc64le)
-avxall: avxnone avxsse4
+cppall: cppnative cppnone cppsse4
 else ifeq ($(UNAME_P),arm)
-avxall: avxnone avxsse4
+cppall: cppnative cppnone cppsse4
 else
-avxall: avxnone avxsse4 avxavx2 avx512y avx512z
+cppall: cppnative cppnone cppsse4 cppavx2 cppavx512y cppavx512z
 endif
 
-avxnone: $(PROG)_fortran $(DSIG_cudacpp)
-	@echo
-	$(MAKE) USEBUILDDIR=1 AVX=none
+ALL: cppall cuda
 
-avxsse4: $(PROG)_fortran $(DSIG_cudacpp)
-	@echo
-	$(MAKE) USEBUILDDIR=1 AVX=sse4
+# Clean all architecture-specific builds:
+clean:
+	$(RM) *.o gensym $(PROG) $(PROG)_*
+	$(RM) -rf build.*/*{.o,.so,.exe,.dylib,madevent_*}
+	@for dir in build.*; do if [ -z "$$(ls -A $${dir})" ]; then rm -r $${dir}; else echo "Not cleaning $${dir}; not empty"; fi; done
 
-avxavx2: $(PROG)_fortran $(DSIG_cudacpp)
-	@echo
-	$(MAKE) USEBUILDDIR=1 AVX=avx2
+cleanall: cleansrc
+	for PROCESS in ../P[0-9]*; do $(MAKE) -C $${PROCESS} clean; done
 
-avx512y: $(PROG)_fortran $(DSIG_cudacpp)
-	@echo
-	$(MAKE) USEBUILDDIR=1 AVX=512y
+# Clean one architecture-specific build
+clean%:
+	$(RM) -r build.$*_*
 
-avx512z: $(PROG)_fortran $(DSIG_cudacpp)
-	@echo
-	$(MAKE) USEBUILDDIR=1 AVX=512z
-
-###endif
-
-# Clean (NB: 'make clean' in Source calls 'make clean' in all P*)
-
-clean: # Clean builds: fortran in this Pn; cudacpp executables for one AVX in this Pn
-	$(RM) *.o gensym $(PROG) $(PROG)_fortran $(PROG)_forhel $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(CUDACPP_BUILDDIR)/$(PROG)_cuda
-
-cleanavxs: clean # Clean builds: fortran in this Pn; cudacpp for all AVX in this Pn and in src
-	$(MAKE) -f $(CUDACPP_MAKEFILE) cleanall
-	rm -f $(CUDACPP_BUILDDIR)/.cudacpplibs
-	rm -f .libs
-
-cleanall: # Clean builds: fortran in all P* and in Source; cudacpp for all AVX in all P* and in src
-	make -C ../../Source cleanall
-	rm -rf $(LIBDIR)libbias.$(libext)
-	rm -f ../../Source/*.mod ../../Source/*/*.mod
-
-distclean: cleanall # Clean all fortran and cudacpp builds as well as the googletest installation
-	$(MAKE) -f $(CUDACPP_MAKEFILE) distclean
+# Clean common source directories (interferes with other P*)
+cleansrc:
+	make -C ../../Source clean
+	$(RM) -f $(SOURCEDIR_GUARD) ../../Source/{*.mod,.lock} ../../Source/*/*.mod
+	$(RM) -r $(LIBDIR)libbias.$(libext)
+	if [ -d ../../src ]; then $(MAKE) -C ../../src -f cudacpp_src.mk clean; fi
