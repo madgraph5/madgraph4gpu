@@ -14,7 +14,7 @@ function codeGenAndDiff()
   cmdext="$2"
   if [ "$3" != "" ]; then echo -e "INTERNAL ERROR!\nUsage: ${FUNCNAME[0]} <proc> [<cmd>]"; exit 1; fi
   # Process-dependent hardcoded configuration
-  echo -e "\n================================================================"
+  echo -e "================================================================"
   cmd=
   case "${proc}" in
     ee_mumu)
@@ -152,7 +152,7 @@ function codeGenAndDiff()
   echo -e "\n+++ Generate code for '$proc'\n"
   ###exit 0 # FOR DEBUGGING
   # Vector size for mad/madonly meexporter (VECSIZE_MEMMAX)
-  vecsize=16384 # NB THIS IS NO LONGER IGNORED (but will eventually be tunable via runcards)
+  vecsize=32 # NB THIS IS NO LONGER IGNORED (but will eventually be tunable via runcards)
   # Generate code for the specific process
   pushd $MG5AMC_HOME >& /dev/null
   mkdir -p ../TMPOUT
@@ -169,7 +169,7 @@ function codeGenAndDiff()
     fi
     echo "set stdout_level DEBUG" >> ${outproc}.mg # does not help (log is essentially identical) but add it anyway
     echo "set zerowidth_tchannel F" >> ${outproc}.mg # workaround for #476: do not use a zero top quark width in fortran (~E-3 effect on physics)
-    echo "${cmd}" >> ${outproc}.mg
+    echo "${cmd}" | sed "s/;/\n/g" | sed "s/ *$//" | sed "s/^ *//" >> ${outproc}.mg
     if [ "${SCRBCK}" == "gridpack" ]; then # $SCRBCK=$OUTBCK=gridpack
       ###echo "output ${outproc} ${helrecopt}" >> ${outproc}.mg
       ###echo "launch" >> ${outproc}.mg
@@ -201,14 +201,54 @@ function codeGenAndDiff()
     cat ${outproc}_log.txt | egrep -v '(Crash Annotation)' > ${outproc}_log.txt.new # remove firefox 'glxtest: libEGL initialize failed' errors
     \mv ${outproc}_log.txt.new ${outproc}_log.txt
   fi
+  # Check the code generation log for errors 
   if [ -d ${outproc} ] && ! grep -q "Please report this bug" ${outproc}_log.txt; then
     ###cat ${outproc}_log.txt; exit 0 # FOR DEBUGGING
-    cat ${MG5AMC_HOME}/${outproc}_log.txt | egrep 'INFO: (Try|Creat|Organiz|Process)'
+    cat ${MG5AMC_HOME}/${outproc}_log.txt | { egrep 'INFO: (Try|Creat|Organiz|Process)' || true; }
   else
     echo "*** ERROR! Code generation failed"
     cat ${MG5AMC_HOME}/${outproc}_log.txt
     echo "*** ERROR! Code generation failed"
     exit 1
+  fi
+  # Patches moved here from patchMad.sh after Olivier's PR #764 (THIS IS ONLY NEEDED IN THE MADGRAPH4GPU GIT REPO)  
+  if [ "${OUTBCK}" == "mad" ]; then
+    # Force the use of strategy SDE=1 in multichannel mode (see #419)
+    sed -i 's/2  = sde_strategy/1  = sde_strategy/' ${outproc}/Cards/run_card.dat
+    # Force the use of VECSIZE_MEMMAX=16384
+    sed -i 's/16 = vector_size/16384 = vector_size/' ${outproc}/Cards/run_card.dat
+    # Force the use of fast-math in Fortran builds
+    sed -i 's/-O = global_flag.*/-O3 -ffast-math -fbounds-check = global_flag ! build flags for all Fortran code (for a fair comparison to cudacpp; default is -O)/' ${outproc}/Cards/run_card.dat
+    # Generate run_card.inc and param_card.inc (include stdout and stderr in the code generation log which is later checked for errors)
+    # These two steps are part of "cd Source; make" but they actually are code-generating steps
+    # Note: treatcards run also regenerates vector.inc if vector_size has changed in the runcard
+    ${outproc}/bin/madevent treatcards run >> ${outproc}_log.txt 2>&1 # AV BUG! THIS MAY SILENTLY FAIL (check if output contains "Please report this bug")
+    ${outproc}/bin/madevent treatcards param >> ${outproc}_log.txt 2>&1 # AV BUG! THIS MAY SILENTLY FAIL (check if output contains "Please report this bug")
+    # Cleanup
+    \rm -f ${outproc}/crossx.html
+    \rm -f ${outproc}/index.html
+    \rm -f ${outproc}/madevent.tar.gz
+    \rm -f ${outproc}/Cards/delphes_trigger.dat
+    \rm -f ${outproc}/Cards/plot_card.dat
+    \rm -f ${outproc}/bin/internal/run_plot*
+    \rm -f ${outproc}/HTML/*
+    \rm -rf ${outproc}/bin/internal/__pycache__
+    \rm -rf ${outproc}/bin/internal/ufomodel/py3_model.pkl
+    \rm -rf ${outproc}/bin/internal/ufomodel/__pycache__
+    touch ${outproc}/HTML/.keep # new file
+    if [ "${patchlevel}" != "0" ]; then
+      # Add global flag '-O3 -ffast-math -fbounds-check' as in previous gridpacks
+      # (FIXME? these flags are already set in the runcards, why are they not propagated to make_opts?)
+      echo "GLOBAL_FLAG=-O3 -ffast-math -fbounds-check" > ${outproc}/Source/make_opts.new
+      cat ${outproc}/Source/make_opts >> ${outproc}/Source/make_opts.new
+      \mv ${outproc}/Source/make_opts.new ${outproc}/Source/make_opts
+    fi
+    if [ "${patchlevel}" == "2" ]; then
+      sed -i 's/DEFAULT_F2PY_COMPILER=f2py.*/DEFAULT_F2PY_COMPILER=f2py3/' ${outproc}/Source/make_opts
+      cat ${outproc}/Source/make_opts | sed '/#end/q' | head --lines=-1 | sort > ${outproc}/Source/make_opts.new
+      cat ${outproc}/Source/make_opts | sed -n -e '/#end/,$p' >> ${outproc}/Source/make_opts.new
+      \mv ${outproc}/Source/make_opts.new ${outproc}/Source/make_opts
+    fi
   fi
   popd >& /dev/null
   # Choose which directory must be copied (for gridpack generation: untar and modify the gridpack)
@@ -240,6 +280,8 @@ function codeGenAndDiff()
   if [ -d ${OUTDIR}/${proc}.${autosuffix} ]; then mv ${OUTDIR}/${proc}.${autosuffix} ${OUTDIR}/${proc}.${autosuffix}.BKP; fi
   cp -dpr ${outprocauto} ${OUTDIR}/${proc}.${autosuffix}
   echo -e "\nOutput source code has been copied to ${OUTDIR}/${proc}.${autosuffix}"
+  # Add file mg5.in as in Stephan's runCodegen.sh script
+  cat ${MG5AMC_HOME}/${outproc}.mg | sed "s|${outproc}|${proc}.${autosuffix}|" > ${OUTDIR}/${proc}.${autosuffix}/mg5.in
   # Fix build errors which arise because the autogenerated directories are not relocatable (see #400)
   if [ "${OUTBCK}" == "madnovec" ] || [ "${OUTBCK}" == "madonly" ] || [ "${OUTBCK}" == "mad" ] || [ "${OUTBCK}" == "madcpp" ] || [ "${OUTBCK}" == "madgpu" ]; then
     cat ${OUTDIR}/${proc}.${autosuffix}/Cards/me5_configuration.txt | sed 's/mg5_path/#mg5_path/' > ${OUTDIR}/${proc}.${autosuffix}/Cards/me5_configuration.txt.new
@@ -266,6 +308,11 @@ results.pkl
 run_[0-9]*
 events.lhe*
 EOF
+  if [ -d ${OUTDIR}/${proc}.${autosuffix}/bin/internal/ufomodel ]; then # see PR #762
+    cat << EOF > ${OUTDIR}/${proc}.${autosuffix}/bin/internal/ufomodel/.gitignore
+py3_model.pkl
+EOF
+  fi
   if [ -f ${OUTDIR}/${proc}.${autosuffix}/SubProcesses/proc_characteristics ]; then 
     sed -i 's/bias_module = None/bias_module = dummy/' ${OUTDIR}/${proc}.${autosuffix}/SubProcesses/proc_characteristics
   fi
@@ -286,13 +333,15 @@ gensym
 EOF
   done
   # Compare the existing generated code to the newly generated code for the specific process
-  pushd ${OUTDIR} >& /dev/null
-  echo -e "\n+++ Compare old and new code generation log for $proc\n"
-  ###if diff -c ${proc}.${autosuffix}.BKP/${outproc}_log.txt ${proc}.${autosuffix}; then echo "Old and new code generation logs are identical"; fi # context diff
-  if diff ${proc}.${autosuffix}.BKP/${outproc}_log.txt ${proc}.${autosuffix}; then echo "Old and new code generation logs are identical"; fi # context diff
-  echo -e "\n+++ Compare old and new generated code for $proc\n"
-  if $SCRDIR/diffCode.sh ${BRIEF} -r -c ${proc}.${autosuffix}.BKP ${proc}.${autosuffix}; then echo "Old and new generated codes are identical"; else echo -e "\nWARNING! Old and new generated codes differ"; fi
-  popd >& /dev/null
+  if [ "$QUIET" != "1" ]; then
+    pushd ${OUTDIR} >& /dev/null
+    echo -e "\n+++ Compare old and new code generation log for $proc\n"
+    ###if diff -c ${proc}.${autosuffix}.BKP/${outproc}_log.txt ${proc}.${autosuffix}; then echo "Old and new code generation logs are identical"; fi # context diff
+    if diff ${proc}.${autosuffix}.BKP/$(basename ${outproc})_log.txt ${proc}.${autosuffix}; then echo "Old and new code generation logs are identical"; fi # context diff
+    echo -e "\n+++ Compare old and new generated code for $proc\n"
+    if $SCRDIR/diffCode.sh ${BRIEF} -r -c ${proc}.${autosuffix}.BKP ${proc}.${autosuffix}; then echo "Old and new generated codes are identical"; else echo -e "\nWARNING! Old and new generated codes differ"; fi
+    popd >& /dev/null
+  fi
   # Compare the existing manually developed code to the newly generated code for the specific process
   if [ "${OUTBCK}" == "cudacpp" ] || [ "${OUTBCK}" == "gridpack" ]; then
     pushd ${OUTDIR} >& /dev/null
@@ -301,10 +350,12 @@ EOF
     popd >& /dev/null
   fi
   # Print a summary of the available code
-  echo
-  echo -e "Manually developed code is\n  ${OUTDIR}/${proc}"
-  echo -e "Old generated code moved to\n  ${OUTDIR}/${proc}.${autosuffix}.BKP"
-  echo -e "New generated code moved to\n  ${OUTDIR}/${proc}.${autosuffix}"
+  if [ "$QUIET" != "1" ]; then
+    echo
+    echo -e "Manually developed code is\n  ${OUTDIR}/${proc}"
+    echo -e "Old generated code moved to\n  ${OUTDIR}/${proc}.${autosuffix}.BKP"
+    echo -e "New generated code moved to\n  ${OUTDIR}/${proc}.${autosuffix}"
+  fi
 }
 
 #--------------------------------------------------------------------------------------
@@ -322,7 +373,7 @@ function usage()
     echo "ERROR! alpaka mode is no longer supported by this script!"; exit 1
   else
     # NB: all options with $SCRBCK=cudacpp use the 311 branch by default and always disable helicity recycling
-    echo "Usage:   $0 [--nobrief] [--cpp|--gpu|--madnovec|--madonly|--mad|--madcpp*|--madgpu] [--nopatch|--upstream] [-c '<cmd>'] <proc>"
+    echo "Usage:   $0 [-q|--nobrief] [--cpp|--gpu|--madnovec|--madonly|--mad|--madcpp*|--madgpu] [--nopatch|--upstream] [-c '<cmd>'] <proc>"
     echo "         (*Note: the --madcpp option exists but code generation fails for it)"
     echo "         (**Note: <proc> will be used as a relative path in ${OUTDIR} and should not contain '/' characters"
     echo "Example: $0 gg_tt --mad"
@@ -340,17 +391,17 @@ function cleanup_MG5AMC_HOME()
   rm -f ${MG5AMC_HOME}/Template/LO/Source/make_opts
   rm -f ${MG5AMC_HOME}/input/mg5_configuration.txt
   rm -f ${MG5AMC_HOME}/models/sm/py3_model.pkl
-   # Remove any *~ files in MG5AMC_HOME
+  # Remove any *~ files in MG5AMC_HOME
   rm -rf $(find ${MG5AMC_HOME} -name '*~')
 }
 
-function cleanup_MG5AMC_PLUGIN()
-{
-  # Remove and recreate MG5AMC_HOME/PLUGIN
-  rm -rf ${MG5AMC_HOME}/PLUGIN
-  mkdir ${MG5AMC_HOME}/PLUGIN
-  touch ${MG5AMC_HOME}/PLUGIN/__init__.py
-}
+#function cleanup_MG5AMC_PLUGIN()
+#{
+#  # Remove and recreate MG5AMC_HOME/PLUGIN
+#  rm -rf ${MG5AMC_HOME}/PLUGIN
+#  mkdir ${MG5AMC_HOME}/PLUGIN
+#  touch ${MG5AMC_HOME}/PLUGIN/__init__.py
+#}
 
 #--------------------------------------------------------------------------------------
 
@@ -366,7 +417,8 @@ SCRBCK=$(basename $OUTDIR) # e.g. cudacpp if $OUTDIR=epochX/cudacpp
 # Default output backend (in the cudacpp directory this can be changed using commad line options like --cpp, --gpu or --mad)
 OUTBCK=$SCRBCK
 
-# Default: brief diffs (use --nobrief to use full diffs)
+# Default: brief diffs (use --nobrief to use full diffs, use -q to be much quieter)
+QUIET=
 BRIEF=--brief
 
 # Default for gridpacks: untar gridpack.tar.gz but do not regenerate it (use --nountaronly to regenerate it)
@@ -374,6 +426,7 @@ UNTARONLY=1
 
 # Default: apply all patches in patchMad.sh (--nopatch is ignored unless --mad is also specified)
 PATCHLEVEL=
+patchlevel=2 # [DEFAULT] complete generation of cudacpp .sa/.mad (copy templates and apply patch commands)
 
 # Default for gridpacks: use helicity recycling (use --nohelrec to disable it)
 # (export the value to the untarGridpack.sh script)
@@ -386,12 +439,16 @@ proc=
 while [ "$1" != "" ]; do
   if [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
     usage
-  elif [ "$1" == "--nobrief" ]; then
+  elif [ "$1" == "--nobrief" ] && [ "$QUIET" != "1" ]; then
     BRIEF=
+  elif [ "$1" == "-q" ] && [ "$BRIEF" != "" ]; then
+    QUIET=1
   elif [ "$1" == "--nopatch" ] && [ "${PATCHLEVEL}" == "" ]; then
     PATCHLEVEL=--nopatch
+    patchlevel=1 # [--nopatch] modify upstream MG5AMC but do not apply patch commands (reference to prepare new patches)
   elif [ "$1" == "--upstream" ] && [ "${PATCHLEVEL}" == "" ]; then
     PATCHLEVEL=--upstream
+    patchlevel=0 # [--upstream] out of the box codegen from upstream MG5AMC (do not even copy templates)
   elif [ "$1" == "--nountaronly" ] && [ "${SCRBCK}" == "gridpack" ]; then
     ###UNTARONLY=0
     echo "ERROR! gridpack mode is no longer supported by this script!"; exit 1
@@ -431,6 +488,7 @@ echo "SCRBCK=${SCRBCK} (uppercase=${SCRBCK^^})"
 echo "OUTBCK=${OUTBCK}"
 
 echo "BRIEF=${BRIEF}"
+echo "QUIET=${QUIET}"
 echo "proc=${proc}"
 
 # Make sure that python3 is installed
@@ -472,16 +530,20 @@ echo -e "\nDefault MG5AMC_HOME=$MG5AMC_HOME on $(hostname)\n"
 if ! git --version >& /dev/null; then
   echo -e "ERROR! git is not installed: cannot retrieve git properties of MG5aMC_HOME\n"; exit 1
 fi
-echo -e "Using $(git --version)"
 cd ${MG5AMC_HOME}
-echo -e "Retrieving git information about MG5AMC_HOME"
+if [ "$QUIET" != "1" ]; then
+  echo -e "Using $(git --version)"
+  echo -e "Retrieving git information about MG5AMC_HOME"
+fi
 if ! git log -n1 >& /dev/null; then
   echo -e "ERROR! MG5AMC_HOME is not a git clone\n"; exit 1
 fi
 branch_mg5amc=$(git branch --no-color | \grep ^* | awk '{print $2}')
-echo -e "Current git branch of MG5AMC_HOME is '${branch_mg5amc}'"
 commit_mg5amc=$(git log --oneline -n1 | awk '{print $1}')
-echo -e "Current git commit of MG5AMC_HOME is '${commit_mg5amc}'"
+if [ "$QUIET" != "1" ]; then
+  echo -e "Current git branch of MG5AMC_HOME is '${branch_mg5amc}'"
+  echo -e "Current git commit of MG5AMC_HOME is '${commit_mg5amc}'"
+fi
 cd - > /dev/null
 
 # Copy MG5AMC ad-hoc patches if any (unless --upstream is specified)
@@ -503,29 +565,31 @@ cd - > /dev/null
 
 # Clean up before code generation
 cleanup_MG5AMC_HOME
-cleanup_MG5AMC_PLUGIN
+###cleanup_MG5AMC_PLUGIN
 
 # Print differences in MG5AMC with respect to git after copying ad-hoc patches
-cd ${MG5AMC_HOME}
-echo -e "\n***************** Differences to the current git commit ${commit_patches} [START]"
-###if [ "$(git diff)" == "" ]; then echo -e "[No differences]"; else git diff; fi
-if [ "$(git diff)" == "" ]; then echo -e "[No differences]"; else git diff --name-status; fi
-echo -e "***************** Differences to the current git commit ${commit_patches} [END]"
-cd - > /dev/null
+if [ "$QUIET" != "1" ]; then
+  cd ${MG5AMC_HOME}
+  echo -e "\n***************** Differences to the current git commit ${commit_patches} [START]"
+  ###if [ "$(git diff)" == "" ]; then echo -e "[No differences]"; else git diff; fi
+  if [ "$(git diff)" == "" ]; then echo -e "[No differences]"; else git diff --name-status; fi
+  echo -e "***************** Differences to the current git commit ${commit_patches} [END]\n"
+  cd - > /dev/null
+fi
 
 # Copy the new plugin to MG5AMC_HOME (if the script directory backend is cudacpp or alpaka)
-if [ "${SCRBCK}" == "cudacpp" ]; then
-  if [ "${OUTBCK}" == "no-path-to-this-statement" ]; then
-    echo -e "\nWARNING! '${OUTBCK}' mode selected: do not copy the cudacpp plugin (workaround for #341)"
-  else # currently succeeds also for madcpp and madgpu (#341 has been fixed)
-    echo -e "\nINFO! '${OUTBCK}' mode selected: copy the cudacpp plugin\n"
-    cp -dpr ${SCRDIR}/PLUGIN/${SCRBCK^^}_SA_OUTPUT ${MG5AMC_HOME}/PLUGIN/${SCRBCK^^}_OUTPUT
-    ls -l ${MG5AMC_HOME}/PLUGIN
-  fi
+#if [ "${SCRBCK}" == "cudacpp" ]; then
+#  if [ "${OUTBCK}" == "no-path-to-this-statement" ]; then
+#    echo -e "\nWARNING! '${OUTBCK}' mode selected: do not copy the cudacpp plugin (workaround for #341)"
+#  else # currently succeeds also for madcpp and madgpu (#341 has been fixed)
+#    echo -e "\nINFO! '${OUTBCK}' mode selected: copy the cudacpp plugin\n"
+#    cp -dpr ${SCRDIR}/PLUGIN/${SCRBCK^^}_SA_OUTPUT ${MG5AMC_HOME}/PLUGIN/${SCRBCK^^}_OUTPUT
+#    ls -l ${MG5AMC_HOME}/PLUGIN
+#  fi
 ###elif [ "${SCRBCK}" == "alpaka" ]; then
 ###  cp -dpr ${SCRDIR}/PLUGIN/${SCRBCK^^}_CUDACPP_SA_OUTPUT ${MG5AMC_HOME}/PLUGIN/
 ###  ls -l ${MG5AMC_HOME}/PLUGIN
-fi
+#fi
 
 # For gridpacks, use separate output directories for MG 29x and MG 3xx
 ###if [ "${SCRBCK}" == "gridpack" ]; then
@@ -543,7 +607,7 @@ codeGenAndDiff $proc "$cmd"
 
 # Clean up after code generation
 cleanup_MG5AMC_HOME
-cleanup_MG5AMC_PLUGIN
+###cleanup_MG5AMC_PLUGIN
 
 # Check formatting in the auto-generated code
 if [ "${OUTBCK}" == "cudacpp" ]; then
@@ -559,3 +623,7 @@ elif [ "${OUTBCK}" == "mad" ]; then
     exit 1
   fi
 fi
+
+echo
+echo "********************************************************************************"
+echo

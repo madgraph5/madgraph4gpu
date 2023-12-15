@@ -1,4 +1,5 @@
+set stdout_level DEBUG
+set zerowidth_tchannel F
 define q = u c d s u~ c~ d~ s~
 generate g q > t t~ q
-output standalone_cudacpp gq_ttq.sa --hel_recycling=False --vector_size=16384 --me_exporter=standalone_cudacpp
-
+output standalone_cudacpp gq_ttq.sa

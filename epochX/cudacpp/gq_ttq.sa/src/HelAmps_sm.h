@@ -8,7 +8,7 @@
 // Further modified by: A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
 //==========================================================================
 // This file has been automatically generated for CUDA/C++ standalone by
-// MadGraph5_aMC@NLO v. 3.5.1_lo_vect, 2023-08-08
+// MadGraph5_aMC@NLO v. 3.5.2_lo_vect, 2023-11-08
 // By the MadGraph5_aMC@NLO Development Team
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
@@ -863,6 +863,7 @@ namespace mg5amcCpu
           const fptype allF2[],
           const fptype allV3[],
           const fptype allCOUP[],
+          const double Ccoeff,
           fptype allvertexes[] ) ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
@@ -873,6 +874,7 @@ namespace mg5amcCpu
   FFV1_1( const fptype allF2[],
           const fptype allV3[],
           const fptype allCOUP[],
+          const double Ccoeff,
           const fptype M1,
           const fptype W1,
           fptype allF1[] ) ALWAYS_INLINE;
@@ -885,6 +887,7 @@ namespace mg5amcCpu
   FFV1_2( const fptype allF1[],
           const fptype allV3[],
           const fptype allCOUP[],
+          const double Ccoeff,
           const fptype M2,
           const fptype W2,
           fptype allF2[] ) ALWAYS_INLINE;
@@ -897,6 +900,7 @@ namespace mg5amcCpu
   FFV1P0_3( const fptype allF1[],
             const fptype allF2[],
             const fptype allCOUP[],
+            const double Ccoeff,
             const fptype M3,
             const fptype W3,
             fptype allV3[] ) ALWAYS_INLINE;
@@ -910,6 +914,7 @@ namespace mg5amcCpu
           const fptype allV2[],
           const fptype allV3[],
           const fptype allCOUP[],
+          const double Ccoeff,
           fptype allvertexes[] ) ALWAYS_INLINE;
 
   //==========================================================================
@@ -921,6 +926,7 @@ namespace mg5amcCpu
           const fptype allF2[],
           const fptype allV3[],
           const fptype allCOUP[],
+          const double Ccoeff,
           fptype allvertexes[] )
   {
     mgDebug( 0, __FUNCTION__ );
@@ -944,6 +950,7 @@ namespace mg5amcCpu
   FFV1_1( const fptype allF2[],
           const fptype allV3[],
           const fptype allCOUP[],
+          const double Ccoeff,
           const fptype M1,
           const fptype W1,
           fptype allF1[] )
@@ -975,6 +982,7 @@ namespace mg5amcCpu
   FFV1_2( const fptype allF1[],
           const fptype allV3[],
           const fptype allCOUP[],
+          const double Ccoeff,
           const fptype M2,
           const fptype W2,
           fptype allF2[] )
@@ -1006,6 +1014,7 @@ namespace mg5amcCpu
   FFV1P0_3( const fptype allF1[],
             const fptype allF2[],
             const fptype allCOUP[],
+            const double Ccoeff,
             const fptype M3,
             const fptype W3,
             fptype allV3[] )
@@ -1037,6 +1046,7 @@ namespace mg5amcCpu
           const fptype allV2[],
           const fptype allV3[],
           const fptype allCOUP[],
+          const double Ccoeff,
           fptype allvertexes[] )
   {
     mgDebug( 0, __FUNCTION__ );
