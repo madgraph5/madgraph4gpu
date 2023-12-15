@@ -39,7 +39,6 @@ C
 C     LOCAL VARIABLES 
 C     
       INTEGER I,ITYPE,LP,IPROC
-      DOUBLE PRECISION QSCALE
       DOUBLE PRECISION EP1
       DOUBLE PRECISION EM2
       DOUBLE PRECISION XPQ(-7:7),PD(0:MAXPROC)
@@ -130,26 +129,15 @@ C     Continue only if IMODE is 0, 4 or 5
 
       IF (ABS(LPP(IB(1))).GE.1) THEN
           !LP=SIGN(1,LPP(IB(1)))
-        IF (DSQRT(Q2FACT(IB(1))).EQ.0D0) THEN
-          QSCALE=0D0
-          DO I=3,NEXTERNAL
-            QSCALE=QSCALE+DSQRT(MAX(0D0,(PP(0,I)+PP(3,I))*(PP(0,I)
-     $       -PP(3,I))))
-          ENDDO
-          QSCALE=QSCALE/2D0
-        ELSE
-          QSCALE=DSQRT(Q2FACT(IB(1)))
-        ENDIF
-        EP1=PDG2PDF(LPP(IB(1)),-11, IB(1),XBK(IB(1)), QSCALE)
+        EP1=PDG2PDF(LPP(IB(1)),-11, IB(1),XBK(IB(1)),DSQRT(Q2FACT(IB(1)
+     $   )))
         IF (PDLABEL.EQ.'dressed') EP1_COMPONENTS(1:4) =
      $    EE_COMPONENTS(1:4)
       ENDIF
       IF (ABS(LPP(IB(2))).GE.1) THEN
           !LP=SIGN(1,LPP(IB(2)))
-        IF (DSQRT(Q2FACT(IB(2))).NE.0D0) THEN
-          QSCALE=DSQRT(Q2FACT(IB(2)))
-        ENDIF
-        EM2=PDG2PDF(LPP(IB(2)),11, IB(2),XBK(IB(2)), QSCALE)
+        EM2=PDG2PDF(LPP(IB(2)),11, IB(2),XBK(IB(2)),DSQRT(Q2FACT(IB(2))
+     $   ))
         IF (PDLABEL.EQ.'dressed') EM2_COMPONENTS(1:4) =
      $    EE_COMPONENTS(1:4)
       ENDIF

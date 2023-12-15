@@ -5,7 +5,6 @@ C     INCLUDE
 C     
       INCLUDE 'pdf.inc'
       INCLUDE '../alfas.inc'
-      INCLUDE '../vector.inc'
       INCLUDE '../coupl.inc'
       REAL*8 ZMASS
       DATA ZMASS/91.188D0/

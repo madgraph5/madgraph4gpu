@@ -534,19 +534,19 @@ C     JAMPs contributing to orders ALL_ORDERS=1
       TMP_JAMP(3) = AMP(2) +  AMP(5)  ! used 3 times
       TMP_JAMP(2) = AMP(1) +  AMP(4)  ! used 3 times
       TMP_JAMP(1) = AMP(1) +  AMP(2)  ! used 3 times
-      TMP_JAMP(8) = TMP_JAMP(5) +  TMP_JAMP(1)  ! used 2 times
-      TMP_JAMP(7) = TMP_JAMP(5) +  TMP_JAMP(4)  ! used 2 times
-      TMP_JAMP(6) = TMP_JAMP(4) +  TMP_JAMP(1)  ! used 2 times
-      JAMP(1,1) = (8.333333333333333D-02)*TMP_JAMP(7)
+      TMP_JAMP(8) = TMP_JAMP(4) +  TMP_JAMP(1)  ! used 2 times
+      TMP_JAMP(7) = TMP_JAMP(5) +  TMP_JAMP(1)  ! used 2 times
+      TMP_JAMP(6) = TMP_JAMP(5) +  TMP_JAMP(4)  ! used 2 times
+      JAMP(1,1) = (8.333333333333333D-02)*TMP_JAMP(6)
       JAMP(2,1) = ((0.000000000000000D+00,-2.500000000000000D-01))
      $ *AMP(3)+(-2.500000000000000D-01)*AMP(6)+(-2.500000000000000D-01)
      $ *TMP_JAMP(3)
       JAMP(3,1) = ((0.000000000000000D+00,2.500000000000000D-01))
      $ *AMP(3)+(-2.500000000000000D-01)*AMP(7)+(-2.500000000000000D-01)
      $ *TMP_JAMP(2)
-      JAMP(4,1) = (8.333333333333333D-02)*TMP_JAMP(6)
-      JAMP(5,1) = (8.333333333333333D-02)*TMP_JAMP(8)
-      JAMP(6,1) = (-2.777777777777778D-02)*TMP_JAMP(5)+(
+      JAMP(4,1) = (8.333333333333333D-02)*TMP_JAMP(8)
+      JAMP(5,1) = (8.333333333333333D-02)*TMP_JAMP(7)
+      JAMP(6,1) = (-2.777777777777778D-02)*TMP_JAMP(1)+(
      $ -2.777777777777778D-02)*TMP_JAMP(6)
 
       IF(INIT_MODE)THEN
