@@ -32,6 +32,9 @@ function codeGenAndDiff()
     gg_ttggg)
       cmd="generate g g > t t~ g g g"
       ;;
+    gg_ttgggg)
+      cmd="generate g g > t t~ g g g g"
+      ;;
     gg_tt01g)
       cmd="generate g g > t t~; add process g g > t t~ g"
       ;;
@@ -84,8 +87,12 @@ function codeGenAndDiff()
     bb_tt)
       cmd="generate b b~ > t t~"
       ;;
+    nobm_gg_tt)
+      cmd="import model sm-no_b_mass
+      generate g g > t t~"
+      ;;
     nobm_pp_ttW)
-      cmd="import model loop_sm-no_b_mass
+      cmd="import model sm-no_b_mass
       define p = p b b~
       define j = p
       define w = w+ w- # W case only
@@ -93,6 +100,46 @@ function codeGenAndDiff()
       add process p p > t t~ w j @1"
       ;;
     nobm_pp_ttZ)
+      cmd="import model sm-no_b_mass
+      define p = p b b~
+      define j = p
+      generate p p > t t~ z @0
+      add process p p > t t~ z j @1"
+      ;;
+    nobm_pp_eejjj)
+      cmd="import model sm-no_b_mass
+      define p = p b b~
+      define j = p
+      generate p p > e+ e- j j j @3"
+      ;;
+    nobm_pp_eejjjj)
+      cmd="import model sm-no_b_mass
+      define p = p b b~
+      define j = p
+      generate p p > e+ e- j j j j @4"
+      ;;
+    gg_eegguu)
+      cmd="generate g g > e+ e- g g u u~"
+      ;;
+    #nobm_gg_eegguu) # essentially the same code as gg_eegguu
+    #  cmd="import model sm-no_b_mass
+    #  define p = p b b~
+    #  define j = p
+    #  generate g g > e+ e- g g u u~"
+    #  ;;
+    loop_nobm_gg_tt)
+      cmd="import model loop_sm-no_b_mass
+      generate g g > t t~"
+      ;;
+    loop_nobm_pp_ttW)
+      cmd="import model loop_sm-no_b_mass
+      define p = p b b~
+      define j = p
+      define w = w+ w- # W case only
+      generate p p > t t~ w @0
+      add process p p > t t~ w j @1"
+      ;;
+    loop_nobm_pp_ttZ)
       cmd="import model loop_sm-no_b_mass
       define p = p b b~
       define j = p
@@ -197,14 +244,17 @@ function codeGenAndDiff()
     cat ${outproc}.mg
     echo -e "--------------------------------------------------\n"
     ###{ strace -f -o ${outproc}_strace.txt python3 ./bin/mg5_aMC ${outproc}.mg ; } >& ${outproc}_log.txt
-    { time python3 ./bin/mg5_aMC ${outproc}.mg ; } >& ${outproc}_log.txt
+    { time python3 ./bin/mg5_aMC ${outproc}.mg || true ; } >& ${outproc}_log.txt
     cat ${outproc}_log.txt | egrep -v '(Crash Annotation)' > ${outproc}_log.txt.new # remove firefox 'glxtest: libEGL initialize failed' errors
     \mv ${outproc}_log.txt.new ${outproc}_log.txt
   fi
+  echo "Code generation completed in $SECONDS seconds" >> ${outproc}_log.txt
   # Check the code generation log for errors 
   if [ -d ${outproc} ] && ! grep -q "Please report this bug" ${outproc}_log.txt; then
     ###cat ${outproc}_log.txt; exit 0 # FOR DEBUGGING
     cat ${MG5AMC_HOME}/${outproc}_log.txt | { egrep 'INFO: (Try|Creat|Organiz|Process)' || true; }
+    echo ""
+    cat ${MG5AMC_HOME}/${outproc}_log.txt | grep 'Code generation'
   else
     echo "*** ERROR! Code generation failed"
     cat ${MG5AMC_HOME}/${outproc}_log.txt
@@ -602,6 +652,7 @@ fi
 ###fi
 
 # Generate the chosen process (this will always replace the existing code directory and create a .BKP)
+SECONDS=0 # bash built-in
 export CUDACPP_CODEGEN_PATCHLEVEL=${PATCHLEVEL}
 codeGenAndDiff $proc "$cmd"
 
@@ -626,4 +677,6 @@ fi
 
 echo
 echo "********************************************************************************"
+echo
+echo "Code generation and additional checks completed in $SECONDS seconds"
 echo
