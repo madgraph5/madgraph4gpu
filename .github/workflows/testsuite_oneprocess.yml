@@ -35,7 +35,7 @@ on:
         ###type: string
         type: choice
         # FIXME? Can the list of supported processes be specified only once in oneprocess.yml or allprocesses.yml?
-        options: [gg_tt.mad, gg_ttg.mad, gg_ttgg.mad, gg_ttggg.mad, ee_mumu.mad]
+        options: [gg_tt.mad, gg_ttg.mad, gg_ttgg.mad, gg_ttggg.mad, ee_mumu.mad, nobm_pp_ttW.mad]
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
