@@ -61,7 +61,7 @@ set zerowidth_tchannel F
 define j = p
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.005655765533447266 [0m
+[1;32mDEBUG: model prefixing  takes 0.005804300308227539 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -172,7 +172,7 @@ INFO: Process u~ u > t t~ added to mirror process u u~ > t t~
 INFO: Process c~ c > t t~ added to mirror process c c~ > t t~ 
 INFO: Process d~ d > t t~ added to mirror process d d~ > t t~ 
 INFO: Process s~ s > t t~ added to mirror process s s~ > t t~ 
-5 processes with 7 diagrams generated in 0.029 s
+5 processes with 7 diagrams generated in 0.031 s
 Total: 5 processes with 7 diagrams
 add process p p > t t~ j @1
 INFO: Checking for minimal orders which gives processes. 
@@ -212,7 +212,7 @@ INFO: Process d~ g > t t~ d~ added to mirror process g d~ > t t~ d~
 INFO: Process d~ d > t t~ g added to mirror process d d~ > t t~ g 
 INFO: Process s~ g > t t~ s~ added to mirror process g s~ > t t~ s~ 
 INFO: Process s~ s > t t~ g added to mirror process s s~ > t t~ g 
-13 processes with 76 diagrams generated in 0.135 s
+13 processes with 76 diagrams generated in 0.143 s
 Total: 18 processes with 83 diagrams
 add process p p > t t~ j j @2
 INFO: Checking for minimal orders which gives processes. 
@@ -378,7 +378,7 @@ INFO: Process s~ u~ > t t~ u~ s~ added to mirror process u~ s~ > t t~ u~ s~
 INFO: Process s~ c~ > t t~ c~ s~ added to mirror process c~ s~ > t t~ c~ s~ 
 INFO: Process s~ d~ > t t~ d~ s~ added to mirror process d~ s~ > t t~ d~ s~ 
 INFO: Crossed process found for s~ s~ > t t~ s~ s~, reuse diagrams. 
-65 processes with 1119 diagrams generated in 1.821 s
+65 processes with 1119 diagrams generated in 1.836 s
 Total: 83 processes with 1202 diagrams
 output madevent ../TMPOUT/CODEGEN_mad_pp_tt012j --hel_recycling=False --vector_size=32 --me_exporter=standalone_cudacpp
 Load PLUGIN.CUDACPP_OUTPUT
@@ -497,7 +497,7 @@ INFO: Combined process d d~ > t t~ WEIGHTED<=2 with process u u~ > t t~ WEIGHTED
 INFO: Combined process s s~ > t t~ WEIGHTED<=2 with process u u~ > t t~ WEIGHTED<=2 
 INFO: Creating files in directory P2_gg_ttxgg 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7fbb7b17f0d0> [1;30m[export_v4.py at line 6262][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f571d9ac0d0> [1;30m[export_v4.py at line 6262][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -514,7 +514,7 @@ INFO: Generating Feynman diagrams for Process: g g > t t~ g g WEIGHTED<=4 @2
 INFO: Finding symmetric diagrams for subprocess group gg_ttxgg 
 INFO: Creating files in directory P2_gg_ttxuux 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7fbb7b8a4280> [1;30m[export_v4.py at line 6262][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f571e0d0280> [1;30m[export_v4.py at line 6262][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -531,7 +531,7 @@ INFO: Generating Feynman diagrams for Process: g g > t t~ u u~ WEIGHTED<=4 @2
 INFO: Finding symmetric diagrams for subprocess group gg_ttxuux 
 INFO: Creating files in directory P2_gu_ttxgu 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7fbb7b445d00> [1;30m[export_v4.py at line 6262][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f571dc71d00> [1;30m[export_v4.py at line 6262][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -548,7 +548,7 @@ INFO: Generating Feynman diagrams for Process: g u > t t~ g u WEIGHTED<=4 @2
 INFO: Finding symmetric diagrams for subprocess group gu_ttxgu 
 INFO: Creating files in directory P2_gux_ttxgux 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7fbb7b831c40> [1;30m[export_v4.py at line 6262][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f571e05dc40> [1;30m[export_v4.py at line 6262][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -565,7 +565,7 @@ INFO: Generating Feynman diagrams for Process: g u~ > t t~ g u~ WEIGHTED<=4 @2
 INFO: Finding symmetric diagrams for subprocess group gux_ttxgux 
 INFO: Creating files in directory P2_uux_ttxgg 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7fbb7b831c40> [1;30m[export_v4.py at line 6262][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f571e05dc40> [1;30m[export_v4.py at line 6262][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -582,7 +582,7 @@ INFO: Generating Feynman diagrams for Process: u u~ > t t~ g g WEIGHTED<=4 @2
 INFO: Finding symmetric diagrams for subprocess group uux_ttxgg 
 INFO: Creating files in directory P1_gg_ttxg 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7fbb7b831f10> [1;30m[export_v4.py at line 6262][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f571e05df10> [1;30m[export_v4.py at line 6262][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -599,7 +599,7 @@ INFO: Generating Feynman diagrams for Process: g g > t t~ g WEIGHTED<=3 @1
 INFO: Finding symmetric diagrams for subprocess group gg_ttxg 
 INFO: Creating files in directory P2_uu_ttxuu 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7fbb7b831c40> [1;30m[export_v4.py at line 6262][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f571e05dc40> [1;30m[export_v4.py at line 6262][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -616,7 +616,7 @@ INFO: Generating Feynman diagrams for Process: u u > t t~ u u WEIGHTED<=4 @2
 INFO: Finding symmetric diagrams for subprocess group uu_ttxuu 
 INFO: Creating files in directory P2_uux_ttxuux 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7fbb7b831c40> [1;30m[export_v4.py at line 6262][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f571e05dc40> [1;30m[export_v4.py at line 6262][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -633,7 +633,7 @@ INFO: Generating Feynman diagrams for Process: u u~ > t t~ u u~ WEIGHTED<=4 @2
 INFO: Finding symmetric diagrams for subprocess group uux_ttxuux 
 INFO: Creating files in directory P2_uxux_ttxuxux 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7fbb7b831c40> [1;30m[export_v4.py at line 6262][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f571e05dc40> [1;30m[export_v4.py at line 6262][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -650,7 +650,7 @@ INFO: Generating Feynman diagrams for Process: u~ u~ > t t~ u~ u~ WEIGHTED<=4 @2
 INFO: Finding symmetric diagrams for subprocess group uxux_ttxuxux 
 INFO: Creating files in directory P2_uc_ttxuc 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7fbb7b831c40> [1;30m[export_v4.py at line 6262][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f571e05dc40> [1;30m[export_v4.py at line 6262][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -667,7 +667,7 @@ INFO: Generating Feynman diagrams for Process: u c > t t~ u c WEIGHTED<=4 @2
 INFO: Finding symmetric diagrams for subprocess group uc_ttxuc 
 INFO: Creating files in directory P2_uux_ttxccx 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7fbb7b831c40> [1;30m[export_v4.py at line 6262][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f571e05dc40> [1;30m[export_v4.py at line 6262][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -684,7 +684,7 @@ INFO: Generating Feynman diagrams for Process: u u~ > t t~ c c~ WEIGHTED<=4 @2
 INFO: Finding symmetric diagrams for subprocess group uux_ttxccx 
 INFO: Creating files in directory P2_ucx_ttxucx 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7fbb7b490910> [1;30m[export_v4.py at line 6262][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f571dcbc910> [1;30m[export_v4.py at line 6262][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -701,7 +701,7 @@ INFO: Generating Feynman diagrams for Process: u c~ > t t~ u c~ WEIGHTED<=4 @2
 INFO: Finding symmetric diagrams for subprocess group ucx_ttxucx 
 INFO: Creating files in directory P2_uxcx_ttxuxcx 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7fbb7b490910> [1;30m[export_v4.py at line 6262][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f571dcbc910> [1;30m[export_v4.py at line 6262][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -718,7 +718,7 @@ INFO: Generating Feynman diagrams for Process: u~ c~ > t t~ u~ c~ WEIGHTED<=4 @2
 INFO: Finding symmetric diagrams for subprocess group uxcx_ttxuxcx 
 INFO: Creating files in directory P1_gu_ttxu 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7fbb7b490910> [1;30m[export_v4.py at line 6262][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f571dcbc910> [1;30m[export_v4.py at line 6262][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -735,7 +735,7 @@ INFO: Generating Feynman diagrams for Process: g u > t t~ u WEIGHTED<=3 @1
 INFO: Finding symmetric diagrams for subprocess group gu_ttxu 
 INFO: Creating files in directory P1_gux_ttxux 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7fbb7b490910> [1;30m[export_v4.py at line 6262][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f571dcbc910> [1;30m[export_v4.py at line 6262][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -752,7 +752,7 @@ INFO: Generating Feynman diagrams for Process: g u~ > t t~ u~ WEIGHTED<=3 @1
 INFO: Finding symmetric diagrams for subprocess group gux_ttxux 
 INFO: Creating files in directory P1_uux_ttxg 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7fbb7b4e1580> [1;30m[export_v4.py at line 6262][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f571dd0c580> [1;30m[export_v4.py at line 6262][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -769,7 +769,7 @@ INFO: Generating Feynman diagrams for Process: u u~ > t t~ g WEIGHTED<=3 @1
 INFO: Finding symmetric diagrams for subprocess group uux_ttxg 
 INFO: Creating files in directory P0_gg_ttx 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7fbb7b4e1d00> [1;30m[export_v4.py at line 6262][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f571dd0cd00> [1;30m[export_v4.py at line 6262][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -786,7 +786,7 @@ INFO: Generating Feynman diagrams for Process: g g > t t~ WEIGHTED<=2
 INFO: Finding symmetric diagrams for subprocess group gg_ttx 
 INFO: Creating files in directory P0_uux_ttx 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7fbb7b16fca0> [1;30m[export_v4.py at line 6262][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f571d99bca0> [1;30m[export_v4.py at line 6262][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -801,8 +801,8 @@ INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./.
 [1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1872][0m [0m
 INFO: Generating Feynman diagrams for Process: u u~ > t t~ WEIGHTED<=2 
 INFO: Finding symmetric diagrams for subprocess group uux_ttx 
-Generated helas calls for 18 subprocesses (372 diagrams) in 1.282 s
-Wrote files for 810 helas calls in 3.219 s
+Generated helas calls for 18 subprocesses (372 diagrams) in 1.269 s
+Wrote files for 810 helas calls in 3.819 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
 ALOHA: aloha creates FFV1 routines[0m
@@ -817,7 +817,7 @@ ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 routines[0m
 ALOHA: aloha creates VVVV3 routines[0m
 ALOHA: aloha creates VVVV4 routines[0m
-ALOHA: aloha creates 10 routines in  0.310 s
+ALOHA: aloha creates 10 routines in  0.308 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -1028,10 +1028,10 @@ Type "launch" to generate events from this process, or see
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m8.785s
-user	0m8.273s
-sys	0m0.475s
-Code generation completed in 9 seconds
+real	0m9.409s
+user	0m8.293s
+sys	0m0.497s
+Code generation completed in 10 seconds
 ************************************************************
 *                                                          *
 *                      W E L C O M E to                    *

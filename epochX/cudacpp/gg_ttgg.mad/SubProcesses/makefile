@@ -15,13 +15,13 @@ ifneq ($(shell $(CXX) --version | egrep '^Apple clang'),)
 CXXFLAGS += -std=c++17 -mmacosx-version-min=11.3
 endif
 
-# Enable ccache if USECCACHE=1
+# Enable ccache for C++ if USECCACHE=1 (do not enable it for Fortran since it is not supported for Fortran)
 ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
   override CXX:=ccache $(CXX)
 endif
-ifeq ($(USECCACHE)$(shell echo $(FC) | grep ccache),1)
-  override FC:=ccache $(FC)
-endif
+###ifeq ($(USECCACHE)$(shell echo $(FC) | grep ccache),1)
+###  override FC:=ccache $(FC)
+###endif
 
 # Load additional dependencies of the bias module, if present
 ifeq (,$(wildcard ../bias_dependencies))
