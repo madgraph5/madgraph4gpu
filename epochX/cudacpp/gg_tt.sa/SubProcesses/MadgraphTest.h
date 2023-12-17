@@ -199,6 +199,11 @@ protected:
   }
 };
 
+// WARNING: before the split of C++ and CUDA builds, both CPU and GPU tests were linked together into the same executable;
+// it was therefore necessary to prevent multiply defined symbols by only compiling this in the "#ifndef __CUDACC__" phase;
+// now that runTest.exe only contains either CPU or GPU tests, this is no longer necessary!
+//#ifndef __CUDACC__
+
 /// Compare momenta and matrix elements.
 /// This uses an implementation of TestDriverBase to run a madgraph workflow,
 /// and compares momenta and matrix elements with a reference file.
@@ -302,5 +307,10 @@ TEST_P( MadgraphTest, CompareMomentaAndME )
     std::cout << "Event dump written to " << dumpFileName << std::endl;
   }
 }
+
+// WARNING: before the split of C++ and CUDA builds, both CPU and GPU tests were linked together into the same executable;
+// it was therefore necessary to prevent multiply defined symbols by only compiling this in the "#ifndef __CUDACC__" phase;
+// now that runTest.exe only contains either CPU or GPU tests, this is no longer necessary!
+//#endif // __CUDACC__
 
 #endif /* MADGRAPHTEST_H_ */
