@@ -197,8 +197,7 @@ while [ "$1" != "" ]; do
     detailed=1
     shift
   elif [ "$1" == "-gtest" ]; then
-    # For simplicity a gtest runTest.exe is executed for each build where check.exe is executed
-    ###if [ "${cpp}" == "0" ]; then echo "ERROR! Options -gtest and -nocpp are incompatible"; usage; fi
+    # For simplicity a gtest runTest.exe is executed for each build where check.exe or gcheck.exe is executed
     gtest=1
     shift
   elif [ "$1" == "-nofpe" ]; then
@@ -652,18 +651,19 @@ for exe in $exes; do
       runExe $exe "$exeArgs"
       unset OMP_NUM_THREADS
     fi
-    if [ "${gtest}" == "1" ]; then
-      echo "-------------------------------------------------------------------------"
-      exe2=${exe/check/runTest}
-      echo "runExe $exe2"
-      $exe2 2>&1 | tail -1
-      if [ ${PIPESTATUS[0]} -ne "0" ]; then exit 1; fi 
-    fi
   elif [ "${exe%%/gcheck*}" != "${exe}" ] ||  [ "${exe%%/alpcheck*}" != "${exe}" ]; then 
     runNcu $exe "$ncuArgs"
     if [ "${div}" == "1" ]; then runNcuDiv $exe; fi
     if [ "${req}" == "1" ]; then runNcuReq $exe "$ncuArgs"; fi
     if [ "${exeArgs2}" != "" ]; then echo "........................................................................."; runExe $exe "$exeArgs2"; fi
+  fi
+  if [ "${gtest}" == "1" ]; then
+    echo "-------------------------------------------------------------------------"
+    exe2=${exe/gcheck/runTest} # first try to replace gcheck.exe
+    exe2=${exe2/check/runTest} # then try to replace check.exe instead
+    echo "runExe $exe2"
+    $exe2 2>&1 | tail -1
+    if [ ${PIPESTATUS[0]} -ne "0" ]; then exit 1; fi 
   fi
   if [ "${bckend}" != "alpaka" ]; then
     echo "-------------------------------------------------------------------------"
