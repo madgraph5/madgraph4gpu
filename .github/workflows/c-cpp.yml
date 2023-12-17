@@ -54,7 +54,7 @@ jobs:
     env:
       CUDA_HOME: /usr/local/cuda/
       FC: gfortran
-      REQUIRE_CUDA: 1
+      BACKEND: cuda
     strategy:
       matrix:
         folder: [ epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum , epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg ]
