@@ -132,72 +132,73 @@ endif
 #=== Configure the CUDA compiler for the CUDA target
 
 ifneq (,$(findstring $(MAKECMDGOALS),cuda-gcheck-runGcheck-runFGcheck-cmpFGcheck-memcheck))
-  # If CXX is not a single word (example "clang++ --gcc-toolchain...") then disable CUDA builds (issue #505)
-  # This is because it is impossible to pass this to "CUFLAGS += -ccbin <host-compiler>" below
-  ifneq ($(words $(subst ccache ,,$(CXX))),1) # allow at most "CXX=ccache <host-compiler>" from outside
-    $(warning CUDA builds are not supported for multi-word CXX "$(CXX)")
-    override CUDA_HOME=disabled
-  endif
 
-  # If CUDA_HOME is not set, try to set it from the location of nvcc
-  ifndef CUDA_HOME
-    CUDA_HOME = $(patsubst %bin/nvcc,%,$(shell which nvcc 2>/dev/null))
-    $(warning CUDA_HOME was not set: using "$(CUDA_HOME)")
-  endif
+# If CXX is not a single word (example "clang++ --gcc-toolchain...") then disable CUDA builds (issue #505)
+# This is because it is impossible to pass this to "CUFLAGS += -ccbin <host-compiler>" below
+ifneq ($(words $(subst ccache ,,$(CXX))),1) # allow at most "CXX=ccache <host-compiler>" from outside
+  $(warning CUDA builds are not supported for multi-word CXX "$(CXX)")
+  override CUDA_HOME=disabled
+endif
 
-  # Set NVCC as $(CUDA_HOME)/bin/nvcc if it exists
-  ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
-    NVCC = $(CUDA_HOME)/bin/nvcc
-    USE_NVTX ?=-DUSE_NVTX
-    # See https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html
-    # See https://arnon.dk/matching-sm-architectures-arch-and-gencode-for-various-nvidia-cards/
-    # Default: use compute capability 70 for V100 (CERN lxbatch, CERN itscrd, Juwels Cluster).
-    # Embed device code for 70, and PTX for 70+.
-    # Export MADGRAPH_CUDA_ARCHITECTURE (comma-separated list) to use another value or list of values (see #533).
-    # Examples: use 60 for P100 (Piz Daint), 80 for A100 (Juwels Booster, NVidia raplab/Curiosity).
-    MADGRAPH_CUDA_ARCHITECTURE ?= 70
-    ###CUARCHFLAGS = -gencode arch=compute_$(MADGRAPH_CUDA_ARCHITECTURE),code=compute_$(MADGRAPH_CUDA_ARCHITECTURE) -gencode arch=compute_$(MADGRAPH_CUDA_ARCHITECTURE),code=sm_$(MADGRAPH_CUDA_ARCHITECTURE) # Older implementation (AV): go back to this one for multi-GPU support #533
-    ###CUARCHFLAGS = --gpu-architecture=compute_$(MADGRAPH_CUDA_ARCHITECTURE) --gpu-code=sm_$(MADGRAPH_CUDA_ARCHITECTURE),compute_$(MADGRAPH_CUDA_ARCHITECTURE) # Newer implementation (SH): cannot use this as-is for multi-GPU support #533
-    comma:=,
-    CUARCHFLAGS = $(foreach arch,$(subst $(comma), ,$(MADGRAPH_CUDA_ARCHITECTURE)),-gencode arch=compute_$(arch),code=compute_$(arch) -gencode arch=compute_$(arch),code=sm_$(arch))
-    CUINC = -I$(CUDA_HOME)/include/
-    ifeq ($(RNDGEN),hasNoCurand)
-      CURANDLIBFLAGS=
-    else
-      CURANDLIBFLAGS = -L$(CUDA_HOME)/lib64/ -lcurand # NB: -lcuda is not needed here!
-    endif
-    CUOPTFLAGS = -lineinfo
-    CUFLAGS = $(foreach opt, $(OPTFLAGS), -Xcompiler $(opt)) $(CUOPTFLAGS) $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math
-    ###CUFLAGS += -Xcompiler -Wall -Xcompiler -Wextra -Xcompiler -Wshadow
-    ###NVCC_VERSION = $(shell $(NVCC) --version | grep 'Cuda compilation tools' | cut -d' ' -f5 | cut -d, -f1)
-    CUFLAGS += -std=c++17 # need CUDA >= 11.2 (see #333): this is enforced in mgOnGpuConfig.h
-    # Without -maxrregcount: baseline throughput: 6.5E8 (16384 32 12) up to 7.3E8 (65536 128 12)
-    ###CUFLAGS+= --maxrregcount 160 # improves throughput: 6.9E8 (16384 32 12) up to 7.7E8 (65536 128 12)
-    ###CUFLAGS+= --maxrregcount 128 # improves throughput: 7.3E8 (16384 32 12) up to 7.6E8 (65536 128 12)
-    ###CUFLAGS+= --maxrregcount 96 # degrades throughput: 4.1E8 (16384 32 12) up to 4.5E8 (65536 128 12)
-    ###CUFLAGS+= --maxrregcount 64 # degrades throughput: 1.7E8 (16384 32 12) flat at 1.7E8 (65536 128 12)
-  else ifneq ($(origin REQUIRE_CUDA),undefined)
-    # If REQUIRE_CUDA is set but no cuda is found, stop here (e.g. for CI tests on GPU #443)
-    $(error No cuda installation found (set CUDA_HOME or make nvcc visible in PATH))
+# If CUDA_HOME is not set, try to set it from the location of nvcc
+ifndef CUDA_HOME
+  CUDA_HOME = $(patsubst %bin/nvcc,%,$(shell which nvcc 2>/dev/null))
+  $(warning CUDA_HOME was not set: using "$(CUDA_HOME)")
+endif
+
+# Set NVCC as $(CUDA_HOME)/bin/nvcc if it exists
+ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
+  NVCC = $(CUDA_HOME)/bin/nvcc
+  USE_NVTX ?=-DUSE_NVTX
+  # See https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html
+  # See https://arnon.dk/matching-sm-architectures-arch-and-gencode-for-various-nvidia-cards/
+  # Default: use compute capability 70 for V100 (CERN lxbatch, CERN itscrd, Juwels Cluster).
+  # Embed device code for 70, and PTX for 70+.
+  # Export MADGRAPH_CUDA_ARCHITECTURE (comma-separated list) to use another value or list of values (see #533).
+  # Examples: use 60 for P100 (Piz Daint), 80 for A100 (Juwels Booster, NVidia raplab/Curiosity).
+  MADGRAPH_CUDA_ARCHITECTURE ?= 70
+  ###CUARCHFLAGS = -gencode arch=compute_$(MADGRAPH_CUDA_ARCHITECTURE),code=compute_$(MADGRAPH_CUDA_ARCHITECTURE) -gencode arch=compute_$(MADGRAPH_CUDA_ARCHITECTURE),code=sm_$(MADGRAPH_CUDA_ARCHITECTURE) # Older implementation (AV): go back to this one for multi-GPU support #533
+  ###CUARCHFLAGS = --gpu-architecture=compute_$(MADGRAPH_CUDA_ARCHITECTURE) --gpu-code=sm_$(MADGRAPH_CUDA_ARCHITECTURE),compute_$(MADGRAPH_CUDA_ARCHITECTURE) # Newer implementation (SH): cannot use this as-is for multi-GPU support #533
+  comma:=,
+  CUARCHFLAGS = $(foreach arch,$(subst $(comma), ,$(MADGRAPH_CUDA_ARCHITECTURE)),-gencode arch=compute_$(arch),code=compute_$(arch) -gencode arch=compute_$(arch),code=sm_$(arch))
+  CUINC = -I$(CUDA_HOME)/include/
+  ifeq ($(RNDGEN),hasNoCurand)
+    CURANDLIBFLAGS=
   else
-    # No cuda. Switch cuda compilation off and go to common random numbers in C++
-    $(warning CUDA_HOME is not set or is invalid: export CUDA_HOME to compile with cuda)
-    override NVCC=
-    override USE_NVTX=
-    override CUINC=
-    override CURANDLIBFLAGS=
+    CURANDLIBFLAGS = -L$(CUDA_HOME)/lib64/ -lcurand # NB: -lcuda is not needed here!
   endif
-  export NVCC
-  export CUFLAGS
+  CUOPTFLAGS = -lineinfo
+  CUFLAGS = $(foreach opt, $(OPTFLAGS), -Xcompiler $(opt)) $(CUOPTFLAGS) $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math
+  ###CUFLAGS += -Xcompiler -Wall -Xcompiler -Wextra -Xcompiler -Wshadow
+  ###NVCC_VERSION = $(shell $(NVCC) --version | grep 'Cuda compilation tools' | cut -d' ' -f5 | cut -d, -f1)
+  CUFLAGS += -std=c++17 # need CUDA >= 11.2 (see #333): this is enforced in mgOnGpuConfig.h
+  # Without -maxrregcount: baseline throughput: 6.5E8 (16384 32 12) up to 7.3E8 (65536 128 12)
+  ###CUFLAGS+= --maxrregcount 160 # improves throughput: 6.9E8 (16384 32 12) up to 7.7E8 (65536 128 12)
+  ###CUFLAGS+= --maxrregcount 128 # improves throughput: 7.3E8 (16384 32 12) up to 7.6E8 (65536 128 12)
+  ###CUFLAGS+= --maxrregcount 96 # degrades throughput: 4.1E8 (16384 32 12) up to 4.5E8 (65536 128 12)
+  ###CUFLAGS+= --maxrregcount 64 # degrades throughput: 1.7E8 (16384 32 12) flat at 1.7E8 (65536 128 12)
+else ifneq ($(origin REQUIRE_CUDA),undefined)
+  # If REQUIRE_CUDA is set but no cuda is found, stop here (e.g. for CI tests on GPU #443)
+  $(error No cuda installation found (set CUDA_HOME or make nvcc visible in PATH))
+else
+  # No cuda. Switch cuda compilation off and go to common random numbers in C++
+  $(warning CUDA_HOME is not set or is invalid: export CUDA_HOME to compile with cuda)
+  override NVCC=
+  override USE_NVTX=
+  override CUINC=
+  override CURANDLIBFLAGS=
+endif
+export NVCC
+export CUFLAGS
 
-  # Set the host C++ compiler for nvcc via "-ccbin <host-compiler>"
-  # (NB issue #505: this must be a single word, "clang++ --gcc-toolchain..." is not supported)
-  CUFLAGS += -ccbin $(shell which $(subst ccache ,,$(CXX)))
+# Set the host C++ compiler for nvcc via "-ccbin <host-compiler>"
+# (NB issue #505: this must be a single word, "clang++ --gcc-toolchain..." is not supported)
+CUFLAGS += -ccbin $(shell which $(subst ccache ,,$(CXX)))
 
-  # Allow newer (unsupported) C++ compilers with older versions of CUDA if ALLOW_UNSUPPORTED_COMPILER_IN_CUDA is set (#504)
-  ifneq ($(origin ALLOW_UNSUPPORTED_COMPILER_IN_CUDA),undefined)
-  CUFLAGS += -allow-unsupported-compiler
-  endif
+# Allow newer (unsupported) C++ compilers with older versions of CUDA if ALLOW_UNSUPPORTED_COMPILER_IN_CUDA is set (#504)
+ifneq ($(origin ALLOW_UNSUPPORTED_COMPILER_IN_CUDA),undefined)
+CUFLAGS += -allow-unsupported-compiler
+endif
 
 endif # ($(MAKECMDGOALS),cuda)
 
