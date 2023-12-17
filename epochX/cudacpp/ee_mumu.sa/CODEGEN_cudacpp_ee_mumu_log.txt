@@ -52,7 +52,7 @@ Note that you can still compile and run aMC@NLO with the built-in PDFs
 
 Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
 Using default eps viewer "evince". Set another one in ./input/mg5_configuration.txt
-No valid web browser found. Please set in ./input/mg5_configuration.txt
+Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
 import /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_ee_mumu.mg
 The import format was not given, so we guess it as command
 set stdout_level DEBUG
@@ -62,7 +62,7 @@ generate e+ e- > mu+ mu-
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.00569605827331543 [0m
+[1;32mDEBUG: model prefixing  takes 0.005268573760986328 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -181,7 +181,7 @@ ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFV2 routines[0m
 ALOHA: aloha creates FFV4 routines[0m
 ALOHA: aloha creates FFV2_4 routines[0m
-ALOHA: aloha creates 4 routines in  0.271 s
+ALOHA: aloha creates 4 routines in  0.267 s
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV2
@@ -200,7 +200,7 @@ INFO: Created files Parameters_sm.h and Parameters_sm.cc in directory
 INFO: /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_ee_mumu/src/. and /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_ee_mumu/src/. 
 quit
 
-real	0m0.662s
-user	0m0.604s
-sys	0m0.052s
+real	0m0.759s
+user	0m0.593s
+sys	0m0.050s
 Code generation completed in 1 seconds

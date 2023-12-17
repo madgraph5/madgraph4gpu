@@ -186,21 +186,6 @@ ifeq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
 endif
 ###$(info CUDA_HOME=$(CUDA_HOME))
 
-# Configure NVTX and CURAND if a CUDA installation exists
-ifneq ($(CUDA_HOME),)
-  USE_NVTX ?=-DUSE_NVTX
-  CUINC = -I$(CUDA_HOME)/include/
-  ifeq ($(RNDGEN),hasNoCurand)
-    CURANDLIBFLAGS=
-  else
-    CURANDLIBFLAGS = -L$(CUDA_HOME)/lib64/ -lcurand # NB: -lcuda is not needed here!
-  endif
-else
-  override USE_NVTX=
-  override CUINC=
-  override CURANDLIBFLAGS=
-endif
-
 #=== Configure the CUDA compiler (only for the CUDA backend)
 
 ifeq ($(BACKEND),cuda)
@@ -335,7 +320,7 @@ endif
 
 # Set the default RNDGEN (random number generator) choice
 ifeq ($(RNDGEN),)
-  ifeq ($(NVCC),)
+  ifeq ($(CUDA_HOME),)
     override RNDGEN = hasNoCurand
   else ifeq ($(RNDGEN),)
     override RNDGEN = hasCurand
@@ -353,6 +338,21 @@ export OMPFLAGS
 #-------------------------------------------------------------------------------
 
 #=== Set the CUDA/C++ compiler flags appropriate to user-defined choices of BACKEND, FPTYPE, HELINL, HRDCOD, RNDGEN
+
+# Configure NVTX and CURAND if a CUDA installation exists
+ifneq ($(CUDA_HOME),)
+  USE_NVTX ?=-DUSE_NVTX
+  CUINC = -I$(CUDA_HOME)/include/
+  ifeq ($(RNDGEN),hasNoCurand)
+    CURANDLIBFLAGS=
+  else
+    CURANDLIBFLAGS = -L$(CUDA_HOME)/lib64/ -lcurand # NB: -lcuda is not needed here!
+  endif
+else
+  override USE_NVTX=
+  override CUINC=
+  override CURANDLIBFLAGS=
+endif
 
 # Set the build flags appropriate to OMPFLAGS
 $(info OMPFLAGS=$(OMPFLAGS))
@@ -796,6 +796,10 @@ endif
 # Target: build all targets in all BACKEND modes (each BACKEND mode in a separate build directory)
 # Split the bldall target into separate targets to allow parallel 'make -j bldall' builds
 # (Obsolete hack, no longer needed as there is no INCDIR: add a fbridge.inc dependency to bldall, to ensure it is only copied once for all BACKEND modes)
+bldcuda:
+	@echo
+	$(MAKE) USEBUILDDIR=1 BACKEND=cuda -f $(CUDACPP_MAKEFILE)
+
 bldnone:
 	@echo
 	$(MAKE) USEBUILDDIR=1 BACKEND=none -f $(CUDACPP_MAKEFILE)
@@ -816,10 +820,6 @@ bld512z:
 	@echo
 	$(MAKE) USEBUILDDIR=1 BACKEND=512z -f $(CUDACPP_MAKEFILE)
 
-bldcuda:
-	@echo
-	$(MAKE) USEBUILDDIR=1 BACKEND=cuda -f $(CUDACPP_MAKEFILE)
-
 ifeq ($(UNAME_P),ppc64le)
 ###bldavxs: $(INCDIR)/fbridge.inc bldnone bldsse4
 bldavxs: bldnone bldsse4
@@ -832,7 +832,7 @@ bldavxs: bldnone bldsse4 bldavx2 bld512y bld512z
 endif
 
 ifneq ($(CUDA_HOME),)
-bldall: bldavxs bldcuda
+bldall: bldcuda bldavxs
 else
 bldall: bldavxs
 endif

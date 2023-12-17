@@ -54,7 +54,7 @@ CUDACPP_MAKEFILE=cudacpp.mk
 # NB2 Use '|&' in CUDACPP_BUILDDIR to avoid confusing errors about googletest #507
 # NB3 Do not add a comment inlined "CUDACPP_BUILDDIR=$(shell ...) # comment" as otherwise a trailing space is included...
 # NB4 The variables relevant to the cudacpp Makefile must be explicitly passed to $(shell...)
-CUDACPP_MAKEENV:=$(shell echo '$(.VARIABLES)' | tr " " "\n" | egrep "(USEBUILDDIR|AVX|FPTYPE|HELINL|HRDCOD)")
+CUDACPP_MAKEENV:=$(shell echo '$(.VARIABLES)' | tr " " "\n" | egrep "(USEBUILDDIR|BACKEND|FPTYPE|HELINL|HRDCOD)")
 ###$(info CUDACPP_MAKEENV=$(CUDACPP_MAKEENV))
 ###$(info $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))"))
 CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn 2>&1 | awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
@@ -102,7 +102,14 @@ else
 LDFLAGS += -Wl,--no-relax # avoid 'failed to convert GOTPCREL relocation' error #458 (not supported on macOS)
 endif
 
-all: $(PROG)_fortran $(CUDACPP_BUILDDIR)/$(PROG)_cpp # also builds $(PROG)_cuda if $(CUDACPP_CULIB) exists (#503)
+# Explicitly define the default goal (this is not necessary as it is the first target, which is implicitly the default goal)
+.DEFAULT_GOAL := all
+
+ifeq ($(BACKEND),cuda)
+all: $(PROG)_fortran $(CUDACPP_BUILDDIR)/$(PROG)_cuda
+else
+all: $(PROG)_fortran $(CUDACPP_BUILDDIR)/$(PROG)_cpp
+endif
 
 ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
 override OMPFLAGS = -fopenmp
@@ -155,12 +162,13 @@ madevent_cuda_link: $(CUDACPP_BUILDDIR)/$(PROG)_cuda
 	rm -f $(PROG)
 	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cuda $(PROG)
 
-# Building $(PROG)_cpp also builds $(PROG)_cuda if $(CUDACPP_CULIB) exists (improved patch for cpp-only builds #503)
+# Building $(PROG)_cpp no longer builds $(PROG)_cuda if $(CUDACPP_CULIB) exists (this was the case in the past to allow cpp-only builds #503)
 $(CUDACPP_BUILDDIR)/$(PROG)_cpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o ompnumthreads.o $(CUDACPP_BUILDDIR)/.cudacpplibs
 	$(FC) -o $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_CXXLIB) $(LIBFLAGSRPATH) $(LDFLAGS)
-	if [ -f $(LIBDIR)/$(CUDACPP_BUILDDIR)/lib$(CUDACPP_CULIB).* ]; then $(FC) -o $(CUDACPP_BUILDDIR)/$(PROG)_cuda $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_CULIB) $(LIBFLAGSRPATH) $(LDFLAGS); fi
 
-$(CUDACPP_BUILDDIR)/$(PROG)_cuda: $(CUDACPP_BUILDDIR)/$(PROG)_cpp
+# Building $(PROG)_cuda now uses its own rule
+$(CUDACPP_BUILDDIR)/$(PROG)_cuda: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o ompnumthreads.o $(CUDACPP_BUILDDIR)/.cudacpplibs
+	$(FC) -o $(CUDACPP_BUILDDIR)/$(PROG)_cuda $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_CULIB) $(LIBFLAGSRPATH) $(LDFLAGS)
 
 counters.o: counters.cc timer.h
 	$(CXX) $(CXXFLAGS) -c $< -o $@
@@ -222,38 +230,45 @@ driver_cudacpp.o: .libs
 $(MATRIX): .libs
 genps.o: .libs
 
-# Cudacpp avxall targets
+# Cudacpp bldall targets
 
-UNAME_P := $(shell uname -p)
 ifeq ($(UNAME_P),ppc64le)
-avxall: avxnone avxsse4
+bldavxs: bldnone bldsse4
 else ifeq ($(UNAME_P),arm)
-avxall: avxnone avxsse4
+bldavxs: bldnone bldsse4
 else
-avxall: avxnone avxsse4 avxavx2 avx512y avx512z
+bldavxs: bldnone bldsse4 bldavx2 bld512y bld512z
 endif
 
-avxnone: $(PROG)_fortran $(DSIG_cudacpp)
-	@echo
-	$(MAKE) USEBUILDDIR=1 AVX=none
+ifneq ($(CUDA_HOME),)
+bldall: bldcuda bldavxs
+else
+bldall: bldavxs
+endif
 
-avxsse4: $(PROG)_fortran $(DSIG_cudacpp)
+bldcuda: $(PROG)_fortran $(DSIG_cudacpp)
 	@echo
-	$(MAKE) USEBUILDDIR=1 AVX=sse4
+	$(MAKE) USEBUILDDIR=1 BACKEND=cuda
 
-avxavx2: $(PROG)_fortran $(DSIG_cudacpp)
+bldnone: $(PROG)_fortran $(DSIG_cudacpp)
 	@echo
-	$(MAKE) USEBUILDDIR=1 AVX=avx2
+	$(MAKE) USEBUILDDIR=1 BACKEND=none
 
-avx512y: $(PROG)_fortran $(DSIG_cudacpp)
+bldsse4: $(PROG)_fortran $(DSIG_cudacpp)
 	@echo
-	$(MAKE) USEBUILDDIR=1 AVX=512y
+	$(MAKE) USEBUILDDIR=1 BACKEND=sse4
 
-avx512z: $(PROG)_fortran $(DSIG_cudacpp)
+bldavx2: $(PROG)_fortran $(DSIG_cudacpp)
 	@echo
-	$(MAKE) USEBUILDDIR=1 AVX=512z
+	$(MAKE) USEBUILDDIR=1 BACKEND=avx2
 
-###endif
+bld512y: $(PROG)_fortran $(DSIG_cudacpp)
+	@echo
+	$(MAKE) USEBUILDDIR=1 BACKEND=512y
+
+bld512z: $(PROG)_fortran $(DSIG_cudacpp)
+	@echo
+	$(MAKE) USEBUILDDIR=1 BACKEND=512z
 
 # Clean (NB: 'make clean' in Source calls 'make clean' in all P*)
 
