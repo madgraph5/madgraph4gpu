@@ -241,10 +241,14 @@ bldavxs: bldnone bldsse4 bldavx2 bld512y bld512z
 endif
 
 ifneq ($(CUDA_HOME),)
-bldall: bldavxs bldcuda
+bldall: bldcuda bldavxs
 else
 bldall: bldavxs
 endif
+
+bldcuda: $(PROG)_fortran $(DSIG_cudacpp)
+	@echo
+	$(MAKE) USEBUILDDIR=1 BACKEND=cuda
 
 bldnone: $(PROG)_fortran $(DSIG_cudacpp)
 	@echo
@@ -265,10 +269,6 @@ bld512y: $(PROG)_fortran $(DSIG_cudacpp)
 bld512z: $(PROG)_fortran $(DSIG_cudacpp)
 	@echo
 	$(MAKE) USEBUILDDIR=1 BACKEND=512z
-
-bldcuda: $(PROG)_fortran $(DSIG_cudacpp)
-	@echo
-	$(MAKE) USEBUILDDIR=1 BACKEND=cuda
 
 # Clean (NB: 'make clean' in Source calls 'make clean' in all P*)
 
