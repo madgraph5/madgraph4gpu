@@ -45,13 +45,13 @@ endif
 
 #-------------------------------------------------------------------------------
 
-#=== Configure the CUDA compiler (note: NVCC is already exported including ccache)
+#=== Configure the CUDA compiler (note: NVCC, including ccache, is already exported from cudacpp.mk)
 
 ###$(info NVCC=$(NVCC))
 
 #-------------------------------------------------------------------------------
 
-#=== Configure ccache for C++ builds (note: NVCC is already exported including ccache)
+#=== Configure ccache for C++ builds (note: NVCC, including ccache, is already exported from cudacpp.mk)
 
 # Enable ccache if USECCACHE=1
 ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
@@ -92,54 +92,11 @@ endif
 ###$(info OMPFLAGS=$(OMPFLAGS))
 CXXFLAGS += $(OMPFLAGS)
 
-# Set the build flags appropriate to each BACKEND choice (example: "make BACKEND=none")
-# [NB MGONGPU_PVW512 is needed because "-mprefer-vector-width=256" is not exposed in a macro]
-# [See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=96476]
-ifeq ($(NVCC),)
+# Use the AVXFLAGS build flags exported from cudacpp.mk
+$(info AVXFLAGS=$(AVXFLAGS))
 
-$(info BACKEND=$(BACKEND))
-ifeq ($(UNAME_P),ppc64le)
-  ifeq ($(BACKEND),sse4)
-    override AVXFLAGS = -D__SSE4_2__ # Power9 VSX with 128 width (VSR registers)
-  else ifneq ($(BACKEND),none)
-    $(error Unknown BACKEND='$(BACKEND)': only 'none' and 'sse4' are supported on PowerPC for the moment)
-  endif
-else ifeq ($(UNAME_P),arm)
-  ifeq ($(BACKEND),sse4)
-    override AVXFLAGS = -D__SSE4_2__ # ARM NEON with 128 width (Q/quadword registers)
-  else ifneq ($(BACKEND),none)
-    $(error Unknown BACKEND='$(BACKEND)': only 'none' and 'sse4' are supported on ARM for the moment)
-  endif
-else ifneq ($(shell $(CXX) --version | grep ^nvc++),) # support nvc++ #531
-  ifeq ($(BACKEND),none)
-    override AVXFLAGS = -mno-sse3 # no SIMD
-  else ifeq ($(BACKEND),sse4)
-    override AVXFLAGS = -mno-avx # SSE4.2 with 128 width (xmm registers)
-  else ifeq ($(BACKEND),avx2)
-    override AVXFLAGS = -march=haswell # AVX2 with 256 width (ymm registers) [DEFAULT for clang]
-  else ifeq ($(BACKEND),512y)
-    override AVXFLAGS = -march=skylake -mprefer-vector-width=256 # AVX512 with 256 width (ymm registers) [DEFAULT for gcc]
-  else ifeq ($(BACKEND),512z)
-    override AVXFLAGS = -march=skylake -DMGONGPU_PVW512 # AVX512 with 512 width (zmm registers)
-  else
-    $(error Unknown BACKEND='$(BACKEND)': only 'none', 'sse4', 'avx2', '512y' and '512z' are supported)
-  endif
-else
-  ifeq ($(BACKEND),none)
-    override AVXFLAGS = -march=x86-64 # no SIMD (see #588)
-  else ifeq ($(BACKEND),sse4)
-    override AVXFLAGS = -march=nehalem # SSE4.2 with 128 width (xmm registers)
-  else ifeq ($(BACKEND),avx2)
-    override AVXFLAGS = -march=haswell # AVX2 with 256 width (ymm registers) [DEFAULT for clang]
-  else ifeq ($(BACKEND),512y)
-    override AVXFLAGS = -march=skylake-avx512 -mprefer-vector-width=256 # AVX512 with 256 width (ymm registers) [DEFAULT for gcc]
-  else ifeq ($(BACKEND),512z)
-    override AVXFLAGS = -march=skylake-avx512 -DMGONGPU_PVW512 # AVX512 with 512 width (zmm registers)
-  else ifneq ($(BACKEND),none)
-    $(error Unknown BACKEND='$(BACKEND)': only 'none', 'sse4', 'avx2', '512y' and '512z' are supported)
-  endif
-endif
-# For the moment, use AVXFLAGS everywhere: eventually, use them only in encapsulated implementations?
+# For the moment, use AVXFLAGS everywhere (in C++ builds): eventually, use them only in encapsulated implementations?
+ifneq ($(BACKEND),cuda)
 CXXFLAGS+= $(AVXFLAGS)
 endif
 
@@ -185,19 +142,11 @@ endif
 
 # Build directory "short" tag (defines target and path to the optional build directory)
 # (Rationale: keep directory names shorter, e.g. do not include random number generator choice)
-ifneq ($(NVCC),)
-  override DIRTAG = cuda_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)
-else
-  override DIRTAG = $(BACKEND)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)
-endif
+override DIRTAG = $(BACKEND)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)
 
 # Build lockfile "full" tag (defines full specification of build options that cannot be intermixed)
 # (Rationale: avoid mixing of CUDA and no-CUDA environment builds with different random number generators)
-ifneq ($(NVCC),)
-  override TAG = cuda_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)_$(RNDGEN)
-else
-  override TAG = $(BACKEND)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)_$(RNDGEN)
-endif
+override TAG = $(BACKEND)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)_$(RNDGEN)
 
 # Build directory: current directory by default, or build.$(DIRTAG) if USEBUILDDIR==1
 ###$(info Current directory is $(shell pwd))
@@ -233,22 +182,39 @@ endif
 
 MG5AMC_COMMONLIB = mg5amc_common
 
+# Explicitly define the default goal (this is not necessary as it is the first target, which is implicitly the default goal)
+.DEFAULT_GOAL := all.$(TAG)
+
 # First target (default goal)
-all.$(TAG): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so
+all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/.build.$(TAG) $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so
 
 # Target (and build options): debug
 debug: OPTFLAGS = -g -O0
 debug: all.$(TAG)
 
+# Target: tag-specific build lockfiles
+override oldtagsb=`if [ -d $(BUILDDIR) ]; then find $(BUILDDIR) -maxdepth 1 -name '.build.*' ! -name '.build.$(TAG)' -exec echo $(shell pwd)/{} \; ; fi`
+override oldtagsl=`if [ -d $(LIBDIR) ]; then find $(LIBDIR) -maxdepth 1 -name '.build.*' ! -name '.build.$(TAG)' -exec echo $(shell pwd)/{} \; ; fi`
+
+$(BUILDDIR)/.build.$(TAG): $(LIBDIR)/.build.$(TAG)
+
+$(LIBDIR)/.build.$(TAG):
+	@if [ "$(oldtagsl)" != "" ]; then echo -e "Cannot build for tag=$(TAG) as old builds exist in $(LIBDIR) for other tags:\n$(oldtagsl)\nPlease run 'make clean' first\nIf 'make clean' is not enough: run 'make clean USEBUILDDIR=1 AVX=$(AVX) FPTYPE=$(FPTYPE)' or 'make cleanall'"; exit 1; fi
+	@if [ "$(oldtagsb)" != "" ]; then echo -e "Cannot build for tag=$(TAG) as old builds exist in $(BUILDDIR) for other tags:\n$(oldtagsb)\nPlease run 'make clean' first\nIf 'make clean' is not enough: run 'make clean USEBUILDDIR=1 AVX=$(AVX) FPTYPE=$(FPTYPE)' or 'make cleanall'"; exit 1; fi
+	@if [ ! -d $(LIBDIR) ]; then echo "mkdir -p $(LIBDIR)"; mkdir -p $(LIBDIR); fi
+	@touch $(LIBDIR)/.build.$(TAG)
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
+	@touch $(BUILDDIR)/.build.$(TAG)
+
 #-------------------------------------------------------------------------------
 
 # Generic target and build rules: objects from C++ compilation
-$(BUILDDIR)/%.o : %.cc *.h
+$(BUILDDIR)/%.o : %.cc *.h $(BUILDDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -fPIC -c $< -o $@
 
 # Generic target and build rules: objects from CUDA compilation
-$(BUILDDIR)/%_cu.o : %.cc *.h
+$(BUILDDIR)/%_cu.o : %.cc *.h $(BUILDDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -Xcompiler -fPIC -c -x cu $< -o $@
 
@@ -275,61 +241,20 @@ endif
 # Target: clean the builds
 .PHONY: clean
 
-BUILD_DIRS := $(wildcard build.*)
-NUM_BUILD_DIRS := $(words $(BUILD_DIRS))
-
 clean:
 ifeq ($(USEBUILDDIR),1)
-ifeq ($(NUM_BUILD_DIRS),1)
-	$(info USEBUILDDIR=1, only one src build directory found.)
-	rm -rf ../lib/$(BUILD_DIRS)
-	rm -rf $(BUILD_DIRS)
-else ifeq ($(NUM_BUILD_DIRS),0)
-	$(error USEBUILDDIR=1, but no src build directories are found.)
+	rm -rf $(LIBDIR)
+	rm -rf $(BUILDDIR)
 else
-	$(error Multiple src BUILDDIR's found! Use 'cleannone', 'cleansse4', 'cleanavx2', 'clean512y','clean512z', 'cleancuda' or 'cleanall'.)
-endif
-else
-	rm -f ../lib/lib$(MG5AMC_COMMONLIB).so
-	rm -f $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
+	rm -f $(LIBDIR)/.build.* $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so
+	rm -f $(BUILDDIR)/.build.* $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
 endif
 
 cleanall:
 	@echo
-	rm -f ../lib/lib$(MG5AMC_COMMONLIB).so
-	rm -f $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
+	$(MAKE) clean -f $(THISMK)
 	@echo
-	rm -rf ../lib/build.*
+	rm -rf $(LIBDIR)/build.*
 	rm -rf build.*
-
-# Target: clean different builds
-
-cleannone:
-	rm -rf ../lib/build.none_*
-	rm -rf build.none_*
-
-cleansse4:
-	rm -rf ../lib/build.sse4_*
-	rm -rf build.sse4_*
-
-cleanavx2:
-	rm -rf ../lib/build.avx2_*
-	rm -rf build.avx2_*
-
-clean512y:
-	rm -rf ../lib/build.512y_*
-	rm -rf build.512y_*
-
-clean512z:
-	rm -rf ../lib/build.512z_*
-	rm -rf build.512z_*
-
-cleancuda:
-	rm -rf ../lib/build.cuda_*
-	rm -rf build.cuda_*
-
-cleandir:
-	rm -f ./*.o ./*.exe
-	rm -f ../lib/lib$(MG5AMC_COMMONLIB).so
 
 #-------------------------------------------------------------------------------
