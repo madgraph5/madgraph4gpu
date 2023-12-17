@@ -795,7 +795,7 @@ endif
 
 # Target: build all targets in all BACKEND modes (each BACKEND mode in a separate build directory)
 # Split the bldall target into separate targets to allow parallel 'make -j bldall' builds
-# (Hack: add a fbridge.inc dependency to bldall, to ensure it is only copied once for all BACKEND modes)
+# (Obsolete hack, no longer needed as there is no INCDIR: add a fbridge.inc dependency to bldall, to ensure it is only copied once for all BACKEND modes)
 bldnone:
 	@echo
 	$(MAKE) USEBUILDDIR=1 BACKEND=none -f $(CUDACPP_MAKEFILE)
@@ -821,11 +821,14 @@ bldcuda:
 	$(MAKE) USEBUILDDIR=1 BACKEND=cuda -f $(CUDACPP_MAKEFILE)
 
 ifeq ($(UNAME_P),ppc64le)
-bldavxs: $(INCDIR)/fbridge.inc bldnone bldsse4
+###bldavxs: $(INCDIR)/fbridge.inc bldnone bldsse4
+bldavxs: bldnone bldsse4
 else ifeq ($(UNAME_P),arm)
-bldavxs: $(INCDIR)/fbridge.inc bldnone bldsse4
+###bldavxs: $(INCDIR)/fbridge.inc bldnone bldsse4
+bldavxs: bldnone bldsse4
 else
-bldavxs: $(INCDIR)/fbridge.inc bldnone bldsse4 bldavx2 bld512y bld512z
+###bldavxs: $(INCDIR)/fbridge.inc bldnone bldsse4 bldavx2 bld512y bld512z
+bldavxs: bldnone bldsse4 bldavx2 bld512y bld512z
 endif
 
 ifneq ($(CUDA_HOME),)
