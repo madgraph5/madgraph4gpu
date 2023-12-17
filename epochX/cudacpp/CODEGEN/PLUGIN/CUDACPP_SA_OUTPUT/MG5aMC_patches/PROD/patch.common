@@ -38,7 +38,7 @@ index 617f10b93..00c73099a 100644
 +cleanall: cleanSource # THIS IS THE ONE
 +	for i in `ls -d ../SubProcesses/P*`; do cd $$i; make cleanavxs; cd -; done;
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
-index 348c283be..62bd1df78 100644
+index 348c283be..abb579220 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 @@ -1,6 +1,28 @@
@@ -59,13 +59,13 @@ index 348c283be..62bd1df78 100644
 +CXXFLAGS += -std=c++17 -mmacosx-version-min=11.3
 +endif
 +
-+# Enable ccache if USECCACHE=1
++# Enable ccache for C++ if USECCACHE=1 (do not enable it for Fortran since it is not supported for Fortran)
 +ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
 +  override CXX:=ccache $(CXX)
 +endif
-+ifeq ($(USECCACHE)$(shell echo $(FC) | grep ccache),1)
-+  override FC:=ccache $(FC)
-+endif
++###ifeq ($(USECCACHE)$(shell echo $(FC) | grep ccache),1)
++###  override FC:=ccache $(FC)
++###endif
 +
  # Load additional dependencies of the bias module, if present
  ifeq (,$(wildcard ../bias_dependencies))
@@ -124,20 +124,20 @@ index 348c283be..62bd1df78 100644
 +else
 +LDFLAGS += -Wl,--no-relax # avoid 'failed to convert GOTPCREL relocation' error #458 (not supported on macOS)
 +endif
-+
-+# Explicitly define the default goal (this is not necessary as it is the first target, which is implicitly the default goal)
-+.DEFAULT_GOAL := all
  
 -$(PROG)_forhel: $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX_HEL)
 -	$(FC) -o $(PROG)_forhel $(PROCESS) $(MATRIX_HEL) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp
++# Explicitly define the default goal (this is not necessary as it is the first target, which is implicitly the default goal)
++.DEFAULT_GOAL := all
+ 
+-gensym: $(SYMMETRY) configs.inc $(LIBS)
+-	$(FC) -o gensym $(SYMMETRY) -L../../lib/ $(LINKLIBS) $(LDFLAGS)
 +ifeq ($(BACKEND),cuda)
 +all: $(PROG)_fortran $(CUDACPP_BUILDDIR)/$(PROG)_cuda
 +else
 +all: $(PROG)_fortran $(CUDACPP_BUILDDIR)/$(PROG)_cpp
 +endif
- 
--gensym: $(SYMMETRY) configs.inc $(LIBS)
--	$(FC) -o gensym $(SYMMETRY) -L../../lib/ $(LINKLIBS) $(LDFLAGS)
++
 +ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
 +override OMPFLAGS = -fopenmp
 +LINKLIBS += -liomp5 # see #578
@@ -150,15 +150,15 @@ index 348c283be..62bd1df78 100644
 +else
 +override OMPFLAGS = -fopenmp
 +endif
- 
--$(LIBDIR)libmodel.$(libext): ../../Cards/param_card.dat
--	cd ../../Source/MODEL; make
++
 +$(PROG)_fortran: $(PROCESS) $(DSIG) auto_dsig.o $(LIBS) $(MATRIX) counters.o ompnumthreads.o
 +	$(FC) -o $(PROG)_fortran $(PROCESS) $(DSIG) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o $(LDFLAGS)
  
--$(LIBDIR)libgeneric.$(libext): ../../Cards/run_card.dat
+-$(LIBDIR)libmodel.$(libext): ../../Cards/param_card.dat
+-	cd ../../Source/MODEL; make
 +$(LIBS): .libs
-+
+ 
+-$(LIBDIR)libgeneric.$(libext): ../../Cards/run_card.dat
 +.libs: ../../Cards/param_card.dat ../../Cards/run_card.dat
  	cd ../../Source; make
 +	touch $@
@@ -183,19 +183,19 @@ index 348c283be..62bd1df78 100644
 +madevent_fortran_link: $(PROG)_fortran
 +	rm -f $(PROG)
 +	ln -s $(PROG)_fortran $(PROG)
- 
--$(LIBDIR)libpdf.$(libext): 
--	cd ../../Source/PDF; make
++
 +madevent_cpp_link: $(CUDACPP_BUILDDIR)/$(PROG)_cpp
 +	rm -f $(PROG)
 +	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
  
--$(LIBDIR)libgammaUPC.$(libext):
--	cd ../../Source/PDF/gammaUPC; make
+-$(LIBDIR)libpdf.$(libext): 
+-	cd ../../Source/PDF; make
 +madevent_cuda_link: $(CUDACPP_BUILDDIR)/$(PROG)_cuda
 +	rm -f $(PROG)
 +	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cuda $(PROG)
-+
+ 
+-$(LIBDIR)libgammaUPC.$(libext):
+-	cd ../../Source/PDF/gammaUPC; make
 +# Building $(PROG)_cpp no longer builds $(PROG)_cuda if $(CUDACPP_CULIB) exists (this was the case in the past to allow cpp-only builds #503)
 +$(CUDACPP_BUILDDIR)/$(PROG)_cpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o ompnumthreads.o $(CUDACPP_BUILDDIR)/.cudacpplibs
 +	$(FC) -o $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_CXXLIB) $(LIBFLAGSRPATH) $(LDFLAGS)
