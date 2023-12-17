@@ -43,7 +43,6 @@ function codegen() {
     git checkout HEAD ${proc}/CODEGEN*.txt
     if [ "${proc%.mad}" != "${proc}" ]; then
       git checkout HEAD ${proc}/Cards/me5_configuration.txt
-      ###sed -i 's/DEFAULT_F2PY_COMPILER=f2py.*/DEFAULT_F2PY_COMPILER=f2py3/' ${proc}/Source/make_opts
       git checkout HEAD ${proc}/Source/make_opts
     fi
     echo "git diff (start)"
@@ -149,7 +148,7 @@ function build() {
       gtestlibs=1
       make -f cudacpp.mk gtestlibs
     fi
-    make -j avxall
+    make -j bldall
     popd >& /dev/null
   done
 }
@@ -211,7 +210,7 @@ function tput_test() {
     # FIXME3: handle all d/f/m, inl0/1, hrd0/1 etc...
     unamep=$(uname -p)
     unames=$(uname -s)
-    for simd in none sse4 avx2 512y 512z; do
+    for simd in cuda none sse4 avx2 512y 512z; do
       # Skip tests for unsupported simd modes as done in tput tests (prevent illegal instruction crashes #791)
       if [ "${unamep}" != "x86_64" ]; then
         if [ "${simd}" == "avx2" ]; then echo; echo "(SKIP ${simd} which is not supported on ${unamep})"; continue; fi
@@ -228,8 +227,13 @@ function tput_test() {
         bdirs="$(ls -d build.${simd}*)"
         for bdir in ${bdirs}; do
           runExe ${bdir}/runTest.exe
-          runExe ${bdir}/check.exe -p 1 32 1
-          runExe ${bdir}/gcheck.exe -p 1 32 1
+          if [ -f ${bdir}/check.exe ]; then
+            runExe ${bdir}/check.exe -p 1 32 1
+          elif [ -f ${bdir}/gcheck.exe ]; then
+            runExe ${bdir}/gcheck.exe -p 1 32 1
+          else
+            echo "ERROR! Neither ${bdir}/check.exe nor ${bdir}/gcheck.exe was found?"; exit 1
+          fi
         done
       fi
     done
