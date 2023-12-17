@@ -60,7 +60,7 @@ makef=
 ###makef="-f Makefile"
 
 # (Was: workaround to allow 'make avxall' when '-avxall' is specified #536)
-bbldsall="none sse4 avx2 512y 512z cuda"
+bbldsall="cuda none sse4 avx2 512y 512z"
 
 if [ "$bckend" != "alpaka" ]; then alpaka=0; fi # alpaka mode is only available in the alpaka directory
 
@@ -242,7 +242,7 @@ if [ "${heftggh}" == "1" ] && [ "${suffs/.mad\/}" != "${suffs}" ]; then
 fi
 
 # Define the default bblds if none are defined
-if [ "${bblds}" == "" ]; then bblds="512y cuda"; fi
+if [ "${bblds}" == "" ]; then bblds="cuda 512y"; fi
 
 # Use only the .auto process directories in the alpaka directory
 if [ "$bckend" == "alpaka" ]; then
@@ -359,7 +359,7 @@ for dir in $dirs; do
     if [ "$bckend" == "alpaka" ]; then hrdsuf=""; fi
     for helinl in $helinls; do
       for fptype in $fptypes; do
-        for bbld in none sse4 avx2 512y 512z cuda; do
+        for bbld in cuda none sse4 avx2 512y 512z; do
           if [ "${bblds}" == "${bbldsall}" ] || [ "${bblds/${bbld}}" != "${bblds}" ]; then 
             if [ "${bbld}" == "cuda" ]; then
               exes="$exes $dir/build.${bbld}_${fptype}_inl${helinl}${hrdsuf}/gcheck.exe"
