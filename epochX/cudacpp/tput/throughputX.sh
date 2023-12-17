@@ -2,6 +2,7 @@
 # Copyright (C) 2020-2023 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: A. Valassi (Apr 2021) for the MG5aMC CUDACPP plugin.
+# Further modified by: A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
 
 set +x # not verbose
 set -e # fail on error
@@ -12,7 +13,7 @@ topdir=$(cd $scrdir; cd ../../..; pwd)
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggh]> [-nocpp|[-avxall][-nocuda][-noneonly][-sse4only][-avx2only][-512yonly][-512zonly]] [-sa] [-noalpaka] [-flt|-fltonly|-mix|-mixonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-omp] [-makeonly|-makeclean|-makecleanonly|-dryrun] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest] [-nofpe] [-v] [-dlp <dyld_library_path>]"
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggh]> [-bldall][-cudaonly][-noneonly][-sse4only][-avx2only][-512yonly][-512zonly] [-sa] [-noalpaka] [-flt|-fltonly|-mix|-mixonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-omp] [-makeonly|-makeclean|-makecleanonly|-dryrun] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest] [-nofpe] [-v] [-dlp <dyld_library_path>]"
   exit 1
 }
 
@@ -32,9 +33,7 @@ heftggh=0
 suffs=".mad/"
 
 omp=0
-simds=
-cpp=1
-cuda=1
+bblds=
 alpaka=1
 
 fptypes="d"
@@ -60,8 +59,8 @@ dlp=
 makef=
 ###makef="-f Makefile"
 
-# Workaround to allow 'make avxall' when '-avxall' is specified #536
-simdsall="none sse4 avx2 512y 512z"
+# (Was: workaround to allow 'make avxall' when '-avxall' is specified #536)
+bbldsall="none sse4 avx2 512y 512z cuda"
 
 if [ "$bckend" != "alpaka" ]; then alpaka=0; fi # alpaka mode is only available in the alpaka directory
 
@@ -97,54 +96,36 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-sa" ]; then
     suffs=".sa/"
     shift
-  elif [ "$1" == "-nocuda" ]; then
-    if [ "${cpp}" == "0" ]; then echo "ERROR! Options -nocuda and -nocpp are incompatible"; usage; fi
-    cuda=0
-    shift
-  elif [ "$1" == "-nocpp" ]; then
-    if [ "${omp}" == "1" ]; then echo "ERROR! Options -omp and -nocpp are incompatible"; usage; fi
-    if [ "${simds}" != "" ]; then echo "ERROR! Incompatible option $1: SIMDs are already defined as '$simds'"; usage; fi
-    if [ "${cuda}" == "0" ]; then echo "ERROR! Options -nocuda and -nocpp are incompatible"; usage; fi
-    cpp=0
-    shift
   elif [ "$1" == "-omp" ]; then
-    if [ "${cpp}" == "0" ]; then echo "ERROR! Options -omp and -nocpp are incompatible"; usage; fi
     omp=1
     shift
-  elif [ "$1" == "-avxall" ]; then
-    if [ "${cpp}" == "0" ]; then echo "ERROR! Options $1 and -nocpp are incompatible"; usage; fi
-    if [ "${simds}" != "" ]; then echo "ERROR! Incompatible option $1: SIMDs are already defined as '$simds'"; usage; fi
-    simds="${simdsall}"
+  elif [ "$1" == "-bldall" ]; then
+    if [ "${bblds}" != "" ]; then echo "ERROR! Incompatible option $1: backend builds are already defined as '$bblds'"; usage; fi
+    bblds="${bbldsall}"
+    shift
+  elif [ "$1" == "-cudaonly" ]; then
+    if [ "${bblds}" != "" ]; then echo "ERROR! Incompatible option $1: backend builds are already defined as '$bblds'"; usage; fi
+    bblds="cuda"
     shift
   elif [ "$1" == "-noneonly" ]; then
-    if [ "${cpp}" == "0" ]; then echo "ERROR! Options $1 and -nocpp are incompatible"; usage; fi
-    if [ "${simds}" != "" ]; then echo "ERROR! Incompatible option $1: SIMDs are already defined as '$simds'"; usage; fi
-    simds="none"
-    cuda=0; echo "WARNING! Option $1 implies -nocuda"
+    if [ "${bblds}" != "" ]; then echo "ERROR! Incompatible option $1: backend builds are already defined as '$bblds'"; usage; fi
+    bblds="none"
     shift
   elif [ "$1" == "-sse4only" ]; then
-    if [ "${cpp}" == "0" ]; then echo "ERROR! Options $1 and -nocpp are incompatible"; usage; fi
-    if [ "${simds}" != "" ]; then echo "ERROR! Incompatible option $1: SIMDs are already defined as '$simds'"; usage; fi
-    simds="sse4"
-    cuda=0; echo "WARNING! Option $1 implies -nocuda"
+    if [ "${bblds}" != "" ]; then echo "ERROR! Incompatible option $1: backend builds are already defined as '$bblds'"; usage; fi
+    bblds="sse4"
     shift
   elif [ "$1" == "-avx2only" ]; then
-    if [ "${cpp}" == "0" ]; then echo "ERROR! Options $1 and -nocpp are incompatible"; usage; fi
-    if [ "${simds}" != "" ]; then echo "ERROR! Incompatible option $1: SIMDs are already defined as '$simds'"; usage; fi
-    simds="avx2"
-    cuda=0; echo "WARNING! Option $1 implies -nocuda"
+    if [ "${bblds}" != "" ]; then echo "ERROR! Incompatible option $1: backend builds are already defined as '$bblds'"; usage; fi
+    bblds="avx2"
     shift
   elif [ "$1" == "-512yonly" ]; then
-    if [ "${cpp}" == "0" ]; then echo "ERROR! Options $1 and -nocpp are incompatible"; usage; fi
-    if [ "${simds}" != "" ]; then echo "ERROR! Incompatible option $1: SIMDs are already defined as '$simds'"; usage; fi
-    simds="512y"
-    cuda=0; echo "WARNING! Option $1 implies -nocuda"
+    if [ "${bblds}" != "" ]; then echo "ERROR! Incompatible option $1: backend builds are already defined as '$bblds'"; usage; fi
+    bblds="512y"
     shift
   elif [ "$1" == "-512zonly" ]; then
-    if [ "${cpp}" == "0" ]; then echo "ERROR! Options $1 and -nocpp are incompatible"; usage; fi
-    if [ "${simds}" != "" ]; then echo "ERROR! Incompatible option $1: SIMDs are already defined as '$simds'"; usage; fi
-    simds="512z"
-    cuda=0; echo "WARNING! Option $1 implies -nocuda"
+    if [ "${bblds}" != "" ]; then echo "ERROR! Incompatible option $1: backend builds are already defined as '$bblds'"; usage; fi
+    bblds="512z"
     shift
   elif [ "$1" == "-noalpaka" ]; then
     alpaka=0
@@ -217,7 +198,7 @@ while [ "$1" != "" ]; do
     shift
   elif [ "$1" == "-gtest" ]; then
     # For simplicity a gtest runTest.exe is executed for each build where check.exe is executed
-    if [ "${cpp}" == "0" ]; then echo "ERROR! Options -gtest and -nocpp are incompatible"; usage; fi
+    ###if [ "${cpp}" == "0" ]; then echo "ERROR! Options -gtest and -nocpp are incompatible"; usage; fi
     gtest=1
     shift
   elif [ "$1" == "-nofpe" ]; then
@@ -260,8 +241,8 @@ if [ "${heftggh}" == "1" ] && [ "${suffs/.mad\/}" != "${suffs}" ]; then
   echo "ERROR! Invalid option -heftggh for .mad directories"; exit 1
 fi
 
-# Define the default simds if none are defined
-if [ "${simds}" == "" ]; then simds="none 512y"; fi
+# Define the default bblds if none are defined
+if [ "${bblds}" == "" ]; then bblds="512y cuda"; fi
 
 # Use only the .auto process directories in the alpaka directory
 if [ "$bckend" == "alpaka" ]; then
@@ -355,44 +336,44 @@ exes=
 for dir in $dirs; do
   
   #=====================================
-  # CUDA   (epochX - manual/mad)
   # ALPAKA (epochX - manual/auto)
   #=====================================
-  if [ "${cuda}" == "1" ]; then
-    for hrdcod in $hrdcods; do
-      hrdsuf=_hrd${hrdcod}
-      if [ "$bckend" == "alpaka" ]; then hrdsuf=""; fi
-      for helinl in $helinls; do
-        for fptype in $fptypes; do
-          exes="$exes ${dir}/build.none_${fptype}_inl${helinl}${hrdsuf}/gcheck.exe"
-          if [ "${alpaka}" == "1" ]; then
-            exes="$exes ${dir}/build.none_${fptype}_inl${helinl}${hrdsuf}/alpcheck.exe"
+  for hrdcod in $hrdcods; do
+    hrdsuf=_hrd${hrdcod}
+    if [ "$bckend" == "alpaka" ]; then hrdsuf=""; fi
+    for helinl in $helinls; do
+      for fptype in $fptypes; do
+        if [ "${alpaka}" == "1" ]; then
+          exes="$exes ${dir}/build.none_${fptype}_inl${helinl}${hrdsuf}/alpcheck.exe"
+        fi
+      done
+    done
+  done
+  
+  #=====================================
+  # CUDA (epochX - manual/mad)
+  # C++  (epochX - manual/mad)
+  #=====================================
+  for hrdcod in $hrdcods; do
+    hrdsuf=_hrd${hrdcod}
+    if [ "$bckend" == "alpaka" ]; then hrdsuf=""; fi
+    for helinl in $helinls; do
+      for fptype in $fptypes; do
+        for bbld in none sse4 avx2 512y 512z cuda; do
+          if [ "${bblds}" == "${bbldsall}" ] || [ "${bblds/${bbld}}" != "${bblds}" ]; then 
+            if [ "${bbld}" == "cuda" ]; then
+              exes="$exes $dir/build.${bbld}_${fptype}_inl${helinl}${hrdsuf}/gcheck.exe"
+            else
+              exes="$exes $dir/build.${bbld}_${fptype}_inl${helinl}${hrdsuf}/check.exe"
+            fi
           fi
         done
       done
     done
-  fi
-  
-  #=====================================
-  # C++ (eemumu/epochX - manual/mad)
-  #=====================================
-  if [ "${cpp}" == "1" ]; then 
-    for hrdcod in $hrdcods; do
-      hrdsuf=_hrd${hrdcod}
-      if [ "$bckend" == "alpaka" ]; then hrdsuf=""; fi
-      for helinl in $helinls; do
-        for fptype in $fptypes; do
-          for simd in none sse4 avx2 512y 512z; do
-            if [ "${simds}" == "${simdsall}" ] || [ "${simds/${simd}}" != "${simds}" ]; then 
-              exes="$exes $dir/build.${simd}_${fptype}_inl${helinl}${hrdsuf}/check.exe"
-            fi
-          done
-        done
-      done
-    done
-  fi
+  done
 
 done
+###echo "exes=$exes"; exit 1
 
 ##########################################################################
 # PART 2 - build the executables which should be run
@@ -428,14 +409,11 @@ else
 	export HELINL=$helinl
 	for fptype in $fptypes; do
           export FPTYPE=$fptype
-          if [ "${simds}" == "${simdsall}" ]; then
-            make ${makef} ${makej} avxall; echo # allow 'make avxall' again #536
+          if [ "${bblds}" == "${bbldsall}" ]; then
+            make ${makef} ${makej} bldall; echo # (was: allow 'make avxall' again #536)
           else
-            if [ "${cuda}" == "1" ] || [ "${simds/none}" != "${simds}" ]; then 
-              make ${makef} ${makej} AVX=none; echo
-            fi
-            for simd in ${simds/none}; do
-              make ${makef} ${makej} AVX=${simd}; echo
+            for bbld in ${bblds}; do
+              make ${makef} ${makej} BACKEND=${bbld}; echo
             done
           fi
 	done
