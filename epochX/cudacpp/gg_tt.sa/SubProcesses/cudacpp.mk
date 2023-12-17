@@ -525,7 +525,11 @@ testmain=$(BUILDDIR)/runTest.exe
 .DEFAULT_GOAL := all.$(TAG)
 
 # First target (default goal)
-all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cu_main) $(cxx_main) $(fcu_main) $(fcxx_main) $(if $(GTESTLIBS),$(testmain))
+ifeq ($(BACKEND),cuda)
+all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cu_main) $(fcu_main) $(if $(GTESTLIBS),$(testmain))
+else
+all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_main) $(fcxx_main) $(if $(GTESTLIBS),$(testmain))
+endif
 
 # Target (and build options): debug
 MAKEDEBUG=
@@ -703,13 +707,13 @@ endif
 #-------------------------------------------------------------------------------
 
 # Target (and build rules): test objects and test executable
+ifneq ($(BACKEND),cuda)
 $(BUILDDIR)/testxxx.o: $(GTESTLIBS)
 $(BUILDDIR)/testxxx.o: INCFLAGS += $(GTESTINC)
 $(BUILDDIR)/testxxx.o: testxxx_cc_ref.txt
 $(testmain): $(BUILDDIR)/testxxx.o
 $(testmain): cxx_objects_exe += $(BUILDDIR)/testxxx.o # Comment out this line to skip the C++ test of xxx functions
-
-ifneq ($(NVCC),)
+else
 $(BUILDDIR)/testxxx_cu.o: $(GTESTLIBS)
 $(BUILDDIR)/testxxx_cu.o: INCFLAGS += $(GTESTINC)
 $(BUILDDIR)/testxxx_cu.o: testxxx_cc_ref.txt
@@ -717,24 +721,24 @@ $(testmain): $(BUILDDIR)/testxxx_cu.o
 $(testmain): cu_objects_exe += $(BUILDDIR)/testxxx_cu.o # Comment out this line to skip the CUDA test of xxx functions
 endif
 
+ifneq ($(BACKEND),cuda)
 $(BUILDDIR)/testmisc.o: $(GTESTLIBS)
 $(BUILDDIR)/testmisc.o: INCFLAGS += $(GTESTINC)
 $(testmain): $(BUILDDIR)/testmisc.o
 $(testmain): cxx_objects_exe += $(BUILDDIR)/testmisc.o # Comment out this line to skip the C++ miscellaneous tests
-
-ifneq ($(NVCC),)
+else
 $(BUILDDIR)/testmisc_cu.o: $(GTESTLIBS)
 $(BUILDDIR)/testmisc_cu.o: INCFLAGS += $(GTESTINC)
 $(testmain): $(BUILDDIR)/testmisc_cu.o
 $(testmain): cu_objects_exe += $(BUILDDIR)/testmisc_cu.o # Comment out this line to skip the CUDA miscellaneous tests
 endif
 
+ifneq ($(BACKEND),cuda)
 $(BUILDDIR)/runTest.o: $(GTESTLIBS)
 $(BUILDDIR)/runTest.o: INCFLAGS += $(GTESTINC)
 $(testmain): $(BUILDDIR)/runTest.o
 $(testmain): cxx_objects_exe += $(BUILDDIR)/runTest.o
-
-ifneq ($(NVCC),)
+else
 $(BUILDDIR)/runTest_cu.o: $(GTESTLIBS)
 $(BUILDDIR)/runTest_cu.o: INCFLAGS += $(GTESTINC)
 ifneq ($(shell $(CXX) --version | grep ^Intel),)
@@ -763,14 +767,14 @@ $(testmain): LIBFLAGS += -lgomp
 endif
 endif
 
-ifeq ($(NVCC),) # link only runTest.o
+ifneq ($(BACKEND),cuda) # link only runTest.o
 $(testmain): LIBFLAGS += $(CXXLIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects_lib) $(cxx_objects_exe) $(GTESTLIBS)
 	$(CXX) -o $@ $(cxx_objects_lib) $(cxx_objects_exe) -ldl -pthread $(LIBFLAGS)
-else # link both runTest.o and runTest_cu.o
+else # link only runTest_cu.o (new: in the past, this was linking both runTest.o and runTest_cu.o)
 $(testmain): LIBFLAGS += $(CULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
-$(testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects_lib) $(cxx_objects_exe) $(cu_objects_lib) $(cu_objects_exe) $(GTESTLIBS)
-	$(NVCC) -o $@ $(cxx_objects_lib) $(cxx_objects_exe) $(cu_objects_lib) $(cu_objects_exe) -ldl $(LIBFLAGS) -lcuda
+$(testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cu_objects_lib) $(cu_objects_exe) $(GTESTLIBS)
+	$(NVCC) -o $@ $(cu_objects_lib) $(cu_objects_exe) -ldl $(LIBFLAGS) -lcuda
 endif
 
 # Use target gtestlibs to build only googletest
