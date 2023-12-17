@@ -311,19 +311,6 @@ index 348c283be..8a842b79b 100644
 +
 +distclean: cleanall # Clean all fortran and cudacpp builds as well as the googletest installation
 +	$(MAKE) -f $(CUDACPP_MAKEFILE) distclean
-diff --git b/epochX/cudacpp/gg_tt.mad/Source/make_opts a/epochX/cudacpp/gg_tt.mad/Source/make_opts
-index e43d43e8b..e4b87ee6a 100644
---- b/epochX/cudacpp/gg_tt.mad/Source/make_opts
-+++ a/epochX/cudacpp/gg_tt.mad/Source/make_opts
-@@ -1,7 +1,7 @@
--GLOBAL_FLAG=-O3 -ffast-math -fbounds-check
- DEFAULT_CPP_COMPILER=g++
- DEFAULT_F2PY_COMPILER=f2py3
- DEFAULT_F_COMPILER=gfortran
-+GLOBAL_FLAG=-O3 -ffast-math -fbounds-check
- MACFLAG=
- MG5AMC_VERSION=SpecifiedByMG5aMCAtRunTime
- PYTHIA8_PATH=NotInstalled
 diff --git b/epochX/cudacpp/gg_tt.mad/bin/internal/gen_ximprove.py a/epochX/cudacpp/gg_tt.mad/bin/internal/gen_ximprove.py
 index fb7efa87c..5fd170d18 100755
 --- b/epochX/cudacpp/gg_tt.mad/bin/internal/gen_ximprove.py
