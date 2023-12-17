@@ -186,21 +186,6 @@ ifeq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
 endif
 ###$(info CUDA_HOME=$(CUDA_HOME))
 
-# Configure NVTX and CURAND if a CUDA installation exists
-ifneq ($(CUDA_HOME),)
-  USE_NVTX ?=-DUSE_NVTX
-  CUINC = -I$(CUDA_HOME)/include/
-  ifeq ($(RNDGEN),hasNoCurand)
-    CURANDLIBFLAGS=
-  else
-    CURANDLIBFLAGS = -L$(CUDA_HOME)/lib64/ -lcurand # NB: -lcuda is not needed here!
-  endif
-else
-  override USE_NVTX=
-  override CUINC=
-  override CURANDLIBFLAGS=
-endif
-
 #=== Configure the CUDA compiler (only for the CUDA backend)
 
 ifeq ($(BACKEND),cuda)
@@ -335,7 +320,7 @@ endif
 
 # Set the default RNDGEN (random number generator) choice
 ifeq ($(RNDGEN),)
-  ifeq ($(NVCC),)
+  ifeq ($(CUDA_HOME),)
     override RNDGEN = hasNoCurand
   else ifeq ($(RNDGEN),)
     override RNDGEN = hasCurand
@@ -353,6 +338,21 @@ export OMPFLAGS
 #-------------------------------------------------------------------------------
 
 #=== Set the CUDA/C++ compiler flags appropriate to user-defined choices of BACKEND, FPTYPE, HELINL, HRDCOD, RNDGEN
+
+# Configure NVTX and CURAND if a CUDA installation exists
+ifneq ($(CUDA_HOME),)
+  USE_NVTX ?=-DUSE_NVTX
+  CUINC = -I$(CUDA_HOME)/include/
+  ifeq ($(RNDGEN),hasNoCurand)
+    CURANDLIBFLAGS=
+  else
+    CURANDLIBFLAGS = -L$(CUDA_HOME)/lib64/ -lcurand # NB: -lcuda is not needed here!
+  endif
+else
+  override USE_NVTX=
+  override CUINC=
+  override CURANDLIBFLAGS=
+endif
 
 # Set the build flags appropriate to OMPFLAGS
 $(info OMPFLAGS=$(OMPFLAGS))
