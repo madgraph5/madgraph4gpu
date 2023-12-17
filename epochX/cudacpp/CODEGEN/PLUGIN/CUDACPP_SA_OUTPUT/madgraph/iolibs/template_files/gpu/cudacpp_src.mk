@@ -220,9 +220,9 @@ $(BUILDDIR)/%%_cu.o : %%.cc *.h $(BUILDDIR)/.build.$(TAG)
 
 #-------------------------------------------------------------------------------
 
-cxx_objects=$(addprefix $(BUILDDIR)/, Parameters_sm.o read_slha.o)
+cxx_objects=$(addprefix $(BUILDDIR)/, Parameters_%(model)s.o read_slha.o)
 ifneq ($(NVCC),)
-cu_objects=$(addprefix $(BUILDDIR)/, Parameters_sm_cu.o)
+cu_objects=$(addprefix $(BUILDDIR)/, Parameters_%(model)s_cu.o)
 endif
 
 # Target (and build rules): common (src) library
