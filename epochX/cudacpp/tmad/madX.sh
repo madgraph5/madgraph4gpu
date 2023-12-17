@@ -2,6 +2,7 @@
 # Copyright (C) 2020-2023 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: A. Valassi (Mar 2022) for the MG5aMC CUDACPP plugin.
+# Further modified by: A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
 
 set +x # not verbose
 set -e # fail on error
@@ -264,7 +265,7 @@ function runcheck()
   if [ "${cmd/gcheckmax128thr}" != "$cmd" ]; then
     txt="GCHECK(MAX128THR)"
     cmd=${cmd/gcheckmax128thr/gcheck} # hack: run cuda gcheck with tput fastest settings
-    cmd=${cmd/.\//.\/build.none_${fptype}_inl0_hrd0\/}
+    cmd=${cmd/.\//.\/build.cuda_${fptype}_inl0_hrd0\/}
     nblk=$(getgridmax | cut -d ' ' -f1)
     nthr=$(getgridmax | cut -d ' ' -f2)
     while [ $nthr -lt 128 ]; do (( nthr = nthr * 2 )); (( nblk = nblk / 2 )); done
@@ -272,7 +273,7 @@ function runcheck()
   elif [ "${cmd/gcheckmax8thr}" != "$cmd" ]; then
     txt="GCHECK(MAX8THR)"
     cmd=${cmd/gcheckmax8thr/gcheck} # hack: run cuda gcheck with tput fastest settings
-    cmd=${cmd/.\//.\/build.none_${fptype}_inl0_hrd0\/}
+    cmd=${cmd/.\//.\/build.cuda_${fptype}_inl0_hrd0\/}
     nblk=$(getgridmax | cut -d ' ' -f1)
     nthr=$(getgridmax | cut -d ' ' -f2)
     while [ $nthr -gt 8 ]; do (( nthr = nthr / 2 )); (( nblk = nblk * 2 )); done
@@ -280,13 +281,13 @@ function runcheck()
   elif [ "${cmd/gcheckmax}" != "$cmd" ]; then
     txt="GCHECK(MAX)"
     cmd=${cmd/gcheckmax/gcheck} # hack: run cuda gcheck with tput fastest settings
-    cmd=${cmd/.\//.\/build.none_${fptype}_inl0_hrd0\/}
+    cmd=${cmd/.\//.\/build.cuda_${fptype}_inl0_hrd0\/}
     nblk=$(getgridmax | cut -d ' ' -f1)
     nthr=$(getgridmax | cut -d ' ' -f2)
     (( nevt = nblk*nthr ))
   elif [ "${cmd/gcheck}" != "$cmd" ]; then
     txt="GCHECK($NLOOP)"
-    cmd=${cmd/.\//.\/build.none_${fptype}_inl0_hrd0\/}
+    cmd=${cmd/.\//.\/build.cuda_${fptype}_inl0_hrd0\/}
     nthr=32
     (( nblk = NLOOP/nthr )) # NB integer division
     (( nloop2 = nblk*nthr ))
@@ -324,7 +325,7 @@ function runmadevent()
     tmpin=$(getinputfile -cpp)
     cmd=${cmd/.\//.\/build.${avx}_${fptype}_inl0_hrd0\/}
   elif [ "${cmd/madevent_cuda}" != "$cmd" ]; then
-    cmd=${cmd/.\//.\/build.none_${fptype}_inl0_hrd0\/}
+    cmd=${cmd/.\//.\/build.cuda_${fptype}_inl0_hrd0\/}
     tmpin=$(getinputfile -cuda)
   else # assume this is madevent_fortran (do not check)
     tmpin=$(getinputfile -fortran)
@@ -404,8 +405,9 @@ for suff in $suffs; do
 
   if [ "${maketype}" == "-makeclean" ]; then make cleanall; echo; fi
   if [ "${maketype}" == "-makecleanonly" ]; then make cleanall; echo; continue; fi
-  ###make -j avxall
-  make -j5 avxall # limit build parallelism to avoid "cudafe++ died due to signal 9" (#639)
+  ###make -j5 avxall # limit build parallelism of the old 'make avxall' to avoid "cudafe++ died due to signal 9" (#639)
+  make -j6 bldall # limit build parallelism also with the new 'make bldall'
+  ###make -j bldall
 
 done
 
