@@ -34,8 +34,8 @@ UNAME_P := $(shell uname -p)
 
 #=== Include the common MG5aMC Makefile options
 
-# OM: this is crucial for MG5aMC flag consistency/documentation
-# AV: temporarely comment this out because it breaks cudacpp builds
+# OM: including make_opts is crucial for MG5aMC flag consistency/documentation
+# AV: disable the inclusion of make_opts if the file has not been generated (standalone cudacpp)
 ifneq ($(wildcard ../../Source/make_opts),)
 include ../../Source/make_opts
 endif
