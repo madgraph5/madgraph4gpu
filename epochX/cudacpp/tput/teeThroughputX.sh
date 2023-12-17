@@ -161,7 +161,7 @@ for step in $steps; do
             args="${args} ${rndgen}" # optionally use common random numbers or curand on host
             args="${args} ${rmbsmp}" # optionally use rambo or bridge on host
             args="${args} ${nofpe}" # optionally disable FPEs
-            args="${args} -avxall" # avx, fptype, helinl and hrdcod are now supported for all processes
+            args="${args} -bldall" # avx, fptype, helinl and hrdcod are now supported for all processes
             if [ "${step}" == "makeclean" ]; then
               printf "\n%80s\n" |tr " " "*"
               printf "*** ./throughputX.sh -makecleanonly $args"
