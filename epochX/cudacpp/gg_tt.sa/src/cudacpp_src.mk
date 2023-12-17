@@ -96,50 +96,51 @@ CXXFLAGS += $(OMPFLAGS)
 # [NB MGONGPU_PVW512 is needed because "-mprefer-vector-width=256" is not exposed in a macro]
 # [See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=96476]
 ifeq ($(NVCC),)
-  $(info AVX=$(AVX))
-  ifeq ($(UNAME_P),ppc64le)
-    ifeq ($(AVX),sse4)
-      override AVXFLAGS = -D__SSE4_2__ # Power9 VSX with 128 width (VSR registers)
-    else ifneq ($(AVX),none)
-      $(error Unknown AVX='$(AVX)': only 'none' and 'sse4' are supported on PowerPC for the moment)
-    endif
-  else ifeq ($(UNAME_P),arm)
-    ifeq ($(AVX),sse4)
-      override AVXFLAGS = -D__SSE4_2__ # ARM NEON with 128 width (Q/quadword registers)
-    else ifneq ($(AVX),none)
-      $(error Unknown AVX='$(AVX)': only 'none' and 'sse4' are supported on ARM for the moment)
-    endif
-  else ifneq ($(shell $(CXX) --version | grep ^nvc++),) # support nvc++ #531
-    ifeq ($(AVX),none)
-      override AVXFLAGS = -mno-sse3 # no SIMD
-    else ifeq ($(AVX),sse4)
-      override AVXFLAGS = -mno-avx # SSE4.2 with 128 width (xmm registers)
-    else ifeq ($(AVX),avx2)
-      override AVXFLAGS = -march=haswell # AVX2 with 256 width (ymm registers) [DEFAULT for clang]
-    else ifeq ($(AVX),512y)
-      override AVXFLAGS = -march=skylake -mprefer-vector-width=256 # AVX512 with 256 width (ymm registers) [DEFAULT for gcc]
-    else ifeq ($(AVX),512z)
-      override AVXFLAGS = -march=skylake -DMGONGPU_PVW512 # AVX512 with 512 width (zmm registers)
-    else
-      $(error Unknown AVX='$(AVX)': only 'none', 'sse4', 'avx2', '512y' and '512z' are supported)
-    endif
-  else
-    ifeq ($(AVX),none)
-      override AVXFLAGS = -march=x86-64 # no SIMD (see #588)
-    else ifeq ($(AVX),sse4)
-      override AVXFLAGS = -march=nehalem # SSE4.2 with 128 width (xmm registers)
-    else ifeq ($(AVX),avx2)
-      override AVXFLAGS = -march=haswell # AVX2 with 256 width (ymm registers) [DEFAULT for clang]
-    else ifeq ($(AVX),512y)
-      override AVXFLAGS = -march=skylake-avx512 -mprefer-vector-width=256 # AVX512 with 256 width (ymm registers) [DEFAULT for gcc]
-    else ifeq ($(AVX),512z)
-      override AVXFLAGS = -march=skylake-avx512 -DMGONGPU_PVW512 # AVX512 with 512 width (zmm registers)
-    else ifneq ($(AVX),none)
-      $(error Unknown AVX='$(AVX)': only 'none', 'sse4', 'avx2', '512y' and '512z' are supported)
-    endif
+
+$(info AVX=$(AVX))
+ifeq ($(UNAME_P),ppc64le)
+  ifeq ($(AVX),sse4)
+    override AVXFLAGS = -D__SSE4_2__ # Power9 VSX with 128 width (VSR registers)
+  else ifneq ($(AVX),none)
+    $(error Unknown AVX='$(AVX)': only 'none' and 'sse4' are supported on PowerPC for the moment)
   endif
-  # For the moment, use AVXFLAGS everywhere: eventually, use them only in encapsulated implementations?
-  CXXFLAGS+= $(AVXFLAGS)
+else ifeq ($(UNAME_P),arm)
+  ifeq ($(AVX),sse4)
+    override AVXFLAGS = -D__SSE4_2__ # ARM NEON with 128 width (Q/quadword registers)
+  else ifneq ($(AVX),none)
+    $(error Unknown AVX='$(AVX)': only 'none' and 'sse4' are supported on ARM for the moment)
+  endif
+else ifneq ($(shell $(CXX) --version | grep ^nvc++),) # support nvc++ #531
+  ifeq ($(AVX),none)
+    override AVXFLAGS = -mno-sse3 # no SIMD
+  else ifeq ($(AVX),sse4)
+    override AVXFLAGS = -mno-avx # SSE4.2 with 128 width (xmm registers)
+  else ifeq ($(AVX),avx2)
+    override AVXFLAGS = -march=haswell # AVX2 with 256 width (ymm registers) [DEFAULT for clang]
+  else ifeq ($(AVX),512y)
+    override AVXFLAGS = -march=skylake -mprefer-vector-width=256 # AVX512 with 256 width (ymm registers) [DEFAULT for gcc]
+  else ifeq ($(AVX),512z)
+    override AVXFLAGS = -march=skylake -DMGONGPU_PVW512 # AVX512 with 512 width (zmm registers)
+  else
+    $(error Unknown AVX='$(AVX)': only 'none', 'sse4', 'avx2', '512y' and '512z' are supported)
+  endif
+else
+  ifeq ($(AVX),none)
+    override AVXFLAGS = -march=x86-64 # no SIMD (see #588)
+  else ifeq ($(AVX),sse4)
+    override AVXFLAGS = -march=nehalem # SSE4.2 with 128 width (xmm registers)
+  else ifeq ($(AVX),avx2)
+    override AVXFLAGS = -march=haswell # AVX2 with 256 width (ymm registers) [DEFAULT for clang]
+  else ifeq ($(AVX),512y)
+    override AVXFLAGS = -march=skylake-avx512 -mprefer-vector-width=256 # AVX512 with 256 width (ymm registers) [DEFAULT for gcc]
+  else ifeq ($(AVX),512z)
+    override AVXFLAGS = -march=skylake-avx512 -DMGONGPU_PVW512 # AVX512 with 512 width (zmm registers)
+  else ifneq ($(AVX),none)
+    $(error Unknown AVX='$(AVX)': only 'none', 'sse4', 'avx2', '512y' and '512z' are supported)
+  endif
+endif
+# For the moment, use AVXFLAGS everywhere: eventually, use them only in encapsulated implementations?
+CXXFLAGS+= $(AVXFLAGS)
 endif
 
 # Set the build flags appropriate to each FPTYPE choice (example: "make FPTYPE=f")
