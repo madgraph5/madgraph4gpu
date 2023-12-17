@@ -38,7 +38,7 @@ index 617f10b93..00c73099a 100644
 +cleanall: cleanSource # THIS IS THE ONE
 +	for i in `ls -d ../SubProcesses/P*`; do cd $$i; make cleanavxs; cd -; done;
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
-index 348c283be..8a842b79b 100644
+index 348c283be..62bd1df78 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 @@ -1,6 +1,28 @@
@@ -265,10 +265,14 @@ index 348c283be..8a842b79b 100644
 +endif
 +
 +ifneq ($(CUDA_HOME),)
-+bldall: bldavxs bldcuda
++bldall: bldcuda bldavxs
 +else
 +bldall: bldavxs
 +endif
++
++bldcuda: $(PROG)_fortran $(DSIG_cudacpp)
++	@echo
++	$(MAKE) USEBUILDDIR=1 BACKEND=cuda
 +
 +bldnone: $(PROG)_fortran $(DSIG_cudacpp)
 +	@echo
@@ -289,10 +293,6 @@ index 348c283be..8a842b79b 100644
 +bld512z: $(PROG)_fortran $(DSIG_cudacpp)
 +	@echo
 +	$(MAKE) USEBUILDDIR=1 BACKEND=512z
-+
-+bldcuda: $(PROG)_fortran $(DSIG_cudacpp)
-+	@echo
-+	$(MAKE) USEBUILDDIR=1 BACKEND=cuda
 +
 +# Clean (NB: 'make clean' in Source calls 'make clean' in all P*)
 +
