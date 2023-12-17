@@ -525,11 +525,7 @@ testmain=$(BUILDDIR)/runTest.exe
 .DEFAULT_GOAL := all.$(TAG)
 
 # First target (default goal)
-ifneq ($(GTESTLIBS),)
-all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cu_main) $(cxx_main) $(fcu_main) $(fcxx_main) $(testmain)
-else
-all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cu_main) $(cxx_main) $(fcu_main) $(fcxx_main)
-endif
+all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cu_main) $(cxx_main) $(fcu_main) $(fcxx_main) $(if $(GTESTLIBS),$(testmain))
 
 # Target (and build options): debug
 MAKEDEBUG=
