@@ -1,7 +1,7 @@
 # Copyright (C) 2020-2023 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: S. Roiser (Feb 2020) for the MG5aMC CUDACPP plugin.
-# Further modified by: O. Mattelaer, S. Roiser, J. Teig, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
+# Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, J. Teig, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
 
 #=== Determine the name of this makefile (https://ftp.gnu.org/old-gnu/Manuals/make-3.80/html_node/make_17.html)
 #=== NB: use ':=' to ensure that the value of CUDACPP_MAKEFILE is not modified further down after including make_opts
@@ -244,7 +244,7 @@ endif
 
 #-------------------------------------------------------------------------------
 
-#=== Configure defaults and check if user-defined choices exist for OMPFLAGS, AVX, FPTYPE, HELINL, HRDCOD, RNDGEN
+#=== Configure defaults and check if user-defined choices exist for OMPFLAGS, BACKEND, FPTYPE, HELINL, HRDCOD, RNDGEN
 
 # Set the default OMPFLAGS choice
 ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
@@ -286,23 +286,23 @@ ifeq ($(RNDGEN),)
   endif
 endif
 
-# set the correct AVX based on avxcpp target
+# set the correct BACKEND based on avxcpp target
 ifeq ($(MAKECMDGOALS),cppnone) # no SIMD
-  override AVX = none
+  override BACKEND = none
 else ifeq ($(MAKECMDGOALS),cppsse4) # SSE4.2 with 128 width (xmm registers)
-  override AVX = sse4
+  override BACKEND = sse4
 else ifeq ($(MAKECMDGOALS),cppavx2) # AVX2 with 256 width (ymm registers) [DEFAULT for clang]
-  override AVX = avx2
+  override BACKEND = avx2
 else ifeq ($(MAKECMDGOALS),cpp512y) # AVX512 with 256 width (ymm registers) [DEFAULT for gcc]
-  override AVX = 512y
+  override BACKEND = 512y
 else ifeq ($(MAKECMDGOALS),cpp512z) # AVX512 with 512 width (zmm registers)
-  override AVX = 512z
+  override BACKEND = 512z
 else
-  override AVX = none
+  override BACKEND = none
 endif
 
-# Export AVX, FPTYPE, HELINL, HRDCOD, RNDGEN, OMPFLAGS so that it is not necessary to pass them to the src Makefile too
-export AVX
+# Export BACKEND, FPTYPE, HELINL, HRDCOD, RNDGEN, OMPFLAGS so that it is not necessary to pass them to the src Makefile too
+export BACKEND
 export FPTYPE
 export HELINL
 export HRDCOD
@@ -311,56 +311,56 @@ export OMPFLAGS
 
 #-------------------------------------------------------------------------------
 
-#=== Set the CUDA/C++ compiler flags appropriate to user-defined choices of AVX, FPTYPE, HELINL, HRDCOD, RNDGEN
+#=== Set the CUDA/C++ compiler flags appropriate to user-defined choices of BACKEND, FPTYPE, HELINL, HRDCOD, RNDGEN
 
 # Set the build flags appropriate to OMPFLAGS
 $(info OMPFLAGS=$(OMPFLAGS))
 CXXFLAGS += $(OMPFLAGS)
 
-# Set the build flags appropriate to each AVX choice (example: "make AVX=none")
+# Set the build flags appropriate to each BACKEND choice (example: "make BACKEND=none")
 # [NB MGONGPU_PVW512 is needed because "-mprefer-vector-width=256" is not exposed in a macro]
 # [See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=96476]
 ifeq ($(findstring cpp,$(MAKECMDGOALS)),cpp)
-$(info AVX=$(AVX))
+$(info BACKEND=$(BACKEND))
 ifeq ($(UNAME_P),ppc64le)
-  ifeq ($(AVX),sse4)
+  ifeq ($(BACKEND),sse4)
     override AVXFLAGS = -D__SSE4_2__ # Power9 VSX with 128 width (VSR registers)
-  else ifneq ($(AVX),none)
-    $(error Unknown AVX='$(AVX)': only 'none' and 'sse4' are supported on PowerPC for the moment)
+  else ifneq ($(BACKEND),none)
+    $(error Unknown BACKEND='$(BACKEND)': only 'none' and 'sse4' are supported on PowerPC for the moment)
   endif
 else ifeq ($(UNAME_P),arm)
-  ifeq ($(AVX),sse4)
+  ifeq ($(BACKEND),sse4)
     override AVXFLAGS = -D__SSE4_2__ # ARM NEON with 128 width (Q/quadword registers)
-  else ifneq ($(AVX),none)
-    $(error Unknown AVX='$(AVX)': only 'none' and 'sse4' are supported on ARM for the moment)
+  else ifneq ($(BACKEND),none)
+    $(error Unknown BACKEND='$(BACKEND)': only 'none' and 'sse4' are supported on ARM for the moment)
   endif
 else ifneq ($(shell $(CXX) --version | grep ^nvc++),) # support nvc++ #531
-  ifeq ($(AVX),none)
+  ifeq ($(BACKEND),none)
     override AVXFLAGS = -mno-sse3 # no SIMD
-  else ifeq ($(AVX),sse4)
+  else ifeq ($(BACKEND),sse4)
     override AVXFLAGS = -mno-avx # SSE4.2 with 128 width (xmm registers)
-  else ifeq ($(AVX),avx2)
+  else ifeq ($(BACKEND),avx2)
     override AVXFLAGS = -march=haswell # AVX2 with 256 width (ymm registers) [DEFAULT for clang]
-  else ifeq ($(AVX),512y)
+  else ifeq ($(BACKEND),512y)
     override AVXFLAGS = -march=skylake -mprefer-vector-width=256 # AVX512 with 256 width (ymm registers) [DEFAULT for gcc]
-  else ifeq ($(AVX),512z)
+  else ifeq ($(BACKEND),512z)
     override AVXFLAGS = -march=skylake -DMGONGPU_PVW512 # AVX512 with 512 width (zmm registers)
   else
-    $(error Unknown AVX='$(AVX)': only 'none', 'sse4', 'avx2', '512y' and '512z' are supported)
+    $(error Unknown BACKEND='$(BACKEND)': only 'none', 'sse4', 'avx2', '512y' and '512z' are supported)
   endif
 else
-  ifeq ($(AVX),none)
+  ifeq ($(BACKEND),none)
     override AVXFLAGS = -march=x86-64 # no SIMD (see #588)
-  else ifeq ($(AVX),sse4)
+  else ifeq ($(BACKEND),sse4)
     override AVXFLAGS = -march=nehalem # SSE4.2 with 128 width (xmm registers)
-  else ifeq ($(AVX),avx2)
+  else ifeq ($(BACKEND),avx2)
     override AVXFLAGS = -march=haswell # AVX2 with 256 width (ymm registers) [DEFAULT for clang]
-  else ifeq ($(AVX),512y)
+  else ifeq ($(BACKEND),512y)
     override AVXFLAGS = -march=skylake-avx512 -mprefer-vector-width=256 # AVX512 with 256 width (ymm registers) [DEFAULT for gcc]
-  else ifeq ($(AVX),512z)
+  else ifeq ($(BACKEND),512z)
     override AVXFLAGS = -march=skylake-avx512 -DMGONGPU_PVW512 # AVX512 with 512 width (zmm registers)
   else
-    $(error Unknown AVX='$(AVX)': only 'none', 'sse4', 'avx2', '512y' and '512z' are supported)
+    $(error Unknown BACKEND='$(BACKEND)': only 'none', 'sse4', 'avx2', '512y' and '512z' are supported)
   endif
 endif
 # For the moment, use AVXFLAGS everywhere: eventually, use them only in encapsulated implementations?
@@ -419,7 +419,7 @@ endif
 ifneq ($(NVCC),)
   override DIRTAG = cuda_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)
 else
-  override DIRTAG = $(AVX)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)
+  override DIRTAG = $(BACKEND)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)
 endif
 
 # Build lockfile "full" tag (defines full specification of build options that cannot be intermixed)
@@ -427,7 +427,7 @@ endif
 ifneq ($(NVCC),)
   override TAG = cuda_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)_$(RNDGEN)
 else
-  override TAG = $(AVX)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)_$(RNDGEN)
+  override TAG = $(BACKEND)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)_$(RNDGEN)
 endif
 
 # Build directory: current directory by default, or build.$(DIRTAG) if USEBUILDDIR==1
@@ -743,9 +743,9 @@ endif
 
 #-------------------------------------------------------------------------------
 
-# Target: build all targets in all AVX modes (each AVX mode in a separate build directory)
+# Target: build all targets in all BACKEND modes (each BACKEND mode in a separate build directory)
 # Split the avxall target into five separate targets to allow parallel 'make -j avxall' builds
-# (Hack: add a fbridge.inc dependency to avxall, to ensure it is only copied once for all AVX modes)
+# (Hack: add a fbridge.inc dependency to avxall, to ensure it is only copied once for all BACKEND modes)
 cppnone: $(cxx_main)
 
 cppsse4: $(cxx_main)
