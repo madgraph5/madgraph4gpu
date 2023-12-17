@@ -286,13 +286,6 @@ function codeGenAndDiff()
     \rm -rf ${outproc}/bin/internal/ufomodel/py3_model.pkl
     \rm -rf ${outproc}/bin/internal/ufomodel/__pycache__
     touch ${outproc}/HTML/.keep # new file
-    if [ "${patchlevel}" != "0" ]; then
-      # Add global flag '-O3 -ffast-math -fbounds-check' as in previous gridpacks
-      # (FIXME? these flags are already set in the runcards, why are they not propagated to make_opts?)
-      echo "GLOBAL_FLAG=-O3 -ffast-math -fbounds-check" > ${outproc}/Source/make_opts.new
-      cat ${outproc}/Source/make_opts >> ${outproc}/Source/make_opts.new
-      \mv ${outproc}/Source/make_opts.new ${outproc}/Source/make_opts
-    fi
   fi
   popd >& /dev/null
   # Choose which directory must be copied (for gridpack generation: untar and modify the gridpack)

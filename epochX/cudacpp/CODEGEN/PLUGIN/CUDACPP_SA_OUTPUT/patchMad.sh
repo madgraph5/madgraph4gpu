@@ -50,6 +50,9 @@ touch ${dir}/Events/.keep # this file should already be present (mg5amcnlo copie
 cd ${dir}
 echo "DEBUG: standardise ${PWD}/Source/make_opts (fix f2py3 and sort make_opts_variables) before applying patch.common" # AV moved back hare in patchMad.sh from generateAndCompare.sh (see PR #753)
 sed -i 's/DEFAULT_F2PY_COMPILER=f2py.*/DEFAULT_F2PY_COMPILER=f2py3/' Source/make_opts 
+echo "GLOBAL_FLAG=-O3 -ffast-math -fbounds-check" > Source/make_opts.new # FIXME? already set in runcards, why not propagated to make_opts?
+cat Source/make_opts >> Source/make_opts.new
+\mv Source/make_opts.new Source/make_opts
 cat Source/make_opts | sed '/#end/q' | head --lines=-1 | sort > Source/make_opts.new
 cat Source/make_opts | sed -n -e '/#end/,$p' >> Source/make_opts.new
 \mv Source/make_opts.new Source/make_opts
