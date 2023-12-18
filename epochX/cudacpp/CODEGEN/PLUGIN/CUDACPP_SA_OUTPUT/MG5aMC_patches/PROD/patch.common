@@ -1,4 +1,4 @@
-diff --git b/epochX/cudacpp/gg_tt.mad/Source/genps.inc a/epochX/cudacpp/gg_tt.mad/Source/genps.inc
+diff --git b/epochX/cudacpp/gg_tt.mad/Source/genps.inc a/epochX/cudacpp/gg_tt.mad/Source/genps.inc 
 index a59181c70..af7e0efbc 100644
 --- b/epochX/cudacpp/gg_tt.mad/Source/genps.inc
 +++ a/epochX/cudacpp/gg_tt.mad/Source/genps.inc
