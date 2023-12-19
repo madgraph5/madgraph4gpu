@@ -321,10 +321,10 @@ index 348c283be..036140b07 100644
 +distclean: cleanall # Clean all fortran and cudacpp builds as well as the googletest installation
 +	$(MAKE) -f $(CUDACPP_MAKEFILE) distclean
 diff --git b/epochX/cudacpp/gg_tt.mad/bin/internal/gen_ximprove.py a/epochX/cudacpp/gg_tt.mad/bin/internal/gen_ximprove.py
-index fb7efa87c..5fd170d18 100755
+index fb7efa87c..87b336ec8 100755
 --- b/epochX/cudacpp/gg_tt.mad/bin/internal/gen_ximprove.py
 +++ a/epochX/cudacpp/gg_tt.mad/bin/internal/gen_ximprove.py
-@@ -391,8 +391,20 @@ class gensym(object):
+@@ -391,8 +391,17 @@ class gensym(object):
                          done = True
                  if not done:
                      raise Exception('Parsing error in gensym: %s' % stdout)
@@ -333,14 +333,11 @@ index fb7efa87c..5fd170d18 100755
 +
 +            cudacpp_backend = self.run_card['cudacpp_backend'] # the default value is defined in banner.py
 +            logger.info("Building madevent in madevent_interface.py with '%s' matrix elements"%cudacpp_backend)
-+            if cudacpp_backend == 'FORTRAN':
-+                self.cmd.compile(['madevent_fortran_link'], cwd=Pdir)
-+            elif cudacpp_backend == 'CPP':
-+                self.cmd.compile(['madevent_cpp_link'], cwd=Pdir)
-+            elif cudacpp_backend == 'CUDA':
-+                self.cmd.compile(['madevent_cuda_link'], cwd=Pdir)
++            cudacpp_supported_backends = [ 'fortran', 'cuda', 'cpp', 'cppnone', 'cppsse4', 'cppavx2', 'cpp512y', 'cpp512z', 'cppauto' ]
++            if cudacpp_backend in cudacpp_supported_backends :
++                self.cmd.compile(['madevent_' + cudacpp_backend + '_link'], cwd=Pdir)
 +            else:
-+                raise Exception("Invalid cudacpp_backend='%s': only 'FORTRAN', 'CPP', 'CUDA' are supported")
++                raise Exception( "Invalid cudacpp_backend='%s': supported backends are %s"%supported_backends )
 +                ###logger.info("Building madevent with ALL(FORTRAN/CPP/CUDA) matrix elements (cudacpp_backend=%s)"%cudacpp_backend)
 +                ###self.cmd.compile(['all'], cwd=Pdir)
 +
@@ -348,10 +345,10 @@ index fb7efa87c..5fd170d18 100755
                  self.submit_to_cluster(job_list)
                  job_list = {}
 diff --git b/epochX/cudacpp/gg_tt.mad/bin/internal/madevent_interface.py a/epochX/cudacpp/gg_tt.mad/bin/internal/madevent_interface.py
-index 8c509e83f..cb6bf4ca5 100755
+index 8c509e83f..047245a08 100755
 --- b/epochX/cudacpp/gg_tt.mad/bin/internal/madevent_interface.py
 +++ a/epochX/cudacpp/gg_tt.mad/bin/internal/madevent_interface.py
-@@ -3614,8 +3614,20 @@ Beware that this can be dangerous for local multicore runs.""")
+@@ -3614,8 +3614,17 @@ Beware that this can be dangerous for local multicore runs.""")
                  logger.info('    %s ' % subdir)
      
                  if os.path.exists(pjoin(Pdir, 'ajob1')):
@@ -360,14 +357,11 @@ index 8c509e83f..cb6bf4ca5 100755
 +
 +                    cudacpp_backend = self.run_card['cudacpp_backend'] # the default value is defined in banner.py
 +                    logger.info("Building madevent in madevent_interface.py with '%s' matrix elements"%cudacpp_backend)
-+                    if cudacpp_backend == 'FORTRAN':
-+                        self.compile(['madevent_fortran_link'], cwd=Pdir)
-+                    elif cudacpp_backend == 'CPP':
-+                        self.compile(['madevent_cpp_link'], cwd=Pdir)
-+                    elif cudacpp_backend == 'CUDA':
-+                        self.compile(['madevent_cuda_link'], cwd=Pdir)
++                    cudacpp_supported_backends = [ 'fortran', 'cuda', 'cpp', 'cppnone', 'cppsse4', 'cppavx2', 'cpp512y', 'cpp512z', 'cppauto' ]
++                    if cudacpp_backend in cudacpp_supported_backends :
++                        self.compile(['madevent_' + cudacpp_backend + '_link'], cwd=Pdir)
 +                    else:
-+                        raise Exception("Invalid cudacpp_backend='%s': only 'FORTRAN', 'CPP', 'CUDA' are supported")
++                        raise Exception( "Invalid cudacpp_backend='%s': supported backends are %s"%supported_backends )
 +                        ###logger.info("Building madevent with ALL (FORTRAN/CPP/CUDA) matrix elements (cudacpp_backend=%s)"%cudacpp_backend)
 +                        ###self.compile(['all'], cwd=Pdir)
 +
