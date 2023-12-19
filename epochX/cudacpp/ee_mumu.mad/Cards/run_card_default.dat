@@ -202,6 +202,5 @@ systematics = systematics_program ! none, systematics [python], SysCalc [deprece
 # SIMD/GPU configuration for the CUDACPP plugin
 #************************************************************************
  d = floating_type ! floating point precision: f (single), d (double), m (mixed: double for amplitudes, single for colors)
- auto = avx_level ! SIMD vectorization level: none, sse4, avx2, 512y, 512z, auto
- CPP = cudacpp_backend ! CUDACPP backend: FORTRAN, CPP, CUDA
+ cpp = cudacpp_backend ! CUDACPP backend: fortran, cuda, cpp, cppnone, cppsse4, cppavx2, cpp512y, cpp512z, cppauto
 

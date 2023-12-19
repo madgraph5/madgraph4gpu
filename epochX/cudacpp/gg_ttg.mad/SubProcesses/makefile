@@ -154,13 +154,22 @@ madevent_fortran_link: $(PROG)_fortran
 	rm -f $(PROG)
 	ln -s $(PROG)_fortran $(PROG)
 
-madevent_cpp_link: $(CUDACPP_BUILDDIR)/$(PROG)_cpp
+madevent_cuda_link:
+	$(MAKE) BACKEND=cuda $(CUDACPP_BUILDDIR)/$(PROG)_cuda
+	rm -f $(PROG)
+	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cuda $(PROG)
+
+madevent_cpp_link:
+	$(MAKE) BACKEND=auto $(CUDACPP_BUILDDIR)/$(PROG)_cpp
 	rm -f $(PROG)
 	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
 
-madevent_cuda_link: $(CUDACPP_BUILDDIR)/$(PROG)_cuda
+override SUPPORTED_AVXS = none sse4 avx2 512y 512z auto
+madevent_cpp%_link:
+	@if [ '$(words $(filter $*, $(SUPPORTED_AVXS)))' != '1' ]; then echo "ERROR! Invalid target '$@' (supported madevent_cpp*_link targets are: $(foreach avx,$(SUPPORTED_AVXS),'madevent_cpp$(avx)_link'))"; exit 1; fi
+	$(MAKE) BACKEND=$* $(CUDACPP_BUILDDIR)/$(PROG)_cpp
 	rm -f $(PROG)
-	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cuda $(PROG)
+	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
 
 # Building $(PROG)_cpp no longer builds $(PROG)_cuda if $(CUDACPP_CULIB) exists (this was the case in the past to allow cpp-only builds #503)
 $(CUDACPP_BUILDDIR)/$(PROG)_cpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o ompnumthreads.o $(CUDACPP_BUILDDIR)/.cudacpplibs

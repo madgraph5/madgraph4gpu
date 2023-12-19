@@ -394,14 +394,11 @@ class gensym(object):
 
             cudacpp_backend = self.run_card['cudacpp_backend'] # the default value is defined in banner.py
             logger.info("Building madevent in madevent_interface.py with '%s' matrix elements"%cudacpp_backend)
-            if cudacpp_backend == 'FORTRAN':
-                self.cmd.compile(['madevent_fortran_link'], cwd=Pdir)
-            elif cudacpp_backend == 'CPP':
-                self.cmd.compile(['madevent_cpp_link'], cwd=Pdir)
-            elif cudacpp_backend == 'CUDA':
-                self.cmd.compile(['madevent_cuda_link'], cwd=Pdir)
+            cudacpp_supported_backends = [ 'fortran', 'cuda', 'cpp', 'cppnone', 'cppsse4', 'cppavx2', 'cpp512y', 'cpp512z', 'cppauto' ]
+            if cudacpp_backend in cudacpp_supported_backends :
+                self.cmd.compile(['madevent_' + cudacpp_backend + '_link'], cwd=Pdir)
             else:
-                raise Exception("Invalid cudacpp_backend='%s': only 'FORTRAN', 'CPP', 'CUDA' are supported")
+                raise Exception( "Invalid cudacpp_backend='%s': supported backends are %s"%supported_backends )
                 ###logger.info("Building madevent with ALL(FORTRAN/CPP/CUDA) matrix elements (cudacpp_backend=%s)"%cudacpp_backend)
                 ###self.cmd.compile(['all'], cwd=Pdir)
 

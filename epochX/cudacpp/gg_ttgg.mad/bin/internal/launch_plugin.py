@@ -32,22 +32,17 @@ class CPPMEInterface(madevent_interface.MadEventCmdShell):
             self.options['nb_core'] = multiprocessing.cpu_count()    
         if 'cwd' in opts and os.path.basename(opts['cwd']) == 'Source':
             path = pjoin(opts['cwd'], 'make_opts')
-            avx_level = self.run_card['avx_level'] if self.run_card['avx_level'] != 'auto' else ''
             common_run_interface.CommonRunCmd.update_make_opts_full(path,
-                {'FPTYPE': self.run_card['floating_type'],
-                 'AVX': avx_level })
+                {'FPTYPE': self.run_card['floating_type'] })
             misc.sprint('FPTYPE checked')
+        cudacpp_supported_backends = [ 'fortran', 'cuda', 'cpp', 'cppnone', 'cppsse4', 'cppavx2', 'cpp512y', 'cpp512z', 'cppauto' ]
         if args and args[0][0] == 'madevent' and hasattr(self, 'run_card'):            
-            cudacpp_backend = self.run_card['cudacpp_backend'].upper() # the default value is defined in banner.py
+            cudacpp_backend = self.run_card['cudacpp_backend'].lower() # the default value is defined in launch_plugin.py
             logger.info("Building madevent in madevent_interface.py with '%s' matrix elements"%cudacpp_backend)
-            if cudacpp_backend == 'FORTRAN':
-                args[0][0] = 'madevent_fortran_link'
-            elif cudacpp_backend == 'CPP':
-                args[0][0] = 'madevent_cpp_link'
-            elif cudacpp_backend == 'CUDA':
-                args[0][0] = 'madevent_cuda_link'
+            if cudacpp_backend in cudacpp_supported_backends :
+                args[0][0] = 'madevent_' + cudacpp_backend + '_link'
             else:
-                raise Exception("Invalid cudacpp_backend='%s': only 'FORTRAN', 'CPP', 'CUDA' are supported")
+                raise Exception( "Invalid cudacpp_backend='%s': supported backends are %s"%supported_backends )
             return misc.compile(nb_core=self.options['nb_core'], *args, **opts)
         else:
             return misc.compile(nb_core=self.options['nb_core'], *args, **opts)
@@ -58,8 +53,7 @@ template_on = \
 # SIMD/GPU configuration for the CUDACPP plugin
 #************************************************************************
  %(floating_type)s = floating_type ! floating point precision: f (single), d (double), m (mixed: double for amplitudes, single for colors)
- %(avx_level)s = avx_level ! SIMD vectorization level: none, sse4, avx2, 512y, 512z, auto
- %(cudacpp_backend)s = cudacpp_backend ! CUDACPP backend: FORTRAN, CPP, CUDA
+ %(cudacpp_backend)s = cudacpp_backend ! CUDACPP backend: fortran, cuda, cpp, cppnone, cppsse4, cppavx2, cpp512y, cpp512z, cppauto
 """
 
 template_off = ''
@@ -80,12 +74,8 @@ class CPPRunCard(banner_mod.RunCardLO):
     def reset_makeopts(self, old_value, new_value, name):
         if not hasattr(self, 'path'):
             raise Exception
-        avx_value = self['avx_level'] if self['avx_level'] != 'auto' else ''
         if name == 'floating_type':
-            common_run_interface.CommonRunCmd.update_make_opts_full({'FPTYPE': new_value, 'AVX': avx_value})
-        elif name == 'avx_level':
-            if new_value == 'auto': new_value = ''
-            common_run_interface.CommonRunCmd.update_make_opts_full({'FPTYPE': self['floating_type'], 'AVX': new_value})
+            common_run_interface.CommonRunCmd.update_make_opts_full({'FPTYPE': new_value})
         else:
             raise Exception
         Sourcedir = pjoin(os.path.dirname(os.path.dirname(self.path)), 'Source')
@@ -99,11 +89,9 @@ class CPPRunCard(banner_mod.RunCardLO):
         self.add_param('floating_type', 'd', include=False, hidden=False,
                        fct_mod=(self.reset_makeopts,(),{}),
                        allowed=['m','d','f'])
-        self.add_param('avx_level', 'auto', include=False, hidden=False,
-                       fct_mod=(self.reset_makeopts,(),{}),
-                       allowed=['auto', 'none', 'sse4', 'avx2','512y','512z'])
-        self.add_param('cudacpp_backend', 'CPP', include=False, hidden=False,
-                       allowed=['Fortan', 'CPP', 'CUDA'])
+        cudacpp_supported_backends = [ 'fortran', 'cuda', 'cpp', 'cppnone', 'cppsse4', 'cppavx2', 'cpp512y', 'cpp512z', 'cppauto' ]
+        self.add_param('cudacpp_backend', 'cpp', include=False, hidden=False,
+                       allowed=cudacpp_supported_backends)
         self['vector_size'] = 16 # already setup in default class (just change value)
         self['aloha_flag'] = '--fast-math'
         self['matrix_flag'] = '-O3'
@@ -143,7 +131,7 @@ class GPURunCard(CPPRunCard):
     def default_setup(self):
         super().default_setup()
         # change default value:
-        self['cudacpp_backend'] = 'CUDA'
+        self['cudacpp_backend'] = 'cuda'
         self['vector_size'] = 16384 # already setup in default class (just change value)
 
 MEINTERFACE = CPPMEInterface
