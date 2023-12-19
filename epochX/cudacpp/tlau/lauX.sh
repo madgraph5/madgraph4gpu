@@ -125,6 +125,11 @@ echo "ELAPSED: $((END-START)) seconds" |& tee -a ${resultsdir}/output.txt
 mv Events ${resultsdir}; mv HTML ${resultsdir}
 gunzip ${resultsdir}/Events/run_01/unweighted_events.lhe.gz
 
+# FIXME! No need to keep events in git, there is no lhe file comparison yet anyway (20-DEC-2023)
+\rm ${resultsdir}/Events/run_01/unweighted_events.lhe
+\rm ${resultsdir}/Events/run_01/run_01_tag_1_banner.txt
+touch ${resultsdir}/Events/run_01/.keep
+
 # Clean config after launch
 lauX_cleanup
 mv SubProcesses/randinit.BKP SubProcesses/randinit # restore the initial file
