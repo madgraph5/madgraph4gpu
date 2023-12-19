@@ -10,15 +10,16 @@ scrdir=$(cd $(dirname $0); pwd)
 
 function usage()
 {
-  echo "Usage:   $0 <-FORTRAN|-CUDA|-CPP> <procdir>"
-  echo "Example: $0 -CPP gg_tt.mad"
+  echo "Usage:   $0 -<backend> <procdir>"
+  echo "         (supported <backend> values: fortran, cuda, cppnone, cppsse4, cppavx2, cpp512y, cpp512z)"
+  echo "Example: $0 -cppavx2 gg_tt.mad"
   exit 1
 }
 
 bckend=
 proc=
 while [ "$1" != "" ]; do
-  if [ "$1" == "-FORTRAN" ] || [ "$1" == "-CUDA" ] || [ "$1" == "-CPP" ]; then
+  if [ "$1" == "-fortran" ] || [ "$1" == "-cuda" ] || [ "$1" == "-cppnone" ] || [ "$1" == "-cppsse4" ] || [ "$1" == "-cppavx2" ] || [ "$1" == "-cpp512y" ] || [ "$1" == "-cpp512z" ]; then
     if [ "${bckend}" == "" ]; then bckend=${1/-/}; else echo "ERROR! Backend already set"; usage; fi
   elif [ "${proc}" == "" ]; then
     proc=$1
@@ -82,7 +83,7 @@ rm -f SubProcesses/ME5_debug
 echo "r=21" > SubProcesses/randinit # just in case a previous test was not cleaned up
 cp SubProcesses/randinit SubProcesses/randinit.BKP # save the initial file
 sed -i "s/.* = nevents/  10000 = nevents/" Cards/run_card.dat # just in case
-sed -i "s/.* = cudacpp_backend/CPP = cudacpp_backend/" Cards/run_card.dat # just in case
+sed -i "s/.* = cudacpp_backend/ cpp = cudacpp_backend/" Cards/run_card.dat # just in case
 cp Cards/run_card.dat Cards/run_card.dat.BKP # save the initial file
 sed -i "s/      NEVENTS = .*/      NEVENTS = 10000/" Source/run_card.inc # just in case
 cp Source/run_card.inc Source/run_card.inc.BKP # save the initial file
@@ -106,7 +107,7 @@ nevt=$(getnevt)
 sed -i "s/ 10000 = nevents/ ${nevt} = nevents/" Cards/run_card.dat
 
 # Set the backend in run_card.dat
-sed -i "s/CPP = cudacpp_backend/${bckend} = cudacpp_backend/" Cards/run_card.dat
+sed -i "s/ cpp = cudacpp_backend/${bckend} = cudacpp_backend/" Cards/run_card.dat
 
 # Launch (generate_events)
 # (BUG #683: generate_events does not return an error code even if it fails)
