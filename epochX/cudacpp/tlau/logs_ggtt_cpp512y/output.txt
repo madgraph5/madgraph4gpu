@@ -1,4 +1,4 @@
-START: Wed Dec 20 12:13:05 AM CET 2023
+START: Wed Dec 20 12:28:02 AM CET 2023
 ************************************************************
 *                                                          *
 *                      W E L C O M E to                    *
@@ -35,7 +35,7 @@ Creating Jobs
 Working on SubProcesses
 INFO:     P1_gg_ttx  
 INFO: Building madevent in madevent_interface.py with 'cpp512y' matrix elements 
-INFO:  Idle: 1,  Running: 0,  Completed: 0 [ current time: 00h13 ] 
+INFO:  Idle: 1,  Running: 0,  Completed: 0 [ current time: 00h28 ] 
 INFO:  Idle: 0,  Running: 0,  Completed: 1 [  1.8s  ] 
 INFO:  Idle: 0,  Running: 0,  Completed: 1 [  1.8s  ] 
 INFO: End survey 
@@ -49,7 +49,7 @@ INFO: need to improve 2 channels
 - Current estimate of cross-section: 443.78400000000005 +- 4.146007168348844
     P1_gg_ttx 
 Building madevent in madevent_interface.py with 'cpp512y' matrix elements
-INFO:  Idle: 9,  Running: 4,  Completed: 0 [ current time: 00h13 ] 
+INFO:  Idle: 9,  Running: 4,  Completed: 0 [ current time: 00h28 ] 
 INFO:  Idle: 4,  Running: 4,  Completed: 5 [  2.6s  ] 
 INFO:  Idle: 0,  Running: 0,  Completed: 13 [  5.2s  ] 
 INFO: Combining runs 
@@ -58,7 +58,7 @@ INFO: finish refine
 refine 10000 --treshold=0.9
 No need for second refine due to stability of cross-section
 INFO: Combining Events 
-combination of events done in 2.0291616916656494 s 
+combination of events done in 2.0271809101104736 s 
   === Results Summary for run: run_01 tag: tag_1 ===
 
      Cross-section :   440.4 +- 0.4447 pb
@@ -74,7 +74,7 @@ INFO: storing files of previous run
 INFO: Done 
 quit
 INFO:  
-38.05user 4.07system 0:17.71elapsed 237%CPU (0avgtext+0avgdata 95444maxresident)k
-0inputs+422568outputs (0major+853656minor)pagefaults 0swaps
-END: Wed Dec 20 12:13:23 AM CET 2023
+38.15user 4.10system 0:17.72elapsed 238%CPU (0avgtext+0avgdata 95444maxresident)k
+0inputs+422576outputs (31major+852227minor)pagefaults 0swaps
+END: Wed Dec 20 12:28:20 AM CET 2023
 ELAPSED: 18 seconds

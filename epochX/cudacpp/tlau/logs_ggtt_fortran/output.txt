@@ -1,4 +1,4 @@
-START: Wed Dec 20 12:12:44 AM CET 2023
+START: Wed Dec 20 12:27:42 AM CET 2023
 ************************************************************
 *                                                          *
 *                      W E L C O M E to                    *
@@ -35,7 +35,7 @@ Creating Jobs
 Working on SubProcesses
 INFO:     P1_gg_ttx  
 INFO: Building madevent in madevent_interface.py with 'fortran' matrix elements 
-INFO:  Idle: 1,  Running: 0,  Completed: 0 [ current time: 00h12 ] 
+INFO:  Idle: 1,  Running: 0,  Completed: 0 [ current time: 00h27 ] 
 INFO:  Idle: 0,  Running: 0,  Completed: 1 [  1.8s  ] 
 INFO:  Idle: 0,  Running: 0,  Completed: 1 [  1.8s  ] 
 INFO: End survey 
@@ -49,7 +49,7 @@ INFO: need to improve 2 channels
 - Current estimate of cross-section: 443.78400000000005 +- 4.146007168348844
     P1_gg_ttx 
 Building madevent in madevent_interface.py with 'fortran' matrix elements
-INFO:  Idle: 9,  Running: 4,  Completed: 0 [ current time: 00h12 ] 
+INFO:  Idle: 9,  Running: 4,  Completed: 0 [ current time: 00h27 ] 
 INFO:  Idle: 4,  Running: 4,  Completed: 5 [  2.9s  ] 
 INFO:  Idle: 0,  Running: 0,  Completed: 13 [  5.8s  ] 
 INFO: Combining runs 
@@ -58,7 +58,7 @@ INFO: finish refine
 refine 10000 --treshold=0.9
 No need for second refine due to stability of cross-section
 INFO: Combining Events 
-combination of events done in 2.099987745285034 s 
+combination of events done in 2.059004545211792 s 
   === Results Summary for run: run_01 tag: tag_1 ===
 
      Cross-section :   440.4 +- 0.4447 pb
@@ -74,7 +74,7 @@ INFO: storing files of previous run
 INFO: Done 
 quit
 INFO:  
-39.11user 2.97system 0:19.15elapsed 219%CPU (0avgtext+0avgdata 91792maxresident)k
-0inputs+415632outputs (0major+635982minor)pagefaults 0swaps
-END: Wed Dec 20 12:13:04 AM CET 2023
-ELAPSED: 20 seconds
+39.24user 3.11system 0:18.01elapsed 235%CPU (0avgtext+0avgdata 91800maxresident)k
+0inputs+415632outputs (11major+651311minor)pagefaults 0swaps
+END: Wed Dec 20 12:28:00 AM CET 2023
+ELAPSED: 18 seconds
