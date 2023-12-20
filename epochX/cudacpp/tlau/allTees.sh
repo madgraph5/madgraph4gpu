@@ -10,3 +10,5 @@ for proc in gg_tt gg_ttg gg_ttgg gg_ttggg; do
   ./tlau/lauX.sh -cpp512y ${proc}.mad
 done
 
+grep START $(ls -1tr tlau/logs_g*/output.txt | head -1)
+grep END $(ls -1t tlau/logs_g*/output.txt | head -1)
