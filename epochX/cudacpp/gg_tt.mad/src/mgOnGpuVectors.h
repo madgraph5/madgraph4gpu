@@ -118,12 +118,14 @@ namespace mg5amcCpu
 
   // --- Type definition (using vector compiler extensions: need -march=...)
 #ifdef __clang__ // https://clang.llvm.org/docs/LanguageExtensions.html#vectors-and-extended-vectors
+typedef unsigned long int ulint_v __attribue__( ( ext_vector_type( neppV )));
 #if defined MGONGPU_FPTYPE_DOUBLE
   typedef long int bool_v __attribute__( ( ext_vector_type( neppV ) ) ); // bbbb
 #elif defined MGONGPU_FPTYPE_FLOAT
   typedef int bool_v __attribute__( ( ext_vector_type( neppV ) ) );                         // bbbb
 #endif
 #else // gcc
+typedef unsigned long int ulint_v __attribute__( ( vector_size( neppV * sizeof( unsigned long int ))));
 #if defined MGONGPU_FPTYPE_DOUBLE
   typedef long int bool_v __attribute__( ( vector_size( neppV * sizeof( long int ) ) ) ); // bbbb
 #elif defined MGONGPU_FPTYPE_FLOAT
@@ -862,18 +864,21 @@ namespace mg5amcCpu
   typedef bool bool_sv;
   typedef fptype fptype_sv;
   typedef fptype2 fptype2_sv;
+  typedef unsigned long it ulint_sv;
   typedef cxtype cxtype_sv;
   typedef cxtype_ref cxtype_sv_ref;
 #elif defined MGONGPU_CPPSIMD
   typedef bool_v bool_sv;
   typedef fptype_v fptype_sv;
   typedef fptype2_v fptype2_sv;
+  typedef ulint_v ulint_sv;
   typedef cxtype_v cxtype_sv;
   typedef cxtype_v_ref cxtype_sv_ref;
 #else
   typedef bool bool_sv;
   typedef fptype fptype_sv;
   typedef fptype2 fptype2_sv;
+  typedef unsigned long int ulint_sv;
   typedef cxtype cxtype_sv;
   typedef cxtype_ref cxtype_sv_ref;
 #endif
