@@ -84,6 +84,17 @@ public:
     return T::decodeRecord( T::ieventAccessRecord( buffer, ievt ), args... );
   }
 
+  template<class... Ts>
+  static __host__ __device__ inline unsigned int&
+  ieventAccessField( unsigned int* buffer,
+                     const int ievt,
+                     Ts... args ) // variadic template
+  {
+    // NB all KernelLaunchers assume that memory access can be decomposed as "accessField = decodeRecord( accessRecord )"
+    // (in other words: first locate the event record for a given event, then locate an element in that record)
+    return T::decodeRecord( T::ieventAccessRecord( buffer, ievt ), args... );
+  }
+
   //--------------------------------------------------------------------------
 
   // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)

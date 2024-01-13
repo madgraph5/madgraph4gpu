@@ -133,8 +133,8 @@ namespace mg5amcCpu
 
     // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
     // [Signature (non-const) ===> fptype& ieventAccessIp4Ipar( fptype* buffer, const ievt, const int ipar, const int ipar ) <===]
-    static constexpr auto ieventAccessIp4Ipar =
-      MemoryAccessHelper<MemoryAccessMomentaBase>::template ieventAccessField<int, int>;
+    static constexpr auto ieventAccessIp4Ipar = static_cast<fptype& (*) (fptype*, const int, int, int)>(
+      &MemoryAccessHelper<MemoryAccessMomentaBase>::template ieventAccessField<int, int>);
 
     // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
     // [Signature (const) ===> const fptype& ieventAccessIp4IparConst( const fptype* buffer, const ievt, const int ipar, const int ipar ) <===]

@@ -105,8 +105,8 @@ public:
 
   // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
   // [Signature (non-const) ===> fptype& ieventAccessIp4Iparf( fptype* buffer, const ievt, const int ipar, const int iparf ) <===]
-  static constexpr auto ieventAccessIp4Iparf =
-    MemoryAccessHelper<MemoryAccessRandomNumbersBase>::template ieventAccessField<int, int>;
+  static constexpr auto ieventAccessIp4Iparf = static_cast<fptype& (*) (fptype*, const int, int, int)>(
+    &MemoryAccessHelper<MemoryAccessRandomNumbersBase>::template ieventAccessField<int, int>);
 
   // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
   // [Signature (const) ===> const fptype& ieventAccessIp4IparfConst( const fptype* buffer, const ievt, const int ipar, const int iparf ) <===]
