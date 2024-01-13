@@ -1075,8 +1075,8 @@ namespace mg5amcCpu
     // https://www.uzh.ch/cmsssl/physik/dam/jcr:2e24b7b1-f4d7-4160-817e-47b13dbf1d7c/Handout_4_2016-UZH.pdf]
 #ifdef __CUDACC__
     allMEs[ievt] /= helcolDenominators[0];
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL2 // SR-FIXME
-    if( channelId > 0 ) allMEs[ievt] *= allNumerators[ievt] / allDenominators[ievt];
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+    if( channelIds != nullptr ) allMEs[ievt] *= allNumerators[ievt] / allDenominators[ievt];
 #endif
 #else
     for( int ipagV = 0; ipagV < npagV; ++ipagV )
@@ -1085,8 +1085,8 @@ namespace mg5amcCpu
       fptype* MEs = E_ACCESS::ieventAccessRecord( allMEs, ievt0 );
       fptype_sv& MEs_sv = E_ACCESS::kernelAccess( MEs );
       MEs_sv /= helcolDenominators[0];
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL2 // SR-FIXME
-      if( channelId > 0 )
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+      if( channelIds != nullptr )
       {
         fptype* numerators = NUM_ACCESS::ieventAccessRecord( allNumerators, ievt0 );
         fptype* denominators = DEN_ACCESS::ieventAccessRecord( allDenominators, ievt0 );
