@@ -80,8 +80,8 @@ namespace mg5amcCpu
 
     // Locate a field (output) of an event record (input) from the given field indexes (input)
     // [Signature (const) ===> const unsigned int& decodeRecordConst( const unsigned int* buffer ) <===]
-    static constexpr auto decodeRecordConst =
-      MemoryAccessHelper<MemoryAccessChIdsBase>::template decodeRecordConst<>;
+    static constexpr auto decodeRecordConst = static_cast<const unsigned int& (*) (const unsigned int*)>(
+      &MemoryAccessHelper<MemoryAccessChIdsBase>::template decodeRecordConst<>);
 
     // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
     // [Signature (non-const) ===> unsigned int& ieventAccess( unsigned int* buffer, const ievt ) <===]

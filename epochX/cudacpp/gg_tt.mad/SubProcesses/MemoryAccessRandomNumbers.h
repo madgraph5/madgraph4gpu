@@ -100,8 +100,8 @@ public:
 
   // Locate a field (output) of an event record (input) from the given field indexes (input)
   // [Signature (const) ===> const fptype& decodeRecordConst( const fptype* buffer, const int ipar, const int iparf ) <===]
-  static constexpr auto decodeRecordIp4IparfConst =
-    MemoryAccessHelper<MemoryAccessRandomNumbersBase>::template decodeRecordConst<int, int>;
+  static constexpr auto decodeRecordIp4IparfConst = static_cast<const fptype& (*) (const fptype*, int, int)>(
+    &MemoryAccessHelper<MemoryAccessRandomNumbersBase>::template decodeRecordConst<int, int>);
 
   // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
   // [Signature (non-const) ===> fptype& ieventAccessIp4Iparf( fptype* buffer, const ievt, const int ipar, const int iparf ) <===]

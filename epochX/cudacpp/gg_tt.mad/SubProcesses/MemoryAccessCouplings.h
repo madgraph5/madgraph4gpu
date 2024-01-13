@@ -136,8 +136,8 @@ namespace mg5amcCpu
 
     // Locate a field (output) of an event record (input) from the given field indexes (input)
     // [Signature (const) ===> const fptype& decodeRecordConst( const fptype* buffer, const int ix2 ) <===]
-    static constexpr auto decodeRecordIx2Const =
-      MemoryAccessHelper<MemoryAccessCouplingsBase>::template decodeRecordConst<int>;
+    static constexpr auto decodeRecordIx2Const = static_cast<const fptype& (*) (const fptype*, int)>(
+      &MemoryAccessHelper<MemoryAccessCouplingsBase>::template decodeRecordConst<int>);
 
     // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
     // [Signature (non-const) ===> fptype& ieventAccessIx2( fptype* buffer, const ievt, const int ix2 ) <===]

@@ -60,6 +60,15 @@ public:
     return T::decodeRecord( const_cast<fptype*>( buffer ), args... );
   }
 
+  template<class... Ts>
+  static __host__ __device__ inline const unsigned int&
+  decodeRecordConst( const unsigned int* buffer,
+                     Ts... args ) // variadic template
+  {
+    return T::decodeRecord( const_cast<unsigned int*>( buffer ), args... );
+  }
+
+
   //--------------------------------------------------------------------------
 
   // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
