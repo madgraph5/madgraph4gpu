@@ -179,6 +179,9 @@ namespace mg5amcCpu
     // Local variables for the given CUDA event (ievt) or C++ event page (ipagV)
     // [jamp: sum (for one event or event page) of the invariant amplitudes for all Feynman diagrams in a given color combination]
     cxtype_sv jamp_sv[ncolor] = {}; // all zeros (NB: vector cxtype_v IS initialized to 0, but scalar cxtype is NOT, if "= {}" is missing!)
+    
+    uint_sv channelids_sv;
+    fptype_sv mask_sv;
 
     // === Calculate wavefunctions and amplitudes for all diagrams in all processes         ===
     // === (for one event in CUDA, for one - or two in mixed mode - SIMD event pages in C++ ===
@@ -254,8 +257,8 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 1
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[2], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      const uint_sv channelids_sv = CID_ACCESS::kernelAccessConst( channelIds ); // the 4 channels in the SIMD vector
-      fptype_sv mask_sv = ( channelids_sv == 1 );
+      channelids_sv = CID_ACCESS::kernelAccessConst( channelIds );
+      mask_sv = ( channelids_sv == 1 );
       numerators_sv += mask_sv * cxabs2( amp_fp[0] );
       if( channelIds != nullptr ) denominators_sv += cxabs2( amp_fp[0] );
       //if( channelId == 1 ) numerators_sv += cxabs2( amp_sv[0] );
@@ -271,9 +274,13 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 2
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[4], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL2 // SR-FIXME
-      if( channelId == 2 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+      channelids_sv = CID_ACCESS::kernelAccessConst( channelIds );
+      mask_sv = ( channelids_sv == 2 );
+      numerators_sv += mask_sv * cxabs2( amp_fp[0] );
+      if( channelIds != nullptr ) denominators_sv += cxabs2( amp_fp[0] );
+      //if( channelId == 2 ) numerators_sv += cxabs2( amp_sv[0] );
+      //if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[0] -= amp_sv[0];
 
@@ -284,9 +291,13 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 3
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[4], w_fp[2], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL2 // SR-FIXME
-      if( channelId == 3 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+      channelids_sv = CID_ACCESS::kernelAccessConst( channelIds );
+      mask_sv = ( channelids_sv == 3 );
+      numerators_sv += mask_sv * cxabs2( amp_fp[0] );
+      if( channelIds != nullptr ) denominators_sv += cxabs2( amp_fp[0] );
+      //if( channelId == 3 ) numerators_sv += cxabs2( amp_sv[0] );
+      //if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[1] -= amp_sv[0];
 
