@@ -92,7 +92,7 @@ public:
 
   // Locate an event record (output) in a memory buffer (input) from the given event number (input)
   // [Signature (const) ===> const fptype* ieventAccessRecordConst( const fptype* buffer, const int ievt ) <===]
-  static constexpr auto ieventAccessRecordConst = MemoryAccessHelper<MemoryAccessRandomNumbersBase>::ieventAccessRecordConst;
+  static constexpr auto ieventAccessRecordConst = static_cast<const fptype* (*) (const fptype*, const int)>(&MemoryAccessHelper<MemoryAccessRandomNumbersBase>::ieventAccessRecordConst);
 
   // Locate a field (output) of an event record (input) from the given field indexes (input)
   // [Signature (non-const) ===> fptype& decodeRecord( fptype* buffer, const int ipar, const int iparf ) <===]

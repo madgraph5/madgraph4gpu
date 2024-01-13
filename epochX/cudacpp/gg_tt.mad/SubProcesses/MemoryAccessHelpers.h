@@ -35,6 +35,13 @@ public:
     return ieventAccessRecord( const_cast<fptype*>( buffer ), ievt );
   }
 
+  static __host__ __device__ inline const unsigned int*
+  ieventAccessRecordConst( const unsigned int* buffer,
+                           const int ievt )
+  {
+    return ieventAccessRecord( const_cast<unsigned int*>( buffer ), ievt );
+  }
+
   //--------------------------------------------------------------------------
 
   // Locate a field (output) of an event record (input) from the given field indexes (input)
