@@ -24,7 +24,7 @@ namespace mg5amcCpu // this is only needed for CPU SIMD vectorization
     return *reinterpret_cast<fptype_sv*>( &ref );
   }
 
-  inline uint_v& fptypevFromAlignedArray( unsigned int& ref )
+  inline uint_v& uintvFromAlignedArray( unsigned int& ref )
   {
     return *reinterpret_cast<uint_sv*>( &ref );
   }
@@ -36,7 +36,7 @@ namespace mg5amcCpu // this is only needed for CPU SIMD vectorization
     return *reinterpret_cast<const fptype_sv*>( &ref );
   }
 
-  inline const uint_v& fptypevFromAlignedArray( const unsigned int& ref )
+  inline const uint_v& uintvFromAlignedArray( const unsigned int& ref )
   {
     return *reinterpret_cast<const uint_sv*>( &ref );
   }

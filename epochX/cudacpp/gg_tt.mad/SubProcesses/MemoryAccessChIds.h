@@ -85,13 +85,13 @@ namespace mg5amcCpu
 
     // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
     // [Signature (non-const) ===> unsigned int& ieventAccess( unsigned int* buffer, const ievt ) <===]
-    static constexpr auto ieventAccess =
-      MemoryAccessHelper<MemoryAccessChIdsBase>::template ieventAccessField<>;
+    static constexpr auto ieventAccess = static_cast<unsigned int& (*) (unsigned int*, const int)>(
+      &MemoryAccessHelper<MemoryAccessChIdsBase>::template ieventAccessField<>);
 
     // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
     // [Signature (const) ===> const unsigned int& ieventAccessConst( const unsigned int* buffer, const ievt ) <===]
-    static constexpr auto ieventAccessConst =
-      MemoryAccessHelper<MemoryAccessChIdsBase>::template ieventAccessFieldConst<>;
+    static constexpr auto ieventAccessConst = static_cast<const unsigned int& (*) (const unsigned int*, const int)>(
+      &MemoryAccessHelper<MemoryAccessChIdsBase>::template ieventAccessFieldConst<>);
   };
 
   //----------------------------------------------------------------------------
@@ -108,32 +108,32 @@ namespace mg5amcCpu
 
     // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
     // [Signature (non-const, SCALAR) ===> unsigned int& kernelAccess( unsigned int* buffer ) <===]
-    static constexpr auto kernelAccess_s =
-      KernelAccessHelper<MemoryAccessChIdsBase, onDevice>::template kernelAccessField<>; // requires cuda 11.4
+    static constexpr auto kernelAccess_s = static_cast<unsigned int& (*) (unsigned int*)>(
+      &KernelAccessHelper<MemoryAccessChIdsBase, onDevice>::template kernelAccessField<>); // requires cuda 11.4
 
     // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal)
-    // [Signature (non-const, SCALAR OR VECTOR) ===> fptype_sv& kernelAccess( fptype* buffer ) <===]
-    static __host__ __device__ inline fptype_sv&
-    kernelAccess( fptype* buffer )
+    // [Signature (non-const, SCALAR OR VECTOR) ===> uint_sv& kernelAccess( unsigned int* buffer ) <===]
+    static __host__ __device__ inline uint_sv&
+    kernelAccess( unsigned int* buffer )
     {
-      fptype& out = kernelAccess_s( buffer );
+      unsigned int& out = kernelAccess_s( buffer );
 #ifndef MGONGPU_CPPSIMD
       return out;
 #else
       // NB: derived from MemoryAccessMomenta, restricting the implementation to contiguous aligned arrays (#435)
       static_assert( mg5amcCpu::HostBufferChannelIds::isaligned() ); // ASSUME ALIGNED ARRAYS (reinterpret_cast will segfault otherwise!)
       //assert( (size_t)( buffer ) % mgOnGpu::cppAlign == 0 ); // ASSUME ALIGNED ARRAYS (reinterpret_cast will segfault otherwise!)
-      return mg5amcCpu::fptypevFromAlignedArray( out ); // SIMD bulk load of neppV, use reinterpret_cast
+      return mg5amcCpu::uintvFromAlignedArray( out ); // SIMD bulk load of neppV, use reinterpret_cast
 #endif
     }
 
     // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
-    // [Signature (const, SCALAR) ===> const fptype& kernelAccessConst( const fptype* buffer ) <===]
-    static constexpr auto kernelAccessConst_s =
-      KernelAccessHelper<MemoryAccessChIdsBase, onDevice>::template kernelAccessFieldConst<>; // requires cuda 11.4
+    // [Signature (const, SCALAR) ===> const unsigned int& kernelAccessConst( const unsigned int* buffer ) <===]
+    static constexpr auto kernelAccessConst_s = static_cast<const unsigned int& (*) (const unsigned int*)>(
+      &KernelAccessHelper<MemoryAccessChIdsBase, onDevice>::template kernelAccessFieldConst<>); // requires cuda 11.4
 
     // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal)
-    // [Signature (const, SCALAR OR VECTOR) ===> const fptype_sv& kernelAccess( const fptype* buffer ) <===]
+    // [Signature (const, SCALAR OR VECTOR) ===> const uint_sv& kernelAccess( const unsigned int* buffer ) <===]
     static __host__ __device__ inline const uint_sv&
     kernelAccessConst( const unsigned int* buffer )
     {
@@ -144,7 +144,7 @@ namespace mg5amcCpu
       // NB: derived from MemoryAccessMomenta, restricting the implementation to contiguous aligned arrays (#435)
       static_assert( mg5amcCpu::HostBufferChannelIds::isaligned() ); // ASSUME ALIGNED ARRAYS (reinterpret_cast will segfault otherwise!)
       //assert( (size_t)( buffer ) % mgOnGpu::cppAlign == 0 ); // ASSUME ALIGNED ARRAYS (reinterpret_cast will segfault otherwise!)
-      return mg5amcCpu::fptypevFromAlignedArray( out ); // SIMD bulk load of neppV, use reinterpret_cast
+      return mg5amcCpu::uintvFromAlignedArray( out ); // SIMD bulk load of neppV, use reinterpret_cast
 #endif
     }
   };

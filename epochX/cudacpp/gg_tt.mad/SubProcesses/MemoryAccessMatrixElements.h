@@ -91,8 +91,8 @@ namespace mg5amcCpu
 
     // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
     // [Signature (const) ===> const fptype& ieventAccessConst( const fptype* buffer, const ievt ) <===]
-    static constexpr auto ieventAccessConst =
-      MemoryAccessHelper<MemoryAccessMatrixElementsBase>::template ieventAccessFieldConst<>;
+    static constexpr auto ieventAccessConst = static_cast<const fptype& (*) (const fptype*, const int)>(
+      &MemoryAccessHelper<MemoryAccessMatrixElementsBase>::template ieventAccessFieldConst<>);
   };
 
   //----------------------------------------------------------------------------
@@ -109,8 +109,8 @@ namespace mg5amcCpu
 
     // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
     // [Signature (non-const, SCALAR) ===> fptype& kernelAccess_s( fptype* buffer ) <===]
-    static constexpr auto kernelAccess_s =
-      KernelAccessHelper<MemoryAccessMatrixElementsBase, onDevice>::template kernelAccessField<>; // requires cuda 11.4
+    static constexpr auto kernelAccess_s = static_cast<fptype& (*) (fptype*)>(
+      &KernelAccessHelper<MemoryAccessMatrixElementsBase, onDevice>::template kernelAccessField<>); // requires cuda 11.4
 
     // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal)
     // [Signature (non const, SCALAR OR VECTOR) ===> fptype_sv& kernelAccess( const fptype* buffer ) <===]
@@ -130,8 +130,8 @@ namespace mg5amcCpu
 
     // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
     // [Signature (const) ===> const fptype& kernelAccessConst( const fptype* buffer ) <===]
-    static constexpr auto kernelAccessConst =
-      KernelAccessHelper<MemoryAccessMatrixElementsBase, onDevice>::template kernelAccessFieldConst<>; // requires cuda 11.4
+    static constexpr auto kernelAccessConst = static_cast<const fptype& (*) (const fptype*)>(
+      &KernelAccessHelper<MemoryAccessMatrixElementsBase, onDevice>::template kernelAccessFieldConst<>); // requires cuda 11.4
   };
 
   //----------------------------------------------------------------------------

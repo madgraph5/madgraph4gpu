@@ -82,8 +82,8 @@ public:
 
   // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
   // [Signature (const) ===> const fptype& ieventAccessConst( const fptype* buffer, const ievt ) <===]
-  static constexpr auto ieventAccessConst =
-    MemoryAccessHelper<MemoryAccessWeightsBase>::template ieventAccessFieldConst<>;
+  static constexpr auto ieventAccessConst = static_cast<const fptype& (*) (const fptype*, const int)>(
+    &MemoryAccessHelper<MemoryAccessWeightsBase>::template ieventAccessFieldConst<>);
 };
 
 //----------------------------------------------------------------------------

@@ -107,6 +107,16 @@ public:
   {
     return ieventAccessField( const_cast<fptype*>( buffer ), ievt, args... );
   }
+
+  template<class... Ts>
+  static __host__ __device__ inline const unsigned int&
+  ieventAccessFieldConst( const unsigned int* buffer,
+                          const int ievt,
+                          Ts... args ) // variadic template
+  {
+    return ieventAccessField( const_cast<unsigned int*>( buffer ), ievt, args... );
+  }
+
 };
 
 //----------------------------------------------------------------------------
@@ -123,6 +133,27 @@ public:
   // [Signature (non-const) ===> fptype* kernelAccessRecord( fptype* buffer ) <===]
   static __host__ __device__ inline fptype*
   kernelAccessRecord( fptype* buffer )
+  {
+    if constexpr( !onDevice ) // requires c++17 also in CUDA (#333)
+    {
+      // FIXME #436: clarify that buffer includes all events on device, and only the record for an event subset on host!
+      // FIXME #436: am I not assuming that the following line is always identical to buffer for all access classes T?
+      return T::ieventAccessRecord( buffer, 0 );
+    }
+    else
+    {
+#ifdef __CUDACC__
+      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
+      //printf( "kernelAccessRecord: ievt=%d threadId=%d\n", ievt, threadIdx.x );
+      return T::ieventAccessRecord( buffer, ievt ); // NB fptype and fptype_sv coincide for CUDA
+#else
+      throw std::runtime_error( "kernelAccessRecord on device is only implemented in CUDA" );
+#endif
+    }
+  }
+
+  static __host__ __device__ inline unsigned int*
+  kernelAccessRecord( unsigned int* buffer )
   {
     if constexpr( !onDevice ) // requires c++17 also in CUDA (#333)
     {
@@ -166,6 +197,16 @@ public:
     return T::decodeRecord( kernelAccessRecord( buffer ), args... );
   }
 
+  template<class... Ts>
+  static __host__ __device__ inline unsigned int&
+  kernelAccessField( unsigned int* buffer,
+                     Ts... args ) // variadic template
+  {
+    // NB all KernelLaunchers assume that memory access can be decomposed as "accessField = decodeRecord( accessRecord )"
+    // (in other words: first locate the event record for a given event, then locate an element in that record)
+    return T::decodeRecord( kernelAccessRecord( buffer ), args... );
+  }
+
   //--------------------------------------------------------------------------
 
   // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
@@ -176,6 +217,14 @@ public:
                           Ts... args ) // variadic template
   {
     return kernelAccessField( const_cast<fptype*>( buffer ), args... );
+  }
+
+  template<class... Ts>
+  static __host__ __device__ inline const unsigned int&
+  kernelAccessFieldConst( const unsigned int* buffer,
+                          Ts... args ) // variadic template
+  {
+    return kernelAccessField( const_cast<unsigned int*>( buffer ), args... );
   }
 
   //--------------------------------------------------------------------------
