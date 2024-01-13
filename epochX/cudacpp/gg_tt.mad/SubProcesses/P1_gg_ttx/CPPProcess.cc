@@ -255,7 +255,7 @@ namespace mg5amcCpu
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[2], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       const uint_sv channelids_sv = CID_ACCESS::kernelAccessConst( channelIds ); // the 4 channels in the SIMD vector
-      bool_sv mask_sv = ( channelids_sv == 1 );
+      fptype_sv mask_sv = ( channelids_sv == 1 );
       numerators_sv += mask_sv * cxabs2( amp_fp[0] );
       if( channelIds != nullptr ) denominators_sv += cxabs2( amp_fp[0] );
       //if( channelId == 1 ) numerators_sv += cxabs2( amp_sv[0] );
