@@ -25,6 +25,7 @@
 #include "MemoryAccessMatrixElements.h"
 #include "MemoryAccessMomenta.h"
 #include "MemoryAccessWavefunctions.h"
+#include "MemoryAccessChIds.h"
 
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
 #include "MemoryAccessDenominators.h"
@@ -135,6 +136,7 @@ namespace mg5amcCpu
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     using NUM_ACCESS = DeviceAccessNumerators;    // non-trivial access: buffer includes all events
     using DEN_ACCESS = DeviceAccessDenominators;  // non-trivial access: buffer includes all events
+    using CID_ACCESS = DeviceAccessChIds;
 #endif
 #else
     using namespace mg5amcCpu;
@@ -147,6 +149,7 @@ namespace mg5amcCpu
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     using NUM_ACCESS = HostAccessNumerators;    // non-trivial access: buffer includes all events
     using DEN_ACCESS = HostAccessDenominators;  // non-trivial access: buffer includes all events
+    using CID_ACCESS = HostAccessChIds;
 #endif
 #endif /* clang-format on */
     mgDebug( 0, __FUNCTION__ );
@@ -250,9 +253,13 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 1
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[2], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL2 // SR-FIXME
-      if( channelId == 1 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+      const uint_sv channelids_sv = CID_ACCESS::kernelAccessConst( channelIds ); // the 4 channels in the SIMD vector
+      bool_sv mask_sv = ( channelids_sv == 1 );
+      numerators_sv += mask_sv * cxabs2( amp_fp[0] );
+      if( channelIds != nullptr ) denominators_sv += cxabs2( amp_fp[0] );
+      //if( channelId == 1 ) numerators_sv += cxabs2( amp_sv[0] );
+      //if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
