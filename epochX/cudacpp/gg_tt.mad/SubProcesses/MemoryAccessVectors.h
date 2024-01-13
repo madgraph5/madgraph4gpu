@@ -24,11 +24,21 @@ namespace mg5amcCpu // this is only needed for CPU SIMD vectorization
     return *reinterpret_cast<fptype_sv*>( &ref );
   }
 
+  inline uint_v& fptypevFromAlignedArray( unsigned int& ref )
+  {
+    return *reinterpret_cast<uint_sv*>( &ref );
+  }
+
   // Cast one const fptype_v reference (one vector of neppV fptype values) from one const fptype reference,
   // assuming that "pointer(evt#0)+1" indicates "pointer(evt#1)", and that the arrays are aligned
   inline const fptype_v& fptypevFromAlignedArray( const fptype& ref )
   {
     return *reinterpret_cast<const fptype_sv*>( &ref );
+  }
+
+  inline const uint_v& fptypevFromAlignedArray( const unsigned int& ref )
+  {
+    return *reinterpret_cast<const uint_sv*>( &ref );
   }
 
   // Build one fptype_v (one vector of neppV fptype values) from one fptype reference,

@@ -134,10 +134,10 @@ namespace mg5amcCpu
 
     // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal)
     // [Signature (const, SCALAR OR VECTOR) ===> const fptype_sv& kernelAccess( const fptype* buffer ) <===]
-    static __host__ __device__ inline const fptype_sv&
-    kernelAccessConst( const fptype* buffer )
+    static __host__ __device__ inline const uint_sv&
+    kernelAccessConst( const unsigned int* buffer )
     {
-      const fptype& out = kernelAccessConst_s( buffer );
+      const unsigned int& out = kernelAccessConst_s( buffer );
 #ifndef MGONGPU_CPPSIMD
       return out;
 #else
