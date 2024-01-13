@@ -125,7 +125,7 @@ typedef unsigned int uint_v __attribue__( ( ext_vector_type( neppV )));
   typedef int bool_v __attribute__( ( ext_vector_type( neppV ) ) );                         // bbbb
 #endif
 #else // gcc
-typedef unsigned int uint_v __attribute__( ( vector_size( neppV * sizeof( unsigned long int ))));
+  typedef unsigned int uint_v __attribute__( ( vector_size( neppV * sizeof( unsigned long int ))));
 #if defined MGONGPU_FPTYPE_DOUBLE
   typedef long int bool_v __attribute__( ( vector_size( neppV * sizeof( long int ) ) ) ); // bbbb
 #elif defined MGONGPU_FPTYPE_FLOAT

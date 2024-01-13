@@ -261,8 +261,6 @@ namespace mg5amcCpu
       mask_sv = ( channelids_sv == 1 );
       numerators_sv += mask_sv * cxabs2( amp_fp[0] );
       if( channelIds != nullptr ) denominators_sv += cxabs2( amp_fp[0] );
-      //if( channelId == 1 ) numerators_sv += cxabs2( amp_sv[0] );
-      //if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -279,8 +277,6 @@ namespace mg5amcCpu
       mask_sv = ( channelids_sv == 2 );
       numerators_sv += mask_sv * cxabs2( amp_fp[0] );
       if( channelIds != nullptr ) denominators_sv += cxabs2( amp_fp[0] );
-      //if( channelId == 2 ) numerators_sv += cxabs2( amp_sv[0] );
-      //if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[0] -= amp_sv[0];
 
@@ -296,8 +292,6 @@ namespace mg5amcCpu
       mask_sv = ( channelids_sv == 3 );
       numerators_sv += mask_sv * cxabs2( amp_fp[0] );
       if( channelIds != nullptr ) denominators_sv += cxabs2( amp_fp[0] );
-      //if( channelId == 3 ) numerators_sv += cxabs2( amp_sv[0] );
-      //if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[1] -= amp_sv[0];
 
@@ -835,6 +829,7 @@ namespace mg5amcCpu
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     using NUM_ACCESS = HostAccessNumerators;   // non-trivial access: buffer includes all events
     using DEN_ACCESS = HostAccessDenominators; // non-trivial access: buffer includes all events
+    using CID_ACCESS = HostAccessChIds;
 #endif
 #endif
 
@@ -1011,6 +1006,7 @@ namespace mg5amcCpu
 #endif
       }
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL2 // SR-FIXME // multichannel enabled (random color choice)
+      // use here: CID_ACCESS::kernelAccessConst(channelIds)
       const int channelIdC = channelId - 1; // coloramps.h uses the C array indexing starting at 0
       // Event-by-event random choice of color #402
       fptype_sv targetamp[ncolor] = { 0 };
