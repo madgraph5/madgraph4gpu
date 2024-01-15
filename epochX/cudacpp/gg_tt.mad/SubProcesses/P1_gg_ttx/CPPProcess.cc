@@ -1010,9 +1010,11 @@ namespace mg5amcCpu
       }
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL2 // SR-FIXME // multichannel enabled (random color choice)
       // Event-by-event random choice of color #402
-      if( channelId != 0 ) // no event-by-event choice of color if channelId == 0 (fix FPE #783)
+      if (channelIds != nullptr) // no event-by-event choice of color if channelId == 0 (fix FPE #783)
       {
-        const unsigned int channelIdC = channelId - 1; // coloramps.h uses the C array indexing starting at 0
+        typedef unsigned int int_v __attribute__((vector_size(8)));
+        constexpr vec1s = {1,1};
+        uint_sv channelIdC = CID_ACCESS::kernelAccessConst(channelIds) - vec1s; // coloramps.h uses the C array indexing starting at 0
         fptype_sv targetamp[ncolor] = { 0 };
         for( int icolC = 0; icolC < ncolor; icolC++ )
         {
