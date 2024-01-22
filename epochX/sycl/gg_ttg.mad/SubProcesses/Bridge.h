@@ -451,9 +451,9 @@ namespace mg5amcGpu
                 #endif
 
                 //Load momenta into local (private) memory
-                vector4 p_momenta[NPAR];
-                for (size_t i = 0; i < NPAR; i++) {
-                    p_momenta[i] = devMomentaC[NPAR*ievt + i];
+                vector4 p_momenta[CPPPROCESS_NPAR];
+                for (size_t i = 0; i < CPPPROCESS_NPAR; i++) {
+                    p_momenta[i] = devMomentaC[CPPPROCESS_NPAR*ievt + i];
                 }
 
                 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
