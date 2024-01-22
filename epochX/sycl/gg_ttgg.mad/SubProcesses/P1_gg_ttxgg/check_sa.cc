@@ -599,16 +599,17 @@ int main(int argc, char **argv)
       // ... 0d1. Compute good helicity mask on the device
       q.submit([&](sycl::handler& cgh) {
           #if MGONGPU_VEC_DIM > 1
-          cgh.parallel_for_work_group(sycl::range<1>{gpublocks/MGONGPU_VEC_DIM}, sycl::range<1>{gputhreads}, ([=](sycl::group<1> wGroup) {
+              sycl::range<1> globalRange(gpublocks*gputhreads/MGONGPU_VEC_DIM);
           #else
-          cgh.parallel_for_work_group(sycl::range<1>{gpublocks}, sycl::range<1>{gputhreads}, ([=](sycl::group<1> wGroup) {
+              sycl::range<1> globalRange(gpublocks*gputhreads);
           #endif
-              #ifndef MGONGPU_HARDCODE_PARAM
-                  //Load independent couplings and parameters into shared memory if not hardcoded
-                  auto _dev_independent_couplings = dev_independent_couplings;
-              #endif
-              wGroup.parallel_for_work_item([&](sycl::h_item<1> index) {
-                  size_t ievt = index.get_global_id(0);
+          sycl::range<1> localRange(gputhreads);
+          #ifndef MGONGPU_HARDCODE_PARAM
+              //Load independent couplings ptr 
+              auto _dev_independent_couplings = dev_independent_couplings;
+          #endif
+          cgh.parallel_for(sycl::nd_range<1>(globalRange, localRange), [=](sycl::nd_item<1> item) {
+              size_t ievt = item.get_global_id(0);
 
                   #ifdef MGONGPU_HARDCODE_PARAM
                       //Load parameters into local (private) memory if hardcoded
@@ -645,8 +646,7 @@ int main(int argc, char **argv)
                   }
 
                   Proc::sigmaKin_getGoodHel( p_momenta, devIsGoodHel, dev_helicities, dev_couplings, dev_parameters );
-              });
-          }));
+          });
       });
       q.wait();
 
@@ -671,58 +671,59 @@ int main(int argc, char **argv)
 
     q.submit([&](sycl::handler& cgh) {
         #if MGONGPU_VEC_DIM > 1
-        cgh.parallel_for_work_group(sycl::range<1>{gpublocks/MGONGPU_VEC_DIM}, sycl::range<1>{gputhreads}, ([=](sycl::group<1> wGroup) {
+            sycl::range<1> globalRange(gpublocks*gputhreads/MGONGPU_VEC_DIM);
         #else
-        cgh.parallel_for_work_group(sycl::range<1>{gpublocks}, sycl::range<1>{gputhreads}, ([=](sycl::group<1> wGroup) {
+            sycl::range<1> globalRange(gpublocks*gputhreads);
         #endif
-            #ifndef MGONGPU_HARDCODE_PARAM
-                //Load independent couplings and parameters into shared memory if not hardcoded
-                auto _dev_independent_couplings = dev_independent_couplings;
-            #endif
-            wGroup.parallel_for_work_item([&](sycl::h_item<1> index) {
-                size_t ievt = index.get_global_id(0);
+        sycl::range<1> localRange(gputhreads);
 
-                #ifdef MGONGPU_HARDCODE_PARAM
-                    //Load parameters into local (private) memory if hardcoded
-                    auto dev_parameters = Proc::independent_parameters<fptype>;
-                #else
-                    fptype dev_parameters[mgOnGpu::nparams];
-                    for (size_t i = 0; i < mgOnGpu::nparams; i++) {
-                        dev_parameters[i] = dev_independent_parameters[i];
-                    }
-                #endif
+        #ifndef MGONGPU_HARDCODE_PARAM
+            //Load independent couplings ptr 
+            auto _dev_independent_couplings = dev_independent_couplings;
+        #endif
+        cgh.parallel_for(sycl::nd_range<1>(globalRange, localRange), [=](sycl::nd_item<1> item) {
+            size_t ievt = item.get_global_id(0);
 
-                //Load helicities and couplings into local (private) memory
-                auto dev_helicities = Proc::helicities<signed char>;
-                cxtype_sv dev_couplings[Proc::dependentCouplings::ndcoup + Proc::independentCouplings::nicoup];
-
-                #if MGONGPU_NDCOUP > 0
-                    Proc::dependentCouplings::set_couplings_from_G(dev_couplings, fptype_sv(fixedG)); 
-                #endif
-
-                #if MGONGPU_NICOUP > 0
-                    #ifdef MGONGPU_HARDCODE_PARAM
-                        //Load independent couplings into local (private) memory if hardcoded
-                        auto _dev_independent_couplings = Proc::independentCouplings::independent_couplings<cxtype, fptype>;
-                    #endif
-                    for (size_t i = 0; i < Proc::independentCouplings::nicoup; i++) {
-                        dev_couplings[Proc::dependentCouplings::ndcoup + i] = _dev_independent_couplings[i];
-                    }
-                #endif
-
-                //Load momenta into local (private) memory
-                vector4 p_momenta[CPPPROCESS_NPAR];
-                for (size_t i = 0; i < CPPPROCESS_NPAR; i++) {
-                    p_momenta[i] = devMomenta[CPPPROCESS_NPAR*ievt + i];
+            #ifdef MGONGPU_HARDCODE_PARAM
+                //Load parameters into local (private) memory if hardcoded
+                auto dev_parameters = Proc::independent_parameters<fptype>;
+            #else
+                fptype dev_parameters[mgOnGpu::nparams];
+                for (size_t i = 0; i < mgOnGpu::nparams; i++) {
+                    dev_parameters[i] = dev_independent_parameters[i];
                 }
+            #endif
 
-                #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                    devMEs[ievt] = Proc::sigmaKin( p_momenta, devRndHel + ievt, devRndCol + ievt, devSelHel + ievt, devSelCol + ievt, 0, dev_helicities, dev_couplings, dev_parameters, devcNGoodHel, devcGoodHel );
-                #else
-                    devMEs[ievt] = Proc::sigmaKin( p_momenta, devRndHel + ievt, devRndCol + ievt, devSelHel + ievt, devSelCol + ievt, dev_helicities, dev_couplings, dev_parameters, devcNGoodHel, devcGoodHel );
+            //Load helicities and couplings into local (private) memory
+            auto dev_helicities = Proc::helicities<signed char>;
+            cxtype_sv dev_couplings[Proc::dependentCouplings::ndcoup + Proc::independentCouplings::nicoup];
+
+            #if MGONGPU_NDCOUP > 0
+                Proc::dependentCouplings::set_couplings_from_G(dev_couplings, fptype_sv(fixedG)); 
+            #endif
+
+            #if MGONGPU_NICOUP > 0
+                #ifdef MGONGPU_HARDCODE_PARAM
+                    //Load independent couplings into local (private) memory if hardcoded
+                    auto _dev_independent_couplings = Proc::independentCouplings::independent_couplings<cxtype, fptype>;
                 #endif
-            });
-        }));
+                for (size_t i = 0; i < Proc::independentCouplings::nicoup; i++) {
+                    dev_couplings[Proc::dependentCouplings::ndcoup + i] = _dev_independent_couplings[i];
+                }
+            #endif
+
+            //Load momenta into local (private) memory
+            vector4 p_momenta[CPPPROCESS_NPAR];
+            for (size_t i = 0; i < CPPPROCESS_NPAR; i++) {
+                p_momenta[i] = devMomenta[CPPPROCESS_NPAR*ievt + i];
+            }
+
+            #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+                devMEs[ievt] = Proc::sigmaKin( p_momenta, devRndHel + ievt, devRndCol + ievt, devSelHel + ievt, devSelCol + ievt, 0, dev_helicities, dev_couplings, dev_parameters, devcNGoodHel, devcGoodHel );
+            #else
+                devMEs[ievt] = Proc::sigmaKin( p_momenta, devRndHel + ievt, devRndCol + ievt, devSelHel + ievt, devSelCol + ievt, dev_helicities, dev_couplings, dev_parameters, devcNGoodHel, devcGoodHel );
+            #endif
+        });
     });
     q.wait();
 
