@@ -342,7 +342,6 @@ namespace mg5amcGpu
                 #ifndef MGONGPU_HARDCODE_PARAM
                     //Load independent couplings and parameters into shared memory if not hardcoded
                     auto dev_independent_couplings = m_dev_independent_couplings_ptr;
-                    auto dev_parameters = m_dev_parameters_ptr;
                 #endif
                 wGroup.parallel_for_work_item([&](sycl::h_item<1> index) {
                     size_t ievt = index.get_global_id(0);
@@ -350,6 +349,11 @@ namespace mg5amcGpu
                     #ifdef MGONGPU_HARDCODE_PARAM
                         //Load parameters into local (private) memory if hardcoded
                         auto dev_parameters = Proc::independent_parameters<fptype>;
+                    #else
+                        fptype dev_parameters[mgOnGpu::nparams];
+                        for (size_t i = 0; i < mgOnGpu::nparams; i++) {
+                            dev_parameters[i] = m_dev_parameters_ptr[i];
+                        }
                     #endif
 
                     //Load helicities into local (private) memory
@@ -370,7 +374,13 @@ namespace mg5amcGpu
                         }
                     #endif
 
-                    Proc::sigmaKin_getGoodHel( devMomentaC + CPPPROCESS_NPAR*ievt, devIsGoodHel, dev_helicities, dev_couplings, dev_parameters );
+                    //Load momenta into local (private) memory
+                    vector4 p_momenta[CPPPROCESS_NPAR];
+                    for (size_t i = 0; i < CPPPROCESS_NPAR; i++) {
+                        p_momenta[i] = devMomentaC[CPPPROCESS_NPAR*ievt + i];
+                    }
+
+                    Proc::sigmaKin_getGoodHel( p_momenta, devIsGoodHel, dev_helicities, dev_couplings, dev_parameters );
                 });
             }));
         });
@@ -407,7 +417,6 @@ namespace mg5amcGpu
             #ifndef MGONGPU_HARDCODE_PARAM
                 //Load independent couplings and parameters into shared memory if not hardcoded
                 auto dev_independent_couplings = m_dev_independent_couplings_ptr;
-                auto dev_parameters = m_dev_parameters_ptr;
             #endif
             auto l_channelId = channelId;
             wGroup.parallel_for_work_item([&](sycl::h_item<1> index) {
@@ -416,6 +425,11 @@ namespace mg5amcGpu
                 #ifdef MGONGPU_HARDCODE_PARAM
                     //Load parameters into local (private) memory if hardcoded
                     auto dev_parameters = Proc::independent_parameters<fptype>;
+                #else
+                    fptype dev_parameters[mgOnGpu::nparams];
+                    for (size_t i = 0; i < mgOnGpu::nparams; i++) {
+                        dev_parameters[i] = m_dev_parameters_ptr[i];
+                    }
                 #endif
 
                 //Load helicities and couplings into local (private) memory
@@ -436,10 +450,16 @@ namespace mg5amcGpu
                     }
                 #endif
 
+                //Load momenta into local (private) memory
+                vector4 p_momenta[NPAR];
+                for (size_t i = 0; i < NPAR; i++) {
+                    p_momenta[i] = devMomentaC[NPAR*ievt + i];
+                }
+
                 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                    devMEsC[ievt] = Proc::sigmaKin( devMomentaC + CPPPROCESS_NPAR*ievt, devRndHel + ievt, devRndCol + ievt, devSelHel + ievt, devSelCol + ievt, l_channelId, dev_helicities, dev_couplings, dev_parameters, devcNGoodHel, devcGoodHel );
+                    devMEsC[ievt] = Proc::sigmaKin( p_momenta, devRndHel + ievt, devRndCol + ievt, devSelHel + ievt, devSelCol + ievt, l_channelId, dev_helicities, dev_couplings, dev_parameters, devcNGoodHel, devcGoodHel );
                 #else
-                    devMEsC[ievt] = Proc::sigmaKin( devMomentaC + CPPPROCESS_NPAR*ievt, devRndHel + ievt, devRndCol + ievt, devSelHel + ievt, devSelCol + ievt, dev_helicities, dev_couplings, dev_parameters, devcNGoodHel, devcGoodHel );
+                    devMEsC[ievt] = Proc::sigmaKin( p_momenta, devRndHel + ievt, devRndCol + ievt, devSelHel + ievt, devSelCol + ievt, dev_helicities, dev_couplings, dev_parameters, devcNGoodHel, devcGoodHel );
                 #endif
             });
         }));

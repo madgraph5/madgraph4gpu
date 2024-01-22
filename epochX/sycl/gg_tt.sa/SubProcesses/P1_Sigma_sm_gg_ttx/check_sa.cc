@@ -606,7 +606,6 @@ int main(int argc, char **argv)
               #ifndef MGONGPU_HARDCODE_PARAM
                   //Load independent couplings and parameters into shared memory if not hardcoded
                   auto _dev_independent_couplings = dev_independent_couplings;
-                  auto dev_parameters = dev_independent_parameters;
               #endif
               wGroup.parallel_for_work_item([&](sycl::h_item<1> index) {
                   size_t ievt = index.get_global_id(0);
@@ -614,6 +613,11 @@ int main(int argc, char **argv)
                   #ifdef MGONGPU_HARDCODE_PARAM
                       //Load parameters into local (private) memory if hardcoded
                       auto dev_parameters = Proc::independent_parameters<fptype>;
+                  #else
+                      fptype dev_parameters[mgOnGpu::nparams];
+                      for (size_t i = 0; i < mgOnGpu::nparams; i++) {
+                          dev_parameters[i] = dev_independent_parameters[i];
+                      }
                   #endif
 
                   //Load helicities and couplings into local (private) memory
@@ -634,7 +638,13 @@ int main(int argc, char **argv)
                       }
                   #endif
 
-                  Proc::sigmaKin_getGoodHel( devMomenta + CPPPROCESS_NPAR*ievt, devIsGoodHel, dev_helicities, dev_couplings, dev_parameters );
+                  //Load momenta into local (private) memory
+                  vector4 p_momenta[CPPPROCESS_NPAR];
+                  for (size_t i = 0; i < CPPPROCESS_NPAR; i++) {
+                      p_momenta[i] = devMomenta[CPPPROCESS_NPAR*ievt + i];
+                  }
+
+                  Proc::sigmaKin_getGoodHel( p_momenta, devIsGoodHel, dev_helicities, dev_couplings, dev_parameters );
               });
           }));
       });
@@ -668,7 +678,6 @@ int main(int argc, char **argv)
             #ifndef MGONGPU_HARDCODE_PARAM
                 //Load independent couplings and parameters into shared memory if not hardcoded
                 auto _dev_independent_couplings = dev_independent_couplings;
-                auto dev_parameters = dev_independent_parameters;
             #endif
             wGroup.parallel_for_work_item([&](sycl::h_item<1> index) {
                 size_t ievt = index.get_global_id(0);
@@ -676,6 +685,11 @@ int main(int argc, char **argv)
                 #ifdef MGONGPU_HARDCODE_PARAM
                     //Load parameters into local (private) memory if hardcoded
                     auto dev_parameters = Proc::independent_parameters<fptype>;
+                #else
+                    fptype dev_parameters[mgOnGpu::nparams];
+                    for (size_t i = 0; i < mgOnGpu::nparams; i++) {
+                        dev_parameters[i] = dev_independent_parameters[i];
+                    }
                 #endif
 
                 //Load helicities and couplings into local (private) memory
@@ -696,10 +710,16 @@ int main(int argc, char **argv)
                     }
                 #endif
 
+                //Load momenta into local (private) memory
+                vector4 p_momenta[CPPPROCESS_NPAR];
+                for (size_t i = 0; i < CPPPROCESS_NPAR; i++) {
+                    p_momenta[i] = devMomenta[CPPPROCESS_NPAR*ievt + i];
+                }
+
                 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                    devMEs[ievt] = Proc::sigmaKin( devMomenta + CPPPROCESS_NPAR*ievt, devRndHel + ievt, devRndCol + ievt, devSelHel + ievt, devSelCol + ievt, 0, dev_helicities, dev_couplings, dev_parameters, devcNGoodHel, devcGoodHel );
+                    devMEs[ievt] = Proc::sigmaKin( p_momenta, devRndHel + ievt, devRndCol + ievt, devSelHel + ievt, devSelCol + ievt, 0, dev_helicities, dev_couplings, dev_parameters, devcNGoodHel, devcGoodHel );
                 #else
-                    devMEs[ievt] = Proc::sigmaKin( devMomenta + CPPPROCESS_NPAR*ievt, devRndHel + ievt, devRndCol + ievt, devSelHel + ievt, devSelCol + ievt, dev_helicities, dev_couplings, dev_parameters, devcNGoodHel, devcGoodHel );
+                    devMEs[ievt] = Proc::sigmaKin( p_momenta, devRndHel + ievt, devRndCol + ievt, devSelHel + ievt, devSelCol + ievt, dev_helicities, dev_couplings, dev_parameters, devcNGoodHel, devcGoodHel );
                 #endif
             });
         }));
