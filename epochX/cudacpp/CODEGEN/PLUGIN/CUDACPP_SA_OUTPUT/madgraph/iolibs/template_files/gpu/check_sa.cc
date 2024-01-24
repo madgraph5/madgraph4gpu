@@ -778,7 +778,7 @@ main( int argc, char** argv )
   wrkflwtxt += "HIP:";
 #else
   wrkflwtxt += "CPP:";
-#endif
+#endif /* clang-format off */
   // -- DOUBLE or FLOAT?
 #if defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
   wrkflwtxt += "MIX+"; // mixed fptypes (single precision color algebra #537)
@@ -788,7 +788,7 @@ main( int argc, char** argv )
   wrkflwtxt += "FLT+";
 #else
   wrkflwtxt += "???+"; // no path to this statement
-#endif
+#endif /* clang-format on */
   // -- CUCOMPLEX or THRUST or STD complex numbers?
 #ifdef __CUDACC__
 #if defined MGONGPU_CUCXTYPE_CUCOMPLEX
