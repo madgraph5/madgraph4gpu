@@ -1,7 +1,7 @@
 // Copyright (C) 2020-2023 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: A. Valassi (Dec 2021) for the MG5aMC CUDACPP plugin.
-// Further modified by: J. Teig, A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
 
 #ifndef MemoryAccessMomenta_H
 #define MemoryAccessMomenta_H 1
@@ -13,7 +13,7 @@
 #include "MemoryAccessVectors.h"
 
 // NB: namespaces mg5amcGpu and mg5amcCpu includes types which are defined in different ways for CPU and GPU builds (see #318 and #725)
-#ifdef MGONGPUCPP_GPUIMPL
+#ifdef __CUDACC__
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
@@ -27,9 +27,10 @@ namespace mg5amcCpu
   class MemoryAccessMomentaBase //_AOSOAv1
   {
   public:
+
     // Number of Events Per Page in the momenta AOSOA memory buffer layout
     // (these are all best kept as a compile-time constants: see issue #23)
-#ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
+#ifdef __CUDACC__ /* clang-format off */
     // -----------------------------------------------------------------------------------------------
     // --- GPUs: neppM is best set to a power of 2 times the number of fptype's in a 32-byte cacheline
     // --- This is relevant to ensure coalesced access to momenta in global memory

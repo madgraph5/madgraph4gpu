@@ -9,8 +9,6 @@
 #include "mgOnGpuCxtypes.h"
 #include "mgOnGpuFptypes.h"
 
-#include "GpuAbstraction.h"
-
 #include <iostream>
 
 //==========================================================================
@@ -34,7 +32,7 @@
 #endif
 
 // NB: namespaces mg5amcGpu and mg5amcCpu includes types which are defined in different ways for CPU and GPU builds (see #318 and #725)
-#ifdef MGONGPUCPP_GPUIMPL
+#ifdef __CUDACC__
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
@@ -133,7 +131,7 @@ namespace mg5amcCpu
 #endif
 #endif
 
-#else // i.e #ifndef MGONGPU_CPPSIMD (this includes #ifdef MGONGPUCPP_GPUIMPL)
+#else // i.e #ifndef MGONGPU_CPPSIMD (this includes #ifdef __CUDACC__)
 
   const int neppV = 1;
 
@@ -155,13 +153,13 @@ namespace mg5amcCpu
 //==========================================================================
 
 // NB: namespaces mg5amcGpu and mg5amcCpu includes types which are defined in different ways for CPU and GPU builds (see #318 and #725)
-#ifdef MGONGPUCPP_GPUIMPL
+#ifdef __CUDACC__
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
 #endif
 {
-#ifndef MGONGPUCPP_GPUIMPL
+#ifndef __CUDACC__
 
   // Printout to stream for user defined types
 
@@ -807,11 +805,11 @@ namespace mg5amcCpu
 
 #endif // #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
 
-#endif // #ifndef MGONGPUCPP_GPUIMPL
+#endif // #ifndef __CUDACC__
 
   //==========================================================================
 
-#ifdef MGONGPUCPP_GPUIMPL
+#ifdef __CUDACC__
 
   //------------------------------
   // Vector types - CUDA
@@ -855,12 +853,12 @@ namespace mg5amcCpu
     return mask;
   }
 
-#endif // #ifdef MGONGPUCPP_GPUIMPL
+#endif // #ifdef __CUDACC__
 
   //==========================================================================
 
   // Scalar-or-vector types: scalar in CUDA, vector or scalar in C++
-#ifdef MGONGPUCPP_GPUIMPL
+#ifdef __CUDACC__
   typedef bool bool_sv;
   typedef fptype fptype_sv;
   typedef fptype2 fptype2_sv;
@@ -881,7 +879,7 @@ namespace mg5amcCpu
 #endif
 
   // Scalar-or-vector zeros: scalar in CUDA, vector or scalar in C++
-#ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
+#ifdef __CUDACC__ /* clang-format off */
   inline __host__ __device__ cxtype cxzero_sv(){ return cxtype( 0, 0 ); }
 #elif defined MGONGPU_CPPSIMD
   inline cxtype_v cxzero_sv() { return cxtype_v(); } // RRRR=0000 IIII=0000
