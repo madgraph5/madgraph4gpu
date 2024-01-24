@@ -26,16 +26,19 @@
 // ** NB2 Baseline on b7g47n0004 fluctuates (probably depends on load on other VMs)
 
 // Choose if curand is supported for generating random numbers
-// For CUDA, by default, it is supported
-// For HIP, by default, it is not supported
-// For C++, by default, do not inline, but allow this macro to be set from outside with e.g. -DMGONGPU_HAS_NO_CURAND
-#ifdef MGONGPUCPP_CUDACC
-#undef MGONGPU_HAS_NO_CURAND
-#elif defined __HIPCC__
+// For HIP, by default, do not use curand (common random numbers will be used instead)
+// For both CUDA and C++, by default, do not inline, but allow this macro to be set from outside with e.g. -DMGONGPU_HAS_NO_CURAND
+// (there exist CUDA installations, e.g. using the HPC package, which do not include curand - see PR #784 and #785)
+#if defined __HIPCC__
 #define MGONGPU_HAS_NO_CURAND 1
 #else
+//#ifdef __CUDACC__
 //#undef MGONGPU_HAS_NO_CURAND // default
 ////#define MGONGPU_HAS_NO_CURAND 1
+//#else
+//#undef MGONGPU_HAS_NO_CURAND // default
+////#define MGONGPU_HAS_NO_CURAND 1
+//#endif
 #endif
 
 // Choose floating point precision (for everything but color algebra #537)

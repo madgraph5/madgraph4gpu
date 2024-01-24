@@ -59,7 +59,8 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
   using namespace mg5amcCpu;
 #endif
 #ifndef __APPLE__ // test #701 (except on MacOS where feenableexcept is not defined #730)
-  const bool enableFPE = !getenv( "CUDACPP_RUNTIME_DISABLEFPE" );
+  const char* enableFPEc = getenv( "CUDACPP_RUNTIME_ENABLEFPE" );
+  const bool enableFPE = ( enableFPEc != 0 ) && ( std::string( enableFPEc ) != "" );
   if( enableFPE )
   {
     feenableexcept( FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW ); // debug #701

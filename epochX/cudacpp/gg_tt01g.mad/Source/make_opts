@@ -1,17 +1,12 @@
-pdlabel1=
-pdlabel2=
-lhapdf=
-PYTHIA8_PATH=NotInstalled
-MG5AMC_VERSION=3.5.0_lo_vect
-GLOBAL_FLAG=-O3 -ffast-math -fbounds-check
-ALOHA_FLAG=
-MATRIX_FLAG=
 DEFAULT_CPP_COMPILER=g++
-MACFLAG=
-STDLIB=-lstdc++
-STDLIB_FLAG=
-DEFAULT_F_COMPILER=gfortran
 DEFAULT_F2PY_COMPILER=f2py3
+DEFAULT_F_COMPILER=gfortran
+GLOBAL_FLAG=-O3 -ffast-math -fbounds-check
+MACFLAG=
+MG5AMC_VERSION=SpecifiedByMG5aMCAtRunTime
+PYTHIA8_PATH=NotInstalled
+STDLIB_FLAG=
+STDLIB=-lstdc++
 #end_of_make_opts_variables
 
 BIASLIBDIR=../../../lib/
