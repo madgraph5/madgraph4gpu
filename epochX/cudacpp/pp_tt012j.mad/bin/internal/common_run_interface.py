@@ -749,13 +749,15 @@ class CommonRunCmd(HelpToCmd, CheckValidForCmd, cmd.Cmd):
         
     class RunWebHandling(object):
         
-        def __init__(self, me_dir, crashifpresent=True, warnifpresent=True):
+        def __init__(self, me_dir, crashifpresent=True, warnifpresent=True, force_run=False):
             """raise error if RunWeb already exists
             me_dir is the directory where the write RunWeb"""
             
             self.remove_run_web = True
             self.me_dir = me_dir
-            
+            if force_run:
+                self.remove_run_web = False
+                return            
             if crashifpresent or warnifpresent:
                 if os.path.exists(pjoin(me_dir, 'RunWeb')):
                     pid = open(pjoin(me_dir, 'RunWeb')).read()
@@ -4904,6 +4906,7 @@ class AskforEditCard(cmd.OneLinePathCompletion):
         self.load_default()        
         self.define_paths(**opt)
         self.last_editline_pos = 0
+        self.update_dependent_done = False
 
         if 'allow_arg' not in opt or not opt['allow_arg']:
             # add some mininal content for this:
@@ -6574,7 +6577,7 @@ class AskforEditCard(cmd.OneLinePathCompletion):
     fail_due_to_format = 0 #parameter to avoid infinite loop
     def postcmd(self, stop, line):
 
-        if line not in [None, '0', 'done', '']:
+        if line not in [None, '0', 'done', '',0]:
             ending_question = cmd.OneLinePathCompletion.postcmd(self,stop,line)
         else:
             ending_question = True
@@ -6583,7 +6586,9 @@ class AskforEditCard(cmd.OneLinePathCompletion):
             self.check_card_consistency()
             if self.param_consistency:
                 try:
-                    self.do_update('dependent', timer=20)
+                    if not self.update_dependent_done:
+                        self.do_update('dependent', timer=20)
+                    self.update_dependent_done = False
                 except MadGraph5Error as error:
                     if 'Missing block:' in str(error):
                         self.fail_due_to_format +=1
@@ -6636,6 +6641,8 @@ class AskforEditCard(cmd.OneLinePathCompletion):
             self.update_dependent(self.mother_interface, self.me_dir, self.param_card,
                                    self.paths['param'], timer, run_card=self.run_card,
                                    lhapdfconfig=self.lhapdf)
+            self.update_dependent_done = True
+            
 
         elif args[0] == 'missing':
             self.update_missing()
@@ -6715,11 +6722,12 @@ class AskforEditCard(cmd.OneLinePathCompletion):
         def handle_alarm(signum, frame): 
             raise TimeOutError
         signal.signal(signal.SIGALRM, handle_alarm)
+
         if timer:
-            signal.alarm(timer)
             log_level=30
         else:
             log_level=20
+
 
         if run_card:
             as_for_pdf = {'cteq6_m': 0.118,
@@ -6778,6 +6786,10 @@ class AskforEditCard(cmd.OneLinePathCompletion):
                     param_card.get('sminputs').get((3,)).value = as_for_pdf[pdlabel]
                     logger.log(log_level, "update the strong coupling value (alpha_s) to the value from the pdf selected: %s",  as_for_pdf[pdlabel])
                     modify = True
+
+        if timer:
+            signal.alarm(timer)
+
 
         # Try to load the model in the limited amount of time allowed
         try:
@@ -6907,7 +6919,8 @@ class AskforEditCard(cmd.OneLinePathCompletion):
     def check_answer_consistency(self):
         """function called if the code reads a file"""
         self.check_card_consistency()
-        self.do_update('dependent', timer=20) 
+        if not self.update_dependent_done:
+            self.do_update('dependent', timer=20) 
       
     def help_set(self):
         '''help message for set'''
@@ -7533,7 +7546,8 @@ You can also copy/paste, your event file here.''')
             else:
                 raise
         if time.time() - start < .5:
-            self.mother_interface.ask("Are you really that fast? If you are using an editor that returns directly. Please confirm that you have finised to edit the file", 'y')
+            self.mother_interface.ask("Are you really that fast? If you are using an editor that returns directly. Please confirm that you have finised to edit the file", 'y',
+                                      timeout=False)
         self.reload_card(path)
         
     def reload_card(self, path): 

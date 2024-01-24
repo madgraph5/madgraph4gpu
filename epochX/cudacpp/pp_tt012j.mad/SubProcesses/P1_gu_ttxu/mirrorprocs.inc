@@ -1,1 +1,1 @@
-      DATA (MIRRORPROCS(I),I=1,1)/.FALSE./
+      DATA (MIRRORPROCS(I),I=1,1)/.TRUE./

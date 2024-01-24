@@ -9,7 +9,7 @@ cd $scrdir
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggh]> [-sa] [-noalpaka] [-flt|-fltonly|-mix|-mixonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly] [-makeclean] [-makej] [-dlp <dyld_library_path>]"
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggh]> [-sa] [-noalpaka] [-flt|-fltonly|-mix|-mixonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly] [-makeclean] [-makej] [-nofpe] [-dlp <dyld_library_path>]"
   exit 1
 }
 
@@ -30,6 +30,7 @@ rndgen=
 rmbsmp=
 steps="make test"
 makej=
+nofpe=
 dlp=
 dlpset=0
 
@@ -61,7 +62,7 @@ for arg in $*; do
     if [ "$heftggh" == "" ]; then procs+=${procs:+ }${arg}; fi
     heftggh=$arg
   elif [ "$arg" == "-sa" ]; then
-    suffs="sa" # standalone_cudacpp code base (logs_*_manu: NB eventually this will become logs_*_sa)
+    suffs="sa" # standalone_cudacpp code base (logs_*_sa)
   elif [ "$arg" == "-noalpaka" ]; then
     alpaka=$arg
   elif [ "$arg" == "-flt" ]; then
@@ -110,6 +111,8 @@ for arg in $*; do
     fi
   elif [ "$arg" == "-makej" ]; then
     makej=-makej
+  elif [ "$arg" == "-nofpe" ]; then
+    nofpe=-nofpe
   else
     echo "ERROR! Invalid option '$arg'"; usage
   fi  
@@ -146,7 +149,7 @@ started="STARTED AT $(date)"
 for step in $steps; do
   for proc in $procs; do
     for suff in $suffs; do
-      sa=; if [ "${suff}" == "sa" ]; then sa=" -sa"; sufflog=manu; else sufflog=${suff}; fi
+      sa=; if [ "${suff}" == "sa" ]; then sa=" -sa"; sufflog=sa; else sufflog=${suff}; fi
       for fptype in $fptypes; do
         flt=; if [ "${fptype}" == "f" ]; then flt=" -fltonly"; elif [ "${fptype}" == "m" ]; then flt=" -mixonly"; fi
         for helinl in $helinls; do
@@ -157,6 +160,7 @@ for step in $steps; do
             args="${args} ${alpaka}" # optionally disable alpaka tests
             args="${args} ${rndgen}" # optionally use common random numbers or curand on host
             args="${args} ${rmbsmp}" # optionally use rambo or bridge on host
+            args="${args} ${nofpe}" # optionally disable FPEs
             args="${args} -avxall" # avx, fptype, helinl and hrdcod are now supported for all processes
             if [ "${step}" == "makeclean" ]; then
               printf "\n%80s\n" |tr " " "*"

@@ -20,48 +20,40 @@ jobs:
     steps:
 
     - uses: actions/checkout@v2
-    - name: make epochX
+    - name: make debug
       run: make -C ${{ matrix.folder }} debug
   CPU:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        folder: [ epochX/cudacpp/ee_mumu.sa/SubProcesses/P1_Sigma_sm_epem_mupmum,
-                  epochX/cudacpp/gg_tt.sa/SubProcesses/P1_Sigma_sm_gg_ttx,
-                  epochX/cudacpp/gg_ttg.sa/SubProcesses/P1_Sigma_sm_gg_ttxg,
-                  epochX/cudacpp/gg_ttgg.sa/SubProcesses/P1_Sigma_sm_gg_ttxgg,
-                  epochX/cudacpp/gg_ttggg.sa/SubProcesses/P1_Sigma_sm_gg_ttxggg ]
+        folder: [ epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum , epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg ]
         precision: [ d , f , m ]
       fail-fast: false
     steps:
     - uses: actions/checkout@v2
     - name: make info
-      run: make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} info
+      run: make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} -f cudacpp.mk info
     - name: make
       run: make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }}
     - name: make check
-      run: make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} check
+      run: make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} -f cudacpp.mk check
   CPU_MAC:
     runs-on: macos-latest
     env:
       FC: gfortran-11
     strategy:
       matrix:
-        folder: [ epochX/cudacpp/ee_mumu.sa/SubProcesses/P1_Sigma_sm_epem_mupmum,
-                  epochX/cudacpp/gg_tt.sa/SubProcesses/P1_Sigma_sm_gg_ttx,
-                  epochX/cudacpp/gg_ttg.sa/SubProcesses/P1_Sigma_sm_gg_ttxg,
-                  epochX/cudacpp/gg_ttgg.sa/SubProcesses/P1_Sigma_sm_gg_ttxgg,
-                  epochX/cudacpp/gg_ttggg.sa/SubProcesses/P1_Sigma_sm_gg_ttxggg ]
+        folder: [ epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum, epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg ]
         precision: [ d , f , m ]
       fail-fast: false
     steps:
     - uses: actions/checkout@v2
     - name: make info
-      run: make AVX=none OMPFLAGS= FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} info
+      run: make AVX=none OMPFLAGS= FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} -f cudacpp.mk info
     - name: make
       run: make AVX=none OMPFLAGS= FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }}
     - name: make check
-      run: make AVX=none OMPFLAGS= FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} check
+      run: make AVX=none OMPFLAGS= FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} -f cudacpp.mk check
   GPU:
     runs-on: [self-hosted, linux, a100]
     env:
@@ -70,18 +62,14 @@ jobs:
       FC: gfortran
     strategy:
       matrix:
-        folder: [ epochX/cudacpp/ee_mumu.sa/SubProcesses/P1_Sigma_sm_epem_mupmum,
-                  epochX/cudacpp/gg_tt.sa/SubProcesses/P1_Sigma_sm_gg_ttx,
-                  epochX/cudacpp/gg_ttg.sa/SubProcesses/P1_Sigma_sm_gg_ttxg,
-                  epochX/cudacpp/gg_ttgg.sa/SubProcesses/P1_Sigma_sm_gg_ttxgg,
-                  epochX/cudacpp/gg_ttggg.sa/SubProcesses/P1_Sigma_sm_gg_ttxggg ]
+        folder: [ epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum , epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg ]
         precision: [ d , f , m ]
       fail-fast: false
     steps:
     - uses: actions/checkout@v2
     - name: make info
-      run: make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} info
+      run: make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} -f cudacpp.mk info
     - name: make
       run: make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }}
     - name: make check
-      run: make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} check
+      run: make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} -f cudacpp.mk check
