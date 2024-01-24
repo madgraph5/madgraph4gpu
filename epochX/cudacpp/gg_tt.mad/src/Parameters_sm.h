@@ -27,7 +27,7 @@
 #include "read_slha.h"
 
 // NB: namespaces mg5amcGpu and mg5amcCpu includes types which are defined in different ways for CPU and GPU builds (see #318 and #725)
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
@@ -93,7 +93,7 @@ namespace mg5amcCpu
 #include <limits>
 
 // NB: namespaces mg5amcGpu and mg5amcCpu includes types which are defined in different ways for CPU and GPU builds (see #318 and #725)
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
@@ -217,7 +217,7 @@ namespace mg5amcCpu
 //==========================================================================
 
 // NB: namespaces mg5amcGpu and mg5amcCpu includes types which are defined in different ways for CPU and GPU builds (see #318 and #725)
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
@@ -236,7 +236,7 @@ namespace mg5amcCpu
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-variable"  // e.g. <<warning: unused variable ‘mdl_G__exp__2’ [-Wunused-variable]>>
 #pragma GCC diagnostic ignored "-Wunused-parameter" // e.g. <<warning: unused parameter ‘G’ [-Wunused-parameter]>>
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 #pragma nv_diagnostic push
 #pragma nv_diag_suppress 177 // e.g. <<warning #177-D: variable "mdl_G__exp__2" was declared but never referenced>>
 #endif
@@ -263,7 +263,7 @@ namespace mg5amcCpu
       // End SM implementation - no special handling of vectors of floats as in EFT (#439)
       return out;
     }
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 #pragma GCC diagnostic pop
 #pragma nv_diagnostic pop
 #endif
@@ -279,33 +279,39 @@ namespace mg5amcCpu
 
   //==========================================================================
 
+#ifdef MGONGPUCPP_GPUIMPL
+  namespace mg5amcGpu
+#else
+  namespace mg5amcCpu
+#endif
+  {
 #pragma GCC diagnostic push
 #ifndef __clang__
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable" // e.g. <<warning: variable ‘couplings_sv’ set but not used [-Wunused-but-set-variable]>>
 #endif
-  // Compute the output couplings (e.g. gc10 and gc11) from the input gs
-  template<class G_ACCESS, class C_ACCESS>
-  __device__ inline void
-  G2COUP( const fptype gs[],
-          fptype couplings[] )
-  {
-    mgDebug( 0, __FUNCTION__ );
-    using namespace Parameters_sm_dependentCouplings;
-    const fptype_sv& gs_sv = G_ACCESS::kernelAccessConst( gs );
-    DependentCouplings_sv couplings_sv = computeDependentCouplings_fromG( gs_sv );
-    fptype* GC_10s = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_GC_10 );
-    fptype* GC_11s = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_GC_11 );
-    cxtype_sv_ref GC_10s_sv = C_ACCESS::kernelAccess( GC_10s );
-    cxtype_sv_ref GC_11s_sv = C_ACCESS::kernelAccess( GC_11s );
-    GC_10s_sv = couplings_sv.GC_10;
-    GC_11s_sv = couplings_sv.GC_11;
-    mgDebug( 1, __FUNCTION__ );
-    return;
-  }
+    // Compute the output couplings (e.g. gc10 and gc11) from the input gs
+    template<class G_ACCESS, class C_ACCESS>
+    __device__ inline void
+    G2COUP( const fptype gs[],
+            fptype couplings[] )
+    {
+      mgDebug( 0, __FUNCTION__ );
+      using namespace Parameters_sm_dependentCouplings;
+      const fptype_sv& gs_sv = G_ACCESS::kernelAccessConst( gs );
+      DependentCouplings_sv couplings_sv = computeDependentCouplings_fromG( gs_sv );
+      fptype* GC_10s = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_GC_10 );
+      fptype* GC_11s = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_GC_11 );
+      cxtype_sv_ref GC_10s_sv = C_ACCESS::kernelAccess( GC_10s );
+      cxtype_sv_ref GC_11s_sv = C_ACCESS::kernelAccess( GC_11s );
+      GC_10s_sv = couplings_sv.GC_10;
+      GC_11s_sv = couplings_sv.GC_11;
+      mgDebug( 1, __FUNCTION__ );
+      return;
+    }
 #pragma GCC diagnostic pop
 
-} // end namespace mg5amcGpu/mg5amcCpu
+  } // end namespace mg5amcGpu/mg5amcCpu
 
-//==========================================================================
+  //==========================================================================
 
 #endif // Parameters_sm_H
