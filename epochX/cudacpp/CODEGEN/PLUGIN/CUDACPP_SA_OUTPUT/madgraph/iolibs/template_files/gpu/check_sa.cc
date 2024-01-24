@@ -152,7 +152,7 @@ main( int argc, char** argv )
 #ifdef MGONGPUCPP_GPUIMPL
   RamboSamplingMode rmbsmp = RamboSamplingMode::RamboDevice; // default on GPU
 #else
-  RamboSamplingMode rmbsmp = RamboSamplingMode::RamboHost;  // default on CPU
+  RamboSamplingMode rmbsmp = RamboSamplingMode::RamboHost; // default on CPU
 #endif
   // Bridge emulation mode (NB Bridge implies RamboHost!)
   bool bridge = false;
@@ -780,7 +780,7 @@ main( int argc, char** argv )
   wrkflwtxt += "CPP:";
 #endif
   // -- DOUBLE or FLOAT?
-#if defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+#if defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT /* clang-format off */
   wrkflwtxt += "MIX+"; // mixed fptypes (single precision color algebra #537)
 #elif defined MGONGPU_FPTYPE_DOUBLE
   wrkflwtxt += "DBL+";
@@ -799,7 +799,7 @@ main( int argc, char** argv )
   wrkflwtxt += "CXS:";
 #else
   wrkflwtxt += "???:"; // no path to this statement
-#endif
+#endif /* clang-format on */
 #elif defined __HIPCC__
 #if defined MGONGPU_CUCXTYPE_CXSMPL
   wrkflwtxt += "CXS:";
@@ -1086,7 +1086,7 @@ main( int argc, char** argv )
 #elif defined MGONGPU_CUCXTYPE_CXSMPL
              << "\"STD::COMPLEX\"," << std::endl
 #else
-             << "\"???\"," << std::endl                           // no path to this statement...
+             << "\"???\"," << std::endl // no path to this statement...
 #endif
              << "\"RanNumb memory layout\": "
              << "\"AOSOA[" << neppR << "]\""

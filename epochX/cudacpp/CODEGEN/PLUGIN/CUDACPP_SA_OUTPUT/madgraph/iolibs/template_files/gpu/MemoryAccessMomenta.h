@@ -27,18 +27,17 @@ namespace mg5amcCpu
   class MemoryAccessMomentaBase //_AOSOAv1
   {
   public:
-
-  // Number of Events Per Page in the momenta AOSOA memory buffer layout
-  // (these are all best kept as a compile-time constants: see issue #23)
+    // Number of Events Per Page in the momenta AOSOA memory buffer layout
+    // (these are all best kept as a compile-time constants: see issue #23)
 #ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
-  // -----------------------------------------------------------------------------------------------
-  // --- GPUs: neppM is best set to a power of 2 times the number of fptype's in a 32-byte cacheline
-  // --- This is relevant to ensure coalesced access to momenta in global memory
-  // --- Note that neppR is hardcoded and may differ from neppM and neppV on some platforms
-  // -----------------------------------------------------------------------------------------------
-  //static constexpr int neppM = 64/sizeof(fptype); // 2x 32-byte GPU cache lines (512 bits): 8 (DOUBLE) or 16 (FLOAT)
-  static constexpr int neppM = 32/sizeof(fptype); // (DEFAULT) 32-byte GPU cache line (256 bits): 4 (DOUBLE) or 8 (FLOAT)
-  //static constexpr int neppM = 1; // *** NB: this is equivalent to AOS *** (slower: 1.03E9 instead of 1.11E9 in eemumu)
+    // -----------------------------------------------------------------------------------------------
+    // --- GPUs: neppM is best set to a power of 2 times the number of fptype's in a 32-byte cacheline
+    // --- This is relevant to ensure coalesced access to momenta in global memory
+    // --- Note that neppR is hardcoded and may differ from neppM and neppV on some platforms
+    // -----------------------------------------------------------------------------------------------
+    //static constexpr int neppM = 64/sizeof(fptype); // 2x 32-byte GPU cache lines (512 bits): 8 (DOUBLE) or 16 (FLOAT)
+    static constexpr int neppM = 32/sizeof(fptype); // (DEFAULT) 32-byte GPU cache line (256 bits): 4 (DOUBLE) or 8 (FLOAT)
+    //static constexpr int neppM = 1; // *** NB: this is equivalent to AOS *** (slower: 1.03E9 instead of 1.11E9 in eemumu)
 #else
     // -----------------------------------------------------------------------------------------------
     // --- CPUs: neppM is best set equal to the number of fptype's (neppV) in a vector register
