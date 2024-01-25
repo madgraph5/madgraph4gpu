@@ -780,7 +780,7 @@ main( int argc, char** argv )
   wrkflwtxt += "CPP:";
 #endif /* clang-format off */
   // -- DOUBLE or FLOAT?
-#if defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT /* clang-format off */
+#if defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
   wrkflwtxt += "MIX+"; // mixed fptypes (single precision color algebra #537)
 #elif defined MGONGPU_FPTYPE_DOUBLE
   wrkflwtxt += "DBL+";
@@ -796,12 +796,6 @@ main( int argc, char** argv )
 #elif defined MGONGPU_CUCXTYPE_THRUST
   wrkflwtxt += "THX:";
 #elif defined MGONGPU_CUCXTYPE_CXSMPL
-  wrkflwtxt += "CXS:";
-#else
-  wrkflwtxt += "???:"; // no path to this statement
-#endif /* clang-format on */
-#elif defined __HIPCC__
-#if defined MGONGPU_CUCXTYPE_CXSMPL
   wrkflwtxt += "CXS:";
 #else
   wrkflwtxt += "???:"; // no path to this statement
@@ -1090,7 +1084,7 @@ main( int argc, char** argv )
 #elif defined MGONGPU_CUCXTYPE_CXSMPL
              << "\"STD::COMPLEX\"," << std::endl
 #else
-             << "\"???\"," << std::endl // no path to this statement...
+             << "\"???\"," << std::endl                           // no path to this statement...
 #endif
              << "\"RanNumb memory layout\": "
              << "\"AOSOA[" << neppR << "]\""
