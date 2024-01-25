@@ -1,7 +1,7 @@
 // Copyright (C) 2020-2023 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: S. Hageboeck (Dec 2020) for the MG5aMC CUDACPP plugin.
-// Further modified by: S. Hageboeck, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: S. Hageboeck, J. Teig, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
 
 #ifndef MADGRAPHTEST_H_
 #define MADGRAPHTEST_H_ 1
@@ -22,7 +22,7 @@
 #include <string>
 #include <vector>
 
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 using mg5amcGpu::CPPProcess;
 #else
 using mg5amcCpu::CPPProcess;
@@ -201,7 +201,7 @@ protected:
 
 // Since we link both the CPU-only and GPU tests into the same executable, we prevent
 // a multiply defined symbol by only compiling this in the non-CUDA phase:
-#ifndef __CUDACC__
+#ifndef MGONGPUCPP_GPUIMPL
 
 /// Compare momenta and matrix elements.
 /// This uses an implementation of TestDriverBase to run a madgraph workflow,
@@ -307,6 +307,6 @@ TEST_P( MadgraphTest, CompareMomentaAndME )
   }
 }
 
-#endif // __CUDACC__
+#endif // MGONGPUCPP_GPUIMPL
 
 #endif /* MADGRAPHTEST_H_ */

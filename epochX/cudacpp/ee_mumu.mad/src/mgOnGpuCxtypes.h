@@ -159,6 +159,12 @@ namespace mg5amcCpu
     return cxsmpl<float>( a, 0 ) * b;
   }
 
+  inline __host__ __device__ constexpr cxsmpl<float>
+  operator*( const cxsmpl<float>& a, const double& b )
+  {
+    return a * cxsmpl<float>( b, 0 );
+  }
+
   template<typename FP>
   inline __host__ __device__ constexpr cxsmpl<FP>
   operator/( const cxsmpl<FP>& a, const cxsmpl<FP>& b )
