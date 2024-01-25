@@ -180,7 +180,8 @@ ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
     CURANDLIBFLAGS = -L$(CUDA_HOME)/lib64/ -lcurand # NB: -lcuda is not needed here!
   endif
   CUOPTFLAGS = -lineinfo
-  GPUFLAGS = $(OPTFLAGS) $(CUOPTFLAGS) $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math
+  ###GPUFLAGS = $(OPTFLAGS) $(CUOPTFLAGS) $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math
+  GPUFLAGS = $(foreach opt, $(OPTFLAGS), -Xcompiler $(opt)) $(CUOPTFLAGS) $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math
   ###GPUFLAGS += -Xcompiler -Wall -Xcompiler -Wextra -Xcompiler -Wshadow
   ###GPUCC_VERSION = $(shell $(GPUCC) --version | grep 'Cuda compilation tools' | cut -d' ' -f5 | cut -d, -f1)
   GPUFLAGS += -std=c++17 # need CUDA >= 11.2 (see #333): this is enforced in mgOnGpuConfig.h
@@ -573,7 +574,7 @@ $(BUILDDIR)/%%.o : %%.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
 # Apply special build flags only to CrossSectionKernel.cc and gCrossSectionKernel.cu (no fast math, see #117 and #516)
 # Added edgecase for HIP compilation
 ifeq ($(shell $(CXX) --version | grep ^nvc++),)
-$(BUILDDIR)/CrossSectionKernels.o: CXXFLAGS += -fno-fast-math
+$(BUILDDIR)/CrossSectionKernels.o: CXXFLAGS := $(filter-out -ffast-math,$(CXXFLAGS))
 $(BUILDDIR)/CrossSectionKernels.o: CXXFLAGS += -fno-fast-math
 ifeq ($(findstring nvcc,$(GPUCC)),nvcc)
   $(BUILDDIR)/gCrossSectionKernels.o: GPUFLAGS += -Xcompiler -fno-fast-math
