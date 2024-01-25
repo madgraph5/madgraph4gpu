@@ -139,13 +139,13 @@ endif
 
 # If CUDA_HOME is not set, try to set it from the path to nvcc
 ifndef CUDA_HOME
-  CUDA_HOME = $(patsubst %bin/nvcc,%,$(shell which nvcc 2>/dev/null))
+  CUDA_HOME = $(patsubst %/bin/nvcc,%,$(shell which nvcc 2>/dev/null))
   $(warning CUDA_HOME was not set: using "$(CUDA_HOME)")
 endif
 
 # If HIP_HOME is not set, try to set it from the path to hipcc
 ifndef HIP_HOME
-  HIP_HOME = $(patsubst %bin/hipcc,%,$(shell which hipcc 2>/dev/null))
+  HIP_HOME = $(patsubst %/bin/hipcc,%,$(shell which hipcc 2>/dev/null))
   $(warning HIP_HOME was not set: using "$(HIP_HOME)")
 endif
 
