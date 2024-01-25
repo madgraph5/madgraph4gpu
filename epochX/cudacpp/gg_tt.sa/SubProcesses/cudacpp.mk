@@ -145,7 +145,7 @@ endif
 
 # If HIP_HOME is not set, try to set it from the path to hipcc
 ifndef HIP_HOME
-  HIP_HOME = $(patsubst %bin/hipcc,%,$(HIP_COMPILER_PATH))
+  HIP_HOME = $(patsubst %bin/hipcc,%,$(shell which hipcc 2>/dev/null))
   $(warning HIP_HOME was not set: using "$(HIP_HOME)")
 endif
 
