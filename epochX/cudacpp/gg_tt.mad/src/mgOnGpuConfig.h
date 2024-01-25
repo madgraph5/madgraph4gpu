@@ -15,7 +15,6 @@
 #define MGONGPUCPP_GPUIMPL cuda
 #elif defined __HIPCC__
 #define MGONGPUCPP_GPUIMPL hip
-#include "hip/hip_runtime.h"
 #else
 #undef MGONGPUCPP_GPUIMPL
 #endif
