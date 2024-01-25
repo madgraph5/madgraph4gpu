@@ -19,7 +19,7 @@ SHELL := /bin/bash
 #=== Configure common compiler flags for CUDA and C++
 
 INCFLAGS = -I.
-OPTFLAGS = -O3 # this ends up in CUFLAGS too (should it?), cannot add -Ofast or -ffast-math here
+OPTFLAGS = -O3 # this ends up in GPUFLAGS too (should it?), cannot add -Ofast or -ffast-math here
 
 #-------------------------------------------------------------------------------
 
@@ -45,13 +45,13 @@ endif
 
 #-------------------------------------------------------------------------------
 
-#=== Configure the CUDA compiler (note: NVCC is already exported including ccache)
+#=== Configure the CUDA compiler (note: GPUCC is already exported including ccache)
 
-###$(info NVCC=$(NVCC))
+###$(info GPUCC=$(GPUCC))
 
 #-------------------------------------------------------------------------------
 
-#=== Configure ccache for C++ builds (note: NVCC is already exported including ccache)
+#=== Configure ccache for C++ builds (note: GPUCC is already exported including ccache)
 
 # Enable ccache if USECCACHE=1
 ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
@@ -91,6 +91,13 @@ endif
 # Set the build flags appropriate to OMPFLAGS
 ###$(info OMPFLAGS=$(OMPFLAGS))
 CXXFLAGS += $(OMPFLAGS)
+
+# Add correct -DHIP_LATFORM when compiling for HIP
+ifeq ($(findstring nvcc,$(GPUCC)),nvcc)
+  GPUFLAGS += -Xcompiler -fPIC -c -x cu
+else ifeq ($(findstring hipcc,$(GPUCC)),hipcc)
+  GPUFLAGS += -fPIC -c
+endif
 
 # Set the build flags appropriate to each AVX choice (example: "make AVX=none")
 # [NB MGONGPU_PVW512 is needed because "-mprefer-vector-width=256" is not exposed in a macro]
@@ -253,20 +260,20 @@ $(BUILDDIR)/%.o : %.cc *.h $(BUILDDIR)/.build.$(TAG)
 # Generic target and build rules: objects from CUDA compilation
 $(BUILDDIR)/%_cu.o : %.cc *.h $(BUILDDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -Xcompiler -fPIC -c -x cu $< -o $@
+	$(GPUCC) $(CPPFLAGS) $(GPUFLAGS) $< -o $@
 
 #-------------------------------------------------------------------------------
 
 cxx_objects=$(addprefix $(BUILDDIR)/, Parameters_heft.o read_slha.o)
-ifneq ($(NVCC),)
+ifneq ($(GPUCC),)
 cu_objects=$(addprefix $(BUILDDIR)/, Parameters_heft_cu.o)
 endif
 
 # Target (and build rules): common (src) library
-ifneq ($(NVCC),)
+ifneq ($(GPUCC),)
 $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so : $(cxx_objects) $(cu_objects)
 	@if [ ! -d $(LIBDIR) ]; then echo "mkdir -p $(LIBDIR)"; mkdir -p $(LIBDIR); fi
-	$(NVCC) -shared -o $@ $(cxx_objects) $(cu_objects) $(LDFLAGS)
+	$(GPUCC) -shared -o $@ $(cxx_objects) $(cu_objects) $(LDFLAGS)
 else
 $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so : $(cxx_objects)
 	@if [ ! -d $(LIBDIR) ]; then echo "mkdir -p $(LIBDIR)"; mkdir -p $(LIBDIR); fi

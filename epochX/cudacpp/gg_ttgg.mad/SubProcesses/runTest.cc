@@ -1,7 +1,7 @@
 // Copyright (C) 2020-2023 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: S. Hageboeck (Nov 2020) for the MG5aMC CUDACPP plugin.
-// Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, J. Teig, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
 //----------------------------------------------------------------------------
 // Use ./runTest.exe --gtest_filter=*xxx to run only testxxx.cc tests
 //----------------------------------------------------------------------------
@@ -18,7 +18,7 @@
 #include "RandomNumberKernels.h"
 #include "epoch_process_id.h"
 
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 using namespace mg5amcGpu;
 #else
 using namespace mg5amcCpu;
@@ -35,7 +35,7 @@ struct CUDA_CPU_TestBase : public TestDriverBase
     : TestDriverBase( npar, refFileName ) {}
 };
 
-#ifndef __CUDACC__
+#ifndef MGONGPUCPP_GPUIMPL
 struct CPUTest : public CUDA_CPU_TestBase
 {
   // Struct data members (process, and memory structures for random numbers, momenta, matrix elements and weights on host and device)
@@ -119,7 +119,7 @@ struct CPUTest : public CUDA_CPU_TestBase
 };
 #endif
 
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 struct CUDATest : public CUDA_CPU_TestBase
 {
   // Reset the device when our test goes out of scope. Note that this should happen after
@@ -256,7 +256,7 @@ INSTANTIATE_TEST_SUITE_P( prefix, \
                           test_suite_name, \
                           testing::Values( new CUDATest( MG_EPOCH_REFERENCE_FILE_NAME ) ) );
 
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 MG_INSTANTIATE_TEST_SUITE_GPU( XTESTID_GPU( MG_EPOCH_PROCESS_ID ), MadgraphTest );
 #else
 MG_INSTANTIATE_TEST_SUITE_CPU( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), MadgraphTest );
