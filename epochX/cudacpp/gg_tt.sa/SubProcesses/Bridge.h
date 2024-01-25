@@ -18,7 +18,11 @@
 #include <cassert>
 #include <cmath>
 #include <cstring>
+#ifdef __HIPCC__
+#include <experimental/filesystem> // see https://rocm.docs.amd.com/en/docs-5.4.3/CHANGELOG.html#id79
+#else
 #include <filesystem>
+#endif
 #include <iostream>
 #include <memory>
 #include <type_traits>
@@ -255,10 +259,11 @@ namespace mg5amcCpu
     // FIXME: the CPPProcess should really be a singleton? what if fbridgecreate is called from several Fortran threads?
     CPPProcess process( /*verbose=*/false );
     std::string paramCard = "../../Cards/param_card.dat";
-    if( !std::filesystem::exists( paramCard ) )
-    {
-      paramCard = "../" + paramCard;
-    }
+#ifdef __HIPCC__
+    if( !std::experimental::filesystem::exists( paramCard ) ) paramCard = "../" + paramCard;
+#else
+    if( !std::filesystem::exists( paramCard ) ) paramCard = "../" + paramCard;
+#endif
     process.initProc( paramCard );
   }
 
