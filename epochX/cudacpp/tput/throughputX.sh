@@ -523,6 +523,7 @@ function cmpExe() {
 
 # Profile #registers and %divergence only
 function runNcu() {
+  if ! ncu -v > /dev/null 2>&1; then return; fi
   if [ "${maketype}" == "-dryrun" ]; then return; fi
   exe=$1
   args="$2"
@@ -545,6 +546,7 @@ function runNcu() {
 # See https://docs.nvidia.com/gameworks/content/developertools/desktop/analysis/report/cudaexperiments/kernellevel/branchstatistics.htm
 # See https://docs.nvidia.com/gameworks/content/developertools/desktop/analysis/report/cudaexperiments/sourcelevel/divergentbranch.htm
 function runNcuDiv() {
+  if ! ncu -v > /dev/null 2>&1; then return; fi
   if [ "${maketype}" == "-dryrun" ]; then return; fi
   exe=$1
   args="-p 1 32 1"
@@ -567,6 +569,7 @@ function runNcuDiv() {
 
 # Profiles sectors and requests
 function runNcuReq() {
+  if ! ncu -v > /dev/null 2>&1; then return; fi
   if [ "${maketype}" == "-dryrun" ]; then return; fi
   exe=$1
   ncuArgs="$2"
@@ -580,7 +583,13 @@ function runNcuReq() {
   set +x
 }
 
-if nvidia-smi -L > /dev/null 2>&1; then gpuTxt="$(nvidia-smi -L | wc -l)x $(nvidia-smi -L | awk '{print $3,$4}' | sort -u)"; else gpuTxt=none; fi
+if nvidia-smi -L > /dev/null 2>&1; then
+  gpuTxt="$(nvidia-smi -L | wc -l)x $(nvidia-smi -L | awk '{print $3,$4}' | sort -u)"
+elif rocm-smi -i > /dev/null 2>&1; then
+  gpuTxt="$(rocm-smi --showproductname | grep 'Card series' | awk '{print $5,$6,$7}')"
+else
+  gpuTxt=none
+fi
 if [ "${unames}" == "Darwin" ]; then 
   cpuTxt=$(sysctl -h machdep.cpu.brand_string)
   cpuTxt=${cpuTxt/machdep.cpu.brand_string: }
