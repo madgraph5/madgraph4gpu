@@ -14,11 +14,11 @@
 
 #include <array>
 #include <cmath>
-#ifdef __HIPCC__
-#include <experimental/filesystem> // see https://rocm.docs.amd.com/en/docs-5.4.3/CHANGELOG.html#id79
-#else
-#include <filesystem>
-#endif
+//#ifdef __HIPCC__
+//#include <experimental/filesystem> // see https://rocm.docs.amd.com/en/docs-5.4.3/CHANGELOG.html#id79
+//#else
+//#include <filesystem> // bypass this completely to ease portability on LUMI #803
+//#endif
 #include <fstream>
 #include <iomanip>
 #include <memory>
@@ -223,11 +223,14 @@ TEST_P( MadgraphTest, CompareMomentaAndME )
   const char* dumpEventsC = getenv( "CUDACPP_RUNTEST_DUMPEVENTS" );
   const bool dumpEvents = ( dumpEventsC != 0 ) && ( std::string( dumpEventsC ) != "" );
   const std::string refFileName = testDriver->getRefFileName();
+  /*
 #ifdef __HIPCC__
   const std::string dumpFileName = std::experimental::filesystem::path( refFileName ).filename();
 #else
   const std::string dumpFileName = std::filesystem::path( refFileName ).filename();
 #endif
+  */
+  const std::string dumpFileName = refFileName; // bypass std::filesystem #803
   std::ofstream dumpFile;
   if( dumpEvents )
   {

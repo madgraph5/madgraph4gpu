@@ -18,13 +18,14 @@
 #include <cassert>
 #include <cmath>
 #include <cstring>
-#ifdef __HIPCC__
-#include <experimental/filesystem> // see https://rocm.docs.amd.com/en/docs-5.4.3/CHANGELOG.html#id79
-#else
-#include <filesystem>
-#endif
+//#ifdef __HIPCC__
+//#include <experimental/filesystem> // see https://rocm.docs.amd.com/en/docs-5.4.3/CHANGELOG.html#id79
+//#else
+//#include <filesystem> // bypass this completely to ease portability on LUMI #803
+//#endif
 #include <iostream>
 #include <memory>
+#include <sys/stat.h> // bypass std::filesystem #803
 #include <type_traits>
 
 #ifdef MGONGPUCPP_GPUIMPL
@@ -259,11 +260,17 @@ namespace mg5amcCpu
     // FIXME: the CPPProcess should really be a singleton? what if fbridgecreate is called from several Fortran threads?
     CPPProcess process( /*verbose=*/false );
     std::string paramCard = "../../Cards/param_card.dat";
+    /*
 #ifdef __HIPCC__
     if( !std::experimental::filesystem::exists( paramCard ) ) paramCard = "../" + paramCard;
 #else
     if( !std::filesystem::exists( paramCard ) ) paramCard = "../" + paramCard;
 #endif
+    */
+    //struct stat dummybuffer; // bypass std::filesystem #803
+    //if( !( stat( paramCard.c_str(), &dummyBuffer ) == 0 ) ) paramCard = "../" + paramCard; //
+    auto fileExists = []( std::string& fileName ){ struct stat buffer; return stat( fileName.c_str(), &buffer ) == 0; };
+    if( !fileExists( paramCard ) ) paramCard = "../" + paramCard; // bypass std::filesystem #803
     process.initProc( paramCard );
   }
 

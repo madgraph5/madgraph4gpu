@@ -651,11 +651,13 @@ ifneq ($(GPUCC),)
 $(LIBDIR)/lib$(MG5AMC_CULIB).so: $(BUILDDIR)/fbridge_cu.o
 $(LIBDIR)/lib$(MG5AMC_CULIB).so: cu_objects_lib += $(BUILDDIR)/fbridge_cu.o
 $(LIBDIR)/lib$(MG5AMC_CULIB).so: $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cu_objects_lib)
-ifneq ($(findstring hipcc,$(GPUCC)),)
-	$(GPUCC) --shared -o $@ $(cu_objects_lib) $(CULIBFLAGSRPATH2) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB) -lstdc++fs
-else
 	$(GPUCC) --shared -o $@ $(cu_objects_lib) $(CULIBFLAGSRPATH2) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
-endif
+# Bypass std::filesystem completely to ease portability on LUMI #803
+#ifneq ($(findstring hipcc,$(GPUCC)),)
+#	$(GPUCC) --shared -o $@ $(cu_objects_lib) $(CULIBFLAGSRPATH2) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB) -lstdc++fs
+#else
+#	$(GPUCC) --shared -o $@ $(cu_objects_lib) $(CULIBFLAGSRPATH2) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
+#endif
 endif
 
 #-------------------------------------------------------------------------------
@@ -783,9 +785,10 @@ $(testmain): LIBFLAGS += -lgomp
 endif
 endif
 
-ifneq ($(findstring hipcc,$(GPUCC)),)
-$(testmain): LIBFLAGS += -lstdc++fs
-endif
+# Bypass std::filesystem completely to ease portability on LUMI #803
+#ifneq ($(findstring hipcc,$(GPUCC)),)
+#$(testmain): LIBFLAGS += -lstdc++fs
+#endif
 
 ifeq ($(GPUCC),) # link only runTest.o
 $(testmain): LIBFLAGS += $(CXXLIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH

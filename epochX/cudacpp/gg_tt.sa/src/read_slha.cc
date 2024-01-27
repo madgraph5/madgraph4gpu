@@ -11,11 +11,11 @@
 
 #include <algorithm>
 #include <cstdlib>
-#ifdef __HIPCC__
-#include <experimental/filesystem> // see https://rocm.docs.amd.com/en/docs-5.4.3/CHANGELOG.html#id79
-#else
-#include <filesystem>
-#endif
+//#ifdef __HIPCC__
+//#include <experimental/filesystem> // see https://rocm.docs.amd.com/en/docs-5.4.3/CHANGELOG.html#id79
+//#else
+//#include <filesystem> // bypass this completely to ease portability on LUMI #803
+//#endif
 #include <fstream>
 #include <iostream>
 
@@ -64,11 +64,14 @@ SLHAReader::read_slha_file( std::string file_name, bool verbose )
     {
       std::cout << "WARNING! Card file '" << file_name << "' does not exist:"
                 << " look for the file in directory $" << envpath << "='" << getenv( envpath ) << "'" << std::endl;
+      /*
 #ifdef __HIPCC__
       const std::string file_name2 = std::experimental::filesystem::path( getenv( envpath ) ) / std::experimental::filesystem::path( file_name ).filename();
 #else
       const std::string file_name2 = std::filesystem::path( getenv( envpath ) ) / std::filesystem::path( file_name ).filename();
 #endif
+      */
+      const std::string file_name2 = std::string( getenv( envpath ) ) + "/" + file_name; // bypass std::filesystem #803
       param_card.open( file_name2.c_str(), std::ifstream::in );
       if( param_card.good() )
       {
