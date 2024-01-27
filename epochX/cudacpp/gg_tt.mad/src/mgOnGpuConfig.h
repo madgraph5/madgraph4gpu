@@ -8,7 +8,7 @@
 
 // HARDCODED AT CODE GENERATION TIME: DO NOT MODIFY (#473)
 // There are two different code bases for standalone_cudacpp (without multichannel) and madevent+cudacpp (with multichannel)
-#undef MGONGPU_SUPPORTS_MULTICHANNEL
+#define MGONGPU_SUPPORTS_MULTICHANNEL 1
 
 // Is this a GPU (CUDA, HIP) or CPU implementation?
 #ifdef __CUDACC__
