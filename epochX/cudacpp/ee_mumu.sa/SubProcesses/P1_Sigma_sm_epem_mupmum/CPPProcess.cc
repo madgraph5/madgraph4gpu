@@ -557,6 +557,10 @@ namespace mg5amcCpu
     out << "Apple clang " << __clang_major__ << "." << __clang_minor__ << "." << __clang_patchlevel__;
 #else
     out << "clang " << __clang_major__ << "." << __clang_minor__ << "." << __clang_patchlevel__;
+    /*
+    // === AV 26-Jan-2024 DISABLE THIS CODE (START)
+    // === AV 26-Jan-2024 First, it is totally wrong to assume that the CXX environment variable is used in the build!
+    // === AV 26-Jan-2024 Second and worse, here we need build time values, while CXX in this code is evaluated at runtime!
     // GCC toolchain version inside CLANG
     std::string tchainout;
     std::string tchaincmd = "readelf -p .comment $(${CXX} -print-libgcc-file-name) |& grep 'GCC: (GNU)' | grep -v Warning | sort -u | awk '{print $5}'";
@@ -570,6 +574,8 @@ namespace mg5amcCpu
 #else
     out << " (gcc " << tchainout << ")";
 #endif
+    // === AV 26-Jan-2024 DISABLE THIS CODE (END)
+    */
 #endif
 #else
     out << "clang UNKNOWKN";

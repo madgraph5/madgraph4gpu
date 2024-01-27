@@ -62,7 +62,7 @@ generate g g > t t~ g g g
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.005517005920410156 [0m
+[1;32mDEBUG: model prefixing  takes 0.005588531494140625 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -155,7 +155,7 @@ INFO: Please specify coupling orders to bypass this step.
 INFO: Trying coupling order WEIGHTED<=5: WEIGTHED IS QCD+2*QED 
 INFO: Trying process: g g > t t~ g g g WEIGHTED<=5 @1  
 INFO: Process has 1240 diagrams 
-1 processes with 1240 diagrams generated in 1.861 s
+1 processes with 1240 diagrams generated in 1.900 s
 Total: 1 processes with 1240 diagrams
 output madevent ../TMPOUT/CODEGEN_mad_gg_ttggg --hel_recycling=False --vector_size=32 --me_exporter=standalone_cudacpp
 Load PLUGIN.CUDACPP_OUTPUT
@@ -177,7 +177,7 @@ INFO: Creating files in directory P1_gg_ttxggg
 INFO: Computing Color-Flow optimization [15120 term] 
 INFO: Color-Flow passed to 1630 term in 8s. Introduce 3030 contraction 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7fc5768c88e0> [1;30m[export_v4.py at line 6262][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7fe8cf4f48e0> [1;30m[export_v4.py at line 6262][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -192,15 +192,15 @@ INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./.
 [1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1872][0m [0m
 INFO: Generating Feynman diagrams for Process: g g > t t~ g g g WEIGHTED<=5 @1 
 INFO: Finding symmetric diagrams for subprocess group gg_ttxggg 
-Generated helas calls for 1 subprocesses (1240 diagrams) in 6.528 s
-Wrote files for 2281 helas calls in 18.450 s
+Generated helas calls for 1 subprocesses (1240 diagrams) in 6.686 s
+Wrote files for 2281 helas calls in 18.830 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 routines[0m
 ALOHA: aloha creates VVVV3 routines[0m
 ALOHA: aloha creates VVVV4 routines[0m
-ALOHA: aloha creates 5 routines in  0.314 s
+ALOHA: aloha creates 5 routines in  0.329 s
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 202][0m [0m
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
@@ -208,7 +208,7 @@ ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 routines[0m
 ALOHA: aloha creates VVVV3 routines[0m
 ALOHA: aloha creates VVVV4 routines[0m
-ALOHA: aloha creates 10 routines in  0.309 s
+ALOHA: aloha creates 10 routines in  0.323 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -257,9 +257,9 @@ Type "launch" to generate events from this process, or see
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m29.049s
-user	0m28.554s
-sys	0m0.393s
+real	0m29.715s
+user	0m29.204s
+sys	0m0.406s
 Code generation completed in 30 seconds
 ************************************************************
 *                                                          *

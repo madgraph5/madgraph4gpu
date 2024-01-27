@@ -76,7 +76,7 @@ usage( char* argv0, int ret = 1 )
   return ret;
 }
 
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
@@ -84,7 +84,7 @@ namespace mg5amcCpu
 {
   inline void FPEhandler( int sig )
   {
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
     std::cerr << "Floating Point Exception (GPU)" << std::endl;
 #else
     std::cerr << "Floating Point Exception (CPU)" << std::endl;
