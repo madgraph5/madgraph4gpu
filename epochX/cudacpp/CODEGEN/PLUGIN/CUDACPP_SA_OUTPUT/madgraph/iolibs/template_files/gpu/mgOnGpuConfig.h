@@ -8,13 +8,14 @@
 
 // HARDCODED AT CODE GENERATION TIME: DO NOT MODIFY (#473)
 // There are two different code bases for standalone_cudacpp (without multichannel) and madevent+cudacpp (with multichannel)
-%(mgongpu_supports_multichannel)s
+#undef MGONGPU_SUPPORTS_MULTICHANNEL
 
 // Is this a GPU (CUDA, HIP) or CPU implementation?
 #ifdef __CUDACC__
 #define MGONGPUCPP_GPUIMPL cuda
 #elif defined __HIPCC__
 #define MGONGPUCPP_GPUIMPL hip
+#include "hip/hip_runtime.h" // needed for blockDim, blockIdx, threadIdx: better in mgOnGpuConfig.h than in GpuAbstraction.h
 #else
 #undef MGONGPUCPP_GPUIMPL
 #endif
