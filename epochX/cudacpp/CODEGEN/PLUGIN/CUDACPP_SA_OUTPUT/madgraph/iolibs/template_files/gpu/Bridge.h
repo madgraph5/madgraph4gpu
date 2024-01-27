@@ -14,18 +14,20 @@
 #include "MemoryAccessMomenta.h"  // for MemoryAccessMomenta::neppM
 #include "MemoryBuffers.h"        // for HostBufferMomenta, DeviceBufferMomenta etc
 
-#include <algorithm>
-#include <cassert>
-#include <cmath>
-#include <cstring>
 //#ifdef __HIPCC__
 //#include <experimental/filesystem> // see https://rocm.docs.amd.com/en/docs-5.4.3/CHANGELOG.html#id79
 //#else
 //#include <filesystem> // bypass this completely to ease portability on LUMI #803
 //#endif
+
+#include <sys/stat.h> // bypass std::filesystem #803
+
+#include <algorithm>
+#include <cassert>
+#include <cmath>
+#include <cstring>
 #include <iostream>
 #include <memory>
-#include <sys/stat.h> // bypass std::filesystem #803
 #include <type_traits>
 
 #ifdef MGONGPUCPP_GPUIMPL
@@ -269,7 +271,8 @@ namespace mg5amcCpu
     */
     //struct stat dummybuffer; // bypass std::filesystem #803
     //if( !( stat( paramCard.c_str(), &dummyBuffer ) == 0 ) ) paramCard = "../" + paramCard; //
-    auto fileExists = []( std::string& fileName ){ struct stat buffer; return stat( fileName.c_str(), &buffer ) == 0; };
+    auto fileExists = []( std::string& fileName )
+    { struct stat buffer; return stat( fileName.c_str(), &buffer ) == 0; };
     if( !fileExists( paramCard ) ) paramCard = "../" + paramCard; // bypass std::filesystem #803
     process.initProc( paramCard );
   }
