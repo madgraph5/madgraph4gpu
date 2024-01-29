@@ -173,11 +173,6 @@ ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   comma:=,
   CUARCHFLAGS = $(foreach arch,$(subst $(comma), ,$(MADGRAPH_CUDA_ARCHITECTURE)),-gencode arch=compute_$(arch),code=compute_$(arch) -gencode arch=compute_$(arch),code=sm_$(arch))
   CUINC = -I$(CUDA_HOME)/include/
-  ifeq ($(RNDGEN),hasNoCurand)
-    CURANDLIBFLAGS=
-  else
-    CURANDLIBFLAGS = -L$(CUDA_HOME)/lib64/ -lcurand # NB: -lcuda is not needed here!
-  endif
   CUOPTFLAGS = -lineinfo
   ###GPUFLAGS = $(OPTFLAGS) $(CUOPTFLAGS) $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math
   GPUFLAGS = $(foreach opt, $(OPTFLAGS), -Xcompiler $(opt)) $(CUOPTFLAGS) $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math
@@ -241,7 +236,6 @@ else
   override GPUCC=
   override USE_NVTX=
   override CUINC=
-  override CURANDLIBFLAGS=
 
 endif
 
@@ -291,7 +285,7 @@ endif
 
 #-------------------------------------------------------------------------------
 
-#=== Configure defaults and check if user-defined choices exist for OMPFLAGS, AVX, FPTYPE, HELINL, HRDCOD, RNDGEN
+#=== Configure defaults and check if user-defined choices exist for OMPFLAGS, AVX, FPTYPE, HELINL, HRDCOD
 
 # Set the default OMPFLAGS choice
 ifneq ($(findstring hipcc,$(GPUCC)),)
@@ -352,29 +346,62 @@ ifeq ($(HRDCOD),)
   override HRDCOD = 0
 endif
 
-# Set the default RNDGEN (random number generator) choice
-ifeq ($(RNDGEN),)
-  ifeq ($(GPUCC),)
-    override RNDGEN = hasNoCurand
-  # Edgecase for HIP compilation
-  else ifeq ($(findstring hipcc,$(GPUCC)),hipcc)
-    override RNDGEN = hasNoCurand
-  else ifeq ($(RNDGEN),)
-    override RNDGEN = hasCurand
-  endif
-endif
-
-# Export AVX, FPTYPE, HELINL, HRDCOD, RNDGEN, OMPFLAGS so that it is not necessary to pass them to the src Makefile too
+# Export AVX, FPTYPE, HELINL, HRDCOD, OMPFLAGS so that it is not necessary to pass them to the src Makefile too
 export AVX
 export FPTYPE
 export HELINL
 export HRDCOD
-export RNDGEN
 export OMPFLAGS
 
 #-------------------------------------------------------------------------------
 
-#=== Set the CUDA/HIP/C++ compiler flags appropriate to user-defined choices of AVX, FPTYPE, HELINL, HRDCOD, RNDGEN
+#=== Configure defaults and check if user-defined choices exist for RNDGEN (legacy!), HASCURAND, HASROCRAND
+
+# If the legacy RNDGEN exists, this take precedence over any HASCURAND choice (but a warning is printed out)
+###$(info RNDGEN=$(RNDGEN))
+ifneq ($(RNDGEN),)
+  $(warning Environment variable RNDGEN is no longer supported, please use HASCURAND instead!)
+  ifeq ($(RNDGEN),hasCurand)
+    override HASCURAND = $(RNDGEN)
+  else ifeq ($(RNDGEN),hasNoCurand)
+    override HASCURAND = $(RNDGEN)
+  else ifneq ($(RNDGEN),hasNoCurand)
+    $(error Unknown RNDGEN='$(RNDGEN)': only 'hasCurand' and 'hasNoCurand' are supported - but use HASCURAND instead!)
+  endif
+endif
+
+# Set the default HASCURAND (curand random number generator) choice, if no prior choice exists for HASCURAND
+# (NB: allow HASCURAND=hasCurand even if $(GPUCC) does not point to nvcc: assume CUDA_HOME was defined correctly...)
+ifeq ($(HASCURAND),)
+  ifeq ($(GPUCC),) # CPU-only build
+    override HASCURAND = hasNoCurand
+  else ifeq ($(findstring nvcc,$(GPUCC)),nvcc) # Nvidia GPU build
+    override HASCURAND = hasCurand
+  else # non-Nvidia GPU build
+    override HASCURAND = hasNoCurand
+  endif
+endif
+
+# Set the default HASROCRAND (rocrand random number generator) choice, if no prior choice exists for HASROCRAND
+# (NB: allow HASROCRAND=hasRocrand even if $(GPUCC) does not point to hipcc: assume HIP_HOME was defined correctly...)
+ifeq ($(HASROCRAND),)
+  ifeq ($(GPUCC),) # CPU-only build
+    override HASROCRAND = hasNoRocrand
+  else ifeq ($(findstring hipcc,$(GPUCC)),hipcc) # AMD GPU build
+    override HASROCRAND = hasRocrand
+  else # non-AMD GPU build
+    override HASROCRAND = hasNoRocrand
+  endif
+endif
+
+# Export HASCURAND, HASROCRAND so that it is not necessary to pass them to the src Makefile too
+# (NB: these variables in cudacpp_src.mk are only used to define the build tag, they are NOT needed for RNDCXXFLAGS or RNDLIBFLAGS)
+export HASCURAND
+export HASROCRAND
+
+#-------------------------------------------------------------------------------
+
+#=== Set the CUDA/HIP/C++ compiler flags appropriate to user-defined choices of AVX, FPTYPE, HELINL, HRDCOD
 
 # Set the build flags appropriate to OMPFLAGS
 $(info OMPFLAGS=$(OMPFLAGS))
@@ -461,15 +488,32 @@ else ifneq ($(HRDCOD),0)
   $(error Unknown HRDCOD='$(HRDCOD)': only '0' and '1' are supported)
 endif
 
-# Set the build flags appropriate to each RNDGEN choice (example: "make RNDGEN=hasNoCurand")
-$(info RNDGEN=$(RNDGEN))
-ifeq ($(RNDGEN),hasNoCurand)
-  override CXXFLAGSCURAND = -DMGONGPU_HAS_NO_CURAND
-else ifeq ($(RNDGEN),hasCurand)
-  override CXXFLAGSCURAND =
+
+#=== Set the CUDA/HIP/C++ compiler and linker flags appropriate to user-defined choices of HASCURAND, HASROCRAND
+
+$(info HASCURAND=$(HASCURAND))
+$(info HASROCRAND=$(HASROCRAND))
+override RNDCXXFLAGS=
+override RNDLIBFLAGS=
+
+# Set the RNDCXXFLAGS and RNDLIBFLAGS build flags appropriate to each HASCURAND choice (example: "make HASCURAND=hasNoCurand")
+ifeq ($(HASCURAND),hasNoCurand)
+  override RNDCXXFLAGS += -DMGONGPU_HAS_NO_CURAND
+else ifeq ($(HASCURAND),hasCurand)
+  override RNDLIBFLAGS += -L$(CUDA_HOME)/lib64/ -lcurand # NB: -lcuda is not needed here!
 else
-  $(error Unknown RNDGEN='$(RNDGEN)': only 'hasCurand' and 'hasNoCurand' are supported)
+  $(error Unknown HASCURAND='$(HASCURAND)': only 'hasCurand' and 'hasNoCurand' are supported)
 endif
+
+# Set the RNDCXXFLAGS and RNDLIBFLAGS build flags appropriate to each HASROCRAND choice (example: "make HASROCRAND=hasNoRocrand")
+ifeq ($(HASROCRAND),hasNoRocrand)
+  override RNDCXXFLAGS += -DMGONGPU_HAS_NO_ROCRAND
+else ifneq ($(HASROCRAND),hasRocrand)
+  $(error Unknown HASROCRAND='$(HASROCRAND)': only 'hasRocrand' and 'hasNoRocrand' are supported)
+endif
+
+#$(info RNDCXXFLAGS=$(RNDCXXFLAGS))
+#$(info HASROCRAND=$(HASROCRAND))
 
 #-------------------------------------------------------------------------------
 
@@ -481,7 +525,7 @@ override DIRTAG = $(AVX)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)
 
 # Build lockfile "full" tag (defines full specification of build options that cannot be intermixed)
 # (Rationale: avoid mixing of CUDA and no-CUDA environment builds with different random number generators)
-override TAG = $(AVX)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)_$(RNDGEN)
+override TAG = $(AVX)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)_$(HASCURAND)_$(HASROCRAND)
 
 # Build directory: current directory by default, or build.$(DIRTAG) if USEBUILDDIR==1
 ifeq ($(USEBUILDDIR),1)
@@ -589,12 +633,14 @@ endif
 $(BUILDDIR)/check_sa.o: CXXFLAGS += $(USE_NVTX) $(CUINC)
 $(BUILDDIR)/gcheck_sa.o: CXXFLAGS += $(USE_NVTX) $(CUINC)
 
-# Apply special build flags only to check_sa and CurandRandomNumberKernel (curand headers, #679)
-$(BUILDDIR)/check_sa.o: CXXFLAGS += $(CXXFLAGSCURAND)
-$(BUILDDIR)/gcheck_sa.o: CUFLAGS += $(CXXFLAGSCURAND)
-$(BUILDDIR)/CurandRandomNumberKernel.o: CXXFLAGS += $(CXXFLAGSCURAND)
-$(BUILDDIR)/gCurandRandomNumberKernel.o: CUFLAGS += $(CXXFLAGSCURAND)
-ifeq ($(RNDGEN),hasCurand)
+# Apply special build flags only to check_sa and (Cu|Roc)randRandomNumberKernel
+$(BUILDDIR)/check_sa.o: CXXFLAGS += $(RNDCXXFLAGS)
+$(BUILDDIR)/gcheck_sa.o: CUFLAGS += $(RNDCXXFLAGS)
+$(BUILDDIR)/CurandRandomNumberKernel.o: CXXFLAGS += $(RNDCXXFLAGS)
+$(BUILDDIR)/gCurandRandomNumberKernel.o: CUFLAGS += $(RNDCXXFLAGS)
+$(BUILDDIR)/RocrandRandomNumberKernel.o: CXXFLAGS += $(RNDCXXFLAGS)
+$(BUILDDIR)/gRocrandRandomNumberKernel.o: CUFLAGS += $(RNDCXXFLAGS)
+ifeq ($(HASCURAND),hasCurand) # curand headers, #679
 $(BUILDDIR)/CurandRandomNumberKernel.o: CXXFLAGS += $(CUINC)
 endif
 
@@ -674,7 +720,7 @@ endif
 # Target (and build rules): C++ and CUDA standalone executables
 $(cxx_main): LIBFLAGS += $(CXXLIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(cxx_main): $(BUILDDIR)/check_sa.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).so $(cxx_objects_exe) $(BUILDDIR)/CurandRandomNumberKernel.o
-	$(CXX) -o $@ $(BUILDDIR)/check_sa.o $(OMPFLAGS) -ldl -pthread $(LIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CXXLIB) $(cxx_objects_exe) $(BUILDDIR)/CurandRandomNumberKernel.o $(CURANDLIBFLAGS)
+	$(CXX) -o $@ $(BUILDDIR)/check_sa.o $(OMPFLAGS) -ldl -pthread $(LIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CXXLIB) $(cxx_objects_exe) $(BUILDDIR)/CurandRandomNumberKernel.o $(RNDLIBFLAGS)
 
 ifneq ($(GPUCC),)
 ifneq ($(shell $(CXX) --version | grep ^Intel),)
@@ -685,7 +731,7 @@ $(cu_main): LIBFLAGS += -L$(patsubst %bin/nvc++,%lib,$(subst ccache ,,$(CXX))) -
 endif
 $(cu_main): LIBFLAGS += $(CULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(cu_main): $(BUILDDIR)/gcheck_sa.o $(LIBDIR)/lib$(MG5AMC_CULIB).so $(cu_objects_exe) $(BUILDDIR)/gCurandRandomNumberKernel.o
-	$(GPUCC) -o $@ $(BUILDDIR)/gcheck_sa.o $(CUARCHFLAGS) $(LIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CULIB) $(cu_objects_exe) $(BUILDDIR)/gCurandRandomNumberKernel.o $(CURANDLIBFLAGS)
+	$(GPUCC) -o $@ $(BUILDDIR)/gcheck_sa.o $(CUARCHFLAGS) $(LIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CULIB) $(cu_objects_exe) $(BUILDDIR)/gCurandRandomNumberKernel.o $(RNDLIBFLAGS)
 endif
 
 #-------------------------------------------------------------------------------
