@@ -633,13 +633,19 @@ endif
 $(BUILDDIR)/check_sa.o: CXXFLAGS += $(USE_NVTX) $(CUINC)
 $(BUILDDIR)/gcheck_sa.o: CXXFLAGS += $(USE_NVTX) $(CUINC)
 
-# Apply special build flags only to check_sa and (Cu|Roc)randRandomNumberKernel
+# Apply special build flags only to check_sa, (Common|Curand|Rocrand)RandomNumberKernel, runTest, fsampler
 $(BUILDDIR)/check_sa.o: CXXFLAGS += $(RNDCXXFLAGS)
 $(BUILDDIR)/gcheck_sa.o: CUFLAGS += $(RNDCXXFLAGS)
+$(BUILDDIR)/CommonRandomNumberKernel.o: CXXFLAGS += $(RNDCXXFLAGS)
+$(BUILDDIR)/gCommonRandomNumberKernel.o: CUFLAGS += $(RNDCXXFLAGS)
 $(BUILDDIR)/CurandRandomNumberKernel.o: CXXFLAGS += $(RNDCXXFLAGS)
 $(BUILDDIR)/gCurandRandomNumberKernel.o: CUFLAGS += $(RNDCXXFLAGS)
 $(BUILDDIR)/RocrandRandomNumberKernel.o: CXXFLAGS += $(RNDCXXFLAGS)
 $(BUILDDIR)/gRocrandRandomNumberKernel.o: CUFLAGS += $(RNDCXXFLAGS)
+$(BUILDDIR)/runTest.o: CXXFLAGS += $(RNDCXXFLAGS)
+$(BUILDDIR)/runTest_cu.o: CUFLAGS += $(RNDCXXFLAGS)
+$(BUILDDIR)/fsampler.o: CXXFLAGS += $(RNDCXXFLAGS)
+$(BUILDDIR)/fsampler_cu.o: CUFLAGS += $(RNDCXXFLAGS)
 ifeq ($(HASCURAND),hasCurand) # curand headers, #679
 $(BUILDDIR)/CurandRandomNumberKernel.o: CXXFLAGS += $(CUINC)
 endif
