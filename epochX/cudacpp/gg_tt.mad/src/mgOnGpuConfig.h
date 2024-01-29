@@ -24,7 +24,7 @@
 // ** NB2 Baseline on b7g47n0004 fluctuates (probably depends on load on other VMs)
 
 // Choose if curand is supported for generating random numbers
-// For HIP, by default, do not use curand (common random numbers will be used instead)
+// For HIP, by default, do not allow curand to be used (rocrand or common random numbers will be used instead)
 // For both CUDA and C++, by default, do not inline, but allow this macro to be set from outside with e.g. -DMGONGPU_HAS_NO_CURAND
 // (there exist CUDA installations, e.g. using the HPC package, which do not include curand - see PR #784 and #785)
 #if defined __HIPCC__
@@ -36,6 +36,22 @@
 //#else
 //#undef MGONGPU_HAS_NO_CURAND // default
 ////#define MGONGPU_HAS_NO_CURAND 1
+//#endif
+#endif
+
+// Choose if rocrand is supported for generating random numbers
+// For CUDA, by default, do not allow rocrand to be used (curand or common random numbers will be used instead)
+// For both HIP and C++, by default, do not inline, but allow this macro to be set from outside with e.g. -DMGONGPU_HAS_NO_ROCRAND
+// (there may exist HIP installations which do not include rocrand?)
+#if defined __CUDACC__
+#define MGONGPU_HAS_NO_ROCRAND 1
+#else
+//#ifdef __HIPCC__
+//#undef MGONGPU_HAS_NO_ROCRAND // default
+////#define MGONGPU_HAS_NO_ROCRAND 1
+//#else
+//#undef MGONGPU_HAS_NO_ROCRAND // default
+////#define MGONGPU_HAS_NO_ROCRAND 1
 //#endif
 #endif
 

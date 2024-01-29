@@ -1,7 +1,7 @@
-// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Copyright (C) 2020-2024 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: A. Valassi (Dec 2021) for the MG5aMC CUDACPP plugin.
-// Further modified by: J. Teig, A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: J. Teig, A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
 
 #ifndef RANDOMNUMBERKERNELS_H
 #define RANDOMNUMBERKERNELS_H 1
@@ -144,6 +144,49 @@ namespace mg5amcCpu
     // The curand generator
     // (NB: curand.h defines typedef generator_t as a pointer to forward-defined 'struct curandGenerator_st')
     curandGenerator_st* m_rnGen;
+  };
+
+#endif
+
+  //--------------------------------------------------------------------------
+
+#ifndef MGONGPU_HAS_NO_ROCRAND
+  // A class encapsulating ROCRAND random number generation on a CPU host or on a GPU device
+  class RocrandRandomNumberKernel final : public RandomNumberKernelBase
+  {
+  public:
+
+    // Constructor from an existing output buffer
+    RocrandRandomNumberKernel( BufferRndNumMomenta& rnarray, const bool onDevice );
+
+    // Destructor
+    ~RocrandRandomNumberKernel();
+
+    // Seed the random number generator
+    void seedGenerator( const unsigned int seed ) override final;
+
+    // Generate the random number array
+    void generateRnarray() override final;
+
+    // Is this a host or device kernel?
+    bool isOnDevice() const override final { return m_isOnDevice; }
+
+  private:
+
+    // Create the generator (workaround for #429: do this in every seedGenerator call rather than only in the ctor)
+    void createGenerator();
+
+    // Destroy the generator (workaround for #429: do this in every seedGenerator call rather than only in the ctor)
+    void destroyGenerator();
+
+  private:
+
+    // Is this a host or device kernel?
+    const bool m_isOnDevice;
+
+    // The rocrand generator
+    // (NB: rocrand.h defines typedef generator_t as a pointer to forward-defined 'struct rocrandGenerator_st')
+    rocrandGenerator_st* m_rnGen;
   };
 
 #endif
