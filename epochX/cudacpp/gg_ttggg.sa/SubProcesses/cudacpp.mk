@@ -218,7 +218,8 @@ else ifneq ($(wildcard $(HIP_HOME)/bin/hipcc),)
   HIPINC = -I$(HIP_HOME)/include/
   # Note: -DHIP_FAST_MATH is equivalent to -use_fast_math in HIP 
   # (but only for single precision line 208: https://rocm-developer-tools.github.io/HIP/hcc__detail_2math__functions_8h_source.html)
-  GPUFLAGS = $(OPTFLAGS) $(CUOPTFLAGS) $(INCFLAGS) $(HIPINC) $(HIPARCHFLAGS) -DHIP_FAST_MATH -DHIP_PLATFORM=amd -fPIC
+  # Note: CUOPTFLAGS should not be used for HIP, it had been added here but was then removed (#808)
+  GPUFLAGS = $(OPTFLAGS) $(INCFLAGS) $(HIPINC) $(HIPARCHFLAGS) -DHIP_FAST_MATH -DHIP_PLATFORM=amd -fPIC
   ###GPUFLAGS += -Xcompiler -Wall -Xcompiler -Wextra -Xcompiler -Wshadow
   GPUFLAGS += -std=c++17
   ###GPUFLAGS+= --maxrregcount 255 # (AV: is this option valid on HIP and meaningful on AMD GPUs?)
