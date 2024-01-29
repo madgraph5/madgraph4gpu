@@ -500,7 +500,7 @@ main( int argc, char** argv )
   {
 #ifdef MGONGPU_HAS_NO_ROCRAND
     throw std::runtime_error( "INTERNAL ERROR! RocrandDevice is not supported because this application was built without Rocrand support" ); // INTERNAL ERROR (no path to this statement)
-#elif defined __CUDACC__
+#elif defined __HIPCC__
     const bool onDevice = true;
     prnk.reset( new RocrandRandomNumberKernel( devRndmom, onDevice ) );
 #else
