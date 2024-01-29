@@ -129,12 +129,11 @@ endif
 # While convoluted, this is currently necessary to allow disabling CUDA/HIP builds by setting CUDA_HOME or HIP_HOME to invalid paths.
 # This will (probably?) be fixed when separate C++ and CUDA/HIP builds are implemented (PR #775).
 
-# If CXX is not a single word (example "clang++ --gcc-toolchain...") then disable CUDA and HIP builds (issue #505)
+# If CXX is not a single word (example "clang++ --gcc-toolchain...") then disable CUDA builds (issue #505)
 # This is because it is impossible to pass this to "GPUFLAGS += -ccbin <host-compiler>" below
 ifneq ($(words $(subst ccache ,,$(CXX))),1) # allow at most "CXX=ccache <host-compiler>" from outside
-  $(warning CUDA and HIP builds are not supported for multi-word CXX "$(CXX)")
+  $(warning CUDA builds are not supported for multi-word CXX "$(CXX)")
   override CUDA_HOME=disabled
-  override HIP_HOME=disabled
 endif
 
 # If CUDA_HOME is not set, try to set it from the path to nvcc
