@@ -58,7 +58,7 @@ int
 usage( char* argv0, int ret = 1 )
 {
   std::cout << "Usage: " << argv0
-            << " [--verbose|-v] [--debug|-d] [--performance|-p] [--json|-j] [--curhst|--curdev|--common] [--rmbhst|--rmbdev] [--bridge]"
+            << " [--verbose|-v] [--debug|-d] [--performance|-p] [--json|-j] [--curhst|--curdev|--rorhst|--rordev|--common] [--rmbhst|--rmbdev] [--bridge]"
             << " [#gpuBlocksPerGrid #gpuThreadsPerBlock] #iterations" << std::endl;
   std::cout << std::endl;
   std::cout << "The number of events per iteration is #gpuBlocksPerGrid * #gpuThreadsPerBlock" << std::endl;
@@ -131,17 +131,31 @@ main( int argc, char** argv )
   enum class RandomNumberMode
   {
     CommonRandom = 0,
-    CurandHost = 1,
-    CurandDevice = 2
+    CurandHost = -1,
+    CurandDevice = 1,
+    RocrandHost = -2,
+    RocrandDevice = 2
   };
-#ifdef MGONGPU_HAS_NO_CURAND
-  RandomNumberMode rndgen = RandomNumberMode::CommonRandom; // this is the only supported mode if build has no curand (PR #784 and #785)
-#elif defined __HIPCC__
-#error Internal error: MGONGPU_HAS_NO_CURAND should have been set for __HIPCC__ // default on AMD GPUs should be common random
-#elif defined __CUDACC__
+#if defined __CUDACC__
+#ifndef MGONGPU_HAS_NO_CURAND
   RandomNumberMode rndgen = RandomNumberMode::CurandDevice; // default on NVidia GPU if build has curand
 #else
+  RandomNumberMode rndgen = RandomNumberMode::CommonRandom; // default on NVidia GPU if build has no curand (PR #784 and #785)
+#endif
+#elif defined __HIPCC__
+#ifndef MGONGPU_HAS_NO_ROCRAND
+  RandomNumberMode rndgen = RandomNumberMode::RocrandDevice; // default on AMD GPU if build has rocrand
+#else
+  RandomNumberMode rndgen = RandomNumberMode::CommonRandom; // default on AMD GPU if build has no rocrand
+#endif
+#else
+#ifndef MGONGPU_HAS_NO_CURAND
   RandomNumberMode rndgen = RandomNumberMode::CurandHost; // default on CPU if build has curand
+#elif not defined MGONGPU_HAS_NO_ROCRAND
+  RandomNumberMode rndgen = RandomNumberMode::RocrandDevice; // default on CPU if build has rocrand
+#else
+  RandomNumberMode rndgen = RandomNumberMode::CommonRandom; // default on CPU if build has neither curand nor rocrand
+#endif
 #endif
   // Rambo sampling mode (NB RamboHost implies CommonRandom or CurandHost!)
   enum class RamboSamplingMode
@@ -193,6 +207,24 @@ main( int argc, char** argv )
       throw std::runtime_error( "CurandHost is not supported because this application was built without Curand support" );
 #else
       rndgen = RandomNumberMode::CurandHost;
+#endif
+    }
+    else if( arg == "--rordev" )
+    {
+#ifndef __HIPCC__
+      throw std::runtime_error( "RocrandDevice is not supported on CPUs or non-AMD GPUs" );
+#elif defined MGONGPU_HAS_NO_ROCRAND
+      throw std::runtime_error( "RocrandDevice is not supported because this application was built without Rocrand support" );
+#else
+      rndgen = RandomNumberMode::RocrandDevice;
+#endif
+    }
+    else if( arg == "--rorhst" )
+    {
+#ifdef MGONGPU_HAS_NO_ROCRAND
+      throw std::runtime_error( "RocrandHost is not supported because this application was built without Rocrand support" );
+#else
+      rndgen = RandomNumberMode::RocrandHost;
 #endif
     }
     else if( arg == "--common" )
@@ -260,7 +292,18 @@ main( int argc, char** argv )
     std::cout << "WARNING! RamboHost selected: cannot use CurandDevice, will use CurandHost" << std::endl;
     rndgen = RandomNumberMode::CurandHost;
 #else
-    std::cout << "WARNING! RamboHost selected: cannot use CurandDevice, will use CommonRandom" << std::endl;
+    std::cout << "WARNING! RamboHost selected: cannot use CurandDevice , will use CommonRandom" << std::endl;
+    rndgen = RandomNumberMode::CommonRandom;
+#endif
+  }
+
+  if( rmbsmp == RamboSamplingMode::RamboHost && rndgen == RandomNumberMode::RocrandDevice )
+  {
+#if not defined MGONGPU_HAS_NO_ROCRAND
+    std::cout << "WARNING! RamboHost selected: cannot use RocrandDevice, will use RocrandHost" << std::endl;
+    rndgen = RandomNumberMode::RocrandHost;
+#else
+    std::cout << "WARNING! RamboHost selected: cannot use RocrandDevice , will use CommonRandom" << std::endl;
     rndgen = RandomNumberMode::CommonRandom;
 #endif
   }
@@ -415,7 +458,7 @@ main( int argc, char** argv )
   std::unique_ptr<double[]> wavetimes( new double[niter] );
   std::unique_ptr<double[]> wv3atimes( new double[niter] );
 
-  // --- 0c. Create curand or common generator
+  // --- 0c. Create curand, rocrand or common generator
   const std::string cgenKey = "0c GenCreat";
   timermap.start( cgenKey );
   // Allocate the appropriate RandomNumberKernel
@@ -433,7 +476,7 @@ main( int argc, char** argv )
     prnk.reset( new CurandRandomNumberKernel( hstRndmom, onDevice ) );
 #endif
   }
-  else
+  else if( rndgen == RandomNumberMode::CurandDevice )
   {
 #ifdef MGONGPU_HAS_NO_CURAND
     throw std::runtime_error( "INTERNAL ERROR! CurandDevice is not supported because this application was built without Curand support" ); // INTERNAL ERROR (no path to this statement)
@@ -444,7 +487,28 @@ main( int argc, char** argv )
     throw std::logic_error( "INTERNAL ERROR! CurandDevice is not supported on CPUs or non-NVidia GPUs" ); // INTERNAL ERROR (no path to this statement)
 #endif
   }
-
+  else if( rndgen == RandomNumberMode::RocrandHost )
+  {
+#ifdef MGONGPU_HAS_NO_ROCRAND
+    throw std::runtime_error( "INTERNAL ERROR! RocrandHost is not supported because this application was built without Rocrand support" ); // INTERNAL ERROR (no path to this statement)
+#else
+    const bool onDevice = false;
+    prnk.reset( new RocrandRandomNumberKernel( hstRndmom, onDevice ) );
+#endif
+  }
+  else if( rndgen == RandomNumberMode::RocrandDevice )
+  {
+#ifdef MGONGPU_HAS_NO_ROCRAND
+    throw std::runtime_error( "INTERNAL ERROR! RocrandDevice is not supported because this application was built without Rocrand support" ); // INTERNAL ERROR (no path to this statement)
+#elif defined __CUDACC__
+    const bool onDevice = true;
+    prnk.reset( new RocrandRandomNumberKernel( devRndmom, onDevice ) );
+#else
+    throw std::logic_error( "INTERNAL ERROR! RocrandDevice is not supported on CPUs or non-NVidia GPUs" ); // INTERNAL ERROR (no path to this statement)
+#endif
+  }
+  else throw std::logic_error( "INTERNAL ERROR! Unknown rndgen value?" ); // INTERNAL ERROR (no path to this statement)
+  
   // --- 0c. Create rambo sampling kernel [keep this in 0c for the moment]
   std::unique_ptr<SamplingKernelBase> prsk;
   if( rmbsmp == RamboSamplingMode::RamboHost )
@@ -497,7 +561,7 @@ main( int argc, char** argv )
     // *** START THE OLD-STYLE TIMER FOR RANDOM GEN ***
     double genrtime = 0;
 
-    // --- 1a. Seed rnd generator (to get same results on host and device in curand)
+    // --- 1a. Seed rnd generator (to get same results on host and device in curand/rocrand)
     // [NB This should not be necessary using the host API: "Generation functions
     // can be called multiple times on the same generator to generate successive
     // blocks of results. For pseudorandom generators, multiple calls to generation
@@ -515,7 +579,8 @@ main( int argc, char** argv )
     //std::cout << "Got random numbers" << std::endl;
 
 #ifdef MGONGPUCPP_GPUIMPL
-    if( rndgen != RandomNumberMode::CurandDevice && rmbsmp == RamboSamplingMode::RamboDevice )
+    if( ( rndgen != RandomNumberMode::CurandDevice && rmbsmp == RamboSamplingMode::RamboDevice ) ||
+        ( rndgen != RandomNumberMode::RocrandDevice && rmbsmp == RamboSamplingMode::RamboDevice ) )
     {
       // --- 1c. Copy rndmom from host to device
       const std::string htodKey = "1c CpHTDrnd";
@@ -761,6 +826,10 @@ main( int argc, char** argv )
     rndgentxt = "CURAND HOST";
   else if( rndgen == RandomNumberMode::CurandDevice )
     rndgentxt = "CURAND DEVICE";
+  else if( rndgen == RandomNumberMode::RocrandHost )
+    rndgentxt = "ROCRND HOST";
+  else if( rndgen == RandomNumberMode::RocrandDevice )
+    rndgentxt = "ROCRND DEVICE";
 #ifdef __CUDACC__
   rndgentxt += " (CUDA code)";
 #elif defined __HIPCC__
@@ -822,6 +891,10 @@ main( int argc, char** argv )
     wrkflwtxt += "CURHST+";
   else if( rndgen == RandomNumberMode::CurandDevice )
     wrkflwtxt += "CURDEV+";
+  else if( rndgen == RandomNumberMode::RocrandHost )
+    wrkflwtxt += "RORHST+";
+  else if( rndgen == RandomNumberMode::RocrandDevice )
+    wrkflwtxt += "RORDEV+";
   else
     wrkflwtxt += "??????+"; // no path to this statement
   // -- HOST or DEVICE rambo sampling?
@@ -1095,7 +1168,7 @@ main( int argc, char** argv )
 #ifdef MGONGPUCPP_GPUIMPL
     //<< "\"Wavefunction GPU memory\": " << "\"LOCAL\"," << std::endl
 #endif
-             << "\"Curand generation\": "
+             << "\"Random generation\": "
              << "\"" << rndgentxt << "\"," << std::endl;
 
     double minelem = hstStats.minME;
