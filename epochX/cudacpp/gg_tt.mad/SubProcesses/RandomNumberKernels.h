@@ -8,13 +8,14 @@
 
 #include "mgOnGpuConfig.h"
 
-// NB This must come AFTER mgOnGpuConfig.h which contains our definition of __global__ when MGONGPUCPP_GPUIMPL is not defined
-#ifndef MGONGPU_HAS_NO_CURAND
-//#include "curand.h"
-struct curandGenerator_st; // forward definition from curand.h
-#endif
-
 #include "MemoryBuffers.h"
+
+// Forward definition from curand.h (the full header is only needed in CurandRandomKernel.cc)
+struct curandGenerator_st;
+
+// Forward definition from hiprand.h (the full header is only needed in RocrandRandomKernel.cc)
+struct rocrand_generator_base_type;
+typedef rocrand_generator_base_type hiprandGenerator_st;
 
 #ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
@@ -107,7 +108,6 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-#ifndef MGONGPU_HAS_NO_CURAND
   // A class encapsulating CURAND random number generation on a CPU host or on a GPU device
   class CurandRandomNumberKernel final : public RandomNumberKernelBase
   {
@@ -142,15 +142,12 @@ namespace mg5amcCpu
     const bool m_isOnDevice;
 
     // The curand generator
-    // (NB: curand.h defines typedef generator_t as a pointer to forward-defined 'struct curandGenerator_st')
+    // (NB: curand.h defines typedef curandGenerator_t as a pointer to forward-defined 'struct curandGenerator_st')
     curandGenerator_st* m_rnGen;
   };
 
-#endif
-
   //--------------------------------------------------------------------------
 
-#ifndef MGONGPU_HAS_NO_ROCRAND
   // A class encapsulating ROCRAND random number generation on a CPU host or on a GPU device
   class RocrandRandomNumberKernel final : public RandomNumberKernelBase
   {
@@ -185,11 +182,9 @@ namespace mg5amcCpu
     const bool m_isOnDevice;
 
     // The rocrand generator
-    // (NB: rocrand.h defines typedef generator_t as a pointer to forward-defined 'struct rocrandGenerator_st')
-    rocrandGenerator_st* m_rnGen;
+    // (NB: hipand.h defines typedef hiprandGenerator_t as a pointer to forward-defined 'struct hiprandGenerator_st')
+    hiprandGenerator_st* m_rnGen;
   };
-
-#endif
 
   //--------------------------------------------------------------------------
 }
