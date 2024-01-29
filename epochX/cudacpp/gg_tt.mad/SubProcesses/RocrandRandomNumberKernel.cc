@@ -90,10 +90,13 @@ namespace mg5amcCpu
     {
       checkHiprand( hiprandCreateGeneratorHost( &m_rnGen, type ) );
     }
-    //checkHiprand( hiprandSetGeneratorOrdering( *&m_rnGen, HIPRAND_ORDERING_PSEUDO_LEGACY ) ); // fails with code=104 (see #429)
-    checkHiprand( hiprandSetGeneratorOrdering( *&m_rnGen, HIPRAND_ORDERING_PSEUDO_BEST ) );
-    //checkHiprand( hiprandSetGeneratorOrdering( *&m_rnGen, HIPRAND_ORDERING_PSEUDO_DYNAMIC ) ); // fails with code=104 (see #429)
-    //checkHiprand( hiprandSetGeneratorOrdering( *&m_rnGen, HIPRAND_ORDERING_PSEUDO_SEEDED ) ); // fails with code=104 (see #429)
+    /*
+    // FIXME: implement hiprand/rocrand ordering...
+    //checkHiprand( hiprandSetGeneratorOrdering( *&m_rnGen, ROCRAND_ORDERING_PSEUDO_LEGACY ) ); // fails in curand (see #429)
+    checkHiprand( hiprandSetGeneratorOrdering( *&m_rnGen, ROCRAND_ORDERING_PSEUDO_BEST ) );
+    //checkHiprand( hiprandSetGeneratorOrdering( *&m_rnGen, ROCRAND_ORDERING_PSEUDO_DYNAMIC ) ); // fails in curand (see #429)
+    //checkHiprand( hiprandSetGeneratorOrdering( *&m_rnGen, ROCRAND_ORDERING_PSEUDO_SEEDED ) ); // fails in curand (see #429)
+    */
   }
 
   //--------------------------------------------------------------------------
