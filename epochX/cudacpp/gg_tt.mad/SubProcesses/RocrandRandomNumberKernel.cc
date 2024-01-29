@@ -10,14 +10,15 @@
 #include <cassert>
 
 #ifndef MGONGPU_HAS_NO_ROCRAND /* clang-format off */
-#include <rocrand/rocrand.hpp>
-#define checkRocrand( code ){ assertRocrand( code, __FILE__, __LINE__ ); }
-inline void assertRocrand( rocrandStatus_t code, const char *file, int line, bool abort = true )
+//#include <hiprand/hiprand.hpp>
+#include "hiprand.h"
+#define checkHiprand( code ){ assertHiprand( code, __FILE__, __LINE__ ); }
+inline void assertHiprand( hiprandStatus_t code, const char *file, int line, bool abort = true )
 {
-  if ( code != ROCRAND_STATUS_SUCCESS )
+  if ( code != HIPRAND_STATUS_SUCCESS )
   {
-    printf( "RocrandAssert: %s:%d code=%d\n", file, line, code );
-    if ( abort ) assert( code == ROCRAND_STATUS_SUCCESS );
+    printf( "HiprandAssert: %s:%d code=%d\n", file, line, code );
+    if ( abort ) assert( code == HIPRAND_STATUS_SUCCESS );
   }
 }
 #endif /* clang-format on */
@@ -40,7 +41,7 @@ namespace mg5amcCpu
       if( !m_rnarray.isOnDevice() )
         throw std::runtime_error( "RocrandRandomNumberKernel on device with a host random number array" );
 #else
-      throw std::runtime_error( "RocrandRandomNumberKernel does not support RocrandDevice on CPU host" );
+      throw std::runtime_error( "RocrandRandomNumberKernel does not support HiprandDevice on CPU host" );
 #endif
     }
     else
@@ -68,7 +69,7 @@ namespace mg5amcCpu
       createGenerator();  // workaround for #429
     }
     //printf( "seedGenerator: seed %d\n", seed );
-    checkRocrand( rocrandSetPseudoRandomGeneratorSeed( m_rnGen, seed ) );
+    checkHiprand( hiprandSetPseudoRandomGeneratorSeed( m_rnGen, seed ) );
   }
 
   //--------------------------------------------------------------------------
@@ -76,30 +77,30 @@ namespace mg5amcCpu
   void RocrandRandomNumberKernel::createGenerator()
   {
     // [NB Timings are for GenRnGen host|device (cpp|cuda) generation of 256*32*1 events with nproc=1: rn(0) is host=0.0012s]
-    const rocrandRngType_t type = ROCRAND_RNG_PSEUDO_MTGP32; //          0.00082s | 0.00064s (FOR FAST TESTS)
-    //const rocrandRngType_t type = ROCRAND_RNG_PSEUDO_XORWOW;        // 0.049s   | 0.0016s
-    //const rocrandRngType_t type = ROCRAND_RNG_PSEUDO_MRG32K3A;      // 0.71s    | 0.0012s  (better but slower, especially in c++)
-    //const rocrandRngType_t type = ROCRAND_RNG_PSEUDO_MT19937;       // 21s      | 0.021s
-    //const rocrandRngType_t type = ROCRAND_RNG_PSEUDO_PHILOX4_32_10; // 0.024s   | 0.00026s (used to segfault?)
+    const hiprandRngType_t type = HIPRAND_RNG_PSEUDO_MTGP32; //          0.00082s | 0.00064s (FOR FAST TESTS)
+    //const hiprandRngType_t type = HIPRAND_RNG_PSEUDO_XORWOW;        // 0.049s   | 0.0016s
+    //const hiprandRngType_t type = HIPRAND_RNG_PSEUDO_MRG32K3A;      // 0.71s    | 0.0012s  (better but slower, especially in c++)
+    //const hiprandRngType_t type = HIPRAND_RNG_PSEUDO_MT19937;       // 21s      | 0.021s
+    //const hiprandRngType_t type = HIPRAND_RNG_PSEUDO_PHILOX4_32_10; // 0.024s   | 0.00026s (used to segfault?)
     if( m_isOnDevice )
     {
-      checkRocrand( rocrandCreateGenerator( &m_rnGen, type ) );
+      checkHiprand( hiprandCreateGenerator( &m_rnGen, type ) );
     }
     else
     {
-      checkRocrand( rocrandCreateGeneratorHost( &m_rnGen, type ) );
+      checkHiprand( hiprandCreateGeneratorHost( &m_rnGen, type ) );
     }
-    //checkRocrand( rocrandSetGeneratorOrdering( *&m_rnGen, ROCRAND_ORDERING_PSEUDO_LEGACY ) ); // fails with code=104 (see #429)
-    checkRocrand( rocrandSetGeneratorOrdering( *&m_rnGen, ROCRAND_ORDERING_PSEUDO_BEST ) );
-    //checkRocrand( rocrandSetGeneratorOrdering( *&m_rnGen, ROCRAND_ORDERING_PSEUDO_DYNAMIC ) ); // fails with code=104 (see #429)
-    //checkRocrand( rocrandSetGeneratorOrdering( *&m_rnGen, ROCRAND_ORDERING_PSEUDO_SEEDED ) ); // fails with code=104 (see #429)
+    //checkHiprand( hiprandSetGeneratorOrdering( *&m_rnGen, HIPRAND_ORDERING_PSEUDO_LEGACY ) ); // fails with code=104 (see #429)
+    checkHiprand( hiprandSetGeneratorOrdering( *&m_rnGen, HIPRAND_ORDERING_PSEUDO_BEST ) );
+    //checkHiprand( hiprandSetGeneratorOrdering( *&m_rnGen, HIPRAND_ORDERING_PSEUDO_DYNAMIC ) ); // fails with code=104 (see #429)
+    //checkHiprand( hiprandSetGeneratorOrdering( *&m_rnGen, HIPRAND_ORDERING_PSEUDO_SEEDED ) ); // fails with code=104 (see #429)
   }
 
   //--------------------------------------------------------------------------
 
   void RocrandRandomNumberKernel::destroyGenerator()
   {
-    checkRocrand( rocrandDestroyGenerator( m_rnGen ) );
+    checkHiprand( hiprandDestroyGenerator( m_rnGen ) );
   }
 
   //--------------------------------------------------------------------------
@@ -107,9 +108,9 @@ namespace mg5amcCpu
   void RocrandRandomNumberKernel::generateRnarray()
   {
 #if defined MGONGPU_FPTYPE_DOUBLE
-    checkRocrand( rocrandGenerateUniformDouble( m_rnGen, m_rnarray.data(), m_rnarray.size() ) );
+    checkHiprand( hiprandGenerateUniformDouble( m_rnGen, m_rnarray.data(), m_rnarray.size() ) );
 #elif defined MGONGPU_FPTYPE_FLOAT
-    checkRocrand( rocrandGenerateUniform( m_rnGen, m_rnarray.data(), m_rnarray.size() ) );
+    checkHiprand( hiprandGenerateUniform( m_rnGen, m_rnarray.data(), m_rnarray.size() ) );
 #endif
     /*
     printf( "\nRocrandRandomNumberKernel::generateRnarray size = %d\n", (int)m_rnarray.size() );
