@@ -3,6 +3,8 @@
 // Created by: A. Valassi (Jan 2024) for the MG5aMC CUDACPP plugin.
 // Further modified by: A. Valassi (2024) for the MG5aMC CUDACPP plugin.
 
+#include "mgOnGpuConfig.h"
+
 #include "GpuRuntime.h"
 #include "MemoryBuffers.h"
 #include "RandomNumberKernels.h"
@@ -10,8 +12,10 @@
 #include <cassert>
 
 #ifndef MGONGPU_HAS_NO_ROCRAND /* clang-format off */
-//#include <hiprand/hiprand.hpp>
-#include "hiprand.h"
+#ifndef __HIP_PLATFORM_AMD__
+#define __HIP_PLATFORM_AMD__ 1 // enable hiprand for AMD (rocrand)
+#endif
+#include <hiprand/hiprand.h>
 #define checkHiprand( code ){ assertHiprand( code, __FILE__, __LINE__ ); }
 inline void assertHiprand( hiprandStatus_t code, const char *file, int line, bool abort = true )
 {

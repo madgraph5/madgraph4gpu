@@ -20,6 +20,10 @@
 #undef MGONGPUCPP_GPUIMPL
 #endif
 
+// Make sure that __HIP_PLATFORM_NVIDIA__ is undefined
+// (__HIP_PLATFORM_AMD__ is defined by hipcc or in RocrandRandomNumberKernel.cc)
+#undef __HIP_PLATFORM_NVIDIA__ // disable hiprand for NVidia (curand)
+
 // ** NB1 Throughputs (e.g. 6.8E8) are events/sec for "./gcheck.exe -p 65536 128 12"
 // ** NB2 Baseline on b7g47n0004 fluctuates (probably depends on load on other VMs)
 
