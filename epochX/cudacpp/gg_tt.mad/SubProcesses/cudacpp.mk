@@ -236,6 +236,7 @@ else
   override GPUCC=
   override USE_NVTX=
   override CUINC=
+  override HIPINC=
 
 endif
 
@@ -642,6 +643,9 @@ $(BUILDDIR)/RocrandRandomNumberKernel.o: CXXFLAGS += $(RNDCXXFLAGS)
 $(BUILDDIR)/gRocrandRandomNumberKernel.o: CUFLAGS += $(RNDCXXFLAGS)
 ifeq ($(HASCURAND),hasCurand) # curand headers, #679
 $(BUILDDIR)/CurandRandomNumberKernel.o: CXXFLAGS += $(CUINC)
+endif
+ifeq ($(HASROCRAND),hasRocrand) # rocrand headers
+$(BUILDDIR)/RocrandRandomNumberKernel.o: CXXFLAGS += $(HIPINC)
 endif
 
 # Avoid "warning: builtin __has_trivial_... is deprecated; use __is_trivially_... instead" in GPUCC with icx2023 (#592)
