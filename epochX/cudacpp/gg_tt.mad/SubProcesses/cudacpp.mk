@@ -509,6 +509,8 @@ endif
 # Set the RNDCXXFLAGS and RNDLIBFLAGS build flags appropriate to each HASROCRAND choice (example: "make HASROCRAND=hasNoRocrand")
 ifeq ($(HASROCRAND),hasNoRocrand)
   override RNDCXXFLAGS += -DMGONGPU_HAS_NO_ROCRAND
+else ifeq ($(HASROCRAND),hasRocrand)
+  override RNDLIBFLAGS += -L$(HIP_HOME)/lib/ -lhiprand
 else ifneq ($(HASROCRAND),hasRocrand)
   $(error Unknown HASROCRAND='$(HASROCRAND)': only 'hasRocrand' and 'hasNoRocrand' are supported)
 endif
