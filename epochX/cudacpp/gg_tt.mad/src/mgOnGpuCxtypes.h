@@ -30,6 +30,11 @@
 #elif not defined MGONGPU_CUCXTYPE_CXSMPL
 #error You must CHOOSE (ONE AND) ONLY ONE of MGONGPU_CUCXTYPE_THRUST or MGONGPU_CUCXTYPE_CUCOMPLEX or MGONGPU_CUCXTYPE_CXSMPL
 #endif
+// Complex type in HIP: cxsmpl
+#elif defined __HIPCC__
+#if not defined MGONGPU_HIPCXTYPE_CXSMPL
+#error You must CHOOSE (ONE AND) ONLY ONE of MGONGPU_HIPCXTYPE_CXSMPL
+#endif
 #else
 // Complex type in c++ or HIP: std::complex or cxsmpl
 #if defined MGONGPU_CPPCXTYPE_STDCOMPLEX
@@ -261,7 +266,7 @@ namespace mg5amcGpu
 namespace mg5amcCpu
 #endif
 {
-#if defined MGONGPU_CUCXTYPE_CXSMPL or defined MGONGPU_CPPCXTYPE_CXSMPL
+#if defined MGONGPU_CUCXTYPE_CXSMPL or defined MGONGPU_HIPCXTYPE_CXSMPL or defined MGONGPU_CPPCXTYPE_CXSMPL
 
   //------------------------------
   // CUDA or C++ - using cxsmpl
@@ -303,7 +308,7 @@ namespace mg5amcCpu
     return cxmake( c.real(), c.imag() );
   }
 
-#endif // #if defined MGONGPU_CUCXTYPE_CXSMPL or defined MGONGPU_CPPCXTYPE_CXSMPL
+#endif // #if defined MGONGPU_CUCXTYPE_CXSMPL or defined MGONGPU_HIPCXTYPE_CXSMPL or defined MGONGPU_CPPCXTYPE_CXSMPL
 
   //==========================================================================
 
