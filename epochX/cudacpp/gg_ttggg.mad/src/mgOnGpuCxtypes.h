@@ -19,7 +19,7 @@
 #include <complex>
 
 // Complex type in cuda: thrust or cucomplex or cxsmpl
-#ifdef MGONGPUCPP_GPUIMPL
+#ifdef __CUDACC__ // this must be __CUDAC__ (not MGONGPUCPP_GPUIMPL)
 #if defined MGONGPU_CUCXTYPE_THRUST
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wtautological-compare" // for icpx2021/clang13 (https://stackoverflow.com/a/15864661)
@@ -30,8 +30,13 @@
 #elif not defined MGONGPU_CUCXTYPE_CXSMPL
 #error You must CHOOSE (ONE AND) ONLY ONE of MGONGPU_CUCXTYPE_THRUST or MGONGPU_CUCXTYPE_CUCOMPLEX or MGONGPU_CUCXTYPE_CXSMPL
 #endif
+// Complex type in HIP: cxsmpl
+#elif defined __HIPCC__
+#if not defined MGONGPU_HIPCXTYPE_CXSMPL
+#error You must CHOOSE (ONE AND) ONLY ONE of MGONGPU_HIPCXTYPE_CXSMPL
+#endif
 #else
-// Complex type in c++: std::complex or cxsmpl
+// Complex type in c++ or HIP: std::complex or cxsmpl
 #if defined MGONGPU_CPPCXTYPE_STDCOMPLEX
 #include <cmath>
 #elif not defined MGONGPU_CPPCXTYPE_CXSMPL
@@ -222,7 +227,7 @@ namespace mg5amcCpu
 #endif
 {
   // --- Type definitions (complex type: cxtype)
-#ifdef MGONGPUCPP_GPUIMPL // cuda
+#ifdef __CUDACC__ // this must be __CUDAC__ (not MGONGPUCPP_GPUIMPL)
 #if defined MGONGPU_CUCXTYPE_THRUST
   typedef thrust::complex<fptype> cxtype;
 #elif defined MGONGPU_CUCXTYPE_CUCOMPLEX
@@ -261,7 +266,7 @@ namespace mg5amcGpu
 namespace mg5amcCpu
 #endif
 {
-#if defined MGONGPU_CUCXTYPE_CXSMPL or defined MGONGPU_CPPCXTYPE_CXSMPL
+#if defined MGONGPU_CUCXTYPE_CXSMPL or defined MGONGPU_HIPCXTYPE_CXSMPL or defined MGONGPU_CPPCXTYPE_CXSMPL
 
   //------------------------------
   // CUDA or C++ - using cxsmpl
@@ -303,11 +308,11 @@ namespace mg5amcCpu
     return cxmake( c.real(), c.imag() );
   }
 
-#endif // #if defined MGONGPU_CUCXTYPE_CXSMPL or defined MGONGPU_CPPCXTYPE_CXSMPL
+#endif // #if defined MGONGPU_CUCXTYPE_CXSMPL or defined MGONGPU_HIPCXTYPE_CXSMPL or defined MGONGPU_CPPCXTYPE_CXSMPL
 
   //==========================================================================
 
-#if defined MGONGPUCPP_GPUIMPL and defined MGONGPU_CUCXTYPE_THRUST // cuda + thrust
+#if defined __CUDACC__ and defined MGONGPU_CUCXTYPE_THRUST // cuda + thrust (this must be __CUDAC__ and not MGONGPUCPP_GPUIMPL)
 
   //------------------------------
   // CUDA - using thrust::complex
@@ -343,11 +348,11 @@ namespace mg5amcCpu
     return c;
   }
 
-#endif // #if defined MGONGPUCPP_GPUIMPL and defined MGONGPU_CUCXTYPE_THRUST
+#endif // #if defined __CUDACC__ and defined MGONGPU_CUCXTYPE_THRUST
 
   //==========================================================================
 
-#if defined MGONGPUCPP_GPUIMPL and defined MGONGPU_CUCXTYPE_CUCOMPLEX // cuda + cucomplex
+#if defined __CUDACC__ and defined MGONGPU_CUCXTYPE_CUCOMPLEX // cuda + cucomplex (this must be __CUDAC__ and not MGONGPUCPP_GPUIMPL)
 
   //------------------------------
   // CUDA - using cuComplex
@@ -562,11 +567,11 @@ namespace mg5amcCpu
     return cxmake( c.real(), c.imag() );
   }
 
-#endif // #if defined MGONGPUCPP_GPUIMPL and defined MGONGPU_CUCXTYPE_CUCOMPLEX
+#endif // #if defined __CUDACC__ and defined MGONGPU_CUCXTYPE_CUCOMPLEX
 
   //==========================================================================
 
-#if not defined MGONGPUCPP_GPUIMPL and defined MGONGPU_CPPCXTYPE_STDCOMPLEX // c++ + stdcomplex
+#if not defined __CUDACC__ and defined MGONGPU_CPPCXTYPE_STDCOMPLEX // c++/hip + stdcomplex (this must be __CUDAC__ and not MGONGPUCPP_GPUIMPL)
 
   //------------------------------
   // C++ - using std::complex
@@ -610,7 +615,7 @@ namespace mg5amcCpu
   }
 #endif
 
-#endif // #if not defined MGONGPUCPP_GPUIMPL and defined MGONGPU_CPPCXTYPE_STDCOMPLEX
+#endif // #if not defined __CUDACC__ and defined MGONGPU_CPPCXTYPE_STDCOMPLEX
 
   //==========================================================================
 
