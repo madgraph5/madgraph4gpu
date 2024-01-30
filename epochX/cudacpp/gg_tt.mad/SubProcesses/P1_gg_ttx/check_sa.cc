@@ -863,7 +863,7 @@ main( int argc, char** argv )
   wrkflwtxt += "/sse4";
 #endif
 #else
-  wrkflwtxt += "/????"; // no path to this statement
+  wrkflwtxt += "/????";                                           // no path to this statement
 #endif
   // -- Has cxtype_v::operator[] bracket with non-const reference?
 #if defined MGONGPU_CPPSIMD
