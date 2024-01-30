@@ -12,6 +12,7 @@ suff=".mad"
 
 # Parse command line arguments
 ggttggg=-ggttggg
+rndhst=-curhst
 while [ "$1" != "" ]; do
   if [ "$1" == "-short" ]; then
     # Short (no ggttggg) or long version?
@@ -30,8 +31,12 @@ while [ "$1" != "" ]; do
     # Only build all tests instead of building and running them?
     opts+=" -makeonly"
     shift
+  elif [ "$1" == "-hip" ]; then
+    # Random numbers use rocrand instead of curand?
+    rndhst=-rorhst
+    shift
   else
-    echo "Usage: $0 [-short] [-e] [-sa] [-makeonly]"
+    echo "Usage: $0 [-short] [-e] [-sa] [-makeonly] [-hip]"
     exit 1
   fi
 done
@@ -70,8 +75,8 @@ cmd="./tput/teeThroughputX.sh -eemumu -ggtt -ggttgg -flt -rmbhst ${opts}"
 $cmd; status=$?
 ended4="$cmd\nENDED(4) AT $(date) [Status=$status]"
 
-# (72/78) Two extra logs (double/float x hrd0 x inl0 + curhst) only in three of the six processes (no rebuild needed)
-cmd="./tput/teeThroughputX.sh -eemumu -ggtt -ggttgg -flt -curhst ${opts}"
+# (72/78) Two extra logs (double/float x hrd0 x inl0 + rndhst) only in three of the six processes (no rebuild needed)
+cmd="./tput/teeThroughputX.sh -eemumu -ggtt -ggttgg -flt ${rndhst} ${opts}"
 $cmd; status=$?
 ended5="$cmd\nENDED(5) AT $(date) [Status=$status]"
 
