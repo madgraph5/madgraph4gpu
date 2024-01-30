@@ -292,7 +292,7 @@ main( int argc, char** argv )
     std::cout << "WARNING! RamboHost selected: cannot use CurandDevice, will use CurandHost" << std::endl;
     rndgen = RandomNumberMode::CurandHost;
 #else
-    std::cout << "WARNING! RamboHost selected: cannot use CurandDevice , will use CommonRandom" << std::endl;
+    std::cout << "WARNING! RamboHost selected: cannot use CurandDevice, will use CommonRandom" << std::endl;
     rndgen = RandomNumberMode::CommonRandom;
 #endif
   }
@@ -303,7 +303,7 @@ main( int argc, char** argv )
     std::cout << "WARNING! RamboHost selected: cannot use RocrandDevice, will use RocrandHost" << std::endl;
     rndgen = RandomNumberMode::RocrandHost;
 #else
-    std::cout << "WARNING! RamboHost selected: cannot use RocrandDevice , will use CommonRandom" << std::endl;
+    std::cout << "WARNING! RamboHost selected: cannot use RocrandDevice, will use CommonRandom" << std::endl;
     rndgen = RandomNumberMode::CommonRandom;
 #endif
   }
@@ -579,8 +579,9 @@ main( int argc, char** argv )
     //std::cout << "Got random numbers" << std::endl;
 
 #ifdef MGONGPUCPP_GPUIMPL
-    if( ( rndgen != RandomNumberMode::CurandDevice && rmbsmp == RamboSamplingMode::RamboDevice ) ||
-        ( rndgen != RandomNumberMode::RocrandDevice && rmbsmp == RamboSamplingMode::RamboDevice ) )
+    if( rndgen != RandomNumberMode::CurandDevice &&
+        rndgen != RandomNumberMode::RocrandDevice &&
+        rmbsmp == RamboSamplingMode::RamboDevice )
     {
       // --- 1c. Copy rndmom from host to device
       const std::string htodKey = "1c CpHTDrnd";
