@@ -108,8 +108,11 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                                       s+'gpu/MadgraphTest.h', s+'gpu/runTest.cc',
                                       s+'gpu/testmisc.cc', s+'gpu/testxxx_cc_ref.txt',
                                       s+'gpu/perf.py', s+'gpu/profile.sh',
-                                      s+'CMake/SubProcesses/CMakeLists.txt'],
+                                      s+'CMake/SubProcesses/CMakeLists.txt',
+                                      s+'gpu/counters.cc',
+                                      s+'gpu/ompnumthreads.cc'],
                      'test': [s+'gpu/cudacpp_test.mk']}
+
     to_link_in_P = ['nvtx.h', 'timer.h', 'timermap.h',
                     'ompnumthreads.h', 'GpuRuntime.h', 'GpuAbstraction.h',
                     'MemoryAccessHelpers.h', 'MemoryAccessVectors.h',
@@ -131,7 +134,8 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                     'testxxx.cc', # this is generated from a template in Subprocesses but we still link it in P1
                     'MemoryBuffers.h', # this is generated from a template in Subprocesses but we still link it in P1
                     'MemoryAccessCouplings.h', # this is generated from a template in Subprocesses but we still link it in P1
-                    'perf.py', 'profile.sh']
+                    'perf.py', 'profile.sh',
+                    'fbridge_common.inc', 'counters.cc','ompnumthreads.cc']
 
     # AV - use template files from PLUGINDIR instead of MG5DIR and change their names
     ###template_src_make = pjoin(MG5DIR, 'madgraph' ,'iolibs', 'template_files','gpu','Makefile_src')
@@ -201,6 +205,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
     def convert_model(self, model, wanted_lorentz=[], wanted_coupling=[]):
         misc.sprint('Entering PLUGIN_ProcessExporter.convert_model (create the model)')
         return super().convert_model(model, wanted_lorentz, wanted_coupling)
+
 
     # AV (default from OM's tutorial) - add a debug printout
     def finalize(self, matrix_element, cmdhistory, MG5options, outputflag):
