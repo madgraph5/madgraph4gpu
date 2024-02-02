@@ -182,7 +182,7 @@ namespace mg5amcCpu
     const bool m_isOnDevice;
 
     // The rocrand generator
-    // (NB: hipand.h defines typedef hiprandGenerator_t as a pointer to forward-defined 'struct hiprandGenerator_st')
+    // (NB: hiprand.h defines typedef hiprandGenerator_t as a pointer to forward-defined 'struct hiprandGenerator_st')
     hiprandGenerator_st* m_rnGen;
   };
 

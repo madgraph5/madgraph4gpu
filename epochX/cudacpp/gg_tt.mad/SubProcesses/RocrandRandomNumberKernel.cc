@@ -80,19 +80,21 @@ namespace mg5amcCpu
 
   void RocrandRandomNumberKernel::createGenerator()
   {
-    // [NB Timings are for GenRnGen host|device (cpp|cuda) generation of 256*32*1 events with nproc=1: rn(0) is host=0.0012s]
-    const hiprandRngType_t type = HIPRAND_RNG_PSEUDO_MTGP32; //          0.00082s | 0.00064s (FOR FAST TESTS)
-    //const hiprandRngType_t type = HIPRAND_RNG_PSEUDO_XORWOW;        // 0.049s   | 0.0016s
-    //const hiprandRngType_t type = HIPRAND_RNG_PSEUDO_MRG32K3A;      // 0.71s    | 0.0012s  (better but slower, especially in c++)
-    //const hiprandRngType_t type = HIPRAND_RNG_PSEUDO_MT19937;       // 21s      | 0.021s
-    //const hiprandRngType_t type = HIPRAND_RNG_PSEUDO_PHILOX4_32_10; // 0.024s   | 0.00026s (used to segfault?)
+    //const hiprandRngType_t type = HIPRAND_RNG_PSEUDO_DEFAULT;
+    //const hiprandRngType_t type = HIPRAND_RNG_PSEUDO_XORWOW;
+    //const hiprandRngType_t type = HIPRAND_RNG_PSEUDO_MRG32K3A;
+    const hiprandRngType_t type = HIPRAND_RNG_PSEUDO_MTGP32; // same as curand; not implemented yet (code=1000) in host code
+    //const hiprandRngType_t type = HIPRAND_RNG_PSEUDO_MT19937;
+    //const hiprandRngType_t type = HIPRAND_RNG_PSEUDO_PHILOX4_32_10;
     if( m_isOnDevice )
     {
       checkHiprand( hiprandCreateGenerator( &m_rnGen, type ) );
     }
     else
     {
-      checkHiprand( hiprandCreateGeneratorHost( &m_rnGen, type ) );
+      // See https://github.com/ROCm/hipRAND/issues/76
+      throw std::runtime_error( "RocrandRandomNumberKernel on host is not supported yet (hiprandCreateGeneratorHost is not implemented yet)" );
+      //checkHiprand( hiprandCreateGeneratorHost( &m_rnGen, type ) ); // ALWAYS FAILS WITH CODE=1000
     }
     /*
     // FIXME: implement hiprand/rocrand ordering...
