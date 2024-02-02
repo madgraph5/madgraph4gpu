@@ -45,13 +45,13 @@ endif
 
 #-------------------------------------------------------------------------------
 
-#=== Configure the CUDA compiler (note: GPUCC is already exported including ccache)
+#=== Configure the CUDA compiler (note: GPUCC have been exported from cudacpp.mk including ccache)
 
 ###$(info GPUCC=$(GPUCC))
 
 #-------------------------------------------------------------------------------
 
-#=== Configure ccache for C++ builds (note: GPUCC is already exported including ccache)
+#=== Configure ccache for C++ builds (note: GPUCC have been exported from cudacpp.mk including ccache)
 
 # Enable ccache if USECCACHE=1
 ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
@@ -86,7 +86,8 @@ endif
 
 #-------------------------------------------------------------------------------
 
-#=== Set the CUDA/C++ compiler flags appropriate to user-defined choices of AVX, FPTYPE, HELINL, HRDCOD, RNDGEN
+#=== Set the CUDA/C++ compiler flags appropriate to user-defined choices of AVX, FPTYPE, HELINL, HRDCOD (exported from cudacpp.mk)
+#=== (NB the RNDCXXFLAGS and RNDLIBFLAGS appropriate to user-defined choices of HASCURAND and HASHIPRAND have been exported from cudacpp.mk)
 
 # Set the build flags appropriate to OMPFLAGS
 ###$(info OMPFLAGS=$(OMPFLAGS))
@@ -175,14 +176,6 @@ else ifneq ($(HRDCOD),0)
   $(error Unknown HRDCOD='$(HRDCOD)': only '0' and '1' are supported)
 endif
 
-# Set the build flags appropriate to each RNDGEN choice (example: "make RNDGEN=hasNoCurand")
-###$(info RNDGEN=$(RNDGEN))
-ifeq ($(RNDGEN),hasNoCurand)
-  CXXFLAGS += -DMGONGPU_HAS_NO_CURAND
-else ifneq ($(RNDGEN),hasCurand)
-  $(error Unknown RNDGEN='$(RNDGEN)': only 'hasCurand' and 'hasNoCurand' are supported)
-endif
-
 #-------------------------------------------------------------------------------
 
 #=== Configure build directories and build lockfiles ===
@@ -193,7 +186,7 @@ override DIRTAG = $(AVX)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)
 
 # Build lockfile "full" tag (defines full specification of build options that cannot be intermixed)
 # (Rationale: avoid mixing of CUDA and no-CUDA environment builds with different random number generators)
-override TAG = $(AVX)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)_$(RNDGEN)
+override TAG = $(AVX)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)_$(HASCURAND)_$(HASHIPRAND)
 
 # Build directory: current directory by default, or build.$(DIRTAG) if USEBUILDDIR==1
 ###$(info Current directory is $(shell pwd))

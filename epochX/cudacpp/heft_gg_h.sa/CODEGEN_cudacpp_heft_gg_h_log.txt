@@ -62,12 +62,54 @@ set auto_convert_model T
 save options auto_convert_model
 save configuration file to /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/mg5amcnlo/input/mg5_configuration.txt
 import model heft
+[1;60mINFO: download model from http://madgraph.phys.ucl.ac.be/Downloads/models/heft.tgz to the following directory: /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/mg5amcnlo/models [0m
+--2024-02-02 17:39:56--  http://madgraph.phys.ucl.ac.be/Downloads/models/heft.tgz
+Resolving madgraph.phys.ucl.ac.be (madgraph.phys.ucl.ac.be)... 130.104.1.243
+Connecting to madgraph.phys.ucl.ac.be (madgraph.phys.ucl.ac.be)|130.104.1.243|:80... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 50876 (50K) [application/x-gzip]
+Saving to: ‘tmp.tgz’
+
+     0K .......... .......... .......... .......... ......... 100%  174K=0.3s
+
+2024-02-02 17:39:56 (174 KB/s) - ‘tmp.tgz’ saved [50876/50876]
+
+heft/
+heft/write_param_card.py
+heft/restrict_ckm.dat
+heft/couplings.py
+heft/HEFT_UFO.log
+heft/lorentz.py
+heft/__init__.py
+heft/__pycache__/
+heft/particles.py
+heft/object_library.py
+heft/restrict_default.dat
+heft/restrict_zeromass_ckm.dat
+heft/restrict_no_b_mass.dat
+heft/function_library.py
+heft/parameters.py
+heft/py3_model.pkl
+heft/coupling_orders.py
+heft/restrict_no_tau_mass.dat
+heft/vertices.py
+heft/restrict_no_masses.dat
+heft/__pycache__/write_param_card.cpython-311.pyc
+heft/__pycache__/parameters.cpython-311.pyc
+heft/__pycache__/function_library.cpython-311.pyc
+heft/__pycache__/coupling_orders.cpython-311.pyc
+heft/__pycache__/object_library.cpython-311.pyc
+heft/__pycache__/couplings.cpython-311.pyc
+heft/__pycache__/particles.cpython-311.pyc
+heft/__pycache__/vertices.cpython-311.pyc
+heft/__pycache__/lorentz.cpython-311.pyc
+heft/__pycache__/__init__.cpython-311.pyc
 INFO: reload from .py file 
 INFO: load particles 
 INFO: load vertices 
 [1;34mWARNING: coupling GC_13=-(complex(0,1)*GH) has direct dependence in aS but has QCD order set to 0. Automatic computation of scale uncertainty can be wrong for such model. [0m
 [1;34mWARNING: coupling GC_16=(complex(0,1)*Gphi)/8. has direct dependence in aS but has QCD order set to 0. Automatic computation of scale uncertainty can be wrong for such model. [0m
-[1;32mDEBUG: model prefixing  takes 0.005762338638305664 [0m
+[1;32mDEBUG: model prefixing  takes 0.005322456359863281 [0m
 INFO: Restrict model heft with file models/heft/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: s u w+ at order: QED=1 [0m
@@ -143,25 +185,25 @@ Load PLUGIN.CUDACPP_OUTPUT
 It has been validated for the last time with version: 3.5.2[0m
 [1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
 [1;32mDEBUG:  cformat = [0m plugin [1;30m[export_cpp.py at line 3071][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter) [1;30m[output.py at line 160][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.copy_template (initialise the directory) [1;30m[output.py at line 165][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter) [1;30m[output.py at line 161][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.copy_template (initialise the directory) [1;30m[output.py at line 166][0m [0m
 INFO: Creating subdirectories in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg_h 
 INFO: Organizing processes into subprocess groups 
 INFO: Generating Helas calls for process: g g > h HIG<=1 HIW<=1 WEIGHTED<=2 @1 
 INFO: Processing color information for process: g g > h HIG<=1 HIW<=1 @1 
-[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.generate_subprocess_directory (create the directory) [1;30m[output.py at line 194][0m [0m
-[1;32mDEBUG:    type(subproc_group)=<class 'madgraph.core.helas_objects.HelasMatrixElement'> [1;30m[output.py at line 195][0m [0m
-[1;32mDEBUG:    type(fortran_model)=<class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_GPUFOHelasCallWriter'> [1;30m[output.py at line 196][0m [0m
-[1;32mDEBUG:    type(me)=<class 'int'> me=0 [1;30m[output.py at line 197][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.generate_subprocess_directory (create the directory) [1;30m[output.py at line 195][0m [0m
+[1;32mDEBUG:    type(subproc_group)=<class 'madgraph.core.helas_objects.HelasMatrixElement'> [1;30m[output.py at line 196][0m [0m
+[1;32mDEBUG:    type(fortran_model)=<class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_GPUFOHelasCallWriter'> [1;30m[output.py at line 197][0m [0m
+[1;32mDEBUG:    type(me)=<class 'int'> me=0 [1;30m[output.py at line 198][0m [0m
 INFO: Creating files in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg_h/SubProcesses/P1_Sigma_heft_gg_h 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg_h/SubProcesses/P1_Sigma_heft_gg_h/./CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg_h/SubProcesses/P1_Sigma_heft_gg_h/./CPPProcess.cc
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg_h/SubProcesses/P1_Sigma_heft_gg_h/. 
 Generated helas calls for 1 subprocesses (1 diagrams) in 0.002 s
-[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 202][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 203][0m [0m
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVS3 routines[0m
-ALOHA: aloha creates 1 routines in  0.060 s
+ALOHA: aloha creates 1 routines in  0.067 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVS3
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg_h/src/./HelAmps_heft.h
 INFO: Created file HelAmps_heft.h in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg_h/src/. 
@@ -173,7 +215,7 @@ INFO: Created files Parameters_heft.h and Parameters_heft.cc in directory
 INFO: /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg_h/src/. and /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg_h/src/. 
 quit
 
-real	0m1.897s
-user	0m0.377s
-sys	0m0.055s
-Code generation completed in 2 seconds
+real	0m0.909s
+user	0m0.412s
+sys	0m0.081s
+Code generation completed in 1 seconds
