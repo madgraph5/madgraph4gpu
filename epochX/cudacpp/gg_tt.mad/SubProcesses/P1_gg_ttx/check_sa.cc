@@ -166,7 +166,7 @@ main( int argc, char** argv )
 #ifdef MGONGPUCPP_GPUIMPL
   RamboSamplingMode rmbsmp = RamboSamplingMode::RamboDevice; // default on GPU
 #else
-  RamboSamplingMode rmbsmp = RamboSamplingMode::RamboHost; // default on CPU
+  RamboSamplingMode rmbsmp = RamboSamplingMode::RamboHost;   // default on CPU
 #endif
   // Bridge emulation mode (NB Bridge implies RamboHost!)
   bool bridge = false;
@@ -489,7 +489,7 @@ main( int argc, char** argv )
     const bool onDevice = true;
     prnk.reset( new CurandRandomNumberKernel( devRndmom, onDevice ) );
 #else
-    throw std::logic_error( "INTERNAL ERROR! CurandDevice is not supported on CPUs or non-NVidia GPUs" ); // INTERNAL ERROR (no path to this statement)
+    throw std::logic_error( "INTERNAL ERROR! CurandDevice is not supported on CPUs or non-NVidia GPUs" );  // INTERNAL ERROR (no path to this statement)
 #endif
   }
   else if( rndgen == RandomNumberMode::HiprandHost )
@@ -512,8 +512,9 @@ main( int argc, char** argv )
     throw std::logic_error( "INTERNAL ERROR! HiprandDevice is not supported on CPUs or non-NVidia GPUs" ); // INTERNAL ERROR (no path to this statement)
 #endif
   }
-  else throw std::logic_error( "INTERNAL ERROR! Unknown rndgen value?" ); // INTERNAL ERROR (no path to this statement)
-  
+  else
+    throw std::logic_error( "INTERNAL ERROR! Unknown rndgen value?" ); // INTERNAL ERROR (no path to this statement)
+
   // --- 0c. Create rambo sampling kernel [keep this in 0c for the moment]
   std::unique_ptr<SamplingKernelBase> prsk;
   if( rmbsmp == RamboSamplingMode::RamboHost )
@@ -863,7 +864,7 @@ main( int argc, char** argv )
   wrkflwtxt += "FLT+";
 #else
   wrkflwtxt += "???+"; // no path to this statement
-#endif /* clang-format on */
+#endif
   // -- CUCOMPLEX or THRUST or STD or CXSIMPLE complex numbers?
 #ifdef __CUDACC__
 #if defined MGONGPU_CUCXTYPE_CUCOMPLEX
@@ -888,7 +889,7 @@ main( int argc, char** argv )
   wrkflwtxt += "CXS:";
 #else
   wrkflwtxt += "???:"; // no path to this statement
-#endif
+#endif /* clang-format on */
 #endif
   // -- COMMON or CURAND HOST or CURAND DEVICE random numbers?
   if( rndgen == RandomNumberMode::CommonRandom )
