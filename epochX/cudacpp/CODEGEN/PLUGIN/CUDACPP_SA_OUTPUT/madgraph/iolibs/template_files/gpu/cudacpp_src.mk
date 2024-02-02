@@ -93,11 +93,11 @@ endif
 ###$(info OMPFLAGS=$(OMPFLAGS))
 CXXFLAGS += $(OMPFLAGS)
 
-# Add correct -DHIP_LATFORM when compiling for HIP
+# Add correct flags for nvcc (-x cu) and hipcc (-x hip) for GPU code (see #810)
 ifeq ($(findstring nvcc,$(GPUCC)),nvcc)
   GPUFLAGS += -Xcompiler -fPIC -c -x cu
 else ifeq ($(findstring hipcc,$(GPUCC)),hipcc)
-  GPUFLAGS += -fPIC -c
+  GPUFLAGS += -fPIC -c -x hip
 endif
 
 # Set the build flags appropriate to each AVX choice (example: "make AVX=none")

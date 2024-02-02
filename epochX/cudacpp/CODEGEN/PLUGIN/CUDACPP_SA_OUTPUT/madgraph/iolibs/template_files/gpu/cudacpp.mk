@@ -169,7 +169,7 @@ ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   # Examples: use 60 for P100 (Piz Daint), 80 for A100 (Juwels Booster, NVidia raplab/Curiosity).
   MADGRAPH_CUDA_ARCHITECTURE ?= 70
   ###CUARCHFLAGS = -gencode arch=compute_$(MADGRAPH_CUDA_ARCHITECTURE),code=compute_$(MADGRAPH_CUDA_ARCHITECTURE) -gencode arch=compute_$(MADGRAPH_CUDA_ARCHITECTURE),code=sm_$(MADGRAPH_CUDA_ARCHITECTURE) # Older implementation (AV): go back to this one for multi-GPU support #533
-  ###CUARCHFLAGS = --gpu-architecture=compute_$(MADGRAPH_CUDA_ARCHITECTURE) --gpu-code=sm_$(MADGRAPH_CUDA_ARCHITECTURE),compute_$(MADGRAPH_CUDA_ARCHITECTURE) # Newer implementation (SH): cannot use this as-is for multi-GPU support #533
+  ###CUARCHFLAGS = --gpu-architecture=compute_$(MADGRAPH_CUDA_ARCHITECTURE) --gpu-code=sm_$(MADGRAPH_CUDA_ARCHITECTURE),compute_$(MADGRAPH_CUDA_ARCHITECTURE)  # Newer implementation (SH): cannot use this as-is for multi-GPU support #533
   comma:=,
   CUARCHFLAGS = $(foreach arch,$(subst $(comma), ,$(MADGRAPH_CUDA_ARCHITECTURE)),-gencode arch=compute_$(arch),code=compute_$(arch) -gencode arch=compute_$(arch),code=sm_$(arch))
   CUINC = -I$(CUDA_HOME)/include/
@@ -219,7 +219,7 @@ else ifneq ($(wildcard $(HIP_HOME)/bin/hipcc),)
   GPUFLAGS += -std=c++17
   ###GPUFLAGS+= --maxrregcount 255 # (AV: is this option valid on HIP and meaningful on AMD GPUs?)
   CUBUILDRULEFLAGS = -fPIC -c
-  CCBUILDRULEFLAGS = -fPIC -c
+  CCBUILDRULEFLAGS = -fPIC -c -x hip
 
 else ifneq ($(origin REQUIRE_HIP),undefined)
 
@@ -603,6 +603,7 @@ $(BUILDDIR)/.build.$(TAG):
 	@touch $(BUILDDIR)/.build.$(TAG)
 
 # Generic target and build rules: objects from CUDA compilation
+# NB: CCBUILDRULEFLAGS includes "-x cu" for nvcc and "-x hip" for hipcc (#810)
 ifneq ($(GPUCC),)
 $(BUILDDIR)/%%.o : %%.cu *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
@@ -612,7 +613,6 @@ $(BUILDDIR)/%%_cu.o : %%.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	$(GPUCC) $(CPPFLAGS) $(GPUFLAGS) $(CCBUILDRULEFLAGS) $< -o $@
 endif
-# -x cu in line above
 
 # Generic target and build rules: objects from C++ compilation
 # (NB do not include CUINC here! add it only for NVTX or curand #679)

@@ -90,16 +90,19 @@
 ////#define MGONGPU_HARDCODE_PARAM 1
 
 // Complex type in CUDA: thrust or cucomplex or cxsmpl (CHOOSE ONLY ONE)
+// (NB THIS IS MGONGPU_*CU*CXTYPE_xxx)
 #ifdef __CUDACC__
 #define MGONGPU_CUCXTYPE_THRUST 1 // default (~1.15E9/double, ~3.2E9/float)
 //#define MGONGPU_CUCXTYPE_CUCOMPLEX 1 // ~10 percent slower (1.03E9/double, ~2.8E9/float)
 //#define MGONGPU_CUCXTYPE_CXSMPL 1 // ~10 percent slower (1.00E9/double, ~2.9E9/float)
 
-// Complex type in HIP: cxsmpl (ONLY ONE OPTION POSSIBLE)
+// Complex type in HIP: cxsmpl (ONLY ONE OPTION POSSIBLE? #810)
+// (NB THIS IS MGONGPU_*HIP*CXTYPE_xxx)
 #elif defined __HIPCC__
-#define MGONGPU_CUCXTYPE_CXSMPL 1 // ~10 percent slower (1.00E9/double, ~2.9E9/float)
+#define MGONGPU_HIPCXTYPE_CXSMPL 1 // default for HIP
 
 // Complex type in C++: std::complex or cxsmpl (CHOOSE ONLY ONE)
+// (NB THIS IS MGONGPU_*CPP*CXTYPE_xxx)
 #else
 //#define MGONGPU_CPPCXTYPE_STDCOMPLEX 1 // ~8 percent slower on float, same on double (5.1E6/double, 9.4E6/float)
 #define MGONGPU_CPPCXTYPE_CXSMPL 1 // new default (5.1E6/double, 10.2E6/float)

@@ -789,7 +789,7 @@ main( int argc, char** argv )
 #else
   wrkflwtxt += "???+"; // no path to this statement
 #endif /* clang-format on */
-  // -- CUCOMPLEX or THRUST or STD complex numbers?
+  // -- CUCOMPLEX or THRUST or STD or CXSIMPLE complex numbers?
 #ifdef __CUDACC__
 #if defined MGONGPU_CUCXTYPE_CUCOMPLEX
   wrkflwtxt += "CUX:";
@@ -801,7 +801,7 @@ main( int argc, char** argv )
   wrkflwtxt += "???:"; // no path to this statement
 #endif
 #elif defined __HIPCC__
-#if defined MGONGPU_CUCXTYPE_CXSMPL
+#if defined MGONGPU_HIPCXTYPE_CXSMPL
   wrkflwtxt += "CXS:";
 #else
   wrkflwtxt += "???:"; // no path to this statement
@@ -863,7 +863,7 @@ main( int argc, char** argv )
   wrkflwtxt += "/sse4";
 #endif
 #else
-  wrkflwtxt += "/????"; // no path to this statement
+  wrkflwtxt += "/????";                                           // no path to this statement
 #endif
   // -- Has cxtype_v::operator[] bracket with non-const reference?
 #if defined MGONGPU_CPPSIMD
@@ -940,7 +940,9 @@ main( int argc, char** argv )
               << "Complex type                = CUCOMPLEX" << std::endl
 #elif defined MGONGPU_CUCXTYPE_THRUST
               << "Complex type                = THRUST::COMPLEX" << std::endl
-#elif defined MGONGPU_CUCXTYPE_CXSMPL
+#elif defined MGONGPU_CUCXTYPE_CXSMPL or defined MGONGPU_HIPCXTYPE_CXSMPL or defined MGONGPU_CPPCXTYPE_CXSMPL
+              << "Complex type                = CXSIMPLE" << std::endl
+#elif defined MGONGPU_CPPCXTYPE_STDCOMPLEX
               << "Complex type                = STD::COMPLEX" << std::endl
 #else
               << "Complex type                = ???" << std::endl // no path to this statement...
@@ -1081,7 +1083,9 @@ main( int argc, char** argv )
              << "\"CUCOMPLEX\"," << std::endl
 #elif defined MGONGPU_CUCXTYPE_THRUST
              << "\"THRUST::COMPLEX\"," << std::endl
-#elif defined MGONGPU_CUCXTYPE_CXSMPL
+#elif defined MGONGPU_CUCXTYPE_CXSMPL or defined MGONGPU_HIPCXTYPE_CXSMPL or defined MGONGPU_CPPCXTYPE_CXSMPL
+             << "\"CXSIMPLE\"," << std::endl
+#elif defined MGONGPU_CUCXTYPE_STDCOMPLEX
              << "\"STD::COMPLEX\"," << std::endl
 #else
              << "\"???\"," << std::endl                           // no path to this statement...
