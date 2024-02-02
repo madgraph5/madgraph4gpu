@@ -224,7 +224,9 @@ main( int argc, char** argv )
 #ifdef MGONGPU_HAS_NO_ROCRAND
       throw std::runtime_error( "RocrandHost is not supported because this application was built without Rocrand support" );
 #else
-      rndgen = RandomNumberMode::RocrandHost;
+      // See https://github.com/ROCm/hipRAND/issues/76
+      throw std::runtime_error( "RocrandRandomNumberKernel on host is not supported yet (hiprandCreateGeneratorHost is not implemented yet)" );
+      //rndgen = RandomNumberMode::RocrandHost;
 #endif
     }
     else if( arg == "--common" )
@@ -300,8 +302,11 @@ main( int argc, char** argv )
   if( rmbsmp == RamboSamplingMode::RamboHost && rndgen == RandomNumberMode::RocrandDevice )
   {
 #if not defined MGONGPU_HAS_NO_ROCRAND
-    std::cout << "WARNING! RamboHost selected: cannot use RocrandDevice, will use RocrandHost" << std::endl;
-    rndgen = RandomNumberMode::RocrandHost;
+    // See https://github.com/ROCm/hipRAND/issues/76
+    //std::cout << "WARNING! RamboHost selected: cannot use RocrandDevice, will use RocrandHost" << std::endl;
+    //rndgen = RandomNumberMode::RocrandHost;
+    std::cout << "WARNING! RamboHost selected: cannot use RocrandDevice, will use CommonRandom (as RocrandHost is not implemented yet)" << std::endl;
+    rndgen = RandomNumberMode::CommonRandom;
 #else
     std::cout << "WARNING! RamboHost selected: cannot use RocrandDevice, will use CommonRandom" << std::endl;
     rndgen = RandomNumberMode::CommonRandom;
