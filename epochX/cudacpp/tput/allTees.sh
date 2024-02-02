@@ -32,8 +32,8 @@ while [ "$1" != "" ]; do
     opts+=" -makeonly"
     shift
   elif [ "$1" == "-hip" ]; then
-    # Random numbers use rocrand instead of curand?
-    rndhst=-rorhst
+    # Random numbers use hiprand instead of curand?
+    rndhst=-hirhst
     shift
   else
     echo "Usage: $0 [-short] [-e] [-sa] [-makeonly] [-hip]"
