@@ -96,12 +96,13 @@ namespace mg5amcCpu
       throw std::runtime_error( "RocrandRandomNumberKernel on host is not supported yet (hiprandCreateGeneratorHost is not implemented yet)" );
       //checkHiprand( hiprandCreateGeneratorHost( &m_rnGen, type ) ); // ALWAYS FAILS WITH CODE=1000
     }
+    // FIXME: hiprand ordering is not implemented yet
+    // See https://github.com/ROCm/hipRAND/issues/75
     /*
-    // FIXME: implement hiprand/rocrand ordering...
-    //checkHiprand( hiprandSetGeneratorOrdering( *&m_rnGen, ROCRAND_ORDERING_PSEUDO_LEGACY ) ); // fails in curand (see #429)
-    checkHiprand( hiprandSetGeneratorOrdering( *&m_rnGen, ROCRAND_ORDERING_PSEUDO_BEST ) );
-    //checkHiprand( hiprandSetGeneratorOrdering( *&m_rnGen, ROCRAND_ORDERING_PSEUDO_DYNAMIC ) ); // fails in curand (see #429)
-    //checkHiprand( hiprandSetGeneratorOrdering( *&m_rnGen, ROCRAND_ORDERING_PSEUDO_SEEDED ) ); // fails in curand (see #429)
+    //checkHiprand( hiprandSetGeneratorOrdering( *&m_rnGen, HIPRAND_ORDERING_PSEUDO_LEGACY ) );
+    checkHiprand( hiprandSetGeneratorOrdering( *&m_rnGen, HIPRAND_ORDERING_PSEUDO_BEST ) );
+    //checkHiprand( hiprandSetGeneratorOrdering( *&m_rnGen, HIPRAND_ORDERING_PSEUDO_DYNAMIC ) );
+    //checkHiprand( hiprandSetGeneratorOrdering( *&m_rnGen, HIPRAND_ORDERING_PSEUDO_SEEDED ) );
     */
   }
 
