@@ -493,6 +493,10 @@ $(BUILDDIR)/.build.$(TAG):
 
 # Generic target and build rules: objects from CUDA compilation
 ifneq ($(NVCC),)
+$(BUILDDIR)/%.o : %.cu *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
+	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -Xcompiler -fPIC -c $< -o $@
+
 $(BUILDDIR)/%_cu.o : %.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -Xcompiler -fPIC -c -x cu $< -o $@
@@ -504,24 +508,24 @@ $(BUILDDIR)/%.o : %.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -fPIC -c $< -o $@
 
-# Apply special build flags only to CrossSectionKernel[_cu].o (no fast math, see #117 and #516)
+# Apply special build flags only to CrossSectionKernel.cc and gCrossSectionKernel.cu (no fast math, see #117 and #516)
 ifeq ($(shell $(CXX) --version | grep ^nvc++),)
 $(BUILDDIR)/CrossSectionKernels.o: CXXFLAGS := $(filter-out -ffast-math,$(CXXFLAGS))
 $(BUILDDIR)/CrossSectionKernels.o: CXXFLAGS += -fno-fast-math
 ifneq ($(NVCC),)
-$(BUILDDIR)/CrossSectionKernels_cu.o: CUFLAGS += -Xcompiler -fno-fast-math
+$(BUILDDIR)/gCrossSectionKernels.o: CUFLAGS += -Xcompiler -fno-fast-math
 endif
 endif
 
-# Apply special build flags only to check_sa[_cu].o (NVTX in timermap.h, #679)
+# Apply special build flags only to check_sa.o and gcheck_sa.o (NVTX in timermap.h, #679)
 $(BUILDDIR)/check_sa.o: CXXFLAGS += $(USE_NVTX) $(CUINC)
-$(BUILDDIR)/check_sa_cu.o: CXXFLAGS += $(USE_NVTX) $(CUINC)
+$(BUILDDIR)/gcheck_sa.o: CXXFLAGS += $(USE_NVTX) $(CUINC)
 
-# Apply special build flags only to check_sa[_cu].o and CurandRandomNumberKernel[_cu].o (curand headers, #679)
+# Apply special build flags only to check_sa and CurandRandomNumberKernel (curand headers, #679)
 $(BUILDDIR)/check_sa.o: CXXFLAGS += $(CXXFLAGSCURAND)
-$(BUILDDIR)/check_sa_cu.o: CUFLAGS += $(CXXFLAGSCURAND)
+$(BUILDDIR)/gcheck_sa.o: CUFLAGS += $(CXXFLAGSCURAND)
 $(BUILDDIR)/CurandRandomNumberKernel.o: CXXFLAGS += $(CXXFLAGSCURAND)
-$(BUILDDIR)/CurandRandomNumberKernel_cu.o: CUFLAGS += $(CXXFLAGSCURAND)
+$(BUILDDIR)/gCurandRandomNumberKernel.o: CUFLAGS += $(CXXFLAGSCURAND)
 ifeq ($(RNDGEN),hasCurand)
 $(BUILDDIR)/CurandRandomNumberKernel.o: CXXFLAGS += $(CUINC)
 endif
@@ -542,10 +546,10 @@ endif
 ###endif
 ###endif
 
-#### Apply special build flags only to CPPProcess.o (-flto)
+#### Apply special build flags only to CPPProcess.cc (-flto)
 ###$(BUILDDIR)/CPPProcess.o: CXXFLAGS += -flto
 
-#### Apply special build flags only to CPPProcess.o (AVXFLAGS)
+#### Apply special build flags only to CPPProcess.cc (AVXFLAGS)
 ###$(BUILDDIR)/CPPProcess.o: CXXFLAGS += $(AVXFLAGS)
 
 #-------------------------------------------------------------------------------
@@ -567,8 +571,8 @@ cxx_objects_exe=$(BUILDDIR)/CommonRandomNumberKernel.o $(BUILDDIR)/RamboSampling
 
 ifneq ($(NVCC),)
 MG5AMC_CULIB = mg5amc_$(processid_short)_cuda
-cu_objects_lib=$(BUILDDIR)/CPPProcess_cu.o $(BUILDDIR)/MatrixElementKernels_cu.o $(BUILDDIR)/BridgeKernels_cu.o $(BUILDDIR)/CrossSectionKernels_cu.o
-cu_objects_exe=$(BUILDDIR)/CommonRandomNumberKernel_cu.o $(BUILDDIR)/RamboSamplingKernels_cu.o
+cu_objects_lib=$(BUILDDIR)/gCPPProcess.o $(BUILDDIR)/gMatrixElementKernels.o $(BUILDDIR)/gBridgeKernels.o $(BUILDDIR)/gCrossSectionKernels.o
+cu_objects_exe=$(BUILDDIR)/gCommonRandomNumberKernel.o $(BUILDDIR)/gRamboSamplingKernels.o
 endif
 
 # Target (and build rules): C++ and CUDA shared libraries
@@ -606,8 +610,8 @@ else ifneq ($(shell $(CXX) --version | grep ^nvc++),) # support nvc++ #531
 $(cu_main): LIBFLAGS += -L$(patsubst %bin/nvc++,%lib,$(subst ccache ,,$(CXX))) -lnvhpcatm -lnvcpumath -lnvc
 endif
 $(cu_main): LIBFLAGS += $(CULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
-$(cu_main): $(BUILDDIR)/check_sa_cu.o $(LIBDIR)/lib$(MG5AMC_CULIB).so $(cu_objects_exe) $(BUILDDIR)/CurandRandomNumberKernel_cu.o
-	$(NVCC) -o $@ $(BUILDDIR)/check_sa_cu.o $(CUARCHFLAGS) $(LIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CULIB) $(cu_objects_exe) $(BUILDDIR)/CurandRandomNumberKernel_cu.o $(CURANDLIBFLAGS)
+$(cu_main): $(BUILDDIR)/gcheck_sa.o $(LIBDIR)/lib$(MG5AMC_CULIB).so $(cu_objects_exe) $(BUILDDIR)/gCurandRandomNumberKernel.o
+	$(NVCC) -o $@ $(BUILDDIR)/gcheck_sa.o $(CUARCHFLAGS) $(LIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CULIB) $(cu_objects_exe) $(BUILDDIR)/gCurandRandomNumberKernel.o $(CURANDLIBFLAGS)
 endif
 
 #-------------------------------------------------------------------------------
