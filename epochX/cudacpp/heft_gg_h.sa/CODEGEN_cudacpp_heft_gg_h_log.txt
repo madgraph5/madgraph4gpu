@@ -62,12 +62,6 @@ set auto_convert_model T
 save options auto_convert_model
 save configuration file to /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/mg5amcnlo/input/mg5_configuration.txt
 import model heft
-INFO: reload from .py file 
-INFO: load particles 
-INFO: load vertices 
-[1;34mWARNING: coupling GC_13=-(complex(0,1)*GH) has direct dependence in aS but has QCD order set to 0. Automatic computation of scale uncertainty can be wrong for such model. [0m
-[1;34mWARNING: coupling GC_16=(complex(0,1)*Gphi)/8. has direct dependence in aS but has QCD order set to 0. Automatic computation of scale uncertainty can be wrong for such model. [0m
-[1;32mDEBUG: model prefixing  takes 0.005762338638305664 [0m
 INFO: Restrict model heft with file models/heft/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: s u w+ at order: QED=1 [0m
@@ -161,7 +155,7 @@ Generated helas calls for 1 subprocesses (1 diagrams) in 0.002 s
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 202][0m [0m
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVS3 routines[0m
-ALOHA: aloha creates 1 routines in  0.060 s
+ALOHA: aloha creates 1 routines in  0.062 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVS3
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg_h/src/./HelAmps_heft.h
 INFO: Created file HelAmps_heft.h in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg_h/src/. 
@@ -173,7 +167,7 @@ INFO: Created files Parameters_heft.h and Parameters_heft.cc in directory
 INFO: /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg_h/src/. and /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg_h/src/. 
 quit
 
-real	0m1.897s
-user	0m0.377s
-sys	0m0.055s
-Code generation completed in 2 seconds
+real	0m0.452s
+user	0m0.372s
+sys	0m0.059s
+Code generation completed in 0 seconds

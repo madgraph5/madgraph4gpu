@@ -1,1 +1,0 @@
-CurandRandomNumberKernel.cc

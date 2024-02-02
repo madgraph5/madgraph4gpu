@@ -62,7 +62,7 @@ generate e+ e- > mu+ mu-
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.005336284637451172 [0m
+[1;32mDEBUG: model prefixing  takes 0.005625724792480469 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -154,7 +154,7 @@ INFO: Checking for minimal orders which gives processes.
 INFO: Please specify coupling orders to bypass this step. 
 INFO: Trying process: e+ e- > mu+ mu- WEIGHTED<=4 @1  
 INFO: Process has 2 diagrams 
-1 processes with 2 diagrams generated in 0.004 s
+1 processes with 2 diagrams generated in 0.005 s
 Total: 1 processes with 2 diagrams
 output standalone_cudacpp ../TMPOUT/CODEGEN_cudacpp_ee_mumu
 Load PLUGIN.CUDACPP_OUTPUT
@@ -176,14 +176,14 @@ INFO: Creating files in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TM
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/./CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/./CPPProcess.cc
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/. 
-Generated helas calls for 1 subprocesses (2 diagrams) in 0.003 s
+Generated helas calls for 1 subprocesses (2 diagrams) in 0.004 s
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 202][0m [0m
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFV2 routines[0m
 ALOHA: aloha creates FFV4 routines[0m
 ALOHA: aloha creates FFV2_4 routines[0m
-ALOHA: aloha creates 4 routines in  0.270 s
+ALOHA: aloha creates 4 routines in  0.276 s
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV2
@@ -202,7 +202,7 @@ INFO: Created files Parameters_sm.h and Parameters_sm.cc in directory
 INFO: /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_ee_mumu/src/. and /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_ee_mumu/src/. 
 quit
 
-real	0m0.985s
-user	0m0.886s
-sys	0m0.091s
+real	0m0.681s
+user	0m0.609s
+sys	0m0.063s
 Code generation completed in 1 seconds

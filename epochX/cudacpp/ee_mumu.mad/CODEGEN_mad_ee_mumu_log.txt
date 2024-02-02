@@ -62,7 +62,7 @@ generate e+ e- > mu+ mu-
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.005282163619995117 [0m
+[1;32mDEBUG: model prefixing  takes 0.005546092987060547 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -154,7 +154,7 @@ INFO: Checking for minimal orders which gives processes.
 INFO: Please specify coupling orders to bypass this step. 
 INFO: Trying process: e+ e- > mu+ mu- WEIGHTED<=4 @1  
 INFO: Process has 2 diagrams 
-1 processes with 2 diagrams generated in 0.005 s
+1 processes with 2 diagrams generated in 0.004 s
 Total: 1 processes with 2 diagrams
 output madevent ../TMPOUT/CODEGEN_mad_ee_mumu --hel_recycling=False --vector_size=32 --me_exporter=standalone_cudacpp
 Load PLUGIN.CUDACPP_OUTPUT
@@ -175,8 +175,8 @@ INFO: Organizing processes into subprocess groups
 INFO: Generating Helas calls for process: e+ e- > mu+ mu- WEIGHTED<=4 @1 
 INFO: Processing color information for process: e+ e- > mu+ mu- @1 
 INFO: Creating files in directory P1_epem_mupmum 
-[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f8534b72b80> [1;30m[export_v4.py at line 6261][0m [0m
+[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1057][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7fde6340fb80> [1;30m[export_v4.py at line 6261][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -193,19 +193,19 @@ INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./.
 INFO: Generating Feynman diagrams for Process: e+ e- > mu+ mu- WEIGHTED<=4 @1 
 INFO: Finding symmetric diagrams for subprocess group epem_mupmum 
 Generated helas calls for 1 subprocesses (2 diagrams) in 0.004 s
-Wrote files for 8 helas calls in 0.100 s
+Wrote files for 8 helas calls in 0.101 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFV2 routines[0m
 ALOHA: aloha creates FFV4 routines[0m
-ALOHA: aloha creates 3 routines in  0.201 s
+ALOHA: aloha creates 3 routines in  0.205 s
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 202][0m [0m
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFV2 routines[0m
 ALOHA: aloha creates FFV4 routines[0m
 ALOHA: aloha creates FFV2_4 routines[0m
-ALOHA: aloha creates 7 routines in  0.255 s
+ALOHA: aloha creates 7 routines in  0.260 s
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV2
@@ -250,9 +250,9 @@ Type "launch" to generate events from this process, or see
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m1.884s
-user	0m1.629s
-sys	0m0.237s
+real	0m2.033s
+user	0m1.688s
+sys	0m0.223s
 Code generation completed in 2 seconds
 ************************************************************
 *                                                          *
