@@ -109,6 +109,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                                       s+'gpu/testmisc.cc', s+'gpu/testxxx_cc_ref.txt',
                                       s+'gpu/perf.py', s+'gpu/profile.sh',
                                       s+'CMake/SubProcesses/CMakeLists.txt',
+                                      s+'gpu/fbridge_common.inc',
                                       s+'gpu/counters.cc',
                                       s+'gpu/ompnumthreads.cc'],
                      'test': [s+'gpu/cudacpp_test.mk']}
@@ -199,8 +200,9 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
         misc.sprint('  type(subproc_group)=%s'%type(subproc_group)) # e.g. madgraph.core.helas_objects.HelasMatrixElement
         misc.sprint('  type(fortran_model)=%s'%type(fortran_model)) # e.g. madgraph.iolibs.helas_call_writers.GPUFOHelasCallWriter
         misc.sprint('  type(me)=%s me=%s'%(type(me) if me is not None else None, me)) # e.g. int
-        return super().generate_subprocess_directory(subproc_group, fortran_model, me)
-
+        misc.sprint("need to link", self.to_link_in_P)
+        out = super().generate_subprocess_directory(subproc_group, fortran_model, me)
+        return out
     # AV (default from OM's tutorial) - add a debug printout
     def convert_model(self, model, wanted_lorentz=[], wanted_coupling=[]):
         misc.sprint('Entering PLUGIN_ProcessExporter.convert_model (create the model)')
