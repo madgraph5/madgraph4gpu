@@ -11,7 +11,7 @@
 
 #include <cassert>
 
-#ifndef MGONGPU_HAS_NO_ROCRAND /* clang-format off */
+#ifndef MGONGPU_HAS_NO_HIPRAND /* clang-format off */
 #ifndef __HIP_PLATFORM_AMD__
 #define __HIP_PLATFORM_AMD__ 1 // enable hiprand for AMD (rocrand)
 #endif
@@ -34,8 +34,8 @@ namespace mg5amcCpu
 #endif
 {
   //--------------------------------------------------------------------------
-#ifndef MGONGPU_HAS_NO_ROCRAND
-  RocrandRandomNumberKernel::RocrandRandomNumberKernel( BufferRndNumMomenta& rnarray, const bool onDevice )
+#ifndef MGONGPU_HAS_NO_HIPRAND
+  HiprandRandomNumberKernel::HiprandRandomNumberKernel( BufferRndNumMomenta& rnarray, const bool onDevice )
     : RandomNumberKernelBase( rnarray )
     , m_isOnDevice( onDevice )
   {
@@ -43,29 +43,29 @@ namespace mg5amcCpu
     {
 #ifdef MGONGPUCPP_GPUIMPL
       if( !m_rnarray.isOnDevice() )
-        throw std::runtime_error( "RocrandRandomNumberKernel on device with a host random number array" );
+        throw std::runtime_error( "HiprandRandomNumberKernel on device with a host random number array" );
 #else
-      throw std::runtime_error( "RocrandRandomNumberKernel does not support HiprandDevice on CPU host" );
+      throw std::runtime_error( "HiprandRandomNumberKernel does not support HiprandDevice on CPU host" );
 #endif
     }
     else
     {
       if( m_rnarray.isOnDevice() )
-        throw std::runtime_error( "RocrandRandomNumberKernel on host with a device random number array" );
+        throw std::runtime_error( "HiprandRandomNumberKernel on host with a device random number array" );
     }
     createGenerator();
   }
 
   //--------------------------------------------------------------------------
 
-  RocrandRandomNumberKernel::~RocrandRandomNumberKernel()
+  HiprandRandomNumberKernel::~HiprandRandomNumberKernel()
   {
     destroyGenerator();
   }
 
   //--------------------------------------------------------------------------
 
-  void RocrandRandomNumberKernel::seedGenerator( const unsigned int seed )
+  void HiprandRandomNumberKernel::seedGenerator( const unsigned int seed )
   {
     if( m_isOnDevice )
     {
@@ -78,7 +78,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  void RocrandRandomNumberKernel::createGenerator()
+  void HiprandRandomNumberKernel::createGenerator()
   {
     //const hiprandRngType_t type = HIPRAND_RNG_PSEUDO_DEFAULT;
     //const hiprandRngType_t type = HIPRAND_RNG_PSEUDO_XORWOW;
@@ -93,7 +93,7 @@ namespace mg5amcCpu
     else
     {
       // See https://github.com/ROCm/hipRAND/issues/76
-      throw std::runtime_error( "RocrandRandomNumberKernel on host is not supported yet (hiprandCreateGeneratorHost is not implemented yet)" );
+      throw std::runtime_error( "HiprandRandomNumberKernel on host is not supported yet (hiprandCreateGeneratorHost is not implemented yet)" );
       //checkHiprand( hiprandCreateGeneratorHost( &m_rnGen, type ) ); // ALWAYS FAILS WITH CODE=1000
     }
     // FIXME: hiprand ordering is not implemented yet
@@ -108,14 +108,14 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  void RocrandRandomNumberKernel::destroyGenerator()
+  void HiprandRandomNumberKernel::destroyGenerator()
   {
     checkHiprand( hiprandDestroyGenerator( m_rnGen ) );
   }
 
   //--------------------------------------------------------------------------
 
-  void RocrandRandomNumberKernel::generateRnarray()
+  void HiprandRandomNumberKernel::generateRnarray()
   {
 #if defined MGONGPU_FPTYPE_DOUBLE
     checkHiprand( hiprandGenerateUniformDouble( m_rnGen, m_rnarray.data(), m_rnarray.size() ) );
@@ -123,7 +123,7 @@ namespace mg5amcCpu
     checkHiprand( hiprandGenerateUniform( m_rnGen, m_rnarray.data(), m_rnarray.size() ) );
 #endif
     /*
-    printf( "\nRocrandRandomNumberKernel::generateRnarray size = %d\n", (int)m_rnarray.size() );
+    printf( "\nHiprandRandomNumberKernel::generateRnarray size = %d\n", (int)m_rnarray.size() );
     fptype* data = m_rnarray.data();
 #ifdef MGONGPUCPP_GPUIMPL
     if( m_rnarray.isOnDevice() )

@@ -13,7 +13,7 @@
 // Forward definition from curand.h (the full header is only needed in CurandRandomKernel.cc)
 struct curandGenerator_st;
 
-// Forward definition from hiprand.h (the full header is only needed in RocrandRandomKernel.cc)
+// Forward definition from hiprand.h (the full header is only needed in HiprandRandomKernel.cc)
 struct rocrand_generator_base_type;
 typedef rocrand_generator_base_type hiprandGenerator_st;
 
@@ -148,16 +148,16 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  // A class encapsulating ROCRAND random number generation on a CPU host or on a GPU device
-  class RocrandRandomNumberKernel final : public RandomNumberKernelBase
+  // A class encapsulating HIPRAND random number generation on a CPU host or on a GPU device
+  class HiprandRandomNumberKernel final : public RandomNumberKernelBase
   {
   public:
 
     // Constructor from an existing output buffer
-    RocrandRandomNumberKernel( BufferRndNumMomenta& rnarray, const bool onDevice );
+    HiprandRandomNumberKernel( BufferRndNumMomenta& rnarray, const bool onDevice );
 
     // Destructor
-    ~RocrandRandomNumberKernel();
+    ~HiprandRandomNumberKernel();
 
     // Seed the random number generator
     void seedGenerator( const unsigned int seed ) override final;
@@ -181,7 +181,7 @@ namespace mg5amcCpu
     // Is this a host or device kernel?
     const bool m_isOnDevice;
 
-    // The rocrand generator
+    // The hiprand generator
     // (NB: hiprand.h defines typedef hiprandGenerator_t as a pointer to forward-defined 'struct hiprandGenerator_st')
     hiprandGenerator_st* m_rnGen;
   };

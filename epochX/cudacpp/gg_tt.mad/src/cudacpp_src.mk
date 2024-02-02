@@ -87,7 +87,7 @@ endif
 #-------------------------------------------------------------------------------
 
 #=== Set the CUDA/C++ compiler flags appropriate to user-defined choices of AVX, FPTYPE, HELINL, HRDCOD (exported from cudacpp.mk)
-#=== (NB the RNDCXXFLAGS and RNDLIBFLAGS appropriate to user-defined choices of HASCURAND and HASROCRAND have been exported from cudacpp.mk)
+#=== (NB the RNDCXXFLAGS and RNDLIBFLAGS appropriate to user-defined choices of HASCURAND and HASHIPRAND have been exported from cudacpp.mk)
 
 # Set the build flags appropriate to OMPFLAGS
 ###$(info OMPFLAGS=$(OMPFLAGS))
@@ -186,7 +186,7 @@ override DIRTAG = $(AVX)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)
 
 # Build lockfile "full" tag (defines full specification of build options that cannot be intermixed)
 # (Rationale: avoid mixing of CUDA and no-CUDA environment builds with different random number generators)
-override TAG = $(AVX)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)_$(HASCURAND)_$(HASROCRAND)
+override TAG = $(AVX)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)_$(HASCURAND)_$(HASHIPRAND)
 
 # Build directory: current directory by default, or build.$(DIRTAG) if USEBUILDDIR==1
 ###$(info Current directory is $(shell pwd))
