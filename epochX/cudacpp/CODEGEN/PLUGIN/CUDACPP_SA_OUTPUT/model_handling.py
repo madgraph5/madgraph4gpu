@@ -1347,6 +1347,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         files.ln(pjoin(self.path, 'RamboSamplingKernels.cc'), self.path, 'gRamboSamplingKernels.cu')
         files.ln(pjoin(self.path, 'CommonRandomNumberKernel.cc'), self.path, 'gCommonRandomNumberKernel.cu')
         files.ln(pjoin(self.path, 'CurandRandomNumberKernel.cc'), self.path, 'gCurandRandomNumberKernel.cu')
+        files.ln(pjoin(self.path, 'HiprandRandomNumberKernel.cc'), self.path, 'gHiprandRandomNumberKernel.cu')
         files.ln(pjoin(self.path, 'BridgeKernels.cc'), self.path, 'gBridgeKernels.cu')
         # NB: symlink of cudacpp.mk to makefile is overwritten by madevent makefile if this exists (#480)
         # NB: this relies on the assumption that cudacpp code is generated before madevent code
