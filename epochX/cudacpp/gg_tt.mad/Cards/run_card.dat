@@ -162,5 +162,5 @@ systematics = systematics_program ! none, systematics [python], SysCalc [deprece
 #************************************************************************
  d = floating_type ! floating point precision: f (single), d (double), m (mixed: double for amplitudes, single for colors)
  auto = avx_level ! SIMD vectorization level: none, sse4, avx2, 512y, 512z, auto
- CPP = cudacpp_backend ! CUDACPP backend: FORTRAN, CPP, CUDA
+ CUDA = cudacpp_backend ! CUDACPP backend: FORTRAN, CPP, CUDA
 
