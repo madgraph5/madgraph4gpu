@@ -1,7 +1,7 @@
 // Copyright (C) 2020-2023 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: A. Valassi (Dec 2021) for the MG5aMC CUDACPP plugin.
-// Further modified by: A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: J. Teig, A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
 
 #ifndef MemoryAccessHelpers_H
 #define MemoryAccessHelpers_H 1
@@ -105,7 +105,7 @@ public:
     }
     else
     {
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
       //printf( "kernelAccessRecord: ievt=%d threadId=%d\n", ievt, threadIdx.x );
       return T::ieventAccessRecord( buffer, ievt ); // NB fptype and fptype_sv coincide for CUDA
