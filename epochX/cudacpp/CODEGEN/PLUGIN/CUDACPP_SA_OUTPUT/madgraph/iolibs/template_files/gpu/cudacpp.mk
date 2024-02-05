@@ -602,7 +602,7 @@ $(BUILDDIR)/.build.$(TAG):
 	@if [ "$(oldtagsb)" != "" ]; then echo "Cannot build for tag=$(TAG) as old builds exist for other tags:"; echo "  $(oldtagsb)"; echo "Please run 'make clean' first\nIf 'make clean' is not enough: run 'make clean USEBUILDDIR=1 AVX=$(AVX) FPTYPE=$(FPTYPE)' or 'make cleanall'"; exit 1; fi
 	@touch $(BUILDDIR)/.build.$(TAG)
 
-# Generic target and build rules: objects from CUDA compilation
+# Generic target and build rules: objects from CUDA or HIP compilation
 # NB: CCBUILDRULEFLAGS includes "-x cu" for nvcc and "-x hip" for hipcc (#810)
 ifneq ($(GPUCC),)
 $(BUILDDIR)/%%.o : %%.cu *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
@@ -620,7 +620,7 @@ $(BUILDDIR)/%%.o : %%.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -fPIC -c $< -o $@
 
-# Apply special build flags only to CrossSectionKernel.cc and gCrossSectionKernel.cu (no fast math, see #117 and #516)
+# Apply special build flags only to CrossSectionKernel[_cu].o (no fast math, see #117 and #516)
 # Added edgecase for HIP compilation
 ifeq ($(shell $(CXX) --version | grep ^nvc++),)
 $(BUILDDIR)/CrossSectionKernels.o: CXXFLAGS := $(filter-out -ffast-math,$(CXXFLAGS))
@@ -632,17 +632,17 @@ else
 endif
 endif
 
-# Apply special build flags only to check_sa.o and gcheck_sa.o (NVTX in timermap.h, #679)
+# Apply special build flags only to check_sa[_cu].o (NVTX in timermap.h, #679)
 $(BUILDDIR)/check_sa.o: CXXFLAGS += $(USE_NVTX) $(CUINC)
-$(BUILDDIR)/gcheck_sa.o: CXXFLAGS += $(USE_NVTX) $(CUINC)
+$(BUILDDIR)/check_sa_cu.o: CXXFLAGS += $(USE_NVTX) $(CUINC)
 
-# Apply special build flags only to check_sa and (Cu|Roc)randRandomNumberKernel
+# Apply special build flags only to check_sa[_cu].o and (Cu|Hip)randRandomNumberKernel[_cu].o
 $(BUILDDIR)/check_sa.o: CXXFLAGS += $(RNDCXXFLAGS)
-$(BUILDDIR)/gcheck_sa.o: CUFLAGS += $(RNDCXXFLAGS)
+$(BUILDDIR)/check_sa_cu.o: CUFLAGS += $(RNDCXXFLAGS)
 $(BUILDDIR)/CurandRandomNumberKernel.o: CXXFLAGS += $(RNDCXXFLAGS)
-$(BUILDDIR)/gCurandRandomNumberKernel.o: CUFLAGS += $(RNDCXXFLAGS)
+$(BUILDDIR)/CurandRandomNumberKernel_cu.o: CUFLAGS += $(RNDCXXFLAGS)
 $(BUILDDIR)/HiprandRandomNumberKernel.o: CXXFLAGS += $(RNDCXXFLAGS)
-$(BUILDDIR)/gHiprandRandomNumberKernel.o: CUFLAGS += $(RNDCXXFLAGS)
+$(BUILDDIR)/HiprandRandomNumberKernel_cu.o: CUFLAGS += $(RNDCXXFLAGS)
 ifeq ($(HASCURAND),hasCurand) # curand headers, #679
 $(BUILDDIR)/CurandRandomNumberKernel.o: CXXFLAGS += $(CUINC)
 endif
@@ -666,10 +666,10 @@ endif
 ###endif
 ###endif
 
-#### Apply special build flags only to CPPProcess.cc (-flto)
+#### Apply special build flags only to CPPProcess.o (-flto)
 ###$(BUILDDIR)/CPPProcess.o: CXXFLAGS += -flto
 
-#### Apply special build flags only to CPPProcess.cc (AVXFLAGS)
+#### Apply special build flags only to CPPProcess.o (AVXFLAGS)
 ###$(BUILDDIR)/CPPProcess.o: CXXFLAGS += $(AVXFLAGS)
 
 #-------------------------------------------------------------------------------
@@ -691,8 +691,8 @@ cxx_objects_exe=$(BUILDDIR)/CommonRandomNumberKernel.o $(BUILDDIR)/RamboSampling
 
 ifneq ($(GPUCC),)
 MG5AMC_CULIB = mg5amc_$(processid_short)_cuda
-cu_objects_lib=$(BUILDDIR)/gCPPProcess.o $(BUILDDIR)/gMatrixElementKernels.o $(BUILDDIR)/gBridgeKernels.o $(BUILDDIR)/gCrossSectionKernels.o
-cu_objects_exe=$(BUILDDIR)/gCommonRandomNumberKernel.o $(BUILDDIR)/gRamboSamplingKernels.o
+cu_objects_lib=$(BUILDDIR)/CPPProcess_cu.o $(BUILDDIR)/MatrixElementKernels_cu.o $(BUILDDIR)/BridgeKernels_cu.o $(BUILDDIR)/CrossSectionKernels_cu.o
+cu_objects_exe=$(BUILDDIR)/CommonRandomNumberKernel_cu.o $(BUILDDIR)/RamboSamplingKernels_cu.o
 endif
 
 # Target (and build rules): C++ and CUDA shared libraries
