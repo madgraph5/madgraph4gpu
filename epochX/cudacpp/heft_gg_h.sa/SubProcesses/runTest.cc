@@ -238,7 +238,7 @@ struct CUDATest : public CUDA_CPU_TestBase
     return MemoryAccessMatrixElements::ieventAccessConst( hstMatrixElements.data(), ievt );
   }
 };
-#endif /* clang-format off */
+#endif
 
 // Use two levels of macros to force stringification at the right level
 // (see https://gcc.gnu.org/onlinedocs/gcc-3.0.1/cpp_3.html#SEC17 and https://stackoverflow.com/a/3419392)
@@ -260,4 +260,4 @@ INSTANTIATE_TEST_SUITE_P( prefix, \
 MG_INSTANTIATE_TEST_SUITE_GPU( XTESTID_GPU( MG_EPOCH_PROCESS_ID ), MadgraphTest );
 #else
 MG_INSTANTIATE_TEST_SUITE_CPU( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), MadgraphTest );
-#endif /* clang-format on */
+#endif

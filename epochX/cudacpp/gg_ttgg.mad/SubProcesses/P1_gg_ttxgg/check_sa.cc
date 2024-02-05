@@ -1,10 +1,10 @@
 // Copyright (C) 2010 The MadGraph5_aMC@NLO development team and contributors.
 // Created by: J. Alwall (Oct 2010) for the MG5aMC CPP backend.
 //==========================================================================
-// Copyright (C) 2020-2024 CERN and UCLouvain.
+// Copyright (C) 2020-2023 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Modified by: O. Mattelaer (Nov 2020) for the MG5aMC CUDACPP plugin.
-// Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, J. Teig, A. Valassi (2020-2024) for the MG5aMC CUDACPP plugin.
+// Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, J. Teig, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
 //==========================================================================
 
 #include "mgOnGpuConfig.h"
@@ -58,7 +58,7 @@ int
 usage( char* argv0, int ret = 1 )
 {
   std::cout << "Usage: " << argv0
-            << " [--verbose|-v] [--debug|-d] [--performance|-p] [--json|-j] [--curhst|--curdev|--hirhst|--hirdev|--common] [--rmbhst|--rmbdev] [--bridge]"
+            << " [--verbose|-v] [--debug|-d] [--performance|-p] [--json|-j] [--curhst|--curdev|--common] [--rmbhst|--rmbdev] [--bridge]"
             << " [#gpuBlocksPerGrid #gpuThreadsPerBlock] #iterations" << std::endl;
   std::cout << std::endl;
   std::cout << "The number of events per iteration is #gpuBlocksPerGrid * #gpuThreadsPerBlock" << std::endl;
@@ -131,31 +131,17 @@ main( int argc, char** argv )
   enum class RandomNumberMode
   {
     CommonRandom = 0,
-    CurandHost = -1,
-    CurandDevice = 1,
-    HiprandHost = -2,
-    HiprandDevice = 2
+    CurandHost = 1,
+    CurandDevice = 2
   };
-#if defined __CUDACC__
-#ifndef MGONGPU_HAS_NO_CURAND
+#ifdef MGONGPU_HAS_NO_CURAND
+  RandomNumberMode rndgen = RandomNumberMode::CommonRandom; // this is the only supported mode if build has no curand (PR #784 and #785)
+#elif defined __HIPCC__
+#error Internal error: MGONGPU_HAS_NO_CURAND should have been set for __HIPCC__ // default on AMD GPUs should be common random
+#elif defined __CUDACC__
   RandomNumberMode rndgen = RandomNumberMode::CurandDevice; // default on NVidia GPU if build has curand
 #else
-  RandomNumberMode rndgen = RandomNumberMode::CommonRandom; // default on NVidia GPU if build has no curand (PR #784 and #785)
-#endif
-#elif defined __HIPCC__
-#ifndef MGONGPU_HAS_NO_HIPRAND
-  RandomNumberMode rndgen = RandomNumberMode::HiprandDevice; // default on AMD GPU if build has hiprand
-#else
-  RandomNumberMode rndgen = RandomNumberMode::CommonRandom; // default on AMD GPU if build has no hiprand
-#endif
-#else
-#ifndef MGONGPU_HAS_NO_CURAND
   RandomNumberMode rndgen = RandomNumberMode::CurandHost; // default on CPU if build has curand
-#elif not defined MGONGPU_HAS_NO_HIPRAND
-  RandomNumberMode rndgen = RandomNumberMode::HiprandDevice; // default on CPU if build has hiprand
-#else
-  RandomNumberMode rndgen = RandomNumberMode::CommonRandom; // default on CPU if build has neither curand nor hiprand
-#endif
 #endif
   // Rambo sampling mode (NB RamboHost implies CommonRandom or CurandHost!)
   enum class RamboSamplingMode
@@ -166,7 +152,7 @@ main( int argc, char** argv )
 #ifdef MGONGPUCPP_GPUIMPL
   RamboSamplingMode rmbsmp = RamboSamplingMode::RamboDevice; // default on GPU
 #else
-  RamboSamplingMode rmbsmp = RamboSamplingMode::RamboHost;   // default on CPU
+  RamboSamplingMode rmbsmp = RamboSamplingMode::RamboHost; // default on CPU
 #endif
   // Bridge emulation mode (NB Bridge implies RamboHost!)
   bool bridge = false;
@@ -207,26 +193,6 @@ main( int argc, char** argv )
       throw std::runtime_error( "CurandHost is not supported because this application was built without Curand support" );
 #else
       rndgen = RandomNumberMode::CurandHost;
-#endif
-    }
-    else if( arg == "--hirdev" )
-    {
-#ifndef __HIPCC__
-      throw std::runtime_error( "HiprandDevice is not supported on CPUs or non-AMD GPUs" );
-#elif defined MGONGPU_HAS_NO_HIPRAND
-      throw std::runtime_error( "HiprandDevice is not supported because this application was built without Hiprand support" );
-#else
-      rndgen = RandomNumberMode::HiprandDevice;
-#endif
-    }
-    else if( arg == "--hirhst" )
-    {
-#ifdef MGONGPU_HAS_NO_HIPRAND
-      throw std::runtime_error( "HiprandHost is not supported because this application was built without Hiprand support" );
-#else
-      // See https://github.com/ROCm/hipRAND/issues/76
-      throw std::runtime_error( "HiprandRandomNumberKernel on host is not supported yet (hiprandCreateGeneratorHost is not implemented yet)" );
-      //rndgen = RandomNumberMode::HiprandHost;
 #endif
     }
     else if( arg == "--common" )
@@ -295,20 +261,6 @@ main( int argc, char** argv )
     rndgen = RandomNumberMode::CurandHost;
 #else
     std::cout << "WARNING! RamboHost selected: cannot use CurandDevice, will use CommonRandom" << std::endl;
-    rndgen = RandomNumberMode::CommonRandom;
-#endif
-  }
-
-  if( rmbsmp == RamboSamplingMode::RamboHost && rndgen == RandomNumberMode::HiprandDevice )
-  {
-#if not defined MGONGPU_HAS_NO_HIPRAND
-    // See https://github.com/ROCm/hipRAND/issues/76
-    //std::cout << "WARNING! RamboHost selected: cannot use HiprandDevice, will use HiprandHost" << std::endl;
-    //rndgen = RandomNumberMode::HiprandHost;
-    std::cout << "WARNING! RamboHost selected: cannot use HiprandDevice, will use CommonRandom (as HiprandHost is not implemented yet)" << std::endl;
-    rndgen = RandomNumberMode::CommonRandom;
-#else
-    std::cout << "WARNING! RamboHost selected: cannot use HiprandDevice, will use CommonRandom" << std::endl;
     rndgen = RandomNumberMode::CommonRandom;
 #endif
   }
@@ -463,7 +415,7 @@ main( int argc, char** argv )
   std::unique_ptr<double[]> wavetimes( new double[niter] );
   std::unique_ptr<double[]> wv3atimes( new double[niter] );
 
-  // --- 0c. Create curand, hiprand or common generator
+  // --- 0c. Create curand or common generator
   const std::string cgenKey = "0c GenCreat";
   timermap.start( cgenKey );
   // Allocate the appropriate RandomNumberKernel
@@ -481,7 +433,7 @@ main( int argc, char** argv )
     prnk.reset( new CurandRandomNumberKernel( hstRndmom, onDevice ) );
 #endif
   }
-  else if( rndgen == RandomNumberMode::CurandDevice )
+  else
   {
 #ifdef MGONGPU_HAS_NO_CURAND
     throw std::runtime_error( "INTERNAL ERROR! CurandDevice is not supported because this application was built without Curand support" ); // INTERNAL ERROR (no path to this statement)
@@ -489,31 +441,9 @@ main( int argc, char** argv )
     const bool onDevice = true;
     prnk.reset( new CurandRandomNumberKernel( devRndmom, onDevice ) );
 #else
-    throw std::logic_error( "INTERNAL ERROR! CurandDevice is not supported on CPUs or non-NVidia GPUs" );  // INTERNAL ERROR (no path to this statement)
+    throw std::logic_error( "INTERNAL ERROR! CurandDevice is not supported on CPUs or non-NVidia GPUs" ); // INTERNAL ERROR (no path to this statement)
 #endif
   }
-  else if( rndgen == RandomNumberMode::HiprandHost )
-  {
-#ifdef MGONGPU_HAS_NO_HIPRAND
-    throw std::runtime_error( "INTERNAL ERROR! HiprandHost is not supported because this application was built without Hiprand support" ); // INTERNAL ERROR (no path to this statement)
-#else
-    const bool onDevice = false;
-    prnk.reset( new HiprandRandomNumberKernel( hstRndmom, onDevice ) );
-#endif
-  }
-  else if( rndgen == RandomNumberMode::HiprandDevice )
-  {
-#ifdef MGONGPU_HAS_NO_HIPRAND
-    throw std::runtime_error( "INTERNAL ERROR! HiprandDevice is not supported because this application was built without Hiprand support" ); // INTERNAL ERROR (no path to this statement)
-#elif defined __HIPCC__
-    const bool onDevice = true;
-    prnk.reset( new HiprandRandomNumberKernel( devRndmom, onDevice ) );
-#else
-    throw std::logic_error( "INTERNAL ERROR! HiprandDevice is not supported on CPUs or non-NVidia GPUs" ); // INTERNAL ERROR (no path to this statement)
-#endif
-  }
-  else
-    throw std::logic_error( "INTERNAL ERROR! Unknown rndgen value?" ); // INTERNAL ERROR (no path to this statement)
 
   // --- 0c. Create rambo sampling kernel [keep this in 0c for the moment]
   std::unique_ptr<SamplingKernelBase> prsk;
@@ -567,7 +497,7 @@ main( int argc, char** argv )
     // *** START THE OLD-STYLE TIMER FOR RANDOM GEN ***
     double genrtime = 0;
 
-    // --- 1a. Seed rnd generator (to get same results on host and device in curand/hiprand)
+    // --- 1a. Seed rnd generator (to get same results on host and device in curand)
     // [NB This should not be necessary using the host API: "Generation functions
     // can be called multiple times on the same generator to generate successive
     // blocks of results. For pseudorandom generators, multiple calls to generation
@@ -585,9 +515,7 @@ main( int argc, char** argv )
     //std::cout << "Got random numbers" << std::endl;
 
 #ifdef MGONGPUCPP_GPUIMPL
-    if( rndgen != RandomNumberMode::CurandDevice &&
-        rndgen != RandomNumberMode::HiprandDevice &&
-        rmbsmp == RamboSamplingMode::RamboDevice )
+    if( rndgen != RandomNumberMode::CurandDevice && rmbsmp == RamboSamplingMode::RamboDevice )
     {
       // --- 1c. Copy rndmom from host to device
       const std::string htodKey = "1c CpHTDrnd";
@@ -833,10 +761,6 @@ main( int argc, char** argv )
     rndgentxt = "CURAND HOST";
   else if( rndgen == RandomNumberMode::CurandDevice )
     rndgentxt = "CURAND DEVICE";
-  else if( rndgen == RandomNumberMode::HiprandHost )
-    rndgentxt = "ROCRAND HOST";
-  else if( rndgen == RandomNumberMode::HiprandDevice )
-    rndgentxt = "ROCRAND DEVICE";
 #ifdef __CUDACC__
   rndgentxt += " (CUDA code)";
 #elif defined __HIPCC__
@@ -864,7 +788,7 @@ main( int argc, char** argv )
   wrkflwtxt += "FLT+";
 #else
   wrkflwtxt += "???+"; // no path to this statement
-#endif
+#endif /* clang-format on */
   // -- CUCOMPLEX or THRUST or STD or CXSIMPLE complex numbers?
 #ifdef __CUDACC__
 #if defined MGONGPU_CUCXTYPE_CUCOMPLEX
@@ -889,7 +813,7 @@ main( int argc, char** argv )
   wrkflwtxt += "CXS:";
 #else
   wrkflwtxt += "???:"; // no path to this statement
-#endif /* clang-format on */
+#endif
 #endif
   // -- COMMON or CURAND HOST or CURAND DEVICE random numbers?
   if( rndgen == RandomNumberMode::CommonRandom )
@@ -898,10 +822,6 @@ main( int argc, char** argv )
     wrkflwtxt += "CURHST+";
   else if( rndgen == RandomNumberMode::CurandDevice )
     wrkflwtxt += "CURDEV+";
-  else if( rndgen == RandomNumberMode::HiprandHost )
-    wrkflwtxt += "HIRHST+";
-  else if( rndgen == RandomNumberMode::HiprandDevice )
-    wrkflwtxt += "HIRDEV+";
   else
     wrkflwtxt += "??????+"; // no path to this statement
   // -- HOST or DEVICE rambo sampling?
@@ -1179,7 +1099,7 @@ main( int argc, char** argv )
 #ifdef MGONGPUCPP_GPUIMPL
     //<< "\"Wavefunction GPU memory\": " << "\"LOCAL\"," << std::endl
 #endif
-             << "\"Random generation\": "
+             << "\"Curand generation\": "
              << "\"" << rndgentxt << "\"," << std::endl;
 
     double minelem = hstStats.minME;
