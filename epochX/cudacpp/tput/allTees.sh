@@ -80,8 +80,13 @@ ended4="$cmd\nENDED(4) AT $(date) [Status=$status]"
 
 # (72/78) Two extra logs (double/float x hrd0 x inl0 + rndhst) only in three of the six processes (no rebuild needed)
 cmd="./tput/teeThroughputX.sh -eemumu -ggtt -ggttgg -flt ${rndhst} ${opts}"
-$cmd; status=$?
-ended5="$cmd\nENDED(5) AT $(date) [Status=$status]"
+if [ "${rndhst}" != "-common" ]; then
+  $cmd; status=$?
+  ended5="$cmd\nENDED(5) AT $(date) [Status=$status]"
+else
+  cmd="SKIP '$cmd'"; echo $cmd; status=$?
+  ended5="$cmd\nENDED(5) AT $(date) [Status=$status]"
+fi
 
 # (78/78) Two extra logs (double/float x hrd0 x inl0 + common) only in three of the six processes (no rebuild needed)
 cmd="./tput/teeThroughputX.sh -eemumu -ggtt -ggttgg -flt -common ${opts}"
