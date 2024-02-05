@@ -736,8 +736,8 @@ else ifneq ($(shell $(CXX) --version | grep ^nvc++),) # support nvc++ #531
 $(cu_main): LIBFLAGS += -L$(patsubst %%bin/nvc++,%%lib,$(subst ccache ,,$(CXX))) -lnvhpcatm -lnvcpumath -lnvc
 endif
 $(cu_main): LIBFLAGS += $(CULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
-$(cu_main): $(BUILDDIR)/gcheck_sa.o $(LIBDIR)/lib$(MG5AMC_CULIB).so $(cu_objects_exe) $(BUILDDIR)/gCurandRandomNumberKernel.o $(BUILDDIR)/gHiprandRandomNumberKernel.o
-	$(GPUCC) -o $@ $(BUILDDIR)/gcheck_sa.o $(CUARCHFLAGS) $(LIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CULIB) $(cu_objects_exe) $(BUILDDIR)/gCurandRandomNumberKernel.o $(BUILDDIR)/gHiprandRandomNumberKernel.o $(RNDLIBFLAGS)
+$(cu_main): $(BUILDDIR)/check_sa_cu.o $(LIBDIR)/lib$(MG5AMC_CULIB).so $(cu_objects_exe) $(BUILDDIR)/CurandRandomNumberKernel_cu.o $(BUILDDIR)/HiprandRandomNumberKernel_cu.o
+	$(GPUCC) -o $@ $(BUILDDIR)/check_sa_cu.o $(CUARCHFLAGS) $(LIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CULIB) $(cu_objects_exe) $(BUILDDIR)/CurandRandomNumberKernel_cu.o $(BUILDDIR)/HiprandRandomNumberKernel_cu.o $(RNDLIBFLAGS)
 endif
 
 #-------------------------------------------------------------------------------
