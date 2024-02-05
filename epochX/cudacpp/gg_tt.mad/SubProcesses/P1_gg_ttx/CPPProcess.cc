@@ -257,10 +257,12 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 1
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[2], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+#ifdef __CUDACC__
       channelids_sv = CID_ACCESS::kernelAccessConst( channelIds );
       mask_sv = ( channelids_sv == 1 );
       numerators_sv += mask_sv * cxabs2( amp_fp[0] );
       if( channelIds != nullptr ) denominators_sv += cxabs2( amp_fp[0] );
+#endif
 #endif
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -273,10 +275,12 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 2
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[4], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+#ifdef __CUDACC__
       channelids_sv = CID_ACCESS::kernelAccessConst( channelIds );
       mask_sv = ( channelids_sv == 2 );
       numerators_sv += mask_sv * cxabs2( amp_fp[0] );
       if( channelIds != nullptr ) denominators_sv += cxabs2( amp_fp[0] );
+#endif
 #endif
       jamp_sv[0] -= amp_sv[0];
 
@@ -288,10 +292,12 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 3
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[4], w_fp[2], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+#ifdef __CUDACC__
       channelids_sv = CID_ACCESS::kernelAccessConst( channelIds );
       mask_sv = ( channelids_sv == 3 );
       numerators_sv += mask_sv * cxabs2( amp_fp[0] );
       if( channelIds != nullptr ) denominators_sv += cxabs2( amp_fp[0] );
+#endif
 #endif
       jamp_sv[1] -= amp_sv[0];
 
