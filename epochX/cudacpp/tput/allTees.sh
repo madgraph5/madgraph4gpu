@@ -101,6 +101,7 @@ echo -e "$ended2"
 echo -e "$ended3"
 echo -e "$ended4"
 echo -e "$ended5"
+echo -e "$ended6"
 
 if [ "$ggttggg" == "" ]; then
   echo
