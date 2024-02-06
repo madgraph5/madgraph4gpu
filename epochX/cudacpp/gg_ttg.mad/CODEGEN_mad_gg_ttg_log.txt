@@ -62,7 +62,7 @@ generate g g > t t~ g
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.00579071044921875 [0m
+[1;32mDEBUG: model prefixing  takes 0.005403280258178711 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -155,7 +155,7 @@ INFO: Please specify coupling orders to bypass this step.
 INFO: Trying coupling order WEIGHTED<=3: WEIGTHED IS QCD+2*QED 
 INFO: Trying process: g g > t t~ g WEIGHTED<=3 @1  
 INFO: Process has 16 diagrams 
-1 processes with 16 diagrams generated in 0.023 s
+1 processes with 16 diagrams generated in 0.022 s
 Total: 1 processes with 16 diagrams
 output madevent ../TMPOUT/CODEGEN_mad_gg_ttg --hel_recycling=False --vector_size=32 --me_exporter=standalone_cudacpp
 Load PLUGIN.CUDACPP_OUTPUT
@@ -176,8 +176,8 @@ INFO: Organizing processes into subprocess groups
 INFO: Generating Helas calls for process: g g > t t~ g WEIGHTED<=3 @1 
 INFO: Processing color information for process: g g > t t~ g @1 
 INFO: Creating files in directory P1_gg_ttxg 
-[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f0b7e9c4700> [1;30m[export_v4.py at line 6261][0m [0m
+[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1057][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f8c1c557700> [1;30m[export_v4.py at line 6261][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -192,8 +192,8 @@ INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./.
 [1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
 INFO: Generating Feynman diagrams for Process: g g > t t~ g WEIGHTED<=3 @1 
 INFO: Finding symmetric diagrams for subprocess group gg_ttxg 
-Generated helas calls for 1 subprocesses (16 diagrams) in 0.039 s
-Wrote files for 36 helas calls in 0.153 s
+Generated helas calls for 1 subprocesses (16 diagrams) in 0.038 s
+Wrote files for 36 helas calls in 0.152 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
 ALOHA: aloha creates FFV1 routines[0m
@@ -208,7 +208,7 @@ ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 set of routines with options: P0[0m
 ALOHA: aloha creates VVVV3 set of routines with options: P0[0m
 ALOHA: aloha creates VVVV4 set of routines with options: P0[0m
-ALOHA: aloha creates 10 routines in  0.322 s
+ALOHA: aloha creates 10 routines in  0.321 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -237,6 +237,7 @@ patching file Source/genps.inc
 patching file Source/makefile
 patching file SubProcesses/makefile
 patching file bin/internal/gen_ximprove.py
+Hunk #1 succeeded at 391 (offset 6 lines).
 patching file bin/internal/madevent_interface.py
 DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_gg_ttg/SubProcesses/P1_gg_ttxg; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
 patching file auto_dsig1.f
@@ -253,10 +254,10 @@ Type "launch" to generate events from this process, or see
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m2.242s
-user	0m1.997s
-sys	0m0.241s
-Code generation completed in 2 seconds
+real	0m2.252s
+user	0m1.984s
+sys	0m0.253s
+Code generation completed in 3 seconds
 ************************************************************
 *                                                          *
 *                      W E L C O M E to                    *

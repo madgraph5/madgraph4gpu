@@ -62,7 +62,7 @@ generate g g > t t~ g g
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.005630016326904297 [0m
+[1;32mDEBUG: model prefixing  takes 0.005756378173828125 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -155,7 +155,7 @@ INFO: Please specify coupling orders to bypass this step.
 INFO: Trying coupling order WEIGHTED<=4: WEIGTHED IS QCD+2*QED 
 INFO: Trying process: g g > t t~ g g WEIGHTED<=4 @1  
 INFO: Process has 123 diagrams 
-1 processes with 123 diagrams generated in 0.160 s
+1 processes with 123 diagrams generated in 0.161 s
 Total: 1 processes with 123 diagrams
 output madevent ../TMPOUT/CODEGEN_mad_gg_ttgg --hel_recycling=False --vector_size=32 --me_exporter=standalone_cudacpp
 Load PLUGIN.CUDACPP_OUTPUT
@@ -176,8 +176,8 @@ INFO: Organizing processes into subprocess groups
 INFO: Generating Helas calls for process: g g > t t~ g g WEIGHTED<=4 @1 
 INFO: Processing color information for process: g g > t t~ g g @1 
 INFO: Creating files in directory P1_gg_ttxgg 
-[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1058][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f75711ccfa0> [1;30m[export_v4.py at line 6261][0m [0m
+[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1057][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7fa5982bdfa0> [1;30m[export_v4.py at line 6261][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -192,15 +192,15 @@ INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./.
 [1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
 INFO: Generating Feynman diagrams for Process: g g > t t~ g g WEIGHTED<=4 @1 
 INFO: Finding symmetric diagrams for subprocess group gg_ttxgg 
-Generated helas calls for 1 subprocesses (123 diagrams) in 0.434 s
-Wrote files for 222 helas calls in 0.704 s
+Generated helas calls for 1 subprocesses (123 diagrams) in 0.432 s
+Wrote files for 222 helas calls in 0.707 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 routines[0m
 ALOHA: aloha creates VVVV3 routines[0m
 ALOHA: aloha creates VVVV4 routines[0m
-ALOHA: aloha creates 5 routines in  0.338 s
+ALOHA: aloha creates 5 routines in  0.336 s
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 202][0m [0m
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
@@ -208,7 +208,7 @@ ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 routines[0m
 ALOHA: aloha creates VVVV3 routines[0m
 ALOHA: aloha creates VVVV4 routines[0m
-ALOHA: aloha creates 10 routines in  0.319 s
+ALOHA: aloha creates 10 routines in  0.316 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -240,6 +240,7 @@ patching file Source/genps.inc
 patching file Source/makefile
 patching file SubProcesses/makefile
 patching file bin/internal/gen_ximprove.py
+Hunk #1 succeeded at 391 (offset 6 lines).
 patching file bin/internal/madevent_interface.py
 DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_gg_ttgg/SubProcesses/P1_gg_ttxgg; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
 patching file auto_dsig1.f
@@ -256,10 +257,10 @@ Type "launch" to generate events from this process, or see
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m3.419s
-user	0m3.063s
-sys	0m0.266s
-Code generation completed in 3 seconds
+real	0m3.990s
+user	0m3.058s
+sys	0m0.274s
+Code generation completed in 4 seconds
 ************************************************************
 *                                                          *
 *                      W E L C O M E to                    *
