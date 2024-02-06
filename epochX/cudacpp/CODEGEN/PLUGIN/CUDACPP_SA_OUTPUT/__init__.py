@@ -35,8 +35,8 @@ else:
     new_output = { 'madevent_simd' : output.SIMD_ProcessExporter,
                    'madevent_gpu' : output.GPU_ProcessExporter,
                    'standalone_cudacpp' : output.PLUGIN_ProcessExporter,
-                   'standalone_simd' :  output.SIMD_ProcessExporter,
-                   'standalone_cuda' :  output.GPU_ProcessExporter,
+                   #'standalone_simd' :  output.SIMD_ProcessExporter,
+                   #'standalone_cuda' :  output.GPU_ProcessExporter,
                   }
 
     # 2. Define new way to handle the cluster.

@@ -108,10 +108,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                                       s+'gpu/MadgraphTest.h', s+'gpu/runTest.cc',
                                       s+'gpu/testmisc.cc', s+'gpu/testxxx_cc_ref.txt',
                                       s+'gpu/perf.py', s+'gpu/profile.sh',
-                                      s+'CMake/SubProcesses/CMakeLists.txt',
-                                      s+'gpu/fbridge_common.inc',
-                                      s+'gpu/counters.cc',
-                                      s+'gpu/ompnumthreads.cc'],
+                                      s+'CMake/SubProcesses/CMakeLists.txt'],
                      'test': [s+'gpu/cudacpp_test.mk']}
 
     to_link_in_P = ['nvtx.h', 'timer.h', 'timermap.h',
@@ -135,8 +132,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                     'testxxx.cc', # this is generated from a template in Subprocesses but we still link it in P1
                     'MemoryBuffers.h', # this is generated from a template in Subprocesses but we still link it in P1
                     'MemoryAccessCouplings.h', # this is generated from a template in Subprocesses but we still link it in P1
-                    'perf.py', 'profile.sh',
-                    'fbridge_common.inc', 'counters.cc','ompnumthreads.cc']
+                    'perf.py', 'profile.sh']
 
     # AV - use template files from PLUGINDIR instead of MG5DIR and change their names
     ###template_src_make = pjoin(MG5DIR, 'madgraph' ,'iolibs', 'template_files','gpu','Makefile_src')
@@ -287,7 +283,22 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
 
 #------------------------------------------------------------------------------------
 
-class SIMD_ProcessExporter(PLUGIN_ProcessExporter):
+class PLUGIN_ProcessExporter_MadEvent(PLUGIN_ProcessExporter):
+    """ a class to include all tweak related to madevent and not related to standalone.
+        in practise this class is never called but only the SIMD or GPU related class"""
+
+    s = PLUGINDIR + '/madgraph/iolibs/template_files/'
+    # add template file/ linking only needed in the madevent mode and not in standalone
+    from_template = dict(PLUGIN_ProcessExporter.from_template)
+    from_template['SubProcesses'] = from_template['SubProcesses'] + [s+'gpu/fbridge_common.inc',
+                                      s+'gpu/counters.cc',
+                                      s+'gpu/ompnumthreads.cc']
+     
+    to_link_in_P = PLUGIN_ProcessExporter.to_link_in_P + ['fbridge_common.inc', 'counters.cc','ompnumthreads.cc'] 
+
+#------------------------------------------------------------------------------------
+
+class SIMD_ProcessExporter(PLUGIN_ProcessExporter_MadEvent):
     def change_output_args(args, cmd):
         """ """
         cmd._export_format = "madevent"
@@ -299,7 +310,7 @@ class SIMD_ProcessExporter(PLUGIN_ProcessExporter):
 
 #------------------------------------------------------------------------------------
 
-class GPU_ProcessExporter(PLUGIN_ProcessExporter):
+class GPU_ProcessExporter(PLUGIN_ProcessExporter_MadEvent):
     def change_output_args(args, cmd):
         """ """
         cmd._export_format = "madevent"
