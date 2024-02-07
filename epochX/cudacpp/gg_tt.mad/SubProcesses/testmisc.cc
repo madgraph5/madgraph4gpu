@@ -245,16 +245,16 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testmisc )
   if( pchannelIds != nullptr ) denominators_sv += cxabs2( amp_sv[0] );
   */
   {
-    typedef bool_sv test_int_sv; // defined as scalar_or_vector of long int (FPTYPE=double) or int (FPTYPE=float)
+    typedef bool_sv test_int_sv;  // defined as scalar_or_vector of long int (FPTYPE=double) or int (FPTYPE=float)
     test_int_sv channelids0_sv{}; // mimic CHANNEL_ACCESS::kernelAccess( pchannelIds )
     test_int_sv channelids1_sv{}; // mimic CHANNEL_ACCESS::kernelAccess( pchannelIds )
-    fptype_sv absamp0_sv{}; // mimic cxabs2( amp_sv[0] )
-    fptype_sv absamp1_sv{}; // mimic cxabs2( amp_sv[0] )
+    fptype_sv absamp0_sv{};       // mimic cxabs2( amp_sv[0] )
+    fptype_sv absamp1_sv{};       // mimic cxabs2( amp_sv[0] )
 #ifdef MGONGPU_CPPSIMD
     for( int i = 0; i < neppV; i++ )
     {
-      channelids0_sv[i] = i; // 0123
-      channelids1_sv[i] = i; // 1234
+      channelids0_sv[i] = i;   // 0123
+      channelids1_sv[i] = i;   // 1234
       absamp0_sv[i] = 10. + i; // 10. 11. 12. 13.
       absamp1_sv[i] = 11. + i; // 11. 12. 13. 14.
     }
@@ -266,10 +266,10 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testmisc )
 #endif
     bool_sv mask0_sv = ( channelids0_sv % 2 == 0 ); // even channels 0123 -> TFTF (1010)
     bool_sv mask1_sv = ( channelids1_sv % 2 == 0 ); // even channels 1234 -> FTFT (0101)
-    constexpr fptype_sv fpZERO_sv{}; // 0000
+    constexpr fptype_sv fpZERO_sv{};                // 0000
     //fptype_sv numerators0_sv = mask0_sv * absamp0_sv; // invalid operands to binary * ('__vector(4) long int' and '__vector(4) double')
     fptype_sv numerators0_sv = fpternary( mask0_sv, absamp0_sv, fpZERO_sv ); // equivalent to "mask0_sv * absamp0_sv"
-    fptype_sv numerators1_sv = fpternary( mask1_sv, absamp1_sv, fpZERO_sv ); // equivalent to "mask1_sv * absamp1_sv"    
+    fptype_sv numerators1_sv = fpternary( mask1_sv, absamp1_sv, fpZERO_sv ); // equivalent to "mask1_sv * absamp1_sv"
 #ifdef MGONGPU_CPPSIMD
     //std::cout << "numerators0_sv: " << numerators0_sv << std::endl;
     //std::cout << "numerators1_sv: " << numerators1_sv << std::endl;
