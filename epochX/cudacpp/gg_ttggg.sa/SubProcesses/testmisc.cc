@@ -236,7 +236,7 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testmisc )
 
   //--------------------------------------------------------------------------
 
-  // Integer vector (mask) times FP vector
+  // Boolean vector (mask) times FP vector
   /*
   // From https://github.com/madgraph5/madgraph4gpu/issues/765#issuecomment-1853672838
   channelids_sv = CHANNEL_ACCESS::kernelAccess( pchannelIds ); // the 4 channels in the SIMD vector
