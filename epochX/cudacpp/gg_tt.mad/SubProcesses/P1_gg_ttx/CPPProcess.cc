@@ -181,7 +181,6 @@ namespace mg5amcCpu
     cxtype_sv jamp_sv[ncolor] = {}; // all zeros (NB: vector cxtype_v IS initialized to 0, but scalar cxtype is NOT, if "= {}" is missing!)
     
     uint_sv channelids_sv;
-    uint_sv mask_sv;
 
     // === Calculate wavefunctions and amplitudes for all diagrams in all processes         ===
     // === (for one event in CUDA, for one - or two in mixed mode - SIMD event pages in C++ ===
@@ -257,11 +256,19 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 1
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[2], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-#ifdef __CUDACC__
       channelids_sv = CID_ACCESS::kernelAccessConst( channelIds );
-      mask_sv = ( channelids_sv == 1 );
-      numerators_sv += mask_sv * cxabs2( amp_fp[0] );
-      if( channelIds != nullptr ) denominators_sv += cxabs2( amp_fp[0] );
+#ifdef __CUDACC__
+      if ( channelIds != nullptr ) {
+        if ( channelids_sv == 1 ) numerators_sv += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
+#else
+      for (int i = 0; i < neppV; ++i ) {
+        if ( channelIds != nullptr ) {
+          if ( channelids_sv[i] == 1 ) numerators_sv += cxabs2( amp_sv[0] );
+          denominators_sv += cxabs2( amp_sv[0] );
+        }
+      }
 #endif
 #endif
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
@@ -275,11 +282,19 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 2
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[4], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-#ifdef __CUDACC__
       channelids_sv = CID_ACCESS::kernelAccessConst( channelIds );
-      mask_sv = ( channelids_sv == 2 );
-      numerators_sv += mask_sv * cxabs2( amp_fp[0] );
-      if( channelIds != nullptr ) denominators_sv += cxabs2( amp_fp[0] );
+#ifdef __CUDACC__
+      if ( channelIds != nullptr ) {
+        if ( channelids_sv == 2 ) numerators_sv += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
+#else
+      for (int i = 0; i < neppV; ++i ) {
+        if ( channelIds != nullptr ) {
+          if ( channelids_sv[i] == 2 ) numerators_sv += cxabs2( amp_sv[0] );
+          denominators_sv += cxabs2( amp_sv[0] );
+        }
+      }
 #endif
 #endif
       jamp_sv[0] -= amp_sv[0];
@@ -292,11 +307,19 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 3
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[4], w_fp[2], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-#ifdef __CUDACC__
       channelids_sv = CID_ACCESS::kernelAccessConst( channelIds );
-      mask_sv = ( channelids_sv == 3 );
-      numerators_sv += mask_sv * cxabs2( amp_fp[0] );
-      if( channelIds != nullptr ) denominators_sv += cxabs2( amp_fp[0] );
+#ifdef __CUDACC__
+      if ( channelIds != nullptr ) {
+        if ( channelids_sv == 3 ) numerators_sv += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
+#else
+      for (int i = 0; i < neppV; ++i ) {
+        if ( channelIds != nullptr ) {
+          if ( channelids_sv[i] == 3 ) numerators_sv += cxabs2( amp_sv[0] );
+          denominators_sv += cxabs2( amp_sv[0] );
+        }
+      }
 #endif
 #endif
       jamp_sv[1] -= amp_sv[0];
@@ -1030,8 +1053,8 @@ namespace mg5amcCpu
           else
             targetamp[icolC] = targetamp[icolC - 1];
           // SR-FIXME is it possible to create a mask from the icolamp values? 
-          for (int simdId = 0; simdId < neppV; ++simdId)
-            if (mgOnGpu::icolamp[channelIdC[simdId]][icolC]) targetamp[simdId][icolC] += jamp2_sv[simdId][icolC];
+          for (int i = 0; i < neppV; ++i)
+            if (mgOnGpu::icolamp[channelIdC[i]][icolC]) targetamp[icolC][i] += jamp2_sv[icolC][i];
         }
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
         fptype_sv targetamp2[ncolor] = { 0 };
@@ -1041,8 +1064,8 @@ namespace mg5amcCpu
             targetamp2[icolC] = fptype_sv{ 0 };
           else
             targetamp2[icolC] = targetamp2[icolC - 1];
-          for (int simdId = 0; simdId < neppV; ++simdId)
-            if( mgOnGpu::icolamp[channelIdC[simdId]][icolC] ) targetamp2[icolC] += jamp2_sv[ncolor + icolC];
+          for (int i = 0; i < neppV; ++id_t)
+            if( mgOnGpu::icolamp[channelIdC[i]][icolC] ) targetamp2[icolC] += jamp2_sv[ncolor + icolC];
         }
 #endif
         for( int ieppV = 0; ieppV < neppV; ++ieppV )
