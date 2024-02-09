@@ -1,7 +1,7 @@
 // Copyright (C) 2020-2023 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: A. Valassi (Jan 2022) for the MG5aMC CUDACPP plugin.
-// Further modified by: A. Valassi (2022-2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: J. Teig, A. Valassi (2022-2023) for the MG5aMC CUDACPP plugin.
 
 #ifndef MGONGPUFPTYPES_H
 #define MGONGPUFPTYPES_H 1
@@ -12,7 +12,7 @@
 #include <cmath>
 
 // NB: namespaces mg5amcGpu and mg5amcCpu includes types which are defined in different ways for CPU and GPU builds (see #318 and #725)
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL // cuda
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
@@ -20,7 +20,7 @@ namespace mg5amcCpu
 {
   //==========================================================================
 
-#ifdef __CUDACC__ // cuda
+#ifdef MGONGPUCPP_GPUIMPL // cuda
 
   //------------------------------
   // Floating point types - Cuda
@@ -64,11 +64,11 @@ namespace mg5amcCpu
 #endif
   }
 
-#endif // #ifdef __CUDACC__
+#endif // #ifdef MGONGPUCPP_GPUIMPL
 
   //==========================================================================
 
-#ifndef __CUDACC__
+#ifndef MGONGPUCPP_GPUIMPL
 
   //------------------------------
   // Floating point types - C++
@@ -92,7 +92,7 @@ namespace mg5amcCpu
     return std::sqrt( f );
   }
 
-#endif // #ifndef __CUDACC__
+#endif // #ifndef MGONGPUCPP_GPUIMPL
 
   //==========================================================================
 

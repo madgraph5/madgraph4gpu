@@ -105,7 +105,7 @@ class CPPRunCard(banner_mod.RunCardLO):
                        fct_mod=(self.reset_makeopts,(),{}),
                        allowed=['auto', 'none', 'sse4', 'avx2','512y','512z'])
         self.add_param('cudacpp_backend', 'CPP', include=False, hidden=False,
-                       allowed=['Fortan', 'CPP', 'CUDA'])
+                       allowed=['Fortran', 'CPP', 'CUDA'])
         self['vector_size'] = 16 # already setup in default class (just change value)
         self['aloha_flag'] = '--fast-math'
         self['matrix_flag'] = '-O3'
