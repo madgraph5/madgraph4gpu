@@ -1,12 +1,24 @@
-// Stephan Hageboeck, CERN, 12/2020
+// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Created by: S. Hageboeck (Dec 2020) for the MG5aMC CUDACPP plugin.
+// Further modified by: S. Hageboeck, J. Teig, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
+
 #ifndef MADGRAPHTEST_H_
 #define MADGRAPHTEST_H_ 1
 
+#include "mgOnGpuConfig.h"
+
+#include "CPPProcess.h"
+
 #include <gtest/gtest.h>
-#include <mgOnGpuConfig.h>
 
 #include <array>
 #include <cmath>
+//#ifdef __HIPCC__
+//#include <experimental/filesystem> // see https://rocm.docs.amd.com/en/docs-5.4.3/CHANGELOG.html#id79
+//#else
+//#include <filesystem> // bypass this completely to ease portability on LUMI #803
+//#endif
 #include <fstream>
 #include <iomanip>
 #include <memory>
@@ -14,18 +26,25 @@
 #include <string>
 #include <vector>
 
+#ifdef MGONGPUCPP_GPUIMPL
+using mg5amcGpu::CPPProcess;
+#else
+using mg5amcCpu::CPPProcess;
+#endif
+
 namespace
 {
 
   struct ReferenceData
   {
-    std::vector<std::vector<std::array<fptype, mgOnGpu::np4>>> momenta;
+    std::vector<std::vector<std::array<fptype, CPPProcess::np4>>> momenta;
     std::vector<fptype> MEs;
   };
 
   /// Read batches of reference data from a file and store them in a map.
   std::map<unsigned int, ReferenceData> readReferenceData( const std::string& refFileName )
   {
+    std::cout << "INFO: Opening reference file " << refFileName << std::endl;
     std::ifstream referenceFile( refFileName.c_str() );
     EXPECT_TRUE( referenceFile.is_open() ) << refFileName;
     std::map<unsigned int, ReferenceData> referenceData;
@@ -186,34 +205,38 @@ protected:
 
 // Since we link both the CPU-only and GPU tests into the same executable, we prevent
 // a multiply defined symbol by only compiling this in the non-CUDA phase:
-#ifndef __CUDACC__
+#ifndef MGONGPUCPP_GPUIMPL
 
 /// Compare momenta and matrix elements.
 /// This uses an implementation of TestDriverBase to run a madgraph workflow,
 /// and compares momenta and matrix elements with a reference file.
 TEST_P( MadgraphTest, CompareMomentaAndME )
 {
-  // Set to true to dump events:
-  constexpr bool dumpEvents = false;
-  constexpr fptype energy = 1500; // historical default, Ecms = 1500 GeV = 1.5 TeV (above the Z peak)
-  const fptype toleranceMomenta = std::is_same<double, fptype>::value ? 1.E-10 : 3.E-2;
+  const fptype toleranceMomenta = std::is_same<double, fptype>::value ? 1.E-10 : 4.E-2; // see #735
 #ifdef __APPLE__
   const fptype toleranceMEs = std::is_same<double, fptype>::value ? 1.E-6 : 3.E-2; // see #583
 #else
   const fptype toleranceMEs = std::is_same<double, fptype>::value ? 1.E-6 : 2.E-3;
 #endif
-  std::string dumpFileName = std::string( "dump_" ) + testing::UnitTest::GetInstance()->current_test_info()->test_suite_name() + '.' + testing::UnitTest::GetInstance()->current_test_info()->name() + ".txt";
-  while( dumpFileName.find( '/' ) != std::string::npos )
-  {
-    dumpFileName.replace( dumpFileName.find( '/' ), 1, "_" );
-  }
+  constexpr fptype energy = 1500; // historical default, Ecms = 1500 GeV = 1.5 TeV (above the Z peak)
+  // Dump events to a new reference file?
+  const char* dumpEventsC = getenv( "CUDACPP_RUNTEST_DUMPEVENTS" );
+  const bool dumpEvents = ( dumpEventsC != 0 ) && ( std::string( dumpEventsC ) != "" );
+  const std::string refFileName = testDriver->getRefFileName();
+  /*
+#ifdef __HIPCC__
+  const std::string dumpFileName = std::experimental::filesystem::path( refFileName ).filename();
+#else
+  const std::string dumpFileName = std::filesystem::path( refFileName ).filename();
+#endif
+  */
+  const std::string dumpFileName = refFileName; // bypass std::filesystem #803
   std::ofstream dumpFile;
   if( dumpEvents )
   {
     dumpFile.open( dumpFileName, std::ios::trunc );
   }
   // Read reference data
-  const std::string refFileName = testDriver->getRefFileName();
   std::map<unsigned int, ReferenceData> referenceData;
   if( !dumpEvents )
   {
@@ -268,7 +291,7 @@ TEST_P( MadgraphTest, CompareMomentaAndME )
       for( unsigned int ipar = 0; ipar < testDriver->nparticle; ++ipar )
       {
         std::stringstream momentumErrors;
-        for( unsigned int icomp = 0; icomp < mgOnGpu::np4; ++icomp )
+        for( unsigned int icomp = 0; icomp < CPPProcess::np4; ++icomp )
         {
           const fptype pMadg = testDriver->getMomentum( ievt, ipar, icomp );
           const fptype pOrig = referenceData[iiter].momenta[ievt][ipar][icomp];
@@ -295,6 +318,6 @@ TEST_P( MadgraphTest, CompareMomentaAndME )
   }
 }
 
-#endif // __CUDACC__
+#endif // MGONGPUCPP_GPUIMPL
 
 #endif /* MADGRAPHTEST_H_ */

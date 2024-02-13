@@ -1,0 +1,4 @@
+set stdout_level DEBUG
+set zerowidth_tchannel F
+generate g g > t t~ g
+output madevent_simd gg_ttg.mad --hel_recycling=False --vector_size=32 

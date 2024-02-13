@@ -1,4 +1,38 @@
 #!/bin/bash
-clangDir=/cvmfs/sft.cern.ch/lcg/releases/clang/14.0.6-14bdb/x86_64-centos9
-source ${clangDir}/setup.sh
-exec ${clangDir}/bin/clang-format "$@"
+
+###clang-format --version
+clangVersion=$(clang-format --version 2>/dev/null)
+if [ "${PIPESTATUS[0]}" != "0" ]; then
+  echo "WARNING! clang-format is not installed"
+  clangVersion="0"
+elif [ "$(echo ${clangVersion} | cut -d' ' -f2)" == "version" ]; then # RedHat
+  clangVersion=$(echo ${clangVersion} | cut -d' ' -f3  | cut -d'.' -f1)
+elif [ "$(echo ${clangVersion} | cut -d' ' -f3)" == "version" ]; then # Ubuntu
+  clangVersion=$(echo ${clangVersion} | cut -d' ' -f4  | cut -d'.' -f1)
+else
+  echo "WARNING! clang-format version could not be determined"
+  clangVersion="0"
+fi  
+###echo clangVersion=$clangVersion
+
+if [ ${clangVersion} -ge 13 ]; then
+  exec clang-format "$@"
+else
+  if [ ! -d /cvmfs/sft.cern.ch/lcg/releases/clang ]; then
+    echo "ERROR! clang-format version >= 13 is not installed and /cvmfs/sft.cern.ch/lcg/releases/clang is not reachable"
+    exit 1    
+  fi
+  redrel=$(cat /etc/redhat-release 2> /dev/null)
+  if [ "${redrel##*release 7}" != "${redrel}" ]; then
+    clangDir=/cvmfs/sft.cern.ch/lcg/releases/clang/13.0.1-721c8/x86_64-centos7
+  elif [ "${redrel##*release 8}" != "${redrel}" ]; then
+    clangDir=/cvmfs/sft.cern.ch/lcg/releases/clang/13.0.1-721c8/x86_64-centos8
+  elif [ "${redrel##*release 9}" != "${redrel}" ]; then
+    clangDir=/cvmfs/sft.cern.ch/lcg/releases/clang/14.0.6-14bdb/x86_64-centos9
+  else
+    echo "ERROR! clang-format version >= 13 is not installed and RedHat release could not be identified (${redrel})"
+    exit 1
+  fi
+  source ${clangDir}/setup.sh
+  exec ${clangDir}/bin/clang-format "$@"
+fi

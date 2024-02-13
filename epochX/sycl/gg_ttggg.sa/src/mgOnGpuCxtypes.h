@@ -12,11 +12,9 @@ namespace mgOnGpu /* clang-format off */
   class cxsmpl
   {
   public:
-    constexpr cxsmpl() : m_real( 0 ), m_imag( 0 ) {}
+    constexpr cxsmpl( const FP& r = FP(), const FP& i = FP() ) : m_real( r ), m_imag( i ) {}
     cxsmpl( const cxsmpl& ) = default;
     cxsmpl( cxsmpl&& ) = default;
-    constexpr cxsmpl( const FP& r, const FP& i = 0 ) : m_real( r ), m_imag( i ) {}
-    //constexpr cxsmpl( const std::complex<FP>& c ) : m_real( c.real() ), m_imag( c.imag() ) {}
     cxsmpl& operator=( const cxsmpl& ) = default;
     cxsmpl& operator=( cxsmpl&& ) = default;
     constexpr cxsmpl& operator+=( const cxsmpl& c ) { m_real += c.real(); m_imag += c.imag(); return *this; }
@@ -74,7 +72,7 @@ template<typename FP>
 inline constexpr cxsmpl<FP>
 operator+( const FP& a, const cxsmpl<FP>& b )
 {
-  return cxsmpl<FP>( a, 0 ) + b;
+  return cxsmpl<FP>( a, (FP)0 ) + b;
 }
 
 template<typename FP>
@@ -88,7 +86,7 @@ template<typename FP>
 inline constexpr cxsmpl<FP>
 operator-( const FP& a, const cxsmpl<FP>& b )
 {
-  return cxsmpl<FP>( a, 0 ) - b;
+  return cxsmpl<FP>( a, (FP)0 ) - b;
 }
 
 template<typename FP>
@@ -102,13 +100,13 @@ template<typename FP>
 inline constexpr cxsmpl<FP>
 operator*( const FP& a, const cxsmpl<FP>& b )
 {
-  return cxsmpl<FP>( a, 0 ) * b;
+  return cxsmpl<FP>( a, (FP)0 ) * b;
 }
 
 inline constexpr cxsmpl<float>
 operator*( const double& a, const cxsmpl<float>& b )
 {
-  return cxsmpl<float>( a, 0 ) * b;
+  return cxsmpl<float>( a, (float)0 ) * b;
 }
 
 template<typename FP>
@@ -124,35 +122,35 @@ template<typename FP>
 inline constexpr cxsmpl<FP>
 operator/( const FP& a, const cxsmpl<FP>& b )
 {
-  return cxsmpl<FP>( a, 0 ) / b;
+  return cxsmpl<FP>( a, (FP)0 ) / b;
 }
 
 template<typename FP>
 inline constexpr cxsmpl<FP>
 operator+( const cxsmpl<FP>& a, const FP& b )
 {
-  return a + cxsmpl<FP>( b, 0 );
+  return a + cxsmpl<FP>( b, (FP)0 );
 }
 
 template<typename FP>
 inline constexpr cxsmpl<FP>
 operator-( const cxsmpl<FP>& a, const FP& b )
 {
-  return a - cxsmpl<FP>( b, 0 );
+  return a - cxsmpl<FP>( b, (FP)0 );
 }
 
 template<typename FP>
 inline constexpr cxsmpl<FP>
 operator*( const cxsmpl<FP>& a, const FP& b )
 {
-  return a * cxsmpl<FP>( b, 0 );
+  return a * cxsmpl<FP>( b, (FP)0 );
 }
 
 template<typename FP>
 inline constexpr cxsmpl<FP>
 operator/( const cxsmpl<FP>& a, const FP& b )
 {
-  return a / cxsmpl<FP>( b, 0 );
+  return a / cxsmpl<FP>( b, (FP)0 );
 }
 
 #endif

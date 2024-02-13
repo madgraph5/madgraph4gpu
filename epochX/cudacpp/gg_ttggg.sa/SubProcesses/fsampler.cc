@@ -1,13 +1,19 @@
+// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Created by: A. Valassi (Feb 2022) for the MG5aMC CUDACPP plugin.
+// Further modified by: J. Teig, A. Valassi (2022-2023) for the MG5aMC CUDACPP plugin.
+
 #include "mgOnGpuConfig.h"
 
 #include "Bridge.h"
+#include "CPPProcess.h"
 #include "MemoryBuffers.h"
 #include "RamboSamplingKernels.h"
 #include "RandomNumberKernels.h"
 
 //--------------------------------------------------------------------------
 
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
@@ -34,7 +40,7 @@ namespace mg5amcCpu
   private:
     const int m_nevt; // The number of events in each iteration
     int m_iiter;      // The iteration counter (for random number seeding)
-#ifndef __CUDACC__
+#ifndef MGONGPUCPP_GPUIMPL
     HostBufferRndNumMomenta m_hstRndmom; // Memory buffers for random numbers
     HostBufferMomenta m_hstMomenta;      // Memory buffers for momenta
     HostBufferWeights m_hstWeights;      // Memory buffers for sampling weights
@@ -59,8 +65,8 @@ namespace mg5amcCpu
     , m_prnk( new CommonRandomNumberKernel( m_hstRndmom ) )
     , m_prsk( new RamboSamplingKernelHost( energy, m_hstRndmom, m_hstMomenta, m_hstWeights, nevtF ) )
   {
-    if( nparF != mgOnGpu::npar ) throw std::runtime_error( "Sampler constructor: npar mismatch" );
-    if( np4F != mgOnGpu::np4 ) throw std::runtime_error( "Sampler constructor: np4 mismatch" );
+    if( nparF != CPPProcess::npar ) throw std::runtime_error( "Sampler constructor: npar mismatch" );
+    if( np4F != CPPProcess::np4 ) throw std::runtime_error( "Sampler constructor: np4 mismatch" );
     std::cout << "WARNING! Instantiate host Sampler (nevt=" << m_nevt << ")" << std::endl;
   }
 
@@ -99,7 +105,7 @@ namespace mg5amcCpu
 
 extern "C"
 {
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
   using namespace mg5amcGpu;
 #else
   using namespace mg5amcCpu;

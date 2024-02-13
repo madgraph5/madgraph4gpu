@@ -24,7 +24,6 @@ c**************************************************
       include 'nexternal.inc'
       include 'message.inc'
       include 'maxamps.inc'
-      include 'vector.inc'
       include 'cluster.inc'
       include 'sudakov.inc'
       include 'maxparticles.inc'
@@ -98,7 +97,6 @@ c**************************************************
       include 'message.inc'
       include 'nexternal.inc'
       include 'maxamps.inc'
-      include 'vector.inc'
       include 'cluster.inc'      
       integer ipdg,imode
       double precision q0, Q11
@@ -564,7 +562,6 @@ c**************************************************
       include 'genps.inc'
       include 'nexternal.inc'
       include 'maxamps.inc'
-      include 'vector.inc'
       include 'cluster.inc'
       include 'run.inc'
       include 'coupl.inc'
@@ -1318,7 +1315,6 @@ c**************************************************
       include 'genps.inc'
       include 'nexternal.inc'
       include 'maxamps.inc'
-      include 'vector.inc'
       include 'cluster.inc'
       include 'run.inc'
       include 'coupl.inc'
@@ -1794,7 +1790,7 @@ C
       include 'genps.inc'
       include 'run.inc'
       include 'nexternal.inc'
-      include 'vector.inc'
+      include 'vector.inc' ! needed by coupl.inc (defines VECSIZE_MEMMAX)
       include 'coupl.inc'
 C      include 'maxparticles.inc'
       
@@ -1809,7 +1805,7 @@ C      include 'maxparticles.inc'
       end
 
       
-      subroutine update_scale_coupling_vec(all_p, all_wgt,all_q2fact, nb_page_loop_in)
+      subroutine update_scale_coupling_vec(all_p, all_wgt,all_q2fact, VECSIZE_USED)
       implicit none
 
 C
@@ -1821,13 +1817,13 @@ C
       include 'genps.inc'
       include 'run.inc'
       include 'nexternal.inc'
-      include 'vector.inc'
+      include 'vector.inc' ! needed by coupl.inc (defines VECSIZE_MEMMAX)
       include 'coupl.inc'
 C      include 'maxparticles.inc'
       
       double precision all_p(4*maxdim/3+14,*), all_wgt(*)
       double precision all_q2fact(2,*)
-      integer i,j,k, nb_page_loop_in
+      integer i,j,k, VECSIZE_USED
 
       logical setclscales
       external setclscales
@@ -1841,7 +1837,7 @@ c      save firsttime
       if(.not.fixed_ren_scale) then
          scale = 0d0
       endif
-      do i =1, nb_page_loop_in
+      do i =1, VECSIZE_USED
 
          if(.not.fixed_ren_scale) then
             call set_ren_scale(all_p(1,i),scale)
@@ -1858,7 +1854,7 @@ c      save firsttime
             all_q2fact(1,i) = q2fact(1)
             all_q2fact(2,i) = q2fact(2)
          endif
-         call save_cl_val_to(i)
+c         call save_cl_val_to(i)
 c      endif
 
 c     Set couplings in model files
@@ -1887,7 +1883,6 @@ c      ENDIF
 
       include 'nexternal.inc'
       include 'maxamps.inc'
-      include 'vector.inc'
       include 'cluster.inc'
 c     Common block for reweighting info
 c     q2bck holds the central q2fact scales
@@ -1953,7 +1948,6 @@ c     to_rw
 
       include 'nexternal.inc'
       include 'maxamps.inc'
-      include 'vector.inc'
       include 'cluster.inc'
 c     Common block for reweighting info
 c     q2bck holds the central q2fact scales
@@ -1963,7 +1957,7 @@ c     q2bck holds the central q2fact scales
       integer njets,iqjets(nexternal)
       common /to_rw/jlast,njetstore,iqjetstore,njets,iqjets,q2bck
 
-      DOUBLE PRECISION G, ALL_G(nb_page_max)
+      DOUBLE PRECISION G, ALL_G(VECSIZE_MEMMAX)
       COMMON/STRONG/ G, ALL_G
 
 c     strong coupling is needed for the reweighting function      

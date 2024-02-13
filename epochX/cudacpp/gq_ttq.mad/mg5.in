@@ -1,0 +1,5 @@
+set stdout_level DEBUG
+set zerowidth_tchannel F
+define q = u c d s u~ c~ d~ s~
+generate g q > t t~ q
+output madevent_simd gq_ttq.mad --hel_recycling=False --vector_size=32 

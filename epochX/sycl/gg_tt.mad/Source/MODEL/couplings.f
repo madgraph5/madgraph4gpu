@@ -13,8 +13,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       LOGICAL UPDATELOOP
       COMMON /TO_UPDATELOOP/UPDATELOOP
       INCLUDE 'input.inc'
-      include 'vector.inc'
-      include 'coupl.inc'
+      INCLUDE '../vector.inc'
+      INCLUDE 'coupl.inc'
       READLHA = .TRUE.
       INCLUDE 'intparam_definition.inc'
       CALL COUP1()
@@ -53,8 +53,8 @@ C
       EXTERNAL ALPHAS
 
       INCLUDE 'input.inc'
-      include 'vector.inc'
-      include 'coupl.inc'
+      INCLUDE '../vector.inc'
+      INCLUDE 'coupl.inc'
       READLHA = .FALSE.
 
       INCLUDE 'intparam_definition.inc'
@@ -80,8 +80,8 @@ C
       INTEGER VECID
       INCLUDE 'model_functions.inc'
       INCLUDE 'input.inc'
-      include 'vector.inc'
-      include 'coupl.inc'
+      INCLUDE '../vector.inc'
+      INCLUDE 'coupl.inc'
       DOUBLE PRECISION MODEL_SCALE
       COMMON /MODEL_SCALE/MODEL_SCALE
 

@@ -1,6 +1,6 @@
 //==========================================================================
 // This file has been automatically generated for SYCL standalone by
-// MadGraph5_aMC@NLO v. 3.4.0_lo_vect, 2022-05-06
+// MadGraph5_aMC@NLO v. 3.5.0_lo_vect, 2023-01-26
 // By the MadGraph5_aMC@NLO Development Team
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
@@ -25,14 +25,6 @@ namespace Proc
 
   template <typename T>
   constexpr T helicities[] { 
-    -1, -1, -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1, -1, 1,
-    -1, -1, -1, -1, -1, 1, -1,
-    -1, -1, -1, -1, -1, 1, 1,
-    -1, -1, -1, -1, 1, -1, -1,
-    -1, -1, -1, -1, 1, -1, 1,
-    -1, -1, -1, -1, 1, 1, -1,
-    -1, -1, -1, -1, 1, 1, 1,
     -1, -1, -1, 1, -1, -1, -1,
     -1, -1, -1, 1, -1, -1, 1,
     -1, -1, -1, 1, -1, 1, -1,
@@ -41,14 +33,14 @@ namespace Proc
     -1, -1, -1, 1, 1, -1, 1,
     -1, -1, -1, 1, 1, 1, -1,
     -1, -1, -1, 1, 1, 1, 1,
-    -1, -1, 1, -1, -1, -1, -1,
-    -1, -1, 1, -1, -1, -1, 1,
-    -1, -1, 1, -1, -1, 1, -1,
-    -1, -1, 1, -1, -1, 1, 1,
-    -1, -1, 1, -1, 1, -1, -1,
-    -1, -1, 1, -1, 1, -1, 1,
-    -1, -1, 1, -1, 1, 1, -1,
-    -1, -1, 1, -1, 1, 1, 1,
+    -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, 1,
+    -1, -1, -1, -1, -1, 1, -1,
+    -1, -1, -1, -1, -1, 1, 1,
+    -1, -1, -1, -1, 1, -1, -1,
+    -1, -1, -1, -1, 1, -1, 1,
+    -1, -1, -1, -1, 1, 1, -1,
+    -1, -1, -1, -1, 1, 1, 1,
     -1, -1, 1, 1, -1, -1, -1,
     -1, -1, 1, 1, -1, -1, 1,
     -1, -1, 1, 1, -1, 1, -1,
@@ -57,14 +49,14 @@ namespace Proc
     -1, -1, 1, 1, 1, -1, 1,
     -1, -1, 1, 1, 1, 1, -1,
     -1, -1, 1, 1, 1, 1, 1,
-    -1, 1, -1, -1, -1, -1, -1,
-    -1, 1, -1, -1, -1, -1, 1,
-    -1, 1, -1, -1, -1, 1, -1,
-    -1, 1, -1, -1, -1, 1, 1,
-    -1, 1, -1, -1, 1, -1, -1,
-    -1, 1, -1, -1, 1, -1, 1,
-    -1, 1, -1, -1, 1, 1, -1,
-    -1, 1, -1, -1, 1, 1, 1,
+    -1, -1, 1, -1, -1, -1, -1,
+    -1, -1, 1, -1, -1, -1, 1,
+    -1, -1, 1, -1, -1, 1, -1,
+    -1, -1, 1, -1, -1, 1, 1,
+    -1, -1, 1, -1, 1, -1, -1,
+    -1, -1, 1, -1, 1, -1, 1,
+    -1, -1, 1, -1, 1, 1, -1,
+    -1, -1, 1, -1, 1, 1, 1,
     -1, 1, -1, 1, -1, -1, -1,
     -1, 1, -1, 1, -1, -1, 1,
     -1, 1, -1, 1, -1, 1, -1,
@@ -73,14 +65,14 @@ namespace Proc
     -1, 1, -1, 1, 1, -1, 1,
     -1, 1, -1, 1, 1, 1, -1,
     -1, 1, -1, 1, 1, 1, 1,
-    -1, 1, 1, -1, -1, -1, -1,
-    -1, 1, 1, -1, -1, -1, 1,
-    -1, 1, 1, -1, -1, 1, -1,
-    -1, 1, 1, -1, -1, 1, 1,
-    -1, 1, 1, -1, 1, -1, -1,
-    -1, 1, 1, -1, 1, -1, 1,
-    -1, 1, 1, -1, 1, 1, -1,
-    -1, 1, 1, -1, 1, 1, 1,
+    -1, 1, -1, -1, -1, -1, -1,
+    -1, 1, -1, -1, -1, -1, 1,
+    -1, 1, -1, -1, -1, 1, -1,
+    -1, 1, -1, -1, -1, 1, 1,
+    -1, 1, -1, -1, 1, -1, -1,
+    -1, 1, -1, -1, 1, -1, 1,
+    -1, 1, -1, -1, 1, 1, -1,
+    -1, 1, -1, -1, 1, 1, 1,
     -1, 1, 1, 1, -1, -1, -1,
     -1, 1, 1, 1, -1, -1, 1,
     -1, 1, 1, 1, -1, 1, -1,
@@ -89,14 +81,14 @@ namespace Proc
     -1, 1, 1, 1, 1, -1, 1,
     -1, 1, 1, 1, 1, 1, -1,
     -1, 1, 1, 1, 1, 1, 1,
-    1, -1, -1, -1, -1, -1, -1,
-    1, -1, -1, -1, -1, -1, 1,
-    1, -1, -1, -1, -1, 1, -1,
-    1, -1, -1, -1, -1, 1, 1,
-    1, -1, -1, -1, 1, -1, -1,
-    1, -1, -1, -1, 1, -1, 1,
-    1, -1, -1, -1, 1, 1, -1,
-    1, -1, -1, -1, 1, 1, 1,
+    -1, 1, 1, -1, -1, -1, -1,
+    -1, 1, 1, -1, -1, -1, 1,
+    -1, 1, 1, -1, -1, 1, -1,
+    -1, 1, 1, -1, -1, 1, 1,
+    -1, 1, 1, -1, 1, -1, -1,
+    -1, 1, 1, -1, 1, -1, 1,
+    -1, 1, 1, -1, 1, 1, -1,
+    -1, 1, 1, -1, 1, 1, 1,
     1, -1, -1, 1, -1, -1, -1,
     1, -1, -1, 1, -1, -1, 1,
     1, -1, -1, 1, -1, 1, -1,
@@ -105,14 +97,14 @@ namespace Proc
     1, -1, -1, 1, 1, -1, 1,
     1, -1, -1, 1, 1, 1, -1,
     1, -1, -1, 1, 1, 1, 1,
-    1, -1, 1, -1, -1, -1, -1,
-    1, -1, 1, -1, -1, -1, 1,
-    1, -1, 1, -1, -1, 1, -1,
-    1, -1, 1, -1, -1, 1, 1,
-    1, -1, 1, -1, 1, -1, -1,
-    1, -1, 1, -1, 1, -1, 1,
-    1, -1, 1, -1, 1, 1, -1,
-    1, -1, 1, -1, 1, 1, 1,
+    1, -1, -1, -1, -1, -1, -1,
+    1, -1, -1, -1, -1, -1, 1,
+    1, -1, -1, -1, -1, 1, -1,
+    1, -1, -1, -1, -1, 1, 1,
+    1, -1, -1, -1, 1, -1, -1,
+    1, -1, -1, -1, 1, -1, 1,
+    1, -1, -1, -1, 1, 1, -1,
+    1, -1, -1, -1, 1, 1, 1,
     1, -1, 1, 1, -1, -1, -1,
     1, -1, 1, 1, -1, -1, 1,
     1, -1, 1, 1, -1, 1, -1,
@@ -121,14 +113,14 @@ namespace Proc
     1, -1, 1, 1, 1, -1, 1,
     1, -1, 1, 1, 1, 1, -1,
     1, -1, 1, 1, 1, 1, 1,
-    1, 1, -1, -1, -1, -1, -1,
-    1, 1, -1, -1, -1, -1, 1,
-    1, 1, -1, -1, -1, 1, -1,
-    1, 1, -1, -1, -1, 1, 1,
-    1, 1, -1, -1, 1, -1, -1,
-    1, 1, -1, -1, 1, -1, 1,
-    1, 1, -1, -1, 1, 1, -1,
-    1, 1, -1, -1, 1, 1, 1,
+    1, -1, 1, -1, -1, -1, -1,
+    1, -1, 1, -1, -1, -1, 1,
+    1, -1, 1, -1, -1, 1, -1,
+    1, -1, 1, -1, -1, 1, 1,
+    1, -1, 1, -1, 1, -1, -1,
+    1, -1, 1, -1, 1, -1, 1,
+    1, -1, 1, -1, 1, 1, -1,
+    1, -1, 1, -1, 1, 1, 1,
     1, 1, -1, 1, -1, -1, -1,
     1, 1, -1, 1, -1, -1, 1,
     1, 1, -1, 1, -1, 1, -1,
@@ -137,14 +129,14 @@ namespace Proc
     1, 1, -1, 1, 1, -1, 1,
     1, 1, -1, 1, 1, 1, -1,
     1, 1, -1, 1, 1, 1, 1,
-    1, 1, 1, -1, -1, -1, -1,
-    1, 1, 1, -1, -1, -1, 1,
-    1, 1, 1, -1, -1, 1, -1,
-    1, 1, 1, -1, -1, 1, 1,
-    1, 1, 1, -1, 1, -1, -1,
-    1, 1, 1, -1, 1, -1, 1,
-    1, 1, 1, -1, 1, 1, -1,
-    1, 1, 1, -1, 1, 1, 1,
+    1, 1, -1, -1, -1, -1, -1,
+    1, 1, -1, -1, -1, -1, 1,
+    1, 1, -1, -1, -1, 1, -1,
+    1, 1, -1, -1, -1, 1, 1,
+    1, 1, -1, -1, 1, -1, -1,
+    1, 1, -1, -1, 1, -1, 1,
+    1, 1, -1, -1, 1, 1, -1,
+    1, 1, -1, -1, 1, 1, 1,
     1, 1, 1, 1, -1, -1, -1,
     1, 1, 1, 1, -1, -1, 1,
     1, 1, 1, 1, -1, 1, -1,
@@ -152,7 +144,15 @@ namespace Proc
     1, 1, 1, 1, 1, -1, -1,
     1, 1, 1, 1, 1, -1, 1,
     1, 1, 1, 1, 1, 1, -1,
-    1, 1, 1, 1, 1, 1, 1
+    1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, -1, -1, -1, -1,
+    1, 1, 1, -1, -1, -1, 1,
+    1, 1, 1, -1, -1, 1, -1,
+    1, 1, 1, -1, -1, 1, 1,
+    1, 1, 1, -1, 1, -1, -1,
+    1, 1, 1, -1, 1, -1, 1,
+    1, 1, 1, -1, 1, 1, -1,
+    1, 1, 1, -1, 1, 1, 1
   };
 
 #ifdef MGONGPU_HARDCODE_PARAM
@@ -170,7 +170,7 @@ namespace Proc
   public:
 
     // Constructor (from command line arguments)
-    CPPProcess( int numiterations, int gpublocks, int gputhreads, bool verbose = false, bool debug = false );
+    CPPProcess( size_t numiterations, size_t gpublocks, size_t gputhreads, bool verbose = false, bool debug = false );
 
     // Destructor
     ~CPPProcess();
@@ -195,9 +195,9 @@ namespace Proc
     //int getNIOParticles() const { return nexternal; } // nexternal was nioparticles
 
     // Accessors (unused so far: add four of them only to fix a clang build warning)
-    int numiterations() const { return m_numiterations; }
-    int gpublocks() const { return m_ngpublocks; }
-    int gputhreads() const { return m_ngputhreads; }
+    size_t numiterations() const { return m_numiterations; }
+    size_t gpublocks() const { return m_ngpublocks; }
+    size_t gputhreads() const { return m_ngputhreads; }
     //bool verbose() const { return m_verbose; }
     bool debug() const { return m_debug; }
 
@@ -215,9 +215,9 @@ namespace Proc
   private:
 
     // Command line arguments (constructor)
-    int m_numiterations; // number of iterations (each iteration has nblocks*nthreads events)
-    int m_ngpublocks; // number of GPU blocks in one grid (i.e. one iteration)
-    int m_ngputhreads; // number of GPU threads in a block
+    size_t m_numiterations; // number of iterations (each iteration has nblocks*nthreads events)
+    size_t m_ngpublocks; // number of GPU blocks in one grid (i.e. one iteration)
+    size_t m_ngputhreads; // number of GPU threads in a block
     bool m_verbose;
     bool m_debug;
 
@@ -240,30 +240,34 @@ namespace Proc
   //--------------------------------------------------------------------------
 
   SYCL_EXTERNAL
-  void sigmaKin_getGoodHel( const fptype* __restrict__ allmomenta, // input: momenta[nevt*npar*4]
-                            bool* isGoodHel,                       // output: isGoodHel[ncomb] - device array
-                            const short* __restrict__ cHel,
-                            const cxtype* __restrict__ cIPC,
+  void sigmaKin_getGoodHel( const vector4* __restrict__ allmomenta, // input: momenta[nevt*npar*4]
+                            bool* isGoodHel,                        // output: isGoodHel[ncomb] - device array
+                            const signed char* __restrict__ cHel,
+                            const cxtype_sv* __restrict__ COUPs,
                             const fptype* __restrict__ cIPD
                             );
 
   //--------------------------------------------------------------------------
 
-  int sigmaKin_setGoodHel( const bool* isGoodHel, int* goodHel ); // input: isGoodHel[ncomb] - host array
+  size_t sigmaKin_setGoodHel( const bool* isGoodHel, size_t* goodHel ); // input: isGoodHel[ncomb] - host array
 
   //--------------------------------------------------------------------------
 
   SYCL_EXTERNAL
-  fptype sigmaKin( const fptype* __restrict__ allmomenta, // input: momenta[nevt*npar*4]
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                   const unsigned int channelId,          // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
-#endif
-                   const short* __restrict__ cHel,
-                   const cxtype* __restrict__ cIPC,
-                   const fptype* __restrict__ cIPD,
-                   const int* __restrict__ cNGoodHel,
-                   const int* __restrict__ cGoodHel
-                 );
+  fptype_sv sigmaKin( const vector4* __restrict__ allmomenta, // input: momenta[]
+                      const fptype_sv* __restrict__ rndhel,   // input: random numbers[] for helicity selection
+                      const fptype_sv* __restrict__ rndcol,   // input: random numbers[] for color selection
+                      int_sv* __restrict__ selhel,            // output: helicity selection[]
+                      int_sv* __restrict__ selcol,            // output: color selection[]
+                      #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+                          const size_t channelId,             // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
+                      #endif
+                      const signed char* __restrict__ cHel,
+                      const cxtype_sv* __restrict__ COUPs,
+                      const fptype* __restrict__ cIPD,
+                      const size_t* __restrict__ cNGoodHel,
+                      const size_t* __restrict__ cGoodHel
+                    );
 
   //--------------------------------------------------------------------------
 }

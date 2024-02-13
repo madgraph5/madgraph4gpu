@@ -1,7 +1,7 @@
 # AV - Require Python >= 3.8 to ensure that {} dictionaries preserve the order of item insertion
-# (note: python3.7 would probably be enough but I test my scripts using python3.8)
+# (note: python3.7 would probably be enough but this plugin has only been tested using python3.8)
 import sys
-minpython = (3, 8)
+minpython = (3,8)
 if sys.version_info < minpython: sys.exit("ERROR! Python >= %s.%s is required" % minpython)
 
 ## Import the required files
@@ -35,7 +35,6 @@ new_interface = None
 __author__ = ''
 __email__ = ''
 __version__ = (1,0,0)
-minimal_mg5amcnlo_version = (2,9,5) 
+minimal_mg5amcnlo_version = (3,5,1)
 maximal_mg5amcnlo_version = (1000,1000,1000)
-latest_validated_version = (2,9,5)
-
+latest_validated_version = (3,5,0)

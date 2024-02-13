@@ -1,0 +1,14 @@
+      DATA NQCD(1)/4/
+      DATA NQCD(2)/4/
+      DATA NQCD(3)/4/
+      DATA NQCD(4)/4/
+      DATA NQCD(5)/4/
+      DATA NQCD(6)/4/
+      DATA NQCD(7)/4/
+      DATA NQCD(8)/4/
+      DATA NQCD(9)/4/
+      DATA NQCD(10)/4/
+      DATA NQCD(11)/4/
+      DATA NQCD(12)/4/
+      DATA NQCD(13)/4/
+      DATA NQCD(14)/4/

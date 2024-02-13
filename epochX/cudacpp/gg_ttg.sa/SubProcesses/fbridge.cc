@@ -1,6 +1,11 @@
+// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Created by: S. Roiser (Oct 2021) for the MG5aMC CUDACPP plugin.
+// Further modified by: S. Roiser, J. Teig, A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
+
 #include "Bridge.h"
 #include "CPPProcess.h"
-#include "CudaRuntime.h"
+#include "GpuRuntime.h"
 
 extern "C"
 {
@@ -17,7 +22,7 @@ extern "C"
    * Using the same Fortran MadEvent code, linking to the hetrerogeneous library would allow access to both CPU and GPU implementations.
    * The specific heterogeneous configuration (how many GPUs, how many threads on each CPU, etc) could be loaded in CUDA/C++ from a data file.
    */
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
   using namespace mg5amcGpu;
 #else
   using namespace mg5amcCpu;
@@ -41,14 +46,10 @@ extern "C"
    */
   void fbridgecreate_( CppObjectInFortran** ppbridge, const int* pnevtF, const int* pnparF, const int* pnp4F )
   {
-#ifdef __CUDACC__
-    CudaRuntime::setUp();
+#ifdef MGONGPUCPP_GPUIMPL
+    GpuRuntime::setUp();
 #endif
-    // Create a process object, read parm card and set parameters
-    // FIXME: the process instance can happily go out of scope because it is only needed to read parameters?
-    // FIXME: the CPPProcess should really be a singleton? what if fbridgecreate is called from several Fortran threads?
-    CPPProcess process( /*verbose=*/false );
-    process.initProc( "../../Cards/param_card.dat" );
+    // (NB: CPPProcess::initProc no longer needs to be executed here because it is called in the Bridge constructor)
     // FIXME: disable OMP in Bridge when called from Fortran
     *ppbridge = new Bridge<FORTRANFPTYPE>( *pnevtF, *pnparF, *pnp4F );
   }
@@ -64,8 +65,8 @@ extern "C"
     Bridge<FORTRANFPTYPE>* pbridge = dynamic_cast<Bridge<FORTRANFPTYPE>*>( *ppbridge );
     if( pbridge == 0 ) throw std::runtime_error( "fbridgedelete_: invalid Bridge address" );
     delete pbridge;
-#ifdef __CUDACC__
-    CudaRuntime::tearDown();
+#ifdef MGONGPUCPP_GPUIMPL
+    GpuRuntime::tearDown();
 #endif
   }
 
@@ -95,15 +96,40 @@ extern "C"
   {
     Bridge<FORTRANFPTYPE>* pbridge = dynamic_cast<Bridge<FORTRANFPTYPE>*>( *ppbridge );
     if( pbridge == 0 ) throw std::runtime_error( "fbridgesequence_: invalid Bridge address" );
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
     // Use the device/GPU implementation in the CUDA library
     // (there is also a host implementation in this library)
-    pbridge->gpu_sequence( momenta, gs, rndhel, rndcol, *pchannelId, mes, selhel, selcol );
+    pbridge->gpu_sequence( momenta, gs, rndhel, rndcol, ( pchannelId ? *pchannelId : 0 ), mes, selhel, selcol );
 #else
     // Use the host/CPU implementation in the C++ library
     // (there is no device implementation in this library)
-    pbridge->cpu_sequence( momenta, gs, rndhel, rndcol, *pchannelId, mes, selhel, selcol );
+    pbridge->cpu_sequence( momenta, gs, rndhel, rndcol, ( pchannelId ? *pchannelId : 0 ), mes, selhel, selcol );
 #endif
+  }
+
+  /**
+   * Execute the matrix-element calculation "sequence" via a Bridge on GPU/CUDA or CUDA/C++, without multi-channel mode.
+   * This is a C symbol that should be called from the Fortran code (in auto_dsig1.f).
+   *
+   * @param ppbridge the pointer to the Bridge pointer (the Bridge pointer is handled in Fortran as an INTEGER*8 variable)
+   * @param momenta the pointer to the input 4-momenta
+   * @param gs the pointer to the input Gs (running QCD coupling constant alphas)
+   * @param rndhel the pointer to the input random numbers for helicity selection
+   * @param rndcol the pointer to the input random numbers for color selection
+   * @param mes the pointer to the output matrix elements
+   * @param selhel the pointer to the output selected helicities
+   * @param selcol the pointer to the output selected colors
+   */
+  void fbridgesequence_nomultichannel_( CppObjectInFortran** ppbridge,
+                                        const FORTRANFPTYPE* momenta,
+                                        const FORTRANFPTYPE* gs,
+                                        const FORTRANFPTYPE* rndhel,
+                                        const FORTRANFPTYPE* rndcol,
+                                        FORTRANFPTYPE* mes,
+                                        int* selhel,
+                                        int* selcol )
+  {
+    fbridgesequence_( ppbridge, momenta, gs, rndhel, rndcol, nullptr, mes, selhel, selcol );
   }
 
   /**
