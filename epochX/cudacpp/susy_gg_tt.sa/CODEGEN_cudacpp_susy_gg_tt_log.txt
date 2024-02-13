@@ -14,14 +14,14 @@ Running MG5 in debug mode
 *                   *        * *        *                  *
 *                 *                       *                *
 *                                                          *
-*         VERSION 3.5.0_lo_vect         2023-01-26         *
+*         VERSION 3.5.3_lo_vect         2023-12-23         *
 [1;31m*                                                          *[1;0m
 [1;31m*          WARNING: UNKNOWN DEVELOPMENT VERSION.           *[1;0m
 [1;31m*            WARNING: DO NOT USE FOR PRODUCTION            *[1;0m
 [1;31m*                                                          *[1;0m
 *                                                          *
 *    The MadGraph5_aMC@NLO Development Team - Find us at   *
-*    https://server06.fynu.ucl.ac.be/projects/madgraph     *
+*              http://madgraph.phys.ucl.ac.be/             *
 *                            and                           *
 *            http://amcatnlo.web.cern.ch/amcatnlo/         *
 *                                                          *
@@ -51,14 +51,17 @@ Note that you can still compile and run aMC@NLO with the built-in PDFs
  MG5_aMC> set lhapdf /PATH/TO/lhapdf-config
 
 Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
-No valid eps viewer found. Please set in ./input/mg5_configuration.txt
+Using default eps viewer "evince". Set another one in ./input/mg5_configuration.txt
 Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
-import /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_susy_gg_tt.mg
+import /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gg_tt.mg
 The import format was not given, so we guess it as command
 set stdout_level DEBUG
 set output information to level: 10
 set zerowidth_tchannel F
-import model MSSM_SLHA2; generate g g > t t~
+import model MSSM_SLHA2
+INFO: load particles 
+INFO: load vertices 
+[1;32mDEBUG: model prefixing  takes 0.9187817573547363 [0m
 INFO: Restrict model MSSM_SLHA2 with file models/MSSM_SLHA2/restrict_default.dat . 
 INFO: Detect SLHA2 format. keeping restricted parameter in the param_card 
 [1;32mDEBUG: Simplifying conditional expressions [0m
@@ -77,7 +80,7 @@ INFO: Detect SLHA2 format. keeping restricted parameter in the param_card
 [1;32mDEBUG: remove interactions: a0 su3 su3 at order: QED=1 [0m
 [1;32mDEBUG: remove interactions: a0 su6 su6 at order: QED=1 [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_106', 1), ('GC_107', 1), ('GC_110', -1), ('GC_111', -1), ('GC_114', 1), ('GC_115', 1), ('GC_118', -1), ('GC_119', -1), ('GC_498', 1), ('GC_503', 1), ('GC_518', -1), ('GC_523', -1), ('GC_582', 1), ('GC_587', 1), ('GC_602', -1), ('GC_607', -1)  [0m
-[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_123', 1), ('GC_125', 1), ('GC_126', 1), ('GC_131', 1), ('GC_132', 1), ('GC_137', 1), ('GC_138', 1), ('GC_836', 1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_123', 1), ('GC_125', 1), ('GC_126', 1), ('GC_131', 1), ('GC_132', 1), ('GC_137', 1), ('GC_138', 1), ('GC_836', 1), ('GC_938', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_128', 1), ('GC_129', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_10', 1), ('GC_13', 1), ('GC_22', 1), ('GC_25', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_134', 1), ('GC_135', 1)  [0m
@@ -136,7 +139,7 @@ INFO: Detect SLHA2 format. keeping restricted parameter in the param_card
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_267', 1), ('GC_268', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_269', 1), ('GC_270', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_271', 1), ('GC_272', 1)  [0m
-[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_273', 1), ('GC_274', 1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_273', 1), ('GC_274', 1), ('GC_946', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_276', 1), ('GC_277', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_19', 1), ('GC_28', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_279', 1), ('GC_281', 1)  [0m
@@ -151,7 +154,7 @@ INFO: Detect SLHA2 format. keeping restricted parameter in the param_card
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_298', 1), ('GC_300', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_303', 1), ('GC_304', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_306', 1), ('GC_307', -1)  [0m
-[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_309', 1), ('GC_310', 1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_309', 1), ('GC_310', 1), ('GC_945', -1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_312', 1), ('GC_313', -1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_315', 1), ('GC_316', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_318', 1), ('GC_319', -1)  [0m
@@ -171,7 +174,7 @@ INFO: Detect SLHA2 format. keeping restricted parameter in the param_card
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_408', 1), ('GC_409', 1), ('GC_538', 1), ('GC_542', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_410', 1), ('GC_411', 1), ('GC_412', 1), ('GC_570', 1), ('GC_574', 1), ('GC_578', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_413', 1), ('GC_414', 1), ('GC_583', 1), ('GC_588', 1)  [0m
-[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_42', 1), ('GC_43', 1), ('GC_46', 1), ('GC_47', 1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_42', 1), ('GC_43', 1), ('GC_46', 1), ('GC_47', 1), ('GC_937', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_429', 1), ('GC_430', 1), ('GC_500', 1), ('GC_505', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_431', 1), ('GC_432', 1), ('GC_539', 1), ('GC_543', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_433', 1), ('GC_434', 1), ('GC_435', 1), ('GC_571', 1), ('GC_575', 1), ('GC_579', 1)  [0m
@@ -182,16 +185,20 @@ INFO: Detect SLHA2 format. keeping restricted parameter in the param_card
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_456', 1), ('GC_457', 1), ('GC_458', 1), ('GC_572', 1), ('GC_576', 1), ('GC_580', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_459', 1), ('GC_460', 1), ('GC_585', 1), ('GC_590', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_423', 1), ('GC_467', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_446', 1), ('GC_468', -1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_475', 1), ('GC_476', 1), ('GC_502', 1), ('GC_507', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_477', 1), ('GC_478', 1), ('GC_541', 1), ('GC_545', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_45', 1), ('GC_48', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_479', 1), ('GC_480', 1), ('GC_481', 1), ('GC_573', 1), ('GC_577', 1), ('GC_581', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_482', 1), ('GC_483', 1), ('GC_586', 1), ('GC_591', 1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_424', 1), ('GC_490', -1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_447', 1), ('GC_491', -1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_470', 1), ('GC_492', -1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_2', 1), ('GC_50', -1), ('GC_52', -1), ('GC_58', -1), ('GC_60', -1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_108', 1), ('GC_508', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_415', 1), ('GC_509', 1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_438', 1), ('GC_510', 1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_461', 1), ('GC_511', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_484', 1), ('GC_512', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_109', 1), ('GC_513', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_339', 1), ('GC_514', 1)  [0m
@@ -201,6 +208,7 @@ INFO: Detect SLHA2 format. keeping restricted parameter in the param_card
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_112', 1), ('GC_528', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_416', 1), ('GC_529', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_51', 1), ('GC_53', 1), ('GC_59', 1), ('GC_61', 1), ('GC_67', 1), ('GC_69', 1), ('GC_7', -1), ('GC_75', 1), ('GC_77', 1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_439', 1), ('GC_530', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_462', 1), ('GC_531', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_485', 1), ('GC_532', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_113', 1), ('GC_533', 1)  [0m
@@ -211,10 +219,13 @@ INFO: Detect SLHA2 format. keeping restricted parameter in the param_card
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_417', 1), ('GC_546', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_440', 1), ('GC_547', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_463', 1), ('GC_548', 1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_486', 1), ('GC_549', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_341', 1), ('GC_550', 1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_347', 1), ('GC_551', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_353', 1), ('GC_552', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_359', 1), ('GC_553', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_418', 1), ('GC_562', 1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_441', 1), ('GC_563', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_464', 1), ('GC_564', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_487', 1), ('GC_565', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_342', 1), ('GC_566', 1)  [0m
@@ -232,11 +243,13 @@ INFO: Detect SLHA2 format. keeping restricted parameter in the param_card
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_355', 1), ('GC_600', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_361', 1), ('GC_601', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_120', 1), ('GC_612', 1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_426', 1), ('GC_613', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_449', 1), ('GC_614', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_472', 1), ('GC_615', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_495', 1), ('GC_616', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_121', 1), ('GC_617', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_344', 1), ('GC_618', 1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_350', 1), ('GC_619', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_56', 1), ('GC_62', -1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_356', 1), ('GC_620', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_362', 1), ('GC_621', 1)  [0m
@@ -251,6 +264,7 @@ INFO: Detect SLHA2 format. keeping restricted parameter in the param_card
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_419', 1), ('GC_633', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_442', 1), ('GC_634', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_465', 1), ('GC_635', 1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_488', 1), ('GC_636', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_378', 1), ('GC_645', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_379', 1), ('GC_646', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_380', 1), ('GC_647', 1)  [0m
@@ -277,7 +291,10 @@ INFO: Detect SLHA2 format. keeping restricted parameter in the param_card
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_401', 1), ('GC_684', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_402', 1), ('GC_685', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_428', 1), ('GC_686', 1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_451', 1), ('GC_687', 1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_474', 1), ('GC_688', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_497', 1), ('GC_689', 1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_676', 1), ('GC_691', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_694', 1), ('GC_697', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_695', 1), ('GC_698', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_696', 1), ('GC_699', 1)  [0m
@@ -285,9 +302,11 @@ INFO: Detect SLHA2 format. keeping restricted parameter in the param_card
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_702', 1), ('GC_703', -1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_704', 1), ('GC_712', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_705', 1), ('GC_713', 1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_706', 1), ('GC_714', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_707', 1), ('GC_715', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_708', 1), ('GC_716', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_709', 1), ('GC_717', 1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_710', 1), ('GC_718', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_711', 1), ('GC_719', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_720', 1), ('GC_723', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_721', 1), ('GC_724', 1)  [0m
@@ -299,6 +318,7 @@ INFO: Detect SLHA2 format. keeping restricted parameter in the param_card
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_757', 1), ('GC_758', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_759', 1), ('GC_760', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_762', 1), ('GC_763', 1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_766', 1), ('GC_767', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_770', 1), ('GC_771', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_772', 1), ('GC_773', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_774', 1), ('GC_775', 1)  [0m
@@ -306,15 +326,23 @@ INFO: Detect SLHA2 format. keeping restricted parameter in the param_card
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_72', 1), ('GC_78', -1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_780', 1), ('GC_781', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_782', 1), ('GC_783', 1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_785', 1), ('GC_786', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_73', 1), ('GC_79', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_797', 1), ('GC_798', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_6', 1), ('GC_8', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_801', 1), ('GC_802', 1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_805', 1), ('GC_806', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_726', 1), ('GC_808', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_727', 1), ('GC_809', 1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_728', 1), ('GC_810', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_729', 1), ('GC_811', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_730', 1), ('GC_812', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_731', 1), ('GC_813', 1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_732', 1), ('GC_814', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_733', 1), ('GC_815', 1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_734', 1), ('GC_816', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_735', 1), ('GC_817', 1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_736', 1), ('GC_818', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_737', 1), ('GC_819', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_738', 1), ('GC_820', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_739', 1), ('GC_821', 1)  [0m
@@ -322,6 +350,7 @@ INFO: Detect SLHA2 format. keeping restricted parameter in the param_card
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_741', 1), ('GC_823', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_742', 1), ('GC_824', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_743', 1), ('GC_825', 1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_744', 1), ('GC_826', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_745', 1), ('GC_827', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_788', 1), ('GC_828', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_789', 1), ('GC_829', 1)  [0m
@@ -331,11 +360,13 @@ INFO: Detect SLHA2 format. keeping restricted parameter in the param_card
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_793', 1), ('GC_833', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_794', 1), ('GC_834', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_795', 1), ('GC_835', 1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_245', 1), ('GC_837', 1), ('GC_944', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_842', 1), ('GC_844', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_843', 1), ('GC_845', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_846', 1), ('GC_848', -1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_847', 1), ('GC_849', -1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_82', 1), ('GC_85', 1), ('GC_94', 1), ('GC_97', 1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_851', 1), ('GC_852', -1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_855', 1), ('GC_856', -1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_83', 1), ('GC_86', 1), ('GC_95', 1), ('GC_98', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_876', 1), ('GC_877', 1), ('GC_880', 1), ('GC_881', 1), ('GC_884', 1), ('GC_885', 1), ('GC_886', 1), ('GC_887', 1)  [0m
@@ -343,6 +374,7 @@ INFO: Detect SLHA2 format. keeping restricted parameter in the param_card
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_879', 1), ('GC_883', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_890', 1), ('GC_898', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_891', 1), ('GC_899', 1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_892', 1), ('GC_900', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_893', 1), ('GC_901', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_903', 1), ('GC_904', -1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_858', 1), ('GC_906', -1)  [0m
@@ -350,7 +382,9 @@ INFO: Detect SLHA2 format. keeping restricted parameter in the param_card
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_860', 1), ('GC_908', -1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_861', 1), ('GC_909', -1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_100', 1), ('GC_91', 1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_862', 1), ('GC_910', -1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_863', 1), ('GC_911', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_864', 1), ('GC_912', -1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_865', 1), ('GC_913', -1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_866', 1), ('GC_914', -1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_867', 1), ('GC_915', -1)  [0m
@@ -362,6 +396,7 @@ INFO: Detect SLHA2 format. keeping restricted parameter in the param_card
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_872', 1), ('GC_920', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_873', 1), ('GC_921', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_874', 1), ('GC_922', 1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_875', 1), ('GC_923', 1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_894', 1), ('GC_924', -1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_895', 1), ('GC_925', -1)  [0m
 [1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_896', 1), ('GC_926', -1)  [0m
@@ -516,92 +551,56 @@ Defined multiparticle l- = e- mu-
 Defined multiparticle vl = ve vm vt
 Defined multiparticle vl~ = ve~ vm~ vt~
 Defined multiparticle all = g u c d s u~ c~ d~ s~ a ve vm vt e- mu- ve~ vm~ vt~ e+ mu+ go ul cl t1 ur cr t2 dl sl b1 dr sr b2 ul~ cl~ t1~ ur~ cr~ t2~ dl~ sl~ b1~ dr~ sr~ b2~ t b t~ b~ z w+ h01 h2 h3 h+ sve svm svt el- mul- ta1- er- mur- ta2- w- h- sve~ svm~ svt~ el+ mul+ ta1+ er+ mur+ ta2+ n1 n2 n3 n4 x1+ x2+ ta- x1- x2- ta+
+generate g g > t t~
 INFO: Checking for minimal orders which gives processes. 
 INFO: Please specify coupling orders to bypass this step. 
 INFO: Trying coupling order WEIGHTED<=2: WEIGTHED IS QCD+2*QED 
 INFO: Trying process: g g > t t~ WEIGHTED<=2 @1  
 INFO: Process has 3 diagrams 
-1 processes with 3 diagrams generated in 0.112 s
+1 processes with 3 diagrams generated in 0.110 s
 Total: 1 processes with 3 diagrams
-output standalone_cudacpp CODEGEN_cudacpp_susy_gg_tt
-Load PLUGIN.CUDACPP_SA_OUTPUT
-[1mOutput will be done with PLUGIN: CUDACPP_SA_OUTPUT[0m
+output standalone_cudacpp ../TMPOUT/CODEGEN_cudacpp_susy_gg_tt
+Load PLUGIN.CUDACPP_OUTPUT
+[1;34mPlugin PLUGIN.CUDACPP_OUTPUT has marked as NOT being validated with this version: 3.5.3_lo_vect. 
+It has been validated for the last time with version: 3.5.2[0m
+[1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
 [1;32mDEBUG:  cformat = [0m plugin [1;30m[export_cpp.py at line 3071][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter) [1;30m[output.py at line 143][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.copy_template (initialise the directory) [1;30m[output.py at line 148][0m [0m
-INFO: Creating subdirectories in directory /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_susy_gg_tt 
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter) [1;30m[output.py at line 160][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.copy_template (initialise the directory) [1;30m[output.py at line 165][0m [0m
+INFO: Creating subdirectories in directory /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gg_tt 
 INFO: Organizing processes into subprocess groups 
 INFO: Generating Helas calls for process: g g > t t~ WEIGHTED<=2 @1 
 INFO: Processing color information for process: g g > t t~ @1 
-[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.generate_subprocess_directory (create the directory) [1;30m[output.py at line 173][0m [0m
-[1;32mDEBUG:    type(subproc_group)=<class 'madgraph.core.helas_objects.HelasMatrixElement'> [1;30m[output.py at line 174][0m [0m
-[1;32mDEBUG:    type(fortran_model)=<class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_GPUFOHelasCallWriter'> [1;30m[output.py at line 175][0m [0m
-[1;32mDEBUG:    type(me)=<class 'int'> me=0 [1;30m[output.py at line 176][0m [0m
-INFO: Creating files in directory /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_susy_gg_tt/SubProcesses/P1_Sigma_MSSM_SLHA2_gg_ttx 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 1246][0m [0m
-[1;32mDEBUG:  self.include_multi_channel is not yet defined: this is standalone_cudacpp mode [1;30m[model_handling.py at line 1250][0m [0m
-FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_susy_gg_tt/SubProcesses/P1_Sigma_MSSM_SLHA2_gg_ttx/./CPPProcess.h
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_h_file [1;30m[model_handling.py at line 1389][0m [0m
-FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_susy_gg_tt/SubProcesses/P1_Sigma_MSSM_SLHA2_gg_ttx/./CPPProcess.cc
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_cc_file [1;30m[model_handling.py at line 1411][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.get_sigmaKin_lines [1;30m[model_handling.py at line 1107][0m [0m
-[1;32mDEBUG:  self.include_multi_channel = [0m False [1;30m[model_handling.py at line 1108][0m [0m
-[1;32mDEBUG:  self.support_multichannel = [0m True [1;30m[model_handling.py at line 1109][0m [0m
-[1;32mDEBUG:  type(self.helas_call_writer) = [0m <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_GPUFOHelasCallWriter'> [1;30m[model_handling.py at line 1203][0m [0m
-[1;32mDEBUG:  self.support_multichannel, self.include_multi_channel = [0m True False [1;30m[model_handling.py at line 1204][0m [0m
-[1;32mDEBUG:  multi_channel_map = [0m None [1;30m[model_handling.py at line 1590][0m [0m
-[1;32mDEBUG:  diag_to_config = [0m {} [1;30m[model_handling.py at line 1645][0m [0m
-[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1757][0m [0m
-[1;32mDEBUG:  ('ZERO', 0, -1, 0, 0) [1;30m[model_handling.py at line 1758][0m [0m
-[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1757][0m [0m
-[1;32mDEBUG:  ('ZERO', 1, -1, 1, 1) [1;30m[model_handling.py at line 1758][0m [0m
-INFO: Created files CPPProcess.h and CPPProcess.cc in directory /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_susy_gg_tt/SubProcesses/P1_Sigma_MSSM_SLHA2_gg_ttx/. 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_CMakeLists [1;30m[model_handling.py at line 1279][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_check_sa [1;30m[model_handling.py at line 1288][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_mgonGPU [1;30m[model_handling.py at line 1305][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_processidfile [1;30m[model_handling.py at line 1325][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_testxxx [1;30m[model_handling.py at line 1355][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memorybuffers [1;30m[model_handling.py at line 1366][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_memoryaccesscouplings [1;30m[model_handling.py at line 1377][0m [0m
-Generated helas calls for 1 subprocesses (3 diagrams) in 0.005 s
-[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 181][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.generate_subprocess_directory (create the directory) [1;30m[output.py at line 194][0m [0m
+[1;32mDEBUG:    type(subproc_group)=<class 'madgraph.core.helas_objects.HelasMatrixElement'> [1;30m[output.py at line 195][0m [0m
+[1;32mDEBUG:    type(fortran_model)=<class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_GPUFOHelasCallWriter'> [1;30m[output.py at line 196][0m [0m
+[1;32mDEBUG:    type(me)=<class 'int'> me=0 [1;30m[output.py at line 197][0m [0m
+[1;32mDEBUG:  "need to link", self.to_link_in_P = [0m need to link ['nvtx.h', 'timer.h', 'timermap.h', 'ompnumthreads.h', 'GpuRuntime.h', 'GpuAbstraction.h', 'MemoryAccessHelpers.h', 'MemoryAccessVectors.h', 'MemoryAccessMatrixElements.h', 'MemoryAccessMomenta.h', 'MemoryAccessRandomNumbers.h', 'MemoryAccessWeights.h', 'MemoryAccessAmplitudes.h', 'MemoryAccessWavefunctions.h', 'MemoryAccessGs.h', 'MemoryAccessCouplingsFixed.h', 'MemoryAccessNumerators.h', 'MemoryAccessDenominators.h', 'EventStatistics.h', 'CommonRandomNumbers.h', 'CrossSectionKernels.cc', 'CrossSectionKernels.h', 'MatrixElementKernels.cc', 'MatrixElementKernels.h', 'RamboSamplingKernels.cc', 'RamboSamplingKernels.h', 'RandomNumberKernels.h', 'CommonRandomNumberKernel.cc', 'CurandRandomNumberKernel.cc', 'HiprandRandomNumberKernel.cc', 'Bridge.h', 'BridgeKernels.cc', 'BridgeKernels.h', 'fbridge.cc', 'fbridge.inc', 'fsampler.cc', 'fsampler.inc', 'MadgraphTest.h', 'runTest.cc', 'testmisc.cc', 'testxxx_cc_ref.txt', 'cudacpp.mk', 'testxxx.cc', 'MemoryBuffers.h', 'MemoryAccessCouplings.h', 'perf.py', 'profile.sh'] [1;30m[output.py at line 198][0m [0m
+INFO: Creating files in directory /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gg_tt/SubProcesses/P1_Sigma_MSSM_SLHA2_gg_ttx 
+FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gg_tt/SubProcesses/P1_Sigma_MSSM_SLHA2_gg_ttx/./CPPProcess.h
+FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gg_tt/SubProcesses/P1_Sigma_MSSM_SLHA2_gg_ttx/./CPPProcess.cc
+INFO: Created files CPPProcess.h and CPPProcess.cc in directory /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gg_tt/SubProcesses/P1_Sigma_MSSM_SLHA2_gg_ttx/. 
+Generated helas calls for 1 subprocesses (3 diagrams) in 0.006 s
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 203][0m [0m
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
 ALOHA: aloha creates FFV1 routines[0m
-ALOHA: aloha creates 2 routines in  0.126 s
+ALOHA: aloha creates 2 routines in  0.140 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
-FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_susy_gg_tt/src/./HelAmps_MSSM_SLHA2.h
-INFO: Created file HelAmps_MSSM_SLHA2.h in directory /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_susy_gg_tt/src/. 
+FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gg_tt/src/./HelAmps_MSSM_SLHA2.h
+INFO: Created file HelAmps_MSSM_SLHA2.h in directory /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gg_tt/src/. 
 super_write_set_parameters_onlyfixMajorana (hardcoded=False)
-[1;32mDEBUG:  'pardef_lines size =', len(pardef_lines), ', keys size =', len(pardef_lines.keys())  = [0m pardef_lines size = 617 , keys size = 617 [1;30m[model_handling.py at line 716][0m [0m
-[1;32mDEBUG:  'parset_pars size =', len(parset_pars)  = [0m parset_pars size = 617 [1;30m[model_handling.py at line 732][0m [0m
-[1;32mDEBUG:  'parset_lines size =', len(parset_lines), ', keys size =', len(parset_lines.keys())  = [0m parset_lines size = 617 , keys size = 617 [1;30m[model_handling.py at line 733][0m [0m
 super_write_set_parameters_onlyfixMajorana (hardcoded=True)
-[1;32mDEBUG:  'pardef_lines size =', len(pardef_lines), ', keys size =', len(pardef_lines.keys())  = [0m pardef_lines size = 3 , keys size = 3 [1;30m[model_handling.py at line 716][0m [0m
-[1;32mDEBUG:  'parset_pars size =', len(parset_pars)  = [0m parset_pars size = 3 [1;30m[model_handling.py at line 732][0m [0m
-[1;32mDEBUG:  'parset_lines size =', len(parset_lines), ', keys size =', len(parset_lines.keys())  = [0m parset_lines size = 3 , keys size = 3 [1;30m[model_handling.py at line 733][0m [0m
-[1;32mDEBUG:  'pardef_lines size =', len(pardef_lines), ', keys size =', len(pardef_lines.keys())  = [0m pardef_lines size = 2 , keys size = 2 [1;30m[model_handling.py at line 716][0m [0m
-[1;32mDEBUG:  'parset_pars size =', len(parset_pars)  = [0m parset_pars size = 2 [1;30m[model_handling.py at line 732][0m [0m
-[1;32mDEBUG:  'parset_lines size =', len(parset_lines), ', keys size =', len(parset_lines.keys())  = [0m parset_lines size = 2 , keys size = 2 [1;30m[model_handling.py at line 733][0m [0m
-[1;32mDEBUG:  'pardef_lines size =', len(pardef_lines), ', keys size =', len(pardef_lines.keys())  = [0m pardef_lines size = 3 , keys size = 3 [1;30m[model_handling.py at line 716][0m [0m
-[1;32mDEBUG:  'parset_pars size =', len(parset_pars)  = [0m parset_pars size = 3 [1;30m[model_handling.py at line 732][0m [0m
-[1;32mDEBUG:  'parset_lines size =', len(parset_lines), ', keys size =', len(parset_lines.keys())  = [0m parset_lines size = 3 , keys size = 3 [1;30m[model_handling.py at line 733][0m [0m
-[1;32mDEBUG:  'pardef_lines size =', len(pardef_lines), ', keys size =', len(pardef_lines.keys())  = [0m pardef_lines size = 2 , keys size = 2 [1;30m[model_handling.py at line 716][0m [0m
-[1;32mDEBUG:  'parset_pars size =', len(parset_pars)  = [0m parset_pars size = 2 [1;30m[model_handling.py at line 732][0m [0m
-[1;32mDEBUG:  'parset_lines size =', len(parset_lines), ', keys size =', len(parset_lines.keys())  = [0m parset_lines size = 2 , keys size = 2 [1;30m[model_handling.py at line 733][0m [0m
-[1;32mDEBUG:  'pardef_lines size =', len(pardef_lines), ', keys size =', len(pardef_lines.keys())  = [0m pardef_lines size = 2 , keys size = 2 [1;30m[model_handling.py at line 716][0m [0m
-[1;32mDEBUG:  'parset_pars size =', len(parset_pars)  = [0m parset_pars size = 2 [1;30m[model_handling.py at line 732][0m [0m
-[1;32mDEBUG:  'parset_lines size =', len(parset_lines), ', keys size =', len(parset_lines.keys())  = [0m parset_lines size = 2 , keys size = 2 [1;30m[model_handling.py at line 733][0m [0m
-FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_susy_gg_tt/src/./Parameters_MSSM_SLHA2.h
-FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_susy_gg_tt/src/./Parameters_MSSM_SLHA2.cc
+FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gg_tt/src/./Parameters_MSSM_SLHA2.h
+FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gg_tt/src/./Parameters_MSSM_SLHA2.cc
 INFO: Created files Parameters_MSSM_SLHA2.h and Parameters_MSSM_SLHA2.cc in directory 
-INFO: /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_susy_gg_tt/src/. and /data/avalassi/GPU2023/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_susy_gg_tt/src/. 
-[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.finalize [1;30m[output.py at line 190][0m [0m
+INFO: /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gg_tt/src/. and /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gg_tt/src/. 
 quit
 
-real	0m1.264s
-user	0m1.200s
-sys	0m0.057s
+real	0m2.624s
+user	0m2.440s
+sys	0m0.084s
+Code generation completed in 3 seconds

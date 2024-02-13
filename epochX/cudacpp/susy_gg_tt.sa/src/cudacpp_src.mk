@@ -1,3 +1,8 @@
+# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Licensed under the GNU Lesser General Public License (version 3 or later).
+# Created by: S. Roiser (Feb 2020) for the MG5aMC CUDACPP plugin.
+# Further modified by: O. Mattelaer, S. Roiser, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
+
 #=== Determine the name of this makefile (https://ftp.gnu.org/old-gnu/Manuals/make-3.80/html_node/make_17.html)
 #=== NB: assume that the same name (e.g. cudacpp.mk, Makefile...) is used in the Subprocess and src directories
 
@@ -14,7 +19,7 @@ SHELL := /bin/bash
 #=== Configure common compiler flags for CUDA and C++
 
 INCFLAGS = -I.
-OPTFLAGS = -O3 # this ends up in CUFLAGS too (should it?), cannot add -Ofast or -ffast-math here
+OPTFLAGS = -O3 # this ends up in GPUFLAGS too (should it?), cannot add -Ofast or -ffast-math here
 
 #-------------------------------------------------------------------------------
 
@@ -31,9 +36,22 @@ endif
 # See https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
 ###RANLIB = ranlib
 
+# Add -mmacosx-version-min=11.3 to avoid "ld: warning: object file was built for newer macOS version than being linked"
+LDFLAGS =
+ifneq ($(shell $(CXX) --version | egrep '^Apple clang'),)
+CXXFLAGS += -mmacosx-version-min=11.3
+LDFLAGS += -mmacosx-version-min=11.3
+endif
+
 #-------------------------------------------------------------------------------
 
-#=== Configure ccache for CUDA and C++ builds
+#=== Configure the CUDA compiler (note: GPUCC have been exported from cudacpp.mk including ccache)
+
+###$(info GPUCC=$(GPUCC))
+
+#-------------------------------------------------------------------------------
+
+#=== Configure ccache for C++ builds (note: GPUCC have been exported from cudacpp.mk including ccache)
 
 # Enable ccache if USECCACHE=1
 ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
@@ -41,11 +59,6 @@ ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
 endif
 #ifeq ($(USECCACHE)$(shell echo $(AR) | grep ccache),1)
 #  override AR:=ccache $(AR)
-#endif
-#ifneq ($(NVCC),)
-#  ifeq ($(USECCACHE)$(shell echo $(NVCC) | grep ccache),1)
-#    override NVCC:=ccache $(NVCC)
-#  endif
 #endif
 
 #-------------------------------------------------------------------------------
@@ -73,11 +86,19 @@ endif
 
 #-------------------------------------------------------------------------------
 
-#=== Set the CUDA/C++ compiler flags appropriate to user-defined choices of AVX, FPTYPE, HELINL, HRDCOD, RNDGEN
+#=== Set the CUDA/C++ compiler flags appropriate to user-defined choices of AVX, FPTYPE, HELINL, HRDCOD (exported from cudacpp.mk)
+#=== (NB the RNDCXXFLAGS and RNDLIBFLAGS appropriate to user-defined choices of HASCURAND and HASHIPRAND have been exported from cudacpp.mk)
 
 # Set the build flags appropriate to OMPFLAGS
 ###$(info OMPFLAGS=$(OMPFLAGS))
 CXXFLAGS += $(OMPFLAGS)
+
+# Add correct flags for nvcc (-x cu) and hipcc (-x hip) for GPU code (see #810)
+ifeq ($(findstring nvcc,$(GPUCC)),nvcc)
+  GPUFLAGS += -Xcompiler -fPIC -c -x cu
+else ifeq ($(findstring hipcc,$(GPUCC)),hipcc)
+  GPUFLAGS += -fPIC -c -x hip
+endif
 
 # Set the build flags appropriate to each AVX choice (example: "make AVX=none")
 # [NB MGONGPU_PVW512 is needed because "-mprefer-vector-width=256" is not exposed in a macro]
@@ -110,7 +131,9 @@ else ifneq ($(shell $(CXX) --version | grep ^nvc++),) # support nvc++ #531
     $(error Unknown AVX='$(AVX)': only 'none', 'sse4', 'avx2', '512y' and '512z' are supported)
   endif
 else
-  ifeq ($(AVX),sse4)
+  ifeq ($(AVX),none)
+    override AVXFLAGS = -march=x86-64 # no SIMD (see #588)
+  else ifeq ($(AVX),sse4)
     override AVXFLAGS = -march=nehalem # SSE4.2 with 128 width (xmm registers)
   else ifeq ($(AVX),avx2)
     override AVXFLAGS = -march=haswell # AVX2 with 256 width (ymm registers) [DEFAULT for clang]
@@ -153,14 +176,6 @@ else ifneq ($(HRDCOD),0)
   $(error Unknown HRDCOD='$(HRDCOD)': only '0' and '1' are supported)
 endif
 
-# Set the build flags appropriate to each RNDGEN choice (example: "make RNDGEN=hasNoCurand")
-###$(info RNDGEN=$(RNDGEN))
-ifeq ($(RNDGEN),hasNoCurand)
-  CXXFLAGS += -DMGONGPU_HAS_NO_CURAND
-else ifneq ($(RNDGEN),hasCurand)
-  $(error Unknown RNDGEN='$(RNDGEN)': only 'hasCurand' and 'hasNoCurand' are supported)
-endif
-
 #-------------------------------------------------------------------------------
 
 #=== Configure build directories and build lockfiles ===
@@ -171,7 +186,7 @@ override DIRTAG = $(AVX)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)
 
 # Build lockfile "full" tag (defines full specification of build options that cannot be intermixed)
 # (Rationale: avoid mixing of CUDA and no-CUDA environment builds with different random number generators)
-override TAG = $(AVX)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)_$(RNDGEN)
+override TAG = $(AVX)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)_$(HASCURAND)_$(HASHIPRAND)
 
 # Build directory: current directory by default, or build.$(DIRTAG) if USEBUILDDIR==1
 ###$(info Current directory is $(shell pwd))
@@ -211,7 +226,7 @@ MG5AMC_COMMONLIB = mg5amc_common
 all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/.build.$(TAG) $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so
 
 # Target (and build options): debug
-debug: OPTFLAGS = -g -O0 -DDEBUG2
+debug: OPTFLAGS = -g -O0
 debug: all.$(TAG)
 
 # Target: tag-specific build lockfiles
@@ -231,18 +246,32 @@ $(LIBDIR)/.build.$(TAG):
 #-------------------------------------------------------------------------------
 
 # Generic target and build rules: objects from C++ compilation
-$(BUILDDIR)/%.o : %.cc *.h
-	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+$(BUILDDIR)/%.o : %.cc *.h $(BUILDDIR)/.build.$(TAG)
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -fPIC -c $< -o $@
+
+# Generic target and build rules: objects from CUDA compilation
+$(BUILDDIR)/%_cu.o : %.cc *.h $(BUILDDIR)/.build.$(TAG)
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
+	$(GPUCC) $(CPPFLAGS) $(GPUFLAGS) $< -o $@
 
 #-------------------------------------------------------------------------------
 
 cxx_objects=$(addprefix $(BUILDDIR)/, Parameters_MSSM_SLHA2.o read_slha.o)
+ifneq ($(GPUCC),)
+cu_objects=$(addprefix $(BUILDDIR)/, Parameters_MSSM_SLHA2_cu.o)
+endif
 
 # Target (and build rules): common (src) library
+ifneq ($(GPUCC),)
+$(LIBDIR)/lib$(MG5AMC_COMMONLIB).so : $(cxx_objects) $(cu_objects)
+	@if [ ! -d $(LIBDIR) ]; then echo "mkdir -p $(LIBDIR)"; mkdir -p $(LIBDIR); fi
+	$(GPUCC) -shared -o $@ $(cxx_objects) $(cu_objects) $(LDFLAGS)
+else
 $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so : $(cxx_objects)
 	@if [ ! -d $(LIBDIR) ]; then echo "mkdir -p $(LIBDIR)"; mkdir -p $(LIBDIR); fi
-	$(CXX) -shared -o$@ $(cxx_objects)
+	$(CXX) -shared -o $@ $(cxx_objects) $(LDFLAGS)
+endif
 
 #-------------------------------------------------------------------------------
 
