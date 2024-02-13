@@ -1030,8 +1030,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     # AV - change defaults from export_cpp.OneProcessExporterGPU
     # [NB process_class = "CPPProcess" is set in OneProcessExporterCPP.__init__]
     # [NB process_class = "gCPPProcess" is set in OneProcessExporterGPU.__init__]
-    ###cc_ext = 'cu' # create gCPPProcess.cu (and symlink it as CPPProcess.cc)
-    cc_ext = 'cc' # create CPPProcess.cc (and symlink it as gCPPProcess.cu)
+    cc_ext = 'cc' # create CPPProcess.cc (build it also as CPPProcess_cu.so, no longer symlink it as gCPPProcess.cu)
 
     # AV - keep defaults from export_cpp.OneProcessExporterGPU
     ###process_dir = '.'
@@ -1079,7 +1078,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         file = '\n'.join( file.split('\n')[8:] ) # skip first 8 lines in process_class.inc (copyright)
         return file
 
-    # AV - replace export_cpp.OneProcessExporterGPU method (fix gCPPProcess.cu)
+    # AV - replace export_cpp.OneProcessExporterGPU method (fix CPPProcess.cc)
     def get_process_function_definitions(self, write=True):
         """The complete class definition for the process"""
         replace_dict = super(PLUGIN_export_cpp.OneProcessExporterGPU,self).get_process_function_definitions(write=False) # defines replace_dict['initProc_lines']
@@ -1178,9 +1177,9 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         else:
             return replace_dict
 
-    # AV - modify export_cpp.OneProcessExporterGPU method (fix gCPPProcess.cu)
+    # AV - modify export_cpp.OneProcessExporterGPU method (fix CPPProcess.cc)
     def get_all_sigmaKin_lines(self, color_amplitudes, class_name):
-        """Get sigmaKin_process for all subprocesses for gCPPProcess.cu"""
+        """Get sigmaKin_process for all subprocesses for CPPProcess.cc"""
         ret_lines = []
         if self.single_helicities:
             ###assert self.include_multi_channel # remove this assert: must handle both cases and produce two different code bases (#473)
@@ -1339,15 +1338,6 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         self.edit_testxxx() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
         self.edit_memorybuffers() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
         self.edit_memoryaccesscouplings() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
-        # Add symbolic links in the P1 directory
-        files.ln(pjoin(self.path, 'check_sa.cc'), self.path, 'gcheck_sa.cu')
-        files.ln(pjoin(self.path, 'CPPProcess.cc'), self.path, 'gCPPProcess.cu')
-        files.ln(pjoin(self.path, 'CrossSectionKernels.cc'), self.path, 'gCrossSectionKernels.cu')
-        files.ln(pjoin(self.path, 'MatrixElementKernels.cc'), self.path, 'gMatrixElementKernels.cu')
-        files.ln(pjoin(self.path, 'RamboSamplingKernels.cc'), self.path, 'gRamboSamplingKernels.cu')
-        files.ln(pjoin(self.path, 'CommonRandomNumberKernel.cc'), self.path, 'gCommonRandomNumberKernel.cu')
-        files.ln(pjoin(self.path, 'CurandRandomNumberKernel.cc'), self.path, 'gCurandRandomNumberKernel.cu')
-        files.ln(pjoin(self.path, 'BridgeKernels.cc'), self.path, 'gBridgeKernels.cu')
         # NB: symlink of cudacpp.mk to makefile is overwritten by madevent makefile if this exists (#480)
         # NB: this relies on the assumption that cudacpp code is generated before madevent code
         files.ln(pjoin(self.path, 'cudacpp.mk'), self.path, 'makefile')
@@ -1476,7 +1466,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     # AV - overload the export_cpp.OneProcessExporterGPU method (add debug printout and truncate last \n)
     # [*NB export_cpp.UFOModelConverterGPU.write_process_h_file is not called!*]
     def write_process_h_file(self, writer):
-        """Generate final gCPPProcess.h"""
+        """Generate final CPPProcess.h"""
         ###misc.sprint('Entering PLUGIN_OneProcessExporter.write_process_h_file')
         out = super().write_process_h_file(writer)
         writer.seek(-1, os.SEEK_CUR)
@@ -1560,7 +1550,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
 
     # AV - replace the export_cpp.OneProcessExporterGPU method (improve formatting)
     def get_initProc_lines(self, matrix_element, color_amplitudes):
-        """Get initProc_lines for function definition for gCPPProcess::initProc"""
+        """Get initProc_lines for function definition for CPPProcess::initProc"""
         initProc_lines = []
         initProc_lines.append('// Set external particle masses for this matrix element')
         for part in matrix_element.get_external_wavefunctions():
@@ -1606,7 +1596,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
     #  - PLUGIN_GPUFOHelasCallWriter(GPUFOHelasCallWriter)
     #      This class
 
-    # AV - replace helas_call_writers.GPUFOHelasCallWriter method (improve formatting of gCPPProcess.cu)
+    # AV - replace helas_call_writers.GPUFOHelasCallWriter method (improve formatting of CPPProcess.cc)
     # [GPUFOHelasCallWriter.format_coupling is called by GPUFOHelasCallWriter.get_external_line/generate_helas_call]
     # [GPUFOHelasCallWriter.get_external_line is called by GPUFOHelasCallWriter.get_external]
     # [GPUFOHelasCallWriter.get_external (adding #ifdef CUDA) is called by GPUFOHelasCallWriter.generate_helas_call]
