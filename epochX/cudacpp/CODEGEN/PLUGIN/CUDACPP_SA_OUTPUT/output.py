@@ -37,6 +37,9 @@ from os.path import join as pjoin
 import madgraph.iolibs.files as files
 import madgraph.various.misc as misc
 
+from . import launch_plugin
+
+
 # AV - define the plugin's process exporter
 # (NB: this is the plugin's main class, enabled in the new_output dictionary in __init__.py)
 class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
@@ -150,11 +153,6 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
     # (NB: use "helas_exporter" - see class MadGraphCmd in madgraph_interface.py - not "aloha_exporter" that is never used!)
     ###helas_exporter = None
     helas_exporter = model_handling.PLUGIN_GPUFOHelasCallWriter # this is one of the main fixes for issue #341!
-
-    # Default class for the run_card to use
-    from . import launch_plugin
-    run_card_class = launch_plugin.CPPRunCard
-
 
     # AV (default from OM's tutorial) - add a debug printout
     def __init__(self, *args, **kwargs):
@@ -300,6 +298,10 @@ class PLUGIN_ProcessExporter_MadEvent(PLUGIN_ProcessExporter):
 #------------------------------------------------------------------------------------
 
 class SIMD_ProcessExporter(PLUGIN_ProcessExporter_MadEvent):
+    
+    # Default class for the run_card to use
+    run_card_class = launch_plugin.CPPRunCard
+    
     def change_output_args(args, cmd):
         """ """
         cmd._export_format = "madevent"
@@ -312,6 +314,10 @@ class SIMD_ProcessExporter(PLUGIN_ProcessExporter_MadEvent):
 #------------------------------------------------------------------------------------
 
 class GPU_ProcessExporter(PLUGIN_ProcessExporter_MadEvent):
+
+    # Default class for the run_card to use
+    run_card_class = launch_plugin.GPURunCard
+    
     def change_output_args(args, cmd):
         """ """
         cmd._export_format = "madevent"
