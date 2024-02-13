@@ -110,6 +110,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                                       s+'gpu/perf.py', s+'gpu/profile.sh',
                                       s+'CMake/SubProcesses/CMakeLists.txt'],
                      'test': [s+'gpu/cudacpp_test.mk']}
+
     to_link_in_P = ['nvtx.h', 'timer.h', 'timermap.h',
                     'ompnumthreads.h', 'GpuRuntime.h', 'GpuAbstraction.h',
                     'MemoryAccessHelpers.h', 'MemoryAccessVectors.h',
@@ -196,12 +197,14 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
         misc.sprint('  type(subproc_group)=%s'%type(subproc_group)) # e.g. madgraph.core.helas_objects.HelasMatrixElement
         misc.sprint('  type(fortran_model)=%s'%type(fortran_model)) # e.g. madgraph.iolibs.helas_call_writers.GPUFOHelasCallWriter
         misc.sprint('  type(me)=%s me=%s'%(type(me) if me is not None else None, me)) # e.g. int
-        return super().generate_subprocess_directory(subproc_group, fortran_model, me)
-
+        misc.sprint("need to link", self.to_link_in_P)
+        out = super().generate_subprocess_directory(subproc_group, fortran_model, me)
+        return out
     # AV (default from OM's tutorial) - add a debug printout
     def convert_model(self, model, wanted_lorentz=[], wanted_coupling=[]):
         misc.sprint('Entering PLUGIN_ProcessExporter.convert_model (create the model)')
         return super().convert_model(model, wanted_lorentz, wanted_coupling)
+
 
     # AV (default from OM's tutorial) - add a debug printout
     def finalize(self, matrix_element, cmdhistory, MG5options, outputflag):
@@ -281,7 +284,22 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
 
 #------------------------------------------------------------------------------------
 
-class SIMD_ProcessExporter(PLUGIN_ProcessExporter):
+class PLUGIN_ProcessExporter_MadEvent(PLUGIN_ProcessExporter):
+    """ a class to include all tweak related to madevent and not related to standalone.
+        in practise this class is never called but only the SIMD or GPU related class"""
+
+    s = PLUGINDIR + '/madgraph/iolibs/template_files/'
+    # add template file/ linking only needed in the madevent mode and not in standalone
+    from_template = dict(PLUGIN_ProcessExporter.from_template)
+    from_template['SubProcesses'] = from_template['SubProcesses'] + [s+'gpu/fbridge_common.inc',
+                                      s+'gpu/counters.cc',
+                                      s+'gpu/ompnumthreads.cc']
+     
+    to_link_in_P = PLUGIN_ProcessExporter.to_link_in_P + ['fbridge_common.inc', 'counters.cc','ompnumthreads.cc'] 
+
+#------------------------------------------------------------------------------------
+
+class SIMD_ProcessExporter(PLUGIN_ProcessExporter_MadEvent):
     def change_output_args(args, cmd):
         """ """
         cmd._export_format = "madevent"
@@ -293,7 +311,7 @@ class SIMD_ProcessExporter(PLUGIN_ProcessExporter):
 
 #------------------------------------------------------------------------------------
 
-class GPU_ProcessExporter(PLUGIN_ProcessExporter):
+class GPU_ProcessExporter(PLUGIN_ProcessExporter_MadEvent):
     def change_output_args(args, cmd):
         """ """
         cmd._export_format = "madevent"
