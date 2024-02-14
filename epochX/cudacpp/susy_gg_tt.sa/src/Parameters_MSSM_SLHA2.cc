@@ -42,7 +42,7 @@ Parameters_MSSM_SLHA2::setIndependentParameters( SLHAReader& slha )
 {
   zero = 0; // define "zero"
   ZERO = 0; // define "zero"
-  //std::vector<int> indices(2, 0); // prepare a vector for indices
+  std::vector<int> indices(2, 0); // prepare a vector for indices
   mdl_Wsl6 = slha.get_block_entry( "decay", 2000015, 2.699061e-01 );
   mdl_Wsl5 = slha.get_block_entry( "decay", 2000013, 2.161216e-01 );
   mdl_Wsl4 = slha.get_block_entry( "decay", 2000011, 2.161216e-01 );
