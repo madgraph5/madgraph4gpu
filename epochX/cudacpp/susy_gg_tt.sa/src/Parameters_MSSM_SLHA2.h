@@ -806,6 +806,11 @@ namespace mg5amcCpu
   namespace Parameters_MSSM_SLHA2_dependentCouplings
   {
     constexpr size_t ndcoup = 2; // #couplings that vary event by event because they depend on the running alphas QCD
+  }
+  
+  /*
+  namespace Parameters_MSSM_SLHA2_dependentCouplings
+  {
     constexpr size_t idcoup_GC_6 = 0;
     constexpr size_t idcoup_GC_51 = 1;
     struct DependentCouplings_sv
@@ -878,7 +883,7 @@ namespace mg5amcCpu
 #pragma nv_diagnostic pop
 #endif
   }
-
+  */
   //==========================================================================
 
   namespace Parameters_MSSM_SLHA2_independentCouplings
@@ -888,7 +893,7 @@ namespace mg5amcCpu
   }
 
   //==========================================================================
-
+  /*
 #pragma GCC diagnostic push
 #ifndef __clang__
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable" // e.g. <<warning: variable ‘couplings_sv’ set but not used [-Wunused-but-set-variable]>>
@@ -914,7 +919,7 @@ namespace mg5amcCpu
     return;
   }
 #pragma GCC diagnostic pop
-
+  */
 } // end namespace mg5amcGpu/mg5amcCpu
 
 //==========================================================================
