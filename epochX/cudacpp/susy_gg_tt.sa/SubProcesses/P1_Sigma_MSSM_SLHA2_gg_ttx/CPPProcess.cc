@@ -101,110 +101,6 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  namespace Parameters_MSSM_SLHA2_dependentCouplings
-  {
-    constexpr size_t idcoup_GC_6 = 0;
-    constexpr size_t idcoup_GC_51 = 1;
-    struct DependentCouplings_sv
-    {
-      cxtype_sv GC_6;
-      cxtype_sv GC_51;
-    };
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-variable"  // e.g. <<warning: unused variable ‘mdl_G__exp__2’ [-Wunused-variable]>>
-#pragma GCC diagnostic ignored "-Wunused-parameter" // e.g. <<warning: unused parameter ‘G’ [-Wunused-parameter]>>
-#ifdef MGONGPUCPP_GPUIMPL
-#pragma nv_diagnostic push
-#pragma nv_diag_suppress 177 // e.g. <<warning #177-D: variable "mdl_G__exp__2" was declared but never referenced>>
-#endif
-    __host__ __device__ inline const DependentCouplings_sv computeDependentCouplings_fromG( const fptype_sv& G_sv )
-    {
-#ifdef MGONGPU_HARDCODE_PARAM
-      using namespace Parameters_MSSM_SLHA2;
-#else
-      //const double mdl_I51x11 = Parameters_MSSM_SLHA2::getInstance()->mdl_I51x11; // fix HRDCOD=0 susy builds
-      const fptype mdl_I51x11 = cIPD[2]; // fix HRDCOD=0 susy builds
-#endif
-      // NB: hardcode cxtype cI(0,1) instead of cxtype (or hardcoded cxsmpl) mdl_complexi (which exists in Parameters_MSSM_SLHA2) because:
-      // (1) mdl_complexi is always (0,1); (2) mdl_complexi is undefined in device code; (3) need cxsmpl conversion to cxtype in code below
-      const cxtype cI( 0., 1. );
-      DependentCouplings_sv out;
-      // Begin non-SM (e.g. EFT) implementation - special handling of vectors of floats (#439)
-#if not( defined MGONGPU_CPPSIMD && defined MGONGPU_FPTYPE_FLOAT )
-      {
-        const fptype_sv& G = G_sv;
-        // Model parameters dependent on aS
-        //const fptype_sv mdl_sqrt__aS = constexpr_sqrt( aS );
-        //const fptype_sv G = 2. * mdl_sqrt__aS * constexpr_sqrt( M_PI );
-        const fptype_sv mdl_G__exp__2 = ( ( G ) * ( G ) );
-        // Model couplings dependent on aS
-        out.GC_6 = -G;
-        out.GC_51 = -( cI * G * mdl_I51x11 );
-      }
-#else
-      // ** NB #439: special handling is necessary ONLY FOR VECTORS OF FLOATS (variable Gs are vector floats, fixed parameters are scalar doubles)
-      // Use an explicit loop to avoid <<error: conversion of scalar ‘double’ to vector ‘fptype_sv’ {aka ‘__vector(8) float’} involves truncation>>
-      // Problems may come e.g. in EFTs from multiplying a vector float (related to aS-dependent G) by a scalar double (aS-independent parameters)
-      fptype_v GC_6r_v;
-      fptype_v GC_6i_v;
-      fptype_v GC_51r_v;
-      fptype_v GC_51i_v;
-      for( int i = 0; i < neppV; i++ )
-      {
-        const fptype& G = G_sv[i];
-        // Model parameters dependent on aS
-        //const fptype mdl_sqrt__aS = constexpr_sqrt( aS );
-        //const fptype G = 2. * mdl_sqrt__aS * constexpr_sqrt( M_PI );
-        constexpr cxsmpl<double> mdl_G__exp__2 = ( ( G ) * ( G ) );
-        // Model couplings dependent on aS
-        const cxtype GC_6 = -G;
-        const cxtype GC_51 = -( cI * G * mdl_I51x11 );
-        GC_6r_v[i] = cxreal( GC_6 );
-        GC_6i_v[i] = cximag( GC_6 );
-        GC_51r_v[i] = cxreal( GC_51 );
-        GC_51i_v[i] = cximag( GC_51 );
-      }
-      out.GC_6 = cxtype_v( GC_6r_v, GC_6i_v );
-      out.GC_51 = cxtype_v( GC_51r_v, GC_51i_v );
-#endif
-      // End non-SM (e.g. EFT) implementation - special handling of vectors of floats (#439)
-      return out;
-    }
-#ifdef MGONGPUCPP_GPUIMPL
-#pragma GCC diagnostic pop
-#pragma nv_diagnostic pop
-#endif
-  }
-
-  //==========================================================================
-
-#pragma GCC diagnostic push
-#ifndef __clang__
-#pragma GCC diagnostic ignored "-Wunused-but-set-variable" // e.g. <<warning: variable ‘couplings_sv’ set but not used [-Wunused-but-set-variable]>>
-#endif
-  // Compute the output couplings (e.g. gc10 and gc11) from the input gs
-  template<class G_ACCESS, class C_ACCESS>
-  __device__ inline void
-  G2COUP( const fptype gs[],
-          fptype couplings[] )
-  {
-    mgDebug( 0, __FUNCTION__ );
-    using namespace Parameters_MSSM_SLHA2_dependentCouplings;
-    const fptype_sv& gs_sv = G_ACCESS::kernelAccessConst( gs );
-    DependentCouplings_sv couplings_sv = computeDependentCouplings_fromG( gs_sv );
-    fptype* GC_6s = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_GC_6 );
-    fptype* GC_51s = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_GC_51 );
-    cxtype_sv_ref GC_6s_sv = C_ACCESS::kernelAccess( GC_6s );
-    cxtype_sv_ref GC_51s_sv = C_ACCESS::kernelAccess( GC_51s );
-    GC_6s_sv = couplings_sv.GC_6;
-    GC_51s_sv = couplings_sv.GC_51;
-    mgDebug( 1, __FUNCTION__ );
-    return;
-  }
-#pragma GCC diagnostic pop
-
-  //--------------------------------------------------------------------------
-
   // Evaluate |M|^2 for each subprocess
   // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
   // (similarly, it also ADDS the numerator and denominator for a given ihel to their running sums over helicities)
@@ -726,7 +622,7 @@ namespace mg5amcCpu
     using namespace mg5amcGpu;
     using G_ACCESS = DeviceAccessGs;
     using C_ACCESS = DeviceAccessCouplings;
-    G2COUP<G_ACCESS, C_ACCESS>( allgs, allcouplings );
+    G2COUP<G_ACCESS, C_ACCESS>( allgs, allcouplings, cIPD );
 #else
     using namespace mg5amcCpu;
     using G_ACCESS = HostAccessGs;
@@ -736,7 +632,7 @@ namespace mg5amcCpu
       const int ievt0 = ipagV * neppV;
       const fptype* gs = MemoryAccessGs::ieventAccessRecordConst( allgs, ievt0 );
       fptype* couplings = MemoryAccessCouplings::ieventAccessRecord( allcouplings, ievt0 );
-      G2COUP<G_ACCESS, C_ACCESS>( gs, couplings );
+      G2COUP<G_ACCESS, C_ACCESS>( gs, couplings, cIPD );
     }
 #endif
   }
