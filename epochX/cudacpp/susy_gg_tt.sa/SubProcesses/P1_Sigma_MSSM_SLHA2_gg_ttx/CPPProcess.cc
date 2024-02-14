@@ -76,14 +76,14 @@ namespace mg5amcCpu
   // However, physics parameters are user-defined through card files: use CUDA constant memory instead (issue #39)
   // [NB if hardcoded parameters are used, it's better to define them here to avoid silent shadowing (issue #263)]
 #ifdef MGONGPU_HARDCODE_PARAM
-  __device__ const fptype cIPD[2] = { (fptype)Parameters_MSSM_SLHA2::mdl_MT, (fptype)Parameters_MSSM_SLHA2::mdl_WT };
+  __device__ const fptype cIPD[3] = { (fptype)Parameters_MSSM_SLHA2::mdl_MT, (fptype)Parameters_MSSM_SLHA2::mdl_WT, (fptype)Parameters_MSSM_SLHA2::mdl_I51x11 };
   __device__ const fptype* cIPC = nullptr; // unused as nicoup=0
 #else
 #ifdef MGONGPUCPP_GPUIMPL
-  __device__ __constant__ fptype cIPD[2];
+  __device__ __constant__ fptype cIPD[3];
   __device__ __constant__ fptype* cIPC = nullptr; // unused as nicoup=0
 #else
-  static fptype cIPD[2];
+  static fptype cIPD[3];
   static fptype* cIPC = nullptr; // unused as nicoup=0
 #endif
 #endif
@@ -502,16 +502,16 @@ namespace mg5amcCpu
     m_masses.push_back( m_pars->mdl_MT );
     // Read physics parameters like masses and couplings from user configuration files (static: initialize once)
     // Then copy them to CUDA constant memory (issue #39) or its C++ emulation in file-scope static memory
-    const fptype tIPD[2] = { (fptype)m_pars->mdl_MT, (fptype)m_pars->mdl_WT };
+    const fptype tIPD[3] = { (fptype)m_pars->mdl_MT, (fptype)m_pars->mdl_WT, (fptype)m_pars->mdl_I51x11 };
     //const cxtype tIPC[0] = { ... }; // nicoup=0
 #ifdef MGONGPUCPP_GPUIMPL
-    gpuMemcpyToSymbol( cIPD, tIPD, 2 * sizeof( fptype ) );
+    gpuMemcpyToSymbol( cIPD, tIPD, 3 * sizeof( fptype ) );
     //gpuMemcpyToSymbol( cIPC, tIPC, 0 * sizeof( cxtype ) ); // nicoup=0
 #else
-    memcpy( cIPD, tIPD, 2 * sizeof( fptype ) );
+    memcpy( cIPD, tIPD, 3 * sizeof( fptype ) );
     //memcpy( cIPC, tIPC, 0 * sizeof( cxtype ) ); // nicoup=0
 #endif
-    //for ( i=0; i<2; i++ ) std::cout << std::setprecision(17) << "tIPD[i] = " << tIPD[i] << std::endl;
+    //for ( i=0; i<3; i++ ) std::cout << std::setprecision(17) << "tIPD[i] = " << tIPD[i] << std::endl;
   }
 #else
   // Initialize process (with hardcoded parameters)
@@ -622,7 +622,7 @@ namespace mg5amcCpu
     using namespace mg5amcGpu;
     using G_ACCESS = DeviceAccessGs;
     using C_ACCESS = DeviceAccessCouplings;
-    G2COUP<G_ACCESS, C_ACCESS>( allgs, allcouplings );
+    G2COUP<G_ACCESS, C_ACCESS>( allgs, allcouplings, cIPD );
 #else
     using namespace mg5amcCpu;
     using G_ACCESS = HostAccessGs;
@@ -632,7 +632,7 @@ namespace mg5amcCpu
       const int ievt0 = ipagV * neppV;
       const fptype* gs = MemoryAccessGs::ieventAccessRecordConst( allgs, ievt0 );
       fptype* couplings = MemoryAccessCouplings::ieventAccessRecord( allcouplings, ievt0 );
-      G2COUP<G_ACCESS, C_ACCESS>( gs, couplings );
+      G2COUP<G_ACCESS, C_ACCESS>( gs, couplings, cIPD );
     }
 #endif
   }
