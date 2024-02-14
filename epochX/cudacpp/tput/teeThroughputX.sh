@@ -9,7 +9,7 @@ cd $scrdir
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggh]> [-sa] [-noalpaka] [-flt|-fltonly|-mix|-mixonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly] [-makeclean] [-makej] [-nofpe] [-dlp <dyld_library_path>]"
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-ggttgggg][-gqttq][-heftggh]> [-sa] [-noalpaka] [-flt|-fltonly|-mix|-mixonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly] [-makeclean] [-makej] [-nofpe] [-dlp <dyld_library_path>]"
   exit 1
 }
 
@@ -19,6 +19,7 @@ ggtt=
 ggttg=
 ggttgg=
 ggttggg=
+ggttgggg=
 gqttq=
 heftggh=
 suffs="mad" # DEFAULT code base: madevent + cudacpp as 2nd exporter (logs_*_mad)
@@ -55,6 +56,9 @@ for arg in $*; do
   elif [ "$arg" == "-ggttggg" ]; then
     if [ "$ggttggg" == "" ]; then procs+=${procs:+ }${arg}; fi
     ggttggg=$arg
+  elif [ "$arg" == "-ggttgggg" ]; then
+    if [ "$ggttgggg" == "" ]; then procs+=${procs:+ }${arg}; fi
+    ggttgggg=$arg
   elif [ "$arg" == "-gqttq" ]; then
     if [ "$gqttq" == "" ]; then procs+=${procs:+ }${arg}; fi
     gqttq=$arg
