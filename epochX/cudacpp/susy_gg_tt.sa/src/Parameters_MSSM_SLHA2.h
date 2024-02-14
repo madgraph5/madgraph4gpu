@@ -148,11 +148,11 @@ namespace mg5amcCpu
     constexpr double mdl_Wsu4 = 1.152973e+00;
     constexpr double mdl_Wsd4 = 2.858123e-01;
     constexpr double mdl_Wch2 = 2.486895e+00;
-    constexpr double mdl_Wneu4 = 2.585851e+00;
-    constexpr double mdl_Wneu3 = 1.915985e+00;
+    constexpr double mdl_Wneu4_abs = 2.585851e+00;
+    constexpr double mdl_Wneu3_abs = 1.915985e+00;
     constexpr double mdl_Wch1 = 1.704145e-02;
-    constexpr double mdl_Wneu2 = 2.077700e-02;
-    constexpr double mdl_Wgo = 5.506754e+00;
+    constexpr double mdl_Wneu2_abs = 2.077700e-02;
+    constexpr double mdl_Wgo_abs = 5.506754e+00;
     constexpr double mdl_Wsn3 = 1.475190e-01;
     constexpr double mdl_Wsl3 = 1.483273e-01;
     constexpr double mdl_Wsn2 = 1.498816e-01;
@@ -755,14 +755,16 @@ namespace mg5amcCpu
     constexpr double mdl_vd = mdl_vev * mdl_cos__beta;
     constexpr double mdl_vu = mdl_vev * mdl_sin__beta;
     constexpr double mdl_ee__exp__2 = ( ( mdl_ee ) * ( mdl_ee ) );
-    if( mdl_Mneu2 < 0 )
-      mdl_Wneu2 = -abs( mdl_Wneu2 );
-    if( mdl_Mneu3 < 0 )
-      mdl_Wneu3 = -abs( mdl_Wneu3 );
-    if( mdl_Mneu4 < 0 )
-      mdl_Wneu4 = -abs( mdl_Wneu4 );
-    if( mdl_Mgo < 0 )
-      mdl_Wgo = -abs( mdl_Wgo );
+    // Fixes for Majorana particles
+    constexpr int mdl_Wneu2_sign = ( mdl_Mneu2 < 0 ?  -1 : + 1 );
+    constexpr int mdl_Wneu3_sign = ( mdl_Mneu3 < 0 ?  -1 : + 1 );
+    constexpr int mdl_Wneu4_sign = ( mdl_Mneu4 < 0 ?  -1 : + 1 );
+    constexpr int mdl_Wgo_sign = ( mdl_Mgo < 0 ?  -1 : + 1 );
+    constexpr double mdl_Wneu2 = mdl_Wneu2_sign * mdl_Wneu2_abs;
+    constexpr double mdl_Wneu3 = mdl_Wneu3_sign * mdl_Wneu3_abs;
+    constexpr double mdl_Wneu4 = mdl_Wneu4_sign * mdl_Wneu4_abs;
+    constexpr double mdl_Wgo = mdl_Wgo_sign * mdl_Wgo_abs;
+
     // Model couplings independent of aS
     // (none)
 
