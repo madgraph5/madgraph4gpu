@@ -76,7 +76,8 @@ namespace mgOnGpu /* clang-format off */
   };
 
   template<typename FP>
-  inline __host__ __device__ cxsmpl<FP> // (NB: cannot be constexpr as a constexpr function cannot have a nonliteral return type "mgOnGpu::cxsmpl")
+  constexpr // (NB: now valid code? in the past this failed as "a constexpr function cannot have a nonliteral return type mgOnGpu::cxsmpl")
+  inline __host__ __device__ cxsmpl<FP>
   conj( const cxsmpl<FP>& c )
   {
     return cxsmpl<FP>( c.real(), -c.imag() );
