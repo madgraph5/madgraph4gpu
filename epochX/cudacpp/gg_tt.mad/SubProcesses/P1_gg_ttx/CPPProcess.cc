@@ -257,20 +257,18 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 1
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[2], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      channelids_sv = CID_ACCESS::kernelAccessConst( channelIds );
+      if ( *channelIds != 0 ) {
+        channelids_sv = CID_ACCESS::kernelAccessConst( channelIds );
 #ifdef __CUDACC__
-      if ( channelIds != nullptr ) {
         if ( channelids_sv == 1 ) numerators_sv += cxabs2( amp_sv[0] );
         denominators_sv += cxabs2( amp_sv[0] );
-      }
 #else
-      for (int i = 0; i < neppV; ++i ) {
-        if ( channelIds != nullptr ) {
-          if ( channelids_sv[i] == 1 ) numerators_sv += cxabs2( amp_sv[0] );
-          denominators_sv += cxabs2( amp_sv[0] );
+        for (int i = 0; i < neppV; ++i ) {
+            if ( channelids_sv[i] == 1 ) numerators_sv += cxabs2( amp_sv[0] );
+            denominators_sv += cxabs2( amp_sv[0] );
         }
-      }
 #endif
+      }
 #endif
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -283,20 +281,18 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 2
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[4], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      channelids_sv = CID_ACCESS::kernelAccessConst( channelIds );
+      if ( *channelIds != 0 ) {
+        channelids_sv = CID_ACCESS::kernelAccessConst( channelIds );
 #ifdef __CUDACC__
-      if ( channelIds != nullptr ) {
         if ( channelids_sv == 2 ) numerators_sv += cxabs2( amp_sv[0] );
         denominators_sv += cxabs2( amp_sv[0] );
-      }
 #else
-      for (int i = 0; i < neppV; ++i ) {
-        if ( channelIds != nullptr ) {
-          if ( channelids_sv[i] == 2 ) numerators_sv += cxabs2( amp_sv[0] );
-          denominators_sv += cxabs2( amp_sv[0] );
+        for (int i = 0; i < neppV; ++i ) {
+            if ( channelids_sv[i] == 2 ) numerators_sv += cxabs2( amp_sv[0] );
+            denominators_sv += cxabs2( amp_sv[0] );
         }
-      }
 #endif
+      }
 #endif
       jamp_sv[0] -= amp_sv[0];
 
@@ -308,20 +304,18 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 3
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[4], w_fp[2], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      channelids_sv = CID_ACCESS::kernelAccessConst( channelIds );
+      if ( *channelIds != 0 ) {
+        channelids_sv = CID_ACCESS::kernelAccessConst( channelIds );
 #ifdef __CUDACC__
-      if ( channelIds != nullptr ) {
         if ( channelids_sv == 3 ) numerators_sv += cxabs2( amp_sv[0] );
         denominators_sv += cxabs2( amp_sv[0] );
-      }
 #else
-      for (int i = 0; i < neppV; ++i ) {
-        if ( channelIds != nullptr ) {
-          if ( channelids_sv[i] == 3 ) numerators_sv += cxabs2( amp_sv[0] );
-          denominators_sv += cxabs2( amp_sv[0] );
+        for (int i = 0; i < neppV; ++i ) {
+            if ( channelids_sv[i] == 3 ) numerators_sv += cxabs2( amp_sv[0] );
+            denominators_sv += cxabs2( amp_sv[0] );
         }
-      }
 #endif
+      }
 #endif
       jamp_sv[1] -= amp_sv[0];
 
@@ -937,7 +931,7 @@ namespace mg5amcCpu
     }
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Event-by-event random choice of color #402
-    if( channelIds != nullptr ) // no event-by-event choice of color if channelId == 0 (fix FPE #783)
+    if( *channelIds != 0 ) // no event-by-event choice of color if channelId == 0 (fix FPE #783)
     {
       uint channelIdC = CID_ACCESS::kernelAccessConst(channelIds) - 1; // coloramps.h uses the C array indexing starting at 0
       fptype targetamp[ncolor] = { 0 };
@@ -1052,7 +1046,7 @@ namespace mg5amcCpu
       }
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL // multichannel enabled (random color choice)
       // Event-by-event random choice of color #402
-      if( channelIds != nullptr ) // no event-by-event choice of color if channelId == 0 (fix FPE #783)
+      if( *channelIds != 0 ) // no event-by-event choice of color if channelId == 0 (fix FPE #783)
       {
         uint_sv channelIdC = CID_ACCESS::kernelAccessConst(channelIds) - 1; // coloramps.h uses the C array indexing starting at 0
         fptype_sv targetamp[ncolor] = { 0 };
@@ -1121,7 +1115,7 @@ namespace mg5amcCpu
 #ifdef MGONGPUCPP_GPUIMPL
     allMEs[ievt] /= helcolDenominators[0];
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    if( channelIds != nullptr ) allMEs[ievt] *= allNumerators[ievt] / allDenominators[ievt];
+    if( *channelIds != 0 ) allMEs[ievt] *= allNumerators[ievt] / allDenominators[ievt];
 #endif
 #else
     for( int ipagV = 0; ipagV < npagV; ++ipagV )
@@ -1131,7 +1125,7 @@ namespace mg5amcCpu
       fptype_sv& MEs_sv = E_ACCESS::kernelAccess( MEs );
       MEs_sv /= helcolDenominators[0];
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelIds != nullptr )
+      if( *channelIds != 0 )
       {
         fptype* numerators = NUM_ACCESS::ieventAccessRecord( allNumerators, ievt0 );
         fptype* denominators = DEN_ACCESS::ieventAccessRecord( allDenominators, ievt0 );
