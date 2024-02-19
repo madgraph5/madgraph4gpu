@@ -2,4 +2,4 @@ set stdout_level DEBUG
 set zerowidth_tchannel F
 generate g g > t t~
 add process g g > t t~ g
-output madevent gg_tt01g.mad --hel_recycling=False --vector_size=32 --me_exporter=standalone_cudacpp
+output madevent_simd gg_tt01g.mad --hel_recycling=False --vector_size=32 

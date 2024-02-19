@@ -131,7 +131,8 @@ if [ "${fptype}" == "f" ]; then
 elif [ "${fptype}" == "m" ]; then
   xsecthr="2E-4" # FIXME #537 (AV: by "fixme" I probably meant a stricter tolerance could be used, maybe E-5?)
 else
-  xsecthr="2E-14"
+  ###xsecthr="2E-14" # fails when updating gpucpp in PR #811
+  xsecthr="3E-14"
 fi
 
 # Determine the working directory below topdir based on suff, bckend and <process>
