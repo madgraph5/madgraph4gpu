@@ -45,5 +45,5 @@ define l+ = e+ mu+
 define l- = e- mu-
 define vl = ve vm vt
 define vl~ = ve~ vm~ vt~
-output madevent ../TMPOUT/CODEGEN_mad_ee_mumu --hel_recycling=False --\
-vector_size=32 --me_exporter=standalone_cudacpp
+output madevent_simd ../TMPOUT/CODEGEN_mad_ee_mumu --hel_recycling=Fal\
+se --vector_size=32

@@ -32,8 +32,11 @@ while [ "$1" != "" ]; do
     opts+=" -makeonly"
     shift
   elif [ "$1" == "-hip" ]; then
-    # Random numbers use rocrand instead of curand?
-    rndhst=-rorhst
+    #### Random numbers use hiprand instead of curand?
+    ###rndhst=-hirhst
+    # See https://github.com/ROCm/hipRAND/issues/76
+    # Random numbers use common (not hiprand) instead of curand?
+    rndhst=-common
     shift
   else
     echo "Usage: $0 [-short] [-e] [-sa] [-makeonly] [-hip]"
@@ -77,8 +80,13 @@ ended4="$cmd\nENDED(4) AT $(date) [Status=$status]"
 
 # (72/78) Two extra logs (double/float x hrd0 x inl0 + rndhst) only in three of the six processes (no rebuild needed)
 cmd="./tput/teeThroughputX.sh -eemumu -ggtt -ggttgg -flt ${rndhst} ${opts}"
-$cmd; status=$?
-ended5="$cmd\nENDED(5) AT $(date) [Status=$status]"
+if [ "${rndhst}" != "-common" ]; then
+  $cmd; status=$?
+  ended5="$cmd\nENDED(5) AT $(date) [Status=$status]"
+else
+  cmd="SKIP '$cmd'"; echo $cmd; status=$?
+  ended5="$cmd\nENDED(5) AT $(date) [Status=$status]"
+fi
 
 # (78/78) Two extra logs (double/float x hrd0 x inl0 + common) only in three of the six processes (no rebuild needed)
 cmd="./tput/teeThroughputX.sh -eemumu -ggtt -ggttgg -flt -common ${opts}"
@@ -98,6 +106,7 @@ echo -e "$ended2"
 echo -e "$ended3"
 echo -e "$ended4"
 echo -e "$ended5"
+echo -e "$ended6"
 
 if [ "$ggttggg" == "" ]; then
   echo
