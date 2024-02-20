@@ -332,7 +332,7 @@ namespace mg5amcCpu
       std::copy( rndhel, rndhel + m_nevt, m_hstRndHel.data() );
       std::copy( rndcol, rndcol + m_nevt, m_hstRndCol.data() );
     }
-    memcpy(m_hstChanIds.data(), channelIds, m_nevt * sizeof(unsigned int));
+    if (channelIds) memcpy(m_hstChanIds.data(), channelIds, m_nevt * sizeof(unsigned int));
     copyDeviceFromHost( m_devGs, m_hstGs );
     copyDeviceFromHost( m_devRndHel, m_hstRndHel );
     copyDeviceFromHost( m_devRndCol, m_hstRndCol );
@@ -394,7 +394,7 @@ namespace mg5amcCpu
       if( m_nGoodHel < 0 ) throw std::runtime_error( "Bridge cpu_sequence: computeGoodHelicities returned nGoodHel<0" );
     }
     if( goodHelOnly ) return;
-    memcpy( m_hstChanIds.data(), channelIds, m_nevt * sizeof(unsigned int));
+    if (channelIds) memcpy( m_hstChanIds.data(), channelIds, m_nevt * sizeof(unsigned int));
     m_pmek->computeMatrixElements();
     flagAbnormalMEs( m_hstMEs.data(), m_nevt );
     if constexpr( std::is_same_v<FORTRANFPTYPE, fptype> )
