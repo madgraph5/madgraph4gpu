@@ -515,7 +515,8 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  void /* clang-format off */
+#ifdef __CUDACC__
+  void
   sigmaKin_getGoodHel( const fptype* allmomenta,   // input: momenta[nevt*npar*4]
                        const fptype* allcouplings, // input: couplings[nevt*ndcoup*2]
                        fptype* allMEs,             // output: allMEs[nevt], |M|^2 final_avg_over_helicities
@@ -526,26 +527,14 @@ namespace mg5amcCpu
                        bool* isGoodHel,            // output: isGoodHel[ncomb] - host array
                        const int nevt )            // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
   {
-#ifdef __CUDACC__
     const int maxtry0 = 16;
-#else
-    //assert( (size_t)(allmomenta) % mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
-    //assert( (size_t)(allMEs) % mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
-    const int maxtry0 = ( neppV > 16 ? neppV : 16 ); // 16, but at least neppV (otherwise the npagV loop does not even start)
-#endif
     fptype hstMEsLast[maxtry0] = { 0 };
     const int maxtry = std::min( maxtry0, nevt ); // 16, but at most nevt (avoid invalid memory access if nevt<maxtry0)
     //std::cout << "sigmaKin_getGoodHel nevt=" << nevt << " maxtry=" << maxtry << std::endl;
-#ifdef __CUDACC__ /* clang-format on */
     cudaMemset( allMEs, 0, maxtry * sizeof( fptype ) );
     fptype hstMEs[maxtry0];
-#else
-    for( int ievt = 0; ievt < maxtry; ++ievt ) allMEs[ievt] = 0; // all zeros
-    fptype* hstMEs = allMEs;
-#endif
     for( int ihel = 0; ihel < ncomb; ihel++ )
     {
-#ifdef __CUDACC__
       const int gpublocks = 1;
       const int gputhreads = maxtry;
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
@@ -555,13 +544,49 @@ namespace mg5amcCpu
       calculate_wavefunctions<<<gpublocks, gputhreads>>>( ihel, allmomenta, allcouplings, allMEs );
 #endif
       checkCuda( cudaMemcpy( hstMEs, allMEs, maxtry * sizeof( fptype ), cudaMemcpyDeviceToHost ) );
+      //std::cout << "sigmaKin_getGoodHel ihel=" << ihel << std::endl;
+      for( int ievt = 0; ievt < maxtry; ++ievt )
+      {
+        // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
+        //std::cout << "sigmaKin_getGoodHel hstMEs[ievt]=" << hstMEs[ievt] << std::endl;
+        //std::cout << "sigmaKin_getGoodHel hstMEsLast[ievt]=" << hstMEsLast[ievt] << std::endl;
+        const bool differs = ( hstMEs[ievt] != hstMEsLast[ievt] );
+        if( differs )
+        {
+          //if ( !isGoodHel[ihel] ) std::cout << "sigmaKin_getGoodHel ihel=" << ihel << " TRUE" << std::endl;
+          isGoodHel[ihel] = true;
+        }
+        hstMEsLast[ievt] = hstMEs[ievt]; // running sum up to helicity ihel
+      }
+    }
+  }
 #else
+  void
+  sigmaKin_getGoodHel( const fptype* allmomenta,   // input: momenta[nevt*npar*4]
+                       const fptype* allcouplings, // input: couplings[nevt*ndcoup*2]
+                       fptype* allMEs,             // output: allMEs[nevt], |M|^2 final_avg_over_helicities
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+                       fptype* allNumerators,      // output: multichannel numerators[nevt], running_sum_over_helicities
+                       fptype* allDenominators,    // output: multichannel denominators[nevt], running_sum_over_helicities
+#endif
+                       bool* isGoodHel,            // output: isGoodHel[ncomb] - host array
+                       const int nevt )            // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+  {
+    //assert( (size_t)(allmomenta) % mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
+    //assert( (size_t)(allMEs) % mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
+    const int maxtry0 = ( neppV > 16 ? neppV : 16 ); // 16, but at least neppV (otherwise the npagV loop does not even start)
+    fptype hstMEsLast[maxtry0] = { 0 };
+    const int maxtry = std::min( maxtry0, nevt ); // 16, but at most nevt (avoid invalid memory access if nevt<maxtry0)
+    //std::cout << "sigmaKin_getGoodHel nevt=" << nevt << " maxtry=" << maxtry << std::endl;
+    for( int ievt = 0; ievt < maxtry; ++ievt ) allMEs[ievt] = 0; // all zeros
+    fptype* hstMEs = allMEs;
+    for( int ihel = 0; ihel < ncomb; ihel++ )
+    {
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       constexpr unsigned int channelId = 0; // disable single-diagram channel enhancement
       calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, allNumerators, allDenominators, channelId, maxtry );
 #else
       calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, maxtry );
-#endif
 #endif
       //std::cout << "sigmaKin_getGoodHel ihel=" << ihel << std::endl;
       for( int ievt = 0; ievt < maxtry; ++ievt )
@@ -579,7 +604,8 @@ namespace mg5amcCpu
       }
     }
   }
-
+#endif
+  
   //--------------------------------------------------------------------------
 
   void
