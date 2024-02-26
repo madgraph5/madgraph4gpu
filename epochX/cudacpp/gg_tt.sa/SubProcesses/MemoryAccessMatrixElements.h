@@ -22,15 +22,31 @@ namespace mg5amcCpu
   //----------------------------------------------------------------------------
 
   // A class describing the internal layout of memory buffers for matrix elements
-  // This implementation uses a plain ARRAY[nevt]
-  // [If many implementations are used, a suffix _ARRAYv1 should be appended to the class name]
-  class MemoryAccessMatrixElementsBase //_ARRAYv1
+  // This implementation uses an AOSOA[npagME][ncomb+1][neppME] where nevt=npagME*neppME
+  // [If many implementations are used, a suffix _AOSOAv1 should be appended to the class name]
+  class MemoryAccessMatrixElementsBase //_AOSOAv1
   {
+  public:
+
+    // Number of Events Per Page in the matrix element AOSOA memory buffer layout
+#ifdef MGONGPUCPP_GPUIMPL
+    static constexpr int neppME = 32/sizeof(fptype); // (DEFAULT) 32-byte GPU cache line (256 bits): 4 (DOUBLE) or 8 (FLOAT)
+#else
+#ifdef MGONGPU_CPPSIMD
+    static constexpr int neppME = MGONGPU_CPPSIMD; // (DEFAULT) neppME=neppV for optimal performance
+#else
+    static constexpr int neppME = 1; // (DEFAULT) neppM=neppV for optimal performance (NB: this is equivalent to AOS)
+#endif
+#endif
+
   private:
 
     friend class MemoryAccessHelper<MemoryAccessMatrixElementsBase>;
     friend class KernelAccessHelper<MemoryAccessMatrixElementsBase, true>;
     friend class KernelAccessHelper<MemoryAccessMatrixElementsBase, false>;
+
+    // The number of (good and bad) helicity combinations
+    static constexpr int ncomb = CPPProcess::ncomb;
 
     //--------------------------------------------------------------------------
     // NB all KernelLaunchers assume that memory access can be decomposed as "accessField = decodeRecord( accessRecord )"
@@ -43,19 +59,24 @@ namespace mg5amcCpu
     ieventAccessRecord( fptype* buffer,
                         const int ievt )
     {
-      return &( buffer[ievt] ); // ARRAY[nevt]
+      const int ipagME = ievt / neppME; // #event "ME-page"
+      const int ieppME = ievt % neppME; // #event in the current event ME-page
+      constexpr int icomb = 0;
+      return &( buffer[ipagME * ( ncomb + 1 ) * neppME + icomb * neppME + ieppME] ); // AOSOA[ipagME][icomb][ieppME]
     }
 
     //--------------------------------------------------------------------------
 
     // Locate a field (output) of an event record (input) from the given field indexes (input)
     // [Signature (non-const) ===> fptype& decodeRecord( fptype* buffer, Ts... args ) <===]
-    // [NB: expand variadic template "Ts... args" to empty and rename "Field" as empty]
+    // [NB: expand variadic template "Ts... args" to "const int icomb" and rename "Field" as "Icomb"]
     static __host__ __device__ inline fptype&
-    decodeRecord( fptype* buffer )
+    decodeRecord( fptype* buffer,
+                  const int icomb )
     {
-      constexpr int ievt = 0;
-      return buffer[ievt]; // ARRAY[nevt]
+      constexpr int ipagME = 0;
+      constexpr int ieppME = 0;
+      return buffer[ipagME * ( ncomb + 1 ) * neppME + icomb * neppME + ieppME]; // AOSOA[ipagME][icomb][ieppME]
     }
   };
 
@@ -76,23 +97,23 @@ namespace mg5amcCpu
     static constexpr auto ieventAccessRecordConst = MemoryAccessHelper<MemoryAccessMatrixElementsBase>::ieventAccessRecordConst;
 
     // Locate a field (output) of an event record (input) from the given field indexes (input)
-    // [Signature (non-const) ===> fptype& decodeRecord( fptype* buffer ) <===]
-    static constexpr auto decodeRecord = MemoryAccessHelper<MemoryAccessMatrixElementsBase>::decodeRecord;
+    // [Signature (non-const) ===> fptype& decodeRecord( fptype* buffer, const int icomb ) <===]
+    static constexpr auto decodeRecordIcomb = MemoryAccessHelper<MemoryAccessMatrixElementsBase>::decodeRecord;
 
     // Locate a field (output) of an event record (input) from the given field indexes (input)
-    // [Signature (const) ===> const fptype& decodeRecordConst( const fptype* buffer ) <===]
-    static constexpr auto decodeRecordConst =
-      MemoryAccessHelper<MemoryAccessMatrixElementsBase>::template decodeRecordConst<>;
+    // [Signature (const) ===> const fptype& decodeRecordConst( const fptype* buffer, const int icomb ) <===]
+    static constexpr auto decodeRecordIcombConst =
+      MemoryAccessHelper<MemoryAccessMatrixElementsBase>::template decodeRecordConst<int>;
 
     // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
-    // [Signature (non-const) ===> fptype& ieventAccess( fptype* buffer, const ievt ) <===]
-    static constexpr auto ieventAccess =
-      MemoryAccessHelper<MemoryAccessMatrixElementsBase>::template ieventAccessField<>;
+    // [Signature (non-const) ===> fptype& ieventAccess( fptype* buffer, const ievt, const icomb ) <===]
+    static constexpr auto ieventAccessIcomb =
+      MemoryAccessHelper<MemoryAccessMatrixElementsBase>::template ieventAccessField<int>;
 
     // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
-    // [Signature (const) ===> const fptype& ieventAccessConst( const fptype* buffer, const ievt ) <===]
-    static constexpr auto ieventAccessConst =
-      MemoryAccessHelper<MemoryAccessMatrixElementsBase>::template ieventAccessFieldConst<>;
+    // [Signature (const) ===> const fptype& ieventAccessConst( const fptype* buffer, const ievt, const icomb ) <===]
+    static constexpr auto ieventAccessIcombConst =
+      MemoryAccessHelper<MemoryAccessMatrixElementsBase>::template ieventAccessFieldConst<int>;
   };
 
   //----------------------------------------------------------------------------
@@ -108,16 +129,16 @@ namespace mg5amcCpu
     static constexpr auto ieventAccessRecord = MemoryAccessMatrixElements::ieventAccessRecord;
 
     // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
-    // [Signature (non-const, SCALAR) ===> fptype& kernelAccess_s( fptype* buffer ) <===]
-    static constexpr auto kernelAccess_s =
-      KernelAccessHelper<MemoryAccessMatrixElementsBase, onDevice>::template kernelAccessField<>; // requires cuda 11.4
+    // [Signature (non-const, SCALAR) ===> fptype& kernelAccess_s( fptype* buffer, const int icomb ) <===]
+    static constexpr auto kernelAccessIcomb_s =
+      KernelAccessHelper<MemoryAccessMatrixElementsBase, onDevice>::template kernelAccessField<int>; // requires cuda 11.4
 
     // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal)
-    // [Signature (non const, SCALAR OR VECTOR) ===> fptype_sv& kernelAccess( const fptype* buffer ) <===]
+    // [Signature (non const, SCALAR OR VECTOR) ===> fptype_sv& kernelAccess( const fptype* buffer, const int icomb ) <===]
     static __host__ __device__ inline fptype_sv&
-    kernelAccess( fptype* buffer )
+    kernelAccessIcomb( fptype* buffer )
     {
-      fptype& out = kernelAccess_s( buffer );
+      fptype& out = kernelAccessIcomb_s( buffer );
 #ifndef MGONGPU_CPPSIMD
       return out;
 #else
@@ -129,9 +150,9 @@ namespace mg5amcCpu
     }
 
     // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
-    // [Signature (const) ===> const fptype& kernelAccessConst( const fptype* buffer ) <===]
-    static constexpr auto kernelAccessConst =
-      KernelAccessHelper<MemoryAccessMatrixElementsBase, onDevice>::template kernelAccessFieldConst<>; // requires cuda 11.4
+    // [Signature (const) ===> const fptype& kernelAccessConst( const fptype* buffer, const int icomb ) <===]
+    static constexpr auto kernelAccessIcombConst =
+      KernelAccessHelper<MemoryAccessMatrixElementsBase, onDevice>::template kernelAccessFieldConst<int>; // requires cuda 11.4
   };
 
   //----------------------------------------------------------------------------
