@@ -98,7 +98,8 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  void /* clang-format off */
+#ifdef __CUDACC__ /* clang-format off */
+  void
   sigmaKin_getGoodHel( const fptype* allmomenta,   // input: momenta[nevt*npar*4]
                        const fptype* allcouplings, // input: couplings[nevt*ndcoup*2]
                        fptype* allMEs,             // output: allMEs[nevt], |M|^2 final_avg_over_helicities
@@ -108,7 +109,18 @@ namespace mg5amcCpu
 #endif
                        bool* isGoodHel,            // output: isGoodHel[ncomb] - device array
                        const int nevt );           // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
-  /* clang-format on */
+#else
+  void
+  sigmaKin_getGoodHel( const fptype* allmomenta,   // input: momenta[nevt*npar*4]
+                       const fptype* allcouplings, // input: couplings[nevt*ndcoup*2]
+                       fptype* allMEs,             // output: allMEs[nevt], |M|^2 final_avg_over_helicities
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+                       fptype* allNumerators,      // output: multichannel numerators[nevt], running_sum_over_helicities
+                       fptype* allDenominators,    // output: multichannel denominators[nevt], running_sum_over_helicities
+#endif
+                       bool* isGoodHel,            // output: isGoodHel[ncomb] - device array
+                       const int nevt );           // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+#endif /* clang-format on */
 
   //--------------------------------------------------------------------------
 
@@ -117,7 +129,8 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  void /* clang-format off */
+#ifdef __CUDACC__ /* clang-format off */
+  void
   sigmaKin( const fptype* allmomenta,      // input: momenta[nevt*npar*4]
             const fptype* allcouplings,    // input: couplings[nevt*ndcoup*2]
             fptype* allMEs,                // output: allMEs[nevt], |M|^2 final_avg_over_helicities
@@ -126,13 +139,21 @@ namespace mg5amcCpu
             fptype* allDenominators,       // output: multichannel denominators[nevt], running_sum_over_helicities
             const unsigned int channelId,  // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
 #endif
-#ifdef __CUDACC__
             const int gpublocks,           // input: cuda gpublocks
             const int gputhreads           // input: cuda gputhreads
+            );
 #else
-            const int nevt                 // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+  void
+  sigmaKin( const fptype* allmomenta,      // input: momenta[nevt*npar*4]
+            const fptype* allcouplings,    // input: couplings[nevt*ndcoup*2]
+            fptype* allMEs,                // output: allMEs[nevt], |M|^2 final_avg_over_helicities
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+            fptype* allNumerators,         // output: multichannel numerators[nevt], running_sum_over_helicities
+            fptype* allDenominators,       // output: multichannel denominators[nevt], running_sum_over_helicities
+            const unsigned int channelId,  // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
 #endif
-            ); /* clang-format on */
+            const int nevt );              // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+#endif /* clang-format on */
 
   //--------------------------------------------------------------------------
 
