@@ -12,8 +12,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       PARAMETER  (PI=3.141592653589793D0)
       PARAMETER  (ZERO=0D0)
       INCLUDE 'input.inc'
-      include 'vector.inc'
-      include 'coupl.inc'
+      INCLUDE '../vector.inc'
+      INCLUDE 'coupl.inc'
       GC_10(VECID) = -G
       GC_11(VECID) = MDL_COMPLEXI*G
       GC_12(VECID) = MDL_COMPLEXI*MDL_G__EXP__2

@@ -2,6 +2,10 @@
 #ifndef MADGRAPHTEST_H_
 #define MADGRAPHTEST_H_ 1
 
+//==================================================================
+// NB! THIS FILE IS IRRELEVANT FOR EPOCHX! LOOK IN CODEGEN INSTEAD!
+//==================================================================
+
 #include <mgOnGpuConfig.h>
 
 #include <array>

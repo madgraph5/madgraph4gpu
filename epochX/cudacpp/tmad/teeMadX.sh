@@ -1,4 +1,7 @@
 #!/bin/bash
+# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Licensed under the GNU Lesser General Public License (version 3 or later).
+# Created by: A. Valassi (May 2022) for the MG5aMC CUDACPP plugin.
 
 scrdir=$(cd $(dirname $0); pwd)
 bckend=$(basename $(cd $scrdir; cd ..; pwd)) # cudacpp or alpaka
@@ -6,7 +9,7 @@ cd $scrdir
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-makeonly] [-makeclean] [-rmrdat] [+10x] [+100x]" > /dev/stderr
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gguu][-gqttq]> [-flt|-fltonly|-mix|-mixonly] [-makeonly] [-makeclean] [-rmrdat] [+10x] [-checkonly]" > /dev/stderr
   exit 1
 }
 
@@ -16,6 +19,8 @@ ggtt=
 ggttg=
 ggttgg=
 ggttggg=
+gguu=
+gqttq=
 
 suffs="mad"
 fptypes="d"
@@ -34,6 +39,8 @@ dlp=
 
 add10x=
 
+checkonly=
+
 for arg in $*; do
   if [ "$arg" == "-eemumu" ]; then
     if [ "$eemumu" == "" ]; then procs+=${procs:+ }${arg}; fi
@@ -50,12 +57,24 @@ for arg in $*; do
   elif [ "$arg" == "-ggttggg" ]; then
     if [ "$ggttggg" == "" ]; then procs+=${procs:+ }${arg}; fi
     ggttggg=$arg
-  #elif [ "$arg" == "-flt" ]; then
-  #  if [ "${fptypes}" == "f" ]; then echo "ERROR! Options -flt and -fltonly are incompatible"; usage; fi
-  #  fptypes="d f"
-  #elif [ "$arg" == "-fltonly" ]; then
-  #  if [ "${fptypes}" == "d f" ]; then echo "ERROR! Options -flt and -fltonly are incompatible"; usage; fi
-  #  fptypes="f"
+  elif [ "$arg" == "-gguu" ]; then
+    if [ "$gguu" == "" ]; then procs+=${procs:+ }${arg}; fi
+    gguu=$arg
+  elif [ "$arg" == "-gqttq" ]; then
+    if [ "$gqttq" == "" ]; then procs+=${procs:+ }${arg}; fi
+    gqttq=$arg
+  elif [ "$arg" == "-flt" ]; then
+    if [ "${fptypes}" != "d" ] && [ "${fptypes}" != "d f" ]; then echo "ERROR! Options -flt, -fltonly, -mix and -mixonly are incompatible"; usage; fi
+    fptypes="d f"
+  elif [ "$arg" == "-fltonly" ]; then
+    if [ "${fptypes}" != "d" ] && [ "${fptypes}" != "f" ]; then echo "ERROR! Options -flt, -fltonly, -mix and -mixonly are incompatible"; usage; fi
+    fptypes="f"
+  elif [ "$arg" == "-mix" ]; then
+    if [ "${fptypes}" != "d" ] && [ "${fptypes}" != "d f m" ]; then echo "ERROR! Options -flt, -fltonly, -mix and -mixonly are incompatible"; usage; fi
+    fptypes="d f m"
+  elif [ "$arg" == "-mixonly" ]; then
+    if [ "${fptypes}" != "d" ] && [ "${fptypes}" != "m" ]; then echo "ERROR! Options -flt, -fltonly, -mix and -mixonly are incompatible"; usage; fi
+    fptypes="m"
   #elif [ "$arg" == "-inl" ]; then
   #  if [ "${helinls}" == "1" ]; then echo "ERROR! Options -inl and -inlonly are incompatible"; usage; fi
   #  helinls="0 1"
@@ -86,8 +105,8 @@ for arg in $*; do
     rmrdat=" $arg"
   elif [ "$arg" == "+10x" ]; then
     add10x="$add10x $arg"
-  elif [ "$arg" == "+100x" ]; then
-    add10x="$add10x $arg"
+  elif [ "$arg" == "-checkonly" ]; then
+    checkonly=" $arg"
   else
     echo "ERROR! Invalid option '$arg'"; usage
   fi  
@@ -103,12 +122,12 @@ for step in $steps; do
   for proc in $procs; do
     for suff in $suffs; do
       for fptype in $fptypes; do
-        flt=; if [ "${fptype}" == "f" ]; then flt=" -fltonly"; fi
+        flt=; if [ "${fptype}" == "f" ]; then flt=" -fltonly"; elif [ "${fptype}" == "m" ]; then flt=" -mixonly"; fi
         for helinl in $helinls; do
           inl=; if [ "${helinl}" == "1" ]; then inl=" -inlonly"; fi
           for hrdcod in $hrdcods; do
             hrd=; if [ "${hrdcod}" == "1" ]; then hrd=" -hrdonly"; fi
-            args="${proc}${flt}${inl}${hrd}${deb}${rmrdat}${add10x} ${dlp}"
+            args="${proc}${flt}${inl}${hrd}${deb}${rmrdat}${add10x}${checkonly} ${dlp}"
             ###args="${args} -avxall" # avx, fptype, helinl and hrdcod are now supported for all processes
             if [ "${step}" == "makeclean" ]; then
               printf "\n%80s\n" |tr " " "*"
@@ -124,11 +143,20 @@ for step in $steps; do
               logfile=logs_${proc#-}_${suff}/log_${proc#-}_${suff}_${fptype}_inl${helinl}_hrd${hrdcod}.txt
               if [ "${rndgen}" != "" ]; then logfile=${logfile%.txt}_${rndgen#-}.txt; fi
               if [ "${rmbsmp}" != "" ]; then logfile=${logfile%.txt}_${rmbsmp#-}.txt; fi
+              if [ "${checkonly}" != "" ]; then
+                logfileold=${logfile}
+                logfile=${logfile}.TMP
+              fi
               printf "\n%80s\n" |tr " " "*"
               printf "*** ./madX.sh $args | tee $logfile"
               printf "\n%80s\n" |tr " " "*"
               mkdir -p $(dirname $logfile)
               if ! ./madX.sh $args | tee $logfile; then status=2; fi
+              if [ "${checkonly}" != "" ]; then
+                ./checkOnlyMerge.sh ${logfileold}
+                \rm -f ${logfile}
+                echo "Results merged into ${logfileold}"
+              fi
             fi
           done
         done
@@ -142,4 +170,6 @@ ended="ENDED   AT $(date)"
 echo
 echo "$started"
 echo "$ended"
+echo
+echo "Status=$status"
 exit $status

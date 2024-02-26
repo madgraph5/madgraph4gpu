@@ -5,6 +5,8 @@ C     INCLUDE
 C     
       INCLUDE 'pdf.inc'
       INCLUDE '../alfas.inc'
+      INCLUDE '../vector.inc'
+      INCLUDE '../coupl.inc'
       REAL*8 ZMASS
       DATA ZMASS/91.188D0/
       CHARACTER*150 LHAPATH
@@ -23,10 +25,15 @@ C     initialize the pdf set
       CALL SETPDFPATH(LHAPATH)
       VALUE(1)=LHAID
       PARM(1)='DEFAULT'
-      CALL PDFSET(PARM,VALUE)
-      CALL GETORDERAS(NLOOP)
-      NLOOP=NLOOP+1
-      ASMZ=ALPHASPDF(ZMASS)
+      IF (PDLABEL.EQ.'lhapdf') THEN
+        CALL PDFSET(PARM,VALUE)
+        CALL GETORDERAS(NLOOP)
+        NLOOP=NLOOP+1
+        ASMZ=ALPHASPDF(ZMASS)
+      ELSE
+        WRITE(*,*) 'Unknown PDLABEL', PDLABEL
+        STOP 1
+      ENDIF
 
       RETURN
       END

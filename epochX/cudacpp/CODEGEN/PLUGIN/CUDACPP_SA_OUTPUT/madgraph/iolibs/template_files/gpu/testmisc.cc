@@ -1,4 +1,10 @@
-// Use ./runTest.exe --gtest_filter=*misc to run only this test
+// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Created by: A. Valassi (Jan 2022) for the MG5aMC CUDACPP plugin.
+// Further modified by: J. Teig, A. Valassi (2022-2023) for the MG5aMC CUDACPP plugin.
+//----------------------------------------------------------------------------
+// Use ./runTest.exe --gtest_filter=*misc to run only testmisc.cc tests
+//----------------------------------------------------------------------------
 
 #include "mgOnGpuConfig.h"
 
@@ -11,7 +17,7 @@
 #include <sstream>
 #include <typeinfo>
 
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 #define TESTID( s ) s##_GPU_MISC
 #else
 #define TESTID( s ) s##_CPU_MISC
@@ -19,33 +25,48 @@
 
 #define XTESTID( s ) TESTID( s )
 
+// NB: namespaces mg5amcGpu and mg5amcCpu includes types which are defined in different ways for CPU and GPU builds (see #318 and #725)
+#ifdef MGONGPUCPP_GPUIMPL
+namespace mg5amcGpu
+#else
+namespace mg5amcCpu
+#endif
+{
 #ifdef MGONGPU_CPPSIMD /* clang-format off */
-bool maskand( const bool_v& mask ){ bool out = true; for ( int i=0; i<neppV; i++ ) out = out && mask[i]; return out; }
 #define EXPECT_TRUE_sv( cond ) { bool_v mask( cond ); EXPECT_TRUE( maskand( mask ) ); }
 #else
 #define EXPECT_TRUE_sv( cond ) { EXPECT_TRUE( cond ); }
 #endif /* clang-format on */
 
-inline const std::string
-boolTF( const bool& b )
-{
-  return ( b ? "T" : "F" );
-}
+  inline const std::string
+  boolTF( const bool& b )
+  {
+    return ( b ? "T" : "F" );
+  }
 
 #ifdef MGONGPU_CPPSIMD
-inline const std::string
-boolTF( const bool_v& v )
-{
-  std::stringstream out;
-  out << "{ " << ( v[0] ? "T" : "F" );
-  for( int i = 1; i < neppV; i++ ) out << ", " << ( v[i] ? "T" : "F" );
-  out << " }";
-  return out.str();
-}
+  inline const std::string
+  boolTF( const bool_v& v )
+  {
+    std::stringstream out;
+    out << "{ " << ( v[0] ? "T" : "F" );
+    for( int i = 1; i < neppV; i++ ) out << ", " << ( v[i] ? "T" : "F" );
+    out << " }";
+    return out.str();
+  }
 #endif
+}
 
 TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testmisc )
 {
+#ifdef MGONGPUCPP_GPUIMPL
+  using namespace mg5amcGpu;
+#else
+  using namespace mg5amcCpu;
+#endif
+
+  //--------------------------------------------------------------------------
+
   EXPECT_TRUE( true );
 
   //--------------------------------------------------------------------------
@@ -211,6 +232,66 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testmisc )
     EXPECT_TRUE_sv( cxtype_sv( r12b ).imag() == 20 );
     EXPECT_TRUE_sv( cxtype_sv( r12c ).real() == 1 ); // points to f1c, not to f1
     EXPECT_TRUE_sv( cxtype_sv( r12c ).imag() == 2 ); // points to f2c, not to f2
+  }
+
+  //--------------------------------------------------------------------------
+
+  // Boolean vector (mask) times FP vector
+  /*
+  // From https://github.com/madgraph5/madgraph4gpu/issues/765#issuecomment-1853672838
+  channelids_sv = CHANNEL_ACCESS::kernelAccess( pchannelIds ); // the 4 channels in the SIMD vector
+  bool_sv mask_sv = ( channelids_sv == 1 );
+  numerators_sv += mask_sv * cxabs2( amp_sv[0] );
+  if( pchannelIds != nullptr ) denominators_sv += cxabs2( amp_sv[0] );
+  */
+  {
+    typedef bool_sv test_int_sv;  // defined as scalar_or_vector of long int (FPTYPE=double) or int (FPTYPE=float)
+    test_int_sv channelids0_sv{}; // mimic CHANNEL_ACCESS::kernelAccess( pchannelIds )
+    test_int_sv channelids1_sv{}; // mimic CHANNEL_ACCESS::kernelAccess( pchannelIds )
+    fptype_sv absamp0_sv{};       // mimic cxabs2( amp_sv[0] )
+    fptype_sv absamp1_sv{};       // mimic cxabs2( amp_sv[0] )
+#ifdef MGONGPU_CPPSIMD
+    for( int i = 0; i < neppV; i++ )
+    {
+      channelids0_sv[i] = i;   // 0123
+      channelids1_sv[i] = i;   // 1234
+      absamp0_sv[i] = 10. + i; // 10. 11. 12. 13.
+      absamp1_sv[i] = 11. + i; // 11. 12. 13. 14.
+    }
+#else
+    channelids0_sv = 0;
+    channelids1_sv = 1;
+    absamp0_sv = 10.;
+    absamp1_sv = 11.;
+#endif
+    bool_sv mask0_sv = ( channelids0_sv % 2 == 0 ); // even channels 0123 -> TFTF (1010)
+    bool_sv mask1_sv = ( channelids1_sv % 2 == 0 ); // even channels 1234 -> FTFT (0101)
+    constexpr fptype_sv fpZERO_sv{};                // 0000
+    //fptype_sv numerators0_sv = mask0_sv * absamp0_sv; // invalid operands to binary * ('__vector(4) long int' and '__vector(4) double')
+    fptype_sv numerators0_sv = fpternary( mask0_sv, absamp0_sv, fpZERO_sv ); // equivalent to "mask0_sv * absamp0_sv"
+    fptype_sv numerators1_sv = fpternary( mask1_sv, absamp1_sv, fpZERO_sv ); // equivalent to "mask1_sv * absamp1_sv"
+#ifdef MGONGPU_CPPSIMD
+    //std::cout << "numerators0_sv: " << numerators0_sv << std::endl;
+    //std::cout << "numerators1_sv: " << numerators1_sv << std::endl;
+    for( int i = 0; i < neppV; i++ )
+    {
+      // Values of numerators0_sv: 10.*1 11.*0 12.*1 13.*0
+      if( channelids0_sv[i] % 2 == 0 ) // even channels
+        EXPECT_TRUE( numerators0_sv[i] == ( 10. + i ) );
+      else // odd channels
+        EXPECT_TRUE( numerators0_sv[i] == 0. );
+      // Values of numerators1_sv: 11.*0 12.*1 13.*0 14.*1
+      if( channelids1_sv[i] % 2 == 0 ) // even channels
+        EXPECT_TRUE( numerators1_sv[i] == ( 11. + i ) );
+      else // odd channels
+        EXPECT_TRUE( numerators1_sv[i] == 0. );
+    }
+#else
+    // Values of numerators0_sv: 10.*1
+    EXPECT_TRUE( numerators0_sv == 10. );
+    // Values of numerators1_sv: 11.*0
+    EXPECT_TRUE( numerators1_sv == 0. );
+#endif
   }
 
   //--------------------------------------------------------------------------

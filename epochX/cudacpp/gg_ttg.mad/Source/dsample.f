@@ -1,40 +1,45 @@
-      subroutine sample_full(ndim,ncall,itmax,itmin,dsig,ninvar,nconfigs)
+      subroutine sample_full(ndim,ncall,itmax,itmin,dsig,ninvar,nconfigs,VECSIZE_USED)
 c**************************************************************************
 c     Driver for sample which does complete integration
 c     This is done in double precision, and should be told the
 c     number of possible phasespace choices.
 c     Arguments:
-c     ndim       Number of dimensions for integral(number or random #'s/point)
-c     ncall      Number of times to evaluate the function/iteration
-c     itmax      Max number of iterations
-c     itmin      Min number of iterations
-c     ninvar     Number of invarients to keep grids on (s,t,u, s',t' etc)
-c     nconfigs   Number of different pole configurations 
-c     dsig       Function to be integrated
+c     ndim           Number of dimensions for integral(number or random #'s/point)
+c     ncall          Number of times to evaluate the function/iteration
+c     itmax          Max number of iterations
+c     itmin          Min number of iterations
+c     dsig           Function to be integrated
+c     ninvar         Number of invarients to keep grids on (s,t,u, s',t' etc)
+c     nconfigs       Number of different pole configurations 
+c     VECSIZE_USED   Number of events in parallel out of VECSIZE_MEMMAX
+c                    (NB this is the #events handled by the cudacpp bridge,
+c                    but the SIMD vector size and GPU warp size are smaller)
 c**************************************************************************
       implicit none
       include 'genps.inc'
-      include 'vector.inc'
+      include 'vector.inc' ! defines VECSIZE_MEMMAX
 c     
 c Arguments
 c
       integer ndim,ncall,itmax,itmin,ninvar,nconfigs
+      integer VECSIZE_USED
       external         dsig
       double precision dsig
 c
 c Local
 c
       double precision x(maxinvar),wgt,p(4*maxdim/3+14)
-      double precision all_p(4*maxdim/3+14,nb_page_max), all_wgt(nb_page_max), all_x(maxinvar,nb_page_max)
-      integer all_lastbin(maxdim, nb_page_max)
-      double precision bckp(nb_page_max)
+      double precision all_p(4*maxdim/3+14,VECSIZE_MEMMAX), all_wgt(VECSIZE_MEMMAX), all_x(maxinvar,VECSIZE_MEMMAX)
+      integer all_lastbin(maxdim, VECSIZE_MEMMAX)
+      double precision bckp(VECSIZE_MEMMAX)
       double precision tdem, chi2, dum
       integer ievent,kevent,nwrite,iter,nun,luntmp,itsum
       integer jmax,i,j,ipole
       integer itmax_adjust
 
       integer imirror, iproc, iconf
-      integer ivec ! position of the event in the vectorization # max is nb_page_max (but loops go over nb_page_loop)
+      integer ivec ! position of the event in the vector (max is VECSIZE_MEMMAX, loops go over VECSIZE_USED)
+
 c
 c     External
 c
@@ -64,6 +69,7 @@ c      common /to_fx/   fx
       integer                             lun, nw, itminx
       common/to_unwgt/twgt, maxwgt, swgt, lun, nw, itminx
 
+      
       integer nzoom
       double precision  tx(1:3,maxinvar)
       common/to_xpoints/tx, nzoom
@@ -101,8 +107,8 @@ c      common /to_fx/   fx
       COMMON/TO_CM_RAP/SET_CM_RAP,CM_RAP
 
 C     data for vectorization      
-      double precision all_xbk(2, nb_page_max), all_q2fact(2, nb_page_max), all_cm_rap(nb_page_max)
-      double precision all_fx(nb_page_max)
+      double precision all_xbk(2, VECSIZE_MEMMAX), all_q2fact(2, VECSIZE_MEMMAX), all_cm_rap(VECSIZE_MEMMAX)
+      double precision all_fx(VECSIZE_MEMMAX)
       
       
       LOGICAL CUTSDONE,CUTSPASSED
@@ -140,7 +146,7 @@ c-----
 C     Fix for 2>1 process where ndim is 2 and not 1
       ninvar = max(2,ninvar)
 
-      call sample_init(ndim,ncall,itmax,ninvar,nconfigs)
+      call sample_init(ndim,ncall,itmax,ninvar,nconfigs,VECSIZE_USED)
       call graph_init
       do i=1,itmax
          xmean(i)=0d0
@@ -166,7 +172,7 @@ c            write(*,*) 'iter/ievent/ivec', iter, ievent, ivec
             call x_to_f_arg(ndim,ipole,mincfig,maxcfig,ninvar,wgt,x,p)
             CUTSDONE=.FALSE.
             CUTSPASSED=.FALSE.
-            if (passcuts(p)) then
+            if (passcuts(p,VECSIZE_USED)) then
                ivec=ivec+1
 c              write(*,*) 'pass_point ivec is ', ivec
                all_p(:,ivec) = p(:)
@@ -181,14 +187,14 @@ c               fx = dsig(all_p(1,i),all_wgt(i),0)
 c               bckp(i) = fx
 c               write(*,*) i, all_wgt(i), fx, all_wgt(i)*fx
 c               all_wgt(i) = all_wgt(i)*fx
-               if (ivec.lt.nb_page_loop)then
+               if (ivec.lt.VECSIZE_USED)then
                   cycle
                endif
                ivec=0
-               if (nb_page_loop.le.1) then
+               if (VECSIZE_USED.le.1) then
                   all_fx(1) = dsig(all_p, all_wgt,0)
                else
-               do i=1, nb_page_loop
+               do i=1, VECSIZE_USED
 c                 need to restore common block                  
                   xbk(:) = all_xbk(:, i)
                   cm_rap = all_cm_rap(i)
@@ -197,11 +203,11 @@ c                 need to restore common block
                   CUTSPASSED=.TRUE.
                   call prepare_grouping_choice(all_p(1,i), all_wgt(i), i.eq.1)
                enddo
-               call select_grouping(imirror, iproc, iconf, all_wgt, nb_page_loop)
+               call select_grouping(imirror, iproc, iconf, all_wgt, VECSIZE_USED)
                call dsig_vec(all_p, all_wgt, all_xbk, all_q2fact, all_cm_rap,
-     &                          iconf, iproc, imirror, all_fx,nb_page_loop)
+     &                          iconf, iproc, imirror, all_fx,VECSIZE_USED)
 
-                do i=1, nb_page_loop
+                do i=1, VECSIZE_USED
 c                 need to restore common block                  
                   xbk(:) = all_xbk(:, i)
                   cm_rap = all_cm_rap(i)
@@ -214,17 +220,17 @@ c                  endif
 c     write(*,*) i, all_wgt(i), fx, all_wgt(i)*fx
                enddo
                endif
-               do I=1, nb_page_loop
+               do I=1, VECSIZE_USED
                   all_wgt(i) = all_wgt(i)*all_fx(i)
               enddo
-               do i =1, nb_page_loop
+               do i =1, VECSIZE_USED
 c     if last paremeter is true -> allow grid update so only for a full page
                   lastbin(:) = all_lastbin(:,i)
                   if (all_wgt(i) .ne. 0d0) kevent=kevent+1
-c                  write(*,*) 'put point in sample kevent', kevent, 'allow_update', ivec.eq.nb_page_loop                   
-                  call sample_put_point(all_wgt(i),all_x(1,i),iter,ipole, i.eq.nb_page_loop) !Store result
+c                  write(*,*) 'put point in sample kevent', kevent, 'allow_update', ivec.eq.VECSIZE_USED                   
+                  call sample_put_point(all_wgt(i),all_x(1,i),iter,ipole, i.eq.VECSIZE_USED) !Store result
                enddo
-               if (nb_page_loop.ne.1.and.force_reset)then
+               if (VECSIZE_USED.ne.1.and.force_reset)then
                   call reset_cumulative_variable()
                   force_reset=.false.
                endif
@@ -373,7 +379,7 @@ c
       ncall = ncall*4 ! / 2**(itmax-2)
       write(*,*) "Starting w/ ncall = ", ncall
       itmax = 8
-      call sample_init(ndim,ncall,itmax,ninvar,nconfigs)
+      call sample_init(ndim,ncall,itmax,ninvar,nconfigs,VECSIZE_USED)
       do i=1,itmax
          xmean(i)=0d0
          xsigma(i)=0d0
@@ -651,7 +657,7 @@ c     $     ntot/1000,'</th><th align=right>',teff,'</th></tr>'
 
 
 
-      subroutine sample_init(p1, p2, p3, p4, p5)
+      subroutine sample_init(p1, p2, p3, p4, p5, VECSIZE_USED)
 c************************************************************************
 c     Initialize grid and random number generators
 c************************************************************************
@@ -661,13 +667,14 @@ c     Constants
 c
       include 'genps.inc'
       include 'maxconfigs.inc'
+      include 'vector.inc'      ! defines VECSIZE_MEMMAX
       include 'run.inc'
-      include 'vector.inc'
+
 c
 c     Arguments
 c
       integer p1, p2, p3, p4, p5
-
+      integer VECSIZE_USED
 c
 c     Local
 c
@@ -708,7 +715,7 @@ c
       double precision twgt, maxwgt,swgt(maxevents)
       integer                             lun, nw, itminx
       common/to_unwgt/twgt, maxwgt, swgt, lun, nw, itminx
-      
+
       integer              icor
       common/to_correlated/icor
 
@@ -772,8 +779,10 @@ c      endif
          stop
       endif
       if (p5 .gt. maxconfigs) then
-         write(*,*) 'Too many configs requested from Sample()',p5
-         stop
+         p5=maxconfigs
+         configs = maxconfigs
+c     write(*,*) 'Too many configs requested from Sample()',p5
+c         stop
       endif
 
       write(*,'(i3,a,i7,a,i3,a,i3,a,i3,a)') dim, ' dimensions', events,
@@ -893,7 +902,7 @@ c      write(*,*) 'Forwarding random number generator'
 
 C     sanity check that we have a minimal number of event
       
-      if ( .not.MC_GROUPED_SUBPROC.or.nb_page_loop.gt.1)then
+      if ( .not.MC_GROUPED_SUBPROC.or.VECSIZE_USED.gt.1)then
          events = max(events, maxtries)
          MC_GROUPED_SUBPROC = .false.
       else 
@@ -1556,11 +1565,12 @@ c
       COMMON/TO_MATRIX/ISUM_HEL, MULTI_CHANNEL
       logical cutsdone, cutspassed
       COMMON/TO_CUTSDONE/CUTSDONE,CUTSPASSED
- 
-      CHARACTER*7         PDLABEL,EPA_LABEL
-      character*7 pdsublabel(2)
-      INTEGER       LHAID
-      COMMON/TO_PDF/LHAID,PDLABEL,EPA_LABEL,pdsublabel
+
+      include './PDF/pdf.inc'
+c      CHARACTER*7         PDLABEL,EPA_LABEL
+c      character*7 pdsublabel(2)
+c      INTEGER       LHAID
+c      COMMON/TO_PDF/LHAID,PDLABEL,EPA_LABEL,pdsublabel
 c     
 c     Begin code
 c
@@ -1718,6 +1728,8 @@ c
       integer                             lun, nw, itmin
       common/to_unwgt/twgt, maxwgt, swgt, lun, nw, itmin
 
+      double precision twgt_it
+      common/to_unwgt_it/twgt_it
 
       real*8             wmax                 !This is redundant
       common/to_unweight/wmax
@@ -1749,6 +1761,7 @@ c-----
 
       if (first_time) then
          first_time = .false.
+         twgt_it = 0d0
          twgt1 = 0d0       !
          iavg = 0         !Vars for averging to increase err estimate
          navg = 1      !
@@ -2050,7 +2063,8 @@ c-----
             vol = 1d0/dble(events*itm)
             knt = events
             if (use_cut.ne.-2) then
-              twgt = mean / (dble(itm)*dble(events))
+               twgt = mean / (dble(itm)*dble(events))
+               twgt_it = 0d0 ! reset the automatic finding of the maximum
             endif
 c            write(*,*) 'New number of events',events,twgt
 

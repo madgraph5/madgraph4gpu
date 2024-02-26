@@ -1,3 +1,8 @@
+// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Created by: A. Valassi (Jan 2022) for the MG5aMC CUDACPP plugin.
+// Further modified by: J. Teig, A. Valassi (2022-2023) for the MG5aMC CUDACPP plugin.
+
 #ifndef BRIDGEKERNELS_H
 #define BRIDGEKERNELS_H 1
 
@@ -7,7 +12,7 @@
 #include "MatrixElementKernels.h"
 #include "MemoryBuffers.h"
 
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
@@ -23,7 +28,11 @@ namespace mg5amcCpu
     // Constructor from existing input and output buffers
     BridgeKernelBase( const BufferMomenta& momenta,         // input: momenta
                       const BufferGs& gs,                   // input: gs for alphaS
+                      const BufferRndNumHelicity& rndhel,   // input: random numbers for helicity selection
+                      const BufferRndNumColor& rndcol,      // input: random numbers for color selection
                       BufferMatrixElements& matrixElements, // output: matrix elements
+                      BufferSelectedHelicity& selhel,       // output: helicity selection
+                      BufferSelectedColor& selcol,          // output: color selection
                       const size_t nevt );
 
     // Destructor
@@ -40,7 +49,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-#ifndef __CUDACC__
+#ifndef MGONGPUCPP_GPUIMPL
   // A Bridge wrapper class encapsulating matrix element calculations on a CPU host
   class BridgeKernelHost final : public BridgeKernelBase
   {
@@ -49,7 +58,11 @@ namespace mg5amcCpu
     // Constructor from existing input and output buffers
     BridgeKernelHost( const BufferMomenta& momenta,         // input: momenta
                       const BufferGs& gs,                   // input: gs for alphaS
+                      const BufferRndNumHelicity& rndhel,   // input: random numbers for helicity selection
+                      const BufferRndNumColor& rndcol,      // input: random numbers for color selection
                       BufferMatrixElements& matrixElements, // output: matrix elements
+                      BufferSelectedHelicity& selhel,       // output: helicity selection
+                      BufferSelectedColor& selcol,          // output: color selection
                       const size_t nevt );
 
     // Destructor
@@ -58,8 +71,8 @@ namespace mg5amcCpu
     // Transpose input momenta from C to Fortran before the matrix element calculation in the Bridge
     void transposeInputMomentaC2F() override final;
 
-    // Compute good helicities
-    void computeGoodHelicities() override final;
+    // Compute good helicities (returns nGoodHel, the number of good helicity combinations out of ncomb)
+    int computeGoodHelicities() override final;
 
     // Compute matrix elements
     void computeMatrixElements( const unsigned int channelId ) override final;
@@ -76,7 +89,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
   // A Bridge wrapper class encapsulating matrix element calculations on a GPU device
   class BridgeKernelDevice : public BridgeKernelBase
   {
@@ -85,7 +98,11 @@ namespace mg5amcCpu
     // Constructor from existing input and output buffers
     BridgeKernelDevice( const BufferMomenta& momenta,         // input: momenta
                         const BufferGs& gs,                   // input: gs for alphaS
+                        const BufferRndNumHelicity& rndhel,   // input: random numbers for helicity selection
+                        const BufferRndNumColor& rndcol,      // input: random numbers for color selection
                         BufferMatrixElements& matrixElements, // output: matrix elements
+                        BufferSelectedHelicity& selhel,       // output: helicity selection
+                        BufferSelectedColor& selcol,          // output: color selection
                         const size_t gpublocks,
                         const size_t gputhreads );
 
@@ -95,8 +112,8 @@ namespace mg5amcCpu
     // Transpose input momenta from C to Fortran before the matrix element calculation in the Bridge
     void transposeInputMomentaC2F() override final;
 
-    // Compute good helicities
-    void computeGoodHelicities() override final;
+    // Compute good helicities (returns nGoodHel, the number of good helicity combinations out of ncomb)
+    int computeGoodHelicities() override final;
 
     // Compute matrix elements
     void computeMatrixElements( const unsigned int channelId ) override final;

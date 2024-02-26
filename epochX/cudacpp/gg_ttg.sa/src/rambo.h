@@ -1,22 +1,33 @@
+// Copyright (C) 2010 The MadGraph5_aMC@NLO development team and contributors.
+// Created by: J. Alwall (Oct 2010) for the MG5aMC CPP backend.
+//==========================================================================
+// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Modified by: S. Roiser (Feb 2020) for the MG5aMC CUDACPP plugin.
+// Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, J. Teig, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
+//==========================================================================
+
 #include "mgOnGpuConfig.h"
 
 #include "mgOnGpuFptypes.h"
+
+#include "CPPProcess.h"
 
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
 
 // Simplified rambo version for 2 to N (with N>=2) processes with massless particles
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
 #endif
 {
-  using mgOnGpu::np4;
-  using mgOnGpu::npari;
-  using mgOnGpu::nparf;
-  using mgOnGpu::npar;
+  constexpr int np4 = CPPProcess::np4;     // dimensions of 4-momenta (E,px,py,pz)
+  constexpr int npari = CPPProcess::npari; // #particles in the initial state (incoming): e.g. 2 (e+ e-) for e+ e- -> mu+ mu-
+  constexpr int nparf = CPPProcess::nparf; // #particles in the final state (outgoing): e.g. 2 (mu+ mu-) for e+ e- -> mu+ mu-
+  constexpr int npar = CPPProcess::npar;   // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
 
   //--------------------------------------------------------------------------
 
@@ -46,10 +57,10 @@ namespace mg5amcCpu
   // [NB: the output buffer includes both initial and final momenta, but only initial momenta are filled in]
   template<class R_ACCESS, class M_ACCESS, class W_ACCESS>
   __host__ __device__ void
-  ramboGetMomentaFinal( const fptype energy,   // input: energy
-                        const fptype* rnarray, // input: random numbers in [0,1] for one event or for a set of events
-                        fptype* momenta,       // output: momenta for one event or for a set of events
-                        fptype* wgts )         // output: weights for one event or for a set of events
+  ramboGetMomentaFinal( const fptype energy,  // input: energy
+                        const fptype* rndmom, // input: random numbers in [0,1] for one event or for a set of events
+                        fptype* momenta,      // output: momenta for one event or for a set of events
+                        fptype* wgts )        // output: weights for one event or for a set of events
   {
     /****************************************************************************
      *                       rambo                                              *
@@ -72,7 +83,7 @@ namespace mg5amcCpu
       static bool first = true;
       if( first )
       {
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
         if constexpr( M_ACCESS::isOnDevice() ) // avoid
         {
           const int ievt0 = 0;
@@ -113,10 +124,10 @@ namespace mg5amcCpu
     fptype q[nparf][np4];
     for( int iparf = 0; iparf < nparf; iparf++ )
     {
-      const fptype r1 = R_ACCESS::kernelAccessIp4IparfConst( rnarray, 0, iparf );
-      const fptype r2 = R_ACCESS::kernelAccessIp4IparfConst( rnarray, 1, iparf );
-      const fptype r3 = R_ACCESS::kernelAccessIp4IparfConst( rnarray, 2, iparf );
-      const fptype r4 = R_ACCESS::kernelAccessIp4IparfConst( rnarray, 3, iparf );
+      const fptype r1 = R_ACCESS::kernelAccessIp4IparfConst( rndmom, 0, iparf );
+      const fptype r2 = R_ACCESS::kernelAccessIp4IparfConst( rndmom, 1, iparf );
+      const fptype r3 = R_ACCESS::kernelAccessIp4IparfConst( rndmom, 2, iparf );
+      const fptype r4 = R_ACCESS::kernelAccessIp4IparfConst( rndmom, 3, iparf );
       const fptype c = 2. * r1 - 1.;
       const fptype s = sqrt( 1. - c * c );
       const fptype f = twopi * r2;
@@ -155,7 +166,7 @@ namespace mg5amcCpu
     wt = po2log;
     if( nparf != 2 ) wt = ( 2. * nparf - 4. ) * log( energy ) + z[nparf - 1];
 
-#ifndef __CUDACC__
+#ifndef MGONGPUCPP_GPUIMPL
     // issue warnings if weight is too small or too large
     static int iwarn[5] = { 0, 0, 0, 0, 0 };
     if( wt < -180. )

@@ -1,0 +1,3 @@
+if (CMAKE_HOST_APPLE)
+  add_definitions(-DMGONGPU_HAS_NO_CURAND)
+endif(CMAKE_HOST_APPLE)

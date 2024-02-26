@@ -48,7 +48,8 @@ c     PARAM_CARD
 c
       character*30 param_card_name
       common/to_param_card_name/param_card_name
-cc
+c     c
+      include 'vector.inc'
       include 'run.inc'
       
       integer           mincfig, maxcfig
@@ -57,7 +58,7 @@ cc
 
       double precision twgt, maxwgt,swgt(maxevents)
       integer                             lun, nw
-      common/to_unwgt/twgt, maxwgt, swgt, lun, nw
+      common/to_unwgt/twgt, maxwgt, swgt, lun, nw, itmin
 
 c--masses
       double precision pmass(nexternal)
@@ -71,38 +72,73 @@ c      double precision xsec,xerr
 c      integer ncols,ncolflow(maxamps),ncolalt(maxamps),ic
 c      common/to_colstats/ncols,ncolflow,ncolalt,ic
 
-      include 'vector.inc'
-      include 'coupl.inc'
+      include 'coupl.inc' ! needs VECSIZE_MEMMAX (defined in vector.inc)
+      INTEGER VECSIZE_USED
+
+      character*255 env_name, env_value
+      integer env_length, env_status
 
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
       INCLUDE 'fbridge.inc'
-      INCLUDE 'fbridge_common.inc'
+c     INCLUDE 'fbridge_common.inc'
 #endif
+      INCLUDE 'fbridge_common.inc'
+
 C-----
 C  BEGIN CODE
 C----- 
       call cpu_time(t_before)
       CUMULATED_TIMING = t_before
 
+#ifdef _OPENMP
+      CALL OMPNUMTHREADS_NOT_SET_MEANS_ONE_THREAD()
+#endif
       CALL COUNTERS_INITIALISE()
 
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
-      write(*,*) 'Enter fbridge_mode'
-      read(*,*) FBRIDGE_MODE ! (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
-      write(*,'(a16,i6)') ' FBRIDGE_MODE = ', FBRIDGE_MODE
-      write(*,*) 'Enter #events in a vector loop (max=',nb_page_max,',)'
-      read(*,*) nb_page_loop
+      fbridge_mode = 1 ! CppOnly=1, default for CUDACPP
 #else
-      NB_PAGE_LOOP = 32
+      fbridge_mode = 0 ! FortranOnly=0, default for FORTRAN
 #endif
-      write(*,'(a16,i6)') ' NB_PAGE_LOOP = ', NB_PAGE_LOOP
-      if( nb_page_loop.gt.nb_page_max .or. nb_page_loop.le.0 ) then
-        write(*,*) 'ERROR! Invalid nb_page_loop = ', nb_page_loop
+      env_name = 'CUDACPP_RUNTIME_FBRIDGEMODE'
+      call get_environment_variable(env_name, env_value, env_length, env_status)
+      if( env_status.eq.0 ) then
+        write(*,*) 'Found environment variable "', trim(env_name), '" with value "', trim(env_value), '"'
+        read(env_value,'(I255)') FBRIDGE_MODE ! see https://gcc.gnu.org/onlinedocs/gfortran/ICHAR.html
+        write(*,*) 'FBRIDGE_MODE (from env) = ', FBRIDGE_MODE
+      else if( env_status.eq.1 ) then ! 1 = not defined
+        write(*,*) 'FBRIDGE_MODE (default) = ', FBRIDGE_MODE
+      else ! -1 = too long for env_value, 2 = not supported by O/S
+        write(*,*) 'ERROR! get_environment_variable failed for "', trim(env_name), '"'
+        STOP
+      endif
+#ifndef MG5AMC_MEEXPORTER_CUDACPP
+      if( fbridge_mode.ne.0 ) then
+        write(*,*) 'ERROR! Invalid fbridge_mode (in FORTRAN backend mode) = ', fbridge_mode
+        STOP
+      endif
+#endif
+
+      vecsize_used = vecsize_memmax ! default ! CppOnly=1, default for CUDACPP
+      env_name = 'CUDACPP_RUNTIME_VECSIZEUSED'
+      call get_environment_variable(env_name, env_value, env_length, env_status)
+      if( env_status.eq.0 ) then
+        write(*,*) 'Found environment variable "', trim(env_name), '" with value "', trim(env_value), '"'
+        read(env_value,'(I255)') VECSIZE_USED ! see https://gcc.gnu.org/onlinedocs/gfortran/ICHAR.html
+        write(*,*) 'VECSIZE_USED (from env) = ', VECSIZE_USED
+      else if( env_status.eq.1 ) then ! 1 = not defined
+        write(*,*) 'VECSIZE_USED (default) = ', VECSIZE_USED
+      else ! -1 = too long for env_value, 2 = not supported by O/S
+        write(*,*) 'ERROR! get_environment_variable failed for "', trim(env_name), '"'
+        STOP
+      endif
+      if( VECSIZE_USED.gt.VECSIZE_MEMMAX .or. VECSIZE_USED.le.0 ) then
+        write(*,*) 'ERROR! Invalid VECSIZE_USED = ', VECSIZE_USED
         STOP
       endif
 
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
-      CALL FBRIDGECREATE(FBRIDGE_PBRIDGE, NB_PAGE_LOOP, NEXTERNAL, 4) ! this must be at the beginning as it initialises the CUDA device
+      CALL FBRIDGECREATE(FBRIDGE_PBRIDGE, VECSIZE_USED, NEXTERNAL, 4) ! this must be at the beginning as it initialises the CUDA device
       FBRIDGE_NCBYF1 = 0
       FBRIDGE_CBYF1SUM = 0
       FBRIDGE_CBYF1SUM2 = 0
@@ -163,8 +199,7 @@ c   If CKKW-type matching, read IS Sudakov grid
           exit
  30       issgridfile='../'//issgridfile
           if(i.eq.5)then
-            print *,
-     &        'ERROR: No Sudakov grid file found in lib with ickkw=2'
+            print *,'ERROR: No Sudakov grid file found in lib with ickkw=2'
             stop
           endif
         enddo
@@ -192,6 +227,11 @@ c
       maxcfig=mincfig
       minvar(1,1) = 0              !This tells it to map things invarients
       write(*,*) 'Attempting mappinvarients',nconfigs,nexternal
+      if (mincfig.lt.0)then
+         maxcfig = -1*mincfig
+         mincfig= 1
+         nconfigs=maxcfig-mincfig +1
+      endif
       call map_invarients(minvar,nconfigs,ninvar,mincfig,maxcfig,nexternal,nincoming,nb_tchannel)
       write(*,*) "Completed mapping",nexternal
       ndim = 3*(nexternal-nincoming)-4
@@ -213,7 +253,7 @@ c         itmin = itmin + 1
       endif
 
       write(*,*) "about to integrate ", ndim,ncall,itmax,itmin,ninvar,nconfigs
-      call sample_full(ndim,ncall,itmax,itmin,dsig,ninvar,nconfigs)
+      call sample_full(ndim,ncall,itmax,itmin,dsig,ninvar,nconfigs,VECSIZE_USED)
 
 c
 c     Now write out events to permanent file

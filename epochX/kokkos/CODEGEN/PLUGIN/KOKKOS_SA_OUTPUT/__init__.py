@@ -1,5 +1,11 @@
-## import the required files
-# example: import maddm_interface as maddm_interface # local file
+# AV - Require Python >= 3.8 to ensure that {} dictionaries preserve the order of item insertion
+# (note: python3.7 would probably be enough but I test my scripts using python3.8)
+import sys
+minpython = (3, 8)
+if sys.version_info < minpython: sys.exit("ERROR! Python >= %s.%s is required" % minpython)
+
+## Import the required files
+# Example: import maddm_interface as maddm_interface # local file
 #          import madgraph.various.cluster as cluster #MG5 distribution file
 # Three types of functionality are allowed in a plugin
 #   1. new output mode
@@ -19,18 +25,17 @@ new_output = {'standalone_kokkos':output.PLUGIN_ProcessExporter}
 #    MYCLUSTERCLASS should inherated from madgraph.various.cluster.Cluster
 new_cluster = {}
 
-
 # 3. Define a new interface (allow to add/modify MG5 command)
 #    This can be activated via ./bin/mg5_aMC --mode=PLUGINNAME
 ## Put None if no dedicated command are required
 new_interface = None
  
- 
 ########################## CONTROL VARIABLE ####################################
+
 __author__ = ''
 __email__ = ''
 __version__ = (1,0,0)
-minimal_mg5amcnlo_version = (2,3,4) 
+minimal_mg5amcnlo_version = (2,9,5) 
 maximal_mg5amcnlo_version = (1000,1000,1000)
 latest_validated_version = (3,1,1)
 

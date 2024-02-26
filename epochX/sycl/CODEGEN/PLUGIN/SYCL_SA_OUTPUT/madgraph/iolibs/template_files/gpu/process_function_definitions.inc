@@ -2,22 +2,26 @@
 // Class member functions for calculating the matrix elements for
 %(process_lines)s
 
-namespace mg5amcGpu
+namespace Proc
 {
-  using mgOnGpu::np4; // dimensions of 4-momenta (E,px,py,pz)
-  using mgOnGpu::npar; // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
-  using mgOnGpu::ncomb; // #helicity combinations: e.g. 16 for e+ e- -> mu+ mu- (2**4 = fermion spin up/down ** npar)
+  static constexpr size_t np4 = mgOnGpu::np4; // dimensions of 4-momenta (E,px,py,pz)
+  static constexpr size_t npar = mgOnGpu::npar; // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
+  static constexpr size_t ncomb = mgOnGpu::ncomb; // #helicity combinations: e.g. 16 for e+ e- -> mu+ mu- (2**4 = fermion spin up/down ** npar)
 
-  using mgOnGpu::nwf; // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
-  using mgOnGpu::nw6; // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
+  static constexpr size_t nwf = mgOnGpu::nwf; // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
+  static constexpr size_t nw6 = mgOnGpu::nw6; // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
+  static constexpr size_t neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
+
+  // The number of colors
+  static constexpr size_t ncolor = %(ncolor)s;
 
   //--------------------------------------------------------------------------
 %(all_sigmaKin)s
   //--------------------------------------------------------------------------
 
-  CPPProcess::CPPProcess( int numiterations,
-                          int ngpublocks,
-                          int ngputhreads,
+  CPPProcess::CPPProcess( size_t numiterations,
+                          size_t ngpublocks,
+                          size_t ngputhreads,
                           bool verbose,
                           bool debug )
     : m_numiterations( numiterations )
@@ -25,9 +29,10 @@ namespace mg5amcGpu
     , m_ngputhreads( ngputhreads )
     , m_verbose( verbose )
     , m_debug( debug )
-    , m_pars( 0 )
-    , m_masses()
-%(all_helicities)s
+    #ifndef MGONGPU_HARDCODE_PARAM
+        , m_pars( 0 )
+        , m_masses()
+    #endif
   {
   }
 
@@ -38,81 +43,78 @@ namespace mg5amcGpu
   //--------------------------------------------------------------------------
 
   // Initialize process (with parameters read from user cards)
-  void CPPProcess::initProc( const std::string& param_card_name )
-  {
-    // Instantiate the model class and set parameters that stay fixed during run
-    m_pars = Parameters_%(model_name)s::getInstance();
-    SLHAReader slha( param_card_name, m_verbose );
-    m_pars->setIndependentParameters( slha );
-    m_pars->setIndependentCouplings();
-    m_pars->setDependentParameters();
-    m_pars->setDependentCouplings();
-    if ( m_verbose )
-    {
-      m_pars->printIndependentParameters();
-      m_pars->printIndependentCouplings();
-      m_pars->printDependentParameters();
-      m_pars->printDependentCouplings();
-    }
-    %(initProc_lines)s
-    // Read physics parameters like masses and couplings from user configuration files (static: initialize once)
-    %(assign_coupling)s
+  void CPPProcess::initProc( const std::string& param_card_name ) {
+      #ifndef MGONGPU_HARDCODE_PARAM
+          // Instantiate the model class and set parameters that stay fixed during run
+          m_pars = Parameters_%(model_name)s::getInstance();
+          SLHAReader slha( param_card_name, m_verbose );
+          m_pars->setIndependentParameters( slha );
+          m_pars->setIndependentCouplings();
+          //m_pars->setDependentParameters();
+          //m_pars->setDependentCouplings();
+          if ( m_verbose ) {
+              m_pars->printIndependentParameters();
+              m_pars->printIndependentCouplings();
+              //m_pars->printDependentParameters();
+              //m_pars->printDependentCouplings();
+          }
+          %(initProc_lines)s
+          // Read physics parameters like masses and couplings from user configuration files (static: initialize once)
+%(assign_coupling)s
+      #endif
   }
 
   //--------------------------------------------------------------------------
+  #ifndef MGONGPU_HARDCODE_PARAM
   // Define pointer accessors
-  const short* CPPProcess::get_tHel_ptr() const {return &(**m_tHel);}
-
   cxtype* CPPProcess::get_tIPC_ptr() {return m_tIPC;}
   const cxtype* CPPProcess::get_tIPC_ptr() const {return m_tIPC;}
 
   fptype* CPPProcess::get_tIPD_ptr() {return m_tIPD;}
   const fptype* CPPProcess::get_tIPD_ptr() const {return m_tIPD;}
+  #endif
 
   //--------------------------------------------------------------------------
 
   SYCL_EXTERNAL
-  void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta[nevt*npar*4]
-                            fptype* allMEs,           // output: allMEs[nevt], |M|^2 final_avg_over_helicities
-                            bool* isGoodHel,          // output: isGoodHel[ncomb] - device array
-                            const size_t ievt,
-                            short* cHel,
-                            const fptype* cIPC,
-                            const fptype* cIPD
-                            )
-  {
-    // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-    fptype allMEsLast = 0;
-    for ( int ihel = 0; ihel < ncomb; ihel++ )
-    {
-      // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
-      calculate_wavefunctions( ihel, allmomenta, allMEs, ievt, cHel, cIPC, cIPD );
-      if ( allMEs[ievt] != allMEsLast )
-      {
-        //if ( !isGoodHel[ihel] ) std::cout << "sigmaKin_getGoodHel ihel=" << ihel << " TRUE" << std::endl;
-        isGoodHel[ihel] = true;
-      }
-      allMEsLast = allMEs[ievt]; // running sum up to helicity ihel for event ievt
-    }
-  }
+  void sigmaKin_getGoodHel( const vector4* __restrict__ allmomenta, // input: momenta[nevt*npar*4]
+                            bool* isGoodHel,                        // output: isGoodHel[ncomb] - device array
+                            const signed char* __restrict__ cHel,
+                            const cxtype_sv* __restrict__ COUPs,
+                            const fptype* __restrict__ cIPD
+                            ) {
+      // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
+      fptype_sv allMEsLast = FPZERO_SV;
+      fptype_sv allMEs = FPZERO_SV;
+      for ( size_t ihel = 0; ihel < ncomb; ihel++ ) {
+          // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
+          constexpr fptype_sv* jamp2_sv = nullptr; // no need for color selection during helicity filtering
+          #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+              constexpr size_t channelId = 0; // disable single-diagram channel enhancement
+              fptype_sv allNumerators = FPZERO_SV;
+              fptype_sv allDenominators = FPZERO_SV;
+              allMEs += calculate_wavefunctions( allmomenta, &allNumerators, &allDenominators, channelId, cHel + ihel*npar, COUPs, cIPD, jamp2_sv );
+          #else
+              allMEs += calculate_wavefunctions( allmomenta, cHel + ihel*npar, COUPs, cIPD, jamp2_sv );
+          #endif
+          if (FPANY_SV(allMEs != allMEsLast)) {
+              isGoodHel[ihel] = true;
+          }
+          allMEsLast = allMEs; // running sum up to helicity ihel for event ievt
+       }
+   }
 
   //--------------------------------------------------------------------------
 
-  int sigmaKin_setGoodHel( const bool* isGoodHel, int* goodHel ) // input: isGoodHel[ncomb] - host array
-  {
-    int nGoodHel = 0; // FIXME: assume process.nprocesses == 1 for the moment (eventually nGoodHel[nprocesses]?)
-    for ( int ihel = 0; ihel < ncomb; ihel++ )
-    {
-      //std::cout << "sigmaKin_setGoodHel ihel=" << ihel << ( isGoodHel[ihel] ? " true" : " false" ) << std::endl;
-      if ( isGoodHel[ihel] )
-      {
-        //goodHel[nGoodHel[0]] = ihel; // FIXME: assume process.nprocesses == 1 for the moment
-        //nGoodHel[0]++; // FIXME: assume process.nprocesses == 1 for the moment
-        goodHel[nGoodHel] = ihel;
-        nGoodHel++;
+  size_t sigmaKin_setGoodHel( const bool* isGoodHel, size_t* goodHel ) {
+      size_t nGoodHel = 0; // FIXME: assume process.nprocesses == 1 for the moment (eventually nGoodHel[nprocesses]?)
+      for (size_t ihel = 0; ihel < ncomb; ihel++) {
+          if (isGoodHel[ihel]) {
+              goodHel[nGoodHel] = ihel;
+              nGoodHel++;
+          }
       }
-    }
-    return nGoodHel;
+      return nGoodHel;
   }
 
   //--------------------------------------------------------------------------
@@ -120,27 +122,25 @@ namespace mg5amcGpu
   // FIXME: assume process.nprocesses == 1 (eventually: allMEs[nevt] -> allMEs[nevt*nprocesses]?)
 
   SYCL_EXTERNAL
-  void sigmaKin( const fptype* allmomenta, // input: momenta[nevt*npar*4]
-                 fptype* allMEs,           // output: allMEs[nevt], |M|^2 final_avg_over_helicities
-                 size_t ievt,
-                 short* cHel,
-                 const fptype* cIPC,
-                 const fptype* cIPD,
-                 int* cNGoodHel,
-                 int* cGoodHel
-                 )
-  {
-    mgDebugInitialise();
+  fptype_sv sigmaKin( const vector4* __restrict__ allmomenta, // input: momenta[]
+                      const fptype_sv* __restrict__ rndhel,   // input: random numbers[] for helicity selection
+                      const fptype_sv* __restrict__ rndcol,   // input: random numbers[] for color selection
+                      int_sv* __restrict__ selhel,            // output: helicity selection[]
+                      int_sv* __restrict__ selcol,            // output: color selection[]
+                      #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+                          const size_t channelId,             // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
+                      #endif
+                      const signed char* __restrict__ cHel,
+                      const cxtype_sv* __restrict__ COUPs,
+                      const fptype* __restrict__ cIPD,
+                      const size_t* __restrict__ cNGoodHel,
+                      const size_t* __restrict__ cGoodHel
+                 ) {
 
-    // Denominators: spins, colors and identical particles
-    const int denominators = %(den_factors)s; // FIXME: assume process.nprocesses == 1 for the moment (eventually denominators[nprocesses]?)
+      // Denominators: spins, colors and identical particles
+      constexpr int denominators = %(den_factors)s; // FIXME: assume process.nprocesses == 1 for the moment (eventually denominators[nprocesses]?)
 
-    // Set the parameters which change event by event
-    // Need to discuss this with Stefan
-    //m_pars->setDependentParameters();
-    //m_pars->setDependentCouplings();
-
-    // Start sigmaKin_lines
+      // Start sigmaKin_lines
 %(sigmaKin_lines)s
 } // end namespace
 

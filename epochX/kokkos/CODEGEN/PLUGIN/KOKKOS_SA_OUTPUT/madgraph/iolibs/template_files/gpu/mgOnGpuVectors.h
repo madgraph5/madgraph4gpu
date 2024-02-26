@@ -626,6 +626,10 @@ KOKKOS_INLINE_FUNCTION cxtype_v cxzero_sv(){ return cxtype_v{ fptype_v{0}, fptyp
 KOKKOS_INLINE_FUNCTION cxtype cxzero_sv(){ return cxtype{ fptype{0}, fptype{0} }; }
 #endif
 
+//FIXME no KOKKOS::Experimental::fabs(Kokkos::complex<FPType>) support
+KOKKOS_INLINE_FUNCTION fptype cxabs2( const cxtype& c ) {
+    return cxreal( c ) * cxreal( c ) + cximag( c ) * cximag( c );
+}
 //--------------------------------------------------------------------------
 
 #endif // MGONGPUVECTORS_H

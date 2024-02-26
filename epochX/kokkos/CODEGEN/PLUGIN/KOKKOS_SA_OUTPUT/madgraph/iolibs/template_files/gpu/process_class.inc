@@ -1,92 +1,41 @@
-///////////////////////// -*- C++ -*- /////////////////////////////
-
 //==========================================================================
 // A class for calculating the matrix elements for
 %(process_lines)s
 //--------------------------------------------------------------------------
 
-template <class ExecSpace>
 class CPPProcess
 {
 public:
 
-  CPPProcess(int numiterations, int leaguesize, int teamsize,
-             bool verbose = false, bool debug = false);
+  // Constructor (from command line arguments)
+  CPPProcess( bool verbose = false, bool debug = false );
 
 
+  // Destructor
   ~CPPProcess() = default;
 
-  // Initialize process.
-	virtual void initProc(const std::string& param_card_name);
-  const std::string getCompiler();
-
-  virtual int code() const { return 1; }
-
-  const typename Kokkos::View<fptype*,ExecSpace>::HostMirror &getMasses() const { return hmME; }
-
-  void setInitial(int inid1, int inid2) {
-    id1 = inid1;
-    id2 = inid2;
-  }
-
-  int getDim() const { return dim; }
-
-  int getNIOParticles() const { return mgOnGpu::npar; }
-
-
-  // Constants for array limits
-  static const int ninitial = mgOnGpu::npari;
-  static const int nexternal = mgOnGpu::npar;
-  static const int nprocesses = %(nprocesses)d;
-  static const int ncomb = mgOnGpu::ncomb;
-
-  Kokkos::View<int**,ExecSpace> cHel;
-  typename Kokkos::View<int**,ExecSpace>::HostMirror hHel;
-
-  Kokkos::View<fptype*,ExecSpace> cmME;
-  typename Kokkos::View<fptype*,ExecSpace>::HostMirror hmME;
-
-  Kokkos::View<fptype*,ExecSpace> cIPC;
-  typename Kokkos::View<fptype*,ExecSpace>::HostMirror hIPC;
-
-  Kokkos::View<fptype*,ExecSpace> cIPD;
-  typename Kokkos::View<fptype*,ExecSpace>::HostMirror hIPD;
-
-  const short* get_tHel_ptr() const;
-
+  // Initialize process (read model parameters from file)
+  virtual void initProc(const std::string& param_card_name);
+  
+  // Pointer accessors
   cxtype* get_tIPC_ptr();
   const cxtype* get_tIPC_ptr() const;
-
+  
   fptype* get_tIPD_ptr();
   const fptype* get_tIPD_ptr() const;
+
 private:
-  int m_numiterations;
-  // gpu variables
-  int league_size;
-  int team_size;
-  int dim; // league_size * team_size;
 
-  // print verbose info
+  // Command line arguments (constructor)
   bool m_verbose;
-
-  // print debug info
   bool m_debug;
 
-  static const int nwavefuncs = %(nwavefuncs)d;
-  static const int namplitudes = %(namp)d;
-  static const int wrows = %(sizew)d;
-  //static const int nioparticles = %(nexternal)d;
+  // Physics model parameters to be read from file (initProc function)
+  Parameters_%(model_name)s* m_pars;
+  std::vector<fptype> m_masses; // external particle masses
 
-  // Pointer to the model parameters
-  Parameters_%(model)s *pars;
-
-  // Initial particle ids
-  int id1, id2;
+  // Physics parameters (masses, coupling, etc...)
+  cxtype m_tIPC[independentCouplings::nicoup];
+  fptype m_tIPD[mgOnGpu::nparams];
 
 };
-
-// Constants for array limits
-template <typename ExecSpace> const int CPPProcess<ExecSpace>::ninitial;
-template <typename ExecSpace> const int CPPProcess<ExecSpace>::nprocesses;
-template <typename ExecSpace> const int CPPProcess<ExecSpace>::ncomb;
-template <typename ExecSpace> const int CPPProcess<ExecSpace>::nexternal;

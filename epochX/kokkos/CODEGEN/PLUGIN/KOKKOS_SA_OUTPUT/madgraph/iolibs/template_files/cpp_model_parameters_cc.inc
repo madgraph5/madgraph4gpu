@@ -1,56 +1,84 @@
 //==========================================================================
-// This file has been automatically generated for C++ by
+// This file has been automatically generated for Kokkos standalone by
 %(info_lines)s
 //==========================================================================
 
-#include <iostream>
-#include <iomanip>
 #include "Parameters_%(model_name)s.h"
+
+#include <iomanip>
+#include <iostream>
 
     // Initialize static instance
     Parameters_%(model_name)s* Parameters_%(model_name)s::instance = 0;
 
     // Function to get static instance - only one instance per program
-    Parameters_%(model_name)s* Parameters_%(model_name)s::getInstance(){
-	if (instance == 0)
+Parameters_%(model_name)s*
+Parameters_%(model_name)s::getInstance()
+{
+  if( instance == 0 )
 	    instance = new Parameters_%(model_name)s();
-
 	return instance;
     }
 
-    void Parameters_%(model_name)s::setIndependentParameters(SLHAReader& slha){
-	// Define "zero"
-	zero=0;
-	ZERO=0;
-	// Prepare a vector for indices 
-	vector<int> indices(2,0);
+void
+Parameters_%(model_name)s::setIndependentParameters( SLHAReader& slha )
+{
+  zero = 0; // define "zero"
+  ZERO = 0; // define "zero"
+  //std::vector<int> indices(2, 0); // prepare a vector for indices
 	%(set_independent_parameters)s
     }
-    void Parameters_%(model_name)s::setIndependentCouplings(){
+
+void
+Parameters_%(model_name)s::setIndependentCouplings()
+{
 	%(set_independent_couplings)s
     }
-    void Parameters_%(model_name)s::setDependentParameters(){
+
+/*
+void
+Parameters_%(model_name)s::setDependentParameters() // now computed event-by-event (running alphas #373)
+{
 	%(set_dependent_parameters)s
     }
-    void Parameters_%(model_name)s::setDependentCouplings(){
+
+void
+Parameters_%(model_name)s::setDependentCouplings() // now computed event-by-event (running alphas #373)
+{
 	%(set_dependent_couplings)s
     }
+*/
+
 
     // Routines for printing out parameters
-    void Parameters_%(model_name)s::printIndependentParameters(){
-	cout << "%(model_name)s model parameters independent of event kinematics:" << endl;
+void
+Parameters_%(model_name)s::printIndependentParameters()
+{
+  std::cout << "%(model_name)s model parameters independent of event kinematics:" << std::endl;
+  std::cout << "(Warning: aS in the runcard is ignored because event-by-event Gs are hardcoded or retrieved from Fortran)" << std::endl;
 	%(print_independent_parameters)s
     }
-    void Parameters_%(model_name)s::printIndependentCouplings(){
-	cout << "%(model_name)s model couplings independent of event kinematics:" << endl;
+
+void
+Parameters_%(model_name)s::printIndependentCouplings()
+{
+  std::cout << "%(model_name)s model couplings independent of event kinematics:" << std::endl;
 	%(print_independent_couplings)s
     }
-    void Parameters_%(model_name)s::printDependentParameters(){
-	cout << "%(model_name)s model parameters dependent on event kinematics:" << endl;
+
+/*
+void
+Parameters_%(model_name)s::printDependentParameters() // now computed event-by-event (running alphas #373)
+{
+  std::cout << "%(model_name)s model parameters dependent on event kinematics:" << std::endl;
 	%(print_dependent_parameters)s
     }
-    void Parameters_%(model_name)s::printDependentCouplings(){
-	cout << "%(model_name)s model couplings dependent on event kinematics:" << endl;
+
+void
+Parameters_%(model_name)s::printDependentCouplings() // now computed event-by-event (running alphas #373)
+{
+  std::cout << "%(model_name)s model couplings dependent on event kinematics:" << std::endl;
 	%(print_dependent_couplings)s
     }
+*/
 

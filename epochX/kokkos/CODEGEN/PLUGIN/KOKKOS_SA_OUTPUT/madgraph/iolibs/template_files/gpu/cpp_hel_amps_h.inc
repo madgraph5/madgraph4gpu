@@ -9,7 +9,6 @@
 
 #include "mgOnGpuTypes.h"
 #include "mgOnGpuConfig.h"
-#include "mgOnGpuVectors.h"
 
 namespace %(namespace)s_%(model_name)s {
 

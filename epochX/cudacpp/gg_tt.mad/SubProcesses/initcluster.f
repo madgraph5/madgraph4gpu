@@ -4,11 +4,11 @@
 
       include 'message.inc'
       include 'maxparticles.inc'
-      include 'run.inc'
       include 'nexternal.inc'
       include 'maxamps.inc'
-      include 'vector.inc'
       include 'cluster.inc'
+      include 'run.inc'
+
 C
 C     SPECIAL CUTS
 C

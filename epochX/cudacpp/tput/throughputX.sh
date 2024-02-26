@@ -1,4 +1,7 @@
 #!/bin/bash
+# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Licensed under the GNU Lesser General Public License (version 3 or later).
+# Created by: A. Valassi (Apr 2021) for the MG5aMC CUDACPP plugin.
 
 set +x # not verbose
 set -e # fail on error
@@ -9,7 +12,7 @@ topdir=$(cd $scrdir; cd ../../..; pwd)
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-heftggh]> [-nocpp|[-avxall][-nocuda][-noneonly][-sse4only][-avx2only][-512yonly][-512zonly]] [-sa] [-noalpaka] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly|-makeclean|-makecleanonly|-dryrun] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest] [-v] [-dlp <dyld_library_path>]" # removed -omp
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggh]> [-nocpp|[-avxall][-nocuda][-noneonly][-sse4only][-avx2only][-512yonly][-512zonly]] [-sa] [-noalpaka] [-flt|-fltonly|-mix|-mixonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-omp] [-makeonly|-makeclean|-makecleanonly|-dryrun] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest] [-nofpe] [-v] [-dlp <dyld_library_path>]"
   exit 1
 }
 
@@ -23,6 +26,7 @@ ggtt=0
 ggttg=0
 ggttgg=0
 ggttggg=0
+gqttq=0
 heftggh=0
 
 suffs=".mad/"
@@ -47,6 +51,7 @@ div=0
 req=0
 detailed=0
 gtest=0
+nofpe=0
 verbose=0
 
 dlp=
@@ -54,6 +59,9 @@ dlp=
 # Optional hack to build only the cudacpp plugin (without building the madevent code) in .mad directories
 makef=
 ###makef="-f Makefile"
+
+# Workaround to allow 'make avxall' when '-avxall' is specified #536
+simdsall="none sse4 avx2 512y 512z"
 
 if [ "$bckend" != "alpaka" ]; then alpaka=0; fi # alpaka mode is only available in the alpaka directory
 
@@ -78,6 +86,10 @@ while [ "$1" != "" ]; do
     if [ "$ggttggg" == "0" ]; then procs+=${procs:+ }$1; fi
     ggttggg=1
     shift
+  elif [ "$1" == "-gqttq" ]; then
+    if [ "$gqttq" == "0" ]; then procs+=${procs:+ }$1; fi
+    gqttq=1
+    shift
   elif [ "$1" == "-heftggh" ]; then
     if [ "$heftggh" == "0" ]; then procs+=${procs:+ }$1; fi
     heftggh=1
@@ -95,14 +107,14 @@ while [ "$1" != "" ]; do
     if [ "${cuda}" == "0" ]; then echo "ERROR! Options -nocuda and -nocpp are incompatible"; usage; fi
     cpp=0
     shift
-  ###elif [ "$1" == "-omp" ]; then
-  ###  if [ "${cpp}" == "0" ]; then echo "ERROR! Options -omp and -nocpp are incompatible"; usage; fi
-  ###  omp=1
-  ###  shift
+  elif [ "$1" == "-omp" ]; then
+    if [ "${cpp}" == "0" ]; then echo "ERROR! Options -omp and -nocpp are incompatible"; usage; fi
+    omp=1
+    shift
   elif [ "$1" == "-avxall" ]; then
     if [ "${cpp}" == "0" ]; then echo "ERROR! Options $1 and -nocpp are incompatible"; usage; fi
     if [ "${simds}" != "" ]; then echo "ERROR! Incompatible option $1: SIMDs are already defined as '$simds'"; usage; fi
-    simds="none sse4 avx2 512y 512z"
+    simds="${simdsall}"
     shift
   elif [ "$1" == "-noneonly" ]; then
     if [ "${cpp}" == "0" ]; then echo "ERROR! Options $1 and -nocpp are incompatible"; usage; fi
@@ -138,12 +150,20 @@ while [ "$1" != "" ]; do
     alpaka=0
     shift
   elif [ "$1" == "-flt" ]; then
-    if [ "${fptypes}" == "f" ]; then echo "ERROR! Options -flt and -fltonly are incompatible"; usage; fi
+    if [ "${fptypes}" != "d" ] && [ "${fptypes}" != "d f" ]; then echo "ERROR! Options -flt, -fltonly, -mix and -mixonly are incompatible"; usage; fi
     fptypes="d f"
     shift
   elif [ "$1" == "-fltonly" ]; then
-    if [ "${fptypes}" == "d f" ]; then echo "ERROR! Options -flt and -fltonly are incompatible"; usage; fi
+    if [ "${fptypes}" != "d" ] && [ "${fptypes}" != "f" ]; then echo "ERROR! Options -flt, -fltonly, -mix and -mixonly are incompatible"; usage; fi
     fptypes="f"
+    shift
+  elif [ "$1" == "-mix" ]; then
+    if [ "${fptypes}" != "d" ] && [ "${fptypes}" != "d f m" ]; then echo "ERROR! Options -flt, -fltonly, -mix and -mixonly are incompatible"; usage; fi
+    fptypes="d f m"
+    shift
+  elif [ "$1" == "-mixonly" ]; then
+    if [ "${fptypes}" != "d" ] && [ "${fptypes}" != "m" ]; then echo "ERROR! Options -flt, -fltonly, -mix and -mixonly are incompatible"; usage; fi
+    fptypes="m"
     shift
   elif [ "$1" == "-inl" ]; then
     if [ "${helinls}" == "1" ]; then echo "ERROR! Options -inl and -inlonly are incompatible"; usage; fi
@@ -167,6 +187,9 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-curhst" ]; then
     rndgen=" -${1}"
     shift
+  elif [ "$1" == "-hirhst" ]; then
+    rndgen=" -${1}"
+    shift
   elif [ "$1" == "-rmbhst" ]; then
     rmbsmp=" -${1}"
     shift
@@ -180,7 +203,8 @@ while [ "$1" != "" ]; do
     maketype="$1"
     shift
   elif [ "$1" == "-makej" ]; then
-    makej=-j
+    ###makej=-j
+    makej=-j5 # limit build parallelism to avoid "cudafe++ died due to signal 9" (#639)
     shift
   elif [ "$1" == "-3a3b" ]; then
     ab3=1
@@ -198,6 +222,9 @@ while [ "$1" != "" ]; do
     # For simplicity a gtest runTest.exe is executed for each build where check.exe is executed
     if [ "${cpp}" == "0" ]; then echo "ERROR! Options -gtest and -nocpp are incompatible"; usage; fi
     gtest=1
+    shift
+  elif [ "$1" == "-nofpe" ]; then
+    nofpe=1
     shift
   elif [ "$1" == "-v" ]; then
     verbose=1
@@ -219,8 +246,22 @@ if [ "${dlp}" != "" ]; then
   export DYLD_LIBRARY_PATH=$dlp
 fi
 
+# Enable FPEs in check.exe by default (see #733)
+if [ "${nofpe}" == "0" ]; then
+  echo "export CUDACPP_RUNTIME_ENABLEFPE=on"
+  export CUDACPP_RUNTIME_ENABLEFPE=on
+else
+  echo "unset CUDACPP_RUNTIME_ENABLEFPE"
+  unset CUDACPP_RUNTIME_ENABLEFPE
+fi
+
 # Check that at least one process has been selected
-if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ] && [ "${heftggh}" == "0" ]; then usage; fi
+if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ] && [ "${gqttq}" == "0" ] && [ "${heftggh}" == "0" ]; then usage; fi
+
+# Check that heftggh does not run in .mad mode
+if [ "${heftggh}" == "1" ] && [ "${suffs/.mad\/}" != "${suffs}" ]; then
+  echo "ERROR! Invalid option -heftggh for .mad directories"; exit 1
+fi
 
 # Define the default simds if none are defined
 if [ "${simds}" == "" ]; then simds="none 512y"; fi
@@ -261,7 +302,7 @@ function showdir()
 {
   if [ "${suff}" == ".mad/" ]; then
     if [ "${proc}" == "-eemumu" ]; then 
-      dir=$topdir/epochX/${bckend}/ee_mumu${suff}SubProcesses/P1_ll_ll
+      dir=$topdir/epochX/${bckend}/ee_mumu${suff}SubProcesses/P1_epem_mupmum
     elif [ "${proc}" == "-ggtt" ]; then 
       dir=$topdir/epochX/${bckend}/gg_tt${suff}SubProcesses/P1_gg_ttx
     elif [ "${proc}" == "-ggttg" ]; then 
@@ -270,6 +311,9 @@ function showdir()
       dir=$topdir/epochX/${bckend}/gg_ttgg${suff}SubProcesses/P1_gg_ttxgg
     elif [ "${proc}" == "-ggttggg" ]; then 
       dir=$topdir/epochX/${bckend}/gg_ttggg${suff}SubProcesses/P1_gg_ttxggg
+    elif [ "${proc}" == "-gqttq" ]; then 
+      ###dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_gu_ttxu
+      dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_gux_ttxux # only 1 out of 2 for now
     elif [ "${proc}" == "-heftggh" ]; then 
       echo "ERROR! Options -mad and -madonly are not supported with -heftggh"; exit 1
     fi
@@ -284,6 +328,9 @@ function showdir()
       dir=$topdir/epochX/${bckend}/gg_ttgg${suff}SubProcesses/P1_Sigma_sm_gg_ttxgg
     elif [ "${proc}" == "-ggttggg" ]; then 
       dir=$topdir/epochX/${bckend}/gg_ttggg${suff}SubProcesses/P1_Sigma_sm_gg_ttxggg
+    elif [ "${proc}" == "-gqttq" ]; then 
+      ###dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_Sigma_sm_gu_ttxu
+      dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_Sigma_sm_gux_ttxux # only 1 out of 2 for now
     elif [ "${proc}" == "-heftggh" ]; then 
       dir=$topdir/epochX/${bckend}/heft_gg_h${suff}/SubProcesses/P1_Sigma_heft_gg_h
     fi
@@ -339,7 +386,7 @@ for dir in $dirs; do
       for helinl in $helinls; do
         for fptype in $fptypes; do
           for simd in none sse4 avx2 512y 512z; do
-            if [ "${simds/${simd}}" != "${simds}" ]; then 
+            if [ "${simds}" == "${simdsall}" ] || [ "${simds/${simd}}" != "${simds}" ]; then 
               exes="$exes $dir/build.${simd}_${fptype}_inl${helinl}${hrdsuf}/check.exe"
             fi
           done
@@ -354,22 +401,28 @@ done
 # PART 2 - build the executables which should be run
 ##########################################################################
 
+unset GTEST_ROOT
+unset LOCALGTEST
+
 if [ "${maketype}" == "-dryrun" ]; then
 
   printf "DRYRUN: SKIP MAKE\n\n"
 
 else
 
-  pushd $topdir/test >& /dev/null
-  echo "Building in $(pwd)"
-  make; echo # avoid issues with googletest in parallel builds
-  popd >& /dev/null
-
+  # Iterate over all directories (the first one will build googletest)
+  gtestlibs=0
   for dir in $dirs; do
-
     export USEBUILDDIR=1
     pushd $dir >& /dev/null
     echo "Building in $(pwd)"
+    if [ "${maketype}" != "-makecleanonly" ] && [ "${gtestlibs}" == "0" ]; then
+      # Build googletest once and for all to avoid issues in parallel builds
+      # NB1: $topdir/test is NO LONGER RELEVANT and googletest must be built from one specific process
+      # NB2: CXXNAMESUFFIX must be set by cudacpp.mk, so googletest must be built from one P1 directory
+      gtestlibs=1
+      make -f cudacpp.mk gtestlibs
+    fi
     if [ "${maketype}" == "-makeclean" ]; then make cleanall; echo; fi
     if [ "${maketype}" == "-makecleanonly" ]; then make cleanall; echo; continue; fi
     for hrdcod in $hrdcods; do
@@ -378,12 +431,16 @@ else
 	export HELINL=$helinl
 	for fptype in $fptypes; do
           export FPTYPE=$fptype
-          if [ "${cuda}" == "1" ] || [ "${simds/none}" != "${simds}" ]; then 
-            make ${makef} ${makej} AVX=none; echo
+          if [ "${simds}" == "${simdsall}" ]; then
+            make ${makef} ${makej} avxall; echo # allow 'make avxall' again #536
+          else
+            if [ "${cuda}" == "1" ] || [ "${simds/none}" != "${simds}" ]; then 
+              make ${makef} ${makej} AVX=none; echo
+            fi
+            for simd in ${simds/none}; do
+              make ${makef} ${makej} AVX=${simd}; echo
+            done
           fi
-          for simd in ${simds/none}; do
-            make ${makef} ${makej} AVX=${simd}; echo
-          done
 	done
       done
     done
@@ -392,7 +449,6 @@ else
     export HRDCOD=
     export HELINL=
     export FPTYPE=
-
   done
 
   if [ "${maketype}" == "-makecleanonly" ]; then printf "MAKE CLEANALL COMPLETED\n"; exit 0; fi
@@ -464,21 +520,25 @@ function cmpExe() {
     echo "ERROR! Fortran calculation (F77${tag} crashed"
   else
     # NB skip python comparison if Fortran returned NaN or crashed, otherwise python returns an error status and the following tests are not executed
-    python3 -c "me1=${me1}; me2=${me2}; reldif=abs((me2-me1)/me1); print('Relative difference =', reldif); ok = reldif <= 2E-4; print ( '%s (relative difference %s 2E-4)' % ( ('OK','<=') if ok else ('ERROR','>') ) )"
+    python3 -c "me1=${me1}; me2=${me2}; reldif=abs((me2-me1)/me1); print('Relative difference =', reldif); ok = reldif <= 5E-3; print ( '%s (relative difference %s 5E-3)' % ( ('OK','<=') if ok else ('ERROR','>') ) )"
   fi
 }
 
 # Profile #registers and %divergence only
 function runNcu() {
+  if ! ncu -v > /dev/null 2>&1; then return; fi
   if [ "${maketype}" == "-dryrun" ]; then return; fi
   exe=$1
   args="$2"
   args="$args$rndgen$rmbsmp"
-  ###echo "runNcu $exe $args"
+  echo "runNcu $exe $args"
   if [ "${verbose}" == "1" ]; then set -x; fi
-  #$(which ncu) --metrics launch__registers_per_thread,sm__sass_average_branch_targets_threads_uniform.pct --target-processes all --kernel-id "::sigmaKin:" --kernel-base mangled $exe $args | egrep '(sigmaKin|registers| sm)' | tr "\n" " " | awk '{print $1, $2, $3, $15, $17; print $1, $2, $3, $18, $20$19}'
-  out=$($(which ncu) --metrics launch__registers_per_thread,sm__sass_average_branch_targets_threads_uniform.pct --target-processes all --kernel-id "::sigmaKin:" --kernel-base mangled $exe $args | egrep '(sigmaKin|registers| sm)' | tr "\n" " ")
-  ###echo $out
+  #$(which ncu) --metrics launch__registers_per_thread,sm__sass_average_branch_targets_threads_uniform.pct --target-processes all --kernel-id "::sigmaKin:" --kernel-name-base function $exe $args | egrep '(sigmaKin|registers| sm)' | tr "\n" " " | awk '{print $1, $2, $3, $15, $17; print $1, $2, $3, $18, $20$19}'
+  set +e # do not fail on error
+  out=$($(which ncu) --metrics launch__registers_per_thread,sm__sass_average_branch_targets_threads_uniform.pct --target-processes all --kernel-id "::sigmaKin:" --kernel-name-base function $exe $args)
+  echo "$out" | egrep '(ERROR|WARNING)' # NB must escape $out in between quotes
+  set -e # fail on error (after ncu and after egrep!)
+  out=$(echo "${out}" | egrep '(sigmaKin|registers| sm)' | tr "\n" " ") # NB must escape $out in between quotes
   echo $out | awk -v key1="launch__registers_per_thread" '{val1="N/A"; for (i=1; i<=NF; i++){if ($i==key1 && $(i+1)!="(!)") val1=$(i+2)}; print $1, $2, $3, key1, val1}'
   echo $out | awk -v key1="sm__sass_average_branch_targets_threads_uniform.pct" '{val1="N/A"; for (i=1; i<=NF; i++){if ($i==key1 && $(i+1)!="(!)") val1=$(i+2)$(i+1)}; print $1, $2, $3, key1, val1}'
   set +x
@@ -489,6 +549,7 @@ function runNcu() {
 # See https://docs.nvidia.com/gameworks/content/developertools/desktop/analysis/report/cudaexperiments/kernellevel/branchstatistics.htm
 # See https://docs.nvidia.com/gameworks/content/developertools/desktop/analysis/report/cudaexperiments/sourcelevel/divergentbranch.htm
 function runNcuDiv() {
+  if ! ncu -v > /dev/null 2>&1; then return; fi
   if [ "${maketype}" == "-dryrun" ]; then return; fi
   exe=$1
   args="-p 1 32 1"
@@ -496,11 +557,11 @@ function runNcuDiv() {
   ###echo "runNcuDiv $exe $args"
   if [ "${verbose}" == "1" ]; then set -x; fi
   ###$(which ncu) --query-metrics $exe $args
-  ###$(which ncu) --metrics regex:.*branch_targets.* --target-processes all --kernel-id "::sigmaKin:" --kernel-base mangled $exe $args
-  ###$(which ncu) --metrics regex:.*stalled_barrier.* --target-processes all --kernel-id "::sigmaKin:" --kernel-base mangled $exe $args
-  ###$(which ncu) --metrics sm__sass_average_branch_targets_threads_uniform.pct,smsp__warps_launched.sum,smsp__sass_branch_targets.sum,smsp__sass_branch_targets_threads_divergent.sum,smsp__sass_branch_targets_threads_uniform.sum --target-processes all --kernel-id "::sigmaKin:" --kernel-base mangled $exe $args | egrep '(sigmaKin| sm)' | tr "\n" " " | awk '{printf "%29s: %-51s %s\n", "", $18, $19; printf "%29s: %-51s %s\n", "", $22, $23; printf "%29s: %-51s %s\n", "", $20, $21; printf "%29s: %-51s %s\n", "", $24, $26}'
-  #$(which ncu) --metrics sm__sass_average_branch_targets_threads_uniform.pct,smsp__warps_launched.sum,smsp__sass_branch_targets.sum,smsp__sass_branch_targets_threads_divergent.sum,smsp__sass_branch_targets_threads_uniform.sum,smsp__sass_branch_targets.sum.per_second,smsp__sass_branch_targets_threads_divergent.sum.per_second,smsp__sass_branch_targets_threads_uniform.sum.per_second --target-processes all --kernel-id "::sigmaKin:" --kernel-base mangled $exe $args | egrep '(sigmaKin| sm)' | tr "\n" " " | awk '{printf "%29s: %-51s %-10s %s\n", "", $18, $19, $22$21; printf "%29s: %-51s %-10s %s\n", "", $28, $29, $32$31; printf "%29s: %-51s %-10s %s\n", "", $23, $24, $27$26; printf "%29s: %-51s %s\n", "", $33, $35}'
-  out=$($(which ncu) --metrics sm__sass_average_branch_targets_threads_uniform.pct,smsp__warps_launched.sum,smsp__sass_branch_targets.sum,smsp__sass_branch_targets_threads_divergent.sum,smsp__sass_branch_targets_threads_uniform.sum,smsp__sass_branch_targets.sum.per_second,smsp__sass_branch_targets_threads_divergent.sum.per_second,smsp__sass_branch_targets_threads_uniform.sum.per_second --target-processes all --kernel-id "::sigmaKin:" --kernel-base mangled $exe $args | egrep '(sigmaKin| sm)' | tr "\n" " ")
+  ###$(which ncu) --metrics regex:.*branch_targets.* --target-processes all --kernel-id "::sigmaKin:" --kernel-name-base function $exe $args
+  ###$(which ncu) --metrics regex:.*stalled_barrier.* --target-processes all --kernel-id "::sigmaKin:" --kernel-name-base function $exe $args
+  ###$(which ncu) --metrics sm__sass_average_branch_targets_threads_uniform.pct,smsp__warps_launched.sum,smsp__sass_branch_targets.sum,smsp__sass_branch_targets_threads_divergent.sum,smsp__sass_branch_targets_threads_uniform.sum --target-processes all --kernel-id "::sigmaKin:" --kernel-name-base function $exe $args | egrep '(sigmaKin| sm)' | tr "\n" " " | awk '{printf "%29s: %-51s %s\n", "", $18, $19; printf "%29s: %-51s %s\n", "", $22, $23; printf "%29s: %-51s %s\n", "", $20, $21; printf "%29s: %-51s %s\n", "", $24, $26}'
+  #$(which ncu) --metrics sm__sass_average_branch_targets_threads_uniform.pct,smsp__warps_launched.sum,smsp__sass_branch_targets.sum,smsp__sass_branch_targets_threads_divergent.sum,smsp__sass_branch_targets_threads_uniform.sum,smsp__sass_branch_targets.sum.per_second,smsp__sass_branch_targets_threads_divergent.sum.per_second,smsp__sass_branch_targets_threads_uniform.sum.per_second --target-processes all --kernel-id "::sigmaKin:" --kernel-name-base function $exe $args | egrep '(sigmaKin| sm)' | tr "\n" " " | awk '{printf "%29s: %-51s %-10s %s\n", "", $18, $19, $22$21; printf "%29s: %-51s %-10s %s\n", "", $28, $29, $32$31; printf "%29s: %-51s %-10s %s\n", "", $23, $24, $27$26; printf "%29s: %-51s %s\n", "", $33, $35}'
+  out=$($(which ncu) --metrics sm__sass_average_branch_targets_threads_uniform.pct,smsp__warps_launched.sum,smsp__sass_branch_targets.sum,smsp__sass_branch_targets_threads_divergent.sum,smsp__sass_branch_targets_threads_uniform.sum,smsp__sass_branch_targets.sum.per_second,smsp__sass_branch_targets_threads_divergent.sum.per_second,smsp__sass_branch_targets_threads_uniform.sum.per_second --target-processes all --kernel-id "::sigmaKin:" --kernel-name-base function $exe $args | egrep '(sigmaKin| sm)' | tr "\n" " ")
   ###echo $out
   echo $out | awk -v key1="smsp__sass_branch_targets.sum" '{key2=key1".per_second"; val1="N/A"; val2=""; for (i=1; i<=NF; i++){if ($i==key1 && $(i+1)!="(!)") val1=$(i+1); if ($i==key2 && $(i+1)!="(!)") val2=$(i+2)$(i+1)}; printf "%29s: %-51s %-10s %s\n", "", key1, val1, val2}'
   echo $out | awk -v key1="smsp__sass_branch_targets_threads_uniform.sum" '{key2=key1".per_second"; val1="N/A"; val2=""; for (i=1; i<=NF; i++){if ($i==key1 && $(i+1)!="(!)") val1=$(i+1); if ($i==key2 && $(i+1)!="(!)") val2=$(i+2)$(i+1)}; printf "%29s: %-51s %-10s %s\n", "", key1, val1, val2}'
@@ -511,6 +572,7 @@ function runNcuDiv() {
 
 # Profiles sectors and requests
 function runNcuReq() {
+  if ! ncu -v > /dev/null 2>&1; then return; fi
   if [ "${maketype}" == "-dryrun" ]; then return; fi
   exe=$1
   ncuArgs="$2"
@@ -519,12 +581,18 @@ function runNcuReq() {
   for args in "-p 1 1 1" "-p 1 4 1" "-p 1 8 1" "-p 1 32 1" "$ncuArgs"; do
     ###echo "runNcuReq $exe $args"
     # NB This will print nothing if $args are invalid (eg "-p 1 4 1" when neppR=8)
-    $(which ncu) --metrics l1tex__t_sectors_pipe_lsu_mem_global_op_ld.sum,l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum,launch__registers_per_thread,sm__sass_average_branch_targets_threads_uniform.pct --target-processes all --kernel-id "::sigmaKin:" --kernel-base mangled $exe $args | egrep '(sigmaKin|registers| sm|l1tex)' | tr "\n" " " | awk -vtag="[$args]" '{print $1, $2, $3, $16"s", $17";", $19"s", $20, tag}'
+    $(which ncu) --metrics l1tex__t_sectors_pipe_lsu_mem_global_op_ld.sum,l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum,launch__registers_per_thread,sm__sass_average_branch_targets_threads_uniform.pct --target-processes all --kernel-id "::sigmaKin:" --kernel-name-base function $exe $args | egrep '(sigmaKin|registers| sm|l1tex)' | tr "\n" " " | awk -vtag="[$args]" '{print $1, $2, $3, $16"s", $17";", $19"s", $20, tag}'
   done
   set +x
 }
 
-if nvidia-smi -L > /dev/null 2>&1; then gpuTxt="$(nvidia-smi -L | wc -l)x $(nvidia-smi -L | awk '{print $3,$4}' | sort -u)"; else gpuTxt=none; fi
+if nvidia-smi -L > /dev/null 2>&1; then
+  gpuTxt="$(nvidia-smi -L | wc -l)x $(nvidia-smi -L | awk '{print $3,$4}' | sort -u)"
+elif rocm-smi -i > /dev/null 2>&1; then
+  gpuTxt="$(rocm-smi --showproductname | grep 'Card series' | awk '{print $5,$6,$7}')"
+else
+  gpuTxt=none
+fi
 if [ "${unames}" == "Darwin" ]; then 
   cpuTxt=$(sysctl -h machdep.cpu.brand_string)
   cpuTxt=${cpuTxt/machdep.cpu.brand_string: }
@@ -567,6 +635,12 @@ for exe in $exes; do
     # For heftggh: 2->1 process, hence all events are identical and random numbers are ignored, use bare minimum 1 8 1
     exeArgs="-p 1 8 1"
     ncuArgs="-p 1 8 1"
+  elif [ "${exe%%/gq_ttq*}" != "${exe}" ]; then 
+    # For gqttq, use the same settings as for ggttg
+    exeArgs="-p 64 256 10"
+    ncuArgs="-p 64 256 1"
+    # For gqttq, use the same settings as for ggttg
+    exeArgs2="-p 2048 256 1"
   elif [ "${exe%%/gg_ttggg*}" != "${exe}" ]; then 
     # For ggttggg: this is far too little for GPU (4.8E2), but it keeps the CPU to a manageble level (1sec with 512y)
     ###exeArgs="-p 1 256 1" # too short! see https://its.cern.ch/jira/browse/BMK-1056
@@ -617,6 +691,7 @@ for exe in $exes; do
       exe2=${exe/check/runTest}
       echo "runExe $exe2"
       $exe2 2>&1 | tail -1
+      if [ ${PIPESTATUS[0]} -ne "0" ]; then exit 1; fi 
     fi
   elif [ "${exe%%/gcheck*}" != "${exe}" ] ||  [ "${exe%%/alpcheck*}" != "${exe}" ]; then 
     runNcu $exe "$ncuArgs"

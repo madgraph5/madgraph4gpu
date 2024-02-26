@@ -1,4 +1,8 @@
 #!/bin/bash
+# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Licensed under the GNU Lesser General Public License (version 3 or later).
+# Created by: A. Valassi (Feb 2022) for the MG5aMC CUDACPP plugin.
+# Further modified by: A. Valassi (2022-2023) for the MG5aMC CUDACPP plugin.
 
 #--------------------------------------------------------------------------------------
 
@@ -11,28 +15,29 @@ function checkProcdir()
   else
     proc=${procdir%.sa}
   fi
-  case "${proc}" in
-    ee_mumu) ;;
-    gg_tt) ;;
-    gg_ttg) ;;
-    gg_ttgg) ;;
-    gg_ttggg) ;;
-    pp_tt) ;;
-    uu_tt) ;;
-    uu_dd) ;;
-    bb_tt) ;;
-    heft_gg_h) ;;
-    *)
-      echo "ERROR! Unknown process: '$proc'"
-      exit 1
-      return
-      ;;
-  esac
+  # Check if this is a "known" process
+  #case "${proc}" in
+  #  ee_mumu) ;;
+  #  gg_tt) ;;
+  #  gg_ttg) ;;
+  #  gg_ttgg) ;;
+  #  gg_ttggg) ;;
+  #  pp_tt) ;;
+  #  uu_tt) ;;
+  #  uu_dd) ;;
+  #  bb_tt) ;;
+  #  heft_gg_h) ;;
+  #  *)
+  #    echo "ERROR! Unknown process: '$proc'"
+  #    exit 1
+  #    return
+  #    ;;
+  #esac
   # Check if the chosen procdir exists
   cd $TOPDIR
   if [ ! -d $procdir ]; then echo "ERROR! Directory not found $TOPDIR/$procdir"; exit 1; fi
   # Define the list of files to be checked
-  files=$(\ls $procdir/src/*.cc $procdir/src/*.h $procdir/SubProcesses/*.cc $procdir/SubProcesses/*.h $procdir/SubProcesses/P1_*/check_sa.cc $procdir/SubProcesses/P1_*/CPPProcess.cc $procdir/SubProcesses/P1_*/CPPProcess.h $procdir/SubProcesses/P1_*/epoch_process_id.h)
+  files=$(\ls $procdir/src/*.cc $procdir/src/*.h $procdir/SubProcesses/*.cc $procdir/SubProcesses/*.h $procdir/SubProcesses/P*/check_sa.cc $procdir/SubProcesses/P*/CPPProcess.cc $procdir/SubProcesses/P*/CPPProcess.h $procdir/SubProcesses/P*/epoch_process_id.h)
   if [ "$files" == "" ]; then echo "ERROR! No files to check found in directory $TOPDIR/$procdir"; exit 1; fi
   # Check each file
   status=0
@@ -43,6 +48,7 @@ function checkProcdir()
     \rm -f $filebak
     \cp $file $filebak
     ../../tools/mg-clang-format/mg-clang-format -i $file
+    if [ "$?" != "0" ]; then echo "ERROR! mg-clang-format failed"; exit 1; fi
     if [ "$quiet" == "0" ]; then
       echo "-----------------------------------------------------------------"
       ###echo "[......] Check formatting in: $file"
