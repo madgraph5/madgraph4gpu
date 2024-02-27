@@ -22,8 +22,8 @@
 
 //==========================================================================
 
-#ifndef MGONGPU_HARDCODE_PARAM // this is only supported in SM processes (e.g. not in EFT models) for the moment (#439)
-//#error This non-SM physics process only supports MGONGPU_HARDCODE_PARAM builds (#439): please run "make HRDCOD=1"
+#ifndef MGONGPU_HARDCODE_PARAM
+//#warning Support for non-SM physics processes (e.g. SUSY or EFT) is still limited for HRDCOD=0 builds (#439 and PR #625)
 
 #include "read_slha.h"
 
@@ -90,6 +90,7 @@ namespace mg5amcCpu
 } // end namespace mg5amcGpu/mg5amcCpu
 
 #else
+//#warning Support for non-SM physics processes (e.g. SUSY or EFT) is still limited for HRDCOD=1 builds (#439 and PR #625)
 
 #include <cassert>
 #include <limits>
@@ -756,21 +757,21 @@ namespace mg5amcCpu
     constexpr double mdl_vu = mdl_vev * mdl_sin__beta;
     constexpr double mdl_ee__exp__2 = ( ( mdl_ee ) * ( mdl_ee ) );
     // Fixes for Majorana particles
-    constexpr int mdl_Wneu2_sign = ( mdl_Mneu2 < 0 ?  -1 : + 1 );
-    constexpr int mdl_Wneu3_sign = ( mdl_Mneu3 < 0 ?  -1 : + 1 );
-    constexpr int mdl_Wneu4_sign = ( mdl_Mneu4 < 0 ?  -1 : + 1 );
-    constexpr int mdl_Wgo_sign = ( mdl_Mgo < 0 ?  -1 : + 1 );
+    constexpr int mdl_Wneu2_sign = ( mdl_Mneu2 < 0 ? -1 : +1 );
     constexpr double mdl_Wneu2 = mdl_Wneu2_sign * mdl_Wneu2_abs;
+    constexpr int mdl_Wneu3_sign = ( mdl_Mneu3 < 0 ? -1 : +1 );
     constexpr double mdl_Wneu3 = mdl_Wneu3_sign * mdl_Wneu3_abs;
+    constexpr int mdl_Wneu4_sign = ( mdl_Mneu4 < 0 ? -1 : +1 );
     constexpr double mdl_Wneu4 = mdl_Wneu4_sign * mdl_Wneu4_abs;
+    constexpr int mdl_Wgo_sign = ( mdl_Mgo < 0 ? -1 : +1 );
     constexpr double mdl_Wgo = mdl_Wgo_sign * mdl_Wgo_abs;
 
     // Model couplings independent of aS
     // (none)
 
     // Model parameters dependent on aS
-    //constexpr double mdl_sqrt__aS = //constexpr_sqrt( aS ); // now computed event-by-event (running alphas #373)
-    //constexpr double G = 2. * mdl_sqrt__aS * //constexpr_sqrt( M_PI ); // now computed event-by-event (running alphas #373)
+    //constexpr double mdl_sqrt__aS = constexpr_sqrt( aS ); // now computed event-by-event (running alphas #373)
+    //constexpr double G = 2. * mdl_sqrt__aS * constexpr_sqrt( M_PI ); // now computed event-by-event (running alphas #373)
     //constexpr cxsmpl<double> mdl_G__exp__2 = ( ( G ) * ( G ) ); // now computed event-by-event (running alphas #373)
 
     // Model couplings dependent on aS
@@ -814,9 +815,9 @@ namespace mg5amcCpu
       cxtype_sv GC_51;
     };
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter" // e.g. <<warning: unused parameter ‘G’ [-Wunused-parameter]>>
-#pragma GCC diagnostic ignored "-Wunused-variable"  // e.g. <<warning: unused variable ‘mdl_G__exp__2’ [-Wunused-variable]>>
-#pragma GCC diagnostic ignored "-Wunused-but-set-variable"  // e.g. <<warning: variable ‘mdl_G__exp__2’ set but not used [-Wunused-but-set-variable]>>
+#pragma GCC diagnostic ignored "-Wunused-parameter"        // e.g. <<warning: unused parameter ‘G’ [-Wunused-parameter]>>
+#pragma GCC diagnostic ignored "-Wunused-variable"         // e.g. <<warning: unused variable ‘mdl_G__exp__2’ [-Wunused-variable]>>
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable" // e.g. <<warning: variable ‘mdl_G__exp__2’ set but not used [-Wunused-but-set-variable]>>
 #ifdef MGONGPUCPP_GPUIMPL
 #pragma nv_diagnostic push
 #pragma nv_diag_suppress 177 // e.g. <<warning #177-D: variable "mdl_G__exp__2" was declared but never referenced>>

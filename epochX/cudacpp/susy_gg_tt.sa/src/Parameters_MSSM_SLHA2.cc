@@ -806,6 +806,7 @@ Parameters_MSSM_SLHA2::setIndependentParameters( SLHAReader& slha )
   mdl_vd = mdl_vev * mdl_cos__beta;
   mdl_vu = mdl_vev * mdl_sin__beta;
   mdl_ee__exp__2 = ( ( mdl_ee ) * ( mdl_ee ) );
+  // Fixes for Majorana particles
   if( mdl_Mneu2 < 0 )
     mdl_Wneu2 = -abs( mdl_Wneu2 );
   if( mdl_Mneu3 < 0 )
