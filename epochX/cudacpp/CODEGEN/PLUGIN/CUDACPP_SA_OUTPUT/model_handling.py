@@ -900,6 +900,18 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             replace_dict['dcoupsetdpar2'] = '      // (none)'
             replace_dict['dcoupsetdcoup2'] = '      // (none)'
             replace_dict['dcoupoutdcoup2'] = ''
+        # Identify which extra independent parameters must be made available through CPU static and GPU constant memory in BSM/EFT/SUSY models
+        # because they are used in the event by event calculation of alphaS-dependent couplings
+        # WARNING! This is only implemented and has only been tested so far for real parameters (complex parameters need twice the storage)
+        if self.model_name[:2] != 'sm' :
+            param_indep_real_used = []
+            for param in self.params_indep:
+                if param.type == 'real':
+                    for coup in self.coups_dep.values():                
+                        if param.name in coup.expr:
+                            param_indep_real_used.append( param.name )
+            param_indep_real_used = set( param_indep_real_used ) 
+            misc.sprint('PIPPO!', param_indep_real_used )
         # Require HRDCOD=1 in EFT and special handling in EFT for fptype=float using SIMD
         if self.model_name[:2] == 'sm' :
             replace_dict['eftwarn0'] = ''
@@ -910,7 +922,10 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         else:
             replace_dict['eftwarn0'] = '\n//#warning Support for non-SM physics processes (e.g. SUSY or EFT) is still limited for HRDCOD=0 builds (#439 and PR #625)'
             replace_dict['eftwarn1'] = '\n//#warning Support for non-SM physics processes (e.g. SUSY or EFT) is still limited for HRDCOD=1 builds (#439 and PR #625)'
-            replace_dict['eftspecial0'] = '      // ???'
+            if len( param_indep_real_used ) == 0:
+                replace_dict['eftspecial0'] = '      // No additional parameters needed in constant memory for this BSM model'
+            else:
+                replace_dict['eftspecial0'] = '\n'.join( '      const fptype %s;' % param for param in param_indep_real_used )
             replace_dict['eftspecial1'] = '      // Begin non-SM (e.g. EFT) implementation - special handling of vectors of floats (#439)'
             replace_dict['eftspecial1'] += '\n#if not( defined MGONGPU_CPPSIMD && defined MGONGPU_FPTYPE_FLOAT )'
             replace_dict['eftspecial2'] = """#else
