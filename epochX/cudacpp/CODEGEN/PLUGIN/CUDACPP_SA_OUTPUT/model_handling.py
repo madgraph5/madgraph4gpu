@@ -706,6 +706,11 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
 
     # AV - new method (merging write_parameters and write_set_parameters)
     def write_hardcoded_parameters(self, params):
+        majorana_widths = []
+        for particle in self.model.get('particles'):
+            if particle.is_fermion() and particle.get('self_antipart') and \
+                   particle.get('width').lower() != 'zero':
+                majorana_widths.append( particle.get('width') )
         ###misc.sprint(params) # for debugging
         pardef = super().write_parameters(params)
         parset = self.super_write_set_parameters_donotfixMajorana(params)
@@ -736,7 +741,10 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             type, pars = line.rstrip(';').split(' ') # strip trailing ';'
             for par in pars.split(','):
                 ###print(len(pardef_lines), par) # for debugging
-                pardef_lines[par] = ( 'constexpr ' + type + ' ' + par )
+                if par in majorana_widths:
+                    pardef_lines[par] = ( 'constexpr ' + type + ' ' + par + "_abs" )
+                else:
+                    pardef_lines[par] = ( 'constexpr ' + type + ' ' + par )
         ###misc.sprint( 'pardef_lines size =', len(pardef_lines), ', keys size =', len(pardef_lines.keys()) )
         ###print( pardef_lines ) # for debugging
         ###for line in pardef_lines: misc.sprint(line) # for debugging
@@ -774,9 +782,9 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
     def super_write_set_parameters_donotfixMajorana(self, params):
         """Write out the lines of independent parameters"""
         res_strings = []
-        # For each parameter, write name = expr;
+        # For each parameter, write "name = expr;"
         for param in params:
-            res_strings.append("%s" % param.expr)
+            res_strings.append( "%s" % param.expr )
         return "\n".join(res_strings)
 
     # AV - replace export_cpp.UFOModelConverterCPP method (eventually split writing of parameters and fixes for Majorana particles #622)
@@ -789,10 +797,15 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         for particle in self.model.get('particles'):
             if particle.is_fermion() and particle.get('self_antipart') and \
                    particle.get('width').lower() != 'zero':
-                res_strings.append( prefix+"  if( %s < 0 )" % particle.get('mass'))
-                res_strings.append( prefix+"    %(width)s = -abs( %(width)s );" % {"width": particle.get('width')})
+                if hardcoded:
+                    res_strings.append( prefix+"  constexpr int %s_sign = ( %s < 0 ? -1 : +1 );" % ( particle.get('width'), particle.get('mass') ) )
+                    res_strings.append( prefix+"  constexpr double %(W)s = %(W)s_sign * %(W)s_abs;" % { 'W' : particle.get('width') } )
+                else:
+                    res_strings.append( prefix+"  if( %s < 0 )" % particle.get('mass'))
+                    res_strings.append( prefix+"    %(width)s = -abs( %(width)s );" % {"width": particle.get('width')})
+        if len( res_strings ) != 0 : res_strings = [ prefix + "  // Fixes for Majorana particles" ] + res_strings
         if not hardcoded: return '\n' + '\n'.join(res_strings) if res_strings else ''
-        else: return '\n'.join(res_strings)
+        else: return '\n'.join(res_strings) + '\n'
 
     # AV - replace export_cpp.UFOModelConverterCPP method (add hardcoded parameters and couplings)
     def super_generate_parameters_class_files(self):
@@ -833,7 +846,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         ###misc.sprint(self.coups_indep) # for debugging
         replace_dict['hardcoded_independent_couplings'] = self.write_hardcoded_parameters(self.coups_indep)
         ###misc.sprint(self.params_dep) # for debugging
-        hrd_params_dep = [ line.replace('constexpr','//constexpr') + ' // now computed event-by-event (running alphas #373)' if line != '' else line for line in self.write_hardcoded_parameters(self.params_dep).split('\n') ]
+        hrd_params_dep = [ line.replace('constexpr ','//constexpr ') + ' // now computed event-by-event (running alphas #373)' if line != '' else line for line in self.write_hardcoded_parameters(self.params_dep).split('\n') ]
         replace_dict['hardcoded_dependent_parameters'] = '\n'.join( hrd_params_dep )
         ###misc.sprint(self.coups_dep) # for debugging
         hrd_coups_dep = [ line.replace('constexpr','//constexpr') + ' // now computed event-by-event (running alphas #373)' if line != '' else line for line in self.write_hardcoded_parameters(list(self.coups_dep.values())).split('\n') ]
@@ -854,7 +867,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             foundG = False
             for line in self.write_hardcoded_parameters(self.params_dep).split('\n'):
                 if line != '':
-                    dcoupsetdpar.append( '    ' + line.replace('constexpr double', 'const fptype_sv' if foundG else '//const fptype_sv' ) )
+                    dcoupsetdpar.append( '    ' + line.replace('constexpr cxsmpl<double> mdl_G__exp__2','const fptype_sv mdl_G__exp__2').replace('constexpr double', 'const fptype_sv' if foundG else '//const fptype_sv' ) )
                     if 'constexpr double G =' in line: foundG = True
             replace_dict['dcoupsetdpar'] = '    ' + '\n'.join( dcoupsetdpar )
             dcoupsetdcoup = [ '    ' + line.replace('constexpr cxsmpl<double> ','out.').replace('mdl_complexi', 'cI') for line in self.write_hardcoded_parameters(list(self.coups_dep.values())).split('\n') if line != '' ]
@@ -889,11 +902,15 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             replace_dict['dcoupoutdcoup2'] = ''
         # Require HRDCOD=1 in EFT and special handling in EFT for fptype=float using SIMD
         if self.model_name[:2] == 'sm' :
-            replace_dict['efterror'] = ''
+            replace_dict['eftwarn0'] = ''
+            replace_dict['eftwarn1'] = ''
+            replace_dict['eftspecial0'] = '      // SM implementation - no special handling of non-hardcoded parameters (PR #625)'
             replace_dict['eftspecial1'] = '      // Begin SM implementation - no special handling of vectors of floats as in EFT (#439)'
             replace_dict['eftspecial2'] = '      // End SM implementation - no special handling of vectors of floats as in EFT (#439)'
         else:
-            replace_dict['efterror'] = '\n// WARNING! Support for non-SM physics processes is still limited (see PR #625)\n//#error This non-SM physics process only supports MGONGPU_HARDCODE_PARAM builds (#439): please run "make HRDCOD=1"'
+            replace_dict['eftwarn0'] = '\n//#warning Support for non-SM physics processes (e.g. SUSY or EFT) is still limited for HRDCOD=0 builds (#439 and PR #625)'
+            replace_dict['eftwarn1'] = '\n//#warning Support for non-SM physics processes (e.g. SUSY or EFT) is still limited for HRDCOD=1 builds (#439 and PR #625)'
+            replace_dict['eftspecial0'] = '      // ???'
             replace_dict['eftspecial1'] = '      // Begin non-SM (e.g. EFT) implementation - special handling of vectors of floats (#439)'
             replace_dict['eftspecial1'] += '\n#if not( defined MGONGPU_CPPSIMD && defined MGONGPU_FPTYPE_FLOAT )'
             replace_dict['eftspecial2'] = """#else

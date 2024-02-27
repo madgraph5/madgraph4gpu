@@ -20,7 +20,7 @@
 
 //==========================================================================
 
-#ifndef MGONGPU_HARDCODE_PARAM // this is only supported in SM processes (e.g. not in EFT models) for the moment (#439)%(efterror)s
+#ifndef MGONGPU_HARDCODE_PARAM%(eftwarn0)s
 
 #include "read_slha.h"
 
@@ -79,7 +79,7 @@ namespace mg5amcCpu
 
 } // end namespace mg5amcGpu/mg5amcCpu
 
-#else
+#else%(eftwarn1)s
 
 #include <cassert>
 #include <limits>
@@ -170,16 +170,19 @@ namespace mg5amcCpu
 %(dcoupdecl)s
     };
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-variable"  // e.g. <<warning: unused variable ‘mdl_G__exp__2’ [-Wunused-variable]>>
-#pragma GCC diagnostic ignored "-Wunused-parameter" // e.g. <<warning: unused parameter ‘G’ [-Wunused-parameter]>>
+#pragma GCC diagnostic ignored "-Wunused-parameter"        // e.g. <<warning: unused parameter ‘G’ [-Wunused-parameter]>>
+#pragma GCC diagnostic ignored "-Wunused-variable"         // e.g. <<warning: unused variable ‘mdl_G__exp__2’ [-Wunused-variable]>>
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable" // e.g. <<warning: variable ‘mdl_G__exp__2’ set but not used [-Wunused-but-set-variable]>>
 #ifdef MGONGPUCPP_GPUIMPL
 #pragma nv_diagnostic push
 #pragma nv_diag_suppress 177 // e.g. <<warning #177-D: variable "mdl_G__exp__2" was declared but never referenced>>
 #endif
-    __host__ __device__ inline const DependentCouplings_sv computeDependentCouplings_fromG( const fptype_sv& G_sv )
+    __host__ __device__ inline const DependentCouplings_sv computeDependentCouplings_fromG( const fptype_sv& G_sv, const fptype* cIPD )
     {
 #ifdef MGONGPU_HARDCODE_PARAM
       using namespace Parameters_%(model_name)s;
+#else
+%(eftspecial0)s
 #endif
       // NB: hardcode cxtype cI(0,1) instead of cxtype (or hardcoded cxsmpl) mdl_complexi (which exists in Parameters_%(model_name)s) because:
       // (1) mdl_complexi is always (0,1); (2) mdl_complexi is undefined in device code; (3) need cxsmpl conversion to cxtype in code below
@@ -220,12 +223,13 @@ namespace mg5amcCpu
   template<class G_ACCESS, class C_ACCESS>
   __device__ inline void
   G2COUP( const fptype gs[],
-          fptype couplings[] )
+          fptype couplings[],
+          const fptype* cIPD )
   {
     mgDebug( 0, __FUNCTION__ );
     using namespace Parameters_%(model_name)s_dependentCouplings;
     const fptype_sv& gs_sv = G_ACCESS::kernelAccessConst( gs );
-    DependentCouplings_sv couplings_sv = computeDependentCouplings_fromG( gs_sv );
+    DependentCouplings_sv couplings_sv = computeDependentCouplings_fromG( gs_sv, cIPD );
 %(dcoupaccessbuffer)s%(dcoupkernelaccess)s%(dcoupcompute)s
     mgDebug( 1, __FUNCTION__ );
     return;

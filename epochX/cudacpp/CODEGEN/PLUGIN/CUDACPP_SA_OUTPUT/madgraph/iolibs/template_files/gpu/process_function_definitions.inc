@@ -230,7 +230,7 @@ namespace mg5amcCpu
     using namespace mg5amcGpu;
     using G_ACCESS = DeviceAccessGs;
     using C_ACCESS = DeviceAccessCouplings;
-    G2COUP<G_ACCESS, C_ACCESS>( allgs, allcouplings );
+    G2COUP<G_ACCESS, C_ACCESS>( allgs, allcouplings, cIPD );
 #else
     using namespace mg5amcCpu;
     using G_ACCESS = HostAccessGs;
@@ -240,7 +240,7 @@ namespace mg5amcCpu
       const int ievt0 = ipagV * neppV;
       const fptype* gs = MemoryAccessGs::ieventAccessRecordConst( allgs, ievt0 );
       fptype* couplings = MemoryAccessCouplings::ieventAccessRecord( allcouplings, ievt0 );
-      G2COUP<G_ACCESS, C_ACCESS>( gs, couplings );
+      G2COUP<G_ACCESS, C_ACCESS>( gs, couplings, cIPD );
     }
 #endif
   }
