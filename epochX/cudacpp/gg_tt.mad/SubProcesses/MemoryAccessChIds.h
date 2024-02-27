@@ -27,9 +27,9 @@ namespace mg5amcCpu
   {
   private:
 
-    friend class MemoryAccessHelper<MemoryAccessChIdsBase>;
-    friend class KernelAccessHelper<MemoryAccessChIdsBase, true>;
-    friend class KernelAccessHelper<MemoryAccessChIdsBase, false>;
+    friend class MemoryAccessHelper<MemoryAccessChIdsBase, unsigned int>;
+    friend class KernelAccessHelper<MemoryAccessChIdsBase, true, unsigned int>;
+    friend class KernelAccessHelper<MemoryAccessChIdsBase, false, unsigned int>;
 
     //--------------------------------------------------------------------------
     // NB all KernelLaunchers assume that memory access can be decomposed as "accessField = decodeRecord( accessRecord )"
@@ -68,30 +68,27 @@ namespace mg5amcCpu
 
     // Locate an event record (output) in a memory buffer (input) from the given event number (input)
     // [Signature (non-const) ===> unsigned int* ieventAccessRecord( unsigned int* buffer, const int ievt ) <===]
-    static constexpr auto ieventAccessRecord = MemoryAccessHelper<MemoryAccessChIdsBase>::ieventAccessRecord;
+    static constexpr auto ieventAccessRecord = MemoryAccessHelper<MemoryAccessChIdsBase, unsigned int>::ieventAccessRecord;
 
     // Locate an event record (output) in a memory buffer (input) from the given event number (input)
     // [Signature (const) ===> const unsigned int* ieventAccessRecordConst( const unsigned int* buffer, const int ievt ) <===]
-    static constexpr auto ieventAccessRecordConst = static_cast<const unsigned int* (*) (const unsigned int*, const int)>(&MemoryAccessHelper<MemoryAccessChIdsBase>::ieventAccessRecordConst);
+    static constexpr auto ieventAccessRecordConst = MemoryAccessHelper<MemoryAccessChIdsBase, unsigned int>::ieventAccessRecordConst;
 
     // Locate a field (output) of an event record (input) from the given field indexes (input)
     // [Signature (non-const) ===> unsigned int& decodeRecord( unsigned int* buffer ) <===]
-    static constexpr auto decodeRecord = MemoryAccessHelper<MemoryAccessChIdsBase>::decodeRecord;
+    static constexpr auto decodeRecord = MemoryAccessHelper<MemoryAccessChIdsBase, unsigned int>::decodeRecord;
 
     // Locate a field (output) of an event record (input) from the given field indexes (input)
     // [Signature (const) ===> const unsigned int& decodeRecordConst( const unsigned int* buffer ) <===]
-    static constexpr auto decodeRecordConst = static_cast<const unsigned int& (*) (const unsigned int*)>(
-      &MemoryAccessHelper<MemoryAccessChIdsBase>::template decodeRecordConst<>);
+    static constexpr auto decodeRecordConst = MemoryAccessHelper<MemoryAccessChIdsBase, unsigned int>::template decodeRecordConst<>;
 
     // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
     // [Signature (non-const) ===> unsigned int& ieventAccess( unsigned int* buffer, const ievt ) <===]
-    static constexpr auto ieventAccess = static_cast<unsigned int& (*) (unsigned int*, const int)>(
-      &MemoryAccessHelper<MemoryAccessChIdsBase>::template ieventAccessField<>);
+    static constexpr auto ieventAccess = MemoryAccessHelper<MemoryAccessChIdsBase, unsigned int>::template ieventAccessField<>;
 
     // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
     // [Signature (const) ===> const unsigned int& ieventAccessConst( const unsigned int* buffer, const ievt ) <===]
-    static constexpr auto ieventAccessConst = static_cast<const unsigned int& (*) (const unsigned int*, const int)>(
-      &MemoryAccessHelper<MemoryAccessChIdsBase>::template ieventAccessFieldConst<>);
+    static constexpr auto ieventAccessConst = MemoryAccessHelper<MemoryAccessChIdsBase, unsigned int>::template ieventAccessFieldConst<>;
   };
 
   //----------------------------------------------------------------------------
@@ -108,8 +105,7 @@ namespace mg5amcCpu
 
     // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
     // [Signature (non-const, SCALAR) ===> unsigned int& kernelAccess( unsigned int* buffer ) <===]
-    static constexpr auto kernelAccess_s = static_cast<unsigned int& (*) (unsigned int*)>(
-      &KernelAccessHelper<MemoryAccessChIdsBase, onDevice>::template kernelAccessField<>); // requires cuda 11.4
+    static constexpr auto kernelAccess_s = KernelAccessHelper<MemoryAccessChIdsBase, onDevice, unsigned int>::template kernelAccessField<>; // requires cuda 11.4
 
     // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal)
     // [Signature (non-const, SCALAR OR VECTOR) ===> uint_sv& kernelAccess( unsigned int* buffer ) <===]
@@ -129,8 +125,7 @@ namespace mg5amcCpu
 
     // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
     // [Signature (const, SCALAR) ===> const unsigned int& kernelAccessConst( const unsigned int* buffer ) <===]
-    static constexpr auto kernelAccessConst_s = static_cast<const unsigned int& (*) (const unsigned int*)>(
-      &KernelAccessHelper<MemoryAccessChIdsBase, onDevice>::template kernelAccessFieldConst<>); // requires cuda 11.4
+    static constexpr auto kernelAccessConst_s = KernelAccessHelper<MemoryAccessChIdsBase, onDevice, unsigned int>::template kernelAccessFieldConst<>; // requires cuda 11.4
 
     // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal)
     // [Signature (const, SCALAR OR VECTOR) ===> const uint_sv& kernelAccess( const unsigned int* buffer ) <===]
