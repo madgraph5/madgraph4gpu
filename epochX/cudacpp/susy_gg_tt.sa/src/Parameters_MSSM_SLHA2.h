@@ -840,7 +840,7 @@ namespace mg5amcCpu
         // Model parameters dependent on aS
         //const fptype_sv mdl_sqrt__aS = constexpr_sqrt( aS );
         //const fptype_sv G = 2. * mdl_sqrt__aS * constexpr_sqrt( M_PI );
-        const cxtype_sv mdl_G__exp__2 = ( ( G ) * ( G ) );
+        const fptype_sv mdl_G__exp__2 = ( ( G ) * ( G ) );
         // Model couplings dependent on aS
         out.GC_6 = -G;
         out.GC_51 = -( cI * G * mdl_I51x11 );
@@ -859,7 +859,7 @@ namespace mg5amcCpu
         // Model parameters dependent on aS
         //const fptype mdl_sqrt__aS = constexpr_sqrt( aS );
         //const fptype G = 2. * mdl_sqrt__aS * constexpr_sqrt( M_PI );
-        const cxtype mdl_G__exp__2 = ( ( G ) * ( G ) );
+        const fptype mdl_G__exp__2 = ( ( G ) * ( G ) );
         // Model couplings dependent on aS
         const cxtype GC_6 = -G;
         const cxtype GC_51 = -( cI * G * mdl_I51x11 );
