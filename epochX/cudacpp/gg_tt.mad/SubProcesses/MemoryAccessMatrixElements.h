@@ -73,7 +73,7 @@ namespace mg5amcCpu
 
     // Locate an event record (output) in a memory buffer (input) from the given event number (input)
     // [Signature (const) ===> const fptype* ieventAccessRecordConst( const fptype* buffer, const int ievt ) <===]
-    static constexpr auto ieventAccessRecordConst = static_cast<const fptype* (*) (const fptype*, const int)>(&MemoryAccessHelper<MemoryAccessMatrixElementsBase>::ieventAccessRecordConst);
+    static constexpr auto ieventAccessRecordConst = MemoryAccessHelper<MemoryAccessMatrixElementsBase>::ieventAccessRecordConst;
 
     // Locate a field (output) of an event record (input) from the given field indexes (input)
     // [Signature (non-const) ===> fptype& decodeRecord( fptype* buffer ) <===]
@@ -81,18 +81,15 @@ namespace mg5amcCpu
 
     // Locate a field (output) of an event record (input) from the given field indexes (input)
     // [Signature (const) ===> const fptype& decodeRecordConst( const fptype* buffer ) <===]
-    static constexpr auto decodeRecordConst = static_cast<const fptype& (*) (const fptype*)>(
-      &MemoryAccessHelper<MemoryAccessMatrixElementsBase>::template decodeRecordConst<>);
+    static constexpr auto decodeRecordConst = MemoryAccessHelper<MemoryAccessMatrixElementsBase>::template decodeRecordConst<>;
 
     // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
     // [Signature (non-const) ===> fptype& ieventAccess( fptype* buffer, const ievt ) <===]
-    static constexpr auto ieventAccess = static_cast<fptype& (*) (fptype*, const int)>(
-      &MemoryAccessHelper<MemoryAccessMatrixElementsBase>::template ieventAccessField<>);
+    static constexpr auto ieventAccess = MemoryAccessHelper<MemoryAccessMatrixElementsBase>::template ieventAccessField<>;
 
     // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
     // [Signature (const) ===> const fptype& ieventAccessConst( const fptype* buffer, const ievt ) <===]
-    static constexpr auto ieventAccessConst = static_cast<const fptype& (*) (const fptype*, const int)>(
-      &MemoryAccessHelper<MemoryAccessMatrixElementsBase>::template ieventAccessFieldConst<>);
+    static constexpr auto ieventAccessConst = MemoryAccessHelper<MemoryAccessMatrixElementsBase>::template ieventAccessFieldConst<>;
   };
 
   //----------------------------------------------------------------------------
@@ -109,8 +106,7 @@ namespace mg5amcCpu
 
     // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
     // [Signature (non-const, SCALAR) ===> fptype& kernelAccess_s( fptype* buffer ) <===]
-    static constexpr auto kernelAccess_s = static_cast<fptype& (*) (fptype*)>(
-      &KernelAccessHelper<MemoryAccessMatrixElementsBase, onDevice>::template kernelAccessField<>); // requires cuda 11.4
+    static constexpr auto kernelAccess_s = KernelAccessHelper<MemoryAccessMatrixElementsBase, onDevice>::template kernelAccessField<>; // requires cuda 11.4
 
     // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal)
     // [Signature (non const, SCALAR OR VECTOR) ===> fptype_sv& kernelAccess( const fptype* buffer ) <===]
@@ -130,8 +126,7 @@ namespace mg5amcCpu
 
     // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
     // [Signature (const) ===> const fptype& kernelAccessConst( const fptype* buffer ) <===]
-    static constexpr auto kernelAccessConst = static_cast<const fptype& (*) (const fptype*)>(
-      &KernelAccessHelper<MemoryAccessMatrixElementsBase, onDevice>::template kernelAccessFieldConst<>); // requires cuda 11.4
+    static constexpr auto kernelAccessConst = KernelAccessHelper<MemoryAccessMatrixElementsBase, onDevice>::template kernelAccessFieldConst<>; // requires cuda 11.4
   };
 
   //----------------------------------------------------------------------------

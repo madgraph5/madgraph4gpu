@@ -120,7 +120,7 @@ namespace mg5amcCpu
 
     // Locate an event record (output) in a memory buffer (input) from the given event number (input)
     // [Signature (const) ===> const fptype* ieventAccessRecordConst( const fptype* buffer, const int ievt ) <===]
-    static constexpr auto ieventAccessRecordConst = static_cast<const fptype* (*) (const fptype*, const int)>(&MemoryAccessHelper<MemoryAccessMomentaBase>::ieventAccessRecordConst);
+    static constexpr auto ieventAccessRecordConst = MemoryAccessHelper<MemoryAccessMomentaBase>::ieventAccessRecordConst;
 
     // Locate a field (output) of an event record (input) from the given field indexes (input)
     // [Signature (non-const) ===> fptype& decodeRecord( fptype* buffer, const int ipar, const int ipar ) <===]
@@ -128,19 +128,16 @@ namespace mg5amcCpu
 
     // Locate a field (output) of an event record (input) from the given field indexes (input)
     // [Signature (const) ===> const fptype& decodeRecordConst( const fptype* buffer, const int ipar, const int ipar ) <===]
-    static constexpr auto decodeRecordIp4IparConst = static_cast<const fptype& (*) (const fptype*, int, int)>(
-      &MemoryAccessHelper<MemoryAccessMomentaBase>::template decodeRecordConst<int, int>);
+    static constexpr auto decodeRecordIp4IparConst = MemoryAccessHelper<MemoryAccessMomentaBase>::template decodeRecordConst<int, int>;
 
     // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
     // [Signature (non-const) ===> fptype& ieventAccessIp4Ipar( fptype* buffer, const ievt, const int ipar, const int ipar ) <===]
-    static constexpr auto ieventAccessIp4Ipar = static_cast<fptype& (*) (fptype*, const int, int, int)>(
-      &MemoryAccessHelper<MemoryAccessMomentaBase>::template ieventAccessField<int, int>);
+    static constexpr auto ieventAccessIp4Ipar = MemoryAccessHelper<MemoryAccessMomentaBase>::template ieventAccessField<int, int>;
 
     // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
     // [Signature (const) ===> const fptype& ieventAccessIp4IparConst( const fptype* buffer, const ievt, const int ipar, const int ipar ) <===]
     // DEFAULT VERSION
-    static constexpr auto ieventAccessIp4IparConst = static_cast<const fptype& (*) (const fptype*, const int, int, int)>(
-      &MemoryAccessHelper<MemoryAccessMomentaBase>::template ieventAccessFieldConst<int, int>);
+    static constexpr auto ieventAccessIp4IparConst = MemoryAccessHelper<MemoryAccessMomentaBase>::template ieventAccessFieldConst<int, int>;
 
     /*
     // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
@@ -173,14 +170,12 @@ namespace mg5amcCpu
 
     // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
     // [Signature (non-const, SCALAR) ===> fptype& kernelAccessIp4Ipar( fptype* buffer, const int ipar, const int ipar ) <===]
-    static constexpr auto kernelAccessIp4Ipar = static_cast<fptype& (*) (fptype*, int, int)>(
-      &KernelAccessHelper<MemoryAccessMomentaBase, onDevice>::template kernelAccessField<int, int>);
+    static constexpr auto kernelAccessIp4Ipar = KernelAccessHelper<MemoryAccessMomentaBase, onDevice>::template kernelAccessField<int, int>;
 
     // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
     // [Signature (const, SCALAR) ===> const fptype& kernelAccessIp4IparConst( const fptype* buffer, const int ipar, const int ipar ) <===]
     // DEFAULT VERSION
-    static constexpr auto kernelAccessIp4IparConst_s = static_cast<const fptype& (*) (const fptype*, int, int)>(
-      &KernelAccessHelper<MemoryAccessMomentaBase, onDevice>::template kernelAccessFieldConst<int, int>);
+    static constexpr auto kernelAccessIp4IparConst_s = KernelAccessHelper<MemoryAccessMomentaBase, onDevice>::template kernelAccessFieldConst<int, int>;
 
     /*
     // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)

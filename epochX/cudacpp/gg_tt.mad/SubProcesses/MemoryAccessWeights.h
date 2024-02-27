@@ -64,7 +64,7 @@ public:
 
   // Locate an event record (output) in a memory buffer (input) from the given event number (input)
   // [Signature (const) ===> const fptype* ieventAccessRecordConst( const fptype* buffer, const int ievt ) <===]
-  static constexpr auto ieventAccessRecordConst = static_cast<const fptype* (*) (const fptype*, const int)>(&MemoryAccessHelper<MemoryAccessWeightsBase>::ieventAccessRecordConst);
+  static constexpr auto ieventAccessRecordConst = MemoryAccessHelper<MemoryAccessWeightsBase>::ieventAccessRecordConst;
 
   // Locate a field (output) of an event record (input) from the given field indexes (input)
   // [Signature (non-const) ===> fptype& decodeRecord( fptype* buffer ) <===]
@@ -72,18 +72,15 @@ public:
 
   // Locate a field (output) of an event record (input) from the given field indexes (input)
   // [Signature (const) ===> const fptype& decodeRecordConst( const fptype* buffer ) <===]
-  static constexpr auto decodeRecordConst = static_cast<const fptype& (*) (const fptype*)>(
-    &MemoryAccessHelper<MemoryAccessWeightsBase>::template decodeRecordConst<>);
+  static constexpr auto decodeRecordConst = MemoryAccessHelper<MemoryAccessWeightsBase>::template decodeRecordConst<>;
 
   // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
   // [Signature (non-const) ===> fptype& ieventAccess( fptype* buffer, const ievt ) <===]
-  static constexpr auto ieventAccess = static_cast<fptype& (*) (fptype*, const int)>(
-    &MemoryAccessHelper<MemoryAccessWeightsBase>::template ieventAccessField<>);
+  static constexpr auto ieventAccess = MemoryAccessHelper<MemoryAccessWeightsBase>::template ieventAccessField<>;
 
   // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
   // [Signature (const) ===> const fptype& ieventAccessConst( const fptype* buffer, const ievt ) <===]
-  static constexpr auto ieventAccessConst = static_cast<const fptype& (*) (const fptype*, const int)>(
-    &MemoryAccessHelper<MemoryAccessWeightsBase>::template ieventAccessFieldConst<>);
+  static constexpr auto ieventAccessConst = MemoryAccessHelper<MemoryAccessWeightsBase>::template ieventAccessFieldConst<>;
 };
 
 //----------------------------------------------------------------------------
