@@ -12,8 +12,11 @@
 // IF YOU SEE THIS FILE, IT HAS BEEN SPREAD
 // FROM AN IMPROPER RELEASE.
 
-// Copyright © 2023 CERN, CERN Author Zenny Wettersten. 
+// Copyright © 2023-2024 CERN, CERN Author Zenny Wettersten. 
 // All rights reserved.
+
+#ifndef _TEAWREX_HPP_
+#define _TEAWREX_HPP_
 
 #include <unistd.h>
 #include <algorithm>
@@ -21,10 +24,21 @@
 #include <cmath>
 #include <cstring>
 #include <variant>
+#include <stdarg.h>
 #include "REX.hpp"
+
+#ifndef FORTRANFPTYPE
+#define FORTRANFPTYPE double
+#endif
 
 namespace REX::teaw
 {
+
+    using amplitude = std::function<std::shared_ptr<std::vector<double>>(std::vector<double>&, std::vector<double>&)>;
+    using ampCall = std::map<REX::event, amplitude, REX::eventComp>;
+    using ampPair = std::pair<REX::event, amplitude>;
+    using vecMap = std::map<REX::event, std::shared_ptr<std::vector<double>>, REX::eventComp>;
+
     template<typename T1, typename T2>
     std::shared_ptr<std::vector<T1>> scatAmpEval(std::vector<T2>& momenta, std::function<std::shared_ptr<std::vector<T1>>(std::vector<T2>&)> evalFunc)
     { return evalFunc(momenta); }
@@ -89,7 +103,7 @@ namespace REX::teaw
         {
             name = title;
             rwgtVals.resize( values.size() );
-            for( int k = 0 ; k < values.size() ; ++k )
+            for( size_t k = 0 ; k < values.size() ; ++k )
             {
                 rwgtVals[k] = rwgtVal( values[k] );
             }
@@ -147,7 +161,7 @@ namespace REX::teaw
                 }
             }
             rwgtParams.reserve(blocks.size());
-            for( int k = 0 ; k < blocks.size() ; ++k )
+            for( size_t k = 0 ; k < blocks.size() ; ++k )
             {
                 rwgtParams.push_back( rwgtBlock( *params[k], blocks[k] ) );
             }
@@ -165,7 +179,7 @@ namespace REX::teaw
         std::shared_ptr<REX::lesHouchesCard> outWrite( const REX::lesHouchesCard& paramOrig ){
             auto slhaOrig = std::make_shared<REX::lesHouchesCard>( paramOrig );
             std::map<std::string_view, int> blockIds;
-            for( int k = 0 ; k < slhaOrig->blocks.size() ; ++k )
+            for( size_t k = 0 ; k < slhaOrig->blocks.size() ; ++k )
             {   slhaOrig->blocks[k].parse( true );
                 auto nyama = std::pair<std::string_view, int>( slhaOrig->blocks[k].name, k);
                 blockIds.insert( nyama ); }
@@ -204,7 +218,7 @@ namespace REX::teaw
                 if( srcCard.find_last_of("#", nuLnch) < srcCard.find_last_of("\n", nuLnch) ){ lnchPos.push_back(nuLnch); }
                 nuLnch = srcCard.find( "launch", nuLnch + 6 );
             }
-            for( int k = 0 ; k < lnchPos.size() - 1 ; ++k )
+            for( size_t k = 0 ; k < lnchPos.size() - 1 ; ++k )
             {
                 auto strtLi = srcCard.find( "set", lnchPos[k] );
                 rwgtRuns.push_back( rwgtProc( slhaCard, srcCard.substr( strtLi, lnchPos[k+1] - strtLi ), parseOnline ) );
@@ -289,16 +303,15 @@ namespace REX::teaw
             lheFile = lhe;
             lheFileSet = true;
         }
-        void setLhe( REX::lheNode lhe ){ 
+        void setLhe( REX::lheNode& lhe ){ 
             if( lheFileSet ){ return; } 
             setLhe( std::make_shared<REX::lheNode>( lhe ) ); 
             lheFileSet = true;
         }
         void setLhe( std::string_view lhe_file ){
             if( lheFileSet ){ return; }
-            size_t strt = 0;
-            size_t post = *REX::nodeEndFind( lhe_file, strt );
-            lheFile = REX::lheParser( lhe_file, strt, post );
+            //lheFile = REX::lheParser( lhe_file, strt, post );
+            lheFile = std::make_shared<REX::lheNode>( *lheFile );
             lheFileSet = true;
         }
         std::shared_ptr<rwgtCard> getRwgt(){ return rwgtSets; }
@@ -311,24 +324,33 @@ namespace REX::teaw
             setRwgt( rwgts );
         }
     protected:
-        void setDoubles(){
+        template<class... Args>
+        void setDoubles(Args&&... args){
             if( lheFile == nullptr || rwgtSets == nullptr || slhaParameters == nullptr )
                 throw std::runtime_error( "One or more of the necessary files (SLHA parameter card, LHE event storage file, and MadGraph-format reweight card) have not been initialised." );
             REX::lheRetDs returnBools; returnBools.xwgtup = true; returnBools.aqcdup = true; returnBools.pup = true;
-            auto vecOfVecs = REX::lheValDoubles( *lheFile, returnBools );
-            if( vecOfVecs->size() != 3 )
-                throw std::runtime_error( "LHE file appears to contain multiple types of processes. This has not yet been implemented." );
-            wgts = vecOfVecs->at( 0 ); gS = vecOfVecs->at( 1 ); momenta = vecOfVecs->at( 2 );
+            eventFile = REX::transLHE( *lheFile, args... );
+            auto vecOfVecs = REX::lheValDoubles( eventFile, returnBools );
+            if( vecOfVecs->size() != 3 * eventFile.subProcs.size() )
+                throw std::runtime_error( "Incorrect number of parameters have been extracted from the LHE file." );
+            //wgts[0] = vecOfVecs->at( 0 ); gS[0] = vecOfVecs->at( 1 ); momenta[0] = vecOfVecs->at( 2 );
+            for( size_t k = 0 ; k < eventFile.subProcs.size() ; ++k )
+            {
+                wgts.push_back( vecOfVecs->at( 3*k ) ); 
+                gS.push_back( vecOfVecs->at( 3*k + 1 ) ); 
+                momenta.push_back( vecOfVecs->at( 3*k + 2 ) );
+            }
         }
         std::shared_ptr<rwgtCard> rwgtSets;
         std::shared_ptr<REX::lesHouchesCard> slhaParameters;
         std::shared_ptr<REX::lheNode> lheFile;
-        std::shared_ptr<std::vector<double>> wgts;
-        std::shared_ptr<std::vector<double>> gS;
-        std::shared_ptr<std::vector<double>> momenta;
+        std::vector<std::shared_ptr<std::vector<double>>> wgts;
+        std::vector<std::shared_ptr<std::vector<double>>> gS;
+        std::vector<std::shared_ptr<std::vector<double>>> momenta;
         bool lheFileSet = false;
         bool slhaSet = false;
         bool rwgtSet = false;
+        REX::transLHE eventFile;
     };
 
     struct rwgtFiles : rwgtCollection {
@@ -341,20 +363,22 @@ namespace REX::teaw
             setSlhaPath( slha_card );
             setLhePath( lhe_card );
         }
-        void initCards(){
+        template<class... Args>
+        void initCards(Args&&... args){
             if( rwgtPath == "" || slhaPath == "" || lhePath == "" )
                 throw std::runtime_error( "Paths to reweight card, parameter card, or LHE file have not been set" );
             pullRwgt(); pullSlha(); pullLhe();
             setLhe( *lheCard );
             setSlha( std::make_shared<REX::lesHouchesCard>( *slhaCard ) );
             setRwgt( std::make_shared<rwgtCard>( *rewgtCard, *slhaParameters, true ) );
-            setDoubles();
+            setDoubles(args...);
         }
-        void initCards( std::string_view lhe_card, std::string_view slha_card, std::string_view reweight_card ){
+        template<class... Args>
+        void initCards( std::string_view lhe_card, std::string_view slha_card, std::string_view reweight_card, Args&&... args ){
             setLhePath( lhe_card );
             setSlhaPath( slha_card );
             setRwgtPath( reweight_card );
-            initCards();
+            initCards(args...);
         }
     protected:
         void pullRwgt(){
@@ -376,32 +400,61 @@ namespace REX::teaw
 
     struct rwgtRunner : rwgtFiles{
     public:
-        void setMeEval( std::function<std::shared_ptr<std::vector<double>>(std::vector<double>&, std::vector<double>&)> eval ){ meEval = eval; meInit = true; }
+        void setMeEval( amplitude eval ){ 
+            meEval = eval; meInit = true;
+            ampCall nuEvals;
+            nuEvals.insert( std::pair<REX::event, amplitude>( *eventFile.subProcs[0]->process, eval ) );
+            meEvals = nuEvals;     
+        }
+        void setMeEvals( ampCall evals ){ meEvals = evals; meCompInit = true; }
+        void addMeEval( const REX::event& ev, const amplitude& eval ){ meEvals.insert( std::pair<REX::event, amplitude>( ev, eval ) ); meCompInit = true; }
         rwgtRunner() : rwgtFiles(){ return; }
         rwgtRunner( rwgtFiles& rwgts ) : rwgtFiles( rwgts ){ return; }
-        rwgtRunner( rwgtFiles& rwgts, std::function<std::shared_ptr<std::vector<double>>(std::vector<double>&, std::vector<double>&)> meCalc ) : rwgtFiles( rwgts ){
+        rwgtRunner( rwgtFiles& rwgts, amplitude meCalc ) : rwgtFiles( rwgts ){
+            meEval = meCalc;
+            meInit = true;
+        }
+        rwgtRunner( rwgtFiles& rwgts, ampCall& meCalcs ) : rwgtFiles( rwgts ){
+            meEvals = meCalcs;
+            meCompInit = true;
+        }
+        rwgtRunner( std::string_view lhe_card, std::string_view slha_card, std::string_view reweight_card,
+        amplitude meCalc ) : rwgtFiles( lhe_card, slha_card, reweight_card ){
             meEval = meCalc;
             meInit = true;
         }
         rwgtRunner( std::string_view lhe_card, std::string_view slha_card, std::string_view reweight_card,
-        std::function<std::shared_ptr<std::vector<double>>(std::vector<double>&, std::vector<double>&)> meCalc ) : rwgtFiles( lhe_card, slha_card, reweight_card ){
-            meEval = meCalc;
-            meInit = true;
+        ampCall meCalcs ) : rwgtFiles( lhe_card, slha_card, reweight_card ){
+            meEvals = meCalcs;
+            meCompInit = true;
         }
+        bool oneME(){ return (meInit != meCompInit); }
+        bool singAmp(){ return (meInit && !meCompInit); }
     protected:
         bool meInit = false;
+        bool meCompInit = false;
         bool meSet = false;
         bool normWgtSet = false;
-        std::function<std::shared_ptr<std::vector<double>>(std::vector<double>&, std::vector<double>&)> meEval;
-        std::shared_ptr<std::vector<double>> initMEs;
-        std::shared_ptr<std::vector<double>> meNormWgts;
+        amplitude meEval;
+        ampCall meEvals;
+        std::vector<std::shared_ptr<std::vector<double>>> initMEs;
+        std::vector<std::shared_ptr<std::vector<double>>> meNormWgts;
+        std::shared_ptr<std::vector<double>> normWgt;
         std::shared_ptr<REX::weightGroup> rwgtGroup;
-        void setMEs(){
-            initCards(); 
-            if( !meInit )
-                throw std::runtime_error( "No function for evaluating scattering amplitudes has been provided." );
-            auto ins = meEval( *momenta, *gS );
-            initMEs = std::make_shared<std::vector<double>>( ins->begin(), ins->begin() + wgts->size() );
+        template<class... Args>
+        void setMEs(Args&&... args){
+            initCards(args...); 
+            if( !oneME() )
+                throw std::runtime_error( "No or multiple function(s) for evaluating scattering amplitudes has been provided." );
+            //ZW FIX THIS
+            initMEs = {};
+            for( auto k = 0 ; k < eventFile.subProcs.size() ; ++k )
+            {
+                auto ins = meEvals[eventFile.subProcs[k]]( *(momenta[k]), *(gS[k]) );
+                initMEs.push_back( std::make_shared<std::vector<double>>( ins->begin(), ins->begin() + wgts[k]->size() ) );
+            }
+            //auto ins = meEval( *(momenta[0]), *(gS[0]) );
+            //initMEs = {std::make_shared<std::vector<double>>( ins->begin(), ins->begin() + wgts[0]->size() )};
             meSet = true;
         }
         bool setParamCard( std::shared_ptr<REX::lesHouchesCard> slhaParams ){
@@ -413,14 +466,36 @@ namespace REX::teaw
                 throw std::runtime_error( "Failed to overwrite parameter card." );
             return true;
         }
-        void setNormWgts(){
-            if( !meSet ){ setMEs(); } 
-            if( initMEs->size() != wgts->size() )
-                throw std::runtime_error( "Inconsistent number of events and event weights." );
-            meNormWgts = std::make_shared<std::vector<double>>( wgts->size() );
-            for( size_t k = 0; k < initMEs->size(); k++ ){
-                meNormWgts->at( k ) = wgts->at( k ) / initMEs->at( k );
+        void setNormWgtsSingleME(){
+            //if( initMEs->size() != wgts[0]->size() )
+            //    throw std::runtime_error( "Inconsistent number of events and event weights." );
+            meNormWgts = {std::make_shared<std::vector<double>>( wgts[0]->size() )};
+            for( size_t k = 0; k < initMEs[0]->size(); k++ ){
+                meNormWgts[0]->at( k ) = wgts[0]->at( k ) / initMEs[0]->at( k );
             }
+            normWgt = meNormWgts[0];
+        }
+        void setNormWgtsMultiME(){
+            meNormWgts = std::vector<std::shared_ptr<std::vector<double>>>( initMEs.size() );
+            for( auto k = 0 ; k < wgts.size() ; ++k ){
+                meNormWgts[k] = std::make_shared<std::vector<double>>( wgts[k]->size() );
+                for( auto i = 0 ; i < wgts[k]->size() ; ++i ){
+                    meNormWgts[k]->at( i ) = wgts[k]->at( i ) / initMEs[k]->at( i );
+                }
+            }
+            normWgt = eventFile.vectorFlat( meNormWgts );
+        }
+        template<class... Args>
+        void setNormWgts(Args&&... args){
+            if( !oneME() ){ setMEs(args); } 
+            //if( initMEs->size() != wgts[0]->size() )
+            //    throw std::runtime_error( "Inconsistent number of events and event weights." );
+            for( auto k = 0; k < initMEs.size() ; ++k ){
+                if( initMEs[k]->size() != wgts[k]->size() )
+                    throw std::runtime_error( "Inconsistent number of events and event weights." );
+            }
+            if( initMEs.size() == 1 ){ setNormWgtsSingleME(); }
+            else { setNormWgtsMultiME(); }
             normWgtSet = true;
         }
         bool singleRwgtIter( std::shared_ptr<REX::lesHouchesCard> slhaParams, std::shared_ptr<REX::lheNode> lheFile, size_t currId ){
@@ -428,8 +503,21 @@ namespace REX::teaw
                 throw std::runtime_error( "Normalised original weights (wgt/|ME|) not evaluated -- new weights cannot be calculated." );
             if( !setParamCard( slhaParams ) )
                 throw std::runtime_error( "Failed to rewrite parameter card." );
-            auto newMEs = meEval( *momenta, *gS );
-            auto newWGTs = REX::vecElemMult( *newMEs, *meNormWgts );
+            std::shared_ptr<std::vector<double>> newWGTs;
+            if( singAmp() ){
+                auto newMEs = meEval( *momenta[0], *gS[0] );
+                newWGTs = REX::vecElemMult( *newMEs, *meNormWgts[0] );
+            }
+            else{
+                std::vector<std::shared_ptr<std::vector<double>>> nuMEs = {};
+                for( auto k = 0 ; k < eventFile.subProcs.size() ; ++k )
+                {
+                    nuMEs.push_back(meEvals[*eventFile.subProcs[k]->process]( *(momenta[k]), *(gS[k]) ));
+                }
+                std::shared_ptr<std::vector<double>> newMEs = eventFile.vectorFlat( nuMEs );
+                newWGTs = REX::vecElemMult( *newMEs, *normWgt );
+            }
+            //ZW IF MULTIPLE TYPES
             REX::newWgt nuWgt( rwgtSets->rwgtRuns[currId].comRunProc(), newWGTs );
             lheFile->addWgt( 0, nuWgt );
             return true;
@@ -439,8 +527,71 @@ namespace REX::teaw
                 throw std::runtime_error( "Normalised original weights (wgt/|ME|) not evaluated -- new weights cannot be calculated." );
             if( !setParamCard( slhaParams ) )
                 throw std::runtime_error( "Failed to rewrite parameter card." );
-            auto newMEs = meEval( *momenta, *gS );
-            auto newWGTs = REX::vecElemMult( *newMEs, *meNormWgts );
+            std::shared_ptr<std::vector<double>> newWGTs;
+            if( singAmp() ){
+                auto newMEs = meEval( *momenta[0], *gS[0] );
+                newWGTs = REX::vecElemMult( *newMEs, *meNormWgts[0] );
+            }
+            else{
+                std::vector<std::shared_ptr<std::vector<double>>> nuMEs = {};
+                for( auto k = 0 ; k < eventFile.subProcs.size() ; ++k )
+                {
+                    nuMEs.push_back(meEvals[*eventFile.subProcs[k]->process]( *(momenta[k]), *(gS[k]) ));
+                }
+                std::shared_ptr<std::vector<double>> newMEs = eventFile.vectorFlat( nuMEs );
+                newWGTs = REX::vecElemMult( *newMEs, *normWgt );
+            }
+            //ZW IF MULTIPLE TYPES
+            REX::newWgt nuWgt( rwgtSets->rwgtRuns[currId].comRunProc(), newWGTs, id );
+            lheFile->addWgt( 0, nuWgt );
+            return true;
+        }
+        bool singleRwgtIter( std::shared_ptr<REX::lesHouchesCard> slhaParams, std::shared_ptr<REX::lheNode> lheFile, size_t currId, REX::event& ev ){
+            if( !normWgtSet )
+                throw std::runtime_error( "Normalised original weights (wgt/|ME|) not evaluated -- new weights cannot be calculated." );
+            if( !setParamCard( slhaParams ) )
+                throw std::runtime_error( "Failed to rewrite parameter card." );
+            //auto newMEs = meEval( *momenta, *gS );
+            std::shared_ptr<std::vector<double>> newWGTs;
+            if( singAmp() ){
+                auto newMEs = meEval( *momenta[0], *gS[0] );
+                newWGTs = REX::vecElemMult( *newMEs, *meNormWgts[0] );
+            }
+            else{
+                std::vector<std::shared_ptr<std::vector<double>>> nuMEs = {};
+                for( auto k = 0 ; k < eventFile.subProcs.size() ; ++k )
+                {
+                    nuMEs.push_back(meEvals[*eventFile.subProcs[k]->process]( *(momenta[k]), *(gS[k]) ));
+                }
+                std::shared_ptr<std::vector<double>> newMEs = eventFile.vectorFlat( nuMEs );
+                newWGTs = REX::vecElemMult( *newMEs, *normWgt );
+            }
+            //ZW IF MULTIPLE TYPES
+            REX::newWgt nuWgt( rwgtSets->rwgtRuns[currId].comRunProc(), newWGTs );
+            lheFile->addWgt( 0, nuWgt );
+            return true;
+        }
+        bool singleRwgtIter( std::shared_ptr<REX::lesHouchesCard> slhaParams, std::shared_ptr<REX::lheNode> lheFile, size_t currId, 
+        std::string& id, REX::event& ev ){
+            if( !normWgtSet )
+                throw std::runtime_error( "Normalised original weights (wgt/|ME|) not evaluated -- new weights cannot be calculated." );
+            if( !setParamCard( slhaParams ) )
+                throw std::runtime_error( "Failed to rewrite parameter card." );
+            std::shared_ptr<std::vector<double>> newWGTs;
+            if( singAmp() ){
+                auto newMEs = meEval( *momenta[0], *gS[0] );
+                newWGTs = REX::vecElemMult( *newMEs, *meNormWgts[0] );
+            }
+            else{
+                std::vector<std::shared_ptr<std::vector<double>>> nuMEs = {};
+                for( auto k = 0 ; k < eventFile.subProcs.size() ; ++k )
+                {
+                    nuMEs.push_back(meEvals[*eventFile.subProcs[k]->process]( *(momenta[k]), *(gS[k]) ));
+                }
+                std::shared_ptr<std::vector<double>> newMEs = eventFile.vectorFlat( nuMEs );
+                newWGTs = REX::vecElemMult( *newMEs, *normWgt );
+            }
+            //ZW IF MULTIPLE TYPES
             REX::newWgt nuWgt( rwgtSets->rwgtRuns[currId].comRunProc(), newWGTs, id );
             lheFile->addWgt( 0, nuWgt );
             return true;
@@ -456,9 +607,9 @@ namespace REX::teaw
             setMEs();
             setNormWgts();
             rwgtGroup = std::make_shared<REX::weightGroup>();
-            auto currInd = lheFile->header->addWgtGroup( rwgtGroup );
+            auto currInd = lheFile->getHeader()->addWgtGroup( rwgtGroup );
             auto paramSets = rwgtSets->writeCards( *slhaParameters );
-            for( int k = 0 ; k < paramSets.size(); k++ ){
+            for( size_t k = 0 ; k < paramSets.size(); k++ ){
                 singleRwgtIter( paramSets[k], lheFile, k, rwgtSets->rwgtNames[k] );
                 std::cout << ".";
             }
@@ -468,3 +619,5 @@ namespace REX::teaw
         }
     };
 }
+
+#endif
