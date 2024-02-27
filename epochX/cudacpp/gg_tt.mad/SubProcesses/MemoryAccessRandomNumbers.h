@@ -100,15 +100,18 @@ public:
 
   // Locate a field (output) of an event record (input) from the given field indexes (input)
   // [Signature (const) ===> const fptype& decodeRecordConst( const fptype* buffer, const int ipar, const int iparf ) <===]
-  static constexpr auto decodeRecordIp4IparfConst = MemoryAccessHelper<MemoryAccessRandomNumbersBase>::template decodeRecordConst<int, int>;
+  static constexpr auto decodeRecordIp4IparfConst =
+    MemoryAccessHelper<MemoryAccessRandomNumbersBase>::template decodeRecordConst<int, int>;
 
   // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
   // [Signature (non-const) ===> fptype& ieventAccessIp4Iparf( fptype* buffer, const ievt, const int ipar, const int iparf ) <===]
-  static constexpr auto ieventAccessIp4Iparf = MemoryAccessHelper<MemoryAccessRandomNumbersBase>::template ieventAccessField<int, int>;
+  static constexpr auto ieventAccessIp4Iparf =
+    MemoryAccessHelper<MemoryAccessRandomNumbersBase>::template ieventAccessField<int, int>;
 
   // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
   // [Signature (const) ===> const fptype& ieventAccessIp4IparfConst( const fptype* buffer, const ievt, const int ipar, const int iparf ) <===]
-  static constexpr auto ieventAccessIp4IparfConst = MemoryAccessHelper<MemoryAccessRandomNumbersBase>::template ieventAccessFieldConst<int, int>;
+  static constexpr auto ieventAccessIp4IparfConst =
+    MemoryAccessHelper<MemoryAccessRandomNumbersBase>::template ieventAccessFieldConst<int, int>;
 };
 
 //----------------------------------------------------------------------------
@@ -122,11 +125,13 @@ public:
 
   // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
   // [Signature (non-const) ===> fptype& kernelAccessIp4Iparf( fptype* buffer, const int ipar, const int iparf ) <===]
-  static constexpr auto kernelAccessIp4Iparf = KernelAccessHelper<MemoryAccessRandomNumbersBase, onDevice>::template kernelAccessField<int, int>;
+  static constexpr auto kernelAccessIp4Iparf =
+    KernelAccessHelper<MemoryAccessRandomNumbersBase, onDevice>::template kernelAccessField<int, int>;
 
   // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
   // [Signature (const) ===> const fptype& kernelAccessIp4IparfConst( const fptype* buffer, const int ipar, const int iparf ) <===]
-  static constexpr auto kernelAccessIp4IparfConst = KernelAccessHelper<MemoryAccessRandomNumbersBase, onDevice>::template kernelAccessFieldConst<int, int>;
+  static constexpr auto kernelAccessIp4IparfConst =
+    KernelAccessHelper<MemoryAccessRandomNumbersBase, onDevice>::template kernelAccessFieldConst<int, int>;
 };
 
 //----------------------------------------------------------------------------
