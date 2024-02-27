@@ -12,8 +12,11 @@
 // IF YOU SEE THIS FILE, IT HAS BEEN SPREAD
 // FROM AN IMPROPER RELEASE.
 
-// Copyright © 2023 CERN, CERN Author Zenny Wettersten. 
+// Copyright © 2023-2024 CERN, CERN Author Zenny Wettersten. 
 // All rights reserved.
+
+#ifndef _REX_HPP_
+#define _REX_HPP_
 
 #include <vector>
 #include <iostream>
@@ -28,7 +31,10 @@
 #include <algorithm>
 #include <cctype>
 #include <functional>
+#include <numeric>
 #include <stdexcept>
+#include <unordered_map>
+#include <queue>
 
 // ZW: all fcns within the REX standard sit in the
 // namespace REX
@@ -40,6 +46,69 @@ namespace REX
     #pragma warning( disable : 4101)
     static const size_t npos = -1;
     #pragma warning( pop ) 
+
+    using sortFcn = std::function<std::shared_ptr<std::vector<size_t>>(std::vector<std::string_view>)>;
+    using statSort = std::function<std::shared_ptr<std::vector<size_t>>(std::string_view, std::vector<std::string_view>)>;
+
+    // ZW: index sorting function, which returs vector
+    // of the indices of the original vector sorted 
+    // by default in ascending order
+    // ie, for [5.0, 0.25, 2.0, 9.2] returns [1, 2, 0, 3]
+    template <typename T>
+    std::shared_ptr<std::vector<size_t>> indSort(const std::vector<T> &vector, std::function<bool(const T&, const T&)> comp = std::less<T>())
+    {
+        auto sorted = std::make_shared<std::vector<size_t>>(vector.size());
+        std::iota(sorted->begin(), sorted->end(), 0);
+        std::stable_sort(sorted->begin(), sorted->end(), [&](size_t i, size_t j) { return comp(vector[i], vector[j]); });
+        return sorted;
+    }
+
+    // ZW: wrapper for indSort for comparing string-type arguments representing integers
+    template <typename T>
+    std::shared_ptr<std::vector<size_t>> stoiSort(const std::vector<T> &vector)
+    {
+        std::function<bool(const T&, const T&)> stoicomp = [](const T& i, const T& j) { return std::stoi(std::string(i)) < std::stoi(std::string(j)); };
+        return indSort(vector, stoicomp);
+    }
+
+    // ZW: wrapper for indSort for comparing string-type arguments representing doubles
+    template <typename T>
+    std::shared_ptr<std::vector<size_t>> stodSort(const std::vector<T> &vector)
+    {
+        std::function<bool(const T&, const T&)> stodcomp = [](const T& i, const T& j) { return std::stod(std::string(i)) < std::stod(std::string(j)); };
+        return indSort(vector, stodcomp);
+    }
+
+    // ZW: templated fcn for finding the order of elements in a vector to_sort
+    // based on their order in a reference vector reference
+    // Elements not found in reference are represented by npos,
+    // including if to_sort is longer than reference
+    template <typename T>
+    std::shared_ptr<std::vector<size_t>> getRefOrder(const std::vector<T>& reference, const std::vector<T>& to_sort) {
+        std::unordered_map<T, std::queue<size_t>> indexMap;
+
+        // Populate indexMap with indices from vec1
+        for (size_t i = 0; i < reference.size(); ++i) {
+            indexMap[reference[i]].push(i);
+        }
+
+        std::shared_ptr<std::vector<size_t>> order;
+        order->reserve(to_sort.size()); // Pre-allocate memory
+
+        for (const auto& elem : to_sort) {
+            auto it = indexMap.find(elem);
+            if (it != indexMap.end() && !it->second.empty()) {
+                order->push_back(it->second.front());
+                it->second.pop();
+            } else {
+                // Element in vec2 not found in vec1
+                order->push_back(npos);
+            }
+        }
+
+        return order;
+    }
+
     // ZW: minimal fcn for counting the amount of times
     // a given search term appears in a string
     int nuStrCount( std::string_view searchString, std::string_view searchTerm )
@@ -79,7 +148,7 @@ namespace REX
         auto lineBreaks = nuFindEach( currEvt, "\n" );
         std::vector<size_t> trueBreaks;
         trueBreaks.reserve( lineBreaks->size() );
-        for( int k = 0 ; k < lineBreaks->size() - 1 ; ++k )
+        for( size_t k = 0 ; k < lineBreaks->size() - 1 ; ++k )
         {
             if( int( (*lineBreaks)[k+1] - (*lineBreaks)[k]) == 1){continue;}
             trueBreaks.push_back( (*lineBreaks)[k] );
@@ -92,7 +161,7 @@ namespace REX
             splitLines->push_back( currEvt.substr( startPos + 1, k - startPos - 1) );
             startPos = k;
         }
-        if( auto strung = currEvt.substr( startPos ).size() > 1 ){ splitLines->push_back( currEvt.substr( startPos ) ); }
+        if( currEvt.substr( startPos ).size() > 1 ){ splitLines->push_back( currEvt.substr( startPos ) ); }
         return splitLines;
     }
 
@@ -105,7 +174,7 @@ namespace REX
         auto lineBreaks = nuFindEach( currEvt.substr( startPos, endPos - startPos), "\n" );
         auto truBreaks = std::make_shared<std::vector<size_t>>();
         truBreaks->reserve( lineBreaks->size() );
-        for( int k = 0 ; k < lineBreaks->size() ; ++k )
+        for( size_t k = 0 ; k < lineBreaks->size() ; ++k )
         {
             if( int( (*lineBreaks)[k+1] - (*lineBreaks)[k]) == 1){continue;}
             truBreaks->push_back( (*lineBreaks)[k] );
@@ -237,24 +306,44 @@ namespace REX
 
     // ZW: fcn for finding left angle bracket
     // indicating the start of a new node in an XML file
-    std::shared_ptr<size_t> nodeStartFind( std::string_view parseFile, size_t strtPos )
+    size_t nodeStartFind( std::string_view parseFile, size_t strtPos )
     {
-        auto retPtr = std::make_shared<size_t>(parseFile.find("<", strtPos));
-        while( parseFile[*retPtr + 1] == '!' || parseFile[*retPtr +1] == '/' || parseFile[*retPtr +1] == '?' ){
-            *retPtr = parseFile.find("<", *retPtr +1);
+        auto retPtr = parseFile.find("<", strtPos);
+        while( parseFile[retPtr + 1] == '!' || parseFile[retPtr +1] == '/' || parseFile[retPtr +1] == '?' ){
+            retPtr = parseFile.find("<", retPtr +1);
         }
         return retPtr;
     }
 
+    size_t endNodeStartFind( std::string_view parseFile, size_t strtPos )
+    {
+        return parseFile.find(">", nodeStartFind( parseFile, strtPos ));
+    }
+
+    std::pair<size_t, size_t> startNodePts( std::string_view parseFile, size_t strtPos )
+    {
+        return { nodeStartFind( parseFile, strtPos ), endNodeStartFind( parseFile, strtPos ) };
+    }
+
     // ZW: fcn for finding left angle bracket
     // indicating an end of a node in an XML file
-    std::shared_ptr<size_t> nodeEndFind( std::string_view parseFile, size_t strtPos )
-    {
-        auto retPtr = std::make_shared<size_t>(parseFile.find("<", strtPos));
-        while( parseFile[*retPtr + 1] != '/' ){
-            *retPtr = parseFile.find("<", *retPtr +1);
-        }
+    size_t nodeEndFind( std::string_view parseFile, size_t strtPos )
+    { 
+        auto retPtr = parseFile.find("<", strtPos); 
+        while( parseFile[retPtr + 1] != '/' ){ 
+            retPtr = parseFile.find("<", retPtr +1);
+        } 
         return retPtr;
+    }
+
+    size_t endNodeEndFind( std::string_view parseFile, size_t strtPos )
+    {
+        return parseFile.find(">", nodeEndFind( parseFile, strtPos ));
+    }
+
+    std::pair<size_t, size_t> endNodePts( std::string_view parseFile, size_t strtPos )
+    {
+        return { nodeEndFind( parseFile, strtPos ), endNodeEndFind( parseFile, strtPos ) };
     }
 
     // ZW: struct for handling tags in XML node opening tags
@@ -291,18 +380,153 @@ namespace REX
         return tagPtr;
     }
 
+    // ZW: struct for handling the tree structure of XML files,
+    // essentially just giving the positions of the beginning and
+    // end of each node s.t. the proper node structures can accurately
+    // detail where children begin and end while allowing for personal
+    // content between child nodes 
+    struct xmlTree {
+    public:
+        xmlTree(){ return; }
+        xmlTree( std::string_view file ){
+            origin = file;
+            children = std::make_shared<std::vector<std::shared_ptr<xmlTree>>>();
+            start = file.find_first_not_of(" \n\r\f\t\v");
+            if( file.compare(start, 1, "<") != 0 ) { 
+                faux = true; 
+                contSt = start; 
+                end = std::min( nodeStartFind(file, start), nodeEndFind(file, start) ); 
+                contEnd = end; 
+                initialised = true; 
+                return; 
+            }
+            if( file.compare(start + 1, 1, "!") == 0 || file.compare(start + 1, 1, "?")  == 0 ) {
+                faux = true;
+                contSt = start;
+                contEnd = file.find(">", start + 1);
+                end = std::min( nodeStartFind(file, contEnd), nodeEndFind(file, contEnd) );
+                initialised = true;
+                return;
+            }
+            auto stEnd = file.find(">", start);
+            if( file.compare(stEnd - 1, 1, "/" ) == 0 ) {
+                end = file.find_first_not_of(" \n\r\f\t\v", stEnd + 1); 
+                contSt = npos;
+                contEnd = npos;
+                initialised = true;
+                return; 
+            }
+            contSt = stEnd + 1;
+            auto stPos = nodeStartFind(file, start + 1);
+            stEnd = nodeEndFind(file, start + 1);
+            contEnd = std::min(stPos, stEnd);
+            while( stPos < stEnd )
+            {
+                children->push_back( std::make_shared<xmlTree>( file, stPos, stEnd ) ); 
+            }
+            stEnd = endNodeEndFind(file, stEnd); 
+            end = file.find_first_not_of(" \n\r\f\t\v", stEnd + 1); 
+            initialised = true;
+        }
+        xmlTree( std::string_view file, size_t& strt, size_t& nd ){ 
+            origin = file;
+            children = std::make_shared<std::vector<std::shared_ptr<xmlTree>>>();
+            start = file.find_first_not_of(" \n\r\f\t\v", strt);
+            if( file.compare(start, 1, "<") != 0)  { 
+                faux = true;
+                contSt = start;
+                strt = nodeStartFind(file, start);
+                nd = nodeEndFind(file, start);
+                end = std::min( strt, nd ); 
+                contEnd = end;  
+                initialised = true; 
+                return; 
+            }
+            if( file.compare(start + 1, 1, "!") == 0 ) {
+                faux = true;
+                contSt = start;
+                contEnd = file.find(">", start + 1);
+                strt = nodeStartFind(file, contEnd);
+                nd = nodeEndFind(file, contEnd);
+                end = std::min( strt, nd );
+                initialised = true;
+                return;
+            }
+            auto stEnd = file.find(">", start); 
+            if( file.compare(stEnd - 1, 1, "/" ) == 0 ) {  
+                end = file.find_first_not_of(" \n\r\f\t\v", stEnd + 1); 
+                contSt = npos;
+                contEnd = npos; 
+                strt = nodeStartFind(file, start);
+                nd = nodeEndFind(file, start); 
+                initialised = true; 
+                return;
+            }
+            contSt = stEnd + 1; 
+            strt = nodeStartFind(file, start + 1); 
+            nd = nodeEndFind(file, start + 1); 
+            contEnd = std::min(strt, nd); 
+            while( strt < nd )
+            { 
+                children->push_back( std::make_shared<xmlTree>( file, strt, nd ) ); 
+            }
+            end = file.find_first_not_of(" \n\r\f\t\v", endNodeEndFind(file, nd) + 1);
+            initialised = true; 
+            strt = end; 
+            nd = nodeEndFind(file, strt);
+        }
+        auto& getChildren(){ return children; }
+        std::string_view& getOrigin(){ return origin; }
+        size_t getStart(){ return start; }
+        size_t getEnd(){ return end; }
+        size_t getContStart(){ return contSt; }
+        size_t getContEnd(){ return contEnd; }
+        bool isFaux(){ return faux; }
+        bool isInit(){ return initialised; }
+        bool hasChildren(){ return children->size() > 0; }
+    protected:
+        std::shared_ptr<std::vector<std::shared_ptr<xmlTree>>> children; // vector of pointers to children nodes
+        std::string_view origin;
+        size_t start; // position of opening bracket of node opening
+        size_t end; // position of final character of ending node, including trailing blankspace
+        size_t contSt;
+        size_t contEnd;
+        bool faux = false; // boolean showing whether this item is a true node or content squeezed between nodes
+        bool initialised;
+    };
+
     // ZW: struct for handling nodes in generic XML files
     struct xmlNode {
     public:
         xmlNode(){ modded = false; return; }
         xmlNode( const std::string_view originFile, const size_t& begin = 0, const std::vector<std::shared_ptr<xmlNode>>& childs = {} ){
-            modded = false; xmlFile = originFile; start = begin; children = childs;
-            if( xmlFile.substr(start, 1) != "<" ){ start = *nodeStartFind( xmlFile, size_t(start) ); }
-            size_t trueStart = xmlFile.find_first_not_of(" ", start+1);
-            name = xmlFile.substr( trueStart, xmlFile.find_first_of(">/ ", trueStart) - trueStart );
-            if( xmlFile.find( ">", trueStart ) < xmlFile.find( "/", trueStart ) ){
-                content = xmlFile.substr( xmlFile.find( ">", trueStart ) + 1, xmlFile.find( "</", trueStart ) - xmlFile.find( ">", trueStart ) - 1 );
+            modded = false;
+            xmlFile = originFile;
+            structure = xmlTree( originFile );
+            faux = structure.isFaux();
+            start = structure.getStart();
+            end = structure.getEnd();
+            size_t trueStart = xmlFile.find_first_not_of("< \n\r\f\t\v", start+1);
+            name = xmlFile.substr( trueStart, xmlFile.find_first_of(">/ \n\r\f\t\v", trueStart) - trueStart );
+            content = xmlFile.substr( structure.getContStart(), structure.getContEnd() - structure.getContStart() );
+            for( auto& child : *(structure.getChildren()) ){
+                children.push_back( std::make_shared<xmlNode>( *child ) );
             }
+        }
+        xmlNode( xmlTree &tree ){ 
+            modded = false; 
+            structure = tree; 
+            if( !structure.isInit() ){ return; } 
+            xmlFile = structure.getOrigin(); 
+            faux = structure.isFaux(); 
+            start = structure.getStart(); 
+            end = structure.getEnd(); 
+            size_t trueStart = xmlFile.find_first_not_of("< \n\r\f\t\v", start); 
+            name = xmlFile.substr( trueStart, xmlFile.find_first_of(">/ \n\r\f\t\v", trueStart) - trueStart );
+            content = xmlFile.substr( structure.getContStart(), structure.getContEnd() - structure.getContStart() ); 
+            for( auto& child : *(structure.getChildren()) ){ 
+                children.push_back( std::make_shared<xmlNode>( *child ) ); 
+            } 
         }
         std::vector<std::shared_ptr<xmlNode>> getChildren(){ return children; }
         std::vector<std::shared_ptr<xmlTag>> getTags(){ return tags; }
@@ -311,6 +535,7 @@ namespace REX
         std::string_view getContent(){ return content; }
         size_t getStart(){ return start; }
         size_t getEnd(){ return end; }
+        xmlTree getTree(){ return structure; }
         virtual bool isModded(){ return modded; }
         virtual bool isModded( bool deep ){
             bool modStat = isModded();
@@ -320,6 +545,8 @@ namespace REX
         }
         bool isWritten(){ return written; }
         bool isParsed(){ return parsed; }
+        bool isFaux(){ return faux; }
+        bool hasChildren(){ return children.size() > 0; }
         void setModded( bool mod ){ modded = mod; }
         bool deepModded(){ return deepMod; }
         bool deepParse(){ return deepParsed; }
@@ -347,32 +574,16 @@ namespace REX
         }
         bool parseTop(){
             if( xmlFile == "" ){ return false; }
+            if( isFaux() ){ return true; }
             size_t eqSgn = xmlFile.find( "=", start ); size_t nodeInitEnd = xmlFile.find( ">", start );
             while( eqSgn < nodeInitEnd ){ tags.push_back( xmlTagParser( xmlFile, eqSgn ) ); }
             return true;
         }
         virtual bool parseContent(){
             if( xmlFile == "" ){ return false; }
-            auto firstR = xmlFile.find_first_of( ">/", start );
-            auto nodeStrEnd = xmlFile.find(">", firstR);
-            if( firstR < nodeStrEnd ){ content = ""; end = nodeStrEnd + 2; parsed = true; return true; }
-            auto endNode = *nodeEndFind( xmlFile, start );
-            auto startNode = *nodeStartFind( xmlFile, start + 1 );
-            if( startNode > endNode ){end = xmlFile.find( ">", endNode ) + 1; content = xmlFile.substr( xmlFile.find( ">", start ) + 1, endNode - xmlFile.find( ">", start ) - 1  ); return true; }
-            auto endPt = xmlFile.find( std::string("</") + std::string(name), start );
-            content = xmlFile.substr( xmlFile.find(">", start) + 1, startNode - xmlFile.find(">") - 1 ); 
-            end = xmlFile.find( ">", endPt ) + 2; 
-            while( startNode < endNode ){
-                auto nextNode = std::make_shared<xmlNode>( xmlFile, startNode );
-                children.push_back( nextNode );
-                int starts = 0;
-                while( startNode < endNode )
-                {
-                    startNode = *nodeStartFind( xmlFile, startNode + 1 );
-                    ++starts;
-                }
-                for( int k = 0 ; k < starts ; ++k ){ endNode = *nodeEndFind( xmlFile, endNode + 1 ); }
-                if( endNode > end ){ break; }
+            end = structure.getContEnd();
+            for( auto branch : *(structure.getChildren()) ){
+                children.push_back( std::make_shared<xmlNode>( *branch ) ); 
             }
             return true;
         }
@@ -393,10 +604,14 @@ namespace REX
             }
             return status;
         }
-        std::shared_ptr<std::string> writtenSelf; 
-        bool deepMod = false;
+        std::string nodeHeader;
+        std::string nodeContent;
+        std::string nodeEnd;
+        xmlTree structure;
         std::vector<std::shared_ptr<xmlNode>> children;
         std::vector<std::shared_ptr<xmlTag>> tags;
+        std::shared_ptr<std::string> writtenSelf; 
+        bool deepMod = false;
         std::string_view xmlFile;
         std::string_view name;
         std::string_view content;
@@ -406,10 +621,9 @@ namespace REX
         bool written = false;
         bool parsed = false;
         bool deepParsed = false;
-        std::string nodeHeader;
-        std::string nodeContent;
-        std::string nodeEnd;
+        bool faux = false;
         virtual void headWriter() {
+            if( isFaux() ){ return; }
             nodeHeader =  "<" + std::string(name) ;
             for( auto tag : tags ){
                 nodeHeader += " " + std::string(tag->getId()) + "=\"" + std::string(tag->getVal()) + "\"";
@@ -417,10 +631,12 @@ namespace REX
             nodeHeader += ">";
         }
         virtual void endWriter() {
-            nodeEnd = "</" + std::string(name) + ">\n";
+            if( isFaux() ){ return; }
+            auto endSt = xmlFile.find_last_of("<", end);
+            nodeEnd = xmlFile.substr( endSt, end - endSt );
         }
         virtual void contWriter() {
-            if( children.size() > 0 ){
+            if( hasChildren() ){
             nodeContent = std::string(content.substr(0, children[0]->start - 1 ));
             } else {
             nodeContent = std::string(content);
@@ -449,8 +665,6 @@ namespace REX
             written = true;
             modded = false;
             } else if( !isWritten() ){
-            endFinder();
-            if( start > xmlFile.size() ){ start = 0; }
             writtenSelf = std::make_shared<std::string>( xmlFile.substr( start, end - start ) );
             written = true;
             }
@@ -461,10 +675,15 @@ namespace REX
             for( auto child : children )
             {
                 child->childCounter( noChilds );
-                if( child->end == 0 ){ --noChilds; }
+                if( child->end == 0 || child->isFaux() ){ --noChilds; }
             }
             noChilds += children.size();
-        }    
+        }  
+        virtual int childCounter() {
+            int noChilds = 0;
+            childCounter( noChilds );
+            return noChilds;
+        }  
         virtual std::shared_ptr<std::string> nodeWriter() {
             if( isModded( true ) || !isWritten() ){ fullWriter(); }
             return writtenSelf;
@@ -480,7 +699,7 @@ namespace REX
         auto currNode = std::make_shared<xmlNode>(parseFile, initPos);
         size_t equalSign = parseFile.find("=", initPos);
         size_t nodeInitEnd = parseFile.find(">", initPos);
-        initPos = *nodeStartFind( parseFile, initPos + 1 );
+        initPos = nodeStartFind( parseFile, initPos + 1 );
         while( equalSign < nodeInitEnd ){
             currNode->addTag( xmlTagParser(parseFile, equalSign) );
         }
@@ -489,14 +708,14 @@ namespace REX
             currNode->addChild(xmlPtrParser( parseFile, initPos, endPos ));
         }
         
-        initPos = *nodeStartFind( parseFile, endPos );
-        endPos = *nodeEndFind( parseFile, endPos + 1 );
+        initPos = nodeStartFind( parseFile, endPos );
+        endPos = nodeEndFind( parseFile, endPos + 1 );
         return currNode;
     }
 
     // ZW: struct for handling rwgt parameter sets
     // in the LHE header initrwgt node
-    struct headWeight : xmlNode {
+    struct headWeight : public xmlNode {
     public:
         int getId(){ return id; }
         std::string_view getTag(){ return idTag; }
@@ -536,6 +755,36 @@ namespace REX
                 }
             }
         }
+        headWeight( xmlTree& tree ) : xmlNode( tree ){
+            parser( false );
+            name = "weight";
+            for (auto tag : tags ){
+                if( tag->getId() == "id" ){
+                    idTag = tag->getVal().substr(0, tag->getVal().find_last_of("_") - 1 );
+                    id = std::stoi( std::string( tag->getVal().substr( idTag.size() + 1 ) ) );
+                }
+            }
+        }
+        headWeight( xmlTree* tree ) : xmlNode( *tree ){
+            parser( false );
+            name = "weight";
+            for (auto tag : tags ){
+                if( tag->getId() == "id" ){
+                    idTag = tag->getVal().substr(0, tag->getVal().find_last_of("_") - 1 );
+                    id = std::stoi( std::string( tag->getVal().substr( idTag.size() + 1 ) ) );
+                }
+            }
+        }
+        headWeight( std::shared_ptr<xmlTree> tree ) : xmlNode( *tree ){
+            parser( false );
+            name = "weight";
+            for (auto tag : tags ){
+                if( tag->getId() == "id" ){
+                    idTag = tag->getVal().substr(0, tag->getVal().find_last_of("_") - 1 );
+                    id = std::stoi( std::string( tag->getVal().substr( idTag.size() + 1 ) ) );
+                }
+            }
+        }
         headWeight( std::string_view paramSet, std::string& idText, unsigned int idNo, const size_t& begin = 0 ) : xmlNode(){
             name = "weight"; xmlFile = paramSet; content = paramSet; idTag = idText; id = idNo;
         }
@@ -551,6 +800,7 @@ namespace REX
                 if( idTag == "" ){ nodeHeader = "<weight>"; return; }
                 if( id == npos ){ nodeHeader = "<weight id=\"" + std::string(idTag) + "\">"; return; }
                 nodeHeader = "<weight id=\"" + std::string(idTag) + std::to_string(id) + "\">";
+                return;
             }
             nodeHeader = "<weight";
             for( auto tag : tags ){
@@ -591,7 +841,6 @@ namespace REX
                 childWriter();
                 endWriter();
                 writtenSelf = std::make_shared<std::string>( nodeHeader + nodeContent + nodeEnd );
-                writtenSelf = std::make_shared<std::string>( nodeHeader + nodeContent + nodeEnd );
                 written = true;
                 modded = false;
             }
@@ -611,7 +860,7 @@ namespace REX
 
     // ZW: struct for handling rwgt groups
     // in the LHE header initrwgt node
-    struct weightGroup : xmlNode {
+    struct weightGroup : public xmlNode {
     public:
         bool getIncId(){ return includeId; }
         void setIncId( bool nuIncId ){ includeId = nuIncId; }
@@ -628,6 +877,42 @@ namespace REX
             for( auto wgt : paramSets ){ if( wgt->hasTag() ){ includeId = true; } }
         }
         weightGroup( xmlNode& wgtNode ) : xmlNode( wgtNode ){
+            parser( true );
+            name = "weightgroup";
+            paramSets.reserve( children.size() );
+            for(  auto child : children ){
+                if( child->getName() == "weight" ){ paramSets.push_back( std::make_shared<headWeight>( *child ) ); }
+            }
+            for( auto wgt : paramSets ){ if( wgt->hasTag() ){ includeId = true; } }
+        }
+        weightGroup( xmlNode* wgtNode ) : xmlNode( *wgtNode ){
+            parser( true );
+            name = "weightgroup";
+            paramSets.reserve( children.size() );
+            for(  auto child : children ){
+                if( child->getName() == "weight" ){ paramSets.push_back( std::make_shared<headWeight>( *child ) ); }
+            }
+            for( auto wgt : paramSets ){ if( wgt->hasTag() ){ includeId = true; } }
+        }
+        weightGroup( xmlTree& wgtTree ) : xmlNode( wgtTree ){ 
+            parser( true );
+            name = "weightgroup";
+            paramSets.reserve( children.size() );
+            for(  auto child : children ){
+                if( child->getName() == "weight" ){ paramSets.push_back( std::make_shared<headWeight>( *child ) ); }
+            }
+            for( auto wgt : paramSets ){ if( wgt->hasTag() ){ includeId = true; } }
+        }
+        weightGroup( xmlTree* wgtTree ) : xmlNode( *wgtTree ){
+            parser( true );
+            name = "weightgroup";
+            paramSets.reserve( children.size() );
+            for(  auto child : children ){
+                if( child->getName() == "weight" ){ paramSets.push_back( std::make_shared<headWeight>( *child ) ); }
+            }
+            for( auto wgt : paramSets ){ if( wgt->hasTag() ){ includeId = true; } }
+        }
+        weightGroup( std::shared_ptr<xmlTree> wgtTree ) : xmlNode( *wgtTree ){
             parser( true );
             name = "weightgroup";
             paramSets.reserve( children.size() );
@@ -672,6 +957,7 @@ namespace REX
         }
         void childWriter() override{
             for(auto child : children){
+                if( child->getName() == "weight" ){ continue; }
                 nodeContent += (*child->nodeWriter());
             }
         }
@@ -682,7 +968,7 @@ namespace REX
         void endWriter() override{ nodeEnd = "</weightgroup>\n"; }
     };
 
-    struct initRwgt : xmlNode {
+    struct initRwgt : public xmlNode {
     public:
         std::vector<std::shared_ptr<weightGroup>> getGroups(){ return groups; }
         size_t noGrps(){ return groups.size(); }
@@ -718,7 +1004,23 @@ namespace REX
                 groups.push_back( std::make_shared<weightGroup>( *child ) );
             }
         }
+        initRwgt( xmlNode* wgtNode ) : xmlNode( *wgtNode ){
+            parser( true );
+            name = "initrwgt";
+            groups.reserve( children.size() );
+            for(  auto child : children ){
+                groups.push_back( std::make_shared<weightGroup>( *child ) );
+            }
+        }
         initRwgt( std::shared_ptr<xmlNode> wgtNode ) : xmlNode( *wgtNode ){
+            parser( true );
+            name = "initrwgt";
+            groups.reserve( children.size() );
+            for(  auto child : children ){
+                groups.push_back( std::make_shared<weightGroup>( *child ) );
+            }
+        }
+        initRwgt( xmlTree& wgtTree ) : xmlNode( wgtTree ){
             parser( true );
             name = "initrwgt";
             groups.reserve( children.size() );
@@ -755,9 +1057,9 @@ namespace REX
         }
     };
 
-    // ZW: struct for handling event
+    // ZW: struct for handling weights
     // in event blocks of LHE files
-    struct bodyWgt : xmlNode {
+    struct bodyWgt : public xmlNode {
     public:
         void setComment( std::string_view nuComment ){ modded = true; comment = nuComment; }
         void setVal( std::string nuVal ){ modded = true; valS = nuVal; valD = std::stod(valS);}
@@ -785,6 +1087,36 @@ namespace REX
         : xmlNode( originFile, begin, childs ){
             auto strtPt = originFile.find_first_not_of(" >+", originFile.find(">", begin)+1);
             valS = originFile.substr( strtPt, originFile.find(" ", strtPt) - strtPt );
+            valD = std::stod( valS );
+        }
+        bodyWgt( xmlNode& wgtNode ) : xmlNode( wgtNode ){
+            parser( true );
+            valS = xmlFile.substr( structure.getContStart(), structure.getContEnd() - structure.getContStart() );
+            valD = std::stod( valS );
+        }
+        bodyWgt( xmlNode* wgtNode ) : xmlNode( *wgtNode ){
+            parser( true );
+            valS = xmlFile.substr( structure.getContStart(), structure.getContEnd() - structure.getContStart() );
+            valD = std::stod( valS );
+        }
+        bodyWgt( std::shared_ptr<xmlNode> wgtNode ) : xmlNode( *wgtNode ){
+            parser( true );
+            valS = xmlFile.substr( structure.getContStart(), structure.getContEnd() - structure.getContStart() );
+            valD = std::stod( valS );
+        }
+        bodyWgt( xmlTree& wgtTree ) : xmlNode( wgtTree ){
+            parser( true );
+            valS = xmlFile.substr( structure.getContStart(), structure.getContEnd() - structure.getContStart() );
+            valD = std::stod( valS );
+        }
+        bodyWgt( xmlTree* wgtTree ) : xmlNode( *wgtTree ){
+            parser( true );
+            valS = xmlFile.substr( structure.getContStart(), structure.getContEnd() - structure.getContStart() );
+            valD = std::stod( valS );
+        }
+        bodyWgt( std::shared_ptr<xmlTree> wgtTree ) : xmlNode( *wgtTree ){
+            parser( true );
+            valS = xmlFile.substr( structure.getContStart(), structure.getContEnd() - structure.getContStart() );
             valD = std::stod( valS );
         }
         bodyWgt( double value, std::string& idTag ){
@@ -893,7 +1225,7 @@ namespace REX
         evHead( const std::string_view originFile, size_t beginLine = 0, size_t endLine = npos )
         {
             if( originFile.size() == 0){ return; }
-            beginLine = originFile.find_first_not_of("\n ", beginLine);
+            beginLine = originFile.find_first_not_of("\n \r\f\t\v", beginLine);
             if( endLine == npos ){ endLine = originFile.find("\n", beginLine ) + 1; }
             sourceFile = originFile.substr( beginLine, endLine - beginLine );
             auto evLine = nuWordSplitter( sourceFile );
@@ -921,7 +1253,7 @@ namespace REX
             if( !isModded() ){ content = std::make_shared<std::string>( sourceFile ); return; }
             auto retText = std::make_shared<std::string>( " " );
             *content = " " + std::string( nprt );
-            for( int k = 0 ; k < 8 - procid.length() ; ++k ){ *content += " "; }
+            for( size_t k = 0 ; k < 8 - procid.length() ; ++k ){ *content += " "; }
             *content +=  std::string( procid ) + " " + std::string( weight ) + " " + std::string( scale ) + " " + std::string( aqed ) + " " + std::string( aqcd );
             if( comment != "" ){ *content += " # " + std::string( comment ); }
             *content += "\n";
@@ -962,6 +1294,14 @@ namespace REX
             return content;
         }
         lhePrt(){ return; }
+        lhePrt( std::pair<int,int> prtInfo ){
+            status = std::to_string( prtInfo.first );
+            pdg = std::to_string( prtInfo.second );
+        }
+        lhePrt( std::pair<int,int>& prtInfo ){
+            status = std::to_string( prtInfo.first );
+            pdg = std::to_string( prtInfo.second );
+        }
         lhePrt( const std::string_view originFile, const size_t& beginLine = 0, const size_t& endLine = npos )
         {
             sourceFile = originFile.substr( beginLine, endLine - beginLine );
@@ -998,7 +1338,7 @@ namespace REX
             if( isWritten() && !isModded() ){ return; }
             if( !isModded() ){ content = std::make_shared<std::string>( sourceFile ); return; }
             *content = "";
-            for( int k = 0; k < 10 - pdg.length() ; ++k ){ *content += " "; }
+            for( size_t k = 0; k < 10 - pdg.length() ; ++k ){ *content += " "; }
             *content += std::string(pdg) + " " + std::string(status);
             for( auto mum : mothers ){ *content += "    " + std::string( mum ); }
             for( auto col : icol ){ *content += "  " + std::string( col ); }
@@ -1012,7 +1352,7 @@ namespace REX
     };
 
     // ZW: struct for handling LHE format event block
-    struct event : xmlNode {
+    struct event : public xmlNode {
     public:
         evHead getHead(){ return header; }
         std::vector<std::shared_ptr<lhePrt>> getPrts(){ return prts; }
@@ -1038,9 +1378,19 @@ namespace REX
             return modStat;
         }
         event(){ return; }
+        event( std::vector<std::pair<int,int>> prtInfo ){
+            header.setNprt( std::to_string( prtInfo.size() ) );
+            for( auto prt : prtInfo ){
+                prts.push_back( std::make_shared<lhePrt>( prt ) );
+            }
+        }
+        event( std::vector<std::shared_ptr<lhePrt>> prtInfo ){
+            header.setNprt( std::to_string( prtInfo.size() ) );
+            prts = prtInfo;
+        }
         event( const std::string_view originFile, const size_t& begin = 0, const std::vector<std::shared_ptr<xmlNode>>& childs = {} ) 
         : xmlNode(originFile, begin, childs) {
-            xmlFile = originFile; start = begin; children = childs; size_t trueStart = originFile.find_first_not_of(" ", begin+1);
+            xmlFile = originFile; start = begin; children = childs; size_t trueStart = originFile.find_first_not_of(" \n\r\f\t\v", begin+1);
             if( trueStart == npos ){ return; }
             auto vals = lineFinder( originFile.substr( trueStart, originFile.find("<", trueStart +  3 ) - trueStart + 3 ));
             header = evHead(originFile, vals->at(0) + trueStart, vals->at(1) + trueStart + 1 );
@@ -1052,7 +1402,62 @@ namespace REX
         }
         event( const xmlNode& originFile )
         : xmlNode( originFile ) {
-            size_t trueStart = xmlFile.find_first_not_of(" ", start+1);
+            size_t trueStart = xmlFile.find_first_not_of(" \n\r\f\t\v", start+1);
+            auto vals = lineFinder( xmlFile.substr( trueStart, xmlFile.find("<", trueStart +  3 ) - trueStart + 3 ));
+            header = evHead(xmlFile, vals->at(0) + trueStart, vals->at(1) + trueStart );
+            prts.reserve(vals->size());
+            for( int k = 1 ; k < std::stoi(std::string(header.getNprt())) + 1; ++k)
+            {
+                prts.push_back( std::make_shared<lhePrt>(xmlFile, vals->at(k) + trueStart + 1, vals->at(k+1) + trueStart) );
+            }
+        }
+        event( const xmlNode* originFile )
+        : xmlNode( *originFile ) {
+            size_t trueStart = xmlFile.find_first_not_of(" \n\r\f\t\v", structure.getContStart() + 1);
+            auto vals = lineFinder( xmlFile.substr( trueStart, xmlFile.find("<", trueStart +  3 ) - trueStart + 3 ));
+            header = evHead(xmlFile, vals->at(0) + trueStart, vals->at(1) + trueStart );
+            prts.reserve(vals->size());
+            for( int k = 1 ; k < std::stoi(std::string(header.getNprt())) + 1; ++k)
+            {
+                prts.push_back( std::make_shared<lhePrt>(xmlFile, vals->at(k) + trueStart + 1, vals->at(k+1) + trueStart) );
+            }
+        }
+        event( const std::shared_ptr<xmlNode>& originFile )
+        : xmlNode( *originFile ) {
+            size_t trueStart = xmlFile.find_first_not_of(" \n\r\f\t\v", structure.getContStart() + 1);
+            auto vals = lineFinder( xmlFile.substr( trueStart, xmlFile.find("<", trueStart +  3 ) - trueStart + 3 ));
+            header = evHead(xmlFile, vals->at(0) + trueStart, vals->at(1) + trueStart );
+            prts.reserve(vals->size());
+            for( int k = 1 ; k < std::stoi(std::string(header.getNprt())) + 1; ++k)
+            {
+                prts.push_back( std::make_shared<lhePrt>(xmlFile, vals->at(k) + trueStart + 1, vals->at(k+1) + trueStart) );
+            }
+        }
+        event( xmlTree& originFile )
+        : xmlNode( originFile ) {
+            size_t trueStart = xmlFile.find_first_not_of(" \n\r\f\t\v", structure.getContStart() + 1);
+            auto vals = lineFinder( xmlFile.substr( trueStart, xmlFile.find("<", trueStart +  3 ) - trueStart + 3 ));
+            header = evHead(xmlFile, vals->at(0) + trueStart, vals->at(1) + trueStart );
+            prts.reserve(vals->size());
+            for( int k = 1 ; k < std::stoi(std::string(header.getNprt())) + 1; ++k)
+            {
+                prts.push_back( std::make_shared<lhePrt>(xmlFile, vals->at(k) + trueStart + 1, vals->at(k+1) + trueStart) );
+            }
+        }
+        event( xmlTree* originFile )
+        : xmlNode( *originFile ) {
+            size_t trueStart = xmlFile.find_first_not_of(" \n\r\f\t\v", structure.getContStart() + 1);
+            auto vals = lineFinder( xmlFile.substr( trueStart, xmlFile.find("<", trueStart +  3 ) - trueStart + 3 ));
+            header = evHead(xmlFile, vals->at(0) + trueStart, vals->at(1) + trueStart );
+            prts.reserve(vals->size());
+            for( int k = 1 ; k < std::stoi(std::string(header.getNprt())) + 1; ++k)
+            {
+                prts.push_back( std::make_shared<lhePrt>(xmlFile, vals->at(k) + trueStart + 1, vals->at(k+1) + trueStart) );
+            }
+        }
+        event( std::shared_ptr<xmlTree> originFile )
+        : xmlNode( *originFile ) {
+            size_t trueStart = xmlFile.find_first_not_of(" \n\r\f\t\v", structure.getContStart() + 1);
             auto vals = lineFinder( xmlFile.substr( trueStart, xmlFile.find("<", trueStart +  3 ) - trueStart + 3 ));
             header = evHead(xmlFile, vals->at(0) + trueStart, vals->at(1) + trueStart );
             prts.reserve(vals->size());
@@ -1068,6 +1473,9 @@ namespace REX
         bool headIsMod(){
             return header.isModded();
         }
+        bool isSpecSort() const { return specSorted; }
+        sortFcn getSortFcn() const { return eventSort; }
+        statSort getStatSort() const { return specSort; }
     protected:
         std::vector<std::shared_ptr<bodyWgt>> rwgt;
         std::shared_ptr<xmlNode> childRwgt;
@@ -1083,7 +1491,65 @@ namespace REX
         bool bothRwgt(){ return (hasRwgt() && rwgtChild() ); }
         bool eitherRwgt(){ return (hasRwgt() || rwgtChild() ); }
         evHead header;
+        bool hasBeenProc = false;
         std::vector<std::shared_ptr<lhePrt>> prts;
+        std::map<std::string_view, std::vector<std::string_view>> procMap;
+        std::map<std::string_view, std::vector<size_t>> procOrder;
+        sortFcn eventSort = []( std::vector<std::string_view> vec ){ return stodSort( vec ); };
+        statSort specSort = []( std::string_view stat, std::vector<std::string_view> vec ){ return stodSort( vec ); };
+        bool specSorted = false;
+        bool initProcMap(bool hard = false)
+        {
+            if(!hard){ if( procMap.size() > 0 ){ return true; } }
+            for( auto prt : prts ){
+                procMap.insert({prt->getStatus(), std::vector<std::string_view>()});
+                procOrder.insert({prt->getStatus(), std::vector<size_t>()});
+            }
+            for( auto prt : prts ){
+                procMap[prt->getStatus()].push_back( prt->getPDG() );
+            }
+            for( auto stat = procMap.begin(); stat!= procMap.end(); ++stat ){
+                procOrder[stat->first] = *stoiSort( stat->second );
+            }
+            hasBeenProc = true;
+            return true;
+        }
+        bool initProcMap( sortFcn sorter, bool hard = false )
+        {
+            if(!hard){ if( procMap.size() > 0 ){ return true; } }
+            specSorted = false;
+            eventSort = sorter;
+            for( auto prt : prts ){
+                procMap.insert({prt->getStatus(), std::vector<std::string_view>()});
+                procOrder.insert({prt->getStatus(), std::vector<size_t>()});
+            }
+            for( auto prt : prts ){
+                procMap[prt->getStatus()].push_back( prt->getPDG() );
+            }
+            for( auto stat = procMap.begin(); stat!= procMap.end(); ++stat ){
+                procOrder[stat->first] = *sorter( stat->second );
+            }
+            hasBeenProc = true;
+            return true;
+        }
+        bool initProcMap( statSort sorter, bool hard = false )
+        {
+            if(!hard){ if( procMap.size() > 0 ){ return true; } }
+            specSorted = true;
+            specSort = sorter;
+            for( auto prt : prts ){
+                procMap.insert({prt->getStatus(), std::vector<std::string_view>()});
+                procOrder.insert({prt->getStatus(), std::vector<size_t>()});
+            }
+            for( auto prt : prts ){
+                procMap[prt->getStatus()].push_back( prt->getPDG() );
+            }
+            for( auto stat = procMap.begin(); stat!= procMap.end(); ++stat ){
+                procOrder[stat->first] = *sorter(stat->first, stat->second );
+            }
+            hasBeenProc = true;
+            return true;
+        }
         bool inRwgtChild( std::string_view name ){ 
             for( auto child : childRwgt->getChildren() ){ 
                 for( auto tag : child->getTags() ){ if(clStringComp(tag->getVal(), name)){ return true; } }
@@ -1178,6 +1644,38 @@ namespace REX
             if( isModded( recursive ) || !isWritten() ){ fullWriter(); return writtenSelf; }
             if( addedWgt ){ appendWgts(); }
             return writtenSelf;
+        }
+        auto &getProc(){
+            if( initProcMap() ){ return procMap; }
+            else throw std::runtime_error("Error while parsing event node.");
+        }
+        auto &getProcOrder(){
+            if( initProcMap() ){ return procOrder; }
+            else throw std::runtime_error("Error while parsing event node.");
+        }
+        auto &getProc() const{
+            if ( hasBeenProc ){ return procMap; }
+            else throw std::runtime_error("Const declaration of event node before it has been procesed.");
+        }
+        auto &getProcOrder() const{
+            if ( hasBeenProc ){ return procOrder; }
+            else throw std::runtime_error("Const declaration of event node before it has been procesed.");
+        }
+        auto &getProc(sortFcn sorter){
+            if( initProcMap(sorter) ){ return procMap; }
+            else throw std::runtime_error("Error while parsing event node.");
+        }
+        auto &getProcOrder(sortFcn sorter){
+            if( initProcMap(sorter) ){ return procOrder; }
+            else throw std::runtime_error("Error while parsing event node.");
+        }
+        auto &getProc(statSort sorter){
+            if( initProcMap(sorter) ){ return procMap; }
+            else throw std::runtime_error("Error while parsing event node.");
+        }
+        auto &getProcOrder(statSort sorter){
+            if( initProcMap(sorter) ){ return procOrder; }
+            else throw std::runtime_error("Error while parsing event node.");
         }
     };
 
@@ -1322,7 +1820,7 @@ namespace REX
 
     // ZW: struct for handling single DECAY line
     // in SLHA format parameter card
-    struct decVal : paramVal{
+    struct decVal : public paramVal{
     public:
         void parse() override {
             auto vals = *nuBlankSplitter( realLine );
@@ -1411,7 +1909,7 @@ namespace REX
 
     // ZW: struct for handling DECAY lines
     // in SLHA format parameter card
-    struct decBlock : paramBlock {
+    struct decBlock : public paramBlock {
     public:
         std::vector<decVal> decays;
         void parse( bool parseOnline = false ) override{
@@ -1479,7 +1977,7 @@ namespace REX
             auto blockPts = clFindEach( xmlFile, std::string("\nblock") );
             auto decLines = clFindEach( xmlFile, std::string("\ndecay") );
             header = xmlFile.substr( start, std::min( blockPts->at(0), decLines->at(0) ) - start );
-            for( int k  = 0 ; k < blockPts->size() - 1 ; ++k )
+            for( size_t k  = 0 ; k < blockPts->size() - 1 ; ++k )
             {
                 blocks.push_back( paramBlock( xmlFile.substr( blockPts->at(k), blockPts->at(k+1) - blockPts->at(k) ), parseOnline ) );
             }
@@ -1490,7 +1988,7 @@ namespace REX
             parsed = true;
         } 
         lesHouchesCard( const std::string_view originFile = "", const size_t& begin = 0, bool parseOnline = false ){ 
-            xmlFile = originFile; start = begin; size_t trueStart = originFile.find_first_not_of("\n ", begin+1);
+            xmlFile = originFile; start = begin;
             modded = false; blockStart = clStringFindIf( xmlFile, std::string("\n"), lambda, start + 1); end = xmlFile.find("</", blockStart);
             parsed = false;
             if( parseOnline ){ parse( parseOnline ); }
@@ -1510,7 +2008,7 @@ namespace REX
         }
     };
 
-    struct slhaNode : xmlNode {
+    struct slhaNode : public xmlNode {
     public:
         std::shared_ptr<lesHouchesCard> getParameters(){
             modded = true;
@@ -1533,6 +2031,15 @@ namespace REX
         }
         slhaNode( std::shared_ptr<xmlNode> node, bool parseOnline = false ) : xmlNode( *node ){ 
             parameterCard = std::make_shared<lesHouchesCard>( node->getFile(), node->getStart(), parseOnline );
+        }
+        slhaNode( xmlTree tree, bool parseOnline = false ) : xmlNode( tree ){
+            parameterCard = std::make_shared<lesHouchesCard>( tree.getOrigin(), tree.getStart(), parseOnline );
+        }
+        slhaNode( std::shared_ptr<xmlTree> tree, bool parseOnline = false ) : xmlNode( *tree ){
+            parameterCard = std::make_shared<lesHouchesCard>( tree->getOrigin(), tree->getStart(), parseOnline );
+        }
+        slhaNode( xmlTree* tree, bool parseOnline = false ) : xmlNode( *tree ){
+            parameterCard = std::make_shared<lesHouchesCard>( tree->getOrigin(), tree->getStart(), parseOnline );
         }
         slhaNode( const std::string_view originFile, const size_t& begin = 0, bool parseOnline = false )
         : xmlNode( originFile, begin ){
@@ -1559,7 +2066,7 @@ namespace REX
     };
 
     // ZW: struct for handling LHE init nodes
-    struct initNode : xmlNode {
+    struct initNode : public xmlNode {
     public:
         std::shared_ptr<lheInitHead> getHead(){ return initHead; }
         std::vector<std::shared_ptr<lheInitLine>> getLines(){ return initLines; }
@@ -1569,8 +2076,31 @@ namespace REX
         initNode() : xmlNode(){ name = "init"; }
         initNode( const std::string_view originFile, const size_t& begin = 0, bool parseOnline = false )
         : xmlNode( originFile, begin ){
-            auto strtPt = originFile.find_first_not_of(" \n", originFile.find(">", start+1));
-            content = originFile.substr( strtPt, originFile.find("</", strtPt) - strtPt );
+            content = originFile.substr( structure.getContStart(), structure.getContEnd() - structure.getContStart() );
+        }
+        initNode( xmlNode& node, bool parseOnline = false ) : xmlNode( node ){
+            content = xmlFile.substr( structure.getContStart(), structure.getContEnd() - structure.getContStart() );
+            if( parseOnline ){ parse( parseOnline ); }
+        }
+        initNode( xmlNode* node, bool parseOnline = false ) : xmlNode( *node ){
+            content = xmlFile.substr( structure.getContStart(), structure.getContEnd() - structure.getContStart() );
+            if( parseOnline ){ parse( parseOnline ); }
+        }
+        initNode( std::shared_ptr<xmlNode> node, bool parseOnline = false ) : xmlNode( *node ){
+            content = xmlFile.substr( structure.getContStart(), structure.getContEnd() - structure.getContStart() );
+            if( parseOnline ){ parse( parseOnline ); }
+        }
+        initNode( xmlTree tree, bool parseOnline = false ) : xmlNode( tree ){
+            content = xmlFile.substr( structure.getContStart(), structure.getContEnd() - structure.getContStart() );
+            if( parseOnline ){ parse( parseOnline ); }
+        }
+        initNode( std::shared_ptr<xmlTree> tree, bool parseOnline = false ) : xmlNode( *tree ){
+            content = xmlFile.substr( structure.getContStart(), structure.getContEnd() - structure.getContStart() );
+            if( parseOnline ){ parse( parseOnline ); }
+        }
+        initNode( xmlTree* tree, bool parseOnline = false ) : xmlNode( *tree ){
+            content = xmlFile.substr( structure.getContStart(), structure.getContEnd() - structure.getContStart() );
+            if( parseOnline ){ parse( parseOnline ); }
         }
     protected:
         std::shared_ptr<lheInitHead> initHead;
@@ -1580,7 +2110,7 @@ namespace REX
             auto linebreaks = lineFinder( content );
             if( linebreaks->size() == 0 ){ return false; }
             initHead = std::make_shared<lheInitHead>(content.substr( 0, linebreaks->at(0) ) );
-            for( int k = 0 ; k < linebreaks->size() - 1 ; ++k ){
+            for( size_t k = 0 ; k < linebreaks->size() - 1 ; ++k ){
                 initLines.push_back( std::make_shared<lheInitLine>( content.substr( linebreaks->at(k), linebreaks->at(k+1) - linebreaks->at(k) ) ) );
             }
             return true;
@@ -1595,7 +2125,7 @@ namespace REX
     };
     
     // ZW: struct for explicitly handling LHE header nodes
-    struct lheHead : xmlNode {
+    struct lheHead : public xmlNode {
     public:
         size_t addWgtGroup( std::shared_ptr<weightGroup>& wgtGroup ){
             hasRwgt = true; 
@@ -1614,30 +2144,30 @@ namespace REX
             }
             return (rwgtNodes->noGrps() - 1);
         }
-        void addWgt( unsigned int index, std::shared_ptr<headWeight> nuWgt ){
-            if( index >= (int)rwgtNodes->getGroups().size() )
+        void addWgt( size_t index, std::shared_ptr<headWeight> nuWgt ){
+            if( index >= (size_t)rwgtNodes->getGroups().size() )
                 throw std::range_error( "Appending weight to uninitialised weightgroup." );
             hasRwgt = true;
             modded = true;
             rwgtNodes->addWgt( index, nuWgt );
         }
-        void addWgt( unsigned int index, headWeight nuWgt ){
-            if( index >= (int)rwgtNodes->getGroups().size() )
+        void addWgt( size_t index, headWeight nuWgt ){
+            if( index >= (size_t)rwgtNodes->getGroups().size() )
                 throw std::range_error( "Appending weight to uninitialised weightgroup." );
             hasRwgt = true;
             modded = true;
             rwgtNodes->addWgt( index, nuWgt );
         }
-        void addWgt( unsigned int index, std::shared_ptr<headWeight> nuWgt, std::string idTagg ){
-            if( index >= (int)rwgtNodes->getGroups().size() )
+        void addWgt( size_t index, std::shared_ptr<headWeight> nuWgt, std::string idTagg ){
+            if( index >= (size_t)rwgtNodes->getGroups().size() )
                 throw std::range_error( "Appending weight to uninitialised weightgroup." );
             hasRwgt = true;
             modded = true;
             nuWgt->setId( idTagg );
             rwgtNodes->addWgt( index, nuWgt );
         }
-        void addWgt( unsigned int index, headWeight nuWgt, std::string idTagg ){
-            if( index >= (int)rwgtNodes->getGroups().size() )
+        void addWgt( size_t index, headWeight nuWgt, std::string idTagg ){
+            if( index >= (size_t)rwgtNodes->getGroups().size() )
                 throw std::range_error( "Appending weight to uninitialised weightgroup." );
             hasRwgt = true;
             modded = true;
@@ -1656,6 +2186,46 @@ namespace REX
         : xmlNode(originFile, begin, childs){
             xmlFile = originFile; start = begin; children = childs; size_t trueStart = originFile.find_first_not_of(" ", begin+1);
             if( trueStart != npos ){name = originFile.substr( trueStart, originFile.find_first_of(">/ ", trueStart) - trueStart );}
+            for( auto child : children ){
+                if (child->getName() == "slha" ){ parameters = std::make_shared<slhaNode>( *child ); continue; }
+                if (child->getName() == "initrwgt" ){ rwgtNodes = std::make_shared<initRwgt>( *child ); continue; }
+            }
+        }
+        lheHead( xmlNode& node ) : xmlNode(node){
+            for( auto child : node.getChildren() ){
+                if ( child->getName() == "slha" ){ parameters = std::make_shared<slhaNode>( *child ); continue; }
+                if ( child->getName() == "initrwgt" ){ rwgtNodes = std::make_shared<initRwgt>( *child ); continue; }
+            }
+        }
+        lheHead( xmlNode* node ) : xmlNode(*node){
+            for( auto child : node->getChildren() ){
+                if ( child->getName() == "slha" ){ parameters = std::make_shared<slhaNode>( *child ); continue; }
+                if ( child->getName() == "initrwgt" ){ rwgtNodes = std::make_shared<initRwgt>( *child ); continue; }
+            }
+        }
+        lheHead( std::shared_ptr<xmlNode> node ) : xmlNode( *node ){
+            for( auto child : node->getChildren() ){
+                if ( child->getName() == "slha" ){ parameters = std::make_shared<slhaNode>( *child ); continue; }
+                if ( child->getName() == "initrwgt" ){ rwgtNodes = std::make_shared<initRwgt>( *child ); continue; }
+            }
+        }
+        lheHead( xmlTree tree ) : xmlNode( tree ){
+            for( auto child : children ){
+                if ( child->getName() == "slha" ){ parameters = std::make_shared<slhaNode>( *child ); continue; }
+                if ( child->getName() == "initrwgt" ){ rwgtNodes = std::make_shared<initRwgt>( *child ); continue; }
+            }
+        }
+        lheHead( std::shared_ptr<xmlTree> tree ) : xmlNode( *tree ){
+            for( auto child : children ){
+                if ( child->getName() == "slha" ){ parameters = std::make_shared<slhaNode>( *child ); continue; }
+                if ( child->getName() == "initrwgt" ){ rwgtNodes = std::make_shared<initRwgt>( *child ); continue; }
+            }
+        }
+        lheHead( xmlTree* tree ) : xmlNode( *tree ){
+            for( auto child : children ){
+                if ( child->getName() == "slha" ){ parameters = std::make_shared<slhaNode>( *child ); continue; }
+                if ( child->getName() == "initrwgt" ){ rwgtNodes = std::make_shared<initRwgt>( *child ); continue; }
+            }
         }
     protected:
         bool wgtGrpIsInit = false;
@@ -1677,7 +2247,7 @@ namespace REX
         void setRelChild(){
             if( relChildSet ){ return; }
             relChild.reserve( children.size() );
-            for( int k = 0 ; k < children.size() ; ++k ){
+            for( size_t k = 0 ; k < children.size() ; ++k ){
                 auto child = &children[k];
                 if( (*child)->getName() == "slha" ){ continue; }
                 if( (*child)->getName() == "initrwgt" ){ continue; }
@@ -1787,17 +2357,22 @@ namespace REX
     };
 
     // ZW: general struct for handling LHE files explicitly
-    struct lheNode : xmlNode {
+    struct lheNode : public xmlNode {
     public:
-        std::vector<std::shared_ptr<event>> events = {};
-        std::shared_ptr<lheHead> header =  std::make_shared<lheHead>(xmlFile, start);
-        std::shared_ptr<initNode> init = std::make_shared<initNode>(xmlFile, start);
         lheNode() : xmlNode(){}
         lheNode( const std::string_view originFile, const size_t& begin = 0, const std::vector<std::shared_ptr<xmlNode>>& childs = {} )
         : xmlNode(originFile, begin, childs){
-            xmlFile = originFile; start = begin; children = childs; size_t trueStart = originFile.find_first_not_of(" ", begin+1);
-            if( trueStart != npos ){name = originFile.substr( trueStart, originFile.find_first_of(">/ ", trueStart) - trueStart );}
+            //xmlFile = originFile; start = begin; children = childs; size_t trueStart = originFile.find_first_not_of(" ", begin+1);
+            //if( trueStart != npos ){name = originFile.substr( trueStart, originFile.find_first_of(">/ ", trueStart) - trueStart );}
+            for( auto child : children ){
+                if( child->getName() == "header" ){ header = std::make_shared<lheHead>( *child ); continue; }
+                if( child->getName() == "init" ){ init = std::make_shared<initNode>( *child ); continue; }
+                if( child->getName() == "event" ){ events.push_back( std::make_shared<event>( *child ) ); continue; }
+            }
         }
+        auto getHeader(){ return header; }
+        auto getInit(){ return init; }
+        auto& getEvents(){ return events; }
         bool isModded() override{ return modded; }
         bool isModded( bool deep ) override{
             if( !deep ){ return isModded(); }
@@ -1806,21 +2381,47 @@ namespace REX
             for( auto event : events ){ modStat = ( modStat || event->isModded( deep ) ); }
             return modStat;
         }
+        void setInit( std::shared_ptr<initNode> initNod ){ init = initNod; }
+        void setHeader( std::shared_ptr<lheHead> headNod ){ header = headNod; }
         void addWgt( size_t index, newWgt& addedWgt ){
             header->addWgt( index, addedWgt.getHeadWgt() );
             auto wgtsVec = addedWgt.getBodyWgts();
-            for( int k = 0 ; k < wgtsVec.size() ; ++k ){
+            for( size_t k = 0 ; k < wgtsVec.size() ; ++k ){
                 events[k]->addWgt( wgtsVec[k] );
             }
         }
         void addWgt( size_t index, newWgt& addedWgt, std::string& idTag ){
             header->addWgt( index, addedWgt.getHeadWgt(), idTag );
             auto wgtsVec = addedWgt.getBodyWgts();
-            for( int k = 0 ; k < wgtsVec.size() ; ++k ){
+            for( size_t k = 0 ; k < wgtsVec.size() ; ++k ){
                 events[k]->addWgt( wgtsVec[k] );
             }
         }
+        void setRelStats( std::vector<std::string_view>& particles ){
+            relStat = particles;
+        }
+        std::vector<std::string_view>& getRelStats(){
+            return relStat;
+        }
+        void setSameSort( sortFcn& sortF ){
+            particleSort = sortF;
+        }
+        sortFcn& getSameSort(){
+            return particleSort;
+        }
+        void setStatSort( statSort& statS ){
+            statParticleSort = statS;
+        }
+        statSort& getStatSort(){
+            return statParticleSort;
+        }
     protected:
+        std::vector<std::shared_ptr<event>> events = {};
+        std::shared_ptr<lheHead> header =  std::make_shared<lheHead>(xmlFile, start);
+        std::shared_ptr<initNode> init = std::make_shared<initNode>(xmlFile, start);
+        std::vector<std::string_view> relStat = {"-1", "1"};
+        sortFcn particleSort = []( std::vector<std::string_view> prts ){ return stodSort(prts); };
+        statSort statParticleSort = []( std::string_view dummy, std::vector<std::string_view> prts ){ return stodSort(prts); };
         virtual void headerWriter(){
             nodeContent += "\n" + *header->nodeWriter();
         }
@@ -1860,17 +2461,18 @@ namespace REX
 
     // ZW: function for extracting event information from
     // LHE files
-    std::vector<std::shared_ptr<std::vector<double>>> valExtraction( const lheNode& lheFile )
+    std::vector<std::shared_ptr<std::vector<double>>> valExtraction( lheNode& lheFile )
     {
         bool getGs = true;
         auto momVec = std::make_shared<std::vector<double>>();
         auto wgtVec = std::make_shared<std::vector<double>>();
         auto gVec = std::make_shared<std::vector<double>>();
-        momVec->reserve( lheFile.events.size() * 4 * std::stoi(std::string(lheFile.events[0]->getHead().getNprt())) );
-        wgtVec->reserve( lheFile.events.size() );
-        gVec->reserve( lheFile.events.size() );
+        auto events = lheFile.getEvents();
+        momVec->reserve( events.size() * 4 * std::stoi(std::string(events[0]->getHead().getNprt())) );
+        wgtVec->reserve( events.size() );
+        gVec->reserve( events.size() );
         if( getGs ){
-        for( auto event : lheFile.events )
+        for( auto event : events )
         {
             wgtVec->push_back(std::stod(std::string( event->getHead().getWeight() )));
             gVec->push_back( std::sqrt( 4.0 * M_PI * std::stod(std::string( event->getHead().getAQCD() ))));
@@ -1882,7 +2484,7 @@ namespace REX
             }
         }
         } else{
-        for( auto event : lheFile.events )
+        for( auto event : events )
         {
             wgtVec->push_back(std::stod(std::string( event->getHead().getWeight() )));
             gVec->push_back( std::stod(std::string( event->getHead().getAQCD() )));
@@ -1902,7 +2504,7 @@ namespace REX
     std::shared_ptr<event> evPtrParsor( std::string_view parseFile, size_t& initPos, size_t& endPos )
     {
         auto currNode = std::make_shared<event>(parseFile, initPos);
-        initPos = *nodeStartFind( parseFile, initPos + 1 );
+        initPos = nodeStartFind( parseFile, initPos + 1 );
         while( initPos < endPos )
         {
             currNode->addChild(xmlPtrParser( parseFile, initPos, endPos ));
@@ -1912,8 +2514,8 @@ namespace REX
         while( equalSign < nodeInitEnd ){
             currNode->addTag( xmlTagParser(parseFile, equalSign) );
         }
-        initPos = *nodeStartFind( parseFile, endPos );
-        endPos = *nodeEndFind( parseFile, endPos + 1 );
+        initPos = nodeStartFind( parseFile, endPos );
+        endPos = nodeEndFind( parseFile, endPos + 1 );
         return currNode;
     }
 
@@ -1922,14 +2524,12 @@ namespace REX
     std::shared_ptr<lheHead> lheHeadParser( std::string_view parseFile, size_t& initPos, size_t& endPos )
     {
         auto currNode = std::make_shared<lheHead>(parseFile, initPos);
-        initPos = *nodeStartFind( parseFile, initPos + 1 );
+        initPos = nodeStartFind( parseFile, initPos + 1 );
         while( initPos < endPos )
         {
-            auto nuStrtPos =  *nodeStartFind( parseFile, initPos);
             currNode->addChild(xmlPtrParser( parseFile, initPos, endPos ));
             if( currNode->getChildren()[ currNode->getChildren().size() - 1 ]->getName() == "init" ){ continue; }
             if( currNode->getChildren()[ currNode->getChildren().size() - 1 ]->getName() == "slha" ){
-                auto nuLine = parseFile.find("\n", parseFile.find("<", initPos));
                 currNode->setParameters( std::make_shared<slhaNode>(currNode->getChildren()[ currNode->getChildren().size() - 1 ]) );
             }
             if( currNode->getChildren()[ currNode->getChildren().size() - 1 ]->getName() == "initrwgt" ){
@@ -1941,8 +2541,8 @@ namespace REX
         while( equalSign < nodeInitEnd ){
             currNode->addTag( xmlTagParser(parseFile, equalSign) );
         }
-        initPos = *nodeStartFind( parseFile, endPos );
-        endPos = *nodeEndFind( parseFile, endPos + 1 );
+        initPos = nodeStartFind( parseFile, endPos );
+        endPos = nodeEndFind( parseFile, endPos + 1 );
         return currNode;
     }
 
@@ -1951,32 +2551,19 @@ namespace REX
     std::shared_ptr<lheNode> lheParser( std::string_view parseFile, size_t& initPos, size_t& endPos )
     {
         auto currNode = std::make_shared<lheNode>(parseFile, initPos);
-        initPos = *nodeStartFind( parseFile, initPos + 1 );
+        initPos = nodeStartFind( parseFile, initPos + 1 );
         while( initPos < endPos )
         {
-            auto nuStrtPos =  *nodeStartFind( parseFile, initPos);
-            //if( nuStrtPos == parseFile.find("<event", initPos) ){
-            //    currNode->events.push_back( evPtrParsor( parseFile, initPos, endPos ) );
-            //    continue;
-            //} else if( nuStrtPos == parseFile.find("<header", initPos) ){
-            //    currNode->header = lheHeadParser( parseFile, initPos, endPos );
-            //    continue;
-            //} else if( nuStrtPos == parseFile.find("<init", initPos) ){
-            //    currNode->init = std::make_shared<initNode>( parseFile, initPos );
-            //    initPos = *nodeStartFind( parseFile, endPos );
-            //    endPos = *nodeEndFind( parseFile, *nodeEndFind( parseFile, endPos + 1 ) + 1);
-            //    continue;
-            //}
             if( parseFile.substr( initPos, 6 ) == "<event" ){
-                currNode->events.push_back( evPtrParsor( parseFile, initPos, endPos ) );
+                currNode->getEvents().push_back( evPtrParsor( parseFile, initPos, endPos ) );
                 continue;
             } else if( parseFile.substr( initPos, 7 ) == "<header"  ){
-                currNode->header = lheHeadParser( parseFile, initPos, endPos );
+                currNode->setHeader(lheHeadParser( parseFile, initPos, endPos ));
                 continue;
             } else if( parseFile.substr( initPos, 5 ) == "<init"  ){
-                currNode->init = std::make_shared<initNode>( parseFile, initPos );
-                initPos = *nodeStartFind( parseFile, endPos );
-                endPos = *nodeEndFind( parseFile, *nodeEndFind( parseFile, endPos + 1 ) + 1);
+                currNode->setInit( std::make_shared<initNode>( parseFile, initPos ) );
+                initPos = nodeStartFind( parseFile, endPos );
+                endPos = nodeEndFind( parseFile, nodeEndFind( parseFile, endPos + 1 ) + 1);
                 continue;
             } else {
             currNode->addChild(xmlPtrParser( parseFile, initPos, endPos ));
@@ -1987,8 +2574,8 @@ namespace REX
         while( equalSign < nodeInitEnd ){
             currNode->addTag( xmlTagParser(parseFile, equalSign) );
         }
-        initPos = *nodeStartFind( parseFile, endPos );
-        endPos = *nodeEndFind( parseFile, endPos + 1 );
+        initPos = nodeStartFind( parseFile, endPos );
+        endPos = nodeEndFind( parseFile, endPos + 1 );
         return currNode;
     }
 
@@ -2003,18 +2590,48 @@ namespace REX
         std::vector<std::string_view> plusTwo;
         std::vector<std::string_view> plusThree;
         std::vector<std::string_view> minusNine;
+        std::vector<size_t> orderMOne;
+        std::vector<size_t> orderOne;
+        std::vector<size_t> orderMTwo;
+        std::vector<size_t> orderTwo;
+        std::vector<size_t> orderThree;
+        std::vector<size_t> orderNine;
         std::map<std::string_view,std::vector<std::string_view>> valVecs{{"-1", minusOne}, {"1", plusOne}, {"-2", minusTwo}, {"2", plusTwo}, {"3", plusThree}, {"-9", minusNine}};
+        std::map<std::string_view,std::vector<size_t>> orderVecs{{"-1", orderMOne}, {"1", orderOne}, {"-2", orderMTwo}, {"2", orderTwo}, {"3", orderThree}, {"9",orderNine}};
         lheProc( event& eventNode )
         {
             for( auto prt : eventNode.getPrts() )
             {
                 valVecs[prt->getStatus()].push_back(prt->getPDG());
             }
+            for( auto valVec = valVecs.begin() ; valVec!= valVecs.end() ; ++valVec ){
+                if( valVec->second.size() == 0 ){ continue; }
+                orderVecs[valVec->first] = *stoiSort( valVec->second );
+            }
+        }
+        std::shared_ptr<std::string> writer(){
+            auto written = std::make_shared<std::string>();
+            for( auto inits : valVecs["-1"] ){
+                written->append(inits);
+                written->append(" ");
+            }
+            if( valVecs["2"].size() > 0 ){
+                written->append("> ");
+                for( auto inits : valVecs["2"] ){
+                    written->append(inits);
+                    written->append(" ");
+                }
+            }
+            written->append("> ");
+            for( auto inits : valVecs["1"] ){
+                written->append(inits);
+                written->append(" ");
+            }
+            return written;
         }
     };
 
-    // ZW: fcn for uploading text files
-    // to the program, pushing all characters to lowercase
+    // ZW: fcn for uploading text files to the program
     std::shared_ptr<std::string> filePuller( const std::string& fileLoc )
     {
         std::ifstream fileLoad( fileLoc );
@@ -2037,9 +2654,9 @@ namespace REX
         return true;
     }
 
-    // ZW: fcn for extracting the fill
+    // ZW: fcn for extracting the full
     // process information from an LHE event
-    std::shared_ptr<std::map<std::string_view, std::vector<std::string_view>>> pgdXtract( event& currEv, const std::vector<std::string>& pdgVec )
+    std::shared_ptr<std::map<std::string_view, std::vector<std::string_view>>> pdgXtract( event& currEv )
     {
         auto currProc = std::make_shared<std::map<std::string_view, std::vector<std::string_view>>>();
         auto &useProc = *currProc;
@@ -2049,52 +2666,193 @@ namespace REX
         }
         return currProc;
     }
+    
+    template <typename T>
+    bool chaoticVecComp( const std::vector<T>& vec1, const std::vector<size_t> order1, const std::vector<T>& vec2, const std::vector<size_t> order2 )
+    {
+        if( vec1.size()!= vec2.size() ){ return false; }
+        for( size_t i = 0; i < vec1.size(); i++ ){
+            if( vec1[order1[i]]!= vec2[order2[i]] ){ return false; }
+        }
+        return true;
+    }
 
-    // ZW: fcn for comparing two processes it the
-    // format output by pgdXtract
+    // ZW: fcn for comparing two processes in the
+    // format output by pdgXtract
     bool sameProcString( std::map<std::string_view, std::vector<std::string_view>>& firstVec, std::map<std::string_view,
-     std::vector<std::string_view>>& secVec, const std::vector<std::string>& pdgVec )
+     std::vector<std::string_view>>& secVec, const std::vector<std::string_view>& statVec )
     {
         if( firstVec.size() != secVec.size() ){return false;}
-        for(auto code : pdgVec )
+        for(auto code : statVec )
         {
             if( firstVec[code] != secVec[code] ){ return false; }
         }
         return true;
     }
 
-    // ZW: fcn for processes in the lheProc struct format
-    bool procComp( const lheProc& firstProc, const lheProc& secProc, const std::vector<std::string>& pdgVec )
+    bool sameProcString( std::map<std::string_view, std::vector<std::string_view>>& firstVec, std::map<std::string_view, std::vector<size_t>>& firstOrder,
+     std::map<std::string_view, std::vector<std::string_view>>& secVec, std::map<std::string_view, std::vector<size_t>>& secondOrder,
+     std::vector<std::string_view>& statVec )
     {
-        for( auto stat : pdgVec )
+        if( firstVec.size() != secVec.size() ){return false;}
+        for(auto code : statVec )
         {
-            if( firstProc.valVecs.at(stat).size() != secProc.valVecs.at(stat).size() ){ return false; }
-            if( firstProc.valVecs.at(stat) != secProc.valVecs.at(stat) ){ return false; }
+            if( !chaoticVecComp(firstVec[code], firstOrder[code], secVec[code], secondOrder[code]) ){ return false; }
         }
         return true;
     }
 
-    // ZW: fcn for checking whether a list of pdgKtract format
+    // ZW: fcn for processes in the lheProc struct format
+    bool procComp( lheProc& firstProc, lheProc& secProc,  std::vector<std::string_view> statVec )
+    {
+        for( auto stat : statVec )
+        {
+            if( firstProc.valVecs.at(stat).size() != secProc.valVecs.at(stat).size() ){ return false; }
+            if( !chaoticVecComp( firstProc.valVecs[stat], firstProc.orderVecs[stat], secProc.valVecs[stat], secProc.orderVecs[stat] ) ){ return false; }
+        }
+        return true;
+    }
+
+    bool evProcComp( event& firstEv, event& secEv, std::vector<std::string_view> statVec = {"-1", "1"} )
+    {
+        for( auto stat : statVec )
+        {
+            if( firstEv.getProc()[stat].size()!= secEv.getProc()[stat].size() ){ return false; }
+            if(!chaoticVecComp( firstEv.getProc()[stat], firstEv.getProcOrder()[stat], 
+                secEv.getProc()[stat], secEv.getProcOrder()[stat] ) ){ return false; }
+        }
+        return true;
+    }
+
+    bool evProcComp( event& firstEv, event& secEv, std::vector<std::string_view> statVec, 
+    sortFcn sorter )
+    {
+        for( auto stat : statVec )
+        {
+            if( firstEv.getProc(sorter)[stat].size()!= secEv.getProc(sorter)[stat].size() ){ return false; }
+            if(!chaoticVecComp( firstEv.getProc(sorter)[stat], firstEv.getProcOrder(sorter)[stat], 
+                secEv.getProc(sorter)[stat], secEv.getProcOrder(sorter)[stat] ) ){ return false; }
+        }
+        return true;
+    }
+
+    bool evProcComp( event& firstEv, event& secEv, std::vector<std::string_view> statVec, 
+    statSort sorter )
+    {
+        for( auto stat : statVec )
+        {
+            if( firstEv.getProc(sorter)[stat].size()!= secEv.getProc(sorter)[stat].size() ){ return false; }
+            if(!chaoticVecComp( firstEv.getProc(sorter)[stat], firstEv.getProcOrder(sorter)[stat], 
+                secEv.getProc(sorter)[stat], secEv.getProcOrder(sorter)[stat] ) ){ return false; }
+        }
+        return true;
+    }
+
+    bool evProcComp( const event& firstEv, const event& secEv, std::vector<std::string_view> statVec = {"-1", "1"} )
+    {
+        for( auto stat : statVec )
+        {
+            if( firstEv.getProc().at(stat).size()!= secEv.getProc().at(stat).size() ){ return false; }
+            if(!chaoticVecComp( firstEv.getProc().at(stat), firstEv.getProcOrder().at(stat), 
+                secEv.getProc().at(stat), secEv.getProcOrder().at(stat) ) ){ return false; }
+        }
+        return true;
+    }
+
+    bool evProcComp( const event& firstEv, const event& secEv, std::vector<std::string_view> statVec, 
+    sortFcn sorter )
+    {
+        for( auto stat : statVec )
+        {
+            if( firstEv.getProc().at(stat).size()!= secEv.getProc().at(stat).size() ){ return false; }
+            if(!chaoticVecComp( firstEv.getProc().at(stat), firstEv.getProcOrder().at(stat), 
+                secEv.getProc().at(stat), secEv.getProcOrder().at(stat) ) ){ return false; }
+        }
+        return true;
+    }
+
+    bool evProcComp( const event& firstEv, const event& secEv, std::vector<std::string_view> statVec, 
+    statSort sorter )
+    {
+        for( auto stat : statVec )
+        {
+            if( firstEv.getProc().at(stat).size()!= secEv.getProc().at(stat).size() ){ return false; }
+            if(!chaoticVecComp( firstEv.getProc().at(stat), firstEv.getProcOrder().at(stat), 
+                secEv.getProc().at(stat), secEv.getProcOrder().at(stat) ) ){ return false; }
+        }
+        return true;
+    }
+
+    struct eventComp{
+        bool operator()( event& firstEv, event& secEv){
+            if( firstEv.isSpecSort() ) {return evProcComp( firstEv, secEv, {"-1", "1"}, firstEv.getStatSort());}
+            else {return evProcComp( firstEv, secEv, {"-1", "1"}, firstEv.getSortFcn() );}
+        }
+        bool operator()( const event& firstEv, const event& secEv) const {
+            if( firstEv.isSpecSort() ) {return evProcComp( firstEv, secEv, {"-1", "1"}, firstEv.getStatSort());}
+            else {return evProcComp( firstEv, secEv, {"-1", "1"}, firstEv.getSortFcn() );}
+        }
+        bool operator()(event& firstEv, event& secEv, std::vector<std::string_view> statVec){
+            if( firstEv.isSpecSort() ) {return evProcComp( firstEv, secEv, statVec, firstEv.getStatSort());}
+            else {return evProcComp( firstEv, secEv, statVec, firstEv.getSortFcn() );}
+        }
+    };
+
+    // ZW: fcn for checking whether a list of pdgXtract format
     // processes sourceProcList contains a given process newProc
     bool procVecContains( std::vector<std::shared_ptr<std::map<std::string_view, std::vector<std::string_view>>>>& sourceProcList, 
-    std::map<std::string_view, std::vector<std::string_view>>& newProc, const std::vector<std::string>& pdgVec  )
-    {
-        int noProcs = sourceProcList.size();
+    std::map<std::string_view, std::vector<std::string_view>>& newProc, const std::vector<std::string_view>& statVec  )
+    {\
         for( auto proc : sourceProcList )
         {
-            if( sameProcString( *proc, newProc, pdgVec ) ){ return true; }
+            if( sameProcString( *proc, newProc, statVec ) ){ return true; }
         }
         return false;
     }
 
     // ZW: fcn for checking whether a vector of lheProc structs
     // procList contains a given lheProc nuProc
-    bool procListComp( const std::vector<std::shared_ptr<lheProc>>& procList, const lheProc& nuProc, const std::vector<std::string>& pdgVec )
+    bool procListComp( const std::vector<std::shared_ptr<lheProc>>& procList, lheProc& nuProc, std::vector<std::string_view> statVec )
     {
         if( procList.size() != 0 ){
             for(auto proc : procList )
             {
-                if( procComp( *proc, nuProc, pdgVec ) ){ return true; }
+                if( procComp( *proc, nuProc, statVec ) ){ return true; }
+            }
+        }
+        return false;
+    }
+
+    bool evProcListComp( std::vector<std::shared_ptr<event>>& procList, event& nuEv, std::vector<std::string_view> statVec )
+    {
+        if( procList.size()!= 0 ){
+            for( auto ev : procList )
+            {
+                if( evProcComp( *ev, nuEv, statVec ) ){ return true; }
+            }
+        }
+        return false;
+    }
+
+    bool evProcListComp( std::vector<std::shared_ptr<event>>& procList, event& nuEv, std::vector<std::string_view> statVec, 
+    sortFcn sorter )
+    {
+        if( procList.size()!= 0 ){
+            for( auto ev : procList )
+            {
+                if( evProcComp( *ev, nuEv, statVec, sorter ) ){ return true; }
+            }
+        }
+        return false;
+    }
+
+    bool evProcListComp( std::vector<std::shared_ptr<event>>& procList, event& nuEv, std::vector<std::string_view> statVec, 
+    statSort sorter )
+    {
+        if( procList.size()!= 0 ){
+            for( auto ev : procList )
+            {
+                if( evProcComp( *ev, nuEv, statVec, sorter ) ){ return true; }
             }
         }
         return false;
@@ -2102,42 +2860,85 @@ namespace REX
 
     // ZW: fcn for extracting the different processes
     // in a given REX format LHE file in the pdgXtract format
-    std::vector<std::shared_ptr<std::map<std::string_view, std::vector<std::string_view>>>> procExtractor( const lheNode& lheFile )
+    std::vector<std::shared_ptr<std::map<std::string_view, std::vector<std::string_view>>>> procExtractor( lheNode& lheFile )
     {
         std::vector<std::shared_ptr<std::map<std::string_view, std::vector<std::string_view>>>> procList;
-        const static std::vector<std::string> pdgVec = { "-1", "1", "-2", "2", "3", "-9" };
-        for( auto event : lheFile.events )
+        const static std::vector<std::string_view> statVec = { "-1", "1", "-2", "2", "3", "-9" };
+        for( auto event : lheFile.getEvents() )
         {
-            auto currProc = pgdXtract( *event, pdgVec );
-            if( procVecContains( procList, *currProc, pdgVec ) ){ continue; }
+            auto currProc = pdgXtract( *event );
+            if( procVecContains( procList, *currProc, statVec ) ){ continue; }
             procList.push_back(currProc);
         }
         return procList;
     }
 
-    // ZW: fcn for extracting the differenty processes
+    // ZW: fcn for extracting the different processes
     // in a given REX format LHE file in the lheProc format
-    std::vector<std::shared_ptr<lheProc>> processPull( const lheNode& lheFile )
+    std::vector<std::shared_ptr<lheProc>> processPull( lheNode& lheFile, 
+    std::vector<std::string_view> statVec = { "-1", "1" } )
     {
-        const static std::vector<std::string> pdgVec = { "-1", "1", "-2", "2", "3", "-9" };
+        //const static std::vector<std::string_view> statVec = { "-1", "1", "-2", "2", "3", "-9" };
         std::vector<std::shared_ptr<lheProc>> procsList{};
-        for( auto event : lheFile.events )
+        for( auto event : lheFile.getEvents() )
         {
             auto currProc =  std::make_shared<lheProc>( *event );
-            if( procListComp( procsList, *currProc, pdgVec ) ){ continue; }
+            if( procListComp( procsList, *currProc, statVec ) ){ continue; }
             procsList.push_back( currProc );
+        }
+        return procsList;
+    }
+
+    std::vector<std::shared_ptr<event>> evProcessPull( lheNode& lheFile, std::vector<std::string_view> statVec = { "-1", "1" } )
+    {
+        //const static std::vector<std::string_view> statVec = { "-1", "1", "-2", "2", "3", "-9" };
+        std::vector<std::shared_ptr<event>> procsList{};
+        for( auto currEv : lheFile.getEvents() )
+        {
+            if( evProcListComp( procsList, *currEv, statVec ) ){ continue; }
+            procsList.push_back( currEv );
+        }
+        return procsList;
+    }
+
+    std::vector<std::shared_ptr<event>> evProcessPull( lheNode& lheFile, 
+    sortFcn sorter,
+    std::vector<std::string_view> statVec = { "-1", "1" })
+    {
+        //const static std::vector<std::string_view> statVec = { "-1", "1", "-2", "2", "3", "-9" };
+        std::vector<std::shared_ptr<event>> procsList{};
+        lheFile.setSameSort(sorter);
+        for( auto currEv : lheFile.getEvents() )
+        {
+            if( evProcListComp( procsList, *currEv, statVec, sorter ) ){ continue; }
+            procsList.push_back( currEv );
+        }
+        return procsList;
+    }
+
+    std::vector<std::shared_ptr<event>> evProcessPull( lheNode& lheFile, 
+    statSort sorter,
+    std::vector<std::string_view> statVec = { "-1", "1" })
+    {
+        //const static std::vector<std::string_view> statVec = { "-1", "1", "-2", "2", "3", "-9" };
+        std::vector<std::shared_ptr<event>> procsList{};
+        lheFile.setStatSort(sorter);
+        for( auto currEv : lheFile.getEvents() )
+        {
+            if( evProcListComp( procsList, *currEv, statVec, sorter ) ){ continue; }
+            procsList.push_back( currEv );
         }
         return procsList;
     }
 
     // ZW: fcn for keeping track of subprocess ordering
     // in LHE file
-    int procPos( const std::vector<std::shared_ptr<lheProc>>& evtSet, lheProc& currProc, 
-        const std::vector<std::string>& pdgVec )
+    size_t procPos( const std::vector<std::shared_ptr<lheProc>>& evtSet, lheProc& currProc, 
+        std::vector<std::string_view>& statVec )
     {
-        for( auto k = 0 ; k < evtSet.size() ; ++k )
+        for( size_t k = 0 ; k < evtSet.size() ; ++k )
         {
-            for( auto stat : pdgVec )
+            for( auto stat : statVec )
             {
                 if( evtSet[k]->valVecs[stat] != currProc.valVecs[stat] ){ break; }   
             }
@@ -2146,48 +2947,210 @@ namespace REX
         return evtSet.size();
     }
 
+    size_t evProcPos( const std::vector<std::shared_ptr<event>>& evtSet, event& currEv, 
+        std::vector<std::string_view> statVec = { "-1", "1" } )
+    {
+        for( size_t k = 0 ; k < evtSet.size() ; ++k )
+        { 
+            if( evProcComp(*evtSet[k], currEv, statVec) ){ return k; }
+        }
+        return evtSet.size();
+    }
+
+    size_t evProcPos( const std::vector<std::shared_ptr<event>>& evtSet, event& currEv,  
+    sortFcn sorter, std::vector<std::string_view> statVec = {"-1", "1"} )
+    {
+        for( size_t k = 0 ; k < evtSet.size() ; ++k )
+        { 
+            if( evProcComp(*evtSet[k], currEv, statVec, sorter) ){ return k; }
+        }
+        return evtSet.size();
+    }
+
+    size_t evProcPos( const std::vector<std::shared_ptr<event>>& evtSet, event& currEv, 
+    statSort sorter, std::vector<std::string_view> statVec = {"-1", "1"} )
+    {
+        for( size_t k = 0 ; k < evtSet.size() ; ++k )
+        { 
+            if( evProcComp(*evtSet[k], currEv, statVec, sorter) ){ return k; }
+        }
+        return evtSet.size();
+    }
+
     // ZW: fcn for extracting the subprocess ordering
     // of LHE file
-    std::vector<std::shared_ptr<std::vector<bool>>> procOrder( const lheNode& lheFile, const std::vector<std::shared_ptr<lheProc>>& evtSet )
+    std::vector<std::shared_ptr<std::vector<bool>>> procOrder( lheNode& lheFile, const std::vector<std::shared_ptr<lheProc>>& evtSet,
+        std::vector<std::string_view> statVec = { "-1", "1" } )
     {
-        const static std::vector<std::string> pdgVec = { "-1", "1", "-2", "2", "3", "-9" };
-        std::vector<std::shared_ptr<std::vector<bool>>> eventBools( evtSet.size());
-        std::vector<std::vector<bool>> pracBools( evtSet.size(), std::vector<bool> ( lheFile.events.size() ));
-        for( auto boolSets : pracBools ){
-            std::fill( boolSets.begin(), boolSets.end(), false );
+        //const static std::vector<std::string> statVec = { "-1", "1", "-2", "2", "3", "-9" };
+        std::vector<std::shared_ptr<std::vector<bool>>> eventBools( evtSet.size(), std::make_shared<std::vector<bool>> ( lheFile.getEvents().size() ));
+        //std::vector<std::vector<bool>> pracBools( evtSet.size(), std::vector<bool> ( lheFile.getEvents().size() ));
+        for( auto boolSets : eventBools ){
+            std::fill( boolSets->begin(), boolSets->end(), false );
         }
-        for( auto k = 0 ; k < lheFile.events.size() ; ++k )
+        for( size_t k = 0 ; k < lheFile.getEvents().size() ; ++k )
         {
-            auto currProc = lheProc(*lheFile.events[k]);
-            pracBools[ procPos(evtSet, currProc, pdgVec) ][ k ] = true;
+            auto currProc = lheProc(*lheFile.getEvents()[k]);
+            eventBools[ procPos(evtSet, currProc, statVec) ]->at( k ) = true;
         }
-        for( int k = 0 ; k < eventBools.size() ; ++k )
-        {
-            eventBools[k] = std::make_shared<std::vector<bool>>( pracBools[k] );
-        }
+        //for( size_t k = 0 ; k < eventBools.size() ; ++k )
+        //{
+        //    eventBools[k] = std::make_shared<std::vector<bool>>( pracBools[k] );
+        //}
         return eventBools; 
     }
 
+    std::vector<std::shared_ptr<std::vector<bool>>> evProcOrder( lheNode& lheFile, const std::vector<std::shared_ptr<event>>& evtSet,
+        std::vector<std::string_view> statVec = { "-1", "1" } )
+    {
+        std::vector<std::shared_ptr<std::vector<bool>>> eventBools;
+        eventBools.reserve(evtSet.size());
+        for (size_t i = 0; i < evtSet.size(); ++i) {
+            eventBools.push_back(std::make_shared<std::vector<bool>>(lheFile.getEvents().size(), false));
+        }
+        for( size_t k = 0 ; k < lheFile.getEvents().size() ; ++k )
+        {
+            eventBools[ evProcPos(evtSet, *lheFile.getEvents()[k], statVec) ]->at( k ) = true;
+        }
+        return eventBools;
+    }
+
+    std::vector<std::shared_ptr<std::vector<bool>>> evProcOrder( lheNode& lheFile, const std::vector<std::shared_ptr<event>>& evtSet, 
+    sortFcn sorter,
+        std::vector<std::string_view> statVec = { "-1", "1" } )
+    {
+        std::vector<std::shared_ptr<std::vector<bool>>> eventBools;
+        eventBools.reserve(evtSet.size());
+        for (size_t i = 0; i < evtSet.size(); ++i) {
+            eventBools.push_back(std::make_shared<std::vector<bool>>(lheFile.getEvents().size(), false));
+        }
+        for( size_t k = 0 ; k < lheFile.getEvents().size() ; ++k )
+        {
+            eventBools[ evProcPos(evtSet, *lheFile.getEvents()[k], sorter, statVec) ]->at( k ) = true;
+        }
+        return eventBools;
+    }
+
+    std::vector<std::shared_ptr<std::vector<bool>>> evProcOrder( lheNode& lheFile, const std::vector<std::shared_ptr<event>>& evtSet, 
+    statSort sorter,
+        std::vector<std::string_view> statVec = { "-1", "1" } )
+    {
+        std::vector<std::shared_ptr<std::vector<bool>>> eventBools;
+        eventBools.reserve(evtSet.size());
+        for (size_t i = 0; i < evtSet.size(); ++i) {
+            eventBools.push_back(std::make_shared<std::vector<bool>>(lheFile.getEvents().size(), false));
+        }
+        for( size_t k = 0 ; k < lheFile.getEvents().size() ; ++k )
+        {
+            eventBools[ evProcPos(evtSet, *lheFile.getEvents()[k], sorter, statVec) ]->at( k ) = true;
+        }
+        return eventBools;
+    }
+
     // ZW: fcn for reordering LHE file based on subprocess
-    std::shared_ptr<std::vector<std::shared_ptr<event>>> eventReOrder( const lheNode& lheFile, std::vector<bool> relProc )
+    std::shared_ptr<std::vector<std::shared_ptr<event>>> eventReOrder( lheNode& lheFile, std::vector<bool> relProc )
     {
         auto reOrdered = std::make_shared<std::vector<std::shared_ptr<event>>>();
         reOrdered->reserve( std::count( relProc.begin(), relProc.end(), true ) );
-        for( int k = 0 ; k < relProc.size() ; ++k )
+        for( size_t k = 0 ; k < relProc.size() ; ++k )
         {
             if(!relProc[k]){continue;}
-            reOrdered->push_back( lheFile.events[k] );
+            reOrdered->push_back( lheFile.getEvents()[k] );
         }
         return reOrdered;
     }
 
     // ZW: wrapper for eventReOrder
-    std::vector<std::shared_ptr<std::vector<std::shared_ptr<event>>>> lheReOrder( const lheNode& lheFile )
+    std::vector<std::shared_ptr<std::vector<std::shared_ptr<event>>>> lheReOrder( lheNode& lheFile,
+        std::vector<std::string_view> statVec = { "-1", "1" }  )
     {
-        auto procSets = processPull( lheFile ); 
-        auto relProcs = procOrder( lheFile, procSets ); 
+        auto procSets = processPull( lheFile, statVec ); 
+        auto relProcs = procOrder( lheFile, procSets, statVec ); 
         std::vector<std::shared_ptr<std::vector<std::shared_ptr<event>>>> ordProcs(procSets.size());
-        for( int k = 0 ; k < relProcs.size() ; ++k )
+        for( size_t k = 0 ; k < relProcs.size() ; ++k )
+        { 
+            ordProcs[k] = eventReOrder( lheFile, *relProcs[k] );
+        }
+        return ordProcs;
+    }
+
+    std::vector<std::shared_ptr<std::vector<std::shared_ptr<event>>>> lheEvReOrder( lheNode& lheFile,
+        std::vector<std::string_view> statVec = { "-1", "1" } )
+    {
+        auto procSets = evProcessPull( lheFile, statVec ); 
+        auto relProcs = evProcOrder( lheFile, procSets, statVec ); 
+        std::vector<std::shared_ptr<std::vector<std::shared_ptr<event>>>> ordProcs(procSets.size());
+        for( size_t k = 0 ; k < relProcs.size() ; ++k )
+        { 
+            ordProcs[k] = eventReOrder( lheFile, *relProcs[k] );
+        }
+        return ordProcs;
+    }
+
+    std::vector<std::shared_ptr<std::vector<std::shared_ptr<event>>>> lheEvReOrder( lheNode& lheFile,
+        std::vector<std::shared_ptr<event>> procSets, std::vector<std::shared_ptr<std::vector<bool>>> relProcs,
+        std::vector<std::string_view> statVec = { "-1", "1" } )
+    {
+        //auto procSets = evProcessPull( lheFile, statVec ); 
+        //auto relProcs = evProcOrder( lheFile, procSets, statVec ); 
+        std::vector<std::shared_ptr<std::vector<std::shared_ptr<event>>>> ordProcs(procSets.size());
+        for( size_t k = 0 ; k < relProcs.size() ; ++k )
+        { 
+            ordProcs[k] = eventReOrder( lheFile, *relProcs[k] );
+        }
+        return ordProcs;
+    }
+
+    std::vector<std::shared_ptr<std::vector<std::shared_ptr<event>>>> lheEvReOrder( lheNode& lheFile, 
+    sortFcn sorter,
+    std::vector<std::string_view> statVec = { "-1", "1" } )
+    {
+        auto procSets = evProcessPull( lheFile, sorter, statVec ); 
+        auto relProcs = evProcOrder( lheFile, procSets, sorter, statVec ); 
+        std::vector<std::shared_ptr<std::vector<std::shared_ptr<event>>>> ordProcs(procSets.size());
+        for( size_t k = 0 ; k < relProcs.size() ; ++k )
+        { 
+            ordProcs[k] = eventReOrder( lheFile, *relProcs[k] );
+        }
+        return ordProcs;
+    }
+
+    std::vector<std::shared_ptr<std::vector<std::shared_ptr<event>>>> lheEvReOrder( lheNode& lheFile, 
+    std::vector<std::shared_ptr<event>> procSets, std::vector<std::shared_ptr<std::vector<bool>>> relProcs,
+    sortFcn sorter, std::vector<std::string_view> statVec = { "-1", "1" } )
+    {
+        //auto procSets = evProcessPull( lheFile, sorter, statVec ); 
+        //auto relProcs = evProcOrder( lheFile, procSets, sorter, statVec ); 
+        std::vector<std::shared_ptr<std::vector<std::shared_ptr<event>>>> ordProcs(procSets.size());
+        for( size_t k = 0 ; k < relProcs.size() ; ++k )
+        { 
+            ordProcs[k] = eventReOrder( lheFile, *relProcs[k] );
+        }
+        return ordProcs;
+    }
+
+    std::vector<std::shared_ptr<std::vector<std::shared_ptr<event>>>> lheEvReOrder( lheNode& lheFile, 
+    statSort sorter,
+    std::vector<std::string_view> statVec = { "-1", "1" } )
+    {
+        auto procSets = evProcessPull( lheFile, sorter, statVec ); 
+        auto relProcs = evProcOrder( lheFile, procSets, sorter, statVec ); 
+        std::vector<std::shared_ptr<std::vector<std::shared_ptr<event>>>> ordProcs(procSets.size());
+        for( size_t k = 0 ; k < relProcs.size() ; ++k )
+        { 
+            ordProcs[k] = eventReOrder( lheFile, *relProcs[k] );
+        }
+        return ordProcs;
+    }
+
+    std::vector<std::shared_ptr<std::vector<std::shared_ptr<event>>>> lheEvReOrder( lheNode& lheFile, 
+    std::vector<std::shared_ptr<event>> procSets, std::vector<std::shared_ptr<std::vector<bool>>> relProcs,
+    statSort sorter, std::vector<std::string_view> statVec = { "-1", "1" } )
+    {
+        //auto procSets = evProcessPull( lheFile, sorter, statVec ); 
+        //auto relProcs = evProcOrder( lheFile, procSets, sorter, statVec ); 
+        std::vector<std::shared_ptr<std::vector<std::shared_ptr<event>>>> ordProcs(procSets.size());
+        for( size_t k = 0 ; k < relProcs.size() ; ++k )
         { 
             ordProcs[k] = eventReOrder( lheFile, *relProcs[k] );
         }
@@ -2202,10 +3165,11 @@ namespace REX
         std::vector<std::string_view> aQEDs;
         std::vector<std::string_view> aQCDs;
         std::vector<std::string_view> nprts;
+        std::vector<size_t> relNPrts;
         std::vector<std::string_view> procIDs;
         evtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile = {} ){
             int nEvt = lheFile.size();
-            wgts.reserve(nEvt); scales.reserve(nEvt); aQEDs.reserve(nEvt); aQCDs.reserve(nEvt); procIDs.reserve(nEvt);
+            wgts.reserve(nEvt); scales.reserve(nEvt); aQEDs.reserve(nEvt); aQCDs.reserve(nEvt); nprts.reserve(nEvt); procIDs.reserve(nEvt);
             for( auto evt : lheFile )
             {
                 wgts.push_back(evt->getHead().getWeight());
@@ -2213,6 +3177,53 @@ namespace REX
                 aQEDs.push_back(evt->getHead().getAQED());
                 aQCDs.push_back(evt->getHead().getAQCD());
                 nprts.push_back(evt->getHead().getNprt());
+                procIDs.push_back(evt->getHead().getProcID());
+            }
+        }
+        evtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile, const std::vector<std::string_view>& statVec ){
+            int nEvt = lheFile.size();
+            wgts.reserve(nEvt); scales.reserve(nEvt); aQEDs.reserve(nEvt); aQCDs.reserve(nEvt); relNPrts.reserve(nEvt); procIDs.reserve(nEvt);
+            for( auto evt : lheFile )
+            {
+                wgts.push_back(evt->getHead().getWeight());
+                scales.push_back(evt->getHead().getScale());
+                aQEDs.push_back(evt->getHead().getAQED());
+                aQCDs.push_back(evt->getHead().getAQCD());
+                size_t nPrt = 0;
+                for( auto stat : statVec ){ nPrt += evt->getProc()[stat].size(); }
+                relNPrts.push_back(nPrt);
+                procIDs.push_back(evt->getHead().getProcID());
+            }
+        }
+        evtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile, const std::vector<std::string_view>& statVec, 
+        sortFcn sorter ){
+            int nEvt = lheFile.size();
+            wgts.reserve(nEvt); scales.reserve(nEvt); aQEDs.reserve(nEvt); aQCDs.reserve(nEvt); relNPrts.reserve(nEvt); procIDs.reserve(nEvt);
+            for( auto evt : lheFile )
+            {
+                wgts.push_back(evt->getHead().getWeight());
+                scales.push_back(evt->getHead().getScale());
+                aQEDs.push_back(evt->getHead().getAQED());
+                aQCDs.push_back(evt->getHead().getAQCD());
+                size_t nPrt = 0;
+                for( auto stat : statVec ){ nPrt += evt->getProc(sorter)[stat].size(); }
+                relNPrts.push_back(nPrt);
+                procIDs.push_back(evt->getHead().getProcID());
+            }
+        }
+        evtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile, const std::vector<std::string_view>& statVec, 
+        statSort sorter ){
+            int nEvt = lheFile.size();
+            wgts.reserve(nEvt); scales.reserve(nEvt); aQEDs.reserve(nEvt); aQCDs.reserve(nEvt); relNPrts.reserve(nEvt); procIDs.reserve(nEvt);
+            for( auto evt : lheFile )
+            {
+                wgts.push_back(evt->getHead().getWeight());
+                scales.push_back(evt->getHead().getScale());
+                aQEDs.push_back(evt->getHead().getAQED());
+                aQCDs.push_back(evt->getHead().getAQCD());
+                size_t nPrt = 0;
+                for( auto stat : statVec ){ nPrt += evt->getProc(sorter)[stat].size(); }
+                relNPrts.push_back(nPrt);
                 procIDs.push_back(evt->getHead().getProcID());
             }
         }
@@ -2243,13 +3254,99 @@ namespace REX
                     spins.push_back( prt->getSpin() );
                     statuses.push_back( prt->getStatus() );
                     pdgs.push_back( prt->getPDG() );
-                    for( int k = 0 ; k < 2 ; ++k )
+                    for( size_t k = 0 ; k < 2 ; ++k )
                     {
                         moms.push_back( prt->getMom()[k] );
                         mothers.push_back( prt->getMothers()[k] );
                         icols.push_back( prt->getColor()[k] );
                     }
                     moms.push_back( prt->getMom()[2] );
+                }
+            }
+        }
+        prtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile, const int nPrt, const std::vector<std::string_view>& statVec ){
+            int nEvt = lheFile.size(); 
+            moms.reserve(4*nPrt*nEvt); vtims.reserve(nPrt*nEvt); masses.reserve(nPrt*nEvt); pdgs.reserve(nPrt*nEvt); 
+            spins.reserve(nPrt*nEvt); statuses.reserve(nPrt*nEvt); mothers.reserve(2*nPrt*nEvt); icols.reserve(2*nPrt*nEvt);
+            for( auto evt : lheFile )
+            {
+                for( auto stat : statVec )
+                {
+                    for( auto i : evt->getProcOrder()[stat] )
+                    {
+                        auto prt = evt->getPrts()[i];
+                        moms.push_back( prt->getE() );
+                        masses.push_back( prt->getMass() );
+                        vtims.push_back( prt->getVTim() );
+                        spins.push_back( prt->getSpin() );
+                        statuses.push_back( prt->getStatus() );
+                        pdgs.push_back( prt->getPDG() );
+                        for( size_t k = 0 ; k < 2 ; ++k )
+                        {
+                            moms.push_back( prt->getMom()[k] );
+                            mothers.push_back( prt->getMothers()[k] );
+                            icols.push_back( prt->getColor()[k] );
+                        }
+                        moms.push_back( prt->getMom()[2] );
+                    }
+                }
+            }
+        }
+        prtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile, const int nPrt, const std::vector<std::string_view>& statVec, 
+        sortFcn sorter ){
+            int nEvt = lheFile.size(); 
+            moms.reserve(4*nPrt*nEvt); vtims.reserve(nPrt*nEvt); masses.reserve(nPrt*nEvt); pdgs.reserve(nPrt*nEvt); 
+            spins.reserve(nPrt*nEvt); statuses.reserve(nPrt*nEvt); mothers.reserve(2*nPrt*nEvt); icols.reserve(2*nPrt*nEvt);
+            for( auto evt : lheFile )
+            {
+                for( auto stat : statVec )
+                {
+                    for( auto i : evt->getProcOrder(sorter)[stat] )
+                    {
+                        auto prt = evt->getPrts()[i];
+                        moms.push_back( prt->getE() );
+                        masses.push_back( prt->getMass() );
+                        vtims.push_back( prt->getVTim() );
+                        spins.push_back( prt->getSpin() );
+                        statuses.push_back( prt->getStatus() );
+                        pdgs.push_back( prt->getPDG() );
+                        for( size_t k = 0 ; k < 2 ; ++k )
+                        {
+                            moms.push_back( prt->getMom()[k] );
+                            mothers.push_back( prt->getMothers()[k] );
+                            icols.push_back( prt->getColor()[k] );
+                        }
+                        moms.push_back( prt->getMom()[2] );
+                    }
+                }
+            }
+        }
+        prtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile, const int nPrt, const std::vector<std::string_view>& statVec, 
+        statSort sorter ){
+            int nEvt = lheFile.size(); 
+            moms.reserve(4*nPrt*nEvt); vtims.reserve(nPrt*nEvt); masses.reserve(nPrt*nEvt); pdgs.reserve(nPrt*nEvt); 
+            spins.reserve(nPrt*nEvt); statuses.reserve(nPrt*nEvt); mothers.reserve(2*nPrt*nEvt); icols.reserve(2*nPrt*nEvt);
+            for( auto evt : lheFile )
+            {
+                for( auto stat : statVec )
+                {
+                    for( auto i : evt->getProcOrder(sorter)[stat] )
+                    {
+                        auto prt = evt->getPrts()[i];
+                        moms.push_back( prt->getE() );
+                        masses.push_back( prt->getMass() );
+                        vtims.push_back( prt->getVTim() );
+                        spins.push_back( prt->getSpin() );
+                        statuses.push_back( prt->getStatus() );
+                        pdgs.push_back( prt->getPDG() );
+                        for( size_t k = 0 ; k < 2 ; ++k )
+                        {
+                            moms.push_back( prt->getMom()[k] );
+                            mothers.push_back( prt->getMothers()[k] );
+                            icols.push_back( prt->getColor()[k] );
+                        }
+                        moms.push_back( prt->getMom()[2] );
+                    }
                 }
             }
         }
@@ -2260,9 +3357,30 @@ namespace REX
     public:
         evtInfo evtsHead;
         prtInfo evtsData;
+        std::shared_ptr<event> process;
         transMonoLHE( const std::vector<std::shared_ptr<REX::event>>& lheFile = {}, const int nPrt = 8 ){
             evtsHead = evtInfo(lheFile);
             evtsData = prtInfo(lheFile, nPrt);
+            process = lheFile[0];
+        }
+        transMonoLHE( const std::vector<std::shared_ptr<REX::event>>& lheFile, const int nPrt, const std::vector<std::string_view>& statVec ){
+            evtsHead = evtInfo(lheFile, statVec);
+            evtsData = prtInfo(lheFile, nPrt, statVec);
+            process = lheFile[0];
+        }
+        transMonoLHE( const std::vector<std::shared_ptr<REX::event>>& lheFile, const int nPrt, 
+        sortFcn sorter,
+        std::vector<std::string_view> statVec = { "-1", "1" } ){
+            evtsHead = evtInfo(lheFile, statVec);
+            evtsData = prtInfo(lheFile, nPrt, statVec, sorter);
+            process = lheFile[0];
+        }
+        transMonoLHE( const std::vector<std::shared_ptr<REX::event>>& lheFile, const int nPrt, 
+        statSort sorter,
+        std::vector<std::string_view> statVec = { "-1", "1" } ){
+            evtsHead = evtInfo(lheFile, statVec);
+            evtsData = prtInfo(lheFile, nPrt, statVec, sorter);
+            process = lheFile[0];
         }
     };
 
@@ -2271,15 +3389,81 @@ namespace REX
     public:
         std::string_view xmlFile;
         std::vector<std::shared_ptr<transMonoLHE>> subProcs;
+        std::vector<std::shared_ptr<event>> procSets;
+        std::vector<std::shared_ptr<std::vector<bool>>> relProcs;
+        transLHE(){ return; }
         transLHE( lheNode& lheFile )
         {
+            procSets = evProcessPull( lheFile ); 
+            relProcs = evProcOrder( lheFile, procSets );
             xmlFile = lheFile.getFile();
-            auto procsOrdered = lheReOrder( lheFile ); 
+            auto procsOrdered = lheEvReOrder( lheFile, procSets, relProcs ); 
             subProcs = std::vector<std::shared_ptr<transMonoLHE>>( procsOrdered.size() ); 
-            for( int k = 0 ; k < procsOrdered.size() ; ++k )
+            for( size_t k = 0 ; k < procsOrdered.size() ; ++k )
             { 
                 subProcs[k] = std::make_shared<transMonoLHE>( *procsOrdered[k], procsOrdered[k]->at(0)->getNprt() );
             }
+        }
+        transLHE( lheNode& lheFile, 
+        sortFcn sorter, 
+        const std::vector<std::string_view>& statVec = { "-1", "1" } )
+        {
+            procSets = evProcessPull( lheFile, sorter, statVec ); 
+            relProcs = evProcOrder( lheFile, procSets, sorter, statVec );
+            xmlFile = lheFile.getFile();
+            auto procsOrdered = lheEvReOrder( lheFile, procSets, relProcs, sorter, statVec ); 
+            subProcs = std::vector<std::shared_ptr<transMonoLHE>>( procsOrdered.size() ); 
+            for( size_t k = 0 ; k < procsOrdered.size() ; ++k )
+            { 
+                subProcs[k] = std::make_shared<transMonoLHE>( *procsOrdered[k], procsOrdered[k]->at(0)->getNprt(), sorter, statVec );
+            }
+        }
+        transLHE( lheNode& lheFile, 
+        statSort sorter, 
+        const std::vector<std::string_view>& statVec = { "-1", "1" } )
+        {
+            procSets = evProcessPull( lheFile, sorter, statVec ); 
+            relProcs = evProcOrder( lheFile, procSets, sorter, statVec );
+            xmlFile = lheFile.getFile();
+            auto procsOrdered = lheEvReOrder( lheFile, procSets, relProcs, sorter, statVec ); 
+            subProcs = std::vector<std::shared_ptr<transMonoLHE>>( procsOrdered.size() ); 
+            for( size_t k = 0 ; k < procsOrdered.size() ; ++k )
+            { 
+                subProcs[k] = std::make_shared<transMonoLHE>( *procsOrdered[k], procsOrdered[k]->at(0)->getNprt(), sorter, statVec );
+            }
+        }
+        transLHE( lheNode& lheFile, const std::vector<std::string_view>& statVec )
+        {
+            procSets = evProcessPull( lheFile, statVec ); 
+            relProcs = evProcOrder( lheFile, procSets, statVec );
+            xmlFile = lheFile.getFile();
+            auto procsOrdered = lheEvReOrder( lheFile, procSets, relProcs, statVec ); 
+            subProcs = std::vector<std::shared_ptr<transMonoLHE>>( procsOrdered.size() ); 
+            for( size_t k = 0 ; k < procsOrdered.size() ; ++k )
+            { 
+                subProcs[k] = std::make_shared<transMonoLHE>( *procsOrdered[k], procsOrdered[k]->at(0)->getNprt(), statVec );
+            }
+        }
+        template <typename T>
+        std::shared_ptr<std::vector<T>> vectorFlat( std::vector<std::shared_ptr<std::vector<T>>> vecVec )
+        {
+            if( vecVec.size() == relProcs.size() ) continue;
+            else throw std::range_error("vectorFlat: input vector size does not match number of subprocesses");
+            for( size_t k = 0 ; k < vecVec.size() ; ++k){
+                if( vecVec[k]->size() == relProcs[k]->size() ) continue;
+                else throw std::range_error("vectorFlat: input vector size does not match number of events for subprocess");
+            }
+            auto flatVec = std::make_shared<std::vector<T>>(relProcs[0]->size());
+            for( size_t k = 0 ; k < relProcs.size() ; ++k ){
+                currInd = 0;
+                for( size_t j = 0 ; j < relProcs[k]->size() ; ++j ){
+                    if( relProcs[k]->at(j) ){
+                        flatVec->at(currInd) = vecVec[k]->at(currInd);
+                        ++currInd;
+                    }
+                }
+            }
+            return flatVec;
         }
     };
 
@@ -2373,32 +3557,247 @@ namespace REX
         auto lheDos = std::make_shared<std::vector<std::shared_ptr<std::vector<double>>>>(noVals * lheAOS.subProcs.size() ); 
         std::vector<std::shared_ptr<std::vector<double>>> &lheDs = *lheDos;
         int currInd = 0;
-        if( boolVec[0] ){ lheDs[currInd] = vecStoD( { lheFile.init->getHead()->ebmup[0], lheFile.init->getHead()->ebmup[1] } ); ++currInd; }
+        if( boolVec[0] ){ lheDs[currInd] = vecStoD( { lheFile.getInit()->getHead()->ebmup[0], lheFile.getInit()->getHead()->ebmup[1] } ); ++currInd; }
         if( boolVec[1] ){ 
-            std::vector<std::string_view> xsecVec( lheFile.init->getLines().size() );
-            for( auto line : lheFile.init->getLines() )
+            std::vector<std::string_view> xsecVec( lheFile.getInit()->getLines().size() );
+            for( auto line : lheFile.getInit()->getLines() )
             {
                 xsecVec.push_back(line->xsecup);
             }
             lheDs[currInd] = vecStoD( xsecVec );
              ++currInd; }
         if( boolVec[2] ){ 
-            std::vector<std::string_view> xerrVec( lheFile.init->getLines().size() );
-            for( auto line : lheFile.init->getLines() )
+            std::vector<std::string_view> xerrVec( lheFile.getInit()->getLines().size() );
+            for( auto line : lheFile.getInit()->getLines() )
             {
                 xerrVec.push_back(line->xerrup);
             }
             lheDs[currInd] = vecStoD( xerrVec );
              ++currInd; }
         if( boolVec[3] ){ 
-            std::vector<std::string_view> xmaxVec( lheFile.init->getLines().size() );
-            for( auto line : lheFile.init->getLines() )
+            std::vector<std::string_view> xmaxVec( lheFile.getInit()->getLines().size() );
+            for( auto line : lheFile.getInit()->getLines() )
             {
                 xmaxVec.push_back(line->xmaxup);
             }
             lheDs[currInd] = vecStoD( xmaxVec );
              ++currInd; } 
-        for( int k = 0 ; k < lheAOS.subProcs.size() ; ++k )
+        for( size_t k = 0 ; k < lheAOS.subProcs.size() ; ++k )
+        {
+            if( boolVec[4] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsHead.wgts ); ++currInd; }
+            if( boolVec[5] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsHead.scales ); ++currInd; }
+            if( boolVec[6] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsHead.aQEDs ); ++currInd; }
+            if( boolVec[7] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsHead.aQCDs ); 
+                if( aStogS ){
+                    std::transform( lheDs[currInd]->begin(), lheDs[currInd]->end(), lheDs[currInd]->begin(), 
+                    []( double alphaS ){
+                        auto gS = std::sqrt( 4. * M_PI * alphaS );
+                        return gS;
+                    } );
+                }
+                ++currInd;
+            }
+            if( boolVec[8] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsData.moms ); ++currInd; }
+            if( boolVec[9] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsData.masses ); ++currInd; }
+            if( boolVec[10] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsData.vtims ); ++currInd; }
+            if( boolVec[11] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsData.spins ); ++currInd; }
+        }
+
+        return lheDos;
+    }
+
+    std::shared_ptr<std::vector<std::shared_ptr<std::vector<double>>>> lheValDoubles(transLHE& lheAOS, lheRetDs vals = lheRetDs() )
+    {
+        // ZW: hard-setting returning g_S instead of a_S for now
+        bool aStogS = true;
+        auto boolVec = vals.getBools();
+        const int noVals = std::count(boolVec.begin(), boolVec.end(), true);
+        //auto lheAOS = transLHE( lheFile );
+        auto lheDos = std::make_shared<std::vector<std::shared_ptr<std::vector<double>>>>(noVals * lheAOS.subProcs.size() ); 
+        std::vector<std::shared_ptr<std::vector<double>>> &lheDs = *lheDos;
+        int currInd = 0;
+        for( size_t k = 0 ; k < lheAOS.subProcs.size() ; ++k )
+        {
+            if( boolVec[4] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsHead.wgts ); ++currInd; }
+            if( boolVec[5] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsHead.scales ); ++currInd; }
+            if( boolVec[6] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsHead.aQEDs ); ++currInd; }
+            if( boolVec[7] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsHead.aQCDs ); 
+                if( aStogS ){
+                    std::transform( lheDs[currInd]->begin(), lheDs[currInd]->end(), lheDs[currInd]->begin(), 
+                    []( double alphaS ){
+                        auto gS = std::sqrt( 4. * M_PI * alphaS );
+                        return gS;
+                    } );
+                }
+                ++currInd;
+            }
+            if( boolVec[8] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsData.moms ); ++currInd; }
+            if( boolVec[9] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsData.masses ); ++currInd; }
+            if( boolVec[10] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsData.vtims ); ++currInd; }
+            if( boolVec[11] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsData.spins ); ++currInd; }
+        }
+        return lheDos;
+    }
+
+    std::shared_ptr<std::vector<std::shared_ptr<std::vector<double>>>> lheValDoubles( lheNode& lheFile, 
+    const std::vector<std::string_view>& statVec, lheRetDs vals = lheRetDs() )
+    {
+        // ZW: hard-setting returning g_S instead of a_S for now
+        bool aStogS = true;
+        auto boolVec = vals.getBools();
+        const int noVals = std::count(boolVec.begin(), boolVec.end(), true);
+        auto lheAOS = transLHE( lheFile, statVec );
+        auto lheDos = std::make_shared<std::vector<std::shared_ptr<std::vector<double>>>>(noVals * lheAOS.subProcs.size() ); 
+        std::vector<std::shared_ptr<std::vector<double>>> &lheDs = *lheDos;
+        int currInd = 0;
+        if( boolVec[0] ){ lheDs[currInd] = vecStoD( { lheFile.getInit()->getHead()->ebmup[0], lheFile.getInit()->getHead()->ebmup[1] } ); ++currInd; }
+        if( boolVec[1] ){ 
+            std::vector<std::string_view> xsecVec( lheFile.getInit()->getLines().size() );
+            for( auto line : lheFile.getInit()->getLines() )
+            {
+                xsecVec.push_back(line->xsecup);
+            }
+            lheDs[currInd] = vecStoD( xsecVec );
+             ++currInd; }
+        if( boolVec[2] ){ 
+            std::vector<std::string_view> xerrVec( lheFile.getInit()->getLines().size() );
+            for( auto line : lheFile.getInit()->getLines() )
+            {
+                xerrVec.push_back(line->xerrup);
+            }
+            lheDs[currInd] = vecStoD( xerrVec );
+             ++currInd; }
+        if( boolVec[3] ){ 
+            std::vector<std::string_view> xmaxVec( lheFile.getInit()->getLines().size() );
+            for( auto line : lheFile.getInit()->getLines() )
+            {
+                xmaxVec.push_back(line->xmaxup);
+            }
+            lheDs[currInd] = vecStoD( xmaxVec );
+             ++currInd; } 
+        for( size_t k = 0 ; k < lheAOS.subProcs.size() ; ++k )
+        {
+            if( boolVec[4] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsHead.wgts ); ++currInd; }
+            if( boolVec[5] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsHead.scales ); ++currInd; }
+            if( boolVec[6] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsHead.aQEDs ); ++currInd; }
+            if( boolVec[7] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsHead.aQCDs ); 
+                if( aStogS ){
+                    std::transform( lheDs[currInd]->begin(), lheDs[currInd]->end(), lheDs[currInd]->begin(), 
+                    []( double alphaS ){
+                        auto gS = std::sqrt( 4. * M_PI * alphaS );
+                        return gS;
+                    } );
+                }
+                ++currInd;
+            }
+            if( boolVec[8] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsData.moms ); ++currInd; }
+            if( boolVec[9] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsData.masses ); ++currInd; }
+            if( boolVec[10] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsData.vtims ); ++currInd; }
+            if( boolVec[11] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsData.spins ); ++currInd; }
+        }
+
+        return lheDos;
+    }
+
+    std::shared_ptr<std::vector<std::shared_ptr<std::vector<double>>>> lheValDoubles( lheNode& lheFile, 
+    sortFcn sorter, 
+    const std::vector<std::string_view>& statVec = {"-1", "1"}, lheRetDs vals = lheRetDs() )
+    {
+        // ZW: hard-setting returning g_S instead of a_S for now
+        bool aStogS = true;
+        auto boolVec = vals.getBools();
+        const int noVals = std::count(boolVec.begin(), boolVec.end(), true);
+        auto lheAOS = transLHE( lheFile, sorter, statVec );
+        auto lheDos = std::make_shared<std::vector<std::shared_ptr<std::vector<double>>>>(noVals * lheAOS.subProcs.size() ); 
+        std::vector<std::shared_ptr<std::vector<double>>> &lheDs = *lheDos;
+        int currInd = 0;
+        if( boolVec[0] ){ lheDs[currInd] = vecStoD( { lheFile.getInit()->getHead()->ebmup[0], lheFile.getInit()->getHead()->ebmup[1] } ); ++currInd; }
+        if( boolVec[1] ){ 
+            std::vector<std::string_view> xsecVec( lheFile.getInit()->getLines().size() );
+            for( auto line : lheFile.getInit()->getLines() )
+            {
+                xsecVec.push_back(line->xsecup);
+            }
+            lheDs[currInd] = vecStoD( xsecVec );
+             ++currInd; }
+        if( boolVec[2] ){ 
+            std::vector<std::string_view> xerrVec( lheFile.getInit()->getLines().size() );
+            for( auto line : lheFile.getInit()->getLines() )
+            {
+                xerrVec.push_back(line->xerrup);
+            }
+            lheDs[currInd] = vecStoD( xerrVec );
+             ++currInd; }
+        if( boolVec[3] ){ 
+            std::vector<std::string_view> xmaxVec( lheFile.getInit()->getLines().size() );
+            for( auto line : lheFile.getInit()->getLines() )
+            {
+                xmaxVec.push_back(line->xmaxup);
+            }
+            lheDs[currInd] = vecStoD( xmaxVec );
+             ++currInd; } 
+        for( size_t k = 0 ; k < lheAOS.subProcs.size() ; ++k )
+        {
+            if( boolVec[4] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsHead.wgts ); ++currInd; }
+            if( boolVec[5] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsHead.scales ); ++currInd; }
+            if( boolVec[6] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsHead.aQEDs ); ++currInd; }
+            if( boolVec[7] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsHead.aQCDs ); 
+                if( aStogS ){
+                    std::transform( lheDs[currInd]->begin(), lheDs[currInd]->end(), lheDs[currInd]->begin(), 
+                    []( double alphaS ){
+                        auto gS = std::sqrt( 4. * M_PI * alphaS );
+                        return gS;
+                    } );
+                }
+                ++currInd;
+            }
+            if( boolVec[8] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsData.moms ); ++currInd; }
+            if( boolVec[9] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsData.masses ); ++currInd; }
+            if( boolVec[10] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsData.vtims ); ++currInd; }
+            if( boolVec[11] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsData.spins ); ++currInd; }
+        }
+
+        return lheDos;
+    }
+
+    std::shared_ptr<std::vector<std::shared_ptr<std::vector<double>>>> lheValDoubles( lheNode& lheFile, 
+    statSort sorter, 
+    const std::vector<std::string_view>& statVec = {"-1", "1"}, lheRetDs vals = lheRetDs() )
+    {
+        // ZW: hard-setting returning g_S instead of a_S for now
+        bool aStogS = true;
+        auto boolVec = vals.getBools();
+        const int noVals = std::count(boolVec.begin(), boolVec.end(), true);
+        auto lheAOS = transLHE( lheFile, sorter, statVec );
+        auto lheDos = std::make_shared<std::vector<std::shared_ptr<std::vector<double>>>>(noVals * lheAOS.subProcs.size() ); 
+        std::vector<std::shared_ptr<std::vector<double>>> &lheDs = *lheDos;
+        int currInd = 0;
+        if( boolVec[0] ){ lheDs[currInd] = vecStoD( { lheFile.getInit()->getHead()->ebmup[0], lheFile.getInit()->getHead()->ebmup[1] } ); ++currInd; }
+        if( boolVec[1] ){ 
+            std::vector<std::string_view> xsecVec( lheFile.getInit()->getLines().size() );
+            for( auto line : lheFile.getInit()->getLines() )
+            {
+                xsecVec.push_back(line->xsecup);
+            }
+            lheDs[currInd] = vecStoD( xsecVec );
+             ++currInd; }
+        if( boolVec[2] ){ 
+            std::vector<std::string_view> xerrVec( lheFile.getInit()->getLines().size() );
+            for( auto line : lheFile.getInit()->getLines() )
+            {
+                xerrVec.push_back(line->xerrup);
+            }
+            lheDs[currInd] = vecStoD( xerrVec );
+             ++currInd; }
+        if( boolVec[3] ){ 
+            std::vector<std::string_view> xmaxVec( lheFile.getInit()->getLines().size() );
+            for( auto line : lheFile.getInit()->getLines() )
+            {
+                xmaxVec.push_back(line->xmaxup);
+            }
+            lheDs[currInd] = vecStoD( xmaxVec );
+             ++currInd; } 
+        for( size_t k = 0 ; k < lheAOS.subProcs.size() ; ++k )
         {
             if( boolVec[4] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsHead.wgts ); ++currInd; }
             if( boolVec[5] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsHead.scales ); ++currInd; }
@@ -2432,20 +3831,124 @@ namespace REX
         auto lheIs = std::make_shared<std::vector<std::shared_ptr<std::vector<int>>>>(noVals * lheAOS.subProcs.size() );
         std::vector<std::shared_ptr<std::vector<int>>> &lheDs = *lheIs;
         int currInd = 0;
-        if( boolVec[0] ){ lheDs[currInd] = vecStoI( { lheFile.init->getHead()->idbmup[0], lheFile.init->getHead()->idbmup[1] } ); ++currInd; }
-        if( boolVec[1] ){ lheDs[currInd] = vecStoI( { lheFile.init->getHead()->pdfgup[0], lheFile.init->getHead()->pdfgup[1] } ); ++currInd; }
-        if( boolVec[2] ){ lheDs[currInd] = vecStoI( { lheFile.init->getHead()->pdfsup[0], lheFile.init->getHead()->pdfsup[1] } ); ++currInd; }
-        if( boolVec[3] ){ lheDs[currInd] = vecStoI( { lheFile.init->getHead()->idwtup } ); ++currInd; }
-        if( boolVec[4] ){ lheDs[currInd] = vecStoI( { lheFile.init->getHead()->nprup } ); ++currInd; }
+        if( boolVec[0] ){ lheDs[currInd] = vecStoI( { lheFile.getInit()->getHead()->idbmup[0], lheFile.getInit()->getHead()->idbmup[1] } ); ++currInd; }
+        if( boolVec[1] ){ lheDs[currInd] = vecStoI( { lheFile.getInit()->getHead()->pdfgup[0], lheFile.getInit()->getHead()->pdfgup[1] } ); ++currInd; }
+        if( boolVec[2] ){ lheDs[currInd] = vecStoI( { lheFile.getInit()->getHead()->pdfsup[0], lheFile.getInit()->getHead()->pdfsup[1] } ); ++currInd; }
+        if( boolVec[3] ){ lheDs[currInd] = vecStoI( { lheFile.getInit()->getHead()->idwtup } ); ++currInd; }
+        if( boolVec[4] ){ lheDs[currInd] = vecStoI( { lheFile.getInit()->getHead()->nprup } ); ++currInd; }
         if( boolVec[5] ){ 
-            std::vector<std::string_view> lprVec( lheFile.init->getLines().size() );
-            for( auto line : lheFile.init->getLines() )
+            std::vector<std::string_view> lprVec( lheFile.getInit()->getLines().size() );
+            for( auto line : lheFile.getInit()->getLines() )
             {
                 lprVec.push_back(line->lprup);
             }
             lheDs[currInd] = vecStoI( lprVec );
              ++currInd; }
-        for( int k = 0 ; k < lheAOS.subProcs.size() ; ++k )
+        for( size_t k = 0 ; k < lheAOS.subProcs.size() ; ++k )
+        {
+            if( boolVec[6] ){ lheDs[currInd] = vecStoI( lheAOS.subProcs[k]->evtsHead.nprts ); ++currInd; }
+            if( boolVec[7] ){ lheDs[currInd] = vecStoI( lheAOS.subProcs[k]->evtsHead.procIDs ); ++currInd; }
+            if( boolVec[8] ){ lheDs[currInd] = vecStoI( lheAOS.subProcs[k]->evtsData.pdgs ); ++currInd; }
+            if( boolVec[9] ){ lheDs[currInd] = vecStoI( lheAOS.subProcs[k]->evtsData.statuses ); ++currInd; }
+            if( boolVec[10] ){ lheDs[currInd] = vecStoI( lheAOS.subProcs[k]->evtsData.mothers ); ++currInd; }
+            if( boolVec[11] ){ lheDs[currInd] = vecStoI( lheAOS.subProcs[k]->evtsData.icols ); ++currInd; }
+        }
+        return lheIs;
+    }
+
+    std::shared_ptr<std::vector<std::shared_ptr<std::vector<int>>>> lheValInts( lheNode& lheFile, std::vector<std::string_view> statVec,
+    lheRetInts vals = lheRetInts() )
+    {
+        auto boolVec = vals.getBools();
+        const int noVals = std::count(boolVec.begin(), boolVec.end(), true);
+        auto lheAOS = transLHE( lheFile, statVec );
+        auto lheIs = std::make_shared<std::vector<std::shared_ptr<std::vector<int>>>>(noVals * lheAOS.subProcs.size() );
+        std::vector<std::shared_ptr<std::vector<int>>> &lheDs = *lheIs;
+        int currInd = 0;
+        if( boolVec[0] ){ lheDs[currInd] = vecStoI( { lheFile.getInit()->getHead()->idbmup[0], lheFile.getInit()->getHead()->idbmup[1] } ); ++currInd; }
+        if( boolVec[1] ){ lheDs[currInd] = vecStoI( { lheFile.getInit()->getHead()->pdfgup[0], lheFile.getInit()->getHead()->pdfgup[1] } ); ++currInd; }
+        if( boolVec[2] ){ lheDs[currInd] = vecStoI( { lheFile.getInit()->getHead()->pdfsup[0], lheFile.getInit()->getHead()->pdfsup[1] } ); ++currInd; }
+        if( boolVec[3] ){ lheDs[currInd] = vecStoI( { lheFile.getInit()->getHead()->idwtup } ); ++currInd; }
+        if( boolVec[4] ){ lheDs[currInd] = vecStoI( { lheFile.getInit()->getHead()->nprup } ); ++currInd; }
+        if( boolVec[5] ){ 
+            std::vector<std::string_view> lprVec( lheFile.getInit()->getLines().size() );
+            for( auto line : lheFile.getInit()->getLines() )
+            {
+                lprVec.push_back(line->lprup);
+            }
+            lheDs[currInd] = vecStoI( lprVec );
+             ++currInd; }
+        for( size_t k = 0 ; k < lheAOS.subProcs.size() ; ++k )
+        {
+            if( boolVec[6] ){ lheDs[currInd] = vecStoI( lheAOS.subProcs[k]->evtsHead.nprts ); ++currInd; }
+            if( boolVec[7] ){ lheDs[currInd] = vecStoI( lheAOS.subProcs[k]->evtsHead.procIDs ); ++currInd; }
+            if( boolVec[8] ){ lheDs[currInd] = vecStoI( lheAOS.subProcs[k]->evtsData.pdgs ); ++currInd; }
+            if( boolVec[9] ){ lheDs[currInd] = vecStoI( lheAOS.subProcs[k]->evtsData.statuses ); ++currInd; }
+            if( boolVec[10] ){ lheDs[currInd] = vecStoI( lheAOS.subProcs[k]->evtsData.mothers ); ++currInd; }
+            if( boolVec[11] ){ lheDs[currInd] = vecStoI( lheAOS.subProcs[k]->evtsData.icols ); ++currInd; }
+        }
+        return lheIs;
+    }
+
+    std::shared_ptr<std::vector<std::shared_ptr<std::vector<int>>>> lheValInts( lheNode& lheFile, 
+    sortFcn sorter, 
+    std::vector<std::string_view> statVec = {"-1", "1"}, lheRetInts vals = lheRetInts() )
+    {
+        auto boolVec = vals.getBools();
+        const int noVals = std::count(boolVec.begin(), boolVec.end(), true);
+        auto lheAOS = transLHE( lheFile, sorter, statVec );
+        auto lheIs = std::make_shared<std::vector<std::shared_ptr<std::vector<int>>>>(noVals * lheAOS.subProcs.size() );
+        std::vector<std::shared_ptr<std::vector<int>>> &lheDs = *lheIs;
+        int currInd = 0;
+        if( boolVec[0] ){ lheDs[currInd] = vecStoI( { lheFile.getInit()->getHead()->idbmup[0], lheFile.getInit()->getHead()->idbmup[1] } ); ++currInd; }
+        if( boolVec[1] ){ lheDs[currInd] = vecStoI( { lheFile.getInit()->getHead()->pdfgup[0], lheFile.getInit()->getHead()->pdfgup[1] } ); ++currInd; }
+        if( boolVec[2] ){ lheDs[currInd] = vecStoI( { lheFile.getInit()->getHead()->pdfsup[0], lheFile.getInit()->getHead()->pdfsup[1] } ); ++currInd; }
+        if( boolVec[3] ){ lheDs[currInd] = vecStoI( { lheFile.getInit()->getHead()->idwtup } ); ++currInd; }
+        if( boolVec[4] ){ lheDs[currInd] = vecStoI( { lheFile.getInit()->getHead()->nprup } ); ++currInd; }
+        if( boolVec[5] ){ 
+            std::vector<std::string_view> lprVec( lheFile.getInit()->getLines().size() );
+            for( auto line : lheFile.getInit()->getLines() )
+            {
+                lprVec.push_back(line->lprup);
+            }
+            lheDs[currInd] = vecStoI( lprVec );
+             ++currInd; }
+        for( size_t k = 0 ; k < lheAOS.subProcs.size() ; ++k )
+        {
+            if( boolVec[6] ){ lheDs[currInd] = vecStoI( lheAOS.subProcs[k]->evtsHead.nprts ); ++currInd; }
+            if( boolVec[7] ){ lheDs[currInd] = vecStoI( lheAOS.subProcs[k]->evtsHead.procIDs ); ++currInd; }
+            if( boolVec[8] ){ lheDs[currInd] = vecStoI( lheAOS.subProcs[k]->evtsData.pdgs ); ++currInd; }
+            if( boolVec[9] ){ lheDs[currInd] = vecStoI( lheAOS.subProcs[k]->evtsData.statuses ); ++currInd; }
+            if( boolVec[10] ){ lheDs[currInd] = vecStoI( lheAOS.subProcs[k]->evtsData.mothers ); ++currInd; }
+            if( boolVec[11] ){ lheDs[currInd] = vecStoI( lheAOS.subProcs[k]->evtsData.icols ); ++currInd; }
+        }
+        return lheIs;
+    }
+
+    std::shared_ptr<std::vector<std::shared_ptr<std::vector<int>>>> lheValInts( lheNode& lheFile, 
+    statSort sorter, 
+    std::vector<std::string_view> statVec = {"-1", "1"}, lheRetInts vals = lheRetInts() )
+    {
+        auto boolVec = vals.getBools();
+        const int noVals = std::count(boolVec.begin(), boolVec.end(), true);
+        auto lheAOS = transLHE( lheFile, sorter, statVec );
+        auto lheIs = std::make_shared<std::vector<std::shared_ptr<std::vector<int>>>>(noVals * lheAOS.subProcs.size() );
+        std::vector<std::shared_ptr<std::vector<int>>> &lheDs = *lheIs;
+        int currInd = 0;
+        if( boolVec[0] ){ lheDs[currInd] = vecStoI( { lheFile.getInit()->getHead()->idbmup[0], lheFile.getInit()->getHead()->idbmup[1] } ); ++currInd; }
+        if( boolVec[1] ){ lheDs[currInd] = vecStoI( { lheFile.getInit()->getHead()->pdfgup[0], lheFile.getInit()->getHead()->pdfgup[1] } ); ++currInd; }
+        if( boolVec[2] ){ lheDs[currInd] = vecStoI( { lheFile.getInit()->getHead()->pdfsup[0], lheFile.getInit()->getHead()->pdfsup[1] } ); ++currInd; }
+        if( boolVec[3] ){ lheDs[currInd] = vecStoI( { lheFile.getInit()->getHead()->idwtup } ); ++currInd; }
+        if( boolVec[4] ){ lheDs[currInd] = vecStoI( { lheFile.getInit()->getHead()->nprup } ); ++currInd; }
+        if( boolVec[5] ){ 
+            std::vector<std::string_view> lprVec( lheFile.getInit()->getLines().size() );
+            for( auto line : lheFile.getInit()->getLines() )
+            {
+                lprVec.push_back(line->lprup);
+            }
+            lheDs[currInd] = vecStoI( lprVec );
+             ++currInd; }
+        for( size_t k = 0 ; k < lheAOS.subProcs.size() ; ++k )
         {
             if( boolVec[6] ){ lheDs[currInd] = vecStoI( lheAOS.subProcs[k]->evtsHead.nprts ); ++currInd; }
             if( boolVec[7] ){ lheDs[currInd] = vecStoI( lheAOS.subProcs[k]->evtsHead.procIDs ); ++currInd; }
@@ -2457,3 +3960,5 @@ namespace REX
         return lheIs;
     }
 }
+
+#endif
