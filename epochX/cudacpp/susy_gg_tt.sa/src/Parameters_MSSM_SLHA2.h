@@ -302,7 +302,7 @@ namespace mg5amcCpu
     constexpr double mdl_I101x44 = 1.;
     constexpr double mdl_I100x44 = 1.;
     constexpr double mdl_CKM3x3 = 1.;
-    constexpr double mdl_atan__tb = atan( mdl_tb );
+    constexpr double mdl_atan__tb = constexpr_atan( mdl_tb );
     constexpr double mdl_beta = mdl_atan__tb;
     constexpr double mdl_cw = mdl_MW / mdl_MZ;
     constexpr cxsmpl<double> mdl_mD21x1 = mdl_RmD21x1;
