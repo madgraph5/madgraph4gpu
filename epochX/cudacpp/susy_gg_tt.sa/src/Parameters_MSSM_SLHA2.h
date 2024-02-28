@@ -20,6 +20,8 @@
 #include "mgOnGpuCxtypes.h"
 #include "mgOnGpuVectors.h"
 
+#include "constexpr_math.h"
+
 //==========================================================================
 
 #ifndef MGONGPU_HARDCODE_PARAM
@@ -105,37 +107,6 @@ namespace mg5amcCpu
   // Hardcoded constexpr physics parameters
   namespace Parameters_MSSM_SLHA2 // keep the same name rather than HardcodedParameters_MSSM_SLHA2 for simplicity
   {
-    // Constexpr implementation of sqrt (see https://stackoverflow.com/a/34134071)
-    double constexpr sqrtNewtonRaphson( double x, double curr, double prev )
-    {
-      return curr == prev ? curr : sqrtNewtonRaphson( x, 0.5 * ( curr + x / curr ), curr );
-    }
-    double constexpr constexpr_sqrt( double x )
-    {
-      return x >= 0 // && x < std::numeric_limits<double>::infinity() // avoid -Wtautological-constant-compare warning in fast math
-        ? sqrtNewtonRaphson( x, x, 0 )
-        : std::numeric_limits<double>::quiet_NaN();
-    }
-
-    // Constexpr implementation of floor (see https://stackoverflow.com/a/66146159)
-    constexpr int constexpr_floor( double d )
-    {
-      const int i = static_cast<int>( d );
-      return d < i ? i - 1 : i;
-    }
-
-    // Constexpr implementation of pow
-    constexpr double constexpr_pow( double base, double exp )
-    {
-      // NB(1): this implementation of constexpr_pow requires exponent >= 0
-      assert( exp >= 0 ); // NB would fail at compile time with "error: call to non-‘constexpr’ function ‘void __assert_fail'"
-      // NB(2): this implementation of constexpr_pow requires an integer exponent
-      const int iexp = constexpr_floor( exp );
-      assert( static_cast<double>( iexp ) == exp ); // NB would fail at compile time with "error: call to non-‘constexpr’ function ‘void __assert_fail'"
-      // Iterative implementation of pow if exp is a non negative integer
-      return iexp == 0 ? 1 : base * constexpr_pow( base, iexp - 1 );
-    }
-
     // Model parameters independent of aS
     constexpr double zero = 0;
     constexpr double ZERO = 0;
@@ -396,11 +367,11 @@ namespace mg5amcCpu
     constexpr cxsmpl<double> mdl_ye3x3 = mdl_Rye3x3;
     constexpr cxsmpl<double> mdl_yu3x3 = mdl_Ryu3x3;
     constexpr double mdl_MZ__exp__2 = ( ( mdl_MZ ) * ( mdl_MZ ) );
-    constexpr cxsmpl<double> mdl_bb = ( ( -mdl_mHd2 + mdl_mHu2 - mdl_MZ__exp__2 * cos( 2. * mdl_beta ) ) * tan( 2. * mdl_beta ) ) / 2.;
+    constexpr cxsmpl<double> mdl_bb = ( ( -mdl_mHd2 + mdl_mHu2 - mdl_MZ__exp__2 * constexpr_cos( 2. * mdl_beta ) ) * constexpr_tan( 2. * mdl_beta ) ) / 2.;
     constexpr double mdl_cw__exp__2 = ( ( mdl_cw ) * ( mdl_cw ) );
     constexpr double mdl_sw = constexpr_sqrt( 1. - mdl_cw__exp__2 );
-    constexpr double mdl_cos__beta = cos( mdl_beta );
-    constexpr double mdl_sin__beta = sin( mdl_beta );
+    constexpr double mdl_cos__beta = constexpr_cos( mdl_beta );
+    constexpr double mdl_sin__beta = constexpr_sin( mdl_beta );
     constexpr cxsmpl<double> mdl_conjg__yu3x3 = conj( mdl_yu3x3 );
     constexpr cxsmpl<double> mdl_I1x33 = mdl_conjg__CKM3x3 * mdl_conjg__yu3x3;
     constexpr cxsmpl<double> mdl_conjg__yd3x3 = conj( mdl_yd3x3 );
@@ -746,8 +717,8 @@ namespace mg5amcCpu
     constexpr cxsmpl<double> mdl_conjg__VV1x2 = conj( mdl_VV1x2 );
     constexpr cxsmpl<double> mdl_conjg__VV2x1 = conj( mdl_VV2x1 );
     constexpr cxsmpl<double> mdl_conjg__VV2x2 = conj( mdl_VV2x2 );
-    constexpr double mdl_cos__alp = cos( mdl_alp );
-    constexpr double mdl_sin__alp = sin( mdl_alp );
+    constexpr double mdl_cos__alp = constexpr_cos( mdl_alp );
+    constexpr double mdl_sin__alp = constexpr_sin( mdl_alp );
     constexpr cxsmpl<double> mdl_conjg__MUH = conj( mdl_MUH );
     constexpr double mdl_ee = 2. * constexpr_sqrt( 1. / aEWM1 ) * constexpr_sqrt( M_PI );
     constexpr double mdl_gp = mdl_ee / mdl_cw;
