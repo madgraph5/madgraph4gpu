@@ -292,7 +292,7 @@ namespace mg5amcCpu
     constexpr double mdl_I5x11 = 1.;
     constexpr double mdl_I53x11 = 1.;
     constexpr double mdl_I52x44 = 1.;
-    constexpr double mdl_I51x11 = 1.;
+    __device__ constexpr double mdl_I51x11 = 1.;
     constexpr double mdl_I39x11 = 1.;
     constexpr double mdl_I31x11 = 1.;
     constexpr double mdl_I26x44 = 1.;
