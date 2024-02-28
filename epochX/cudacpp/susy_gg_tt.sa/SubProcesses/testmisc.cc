@@ -10,6 +10,7 @@
 
 #include "mgOnGpuVectors.h"
 
+#include "constexpr_math.h"
 #include "epoch_process_id.h"
 
 #include <gtest/gtest.h>
@@ -295,4 +296,44 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testmisc )
   }
 
   //--------------------------------------------------------------------------
+
+  std::cout << std::scientific << std::setprecision( 20 );
+  
+  // Test constexpr sin, cos, tan
+  {
+    const int nstep = 8;
+    for ( int istep = 0; istep < nstep + 1; istep++ )
+    {
+      //long double x0 = 0, x1 = constexpr_pi_by_2;
+      //long double x0 = constexpr_pi_by_2 - 1E-15, x1 = constexpr_pi_by_2; // this is at the limit of precision for "double x"
+      //long double x0 = 0, x1 = 2 * constexpr_pi;
+      long double x0 = 0+0.1, x1 = 2 * constexpr_pi+0.1;
+      double x = x0 + istep * ( x1 - x0 ) / nstep; // test this for double (else std::cos and std::sin use long double)
+      std::cout << std::endl;
+      std::cout << "x =             " << x << std::endl;
+      std::cout << "sin =           " << std::sin( x ) << std::endl;
+      std::cout << "constexpr_sin = " << constexpr_sin( x ) << std::endl;
+      std::cout << "cos =           " << std::cos( x ) << std::endl;
+      std::cout << "constexpr_cos = " << constexpr_cos( x ) << std::endl;
+      std::cout << "tan =           " << std::tan( x ) << std::endl;
+      std::cout << "constexpr_tan = " << constexpr_tan( x ) << std::endl;
+    }
+  }  
+
+  // Test constexpr atan
+  {
+    const int nstep = 40;
+    for ( int istep = 0; istep < nstep + 1; istep++ )
+    {
+      long double x0 = -2, x1 = +2;
+      double x = x0 + istep * ( x1 - x0 ) / nstep; // test this for double (else std::cos and std::sin use long double)
+      std::cout << std::endl;
+      std::cout << "x =              " << x << std::endl;
+      std::cout << "atan =           " << std::tan( x ) << std::endl;
+      std::cout << "constexpr_atan = " << constexpr_tan( x ) << std::endl;
+    }
+  }
+  
+  //--------------------------------------------------------------------------
+
 }
