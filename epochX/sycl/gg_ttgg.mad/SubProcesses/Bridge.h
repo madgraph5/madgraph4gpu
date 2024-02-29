@@ -108,7 +108,7 @@ namespace mg5amcGpu
      * @param nparF (NEXTERNAL, nexternal.inc) number of external particles in Fortran arrays (KEPT FOR SANITY CHECKS ONLY)
      * @param np4F number of momenta components, usually 4, in Fortran arrays (KEPT FOR SANITY CHECKS ONLY)
      */
-    Bridge( unsigned int nevtF, unsigned int nparF, unsigned int np4F );
+    Bridge( size_t nevtF, size_t nparF, size_t np4F );
 
     // Delete copy/move constructors and assignment operators
     Bridge( const Bridge& ) = delete;
@@ -123,50 +123,67 @@ namespace mg5amcGpu
      * @param gpublocks number of gpublocks
      * @param gputhreads number of gputhreads
      */
-    void set_gpugrid( const int gpublocks, const int gputhreads );
+    void set_gpugrid( const size_t gpublocks, const size_t gputhreads );
 
     /**
      * Sequence to be executed for the matrix element calculation
      *
      * @param momenta the pointer to the input 4-momenta
      * @param gs the pointer to the input Gs (running QCD coupling constant alphas)
-     * @param mes the pointer to the output matrix elements
+     * @param rndhel the pointer to the input random numbers for helicity selection
+     * @param rndcol the pointer to the input random numbers for color selection
      * @param channelId the Feynman diagram to enhance in multi-channel mode if 1 to n (disable multi-channel if 0)
+     * @param mes the pointer to the output matrix elements
      * @param goodHelOnly quit after computing good helicities?
+     * @param selhel the pointer to the output selected helicities
+     * @param selcol the pointer to the output selected colors
      */
     void gpu_sequence( const FORTRANFPTYPE* __restrict__ momenta,
                        const FORTRANFPTYPE* __restrict__ gs,
+                       const FORTRANFPTYPE* __restrict__ rndhel,
+                       const FORTRANFPTYPE* __restrict__ rndcol,
+                       const size_t channelId,
                        FORTRANFPTYPE* __restrict__ mes,
-                       const unsigned int channelId,
+                       int* __restrict__ selhel,
+                       int* __restrict__ selcol,
                        const bool goodHelOnly = false );
 
+  // Return the number of good helicities (-1 initially when they have not yet been calculated)
+  int nGoodHel() const { return m_nGoodHel; }
+
+  // Return the total number of helicities (expose cudacpp ncomb in the Bridge interface to Fortran)
+  constexpr int nTotHel() const { return int(mgOnGpu::ncomb); }
+
   private:
-    unsigned int m_nevt;       // number of events
+    size_t m_nevt;       // number of events
+    int m_nGoodHel;      // the number of good helicities (-1 initially when they have not yet been calculated)
     bool m_goodHelsCalculated; // have the good helicities been calculated?
 
     std::vector<sycl::device> m_devices;
     sycl::queue m_q;
 
-    int m_gputhreads; // number of gpu threads (default set from number of events, can be modified)
-    int m_gpublocks;  // number of gpu blocks (default set from number of events, can be modified)
-    device_buffer<fptype> m_devMomentaF;
-    device_buffer<fptype> m_devMomentaC;
-    device_buffer<fptype> m_devGsC;
-    //std::unique_ptr<fptype> m_hstGsC;
-    device_buffer<fptype> m_devMEsC;
-    host_buffer<fptype  > m_hstMEsC;
-    device_buffer<bool  > m_devIsGoodHel;
-    host_buffer<bool    > m_hstIsGoodHel;
-    //device_buffer<short > m_devcHel;
+    size_t m_gputhreads; // number of gpu threads (default set from number of events, can be modified)
+    size_t m_gpublocks;  // number of gpu blocks (default set from number of events, can be modified)
+    device_buffer<vector4  > m_devMomentaC;
+    device_buffer<fptype_sv> m_devGsC;
+    device_buffer<fptype_sv> m_devRndHel;
+    device_buffer<fptype_sv> m_devRndCol;
+    device_buffer<fptype_sv> m_devMEsC;
+    device_buffer<int_sv   > m_devSelHel;
+    device_buffer<int_sv   > m_devSelCol;
+    host_buffer<fptype     > m_hstMEsC;
+    host_buffer<long       > m_hstSelHel;
+    host_buffer<long       > m_hstSelCol;
+    device_buffer<bool     > m_devIsGoodHel;
+    host_buffer<bool       > m_hstIsGoodHel;
     #ifndef MGONGPU_HARDCODE_PARAM
-    device_buffer<cxtype> m_dev_independent_couplings;
-    device_buffer<fptype> m_dev_independent_parameters;
+        device_buffer<cxtype> m_dev_independent_couplings;
+        device_buffer<fptype> m_dev_independent_parameters;
     #endif
-    device_buffer<int   > m_devcNGoodHel; 
-    device_buffer<int   > m_devcGoodHel; 
+    device_buffer<size_t   > m_devcNGoodHel; 
+    device_buffer<size_t   > m_devcGoodHel; 
     
-    //static constexpr int s_gputhreadsmin = 16; // minimum number of gpu threads (TEST VALUE FOR MADEVENT)
-    static constexpr int s_gputhreadsmin = 32; // minimum number of gpu threads (DEFAULT)
+    static constexpr size_t s_gputhreadsmin = 32; // minimum number of gpu threads (DEFAULT)
   };
 
   //--------------------------------------------------------------------------
@@ -174,14 +191,8 @@ namespace mg5amcGpu
   // Forward declare transposition methods
   //
 
-  template<typename Tin, typename Tout>
-  void dev_transposeMomentaF2C( Tout* __restrict__ out, const Tin* __restrict__ in, size_t pos, const unsigned int nevt );
-
-  template<typename Tin, typename Tout>
-  void hst_transposeMomentaF2C( const Tin* __restrict__ in, Tout* __restrict__ out, const unsigned int nevt );
-
-  template<typename Tin, typename Tout>
-  void hst_transposeMomentaC2F( const Tin* __restrict__ in, Tout* __restrict__ out, const unsigned int nevt );
+  template<typename FPTypeDst, typename FPTypeSrc>
+  void hst_transposeMomenta(FPTypeDst* __restrict__ dst, const FPTypeSrc* __restrict__ src, const size_t N );
 
   //--------------------------------------------------------------------------
   //
@@ -189,8 +200,9 @@ namespace mg5amcGpu
   //
 
   template<typename FORTRANFPTYPE>
-  Bridge<FORTRANFPTYPE>::Bridge( unsigned int nevtF, unsigned int nparF, unsigned int np4F )
+  Bridge<FORTRANFPTYPE>::Bridge( size_t nevtF, size_t nparF, size_t np4F )
     : m_nevt( nevtF )
+    , m_nGoodHel( -1 )
     , m_goodHelsCalculated( false )
     , m_devices( sycl::device::get_devices() )
     #ifdef MGONGPU_DEVICE_ID
@@ -199,16 +211,23 @@ namespace mg5amcGpu
         , m_q( sycl::queue(m_devices[0]) )
     #endif
     , m_gputhreads( 256 )                  // default number of gpu threads
-    , m_gpublocks( m_nevt / m_gputhreads ) // this ensures m_nevt <= m_gpublocks*m_gputhreads
-    , m_devMomentaF( m_nevt*mgOnGpu::npar*mgOnGpu::np4, m_q )
-    , m_devMomentaC( m_nevt*mgOnGpu::npar*mgOnGpu::np4, m_q )
-    , m_devGsC( m_nevt, m_q )
-    //, m_hstGsC( m_nevt )
-    , m_devMEsC( m_nevt, m_q )
+    #if MGONGPU_VEC_DIM > 1
+        , m_gpublocks( m_nevt / m_gputhreads / MGONGPU_VEC_DIM) // this ensures m_nevt <= m_gpublocks*m_gputhreads
+    #else
+        , m_gpublocks( m_nevt / m_gputhreads ) // this ensures m_nevt <= m_gpublocks*m_gputhreads
+    #endif
+    , m_devMomentaC( m_nevt*NPAR/MGONGPU_VEC_DIM, m_q )
+    , m_devGsC( m_nevt/MGONGPU_VEC_DIM, m_q )
+    , m_devRndHel( m_nevt/MGONGPU_VEC_DIM, m_q )
+    , m_devRndCol( m_nevt/MGONGPU_VEC_DIM, m_q )
+    , m_devMEsC( m_nevt/MGONGPU_VEC_DIM, m_q )
+    , m_devSelHel( m_nevt/MGONGPU_VEC_DIM, m_q )
+    , m_devSelCol( m_nevt/MGONGPU_VEC_DIM, m_q )
     , m_hstMEsC( m_nevt, m_q )
+    , m_hstSelHel( m_nevt, m_q )
+    , m_hstSelCol( m_nevt, m_q )
     , m_devIsGoodHel( mgOnGpu::ncomb, m_q )
     , m_hstIsGoodHel( mgOnGpu::ncomb, m_q )
-    //, m_devcHel( mgOnGpu::ncomb*mgOnGpu::npar, m_q )
     #ifndef MGONGPU_HARDCODE_PARAM
     , m_dev_independent_couplings( Proc::independentCouplings::nicoup, m_q )
     , m_dev_independent_parameters( mgOnGpu::nparams, m_q )
@@ -220,12 +239,19 @@ namespace mg5amcGpu
     if( np4F != mgOnGpu::np4 ) throw std::runtime_error( "Bridge constructor: np4 mismatch" );
     if( ( m_nevt < s_gputhreadsmin ) || ( m_nevt % s_gputhreadsmin != 0 ) )
       throw std::runtime_error( "Bridge constructor: nevt should be a multiple of " + std::to_string( s_gputhreadsmin ) );
-    while( m_nevt != m_gpublocks * m_gputhreads )
-    {
+    #if MGONGPU_VEC_DIM > 1
+        while( m_nevt != m_gpublocks * m_gputhreads * MGONGPU_VEC_DIM) {
+    #else
+        while( m_nevt != m_gpublocks * m_gputhreads ) {
+    #endif
       m_gputhreads /= 2;
       if( m_gputhreads < s_gputhreadsmin )
         throw std::logic_error( "Bridge constructor: FIXME! cannot choose gputhreads" ); // this should never happen!
-      m_gpublocks = m_nevt / m_gputhreads;
+      #if MGONGPU_VEC_DIM > 1
+          m_gpublocks = m_nevt / m_gputhreads / MGONGPU_VEC_DIM;
+      #else
+          m_gpublocks = m_nevt / m_gputhreads;
+      #endif
     }
     std::cout << "WARNING! Instantiate device Bridge (nevt=" << m_nevt << ", gpublocks=" << m_gpublocks << ", gputhreads=" << m_gputhreads
               << ", gpublocks*gputhreads=" << m_gpublocks * m_gputhreads << ")" << std::endl;
@@ -240,7 +266,7 @@ namespace mg5amcGpu
   }
 
   template<typename FORTRANFPTYPE>
-  void Bridge<FORTRANFPTYPE>::set_gpugrid( const int gpublocks, const int gputhreads )
+  void Bridge<FORTRANFPTYPE>::set_gpugrid( const size_t gpublocks, const size_t gputhreads )
   {
     if( m_nevt != gpublocks * gputhreads )
       throw std::runtime_error( "Bridge: gpublocks*gputhreads must equal m_nevt in set_gpugrid" );
@@ -253,305 +279,209 @@ namespace mg5amcGpu
   template<typename FORTRANFPTYPE>
   void Bridge<FORTRANFPTYPE>::gpu_sequence( const FORTRANFPTYPE* __restrict__ momenta,
                                             const FORTRANFPTYPE* __restrict__ gs,
+                                            const FORTRANFPTYPE* __restrict__ rndhel,
+                                            const FORTRANFPTYPE* __restrict__ rndcol,
+                                            const size_t channelId,
                                             FORTRANFPTYPE* __restrict__ mes,
-                                            const unsigned int channelId,
-                                            const bool goodHelOnly )
-  {
-    static constexpr int neppM = mgOnGpu::neppM;
-    static constexpr int np4 =  mgOnGpu::np4;
-    static constexpr int nparf = mgOnGpu::nparf;
-    static constexpr int npar = mgOnGpu::npar;
-    static constexpr int ncomb = mgOnGpu::ncomb;
+                                            int* __restrict__ selhel,
+                                            int* __restrict__ selcol,
+                                            const bool goodHelOnly ) {
+    static constexpr size_t np4 =  mgOnGpu::np4;
+    static constexpr size_t nparf = mgOnGpu::nparf;
+    static constexpr size_t npar = mgOnGpu::npar;
+    static constexpr size_t ncomb = mgOnGpu::ncomb;
 
-    if constexpr( neppM == 1 && std::is_same_v<FORTRANFPTYPE, fptype> )
-    {
-      m_q.memcpy( m_devMomentaC.data(), momenta, np4*npar*m_nevt*sizeof(fptype) ).wait();
+    #if MGONGPU_VEC_DIM > 1
+        host_buffer<fptype> hstMomentaC(NPAR*MGONGPU_FOURVECTOR_DIM*m_nevt, m_q);
+        hst_transposeMomenta(hstMomentaC.data(), momenta, m_nevt);
+        m_q.memcpy(m_devMomentaC.data(), hstMomentaC.data(), NPAR*MGONGPU_FOURVECTOR_DIM*m_nevt*sizeof(fptype));
+    #else
+        if constexpr (std::is_same_v<FORTRANFPTYPE, fptype>) {
+            m_q.memcpy(m_devMomentaC.data(), momenta, NPAR*MGONGPU_FOURVECTOR_DIM*m_nevt*sizeof(fptype));
+        }
+        else {
+            host_buffer<fptype> hstMomentaC(NPAR*MGONGPU_FOURVECTOR_DIM*m_nevt, m_q);
+            std::copy(momenta, momenta + NPAR*MGONGPU_FOURVECTOR_DIM*m_nevt, hstMomentaC.data());
+            m_q.memcpy(m_devMomentaC.data(), hstMomentaC.data(), NPAR*MGONGPU_FOURVECTOR_DIM*m_nevt*sizeof(fptype));
+        }
+    #endif
+
+    if constexpr (std::is_same_v<FORTRANFPTYPE, fptype>) {
+        m_q.memcpy(m_devGsC.data(), gs, m_nevt*sizeof(fptype));
+        m_q.memcpy(m_devRndHel.data(), rndhel, m_nevt*sizeof(fptype));
+        m_q.memcpy(m_devRndCol.data(), rndcol, m_nevt*sizeof(fptype)).wait();
     }
-    else
-    {
-      m_q.memcpy( m_devMomentaF.data(), momenta, np4*npar*m_nevt*sizeof(fptype) ).wait();
-      static constexpr int thrPerEvt = npar * np4; // AV: transpose alg does 1 element per thread (NOT 1 event per thread)
-
-      //const int thrPerEvt = 1; // AV: try new alg with 1 event per thread... this seems slower
-      m_q.submit([&](sycl::handler& cgh) {
-          auto devMomentaC = m_devMomentaC.data();
-          auto devMomentaF = m_devMomentaF.data();
-          auto nevt = m_nevt;
-          cgh.parallel_for_work_group(sycl::range<1>{m_gpublocks * thrPerEvt}, sycl::range<1>{m_gputhreads}, ([=](sycl::group<1> wGroup) {
-              wGroup.parallel_for_work_item([&](sycl::h_item<1> index) {
-                  size_t ievt = index.get_global_id(0);
-                  dev_transposeMomentaF2C( devMomentaC, devMomentaF, ievt, nevt );
-              });
-          }));
-      });
-      m_q.wait();
+    else {
+        host_buffer<fptype> hstGsC(m_nevt, m_q);
+        host_buffer<fptype> hst_rndhel(m_nevt, m_q);
+        host_buffer<fptype> hst_rndcol(m_nevt, m_q);
+        std::copy(gs, gs + m_nevt, hstGsC.data());
+        std::copy(rndhel, rndhel + m_nevt, hst_rndhel.data());
+        std::copy(rndcol, rndcol + m_nevt, hst_rndcol.data());
+        m_q.memcpy(m_devGsC.data(), hstGsC.data(), m_nevt*sizeof(fptype));
+        m_q.memcpy(m_devRndHel.data(), hst_rndhel.data(), m_nevt*sizeof(fptype));
+        m_q.memcpy(m_devRndCol.data(), hst_rndcol.data(), m_nevt*sizeof(fptype)).wait();
     }
-    //FIXME need std::copy if FORTRANFPTYPE is not the same as fptype
-    //std::copy( gs, gs + m_nevt, m_hstGsC );
-    //m_q.memcpy( m_devGsC.data(), m_hstGsC, m_nevt*sizeof(fptype) ).wait();
-    m_q.memcpy( m_devGsC.data(), gs, m_nevt*sizeof(fptype) ).wait();
-    if( !m_goodHelsCalculated )
-    {
-      m_q.submit([&](sycl::handler& cgh) {
-          auto devMomentaC = m_devMomentaC.data();
-          auto devGsC = m_devGsC.data();
-          auto devIsGoodHel = m_devIsGoodHel.data();
-          #ifndef MGONGPU_HARDCODE_PARAM
-          //Get pointer to independent couplings and parameters into shared memory if not hardcoded
-          auto m_dev_independent_couplings_ptr = m_dev_independent_couplings.data();
-          auto m_dev_parameters_ptr = m_dev_independent_parameters.data();
-          #endif
-          cgh.parallel_for_work_group(sycl::range<1>{m_gpublocks}, sycl::range<1>{m_gputhreads}, ([=](sycl::group<1> wGroup) {
-              #ifndef MGONGPU_HARDCODE_PARAM
-              //Load independent couplings and parameters into shared memory if not hardcoded
-              auto dev_independent_couplings = m_dev_independent_couplings_ptr;
-              auto dev_parameters = m_dev_parameters_ptr;
-              #endif
-              wGroup.parallel_for_work_item([&](sycl::h_item<1> index) {
-                  size_t ievt = index.get_global_id(0);
-                  const int ipagM = ievt/neppM; // #eventpage in this iteration
-                  const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
 
-                  #ifdef MGONGPU_HARDCODE_PARAM
-                  //Load parameters into local (private) memory if hardcoded
-                  auto dev_parameters = Proc::independent_parameters<fptype>;
-                  #endif
-                  //Load helicities into local (private) memory
-                  auto dev_helicities = Proc::helicities<short>;
-                  cxtype dev_couplings[Proc::dependentCouplings::ndcoup + Proc::independentCouplings::nicoup];
+    if (!m_goodHelsCalculated) {
+        m_q.submit([&](sycl::handler& cgh) {
+            auto devMomentaC = m_devMomentaC.data();
+            auto devGsC = m_devGsC.data();
+            auto devIsGoodHel = m_devIsGoodHel.data();
+            #ifndef MGONGPU_HARDCODE_PARAM
+                //Get pointer to independent couplings and parameters into shared memory if not hardcoded
+                auto m_dev_independent_couplings_ptr = m_dev_independent_couplings.data();
+                auto m_dev_parameters_ptr = m_dev_independent_parameters.data();
+            #endif
+            cgh.parallel_for_work_group(sycl::range<1>{m_gpublocks}, sycl::range<1>{m_gputhreads}, ([=](sycl::group<1> wGroup) {
+                #ifndef MGONGPU_HARDCODE_PARAM
+                    //Load independent couplings and parameters into shared memory if not hardcoded
+                    auto dev_independent_couplings = m_dev_independent_couplings_ptr;
+                    auto dev_parameters = m_dev_parameters_ptr;
+                #endif
+                wGroup.parallel_for_work_item([&](sycl::h_item<1> index) {
+                    size_t ievt = index.get_global_id(0);
 
-                  #if MGONGPU_NDCOUP > 0
-                      Proc::dependentCouplings::set_couplings_from_G(dev_couplings, devGsC[ievt]); 
-                  #endif
+                    #ifdef MGONGPU_HARDCODE_PARAM
+                        //Load parameters into local (private) memory if hardcoded
+                        auto dev_parameters = Proc::independent_parameters<fptype>;
+                    #endif
 
-                  #if MGONGPU_NICOUP > 0
-                      #ifdef MGONGPU_HARDCODE_PARAM
-                      //Load independent couplings into local (private) memory if hardcoded
-                      auto dev_independent_couplings = Proc::independentCouplings::independent_couplings<cxtype, fptype>;
-                      #endif
-                      for (size_t i = 0; i < Proc::independentCouplings::nicoup; i++) {
-                          dev_couplings[Proc::dependentCouplings::ndcoup + i] = dev_independent_couplings[i];
-                      }
-                  #endif
+                    //Load helicities into local (private) memory
+                    auto dev_helicities = Proc::helicities<signed char>;
+                    cxtype_sv dev_couplings[Proc::dependentCouplings::ndcoup + Proc::independentCouplings::nicoup];
 
-                  Proc::sigmaKin_getGoodHel( devMomentaC + ipagM * npar * np4 * neppM + ieppM, devIsGoodHel, dev_helicities, dev_couplings, dev_parameters );
-              });
-          }));
-      });
-      m_q.wait();
+                    #if MGONGPU_NDCOUP > 0
+                        Proc::dependentCouplings::set_couplings_from_G(dev_couplings, devGsC[ievt]); 
+                    #endif
 
-      m_q.memcpy(m_hstIsGoodHel.data(), m_devIsGoodHel.data(), ncomb*sizeof(bool)).wait();
+                    #if MGONGPU_NICOUP > 0
+                        #ifdef MGONGPU_HARDCODE_PARAM
+                        //Load independent couplings into local (private) memory if hardcoded
+                        auto dev_independent_couplings = Proc::independentCouplings::independent_couplings<cxtype, fptype>;
+                        #endif
+                        for (size_t i = 0; i < Proc::independentCouplings::nicoup; i++) {
+                            dev_couplings[Proc::dependentCouplings::ndcoup + i] = dev_independent_couplings[i];
+                        }
+                    #endif
 
-      int goodHel[mgOnGpu::ncomb] = {0};
-      int nGoodHel = Proc::sigmaKin_setGoodHel( m_hstIsGoodHel.data(), goodHel );
+                    Proc::sigmaKin_getGoodHel( devMomentaC + npar*ievt, devIsGoodHel, dev_helicities, dev_couplings, dev_parameters );
+                });
+            }));
+        });
+        m_q.wait();
 
-      m_q.memcpy( m_devcNGoodHel.data(), &nGoodHel, sizeof(int) ).wait();
-      m_q.memcpy( m_devcGoodHel.data(), goodHel, ncomb*sizeof(int) ).wait();
-      m_goodHelsCalculated = true;
+        m_q.memcpy(m_hstIsGoodHel.data(), m_devIsGoodHel.data(), ncomb*sizeof(bool)).wait();
+
+        size_t goodHel[mgOnGpu::ncomb] = {0};
+        size_t nGoodHel = Proc::sigmaKin_setGoodHel( m_hstIsGoodHel.data(), goodHel );
+        m_nGoodHel = int(nGoodHel);
+
+        m_q.memcpy( m_devcNGoodHel.data(), &nGoodHel, sizeof(size_t) ).wait();
+        m_q.memcpy( m_devcGoodHel.data(), goodHel, ncomb*sizeof(size_t) ).wait();
+        m_goodHelsCalculated = true;
     }
     if( goodHelOnly ) return;
 
     m_q.submit([&](sycl::handler& cgh) {
         auto devMomentaC = m_devMomentaC.data();
         auto devGsC = m_devGsC.data();
+        auto devRndHel = m_devRndHel.data();
+        auto devRndCol = m_devRndCol.data();
         auto devcNGoodHel = m_devcNGoodHel.data();
         auto devcGoodHel = m_devcGoodHel.data();
         auto devMEsC = m_devMEsC.data();
+        auto devSelHel = m_devSelHel.data();
+        auto devSelCol = m_devSelCol.data();
         #ifndef MGONGPU_HARDCODE_PARAM
-        //Get pointer to independent couplings and parameters into shared memory if not hardcoded
-        auto m_dev_independent_couplings_ptr = m_dev_independent_couplings.data();
-        auto m_dev_parameters_ptr = m_dev_independent_parameters.data();
+            //Get pointer to independent couplings and parameters into shared memory if not hardcoded
+            auto m_dev_independent_couplings_ptr = m_dev_independent_couplings.data();
+            auto m_dev_parameters_ptr = m_dev_independent_parameters.data();
         #endif
         cgh.parallel_for_work_group(sycl::range<1>{m_gpublocks}, sycl::range<1>{m_gputhreads}, ([=](sycl::group<1> wGroup) {
             #ifndef MGONGPU_HARDCODE_PARAM
-            //Load independent couplings and parameters into shared memory if not hardcoded
-            auto dev_independent_couplings = m_dev_independent_couplings_ptr;
-            auto dev_parameters = m_dev_parameters_ptr;
+                //Load independent couplings and parameters into shared memory if not hardcoded
+                auto dev_independent_couplings = m_dev_independent_couplings_ptr;
+                auto dev_parameters = m_dev_parameters_ptr;
             #endif
             auto l_channelId = channelId;
             wGroup.parallel_for_work_item([&](sycl::h_item<1> index) {
                 size_t ievt = index.get_global_id(0);
-                const int ipagM = ievt/neppM;
-                const int ieppM = ievt%neppM;
 
-                  #ifdef MGONGPU_HARDCODE_PARAM
-                  //Load parameters into local (private) memory if hardcoded
-                  auto dev_parameters = Proc::independent_parameters<fptype>;
-                  #endif
-                  //Load helicities and couplings into local (private) memory
-                  auto dev_helicities = Proc::helicities<short>;
-                  cxtype dev_couplings[Proc::dependentCouplings::ndcoup + Proc::independentCouplings::nicoup];
+                #ifdef MGONGPU_HARDCODE_PARAM
+                    //Load parameters into local (private) memory if hardcoded
+                    auto dev_parameters = Proc::independent_parameters<fptype>;
+                #endif
 
-                  #if MGONGPU_NDCOUP > 0
-                      Proc::dependentCouplings::set_couplings_from_G(dev_couplings, devGsC[ievt]); 
-                  #endif
+                //Load helicities and couplings into local (private) memory
+                auto dev_helicities = Proc::helicities<signed char>;
+                cxtype_sv dev_couplings[Proc::dependentCouplings::ndcoup + Proc::independentCouplings::nicoup];
 
-                  #if MGONGPU_NICOUP > 0
-                      #ifdef MGONGPU_HARDCODE_PARAM
-                      //Load independent couplings into local (private) memory if hardcoded
-                      auto dev_independent_couplings = Proc::independentCouplings::independent_couplings<cxtype, fptype>;
-                      #endif
-                      for (size_t i = 0; i < Proc::independentCouplings::nicoup; i++) {
-                          dev_couplings[Proc::dependentCouplings::ndcoup + i] = dev_independent_couplings[i];
-                      }
-                  #endif
+                #if MGONGPU_NDCOUP > 0
+                    Proc::dependentCouplings::set_couplings_from_G(dev_couplings, devGsC[ievt]); 
+                #endif
+
+                #if MGONGPU_NICOUP > 0
+                    #ifdef MGONGPU_HARDCODE_PARAM
+                        //Load independent couplings into local (private) memory if hardcoded
+                        auto dev_independent_couplings = Proc::independentCouplings::independent_couplings<cxtype, fptype>;
+                    #endif
+                    for (size_t i = 0; i < Proc::independentCouplings::nicoup; i++) {
+                        dev_couplings[Proc::dependentCouplings::ndcoup + i] = dev_independent_couplings[i];
+                    }
+                #endif
 
                 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                    devMEsC[ievt] = Proc::sigmaKin( devMomentaC + ipagM * npar * np4 * neppM + ieppM, l_channelId, dev_helicities, dev_couplings, dev_parameters, devcNGoodHel, devcGoodHel );
+                    devMEsC[ievt] = Proc::sigmaKin( devMomentaC + npar*ievt, devRndHel + ievt, devRndCol + ievt, devSelHel + ievt, devSelCol + ievt, l_channelId, dev_helicities, dev_couplings, dev_parameters, devcNGoodHel, devcGoodHel );
                 #else
-                    devMEsC[ievt] = Proc::sigmaKin( devMomentaC + ipagM * npar * np4 * neppM + ieppM, dev_helicities, dev_couplings, dev_parameters, devcNGoodHel, devcGoodHel );
+                    devMEsC[ievt] = Proc::sigmaKin( devMomentaC + npar*ievt, devRndHel + ievt, devRndCol + ievt, devSelHel + ievt, devSelCol + ievt, dev_helicities, dev_couplings, dev_parameters, devcNGoodHel, devcGoodHel );
                 #endif
             });
         }));
     });
     m_q.wait();
 
-    if constexpr( std::is_same_v<FORTRANFPTYPE, fptype> )
-    {
-      m_q.memcpy( mes, m_devMEsC.data(), m_nevt*sizeof(fptype) ).wait();
-      //flagAbnormalMEs( mes, m_nevt );
+    m_q.memcpy(m_hstSelHel.data(), m_devSelHel.data(), m_nevt*sizeof(long));
+    m_q.memcpy(m_hstSelCol.data(), m_devSelCol.data(), m_nevt*sizeof(long));
+    if constexpr(std::is_same_v<FORTRANFPTYPE, fptype>) {
+        m_q.memcpy(mes, m_devMEsC.data(), m_nevt*sizeof(fptype)).wait();
     }
-    else
-    {
-      m_q.memcpy( m_hstMEsC.data(), m_devMEsC.data(), m_nevt*sizeof(fptype) ).wait();
-      //flagAbnormalMEs( m_hstMEsC, m_nevt );
-      std::copy( m_hstMEsC.data(), m_hstMEsC.data() + m_nevt, mes );
+    else {
+        m_q.memcpy( m_hstMEsC.data(), m_devMEsC.data(), m_nevt*sizeof(fptype)).wait();
+        std::copy( m_hstMEsC.data(), m_hstMEsC.data() + m_nevt, mes);
     }
+    std::copy( m_hstSelHel.data(), m_hstSelHel.data() + m_nevt, selhel);
+    std::copy( m_hstSelCol.data(), m_hstSelCol.data() + m_nevt, selcol);
 
   }
 
-  //--------------------------------------------------------------------------
-  //
-  // Implementations of transposition methods
-  // - FORTRAN arrays: P_MULTI(0:3, NEXTERNAL, NB_PAGE_LOOP) ==> p_multi[nevtF][nparF][np4F] in C++ (AOS)
-  // - C++ array: momenta[npagM][npar][np4][neppM] with nevt=npagM*neppM (AOSOA)
-  //
-
-  template<typename Tin, typename Tout>
-  void dev_transposeMomentaF2C( Tout* __restrict__ out, const Tin* __restrict__ in, size_t pos, const unsigned int nevt )
-  {
-    constexpr bool oldImplementation = true; // default: use old implementation
-    if constexpr( oldImplementation )
-    {
-      // SR initial implementation
-      constexpr int part = mgOnGpu::npar;
-      constexpr int mome = mgOnGpu::np4;
-      constexpr int strd = mgOnGpu::neppM;
-      unsigned int arrlen = nevt * part * mome;
-      if( pos < arrlen )
-      {
-        int page_i = pos / ( strd * mome * part );
-        int rest_1 = pos % ( strd * mome * part );
-        int part_i = rest_1 / ( strd * mome );
-        int rest_2 = rest_1 % ( strd * mome );
-        int mome_i = rest_2 / strd;
-        int strd_i = rest_2 % strd;
-        int inpos =
-          ( page_i * strd + strd_i ) // event number
-            * ( part * mome )        // event size (pos of event)
-          + part_i * mome            // particle inside event
-          + mome_i;                  // momentum inside particle
-        out[pos] = in[inpos];        // F2C (Fortran to C)
-      }
-    }
-    else
-    {
-      // AV attempt another implementation with 1 event per thread: this seems slower...
-      // F-style: AOS[nevtF][nparF][np4F]
-      // C-style: AOSOA[npagM][npar][np4][neppM] with nevt=npagM*neppM
-      constexpr int npar = mgOnGpu::npar;
-      constexpr int np4 = mgOnGpu::np4;
-      constexpr int neppM = mgOnGpu::neppM;
-      assert( nevt % neppM == 0 ); // number of events is not a multiple of neppM???
-      size_t ievt = pos;
-      int ipagM = ievt / neppM;
-      int ieppM = ievt % neppM;
-      for( int ip4 = 0; ip4 < np4; ip4++ )
-        for( int ipar = 0; ipar < npar; ipar++ )
-        {
-          int cpos = ipagM * npar * np4 * neppM + ipar * np4 * neppM + ip4 * neppM + ieppM;
-          int fpos = ievt * npar * np4 + ipar * np4 + ip4;
-          out[cpos] = in[fpos]; // F2C (Fortran to C)
-        }
-    }
-  }
-
-  template<typename Tin, typename Tout, bool F2C>
-  void hst_transposeMomenta( const Tin* __restrict__ in, Tout* __restrict__ out, const unsigned int nevt )
-  {
-    constexpr bool oldImplementation = false; // default: use new implementation
-    if constexpr( oldImplementation )
-    {
-      // SR initial implementation
-      constexpr unsigned int part = mgOnGpu::npar;
-      constexpr unsigned int mome = mgOnGpu::np4;
-      constexpr unsigned int strd = mgOnGpu::neppM;
-      unsigned int arrlen = nevt * part * mome;
-      for( unsigned int pos = 0; pos < arrlen; ++pos )
-      {
-        unsigned int page_i = pos / ( strd * mome * part );
-        unsigned int rest_1 = pos % ( strd * mome * part );
-        unsigned int part_i = rest_1 / ( strd * mome );
-        unsigned int rest_2 = rest_1 % ( strd * mome );
-        unsigned int mome_i = rest_2 / strd;
-        unsigned int strd_i = rest_2 % strd;
-        unsigned int inpos =
-          ( page_i * strd + strd_i ) // event number
-            * ( part * mome )        // event size (pos of event)
-          + part_i * mome            // particle inside event
-          + mome_i;                  // momentum inside particle
-        if constexpr( F2C )          // needs c++17
-          out[pos] = in[inpos];      // F2C (Fortran to C)
-        else
-          out[inpos] = in[pos]; // C2F (C to Fortran)
-      }
-    }
-    else
-    {
-      // AV attempt another implementation: this is slightly faster (better c++ pipelining?)
-      // [NB! this is not a transposition, it is an AOS to AOSOA conversion: if neppM=1, a memcpy is enough]
-      // F-style: AOS[nevtF][nparF][np4F]
-      // C-style: AOSOA[npagM][npar][np4][neppM] with nevt=npagM*neppM
-      constexpr unsigned int npar = mgOnGpu::npar;
-      constexpr unsigned int np4 = mgOnGpu::np4;
-      constexpr unsigned int neppM = mgOnGpu::neppM;
-      if constexpr( neppM == 1 && std::is_same_v<Tin, Tout> )
-      {
-        memcpy( out, in, nevt * npar * np4 * sizeof( Tin ) );
-      }
-      else
-      {
-        const unsigned int npagM = nevt / neppM;
-        assert( nevt % neppM == 0 ); // number of events is not a multiple of neppM???
-        for( unsigned int ipagM = 0; ipagM < npagM; ipagM++ )
-          for( unsigned int ip4 = 0; ip4 < np4; ip4++ )
-            for( unsigned int ipar = 0; ipar < npar; ipar++ )
-              for( unsigned int ieppM = 0; ieppM < neppM; ieppM++ )
-              {
-                unsigned int ievt = ipagM * neppM + ieppM;
-                unsigned int cpos = ipagM * npar * np4 * neppM + ipar * np4 * neppM + ip4 * neppM + ieppM;
-                unsigned int fpos = ievt * npar * np4 + ipar * np4 + ip4;
-                if constexpr( F2C )
-                  out[cpos] = in[fpos]; // F2C (Fortran to C)
-                else
-                  out[fpos] = in[cpos]; // C2F (C to Fortran)
+  template<typename FPTypeDst, typename FPTypeSrc>
+  void hst_transposeMomenta(FPTypeDst* __restrict__ dst, const FPTypeSrc* __restrict__ src, const size_t N ) {
+  /* Transpose from [ evt0par0wxyz, evt0par1wxyz, ... , evt0parNPARwxyz, evt1par0wxyz, ... ] to
+     [ evt0par0w, evt1par0w, ... , evt(MGONGPU_VEC_DIM - 1)par0w,
+       evt0par0x, evt1par0x, ... , evt(MGONGPU_VEC_DIM - 1)par0x,
+       evt0par0y, evt1par0y, ... , evt(MGONGPU_VEC_DIM - 1)par0y,
+       evt0par0z, evt1par0z, ... , evt(MGONGPU_VEC_DIM - 1)par0z,
+       evt0par1w, evt1par1w, ... , evt(MGONGPU_VEC_DIM - 1)par1w,
+       ... ,
+       evt0parNPARz, evt1parNPARz, ... , evtMGONGPU_VEC_DIMparNPARz,
+       evt(MGONGPU_VEC_DIM)par0w, evt(MGONGPU_VEC_DIM + 1)par0w, ... , evt(2*MGONGPU_VEC_DIM - 1)par0w,
+       ... ,
+       evt(N - MGONGPU_VEC_DIM)parNPARz, evt(N - MGONGPU_VEC_DIM + 1)parNPARz, ... , evtNparNPARz
+     ]
+  */
+      for ( size_t h = 0; h < N/MGONGPU_VEC_DIM; h++ ) {
+          for ( size_t i = 0; i < MGONGPU_VEC_DIM; i++ ) {
+              size_t idx_evt = h*MGONGPU_VEC_DIM + i;
+              for ( size_t j = 0; j < NPAR; j++ ) { // size_t idx_par = j
+                  for ( size_t k = 0; k < MGONGPU_FOURVECTOR_DIM; k++ ) { // size_t idx_wxyz = k
+                      size_t idx_src = NPAR*MGONGPU_FOURVECTOR_DIM*idx_evt + MGONGPU_FOURVECTOR_DIM*j + k;
+                      size_t idx_dst = NPAR*MGONGPU_FOURVECTOR_DIM*MGONGPU_VEC_DIM*h + MGONGPU_FOURVECTOR_DIM*MGONGPU_VEC_DIM*j + MGONGPU_VEC_DIM*k + i;
+                      dst[idx_dst] = src[idx_src];
+                  }
               }
+          }
       }
-    }
-  }
-
-  template<typename Tin, typename Tout>
-  void hst_transposeMomentaF2C( const Tin* __restrict__ in, Tout* __restrict__ out, const unsigned int nevt )
-  {
-    constexpr bool F2C = true;
-    hst_transposeMomenta<Tin, Tout, F2C>( in, out, nevt );
-  }
-
-  template<typename Tin, typename Tout>
-  void hst_transposeMomentaC2F( const Tin* __restrict__ in, Tout* __restrict__ out, const unsigned int nevt )
-  {
-    constexpr bool F2C = false;
-    hst_transposeMomenta<Tin, Tout, F2C>( in, out, nevt );
   }
 
   //--------------------------------------------------------------------------

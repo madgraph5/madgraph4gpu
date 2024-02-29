@@ -1,1 +1,1 @@
-../SubProcesses/P1_ll_ll/maxamps.inc
+../SubProcesses/P1_epem_mupmum/maxamps.inc

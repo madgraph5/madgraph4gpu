@@ -1,0 +1,6 @@
+set stdout_level DEBUG
+set zerowidth_tchannel F
+set auto_convert_model T
+import model heft
+generate g g > h
+output standalone_cudacpp heft_gg_h.sa

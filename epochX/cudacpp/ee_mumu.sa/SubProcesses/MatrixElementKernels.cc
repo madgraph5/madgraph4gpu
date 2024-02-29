@@ -1,7 +1,12 @@
+// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Created by: A. Valassi (Jan 2022) for the MG5aMC CUDACPP plugin.
+// Further modified by: J. Teig, A. Valassi (2022-2023) for the MG5aMC CUDACPP plugin.
+
 #include "MatrixElementKernels.h"
 
 #include "CPPProcess.h"
-#include "CudaRuntime.h"
+#include "GpuRuntime.h" // Includes the abstraction for Nvidia/AMD compilation
 #include "MemoryAccessMomenta.h"
 #include "MemoryBuffers.h"
 
@@ -9,7 +14,7 @@
 
 //============================================================================
 
-#ifndef __CUDACC__
+#ifndef MGONGPUCPP_GPUIMPL
 namespace mg5amcCpu
 {
 
@@ -55,7 +60,7 @@ namespace mg5amcCpu
 
   int MatrixElementKernelHost::computeGoodHelicities()
   {
-    using mgOnGpu::ncomb; // the number of helicity combinations
+    constexpr int ncomb = CPPProcess::ncomb; // the number of helicity combinations
     HostBufferHelicityMask hstIsGoodHel( ncomb );
     // ... 0d1. Compute good helicity mask on the host
     computeDependentCouplings( m_gs.data(), m_couplings.data(), m_gs.size() );
@@ -107,10 +112,17 @@ namespace mg5amcCpu
     // See https://community.arm.com/arm-community-blogs/b/operating-systems-blog/posts/runtime-detection-of-cpu-features-on-an-armv8-a-cpu
     bool ok = true; // this is just an assumption!
     const std::string tag = "arm neon (128bit as in SSE4.2)";
-#else
+#elif defined( __x86_64__ ) || defined( __i386__ )
     bool known = true;
     bool ok = __builtin_cpu_supports( "sse4.2" );
     const std::string tag = "nehalem (SSE4.2)";
+#else // AV FIXME! Added by OM for Mac, should identify the correct __xxx__ flag that should be targeted
+    bool known = false; // __builtin_cpu_supports is not supported
+    // See https://gcc.gnu.org/onlinedocs/gcc/Basic-PowerPC-Built-in-Functions-Available-on-all-Configurations.html
+    // See https://stackoverflow.com/q/62783908
+    // See https://community.arm.com/arm-community-blogs/b/operating-systems-blog/posts/runtime-detection-of-cpu-features-on-an-armv8-a-cpu
+    bool ok = true; // this is just an assumption!
+    const std::string tag = "arm neon (128bit as in SSE4.2)";
 #endif
 #else
     bool known = true;
@@ -138,7 +150,7 @@ namespace mg5amcCpu
 
 //============================================================================
 
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 {
 
@@ -193,17 +205,17 @@ namespace mg5amcGpu
 
   int MatrixElementKernelDevice::computeGoodHelicities()
   {
-    using mgOnGpu::ncomb; // the number of helicity combinations
+    constexpr int ncomb = CPPProcess::ncomb; // the number of helicity combinations
     PinnedHostBufferHelicityMask hstIsGoodHel( ncomb );
     DeviceBufferHelicityMask devIsGoodHel( ncomb );
     // ... 0d1. Compute good helicity mask on the device
-    computeDependentCouplings<<<m_gpublocks, m_gputhreads>>>( m_gs.data(), m_couplings.data() );
+    gpuLaunchKernel( computeDependentCouplings, m_gpublocks, m_gputhreads, m_gs.data(), m_couplings.data() );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    sigmaKin_getGoodHel<<<m_gpublocks, m_gputhreads>>>( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), m_numerators.data(), m_denominators.data(), devIsGoodHel.data() );
+    gpuLaunchKernel( sigmaKin_getGoodHel, m_gpublocks, m_gputhreads, m_momenta.data(), m_couplings.data(), m_matrixElements.data(), m_numerators.data(), m_denominators.data(), devIsGoodHel.data() );
 #else
-    sigmaKin_getGoodHel<<<m_gpublocks, m_gputhreads>>>( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), devIsGoodHel.data() );
+    gpuLaunchKernel( sigmaKin_getGoodHel, m_gpublocks, m_gputhreads, m_momenta.data(), m_couplings.data(), m_matrixElements.data(), devIsGoodHel.data() );
 #endif
-    checkCuda( cudaPeekAtLastError() );
+    checkGpu( gpuPeekAtLastError() );
     // ... 0d2. Copy back good helicity mask to the host
     copyHostFromDevice( hstIsGoodHel, devIsGoodHel );
     // ... 0d3. Copy back good helicity list to constant memory on the device
@@ -214,19 +226,19 @@ namespace mg5amcGpu
 
   void MatrixElementKernelDevice::computeMatrixElements( const unsigned int channelId )
   {
-    computeDependentCouplings<<<m_gpublocks, m_gputhreads>>>( m_gs.data(), m_couplings.data() );
+    gpuLaunchKernel( computeDependentCouplings, m_gpublocks, m_gputhreads, m_gs.data(), m_couplings.data() );
 #ifndef MGONGPU_NSIGHT_DEBUG
     constexpr unsigned int sharedMemSize = 0;
 #else
     constexpr unsigned int sharedMemSize = ntpbMAX * sizeof( float );
 #endif
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    sigmaKin<<<m_gpublocks, m_gputhreads, sharedMemSize>>>( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), channelId, m_numerators.data(), m_denominators.data(), m_selhel.data(), m_selcol.data() );
+    gpuLaunchKernelSharedMem( sigmaKin, m_gpublocks, m_gputhreads, sharedMemSize, m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), channelId, m_numerators.data(), m_denominators.data(), m_selhel.data(), m_selcol.data() );
 #else
-    sigmaKin<<<m_gpublocks, m_gputhreads, sharedMemSize>>>( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), m_selhel.data(), m_selcol.data() );
+    gpuLaunchKernelSharedMem( sigmaKin, m_gpublocks, m_gputhreads, sharedMemSize, m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), m_selhel.data(), m_selcol.data() );
 #endif
-    checkCuda( cudaPeekAtLastError() );
-    checkCuda( cudaDeviceSynchronize() );
+    checkGpu( gpuPeekAtLastError() );
+    checkGpu( gpuDeviceSynchronize() );
   }
 
   //--------------------------------------------------------------------------

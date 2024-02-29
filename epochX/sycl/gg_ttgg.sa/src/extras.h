@@ -76,6 +76,44 @@ public:
     template<typename CXType>
     SYCL_EXTERNAL complex<FPType>& operator/=(const complex<CXType>&);
 
+    /// Add scalar to real
+    SYCL_EXTERNAL void add_real(const FPType& __t) { r_ += __t; }
+
+    /// Subtract scalar to real
+    SYCL_EXTERNAL void subtract_real(const FPType& __t) { r_ -= __t; }
+
+    /// Multiply scalar to real
+    SYCL_EXTERNAL void multiply_real(const FPType& __t) { r_ *= __t; }
+
+    /// Divide scalar to real
+    SYCL_EXTERNAL void divide_real(const FPType& __t) { r_ /= __t; }
+
+    /// Add scalar to imag
+    SYCL_EXTERNAL void add_imag(const FPType& __t) { i_ += __t; }
+
+    /// Subtract scalar to imag
+    SYCL_EXTERNAL void subtract_imag(const FPType& __t) { i_ -= __t; }
+
+    /// Multiply scalar to imag
+    SYCL_EXTERNAL void multiply_imag(const FPType& __t) { i_ *= __t; }
+
+    /// Divide scalar to imag
+    SYCL_EXTERNAL void divide_imag(const FPType& __t) { i_ /= __t; }
+
+    /// Add complex times i
+    template<typename CXType>
+    SYCL_EXTERNAL void add_cx_times_i(const complex<CXType>& __z) {
+        r_ -= __z.imag();
+        i_ += __z.real();
+    }
+
+    /// Subtract complex times i
+    template<typename CXType>
+    SYCL_EXTERNAL void subtract_cx_times_i(const complex<CXType>& __z) {
+        r_ += __z.imag();
+        i_ -= __z.real();
+    }
+
 private:
     FPType r_;
     FPType i_;

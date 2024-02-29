@@ -10,7 +10,7 @@ import importlib.util
 SPEC_EXPORTCPP = importlib.util.find_spec('madgraph.iolibs.export_cpp')
 PLUGIN_export_cpp = importlib.util.module_from_spec(SPEC_EXPORTCPP)
 SPEC_EXPORTCPP.loader.exec_module(PLUGIN_export_cpp)
-sys.modules['PLUGIN.CUDACPP_SA_OUTPUT.PLUGIN_export_cpp'] = PLUGIN_export_cpp # allow 'import PLUGIN.CUDACPP_SA_OUTPUT.PLUGIN_export_cpp' in model_handling.py
+sys.modules['PLUGIN.SYCL_SA_OUTPUT.PLUGIN_export_cpp'] = PLUGIN_export_cpp # allow 'import PLUGIN.SYCL_SA_OUTPUT.PLUGIN_export_cpp' in model_handling.py
 del SPEC_EXPORTCPP
 
 # AV - use template files from PLUGINDIR instead of MG5DIR

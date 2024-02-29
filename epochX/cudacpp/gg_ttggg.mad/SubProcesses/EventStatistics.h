@@ -1,7 +1,14 @@
+// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Created by: A. Valassi (Jan 2022) for the MG5aMC CUDACPP plugin.
+// Further modified by: J. Teig, A. Valassi (2022-2023) for the MG5aMC CUDACPP plugin.
+
 #ifndef EventStatistics_H
 #define EventStatistics_H 1
 
-#include "mgOnGpuConfig.h" // for npar (meGeVexponent)
+#include "mgOnGpuConfig.h"
+
+#include "CPPProcess.h" // for npar (meGeVexponent)
 
 #include <algorithm>
 #include <cmath>
@@ -9,7 +16,7 @@
 #include <limits>
 #include <string>
 
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
@@ -127,7 +134,7 @@ namespace mg5amcCpu
     void printout( std::ostream& out ) const
     {
       const EventStatistics& s = *this;
-      constexpr int meGeVexponent = -( 2 * mgOnGpu::npar - 8 );
+      constexpr int meGeVexponent = -( 2 * CPPProcess::npar - 8 );
       out << s.tag << "NumMatrixElems(notAbnormal) = " << s.nevtOK() << std::endl
           << std::scientific // fixed format: affects all floats (default precision: 6)
           << s.tag << "MeanMatrixElemValue         = ( " << s.meanME()

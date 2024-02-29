@@ -1,3 +1,8 @@
+// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Created by: A. Valassi (Dec 2021) for the MG5aMC CUDACPP plugin.
+// Further modified by: J. Teig, A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
+
 #ifndef RAMBOSAMPLINGKERNELS_H
 #define RAMBOSAMPLINGKERNELS_H 1
 
@@ -5,7 +10,7 @@
 
 #include "MemoryBuffers.h"
 
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
@@ -88,7 +93,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
   // A class encapsulating RAMBO phase space sampling on a GPU device
   class RamboSamplingKernelDevice final : public SamplingKernelBase, public NumberOfEvents
   {

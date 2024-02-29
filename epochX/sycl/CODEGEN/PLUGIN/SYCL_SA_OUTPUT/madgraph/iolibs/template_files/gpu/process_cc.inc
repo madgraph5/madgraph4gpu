@@ -13,6 +13,11 @@
 #include "mgOnGpuVectors.h"
 
 #include "CPPProcess.h"
+
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+    #include "coloramps.h"
+#endif
+
 %(hel_amps_h)s
 
 %(process_function_definitions)s

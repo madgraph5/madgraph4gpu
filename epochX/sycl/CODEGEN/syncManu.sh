@@ -5,10 +5,11 @@ ggtt=0
 ggttg=0
 ggttgg=0
 ggttggg=0
+heftggh=0
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu] [-ggtt] [-ggttg] [-ggttgg] [-ggttggg]>"
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-heftggh]>"
   exit 1
 }
 
@@ -28,6 +29,9 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-ggttggg" ]; then
     ggttggg=1
     shift
+  elif [ "$1" == "-heftggh" ]; then
+    heftggh=1
+    shift
   else
     usage
   fi
@@ -40,9 +44,10 @@ if [ "${ggttg}" == "1" ]; then processes="gg_ttg $processes"; fi
 if [ "${ggttgg}" == "1" ]; then processes="gg_ttgg $processes"; fi
 if [ "${ggttggg}" == "1" ]; then processes="gg_ttggg $processes"; fi
 if [ "${eemumu}" == "1" ]; then processes="ee_mumu $processes"; fi
+if [ "${heftggh}" == "1" ]; then processes="heft_gg_h $processes"; fi
 
 # Optional hack to hardcode additional processes
-###processes="heft_gg_h $processes"
+###processes="uu_dd $processes"
 
 # Check that at least one process has been selected
 if [ "${processes}" == "" ]; then usage; fi

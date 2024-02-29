@@ -1,4 +1,7 @@
 #!/bin/bash
+# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Licensed under the GNU Lesser General Public License (version 3 or later).
+# Created by: A. Valassi (Jul 2022) for the MG5aMC CUDACPP plugin.
 
 if [ "$1" == "" ] || [ "$2" != "" ]; then
   echo "Usage: $0 <logfile.txt>"
