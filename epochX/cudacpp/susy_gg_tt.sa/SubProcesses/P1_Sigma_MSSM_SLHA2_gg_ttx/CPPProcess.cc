@@ -79,16 +79,27 @@ namespace mg5amcCpu
 #ifdef MGONGPU_HARDCODE_PARAM
   __device__ const fptype cIPD[2] = { (fptype)Parameters_MSSM_SLHA2::mdl_MT, (fptype)Parameters_MSSM_SLHA2::mdl_WT };
   __device__ const fptype* cIPC = nullptr; // unused as nicoup=0
-  __device__ const double* bsmIndepParam = Parameters_MSSM_SLHA2::mdl_bsmIndepParam;
 #else
 #ifdef MGONGPUCPP_GPUIMPL
   __device__ __constant__ fptype cIPD[2];
   __device__ __constant__ fptype* cIPC = nullptr; // unused as nicoup=0
-  __device__ __constant__ double bsmIndepParam[Parameters_MSSM_SLHA2::nBsmIndepParam];
 #else
   static fptype cIPD[2];
   static fptype* cIPC = nullptr; // unused as nicoup=0
+#endif
+#endif
+
+  // AV Jan 2024 (PR #625): this ugly #define was the only way I found to avoid creating arrays[nBsm] in CPPProcess.cc if nBsm is 0
+  // The problem is that nBsm is determined when generating Parameters.h, which happens after CPPProcess.cc has already been generated
+#ifdef MGONGPUCPP_NBSMINDEPPARAM_GT_0
+#ifdef MGONGPU_HARDCODE_PARAM
+  __device__ const double* bsmIndepParam = Parameters_MSSM_SLHA2::mdl_bsmIndepParam;
+#else
+#ifdef MGONGPUCPP_GPUIMPL
+  __device__ __constant__ double bsmIndepParam[Parameters_MSSM_SLHA2::nBsmIndepParam];
+#else
   static double bsmIndepParam[Parameters_MSSM_SLHA2::nBsmIndepParam];
+#endif
 #endif
 #endif
 

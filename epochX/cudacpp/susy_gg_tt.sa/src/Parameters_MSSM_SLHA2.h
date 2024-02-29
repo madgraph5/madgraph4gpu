@@ -24,6 +24,10 @@
 
 //==========================================================================
 
+// AV Jan 2024 (PR #625): this ugly #define was the only way I found to avoid creating arrays[nBsm] in CPPProcess.cc if nBsm is 0
+// The problem is that nBsm is determined when generating Parameters.h, which happens after CPPProcess.cc has already been generated
+#define MGONGPUCPP_NBSMINDEPPARAM_GT_0 1
+
 #ifndef MGONGPU_HARDCODE_PARAM
 //#warning Support for non-SM physics processes (e.g. SUSY or EFT) is still limited for HRDCOD=0 builds (#439 and PR #625)
 
