@@ -721,9 +721,13 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             res = '// (none)\n'
             return res
         pardef = pardef.replace('std::complex<','cxsmpl<') # custom simplex complex class (with constexpr arithmetics)
-        parset = parset.replace('std::complex<','cxsmpl<') # custom simplex complex class (with constexpr arithmetics)
+        parset = parset.replace('std::complex<','cxsmpl<') # NB this is really needed twice! (if there are two std::complex on the same line)
         parset = parset.replace('sqrt(','constexpr_sqrt(') # constexpr sqrt (based on iterative Newton-Raphson approximation)
-        parset = parset.replace('pow(','constexpr_pow(') # constexpr sqrt (based on iterative Newton-Raphson approximation)
+        parset = parset.replace('pow(','constexpr_pow(') # constexpr pow
+        parset = parset.replace('atan(','constexpr_atan(') # constexpr atan for BSM #627
+        parset = parset.replace('sin(','constexpr_sin(') # constexpr sin for BSM #627
+        parset = parset.replace('cos(','constexpr_cos(') # constexpr cos for BSM #627
+        parset = parset.replace(' tan(',' constexpr_tan(') # constexpr tan for BSM #627
         parset = parset.replace('(','( ')
         parset = parset.replace(')',' )')
         parset = parset.replace('+',' + ')
