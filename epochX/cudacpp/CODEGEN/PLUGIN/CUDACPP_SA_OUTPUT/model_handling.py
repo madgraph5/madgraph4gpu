@@ -705,7 +705,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         return res
 
     # AV - new method (merging write_parameters and write_set_parameters)
-    def write_hardcoded_parameters(self, params):
+    def write_hardcoded_parameters(self, params, deviceparams=set()):
         majorana_widths = []
         for particle in self.model.get('particles'):
             if particle.is_fermion() and particle.get('self_antipart') and \
@@ -747,6 +747,8 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
                 ###print(len(pardef_lines), par) # for debugging
                 if par in majorana_widths:
                     pardef_lines[par] = ( 'constexpr ' + type + ' ' + par + "_abs" )
+                elif par in deviceparams:
+                    pardef_lines[par] = ( '__device__ constexpr ' + type + ' ' + par )
                 else:
                     pardef_lines[par] = ( 'constexpr ' + type + ' ' + par )
         ###misc.sprint( 'pardef_lines size =', len(pardef_lines), ', keys size =', len(pardef_lines.keys()) )
@@ -814,6 +816,19 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
     # AV - replace export_cpp.UFOModelConverterCPP method (add hardcoded parameters and couplings)
     def super_generate_parameters_class_files(self):
         """Create the content of the Parameters_model.h and .cc files"""
+        # First of all, identify which extra independent parameters must be made available through CPU static and GPU constant memory in BSM models
+        # because they are used in the event by event calculation of alphaS-dependent couplings
+        # WARNING! This is only implemented and has only been tested so far for real parameters (complex parameters need twice the storage)
+        if self.model_name[:2] != 'sm' :
+            param_indep_real_used = []
+            for param in self.params_indep:
+                if param.type == 'real':
+                    for coup in self.coups_dep.values():                
+                        if param.name in coup.expr:
+                            param_indep_real_used.append( param.name )
+            param_indep_real_used = set( param_indep_real_used ) 
+            misc.sprint('PIPPO!', param_indep_real_used )
+        # Then do everything else
         replace_dict = self.default_replace_dict
         replace_dict['info_lines'] = PLUGIN_export_cpp.get_mg5_info_lines()
         replace_dict['model_name'] = self.model_name
@@ -845,7 +860,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         assert super().write_parameters([]) == '', 'super().write_parameters([]) is not empty' # AV sanity check (#622)
         assert self.super_write_set_parameters_donotfixMajorana([]) == '', 'super_write_set_parameters_donotfixMajorana([]) is not empty' # AV sanity check (#622)
         ###misc.sprint(self.params_indep) # for debugging
-        hrd_params_indep = [ line.replace('constexpr','//constexpr') + ' // now retrieved event-by-event (as G) from Fortran (running alphas #373)' if 'aS =' in line else line for line in self.write_hardcoded_parameters(self.params_indep).split('\n') ]
+        hrd_params_indep = [ line.replace('constexpr','//constexpr') + ' // now retrieved event-by-event (as G) from Fortran (running alphas #373)' if 'aS =' in line else line for line in self.write_hardcoded_parameters(self.params_indep,param_indep_real_used).split('\n') ] # use param_indep_real_used as deviceparams
         replace_dict['hardcoded_independent_parameters'] = '\n'.join( hrd_params_indep ) + self.super_write_set_parameters_onlyfixMajorana( hardcoded=True ) # add fixes for Majorana particles only in the aS-indep parameters #622
         ###misc.sprint(self.coups_indep) # for debugging
         replace_dict['hardcoded_independent_couplings'] = self.write_hardcoded_parameters(self.coups_indep)
@@ -904,18 +919,6 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             replace_dict['dcoupsetdpar2'] = '      // (none)'
             replace_dict['dcoupsetdcoup2'] = '      // (none)'
             replace_dict['dcoupoutdcoup2'] = ''
-        # Identify which extra independent parameters must be made available through CPU static and GPU constant memory in BSM/EFT/SUSY models
-        # because they are used in the event by event calculation of alphaS-dependent couplings
-        # WARNING! This is only implemented and has only been tested so far for real parameters (complex parameters need twice the storage)
-        if self.model_name[:2] != 'sm' :
-            param_indep_real_used = []
-            for param in self.params_indep:
-                if param.type == 'real':
-                    for coup in self.coups_dep.values():                
-                        if param.name in coup.expr:
-                            param_indep_real_used.append( param.name )
-            param_indep_real_used = set( param_indep_real_used ) 
-            misc.sprint('PIPPO!', param_indep_real_used )
         # Require HRDCOD=1 in EFT and special handling in EFT for fptype=float using SIMD
         if self.model_name[:2] == 'sm' :
             replace_dict['eftwarn0'] = ''
