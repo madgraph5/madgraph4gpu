@@ -340,7 +340,7 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testmisc )
       << "x=" << x << ", x(0to2Pi)=" << mapIn0to2Pi( x ) << ", istep=" << istep;
     std::cout << std::setprecision( 6 ); // default
   };
-  testSinCosTanX( M_PIl, 1E-3, true );                                                // from math.h
+  testSinCosTanX( constexpr_pi, 1E-3, true );                                         // from math.h
   testSinCosTanX( (long double)3.141592653589793238462643383279502884L, 1E-3, true ); // from math.h
   testSinCosTanX( 4.712388980384687897640105802565813064575L, 1E-3, true );           // from 100 steps n [-4*pi,6*pi]... succeeds? (note x==xx)
   testSinCosTanX( 3 * constexpr_pi_by_2 - 1.96e-15L, 1E-3, true );                    // from 100 steps n [-4*pi,6*pi]... succeeds? (note x!=xx)
