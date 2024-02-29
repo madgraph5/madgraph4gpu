@@ -40,9 +40,9 @@ Parameters_heft::getInstance()
 void
 Parameters_heft::setIndependentParameters( SLHAReader& slha )
 {
-  zero = 0; // define "zero"
-  ZERO = 0; // define "zero"
-  //std::vector<int> indices(2, 0); // prepare a vector for indices
+  zero = 0;                         // define "zero"
+  ZERO = 0;                         // define "zero"
+  std::vector<int> indices( 2, 0 ); // prepare a vector for indices
   mdl_WH1 = slha.get_block_entry( "decay", 9000006, 6.382339e-03 );
   mdl_WH = slha.get_block_entry( "decay", 25, 6.382339e-03 );
   mdl_WW = slha.get_block_entry( "decay", 24, 2.047600e+00 );
@@ -102,6 +102,8 @@ Parameters_heft::setIndependentParameters( SLHAReader& slha )
   mdl_gw__exp__2 = ( ( mdl_gw ) * ( mdl_gw ) );
   mdl_cw__exp__2 = ( ( mdl_cw ) * ( mdl_cw ) );
   mdl_sw__exp__2 = ( ( mdl_sw ) * ( mdl_sw ) );
+  // BSM parameters that do not depend on alphaS but are needed in the computation of alphaS-dependent couplings;
+  // (none)
 }
 
 void
