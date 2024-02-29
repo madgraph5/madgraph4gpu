@@ -20,9 +20,11 @@
 #include "mgOnGpuCxtypes.h"
 #include "mgOnGpuVectors.h"
 
+#include "constexpr_math.h"
+
 //==========================================================================
 
-#ifndef MGONGPU_HARDCODE_PARAM // this is only supported in SM processes (e.g. not in EFT models) for the moment (#439)
+#ifndef MGONGPU_HARDCODE_PARAM
 
 #include "read_slha.h"
 
@@ -102,37 +104,6 @@ namespace mg5amcCpu
   // Hardcoded constexpr physics parameters
   namespace Parameters_sm // keep the same name rather than HardcodedParameters_sm for simplicity
   {
-    // Constexpr implementation of sqrt (see https://stackoverflow.com/a/34134071)
-    double constexpr sqrtNewtonRaphson( double x, double curr, double prev )
-    {
-      return curr == prev ? curr : sqrtNewtonRaphson( x, 0.5 * ( curr + x / curr ), curr );
-    }
-    double constexpr constexpr_sqrt( double x )
-    {
-      return x >= 0 // && x < std::numeric_limits<double>::infinity() // avoid -Wtautological-constant-compare warning in fast math
-        ? sqrtNewtonRaphson( x, x, 0 )
-        : std::numeric_limits<double>::quiet_NaN();
-    }
-
-    // Constexpr implementation of floor (see https://stackoverflow.com/a/66146159)
-    constexpr int constexpr_floor( double d )
-    {
-      const int i = static_cast<int>( d );
-      return d < i ? i - 1 : i;
-    }
-
-    // Constexpr implementation of pow
-    constexpr double constexpr_pow( double base, double exp )
-    {
-      // NB(1): this implementation of constexpr_pow requires exponent >= 0
-      assert( exp >= 0 ); // NB would fail at compile time with "error: call to non-‘constexpr’ function ‘void __assert_fail'"
-      // NB(2): this implementation of constexpr_pow requires an integer exponent
-      const int iexp = constexpr_floor( exp );
-      assert( static_cast<double>( iexp ) == exp ); // NB would fail at compile time with "error: call to non-‘constexpr’ function ‘void __assert_fail'"
-      // Iterative implementation of pow if exp is a non negative integer
-      return iexp == 0 ? 1 : base * constexpr_pow( base, iexp - 1 );
-    }
-
     // Model parameters independent of aS
     constexpr double zero = 0;
     constexpr double ZERO = 0;
@@ -189,8 +160,8 @@ namespace mg5amcCpu
     // (none)
 
     // Model parameters dependent on aS
-    //constexpr double mdl_sqrt__aS = //constexpr_sqrt( aS ); // now computed event-by-event (running alphas #373)
-    //constexpr double G = 2. * mdl_sqrt__aS * //constexpr_sqrt( M_PI ); // now computed event-by-event (running alphas #373)
+    //constexpr double mdl_sqrt__aS = constexpr_sqrt( aS ); // now computed event-by-event (running alphas #373)
+    //constexpr double G = 2. * mdl_sqrt__aS * constexpr_sqrt( M_PI ); // now computed event-by-event (running alphas #373)
     //constexpr double mdl_G__exp__2 = ( ( G ) * ( G ) ); // now computed event-by-event (running alphas #373)
 
     // Model couplings dependent on aS
@@ -234,16 +205,19 @@ namespace mg5amcCpu
       cxtype_sv GC_11;
     };
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-variable"  // e.g. <<warning: unused variable ‘mdl_G__exp__2’ [-Wunused-variable]>>
-#pragma GCC diagnostic ignored "-Wunused-parameter" // e.g. <<warning: unused parameter ‘G’ [-Wunused-parameter]>>
+#pragma GCC diagnostic ignored "-Wunused-parameter"        // e.g. <<warning: unused parameter ‘G’ [-Wunused-parameter]>>
+#pragma GCC diagnostic ignored "-Wunused-variable"         // e.g. <<warning: unused variable ‘mdl_G__exp__2’ [-Wunused-variable]>>
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable" // e.g. <<warning: variable ‘mdl_G__exp__2’ set but not used [-Wunused-but-set-variable]>>
 #ifdef MGONGPUCPP_GPUIMPL
 #pragma nv_diagnostic push
 #pragma nv_diag_suppress 177 // e.g. <<warning #177-D: variable "mdl_G__exp__2" was declared but never referenced>>
 #endif
-    __host__ __device__ inline const DependentCouplings_sv computeDependentCouplings_fromG( const fptype_sv& G_sv )
+    __host__ __device__ inline const DependentCouplings_sv computeDependentCouplings_fromG( const fptype_sv& G_sv, const fptype* bsmIndepParamPtr )
     {
 #ifdef MGONGPU_HARDCODE_PARAM
       using namespace Parameters_sm;
+#else
+      // SM implementation - no special handling of non-hardcoded parameters (PR #625)
 #endif
       // NB: hardcode cxtype cI(0,1) instead of cxtype (or hardcoded cxsmpl) mdl_complexi (which exists in Parameters_sm) because:
       // (1) mdl_complexi is always (0,1); (2) mdl_complexi is undefined in device code; (3) need cxsmpl conversion to cxtype in code below
@@ -287,12 +261,13 @@ namespace mg5amcCpu
   template<class G_ACCESS, class C_ACCESS>
   __device__ inline void
   G2COUP( const fptype gs[],
-          fptype couplings[] )
+          fptype couplings[],
+          const fptype* bsmIndepParamPtr )
   {
     mgDebug( 0, __FUNCTION__ );
     using namespace Parameters_sm_dependentCouplings;
     const fptype_sv& gs_sv = G_ACCESS::kernelAccessConst( gs );
-    DependentCouplings_sv couplings_sv = computeDependentCouplings_fromG( gs_sv );
+    DependentCouplings_sv couplings_sv = computeDependentCouplings_fromG( gs_sv, bsmIndepParamPtr );
     fptype* GC_10s = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_GC_10 );
     fptype* GC_11s = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_GC_11 );
     cxtype_sv_ref GC_10s_sv = C_ACCESS::kernelAccess( GC_10s );
