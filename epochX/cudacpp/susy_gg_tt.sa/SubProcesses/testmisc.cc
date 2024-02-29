@@ -322,8 +322,8 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testmisc )
     const double x = (double)xx;
     if( debug )
     {
-      std::cout << std::setprecision(40) << "testSinCosTanX: xx= " << xx << std::endl;
-      std::cout << std::setprecision(40) << "                x=  " << x << std::endl;
+      //std::cout << std::setprecision(40) << "testSinCosTanX: xx= " << xx << std::endl;
+      //std::cout << std::setprecision(40) << "                x=  " << x << std::endl;
     }
     //std::cout << std::setprecision(40) << "xx - 3pi/2 " << xx - 3 * constexpr_pi_by_2 << std::endl;
     //int width = 46;
@@ -340,8 +340,8 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testmisc )
       << "x=" << x << ", x(0to2Pi)=" << mapIn0to2Pi( x ) << ", istep=" << istep;
     std::cout << std::setprecision(6); // default
   };
-  //testSinCosTanX( M_PIl, 1E-3, true ); // from math.h
-  //testSinCosTanX( (long double)3.141592653589793238462643383279502884L, 1E-3, true ); // from math.h
+  testSinCosTanX( M_PIl, 1E-3, true ); // from math.h
+  testSinCosTanX( (long double)3.141592653589793238462643383279502884L, 1E-3, true ); // from math.h
   testSinCosTanX( 4.712388980384687897640105802565813064575L, 1E-3, true ); // from 100 steps n [-4*pi,6*pi]... succeeds? (note x==xx)
   testSinCosTanX( 3 * constexpr_pi_by_2 - 1.96e-15L, 1E-3, true ); // from 100 steps n [-4*pi,6*pi]... succeeds? (note x!=xx)
   testSinCosTanX( 3 * constexpr_pi_by_2 - 1.9601e-15L, 1E-3, true ); // from 100 steps n [-4*pi,6*pi]... succeeds? (note x==xx)
@@ -377,25 +377,36 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testmisc )
   // Test constexpr sin, cos, tan - N points almost randomly with a varying tolerance
   auto testSinCosTanN = [testSinCosTanX, distance4]( const int nstep, const double x0, const double x1 )
   {
-    auto toleranceForX = []( const double )
+    auto toleranceForX = [distance4]( const double x )
     {
-      return 2E-3; // NB: tolerance 1E-3 is not enough for cos( x=-7.8539816339744828 ) with 100 steps in [-4*pi,6*pi]
+      const double d4 = distance4( x );
+      if ( d4 < 1E-14 ) return 1E-03; // NB: absolute distance limited to 1E-14 anyway even if relative tolerance is 1E-3...
+      else if ( d4 < 1E-13 ) return 1E-04;
+      else if ( d4 < 1E-12 ) return 1E-05;
+      else if ( d4 < 1E-11 ) return 1E-06;
+      else if ( d4 < 1E-10 ) return 1E-07;
+      else if ( d4 < 1E-09 ) return 1E-08;
+      else if ( d4 < 1E-08 ) return 1E-09;
+      else if ( d4 < 1E-07 ) return 1E-10;
+      else if ( d4 < 1E-06 ) return 1E-11;
+      else if ( d4 < 1E-05 ) return 1E-12;
+      else if ( d4 < 1E-04 ) return 1E-13;
+      else return 1E-14; // play it safe even if the agreement might even be better?
     };
     for ( int istep = 0; istep < nstep + 1; istep++ )
     {
       double x = x0 + istep * ( x1 - x0 ) / nstep; // test this for double (else std::cos and std::sin use long double)
       const double tolerance = toleranceForX( x );
-      EXPECT_NEAR( std::sin( x ), constexpr_sin( x ), std::abs( std::sin( x ) * tolerance ) )
+      EXPECT_NEAR( std::sin( x ), constexpr_sin( x ), std::max( std::abs( std::sin( x ) * tolerance ), 3E-15 ) )
         << std::setprecision(40) << "x=" << x << ", x(0to2Pi)=" << mapIn0to2Pi( x ) << ",\n istep=" << istep << ", distance4=" << distance4( x );
-      EXPECT_NEAR( std::cos( x ), constexpr_cos( x ), std::abs( std::cos( x ) * tolerance ) )
+      EXPECT_NEAR( std::cos( x ), constexpr_cos( x ), std::max( std::abs( std::cos( x ) * tolerance ), 3E-15 ) )
         << std::setprecision(40) << "x=" << x << ", x(0to2Pi)=" << mapIn0to2Pi( x ) << ",\n istep=" << istep << ", distance4=" << distance4( x );
-      EXPECT_NEAR( std::tan( x ), constexpr_tan( x ), std::abs( std::tan( x ) * tolerance ) )
+      EXPECT_NEAR( std::tan( x ), constexpr_tan( x ), std::max( std::abs( std::tan( x ) * tolerance ), 3E-15 ) )
         << std::setprecision(40) << "x=" << x << ", x(0to2Pi)=" << mapIn0to2Pi( x ) << ",\n istep=" << istep << ", distance4=" << distance4( x );
-      const bool debug = false;
-      testSinCosTanX( x, tolerance, debug, istep ); // strangely, this succeeds instead!
     }
   };
-  testSinCosTanN( 100, -4 * constexpr_pi, 6 * constexpr_pi );
+  testSinCosTanN( 100, -4 * constexpr_pi, 6 * constexpr_pi ); // this was failing at 3*pi/2 (now fixed by absolute tolerance 3E-15)
+  testSinCosTanN( 10000, -constexpr_pi_by_2, 5 * constexpr_pi_by_2 );
 
   /*
   // Test constexpr atan
