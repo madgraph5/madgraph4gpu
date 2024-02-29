@@ -371,8 +371,8 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testmisc )
   testSinCosTan8( 1E-12, 1E-06 ); // fails with 1E-07
   testSinCosTan8( 1E-09, 1E-09 ); // fails with 1E-10
   testSinCosTan8( 1E-06, 1E-12 ); // fails with 1E-13
-  testSinCosTan8( 1E-03, 1E-15 ); // fails with 1E-16
-  testSinCosTan8( 1E-02, 1E-99 ); // never fails? always bit-by-bit identical?
+  testSinCosTan8( 1E-03, 1E-14 ); // fails with 1E-16: could use 1E-14 but keep it at 1E-14 (avoid 'EXPECT_NEAR equivalent to EXPECT_EQUAL' on Mac)
+  testSinCosTan8( 1E-02, 1E-14 ); // never fails? could use 1E-99(?) but keep it at 1E-14 (avoid 'EXPECT_NEAR equivalent to EXPECT_EQUAL' on Mac)
 
   // Test constexpr sin, cos, tan - N points almost randomly with a varying tolerance
   auto testSinCosTanN = [testSinCosTanX, distance4]( const int nstep, const double x0, const double x1 )
