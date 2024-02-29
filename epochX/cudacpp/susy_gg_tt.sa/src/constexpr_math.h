@@ -27,22 +27,22 @@ namespace mg5amcCpu
 #endif
 {  
   // Constexpr implementation of sqrt (see https://stackoverflow.com/a/34134071)
-  constexpr long double sqrtNewtonRaphson( const long double x, const long double curr, const long double prev )
+  constexpr long double sqrtNewtonRaphson( const long double xx, const long double curr, const long double prev )
   {
-    return curr == prev ? curr : sqrtNewtonRaphson( x, 0.5 * ( curr + x / curr ), curr );
+    return curr == prev ? curr : sqrtNewtonRaphson( xx, 0.5 * ( curr + xx / curr ), curr );
   }
-  constexpr long double constexpr_sqrt( const long double x )
+  constexpr long double constexpr_sqrt( const long double xx )
   {
-    return x >= 0 // && x < std::numeric_limits<double>::infinity() // avoid -Wtautological-constant-compare warning in fast math
-      ? sqrtNewtonRaphson( x, x, 0 )
+    return xx >= 0 // && x < std::numeric_limits<double>::infinity() // avoid -Wtautological-constant-compare warning in fast math
+      ? sqrtNewtonRaphson( xx, xx, 0 )
       : std::numeric_limits<long double>::quiet_NaN();
   }
 
   // Constexpr implementation of floor (see https://stackoverflow.com/a/66146159)
-  constexpr int constexpr_floor( const long double d )
+  constexpr int constexpr_floor( const long double xx )
   {
-    const int i = static_cast<int>( d );
-    return d < i ? i - 1 : i;
+    const int i = static_cast<int>( xx );
+    return xx < i ? i - 1 : i;
   }
 
   // Constexpr implementation of pow
@@ -64,13 +64,13 @@ namespace mg5amcCpu
 
   // Constexpr implementation of sin for 0<x<pi/4 (long double signature)
   // Taylor expansion : x - x**3/3! + x**5/5!
-  constexpr long double sinTaylor( const long double x )
+  constexpr long double sinTaylor( const long double xx )
   {
-    assert( x >= 0 && "The argument of sinTaylor is assumed to be in [0,pi/4)" );
-    assert( x < constexpr_pi_by_4 && "The argument of sinTaylor is assumed to be in [0,pi/4)" );
+    assert( xx >= 0 && "The argument of sinTaylor is assumed to be in [0,pi/4)" );
+    assert( xx < constexpr_pi_by_4 && "The argument of sinTaylor is assumed to be in [0,pi/4)" );
     long double sinx = 0;
     int ipow = 1;
-    long double delta = x;
+    long double delta = xx;
     while( true )
     {
       long double sinxlast = sinx;
@@ -81,33 +81,39 @@ namespace mg5amcCpu
       if ( sinx == sinxlast ) break;
       // Next iteration
       ipow += 2;
-      delta *= -x * x / ( ipow - 1 ) / ipow;
+      delta *= -xx * xx / ( ipow - 1 ) / ipow;
     }
     return sinx;
   }
 
+  // Mapping to [0,2*pi) range (long double signature)
+  constexpr long double mapIn0to2Pi( const long double xx )
+  {
+    return xx - constexpr_floor( xx / 2 / constexpr_pi ) * 2 * constexpr_pi;
+  }
+  
   // Constexpr implementation of cos (long double signature)
-  constexpr long double constexpr_cos_quad( const long double x, const bool assume0to2Pi = false )
+  constexpr long double constexpr_cos_quad( const long double xx, const bool assume0to2Pi = false )
   {
     if( assume0to2Pi )
     {
-      assert( x >= 0 && "The argument of constexpr_cos_quad is assumed to be in [0,2*pi)" );
-      assert( x < 2 * constexpr_pi && "The argument of constexpr_cos_quad is assumed to be in [0,2*pi)" );
+      assert( xx >= 0 && "The argument of constexpr_cos_quad is assumed to be in [0,2*pi)" );
+      assert( xx < 2 * constexpr_pi && "The argument of constexpr_cos_quad is assumed to be in [0,2*pi)" );
     }
-    if( x < 0 )
-      return constexpr_cos_quad( x + ( constexpr_floor( -x / constexpr_pi ) + 1 ) * constexpr_pi, true );
-    else if( x < constexpr_pi_by_4 ) // [0/4*pi, 1/4*pi)
-      return constexpr_sqrt( 1 - constexpr_pow( sinTaylor( (long double)x ), 2 ) );
-    else if( x < constexpr_pi_by_2 ) // [1/4*pi, 2/4*pi)
-      return sinTaylor( constexpr_pi_by_2 - (long double)x );
-    else if( x < 3 * constexpr_pi_by_4 ) // [2/4*pi, 3/4*pi)
-      return -sinTaylor( (long double)x - constexpr_pi_by_2 );
-    else if( x < constexpr_pi ) // [3/4*pi, 4/4*pi)
-      return -constexpr_sqrt( 1 - constexpr_pow( sinTaylor( constexpr_pi - (long double)x ), 2 ) );
-    else if( x < 2 * constexpr_pi ) // [4/4*pi, 8/4*pi)
-      return constexpr_cos_quad( 2 * constexpr_pi - (long double)x, true );
+    if( xx < 0 )
+      return constexpr_cos_quad( mapIn0to2Pi( xx ), true );
+    else if( xx < constexpr_pi_by_4 ) // [0/4*pi, 1/4*pi)
+      return constexpr_sqrt( 1 - constexpr_pow( sinTaylor( xx ), 2 ) );
+    else if( xx < constexpr_pi_by_2 ) // [1/4*pi, 2/4*pi)
+      return sinTaylor( constexpr_pi_by_2 - xx );
+    else if( xx < 3 * constexpr_pi_by_4 ) // [2/4*pi, 3/4*pi)
+      return -sinTaylor( xx - constexpr_pi_by_2 );
+    else if( xx < constexpr_pi ) // [3/4*pi, 4/4*pi)
+      return -constexpr_sqrt( 1 - constexpr_pow( sinTaylor( constexpr_pi - xx ), 2 ) );
+    else if( xx < 2 * constexpr_pi ) // [4/4*pi, 8/4*pi)
+      return constexpr_cos_quad( 2 * constexpr_pi - xx, true );
     else // [8/4*pi, +inf)
-      return constexpr_cos_quad( x - constexpr_floor( x / constexpr_pi ) * constexpr_pi, true );
+      return constexpr_cos_quad( mapIn0to2Pi( xx ), true );
   }
 
   // Constexpr implementation of cos (double signature, internally implemented as long double)
@@ -117,27 +123,27 @@ namespace mg5amcCpu
   }
 
   // Constexpr implementation of sin (long double signature)
-  constexpr long double constexpr_sin_quad( const long double x, const bool assume0toPi = false )
+  constexpr long double constexpr_sin_quad( const long double xx, const bool assume0to2Pi = false )
   {
-    if( assume0toPi )
+    if( assume0to2Pi )
     {
-      assert( x >= 0 && "The argument of constexpr_sin_quad is assumed to be in [0,pi)" );
-      assert( x < constexpr_pi && "The argument of constexpr_sin_quad is assumed to be in [0,pi)" );
+      assert( xx >= 0 && "The argument of constexpr_sin_quad is assumed to be in [0,2*pi)" );
+      assert( xx < 2 * constexpr_pi && "The argument of constexpr_sin_quad is assumed to be in [0,2*pi)" );
     }
-    if( x < 0 )
-      return constexpr_sin_quad( x + ( constexpr_floor( -x / constexpr_pi ) + 1 ) * constexpr_pi, true );
-    else if( x < constexpr_pi_by_4 ) // [0/4*pi, 1/4*pi)
-      return sinTaylor( (long double)x );
-    else if( x < constexpr_pi_by_2 ) // [1/4*pi, 2/4*pi)
-      return constexpr_sqrt( 1 - constexpr_pow( sinTaylor( constexpr_pi_by_2 - (long double)x ), 2 ) );
-    else if( x < 3 * constexpr_pi_by_4 ) // [2/4*pi, 3/4*pi)
-      return constexpr_sqrt( 1 - constexpr_pow( sinTaylor( (long double)x - constexpr_pi_by_2 ), 2 ) );
-    else if( x < constexpr_pi ) // [3/4*pi, 4/4*pi)
-      return sinTaylor( constexpr_pi - (long double)x );
-    else if( x < 2 * constexpr_pi ) // [4/4*pi, 8/4*pi)
-      return -constexpr_sin_quad( 2 * constexpr_pi - (long double)x, true );
+    if( xx < 0 )
+      return constexpr_sin_quad( mapIn0to2Pi( xx ), true );
+    else if( xx < constexpr_pi_by_4 ) // [0/4*pi, 1/4*pi)
+      return sinTaylor( xx );
+    else if( xx < constexpr_pi_by_2 ) // [1/4*pi, 2/4*pi)
+      return constexpr_sqrt( 1 - constexpr_pow( sinTaylor( constexpr_pi_by_2 - xx ), 2 ) );
+    else if( xx < 3 * constexpr_pi_by_4 ) // [2/4*pi, 3/4*pi)
+      return constexpr_sqrt( 1 - constexpr_pow( sinTaylor( xx - constexpr_pi_by_2 ), 2 ) );
+    else if( xx < constexpr_pi ) // [3/4*pi, 4/4*pi)
+      return sinTaylor( constexpr_pi - xx );
+    else if( xx < 2 * constexpr_pi ) // [4/4*pi, 8/4*pi)
+      return -constexpr_sin_quad( 2 * constexpr_pi - xx, true );
     else // [8/4*pi, +inf)
-      return constexpr_sin_quad( x - constexpr_floor( x / constexpr_pi ) * constexpr_pi, true );
+      return constexpr_sin_quad( mapIn0to2Pi( xx ), true );
   }
 
   // Constexpr implementation of sin (double signature, internally implemented as long double)
@@ -147,19 +153,19 @@ namespace mg5amcCpu
   }
 
   // Constexpr implementation of tan (long double signature)
-  constexpr long double constexpr_tan_quad( const long double x, const bool assume0to2Pi = false )
+  constexpr long double constexpr_tan_quad( const long double xx, const bool assume0to2Pi = false )
   {
     if( assume0to2Pi )
     {
-      assert( x >= 0 && "The argument of constexpr_sin_quad is assumed to be in [0,2*pi)" );
-      assert( x < 2 * constexpr_pi && "The argument of constexpr_sin_quad is assumed to be in [0,2*pi)" );
+      assert( xx >= 0 && "The argument of constexpr_sin_quad is assumed to be in [0,2*pi)" );
+      assert( xx < 2 * constexpr_pi && "The argument of constexpr_sin_quad is assumed to be in [0,2*pi)" );
     }
-    if( x < 0 )
-      return constexpr_tan_quad( x + ( constexpr_floor( -x / constexpr_pi ) + 1 ) * constexpr_pi, true );
-    else if( x < 2 * constexpr_pi ) // [0, 2*pi)
-      return constexpr_sin_quad( x, assume0to2Pi ) / constexpr_cos_quad( x, assume0to2Pi );
+    if( xx < 0 )
+      return constexpr_tan_quad( mapIn0to2Pi( xx ), true );
+    else if( xx < 2 * constexpr_pi ) // [0, 2*pi)
+      return constexpr_sin_quad( xx, assume0to2Pi ) / constexpr_cos_quad( xx, assume0to2Pi );
     else // [8/4*pi, +inf)
-      return constexpr_tan_quad( x - constexpr_floor( x / constexpr_pi ) * constexpr_pi, true );
+      return constexpr_tan_quad( mapIn0to2Pi( xx ), true );
   }
 
   // Constexpr implementation of tan (double signature, internally implemented as long double)
@@ -170,13 +176,13 @@ namespace mg5amcCpu
   
   // Constexpr implementation of atan for -1<x<1 (long double signature)
   // Taylor expansion : x - x**3/3 + x**5/5...
-  constexpr long double atanTaylor( const long double x )
+  constexpr long double atanTaylor( const long double xx )
   {
-    assert( x >= -1 && "The argument of atanTaylor is assumed to be in (-1,+1)" );
-    assert( x < 1 && "The argument of atanTaylor is assumed to be in (-1,+1)" );
+    assert( xx >= -1 && "The argument of atanTaylor is assumed to be in (-1,+1)" );
+    assert( xx < 1 && "The argument of atanTaylor is assumed to be in (-1,+1)" );
     long double atanx = 0;
     int ipow = 1;
-    long double xpow = x;
+    long double xpow = xx;
     while( true )
     {
       long double atanxlast = atanx;
@@ -187,24 +193,24 @@ namespace mg5amcCpu
       if ( atanx == atanxlast ) break;
       // Next iteration
       ipow += 2;
-      xpow *= -x * x;
+      xpow *= -xx * xx;
     }
     return atanx;
   }
 
   // Constexpr implementation of atan (long double signature)
-  constexpr long double constexpr_atan_quad( const long double x )
+  constexpr long double constexpr_atan_quad( const long double xx )
   {
-    if( x > 1 )
-      return atanTaylor( 1 / (long double)x );
-    else if( x == 1 )
+    if( xx > 1 )
+      return atanTaylor( 1 / xx );
+    else if( xx == 1 )
       return constexpr_pi_by_4;
-    else if( x > -1 )
-      return atanTaylor( (long double)x );
-    else if( x == -1 )
+    else if( xx > -1 )
+      return atanTaylor( xx );
+    else if( xx == -1 )
       return -constexpr_pi_by_4;
-    else if( x < -1 )
-      return atanTaylor( 1 / (long double)x );
+    else if( xx < -1 )
+      return atanTaylor( 1 / xx );
   }
 
   // Constexpr implementation of atan (double signature, internally implemented as long double)
