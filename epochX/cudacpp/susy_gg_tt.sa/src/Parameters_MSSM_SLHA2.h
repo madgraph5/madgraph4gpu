@@ -87,11 +87,10 @@ namespace mg5amcCpu
 
     // Print couplings that are changed event by event
     //void printDependentCouplings(); // now computed event-by-event (running alphas #373)
-
     // BSM parameters that do not depend on alphaS but are needed in the computation of alphaS-dependent couplings;
     static constexpr int nBsmIndepParam = 1;
-    double mdl_bsmIndepParam[ nBsmIndepParam ];
-    
+    double mdl_bsmIndepParam[nBsmIndepParam];
+
   private:
 
     static Parameters_MSSM_SLHA2* instance;
@@ -771,7 +770,7 @@ namespace mg5amcCpu
 
     // BSM parameters that do not depend on alphaS but are needed in the computation of alphaS-dependent couplings;
     constexpr int nBsmIndepParam = 1;
-    __device__ constexpr double mdl_bsmIndepParam[ nBsmIndepParam ] = { mdl_I51x11 };
+    __device__ constexpr double mdl_bsmIndepParam[nBsmIndepParam] = { mdl_I51x11 };
   }
 
 } // end namespace mg5amcGpu/mg5amcCpu
