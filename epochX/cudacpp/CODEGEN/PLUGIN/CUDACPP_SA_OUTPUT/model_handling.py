@@ -926,8 +926,8 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             replace_dict['dcoupsetdcoup2'] = '      // (none)'
             replace_dict['dcoupoutdcoup2'] = ''
         # Require HRDCOD=1 in EFT and special handling in EFT for fptype=float using SIMD
+        replace_dict['bsmdefine'] = '#define MGONGPUCPP_NBSMINDEPPARAM_GT_0 1' if len( bsmparam_indep_real_used ) > 0 else '#undef MGONGPUCPP_NBSMINDEPPARAM_GT_0'
         if self.model_name[:2] == 'sm' :
-            replace_dict['bsmdefine'] = ''
             replace_dict['bsmip0'] = ''
             replace_dict['bsmip1'] = ''
             replace_dict['eftwarn0'] = ''
@@ -936,11 +936,6 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             replace_dict['eftspecial1'] = '      // Begin SM implementation - no special handling of vectors of floats as in EFT (#439)'
             replace_dict['eftspecial2'] = '      // End SM implementation - no special handling of vectors of floats as in EFT (#439)'
         else:
-            replace_dict['bsmdefine'] = '''
-
-// AV Jan 2024 (PR #625): this ugly #define was the only way I found to avoid creating arrays[nBsm] in CPPProcess.cc if nBsm is 0
-// The problem is that nBsm is determined when generating Parameters.h, which happens after CPPProcess.cc has already been generated
-%s''' % ( '#define MGONGPUCPP_NBSMINDEPPARAM_GT_0 1' if len( bsmparam_indep_real_used ) > 0 else '#undef MGONGPUCPP_NBSMINDEPPARAM_GT_0' )
             replace_dict['bsmip0'] = '''
     // BSM parameters that do not depend on alphaS but are needed in the computation of alphaS-dependent couplings;
     static constexpr int nBsmIndepParam = %s;
@@ -1206,25 +1201,10 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             replace_dict['cipddump'] = ''
             replace_dict['cipdhrdcod'] = '//__device__ const fptype* cIPD = nullptr; // unused as nparam=0'
         if self.model_name[:2] == 'sm' :
-            replace_dict['bsmindepparam'] = ''
             replace_dict['bsmMemcpySym'] = ''
             replace_dict['bsmMemcpy'] = ''
             replace_dict['bsmdump'] = ''
         else:
-            replace_dict['bsmindepparam'] = '''\n
-  // AV Jan 2024 (PR #625): this ugly #define was the only way I found to avoid creating arrays[nBsm] in CPPProcess.cc if nBsm is 0
-  // The problem is that nBsm is determined when generating Parameters.h, which happens after CPPProcess.cc has already been generated
-#ifdef MGONGPUCPP_NBSMINDEPPARAM_GT_0
-#ifdef MGONGPU_HARDCODE_PARAM
-  __device__ const double* bsmIndepParam = Parameters_MSSM_SLHA2::mdl_bsmIndepParam;
-#else
-#ifdef MGONGPUCPP_GPUIMPL
-  __device__ __constant__ double bsmIndepParam[Parameters_MSSM_SLHA2::nBsmIndepParam];
-#else
-  static double bsmIndepParam[Parameters_MSSM_SLHA2::nBsmIndepParam];
-#endif
-#endif
-#endif'''
             replace_dict['bsmMemcpySym'] = '\n    if( Parameters_MSSM_SLHA2::nBsmIndepParam > 0 )\n      gpuMemcpyToSymbol( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters_MSSM_SLHA2::nBsmIndepParam * sizeof( double ) );'
             replace_dict['bsmMemcpy'] = '\n    if( Parameters_MSSM_SLHA2::nBsmIndepParam > 0 )\n      memcpy( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters_MSSM_SLHA2::nBsmIndepParam * sizeof( double ) );'
             replace_dict['bsmdump'] = '\n    //for ( int i=0; i<Parameters_MSSM_SLHA2::nBsmIndepParam; i++ ) std::cout << std::setprecision(17) << "m_pars->mdl_bsmIndepParam[i] = " << m_pars->mdl_bsmIndepParam[i] << std::endl;'

@@ -20,7 +20,12 @@
 
 #include "constexpr_math.h"
 
-//==========================================================================%(bsmdefine)s
+//==========================================================================
+
+// AV Jan 2024 (PR #625): this ugly #define was the only way I found to avoid creating arrays[nBsm] in CPPProcess.cc if nBsm is 0
+// The problem is that nBsm is determined when generating Parameters.h, which happens after CPPProcess.cc has already been generated
+// For simplicity, keep this code hardcoded also for SM processes (a nullptr is needed as in the case nBsm == 0)
+%(bsmdefine)s
 
 #ifndef MGONGPU_HARDCODE_PARAM%(eftwarn0)s
 
