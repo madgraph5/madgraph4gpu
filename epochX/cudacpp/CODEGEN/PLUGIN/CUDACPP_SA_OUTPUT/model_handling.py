@@ -727,7 +727,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         parset = parset.replace('atan(','constexpr_atan(') # constexpr atan for BSM #627
         parset = parset.replace('sin(','constexpr_sin(') # constexpr sin for BSM #627
         parset = parset.replace('cos(','constexpr_cos(') # constexpr cos for BSM #627
-        parset = parset.replace(' tan(',' constexpr_tan(') # constexpr tan for BSM #627
+        parset = parset.replace('tan(','constexpr_tan(').replace('aconstexpr_tan(','atan(') # constexpr tan for BSM #627
         parset = parset.replace('(','( ')
         parset = parset.replace(')',' )')
         parset = parset.replace('+',' + ')
