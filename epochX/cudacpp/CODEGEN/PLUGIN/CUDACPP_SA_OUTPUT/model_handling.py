@@ -819,14 +819,14 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         # First of all, identify which extra independent parameters must be made available through CPU static and GPU constant memory in BSM models
         # because they are used in the event by event calculation of alphaS-dependent couplings
         # WARNING! This is only implemented and has only been tested so far for real parameters (complex parameters need twice the storage)
-        param_indep_real_used = []
+        bsmparam_indep_real_used = []
         if self.model_name[:2] != 'sm' :
             for param in self.params_indep:
                 if param.type == 'real':
                     for coup in self.coups_dep.values():                
                         if param.name in coup.expr:
-                            param_indep_real_used.append( param.name )
-            param_indep_real_used = set( param_indep_real_used ) 
+                            bsmparam_indep_real_used.append( param.name )
+            bsmparam_indep_real_used = set( bsmparam_indep_real_used ) 
         # Then do everything else
         replace_dict = self.default_replace_dict
         replace_dict['info_lines'] = PLUGIN_export_cpp.get_mg5_info_lines()
@@ -846,8 +846,8 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         replace_dict['set_independent_parameters'] += self.super_write_set_parameters_onlyfixMajorana( hardcoded=False ) # add fixes for Majorana particles only in the aS-indep parameters #622
         if self.model_name[:2] != 'sm' :
             replace_dict['set_independent_parameters'] += '\n  // BSM parameters that do not depend on alphaS but are needed in the computation of alphaS-dependent couplings;'
-            if len(param_indep_real_used) > 0:
-                for par in param_indep_real_used:
+            if len(bsmparam_indep_real_used) > 0:
+                for par in bsmparam_indep_real_used:
                     replace_dict['set_independent_parameters'] += '\n  mdl_bsmIndepParam[0] = %s;'%par
             else:
                 replace_dict['set_independent_parameters'] += '\n  // (none)'
@@ -866,7 +866,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         assert super().write_parameters([]) == '', 'super().write_parameters([]) is not empty' # AV sanity check (#622)
         assert self.super_write_set_parameters_donotfixMajorana([]) == '', 'super_write_set_parameters_donotfixMajorana([]) is not empty' # AV sanity check (#622)
         ###misc.sprint(self.params_indep) # for debugging
-        hrd_params_indep = [ line.replace('constexpr','//constexpr') + ' // now retrieved event-by-event (as G) from Fortran (running alphas #373)' if 'aS =' in line else line for line in self.write_hardcoded_parameters(self.params_indep,param_indep_real_used).split('\n') if line != '' ] # use param_indep_real_used as deviceparams
+        hrd_params_indep = [ line.replace('constexpr','//constexpr') + ' // now retrieved event-by-event (as G) from Fortran (running alphas #373)' if 'aS =' in line else line for line in self.write_hardcoded_parameters(self.params_indep,bsmparam_indep_real_used).split('\n') if line != '' ] # use bsmparam_indep_real_used as deviceparams
         replace_dict['hardcoded_independent_parameters'] = '\n'.join( hrd_params_indep ) + self.super_write_set_parameters_onlyfixMajorana( hardcoded=True ) # add fixes for Majorana particles only in the aS-indep parameters #622
         ###misc.sprint(self.coups_indep) # for debugging
         replace_dict['hardcoded_independent_couplings'] = self.write_hardcoded_parameters(self.coups_indep)
@@ -940,21 +940,21 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
 
 // AV Jan 2024 (PR #625): this ugly #define was the only way I found to avoid creating arrays[nBsm] in CPPProcess.cc if nBsm is 0
 // The problem is that nBsm is determined when generating Parameters.h, which happens after CPPProcess.cc has already been generated
-%s''' % ( '#define MGONGPUCPP_NBSMINDEPPARAM_GT_0 1' if len( param_indep_real_used ) > 0 else '#undef MGONGPUCPP_NBSMINDEPPARAM_GT_0' )
+%s''' % ( '#define MGONGPUCPP_NBSMINDEPPARAM_GT_0 1' if len( bsmparam_indep_real_used ) > 0 else '#undef MGONGPUCPP_NBSMINDEPPARAM_GT_0' )
             replace_dict['bsmip0'] = '''
     // BSM parameters that do not depend on alphaS but are needed in the computation of alphaS-dependent couplings;
     static constexpr int nBsmIndepParam = %s;
-    %sdouble mdl_bsmIndepParam[nBsmIndepParam];''' % ( len( param_indep_real_used ), '' if len( param_indep_real_used ) > 0 else '//' )
+    %sdouble mdl_bsmIndepParam[nBsmIndepParam];''' % ( len( bsmparam_indep_real_used ), '' if len( bsmparam_indep_real_used ) > 0 else '//' )
             replace_dict['bsmip1'] = '''\n
     // BSM parameters that do not depend on alphaS but are needed in the computation of alphaS-dependent couplings;
     constexpr int nBsmIndepParam = %s;
-    %s__device__ constexpr double mdl_bsmIndepParam[nBsmIndepParam]%s;''' % ( len( param_indep_real_used ), '' if len( param_indep_real_used ) > 0 else '//', ' = { %s }' % ', '.join( param_indep_real_used ) if len( param_indep_real_used ) > 0 else '' )
+    %s__device__ constexpr double mdl_bsmIndepParam[nBsmIndepParam]%s;''' % ( len( bsmparam_indep_real_used ), '' if len( bsmparam_indep_real_used ) > 0 else '//', ' = { %s }' % ', '.join( bsmparam_indep_real_used ) if len( bsmparam_indep_real_used ) > 0 else '' )
             replace_dict['eftwarn0'] = '\n//#warning Support for non-SM physics processes (e.g. SUSY or EFT) is still limited for HRDCOD=0 builds (#439 and PR #625)'
             replace_dict['eftwarn1'] = '\n//#warning Support for non-SM physics processes (e.g. SUSY or EFT) is still limited for HRDCOD=1 builds (#439 and PR #625)'
-            if len( param_indep_real_used ) == 0:
+            if len( bsmparam_indep_real_used ) == 0:
                 replace_dict['eftspecial0'] = '      // No additional parameters needed in constant memory for this BSM model'
             else:
-                replace_dict['eftspecial0'] = '\n'.join( '      const fptype %s = bsmIndepParamPtr[%i];' % ( par, ipar ) for ipar, par in enumerate( param_indep_real_used ) )
+                replace_dict['eftspecial0'] = '\n'.join( '      const fptype %s = bsmIndepParamPtr[%i];' % ( par, ipar ) for ipar, par in enumerate( bsmparam_indep_real_used ) )
             replace_dict['eftspecial1'] = '      // Begin non-SM (e.g. EFT) implementation - special handling of vectors of floats (#439)'
             replace_dict['eftspecial1'] += '\n#if not( defined MGONGPU_CPPSIMD && defined MGONGPU_FPTYPE_FLOAT )'
             replace_dict['eftspecial2'] = """#else
