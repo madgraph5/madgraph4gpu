@@ -202,15 +202,15 @@ namespace mg5amcCpu
   constexpr long double constexpr_atan_quad( const long double xx )
   {
     if( xx > 1 )
-      return atanTaylor( 1 / xx );
+      return constexpr_pi_by_2 - atanTaylor( 1 / xx );
     else if( xx == 1 )
       return constexpr_pi_by_4;
     else if( xx > -1 )
       return atanTaylor( xx );
     else if( xx == -1 )
       return -constexpr_pi_by_4;
-    else if( xx < -1 )
-      return atanTaylor( 1 / xx );
+    else // if( xx < -1 )
+      return -constexpr_pi_by_2 - atanTaylor( 1 / xx );
   }
 
   // Constexpr implementation of atan (double signature, internally implemented as long double)
