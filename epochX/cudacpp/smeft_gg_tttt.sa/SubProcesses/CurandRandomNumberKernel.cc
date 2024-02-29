@@ -1,12 +1,17 @@
-#include "RandomNumberKernels.h"
+// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Created by: A. Valassi (Dec 2021) for the MG5aMC CUDACPP plugin.
+// Further modified by: J. Teig, A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
 
-#include "CommonRandomNumbers.h"
-#include "CudaRuntime.h"
+#include "GpuRuntime.h"
 #include "MemoryBuffers.h"
+#include "RandomNumberKernels.h"
 
 #include <cassert>
 
 #ifndef MGONGPU_HAS_NO_CURAND /* clang-format off */
+// NB This must come AFTER mgOnGpuConfig.h which contains our definition of __global__ when MGONGPUCPP_GPUIMPL is not defined
+#include "curand.h"
 #define checkCurand( code ){ assertCurand( code, __FILE__, __LINE__ ); }
 inline void assertCurand( curandStatus_t code, const char *file, int line, bool abort = true )
 {
@@ -18,32 +23,13 @@ inline void assertCurand( curandStatus_t code, const char *file, int line, bool 
 }
 #endif /* clang-format on */
 
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
 #endif
 {
   //--------------------------------------------------------------------------
-
-  CommonRandomNumberKernel::CommonRandomNumberKernel( BufferRndNumMomenta& rnarray )
-    : RandomNumberKernelBase( rnarray )
-    , m_seed( 20211220 )
-  {
-    if( m_rnarray.isOnDevice() )
-      throw std::runtime_error( "CommonRandomNumberKernel on host with a device random number array" );
-  }
-
-  //--------------------------------------------------------------------------
-
-  void CommonRandomNumberKernel::generateRnarray()
-  {
-    std::vector<double> rnd = CommonRandomNumbers::generate<double>( m_rnarray.size(), m_seed ); // NB: generate as double (HARDCODED)
-    std::copy( rnd.begin(), rnd.end(), m_rnarray.data() );                                       // NB: copy may imply a double-to-float conversion
-  }
-
-  //--------------------------------------------------------------------------
-
 #ifndef MGONGPU_HAS_NO_CURAND
   CurandRandomNumberKernel::CurandRandomNumberKernel( BufferRndNumMomenta& rnarray, const bool onDevice )
     : RandomNumberKernelBase( rnarray )
@@ -51,7 +37,7 @@ namespace mg5amcCpu
   {
     if( m_isOnDevice )
     {
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
       if( !m_rnarray.isOnDevice() )
         throw std::runtime_error( "CurandRandomNumberKernel on device with a host random number array" );
 #else
@@ -129,7 +115,7 @@ namespace mg5amcCpu
     /*
     printf( "\nCurandRandomNumberKernel::generateRnarray size = %d\n", (int)m_rnarray.size() );
     fptype* data = m_rnarray.data();
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
     if( m_rnarray.isOnDevice() )
     {
       data = new fptype[m_rnarray.size()]();
@@ -138,7 +124,7 @@ namespace mg5amcCpu
 #endif
     for( int i = 0; i < ( (int)m_rnarray.size() / 4 ); i++ )
       printf( "[%4d] %f %f %f %f\n", i * 4, data[i * 4], data[i * 4 + 2], data[i * 4 + 2], data[i * 4 + 3] );
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
     if( m_rnarray.isOnDevice() ) delete[] data;
 #endif
     */
