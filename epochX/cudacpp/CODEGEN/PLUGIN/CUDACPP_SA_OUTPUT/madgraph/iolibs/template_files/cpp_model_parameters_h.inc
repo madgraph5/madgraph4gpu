@@ -18,6 +18,8 @@
 #include "mgOnGpuCxtypes.h"
 #include "mgOnGpuVectors.h"
 
+#include "constexpr_math.h"
+
 //==========================================================================
 
 #ifndef MGONGPU_HARDCODE_PARAM%(eftwarn0)s
