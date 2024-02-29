@@ -815,6 +815,8 @@ Parameters_MSSM_SLHA2::setIndependentParameters( SLHAReader& slha )
     mdl_Wneu4 = -abs( mdl_Wneu4 );
   if( mdl_Mgo < 0 )
     mdl_Wgo = -abs( mdl_Wgo );
+  // BSM parameters that do not depend on alphaS but are needed in the computation of alphaS-dependent couplings;
+  //mdl_bsmIndepParam = { mdl_I51x11 };
 }
 
 void
