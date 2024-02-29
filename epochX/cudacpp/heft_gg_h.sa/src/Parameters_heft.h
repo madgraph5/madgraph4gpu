@@ -236,7 +236,7 @@ namespace mg5amcCpu
 #pragma nv_diagnostic push
 #pragma nv_diag_suppress 177 // e.g. <<warning #177-D: variable "mdl_G__exp__2" was declared but never referenced>>
 #endif
-    __host__ __device__ inline const DependentCouplings_sv computeDependentCouplings_fromG( const fptype_sv& G_sv, const fptype* bsmIndepParamPtr )
+    __host__ __device__ inline const DependentCouplings_sv computeDependentCouplings_fromG( const fptype_sv& G_sv, const double* bsmIndepParamPtr )
     {
 #ifdef MGONGPU_HARDCODE_PARAM
       using namespace Parameters_heft;
@@ -310,7 +310,7 @@ namespace mg5amcCpu
   __device__ inline void
   G2COUP( const fptype gs[],
           fptype couplings[],
-          const fptype* bsmIndepParamPtr )
+          const double* bsmIndepParamPtr )
   {
     mgDebug( 0, __FUNCTION__ );
     using namespace Parameters_heft_dependentCouplings;
