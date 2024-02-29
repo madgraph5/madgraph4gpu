@@ -805,12 +805,12 @@ namespace mg5amcCpu
 #pragma nv_diagnostic push
 #pragma nv_diag_suppress 177 // e.g. <<warning #177-D: variable "mdl_G__exp__2" was declared but never referenced>>
 #endif
-    __host__ __device__ inline const DependentCouplings_sv computeDependentCouplings_fromG( const fptype_sv& G_sv, const fptype* bsmIndepParamPtr )
+    __host__ __device__ inline const DependentCouplings_sv computeDependentCouplings_fromG( const fptype_sv& G_sv, const double* bsmIndepParamPtr )
     {
 #ifdef MGONGPU_HARDCODE_PARAM
       using namespace Parameters_MSSM_SLHA2;
 #else
-      const fptype mdl_I51x11 = bsmIndepParamPtr[0];
+      const double mdl_I51x11 = bsmIndepParamPtr[0];
 #endif
       // NB: hardcode cxtype cI(0,1) instead of cxtype (or hardcoded cxsmpl) mdl_complexi (which exists in Parameters_MSSM_SLHA2) because:
       // (1) mdl_complexi is always (0,1); (2) mdl_complexi is undefined in device code; (3) need cxsmpl conversion to cxtype in code below
@@ -882,7 +882,7 @@ namespace mg5amcCpu
   __device__ inline void
   G2COUP( const fptype gs[],
           fptype couplings[],
-          const fptype* bsmIndepParamPtr )
+          const double* bsmIndepParamPtr )
   {
     mgDebug( 0, __FUNCTION__ );
     using namespace Parameters_MSSM_SLHA2_dependentCouplings;
