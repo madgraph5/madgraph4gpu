@@ -408,21 +408,18 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testmisc )
   testSinCosTanN( 100, -4 * constexpr_pi, 6 * constexpr_pi ); // this was failing at 3*pi/2 (now fixed by absolute tolerance 3E-15)
   testSinCosTanN( 10000, -constexpr_pi_by_2, 5 * constexpr_pi_by_2 );
 
-  /*
   // Test constexpr atan
   {
-    const int nstep = 40;
+    const double tolerance = 1E-12;
+    const int nstep = 1000;
     for ( int istep = 0; istep < nstep + 1; istep++ )
     {
-      long double x0 = -2, x1 = +2;
+      long double x0 = -5, x1 = +5;
       double x = x0 + istep * ( x1 - x0 ) / nstep; // test this for double (else std::cos and std::sin use long double)
-      std::cout << std::endl;
-      std::cout << "x =              " << x << std::endl;
-      std::cout << "atan =           " << std::tan( x ) << std::endl;
-      std::cout << "constexpr_atan = " << constexpr_tan( x ) << std::endl;
+      EXPECT_NEAR( std::atan( x ), constexpr_atan( x ), std::abs( std::atan( x ) * tolerance ) )
+        << "x=" << x << ", istep=" << istep;
     }
   }
-  */
 
   //--------------------------------------------------------------------------
 
