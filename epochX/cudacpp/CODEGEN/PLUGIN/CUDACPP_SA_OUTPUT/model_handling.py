@@ -827,7 +827,6 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
                         if param.name in coup.expr:
                             param_indep_real_used.append( param.name )
             param_indep_real_used = set( param_indep_real_used ) 
-            misc.sprint('PIPPO!', param_indep_real_used )
         # Then do everything else
         replace_dict = self.default_replace_dict
         replace_dict['info_lines'] = PLUGIN_export_cpp.get_mg5_info_lines()
@@ -845,6 +844,13 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
                              line for line in self.write_set_parameters(self.params_indep).split('\n') ]
         replace_dict['set_independent_parameters'] = '\n'.join( set_params_indep )
         replace_dict['set_independent_parameters'] += self.super_write_set_parameters_onlyfixMajorana( hardcoded=False ) # add fixes for Majorana particles only in the aS-indep parameters #622
+        if self.model_name[:2] != 'sm' :
+            replace_dict['set_independent_parameters'] += '\n  // BSM parameters that do not depend on alphaS but are needed in the computation of alphaS-dependent couplings;'
+            if len(param_indep_real_used) > 0:
+                for par in param_indep_real_used:
+                    replace_dict['set_independent_parameters'] += '\n  mdl_bsmIndepParam[0] = %s;'%par
+            else:
+                replace_dict['set_independent_parameters'] += '\n  // (none)'
         replace_dict['set_independent_couplings'] = self.write_set_parameters(self.coups_indep)
         replace_dict['set_dependent_parameters'] = self.write_set_parameters(self.params_dep)
         replace_dict['set_dependent_couplings'] = self.write_set_parameters(list(self.coups_dep.values()))
@@ -921,18 +927,34 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             replace_dict['dcoupoutdcoup2'] = ''
         # Require HRDCOD=1 in EFT and special handling in EFT for fptype=float using SIMD
         if self.model_name[:2] == 'sm' :
+            replace_dict['bsmdefine'] = ''
+            replace_dict['bsmip0'] = ''
+            replace_dict['bsmip1'] = ''
             replace_dict['eftwarn0'] = ''
             replace_dict['eftwarn1'] = ''
             replace_dict['eftspecial0'] = '      // SM implementation - no special handling of non-hardcoded parameters (PR #625)'
             replace_dict['eftspecial1'] = '      // Begin SM implementation - no special handling of vectors of floats as in EFT (#439)'
             replace_dict['eftspecial2'] = '      // End SM implementation - no special handling of vectors of floats as in EFT (#439)'
         else:
+            replace_dict['bsmdefine'] = '''
+
+// AV Jan 2024 (PR #625): this ugly #define was the only way I found to avoid creating arrays[nBsm] in CPPProcess.cc if nBsm is 0
+// The problem is that nBsm is determined when generating Parameters.h, which happens after CPPProcess.cc has already been generated
+%s''' % ( '#define MGONGPUCPP_NBSMINDEPPARAM_GT_0 1' if len( param_indep_real_used ) > 0 else '#undef MGONGPUCPP_NBSMINDEPPARAM_GT_0' )
+            replace_dict['bsmip0'] = '''
+    // BSM parameters that do not depend on alphaS but are needed in the computation of alphaS-dependent couplings;
+    static constexpr int nBsmIndepParam = %s;
+    %sdouble mdl_bsmIndepParam[nBsmIndepParam];''' % ( len( param_indep_real_used ), '' if len( param_indep_real_used ) > 0 else '//' )
+            replace_dict['bsmip1'] = '''\n
+    // BSM parameters that do not depend on alphaS but are needed in the computation of alphaS-dependent couplings;
+    constexpr int nBsmIndepParam = %s;
+    %s__device__ constexpr double mdl_bsmIndepParam[nBsmIndepParam]%s;''' % ( len( param_indep_real_used ), '' if len( param_indep_real_used ) > 0 else '//', ' = { %s }' % ', '.join( param_indep_real_used ) if len( param_indep_real_used ) > 0 else '' )
             replace_dict['eftwarn0'] = '\n//#warning Support for non-SM physics processes (e.g. SUSY or EFT) is still limited for HRDCOD=0 builds (#439 and PR #625)'
             replace_dict['eftwarn1'] = '\n//#warning Support for non-SM physics processes (e.g. SUSY or EFT) is still limited for HRDCOD=1 builds (#439 and PR #625)'
             if len( param_indep_real_used ) == 0:
                 replace_dict['eftspecial0'] = '      // No additional parameters needed in constant memory for this BSM model'
             else:
-                replace_dict['eftspecial0'] = '\n'.join( '      const fptype %s;' % param for param in param_indep_real_used )
+                replace_dict['eftspecial0'] = '\n'.join( '      const fptype %s = bsmIndepParamPtr[%i];' % ( par, ipar ) for ipar, par in enumerate( param_indep_real_used ) )
             replace_dict['eftspecial1'] = '      // Begin non-SM (e.g. EFT) implementation - special handling of vectors of floats (#439)'
             replace_dict['eftspecial1'] += '\n#if not( defined MGONGPU_CPPSIMD && defined MGONGPU_FPTYPE_FLOAT )'
             replace_dict['eftspecial2'] = """#else
@@ -1150,7 +1172,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             replace_dict['cipcstatic'] = 'static fptype cIPC[%i];'%(2*len(coupling_indep))
             replace_dict['cipc2tipcSym'] = 'gpuMemcpyToSymbol( cIPC, tIPC, %i * sizeof( cxtype ) );'%len(coupling_indep)
             replace_dict['cipc2tipc'] = 'memcpy( cIPC, tIPC, %i * sizeof( cxtype ) );'%len(coupling_indep)
-            replace_dict['cipcdump'] = '\n    //for ( i=0; i<%i; i++ ) std::cout << std::setprecision(17) << "tIPC[i] = " << tIPC[i] << std::endl;'%len(coupling_indep)
+            replace_dict['cipcdump'] = '\n    //for ( int i=0; i<%i; i++ ) std::cout << std::setprecision(17) << "tIPC[i] = " << tIPC[i] << std::endl;'%len(coupling_indep)
             coup_str_hrd = '__device__ const fptype cIPC[%s] = { ' % (len(coupling_indep)*2)
             for coup in coupling_indep : coup_str_hrd += '(fptype)Parameters_%s::%s.real(), (fptype)Parameters_%s::%s.imag(), ' % ( self.model_name, coup, self.model_name, coup ) # AV only indep!
             coup_str_hrd = coup_str_hrd[:-2] + ' };'
@@ -1170,7 +1192,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             replace_dict['cipdstatic'] = 'static fptype cIPD[%i];'%(len(params))
             replace_dict['cipd2tipdSym'] = 'gpuMemcpyToSymbol( cIPD, tIPD, %i * sizeof( fptype ) );'%len(params)
             replace_dict['cipd2tipd'] = 'memcpy( cIPD, tIPD, %i * sizeof( fptype ) );'%len(params)
-            replace_dict['cipddump'] = '\n    //for ( i=0; i<%i; i++ ) std::cout << std::setprecision(17) << "tIPD[i] = " << tIPD[i] << std::endl;'%len(params)
+            replace_dict['cipddump'] = '\n    //for ( int i=0; i<%i; i++ ) std::cout << std::setprecision(17) << "tIPD[i] = " << tIPD[i] << std::endl;'%len(params)
             param_str_hrd = '__device__ const fptype cIPD[%s] = { ' % len(params)
             for para in params : param_str_hrd += '(fptype)Parameters_%s::%s, ' % ( self.model_name, para )
             param_str_hrd = param_str_hrd[:-2] + ' };'
@@ -1183,6 +1205,29 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             replace_dict['cipd2tipd'] = '//memcpy( cIPD, tIPD, %i * sizeof( fptype ) ); // nparam=0'%len(params)
             replace_dict['cipddump'] = ''
             replace_dict['cipdhrdcod'] = '//__device__ const fptype* cIPD = nullptr; // unused as nparam=0'
+        if self.model_name[:2] == 'sm' :
+            replace_dict['bsmindepparam'] = ''
+            replace_dict['bsmMemcpySym'] = ''
+            replace_dict['bsmMemcpy'] = ''
+            replace_dict['bsmdump'] = ''
+        else:
+            replace_dict['bsmindepparam'] = '''\n
+  // AV Jan 2024 (PR #625): this ugly #define was the only way I found to avoid creating arrays[nBsm] in CPPProcess.cc if nBsm is 0
+  // The problem is that nBsm is determined when generating Parameters.h, which happens after CPPProcess.cc has already been generated
+#ifdef MGONGPUCPP_NBSMINDEPPARAM_GT_0
+#ifdef MGONGPU_HARDCODE_PARAM
+  __device__ const double* bsmIndepParam = Parameters_MSSM_SLHA2::mdl_bsmIndepParam;
+#else
+#ifdef MGONGPUCPP_GPUIMPL
+  __device__ __constant__ double bsmIndepParam[Parameters_MSSM_SLHA2::nBsmIndepParam];
+#else
+  static double bsmIndepParam[Parameters_MSSM_SLHA2::nBsmIndepParam];
+#endif
+#endif
+#endif'''
+            replace_dict['bsmMemcpySym'] = '\n    if( Parameters_MSSM_SLHA2::nBsmIndepParam > 0 )\n      gpuMemcpyToSymbol( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters_MSSM_SLHA2::nBsmIndepParam * sizeof( double ) );'
+            replace_dict['bsmMemcpy'] = '\n    if( Parameters_MSSM_SLHA2::nBsmIndepParam > 0 )\n      memcpy( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters_MSSM_SLHA2::nBsmIndepParam * sizeof( double ) );'
+            replace_dict['bsmdump'] = '\n    //for ( int i=0; i<Parameters_MSSM_SLHA2::nBsmIndepParam; i++ ) std::cout << std::setprecision(17) << "m_pars->mdl_bsmIndepParam[i] = " << m_pars->mdl_bsmIndepParam[i] << std::endl;'
         replace_dict['all_helicities'] = self.get_helicity_matrix(self.matrix_elements[0])
         replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace('helicities', 'tHel')
         color_amplitudes = [me.get_color_amplitudes() for me in self.matrix_elements] # as in OneProcessExporterCPP.get_process_function_definitions

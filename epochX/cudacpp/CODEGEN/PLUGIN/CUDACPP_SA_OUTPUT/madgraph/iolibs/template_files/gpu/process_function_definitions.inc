@@ -51,7 +51,7 @@ namespace mg5amcCpu
   %(cipdstatic)s
   %(cipcstatic)s
 #endif
-#endif
+#endif%(bsmindepparam)s
 
   // Helicity combinations (and filtering of "good" helicity combinations)
 #ifdef MGONGPUCPP_GPUIMPL
@@ -119,11 +119,11 @@ namespace mg5amcCpu
     %(cipcassign)s
 #ifdef MGONGPUCPP_GPUIMPL
     %(cipd2tipdSym)s
-    %(cipc2tipcSym)s
+    %(cipc2tipcSym)s%(bsmMemcpySym)s
 #else
     %(cipd2tipd)s
-    %(cipc2tipc)s
-#endif%(cipddump)s%(cipcdump)s
+    %(cipc2tipc)s%(bsmMemcpy)s
+#endif%(cipddump)s%(cipcdump)s%(bsmdump)s
   }
 #else
   // Initialize process (with hardcoded parameters)
@@ -230,7 +230,7 @@ namespace mg5amcCpu
     using namespace mg5amcGpu;
     using G_ACCESS = DeviceAccessGs;
     using C_ACCESS = DeviceAccessCouplings;
-    G2COUP<G_ACCESS, C_ACCESS>( allgs, allcouplings, cIPD );
+    G2COUP<G_ACCESS, C_ACCESS>( allgs, allcouplings, bsmIndepParam );
 #else
     using namespace mg5amcCpu;
     using G_ACCESS = HostAccessGs;
@@ -240,7 +240,7 @@ namespace mg5amcCpu
       const int ievt0 = ipagV * neppV;
       const fptype* gs = MemoryAccessGs::ieventAccessRecordConst( allgs, ievt0 );
       fptype* couplings = MemoryAccessCouplings::ieventAccessRecord( allcouplings, ievt0 );
-      G2COUP<G_ACCESS, C_ACCESS>( gs, couplings, cIPD );
+      G2COUP<G_ACCESS, C_ACCESS>( gs, couplings, bsmIndepParam );
     }
 #endif
   }

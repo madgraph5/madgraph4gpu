@@ -20,7 +20,7 @@
 
 #include "constexpr_math.h"
 
-//==========================================================================
+//==========================================================================%(bsmdefine)s
 
 #ifndef MGONGPU_HARDCODE_PARAM%(eftwarn0)s
 
@@ -72,7 +72,7 @@ namespace mg5amcCpu
     //void printDependentParameters(); // now computed event-by-event (running alphas #373)
 
     // Print couplings that are changed event by event
-    //void printDependentCouplings(); // now computed event-by-event (running alphas #373)
+    //void printDependentCouplings(); // now computed event-by-event (running alphas #373)%(bsmip0)s
 
   private:
 
@@ -116,7 +116,7 @@ namespace mg5amcCpu
     //void printDependentParameters(); // now computed event-by-event (running alphas #373)
 
     // Print couplings that are changed event by event
-    //void printDependentCouplings(); // now computed event-by-event (running alphas #373)
+    //void printDependentCouplings(); // now computed event-by-event (running alphas #373)%(bsmip1)s
   }
 
 } // end namespace mg5amcGpu/mg5amcCpu
@@ -148,7 +148,7 @@ namespace mg5amcCpu
 #pragma nv_diagnostic push
 #pragma nv_diag_suppress 177 // e.g. <<warning #177-D: variable "mdl_G__exp__2" was declared but never referenced>>
 #endif
-    __host__ __device__ inline const DependentCouplings_sv computeDependentCouplings_fromG( const fptype_sv& G_sv, const fptype* cIPD )
+    __host__ __device__ inline const DependentCouplings_sv computeDependentCouplings_fromG( const fptype_sv& G_sv, const fptype* bsmIndepParamPtr )
     {
 #ifdef MGONGPU_HARDCODE_PARAM
       using namespace Parameters_%(model_name)s;
@@ -195,12 +195,12 @@ namespace mg5amcCpu
   __device__ inline void
   G2COUP( const fptype gs[],
           fptype couplings[],
-          const fptype* cIPD )
+          const fptype* bsmIndepParamPtr )
   {
     mgDebug( 0, __FUNCTION__ );
     using namespace Parameters_%(model_name)s_dependentCouplings;
     const fptype_sv& gs_sv = G_ACCESS::kernelAccessConst( gs );
-    DependentCouplings_sv couplings_sv = computeDependentCouplings_fromG( gs_sv, cIPD );
+    DependentCouplings_sv couplings_sv = computeDependentCouplings_fromG( gs_sv, bsmIndepParamPtr );
 %(dcoupaccessbuffer)s%(dcoupkernelaccess)s%(dcoupcompute)s
     mgDebug( 1, __FUNCTION__ );
     return;
