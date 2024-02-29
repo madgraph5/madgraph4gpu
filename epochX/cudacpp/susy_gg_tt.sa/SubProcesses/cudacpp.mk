@@ -848,7 +848,7 @@ endif
 endif
 
 # Test quadmath in testmisc.cc tests for constexpr_math #627
-#$(testmain): LIBFLAGS += -lquadmath
+###$(testmain): LIBFLAGS += -lquadmath
 
 # Bypass std::filesystem completely to ease portability on LUMI #803
 #ifneq ($(findstring hipcc,$(GPUCC)),)

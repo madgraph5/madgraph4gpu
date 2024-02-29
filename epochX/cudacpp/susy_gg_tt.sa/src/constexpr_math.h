@@ -25,7 +25,7 @@ namespace mg5amcGpu
 #else
 namespace mg5amcCpu
 #endif
-{  
+{
   // Constexpr implementation of sqrt (see https://stackoverflow.com/a/34134071)
   constexpr long double sqrtNewtonRaphson( const long double xx, const long double curr, const long double prev )
   {
@@ -58,7 +58,7 @@ namespace mg5amcCpu
   }
 
   // PI from cmath
-  constexpr long double constexpr_pi = M_PIl; // pi
+  constexpr long double constexpr_pi = M_PIl;        // pi
   constexpr long double constexpr_pi_by_2 = M_PI_2l; // pi/2
   constexpr long double constexpr_pi_by_4 = M_PI_4l; // pi/4
 
@@ -76,9 +76,9 @@ namespace mg5amcCpu
       long double sinxlast = sinx;
       sinx += delta;
 #ifdef CONSTEXPR_MATH_DEBUG
-      std::cout << "ipow=" << ipow << ", delta=" << delta << ", sinx=" << sinx <<std::endl; // for debugging (not constexpr)
+      std::cout << "ipow=" << ipow << ", delta=" << delta << ", sinx=" << sinx << std::endl; // for debugging (not constexpr)
 #endif
-      if ( sinx == sinxlast ) break;
+      if( sinx == sinxlast ) break;
       // Next iteration
       ipow += 2;
       delta *= -xx * xx / ( ipow - 1 ) / ipow;
@@ -91,7 +91,7 @@ namespace mg5amcCpu
   {
     return xx - constexpr_floor( xx / 2 / constexpr_pi ) * 2 * constexpr_pi;
   }
-  
+
   // Constexpr implementation of cos (long double signature)
   constexpr long double constexpr_cos_quad( const long double xx, const bool assume0to2Pi = false )
   {
@@ -173,7 +173,7 @@ namespace mg5amcCpu
   {
     return constexpr_tan_quad( x );
   }
-  
+
   // Constexpr implementation of atan for -1<x<1 (long double signature)
   // Taylor expansion : x - x**3/3 + x**5/5...
   constexpr long double atanTaylor( const long double xx )
@@ -188,9 +188,9 @@ namespace mg5amcCpu
       long double atanxlast = atanx;
       atanx += xpow / ipow;
 #ifdef CONSTEXPR_MATH_DEBUG
-      std::cout << "ipow=" << ipow << ", xpow=" << xpow << ", atanx=" << atanx <<std::endl; // for debugging (not constexpr)
+      std::cout << "ipow=" << ipow << ", xpow=" << xpow << ", atanx=" << atanx << std::endl; // for debugging (not constexpr)
 #endif
-      if ( atanx == atanxlast ) break;
+      if( atanx == atanxlast ) break;
       // Next iteration
       ipow += 2;
       xpow *= -xx * xx;
