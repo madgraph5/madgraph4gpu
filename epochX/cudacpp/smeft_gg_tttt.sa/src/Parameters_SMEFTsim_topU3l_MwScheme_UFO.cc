@@ -40,9 +40,9 @@ Parameters_SMEFTsim_topU3l_MwScheme_UFO::getInstance()
 void
 Parameters_SMEFTsim_topU3l_MwScheme_UFO::setIndependentParameters( SLHAReader& slha )
 {
-  zero = 0; // define "zero"
-  ZERO = 0; // define "zero"
-  //std::vector<int> indices(2, 0); // prepare a vector for indices
+  zero = 0;                         // define "zero"
+  ZERO = 0;                         // define "zero"
+  std::vector<int> indices( 2, 0 ); // prepare a vector for indices
   mdl_WH = slha.get_block_entry( "decay", 25, 4.070000e-03 );
   mdl_WW = slha.get_block_entry( "decay", 24, 2.085000e+00 );
   mdl_WZ = slha.get_block_entry( "decay", 23, 2.495200e+00 );
@@ -387,6 +387,8 @@ Parameters_SMEFTsim_topU3l_MwScheme_UFO::setIndependentParameters( SLHAReader& s
   mdl_g1sh = ( mdl_ee * ( 1. + mdl_dg1 - ( mdl_cHB * mdl_vevhat__exp__2 ) / mdl_LambdaSMEFT__exp__2 ) ) / mdl_cth;
   mdl_ee__exp__3 = ( ( mdl_ee ) * ( mdl_ee ) * ( mdl_ee ) );
   mdl_vevhat__exp__3 = ( ( mdl_vevhat ) * ( mdl_vevhat ) * ( mdl_vevhat ) );
+  // BSM parameters that do not depend on alphaS but are needed in the computation of alphaS-dependent couplings;
+  // (none)
 }
 
 void
