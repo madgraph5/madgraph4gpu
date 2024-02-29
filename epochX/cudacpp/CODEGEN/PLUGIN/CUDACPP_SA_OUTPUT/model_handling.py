@@ -949,7 +949,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             if len( bsmparam_indep_real_used ) == 0:
                 replace_dict['eftspecial0'] = '      // No additional parameters needed in constant memory for this BSM model'
             else:
-                replace_dict['eftspecial0'] = '\n'.join( '      const fptype %s = bsmIndepParamPtr[%i];' % ( par, ipar ) for ipar, par in enumerate( bsmparam_indep_real_used ) )
+                replace_dict['eftspecial0'] = '\n'.join( '      const double %s = bsmIndepParamPtr[%i];' % ( par, ipar ) for ipar, par in enumerate( bsmparam_indep_real_used ) )
             replace_dict['eftspecial1'] = '      // Begin non-SM (e.g. EFT) implementation - special handling of vectors of floats (#439)'
             replace_dict['eftspecial1'] += '\n#if not( defined MGONGPU_CPPSIMD && defined MGONGPU_FPTYPE_FLOAT )'
             replace_dict['eftspecial2'] = """#else
