@@ -811,7 +811,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
                     res_strings.append( prefix+"    %(width)s = -abs( %(width)s );" % {"width": particle.get('width')})
         if len( res_strings ) != 0 : res_strings = [ prefix + "  // Fixes for Majorana particles" ] + res_strings
         if not hardcoded: return '\n' + '\n'.join(res_strings) if res_strings else ''
-        else: return '\n'.join(res_strings) + '\n'
+        else: return '\n' + '\n'.join(res_strings) + '\n' if res_strings else '\n'
 
     # AV - replace export_cpp.UFOModelConverterCPP method (add hardcoded parameters and couplings)
     def super_generate_parameters_class_files(self):
@@ -819,8 +819,8 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         # First of all, identify which extra independent parameters must be made available through CPU static and GPU constant memory in BSM models
         # because they are used in the event by event calculation of alphaS-dependent couplings
         # WARNING! This is only implemented and has only been tested so far for real parameters (complex parameters need twice the storage)
+        param_indep_real_used = []
         if self.model_name[:2] != 'sm' :
-            param_indep_real_used = []
             for param in self.params_indep:
                 if param.type == 'real':
                     for coup in self.coups_dep.values():                
@@ -866,7 +866,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         assert super().write_parameters([]) == '', 'super().write_parameters([]) is not empty' # AV sanity check (#622)
         assert self.super_write_set_parameters_donotfixMajorana([]) == '', 'super_write_set_parameters_donotfixMajorana([]) is not empty' # AV sanity check (#622)
         ###misc.sprint(self.params_indep) # for debugging
-        hrd_params_indep = [ line.replace('constexpr','//constexpr') + ' // now retrieved event-by-event (as G) from Fortran (running alphas #373)' if 'aS =' in line else line for line in self.write_hardcoded_parameters(self.params_indep,param_indep_real_used).split('\n') ] # use param_indep_real_used as deviceparams
+        hrd_params_indep = [ line.replace('constexpr','//constexpr') + ' // now retrieved event-by-event (as G) from Fortran (running alphas #373)' if 'aS =' in line else line for line in self.write_hardcoded_parameters(self.params_indep,param_indep_real_used).split('\n') if line != '' ] # use param_indep_real_used as deviceparams
         replace_dict['hardcoded_independent_parameters'] = '\n'.join( hrd_params_indep ) + self.super_write_set_parameters_onlyfixMajorana( hardcoded=True ) # add fixes for Majorana particles only in the aS-indep parameters #622
         ###misc.sprint(self.coups_indep) # for debugging
         replace_dict['hardcoded_independent_couplings'] = self.write_hardcoded_parameters(self.coups_indep)
