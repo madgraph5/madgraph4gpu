@@ -79,17 +79,16 @@ namespace mg5amcCpu
 #ifdef MGONGPU_HARDCODE_PARAM
   __device__ const fptype cIPD[2] = { (fptype)Parameters_MSSM_SLHA2::mdl_MT, (fptype)Parameters_MSSM_SLHA2::mdl_WT };
   __device__ const fptype* cIPC = nullptr; // unused as nicoup=0
-  //__device__ const double* bsmIndepParam[1] = Parameters_MSSM_SLHA2::mdl_bsmIndepParam;
   __device__ const double* bsmIndepParam = Parameters_MSSM_SLHA2::mdl_bsmIndepParam;
 #else
 #ifdef MGONGPUCPP_GPUIMPL
   __device__ __constant__ fptype cIPD[2];
   __device__ __constant__ fptype* cIPC = nullptr; // unused as nicoup=0
-  __device__ __constant__ double bsmIndepParam[1];
+  __device__ __constant__ double bsmIndepParam[Parameters_MSSM_SLHA2::nBsmIndepParam];
 #else
   static fptype cIPD[2];
   static fptype* cIPC = nullptr; // unused as nicoup=0
-  static double bsmIndepParam[1];
+  static double bsmIndepParam[Parameters_MSSM_SLHA2::nBsmIndepParam];
 #endif
 #endif
 
@@ -512,16 +511,14 @@ namespace mg5amcCpu
 #ifdef MGONGPUCPP_GPUIMPL
     gpuMemcpyToSymbol( cIPD, tIPD, 2 * sizeof( fptype ) );
     //gpuMemcpyToSymbol( cIPC, tIPC, 0 * sizeof( cxtype ) ); // nicoup=0
-    for( int iibsmp=0; iibsmp<1; iibsmp++ )
-      gpuMemcpyToSymbol( &(bsmIndepParam[iibsmp]), &(m_pars->mdl_bsmIndepParamPtr[iibsmp]), sizeof( double ) );
+    gpuMemcpyToSymbol( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters_MSSM_SLHA2::nBsmIndepParam * sizeof( double ) );
 #else
     memcpy( cIPD, tIPD, 2 * sizeof( fptype ) );
     //memcpy( cIPC, tIPC, 0 * sizeof( cxtype ) ); // nicoup=0
-    for( int iibsmp=0; iibsmp<1; iibsmp++ )
-      memcpy( &(bsmIndepParam[iibsmp]), &(m_pars->mdl_bsmIndepParamPtr[iibsmp]), sizeof( double ) );
+    memcpy( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters_MSSM_SLHA2::nBsmIndepParam * sizeof( double ) );
 #endif
     //for ( int i=0; i<2; i++ ) std::cout << std::setprecision(17) << "tIPD[i] = " << tIPD[i] << std::endl;
-    for ( int i=0; i<1; i++ ) std::cout << std::setprecision(17) << "m_pars->mdl_bsmIndepParamPtr[i] = " << m_pars->mdl_bsmIndepParamPtr[i] << std::endl;
+    for ( int i=0; i<Parameters_MSSM_SLHA2::nBsmIndepParam; i++ ) std::cout << std::setprecision(17) << "m_pars->mdl_bsmIndepParam[i] = " << m_pars->mdl_bsmIndepParam[i] << std::endl;
   }
 #else
   // Initialize process (with hardcoded parameters)
