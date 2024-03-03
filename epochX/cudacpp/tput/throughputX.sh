@@ -187,9 +187,9 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-curhst" ]; then
     rndgen=" -${1}"
     shift
-  elif [ "$1" == "-hirhst" ]; then
-    rndgen=" -${1}"
-    shift
+  ###elif [ "$1" == "-hirhst" ]; then
+  ###  rndgen=" -${1}"
+  ###  shift
   elif [ "$1" == "-rmbhst" ]; then
     rmbsmp=" -${1}"
     shift
