@@ -1205,8 +1205,8 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             replace_dict['bsmMemcpy'] = ''
             replace_dict['bsmdump'] = ''
         else:
-            replace_dict['bsmMemcpySym'] = '\n    if( Parameters_MSSM_SLHA2::nBsmIndepParam > 0 )\n      gpuMemcpyToSymbol( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters_MSSM_SLHA2::nBsmIndepParam * sizeof( double ) );'
-            replace_dict['bsmMemcpy'] = '\n    if( Parameters_MSSM_SLHA2::nBsmIndepParam > 0 )\n      memcpy( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters_MSSM_SLHA2::nBsmIndepParam * sizeof( double ) );'
+            replace_dict['bsmMemcpySym'] = '\n#ifdef MGONGPUCPP_NBSMINDEPPARAM_GT_0\n    if( Parameters_MSSM_SLHA2::nBsmIndepParam > 0 )\n      gpuMemcpyToSymbol( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters_MSSM_SLHA2::nBsmIndepParam * sizeof( double ) );\n#endif'
+            replace_dict['bsmMemcpy'] = '\n#ifdef MGONGPUCPP_NBSMINDEPPARAM_GT_0\n    if( Parameters_MSSM_SLHA2::nBsmIndepParam > 0 )\n      memcpy( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters_MSSM_SLHA2::nBsmIndepParam * sizeof( double ) );\n#endif'
             replace_dict['bsmdump'] = '\n    //for ( int i=0; i<Parameters_MSSM_SLHA2::nBsmIndepParam; i++ ) std::cout << std::setprecision(17) << "m_pars->mdl_bsmIndepParam[i] = " << m_pars->mdl_bsmIndepParam[i] << std::endl;'
         replace_dict['all_helicities'] = self.get_helicity_matrix(self.matrix_elements[0])
         replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace('helicities', 'tHel')
