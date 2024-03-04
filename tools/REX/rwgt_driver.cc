@@ -5,11 +5,11 @@
 //==========================================================================
 //==========================================================================
 // This file has been automatically generated for C++ Standalone by
-//%(info_lines)s
+%(info_lines)s
 //==========================================================================
 //==========================================================================
 // Driver for reweighting events for processes
-//%(multiprocess_lines)s
+%(multiprocess_lines)s
 //--------------------------------------------------------------------------
 
 #include "rwgt_instance.h"
@@ -91,7 +91,7 @@ int main( int argc, char** argv ){
     // ZW : include rwgt_instances(s)
 //%(rwgt_runners)s
 
-//    std::vector<rwgt::instance> runSet = {%(run_set)s};
+    std::vector<rwgt::instance> runSet = {%(run_set)s};
     std::vector<rwgt::instance> runSet;
     REX::teaw::rwgtFiles fileCol( lheFilePath, slhaPath, rwgtCardPath );
     fileCol.initCards();

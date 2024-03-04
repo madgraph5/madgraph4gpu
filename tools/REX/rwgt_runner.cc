@@ -14,10 +14,10 @@
 
 #include "teawREX.hpp"
 #include "rwgt_instance.h"
-#include "fbridge.cc"
 
 // ZW: SET UP NAMESPACE
 namespace %(process_namespace)s{
+#include "fbridge.cc"
 //namespace dummy{
 
     struct fbridgeRunner{
