@@ -107,7 +107,7 @@ namespace mg5amcCpu
      * @param gs the pointer to the input Gs (running QCD coupling constant alphas)
      * @param rndhel the pointer to the input random numbers for helicity selection
      * @param rndcol the pointer to the input random numbers for color selection
-     * @param channelIds the Feynman diagram to enhance in multi-channel mode if 1 to n (disable multi-channel if 0) SR-FIXME need to describe how it looks like when no channel ID is used
+     * @param channelIds the Feynman diagram to enhance in multi-channel mode if 1 to n
      * @param mes the pointer to the output matrix elements
      * @param goodHelOnly quit after computing good helicities?
      * @param selhel the pointer to the output selected helicities
@@ -130,7 +130,7 @@ namespace mg5amcCpu
      * @param gs the pointer to the input Gs (running QCD coupling constant alphas)
      * @param rndhel the pointer to the input random numbers for helicity selection
      * @param rndcol the pointer to the input random numbers for color selection
-     * @param channelIds the Feynman diagram to enhance in multi-channel mode if 1 to n (disable multi-channel if 0) SR-FIXME need to describe how it looks like when no channel ID is used
+     * @param channelIds the Feynman diagram to enhance in multi-channel mode if 1 to n
      * @param mes the pointer to the output matrix elements
      * @param selhel the pointer to the output selected helicities
      * @param selcol the pointer to the output selected colors
