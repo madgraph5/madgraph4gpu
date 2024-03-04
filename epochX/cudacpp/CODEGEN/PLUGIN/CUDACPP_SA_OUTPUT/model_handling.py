@@ -1074,9 +1074,14 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         replace_dict['nincoming'] = nincoming
         replace_dict['noutcoming'] = nexternal - nincoming
         replace_dict['nbhel'] = self.matrix_elements[0].get_helicity_combinations() # number of helicity combinations
-        file = self.read_template_file(self.process_class_template) % replace_dict # HACK! ignore write=False case
-        file = '\n'.join( file.split('\n')[8:] ) # skip first 8 lines in process_class.inc (copyright)
-        return file
+#        file = self.read_template_file(self.process_class_template) % replace_dict # HACK! ignore write=False case
+#        file = '\n'.join( file.split('\n')[8:] ) # skip first 8 lines in process_class.inc (copyright)
+        if write:
+            file = self.read_template_file(self.process_class_template) % replace_dict
+            file = '\n'.join( file.split('\n')[8:] ) # skip first 8 lines in process_class.inc (copyright)
+            return file
+        else:
+            return replace_dict
 
     # AV - replace export_cpp.OneProcessExporterGPU method (fix CPPProcess.cc)
     def get_process_function_definitions(self, write=True):
@@ -1990,3 +1995,77 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             self.add_amplitude(argument.get_call_key(), call_function)
 
 #------------------------------------------------------------------------------------
+class PLUGIN_OneProcessExporterRwgt(PLUGIN_OneProcessExporter):
+    """A custom OneProcessExporter for the REX reweighting"""
+    
+    rwgt_template = 'gpu/rwgt_runner.inc'
+
+    # ZW - rwgt functions
+    def get_rwgt_legs(self, process):
+        """Return string with particle ids and status in the REX std::pair format"""
+        return ",".join(["{%i,%i}" % (leg.get('state'), leg.get('id')) \
+            for leg in process.get('legs')]).replace('0', '-1')
+        
+    def get_init_prts_vec(self, process):
+        """Return string with initial state particle ids for use in REX event sorting"""
+        prts = ",".join(["\"%i\"" % leg.get('id') for leg in process.get('legs') if leg.get('state') == 0])
+        return "{" + prts + "}"
+    
+    def get_fin_prts_vec(self, process):
+        """Return string with final state particle ids for use in REX event sorting"""
+        prts = ",".join(["\"%i\"" % leg.get('id') for leg in process.get('legs') if leg.get('state') == 1])
+        return "{" + prts + "}"
+        
+    def get_rwgt_procMap(self, process):
+        """Return string with particle states and order in the REX procMap format"""
+        currState = False
+        retString = "thisProc{{\"-1\",{"
+        for leg in process.get('legs'):
+            if currState == leg.get('state'):
+                retString += "\"%i\"," % leg.get('id')
+            else:
+                currState = leg.get('state')
+                retString += "}},{\"1\",{\"%i,\"" % leg.get('id')
+        retString = retString[:-1] + "}}}"
+        return retString
+    
+    def get_proc_dir(self):
+        """Return process directory name for the current process"""
+        return "P%d_%s" % (self.process_number, self.process_name)
+        
+    def get_rwgt_runner(self):
+        """Return string to initialise the rwgtRunners in teawREX"""
+        return "%s::runner" % (self.get_proc_dir())
+    
+    def get_rwgt_includes(self):
+        """Return string with the include directives for the REX reweighting"""
+        return "#include \"P%d_%s/rwgt_runner.cc\"" % (self.process_number, self.process_name)
+    
+    def edit_rwgt_runner(self):
+        """Create the rwgt_runner.cc file for the REX reweighting"""
+        ###misc.sprint('Entering PLUGIN_OneProcessExporterRwgt.edit_rwgt_runner')
+        # Create the rwgt_runner.cc file
+#        replace_dict = {}
+        replace_dict = super().get_process_class_definitions(write=False)
+        rwgt_runner = self.get_proc_dir() + self.rwgt_template
+        replace_dict['process_namespace'] = self.get_proc_dir()
+        replace_dict['info_lines'] = PLUGIN_export_cpp.get_mg5_info_lines()
+        replace_dict['init_prt_ids'] = self.get_init_prts_vec(self.matrix_elements[0].get('processes')[0])
+        replace_dict['fin_prt_ids'] = self.get_fin_prts_vec(self.matrix_elements[0].get('processes')[0])
+        replace_dict['process_event'] = self.get_rwgt_legs(self.matrix_elements[0].get('processes')[0])
+        template = open(pjoin(self.template_path,'REX', 'rwgt_runner.inc'),'r').read()
+        ff = open(pjoin(self.path, 'rwgt_runner.cc'),'w')
+        ff.write(template % replace_dict)
+        ff.close()
+    
+    # ZW - override the PLUGIN method to generate the rwgt_runner.cc file as well
+    # note: also generating standard check_sa.cc and gcheck_sa.cu files, which
+    # are not used in the REX reweighting
+    def generate_process_files(self):
+        """Generate mgOnGpuConfig.h, CPPProcess.cc, CPPProcess.h, check_sa.cc, gXXX.cu links"""
+        misc.sprint('Entering RWGT_OneProcessExporter.generate_process_files')
+        super().generate_process_files()
+        misc.sprint('Generating rwgt_runner file')
+        self.edit_rwgt_runner()
+        misc.sprint('Finished generating rwgt files')
+        

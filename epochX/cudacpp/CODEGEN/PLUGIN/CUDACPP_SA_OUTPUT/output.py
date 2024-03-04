@@ -337,3 +337,130 @@ class GPU_ProcessExporter(PLUGIN_ProcessExporter_MadEvent):
         return out
 
 #------------------------------------------------------------------------------------
+
+class RWGT_ProcessExporter(PLUGIN_ProcessExporter):
+    
+    oneprocessclass = model_handling.PLUGIN_OneProcessExporterRwgt
+    
+    rwgt_names = []
+    proc_lines = []
+    
+    
+    s = PLUGINDIR + '/madgraph/iolibs/template_files/'
+    from_template = {'.': [s+'.clang-format', s+'CMake/CMakeLists.txt',
+                           s+'COPYRIGHT', s+'COPYING', s+'COPYING.LESSER' ],
+                     'CMake': [s+'CMake/Compilers.txt', s+'CMake/Platforms.txt', s+'CMake/Macros.txt'],
+                     'src': [s+'gpu/rambo.h', s+'read_slha.h', s+'read_slha.cc',
+                             s+'gpu/mgOnGpuFptypes.h', s+'gpu/mgOnGpuCxtypes.h', s+'gpu/mgOnGpuVectors.h',
+                             s+'CMake/src/CMakeLists.txt' ],
+                     'SubProcesses': [s+'gpu/nvtx.h', s+'gpu/timer.h', s+'gpu/timermap.h',
+                                      s+'gpu/ompnumthreads.h', s+'gpu/GpuRuntime.h', s+'gpu/GpuAbstraction.h',
+                                      s+'gpu/MemoryAccessHelpers.h', s+'gpu/MemoryAccessVectors.h',
+                                      s+'gpu/MemoryAccessMatrixElements.h', s+'gpu/MemoryAccessMomenta.h',
+                                      s+'gpu/MemoryAccessRandomNumbers.h', s+'gpu/MemoryAccessWeights.h',
+                                      s+'gpu/MemoryAccessAmplitudes.h', s+'gpu/MemoryAccessWavefunctions.h',
+                                      s+'gpu/MemoryAccessGs.h', s+'gpu/MemoryAccessCouplingsFixed.h',
+                                      s+'gpu/MemoryAccessNumerators.h', s+'gpu/MemoryAccessDenominators.h',
+                                      s+'gpu/EventStatistics.h', s+'gpu/CommonRandomNumbers.h',
+                                      s+'gpu/CrossSectionKernels.cc', s+'gpu/CrossSectionKernels.h',
+                                      s+'gpu/MatrixElementKernels.cc', s+'gpu/MatrixElementKernels.h',
+                                      s+'gpu/RamboSamplingKernels.cc', s+'gpu/RamboSamplingKernels.h',
+                                      s+'gpu/RandomNumberKernels.h', s+'gpu/CommonRandomNumberKernel.cc',
+                                      s+'gpu/CurandRandomNumberKernel.cc', s+'gpu/HiprandRandomNumberKernel.cc',
+                                      s+'gpu/Bridge.h', s+'gpu/BridgeKernels.cc', s+'gpu/BridgeKernels.h',
+                                      s+'gpu/fbridge.cc', s+'gpu/fbridge.inc', s+'gpu/fsampler.cc', s+'gpu/fsampler.inc',
+                                      s+'gpu/MadgraphTest.h', s+'gpu/runTest.cc',
+                                      s+'gpu/testmisc.cc', s+'gpu/testxxx_cc_ref.txt',
+                                      s+'gpu/perf.py', s+'gpu/profile.sh',
+                                      s+'CMake/SubProcesses/CMakeLists.txt'],
+                     'test': [s+'gpu/cudacpp_test.mk']}
+
+    from_template['SubProcesses'].append(s+'REX/rwgt_instance.h')
+    from_template['SubProcesses'].append(s+'REX/REX.hpp')
+    from_template['SubProcesses'].append(s+'REX/teawREX.hpp')
+
+    to_link_in_P = ['nvtx.h', 'timer.h', 'timermap.h',
+                    'ompnumthreads.h', 'GpuRuntime.h', 'GpuAbstraction.h',
+                    'MemoryAccessHelpers.h', 'MemoryAccessVectors.h',
+                    'MemoryAccessMatrixElements.h', 'MemoryAccessMomenta.h',
+                    'MemoryAccessRandomNumbers.h', 'MemoryAccessWeights.h',
+                    'MemoryAccessAmplitudes.h', 'MemoryAccessWavefunctions.h',
+                    'MemoryAccessGs.h', 'MemoryAccessCouplingsFixed.h',
+                    'MemoryAccessNumerators.h', 'MemoryAccessDenominators.h',
+                    'EventStatistics.h', 'CommonRandomNumbers.h',
+                    'CrossSectionKernels.cc', 'CrossSectionKernels.h',
+                    'MatrixElementKernels.cc', 'MatrixElementKernels.h',
+                    'RamboSamplingKernels.cc', 'RamboSamplingKernels.h',
+                    'RandomNumberKernels.h', 'CommonRandomNumberKernel.cc',
+                    'CurandRandomNumberKernel.cc', 'HiprandRandomNumberKernel.cc',
+                    'Bridge.h', 'BridgeKernels.cc', 'BridgeKernels.h',
+                    'fbridge.cc', 'fbridge.inc', 'fsampler.cc', 'fsampler.inc',
+                    'MadgraphTest.h', 'runTest.cc',
+                    'testmisc.cc', 'testxxx_cc_ref.txt',
+                    'cudacpp.mk', # this is generated from a template in Subprocesses but we still link it in P1
+                    'testxxx.cc', # this is generated from a template in Subprocesses but we still link it in P1
+                    'MemoryBuffers.h', # this is generated from a template in Subprocesses but we still link it in P1
+                    'MemoryAccessCouplings.h', # this is generated from a template in Subprocesses but we still link it in P1
+                    'perf.py', 'profile.sh']
+    
+    to_link_in_P.append('rwgt_instance.h')
+    to_link_in_P.append('REX.hpp')
+    to_link_in_P.append('teawREX.hpp')
+    
+    template_Sub_make = pjoin(PLUGINDIR, 'madgraph', 'iolibs', 'template_files','gpu','cudacpp_rex.mk')
+    
+    # def generate_subprocess_directory(self, subproc_group, fortran_model, me=None):
+    #     misc.sprint('Entering PLUGIN_ProcessExporter.generate_subprocess_directory (create the directory)')
+    #     misc.sprint('  type(subproc_group)=%s'%type(subproc_group)) # e.g. madgraph.core.helas_objects.HelasMatrixElement
+    #     misc.sprint('  type(fortran_model)=%s'%type(fortran_model)) # e.g. madgraph.iolibs.helas_call_writers.GPUFOHelasCallWriter
+    #     misc.sprint('  type(me)=%s me=%s'%(type(me) if me is not None else None, me)) # e.g. int
+    #     return super().generate_subprocess_directory(subproc_group, fortran_model, me)
+    
+    def generate_subprocess_directory(self, matrix_element, cpp_helas_call_writer,
+                                      proc_number=None):
+        """Generate the Pxxxxx directory for a subprocess in C++ standalone,
+        including the necessary .h and .cc files"""
+
+        
+        process_exporter_cpp = self.oneprocessclass(matrix_element,cpp_helas_call_writer)
+        
+        self.rwgt_names.append("P%d_%s" % (process_exporter_cpp.process_number, 
+                                             process_exporter_cpp.process_name))
+        
+        process_lines = "\n".join([process_exporter_cpp.get_process_info_lines(me) for me in \
+                                   process_exporter_cpp.matrix_elements])
+        self.proc_lines.append(process_lines)
+        
+        # Create the directory PN_xx_xxxxx in the specified path
+        dirpath = pjoin(self.dir_path, 'SubProcesses', "P%d_%s" % (process_exporter_cpp.process_number, 
+                                             process_exporter_cpp.process_name))
+        try:
+            os.mkdir(dirpath)
+        except os.error as error:
+            logger.warning(error.strerror + " " + dirpath)
+    
+        with misc.chdir(dirpath):
+            logger.info('Creating files in directory %s' % dirpath)
+            process_exporter_cpp.path = dirpath
+            # Create the process .h and .cc files
+            process_exporter_cpp.generate_process_files()
+            for file in self.to_link_in_P:
+                files.ln('../%s' % file) 
+        return
+    
+    def export_driver(self):
+        replace_dict = {}
+        replace_dict['info_lines'] = PLUGIN_export_cpp.get_mg5_info_lines()
+        replace_dict['multiprocess_lines'] = "\n".join(self.proc_lines)
+        replace_dict['include_lines'] = ''
+        replace_dict['run_set'] = ''
+        for name in self.rwgt_names:
+            replace_dict['include_lines'] += '#include "%s/rwgt_runner.cc"\n' % name
+            replace_dict['run_set'] += '%s::runner,' % name
+        replace_dict['run_set'] = replace_dict['run_set'][:-1]
+        template_path = os.path.join( PLUGINDIR, 'madgraph', 'iolibs', 'template_files' )
+        template = open(pjoin(template_path,'REX', 'rwgt_driver.inc'),'r').read()
+        ff = open(pjoin(self.dir_path, 'SubProcesses', 'rwgt_driver.cc'),'w')
+        ff.write(template % replace_dict)
+        ff.close()
+        
