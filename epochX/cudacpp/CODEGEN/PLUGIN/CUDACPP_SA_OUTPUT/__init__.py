@@ -35,6 +35,7 @@ else:
     new_output = { 'madevent_simd' : output.SIMD_ProcessExporter,
                    'madevent_gpu' : output.GPU_ProcessExporter,
                    'standalone_cudacpp' : output.PLUGIN_ProcessExporter,
+                   'standalone_rwgtcpp' : output.RWGT_ProcessExporter,
                    # the following one are used for the second exporter class 
                    # (not really needed so far but interesting if need
                    #  specialization in the futur) 
