@@ -27,7 +27,7 @@
 // AV Jan 2024 (PR #625): this ugly #define was the only way I found to avoid creating arrays[nBsm] in CPPProcess.cc if nBsm is 0
 // The problem is that nBsm is determined when generating Parameters.h, which happens after CPPProcess.cc has already been generated
 // For simplicity, keep this code hardcoded also for SM processes (a nullptr is needed as in the case nBsm == 0)
-#undef MGONGPUCPP_NBSMINDEPPARAM_GT_0
+#define MGONGPUCPP_NBSMINDEPPARAM_GT_0 1
 
 #ifndef MGONGPU_HARDCODE_PARAM
 //#warning Support for non-SM physics processes (e.g. SUSY or EFT) is still limited for HRDCOD=0 builds (#439 and PR #625)
@@ -89,8 +89,8 @@ namespace mg5amcCpu
     // Print couplings that are changed event by event
     //void printDependentCouplings(); // now computed event-by-event (running alphas #373)
     // BSM parameters that do not depend on alphaS but are needed in the computation of alphaS-dependent couplings;
-    static constexpr int nBsmIndepParam = 0;
-    //double mdl_bsmIndepParam[nBsmIndepParam];
+    static constexpr int nBsmIndepParam = 12;
+    double mdl_bsmIndepParam[nBsmIndepParam] = { mdl_I51x33.real(), mdl_I51x33.imag(), mdl_I52x33.real(), mdl_I52x33.imag(), mdl_I51x36.real(), mdl_I51x36.imag(), mdl_I52x36.real(), mdl_I52x36.imag(), mdl_I74x33.real(), mdl_I74x33.imag(), mdl_I75x33.real(), mdl_I75x33.imag() };
 
   private:
 
@@ -816,7 +816,12 @@ namespace mg5amcCpu
 #ifdef MGONGPU_HARDCODE_PARAM
       using namespace Parameters_MSSM_SLHA2;
 #else
-      // No additional parameters needed in constant memory for this BSM model
+      const cxtype mdl_I51x33( bsmIndepParamPtr[0], bsmIndepParamPtr[1] );
+      const cxtype mdl_I52x33( bsmIndepParamPtr[2], bsmIndepParamPtr[3] );
+      const cxtype mdl_I51x36( bsmIndepParamPtr[4], bsmIndepParamPtr[5] );
+      const cxtype mdl_I52x36( bsmIndepParamPtr[6], bsmIndepParamPtr[7] );
+      const cxtype mdl_I74x33( bsmIndepParamPtr[8], bsmIndepParamPtr[9] );
+      const cxtype mdl_I75x33( bsmIndepParamPtr[10], bsmIndepParamPtr[11] );
 #endif
       // NB: hardcode cxtype cI(0,1) instead of cxtype (or hardcoded cxsmpl) mdl_complexi (which exists in Parameters_MSSM_SLHA2) because:
       // (1) mdl_complexi is always (0,1); (2) mdl_complexi is undefined in device code; (3) need cxsmpl conversion to cxtype in code below
