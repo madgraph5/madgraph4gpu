@@ -577,12 +577,12 @@ INFO: Creating files in directory /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gg_gogo/SubProcesses/P1_Sigma_MSSM_SLHA2_gg_gogo/./CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gg_gogo/SubProcesses/P1_Sigma_MSSM_SLHA2_gg_gogo/./CPPProcess.cc
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gg_gogo/SubProcesses/P1_Sigma_MSSM_SLHA2_gg_gogo/. 
-Generated helas calls for 1 subprocesses (3 diagrams) in 0.011 s
+Generated helas calls for 1 subprocesses (3 diagrams) in 0.012 s
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 204][0m [0m
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
 ALOHA: aloha creates FFV1 routines[0m
-ALOHA: aloha creates 2 routines in  0.135 s
+ALOHA: aloha creates 2 routines in  0.137 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -597,7 +597,7 @@ INFO: Created files Parameters_MSSM_SLHA2.h and Parameters_MSSM_SLHA2.cc in dire
 INFO: /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gg_gogo/src/. and /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gg_gogo/src/. 
 quit
 
-real	0m1.328s
-user	0m1.207s
-sys	0m0.079s
-Code generation completed in 2 seconds
+real	0m1.296s
+user	0m1.223s
+sys	0m0.065s
+Code generation completed in 1 seconds
