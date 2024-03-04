@@ -816,12 +816,12 @@ namespace mg5amcCpu
 #ifdef MGONGPU_HARDCODE_PARAM
       using namespace Parameters_MSSM_SLHA2;
 #else
-      const cxtype mdl_I51x33( bsmIndepParamPtr[0], bsmIndepParamPtr[1] );
-      const cxtype mdl_I52x33( bsmIndepParamPtr[2], bsmIndepParamPtr[3] );
-      const cxtype mdl_I51x36( bsmIndepParamPtr[4], bsmIndepParamPtr[5] );
-      const cxtype mdl_I52x36( bsmIndepParamPtr[6], bsmIndepParamPtr[7] );
-      const cxtype mdl_I74x33( bsmIndepParamPtr[8], bsmIndepParamPtr[9] );
-      const cxtype mdl_I75x33( bsmIndepParamPtr[10], bsmIndepParamPtr[11] );
+      const cxsmpl<double> mdl_I51x33( bsmIndepParamPtr[0], bsmIndepParamPtr[1] );
+      const cxsmpl<double> mdl_I52x33( bsmIndepParamPtr[2], bsmIndepParamPtr[3] );
+      const cxsmpl<double> mdl_I51x36( bsmIndepParamPtr[4], bsmIndepParamPtr[5] );
+      const cxsmpl<double> mdl_I52x36( bsmIndepParamPtr[6], bsmIndepParamPtr[7] );
+      const cxsmpl<double> mdl_I74x33( bsmIndepParamPtr[8], bsmIndepParamPtr[9] );
+      const cxsmpl<double> mdl_I75x33( bsmIndepParamPtr[10], bsmIndepParamPtr[11] );
 #endif
       // NB: hardcode cxtype cI(0,1) instead of cxtype (or hardcoded cxsmpl) mdl_complexi (which exists in Parameters_MSSM_SLHA2) because:
       // (1) mdl_complexi is always (0,1); (2) mdl_complexi is undefined in device code; (3) need cxsmpl conversion to cxtype in code below
@@ -862,9 +862,9 @@ namespace mg5amcCpu
         const fptype mdl_G__exp__2 = ( ( G ) * ( G ) );
         // Model couplings dependent on aS
         const cxtype GC_6 = -G;
-        const cxtype GC_55 = -( cI * G * mdl_I51x33 ) - cI * G * mdl_I52x33;
-        const cxtype GC_57 = -( cI * G * mdl_I51x36 ) - cI * G * mdl_I52x36;
-        const cxtype GC_90 = cI * mdl_G__exp__2 * mdl_I74x33 + cI * mdl_G__exp__2 * mdl_I75x33;
+        const cxtype GC_55 = -( cI * G * (cxtype)mdl_I51x33 ) - cI * G * (cxtype)mdl_I52x33;
+        const cxtype GC_57 = -( cI * G * (cxtype)mdl_I51x36 ) - cI * G * (cxtype)mdl_I52x36;
+        const cxtype GC_90 = cI * mdl_G__exp__2 * (cxtype)mdl_I74x33 + cI * mdl_G__exp__2 * (cxtype)mdl_I75x33;
         GC_6r_v[i] = cxreal( GC_6 );
         GC_6i_v[i] = cximag( GC_6 );
         GC_55r_v[i] = cxreal( GC_55 );
