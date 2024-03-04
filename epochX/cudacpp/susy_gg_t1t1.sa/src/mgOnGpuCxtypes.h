@@ -74,6 +74,9 @@ namespace mgOnGpu /* clang-format off */
 #ifdef __CUDACC__
 #ifdef MGONGPU_CUCXTYPE_THRUST
     template<typename FP2> __host__ __device__ constexpr operator thrust::complex<FP2>() const { return thrust::complex<FP2>( m_real, m_imag ); }
+#elif defined MGONGPU_CUCXTYPE_CUCOMPLEX 
+    __host__ __device__ constexpr operator cuDoubleComplex() const { return make_cuDoubleComplex( m_real, m_imag ); }
+    __host__ __device__ constexpr operator cuFloatComplex() const { return make_cuFloatComplex( m_real, m_imag ); }
 #endif
 #else
 #ifdef MGONGPU_CPPCXTYPE_STDCOMPLEX
@@ -430,6 +433,13 @@ namespace mg5amcCpu
     return cuCdiv( a, b );
   }
 
+  inline __host__ std::ostream&
+  operator<<( std::ostream& out, const cxtype& c )
+  {
+    out << std::complex<double>( cxreal( c ), cximag( c ) );
+    return out;
+  }
+
 #elif defined MGONGPU_FPTYPE_FLOAT // cuda + cucomplex + float
 
   //+++++++++++++++++++++++++
@@ -496,6 +506,13 @@ namespace mg5amcCpu
   cxmake( const std::complex<double>& c ) // std::complex to cucomplex (cast double-to-float)
   {
     return cxmake( (fptype)c.real(), (fptype)c.imag() );
+  }
+
+  inline __host__ std::ostream&
+  operator<<( std::ostream& out, const cxtype& c )
+  {
+    out << std::complex<float>( cxreal( c ), cximag( c ) );
+    return out;
   }
 
 #endif
