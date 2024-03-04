@@ -1,7 +1,7 @@
 // Copyright (C) 2020-2023 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: A. Valassi (Apr 2021) for the MG5aMC CUDACPP plugin.
-// Further modified by: A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: J. Teig, A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
 //----------------------------------------------------------------------------
 // Use ./runTest.exe --gtest_filter=*xxx to run only testxxx.cc tests
 //----------------------------------------------------------------------------
@@ -24,7 +24,7 @@
 #include <iomanip>
 #include <iostream>
 #include <vector>
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 #define TESTID( s ) s##_GPU_XXX
 #else
 #define TESTID( s ) s##_CPU_XXX
@@ -32,7 +32,7 @@
 
 #define XTESTID( s ) TESTID( s )
 
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
@@ -42,7 +42,7 @@ namespace mg5amcCpu
   int FPEhandlerIevt = -1;
   inline void FPEhandler( int sig )
   {
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
     std::cerr << "Floating Point Exception (GPU): '" << FPEhandlerMessage << "' ievt=" << FPEhandlerIevt << std::endl;
 #else
     std::cerr << "Floating Point Exception (CPU neppV=" << neppV << "): '" << FPEhandlerMessage << "' ievt=" << FPEhandlerIevt << std::endl;
@@ -53,7 +53,7 @@ namespace mg5amcCpu
 
 TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
 {
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
   using namespace mg5amcGpu;
 #else
   using namespace mg5amcCpu;
@@ -77,7 +77,7 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
   assert( nevt % neppM == 0 ); // nevt must be a multiple of neppM
   assert( nevt % neppV == 0 ); // nevt must be a multiple of neppV
   // Fill in the input momenta
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
   mg5amcGpu::PinnedHostBufferMomenta hstMomenta( nevt ); // AOSOA[npagM][npar=4][np4=4][neppM]
 #else
   mg5amcCpu::HostBufferMomenta hstMomenta( nevt ); // AOSOA[npagM][npar=4][np4=4][neppM]
@@ -322,7 +322,7 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
   {
     for( int ievt = 0; ievt < nevt; ievt++ )
     {
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
       using namespace mg5amcGpu;
 #else
       using namespace mg5amcCpu;

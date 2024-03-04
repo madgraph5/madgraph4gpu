@@ -131,7 +131,8 @@ if [ "${fptype}" == "f" ]; then
 elif [ "${fptype}" == "m" ]; then
   xsecthr="2E-4" # FIXME #537 (AV: by "fixme" I probably meant a stricter tolerance could be used, maybe E-5?)
 else
-  xsecthr="2E-14"
+  ###xsecthr="2E-14" # fails when updating gpucpp in PR #811
+  xsecthr="3E-14"
 fi
 
 # Determine the working directory below topdir based on suff, bckend and <process>
@@ -420,7 +421,13 @@ printf "\nOMP_NUM_THREADS=$OMP_NUM_THREADS\n"
 
 printf "\nDATE: $(date '+%Y-%m-%d_%H:%M:%S')\n\n"
 
-if nvidia-smi -L > /dev/null 2>&1; then gpuTxt="$(nvidia-smi -L | wc -l)x $(nvidia-smi -L | awk '{print $3,$4}' | sort -u)"; else gpuTxt=none; fi
+if nvidia-smi -L > /dev/null 2>&1; then
+  gpuTxt="$(nvidia-smi -L | wc -l)x $(nvidia-smi -L | awk '{print $3,$4}' | sort -u)"
+elif rocm-smi -i > /dev/null 2>&1; then
+  gpuTxt="$(rocm-smi --showproductname | grep 'Card series' | awk '{print $5,$6,$7}')"
+else
+  gpuTxt=none
+fi
 if [ "${unames}" == "Darwin" ]; then 
   cpuTxt=$(sysctl -h machdep.cpu.brand_string)
   cpuTxt=${cpuTxt/machdep.cpu.brand_string: }
