@@ -531,12 +531,12 @@ namespace mg5amcCpu
     constexpr cxsmpl<double> mdl_I50x33 = mdl_yu3x3 * mdl_conjg__Ru3x3;
     constexpr cxsmpl<double> mdl_conjg__Ru6x3 = conj( mdl_Ru6x3 );
     constexpr cxsmpl<double> mdl_I50x36 = mdl_yu3x3 * mdl_conjg__Ru6x3;
-    constexpr cxsmpl<double> mdl_I51x33 = mdl_Ru3x3 * mdl_conjg__Ru3x3;
-    constexpr cxsmpl<double> mdl_I51x36 = mdl_Ru6x3 * mdl_conjg__Ru3x3;
+    __device__ constexpr cxsmpl<double> mdl_I51x33 = mdl_Ru3x3 * mdl_conjg__Ru3x3;
+    __device__ constexpr cxsmpl<double> mdl_I51x36 = mdl_Ru6x3 * mdl_conjg__Ru3x3;
     constexpr cxsmpl<double> mdl_I51x63 = mdl_Ru3x3 * mdl_conjg__Ru6x3;
     constexpr cxsmpl<double> mdl_I51x66 = mdl_Ru6x3 * mdl_conjg__Ru6x3;
-    constexpr cxsmpl<double> mdl_I52x33 = mdl_Ru3x6 * mdl_conjg__Ru3x6;
-    constexpr cxsmpl<double> mdl_I52x36 = mdl_Ru6x6 * mdl_conjg__Ru3x6;
+    __device__ constexpr cxsmpl<double> mdl_I52x33 = mdl_Ru3x6 * mdl_conjg__Ru3x6;
+    __device__ constexpr cxsmpl<double> mdl_I52x36 = mdl_Ru6x6 * mdl_conjg__Ru3x6;
     constexpr cxsmpl<double> mdl_I52x63 = mdl_Ru3x6 * mdl_conjg__Ru6x6;
     constexpr cxsmpl<double> mdl_I52x66 = mdl_Ru6x6 * mdl_conjg__Ru6x6;
     constexpr cxsmpl<double> mdl_I53x33 = mdl_Rd3x3 * mdl_conjg__CKM3x3 * mdl_conjg__Ru3x3;
@@ -620,11 +620,11 @@ namespace mg5amcCpu
     constexpr cxsmpl<double> mdl_I73x36 = mdl_CKM3x3 * mdl_Ru6x6 * mdl_yu3x3 * mdl_conjg__Rd3x6 * mdl_conjg__yd3x3;
     constexpr cxsmpl<double> mdl_I73x63 = mdl_CKM3x3 * mdl_Ru3x6 * mdl_yu3x3 * mdl_conjg__Rd6x6 * mdl_conjg__yd3x3;
     constexpr cxsmpl<double> mdl_I73x66 = mdl_CKM3x3 * mdl_Ru6x6 * mdl_yu3x3 * mdl_conjg__Rd6x6 * mdl_conjg__yd3x3;
-    constexpr cxsmpl<double> mdl_I74x33 = mdl_Ru3x3 * mdl_conjg__Ru3x3;
+    __device__ constexpr cxsmpl<double> mdl_I74x33 = mdl_Ru3x3 * mdl_conjg__Ru3x3;
     constexpr cxsmpl<double> mdl_I74x36 = mdl_Ru6x3 * mdl_conjg__Ru3x3;
     constexpr cxsmpl<double> mdl_I74x63 = mdl_Ru3x3 * mdl_conjg__Ru6x3;
     constexpr cxsmpl<double> mdl_I74x66 = mdl_Ru6x3 * mdl_conjg__Ru6x3;
-    constexpr cxsmpl<double> mdl_I75x33 = mdl_Ru3x6 * mdl_conjg__Ru3x6;
+    __device__ constexpr cxsmpl<double> mdl_I75x33 = mdl_Ru3x6 * mdl_conjg__Ru3x6;
     constexpr cxsmpl<double> mdl_I75x36 = mdl_Ru6x6 * mdl_conjg__Ru3x6;
     constexpr cxsmpl<double> mdl_I75x63 = mdl_Ru3x6 * mdl_conjg__Ru6x6;
     constexpr cxsmpl<double> mdl_I75x66 = mdl_Ru6x6 * mdl_conjg__Ru6x6;
@@ -837,9 +837,9 @@ namespace mg5amcCpu
         const fptype_sv mdl_G__exp__2 = ( ( G ) * ( G ) );
         // Model couplings dependent on aS
         out.GC_6 = -G;
-        out.GC_55 = -( cI * G * mdl_I51x33 ) - cI * G * mdl_I52x33;
-        out.GC_57 = -( cI * G * mdl_I51x36 ) - cI * G * mdl_I52x36;
-        out.GC_90 = cI * mdl_G__exp__2 * mdl_I74x33 + cI * mdl_G__exp__2 * mdl_I75x33;
+        out.GC_55 = -( cI * G * (cxtype)mdl_I51x33 ) - cI * G * (cxtype)mdl_I52x33;
+        out.GC_57 = -( cI * G * (cxtype)mdl_I51x36 ) - cI * G * (cxtype)mdl_I52x36;
+        out.GC_90 = cI * mdl_G__exp__2 * (cxtype)mdl_I74x33 + cI * mdl_G__exp__2 * (cxtype)mdl_I75x33;
       }
 #else
       // ** NB #439: special handling is necessary ONLY FOR VECTORS OF FLOATS (variable Gs are vector floats, fixed parameters are scalar doubles)

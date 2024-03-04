@@ -71,6 +71,9 @@ namespace mgOnGpu /* clang-format off */
     __host__ __device__ constexpr const FP& real() const { return m_real; }
     __host__ __device__ constexpr const FP& imag() const { return m_imag; }
     //constexpr operator std::complex<FP>() const { return std::complex( m_real, m_imag ); } // cxsmpl to std::complex (float-to-float or double-to-double)
+#if defined __CUDACC__ and defined MGONGPU_CUCXTYPE_THRUST
+    __host__ __device__ constexpr operator thrust::complex<fptype>() const { return thrust::complex<fptype>( m_real, m_imag ); }
+#endif
   private:
     FP m_real, m_imag; // RI
   };
