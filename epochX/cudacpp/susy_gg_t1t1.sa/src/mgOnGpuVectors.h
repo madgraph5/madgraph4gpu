@@ -880,7 +880,7 @@ namespace mg5amcCpu
 
   // Scalar-or-vector zeros: scalar in CUDA, vector or scalar in C++
 #ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
-  inline __host__ __device__ cxtype cxzero_sv(){ return cxmake( 0, 0 ); }
+  inline __host__ __device__ cxtype cxzero_sv(){ return cxtype( 0, 0 ); }
 #elif defined MGONGPU_CPPSIMD
   inline cxtype_v cxzero_sv() { return cxtype_v(); } // RRRR=0000 IIII=0000
 #else
