@@ -226,6 +226,41 @@ namespace mg5amcCpu
 }
 
 //==========================================================================
+// COMPLEX TYPES: INSTRUMENTED CUCOMPLEX CLASS (cucomplex)
+//==========================================================================
+
+#ifdef __CUDACC__ // this must be __CUDAC__ (not MGONGPUCPP_GPUIMPL)
+#if defined MGONGPU_CUCXTYPE_CUCOMPLEX
+namespace mg5amcGpu
+{
+  class cucomplex
+  {
+  public:
+#if defined MGONGPU_FPTYPE_DOUBLE
+    __host__ __device__ cucomplex( const double& r = 0, const double& i = 0 ) : m_ri( make_cuDoubleComplex( r, i ) ) {}
+    __host__ __device__ constexpr cucomplex( const cuDoubleComplex& ri ) : m_ri( ri ) {}
+    __host__ __device__ constexpr operator cuDoubleComplex() const { return m_ri; }
+    __host__ __device__ double real() const { return cuCreal( m_ri ); }
+    __host__ __device__ double imag() const { return cuCimag( m_ri ); }
+#elif defined MGONGPU_FPTYPE_FLOAT
+    __host__ __device__ cucomplex( const float& r = 0, const float& i = 0 ) : m_ri( make_cuFloatComplex( r, i ) ) {}
+    __host__ __device__ constexpr cucomplex( const cuFloatComplex& ri ) : m_ri( ri ) {}
+    __host__ __device__ constexpr operator cuFloatComplex() const { return m_ri; }
+    __host__ __device__ float real() const { return cuCrealf( m_ri ); }
+    __host__ __device__ float imag() const { return cuCimagf( m_ri ); }
+#endif
+  private:
+#if defined MGONGPU_FPTYPE_DOUBLE
+    cuDoubleComplex m_ri;
+#elif defined MGONGPU_FPTYPE_FLOAT
+    cuFloatComplex m_ri;
+#endif
+  };
+}
+#endif
+#endif
+
+//==========================================================================
 // COMPLEX TYPES: (PLATFORM-SPECIFIC) TYPEDEFS
 //==========================================================================
 
@@ -241,11 +276,7 @@ namespace mg5amcCpu
 #if defined MGONGPU_CUCXTYPE_THRUST
   typedef thrust::complex<fptype> cxtype;
 #elif defined MGONGPU_CUCXTYPE_CUCOMPLEX
-#if defined MGONGPU_FPTYPE_DOUBLE
-  typedef cuDoubleComplex cxtype;
-#elif defined MGONGPU_FPTYPE_FLOAT
-  typedef cuFloatComplex cxtype;
-#endif
+  typedef cucomplex cxtype;
 #else
   typedef cxsmpl<fptype> cxtype;
 #endif
@@ -430,6 +461,13 @@ namespace mg5amcCpu
     return cuCdiv( a, b );
   }
 
+  inline __host__ std::ostream&
+  operator<<( std::ostream& out, const cxtype& c )
+  {
+    out << std::complex<double>( cxreal( c ), cximag( c ) );
+    return out;
+  }
+
 #elif defined MGONGPU_FPTYPE_FLOAT // cuda + cucomplex + float
 
   //+++++++++++++++++++++++++
@@ -496,6 +534,13 @@ namespace mg5amcCpu
   cxmake( const std::complex<double>& c ) // std::complex to cucomplex (cast double-to-float)
   {
     return cxmake( (fptype)c.real(), (fptype)c.imag() );
+  }
+
+  inline __host__ std::ostream&
+  operator<<( std::ostream& out, const cxtype& c )
+  {
+    out << std::complex<float>( cxreal( c ), cximag( c ) );
+    return out;
   }
 
 #endif
