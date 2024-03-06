@@ -52,29 +52,37 @@
 #if defined MGONGPU_CUCXTYPE_CUCOMPLEX
 namespace mg5amcGpu
 {
+#if defined MGONGPU_FPTYPE_DOUBLE
   class cucomplex
   {
   public:
-#if defined MGONGPU_FPTYPE_DOUBLE
     __host__ __device__ cucomplex( const double& r = 0, const double& i = 0 ) : m_ri( make_cuDoubleComplex( r, i ) ) {}
     __host__ __device__ constexpr cucomplex( const cuDoubleComplex& ri ) : m_ri( ri ) {}
+    //__host__ __device__ operator cuDoubleComplex&() { return m_ri; }
     __host__ __device__ constexpr operator cuDoubleComplex() const { return m_ri; }
     __host__ __device__ double real() const { return cuCreal( m_ri ); }
     __host__ __device__ double imag() const { return cuCimag( m_ri ); }
+    inline __host__ __device__ cucomplex& operator+=( const cucomplex& c ) { m_ri = cuCadd( m_ri, c ); return *this; }
+    inline __host__ __device__ cucomplex& operator-=( const cucomplex& c ) { m_ri = cuCsub( m_ri, c ); return *this; }
+  private:
+    cuDoubleComplex m_ri;
+  };
 #elif defined MGONGPU_FPTYPE_FLOAT
+  class cucomplex
+  {
+  public:
     __host__ __device__ cucomplex( const float& r = 0, const float& i = 0 ) : m_ri( make_cuFloatComplex( r, i ) ) {}
     __host__ __device__ constexpr cucomplex( const cuFloatComplex& ri ) : m_ri( ri ) {}
+    //__host__ __device__ operator cuFloatComplex&() { return m_ri; }
     __host__ __device__ constexpr operator cuFloatComplex() const { return m_ri; }
     __host__ __device__ float real() const { return cuCrealf( m_ri ); }
     __host__ __device__ float imag() const { return cuCimagf( m_ri ); }
-#endif
+    inline __host__ __device__ cucomplex& operator+=( const cucomplex& c ) { m_ri = cuCaddf( m_ri, c ); return *this; }
+    inline __host__ __device__ cucomplex& operator-=( const cucomplex& c ) { m_ri = cuCsubf( m_ri, c ); return *this; }
   private:
-#if defined MGONGPU_FPTYPE_DOUBLE
-    cuDoubleComplex m_ri;
-#elif defined MGONGPU_FPTYPE_FLOAT
     cuFloatComplex m_ri;
-#endif
   };
+#endif
 }
 #endif
 #endif
@@ -431,24 +439,10 @@ namespace mg5amcCpu
     return cuCadd( a, b );
   }
 
-  inline __host__ __device__ cxtype&
-  operator+=( cxtype& a, const cxtype& b )
-  {
-    a = cuCadd( a, b );
-    return a;
-  }
-
   inline __host__ __device__ cxtype
   operator-( const cxtype& a, const cxtype& b )
   {
     return cuCsub( a, b );
-  }
-
-  inline __host__ __device__ cxtype&
-  operator-=( cxtype& a, const cxtype& b )
-  {
-    a = cuCsub( a, b );
-    return a;
   }
 
   inline __host__ __device__ cxtype
@@ -500,24 +494,10 @@ namespace mg5amcCpu
     return cuCaddf( a, b );
   }
 
-  inline __host__ __device__ cxtype&
-  operator+=( cxtype& a, const cxtype& b )
-  {
-    a = cuCaddf( a, b );
-    return a;
-  }
-
   inline __host__ __device__ cxtype
   operator-( const cxtype& a, const cxtype& b )
   {
     return cuCsubf( a, b );
-  }
-
-  inline __host__ __device__ cxtype&
-  operator-=( cxtype& a, const cxtype& b )
-  {
-    a = cuCsubf( a, b );
-    return a;
   }
 
   inline __host__ __device__ cxtype
