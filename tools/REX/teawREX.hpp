@@ -450,7 +450,7 @@ namespace REX::teaw
             initMEs = {};
             for( auto k = 0 ; k < eventFile.subProcs.size() ; ++k )
             {
-                auto ins = meEvals[eventFile.subProcs[k]]( *(momenta[k]), *(gS[k]) );
+                auto ins = meEvals[*(eventFile.subProcs[k]->process)]( *(momenta[k]), *(gS[k]) );
                 initMEs.push_back( std::make_shared<std::vector<double>>( ins->begin(), ins->begin() + wgts[k]->size() ) );
             }
             //auto ins = meEval( *(momenta[0]), *(gS[0]) );
@@ -487,7 +487,7 @@ namespace REX::teaw
         }
         template<class... Args>
         void setNormWgts(Args&&... args){
-            if( !oneME() ){ setMEs(args); } 
+            if( !oneME() ){ setMEs(args...); } 
             //if( initMEs->size() != wgts[0]->size() )
             //    throw std::runtime_error( "Inconsistent number of events and event weights." );
             for( auto k = 0; k < initMEs.size() ; ++k ){

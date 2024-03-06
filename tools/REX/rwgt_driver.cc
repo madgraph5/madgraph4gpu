@@ -15,7 +15,7 @@
 #include "rwgt_instance.h"
 #include <cstdlib>
 #include <typeinfo>
-//%(include_lines)s
+%(include_lines)s
 
 int usage( char* argv0, int ret = 1 )
 {
@@ -89,7 +89,6 @@ int main( int argc, char** argv ){
     
 
     // ZW : include rwgt_instances(s)
-//%(rwgt_runners)s
 
     std::vector<rwgt::instance> runSet = {%(run_set)s};
     std::vector<rwgt::instance> runSet;

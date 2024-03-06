@@ -95,8 +95,8 @@ namespace %(process_namespace)s{
     }; 
 
     std::shared_ptr<std::vector<size_t>> thisProcSort( std::string_view& status, std::vector<std::string_view>& arguments ){
-        std::vector<std::string_view> initPrts = %(init_prt_ids)s
-        std::vector<std::string_view> finPrts = %(fin_prt_ids)s
+        std::vector<std::string_view> initPrts = %(init_prt_ids)s;
+        std::vector<std::string_view> finPrts = %(fin_prt_ids)s;
 //        std::vector<std::string_view> initPrts = {"-1"};
 //        std::vector<std::string_view> finPrts = {"1"};
         if( status == "-1" ){
