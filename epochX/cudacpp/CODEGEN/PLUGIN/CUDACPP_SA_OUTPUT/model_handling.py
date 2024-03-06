@@ -1629,22 +1629,27 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                 param = False
             if param:
                 alias = self.params2order
+                aliastxt = 'PARAM'
                 name = 'cIPD'
             elif model.is_running_coupling(coup):
                 alias = self.couporderdep
+                aliastxt = 'COUPD'
                 name = 'cIPC'
             else:
                 alias = self.couporderindep
+                aliastxt = 'COUPI'
                 name = 'cIPC'
             if coup not in alias:
-                if alias == self.couporderindep:
+                ###if alias == self.couporderindep: # bug #821! this is incorrectly true when all all dictionaries are empty!
+                if aliastxt == 'COUPI':
                     if not len(alias):
                         alias[coup] = len(self.couporderdep)
                     else:
                         alias[coup] = alias[list(alias)[-1]]+1
                 else:
                     alias[coup] = len(alias)
-                if alias == self.couporderdep:
+                ###if alias == self.couporderdep: # bug #821! this is incorrectly true when all all dictionaries are empty!
+                if aliastxt == 'COUPD':
                     for k in self.couporderindep:
                         self.couporderindep[k] += 1
                 newcoup = True
