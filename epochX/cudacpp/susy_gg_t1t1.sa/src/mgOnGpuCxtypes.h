@@ -56,14 +56,24 @@ namespace mg5amcGpu
   class cucomplex
   {
   public:
-    __host__ __device__ cucomplex( const double& r = 0, const double& i = 0 ) : m_ri( make_cuDoubleComplex( r, i ) ) {}
-    __host__ __device__ constexpr cucomplex( const cuDoubleComplex& ri ) : m_ri( ri ) {}
+    __host__ __device__ cucomplex( const double& r = 0, const double& i = 0 )
+      : m_ri( make_cuDoubleComplex( r, i ) ) {}
+    __host__ __device__ constexpr cucomplex( const cuDoubleComplex& ri )
+      : m_ri( ri ) {}
     //__host__ __device__ operator cuDoubleComplex&() { return m_ri; }
     __host__ __device__ constexpr operator cuDoubleComplex() const { return m_ri; }
     __host__ __device__ double real() const { return cuCreal( m_ri ); }
     __host__ __device__ double imag() const { return cuCimag( m_ri ); }
-    inline __host__ __device__ cucomplex& operator+=( const cucomplex& c ) { m_ri = cuCadd( m_ri, c ); return *this; }
-    inline __host__ __device__ cucomplex& operator-=( const cucomplex& c ) { m_ri = cuCsub( m_ri, c ); return *this; }
+    inline __host__ __device__ cucomplex& operator+=( const cucomplex& c )
+    {
+      m_ri = cuCadd( m_ri, c );
+      return *this;
+    }
+    inline __host__ __device__ cucomplex& operator-=( const cucomplex& c )
+    {
+      m_ri = cuCsub( m_ri, c );
+      return *this;
+    }
   private:
     cuDoubleComplex m_ri;
   };
@@ -71,14 +81,24 @@ namespace mg5amcGpu
   class cucomplex
   {
   public:
-    __host__ __device__ cucomplex( const float& r = 0, const float& i = 0 ) : m_ri( make_cuFloatComplex( r, i ) ) {}
-    __host__ __device__ constexpr cucomplex( const cuFloatComplex& ri ) : m_ri( ri ) {}
+    __host__ __device__ cucomplex( const float& r = 0, const float& i = 0 )
+      : m_ri( make_cuFloatComplex( r, i ) ) {}
+    __host__ __device__ constexpr cucomplex( const cuFloatComplex& ri )
+      : m_ri( ri ) {}
     //__host__ __device__ operator cuFloatComplex&() { return m_ri; }
     __host__ __device__ constexpr operator cuFloatComplex() const { return m_ri; }
     __host__ __device__ float real() const { return cuCrealf( m_ri ); }
     __host__ __device__ float imag() const { return cuCimagf( m_ri ); }
-    inline __host__ __device__ cucomplex& operator+=( const cucomplex& c ) { m_ri = cuCaddf( m_ri, c ); return *this; }
-    inline __host__ __device__ cucomplex& operator-=( const cucomplex& c ) { m_ri = cuCsubf( m_ri, c ); return *this; }
+    inline __host__ __device__ cucomplex& operator+=( const cucomplex& c )
+    {
+      m_ri = cuCaddf( m_ri, c );
+      return *this;
+    }
+    inline __host__ __device__ cucomplex& operator-=( const cucomplex& c )
+    {
+      m_ri = cuCsubf( m_ri, c );
+      return *this;
+    }
   private:
     cuFloatComplex m_ri;
   };
