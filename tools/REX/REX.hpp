@@ -1294,10 +1294,10 @@ namespace REX
             return content;
         }
         lhePrt(){ return; }
-        lhePrt( std::pair<int,int> prtInfo ){
-            status = std::to_string( prtInfo.first );
-            pdg = std::to_string( prtInfo.second );
-        }
+        // lhePrt( std::pair<int,int> prtInfo ){
+        //     status = std::to_string( prtInfo.first );
+        //     pdg = std::to_string( prtInfo.second );
+        // }
         lhePrt( std::pair<int,int>& prtInfo ){
             status = std::to_string( prtInfo.first );
             pdg = std::to_string( prtInfo.second );
@@ -1378,9 +1378,9 @@ namespace REX
             return modStat;
         }
         event(){ return; }
-        event( std::vector<std::pair<int,int>> prtInfo ){
+        event( std::vector<std::pair<int,int>>& prtInfo ){
             header.setNprt( std::to_string( prtInfo.size() ) );
-            for( auto prt : prtInfo ){
+            for( auto& prt : prtInfo ){
                 prts.push_back( std::make_shared<lhePrt>( prt ) );
             }
         }
@@ -3447,15 +3447,14 @@ namespace REX
         template <typename T>
         std::shared_ptr<std::vector<T>> vectorFlat( std::vector<std::shared_ptr<std::vector<T>>> vecVec )
         {
-            if( vecVec.size() == relProcs.size() ) continue;
-            else throw std::range_error("vectorFlat: input vector size does not match number of subprocesses");
+            if( vecVec.size() != relProcs.size() ) throw std::range_error("vectorFlat: input vector size does not match number of subprocesses");
             for( size_t k = 0 ; k < vecVec.size() ; ++k){
                 if( vecVec[k]->size() == relProcs[k]->size() ) continue;
                 else throw std::range_error("vectorFlat: input vector size does not match number of events for subprocess");
             }
             auto flatVec = std::make_shared<std::vector<T>>(relProcs[0]->size());
             for( size_t k = 0 ; k < relProcs.size() ; ++k ){
-                currInd = 0;
+                size_t currInd = 0;
                 for( size_t j = 0 ; j < relProcs[k]->size() ; ++j ){
                     if( relProcs[k]->at(j) ){
                         flatVec->at(currInd) = vecVec[k]->at(currInd);

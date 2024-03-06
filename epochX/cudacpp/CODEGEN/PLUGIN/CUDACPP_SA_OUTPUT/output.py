@@ -449,6 +449,8 @@ class RWGT_ProcessExporter(PLUGIN_ProcessExporter):
         return
     
     def export_driver(self):
+        misc.sprint("In export_driver")
+        misc.sprint("Current working directory is: %s" % self.dir_path)
         replace_dict = {}
         replace_dict['info_lines'] = PLUGIN_export_cpp.get_mg5_info_lines()
         replace_dict['multiprocess_lines'] = "\n".join(self.proc_lines)
