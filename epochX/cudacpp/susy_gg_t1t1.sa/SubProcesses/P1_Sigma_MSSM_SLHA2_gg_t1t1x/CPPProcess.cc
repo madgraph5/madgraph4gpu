@@ -77,14 +77,14 @@ namespace mg5amcCpu
   // However, physics parameters are user-defined through card files: use CUDA constant memory instead (issue #39)
   // [NB if hardcoded parameters are used, it's better to define them here to avoid silent shadowing (issue #263)]
 #ifdef MGONGPU_HARDCODE_PARAM
-  __device__ const fptype cIPD[3] = { (fptype)Parameters_MSSM_SLHA2::mdl_Wsu3, (fptype)Parameters_MSSM_SLHA2::mdl_Msu6, (fptype)Parameters_MSSM_SLHA2::mdl_Wsu6 };
+  __device__ const fptype cIPD[4] = { (fptype)Parameters_MSSM_SLHA2::mdl_Msu3, (fptype)Parameters_MSSM_SLHA2::mdl_Wsu3, (fptype)Parameters_MSSM_SLHA2::mdl_Msu6, (fptype)Parameters_MSSM_SLHA2::mdl_Wsu6 };
   __device__ const fptype* cIPC = nullptr; // unused as nicoup=0
 #else
 #ifdef MGONGPUCPP_GPUIMPL
-  __device__ __constant__ fptype cIPD[3];
+  __device__ __constant__ fptype cIPD[4];
   __device__ __constant__ fptype* cIPC = nullptr; // unused as nicoup=0
 #else
-  static fptype cIPD[3];
+  static fptype cIPD[4];
   static fptype* cIPC = nullptr; // unused as nicoup=0
 #endif
 #endif
@@ -301,7 +301,7 @@ namespace mg5amcCpu
       // *** DIAGRAM 3 OF 6 ***
 
       // Wavefunction(s) for diagram number 3
-      VSS1_2<W_ACCESS, CD_ACCESS>( w_fp[0], w_fp[2], COUPs[2], 1.0, cIPD[2], cIPD[0], w_fp[4] );
+      VSS1_2<W_ACCESS, CD_ACCESS>( w_fp[0], w_fp[2], COUPs[2], 1.0, cIPD[0], cIPD[1], w_fp[4] );
 
       // Amplitude(s) for diagram number 3
       VSS1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[1], w_fp[3], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
@@ -313,7 +313,7 @@ namespace mg5amcCpu
       // *** DIAGRAM 4 OF 6 ***
 
       // Wavefunction(s) for diagram number 4
-      VSS1_3<W_ACCESS, CD_ACCESS>( w_fp[0], w_fp[2], COUPs[3], -1.0, cIPD[1], cIPD[2], w_fp[4] );
+      VSS1_3<W_ACCESS, CD_ACCESS>( w_fp[0], w_fp[2], COUPs[3], -1.0, cIPD[2], cIPD[3], w_fp[4] );
 
       // Amplitude(s) for diagram number 4
       VSS1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[1], w_fp[3], w_fp[4], COUPs[3], 1.0, &amp_fp[0] );
@@ -325,7 +325,7 @@ namespace mg5amcCpu
       // *** DIAGRAM 5 OF 6 ***
 
       // Wavefunction(s) for diagram number 5
-      VSS1_3<W_ACCESS, CD_ACCESS>( w_fp[0], w_fp[3], COUPs[2], 1.0, cIPD[2], cIPD[0], w_fp[4] );
+      VSS1_3<W_ACCESS, CD_ACCESS>( w_fp[0], w_fp[3], COUPs[2], 1.0, cIPD[0], cIPD[1], w_fp[4] );
 
       // Amplitude(s) for diagram number 5
       VSS1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[1], w_fp[4], w_fp[2], COUPs[2], 1.0, &amp_fp[0] );
@@ -337,7 +337,7 @@ namespace mg5amcCpu
       // *** DIAGRAM 6 OF 6 ***
 
       // Wavefunction(s) for diagram number 6
-      VSS1_3<W_ACCESS, CD_ACCESS>( w_fp[0], w_fp[3], COUPs[3], 1.0, cIPD[1], cIPD[2], w_fp[4] );
+      VSS1_3<W_ACCESS, CD_ACCESS>( w_fp[0], w_fp[3], COUPs[3], 1.0, cIPD[2], cIPD[3], w_fp[4] );
 
       // Amplitude(s) for diagram number 6
       VSS1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[1], w_fp[2], w_fp[4], COUPs[3], -1.0, &amp_fp[0] );
@@ -555,24 +555,24 @@ namespace mg5amcCpu
     m_masses.push_back( m_pars->mdl_Msu3 );
     // Read physics parameters like masses and couplings from user configuration files (static: initialize once)
     // Then copy them to CUDA constant memory (issue #39) or its C++ emulation in file-scope static memory
-    const fptype tIPD[3] = { (fptype)m_pars->mdl_Wsu3, (fptype)m_pars->mdl_Msu6, (fptype)m_pars->mdl_Wsu6 };
+    const fptype tIPD[4] = { (fptype)m_pars->mdl_Msu3, (fptype)m_pars->mdl_Wsu3, (fptype)m_pars->mdl_Msu6, (fptype)m_pars->mdl_Wsu6 };
     //const cxtype tIPC[0] = { ... }; // nicoup=0
 #ifdef MGONGPUCPP_GPUIMPL
-    gpuMemcpyToSymbol( cIPD, tIPD, 3 * sizeof( fptype ) );
+    gpuMemcpyToSymbol( cIPD, tIPD, 4 * sizeof( fptype ) );
     //gpuMemcpyToSymbol( cIPC, tIPC, 0 * sizeof( cxtype ) ); // nicoup=0
 #ifdef MGONGPUCPP_NBSMINDEPPARAM_GT_0
     if( Parameters_MSSM_SLHA2::nBsmIndepParam > 0 )
       gpuMemcpyToSymbol( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters_MSSM_SLHA2::nBsmIndepParam * sizeof( double ) );
 #endif
 #else
-    memcpy( cIPD, tIPD, 3 * sizeof( fptype ) );
+    memcpy( cIPD, tIPD, 4 * sizeof( fptype ) );
     //memcpy( cIPC, tIPC, 0 * sizeof( cxtype ) ); // nicoup=0
 #ifdef MGONGPUCPP_NBSMINDEPPARAM_GT_0
     if( Parameters_MSSM_SLHA2::nBsmIndepParam > 0 )
       memcpy( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters_MSSM_SLHA2::nBsmIndepParam * sizeof( double ) );
 #endif
 #endif
-    //for ( int i=0; i<3; i++ ) std::cout << std::setprecision(17) << "tIPD[i] = " << tIPD[i] << std::endl;
+    //for ( int i=0; i<4; i++ ) std::cout << std::setprecision(17) << "tIPD[i] = " << tIPD[i] << std::endl;
     //for ( int i=0; i<Parameters_MSSM_SLHA2::nBsmIndepParam; i++ ) std::cout << std::setprecision(17) << "m_pars->mdl_bsmIndepParam[i] = " << m_pars->mdl_bsmIndepParam[i] << std::endl;
   }
 #else
