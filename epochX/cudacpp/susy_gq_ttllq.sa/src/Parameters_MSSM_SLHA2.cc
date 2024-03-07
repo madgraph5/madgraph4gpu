@@ -808,13 +808,13 @@ Parameters_MSSM_SLHA2::setIndependentParameters( SLHAReader& slha )
   mdl_ee__exp__2 = ( ( mdl_ee ) * ( mdl_ee ) );
   // Fixes for Majorana particles
   if( mdl_Mneu2 < 0 )
-    mdl_Wneu2 = -abs( mdl_Wneu2 );
+    mdl_Wneu2 = -std::abs( mdl_Wneu2 );
   if( mdl_Mneu3 < 0 )
-    mdl_Wneu3 = -abs( mdl_Wneu3 );
+    mdl_Wneu3 = -std::abs( mdl_Wneu3 );
   if( mdl_Mneu4 < 0 )
-    mdl_Wneu4 = -abs( mdl_Wneu4 );
+    mdl_Wneu4 = -std::abs( mdl_Wneu4 );
   if( mdl_Mgo < 0 )
-    mdl_Wgo = -abs( mdl_Wgo );
+    mdl_Wgo = -std::abs( mdl_Wgo );
   // BSM parameters that do not depend on alphaS but are needed in the computation of alphaS-dependent couplings;
   mdl_bsmIndepParam[0] = mdl_I51x11;
 }
