@@ -822,6 +822,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         bsmparam_indep_real_used = []
         if self.model_name[:2] != 'sm' :
             for param in self.params_indep:
+                if param.name == 'mdl_complexi' : continue
                 if param.type == 'real':
                     for coup in self.coups_dep.values():                
                         if param.name in coup.expr:
