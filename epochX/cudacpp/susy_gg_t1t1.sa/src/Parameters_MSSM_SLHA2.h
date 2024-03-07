@@ -88,9 +88,10 @@ namespace mg5amcCpu
 
     // Print couplings that are changed event by event
     //void printDependentCouplings(); // now computed event-by-event (running alphas #373)
+
     // BSM parameters that do not depend on alphaS but are needed in the computation of alphaS-dependent couplings;
     static constexpr int nBsmIndepParam = 12;
-    double mdl_bsmIndepParam[nBsmIndepParam] = { mdl_I51x33.real(), mdl_I51x33.imag(), mdl_I52x33.real(), mdl_I52x33.imag(), mdl_I51x36.real(), mdl_I51x36.imag(), mdl_I52x36.real(), mdl_I52x36.imag(), mdl_I74x33.real(), mdl_I74x33.imag(), mdl_I75x33.real(), mdl_I75x33.imag() };
+    double mdl_bsmIndepParam[nBsmIndepParam];
 
   private:
 
