@@ -40,6 +40,9 @@ namespace mg5amcCpu
   // For CUDA performance, hardcoded constexpr's would be better: fewer registers and a tiny throughput increase
   // However, physics parameters are user-defined through card files: use CUDA constant memory instead (issue #39)
   // [NB if hardcoded parameters are used, it's better to define them here to avoid silent shadowing (issue #263)]
+  constexpr int nIPD = %(nipd)i;
+  constexpr int nIPC = %(nipc)i;
+  static_assert( nIPC <= nicoup ); // see bug #823
 #ifdef MGONGPU_HARDCODE_PARAM
   %(cipdhrdcod)s
   %(cipchrdcod)s

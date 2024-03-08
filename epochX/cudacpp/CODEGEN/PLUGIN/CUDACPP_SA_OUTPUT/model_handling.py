@@ -1174,15 +1174,16 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
                 if "aS" in key and coup in coup_list: keep = False
             if keep: coupling_indep.append( coup ) # AV only indep!
         replace_dict['ncouplings'] = len(coupling_indep) # AV only indep!
+        replace_dict['nipc'] = len(coupling_indep)
         if len(coupling_indep) > 0:
-            replace_dict['cipcassign'] = 'const cxtype tIPC[%s] = { cxmake( m_pars->%s ) };'\
-                                         %(len(coupling_indep), ' ), cxmake( m_pars->'.join(coupling_indep)) # AV only indep!
-            replace_dict['cipcdevice'] = '__device__ __constant__ fptype cIPC[%i];'%(2*len(coupling_indep))
-            replace_dict['cipcstatic'] = 'static fptype cIPC[%i];'%(2*len(coupling_indep))
-            replace_dict['cipc2tipcSym'] = 'gpuMemcpyToSymbol( cIPC, tIPC, %i * sizeof( cxtype ) );'%len(coupling_indep)
-            replace_dict['cipc2tipc'] = 'memcpy( cIPC, tIPC, %i * sizeof( cxtype ) );'%len(coupling_indep)
-            replace_dict['cipcdump'] = '\n    //for ( int i=0; i<%i; i++ ) std::cout << std::setprecision(17) << "tIPC[i] = " << tIPC[i] << std::endl;'%len(coupling_indep)
-            coup_str_hrd = '__device__ const fptype cIPC[%s] = { ' % (len(coupling_indep)*2)
+            replace_dict['cipcassign'] = 'const cxtype tIPC[nIPC] = { cxmake( m_pars->%s ) };'\
+                                         % ( ' ), cxmake( m_pars->'.join(coupling_indep) ) # AV only indep!
+            replace_dict['cipcdevice'] = '__device__ __constant__ fptype cIPC[nIPC * 2];'
+            replace_dict['cipcstatic'] = 'static fptype cIPC[nIPC * 2];'
+            replace_dict['cipc2tipcSym'] = 'gpuMemcpyToSymbol( cIPC, tIPC, nIPC * sizeof( cxtype ) );'
+            replace_dict['cipc2tipc'] = 'memcpy( cIPC, tIPC, nIPC * sizeof( cxtype ) );'
+            replace_dict['cipcdump'] = '\n    //for ( int i=0; i<nIPC; i++ ) std::cout << std::setprecision(17) << "tIPC[i] = " << tIPC[i] << std::endl;'
+            coup_str_hrd = '__device__ const fptype cIPC[nIPC * 2] = { '
             for coup in coupling_indep : coup_str_hrd += '(fptype)Parameters_%s::%s.real(), (fptype)Parameters_%s::%s.imag(), ' % ( self.model_name, coup, self.model_name, coup ) # AV only indep!
             coup_str_hrd = coup_str_hrd[:-2] + ' };'
             replace_dict['cipchrdcod'] = coup_str_hrd
@@ -1190,19 +1191,20 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             replace_dict['cipcassign'] = '//const cxtype tIPC[0] = { ... }; // nicoup=0'
             replace_dict['cipcdevice'] = '__device__ __constant__ fptype* cIPC = nullptr; // unused as nicoup=0'
             replace_dict['cipcstatic'] = 'static fptype* cIPC = nullptr; // unused as nicoup=0'
-            replace_dict['cipc2tipcSym'] = '//gpuMemcpyToSymbol( cIPC, tIPC, %i * sizeof( cxtype ) ); // nicoup=0'%len(coupling_indep)
-            replace_dict['cipc2tipc'] = '//memcpy( cIPC, tIPC, %i * sizeof( cxtype ) ); // nicoup=0'%len(coupling_indep)
+            replace_dict['cipc2tipcSym'] = '//gpuMemcpyToSymbol( cIPC, tIPC, 0 * sizeof( cxtype ) ); // nicoup=0'
+            replace_dict['cipc2tipc'] = '//memcpy( cIPC, tIPC, 0 * sizeof( cxtype ) ); // nicoup=0'
             replace_dict['cipcdump'] = ''
             replace_dict['cipchrdcod'] = '__device__ const fptype* cIPC = nullptr; // unused as nicoup=0'
+        replace_dict['nipd'] = len(params)
         if len(params) > 0:
-            replace_dict['cipdassign'] = 'const fptype tIPD[%s] = { (fptype)m_pars->%s };'\
-                                         %(len(params), ', (fptype)m_pars->'.join(params))
-            replace_dict['cipddevice'] = '__device__ __constant__ fptype cIPD[%i];'%(len(params))
-            replace_dict['cipdstatic'] = 'static fptype cIPD[%i];'%(len(params))
-            replace_dict['cipd2tipdSym'] = 'gpuMemcpyToSymbol( cIPD, tIPD, %i * sizeof( fptype ) );'%len(params)
-            replace_dict['cipd2tipd'] = 'memcpy( cIPD, tIPD, %i * sizeof( fptype ) );'%len(params)
-            replace_dict['cipddump'] = '\n    //for ( int i=0; i<%i; i++ ) std::cout << std::setprecision(17) << "tIPD[i] = " << tIPD[i] << std::endl;'%len(params)
-            param_str_hrd = '__device__ const fptype cIPD[%s] = { ' % len(params)
+            replace_dict['cipdassign'] = 'const fptype tIPD[nIPD] = { (fptype)m_pars->%s };'\
+                                         %( ', (fptype)m_pars->'.join(params) )
+            replace_dict['cipddevice'] = '__device__ __constant__ fptype cIPD[nIPD];'
+            replace_dict['cipdstatic'] = 'static fptype cIPD[nIPD];'
+            replace_dict['cipd2tipdSym'] = 'gpuMemcpyToSymbol( cIPD, tIPD, nIPD * sizeof( fptype ) );'
+            replace_dict['cipd2tipd'] = 'memcpy( cIPD, tIPD, nIPD * sizeof( fptype ) );'
+            replace_dict['cipddump'] = '\n    //for ( int i=0; i<nIPD; i++ ) std::cout << std::setprecision(17) << "tIPD[i] = " << tIPD[i] << std::endl;'
+            param_str_hrd = '__device__ const fptype cIPD[nIPD] = { '
             for para in params : param_str_hrd += '(fptype)Parameters_%s::%s, ' % ( self.model_name, para )
             param_str_hrd = param_str_hrd[:-2] + ' };'
             replace_dict['cipdhrdcod'] = param_str_hrd
@@ -1210,8 +1212,8 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             replace_dict['cipdassign'] = '//const fptype tIPD[0] = { ... }; // nparam=0'
             replace_dict['cipddevice'] = '//__device__ __constant__ fptype* cIPD = nullptr; // unused as nparam=0'
             replace_dict['cipdstatic'] = '//static fptype* cIPD = nullptr; // unused as nparam=0'
-            replace_dict['cipd2tipdSym'] = '//gpuMemcpyToSymbol( cIPD, tIPD, %i * sizeof( fptype ) ); // nparam=0'%len(params)
-            replace_dict['cipd2tipd'] = '//memcpy( cIPD, tIPD, %i * sizeof( fptype ) ); // nparam=0'%len(params)
+            replace_dict['cipd2tipdSym'] = '//gpuMemcpyToSymbol( cIPD, tIPD, 0 * sizeof( fptype ) ); // nparam=0'
+            replace_dict['cipd2tipd'] = '//memcpy( cIPD, tIPD, nIPD * sizeof( fptype ) ); // nparam=0'
             replace_dict['cipddump'] = ''
             replace_dict['cipdhrdcod'] = '//__device__ const fptype* cIPD = nullptr; // unused as nparam=0'
         if self.model_name[:2] == 'sm' :
@@ -1781,7 +1783,8 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         ###misc.sprint(multi_channel_map)
         res = []
         ###res.append('for(int i=0;i<%s;i++){jamp[i] = cxtype(0.,0.);}' % len(color_amplitudes))
-        res.append("""constexpr size_t nxcoup = ndcoup + nicoup; // both dependent and independent couplings
+        res.append("""//constexpr size_t nxcoup = ndcoup + nicoup; // both dependent and independent couplings (BUG #823)
+      constexpr size_t nxcoup = ndcoup + nIPC; // both dependent and independent couplings (FIX #823)
       const fptype* allCOUPs[nxcoup];
 #ifdef __CUDACC__
 #pragma nv_diagnostic push
@@ -1789,7 +1792,8 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
 #endif
       for( size_t idcoup = 0; idcoup < ndcoup; idcoup++ )
         allCOUPs[idcoup] = CD_ACCESS::idcoupAccessBufferConst( allcouplings, idcoup ); // dependent couplings, vary event-by-event
-      for( size_t iicoup = 0; iicoup < nicoup; iicoup++ )
+      //for( size_t iicoup = 0; iicoup < nicoup; iicoup++ )                             // BUG #823
+      for( size_t iicoup = 0; iicoup < nIPC; iicoup++ )                                 // FIX #823
         allCOUPs[ndcoup + iicoup] = CI_ACCESS::iicoupAccessBufferConst( cIPC, iicoup ); // independent couplings, fixed for all events
 #ifdef MGONGPUCPP_GPUIMPL
 #ifdef __CUDACC__
@@ -1810,7 +1814,8 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
       const fptype* COUPs[nxcoup];
       for( size_t idcoup = 0; idcoup < ndcoup; idcoup++ )
         COUPs[idcoup] = CD_ACCESS::ieventAccessRecordConst( allCOUPs[idcoup], ievt0 ); // dependent couplings, vary event-by-event
-      for( size_t iicoup = 0; iicoup < nicoup; iicoup++ )
+      //for( size_t iicoup = 0; iicoup < nicoup; iicoup++ ) // BUG #823
+      for( size_t iicoup = 0; iicoup < nIPC; iicoup++ )     // FIX #823
         COUPs[ndcoup + iicoup] = allCOUPs[ndcoup + iicoup]; // independent couplings, fixed for all events
       fptype* MEs = E_ACCESS::ieventAccessRecord( allMEs, ievt0 );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
