@@ -830,8 +830,8 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
                             bsmparam_indep_real_used.append( param.name )
                         elif param.type == 'complex':
                             bsmparam_indep_complex_used.append( param.name )
-            bsmparam_indep_real_used = set( bsmparam_indep_real_used ) 
-            bsmparam_indep_complex_used = set( bsmparam_indep_complex_used ) 
+        bsmparam_indep_real_used = set( bsmparam_indep_real_used ) 
+        bsmparam_indep_complex_used = set( bsmparam_indep_complex_used ) 
         # Then do everything else
         replace_dict = self.default_replace_dict
         replace_dict['info_lines'] = PLUGIN_export_cpp.get_mg5_info_lines()
