@@ -84,14 +84,14 @@ namespace mg5amcCpu
   static_assert( nIPC <= nicoup ); // see bug #823
 #ifdef MGONGPU_HARDCODE_PARAM
   __device__ const fptype cIPD[nIPD] = { (fptype)Parameters_MSSM_SLHA2::mdl_MT, (fptype)Parameters_MSSM_SLHA2::mdl_MZ, (fptype)Parameters_MSSM_SLHA2::mdl_WZ, (fptype)Parameters_MSSM_SLHA2::mdl_WT };
-  __device__ const fptype cIPC[nIPC*2] = { (fptype)Parameters_MSSM_SLHA2::GC_3.real(), (fptype)Parameters_MSSM_SLHA2::GC_3.imag(), (fptype)Parameters_MSSM_SLHA2::GC_2.real(), (fptype)Parameters_MSSM_SLHA2::GC_2.imag(), (fptype)Parameters_MSSM_SLHA2::GC_246.real(), (fptype)Parameters_MSSM_SLHA2::GC_246.imag(), (fptype)Parameters_MSSM_SLHA2::GC_250.real(), (fptype)Parameters_MSSM_SLHA2::GC_250.imag(), (fptype)Parameters_MSSM_SLHA2::GC_249.real(), (fptype)Parameters_MSSM_SLHA2::GC_249.imag() };
+  __device__ const fptype cIPC[nIPC * 2] = { (fptype)Parameters_MSSM_SLHA2::GC_3.real(), (fptype)Parameters_MSSM_SLHA2::GC_3.imag(), (fptype)Parameters_MSSM_SLHA2::GC_2.real(), (fptype)Parameters_MSSM_SLHA2::GC_2.imag(), (fptype)Parameters_MSSM_SLHA2::GC_246.real(), (fptype)Parameters_MSSM_SLHA2::GC_246.imag(), (fptype)Parameters_MSSM_SLHA2::GC_250.real(), (fptype)Parameters_MSSM_SLHA2::GC_250.imag(), (fptype)Parameters_MSSM_SLHA2::GC_249.real(), (fptype)Parameters_MSSM_SLHA2::GC_249.imag() };
 #else
 #ifdef MGONGPUCPP_GPUIMPL
   __device__ __constant__ fptype cIPD[nIPD];
-  __device__ __constant__ fptype cIPC[nIPC*2];
+  __device__ __constant__ fptype cIPC[nIPC * 2];
 #else
   static fptype cIPD[nIPD];
-  static fptype cIPC[nIPC*2];
+  static fptype cIPC[nIPC * 2];
 #endif
 #endif
 
@@ -230,8 +230,8 @@ namespace mg5amcCpu
 #endif
       for( size_t idcoup = 0; idcoup < ndcoup; idcoup++ )
         allCOUPs[idcoup] = CD_ACCESS::idcoupAccessBufferConst( allcouplings, idcoup ); // dependent couplings, vary event-by-event
-      //for( size_t iicoup = 0; iicoup < nicoup; iicoup++ ) // BUG #823
-      for( size_t iicoup = 0; iicoup < nIPC; iicoup++ ) // FIX #823
+      //for( size_t iicoup = 0; iicoup < nicoup; iicoup++ )                             // BUG #823
+      for( size_t iicoup = 0; iicoup < nIPC; iicoup++ )                                 // FIX #823
         allCOUPs[ndcoup + iicoup] = CI_ACCESS::iicoupAccessBufferConst( cIPC, iicoup ); // independent couplings, fixed for all events
 #ifdef MGONGPUCPP_GPUIMPL
 #ifdef __CUDACC__
@@ -253,7 +253,7 @@ namespace mg5amcCpu
       for( size_t idcoup = 0; idcoup < ndcoup; idcoup++ )
         COUPs[idcoup] = CD_ACCESS::ieventAccessRecordConst( allCOUPs[idcoup], ievt0 ); // dependent couplings, vary event-by-event
       //for( size_t iicoup = 0; iicoup < nicoup; iicoup++ ) // BUG #823
-      for( size_t iicoup = 0; iicoup < nIPC; iicoup++ ) // FIX #823
+      for( size_t iicoup = 0; iicoup < nIPC; iicoup++ )     // FIX #823
         COUPs[ndcoup + iicoup] = allCOUPs[ndcoup + iicoup]; // independent couplings, fixed for all events
       fptype* MEs = E_ACCESS::ieventAccessRecord( allMEs, ievt0 );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
