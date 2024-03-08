@@ -164,6 +164,18 @@ function codeGenAndDiff()
     susy_gq_ttllq)
       cmd="import model MSSM_SLHA2; define q = u c d s u~ c~ d~ s~; generate g q > t t~ l- l+ q"
       ;;
+    susy_gu_ttllu)
+      cmd="import model MSSM_SLHA2; generate g u > t t~ l- l+ u"
+      ;;
+    susy_gux_ttllux)
+      cmd="import model MSSM_SLHA2; generate g u~ > t t~ l- l+ u~"
+      ;;
+    susy_gd_ttlld)
+      cmd="import model MSSM_SLHA2; generate g d > t t~ l- l+ d"
+      ;;
+    susy_gdx_ttlldx)
+      cmd="import model MSSM_SLHA2; generate g d~ > t t~ l- l+ d~"
+      ;;
     susy_gg_gogo)
       cmd="import model MSSM_SLHA2; generate g g > go go"
       ;;
