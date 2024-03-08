@@ -602,7 +602,7 @@ INFO: Crossed process found for g d~ > t t~ e- e+ d~, reuse diagrams.
 INFO: Crossed process found for g d~ > t t~ mu- mu+ d~, reuse diagrams. 
 INFO: Crossed process found for g s~ > t t~ e- e+ s~, reuse diagrams. 
 INFO: Crossed process found for g s~ > t t~ mu- mu+ s~, reuse diagrams. 
-16 processes with 768 diagrams generated in 4.173 s
+16 processes with 768 diagrams generated in 4.149 s
 Total: 16 processes with 768 diagrams
 output standalone_cudacpp ../TMPOUT/CODEGEN_cudacpp_susy_gq_ttllq
 Load PLUGIN.CUDACPP_OUTPUT
@@ -670,7 +670,7 @@ INFO: Creating files in directory /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gq_ttllq/SubProcesses/P1_Sigma_MSSM_SLHA2_gdx_ttxemepdx/./CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gq_ttllq/SubProcesses/P1_Sigma_MSSM_SLHA2_gdx_ttxemepdx/./CPPProcess.cc
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gq_ttllq/SubProcesses/P1_Sigma_MSSM_SLHA2_gdx_ttxemepdx/. 
-Generated helas calls for 4 subprocesses (192 diagrams) in 0.686 s
+Generated helas calls for 4 subprocesses (192 diagrams) in 0.690 s
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 204][0m [0m
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV1 routines[0m
@@ -678,7 +678,7 @@ ALOHA: aloha creates FFV2 routines[0m
 ALOHA: aloha creates FFV5 routines[0m
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
 ALOHA: aloha creates FFV2_5 routines[0m
-ALOHA: aloha creates 5 routines in  0.416 s
+ALOHA: aloha creates 5 routines in  0.414 s
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -706,7 +706,7 @@ INFO: Created files Parameters_MSSM_SLHA2.h and Parameters_MSSM_SLHA2.cc in dire
 INFO: /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gq_ttllq/src/. and /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gq_ttllq/src/. 
 quit
 
-real	0m6.709s
-user	0m6.567s
-sys	0m0.090s
+real	0m6.656s
+user	0m6.543s
+sys	0m0.087s
 Code generation completed in 7 seconds

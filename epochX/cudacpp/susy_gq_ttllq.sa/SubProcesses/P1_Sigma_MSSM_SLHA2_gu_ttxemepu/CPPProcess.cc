@@ -79,9 +79,10 @@ namespace mg5amcCpu
   // For CUDA performance, hardcoded constexpr's would be better: fewer registers and a tiny throughput increase
   // However, physics parameters are user-defined through card files: use CUDA constant memory instead (issue #39)
   // [NB if hardcoded parameters are used, it's better to define them here to avoid silent shadowing (issue #263)]
-  constexpr int nIPD = 4;
-  constexpr int nIPC = 5;
-  static_assert( nIPC <= nicoup ); // see bug #823
+  constexpr int nIPD = 4; // SM independent parameters used in this CPPProcess.cc (FIXME? rename as sm_IndepParam?)
+  // Note (see #823): nIPC may vary from one P*/CPPProcess.cc to another, while nicoup is defined in src/Param.h and is common to all P*
+  constexpr int nIPC = 5; // SM independent couplings used in this CPPProcess.cc (FIXME? rename as sm_IndepCoupl?)
+  static_assert( nIPC <= nicoup );
 #ifdef MGONGPU_HARDCODE_PARAM
   __device__ const fptype cIPD[nIPD] = { (fptype)Parameters_MSSM_SLHA2::mdl_MT, (fptype)Parameters_MSSM_SLHA2::mdl_MZ, (fptype)Parameters_MSSM_SLHA2::mdl_WZ, (fptype)Parameters_MSSM_SLHA2::mdl_WT };
   __device__ const fptype cIPC[nIPC * 2] = { (fptype)Parameters_MSSM_SLHA2::GC_3.real(), (fptype)Parameters_MSSM_SLHA2::GC_3.imag(), (fptype)Parameters_MSSM_SLHA2::GC_2.real(), (fptype)Parameters_MSSM_SLHA2::GC_2.imag(), (fptype)Parameters_MSSM_SLHA2::GC_246.real(), (fptype)Parameters_MSSM_SLHA2::GC_246.imag(), (fptype)Parameters_MSSM_SLHA2::GC_250.real(), (fptype)Parameters_MSSM_SLHA2::GC_250.imag(), (fptype)Parameters_MSSM_SLHA2::GC_249.real(), (fptype)Parameters_MSSM_SLHA2::GC_249.imag() };
