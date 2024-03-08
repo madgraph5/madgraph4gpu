@@ -79,16 +79,19 @@ namespace mg5amcCpu
   // For CUDA performance, hardcoded constexpr's would be better: fewer registers and a tiny throughput increase
   // However, physics parameters are user-defined through card files: use CUDA constant memory instead (issue #39)
   // [NB if hardcoded parameters are used, it's better to define them here to avoid silent shadowing (issue #263)]
+  constexpr int nIPD = 4;
+  constexpr int nIPC = 5;
+  static_assert( nIPC <= nicoup ); // see bug #823
 #ifdef MGONGPU_HARDCODE_PARAM
-  __device__ const fptype cIPD[4] = { (fptype)Parameters_MSSM_SLHA2::mdl_MT, (fptype)Parameters_MSSM_SLHA2::mdl_MZ, (fptype)Parameters_MSSM_SLHA2::mdl_WZ, (fptype)Parameters_MSSM_SLHA2::mdl_WT };
-  __device__ const fptype cIPC[10] = { (fptype)Parameters_MSSM_SLHA2::GC_3.real(), (fptype)Parameters_MSSM_SLHA2::GC_3.imag(), (fptype)Parameters_MSSM_SLHA2::GC_2.real(), (fptype)Parameters_MSSM_SLHA2::GC_2.imag(), (fptype)Parameters_MSSM_SLHA2::GC_246.real(), (fptype)Parameters_MSSM_SLHA2::GC_246.imag(), (fptype)Parameters_MSSM_SLHA2::GC_250.real(), (fptype)Parameters_MSSM_SLHA2::GC_250.imag(), (fptype)Parameters_MSSM_SLHA2::GC_249.real(), (fptype)Parameters_MSSM_SLHA2::GC_249.imag() };
+  __device__ const fptype cIPD[nIPD] = { (fptype)Parameters_MSSM_SLHA2::mdl_MT, (fptype)Parameters_MSSM_SLHA2::mdl_MZ, (fptype)Parameters_MSSM_SLHA2::mdl_WZ, (fptype)Parameters_MSSM_SLHA2::mdl_WT };
+  __device__ const fptype cIPC[nIPC*2] = { (fptype)Parameters_MSSM_SLHA2::GC_3.real(), (fptype)Parameters_MSSM_SLHA2::GC_3.imag(), (fptype)Parameters_MSSM_SLHA2::GC_2.real(), (fptype)Parameters_MSSM_SLHA2::GC_2.imag(), (fptype)Parameters_MSSM_SLHA2::GC_246.real(), (fptype)Parameters_MSSM_SLHA2::GC_246.imag(), (fptype)Parameters_MSSM_SLHA2::GC_250.real(), (fptype)Parameters_MSSM_SLHA2::GC_250.imag(), (fptype)Parameters_MSSM_SLHA2::GC_249.real(), (fptype)Parameters_MSSM_SLHA2::GC_249.imag() };
 #else
 #ifdef MGONGPUCPP_GPUIMPL
-  __device__ __constant__ fptype cIPD[4];
-  __device__ __constant__ fptype cIPC[10];
+  __device__ __constant__ fptype cIPD[nIPD];
+  __device__ __constant__ fptype cIPC[nIPC*2];
 #else
-  static fptype cIPD[4];
-  static fptype cIPC[10];
+  static fptype cIPD[nIPD];
+  static fptype cIPC[nIPC*2];
 #endif
 #endif
 
@@ -218,7 +221,8 @@ namespace mg5amcCpu
 #ifndef MGONGPUCPP_GPUIMPL
       const int ievt0 = ievt00 + iParity * neppV;
 #endif
-      constexpr size_t nxcoup = ndcoup + nicoup; // both dependent and independent couplings
+      //constexpr size_t nxcoup = ndcoup + nicoup; // both dependent and independent couplings (BUG #823)
+      constexpr size_t nxcoup = ndcoup + nIPC; // both dependent and independent couplings (FIX #823)
       const fptype* allCOUPs[nxcoup];
 #ifdef __CUDACC__
 #pragma nv_diagnostic push
@@ -226,7 +230,8 @@ namespace mg5amcCpu
 #endif
       for( size_t idcoup = 0; idcoup < ndcoup; idcoup++ )
         allCOUPs[idcoup] = CD_ACCESS::idcoupAccessBufferConst( allcouplings, idcoup ); // dependent couplings, vary event-by-event
-      for( size_t iicoup = 0; iicoup < nicoup; iicoup++ )
+      //for( size_t iicoup = 0; iicoup < nicoup; iicoup++ ) // BUG #823
+      for( size_t iicoup = 0; iicoup < nIPC; iicoup++ ) // FIX #823
         allCOUPs[ndcoup + iicoup] = CI_ACCESS::iicoupAccessBufferConst( cIPC, iicoup ); // independent couplings, fixed for all events
 #ifdef MGONGPUCPP_GPUIMPL
 #ifdef __CUDACC__
@@ -247,7 +252,8 @@ namespace mg5amcCpu
       const fptype* COUPs[nxcoup];
       for( size_t idcoup = 0; idcoup < ndcoup; idcoup++ )
         COUPs[idcoup] = CD_ACCESS::ieventAccessRecordConst( allCOUPs[idcoup], ievt0 ); // dependent couplings, vary event-by-event
-      for( size_t iicoup = 0; iicoup < nicoup; iicoup++ )
+      //for( size_t iicoup = 0; iicoup < nicoup; iicoup++ ) // BUG #823
+      for( size_t iicoup = 0; iicoup < nIPC; iicoup++ ) // FIX #823
         COUPs[ndcoup + iicoup] = allCOUPs[ndcoup + iicoup]; // independent couplings, fixed for all events
       fptype* MEs = E_ACCESS::ieventAccessRecord( allMEs, ievt0 );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
@@ -1250,25 +1256,25 @@ namespace mg5amcCpu
     m_masses.push_back( m_pars->ZERO );
     // Read physics parameters like masses and couplings from user configuration files (static: initialize once)
     // Then copy them to CUDA constant memory (issue #39) or its C++ emulation in file-scope static memory
-    const fptype tIPD[4] = { (fptype)m_pars->mdl_MT, (fptype)m_pars->mdl_MZ, (fptype)m_pars->mdl_WZ, (fptype)m_pars->mdl_WT };
-    const cxtype tIPC[5] = { cxmake( m_pars->GC_3 ), cxmake( m_pars->GC_2 ), cxmake( m_pars->GC_246 ), cxmake( m_pars->GC_250 ), cxmake( m_pars->GC_249 ) };
+    const fptype tIPD[nIPD] = { (fptype)m_pars->mdl_MT, (fptype)m_pars->mdl_MZ, (fptype)m_pars->mdl_WZ, (fptype)m_pars->mdl_WT };
+    const cxtype tIPC[nIPC] = { cxmake( m_pars->GC_3 ), cxmake( m_pars->GC_2 ), cxmake( m_pars->GC_246 ), cxmake( m_pars->GC_250 ), cxmake( m_pars->GC_249 ) };
 #ifdef MGONGPUCPP_GPUIMPL
-    gpuMemcpyToSymbol( cIPD, tIPD, 4 * sizeof( fptype ) );
-    gpuMemcpyToSymbol( cIPC, tIPC, 5 * sizeof( cxtype ) );
+    gpuMemcpyToSymbol( cIPD, tIPD, nIPD * sizeof( fptype ) );
+    gpuMemcpyToSymbol( cIPC, tIPC, nIPC * sizeof( cxtype ) );
 #ifdef MGONGPUCPP_NBSMINDEPPARAM_GT_0
     if( Parameters_MSSM_SLHA2::nBsmIndepParam > 0 )
       gpuMemcpyToSymbol( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters_MSSM_SLHA2::nBsmIndepParam * sizeof( double ) );
 #endif
 #else
-    memcpy( cIPD, tIPD, 4 * sizeof( fptype ) );
-    memcpy( cIPC, tIPC, 5 * sizeof( cxtype ) );
+    memcpy( cIPD, tIPD, nIPD * sizeof( fptype ) );
+    memcpy( cIPC, tIPC, nIPC * sizeof( cxtype ) );
 #ifdef MGONGPUCPP_NBSMINDEPPARAM_GT_0
     if( Parameters_MSSM_SLHA2::nBsmIndepParam > 0 )
       memcpy( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters_MSSM_SLHA2::nBsmIndepParam * sizeof( double ) );
 #endif
 #endif
-    //for ( int i=0; i<4; i++ ) std::cout << std::setprecision(17) << "tIPD[i] = " << tIPD[i] << std::endl;
-    //for ( int i=0; i<5; i++ ) std::cout << std::setprecision(17) << "tIPC[i] = " << tIPC[i] << std::endl;
+    //for ( int i=0; i<nIPD; i++ ) std::cout << std::setprecision(17) << "tIPD[i] = " << tIPD[i] << std::endl;
+    //for ( int i=0; i<nIPC; i++ ) std::cout << std::setprecision(17) << "tIPC[i] = " << tIPC[i] << std::endl;
     //for ( int i=0; i<Parameters_MSSM_SLHA2::nBsmIndepParam; i++ ) std::cout << std::setprecision(17) << "m_pars->mdl_bsmIndepParam[i] = " << m_pars->mdl_bsmIndepParam[i] << std::endl;
   }
 #else
