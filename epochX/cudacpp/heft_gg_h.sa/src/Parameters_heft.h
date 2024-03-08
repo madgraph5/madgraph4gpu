@@ -87,6 +87,7 @@ namespace mg5amcCpu
 
     // Print couplings that are changed event by event
     //void printDependentCouplings(); // now computed event-by-event (running alphas #373)
+
     // BSM parameters that do not depend on alphaS but are needed in the computation of alphaS-dependent couplings;
     static constexpr int nBsmIndepParam = 0;
     //double mdl_bsmIndepParam[nBsmIndepParam];
@@ -242,6 +243,7 @@ namespace mg5amcCpu
       using namespace Parameters_heft;
 #else
       // No additional parameters needed in constant memory for this BSM model
+
 #endif
       // NB: hardcode cxtype cI(0,1) instead of cxtype (or hardcoded cxsmpl) mdl_complexi (which exists in Parameters_heft) because:
       // (1) mdl_complexi is always (0,1); (2) mdl_complexi is undefined in device code; (3) need cxsmpl conversion to cxtype in code below
