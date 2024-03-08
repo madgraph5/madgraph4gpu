@@ -774,7 +774,7 @@ namespace mg5amcCpu
 
     // BSM parameters that do not depend on alphaS but are needed in the computation of alphaS-dependent couplings;
     constexpr int nBsmIndepParam = 12;
-    __device__ constexpr double mdl_bsmIndepParam[nBsmIndepParam] = { mdl_I52x33.real(), mdl_I52x33.imag(), mdl_I75x33.real(), mdl_I75x33.imag(), mdl_I74x33.real(), mdl_I74x33.imag(), mdl_I52x36.real(), mdl_I52x36.imag(), mdl_I51x36.real(), mdl_I51x36.imag(), mdl_I51x33.real(), mdl_I51x33.imag() };
+    __device__ constexpr double mdl_bsmIndepParam[nBsmIndepParam] = { mdl_I52x36.real(), mdl_I52x36.imag(), mdl_I51x36.real(), mdl_I51x36.imag(), mdl_I75x33.real(), mdl_I75x33.imag(), mdl_I51x33.real(), mdl_I51x33.imag(), mdl_I74x33.real(), mdl_I74x33.imag(), mdl_I52x33.real(), mdl_I52x33.imag() };
   }
 
 } // end namespace mg5amcGpu/mg5amcCpu
@@ -817,12 +817,12 @@ namespace mg5amcCpu
 #ifdef MGONGPU_HARDCODE_PARAM
       using namespace Parameters_MSSM_SLHA2;
 #else
-      const cxsmpl<double> mdl_I52x33 = cxsmpl<double>( bsmIndepParamPtr[0], bsmIndepParamPtr[1] );
-      const cxsmpl<double> mdl_I75x33 = cxsmpl<double>( bsmIndepParamPtr[2], bsmIndepParamPtr[3] );
-      const cxsmpl<double> mdl_I74x33 = cxsmpl<double>( bsmIndepParamPtr[4], bsmIndepParamPtr[5] );
-      const cxsmpl<double> mdl_I52x36 = cxsmpl<double>( bsmIndepParamPtr[6], bsmIndepParamPtr[7] );
-      const cxsmpl<double> mdl_I51x36 = cxsmpl<double>( bsmIndepParamPtr[8], bsmIndepParamPtr[9] );
-      const cxsmpl<double> mdl_I51x33 = cxsmpl<double>( bsmIndepParamPtr[10], bsmIndepParamPtr[11] );
+      const cxsmpl<double> mdl_I52x36 = cxsmpl<double>( bsmIndepParamPtr[0], bsmIndepParamPtr[1] );
+      const cxsmpl<double> mdl_I51x36 = cxsmpl<double>( bsmIndepParamPtr[2], bsmIndepParamPtr[3] );
+      const cxsmpl<double> mdl_I75x33 = cxsmpl<double>( bsmIndepParamPtr[4], bsmIndepParamPtr[5] );
+      const cxsmpl<double> mdl_I51x33 = cxsmpl<double>( bsmIndepParamPtr[6], bsmIndepParamPtr[7] );
+      const cxsmpl<double> mdl_I74x33 = cxsmpl<double>( bsmIndepParamPtr[8], bsmIndepParamPtr[9] );
+      const cxsmpl<double> mdl_I52x33 = cxsmpl<double>( bsmIndepParamPtr[10], bsmIndepParamPtr[11] );
 
 #endif
       // NB: hardcode cxtype cI(0,1) instead of cxtype (or hardcoded cxsmpl) mdl_complexi (which exists in Parameters_MSSM_SLHA2) because:
