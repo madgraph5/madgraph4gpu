@@ -12,8 +12,8 @@
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
 
-#ifndef MG5_Sigma_MSSM_SLHA2_gg_ttx_H
-#define MG5_Sigma_MSSM_SLHA2_gg_ttx_H 1
+#ifndef MG5_Sigma_MSSM_SLHA2_gg_t1t1x_H
+#define MG5_Sigma_MSSM_SLHA2_gg_t1t1x_H 1
 
 #include "mgOnGpuConfig.h"
 
@@ -33,7 +33,7 @@ namespace mg5amcCpu
 {
   //==========================================================================
   // A class for calculating the matrix elements for
-  // Process: g g > t t~ WEIGHTED<=2 @1
+  // Process: g g > t1 t1~ WEIGHTED<=2 @1
   //--------------------------------------------------------------------------
 
   class CPPProcess
@@ -73,7 +73,7 @@ namespace mg5amcCpu
     static constexpr int npari = 2; // #particles in the initial state (incoming): e.g. 2 (e+ e-) for e+ e- -> mu+ mu-
     static constexpr int nparf = 2; // #particles in the final state (outgoing): e.g. 2 (mu+ mu-) for e+ e- -> mu+ mu-
     static constexpr int npar = npari + nparf; // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
-    static constexpr int ncomb = 16; // #helicity combinations: e.g. 16 for e+ e- -> mu+ mu- (2**4 = fermion spin up/down ** npar)
+    static constexpr int ncomb = 4; // #helicity combinations: e.g. 16 for e+ e- -> mu+ mu- (2**4 = fermion spin up/down ** npar)
 
     // Hardcoded parameters for this process (constant class variables)
     // [NB: this class assumes nprocesses==1 i.e. a single DSIG1 and no DSIG2 in Fortran (#272 and #343)]
@@ -85,8 +85,8 @@ namespace mg5amcCpu
     //static const int ninitial = CPPProcess::npari;
     //static const int nexternal = 4; // CPPProcess::npar (nexternal was nioparticles)
     //static const int nwavefuncs = 6; // (?!?! this should be nwf but export_cpp gives the wrong value here)
-    //static const int namplitudes = 3;
-    //static const int ncomb = 16; // CPPProcess::ncomb
+    //static const int namplitudes = 7;
+    //static const int ncomb = 4; // CPPProcess::ncomb
 
   private: /* clang-format on */
 
@@ -185,4 +185,4 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 }
 
-#endif // MG5_Sigma_MSSM_SLHA2_gg_ttx_H
+#endif // MG5_Sigma_MSSM_SLHA2_gg_t1t1x_H

@@ -808,15 +808,26 @@ Parameters_MSSM_SLHA2::setIndependentParameters( SLHAReader& slha )
   mdl_ee__exp__2 = ( ( mdl_ee ) * ( mdl_ee ) );
   // Fixes for Majorana particles
   if( mdl_Mneu2 < 0 )
-    mdl_Wneu2 = -abs( mdl_Wneu2 );
+    mdl_Wneu2 = -std::abs( mdl_Wneu2 );
   if( mdl_Mneu3 < 0 )
-    mdl_Wneu3 = -abs( mdl_Wneu3 );
+    mdl_Wneu3 = -std::abs( mdl_Wneu3 );
   if( mdl_Mneu4 < 0 )
-    mdl_Wneu4 = -abs( mdl_Wneu4 );
+    mdl_Wneu4 = -std::abs( mdl_Wneu4 );
   if( mdl_Mgo < 0 )
-    mdl_Wgo = -abs( mdl_Wgo );
+    mdl_Wgo = -std::abs( mdl_Wgo );
   // BSM parameters that do not depend on alphaS but are needed in the computation of alphaS-dependent couplings;
-  mdl_bsmIndepParam[0] = mdl_I51x11;
+  mdl_bsmIndepParam[0] = mdl_I52x33.real();
+  mdl_bsmIndepParam[1] = mdl_I52x33.imag();
+  mdl_bsmIndepParam[2] = mdl_I51x33.real();
+  mdl_bsmIndepParam[3] = mdl_I51x33.imag();
+  mdl_bsmIndepParam[4] = mdl_I75x33.real();
+  mdl_bsmIndepParam[5] = mdl_I75x33.imag();
+  mdl_bsmIndepParam[6] = mdl_I74x33.real();
+  mdl_bsmIndepParam[7] = mdl_I74x33.imag();
+  mdl_bsmIndepParam[8] = mdl_I52x36.real();
+  mdl_bsmIndepParam[9] = mdl_I52x36.imag();
+  mdl_bsmIndepParam[10] = mdl_I51x36.real();
+  mdl_bsmIndepParam[11] = mdl_I51x36.imag();
 }
 
 void
@@ -838,7 +849,9 @@ void
 Parameters_MSSM_SLHA2::setDependentCouplings() // now computed event-by-event (running alphas #373)
 {
   GC_6 = -G;
-  GC_51 = -( mdl_complexi * G * mdl_I51x11 );
+  GC_55 = -( mdl_complexi * G * mdl_I51x33 ) - mdl_complexi * G * mdl_I52x33;
+  GC_57 = -( mdl_complexi * G * mdl_I51x36 ) - mdl_complexi * G * mdl_I52x36;
+  GC_90 = mdl_complexi * mdl_G__exp__2 * mdl_I74x33 + mdl_complexi * mdl_G__exp__2 * mdl_I75x33;
 }
 */
 
@@ -1491,6 +1504,8 @@ Parameters_MSSM_SLHA2::printDependentCouplings() // now computed event-by-event 
 {
   std::cout << "MSSM_SLHA2 model couplings dependent on event kinematics:" << std::endl;
   std::cout << std::setw( 20 ) << "GC_6 = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << GC_6 << std::endl;
-  std::cout << std::setw( 20 ) << "GC_51 = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << GC_51 << std::endl;
+  std::cout << std::setw( 20 ) << "GC_55 = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << GC_55 << std::endl;
+  std::cout << std::setw( 20 ) << "GC_57 = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << GC_57 << std::endl;
+  std::cout << std::setw( 20 ) << "GC_90 = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << GC_90 << std::endl;
 }
 */

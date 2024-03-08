@@ -87,6 +87,7 @@ namespace mg5amcCpu
 
     // Print couplings that are changed event by event
     //void printDependentCouplings(); // now computed event-by-event (running alphas #373)
+
     // BSM parameters that do not depend on alphaS but are needed in the computation of alphaS-dependent couplings;
     static constexpr int nBsmIndepParam = 0;
     //double mdl_bsmIndepParam[nBsmIndepParam];
@@ -236,12 +237,13 @@ namespace mg5amcCpu
 #pragma nv_diagnostic push
 #pragma nv_diag_suppress 177 // e.g. <<warning #177-D: variable "mdl_G__exp__2" was declared but never referenced>>
 #endif
-    __host__ __device__ inline const DependentCouplings_sv computeDependentCouplings_fromG( const fptype_sv& G_sv, const fptype* bsmIndepParamPtr )
+    __host__ __device__ inline const DependentCouplings_sv computeDependentCouplings_fromG( const fptype_sv& G_sv, const double* bsmIndepParamPtr )
     {
 #ifdef MGONGPU_HARDCODE_PARAM
       using namespace Parameters_heft;
 #else
       // No additional parameters needed in constant memory for this BSM model
+
 #endif
       // NB: hardcode cxtype cI(0,1) instead of cxtype (or hardcoded cxsmpl) mdl_complexi (which exists in Parameters_heft) because:
       // (1) mdl_complexi is always (0,1); (2) mdl_complexi is undefined in device code; (3) need cxsmpl conversion to cxtype in code below
@@ -310,7 +312,7 @@ namespace mg5amcCpu
   __device__ inline void
   G2COUP( const fptype gs[],
           fptype couplings[],
-          const fptype* bsmIndepParamPtr )
+          const double* bsmIndepParamPtr )
   {
     mgDebug( 0, __FUNCTION__ );
     using namespace Parameters_heft_dependentCouplings;

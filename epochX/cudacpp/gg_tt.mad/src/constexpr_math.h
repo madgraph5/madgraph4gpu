@@ -57,10 +57,19 @@ namespace mg5amcCpu
     return iexp == 0 ? 1 : base * constexpr_pow( base, iexp - 1 );
   }
 
-  // PI from cmath
-  constexpr long double constexpr_pi = M_PIl;        // pi
-  constexpr long double constexpr_pi_by_2 = M_PI_2l; // pi/2
-  constexpr long double constexpr_pi_by_4 = M_PI_4l; // pi/4
+  // PI constants
+  // NB1: M_PIl from from cmath is not defined on Mac
+  // NB2: std::numbers::pi needs c++20 but we are still using c++17
+  // NB3: I could use my constexpr_atan(1)*4... but a literal is better?
+  //constexpr long double constexpr_pi = M_PIl;        // pi
+  //constexpr long double constexpr_pi_by_2 = M_PI_2l; // pi/2
+  //constexpr long double constexpr_pi_by_4 = M_PI_4l; // pi/4
+  constexpr long double constexpr_pi = 3.141592653589793238462643383279502884L;      // same as M_PIl in gcc
+  constexpr long double constexpr_pi_by_2 = 1.570796326794896619231321691639751442L; // same as M_PI_2l in gcc
+  constexpr long double constexpr_pi_by_4 = 0.785398163397448309615660845819875721L; // same as M_PI_4l in gcc
+  static_assert( constexpr_pi_by_4 * 4 == constexpr_pi );
+  static_assert( constexpr_pi_by_4 * 2 == constexpr_pi_by_2 );
+  static_assert( constexpr_pi_by_2 * 2 == constexpr_pi );
 
   // Constexpr implementation of sin for 0<x<pi/4 (long double signature)
   // Taylor expansion : x - x**3/3! + x**5/5!

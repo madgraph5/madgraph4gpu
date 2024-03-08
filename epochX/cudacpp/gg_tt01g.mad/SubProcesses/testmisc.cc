@@ -340,7 +340,7 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testmisc )
       << "x=" << x << ", x(0to2Pi)=" << mapIn0to2Pi( x ) << ", istep=" << istep;
     std::cout << std::setprecision( 6 ); // default
   };
-  testSinCosTanX( M_PIl, 1E-3, true );                                                // from math.h
+  testSinCosTanX( constexpr_pi, 1E-3, true );                                         // from math.h
   testSinCosTanX( (long double)3.141592653589793238462643383279502884L, 1E-3, true ); // from math.h
   testSinCosTanX( 4.712388980384687897640105802565813064575L, 1E-3, true );           // from 100 steps n [-4*pi,6*pi]... succeeds? (note x==xx)
   testSinCosTanX( 3 * constexpr_pi_by_2 - 1.96e-15L, 1E-3, true );                    // from 100 steps n [-4*pi,6*pi]... succeeds? (note x!=xx)
@@ -371,11 +371,11 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testmisc )
   testSinCosTan8( 1E-12, 1E-06 ); // fails with 1E-07
   testSinCosTan8( 1E-09, 1E-09 ); // fails with 1E-10
   testSinCosTan8( 1E-06, 1E-12 ); // fails with 1E-13
-  testSinCosTan8( 1E-03, 1E-15 ); // fails with 1E-16
-  testSinCosTan8( 1E-02, 1E-99 ); // never fails? always bit-by-bit identical?
+  testSinCosTan8( 1E-03, 1E-14 ); // fails with 1E-16: could use 1E-14 but keep it at 1E-14 (avoid 'EXPECT_NEAR equivalent to EXPECT_EQUAL' on Mac)
+  testSinCosTan8( 1E-02, 1E-14 ); // never fails? could use 1E-99(?) but keep it at 1E-14 (avoid 'EXPECT_NEAR equivalent to EXPECT_EQUAL' on Mac)
 
   // Test constexpr sin, cos, tan - N points almost randomly with a varying tolerance
-  auto testSinCosTanN = [testSinCosTanX, distance4]( const int nstep, const double x0, const double x1 )
+  auto testSinCosTanN = [distance4]( const int nstep, const double x0, const double x1 )
   {
     auto toleranceForX = [distance4]( const double x )
     {

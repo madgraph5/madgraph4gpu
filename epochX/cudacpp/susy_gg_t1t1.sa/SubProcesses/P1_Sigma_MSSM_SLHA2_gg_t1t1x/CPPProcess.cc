@@ -44,7 +44,7 @@
 
 //==========================================================================
 // Class member functions for calculating the matrix elements for
-// Process: g g > t t~ WEIGHTED<=2 @1
+// Process: g g > t1 t1~ WEIGHTED<=2 @1
 
 #ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
@@ -76,15 +76,19 @@ namespace mg5amcCpu
   // For CUDA performance, hardcoded constexpr's would be better: fewer registers and a tiny throughput increase
   // However, physics parameters are user-defined through card files: use CUDA constant memory instead (issue #39)
   // [NB if hardcoded parameters are used, it's better to define them here to avoid silent shadowing (issue #263)]
+  constexpr int nIPD = 4; // SM independent parameters used in this CPPProcess.cc (FIXME? rename as sm_IndepParam?)
+  // Note (see #823): nIPC may vary from one P*/CPPProcess.cc to another, while nicoup is defined in src/Param.h and is common to all P*
+  constexpr int nIPC = 0; // SM independent couplings used in this CPPProcess.cc (FIXME? rename as sm_IndepCoupl?)
+  static_assert( nIPC <= nicoup );
 #ifdef MGONGPU_HARDCODE_PARAM
-  __device__ const fptype cIPD[2] = { (fptype)Parameters_MSSM_SLHA2::mdl_MT, (fptype)Parameters_MSSM_SLHA2::mdl_WT };
+  __device__ const fptype cIPD[nIPD] = { (fptype)Parameters_MSSM_SLHA2::mdl_Msu3, (fptype)Parameters_MSSM_SLHA2::mdl_Wsu3, (fptype)Parameters_MSSM_SLHA2::mdl_Msu6, (fptype)Parameters_MSSM_SLHA2::mdl_Wsu6 };
   __device__ const fptype* cIPC = nullptr; // unused as nicoup=0
 #else
 #ifdef MGONGPUCPP_GPUIMPL
-  __device__ __constant__ fptype cIPD[2];
+  __device__ __constant__ fptype cIPD[nIPD];
   __device__ __constant__ fptype* cIPC = nullptr; // unused as nicoup=0
 #else
-  static fptype cIPD[2];
+  static fptype cIPD[nIPD];
   static fptype* cIPC = nullptr; // unused as nicoup=0
 #endif
 #endif
@@ -215,7 +219,8 @@ namespace mg5amcCpu
 #ifndef MGONGPUCPP_GPUIMPL
       const int ievt0 = ievt00 + iParity * neppV;
 #endif
-      constexpr size_t nxcoup = ndcoup + nicoup; // both dependent and independent couplings
+      //constexpr size_t nxcoup = ndcoup + nicoup; // both dependent and independent couplings (BUG #823)
+      constexpr size_t nxcoup = ndcoup + nIPC; // both dependent and independent couplings (FIX #823)
       const fptype* allCOUPs[nxcoup];
 #ifdef __CUDACC__
 #pragma nv_diagnostic push
@@ -223,7 +228,8 @@ namespace mg5amcCpu
 #endif
       for( size_t idcoup = 0; idcoup < ndcoup; idcoup++ )
         allCOUPs[idcoup] = CD_ACCESS::idcoupAccessBufferConst( allcouplings, idcoup ); // dependent couplings, vary event-by-event
-      for( size_t iicoup = 0; iicoup < nicoup; iicoup++ )
+      //for( size_t iicoup = 0; iicoup < nicoup; iicoup++ )                             // BUG #823
+      for( size_t iicoup = 0; iicoup < nIPC; iicoup++ )                                 // FIX #823
         allCOUPs[ndcoup + iicoup] = CI_ACCESS::iicoupAccessBufferConst( cIPC, iicoup ); // independent couplings, fixed for all events
 #ifdef MGONGPUCPP_GPUIMPL
 #ifdef __CUDACC__
@@ -244,7 +250,8 @@ namespace mg5amcCpu
       const fptype* COUPs[nxcoup];
       for( size_t idcoup = 0; idcoup < ndcoup; idcoup++ )
         COUPs[idcoup] = CD_ACCESS::ieventAccessRecordConst( allCOUPs[idcoup], ievt0 ); // dependent couplings, vary event-by-event
-      for( size_t iicoup = 0; iicoup < nicoup; iicoup++ )
+      //for( size_t iicoup = 0; iicoup < nicoup; iicoup++ ) // BUG #823
+      for( size_t iicoup = 0; iicoup < nIPC; iicoup++ )     // FIX #823
         COUPs[ndcoup + iicoup] = allCOUPs[ndcoup + iicoup]; // independent couplings, fixed for all events
       fptype* MEs = E_ACCESS::ieventAccessRecord( allMEs, ievt0 );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
@@ -262,50 +269,89 @@ namespace mg5amcCpu
       fptype_sv& denominators_sv = DEN_ACCESS::kernelAccess( denominators );
 #endif
 
-      // *** DIAGRAM 1 OF 3 ***
+      // *** DIAGRAM 1 OF 6 ***
 
       // Wavefunction(s) for diagram number 1
       vxxxxx<M_ACCESS, W_ACCESS>( momenta, 0., cHel[ihel][0], -1, w_fp[0], 0 );
 
       vxxxxx<M_ACCESS, W_ACCESS>( momenta, 0., cHel[ihel][1], -1, w_fp[1], 1 );
 
-      oxxxxx<M_ACCESS, W_ACCESS>( momenta, cIPD[0], cHel[ihel][2], +1, w_fp[2], 2 );
+      sxxxxx<M_ACCESS, W_ACCESS>( momenta, +1, w_fp[2], 2 );
 
-      ixxxxx<M_ACCESS, W_ACCESS>( momenta, cIPD[0], cHel[ihel][3], -1, w_fp[3], 3 );
-
-      VVV1P0_1<W_ACCESS, CD_ACCESS>( w_fp[0], w_fp[1], COUPs[0], 1.0, 0., 0., w_fp[4] );
+      sxxxxx<M_ACCESS, W_ACCESS>( momenta, +1, w_fp[3], 3 );
 
       // Amplitude(s) for diagram number 1
-      FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[2], w_fp[4], COUPs[1], -1.0, &amp_fp[0] );
+      VVSS1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[0], w_fp[1], w_fp[3], w_fp[2], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] += amp_sv[0];
+      VVSS1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[0], w_fp[1], w_fp[3], w_fp[2], COUPs[0], 1.0, &amp_fp[0] );
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+#endif
+      jamp_sv[0] += amp_sv[0];
 
-      // *** DIAGRAM 2 OF 3 ***
+      // *** DIAGRAM 2 OF 6 ***
 
       // Wavefunction(s) for diagram number 2
-      FFV1_1<W_ACCESS, CD_ACCESS>( w_fp[2], w_fp[0], COUPs[1], -1.0, cIPD[0], cIPD[1], w_fp[4] );
+      VVV1P0_1<W_ACCESS, CD_ACCESS>( w_fp[0], w_fp[1], COUPs[1], 1.0, 0., 0., w_fp[4] );
 
       // Amplitude(s) for diagram number 2
-      FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[4], w_fp[1], COUPs[1], -1.0, &amp_fp[0] );
+      VSS1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[4], w_fp[3], w_fp[2], COUPs[2], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[0] -= amp_sv[0];
+      jamp_sv[0] -= cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
 
-      // *** DIAGRAM 3 OF 3 ***
+      // *** DIAGRAM 3 OF 6 ***
 
       // Wavefunction(s) for diagram number 3
-      FFV1_2<W_ACCESS, CD_ACCESS>( w_fp[3], w_fp[0], COUPs[1], -1.0, cIPD[0], cIPD[1], w_fp[4] );
+      VSS1_2<W_ACCESS, CD_ACCESS>( w_fp[0], w_fp[2], COUPs[2], 1.0, cIPD[0], cIPD[1], w_fp[4] );
 
       // Amplitude(s) for diagram number 3
-      FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[4], w_fp[2], w_fp[1], COUPs[1], -1.0, &amp_fp[0] );
+      VSS1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[1], w_fp[3], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-      jamp_sv[1] -= amp_sv[0];
+      jamp_sv[0] += amp_sv[0];
+
+      // *** DIAGRAM 4 OF 6 ***
+
+      // Wavefunction(s) for diagram number 4
+      VSS1_3<W_ACCESS, CD_ACCESS>( w_fp[0], w_fp[2], COUPs[3], -1.0, cIPD[2], cIPD[3], w_fp[4] );
+
+      // Amplitude(s) for diagram number 4
+      VSS1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[1], w_fp[3], w_fp[4], COUPs[3], 1.0, &amp_fp[0] );
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+#endif
+      jamp_sv[0] += amp_sv[0];
+
+      // *** DIAGRAM 5 OF 6 ***
+
+      // Wavefunction(s) for diagram number 5
+      VSS1_3<W_ACCESS, CD_ACCESS>( w_fp[0], w_fp[3], COUPs[2], 1.0, cIPD[0], cIPD[1], w_fp[4] );
+
+      // Amplitude(s) for diagram number 5
+      VSS1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[1], w_fp[4], w_fp[2], COUPs[2], 1.0, &amp_fp[0] );
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+#endif
+      jamp_sv[1] += amp_sv[0];
+
+      // *** DIAGRAM 6 OF 6 ***
+
+      // Wavefunction(s) for diagram number 6
+      VSS1_3<W_ACCESS, CD_ACCESS>( w_fp[0], w_fp[3], COUPs[3], 1.0, cIPD[2], cIPD[3], w_fp[4] );
+
+      // Amplitude(s) for diagram number 6
+      VSS1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[1], w_fp[2], w_fp[4], COUPs[3], -1.0, &amp_fp[0] );
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+#endif
+      jamp_sv[1] += amp_sv[0];
 
       // *** COLOR CHOICE BELOW ***
       // Store the leading color flows for choice of color
@@ -314,7 +360,7 @@ namespace mg5amcCpu
           jamp2_sv[ncolor * iParity + icolC] += cxabs2( jamp_sv[icolC] );
 
       // *** COLOR MATRIX BELOW ***
-      // (This method used to be called CPPProcess::matrix_1_gg_ttx()?)
+      // (This method used to be called CPPProcess::matrix_1_gg_t1t1x()?)
 
       // The color denominators (initialize all array elements, with ncolor=2)
       // [NB do keep 'static' for these constexpr arrays, see issue #283]
@@ -473,22 +519,10 @@ namespace mg5amcCpu
     // Helicities for the process [NB do keep 'static' for this constexpr array, see issue #283]
     // *** NB There is no automatic check yet that these are in the same order as Fortran! #569 ***
     static constexpr short tHel[ncomb][npar] = {
-      { -1, -1, -1, 1 },
-      { -1, -1, -1, -1 },
-      { -1, -1, 1, 1 },
-      { -1, -1, 1, -1 },
-      { -1, 1, -1, 1 },
-      { -1, 1, -1, -1 },
-      { -1, 1, 1, 1 },
-      { -1, 1, 1, -1 },
-      { 1, -1, -1, 1 },
-      { 1, -1, -1, -1 },
-      { 1, -1, 1, 1 },
-      { 1, -1, 1, -1 },
-      { 1, 1, -1, 1 },
-      { 1, 1, -1, -1 },
-      { 1, 1, 1, 1 },
-      { 1, 1, 1, -1 } };
+      { -1, -1, 0, 0 },
+      { -1, 1, 0, 0 },
+      { 1, -1, 0, 0 },
+      { 1, 1, 0, 0 } };
 #ifdef MGONGPUCPP_GPUIMPL
     gpuMemcpyToSymbol( cHel, tHel, ncomb * npar * sizeof( short ) );
 #else
@@ -524,24 +558,28 @@ namespace mg5amcCpu
     // Set external particle masses for this matrix element
     m_masses.push_back( m_pars->ZERO );
     m_masses.push_back( m_pars->ZERO );
-    m_masses.push_back( m_pars->mdl_MT );
-    m_masses.push_back( m_pars->mdl_MT );
+    m_masses.push_back( m_pars->mdl_Msu3 );
+    m_masses.push_back( m_pars->mdl_Msu3 );
     // Read physics parameters like masses and couplings from user configuration files (static: initialize once)
     // Then copy them to CUDA constant memory (issue #39) or its C++ emulation in file-scope static memory
-    const fptype tIPD[2] = { (fptype)m_pars->mdl_MT, (fptype)m_pars->mdl_WT };
+    const fptype tIPD[nIPD] = { (fptype)m_pars->mdl_Msu3, (fptype)m_pars->mdl_Wsu3, (fptype)m_pars->mdl_Msu6, (fptype)m_pars->mdl_Wsu6 };
     //const cxtype tIPC[0] = { ... }; // nicoup=0
 #ifdef MGONGPUCPP_GPUIMPL
-    gpuMemcpyToSymbol( cIPD, tIPD, 2 * sizeof( fptype ) );
+    gpuMemcpyToSymbol( cIPD, tIPD, nIPD * sizeof( fptype ) );
     //gpuMemcpyToSymbol( cIPC, tIPC, 0 * sizeof( cxtype ) ); // nicoup=0
+#ifdef MGONGPUCPP_NBSMINDEPPARAM_GT_0
     if( Parameters_MSSM_SLHA2::nBsmIndepParam > 0 )
       gpuMemcpyToSymbol( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters_MSSM_SLHA2::nBsmIndepParam * sizeof( double ) );
+#endif
 #else
-    memcpy( cIPD, tIPD, 2 * sizeof( fptype ) );
+    memcpy( cIPD, tIPD, nIPD * sizeof( fptype ) );
     //memcpy( cIPC, tIPC, 0 * sizeof( cxtype ) ); // nicoup=0
+#ifdef MGONGPUCPP_NBSMINDEPPARAM_GT_0
     if( Parameters_MSSM_SLHA2::nBsmIndepParam > 0 )
       memcpy( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters_MSSM_SLHA2::nBsmIndepParam * sizeof( double ) );
 #endif
-    //for ( int i=0; i<2; i++ ) std::cout << std::setprecision(17) << "tIPD[i] = " << tIPD[i] << std::endl;
+#endif
+    //for ( int i=0; i<nIPD; i++ ) std::cout << std::setprecision(17) << "tIPD[i] = " << tIPD[i] << std::endl;
     //for ( int i=0; i<Parameters_MSSM_SLHA2::nBsmIndepParam; i++ ) std::cout << std::setprecision(17) << "m_pars->mdl_bsmIndepParam[i] = " << m_pars->mdl_bsmIndepParam[i] << std::endl;
   }
 #else
@@ -560,8 +598,8 @@ namespace mg5amcCpu
     // Set external particle masses for this matrix element
     m_masses.push_back( Parameters_MSSM_SLHA2::ZERO );
     m_masses.push_back( Parameters_MSSM_SLHA2::ZERO );
-    m_masses.push_back( Parameters_MSSM_SLHA2::mdl_MT );
-    m_masses.push_back( Parameters_MSSM_SLHA2::mdl_MT );
+    m_masses.push_back( Parameters_MSSM_SLHA2::mdl_Msu3 );
+    m_masses.push_back( Parameters_MSSM_SLHA2::mdl_Msu3 );
   }
 #endif
 
