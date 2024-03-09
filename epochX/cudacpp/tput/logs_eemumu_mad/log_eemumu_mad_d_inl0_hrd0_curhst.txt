@@ -42,7 +42,7 @@ CUDACPP_BUILDDIR='build.512z_d_inl0_hrd0'
 make[1]: Nothing to be done for 'all'.
 make[1]: Leaving directory '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum'
 
-DATE: 2024-03-01_19:34:05
+DATE: 2024-03-08_18:09:26
 
 On itgold91.cern.ch [CPU: Intel(R) Xeon(R) Gold 6326 CPU] [GPU: none]:
 =========================================================================
@@ -51,9 +51,9 @@ Not found: /data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubPr
 runExe /data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum/build.none_d_inl0_hrd0/check.exe -p 2048 256 12 --curhst OMP=
 WARNING! CUDACPP_RUNTIME_ENABLEFPE is set: enable Floating Point Exceptions
 /data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum/build.none_d_inl0_hrd0/check.exe: Aborted
-         4,565,469      cycles                           #    3.250 GHz                       
-         6,288,877      instructions                     #    1.38  insn per cycle            
-       0.042167323 seconds time elapsed
+         4,444,632      cycles                           #    2.634 GHz                       
+         6,305,803      instructions                     #    1.42  insn per cycle            
+       0.042158440 seconds time elapsed
 =Symbols in CPPProcess.o= (~sse4:  433) (avx2:    0) (512y:    0) (512z:    0)
 -------------------------------------------------------------------------
 runExe /data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum/build.none_d_inl0_hrd0/runTest.exe
@@ -69,9 +69,9 @@ OK (relative difference <= 5E-3)
 runExe /data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum/build.sse4_d_inl0_hrd0/check.exe -p 2048 256 12 --curhst OMP=
 WARNING! CUDACPP_RUNTIME_ENABLEFPE is set: enable Floating Point Exceptions
 /data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum/build.sse4_d_inl0_hrd0/check.exe: Aborted
-         4,579,291      cycles                           #    2.729 GHz                       
-         6,314,135      instructions                     #    1.38  insn per cycle            
-       0.039024734 seconds time elapsed
+         4,428,490      cycles                           #    2.708 GHz                       
+         6,310,463      instructions                     #    1.42  insn per cycle            
+       0.040141982 seconds time elapsed
 =Symbols in CPPProcess.o= (~sse4: 1644) (avx2:    0) (512y:    0) (512z:    0)
 -------------------------------------------------------------------------
 runExe /data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum/build.sse4_d_inl0_hrd0/runTest.exe
@@ -87,9 +87,9 @@ OK (relative difference <= 5E-3)
 runExe /data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum/build.avx2_d_inl0_hrd0/check.exe -p 2048 256 12 --curhst OMP=
 WARNING! CUDACPP_RUNTIME_ENABLEFPE is set: enable Floating Point Exceptions
 /data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum/build.avx2_d_inl0_hrd0/check.exe: Aborted
-         4,579,990      cycles                           #    2.736 GHz                       
-         6,320,509      instructions                     #    1.38  insn per cycle            
-       0.038108900 seconds time elapsed
+         4,461,961      cycles                           #    2.713 GHz                       
+         6,315,190      instructions                     #    1.42  insn per cycle            
+       0.039664738 seconds time elapsed
 =Symbols in CPPProcess.o= (~sse4:    0) (avx2: 1966) (512y:    0) (512z:    0)
 -------------------------------------------------------------------------
 runExe /data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum/build.avx2_d_inl0_hrd0/runTest.exe
@@ -105,9 +105,9 @@ OK (relative difference <= 5E-3)
 runExe /data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum/build.512y_d_inl0_hrd0/check.exe -p 2048 256 12 --curhst OMP=
 WARNING! CUDACPP_RUNTIME_ENABLEFPE is set: enable Floating Point Exceptions
 /data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum/build.512y_d_inl0_hrd0/check.exe: Aborted
-         4,556,853      cycles                           #    2.681 GHz                       
-         6,314,123      instructions                     #    1.39  insn per cycle            
-       0.038394657 seconds time elapsed
+         4,494,452      cycles                           #    2.704 GHz                       
+         6,319,183      instructions                     #    1.41  insn per cycle            
+       0.038688977 seconds time elapsed
 =Symbols in CPPProcess.o= (~sse4:    0) (avx2: 1690) (512y:  181) (512z:    0)
 -------------------------------------------------------------------------
 runExe /data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum/build.512y_d_inl0_hrd0/runTest.exe
@@ -123,9 +123,9 @@ OK (relative difference <= 5E-3)
 runExe /data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum/build.512z_d_inl0_hrd0/check.exe -p 2048 256 12 --curhst OMP=
 WARNING! CUDACPP_RUNTIME_ENABLEFPE is set: enable Floating Point Exceptions
 /data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum/build.512z_d_inl0_hrd0/check.exe: Aborted
-         4,605,984      cycles                           #    2.673 GHz                       
-         6,322,733      instructions                     #    1.37  insn per cycle            
-       0.038325628 seconds time elapsed
+         4,468,388      cycles                           #    2.705 GHz                       
+         6,306,814      instructions                     #    1.41  insn per cycle            
+       0.038689108 seconds time elapsed
 =Symbols in CPPProcess.o= (~sse4:    0) (avx2:  901) (512y:  154) (512z: 1258)
 -------------------------------------------------------------------------
 runExe /data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum/build.512z_d_inl0_hrd0/runTest.exe
