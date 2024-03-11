@@ -1,6 +1,6 @@
 export CUDACPP_RUNTIME_ENABLEFPE=on
 
-Building in /users/valassia/GPU2023/madgraph4gpu2/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux
+Building in /users/valassia/GPU2023/madgraph4gpuX/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux
 OMPFLAGS=
 AVX=avx2
 FPTYPE=d
@@ -13,98 +13,98 @@ make: Nothing to be done for 'gtestlibs'.
 CUDACPP_BUILDDIR='build.avx2_f_inl0_hrd1'
 
 make USEBUILDDIR=1 AVX=none
-make[1]: Entering directory '/pfs/lustrep1/users/valassia/GPU2023/madgraph4gpu2/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux'
+make[1]: Entering directory '/pfs/lustrep3/scratch/project_465000874/valassia/GPU2023/madgraph4gpuX/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux'
 CUDACPP_BUILDDIR='build.none_f_inl0_hrd1'
 make[1]: Nothing to be done for 'all'.
-make[1]: Leaving directory '/pfs/lustrep1/users/valassia/GPU2023/madgraph4gpu2/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux'
+make[1]: Leaving directory '/pfs/lustrep3/scratch/project_465000874/valassia/GPU2023/madgraph4gpuX/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux'
 
 make USEBUILDDIR=1 AVX=sse4
-make[1]: Entering directory '/pfs/lustrep1/users/valassia/GPU2023/madgraph4gpu2/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux'
+make[1]: Entering directory '/pfs/lustrep3/scratch/project_465000874/valassia/GPU2023/madgraph4gpuX/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux'
 CUDACPP_BUILDDIR='build.sse4_f_inl0_hrd1'
 make[1]: Nothing to be done for 'all'.
-make[1]: Leaving directory '/pfs/lustrep1/users/valassia/GPU2023/madgraph4gpu2/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux'
+make[1]: Leaving directory '/pfs/lustrep3/scratch/project_465000874/valassia/GPU2023/madgraph4gpuX/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux'
 
 make USEBUILDDIR=1 AVX=avx2
-make[1]: Entering directory '/pfs/lustrep1/users/valassia/GPU2023/madgraph4gpu2/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux'
+make[1]: Entering directory '/pfs/lustrep3/scratch/project_465000874/valassia/GPU2023/madgraph4gpuX/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux'
 CUDACPP_BUILDDIR='build.avx2_f_inl0_hrd1'
 make[1]: Nothing to be done for 'all'.
-make[1]: Leaving directory '/pfs/lustrep1/users/valassia/GPU2023/madgraph4gpu2/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux'
+make[1]: Leaving directory '/pfs/lustrep3/scratch/project_465000874/valassia/GPU2023/madgraph4gpuX/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux'
 
 make USEBUILDDIR=1 AVX=512y
-make[1]: Entering directory '/pfs/lustrep1/users/valassia/GPU2023/madgraph4gpu2/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux'
+make[1]: Entering directory '/pfs/lustrep3/scratch/project_465000874/valassia/GPU2023/madgraph4gpuX/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux'
 CUDACPP_BUILDDIR='build.512y_f_inl0_hrd1'
 make[1]: Nothing to be done for 'all'.
-make[1]: Leaving directory '/pfs/lustrep1/users/valassia/GPU2023/madgraph4gpu2/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux'
+make[1]: Leaving directory '/pfs/lustrep3/scratch/project_465000874/valassia/GPU2023/madgraph4gpuX/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux'
 
 make USEBUILDDIR=1 AVX=512z
-make[1]: Entering directory '/pfs/lustrep1/users/valassia/GPU2023/madgraph4gpu2/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux'
+make[1]: Entering directory '/pfs/lustrep3/scratch/project_465000874/valassia/GPU2023/madgraph4gpuX/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux'
 CUDACPP_BUILDDIR='build.512z_f_inl0_hrd1'
 make[1]: Nothing to be done for 'all'.
-make[1]: Leaving directory '/pfs/lustrep1/users/valassia/GPU2023/madgraph4gpu2/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux'
+make[1]: Leaving directory '/pfs/lustrep3/scratch/project_465000874/valassia/GPU2023/madgraph4gpuX/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux'
 
-DATE: 2024-03-03_14:12:50
+DATE: 2024-03-11_16:54:59
 
-On uan03 [CPU: AMD EPYC 7A53 64-Core Processor] [GPU: AMD INSTINCT MI200]:
+On uan02 [CPU: AMD EPYC 7A53 64-Core Processor] [GPU: AMD INSTINCT MI200]:
 =========================================================================
-runExe /users/valassia/GPU2023/madgraph4gpu2/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux/build.none_f_inl0_hrd1/gcheck.exe -p 64 256 10 OMP=
+runExe /users/valassia/GPU2023/madgraph4gpuX/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux/build.none_f_inl0_hrd1/gcheck.exe -p 64 256 10 OMP=
 WARNING! CUDACPP_RUNTIME_ENABLEFPE is set: enable Floating Point Exceptions
-/users/valassia/GPU2023/madgraph4gpu2/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux/build.none_f_inl0_hrd1/gcheck.exe: Segmentation fault
-       718,430,242      cycles:u                  #    2.167 GHz                      (75.24%)
-         2,158,370      stalled-cycles-frontend:u #    0.30% frontend cycles idle     (76.38%)
-         5,048,832      stalled-cycles-backend:u  #    0.70% backend cycles idle      (74.59%)
-     1,291,858,340      instructions:u            #    1.80  insn per cycle         
-                                                  #    0.00  stalled cycles per insn  (71.10%)
-       0.365143940 seconds time elapsed
+/users/valassia/GPU2023/madgraph4gpuX/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux/build.none_f_inl0_hrd1/gcheck.exe: Segmentation fault
+       732,759,758      cycles:u                  #    2.265 GHz                      (71.43%)
+         2,248,748      stalled-cycles-frontend:u #    0.31% frontend cycles idle     (72.95%)
+         4,673,324      stalled-cycles-backend:u  #    0.64% backend cycles idle      (75.26%)
+     1,202,634,813      instructions:u            #    1.64  insn per cycle         
+                                                  #    0.00  stalled cycles per insn  (75.29%)
+       0.351252979 seconds time elapsed
 .........................................................................
-runExe /users/valassia/GPU2023/madgraph4gpu2/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux/build.none_f_inl0_hrd1/gcheck.exe -p 2048 256 1 OMP=
+runExe /users/valassia/GPU2023/madgraph4gpuX/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux/build.none_f_inl0_hrd1/gcheck.exe -p 2048 256 1 OMP=
 WARNING! CUDACPP_RUNTIME_ENABLEFPE is set: enable Floating Point Exceptions
-/users/valassia/GPU2023/madgraph4gpu2/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux/build.none_f_inl0_hrd1/gcheck.exe: Segmentation fault
-       806,118,878      cycles:u                  #    2.070 GHz                      (75.37%)
-         2,154,811      stalled-cycles-frontend:u #    0.27% frontend cycles idle     (75.52%)
-         4,443,268      stalled-cycles-backend:u  #    0.55% backend cycles idle      (75.93%)
-     1,240,070,438      instructions:u            #    1.54  insn per cycle         
-                                                  #    0.00  stalled cycles per insn  (76.95%)
-       0.418220120 seconds time elapsed
+/users/valassia/GPU2023/madgraph4gpuX/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux/build.none_f_inl0_hrd1/gcheck.exe: Segmentation fault
+       817,737,001      cycles:u                  #    2.172 GHz                      (74.77%)
+         2,065,135      stalled-cycles-frontend:u #    0.25% frontend cycles idle     (76.46%)
+         3,753,974      stalled-cycles-backend:u  #    0.46% backend cycles idle      (76.05%)
+     1,255,314,675      instructions:u            #    1.54  insn per cycle         
+                                                  #    0.00  stalled cycles per insn  (74.63%)
+       0.401115507 seconds time elapsed
 -------------------------------------------------------------------------
-cmpExe /users/valassia/GPU2023/madgraph4gpu2/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux/build.none_f_inl0_hrd1/gcheck.exe --common -p 2 64 2
-cmpExe /users/valassia/GPU2023/madgraph4gpu2/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux/build.none_f_inl0_hrd1/fgcheck.exe 2 64 2
-Memory access fault by GPU node-4 (Agent handle: 0x690fe50) on address 0x150d87cec000. Reason: Unknown.
+cmpExe /users/valassia/GPU2023/madgraph4gpuX/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux/build.none_f_inl0_hrd1/gcheck.exe --common -p 2 64 2
+cmpExe /users/valassia/GPU2023/madgraph4gpuX/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux/build.none_f_inl0_hrd1/fgcheck.exe 2 64 2
+Memory access fault by GPU node-4 (Agent handle: 0x69381f0) on address 0x147956564000. Reason: Unknown.
 
 Program received signal SIGABRT: Process abort signal.
 
 Backtrace for this error:
-#0  0x15101d054dbf in ???
-#1  0x15101d054d2b in ???
-#2  0x15101d0563e4 in ???
-#3  0x151015527b64 in ???
-#4  0x151015524b38 in ???
-#5  0x1510154e2496 in ???
-#6  0x15101cfee6e9 in ???
-#7  0x15101d12249e in ???
+#0  0x147beb8cddbf in ???
+#1  0x147beb8cdd2b in ???
+#2  0x147beb8cf3e4 in ???
+#3  0x147be3da0b64 in ???
+#4  0x147be3d9db38 in ???
+#5  0x147be3d5b496 in ???
+#6  0x147beb8676e9 in ???
+#7  0x147beb99b49e in ???
 #8  0xffffffffffffffff in ???
 Avg ME (C++/CUDA)   = 
 Avg ME (F77/CUDA)   = 
 ERROR! Fortran calculation (F77/CUDA) crashed
 =========================================================================
-runExe /users/valassia/GPU2023/madgraph4gpu2/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux/build.none_f_inl0_hrd1/check.exe -p 64 256 10 OMP=
+runExe /users/valassia/GPU2023/madgraph4gpuX/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux/build.none_f_inl0_hrd1/check.exe -p 64 256 10 OMP=
 WARNING! CUDACPP_RUNTIME_ENABLEFPE is set: enable Floating Point Exceptions
 WARNING! RamboHost selected: cannot use HiprandDevice, will use CommonRandom (as HiprandHost is not implemented yet)
 Process                     = SIGMA_SM_GUX_TTXUX_CPP [gcc 12.2.0] [inlineHel=0] [hardcodePARAM=1]
 Workflow summary            = CPP:FLT+CXS:COMMON+RMBHST+MESHST/none+NAVBRK
 FP precision                = FLOAT (NaN/abnormal=0, zero=0)
 Internal loops fptype_sv    = SCALAR ('none': ~vector[1], no SIMD)
-EvtsPerSec[Rmb+ME]     (23) = ( 1.421570e+05                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 1.451417e+05                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 1.451417e+05                 )  sec^-1
+EvtsPerSec[Rmb+ME]     (23) = ( 1.430361e+05                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 1.460584e+05                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.460584e+05                 )  sec^-1
 MeanMatrixElemValue         = ( 1.945525e+02 +- 1.186197e+02 )  GeV^-2
-TOTAL       :     1.173486 sec
-     4,157,347,370      cycles:u                  #    3.477 GHz                      (74.63%)
-         2,500,400      stalled-cycles-frontend:u #    0.06% frontend cycles idle     (74.82%)
-       625,232,992      stalled-cycles-backend:u  #   15.04% backend cycles idle      (75.10%)
-    12,626,682,513      instructions:u            #    3.04  insn per cycle         
-                                                  #    0.05  stalled cycles per insn  (75.25%)
-       1.197800077 seconds time elapsed
+TOTAL       :     1.166533 sec
+     4,145,720,702      cycles:u                  #    3.487 GHz                      (75.02%)
+         2,162,467      stalled-cycles-frontend:u #    0.05% frontend cycles idle     (75.11%)
+       611,937,420      stalled-cycles-backend:u  #   14.76% backend cycles idle      (75.11%)
+    12,654,537,975      instructions:u            #    3.05  insn per cycle         
+                                                  #    0.05  stalled cycles per insn  (74.78%)
+       1.190821914 seconds time elapsed
 =Symbols in CPPProcess.o= (~sse4:  759) (avx2:    0) (512y:    0) (512z:    0)
 -------------------------------------------------------------------------
-runExe /users/valassia/GPU2023/madgraph4gpu2/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux/build.none_f_inl0_hrd1/runTest.exe
-Memory access fault by GPU node-4 (Agent handle: 0x621ef0) on address 0x14eb4effc000. Reason: Unknown.
+runExe /users/valassia/GPU2023/madgraph4gpuX/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux/build.none_f_inl0_hrd1/runTest.exe
+Memory access fault by GPU node-4 (Agent handle: 0x622040) on address 0x154e23f34000. Reason: Unknown.
