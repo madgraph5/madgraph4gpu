@@ -17,6 +17,8 @@
 
 namespace rwgt{
 
+    using FORTRANFPTYPE = double;
+
     //ZW: Function for calculating the number of remaining events in a warp
     // in order to pad the input arrays to a multiple of the warp size
     unsigned int warpRemain( unsigned int nEvt, unsigned int nWarp = 32 ){

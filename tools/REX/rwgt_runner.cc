@@ -14,10 +14,10 @@
 
 #include "teawREX.hpp"
 #include "rwgt_instance.h"
+#include "fbridge.cc"
 
 // ZW: SET UP NAMESPACE
 namespace %(process_namespace)s{
-#include "fbridge.cc"
 //namespace dummy{
 
     struct fbridgeRunner{
@@ -111,7 +111,7 @@ namespace %(process_namespace)s{
 // ZW: SET UP INPUT LHE BLOCK
 // ZW: SET UP REX::event FROM LHE BLOCK
 //    auto procEvent = REX::event( procEvent );
-    REX::statSort currProcSort = []( std::string_view stat, std::vector<std::string_view> vec ){ return thisProcSort( stat, vec ); };
+//    REX::statSort currProcSort = []( std::string_view stat, std::vector<std::string_view> vec ){ return thisProcSort( stat, vec ); };
 
     std::vector<std::pair<int,int>> eventVec = {%(process_event)s};
     REX::event locEv = REX::event( eventVec );
