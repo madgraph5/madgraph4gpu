@@ -2041,19 +2041,36 @@ class PLUGIN_OneProcessExporterRwgt(PLUGIN_OneProcessExporter):
         """Return string with the include directives for the REX reweighting"""
         return "#include \"P%d_%s/rwgt_runner.cc\"" % (self.process_number, self.process_name)
     
+    def write_rwgt_header(self):
+        """Writes a simple rwgt_runner.h file to forward declare the runner object"""
+        # Adjust the placeholders for use with `.format()`
+        rwgt_h = """#ifndef {namespace}_RWGT_RUNNER_H
+    #define {namespace}_RWGT_RUNNER_H
+    #include \"teawREX.hpp\"
+    #include \"rwgt_instance.h\"
+    namespace {namespace} {{
+        extern rwgt::instance runner;
+    }}
+    #endif""".format(namespace=self.get_proc_dir())
+        
+        # Using `with` statement for better file handling
+        with open(os.path.join(self.path, 'rwgt_runner.h'), 'w') as ff:
+            ff.write(rwgt_h)
+    
     def edit_rwgt_runner(self):
         """Create the rwgt_runner.cc file for the REX reweighting"""
         ###misc.sprint('Entering PLUGIN_OneProcessExporterRwgt.edit_rwgt_runner')
         # Create the rwgt_runner.cc file
 #        replace_dict = {}
         replace_dict = super().get_process_class_definitions(write=False)
-        rwgt_runner = self.get_proc_dir() + self.rwgt_template
+#        rwgt_runner = self.get_proc_dir() + self.rwgt_template
         replace_dict['process_namespace'] = self.get_proc_dir()
         replace_dict['info_lines'] = PLUGIN_export_cpp.get_mg5_info_lines()
         replace_dict['init_prt_ids'] = self.get_init_prts_vec(self.matrix_elements[0].get('processes')[0])
         replace_dict['fin_prt_ids'] = self.get_fin_prts_vec(self.matrix_elements[0].get('processes')[0])
         replace_dict['process_event'] = self.get_rwgt_legs(self.matrix_elements[0].get('processes')[0])
         template = open(pjoin(self.template_path,'REX', 'rwgt_runner.inc'),'r').read()
+        self.write_rwgt_header()
         ff = open(pjoin(self.path, 'rwgt_runner.cc'),'w')
         ff.write(template % replace_dict)
         ff.close()

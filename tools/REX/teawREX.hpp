@@ -27,10 +27,6 @@
 #include <stdarg.h>
 #include "REX.hpp"
 
-#ifndef FORTRANFPTYPE
-#define FORTRANFPTYPE double
-#endif
-
 namespace REX::teaw
 {
 

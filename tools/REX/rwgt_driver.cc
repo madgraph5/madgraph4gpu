@@ -91,7 +91,7 @@ int main( int argc, char** argv ){
     // ZW : include rwgt_instances(s)
 
     std::vector<rwgt::instance> runSet = {%(run_set)s};
-    std::vector<rwgt::instance> runSet;
+//    std::vector<rwgt::instance> runSet;
     REX::teaw::rwgtFiles fileCol( lheFilePath, slhaPath, rwgtCardPath );
     fileCol.initCards();
 
