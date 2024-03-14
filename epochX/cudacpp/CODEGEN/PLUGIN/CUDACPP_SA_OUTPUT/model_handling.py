@@ -1720,7 +1720,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                 aliastxt = 'COUPI'
                 name = 'cIPC'
             if coup not in alias:
-                ###if alias == self.couporderindep: # bug #821! this is incorrectly true when all all dictionaries are empty!
+                ###if alias == self.couporderindep: # bug #821! this is incorrectly true when both dictionaries are empty!
                 if aliastxt == 'COUPI':
                     if not len(alias):
                         alias[coup] = len(self.couporderdep)
@@ -1728,7 +1728,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                         alias[coup] = alias[list(alias)[-1]]+1
                 else:
                     alias[coup] = len(alias)
-                ###if alias == self.couporderdep: # bug #821! this is incorrectly true when all all dictionaries are empty!
+                ###if alias == self.couporderdep: # bug #821! this is incorrectly true when both dictionaries are empty!
                 if aliastxt == 'COUPD':
                     for k in self.couporderindep:
                         self.couporderindep[k] += 1
