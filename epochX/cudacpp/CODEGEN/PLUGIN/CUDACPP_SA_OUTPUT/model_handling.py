@@ -720,8 +720,10 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             assert parset == '', "pardef is empty but parset is not: '%s'"%parset # AV sanity check (both are empty)
             res = '// (none)\n'
             return res
+	#=== Replace patterns in pardef (left of the assignment '=')
         pardef = pardef.replace('std::complex<','cxsmpl<') # custom simplex complex class (with constexpr arithmetics)
-        parset = parset.replace('std::complex<','cxsmpl<') # NB this is really needed twice! (if there are two std::complex on the same line)
+	#=== Replace patterns in parset (right of the assignment '=')
+        parset = parset.replace('std::complex<','cxsmpl<') # custom simplex complex class (with constexpr arithmetics)
         parset = parset.replace('sqrt(','constexpr_sqrt(') # constexpr sqrt (based on iterative Newton-Raphson approximation)
         parset = parset.replace('pow(','constexpr_pow(') # constexpr pow
         parset = parset.replace('atan(','constexpr_atan(') # constexpr atan for BSM #627
@@ -739,6 +741,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         parset = parset.replace('*',' * ')
         parset = parset.replace('/',' / ')
         parset = parset.replace(',',', ')
+	#=== Compute pardef_lines from pardef (left of the assignment '=')
         pardef_lines = {}
         for line in pardef.split('\n'):
             ###print(line) # for debugging
@@ -754,6 +757,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         ###misc.sprint( 'pardef_lines size =', len(pardef_lines), ', keys size =', len(pardef_lines.keys()) )
         ###print( pardef_lines ) # for debugging
         ###for line in pardef_lines: misc.sprint(line) # for debugging
+	#=== Compute parset_lines from parset (right of the assignment '=')
         parset_pars = []
         parset_lines = {}
         skipnextline = False
@@ -771,6 +775,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         ###misc.sprint( 'parset_lines size =', len(parset_lines), ', keys size =', len(parset_lines.keys()) )
         ###print( parset_lines ) # for debugging
         ###for line in parset_lines: misc.sprint(line) # for debugging
+	#=== Assemble pardef_lines and parset_lines into a single string res and then replace patterns in res
         assert len(pardef_lines) == len(parset_lines), 'len(pardef_lines) != len(parset_lines)' # AV sanity check (same number of parameters)
         res = '    '.join( pardef_lines[par] + ' = ' + parset_lines[par] + '\n' for par in parset_pars ) # no leading '    ' on first row
         res = res.replace(' ;',';')
