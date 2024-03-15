@@ -1778,7 +1778,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                         ###res.append("if( channelId == %i ) numerators_sv += cxabs2( amp_sv[0] );" % diag_to_config[id_amp]) # BUG #472
                         ###res.append("if( channelId == %i ) numerators_sv += cxabs2( amp_sv[0] );" % id_amp) # wrong fix for BUG #472
                         res.append("#ifdef MGONGPU_SUPPORTS_MULTICHANNEL")
-                        res.append("if ( *channelIds != 0 ) {")
+                        res.append("if ( channelIds != 0 ) {")
                         res.append("channelids_sv = CID_ACCESS::kernelAccessConst( channelIds );")
                         res.append("#ifdef __CUDACC__")
                         res.append("if ( channelids_sv == %i ) numerators_sv += cxabs2( amp_sv[0] );" % diagram.get('number'))
