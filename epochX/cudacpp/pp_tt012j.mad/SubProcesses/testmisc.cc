@@ -10,10 +10,14 @@
 
 #include "mgOnGpuVectors.h"
 
+#include "constexpr_math.h"
 #include "epoch_process_id.h"
 
 #include <gtest/gtest.h>
 
+//#include <quadmath.h>
+//#include <format> // needs C++20... https://stackoverflow.com/a/65347016
+#include <iomanip>
 #include <sstream>
 #include <typeinfo>
 
@@ -292,6 +296,141 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testmisc )
     // Values of numerators1_sv: 11.*0
     EXPECT_TRUE( numerators1_sv == 0. );
 #endif
+  }
+
+  //--------------------------------------------------------------------------
+
+  // Test constexpr floor
+  EXPECT_TRUE( constexpr_floor( 1.5 ) == 1 );
+  EXPECT_TRUE( constexpr_floor( 0.5 ) == 0 );
+  EXPECT_TRUE( constexpr_floor( -0.5 ) == -1 );
+  EXPECT_TRUE( constexpr_floor( -1.5 ) == -2 );
+
+  // Distance from the horizontal or vertical axis (i.e. from 0, pi/2, pi, or 3pi/2)
+  auto distance4 = []( const long double xx )
+  {
+    const long double xx2 = mapIn0to2Pi( xx );                                                    // in [0,2*pi)
+    const long double xx3 = xx2 - constexpr_floor( xx2 / constexpr_pi_by_2 ) * constexpr_pi_by_2; // in [0,pi/2)
+    const long double d0 = xx3;                                                                   // distance from 0
+    const long double d1 = constexpr_pi_by_2 - xx3;                                               // distance from pi/2
+    return ( d0 < d1 ? d0 : d1 );
+  };
+
+  // Test constexpr sin, cos, tan - specific, problematic, points
+  auto testSinCosTanX = []( const long double xx, const double tolerance, const bool debug = false, const long long istep = -999999999 )
+  {
+    const double x = (double)xx;
+    if( debug )
+    {
+      //std::cout << std::setprecision(40) << "testSinCosTanX: xx= " << xx << std::endl;
+      //std::cout << std::setprecision(40) << "                x=  " << x << std::endl;
+    }
+    //std::cout << std::setprecision(40) << "xx - 3pi/2 " << xx - 3 * constexpr_pi_by_2 << std::endl;
+    //int width = 46;
+    //char buf[128];
+    //quadmath_snprintf( buf, sizeof( buf ), "%+-#*.40Qe", width, (__float128)xx );
+    //std::cout << std::setprecision(40) << "testSinCosTanX: xx=" << buf << std::endl;
+    //quadmath_snprintf( buf, sizeof( buf ), "%+-#*.40Qe", width, (__float128)x );
+    //std::cout << std::setprecision(40) << "                x= " << buf << std::endl;
+    EXPECT_NEAR( std::sin( x ), constexpr_sin( x ), std::abs( std::sin( x ) * tolerance ) )
+      << "x=" << x << ", x(0to2Pi)=" << mapIn0to2Pi( x ) << ", istep=" << istep;
+    EXPECT_NEAR( std::cos( x ), constexpr_cos( x ), std::abs( std::cos( x ) * tolerance ) )
+      << "x=" << x << ", x(0to2Pi)=" << mapIn0to2Pi( x ) << ", istep=" << istep;
+    EXPECT_NEAR( std::tan( x ), constexpr_tan( x ), std::abs( std::tan( x ) * tolerance ) )
+      << "x=" << x << ", x(0to2Pi)=" << mapIn0to2Pi( x ) << ", istep=" << istep;
+    std::cout << std::setprecision( 6 ); // default
+  };
+  testSinCosTanX( constexpr_pi, 1E-3, true );                                         // from math.h
+  testSinCosTanX( (long double)3.141592653589793238462643383279502884L, 1E-3, true ); // from math.h
+  testSinCosTanX( 4.712388980384687897640105802565813064575L, 1E-3, true );           // from 100 steps n [-4*pi,6*pi]... succeeds? (note x==xx)
+  testSinCosTanX( 3 * constexpr_pi_by_2 - 1.96e-15L, 1E-3, true );                    // from 100 steps n [-4*pi,6*pi]... succeeds? (note x!=xx)
+  testSinCosTanX( 3 * constexpr_pi_by_2 - 1.9601e-15L, 1E-3, true );                  // from 100 steps n [-4*pi,6*pi]... succeeds? (note x==xx)
+
+  // Test constexpr sin, cos, tan - 8 points on (or close to) the boundaries of the 8 sectors of [0,2*pi]
+  auto testSinCosTan8 = [testSinCosTanX]( const double deltax, const double tolerance )
+  {
+    for( int ioff = -1; ioff < 2; ioff++, ioff++ ) // -1, 1
+    {
+      const bool debug = false;
+      const int nstep = 8;
+      for( int istep = 0; istep < nstep + 1; istep++ )
+      {
+        long double x0 = deltax * ioff;
+        long double x1 = deltax * ioff + 2 * constexpr_pi;
+        double x = x0 + istep * ( x1 - x0 ) / nstep; // test this for double (else std::cos and std::sin use long double)
+        testSinCosTanX( x, tolerance, debug, istep );
+      }
+    }
+  };
+
+  // Use much lower tolerance when testing on the boundaries of the 8 sectors of [0,2*pi]
+  // Use progressively stricter tolerances as you move away from the boundaries of the 8 sectors of [0,2*pi]
+  testSinCosTan8( 0, 1E-03 );     // fails with 1E-04 - DANGEROUS ANYWAY...
+  testSinCosTan8( 1E-15, 1E-03 ); // fails with 1E-04 - DANGEROUS ANYWAY...
+  testSinCosTan8( 1E-14, 1E-04 ); // fails with 1E-05
+  testSinCosTan8( 1E-12, 1E-06 ); // fails with 1E-07
+  testSinCosTan8( 1E-09, 1E-09 ); // fails with 1E-10
+  testSinCosTan8( 1E-06, 1E-12 ); // fails with 1E-13
+  testSinCosTan8( 1E-03, 1E-14 ); // fails with 1E-16: could use 1E-14 but keep it at 1E-14 (avoid 'EXPECT_NEAR equivalent to EXPECT_EQUAL' on Mac)
+  testSinCosTan8( 1E-02, 1E-14 ); // never fails? could use 1E-99(?) but keep it at 1E-14 (avoid 'EXPECT_NEAR equivalent to EXPECT_EQUAL' on Mac)
+
+  // Test constexpr sin, cos, tan - N points almost randomly with a varying tolerance
+  auto testSinCosTanN = [testSinCosTanX, distance4]( const int nstep, const double x0, const double x1 )
+  {
+    auto toleranceForX = [distance4]( const double x )
+    {
+      const double d4 = distance4( x );
+      if( d4 < 1E-14 )
+        return 1E-03; // NB: absolute distance limited to 1E-14 anyway even if relative tolerance is 1E-3...
+      else if( d4 < 1E-13 )
+        return 1E-04;
+      else if( d4 < 1E-12 )
+        return 1E-05;
+      else if( d4 < 1E-11 )
+        return 1E-06;
+      else if( d4 < 1E-10 )
+        return 1E-07;
+      else if( d4 < 1E-09 )
+        return 1E-08;
+      else if( d4 < 1E-08 )
+        return 1E-09;
+      else if( d4 < 1E-07 )
+        return 1E-10;
+      else if( d4 < 1E-06 )
+        return 1E-11;
+      else if( d4 < 1E-05 )
+        return 1E-12;
+      else if( d4 < 1E-04 )
+        return 1E-13;
+      else
+        return 1E-14; // play it safe even if the agreement might even be better?
+    };
+    for( int istep = 0; istep < nstep + 1; istep++ )
+    {
+      double x = x0 + istep * ( x1 - x0 ) / nstep; // test this for double (else std::cos and std::sin use long double)
+      const double tolerance = toleranceForX( x );
+      EXPECT_NEAR( std::sin( x ), constexpr_sin( x ), std::max( std::abs( std::sin( x ) * tolerance ), 3E-15 ) )
+        << std::setprecision( 40 ) << "x=" << x << ", x(0to2Pi)=" << mapIn0to2Pi( x ) << ",\n istep=" << istep << ", distance4=" << distance4( x );
+      EXPECT_NEAR( std::cos( x ), constexpr_cos( x ), std::max( std::abs( std::cos( x ) * tolerance ), 3E-15 ) )
+        << std::setprecision( 40 ) << "x=" << x << ", x(0to2Pi)=" << mapIn0to2Pi( x ) << ",\n istep=" << istep << ", distance4=" << distance4( x );
+      EXPECT_NEAR( std::tan( x ), constexpr_tan( x ), std::max( std::abs( std::tan( x ) * tolerance ), 3E-15 ) )
+        << std::setprecision( 40 ) << "x=" << x << ", x(0to2Pi)=" << mapIn0to2Pi( x ) << ",\n istep=" << istep << ", distance4=" << distance4( x );
+    }
+  };
+  testSinCosTanN( 100, -4 * constexpr_pi, 6 * constexpr_pi ); // this was failing at 3*pi/2 (now fixed by absolute tolerance 3E-15)
+  testSinCosTanN( 10000, -constexpr_pi_by_2, 5 * constexpr_pi_by_2 );
+
+  // Test constexpr atan
+  {
+    const double tolerance = 1E-12;
+    const int nstep = 1000;
+    for( int istep = 0; istep < nstep + 1; istep++ )
+    {
+      long double x0 = -5, x1 = +5;
+      double x = x0 + istep * ( x1 - x0 ) / nstep; // test this for double (else std::cos and std::sin use long double)
+      EXPECT_NEAR( std::atan( x ), constexpr_atan( x ), std::abs( std::atan( x ) * tolerance ) )
+        << "x=" << x << ", istep=" << istep;
+    }
   }
 
   //--------------------------------------------------------------------------
