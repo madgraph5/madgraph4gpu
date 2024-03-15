@@ -825,7 +825,8 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         # because they are used in the event by event calculation of alphaS-dependent couplings
         bsmparam_indep_real_used = []
         bsmparam_indep_complex_used = []
-        if self.model_name[:2] != 'sm' :
+        #if self.model_name[:2] != 'sm' :
+        if True:
             for param in self.params_indep:
                 if param.name == 'mdl_complexi' : continue
                 for coup in self.coups_dep.values():                
@@ -853,7 +854,8 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
                              line for line in self.write_set_parameters(self.params_indep).split('\n') ]
         replace_dict['set_independent_parameters'] = '\n'.join( set_params_indep )
         replace_dict['set_independent_parameters'] += self.super_write_set_parameters_onlyfixMajorana( hardcoded=False ) # add fixes for Majorana particles only in the aS-indep parameters #622
-        if self.model_name[:2] != 'sm' :
+        #if self.model_name[:2] != 'sm' :
+        if True:
             replace_dict['set_independent_parameters'] += '\n  // BSM parameters that do not depend on alphaS but are needed in the computation of alphaS-dependent couplings;'
             if len(bsmparam_indep_real_used) + len(bsmparam_indep_complex_used) > 0:
                 for ipar, par in enumerate( bsmparam_indep_real_used ):
@@ -943,7 +945,8 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         # Require HRDCOD=1 in EFT and special handling in EFT for fptype=float using SIMD
         nbsmparam_indep_all_used = len( bsmparam_indep_real_used ) + 2 * len( bsmparam_indep_complex_used )
         replace_dict['bsmdefine'] = '#define MGONGPUCPP_NBSMINDEPPARAM_GT_0 1' if nbsmparam_indep_all_used > 0 else '#undef MGONGPUCPP_NBSMINDEPPARAM_GT_0'
-        if self.model_name[:2] == 'sm' :
+        #if self.model_name[:2] == 'sm' :
+        if False:
             replace_dict['bsmip0'] = ''
             replace_dict['bsmip1'] = ''
             replace_dict['eftwarn0'] = ''
@@ -1220,7 +1223,8 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             replace_dict['cipd2tipd'] = '//memcpy( cIPD, tIPD, nIPD * sizeof( fptype ) ); // nparam=0'
             replace_dict['cipddump'] = ''
             replace_dict['cipdhrdcod'] = '//__device__ const fptype* cIPD = nullptr; // unused as nparam=0'
-        if self.model_name[:2] == 'sm' :
+        #if self.model_name[:2] == 'sm' :
+        if False:
             replace_dict['bsmMemcpySym'] = ''
             replace_dict['bsmMemcpy'] = ''
             replace_dict['bsmdump'] = ''
