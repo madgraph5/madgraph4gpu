@@ -257,7 +257,7 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 1
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[2], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if ( *channelIds != 0 ) {
+      if ( channelIds != 0 ) {
         channelids_sv = CID_ACCESS::kernelAccessConst( channelIds );
 #ifdef __CUDACC__
         if ( channelids_sv == 1 ) numerators_sv += cxabs2( amp_sv[0] );
@@ -281,7 +281,7 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 2
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[4], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if ( *channelIds != 0 ) {
+      if ( channelIds != 0 ) {
         channelids_sv = CID_ACCESS::kernelAccessConst( channelIds );
 #ifdef __CUDACC__
         if ( channelids_sv == 2 ) numerators_sv += cxabs2( amp_sv[0] );
@@ -304,7 +304,7 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 3
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[4], w_fp[2], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if ( *channelIds != 0 ) {
+      if ( channelIds != 0 ) {
         channelids_sv = CID_ACCESS::kernelAccessConst( channelIds );
 #ifdef __CUDACC__
         if ( channelids_sv == 3 ) numerators_sv += cxabs2( amp_sv[0] );
@@ -696,8 +696,8 @@ namespace mg5amcCpu
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
       constexpr fptype_sv* jamp2_sv = nullptr; // no need for color selection during helicity filtering
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      constexpr unsigned int channelId = 0; // disable single-diagram channel enhancement
-      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, &channelId, allNumerators, allDenominators, jamp2_sv );
+      constexpr unsigned int* channelId = nullptr; // disable single-diagram channel enhancement
+      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators, jamp2_sv );
 #else
       calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, jamp2_sv );
 #endif
@@ -760,8 +760,8 @@ namespace mg5amcCpu
         constexpr fptype_sv* jamp2_sv = nullptr; // no need for color selection during helicity filtering
         //std::cout << "sigmaKin_getGoodHel ihel=" << ihel << ( isGoodHel[ihel] ? " true" : " false" ) << std::endl;
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-        constexpr unsigned int channelId = 0; // disable single-diagram channel enhancement
-        calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, &channelId, allNumerators, allDenominators, jamp2_sv, ievt00 );
+        constexpr unsigned int* channelId = nullptr; // disable single-diagram channel enhancement
+        calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators, jamp2_sv, ievt00 );
 #else
         calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, jamp2_sv, ievt00 );
 #endif
