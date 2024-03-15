@@ -823,7 +823,6 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         """Create the content of the Parameters_model.h and .cc files"""
         # First of all, identify which extra independent parameters must be made available through CPU static and GPU constant memory in BSM models
         # because they are used in the event by event calculation of alphaS-dependent couplings
-        # WARNING! This is only implemented and has only been tested so far for real parameters (complex parameters need twice the storage)
         bsmparam_indep_real_used = []
         bsmparam_indep_complex_used = []
         if self.model_name[:2] != 'sm' :
