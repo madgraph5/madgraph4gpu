@@ -77,9 +77,12 @@ namespace mg5amcCpu
   // However, physics parameters are user-defined through card files: use CUDA constant memory instead (issue #39)
   // [NB if hardcoded parameters are used, it's better to define them here to avoid silent shadowing (issue #263)]
   constexpr int nIPD = 2; // SM independent parameters used in this CPPProcess.cc (FIXME? rename as sm_IndepParam?)
-  // Note (see #823): nIPC may vary from one P*/CPPProcess.cc to another, while nicoup is defined in src/Param.h and is common to all P*
+  // Note: in the Python code generator, nIPD == nparam, while nIPC <= nicoup, because (see #823)
+  // nIPC may vary from one P*/CPPProcess.cc to another, while nicoup is defined in src/Param.h and is common to all P*
   constexpr int nIPC = 3; // SM independent couplings used in this CPPProcess.cc (FIXME? rename as sm_IndepCoupl?)
   static_assert( nIPC <= nicoup );
+  static_assert( nIPD >= 0 ); // Hack to avoid build warnings when nIPD==0 is unused
+  static_assert( nIPC >= 0 ); // Hack to avoid build warnings when nIPC==0 is unused
 #ifdef MGONGPU_HARDCODE_PARAM
   __device__ const fptype cIPD[nIPD] = { (fptype)Parameters_sm::mdl_MZ, (fptype)Parameters_sm::mdl_WZ };
   __device__ const fptype cIPC[nIPC * 2] = { (fptype)Parameters_sm::GC_3.real(), (fptype)Parameters_sm::GC_3.imag(), (fptype)Parameters_sm::GC_50.real(), (fptype)Parameters_sm::GC_50.imag(), (fptype)Parameters_sm::GC_59.real(), (fptype)Parameters_sm::GC_59.imag() };
@@ -525,12 +528,21 @@ namespace mg5amcCpu
 #ifdef MGONGPUCPP_GPUIMPL
     gpuMemcpyToSymbol( cIPD, tIPD, nIPD * sizeof( fptype ) );
     gpuMemcpyToSymbol( cIPC, tIPC, nIPC * sizeof( cxtype ) );
+#ifdef MGONGPUCPP_NBSMINDEPPARAM_GT_0
+    if( Parameters_MSSM_SLHA2::nBsmIndepParam > 0 )
+      gpuMemcpyToSymbol( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters_MSSM_SLHA2::nBsmIndepParam * sizeof( double ) );
+#endif
 #else
     memcpy( cIPD, tIPD, nIPD * sizeof( fptype ) );
     memcpy( cIPC, tIPC, nIPC * sizeof( cxtype ) );
+#ifdef MGONGPUCPP_NBSMINDEPPARAM_GT_0
+    if( Parameters_MSSM_SLHA2::nBsmIndepParam > 0 )
+      memcpy( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters_MSSM_SLHA2::nBsmIndepParam * sizeof( double ) );
+#endif
 #endif
     //for ( int i=0; i<nIPD; i++ ) std::cout << std::setprecision(17) << "tIPD[i] = " << tIPD[i] << std::endl;
     //for ( int i=0; i<nIPC; i++ ) std::cout << std::setprecision(17) << "tIPC[i] = " << tIPC[i] << std::endl;
+    //for ( int i=0; i<Parameters_MSSM_SLHA2::nBsmIndepParam; i++ ) std::cout << std::setprecision(17) << "m_pars->mdl_bsmIndepParam[i] = " << m_pars->mdl_bsmIndepParam[i] << std::endl;
   }
 #else
   // Initialize process (with hardcoded parameters)
