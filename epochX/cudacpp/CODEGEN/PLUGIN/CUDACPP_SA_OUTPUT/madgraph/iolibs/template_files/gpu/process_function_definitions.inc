@@ -151,11 +151,20 @@ namespace mg5amcCpu
     %(cipcassign)s
 #ifdef MGONGPUCPP_GPUIMPL
     %(cipd2tipdSym)s
-    %(cipc2tipcSym)s%(bsmMemcpySym)s
+    %(cipc2tipcSym)s
+#ifdef MGONGPUCPP_NBSMINDEPPARAM_GT_0
+    if( Parameters_MSSM_SLHA2::nBsmIndepParam > 0 )
+      gpuMemcpyToSymbol( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters_MSSM_SLHA2::nBsmIndepParam * sizeof( double ) );
+#endif
 #else
     %(cipd2tipd)s
-    %(cipc2tipc)s%(bsmMemcpy)s
-#endif%(cipddump)s%(cipcdump)s%(bsmdump)s
+    %(cipc2tipc)s
+#ifdef MGONGPUCPP_NBSMINDEPPARAM_GT_0
+    if( Parameters_MSSM_SLHA2::nBsmIndepParam > 0 )
+      memcpy( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters_MSSM_SLHA2::nBsmIndepParam * sizeof( double ) );
+#endif
+#endif%(cipddump)s%(cipcdump)s
+    //for ( int i=0; i<Parameters_MSSM_SLHA2::nBsmIndepParam; i++ ) std::cout << std::setprecision(17) << "m_pars->mdl_bsmIndepParam[i] = " << m_pars->mdl_bsmIndepParam[i] << std::endl;
   }
 #else
   // Initialize process (with hardcoded parameters)
