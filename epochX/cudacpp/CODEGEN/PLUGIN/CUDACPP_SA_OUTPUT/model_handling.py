@@ -825,16 +825,14 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         # because they are used in the event by event calculation of alphaS-dependent couplings
         bsmparam_indep_real_used = []
         bsmparam_indep_complex_used = []
-        #if self.model_name[:2] != 'sm' :
-        if True:
-            for param in self.params_indep:
-                if param.name == 'mdl_complexi' : continue
-                for coup in self.coups_dep.values():                
-                    if param.name in coup.expr:
-                        if param.type == 'real':
-                            bsmparam_indep_real_used.append( param.name )
-                        elif param.type == 'complex':
-                            bsmparam_indep_complex_used.append( param.name )
+        for param in self.params_indep: # NB this is now done also for 'sm' processes (no check on model name, see PR #824)
+            if param.name == 'mdl_complexi' : continue
+            for coup in self.coups_dep.values():                
+                if param.name in coup.expr:
+                    if param.type == 'real':
+                        bsmparam_indep_real_used.append( param.name )
+                    elif param.type == 'complex':
+                        bsmparam_indep_complex_used.append( param.name )
         bsmparam_indep_real_used = set( bsmparam_indep_real_used ) 
         bsmparam_indep_complex_used = set( bsmparam_indep_complex_used ) 
         # Then do everything else
@@ -854,17 +852,15 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
                              line for line in self.write_set_parameters(self.params_indep).split('\n') ]
         replace_dict['set_independent_parameters'] = '\n'.join( set_params_indep )
         replace_dict['set_independent_parameters'] += self.super_write_set_parameters_onlyfixMajorana( hardcoded=False ) # add fixes for Majorana particles only in the aS-indep parameters #622
-        #if self.model_name[:2] != 'sm' :
-        if True:
-            replace_dict['set_independent_parameters'] += '\n  // BSM parameters that do not depend on alphaS but are needed in the computation of alphaS-dependent couplings;'
-            if len(bsmparam_indep_real_used) + len(bsmparam_indep_complex_used) > 0:
-                for ipar, par in enumerate( bsmparam_indep_real_used ):
-                    replace_dict['set_independent_parameters'] += '\n  mdl_bsmIndepParam[%i] = %s;' % ( ipar, par )
-                for ipar, par in enumerate( bsmparam_indep_complex_used ):
-                    replace_dict['set_independent_parameters'] += '\n  mdl_bsmIndepParam[%i] = %s.real();' % ( len(bsmparam_indep_real_used) + 2 * ipar, par )
-                    replace_dict['set_independent_parameters'] += '\n  mdl_bsmIndepParam[%i] = %s.imag();' % ( len(bsmparam_indep_real_used) + 2 * ipar + 1, par )
-            else:
-                replace_dict['set_independent_parameters'] += '\n  // (none)'
+        replace_dict['set_independent_parameters'] += '\n  // BSM parameters that do not depend on alphaS but are needed in the computation of alphaS-dependent couplings;' # NB this is now done also for 'sm' processes (no check on model name, see PR #824)
+        if len(bsmparam_indep_real_used) + len(bsmparam_indep_complex_used) > 0:
+            for ipar, par in enumerate( bsmparam_indep_real_used ):
+                replace_dict['set_independent_parameters'] += '\n  mdl_bsmIndepParam[%i] = %s;' % ( ipar, par )
+            for ipar, par in enumerate( bsmparam_indep_complex_used ):
+                replace_dict['set_independent_parameters'] += '\n  mdl_bsmIndepParam[%i] = %s.real();' % ( len(bsmparam_indep_real_used) + 2 * ipar, par )
+                replace_dict['set_independent_parameters'] += '\n  mdl_bsmIndepParam[%i] = %s.imag();' % ( len(bsmparam_indep_real_used) + 2 * ipar + 1, par )
+        else:
+            replace_dict['set_independent_parameters'] += '\n  // (none)'
         replace_dict['set_independent_couplings'] = self.write_set_parameters(self.coups_indep)
         replace_dict['set_dependent_parameters'] = self.write_set_parameters(self.params_dep)
         replace_dict['set_dependent_couplings'] = self.write_set_parameters(list(self.coups_dep.values()))
