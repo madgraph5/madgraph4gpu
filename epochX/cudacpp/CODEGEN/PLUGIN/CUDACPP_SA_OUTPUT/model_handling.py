@@ -941,21 +941,14 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         # Require HRDCOD=1 in EFT and special handling in EFT for fptype=float using SIMD
         nbsmparam_indep_all_used = len( bsmparam_indep_real_used ) + 2 * len( bsmparam_indep_complex_used )
         replace_dict['bsmdefine'] = '#define MGONGPUCPP_NBSMINDEPPARAM_GT_0 1' if nbsmparam_indep_all_used > 0 else '#undef MGONGPUCPP_NBSMINDEPPARAM_GT_0'
+        replace_dict['nbsmip'] = nbsmparam_indep_all_used # NB this is now done also for 'sm' processes (no check on model name, see PR #824)
+        replace_dict['hasbsmip'] = '' if nbsmparam_indep_all_used > 0 else '//'
+        replace_dict['bsmip'] = ', '.join( list(bsmparam_indep_real_used) + [ '%s.real(), %s.imag()'%(par,par) for par in bsmparam_indep_complex_used] ) if nbsmparam_indep_all_used > 0 else '(none)'
         #if self.model_name[:2] == 'sm' :
         if False:
-            replace_dict['bsmip0'] = ''
-            replace_dict['bsmip1'] = ''
             replace_dict['eftwarn0'] = ''
             replace_dict['eftwarn1'] = ''
         else:
-            replace_dict['bsmip0'] = '''\n
-    // BSM parameters that do not depend on alphaS but are needed in the computation of alphaS-dependent couplings;
-    static constexpr int nBsmIndepParam = %s;
-    %sdouble mdl_bsmIndepParam[nBsmIndepParam];''' % ( nbsmparam_indep_all_used, '' if nbsmparam_indep_all_used > 0 else '//' )
-            replace_dict['bsmip1'] = '''\n
-    // BSM parameters that do not depend on alphaS but are needed in the computation of alphaS-dependent couplings;
-    constexpr int nBsmIndepParam = %s;
-    %s__device__ constexpr double mdl_bsmIndepParam[nBsmIndepParam]%s;''' % ( nbsmparam_indep_all_used, '' if nbsmparam_indep_all_used > 0 else '//', ' = { %s }' % ', '.join( list(bsmparam_indep_real_used) + [ '%s.real(), %s.imag()'%(par,par) for par in bsmparam_indep_complex_used] ) if nbsmparam_indep_all_used > 0 else '' )
             replace_dict['eftwarn0'] = '\n//#warning Support for non-SM physics processes (e.g. SUSY or EFT) is still limited for HRDCOD=0 builds (#439 and PR #625)'
             replace_dict['eftwarn1'] = '\n//#warning Support for non-SM physics processes (e.g. SUSY or EFT) is still limited for HRDCOD=1 builds (#439 and PR #625)'
         if len( bsmparam_indep_real_used ) + len( bsmparam_indep_complex_used ) == 0:
