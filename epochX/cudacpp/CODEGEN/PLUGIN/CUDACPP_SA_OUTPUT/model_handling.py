@@ -1176,13 +1176,13 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             coup_str_hrd = coup_str_hrd[:-2] + ' };'
             replace_dict['cipchrdcod'] = coup_str_hrd
         else:
-            replace_dict['cipcassign'] = '//const cxtype tIPC[0] = { ... }; // nicoup=0'
-            replace_dict['cipcdevice'] = '__device__ __constant__ fptype* cIPC = nullptr; // unused as nicoup=0'
-            replace_dict['cipcstatic'] = 'static fptype* cIPC = nullptr; // unused as nicoup=0'
-            replace_dict['cipc2tipcSym'] = '//gpuMemcpyToSymbol( cIPC, tIPC, 0 * sizeof( cxtype ) ); // nicoup=0'
-            replace_dict['cipc2tipc'] = '//memcpy( cIPC, tIPC, 0 * sizeof( cxtype ) ); // nicoup=0'
+            replace_dict['cipcassign'] = '//const cxtype tIPC[0] = { ... }; // nIPC=0'
+            replace_dict['cipcdevice'] = '__device__ __constant__ fptype* cIPC = nullptr; // unused as nIPC=0'
+            replace_dict['cipcstatic'] = 'static fptype* cIPC = nullptr; // unused as nIPC=0'
+            replace_dict['cipc2tipcSym'] = '//gpuMemcpyToSymbol( cIPC, tIPC, 0 * sizeof( cxtype ) ); // nIPC=0'
+            replace_dict['cipc2tipc'] = '//memcpy( cIPC, tIPC, nIPC * sizeof( cxtype ) ); // nIPC=0'
             replace_dict['cipcdump'] = ''
-            replace_dict['cipchrdcod'] = '__device__ const fptype* cIPC = nullptr; // unused as nicoup=0'
+            replace_dict['cipchrdcod'] = '__device__ const fptype* cIPC = nullptr; // unused as nIPC=0'
         replace_dict['nipd'] = len(params)
         if len(params) > 0:
             replace_dict['cipdassign'] = 'const fptype tIPD[nIPD] = { (fptype)m_pars->%s };'\
@@ -1197,13 +1197,13 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             param_str_hrd = param_str_hrd[:-2] + ' };'
             replace_dict['cipdhrdcod'] = param_str_hrd
         else:
-            replace_dict['cipdassign'] = '//const fptype tIPD[0] = { ... }; // nparam=0'
-            replace_dict['cipddevice'] = '//__device__ __constant__ fptype* cIPD = nullptr; // unused as nparam=0'
-            replace_dict['cipdstatic'] = '//static fptype* cIPD = nullptr; // unused as nparam=0'
-            replace_dict['cipd2tipdSym'] = '//gpuMemcpyToSymbol( cIPD, tIPD, 0 * sizeof( fptype ) ); // nparam=0'
-            replace_dict['cipd2tipd'] = '//memcpy( cIPD, tIPD, nIPD * sizeof( fptype ) ); // nparam=0'
+            replace_dict['cipdassign'] = '//const fptype tIPD[0] = { ... }; // nIPD=0'
+            replace_dict['cipddevice'] = '//__device__ __constant__ fptype* cIPD = nullptr; // unused as nIPD=0'
+            replace_dict['cipdstatic'] = '//static fptype* cIPD = nullptr; // unused as nIPD=0'
+            replace_dict['cipd2tipdSym'] = '//gpuMemcpyToSymbol( cIPD, tIPD, 0 * sizeof( fptype ) ); // nIPD=0'
+            replace_dict['cipd2tipd'] = '//memcpy( cIPD, tIPD, nIPD * sizeof( fptype ) ); // nIPD=0'
             replace_dict['cipddump'] = ''
-            replace_dict['cipdhrdcod'] = '//__device__ const fptype* cIPD = nullptr; // unused as nparam=0'
+            replace_dict['cipdhrdcod'] = '//__device__ const fptype* cIPD = nullptr; // unused as nIPD=0'
         #if self.model_name[:2] == 'sm' :
         if False:
             replace_dict['bsmMemcpySym'] = ''
