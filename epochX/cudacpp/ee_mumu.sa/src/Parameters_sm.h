@@ -192,7 +192,7 @@ namespace mg5amcCpu
 
     // BSM parameters that do not depend on alphaS but are needed in the computation of alphaS-dependent couplings;
     constexpr int nBsmIndepParam = 0;
-    //__device__ constexpr double mdl_bsmIndepParam[nBsmIndepParam] = { (none) }';
+    //__device__ constexpr double mdl_bsmIndepParam[nBsmIndepParam] = { (none) };
   }
 
 } // end namespace mg5amcGpu/mg5amcCpu
