@@ -934,8 +934,8 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             replace_dict['dcoupkernelaccess'] = ''
             replace_dict['dcoupcompute'] = '    // NB: there are no aS-dependent couplings in this physics process'
             # Special handling in EFT for fptype=float using SIMD
-            replace_dict['dcoupfptypev2'] = ''
-            replace_dict['dcoupsetdpar2'] = '      // (none)'
+            replace_dict['dcoupoutfptypev2'] = ''
+            replace_dict['dcoupsetdpar2'] = '        // (none)'
             replace_dict['dcoupsetdcoup2'] = '      // (none)'
             replace_dict['dcoupoutdcoup2'] = ''
         # Require HRDCOD=1 in EFT and special handling in EFT for fptype=float using SIMD
