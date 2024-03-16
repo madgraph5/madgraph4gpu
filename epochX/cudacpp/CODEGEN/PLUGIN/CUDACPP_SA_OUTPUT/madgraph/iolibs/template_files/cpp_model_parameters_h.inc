@@ -164,7 +164,8 @@ namespace mg5amcCpu
       // (1) mdl_complexi is always (0,1); (2) mdl_complexi is undefined in device code; (3) need cxsmpl conversion to cxtype in code below
       const cxtype cI( 0., 1. );
       DependentCouplings_sv out;
-%(eftspecial1)s
+#if not( defined MGONGPU_CPPSIMD && defined MGONGPU_FPTYPE_FLOAT )
+      // Couplings are (scalar, or vector of) doubles, or scalar floats - default implementation
       {
         const fptype_sv& G = G_sv;
         // Model parameters dependent on aS
@@ -172,7 +173,21 @@ namespace mg5amcCpu
         // Model couplings dependent on aS
 %(dcoupsetdcoup)s
       }
-%(eftspecial2)s
+#else
+      // Couplings are VECTORS OF FLOATS: #439 special handling is needed (variable Gs are vector floats, fixed parameters are scalar doubles)
+      // Use an explicit loop to avoid <<error: conversion of scalar ‘double’ to vector ‘fptype_sv’ {aka ‘__vector(8) float’} involves truncation>>
+      // Problems may come e.g. in EFTs from multiplying a vector float (related to aS-dependent G) by a scalar double (aS-independent parameters)
+      // (NB in pure SM processes this special handling is not needed, but we keep it here for simplicity, see PR #824)
+%(dcoupoutfptypev2)s
+      for( int i = 0; i < neppV; i++ )
+      {
+        const fptype& G = G_sv[i];
+        // Model parameters dependent on aS
+%(dcoupsetdpar2)s
+        // Model couplings dependent on aS
+  %(dcoupsetdcoup2)s
+      }%(dcoupoutdcoup2)s
+#endif
       return out;
     }
 #ifdef MGONGPUCPP_GPUIMPL

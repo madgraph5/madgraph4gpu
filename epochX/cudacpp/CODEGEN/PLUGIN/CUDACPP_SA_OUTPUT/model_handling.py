@@ -919,7 +919,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             replace_dict['dcoupcompute'] = '\n'.join( dcoupcompute )
             # Special handling in EFT for fptype=float using SIMD
             dcoupoutfptypev2 = [ '      fptype_v %sr_v;\n      fptype_v %si_v;'%(name,name) for name in self.coups_dep ]
-            replace_dict['dcoupoutfptypev2'] = '\n' + '\n'.join( dcoupoutfptypev2 )
+            replace_dict['dcoupoutfptypev2'] = '\n'.join( dcoupoutfptypev2 )
             replace_dict['dcoupsetdpar2'] = replace_dict['dcoupsetdpar'].replace('fptype_sv','fptype')
             dcoupsetdcoup2 = [ '    ' + line.replace('constexpr cxsmpl<double> ','const cxtype ').replace('mdl_complexi', 'cI') for line in self.write_hardcoded_parameters(list(self.coups_dep.values())).split('\n') if line != '' ]
             dcoupsetdcoup2 += [ '        %sr_v[i] = cxreal( %s );\n        %si_v[i] = cximag( %s );'%(name,name,name,name) for name in self.coups_dep ]
@@ -951,9 +951,6 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             replace_dict['bsmip1'] = ''
             replace_dict['eftwarn0'] = ''
             replace_dict['eftwarn1'] = ''
-            replace_dict['eftspecial0'] = '      // SM implementation - no special handling of non-hardcoded parameters (PR #625)'
-            replace_dict['eftspecial1'] = '      // Begin SM implementation - no special handling of vectors of floats as in EFT (#439)'
-            replace_dict['eftspecial2'] = '      // End SM implementation - no special handling of vectors of floats as in EFT (#439)'
         else:
             replace_dict['bsmip0'] = '''\n
     // BSM parameters that do not depend on alphaS but are needed in the computation of alphaS-dependent couplings;
@@ -965,28 +962,12 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
     %s__device__ constexpr double mdl_bsmIndepParam[nBsmIndepParam]%s;''' % ( nbsmparam_indep_all_used, '' if nbsmparam_indep_all_used > 0 else '//', ' = { %s }' % ', '.join( list(bsmparam_indep_real_used) + [ '%s.real(), %s.imag()'%(par,par) for par in bsmparam_indep_complex_used] ) if nbsmparam_indep_all_used > 0 else '' )
             replace_dict['eftwarn0'] = '\n//#warning Support for non-SM physics processes (e.g. SUSY or EFT) is still limited for HRDCOD=0 builds (#439 and PR #625)'
             replace_dict['eftwarn1'] = '\n//#warning Support for non-SM physics processes (e.g. SUSY or EFT) is still limited for HRDCOD=1 builds (#439 and PR #625)'
-            if len( bsmparam_indep_real_used ) + len( bsmparam_indep_complex_used ) == 0:
-                replace_dict['eftspecial0'] = '      // No additional parameters needed in constant memory for this BSM model\n'
-            else:
-                replace_dict['eftspecial0'] = ''
-                for ipar, par in enumerate( bsmparam_indep_real_used ) : replace_dict['eftspecial0'] += '      const double %s = bsmIndepParamPtr[%i];\n' % ( par, ipar )
-                for ipar, par in enumerate( bsmparam_indep_complex_used ) : replace_dict['eftspecial0'] += '      const cxsmpl<double> %s = cxsmpl<double>( bsmIndepParamPtr[%i], bsmIndepParamPtr[%i] );\n' % ( par, 2*ipar, 2*ipar+1 )
-            replace_dict['eftspecial1'] = '      // Begin non-SM (e.g. EFT) implementation - special handling of vectors of floats (#439)'
-            replace_dict['eftspecial1'] += '\n#if not( defined MGONGPU_CPPSIMD && defined MGONGPU_FPTYPE_FLOAT )'
-            replace_dict['eftspecial2'] = """#else
-      // ** NB #439: special handling is necessary ONLY FOR VECTORS OF FLOATS (variable Gs are vector floats, fixed parameters are scalar doubles)
-      // Use an explicit loop to avoid <<error: conversion of scalar ‘double’ to vector ‘fptype_sv’ {aka ‘__vector(8) float’} involves truncation>>
-      // Problems may come e.g. in EFTs from multiplying a vector float (related to aS-dependent G) by a scalar double (aS-independent parameters)%(dcoupoutfptypev2)s
-      for( int i = 0; i < neppV; i++ )
-      {
-        const fptype& G = G_sv[i];
-        // Model parameters dependent on aS
-%(dcoupsetdpar2)s
-        // Model couplings dependent on aS
-  %(dcoupsetdcoup2)s
-      }%(dcoupoutdcoup2)s
-#endif""" % replace_dict
-            replace_dict['eftspecial2'] += '\n      // End non-SM (e.g. EFT) implementation - special handling of vectors of floats (#439)'
+        if len( bsmparam_indep_real_used ) + len( bsmparam_indep_complex_used ) == 0:
+            replace_dict['eftspecial0'] = '      // No special handling of non-hardcoded parameters (no additional BSM parameters needed in constant memory)'
+        else:
+            replace_dict['eftspecial0'] = ''
+            for ipar, par in enumerate( bsmparam_indep_real_used ) : replace_dict['eftspecial0'] += '      const double %s = bsmIndepParamPtr[%i];\n' % ( par, ipar )
+            for ipar, par in enumerate( bsmparam_indep_complex_used ) : replace_dict['eftspecial0'] += '      const cxsmpl<double> %s = cxsmpl<double>( bsmIndepParamPtr[%i], bsmIndepParamPtr[%i] );\n' % ( par, 2*ipar, 2*ipar+1 )
         file_h = self.read_template_file(self.param_template_h) % replace_dict
         file_cc = self.read_template_file(self.param_template_cc) % replace_dict
         return file_h, file_cc
