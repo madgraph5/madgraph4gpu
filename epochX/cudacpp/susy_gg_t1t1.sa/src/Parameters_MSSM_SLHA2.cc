@@ -816,18 +816,18 @@ Parameters_MSSM_SLHA2::setIndependentParameters( SLHAReader& slha )
   if( mdl_Mgo < 0 )
     mdl_Wgo = -std::abs( mdl_Wgo );
   // BSM parameters that do not depend on alphaS but are needed in the computation of alphaS-dependent couplings;
-  mdl_bsmIndepParam[0] = mdl_I52x33.real();
-  mdl_bsmIndepParam[1] = mdl_I52x33.imag();
-  mdl_bsmIndepParam[2] = mdl_I51x33.real();
-  mdl_bsmIndepParam[3] = mdl_I51x33.imag();
-  mdl_bsmIndepParam[4] = mdl_I75x33.real();
-  mdl_bsmIndepParam[5] = mdl_I75x33.imag();
-  mdl_bsmIndepParam[6] = mdl_I74x33.real();
-  mdl_bsmIndepParam[7] = mdl_I74x33.imag();
-  mdl_bsmIndepParam[8] = mdl_I52x36.real();
-  mdl_bsmIndepParam[9] = mdl_I52x36.imag();
-  mdl_bsmIndepParam[10] = mdl_I51x36.real();
-  mdl_bsmIndepParam[11] = mdl_I51x36.imag();
+  mdl_bsmIndepParam[0] = mdl_I51x36.real();
+  mdl_bsmIndepParam[1] = mdl_I51x36.imag();
+  mdl_bsmIndepParam[2] = mdl_I52x36.real();
+  mdl_bsmIndepParam[3] = mdl_I52x36.imag();
+  mdl_bsmIndepParam[4] = mdl_I52x33.real();
+  mdl_bsmIndepParam[5] = mdl_I52x33.imag();
+  mdl_bsmIndepParam[6] = mdl_I75x33.real();
+  mdl_bsmIndepParam[7] = mdl_I75x33.imag();
+  mdl_bsmIndepParam[8] = mdl_I51x33.real();
+  mdl_bsmIndepParam[9] = mdl_I51x33.imag();
+  mdl_bsmIndepParam[10] = mdl_I74x33.real();
+  mdl_bsmIndepParam[11] = mdl_I74x33.imag();
 }
 
 void
