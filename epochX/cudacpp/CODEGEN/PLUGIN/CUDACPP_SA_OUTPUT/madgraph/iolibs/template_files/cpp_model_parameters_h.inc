@@ -185,8 +185,7 @@ namespace mg5amcCpu
       // Couplings are VECTORS OF FLOATS: #439 special handling is needed (variable Gs are vector floats, fixed parameters are scalar doubles)
       // Use an explicit loop to avoid <<error: conversion of scalar ‘double’ to vector ‘fptype_sv’ {aka ‘__vector(8) float’} involves truncation>>
       // Problems may come e.g. in EFTs from multiplying a vector float (related to aS-dependent G) by a scalar double (aS-independent parameters)
-      // (NB in pure SM processes this special handling is not needed, but we keep it here for simplicity, see PR #824)
-%(dcoupoutfptypev2)s
+      // (NB in pure SM processes this special handling is not needed, but we keep it here for simplicity, see PR #824)%(dcoupoutfptypev2)s
       for( int i = 0; i < neppV; i++ )
       {
         const fptype& G = G_sv[i];
