@@ -705,7 +705,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         return res
 
     # AV - new method (merging write_parameters and write_set_parameters)
-    def write_hardcoded_parameters(self, params, deviceparams=set()):
+    def write_hardcoded_parameters(self, params, deviceparams=dict()):
         majorana_widths = []
         for particle in self.model.get('particles'):
             if particle.is_fermion() and particle.get('self_antipart') and \
@@ -720,8 +720,10 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             assert parset == '', "pardef is empty but parset is not: '%s'"%parset # AV sanity check (both are empty)
             res = '// (none)\n'
             return res
+	#=== Replace patterns in pardef (left of the assignment '=')
         pardef = pardef.replace('std::complex<','cxsmpl<') # custom simplex complex class (with constexpr arithmetics)
-        parset = parset.replace('std::complex<','cxsmpl<') # NB this is really needed twice! (if there are two std::complex on the same line)
+	#=== Replace patterns in parset (right of the assignment '=')
+        parset = parset.replace('std::complex<','cxsmpl<') # custom simplex complex class (with constexpr arithmetics)
         parset = parset.replace('sqrt(','constexpr_sqrt(') # constexpr sqrt (based on iterative Newton-Raphson approximation)
         parset = parset.replace('pow(','constexpr_pow(') # constexpr pow
         parset = parset.replace('atan(','constexpr_atan(') # constexpr atan for BSM #627
@@ -739,6 +741,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         parset = parset.replace('*',' * ')
         parset = parset.replace('/',' / ')
         parset = parset.replace(',',', ')
+	#=== Compute pardef_lines from pardef (left of the assignment '=')
         pardef_lines = {}
         for line in pardef.split('\n'):
             ###print(line) # for debugging
@@ -754,6 +757,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         ###misc.sprint( 'pardef_lines size =', len(pardef_lines), ', keys size =', len(pardef_lines.keys()) )
         ###print( pardef_lines ) # for debugging
         ###for line in pardef_lines: misc.sprint(line) # for debugging
+	#=== Compute parset_lines from parset (right of the assignment '=')
         parset_pars = []
         parset_lines = {}
         skipnextline = False
@@ -771,6 +775,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         ###misc.sprint( 'parset_lines size =', len(parset_lines), ', keys size =', len(parset_lines.keys()) )
         ###print( parset_lines ) # for debugging
         ###for line in parset_lines: misc.sprint(line) # for debugging
+	#=== Assemble pardef_lines and parset_lines into a single string res and then replace patterns in res
         assert len(pardef_lines) == len(parset_lines), 'len(pardef_lines) != len(parset_lines)' # AV sanity check (same number of parameters)
         res = '    '.join( pardef_lines[par] + ' = ' + parset_lines[par] + '\n' for par in parset_pars ) # no leading '    ' on first row
         res = res.replace(' ;',';')
@@ -817,20 +822,30 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         """Create the content of the Parameters_model.h and .cc files"""
         # First of all, identify which extra independent parameters must be made available through CPU static and GPU constant memory in BSM models
         # because they are used in the event by event calculation of alphaS-dependent couplings
-        # WARNING! This is only implemented and has only been tested so far for real parameters (complex parameters need twice the storage)
         bsmparam_indep_real_used = []
         bsmparam_indep_complex_used = []
-        if self.model_name[:2] != 'sm' :
-            for param in self.params_indep:
-                if param.name == 'mdl_complexi' : continue
-                for coup in self.coups_dep.values():                
-                    if param.name in coup.expr:
-                        if param.type == 'real':
-                            bsmparam_indep_real_used.append( param.name )
-                        elif param.type == 'complex':
-                            bsmparam_indep_complex_used.append( param.name )
-        bsmparam_indep_real_used = set( bsmparam_indep_real_used ) 
-        bsmparam_indep_complex_used = set( bsmparam_indep_complex_used ) 
+        for param in self.params_indep: # NB this is now done also for 'sm' processes (no check on model name, see PR #824)
+            if param.name == 'mdl_complexi' : continue
+            if param.name == 'aS' : continue
+            # Add BSM parameters which are needed to compute dependent couplings
+            # Note: this seemed enough to fix SUSY processes, but not EFT processes
+            for coupdep in self.coups_dep.values():
+                if param.name in coupdep.expr:
+                    if param.type == 'real':
+                        bsmparam_indep_real_used.append( param.name )
+                    elif param.type == 'complex':
+                        bsmparam_indep_complex_used.append( param.name )
+            # Add BSM parameters which are needed to compute dependent parameters
+            # Note: this was later added to also fix EFT processes (related to #616)
+            for pardep in self.params_dep:
+                if param.name in pardep.expr:
+                    if param.type == 'real':
+                        bsmparam_indep_real_used.append( param.name )
+                    elif param.type == 'complex':
+                        bsmparam_indep_complex_used.append( param.name )
+        # Use dict.fromkeys() instead of set() to ensure a reproducible ordering of parameters (see https://stackoverflow.com/a/53657523)
+        bsmparam_indep_real_used = dict.fromkeys( bsmparam_indep_real_used ) 
+        bsmparam_indep_complex_used = dict.fromkeys( bsmparam_indep_complex_used ) 
         # Then do everything else
         replace_dict = self.default_replace_dict
         replace_dict['info_lines'] = PLUGIN_export_cpp.get_mg5_info_lines()
@@ -848,16 +863,15 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
                              line for line in self.write_set_parameters(self.params_indep).split('\n') ]
         replace_dict['set_independent_parameters'] = '\n'.join( set_params_indep )
         replace_dict['set_independent_parameters'] += self.super_write_set_parameters_onlyfixMajorana( hardcoded=False ) # add fixes for Majorana particles only in the aS-indep parameters #622
-        if self.model_name[:2] != 'sm' :
-            replace_dict['set_independent_parameters'] += '\n  // BSM parameters that do not depend on alphaS but are needed in the computation of alphaS-dependent couplings;'
-            if len(bsmparam_indep_real_used) + len(bsmparam_indep_complex_used) > 0:
-                for ipar, par in enumerate( bsmparam_indep_real_used ):
-                    replace_dict['set_independent_parameters'] += '\n  mdl_bsmIndepParam[%i] = %s;' % ( ipar, par )
-                for ipar, par in enumerate( bsmparam_indep_complex_used ):
-                    replace_dict['set_independent_parameters'] += '\n  mdl_bsmIndepParam[%i] = %s.real();' % ( len(bsmparam_indep_real_used) + 2 * ipar, par )
-                    replace_dict['set_independent_parameters'] += '\n  mdl_bsmIndepParam[%i] = %s.imag();' % ( len(bsmparam_indep_real_used) + 2 * ipar + 1, par )
-            else:
-                replace_dict['set_independent_parameters'] += '\n  // (none)'
+        replace_dict['set_independent_parameters'] += '\n  // BSM parameters that do not depend on alphaS but are needed in the computation of alphaS-dependent couplings;' # NB this is now done also for 'sm' processes (no check on model name, see PR #824)
+        if len(bsmparam_indep_real_used) + len(bsmparam_indep_complex_used) > 0:
+            for ipar, par in enumerate( bsmparam_indep_real_used ):
+                replace_dict['set_independent_parameters'] += '\n  mdl_bsmIndepParam[%i] = %s;' % ( ipar, par )
+            for ipar, par in enumerate( bsmparam_indep_complex_used ):
+                replace_dict['set_independent_parameters'] += '\n  mdl_bsmIndepParam[%i] = %s.real();' % ( len(bsmparam_indep_real_used) + 2 * ipar, par )
+                replace_dict['set_independent_parameters'] += '\n  mdl_bsmIndepParam[%i] = %s.imag();' % ( len(bsmparam_indep_real_used) + 2 * ipar + 1, par )
+        else:
+            replace_dict['set_independent_parameters'] += '\n  // (none)'
         replace_dict['set_independent_couplings'] = self.write_set_parameters(self.coups_indep)
         replace_dict['set_dependent_parameters'] = self.write_set_parameters(self.params_dep)
         replace_dict['set_dependent_couplings'] = self.write_set_parameters(list(self.coups_dep.values()))
@@ -873,7 +887,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         assert super().write_parameters([]) == '', 'super().write_parameters([]) is not empty' # AV sanity check (#622)
         assert self.super_write_set_parameters_donotfixMajorana([]) == '', 'super_write_set_parameters_donotfixMajorana([]) is not empty' # AV sanity check (#622)
         ###misc.sprint(self.params_indep) # for debugging
-        hrd_params_indep = [ line.replace('constexpr','//constexpr') + ' // now retrieved event-by-event (as G) from Fortran (running alphas #373)' if 'aS =' in line else line for line in self.write_hardcoded_parameters(self.params_indep, bsmparam_indep_real_used.union(bsmparam_indep_complex_used)).split('\n') if line != '' ] # use bsmparam_indep_real_used + bsmparam_indep_complex_used as deviceparams
+        hrd_params_indep = [ line.replace('constexpr','//constexpr') + ' // now retrieved event-by-event (as G) from Fortran (running alphas #373)' if 'aS =' in line else line for line in self.write_hardcoded_parameters(self.params_indep, {**bsmparam_indep_real_used, **bsmparam_indep_complex_used}).split('\n') if line != '' ] # use bsmparam_indep_real_used + bsmparam_indep_complex_used as deviceparams (dictionary merge as in https://stackoverflow.com/a/26853961)
         replace_dict['hardcoded_independent_parameters'] = '\n'.join( hrd_params_indep ) + self.super_write_set_parameters_onlyfixMajorana( hardcoded=True ) # add fixes for Majorana particles only in the aS-indep parameters #622
         ###misc.sprint(self.coups_indep) # for debugging
         replace_dict['hardcoded_independent_couplings'] = self.write_hardcoded_parameters(self.coups_indep)
@@ -912,7 +926,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             replace_dict['dcoupcompute'] = '\n'.join( dcoupcompute )
             # Special handling in EFT for fptype=float using SIMD
             dcoupoutfptypev2 = [ '      fptype_v %sr_v;\n      fptype_v %si_v;'%(name,name) for name in self.coups_dep ]
-            replace_dict['dcoupoutfptypev2'] = '\n' + '\n'.join( dcoupoutfptypev2 )
+            replace_dict['dcoupoutfptypev2'] = ( '\n' if len(self.coups_dep) > 0 else '' ) + '\n'.join( dcoupoutfptypev2 )
             replace_dict['dcoupsetdpar2'] = replace_dict['dcoupsetdpar'].replace('fptype_sv','fptype')
             dcoupsetdcoup2 = [ '    ' + line.replace('constexpr cxsmpl<double> ','const cxtype ').replace('mdl_complexi', 'cI') for line in self.write_hardcoded_parameters(list(self.coups_dep.values())).split('\n') if line != '' ]
             dcoupsetdcoup2 += [ '        %sr_v[i] = cxreal( %s );\n        %si_v[i] = cximag( %s );'%(name,name,name,name) for name in self.coups_dep ]
@@ -931,54 +945,28 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             replace_dict['dcoupkernelaccess'] = ''
             replace_dict['dcoupcompute'] = '    // NB: there are no aS-dependent couplings in this physics process'
             # Special handling in EFT for fptype=float using SIMD
-            replace_dict['dcoupfptypev2'] = ''
-            replace_dict['dcoupsetdpar2'] = '      // (none)'
+            replace_dict['dcoupoutfptypev2'] = ''
+            replace_dict['dcoupsetdpar2'] = '        // (none)'
             replace_dict['dcoupsetdcoup2'] = '      // (none)'
             replace_dict['dcoupoutdcoup2'] = ''
         # Require HRDCOD=1 in EFT and special handling in EFT for fptype=float using SIMD
         nbsmparam_indep_all_used = len( bsmparam_indep_real_used ) + 2 * len( bsmparam_indep_complex_used )
         replace_dict['bsmdefine'] = '#define MGONGPUCPP_NBSMINDEPPARAM_GT_0 1' if nbsmparam_indep_all_used > 0 else '#undef MGONGPUCPP_NBSMINDEPPARAM_GT_0'
-        if self.model_name[:2] == 'sm' :
-            replace_dict['bsmip0'] = ''
-            replace_dict['bsmip1'] = ''
+        replace_dict['nbsmip'] = nbsmparam_indep_all_used # NB this is now done also for 'sm' processes (no check on model name, see PR #824)
+        replace_dict['hasbsmip'] = '' if nbsmparam_indep_all_used > 0 else '//'
+        replace_dict['bsmip'] = ', '.join( list(bsmparam_indep_real_used) + [ '%s.real(), %s.imag()'%(par,par) for par in bsmparam_indep_complex_used] ) if nbsmparam_indep_all_used > 0 else '(none)'
+        if 'eft' in self.model_name.lower():
+            replace_dict['eftwarn0'] = '\n//#warning Support for EFT physics models is still limited for HRDCOD=0 builds (#439 and PR #625)'
+            replace_dict['eftwarn1'] = '\n//#warning Support for EFT physics models is still limited for HRDCOD=1 builds (#439 and PR #625)'
+        else:
             replace_dict['eftwarn0'] = ''
             replace_dict['eftwarn1'] = ''
-            replace_dict['eftspecial0'] = '      // SM implementation - no special handling of non-hardcoded parameters (PR #625)'
-            replace_dict['eftspecial1'] = '      // Begin SM implementation - no special handling of vectors of floats as in EFT (#439)'
-            replace_dict['eftspecial2'] = '      // End SM implementation - no special handling of vectors of floats as in EFT (#439)'
+        if len( bsmparam_indep_real_used ) + len( bsmparam_indep_complex_used ) == 0:
+            replace_dict['eftspecial0'] = '\n      // No special handling of non-hardcoded parameters (no additional BSM parameters needed in constant memory)'
         else:
-            replace_dict['bsmip0'] = '''\n
-    // BSM parameters that do not depend on alphaS but are needed in the computation of alphaS-dependent couplings;
-    static constexpr int nBsmIndepParam = %s;
-    %sdouble mdl_bsmIndepParam[nBsmIndepParam];''' % ( nbsmparam_indep_all_used, '' if nbsmparam_indep_all_used > 0 else '//' )
-            replace_dict['bsmip1'] = '''\n
-    // BSM parameters that do not depend on alphaS but are needed in the computation of alphaS-dependent couplings;
-    constexpr int nBsmIndepParam = %s;
-    %s__device__ constexpr double mdl_bsmIndepParam[nBsmIndepParam]%s;''' % ( nbsmparam_indep_all_used, '' if nbsmparam_indep_all_used > 0 else '//', ' = { %s }' % ', '.join( list(bsmparam_indep_real_used) + [ '%s.real(), %s.imag()'%(par,par) for par in bsmparam_indep_complex_used] ) if nbsmparam_indep_all_used > 0 else '' )
-            replace_dict['eftwarn0'] = '\n//#warning Support for non-SM physics processes (e.g. SUSY or EFT) is still limited for HRDCOD=0 builds (#439 and PR #625)'
-            replace_dict['eftwarn1'] = '\n//#warning Support for non-SM physics processes (e.g. SUSY or EFT) is still limited for HRDCOD=1 builds (#439 and PR #625)'
-            if len( bsmparam_indep_real_used ) + len( bsmparam_indep_complex_used ) == 0:
-                replace_dict['eftspecial0'] = '      // No additional parameters needed in constant memory for this BSM model\n'
-            else:
-                replace_dict['eftspecial0'] = ''
-                for ipar, par in enumerate( bsmparam_indep_real_used ) : replace_dict['eftspecial0'] += '      const double %s = bsmIndepParamPtr[%i];\n' % ( par, ipar )
-                for ipar, par in enumerate( bsmparam_indep_complex_used ) : replace_dict['eftspecial0'] += '      const cxsmpl<double> %s = cxsmpl<double>( bsmIndepParamPtr[%i], bsmIndepParamPtr[%i] );\n' % ( par, 2*ipar, 2*ipar+1 )
-            replace_dict['eftspecial1'] = '      // Begin non-SM (e.g. EFT) implementation - special handling of vectors of floats (#439)'
-            replace_dict['eftspecial1'] += '\n#if not( defined MGONGPU_CPPSIMD && defined MGONGPU_FPTYPE_FLOAT )'
-            replace_dict['eftspecial2'] = """#else
-      // ** NB #439: special handling is necessary ONLY FOR VECTORS OF FLOATS (variable Gs are vector floats, fixed parameters are scalar doubles)
-      // Use an explicit loop to avoid <<error: conversion of scalar ‘double’ to vector ‘fptype_sv’ {aka ‘__vector(8) float’} involves truncation>>
-      // Problems may come e.g. in EFTs from multiplying a vector float (related to aS-dependent G) by a scalar double (aS-independent parameters)%(dcoupoutfptypev2)s
-      for( int i = 0; i < neppV; i++ )
-      {
-        const fptype& G = G_sv[i];
-        // Model parameters dependent on aS
-%(dcoupsetdpar2)s
-        // Model couplings dependent on aS
-  %(dcoupsetdcoup2)s
-      }%(dcoupoutdcoup2)s
-#endif""" % replace_dict
-            replace_dict['eftspecial2'] += '\n      // End non-SM (e.g. EFT) implementation - special handling of vectors of floats (#439)'
+            replace_dict['eftspecial0'] = ''
+            for ipar, par in enumerate( bsmparam_indep_real_used ) : replace_dict['eftspecial0'] += '\n      const double %s = bsmIndepParamPtr[%i];' % ( par, ipar )
+            for ipar, par in enumerate( bsmparam_indep_complex_used ) : replace_dict['eftspecial0'] += '\n      const cxsmpl<double> %s = cxsmpl<double>( bsmIndepParamPtr[%i], bsmIndepParamPtr[%i] );' % ( par, 2*ipar, 2*ipar+1 )
         file_h = self.read_template_file(self.param_template_h) % replace_dict
         file_cc = self.read_template_file(self.param_template_cc) % replace_dict
         return file_h, file_cc
@@ -1187,13 +1175,13 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             coup_str_hrd = coup_str_hrd[:-2] + ' };'
             replace_dict['cipchrdcod'] = coup_str_hrd
         else:
-            replace_dict['cipcassign'] = '//const cxtype tIPC[0] = { ... }; // nicoup=0'
-            replace_dict['cipcdevice'] = '__device__ __constant__ fptype* cIPC = nullptr; // unused as nicoup=0'
-            replace_dict['cipcstatic'] = 'static fptype* cIPC = nullptr; // unused as nicoup=0'
-            replace_dict['cipc2tipcSym'] = '//gpuMemcpyToSymbol( cIPC, tIPC, 0 * sizeof( cxtype ) ); // nicoup=0'
-            replace_dict['cipc2tipc'] = '//memcpy( cIPC, tIPC, 0 * sizeof( cxtype ) ); // nicoup=0'
+            replace_dict['cipcassign'] = '//const cxtype tIPC[0] = { ... }; // nIPC=0'
+            replace_dict['cipcdevice'] = '__device__ __constant__ fptype* cIPC = nullptr; // unused as nIPC=0'
+            replace_dict['cipcstatic'] = 'static fptype* cIPC = nullptr; // unused as nIPC=0'
+            replace_dict['cipc2tipcSym'] = '//gpuMemcpyToSymbol( cIPC, tIPC, 0 * sizeof( cxtype ) ); // nIPC=0'
+            replace_dict['cipc2tipc'] = '//memcpy( cIPC, tIPC, nIPC * sizeof( cxtype ) ); // nIPC=0'
             replace_dict['cipcdump'] = ''
-            replace_dict['cipchrdcod'] = '__device__ const fptype* cIPC = nullptr; // unused as nicoup=0'
+            replace_dict['cipchrdcod'] = '__device__ const fptype* cIPC = nullptr; // unused as nIPC=0'
         replace_dict['nipd'] = len(params)
         if len(params) > 0:
             replace_dict['cipdassign'] = 'const fptype tIPD[nIPD] = { (fptype)m_pars->%s };'\
@@ -1208,21 +1196,14 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             param_str_hrd = param_str_hrd[:-2] + ' };'
             replace_dict['cipdhrdcod'] = param_str_hrd
         else:
-            replace_dict['cipdassign'] = '//const fptype tIPD[0] = { ... }; // nparam=0'
-            replace_dict['cipddevice'] = '//__device__ __constant__ fptype* cIPD = nullptr; // unused as nparam=0'
-            replace_dict['cipdstatic'] = '//static fptype* cIPD = nullptr; // unused as nparam=0'
-            replace_dict['cipd2tipdSym'] = '//gpuMemcpyToSymbol( cIPD, tIPD, 0 * sizeof( fptype ) ); // nparam=0'
-            replace_dict['cipd2tipd'] = '//memcpy( cIPD, tIPD, nIPD * sizeof( fptype ) ); // nparam=0'
+            replace_dict['cipdassign'] = '//const fptype tIPD[0] = { ... }; // nIPD=0'
+            replace_dict['cipddevice'] = '//__device__ __constant__ fptype* cIPD = nullptr; // unused as nIPD=0'
+            replace_dict['cipdstatic'] = '//static fptype* cIPD = nullptr; // unused as nIPD=0'
+            replace_dict['cipd2tipdSym'] = '//gpuMemcpyToSymbol( cIPD, tIPD, 0 * sizeof( fptype ) ); // nIPD=0'
+            replace_dict['cipd2tipd'] = '//memcpy( cIPD, tIPD, nIPD * sizeof( fptype ) ); // nIPD=0'
             replace_dict['cipddump'] = ''
-            replace_dict['cipdhrdcod'] = '//__device__ const fptype* cIPD = nullptr; // unused as nparam=0'
-        if self.model_name[:2] == 'sm' :
-            replace_dict['bsmMemcpySym'] = ''
-            replace_dict['bsmMemcpy'] = ''
-            replace_dict['bsmdump'] = ''
-        else:
-            replace_dict['bsmMemcpySym'] = '\n#ifdef MGONGPUCPP_NBSMINDEPPARAM_GT_0\n    if( Parameters_MSSM_SLHA2::nBsmIndepParam > 0 )\n      gpuMemcpyToSymbol( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters_MSSM_SLHA2::nBsmIndepParam * sizeof( double ) );\n#endif'
-            replace_dict['bsmMemcpy'] = '\n#ifdef MGONGPUCPP_NBSMINDEPPARAM_GT_0\n    if( Parameters_MSSM_SLHA2::nBsmIndepParam > 0 )\n      memcpy( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters_MSSM_SLHA2::nBsmIndepParam * sizeof( double ) );\n#endif'
-            replace_dict['bsmdump'] = '\n    //for ( int i=0; i<Parameters_MSSM_SLHA2::nBsmIndepParam; i++ ) std::cout << std::setprecision(17) << "m_pars->mdl_bsmIndepParam[i] = " << m_pars->mdl_bsmIndepParam[i] << std::endl;'
+            replace_dict['cipdhrdcod'] = '//__device__ const fptype* cIPD = nullptr; // unused as nIPD=0'
+        # FIXME! Here there should be different code generated depending on MGONGPUCPP_NBSMINDEPPARAM_GT_0...
         replace_dict['all_helicities'] = self.get_helicity_matrix(self.matrix_elements[0])
         replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace('helicities', 'tHel')
         color_amplitudes = [me.get_color_amplitudes() for me in self.matrix_elements] # as in OneProcessExporterCPP.get_process_function_definitions
@@ -1719,7 +1700,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                 aliastxt = 'COUPI'
                 name = 'cIPC'
             if coup not in alias:
-                ###if alias == self.couporderindep: # bug #821! this is incorrectly true when all all dictionaries are empty!
+                ###if alias == self.couporderindep: # bug #821! this is incorrectly true when both dictionaries are empty!
                 if aliastxt == 'COUPI':
                     if not len(alias):
                         alias[coup] = len(self.couporderdep)
@@ -1727,7 +1708,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                         alias[coup] = alias[list(alias)[-1]]+1
                 else:
                     alias[coup] = len(alias)
-                ###if alias == self.couporderdep: # bug #821! this is incorrectly true when all all dictionaries are empty!
+                ###if alias == self.couporderdep: # bug #821! this is incorrectly true when both dictionaries are empty!
                 if aliastxt == 'COUPD':
                     for k in self.couporderindep:
                         self.couporderindep[k] += 1

@@ -27,10 +27,10 @@
 // AV Jan 2024 (PR #625): this ugly #define was the only way I found to avoid creating arrays[nBsm] in CPPProcess.cc if nBsm is 0
 // The problem is that nBsm is determined when generating Parameters.h, which happens after CPPProcess.cc has already been generated
 // For simplicity, keep this code hardcoded also for SM processes (a nullptr is needed as in the case nBsm == 0)
-#undef MGONGPUCPP_NBSMINDEPPARAM_GT_0
+#define MGONGPUCPP_NBSMINDEPPARAM_GT_0 1
 
 #ifndef MGONGPU_HARDCODE_PARAM
-//#warning Support for non-SM physics processes (e.g. SUSY or EFT) is still limited for HRDCOD=0 builds (#439 and PR #625)
+//#warning Support for EFT physics models is still limited for HRDCOD=0 builds (#439 and PR #625)
 
 #include "read_slha.h"
 
@@ -89,8 +89,8 @@ namespace mg5amcCpu
     //void printDependentCouplings(); // now computed event-by-event (running alphas #373)
 
     // BSM parameters that do not depend on alphaS but are needed in the computation of alphaS-dependent couplings;
-    static constexpr int nBsmIndepParam = 0;
-    //double mdl_bsmIndepParam[nBsmIndepParam];
+    static constexpr int nBsmIndepParam = 9;
+    double mdl_bsmIndepParam[nBsmIndepParam];
 
   private:
 
@@ -100,7 +100,7 @@ namespace mg5amcCpu
 } // end namespace mg5amcGpu/mg5amcCpu
 
 #else
-//#warning Support for non-SM physics processes (e.g. SUSY or EFT) is still limited for HRDCOD=1 builds (#439 and PR #625)
+//#warning Support for EFT physics models is still limited for HRDCOD=1 builds (#439 and PR #625)
 
 #include <cassert>
 #include <limits>
@@ -130,25 +130,25 @@ namespace mg5amcCpu
     constexpr double mdl_Gf = 1.166390e-05;
     constexpr double aEWM1 = 1.325070e+02;
     constexpr double mdl_MP = 1.250001e+02;
-    constexpr double mdl_MH = 1.250000e+02;
+    __device__ constexpr double mdl_MH = 1.250000e+02;
     constexpr double mdl_MZ = 9.118800e+01;
     constexpr double mdl_MTA = 1.777000e+00;
-    constexpr double mdl_MT = 1.730000e+02;
+    __device__ constexpr double mdl_MT = 1.730000e+02;
     constexpr double mdl_MB = 4.700000e+00;
     constexpr double mdl_conjg__CKM3x3 = 1.;
     constexpr cxsmpl<double> mdl_complexi = cxsmpl<double>( 0., 1. );
     constexpr double mdl_MZ__exp__2 = ( ( mdl_MZ ) * ( mdl_MZ ) );
     constexpr double mdl_MZ__exp__4 = ( ( mdl_MZ ) * ( mdl_MZ ) * ( mdl_MZ ) * ( mdl_MZ ) );
     constexpr double mdl_sqrt__2 = constexpr_sqrt( 2. );
-    constexpr double mdl_MH__exp__4 = ( ( mdl_MH ) * ( mdl_MH ) * ( mdl_MH ) * ( mdl_MH ) );
-    constexpr double mdl_MT__exp__4 = ( ( mdl_MT ) * ( mdl_MT ) * ( mdl_MT ) * ( mdl_MT ) );
-    constexpr double mdl_MH__exp__2 = ( ( mdl_MH ) * ( mdl_MH ) );
-    constexpr double mdl_MT__exp__2 = ( ( mdl_MT ) * ( mdl_MT ) );
+    __device__ constexpr double mdl_MH__exp__4 = ( ( mdl_MH ) * ( mdl_MH ) * ( mdl_MH ) * ( mdl_MH ) );
+    __device__ constexpr double mdl_MT__exp__4 = ( ( mdl_MT ) * ( mdl_MT ) * ( mdl_MT ) * ( mdl_MT ) );
+    __device__ constexpr double mdl_MH__exp__2 = ( ( mdl_MH ) * ( mdl_MH ) );
+    __device__ constexpr double mdl_MT__exp__2 = ( ( mdl_MT ) * ( mdl_MT ) );
     constexpr double mdl_MH__exp__12 = constexpr_pow( mdl_MH, 12. );
     constexpr double mdl_MH__exp__10 = constexpr_pow( mdl_MH, 10. );
     constexpr double mdl_MH__exp__8 = constexpr_pow( mdl_MH, 8. );
-    constexpr double mdl_MH__exp__6 = constexpr_pow( mdl_MH, 6. );
-    constexpr double mdl_MT__exp__6 = constexpr_pow( mdl_MT, 6. );
+    __device__ constexpr double mdl_MH__exp__6 = constexpr_pow( mdl_MH, 6. );
+    __device__ constexpr double mdl_MT__exp__6 = constexpr_pow( mdl_MT, 6. );
     constexpr double mdl_aEW = 1. / aEWM1;
     constexpr double mdl_MW = constexpr_sqrt( mdl_MZ__exp__2 / 2. + constexpr_sqrt( mdl_MZ__exp__4 / 4. - ( mdl_aEW * M_PI * mdl_MZ__exp__2 ) / ( mdl_Gf * mdl_sqrt__2 ) ) );
     constexpr double mdl_sqrt__aEW = constexpr_sqrt( mdl_aEW );
@@ -160,7 +160,7 @@ namespace mg5amcCpu
     constexpr double mdl_sw = mdl_sqrt__sw2;
     constexpr double mdl_g1 = mdl_ee / mdl_cw;
     constexpr double mdl_gw = mdl_ee / mdl_sw;
-    constexpr double mdl_v = ( 2. * mdl_MW * mdl_sw ) / mdl_ee;
+    __device__ constexpr double mdl_v = ( 2. * mdl_MW * mdl_sw ) / mdl_ee;
     constexpr double mdl_ee__exp__2 = ( ( mdl_ee ) * ( mdl_ee ) );
     constexpr double mdl_MW__exp__12 = constexpr_pow( mdl_MW, 12. );
     constexpr double mdl_MW__exp__10 = constexpr_pow( mdl_MW, 10. );
@@ -204,8 +204,8 @@ namespace mg5amcCpu
     //void printDependentCouplings(); // now computed event-by-event (running alphas #373)
 
     // BSM parameters that do not depend on alphaS but are needed in the computation of alphaS-dependent couplings;
-    constexpr int nBsmIndepParam = 0;
-    //__device__ constexpr double mdl_bsmIndepParam[nBsmIndepParam];
+    constexpr int nBsmIndepParam = 9;
+    __device__ constexpr double mdl_bsmIndepParam[nBsmIndepParam] = { mdl_MH, mdl_MT, mdl_MH__exp__4, mdl_MT__exp__4, mdl_MH__exp__2, mdl_MT__exp__2, mdl_MH__exp__6, mdl_MT__exp__6, mdl_v };
   }
 
 } // end namespace mg5amcGpu/mg5amcCpu
@@ -242,15 +242,22 @@ namespace mg5amcCpu
 #ifdef MGONGPU_HARDCODE_PARAM
       using namespace Parameters_heft;
 #else
-      // No additional parameters needed in constant memory for this BSM model
-
+      const double mdl_MH = bsmIndepParamPtr[0];
+      const double mdl_MT = bsmIndepParamPtr[1];
+      const double mdl_MH__exp__4 = bsmIndepParamPtr[2];
+      const double mdl_MT__exp__4 = bsmIndepParamPtr[3];
+      const double mdl_MH__exp__2 = bsmIndepParamPtr[4];
+      const double mdl_MT__exp__2 = bsmIndepParamPtr[5];
+      const double mdl_MH__exp__6 = bsmIndepParamPtr[6];
+      const double mdl_MT__exp__6 = bsmIndepParamPtr[7];
+      const double mdl_v = bsmIndepParamPtr[8];
 #endif
       // NB: hardcode cxtype cI(0,1) instead of cxtype (or hardcoded cxsmpl) mdl_complexi (which exists in Parameters_heft) because:
       // (1) mdl_complexi is always (0,1); (2) mdl_complexi is undefined in device code; (3) need cxsmpl conversion to cxtype in code below
       const cxtype cI( 0., 1. );
       DependentCouplings_sv out;
-      // Begin non-SM (e.g. EFT) implementation - special handling of vectors of floats (#439)
 #if not( defined MGONGPU_CPPSIMD && defined MGONGPU_FPTYPE_FLOAT )
+      // Couplings are (scalar, or vector of) doubles, or scalar floats - default implementation
       {
         const fptype_sv& G = G_sv;
         // Model parameters dependent on aS
@@ -263,9 +270,10 @@ namespace mg5amcCpu
         out.GC_13 = -( cI * mdl_GH );
       }
 #else
-      // ** NB #439: special handling is necessary ONLY FOR VECTORS OF FLOATS (variable Gs are vector floats, fixed parameters are scalar doubles)
+      // Couplings are VECTORS OF FLOATS: #439 special handling is needed (variable Gs are vector floats, fixed parameters are scalar doubles)
       // Use an explicit loop to avoid <<error: conversion of scalar ‘double’ to vector ‘fptype_sv’ {aka ‘__vector(8) float’} involves truncation>>
       // Problems may come e.g. in EFTs from multiplying a vector float (related to aS-dependent G) by a scalar double (aS-independent parameters)
+      // (NB in pure SM processes this special handling is not needed, but we keep it here for simplicity, see PR #824)
       fptype_v GC_13r_v;
       fptype_v GC_13i_v;
       for( int i = 0; i < neppV; i++ )
@@ -284,7 +292,6 @@ namespace mg5amcCpu
       }
       out.GC_13 = cxtype_v( GC_13r_v, GC_13i_v );
 #endif
-      // End non-SM (e.g. EFT) implementation - special handling of vectors of floats (#439)
       return out;
     }
 #ifdef MGONGPUCPP_GPUIMPL

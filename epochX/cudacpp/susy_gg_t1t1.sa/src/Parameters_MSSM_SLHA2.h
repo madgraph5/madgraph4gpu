@@ -30,7 +30,6 @@
 #define MGONGPUCPP_NBSMINDEPPARAM_GT_0 1
 
 #ifndef MGONGPU_HARDCODE_PARAM
-//#warning Support for non-SM physics processes (e.g. SUSY or EFT) is still limited for HRDCOD=0 builds (#439 and PR #625)
 
 #include "read_slha.h"
 
@@ -101,7 +100,6 @@ namespace mg5amcCpu
 } // end namespace mg5amcGpu/mg5amcCpu
 
 #else
-//#warning Support for non-SM physics processes (e.g. SUSY or EFT) is still limited for HRDCOD=1 builds (#439 and PR #625)
 
 #include <cassert>
 #include <limits>
@@ -774,7 +772,7 @@ namespace mg5amcCpu
 
     // BSM parameters that do not depend on alphaS but are needed in the computation of alphaS-dependent couplings;
     constexpr int nBsmIndepParam = 12;
-    __device__ constexpr double mdl_bsmIndepParam[nBsmIndepParam] = { mdl_I52x33.real(), mdl_I52x33.imag(), mdl_I51x33.real(), mdl_I51x33.imag(), mdl_I75x33.real(), mdl_I75x33.imag(), mdl_I74x33.real(), mdl_I74x33.imag(), mdl_I52x36.real(), mdl_I52x36.imag(), mdl_I51x36.real(), mdl_I51x36.imag() };
+    __device__ constexpr double mdl_bsmIndepParam[nBsmIndepParam] = { mdl_I51x33.real(), mdl_I51x33.imag(), mdl_I51x36.real(), mdl_I51x36.imag(), mdl_I52x33.real(), mdl_I52x33.imag(), mdl_I52x36.real(), mdl_I52x36.imag(), mdl_I74x33.real(), mdl_I74x33.imag(), mdl_I75x33.real(), mdl_I75x33.imag() };
   }
 
 } // end namespace mg5amcGpu/mg5amcCpu
@@ -817,20 +815,19 @@ namespace mg5amcCpu
 #ifdef MGONGPU_HARDCODE_PARAM
       using namespace Parameters_MSSM_SLHA2;
 #else
-      const cxsmpl<double> mdl_I52x33 = cxsmpl<double>( bsmIndepParamPtr[0], bsmIndepParamPtr[1] );
-      const cxsmpl<double> mdl_I51x33 = cxsmpl<double>( bsmIndepParamPtr[2], bsmIndepParamPtr[3] );
-      const cxsmpl<double> mdl_I75x33 = cxsmpl<double>( bsmIndepParamPtr[4], bsmIndepParamPtr[5] );
-      const cxsmpl<double> mdl_I74x33 = cxsmpl<double>( bsmIndepParamPtr[6], bsmIndepParamPtr[7] );
-      const cxsmpl<double> mdl_I52x36 = cxsmpl<double>( bsmIndepParamPtr[8], bsmIndepParamPtr[9] );
-      const cxsmpl<double> mdl_I51x36 = cxsmpl<double>( bsmIndepParamPtr[10], bsmIndepParamPtr[11] );
-
+      const cxsmpl<double> mdl_I51x33 = cxsmpl<double>( bsmIndepParamPtr[0], bsmIndepParamPtr[1] );
+      const cxsmpl<double> mdl_I51x36 = cxsmpl<double>( bsmIndepParamPtr[2], bsmIndepParamPtr[3] );
+      const cxsmpl<double> mdl_I52x33 = cxsmpl<double>( bsmIndepParamPtr[4], bsmIndepParamPtr[5] );
+      const cxsmpl<double> mdl_I52x36 = cxsmpl<double>( bsmIndepParamPtr[6], bsmIndepParamPtr[7] );
+      const cxsmpl<double> mdl_I74x33 = cxsmpl<double>( bsmIndepParamPtr[8], bsmIndepParamPtr[9] );
+      const cxsmpl<double> mdl_I75x33 = cxsmpl<double>( bsmIndepParamPtr[10], bsmIndepParamPtr[11] );
 #endif
       // NB: hardcode cxtype cI(0,1) instead of cxtype (or hardcoded cxsmpl) mdl_complexi (which exists in Parameters_MSSM_SLHA2) because:
       // (1) mdl_complexi is always (0,1); (2) mdl_complexi is undefined in device code; (3) need cxsmpl conversion to cxtype in code below
       const cxtype cI( 0., 1. );
       DependentCouplings_sv out;
-      // Begin non-SM (e.g. EFT) implementation - special handling of vectors of floats (#439)
 #if not( defined MGONGPU_CPPSIMD && defined MGONGPU_FPTYPE_FLOAT )
+      // Couplings are (scalar, or vector of) doubles, or scalar floats - default implementation
       {
         const fptype_sv& G = G_sv;
         // Model parameters dependent on aS
@@ -844,9 +841,10 @@ namespace mg5amcCpu
         out.GC_90 = cI * mdl_G__exp__2 * (cxtype)mdl_I74x33 + cI * mdl_G__exp__2 * (cxtype)mdl_I75x33;
       }
 #else
-      // ** NB #439: special handling is necessary ONLY FOR VECTORS OF FLOATS (variable Gs are vector floats, fixed parameters are scalar doubles)
+      // Couplings are VECTORS OF FLOATS: #439 special handling is needed (variable Gs are vector floats, fixed parameters are scalar doubles)
       // Use an explicit loop to avoid <<error: conversion of scalar ‘double’ to vector ‘fptype_sv’ {aka ‘__vector(8) float’} involves truncation>>
       // Problems may come e.g. in EFTs from multiplying a vector float (related to aS-dependent G) by a scalar double (aS-independent parameters)
+      // (NB in pure SM processes this special handling is not needed, but we keep it here for simplicity, see PR #824)
       fptype_v GC_6r_v;
       fptype_v GC_6i_v;
       fptype_v GC_55r_v;
@@ -881,7 +879,6 @@ namespace mg5amcCpu
       out.GC_57 = cxtype_v( GC_57r_v, GC_57i_v );
       out.GC_90 = cxtype_v( GC_90r_v, GC_90i_v );
 #endif
-      // End non-SM (e.g. EFT) implementation - special handling of vectors of floats (#439)
       return out;
     }
 #ifdef MGONGPUCPP_GPUIMPL

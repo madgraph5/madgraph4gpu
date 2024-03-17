@@ -28,6 +28,7 @@ cd $(dirname $0)/..
 
 ./CODEGEN/generateAndCompare.sh -q heft_gg_h
 
+./CODEGEN/generateAndCompare.sh -q susy_gg_tt
 ./CODEGEN/generateAndCompare.sh -q susy_gg_t1t1
 
 ./CODEGEN/generateAndCompare.sh -q gg_tt01g --mad

@@ -77,19 +77,22 @@ namespace mg5amcCpu
   // However, physics parameters are user-defined through card files: use CUDA constant memory instead (issue #39)
   // [NB if hardcoded parameters are used, it's better to define them here to avoid silent shadowing (issue #263)]
   constexpr int nIPD = 4; // SM independent parameters used in this CPPProcess.cc (FIXME? rename as sm_IndepParam?)
-  // Note (see #823): nIPC may vary from one P*/CPPProcess.cc to another, while nicoup is defined in src/Param.h and is common to all P*
+  // Note: in the Python code generator, nIPD == nparam, while nIPC <= nicoup, because (see #823)
+  // nIPC may vary from one P*/CPPProcess.cc to another, while nicoup is defined in src/Param.h and is common to all P*
   constexpr int nIPC = 0; // SM independent couplings used in this CPPProcess.cc (FIXME? rename as sm_IndepCoupl?)
   static_assert( nIPC <= nicoup );
+  static_assert( nIPD >= 0 ); // Hack to avoid build warnings when nIPD==0 is unused
+  static_assert( nIPC >= 0 ); // Hack to avoid build warnings when nIPC==0 is unused
 #ifdef MGONGPU_HARDCODE_PARAM
   __device__ const fptype cIPD[nIPD] = { (fptype)Parameters_MSSM_SLHA2::mdl_Msu3, (fptype)Parameters_MSSM_SLHA2::mdl_Wsu3, (fptype)Parameters_MSSM_SLHA2::mdl_Msu6, (fptype)Parameters_MSSM_SLHA2::mdl_Wsu6 };
-  __device__ const fptype* cIPC = nullptr; // unused as nicoup=0
+  __device__ const fptype* cIPC = nullptr; // unused as nIPC=0
 #else
 #ifdef MGONGPUCPP_GPUIMPL
   __device__ __constant__ fptype cIPD[nIPD];
-  __device__ __constant__ fptype* cIPC = nullptr; // unused as nicoup=0
+  __device__ __constant__ fptype* cIPC = nullptr; // unused as nIPC=0
 #else
   static fptype cIPD[nIPD];
-  static fptype* cIPC = nullptr; // unused as nicoup=0
+  static fptype* cIPC = nullptr; // unused as nIPC=0
 #endif
 #endif
 
@@ -563,17 +566,17 @@ namespace mg5amcCpu
     // Read physics parameters like masses and couplings from user configuration files (static: initialize once)
     // Then copy them to CUDA constant memory (issue #39) or its C++ emulation in file-scope static memory
     const fptype tIPD[nIPD] = { (fptype)m_pars->mdl_Msu3, (fptype)m_pars->mdl_Wsu3, (fptype)m_pars->mdl_Msu6, (fptype)m_pars->mdl_Wsu6 };
-    //const cxtype tIPC[0] = { ... }; // nicoup=0
+    //const cxtype tIPC[0] = { ... }; // nIPC=0
 #ifdef MGONGPUCPP_GPUIMPL
     gpuMemcpyToSymbol( cIPD, tIPD, nIPD * sizeof( fptype ) );
-    //gpuMemcpyToSymbol( cIPC, tIPC, 0 * sizeof( cxtype ) ); // nicoup=0
+    //gpuMemcpyToSymbol( cIPC, tIPC, 0 * sizeof( cxtype ) ); // nIPC=0
 #ifdef MGONGPUCPP_NBSMINDEPPARAM_GT_0
     if( Parameters_MSSM_SLHA2::nBsmIndepParam > 0 )
       gpuMemcpyToSymbol( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters_MSSM_SLHA2::nBsmIndepParam * sizeof( double ) );
 #endif
 #else
     memcpy( cIPD, tIPD, nIPD * sizeof( fptype ) );
-    //memcpy( cIPC, tIPC, 0 * sizeof( cxtype ) ); // nicoup=0
+    //memcpy( cIPC, tIPC, nIPC * sizeof( cxtype ) ); // nIPC=0
 #ifdef MGONGPUCPP_NBSMINDEPPARAM_GT_0
     if( Parameters_MSSM_SLHA2::nBsmIndepParam > 0 )
       memcpy( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters_MSSM_SLHA2::nBsmIndepParam * sizeof( double ) );

@@ -103,7 +103,15 @@ Parameters_heft::setIndependentParameters( SLHAReader& slha )
   mdl_cw__exp__2 = ( ( mdl_cw ) * ( mdl_cw ) );
   mdl_sw__exp__2 = ( ( mdl_sw ) * ( mdl_sw ) );
   // BSM parameters that do not depend on alphaS but are needed in the computation of alphaS-dependent couplings;
-  // (none)
+  mdl_bsmIndepParam[0] = mdl_MH;
+  mdl_bsmIndepParam[1] = mdl_MT;
+  mdl_bsmIndepParam[2] = mdl_MH__exp__4;
+  mdl_bsmIndepParam[3] = mdl_MT__exp__4;
+  mdl_bsmIndepParam[4] = mdl_MH__exp__2;
+  mdl_bsmIndepParam[5] = mdl_MT__exp__2;
+  mdl_bsmIndepParam[6] = mdl_MH__exp__6;
+  mdl_bsmIndepParam[7] = mdl_MT__exp__6;
+  mdl_bsmIndepParam[8] = mdl_v;
 }
 
 void
