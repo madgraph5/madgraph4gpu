@@ -13,6 +13,7 @@ suff=".mad"
 # Parse command line arguments
 ggttggg=-ggttggg
 rndhst=-curhst
+bsm=
 while [ "$1" != "" ]; do
   if [ "$1" == "-short" ]; then
     # Short (no ggttggg) or long version?
@@ -38,8 +39,14 @@ while [ "$1" != "" ]; do
     # Random numbers use common (not hiprand) instead of curand?
     rndhst=-common
     shift
+  elif [ "$1" == "-bsmonly" ] && [ "$bsm" != "-nobsm" ]; then
+    bsm=$1
+    shift
+  elif [ "$1" == "-nobsm" ] && [ "$bsm" != "-bsmonly" ]; then
+    bsm=$1
+    shift
   else
-    echo "Usage: $0 [-short] [-e] [-sa] [-makeonly] [-hip]"
+    echo "Usage: $0 [-short] [-e] [-sa] [-makeonly] [-hip] [-bsmonly|-nobsm]"
     exit 1
   fi
 done
@@ -54,43 +61,62 @@ started="STARTED  AT $(date)"
 # (36/78) Six logs (double/float/mixed x hrd0/hrd1 x inl0) in each of the six processes
 \rm -rf gg_ttggg${suff}/lib/build.none_*
 cmd="./tput/teeThroughputX.sh -mix -hrd -makej -eemumu -ggtt -ggttg -ggttgg -gqttq $ggttggg -makeclean ${opts}"
-$cmd; status=$?
-ended1="$cmd\nENDED(1) AT $(date) [Status=$status]"
 tmp1=$(mktemp)
-ls -ltr ee_mumu${suff}/lib/build.none_*_inl0_hrd* gg_tt${suff}/lib/build.none_*_inl0_hrd* gg_tt*g${suff}/lib/build.none_*_inl0_hrd* | egrep -v '(total|\./|\.build|_common|^$)' > $tmp1
+if [ "${bsm}" != "-bsmonly" ]; then
+  $cmd; status=$?
+  ls -ltr ee_mumu${suff}/lib/build.none_*_inl0_hrd* gg_tt${suff}/lib/build.none_*_inl0_hrd* gg_tt*g${suff}/lib/build.none_*_inl0_hrd* | egrep -v '(total|\./|\.build|_common|^$)' > $tmp1
+else
+  cmd="SKIP '$cmd'"; echo $cmd; status=$?
+fi
+ended1="$cmd\nENDED(1) AT $(date) [Status=$status]"
 
 # (48/78) Four extra logs (double/float x hrd0/hrd1 x inl1) only in three of the six processes
 \rm -rf gg_ttg${suff}/lib/build.none_*
 \rm -rf gg_ttggg${suff}/lib/build.none_*
 cmd="./tput/teeThroughputX.sh -flt -hrd -makej -eemumu -ggtt -ggttgg -inlonly -makeclean ${opts}"
-$cmd; status=$?
-ended2="$cmd\nENDED(2) AT $(date) [Status=$status]"
 tmp2=$(mktemp)
-ls -ltr ee_mumu${suff}/lib/build.none_*_inl1_hrd* gg_tt${suff}/lib/build.none_*_inl1_hrd* gg_tt*g${suff}/lib/build.none_*_inl1_hrd* | egrep -v '(total|\./|\.build|_common|^$)' > $tmp2
+if [ "${bsm}" != "-bsmonly" ]; then
+  $cmd; status=$?
+  ls -ltr ee_mumu${suff}/lib/build.none_*_inl1_hrd* gg_tt${suff}/lib/build.none_*_inl1_hrd* gg_tt*g${suff}/lib/build.none_*_inl1_hrd* | egrep -v '(total|\./|\.build|_common|^$)' > $tmp2
+else
+  cmd="SKIP '$cmd'"; echo $cmd; status=$?
+fi
+ended2="$cmd\nENDED(2) AT $(date) [Status=$status]"
 
 # (60/78) Two extra logs (double/float x hrd0 x inl0 + bridge) in all six processes (rebuild from cache)
 cmd="./tput/teeThroughputX.sh -makej -eemumu -ggtt -ggttg -gqttq -ggttgg $ggttggg -flt -bridge -makeclean ${opts}"
-$cmd; status=$?
+if [ "${bsm}" != "-bsmonly" ]; then
+  $cmd; status=$?
+else
+  cmd="SKIP '$cmd'"; echo $cmd; status=$?
+fi
 ended3="$cmd\nENDED(3) AT $(date) [Status=$status]"
 
 # (66/78) Two extra logs (double/float x hrd0 x inl0 + rmbhst) only in three of the six processes (no rebuild needed)
 cmd="./tput/teeThroughputX.sh -eemumu -ggtt -ggttgg -flt -rmbhst ${opts}"
-$cmd; status=$?
+if [ "${bsm}" != "-bsmonly" ]; then
+  $cmd; status=$?
+else
+  cmd="SKIP '$cmd'"; echo $cmd; status=$?
+fi
 ended4="$cmd\nENDED(4) AT $(date) [Status=$status]"
 
 # (72/78) Two extra logs (double/float x hrd0 x inl0 + rndhst) only in three of the six processes (no rebuild needed)
 cmd="./tput/teeThroughputX.sh -eemumu -ggtt -ggttgg -flt ${rndhst} ${opts}"
-if [ "${rndhst}" != "-common" ]; then
+if [ "${bsm}" != "-bsmonly" ] && [ "${rndhst}" != "-common" ]; then
   $cmd; status=$?
-  ended5="$cmd\nENDED(5) AT $(date) [Status=$status]"
 else
   cmd="SKIP '$cmd'"; echo $cmd; status=$?
-  ended5="$cmd\nENDED(5) AT $(date) [Status=$status]"
 fi
+ended5="$cmd\nENDED(5) AT $(date) [Status=$status]"
 
 # (78/78) Two extra logs (double/float x hrd0 x inl0 + common) only in three of the six processes (no rebuild needed)
 cmd="./tput/teeThroughputX.sh -eemumu -ggtt -ggttgg -flt -common ${opts}"
-$cmd; status=$?
+if [ "${bsm}" != "-bsmonly" ]; then
+  $cmd; status=$?
+else
+  cmd="SKIP '$cmd'"; echo $cmd; status=$?
+fi
 ended6="$cmd\nENDED(6) AT $(date) [Status=$status]"
 
 echo
