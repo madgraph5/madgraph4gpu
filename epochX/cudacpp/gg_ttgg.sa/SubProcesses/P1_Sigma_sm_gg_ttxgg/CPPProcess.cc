@@ -101,12 +101,12 @@ namespace mg5amcCpu
   // For simplicity, keep this code hardcoded also for SM processes (a nullptr is needed as in the case nBsm == 0)
 #ifdef MGONGPUCPP_NBSMINDEPPARAM_GT_0
 #ifdef MGONGPU_HARDCODE_PARAM
-  __device__ const double* bsmIndepParam = Parameters_MSSM_SLHA2::mdl_bsmIndepParam;
+  __device__ const double* bsmIndepParam = Parameters_sm::mdl_bsmIndepParam;
 #else
 #ifdef MGONGPUCPP_GPUIMPL
-  __device__ __constant__ double bsmIndepParam[Parameters_MSSM_SLHA2::nBsmIndepParam];
+  __device__ __constant__ double bsmIndepParam[Parameters_sm::nBsmIndepParam];
 #else
-  static double bsmIndepParam[Parameters_MSSM_SLHA2::nBsmIndepParam];
+  static double bsmIndepParam[Parameters_sm::nBsmIndepParam];
 #endif
 #endif
 #else
@@ -2769,19 +2769,19 @@ namespace mg5amcCpu
     gpuMemcpyToSymbol( cIPD, tIPD, nIPD * sizeof( fptype ) );
     //gpuMemcpyToSymbol( cIPC, tIPC, 0 * sizeof( cxtype ) ); // nIPC=0
 #ifdef MGONGPUCPP_NBSMINDEPPARAM_GT_0
-    if( Parameters_MSSM_SLHA2::nBsmIndepParam > 0 )
-      gpuMemcpyToSymbol( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters_MSSM_SLHA2::nBsmIndepParam * sizeof( double ) );
+    if( Parameters_sm::nBsmIndepParam > 0 )
+      gpuMemcpyToSymbol( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters_sm::nBsmIndepParam * sizeof( double ) );
 #endif
 #else
     memcpy( cIPD, tIPD, nIPD * sizeof( fptype ) );
     //memcpy( cIPC, tIPC, nIPC * sizeof( cxtype ) ); // nIPC=0
 #ifdef MGONGPUCPP_NBSMINDEPPARAM_GT_0
-    if( Parameters_MSSM_SLHA2::nBsmIndepParam > 0 )
-      memcpy( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters_MSSM_SLHA2::nBsmIndepParam * sizeof( double ) );
+    if( Parameters_sm::nBsmIndepParam > 0 )
+      memcpy( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters_sm::nBsmIndepParam * sizeof( double ) );
 #endif
 #endif
     //for ( int i=0; i<nIPD; i++ ) std::cout << std::setprecision(17) << "tIPD[i] = " << tIPD[i] << std::endl;
-    //for ( int i=0; i<Parameters_MSSM_SLHA2::nBsmIndepParam; i++ ) std::cout << std::setprecision(17) << "m_pars->mdl_bsmIndepParam[i] = " << m_pars->mdl_bsmIndepParam[i] << std::endl;
+    //for ( int i=0; i<Parameters_sm::nBsmIndepParam; i++ ) std::cout << std::setprecision(17) << "m_pars->mdl_bsmIndepParam[i] = " << m_pars->mdl_bsmIndepParam[i] << std::endl;
   }
 #else
   // Initialize process (with hardcoded parameters)
