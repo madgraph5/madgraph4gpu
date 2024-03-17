@@ -827,6 +827,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         bsmparam_indep_complex_used = []
         for param in self.params_indep: # NB this is now done also for 'sm' processes (no check on model name, see PR #824)
             if param.name == 'mdl_complexi' : continue
+            if param.name == 'aS' : continue
             # Add BSM parameters which are needed to compute dependent couplings
             # Note: this seemed enough to fix SUSY processes, but not EFT processes
             for coupdep in self.coups_dep.values():
