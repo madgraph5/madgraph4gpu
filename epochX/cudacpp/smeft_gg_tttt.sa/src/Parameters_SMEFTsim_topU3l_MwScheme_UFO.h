@@ -27,10 +27,10 @@
 // AV Jan 2024 (PR #625): this ugly #define was the only way I found to avoid creating arrays[nBsm] in CPPProcess.cc if nBsm is 0
 // The problem is that nBsm is determined when generating Parameters.h, which happens after CPPProcess.cc has already been generated
 // For simplicity, keep this code hardcoded also for SM processes (a nullptr is needed as in the case nBsm == 0)
-#undef MGONGPUCPP_NBSMINDEPPARAM_GT_0
+#define MGONGPUCPP_NBSMINDEPPARAM_GT_0 1
 
 #ifndef MGONGPU_HARDCODE_PARAM
-//#warning Support for non-SM physics processes (e.g. SUSY or EFT) is still limited for HRDCOD=0 builds (#439 and PR #625)
+//#warning Support for EFT physics models is still limited for HRDCOD=0 builds (#439 and PR #625)
 
 #include "read_slha.h"
 
@@ -90,8 +90,8 @@ namespace mg5amcCpu
     //void printDependentCouplings(); // now computed event-by-event (running alphas #373)
 
     // BSM parameters that do not depend on alphaS but are needed in the computation of alphaS-dependent couplings;
-    static constexpr int nBsmIndepParam = 0;
-    //double mdl_bsmIndepParam[nBsmIndepParam];
+    static constexpr int nBsmIndepParam = 29;
+    double mdl_bsmIndepParam[nBsmIndepParam];
 
   private:
 
@@ -101,7 +101,7 @@ namespace mg5amcCpu
 } // end namespace mg5amcGpu/mg5amcCpu
 
 #else
-//#warning Support for non-SM physics processes (e.g. SUSY or EFT) is still limited for HRDCOD=1 builds (#439 and PR #625)
+//#warning Support for EFT physics models is still limited for HRDCOD=1 builds (#439 and PR #625)
 
 #include <cassert>
 #include <limits>
@@ -119,7 +119,7 @@ namespace mg5amcCpu
     // Model parameters independent of aS
     constexpr double zero = 0;
     constexpr double ZERO = 0;
-    constexpr double mdl_WH = 4.070000e - 03;
+    __device__ constexpr double mdl_WH = 4.070000e - 03;
     constexpr double mdl_WW = 2.085000e + 00;
     constexpr double mdl_WZ = 2.495200e + 00;
     constexpr double mdl_WT = 1.330000e + 00;
@@ -136,7 +136,7 @@ namespace mg5amcCpu
     //constexpr double aS = 1.179000e - 01; // now retrieved event-by-event (as G) from Fortran (running alphas #373)
     constexpr double mdl_Gf = 1.166379e - 05;
     constexpr double mdl_MW = 8.038700e + 01;
-    constexpr double mdl_LambdaSMEFT = 1.000000e + 03;
+    __device__ constexpr double mdl_LambdaSMEFT = 1.000000e + 03;
     constexpr double mdl_cleQt3Im = 0.000000e + 00;
     constexpr double mdl_cleQt1Im = 0.000000e + 00;
     constexpr double mdl_cleju3Im = 0.000000e + 00;
@@ -215,7 +215,7 @@ namespace mg5amcCpu
     constexpr double mdl_cll1 = 0.000000e + 00;
     constexpr double mdl_cll = 0.000000e + 00;
     constexpr double mdl_cHe = 0.000000e + 00;
-    constexpr double mdl_cHl3 = 0.000000e + 00;
+    __device__ constexpr double mdl_cHl3 = 0.000000e + 00;
     constexpr double mdl_cHl1 = 0.000000e + 00;
     constexpr double mdl_ceBRe = 0.000000e + 00;
     constexpr double mdl_ceWRe = 0.000000e + 00;
@@ -291,7 +291,7 @@ namespace mg5amcCpu
     constexpr double mdl_cHt = 0.000000e + 00;
     constexpr double mdl_cHu = 0.000000e + 00;
     constexpr double mdl_cHQ3 = 0.000000e + 00;
-    constexpr double mdl_cHj3 = 0.000000e + 00;
+    __device__ constexpr double mdl_cHj3 = 0.000000e + 00;
     constexpr double mdl_cHQ1 = 0.000000e + 00;
     constexpr double mdl_cHj1 = 0.000000e + 00;
     constexpr double mdl_cbBRe = 0.000000e + 00;
@@ -310,21 +310,21 @@ namespace mg5amcCpu
     constexpr double mdl_cdHRe = 0.000000e + 00;
     constexpr double mdl_ctHRe = 0.000000e + 00;
     constexpr double mdl_cuHRe = 0.000000e + 00;
-    constexpr double mdl_cHWB = 0.000000e + 00;
-    constexpr double mdl_cHB = 0.000000e + 00;
-    constexpr double mdl_cHW = 0.000000e + 00;
-    constexpr double mdl_cHG = 0.000000e + 00;
+    __device__ constexpr double mdl_cHWB = 0.000000e + 00;
+    __device__ constexpr double mdl_cHB = 0.000000e + 00;
+    __device__ constexpr double mdl_cHW = 0.000000e + 00;
+    __device__ constexpr double mdl_cHG = 0.000000e + 00;
     constexpr double mdl_cHDD = 0.000000e + 00;
     constexpr double mdl_cHbox = 0.000000e + 00;
-    constexpr double mdl_cH = 0.000000e + 00;
+    __device__ constexpr double mdl_cH = 0.000000e + 00;
     constexpr double mdl_cW = 0.000000e + 00;
     constexpr double mdl_cG = 0.000000e + 00;
-    constexpr double mdl_MH = 1.250900e + 02;
+    __device__ constexpr double mdl_MH = 1.250900e + 02;
     constexpr double mdl_MZ = 9.118760e + 01;
     constexpr double mdl_MTA = 1.777000e + 00;
     constexpr double mdl_MMU = 1.056600e - 01;
     constexpr double mdl_Me = 5.110000e - 04;
-    constexpr double mdl_MT = 1.727600e + 02;
+    __device__ constexpr double mdl_MT = 1.727600e + 02;
     constexpr double mdl_MB = 4.180000e + 00;
     constexpr double mdl_MC = 1.270000e + 00;
     constexpr double mdl_MS = 9.300000e - 02;
@@ -383,7 +383,7 @@ namespace mg5amcCpu
     constexpr double mdl_MZ__exp__2 = ( ( mdl_MZ ) * ( mdl_MZ ) );
     constexpr double mdl_sqrt__2 = constexpr_sqrt( 2. );
     constexpr double mdl_nb__2__exp__0_25 = constexpr_pow( 2., 0.25 );
-    constexpr double mdl_MH__exp__2 = ( ( mdl_MH ) * ( mdl_MH ) );
+    __device__ constexpr double mdl_MH__exp__2 = ( ( mdl_MH ) * ( mdl_MH ) );
     constexpr double mdl_sth2 = 1. - mdl_MW__exp__2 / mdl_MZ__exp__2;
     constexpr double mdl_nb__10__exp___m_40 = constexpr_pow( 10., -40. );
     constexpr double mdl_propCorr = ABS( mdl_linearPropCorrections ) / ( ABS( mdl_linearPropCorrections ) + mdl_nb__10__exp___m_40 );
@@ -394,14 +394,14 @@ namespace mg5amcCpu
     constexpr double mdl_WW1 = mdl_WW;
     constexpr double mdl_WH1 = mdl_WH;
     constexpr double mdl_WT1 = mdl_WT;
-    constexpr double mdl_cth = constexpr_sqrt( 1. - mdl_sth2 );
+    __device__ constexpr double mdl_cth = constexpr_sqrt( 1. - mdl_sth2 );
     constexpr double mdl_MW1 = mdl_MWsm;
     constexpr double mdl_sqrt__sth2 = constexpr_sqrt( mdl_sth2 );
-    constexpr double mdl_sth = mdl_sqrt__sth2;
-    constexpr double mdl_LambdaSMEFT__exp__2 = ( ( mdl_LambdaSMEFT ) * ( mdl_LambdaSMEFT ) );
+    __device__ constexpr double mdl_sth = mdl_sqrt__sth2;
+    __device__ constexpr double mdl_LambdaSMEFT__exp__2 = ( ( mdl_LambdaSMEFT ) * ( mdl_LambdaSMEFT ) );
     constexpr cxsmpl<double> mdl_conjg__cbH = conj( mdl_cbH );
     constexpr cxsmpl<double> mdl_conjg__ctHH = conj( mdl_ctHH );
-    constexpr double mdl_MT__exp__2 = ( ( mdl_MT ) * ( mdl_MT ) );
+    __device__ constexpr double mdl_MT__exp__2 = ( ( mdl_MT ) * ( mdl_MT ) );
     constexpr double mdl_MH__exp__6 = constexpr_pow( mdl_MH, 6. );
     constexpr double mdl_MWsm__exp__6 = constexpr_pow( mdl_MWsm, 6. );
     constexpr double mdl_MH__exp__4 = ( ( mdl_MH ) * ( mdl_MH ) * ( mdl_MH ) * ( mdl_MH ) );
@@ -410,7 +410,7 @@ namespace mg5amcCpu
     constexpr double mdl_MZ__exp__4 = ( ( mdl_MZ ) * ( mdl_MZ ) * ( mdl_MZ ) * ( mdl_MZ ) );
     constexpr double mdl_MZ__exp__6 = constexpr_pow( mdl_MZ, 6. );
     constexpr double mdl_cth__exp__2 = ( ( mdl_cth ) * ( mdl_cth ) );
-    constexpr double mdl_sth__exp__2 = ( ( mdl_sth ) * ( mdl_sth ) );
+    __device__ constexpr double mdl_sth__exp__2 = ( ( mdl_sth ) * ( mdl_sth ) );
     constexpr double mdl_MB__exp__2 = ( ( mdl_MB ) * ( mdl_MB ) );
     constexpr double mdl_MZ__exp__3 = ( ( mdl_MZ ) * ( mdl_MZ ) * ( mdl_MZ ) );
     constexpr double mdl_sth__exp__4 = ( ( mdl_sth ) * ( mdl_sth ) * ( mdl_sth ) * ( mdl_sth ) );
@@ -423,7 +423,7 @@ namespace mg5amcCpu
     constexpr double mdl_cth__exp__3 = ( ( mdl_cth ) * ( mdl_cth ) * ( mdl_cth ) );
     constexpr double mdl_aEW = ( mdl_Gf * mdl_MW__exp__2 * ( 1. - mdl_MW__exp__2 / mdl_MZ__exp__2 ) * mdl_sqrt__2 ) / M_PI;
     constexpr double mdl_sqrt__Gf = constexpr_sqrt( mdl_Gf );
-    constexpr double mdl_vevhat = 1. / ( mdl_nb__2__exp__0_25 * mdl_sqrt__Gf );
+    __device__ constexpr double mdl_vevhat = 1. / ( mdl_nb__2__exp__0_25 * mdl_sqrt__Gf );
     constexpr double mdl_lam = ( mdl_Gf * mdl_MH__exp__2 ) / mdl_sqrt__2;
     constexpr double mdl_sqrt__aEW = constexpr_sqrt( mdl_aEW );
     constexpr double mdl_ee = 2. * mdl_sqrt__aEW * constexpr_sqrt( M_PI );
@@ -436,29 +436,29 @@ namespace mg5amcCpu
     constexpr double mdl_yt = ( mdl_ymt * mdl_sqrt__2 ) / mdl_vevhat;
     constexpr double mdl_ytau = ( mdl_ymtau * mdl_sqrt__2 ) / mdl_vevhat;
     constexpr double mdl_yup = ( mdl_ymup * mdl_sqrt__2 ) / mdl_vevhat;
-    constexpr double mdl_vevhat__exp__2 = ( ( mdl_vevhat ) * ( mdl_vevhat ) );
-    constexpr double mdl_dGf = ( ( 2. * mdl_cHl3 - mdl_cll1 ) * mdl_vevhat__exp__2 ) / mdl_LambdaSMEFT__exp__2;
-    constexpr double mdl_dkH = ( ( mdl_cHbox - mdl_cHDD / 4. ) * mdl_vevhat__exp__2 ) / mdl_LambdaSMEFT__exp__2;
+    __device__ constexpr double mdl_vevhat__exp__2 = ( ( mdl_vevhat ) * ( mdl_vevhat ) );
+    __device__ constexpr double mdl_dGf = ( ( 2. * mdl_cHl3 - mdl_cll1 ) * mdl_vevhat__exp__2 ) / mdl_LambdaSMEFT__exp__2;
+    __device__ constexpr double mdl_dkH = ( ( mdl_cHbox - mdl_cHDD / 4. ) * mdl_vevhat__exp__2 ) / mdl_LambdaSMEFT__exp__2;
     constexpr double mdl_vevT = ( 1. + mdl_dGf / 2. ) * mdl_vevhat;
     constexpr double mdl_g1 = mdl_ee / mdl_cth;
     constexpr double mdl_gw = mdl_ee / mdl_sth;
     constexpr cxsmpl<double> mdl_yb0 = ( 1. - mdl_dGf / 2. ) * mdl_yb + ( mdl_vevhat__exp__2 * mdl_conjg__cbH ) / ( 2. * mdl_LambdaSMEFT__exp__2 );
     constexpr cxsmpl<double> mdl_yt0 = ( 1. - mdl_dGf / 2. ) * mdl_yt + ( mdl_vevhat__exp__2 * mdl_conjg__ctHH ) / ( 2. * mdl_LambdaSMEFT__exp__2 );
     constexpr double mdl_ee__exp__2 = ( ( mdl_ee ) * ( mdl_ee ) );
-    constexpr double mdl_gHaa = ( mdl_ee__exp__2 * ( -1.75 + ( 4. * ( 0.3333333333333333 + ( 7. * mdl_MH__exp__2 ) / ( 360. * mdl_MT__exp__2 ) ) ) / 3. - ( 29. * mdl_MH__exp__6 ) / ( 16800. * mdl_MWsm__exp__6 ) - ( 19. * mdl_MH__exp__4 ) / ( 1680. * mdl_MWsm__exp__4 ) - ( 11. * mdl_MH__exp__2 ) / ( 120. * mdl_MWsm__exp__2 ) ) ) / ( 8. * ( ( M_PI ) * ( M_PI ) ) );
-    constexpr double mdl_gHza = ( mdl_ee__exp__2 * ( ( ( 0.4583333333333333 + ( 29. * mdl_MH__exp__6 ) / ( 100800. * mdl_MWsm__exp__6 ) + ( 19. * mdl_MH__exp__4 ) / ( 10080. * mdl_MWsm__exp__4 ) + ( 11. * mdl_MH__exp__2 ) / ( 720. * mdl_MWsm__exp__2 ) + ( mdl_MH__exp__4 * mdl_MZ__exp__2 ) / ( 2100. * mdl_MWsm__exp__6 ) + ( mdl_MH__exp__2 * mdl_MZ__exp__2 ) / ( 280. * mdl_MWsm__exp__4 ) + ( 7. * mdl_MZ__exp__2 ) / ( 180. * mdl_MWsm__exp__2 ) + ( 67. * mdl_MH__exp__2 * mdl_MZ__exp__4 ) / ( 100800. * mdl_MWsm__exp__6 ) + ( 53. * mdl_MZ__exp__4 ) / ( 10080. * mdl_MWsm__exp__4 ) + ( 43. * mdl_MZ__exp__6 ) / ( 50400. * mdl_MWsm__exp__6 ) - ( 31. * mdl_cth__exp__2 ) / ( 24. * mdl_sth__exp__2 ) - ( 29. * mdl_cth__exp__2 * mdl_MH__exp__6 ) / ( 20160. * mdl_MWsm__exp__6 * mdl_sth__exp__2 ) - ( 19. * mdl_cth__exp__2 * mdl_MH__exp__4 ) / ( 2016. * mdl_MWsm__exp__4 * mdl_sth__exp__2 ) - ( 11. * mdl_cth__exp__2 * mdl_MH__exp__2 ) / ( 144. * mdl_MWsm__exp__2 * mdl_sth__exp__2 ) - ( mdl_cth__exp__2 * mdl_MH__exp__4 * mdl_MZ__exp__2 ) / ( 560. * mdl_MWsm__exp__6 * mdl_sth__exp__2 ) - ( 31. * mdl_cth__exp__2 * mdl_MH__exp__2 * mdl_MZ__exp__2 ) / ( 2520. * mdl_MWsm__exp__4 * mdl_sth__exp__2 ) - ( mdl_cth__exp__2 * mdl_MZ__exp__2 ) / ( 9. * mdl_MWsm__exp__2 * mdl_sth__exp__2 ) - ( 43. * mdl_cth__exp__2 * mdl_MH__exp__2 * mdl_MZ__exp__4 ) / ( 20160. * mdl_MWsm__exp__6 * mdl_sth__exp__2 ) - ( 17. * mdl_cth__exp__2 * mdl_MZ__exp__4 ) / ( 1120. * mdl_MWsm__exp__4 * mdl_sth__exp__2 ) - ( 5. * mdl_cth__exp__2 * mdl_MZ__exp__6 ) / ( 2016. * mdl_MWsm__exp__6 * mdl_sth__exp__2 ) ) * mdl_sth ) / mdl_cth + ( ( 0.3333333333333333 + ( 7. * mdl_MH__exp__2 ) / ( 360. * mdl_MT__exp__2 ) + ( 11. * mdl_MZ__exp__2 ) / ( 360. * mdl_MT__exp__2 ) ) * ( 0.5 - ( 4. * mdl_sth__exp__2 ) / 3. ) ) / ( mdl_cth * mdl_sth ) ) ) / ( 4. * ( ( M_PI ) * ( M_PI ) ) );
+    __device__ constexpr double mdl_gHaa = ( mdl_ee__exp__2 * ( -1.75 + ( 4. * ( 0.3333333333333333 + ( 7. * mdl_MH__exp__2 ) / ( 360. * mdl_MT__exp__2 ) ) ) / 3. - ( 29. * mdl_MH__exp__6 ) / ( 16800. * mdl_MWsm__exp__6 ) - ( 19. * mdl_MH__exp__4 ) / ( 1680. * mdl_MWsm__exp__4 ) - ( 11. * mdl_MH__exp__2 ) / ( 120. * mdl_MWsm__exp__2 ) ) ) / ( 8. * ( ( M_PI ) * ( M_PI ) ) );
+    __device__ constexpr double mdl_gHza = ( mdl_ee__exp__2 * ( ( ( 0.4583333333333333 + ( 29. * mdl_MH__exp__6 ) / ( 100800. * mdl_MWsm__exp__6 ) + ( 19. * mdl_MH__exp__4 ) / ( 10080. * mdl_MWsm__exp__4 ) + ( 11. * mdl_MH__exp__2 ) / ( 720. * mdl_MWsm__exp__2 ) + ( mdl_MH__exp__4 * mdl_MZ__exp__2 ) / ( 2100. * mdl_MWsm__exp__6 ) + ( mdl_MH__exp__2 * mdl_MZ__exp__2 ) / ( 280. * mdl_MWsm__exp__4 ) + ( 7. * mdl_MZ__exp__2 ) / ( 180. * mdl_MWsm__exp__2 ) + ( 67. * mdl_MH__exp__2 * mdl_MZ__exp__4 ) / ( 100800. * mdl_MWsm__exp__6 ) + ( 53. * mdl_MZ__exp__4 ) / ( 10080. * mdl_MWsm__exp__4 ) + ( 43. * mdl_MZ__exp__6 ) / ( 50400. * mdl_MWsm__exp__6 ) - ( 31. * mdl_cth__exp__2 ) / ( 24. * mdl_sth__exp__2 ) - ( 29. * mdl_cth__exp__2 * mdl_MH__exp__6 ) / ( 20160. * mdl_MWsm__exp__6 * mdl_sth__exp__2 ) - ( 19. * mdl_cth__exp__2 * mdl_MH__exp__4 ) / ( 2016. * mdl_MWsm__exp__4 * mdl_sth__exp__2 ) - ( 11. * mdl_cth__exp__2 * mdl_MH__exp__2 ) / ( 144. * mdl_MWsm__exp__2 * mdl_sth__exp__2 ) - ( mdl_cth__exp__2 * mdl_MH__exp__4 * mdl_MZ__exp__2 ) / ( 560. * mdl_MWsm__exp__6 * mdl_sth__exp__2 ) - ( 31. * mdl_cth__exp__2 * mdl_MH__exp__2 * mdl_MZ__exp__2 ) / ( 2520. * mdl_MWsm__exp__4 * mdl_sth__exp__2 ) - ( mdl_cth__exp__2 * mdl_MZ__exp__2 ) / ( 9. * mdl_MWsm__exp__2 * mdl_sth__exp__2 ) - ( 43. * mdl_cth__exp__2 * mdl_MH__exp__2 * mdl_MZ__exp__4 ) / ( 20160. * mdl_MWsm__exp__6 * mdl_sth__exp__2 ) - ( 17. * mdl_cth__exp__2 * mdl_MZ__exp__4 ) / ( 1120. * mdl_MWsm__exp__4 * mdl_sth__exp__2 ) - ( 5. * mdl_cth__exp__2 * mdl_MZ__exp__6 ) / ( 2016. * mdl_MWsm__exp__6 * mdl_sth__exp__2 ) ) * mdl_sth ) / mdl_cth + ( ( 0.3333333333333333 + ( 7. * mdl_MH__exp__2 ) / ( 360. * mdl_MT__exp__2 ) + ( 11. * mdl_MZ__exp__2 ) / ( 360. * mdl_MT__exp__2 ) ) * ( 0.5 - ( 4. * mdl_sth__exp__2 ) / 3. ) ) / ( mdl_cth * mdl_sth ) ) ) / ( 4. * ( ( M_PI ) * ( M_PI ) ) );
     constexpr double mdl_dMZ2 = ( ( mdl_cHDD / 2. + 2. * mdl_cHWB * mdl_cth * mdl_sth ) * mdl_vevhat__exp__2 ) / mdl_LambdaSMEFT__exp__2;
     constexpr double mdl_dMH2 = 2. * mdl_dkH - ( 3. * mdl_cH * mdl_vevhat__exp__2 ) / ( 2. * mdl_lam * mdl_LambdaSMEFT__exp__2 );
-    constexpr double mdl_dgw = -mdl_dGf / 2.;
+    __device__ constexpr double mdl_dgw = -mdl_dGf / 2.;
     constexpr double mdl_barlam = ( 1. - mdl_dGf - mdl_dMH2 ) * mdl_lam;
     constexpr double mdl_dWT = 2. * mdl_WT * ( mdl_dgw + ( mdl_vevhat * ( mdl_ee * ( 3. * mdl_cHtbRe * mdl_MB * mdl_MT * mdl_MWsm__exp__2 + mdl_cHQ3 * ( ( ( mdl_MB__exp__2 - mdl_MT__exp__2 ) * ( mdl_MB__exp__2 - mdl_MT__exp__2 ) ) + ( mdl_MB__exp__2 + mdl_MT__exp__2 ) * mdl_MWsm__exp__2 - 2. * mdl_MWsm__exp__4 ) ) * mdl_vevhat + 6. * mdl_MWsm__exp__2 * ( mdl_ctWRe * mdl_MT * ( mdl_MB__exp__2 - mdl_MT__exp__2 + mdl_MWsm__exp__2 ) + mdl_cbWRe * mdl_MB * ( -mdl_MB__exp__2 + mdl_MT__exp__2 + mdl_MWsm__exp__2 ) ) * mdl_sth * mdl_sqrt__2 ) ) / ( mdl_ee * mdl_LambdaSMEFT__exp__2 * ( ( ( mdl_MB__exp__2 - mdl_MT__exp__2 ) * ( mdl_MB__exp__2 - mdl_MT__exp__2 ) ) + ( mdl_MB__exp__2 + mdl_MT__exp__2 ) * mdl_MWsm__exp__2 - 2. * mdl_MWsm__exp__4 ) ) );
-    constexpr double mdl_dWW = ( 2. * mdl_dgw + ( 2. * ( 2. * mdl_cHj3 + mdl_cHl3 ) * mdl_vevhat__exp__2 ) / ( 3. * mdl_LambdaSMEFT__exp__2 ) ) * mdl_WW;
+    __device__ constexpr double mdl_dWW = ( 2. * mdl_dgw + ( 2. * ( 2. * mdl_cHj3 + mdl_cHl3 ) * mdl_vevhat__exp__2 ) / ( 3. * mdl_LambdaSMEFT__exp__2 ) ) * mdl_WW;
     constexpr double mdl_gwsh = ( mdl_ee * ( 1. + mdl_dgw - ( mdl_cHW * mdl_vevhat__exp__2 ) / mdl_LambdaSMEFT__exp__2 ) ) / mdl_sth;
-    constexpr double mdl_vev = ( 1. - ( 3. * mdl_cH * mdl_vevhat__exp__2 ) / ( 8. * mdl_lam * mdl_LambdaSMEFT__exp__2 ) ) * mdl_vevT;
+    __device__ constexpr double mdl_vev = ( 1. - ( 3. * mdl_cH * mdl_vevhat__exp__2 ) / ( 8. * mdl_lam * mdl_LambdaSMEFT__exp__2 ) ) * mdl_vevT;
     constexpr double mdl_dg1 = ( -mdl_dGf - mdl_dMZ2 / mdl_sth__exp__2 ) / 2.;
-    constexpr double mdl_dWHc = mdl_yc / ( mdl_yc + mdl_nb__10__exp___m_40 ) * ( -0.02884 * mdl_dGf + ( ( 0.05768 * mdl_cHbox - 0.01442 * mdl_cHDD - 0.05768 * mdl_cuHRe ) * mdl_vevhat__exp__2 ) / mdl_LambdaSMEFT__exp__2 );
-    constexpr double mdl_dWHb = mdl_yb / ( mdl_yb + mdl_nb__10__exp___m_40 ) * ( mdl_vevhat__exp__2 * ( -1.1618 * mdl_cbHRe ) / ( mdl_LambdaSMEFT__exp__2 * ( mdl_yb + mdl_nb__10__exp___m_40 ) ) - 0.5809 * mdl_dGf + ( mdl_vevhat__exp__2 * ( 1.1618 * mdl_cHbox - 0.29045 * mdl_cHDD ) ) / ( mdl_LambdaSMEFT__exp__2 ) );
-    constexpr double mdl_dWHta = mdl_ytau / ( mdl_ytau + mdl_nb__10__exp___m_40 ) * ( -0.06256 * mdl_dGf + mdl_vevhat__exp__2 * ( -0.12512 * mdl_ceHRe + 0.12512 * mdl_cHbox - 0.03128 * mdl_cHDD ) / ( mdl_LambdaSMEFT__exp__2 ) );
+    __device__ constexpr double mdl_dWHc = mdl_yc / ( mdl_yc + mdl_nb__10__exp___m_40 ) * ( -0.02884 * mdl_dGf + ( ( 0.05768 * mdl_cHbox - 0.01442 * mdl_cHDD - 0.05768 * mdl_cuHRe ) * mdl_vevhat__exp__2 ) / mdl_LambdaSMEFT__exp__2 );
+    __device__ constexpr double mdl_dWHb = mdl_yb / ( mdl_yb + mdl_nb__10__exp___m_40 ) * ( mdl_vevhat__exp__2 * ( -1.1618 * mdl_cbHRe ) / ( mdl_LambdaSMEFT__exp__2 * ( mdl_yb + mdl_nb__10__exp___m_40 ) ) - 0.5809 * mdl_dGf + ( mdl_vevhat__exp__2 * ( 1.1618 * mdl_cHbox - 0.29045 * mdl_cHDD ) ) / ( mdl_LambdaSMEFT__exp__2 ) );
+    __device__ constexpr double mdl_dWHta = mdl_ytau / ( mdl_ytau + mdl_nb__10__exp___m_40 ) * ( -0.06256 * mdl_dGf + mdl_vevhat__exp__2 * ( -0.12512 * mdl_ceHRe + 0.12512 * mdl_cHbox - 0.03128 * mdl_cHDD ) / ( mdl_LambdaSMEFT__exp__2 ) );
     constexpr double mdl_dWZ = mdl_WZ * ( -1. + ( 36. * mdl_cth * mdl_MB * mdl_MZ__exp__2 * mdl_sth * ( mdl_cbWRe * mdl_cth + mdl_cbBRe * mdl_sth ) * ( -3. + 4. * mdl_sth__exp__2 ) * mdl_vevhat * mdl_sqrt__2 * constexpr_sqrt( -4. * mdl_MB__exp__2 + mdl_MZ__exp__2 ) + mdl_ee * mdl_LambdaSMEFT__exp__2 * ( 2. * mdl_MZ__exp__3 * ( 27. + 54. * mdl_dgw - 54. * ( 1. + mdl_dg1 + mdl_dgw ) * mdl_sth__exp__2 + 76. * ( 1. + 4. * mdl_dg1 - 2. * mdl_dgw ) * mdl_sth__exp__4 + 152. * ( -mdl_dg1 + mdl_dgw ) * mdl_sth__exp__6 ) + mdl_MZ__exp__2 * ( 9. + 18. * mdl_dgw - 6. * ( 2. + mdl_dg1 + 3. * mdl_dgw ) * mdl_sth__exp__2 + 8. * ( 1. + 4. * mdl_dg1 - 2. * mdl_dgw ) * mdl_sth__exp__4 + 16. * ( -mdl_dg1 + mdl_dgw ) * mdl_sth__exp__6 ) * constexpr_sqrt( -4. * mdl_MB__exp__2 + mdl_MZ__exp__2 ) + mdl_MB__exp__2 * ( -9. - 18. * mdl_dgw - 6. * ( 4. + 11. * mdl_dg1 - 3. * mdl_dgw ) * mdl_sth__exp__2 + 16. * ( 1. + 4. * mdl_dg1 - 2. * mdl_dgw ) * mdl_sth__exp__4 + 32. * ( -mdl_dg1 + mdl_dgw ) * mdl_sth__exp__6 ) * constexpr_sqrt( -4. * mdl_MB__exp__2 + mdl_MZ__exp__2 ) ) + 2. * mdl_ee * mdl_vevhat__exp__2 * ( 36. * mdl_cHj3 * mdl_MZ__exp__3 + 18. * mdl_cHl3 * mdl_MZ__exp__3 + 9. * ( 3. * mdl_cHbq - mdl_cHQ1 - mdl_cHQ3 ) * mdl_MB__exp__2 * constexpr_sqrt( -4. * mdl_MB__exp__2 + mdl_MZ__exp__2 ) + 9. * mdl_cHQ1 * mdl_MZ__exp__2 * constexpr_sqrt( -4. * mdl_MB__exp__2 + mdl_MZ__exp__2 ) + 9. * mdl_cHQ3 * mdl_MZ__exp__2 * constexpr_sqrt( -4. * mdl_MB__exp__2 + mdl_MZ__exp__2 ) + 3. * mdl_cHWB * mdl_cth * ( -7. * mdl_MB__exp__2 + mdl_MZ__exp__2 ) * mdl_sth * constexpr_sqrt( -4. * mdl_MB__exp__2 + mdl_MZ__exp__2 ) + 8. * mdl_cHWB * mdl_cth * mdl_sth__exp__3 * ( 2. * mdl_MB__exp__2 * constexpr_sqrt( -4. * mdl_MB__exp__2 + mdl_MZ__exp__2 ) + mdl_MZ__exp__2 * ( 19. * mdl_MZ + constexpr_sqrt( -4. * mdl_MB__exp__2 + mdl_MZ__exp__2 ) ) ) - 8. * mdl_cHWB * mdl_cth * mdl_sth__exp__5 * ( 2. * mdl_MB__exp__2 * constexpr_sqrt( -4. * mdl_MB__exp__2 + mdl_MZ__exp__2 ) + mdl_MZ__exp__2 * ( 19. * mdl_MZ + constexpr_sqrt( -4. * mdl_MB__exp__2 + mdl_MZ__exp__2 ) ) ) - 6. * mdl_sth__exp__2 * ( 2. * ( mdl_cHbq + mdl_cHQ1 + mdl_cHQ3 ) * mdl_MB__exp__2 * constexpr_sqrt( -4. * mdl_MB__exp__2 + mdl_MZ__exp__2 ) + mdl_MZ__exp__2 * ( ( 2. * mdl_cHd + 3. * mdl_cHe - 2. * mdl_cHj1 + 3. * ( 2. * mdl_cHj3 + mdl_cHl1 + mdl_cHl3 ) - 4. * mdl_cHu ) * mdl_MZ + ( mdl_cHbq + mdl_cHQ1 + mdl_cHQ3 ) * constexpr_sqrt( -4. * mdl_MB__exp__2 + mdl_MZ__exp__2 ) ) ) ) ) / ( mdl_ee * mdl_LambdaSMEFT__exp__2 * ( 2. * mdl_MZ__exp__3 * ( 27. - 54. * mdl_sth__exp__2 + 76. * mdl_sth__exp__4 ) + mdl_MZ__exp__2 * ( 9. - 12. * mdl_sth__exp__2 + 8. * mdl_sth__exp__4 ) * constexpr_sqrt( -4. * mdl_MB__exp__2 + mdl_MZ__exp__2 ) + mdl_MB__exp__2 * ( -9. - 24. * mdl_sth__exp__2 + 16. * mdl_sth__exp__4 ) * constexpr_sqrt( -4. * mdl_MB__exp__2 + mdl_MZ__exp__2 ) ) ) );
     constexpr double mdl_g1sh = ( mdl_ee * ( 1. + mdl_dg1 - ( mdl_cHB * mdl_vevhat__exp__2 ) / mdl_LambdaSMEFT__exp__2 ) ) / mdl_cth;
     constexpr double mdl_ee__exp__3 = ( ( mdl_ee ) * ( mdl_ee ) * ( mdl_ee ) );
@@ -497,8 +497,8 @@ namespace mg5amcCpu
     //void printDependentCouplings(); // now computed event-by-event (running alphas #373)
 
     // BSM parameters that do not depend on alphaS but are needed in the computation of alphaS-dependent couplings;
-    constexpr int nBsmIndepParam = 0;
-    //__device__ constexpr double mdl_bsmIndepParam[nBsmIndepParam];
+    constexpr int nBsmIndepParam = 29;
+    __device__ constexpr double mdl_bsmIndepParam[nBsmIndepParam] = { mdl_WH, mdl_LambdaSMEFT, mdl_cHl3, mdl_cHj3, mdl_cHWB, mdl_cHB, mdl_cHW, mdl_cHG, mdl_cH, mdl_MH, mdl_MT, mdl_MH__exp__2, mdl_cth, mdl_sth, mdl_LambdaSMEFT__exp__2, mdl_MT__exp__2, mdl_sth__exp__2, mdl_vevhat, mdl_vevhat__exp__2, mdl_dGf, mdl_dkH, mdl_gHaa, mdl_gHza, mdl_dgw, mdl_dWW, mdl_vev, mdl_dWHc, mdl_dWHb, mdl_dWHta };
   }
 
 } // end namespace mg5amcGpu/mg5amcCpu
@@ -539,15 +539,42 @@ namespace mg5amcCpu
 #ifdef MGONGPU_HARDCODE_PARAM
       using namespace Parameters_SMEFTsim_topU3l_MwScheme_UFO;
 #else
-      // No additional parameters needed in constant memory for this BSM model
-
+      const double mdl_WH = bsmIndepParamPtr[0];
+      const double mdl_LambdaSMEFT = bsmIndepParamPtr[1];
+      const double mdl_cHl3 = bsmIndepParamPtr[2];
+      const double mdl_cHj3 = bsmIndepParamPtr[3];
+      const double mdl_cHWB = bsmIndepParamPtr[4];
+      const double mdl_cHB = bsmIndepParamPtr[5];
+      const double mdl_cHW = bsmIndepParamPtr[6];
+      const double mdl_cHG = bsmIndepParamPtr[7];
+      const double mdl_cH = bsmIndepParamPtr[8];
+      const double mdl_MH = bsmIndepParamPtr[9];
+      const double mdl_MT = bsmIndepParamPtr[10];
+      const double mdl_MH__exp__2 = bsmIndepParamPtr[11];
+      const double mdl_cth = bsmIndepParamPtr[12];
+      const double mdl_sth = bsmIndepParamPtr[13];
+      const double mdl_LambdaSMEFT__exp__2 = bsmIndepParamPtr[14];
+      const double mdl_MT__exp__2 = bsmIndepParamPtr[15];
+      const double mdl_sth__exp__2 = bsmIndepParamPtr[16];
+      const double mdl_vevhat = bsmIndepParamPtr[17];
+      const double mdl_vevhat__exp__2 = bsmIndepParamPtr[18];
+      const double mdl_dGf = bsmIndepParamPtr[19];
+      const double mdl_dkH = bsmIndepParamPtr[20];
+      const double mdl_gHaa = bsmIndepParamPtr[21];
+      const double mdl_gHza = bsmIndepParamPtr[22];
+      const double mdl_dgw = bsmIndepParamPtr[23];
+      const double mdl_dWW = bsmIndepParamPtr[24];
+      const double mdl_vev = bsmIndepParamPtr[25];
+      const double mdl_dWHc = bsmIndepParamPtr[26];
+      const double mdl_dWHb = bsmIndepParamPtr[27];
+      const double mdl_dWHta = bsmIndepParamPtr[28];
 #endif
       // NB: hardcode cxtype cI(0,1) instead of cxtype (or hardcoded cxsmpl) mdl_complexi (which exists in Parameters_SMEFTsim_topU3l_MwScheme_UFO) because:
       // (1) mdl_complexi is always (0,1); (2) mdl_complexi is undefined in device code; (3) need cxsmpl conversion to cxtype in code below
       const cxtype cI( 0., 1. );
       DependentCouplings_sv out;
-      // Begin non-SM (e.g. EFT) implementation - special handling of vectors of floats (#439)
 #if not( defined MGONGPU_CPPSIMD && defined MGONGPU_FPTYPE_FLOAT )
+      // Couplings are (scalar, or vector of) doubles, or scalar floats - default implementation
       {
         const fptype_sv& G = G_sv;
         // Model parameters dependent on aS
@@ -567,9 +594,10 @@ namespace mg5amcCpu
         out.GC_8 = cI * mdl_G__exp__2;
       }
 #else
-      // ** NB #439: special handling is necessary ONLY FOR VECTORS OF FLOATS (variable Gs are vector floats, fixed parameters are scalar doubles)
+      // Couplings are VECTORS OF FLOATS: #439 special handling is needed (variable Gs are vector floats, fixed parameters are scalar doubles)
       // Use an explicit loop to avoid <<error: conversion of scalar ‘double’ to vector ‘fptype_sv’ {aka ‘__vector(8) float’} involves truncation>>
       // Problems may come e.g. in EFTs from multiplying a vector float (related to aS-dependent G) by a scalar double (aS-independent parameters)
+      // (NB in pure SM processes this special handling is not needed, but we keep it here for simplicity, see PR #824)
       fptype_v GC_7r_v;
       fptype_v GC_7i_v;
       fptype_v GC_6r_v;
@@ -605,7 +633,6 @@ namespace mg5amcCpu
       out.GC_6 = cxtype_v( GC_6r_v, GC_6i_v );
       out.GC_8 = cxtype_v( GC_8r_v, GC_8i_v );
 #endif
-      // End non-SM (e.g. EFT) implementation - special handling of vectors of floats (#439)
       return out;
     }
 #ifdef MGONGPUCPP_GPUIMPL

@@ -388,7 +388,35 @@ Parameters_SMEFTsim_topU3l_MwScheme_UFO::setIndependentParameters( SLHAReader& s
   mdl_ee__exp__3 = ( ( mdl_ee ) * ( mdl_ee ) * ( mdl_ee ) );
   mdl_vevhat__exp__3 = ( ( mdl_vevhat ) * ( mdl_vevhat ) * ( mdl_vevhat ) );
   // BSM parameters that do not depend on alphaS but are needed in the computation of alphaS-dependent couplings;
-  // (none)
+  mdl_bsmIndepParam[0] = mdl_WH;
+  mdl_bsmIndepParam[1] = mdl_LambdaSMEFT;
+  mdl_bsmIndepParam[2] = mdl_cHl3;
+  mdl_bsmIndepParam[3] = mdl_cHj3;
+  mdl_bsmIndepParam[4] = mdl_cHWB;
+  mdl_bsmIndepParam[5] = mdl_cHB;
+  mdl_bsmIndepParam[6] = mdl_cHW;
+  mdl_bsmIndepParam[7] = mdl_cHG;
+  mdl_bsmIndepParam[8] = mdl_cH;
+  mdl_bsmIndepParam[9] = mdl_MH;
+  mdl_bsmIndepParam[10] = mdl_MT;
+  mdl_bsmIndepParam[11] = mdl_MH__exp__2;
+  mdl_bsmIndepParam[12] = mdl_cth;
+  mdl_bsmIndepParam[13] = mdl_sth;
+  mdl_bsmIndepParam[14] = mdl_LambdaSMEFT__exp__2;
+  mdl_bsmIndepParam[15] = mdl_MT__exp__2;
+  mdl_bsmIndepParam[16] = mdl_sth__exp__2;
+  mdl_bsmIndepParam[17] = mdl_vevhat;
+  mdl_bsmIndepParam[18] = mdl_vevhat__exp__2;
+  mdl_bsmIndepParam[19] = mdl_dGf;
+  mdl_bsmIndepParam[20] = mdl_dkH;
+  mdl_bsmIndepParam[21] = mdl_gHaa;
+  mdl_bsmIndepParam[22] = mdl_gHza;
+  mdl_bsmIndepParam[23] = mdl_dgw;
+  mdl_bsmIndepParam[24] = mdl_dWW;
+  mdl_bsmIndepParam[25] = mdl_vev;
+  mdl_bsmIndepParam[26] = mdl_dWHc;
+  mdl_bsmIndepParam[27] = mdl_dWHb;
+  mdl_bsmIndepParam[28] = mdl_dWHta;
 }
 
 void
