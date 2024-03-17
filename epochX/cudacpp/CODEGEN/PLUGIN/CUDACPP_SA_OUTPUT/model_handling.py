@@ -952,11 +952,11 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             replace_dict['eftwarn0'] = ''
             replace_dict['eftwarn1'] = ''
         if len( bsmparam_indep_real_used ) + len( bsmparam_indep_complex_used ) == 0:
-            replace_dict['eftspecial0'] = '      // No special handling of non-hardcoded parameters (no additional BSM parameters needed in constant memory)'
+            replace_dict['eftspecial0'] = '\n      // No special handling of non-hardcoded parameters (no additional BSM parameters needed in constant memory)'
         else:
             replace_dict['eftspecial0'] = ''
-            for ipar, par in enumerate( bsmparam_indep_real_used ) : replace_dict['eftspecial0'] += '      const double %s = bsmIndepParamPtr[%i];\n' % ( par, ipar )
-            for ipar, par in enumerate( bsmparam_indep_complex_used ) : replace_dict['eftspecial0'] += '      const cxsmpl<double> %s = cxsmpl<double>( bsmIndepParamPtr[%i], bsmIndepParamPtr[%i] );\n' % ( par, 2*ipar, 2*ipar+1 )
+            for ipar, par in enumerate( bsmparam_indep_real_used ) : replace_dict['eftspecial0'] += '\n      const double %s = bsmIndepParamPtr[%i];' % ( par, ipar )
+            for ipar, par in enumerate( bsmparam_indep_complex_used ) : replace_dict['eftspecial0'] += '\n      const cxsmpl<double> %s = cxsmpl<double>( bsmIndepParamPtr[%i], bsmIndepParamPtr[%i] );' % ( par, 2*ipar, 2*ipar+1 )
         file_h = self.read_template_file(self.param_template_h) % replace_dict
         file_cc = self.read_template_file(self.param_template_cc) % replace_dict
         return file_h, file_cc

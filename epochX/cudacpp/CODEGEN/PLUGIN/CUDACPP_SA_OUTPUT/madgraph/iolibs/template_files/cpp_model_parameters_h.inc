@@ -165,8 +165,7 @@ namespace mg5amcCpu
     {
 #ifdef MGONGPU_HARDCODE_PARAM
       using namespace Parameters_%(model_name)s;
-#else
-%(eftspecial0)s
+#else%(eftspecial0)s
 #endif
       // NB: hardcode cxtype cI(0,1) instead of cxtype (or hardcoded cxsmpl) mdl_complexi (which exists in Parameters_%(model_name)s) because:
       // (1) mdl_complexi is always (0,1); (2) mdl_complexi is undefined in device code; (3) need cxsmpl conversion to cxtype in code below
