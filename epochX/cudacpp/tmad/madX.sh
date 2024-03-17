@@ -147,6 +147,8 @@ fi
 function showdir()
 {
   if [ "${suff}" == ".mad/" ]; then
+    # FIXME? These checks should rather be 'if [ "${proc}" == "-ggtt" ]; then'?
+    # FIXME? More generally, this script now accepts several processes but is only able to handle one?
     if [ "${eemumu}" == "1" ]; then 
       dir=$topdir/epochX/${bckend}/ee_mumu${suff}SubProcesses/P1_epem_mupmum
     elif [ "${ggtt}" == "1" ]; then 
@@ -162,13 +164,15 @@ function showdir()
       ###dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_gux_ttxux # 2nd of two (test only one for now)
     elif [ "${gguu}" == "1" ]; then 
       dir=$topdir/epochX/${bckend}/gg_uu${suff}SubProcesses/P1_gg_uux
-    elif [ "${proc}" == "-susyggtt" ]; then 
+    elif [ "${susyggtt}" == "1" ]; then 
       dir=$topdir/epochX/${bckend}/susy_gg_tt${suff}/SubProcesses/P1_gg_ttx
-    elif [ "${proc}" == "-susyggt1t1" ]; then 
+    elif [ "${susyggt1t1}" == "1" ]; then 
       dir=$topdir/epochX/${bckend}/susy_gg_t1t1${suff}/SubProcesses/P1_gg_t1t1x
+    ###else
+    ###  echo "INTERNAL ERROR! Unknown process '${proc}'" > /dev/stderr; exit 1 # this should never happen
     fi
   else
-    echo "INTERNAL ERROR! tmad tests only make sense in .mad directories"; exit 1 # this should never happen (suff=.mad/ is hardcoded)
+    echo "INTERNAL ERROR! tmad tests only make sense in .mad directories" > /dev/stderr; exit 1 # this should never happen (suff=.mad/ is hardcoded)
   fi
   echo $dir
 }
