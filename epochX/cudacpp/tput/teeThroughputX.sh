@@ -9,7 +9,7 @@ cd $scrdir
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggh]> [-sa] [-noalpaka] [-flt|-fltonly|-mix|-mixonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly] [-makeclean] [-makej] [-nofpe] [-dlp <dyld_library_path>]"
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggh][-susyggtt][-susyggt1t1]> [-sa] [-noalpaka] [-flt|-fltonly|-mix|-mixonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly] [-makeclean] [-makej] [-nofpe] [-dlp <dyld_library_path>]"
   exit 1
 }
 
@@ -21,6 +21,8 @@ ggttgg=
 ggttggg=
 gqttq=
 heftggh=
+susyggtt=
+susyggt1t1=
 suffs="mad" # DEFAULT code base: madevent + cudacpp as 2nd exporter (logs_*_mad)
 alpaka=
 fptypes="d"
@@ -61,6 +63,12 @@ for arg in $*; do
   elif [ "$arg" == "-heftggh" ]; then
     if [ "$heftggh" == "" ]; then procs+=${procs:+ }${arg}; fi
     heftggh=$arg
+  elif [ "$arg" == "-susyggtt" ]; then
+    if [ "$susyggtt" == "" ]; then procs+=${procs:+ }${arg}; fi
+    susyggtt=$arg
+  elif [ "$arg" == "-susyggt1t1" ]; then
+    if [ "$susyggt1t1" == "" ]; then procs+=${procs:+ }${arg}; fi
+    susyggt1t1=$arg
   elif [ "$arg" == "-sa" ]; then
     suffs="sa" # standalone_cudacpp code base (logs_*_sa)
   elif [ "$arg" == "-noalpaka" ]; then
@@ -121,9 +129,9 @@ for arg in $*; do
 done
 
 # Check that heftggh does not run in .mad mode
-if [ "${heftggh}" != "" ] && [ "${suffs/mad}" != "${suffs}" ]; then
-  echo "ERROR! Invalid option -heftggh for .mad directories"; exit 1
-fi
+###if [ "${heftggh}" != "" ] && [ "${suffs/mad}" != "${suffs}" ]; then
+###  echo "ERROR! Invalid option -heftggh for .mad directories"; exit 1
+###fi
 
 # Workaround for MacOS SIP (SystemIntegrity Protection): set DYLD_LIBRARY_PATH In subprocesses
 if [ "${dlpset}" == "1" ]; then usage; fi
