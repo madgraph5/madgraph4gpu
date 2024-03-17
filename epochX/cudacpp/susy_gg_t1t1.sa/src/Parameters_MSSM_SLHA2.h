@@ -821,7 +821,6 @@ namespace mg5amcCpu
       const cxsmpl<double> mdl_I52x36 = cxsmpl<double>( bsmIndepParamPtr[6], bsmIndepParamPtr[7] );
       const cxsmpl<double> mdl_I74x33 = cxsmpl<double>( bsmIndepParamPtr[8], bsmIndepParamPtr[9] );
       const cxsmpl<double> mdl_I75x33 = cxsmpl<double>( bsmIndepParamPtr[10], bsmIndepParamPtr[11] );
-
 #endif
       // NB: hardcode cxtype cI(0,1) instead of cxtype (or hardcoded cxsmpl) mdl_complexi (which exists in Parameters_MSSM_SLHA2) because:
       // (1) mdl_complexi is always (0,1); (2) mdl_complexi is undefined in device code; (3) need cxsmpl conversion to cxtype in code below
