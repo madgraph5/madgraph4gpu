@@ -389,16 +389,16 @@ function runmadevent()
   echo " [XSECTION] ChannelId = ${chid}"
   xsec=$(cat ${tmp} | grep --binary-files=text 'Cross sec =' | awk '{print 0+$NF}')
   xsec2=$(cat ${tmp} | grep --binary-files=text 'Actual xsec' | awk '{print $NF}')
-  if [ "${fbm}" != "" ]; then
+  if [ "${xsec}" == "" ]; then
+    echo -e " [XSECTION] ERROR! No cross section in log file:\n   $tmp\n   ..."
+    tail -10 $tmp
+    exit 1
+  elif [ "${fbm}" != "" ]; then
     echo " [XSECTION] Cross section = ${xsec} [${xsec2}] fbridge_mode=${fbm}"
   elif [ "${xsec2}" != "" ]; then
     echo " [XSECTION] Cross section = ${xsec} [${xsec2}]"
   elif [ "${xsec}" != "" ]; then
     echo " [XSECTION] Cross section = ${xsec}"
-  else
-    echo -e " [XSECTION] ERROR! No cross section in log file:\n   $tmp\n   ..."
-    tail -10 $tmp
-    exit 1
   fi
   evtf=$(cat ${tmp} | grep --binary-files=text 'events.' | grep 'Found' | awk '{print $2}')
   evtw=$(cat ${tmp} | grep --binary-files=text 'events.' | grep 'Wrote' | awk '{print $2}')
