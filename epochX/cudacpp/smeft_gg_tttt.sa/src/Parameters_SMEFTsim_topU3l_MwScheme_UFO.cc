@@ -310,7 +310,7 @@ Parameters_SMEFTsim_topU3l_MwScheme_UFO::setIndependentParameters( SLHAReader& s
   mdl_MH__exp__2 = ( ( mdl_MH ) * ( mdl_MH ) );
   mdl_sth2 = 1. - mdl_MW__exp__2 / mdl_MZ__exp__2;
   mdl_nb__10__exp___m_40 = pow( 10., -40. );
-  mdl_propCorr = ABS( mdl_linearPropCorrections ) / ( ABS( mdl_linearPropCorrections ) + mdl_nb__10__exp___m_40 );
+  mdl_propCorr = std::abs( mdl_linearPropCorrections ) / ( std::abs( mdl_linearPropCorrections ) + mdl_nb__10__exp___m_40 );
   mdl_MZ1 = mdl_MZ;
   mdl_MH1 = mdl_MH;
   mdl_MT1 = mdl_MT;

@@ -386,7 +386,7 @@ namespace mg5amcCpu
     __device__ constexpr double mdl_MH__exp__2 = ( ( mdl_MH ) * ( mdl_MH ) );
     constexpr double mdl_sth2 = 1. - mdl_MW__exp__2 / mdl_MZ__exp__2;
     constexpr double mdl_nb__10__exp___m_40 = constexpr_pow( 10., -40. );
-    constexpr double mdl_propCorr = ABS( mdl_linearPropCorrections ) / ( ABS( mdl_linearPropCorrections ) + mdl_nb__10__exp___m_40 );
+    constexpr double mdl_propCorr = std::abs( mdl_linearPropCorrections ) / ( std::abs( mdl_linearPropCorrections ) + mdl_nb__10__exp___m_40 );
     constexpr double mdl_MZ1 = mdl_MZ;
     constexpr double mdl_MH1 = mdl_MH;
     constexpr double mdl_MT1 = mdl_MT;
