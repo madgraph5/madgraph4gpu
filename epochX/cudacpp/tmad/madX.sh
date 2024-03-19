@@ -415,6 +415,7 @@ function runmadevent()
   cat ${tmp} | grep --binary-files=text COUNTERS
   set -e # fail on error
   xsecnew=${xsec2}
+  ###echo "Extracted results from $tmp"
 }
 
 ##########################################################################
