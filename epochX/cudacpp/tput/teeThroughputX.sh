@@ -9,7 +9,7 @@ cd $scrdir
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggh][-susyggtt][-susyggt1t1]> [-sa] [-noalpaka] [-flt|-fltonly|-mix|-mixonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly] [-makeclean] [-makej] [-nofpe] [-dlp <dyld_library_path>]"
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggh][-susyggtt][-susyggt1t1][-smeftggtttt]> [-sa] [-noalpaka] [-flt|-fltonly|-mix|-mixonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly] [-makeclean] [-makej] [-nofpe] [-dlp <dyld_library_path>]"
   exit 1
 }
 
@@ -23,6 +23,7 @@ gqttq=
 heftggh=
 susyggtt=
 susyggt1t1=
+smeftggtttt=
 suffs="mad" # DEFAULT code base: madevent + cudacpp as 2nd exporter (logs_*_mad)
 alpaka=
 fptypes="d"
@@ -69,6 +70,9 @@ for arg in $*; do
   elif [ "$arg" == "-susyggt1t1" ]; then
     if [ "$susyggt1t1" == "" ]; then procs+=${procs:+ }${arg}; fi
     susyggt1t1=$arg
+  elif [ "$arg" == "-smeftggtttt" ]; then
+    if [ "$smeftggtttt" == "" ]; then procs+=${procs:+ }${arg}; fi
+    smeftggtttt=$arg
   elif [ "$arg" == "-sa" ]; then
     suffs="sa" # standalone_cudacpp code base (logs_*_sa)
   elif [ "$arg" == "-noalpaka" ]; then
