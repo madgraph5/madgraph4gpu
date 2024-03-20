@@ -781,9 +781,9 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         res = res.replace(' ;',';')
         res = res.replace('= - ','= -') # post-fix for susy
         res = res.replace('(  - ','( -') # post-fix for susy
-        res = res.replace('e+','e + ') # post-fix for smeft
-        res = res.replace('e-','e - ') # post-fix for smeft
-        res = res.replace(',  - ',', -') # post-fix for smeft
+        ###res = res.replace('e+','e + ') # post-fix for smeft - FIXME #633
+        ###res = res.replace('e-','e - ') # post-fix for smeft - FIXME #633
+        ###res = res.replace(',  - ',', -') # post-fix for smeft - FIXME #633
         ###print(res); assert(False)
         ###misc.sprint( "'"+res+"'" )
         return res
