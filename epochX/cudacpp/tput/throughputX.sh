@@ -667,11 +667,11 @@ for exe in $exes; do
     exeArgs="-p 1 8 1"
     ncuArgs="-p 1 8 1"
   elif [ "${exe%%/smeft_gg_tttt*}" != "${exe}" ]; then 
-    # For smeftggtttt, use the same settings as for ggttg
-    exeArgs="-p 64 256 10"
-    ncuArgs="-p 64 256 1"
-    # For smeftggtttt, use the same settings as for ggttg
-    exeArgs2="-p 2048 256 1"
+    # For smeftggtttt, use the same settings as for ggttggg (may be far too short!)
+    exeArgs="-p 1 256 2"
+    ncuArgs="-p 1 256 1"
+    # For smeftggtttt, use the same settings as for ggttggg (may be far too short!)
+    exeArgs2="-p 64 256 1"
   elif [ "${exe%%/susy_gg_tt*}" != "${exe}" ]; then 
     # For susyggtt, use the same settings as for SM ggtt
     exeArgs="-p 2048 256 2"
