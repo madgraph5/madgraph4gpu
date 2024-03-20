@@ -925,10 +925,15 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
                 line = '    ' + self.write_hardcoded_parameters([pdep]).rstrip('\n')
                 ###misc.sprint(line)
                 if not foundG:
-                    # Comment out the default UFO assignment from aS of G and of the variables it depends on, but keep it for reference
+                    # Comment out the default UFO assignment of mdl_sqrt__aS (from aS) and of G (from mdl_sqrt__aS), but keep them for reference
+                    # (WARNING! This Python CODEGEN code essentially assumes that this refers precisely and only to mdl_sqrt__aS and G)
                     dcoupsetdpar.append( '    ' + line.replace('constexpr double', '//const fptype_sv') )
+                elif pdep.name == 'mdl_G__exp__3' : # bug fix: fptype (UFO treats this as complex)
+                    dcoupsetdpar.append( '    ' + line.replace('constexpr cxsmpl<double>', 'const fptype_sv') )
                 elif pdep.name in gparameters:
-                    # Skip the default UFO assignment from aS of other parameters derived from G, like G^2 and G^3
+                    # Skip the default UFO assignment from aS (if any?!) of aS and mdl_sqrt__aS, as these are now derived from G
+                    # (WARNING! no path to this statement! aS is not in params_dep, while mdl_sqrt__aS is handled in 'if not foundG' above)
+                    ###misc.sprint('Skip gparameter:', pdep.name)
                     continue
                 else:
                     for gpar in gparameters:
