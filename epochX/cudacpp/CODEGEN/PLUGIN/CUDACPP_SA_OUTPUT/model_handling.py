@@ -920,19 +920,24 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
                             'mdl_G__exp__2' : 'G * G',
                             'mdl_G__exp__3' : 'G * G * G' }
             gparamcoded = set()
+            foundG = False
             for pdep in self.params_dep:
                 ###misc.sprint(pdep.type, pdep.name) 
                 line = '    ' + self.write_hardcoded_parameters([pdep]).rstrip('\n')
                 ###misc.sprint(line)
-                if pdep.name == 'G' or pdep.name in gparameters:
-                    ###continue # skip the default UFO assignment completely
-                    dcoupsetdpar.append( '    ' + line.replace('constexpr double', '//const fptype_sv') ) # comment out the default UFO assignment
+                if not foundG:
+                    # Comment out the default UFO assignment from aS of G and of the variables it depends on, but keep it for reference
+                    dcoupsetdpar.append( '    ' + line.replace('constexpr double', '//const fptype_sv') )
+                elif pdep.name in gparameters:
+                    # Skip the default UFO assignment from aS of other parameters derived from G, like G^2 and G^3
+                    continue
                 else:
                     for gpar in gparameters:
                         if ' ' + gpar + ' ' in line and not gpar in gparamcoded:
                             gparamcoded.add(gpar)
                             dcoupsetdpar.append('        const fptype_sv ' + gpar + ' = ' + gparameters[gpar] + ';' )
                     dcoupsetdpar.append( '    ' + line.replace('constexpr double', 'const fptype_sv') )
+                if pdep.name == 'G': foundG = True
             replace_dict['dcoupsetdpar'] = '\n'.join( dcoupsetdpar )
             dcoupsetdcoup = [ '    ' + line.replace('constexpr cxsmpl<double> ','out.').replace('mdl_complexi', 'cI') for line in self.write_hardcoded_parameters(list(self.coups_dep.values())).split('\n') if line != '' ]
             replace_dict['dcoupsetdcoup'] = '    ' + '\n'.join( dcoupsetdcoup )
