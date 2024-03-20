@@ -51,7 +51,9 @@ namespace mg5amcCpu
     // NB(1): this iterative integer implementation of constexpr_pow requires exponent >= 0
     if ( requireExpGe0 ) assert( exp >= 0 ); // NB would fail at compile time with "error: call to non-‘constexpr’ function ‘void __assert_fail'"
     if ( exp < 0 ) return 1. / constexpr_pow( base, -exp, true );
-    // NB(2): this iterative integer implementation of constexpr_pow requires an integer exponent
+    // NB(2): this iterative integer implementation of constexpr_pow requires an integer exponent, excexpt for special cases (1/2, 1/4)
+    if ( exp == 0.5 ) return constexpr_sqrt( base );
+    if ( exp == 0.25 ) return constexpr_sqrt( constexpr_sqrt( base ) );
     const int iexp = constexpr_floor( exp );
     assert( static_cast<long double>( iexp ) == exp ); // NB would fail at compile time with "error: call to non-‘constexpr’ function ‘void __assert_fail'"
     // Iterative implementation of pow if exp is a non negative integer
