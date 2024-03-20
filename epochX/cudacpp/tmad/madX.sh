@@ -24,7 +24,7 @@ export CUDACPP_RUNTIME_VECSIZEUSED=${NLOOP}
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gguu][-gqttq][-susyggtt][-susyggt1t1]> [-d] [-fltonly|-mixonly] [-makeonly|-makeclean|-makecleanonly] [-rmrdat] [+10x] [-checkonly] [-nocleanup]" > /dev/stderr
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gguu][-gqttq][-susyggtt][-susyggt1t1][-smeftggtttt]> [-d] [-fltonly|-mixonly] [-makeonly|-makeclean|-makecleanonly] [-rmrdat] [+10x] [-checkonly] [-nocleanup]" > /dev/stderr
   echo "(NB: OMP_NUM_THREADS is taken as-is from the caller's environment)"
   exit 1
 }
@@ -44,6 +44,7 @@ gguu=0
 gqttq=0
 susyggtt=0
 susyggt1t1=0
+smeftggtttt=0
 
 fptype="d"
 
@@ -89,6 +90,9 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-susyggt1t1" ]; then
     susyggt1t1=1
     shift
+  elif [ "$1" == "-smeftggtttt" ]; then
+    smeftggtttt=1
+    shift
   elif [ "$1" == "-fltonly" ]; then
     if [ "${fptype}" != "d" ] && [ "${fptype}" != "$1" ]; then
       echo "ERROR! Options -fltonly and -mixonly are incompatible"; usage
@@ -126,7 +130,7 @@ done
 ###exit 1
 
 # Check that at least one process has been selected
-if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ] && [ "${gguu}" == "0" ] && [ "${gqttq}" == "0" ] && [ "${susyggtt}" == "0" ] && [ "${susyggt1t1}" == "0" ]; then usage; fi
+if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ] && [ "${gguu}" == "0" ] && [ "${gqttq}" == "0" ] && [ "${susyggtt}" == "0" ] && [ "${susyggt1t1}" == "0" ] && [ "${smeftggtttt}" == "0" ]; then usage; fi
 
 # Always test only the .mad/ directories (hardcoded)
 suffs=".mad/"
@@ -165,9 +169,11 @@ function showdir()
     elif [ "${gguu}" == "1" ]; then 
       dir=$topdir/epochX/${bckend}/gg_uu${suff}SubProcesses/P1_gg_uux
     elif [ "${susyggtt}" == "1" ]; then 
-      dir=$topdir/epochX/${bckend}/susy_gg_tt${suff}/SubProcesses/P1_gg_ttx
+      dir=$topdir/epochX/${bckend}/susy_gg_tt${suff}SubProcesses/P1_gg_ttx
     elif [ "${susyggt1t1}" == "1" ]; then 
-      dir=$topdir/epochX/${bckend}/susy_gg_t1t1${suff}/SubProcesses/P1_gg_t1t1x
+      dir=$topdir/epochX/${bckend}/susy_gg_t1t1${suff}SubProcesses/P1_gg_t1t1x
+    elif [ "${smeftggtttt}" == "1" ]; then 
+      dir=$topdir/epochX/${bckend}/smeft_gg_tttt${suff}SubProcesses/P1_gg_ttxttx
     ###else
     ###  echo "INTERNAL ERROR! Unknown process '${proc}'" > /dev/stderr; exit 1 # this should never happen
     fi
@@ -198,6 +204,8 @@ function getnevt()
     nevt=8192 # use the same settings as for SM ggtt
   elif [ "${susyggt1t1}" == "1" ]; then
     nevt=8192 # use the same settings as for SM ggtt
+  elif [ "${smeftggtttt}" == "1" ]; then
+    nevt=8192 # use the same settings as for SM ggttg
   else
     echo "ERROR! Unknown process" > /dev/stderr; usage
   fi
@@ -224,6 +232,8 @@ function getgridmax()
   elif [ "${susyggtt}" == "1" ]; then
     echo 16384 32 # same total grid dimension as 2048 256
   elif [ "${susyggt1t1}" == "1" ]; then
+    echo 16384 32 # same total grid dimension as 2048 256
+  elif [ "${smeftggtttt}" == "1" ]; then
     echo 16384 32 # same total grid dimension as 2048 256
   else
     echo "ERROR! Unknown process" > /dev/stderr; usage
@@ -254,6 +264,8 @@ function getinputfile()
     tmp=$tmpdir/input_susyggtt
   elif [ "${susyggt1t1}" == "1" ]; then 
     tmp=$tmpdir/input_susyggt1t1
+  elif [ "${smeftggtttt}" == "1" ]; then 
+    tmp=$tmpdir/input_smeftggtttt
   else
     echo "ERROR! cannot determine input file name"; exit 1
   fi

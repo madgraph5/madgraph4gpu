@@ -51,7 +51,7 @@ if [ "${bsm}" != "-bsmonly" ]; then
 fi
 
 if [ "${bsm}" != "-nobsm" ]; then
-  ${scrdir}/teeMadX.sh -susyggtt -susyggt1t1 $flts $makeclean $rmrdat $add10x
+  ${scrdir}/teeMadX.sh -susyggtt -susyggt1t1 -smeftggtttt $flts $makeclean $rmrdat $add10x
 fi
 
 # Print out the number of "OK!"s in each log (expect 24)
