@@ -46,10 +46,11 @@ namespace mg5amcCpu
   }
 
   // Constexpr implementation of pow
-  constexpr long double constexpr_pow( const long double base, const long double exp )
+  constexpr long double constexpr_pow( const long double base, const long double exp, const bool requireExpGe0=true )
   {
     // NB(1): this implementation of constexpr_pow requires exponent >= 0
-    assert( exp >= 0 ); // NB would fail at compile time with "error: call to non-‘constexpr’ function ‘void __assert_fail'"
+    if ( requireExpGe0 ) assert( exp >= 0 ); // NB would fail at compile time with "error: call to non-‘constexpr’ function ‘void __assert_fail'"
+    //if( exp < 0 ) return 1. / constexpr_pow( base, -exp, true );
     // NB(2): this implementation of constexpr_pow requires an integer exponent
     const int iexp = constexpr_floor( exp );
     assert( static_cast<long double>( iexp ) == exp ); // NB would fail at compile time with "error: call to non-‘constexpr’ function ‘void __assert_fail'"
