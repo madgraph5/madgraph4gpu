@@ -928,6 +928,8 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
                     # Comment out the default UFO assignment of mdl_sqrt__aS (from aS) and of G (from mdl_sqrt__aS), but keep them for reference
                     # (WARNING! This Python CODEGEN code essentially assumes that this refers precisely and only to mdl_sqrt__aS and G)
                     dcoupsetdpar.append( '    ' + line.replace('constexpr double', '//const fptype_sv') )
+                elif pdep.name == 'mdl_G__exp__2' : # bug fix: fptype (UFO treats this as complex)
+                    dcoupsetdpar.append( '    ' + line.replace('constexpr cxsmpl<double>', 'const fptype_sv') )
                 elif pdep.name == 'mdl_G__exp__3' : # bug fix: fptype (UFO treats this as complex)
                     dcoupsetdpar.append( '    ' + line.replace('constexpr cxsmpl<double>', 'const fptype_sv') )
                 elif pdep.name in gparameters:
