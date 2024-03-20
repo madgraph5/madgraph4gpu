@@ -58,7 +58,7 @@ done
 cd $scrdir/..
 started="STARTED  AT $(date)"
 
-# (36/90) Six logs (double/float/mixed x hrd0/hrd1 x inl0) in each of the six SM processes
+# (36/94) Six logs (double/float/mixed x hrd0/hrd1 x inl0) in each of the six SM processes
 \rm -rf gg_ttggg${suff}/lib/build.none_*
 cmd="./tput/teeThroughputX.sh -mix -hrd -makej -eemumu -ggtt -ggttg -ggttgg -gqttq $ggttggg -makeclean ${opts}"
 tmp1=$(mktemp)
@@ -70,7 +70,7 @@ else
 fi
 ended1="$cmd\nENDED(1) AT $(date) [Status=$status]"
 
-# (48/90) Four extra logs (double/float x hrd0/hrd1 x inl1) only in three of the six SM processes
+# (48/94) Four extra logs (double/float x hrd0/hrd1 x inl1) only in three of the six SM processes
 \rm -rf gg_ttg${suff}/lib/build.none_*
 \rm -rf gg_ttggg${suff}/lib/build.none_*
 cmd="./tput/teeThroughputX.sh -flt -hrd -makej -eemumu -ggtt -ggttgg -inlonly -makeclean ${opts}"
@@ -83,7 +83,7 @@ else
 fi
 ended2="$cmd\nENDED(2) AT $(date) [Status=$status]"
 
-# (60/90) Two extra logs (double/float x hrd0 x inl0 + bridge) in all six SM processes (rebuild from cache)
+# (60/94) Two extra logs (double/float x hrd0 x inl0 + bridge) in all six SM processes (rebuild from cache)
 cmd="./tput/teeThroughputX.sh -makej -eemumu -ggtt -ggttg -gqttq -ggttgg $ggttggg -flt -bridge -makeclean ${opts}"
 if [ "${bsm}" != "-bsmonly" ]; then
   $cmd; status=$?
@@ -92,7 +92,7 @@ else
 fi
 ended3="$cmd\nENDED(3) AT $(date) [Status=$status]"
 
-# (66/90) Two extra logs (double/float x hrd0 x inl0 + rmbhst) only in three of the six SM processes (no rebuild needed)
+# (66/94) Two extra logs (double/float x hrd0 x inl0 + rmbhst) only in three of the six SM processes (no rebuild needed)
 cmd="./tput/teeThroughputX.sh -eemumu -ggtt -ggttgg -flt -rmbhst ${opts}"
 if [ "${bsm}" != "-bsmonly" ]; then
   $cmd; status=$?
@@ -101,7 +101,7 @@ else
 fi
 ended4="$cmd\nENDED(4) AT $(date) [Status=$status]"
 
-# (72/90) Two extra logs (double/float x hrd0 x inl0 + rndhst) only in three of the six SM processes (no rebuild needed)
+# (72/94) Two extra logs (double/float x hrd0 x inl0 + rndhst) only in three of the six SM processes (no rebuild needed)
 cmd="./tput/teeThroughputX.sh -eemumu -ggtt -ggttgg -flt ${rndhst} ${opts}"
 if [ "${bsm}" != "-bsmonly" ] && [ "${rndhst}" != "-common" ]; then
   $cmd; status=$?
@@ -110,7 +110,7 @@ else
 fi
 ended5="$cmd\nENDED(5) AT $(date) [Status=$status]"
 
-# (78/90) Two extra logs (double/float x hrd0 x inl0 + common) only in three of the six SM processes (no rebuild needed)
+# (78/94) Two extra logs (double/float x hrd0 x inl0 + common) only in three of the six SM processes (no rebuild needed)
 cmd="./tput/teeThroughputX.sh -eemumu -ggtt -ggttgg -flt -common ${opts}"
 if [ "${bsm}" != "-bsmonly" ]; then
   $cmd; status=$?
@@ -119,12 +119,12 @@ else
 fi
 ended6="$cmd\nENDED(6) AT $(date) [Status=$status]"
 
-# (90/90) Four extra logs (double/float x hrd0/hrd1 x inl0) only in the three BSM processes
-cmd="./tput/teeThroughputX.sh -flt -hrd -makej -susyggtt -susyggt1t1 -heftggh -makeclean ${opts}"
+# (94/94) Four extra logs (double/float x hrd0/hrd1 x inl0) only in the four BSM processes
+cmd="./tput/teeThroughputX.sh -flt -hrd -makej -susyggtt -susyggt1t1 -smeftggtttt -heftggh -makeclean ${opts}"
 tmp3=$(mktemp)
 if [ "${bsm}" != "-nobsm" ]; then
   $cmd; status=$?
-  ls -ltr susy_gg_tt${suff}/lib/build.none_*_inl0_hrd* susy_gg_t1t1${suff}/lib/build.none_*_inl0_hrd* heft_gg_h${suff}/lib/build.none_*_inl0_hrd* | egrep -v '(total|\./|\.build|_common|^$)' > $tmp2
+  ls -ltr susy_gg_tt${suff}/lib/build.none_*_inl0_hrd* susy_gg_t1t1${suff}/lib/build.none_*_inl0_hrd* smeft_gg_tttt${suff}/lib/build.none_*_inl0_hrd* heft_gg_h${suff}/lib/build.none_*_inl0_hrd* | egrep -v '(total|\./|\.build|_common|^$)' > $tmp2
 else
   cmd="SKIP '$cmd'"; echo $cmd; status=$?
 fi
