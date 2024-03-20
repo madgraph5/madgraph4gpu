@@ -912,24 +912,27 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             dcoupdecl = [ '      cxtype_sv %s;' % name for name in self.coups_dep ]
             replace_dict['dcoupdecl'] = '\n'.join( dcoupdecl )
             dcoupsetdpar = []
-            ###foundG = False
-            ###misc.sprint(list([p.type, p.name] for p in self.params_dep))
-            ###misc.sprint(self.write_hardcoded_parameters(self.params_dep))
-            ###for line in self.write_hardcoded_parameters(self.params_dep).split('\n'):
-            ###    misc.sprint(line)
-            ###    if line != '':
-            ###        dcoupsetdpar.append( '    ' + line.replace('constexpr cxsmpl<double> mdl_G__exp__2','const fptype_sv mdl_G__exp__2').replace('constexpr double', 'const fptype_sv' if foundG else '//const fptype_sv' ) )
-            ###        if 'constexpr double G =' in line: foundG = True
-            specialpar = ( 'aS', 'mdl_sqrt__aS', 'mdl_G__exp__2', 'mdl_G__exp__3' )
-            writtenspar = {}
-            foundG = False
+            # Special handling of G and aS parameters (cudacpp starts from G, while UFO starts from aS)
+            # For simplicity, compute these parameters directly from G, rather than from another such parameter
+            # (e.g. do not compute mdl_sqrt__aS as sqrt of aS, which would require defining aS first)
+            gparameters = { 'aS' : 'G * G / 4. / M_PI',
+                            'mdl_sqrt__aS' : 'G / 2. / constexpr_sqrt( M_PI )',
+                            'mdl_G__exp__2' : 'G * G',
+                            'mdl_G__exp__3' : 'G * G * G' }
+            gparamcoded = set()
             for pdep in self.params_dep:
-                misc.sprint(pdep.type, pdep.name) 
+                ###misc.sprint(pdep.type, pdep.name) 
                 line = '    ' + self.write_hardcoded_parameters([pdep]).rstrip('\n')
-                misc.sprint(line)
-                if line != '':
-                    dcoupsetdpar.append( '    ' + line.replace('constexpr cxsmpl<double> mdl_G__exp__2','const fptype_sv mdl_G__exp__2').replace('constexpr double', 'const fptype_sv' if foundG else '//const fptype_sv' ) )
-                    if 'constexpr double G =' in line: foundG = True
+                ###misc.sprint(line)
+                if pdep.name == 'G' or pdep.name in gparameters:
+                    ###continue # skip the default UFO assignment completely
+                    dcoupsetdpar.append( '    ' + line.replace('constexpr double', '//const fptype_sv') ) # comment out the default UFO assignment
+                else:
+                    for gpar in gparameters:
+                        if ' ' + gpar + ' ' in line and not gpar in gparamcoded:
+                            gparamcoded.add(gpar)
+                            dcoupsetdpar.append('        const fptype_sv ' + gpar + ' = ' + gparameters[gpar] + ';' )
+                    dcoupsetdpar.append( '    ' + line.replace('constexpr double', 'const fptype_sv') )
             replace_dict['dcoupsetdpar'] = '\n'.join( dcoupsetdpar )
             dcoupsetdcoup = [ '    ' + line.replace('constexpr cxsmpl<double> ','out.').replace('mdl_complexi', 'cI') for line in self.write_hardcoded_parameters(list(self.coups_dep.values())).split('\n') if line != '' ]
             replace_dict['dcoupsetdcoup'] = '    ' + '\n'.join( dcoupsetdcoup )
