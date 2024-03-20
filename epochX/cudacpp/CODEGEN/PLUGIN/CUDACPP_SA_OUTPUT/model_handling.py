@@ -916,9 +916,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             # For simplicity, compute these parameters directly from G, rather than from another such parameter
             # (e.g. do not compute mdl_sqrt__aS as sqrt of aS, which would require defining aS first)
             gparameters = { 'aS' : 'G * G / 4. / M_PI',
-                            'mdl_sqrt__aS' : 'G / 2. / constexpr_sqrt( M_PI )',
-                            'mdl_G__exp__2' : 'G * G',
-                            'mdl_G__exp__3' : 'G * G * G' }
+                            'mdl_sqrt__aS' : 'G / 2. / constexpr_sqrt( M_PI )' }
             gparamcoded = set()
             foundG = False
             for pdep in self.params_dep:
