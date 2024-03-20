@@ -253,6 +253,7 @@ while [ "$1" != "" ]; do
     usage
   fi
 done
+###echo procs=$procs
 ###exit 1
 
 # Workaround for MacOS SIP (SystemIntegrity Protection): set DYLD_LIBRARY_PATH In subprocesses
@@ -331,13 +332,13 @@ function showdir()
       dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_gux_ttxux # only 1 out of 2 for now
     elif [ "${proc}" == "-heftggh" ]; then 
       ###echo "ERROR! Options -mad and -madonly are not supported with -heftggh"; exit 1
-      dir=$topdir/epochX/${bckend}/heft_gg_h${suff}/SubProcesses/P1_gg_h
+      dir=$topdir/epochX/${bckend}/heft_gg_h${suff}SubProcesses/P1_gg_h
     elif [ "${proc}" == "-susyggtt" ]; then 
-      dir=$topdir/epochX/${bckend}/susy_gg_tt${suff}/SubProcesses/P1_gg_ttx
+      dir=$topdir/epochX/${bckend}/susy_gg_tt${suff}SubProcesses/P1_gg_ttx
     elif [ "${proc}" == "-susyggt1t1" ]; then 
-      dir=$topdir/epochX/${bckend}/susy_gg_t1t1${suff}/SubProcesses/P1_gg_t1t1x
+      dir=$topdir/epochX/${bckend}/susy_gg_t1t1${suff}SubProcesses/P1_gg_t1t1x
     elif [ "${proc}" == "-smeftggtttt" ]; then 
-      dir=$topdir/epochX/${bckend}/smeft_gg_tttt${suff}/SubProcesses/P1_gg_t1t1xt1t1x
+      dir=$topdir/epochX/${bckend}/smeft_gg_tttt${suff}SubProcesses/P1_gg_ttxttx
     fi
   else
     if [ "${proc}" == "-eemumu" ]; then 
@@ -354,13 +355,13 @@ function showdir()
       ###dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_Sigma_sm_gu_ttxu
       dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_Sigma_sm_gux_ttxux # only 1 out of 2 for now
     elif [ "${proc}" == "-heftggh" ]; then 
-      dir=$topdir/epochX/${bckend}/heft_gg_h${suff}/SubProcesses/P1_Sigma_heft_gg_h
+      dir=$topdir/epochX/${bckend}/heft_gg_h${suff}SubProcesses/P1_Sigma_heft_gg_h
     elif [ "${proc}" == "-susyggtt" ]; then 
-      dir=$topdir/epochX/${bckend}/susy_gg_tt${suff}/SubProcesses/P1_Sigma_MSSM_SLHA2_gg_ttx
+      dir=$topdir/epochX/${bckend}/susy_gg_tt${suff}SubProcesses/P1_Sigma_MSSM_SLHA2_gg_ttx
     elif [ "${proc}" == "-susyggt1t1" ]; then 
-      dir=$topdir/epochX/${bckend}/susy_gg_t1t1${suff}/SubProcesses/P1_Sigma_MSSM_SLHA2_gg_t1t1x
+      dir=$topdir/epochX/${bckend}/susy_gg_t1t1${suff}SubProcesses/P1_Sigma_MSSM_SLHA2_gg_t1t1x
     elif [ "${proc}" == "-smeftggtttt" ]; then 
-      dir=$topdir/epochX/${bckend}/smeft_gg_tttt${suff}/SubProcesses/P1_Sigma_SMEFTsim_topU3l_MwScheme_UFO_gg_ttxttx
+      dir=$topdir/epochX/${bckend}/smeft_gg_tttt${suff}SubProcesses/P1_Sigma_SMEFTsim_topU3l_MwScheme_UFO_gg_ttxttx
     fi
   fi
   echo $dir
@@ -380,9 +381,9 @@ for proc in $procs; do
   done
 done
 if [ "$dirs" == "" ]; then echo "ERROR! no valid directories found?"; exit 1; fi  
+###echo dirs=$dirs
 
 exes=
-
 for dir in $dirs; do
   
   #=====================================
@@ -424,6 +425,7 @@ for dir in $dirs; do
   fi
 
 done
+###echo exes=$exes
 
 ##########################################################################
 # PART 2 - build the executables which should be run
@@ -441,6 +443,7 @@ else
   # Iterate over all directories (the first one will build googletest)
   gtestlibs=0
   for dir in $dirs; do
+    ###echo "Building in $dir" # FIXME: add a check that this $dir exists
     export USEBUILDDIR=1
     pushd $dir >& /dev/null
     echo "Building in $(pwd)"
