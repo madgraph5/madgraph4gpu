@@ -116,21 +116,21 @@ namespace mg5amcCpu
     // Model parameters independent of aS
     constexpr double zero = 0;
     constexpr double ZERO = 0;
-    constexpr double mdl_WH = 6.382339e - 03;
-    constexpr double mdl_WW = 2.047600e + 00;
-    constexpr double mdl_WZ = 2.441404e + 00;
-    constexpr double mdl_WT = 1.491500e + 00;
-    constexpr double mdl_ymtau = 1.777000e + 00;
-    constexpr double mdl_ymt = 1.730000e + 02;
-    constexpr double mdl_ymb = 4.700000e + 00;
-    //constexpr double aS = 1.180000e - 01; // now retrieved event-by-event (as G) from Fortran (running alphas #373)
-    constexpr double mdl_Gf = 1.166390e - 05;
-    constexpr double aEWM1 = 1.325070e + 02;
-    constexpr double mdl_MH = 1.250000e + 02;
-    constexpr double mdl_MZ = 9.118800e + 01;
-    constexpr double mdl_MTA = 1.777000e + 00;
-    constexpr double mdl_MT = 1.730000e + 02;
-    constexpr double mdl_MB = 4.700000e + 00;
+    constexpr double mdl_WH = 6.382339e-03;
+    constexpr double mdl_WW = 2.047600e+00;
+    constexpr double mdl_WZ = 2.441404e+00;
+    constexpr double mdl_WT = 1.491500e+00;
+    constexpr double mdl_ymtau = 1.777000e+00;
+    constexpr double mdl_ymt = 1.730000e+02;
+    constexpr double mdl_ymb = 4.700000e+00;
+    //constexpr double aS = 1.180000e-01; // now retrieved event-by-event (as G) from Fortran (running alphas #373)
+    constexpr double mdl_Gf = 1.166390e-05;
+    constexpr double aEWM1 = 1.325070e+02;
+    constexpr double mdl_MH = 1.250000e+02;
+    constexpr double mdl_MZ = 9.118800e+01;
+    constexpr double mdl_MTA = 1.777000e+00;
+    constexpr double mdl_MT = 1.730000e+02;
+    constexpr double mdl_MB = 4.700000e+00;
     constexpr double mdl_conjg__CKM3x3 = 1.;
     constexpr double mdl_conjg__CKM1x1 = 1.;
     constexpr double mdl_CKM3x3 = 1.;
@@ -247,6 +247,7 @@ namespace mg5amcCpu
         //const fptype_sv mdl_sqrt__aS = constexpr_sqrt( aS );
         //const fptype_sv G = 2. * mdl_sqrt__aS * constexpr_sqrt( M_PI );
         // *** NB Compute all dependent parameters, including aS, in terms of G rather than in terms of aS ***
+        const fptype_sv mdl_G__exp__2 = ( ( G ) * ( G ) );
         // Model couplings dependent on aS
         out.GC_10 = -G;
         out.GC_11 = cI * G;
@@ -270,6 +271,7 @@ namespace mg5amcCpu
         //const fptype mdl_sqrt__aS = constexpr_sqrt( aS );
         //const fptype G = 2. * mdl_sqrt__aS * constexpr_sqrt( M_PI );
         // *** NB Compute all dependent parameters, including aS, in terms of G rather than in terms of aS ***
+        const fptype mdl_G__exp__2 = ( ( G ) * ( G ) );
         // Model couplings dependent on aS
         const cxtype GC_10 = -G;
         const cxtype GC_11 = cI * G;
