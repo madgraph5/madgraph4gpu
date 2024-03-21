@@ -375,7 +375,7 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testmisc )
   testSinCosTan8( 1E-02, 1E-14 ); // never fails? could use 1E-99(?) but keep it at 1E-14 (avoid 'EXPECT_NEAR equivalent to EXPECT_EQUAL' on Mac)
 
   // Test constexpr sin, cos, tan - N points almost randomly with a varying tolerance
-  auto testSinCosTanN = [testSinCosTanX, distance4]( const int nstep, const double x0, const double x1 )
+  auto testSinCosTanN = [distance4]( const int nstep, const double x0, const double x1 )
   {
     auto toleranceForX = [distance4]( const double x )
     {
