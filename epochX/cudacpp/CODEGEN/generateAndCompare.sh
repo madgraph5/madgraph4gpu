@@ -149,11 +149,50 @@ function codeGenAndDiff()
     heft_gg_h)
       cmd="set auto_convert_model T; import model heft; generate g g > h"
       ;;
+    gg_bb) # for comparison: 3 diagrams
+      cmd="generate g g > b b~"
+      ;;
+    heft_gg_bb) # 3 diagrams (as in gg_bb)
+      cmd="set auto_convert_model T; import model heft; generate g g > b b~"
+      ;;
+    heft_gg_h_bb) # 1 diagram (out of 3 in heft_gg_bb)
+      cmd="set auto_convert_model T; import model heft; generate g g > h > b b~"
+      ;;
     smeft_gg_tttt)
       cmd="set auto_convert_model T; import model SMEFTsim_topU3l_MwScheme_UFO -massless_4t; generate g g > t t~ t t~"
       ;;
     susy_gg_tt)
       cmd="import model MSSM_SLHA2; generate g g > t t~"
+      ;;
+    susy_gg_tttt)
+      cmd="import model MSSM_SLHA2; generate g g > t t~ t t~"
+      ;;
+    susy_gq_ttq)
+      cmd="import model MSSM_SLHA2; define q = u c d s u~ c~ d~ s~; generate g q > t t~ q"
+      ;;
+    susy_gq_ttllq)
+      cmd="import model MSSM_SLHA2; define q = u c d s u~ c~ d~ s~; generate g q > t t~ l- l+ q"
+      ;;
+    ###susy_gu_ttllu)
+    ###  cmd="import model MSSM_SLHA2; generate g u > t t~ l- l+ u"
+    ###  ;;
+    ###susy_gux_ttllux)
+    ###  cmd="import model MSSM_SLHA2; generate g u~ > t t~ l- l+ u~"
+    ###  ;;
+    ###susy_gd_ttlld)
+    ###  cmd="import model MSSM_SLHA2; generate g d > t t~ l- l+ d"
+    ###  ;;
+    ###susy_gdx_ttlldx)
+    ###  cmd="import model MSSM_SLHA2; generate g d~ > t t~ l- l+ d~"
+    ###  ;;
+    susy_gg_gogo)
+      cmd="import model MSSM_SLHA2; generate g g > go go"
+      ;;
+    susy_gg_t1t1)
+      cmd="import model MSSM_SLHA2; generate g g > t1 t1~"
+      ;;
+    susy_gg_ulul)
+      cmd="import model MSSM_SLHA2; generate g g > ul ul~"
       ;;
     atlas)
       cmd="import model sm-no_b_mass

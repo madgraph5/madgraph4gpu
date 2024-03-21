@@ -306,6 +306,23 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testmisc )
   EXPECT_TRUE( constexpr_floor( -0.5 ) == -1 );
   EXPECT_TRUE( constexpr_floor( -1.5 ) == -2 );
 
+  // Test constexpr pow
+  EXPECT_TRUE( constexpr_pow( 10, 0 ) == 1 );
+  EXPECT_TRUE( constexpr_pow( 10, 1 ) == 10 );
+  EXPECT_TRUE( constexpr_pow( 10, 2 ) == 100 );
+  EXPECT_NEAR( constexpr_pow( 10, -1 ), 0.1, 0.1 * 1E-14 )
+    << std::setprecision( 40 ) << "constexpr_pow( 10, -1 ) = " << constexpr_pow( 10, -1 );
+  EXPECT_NEAR( constexpr_pow( 10, -2 ), 0.01, 0.01 * 1E-14 )
+    << std::setprecision( 40 ) << "constexpr_pow( 10, -2 ) = " << constexpr_pow( 10, -2 );
+  EXPECT_NEAR( constexpr_pow( 100, 0.5 ), 10, 10 * 1E-14 )
+    << std::setprecision( 40 ) << "constexpr_pow( 100, 0.5 ) = " << constexpr_pow( 100, 0.5 );
+  EXPECT_NEAR( constexpr_pow( 100, -0.5 ), 0.1, 0.1 * 1E-14 )
+    << std::setprecision( 40 ) << "constexpr_pow( 100, -0.5 ) = " << constexpr_pow( 100, -0.5 );
+  EXPECT_NEAR( constexpr_pow( 10000, 0.25 ), 10, 10 * 1E-14 )
+    << std::setprecision( 40 ) << "constexpr_pow( 10000, 0.25 ) = " << constexpr_pow( 10000, 0.25 );
+  EXPECT_NEAR( constexpr_pow( 10000, -0.25 ), 0.1, 0.1 * 1E-14 )
+    << std::setprecision( 40 ) << "constexpr_pow( 10000, -0.25 ) = " << constexpr_pow( 10000, -0.25 );
+
   // Distance from the horizontal or vertical axis (i.e. from 0, pi/2, pi, or 3pi/2)
   auto distance4 = []( const long double xx )
   {
@@ -375,7 +392,7 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testmisc )
   testSinCosTan8( 1E-02, 1E-14 ); // never fails? could use 1E-99(?) but keep it at 1E-14 (avoid 'EXPECT_NEAR equivalent to EXPECT_EQUAL' on Mac)
 
   // Test constexpr sin, cos, tan - N points almost randomly with a varying tolerance
-  auto testSinCosTanN = [testSinCosTanX, distance4]( const int nstep, const double x0, const double x1 )
+  auto testSinCosTanN = [distance4]( const int nstep, const double x0, const double x1 )
   {
     auto toleranceForX = [distance4]( const double x )
     {

@@ -1,0 +1,19 @@
+<file>######################################################################
+## VALIDITY RULE FOR THE PARAM_CARD   ####
+######################################################################
+<zero>
+     wolfenstein 1 # 
+     wolfenstein 2 # 
+     wolfenstein 3 # 
+     wolfenstein 4 # 
+     decay 15 # 
+</zero>
+<one>
+</one>
+<identical>
+</identical>
+<opposite>
+</opposite>
+<constraint>
+</constraint>
+</file>
