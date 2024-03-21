@@ -931,7 +931,7 @@ namespace mg5amcCpu
     }
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Event-by-event random choice of color #402
-    if( *channelIds != 0 ) // no event-by-event choice of color if channelId == 0 (fix FPE #783)
+    if( channelIds[0] != 0 ) // no event-by-event choice of color if channelId == 0 (fix FPE #783)
     {
       uint channelIdC = CID_ACCESS::kernelAccessConst(channelIds) - 1; // coloramps.h uses the C array indexing starting at 0
       fptype targetamp[ncolor] = { 0 };
@@ -1046,7 +1046,7 @@ namespace mg5amcCpu
       }
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL // multichannel enabled (random color choice)
       // Event-by-event random choice of color #402
-      if( *channelIds != 0 ) // no event-by-event choice of color if channelId == 0 (fix FPE #783)
+      if( channelIds[0] != 0 ) // no event-by-event choice of color if channelId == 0 (fix FPE #783)
       {
         uint_sv channelIdC = CID_ACCESS::kernelAccessConst(channelIds) - 1; // coloramps.h uses the C array indexing starting at 0
         fptype_sv targetamp[ncolor] = { 0 };
