@@ -268,8 +268,8 @@ ifeq ($(BACKEND),cuda)
   ###GPUFLAGS+= --maxrregcount 128 # improves throughput: 7.3E8 (16384 32 12) up to 7.6E8 (65536 128 12)
   ###GPUFLAGS+= --maxrregcount 96 # degrades throughput: 4.1E8 (16384 32 12) up to 4.5E8 (65536 128 12)
   ###GPUFLAGS+= --maxrregcount 64 # degrades throughput: 1.7E8 (16384 32 12) flat at 1.7E8 (65536 128 12)
-  CUBUILDRULEFLAGS = -Xcompiler -fPIC -c
-  CCBUILDRULEFLAGS = -Xcompiler -fPIC -c -x cu
+  XCOMPILERFLAG = -Xcompiler
+  GPULANGUAGE = cu
 
   # Set the host C++ compiler for GPUCC via "-ccbin <host-compiler>"
   # (NB issue #505: this must be a single word, "clang++ --gcc-toolchain..." is not supported)
@@ -293,8 +293,8 @@ else ifeq ($(BACKEND),hip)
   ###GPUFLAGS += -Xcompiler -Wall -Xcompiler -Wextra -Xcompiler -Wshadow
   GPUFLAGS += -std=c++17
   ###GPUFLAGS+= --maxrregcount 255 # (AV: is this option valid on HIP and meaningful on AMD GPUs?)
-  CUBUILDRULEFLAGS = -fPIC -c
-  CCBUILDRULEFLAGS = -fPIC -c -x hip
+  XCOMPILERFLAG =
+  GPULANGUAGE = hip
 
 else
 
@@ -347,7 +347,7 @@ endif
 
 # PowerPC-specific CUDA/HIP compiler flags (to be reviewed!)
 ifeq ($(UNAME_P),ppc64le)
-  GPUFLAGS+= -Xcompiler -mno-float128
+  GPUFLAGS+= $(XCOMPILERFLAG) -mno-float128
 endif
 
 #-------------------------------------------------------------------------------
@@ -659,15 +659,14 @@ $(BUILDDIR)/.build.$(TAG):
 	@touch $(BUILDDIR)/.build.$(TAG)
 
 # Generic target and build rules: objects from CUDA or HIP compilation
-# NB: CCBUILDRULEFLAGS includes "-x cu" for nvcc and "-x hip" for hipcc (#810)
 ifneq ($(GPUCC),)
 $(BUILDDIR)/%%.o : %%.cu *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	$(GPUCC) $(CPPFLAGS) $(GPUFLAGS) $(CUBUILDRULEFLAGS) $< -o $@
+	$(GPUCC) $(CPPFLAGS) $(GPUFLAGS) $(XCOMPILERFLAG) -fPIC -c $< -o $@
 
 $(BUILDDIR)/%%_cu.o : %%.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	$(GPUCC) $(CPPFLAGS) $(GPUFLAGS) $(CCBUILDRULEFLAGS) $< -o $@
+	$(GPUCC) $(CPPFLAGS) $(GPUFLAGS) $(XCOMPILERFLAG) -fPIC -c -x $(GPULANGUAGE) $< -o $@
 endif
 
 # Generic target and build rules: objects from C++ compilation
@@ -681,11 +680,7 @@ $(BUILDDIR)/%%.o : %%.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
 ifeq ($(shell $(CXX) --version | grep ^nvc++),)
 $(BUILDDIR)/CrossSectionKernels.o: CXXFLAGS := $(filter-out -ffast-math,$(CXXFLAGS))
 $(BUILDDIR)/CrossSectionKernels.o: CXXFLAGS += -fno-fast-math
-ifeq ($(findstring nvcc,$(GPUCC)),nvcc)
-  $(BUILDDIR)/gCrossSectionKernels.o: GPUFLAGS += -Xcompiler -fno-fast-math
-else
-  $(BUILDDIR)/gCrossSectionKernels.o: GPUFLAGS += -fno-fast-math
-endif
+$(BUILDDIR)/gCrossSectionKernels.o: GPUFLAGS += $(XCOMPILERFLAG) -fno-fast-math
 endif
 
 # Apply special build flags only to check_sa[_cu].o (NVTX in timermap.h, #679)
@@ -718,7 +713,7 @@ endif
 ###ifneq ($(shell $(CXX) --version | egrep '^(clang|Apple clang|Intel)'),)
 ###$(BUILDDIR)/CrossSectionKernels.o: CXXFLAGS += -Wno-overriding-t-option
 ###ifneq ($(GPUCC),)
-###$(BUILDDIR)/gCrossSectionKernels.o: GPUFLAGS += -Xcompiler -Wno-overriding-t-option
+###$(BUILDDIR)/gCrossSectionKernels.o: GPUFLAGS += $(XCOMPILERFLAG) -Wno-overriding-t-option
 ###endif
 ###endif
 
