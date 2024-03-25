@@ -324,7 +324,7 @@ diff --git b/epochX/cudacpp/gg_tt.mad/bin/internal/gen_ximprove.py a/epochX/cuda
 index fb7efa87c..5fd170d18 100755
 --- b/epochX/cudacpp/gg_tt.mad/bin/internal/gen_ximprove.py
 +++ a/epochX/cudacpp/gg_tt.mad/bin/internal/gen_ximprove.py
-@@ -391,8 +391,20 @@ class gensym(object):
+@@ -391,8 +391,17 @@ class gensym(object):
                          done = True
                  if not done:
                      raise Exception('Parsing error in gensym: %s' % stdout)
