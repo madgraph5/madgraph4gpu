@@ -272,36 +272,6 @@ ifeq ($(BACKEND),cuda)
   ###GPUCC_VERSION = $(shell $(GPUCC) --version | grep 'Cuda compilation tools' | cut -d' ' -f5 | cut -d, -f1)
   GPUFLAGS += -std=c++17 # need CUDA >= 11.2 (see #333): this is enforced in mgOnGpuConfig.h
   # Without -maxrregcount: baseline throughput: 6.5E8 (16384 32 12) up to 7.3E8 (65536 128 12)
-<<<<<<< HEAD
-  ###CUFLAGS+= --maxrregcount 160 # improves throughput: 6.9E8 (16384 32 12) up to 7.7E8 (65536 128 12)
-  ###CUFLAGS+= --maxrregcount 128 # improves throughput: 7.3E8 (16384 32 12) up to 7.6E8 (65536 128 12)
-  ###CUFLAGS+= --maxrregcount 96 # degrades throughput: 4.1E8 (16384 32 12) up to 4.5E8 (65536 128 12)
-  ###CUFLAGS+= --maxrregcount 64 # degrades throughput: 1.7E8 (16384 32 12) flat at 1.7E8 (65536 128 12)
-
-  # Set the host C++ compiler for nvcc via "-ccbin <host-compiler>"
-  # (NB issue #505: this must be a single word, "clang++ --gcc-toolchain..." is not supported)
-  CUFLAGS += -ccbin $(shell which $(subst ccache ,,$(CXX)))
-
-  # Allow newer (unsupported) C++ compilers with older versions of CUDA if ALLOW_UNSUPPORTED_COMPILER_IN_CUDA is set (#504)
-  ifneq ($(origin ALLOW_UNSUPPORTED_COMPILER_IN_CUDA),undefined)
-  CUFLAGS += -allow-unsupported-compiler
-  endif
-
-else
-
-  # Backend is not cuda
-  # (NB: en empty NVCC is used elsewhere throughput all makefiles, to indicate that this is not a cuda build)
-  # (NB: CUFLAGS may be modified elsewhere throughout all makefiles, but is only used in cuda builds)
-  override NVCC=
-  override CUFLAGS=
-
-endif
-
-# Export NVCC, CUFLAGS so that there is no need to redefine them in cudacpp_src.mk
-export NVCC
-export CUFLAGS
-
-=======
   ###GPUFLAGS+= --maxrregcount 160 # improves throughput: 6.9E8 (16384 32 12) up to 7.7E8 (65536 128 12)
   ###GPUFLAGS+= --maxrregcount 128 # improves throughput: 7.3E8 (16384 32 12) up to 7.6E8 (65536 128 12)
   ###GPUFLAGS+= --maxrregcount 96 # degrades throughput: 4.1E8 (16384 32 12) up to 4.5E8 (65536 128 12)
@@ -319,15 +289,7 @@ export CUFLAGS
   GPUFLAGS += -allow-unsupported-compiler
   endif
 
-else ifneq ($(origin REQUIRE_CUDA),undefined)
-
-  # If REQUIRE_CUDA is set but no cuda is found, stop here (e.g. for CI tests on GPU #443)
-  $(error No cuda installation found (set CUDA_HOME or make GPUCC visible in PATH))
-
-#--- Option 2: CUDA does not exist, HIP exists -> use HIP
-
-# Set GPUCC as $(HIP_HOME)/bin/hipcc if it exists
-else ifneq ($(wildcard $(HIP_HOME)/bin/hipcc),)
+else ifeq ($(BACKEND),hip)
 
   GPUCC = $(HIP_HOME)/bin/hipcc
   #USE_NVTX ?=-DUSE_NVTX # should maybe find something equivalent to this in HIP?
@@ -343,30 +305,24 @@ else ifneq ($(wildcard $(HIP_HOME)/bin/hipcc),)
   CUBUILDRULEFLAGS = -fPIC -c
   CCBUILDRULEFLAGS = -fPIC -c -x hip
 
-else ifneq ($(origin REQUIRE_HIP),undefined)
-
-  # If REQUIRE_HIP is set but no HIP is found, stop here (e.g. for CI tests on GPU #443)
-  $(error No hip installation found (set HIP_HOME or make GPUCC visible in PATH))
-
-#--- Option 3: CUDA does not exist, HIP does not exist -> switch off both CUDA and HIP
-
 else
 
-  # No cudacc and no hipcc: switch CUDA and HIP compilation off and go to common random numbers in C++
-  $(warning CUDA_HOME is not set or is invalid: export CUDA_HOME to compile with cuda)
-  $(warning HIP_HOME is not set or is invalid: export HIP_HOME to compile with hip)
+  # Backend is neither cuda nor hip
+  # (NB: in the past, an empty GPUCC was used elsewhere throughput all makefiles, to indicate that this is not a GPU build - is this still the case?)
+  # (NB: in the past, GPUFLAGS could be modified elsewhere throughout all makefiles, but was only used in cuda/hip builds? - is this still the case?)
+  # (NB: are CUINC and HIPINC correct here?)
   override GPUCC=
+  override GPUFLAGS=
   ###override USE_NVTX=
   ###override CUINC=
-  override HIPINC=
+  ###override HIPINC=
 
 endif
 
-# Export GPUCC (so that it can also be used in cudacpp_src.mk?)
+# Export GPUCC and GPUFLAGS (so that there is no need to redefine them in cudacpp_src.mk)
 export GPUCC
 export GPUFLAGS
 
->>>>>>> upstream/master
 #-------------------------------------------------------------------------------
 
 #=== Configure ccache for C++ and CUDA/HIP builds
