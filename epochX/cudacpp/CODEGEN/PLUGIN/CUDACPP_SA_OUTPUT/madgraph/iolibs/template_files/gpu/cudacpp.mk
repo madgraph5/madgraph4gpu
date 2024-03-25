@@ -247,6 +247,7 @@ ifeq ($(BACKEND),cuda)
   GPUCC = $(CUDA_HOME)/bin/nvcc
   XCOMPILERFLAG = -Xcompiler
   GPULANGUAGE = cu
+  GPUSUFFIX = cuda
 
   # Basic compiler flags (optimization and includes)
   GPUFLAGS = $(foreach opt, $(OPTFLAGS), $(XCOMPILERFLAG) $(opt)) $(INCFLAGS)
@@ -306,6 +307,7 @@ else ifeq ($(BACKEND),hip)
   GPUCC = $(HIP_HOME)/bin/hipcc
   XCOMPILERFLAG =
   GPULANGUAGE = hip
+  GPUSUFFIX = hip
 
   # Basic compiler flags (optimization and includes)
   GPUFLAGS = $(foreach opt, $(OPTFLAGS), $(XCOMPILERFLAG) $(opt)) $(INCFLAGS)
@@ -780,7 +782,7 @@ cxx_objects_lib=$(BUILDDIR)/CPPProcess.o $(BUILDDIR)/MatrixElementKernels.o $(BU
 cxx_objects_exe=$(BUILDDIR)/CommonRandomNumberKernel.o $(BUILDDIR)/RamboSamplingKernels.o
 
 ifneq ($(GPUCC),)
-MG5AMC_GPULIB = mg5amc_$(processid_short)_$(GPULANGUAGE)
+MG5AMC_GPULIB = mg5amc_$(processid_short)_$(GPUSUFFIX)
 gpu_objects_lib=$(BUILDDIR)/CPPProcess_gpu.o $(BUILDDIR)/MatrixElementKernels_gpu.o $(BUILDDIR)/BridgeKernels_gpu.o $(BUILDDIR)/CrossSectionKernels_gpu.o
 gpu_objects_exe=$(BUILDDIR)/CommonRandomNumberKernel_gpu.o $(BUILDDIR)/RamboSamplingKernels_gpu.o
 endif
