@@ -107,6 +107,8 @@ endif
 
 ifeq ($(BACKEND),cuda)
 all: $(PROG)_fortran $(CUDACPP_BUILDDIR)/$(PROG)_cuda
+else ifeq ($(BACKEND),hip)
+all: $(PROG)_fortran $(CUDACPP_BUILDDIR)/$(PROG)_hip
 else
 all: $(PROG)_fortran $(CUDACPP_BUILDDIR)/$(PROG)_cpp
 endif
@@ -158,6 +160,11 @@ madevent_cuda_link:
 	$(MAKE) BACKEND=cuda $(CUDACPP_BUILDDIR)/$(PROG)_cuda
 	rm -f $(PROG)
 	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cuda $(PROG)
+
+madevent_hip_link:
+	$(MAKE) BACKEND=hip $(CUDACPP_BUILDDIR)/$(PROG)_hip
+	rm -f $(PROG)
+	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_hip $(PROG)
 
 madevent_cpp_link:
 	$(MAKE) BACKEND=auto $(CUDACPP_BUILDDIR)/$(PROG)_cpp
@@ -259,6 +266,10 @@ bldcuda: $(PROG)_fortran $(DSIG_cudacpp)
 	@echo
 	$(MAKE) USEBUILDDIR=1 BACKEND=cuda
 
+bldhip: $(PROG)_fortran $(DSIG_cudacpp)
+	@echo
+	$(MAKE) USEBUILDDIR=1 BACKEND=hip
+
 bldnone: $(PROG)_fortran $(DSIG_cudacpp)
 	@echo
 	$(MAKE) USEBUILDDIR=1 BACKEND=none
@@ -282,7 +293,7 @@ bld512z: $(PROG)_fortran $(DSIG_cudacpp)
 # Clean (NB: 'make clean' in Source calls 'make clean' in all P*)
 
 clean: # Clean builds: fortran in this Pn; cudacpp executables for one AVX in this Pn
-	$(RM) *.o gensym $(PROG) $(PROG)_fortran $(PROG)_forhel $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(CUDACPP_BUILDDIR)/$(PROG)_cuda
+	$(RM) *.o gensym $(PROG) $(PROG)_fortran $(PROG)_forhel $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(CUDACPP_BUILDDIR)/$(PROG)_cuda $(CUDACPP_BUILDDIR)/$(PROG)_hip
 
 cleanavxs: clean # Clean builds: fortran in this Pn; cudacpp for all AVX in this Pn and in src
 	$(MAKE) -f $(CUDACPP_MAKEFILE) cleanall
