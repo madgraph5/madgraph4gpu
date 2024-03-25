@@ -166,30 +166,19 @@ endif
 
 #-------------------------------------------------------------------------------
 
-<<<<<<< HEAD
-#=== Configure the CUDA headers and libraries (for all backends: NVTS and CURAND are also needed by the C++ backends)
-=======
 #=== Configure the GPU compiler (CUDA or HIP)
-
-# FIXME! (AV 24.01.2024)
-# In the current implementation (without separate builds for C++ and CUDA/HIP), we first check for cudacc and hipcc in CUDA_HOME and HIP_HOME.
-# If CUDA_HOME or HIP_HOME are not set, try to determine them from the path to cudacc and hipcc.
-# While convoluted, this is currently necessary to allow disabling CUDA/HIP builds by setting CUDA_HOME or HIP_HOME to invalid paths.
-# This will (probably?) be fixed when separate C++ and CUDA/HIP builds are implemented (PR #775).
-
-# If CXX is not a single word (example "clang++ --gcc-toolchain...") then disable CUDA builds (issue #505)
-# This is because it is impossible to pass this to "GPUFLAGS += -ccbin <host-compiler>" below
-ifneq ($(words $(subst ccache ,,$(CXX))),1) # allow at most "CXX=ccache <host-compiler>" from outside
-  $(warning CUDA builds are not supported for multi-word CXX "$(CXX)")
-  override CUDA_HOME=disabled
-endif
->>>>>>> upstream/master
+#=== (note, this is done also for C++, as NVTX and CURAND/ROCRAND are also needed by the C++ backends)
 
 # If CUDA_HOME is not set, try to set it from the path to nvcc
 ifndef CUDA_HOME
-<<<<<<< HEAD
-  override CUDA_HOME=$(patsubst %%bin/nvcc,%%,$(shell which nvcc 2>/dev/null))
-  ###$(warning CUDA_HOME was not set: using "$(CUDA_HOME)")
+  CUDA_HOME = $(patsubst %%/bin/nvcc,%%,$(shell which nvcc 2>/dev/null))
+  $(warning CUDA_HOME was not set: using "$(CUDA_HOME)")
+endif
+
+# If HIP_HOME is not set, try to set it from the path to hipcc
+ifndef HIP_HOME
+  HIP_HOME = $(patsubst %%/bin/hipcc,%%,$(shell which hipcc 2>/dev/null))
+  $(warning HIP_HOME was not set: using "$(HIP_HOME)")
 endif
 
 # Check if $(CUDA_HOME)/bin/nvcc exists to determine if CUDA_HOME is a valid CUDA installation
@@ -204,6 +193,54 @@ ifeq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
 endif
 ###$(info CUDA_HOME=$(CUDA_HOME))
 
+# Check if $(HIP_HOME)/bin/hipcc exists to determine if HIP_HOME is a valid HIP installation
+ifeq ($(wildcard $(HIP_HOME)/bin/hipcc),)
+  ifeq ($(BACKEND),hip)
+    $(error BACKEND=$(BACKEND) but no HIP installation was found in HIP_HOME='$(HIP_HOME)')
+  else
+    ###$(warning No HIP installation was found in HIP_HOME='$(HIP_HOME)')
+    override HIP_HOME=
+  endif
+endif
+###$(info HIP_HOME=$(HIP_HOME))
+
+# Configure NVTX and CURAND if a CUDA installation exists
+# (FIXME? Is there any equivalent of NVTX FOR HIP? What should be configured if both CUDA and HIP are installed?)
+ifneq ($(CUDA_HOME),)
+  USE_NVTX ?=-DUSE_NVTX
+  CUINC = -I$(CUDA_HOME)/include/
+  ifeq ($(RNDGEN),hasNoCurand)
+    CURANDLIBFLAGS=
+  else
+    CURANDLIBFLAGS = -L$(CUDA_HOME)/lib64/ -lcurand # NB: -lcuda is not needed here!
+  endif
+else
+  override USE_NVTX=
+  override CUINC=
+  override CURANDLIBFLAGS=
+endif
+
+# NB1 (AND FIXME): NEW LOGIC FOR ENABLING AND DISABLING CUDA OR HIP BUILDS (AV 02.02.2024)
+# - As in the past, we first check for cudacc and hipcc in CUDA_HOME and HIP_HOME; and if CUDA_HOME or HIP_HOME are not set,
+# we try to determine them from the path to cudacc and hipcc. **FIXME** : in the future, it may be better to completely remove
+# the dependency of this makefile on CUDA_HOME and HIP_HOME, and only rely on whether nvcc and hipcc are in PATH.
+# - In the old implementation, by default the C++ targets for one specific AVX were always built together with either CUDA or HIP.
+# If both CUDA and HIP were installed, then CUDA took precedence over HIP, and the only way to force HIP builds was to disable
+# CUDA builds by setting CUDA_HOME to an invalid value. Similarly, C++-only builds could be forced by setting CUDA_HOME and/or
+# HIP_HOME to invalid values. A check for an invalid nvcc in CUDA_HOME or an invalid hipcc HIP_HOME was necessary to ensure this
+# logic, and had to be performed _before_ choosing whether C++/CUDA, C++/HIP or C++-only builds had to be executed.
+# - In the new implementation (PR #798), separate individual builds are performed for one specific C++/AVX mode, for CUDA or
+# for HIP. The choice of the type of build is taken depending on the value of the BACKEND variable (replacing the AVX variable).
+# For the moment, it is still possible to override the PATH to nvcc and hipcc by externally setting a different value to CUDA_HOME
+# and HIP_HOME (although this will probably disappear as mentioned above): note also that the check whether nvcc or hipcc exist
+# still needs to be performed _before_ BACKEND-specific configurations, because CUDA/HIP installations also affect C++-only builds,
+# for NVTX and curand-host in the case of CUDA, and for rocrand-host in the case of HIP.
+# - Note also that the REQUIRE_CUDA variable (#443) is now (PR #798) no longer necessary, as it is now equivalent to BACKEND=cuda.
+# Similarly, there is no need to introduce a REQUIRE_HIP variable.
+
+# NB2 (AND FIXME): MUST STILL DOCUMENT VARIABLES AND CHECK FOR INTERNAL CONSISTENCY OF SOME VARIABLES (AV 02.02.2024)
+# - Before PR #798, en empty NVCC was used throughout all makefiles to indicate that this is not a cuda build
+
 #=== Configure the CUDA compiler (only for the CUDA backend)
 
 ifeq ($(BACKEND),cuda)
@@ -214,33 +251,9 @@ ifeq ($(BACKEND),cuda)
     $(error BACKEND=$(BACKEND) but CUDA builds are not supported for multi-word CXX "$(CXX)")
   endif
 
-  # Set NVCC as $(CUDA_HOME)/bin/nvcc (it was already checked above that this exists)
-  NVCC = $(CUDA_HOME)/bin/nvcc
-=======
-  CUDA_HOME = $(patsubst %%/bin/nvcc,%%,$(shell which nvcc 2>/dev/null))
-  $(warning CUDA_HOME was not set: using "$(CUDA_HOME)")
-endif
-
-# If HIP_HOME is not set, try to set it from the path to hipcc
-ifndef HIP_HOME
-  HIP_HOME = $(patsubst %%/bin/hipcc,%%,$(shell which hipcc 2>/dev/null))
-  $(warning HIP_HOME was not set: using "$(HIP_HOME)")
-endif
-
-# FIXME! (AV 24.01.2024)
-# In the current implementation (without separate builds for C++ and CUDA/HIP),
-# builds are performed for HIP only if CUDA is not found in the path.
-# If both CUDA and HIP are installed, HIP builds can be triggered by unsetting CUDA_HOME.
-# This will be fixed when separate C++ and CUDA/HIP builds are implemented (PR #775).
-
-#--- Option 1: CUDA exists -> use CUDA
-
-# Set GPUCC as $(CUDA_HOME)/bin/nvcc if it exists
-ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
-
+  # Set GPUCC as $(CUDA_HOME)/bin/nvcc (it was already checked above that this exists)
   GPUCC = $(CUDA_HOME)/bin/nvcc
-  USE_NVTX ?=-DUSE_NVTX
->>>>>>> upstream/master
+
   # See https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html
   # See https://arnon.dk/matching-sm-architectures-arch-and-gencode-for-various-nvidia-cards/
   # Default: use compute capability 70 for V100 (CERN lxbatch, CERN itscrd, Juwels Cluster).
@@ -252,10 +265,6 @@ ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   ###CUARCHFLAGS = --gpu-architecture=compute_$(MADGRAPH_CUDA_ARCHITECTURE) --gpu-code=sm_$(MADGRAPH_CUDA_ARCHITECTURE),compute_$(MADGRAPH_CUDA_ARCHITECTURE)  # Newer implementation (SH): cannot use this as-is for multi-GPU support #533
   comma:=,
   CUARCHFLAGS = $(foreach arch,$(subst $(comma), ,$(MADGRAPH_CUDA_ARCHITECTURE)),-gencode arch=compute_$(arch),code=compute_$(arch) -gencode arch=compute_$(arch),code=sm_$(arch))
-<<<<<<< HEAD
-=======
-  CUINC = -I$(CUDA_HOME)/include/
->>>>>>> upstream/master
   CUOPTFLAGS = -lineinfo
   ###GPUFLAGS = $(OPTFLAGS) $(CUOPTFLAGS) $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math
   GPUFLAGS = $(foreach opt, $(OPTFLAGS), -Xcompiler $(opt)) $(CUOPTFLAGS) $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math
@@ -347,8 +356,8 @@ else
   $(warning CUDA_HOME is not set or is invalid: export CUDA_HOME to compile with cuda)
   $(warning HIP_HOME is not set or is invalid: export HIP_HOME to compile with hip)
   override GPUCC=
-  override USE_NVTX=
-  override CUINC=
+  ###override USE_NVTX=
+  ###override CUINC=
   override HIPINC=
 
 endif
@@ -464,21 +473,8 @@ export OMPFLAGS
 
 <<<<<<< HEAD
 #=== Set the CUDA/C++ compiler flags appropriate to user-defined choices of BACKEND, FPTYPE, HELINL, HRDCOD, RNDGEN
-
 # Configure NVTX and CURAND if a CUDA installation exists
-ifneq ($(CUDA_HOME),)
-  USE_NVTX ?=-DUSE_NVTX
-  CUINC = -I$(CUDA_HOME)/include/
-  ifeq ($(RNDGEN),hasNoCurand)
-    CURANDLIBFLAGS=
-  else
-    CURANDLIBFLAGS = -L$(CUDA_HOME)/lib64/ -lcurand # NB: -lcuda is not needed here!
-  endif
-else
-  override USE_NVTX=
-  override CUINC=
-  override CURANDLIBFLAGS=
-endif
+...
 =======
 #=== Configure defaults and check if user-defined choices exist for RNDGEN (legacy!), HASCURAND, HASHIPRAND
 
