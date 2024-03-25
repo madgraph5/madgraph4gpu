@@ -135,9 +135,9 @@ ifeq ($(BACKEND),auto)
 endif
 $(info BACKEND=$(BACKEND))
 
-# Check that BACKEND if one of the possible supported backends
+# Check that BACKEND is one of the possible supported backends
 # (NB: use 'filter' and 'words' instead of 'findstring' because they properly handle whitespace-separated words)
-override SUPPORTED_BACKENDS = cuda none sse4 avx2 512y 512z auto
+override SUPPORTED_BACKENDS = cuda hip none sse4 avx2 512y 512z auto
 ifneq ($(words $(filter $(BACKEND), $(SUPPORTED_BACKENDS))),1)
 $(error Invalid backend BACKEND='$(BACKEND)': supported backends are $(foreach backend,$(SUPPORTED_BACKENDS),'$(backend)'))
 endif
