@@ -204,20 +204,20 @@ ifeq ($(wildcard $(HIP_HOME)/bin/hipcc),)
 endif
 ###$(info HIP_HOME=$(HIP_HOME))
 
-# Configure NVTX if a CUDA installation exists
+# Configure CUDA_INC (for CURAND and NVTX) and NVTX if a CUDA installation exists
 # (FIXME? Is there any equivalent of NVTX FOR HIP? What should be configured if both CUDA and HIP are installed?)
 ifneq ($(CUDA_HOME),)
   USE_NVTX ?=-DUSE_NVTX
-  CUINC = -I$(CUDA_HOME)/include/
+  CUDA_INC = -I$(CUDA_HOME)/include/
 else
   override USE_NVTX=
-  override CUINC=
+  override CUDA_INC=
 endif
 
-# NB1 (AND FIXME): NEW LOGIC FOR ENABLING AND DISABLING CUDA OR HIP BUILDS (AV 02.02.2024)
+# NB (AND FIXME): NEW LOGIC FOR ENABLING AND DISABLING CUDA OR HIP BUILDS (AV 02.02.2024)
 # - As in the past, we first check for cudacc and hipcc in CUDA_HOME and HIP_HOME; and if CUDA_HOME or HIP_HOME are not set,
 # we try to determine them from the path to cudacc and hipcc. **FIXME** : in the future, it may be better to completely remove
-# the dependency of this makefile on CUDA_HOME and HIP_HOME, and only rely on whether nvcc and hipcc are in PATH.
+# the dependency of this makefile on externally set CUDA_HOME and HIP_HOME, and only rely on whether nvcc and hipcc are in PATH.
 # - In the old implementation, by default the C++ targets for one specific AVX were always built together with either CUDA or HIP.
 # If both CUDA and HIP were installed, then CUDA took precedence over HIP, and the only way to force HIP builds was to disable
 # CUDA builds by setting CUDA_HOME to an invalid value. Similarly, C++-only builds could be forced by setting CUDA_HOME and/or
@@ -258,8 +258,8 @@ ifeq ($(BACKEND),cuda)
   comma:=,
   CUARCHFLAGS = $(foreach arch,$(subst $(comma), ,$(MADGRAPH_CUDA_ARCHITECTURE)),-gencode arch=compute_$(arch),code=compute_$(arch) -gencode arch=compute_$(arch),code=sm_$(arch))
   CUOPTFLAGS = -lineinfo
-  ###GPUFLAGS = $(OPTFLAGS) $(CUOPTFLAGS) $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math
-  GPUFLAGS = $(foreach opt, $(OPTFLAGS), -Xcompiler $(opt)) $(CUOPTFLAGS) $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math
+  ###GPUFLAGS = $(OPTFLAGS) $(CUOPTFLAGS) $(INCFLAGS) $(CUDA_INC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math
+  GPUFLAGS = $(foreach opt, $(OPTFLAGS), -Xcompiler $(opt)) $(CUOPTFLAGS) $(INCFLAGS) $(CUDA_INC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math
   ###GPUFLAGS += -Xcompiler -Wall -Xcompiler -Wextra -Xcompiler -Wshadow
   ###GPUCC_VERSION = $(shell $(GPUCC) --version | grep 'Cuda compilation tools' | cut -d' ' -f5 | cut -d, -f1)
   GPUFLAGS += -std=c++17 # need CUDA >= 11.2 (see #333): this is enforced in mgOnGpuConfig.h
@@ -270,7 +270,6 @@ ifeq ($(BACKEND),cuda)
   ###GPUFLAGS+= --maxrregcount 64 # degrades throughput: 1.7E8 (16384 32 12) flat at 1.7E8 (65536 128 12)
   CUBUILDRULEFLAGS = -Xcompiler -fPIC -c
   CCBUILDRULEFLAGS = -Xcompiler -fPIC -c -x cu
-  CUDATESTFLAGS = -lcuda
 
   # Set the host C++ compiler for GPUCC via "-ccbin <host-compiler>"
   # (NB issue #505: this must be a single word, "clang++ --gcc-toolchain..." is not supported)
@@ -286,11 +285,11 @@ else ifeq ($(BACKEND),hip)
   GPUCC = $(HIP_HOME)/bin/hipcc
   #USE_NVTX ?=-DUSE_NVTX # should maybe find something equivalent to this in HIP?
   HIPARCHFLAGS = -target x86_64-linux-gnu --offload-arch=gfx90a
-  HIPINC = -I$(HIP_HOME)/include/
+  HIP_INC = -I$(HIP_HOME)/include/
   # Note: -DHIP_FAST_MATH is equivalent to -use_fast_math in HIP 
   # (but only for single precision line 208: https://rocm-developer-tools.github.io/HIP/hcc__detail_2math__functions_8h_source.html)
   # Note: CUOPTFLAGS should not be used for HIP, it had been added here but was then removed (#808)
-  GPUFLAGS = $(OPTFLAGS) $(INCFLAGS) $(HIPINC) $(HIPARCHFLAGS) -DHIP_FAST_MATH -DHIP_PLATFORM=amd -fPIC
+  GPUFLAGS = $(OPTFLAGS) $(INCFLAGS) $(HIP_INC) $(HIPARCHFLAGS) -DHIP_FAST_MATH -DHIP_PLATFORM=amd -fPIC
   ###GPUFLAGS += -Xcompiler -Wall -Xcompiler -Wextra -Xcompiler -Wshadow
   GPUFLAGS += -std=c++17
   ###GPUFLAGS+= --maxrregcount 255 # (AV: is this option valid on HIP and meaningful on AMD GPUs?)
@@ -302,12 +301,8 @@ else
   # Backend is neither cuda nor hip
   # (NB: throughout all makefiles, an empty GPUCC is used to indicate that this is a C++ build, i.e. that BACKEND is neither cuda nor hip!)
   # (NB: in the past, GPUFLAGS could be modified elsewhere throughout all makefiles, but was only used in cuda/hip builds? - is this still the case?)
-  # (NB: are CUINC and HIPINC correct here?)
   override GPUCC=
   override GPUFLAGS=
-  ###override USE_NVTX=
-  ###override CUINC=
-  ###override HIPINC=
 
 endif
 
@@ -676,7 +671,7 @@ $(BUILDDIR)/%_cu.o : %.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
 endif
 
 # Generic target and build rules: objects from C++ compilation
-# (NB do not include CUINC here! add it only for NVTX or curand #679)
+# (NB do not include CUDA_INC here! add it only for NVTX or curand #679)
 $(BUILDDIR)/%.o : %.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -fPIC -c $< -o $@
@@ -694,8 +689,8 @@ endif
 endif
 
 # Apply special build flags only to check_sa[_cu].o (NVTX in timermap.h, #679)
-$(BUILDDIR)/check_sa.o: CXXFLAGS += $(USE_NVTX) $(CUINC)
-$(BUILDDIR)/check_sa_cu.o: CXXFLAGS += $(USE_NVTX) $(CUINC)
+$(BUILDDIR)/check_sa.o: CXXFLAGS += $(USE_NVTX) $(CUDA_INC)
+$(BUILDDIR)/check_sa_cu.o: CXXFLAGS += $(USE_NVTX) $(CUDA_INC)
 
 # Apply special build flags only to check_sa[_cu].o and (Cu|Hip)randRandomNumberKernel[_cu].o
 $(BUILDDIR)/check_sa.o: CXXFLAGS += $(RNDCXXFLAGS)
@@ -705,10 +700,10 @@ $(BUILDDIR)/CurandRandomNumberKernel_cu.o: GPUFLAGS += $(RNDCXXFLAGS)
 $(BUILDDIR)/HiprandRandomNumberKernel.o: CXXFLAGS += $(RNDCXXFLAGS)
 $(BUILDDIR)/HiprandRandomNumberKernel_cu.o: GPUFLAGS += $(RNDCXXFLAGS)
 ifeq ($(HASCURAND),hasCurand) # curand headers, #679
-$(BUILDDIR)/CurandRandomNumberKernel.o: CXXFLAGS += $(CUINC)
+$(BUILDDIR)/CurandRandomNumberKernel.o: CXXFLAGS += $(CUDA_INC)
 endif
 ifeq ($(HASHIPRAND),hasHiprand) # hiprand headers
-$(BUILDDIR)/HiprandRandomNumberKernel.o: CXXFLAGS += $(HIPINC)
+$(BUILDDIR)/HiprandRandomNumberKernel.o: CXXFLAGS += $(HIP_INC)
 endif
 
 # Avoid "warning: builtin __has_trivial_... is deprecated; use __is_trivially_... instead" in GPUCC with icx2023 (#592)
@@ -924,9 +919,9 @@ else # link only runTest_cu.o (new: in the past, this was linking both runTest.o
 $(testmain): LIBFLAGS += $(CULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cu_objects_lib) $(cu_objects_exe) $(GTESTLIBS)
 ifneq ($(findstring hipcc,$(GPUCC)),) # link fortran/c++/hip using $FC when hipcc is used #802
-	$(FC) -o $@ $(cu_objects_lib) $(cu_objects_exe) -ldl $(LIBFLAGS) $(CUDATESTFLAGS) -lstdc++ -lpthread  -L$(shell dirname $(shell $(GPUCC) -print-prog-name=clang))/../../lib -lamdhip64
+	$(FC) -o $@ $(cu_objects_lib) $(cu_objects_exe) -ldl $(LIBFLAGS) -lstdc++ -lpthread  -L$(shell dirname $(shell $(GPUCC) -print-prog-name=clang))/../../lib -lamdhip64
 else
-	$(GPUCC) -o $@ $(cu_objects_lib) $(cu_objects_exe) -ldl $(LIBFLAGS) $(CUDATESTFLAGS)
+	$(GPUCC) -o $@ $(cu_objects_lib) $(cu_objects_exe) -ldl $(LIBFLAGS) -lcuda
 endif
 endif
 
