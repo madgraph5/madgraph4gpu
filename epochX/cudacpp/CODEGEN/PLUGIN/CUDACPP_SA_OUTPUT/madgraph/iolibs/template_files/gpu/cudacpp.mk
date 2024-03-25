@@ -981,6 +981,10 @@ bldcuda:
 	@echo
 	$(MAKE) USEBUILDDIR=1 BACKEND=cuda -f $(CUDACPP_MAKEFILE)
 
+bldhip:
+	@echo
+	$(MAKE) USEBUILDDIR=1 BACKEND=hip -f $(CUDACPP_MAKEFILE)
+
 bldnone:
 	@echo
 	$(MAKE) USEBUILDDIR=1 BACKEND=cppnone -f $(CUDACPP_MAKEFILE)
@@ -1012,10 +1016,18 @@ else
 bldavxs: bldnone bldsse4 bldavx2 bld512y bld512z
 endif
 
+ifneq ($(HIP_HOME),)
+ifneq ($(CUDA_HOME),)
+bldall: bldhip bldcuda bldavxs
+else
+bldall: bldhip bldavxs
+endif
+else
 ifneq ($(CUDA_HOME),)
 bldall: bldcuda bldavxs
 else
 bldall: bldavxs
+endif
 endif
 
 #-------------------------------------------------------------------------------
