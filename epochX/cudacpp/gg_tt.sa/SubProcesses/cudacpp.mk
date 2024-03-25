@@ -245,7 +245,13 @@ ifeq ($(BACKEND),cuda)
 
   # Set GPUCC as $(CUDA_HOME)/bin/nvcc (it was already checked above that this exists)
   GPUCC = $(CUDA_HOME)/bin/nvcc
+  XCOMPILERFLAG = -Xcompiler
+  GPULANGUAGE = cu
 
+  # Basic compiler flags (optimization and includes)
+  GPUFLAGS = $(foreach opt, $(OPTFLAGS), $(XCOMPILERFLAG) $(opt)) $(INCFLAGS)
+
+  # NVidia CUDA architecture flags
   # See https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html
   # See https://arnon.dk/matching-sm-architectures-arch-and-gencode-for-various-nvidia-cards/
   # Default: use compute capability 70 for V100 (CERN lxbatch, CERN itscrd, Juwels Cluster).
@@ -253,25 +259,38 @@ ifeq ($(BACKEND),cuda)
   # One may pass MADGRAPH_CUDA_ARCHITECTURE (comma-separated list) to the make command to use another value or list of values (see #533).
   # Examples: use 60 for P100 (Piz Daint), 80 for A100 (Juwels Booster, NVidia raplab/Curiosity).
   MADGRAPH_CUDA_ARCHITECTURE ?= 70
-  ###CUARCHFLAGS = -gencode arch=compute_$(MADGRAPH_CUDA_ARCHITECTURE),code=compute_$(MADGRAPH_CUDA_ARCHITECTURE) -gencode arch=compute_$(MADGRAPH_CUDA_ARCHITECTURE),code=sm_$(MADGRAPH_CUDA_ARCHITECTURE) # Older implementation (AV): go back to this one for multi-GPU support #533
-  ###CUARCHFLAGS = --gpu-architecture=compute_$(MADGRAPH_CUDA_ARCHITECTURE) --gpu-code=sm_$(MADGRAPH_CUDA_ARCHITECTURE),compute_$(MADGRAPH_CUDA_ARCHITECTURE)  # Newer implementation (SH): cannot use this as-is for multi-GPU support #533
+  ###GPUARCHFLAGS = -gencode arch=compute_$(MADGRAPH_CUDA_ARCHITECTURE),code=compute_$(MADGRAPH_CUDA_ARCHITECTURE) -gencode arch=compute_$(MADGRAPH_CUDA_ARCHITECTURE),code=sm_$(MADGRAPH_CUDA_ARCHITECTURE) # Older implementation (AV): go back to this one for multi-GPU support #533
+  ###GPUARCHFLAGS = --gpu-architecture=compute_$(MADGRAPH_CUDA_ARCHITECTURE) --gpu-code=sm_$(MADGRAPH_CUDA_ARCHITECTURE),compute_$(MADGRAPH_CUDA_ARCHITECTURE)  # Newer implementation (SH): cannot use this as-is for multi-GPU support #533
   comma:=,
-  CUARCHFLAGS = $(foreach arch,$(subst $(comma), ,$(MADGRAPH_CUDA_ARCHITECTURE)),-gencode arch=compute_$(arch),code=compute_$(arch) -gencode arch=compute_$(arch),code=sm_$(arch))
-  CUOPTFLAGS = -lineinfo
-  ###GPUFLAGS = $(OPTFLAGS) $(CUOPTFLAGS) $(INCFLAGS) $(CUDA_INC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math
-  GPUFLAGS = $(foreach opt, $(OPTFLAGS), -Xcompiler $(opt)) $(CUOPTFLAGS) $(INCFLAGS) $(CUDA_INC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math
-  ###GPUFLAGS += -Xcompiler -Wall -Xcompiler -Wextra -Xcompiler -Wshadow
+  GPUARCHFLAGS = $(foreach arch,$(subst $(comma), ,$(MADGRAPH_CUDA_ARCHITECTURE)),-gencode arch=compute_$(arch),code=compute_$(arch) -gencode arch=compute_$(arch),code=sm_$(arch))
+  GPUFLAGS += $(GPUARCHFLAGS)
+
+  # Other NVidia-specific flags
+  GPUFLAGS += -lineinfo
+
+  # NVCC version
   ###GPUCC_VERSION = $(shell $(GPUCC) --version | grep 'Cuda compilation tools' | cut -d' ' -f5 | cut -d, -f1)
+
+  # Fast math
+  GPUFLAGS += -use_fast_math
+
+  # Extra build warnings
+  ###GPUFLAGS += $(XCOMPILERFLAG) -Wall $(XCOMPILERFLAG) -Wextra $(XCOMPILERFLAG) -Wshadow
+
+  # CUDA includes and NVTX
+  GPUFLAGS += $(CUDA_INC) $(USE_NVTX) 
+
+  # C++ standard
   GPUFLAGS += -std=c++17 # need CUDA >= 11.2 (see #333): this is enforced in mgOnGpuConfig.h
+
+  # For nvcc, use -maxrregcount to control the maximum number of registries (this does not exist in hipcc)
   # Without -maxrregcount: baseline throughput: 6.5E8 (16384 32 12) up to 7.3E8 (65536 128 12)
   ###GPUFLAGS+= --maxrregcount 160 # improves throughput: 6.9E8 (16384 32 12) up to 7.7E8 (65536 128 12)
   ###GPUFLAGS+= --maxrregcount 128 # improves throughput: 7.3E8 (16384 32 12) up to 7.6E8 (65536 128 12)
   ###GPUFLAGS+= --maxrregcount 96 # degrades throughput: 4.1E8 (16384 32 12) up to 4.5E8 (65536 128 12)
   ###GPUFLAGS+= --maxrregcount 64 # degrades throughput: 1.7E8 (16384 32 12) flat at 1.7E8 (65536 128 12)
-  XCOMPILERFLAG = -Xcompiler
-  GPULANGUAGE = cu
 
-  # Set the host C++ compiler for GPUCC via "-ccbin <host-compiler>"
+  # Set the host C++ compiler for nvcc via "-ccbin <host-compiler>"
   # (NB issue #505: this must be a single word, "clang++ --gcc-toolchain..." is not supported)
   GPUFLAGS += -ccbin $(shell which $(subst ccache ,,$(CXX)))
 
@@ -282,27 +301,46 @@ ifeq ($(BACKEND),cuda)
 
 else ifeq ($(BACKEND),hip)
 
+  # Set GPUCC as $(HIP_HOME)/bin/hipcc (it was already checked above that this exists)
   GPUCC = $(HIP_HOME)/bin/hipcc
-  #USE_NVTX ?=-DUSE_NVTX # should maybe find something equivalent to this in HIP?
-  HIPARCHFLAGS = -target x86_64-linux-gnu --offload-arch=gfx90a
-  HIP_INC = -I$(HIP_HOME)/include/
-  # Note: -DHIP_FAST_MATH is equivalent to -use_fast_math in HIP 
-  # (but only for single precision line 208: https://rocm-developer-tools.github.io/HIP/hcc__detail_2math__functions_8h_source.html)
-  # Note: CUOPTFLAGS should not be used for HIP, it had been added here but was then removed (#808)
-  GPUFLAGS = $(OPTFLAGS) $(INCFLAGS) $(HIP_INC) $(HIPARCHFLAGS) -DHIP_FAST_MATH -DHIP_PLATFORM=amd -fPIC
-  ###GPUFLAGS += -Xcompiler -Wall -Xcompiler -Wextra -Xcompiler -Wshadow
-  GPUFLAGS += -std=c++17
-  ###GPUFLAGS+= --maxrregcount 255 # (AV: is this option valid on HIP and meaningful on AMD GPUs?)
   XCOMPILERFLAG =
   GPULANGUAGE = hip
+
+  # Basic compiler flags (optimization and includes)
+  GPUFLAGS = $(foreach opt, $(OPTFLAGS), $(XCOMPILERFLAG) $(opt)) $(INCFLAGS)
+
+  # AMD HIP architecture flags
+  GPUARCHFLAGS = --offload-arch=gfx90a
+  GPUFLAGS += $(GPUARCHFLAGS)
+
+  # Other AMD-specific flags
+  GPUFLAGS += -target x86_64-linux-gnu -DHIP_PLATFORM=amd
+
+  # Fast math (is -DHIP_FAST_MATH equivalent to -ffast-math?)
+  GPUFLAGS += -DHIP_FAST_MATH
+
+  # Extra build warnings
+  ###GPUFLAGS += $(XCOMPILERFLAG) -Wall $(XCOMPILERFLAG) -Wextra $(XCOMPILERFLAG) -Wshadow
+
+  # HIP includes
+  HIP_INC = -I$(HIP_HOME)/include/
+  GPUFLAGS += $(HIP_INC)
+
+  # C++ standard
+  GPUFLAGS += -std=c++17
 
 else
 
   # Backend is neither cuda nor hip
-  # (NB: throughout all makefiles, an empty GPUCC is used to indicate that this is a C++ build, i.e. that BACKEND is neither cuda nor hip!)
-  # (NB: in the past, GPUFLAGS could be modified elsewhere throughout all makefiles, but was only used in cuda/hip builds? - is this still the case?)
   override GPUCC=
   override GPUFLAGS=
+
+  # Sanity check, this should never happen: if GPUCC is empty, then this is a C++ build, i.e. BACKEND is neither cuda nor hip.
+  # In practice, in the following, "ifeq ($(GPUCC),)" is equivalent to "ifneq ($(findstring cpp,$(BACKEND)),)".
+  # Conversely, note that GPUFLAGS is non-empty also for C++ builds, but it is never used in that case.
+  ifeq ($(findstring cpp,$(BACKEND)),)
+  $(error INTERNAL ERROR! Unknown backend BACKEND='$(BACKEND)': supported backends are $(foreach backend,$(SUPPORTED_BACKENDS),'$(backend)'))
+  endif
 
 endif
 
@@ -788,7 +826,7 @@ $(cu_main): LIBFLAGS += -L$(patsubst %bin/nvc++,%lib,$(subst ccache ,,$(CXX))) -
 endif
 $(cu_main): LIBFLAGS += $(CULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(cu_main): $(BUILDDIR)/check_sa_cu.o $(LIBDIR)/lib$(MG5AMC_CULIB).so $(cu_objects_exe) $(BUILDDIR)/CurandRandomNumberKernel_cu.o $(BUILDDIR)/HiprandRandomNumberKernel_cu.o
-	$(GPUCC) -o $@ $(BUILDDIR)/check_sa_cu.o $(CUARCHFLAGS) $(LIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CULIB) $(cu_objects_exe) $(BUILDDIR)/CurandRandomNumberKernel_cu.o $(BUILDDIR)/HiprandRandomNumberKernel_cu.o $(RNDLIBFLAGS)
+	$(GPUCC) -o $@ $(BUILDDIR)/check_sa_cu.o $(GPUARCHFLAGS) $(LIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CULIB) $(cu_objects_exe) $(BUILDDIR)/CurandRandomNumberKernel_cu.o $(BUILDDIR)/HiprandRandomNumberKernel_cu.o $(RNDLIBFLAGS)
 endif
 
 #-------------------------------------------------------------------------------
