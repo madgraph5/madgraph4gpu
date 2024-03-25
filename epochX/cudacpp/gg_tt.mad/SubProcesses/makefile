@@ -172,11 +172,11 @@ madevent_hip_link:
 	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_hip $(PROG)
 
 madevent_cpp_link:
-	$(MAKE) BACKEND=auto $(CUDACPP_BUILDDIR)/$(PROG)_cpp
+	$(MAKE) BACKEND=cppauto $(CUDACPP_BUILDDIR)/$(PROG)_cpp
 	rm -f $(PROG)
 	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
 
-override SUPPORTED_AVXS = none sse4 avx2 512y 512z auto
+override SUPPORTED_AVXS = cppnone cppsse4 cppavx2 cpp512y cpp512z cppauto
 madevent_cpp%_link:
 	@if [ '$(words $(filter $*, $(SUPPORTED_AVXS)))' != '1' ]; then echo "ERROR! Invalid target '$@' (supported madevent_cpp*_link targets are: $(foreach avx,$(SUPPORTED_AVXS),'madevent_cpp$(avx)_link'))"; exit 1; fi
 	$(MAKE) BACKEND=$* $(CUDACPP_BUILDDIR)/$(PROG)_cpp
@@ -289,23 +289,23 @@ bldhip: $(PROG)_fortran $(DSIG_cudacpp)
 
 bldnone: $(PROG)_fortran $(DSIG_cudacpp)
 	@echo
-	$(MAKE) USEBUILDDIR=1 BACKEND=none
+	$(MAKE) USEBUILDDIR=1 BACKEND=cppnone
 
 bldsse4: $(PROG)_fortran $(DSIG_cudacpp)
 	@echo
-	$(MAKE) USEBUILDDIR=1 BACKEND=sse4
+	$(MAKE) USEBUILDDIR=1 BACKEND=cppsse4
 
 bldavx2: $(PROG)_fortran $(DSIG_cudacpp)
 	@echo
-	$(MAKE) USEBUILDDIR=1 BACKEND=avx2
+	$(MAKE) USEBUILDDIR=1 BACKEND=cppavx2
 
 bld512y: $(PROG)_fortran $(DSIG_cudacpp)
 	@echo
-	$(MAKE) USEBUILDDIR=1 BACKEND=512y
+	$(MAKE) USEBUILDDIR=1 BACKEND=cpp512y
 
 bld512z: $(PROG)_fortran $(DSIG_cudacpp)
 	@echo
-	$(MAKE) USEBUILDDIR=1 BACKEND=512z
+	$(MAKE) USEBUILDDIR=1 BACKEND=cpp512z
 
 # Clean (NB: 'make clean' in Source calls 'make clean' in all P*)
 
