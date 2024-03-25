@@ -910,9 +910,6 @@ $(testmain): LIBFLAGS += -lgomp
 endif
 endif
 
-<<<<<<< HEAD
-ifneq ($(BACKEND),cuda) # link only runTest.o
-=======
 # Test quadmath in testmisc.cc tests for constexpr_math #627
 ###$(testmain): LIBFLAGS += -lquadmath
 
@@ -922,23 +919,17 @@ ifneq ($(BACKEND),cuda) # link only runTest.o
 #endif
 
 ifeq ($(GPUCC),) # link only runTest.o
->>>>>>> upstream/master
 $(testmain): LIBFLAGS += $(CXXLIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects_lib) $(cxx_objects_exe) $(GTESTLIBS)
 	$(CXX) -o $@ $(cxx_objects_lib) $(cxx_objects_exe) -ldl -pthread $(LIBFLAGS)
 else # link only runTest_cu.o (new: in the past, this was linking both runTest.o and runTest_cu.o)
 $(testmain): LIBFLAGS += $(CULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
-<<<<<<< HEAD
 $(testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cu_objects_lib) $(cu_objects_exe) $(GTESTLIBS)
-	$(NVCC) -o $@ $(cu_objects_lib) $(cu_objects_exe) -ldl $(LIBFLAGS) -lcuda
-=======
-$(testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects_lib) $(cxx_objects_exe) $(cu_objects_lib) $(cu_objects_exe) $(GTESTLIBS)
 ifneq ($(findstring hipcc,$(GPUCC)),) # link fortran/c++/hip using $FC when hipcc is used #802
 	$(FC) -o $@ $(cxx_objects_lib) $(cxx_objects_exe) $(cu_objects_lib) $(cu_objects_exe) -ldl $(LIBFLAGS) $(CUDATESTFLAGS) -lstdc++ -lpthread  -L$(shell dirname $(shell $(GPUCC) -print-prog-name=clang))/../../lib -lamdhip64
 else
 	$(GPUCC) -o $@ $(cxx_objects_lib) $(cxx_objects_exe) $(cu_objects_lib) $(cu_objects_exe) -ldl $(LIBFLAGS) $(CUDATESTFLAGS)
 endif
->>>>>>> upstream/master
 endif
 
 # Use target gtestlibs to build only googletest
