@@ -365,11 +365,7 @@ endif
 
 #-------------------------------------------------------------------------------
 
-<<<<<<< HEAD
-#=== Configure defaults and check if user-defined choices exist for OMPFLAGS, BACKEND, FPTYPE, HELINL, HRDCOD, RNDGEN
-=======
-#=== Configure defaults and check if user-defined choices exist for OMPFLAGS, AVX, FPTYPE, HELINL, HRDCOD
->>>>>>> upstream/master
+#=== Configure defaults and check if user-defined choices exist for OMPFLAGS, BACKEND, FPTYPE, HELINL, HRDCOD
 
 # Set the default OMPFLAGS choice
 ifneq ($(findstring hipcc,$(GPUCC)),)
@@ -404,22 +400,8 @@ ifeq ($(HRDCOD),)
   override HRDCOD = 0
 endif
 
-<<<<<<< HEAD
-# Set the default RNDGEN (random number generator) choice
-ifeq ($(RNDGEN),)
-  ifeq ($(CUDA_HOME),)
-    override RNDGEN = hasNoCurand
-  else ifeq ($(RNDGEN),)
-    override RNDGEN = hasCurand
-  endif
-endif
-
-# Export BACKEND, FPTYPE, HELINL, HRDCOD, RNDGEN, OMPFLAGS so that there is no need to redefine them in cudacpp_src.mk
+# Export BACKEND, FPTYPE, HELINL, HRDCOD, OMPFLAGS so that there is no need to check/define them again in cudacpp_src.mk
 export BACKEND
-=======
-# Export AVX, FPTYPE, HELINL, HRDCOD, OMPFLAGS so that it is not necessary to pass them to the src Makefile too
-export AVX
->>>>>>> upstream/master
 export FPTYPE
 export HELINL
 export HRDCOD
@@ -427,11 +409,6 @@ export OMPFLAGS
 
 #-------------------------------------------------------------------------------
 
-<<<<<<< HEAD
-#=== Set the CUDA/C++ compiler flags appropriate to user-defined choices of BACKEND, FPTYPE, HELINL, HRDCOD, RNDGEN
-# Configure NVTX and CURAND if a CUDA installation exists
-...
-=======
 #=== Configure defaults and check if user-defined choices exist for RNDGEN (legacy!), HASCURAND, HASHIPRAND
 
 # If the legacy RNDGEN exists, this take precedence over any HASCURAND choice (but a warning is printed out)
@@ -471,7 +448,7 @@ ifeq ($(HASHIPRAND),)
   endif
 endif
 
-# Export HASCURAND, HASHIPRAND so that it is not necessary to pass them to the src Makefile too
+# Export HASCURAND, HASHIPRAND so that there is no need to check/define them again in cudacpp_src.mk
 # (NB: these variables in cudacpp_src.mk are only used to define the build tag, they are NOT needed for RNDCXXFLAGS or RNDLIBFLAGS)
 export HASCURAND
 export HASHIPRAND
@@ -479,7 +456,6 @@ export HASHIPRAND
 #-------------------------------------------------------------------------------
 
 #=== Set the CUDA/HIP/C++ compiler flags appropriate to user-defined choices of AVX, FPTYPE, HELINL, HRDCOD
->>>>>>> upstream/master
 
 # Set the build flags appropriate to OMPFLAGS
 $(info OMPFLAGS=$(OMPFLAGS))
@@ -613,11 +589,7 @@ override DIRTAG = $(BACKEND)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)
 
 # Build lockfile "full" tag (defines full specification of build options that cannot be intermixed)
 # (Rationale: avoid mixing of CUDA and no-CUDA environment builds with different random number generators)
-<<<<<<< HEAD
-override TAG = $(BACKEND)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)_$(RNDGEN)
-=======
-override TAG = $(AVX)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)_$(HASCURAND)_$(HASHIPRAND)
->>>>>>> upstream/master
+override TAG = $(BACKEND)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)_$(HASCURAND)_$(HASHIPRAND)
 
 # Build directory: current directory by default, or build.$(DIRTAG) if USEBUILDDIR==1
 ifeq ($(USEBUILDDIR),1)
