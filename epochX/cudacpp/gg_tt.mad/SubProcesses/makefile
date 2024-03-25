@@ -65,7 +65,7 @@ $(info CUDACPP_BUILDDIR='$(CUDACPP_BUILDDIR)')
 endif
 CUDACPP_COMMONLIB=mg5amc_common
 ifeq ($(BACKEND),cuda)
-CUDACPP_BACKENDLIB=mg5amc_$(processid_short)_cu
+CUDACPP_BACKENDLIB=mg5amc_$(processid_short)_cuda
 else ifeq ($(BACKEND),hip)
 CUDACPP_BACKENDLIB=mg5amc_$(processid_short)_hip
 else
