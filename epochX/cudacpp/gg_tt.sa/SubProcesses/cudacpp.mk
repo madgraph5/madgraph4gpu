@@ -1,7 +1,7 @@
 # Copyright (C) 2020-2023 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: S. Roiser (Feb 2020) for the MG5aMC CUDACPP plugin.
-# Further modified by: O. Mattelaer, S. Roiser, J. Teig, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
+# Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, J. Teig, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
 
 #=== Determine the name of this makefile (https://ftp.gnu.org/old-gnu/Manuals/make-3.80/html_node/make_17.html)
 #=== NB: use ':=' to ensure that the value of CUDACPP_MAKEFILE is not modified further down after including make_opts
@@ -34,8 +34,8 @@ UNAME_P := $(shell uname -p)
 
 #=== Include the common MG5aMC Makefile options
 
-# OM: this is crucial for MG5aMC flag consistency/documentation
-# AV: temporarely comment this out because it breaks cudacpp builds
+# OM: including make_opts is crucial for MG5aMC flag consistency/documentation
+# AV: disable the inclusion of make_opts if the file has not been generated (standalone cudacpp)
 ifneq ($(wildcard ../../Source/make_opts),)
 include ../../Source/make_opts
 endif
@@ -64,6 +64,8 @@ override CXXNAME = unknown
 endif
 ###$(info CXXNAME=$(CXXNAME))
 override CXXNAMESUFFIX = _$(CXXNAME)
+
+# Export CXXNAMESUFFIX so that there is no need to redefine it in cudacpp_test.mk
 export CXXNAMESUFFIX
 
 # Dependency on test directory
@@ -99,6 +101,49 @@ endif
 
 #-------------------------------------------------------------------------------
 
+#=== Configure the default BACKEND if no user-defined choice exists
+#=== Determine the build type (CUDA or C++/SIMD) based on the BACKEND variable
+
+# Set the default BACKEND choice if none is defined (choose 'auto' i.e. the 'best' C++ vectorization available: eventually use native instead?)
+# (NB: this is ignored in 'make cleanall' and 'make distclean', but a choice is needed in the check for supported backends below)
+# Strip white spaces in user-defined BACKEND
+ifeq ($(BACKEND),)
+override BACKEND := auto
+else
+override BACKEND := $(strip $(BACKEND))
+endif
+
+# Set the default BACKEND choice if none is defined (choose 'auto' i.e. the 'best' C++ vectorization available: eventually use native instead?)
+ifeq ($(BACKEND),auto)
+  ifeq ($(UNAME_P),ppc64le)
+    override BACKEND = sse4
+  else ifeq ($(UNAME_P),arm)
+    override BACKEND = sse4
+  else ifeq ($(wildcard /proc/cpuinfo),)
+    override BACKEND = none
+    ###$(warning Using BACKEND='$(BACKEND)' because host SIMD features cannot be read from /proc/cpuinfo)
+  else ifeq ($(shell grep -m1 -c avx512vl /proc/cpuinfo)$(shell $(CXX) --version | grep ^clang),1)
+    override BACKEND = 512y
+  else
+    override BACKEND = avx2
+    ###ifneq ($(shell grep -m1 -c avx512vl /proc/cpuinfo),1)
+    ###  $(warning Using BACKEND='$(BACKEND)' because host does not support avx512vl)
+    ###else
+    ###  $(warning Using BACKEND='$(BACKEND)' because this is faster than avx512vl for clang)
+    ###endif
+  endif
+endif
+$(info BACKEND=$(BACKEND))
+
+# Check that BACKEND is one of the possible supported backends
+# (NB: use 'filter' and 'words' instead of 'findstring' because they properly handle whitespace-separated words)
+override SUPPORTED_BACKENDS = cuda hip none sse4 avx2 512y 512z auto
+ifneq ($(words $(filter $(BACKEND), $(SUPPORTED_BACKENDS))),1)
+$(error Invalid backend BACKEND='$(BACKEND)': supported backends are $(foreach backend,$(SUPPORTED_BACKENDS),'$(backend)'))
+endif
+
+#-------------------------------------------------------------------------------
+
 #=== Configure the C++ compiler
 
 CXXFLAGS = $(OPTFLAGS) -std=c++17 $(INCFLAGS) -Wall -Wshadow -Wextra
@@ -122,19 +167,7 @@ endif
 #-------------------------------------------------------------------------------
 
 #=== Configure the GPU compiler (CUDA or HIP)
-
-# FIXME! (AV 24.01.2024)
-# In the current implementation (without separate builds for C++ and CUDA/HIP), we first check for cudacc and hipcc in CUDA_HOME and HIP_HOME.
-# If CUDA_HOME or HIP_HOME are not set, try to determine them from the path to cudacc and hipcc.
-# While convoluted, this is currently necessary to allow disabling CUDA/HIP builds by setting CUDA_HOME or HIP_HOME to invalid paths.
-# This will (probably?) be fixed when separate C++ and CUDA/HIP builds are implemented (PR #775).
-
-# If CXX is not a single word (example "clang++ --gcc-toolchain...") then disable CUDA builds (issue #505)
-# This is because it is impossible to pass this to "GPUFLAGS += -ccbin <host-compiler>" below
-ifneq ($(words $(subst ccache ,,$(CXX))),1) # allow at most "CXX=ccache <host-compiler>" from outside
-  $(warning CUDA builds are not supported for multi-word CXX "$(CXX)")
-  override CUDA_HOME=disabled
-endif
+#=== (note, this is done also for C++, as NVTX and CURAND/ROCRAND are also needed by the C++ backends)
 
 # If CUDA_HOME is not set, try to set it from the path to nvcc
 ifndef CUDA_HOME
@@ -148,31 +181,88 @@ ifndef HIP_HOME
   $(warning HIP_HOME was not set: using "$(HIP_HOME)")
 endif
 
-# FIXME! (AV 24.01.2024)
-# In the current implementation (without separate builds for C++ and CUDA/HIP),
-# builds are performed for HIP only if CUDA is not found in the path.
-# If both CUDA and HIP are installed, HIP builds can be triggered by unsetting CUDA_HOME.
-# This will be fixed when separate C++ and CUDA/HIP builds are implemented (PR #775).
+# Check if $(CUDA_HOME)/bin/nvcc exists to determine if CUDA_HOME is a valid CUDA installation
+ifeq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
+  ifeq ($(BACKEND),cuda)
+    # Note, in the past REQUIRE_CUDA was used, e.g. for CI tests on GPU #443
+    $(error BACKEND=$(BACKEND) but no CUDA installation was found in CUDA_HOME='$(CUDA_HOME)')
+  else
+    ###$(warning No CUDA installation was found in CUDA_HOME='$(CUDA_HOME)')
+    override CUDA_HOME=
+  endif
+endif
+###$(info CUDA_HOME=$(CUDA_HOME))
 
-#--- Option 1: CUDA exists -> use CUDA
+# Check if $(HIP_HOME)/bin/hipcc exists to determine if HIP_HOME is a valid HIP installation
+ifeq ($(wildcard $(HIP_HOME)/bin/hipcc),)
+  ifeq ($(BACKEND),hip)
+    $(error BACKEND=$(BACKEND) but no HIP installation was found in HIP_HOME='$(HIP_HOME)')
+  else
+    ###$(warning No HIP installation was found in HIP_HOME='$(HIP_HOME)')
+    override HIP_HOME=
+  endif
+endif
+###$(info HIP_HOME=$(HIP_HOME))
 
-# Set GPUCC as $(CUDA_HOME)/bin/nvcc if it exists
-ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
-
-  GPUCC = $(CUDA_HOME)/bin/nvcc
+# Configure NVTX and CURAND if a CUDA installation exists
+# (FIXME? Is there any equivalent of NVTX FOR HIP? What should be configured if both CUDA and HIP are installed?)
+ifneq ($(CUDA_HOME),)
   USE_NVTX ?=-DUSE_NVTX
+  CUINC = -I$(CUDA_HOME)/include/
+  ifeq ($(RNDGEN),hasNoCurand)
+    CURANDLIBFLAGS=
+  else
+    CURANDLIBFLAGS = -L$(CUDA_HOME)/lib64/ -lcurand # NB: -lcuda is not needed here!
+  endif
+else
+  override USE_NVTX=
+  override CUINC=
+  override CURANDLIBFLAGS=
+endif
+
+# NB1 (AND FIXME): NEW LOGIC FOR ENABLING AND DISABLING CUDA OR HIP BUILDS (AV 02.02.2024)
+# - As in the past, we first check for cudacc and hipcc in CUDA_HOME and HIP_HOME; and if CUDA_HOME or HIP_HOME are not set,
+# we try to determine them from the path to cudacc and hipcc. **FIXME** : in the future, it may be better to completely remove
+# the dependency of this makefile on CUDA_HOME and HIP_HOME, and only rely on whether nvcc and hipcc are in PATH.
+# - In the old implementation, by default the C++ targets for one specific AVX were always built together with either CUDA or HIP.
+# If both CUDA and HIP were installed, then CUDA took precedence over HIP, and the only way to force HIP builds was to disable
+# CUDA builds by setting CUDA_HOME to an invalid value. Similarly, C++-only builds could be forced by setting CUDA_HOME and/or
+# HIP_HOME to invalid values. A check for an invalid nvcc in CUDA_HOME or an invalid hipcc HIP_HOME was necessary to ensure this
+# logic, and had to be performed _before_ choosing whether C++/CUDA, C++/HIP or C++-only builds had to be executed.
+# - In the new implementation (PR #798), separate individual builds are performed for one specific C++/AVX mode, for CUDA or
+# for HIP. The choice of the type of build is taken depending on the value of the BACKEND variable (replacing the AVX variable).
+# For the moment, it is still possible to override the PATH to nvcc and hipcc by externally setting a different value to CUDA_HOME
+# and HIP_HOME (although this will probably disappear as mentioned above): note also that the check whether nvcc or hipcc exist
+# still needs to be performed _before_ BACKEND-specific configurations, because CUDA/HIP installations also affect C++-only builds,
+# for NVTX and curand-host in the case of CUDA, and for rocrand-host in the case of HIP.
+# - Note also that the REQUIRE_CUDA variable (#443) is now (PR #798) no longer necessary, as it is now equivalent to BACKEND=cuda.
+# Similarly, there is no need to introduce a REQUIRE_HIP variable.
+
+#=== Configure the CUDA compiler (only for the CUDA backend)
+#=== (NB: throughout all makefiles, an empty GPUCC is used to indicate that this is a C++ build, i.e. that BACKEND is neither cuda nor hip!)
+
+ifeq ($(BACKEND),cuda)
+
+  # If CXX is not a single word (example "clang++ --gcc-toolchain...") then disable CUDA builds (issue #505)
+  # This is because it is impossible to pass this to "CUFLAGS += -ccbin <host-compiler>" below
+  ifneq ($(words $(subst ccache ,,$(CXX))),1) # allow at most "CXX=ccache <host-compiler>" from outside
+    $(error BACKEND=$(BACKEND) but CUDA builds are not supported for multi-word CXX "$(CXX)")
+  endif
+
+  # Set GPUCC as $(CUDA_HOME)/bin/nvcc (it was already checked above that this exists)
+  GPUCC = $(CUDA_HOME)/bin/nvcc
+
   # See https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html
   # See https://arnon.dk/matching-sm-architectures-arch-and-gencode-for-various-nvidia-cards/
   # Default: use compute capability 70 for V100 (CERN lxbatch, CERN itscrd, Juwels Cluster).
-  # Embed device code for 70, and PTX for 70+.
-  # Export MADGRAPH_CUDA_ARCHITECTURE (comma-separated list) to use another value or list of values (see #533).
+  # This will embed device code for 70, and PTX for 70+.
+  # One may pass MADGRAPH_CUDA_ARCHITECTURE (comma-separated list) to the make command to use another value or list of values (see #533).
   # Examples: use 60 for P100 (Piz Daint), 80 for A100 (Juwels Booster, NVidia raplab/Curiosity).
   MADGRAPH_CUDA_ARCHITECTURE ?= 70
   ###CUARCHFLAGS = -gencode arch=compute_$(MADGRAPH_CUDA_ARCHITECTURE),code=compute_$(MADGRAPH_CUDA_ARCHITECTURE) -gencode arch=compute_$(MADGRAPH_CUDA_ARCHITECTURE),code=sm_$(MADGRAPH_CUDA_ARCHITECTURE) # Older implementation (AV): go back to this one for multi-GPU support #533
   ###CUARCHFLAGS = --gpu-architecture=compute_$(MADGRAPH_CUDA_ARCHITECTURE) --gpu-code=sm_$(MADGRAPH_CUDA_ARCHITECTURE),compute_$(MADGRAPH_CUDA_ARCHITECTURE)  # Newer implementation (SH): cannot use this as-is for multi-GPU support #533
   comma:=,
   CUARCHFLAGS = $(foreach arch,$(subst $(comma), ,$(MADGRAPH_CUDA_ARCHITECTURE)),-gencode arch=compute_$(arch),code=compute_$(arch) -gencode arch=compute_$(arch),code=sm_$(arch))
-  CUINC = -I$(CUDA_HOME)/include/
   CUOPTFLAGS = -lineinfo
   ###GPUFLAGS = $(OPTFLAGS) $(CUOPTFLAGS) $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math
   GPUFLAGS = $(foreach opt, $(OPTFLAGS), -Xcompiler $(opt)) $(CUOPTFLAGS) $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math
@@ -197,15 +287,7 @@ ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   GPUFLAGS += -allow-unsupported-compiler
   endif
 
-else ifneq ($(origin REQUIRE_CUDA),undefined)
-
-  # If REQUIRE_CUDA is set but no cuda is found, stop here (e.g. for CI tests on GPU #443)
-  $(error No cuda installation found (set CUDA_HOME or make GPUCC visible in PATH))
-
-#--- Option 2: CUDA does not exist, HIP exists -> use HIP
-
-# Set GPUCC as $(HIP_HOME)/bin/hipcc if it exists
-else ifneq ($(wildcard $(HIP_HOME)/bin/hipcc),)
+else ifeq ($(BACKEND),hip)
 
   GPUCC = $(HIP_HOME)/bin/hipcc
   #USE_NVTX ?=-DUSE_NVTX # should maybe find something equivalent to this in HIP?
@@ -221,26 +303,21 @@ else ifneq ($(wildcard $(HIP_HOME)/bin/hipcc),)
   CUBUILDRULEFLAGS = -fPIC -c
   CCBUILDRULEFLAGS = -fPIC -c -x hip
 
-else ifneq ($(origin REQUIRE_HIP),undefined)
-
-  # If REQUIRE_HIP is set but no HIP is found, stop here (e.g. for CI tests on GPU #443)
-  $(error No hip installation found (set HIP_HOME or make GPUCC visible in PATH))
-
-#--- Option 3: CUDA does not exist, HIP does not exist -> switch off both CUDA and HIP
-
 else
 
-  # No cudacc and no hipcc: switch CUDA and HIP compilation off and go to common random numbers in C++
-  $(warning CUDA_HOME is not set or is invalid: export CUDA_HOME to compile with cuda)
-  $(warning HIP_HOME is not set or is invalid: export HIP_HOME to compile with hip)
+  # Backend is neither cuda nor hip
+  # (NB: throughout all makefiles, an empty GPUCC is used to indicate that this is a C++ build, i.e. that BACKEND is neither cuda nor hip!)
+  # (NB: in the past, GPUFLAGS could be modified elsewhere throughout all makefiles, but was only used in cuda/hip builds? - is this still the case?)
+  # (NB: are CUINC and HIPINC correct here?)
   override GPUCC=
-  override USE_NVTX=
-  override CUINC=
-  override HIPINC=
+  override GPUFLAGS=
+  ###override USE_NVTX=
+  ###override CUINC=
+  ###override HIPINC=
 
 endif
 
-# Export GPUCC (so that it can also be used in cudacpp_src.mk?)
+# Export GPUCC and GPUFLAGS (so that there is no need to redefine them in cudacpp_src.mk)
 export GPUCC
 export GPUFLAGS
 
@@ -286,7 +363,7 @@ endif
 
 #-------------------------------------------------------------------------------
 
-#=== Configure defaults and check if user-defined choices exist for OMPFLAGS, AVX, FPTYPE, HELINL, HRDCOD
+#=== Configure defaults and check if user-defined choices exist for OMPFLAGS, BACKEND, FPTYPE, HELINL, HRDCOD
 
 # Set the default OMPFLAGS choice
 ifneq ($(findstring hipcc,$(GPUCC)),)
@@ -306,32 +383,6 @@ override OMPFLAGS = -fopenmp # enable OpenMP MT by default on all other platform
 ###override OMPFLAGS = # disable OpenMP MT on all other platforms (default before #575)
 endif
 
-# Set the default AVX (vectorization) choice
-ifeq ($(AVX),)
-  ifeq ($(UNAME_P),ppc64le)
-    ###override AVX = none
-    override AVX = sse4
-  else ifeq ($(UNAME_P),arm)
-    ###override AVX = none
-    override AVX = sse4
-  else ifeq ($(wildcard /proc/cpuinfo),)
-    override AVX = none
-    $(warning Using AVX='$(AVX)' because host SIMD features cannot be read from /proc/cpuinfo)
-  else ifeq ($(shell grep -m1 -c avx512vl /proc/cpuinfo)$(shell $(CXX) --version | grep ^clang),1)
-    override AVX = 512y
-    ###$(info Using AVX='$(AVX)' as no user input exists)
-  else
-    override AVX = avx2
-    ifneq ($(shell grep -m1 -c avx512vl /proc/cpuinfo),1)
-      $(warning Using AVX='$(AVX)' because host does not support avx512vl)
-    else
-      $(warning Using AVX='$(AVX)' because this is faster than avx512vl for clang)
-    endif
-  endif
-else
-  ###$(info Using AVX='$(AVX)' according to user input)
-endif
-
 # Set the default FPTYPE (floating point type) choice
 ifeq ($(FPTYPE),)
   override FPTYPE = d
@@ -347,8 +398,8 @@ ifeq ($(HRDCOD),)
   override HRDCOD = 0
 endif
 
-# Export AVX, FPTYPE, HELINL, HRDCOD, OMPFLAGS so that it is not necessary to pass them to the src Makefile too
-export AVX
+# Export BACKEND, FPTYPE, HELINL, HRDCOD, OMPFLAGS so that there is no need to check/define them again in cudacpp_src.mk
+export BACKEND
 export FPTYPE
 export HELINL
 export HRDCOD
@@ -395,7 +446,7 @@ ifeq ($(HASHIPRAND),)
   endif
 endif
 
-# Export HASCURAND, HASHIPRAND so that it is not necessary to pass them to the src Makefile too
+# Export HASCURAND, HASHIPRAND so that there is no need to check/define them again in cudacpp_src.mk
 # (NB: these variables in cudacpp_src.mk are only used to define the build tag, they are NOT needed for RNDCXXFLAGS or RNDLIBFLAGS)
 export HASCURAND
 export HASHIPRAND
@@ -408,53 +459,61 @@ export HASHIPRAND
 $(info OMPFLAGS=$(OMPFLAGS))
 CXXFLAGS += $(OMPFLAGS)
 
-# Set the build flags appropriate to each AVX choice (example: "make AVX=none")
+# Set the build flags appropriate to each BACKEND choice (example: "make BACKEND=none")
 # [NB MGONGPU_PVW512 is needed because "-mprefer-vector-width=256" is not exposed in a macro]
 # [See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=96476]
-$(info AVX=$(AVX))
 ifeq ($(UNAME_P),ppc64le)
-  ifeq ($(AVX),sse4)
+  ifeq ($(BACKEND),sse4)
     override AVXFLAGS = -D__SSE4_2__ # Power9 VSX with 128 width (VSR registers)
-  else ifneq ($(AVX),none)
-    $(error Unknown AVX='$(AVX)': only 'none' and 'sse4' are supported on PowerPC for the moment)
+  else ifeq ($(BACKEND),avx2)
+    $(error Invalid SIMD BACKEND='$(BACKEND)': only 'none' and 'sse4' are supported on PowerPC for the moment)
+  else ifeq ($(BACKEND),512y)
+    $(error Invalid SIMD BACKEND='$(BACKEND)': only 'none' and 'sse4' are supported on PowerPC for the moment)
+  else ifeq ($(BACKEND),512z)
+    $(error Invalid SIMD BACKEND='$(BACKEND)': only 'none' and 'sse4' are supported on PowerPC for the moment)
   endif
 else ifeq ($(UNAME_P),arm)
-  ifeq ($(AVX),sse4)
+  ifeq ($(BACKEND),sse4)
     override AVXFLAGS = -D__SSE4_2__ # ARM NEON with 128 width (Q/quadword registers)
-  else ifneq ($(AVX),none)
-    $(error Unknown AVX='$(AVX)': only 'none' and 'sse4' are supported on ARM for the moment)
+  else ifeq ($(BACKEND),avx2)
+    $(error Invalid SIMD BACKEND='$(BACKEND)': only 'none' and 'sse4' are supported on ARM for the moment)
+  else ifeq ($(BACKEND),512y)
+    $(error Invalid SIMD BACKEND='$(BACKEND)': only 'none' and 'sse4' are supported on ARM for the moment)
+  else ifeq ($(BACKEND),512z)
+    $(error Invalid SIMD BACKEND='$(BACKEND)': only 'none' and 'sse4' are supported on ARM for the moment)
   endif
 else ifneq ($(shell $(CXX) --version | grep ^nvc++),) # support nvc++ #531
-  ifeq ($(AVX),none)
+  ifeq ($(BACKEND),none)
     override AVXFLAGS = -mno-sse3 # no SIMD
-  else ifeq ($(AVX),sse4)
+  else ifeq ($(BACKEND),sse4)
     override AVXFLAGS = -mno-avx # SSE4.2 with 128 width (xmm registers)
-  else ifeq ($(AVX),avx2)
+  else ifeq ($(BACKEND),avx2)
     override AVXFLAGS = -march=haswell # AVX2 with 256 width (ymm registers) [DEFAULT for clang]
-  else ifeq ($(AVX),512y)
+  else ifeq ($(BACKEND),512y)
     override AVXFLAGS = -march=skylake -mprefer-vector-width=256 # AVX512 with 256 width (ymm registers) [DEFAULT for gcc]
-  else ifeq ($(AVX),512z)
+  else ifeq ($(BACKEND),512z)
     override AVXFLAGS = -march=skylake -DMGONGPU_PVW512 # AVX512 with 512 width (zmm registers)
-  else
-    $(error Unknown AVX='$(AVX)': only 'none', 'sse4', 'avx2', '512y' and '512z' are supported)
   endif
 else
-  ifeq ($(AVX),none)
+  ifeq ($(BACKEND),none)
     override AVXFLAGS = -march=x86-64 # no SIMD (see #588)
-  else ifeq ($(AVX),sse4)
+  else ifeq ($(BACKEND),sse4)
     override AVXFLAGS = -march=nehalem # SSE4.2 with 128 width (xmm registers)
-  else ifeq ($(AVX),avx2)
+  else ifeq ($(BACKEND),avx2)
     override AVXFLAGS = -march=haswell # AVX2 with 256 width (ymm registers) [DEFAULT for clang]
-  else ifeq ($(AVX),512y)
+  else ifeq ($(BACKEND),512y)
     override AVXFLAGS = -march=skylake-avx512 -mprefer-vector-width=256 # AVX512 with 256 width (ymm registers) [DEFAULT for gcc]
-  else ifeq ($(AVX),512z)
+  else ifeq ($(BACKEND),512z)
     override AVXFLAGS = -march=skylake-avx512 -DMGONGPU_PVW512 # AVX512 with 512 width (zmm registers)
-  else
-    $(error Unknown AVX='$(AVX)': only 'none', 'sse4', 'avx2', '512y' and '512z' are supported)
   endif
 endif
-# For the moment, use AVXFLAGS everywhere: eventually, use them only in encapsulated implementations?
+# For the moment, use AVXFLAGS everywhere (in C++ builds): eventually, use them only in encapsulated implementations?
+ifneq ($(BACKEND),cuda)
 CXXFLAGS+= $(AVXFLAGS)
+endif
+
+# Export AVXFLAGS so that there is no need to redefine them in cudacpp_src.mk
+export AVXFLAGS
 
 # Set the build flags appropriate to each FPTYPE choice (example: "make FPTYPE=f")
 $(info FPTYPE=$(FPTYPE))
@@ -524,11 +583,11 @@ endif
 
 # Build directory "short" tag (defines target and path to the optional build directory)
 # (Rationale: keep directory names shorter, e.g. do not include random number generator choice)
-override DIRTAG = $(AVX)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)
+override DIRTAG = $(BACKEND)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)
 
 # Build lockfile "full" tag (defines full specification of build options that cannot be intermixed)
 # (Rationale: avoid mixing of CUDA and no-CUDA environment builds with different random number generators)
-override TAG = $(AVX)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)_$(HASCURAND)_$(HASHIPRAND)
+override TAG = $(BACKEND)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)_$(HASCURAND)_$(HASHIPRAND)
 
 # Build directory: current directory by default, or build.$(DIRTAG) if USEBUILDDIR==1
 ifeq ($(USEBUILDDIR),1)
@@ -582,10 +641,14 @@ endif
 
 testmain=$(BUILDDIR)/runTest.exe
 
-ifneq ($(GTESTLIBS),)
-all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cu_main) $(cxx_main) $(fcu_main) $(fcxx_main) $(testmain)
+# Explicitly define the default goal (this is not necessary as it is the first target, which is implicitly the default goal)
+.DEFAULT_GOAL := all.$(TAG)
+
+# First target (default goal)
+ifeq ($(BACKEND),cuda)
+all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cu_main) $(fcu_main) $(if $(GTESTLIBS),$(testmain))
 else
-all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cu_main) $(cxx_main) $(fcu_main) $(fcxx_main)
+all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_main) $(fcxx_main) $(if $(GTESTLIBS),$(testmain))
 endif
 
 # Target (and build options): debug
@@ -787,13 +850,13 @@ endif
 #-------------------------------------------------------------------------------
 
 # Target (and build rules): test objects and test executable
+ifeq ($(GPUCC),)
 $(BUILDDIR)/testxxx.o: $(GTESTLIBS)
 $(BUILDDIR)/testxxx.o: INCFLAGS += $(GTESTINC)
 $(BUILDDIR)/testxxx.o: testxxx_cc_ref.txt
 $(testmain): $(BUILDDIR)/testxxx.o
 $(testmain): cxx_objects_exe += $(BUILDDIR)/testxxx.o # Comment out this line to skip the C++ test of xxx functions
-
-ifneq ($(GPUCC),)
+else
 $(BUILDDIR)/testxxx_cu.o: $(GTESTLIBS)
 $(BUILDDIR)/testxxx_cu.o: INCFLAGS += $(GTESTINC)
 $(BUILDDIR)/testxxx_cu.o: testxxx_cc_ref.txt
@@ -801,24 +864,24 @@ $(testmain): $(BUILDDIR)/testxxx_cu.o
 $(testmain): cu_objects_exe += $(BUILDDIR)/testxxx_cu.o # Comment out this line to skip the CUDA test of xxx functions
 endif
 
+ifeq ($(GPUCC),)
 $(BUILDDIR)/testmisc.o: $(GTESTLIBS)
 $(BUILDDIR)/testmisc.o: INCFLAGS += $(GTESTINC)
 $(testmain): $(BUILDDIR)/testmisc.o
 $(testmain): cxx_objects_exe += $(BUILDDIR)/testmisc.o # Comment out this line to skip the C++ miscellaneous tests
-
-ifneq ($(GPUCC),)
+else
 $(BUILDDIR)/testmisc_cu.o: $(GTESTLIBS)
 $(BUILDDIR)/testmisc_cu.o: INCFLAGS += $(GTESTINC)
 $(testmain): $(BUILDDIR)/testmisc_cu.o
 $(testmain): cu_objects_exe += $(BUILDDIR)/testmisc_cu.o # Comment out this line to skip the CUDA miscellaneous tests
 endif
 
+ifeq ($(GPUCC),)
 $(BUILDDIR)/runTest.o: $(GTESTLIBS)
 $(BUILDDIR)/runTest.o: INCFLAGS += $(GTESTINC)
 $(testmain): $(BUILDDIR)/runTest.o
 $(testmain): cxx_objects_exe += $(BUILDDIR)/runTest.o
-
-ifneq ($(GPUCC),)
+else
 $(BUILDDIR)/runTest_cu.o: $(GTESTLIBS)
 $(BUILDDIR)/runTest_cu.o: INCFLAGS += $(GTESTINC)
 ifneq ($(shell $(CXX) --version | grep ^Intel),)
@@ -859,9 +922,9 @@ ifeq ($(GPUCC),) # link only runTest.o
 $(testmain): LIBFLAGS += $(CXXLIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects_lib) $(cxx_objects_exe) $(GTESTLIBS)
 	$(CXX) -o $@ $(cxx_objects_lib) $(cxx_objects_exe) -ldl -pthread $(LIBFLAGS)
-else # link both runTest.o and runTest_cu.o
+else # link only runTest_cu.o (new: in the past, this was linking both runTest.o and runTest_cu.o)
 $(testmain): LIBFLAGS += $(CULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
-$(testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects_lib) $(cxx_objects_exe) $(cu_objects_lib) $(cu_objects_exe) $(GTESTLIBS)
+$(testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cu_objects_lib) $(cu_objects_exe) $(GTESTLIBS)
 ifneq ($(findstring hipcc,$(GPUCC)),) # link fortran/c++/hip using $FC when hipcc is used #802
 	$(FC) -o $@ $(cxx_objects_lib) $(cxx_objects_exe) $(cu_objects_lib) $(cu_objects_exe) -ldl $(LIBFLAGS) $(CUDATESTFLAGS) -lstdc++ -lpthread  -L$(shell dirname $(shell $(GPUCC) -print-prog-name=clang))/../../lib -lamdhip64
 else
@@ -885,38 +948,48 @@ endif
 
 #-------------------------------------------------------------------------------
 
-# Target: build all targets in all AVX modes (each AVX mode in a separate build directory)
-# Split the avxall target into five separate targets to allow parallel 'make -j avxall' builds
-# (Hack: add a fbridge.inc dependency to avxall, to ensure it is only copied once for all AVX modes)
-avxnone:
+# Target: build all targets in all BACKEND modes (each BACKEND mode in a separate build directory)
+# Split the bldall target into separate targets to allow parallel 'make -j bldall' builds
+# (Obsolete hack, no longer needed as there is no INCDIR: add a fbridge.inc dependency to bldall, to ensure it is only copied once for all BACKEND modes)
+bldcuda:
 	@echo
-	$(MAKE) USEBUILDDIR=1 AVX=none -f $(CUDACPP_MAKEFILE)
+	$(MAKE) USEBUILDDIR=1 BACKEND=cuda -f $(CUDACPP_MAKEFILE)
 
-avxsse4:
+bldnone:
 	@echo
-	$(MAKE) USEBUILDDIR=1 AVX=sse4 -f $(CUDACPP_MAKEFILE)
+	$(MAKE) USEBUILDDIR=1 BACKEND=none -f $(CUDACPP_MAKEFILE)
 
-avxavx2:
+bldsse4:
 	@echo
-	$(MAKE) USEBUILDDIR=1 AVX=avx2 -f $(CUDACPP_MAKEFILE)
+	$(MAKE) USEBUILDDIR=1 BACKEND=sse4 -f $(CUDACPP_MAKEFILE)
 
-avx512y:
+bldavx2:
 	@echo
-	$(MAKE) USEBUILDDIR=1 AVX=512y -f $(CUDACPP_MAKEFILE)
+	$(MAKE) USEBUILDDIR=1 BACKEND=avx2 -f $(CUDACPP_MAKEFILE)
 
-avx512z:
+bld512y:
 	@echo
-	$(MAKE) USEBUILDDIR=1 AVX=512z -f $(CUDACPP_MAKEFILE)
+	$(MAKE) USEBUILDDIR=1 BACKEND=512y -f $(CUDACPP_MAKEFILE)
+
+bld512z:
+	@echo
+	$(MAKE) USEBUILDDIR=1 BACKEND=512z -f $(CUDACPP_MAKEFILE)
 
 ifeq ($(UNAME_P),ppc64le)
-###avxall: $(INCDIR)/fbridge.inc avxnone avxsse4
-avxall: avxnone avxsse4
+###bldavxs: $(INCDIR)/fbridge.inc bldnone bldsse4
+bldavxs: bldnone bldsse4
 else ifeq ($(UNAME_P),arm)
-###avxall: $(INCDIR)/fbridge.inc avxnone avxsse4
-avxall: avxnone avxsse4
+###bldavxs: $(INCDIR)/fbridge.inc bldnone bldsse4
+bldavxs: bldnone bldsse4
 else
-###avxall: $(INCDIR)/fbridge.inc avxnone avxsse4 avxavx2 avx512y avx512z
-avxall: avxnone avxsse4 avxavx2 avx512y avx512z
+###bldavxs: $(INCDIR)/fbridge.inc bldnone bldsse4 bldavx2 bld512y bld512z
+bldavxs: bldnone bldsse4 bldavx2 bld512y bld512z
+endif
+
+ifneq ($(CUDA_HOME),)
+bldall: bldcuda bldavxs
+else
+bldall: bldavxs
 endif
 
 #-------------------------------------------------------------------------------
@@ -996,8 +1069,9 @@ endif
 
 # Target: check (run the C++ test executable)
 # [NB THIS IS WHAT IS USED IN THE GITHUB CI!]
+# [FIXME: SHOULD CHANGE THE TARGET NAME "check" THAT HAS NOTHING TO DO WITH "check.exe"]
 ifneq ($(GPUCC),)
-check: runTest cmpFcheck cmpFGcheck
+check: runTest cmpFGcheck
 else
 check: runTest cmpFcheck
 endif
