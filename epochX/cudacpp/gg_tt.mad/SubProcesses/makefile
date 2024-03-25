@@ -64,8 +64,13 @@ else
 $(info CUDACPP_BUILDDIR='$(CUDACPP_BUILDDIR)')
 endif
 CUDACPP_COMMONLIB=mg5amc_common
-CUDACPP_CXXLIB=mg5amc_$(processid_short)_cpp
-CUDACPP_GPULIB=mg5amc_$(processid_short)_cuda
+ifeq ($(BACKEND),cuda)
+CUDACPP_BACKENDLIB=mg5amc_$(processid_short)_cu
+else ifeq ($(BACKEND),hip)
+CUDACPP_BACKENDLIB=mg5amc_$(processid_short)_hip
+else
+CUDACPP_BACKENDLIB=mg5amc_$(processid_short)_cpp
+endif
 
 LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libgammaUPC.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS)
 
@@ -178,13 +183,17 @@ madevent_cpp%_link:
 	rm -f $(PROG)
 	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
 
-# Building $(PROG)_cpp no longer builds $(PROG)_cuda if $(CUDACPP_GPULIB) exists (this was the case in the past to allow cpp-only builds #503)
+# Building $(PROG)_cpp no longer builds $(PROG)_cuda if CUDACPP_BACKENDLIB for cuda exists (this was the case in the past to allow cpp-only builds #503)
 $(CUDACPP_BUILDDIR)/$(PROG)_cpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o ompnumthreads.o $(CUDACPP_BUILDDIR)/.cudacpplibs
-	$(FC) -o $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_CXXLIB) $(LIBFLAGSRPATH) $(LDFLAGS)
+	$(FC) -o $@ $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_BACKENDLIB) $(LIBFLAGSRPATH) $(LDFLAGS)
 
 # Building $(PROG)_cuda now uses its own rule
 $(CUDACPP_BUILDDIR)/$(PROG)_cuda: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o ompnumthreads.o $(CUDACPP_BUILDDIR)/.cudacpplibs
-	$(FC) -o $(CUDACPP_BUILDDIR)/$(PROG)_cuda $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_GPULIB) $(LIBFLAGSRPATH) $(LDFLAGS)
+	$(FC) -o $@ $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_BACKENDLIB) $(LIBFLAGSRPATH) $(LDFLAGS)
+
+# Building $(PROG)_hip also uses its own rule
+$(CUDACPP_BUILDDIR)/$(PROG)_hip: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o ompnumthreads.o $(CUDACPP_BUILDDIR)/.cudacpplibs
+	$(FC) -o $@ $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_BACKENDLIB) $(LIBFLAGSRPATH) $(LDFLAGS)
 
 counters.o: counters.cc timer.h
 	$(CXX) $(CXXFLAGS) -c $< -o $@
