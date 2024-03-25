@@ -826,7 +826,7 @@ $(cu_main): LIBFLAGS += -L$(patsubst %bin/nvc++,%lib,$(subst ccache ,,$(CXX))) -
 endif
 $(cu_main): LIBFLAGS += $(CULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(cu_main): $(BUILDDIR)/check_sa_cu.o $(LIBDIR)/lib$(MG5AMC_CULIB).so $(cu_objects_exe) $(BUILDDIR)/CurandRandomNumberKernel_cu.o $(BUILDDIR)/HiprandRandomNumberKernel_cu.o
-	$(GPUCC) -o $@ $(BUILDDIR)/check_sa_cu.o $(GPUARCHFLAGS) $(LIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CULIB) $(cu_objects_exe) $(BUILDDIR)/CurandRandomNumberKernel_cu.o $(BUILDDIR)/HiprandRandomNumberKernel_cu.o $(RNDLIBFLAGS)
+	$(GPUCC) -o $@ $(BUILDDIR)/check_sa_cu.o $(LIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CULIB) $(cu_objects_exe) $(BUILDDIR)/CurandRandomNumberKernel_cu.o $(BUILDDIR)/HiprandRandomNumberKernel_cu.o $(RNDLIBFLAGS)
 endif
 
 #-------------------------------------------------------------------------------
