@@ -87,7 +87,6 @@ endif
 #-------------------------------------------------------------------------------
 
 #=== Set the CUDA/HIP/C++ compiler flags appropriate to user-defined choices of BACKEND, FPTYPE, HELINL, HRDCOD (exported from cudacpp.mk)
-#=== (NB the RNDCXXFLAGS and RNDLIBFLAGS appropriate to user-defined choices of HASCURAND and HASHIPRAND have been exported from cudacpp.mk)
 
 # Set the build flags appropriate to OMPFLAGS
 ###$(info OMPFLAGS=$(OMPFLAGS))
