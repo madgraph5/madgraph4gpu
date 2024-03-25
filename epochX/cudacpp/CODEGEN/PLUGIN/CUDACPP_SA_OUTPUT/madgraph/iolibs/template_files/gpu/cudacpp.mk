@@ -102,7 +102,7 @@ endif
 #-------------------------------------------------------------------------------
 
 #=== Configure the default BACKEND if no user-defined choice exists
-#=== Determine the build type (CUDA or C++/SIMD) based on the BACKEND variable
+#=== Determine the build type (CUDA, HIP or C++/SIMD) based on the BACKEND variable
 
 # Set the default BACKEND choice if it is not defined (choose 'cppauto' i.e. the 'best' C++ vectorization available: eventually use native instead?)
 # (NB: this is ignored in 'make cleanall' and 'make distclean', but a choice is needed in the check for supported backends below)
@@ -232,7 +232,7 @@ endif
 # - Note also that the REQUIRE_CUDA variable (#443) is now (PR #798) no longer necessary, as it is now equivalent to BACKEND=cuda.
 # Similarly, there is no need to introduce a REQUIRE_HIP variable.
 
-#=== Configure the CUDA compiler (only for the CUDA backend)
+#=== Configure the CUDA or HIP compiler (only for the CUDA and HIP backends)
 #=== (NB: throughout all makefiles, an empty GPUCC is used to indicate that this is a C++ build, i.e. that BACKEND is neither cuda nor hip!)
 
 ifeq ($(BACKEND),cuda)
@@ -613,7 +613,7 @@ endif
 override DIRTAG = $(BACKEND)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)
 
 # Build lockfile "full" tag (defines full specification of build options that cannot be intermixed)
-# (Rationale: avoid mixing of CUDA and no-CUDA environment builds with different random number generators)
+# (Rationale: avoid mixing of builds with different random number generators)
 override TAG = $(BACKEND)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)_$(HASCURAND)_$(HASHIPRAND)
 
 # Export DIRTAG and TAG so that there is no need to check/define them again in cudacpp_src.mk
@@ -644,10 +644,10 @@ ifeq ($(UNAME_S),Darwin)
   override CXXLIBFLAGSRPATH2 =
   override CULIBFLAGSRPATH2 =
 else
-  # RPATH to cuda/cpp libs when linking executables
+  # RPATH to gpu/cpp libs when linking executables
   override CXXLIBFLAGSRPATH = -Wl,-rpath=$(LIBDIRRPATH)
   override CULIBFLAGSRPATH = -Xlinker -rpath=$(LIBDIRRPATH)
-  # RPATH to common lib when linking cuda/cpp libs
+  # RPATH to common lib when linking gpu/cpp libs
   override CXXLIBFLAGSRPATH2 = -Wl,-rpath='$$ORIGIN'
   override CULIBFLAGSRPATH2 = -Xlinker -rpath='$$ORIGIN'
 endif
@@ -899,7 +899,7 @@ else
 $(BUILDDIR)/testmisc_cu.o: $(GTESTLIBS)
 $(BUILDDIR)/testmisc_cu.o: INCFLAGS += $(GTESTINC)
 $(testmain): $(BUILDDIR)/testmisc_cu.o
-$(testmain): cu_objects_exe += $(BUILDDIR)/testmisc_cu.o # Comment out this line to skip the CUDA miscellaneous tests
+$(testmain): cu_objects_exe += $(BUILDDIR)/testmisc_cu.o # Comment out this line to skip the CUDA/HIP miscellaneous tests
 endif
 
 ifeq ($(GPUCC),)
@@ -1110,7 +1110,7 @@ runTest: all.$(TAG)
 runCheck: all.$(TAG)
 	$(RUNTIME) $(BUILDDIR)/check.exe -p 2 32 2
 
-# Target: runGcheck (run the CUDA standalone executable gcheck.exe, with a small number of events)
+# Target: runGcheck (run the CUDA/HIP standalone executable gcheck.exe, with a small number of events)
 runGcheck: all.$(TAG)
 	$(RUNTIME) $(BUILDDIR)/gcheck.exe -p 2 32 2
 
@@ -1118,7 +1118,7 @@ runGcheck: all.$(TAG)
 runFcheck: all.$(TAG)
 	$(RUNTIME) $(BUILDDIR)/fcheck.exe 2 32 2
 
-# Target: runFGcheck (run the Fortran standalone executable - with CUDA MEs - fgcheck.exe, with a small number of events)
+# Target: runFGcheck (run the Fortran standalone executable - with CUDA/HIP MEs - fgcheck.exe, with a small number of events)
 runFGcheck: all.$(TAG)
 	$(RUNTIME) $(BUILDDIR)/fgcheck.exe 2 32 2
 
@@ -1129,15 +1129,15 @@ cmpFcheck: all.$(TAG)
 	@echo "$(BUILDDIR)/fcheck.exe 2 32 2"
 	@me1=$(shell $(RUNTIME) $(BUILDDIR)/check.exe --common -p 2 32 2 | grep MeanMatrix | awk '{print $$4}'); me2=$(shell $(RUNTIME) $(BUILDDIR)/fcheck.exe 2 32 2 | grep Average | awk '{print $$4}'); echo "Avg ME (C++/C++)    = $${me1}"; echo "Avg ME (F77/C++)    = $${me2}"; if [ "$${me2}" == "NaN" ]; then echo "ERROR! Fortran calculation (F77/C++) returned NaN"; elif [ "$${me2}" == "" ]; then echo "ERROR! Fortran calculation (F77/C++) crashed"; else python3 -c "me1=$${me1}; me2=$${me2}; reldif=abs((me2-me1)/me1); print('Relative difference =', reldif); ok = reldif <= 2E-4; print ( '%%s (relative difference %%s 2E-4)' %% ( ('OK','<=') if ok else ('ERROR','>') ) ); import sys; sys.exit(0 if ok else 1)"; fi
 
-# Target: cmpFGcheck (compare ME results from the CUDA and Fortran with CUDA MEs standalone executables, with a small number of events)
+# Target: cmpFGcheck (compare ME results from the CUDA/HIP and Fortran with CUDA/HIP MEs standalone executables, with a small number of events)
 cmpFGcheck: all.$(TAG)
 	@echo
 	@echo "$(BUILDDIR)/gcheck.exe --common -p 2 32 2"
 	@echo "$(BUILDDIR)/fgcheck.exe 2 32 2"
-	@me1=$(shell $(RUNTIME) $(BUILDDIR)/gcheck.exe --common -p 2 32 2 | grep MeanMatrix | awk '{print $$4}'); me2=$(shell $(RUNTIME) $(BUILDDIR)/fgcheck.exe 2 32 2 | grep Average | awk '{print $$4}'); echo "Avg ME (C++/CUDA)   = $${me1}"; echo "Avg ME (F77/CUDA)   = $${me2}"; if [ "$${me2}" == "NaN" ]; then echo "ERROR! Fortran calculation (F77/CUDA) crashed"; elif [ "$${me2}" == "" ]; then echo "ERROR! Fortran calculation (F77/CUDA) crashed"; else python3 -c "me1=$${me1}; me2=$${me2}; reldif=abs((me2-me1)/me1); print('Relative difference =', reldif); ok = reldif <= 2E-4; print ( '%%s (relative difference %%s 2E-4)' %% ( ('OK','<=') if ok else ('ERROR','>') ) ); import sys; sys.exit(0 if ok else 1)"; fi
+	@me1=$(shell $(RUNTIME) $(BUILDDIR)/gcheck.exe --common -p 2 32 2 | grep MeanMatrix | awk '{print $$4}'); me2=$(shell $(RUNTIME) $(BUILDDIR)/fgcheck.exe 2 32 2 | grep Average | awk '{print $$4}'); echo "Avg ME (C++/GPU)   = $${me1}"; echo "Avg ME (F77/GPU)   = $${me2}"; if [ "$${me2}" == "NaN" ]; then echo "ERROR! Fortran calculation (F77/GPU) crashed"; elif [ "$${me2}" == "" ]; then echo "ERROR! Fortran calculation (F77/GPU) crashed"; else python3 -c "me1=$${me1}; me2=$${me2}; reldif=abs((me2-me1)/me1); print('Relative difference =', reldif); ok = reldif <= 2E-4; print ( '%%s (relative difference %%s 2E-4)' %% ( ('OK','<=') if ok else ('ERROR','>') ) ); import sys; sys.exit(0 if ok else 1)"; fi
 
-# Target: memcheck (run the CUDA standalone executable gcheck.exe with a small number of events through cuda-memcheck)
-memcheck: all.$(TAG)
+# Target: cuda-memcheck (run the CUDA standalone executable gcheck.exe with a small number of events through cuda-memcheck)
+cuda-memcheck: all.$(TAG)
 	$(RUNTIME) $(CUDA_HOME)/bin/cuda-memcheck --check-api-memory-access yes --check-deprecated-instr yes --check-device-heap yes --demangle full --language c --leak-check full --racecheck-report all --report-api-errors all --show-backtrace yes --tool memcheck --track-unused-memory yes $(BUILDDIR)/gcheck.exe -p 2 32 2
 
 #-------------------------------------------------------------------------------
