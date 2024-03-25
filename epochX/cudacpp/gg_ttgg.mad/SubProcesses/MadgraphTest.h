@@ -1,7 +1,7 @@
 // Copyright (C) 2020-2023 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: S. Hageboeck (Dec 2020) for the MG5aMC CUDACPP plugin.
-// Further modified by: S. Hageboeck, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: S. Hageboeck, J. Teig, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
 
 #ifndef MADGRAPHTEST_H_
 #define MADGRAPHTEST_H_ 1
@@ -14,7 +14,11 @@
 
 #include <array>
 #include <cmath>
-#include <filesystem>
+//#ifdef __HIPCC__
+//#include <experimental/filesystem> // see https://rocm.docs.amd.com/en/docs-5.4.3/CHANGELOG.html#id79
+//#else
+//#include <filesystem> // bypass this completely to ease portability on LUMI #803
+//#endif
 #include <fstream>
 #include <iomanip>
 #include <memory>
@@ -22,7 +26,7 @@
 #include <string>
 #include <vector>
 
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 using mg5amcGpu::CPPProcess;
 #else
 using mg5amcCpu::CPPProcess;
@@ -201,7 +205,7 @@ protected:
 
 // Since we link both the CPU-only and GPU tests into the same executable, we prevent
 // a multiply defined symbol by only compiling this in the non-CUDA phase:
-#ifndef __CUDACC__
+#ifndef MGONGPUCPP_GPUIMPL
 
 /// Compare momenta and matrix elements.
 /// This uses an implementation of TestDriverBase to run a madgraph workflow,
@@ -219,7 +223,14 @@ TEST_P( MadgraphTest, CompareMomentaAndME )
   const char* dumpEventsC = getenv( "CUDACPP_RUNTEST_DUMPEVENTS" );
   const bool dumpEvents = ( dumpEventsC != 0 ) && ( std::string( dumpEventsC ) != "" );
   const std::string refFileName = testDriver->getRefFileName();
+  /*
+#ifdef __HIPCC__
+  const std::string dumpFileName = std::experimental::filesystem::path( refFileName ).filename();
+#else
   const std::string dumpFileName = std::filesystem::path( refFileName ).filename();
+#endif
+  */
+  const std::string dumpFileName = refFileName; // bypass std::filesystem #803
   std::ofstream dumpFile;
   if( dumpEvents )
   {
@@ -307,6 +318,6 @@ TEST_P( MadgraphTest, CompareMomentaAndME )
   }
 }
 
-#endif // __CUDACC__
+#endif // MGONGPUCPP_GPUIMPL
 
 #endif /* MADGRAPHTEST_H_ */

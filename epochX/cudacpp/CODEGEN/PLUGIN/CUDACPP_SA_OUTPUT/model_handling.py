@@ -1,7 +1,7 @@
 # Copyright (C) 2020-2023 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: O. Mattelaer (Sep 2021) for the MG5aMC CUDACPP plugin.
-# Further modified by: O. Mattelaer, A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
+# Further modified by: O. Mattelaer, J. Teig, A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
 
 import os
 
@@ -705,7 +705,12 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         return res
 
     # AV - new method (merging write_parameters and write_set_parameters)
-    def write_hardcoded_parameters(self, params):
+    def write_hardcoded_parameters(self, params, deviceparams=set()):
+        majorana_widths = []
+        for particle in self.model.get('particles'):
+            if particle.is_fermion() and particle.get('self_antipart') and \
+                   particle.get('width').lower() != 'zero':
+                majorana_widths.append( particle.get('width') )
         ###misc.sprint(params) # for debugging
         pardef = super().write_parameters(params)
         parset = self.super_write_set_parameters_donotfixMajorana(params)
@@ -715,10 +720,16 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             assert parset == '', "pardef is empty but parset is not: '%s'"%parset # AV sanity check (both are empty)
             res = '// (none)\n'
             return res
+	#=== Replace patterns in pardef (left of the assignment '=')
         pardef = pardef.replace('std::complex<','cxsmpl<') # custom simplex complex class (with constexpr arithmetics)
+	#=== Replace patterns in parset (right of the assignment '=')
         parset = parset.replace('std::complex<','cxsmpl<') # custom simplex complex class (with constexpr arithmetics)
         parset = parset.replace('sqrt(','constexpr_sqrt(') # constexpr sqrt (based on iterative Newton-Raphson approximation)
-        parset = parset.replace('pow(','constexpr_pow(') # constexpr sqrt (based on iterative Newton-Raphson approximation)
+        parset = parset.replace('pow(','constexpr_pow(') # constexpr pow
+        parset = parset.replace('atan(','constexpr_atan(') # constexpr atan for BSM #627
+        parset = parset.replace('sin(','constexpr_sin(') # constexpr sin for BSM #627
+        parset = parset.replace('cos(','constexpr_cos(') # constexpr cos for BSM #627
+        parset = parset.replace('tan(','constexpr_tan(').replace('aconstexpr_tan(','atan(') # constexpr tan for BSM #627
         parset = parset.replace('(','( ')
         parset = parset.replace(')',' )')
         parset = parset.replace('+',' + ')
@@ -730,16 +741,23 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         parset = parset.replace('*',' * ')
         parset = parset.replace('/',' / ')
         parset = parset.replace(',',', ')
+	#=== Compute pardef_lines from pardef (left of the assignment '=')
         pardef_lines = {}
         for line in pardef.split('\n'):
             ###print(line) # for debugging
             type, pars = line.rstrip(';').split(' ') # strip trailing ';'
             for par in pars.split(','):
                 ###print(len(pardef_lines), par) # for debugging
-                pardef_lines[par] = ( 'constexpr ' + type + ' ' + par )
+                if par in majorana_widths:
+                    pardef_lines[par] = ( 'constexpr ' + type + ' ' + par + "_abs" )
+                elif par in deviceparams:
+                    pardef_lines[par] = ( '__device__ constexpr ' + type + ' ' + par )
+                else:
+                    pardef_lines[par] = ( 'constexpr ' + type + ' ' + par )
         ###misc.sprint( 'pardef_lines size =', len(pardef_lines), ', keys size =', len(pardef_lines.keys()) )
         ###print( pardef_lines ) # for debugging
         ###for line in pardef_lines: misc.sprint(line) # for debugging
+	#=== Compute parset_lines from parset (right of the assignment '=')
         parset_pars = []
         parset_lines = {}
         skipnextline = False
@@ -757,6 +775,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         ###misc.sprint( 'parset_lines size =', len(parset_lines), ', keys size =', len(parset_lines.keys()) )
         ###print( parset_lines ) # for debugging
         ###for line in parset_lines: misc.sprint(line) # for debugging
+	#=== Assemble pardef_lines and parset_lines into a single string res and then replace patterns in res
         assert len(pardef_lines) == len(parset_lines), 'len(pardef_lines) != len(parset_lines)' # AV sanity check (same number of parameters)
         res = '    '.join( pardef_lines[par] + ' = ' + parset_lines[par] + '\n' for par in parset_pars ) # no leading '    ' on first row
         res = res.replace(' ;',';')
@@ -774,9 +793,9 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
     def super_write_set_parameters_donotfixMajorana(self, params):
         """Write out the lines of independent parameters"""
         res_strings = []
-        # For each parameter, write name = expr;
+        # For each parameter, write "name = expr;"
         for param in params:
-            res_strings.append("%s" % param.expr)
+            res_strings.append( "%s" % param.expr )
         return "\n".join(res_strings)
 
     # AV - replace export_cpp.UFOModelConverterCPP method (eventually split writing of parameters and fixes for Majorana particles #622)
@@ -789,14 +808,31 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         for particle in self.model.get('particles'):
             if particle.is_fermion() and particle.get('self_antipart') and \
                    particle.get('width').lower() != 'zero':
-                res_strings.append( prefix+"  if( %s < 0 )" % particle.get('mass'))
-                res_strings.append( prefix+"    %(width)s = -abs( %(width)s );" % {"width": particle.get('width')})
+                if hardcoded:
+                    res_strings.append( prefix+"  constexpr int %s_sign = ( %s < 0 ? -1 : +1 );" % ( particle.get('width'), particle.get('mass') ) )
+                    res_strings.append( prefix+"  constexpr double %(W)s = %(W)s_sign * %(W)s_abs;" % { 'W' : particle.get('width') } )
+                else:
+                    res_strings.append( prefix+"  if( %s < 0 )" % particle.get('mass'))
+                    res_strings.append( prefix+"    %(width)s = -abs( %(width)s );" % {"width": particle.get('width')})
+        if len( res_strings ) != 0 : res_strings = [ prefix + "  // Fixes for Majorana particles" ] + res_strings
         if not hardcoded: return '\n' + '\n'.join(res_strings) if res_strings else ''
-        else: return '\n'.join(res_strings)
+        else: return '\n' + '\n'.join(res_strings) + '\n' if res_strings else '\n'
 
     # AV - replace export_cpp.UFOModelConverterCPP method (add hardcoded parameters and couplings)
     def super_generate_parameters_class_files(self):
         """Create the content of the Parameters_model.h and .cc files"""
+        # First of all, identify which extra independent parameters must be made available through CPU static and GPU constant memory in BSM models
+        # because they are used in the event by event calculation of alphaS-dependent couplings
+        # WARNING! This is only implemented and has only been tested so far for real parameters (complex parameters need twice the storage)
+        bsmparam_indep_real_used = []
+        if self.model_name[:2] != 'sm' :
+            for param in self.params_indep:
+                if param.type == 'real':
+                    for coup in self.coups_dep.values():                
+                        if param.name in coup.expr:
+                            bsmparam_indep_real_used.append( param.name )
+            bsmparam_indep_real_used = set( bsmparam_indep_real_used ) 
+        # Then do everything else
         replace_dict = self.default_replace_dict
         replace_dict['info_lines'] = PLUGIN_export_cpp.get_mg5_info_lines()
         replace_dict['model_name'] = self.model_name
@@ -813,6 +849,13 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
                              line for line in self.write_set_parameters(self.params_indep).split('\n') ]
         replace_dict['set_independent_parameters'] = '\n'.join( set_params_indep )
         replace_dict['set_independent_parameters'] += self.super_write_set_parameters_onlyfixMajorana( hardcoded=False ) # add fixes for Majorana particles only in the aS-indep parameters #622
+        if self.model_name[:2] != 'sm' :
+            replace_dict['set_independent_parameters'] += '\n  // BSM parameters that do not depend on alphaS but are needed in the computation of alphaS-dependent couplings;'
+            if len(bsmparam_indep_real_used) > 0:
+                for par in bsmparam_indep_real_used:
+                    replace_dict['set_independent_parameters'] += '\n  mdl_bsmIndepParam[0] = %s;'%par
+            else:
+                replace_dict['set_independent_parameters'] += '\n  // (none)'
         replace_dict['set_independent_couplings'] = self.write_set_parameters(self.coups_indep)
         replace_dict['set_dependent_parameters'] = self.write_set_parameters(self.params_dep)
         replace_dict['set_dependent_couplings'] = self.write_set_parameters(list(self.coups_dep.values()))
@@ -828,12 +871,12 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         assert super().write_parameters([]) == '', 'super().write_parameters([]) is not empty' # AV sanity check (#622)
         assert self.super_write_set_parameters_donotfixMajorana([]) == '', 'super_write_set_parameters_donotfixMajorana([]) is not empty' # AV sanity check (#622)
         ###misc.sprint(self.params_indep) # for debugging
-        hrd_params_indep = [ line.replace('constexpr','//constexpr') + ' // now retrieved event-by-event (as G) from Fortran (running alphas #373)' if 'aS =' in line else line for line in self.write_hardcoded_parameters(self.params_indep).split('\n') ]
+        hrd_params_indep = [ line.replace('constexpr','//constexpr') + ' // now retrieved event-by-event (as G) from Fortran (running alphas #373)' if 'aS =' in line else line for line in self.write_hardcoded_parameters(self.params_indep,bsmparam_indep_real_used).split('\n') if line != '' ] # use bsmparam_indep_real_used as deviceparams
         replace_dict['hardcoded_independent_parameters'] = '\n'.join( hrd_params_indep ) + self.super_write_set_parameters_onlyfixMajorana( hardcoded=True ) # add fixes for Majorana particles only in the aS-indep parameters #622
         ###misc.sprint(self.coups_indep) # for debugging
         replace_dict['hardcoded_independent_couplings'] = self.write_hardcoded_parameters(self.coups_indep)
         ###misc.sprint(self.params_dep) # for debugging
-        hrd_params_dep = [ line.replace('constexpr','//constexpr') + ' // now computed event-by-event (running alphas #373)' if line != '' else line for line in self.write_hardcoded_parameters(self.params_dep).split('\n') ]
+        hrd_params_dep = [ line.replace('constexpr ','//constexpr ') + ' // now computed event-by-event (running alphas #373)' if line != '' else line for line in self.write_hardcoded_parameters(self.params_dep).split('\n') ]
         replace_dict['hardcoded_dependent_parameters'] = '\n'.join( hrd_params_dep )
         ###misc.sprint(self.coups_dep) # for debugging
         hrd_coups_dep = [ line.replace('constexpr','//constexpr') + ' // now computed event-by-event (running alphas #373)' if line != '' else line for line in self.write_hardcoded_parameters(list(self.coups_dep.values())).split('\n') ]
@@ -854,7 +897,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             foundG = False
             for line in self.write_hardcoded_parameters(self.params_dep).split('\n'):
                 if line != '':
-                    dcoupsetdpar.append( '    ' + line.replace('constexpr double', 'const fptype_sv' if foundG else '//const fptype_sv' ) )
+                    dcoupsetdpar.append( '    ' + line.replace('constexpr cxsmpl<double> mdl_G__exp__2','const fptype_sv mdl_G__exp__2').replace('constexpr double', 'const fptype_sv' if foundG else '//const fptype_sv' ) )
                     if 'constexpr double G =' in line: foundG = True
             replace_dict['dcoupsetdpar'] = '    ' + '\n'.join( dcoupsetdpar )
             dcoupsetdcoup = [ '    ' + line.replace('constexpr cxsmpl<double> ','out.').replace('mdl_complexi', 'cI') for line in self.write_hardcoded_parameters(list(self.coups_dep.values())).split('\n') if line != '' ]
@@ -888,12 +931,30 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             replace_dict['dcoupsetdcoup2'] = '      // (none)'
             replace_dict['dcoupoutdcoup2'] = ''
         # Require HRDCOD=1 in EFT and special handling in EFT for fptype=float using SIMD
+        replace_dict['bsmdefine'] = '#define MGONGPUCPP_NBSMINDEPPARAM_GT_0 1' if len( bsmparam_indep_real_used ) > 0 else '#undef MGONGPUCPP_NBSMINDEPPARAM_GT_0'
         if self.model_name[:2] == 'sm' :
-            replace_dict['efterror'] = ''
+            replace_dict['bsmip0'] = ''
+            replace_dict['bsmip1'] = ''
+            replace_dict['eftwarn0'] = ''
+            replace_dict['eftwarn1'] = ''
+            replace_dict['eftspecial0'] = '      // SM implementation - no special handling of non-hardcoded parameters (PR #625)'
             replace_dict['eftspecial1'] = '      // Begin SM implementation - no special handling of vectors of floats as in EFT (#439)'
             replace_dict['eftspecial2'] = '      // End SM implementation - no special handling of vectors of floats as in EFT (#439)'
         else:
-            replace_dict['efterror'] = '\n#error This non-SM physics process only supports MGONGPU_HARDCODE_PARAM builds (#439): please run "make HRDCOD=1"'
+            replace_dict['bsmip0'] = '''
+    // BSM parameters that do not depend on alphaS but are needed in the computation of alphaS-dependent couplings;
+    static constexpr int nBsmIndepParam = %s;
+    %sdouble mdl_bsmIndepParam[nBsmIndepParam];''' % ( len( bsmparam_indep_real_used ), '' if len( bsmparam_indep_real_used ) > 0 else '//' )
+            replace_dict['bsmip1'] = '''\n
+    // BSM parameters that do not depend on alphaS but are needed in the computation of alphaS-dependent couplings;
+    constexpr int nBsmIndepParam = %s;
+    %s__device__ constexpr double mdl_bsmIndepParam[nBsmIndepParam]%s;''' % ( len( bsmparam_indep_real_used ), '' if len( bsmparam_indep_real_used ) > 0 else '//', ' = { %s }' % ', '.join( bsmparam_indep_real_used ) if len( bsmparam_indep_real_used ) > 0 else '' )
+            replace_dict['eftwarn0'] = '\n//#warning Support for non-SM physics processes (e.g. SUSY or EFT) is still limited for HRDCOD=0 builds (#439 and PR #625)'
+            replace_dict['eftwarn1'] = '\n//#warning Support for non-SM physics processes (e.g. SUSY or EFT) is still limited for HRDCOD=1 builds (#439 and PR #625)'
+            if len( bsmparam_indep_real_used ) == 0:
+                replace_dict['eftspecial0'] = '      // No additional parameters needed in constant memory for this BSM model'
+            else:
+                replace_dict['eftspecial0'] = '\n'.join( '      const double %s = bsmIndepParamPtr[%i];' % ( par, ipar ) for ipar, par in enumerate( bsmparam_indep_real_used ) )
             replace_dict['eftspecial1'] = '      // Begin non-SM (e.g. EFT) implementation - special handling of vectors of floats (#439)'
             replace_dict['eftspecial1'] += '\n#if not( defined MGONGPU_CPPSIMD && defined MGONGPU_FPTYPE_FLOAT )'
             replace_dict['eftspecial2'] = """#else
@@ -1030,8 +1091,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     # AV - change defaults from export_cpp.OneProcessExporterGPU
     # [NB process_class = "CPPProcess" is set in OneProcessExporterCPP.__init__]
     # [NB process_class = "gCPPProcess" is set in OneProcessExporterGPU.__init__]
-    ###cc_ext = 'cu' # create gCPPProcess.cu (and symlink it as CPPProcess.cc)
-    cc_ext = 'cc' # create CPPProcess.cc (and symlink it as gCPPProcess.cu)
+    cc_ext = 'cc' # create CPPProcess.cc (build it also as CPPProcess_cu.so, no longer symlink it as gCPPProcess.cu)
 
     # AV - keep defaults from export_cpp.OneProcessExporterGPU
     ###process_dir = '.'
@@ -1079,7 +1139,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         file = '\n'.join( file.split('\n')[8:] ) # skip first 8 lines in process_class.inc (copyright)
         return file
 
-    # AV - replace export_cpp.OneProcessExporterGPU method (fix gCPPProcess.cu)
+    # AV - replace export_cpp.OneProcessExporterGPU method (fix CPPProcess.cc)
     def get_process_function_definitions(self, write=True):
         """The complete class definition for the process"""
         replace_dict = super(PLUGIN_export_cpp.OneProcessExporterGPU,self).get_process_function_definitions(write=False) # defines replace_dict['initProc_lines']
@@ -1110,9 +1170,9 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
                                          %(len(coupling_indep), ' ), cxmake( m_pars->'.join(coupling_indep)) # AV only indep!
             replace_dict['cipcdevice'] = '__device__ __constant__ fptype cIPC[%i];'%(2*len(coupling_indep))
             replace_dict['cipcstatic'] = 'static fptype cIPC[%i];'%(2*len(coupling_indep))
-            replace_dict['cipc2tipcSym'] = 'checkCuda( cudaMemcpyToSymbol( cIPC, tIPC, %i * sizeof( cxtype ) ) );'%len(coupling_indep)
+            replace_dict['cipc2tipcSym'] = 'gpuMemcpyToSymbol( cIPC, tIPC, %i * sizeof( cxtype ) );'%len(coupling_indep)
             replace_dict['cipc2tipc'] = 'memcpy( cIPC, tIPC, %i * sizeof( cxtype ) );'%len(coupling_indep)
-            replace_dict['cipcdump'] = '\n    //for ( i=0; i<%i; i++ ) std::cout << std::setprecision(17) << "tIPC[i] = " << tIPC[i] << std::endl;'%len(coupling_indep)
+            replace_dict['cipcdump'] = '\n    //for ( int i=0; i<%i; i++ ) std::cout << std::setprecision(17) << "tIPC[i] = " << tIPC[i] << std::endl;'%len(coupling_indep)
             coup_str_hrd = '__device__ const fptype cIPC[%s] = { ' % (len(coupling_indep)*2)
             for coup in coupling_indep : coup_str_hrd += '(fptype)Parameters_%s::%s.real(), (fptype)Parameters_%s::%s.imag(), ' % ( self.model_name, coup, self.model_name, coup ) # AV only indep!
             coup_str_hrd = coup_str_hrd[:-2] + ' };'
@@ -1121,7 +1181,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             replace_dict['cipcassign'] = '//const cxtype tIPC[0] = { ... }; // nicoup=0'
             replace_dict['cipcdevice'] = '__device__ __constant__ fptype* cIPC = nullptr; // unused as nicoup=0'
             replace_dict['cipcstatic'] = 'static fptype* cIPC = nullptr; // unused as nicoup=0'
-            replace_dict['cipc2tipcSym'] = '//checkCuda( cudaMemcpyToSymbol( cIPC, tIPC, %i * sizeof( cxtype ) ) ); // nicoup=0'%len(coupling_indep)
+            replace_dict['cipc2tipcSym'] = '//gpuMemcpyToSymbol( cIPC, tIPC, %i * sizeof( cxtype ) ); // nicoup=0'%len(coupling_indep)
             replace_dict['cipc2tipc'] = '//memcpy( cIPC, tIPC, %i * sizeof( cxtype ) ); // nicoup=0'%len(coupling_indep)
             replace_dict['cipcdump'] = ''
             replace_dict['cipchrdcod'] = '__device__ const fptype* cIPC = nullptr; // unused as nicoup=0'
@@ -1130,9 +1190,9 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
                                          %(len(params), ', (fptype)m_pars->'.join(params))
             replace_dict['cipddevice'] = '__device__ __constant__ fptype cIPD[%i];'%(len(params))
             replace_dict['cipdstatic'] = 'static fptype cIPD[%i];'%(len(params))
-            replace_dict['cipd2tipdSym'] = 'checkCuda( cudaMemcpyToSymbol( cIPD, tIPD, %i * sizeof( fptype ) ) );'%len(params)
+            replace_dict['cipd2tipdSym'] = 'gpuMemcpyToSymbol( cIPD, tIPD, %i * sizeof( fptype ) );'%len(params)
             replace_dict['cipd2tipd'] = 'memcpy( cIPD, tIPD, %i * sizeof( fptype ) );'%len(params)
-            replace_dict['cipddump'] = '\n    //for ( i=0; i<%i; i++ ) std::cout << std::setprecision(17) << "tIPD[i] = " << tIPD[i] << std::endl;'%len(params)
+            replace_dict['cipddump'] = '\n    //for ( int i=0; i<%i; i++ ) std::cout << std::setprecision(17) << "tIPD[i] = " << tIPD[i] << std::endl;'%len(params)
             param_str_hrd = '__device__ const fptype cIPD[%s] = { ' % len(params)
             for para in params : param_str_hrd += '(fptype)Parameters_%s::%s, ' % ( self.model_name, para )
             param_str_hrd = param_str_hrd[:-2] + ' };'
@@ -1141,10 +1201,18 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             replace_dict['cipdassign'] = '//const fptype tIPD[0] = { ... }; // nparam=0'
             replace_dict['cipddevice'] = '//__device__ __constant__ fptype* cIPD = nullptr; // unused as nparam=0'
             replace_dict['cipdstatic'] = '//static fptype* cIPD = nullptr; // unused as nparam=0'
-            replace_dict['cipd2tipdSym'] = '//checkCuda( cudaMemcpyToSymbol( cIPD, tIPD, %i * sizeof( fptype ) ) ); // nparam=0'%len(params)
+            replace_dict['cipd2tipdSym'] = '//gpuMemcpyToSymbol( cIPD, tIPD, %i * sizeof( fptype ) ); // nparam=0'%len(params)
             replace_dict['cipd2tipd'] = '//memcpy( cIPD, tIPD, %i * sizeof( fptype ) ); // nparam=0'%len(params)
             replace_dict['cipddump'] = ''
             replace_dict['cipdhrdcod'] = '//__device__ const fptype* cIPD = nullptr; // unused as nparam=0'
+        if self.model_name[:2] == 'sm' :
+            replace_dict['bsmMemcpySym'] = ''
+            replace_dict['bsmMemcpy'] = ''
+            replace_dict['bsmdump'] = ''
+        else:
+            replace_dict['bsmMemcpySym'] = '\n    if( Parameters_MSSM_SLHA2::nBsmIndepParam > 0 )\n      gpuMemcpyToSymbol( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters_MSSM_SLHA2::nBsmIndepParam * sizeof( double ) );'
+            replace_dict['bsmMemcpy'] = '\n    if( Parameters_MSSM_SLHA2::nBsmIndepParam > 0 )\n      memcpy( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters_MSSM_SLHA2::nBsmIndepParam * sizeof( double ) );'
+            replace_dict['bsmdump'] = '\n    //for ( int i=0; i<Parameters_MSSM_SLHA2::nBsmIndepParam; i++ ) std::cout << std::setprecision(17) << "m_pars->mdl_bsmIndepParam[i] = " << m_pars->mdl_bsmIndepParam[i] << std::endl;'
         replace_dict['all_helicities'] = self.get_helicity_matrix(self.matrix_elements[0])
         replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace('helicities', 'tHel')
         color_amplitudes = [me.get_color_amplitudes() for me in self.matrix_elements] # as in OneProcessExporterCPP.get_process_function_definitions
@@ -1178,9 +1246,9 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         else:
             return replace_dict
 
-    # AV - modify export_cpp.OneProcessExporterGPU method (fix gCPPProcess.cu)
+    # AV - modify export_cpp.OneProcessExporterGPU method (fix CPPProcess.cc)
     def get_all_sigmaKin_lines(self, color_amplitudes, class_name):
-        """Get sigmaKin_process for all subprocesses for gCPPProcess.cu"""
+        """Get sigmaKin_process for all subprocesses for CPPProcess.cc"""
         ret_lines = []
         if self.single_helicities:
             ###assert self.include_multi_channel # remove this assert: must handle both cases and produce two different code bases (#473)
@@ -1219,13 +1287,13 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
                            fptype* allDenominators,       // output: multichannel denominators[nevt], running_sum_over_helicities
 #endif
                            fptype_sv* jamp2_sv            // output: jamp2[nParity][ncolor][neppV] for color choice (nullptr if disabled)
-#ifndef __CUDACC__
+#ifndef MGONGPUCPP_GPUIMPL
                            , const int ievt00             // input: first event number in current C++ event page (for CUDA, ievt depends on threadid)
 #endif
                            )
   //ALWAYS_INLINE // attributes are not permitted in a function definition
   {
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
     using namespace mg5amcGpu;
     using M_ACCESS = DeviceAccessMomenta;         // non-trivial access: buffer includes all events
     using E_ACCESS = DeviceAccessMatrixElements;  // non-trivial access: buffer includes all events
@@ -1252,7 +1320,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
 #endif /* clang-format on */
     mgDebug( 0, __FUNCTION__ );
     //printf( \"calculate_wavefunctions: ihel=%2d\\n\", ihel );
-#ifndef __CUDACC__
+#ifndef MGONGPUCPP_GPUIMPL
     //printf( \"calculate_wavefunctions: ievt00=%d\\n\", ievt00 );
 #endif""")
             nwavefuncs = self.matrix_elements[0].get_number_of_wavefunctions()
@@ -1289,7 +1357,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
 #endif
     for( int iParity = 0; iParity < nParity; ++iParity )
     { // START LOOP ON IPARITY
-#ifndef __CUDACC__
+#ifndef MGONGPUCPP_GPUIMPL
       const int ievt0 = ievt00 + iParity * neppV;
 #endif""")
             ret_lines += helas_calls
@@ -1339,15 +1407,6 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         self.edit_testxxx() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
         self.edit_memorybuffers() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
         self.edit_memoryaccesscouplings() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
-        # Add symbolic links in the P1 directory
-        files.ln(pjoin(self.path, 'check_sa.cc'), self.path, 'gcheck_sa.cu')
-        files.ln(pjoin(self.path, 'CPPProcess.cc'), self.path, 'gCPPProcess.cu')
-        files.ln(pjoin(self.path, 'CrossSectionKernels.cc'), self.path, 'gCrossSectionKernels.cu')
-        files.ln(pjoin(self.path, 'MatrixElementKernels.cc'), self.path, 'gMatrixElementKernels.cu')
-        files.ln(pjoin(self.path, 'RamboSamplingKernels.cc'), self.path, 'gRamboSamplingKernels.cu')
-        files.ln(pjoin(self.path, 'CommonRandomNumberKernel.cc'), self.path, 'gCommonRandomNumberKernel.cu')
-        files.ln(pjoin(self.path, 'CurandRandomNumberKernel.cc'), self.path, 'gCurandRandomNumberKernel.cu')
-        files.ln(pjoin(self.path, 'BridgeKernels.cc'), self.path, 'gBridgeKernels.cu')
         # NB: symlink of cudacpp.mk to makefile is overwritten by madevent makefile if this exists (#480)
         # NB: this relies on the assumption that cudacpp code is generated before madevent code
         files.ln(pjoin(self.path, 'cudacpp.mk'), self.path, 'makefile')
@@ -1476,7 +1535,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     # AV - overload the export_cpp.OneProcessExporterGPU method (add debug printout and truncate last \n)
     # [*NB export_cpp.UFOModelConverterGPU.write_process_h_file is not called!*]
     def write_process_h_file(self, writer):
-        """Generate final gCPPProcess.h"""
+        """Generate final CPPProcess.h"""
         ###misc.sprint('Entering PLUGIN_OneProcessExporter.write_process_h_file')
         out = super().write_process_h_file(writer)
         writer.seek(-1, os.SEEK_CUR)
@@ -1560,7 +1619,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
 
     # AV - replace the export_cpp.OneProcessExporterGPU method (improve formatting)
     def get_initProc_lines(self, matrix_element, color_amplitudes):
-        """Get initProc_lines for function definition for gCPPProcess::initProc"""
+        """Get initProc_lines for function definition for CPPProcess::initProc"""
         initProc_lines = []
         initProc_lines.append('// Set external particle masses for this matrix element')
         for part in matrix_element.get_external_wavefunctions():
@@ -1606,7 +1665,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
     #  - PLUGIN_GPUFOHelasCallWriter(GPUFOHelasCallWriter)
     #      This class
 
-    # AV - replace helas_call_writers.GPUFOHelasCallWriter method (improve formatting of gCPPProcess.cu)
+    # AV - replace helas_call_writers.GPUFOHelasCallWriter method (improve formatting of CPPProcess.cc)
     # [GPUFOHelasCallWriter.format_coupling is called by GPUFOHelasCallWriter.get_external_line/generate_helas_call]
     # [GPUFOHelasCallWriter.get_external_line is called by GPUFOHelasCallWriter.get_external]
     # [GPUFOHelasCallWriter.get_external (adding #ifdef CUDA) is called by GPUFOHelasCallWriter.generate_helas_call]
@@ -1639,22 +1698,27 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                 param = False
             if param:
                 alias = self.params2order
+                aliastxt = 'PARAM'
                 name = 'cIPD'
             elif model.is_running_coupling(coup):
                 alias = self.couporderdep
+                aliastxt = 'COUPD'
                 name = 'cIPC'
             else:
                 alias = self.couporderindep
+                aliastxt = 'COUPI'
                 name = 'cIPC'
             if coup not in alias:
-                if alias == self.couporderindep:
+                ###if alias == self.couporderindep: # bug #821! this is incorrectly true when both dictionaries are empty!
+                if aliastxt == 'COUPI':
                     if not len(alias):
                         alias[coup] = len(self.couporderdep)
                     else:
                         alias[coup] = alias[list(alias)[-1]]+1
                 else:
                     alias[coup] = len(alias)
-                if alias == self.couporderdep:
+                ###if alias == self.couporderdep: # bug #821! this is incorrectly true when both dictionaries are empty!
+                if aliastxt == 'COUPD':
                     for k in self.couporderindep:
                         self.couporderindep[k] += 1
                 newcoup = True
@@ -1718,8 +1782,10 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         allCOUPs[idcoup] = CD_ACCESS::idcoupAccessBufferConst( allcouplings, idcoup ); // dependent couplings, vary event-by-event
       for( size_t iicoup = 0; iicoup < nicoup; iicoup++ )
         allCOUPs[ndcoup + iicoup] = CI_ACCESS::iicoupAccessBufferConst( cIPC, iicoup ); // independent couplings, fixed for all events
+#ifdef MGONGPUCPP_GPUIMPL
 #ifdef __CUDACC__
 #pragma nv_diagnostic pop
+#endif
       // CUDA kernels take input/output buffers with momenta/MEs for all events
       const fptype* momenta = allmomenta;
       const fptype* COUPs[nxcoup];
@@ -1835,7 +1901,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             split_line2 = [ str.lstrip(' ').rstrip(' ') for str in split_line2] # AV
             split_line2.insert(2, '0') # add parameter fmass=0
             line2 = ', '.join(split_line2)
-            text = '#if not( defined __CUDACC__ and defined MGONGPU_TEST_DIVERGENCE )\n      %s\n#else\n      if( ( blockDim.x * blockIdx.x + threadIdx.x ) %% 2 == 0 )\n        %s\n      else\n        %s\n#endif\n' # AV
+            text = '#if not( defined MGONGPUCPP_GPUIMPL and defined MGONGPU_TEST_DIVERGENCE )\n      %s\n#else\n      if( ( blockDim.x * blockIdx.x + threadIdx.x ) %% 2 == 0 )\n        %s\n      else\n        %s\n#endif\n' # AV
             return text % (line, line, line2)
         text = '%s\n' # AV
         return text % line

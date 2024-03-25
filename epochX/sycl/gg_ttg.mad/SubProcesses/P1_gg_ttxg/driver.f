@@ -71,8 +71,8 @@ c      double precision xsec,xerr
 c      integer ncols,ncolflow(maxamps),ncolalt(maxamps),ic
 c      common/to_colstats/ncols,ncolflow,ncolalt,ic
 
-      include 'vector.inc' ! needed by coupl.inc (defines VECSIZE_MEMMAX)
-      include 'coupl.inc'
+      include 'vector.inc' ! defines VECSIZE_MEMMAX
+      include 'coupl.inc' ! needs VECSIZE_MEMMAX (defined in vector.inc)
       INTEGER VECSIZE_USED
       DATA VECSIZE_USED/VECSIZE_MEMMAX/ ! initial value
 
@@ -176,8 +176,7 @@ c   If CKKW-type matching, read IS Sudakov grid
           exit
  30       issgridfile='../'//issgridfile
           if(i.eq.5)then
-            print *,
-     &        'ERROR: No Sudakov grid file found in lib with ickkw=2'
+            print *,'ERROR: No Sudakov grid file found in lib with ickkw=2'
             stop
           endif
         enddo

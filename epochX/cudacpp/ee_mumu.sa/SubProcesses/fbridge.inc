@@ -36,7 +36,7 @@ C - MOMENTA: the input 4-momenta Fortran array
 C - GS:      the input Gs (running QCD coupling constant alphas) Fortran array
 C - RNDHEL:  the input random number Fortran array for helicity selection
 C - RNDCOL:  the input random number Fortran array for color selection
-C - CHANID:  the input Feynman diagram to enhance in multi-channel mode if 1 to n (disable multi-channel if 0)
+C - CHANID:  the input Feynman diagram to enhance in multi-channel mode if 1 to n
 C - MES:     the output matrix element Fortran array
 C - SELHEL:  the output selected helicity Fortran array
 C - SELCOL:  the output selected color Fortran array
@@ -54,6 +54,31 @@ C
          INTEGER*4 SELHEL(*)
          INTEGER*4 SELCOL(*)
          END SUBROUTINE FBRIDGESEQUENCE
+      END INTERFACE
+
+C
+C Execute the matrix-element calculation "sequence" via a Bridge on GPU/CUDA or CUDA/C++.
+C - PBRIDGE: the memory address of the C++ Bridge
+C - MOMENTA: the input 4-momenta Fortran array
+C - GS:      the input Gs (running QCD coupling constant alphas) Fortran array
+C - RNDHEL:  the input random number Fortran array for helicity selection
+C - RNDCOL:  the input random number Fortran array for color selection
+C - MES:     the output matrix element Fortran array
+C - SELHEL:  the output selected helicity Fortran array
+C - SELCOL:  the output selected color Fortran array
+C
+      INTERFACE
+         SUBROUTINE FBRIDGESEQUENCE_NOMULTICHANNEL(PBRIDGE, MOMENTA, GS,
+     &     RNDHEL, RNDCOL, MES, SELHEL, SELCOL)
+         INTEGER*8 PBRIDGE
+         DOUBLE PRECISION MOMENTA(*)
+         DOUBLE PRECISION GS(*)
+         DOUBLE PRECISION RNDHEL(*)
+         DOUBLE PRECISION RNDCOL(*)
+         DOUBLE PRECISION MES(*)
+         INTEGER*4 SELHEL(*)
+         INTEGER*4 SELCOL(*)
+         END SUBROUTINE FBRIDGESEQUENCE_NOMULTICHANNEL
       END INTERFACE
 
 C

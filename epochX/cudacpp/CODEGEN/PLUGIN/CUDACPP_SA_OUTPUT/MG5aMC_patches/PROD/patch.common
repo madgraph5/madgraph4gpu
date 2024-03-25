@@ -38,7 +38,11 @@ index 617f10b93..00c73099a 100644
 +cleanall: cleanSource # THIS IS THE ONE
 +	for i in `ls -d ../SubProcesses/P*`; do cd $$i; make cleanavxs; cd -; done;
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
+<<<<<<< HEAD
 index 348c283be..036140b07 100644
+=======
+index 348c283be..d572486c2 100644
+>>>>>>> upstream/master
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 @@ -1,6 +1,28 @@
@@ -321,10 +325,17 @@ index 348c283be..036140b07 100644
 +distclean: cleanall # Clean all fortran and cudacpp builds as well as the googletest installation
 +	$(MAKE) -f $(CUDACPP_MAKEFILE) distclean
 diff --git b/epochX/cudacpp/gg_tt.mad/bin/internal/gen_ximprove.py a/epochX/cudacpp/gg_tt.mad/bin/internal/gen_ximprove.py
+<<<<<<< HEAD
 index fb7efa87c..87b336ec8 100755
 --- b/epochX/cudacpp/gg_tt.mad/bin/internal/gen_ximprove.py
 +++ a/epochX/cudacpp/gg_tt.mad/bin/internal/gen_ximprove.py
 @@ -391,8 +391,17 @@ class gensym(object):
+=======
+index fb7efa87c..5fd170d18 100755
+--- b/epochX/cudacpp/gg_tt.mad/bin/internal/gen_ximprove.py
++++ a/epochX/cudacpp/gg_tt.mad/bin/internal/gen_ximprove.py
+@@ -391,8 +391,20 @@ class gensym(object):
+>>>>>>> upstream/master
                          done = True
                  if not done:
                      raise Exception('Parsing error in gensym: %s' % stdout)
@@ -345,7 +356,11 @@ index fb7efa87c..87b336ec8 100755
                  self.submit_to_cluster(job_list)
                  job_list = {}
 diff --git b/epochX/cudacpp/gg_tt.mad/bin/internal/madevent_interface.py a/epochX/cudacpp/gg_tt.mad/bin/internal/madevent_interface.py
+<<<<<<< HEAD
 index 8c509e83f..047245a08 100755
+=======
+index 8c509e83f..cb6bf4ca5 100755
+>>>>>>> upstream/master
 --- b/epochX/cudacpp/gg_tt.mad/bin/internal/madevent_interface.py
 +++ a/epochX/cudacpp/gg_tt.mad/bin/internal/madevent_interface.py
 @@ -3614,8 +3614,17 @@ Beware that this can be dangerous for local multicore runs.""")

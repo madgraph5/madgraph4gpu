@@ -1,7 +1,7 @@
 # Copyright (C) 2020-2023 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: A. Valassi (Sep 2021) for the MG5aMC CUDACPP plugin.
-# Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, A. Valassi, Z. Wettersten (2021-2023) for the MG5aMC CUDACPP plugin.
+# Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, J. Teig, A. Valassi, Z. Wettersten (2021-2023) for the MG5aMC CUDACPP plugin.
 
 import os
 import subprocess
@@ -36,6 +36,9 @@ logger = logging.getLogger('madgraph.PLUGIN.CUDACPP_OUTPUT.output')
 from os.path import join as pjoin
 import madgraph.iolibs.files as files
 import madgraph.various.misc as misc
+
+from . import launch_plugin
+
 
 # AV - define the plugin's process exporter
 # (NB: this is the plugin's main class, enabled in the new_output dictionary in __init__.py)
@@ -88,9 +91,10 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                      'CMake': [s+'CMake/Compilers.txt', s+'CMake/Platforms.txt', s+'CMake/Macros.txt'],
                      'src': [s+'gpu/rambo.h', s+'read_slha.h', s+'read_slha.cc',
                              s+'gpu/mgOnGpuFptypes.h', s+'gpu/mgOnGpuCxtypes.h', s+'gpu/mgOnGpuVectors.h',
-                             s+'CMake/src/CMakeLists.txt'],
+                             s+'gpu/constexpr_math.h',
+                             s+'CMake/src/CMakeLists.txt' ],
                      'SubProcesses': [s+'gpu/nvtx.h', s+'gpu/timer.h', s+'gpu/timermap.h',
-                                      s+'gpu/ompnumthreads.h', s+'gpu/CudaRuntime.h',
+                                      s+'gpu/ompnumthreads.h', s+'gpu/GpuRuntime.h', s+'gpu/GpuAbstraction.h',
                                       s+'gpu/MemoryAccessHelpers.h', s+'gpu/MemoryAccessVectors.h',
                                       s+'gpu/MemoryAccessMatrixElements.h', s+'gpu/MemoryAccessMomenta.h',
                                       s+'gpu/MemoryAccessRandomNumbers.h', s+'gpu/MemoryAccessWeights.h',
@@ -101,8 +105,8 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                                       s+'gpu/CrossSectionKernels.cc', s+'gpu/CrossSectionKernels.h',
                                       s+'gpu/MatrixElementKernels.cc', s+'gpu/MatrixElementKernels.h',
                                       s+'gpu/RamboSamplingKernels.cc', s+'gpu/RamboSamplingKernels.h',
-                                      s+'gpu/RandomNumberKernels.h',
-                                      s+'gpu/CommonRandomNumberKernel.cc', s+'gpu/CurandRandomNumberKernel.cc',
+                                      s+'gpu/RandomNumberKernels.h', s+'gpu/CommonRandomNumberKernel.cc',
+                                      s+'gpu/CurandRandomNumberKernel.cc', s+'gpu/HiprandRandomNumberKernel.cc',
                                       s+'gpu/Bridge.h', s+'gpu/BridgeKernels.cc', s+'gpu/BridgeKernels.h',
                                       s+'gpu/fbridge.cc', s+'gpu/fbridge.inc', s+'gpu/fsampler.cc', s+'gpu/fsampler.inc',
                                       s+'gpu/MadgraphTest.h', s+'gpu/runTest.cc',
@@ -110,8 +114,9 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                                       s+'gpu/perf.py', s+'gpu/profile.sh',
                                       s+'CMake/SubProcesses/CMakeLists.txt'],
                      'test': [s+'gpu/cudacpp_test.mk']}
+
     to_link_in_P = ['nvtx.h', 'timer.h', 'timermap.h',
-                    'ompnumthreads.h', 'CudaRuntime.h',
+                    'ompnumthreads.h', 'GpuRuntime.h', 'GpuAbstraction.h',
                     'MemoryAccessHelpers.h', 'MemoryAccessVectors.h',
                     'MemoryAccessMatrixElements.h', 'MemoryAccessMomenta.h',
                     'MemoryAccessRandomNumbers.h', 'MemoryAccessWeights.h',
@@ -122,7 +127,8 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                     'CrossSectionKernels.cc', 'CrossSectionKernels.h',
                     'MatrixElementKernels.cc', 'MatrixElementKernels.h',
                     'RamboSamplingKernels.cc', 'RamboSamplingKernels.h',
-                    'RandomNumberKernels.h', 'CommonRandomNumberKernel.cc', 'CurandRandomNumberKernel.cc',
+                    'RandomNumberKernels.h', 'CommonRandomNumberKernel.cc',
+                    'CurandRandomNumberKernel.cc', 'HiprandRandomNumberKernel.cc',
                     'Bridge.h', 'BridgeKernels.cc', 'BridgeKernels.h',
                     'fbridge.cc', 'fbridge.inc', 'fsampler.cc', 'fsampler.inc',
                     'MadgraphTest.h', 'runTest.cc',
@@ -148,11 +154,6 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
     # (NB: use "helas_exporter" - see class MadGraphCmd in madgraph_interface.py - not "aloha_exporter" that is never used!)
     ###helas_exporter = None
     helas_exporter = model_handling.PLUGIN_GPUFOHelasCallWriter # this is one of the main fixes for issue #341!
-
-    # Default class for the run_card to use
-    from . import launch_plugin
-    run_card_class = launch_plugin.CPPRunCard
-
 
     # AV (default from OM's tutorial) - add a debug printout
     def __init__(self, *args, **kwargs):
@@ -195,12 +196,14 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
         misc.sprint('  type(subproc_group)=%s'%type(subproc_group)) # e.g. madgraph.core.helas_objects.HelasMatrixElement
         misc.sprint('  type(fortran_model)=%s'%type(fortran_model)) # e.g. madgraph.iolibs.helas_call_writers.GPUFOHelasCallWriter
         misc.sprint('  type(me)=%s me=%s'%(type(me) if me is not None else None, me)) # e.g. int
-        return super().generate_subprocess_directory(subproc_group, fortran_model, me)
-
+        misc.sprint("need to link", self.to_link_in_P)
+        out = super().generate_subprocess_directory(subproc_group, fortran_model, me)
+        return out
     # AV (default from OM's tutorial) - add a debug printout
     def convert_model(self, model, wanted_lorentz=[], wanted_coupling=[]):
         misc.sprint('Entering PLUGIN_ProcessExporter.convert_model (create the model)')
         return super().convert_model(model, wanted_lorentz, wanted_coupling)
+
 
     # AV (default from OM's tutorial) - add a debug printout
     def finalize(self, matrix_element, cmdhistory, MG5options, outputflag):
@@ -280,7 +283,26 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
 
 #------------------------------------------------------------------------------------
 
-class SIMD_ProcessExporter(PLUGIN_ProcessExporter):
+class PLUGIN_ProcessExporter_MadEvent(PLUGIN_ProcessExporter):
+    """ a class to include all tweak related to madevent and not related to standalone.
+        in practise this class is never called but only the SIMD or GPU related class"""
+
+    s = PLUGINDIR + '/madgraph/iolibs/template_files/'
+    # add template file/ linking only needed in the madevent mode and not in standalone
+    from_template = dict(PLUGIN_ProcessExporter.from_template)
+    from_template['SubProcesses'] = from_template['SubProcesses'] + [s+'gpu/fbridge_common.inc',
+                                      s+'gpu/counters.cc',
+                                      s+'gpu/ompnumthreads.cc']
+     
+    to_link_in_P = PLUGIN_ProcessExporter.to_link_in_P + ['fbridge_common.inc', 'counters.cc','ompnumthreads.cc'] 
+
+#------------------------------------------------------------------------------------
+
+class SIMD_ProcessExporter(PLUGIN_ProcessExporter_MadEvent):
+    
+    # Default class for the run_card to use
+    run_card_class = launch_plugin.CPPRunCard
+    
     def change_output_args(args, cmd):
         """ """
         cmd._export_format = "madevent"
@@ -292,7 +314,11 @@ class SIMD_ProcessExporter(PLUGIN_ProcessExporter):
 
 #------------------------------------------------------------------------------------
 
-class GPU_ProcessExporter(PLUGIN_ProcessExporter):
+class GPU_ProcessExporter(PLUGIN_ProcessExporter_MadEvent):
+
+    # Default class for the run_card to use
+    run_card_class = launch_plugin.GPURunCard
+    
     def change_output_args(args, cmd):
         """ """
         cmd._export_format = "madevent"

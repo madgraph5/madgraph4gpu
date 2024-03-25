@@ -94,6 +94,8 @@ for arg in $*; do
     rndgen=$arg
   elif [ "$arg" == "-curhst" ]; then
     rndgen=$arg
+  ###elif [ "$arg" == "-hirhst" ]; then
+  ###  rndgen=$arg
   elif [ "$arg" == "-rmbhst" ]; then
     rmbsmp=$arg
   elif [ "$arg" == "-bridge" ]; then
