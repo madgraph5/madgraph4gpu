@@ -89,17 +89,9 @@ class CPPRunCard(banner_mod.RunCardLO):
         self.add_param('floating_type', 'd', include=False, hidden=False,
                        fct_mod=(self.reset_makeopts,(),{}),
                        allowed=['m','d','f'])
-<<<<<<< HEAD
         cudacpp_supported_backends = [ 'fortran', 'cuda', 'cpp', 'cppnone', 'cppsse4', 'cppavx2', 'cpp512y', 'cpp512z', 'cppauto' ]
         self.add_param('cudacpp_backend', 'cpp', include=False, hidden=False,
                        allowed=cudacpp_supported_backends)
-=======
-        self.add_param('avx_level', 'auto', include=False, hidden=False,
-                       fct_mod=(self.reset_makeopts,(),{}),
-                       allowed=['auto', 'none', 'sse4', 'avx2','512y','512z'])
-        self.add_param('cudacpp_backend', 'CPP', include=False, hidden=False,
-                       allowed=['Fortran', 'CPP', 'CUDA'])
->>>>>>> upstream/master
         self['vector_size'] = 16 # already setup in default class (just change value)
         self['aloha_flag'] = '--fast-math'
         self['matrix_flag'] = '-O3'
