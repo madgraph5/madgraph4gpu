@@ -204,20 +204,14 @@ ifeq ($(wildcard $(HIP_HOME)/bin/hipcc),)
 endif
 ###$(info HIP_HOME=$(HIP_HOME))
 
-# Configure NVTX and CURAND if a CUDA installation exists
+# Configure NVTX if a CUDA installation exists
 # (FIXME? Is there any equivalent of NVTX FOR HIP? What should be configured if both CUDA and HIP are installed?)
 ifneq ($(CUDA_HOME),)
   USE_NVTX ?=-DUSE_NVTX
   CUINC = -I$(CUDA_HOME)/include/
-  ifeq ($(RNDGEN),hasNoCurand)
-    CURANDLIBFLAGS=
-  else
-    CURANDLIBFLAGS = -L$(CUDA_HOME)/lib64/ -lcurand # NB: -lcuda is not needed here!
-  endif
 else
   override USE_NVTX=
   override CUINC=
-  override CURANDLIBFLAGS=
 endif
 
 # NB1 (AND FIXME): NEW LOGIC FOR ENABLING AND DISABLING CUDA OR HIP BUILDS (AV 02.02.2024)
