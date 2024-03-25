@@ -238,10 +238,8 @@ endif
 # - Note also that the REQUIRE_CUDA variable (#443) is now (PR #798) no longer necessary, as it is now equivalent to BACKEND=cuda.
 # Similarly, there is no need to introduce a REQUIRE_HIP variable.
 
-# NB2 (AND FIXME): MUST STILL DOCUMENT VARIABLES AND CHECK FOR INTERNAL CONSISTENCY OF SOME VARIABLES (AV 02.02.2024)
-# - Before PR #798, en empty NVCC was used throughout all makefiles to indicate that this is not a cuda build
-
 #=== Configure the CUDA compiler (only for the CUDA backend)
+#=== (NB: throughout all makefiles, an empty GPUCC is used to indicate that this is a C++ build, i.e. that BACKEND is neither cuda nor hip!)
 
 ifeq ($(BACKEND),cuda)
 
@@ -308,7 +306,7 @@ else ifeq ($(BACKEND),hip)
 else
 
   # Backend is neither cuda nor hip
-  # (NB: in the past, an empty GPUCC was used elsewhere throughput all makefiles, to indicate that this is not a GPU build - is this still the case?)
+  # (NB: throughout all makefiles, an empty GPUCC is used to indicate that this is a C++ build, i.e. that BACKEND is neither cuda nor hip!)
   # (NB: in the past, GPUFLAGS could be modified elsewhere throughout all makefiles, but was only used in cuda/hip builds? - is this still the case?)
   # (NB: are CUINC and HIPINC correct here?)
   override GPUCC=
@@ -852,18 +850,13 @@ endif
 #-------------------------------------------------------------------------------
 
 # Target (and build rules): test objects and test executable
-ifneq ($(BACKEND),cuda)
+ifeq ($(GPUCC),)
 $(BUILDDIR)/testxxx.o: $(GTESTLIBS)
 $(BUILDDIR)/testxxx.o: INCFLAGS += $(GTESTINC)
 $(BUILDDIR)/testxxx.o: testxxx_cc_ref.txt
 $(testmain): $(BUILDDIR)/testxxx.o
 $(testmain): cxx_objects_exe += $(BUILDDIR)/testxxx.o # Comment out this line to skip the C++ test of xxx functions
-<<<<<<< HEAD
 else
-=======
-
-ifneq ($(GPUCC),)
->>>>>>> upstream/master
 $(BUILDDIR)/testxxx_cu.o: $(GTESTLIBS)
 $(BUILDDIR)/testxxx_cu.o: INCFLAGS += $(GTESTINC)
 $(BUILDDIR)/testxxx_cu.o: testxxx_cc_ref.txt
@@ -871,34 +864,24 @@ $(testmain): $(BUILDDIR)/testxxx_cu.o
 $(testmain): cu_objects_exe += $(BUILDDIR)/testxxx_cu.o # Comment out this line to skip the CUDA test of xxx functions
 endif
 
-ifneq ($(BACKEND),cuda)
+ifeq ($(GPUCC),)
 $(BUILDDIR)/testmisc.o: $(GTESTLIBS)
 $(BUILDDIR)/testmisc.o: INCFLAGS += $(GTESTINC)
 $(testmain): $(BUILDDIR)/testmisc.o
 $(testmain): cxx_objects_exe += $(BUILDDIR)/testmisc.o # Comment out this line to skip the C++ miscellaneous tests
-<<<<<<< HEAD
 else
-=======
-
-ifneq ($(GPUCC),)
->>>>>>> upstream/master
 $(BUILDDIR)/testmisc_cu.o: $(GTESTLIBS)
 $(BUILDDIR)/testmisc_cu.o: INCFLAGS += $(GTESTINC)
 $(testmain): $(BUILDDIR)/testmisc_cu.o
 $(testmain): cu_objects_exe += $(BUILDDIR)/testmisc_cu.o # Comment out this line to skip the CUDA miscellaneous tests
 endif
 
-ifneq ($(BACKEND),cuda)
+ifeq ($(GPUCC),)
 $(BUILDDIR)/runTest.o: $(GTESTLIBS)
 $(BUILDDIR)/runTest.o: INCFLAGS += $(GTESTINC)
 $(testmain): $(BUILDDIR)/runTest.o
 $(testmain): cxx_objects_exe += $(BUILDDIR)/runTest.o
-<<<<<<< HEAD
 else
-=======
-
-ifneq ($(GPUCC),)
->>>>>>> upstream/master
 $(BUILDDIR)/runTest_cu.o: $(GTESTLIBS)
 $(BUILDDIR)/runTest_cu.o: INCFLAGS += $(GTESTINC)
 ifneq ($(shell $(CXX) --version | grep ^Intel),)
