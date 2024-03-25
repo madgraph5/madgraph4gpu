@@ -266,7 +266,8 @@ ifeq ($(BACKEND),cuda)
   GPUFLAGS += $(GPUARCHFLAGS)
 
   # Other NVidia-specific flags
-  GPUFLAGS += -lineinfo
+  CUDA_OPTFLAGS = -lineinfo
+  GPUFLAGS += $(CUDA_OPTFLAGS)
 
   # NVCC version
   ###GPUCC_VERSION = $(shell $(GPUCC) --version | grep 'Cuda compilation tools' | cut -d' ' -f5 | cut -d, -f1)
@@ -685,7 +686,7 @@ endif
 # Target (and build options): debug
 MAKEDEBUG=
 debug: OPTFLAGS   = -g -O0
-debug: CUOPTFLAGS = -G
+debug: CUDA_OPTFLAGS = -G
 debug: MAKEDEBUG := debug
 debug: all.$(TAG)
 
