@@ -420,7 +420,12 @@ endif
 # (NB: allow HASCURAND=hasCurand even if $(GPUCC) does not point to nvcc: assume CUDA_HOME was defined correctly...)
 ifeq ($(HASCURAND),)
   ifeq ($(GPUCC),) # CPU-only build
-    override HASCURAND = hasNoCurand
+    ifneq ($(CUDA_HOME),)
+      # By default, assume that curand is installed if a CUDA installation exists
+      override HASCURAND = hasCurand
+    else
+      override HASCURAND = hasNoCurand
+    endif
   else ifeq ($(findstring nvcc,$(GPUCC)),nvcc) # Nvidia GPU build
     override HASCURAND = hasCurand
   else # non-Nvidia GPU build
