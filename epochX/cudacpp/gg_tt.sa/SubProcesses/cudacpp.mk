@@ -446,11 +446,6 @@ ifeq ($(HASHIPRAND),)
   endif
 endif
 
-# Export HASCURAND, HASHIPRAND so that there is no need to check/define them again in cudacpp_src.mk
-# (NB: these variables in cudacpp_src.mk are only used to define the build tag, they are NOT needed for RNDCXXFLAGS or RNDLIBFLAGS)
-export HASCURAND
-export HASHIPRAND
-
 #-------------------------------------------------------------------------------
 
 #=== Set the CUDA/HIP/C++ compiler flags appropriate to user-defined choices of AVX, FPTYPE, HELINL, HRDCOD
@@ -575,7 +570,7 @@ else ifneq ($(HASHIPRAND),hasHiprand)
 endif
 
 #$(info RNDCXXFLAGS=$(RNDCXXFLAGS))
-#$(info HASHIPRAND=$(HASHIPRAND))
+#$(info RNDLIBFLAGS=$(RNDLIBFLAGS))
 
 #-------------------------------------------------------------------------------
 
@@ -588,6 +583,10 @@ override DIRTAG = $(BACKEND)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)
 # Build lockfile "full" tag (defines full specification of build options that cannot be intermixed)
 # (Rationale: avoid mixing of CUDA and no-CUDA environment builds with different random number generators)
 override TAG = $(BACKEND)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)_$(HASCURAND)_$(HASHIPRAND)
+
+# Export DIRTAG and TAG so that there is no need to check/define them again in cudacpp_src.mk
+export DIRTAG
+export TAG
 
 # Build directory: current directory by default, or build.$(DIRTAG) if USEBUILDDIR==1
 ifeq ($(USEBUILDDIR),1)

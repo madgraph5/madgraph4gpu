@@ -142,13 +142,11 @@ endif
 
 #=== Configure build directories and build lockfiles ===
 
-# Build directory "short" tag (defines target and path to the optional build directory)
-# (Rationale: keep directory names shorter, e.g. do not include random number generator choice)
-override DIRTAG = $(BACKEND)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)
+# Use the build directory "short" tag exported from cudacpp.mk
+###$(info DIRTAG=$(DIRTAG))
 
-# Build lockfile "full" tag (defines full specification of build options that cannot be intermixed)
-# (Rationale: avoid mixing of CUDA and no-CUDA environment builds with different random number generators)
-override TAG = $(BACKEND)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)_$(HASCURAND)_$(HASHIPRAND)
+# Use the build lockfile "full" tag exported from cudacpp.mk
+###$(info TAG=$(TAG))
 
 # Build directory: current directory by default, or build.$(DIRTAG) if USEBUILDDIR==1
 ###$(info Current directory is $(shell pwd))
