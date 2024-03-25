@@ -238,7 +238,7 @@ endif
 ifeq ($(BACKEND),cuda)
 
   # If CXX is not a single word (example "clang++ --gcc-toolchain...") then disable CUDA builds (issue #505)
-  # This is because it is impossible to pass this to "CUFLAGS += -ccbin <host-compiler>" below
+  # This is because it is impossible to pass this to "GPUFLAGS += -ccbin <host-compiler>" below
   ifneq ($(words $(subst ccache ,,$(CXX))),1) # allow at most "CXX=ccache <host-compiler>" from outside
     $(error BACKEND=$(BACKEND) but CUDA builds are not supported for multi-word CXX "$(CXX)")
   endif
@@ -699,11 +699,11 @@ $(BUILDDIR)/check_sa_cu.o: CXXFLAGS += $(USE_NVTX) $(CUINC)
 
 # Apply special build flags only to check_sa[_cu].o and (Cu|Hip)randRandomNumberKernel[_cu].o
 $(BUILDDIR)/check_sa.o: CXXFLAGS += $(RNDCXXFLAGS)
-$(BUILDDIR)/check_sa_cu.o: CUFLAGS += $(RNDCXXFLAGS)
+$(BUILDDIR)/check_sa_cu.o: GPUFLAGS += $(RNDCXXFLAGS)
 $(BUILDDIR)/CurandRandomNumberKernel.o: CXXFLAGS += $(RNDCXXFLAGS)
-$(BUILDDIR)/CurandRandomNumberKernel_cu.o: CUFLAGS += $(RNDCXXFLAGS)
+$(BUILDDIR)/CurandRandomNumberKernel_cu.o: GPUFLAGS += $(RNDCXXFLAGS)
 $(BUILDDIR)/HiprandRandomNumberKernel.o: CXXFLAGS += $(RNDCXXFLAGS)
-$(BUILDDIR)/HiprandRandomNumberKernel_cu.o: CUFLAGS += $(RNDCXXFLAGS)
+$(BUILDDIR)/HiprandRandomNumberKernel_cu.o: GPUFLAGS += $(RNDCXXFLAGS)
 ifeq ($(HASCURAND),hasCurand) # curand headers, #679
 $(BUILDDIR)/CurandRandomNumberKernel.o: CXXFLAGS += $(CUINC)
 endif
