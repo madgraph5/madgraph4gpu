@@ -497,7 +497,7 @@ else
   endif
 endif
 # For the moment, use AVXFLAGS everywhere (in C++ builds): eventually, use them only in encapsulated implementations?
-ifneq ($(GPUCC),)
+ifeq ($(GPUCC),)
 CXXFLAGS+= $(AVXFLAGS)
 endif
 
