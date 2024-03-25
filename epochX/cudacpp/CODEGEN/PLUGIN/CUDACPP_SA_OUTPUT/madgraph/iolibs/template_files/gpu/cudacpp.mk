@@ -299,10 +299,15 @@ else ifeq ($(BACKEND),hip)
 else
 
   # Backend is neither cuda nor hip
-  # (NB: throughout all makefiles, an empty GPUCC is used to indicate that this is a C++ build, i.e. that BACKEND is neither cuda nor hip!)
-  # (NB: in the past, GPUFLAGS could be modified elsewhere throughout all makefiles, but was only used in cuda/hip builds? - is this still the case?)
   override GPUCC=
   override GPUFLAGS=
+
+  # Sanity check, this should never happen: if GPUCC is empty, then this is a C++ build, i.e. BACKEND is neither cuda nor hip.
+  # In practice, in the following, "ifeq ($(GPUCC),)" is equivalent to "ifneq ($(findstring cpp,$(BACKEND)),)".
+  # Conversely, note that GPUFLAGS is non-empty also for C++ builds, but it is never used in that case.
+  ifeq ($(findstring cpp,$(BACKEND)),)
+  $(error INTERNAL ERROR! Unknown backend BACKEND='$(BACKEND)': supported backends are $(foreach backend,$(SUPPORTED_BACKENDS),'$(backend)'))
+  endif
 
 endif
 
