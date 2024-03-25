@@ -1069,14 +1069,9 @@ endif
 
 # Target: check (run the C++ test executable)
 # [NB THIS IS WHAT IS USED IN THE GITHUB CI!]
-<<<<<<< HEAD
 # [FIXME: SHOULD CHANGE THE TARGET NAME "check" THAT HAS NOTHING TO DO WITH "check.exe"]
-ifeq ($(BACKEND),cuda)
-check: runTest cmpFGcheck
-=======
 ifneq ($(GPUCC),)
-check: runTest cmpFcheck cmpFGcheck
->>>>>>> upstream/master
+check: runTest cmpFGcheck
 else
 check: runTest cmpFcheck
 endif
