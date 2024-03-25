@@ -256,10 +256,18 @@ else
 bldavxs: bldnone bldsse4 bldavx2 bld512y bld512z
 endif
 
-ifneq ($(CUDA_HOME),)
+ifneq ($(shell which hipcc 2>/dev/null),)
+ifneq ($(shell which nvcc 2>/dev/null),)
+bldall: bldhip bldcuda bldavxs
+else
+bldall: bldhip bldavxs
+endif
+else
+ifneq ($(shell which nvcc 2>/dev/null),)
 bldall: bldcuda bldavxs
 else
 bldall: bldavxs
+endif
 endif
 
 bldcuda: $(PROG)_fortran $(DSIG_cudacpp)
