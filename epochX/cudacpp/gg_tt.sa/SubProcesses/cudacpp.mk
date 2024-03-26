@@ -21,9 +21,6 @@ override CUDACPP_SRC_MAKEFILE = cudacpp_src.mk
 # Determine CUDACPP_BUILDDIR from a DIRTAG based on BACKEND, FPTYPE, HELINL, HRDCOD and from the user-defined choice of USEBUILDDIR
 include ../../src/cudacpp_builddir.mk
 
-# Export BACKEND (so that there is no need to check/define it again in cudacpp_src.mk)
-export BACKEND
-
 # Export CUDACPP_BUILDDIR (so that there is no need to check/define it again in cudacpp_src.mk)
 export CUDACPP_BUILDDIR
 
