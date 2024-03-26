@@ -19,7 +19,6 @@ SHELL := /bin/bash
 #=== Configure common compiler flags for CUDA and C++
 
 INCFLAGS = -I.
-OPTFLAGS = -O3 # this ends up in GPUFLAGS too (should it?), cannot add -Ofast or -ffast-math here
 
 #-------------------------------------------------------------------------------
 
@@ -125,7 +124,6 @@ MG5AMC_COMMONLIB = mg5amc_common
 all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/.build.$(TAG) $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so
 
 # Target (and build options): debug
-debug: OPTFLAGS = -g -O0
 debug: all.$(TAG)
 
 # Target: tag-specific build lockfiles
