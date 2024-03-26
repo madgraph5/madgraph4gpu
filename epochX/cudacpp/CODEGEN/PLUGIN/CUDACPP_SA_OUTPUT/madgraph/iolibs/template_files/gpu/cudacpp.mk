@@ -59,6 +59,12 @@ ifneq ($(words $(filter $(FPTYPE), $(SUPPORTED_HRDCODS))),1)
   $(error Invalid hrdcod HRDCOD='$(HRDCOD)': supported hrdcods are $(foreach hrdcod,$(SUPPORTED_HRDCODS),'$(hrdcod)'))
 endif
 
+# Print out BACKEND, FPTYPE, HELINL, HRDCOD
+$(info BACKEND=$(BACKEND))
+$(info FPTYPE=$(FPTYPE))
+$(info HELINL=$(HELINL))
+$(info HRDCOD=$(HRDCOD))
+
 # Export BACKEND, FPTYPE, HELINL, HRDCOD so that there is no need to check/define them again in cudacpp_src.mk
 export BACKEND
 export FPTYPE
@@ -195,8 +201,8 @@ ifeq ($(BACKEND),cppauto)
     ###  $(warning Using BACKEND='$(BACKEND)' because this is faster than avx512vl for clang)
     ###endif
   endif
+  $(info BACKEND=$(BACKEND) (was cppauto))
 endif
-$(info BACKEND=$(BACKEND))
 
 #-------------------------------------------------------------------------------
 
@@ -583,7 +589,6 @@ endif
 export AVXFLAGS
 
 # Set the build flags appropriate to each FPTYPE choice (example: "make FPTYPE=f")
-$(info FPTYPE=$(FPTYPE))
 ifeq ($(FPTYPE),d)
   CXXFLAGS += -DMGONGPU_FPTYPE_DOUBLE -DMGONGPU_FPTYPE2_DOUBLE
   GPUFLAGS += -DMGONGPU_FPTYPE_DOUBLE -DMGONGPU_FPTYPE2_DOUBLE
@@ -598,7 +603,6 @@ else
 endif
 
 # Set the build flags appropriate to each HELINL choice (example: "make HELINL=1")
-$(info HELINL=$(HELINL))
 ifeq ($(HELINL),1)
   CXXFLAGS += -DMGONGPU_INLINE_HELAMPS
   GPUFLAGS += -DMGONGPU_INLINE_HELAMPS
@@ -607,14 +611,12 @@ else ifneq ($(HELINL),0)
 endif
 
 # Set the build flags appropriate to each HRDCOD choice (example: "make HRDCOD=1")
-$(info HRDCOD=$(HRDCOD))
 ifeq ($(HRDCOD),1)
   CXXFLAGS += -DMGONGPU_HARDCODE_PARAM
   GPUFLAGS += -DMGONGPU_HARDCODE_PARAM
 else ifneq ($(HRDCOD),0)
   $(error Unknown HRDCOD='$(HRDCOD)': only '0' and '1' are supported)
 endif
-
 
 #=== Set the CUDA/HIP/C++ compiler and linker flags appropriate to user-defined choices of HASCURAND, HASHIPRAND
 
