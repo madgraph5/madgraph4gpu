@@ -25,6 +25,9 @@ OPTFLAGS = -O3 # this ends up in GPUFLAGS too (should it?), cannot add -Ofast or
 
 #=== Configure the C++ compiler
 
+$(info CXXFLAGS from cudacpp.mk)
+$(info '$(CXXFLAGS)')
+
 CXXFLAGS = $(OPTFLAGS) -std=c++17 $(USE_NVTX) -Wall -Wshadow -Wextra
 ifeq ($(shell $(CXX) --version | grep ^nvc++),)
 CXXFLAGS+= -ffast-math # see issue #117
@@ -215,6 +218,9 @@ $(LIBDIR)/.build.$(TAG):
 	@touch $(BUILDDIR)/.build.$(TAG)
 
 #-------------------------------------------------------------------------------
+
+$(info CXXFLAGS from cudacpp_src.mk)
+$(info '$(CXXFLAGS)')
 
 # Generic target and build rules: objects from C++ compilation
 $(BUILDDIR)/%.o : %.cc *.h $(BUILDDIR)/.build.$(TAG)
