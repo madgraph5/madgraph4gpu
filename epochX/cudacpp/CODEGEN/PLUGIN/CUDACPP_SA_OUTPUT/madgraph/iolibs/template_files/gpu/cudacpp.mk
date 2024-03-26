@@ -694,10 +694,6 @@ endif
 
 # Generic target and build rules: objects from CUDA or HIP compilation
 ifneq ($(GPUCC),)
-$(BUILDDIR)/%%.o : %%.cu *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
-	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	$(GPUCC) $(CPPFLAGS) $(GPUFLAGS) $(XCOMPILERFLAG) -fPIC -c $< -o $@
-
 $(BUILDDIR)/%%_$(GPUSUFFIX).o : %%.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	$(GPUCC) $(CPPFLAGS) $(GPUFLAGS) $(XCOMPILERFLAG) -fPIC -c -x $(GPULANGUAGE) $< -o $@
