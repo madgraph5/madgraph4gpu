@@ -38,9 +38,12 @@ endif
 
 #-------------------------------------------------------------------------------
 
-#=== Configure the GPU (CUDA or HIP) compiler (note: GPUCC has been exported from cudacpp.mk including ccache)
+#=== Configure the GPU (CUDA or HIP) compiler (note: GPUCC including ccache, GPUFLAGS, GPULANGUAGE, GPUSUFFIX have been exported from cudacpp.mk)
 
 ###$(info GPUCC=$(GPUCC))
+###$(info GPUFLAGS=$(GPUFLAGS))
+###$(info GPULANGUAGE=$(GPULANGUAGE))
+###$(info GPUSUFFIX=$(GPUSUFFIX))
 
 #-------------------------------------------------------------------------------
 
@@ -53,29 +56,6 @@ endif
 #ifeq ($(USECCACHE)$(shell echo $(AR) | grep ccache),1)
 #  override AR:=ccache $(AR)
 #endif
-
-#-------------------------------------------------------------------------------
-
-#=== Set the CUDA/HIP/C++ compiler flags appropriate to user-defined choices of BACKEND (exported from cudacpp.mk)
-
-$(info GPUFLAGS before)
-$(info '$(GPUFLAGS)')
-
-# Add correct flags for nvcc (-x cu) and hipcc (-x hip) for GPU code (see #810)
-ifeq ($(findstring nvcc,$(GPUCC)),nvcc)
-  GPUFLAGS += -c -x cu
-else ifeq ($(findstring hipcc,$(GPUCC)),hipcc)
-  GPUFLAGS += -c -x hip
-endif
-
-#-------------------------------------------------------------------------------
-
-#=== Configure Position-Independent Code
-ifeq ($(findstring nvcc,$(GPUCC)),nvcc)
-  GPUFLAGS += -Xcompiler -fPIC
-else ifeq ($(findstring hipcc,$(GPUCC)),hipcc)
-  GPUFLAGS += -fPIC
-endif
 
 #-------------------------------------------------------------------------------
 
@@ -145,24 +125,23 @@ $(LIBDIR)/.build.$(TAG):
 
 #-------------------------------------------------------------------------------
 
-$(info GPUFLAGS now)
-$(info '$(GPUFLAGS)')
-
 # Generic target and build rules: objects from C++ compilation
 $(BUILDDIR)/%.o : %.cc *.h $(BUILDDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	$(CXX) $(CPPFLAGS) $(INCFLAGS) $(CXXFLAGS) -c $< -o $@
 
 # Generic target and build rules: objects from CUDA compilation
-$(BUILDDIR)/%_cu.o : %.cc *.h $(BUILDDIR)/.build.$(TAG)
+ifneq ($(GPUCC),)
+$(BUILDDIR)/%_$(GPUSUFFIX).o : %.cc *.h $(BUILDDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	$(GPUCC) $(CPPFLAGS) $(INCFLAGS) $(GPUFLAGS) $< -o $@
+	$(GPUCC) $(CPPFLAGS) $(INCFLAGS) $(GPUFLAGS) -c -x $(GPULANGUAGE) $< -o $@
+endif
 
 #-------------------------------------------------------------------------------
 
 cxx_objects=$(addprefix $(BUILDDIR)/, Parameters_sm.o read_slha.o)
 ifneq ($(GPUCC),)
-cu_objects=$(addprefix $(BUILDDIR)/, Parameters_sm_cu.o)
+cu_objects=$(addprefix $(BUILDDIR)/, Parameters_sm_$(GPUSUFFIX).o)
 endif
 
 # Target (and build rules): common (src) library
