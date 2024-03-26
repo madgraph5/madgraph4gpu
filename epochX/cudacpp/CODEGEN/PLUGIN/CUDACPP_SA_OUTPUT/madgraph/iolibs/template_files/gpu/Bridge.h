@@ -246,6 +246,9 @@ namespace mg5amcCpu
     if( nparF != CPPProcess::npar ) throw std::runtime_error( "Bridge constructor: npar mismatch" );
     if( np4F != CPPProcess::np4 ) throw std::runtime_error( "Bridge constructor: np4 mismatch" );
 #ifdef MGONGPUCPP_GPUIMPL
+    // this memory is allocated with cuda/hipMallocHost. The documentation does not guarantuee
+    // that its properly default initialized but we rely on this later on in sigmaKin
+    std::fill_n( m_hstChanIds.data(), m_nevt, 0 );
     if( ( m_nevt < s_gputhreadsmin ) || ( m_nevt % s_gputhreadsmin != 0 ) )
       throw std::runtime_error( "Bridge constructor: nevt should be a multiple of " + std::to_string( s_gputhreadsmin ) );
     while( m_nevt != m_gpublocks * m_gputhreads )
