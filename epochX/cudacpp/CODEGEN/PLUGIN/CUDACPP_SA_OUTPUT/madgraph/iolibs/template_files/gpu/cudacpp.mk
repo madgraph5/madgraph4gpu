@@ -21,11 +21,8 @@ override CUDACPP_SRC_MAKEFILE = cudacpp_src.mk
 # Determine CUDACPP_BUILDDIR from a DIRTAG based on BACKEND, FPTYPE, HELINL, HRDCOD and from the user-defined choice of USEBUILDDIR
 include ../../src/cudacpp_builddir.mk
 
-# Export BACKEND, FPTYPE, HELINL, HRDCOD (so that there is no need to check/define them again in cudacpp_src.mk)
+# Export BACKEND (so that there is no need to check/define it again in cudacpp_src.mk)
 export BACKEND
-export FPTYPE
-export HELINL
-export HRDCOD
 
 # Export CUDACPP_BUILDDIR (so that there is no need to check/define it again in cudacpp_src.mk)
 export CUDACPP_BUILDDIR
@@ -387,9 +384,6 @@ override OMPFLAGS = -fopenmp # enable OpenMP MT by default on all other platform
 ###override OMPFLAGS = # disable OpenMP MT on all other platforms (default before #575)
 endif
 
-# Export OMPFLAGS (so that there is no need to check/define it again in cudacpp_src.mk)
-export OMPFLAGS
-
 #-------------------------------------------------------------------------------
 
 #=== Configure defaults and check if user-defined choices exist for RNDGEN (legacy!), HASCURAND, HASHIPRAND
@@ -496,9 +490,6 @@ endif
 ifeq ($(GPUCC),)
 CXXFLAGS+= $(AVXFLAGS)
 endif
-
-# Export AVXFLAGS (so that there is no need to check/define them again in cudacpp_src.mk)
-export AVXFLAGS
 
 # Set the build flags appropriate to each FPTYPE choice (example: "make FPTYPE=f")
 $(info FPTYPE='$(FPTYPE)')
