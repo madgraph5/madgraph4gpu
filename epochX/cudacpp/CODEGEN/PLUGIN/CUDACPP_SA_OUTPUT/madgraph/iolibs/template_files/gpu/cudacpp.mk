@@ -14,20 +14,56 @@ override CUDACPP_SRC_MAKEFILE = cudacpp_src.mk
 
 #-------------------------------------------------------------------------------
 
-#=== Check that the user-defined choice of BACKEND is supported
-#=== Configure a default value if no user-defined choice exists
+#=== Check that the user-defined choices of BACKEND, FPTYPE, HELINL, HRDCOD are supported
+#=== Configure default values for these variables if no user-defined choices exist
 
-# Set the default BACKEND choice if it is not defined
+# Set the default BACKEND (CUDA, HIP or C++/SIMD) choice
 ifeq ($(BACKEND),)
-override BACKEND = cppauto
+  override BACKEND = cppauto
 endif
 
-# Check that BACKEND is one of the possible supported backends
+# Set the default FPTYPE (floating point type) choice
+ifeq ($(FPTYPE),)
+  override FPTYPE = d
+endif
+
+# Set the default HELINL (inline helicities?) choice
+ifeq ($(HELINL),)
+  override HELINL = 0
+endif
+
+# Set the default HRDCOD (hardcode cIPD physics parameters?) choice
+ifeq ($(HRDCOD),)
+  override HRDCOD = 0
+endif
+
+# Check that the user-defined choices of BACKEND, FPTYPE, HELINL, HRDCOD are supported
 # (NB: use 'filter' and 'words' instead of 'findstring' because they properly handle whitespace-separated words)
 override SUPPORTED_BACKENDS = cuda hip cppnone cppsse4 cppavx2 cpp512y cpp512z cppauto
 ifneq ($(words $(filter $(BACKEND), $(SUPPORTED_BACKENDS))),1)
-$(error Invalid backend BACKEND='$(BACKEND)': supported backends are $(foreach backend,$(SUPPORTED_BACKENDS),'$(backend)'))
+  $(error Invalid backend BACKEND='$(BACKEND)': supported backends are $(foreach backend,$(SUPPORTED_BACKENDS),'$(backend)'))
 endif
+
+override SUPPORTED_FPTYPES = d f m
+ifneq ($(words $(filter $(FPTYPE), $(SUPPORTED_FPTYPES))),1)
+  $(error Invalid fptype FPTYPE='$(FPTYPE)': supported fptypes are $(foreach fptype,$(SUPPORTED_FPTYPES),'$(fptype)'))
+endif
+
+override SUPPORTED_HELINLS = 0 1
+ifneq ($(words $(filter $(FPTYPE), $(SUPPORTED_HELINLS))),1)
+  $(error Invalid helinl HELINL='$(HELINL)': supported helinls are $(foreach helinl,$(SUPPORTED_HELINLS),'$(helinl)'))
+endif
+
+override SUPPORTED_HRDCODS = 0 1
+ifneq ($(words $(filter $(FPTYPE), $(SUPPORTED_HRDCODS))),1)
+  $(error Invalid hrdcod HRDCOD='$(HRDCOD)': supported hrdcods are $(foreach hrdcod,$(SUPPORTED_HRDCODS),'$(hrdcod)'))
+endif
+
+# Export BACKEND, FPTYPE, HELINL, HRDCOD so that there is no need to check/define them again in cudacpp_src.mk
+export BACKEND
+export FPTYPE
+export HELINL
+export HRDCOD
 
 #-------------------------------------------------------------------------------
 
@@ -393,7 +429,7 @@ endif
 
 #-------------------------------------------------------------------------------
 
-#=== Configure defaults and check if user-defined choices exist for OMPFLAGS, BACKEND, FPTYPE, HELINL, HRDCOD
+#=== Configure defaults for OMPFLAGS
 
 # Set the default OMPFLAGS choice
 ifneq ($(findstring hipcc,$(GPUCC)),)
@@ -413,26 +449,7 @@ override OMPFLAGS = -fopenmp # enable OpenMP MT by default on all other platform
 ###override OMPFLAGS = # disable OpenMP MT on all other platforms (default before #575)
 endif
 
-# Set the default FPTYPE (floating point type) choice
-ifeq ($(FPTYPE),)
-  override FPTYPE = d
-endif
-
-# Set the default HELINL (inline helicities?) choice
-ifeq ($(HELINL),)
-  override HELINL = 0
-endif
-
-# Set the default HRDCOD (hardcode cIPD physics parameters?) choice
-ifeq ($(HRDCOD),)
-  override HRDCOD = 0
-endif
-
-# Export BACKEND, FPTYPE, HELINL, HRDCOD, OMPFLAGS so that there is no need to check/define them again in cudacpp_src.mk
-export BACKEND
-export FPTYPE
-export HELINL
-export HRDCOD
+# Export OMPFLAGS so that there is no need to check/define it again in cudacpp_src.mk
 export OMPFLAGS
 
 #-------------------------------------------------------------------------------
