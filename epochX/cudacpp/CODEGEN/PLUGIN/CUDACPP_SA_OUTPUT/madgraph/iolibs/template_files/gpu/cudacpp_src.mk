@@ -25,7 +25,7 @@ OPTFLAGS = -O3 # this ends up in GPUFLAGS too (should it?), cannot add -Ofast or
 
 #=== Configure the C++ compiler
 
-CXXFLAGS = $(OPTFLAGS) -std=c++17 $(USE_NVTX) -fPIC -Wall -Wshadow -Wextra
+CXXFLAGS = $(OPTFLAGS) -std=c++17 $(USE_NVTX) -Wall -Wshadow -Wextra
 ifeq ($(shell $(CXX) --version | grep ^nvc++),)
 CXXFLAGS+= -ffast-math # see issue #117
 endif
@@ -104,9 +104,9 @@ endif
 
 # Add correct flags for nvcc (-x cu) and hipcc (-x hip) for GPU code (see #810)
 ifeq ($(findstring nvcc,$(GPUCC)),nvcc)
-  GPUFLAGS += -Xcompiler -fPIC -c -x cu
+  GPUFLAGS += -c -x cu
 else ifeq ($(findstring hipcc,$(GPUCC)),hipcc)
-  GPUFLAGS += -fPIC -c -x hip
+  GPUFLAGS += -c -x hip
 endif
 
 # Set the build flags appropriate to each FPTYPE choice (example: "make FPTYPE=f")
@@ -135,6 +135,16 @@ ifeq ($(HRDCOD),1)
   CXXFLAGS += -DMGONGPU_HARDCODE_PARAM
 else ifneq ($(HRDCOD),0)
   $(error Unknown HRDCOD='$(HRDCOD)': only '0' and '1' are supported)
+endif
+
+#-------------------------------------------------------------------------------
+
+#=== Configure Position-Independent Code
+CXXFLAGS += -fPIC
+ifeq ($(findstring nvcc,$(GPUCC)),nvcc)
+  GPUFLAGS += -Xcompiler -fPIC
+else ifeq ($(findstring hipcc,$(GPUCC)),hipcc)
+  GPUFLAGS += -fPIC
 endif
 
 #-------------------------------------------------------------------------------
@@ -209,7 +219,7 @@ $(LIBDIR)/.build.$(TAG):
 # Generic target and build rules: objects from C++ compilation
 $(BUILDDIR)/%%.o : %%.cc *.h $(BUILDDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	$(CXX) $(CPPFLAGS) $(INCFLAGS) $(CXXFLAGS) -fPIC -c $< -o $@
+	$(CXX) $(CPPFLAGS) $(INCFLAGS) $(CXXFLAGS) -c $< -o $@
 
 # Generic target and build rules: objects from CUDA compilation
 $(BUILDDIR)/%%_cu.o : %%.cc *.h $(BUILDDIR)/.build.$(TAG)
