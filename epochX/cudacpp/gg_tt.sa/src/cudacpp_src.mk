@@ -23,17 +23,9 @@ OPTFLAGS = -O3 # this ends up in GPUFLAGS too (should it?), cannot add -Ofast or
 
 #-------------------------------------------------------------------------------
 
-#=== Configure the C++ compiler
+#=== Configure the C++ compiler (note: CXXFLAGS has been exported from cudacpp.mk)
 
-$(info CXXFLAGS from cudacpp.mk)
-$(info '$(CXXFLAGS)')
-
-CXXFLAGS = $(OPTFLAGS) -std=c++17 $(USE_NVTX) -Wall -Wshadow -Wextra
-ifeq ($(shell $(CXX) --version | grep ^nvc++),)
-CXXFLAGS+= -ffast-math # see issue #117
-endif
-###CXXFLAGS+= -Ofast # performance is not different from --fast-math
-###CXXFLAGS+= -g # FOR DEBUGGING ONLY
+###$(info CXXFLAGS=$(CXXFLAGS))
 
 # Note: AR, CXX and FC are implicitly defined if not set externally
 # See https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
@@ -42,7 +34,6 @@ endif
 # Add -mmacosx-version-min=11.3 to avoid "ld: warning: object file was built for newer macOS version than being linked"
 LDFLAGS =
 ifneq ($(shell $(CXX) --version | egrep '^Apple clang'),)
-CXXFLAGS += -mmacosx-version-min=11.3
 LDFLAGS += -mmacosx-version-min=11.3
 endif
 
@@ -66,44 +57,7 @@ endif
 
 #-------------------------------------------------------------------------------
 
-#=== Configure PowerPC-specific compiler flags for CUDA and C++
-
-# Assuming uname is available, detect if architecture is PowerPC
-UNAME_P := $(shell uname -p)
-
-# PowerPC-specific CXX compiler flags (being reviewed)
-ifeq ($(UNAME_P),ppc64le)
-  CXXFLAGS+= -mcpu=power9 -mtune=power9 # gains ~2-3% both for none and sse4
-  # Throughput references without the extra flags below: none=1.41-1.42E6, sse4=2.15-2.19E6
-  ###CXXFLAGS+= -DNO_WARN_X86_INTRINSICS # no change
-  ###CXXFLAGS+= -fpeel-loops # no change
-  ###CXXFLAGS+= -funroll-loops # gains ~1% for none, loses ~1% for sse4
-  ###CXXFLAGS+= -ftree-vectorize # no change
-  ###CXXFLAGS+= -flto # BUILD ERROR IF THIS ADDED IN SRC?!
-else
-  ###AR=gcc-ar # needed by -flto
-  ###RANLIB=gcc-ranlib # needed by -flto
-  ###CXXFLAGS+= -flto # NB: build error from src/Makefile unless gcc-ar and gcc-ranlib are used
-  ######CXXFLAGS+= -fno-semantic-interposition # no benefit (neither alone, nor combined with -flto)
-endif
-
-#-------------------------------------------------------------------------------
-
-#=== Set the CUDA/HIP/C++ compiler flags appropriate to user-defined choices of BACKEND, FPTYPE, HELINL, HRDCOD (exported from cudacpp.mk)
-
-# Set the build flags appropriate to OMPFLAGS
-###$(info OMPFLAGS=$(OMPFLAGS))
-CXXFLAGS += $(OMPFLAGS)
-
-# Use the AVXFLAGS build flags exported from cudacpp.mk
-$(info AVXFLAGS=$(AVXFLAGS))
-
-# For the moment, use AVXFLAGS everywhere (in C++ builds): eventually, use them only in encapsulated implementations?
-ifneq ($(BACKEND),cuda)
-ifneq ($(BACKEND),hip)
-CXXFLAGS+= $(AVXFLAGS)
-endif
-endif
+#=== Set the CUDA/HIP/C++ compiler flags appropriate to user-defined choices of BACKEND (exported from cudacpp.mk)
 
 # Add correct flags for nvcc (-x cu) and hipcc (-x hip) for GPU code (see #810)
 ifeq ($(findstring nvcc,$(GPUCC)),nvcc)
@@ -112,38 +66,9 @@ else ifeq ($(findstring hipcc,$(GPUCC)),hipcc)
   GPUFLAGS += -c -x hip
 endif
 
-# Set the build flags appropriate to each FPTYPE choice (example: "make FPTYPE=f")
-###$(info FPTYPE=$(FPTYPE))
-ifeq ($(FPTYPE),d)
-  CXXFLAGS += -DMGONGPU_FPTYPE_DOUBLE -DMGONGPU_FPTYPE2_DOUBLE
-else ifeq ($(FPTYPE),f)
-  CXXFLAGS += -DMGONGPU_FPTYPE_FLOAT -DMGONGPU_FPTYPE2_FLOAT
-else ifeq ($(FPTYPE),m)
-  CXXFLAGS += -DMGONGPU_FPTYPE_DOUBLE -DMGONGPU_FPTYPE2_FLOAT
-else
-  $(error Unknown FPTYPE='$(FPTYPE)': only 'd', 'f' and 'm' are supported)
-endif
-
-# Set the build flags appropriate to each HELINL choice (example: "make HELINL=1")
-###$(info HELINL=$(HELINL))
-ifeq ($(HELINL),1)
-  CXXFLAGS += -DMGONGPU_INLINE_HELAMPS
-else ifneq ($(HELINL),0)
-  $(error Unknown HELINL='$(HELINL)': only '0' and '1' are supported)
-endif
-
-# Set the build flags appropriate to each HRDCOD choice (example: "make HRDCOD=1")
-###$(info HRDCOD=$(HRDCOD))
-ifeq ($(HRDCOD),1)
-  CXXFLAGS += -DMGONGPU_HARDCODE_PARAM
-else ifneq ($(HRDCOD),0)
-  $(error Unknown HRDCOD='$(HRDCOD)': only '0' and '1' are supported)
-endif
-
 #-------------------------------------------------------------------------------
 
 #=== Configure Position-Independent Code
-CXXFLAGS += -fPIC
 ifeq ($(findstring nvcc,$(GPUCC)),nvcc)
   GPUFLAGS += -Xcompiler -fPIC
 else ifeq ($(findstring hipcc,$(GPUCC)),hipcc)
@@ -210,17 +135,14 @@ override oldtagsl=`if [ -d $(LIBDIR) ]; then find $(LIBDIR) -maxdepth 1 -name '.
 $(BUILDDIR)/.build.$(TAG): $(LIBDIR)/.build.$(TAG)
 
 $(LIBDIR)/.build.$(TAG):
-	@if [ "$(oldtagsl)" != "" ]; then echo -e "Cannot build for tag=$(TAG) as old builds exist in $(LIBDIR) for other tags:\n$(oldtagsl)\nPlease run 'make clean' first\nIf 'make clean' is not enough: run 'make clean USEBUILDDIR=1 AVX=$(AVX) FPTYPE=$(FPTYPE)' or 'make cleanall'"; exit 1; fi
-	@if [ "$(oldtagsb)" != "" ]; then echo -e "Cannot build for tag=$(TAG) as old builds exist in $(BUILDDIR) for other tags:\n$(oldtagsb)\nPlease run 'make clean' first\nIf 'make clean' is not enough: run 'make clean USEBUILDDIR=1 AVX=$(AVX) FPTYPE=$(FPTYPE)' or 'make cleanall'"; exit 1; fi
+	@if [ "$(oldtagsl)" != "" ]; then echo -e "Cannot build for tag=$(TAG) as old builds exist in $(LIBDIR) for other tags:\n$(oldtagsl)\nPlease run 'make clean' first\nIf 'make clean' is not enough: run 'make cleanall'"; exit 1; fi
+	@if [ "$(oldtagsb)" != "" ]; then echo -e "Cannot build for tag=$(TAG) as old builds exist in $(BUILDDIR) for other tags:\n$(oldtagsb)\nPlease run 'make clean' first\nIf 'make clean' is not enough: run 'make cleanall'"; exit 1; fi
 	@if [ ! -d $(LIBDIR) ]; then echo "mkdir -p $(LIBDIR)"; mkdir -p $(LIBDIR); fi
 	@touch $(LIBDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	@touch $(BUILDDIR)/.build.$(TAG)
 
 #-------------------------------------------------------------------------------
-
-$(info CXXFLAGS from cudacpp_src.mk)
-$(info '$(CXXFLAGS)')
 
 # Generic target and build rules: objects from C++ compilation
 $(BUILDDIR)/%.o : %.cc *.h $(BUILDDIR)/.build.$(TAG)
