@@ -58,6 +58,9 @@ endif
 
 #=== Set the CUDA/HIP/C++ compiler flags appropriate to user-defined choices of BACKEND (exported from cudacpp.mk)
 
+$(info GPUFLAGS before)
+$(info '$(GPUFLAGS)')
+
 # Add correct flags for nvcc (-x cu) and hipcc (-x hip) for GPU code (see #810)
 ifeq ($(findstring nvcc,$(GPUCC)),nvcc)
   GPUFLAGS += -c -x cu
@@ -141,6 +144,9 @@ $(LIBDIR)/.build.$(TAG):
 	@touch $(BUILDDIR)/.build.$(TAG)
 
 #-------------------------------------------------------------------------------
+
+$(info GPUFLAGS now)
+$(info '$(GPUFLAGS)')
 
 # Generic target and build rules: objects from C++ compilation
 $(BUILDDIR)/%.o : %.cc *.h $(BUILDDIR)/.build.$(TAG)
