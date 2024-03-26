@@ -149,7 +149,7 @@ endif
 
 #=== Configure the C++ compiler
 
-CXXFLAGS = $(OPTFLAGS) -std=c++17 $(INCFLAGS) -Wall -Wshadow -Wextra
+CXXFLAGS = $(OPTFLAGS) -std=c++17 -Wall -Wshadow -Wextra
 ifeq ($(shell $(CXX) --version | grep ^nvc++),)
 CXXFLAGS += -ffast-math # see issue #117
 endif
@@ -221,7 +221,7 @@ ifeq ($(BACKEND),cuda)
   GPUSUFFIX = cuda
 
   # Basic compiler flags (optimization and includes)
-  GPUFLAGS = $(foreach opt, $(OPTFLAGS), $(XCOMPILERFLAG) $(opt)) $(INCFLAGS)
+  GPUFLAGS = $(foreach opt, $(OPTFLAGS), $(XCOMPILERFLAG) $(opt))
 
   # NVidia CUDA architecture flags
   # See https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html
@@ -281,7 +281,7 @@ else ifeq ($(BACKEND),hip)
   GPUSUFFIX = hip
 
   # Basic compiler flags (optimization and includes)
-  GPUFLAGS = $(foreach opt, $(OPTFLAGS), $(XCOMPILERFLAG) $(opt)) $(INCFLAGS)
+  GPUFLAGS = $(foreach opt, $(OPTFLAGS), $(XCOMPILERFLAG) $(opt))
 
   # AMD HIP architecture flags
   GPUARCHFLAGS = --offload-arch=gfx90a
@@ -696,14 +696,14 @@ endif
 ifneq ($(GPUCC),)
 $(BUILDDIR)/%%_$(GPUSUFFIX).o : %%.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	$(GPUCC) $(CPPFLAGS) $(GPUFLAGS) $(XCOMPILERFLAG) -fPIC -c -x $(GPULANGUAGE) $< -o $@
+	$(GPUCC) $(CPPFLAGS) $(GPUFLAGS) $(INCFLAGS) $(XCOMPILERFLAG) -fPIC -c -x $(GPULANGUAGE) $< -o $@
 endif
 
 # Generic target and build rules: objects from C++ compilation
 # (NB do not include CUDA_INC here! add it only for NVTX or curand #679)
 $(BUILDDIR)/%%.o : %%.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -fPIC -c $< -o $@
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(INCFLAGS) -fPIC -c $< -o $@
 
 #-------------------------------------------------------------------------------
 
