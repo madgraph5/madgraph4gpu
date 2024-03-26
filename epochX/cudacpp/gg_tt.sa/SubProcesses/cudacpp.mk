@@ -21,13 +21,13 @@ override CUDACPP_SRC_MAKEFILE = cudacpp_src.mk
 # Determine CUDACPP_BUILDDIR from a DIRTAG based on BACKEND, FPTYPE, HELINL, HRDCOD and from the user-defined choice of USEBUILDDIR
 include ../../src/cudacpp_builddir.mk
 
-# Export BACKEND, FPTYPE, HELINL, HRDCOD so that there is no need to check/define them again in cudacpp_src.mk
+# Export BACKEND, FPTYPE, HELINL, HRDCOD (so that there is no need to check/define them again in cudacpp_src.mk)
 export BACKEND
 export FPTYPE
 export HELINL
 export HRDCOD
 
-# Export CUDACPP_BUILDDIR so that there is no need to check/define it again in cudacpp_src.mk
+# Export CUDACPP_BUILDDIR (so that there is no need to check/define it again in cudacpp_src.mk)
 export CUDACPP_BUILDDIR
 
 #-------------------------------------------------------------------------------
@@ -83,7 +83,7 @@ endif
 ###$(info CXXNAME=$(CXXNAME))
 override CXXNAMESUFFIX = _$(CXXNAME)
 
-# Export CXXNAMESUFFIX so that there is no need to redefine it in cudacpp_test.mk
+# Export CXXNAMESUFFIX (so that there is no need to check/define it again in cudacpp_test.mk)
 export CXXNAMESUFFIX
 
 # Dependency on test directory
@@ -166,6 +166,9 @@ endif
 ifneq ($(shell $(CXX) --version | egrep '^Apple clang'),)
 CXXFLAGS += -mmacosx-version-min=11.3
 endif
+
+# Export CXXFLAGS (so that there is no need to check/define it again in cudacpp_src.mk)
+export CXXFLAGS
 
 #-------------------------------------------------------------------------------
 
@@ -318,7 +321,7 @@ else
 
 endif
 
-# Export GPUCC and GPUFLAGS (so that there is no need to redefine them in cudacpp_src.mk)
+# Export GPUCC and GPUFLAGS (so that there is no need to check/define them again in cudacpp_src.mk)
 export GPUCC
 export GPUFLAGS
 
@@ -384,7 +387,7 @@ override OMPFLAGS = -fopenmp # enable OpenMP MT by default on all other platform
 ###override OMPFLAGS = # disable OpenMP MT on all other platforms (default before #575)
 endif
 
-# Export OMPFLAGS so that there is no need to check/define it again in cudacpp_src.mk
+# Export OMPFLAGS (so that there is no need to check/define it again in cudacpp_src.mk)
 export OMPFLAGS
 
 #-------------------------------------------------------------------------------
@@ -494,7 +497,7 @@ ifeq ($(GPUCC),)
 CXXFLAGS+= $(AVXFLAGS)
 endif
 
-# Export AVXFLAGS so that there is no need to redefine them in cudacpp_src.mk
+# Export AVXFLAGS (so that there is no need to check/define them again in cudacpp_src.mk)
 export AVXFLAGS
 
 # Set the build flags appropriate to each FPTYPE choice (example: "make FPTYPE=f")
@@ -560,13 +563,19 @@ endif
 
 #-------------------------------------------------------------------------------
 
+#=== Configure Position-Independent Code
+CXXFLAGS += -fPIC
+GPUFLAGS += $(XCOMPILERFLAG) -fPIC
+
+#-------------------------------------------------------------------------------
+
 #=== Configure build directories and build lockfiles ===
 
 # Build lockfile "full" tag (defines full specification of build options that cannot be intermixed)
 # (Rationale: avoid mixing of builds with different random number generators)
 override TAG = $(patsubst cpp%,%,$(BACKEND))_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)_$(HASCURAND)_$(HASHIPRAND)
 
-# Export TAG so that there is no need to check/define it again in cudacpp_src.mk
+# Export TAG (so that there is no need to check/define it again in cudacpp_src.mk)
 export TAG
 
 # Build directory: current directory by default, or build.$(DIRTAG) if USEBUILDDIR==1
@@ -696,14 +705,14 @@ endif
 ifneq ($(GPUCC),)
 $(BUILDDIR)/%_$(GPUSUFFIX).o : %.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	$(GPUCC) $(CPPFLAGS) $(INCFLAGS) $(GPUFLAGS) $(XCOMPILERFLAG) -fPIC -c -x $(GPULANGUAGE) $< -o $@
+	$(GPUCC) $(CPPFLAGS) $(INCFLAGS) $(GPUFLAGS) -c -x $(GPULANGUAGE) $< -o $@
 endif
 
 # Generic target and build rules: objects from C++ compilation
 # (NB do not include CUDA_INC here! add it only for NVTX or curand #679)
 $(BUILDDIR)/%.o : %.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	$(CXX) $(CPPFLAGS) $(INCFLAGS) $(CXXFLAGS) -fPIC -c $< -o $@
+	$(CXX) $(CPPFLAGS) $(INCFLAGS) $(CXXFLAGS) -c $< -o $@
 
 #-------------------------------------------------------------------------------
 
