@@ -58,6 +58,22 @@ $(info HRDCOD='$(HRDCOD)')
 
 #-------------------------------------------------------------------------------
 
+# Stop immediately if BACKEND=cuda but nvcc is missing
+ifeq ($(BACKEND),cuda)
+  ifeq ($(shell which nvcc 2>/dev/null),)
+    $(error BACKEND=$(BACKEND) but nvcc was not found)
+  endif
+endif
+
+# Stop immediately if BACKEND=hip but hipcc is missing
+ifeq ($(BACKEND),hip)
+  ifeq ($(shell which hipcc 2>/dev/null),)
+    $(error BACKEND=$(BACKEND) but hipcc was not found)
+  endif
+endif
+
+#-------------------------------------------------------------------------------
+
 #=== Configure CUDACPP_BUILDDIR
 
 # Build directory "short" tag (defines target and path to the optional build directory)
