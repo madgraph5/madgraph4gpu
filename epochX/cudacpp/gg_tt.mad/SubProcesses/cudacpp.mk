@@ -17,6 +17,7 @@ override CUDACPP_SRC_MAKEFILE = cudacpp_src.mk
 #=== Include cudacpp_builddir.mk
 
 # Check that the user-defined choices of BACKEND, FPTYPE, HELINL, HRDCOD are supported (and configure defaults if no user-defined choices exist)
+# Stop with an error if BACKEND=cuda and nvcc is missing or if BACKEND=hip and hipcc is missing.
 # Determine CUDACPP_BUILDDIR from a DIRTAG based on BACKEND, FPTYPE, HELINL, HRDCOD and from the user-defined choice of USEBUILDDIR
 include ../../src/cudacpp_builddir.mk
 
@@ -169,40 +170,11 @@ endif
 #=== Configure the GPU compiler (CUDA or HIP)
 #=== (note, this is done also for C++, as NVTX and CURAND/ROCRAND are also needed by the C++ backends)
 
-# If CUDA_HOME is not set, try to set it from the path to nvcc
-ifndef CUDA_HOME
-  CUDA_HOME = $(patsubst %/bin/nvcc,%,$(shell which nvcc 2>/dev/null))
-  $(warning CUDA_HOME was not set: using "$(CUDA_HOME)")
-endif
+# Set CUDA_HOME from the path to nvcc, if it exists
+override CUDA_HOME = $(patsubst %/bin/nvcc,%,$(shell which nvcc 2>/dev/null))
 
-# If HIP_HOME is not set, try to set it from the path to hipcc
-ifndef HIP_HOME
-  HIP_HOME = $(patsubst %/bin/hipcc,%,$(shell which hipcc 2>/dev/null))
-  $(warning HIP_HOME was not set: using "$(HIP_HOME)")
-endif
-
-# Check if $(CUDA_HOME)/bin/nvcc exists to determine if CUDA_HOME is a valid CUDA installation
-ifeq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
-  ifeq ($(BACKEND),cuda)
-    # Note, in the past REQUIRE_CUDA was used, e.g. for CI tests on GPU #443
-    $(error BACKEND=$(BACKEND) but no CUDA installation was found in CUDA_HOME='$(CUDA_HOME)')
-  else
-    ###$(warning No CUDA installation was found in CUDA_HOME='$(CUDA_HOME)')
-    override CUDA_HOME=
-  endif
-endif
-###$(info CUDA_HOME=$(CUDA_HOME))
-
-# Check if $(HIP_HOME)/bin/hipcc exists to determine if HIP_HOME is a valid HIP installation
-ifeq ($(wildcard $(HIP_HOME)/bin/hipcc),)
-  ifeq ($(BACKEND),hip)
-    $(error BACKEND=$(BACKEND) but no HIP installation was found in HIP_HOME='$(HIP_HOME)')
-  else
-    ###$(warning No HIP installation was found in HIP_HOME='$(HIP_HOME)')
-    override HIP_HOME=
-  endif
-endif
-###$(info HIP_HOME=$(HIP_HOME))
+# Set HIP_HOME from the path to hipcc, if it exists
+override HIP_HOME = $(patsubst %/bin/hipcc,%,$(shell which hipcc 2>/dev/null))
 
 # Configure CUDA_INC (for CURAND and NVTX) and NVTX if a CUDA installation exists
 # (FIXME? Is there any equivalent of NVTX FOR HIP? What should be configured if both CUDA and HIP are installed?)
@@ -214,23 +186,20 @@ else
   override CUDA_INC=
 endif
 
-# NB (AND FIXME): NEW LOGIC FOR ENABLING AND DISABLING CUDA OR HIP BUILDS (AV 02.02.2024)
-# - As in the past, we first check for cudacc and hipcc in CUDA_HOME and HIP_HOME; and if CUDA_HOME or HIP_HOME are not set,
-# we try to determine them from the path to cudacc and hipcc. **FIXME** : in the future, it may be better to completely remove
-# the dependency of this makefile on externally set CUDA_HOME and HIP_HOME, and only rely on whether nvcc and hipcc are in PATH.
+# NB: NEW LOGIC FOR ENABLING AND DISABLING CUDA OR HIP BUILDS (AV Feb-Mar 2024)
 # - In the old implementation, by default the C++ targets for one specific AVX were always built together with either CUDA or HIP.
 # If both CUDA and HIP were installed, then CUDA took precedence over HIP, and the only way to force HIP builds was to disable
-# CUDA builds by setting CUDA_HOME to an invalid value. Similarly, C++-only builds could be forced by setting CUDA_HOME and/or
-# HIP_HOME to invalid values. A check for an invalid nvcc in CUDA_HOME or an invalid hipcc HIP_HOME was necessary to ensure this
-# logic, and had to be performed _before_ choosing whether C++/CUDA, C++/HIP or C++-only builds had to be executed.
+# CUDA builds by setting CUDA_HOME to an invalid value (as CUDA_HOME took precdence over PATH to find the installation of nvcc).
+# Similarly, C++-only builds could be forced by setting CUDA_HOME and/or HIP_HOME to invalid values. A check for an invalid nvcc
+# in CUDA_HOME or an invalid hipcc HIP_HOME was necessary to ensure this logic, and had to be performed at the very beginning.
 # - In the new implementation (PR #798), separate individual builds are performed for one specific C++/AVX mode, for CUDA or
 # for HIP. The choice of the type of build is taken depending on the value of the BACKEND variable (replacing the AVX variable).
-# For the moment, it is still possible to override the PATH to nvcc and hipcc by externally setting a different value to CUDA_HOME
-# and HIP_HOME (although this will probably disappear as mentioned above): note also that the check whether nvcc or hipcc exist
-# still needs to be performed _before_ BACKEND-specific configurations, because CUDA/HIP installations also affect C++-only builds,
-# for NVTX and curand-host in the case of CUDA, and for rocrand-host in the case of HIP.
-# - Note also that the REQUIRE_CUDA variable (#443) is now (PR #798) no longer necessary, as it is now equivalent to BACKEND=cuda.
-# Similarly, there is no need to introduce a REQUIRE_HIP variable.
+# Unlike what happened in the past, nvcc and hipcc must have already been added to PATH. Using 'which nvcc' and 'which hipcc',
+# their existence and their location is checked, and the variables CUDA_HOME and HIP_HOME are internally set by this makefile.
+# This must be still done before backend-specific customizations, e.g. because CURAND and NVTX are also used in C++ builds.
+# Note also that a preliminary check for nvcc and hipcc if BACKEND is cuda or hip is performed in cudacpp_builddir.mk.
+# - Note also that the REQUIRE_CUDA variable (which was used in the past, e.g. for CI tests on GPU #443) is now (PR #798) no
+# longer necessary, as it is now equivalent to BACKEND=cuda. Similarly, there is no need to introduce a REQUIRE_HIP variable.
 
 #=== Configure the CUDA or HIP compiler (only for the CUDA and HIP backends)
 #=== (NB: throughout all makefiles, an empty GPUCC is used to indicate that this is a C++ build, i.e. that BACKEND is neither cuda nor hip!)
