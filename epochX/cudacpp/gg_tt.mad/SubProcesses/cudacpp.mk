@@ -14,6 +14,23 @@ override CUDACPP_SRC_MAKEFILE = cudacpp_src.mk
 
 #-------------------------------------------------------------------------------
 
+#=== Include cudacpp_builddir.mk
+
+# Check that the user-defined choices of BACKEND, FPTYPE, HELINL, HRDCOD are supported (and configure defaults if no user-defined choices exist)
+# Determine CUDACPP_BUILDDIR from a DIRTAG based on BACKEND, FPTYPE, HELINL, HRDCOD and from the user-defined choice of USEBUILDDIR
+include ../../src/cudacpp_builddir.mk
+
+# Export BACKEND, FPTYPE, HELINL, HRDCOD so that there is no need to check/define them again in cudacpp_src.mk
+export BACKEND
+export FPTYPE
+export HELINL
+export HRDCOD
+
+# Export CUDACPP_BUILDDIR so that there is no need to check/define it again in cudacpp_src.mk
+export CUDACPP_BUILDDIR
+
+#-------------------------------------------------------------------------------
+
 #=== Use bash in the Makefile (https://www.gnu.org/software/make/manual/html_node/Choosing-the-Shell.html)
 
 SHELL := /bin/bash
@@ -101,19 +118,9 @@ endif
 
 #-------------------------------------------------------------------------------
 
-#=== Configure the default BACKEND if no user-defined choice exists
-#=== Determine the build type (CUDA, HIP or C++/SIMD) based on the BACKEND variable
+#=== Redefine BACKEND if the current value is 'cppauto'
 
-# Set the default BACKEND choice if it is not defined (choose 'cppauto' i.e. the 'best' C++ vectorization available: eventually use native instead?)
-# (NB: this is ignored in 'make cleanall' and 'make distclean', but a choice is needed in the check for supported backends below)
-# Strip white spaces in user-defined BACKEND
-ifeq ($(BACKEND),)
-override BACKEND := cppauto
-else
-override BACKEND := $(strip $(BACKEND))
-endif
-
-# Set the default BACKEND choice if it is not defined (choose 'cppauto' i.e. the 'best' C++ vectorization available: eventually use native instead?)
+# Set the default BACKEND choice corresponding to 'cppauto' (the 'best' C++ vectorization available: eventually use native instead?)
 ifeq ($(BACKEND),cppauto)
   ifeq ($(UNAME_P),ppc64le)
     override BACKEND = cppsse4
@@ -132,14 +139,7 @@ ifeq ($(BACKEND),cppauto)
     ###  $(warning Using BACKEND='$(BACKEND)' because this is faster than avx512vl for clang)
     ###endif
   endif
-endif
-$(info BACKEND=$(BACKEND))
-
-# Check that BACKEND is one of the possible supported backends
-# (NB: use 'filter' and 'words' instead of 'findstring' because they properly handle whitespace-separated words)
-override SUPPORTED_BACKENDS = cuda hip cppnone cppsse4 cppavx2 cpp512y cpp512z cppauto
-ifneq ($(words $(filter $(BACKEND), $(SUPPORTED_BACKENDS))),1)
-$(error Invalid backend BACKEND='$(BACKEND)': supported backends are $(foreach backend,$(SUPPORTED_BACKENDS),'$(backend)'))
+  $(info BACKEND=$(BACKEND) (was cppauto))
 endif
 
 #-------------------------------------------------------------------------------
@@ -393,7 +393,7 @@ endif
 
 #-------------------------------------------------------------------------------
 
-#=== Configure defaults and check if user-defined choices exist for OMPFLAGS, BACKEND, FPTYPE, HELINL, HRDCOD
+#=== Configure defaults for OMPFLAGS
 
 # Set the default OMPFLAGS choice
 ifneq ($(findstring hipcc,$(GPUCC)),)
@@ -413,26 +413,7 @@ override OMPFLAGS = -fopenmp # enable OpenMP MT by default on all other platform
 ###override OMPFLAGS = # disable OpenMP MT on all other platforms (default before #575)
 endif
 
-# Set the default FPTYPE (floating point type) choice
-ifeq ($(FPTYPE),)
-  override FPTYPE = d
-endif
-
-# Set the default HELINL (inline helicities?) choice
-ifeq ($(HELINL),)
-  override HELINL = 0
-endif
-
-# Set the default HRDCOD (hardcode cIPD physics parameters?) choice
-ifeq ($(HRDCOD),)
-  override HRDCOD = 0
-endif
-
-# Export BACKEND, FPTYPE, HELINL, HRDCOD, OMPFLAGS so that there is no need to check/define them again in cudacpp_src.mk
-export BACKEND
-export FPTYPE
-export HELINL
-export HRDCOD
+# Export OMPFLAGS so that there is no need to check/define it again in cudacpp_src.mk
 export OMPFLAGS
 
 #-------------------------------------------------------------------------------
@@ -546,7 +527,6 @@ endif
 export AVXFLAGS
 
 # Set the build flags appropriate to each FPTYPE choice (example: "make FPTYPE=f")
-$(info FPTYPE=$(FPTYPE))
 ifeq ($(FPTYPE),d)
   CXXFLAGS += -DMGONGPU_FPTYPE_DOUBLE -DMGONGPU_FPTYPE2_DOUBLE
   GPUFLAGS += -DMGONGPU_FPTYPE_DOUBLE -DMGONGPU_FPTYPE2_DOUBLE
@@ -561,7 +541,6 @@ else
 endif
 
 # Set the build flags appropriate to each HELINL choice (example: "make HELINL=1")
-$(info HELINL=$(HELINL))
 ifeq ($(HELINL),1)
   CXXFLAGS += -DMGONGPU_INLINE_HELAMPS
   GPUFLAGS += -DMGONGPU_INLINE_HELAMPS
@@ -570,14 +549,12 @@ else ifneq ($(HELINL),0)
 endif
 
 # Set the build flags appropriate to each HRDCOD choice (example: "make HRDCOD=1")
-$(info HRDCOD=$(HRDCOD))
 ifeq ($(HRDCOD),1)
   CXXFLAGS += -DMGONGPU_HARDCODE_PARAM
   GPUFLAGS += -DMGONGPU_HARDCODE_PARAM
 else ifneq ($(HRDCOD),0)
   $(error Unknown HRDCOD='$(HRDCOD)': only '0' and '1' are supported)
 endif
-
 
 #=== Set the CUDA/HIP/C++ compiler and linker flags appropriate to user-defined choices of HASCURAND, HASHIPRAND
 
@@ -611,29 +588,23 @@ endif
 
 #=== Configure build directories and build lockfiles ===
 
-# Build directory "short" tag (defines target and path to the optional build directory)
-# (Rationale: keep directory names shorter, e.g. do not include random number generator choice)
-override DIRTAG = $(patsubst cpp%,%,$(BACKEND))_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)
-
 # Build lockfile "full" tag (defines full specification of build options that cannot be intermixed)
 # (Rationale: avoid mixing of builds with different random number generators)
 override TAG = $(patsubst cpp%,%,$(BACKEND))_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)_$(HASCURAND)_$(HASHIPRAND)
 
-# Export DIRTAG and TAG so that there is no need to check/define them again in cudacpp_src.mk
-export DIRTAG
+# Export TAG so that there is no need to check/define it again in cudacpp_src.mk
 export TAG
 
 # Build directory: current directory by default, or build.$(DIRTAG) if USEBUILDDIR==1
+override BUILDDIR = $(CUDACPP_BUILDDIR)
 ifeq ($(USEBUILDDIR),1)
-  override BUILDDIR = build.$(DIRTAG)
   override LIBDIR = ../../lib/$(BUILDDIR)
   override LIBDIRRPATH = '$$ORIGIN/../$(LIBDIR)'
-  $(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG) (USEBUILDDIR is set = 1))
+  $(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG) (USEBUILDDIR == 1))
 else
-  override BUILDDIR = .
   override LIBDIR = ../../lib
   override LIBDIRRPATH = '$$ORIGIN/$(LIBDIR)'
-  $(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG) (USEBUILDDIR is not set))
+  $(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG) (USEBUILDDIR != 1))
 endif
 ###override INCDIR = ../../include
 ###$(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG))
