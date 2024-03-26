@@ -67,6 +67,26 @@ export HRDCOD
 
 #-------------------------------------------------------------------------------
 
+#=== Configure CUDACPP_BUILDDIR
+
+# Build directory "short" tag (defines target and path to the optional build directory)
+# (Rationale: keep directory names shorter, e.g. do not include random number generator choice)
+override DIRTAG = $(patsubst cpp%%,%%,$(BACKEND))_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)
+
+# Build directory: current directory by default, or build.$(DIRTAG) if USEBUILDDIR==1
+ifeq ($(USEBUILDDIR),1)
+  override CUDACPP_BUILDDIR = build.$(DIRTAG)
+  $(info CUDACPP_BUILDDIR=$(CUDACPP_BUILDDIR) (USEBUILDDIR == 1)))
+else
+  override CUDACPP_BUILDDIR = .
+  $(info CUDACPP_BUILDDIR=$(CUDACPP_BUILDDIR) (USEBUILDDIR != 1)))
+endif
+
+# Export DIRTAG so that there is no need to check/define it again in cudacpp_src.mk
+export DIRTAG
+
+#-------------------------------------------------------------------------------
+
 #=== Use bash in the Makefile (https://www.gnu.org/software/make/manual/html_node/Choosing-the-Shell.html)
 
 SHELL := /bin/bash
@@ -628,29 +648,23 @@ endif
 
 #=== Configure build directories and build lockfiles ===
 
-# Build directory "short" tag (defines target and path to the optional build directory)
-# (Rationale: keep directory names shorter, e.g. do not include random number generator choice)
-override DIRTAG = $(patsubst cpp%%,%%,$(BACKEND))_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)
-
 # Build lockfile "full" tag (defines full specification of build options that cannot be intermixed)
 # (Rationale: avoid mixing of builds with different random number generators)
 override TAG = $(patsubst cpp%%,%%,$(BACKEND))_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)_$(HASCURAND)_$(HASHIPRAND)
 
-# Export DIRTAG and TAG so that there is no need to check/define them again in cudacpp_src.mk
-export DIRTAG
+# Export TAG so that there is no need to check/define it again in cudacpp_src.mk
 export TAG
 
 # Build directory: current directory by default, or build.$(DIRTAG) if USEBUILDDIR==1
+override BUILDDIR = $(CUDACPP_BUILDDIR)
 ifeq ($(USEBUILDDIR),1)
-  override BUILDDIR = build.$(DIRTAG)
   override LIBDIR = ../../lib/$(BUILDDIR)
   override LIBDIRRPATH = '$$ORIGIN/../$(LIBDIR)'
-  $(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG) (USEBUILDDIR is set = 1))
+  $(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG) (USEBUILDDIR == 1))
 else
-  override BUILDDIR = .
   override LIBDIR = ../../lib
   override LIBDIRRPATH = '$$ORIGIN/$(LIBDIR)'
-  $(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG) (USEBUILDDIR is not set))
+  $(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG) (USEBUILDDIR != 1))
 endif
 ###override INCDIR = ../../include
 ###$(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG))
