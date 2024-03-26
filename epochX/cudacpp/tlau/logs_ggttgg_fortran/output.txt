@@ -1,0 +1,82 @@
+START: Wed Dec 20 12:30:40 AM CET 2023
+************************************************************
+*                                                          *
+*                      W E L C O M E to                    *
+*             M A D G R A P H 5 _ a M C @ N L O            *
+*                      M A D E V E N T                     *
+*                                                          *
+*                 *                       *                *
+*                   *        * *        *                  *
+*                     * * * * 5 * * * *                    *
+*                   *        * *        *                  *
+*                 *                       *                *
+*                                                          *
+*         VERSION 3.5.2_lo_vect                            *
+*                                                          *
+*    The MadGraph5_aMC@NLO Development Team - Find us at   *
+*    https://server06.fynu.ucl.ac.be/projects/madgraph     *
+*                                                          *
+*               Type 'help' for in-line help.              *
+*                                                          *
+************************************************************
+INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttgg.mad/Cards/me5_configuration.txt  
+INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttgg.mad/Cards/me5_configuration.txt  
+Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
+Using default eps viewer "evince". Set another one in ./input/mg5_configuration.txt
+Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
+generate_events -f
+Generating 1000 events with run name run_01
+survey  run_01 
+INFO: compile directory 
+compile Source Directory
+Using random number seed offset = 21
+INFO: Running Survey 
+Creating Jobs
+Working on SubProcesses
+INFO:     P1_gg_ttxgg  
+INFO: Building madevent in madevent_interface.py with 'fortran' matrix elements 
+INFO:  Idle: 15,  Running: 3,  Completed: 0 [ current time: 00h30 ] 
+INFO:  Idle: 13,  Running: 4,  Completed: 1 [  18.6s  ] 
+INFO:  Idle: 9,  Running: 4,  Completed: 5 [  37.4s  ] 
+INFO:  Idle: 5,  Running: 4,  Completed: 9 [  56.2s  ] 
+INFO:  Idle: 1,  Running: 4,  Completed: 13 [  1m 14s  ] 
+INFO:  Idle: 0,  Running: 1,  Completed: 17 [  1m 24s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 18 [  1m 33s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 18 [  1m 33s  ] 
+INFO: End survey 
+refine 1000
+Creating Jobs
+INFO: Refine results to 1000 
+INFO: Generating 1000.0 unweighted events. 
+sum of cpu time of last step: 5m34s
+INFO: Effective Luminosity 1.2002301566989564 pb^-1 
+INFO: need to improve 0 channels 
+- Current estimate of cross-section: 999.8082395300003 +- 7.965778391469233
+    P1_gg_ttxgg 
+INFO:  Idle: 0,  Running: 0,  Completed: 0 [ current time: 00h32 ] 
+INFO: Combining runs 
+sum of cpu time of last step: 5m34s
+INFO: finish refine 
+refine 1000 --treshold=0.9
+No need for second refine due to stability of cross-section
+INFO: Combining Events 
+combination of events done in 1.025646686553955 s 
+  === Results Summary for run: run_01 tag: tag_1 ===
+
+     Cross-section :   999.8 +- 7.966 pb
+     Nb of events :  1000
+ 
+INFO: No version of lhapdf. Can not run systematics computation 
+store_events
+INFO: Storing parton level results 
+INFO: End Parton 
+reweight -from_cards
+decay_events -from_cards
+INFO: storing files of previous run 
+INFO: Done 
+quit
+INFO:  
+347.17user 3.42system 1:45.33elapsed 332%CPU (0avgtext+0avgdata 98460maxresident)k
+0inputs+186728outputs (0major+697820minor)pagefaults 0swaps
+END: Wed Dec 20 12:32:25 AM CET 2023
+ELAPSED: 105 seconds
