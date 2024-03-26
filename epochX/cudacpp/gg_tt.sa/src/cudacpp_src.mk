@@ -33,7 +33,7 @@ INCFLAGS = -I.
 # Add -mmacosx-version-min=11.3 to avoid "ld: warning: object file was built for newer macOS version than being linked"
 LDFLAGS =
 ifneq ($(shell $(CXX) --version | egrep '^Apple clang'),)
-LDFLAGS += -mmacosx-version-min=11.3
+  LDFLAGS += -mmacosx-version-min=11.3
 endif
 
 #-------------------------------------------------------------------------------
@@ -83,12 +83,12 @@ endif
 # (NB: this is quite ugly because it creates the directory if it does not exist - to avoid removing src by mistake)
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Darwin)
-override LIBDIR = $(shell mkdir -p $(LIBDIRREL); cd $(LIBDIRREL); pwd)
-ifeq ($(wildcard $(LIBDIR)),)
-$(error Directory LIBDIR="$(LIBDIR)" should have been created by now)
-endif
+  override LIBDIR = $(shell mkdir -p $(LIBDIRREL); cd $(LIBDIRREL); pwd)
+  ifeq ($(wildcard $(LIBDIR)),)
+    $(error Directory LIBDIR="$(LIBDIR)" should have been created by now)
+  endif
 else
-override LIBDIR = $(LIBDIRREL)
+  override LIBDIR = $(LIBDIRREL)
 endif
 
 #===============================================================================
@@ -140,15 +140,18 @@ endif
 #-------------------------------------------------------------------------------
 
 cxx_objects=$(addprefix $(BUILDDIR)/, read_slha.o)
+ifneq ($(GPUCC),)
+  gpu_objects=$(addprefix $(BUILDDIR)/, Parameters_sm_$(GPUSUFFIX).o)
+else
+  cxx_objects+=$(addprefix $(BUILDDIR)/, Parameters_sm.o)
+endif
 
 # Target (and build rules): common (src) library
 ifneq ($(GPUCC),)
-gpu_objects=$(addprefix $(BUILDDIR)/, Parameters_sm_$(GPUSUFFIX).o)
 $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so : $(cxx_objects) $(gpu_objects)
 	@if [ ! -d $(LIBDIR) ]; then echo "mkdir -p $(LIBDIR)"; mkdir -p $(LIBDIR); fi
 	$(GPUCC) -shared -o $@ $(cxx_objects) $(gpu_objects) $(LDFLAGS)
 else
-cxx_objects+=$(addprefix $(BUILDDIR)/, Parameters_sm.o)
 $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so : $(cxx_objects)
 	@if [ ! -d $(LIBDIR) ]; then echo "mkdir -p $(LIBDIR)"; mkdir -p $(LIBDIR); fi
 	$(CXX) -shared -o $@ $(cxx_objects) $(LDFLAGS)

@@ -49,7 +49,7 @@ UNAME_P := $(shell uname -p)
 # OM: including make_opts is crucial for MG5aMC flag consistency/documentation
 # AV: disable the inclusion of make_opts if the file has not been generated (standalone cudacpp)
 ifneq ($(wildcard ../../Source/make_opts),)
-include ../../Source/make_opts
+  include ../../Source/make_opts
 endif
 
 #-------------------------------------------------------------------------------
@@ -66,13 +66,13 @@ INCFLAGS += -I../../src
 
 # Compiler-specific googletest build directory (#125 and #738)
 ifneq ($(shell $(CXX) --version | grep '^Intel(R) oneAPI DPC++/C++ Compiler'),)
-override CXXNAME = icpx$(shell $(CXX) --version | head -1 | cut -d' ' -f5)
+  override CXXNAME = icpx$(shell $(CXX) --version | head -1 | cut -d' ' -f5)
 else ifneq ($(shell $(CXX) --version | egrep '^clang'),)
-override CXXNAME = clang$(shell $(CXX) --version | head -1 | cut -d' ' -f3)
+  override CXXNAME = clang$(shell $(CXX) --version | head -1 | cut -d' ' -f3)
 else ifneq ($(shell $(CXX) --version | grep '^g++ (GCC)'),)
-override CXXNAME = gcc$(shell $(CXX) --version | head -1 | cut -d' ' -f3)
+  override CXXNAME = gcc$(shell $(CXX) --version | head -1 | cut -d' ' -f3)
 else
-override CXXNAME = unknown
+  override CXXNAME = unknown
 endif
 ###$(info CXXNAME=$(CXXNAME))
 override CXXNAMESUFFIX = _$(CXXNAME)
@@ -88,24 +88,24 @@ export CXXNAMESUFFIX
 TESTDIRCOMMON = ../../../../../test
 TESTDIRLOCAL = ../../test
 ifneq ($(wildcard $(GTEST_ROOT)),)
-TESTDIR =
+  TESTDIR =
 else ifneq ($(LOCALGTEST),)
-TESTDIR=$(TESTDIRLOCAL)
-GTEST_ROOT = $(TESTDIR)/googletest/install$(CXXNAMESUFFIX)
+  TESTDIR=$(TESTDIRLOCAL)
+  GTEST_ROOT = $(TESTDIR)/googletest/install$(CXXNAMESUFFIX)
 else ifneq ($(wildcard ../../../../../epochX/cudacpp/CODEGEN),)
-TESTDIR = $(TESTDIRCOMMON)
-GTEST_ROOT = $(TESTDIR)/googletest/install$(CXXNAMESUFFIX)
+  TESTDIR = $(TESTDIRCOMMON)
+  GTEST_ROOT = $(TESTDIR)/googletest/install$(CXXNAMESUFFIX)
 else
-TESTDIR =
+  TESTDIR =
 endif
 ifneq ($(GTEST_ROOT),)
-GTESTLIBDIR = $(GTEST_ROOT)/lib64/
-GTESTLIBS = $(GTESTLIBDIR)/libgtest.a $(GTESTLIBDIR)/libgtest_main.a
-GTESTINC = -I$(GTEST_ROOT)/include
+  GTESTLIBDIR = $(GTEST_ROOT)/lib64/
+  GTESTLIBS = $(GTESTLIBDIR)/libgtest.a $(GTESTLIBDIR)/libgtest_main.a
+  GTESTINC = -I$(GTEST_ROOT)/include
 else
-GTESTLIBDIR =
-GTESTLIBS =
-GTESTINC =
+  GTESTLIBDIR =
+  GTESTLIBS =
+  GTESTINC =
 endif
 ###$(info GTEST_ROOT = $(GTEST_ROOT))
 ###$(info LOCALGTEST = $(LOCALGTEST))
@@ -145,7 +145,7 @@ endif
 
 CXXFLAGS = $(OPTFLAGS) -std=c++17 -Wall -Wshadow -Wextra
 ifeq ($(shell $(CXX) --version | grep ^nvc++),)
-CXXFLAGS += -ffast-math # see issue #117
+  CXXFLAGS += -ffast-math # see issue #117
 endif
 ###CXXFLAGS+= -Ofast # performance is not different from --fast-math
 ###CXXFLAGS+= -g # FOR DEBUGGING ONLY
@@ -158,7 +158,7 @@ endif
 
 # Add -mmacosx-version-min=11.3 to avoid "ld: warning: object file was built for newer macOS version than being linked"
 ifneq ($(shell $(CXX) --version | egrep '^Apple clang'),)
-CXXFLAGS += -mmacosx-version-min=11.3
+  CXXFLAGS += -mmacosx-version-min=11.3
 endif
 
 # Export CXXFLAGS (so that there is no need to check/define it again in cudacpp_src.mk)
@@ -266,7 +266,7 @@ ifeq ($(BACKEND),cuda)
 
   # Allow newer (unsupported) C++ compilers with older versions of CUDA if ALLOW_UNSUPPORTED_COMPILER_IN_CUDA is set (#504)
   ifneq ($(origin ALLOW_UNSUPPORTED_COMPILER_IN_CUDA),undefined)
-  GPUFLAGS += -allow-unsupported-compiler
+    GPUFLAGS += -allow-unsupported-compiler
   endif
 
 else ifeq ($(BACKEND),hip)
@@ -310,7 +310,7 @@ else
   # In practice, in the following, "ifeq ($(GPUCC),)" is equivalent to "ifneq ($(findstring cpp,$(BACKEND)),)".
   # Conversely, note that GPUFLAGS is non-empty also for C++ builds, but it is never used in that case.
   ifeq ($(findstring cpp,$(BACKEND)),)
-  $(error INTERNAL ERROR! Unknown backend BACKEND='$(BACKEND)': supported backends are $(foreach backend,$(SUPPORTED_BACKENDS),'$(backend)'))
+    $(error INTERNAL ERROR! Unknown backend BACKEND='$(BACKEND)': supported backends are $(foreach backend,$(SUPPORTED_BACKENDS),'$(backend)'))
   endif
 
 endif
@@ -367,20 +367,20 @@ endif
 
 # Set the default OMPFLAGS choice
 ifneq ($(findstring hipcc,$(GPUCC)),)
-override OMPFLAGS = # disable OpenMP MT when using hipcc #802
+  override OMPFLAGS = # disable OpenMP MT when using hipcc #802
 else ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
-override OMPFLAGS = -fopenmp
-###override OMPFLAGS = # disable OpenMP MT on Intel (was ok without GPUCC but not ok with GPUCC before #578)
+  override OMPFLAGS = -fopenmp
+  ###override OMPFLAGS = # disable OpenMP MT on Intel (was ok without GPUCC but not ok with GPUCC before #578)
 else ifneq ($(shell $(CXX) --version | egrep '^(clang)'),)
-override OMPFLAGS = -fopenmp
-###override OMPFLAGS = # disable OpenMP MT on clang (was not ok without or with nvcc before #578)
+  override OMPFLAGS = -fopenmp
+  ###override OMPFLAGS = # disable OpenMP MT on clang (was not ok without or with nvcc before #578)
 ###else ifneq ($(shell $(CXX) --version | egrep '^(Apple clang)'),) # AV for Mac (Apple clang compiler)
 else ifeq ($(UNAME_S),Darwin) # OM for Mac (any compiler)
-override OMPFLAGS = # AV disable OpenMP MT on Apple clang (builds fail in the CI #578)
-###override OMPFLAGS = -fopenmp # OM reenable OpenMP MT on Apple clang? (AV Oct 2023: this still fails in the CI)
+  override OMPFLAGS = # AV disable OpenMP MT on Apple clang (builds fail in the CI #578)
+  ###override OMPFLAGS = -fopenmp # OM reenable OpenMP MT on Apple clang? (AV Oct 2023: this still fails in the CI)
 else
-override OMPFLAGS = -fopenmp # enable OpenMP MT by default on all other platforms
-###override OMPFLAGS = # disable OpenMP MT on all other platforms (default before #575)
+  override OMPFLAGS = -fopenmp # enable OpenMP MT by default on all other platforms
+  ###override OMPFLAGS = # disable OpenMP MT on all other platforms (default before #575)
 endif
 
 #-------------------------------------------------------------------------------
@@ -487,7 +487,7 @@ else
 endif
 # For the moment, use AVXFLAGS everywhere (in C++ builds): eventually, use them only in encapsulated implementations?
 ifeq ($(GPUCC),)
-CXXFLAGS+= $(AVXFLAGS)
+  CXXFLAGS+= $(AVXFLAGS)
 endif
 
 # Set the build flags appropriate to each FPTYPE choice (example: "make FPTYPE=f")
@@ -610,11 +610,11 @@ cxx_main=$(BUILDDIR)/check.exe
 fcxx_main=$(BUILDDIR)/fcheck.exe
 
 ifneq ($(GPUCC),)
-gpu_main=$(BUILDDIR)/gcheck.exe
-fgpu_main=$(BUILDDIR)/fgcheck.exe
+  gpu_main=$(BUILDDIR)/gcheck.exe
+  fgpu_main=$(BUILDDIR)/fgcheck.exe
 else
-gpu_main=
-fgpu_main=
+  gpu_main=
+  fgpu_main=
 endif
 
 testmain=$(BUILDDIR)/runTest.exe
