@@ -14,6 +14,24 @@ override CUDACPP_SRC_MAKEFILE = cudacpp_src.mk
 
 #-------------------------------------------------------------------------------
 
+#=== Include cudacpp_builddir.mk
+
+# Check that the user-defined choices of BACKEND, FPTYPE, HELINL, HRDCOD are supported (and configure defaults if no user-defined choices exist)
+# Stop with an error if BACKEND=cuda and nvcc is missing or if BACKEND=hip and hipcc is missing.
+# Determine CUDACPP_BUILDDIR from a DIRTAG based on BACKEND, FPTYPE, HELINL, HRDCOD and from the user-defined choice of USEBUILDDIR
+include ../../src/cudacpp_builddir.mk
+
+# Export BACKEND, FPTYPE, HELINL, HRDCOD so that there is no need to check/define them again in cudacpp_src.mk
+export BACKEND
+export FPTYPE
+export HELINL
+export HRDCOD
+
+# Export CUDACPP_BUILDDIR so that there is no need to check/define it again in cudacpp_src.mk
+export CUDACPP_BUILDDIR
+
+#-------------------------------------------------------------------------------
+
 #=== Use bash in the Makefile (https://www.gnu.org/software/make/manual/html_node/Choosing-the-Shell.html)
 
 SHELL := /bin/bash
@@ -101,19 +119,9 @@ endif
 
 #-------------------------------------------------------------------------------
 
-#=== Configure the default BACKEND if no user-defined choice exists
-#=== Determine the build type (CUDA, HIP or C++/SIMD) based on the BACKEND variable
+#=== Redefine BACKEND if the current value is 'cppauto'
 
-# Set the default BACKEND choice if it is not defined (choose 'cppauto' i.e. the 'best' C++ vectorization available: eventually use native instead?)
-# (NB: this is ignored in 'make cleanall' and 'make distclean', but a choice is needed in the check for supported backends below)
-# Strip white spaces in user-defined BACKEND
-ifeq ($(BACKEND),)
-override BACKEND := cppauto
-else
-override BACKEND := $(strip $(BACKEND))
-endif
-
-# Set the default BACKEND choice if it is not defined (choose 'cppauto' i.e. the 'best' C++ vectorization available: eventually use native instead?)
+# Set the default BACKEND choice corresponding to 'cppauto' (the 'best' C++ vectorization available: eventually use native instead?)
 ifeq ($(BACKEND),cppauto)
   ifeq ($(UNAME_P),ppc64le)
     override BACKEND = cppsse4
@@ -132,14 +140,9 @@ ifeq ($(BACKEND),cppauto)
     ###  $(warning Using BACKEND='$(BACKEND)' because this is faster than avx512vl for clang)
     ###endif
   endif
-endif
-$(info BACKEND=$(BACKEND))
-
-# Check that BACKEND is one of the possible supported backends
-# (NB: use 'filter' and 'words' instead of 'findstring' because they properly handle whitespace-separated words)
-override SUPPORTED_BACKENDS = cuda hip cppnone cppsse4 cppavx2 cpp512y cpp512z cppauto
-ifneq ($(words $(filter $(BACKEND), $(SUPPORTED_BACKENDS))),1)
-$(error Invalid backend BACKEND='$(BACKEND)': supported backends are $(foreach backend,$(SUPPORTED_BACKENDS),'$(backend)'))
+  $(info BACKEND=$(BACKEND) (was cppauto))
+else
+  $(info BACKEND='$(BACKEND)')
 endif
 
 #-------------------------------------------------------------------------------
@@ -169,40 +172,11 @@ endif
 #=== Configure the GPU compiler (CUDA or HIP)
 #=== (note, this is done also for C++, as NVTX and CURAND/ROCRAND are also needed by the C++ backends)
 
-# If CUDA_HOME is not set, try to set it from the path to nvcc
-ifndef CUDA_HOME
-  CUDA_HOME = $(patsubst %/bin/nvcc,%,$(shell which nvcc 2>/dev/null))
-  $(warning CUDA_HOME was not set: using "$(CUDA_HOME)")
-endif
+# Set CUDA_HOME from the path to nvcc, if it exists
+override CUDA_HOME = $(patsubst %/bin/nvcc,%,$(shell which nvcc 2>/dev/null))
 
-# If HIP_HOME is not set, try to set it from the path to hipcc
-ifndef HIP_HOME
-  HIP_HOME = $(patsubst %/bin/hipcc,%,$(shell which hipcc 2>/dev/null))
-  $(warning HIP_HOME was not set: using "$(HIP_HOME)")
-endif
-
-# Check if $(CUDA_HOME)/bin/nvcc exists to determine if CUDA_HOME is a valid CUDA installation
-ifeq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
-  ifeq ($(BACKEND),cuda)
-    # Note, in the past REQUIRE_CUDA was used, e.g. for CI tests on GPU #443
-    $(error BACKEND=$(BACKEND) but no CUDA installation was found in CUDA_HOME='$(CUDA_HOME)')
-  else
-    ###$(warning No CUDA installation was found in CUDA_HOME='$(CUDA_HOME)')
-    override CUDA_HOME=
-  endif
-endif
-###$(info CUDA_HOME=$(CUDA_HOME))
-
-# Check if $(HIP_HOME)/bin/hipcc exists to determine if HIP_HOME is a valid HIP installation
-ifeq ($(wildcard $(HIP_HOME)/bin/hipcc),)
-  ifeq ($(BACKEND),hip)
-    $(error BACKEND=$(BACKEND) but no HIP installation was found in HIP_HOME='$(HIP_HOME)')
-  else
-    ###$(warning No HIP installation was found in HIP_HOME='$(HIP_HOME)')
-    override HIP_HOME=
-  endif
-endif
-###$(info HIP_HOME=$(HIP_HOME))
+# Set HIP_HOME from the path to hipcc, if it exists
+override HIP_HOME = $(patsubst %/bin/hipcc,%,$(shell which hipcc 2>/dev/null))
 
 # Configure CUDA_INC (for CURAND and NVTX) and NVTX if a CUDA installation exists
 # (FIXME? Is there any equivalent of NVTX FOR HIP? What should be configured if both CUDA and HIP are installed?)
@@ -214,23 +188,20 @@ else
   override CUDA_INC=
 endif
 
-# NB (AND FIXME): NEW LOGIC FOR ENABLING AND DISABLING CUDA OR HIP BUILDS (AV 02.02.2024)
-# - As in the past, we first check for cudacc and hipcc in CUDA_HOME and HIP_HOME; and if CUDA_HOME or HIP_HOME are not set,
-# we try to determine them from the path to cudacc and hipcc. **FIXME** : in the future, it may be better to completely remove
-# the dependency of this makefile on externally set CUDA_HOME and HIP_HOME, and only rely on whether nvcc and hipcc are in PATH.
+# NB: NEW LOGIC FOR ENABLING AND DISABLING CUDA OR HIP BUILDS (AV Feb-Mar 2024)
 # - In the old implementation, by default the C++ targets for one specific AVX were always built together with either CUDA or HIP.
 # If both CUDA and HIP were installed, then CUDA took precedence over HIP, and the only way to force HIP builds was to disable
-# CUDA builds by setting CUDA_HOME to an invalid value. Similarly, C++-only builds could be forced by setting CUDA_HOME and/or
-# HIP_HOME to invalid values. A check for an invalid nvcc in CUDA_HOME or an invalid hipcc HIP_HOME was necessary to ensure this
-# logic, and had to be performed _before_ choosing whether C++/CUDA, C++/HIP or C++-only builds had to be executed.
+# CUDA builds by setting CUDA_HOME to an invalid value (as CUDA_HOME took precdence over PATH to find the installation of nvcc).
+# Similarly, C++-only builds could be forced by setting CUDA_HOME and/or HIP_HOME to invalid values. A check for an invalid nvcc
+# in CUDA_HOME or an invalid hipcc HIP_HOME was necessary to ensure this logic, and had to be performed at the very beginning.
 # - In the new implementation (PR #798), separate individual builds are performed for one specific C++/AVX mode, for CUDA or
 # for HIP. The choice of the type of build is taken depending on the value of the BACKEND variable (replacing the AVX variable).
-# For the moment, it is still possible to override the PATH to nvcc and hipcc by externally setting a different value to CUDA_HOME
-# and HIP_HOME (although this will probably disappear as mentioned above): note also that the check whether nvcc or hipcc exist
-# still needs to be performed _before_ BACKEND-specific configurations, because CUDA/HIP installations also affect C++-only builds,
-# for NVTX and curand-host in the case of CUDA, and for rocrand-host in the case of HIP.
-# - Note also that the REQUIRE_CUDA variable (#443) is now (PR #798) no longer necessary, as it is now equivalent to BACKEND=cuda.
-# Similarly, there is no need to introduce a REQUIRE_HIP variable.
+# Unlike what happened in the past, nvcc and hipcc must have already been added to PATH. Using 'which nvcc' and 'which hipcc',
+# their existence and their location is checked, and the variables CUDA_HOME and HIP_HOME are internally set by this makefile.
+# This must be still done before backend-specific customizations, e.g. because CURAND and NVTX are also used in C++ builds.
+# Note also that a preliminary check for nvcc and hipcc if BACKEND is cuda or hip is performed in cudacpp_builddir.mk.
+# - Note also that the REQUIRE_CUDA variable (which was used in the past, e.g. for CI tests on GPU #443) is now (PR #798) no
+# longer necessary, as it is now equivalent to BACKEND=cuda. Similarly, there is no need to introduce a REQUIRE_HIP variable.
 
 #=== Configure the CUDA or HIP compiler (only for the CUDA and HIP backends)
 #=== (NB: throughout all makefiles, an empty GPUCC is used to indicate that this is a C++ build, i.e. that BACKEND is neither cuda nor hip!)
@@ -393,7 +364,7 @@ endif
 
 #-------------------------------------------------------------------------------
 
-#=== Configure defaults and check if user-defined choices exist for OMPFLAGS, BACKEND, FPTYPE, HELINL, HRDCOD
+#=== Configure defaults for OMPFLAGS
 
 # Set the default OMPFLAGS choice
 ifneq ($(findstring hipcc,$(GPUCC)),)
@@ -413,26 +384,7 @@ override OMPFLAGS = -fopenmp # enable OpenMP MT by default on all other platform
 ###override OMPFLAGS = # disable OpenMP MT on all other platforms (default before #575)
 endif
 
-# Set the default FPTYPE (floating point type) choice
-ifeq ($(FPTYPE),)
-  override FPTYPE = d
-endif
-
-# Set the default HELINL (inline helicities?) choice
-ifeq ($(HELINL),)
-  override HELINL = 0
-endif
-
-# Set the default HRDCOD (hardcode cIPD physics parameters?) choice
-ifeq ($(HRDCOD),)
-  override HRDCOD = 0
-endif
-
-# Export BACKEND, FPTYPE, HELINL, HRDCOD, OMPFLAGS so that there is no need to check/define them again in cudacpp_src.mk
-export BACKEND
-export FPTYPE
-export HELINL
-export HRDCOD
+# Export OMPFLAGS so that there is no need to check/define it again in cudacpp_src.mk
 export OMPFLAGS
 
 #-------------------------------------------------------------------------------
@@ -546,7 +498,7 @@ endif
 export AVXFLAGS
 
 # Set the build flags appropriate to each FPTYPE choice (example: "make FPTYPE=f")
-$(info FPTYPE=$(FPTYPE))
+$(info FPTYPE='$(FPTYPE)')
 ifeq ($(FPTYPE),d)
   CXXFLAGS += -DMGONGPU_FPTYPE_DOUBLE -DMGONGPU_FPTYPE2_DOUBLE
   GPUFLAGS += -DMGONGPU_FPTYPE_DOUBLE -DMGONGPU_FPTYPE2_DOUBLE
@@ -561,7 +513,7 @@ else
 endif
 
 # Set the build flags appropriate to each HELINL choice (example: "make HELINL=1")
-$(info HELINL=$(HELINL))
+$(info HELINL='$(HELINL)')
 ifeq ($(HELINL),1)
   CXXFLAGS += -DMGONGPU_INLINE_HELAMPS
   GPUFLAGS += -DMGONGPU_INLINE_HELAMPS
@@ -570,14 +522,13 @@ else ifneq ($(HELINL),0)
 endif
 
 # Set the build flags appropriate to each HRDCOD choice (example: "make HRDCOD=1")
-$(info HRDCOD=$(HRDCOD))
+$(info HRDCOD='$(HRDCOD)')
 ifeq ($(HRDCOD),1)
   CXXFLAGS += -DMGONGPU_HARDCODE_PARAM
   GPUFLAGS += -DMGONGPU_HARDCODE_PARAM
 else ifneq ($(HRDCOD),0)
   $(error Unknown HRDCOD='$(HRDCOD)': only '0' and '1' are supported)
 endif
-
 
 #=== Set the CUDA/HIP/C++ compiler and linker flags appropriate to user-defined choices of HASCURAND, HASHIPRAND
 
@@ -611,29 +562,23 @@ endif
 
 #=== Configure build directories and build lockfiles ===
 
-# Build directory "short" tag (defines target and path to the optional build directory)
-# (Rationale: keep directory names shorter, e.g. do not include random number generator choice)
-override DIRTAG = $(BACKEND)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)
-
 # Build lockfile "full" tag (defines full specification of build options that cannot be intermixed)
 # (Rationale: avoid mixing of builds with different random number generators)
-override TAG = $(BACKEND)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)_$(HASCURAND)_$(HASHIPRAND)
+override TAG = $(patsubst cpp%,%,$(BACKEND))_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)_$(HASCURAND)_$(HASHIPRAND)
 
-# Export DIRTAG and TAG so that there is no need to check/define them again in cudacpp_src.mk
-export DIRTAG
+# Export TAG so that there is no need to check/define it again in cudacpp_src.mk
 export TAG
 
 # Build directory: current directory by default, or build.$(DIRTAG) if USEBUILDDIR==1
+override BUILDDIR = $(CUDACPP_BUILDDIR)
 ifeq ($(USEBUILDDIR),1)
-  override BUILDDIR = build.$(DIRTAG)
   override LIBDIR = ../../lib/$(BUILDDIR)
   override LIBDIRRPATH = '$$ORIGIN/../$(LIBDIR)'
-  $(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG) (USEBUILDDIR is set = 1))
+  $(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG) (USEBUILDDIR == 1))
 else
-  override BUILDDIR = .
   override LIBDIR = ../../lib
   override LIBDIRRPATH = '$$ORIGIN/$(LIBDIR)'
-  $(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG) (USEBUILDDIR is not set))
+  $(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG) (USEBUILDDIR != 1))
 endif
 ###override INCDIR = ../../include
 ###$(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG))

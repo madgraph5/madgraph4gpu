@@ -35,7 +35,7 @@ class CPPMEInterface(madevent_interface.MadEventCmdShell):
             common_run_interface.CommonRunCmd.update_make_opts_full(path,
                 {'FPTYPE': self.run_card['floating_type'] })
             misc.sprint('FPTYPE checked')
-        cudacpp_supported_backends = [ 'fortran', 'cuda', 'cpp', 'cppnone', 'cppsse4', 'cppavx2', 'cpp512y', 'cpp512z', 'cppauto' ]
+        cudacpp_supported_backends = [ 'fortran', 'cuda', 'hip', 'cpp', 'cppnone', 'cppsse4', 'cppavx2', 'cpp512y', 'cpp512z', 'cppauto' ]
         if args and args[0][0] == 'madevent' and hasattr(self, 'run_card'):            
             cudacpp_backend = self.run_card['cudacpp_backend'].lower() # the default value is defined in launch_plugin.py
             logger.info("Building madevent in madevent_interface.py with '%s' matrix elements"%cudacpp_backend)
@@ -53,7 +53,7 @@ template_on = \
 # SIMD/GPU configuration for the CUDACPP plugin
 #************************************************************************
  %(floating_type)s = floating_type ! floating point precision: f (single), d (double), m (mixed: double for amplitudes, single for colors)
- %(cudacpp_backend)s = cudacpp_backend ! CUDACPP backend: fortran, cuda, cpp, cppnone, cppsse4, cppavx2, cpp512y, cpp512z, cppauto
+ %(cudacpp_backend)s = cudacpp_backend ! CUDACPP backend: fortran, cuda, hip, cpp, cppnone, cppsse4, cppavx2, cpp512y, cpp512z, cppauto
 """
 
 template_off = ''
@@ -89,7 +89,7 @@ class CPPRunCard(banner_mod.RunCardLO):
         self.add_param('floating_type', 'd', include=False, hidden=False,
                        fct_mod=(self.reset_makeopts,(),{}),
                        allowed=['m','d','f'])
-        cudacpp_supported_backends = [ 'fortran', 'cuda', 'cpp', 'cppnone', 'cppsse4', 'cppavx2', 'cpp512y', 'cpp512z', 'cppauto' ]
+        cudacpp_supported_backends = [ 'fortran', 'cuda', 'hip', 'cpp', 'cppnone', 'cppsse4', 'cppavx2', 'cpp512y', 'cpp512z', 'cppauto' ]
         self.add_param('cudacpp_backend', 'cpp', include=False, hidden=False,
                        allowed=cudacpp_supported_backends)
         self['vector_size'] = 16 # already setup in default class (just change value)

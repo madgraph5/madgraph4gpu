@@ -394,7 +394,7 @@ class gensym(object):
 
             cudacpp_backend = self.run_card['cudacpp_backend'] # the default value is defined in banner.py
             logger.info("Building madevent in madevent_interface.py with '%s' matrix elements"%cudacpp_backend)
-            cudacpp_supported_backends = [ 'fortran', 'cuda', 'cpp', 'cppnone', 'cppsse4', 'cppavx2', 'cpp512y', 'cpp512z', 'cppauto' ]
+            cudacpp_supported_backends = [ 'fortran', 'cuda', 'hip', 'cpp', 'cppnone', 'cppsse4', 'cppavx2', 'cpp512y', 'cpp512z', 'cppauto' ]
             if cudacpp_backend in cudacpp_supported_backends :
                 self.cmd.compile(['madevent_' + cudacpp_backend + '_link'], cwd=Pdir)
             else:

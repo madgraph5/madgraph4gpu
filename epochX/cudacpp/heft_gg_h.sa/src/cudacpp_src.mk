@@ -141,20 +141,19 @@ endif
 
 #=== Configure build directories and build lockfiles ===
 
-# Use the build directory "short" tag exported from cudacpp.mk
-###$(info DIRTAG=$(DIRTAG))
+# Use the build directory exported from cudacpp.mk
+###$(info CUDACPP_BUILDDIR=$(CUDACPP_BUILDDIR))
 
 # Use the build lockfile "full" tag exported from cudacpp.mk
 ###$(info TAG=$(TAG))
 
 # Build directory: current directory by default, or build.$(DIRTAG) if USEBUILDDIR==1
 ###$(info Current directory is $(shell pwd))
+override BUILDDIR = $(CUDACPP_BUILDDIR)
 ifeq ($(USEBUILDDIR),1)
-  override BUILDDIR = build.$(DIRTAG)
   override LIBDIRREL = ../lib/$(BUILDDIR)
   ###$(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG) (USEBUILDDIR=1 is set))
 else
-  override BUILDDIR = .
   override LIBDIRREL = ../lib
   ###$(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG) (USEBUILDDIR is not set))
 endif

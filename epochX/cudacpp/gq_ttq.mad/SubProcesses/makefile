@@ -1,6 +1,15 @@
 SHELL := /bin/bash
 
 include ../../Source/make_opts
+
+# Determine CUDACPP_BUILDDIR based on the user-defined choices of BACKEND, FPTYPE, HELINL, HRDCOD and USEBUILDDIR (#829)
+# Stop with an error if BACKEND=cuda and nvcc is missing or if BACKEND=hip and hipcc is missing
+include ../../src/cudacpp_builddir.mk
+ifeq ($(CUDACPP_BUILDDIR),)
+$(error CUDACPP_BUILDDIR='$(CUDACPP_BUILDDIR)' should not be empty!)
+endif
+
+# Disable all Fortran warnings?
 FFLAGS+= -w
 
 # Enable the C preprocessor https://gcc.gnu.org/onlinedocs/gfortran/Preprocessing-Options.html
@@ -48,22 +57,9 @@ endif
 
 LINKLIBS = $(LINK_MADLOOP_LIB) $(LINK_LOOP_LIBS) -L$(LIBDIR) -ldhelas -ldsample -lmodel -lgeneric -lpdf -lcernlib $(llhapdf) -lbias 
 
-processid_short=$(shell basename $(CURDIR) | awk -F_ '{print $$(NF-1)"_"$$NF}')
 CUDACPP_MAKEFILE=cudacpp.mk
-# NB1 Using ":=" below instead of "=" is much faster (it only runs the subprocess once instead of many times)
-# NB2 Use '|&' in CUDACPP_BUILDDIR to avoid confusing errors about googletest #507
-# NB3 Do not add a comment inlined "CUDACPP_BUILDDIR=$(shell ...) # comment" as otherwise a trailing space is included...
-# NB4 The variables relevant to the cudacpp Makefile must be explicitly passed to $(shell...)
-CUDACPP_MAKEENV:=$(shell echo '$(.VARIABLES)' | tr " " "\n" | egrep "(USEBUILDDIR|BACKEND|FPTYPE|HELINL|HRDCOD)")
-###$(info CUDACPP_MAKEENV=$(CUDACPP_MAKEENV))
-###$(info $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))"))
-CUDACPP_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(CUDACPP_MAKEENV),$(v)="$($(v))") -f $(CUDACPP_MAKEFILE) -pn 2>&1 | awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
-ifeq ($(CUDACPP_BUILDDIR),)
-$(error CUDACPP_BUILDDIR='$(CUDACPP_BUILDDIR)' should not be empty!)
-else
-$(info CUDACPP_BUILDDIR='$(CUDACPP_BUILDDIR)')
-endif
 CUDACPP_COMMONLIB=mg5amc_common
+processid_short=$(shell basename $(CURDIR) | awk -F_ '{print $$(NF-1)"_"$$NF}')
 ifeq ($(BACKEND),cuda)
 CUDACPP_BACKENDLIB=mg5amc_$(processid_short)_cuda
 else ifeq ($(BACKEND),hip)
@@ -177,7 +173,7 @@ madevent_cpp_link:
 	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
 
 override SUPPORTED_AVXS = cppnone cppsse4 cppavx2 cpp512y cpp512z cppauto
-madevent_cpp%_link:
+madevent_%_link:
 	@if [ '$(words $(filter $*, $(SUPPORTED_AVXS)))' != '1' ]; then echo "ERROR! Invalid target '$@' (supported madevent_cpp*_link targets are: $(foreach avx,$(SUPPORTED_AVXS),'madevent_cpp$(avx)_link'))"; exit 1; fi
 	$(MAKE) BACKEND=$* $(CUDACPP_BUILDDIR)/$(PROG)_cpp
 	rm -f $(PROG)
