@@ -162,7 +162,7 @@ function showdir()
   echo $dir
 }
 
-# Determine the appropriate number of events for the specific process (fortran/cpp/cuda)
+# Determine the appropriate number of events for the specific process (fortran/cpp/cuda/hip)
 function getnevt()
 {
   if [ "${eemumu}" == "1" ]; then
@@ -185,7 +185,7 @@ function getnevt()
   echo $nevt
 }
 
-# Determine the appropriate CUDA grid dimension for the specific process (to run the fastest gcheck)
+# Determine the appropriate CUDA/HIP grid dimension for the specific process (to run the fastest gcheck)
 function getgridmax()
 {
   if [ "${eemumu}" == "1" ]; then
@@ -237,13 +237,13 @@ function getinputfile()
     # Previously fbridge_mode=0 was set here (#658)
     mv ${tmp} ${tmp}_fortran
     tmp=${tmp}_fortran
-  elif [ "$1" == "-cuda" ] || [ "$1" == "-cpp" ]; then # NB: new script, use the same input for cuda and cpp
-    # Keep the argument but there is nothing to do specific to cuda/cpp
+  elif [ "$1" == "-cuda" ] || [ "$1" == "-hip" ] || [ "$1" == "-cpp" ]; then # NB: new script, use the same input for cuda/hip/cpp
+    # Keep the argument but there is nothing to do specific to cuda/hip/cpp
     # Previously fbridge_mode=1 was set here (#658)
     mv ${tmp} ${tmp}_cudacpp
     tmp=${tmp}_cudacpp
   else
-    echo "Usage: getinputfile <backend [-fortran][-cuda][-cpp]>"
+    echo "Usage: getinputfile <backend [-fortran][-cuda][-hip][-cpp]>"
     exit 1
   fi
   (( nevt = nevt*$xfac ))
@@ -328,6 +328,9 @@ function runmadevent()
   elif [ "${cmd/madevent_cuda}" != "$cmd" ]; then
     cmd=${cmd/.\//.\/build.cuda_${fptype}_inl0_hrd0\/}
     tmpin=$(getinputfile -cuda)
+  elif [ "${cmd/madevent_hip}" != "$cmd" ]; then
+    cmd=${cmd/.\//.\/build.hip_${fptype}_inl0_hrd0\/}
+    tmpin=$(getinputfile -hip)
   else # assume this is madevent_fortran (do not check)
     tmpin=$(getinputfile -fortran)
   fi
