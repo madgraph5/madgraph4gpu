@@ -25,7 +25,7 @@ OPTFLAGS = -O3 # this ends up in GPUFLAGS too (should it?), cannot add -Ofast or
 
 #=== Configure the C++ compiler
 
-CXXFLAGS = $(OPTFLAGS) -std=c++17 $(INCFLAGS) $(USE_NVTX) -fPIC -Wall -Wshadow -Wextra
+CXXFLAGS = $(OPTFLAGS) -std=c++17 $(USE_NVTX) -fPIC -Wall -Wshadow -Wextra
 ifeq ($(shell $(CXX) --version | grep ^nvc++),)
 CXXFLAGS+= -ffast-math # see issue #117
 endif
@@ -209,12 +209,12 @@ $(LIBDIR)/.build.$(TAG):
 # Generic target and build rules: objects from C++ compilation
 $(BUILDDIR)/%.o : %.cc *.h $(BUILDDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -fPIC -c $< -o $@
+	$(CXX) $(CPPFLAGS) $(INCFLAGS) $(CXXFLAGS) -fPIC -c $< -o $@
 
 # Generic target and build rules: objects from CUDA compilation
 $(BUILDDIR)/%_cu.o : %.cc *.h $(BUILDDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	$(GPUCC) $(CPPFLAGS) $(GPUFLAGS) $< -o $@
+	$(GPUCC) $(CPPFLAGS) $(INCFLAGS) $(GPUFLAGS) $< -o $@
 
 #-------------------------------------------------------------------------------
 

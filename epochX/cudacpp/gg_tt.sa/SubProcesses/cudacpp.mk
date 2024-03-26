@@ -149,7 +149,7 @@ endif
 
 #=== Configure the C++ compiler
 
-CXXFLAGS = $(OPTFLAGS) -std=c++17 $(INCFLAGS) -Wall -Wshadow -Wextra
+CXXFLAGS = $(OPTFLAGS) -std=c++17 -Wall -Wshadow -Wextra
 ifeq ($(shell $(CXX) --version | grep ^nvc++),)
 CXXFLAGS += -ffast-math # see issue #117
 endif
@@ -221,7 +221,7 @@ ifeq ($(BACKEND),cuda)
   GPUSUFFIX = cuda
 
   # Basic compiler flags (optimization and includes)
-  GPUFLAGS = $(foreach opt, $(OPTFLAGS), $(XCOMPILERFLAG) $(opt)) $(INCFLAGS)
+  GPUFLAGS = $(foreach opt, $(OPTFLAGS), $(XCOMPILERFLAG) $(opt))
 
   # NVidia CUDA architecture flags
   # See https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html
@@ -281,7 +281,7 @@ else ifeq ($(BACKEND),hip)
   GPUSUFFIX = hip
 
   # Basic compiler flags (optimization and includes)
-  GPUFLAGS = $(foreach opt, $(OPTFLAGS), $(XCOMPILERFLAG) $(opt)) $(INCFLAGS)
+  GPUFLAGS = $(foreach opt, $(OPTFLAGS), $(XCOMPILERFLAG) $(opt))
 
   # AMD HIP architecture flags
   GPUARCHFLAGS = --offload-arch=gfx90a
@@ -644,23 +644,6 @@ $(BUILDDIR)/.build.$(TAG):
 	@if [ "$(oldtagsb)" != "" ]; then echo "Cannot build for tag=$(TAG) as old builds exist for other tags:"; echo "  $(oldtagsb)"; echo "Please run 'make clean' first\nIf 'make clean' is not enough: run 'make clean USEBUILDDIR=1 AVX=$(AVX) FPTYPE=$(FPTYPE)' or 'make cleanall'"; exit 1; fi
 	@touch $(BUILDDIR)/.build.$(TAG)
 
-# Generic target and build rules: objects from CUDA or HIP compilation
-ifneq ($(GPUCC),)
-$(BUILDDIR)/%.o : %.cu *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
-	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	$(GPUCC) $(CPPFLAGS) $(GPUFLAGS) $(XCOMPILERFLAG) -fPIC -c $< -o $@
-
-$(BUILDDIR)/%_$(GPUSUFFIX).o : %.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
-	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	$(GPUCC) $(CPPFLAGS) $(GPUFLAGS) $(XCOMPILERFLAG) -fPIC -c -x $(GPULANGUAGE) $< -o $@
-endif
-
-# Generic target and build rules: objects from C++ compilation
-# (NB do not include CUDA_INC here! add it only for NVTX or curand #679)
-$(BUILDDIR)/%.o : %.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
-	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -fPIC -c $< -o $@
-
 # Apply special build flags only to CrossSectionKernel[_$(GPUSUFFIX)].o (no fast math, see #117 and #516)
 # Added edgecase for HIP compilation
 ifeq ($(shell $(CXX) --version | grep ^nvc++),)
@@ -708,6 +691,19 @@ endif
 
 #### Apply special build flags only to CPPProcess.o (AVXFLAGS)
 ###$(BUILDDIR)/CPPProcess.o: CXXFLAGS += $(AVXFLAGS)
+
+# Generic target and build rules: objects from CUDA or HIP compilation
+ifneq ($(GPUCC),)
+$(BUILDDIR)/%_$(GPUSUFFIX).o : %.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
+	$(GPUCC) $(CPPFLAGS) $(INCFLAGS) $(GPUFLAGS) $(XCOMPILERFLAG) -fPIC -c -x $(GPULANGUAGE) $< -o $@
+endif
+
+# Generic target and build rules: objects from C++ compilation
+# (NB do not include CUDA_INC here! add it only for NVTX or curand #679)
+$(BUILDDIR)/%.o : %.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
+	$(CXX) $(CPPFLAGS) $(INCFLAGS) $(CXXFLAGS) -fPIC -c $< -o $@
 
 #-------------------------------------------------------------------------------
 
