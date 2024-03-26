@@ -141,6 +141,8 @@ ifeq ($(BACKEND),cppauto)
     ###endif
   endif
   $(info BACKEND=$(BACKEND) (was cppauto))
+else
+  $(info BACKEND='$(BACKEND)')
 endif
 
 #-------------------------------------------------------------------------------
@@ -496,6 +498,7 @@ endif
 export AVXFLAGS
 
 # Set the build flags appropriate to each FPTYPE choice (example: "make FPTYPE=f")
+$(info FPTYPE='$(FPTYPE)')
 ifeq ($(FPTYPE),d)
   CXXFLAGS += -DMGONGPU_FPTYPE_DOUBLE -DMGONGPU_FPTYPE2_DOUBLE
   GPUFLAGS += -DMGONGPU_FPTYPE_DOUBLE -DMGONGPU_FPTYPE2_DOUBLE
@@ -510,6 +513,7 @@ else
 endif
 
 # Set the build flags appropriate to each HELINL choice (example: "make HELINL=1")
+$(info HELINL='$(HELINL)')
 ifeq ($(HELINL),1)
   CXXFLAGS += -DMGONGPU_INLINE_HELAMPS
   GPUFLAGS += -DMGONGPU_INLINE_HELAMPS
@@ -518,6 +522,7 @@ else ifneq ($(HELINL),0)
 endif
 
 # Set the build flags appropriate to each HRDCOD choice (example: "make HRDCOD=1")
+$(info HRDCOD='$(HRDCOD)')
 ifeq ($(HRDCOD),1)
   CXXFLAGS += -DMGONGPU_HARDCODE_PARAM
   GPUFLAGS += -DMGONGPU_HARDCODE_PARAM

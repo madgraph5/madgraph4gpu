@@ -51,10 +51,10 @@ ifneq ($(words $(filter $(HRDCOD), $(SUPPORTED_HRDCODS))),1)
 endif
 
 # Print out BACKEND, FPTYPE, HELINL, HRDCOD
-$(info BACKEND='$(BACKEND)')
-$(info FPTYPE='$(FPTYPE)')
-$(info HELINL='$(HELINL)')
-$(info HRDCOD='$(HRDCOD)')
+###$(info BACKEND='$(BACKEND)')
+###$(info FPTYPE='$(FPTYPE)')
+###$(info HELINL='$(HELINL)')
+###$(info HRDCOD='$(HRDCOD)')
 
 #-------------------------------------------------------------------------------
 
@@ -82,12 +82,11 @@ override DIRTAG = $(patsubst cpp%%,%%,$(BACKEND))_$(FPTYPE)_inl$(HELINL)_hrd$(HR
 
 # Build directory: current directory by default, or build.$(DIRTAG) if USEBUILDDIR==1
 ifeq ($(USEBUILDDIR),1)
-  $(info USEBUILDDIR='$(USEBUILDDIR)') # build CUDACPP in separate build directories
   override CUDACPP_BUILDDIR = build.$(DIRTAG)
 else
-  $(info USEBUILDDIR='$(USEBUILDDIR)') # build CUDACPP in the source directories
   override CUDACPP_BUILDDIR = .
 endif
-$(info CUDACPP_BUILDDIR='$(CUDACPP_BUILDDIR)')
+###$(info USEBUILDDIR='$(USEBUILDDIR)')
+###$(info CUDACPP_BUILDDIR='$(CUDACPP_BUILDDIR)')
 
 #-------------------------------------------------------------------------------
