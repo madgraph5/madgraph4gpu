@@ -13,7 +13,7 @@ topdir=$(cd $scrdir; cd ../../..; pwd)
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggh]> [-bldall][-cudaonly][-noneonly][-sse4only][-avx2only][-512yonly][-512zonly] [-sa] [-noalpaka] [-flt|-fltonly|-mix|-mixonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-omp] [-makeonly|-makeclean|-makecleanonly|-dryrun] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest] [-nofpe] [-v] [-dlp <dyld_library_path>]"
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggh]> [-bldall][-cudaonly][-hiponly][-noneonly][-sse4only][-avx2only][-512yonly][-512zonly] [-sa] [-noalpaka] [-flt|-fltonly|-mix|-mixonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-omp] [-makeonly|-makeclean|-makecleanonly|-dryrun] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest] [-nofpe] [-v] [-dlp <dyld_library_path>]"
   exit 1
 }
 
@@ -60,7 +60,7 @@ makef=
 ###makef="-f Makefile"
 
 # (Was: workaround to allow 'make avxall' when '-avxall' is specified #536)
-bbldsall="cuda none sse4 avx2 512y 512z"
+bbldsall="cuda hip none sse4 avx2 512y 512z"
 
 if [ "$bckend" != "alpaka" ]; then alpaka=0; fi # alpaka mode is only available in the alpaka directory
 
@@ -106,6 +106,10 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-cudaonly" ]; then
     if [ "${bblds}" != "" ]; then echo "ERROR! Incompatible option $1: backend builds are already defined as '$bblds'"; usage; fi
     bblds="cuda"
+    shift
+  elif [ "$1" == "-hiponly" ]; then
+    if [ "${bblds}" != "" ]; then echo "ERROR! Incompatible option $1: backend builds are already defined as '$bblds'"; usage; fi
+    bblds="hip"
     shift
   elif [ "$1" == "-noneonly" ]; then
     if [ "${bblds}" != "" ]; then echo "ERROR! Incompatible option $1: backend builds are already defined as '$bblds'"; usage; fi
@@ -244,7 +248,7 @@ if [ "${heftggh}" == "1" ] && [ "${suffs/.mad\/}" != "${suffs}" ]; then
 fi
 
 # Define the default bblds if none are defined
-if [ "${bblds}" == "" ]; then bblds="cuda 512y"; fi
+if [ "${bblds}" == "" ]; then bblds="cuda avx2"; fi
 
 # Use only the .auto process directories in the alpaka directory
 if [ "$bckend" == "alpaka" ]; then
@@ -361,9 +365,9 @@ for dir in $dirs; do
     if [ "$bckend" == "alpaka" ]; then hrdsuf=""; fi
     for helinl in $helinls; do
       for fptype in $fptypes; do
-        for bbld in cuda none sse4 avx2 512y 512z; do
+        for bbld in cuda hip none sse4 avx2 512y 512z; do
           if [ "${bblds}" == "${bbldsall}" ] || [ "${bblds/${bbld}}" != "${bblds}" ]; then 
-            if [ "${bbld}" == "cuda" ]; then
+            if [ "${bbld}" == "cuda" ] || [ "${bbld}" == "hip" ]; then
               exes="$exes $dir/build.${bbld}_${fptype}_inl${helinl}${hrdsuf}/gcheck.exe"
             else
               exes="$exes $dir/build.${bbld}_${fptype}_inl${helinl}${hrdsuf}/check.exe"
@@ -489,7 +493,7 @@ function cmpExe() {
   tmp=$(mktemp)
   me1=$(${exe} ${args} 2>${tmp} | grep MeanMatrix | awk '{print $4}'); cat ${tmp}
   me2=$(${exef} ${argsf} 2>${tmp} | grep Average | awk '{print $4}'); cat ${tmp}
-  if [ "${exe%%/gcheck*}" != "${exe}" ]; then tag="/CUDA)"; else tag="/C++) "; fi
+  if [ "${exe%%/gcheck*}" != "${exe}" ]; then tag="/GPU)"; else tag="/C++) "; fi
   echo -e "Avg ME (C++${tag}   = ${me1}\nAvg ME (F77${tag}   = ${me2}"
   if [ "${me2}" == "NaN" ]; then
     echo "ERROR! Fortran calculation (F77${tag} returned NaN"
