@@ -11,7 +11,7 @@ scrdir=$(cd $(dirname $0); pwd)
 function usage()
 {
   echo "Usage:   $0 -<backend> <procdir>"
-  echo "         (supported <backend> values: fortran, cuda, cppnone, cppsse4, cppavx2, cpp512y, cpp512z)"
+  echo "         (supported <backend> values: fortran, cuda, hip, cppnone, cppsse4, cppavx2, cpp512y, cpp512z)"
   echo "Example: $0 -cppavx2 gg_tt.mad"
   exit 1
 }
@@ -19,7 +19,7 @@ function usage()
 bckend=
 proc=
 while [ "$1" != "" ]; do
-  if [ "$1" == "-fortran" ] || [ "$1" == "-cuda" ] || [ "$1" == "-cppnone" ] || [ "$1" == "-cppsse4" ] || [ "$1" == "-cppavx2" ] || [ "$1" == "-cpp512y" ] || [ "$1" == "-cpp512z" ]; then
+  if [ "$1" == "-fortran" ] || [ "$1" == "-cuda" ] || [ "$1" == "-hip" ] || [ "$1" == "-cppnone" ] || [ "$1" == "-cppsse4" ] || [ "$1" == "-cppavx2" ] || [ "$1" == "-cpp512y" ] || [ "$1" == "-cpp512z" ]; then
     if [ "${bckend}" == "" ]; then bckend=${1/-/}; else echo "ERROR! Backend already set"; usage; fi
   elif [ "${proc}" == "" ]; then
     proc=$1
