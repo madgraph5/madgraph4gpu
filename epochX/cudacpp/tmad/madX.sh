@@ -296,7 +296,7 @@ function runcheck()
     nevt=$(getnevt)
   elif [ "${cmd/check}" != "$cmd" ]; then
     txt="CHECK($NLOOP)"
-    cmd=${cmd/.\//.\/build.${avx}_${fptype}_inl0_hrd0\/}
+    cmd=${cmd/.\//.\/build.${backend}_${fptype}_inl0_hrd0\/}
     nthr=32
     (( nblk = NLOOP/nthr )) # NB integer division
     (( nloop2 = nblk*nthr ))
@@ -324,7 +324,7 @@ function runmadevent()
   cmd=$1
   if [ "${cmd/madevent_cpp}" != "$cmd" ]; then
     tmpin=$(getinputfile -cpp)
-    cmd=${cmd/.\//.\/build.${avx}_${fptype}_inl0_hrd0\/}
+    cmd=${cmd/.\//.\/build.${backend}_${fptype}_inl0_hrd0\/}
   elif [ "${cmd/madevent_cuda}" != "$cmd" ]; then
     cmd=${cmd/.\//.\/build.cuda_${fptype}_inl0_hrd0\/}
     tmpin=$(getinputfile -cuda)
@@ -496,24 +496,24 @@ for suff in $suffs; do
   fi
 
   # (2) MADEVENT_CPP
-  for avx in none sse4 avx2 512y 512z; do
-    if [ "$avx" == "512y" ] || [ "$avx" == "512z" ]; then 
-      if ! grep avx512vl /proc/cpuinfo >& /dev/null; then echo -e "\n*** (2-$avx) WARNING! SKIP MADEVENT_CPP (${avx} is not supported on this node) ***"; continue; fi
+  for backend in none sse4 avx2 512y 512z; do
+    if [ "$backend" == "512y" ] || [ "$backend" == "512z" ]; then 
+      if ! grep avx512vl /proc/cpuinfo >& /dev/null; then echo -e "\n*** (2-$backend) WARNING! SKIP MADEVENT_CPP (${backend} is not supported on this node) ***"; continue; fi
     fi
     if [ "${checkonly}" == "0" ]; then      
       xfac=1
       if [ "${rmrdat}" == "0" ]; then \cp -p results.dat.ref results.dat; else \rm -f results.dat; fi  
       if [ ! -f results.dat ]; then
-        echo -e "\n*** (2-$avx) EXECUTE MADEVENT_CPP (create results.dat) ***"
+        echo -e "\n*** (2-$backend) EXECUTE MADEVENT_CPP (create results.dat) ***"
         \rm -f ftn26
         runmadevent ./madevent_cpp
       fi
       for xfac in $xfacs; do
-        echo -e "\n*** (2-$avx) EXECUTE MADEVENT_CPP x$xfac (create events.lhe) ***"
+        echo -e "\n*** (2-$backend) EXECUTE MADEVENT_CPP x$xfac (create events.lhe) ***"
         ${rdatcmd} | grep Modify | sed 's/Modify/results.dat /'
         \rm -f ftn26
         runmadevent ./madevent_cpp
-        echo -e "\n*** (2-$avx) Compare MADEVENT_CPP x$xfac xsec to MADEVENT_FORTRAN xsec ***"
+        echo -e "\n*** (2-$backend) Compare MADEVENT_CPP x$xfac xsec to MADEVENT_FORTRAN xsec ***"
         if [ "${xfac}" == "1" ]; then
           xsecref=$xsecref1
         elif [ "${xfac}" == "10" ]; then
@@ -528,7 +528,7 @@ for suff in $suffs; do
           echo -e "\nERROR! xsec from fortran ($xsecref) and cpp ($xsecnew) differ by more than ${xsecthr} ($delta)"
           exit 1
         fi
-        echo -e "\n*** (2-$avx) Compare MADEVENT_CPP x$xfac events.lhe to MADEVENT_FORTRAN events.lhe reference (including colors and helicities) ***"
+        echo -e "\n*** (2-$backend) Compare MADEVENT_CPP x$xfac events.lhe to MADEVENT_FORTRAN events.lhe reference (including colors and helicities) ***"
 	\cp events.lhe events.lhe0
 	if [ "${fptype}" == "f" ]; then
 	  ${scrdir}/lheFloat.sh events.lhe0 events.lhe
