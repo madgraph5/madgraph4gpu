@@ -14,6 +14,23 @@ override CUDACPP_SRC_MAKEFILE = cudacpp_src.mk
 
 #-------------------------------------------------------------------------------
 
+#=== Check that the user-defined choice of BACKEND is supported
+#=== Configure a default value if no user-defined choice exists
+
+# Set the default BACKEND choice if it is not defined
+ifeq ($(BACKEND),)
+override BACKEND = cppauto
+endif
+
+# Check that BACKEND is one of the possible supported backends
+# (NB: use 'filter' and 'words' instead of 'findstring' because they properly handle whitespace-separated words)
+override SUPPORTED_BACKENDS = cuda hip cppnone cppsse4 cppavx2 cpp512y cpp512z cppauto
+ifneq ($(words $(filter $(BACKEND), $(SUPPORTED_BACKENDS))),1)
+$(error Invalid backend BACKEND='$(BACKEND)': supported backends are $(foreach backend,$(SUPPORTED_BACKENDS),'$(backend)'))
+endif
+
+#-------------------------------------------------------------------------------
+
 #=== Use bash in the Makefile (https://www.gnu.org/software/make/manual/html_node/Choosing-the-Shell.html)
 
 SHELL := /bin/bash
@@ -101,16 +118,9 @@ endif
 
 #-------------------------------------------------------------------------------
 
-#=== Configure the default BACKEND if no user-defined choice exists
-#=== Determine the build type (CUDA, HIP or C++/SIMD) based on the BACKEND variable
+#=== Redefine BACKEND if the current value is 'cppauto'
 
-# Set the default BACKEND choice if it is not defined (choose 'cppauto' i.e. the 'best' C++ vectorization available: eventually use native instead?)
-# (NB: this is ignored in 'make cleanall' and 'make distclean', but a choice is needed in the check for supported backends below)
-ifeq ($(BACKEND),)
-override BACKEND := cppauto
-endif
-
-# Set the default BACKEND choice if it is not defined (choose 'cppauto' i.e. the 'best' C++ vectorization available: eventually use native instead?)
+# Set the default BACKEND choice corresponding to 'cppauto' (the 'best' C++ vectorization available: eventually use native instead?)
 ifeq ($(BACKEND),cppauto)
   ifeq ($(UNAME_P),ppc64le)
     override BACKEND = cppsse4
@@ -131,13 +141,6 @@ ifeq ($(BACKEND),cppauto)
   endif
 endif
 $(info BACKEND=$(BACKEND))
-
-# Check that BACKEND is one of the possible supported backends
-# (NB: use 'filter' and 'words' instead of 'findstring' because they properly handle whitespace-separated words)
-override SUPPORTED_BACKENDS = cuda hip cppnone cppsse4 cppavx2 cpp512y cpp512z cppauto
-ifneq ($(words $(filter $(BACKEND), $(SUPPORTED_BACKENDS))),1)
-$(error Invalid backend BACKEND='$(BACKEND)': supported backends are $(foreach backend,$(SUPPORTED_BACKENDS),'$(backend)'))
-endif
 
 #-------------------------------------------------------------------------------
 
