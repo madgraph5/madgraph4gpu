@@ -988,7 +988,7 @@ ifeq ($(USEBUILDDIR),1)
 	rm -rf $(BUILDDIR)
 else
 	rm -f $(BUILDDIR)/.build.* $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
-	rm -f $(LIBDIR)/lib$(MG5AMC_CXXLIB).so $(LIBDIR)/lib$(MG5AMC_GPULIB).so
+	rm -f $(LIBDIR)/lib*.so
 endif
 	$(MAKE) -C ../../src clean -f $(CUDACPP_SRC_MAKEFILE)
 ###	rm -rf $(INCDIR)
