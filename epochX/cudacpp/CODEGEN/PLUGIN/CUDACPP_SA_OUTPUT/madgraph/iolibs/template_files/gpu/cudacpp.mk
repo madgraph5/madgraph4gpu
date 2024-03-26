@@ -106,11 +106,8 @@ endif
 
 # Set the default BACKEND choice if it is not defined (choose 'cppauto' i.e. the 'best' C++ vectorization available: eventually use native instead?)
 # (NB: this is ignored in 'make cleanall' and 'make distclean', but a choice is needed in the check for supported backends below)
-# Strip white spaces in user-defined BACKEND
 ifeq ($(BACKEND),)
 override BACKEND := cppauto
-else
-override BACKEND := $(strip $(BACKEND))
 endif
 
 # Set the default BACKEND choice if it is not defined (choose 'cppauto' i.e. the 'best' C++ vectorization available: eventually use native instead?)
