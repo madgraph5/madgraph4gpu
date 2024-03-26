@@ -265,30 +265,30 @@ function runcheck()
   cmd=$1
   if [ "${cmd/gcheckmax128thr}" != "$cmd" ]; then
     txt="GCHECK(MAX128THR)"
-    cmd=${cmd/gcheckmax128thr/gcheck} # hack: run cuda gcheck with tput fastest settings
-    cmd=${cmd/.\//.\/build.cuda_${fptype}_inl0_hrd0\/}
+    cmd=${cmd/gcheckmax128thr/gcheck} # hack: run cuda/hip gcheck with tput fastest settings
+    cmd=${cmd/.\//.\/build.${backend}_${fptype}_inl0_hrd0\/}
     nblk=$(getgridmax | cut -d ' ' -f1)
     nthr=$(getgridmax | cut -d ' ' -f2)
     while [ $nthr -lt 128 ]; do (( nthr = nthr * 2 )); (( nblk = nblk / 2 )); done
     (( nevt = nblk*nthr ))
   elif [ "${cmd/gcheckmax8thr}" != "$cmd" ]; then
     txt="GCHECK(MAX8THR)"
-    cmd=${cmd/gcheckmax8thr/gcheck} # hack: run cuda gcheck with tput fastest settings
-    cmd=${cmd/.\//.\/build.cuda_${fptype}_inl0_hrd0\/}
+    cmd=${cmd/gcheckmax8thr/gcheck} # hack: run cuda/hip gcheck with tput fastest settings
+    cmd=${cmd/.\//.\/build.${backend}_${fptype}_inl0_hrd0\/}
     nblk=$(getgridmax | cut -d ' ' -f1)
     nthr=$(getgridmax | cut -d ' ' -f2)
     while [ $nthr -gt 8 ]; do (( nthr = nthr / 2 )); (( nblk = nblk * 2 )); done
     (( nevt = nblk*nthr ))
   elif [ "${cmd/gcheckmax}" != "$cmd" ]; then
     txt="GCHECK(MAX)"
-    cmd=${cmd/gcheckmax/gcheck} # hack: run cuda gcheck with tput fastest settings
-    cmd=${cmd/.\//.\/build.cuda_${fptype}_inl0_hrd0\/}
+    cmd=${cmd/gcheckmax/gcheck} # hack: run cuda/hip gcheck with tput fastest settings
+    cmd=${cmd/.\//.\/build.${backend}_${fptype}_inl0_hrd0\/}
     nblk=$(getgridmax | cut -d ' ' -f1)
     nthr=$(getgridmax | cut -d ' ' -f2)
     (( nevt = nblk*nthr ))
   elif [ "${cmd/gcheck}" != "$cmd" ]; then
     txt="GCHECK($NLOOP)"
-    cmd=${cmd/.\//.\/build.cuda_${fptype}_inl0_hrd0\/}
+    cmd=${cmd/.\//.\/build.${backend}_${fptype}_inl0_hrd0\/}
     nthr=32
     (( nblk = NLOOP/nthr )) # NB integer division
     (( nloop2 = nblk*nthr ))
@@ -317,7 +317,7 @@ function runcheck()
   $cmd -p $nblk $nthr $nite | egrep "(${pattern})"
 }
 
-# Run madevent_fortran (or madevent_cpp or madevent_cuda, depending on $1) and parse its output
+# Run madevent_fortran (or madevent_cpp or madevent_cuda or madevent_hip, depending on $1) and parse its output
 function runmadevent()
 {
   if [ "$1" == "" ] || [ "$2" != "" ]; then echo "Usage: runmadevent <madevent executable>"; exit 1; fi
@@ -543,53 +543,64 @@ for suff in $suffs; do
     runcheck ./check.exe
   done
 
-  # (3) MADEVENT_CUDA
-  if [ "$gpuTxt" == "none" ]; then continue; fi
-  if [ "${checkonly}" == "0" ]; then      
-    xfac=1
-    if [ "${rmrdat}" == "0" ]; then \cp -p results.dat.ref results.dat; else \rm -f results.dat; fi  
-    if [ ! -f results.dat ]; then
-      echo -e "\n*** (3) EXECUTE MADEVENT_CUDA (create results.dat) ***"
-      \rm -f ftn26
-      runmadevent ./madevent_cuda
+  # (3) MADEVENT_CUDA and MADEVENT_HIP
+  for backend in cuda hip; do
+    if [ "$backend" == "cuda" ]; then
+      MADEVENT_GPU=MADEVENT_CUDA
+      if [ "$gpuTxt" == "none" ]; then echo -e "\n*** (3-$backend) WARNING! SKIP ${MADEVENT_GPU} (there is no GPU on this node) ***"; continue; fi
+      if ! nvcc --version >& /dev/null; then echo -e "\n*** (3-$backend) WARNING! SKIP ${MADEVENT_GPU} (${backend} is not supported on this node) ***"; continue; fi
+    elif [ "$backend" == "hip" ]; then
+      MADEVENT_GPU=MADEVENT_HIP
+      if [ "$gpuTxt" == "none" ]; then echo -e "\n*** (3-$backend) WARNING! SKIP ${MADEVENT_GPU} (there is no GPU on this node) ***"; continue; fi
+      if ! hipcc --version >& /dev/null; then echo -e "\n*** (3-$backend) WARNING! SKIP ${MADEVENT_GPU} (${backend} is not supported on this node) ***"; continue; fi
+    else
+      echo "INTERNAL ERROR! Unknown backend ${backend}"; exit 1
     fi
-    for xfac in $xfacs; do
-      echo -e "\n*** (3) EXECUTE MADEVENT_CUDA x$xfac (create events.lhe) ***"
-      ${rdatcmd} | grep Modify | sed 's/Modify/results.dat /'
-      \rm -f ftn26
-      runmadevent ./madevent_cuda
-      echo -e "\n*** (3) Compare MADEVENT_CUDA x$xfac xsec to MADEVENT_FORTRAN xsec ***"
-      if [ "${xfac}" == "1" ]; then
-        xsecref=$xsecref1
-      elif [ "${xfac}" == "10" ]; then
-        xsecref=$xsecref10
-      else
-        echo "ERROR! Unknown xfac=$xfac"; exit 1
+    if [ "${checkonly}" == "0" ]; then      
+      xfac=1
+      if [ "${rmrdat}" == "0" ]; then \cp -p results.dat.ref results.dat; else \rm -f results.dat; fi  
+      if [ ! -f results.dat ]; then
+        echo -e "\n*** (3-${backend}) EXECUTE ${MADEVENT_GPU} (create results.dat) ***"
+        \rm -f ftn26
+        runmadevent ./madevent_${backend}
       fi
-      delta=$(python3 -c "print(abs(1-$xsecnew/$xsecref))")
-      if python3 -c "assert(${delta}<${xsecthr})" 2>/dev/null; then
-        echo -e "\nOK! xsec from fortran ($xsecref) and cpp ($xsecnew) differ by less than ${xsecthr} ($delta)"
-      else
-        echo -e "\nERROR! xsec from fortran ($xsecref) and cpp ($xsecnew) differ by more than ${xsecthr} ($delta)"
-        exit 1
-      fi
-      echo -e "\n*** (3) Compare MADEVENT_CUDA x$xfac events.lhe to MADEVENT_FORTRAN events.lhe reference (including colors and helicities) ***"
-      \cp events.lhe events.lhe0
-      if [ "${fptype}" == "f" ]; then
-        ${scrdir}/lheFloat.sh events.lhe0 events.lhe
-      fi
-      if [ "${fptype}" == "m" ]; then
-        ${scrdir}/lheFloat.sh events.lhe0 events.lhe # FIXME #537
-      fi
-      \mv events.lhe events.lhe.cuda.$xfac
-      if ! diff events.lhe.cuda.$xfac events.lhe.ref.$xfac &> /dev/null; then echo "ERROR! events.lhe.cuda.$xfac and events.lhe.ref.$xfac differ!"; echo "diff $(pwd)/events.lhe.cuda.$xfac $(pwd)/events.lhe.ref.$xfac | head -20"; diff $(pwd)/events.lhe.cuda.$xfac $(pwd)/events.lhe.ref.$xfac | head -20; exit 1; else echo -e "\nOK! events.lhe.cuda.$xfac and events.lhe.ref.$xfac are identical"; fi
-    done
-  fi
-  runcheck ./gcheck.exe
-  runcheck ./gcheckmax.exe
-  runcheck ./gcheckmax128thr.exe
-  runcheck ./gcheckmax8thr.exe
-  
+      for xfac in $xfacs; do
+        echo -e "\n*** (3-${backend}) EXECUTE ${MADEVENT_GPU} x$xfac (create events.lhe) ***"
+        ${rdatcmd} | grep Modify | sed 's/Modify/results.dat /'
+        \rm -f ftn26
+        runmadevent ./madevent_${backend}
+        echo -e "\n*** (3-${backend}) Compare ${MADEVENT_GPU} x$xfac xsec to MADEVENT_FORTRAN xsec ***"
+        if [ "${xfac}" == "1" ]; then
+          xsecref=$xsecref1
+        elif [ "${xfac}" == "10" ]; then
+          xsecref=$xsecref10
+        else
+          echo "ERROR! Unknown xfac=$xfac"; exit 1
+        fi
+        delta=$(python3 -c "print(abs(1-$xsecnew/$xsecref))")
+        if python3 -c "assert(${delta}<${xsecthr})" 2>/dev/null; then
+          echo -e "\nOK! xsec from fortran ($xsecref) and $backend ($xsecnew) differ by less than ${xsecthr} ($delta)"
+        else
+          echo -e "\nERROR! xsec from fortran ($xsecref) and $backend ($xsecnew) differ by more than ${xsecthr} ($delta)"
+          exit 1
+        fi
+        echo -e "\n*** (3-${backend}) Compare ${MADEVENT_GPU} x$xfac events.lhe to MADEVENT_FORTRAN events.lhe reference (including colors and helicities) ***"
+        \cp events.lhe events.lhe0
+        if [ "${fptype}" == "f" ]; then
+          ${scrdir}/lheFloat.sh events.lhe0 events.lhe
+        fi
+        if [ "${fptype}" == "m" ]; then
+          ${scrdir}/lheFloat.sh events.lhe0 events.lhe # FIXME #537
+        fi
+        \mv events.lhe events.lhe.${backend}.$xfac
+        if ! diff events.lhe.${backend}.$xfac events.lhe.ref.$xfac &> /dev/null; then echo "ERROR! events.lhe.${backend}.$xfac and events.lhe.ref.$xfac differ!"; echo "diff $(pwd)/events.lhe.${backend}.$xfac $(pwd)/events.lhe.ref.$xfac | head -20"; diff $(pwd)/events.lhe.${backend}.$xfac $(pwd)/events.lhe.ref.$xfac | head -20; exit 1; else echo -e "\nOK! events.lhe.${backend}.$xfac and events.lhe.ref.$xfac are identical"; fi
+      done
+    fi
+    runcheck ./gcheck.exe
+    runcheck ./gcheckmax.exe
+    runcheck ./gcheckmax128thr.exe
+    runcheck ./gcheckmax8thr.exe
+  done
 done
 
 # Cleanup
