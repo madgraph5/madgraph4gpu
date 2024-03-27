@@ -72,7 +72,7 @@
     // Event-by-event random choice of color #402
     if( channelIds[0] != 0 ) // no event-by-event choice of color if channelId == 0 (fix FPE #783)
     {
-      uint channelIdC = CID_ACCESS::kernelAccessConst(channelIds) - 1; // coloramps.h uses the C array indexing starting at 0
+      uint channelIdC = CID_ACCESS::kernelAccessConst( channelIds ) - 1; // coloramps.h uses the C array indexing starting at 0
       fptype targetamp[ncolor] = { 0 };
       for( int icolC = 0; icolC < ncolor; icolC++ )
       {
@@ -187,7 +187,7 @@
       // Event-by-event random choice of color #402
       if( channelIds[0] != 0 ) // no event-by-event choice of color if channelId == 0 (fix FPE #783)
       {
-        uint_sv channelIdC = CID_ACCESS::kernelAccessConst(channelIds) - 1; // coloramps.h uses the C array indexing starting at 0
+        uint_sv channelIdC = CID_ACCESS::kernelAccessConst( channelIds ) - 1; // coloramps.h uses the C array indexing starting at 0
         fptype_sv targetamp[ncolor] = { 0 };
         for( int icolC = 0; icolC < ncolor; icolC++ )
         {
@@ -195,9 +195,8 @@
             targetamp[icolC] = fptype_sv{ 0 };
           else
             targetamp[icolC] = targetamp[icolC - 1];
-          for (int i = 0; i < neppV; ++i)
-            if (mgOnGpu::icolamp[channelIdC[i]][icolC]) targetamp[icolC][i] += jamp2_sv[icolC][i];
-
+          for( int i = 0; i < neppV; ++i )
+            if( mgOnGpu::icolamp[channelIdC[i]][icolC] ) targetamp[icolC][i] += jamp2_sv[icolC][i];
         }
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
         fptype_sv targetamp2[ncolor] = { 0 };
@@ -207,7 +206,7 @@
             targetamp2[icolC] = fptype_sv{ 0 };
           else
             targetamp2[icolC] = targetamp2[icolC - 1];
-          for (int i = 0; i < neppV; ++id_t)
+          for( int i = 0; i < neppV; ++i )
             if( mgOnGpu::icolamp[channelIdC[i]][icolC] ) targetamp2[icolC][i] += jamp2_sv[ncolor + icolC][i];
         }
 #endif

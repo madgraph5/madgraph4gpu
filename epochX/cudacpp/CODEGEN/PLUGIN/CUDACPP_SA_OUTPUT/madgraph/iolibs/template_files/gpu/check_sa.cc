@@ -415,7 +415,6 @@ main( int argc, char** argv )
   DeviceBufferChannelIds devChIds( nevt );
 #endif
 
-
   // Hardcode Gs for now (eventually they should come from Fortran MadEvent)
   // Hardcode channelID to 0
   constexpr unsigned int channelId = 0; // TEMPORARY? disable multi-channel in check.exe and gcheck.exe #466
