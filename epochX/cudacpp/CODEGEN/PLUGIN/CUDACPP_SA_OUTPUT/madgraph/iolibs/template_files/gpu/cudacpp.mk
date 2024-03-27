@@ -93,10 +93,19 @@ GTESTLIBDIR =
 GTESTLIBS =
 GTESTINC =
 endif
+TESTDIR =
+GTESTLIBDIR =
+GTESTLIBS =
+GTESTINC =
+
 ###$(info GTEST_ROOT = $(GTEST_ROOT))
 ###$(info LOCALGTEST = $(LOCALGTEST))
 ###$(info TESTDIR = $(TESTDIR))
 
+TESTDIR=
+GTESTLIBDIR =
+GTESTLIBS =
+GTESTINC =
 #-------------------------------------------------------------------------------
 
 #=== Configure the C++ compiler
