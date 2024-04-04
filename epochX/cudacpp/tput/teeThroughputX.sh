@@ -9,7 +9,7 @@ cd $scrdir
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggh][-susyggtt][-susyggt1t1][-smeftggtttt]> [-sa] [-noalpaka] [-flt|-fltonly|-mix|-mixonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly] [-makeclean] [-makej] [-nofpe] [-dlp <dyld_library_path>]"
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-sa] [-noalpaka] [-flt|-fltonly|-mix|-mixonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly] [-makeclean] [-makej] [-nofpe] [-dlp <dyld_library_path>]"
   exit 1
 }
 
@@ -20,7 +20,7 @@ ggttg=
 ggttgg=
 ggttggg=
 gqttq=
-heftggh=
+heftggbb=
 susyggtt=
 susyggt1t1=
 smeftggtttt=
@@ -61,9 +61,9 @@ for arg in $*; do
   elif [ "$arg" == "-gqttq" ]; then
     if [ "$gqttq" == "" ]; then procs+=${procs:+ }${arg}; fi
     gqttq=$arg
-  elif [ "$arg" == "-heftggh" ]; then
-    if [ "$heftggh" == "" ]; then procs+=${procs:+ }${arg}; fi
-    heftggh=$arg
+  elif [ "$arg" == "-heftggbb" ]; then
+    if [ "$heftggbb" == "" ]; then procs+=${procs:+ }${arg}; fi
+    heftggbb=$arg
   elif [ "$arg" == "-susyggtt" ]; then
     if [ "$susyggtt" == "" ]; then procs+=${procs:+ }${arg}; fi
     susyggtt=$arg
@@ -131,11 +131,6 @@ for arg in $*; do
     echo "ERROR! Invalid option '$arg'"; usage
   fi  
 done
-
-# Check that heftggh does not run in .mad mode
-###if [ "${heftggh}" != "" ] && [ "${suffs/mad}" != "${suffs}" ]; then
-###  echo "ERROR! Invalid option -heftggh for .mad directories"; exit 1
-###fi
 
 # Workaround for MacOS SIP (SystemIntegrity Protection): set DYLD_LIBRARY_PATH In subprocesses
 if [ "${dlpset}" == "1" ]; then usage; fi

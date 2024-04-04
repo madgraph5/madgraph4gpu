@@ -120,11 +120,11 @@ fi
 ended6="$cmd\nENDED(6) AT $(date) [Status=$status]"
 
 # (94/94) Four extra logs (double/float x hrd0/hrd1 x inl0) only in the four BSM processes
-cmd="./tput/teeThroughputX.sh -flt -hrd -makej -susyggtt -susyggt1t1 -smeftggtttt -heftggh -makeclean ${opts}"
+cmd="./tput/teeThroughputX.sh -flt -hrd -makej -susyggtt -susyggt1t1 -smeftggtttt -heftggbb -makeclean ${opts}"
 tmp3=$(mktemp)
 if [ "${bsm}" != "-nobsm" ]; then
   $cmd; status=$?
-  ls -ltr susy_gg_tt${suff}/lib/build.none_*_inl0_hrd* susy_gg_t1t1${suff}/lib/build.none_*_inl0_hrd* smeft_gg_tttt${suff}/lib/build.none_*_inl0_hrd* heft_gg_h${suff}/lib/build.none_*_inl0_hrd* | egrep -v '(total|\./|\.build|_common|^$)' > $tmp2
+  ls -ltr susy_gg_tt${suff}/lib/build.none_*_inl0_hrd* susy_gg_t1t1${suff}/lib/build.none_*_inl0_hrd* smeft_gg_tttt${suff}/lib/build.none_*_inl0_hrd* heft_gg_bb${suff}/lib/build.none_*_inl0_hrd* | egrep -v '(total|\./|\.build|_common|^$)' > $tmp2
 else
   cmd="SKIP '$cmd'"; echo $cmd; status=$?
 fi
