@@ -31,6 +31,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cfloat> // for FLT_MIN
 #include <cstring>
 #include <iomanip>
 #include <iostream>
