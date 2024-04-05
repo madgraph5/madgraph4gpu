@@ -437,3 +437,22 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
 }
 
 //==========================================================================
+
+// Main function (see https://google.github.io/googletest/primer.html#writing-the-main-function)
+// (NB: currently a single main links both C++ and CUDA tests - define it only in the C++ testxxx.o)
+#ifndef MGONGPUCPP_GPUIMPL
+int main( int argc, char** argv )
+{
+#ifndef __APPLE__ // test #701 (except on MacOS where feenableexcept is not defined #730)
+  const char* enableFPEc = getenv( "CUDACPP_RUNTIME_ENABLEFPE" );
+  const bool enableFPE = ( enableFPEc != 0 ) && ( std::string( enableFPEc ) != "" );
+  if( enableFPE )
+  {
+    feenableexcept( FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW ); // debug #701
+    signal( SIGFPE, FPEhandlerGeneric );
+  }
+#endif
+  testing::InitGoogleTest( &argc, argv );
+  return RUN_ALL_TESTS();
+}
+#endif
