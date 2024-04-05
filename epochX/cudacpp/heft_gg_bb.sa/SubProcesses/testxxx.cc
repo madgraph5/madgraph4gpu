@@ -437,3 +437,13 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
 }
 
 //==========================================================================
+
+// Main function (see https://google.github.io/googletest/primer.html#writing-the-main-function)
+// (NB: currently a single main links both C++ and CUDA tests - define it only in the C++ testxxx.o)
+#ifndef MGONGPUCPP_GPUIMPL
+int main( int argc, char** argv )
+{
+  testing::InitGoogleTest( &argc, argv );
+  return RUN_ALL_TESTS();
+}
+#endif
