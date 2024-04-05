@@ -344,12 +344,12 @@ namespace mg5amcCpu
         {
           jamp_sv[icolC][i] = cxtype( cxreal( jamp_sv[icolC][i] ) * ( std::abs( cxreal( jamp_sv[icolC][i] ) ) > minjamp ),
                                       cximag( jamp_sv[icolC][i] ) * ( std::abs( cximag( jamp_sv[icolC][i] ) ) > minjamp ) );
-        }        
+        }
 #endif
       }
 #endif
 #endif
-      
+
       // *** COLOR CHOICE BELOW ***
       // Store the leading color flows for choice of color
       if( jamp2_sv ) // disable color choice if nullptr

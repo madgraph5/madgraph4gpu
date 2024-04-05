@@ -51,7 +51,8 @@ namespace mg5amcCpu
   }
 }
 
-inline void FPEhandlerGeneric( int sig )
+inline void
+FPEhandlerGeneric( int sig )
 {
   std::cerr << "Floating Point Exception" << std::endl;
   exit( 1 );
@@ -438,7 +439,8 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
 // Main function (see https://google.github.io/googletest/primer.html#writing-the-main-function)
 // (NB: currently a single main links both C++ and CUDA tests - define it only in the C++ testxxx.o)
 #ifndef MGONGPUCPP_GPUIMPL
-int main( int argc, char** argv )
+int
+main( int argc, char** argv )
 {
 #ifndef __APPLE__ // test #701 (except on MacOS where feenableexcept is not defined #730)
   const char* enableFPEc = getenv( "CUDACPP_RUNTIME_ENABLEFPE" );
