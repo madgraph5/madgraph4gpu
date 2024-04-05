@@ -336,21 +336,25 @@ namespace mg5amcCpu
 
 #ifndef MGONGPUCPP_GPUIMPL
 #ifdef MGONGPU_FPTYPE2_FLOAT
-      // Avoid underflow FPE #831 (flush-to-zero jamp values whose square is below FLT_MIN)
-      constexpr fptype2 minjamp = 1.1 * constexpr_sqrt( FLT_MIN );
-      for( int icolC = 0; icolC < ncolor; icolC++ )
+      auto underflowFTZ = [&jamp_sv]()
       {
-#ifndef MGONGPU_CPPSIMD
-        jamp_sv[icolC] = cxtype( cxreal( jamp_sv[icolC] ) * ( std::abs( cxreal( jamp_sv[icolC] ) ) > minjamp ),
-                                 cximag( jamp_sv[icolC] ) * ( std::abs( cximag( jamp_sv[icolC] ) ) > minjamp ) );
-#else
-        for( int i = 0; i < neppV; i++ )
+        // Avoid underflow FPE #831 (flush-to-zero jamp values whose square is below FLT_MIN)
+        constexpr fptype2 minjamp = 1.1 * constexpr_sqrt( FLT_MIN );
+        for( int icolC = 0; icolC < ncolor; icolC++ )
         {
-          jamp_sv[icolC][i] = cxtype( cxreal( jamp_sv[icolC][i] ) * ( std::abs( cxreal( jamp_sv[icolC][i] ) ) > minjamp ),
-                                      cximag( jamp_sv[icolC][i] ) * ( std::abs( cximag( jamp_sv[icolC][i] ) ) > minjamp ) );
-        }
+#ifndef MGONGPU_CPPSIMD
+          jamp_sv[icolC] = cxtype( cxreal( jamp_sv[icolC] ) * ( std::abs( cxreal( jamp_sv[icolC] ) ) > minjamp ),
+                                   cximag( jamp_sv[icolC] ) * ( std::abs( cximag( jamp_sv[icolC] ) ) > minjamp ) );
+#else
+          for( int i = 0; i < neppV; i++ )
+          {
+            jamp_sv[icolC][i] = cxtype( cxreal( jamp_sv[icolC][i] ) * ( std::abs( cxreal( jamp_sv[icolC][i] ) ) > minjamp ),
+                                        cximag( jamp_sv[icolC][i] ) * ( std::abs( cximag( jamp_sv[icolC][i] ) ) > minjamp ) );
+          }
 #endif
-      }
+        }
+      };
+      underflowFTZ();
 #endif
 #endif
 
