@@ -425,8 +425,8 @@ namespace mg5amcCpu
       // we gain (not a factor 2...) in speed here as we only loop over the up diagonal part of the matrix.
       // Strangely, CUDA is slower instead, so keep the old implementation for the moment.
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
-      fptype2_sv jampR_sv[ncolor] = { 0 };
-      fptype2_sv jampI_sv[ncolor] = { 0 };
+      volatile fptype2_sv jampR_sv[ncolor] = { 0 };
+      volatile fptype2_sv jampI_sv[ncolor] = { 0 };
       for( int icol = 0; icol < ncolor; icol++ )
       {
         jampR_sv[icol] = fpvmerge( cxreal( jamp_sv_previous[icol] ), cxreal( jamp_sv[icol] ) );
@@ -439,8 +439,8 @@ namespace mg5amcCpu
         // === C++ START ===
         // Diagonal terms
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
-        fptype2_sv& jampRi_sv = jampR_sv[icol];
-        fptype2_sv& jampIi_sv = jampI_sv[icol];
+        volatile fptype2_sv& jampRi_sv = jampR_sv[icol];
+        volatile fptype2_sv& jampIi_sv = jampI_sv[icol];
         // Fix FPE #831 for FPTYPE=m (vector)
         for( int i = 0; i < neppV2; i++ ) // NB this is neppV2 (i.e. 2 x neppV)
         {
@@ -462,8 +462,8 @@ namespace mg5amcCpu
         for( int jcol = icol + 1; jcol < ncolor; jcol++ )
         {
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
-          fptype2_sv& jampRj_sv = jampR_sv[jcol];
-          fptype2_sv& jampIj_sv = jampI_sv[jcol];
+          volatile fptype2_sv& jampRj_sv = jampR_sv[jcol];
+          volatile fptype2_sv& jampIj_sv = jampI_sv[jcol];
 #else
           fptype2_sv jampRj_sv = (fptype2_sv)( cxreal( jamp_sv[jcol] ) );
           fptype2_sv jampIj_sv = (fptype2_sv)( cximag( jamp_sv[jcol] ) );
