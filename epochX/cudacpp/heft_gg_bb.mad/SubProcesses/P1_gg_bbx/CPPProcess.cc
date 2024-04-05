@@ -336,9 +336,9 @@ namespace mg5amcCpu
 
 #ifndef MGONGPUCPP_GPUIMPL
 #ifdef MGONGPU_FPTYPE2_FLOAT
+      // Avoid underflow FPE #831 (flush-to-zero jamp values whose square is below FLT_MIN)
       auto underflowFTZ = [&jamp_sv]()
       {
-        // Avoid underflow FPE #831 (flush-to-zero jamp values whose square is below FLT_MIN)
         constexpr fptype2 minjamp = 1.1 * constexpr_sqrt( FLT_MIN );
         for( int icolC = 0; icolC < ncolor; icolC++ )
         {
@@ -354,6 +354,12 @@ namespace mg5amcCpu
 #endif
         }
       };
+#endif
+#endif
+
+#ifndef MGONGPUCPP_GPUIMPL
+#ifdef MGONGPU_FPTYPE_FLOAT
+      // Fix FPE #831 for FPTYPE=f (scalar and vector)
       underflowFTZ();
 #endif
 #endif
@@ -398,6 +404,13 @@ namespace mg5amcCpu
         fptype2 value[ncolor][ncolor];
       };
       static constexpr auto cf2 = TriangularNormalizedColorMatrix();
+#endif
+
+#ifndef MGONGPUCPP_GPUIMPL
+#if defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+      // Fix FPE #831 for FPTYPE=m (scalar and vector)
+      underflowFTZ();
+#endif
 #endif
 
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
