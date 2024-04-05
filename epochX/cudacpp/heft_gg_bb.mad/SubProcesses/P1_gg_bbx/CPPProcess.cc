@@ -335,7 +335,7 @@ namespace mg5amcCpu
       jamp_sv[1] -= amp_sv[0];
 
 #ifndef MGONGPUCPP_GPUIMPL
-#ifdef MGONGPU_FPTYPE2_FLOAT
+#ifdef MGONGPU_FPTYPE_FLOAT
       // Avoid underflow FPE #831 (flush-to-zero jamp values whose square is below FLT_MIN)
       constexpr fptype2 minjamp = 1.1 * constexpr_sqrt( FLT_MIN );
       for( int icolC = 0; icolC < ncolor; icolC++ )
