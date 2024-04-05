@@ -40,7 +40,7 @@ namespace mg5amcCpu
 {
   std::string FPEhandlerMessage = "unknown";
   int FPEhandlerIevt = -1;
-  inline void FPEhandler( int sig )
+  inline void FPEhandlerTestxxx( int sig )
   {
 #ifdef MGONGPUCPP_GPUIMPL
     std::cerr << "Floating Point Exception (GPU): '" << FPEhandlerMessage << "' ievt=" << FPEhandlerIevt << std::endl;
@@ -51,6 +51,12 @@ namespace mg5amcCpu
   }
 }
 
+inline void FPEhandlerGeneric( int sig )
+{
+  std::cerr << "Floating Point Exception" << std::endl;
+  exit( 1 );
+}
+
 TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
 {
 #ifdef MGONGPUCPP_GPUIMPL
@@ -59,13 +65,7 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
   using namespace mg5amcCpu;
 #endif
 #ifndef __APPLE__ // test #701 (except on MacOS where feenableexcept is not defined #730)
-  const char* enableFPEc = getenv( "CUDACPP_RUNTIME_ENABLEFPE" );
-  const bool enableFPE = ( enableFPEc != 0 ) && ( std::string( enableFPEc ) != "" );
-  if( enableFPE )
-  {
-    feenableexcept( FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW ); // debug #701
-    signal( SIGFPE, FPEhandler );
-  }
+  signal( SIGFPE, FPEhandlerTestxxx );
 #endif
   constexpr bool dumpEvents = false;       // dump the expected output of the test?
   constexpr bool testEvents = !dumpEvents; // run the test?
@@ -428,11 +428,8 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
     dumpFile.close();
     std::cout << "INFO: New reference data dumped to file '" << dumpFileName << "'" << std::endl;
   }
-#ifndef __APPLE__ // test #701 (except on MacOS where fedisableexcept is not defined #730)
-  if( enableFPE )
-  {
-    fedisableexcept( FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW ); // debug #701
-  }
+#ifndef __APPLE__ // test #701 (except on MacOS where feenableexcept is not defined #730)
+  signal( SIGFPE, FPEhandlerGeneric );
 #endif
 }
 
