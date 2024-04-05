@@ -441,6 +441,12 @@ namespace mg5amcCpu
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
         fptype2_sv& jampRi_sv = jampR_sv[icol];
         fptype2_sv& jampIi_sv = jampI_sv[icol];
+        // Fix FPE #831 for FPTYPE=m (vector)
+        for( int i = 0; i < neppV2; i++ ) // NB this is neppV2 (i.e. 2 x neppV)
+        {
+          jampRi_sv[i] *= ( std::abs( jampRi_sv[i] ) > minjamp );
+          jampIi_sv[i] *= ( std::abs( jampIi_sv[i] ) > minjamp );
+        }
 #else
         fptype2_sv jampRi_sv = (fptype2_sv)( cxreal( jamp_sv[icol] ) );
         fptype2_sv jampIi_sv = (fptype2_sv)( cximag( jamp_sv[icol] ) );
