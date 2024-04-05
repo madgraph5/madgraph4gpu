@@ -335,19 +335,15 @@ namespace mg5amcCpu
       jamp_sv[1] -= amp_sv[0];
 
 #ifndef MGONGPUCPP_GPUIMPL
-      // Avoid underflow FPE #831 (flush-to-zero jamp values whose square is below FLT_MIN)
 #ifdef MGONGPU_FPTYPE2_FLOAT
+      // Avoid underflow FPE #831 (flush-to-zero jamp values whose square is below FLT_MIN)
       constexpr fptype2 minjamp = 1.1 * constexpr_sqrt( FLT_MIN );
-#endif
-#ifdef MGONGPU_FPTYPE_FLOAT
       for( int icolC = 0; icolC < ncolor; icolC++ )
       {
 #ifndef MGONGPU_CPPSIMD
-        // Fix FPE #831 for FPTYPE=f (scalar)
         jamp_sv[icolC] = cxtype( cxreal( jamp_sv[icolC] ) * ( std::abs( cxreal( jamp_sv[icolC] ) ) > minjamp ),
                                  cximag( jamp_sv[icolC] ) * ( std::abs( cximag( jamp_sv[icolC] ) ) > minjamp ) );
 #else
-        // Fix FPE #831 for FPTYPE=f (vector)
         for( int i = 0; i < neppV; i++ )
         {
           jamp_sv[icolC][i] = cxtype( cxreal( jamp_sv[icolC][i] ) * ( std::abs( cxreal( jamp_sv[icolC][i] ) ) > minjamp ),
@@ -441,20 +437,9 @@ namespace mg5amcCpu
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
         fptype2_sv& jampRi_sv = jampR_sv[icol];
         fptype2_sv& jampIi_sv = jampI_sv[icol];
-        // Fix FPE #831 for FPTYPE=m (vector)
-        for( int i = 0; i < neppV2; i++ ) // NB this is neppV2 (i.e. 2 x neppV)
-        {
-          jampRi_sv[i] *= ( std::abs( jampRi_sv[i] ) > minjamp );
-          jampIi_sv[i] *= ( std::abs( jampIi_sv[i] ) > minjamp );
-        }
 #else
         fptype2_sv jampRi_sv = (fptype2_sv)( cxreal( jamp_sv[icol] ) );
         fptype2_sv jampIi_sv = (fptype2_sv)( cximag( jamp_sv[icol] ) );
-#if defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT // mixed FPTYPE
-        // Fix FPE #831 for FPTYPE=m (scalar)
-        jampRi_sv *= ( std::abs( jampRi_sv ) > minjamp );
-        jampIi_sv *= ( std::abs( jampIi_sv ) > minjamp );
-#endif
 #endif
         fptype2_sv ztempR_sv = cf2.value[icol][icol] * jampRi_sv;
         fptype2_sv ztempI_sv = cf2.value[icol][icol] * jampIi_sv;
