@@ -33,6 +33,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cfloat> // for FLT_MIN
 #include <cstring>
 #include <iomanip>
 #include <iostream>
@@ -329,6 +330,26 @@ namespace mg5amcCpu
 #endif
       jamp_sv[1] -= amp_sv[0];
 
+#ifndef MGONGPUCPP_GPUIMPL
+#ifdef MGONGPU_FPTYPE2_FLOAT
+      // Avoid underflow FPE #831 (flush-to-zero jamp values whose square is below FLT_MIN)
+      constexpr fptype2 minjamp = 1.1 * constexpr_sqrt( FLT_MIN );
+      for( int icolC = 0; icolC < ncolor; icolC++ )
+      {
+#ifndef MGONGPU_CPPSIMD
+        jamp_sv[icolC] = cxtype( cxreal( jamp_sv[icolC] ) * ( std::abs( cxreal( jamp_sv[icolC] ) ) > minjamp ),
+                                 cximag( jamp_sv[icolC] ) * ( std::abs( cximag( jamp_sv[icolC] ) ) > minjamp ) );
+#else
+        for( int i = 0; i < neppV; i++ )
+        {
+          jamp_sv[icolC][i] = cxtype( cxreal( jamp_sv[icolC][i] ) * ( std::abs( cxreal( jamp_sv[icolC][i] ) ) > minjamp ),
+                                      cximag( jamp_sv[icolC][i] ) * ( std::abs( cximag( jamp_sv[icolC][i] ) ) > minjamp ) );
+        }        
+#endif
+      }
+#endif
+#endif
+      
       // *** COLOR CHOICE BELOW ***
       // Store the leading color flows for choice of color
       if( jamp2_sv ) // disable color choice if nullptr
