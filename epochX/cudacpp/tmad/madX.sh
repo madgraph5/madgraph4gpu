@@ -4,6 +4,9 @@
 # Created by: A. Valassi (Mar 2022) for the MG5aMC CUDACPP plugin.
 
 set +x # not verbose
+
+# [NB: set -e may lead to unexpected silent failures if ((..)) arithmetic expressions have a result equal to 0]
+# [See https://www.gnu.org/software/bash/manual/html_node/Conditional-Constructs.html and https://stackoverflow.com/a/66824545]
 set -e # fail on error
 
 scrdir=$(cd $(dirname $0); pwd)
@@ -341,25 +344,25 @@ function runcheck()
     txt="GCHECK($NLOOP)"
     cmd=${cmd/.\//.\/build.none_${fptype}_inl0_hrd0\/}
     nthr=32
-    (( nblk = NLOOP/nthr )) # NB integer division
-    (( nloop2 = nblk*nthr ))
+    (( nblk = NLOOP/nthr )) || true # integer division (NB: bash double parenthesis fails if the result is 0)
+    (( nloop2 = nblk*nthr )) || true
     if [ "$NLOOP" != "$nloop2" ]; then echo "ERROR! NLOOP($nloop) != nloop2($nloop2)"; exit 1; fi
     nevt=$(getnevt)
   elif [ "${cmd/check}" != "$cmd" ]; then
     txt="CHECK($NLOOP)"
     cmd=${cmd/.\//.\/build.${avx}_${fptype}_inl0_hrd0\/}
     nthr=32
-    (( nblk = NLOOP/nthr )) # NB integer division
-    (( nloop2 = nblk*nthr ))
-    if [ "$NLOOP" != "$nloop2" ]; then echo "ERROR! NLOOP($nloop) != nloop2($nloop2)"; exit 1; fi
+    (( nblk = NLOOP/nthr )) || true # integer division (NB: bash double parenthesis fails if the result is 0)
+    (( nloop2 = nblk*nthr )) || true
+    if [ "$NLOOP" != "$nloop2" ]; then echo "ERROR! NLOOP($NLOOP) != nloop2($nloop2)"; exit 1; fi
     nevt=$(getnevt)
   else
     echo "ERROR! Unknown check executable '$cmd'"; exit 1
   fi
   (( ngrid = nthr*nblk ))
   if [ $ngrid -gt $nevt ]; then nevt=$ngrid; fi # do run at least 8192 events in gcheck8192
-  (( nite = nevt/ngrid )) # NB integer division
-  (( nevt2 = ngrid*nite ))
+  (( nite = nevt/ngrid )) || true # integer division (NB: bash double parenthesis fails if the result is 0)
+  (( nevt2 = ngrid*nite )) || true
   if [ "$nevt" != "$nevt2" ]; then echo "ERROR! nevt($nevt) != nevt2($nevt2)=ngrid($ngrid)*nite($nite)"; exit 1; fi
   pattern="Process|Workflow|EvtsPerSec\[MECalc"
   echo -e "\n*** EXECUTE $txt -p $nblk $nthr $nite --bridge ***"
