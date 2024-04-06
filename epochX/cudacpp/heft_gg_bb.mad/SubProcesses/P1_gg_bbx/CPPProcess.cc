@@ -350,6 +350,14 @@ namespace mg5amcCpu
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
 
+#ifndef MGONGPUCPP_GPUIMPL
+      if( debug )
+      {
+        std::cout << "DIAGRAM2 ievt00=" << ievt00 << " ihel=" << ihel << std::endl;
+        std::cout << "amp_sv: " << amp_sv[0] << std::endl;
+      }
+#endif
+
       // *** DIAGRAM 3 OF 4 ***
 
       // Wavefunction(s) for diagram number 3
@@ -362,6 +370,14 @@ namespace mg5amcCpu
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[0] -= amp_sv[0];
+
+#ifndef MGONGPUCPP_GPUIMPL
+      if( debug )
+      {
+        std::cout << "DIAGRAM3 ievt00=" << ievt00 << " ihel=" << ihel << std::endl;
+        std::cout << "amp_sv: " << amp_sv[0] << std::endl;
+      }
+#endif
 
       // *** DIAGRAM 4 OF 4 ***
 
@@ -404,6 +420,17 @@ namespace mg5amcCpu
       // Fix FPE #831 for FPTYPE=f (scalar and vector)
       underflowFTZ();
 #endif
+#endif
+
+#ifndef MGONGPUCPP_GPUIMPL
+      for( int icol = 0; icol < ncolor; icol++ )
+      {
+        if( debug && icol == 0 )
+        {
+          std::cout << "AFTER_FEYNMAN ievt00=" << ievt00 << " ihel=" << ihel << " icol=" << icol << std::endl;
+          std::cout << "jamp_sv: " << jamp_sv[icol] << std::endl;
+        }
+      }
 #endif
 
       // *** COLOR CHOICE BELOW ***
@@ -513,16 +540,22 @@ namespace mg5amcCpu
           fptype2_sv jampRj_sv = (fptype2_sv)( cxreal( jamp_sv[jcol] ) );
           fptype2_sv jampIj_sv = (fptype2_sv)( cximag( jamp_sv[jcol] ) );
 #endif
+          if( debug && icol == 0 )
+          {
+            std::cout << "OFF-DIAGONAL ievt00=" << ievt00 << " ihel=" << ihel << " icol=" << icol << " jcol=" << jcol << std::endl;
+            std::cout << "ztempR_sv: " << ztempR_sv << std::endl;
+            std::cout << "ztempI_sv: " << ztempI_sv << std::endl;
+          }
           ztempR_sv += cf2.value[icol][jcol] * jampRj_sv;
           ztempI_sv += cf2.value[icol][jcol] * jampIj_sv;
         }
         if( debug && icol == 0 )
         {
-          std::cout << "DEBUG1 ievt00=" << ievt00 << " ihel=" << ihel << " icol=" << icol << std::endl;
-          std::cout << jampRi_sv << std::endl;
-          std::cout << ztempR_sv << std::endl;
-          std::cout << jampIi_sv << std::endl;
-          std::cout << ztempI_sv << std::endl;
+          std::cout << "BEFORE_DELTAMES2 ievt00=" << ievt00 << " ihel=" << ihel << " icol=" << icol << std::endl;
+          std::cout << "jampRi_sv: " << jampRi_sv << std::endl;
+          std::cout << "ztempR_sv: " << ztempR_sv << std::endl;
+          std::cout << "jampIi_sv: " << jampIi_sv << std::endl;
+          std::cout << "ztempI_sv: " << ztempI_sv << std::endl;
         }
         fptype2_sv deltaMEs2 = ( jampRi_sv * ztempR_sv + jampIi_sv * ztempI_sv );
         if( debug && icol == 0 ) std::cout << "DEBUG2 " << std::endl;
