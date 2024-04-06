@@ -183,10 +183,10 @@ namespace mg5amcCpu
 #endif
 #endif /* clang-format on */
     mgDebug( 0, __FUNCTION__ );
-    //printf( "calculate_wavefunctions: ihel=%2d\n", ihel );
 #ifndef MGONGPUCPP_GPUIMPL
     //printf( "calculate_wavefunctions: ievt00=%d\n", ievt00 );
 #endif
+    //printf( "calculate_wavefunctions: ihel=%d\n", ihel );
 
     // The variable nwf (which is specific to each P1 subdirectory, #644) is only used here
     // It is hardcoded here because various attempts to hardcode it in CPPProcess.h at generation time gave the wrong result...
@@ -448,6 +448,7 @@ namespace mg5amcCpu
 #endif
       for( int icol = 0; icol < ncolor; icol++ )
       {
+        //printf( "calculate_wavefunctions... icol=%d\n", icol );
 #ifndef MGONGPUCPP_GPUIMPL
         // === C++ START ===
         // Diagonal terms
