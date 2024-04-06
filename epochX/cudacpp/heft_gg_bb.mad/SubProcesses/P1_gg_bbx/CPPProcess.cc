@@ -183,12 +183,12 @@ namespace mg5amcCpu
 #endif
 #endif /* clang-format on */
     mgDebug( 0, __FUNCTION__ );
-    //bool debug = true;
+    bool debug = true;
 #ifndef MGONGPUCPP_GPUIMPL
-    //debug = ( ievt00 >= 64 && ievt00 < 80 && ihel == 3 ); // example: debug #831
-    //if( debug ) printf( "calculate_wavefunctions: ievt00=%d\n", ievt00 );
+    debug = ( ievt00 >= 64 && ievt00 < 80 && ihel == 3 ); // debug #831
+    if( debug ) printf( "calculate_wavefunctions: ievt00=%d\n", ievt00 );
 #endif
-    //if( debug ) printf( "calculate_wavefunctions: ihel=%d\n", ihel );
+    if( debug ) printf( "calculate_wavefunctions: ihel=%d\n", ihel );
 
     // The variable nwf (which is specific to each P1 subdirectory, #644) is only used here
     // It is hardcoded here because various attempts to hardcode it in CPPProcess.h at generation time gave the wrong result...
@@ -450,7 +450,7 @@ namespace mg5amcCpu
 #endif
       for( int icol = 0; icol < ncolor; icol++ )
       {
-        //if( debug ) printf( "calculate_wavefunctions... icol=%d\n", icol );
+        if( debug ) printf( "calculate_wavefunctions... icol=%d\n", icol );
 #ifndef MGONGPUCPP_GPUIMPL
         // === C++ START ===
         // Diagonal terms
@@ -476,7 +476,16 @@ namespace mg5amcCpu
           ztempR_sv += cf2.value[icol][jcol] * jampRj_sv;
           ztempI_sv += cf2.value[icol][jcol] * jampIj_sv;
         }
+        if( debug && icol == 0 )
+        {
+          std::cout << "DEBUG1 ievt00=" << ievt00 << " ihel=" << ihel << " icol=" << icol << std::endl;
+          std::cout << jampRi_sv << std::endl;
+          std::cout << ztempR_sv << std::endl;
+          std::cout << jampIi_sv << std::endl;
+          std::cout << ztempI_sv << std::endl;
+        }
         fptype2_sv deltaMEs2 = ( jampRi_sv * ztempR_sv + jampIi_sv * ztempI_sv );
+        if( debug && icol == 0 ) std::cout << "DEBUG2 " << std::endl;
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
         deltaMEs_previous += fpvsplit0( deltaMEs2 );
         deltaMEs += fpvsplit1( deltaMEs2 );
