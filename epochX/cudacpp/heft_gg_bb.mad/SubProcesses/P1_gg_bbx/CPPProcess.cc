@@ -553,6 +553,19 @@ namespace mg5amcCpu
           std::cout << "jampIi_sv: " << jampIi_sv << std::endl;
           std::cout << "ztempI_sv: " << ztempI_sv << std::endl;
         }
+#if not defined MGONGPUCPP_GPUIMPL and defined MGONGPU_FPTYPE2_FLOAT
+        // Avoid underflow FPE #831 for ztemp (flush-to-zero ztemp values whose square is below FLT_MIN)
+#ifndef MGONGPU_CPPSIMD
+        ztempR_sv *= ( std::abs( ztempR_sv ) > minjamp );
+        ztempI_sv *= ( std::abs( ztempI_sv ) > minjamp );
+#else
+        for( int i = 0; i < neppV; i++ )
+        {
+          ztempR_sv[i] *= ( std::abs( ztempR_sv[i] ) > minjamp );
+          ztempI_sv[i] *= ( std::abs( ztempI_sv[i] ) > minjamp );
+        }
+#endif
+#endif
         fptype2_sv deltaMEs2 = ( jampRi_sv * ztempR_sv + jampIi_sv * ztempI_sv );
         if( debug && icol == 0 ) std::cout << "DEBUG2 " << std::endl;
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
