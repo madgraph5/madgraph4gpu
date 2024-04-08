@@ -305,6 +305,7 @@ else
 override OMPFLAGS = -fopenmp # enable OpenMP MT by default on all other platforms
 ###override OMPFLAGS = # disable OpenMP MT on all other platforms (default before #575)
 endif
+override OMPFLAGS =
 
 # Set the default AVX (vectorization) choice
 ifeq ($(AVX),)
