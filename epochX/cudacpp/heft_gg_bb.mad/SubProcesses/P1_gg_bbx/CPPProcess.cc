@@ -519,7 +519,7 @@ namespace mg5amcCpu
         ztempR_sv *= ( std::abs( ztempR_sv ) > minjamp );
         ztempI_sv *= ( std::abs( ztempI_sv ) > minjamp );
 #else
-        for( int i = 0; i < neppV; i++ )
+        for( int i = 0; i < neppV2; i++ ) // NB! This is neppV2 not neppV!
         {
           ztempR_sv[i] *= ( std::abs( ztempR_sv[i] ) > minjamp );
           ztempI_sv[i] *= ( std::abs( ztempI_sv[i] ) > minjamp );
