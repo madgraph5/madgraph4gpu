@@ -223,12 +223,12 @@ namespace mg5amcCpu
 #endif
 #endif /* clang-format on */
     mgDebug( 0, __FUNCTION__ );
-    bool debug = true;
+    //bool debug = true;
 #ifndef MGONGPUCPP_GPUIMPL
-    debug = ( ievt00 >= 64 && ievt00 < 80 && ihel == 3 ); // debug #831
-    if( debug ) printf( "calculate_wavefunctions: ievt00=%d\n", ievt00 );
+    //debug = ( ievt00 >= 64 && ievt00 < 80 && ihel == 3 ); // example: debug #831
+    //if( debug ) printf( "calculate_wavefunctions: ievt00=%d\n", ievt00 );
 #endif
-    if( debug ) printf( "calculate_wavefunctions: ihel=%d\n", ihel );
+    //if( debug ) printf( "calculate_wavefunctions: ihel=%d\n", ihel );
 
     // The variable nwf (which is specific to each P1 subdirectory, #644) is only used here
     // It is hardcoded here because various attempts to hardcode it in CPPProcess.h at generation time gave the wrong result...
@@ -350,14 +350,6 @@ namespace mg5amcCpu
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
 
-#ifndef MGONGPUCPP_GPUIMPL
-      if( debug )
-      {
-        std::cout << "DIAGRAM2 ievt00=" << ievt00 << " ihel=" << ihel << std::endl;
-        std::cout << "amp_sv: " << amp_sv[0] << std::endl;
-      }
-#endif
-
       // *** DIAGRAM 3 OF 4 ***
 
       // Wavefunction(s) for diagram number 3
@@ -370,14 +362,6 @@ namespace mg5amcCpu
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[0] -= amp_sv[0];
-
-#ifndef MGONGPUCPP_GPUIMPL
-      if( debug )
-      {
-        std::cout << "DIAGRAM3 ievt00=" << ievt00 << " ihel=" << ihel << std::endl;
-        std::cout << "amp_sv: " << amp_sv[0] << std::endl;
-      }
-#endif
 
       // *** DIAGRAM 4 OF 4 ***
 
@@ -416,17 +400,6 @@ namespace mg5amcCpu
       // Fix FPE #831 for FPTYPE=f (scalar and vector)
       underflowFTZ();
 #endif
-#endif
-
-#ifndef MGONGPUCPP_GPUIMPL
-      for( int icol = 0; icol < ncolor; icol++ )
-      {
-        if( debug && icol == 0 )
-        {
-          std::cout << "AFTER_FEYNMAN ievt00=" << ievt00 << " ihel=" << ihel << " icol=" << icol << std::endl;
-          std::cout << "jamp_sv: " << jamp_sv[icol] << std::endl;
-        }
-      }
 #endif
 
       // *** COLOR CHOICE BELOW ***
@@ -513,7 +486,7 @@ namespace mg5amcCpu
 #endif
       for( int icol = 0; icol < ncolor; icol++ )
       {
-        if( debug ) printf( "calculate_wavefunctions... icol=%d\n", icol );
+        //if( debug ) printf( "calculate_wavefunctions... icol=%d\n", icol );
 #ifndef MGONGPUCPP_GPUIMPL
         // === C++ START ===
         // Diagonal terms
@@ -536,22 +509,8 @@ namespace mg5amcCpu
           fptype2_sv jampRj_sv = (fptype2_sv)( cxreal( jamp_sv[jcol] ) );
           fptype2_sv jampIj_sv = (fptype2_sv)( cximag( jamp_sv[jcol] ) );
 #endif
-          if( debug && icol == 0 )
-          {
-            std::cout << "OFF-DIAGONAL ievt00=" << ievt00 << " ihel=" << ihel << " icol=" << icol << " jcol=" << jcol << std::endl;
-            std::cout << "ztempR_sv: " << ztempR_sv << std::endl;
-            std::cout << "ztempI_sv: " << ztempI_sv << std::endl;
-          }
           ztempR_sv += cf2.value[icol][jcol] * jampRj_sv;
           ztempI_sv += cf2.value[icol][jcol] * jampIj_sv;
-        }
-        if( debug && icol == 0 )
-        {
-          std::cout << "BEFORE_DELTAMES2 ievt00=" << ievt00 << " ihel=" << ihel << " icol=" << icol << std::endl;
-          std::cout << "jampRi_sv: " << jampRi_sv << std::endl;
-          std::cout << "ztempR_sv: " << ztempR_sv << std::endl;
-          std::cout << "jampIi_sv: " << jampIi_sv << std::endl;
-          std::cout << "ztempI_sv: " << ztempI_sv << std::endl;
         }
 #if not defined MGONGPUCPP_GPUIMPL and defined MGONGPU_FPTYPE2_FLOAT
         // Avoid underflow FPE #831 for ztemp (flush-to-zero ztemp values whose square is below FLT_MIN)
@@ -566,16 +525,7 @@ namespace mg5amcCpu
         }
 #endif
 #endif
-        if( debug && icol == 0 )
-        {
-          std::cout << "BEFORE_DELTAMES2_AFTERFTZ ievt00=" << ievt00 << " ihel=" << ihel << " icol=" << icol << std::endl;
-          std::cout << "jampRi_sv: " << jampRi_sv << std::endl;
-          std::cout << "ztempR_sv: " << ztempR_sv << std::endl;
-          std::cout << "jampIi_sv: " << jampIi_sv << std::endl;
-          std::cout << "ztempI_sv: " << ztempI_sv << std::endl;
-        }
         fptype2_sv deltaMEs2 = ( jampRi_sv * ztempR_sv + jampIi_sv * ztempI_sv );
-        if( debug && icol == 0 ) std::cout << "DEBUG2 " << std::endl;
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
         deltaMEs_previous += fpvsplit0( deltaMEs2 );
         deltaMEs += fpvsplit1( deltaMEs2 );
