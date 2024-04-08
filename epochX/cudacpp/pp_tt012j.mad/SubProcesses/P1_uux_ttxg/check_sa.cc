@@ -29,9 +29,7 @@
 
 #include <algorithm>
 #include <array>
-#include <cfenv> // for feenableexcept
 #include <cmath>
-#include <csignal> // for signal and SIGFPE
 #include <cstring>
 #include <fstream>
 #include <iomanip>
@@ -76,23 +74,6 @@ usage( char* argv0, int ret = 1 )
   return ret;
 }
 
-#ifdef MGONGPUCPP_GPUIMPL
-namespace mg5amcGpu
-#else
-namespace mg5amcCpu
-#endif
-{
-  inline void FPEhandler( int sig )
-  {
-#ifdef MGONGPUCPP_GPUIMPL
-    std::cerr << "Floating Point Exception (GPU)" << std::endl;
-#else
-    std::cerr << "Floating Point Exception (CPU)" << std::endl;
-#endif
-    exit( 0 );
-  }
-}
-
 int
 main( int argc, char** argv )
 {
@@ -101,18 +82,6 @@ main( int argc, char** argv )
   using namespace mg5amcGpu;
 #else
   using namespace mg5amcCpu;
-#endif
-
-  // Enable FPEs (test #701 and #733 - except on MacOS where feenableexcept is not defined #730)
-#ifndef __APPLE__
-  const char* enableFPEc = getenv( "CUDACPP_RUNTIME_ENABLEFPE" );
-  const bool enableFPE = ( enableFPEc != 0 ) && ( std::string( enableFPEc ) != "" );
-  if( enableFPE )
-  {
-    std::cout << "WARNING! CUDACPP_RUNTIME_ENABLEFPE is set: enable Floating Point Exceptions" << std::endl;
-    feenableexcept( FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW ); // debug #701
-    signal( SIGFPE, FPEhandler );
-  }
 #endif
 
   // DEFAULTS FOR COMMAND LINE ARGUMENTS

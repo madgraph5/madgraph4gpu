@@ -33,6 +33,8 @@
 
 #include <algorithm>
 #include <array>
+#include <cfenv>  // for feenableexcept, fegetexcept and FE_XXX
+#include <cfloat> // for FLT_MIN
 #include <cstring>
 #include <iomanip>
 #include <iostream>
@@ -41,6 +43,46 @@
 // Test ncu metrics for CUDA thread divergence
 #undef MGONGPU_TEST_DIVERGENCE
 //#define MGONGPU_TEST_DIVERGENCE 1
+
+//--------------------------------------------------------------------------
+
+// Enable FPEs (see #701, #733, #831 - except on MacOS where feenableexcept is not defined #730)
+inline void
+fpeEnable()
+{
+  static bool first = true; // FIXME: quick and dirty hack to do this only once (can be removed when separate C++/CUDA builds are implemented)
+  if( !first ) return;
+  first = false;
+#ifndef __APPLE__ // on MacOS feenableexcept is not defined #730
+  //int fpes = fegetexcept();
+  //std::cout << "fpeEnable: analyse fegetexcept()=" << fpes << std::endl;
+  //std::cout << "fpeEnable:     FE_DIVBYZERO is" << ( ( fpes & FE_DIVBYZERO ) ? " " : " NOT " ) << "enabled" << std::endl;
+  //std::cout << "fpeEnable:     FE_INEXACT is" << ( ( fpes & FE_INEXACT ) ? " " : " NOT " ) << "enabled" << std::endl;
+  //std::cout << "fpeEnable:     FE_INVALID is" << ( ( fpes & FE_INVALID ) ? " " : " NOT " ) << "enabled" << std::endl;
+  //std::cout << "fpeEnable:     FE_OVERFLOW is" << ( ( fpes & FE_OVERFLOW ) ? " " : " NOT " ) << "enabled" << std::endl;
+  //std::cout << "fpeEnable:     FE_UNDERFLOW is" << ( ( fpes & FE_UNDERFLOW ) ? " " : " NOT " ) << "enabled" << std::endl;
+  const char* enableFPEc = getenv( "CUDACPP_RUNTIME_ENABLEFPE" );
+  const bool enableFPE = ( enableFPEc != 0 ) && ( std::string( enableFPEc ) != "" );
+  if( enableFPE )
+  {
+    std::cout << "WARNING! CUDACPP_RUNTIME_ENABLEFPE is set: enable Floating Point Exceptions" << std::endl;
+    feenableexcept( FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW ); // debug #701
+    //fpes = fegetexcept();
+    //std::cout << "fpeEnable: analyse fegetexcept()=" << fpes << std::endl;
+    //std::cout << "fpeEnable:     FE_DIVBYZERO is" << ( ( fpes & FE_DIVBYZERO ) ? " " : " NOT " ) << "enabled" << std::endl;
+    //std::cout << "fpeEnable:     FE_INEXACT is" << ( ( fpes & FE_INEXACT ) ? " " : " NOT " ) << "enabled" << std::endl;
+    //std::cout << "fpeEnable:     FE_INVALID is" << ( ( fpes & FE_INVALID ) ? " " : " NOT " ) << "enabled" << std::endl;
+    //std::cout << "fpeEnable:     FE_OVERFLOW is" << ( ( fpes & FE_OVERFLOW ) ? " " : " NOT " ) << "enabled" << std::endl;
+    //std::cout << "fpeEnable:     FE_UNDERFLOW is" << ( ( fpes & FE_UNDERFLOW ) ? " " : " NOT " ) << "enabled" << std::endl;
+  }
+  else
+  {
+    //std::cout << "DEBUG: CUDACPP_RUNTIME_ENABLEFPE is NOT set, do not enable Floating Point Exceptions" << std::endl;
+  }
+#else
+  //std::cout << "DEBUG: fegetexcept and feenableexcept are not available on MacOS, keep default FPE settings" << std::endl;
+#endif
+}
 
 //==========================================================================
 // Class member functions for calculating the matrix elements for
@@ -185,10 +227,12 @@ namespace mg5amcCpu
 #endif
 #endif /* clang-format on */
     mgDebug( 0, __FUNCTION__ );
-    //printf( "calculate_wavefunctions: ihel=%2d\n", ihel );
+    //bool debug = true;
 #ifndef MGONGPUCPP_GPUIMPL
-    //printf( "calculate_wavefunctions: ievt00=%d\n", ievt00 );
+    //debug = ( ievt00 >= 64 && ievt00 < 80 && ihel == 3 ); // example: debug #831
+    //if( debug ) printf( "calculate_wavefunctions: ievt00=%d\n", ievt00 );
 #endif
+    //if( debug ) printf( "calculate_wavefunctions: ihel=%d\n", ihel );
 
     // The variable nwf (which is specific to each P1 subdirectory, #644) is only used here
     // It is hardcoded here because various attempts to hardcode it in CPPProcess.h at generation time gave the wrong result...
@@ -820,6 +864,32 @@ namespace mg5amcCpu
       jamp_sv[9] += 1. / 2. * amp_sv[0];
       jamp_sv[10] += 1. / 2. * amp_sv[0];
 
+#if not defined MGONGPUCPP_GPUIMPL and defined MGONGPU_FPTYPE2_FLOAT
+      // Avoid underflow FPE #831 for jamp (flush-to-zero jamp values whose square is below FLT_MIN)
+      constexpr fptype2 minjamp = 1.1 * constexpr_sqrt( FLT_MIN );
+      auto underflowFTZ = [&jamp_sv]()
+      {
+        for( int icolC = 0; icolC < ncolor; icolC++ )
+        {
+#ifndef MGONGPU_CPPSIMD
+          jamp_sv[icolC] = cxtype( cxreal( jamp_sv[icolC] ) * ( std::abs( cxreal( jamp_sv[icolC] ) ) > minjamp ),
+                                   cximag( jamp_sv[icolC] ) * ( std::abs( cximag( jamp_sv[icolC] ) ) > minjamp ) );
+#else
+          for( int i = 0; i < neppV; i++ )
+            jamp_sv[icolC][i] = cxtype( cxreal( jamp_sv[icolC][i] ) * ( std::abs( cxreal( jamp_sv[icolC][i] ) ) > minjamp ),
+                                        cximag( jamp_sv[icolC][i] ) * ( std::abs( cximag( jamp_sv[icolC][i] ) ) > minjamp ) );
+#endif
+        }
+      };
+#endif
+
+#ifndef MGONGPUCPP_GPUIMPL
+#ifdef MGONGPU_FPTYPE_FLOAT
+      // Fix FPE #831 for FPTYPE=f (scalar and vector)
+      underflowFTZ();
+#endif
+#endif
+
       // *** COLOR CHOICE BELOW ***
       // Store the leading color flows for choice of color
       if( jamp2_sv ) // disable color choice if nullptr
@@ -871,6 +941,13 @@ namespace mg5amcCpu
       static constexpr auto cf2 = TriangularNormalizedColorMatrix();
 #endif
 
+#ifndef MGONGPUCPP_GPUIMPL
+#if defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+      // Fix FPE #831 for FPTYPE=m (scalar and vector)
+      underflowFTZ();
+#endif
+#endif
+
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
       if( iParity == 0 ) // NB: first page is 0! skip even pages, compute on odd pages
       {
@@ -906,6 +983,7 @@ namespace mg5amcCpu
 #endif
       for( int icol = 0; icol < ncolor; icol++ )
       {
+        //if( debug ) printf( "calculate_wavefunctions... icol=%d\n", icol );
 #ifndef MGONGPUCPP_GPUIMPL
         // === C++ START ===
         // Diagonal terms
@@ -931,6 +1009,19 @@ namespace mg5amcCpu
           ztempR_sv += cf2.value[icol][jcol] * jampRj_sv;
           ztempI_sv += cf2.value[icol][jcol] * jampIj_sv;
         }
+#if not defined MGONGPUCPP_GPUIMPL and defined MGONGPU_FPTYPE2_FLOAT
+        // Avoid underflow FPE #831 for ztemp (flush-to-zero ztemp values whose square is below FLT_MIN)
+#ifndef MGONGPU_CPPSIMD
+        ztempR_sv *= ( std::abs( ztempR_sv ) > minjamp );
+        ztempI_sv *= ( std::abs( ztempI_sv ) > minjamp );
+#else
+        for( int i = 0; i < neppV; i++ )
+        {
+          ztempR_sv[i] *= ( std::abs( ztempR_sv[i] ) > minjamp );
+          ztempI_sv[i] *= ( std::abs( ztempI_sv[i] ) > minjamp );
+        }
+#endif
+#endif
         fptype2_sv deltaMEs2 = ( jampRi_sv * ztempR_sv + jampIi_sv * ztempI_sv );
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
         deltaMEs_previous += fpvsplit0( deltaMEs2 );
@@ -1065,6 +1156,7 @@ namespace mg5amcCpu
 #else
     memcpy( cHel, tHel, ncomb * npar * sizeof( short ) );
 #endif
+    fpeEnable(); // enable FPEs if CUDACPP_RUNTIME_ENABLEFPE is set
   }
 
   //--------------------------------------------------------------------------

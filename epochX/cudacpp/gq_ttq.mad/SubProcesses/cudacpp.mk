@@ -86,7 +86,7 @@ TESTDIR =
 endif
 ifneq ($(GTEST_ROOT),)
 GTESTLIBDIR = $(GTEST_ROOT)/lib64/
-GTESTLIBS = $(GTESTLIBDIR)/libgtest.a $(GTESTLIBDIR)/libgtest_main.a
+GTESTLIBS = $(GTESTLIBDIR)/libgtest.a
 GTESTINC = -I$(GTEST_ROOT)/include
 else
 GTESTLIBDIR =
@@ -833,7 +833,8 @@ endif
 
 $(testmain): $(GTESTLIBS)
 $(testmain): INCFLAGS +=  $(GTESTINC)
-$(testmain): LIBFLAGS += -L$(GTESTLIBDIR) -lgtest -lgtest_main
+$(testmain): LIBFLAGS += -L$(GTESTLIBDIR) -lgtest
+###$(testmain): LIBFLAGS += -lgtest_main # no longer necessary since we added main() to testxxx.cc
 
 ifneq ($(OMPFLAGS),)
 ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
