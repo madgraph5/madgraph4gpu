@@ -566,6 +566,14 @@ namespace mg5amcCpu
         }
 #endif
 #endif
+        if( debug && icol == 0 )
+        {
+          std::cout << "BEFORE_DELTAMES2_AFTERFTZ ievt00=" << ievt00 << " ihel=" << ihel << " icol=" << icol << std::endl;
+          std::cout << "jampRi_sv: " << jampRi_sv << std::endl;
+          std::cout << "ztempR_sv: " << ztempR_sv << std::endl;
+          std::cout << "jampIi_sv: " << jampIi_sv << std::endl;
+          std::cout << "ztempI_sv: " << ztempI_sv << std::endl;
+        }
         fptype2_sv deltaMEs2 = ( jampRi_sv * ztempR_sv + jampIi_sv * ztempI_sv );
         if( debug && icol == 0 ) std::cout << "DEBUG2 " << std::endl;
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
