@@ -64,7 +64,7 @@ inline void fpeEnable()
   const bool enableFPE = ( enableFPEc != 0 ) && ( std::string( enableFPEc ) != "" );
   if( enableFPE )
   {
-    std::cout << "fpeEnable: CUDACPP_RUNTIME_ENABLEFPE is set, enable additional FPEs if not already done" << std::endl;
+    std::cout << "WARNING! CUDACPP_RUNTIME_ENABLEFPE is set: enable Floating Point Exceptions" << std::endl;
     feenableexcept( FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW ); // debug #701
     //fpes = fegetexcept();
     //std::cout << "fpeEnable: analyse fegetexcept()=" << fpes << std::endl;
@@ -76,10 +76,10 @@ inline void fpeEnable()
   }
   else
   {
-    std::cout << "fpeEnable: CUDACPP_RUNTIME_ENABLEFPE is NOT set, do not enable additional FPEs" << std::endl;
+    //std::cout << "DEBUG: CUDACPP_RUNTIME_ENABLEFPE is NOT set, do not enable Floating Point Exceptions" << std::endl;
   }
 #else
-  std::cout << "fpeEnable: fegetexcept and feenableexcept are not available on MacOS, keep default FPE settings" << std::endl;
+  //std::cout << "DEBUG: fegetexcept and feenableexcept are not available on MacOS, keep default FPE settings" << std::endl;
 #endif
 }
 
