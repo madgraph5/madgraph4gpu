@@ -1342,10 +1342,12 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
 #endif
 #endif /* clang-format on */
     mgDebug( 0, __FUNCTION__ );
-    //printf( \"calculate_wavefunctions: ihel=%2d\\n\", ihel );
+    //bool debug = true;
 #ifndef MGONGPUCPP_GPUIMPL
-    //printf( \"calculate_wavefunctions: ievt00=%d\\n\", ievt00 );
-#endif""")
+    //debug = ( ievt00 >= 64 && ievt00 < 80 && ihel == 3 ); // example: debug #831
+    //if( debug ) printf( "calculate_wavefunctions: ievt00=%d\\n", ievt00 );
+#endif
+    //if( debug ) printf( "calculate_wavefunctions: ihel=%d\\n", ihel );""")
             nwavefuncs = self.matrix_elements[0].get_number_of_wavefunctions()
             ret_lines.append("""
     // The variable nwf (which is specific to each P1 subdirectory, #644) is only used here
