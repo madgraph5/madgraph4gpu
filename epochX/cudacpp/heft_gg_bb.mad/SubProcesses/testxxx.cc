@@ -19,7 +19,7 @@
 
 #include <array>
 #include <cassert>
-#include <cfenv> // debug #701 (see https://stackoverflow.com/a/17473528)
+#include <cfenv> // for signal and SIGFPE (see https://stackoverflow.com/a/17473528)
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -429,46 +429,12 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
 
 //==========================================================================
 
-inline void fpeEnable()
-{
-#ifndef __APPLE__ // test #701 (except on MacOS where feenableexcept is not defined #730)
-  int fpes = fegetexcept();
-  std::cout << "fpeEnable: analyse fegetexcept()=" << fpes << std::endl;
-  std::cout << "fpeEnable:     FE_DIVBYZERO is" << ( ( fpes & FE_DIVBYZERO ) ? " " : " NOT " ) << "enabled" << std::endl;
-  std::cout << "fpeEnable:     FE_INEXACT is" << ( ( fpes & FE_INEXACT ) ? " " : " NOT " ) << "enabled" << std::endl;
-  std::cout << "fpeEnable:     FE_INVALID is" << ( ( fpes & FE_INVALID ) ? " " : " NOT " ) << "enabled" << std::endl;
-  std::cout << "fpeEnable:     FE_OVERFLOW is" << ( ( fpes & FE_OVERFLOW ) ? " " : " NOT " ) << "enabled" << std::endl;
-  std::cout << "fpeEnable:     FE_UNDERFLOW is" << ( ( fpes & FE_UNDERFLOW ) ? " " : " NOT " ) << "enabled" << std::endl;
-  const char* enableFPEc = getenv( "CUDACPP_RUNTIME_ENABLEFPE" );
-  const bool enableFPE = ( enableFPEc != 0 ) && ( std::string( enableFPEc ) != "" );
-  if( enableFPE )
-  {
-    std::cout << "fpeEnable: CUDACPP_RUNTIME_ENABLEFPE is set, enable additional FPEs if not already done" << std::endl;
-    feenableexcept( FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW ); // debug #701
-    fpes = fegetexcept();
-    std::cout << "fpeEnable: analyse fegetexcept()=" << fpes << std::endl;
-    std::cout << "fpeEnable:     FE_DIVBYZERO is" << ( ( fpes & FE_DIVBYZERO ) ? " " : " NOT " ) << "enabled" << std::endl;
-    std::cout << "fpeEnable:     FE_INEXACT is" << ( ( fpes & FE_INEXACT ) ? " " : " NOT " ) << "enabled" << std::endl;
-    std::cout << "fpeEnable:     FE_INVALID is" << ( ( fpes & FE_INVALID ) ? " " : " NOT " ) << "enabled" << std::endl;
-    std::cout << "fpeEnable:     FE_OVERFLOW is" << ( ( fpes & FE_OVERFLOW ) ? " " : " NOT " ) << "enabled" << std::endl;
-    std::cout << "fpeEnable:     FE_UNDERFLOW is" << ( ( fpes & FE_UNDERFLOW ) ? " " : " NOT " ) << "enabled" << std::endl;
-  }
-  else
-  {
-    std::cout << "fpeEnable: CUDACPP_RUNTIME_ENABLEFPE is NOT set, do not enable additional FPEs" << std::endl;
-  }
-#else
-  std::cout << "fpeEnable: fegetexcept and feenableexcept are not available on MacOS, keep default FPE settings" << std::endl;
-#endif
-}
-
 // Main function (see https://google.github.io/googletest/primer.html#writing-the-main-function)
 // (NB: currently a single main links both C++ and CUDA tests - define it only in the C++ testxxx.o)
 #ifndef MGONGPUCPP_GPUIMPL
 int
 main( int argc, char** argv )
 {
-  fpeEnable(); // enable FPEs if CUDACPP_RUNTIME_ENABLEFPE is set
   testing::InitGoogleTest( &argc, argv );
   return RUN_ALL_TESTS();
 }

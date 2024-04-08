@@ -33,6 +33,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cfenv> // for feenableexcept, fegetexcept and FE_XXX
 #include <cfloat> // for FLT_MIN
 #include <cstring>
 #include <iomanip>
@@ -42,6 +43,45 @@
 // Test ncu metrics for CUDA thread divergence
 #undef MGONGPU_TEST_DIVERGENCE
 //#define MGONGPU_TEST_DIVERGENCE 1
+
+//--------------------------------------------------------------------------
+
+// Enable FPEs (see #701, #733, #831 - except on MacOS where feenableexcept is not defined #730)
+inline void fpeEnable()
+{
+  static bool first = true; // FIXME: quick and dirty hack to do this only once (can be removed when separate C++/CUDA builds are implemented)
+  if( ! first ) return;
+  first = false;
+#ifndef __APPLE__ // on MacOS feenableexcept is not defined #730
+  int fpes = fegetexcept();
+  std::cout << "fpeEnable: analyse fegetexcept()=" << fpes << std::endl;
+  std::cout << "fpeEnable:     FE_DIVBYZERO is" << ( ( fpes & FE_DIVBYZERO ) ? " " : " NOT " ) << "enabled" << std::endl;
+  std::cout << "fpeEnable:     FE_INEXACT is" << ( ( fpes & FE_INEXACT ) ? " " : " NOT " ) << "enabled" << std::endl;
+  std::cout << "fpeEnable:     FE_INVALID is" << ( ( fpes & FE_INVALID ) ? " " : " NOT " ) << "enabled" << std::endl;
+  std::cout << "fpeEnable:     FE_OVERFLOW is" << ( ( fpes & FE_OVERFLOW ) ? " " : " NOT " ) << "enabled" << std::endl;
+  std::cout << "fpeEnable:     FE_UNDERFLOW is" << ( ( fpes & FE_UNDERFLOW ) ? " " : " NOT " ) << "enabled" << std::endl;
+  const char* enableFPEc = getenv( "CUDACPP_RUNTIME_ENABLEFPE" );
+  const bool enableFPE = ( enableFPEc != 0 ) && ( std::string( enableFPEc ) != "" );
+  if( enableFPE )
+  {
+    std::cout << "fpeEnable: CUDACPP_RUNTIME_ENABLEFPE is set, enable additional FPEs if not already done" << std::endl;
+    feenableexcept( FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW ); // debug #701
+    fpes = fegetexcept();
+    std::cout << "fpeEnable: analyse fegetexcept()=" << fpes << std::endl;
+    std::cout << "fpeEnable:     FE_DIVBYZERO is" << ( ( fpes & FE_DIVBYZERO ) ? " " : " NOT " ) << "enabled" << std::endl;
+    std::cout << "fpeEnable:     FE_INEXACT is" << ( ( fpes & FE_INEXACT ) ? " " : " NOT " ) << "enabled" << std::endl;
+    std::cout << "fpeEnable:     FE_INVALID is" << ( ( fpes & FE_INVALID ) ? " " : " NOT " ) << "enabled" << std::endl;
+    std::cout << "fpeEnable:     FE_OVERFLOW is" << ( ( fpes & FE_OVERFLOW ) ? " " : " NOT " ) << "enabled" << std::endl;
+    std::cout << "fpeEnable:     FE_UNDERFLOW is" << ( ( fpes & FE_UNDERFLOW ) ? " " : " NOT " ) << "enabled" << std::endl;
+  }
+  else
+  {
+    std::cout << "fpeEnable: CUDACPP_RUNTIME_ENABLEFPE is NOT set, do not enable additional FPEs" << std::endl;
+  }
+#else
+  std::cout << "fpeEnable: fegetexcept and feenableexcept are not available on MacOS, keep default FPE settings" << std::endl;
+#endif
+}
 
 //==========================================================================
 // Class member functions for calculating the matrix elements for
@@ -571,6 +611,7 @@ namespace mg5amcCpu
 #else
     memcpy( cHel, tHel, ncomb * npar * sizeof( short ) );
 #endif
+    fpeEnable(); // enable FPEs if CUDACPP_RUNTIME_ENABLEFPE is set
   }
 
   //--------------------------------------------------------------------------
