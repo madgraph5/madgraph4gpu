@@ -89,21 +89,6 @@ namespace mg5amcCpu
 #else
     std::cerr << "Floating Point Exception (CPU)" << std::endl;
 #endif
-#ifndef __APPLE__ // on MacOS feenableexcept is not defined #730
-    if( std::fetestexcept( FE_DIVBYZERO ) )
-      std::cerr << "Floating Point Exception: FE_DIVBYZERO reported" << std::endl;
-    else if( std::fetestexcept( FE_INVALID ) )
-      std::cerr << "Floating Point Exception: FE_INVALID reported" << std::endl;
-    else if( std::fetestexcept( FE_OVERFLOW ) )
-      std::cerr << "Floating Point Exception: FE_OVERFLOW reported" << std::endl;
-    else if( std::fetestexcept( FE_UNDERFLOW ) )
-      std::cerr << "Floating Point Exception: FE_UNDERFLOW reported" << std::endl;
-    //else if( std::fetestexcept( FE_INEXACT ) ) // this should not throw a signal?
-    //  std::cerr << "Floating Point Exception: FE_INEXACT reported" << std::endl;
-    else
-      std::cerr << "Floating Point Exception: could not determine which FPE was reported" << std::endl;    
-#endif
-    psignal( sig, "FPEhandler" );
     exit( 0 );
   }
 }
