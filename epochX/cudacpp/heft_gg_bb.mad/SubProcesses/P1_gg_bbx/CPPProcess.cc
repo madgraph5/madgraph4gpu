@@ -392,12 +392,11 @@ namespace mg5amcCpu
 #endif
       jamp_sv[1] -= amp_sv[0];
 
-#ifndef MGONGPUCPP_GPUIMPL
-#ifdef MGONGPU_FPTYPE2_FLOAT
-      // Avoid underflow FPE #831 (flush-to-zero jamp values whose square is below FLT_MIN)
+#if not defined MGONGPUCPP_GPUIMPL and defined MGONGPU_FPTYPE2_FLOAT
+      // Avoid underflow FPE #831 for jamp (flush-to-zero jamp values whose square is below FLT_MIN)
+      constexpr fptype2 minjamp = 1.1 * constexpr_sqrt( FLT_MIN );
       auto underflowFTZ = [&jamp_sv]()
       {
-        constexpr fptype2 minjamp = 1.1 * constexpr_sqrt( FLT_MIN );
         for( int icolC = 0; icolC < ncolor; icolC++ )
         {
 #ifndef MGONGPU_CPPSIMD
@@ -405,14 +404,11 @@ namespace mg5amcCpu
                                    cximag( jamp_sv[icolC] ) * ( std::abs( cximag( jamp_sv[icolC] ) ) > minjamp ) );
 #else
           for( int i = 0; i < neppV; i++ )
-          {
             jamp_sv[icolC][i] = cxtype( cxreal( jamp_sv[icolC][i] ) * ( std::abs( cxreal( jamp_sv[icolC][i] ) ) > minjamp ),
                                         cximag( jamp_sv[icolC][i] ) * ( std::abs( cximag( jamp_sv[icolC][i] ) ) > minjamp ) );
-          }
 #endif
         }
       };
-#endif
 #endif
 
 #ifndef MGONGPUCPP_GPUIMPL
