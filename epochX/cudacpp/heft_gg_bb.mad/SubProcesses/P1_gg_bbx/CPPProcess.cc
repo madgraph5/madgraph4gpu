@@ -33,7 +33,7 @@
 
 #include <algorithm>
 #include <array>
-#include <cfenv> // for feenableexcept, fegetexcept and FE_XXX
+#include <cfenv>  // for feenableexcept, fegetexcept and FE_XXX
 #include <cfloat> // for FLT_MIN
 #include <cstring>
 #include <iomanip>
@@ -47,10 +47,11 @@
 //--------------------------------------------------------------------------
 
 // Enable FPEs (see #701, #733, #831 - except on MacOS where feenableexcept is not defined #730)
-inline void fpeEnable()
+inline void
+fpeEnable()
 {
   static bool first = true; // FIXME: quick and dirty hack to do this only once (can be removed when separate C++/CUDA builds are implemented)
-  if( ! first ) return;
+  if( !first ) return;
   first = false;
 #ifndef __APPLE__ // on MacOS feenableexcept is not defined #730
   //int fpes = fegetexcept();
