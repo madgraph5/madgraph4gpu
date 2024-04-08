@@ -38,24 +38,17 @@ namespace mg5amcGpu
 namespace mg5amcCpu
 #endif
 {
-  std::string FPEhandlerMessage = "unknown";
-  int FPEhandlerIevt = -1;
-  inline void FPEhandlerTestxxx( int sig )
+  std::string fpeHandlerMessage = "unknown";
+  int fpeHandlerIevt = -1;
+  inline void fpeHandlerTestxxx( int sig )
   {
 #ifdef MGONGPUCPP_GPUIMPL
-    std::cerr << "Floating Point Exception (GPU): '" << FPEhandlerMessage << "' ievt=" << FPEhandlerIevt << std::endl;
+    std::cerr << "Floating Point Exception (GPU): '" << fpeHandlerMessage << "' ievt=" << fpeHandlerIevt << std::endl;
 #else
-    std::cerr << "Floating Point Exception (CPU neppV=" << neppV << "): '" << FPEhandlerMessage << "' ievt=" << FPEhandlerIevt << std::endl;
+    std::cerr << "Floating Point Exception (CPU neppV=" << neppV << "): '" << fpeHandlerMessage << "' ievt=" << fpeHandlerIevt << std::endl;
 #endif
     exit( 1 );
   }
-}
-
-inline void
-FPEhandlerGeneric( int sig )
-{
-  std::cerr << "Floating Point Exception" << std::endl;
-  exit( 1 );
 }
 
 TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
@@ -66,7 +59,7 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
   using namespace mg5amcCpu;
 #endif
 #ifndef __APPLE__ // test #701 (except on MacOS where feenableexcept is not defined #730)
-  signal( SIGFPE, FPEhandlerTestxxx );
+  auto fpeHandlerDefault = signal( SIGFPE, fpeHandlerTestxxx );
 #endif
   constexpr bool dumpEvents = false;       // dump the expected output of the test?
   constexpr bool testEvents = !dumpEvents; // run the test?
@@ -295,8 +288,8 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
   {
     if( debug ) std::cout << "Prepare test " << xxx << " ievt=" << ievt << std::endl;
     resetHstMomentaToPar0();
-    FPEhandlerMessage = xxx;
-    FPEhandlerIevt = ievt;
+    fpeHandlerMessage = xxx;
+    fpeHandlerIevt = ievt;
     if( std::string( xxx ) == "ipzxxx" || std::string( xxx ) == "opzxxx" || std::string( xxx ) == "imzxxx" || std::string( xxx ) == "omzxxx" || std::string( xxx ) == "ixzxxx" || std::string( xxx ) == "oxzxxx" )
     {
       // Modify hstMomenta so that ALL events have the momenta of a single ievt
@@ -430,7 +423,7 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
     std::cout << "INFO: New reference data dumped to file '" << dumpFileName << "'" << std::endl;
   }
 #ifndef __APPLE__ // test #701 (except on MacOS where feenableexcept is not defined #730)
-  signal( SIGFPE, FPEhandlerGeneric );
+  signal( SIGFPE, fpeHandlerDefault );
 #endif
 }
 
@@ -448,7 +441,6 @@ main( int argc, char** argv )
   if( enableFPE )
   {
     feenableexcept( FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW ); // debug #701
-    signal( SIGFPE, FPEhandlerGeneric );
   }
 #endif
   testing::InitGoogleTest( &argc, argv );
