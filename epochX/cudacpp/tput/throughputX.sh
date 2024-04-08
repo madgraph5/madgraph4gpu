@@ -545,7 +545,7 @@ function cmpExe() {
     echo "ERROR! Fortran calculation (F77${tag} crashed"
   else
     # NB skip python comparison if Fortran returned NaN or crashed, otherwise python returns an error status and the following tests are not executed
-    python3 -c "me1=${me1}; me2=${me2}; reldif=abs((me2-me1)/me1); print('Relative difference =', reldif); ok = reldif <= 5E-3; print ( '%s (relative difference %s 5E-3)' % ( ('OK','<=') if ok else ('ERROR','>') ) )"
+    python3 -c "me1=${me1}; me2=${me2}; reldif=abs((me2-me1)/me1); print('Relative difference =', reldif); ok = reldif <= 5E-3; print ( '%s (relative difference %s 5E-3)' % ( ('OK','<=') if ok else ('ERROR','>') ) )" 2>&1
   fi
 }
 
