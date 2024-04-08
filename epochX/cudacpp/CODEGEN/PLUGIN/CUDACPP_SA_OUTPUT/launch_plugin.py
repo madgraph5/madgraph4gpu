@@ -57,7 +57,6 @@ template_on = \
 """#***********************************************************************
 # SIMD/GPU configuration for the CUDACPP plugin
 #************************************************************************
- %(floating_type)s = floating_type ! floating point precision: f (single), d (double), m (mixed: double for amplitudes, single for colors)
  %(avx_level)s = avx_level ! SIMD vectorization level: none, sse4, avx2, 512y, 512z, auto
  %(cudacpp_backend)s = cudacpp_backend ! CUDACPP backend: FORTRAN, CPP, CUDA
 """
@@ -96,9 +95,12 @@ class CPPRunCard(banner_mod.RunCardLO):
 
     def default_setup(self):
         super().default_setup()
-        self.add_param('floating_type', 'd', include=False, hidden=False,
+        self.add_param('floating_type', 'm', include=False,
                        fct_mod=(self.reset_makeopts,(),{}),
-                       allowed=['m','d','f'])
+                       allowed=['m','d','f'],
+                       hidden=True,
+                       comment='floating point precision: f (single), d (double), m (mixed: double for amplitudes, single for colors)'
+                       )
         self.add_param('avx_level', 'auto', include=False, hidden=False,
                        fct_mod=(self.reset_makeopts,(),{}),
                        allowed=['auto', 'none', 'sse4', 'avx2','512y','512z'])
