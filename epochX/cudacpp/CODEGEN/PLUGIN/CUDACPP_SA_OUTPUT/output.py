@@ -389,7 +389,7 @@ class GPU_ProcessExporter(PLUGIN_ProcessExporter_MadEvent):
     
     def change_output_args(args, cmd):
         """ """
-        cmd._export_format = 'plugin'
+        cmd._export_format = 'madevent'
         cmd._export_plugin = FortranExporterBridge
 
         args.append('--hel_recycling=False')
