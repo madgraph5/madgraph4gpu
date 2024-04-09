@@ -119,8 +119,8 @@ else
 fi
 ended6="$cmd\nENDED(6) AT $(date) [Status=$status]"
 
-# (102/102) Six extra logs (double/float x hrd0/hrd1 x inl0) only in the four BSM processes
-cmd="./tput/teeThroughputX.sh -flt -hrd -makej -susyggtt -susyggt1t1 -smeftggtttt -heftggbb -makeclean ${opts}"
+# (102/102) Six extra logs (double/float/mixed x hrd0/hrd1 x inl0) only in the four BSM processes
+cmd="./tput/teeThroughputX.sh -mix -hrd -makej -susyggtt -susyggt1t1 -smeftggtttt -heftggbb -makeclean ${opts}"
 tmp3=$(mktemp)
 if [ "${bsm}" != "-nobsm" ]; then
   $cmd; status=$?
