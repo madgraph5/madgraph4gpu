@@ -9,6 +9,7 @@ host=$(hostname)
 if [ "${host/juwels}" != "${host}" ]; then ${scrdir}/juwelspatch.sh; fi # workaround for #498
 
 short=0
+bsm=
 flts=-mix # "d f m" (alternative: -flt i.e. "d f")
 makeclean=
 rmrdat=
@@ -27,20 +28,31 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-no10x" ]; then
     add10x=""
     shift
+  elif [ "$1" == "-bsmonly" ] && [ "$bsm" != "-nobsm" ]; then
+    bsm=$1
+    shift
+  elif [ "$1" == "-nobsm" ] && [ "$bsm" != "-bsmonly" ]; then
+    bsm=$1
+    shift
   else
-    echo "Usage: $0 [-short|-ggttggg] [-makeclean] [-no10x]"
+    echo "Usage: $0 [-short|-ggttggg] [-bsmonly|-nobsm] [-makeclean] [-no10x]"
     exit 1
   fi
 done
 
-if [ "$short" == "1" ]; then
-  ${scrdir}/teeMadX.sh -eemumu -ggtt -ggttg -ggttgg -gqttq $flts $makeclean $rmrdat $add10x
-elif [ "$short" == "-1" ]; then
-  ${scrdir}/teeMadX.sh -ggttggg $flts $makeclean $rmrdat $add10x
-else
-  ${scrdir}/teeMadX.sh -eemumu -ggtt -ggttg -ggttgg -gqttq -ggttggg $flts $makeclean $rmrdat $add10x
+if [ "${bsm}" != "-bsmonly" ]; then
+  if [ "$short" == "1" ]; then
+    ${scrdir}/teeMadX.sh -eemumu -ggtt -ggttg -ggttgg -gqttq $flts $makeclean $rmrdat $add10x
+  elif [ "$short" == "-1" ]; then
+    ${scrdir}/teeMadX.sh -ggttggg $flts $makeclean $rmrdat $add10x
+  else
+    ${scrdir}/teeMadX.sh -eemumu -ggtt -ggttg -ggttgg -gqttq -ggttggg $flts $makeclean $rmrdat $add10x
+  fi
 fi
 
+if [ "${bsm}" != "-nobsm" ]; then
+  ${scrdir}/teeMadX.sh -susyggtt -susyggt1t1 $flts $makeclean $rmrdat $add10x
+fi
 
 # Print out the number of "OK!"s in each log (expect 24)
 echo
