@@ -13,7 +13,7 @@
 #ifndef _RWGT_INSTANCE_H_
 #define _RWGT_INSTANCE_H_
 
-#include "teawREX.hpp"
+#include "teawREX.h"
 
 namespace rwgt{
 
@@ -21,49 +21,24 @@ namespace rwgt{
 
     //ZW: Function for calculating the number of remaining events in a warp
     // in order to pad the input arrays to a multiple of the warp size
-    unsigned int warpRemain( unsigned int nEvt, unsigned int nWarp = 32 ){
-        return (nWarp - ( nEvt % nWarp )) % nWarp;
-    }
-
-    //ZW: Function for padding the input arrays to a multiple of the warp size
-    template<typename T>
-    std::shared_ptr<std::vector<T>> warpPad( std::vector<T>& input, unsigned int nWarp = 32 ){
-        auto nEvt = input->size();
-        auto nWarpRemain = warpRemain( nEvt, nWarp );
-        auto fauxNEvt = nEvt + nWarpRemain;
-        auto output = std::make_shared<std::vector<T>>( fauxNEvt );
-        std::copy( input.begin(), input.end(), output->begin());
-        return output;
-    }
+    unsigned int warpRemain( unsigned int nEvt, unsigned int nWarp = 32 );
 
     struct instance{
-        std::vector<std::pair<int,int>> procEvent;
+        std::vector<std::pair<int,int>> procEventInt;
+        std::vector<std::pair<std::string,std::string>> procEventStr;
         REX::event process;
         REX::teaw::amplitude bridgeCall;
-        instance(){}
-        instance( std::vector<std::pair<int,int>>& event){
-            this->procEvent = event;
-            this->process = REX::event( event );
-        }
-        instance( std::vector<std::pair<int,int>>& event, REX::teaw::amplitude& amp ){
-            this->procEvent = event;
-            this->process = REX::event( event );
-            bridgeCall = amp;
-        }
-        void setProc( std::vector<std::pair<int,int>>& event ){
-            this->procEvent = event;
-            this->process = REX::event( event );
-        }
-        void setAmp( REX::teaw::amplitude& amp ){
-            bridgeCall = amp;
-        }
-        std::shared_ptr<std::vector<FORTRANFPTYPE>> ampEval( std::vector<double>& momenta, std::vector<double>& alphaS ){
-            return bridgeCall( momenta, alphaS );
-        }
+        instance();
+        instance( std::vector<std::pair<int,int>>& event);
+        instance( std::vector<std::pair<int,int>>& event, REX::teaw::amplitude& amp );
+        void setProc( std::vector<std::pair<int,int>>& event );
+        instance( std::vector<std::pair<std::string,std::string>>& event);
+        instance( std::vector<std::pair<std::string,std::string>>& event, REX::teaw::amplitude& amp );
+        void setProc( std::vector<std::pair<std::string,std::string>>& event );
+        void setAmp( REX::teaw::amplitude& amp );
+        std::shared_ptr<std::vector<FORTRANFPTYPE>> ampEval( std::vector<double>& momenta, std::vector<double>& alphaS );
         std::shared_ptr<std::vector<FORTRANFPTYPE>> ampEval( std::shared_ptr<std::vector<double>> momenta, 
-        std::shared_ptr<std::vector<double>> alphaS ){
-            return bridgeCall( *momenta, *alphaS );
-        }
+        std::shared_ptr<std::vector<double>> alphaS );
     };
 
 }

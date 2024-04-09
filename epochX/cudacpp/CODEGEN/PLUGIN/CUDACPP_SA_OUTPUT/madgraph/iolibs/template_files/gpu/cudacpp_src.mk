@@ -257,9 +257,9 @@ $(BUILDDIR)/%%_cu.o : %%.cc *.h $(BUILDDIR)/.build.$(TAG)
 
 #-------------------------------------------------------------------------------
 
-cxx_objects=$(addprefix $(BUILDDIR)/, Parameters_%(model)s.o read_slha.o)
+cxx_objects=$(addprefix $(BUILDDIR)/, Parameters_%(model)s.o read_slha.o teawREX.o rwgt_instance.o)
 ifneq ($(GPUCC),)
-cu_objects=$(addprefix $(BUILDDIR)/, Parameters_%(model)s_cu.o)
+cu_objects=$(addprefix $(BUILDDIR)/, Parameters_%(model)s_cu.o teawREX_cu.o rwgt_instance_cu.o)
 endif
 
 # Target (and build rules): common (src) library

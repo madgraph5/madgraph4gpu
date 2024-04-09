@@ -15,8 +15,8 @@
 // Copyright © 2023-2024 CERN, CERN Author Zenny Wettersten. 
 // All rights reserved.
 
-#ifndef _TEAWREX_HPP_
-#define _TEAWREX_HPP_
+#ifndef _TEAWREX_CC_
+#define _TEAWREX_CC_
 
 #include <unistd.h>
 #include <algorithm>
@@ -25,15 +25,11 @@
 #include <cstring>
 #include <variant>
 #include <stdarg.h>
-#include "REX.hpp"
+#include "REX.cc"
+#include "teawREX.h"
 
 namespace REX::teaw
 {
-
-    using amplitude = std::function<std::shared_ptr<std::vector<double>>(std::vector<double>&, std::vector<double>&)>;
-    using ampCall = std::map<REX::event, amplitude, REX::eventComp>;
-    using ampPair = std::pair<REX::event, amplitude>;
-    using vecMap = std::map<REX::event, std::shared_ptr<std::vector<double>>, REX::eventComp>;
 
     template<typename T1, typename T2>
     std::shared_ptr<std::vector<T1>> scatAmpEval(std::vector<T2>& momenta, std::function<std::shared_ptr<std::vector<T1>>(std::vector<T2>&)> evalFunc)
@@ -51,13 +47,8 @@ namespace REX::teaw
     std::shared_ptr<std::vector<T1>> scatAmpEval(std::vector<T2>& momenta, std::function<std::vector<T1>(std::vector<T2>&, std::vector<T2>&)> evalFunc)
     { return evalFunc(momenta); }
 
-    struct rwgtVal : REX::paramVal{
-    public:
-        std::string_view blockName;
-        bool allStat;
-        bool isAll(){ return (idStr == "all"); }
-        rwgtVal() : paramVal(){ return; }
-        rwgtVal( std::string_view paramLine )
+        rwgtVal::rwgtVal() : paramVal(){ return; }
+        rwgtVal::rwgtVal( std::string_view paramLine )
         : paramVal( paramLine, false ){if( paramLine.size() == 0 ){ return; }
             realLine = paramLine;
             auto vals = *REX::nuBlankSplitter( realLine );
@@ -65,8 +56,9 @@ namespace REX::teaw
             idStr = vals[2];
             valStr = vals[3];
         }
-        std::string_view getLine(){ return realLine; }
-        void outWrite( REX::paramBlock& srcBlock ){
+        std::string_view rwgtVal::getLine(){ return realLine; }
+        bool rwgtVal::isAll(){ return (idStr == "all"); }
+        void rwgtVal::outWrite( REX::paramBlock& srcBlock ){
             if ( isAll() )
             {
                 for( auto param : srcBlock.params )
@@ -89,13 +81,8 @@ namespace REX::teaw
             srcBlock.modded = true;
             return;
         }
-    };
 
-    struct rwgtBlock {
-    public:
-        std::string_view name;
-        std::vector<rwgtVal> rwgtVals;
-        rwgtBlock( std::vector<std::string_view> values = {}, std::string_view title = "" )
+        rwgtBlock::rwgtBlock( std::vector<std::string_view> values, std::string_view title)
         {
             name = title;
             rwgtVals.resize( values.size() );
@@ -104,12 +91,12 @@ namespace REX::teaw
                 rwgtVals[k] = rwgtVal( values[k] );
             }
         }
-        rwgtBlock( const std::vector<rwgtVal>& vals, std::string_view title = "" )
+        rwgtBlock::rwgtBlock( const std::vector<rwgtVal>& vals, std::string_view title )
         {
             name = title;
             rwgtVals = vals;
         }
-        std::string_view getBlock(){
+        std::string_view rwgtBlock::getBlock(){
             if( written ){ return runBlock; }
             runBlock = "";
             for( auto val : rwgtVals ){
@@ -118,7 +105,7 @@ namespace REX::teaw
             written = true;
             return runBlock;
         }
-        void outWrite( REX::paramBlock& srcBlock, const std::map<std::string_view, int>& blocks )
+        void rwgtBlock::outWrite( REX::paramBlock& srcBlock, const std::map<std::string_view, int>& blocks )
         {
             for( auto parm : rwgtVals )
             {
@@ -127,18 +114,8 @@ namespace REX::teaw
             srcBlock.modded = true;
             return;
         }
-    protected:
-        std::string runBlock;
-        bool written = false;
-    };
 
-    struct rwgtProc {
-    public:
-        std::vector<rwgtBlock> rwgtParams;
-        std::string_view procString;
-        std::string_view rwgtName;
-        std::vector<std::string_view> rwgtOpts;
-        void parse(){
+        void rwgtProc::parse(){
             std::vector<std::string_view> blocks;
             std::vector<std::shared_ptr<std::vector<rwgtVal>>> params;
             auto procLines = *REX::nuLineSplitter( procString );
@@ -162,7 +139,7 @@ namespace REX::teaw
                 rwgtParams.push_back( rwgtBlock( *params[k], blocks[k] ) );
             }
         }
-        rwgtProc( REX::lesHouchesCard slhaSet, std::string_view rwgtSet = "", bool parseOnline = false )
+        rwgtProc::rwgtProc( REX::lesHouchesCard slhaSet, std::string_view rwgtSet, bool parseOnline )
         {
             if( rwgtSet == "" ){ return; }
             auto strtLi = rwgtSet.find( "\n", rwgtSet.find("launch") ) + 1;
@@ -172,7 +149,7 @@ namespace REX::teaw
             procString = rwgtSet.substr( strtLi, endLi - strtLi );
             if( parseOnline ){ parse(); }
         }
-        std::shared_ptr<REX::lesHouchesCard> outWrite( const REX::lesHouchesCard& paramOrig ){
+        std::shared_ptr<REX::lesHouchesCard> rwgtProc::outWrite( const REX::lesHouchesCard& paramOrig ){
             auto slhaOrig = std::make_shared<REX::lesHouchesCard>( paramOrig );
             std::map<std::string_view, int> blockIds;
             for( size_t k = 0 ; k < slhaOrig->blocks.size() ; ++k )
@@ -184,18 +161,9 @@ namespace REX::teaw
             slhaOrig->modded = true;
             return slhaOrig;
         }
-        std::string_view comRunProc(){ return procString; }
-    };
+        std::string_view rwgtProc::comRunProc(){ return procString; }
 
-    struct rwgtCard{
-    public:
-        REX::lesHouchesCard slhaCard;
-        std::vector<rwgtProc> rwgtRuns;
-        std::vector<std::string_view> rwgtProcs;
-        std::vector<std::string_view> opts;
-        std::vector<std::string> rwgtNames;
-        std::string_view srcCard;
-        void parse( bool parseOnline = false ) {
+        void rwgtCard::parse( bool parseOnline ) {
             auto strt = srcCard.find("launch");
             while( auto commPos = srcCard.find_last_of("#", strt) > srcCard.find_last_of("\n", strt) ){ 
                 if( commPos == REX::npos ){
@@ -252,15 +220,15 @@ namespace REX::teaw
                 }
             }
         }
-        rwgtCard( std::string_view reweight_card ){
+        rwgtCard::rwgtCard( std::string_view reweight_card ){
             srcCard = reweight_card;
         }
-        rwgtCard( std::string_view reweight_card, REX::lesHouchesCard slhaParams, bool parseOnline = false ){
+        rwgtCard::rwgtCard( std::string_view reweight_card, REX::lesHouchesCard slhaParams, bool parseOnline ){
             srcCard = reweight_card;
             slhaCard = slhaParams;
             if( parseOnline ){ parse( parseOnline ); }
         }
-        std::vector<std::shared_ptr<REX::lesHouchesCard>> writeCards( REX::lesHouchesCard& slhaOrig ){
+        std::vector<std::shared_ptr<REX::lesHouchesCard>> rwgtCard::writeCards( REX::lesHouchesCard& slhaOrig ){
             std::vector<std::shared_ptr<REX::lesHouchesCard>> cardVec;
             slhaOrig.parse();
             cardVec.reserve( rwgtRuns.size() );
@@ -270,58 +238,54 @@ namespace REX::teaw
             }
             return cardVec;
         }
-    };
 
-    struct rwgtCollection {
-    public:
-        void setRwgt( std::shared_ptr<rwgtCard> rwgts ){ 
+        void rwgtCollection::setRwgt( std::shared_ptr<rwgtCard> rwgts ){ 
             if( rwgtSet ){ return; }
             rwgtSets = rwgts; 
             rwgtSet = true;
         }
-        void setRwgt( rwgtCard rwgts ){ 
+        void rwgtCollection::setRwgt( rwgtCard rwgts ){ 
             if( rwgtSet ){ return; }
             setRwgt( std::make_shared<rwgtCard>( rwgts ) ); rwgtSet = true; 
         }
-        void setSlha( std::shared_ptr<REX::lesHouchesCard> slha ){ 
+        void rwgtCollection::setSlha( std::shared_ptr<REX::lesHouchesCard> slha ){ 
             if( slhaSet ){ return; }
             slhaParameters = slha; 
             slhaParameters->parse(); 
             slhaSet = true; 
         }
-        void setSlha( REX::lesHouchesCard slha ){ 
+        void rwgtCollection::setSlha( REX::lesHouchesCard slha ){ 
             if( slhaSet ){ return; }
             setSlha( std::make_shared<REX::lesHouchesCard>( slha ) ); 
             slhaSet = true;
         }
-        void setLhe( std::shared_ptr<REX::lheNode> lhe ){ 
+        void rwgtCollection::setLhe( std::shared_ptr<REX::lheNode> lhe ){ 
             if( lheFileSet ){ return; }
             lheFile = lhe;
             lheFileSet = true;
         }
-        void setLhe( REX::lheNode& lhe ){ 
+        void rwgtCollection::setLhe( REX::lheNode& lhe ){ 
             if( lheFileSet ){ return; } 
             setLhe( std::make_shared<REX::lheNode>( lhe ) ); 
             lheFileSet = true;
         }
-        void setLhe( std::string_view lhe_file ){
-            if( lheFileSet ){ return; }
+        void rwgtCollection::setLhe( std::string_view lhe_file ){std::cout << "line 272\n";
+            if( lheFileSet ){ return; } std::cout << "line 273\n";
             //lheFile = REX::lheParser( lhe_file, strt, post );
-            lheFile = std::make_shared<REX::lheNode>( *lheFile );
-            lheFileSet = true;
+            lheFile = std::make_shared<REX::lheNode>( REX::lheNode(lhe_file) ); std::cout << "line 275\n";
+            lheFileSet = true; std::cout << "line 276\n";
         }
-        std::shared_ptr<rwgtCard> getRwgt(){ return rwgtSets; }
-        std::shared_ptr<REX::lesHouchesCard> getSlha(){ return slhaParameters; }
-        std::shared_ptr<REX::lheNode> getLhe(){ return lheFile; }
-        rwgtCollection(){ return; }
-        rwgtCollection( std::shared_ptr<REX::lheNode> lhe, std::shared_ptr<REX::lesHouchesCard> slha, std::shared_ptr<rwgtCard> rwgts ){
+        std::shared_ptr<rwgtCard> rwgtCollection::getRwgt(){ return rwgtSets; }
+        std::shared_ptr<REX::lesHouchesCard> rwgtCollection::getSlha(){ return slhaParameters; }
+        std::shared_ptr<REX::lheNode> rwgtCollection::getLhe(){ return lheFile; }
+        rwgtCollection::rwgtCollection(){ return; }
+        rwgtCollection::rwgtCollection( std::shared_ptr<REX::lheNode> lhe, std::shared_ptr<REX::lesHouchesCard> slha, std::shared_ptr<rwgtCard> rwgts ){
             setLhe( lhe );
             setSlha( slha );
             setRwgt( rwgts );
         }
-    protected:
         template<class... Args>
-        void setDoubles(Args&&... args){
+        void rwgtCollection::setDoubles(Args&&... args){
             if( lheFile == nullptr || rwgtSets == nullptr || slhaParameters == nullptr )
                 throw std::runtime_error( "One or more of the necessary files (SLHA parameter card, LHE event storage file, and MadGraph-format reweight card) have not been initialised." );
             REX::lheRetDs returnBools; returnBools.xwgtup = true; returnBools.aqcdup = true; returnBools.pup = true;
@@ -337,30 +301,18 @@ namespace REX::teaw
                 momenta.push_back( vecOfVecs->at( 3*k + 2 ) );
             }
         }
-        std::shared_ptr<rwgtCard> rwgtSets;
-        std::shared_ptr<REX::lesHouchesCard> slhaParameters;
-        std::shared_ptr<REX::lheNode> lheFile;
-        std::vector<std::shared_ptr<std::vector<double>>> wgts;
-        std::vector<std::shared_ptr<std::vector<double>>> gS;
-        std::vector<std::shared_ptr<std::vector<double>>> momenta;
-        bool lheFileSet = false;
-        bool slhaSet = false;
-        bool rwgtSet = false;
-        REX::transLHE eventFile;
-    };
 
-    struct rwgtFiles : rwgtCollection {
-        void setRwgtPath( std::string_view path ){ rwgtPath = path; }
-        void setSlhaPath( std::string_view path ){ slhaPath = path; }
-        void setLhePath( std::string_view path ){ lhePath = path; }
-        rwgtFiles() : rwgtCollection(){ return; }
-        rwgtFiles( std::string_view lhe_card, std::string_view slha_card, std::string_view reweight_card ) : rwgtCollection(){
+        void rwgtFiles::setRwgtPath( std::string_view path ){ rwgtPath = path; }
+        void rwgtFiles::setSlhaPath( std::string_view path ){ slhaPath = path; }
+        void rwgtFiles::setLhePath( std::string_view path ){ lhePath = path; }
+        rwgtFiles::rwgtFiles() : rwgtCollection(){ return; }
+        rwgtFiles::rwgtFiles( std::string_view lhe_card, std::string_view slha_card, std::string_view reweight_card ) : rwgtCollection(){
             setRwgtPath( reweight_card );
             setSlhaPath( slha_card );
             setLhePath( lhe_card );
         }
         template<class... Args>
-        void initCards(Args&&... args){
+        void rwgtFiles::initCards(Args&&... args){
             if( rwgtPath == "" || slhaPath == "" || lhePath == "" )
                 throw std::runtime_error( "Paths to reweight card, parameter card, or LHE file have not been set" );
             pullRwgt(); pullSlha(); pullLhe();
@@ -370,75 +322,55 @@ namespace REX::teaw
             setDoubles(args...);
         }
         template<class... Args>
-        void initCards( std::string_view lhe_card, std::string_view slha_card, std::string_view reweight_card, Args&&... args ){
+        void rwgtFiles::initCards( std::string_view lhe_card, std::string_view slha_card, std::string_view reweight_card, Args&&... args ){
             setLhePath( lhe_card );
             setSlhaPath( slha_card );
             setRwgtPath( reweight_card );
             initCards(args...);
         }
-    protected:
-        void pullRwgt(){
+        void rwgtFiles::pullRwgt(){
             rewgtCard = REX::filePuller( rwgtPath );
         }
-        void pullSlha(){
+        void rwgtFiles::pullSlha(){
             slhaCard = REX::filePuller( slhaPath );
         }
-        void pullLhe(){
+        void rwgtFiles::pullLhe(){
             lheCard = REX::filePuller( lhePath );
+            std::cout << *lheCard << "\n";
         }
-        std::string rwgtPath;
-        std::string lhePath;
-        std::string slhaPath;
-        std::shared_ptr<std::string> lheCard;
-        std::shared_ptr<std::string> slhaCard;
-        std::shared_ptr<std::string> rewgtCard;
-    };
 
-    struct rwgtRunner : rwgtFiles{
-    public:
-        void setMeEval( amplitude eval ){ 
+        void rwgtRunner::setMeEval( amplitude eval ){ 
             meEval = eval; meInit = true;
             ampCall nuEvals;
             nuEvals.insert( std::pair<REX::event, amplitude>( *eventFile.subProcs[0]->process, eval ) );
             meEvals = nuEvals;     
         }
-        void setMeEvals( ampCall evals ){ meEvals = evals; meCompInit = true; }
-        void addMeEval( const REX::event& ev, const amplitude& eval ){ meEvals.insert( std::pair<REX::event, amplitude>( ev, eval ) ); meCompInit = true; }
-        rwgtRunner() : rwgtFiles(){ return; }
-        rwgtRunner( rwgtFiles& rwgts ) : rwgtFiles( rwgts ){ return; }
-        rwgtRunner( rwgtFiles& rwgts, amplitude meCalc ) : rwgtFiles( rwgts ){
+        void rwgtRunner::setMeEvals( ampCall evals ){ meEvals = evals; meCompInit = true; }
+        void rwgtRunner::addMeEval( const REX::event& ev, const amplitude& eval ){ meEvals.insert( std::pair<REX::event, amplitude>( ev, eval ) ); meCompInit = true; }
+        rwgtRunner::rwgtRunner() : rwgtFiles(){ return; }
+        rwgtRunner::rwgtRunner( rwgtFiles& rwgts ) : rwgtFiles( rwgts ){ return; }
+        rwgtRunner::rwgtRunner( rwgtFiles& rwgts, amplitude meCalc ) : rwgtFiles( rwgts ){
             meEval = meCalc;
             meInit = true;
         }
-        rwgtRunner( rwgtFiles& rwgts, ampCall& meCalcs ) : rwgtFiles( rwgts ){
+        rwgtRunner::rwgtRunner( rwgtFiles& rwgts, ampCall& meCalcs ) : rwgtFiles( rwgts ){
             meEvals = meCalcs;
             meCompInit = true;
         }
-        rwgtRunner( std::string_view lhe_card, std::string_view slha_card, std::string_view reweight_card,
+        rwgtRunner::rwgtRunner( std::string_view lhe_card, std::string_view slha_card, std::string_view reweight_card,
         amplitude meCalc ) : rwgtFiles( lhe_card, slha_card, reweight_card ){
             meEval = meCalc;
             meInit = true;
         }
-        rwgtRunner( std::string_view lhe_card, std::string_view slha_card, std::string_view reweight_card,
+        rwgtRunner::rwgtRunner( std::string_view lhe_card, std::string_view slha_card, std::string_view reweight_card,
         ampCall meCalcs ) : rwgtFiles( lhe_card, slha_card, reweight_card ){
             meEvals = meCalcs;
             meCompInit = true;
         }
-        bool oneME(){ return (meInit != meCompInit); }
-        bool singAmp(){ return (meInit && !meCompInit); }
-    protected:
-        bool meInit = false;
-        bool meCompInit = false;
-        bool meSet = false;
-        bool normWgtSet = false;
-        amplitude meEval;
-        ampCall meEvals;
-        std::vector<std::shared_ptr<std::vector<double>>> initMEs;
-        std::vector<std::shared_ptr<std::vector<double>>> meNormWgts;
-        std::shared_ptr<std::vector<double>> normWgt;
-        std::shared_ptr<REX::weightGroup> rwgtGroup;
+        bool rwgtRunner::oneME(){ return (meInit != meCompInit); }
+        bool rwgtRunner::singAmp(){ return (meInit && !meCompInit); }
         template<class... Args>
-        void setMEs(Args&&... args){
+        void rwgtRunner::setMEs(Args&&... args){
             initCards(args...); 
             if( !oneME() )
                 throw std::runtime_error( "No or multiple function(s) for evaluating scattering amplitudes has been provided." );
@@ -453,7 +385,7 @@ namespace REX::teaw
             //initMEs = {std::make_shared<std::vector<double>>( ins->begin(), ins->begin() + wgts[0]->size() )};
             meSet = true;
         }
-        bool setParamCard( std::shared_ptr<REX::lesHouchesCard> slhaParams ){
+        bool rwgtRunner::setParamCard( std::shared_ptr<REX::lesHouchesCard> slhaParams ){
             if( slhaPath == "" )
                 throw std::runtime_error( "No parameter card path has been provided." );
             if( slhaParameters == nullptr )
@@ -462,7 +394,7 @@ namespace REX::teaw
                 throw std::runtime_error( "Failed to overwrite parameter card." );
             return true;
         }
-        void setNormWgtsSingleME(){
+        void rwgtRunner::setNormWgtsSingleME(){
             //if( initMEs->size() != wgts[0]->size() )
             //    throw std::runtime_error( "Inconsistent number of events and event weights." );
             meNormWgts = {std::make_shared<std::vector<double>>( wgts[0]->size() )};
@@ -471,7 +403,7 @@ namespace REX::teaw
             }
             normWgt = meNormWgts[0];
         }
-        void setNormWgtsMultiME(){
+        void rwgtRunner::setNormWgtsMultiME(){
             meNormWgts = std::vector<std::shared_ptr<std::vector<double>>>( initMEs.size() );
             for( auto k = 0 ; k < wgts.size() ; ++k ){
                 meNormWgts[k] = std::make_shared<std::vector<double>>( wgts[k]->size() );
@@ -482,7 +414,7 @@ namespace REX::teaw
             normWgt = eventFile.vectorFlat( meNormWgts );
         }
         template<class... Args>
-        void setNormWgts(Args&&... args){
+        void rwgtRunner::setNormWgts(Args&&... args){
             if( !oneME() ){ setMEs(args...); } 
             //if( initMEs->size() != wgts[0]->size() )
             //    throw std::runtime_error( "Inconsistent number of events and event weights." );
@@ -494,7 +426,7 @@ namespace REX::teaw
             else { setNormWgtsMultiME(); }
             normWgtSet = true;
         }
-        bool singleRwgtIter( std::shared_ptr<REX::lesHouchesCard> slhaParams, std::shared_ptr<REX::lheNode> lheFile, size_t currId ){
+        bool rwgtRunner::singleRwgtIter( std::shared_ptr<REX::lesHouchesCard> slhaParams, std::shared_ptr<REX::lheNode> lheFile, size_t currId ){
             if( !normWgtSet )
                 throw std::runtime_error( "Normalised original weights (wgt/|ME|) not evaluated -- new weights cannot be calculated." );
             if( !setParamCard( slhaParams ) )
@@ -518,7 +450,7 @@ namespace REX::teaw
             lheFile->addWgt( 0, nuWgt );
             return true;
         }
-        bool singleRwgtIter( std::shared_ptr<REX::lesHouchesCard> slhaParams, std::shared_ptr<REX::lheNode> lheFile, size_t currId, std::string& id ){
+        bool rwgtRunner::singleRwgtIter( std::shared_ptr<REX::lesHouchesCard> slhaParams, std::shared_ptr<REX::lheNode> lheFile, size_t currId, std::string& id ){
             if( !normWgtSet )
                 throw std::runtime_error( "Normalised original weights (wgt/|ME|) not evaluated -- new weights cannot be calculated." );
             if( !setParamCard( slhaParams ) )
@@ -542,7 +474,7 @@ namespace REX::teaw
             lheFile->addWgt( 0, nuWgt );
             return true;
         }
-        bool singleRwgtIter( std::shared_ptr<REX::lesHouchesCard> slhaParams, std::shared_ptr<REX::lheNode> lheFile, size_t currId, REX::event& ev ){
+        bool rwgtRunner::singleRwgtIter( std::shared_ptr<REX::lesHouchesCard> slhaParams, std::shared_ptr<REX::lheNode> lheFile, size_t currId, REX::event& ev ){
             if( !normWgtSet )
                 throw std::runtime_error( "Normalised original weights (wgt/|ME|) not evaluated -- new weights cannot be calculated." );
             if( !setParamCard( slhaParams ) )
@@ -567,7 +499,7 @@ namespace REX::teaw
             lheFile->addWgt( 0, nuWgt );
             return true;
         }
-        bool singleRwgtIter( std::shared_ptr<REX::lesHouchesCard> slhaParams, std::shared_ptr<REX::lheNode> lheFile, size_t currId, 
+        bool rwgtRunner::singleRwgtIter( std::shared_ptr<REX::lesHouchesCard> slhaParams, std::shared_ptr<REX::lheNode> lheFile, size_t currId, 
         std::string& id, REX::event& ev ){
             if( !normWgtSet )
                 throw std::runtime_error( "Normalised original weights (wgt/|ME|) not evaluated -- new weights cannot be calculated." );
@@ -592,14 +524,13 @@ namespace REX::teaw
             lheFile->addWgt( 0, nuWgt );
             return true;
         }
-        bool lheFileWriter( std::shared_ptr<REX::lheNode> lheFile, std::string outputDir = "rwgt_evts.lhe" ){
+        bool rwgtRunner::lheFileWriter( std::shared_ptr<REX::lheNode> lheFile, std::string outputDir ){
             bool writeSuccess = REX::filePusher( outputDir, *lheFile->nodeWriter() );
             if( !writeSuccess )
                 throw std::runtime_error( "Failed to write LHE file." );
             return true;
         }
-    public:
-        void runRwgt( const std::string& output ){
+        void rwgtRunner::runRwgt( const std::string& output ){
             setMEs();
             setNormWgts();
             rwgtGroup = std::make_shared<REX::weightGroup>();
@@ -613,7 +544,10 @@ namespace REX::teaw
             REX::filePusher( slhaPath, *slhaCard );
             std::cout << "\nReweighting done.\n";
         }
-    };
+
+    void rwgtRun( rwgtRunner& rwgt, const std::string& path ){
+        rwgt.runRwgt( path );
+    }
 }
 
 #endif
