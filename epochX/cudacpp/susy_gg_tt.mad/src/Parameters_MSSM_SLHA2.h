@@ -27,7 +27,7 @@
 // AV Jan 2024 (PR #625): this ugly #define was the only way I found to avoid creating arrays[nBsm] in CPPProcess.cc if nBsm is 0
 // The problem is that nBsm is determined when generating Parameters.h, which happens after CPPProcess.cc has already been generated
 // For simplicity, keep this code hardcoded also for SM processes (a nullptr is needed as in the case nBsm == 0)
-#undef MGONGPUCPP_NBSMINDEPPARAM_GT_0
+#define MGONGPUCPP_NBSMINDEPPARAM_GT_0 1
 
 #ifndef MGONGPU_HARDCODE_PARAM
 
@@ -89,8 +89,8 @@ namespace mg5amcCpu
     //void printDependentCouplings(); // now computed event-by-event (running alphas #373)
 
     // BSM parameters that do not depend on alphaS but are needed in the computation of alphaS-dependent couplings;
-    static constexpr int nBsmIndepParam = 0;
-    //double mdl_bsmIndepParam[nBsmIndepParam];
+    static constexpr int nBsmIndepParam = 1;
+    double mdl_bsmIndepParam[nBsmIndepParam];
 
   private:
 
@@ -299,7 +299,7 @@ namespace mg5amcCpu
     constexpr double mdl_I5x11 = 1.;
     constexpr double mdl_I53x11 = 1.;
     constexpr double mdl_I52x44 = 1.;
-    constexpr double mdl_I51x11 = 1.;
+    __device__ constexpr double mdl_I51x11 = 1.;
     constexpr double mdl_I39x11 = 1.;
     constexpr double mdl_I31x11 = 1.;
     constexpr double mdl_I26x44 = 1.;
@@ -769,8 +769,8 @@ namespace mg5amcCpu
     //void printDependentCouplings(); // now computed event-by-event (running alphas #373)
 
     // BSM parameters that do not depend on alphaS but are needed in the computation of alphaS-dependent couplings;
-    constexpr int nBsmIndepParam = 0;
-    //__device__ constexpr double mdl_bsmIndepParam[nBsmIndepParam] = { (none) };
+    constexpr int nBsmIndepParam = 1;
+    __device__ constexpr double mdl_bsmIndepParam[nBsmIndepParam] = { mdl_I51x11 };
   }
 
 } // end namespace mg5amcGpu/mg5amcCpu
@@ -809,7 +809,7 @@ namespace mg5amcCpu
 #ifdef MGONGPU_HARDCODE_PARAM
       using namespace Parameters_MSSM_SLHA2;
 #else
-      // No special handling of non-hardcoded parameters (no additional BSM parameters needed in constant memory)
+      const double mdl_I51x11 = bsmIndepParamPtr[0];
 #endif
       // NB: hardcode cxtype cI(0,1) instead of cxtype (or hardcoded cxsmpl) mdl_complexi (which exists in Parameters_MSSM_SLHA2) because:
       // (1) mdl_complexi is always (0,1); (2) mdl_complexi is undefined in device code; (3) need cxsmpl conversion to cxtype in code below
