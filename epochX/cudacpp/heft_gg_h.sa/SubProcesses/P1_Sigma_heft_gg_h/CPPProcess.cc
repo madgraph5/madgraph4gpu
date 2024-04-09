@@ -76,16 +76,23 @@ namespace mg5amcCpu
   // For CUDA performance, hardcoded constexpr's would be better: fewer registers and a tiny throughput increase
   // However, physics parameters are user-defined through card files: use CUDA constant memory instead (issue #39)
   // [NB if hardcoded parameters are used, it's better to define them here to avoid silent shadowing (issue #263)]
+  constexpr int nIPD = 0; // SM independent parameters used in this CPPProcess.cc (FIXME? rename as sm_IndepParam?)
+  // Note: in the Python code generator, nIPD == nparam, while nIPC <= nicoup, because (see #823)
+  // nIPC may vary from one P*/CPPProcess.cc to another, while nicoup is defined in src/Param.h and is common to all P*
+  constexpr int nIPC = 0; // SM independent couplings used in this CPPProcess.cc (FIXME? rename as sm_IndepCoupl?)
+  static_assert( nIPC <= nicoup );
+  static_assert( nIPD >= 0 ); // Hack to avoid build warnings when nIPD==0 is unused
+  static_assert( nIPC >= 0 ); // Hack to avoid build warnings when nIPC==0 is unused
 #ifdef MGONGPU_HARDCODE_PARAM
-  //__device__ const fptype* cIPD = nullptr; // unused as nparam=0
-  __device__ const fptype* cIPC = nullptr; // unused as nicoup=0
+  //__device__ const fptype* cIPD = nullptr; // unused as nIPD=0
+  __device__ const fptype* cIPC = nullptr; // unused as nIPC=0
 #else
 #ifdef MGONGPUCPP_GPUIMPL
-  //__device__ __constant__ fptype* cIPD = nullptr; // unused as nparam=0
-  __device__ __constant__ fptype* cIPC = nullptr; // unused as nicoup=0
+  //__device__ __constant__ fptype* cIPD = nullptr; // unused as nIPD=0
+  __device__ __constant__ fptype* cIPC = nullptr; // unused as nIPC=0
 #else
-  //static fptype* cIPD = nullptr; // unused as nparam=0
-  static fptype* cIPC = nullptr; // unused as nicoup=0
+  //static fptype* cIPD = nullptr; // unused as nIPD=0
+  static fptype* cIPC = nullptr; // unused as nIPC=0
 #endif
 #endif
 
@@ -94,12 +101,12 @@ namespace mg5amcCpu
   // For simplicity, keep this code hardcoded also for SM processes (a nullptr is needed as in the case nBsm == 0)
 #ifdef MGONGPUCPP_NBSMINDEPPARAM_GT_0
 #ifdef MGONGPU_HARDCODE_PARAM
-  __device__ const double* bsmIndepParam = Parameters_MSSM_SLHA2::mdl_bsmIndepParam;
+  __device__ const double* bsmIndepParam = Parameters_heft::mdl_bsmIndepParam;
 #else
 #ifdef MGONGPUCPP_GPUIMPL
-  __device__ __constant__ double bsmIndepParam[Parameters_MSSM_SLHA2::nBsmIndepParam];
+  __device__ __constant__ double bsmIndepParam[Parameters_heft::nBsmIndepParam];
 #else
-  static double bsmIndepParam[Parameters_MSSM_SLHA2::nBsmIndepParam];
+  static double bsmIndepParam[Parameters_heft::nBsmIndepParam];
 #endif
 #endif
 #else
@@ -215,7 +222,8 @@ namespace mg5amcCpu
 #ifndef MGONGPUCPP_GPUIMPL
       const int ievt0 = ievt00 + iParity * neppV;
 #endif
-      constexpr size_t nxcoup = ndcoup + nicoup; // both dependent and independent couplings
+      //constexpr size_t nxcoup = ndcoup + nicoup; // both dependent and independent couplings (BUG #823)
+      constexpr size_t nxcoup = ndcoup + nIPC; // both dependent and independent couplings (FIX #823)
       const fptype* allCOUPs[nxcoup];
 #ifdef __CUDACC__
 #pragma nv_diagnostic push
@@ -223,7 +231,8 @@ namespace mg5amcCpu
 #endif
       for( size_t idcoup = 0; idcoup < ndcoup; idcoup++ )
         allCOUPs[idcoup] = CD_ACCESS::idcoupAccessBufferConst( allcouplings, idcoup ); // dependent couplings, vary event-by-event
-      for( size_t iicoup = 0; iicoup < nicoup; iicoup++ )
+      //for( size_t iicoup = 0; iicoup < nicoup; iicoup++ )                             // BUG #823
+      for( size_t iicoup = 0; iicoup < nIPC; iicoup++ )                                 // FIX #823
         allCOUPs[ndcoup + iicoup] = CI_ACCESS::iicoupAccessBufferConst( cIPC, iicoup ); // independent couplings, fixed for all events
 #ifdef MGONGPUCPP_GPUIMPL
 #ifdef __CUDACC__
@@ -244,7 +253,8 @@ namespace mg5amcCpu
       const fptype* COUPs[nxcoup];
       for( size_t idcoup = 0; idcoup < ndcoup; idcoup++ )
         COUPs[idcoup] = CD_ACCESS::ieventAccessRecordConst( allCOUPs[idcoup], ievt0 ); // dependent couplings, vary event-by-event
-      for( size_t iicoup = 0; iicoup < nicoup; iicoup++ )
+      //for( size_t iicoup = 0; iicoup < nicoup; iicoup++ ) // BUG #823
+      for( size_t iicoup = 0; iicoup < nIPC; iicoup++ )     // FIX #823
         COUPs[ndcoup + iicoup] = allCOUPs[ndcoup + iicoup]; // independent couplings, fixed for all events
       fptype* MEs = E_ACCESS::ieventAccessRecord( allMEs, ievt0 );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
@@ -484,20 +494,24 @@ namespace mg5amcCpu
     m_masses.push_back( m_pars->mdl_MH );
     // Read physics parameters like masses and couplings from user configuration files (static: initialize once)
     // Then copy them to CUDA constant memory (issue #39) or its C++ emulation in file-scope static memory
-    //const fptype tIPD[0] = { ... }; // nparam=0
-    //const cxtype tIPC[0] = { ... }; // nicoup=0
+    //const fptype tIPD[0] = { ... }; // nIPD=0
+    //const cxtype tIPC[0] = { ... }; // nIPC=0
 #ifdef MGONGPUCPP_GPUIMPL
-    //gpuMemcpyToSymbol( cIPD, tIPD, 0 * sizeof( fptype ) ); // nparam=0
-    //gpuMemcpyToSymbol( cIPC, tIPC, 0 * sizeof( cxtype ) ); // nicoup=0
-    if( Parameters_MSSM_SLHA2::nBsmIndepParam > 0 )
-      gpuMemcpyToSymbol( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters_MSSM_SLHA2::nBsmIndepParam * sizeof( double ) );
-#else
-    //memcpy( cIPD, tIPD, 0 * sizeof( fptype ) ); // nparam=0
-    //memcpy( cIPC, tIPC, 0 * sizeof( cxtype ) ); // nicoup=0
-    if( Parameters_MSSM_SLHA2::nBsmIndepParam > 0 )
-      memcpy( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters_MSSM_SLHA2::nBsmIndepParam * sizeof( double ) );
+    //gpuMemcpyToSymbol( cIPD, tIPD, 0 * sizeof( fptype ) ); // nIPD=0
+    //gpuMemcpyToSymbol( cIPC, tIPC, 0 * sizeof( cxtype ) ); // nIPC=0
+#ifdef MGONGPUCPP_NBSMINDEPPARAM_GT_0
+    if( Parameters_heft::nBsmIndepParam > 0 )
+      gpuMemcpyToSymbol( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters_heft::nBsmIndepParam * sizeof( double ) );
 #endif
-    //for ( int i=0; i<Parameters_MSSM_SLHA2::nBsmIndepParam; i++ ) std::cout << std::setprecision(17) << "m_pars->mdl_bsmIndepParam[i] = " << m_pars->mdl_bsmIndepParam[i] << std::endl;
+#else
+    //memcpy( cIPD, tIPD, nIPD * sizeof( fptype ) ); // nIPD=0
+    //memcpy( cIPC, tIPC, nIPC * sizeof( cxtype ) ); // nIPC=0
+#ifdef MGONGPUCPP_NBSMINDEPPARAM_GT_0
+    if( Parameters_heft::nBsmIndepParam > 0 )
+      memcpy( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters_heft::nBsmIndepParam * sizeof( double ) );
+#endif
+#endif
+    //for ( int i=0; i<Parameters_heft::nBsmIndepParam; i++ ) std::cout << std::setprecision(17) << "m_pars->mdl_bsmIndepParam[i] = " << m_pars->mdl_bsmIndepParam[i] << std::endl;
   }
 #else
   // Initialize process (with hardcoded parameters)

@@ -25,7 +25,7 @@ export CUDACPP_RUNTIME_VECSIZEUSED=${NLOOP}
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gguu][-gqttq]> [-d] [-fltonly|-mixonly] [-makeonly|-makeclean|-makecleanonly] [-rmrdat] [+10x] [-checkonly] [-nocleanup]" > /dev/stderr
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gguu][-gqttq][-susyggtt][-susyggt1t1][-smeftggtttt]> [-d] [-fltonly|-mixonly] [-makeonly|-makeclean|-makecleanonly] [-rmrdat] [+10x] [-checkonly] [-nocleanup]" > /dev/stderr
   echo "(NB: OMP_NUM_THREADS is taken as-is from the caller's environment)"
   exit 1
 }
@@ -43,6 +43,9 @@ ggttgg=0
 ggttggg=0
 gguu=0
 gqttq=0
+susyggtt=0
+susyggt1t1=0
+smeftggtttt=0
 
 fptype="d"
 
@@ -82,6 +85,15 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-gqttq" ]; then
     gqttq=1
     shift
+  elif [ "$1" == "-susyggtt" ]; then
+    susyggtt=1
+    shift
+  elif [ "$1" == "-susyggt1t1" ]; then
+    susyggt1t1=1
+    shift
+  elif [ "$1" == "-smeftggtttt" ]; then
+    smeftggtttt=1
+    shift
   elif [ "$1" == "-fltonly" ]; then
     if [ "${fptype}" != "d" ] && [ "${fptype}" != "$1" ]; then
       echo "ERROR! Options -fltonly and -mixonly are incompatible"; usage
@@ -119,7 +131,7 @@ done
 ###exit 1
 
 # Check that at least one process has been selected
-if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ] && [ "${gguu}" == "0" ] && [ "${gqttq}" == "0" ]; then usage; fi
+if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ] && [ "${gguu}" == "0" ] && [ "${gqttq}" == "0" ] && [ "${susyggtt}" == "0" ] && [ "${susyggt1t1}" == "0" ] && [ "${smeftggtttt}" == "0" ]; then usage; fi
 
 # Always test only the .mad/ directories (hardcoded)
 suffs=".mad/"
@@ -140,6 +152,8 @@ fi
 function showdir()
 {
   if [ "${suff}" == ".mad/" ]; then
+    # FIXME? These checks should rather be 'if [ "${proc}" == "-ggtt" ]; then'?
+    # FIXME? More generally, this script now accepts several processes but is only able to handle one?
     if [ "${eemumu}" == "1" ]; then 
       dir=$topdir/epochX/${bckend}/ee_mumu${suff}SubProcesses/P1_epem_mupmum
     elif [ "${ggtt}" == "1" ]; then 
@@ -155,9 +169,17 @@ function showdir()
       ###dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_gux_ttxux # 2nd of two (test only one for now)
     elif [ "${gguu}" == "1" ]; then 
       dir=$topdir/epochX/${bckend}/gg_uu${suff}SubProcesses/P1_gg_uux
+    elif [ "${susyggtt}" == "1" ]; then 
+      dir=$topdir/epochX/${bckend}/susy_gg_tt${suff}SubProcesses/P1_gg_ttx
+    elif [ "${susyggt1t1}" == "1" ]; then 
+      dir=$topdir/epochX/${bckend}/susy_gg_t1t1${suff}SubProcesses/P1_gg_t1t1x
+    elif [ "${smeftggtttt}" == "1" ]; then 
+      dir=$topdir/epochX/${bckend}/smeft_gg_tttt${suff}SubProcesses/P1_gg_ttxttx
+    ###else
+    ###  echo "INTERNAL ERROR! Unknown process '${proc}'" > /dev/stderr; exit 1 # this should never happen
     fi
   else
-    echo "INTERNAL ERROR! tmad tests only make sense in .mad directories"; exit 1 # this should never happen (suff=.mad/ is hardcoded)
+    echo "INTERNAL ERROR! tmad tests only make sense in .mad directories" > /dev/stderr; exit 1 # this should never happen (suff=.mad/ is hardcoded)
   fi
   echo $dir
 }
@@ -179,6 +201,12 @@ function getnevt()
     nevt=8192 # use the same settings as for ggttg
   elif [ "${gqttq}" == "1" ]; then
     nevt=8192 # use the same settings as for ggttg
+  elif [ "${susyggtt}" == "1" ]; then
+    nevt=8192 # use the same settings as for SM ggtt
+  elif [ "${susyggt1t1}" == "1" ]; then
+    nevt=8192 # use the same settings as for SM ggtt
+  elif [ "${smeftggtttt}" == "1" ]; then
+    nevt=8192 # use the same settings as for SM ggttg
   else
     echo "ERROR! Unknown process" > /dev/stderr; usage
   fi
@@ -201,6 +229,12 @@ function getgridmax()
   elif [ "${gguu}" == "1" ]; then
     echo 16384 32 # same total grid dimension as 2048 256
   elif [ "${gqttq}" == "1" ]; then
+    echo 16384 32 # same total grid dimension as 2048 256
+  elif [ "${susyggtt}" == "1" ]; then
+    echo 16384 32 # same total grid dimension as 2048 256
+  elif [ "${susyggt1t1}" == "1" ]; then
+    echo 16384 32 # same total grid dimension as 2048 256
+  elif [ "${smeftggtttt}" == "1" ]; then
     echo 16384 32 # same total grid dimension as 2048 256
   else
     echo "ERROR! Unknown process" > /dev/stderr; usage
@@ -227,6 +261,12 @@ function getinputfile()
     tmp=$tmpdir/input_gguu
   elif [ "${gqttq}" == "1" ]; then 
     tmp=$tmpdir/input_gqttq
+  elif [ "${susyggtt}" == "1" ]; then 
+    tmp=$tmpdir/input_susyggtt
+  elif [ "${susyggt1t1}" == "1" ]; then 
+    tmp=$tmpdir/input_susyggt1t1
+  elif [ "${smeftggtttt}" == "1" ]; then 
+    tmp=$tmpdir/input_smeftggtttt
   else
     echo "ERROR! cannot determine input file name"; exit 1
   fi
@@ -365,16 +405,16 @@ function runmadevent()
   echo " [XSECTION] ChannelId = ${chid}"
   xsec=$(cat ${tmp} | grep --binary-files=text 'Cross sec =' | awk '{print 0+$NF}')
   xsec2=$(cat ${tmp} | grep --binary-files=text 'Actual xsec' | awk '{print $NF}')
-  if [ "${fbm}" != "" ]; then
+  if [ "${xsec}" == "" ]; then
+    echo -e " [XSECTION] ERROR! No cross section in log file:\n   $tmp\n   ..."
+    tail -10 $tmp
+    exit 1
+  elif [ "${fbm}" != "" ]; then
     echo " [XSECTION] Cross section = ${xsec} [${xsec2}] fbridge_mode=${fbm}"
   elif [ "${xsec2}" != "" ]; then
     echo " [XSECTION] Cross section = ${xsec} [${xsec2}]"
   elif [ "${xsec}" != "" ]; then
     echo " [XSECTION] Cross section = ${xsec}"
-  else
-    echo -e " [XSECTION] ERROR! No cross section in log file:\n   $tmp\n   ..."
-    tail -10 $tmp
-    exit 1
   fi
   evtf=$(cat ${tmp} | grep --binary-files=text 'events.' | grep 'Found' | awk '{print $2}')
   evtw=$(cat ${tmp} | grep --binary-files=text 'events.' | grep 'Wrote' | awk '{print $2}')
@@ -391,6 +431,7 @@ function runmadevent()
   cat ${tmp} | grep --binary-files=text COUNTERS
   set -e # fail on error
   xsecnew=${xsec2}
+  ###echo "Extracted results from $tmp"
 }
 
 ##########################################################################
