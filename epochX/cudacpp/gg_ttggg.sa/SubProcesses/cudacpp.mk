@@ -14,12 +14,12 @@ override CUDACPP_SRC_MAKEFILE = cudacpp_src.mk
 
 #-------------------------------------------------------------------------------
 
-#=== Include cudacpp_builddir.mk
+#=== Include cudacpp_config.mk
 
 # Check that the user-defined choices of BACKEND, FPTYPE, HELINL, HRDCOD are supported (and configure defaults if no user-defined choices exist)
 # Stop with an error if BACKEND=cuda and nvcc is missing or if BACKEND=hip and hipcc is missing.
 # Determine CUDACPP_BUILDDIR from a DIRTAG based on BACKEND, FPTYPE, HELINL, HRDCOD and from the user-defined choice of USEBUILDDIR
-include ../../src/cudacpp_builddir.mk
+include ../../src/cudacpp_config.mk
 
 # Export CUDACPP_BUILDDIR (so that there is no need to check/define it again in cudacpp_src.mk)
 export CUDACPP_BUILDDIR
@@ -196,7 +196,7 @@ endif
 # Unlike what happened in the past, nvcc and hipcc must have already been added to PATH. Using 'which nvcc' and 'which hipcc',
 # their existence and their location is checked, and the variables CUDA_HOME and HIP_HOME are internally set by this makefile.
 # This must be still done before backend-specific customizations, e.g. because CURAND and NVTX are also used in C++ builds.
-# Note also that a preliminary check for nvcc and hipcc if BACKEND is cuda or hip is performed in cudacpp_builddir.mk.
+# Note also that a preliminary check for nvcc and hipcc if BACKEND is cuda or hip is performed in cudacpp_config.mk.
 # - Note also that the REQUIRE_CUDA variable (which was used in the past, e.g. for CI tests on GPU #443) is now (PR #798) no
 # longer necessary, as it is now equivalent to BACKEND=cuda. Similarly, there is no need to introduce a REQUIRE_HIP variable.
 

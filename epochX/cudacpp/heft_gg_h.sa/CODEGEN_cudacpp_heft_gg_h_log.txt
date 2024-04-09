@@ -168,7 +168,7 @@ INFO: Created files Parameters_heft.h and Parameters_heft.cc in directory
 INFO: /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg_h/src/. and /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg_h/src/. 
 quit
 
-real	0m0.417s
-user	0m0.369s
-sys	0m0.044s
+real	0m0.429s
+user	0m0.359s
+sys	0m0.056s
 Code generation completed in 0 seconds
