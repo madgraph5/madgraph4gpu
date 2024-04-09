@@ -1,3 +1,12 @@
+// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Created by: S. Hageboeck (Nov 2020) for the MG5aMC CUDACPP plugin.
+// Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
+//
+// Copyright (C) 2021-2023 Argonne National Laboratory.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Modified by: N. Nichols (2021-2023) for the MG5aMC SYCL plugin.
+
 #include "epoch_process_id.h"
 
 #include "mgOnGpuConfig.h"
@@ -30,15 +39,15 @@ struct CUDA_CPU_TestBase : public TestDriverBase<fptype> {
   static_assert( gputhreads%mgOnGpu::neppM == 0, "ERROR! #threads/block should be a multiple of neppM" );
   static_assert( gputhreads <= mgOnGpu::ntpbMAX, "ERROR! #threads/block should be <= ntpbMAX" );
 
-  const std::size_t nRnarray{ mgOnGpu::np4 * mgOnGpu::nparf * nevt }; // AOSOA layout with nevt=npagR*neppR events per iteration
-  const std::size_t nMomenta{ mgOnGpu::np4 * mgOnGpu::npar  * nevt }; // AOSOA layout with nevt=npagM*neppM events per iteration
+  const std::size_t nRnarray{ CPPPROCESS_NP4*CPPPROCESS_NPARF*nevt }; // AOSOA layout with nevt=npagR*neppR events per iteration
+  const std::size_t nMomenta{ CPPPROCESS_NP4*CPPPROCESS_NPAR*nevt }; // AOSOA layout with nevt=npagM*neppM events per iteration
   const std::size_t nWeights{ nevt };
   const std::size_t nMEs    { nevt };
 
   CUDA_CPU_TestBase() :
     TestDriverBase()
   {
-    TestDriverBase::nparticle = mgOnGpu::npar;
+    TestDriverBase::nparticle = CPPPROCESS_NPAR;
   }
 
 };
@@ -50,9 +59,9 @@ struct CPUTest : public CUDA_CPU_TestBase {
 
   // --- 0b. Allocate memory structures
   // Memory structures for random numbers, momenta, matrix elements and weights on host and device
-  unique_ptr_host<fptype   > hstRnarray  { hstMakeUnique<fptype   >( nRnarray ) }; // AOSOA[npagR][nparf][np4][neppR]
-  unique_ptr_host<fptype_sv> hstMomenta  { hstMakeUnique<fptype_sv>( nMomenta ) }; // AOSOA[npagM][npar][np4][neppM]
-  unique_ptr_host<bool     > hstIsGoodHel{ hstMakeUnique<bool     >( mgOnGpu::ncomb ) };
+  unique_ptr_host<fptype   > hstRnarray  { hstMakeUnique<fptype   >( nRnarray ) }; // AOSOA[npagR][CPPPROCESS_NPARF][CPPPROCESS_NP4][neppR]
+  unique_ptr_host<fptype_sv> hstMomenta  { hstMakeUnique<fptype_sv>( nMomenta ) }; // AOSOA[npagM][CPPPROCESS_NPAR][CPPPROCESS_NP4][neppM]
+  unique_ptr_host<bool     > hstIsGoodHel{ hstMakeUnique<bool     >( CPPPROCESS_NCOMB ) };
   unique_ptr_host<fptype   > hstWeights  { hstMakeUnique<fptype   >( nWeights ) };
   unique_ptr_host<fptype_sv> hstMEs      { hstMakeUnique<fptype_sv>( nMEs ) }; // AOSOA[npagM][neppM]
 
@@ -97,17 +106,15 @@ struct CPUTest : public CUDA_CPU_TestBase {
   }
 
   fptype getMomentum(std::size_t evtNo, unsigned int particle, unsigned int component) const override {
-    using mgOnGpu::np4;
-    using mgOnGpu::npar;
     using mgOnGpu::neppM;
-    assert(component < np4);
-    assert(particle  < npar);
+    assert(component < CPPPROCESS_NP4);
+    assert(particle  < CPPPROCESS_NPAR);
     const auto ipagM = evtNo / neppM; // #eventpage in this iteration
     const auto ieppM = evtNo % neppM; // #event in the current eventpage in this iteration
 #ifndef MGONGPU_CPPSIMD
-    return hstMomenta[ipagM*npar*np4*neppM + particle*np4*neppM + component*neppM + ieppM];
+    return hstMomenta[ipagM*CPPPROCESS_NPAR*CPPPROCESS_NP4*neppM + particle*CPPPROCESS_NP4*neppM + component*neppM + ieppM];
 #else
-    return hstMomenta[ipagM*npar*np4 + particle*np4 + component][ieppM];
+    return hstMomenta[ipagM*CPPPROCESS_NPAR*CPPPROCESS_NP4 + particle*CPPPROCESS_NP4 + component][ieppM];
 #endif
   };
 
@@ -135,15 +142,15 @@ struct CUDATest : public CUDA_CPU_TestBase {
 
   // --- 0b. Allocate memory structures
   // Memory structures for random numbers, momenta, matrix elements and weights on host and device
-  unique_ptr_host<fptype> hstRnarray  { hstMakeUnique<fptype>( nRnarray ) }; // AOSOA[npagR][nparf][np4][neppR] (nevt=npagR*neppR)
-  unique_ptr_host<fptype> hstMomenta  { hstMakeUnique<fptype>( nMomenta ) }; // AOSOA[npagM][npar][np4][neppM] (nevt=npagM*neppM)
-  unique_ptr_host<bool  > hstIsGoodHel{ hstMakeUnique<bool  >( mgOnGpu::ncomb ) };
+  unique_ptr_host<fptype> hstRnarray  { hstMakeUnique<fptype>( nRnarray ) }; // AOSOA[npagR][CPPPROCESS_NPARF][CPPPROCESS_NP4][neppR] (nevt=npagR*neppR)
+  unique_ptr_host<fptype> hstMomenta  { hstMakeUnique<fptype>( nMomenta ) }; // AOSOA[npagM][CPPPROCESS_NPAR][CPPPROCESS_NP4][neppM] (nevt=npagM*neppM)
+  unique_ptr_host<bool  > hstIsGoodHel{ hstMakeUnique<bool  >( CPPPROCESS_NCOMB ) };
   unique_ptr_host<fptype> hstWeights  { hstMakeUnique<fptype>( nWeights ) };
   unique_ptr_host<fptype> hstMEs      { hstMakeUnique<fptype>( nMEs ) };
 
-  unique_ptr_dev<fptype> devRnarray  { devMakeUnique<fptype>( nRnarray ) }; // AOSOA[npagR][nparf][np4][neppR] (nevt=npagR*neppR)
+  unique_ptr_dev<fptype> devRnarray  { devMakeUnique<fptype>( nRnarray ) }; // AOSOA[npagR][CPPPROCESS_NPARF][CPPPROCESS_NP4][neppR] (nevt=npagR*neppR)
   unique_ptr_dev<fptype> devMomenta  { devMakeUnique<fptype>( nMomenta ) };
-  unique_ptr_dev<bool  > devIsGoodHel{ devMakeUnique<bool  >( mgOnGpu::ncomb ) };
+  unique_ptr_dev<bool  > devIsGoodHel{ devMakeUnique<bool  >( CPPPROCESS_NCOMB ) };
   unique_ptr_dev<fptype> devWeights  { devMakeUnique<fptype>( nWeights ) };
   unique_ptr_dev<fptype> devMEs      { devMakeUnique<fptype>( nMEs )     };
 
@@ -193,7 +200,7 @@ struct CUDATest : public CUDA_CPU_TestBase {
       checkCuda( cudaPeekAtLastError() );
       // ... 0d2. Copy back good helicity mask to the host
       checkCuda( cudaMemcpy( hstIsGoodHel.get(), devIsGoodHel.get(),
-                             mgOnGpu::ncomb * sizeof(decltype(hstIsGoodHel)::element_type), cudaMemcpyDeviceToHost ) );
+                             CPPPROCESS_NCOMB * sizeof(decltype(hstIsGoodHel)::element_type), cudaMemcpyDeviceToHost ) );
       // ... 0d3. Copy back good helicity list to constant memory on the device
       gProc::sigmaKin_setGoodHel(hstIsGoodHel.get());
     }
@@ -211,12 +218,12 @@ struct CUDATest : public CUDA_CPU_TestBase {
   }
 
   fptype getMomentum(std::size_t evtNo, unsigned int particle, unsigned int component) const override {
-    assert(component < mgOnGpu::np4);
-    assert(particle  < mgOnGpu::npar);
+    assert(component < CPPPROCESS_NP4);
+    assert(particle  < CPPPROCESS_NPAR);
     const auto page  = evtNo / mgOnGpu::neppM; // #eventpage in this iteration
     const auto ieppM = evtNo % mgOnGpu::neppM; // #event in the current eventpage in this iteration
-    return hstMomenta[page * mgOnGpu::npar*mgOnGpu::np4*mgOnGpu::neppM +
-                      particle * mgOnGpu::neppM*mgOnGpu::np4 + component * mgOnGpu::neppM + ieppM];
+    return hstMomenta[page * CPPPROCESS_NPAR*CPPPROCESS_NP4*mgOnGpu::neppM +
+                      particle * mgOnGpu::neppM*CPPPROCESS_NP4 + component * mgOnGpu::neppM + ieppM];
   };
 
   fptype getMatrixElement(std::size_t evtNo) const override {
