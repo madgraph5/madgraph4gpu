@@ -1237,7 +1237,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             replace_dict['cipd2tipd'] = '//memcpy( cIPD, tIPD, nIPD * sizeof( fptype ) ); // nIPD=0'
             replace_dict['cipddump'] = ''
             replace_dict['cipdhrdcod'] = '//__device__ const fptype* cIPD = nullptr; // unused as nIPD=0'
-        # FIXME! Here there should be different code generated depending on MGONGPUCPP_NBSMINDEPPARAM_GT_0...
+        # FIXME! Here there should be different code generated depending on MGONGPUCPP_NBSMINDEPPARAM_GT_0 (issue #827)
         replace_dict['all_helicities'] = self.get_helicity_matrix(self.matrix_elements[0])
         replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace('helicities', 'tHel')
         color_amplitudes = [me.get_color_amplitudes() for me in self.matrix_elements] # as in OneProcessExporterCPP.get_process_function_definitions
