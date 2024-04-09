@@ -1015,7 +1015,12 @@ namespace mg5amcCpu
         ztempR_sv *= ( std::abs( ztempR_sv ) > minjamp );
         ztempI_sv *= ( std::abs( ztempI_sv ) > minjamp );
 #else
-        for( int i = 0; i < neppV; i++ )
+#ifndef MGONGPU_FPTYPE_DOUBLE /* clang-format off */
+        constexpr int neppV_ztemp = neppV; // FPTYPE=f
+#else
+        constexpr int neppV_ztemp = neppV2; // FPTYPE=m
+#endif /* clang-format on */
+        for( int i = 0; i < neppV_ztemp; i++ ) // NB! This may be either neppV (FPTYPE=f) or neppV2=2*neppV (FPTYPE=m)!
         {
           ztempR_sv[i] *= ( std::abs( ztempR_sv[i] ) > minjamp );
           ztempI_sv[i] *= ( std::abs( ztempI_sv[i] ) > minjamp );
