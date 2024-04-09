@@ -40,6 +40,8 @@ while [ "$1" != "" ]; do
   fi
 done
 
+started="STARTED  AT $(date)"
+
 if [ "${bsm}" != "-bsmonly" ]; then
   if [ "$short" == "1" ]; then
     ${scrdir}/teeMadX.sh -eemumu -ggtt -ggttg -ggttgg -gqttq $flts $makeclean $rmrdat $add10x
@@ -49,11 +51,21 @@ if [ "${bsm}" != "-bsmonly" ]; then
     ${scrdir}/teeMadX.sh -eemumu -ggtt -ggttg -ggttgg -gqttq -ggttggg $flts $makeclean $rmrdat $add10x
   fi
 fi
+status=$?
+ended1="(SM tests)\nENDED(1) AT $(date) [Status=$status]"
 
 if [ "${bsm}" != "-nobsm" ]; then
-  ${scrdir}/teeMadX.sh -susyggtt -susyggt1t1 $flts $makeclean $rmrdat $add10x
+  ${scrdir}/teeMadX.sh -susyggtt -susyggt1t1 -smeftggtttt $flts $makeclean $rmrdat $add10x
 fi
+status=$?
+ended2="(BSM tests)\nENDED(1) AT $(date) [Status=$status]"
 
 # Print out the number of "OK!"s in each log (expect 24)
+echo
+printf "\n%80s\n" |tr " " "#"
+echo
+echo -e "$started"
+echo -e "$ended1"
+echo -e "$ended2"
 echo
 for f in ${scrdir}/logs_*_mad/log_*; do echo $(cat $f | grep OK  | wc -l) $f; done # expect 24

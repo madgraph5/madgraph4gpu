@@ -781,10 +781,10 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         res = res.replace(' ;',';')
         res = res.replace('= - ','= -') # post-fix for susy
         res = res.replace('(  - ','( -') # post-fix for susy
-        res = res.replace(',  - ',', -') # post-fix for SM no_b_mass
-        res = res.replace('Re+mdl','Re + mdl') # post-fix for smeft
-        res = res.replace('Re+0','Re + 0') # post-fix for smeft
-        res = res.replace('He-2','He - 2') # post-fix for smeft
+        res = res.replace('Re+mdl','Re + mdl') # better post-fix for smeft #633
+        res = res.replace('Re+0','Re + 0') # better post-fix for smeft #633
+        res = res.replace('He-2','He - 2') # better post-fix for smeft #633
+        res = res.replace(',  - ',', -') # post-fix for smeft
         ###print(res); assert(False)
         ###misc.sprint( "'"+res+"'" )
         return res
@@ -796,7 +796,9 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         # For each parameter, write "name = expr;"
         for param in params:
             res_strings.append( "%s" % param.expr )
-        return "\n".join(res_strings)
+        res = "\n".join(res_strings)
+        res = res.replace('ABS(','std::abs(') # for SMEFT #614 and #616
+        return res
 
     # AV - replace export_cpp.UFOModelConverterCPP method (eventually split writing of parameters and fixes for Majorana particles #622)
     def super_write_set_parameters_onlyfixMajorana(self, hardcoded): # FIXME! split hardcoded (constexpr) and not-hardcoded code
@@ -911,12 +913,42 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             dcoupdecl = [ '      cxtype_sv %s;' % name for name in self.coups_dep ]
             replace_dict['dcoupdecl'] = '\n'.join( dcoupdecl )
             dcoupsetdpar = []
+            # Special handling of G and aS parameters (cudacpp starts from G, while UFO starts from aS)
+            # For simplicity, compute these parameters directly from G, rather than from another such parameter
+            # (e.g. do not compute mdl_sqrt__aS as sqrt of aS, which would require defining aS first)
+            gparameters = { 'aS' : 'G * G / 4. / M_PI',
+                            'mdl_sqrt__aS' : 'G / 2. / constexpr_sqrt( M_PI )' }
+            gparamcoded = set()
             foundG = False
-            for line in self.write_hardcoded_parameters(self.params_dep).split('\n'):
-                if line != '':
-                    dcoupsetdpar.append( '    ' + line.replace('constexpr cxsmpl<double> mdl_G__exp__2','const fptype_sv mdl_G__exp__2').replace('constexpr double', 'const fptype_sv' if foundG else '//const fptype_sv' ) )
-                    if 'constexpr double G =' in line: foundG = True
-            replace_dict['dcoupsetdpar'] = '    ' + '\n'.join( dcoupsetdpar )
+            for pdep in self.params_dep:
+                ###misc.sprint(pdep.type, pdep.name) 
+                line = '    ' + self.write_hardcoded_parameters([pdep]).rstrip('\n')
+                ###misc.sprint(line)
+                if not foundG:
+                    # Comment out the default UFO assignment of mdl_sqrt__aS (from aS) and of G (from mdl_sqrt__aS), but keep them for reference
+                    # (WARNING! This Python CODEGEN code essentially assumes that this refers precisely and only to mdl_sqrt__aS and G)
+                    dcoupsetdpar.append( '    ' + line.replace('constexpr double', '//const fptype_sv') )
+                elif pdep.name == 'mdl_G__exp__2' : # bug fix: fptype, not double nor complex (UFO SUSY and SMEFT even disagree on this?)
+                    # Hardcode a custom assignment (valid for both SUSY and SMEFT) instead of replacing double or complex in 'line'
+                    dcoupsetdpar.append('        const fptype_sv ' + pdep.name + ' = G * G;' )
+                elif pdep.name == 'mdl_G__exp__3' : # bug fix: fptype, not double nor complex (UFO SUSY and SMEFT even disagree on this?)
+                    # Hardcode a custom assignment (valid for both SUSY and SMEFT) instead of replacing double or complex in 'line'
+                    dcoupsetdpar.append('        const fptype_sv ' + pdep.name + ' = G * G * G;' )
+                elif pdep.name in gparameters:
+                    # Skip the default UFO assignment from aS (if any?!) of aS and mdl_sqrt__aS, as these are now derived from G
+                    # (WARNING! no path to this statement! aS is not in params_dep, while mdl_sqrt__aS is handled in 'if not foundG' above)
+                    ###misc.sprint('Skip gparameter:', pdep.name)
+                    continue
+                else:
+                    for gpar in gparameters:
+                        if ' ' + gpar + ' ' in line and not gpar in gparamcoded:
+                            gparamcoded.add(gpar)
+                            dcoupsetdpar.append('        const fptype_sv ' + gpar + ' = ' + gparameters[gpar] + ';' )
+                    dcoupsetdpar.append( '    ' + line.replace('constexpr double', 'const fptype_sv') )
+                if pdep.name == 'G':
+                    foundG = True
+                    dcoupsetdpar.append('        // *** NB Compute all dependent parameters, including aS, in terms of G rather than in terms of aS ***')
+            replace_dict['dcoupsetdpar'] = '\n'.join( dcoupsetdpar )
             dcoupsetdcoup = [ '    ' + line.replace('constexpr cxsmpl<double> ','out.').replace('mdl_complexi', 'cI') for line in self.write_hardcoded_parameters(list(self.coups_dep.values())).split('\n') if line != '' ]
             replace_dict['dcoupsetdcoup'] = '    ' + '\n'.join( dcoupsetdcoup )
             dcoupaccessbuffer = [ '    fptype* %ss = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_%s );'%( name, name ) for name in self.coups_dep ]
@@ -956,12 +988,11 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         replace_dict['nbsmip'] = nbsmparam_indep_all_used # NB this is now done also for 'sm' processes (no check on model name, see PR #824)
         replace_dict['hasbsmip'] = '' if nbsmparam_indep_all_used > 0 else '//'
         replace_dict['bsmip'] = ', '.join( list(bsmparam_indep_real_used) + [ '%s.real(), %s.imag()'%(par,par) for par in bsmparam_indep_complex_used] ) if nbsmparam_indep_all_used > 0 else '(none)'
-        if 'eft' in self.model_name.lower():
-            replace_dict['eftwarn0'] = '\n//#warning Support for EFT physics models is still limited for HRDCOD=0 builds (#439 and PR #625)'
-            replace_dict['eftwarn1'] = '\n//#warning Support for EFT physics models is still limited for HRDCOD=1 builds (#439 and PR #625)'
-        else:
-            replace_dict['eftwarn0'] = ''
-            replace_dict['eftwarn1'] = ''
+        replace_dict['eftwarn0'] = ''
+        replace_dict['eftwarn1'] = ''
+        ###if 'eft' in self.model_name.lower():
+        ###    replace_dict['eftwarn0'] = '\n//#warning Support for EFT physics models is still limited for HRDCOD=0 builds (#439 and PR #625)'
+        ###    replace_dict['eftwarn1'] = '\n//#warning Support for EFT physics models is still limited for HRDCOD=1 builds (#439 and PR #625)'
         if len( bsmparam_indep_real_used ) + len( bsmparam_indep_complex_used ) == 0:
             replace_dict['eftspecial0'] = '\n      // No special handling of non-hardcoded parameters (no additional BSM parameters needed in constant memory)'
         else:

@@ -9,7 +9,7 @@ cd $scrdir
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gguu][-gqttq][-susyggtt][-susyggt1t1]> [-flt|-fltonly|-mix|-mixonly] [-makeonly] [-makeclean] [-rmrdat] [+10x] [-checkonly]" > /dev/stderr
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gguu][-gqttq][-susyggtt][-susyggt1t1][-smeftggtttt]> [-flt|-fltonly|-mix|-mixonly] [-makeonly] [-makeclean] [-rmrdat] [+10x] [-checkonly]" > /dev/stderr
   exit 1
 }
 
@@ -23,6 +23,7 @@ gguu=
 gqttq=
 susyggtt=
 susyggt1t1=
+smeftggtttt=
 
 suffs="mad"
 fptypes="d"
@@ -71,6 +72,9 @@ for arg in $*; do
   elif [ "$arg" == "-susyggt1t1" ]; then
     if [ "$susyggt1t1" == "" ]; then procs+=${procs:+ }${arg}; fi
     susyggt1t1=$arg
+  elif [ "$arg" == "-smeftggtttt" ]; then
+    if [ "$smeftggtttt" == "" ]; then procs+=${procs:+ }${arg}; fi
+    smeftggtttt=$arg
   elif [ "$arg" == "-flt" ]; then
     if [ "${fptypes}" != "d" ] && [ "${fptypes}" != "d f" ]; then echo "ERROR! Options -flt, -fltonly, -mix and -mixonly are incompatible"; usage; fi
     fptypes="d f"

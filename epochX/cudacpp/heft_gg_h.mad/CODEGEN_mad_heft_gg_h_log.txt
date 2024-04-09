@@ -151,8 +151,8 @@ INFO: Organizing processes into subprocess groups
 INFO: Generating Helas calls for process: g g > h HIG<=1 HIW<=1 WEIGHTED<=2 @1 
 INFO: Processing color information for process: g g > h HIG<=1 HIW<=1 @1 
 INFO: Creating files in directory P1_gg_h 
-[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1115][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f915692fe20> [1;30m[export_v4.py at line 6261][0m [0m
+[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1147][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f63d2d23610> [1;30m[export_v4.py at line 6261][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -168,14 +168,14 @@ INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./.
 INFO: Generating Feynman diagrams for Process: g g > h HIG<=1 HIW<=1 WEIGHTED<=2 @1 
 INFO: Finding symmetric diagrams for subprocess group gg_h 
 Generated helas calls for 1 subprocesses (1 diagrams) in 0.002 s
-Wrote files for 4 helas calls in 0.091 s
+Wrote files for 4 helas calls in 0.098 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVS3 routines[0m
-ALOHA: aloha creates 1 routines in  0.070 s
+ALOHA: aloha creates 1 routines in  0.076 s
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 204][0m [0m
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVS3 routines[0m
-ALOHA: aloha creates 2 routines in  0.058 s
+ALOHA: aloha creates 2 routines in  0.062 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVS3
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_heft_gg_h/src/./HelAmps_heft.h
 INFO: Created file HelAmps_heft.h in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_heft_gg_h/src/. 
@@ -212,9 +212,9 @@ Type "launch" to generate events from this process, or see
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m1.479s
-user	0m1.271s
-sys	0m0.204s
+real	0m1.575s
+user	0m1.353s
+sys	0m0.221s
 Code generation completed in 1 seconds
 ************************************************************
 *                                                          *

@@ -12,7 +12,7 @@ topdir=$(cd $scrdir; cd ../../..; pwd)
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggh][-susyggtt][-susyggt1t1]> [-nocpp|[-avxall][-nocuda][-noneonly][-sse4only][-avx2only][-512yonly][-512zonly]] [-sa] [-noalpaka] [-flt|-fltonly|-mix|-mixonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-omp] [-makeonly|-makeclean|-makecleanonly|-dryrun] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest] [-nofpe] [-v] [-dlp <dyld_library_path>]"
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggh][-susyggtt][-susyggt1t1][-smeftggtttt]> [-nocpp|[-avxall][-nocuda][-noneonly][-sse4only][-avx2only][-512yonly][-512zonly]] [-sa] [-noalpaka] [-flt|-fltonly|-mix|-mixonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-omp] [-makeonly|-makeclean|-makecleanonly|-dryrun] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest] [-nofpe] [-v] [-dlp <dyld_library_path>]"
   exit 1
 }
 
@@ -30,6 +30,7 @@ gqttq=0
 heftggh=0
 susyggtt=0
 susyggt1t1=0
+smeftggtttt=0
 
 suffs=".mad/"
 
@@ -103,6 +104,10 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-susyggt1t1" ]; then
     if [ "$susyggt1t1" == "0" ]; then procs+=${procs:+ }$1; fi
     susyggt1t1=1
+    shift
+  elif [ "$1" == "-smeftggtttt" ]; then
+    if [ "$smeftggtttt" == "0" ]; then procs+=${procs:+ }$1; fi
+    smeftggtttt=1
     shift
   elif [ "$1" == "-sa" ]; then
     suffs=".sa/"
@@ -248,6 +253,7 @@ while [ "$1" != "" ]; do
     usage
   fi
 done
+###echo procs=$procs
 ###exit 1
 
 # Workaround for MacOS SIP (SystemIntegrity Protection): set DYLD_LIBRARY_PATH In subprocesses
@@ -266,7 +272,7 @@ else
 fi
 
 # Check that at least one process has been selected
-if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ] && [ "${gqttq}" == "0" ] && [ "${heftggh}" == "0" ] && [ "${susyggtt}" == "0" ] && [ "${susyggt1t1}" == "0" ]; then usage; fi
+if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ] && [ "${gqttq}" == "0" ] && [ "${heftggh}" == "0" ] && [ "${susyggtt}" == "0" ] && [ "${susyggt1t1}" == "0" ] && [ "${smeftggtttt}" == "0" ]; then usage; fi
 
 # Check that heftggh does not run in .mad mode
 ###if [ "${heftggh}" == "1" ] && [ "${suffs/.mad\/}" != "${suffs}" ]; then
@@ -326,11 +332,13 @@ function showdir()
       dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_gux_ttxux # only 1 out of 2 for now
     elif [ "${proc}" == "-heftggh" ]; then 
       ###echo "ERROR! Options -mad and -madonly are not supported with -heftggh"; exit 1
-      dir=$topdir/epochX/${bckend}/heft_gg_h${suff}/SubProcesses/P1_gg_h
+      dir=$topdir/epochX/${bckend}/heft_gg_h${suff}SubProcesses/P1_gg_h
     elif [ "${proc}" == "-susyggtt" ]; then 
-      dir=$topdir/epochX/${bckend}/susy_gg_tt${suff}/SubProcesses/P1_gg_ttx
+      dir=$topdir/epochX/${bckend}/susy_gg_tt${suff}SubProcesses/P1_gg_ttx
     elif [ "${proc}" == "-susyggt1t1" ]; then 
-      dir=$topdir/epochX/${bckend}/susy_gg_t1t1${suff}/SubProcesses/P1_gg_t1t1x
+      dir=$topdir/epochX/${bckend}/susy_gg_t1t1${suff}SubProcesses/P1_gg_t1t1x
+    elif [ "${proc}" == "-smeftggtttt" ]; then 
+      dir=$topdir/epochX/${bckend}/smeft_gg_tttt${suff}SubProcesses/P1_gg_ttxttx
     fi
   else
     if [ "${proc}" == "-eemumu" ]; then 
@@ -347,11 +355,13 @@ function showdir()
       ###dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_Sigma_sm_gu_ttxu
       dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_Sigma_sm_gux_ttxux # only 1 out of 2 for now
     elif [ "${proc}" == "-heftggh" ]; then 
-      dir=$topdir/epochX/${bckend}/heft_gg_h${suff}/SubProcesses/P1_Sigma_heft_gg_h
+      dir=$topdir/epochX/${bckend}/heft_gg_h${suff}SubProcesses/P1_Sigma_heft_gg_h
     elif [ "${proc}" == "-susyggtt" ]; then 
-      dir=$topdir/epochX/${bckend}/susy_gg_tt${suff}/SubProcesses/P1_Sigma_MSSM_SLHA2_gg_ttx
+      dir=$topdir/epochX/${bckend}/susy_gg_tt${suff}SubProcesses/P1_Sigma_MSSM_SLHA2_gg_ttx
     elif [ "${proc}" == "-susyggt1t1" ]; then 
-      dir=$topdir/epochX/${bckend}/susy_gg_t1t1${suff}/SubProcesses/P1_Sigma_MSSM_SLHA2_gg_t1t1x
+      dir=$topdir/epochX/${bckend}/susy_gg_t1t1${suff}SubProcesses/P1_Sigma_MSSM_SLHA2_gg_t1t1x
+    elif [ "${proc}" == "-smeftggtttt" ]; then 
+      dir=$topdir/epochX/${bckend}/smeft_gg_tttt${suff}SubProcesses/P1_Sigma_SMEFTsim_topU3l_MwScheme_UFO_gg_ttxttx
     fi
   fi
   echo $dir
@@ -371,9 +381,9 @@ for proc in $procs; do
   done
 done
 if [ "$dirs" == "" ]; then echo "ERROR! no valid directories found?"; exit 1; fi  
+###echo dirs=$dirs
 
 exes=
-
 for dir in $dirs; do
   
   #=====================================
@@ -415,6 +425,7 @@ for dir in $dirs; do
   fi
 
 done
+###echo exes=$exes
 
 ##########################################################################
 # PART 2 - build the executables which should be run
@@ -432,6 +443,7 @@ else
   # Iterate over all directories (the first one will build googletest)
   gtestlibs=0
   for dir in $dirs; do
+    ###echo "Building in $dir" # FIXME: add a check that this $dir exists
     export USEBUILDDIR=1
     pushd $dir >& /dev/null
     echo "Building in $(pwd)"
@@ -654,6 +666,12 @@ for exe in $exes; do
     # For heftggh: 2->1 process, hence all events are identical and random numbers are ignored, use bare minimum 1 8 1
     exeArgs="-p 1 8 1"
     ncuArgs="-p 1 8 1"
+  elif [ "${exe%%/smeft_gg_tttt*}" != "${exe}" ]; then 
+    # For smeftggtttt, use the same settings as for ggttggg (may be far too short!)
+    exeArgs="-p 1 256 2"
+    ncuArgs="-p 1 256 1"
+    # For smeftggtttt, use the same settings as for ggttggg (may be far too short!)
+    exeArgs2="-p 64 256 1"
   elif [ "${exe%%/susy_gg_tt*}" != "${exe}" ]; then 
     # For susyggtt, use the same settings as for SM ggtt
     exeArgs="-p 2048 256 2"

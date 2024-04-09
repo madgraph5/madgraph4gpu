@@ -149,6 +149,15 @@ function codeGenAndDiff()
     heft_gg_h)
       cmd="set auto_convert_model T; import model heft; generate g g > h"
       ;;
+    gg_bb) # for comparison: 3 diagrams
+      cmd="generate g g > b b~"
+      ;;
+    heft_gg_bb) # 3 diagrams (as in gg_bb)
+      cmd="set auto_convert_model T; import model heft; generate g g > b b~"
+      ;;
+    heft_gg_h_bb) # 1 diagram (out of 3 in heft_gg_bb)
+      cmd="set auto_convert_model T; import model heft; generate g g > h > b b~"
+      ;;
     smeft_gg_tttt)
       cmd="set auto_convert_model T; import model SMEFTsim_topU3l_MwScheme_UFO -massless_4t; generate g g > t t~ t t~"
       ;;
