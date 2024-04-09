@@ -833,8 +833,8 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             # Add BSM parameters which are needed to compute dependent couplings
             # Note: this seemed enough to fix SUSY processes, but not EFT processes
             for coupdep in self.coups_dep.values():
-                ###if param.name in coupdep.expr:
-                if ' '+param.name+' ' in coupdep.expr: # see review of PR #824
+                if param.name in coupdep.expr:
+                ###if ' '+param.name+' ' in coupdep.expr: # this is not enough, see review of PR #824 and mg5amcnlo#90
                     if param.type == 'real':
                         bsmparam_indep_real_used.append( param.name )
                     elif param.type == 'complex':
@@ -842,8 +842,8 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             # Add BSM parameters which are needed to compute dependent parameters
             # Note: this was later added to also fix EFT processes (related to #616)
             for pardep in self.params_dep:
-                ###if param.name in pardep.expr:
-                if param.name in pardep.expr: # see review of PR #824
+                if param.name in pardep.expr:
+                ###if param.name in pardep.expr: # this is not enough, see review of PR #824 and mg5amcnlo#90
                     if param.type == 'real':
                         bsmparam_indep_real_used.append( param.name )
                     elif param.type == 'complex':
