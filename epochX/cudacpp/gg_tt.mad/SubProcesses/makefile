@@ -4,7 +4,7 @@ include ../../Source/make_opts
 
 # Determine CUDACPP_BUILDDIR based on the user-defined choices of BACKEND, FPTYPE, HELINL, HRDCOD and USEBUILDDIR (#829)
 # Stop with an error if BACKEND=cuda and nvcc is missing or if BACKEND=hip and hipcc is missing
-include ../../src/cudacpp_builddir.mk
+include ../../src/cudacpp_config.mk
 ifeq ($(CUDACPP_BUILDDIR),)
 $(error CUDACPP_BUILDDIR='$(CUDACPP_BUILDDIR)' should not be empty!)
 endif
