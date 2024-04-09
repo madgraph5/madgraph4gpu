@@ -354,7 +354,10 @@ class RWGT_ProcessExporter(PLUGIN_ProcessExporter):
                      'CMake': [s+'CMake/Compilers.txt', s+'CMake/Platforms.txt', s+'CMake/Macros.txt'],
                      'src': [s+'gpu/rambo.h', s+'read_slha.h', s+'read_slha.cc',
                              s+'gpu/mgOnGpuFptypes.h', s+'gpu/mgOnGpuCxtypes.h', s+'gpu/mgOnGpuVectors.h',
-                             s+'CMake/src/CMakeLists.txt' ],
+                             s+'CMake/src/CMakeLists.txt',
+                             s+'REX/REX.cc', s+'REX/teawREX.cc', 
+                             s+'REX/REX.h', s+'REX/teawREX.h', 
+                             s+'REX/rwgt_instance.h', s+'REX/rwgt_instance.cc'],
                      'SubProcesses': [s+'gpu/nvtx.h', s+'gpu/timer.h', s+'gpu/timermap.h',
                                       s+'gpu/ompnumthreads.h', s+'gpu/GpuRuntime.h', s+'gpu/GpuAbstraction.h',
                                       s+'gpu/MemoryAccessHelpers.h', s+'gpu/MemoryAccessVectors.h',
@@ -376,7 +379,7 @@ class RWGT_ProcessExporter(PLUGIN_ProcessExporter):
                                       s+'gpu/perf.py', s+'gpu/profile.sh',
                                       s+'CMake/SubProcesses/CMakeLists.txt',
                                       s+'gpu/cudacpp_rex_driver.mk',
-                                      s+'REX/rwgt_instance.h', s+'REX/REX.hpp', s+'REX/teawREX.hpp'],
+                                      s+'REX/rwgt_instance.h', s+'REX/REX.h', s+'REX/teawREX.h'],
                      'test': [s+'gpu/cudacpp_test.mk']}
 
 #    from_template['SubProcesses'].append(s+'REX/rwgt_instance.h')
@@ -407,7 +410,7 @@ class RWGT_ProcessExporter(PLUGIN_ProcessExporter):
                     'MemoryBuffers.h', # this is generated from a template in Subprocesses but we still link it in P1
                     'MemoryAccessCouplings.h', # this is generated from a template in Subprocesses but we still link it in P1
                     'perf.py', 'profile.sh',
-                    'rwgt_instance.h', 'REX.hpp', 'teawREX.hpp']
+                    'rwgt_instance.h', 'REX.h', 'teawREX.h']
     
 #    to_link_in_P.append('rwgt_instance.h')
 #    to_link_in_P.append('REX.hpp')

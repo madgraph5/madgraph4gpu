@@ -572,25 +572,24 @@ override RUNTIME =
 
 .PHONY: all $(DIRS)
 
-# Assuming DIRS is defined as before
 DIRS := $(wildcard P*)
 
+
 # Construct the library paths
-rwgtlib := $(addprefix ,$(addsuffix /librwgt.a,$(DIRS)))
+cxx_proclibs := $(shell for dir in $(DIRS); do basename $$dir | awk -F_ '{print "mg5amc_"$$(NF-1)"_"$$NF"_cpp"}'; done)
+rwgtlib := $(addprefix ,$(addsuffix /librwgt.so,$(DIRS)))
 
 cxx_rwgt=$(BUILDDIR)/rwgt.exe
 ifneq ($(GPUCC),)
 cu_rwgt=$(BUILDDIR)/grwgt.exe
-grwgtlib := $(addprefix $(DIRS)/,libgrwgt.a)
+grwgtlib := $(addprefix $(DIRS)/,libgrwgt.so)
+cu_proclibs := $(shell for dir in $(DIRS); do basename $$dir | awk -F_ '{print "mg5amc_"$$(NF-1)"_"$$NF"_cuda"}'; done)
 else
 cu_rwgt=
 grwgtlib=
+cu_proclibs=
 endif
-ifneq ($(GTESTLIBS),)
 all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cu_rwgt) $(cxx_rwgt)
-else
-all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cu_rwgt) $(cxx_rwgt)
-endif
 
 # Target (and build options): debug
 MAKEDEBUG=
@@ -735,7 +734,7 @@ $(rwgtlib):
 # Target (and build rules): C++ and CUDA standalone executables
 $(cxx_rwgt): LIBFLAGS += $(CXXLIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(cxx_rwgt): $(BUILDDIR)/rwgt_driver.o $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(rwgtlib)
-	$(CXX) -o $@ $(BUILDDIR)/rwgt_driver.o $(rwgtlib) $(OMPFLAGS) -ldl -pthread $(LIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
+	$(CXX) -o $@ $(BUILDDIR)/rwgt_driver.o $(OMPFLAGS) -ldl -pthread $(LIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB) -l$(cxx_proclibs) $(rwgtlib) 
 
 ifneq ($(GPUCC),)
 ifneq ($(shell $(CXX) --version | grep ^Intel),)
@@ -746,7 +745,7 @@ $(cu_rwgt): LIBFLAGS += -L$(patsubst %%bin/nvc++,%%lib,$(subst ccache ,,$(CXX)))
 endif
 $(cu_rwgt): LIBFLAGS += $(CULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(cu_rwgt): rwgtlibs $(BUILDDIR)/grwgt.o $(LIBDIR)/lib$(MG5AMC_CULIB).so $(DIRS)
-	$(GPUCC) -o $@ $(BUILDDIR)/grwgt.o $(grwgtlib) $(CUARCHFLAGS) $(LIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CULIB) 
+	$(GPUCC) -o $@ $(BUILDDIR)/grwgt.o $(CUARCHFLAGS) $(LIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CULIB) -l$(cu_proclibs) $(grwgtlib)
 endif
 
 #-------------------------------------------------------------------------------

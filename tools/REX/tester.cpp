@@ -19,14 +19,25 @@ std::shared_ptr<std::vector<size_t>> sorterFunc(std::string_view dummy, std::vec
 
 int main( int argc, char* argv[] ){
     std::string lheFilePath;
+    std::string rwgtCardPath;
+    std::string outputPath;
+    std::string slhaPath;
     
     // READ COMMAND LINE ARGUMENTS
-    for( int arg = 0; arg < argc; arg++ )
+for( int i = 1; i < argc; i++ )
     {
-        auto currArg = std::string( argv[arg] );
+        auto currArg = std::string( argv[i] );
         if( currArg.substr(0,9) == "--lhefile" || currArg.substr(0,4) == "-lhe" )
         {
             lheFilePath = currArg.substr( currArg.find( "=" ) + 1 ); 
+        }
+        else if( currArg.substr(0,10) == "--rwgtcard" || currArg.substr(0,5) == "-rwgt" )
+        {
+            rwgtCardPath = currArg.substr( currArg.find( "=" ) + 1 );
+        } else if( currArg.substr(0,8) == "--output" || currArg.substr(0,4) == "-out" ){
+            outputPath = currArg.substr( currArg.find( "=" ) + 1 );
+        } else if (currArg.substr(0,12) == "--param_card" || currArg.substr(0,5) == "-slha" ){
+            slhaPath = currArg.substr( currArg.find( "=" ) + 1 );
         }
     }
 
@@ -57,6 +68,10 @@ int main( int argc, char* argv[] ){
     }
     std::cout << evsVals->size() << "\n";
     std::cout << siz << "\n";
+
+    REX::teaw::rwgtFiles fileCol( lheFilePath, slhaPath, rwgtCardPath );
+    fileCol.initCards();
+
     return 0;
 
 }

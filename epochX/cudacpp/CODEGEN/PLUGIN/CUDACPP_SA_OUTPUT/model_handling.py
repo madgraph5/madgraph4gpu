@@ -2110,7 +2110,7 @@ class PLUGIN_OneProcessExporterRwgt(PLUGIN_OneProcessExporter):
     # ZW - rwgt functions
     def get_rwgt_legs(self, process):
         """Return string with particle ids and status in the REX std::pair format"""
-        return ",".join(["{%i,%i}" % (leg.get('state'), leg.get('id')) \
+        return ",".join(["{\"%i\",\"%i\"}" % (leg.get('state'), leg.get('id')) \
             for leg in process.get('legs')]).replace('0', '-1')
         
     def get_init_prts_vec(self, process):
@@ -2153,7 +2153,6 @@ class PLUGIN_OneProcessExporterRwgt(PLUGIN_OneProcessExporter):
         # Adjust the placeholders for use with `.format()`
         rwgt_h = """#ifndef {namespace}_RWGT_RUNNER_H
     #define {namespace}_RWGT_RUNNER_H
-    #include \"teawREX.hpp\"
     #include \"rwgt_instance.h\"
     namespace {namespace} {{
         extern rwgt::instance runner;

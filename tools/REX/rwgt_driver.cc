@@ -30,6 +30,7 @@ int usage( char* argv0, int ret = 1 )
 
 
 int main( int argc, char** argv ){
+    std::cout << "Starting reweighting driver...\n";
     std::string lheFilePath;
     std::string rwgtCardPath;
     std::string outputPath;
@@ -38,9 +39,8 @@ int main( int argc, char** argv ){
     if (argc < 2){
         return usage( argv[0] );
     }
-
     // READ COMMAND LINE ARGUMENTS
-    for( int i = 1; i <= argc; i++ )
+    for( int i = 1; i < argc; i++ )
     {
         auto currArg = std::string( argv[i] );
         if( currArg.substr(0,9) == "--lhefile" || currArg.substr(0,4) == "-lhe" )
@@ -55,10 +55,11 @@ int main( int argc, char** argv ){
         } else if (currArg.substr(0,12) == "--param_card" || currArg.substr(0,5) == "-slha" ){
             slhaPath = currArg.substr( currArg.find( "=" ) + 1 );
         }
-        {
+        else {
             return usage( argv[0] );
         }
     }
+
 
     if( lheFilePath.empty() || rwgtCardPath.empty() ){
         return usage( argv[0] );
@@ -76,12 +77,16 @@ int main( int argc, char** argv ){
     if( onWindows ){
         if( currPath.substr( currPath.find_last_of("\\", slashPos - 1) + 1, 2 ) == "P1" ){
             slhaPath = "..\\..\\Cards\\param_card.dat";
+        } else if( currPath.substr( currPath.find_last_of("\\", slashPos - 1) + 1, 3 ) == "Sub" ){
+            slhaPath = "..\\Cards\\param_card.dat";
         } else{
             slhaPath = "\\Cards\\param_card.dat";
         }
     } else {
         if( currPath.substr( currPath.find_last_of("/", slashPos - 1) + 1, 2 ) == "P1" ){
             slhaPath = "../../Cards/param_card.dat";
+        } else if( currPath.substr( currPath.find_last_of("/", slashPos - 1) + 1, 3 ) == "Sub" ) {
+            slhaPath = "../Cards/param_card.dat";
         } else {
             slhaPath = "/Cards/param_card.dat";
         }
@@ -98,7 +103,7 @@ int main( int argc, char** argv ){
     REX::teaw::ampCall subProcSet;
 
     for( auto proc : runSet ){
-        subProcSet.insert( REX::teaw::ampPair( proc.procEvent, proc.bridgeCall ) );
+        subProcSet.insert( REX::teaw::ampPair( proc.procEventInt, proc.bridgeCall ) );
     }
 
     //auto bridgeCont = fbridgeRunner( fileCol.getLhe() );

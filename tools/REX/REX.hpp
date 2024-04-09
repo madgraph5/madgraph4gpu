@@ -15,8 +15,8 @@
 // Copyright © 2023-2024 CERN, CERN Author Zenny Wettersten. 
 // All rights reserved.
 
-#ifndef _REX_HPP_
-#define _REX_HPP_
+#ifndef _REX_CC_
+#define _REX_CC_
 
 #include <vector>
 #include <iostream>
@@ -35,6 +35,8 @@
 #include <stdexcept>
 #include <unordered_map>
 #include <queue>
+#include "REX.h"
+#include <typeinfo>
 
 // ZW: all fcns within the REX standard sit in the
 // namespace REX
@@ -42,10 +44,6 @@
 // referred to as strings unless the difference is relevant
 namespace REX
 {
-    #pragma warning( push )
-    #pragma warning( disable : 4101)
-    static const size_t npos = -1;
-    #pragma warning( pop ) 
 
     using sortFcn = std::function<std::shared_ptr<std::vector<size_t>>(std::vector<std::string_view>)>;
     using statSort = std::function<std::shared_ptr<std::vector<size_t>>(std::string_view, std::vector<std::string_view>)>;
@@ -67,9 +65,11 @@ namespace REX
     template <typename T>
     std::shared_ptr<std::vector<size_t>> stoiSort(const std::vector<T> &vector)
     {
-        std::function<bool(const T&, const T&)> stoicomp = [](const T& i, const T& j) { return std::stoi(std::string(i)) < std::stoi(std::string(j)); };
+        std::function<bool(const T&, const T&)> stoicomp = [](const T& i, const T& j) { 
+        return std::stoi(std::string(i)) < std::stoi(std::string(j)); };
         return indSort(vector, stoicomp);
     }
+    template std::shared_ptr<std::vector<size_t>> stoiSort<std::string_view>(const std::vector<std::string_view> &vector);
 
     // ZW: wrapper for indSort for comparing string-type arguments representing doubles
     template <typename T>
@@ -92,22 +92,24 @@ namespace REX
             indexMap[reference[i]].push(i);
         }
 
-        std::shared_ptr<std::vector<size_t>> order;
-        order->reserve(to_sort.size()); // Pre-allocate memory
-
+        auto order = std::make_shared<std::vector<size_t>>(std::vector<size_t>(to_sort.size(), npos));
+        //order->reserve(to_sort.size()); // Pre-allocate memory
+        size_t pos = 0;
         for (const auto& elem : to_sort) {
             auto it = indexMap.find(elem);
             if (it != indexMap.end() && !it->second.empty()) {
-                order->push_back(it->second.front());
+                order->at(pos) = (it->second.front());
                 it->second.pop();
-            } else {
+            } //else {
                 // Element in vec2 not found in vec1
-                order->push_back(npos);
-            }
+            //    order->at(pos) = npos;
+            //}
+            ++pos;
         }
 
         return order;
     }
+    template std::shared_ptr<std::vector<size_t>> getRefOrder<std::string_view>(const std::vector<std::string_view>& reference, const std::vector<std::string_view>& to_sort);
 
     // ZW: minimal fcn for counting the amount of times
     // a given search term appears in a string
@@ -232,16 +234,32 @@ namespace REX
 
     // ZW: templated fcn for comparing two
     // string-like objects, ignoring cases
-    template<typename Str1, typename Str2>
-    bool clStringComp( const Str1& org, const Str2& comp ){
+    bool clStringComp( std::string_view org, std::string comp ){
         return std::equal( org.begin(), org.end(), comp.begin(), comp.end(), 
         []( const char& x, char y ){ return (std::toupper(x) == std::toupper(y)); } );
     }
-    template<typename Str1Pt, typename Str2>
-    bool clStringComp( const Str1Pt& orgStrt, const Str1Pt& orgEnd, const Str2& comp ){
-        return std::equal( orgStrt, orgEnd, comp.begin(), comp.end(), 
+    bool clStringComp( std::string_view org, std::string_view comp ){
+        return std::equal( org.begin(), org.end(), comp.begin(), comp.end(), 
         []( const char& x, char y ){ return (std::toupper(x) == std::toupper(y)); } );
     }
+    bool clStringComp( std::string org, std::string_view comp ){
+        return std::equal( org.begin(), org.end(), comp.begin(), comp.end(), 
+        []( const char& x, char y ){ return (std::toupper(x) == std::toupper(y)); } );
+    }
+    bool clStringComp( std::string org, std::string comp ){
+        return std::equal( org.begin(), org.end(), comp.begin(), comp.end(), 
+        []( const char& x, char y ){ return (std::toupper(x) == std::toupper(y)); } );
+    }
+    // template<typename Str1, typename Str2>
+    // bool clStringComp( const Str1& org, const Str2& comp ){
+    //     return std::equal( org.begin(), org.end(), comp.begin(), comp.end(), 
+    //     []( const char& x, char y ){ return (std::toupper(x) == std::toupper(y)); } );
+    // }
+    // template<typename Str1Pt, typename Str2>
+    // bool clStringComp( const Str1Pt& orgStrt, const Str1Pt& orgEnd, const Str2& comp ){
+    //     return std::equal( orgStrt, orgEnd, comp.begin(), comp.end(), 
+    //     []( const char& x, char y ){ return (std::toupper(x) == std::toupper(y)); } );
+    // }
 
     // ZW: templated fcn for finding a caseless substring searchTerm in srcFile
     // On failure to find searchTerm, returns REX::npos
@@ -347,25 +365,18 @@ namespace REX
     }
 
     // ZW: struct for handling tags in XML node opening tags
-    struct xmlTag {
-    public:
-        void setVal( std::string_view valSet ){ modded = true; val = valSet; }
-        void setId( std::string_view idSet ){ modded = true; id = idSet; }
-        std::string_view getVal(){ return val; }
-        std::string_view getId(){ return id; }
-        bool isModded(){ return modded; }
-        xmlTag(){ modded = false; return; }
-        xmlTag( xmlTag& oldTag ){
+        void xmlTag::setVal( std::string_view valSet ){ modded = true; val = valSet; }
+        void xmlTag::setId( std::string_view idSet ){ modded = true; id = idSet; }
+        std::string_view xmlTag::getVal(){ return val; }
+        std::string_view xmlTag::getId(){ return id; }
+        bool xmlTag::isModded(){ return modded; }
+        xmlTag::xmlTag(){ modded = false; return; }
+        xmlTag::xmlTag( xmlTag& oldTag ){
             modded = false; val = oldTag.getVal(); id = oldTag.getId();
         }
-        xmlTag( std::string_view initId, std::string_view initVal){
+        xmlTag::xmlTag( std::string_view initId, std::string_view initVal){
             modded = false; val = initVal; id = initId;
         }
-    protected:
-        bool modded;
-        std::string_view val;
-        std::string_view id;
-    };
 
     // ZW: function for parsing XML opening
     // tags and returning the next header tag
@@ -385,10 +396,8 @@ namespace REX
     // end of each node s.t. the proper node structures can accurately
     // detail where children begin and end while allowing for personal
     // content between child nodes 
-    struct xmlTree {
-    public:
-        xmlTree(){ return; }
-        xmlTree( std::string_view file ){
+        xmlTree::xmlTree(){ return; }
+        xmlTree::xmlTree( std::string_view file ){
             origin = file;
             children = std::make_shared<std::vector<std::shared_ptr<xmlTree>>>();
             start = file.find_first_not_of(" \n\r\f\t\v");
@@ -428,7 +437,7 @@ namespace REX
             end = file.find_first_not_of(" \n\r\f\t\v", stEnd + 1); 
             initialised = true;
         }
-        xmlTree( std::string_view file, size_t& strt, size_t& nd ){ 
+        xmlTree::xmlTree( std::string_view file, size_t& strt, size_t& nd ){ 
             origin = file;
             children = std::make_shared<std::vector<std::shared_ptr<xmlTree>>>();
             start = file.find_first_not_of(" \n\r\f\t\v", strt);
@@ -475,31 +484,10 @@ namespace REX
             strt = end; 
             nd = nodeEndFind(file, strt);
         }
-        auto& getChildren(){ return children; }
-        std::string_view& getOrigin(){ return origin; }
-        size_t getStart(){ return start; }
-        size_t getEnd(){ return end; }
-        size_t getContStart(){ return contSt; }
-        size_t getContEnd(){ return contEnd; }
-        bool isFaux(){ return faux; }
-        bool isInit(){ return initialised; }
-        bool hasChildren(){ return children->size() > 0; }
-    protected:
-        std::shared_ptr<std::vector<std::shared_ptr<xmlTree>>> children; // vector of pointers to children nodes
-        std::string_view origin;
-        size_t start; // position of opening bracket of node opening
-        size_t end; // position of final character of ending node, including trailing blankspace
-        size_t contSt;
-        size_t contEnd;
-        bool faux = false; // boolean showing whether this item is a true node or content squeezed between nodes
-        bool initialised;
-    };
 
     // ZW: struct for handling nodes in generic XML files
-    struct xmlNode {
-    public:
-        xmlNode(){ modded = false; return; }
-        xmlNode( const std::string_view originFile, const size_t& begin = 0, const std::vector<std::shared_ptr<xmlNode>>& childs = {} ){
+        xmlNode::xmlNode(){ modded = false; return; }
+        xmlNode::xmlNode( const std::string_view originFile, const size_t& begin, const std::vector<std::shared_ptr<xmlNode>>& childs ){
             modded = false;
             xmlFile = originFile;
             structure = xmlTree( originFile );
@@ -513,7 +501,7 @@ namespace REX
                 children.push_back( std::make_shared<xmlNode>( *child ) );
             }
         }
-        xmlNode( xmlTree &tree ){ 
+        xmlNode::xmlNode( xmlTree &tree ){ 
             modded = false; 
             structure = tree; 
             if( !structure.isInit() ){ return; } 
@@ -528,43 +516,43 @@ namespace REX
                 children.push_back( std::make_shared<xmlNode>( *child ) ); 
             } 
         }
-        std::vector<std::shared_ptr<xmlNode>> getChildren(){ return children; }
-        std::vector<std::shared_ptr<xmlTag>> getTags(){ return tags; }
-        std::string_view getFile(){ return xmlFile; }
-        std::string_view getName(){ return name; }
-        std::string_view getContent(){ return content; }
-        size_t getStart(){ return start; }
-        size_t getEnd(){ return end; }
-        xmlTree getTree(){ return structure; }
-        virtual bool isModded(){ return modded; }
-        virtual bool isModded( bool deep ){
+        std::vector<std::shared_ptr<xmlNode>> xmlNode::getChildren(){ return children; }
+        std::vector<std::shared_ptr<xmlTag>> xmlNode::getTags(){ return tags; }
+        std::string_view xmlNode::getFile(){ return xmlFile; }
+        std::string_view xmlNode::getName(){ return name; }
+        std::string_view xmlNode::getContent(){ return content; }
+        size_t xmlNode::getStart(){ return start; }
+        size_t xmlNode::getEnd(){ return end; }
+        xmlTree xmlNode::getTree(){ return structure; }
+        bool xmlNode::isModded(){ return modded; }
+        bool xmlNode::isModded( bool deep ){
             bool modStat = isModded();
             if( !deep ){ return modStat; }
             for( auto child : children ){ modStat = (modStat || child->isModded( deep )); }
             return modStat;
         }
-        bool isWritten(){ return written; }
-        bool isParsed(){ return parsed; }
-        bool isFaux(){ return faux; }
-        bool hasChildren(){ return children.size() > 0; }
-        void setModded( bool mod ){ modded = mod; }
-        bool deepModded(){ return deepMod; }
-        bool deepParse(){ return deepParsed; }
-        void parser( bool recursive ){
+        bool xmlNode::isWritten(){ return written; }
+        bool xmlNode::isParsed(){ return parsed; }
+        bool xmlNode::isFaux(){ return faux; }
+        bool xmlNode::hasChildren(){ return children.size() > 0; }
+        void xmlNode::setModded( bool mod ){ modded = mod; }
+        bool xmlNode::deepModded(){ return deepMod; }
+        bool xmlNode::deepParse(){ return deepParsed; }
+        void xmlNode::parser( bool recursive ){
             parsed = parse( recursive );
         }
-        void addChild( std::shared_ptr<xmlNode> child ){ modded = true; children.push_back(child); }
-        void addTag( std::shared_ptr<xmlTag> tag ){ modded = true; tags.push_back(tag); }
-        void setFile( std::string_view file ){ modded = true; xmlFile = file; }
-        void setName( std::string_view newName ){ modded = true; name = newName; }
-        void setCont( std::string_view cont ){ modded = true; content = cont; }
-    protected:
-        virtual bool parse(){ 
+        void xmlNode::addChild( std::shared_ptr<xmlNode> child ){ modded = true; children.push_back(child); }
+        void xmlNode::addTag( std::shared_ptr<xmlTag> tag ){ modded = true; tags.push_back(tag); }
+        void xmlNode::setFile( std::string_view file ){ modded = true; xmlFile = file; }
+        void xmlNode::setName( std::string_view newName ){ modded = true; name = newName; }
+        void xmlNode::setCont( std::string_view cont ){ modded = true; content = cont; }
+
+        bool xmlNode::parse(){ 
             auto topStat = parseTop();
             auto contStat = parseContent();
             return ( topStat && contStat );
         }
-        virtual bool parse( bool recurs )
+        bool xmlNode::parse( bool recurs )
         {
             bool parseSt = parse();
             if( !recurs ){ return parseSt; }
@@ -572,14 +560,14 @@ namespace REX
             deepMod = true;
             return (parseSt && childSt );
         }
-        bool parseTop(){
+        bool xmlNode::parseTop(){
             if( xmlFile == "" ){ return false; }
             if( isFaux() ){ return true; }
             size_t eqSgn = xmlFile.find( "=", start ); size_t nodeInitEnd = xmlFile.find( ">", start );
             while( eqSgn < nodeInitEnd ){ tags.push_back( xmlTagParser( xmlFile, eqSgn ) ); }
             return true;
         }
-        virtual bool parseContent(){
+        bool xmlNode::parseContent(){
             if( xmlFile == "" ){ return false; }
             end = structure.getContEnd();
             for( auto branch : *(structure.getChildren()) ){
@@ -587,7 +575,7 @@ namespace REX
             }
             return true;
         }
-        bool parseChildren( bool recursive ){
+        bool xmlNode::parseChildren( bool recursive ){
             bool status = true;
             if( recursive ){
                 for( auto child : children )
@@ -604,25 +592,7 @@ namespace REX
             }
             return status;
         }
-        std::string nodeHeader;
-        std::string nodeContent;
-        std::string nodeEnd;
-        xmlTree structure;
-        std::vector<std::shared_ptr<xmlNode>> children;
-        std::vector<std::shared_ptr<xmlTag>> tags;
-        std::shared_ptr<std::string> writtenSelf; 
-        bool deepMod = false;
-        std::string_view xmlFile;
-        std::string_view name;
-        std::string_view content;
-        size_t start;
-        size_t end = npos;
-        bool modded = false;
-        bool written = false;
-        bool parsed = false;
-        bool deepParsed = false;
-        bool faux = false;
-        virtual void headWriter() {
+        void xmlNode::headWriter() {
             if( isFaux() ){ return; }
             nodeHeader =  "<" + std::string(name) ;
             for( auto tag : tags ){
@@ -630,24 +600,24 @@ namespace REX
             }
             nodeHeader += ">";
         }
-        virtual void endWriter() {
+        void xmlNode::endWriter() {
             if( isFaux() ){ return; }
             auto endSt = xmlFile.find_last_of("<", end);
             nodeEnd = xmlFile.substr( endSt, end - endSt );
         }
-        virtual void contWriter() {
+        void xmlNode::contWriter() {
             if( hasChildren() ){
             nodeContent = std::string(content.substr(0, children[0]->start - 1 ));
             } else {
             nodeContent = std::string(content);
             }
         }
-        virtual void childWriter() {
+        void xmlNode::childWriter() {
             for(auto child : children){
                 nodeContent += (*child->nodeWriter());
             }
         }
-        virtual void endFinder(){
+        void xmlNode::endFinder(){
             auto headEnd = xmlFile.find(">", start);
             auto slashPos = xmlFile.find("/", start);
             if( headEnd > slashPos ){ end = headEnd; }
@@ -655,7 +625,7 @@ namespace REX
             if( end == npos ){ end = xmlFile.size(); return; }
             end += 2;
         }
-        virtual void fullWriter(){
+        void xmlNode::fullWriter(){
             if( isModded() ){
             headWriter();
             contWriter();
@@ -669,8 +639,8 @@ namespace REX
             written = true;
             }
         }
-    public:
-        virtual void childCounter( int& noChilds )
+        
+        void xmlNode::childCounter( int& noChilds )
         {
             for( auto child : children )
             {
@@ -679,16 +649,16 @@ namespace REX
             }
             noChilds += children.size();
         }  
-        virtual int childCounter() {
+        int xmlNode::childCounter() {
             int noChilds = 0;
             childCounter( noChilds );
             return noChilds;
         }  
-        virtual std::shared_ptr<std::string> nodeWriter() {
+        std::shared_ptr<std::string> xmlNode::nodeWriter() {
             if( isModded( true ) || !isWritten() ){ fullWriter(); }
             return writtenSelf;
         }
-    };
+
 
     // ZW: function for large scale parsing of XML files
     // sequentially goes through the document and
@@ -715,17 +685,15 @@ namespace REX
 
     // ZW: struct for handling rwgt parameter sets
     // in the LHE header initrwgt node
-    struct headWeight : public xmlNode {
-    public:
-        int getId(){ return id; }
-        std::string_view getTag(){ return idTag; }
-        bool hasTag(){ return (idTag.size() > 0); }
-        headWeight(){ name = "weight"; return; }
-        headWeight( std::string_view paramSet, const size_t& begin = 0 ) : xmlNode(){ name = "weight"; xmlFile = paramSet; content = paramSet; return; }
-        headWeight( std::string_view paramSet, std::string_view idText, int idNo, const size_t& begin = 0 ) : xmlNode(){
+        int headWeight::headWeight::getId(){ return id; }
+        std::string_view headWeight::getTag(){ return idTag; }
+        bool headWeight::hasTag(){ return (idTag.size() > 0); }
+        headWeight::headWeight(){ name = "weight"; return; }
+        headWeight::headWeight( std::string_view paramSet, const size_t& begin ) : xmlNode(){ name = "weight"; xmlFile = paramSet; content = paramSet; return; }
+        headWeight::headWeight( std::string_view paramSet, std::string_view idText, int idNo, const size_t& begin ) : xmlNode(){
             name = "weight"; xmlFile = paramSet; content = paramSet; idTag = idText; id = idNo;
         }
-        headWeight( xmlNode& node ) : xmlNode( node ){
+        headWeight::headWeight( xmlNode& node ) : xmlNode( node ){
             parser( false );
             name = "weight";
             for (auto tag : tags ){
@@ -735,7 +703,7 @@ namespace REX
                 }
             }
         }
-        headWeight( xmlNode* node ) : xmlNode( *node ){
+        headWeight::headWeight( xmlNode* node ) : xmlNode( *node ){
             parser( false );
             name = "weight";
             for (auto tag : tags ){
@@ -745,7 +713,7 @@ namespace REX
                 }
             }
         }
-        headWeight( std::shared_ptr<xmlNode> node ) : xmlNode( *node ){
+        headWeight::headWeight( std::shared_ptr<xmlNode> node ) : xmlNode( *node ){
             parser( false );
             name = "weight";
             for (auto tag : tags ){
@@ -755,7 +723,7 @@ namespace REX
                 }
             }
         }
-        headWeight( xmlTree& tree ) : xmlNode( tree ){
+        headWeight::headWeight( xmlTree& tree ) : xmlNode( tree ){
             parser( false );
             name = "weight";
             for (auto tag : tags ){
@@ -765,7 +733,7 @@ namespace REX
                 }
             }
         }
-        headWeight( xmlTree* tree ) : xmlNode( *tree ){
+        headWeight::headWeight( xmlTree* tree ) : xmlNode( *tree ){
             parser( false );
             name = "weight";
             for (auto tag : tags ){
@@ -775,7 +743,7 @@ namespace REX
                 }
             }
         }
-        headWeight( std::shared_ptr<xmlTree> tree ) : xmlNode( *tree ){
+        headWeight::headWeight( std::shared_ptr<xmlTree> tree ) : xmlNode( *tree ){
             parser( false );
             name = "weight";
             for (auto tag : tags ){
@@ -785,17 +753,14 @@ namespace REX
                 }
             }
         }
-        headWeight( std::string_view paramSet, std::string& idText, unsigned int idNo, const size_t& begin = 0 ) : xmlNode(){
+        headWeight::headWeight( std::string_view paramSet, std::string& idText, unsigned int idNo, const size_t& begin ) : xmlNode(){
             name = "weight"; xmlFile = paramSet; content = paramSet; idTag = idText; id = idNo;
         }
-        headWeight( std::string_view paramSet, std::string& idText){
+        headWeight::headWeight( std::string_view paramSet, std::string& idText){
             name = "weight"; xmlFile = paramSet; content = paramSet; idTag = idText;
         }
-        void setId( std::string identity ){ modded = true; idTag = identity; }
-    protected:
-        std::string idTag;
-        long unsigned int id = npos;
-        void headWriter() override{
+        void headWeight::setId( std::string identity ){ modded = true; idTag = identity; }
+        void headWeight::headWriter(){
             if( tags.size() == 0 ){
                 if( idTag == "" ){ nodeHeader = "<weight>"; return; }
                 if( id == npos ){ nodeHeader = "<weight id=\"" + std::string(idTag) + "\">"; return; }
@@ -808,7 +773,7 @@ namespace REX
             }
             nodeHeader += ">";
         }
-        void headWriter( bool incId ){
+        void headWeight::headWriter( bool incId ){
             if( !incId ){ headWriter(); return; }
             if( idTag == "" ){ headWriter(); return; }
             if( id == npos ){ nodeHeader = "<weight id=\"" + std::string( idTag ) + "\""; }
@@ -819,22 +784,22 @@ namespace REX
             }
             nodeHeader += ">";
         }
-        void endWriter() override{
+        void headWeight::endWriter() {
             nodeEnd = "</weight>\n";
         }
-        void contWriter() override{ 
+        void headWeight::contWriter() { 
             nodeContent = std::string( content );
         }
-        void childWriter() override{
+        void headWeight::childWriter() {
             for( auto child : children){
                 if( child->getName() == "weight" ){ continue; }
                 nodeContent += *(child->nodeWriter());
             }
         }
-        void childWriter( bool hasChildren ){
+        void headWeight::childWriter( bool hasChildren ){
             if( hasChildren ){ childWriter(); }
         }
-        void fullWriter() override{
+        void headWeight::fullWriter(){
             if( isModded() || !isWritten() ){
                 headWriter();
                 contWriter();
@@ -845,7 +810,7 @@ namespace REX
                 modded = false;
             }
         }
-        void fullWriter( bool incId, bool hasChildren=true ){
+        void headWeight::fullWriter( bool incId, bool hasChildren ){
             if( isModded() || !isWritten() ){
             headWriter( incId );
             contWriter();
@@ -856,27 +821,24 @@ namespace REX
             written = true;
             }
         }
-    };
 
     // ZW: struct for handling rwgt groups
     // in the LHE header initrwgt node
-    struct weightGroup : public xmlNode {
-    public:
-        bool getIncId(){ return includeId; }
-        void setIncId( bool nuIncId ){ includeId = nuIncId; }
-        std::vector<std::shared_ptr<headWeight>> getWgts(){ return paramSets; }
-        void addWgt( headWeight nuWgt ){ modded = true; paramSets.push_back( std::make_shared<headWeight>( nuWgt ) ); if( nuWgt.hasTag() ){ includeId = true; } }
-        void addWgt( std::shared_ptr<headWeight> nuWgt ){ modded = true; paramSets.push_back( nuWgt); if( nuWgt->hasTag() ){ includeId = true; }}
-        weightGroup() : xmlNode(){ name = "weightgroup"; return; }
-        weightGroup( std::vector<std::shared_ptr<headWeight>> nuWgts ) : xmlNode(){ name = "weightgroup"; paramSets = nuWgts; for( auto wgt : nuWgts ){ if( wgt->hasTag() ){ includeId = true; } } }
-        weightGroup( std::vector<std::string> nuWgts ) : xmlNode(){
+        bool weightGroup::getIncId(){ return includeId; }
+        void weightGroup::setIncId( bool nuIncId ){ includeId = nuIncId; }
+        std::vector<std::shared_ptr<headWeight>> weightGroup::getWgts(){ return paramSets; }
+        void weightGroup::addWgt( headWeight nuWgt ){ modded = true; paramSets.push_back( std::make_shared<headWeight>( nuWgt ) ); if( nuWgt.hasTag() ){ includeId = true; } }
+        void weightGroup::addWgt( std::shared_ptr<headWeight> nuWgt ){ modded = true; paramSets.push_back( nuWgt); if( nuWgt->hasTag() ){ includeId = true; }}
+        weightGroup::weightGroup() : xmlNode(){ name = "weightgroup"; return; }
+        weightGroup::weightGroup( std::vector<std::shared_ptr<headWeight>> nuWgts ) : xmlNode(){ name = "weightgroup"; paramSets = nuWgts; for( auto wgt : nuWgts ){ if( wgt->hasTag() ){ includeId = true; } } }
+        weightGroup::weightGroup( std::vector<std::string> nuWgts ) : xmlNode(){
             name = "weightgroup";
             for( auto wgt : nuWgts ){
                 paramSets.push_back( std::make_shared<headWeight>( wgt ) );
             }
             for( auto wgt : paramSets ){ if( wgt->hasTag() ){ includeId = true; } }
         }
-        weightGroup( xmlNode& wgtNode ) : xmlNode( wgtNode ){
+        weightGroup::weightGroup( xmlNode& wgtNode ) : xmlNode( wgtNode ){
             parser( true );
             name = "weightgroup";
             paramSets.reserve( children.size() );
@@ -885,7 +847,7 @@ namespace REX
             }
             for( auto wgt : paramSets ){ if( wgt->hasTag() ){ includeId = true; } }
         }
-        weightGroup( xmlNode* wgtNode ) : xmlNode( *wgtNode ){
+        weightGroup::weightGroup( xmlNode* wgtNode ) : xmlNode( *wgtNode ){
             parser( true );
             name = "weightgroup";
             paramSets.reserve( children.size() );
@@ -894,7 +856,7 @@ namespace REX
             }
             for( auto wgt : paramSets ){ if( wgt->hasTag() ){ includeId = true; } }
         }
-        weightGroup( xmlTree& wgtTree ) : xmlNode( wgtTree ){ 
+        weightGroup::weightGroup( xmlTree& wgtTree ) : xmlNode( wgtTree ){ 
             parser( true );
             name = "weightgroup";
             paramSets.reserve( children.size() );
@@ -903,7 +865,7 @@ namespace REX
             }
             for( auto wgt : paramSets ){ if( wgt->hasTag() ){ includeId = true; } }
         }
-        weightGroup( xmlTree* wgtTree ) : xmlNode( *wgtTree ){
+        weightGroup::weightGroup( xmlTree* wgtTree ) : xmlNode( *wgtTree ){
             parser( true );
             name = "weightgroup";
             paramSets.reserve( children.size() );
@@ -912,7 +874,7 @@ namespace REX
             }
             for( auto wgt : paramSets ){ if( wgt->hasTag() ){ includeId = true; } }
         }
-        weightGroup( std::shared_ptr<xmlTree> wgtTree ) : xmlNode( *wgtTree ){
+        weightGroup::weightGroup( std::shared_ptr<xmlTree> wgtTree ) : xmlNode( *wgtTree ){
             parser( true );
             name = "weightgroup";
             paramSets.reserve( children.size() );
@@ -921,7 +883,7 @@ namespace REX
             }
             for( auto wgt : paramSets ){ if( wgt->hasTag() ){ includeId = true; } }
         }
-        weightGroup( const std::string_view originFile, const size_t& begin = 0, const std::vector<std::shared_ptr<xmlNode>>& childs = {} )
+        weightGroup::weightGroup( const std::string_view originFile, const size_t& begin, const std::vector<std::shared_ptr<xmlNode>>& childs )
         : xmlNode( originFile, begin, childs ){
             name = "weightgroup";
             if( parseTop() ){
@@ -934,69 +896,58 @@ namespace REX
                 }
             }
         }
-    protected:
-        std::string_view rwgtName;
-        std::string_view wgtNamStrat;
-        bool includeId = false;
-        std::vector<std::shared_ptr<headWeight>> paramSets;
-        bool nu;
-        std::string_view idTag;
-        int id;
-        void headWriter() override{
+        void weightGroup::headWriter() {
             nodeHeader = "<weightgroup";
             if( rwgtName != "" ){ nodeHeader += " name=\"" + std::string( rwgtName ) +"\""; }else if( isModded() ){ nodeHeader += " name=\"rex_reweighting\""; }
             if( wgtNamStrat != "" ){ nodeHeader += " weight_name_strategy=\"" + std::string( wgtNamStrat ) +"\""; }
             else if( wgtNamStrat == "" && includeId ){ nodeHeader += " weight_name_strategy=\"includeIdInWeightName\"";}
             nodeHeader += ">";
         }
-        void contWriter() override{
+        void weightGroup::contWriter() {
             nodeContent = "\n";
             for( auto wgt : paramSets ){
                 nodeContent += (*wgt->nodeWriter());
             }
         }
-        void childWriter() override{
+        void weightGroup::childWriter() {
             for(auto child : children){
                 if( child->getName() == "weight" ){ continue; }
                 nodeContent += (*child->nodeWriter());
             }
         }
-        void childWriter( bool hasChildren ){
+        void weightGroup::childWriter( bool hasChildren ){
             if( hasChildren ){ childWriter(); }
             return;
         }
-        void endWriter() override{ nodeEnd = "</weightgroup>\n"; }
-    };
+        void weightGroup::endWriter() { nodeEnd = "</weightgroup>\n"; }
 
-    struct initRwgt : public xmlNode {
-    public:
-        std::vector<std::shared_ptr<weightGroup>> getGroups(){ return groups; }
-        size_t noGrps(){ return groups.size(); }
-        void addGroup( weightGroup nuGroup ){ 
+        std::vector<std::shared_ptr<weightGroup>> initRwgt::getGroups(){ return groups; }
+        size_t initRwgt::noGrps(){ return groups.size(); }
+        void initRwgt::addGroup( weightGroup nuGroup ){ 
             modded = true;
             auto nuGrpPtr = std::make_shared<weightGroup>( nuGroup );
             if( grpInit( nuGrpPtr ) ){ groups.push_back( std::make_shared<weightGroup>( nuGroup ) );  }
         }
-        void addGroup( std::shared_ptr<weightGroup> nuGroup ){ 
+        void initRwgt::addGroup( std::shared_ptr<weightGroup> nuGroup ){ 
             modded = true;
             if( grpInit( nuGroup ) ){ groups.push_back( nuGroup ); }
         }
-        void addWgt( unsigned int index, std::shared_ptr<headWeight> nuWgt ){
+        void initRwgt::addWgt( unsigned int index, std::shared_ptr<headWeight> nuWgt ){
             if( index < groups.size() ){ modded = true; groups[index]->addWgt( nuWgt ); }
             else throw std::range_error( "Appending weight to uninitialised weightgroup." );
         }
-        void addWgt( unsigned int index, headWeight nuWgt ){
+        void initRwgt::addWgt( unsigned int index, headWeight nuWgt ){
             if( index < groups.size() ){ modded = true; groups[index]->addWgt( nuWgt ); }
             else throw std::range_error( "Appending weight to uninitialised weightgroup." );
         }
-        initRwgt() : xmlNode(){ name = "initrwgt"; return; }
-        initRwgt( std::vector<std::shared_ptr<xmlNode>> nuGroups ) : xmlNode(){
+        initRwgt::initRwgt() : xmlNode(){ name = "initrwgt"; return; }
+        initRwgt::initRwgt( std::vector<std::shared_ptr<xmlNode>> nuGroups ) : xmlNode(){
             name = "initrwgt";
             for( auto group : nuGroups ){
                 groups.push_back( std::make_shared<weightGroup>( *group ) );
             }
         }
-        initRwgt( xmlNode& wgtNode ) : xmlNode( wgtNode ){
+        initRwgt::initRwgt( xmlNode& wgtNode ) : xmlNode( wgtNode ){
             parser( true );
             name = "initrwgt";
             groups.reserve( children.size() );
@@ -1004,7 +955,7 @@ namespace REX
                 groups.push_back( std::make_shared<weightGroup>( *child ) );
             }
         }
-        initRwgt( xmlNode* wgtNode ) : xmlNode( *wgtNode ){
+        initRwgt::initRwgt( xmlNode* wgtNode ) : xmlNode( *wgtNode ){
             parser( true );
             name = "initrwgt";
             groups.reserve( children.size() );
@@ -1012,7 +963,7 @@ namespace REX
                 groups.push_back( std::make_shared<weightGroup>( *child ) );
             }
         }
-        initRwgt( std::shared_ptr<xmlNode> wgtNode ) : xmlNode( *wgtNode ){
+        initRwgt::initRwgt( std::shared_ptr<xmlNode> wgtNode ) : xmlNode( *wgtNode ){
             parser( true );
             name = "initrwgt";
             groups.reserve( children.size() );
@@ -1020,7 +971,7 @@ namespace REX
                 groups.push_back( std::make_shared<weightGroup>( *child ) );
             }
         }
-        initRwgt( xmlTree& wgtTree ) : xmlNode( wgtTree ){
+        initRwgt::initRwgt( xmlTree& wgtTree ) : xmlNode( wgtTree ){
             parser( true );
             name = "initrwgt";
             groups.reserve( children.size() );
@@ -1028,9 +979,7 @@ namespace REX
                 groups.push_back( std::make_shared<weightGroup>( *child ) );
             }
         }
-    protected:
-        bool grpIsInit = false;
-        bool grpInit( std::shared_ptr<weightGroup>& wgt ){
+        bool initRwgt::grpInit( std::shared_ptr<weightGroup>& wgt ){
             if( grpIsInit ){ return true; }
             else{
                 groups = std::vector<std::shared_ptr<weightGroup>>( 1, wgt );
@@ -1038,112 +987,103 @@ namespace REX
                 return false;
             }
         }
-        std::vector<std::shared_ptr<weightGroup>> groups;
-        void contWriter() override{
+        void initRwgt::contWriter(){
             nodeContent = "\n";
             for( auto group : groups ){
                 nodeContent += (*group->nodeWriter());
             }
         }
-        void childWriter() override{
+        void initRwgt::childWriter(){
             for( auto child : children ){
                 if( child->getName() == "weightgroup" ){ continue; }
                 nodeContent += (*child->nodeWriter());
             }
         }
-        void childWriter( bool hasChildren ){
+        void initRwgt::childWriter( bool hasChildren ){
             if( hasChildren ){ childWriter(); }
             return;
         }
-    };
 
     // ZW: struct for handling weights
     // in event blocks of LHE files
-    struct bodyWgt : public xmlNode {
-    public:
-        void setComment( std::string_view nuComment ){ modded = true; comment = nuComment; }
-        void setVal( std::string nuVal ){ modded = true; valS = nuVal; valD = std::stod(valS);}
-        void setVal( std::string_view nuVal ){ modded = true; valS = std::string(nuVal); valD = std::stod(valS);}
-        void setVal( double nuVal ){ modded = true; valD = nuVal; valS = std::to_string(valD);}
-        void setId( std::string nuId ){ 
+        void bodyWgt::setComment( std::string_view nuComment ){ modded = true; comment = nuComment; }
+        void bodyWgt::setVal( std::string nuVal ){ modded = true; valS = nuVal; valD = std::stod(valS);}
+        void bodyWgt::setVal( std::string_view nuVal ){ modded = true; valS = std::string(nuVal); valD = std::stod(valS);}
+        void bodyWgt::setVal( double nuVal ){ modded = true; valD = nuVal; valS = std::to_string(valD);}
+        void bodyWgt::setId( std::string nuId ){ 
             modded = true; id = nuId;
             for( auto tag : tags ){
                 if( tag->getId() == "id" ){ tag->setVal( id ); return; }
             }
             addTag( std::make_shared<xmlTag>( "id", id ) );
         }
-        void setModded( bool nuModded ){ modded = nuModded; }
-        std::string_view getComment(){ return comment; }
-        std::string_view getValS(){ return valS; }
-        double getValD(){ return valD; }
-        bodyWgt() : xmlNode(){ return; }
-        bodyWgt( std::string_view value ) : xmlNode() { setVal( value ); modded = false; }
-        bodyWgt( double value ) : xmlNode() { setVal( value ); modded = false; }
-        bodyWgt( std::string_view value, xmlTag rwgtId ) : xmlNode() { setVal( value ); addTag( std::make_shared<xmlTag>(rwgtId) ); modded = false; }
-        bodyWgt( double value, xmlTag rwgtId ) : xmlNode() { setVal( value ); addTag( std::make_shared<xmlTag>(rwgtId) ); modded = false; }
-        bodyWgt( std::string_view value, std::shared_ptr<xmlTag> rwgtId ) : xmlNode() { setVal( value ); addTag( rwgtId ); modded = false; }
-        bodyWgt( double value, std::shared_ptr<xmlTag> rwgtId ) : xmlNode() { setVal( value ); addTag( rwgtId ); modded = false; }
-        bodyWgt( const std::string_view originFile, const size_t& begin = 0, const std::vector<std::shared_ptr<xmlNode>>& childs = {} )
+        void bodyWgt::setModded( bool nuModded ){ modded = nuModded; }
+        std::string_view bodyWgt::getComment(){ return comment; }
+        std::string_view bodyWgt::getValS(){ return valS; }
+        double bodyWgt::getValD(){ return valD; }
+        bodyWgt::bodyWgt() : xmlNode(){ return; }
+        bodyWgt::bodyWgt( std::string_view value ) : xmlNode() { setVal( value ); modded = false; }
+        bodyWgt::bodyWgt( double value ) : xmlNode() { setVal( value ); modded = false; }
+        bodyWgt::bodyWgt( std::string_view value, xmlTag rwgtId ) : xmlNode() { setVal( value ); addTag( std::make_shared<xmlTag>(rwgtId) ); modded = false; }
+        bodyWgt::bodyWgt( double value, xmlTag rwgtId ) : xmlNode() { setVal( value ); addTag( std::make_shared<xmlTag>(rwgtId) ); modded = false; }
+        bodyWgt::bodyWgt( std::string_view value, std::shared_ptr<xmlTag> rwgtId ) : xmlNode() { setVal( value ); addTag( rwgtId ); modded = false; }
+        bodyWgt::bodyWgt( double value, std::shared_ptr<xmlTag> rwgtId ) : xmlNode() { setVal( value ); addTag( rwgtId ); modded = false; }
+        bodyWgt::bodyWgt( const std::string_view originFile, const size_t& begin, const std::vector<std::shared_ptr<xmlNode>>& childs )
         : xmlNode( originFile, begin, childs ){
             auto strtPt = originFile.find_first_not_of(" >+", originFile.find(">", begin)+1);
             valS = originFile.substr( strtPt, originFile.find(" ", strtPt) - strtPt );
             valD = std::stod( valS );
         }
-        bodyWgt( xmlNode& wgtNode ) : xmlNode( wgtNode ){
+        bodyWgt::bodyWgt( xmlNode& wgtNode ) : xmlNode( wgtNode ){
             parser( true );
             valS = xmlFile.substr( structure.getContStart(), structure.getContEnd() - structure.getContStart() );
             valD = std::stod( valS );
         }
-        bodyWgt( xmlNode* wgtNode ) : xmlNode( *wgtNode ){
+        bodyWgt::bodyWgt( xmlNode* wgtNode ) : xmlNode( *wgtNode ){
             parser( true );
             valS = xmlFile.substr( structure.getContStart(), structure.getContEnd() - structure.getContStart() );
             valD = std::stod( valS );
         }
-        bodyWgt( std::shared_ptr<xmlNode> wgtNode ) : xmlNode( *wgtNode ){
+        bodyWgt::bodyWgt( std::shared_ptr<xmlNode> wgtNode ) : xmlNode( *wgtNode ){
             parser( true );
             valS = xmlFile.substr( structure.getContStart(), structure.getContEnd() - structure.getContStart() );
             valD = std::stod( valS );
         }
-        bodyWgt( xmlTree& wgtTree ) : xmlNode( wgtTree ){
+        bodyWgt::bodyWgt( xmlTree& wgtTree ) : xmlNode( wgtTree ){
             parser( true );
             valS = xmlFile.substr( structure.getContStart(), structure.getContEnd() - structure.getContStart() );
             valD = std::stod( valS );
         }
-        bodyWgt( xmlTree* wgtTree ) : xmlNode( *wgtTree ){
+        bodyWgt::bodyWgt( xmlTree* wgtTree ) : xmlNode( *wgtTree ){
             parser( true );
             valS = xmlFile.substr( structure.getContStart(), structure.getContEnd() - structure.getContStart() );
             valD = std::stod( valS );
         }
-        bodyWgt( std::shared_ptr<xmlTree> wgtTree ) : xmlNode( *wgtTree ){
+        bodyWgt::bodyWgt( std::shared_ptr<xmlTree> wgtTree ) : xmlNode( *wgtTree ){
             parser( true );
             valS = xmlFile.substr( structure.getContStart(), structure.getContEnd() - structure.getContStart() );
             valD = std::stod( valS );
         }
-        bodyWgt( double value, std::string& idTag ){
+        bodyWgt::bodyWgt( double value, std::string& idTag ){
             setVal( value );
             id = idTag;
             addTag( std::make_shared<xmlTag>("id",id) );
         }
-        void appendWgt( std::shared_ptr<std::string> document ){
+        void bodyWgt::appendWgt( std::shared_ptr<std::string> document ){
             if( !isWritten() ){ fullWriter(); }
             *document += *writtenSelf;
         }
-        void appendWgt( std::string* document ){
+        void bodyWgt::appendWgt( std::string* document ){
             if( !isWritten() ){ fullWriter(); }
             *document += *writtenSelf;
         }
-        std::shared_ptr<std::string> appendWgt( std::string_view document ){
+        std::shared_ptr<std::string> bodyWgt::appendWgt( std::string_view document ){
             if(!isWritten() ){ fullWriter(); }
             auto retDoc = std::make_shared<std::string>( document );
             *retDoc += *writtenSelf;
             return retDoc;
         }
-    protected:
-        std::string_view comment;
-        std::string valS;
-        std::string id;
-        double valD;
-        void fullWriter() override {
+        void bodyWgt::fullWriter() {
             writtenSelf = std::make_shared<std::string>( "<wgt" );
             for( auto tag : tags ){
                 *writtenSelf += " " + std::string(tag->getId()) + "=\"" + std::string(tag->getVal()) + "\"";
@@ -1152,7 +1092,6 @@ namespace REX
             modded = false;
             written = true;
         }
-    };
 
     // ZW: fcn for finding the next block in SLHA format
     // parameter cards
@@ -1199,30 +1138,29 @@ namespace REX
 
     // ZW: struct for handling the first line of
     // LHE format event block
-    struct evHead {
-    public:
-        std::string_view getComment(){ return comment; }
-        std::string_view getWeight(){ return weight; }
-        std::string_view getScale(){ return scale; }
-        std::string_view getAQED(){ return aqed; }
-        std::string_view getAQCD(){ return aqcd; }
-        std::string_view getNprt(){ return nprt; }
-        std::string_view getProcID(){ return procid; }
-        bool isModded(){ return modded; }
-        bool isWritten(){ return written; }
-        void setComment( std::string_view nuCom ){ modded = true; comment = nuCom; }
-        void setWeight( std::string_view nuWgt ){ modded = true; weight = nuWgt; }
-        void setScale( std::string_view nuScale ){ modded = true; scale = nuScale; }
-        void setAQED( std::string_view nuAQED ){ modded = true; aqed = nuAQED; }
-        void setAQCD( std::string_view nuAQCD ){ modded = true; aqcd = nuAQCD; }
-        void setNprt( std::string_view nuNprt ){ modded = true; nprt = nuNprt; }
-        void setProcID( std::string_view nuProcID ){ modded = true; procid = nuProcID; }
-        std::shared_ptr<std::string> getContent(){
+        std::string_view evHead::getComment(){ return comment; }
+        std::string_view evHead::getWeight(){ return weight; }
+        std::string_view evHead::getScale(){ return scale; }
+        std::string_view evHead::getAQED(){ return aqed; }
+        std::string_view evHead::getAQCD(){ return aqcd; }
+        std::string_view evHead::getNprt(){ return nprt; }
+        std::string_view evHead::getProcID(){ return procid; }
+        bool evHead::isModded(){ return modded; }
+        bool evHead::isWritten(){ return written; }
+        void evHead::setComment( std::string_view nuCom ){ modded = true; comment = nuCom; }
+        void evHead::setWeight( std::string_view nuWgt ){ modded = true; weight = nuWgt; }
+        void evHead::setScale( std::string_view nuScale ){ modded = true; scale = nuScale; }
+        void evHead::setAQED( std::string_view nuAQED ){ modded = true; aqed = nuAQED; }
+        void evHead::setAQCD( std::string_view nuAQCD ){ modded = true; aqcd = nuAQCD; }
+        void evHead::setNprt( std::string_view nuNprt ){ modded = true; nprt = nuNprt; }
+        void evHead::setNprt( int nuNprt ){ modded = true; nprtint = nuNprt; nprtstr = std::to_string(nuNprt); nprt = nprtstr;}
+        void evHead::setProcID( std::string_view nuProcID ){ modded = true; procid = nuProcID; }
+        std::shared_ptr<std::string> evHead::getContent(){
             if( !isWritten() || isModded() ){ writer(); }
             return content;
         }
-        evHead(){ return; }
-        evHead( const std::string_view originFile, size_t beginLine = 0, size_t endLine = npos )
+        evHead::evHead(){ return; }
+        evHead::evHead( const std::string_view originFile, size_t beginLine, size_t endLine )
         {
             if( originFile.size() == 0){ return; }
             beginLine = originFile.find_first_not_of("\n \r\f\t\v", beginLine);
@@ -1236,19 +1174,7 @@ namespace REX
             aqed = evLine->at(4);
             aqcd = evLine->at(5);
          }
-    protected:
-        std::shared_ptr<std::string> content;
-        std::string_view sourceFile;
-        std::string_view comment;
-        std::string_view weight;
-        std::string_view scale;
-        std::string_view aqed;
-        std::string_view aqcd;
-        std::string_view nprt;
-        std::string_view procid;
-        bool modded = false;
-        bool written = false;
-        void writer(){
+        void evHead::writer(){
             if( isWritten() && !isModded() ){ return; }
             if( !isModded() ){ content = std::make_shared<std::string>( sourceFile ); return; }
             auto retText = std::make_shared<std::string>( " " );
@@ -1260,49 +1186,46 @@ namespace REX
             modded = false;
             written = true;
         }
-    };
 
     // ZW: struct for handling particle lines
     // in LHE format event block
-    struct lhePrt{
-    public:
-        std::string_view getLine(){ return sourceFile; }
-        std::string_view getComment(){ return comment; }
-        std::vector<std::string_view> getMom(){ return std::vector<std::string_view>( std::begin( mom ), std::end( mom ) ); }
-        std::string_view getE(){ return energy; }
-        std::string_view getMass(){ return mass; }
-        std::string_view getVTim(){ return vtim; }
-        std::string_view getSpin(){ return spin; }
-        std::string_view getPDG(){ return pdg; }
-        std::string_view getStatus(){ return status; }
-        std::vector<std::string_view> getMothers(){ return std::vector<std::string_view>( std::begin( mothers ), std::end( mothers ) ); }
-        std::vector<std::string_view> getColor(){ return std::vector<std::string_view>( std::begin( icol ), std::end( icol ) ); }
-        void setComment( std::string_view nuCom ){ modded = true; comment = nuCom; }
-        void setMom( std::vector<std::string_view> nuMom ){ modded = true; mom[0] = nuMom[0]; mom[1] = nuMom[1]; mom[2] = nuMom[2]; }
-        void setEnergy( std::string_view nuE ){ modded = true; energy = nuE; }
-        void setMass( std::string_view nuM ){ modded = true; mass = nuM; }
-        void setVTim( std::string_view nuVTim ){ modded = true; vtim = nuVTim; }
-        void setSpin( std::string_view nuSpin ){ modded = true; spin = nuSpin; }
-        void setPDG( std::string_view nuPDG ){ modded = true; pdg = nuPDG; }
-        void setStatus( std::string_view nuSt ){ modded = true; status = nuSt; }
-        void setMothers( std::vector<std::string_view> nuMum ){ modded = true; mothers[0] = nuMum[0]; mothers[1] = nuMum[1]; }
-        void setColors( std::vector<std::string_view> nuCol ){ modded = true; icol[0] = nuCol[0]; icol[1] = nuCol[1]; }
-        bool isModded(){ return modded; }
-        bool isWritten(){ return written; }
-        std::shared_ptr<std::string> getContent(){
+        std::string_view lhePrt::getLine(){ return sourceFile; }
+        std::string_view lhePrt::getComment(){ return comment; }
+        std::vector<std::string_view> lhePrt::getMom(){ return std::vector<std::string_view>( std::begin( mom ), std::end( mom ) ); }
+        std::string_view lhePrt::getE(){ return energy; }
+        std::string_view lhePrt::getMass(){ return mass; }
+        std::string_view lhePrt::getVTim(){ return vtim; }
+        std::string_view lhePrt::getSpin(){ return spin; }
+        std::string_view lhePrt::getPDG(){ return pdg; }
+        std::string_view lhePrt::getStatus(){ return status; }
+        std::vector<std::string_view> lhePrt::getMothers(){ return std::vector<std::string_view>( std::begin( mothers ), std::end( mothers ) ); }
+        std::vector<std::string_view> lhePrt::getColor(){ return std::vector<std::string_view>( std::begin( icol ), std::end( icol ) ); }
+        void lhePrt::setComment( std::string_view nuCom ){ modded = true; comment = nuCom; }
+        void lhePrt::setMom( std::vector<std::string_view> nuMom ){ modded = true; mom[0] = nuMom[0]; mom[1] = nuMom[1]; mom[2] = nuMom[2]; }
+        void lhePrt::setEnergy( std::string_view nuE ){ modded = true; energy = nuE; }
+        void lhePrt::setMass( std::string_view nuM ){ modded = true; mass = nuM; }
+        void lhePrt::setVTim( std::string_view nuVTim ){ modded = true; vtim = nuVTim; }
+        void lhePrt::setSpin( std::string_view nuSpin ){ modded = true; spin = nuSpin; }
+        void lhePrt::setPDG( std::string_view nuPDG ){ modded = true; pdg = nuPDG; }
+        void lhePrt::setStatus( std::string_view nuSt ){ modded = true; status = nuSt; }
+        void lhePrt::setMothers( std::vector<std::string_view> nuMum ){ modded = true; mothers[0] = nuMum[0]; mothers[1] = nuMum[1]; }
+        void lhePrt::setColors( std::vector<std::string_view> nuCol ){ modded = true; icol[0] = nuCol[0]; icol[1] = nuCol[1]; }
+        bool lhePrt::isModded(){ return modded; }
+        bool lhePrt::isWritten(){ return written; }
+        std::shared_ptr<std::string> lhePrt::getContent(){
             if( !isWritten() || isModded() ){ writer(); }
             return content;
         }
-        lhePrt(){ return; }
-        // lhePrt( std::pair<int,int> prtInfo ){
-        //     status = std::to_string( prtInfo.first );
-        //     pdg = std::to_string( prtInfo.second );
-        // }
-        lhePrt( std::pair<int,int>& prtInfo ){
+        lhePrt::lhePrt(){ return; }
+        lhePrt::lhePrt( std::pair<int,int>& prtInfo ){
             status = std::to_string( prtInfo.first );
             pdg = std::to_string( prtInfo.second );
         }
-        lhePrt( const std::string_view originFile, const size_t& beginLine = 0, const size_t& endLine = npos )
+        lhePrt::lhePrt( std::pair<std::string,std::string>& prtInfo ){
+            status = std::string_view( prtInfo.first );
+            pdg = std::string_view( prtInfo.second );
+        }
+        lhePrt::lhePrt( const std::string_view originFile, const size_t& beginLine, const size_t& endLine )
         {
             sourceFile = originFile.substr( beginLine, endLine - beginLine );
             auto evLine = nuWordSplitter( sourceFile );
@@ -1319,22 +1242,7 @@ namespace REX
             spin = evLine->at(12);
             if( evLine->size() > 13 ){ comment = sourceFile.substr( sourceFile.find( "#" ) ); }
         }
-    protected:
-        std::shared_ptr<std::string> content;
-        std::string_view sourceFile;
-        std::string_view comment;
-        std::string_view mom[3];
-        std::string_view energy;
-        std::string_view mass;
-        std::string_view vtim;
-        std::string_view spin;
-        std::string_view pdg;
-        std::string_view status;
-        std::string_view mothers[2];
-        std::string_view icol[2];
-        bool modded = false;
-        bool written = false;
-        void writer(){
+        void lhePrt::writer(){
             if( isWritten() && !isModded() ){ return; }
             if( !isModded() ){ content = std::make_shared<std::string>( sourceFile ); return; }
             *content = "";
@@ -1349,26 +1257,23 @@ namespace REX
             modded = false;
             written = true;
         }
-    };
 
     // ZW: struct for handling LHE format event block
-    struct event : public xmlNode {
-    public:
-        evHead getHead(){ return header; }
-        std::vector<std::shared_ptr<lhePrt>> getPrts(){ return prts; }
-        std::vector<std::shared_ptr<bodyWgt>> getWgts(){ return rwgt; }
-        void setHead( evHead head ){ modded = true; header = head; }
-        void addPrt( std::shared_ptr<lhePrt> prtcl ){ modded = true; prts.push_back( prtcl ); }
-        void addPrt( lhePrt prtcl ){ modded = true; prts.push_back( std::make_shared<lhePrt>(prtcl) ); }
-        void setPrts( std::vector<std::shared_ptr<lhePrt>> prtcls ){ modded = true; prts = prtcls; }
-        void addWgt( bodyWgt nuWgt ){ addedWgt = true; rwgt.push_back( std::make_shared<bodyWgt>(nuWgt) ); }
-        void addWgt( std::shared_ptr<bodyWgt> nuWgt ){ modded = true; rwgt.push_back( nuWgt ); }
-        void addWgt( bodyWgt nuWgt, std::string& id ){ addedWgt = true; nuWgt.setId( id ); rwgt.push_back( std::make_shared<bodyWgt>(nuWgt) ); }
-        void addWgt( std::shared_ptr<bodyWgt> nuWgt, std::string& id ){ modded = true; nuWgt->setId( id ); rwgt.push_back( nuWgt ); }
-        bool newWeight(){ return addedWgt; }
-        int getNprt(){ return prts.size(); }
-        bool isModded() override{ return modded; }
-        bool isModded( bool deep ) override {
+        evHead event::getHead(){ return header; }
+        std::vector<std::shared_ptr<lhePrt>> event::getPrts(){ return prts; }
+        std::vector<std::shared_ptr<bodyWgt>> event::getWgts(){ return rwgt; }
+        void event::setHead( evHead head ){ modded = true; header = head; }
+        void event::addPrt( std::shared_ptr<lhePrt> prtcl ){ modded = true; prts.push_back( prtcl ); }
+        void event::addPrt( lhePrt prtcl ){ modded = true; prts.push_back( std::make_shared<lhePrt>(prtcl) ); }
+        void event::setPrts( std::vector<std::shared_ptr<lhePrt>> prtcls ){ modded = true; prts = prtcls; }
+        void event::addWgt( bodyWgt nuWgt ){ addedWgt = true; rwgt.push_back( std::make_shared<bodyWgt>(nuWgt) ); }
+        void event::addWgt( std::shared_ptr<bodyWgt> nuWgt ){ modded = true; rwgt.push_back( nuWgt ); }
+        void event::addWgt( bodyWgt nuWgt, std::string& id ){ addedWgt = true; nuWgt.setId( id ); rwgt.push_back( std::make_shared<bodyWgt>(nuWgt) ); }
+        void event::addWgt( std::shared_ptr<bodyWgt> nuWgt, std::string& id ){ modded = true; nuWgt->setId( id ); rwgt.push_back( nuWgt ); }
+        bool event::newWeight(){ return addedWgt; }
+        int event::getNprt(){ return prts.size(); }
+        bool event::isModded() { return modded; }
+        bool event::isModded( bool deep ) {
             if( !deep ){ return modded; }
             bool modStat = modded;
             for( auto child : children ){ if(modStat){ return modStat; }; modStat = (modStat || child->isModded( deep )); }
@@ -1377,18 +1282,24 @@ namespace REX
             for( auto wgt : rwgt ){ if(modStat){ return modStat; }; modStat = (modStat || wgt->isModded()); }
             return modStat;
         }
-        event(){ return; }
-        event( std::vector<std::pair<int,int>>& prtInfo ){
+        event::event(){ return; }
+        event::event( std::vector<std::pair<int,int>>& prtInfo ){
             header.setNprt( std::to_string( prtInfo.size() ) );
             for( auto& prt : prtInfo ){
                 prts.push_back( std::make_shared<lhePrt>( prt ) );
             }
         }
-        event( std::vector<std::shared_ptr<lhePrt>> prtInfo ){
+        event::event( std::vector<std::pair<std::string,std::string>>& prtInfo ){
+            header.setNprt( prtInfo.size()  );
+            for( auto& prt : prtInfo ){
+                prts.push_back( std::make_shared<lhePrt>( prt ) );
+            }
+        }
+        event::event( std::vector<std::shared_ptr<lhePrt>> prtInfo ){
             header.setNprt( std::to_string( prtInfo.size() ) );
             prts = prtInfo;
         }
-        event( const std::string_view originFile, const size_t& begin = 0, const std::vector<std::shared_ptr<xmlNode>>& childs = {} ) 
+        event::event( const std::string_view originFile, const size_t& begin, const std::vector<std::shared_ptr<xmlNode>>& childs ) 
         : xmlNode(originFile, begin, childs) {
             xmlFile = originFile; start = begin; children = childs; size_t trueStart = originFile.find_first_not_of(" \n\r\f\t\v", begin+1);
             if( trueStart == npos ){ return; }
@@ -1400,7 +1311,7 @@ namespace REX
                 prts.push_back( std::make_shared<lhePrt>(originFile, vals->at(k) + trueStart + 1, vals->at(k+1) + trueStart + 1) );
             }
         }
-        event( const xmlNode& originFile )
+        event::event( const xmlNode& originFile )
         : xmlNode( originFile ) {
             size_t trueStart = xmlFile.find_first_not_of(" \n\r\f\t\v", start+1);
             auto vals = lineFinder( xmlFile.substr( trueStart, xmlFile.find("<", trueStart +  3 ) - trueStart + 3 ));
@@ -1411,7 +1322,7 @@ namespace REX
                 prts.push_back( std::make_shared<lhePrt>(xmlFile, vals->at(k) + trueStart + 1, vals->at(k+1) + trueStart) );
             }
         }
-        event( const xmlNode* originFile )
+        event::event( const xmlNode* originFile )
         : xmlNode( *originFile ) {
             size_t trueStart = xmlFile.find_first_not_of(" \n\r\f\t\v", structure.getContStart() + 1);
             auto vals = lineFinder( xmlFile.substr( trueStart, xmlFile.find("<", trueStart +  3 ) - trueStart + 3 ));
@@ -1422,7 +1333,7 @@ namespace REX
                 prts.push_back( std::make_shared<lhePrt>(xmlFile, vals->at(k) + trueStart + 1, vals->at(k+1) + trueStart) );
             }
         }
-        event( const std::shared_ptr<xmlNode>& originFile )
+        event::event( const std::shared_ptr<xmlNode>& originFile )
         : xmlNode( *originFile ) {
             size_t trueStart = xmlFile.find_first_not_of(" \n\r\f\t\v", structure.getContStart() + 1);
             auto vals = lineFinder( xmlFile.substr( trueStart, xmlFile.find("<", trueStart +  3 ) - trueStart + 3 ));
@@ -1433,7 +1344,7 @@ namespace REX
                 prts.push_back( std::make_shared<lhePrt>(xmlFile, vals->at(k) + trueStart + 1, vals->at(k+1) + trueStart) );
             }
         }
-        event( xmlTree& originFile )
+        event::event( xmlTree& originFile )
         : xmlNode( originFile ) {
             size_t trueStart = xmlFile.find_first_not_of(" \n\r\f\t\v", structure.getContStart() + 1);
             auto vals = lineFinder( xmlFile.substr( trueStart, xmlFile.find("<", trueStart +  3 ) - trueStart + 3 ));
@@ -1444,7 +1355,7 @@ namespace REX
                 prts.push_back( std::make_shared<lhePrt>(xmlFile, vals->at(k) + trueStart + 1, vals->at(k+1) + trueStart) );
             }
         }
-        event( xmlTree* originFile )
+        event::event( xmlTree* originFile )
         : xmlNode( *originFile ) {
             size_t trueStart = xmlFile.find_first_not_of(" \n\r\f\t\v", structure.getContStart() + 1);
             auto vals = lineFinder( xmlFile.substr( trueStart, xmlFile.find("<", trueStart +  3 ) - trueStart + 3 ));
@@ -1455,7 +1366,7 @@ namespace REX
                 prts.push_back( std::make_shared<lhePrt>(xmlFile, vals->at(k) + trueStart + 1, vals->at(k+1) + trueStart) );
             }
         }
-        event( std::shared_ptr<xmlTree> originFile )
+        event::event( std::shared_ptr<xmlTree> originFile )
         : xmlNode( *originFile ) {
             size_t trueStart = xmlFile.find_first_not_of(" \n\r\f\t\v", structure.getContStart() + 1);
             auto vals = lineFinder( xmlFile.substr( trueStart, xmlFile.find("<", trueStart +  3 ) - trueStart + 3 ));
@@ -1466,39 +1377,28 @@ namespace REX
                 prts.push_back( std::make_shared<lhePrt>(xmlFile, vals->at(k) + trueStart + 1, vals->at(k+1) + trueStart) );
             }
         }
-        bool prtsAreMod(){
+        bool event::prtsAreMod(){
             for( auto prt : prts ){ if( prt->isModded() ){ return true; } }
             return false;
         }
-        bool headIsMod(){
+        bool event::headIsMod(){
             return header.isModded();
         }
-        bool isSpecSort() const { return specSorted; }
-        sortFcn getSortFcn() const { return eventSort; }
-        statSort getStatSort() const { return specSort; }
-    protected:
-        std::vector<std::shared_ptr<bodyWgt>> rwgt;
-        std::shared_ptr<xmlNode> childRwgt;
-        bool hasRwgt(){
+        bool event::isSpecSort() const { return specSorted; }
+        sortFcn event::getSortFcn() const { return eventSort; }
+        statSort event::getStatSort() const { return specSort; }
+        bool event::hasRwgt(){
             if( rwgt.size() > 0 ){ return true; }
             return false;
         }
-        bool rwgtChild(){
+        bool event::rwgtChild(){
             if( childRwgt != nullptr ){ return true; }
             for( auto child : children ){ if( clStringComp(child->getName(), std::string("rwgt") ) ){ childRwgt = child; return true; } }
             return false;
         }
-        bool bothRwgt(){ return (hasRwgt() && rwgtChild() ); }
-        bool eitherRwgt(){ return (hasRwgt() || rwgtChild() ); }
-        evHead header;
-        bool hasBeenProc = false;
-        std::vector<std::shared_ptr<lhePrt>> prts;
-        std::map<std::string_view, std::vector<std::string_view>> procMap;
-        std::map<std::string_view, std::vector<size_t>> procOrder;
-        sortFcn eventSort = []( std::vector<std::string_view> vec ){ return stodSort( vec ); };
-        statSort specSort = []( std::string_view stat, std::vector<std::string_view> vec ){ return stodSort( vec ); };
-        bool specSorted = false;
-        bool initProcMap(bool hard = false)
+        bool event::bothRwgt(){ return (hasRwgt() && rwgtChild() ); }
+        bool event::eitherRwgt(){ return (hasRwgt() || rwgtChild() ); }
+        bool event::initProcMap(bool hard)
         {
             if(!hard){ if( procMap.size() > 0 ){ return true; } }
             for( auto prt : prts ){
@@ -1514,7 +1414,7 @@ namespace REX
             hasBeenProc = true;
             return true;
         }
-        bool initProcMap( sortFcn sorter, bool hard = false )
+        bool event::initProcMap( sortFcn sorter, bool hard )
         {
             if(!hard){ if( procMap.size() > 0 ){ return true; } }
             specSorted = false;
@@ -1532,7 +1432,7 @@ namespace REX
             hasBeenProc = true;
             return true;
         }
-        bool initProcMap( statSort sorter, bool hard = false )
+        bool event::initProcMap( statSort sorter, bool hard )
         {
             if(!hard){ if( procMap.size() > 0 ){ return true; } }
             specSorted = true;
@@ -1550,29 +1450,29 @@ namespace REX
             hasBeenProc = true;
             return true;
         }
-        bool inRwgtChild( std::string_view name ){ 
+        bool event::inRwgtChild( std::string_view name ){ 
             for( auto child : childRwgt->getChildren() ){ 
                 for( auto tag : child->getTags() ){ if(clStringComp(tag->getVal(), name)){ return true; } }
             }
             return false;
         }
-        bool checkRwgtOverlap(){
+        bool event::checkRwgtOverlap(){
             for( auto wgt : rwgt ){ 
                 for( auto tag : wgt->getTags() ){ if( inRwgtChild( tag->getVal() ) ){ return true; } }
             }
             return false;
         }
-        void childRwgtWriter(){
+        void event::childRwgtWriter(){
             if( rwgtChild() ){ nodeContent += *childRwgt->nodeWriter(); }
         }
-        void vecRwgtWriter( bool midNode = false ){
+        void event::vecRwgtWriter( bool midNode ){
             if( !midNode ){ nodeContent += "<rwgt>\n"; }
             for( auto wgt : rwgt ){ 
                 nodeContent += *wgt->nodeWriter();
             }
             nodeContent += "</rwgt>\n";
         }
-        void rwgtWriter(){
+        void event::rwgtWriter(){
             if( bothRwgt() ){ if( checkRwgtOverlap() ){ childRwgtWriter(); return; } 
                 childRwgtWriter();
                 nodeContent.erase( nodeContent.size() - 8, 8 );
@@ -1583,20 +1483,19 @@ namespace REX
                 if( rwgtChild() ){ childRwgtWriter(); return; }
             }
         }
-        void contWriter() override {
+        void event::contWriter() {
             nodeContent = "\n" + *header.getContent();
             for( auto prt : prts ){
                 nodeContent += *prt->getContent();
             }
         }
-        void childWriter() override {
+        void event::childWriter() {
             for( auto child : children ){
                 if( clStringComp( child->getName(), std::string("wgt") ) ){ continue; }
                 nodeContent += *child->nodeWriter();
             }
         }
-        bool addedWgt = false;
-        void fullWriter() override {
+        void event::fullWriter() {
             if( isModded( false ) ){
                 headWriter();
                 contWriter();
@@ -1610,7 +1509,7 @@ namespace REX
             written = true;
             }
         }
-        void fullWriter( bool deep ){
+        void event::fullWriter( bool deep ){
             if( !deep ){ fullWriter(); return; }
             if( isModded( true ) ){
                 headWriter();
@@ -1626,7 +1525,7 @@ namespace REX
             written = true;
             }
         }
-        void appendWgts(){
+        void event::appendWgts(){
             if( !addedWgt ){ return; }
             writtenSelf->erase( writtenSelf->size() - 17, 17 );
             for( auto wgt : rwgt ){
@@ -1634,67 +1533,66 @@ namespace REX
             }
             *writtenSelf += "</rwgt>\n</event>\n";
         }
-    public:
-        std::shared_ptr<std::string> nodeWriter() override {
+        std::shared_ptr<std::string> event::nodeWriter() {
             if( isModded(false) || !isWritten() ){ fullWriter(); return writtenSelf; }
             if( addedWgt ){ appendWgts(); }
             return writtenSelf;
         }
-        std::shared_ptr<std::string> nodeWriter( bool recursive ){
+        std::shared_ptr<std::string> event::nodeWriter( bool recursive ){
             if( isModded( recursive ) || !isWritten() ){ fullWriter(); return writtenSelf; }
             if( addedWgt ){ appendWgts(); }
             return writtenSelf;
         }
-        auto &getProc(){
+        std::map<std::string_view, std::vector<std::string_view>> &event::getProc(){
             if( initProcMap() ){ return procMap; }
             else throw std::runtime_error("Error while parsing event node.");
         }
-        auto &getProcOrder(){
+        std::map<std::string_view, std::vector<size_t>> &event::getProcOrder(){
             if( initProcMap() ){ return procOrder; }
             else throw std::runtime_error("Error while parsing event node.");
         }
-        auto &getProc() const{
+        std::map<std::string_view, std::vector<std::string_view>> event::getProc() const {
             if ( hasBeenProc ){ return procMap; }
             else throw std::runtime_error("Const declaration of event node before it has been procesed.");
         }
-        auto &getProcOrder() const{
+        std::map<std::string_view, std::vector<size_t>> event::getProcOrder() const {
             if ( hasBeenProc ){ return procOrder; }
             else throw std::runtime_error("Const declaration of event node before it has been procesed.");
         }
-        auto &getProc(sortFcn sorter){
+        std::map<std::string_view, std::vector<std::string_view>> &event::getProc(sortFcn sorter){
             if( initProcMap(sorter) ){ return procMap; }
             else throw std::runtime_error("Error while parsing event node.");
         }
-        auto &getProcOrder(sortFcn sorter){
+        std::map<std::string_view, std::vector<size_t>> &event::getProcOrder(sortFcn sorter){
             if( initProcMap(sorter) ){ return procOrder; }
             else throw std::runtime_error("Error while parsing event node.");
         }
-        auto &getProc(statSort sorter){
+        std::map<std::string_view, std::vector<std::string_view>> &event::getProc(statSort sorter){
             if( initProcMap(sorter) ){ return procMap; }
             else throw std::runtime_error("Error while parsing event node.");
         }
-        auto &getProcOrder(statSort sorter){
+        std::map<std::string_view, std::vector<size_t>> &event::getProcOrder(statSort sorter){
             if( initProcMap(sorter) ){ return procOrder; }
             else throw std::runtime_error("Error while parsing event node.");
         }
-    };
+
+    event& makeEv( std::vector<std::pair<int,int>>& particles ){
+        auto returnEvent = event( particles );
+        return returnEvent;
+    }
+
+    std::vector<std::shared_ptr<lhePrt>> getParticles( event& ev ){
+        return ev.getPrts();
+    }
 
     // ZW: struct for handling the first line of
     // LHE format init tag
-    struct lheInitHead{
-    public:
-        std::string_view idbmup[2];
-        std::string_view ebmup[2];
-        std::string_view pdfgup[2];
-        std::string_view pdfsup[2];
-        std::string_view idwtup;
-        std::string_view nprup;
-        bool isWritten(){ return written; }
-        bool isModded(){ return modded; }
-        std::shared_ptr<std::string> getContent(){ 
+        bool lheInitHead::isWritten(){ return written; }
+        bool lheInitHead::isModded(){ return modded; }
+        std::shared_ptr<std::string> lheInitHead::getContent(){ 
             if( isModded() || !isWritten() ){ writer(); }
             return content; }
-        lheInitHead( std::string_view initHead ){
+        lheInitHead::lheInitHead( std::string_view initHead ){
             auto vals = *nuBlankSplitter( initHead );
             if( vals.size() < 10 ){ return; }
             idbmup[0] = vals[0]; idbmup[1] = vals[1];
@@ -1703,7 +1601,7 @@ namespace REX
             pdfsup[0] = vals[6]; pdfsup[1] = vals[7];
             idwtup = vals[8]; nprup = vals[9];
         }
-        lheInitHead( xmlNode& initNode )
+        lheInitHead::lheInitHead( xmlNode& initNode )
         {
             if( initNode.getName() != "init" ){ return; }
             auto startPos = initNode.getFile().find( ">", initNode.getStart() ) + 1;
@@ -1715,33 +1613,22 @@ namespace REX
             pdfsup[0] = vals[6]; pdfsup[1] = vals[7];
             idwtup = vals[8]; nprup = vals[9];
         }
-    protected:
-        std::shared_ptr<std::string> content;
-        bool written = false;
-        bool modded = false;
-        void writer(){
+        void lheInitHead::writer(){
             *content = std::string(idbmup[0]) + " " + std::string(idbmup[1]) + " " + std::string(ebmup[0]) + " " + std::string(ebmup[1]) + " " + std::string(pdfgup[0]) 
     + " " + std::string(pdfgup[1]) + " " + std::string(pdfsup[0]) + " " + std::string(pdfsup[1]) + " " + std::string(idwtup) + " " + std::string(nprup) +"\n";
             written = true;
             modded = false;
         }
-    };
 
     // ZW: struct for handling process lines
     // in LHE format init tag
-    struct lheInitLine {
-    public:
-        std::string_view xsecup;
-        std::string_view xerrup;
-        std::string_view xmaxup;
-        std::string_view lprup;
-        bool isWritten(){ return written; }
-        bool isModded(){ return modded; }
-        std::shared_ptr<std::string> getContent(){ 
+        bool lheInitLine::isWritten(){ return written; }
+        bool lheInitLine::isModded(){ return modded; }
+        std::shared_ptr<std::string> lheInitLine::getContent(){ 
             if( isModded() || !isWritten() ){ writer(); }
             return content; }
-        lheInitLine(){}
-        lheInitLine( std::string_view procLine )
+        lheInitLine::lheInitLine(){}
+        lheInitLine::lheInitLine( std::string_view procLine )
         {
             auto vals = *nuBlankSplitter( procLine );
             if( vals.size() < 4 ){ return; }
@@ -1750,33 +1637,20 @@ namespace REX
             xmaxup = vals[2];
             lprup = vals[3];
         }
-    protected:
-        std::shared_ptr<std::string> content;
-        bool written = false;
-        bool modded = false;
-        void writer(){
+        void lheInitLine::writer(){
             *content = std::string(xsecup) + " " + std::string(xerrup) + " " + std::string(xmaxup) + " " + std::string(lprup) + "\n";
             written = true;
             modded = false;
         }
-    };
 
     // ZW: struct for handling single parameter line in
     // SLHA format parameter card
-    struct paramVal{
-    public:
-        double value = 0;
-        int id = 0;
-        std::string_view realLine;
-        std::string_view comment;
-        std::string_view idStr;
-        std::string_view valStr;
-        virtual void parse(){
+        void paramVal::parse(){
             id = std::stoi( std::string(idStr) );
             value = std::stod( std::string(valStr) );
         }
-        paramVal(){ realLine = ""; idStr = ""; valStr = ""; }
-        paramVal( std::string_view paramLine, bool parseOnline = false )
+        paramVal::paramVal(){ realLine = ""; idStr = ""; valStr = ""; }
+        paramVal::paramVal( std::string_view paramLine, bool parseOnline )
         {
             if( paramLine.find("\n") != npos ){
                 auto startPos = paramLine.find_first_not_of(" \n", paramLine.find("\n"));
@@ -1800,9 +1674,8 @@ namespace REX
             }
             parse(); }
         }
-        bool isMod(){ return modded; }
-        bool modded = false;
-        virtual std::shared_ptr<std::string> selfWrite(){
+        bool paramVal::isMod(){ return modded; }
+        std::shared_ptr<std::string> paramVal::selfWrite(){
             auto writeVal = std::make_shared<std::string>("");
             if( isMod() )
             {
@@ -1816,13 +1689,10 @@ namespace REX
             else{ *writeVal = std::string( realLine ) + "\n"; }
             return writeVal;
         }
-    };
 
     // ZW: struct for handling single DECAY line
     // in SLHA format parameter card
-    struct decVal : public paramVal{
-    public:
-        void parse() override {
+        void decVal::parse() {
             auto vals = *nuBlankSplitter( realLine );
             id = std::stoi( std::string(vals[1]) );
             value = std::stod( std::string(vals[2]) );
@@ -1832,11 +1702,11 @@ namespace REX
                 comment = realLine.substr( comStart, realLine.find("\n", comStart) - comStart );
             }
         }
-        decVal( std::string_view paramLine = "", bool parseOnline = false ) : paramVal( paramLine, false )
+        decVal::decVal( std::string_view paramLine, bool parseOnline ) : paramVal( paramLine, false )
         {
             if( parseOnline ){ parse(); }
         }
-        std::shared_ptr<std::string> selfWrite() override {
+        std::shared_ptr<std::string> decVal::selfWrite() {
             auto writeVal = std::make_shared<std::string>("");
             if( isMod() )
             {
@@ -1849,19 +1719,10 @@ namespace REX
             else{ *writeVal = std::string( realLine ) + "\n"; }
             return writeVal;
         }
-    };
 
     // ZW: struct for handling parameter block
     // in SLHA format parameter card
-    struct paramBlock {
-    public:
-        std::string_view realBlock;
-        size_t startPt;
-        std::string_view comment;
-        std::string_view initComm;
-        std::string_view name;
-        std::vector<paramVal> params;
-        virtual void parse( bool parseOnline = false ){
+        void paramBlock::parse( bool parseOnline ){
             if( realBlock.size() == 0 ){ return; }
             if( !(clStringComp(realBlock.substr(startPt+1, 5), std::string("block"))) ){ startPt = clStringFind( realBlock, std::string("\nblock") ); }
             auto namePt = realBlock.find_first_not_of( " ", startPt + 7 );
@@ -1875,16 +1736,15 @@ namespace REX
                 params.push_back( paramVal( line, parseOnline ) );
             }
         }
-        paramBlock(){ return; }
-        paramBlock( std::string_view paramSet, bool parseOnline = false )
+        paramBlock::paramBlock(){ return; }
+        paramBlock::paramBlock( std::string_view paramSet, bool parseOnline )
         {
             realBlock = paramSet;
             startPt = clStringFind( realBlock, std::string("\nB") );
             if( parseOnline ){ parse(parseOnline);  }
         }
-        bool isMod(){ return modded; }
-        bool modded = false;
-        virtual std::shared_ptr<std::string> selfWrite(){
+        bool paramBlock::isMod(){ return modded; }
+        std::shared_ptr<std::string> paramBlock::selfWrite(){
             auto writeBlock = std::make_shared<std::string>("");
             if( isMod() )
             {
@@ -1905,14 +1765,10 @@ namespace REX
             } }
             return writeBlock;
         }
-    };
 
     // ZW: struct for handling DECAY lines
     // in SLHA format parameter card
-    struct decBlock : public paramBlock {
-    public:
-        std::vector<decVal> decays;
-        void parse( bool parseOnline = false ) override{
+        void decBlock::parse( bool parseOnline ){
         if( realBlock.size() == 0 ){ return; }
             auto decLines = clFindEach( realBlock, std::string("\ndecay") );
             decays.reserve(decLines->size());
@@ -1925,7 +1781,7 @@ namespace REX
                 decays.push_back( decVal( realBlock.substr( pts + 1, lineBr - pts - 1 ), parseOnline ) );
             }
         }
-        void parse( std::shared_ptr<std::vector<size_t>> decLines, bool parseOnline = false ) {
+        void decBlock::parse( std::shared_ptr<std::vector<size_t>> decLines, bool parseOnline ) {
             decays.reserve(decLines->size());
             if( realBlock.size() > 5 ){ if( clStringComp( realBlock.substr(0,5), std::string("decay")) )
             { decays.push_back( decVal(realBlock.substr( 0, realBlock.find("\n") ), parseOnline) ); } }
@@ -1936,12 +1792,12 @@ namespace REX
                 decays.push_back( decVal( realBlock.substr( pts + 1, lineBr - pts - 1 ), parseOnline ) );
             }
         }
-        decBlock( std::string_view paramSet = "", bool parseOnline = false ) : paramBlock( paramSet, parseOnline )
+        decBlock::decBlock( std::string_view paramSet, bool parseOnline ) : paramBlock( paramSet, parseOnline )
         {
             realBlock = paramSet;
             if( parseOnline ){ parse(parseOnline); }
         }
-        std::shared_ptr<std::string> selfWrite() override {
+        std::shared_ptr<std::string> decBlock::selfWrite() {
             auto writeBlock = std::make_shared<std::string>("");
             *writeBlock += "\n";
             for ( auto val : decays )
@@ -1950,27 +1806,9 @@ namespace REX
             }
             return writeBlock;
         }
-    };
 
     // ZW: struct for handling SLHA parameter cards
-    struct lesHouchesCard {
-    public:
-        decBlock decays;
-        std::string_view xmlFile;
-        size_t start;
-        size_t end;
-        bool modded;
-        bool parsed;
-        std::string_view header;
-        std::vector<paramBlock> blocks;
-        size_t blockStart;
-        std::function<bool(size_t&, const std::string_view&)> lambda = [&]( size_t& conPt, const std::string_view& file )
-            { return !( file[conPt+1] == ' ' || file[conPt+1] == '#' || file[conPt+1] == '\n' ); };
-        std::function<bool(size_t&, const std::string_view&)> lambdaNu = [&]( size_t& conPt, const std::string_view& file )
-            { return !( file[conPt+1] == ' ' || file[conPt+1] == '\n' || file[conPt+1] == '<'); };
-        std::function<bool(size_t&, const std::string_view&)> lambdaD = [&]( size_t& conPt, const std::string_view& file )
-            { return !(  clStringComp(file.substr(conPt+1, 1), std::string("d") ) ); };
-        void parse( bool parseOnline = false )
+         void lesHouchesCard::parse( bool parseOnline )
         {
             if( parsed ){ return; }
             if( xmlFile.substr(start,1).find_first_of("BbDd#") == npos ){ start = clStringFindIf( xmlFile, std::string("\n"), lambdaNu ); }
@@ -1987,14 +1825,14 @@ namespace REX
             decays.parse( decLines, parseOnline );
             parsed = true;
         } 
-        lesHouchesCard( const std::string_view originFile = "", const size_t& begin = 0, bool parseOnline = false ){ 
+        lesHouchesCard::lesHouchesCard( const std::string_view originFile, const size_t& begin, bool parseOnline ){ 
             xmlFile = originFile; start = begin;
             modded = false; blockStart = clStringFindIf( xmlFile, std::string("\n"), lambda, start + 1); end = xmlFile.find("</", blockStart);
             parsed = false;
             if( parseOnline ){ parse( parseOnline ); }
         }
-        bool isMod(){ return modded; }
-        std::shared_ptr<std::string> selfWrite(){
+        bool lesHouchesCard::isMod(){ return modded; }
+        std::shared_ptr<std::string> lesHouchesCard::selfWrite(){
             auto writeCard = std::make_shared<std::string>(header);
             if( isMod() )
             { for( auto block : blocks )
@@ -2006,106 +1844,94 @@ namespace REX
             }
             return writeCard;
         }
-    };
 
-    struct slhaNode : public xmlNode {
-    public:
-        std::shared_ptr<lesHouchesCard> getParameters(){
+        std::shared_ptr<lesHouchesCard> slhaNode::getParameters(){
             modded = true;
             return parameterCard;
         }
-        slhaNode() : xmlNode(){}
-        slhaNode( lesHouchesCard parameters ) : xmlNode(){
+        slhaNode::slhaNode() : xmlNode(){}
+        slhaNode::slhaNode( lesHouchesCard parameters ) : xmlNode(){
             parameterCard = std::make_shared<lesHouchesCard>( parameters );
             pCardInit = true;
         } 
-        slhaNode( std::shared_ptr<lesHouchesCard> parameters ) : xmlNode(){
+        slhaNode::slhaNode( std::shared_ptr<lesHouchesCard> parameters ) : xmlNode(){
             parameterCard = parameters;
             pCardInit = true;
         }
-        slhaNode( xmlNode& node, bool parseOnline = false ) : xmlNode( node ){ 
+        slhaNode::slhaNode( xmlNode& node, bool parseOnline ) : xmlNode( node ){ 
             parameterCard = std::make_shared<lesHouchesCard>( node.getFile(), node.getStart(), parseOnline );
         }
-        slhaNode( xmlNode* node, bool parseOnline = false ) : xmlNode( *node ){ 
+        slhaNode::slhaNode( xmlNode* node, bool parseOnline ) : xmlNode( *node ){ 
             parameterCard = std::make_shared<lesHouchesCard>( node->getFile(), node->getStart(), parseOnline );
         }
-        slhaNode( std::shared_ptr<xmlNode> node, bool parseOnline = false ) : xmlNode( *node ){ 
+        slhaNode::slhaNode( std::shared_ptr<xmlNode> node, bool parseOnline ) : xmlNode( *node ){ 
             parameterCard = std::make_shared<lesHouchesCard>( node->getFile(), node->getStart(), parseOnline );
         }
-        slhaNode( xmlTree tree, bool parseOnline = false ) : xmlNode( tree ){
+        slhaNode::slhaNode( xmlTree tree, bool parseOnline ) : xmlNode( tree ){
             parameterCard = std::make_shared<lesHouchesCard>( tree.getOrigin(), tree.getStart(), parseOnline );
         }
-        slhaNode( std::shared_ptr<xmlTree> tree, bool parseOnline = false ) : xmlNode( *tree ){
+        slhaNode::slhaNode( std::shared_ptr<xmlTree> tree, bool parseOnline ) : xmlNode( *tree ){
             parameterCard = std::make_shared<lesHouchesCard>( tree->getOrigin(), tree->getStart(), parseOnline );
         }
-        slhaNode( xmlTree* tree, bool parseOnline = false ) : xmlNode( *tree ){
+        slhaNode::slhaNode( xmlTree* tree, bool parseOnline ) : xmlNode( *tree ){
             parameterCard = std::make_shared<lesHouchesCard>( tree->getOrigin(), tree->getStart(), parseOnline );
         }
-        slhaNode( const std::string_view originFile, const size_t& begin = 0, bool parseOnline = false )
+        slhaNode::slhaNode( const std::string_view originFile, const size_t& begin, bool parseOnline )
         : xmlNode( originFile, begin ){
             if( parse() ){ parameterCard = std::make_shared<lesHouchesCard>( content, begin, parseOnline ); pCardInit = true; }
         }
-    protected:
-        std::shared_ptr<lesHouchesCard> parameterCard;
-        bool pCardInit = false;
-        void headWriter() override{
+        void slhaNode::headWriter(){
             nodeHeader = "<slha";
             for( auto tag : tags ){
                 nodeHeader += " " + std::string(tag->getId()) + "=\"" + std::string(tag->getVal()) + "\"";
             }
             nodeHeader += ">";
         }
-        void endWriter() override{ nodeEnd += "</slha>\n"; }
-        void contWriter() override{
+        void slhaNode::endWriter(){ nodeEnd += "</slha>\n"; }
+        void slhaNode::contWriter(){
             if( pCardInit ){
                 nodeContent = *parameterCard->selfWrite();
             } else {
                 nodeContent = content;
             }
         }
-    };
 
     // ZW: struct for handling LHE init nodes
-    struct initNode : public xmlNode {
-    public:
-        std::shared_ptr<lheInitHead> getHead(){ return initHead; }
-        std::vector<std::shared_ptr<lheInitLine>> getLines(){ return initLines; }
-        void setHead( std::shared_ptr<lheInitHead> head ){ modded = true; initHead = head; }
-        void setLines( std::vector<std::shared_ptr<lheInitLine>> lines ){ modded = true; initLines = lines; initHead->nprup = std::to_string( initLines.size() ); }
-        void addLine( std::shared_ptr<lheInitLine> line ){ modded = true; initLines.push_back( line ); initHead->nprup = std::to_string( initLines.size() ); }
-        initNode() : xmlNode(){ name = "init"; }
-        initNode( const std::string_view originFile, const size_t& begin = 0, bool parseOnline = false )
+        std::shared_ptr<lheInitHead> initNode::getHead(){ return initHead; }
+        std::vector<std::shared_ptr<lheInitLine>> initNode::getLines(){ return initLines; }
+        void initNode::setHead( std::shared_ptr<lheInitHead> head ){ modded = true; initHead = head; }
+        void initNode::setLines( std::vector<std::shared_ptr<lheInitLine>> lines ){ modded = true; initLines = lines; initHead->nprup = std::to_string( initLines.size() ); }
+        void initNode::addLine( std::shared_ptr<lheInitLine> line ){ modded = true; initLines.push_back( line ); initHead->nprup = std::to_string( initLines.size() ); }
+        initNode::initNode() : xmlNode(){ name = "init"; }
+        initNode::initNode( const std::string_view originFile, const size_t& begin, bool parseOnline )
         : xmlNode( originFile, begin ){
             content = originFile.substr( structure.getContStart(), structure.getContEnd() - structure.getContStart() );
         }
-        initNode( xmlNode& node, bool parseOnline = false ) : xmlNode( node ){
+        initNode::initNode( xmlNode& node, bool parseOnline ) : xmlNode( node ){
             content = xmlFile.substr( structure.getContStart(), structure.getContEnd() - structure.getContStart() );
             if( parseOnline ){ parse( parseOnline ); }
         }
-        initNode( xmlNode* node, bool parseOnline = false ) : xmlNode( *node ){
+        initNode::initNode( xmlNode* node, bool parseOnline ) : xmlNode( *node ){
             content = xmlFile.substr( structure.getContStart(), structure.getContEnd() - structure.getContStart() );
             if( parseOnline ){ parse( parseOnline ); }
         }
-        initNode( std::shared_ptr<xmlNode> node, bool parseOnline = false ) : xmlNode( *node ){
+        initNode::initNode( std::shared_ptr<xmlNode> node, bool parseOnline ) : xmlNode( *node ){
             content = xmlFile.substr( structure.getContStart(), structure.getContEnd() - structure.getContStart() );
             if( parseOnline ){ parse( parseOnline ); }
         }
-        initNode( xmlTree tree, bool parseOnline = false ) : xmlNode( tree ){
+        initNode::initNode( xmlTree tree, bool parseOnline ) : xmlNode( tree ){
             content = xmlFile.substr( structure.getContStart(), structure.getContEnd() - structure.getContStart() );
             if( parseOnline ){ parse( parseOnline ); }
         }
-        initNode( std::shared_ptr<xmlTree> tree, bool parseOnline = false ) : xmlNode( *tree ){
+        initNode::initNode( std::shared_ptr<xmlTree> tree, bool parseOnline ) : xmlNode( *tree ){
             content = xmlFile.substr( structure.getContStart(), structure.getContEnd() - structure.getContStart() );
             if( parseOnline ){ parse( parseOnline ); }
         }
-        initNode( xmlTree* tree, bool parseOnline = false ) : xmlNode( *tree ){
+        initNode::initNode( xmlTree* tree, bool parseOnline ) : xmlNode( *tree ){
             content = xmlFile.substr( structure.getContStart(), structure.getContEnd() - structure.getContStart() );
             if( parseOnline ){ parse( parseOnline ); }
         }
-    protected:
-        std::shared_ptr<lheInitHead> initHead;
-        std::vector<std::shared_ptr<lheInitLine>> initLines;
-        bool parseContent() override{
+        bool initNode::parseContent(){
             if( content.size() == 0 ){ return false; }
             auto linebreaks = lineFinder( content );
             if( linebreaks->size() == 0 ){ return false; }
@@ -2115,19 +1941,16 @@ namespace REX
             }
             return true;
         }
-        void contWriter() override{
+        void initNode::contWriter(){
             if( isModded() ){nodeContent = std::string( content ); return; }
             nodeContent = *initHead->getContent();
             for( auto line : initLines ){
                 nodeContent += *line->getContent();
             }
         }
-    };
     
     // ZW: struct for explicitly handling LHE header nodes
-    struct lheHead : public xmlNode {
-    public:
-        size_t addWgtGroup( std::shared_ptr<weightGroup>& wgtGroup ){
+        size_t lheHead::addWgtGroup( std::shared_ptr<weightGroup>& wgtGroup ){
             hasRwgt = true; 
             modded = true; 
             if( wgtGrpInit( wgtGroup ) ){
@@ -2135,7 +1958,7 @@ namespace REX
             }
             return (rwgtNodes->noGrps() - 1);
         }
-        size_t addWgtGroup( weightGroup wgtGroup ){
+        size_t lheHead::addWgtGroup( weightGroup wgtGroup ){
             hasRwgt = true;
             modded = true;
             auto wgtGrpPtr = std::make_shared<weightGroup>( wgtGroup );
@@ -2144,21 +1967,21 @@ namespace REX
             }
             return (rwgtNodes->noGrps() - 1);
         }
-        void addWgt( size_t index, std::shared_ptr<headWeight> nuWgt ){
+        void lheHead::addWgt( size_t index, std::shared_ptr<headWeight> nuWgt ){
             if( index >= (size_t)rwgtNodes->getGroups().size() )
                 throw std::range_error( "Appending weight to uninitialised weightgroup." );
             hasRwgt = true;
             modded = true;
             rwgtNodes->addWgt( index, nuWgt );
         }
-        void addWgt( size_t index, headWeight nuWgt ){
+        void lheHead::addWgt( size_t index, headWeight nuWgt ){
             if( index >= (size_t)rwgtNodes->getGroups().size() )
                 throw std::range_error( "Appending weight to uninitialised weightgroup." );
             hasRwgt = true;
             modded = true;
             rwgtNodes->addWgt( index, nuWgt );
         }
-        void addWgt( size_t index, std::shared_ptr<headWeight> nuWgt, std::string idTagg ){
+        void lheHead::addWgt( size_t index, std::shared_ptr<headWeight> nuWgt, std::string idTagg ){
             if( index >= (size_t)rwgtNodes->getGroups().size() )
                 throw std::range_error( "Appending weight to uninitialised weightgroup." );
             hasRwgt = true;
@@ -2166,7 +1989,7 @@ namespace REX
             nuWgt->setId( idTagg );
             rwgtNodes->addWgt( index, nuWgt );
         }
-        void addWgt( size_t index, headWeight nuWgt, std::string idTagg ){
+        void lheHead::addWgt( size_t index, headWeight nuWgt, std::string idTagg ){
             if( index >= (size_t)rwgtNodes->getGroups().size() )
                 throw std::range_error( "Appending weight to uninitialised weightgroup." );
             hasRwgt = true;
@@ -2174,15 +1997,15 @@ namespace REX
             nuWgt.setId( idTagg );
             rwgtNodes->addWgt( index, nuWgt );
         }
-        void setInitRwgt( initRwgt initWgt ){  hasRwgt = true; modded = true; rwgtNodes = std::make_shared<initRwgt>(initWgt); }
-        void setInitRwgt( std::shared_ptr<initRwgt> initWgt ){ hasRwgt = true; modded = true; rwgtNodes = initWgt; }
-        std::vector<std::shared_ptr<weightGroup>> getWgtGroups(){ return rwgtNodes->getGroups(); }
-        std::shared_ptr<initRwgt> getInitRwgt(){ return rwgtNodes; }
-        std::shared_ptr<slhaNode> getParameters(){ return parameters; }
-        void setParameters( std::shared_ptr<slhaNode> params ){ parameters = params; }
-        bool rwgtInc(){ return hasRwgt; }
-        lheHead(){ return; }
-        lheHead( const std::string_view originFile, const size_t& begin = 0, const std::vector<std::shared_ptr<xmlNode>>& childs = {} )
+        void lheHead::setInitRwgt( initRwgt initWgt ){  hasRwgt = true; modded = true; rwgtNodes = std::make_shared<initRwgt>(initWgt); }
+        void lheHead::setInitRwgt( std::shared_ptr<initRwgt> initWgt ){ hasRwgt = true; modded = true; rwgtNodes = initWgt; }
+        std::vector<std::shared_ptr<weightGroup>> lheHead::getWgtGroups(){ return rwgtNodes->getGroups(); }
+        std::shared_ptr<initRwgt> lheHead::getInitRwgt(){ return rwgtNodes; }
+        std::shared_ptr<slhaNode> lheHead::getParameters(){ return parameters; }
+        void lheHead::setParameters( std::shared_ptr<slhaNode> params ){ parameters = params; }
+        bool lheHead::rwgtInc(){ return hasRwgt; }
+        lheHead::lheHead(){ return; }
+        lheHead::lheHead( const std::string_view originFile, const size_t& begin, const std::vector<std::shared_ptr<xmlNode>>& childs )
         : xmlNode(originFile, begin, childs){
             xmlFile = originFile; start = begin; children = childs; size_t trueStart = originFile.find_first_not_of(" ", begin+1);
             if( trueStart != npos ){name = originFile.substr( trueStart, originFile.find_first_of(">/ ", trueStart) - trueStart );}
@@ -2191,45 +2014,43 @@ namespace REX
                 if (child->getName() == "initrwgt" ){ rwgtNodes = std::make_shared<initRwgt>( *child ); continue; }
             }
         }
-        lheHead( xmlNode& node ) : xmlNode(node){
+        lheHead::lheHead( xmlNode& node ) : xmlNode(node){
             for( auto child : node.getChildren() ){
                 if ( child->getName() == "slha" ){ parameters = std::make_shared<slhaNode>( *child ); continue; }
                 if ( child->getName() == "initrwgt" ){ rwgtNodes = std::make_shared<initRwgt>( *child ); continue; }
             }
         }
-        lheHead( xmlNode* node ) : xmlNode(*node){
+        lheHead::lheHead( xmlNode* node ) : xmlNode(*node){
             for( auto child : node->getChildren() ){
                 if ( child->getName() == "slha" ){ parameters = std::make_shared<slhaNode>( *child ); continue; }
                 if ( child->getName() == "initrwgt" ){ rwgtNodes = std::make_shared<initRwgt>( *child ); continue; }
             }
         }
-        lheHead( std::shared_ptr<xmlNode> node ) : xmlNode( *node ){
+        lheHead::lheHead( std::shared_ptr<xmlNode> node ) : xmlNode( *node ){
             for( auto child : node->getChildren() ){
                 if ( child->getName() == "slha" ){ parameters = std::make_shared<slhaNode>( *child ); continue; }
                 if ( child->getName() == "initrwgt" ){ rwgtNodes = std::make_shared<initRwgt>( *child ); continue; }
             }
         }
-        lheHead( xmlTree tree ) : xmlNode( tree ){
+        lheHead::lheHead( xmlTree tree ) : xmlNode( tree ){
             for( auto child : children ){
                 if ( child->getName() == "slha" ){ parameters = std::make_shared<slhaNode>( *child ); continue; }
                 if ( child->getName() == "initrwgt" ){ rwgtNodes = std::make_shared<initRwgt>( *child ); continue; }
             }
         }
-        lheHead( std::shared_ptr<xmlTree> tree ) : xmlNode( *tree ){
+        lheHead::lheHead( std::shared_ptr<xmlTree> tree ) : xmlNode( *tree ){
             for( auto child : children ){
                 if ( child->getName() == "slha" ){ parameters = std::make_shared<slhaNode>( *child ); continue; }
                 if ( child->getName() == "initrwgt" ){ rwgtNodes = std::make_shared<initRwgt>( *child ); continue; }
             }
         }
-        lheHead( xmlTree* tree ) : xmlNode( *tree ){
+        lheHead::lheHead( xmlTree* tree ) : xmlNode( *tree ){
             for( auto child : children ){
                 if ( child->getName() == "slha" ){ parameters = std::make_shared<slhaNode>( *child ); continue; }
                 if ( child->getName() == "initrwgt" ){ rwgtNodes = std::make_shared<initRwgt>( *child ); continue; }
             }
         }
-    protected:
-        bool wgtGrpIsInit = false;
-        bool wgtGrpInit( std::shared_ptr<weightGroup>& wgtGrp ){
+        bool lheHead::wgtGrpInit( std::shared_ptr<weightGroup>& wgtGrp ){
             if( wgtGrpIsInit ){ return true; }
             if( rwgtNodes == nullptr ){
                 rwgtNodes = std::make_shared<initRwgt>();
@@ -2238,13 +2059,7 @@ namespace REX
                 return false;
             } else throw std::runtime_error( "Error while initiating return LHE file header (initrwgt node is defined in an unrecognised manner)." );
         }
-        std::shared_ptr<slhaNode> parameters;
-        bool hasRwgt = false;
-        std::shared_ptr<initRwgt> rwgtNodes;
-        std::vector<std::shared_ptr<weightGroup>> initrwgt;
-        bool relChildSet = false;
-        std::vector<int> relChild;
-        void setRelChild(){
+        void lheHead::setRelChild(){
             if( relChildSet ){ return; }
             relChild.reserve( children.size() );
             for( size_t k = 0 ; k < children.size() ; ++k ){
@@ -2255,7 +2070,7 @@ namespace REX
             }
             relChildSet = true;
         }
-        bool parseChildren( bool recursive ){
+        bool lheHead::parseChildren( bool recursive ){
             bool status = true;
             for( auto child : children ){
                 if( child->getName() == "slha" || child->getName() == "initrwgt" ){ continue; }
@@ -2265,14 +2080,14 @@ namespace REX
             }
             return status;
         }
-        void headWriter() override{
+        void lheHead::headWriter(){
             nodeHeader =  "<header";
             for( auto tag : tags ){
                 nodeHeader += " " + std::string(tag->getId()) + "=\"" + std::string(tag->getVal()) + "\"";
             }
             nodeHeader += ">\n";
         }
-        void childWriter() override{
+        void lheHead::childWriter(){
             setRelChild();
             for( auto relKid : relChild ){
                 nodeContent += *(children[relKid]->nodeWriter());
@@ -2282,7 +2097,7 @@ namespace REX
                 nodeContent += *rwgtNodes->nodeWriter();
             }
         }
-        void fullWriter() override{
+        void lheHead::fullWriter(){
             if( isModded() ){
             headWriter();
             contWriter();
@@ -2292,20 +2107,14 @@ namespace REX
             written = true;
             }
         }
-    };
 
     // ZW: struct for keeping track of appended weights in LHE node,
     // since weight information is stored both in the header 
     // and in the individual events
-    struct newWgt{
-    protected:
-        std::shared_ptr<headWeight> headWgt;
-        std::vector<std::shared_ptr<bodyWgt>> bodyWgts;
-    public:
-        newWgt( std::shared_ptr<headWeight> heaWgt, std::vector<std::shared_ptr<bodyWgt>> bodWgts ){
+        newWgt::newWgt( std::shared_ptr<headWeight> heaWgt, std::vector<std::shared_ptr<bodyWgt>> bodWgts ){
             headWgt = heaWgt; bodyWgts = bodWgts;
         }
-        newWgt( std::shared_ptr<headWeight> heaWgt, std::shared_ptr<std::vector<double>> wgts ){
+        newWgt::newWgt( std::shared_ptr<headWeight> heaWgt, std::shared_ptr<std::vector<double>> wgts ){
             headWgt = heaWgt;
             bodyWgts = std::vector<std::shared_ptr<bodyWgt>>(wgts->size());
             auto idTag = std::string(headWgt->getTag());
@@ -2319,14 +2128,14 @@ namespace REX
                 }
             }
         }
-        newWgt( std::string_view parameters, std::shared_ptr<std::vector<double>> wgts, std::string idTag = "rex_rwgt" ){
+        newWgt::newWgt( std::string_view parameters, std::shared_ptr<std::vector<double>> wgts, std::string idTag ){
             headWgt = std::make_shared<headWeight>(parameters, idTag);
             bodyWgts = std::vector<std::shared_ptr<bodyWgt>>(wgts->size());
             for( size_t i = 0 ; i < wgts->size() ; ++i ){
                 bodyWgts[i] = std::make_shared<bodyWgt>(wgts->at(i), idTag);
             }
         }
-        newWgt( std::string_view parameters, int idNum, std::shared_ptr<std::vector<double>> wgts, std::string idTag = "rex_rwgt" ){
+        newWgt::newWgt( std::string_view parameters, int idNum, std::shared_ptr<std::vector<double>> wgts, std::string idTag  ){
             std::string newTag = std::string( idTag ) + "_" + std::to_string( idNum );
             headWgt = std::make_shared<headWeight>(parameters, newTag);
             bodyWgts = std::vector<std::shared_ptr<bodyWgt>>(wgts->size());
@@ -2334,15 +2143,15 @@ namespace REX
                 bodyWgts[i] = std::make_shared<bodyWgt>(wgts->at(i), newTag);
             }
         }
-        newWgt( std::string& parameters ){
+        newWgt::newWgt( std::string& parameters ){
             headWgt = std::make_shared<headWeight>(parameters);
         }
-        newWgt( std::string& parameters, std::string& idTag ){
+        newWgt::newWgt( std::string& parameters, std::string& idTag ){
             headWgt = std::make_shared<headWeight>(parameters, idTag);
         }
-        std::shared_ptr<headWeight> getHeadWgt(){ return headWgt; }
-        std::vector<std::shared_ptr<bodyWgt>> getBodyWgts(){ return bodyWgts; }
-        void addBdyWgts( std::shared_ptr<std::vector<double>> wgts ){
+        std::shared_ptr<headWeight> newWgt::getHeadWgt(){ return headWgt; }
+        std::vector<std::shared_ptr<bodyWgt>> newWgt::getBodyWgts(){ return bodyWgts; }
+        void newWgt::addBdyWgts( std::shared_ptr<std::vector<double>> wgts ){
             auto idTag = std::string(headWgt->getTag());
             if( idTag != "" ){
                 for( size_t i = 0 ; i < wgts->size() ; ++i ){
@@ -2354,13 +2163,10 @@ namespace REX
                 }
             }
         }
-    };
 
     // ZW: general struct for handling LHE files explicitly
-    struct lheNode : public xmlNode {
-    public:
-        lheNode() : xmlNode(){}
-        lheNode( const std::string_view originFile, const size_t& begin = 0, const std::vector<std::shared_ptr<xmlNode>>& childs = {} )
+        lheNode::lheNode() : xmlNode(){}
+        lheNode::lheNode( const std::string_view originFile, const size_t& begin, const std::vector<std::shared_ptr<xmlNode>>& childs )
         : xmlNode(originFile, begin, childs){
             //xmlFile = originFile; start = begin; children = childs; size_t trueStart = originFile.find_first_not_of(" ", begin+1);
             //if( trueStart != npos ){name = originFile.substr( trueStart, originFile.find_first_of(">/ ", trueStart) - trueStart );}
@@ -2370,76 +2176,69 @@ namespace REX
                 if( child->getName() == "event" ){ events.push_back( std::make_shared<event>( *child ) ); continue; }
             }
         }
-        auto getHeader(){ return header; }
-        auto getInit(){ return init; }
-        auto& getEvents(){ return events; }
-        bool isModded() override{ return modded; }
-        bool isModded( bool deep ) override{
+        std::shared_ptr<lheHead> lheNode::getHeader(){ return header; }
+        std::shared_ptr<initNode> lheNode::getInit(){ return init; }
+        std::vector<std::shared_ptr<event>> lheNode::getEvents(){ return events; }
+        bool lheNode::isModded(){ return modded; }
+        bool lheNode::isModded( bool deep ){
             if( !deep ){ return isModded(); }
             bool modStat = isModded();
             for( auto child : children ){ modStat = ( modStat || child->isModded( deep ) ); }
             for( auto event : events ){ modStat = ( modStat || event->isModded( deep ) ); }
             return modStat;
         }
-        void setInit( std::shared_ptr<initNode> initNod ){ init = initNod; }
-        void setHeader( std::shared_ptr<lheHead> headNod ){ header = headNod; }
-        void addWgt( size_t index, newWgt& addedWgt ){
+        void lheNode::setInit( std::shared_ptr<initNode> initNod ){ init = initNod; }
+        void lheNode::setHeader( std::shared_ptr<lheHead> headNod ){ header = headNod; }
+        void lheNode::addWgt( size_t index, newWgt& addedWgt ){
             header->addWgt( index, addedWgt.getHeadWgt() );
             auto wgtsVec = addedWgt.getBodyWgts();
             for( size_t k = 0 ; k < wgtsVec.size() ; ++k ){
                 events[k]->addWgt( wgtsVec[k] );
             }
         }
-        void addWgt( size_t index, newWgt& addedWgt, std::string& idTag ){
+        void lheNode::addWgt( size_t index, newWgt& addedWgt, std::string& idTag ){
             header->addWgt( index, addedWgt.getHeadWgt(), idTag );
             auto wgtsVec = addedWgt.getBodyWgts();
             for( size_t k = 0 ; k < wgtsVec.size() ; ++k ){
                 events[k]->addWgt( wgtsVec[k] );
             }
         }
-        void setRelStats( std::vector<std::string_view>& particles ){
+        void lheNode::setRelStats( std::vector<std::string_view>& particles ){
             relStat = particles;
         }
-        std::vector<std::string_view>& getRelStats(){
+        std::vector<std::string_view>& lheNode::getRelStats(){
             return relStat;
         }
-        void setSameSort( sortFcn& sortF ){
+        void lheNode::setSameSort( sortFcn& sortF ){
             particleSort = sortF;
         }
-        sortFcn& getSameSort(){
+        sortFcn& lheNode::getSameSort(){
             return particleSort;
         }
-        void setStatSort( statSort& statS ){
+        void lheNode::setStatSort( statSort& statS ){
             statParticleSort = statS;
         }
-        statSort& getStatSort(){
+        statSort& lheNode::getStatSort(){
             return statParticleSort;
         }
-    protected:
-        std::vector<std::shared_ptr<event>> events = {};
-        std::shared_ptr<lheHead> header =  std::make_shared<lheHead>(xmlFile, start);
-        std::shared_ptr<initNode> init = std::make_shared<initNode>(xmlFile, start);
-        std::vector<std::string_view> relStat = {"-1", "1"};
-        sortFcn particleSort = []( std::vector<std::string_view> prts ){ return stodSort(prts); };
-        statSort statParticleSort = []( std::string_view dummy, std::vector<std::string_view> prts ){ return stodSort(prts); };
-        virtual void headerWriter(){
+        void lheNode::headerWriter(){
             nodeContent += "\n" + *header->nodeWriter();
         }
-        virtual void initWriter(){
+        void lheNode::initWriter(){
             nodeContent += *init->nodeWriter();
         }
-        virtual void eventWriter(){
+        void lheNode::eventWriter(){
             for( auto event : events ){
                 nodeContent += *event->nodeWriter();
             }
         }
-        void contWriter() override{
+        void lheNode::contWriter(){
             nodeContent = "";
             headerWriter();
             initWriter();
             eventWriter();
         }
-        void fullWriter() override{
+        void lheNode::fullWriter(){
             if( isModded( true ) ){
             headWriter();
             contWriter();
@@ -2452,12 +2251,10 @@ namespace REX
                 written = true;
             }
         }
-    public:    
-        virtual std::shared_ptr<std::string> nodeWriter() {
+        std::shared_ptr<std::string> lheNode::nodeWriter() {
             if( isModded( true ) || !isWritten() ){ fullWriter(); }
             return writtenSelf;
         }
-    };
 
     // ZW: function for extracting event information from
     // LHE files
@@ -2783,20 +2580,18 @@ namespace REX
         return true;
     }
 
-    struct eventComp{
-        bool operator()( event& firstEv, event& secEv){
+        bool eventComp::operator()( event& firstEv, event& secEv){
             if( firstEv.isSpecSort() ) {return evProcComp( firstEv, secEv, {"-1", "1"}, firstEv.getStatSort());}
             else {return evProcComp( firstEv, secEv, {"-1", "1"}, firstEv.getSortFcn() );}
         }
-        bool operator()( const event& firstEv, const event& secEv) const {
+        bool eventComp::operator()( const event& firstEv, const event& secEv) const {
             if( firstEv.isSpecSort() ) {return evProcComp( firstEv, secEv, {"-1", "1"}, firstEv.getStatSort());}
             else {return evProcComp( firstEv, secEv, {"-1", "1"}, firstEv.getSortFcn() );}
         }
-        bool operator()(event& firstEv, event& secEv, std::vector<std::string_view> statVec){
+        bool eventComp::operator()(event& firstEv, event& secEv, std::vector<std::string_view> statVec){
             if( firstEv.isSpecSort() ) {return evProcComp( firstEv, secEv, statVec, firstEv.getStatSort());}
             else {return evProcComp( firstEv, secEv, statVec, firstEv.getSortFcn() );}
         }
-    };
 
     // ZW: fcn for checking whether a list of pdgXtract format
     // processes sourceProcList contains a given process newProc
@@ -3158,16 +2953,7 @@ namespace REX
     }
 
     // ZW: transposed event information struct
-    struct evtInfo {
-    public:
-        std::vector<std::string_view> wgts;
-        std::vector<std::string_view> scales;
-        std::vector<std::string_view> aQEDs;
-        std::vector<std::string_view> aQCDs;
-        std::vector<std::string_view> nprts;
-        std::vector<size_t> relNPrts;
-        std::vector<std::string_view> procIDs;
-        evtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile = {} ){
+        evtInfo::evtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile ){
             int nEvt = lheFile.size();
             wgts.reserve(nEvt); scales.reserve(nEvt); aQEDs.reserve(nEvt); aQCDs.reserve(nEvt); nprts.reserve(nEvt); procIDs.reserve(nEvt);
             for( auto evt : lheFile )
@@ -3180,7 +2966,7 @@ namespace REX
                 procIDs.push_back(evt->getHead().getProcID());
             }
         }
-        evtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile, const std::vector<std::string_view>& statVec ){
+        evtInfo::evtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile, const std::vector<std::string_view>& statVec ){
             int nEvt = lheFile.size();
             wgts.reserve(nEvt); scales.reserve(nEvt); aQEDs.reserve(nEvt); aQCDs.reserve(nEvt); relNPrts.reserve(nEvt); procIDs.reserve(nEvt);
             for( auto evt : lheFile )
@@ -3195,7 +2981,7 @@ namespace REX
                 procIDs.push_back(evt->getHead().getProcID());
             }
         }
-        evtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile, const std::vector<std::string_view>& statVec, 
+        evtInfo::evtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile, const std::vector<std::string_view>& statVec, 
         sortFcn sorter ){
             int nEvt = lheFile.size();
             wgts.reserve(nEvt); scales.reserve(nEvt); aQEDs.reserve(nEvt); aQCDs.reserve(nEvt); relNPrts.reserve(nEvt); procIDs.reserve(nEvt);
@@ -3211,7 +2997,7 @@ namespace REX
                 procIDs.push_back(evt->getHead().getProcID());
             }
         }
-        evtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile, const std::vector<std::string_view>& statVec, 
+        evtInfo::evtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile, const std::vector<std::string_view>& statVec, 
         statSort sorter ){
             int nEvt = lheFile.size();
             wgts.reserve(nEvt); scales.reserve(nEvt); aQEDs.reserve(nEvt); aQCDs.reserve(nEvt); relNPrts.reserve(nEvt); procIDs.reserve(nEvt);
@@ -3227,20 +3013,9 @@ namespace REX
                 procIDs.push_back(evt->getHead().getProcID());
             }
         }
-    };
 
     // ZW: transposed particle information struct
-    struct  prtInfo {
-    public:
-        std::vector<std::string_view> moms;
-        std::vector<std::string_view> masses;
-        std::vector<std::string_view> vtims;
-        std::vector<std::string_view> spins;
-        std::vector<std::string_view> statuses;
-        std::vector<std::string_view> mothers;
-        std::vector<std::string_view> icols;
-        std::vector<std::string_view> pdgs;
-        prtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile = {}, const int nPrt = 8 ){
+        prtInfo::prtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile, const int nPrt ){
             int nEvt = lheFile.size(); 
             moms.reserve(4*nPrt*nEvt); vtims.reserve(nPrt*nEvt); masses.reserve(nPrt*nEvt); pdgs.reserve(nPrt*nEvt); 
             spins.reserve(nPrt*nEvt); statuses.reserve(nPrt*nEvt); mothers.reserve(2*nPrt*nEvt); icols.reserve(2*nPrt*nEvt);
@@ -3264,7 +3039,7 @@ namespace REX
                 }
             }
         }
-        prtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile, const int nPrt, const std::vector<std::string_view>& statVec ){
+        prtInfo::prtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile, const int nPrt, const std::vector<std::string_view>& statVec ){
             int nEvt = lheFile.size(); 
             moms.reserve(4*nPrt*nEvt); vtims.reserve(nPrt*nEvt); masses.reserve(nPrt*nEvt); pdgs.reserve(nPrt*nEvt); 
             spins.reserve(nPrt*nEvt); statuses.reserve(nPrt*nEvt); mothers.reserve(2*nPrt*nEvt); icols.reserve(2*nPrt*nEvt);
@@ -3292,7 +3067,7 @@ namespace REX
                 }
             }
         }
-        prtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile, const int nPrt, const std::vector<std::string_view>& statVec, 
+        prtInfo::prtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile, const int nPrt, const std::vector<std::string_view>& statVec, 
         sortFcn sorter ){
             int nEvt = lheFile.size(); 
             moms.reserve(4*nPrt*nEvt); vtims.reserve(nPrt*nEvt); masses.reserve(nPrt*nEvt); pdgs.reserve(nPrt*nEvt); 
@@ -3321,7 +3096,7 @@ namespace REX
                 }
             }
         }
-        prtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile, const int nPrt, const std::vector<std::string_view>& statVec, 
+        prtInfo::prtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile, const int nPrt, const std::vector<std::string_view>& statVec, 
         statSort sorter ){
             int nEvt = lheFile.size(); 
             moms.reserve(4*nPrt*nEvt); vtims.reserve(nPrt*nEvt); masses.reserve(nPrt*nEvt); pdgs.reserve(nPrt*nEvt); 
@@ -3350,49 +3125,36 @@ namespace REX
                 }
             }
         }
-    };
 
     // ZW: transposed LHE file with a single process type
-    struct transMonoLHE {
-    public:
-        evtInfo evtsHead;
-        prtInfo evtsData;
-        std::shared_ptr<event> process;
-        transMonoLHE( const std::vector<std::shared_ptr<REX::event>>& lheFile = {}, const int nPrt = 8 ){
+        transMonoLHE::transMonoLHE( const std::vector<std::shared_ptr<REX::event>>& lheFile , const int nPrt ){
             evtsHead = evtInfo(lheFile);
             evtsData = prtInfo(lheFile, nPrt);
             process = lheFile[0];
         }
-        transMonoLHE( const std::vector<std::shared_ptr<REX::event>>& lheFile, const int nPrt, const std::vector<std::string_view>& statVec ){
+        transMonoLHE::transMonoLHE( const std::vector<std::shared_ptr<REX::event>>& lheFile, const int nPrt, const std::vector<std::string_view>& statVec ){
             evtsHead = evtInfo(lheFile, statVec);
             evtsData = prtInfo(lheFile, nPrt, statVec);
             process = lheFile[0];
         }
-        transMonoLHE( const std::vector<std::shared_ptr<REX::event>>& lheFile, const int nPrt, 
+        transMonoLHE::transMonoLHE( const std::vector<std::shared_ptr<REX::event>>& lheFile, const int nPrt, 
         sortFcn sorter,
-        std::vector<std::string_view> statVec = { "-1", "1" } ){
+        std::vector<std::string_view> statVec ){
             evtsHead = evtInfo(lheFile, statVec);
             evtsData = prtInfo(lheFile, nPrt, statVec, sorter);
             process = lheFile[0];
         }
-        transMonoLHE( const std::vector<std::shared_ptr<REX::event>>& lheFile, const int nPrt, 
+        transMonoLHE::transMonoLHE( const std::vector<std::shared_ptr<REX::event>>& lheFile, const int nPrt, 
         statSort sorter,
-        std::vector<std::string_view> statVec = { "-1", "1" } ){
+        std::vector<std::string_view> statVec){
             evtsHead = evtInfo(lheFile, statVec);
             evtsData = prtInfo(lheFile, nPrt, statVec, sorter);
             process = lheFile[0];
         }
-    };
 
     // ZW: transposed LHE file ordered by subprocess
-    struct transLHE {
-    public:
-        std::string_view xmlFile;
-        std::vector<std::shared_ptr<transMonoLHE>> subProcs;
-        std::vector<std::shared_ptr<event>> procSets;
-        std::vector<std::shared_ptr<std::vector<bool>>> relProcs;
-        transLHE(){ return; }
-        transLHE( lheNode& lheFile )
+        transLHE::transLHE(){ return; }
+        transLHE::transLHE( lheNode& lheFile )
         {
             procSets = evProcessPull( lheFile ); 
             relProcs = evProcOrder( lheFile, procSets );
@@ -3404,9 +3166,9 @@ namespace REX
                 subProcs[k] = std::make_shared<transMonoLHE>( *procsOrdered[k], procsOrdered[k]->at(0)->getNprt() );
             }
         }
-        transLHE( lheNode& lheFile, 
+        transLHE::transLHE( lheNode& lheFile, 
         sortFcn sorter, 
-        const std::vector<std::string_view>& statVec = { "-1", "1" } )
+        const std::vector<std::string_view>& statVec  )
         {
             procSets = evProcessPull( lheFile, sorter, statVec ); 
             relProcs = evProcOrder( lheFile, procSets, sorter, statVec );
@@ -3418,9 +3180,9 @@ namespace REX
                 subProcs[k] = std::make_shared<transMonoLHE>( *procsOrdered[k], procsOrdered[k]->at(0)->getNprt(), sorter, statVec );
             }
         }
-        transLHE( lheNode& lheFile, 
+        transLHE::transLHE( lheNode& lheFile, 
         statSort sorter, 
-        const std::vector<std::string_view>& statVec = { "-1", "1" } )
+        const std::vector<std::string_view>& statVec)
         {
             procSets = evProcessPull( lheFile, sorter, statVec ); 
             relProcs = evProcOrder( lheFile, procSets, sorter, statVec );
@@ -3432,7 +3194,7 @@ namespace REX
                 subProcs[k] = std::make_shared<transMonoLHE>( *procsOrdered[k], procsOrdered[k]->at(0)->getNprt(), sorter, statVec );
             }
         }
-        transLHE( lheNode& lheFile, const std::vector<std::string_view>& statVec )
+        transLHE::transLHE( lheNode& lheFile, const std::vector<std::string_view>& statVec )
         {
             procSets = evProcessPull( lheFile, statVec ); 
             relProcs = evProcOrder( lheFile, procSets, statVec );
@@ -3444,15 +3206,15 @@ namespace REX
                 subProcs[k] = std::make_shared<transMonoLHE>( *procsOrdered[k], procsOrdered[k]->at(0)->getNprt(), statVec );
             }
         }
-        template <typename T>
-        std::shared_ptr<std::vector<T>> vectorFlat( std::vector<std::shared_ptr<std::vector<T>>> vecVec )
+//        template <typename T>
+        std::shared_ptr<std::vector<double>> transLHE::vectorFlat( std::vector<std::shared_ptr<std::vector<double>>> vecVec )
         {
             if( vecVec.size() != relProcs.size() ) throw std::range_error("vectorFlat: input vector size does not match number of subprocesses");
             for( size_t k = 0 ; k < vecVec.size() ; ++k){
                 if( vecVec[k]->size() == relProcs[k]->size() ) continue;
                 else throw std::range_error("vectorFlat: input vector size does not match number of events for subprocess");
             }
-            auto flatVec = std::make_shared<std::vector<T>>(relProcs[0]->size());
+            auto flatVec = std::make_shared<std::vector<double>>(relProcs[0]->size());
             for( size_t k = 0 ; k < relProcs.size() ; ++k ){
                 size_t currInd = 0;
                 for( size_t j = 0 ; j < relProcs[k]->size() ; ++j ){
@@ -3464,7 +3226,6 @@ namespace REX
             }
             return flatVec;
         }
-    };
 
     // ZW: vector transformation string_to_double
     std::shared_ptr<std::vector<double>> vecStoD( const std::vector<std::string_view> dataVec )
@@ -3500,53 +3261,21 @@ namespace REX
 
     // ZW: bool struct to define which double values
     // to extract transposed from LHE file
-    struct lheRetDs{
-    public:
-        bool ebmup = false;
-        bool xsecup = false;
-        bool xerrup = false;
-        bool xmaxup = false;
-        bool xwgtup = false;
-        bool scalup = false;
-        bool aqedup = false;
-        bool aqcdup = false;
-        bool pup = true;
-        bool mass = false;
-        bool vtimup = false;
-        bool spinup = false;
-        std::vector<bool> getBools(){
+        std::vector<bool> lheRetDs::getBools(){
             return { ebmup, xsecup, xerrup, xmaxup, xwgtup, scalup, aqedup, aqcdup, 
         pup, mass, vtimup, spinup };
         }
-    };
 
     // ZW: bool struct to define which int values
     // to extract transposed from LHE file
-    struct lheRetInts{
-    public:
-        //bool maxpup = false;
-        bool idbmup = false;
-        bool pdfgup = false;
-        bool pdfsup = false;
-        bool idwtup = false;
-        bool nprup = false;
-        bool lprup = false;
-        //bool maxnup = false;
-        bool nup = true;
-        bool idprup = false;
-        bool idup = true;
-        bool istup = true;
-        bool mothup = false;
-        bool icolup = false;
-        std::vector<bool> getBools(){
+        std::vector<bool> lheRetInts::getBools(){
             return { idbmup, pdfgup, pdfsup, idwtup, nprup, lprup,
             nup, idprup, idup, istup, mothup, icolup };
         }
-    };
 
     // ZW: function for extracting transposed double values
     // from LHE file
-    std::shared_ptr<std::vector<std::shared_ptr<std::vector<double>>>> lheValDoubles( lheNode& lheFile, lheRetDs vals = lheRetDs() )
+    std::shared_ptr<std::vector<std::shared_ptr<std::vector<double>>>> lheValDoubles( lheNode& lheFile, lheRetDs vals )
     {
         // ZW: hard-setting returning g_S instead of a_S for now
         bool aStogS = true;
@@ -3605,7 +3334,7 @@ namespace REX
         return lheDos;
     }
 
-    std::shared_ptr<std::vector<std::shared_ptr<std::vector<double>>>> lheValDoubles(transLHE& lheAOS, lheRetDs vals = lheRetDs() )
+    std::shared_ptr<std::vector<std::shared_ptr<std::vector<double>>>> lheValDoubles(transLHE& lheAOS, lheRetDs vals )
     {
         // ZW: hard-setting returning g_S instead of a_S for now
         bool aStogS = true;

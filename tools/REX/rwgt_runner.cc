@@ -12,7 +12,6 @@
 %(process_lines)s
 //--------------------------------------------------------------------------
 
-#include "teawREX.hpp"
 #include "rwgt_instance.h"
 #include "fbridge.cc"
 
@@ -65,7 +64,7 @@ namespace %(process_namespace)s{
         }
         std::shared_ptr<std::vector<FORTRANFPTYPE>> scatAmp( std::vector<FORTRANFPTYPE>& momenta, std::vector<FORTRANFPTYPE>& alphaS ){
             runnerSetup( alphaS );
-            for( size_t k = 0 ; k < nWarpRemain ; ++k ){
+            for( size_t j = 0 ; j < nWarpRemain ; ++j ){
                 alphaS.push_back( 0. );
                 for( size_t k = 0 ; k < nMom * nPar ; ++k ){
                     momenta.push_back( 0. );
@@ -113,7 +112,7 @@ namespace %(process_namespace)s{
 //    auto procEvent = REX::event( procEvent );
 //    REX::statSort currProcSort = []( std::string_view stat, std::vector<std::string_view> vec ){ return thisProcSort( stat, vec ); };
 
-    std::vector<std::pair<int,int>> eventVec = {%(process_event)s};
+    std::vector<std::pair<std::string,std::string>> eventVec = {%(process_event)s};
     REX::event locEv = REX::event( eventVec );
     fbridgeRunner fBridge = fbridgeRunner( locEv );
 
@@ -124,7 +123,6 @@ namespace %(process_namespace)s{
     REX::statSort currProcSort = []( std::string_view stat, std::vector<std::string_view> vec ){ return thisProcSort( stat, vec ); };
 
     auto runner = rwgt::instance(eventVec, scatteringAmp);
-    //auto thisProc = runner.getProc( scatteringAmp );
     auto thisProc = runner.process.getProc( currProcSort );
 // ZW: SET UP WRAPPER FOR FORTRAN_BRIDGE
 
