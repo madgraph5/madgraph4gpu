@@ -30,7 +30,6 @@
 #define MGONGPUCPP_NBSMINDEPPARAM_GT_0 1
 
 #ifndef MGONGPU_HARDCODE_PARAM
-//#warning Support for EFT physics models is still limited for HRDCOD=0 builds (#439 and PR #625)
 
 #include "read_slha.h"
 
@@ -100,7 +99,6 @@ namespace mg5amcCpu
 } // end namespace mg5amcGpu/mg5amcCpu
 
 #else
-//#warning Support for EFT physics models is still limited for HRDCOD=1 builds (#439 and PR #625)
 
 #include <cassert>
 #include <limits>
