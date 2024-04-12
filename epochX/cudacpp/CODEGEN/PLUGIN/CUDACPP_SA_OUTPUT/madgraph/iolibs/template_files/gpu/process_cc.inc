@@ -44,7 +44,9 @@
 
 //--------------------------------------------------------------------------
 
-// Enable FPEs (see #701, #733, #831 - except on MacOS where feenableexcept is not defined #730)
+// Enable FPE traps (see #701, #733, #831 - except on MacOS where feenableexcept is not defined #730)
+// [NB1: Fortran default is -ffpe-trap=none, i.e. FPE traps are not enabled, https://gcc.gnu.org/onlinedocs/gfortran/Debugging-Options.html]
+// [NB2: Fortran default is -ffpe-summary=invalid,zero,overflow,underflow,denormal, i.e. warn at the end on STOP]
 inline void
 fpeEnable()
 {
@@ -59,11 +61,13 @@ fpeEnable()
   //std::cout << "fpeEnable:     FE_INVALID is" << ( ( fpes & FE_INVALID ) ? " " : " NOT " ) << "enabled" << std::endl;
   //std::cout << "fpeEnable:     FE_OVERFLOW is" << ( ( fpes & FE_OVERFLOW ) ? " " : " NOT " ) << "enabled" << std::endl;
   //std::cout << "fpeEnable:     FE_UNDERFLOW is" << ( ( fpes & FE_UNDERFLOW ) ? " " : " NOT " ) << "enabled" << std::endl;
-  const char* enableFPEc = getenv( "CUDACPP_RUNTIME_ENABLEFPE" );
-  const bool enableFPE = ( enableFPEc != 0 ) && ( std::string( enableFPEc ) != "" );
+  ////const char* enableFPEc = getenv( "CUDACPP_RUNTIME_ENABLEFPE" );
+  ////const bool enableFPE = ( enableFPEc != 0 ) && ( std::string( enableFPEc ) != "" );
+  const bool enableFPE = true;
   if( enableFPE )
   {
-    std::cout << "WARNING! CUDACPP_RUNTIME_ENABLEFPE is set: enable Floating Point Exceptions" << std::endl;
+    ////std::cout << "WARNING! CUDACPP_RUNTIME_ENABLEFPE is set: enable Floating Point Exceptions" << std::endl;
+    std::cout << "WARNING! enable Floating Point Exceptions" << std::endl;
     feenableexcept( FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW ); // debug #701
     //fpes = fegetexcept();
     //std::cout << "fpeEnable: analyse fegetexcept()=" << fpes << std::endl;
@@ -75,10 +79,11 @@ fpeEnable()
   }
   else
   {
-    //std::cout << "DEBUG: CUDACPP_RUNTIME_ENABLEFPE is NOT set, do not enable Floating Point Exceptions" << std::endl;
+    ////std::cout << "DEBUG: CUDACPP_RUNTIME_ENABLEFPE is NOT set, do not enable Floating Point Exceptions" << std::endl;
+    //std::cout << "WARNING! do not enable Floating Point Exceptions" << std::endl;
   }
 #else
-  //std::cout << "DEBUG: fegetexcept and feenableexcept are not available on MacOS, keep default FPE settings" << std::endl;
+  //std::cout << "WARNING! feenableexcept is not available on MacOS, keep default FPE settings" << std::endl;
 #endif
 }
 

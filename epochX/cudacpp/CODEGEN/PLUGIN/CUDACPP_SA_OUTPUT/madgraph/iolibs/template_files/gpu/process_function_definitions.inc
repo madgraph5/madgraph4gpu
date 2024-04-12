@@ -117,7 +117,7 @@ namespace mg5amcCpu
 #else
     memcpy( cHel, tHel, ncomb * npar * sizeof( short ) );
 #endif
-    fpeEnable(); // enable FPEs if CUDACPP_RUNTIME_ENABLEFPE is set
+    fpeEnable(); // enable Floating Point Exceptions
   }
 
   //--------------------------------------------------------------------------
