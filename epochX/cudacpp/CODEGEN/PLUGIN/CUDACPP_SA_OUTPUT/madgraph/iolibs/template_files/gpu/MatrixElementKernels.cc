@@ -42,9 +42,9 @@ namespace mg5amcCpu
     //std::cerr << "mg5amcCpu::~MatrixElementKernelBase: ";
 #endif
     if( fpes == "" )
-      std::cerr << "No Floating Point Exceptions are signalling" << std::endl;
+      std::cerr << "No Floating Point Exceptions have been reported" << std::endl;
     else
-      std::cerr << "The following Floating Point Exceptions are signalling:" << fpes << std::endl;
+      std::cerr << "The following Floating Point Exceptions have been reported:" << fpes << std::endl;
   }
 
   //--------------------------------------------------------------------------

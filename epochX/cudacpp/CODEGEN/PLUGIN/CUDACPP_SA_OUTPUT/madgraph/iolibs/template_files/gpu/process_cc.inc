@@ -67,7 +67,7 @@ fpeEnable()
   if( enableFPE )
   {
     ////std::cout << "WARNING! CUDACPP_RUNTIME_ENABLEFPE is set: enable Floating Point Exceptions" << std::endl;
-    std::cout << "INFO: Enable SIGFPE traps for Floating Point Exceptions (DIVBYZERO, INVALID, OVERFLOW)" << std::endl;
+    std::cerr << "INFO: The following Floating Point Exceptions will cause SIGFPE program aborts: FE_DIVBYZERO, FE_INVALID, FE_OVERFLOW" << std::endl;
     ////feenableexcept( FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW ); // old strategy #701
     feenableexcept( FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW ); // new strategy #831
     //fpes = fegetexcept();
