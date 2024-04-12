@@ -298,13 +298,6 @@ main( int argc, char** argv )
 #endif
 #endif
 
-#ifndef MGONGPUCPP_GPUIMPL
-  // Fail gently and avoid "Illegal instruction (core dumped)" if the host does not support the SIMD used in the ME calculation
-  // Note: this prevents a crash on pmpe04 but not on some github CI nodes?
-  // [NB: SIMD vectorization in mg5amc C++ code is only used in the ME calculation below MatrixElementKernelHost!]
-  if( !MatrixElementKernelHost::hostSupportsSIMD() ) return 1;
-#endif
-
   const unsigned int ndim = gpublocks * gputhreads; // number of threads in one GPU grid
   const unsigned int nevt = ndim;                   // number of events in one iteration == number of GPU threads
 

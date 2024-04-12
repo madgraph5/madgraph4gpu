@@ -46,7 +46,9 @@
 
 //--------------------------------------------------------------------------
 
-// Enable FPEs (see #701, #733, #831 - except on MacOS where feenableexcept is not defined #730)
+// Enable FPE traps (see #701, #733, #831 - except on MacOS where feenableexcept is not defined #730)
+// [NB1: Fortran default is -ffpe-trap=none, i.e. FPE traps are not enabled, https://gcc.gnu.org/onlinedocs/gfortran/Debugging-Options.html]
+// [NB2: Fortran default is -ffpe-summary=invalid,zero,overflow,underflow,denormal, i.e. warn at the end on STOP]
 inline void
 fpeEnable()
 {
@@ -61,12 +63,15 @@ fpeEnable()
   //std::cout << "fpeEnable:     FE_INVALID is" << ( ( fpes & FE_INVALID ) ? " " : " NOT " ) << "enabled" << std::endl;
   //std::cout << "fpeEnable:     FE_OVERFLOW is" << ( ( fpes & FE_OVERFLOW ) ? " " : " NOT " ) << "enabled" << std::endl;
   //std::cout << "fpeEnable:     FE_UNDERFLOW is" << ( ( fpes & FE_UNDERFLOW ) ? " " : " NOT " ) << "enabled" << std::endl;
-  const char* enableFPEc = getenv( "CUDACPP_RUNTIME_ENABLEFPE" );
-  const bool enableFPE = ( enableFPEc != 0 ) && ( std::string( enableFPEc ) != "" );
+  ////const char* enableFPEc = getenv( "CUDACPP_RUNTIME_ENABLEFPE" );
+  ////const bool enableFPE = ( enableFPEc != 0 ) && ( std::string( enableFPEc ) != "" );
+  const bool enableFPE = true;
   if( enableFPE )
   {
-    std::cout << "WARNING! CUDACPP_RUNTIME_ENABLEFPE is set: enable Floating Point Exceptions" << std::endl;
-    feenableexcept( FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW ); // debug #701
+    ////std::cout << "WARNING! CUDACPP_RUNTIME_ENABLEFPE is set: enable Floating Point Exceptions" << std::endl;
+    std::cerr << "INFO: The following Floating Point Exceptions will cause SIGFPE program aborts: FE_DIVBYZERO, FE_INVALID, FE_OVERFLOW" << std::endl;
+    ////feenableexcept( FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW ); // old strategy #701
+    feenableexcept( FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW ); // new strategy #831
     //fpes = fegetexcept();
     //std::cout << "fpeEnable: analyse fegetexcept()=" << fpes << std::endl;
     //std::cout << "fpeEnable:     FE_DIVBYZERO is" << ( ( fpes & FE_DIVBYZERO ) ? " " : " NOT " ) << "enabled" << std::endl;
@@ -77,10 +82,11 @@ fpeEnable()
   }
   else
   {
-    //std::cout << "DEBUG: CUDACPP_RUNTIME_ENABLEFPE is NOT set, do not enable Floating Point Exceptions" << std::endl;
+    ////std::cout << "DEBUG: CUDACPP_RUNTIME_ENABLEFPE is NOT set, do not enable Floating Point Exceptions" << std::endl;
+    //std::cout << "INFO: Do not enable SIGFPE traps for Floating Point Exceptions" << std::endl;
   }
 #else
-  //std::cout << "DEBUG: fegetexcept and feenableexcept are not available on MacOS, keep default FPE settings" << std::endl;
+  //std::cout << "INFO: Keep default SIGFPE settings because feenableexcept is not available on MacOS" << std::endl;
 #endif
 }
 
@@ -2457,6 +2463,7 @@ namespace mg5amcCpu
       jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
 
+      /*
 #if not defined MGONGPUCPP_GPUIMPL and defined MGONGPU_FPTYPE2_FLOAT
       // Avoid underflow FPE #831 for jamp (flush-to-zero jamp values whose square is below FLT_MIN)
       constexpr fptype2 minjamp = 1.1 * constexpr_sqrt( FLT_MIN );
@@ -2482,6 +2489,7 @@ namespace mg5amcCpu
       underflowFTZ();
 #endif
 #endif
+      */
 
       // *** COLOR CHOICE BELOW ***
       // Store the leading color flows for choice of color
@@ -2546,12 +2554,14 @@ namespace mg5amcCpu
       static constexpr auto cf2 = TriangularNormalizedColorMatrix();
 #endif
 
+      /*
 #ifndef MGONGPUCPP_GPUIMPL
 #if defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
       // Fix FPE #831 for FPTYPE=m (scalar and vector)
       underflowFTZ();
 #endif
 #endif
+      */
 
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
       if( iParity == 0 ) // NB: first page is 0! skip even pages, compute on odd pages
@@ -2614,17 +2624,18 @@ namespace mg5amcCpu
           ztempR_sv += cf2.value[icol][jcol] * jampRj_sv;
           ztempI_sv += cf2.value[icol][jcol] * jampIj_sv;
         }
+        /*
 #if not defined MGONGPUCPP_GPUIMPL and defined MGONGPU_FPTYPE2_FLOAT
         // Avoid underflow FPE #831 for ztemp (flush-to-zero ztemp values whose square is below FLT_MIN)
 #ifndef MGONGPU_CPPSIMD
         ztempR_sv *= ( std::abs( ztempR_sv ) > minjamp );
         ztempI_sv *= ( std::abs( ztempI_sv ) > minjamp );
 #else
-#ifndef MGONGPU_FPTYPE_DOUBLE /* clang-format off */
+#ifndef MGONGPU_FPTYPE_DOUBLE // clang-format off
         constexpr int neppV_ztemp = neppV; // FPTYPE=f
 #else
         constexpr int neppV_ztemp = neppV2; // FPTYPE=m
-#endif /* clang-format on */
+#endif // clang-format on
         for( int i = 0; i < neppV_ztemp; i++ ) // NB! This may be either neppV (FPTYPE=f) or neppV2=2*neppV (FPTYPE=m)!
         {
           ztempR_sv[i] *= ( std::abs( ztempR_sv[i] ) > minjamp );
@@ -2632,6 +2643,7 @@ namespace mg5amcCpu
         }
 #endif
 #endif
+        */
         fptype2_sv deltaMEs2 = ( jampRi_sv * ztempR_sv + jampIi_sv * ztempI_sv );
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
         deltaMEs_previous += fpvsplit0( deltaMEs2 );
@@ -2766,7 +2778,7 @@ namespace mg5amcCpu
 #else
     memcpy( cHel, tHel, ncomb * npar * sizeof( short ) );
 #endif
-    fpeEnable(); // enable FPEs if CUDACPP_RUNTIME_ENABLEFPE is set
+    fpeEnable(); // enable SIGFPE traps for Floating Point Exceptions
   }
 
   //--------------------------------------------------------------------------
