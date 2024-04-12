@@ -44,7 +44,7 @@ namespace mg5amcCpu
   public:
 
     // Destructor
-    virtual ~MatrixElementKernelBase() {}
+    virtual ~MatrixElementKernelBase();
 
     // Compute good helicities (returns nGoodHel, the number of good helicity combinations out of ncomb)
     virtual int computeGoodHelicities() = 0;
