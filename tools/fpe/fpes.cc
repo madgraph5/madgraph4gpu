@@ -32,6 +32,15 @@ void printFPEs()
     std::cerr << "Floating Point Exception: FE_INEXACT reported" << std::endl;
   //if( std::fetestexcept( FE_DENORMAL ) ) // this does not exist...
   //  std::cerr << "Floating Point Exception: FE_DENORMAL reported" << std::endl;
+  std::string fpes;  
+  if( std::fetestexcept( FE_DIVBYZERO ) ) fpes += " FE_DIVBYZERO";
+  if( std::fetestexcept( FE_INVALID ) ) fpes += " FE_INVALID";
+  if( std::fetestexcept( FE_OVERFLOW ) ) fpes += " FE_OVERFLOW";
+  if( std::fetestexcept( FE_UNDERFLOW ) ) fpes += " FE_UNDERFLOW";
+  if( std::fetestexcept( FE_INEXACT ) ) fpes += " FE_INEXACT";
+  std::cerr << "Note from ~MatrixElementKernelBase: ";
+  if( fpes == "" ) std::cerr << "no Floating Point Exceptions have been reported" << std::endl;
+  else std::cerr << "the following Floating Point Exceptions have been reported:" << fpes << std::endl;
 }
 
 void clearFPEs()
