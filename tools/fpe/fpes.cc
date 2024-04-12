@@ -3,12 +3,23 @@
 #include <cmath> // for sqrt
 #include <iostream>
 
+void printFPEconfig()
+{
+  int fpes = fegetexcept();
+  std::cout << "Floating Point Exception: analyse fegetexcept()=" << fpes << std::endl;
+  std::cout << "  FPE trap for FE_DIVBYZERO is" << ( ( fpes & FE_DIVBYZERO ) ? " " : " NOT " ) << "enabled" << std::endl;
+  std::cout << "  FPE trap for FE_INEXACT is" << ( ( fpes & FE_INEXACT ) ? " " : " NOT " ) << "enabled" << std::endl;
+  std::cout << "  FPE trap for FE_INVALID is" << ( ( fpes & FE_INVALID ) ? " " : " NOT " ) << "enabled" << std::endl;
+  std::cout << "  FPE trap for FE_OVERFLOW is" << ( ( fpes & FE_OVERFLOW ) ? " " : " NOT " ) << "enabled" << std::endl;
+  std::cout << "  FPE trap for FE_UNDERFLOW is" << ( ( fpes & FE_UNDERFLOW ) ? " " : " NOT " ) << "enabled" << std::endl;
+}
+
 void printFPEs()
 {
   if( std::fetestexcept( FE_ALL_EXCEPT ) )
     std::cerr << "Floating Point Exception: FE_ALL_EXCEPT reported" << std::endl;
   else
-    std::cerr << "Floating Point Exception: FE_ALL_EXCEPT NOT reported" << std::endl;
+    std::cerr << "Floating Point Exception: no FPEs reported (FE_ALL_EXCEPT not reported)" << std::endl;
   if( std::fetestexcept( FE_DIVBYZERO ) )
     std::cerr << "Floating Point Exception: FE_DIVBYZERO reported" << std::endl;
   if( std::fetestexcept( FE_INVALID ) )
@@ -87,6 +98,9 @@ extern "C"
 {
   void testfpes_( const bool* pClearFPEs )
   {
+    printFPEconfig();
+
+    std::cout << std::endl;
     printFPEs();
 
     std::cout << std::endl;
