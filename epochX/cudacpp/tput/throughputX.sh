@@ -504,6 +504,7 @@ function runExe() {
   ###pattern="${pattern}|COMMON RANDOM|CURAND HOST \(CUDA"
   pattern="${pattern}|ERROR"
   pattern="${pattern}|WARNING"
+  pattern="${pattern}|Floating Point Exception"
   pattern="${pattern}|EvtsPerSec\[Rmb" # TEMPORARY! for rambo timing tests
   pattern="${pattern}|EvtsPerSec\[Matrix" # TEMPORARY! OLD C++/CUDA CODE
   if [ "${ab3}" == "1" ]; then pattern="${pattern}|3a|3b"; fi
