@@ -76,16 +76,19 @@ void testDivBy0()
   printFPEs();
 }
 
-void testFPEs()
+extern "C"
 {
-  printFPEs();
-  testUnderflowF();
-  std::cout << std::endl;
-  testUnderflowD();
-  std::cout << std::endl;
-  testOverflow();
-  std::cout << std::endl;
-  testInvalid();
-  std::cout << std::endl;
-  testDivBy0();
+  void testfpes_()
+  {
+    printFPEs();
+    testUnderflowF();
+    std::cout << std::endl;
+    testUnderflowD();
+    std::cout << std::endl;
+    testOverflow();
+    std::cout << std::endl;
+    testInvalid();
+    std::cout << std::endl;
+    testDivBy0();
+  }
 }

@@ -1,0 +1,5 @@
+      PROGRAM MAINF
+      IMPLICIT NONE
+      CALL TESTFPES()
+      STOP
+      END PROGRAM

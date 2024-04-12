@@ -1,7 +1,7 @@
-void testFPEs();
+extern "C" void testfpes_();
 
 int main()
 {
-  testFPEs();
+  testfpes_();
   return 0;
 }

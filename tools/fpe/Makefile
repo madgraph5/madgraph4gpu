@@ -1,4 +1,7 @@
-all: testCC
+all: testCC testF
+
+%.o : %.f
+	$(FC) -c $< -o $@
 
 %.o : %.cc
 	$(CXX) -c $< -o $@
@@ -6,6 +9,9 @@ all: testCC
 testCC : mainCC.o fpes.o
 	$(CXX) -o $@ $^
 
+testF : mainF.o fpes.o
+	$(FC) -o $@ $^ -lstdc++
+
 clean:
-	rm -f *.o testCC
+	rm -f *.o testCC testF
 
