@@ -19,6 +19,11 @@ void printFPEs()
     std::cerr << "Floating Point Exception: FE_UNDERFLOW reported" << std::endl;
   if( std::fetestexcept( FE_INEXACT ) ) // this should not throw a signal?
     std::cerr << "Floating Point Exception: FE_INEXACT reported" << std::endl;
+}
+
+void clearFPEs()
+{
+  std::cerr << "Floating Point Exception: clear all exceptions" << std::endl;
   std::feclearexcept( FE_ALL_EXCEPT );  
 }
 
@@ -78,17 +83,31 @@ void testDivBy0()
 
 extern "C"
 {
-  void testfpes_()
+  void testfpes_( const bool* pClearFPEs )
   {
     printFPEs();
+
+    std::cout << std::endl;
     testUnderflowF();
+    if( *pClearFPEs ) clearFPEs();
+
     std::cout << std::endl;
     testUnderflowD();
+    if( *pClearFPEs ) clearFPEs();
+
     std::cout << std::endl;
     testOverflow();
+    if( *pClearFPEs ) clearFPEs();
+
     std::cout << std::endl;
     testInvalid();
+    if( *pClearFPEs ) clearFPEs();
+
     std::cout << std::endl;
     testDivBy0();
-  }
+    if( *pClearFPEs ) clearFPEs();
+
+    std::cout << std::endl;
+    printFPEs();
+ }
 }
