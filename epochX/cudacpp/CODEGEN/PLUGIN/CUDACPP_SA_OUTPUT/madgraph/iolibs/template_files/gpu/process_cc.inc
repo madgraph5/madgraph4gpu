@@ -67,7 +67,7 @@ fpeEnable()
   if( enableFPE )
   {
     ////std::cout << "WARNING! CUDACPP_RUNTIME_ENABLEFPE is set: enable Floating Point Exceptions" << std::endl;
-    std::cout << "WARNING! enable SIGFPE traps for Floating Point Exceptions (DIVBYZERO, INVALID, OVERFLOW)" << std::endl;
+    std::cout << "INFO: Enable SIGFPE traps for Floating Point Exceptions (DIVBYZERO, INVALID, OVERFLOW)" << std::endl;
     ////feenableexcept( FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW ); // old strategy #701
     feenableexcept( FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW ); // new strategy #831
     //fpes = fegetexcept();
@@ -81,10 +81,10 @@ fpeEnable()
   else
   {
     ////std::cout << "DEBUG: CUDACPP_RUNTIME_ENABLEFPE is NOT set, do not enable Floating Point Exceptions" << std::endl;
-    //std::cout << "WARNING! do not enable SIGFPE traps for Floating Point Exceptions" << std::endl;
+    //std::cout << "INFO: Do not enable SIGFPE traps for Floating Point Exceptions" << std::endl;
   }
 #else
-  //std::cout << "WARNING! feenableexcept is not available on MacOS, keep default FPE settings" << std::endl;
+  //std::cout << "INFO: Keep default SIGFPE settings because feenableexcept is not available on MacOS" << std::endl;
 #endif
 }
 

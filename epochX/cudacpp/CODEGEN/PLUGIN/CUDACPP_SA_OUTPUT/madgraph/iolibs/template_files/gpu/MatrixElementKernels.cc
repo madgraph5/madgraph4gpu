@@ -34,15 +34,16 @@ namespace mg5amcCpu
     if( std::fetestexcept( FE_OVERFLOW ) ) fpes += " FE_OVERFLOW";
     if( std::fetestexcept( FE_UNDERFLOW ) ) fpes += " FE_UNDERFLOW";
     if( std::fetestexcept( FE_INEXACT ) ) fpes += " FE_INEXACT";
+    std::cerr << "INFO: ";
 #ifdef MGONGPUCPP_GPUIMPL
-    std::cerr << "mg5amcGpu::~MatrixElementKernelBase: ";
+    //std::cerr << "mg5amcGpu::~MatrixElementKernelBase: ";
 #else
-    std::cerr << "mg5amcCpu::~MatrixElementKernelBase: ";
+    //std::cerr << "mg5amcCpu::~MatrixElementKernelBase: ";
 #endif
     if( fpes == "" )
-      std::cerr << "no Floating Point Exceptions have been reported" << std::endl;
+      std::cerr << "No Floating Point Exceptions are signalling" << std::endl;
     else
-      std::cerr << "the following Floating Point Exceptions have been reported:" << fpes << std::endl;
+      std::cerr << "The following Floating Point Exceptions are signalling:" << fpes << std::endl;
   }
 
   //--------------------------------------------------------------------------
