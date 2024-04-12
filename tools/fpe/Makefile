@@ -4,7 +4,7 @@ all: testCC testF
 # Default is -ffpe-summary=invalid,zero,overflow,underflow,denormal (all but inexact)
 # Default is -ffpe-trap=none (none of invalid,zero,overflow,underflow,denormal,inexact)
 %.o : %.f
-	$(FC) -c $< -o $@ -ffpe-summary=invalid,zero,overflow
+	$(FC) -c $< -o $@ -ffpe-summary=invalid,zero,overflow -ffpe-trap=invalid,zero,overflow
 
 %.o : %.cc
 	$(CXX) -c $< -o $@
