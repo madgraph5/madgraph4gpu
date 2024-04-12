@@ -7,6 +7,7 @@
 ! Further modified by: J. Teig, A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
 !==========================================================================
 
+      /*
 #if not defined MGONGPUCPP_GPUIMPL and defined MGONGPU_FPTYPE2_FLOAT
       // Avoid underflow FPE #831 for jamp (flush-to-zero jamp values whose square is below FLT_MIN)
       constexpr fptype2 minjamp = 1.1 * constexpr_sqrt( FLT_MIN );
@@ -32,6 +33,7 @@
       underflowFTZ();
 #endif
 #endif
+      */
 
       // *** COLOR CHOICE BELOW ***
       // Store the leading color flows for choice of color
@@ -65,12 +67,14 @@
       static constexpr auto cf2 = TriangularNormalizedColorMatrix();
 #endif
 
+      /*
 #ifndef MGONGPUCPP_GPUIMPL
 #if defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
       // Fix FPE #831 for FPTYPE=m (scalar and vector)
       underflowFTZ();
 #endif
 #endif
+      */
 
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
       if( iParity == 0 ) // NB: first page is 0! skip even pages, compute on odd pages
@@ -133,17 +137,18 @@
           ztempR_sv += cf2.value[icol][jcol] * jampRj_sv;
           ztempI_sv += cf2.value[icol][jcol] * jampIj_sv;
         }
+        /*
 #if not defined MGONGPUCPP_GPUIMPL and defined MGONGPU_FPTYPE2_FLOAT
         // Avoid underflow FPE #831 for ztemp (flush-to-zero ztemp values whose square is below FLT_MIN)
 #ifndef MGONGPU_CPPSIMD
         ztempR_sv *= ( std::abs( ztempR_sv ) > minjamp );
         ztempI_sv *= ( std::abs( ztempI_sv ) > minjamp );
 #else
-#ifndef MGONGPU_FPTYPE_DOUBLE /* clang-format off */
+#ifndef MGONGPU_FPTYPE_DOUBLE // clang-format off
         constexpr int neppV_ztemp = neppV; // FPTYPE=f
 #else
         constexpr int neppV_ztemp = neppV2; // FPTYPE=m
-#endif /* clang-format on */
+#endif // clang-format on
         for( int i = 0; i < neppV_ztemp; i++ ) // NB! This may be either neppV (FPTYPE=f) or neppV2=2*neppV (FPTYPE=m)!
         {
           ztempR_sv[i] *= ( std::abs( ztempR_sv[i] ) > minjamp );
@@ -151,6 +156,7 @@
         }
 #endif
 #endif
+        */
         fptype2_sv deltaMEs2 = ( jampRi_sv * ztempR_sv + jampIi_sv * ztempI_sv );
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
         deltaMEs_previous += fpvsplit0( deltaMEs2 );
