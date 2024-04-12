@@ -9,7 +9,7 @@ cd $scrdir
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-sa] [-noalpaka] [-flt|-fltonly|-mix|-mixonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly] [-makeclean] [-makej] [-nofpe] [-dlp <dyld_library_path>]"
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-sa] [-noalpaka] [-flt|-fltonly|-mix|-mixonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly] [-makeclean] [-makej] [-dlp <dyld_library_path>]" # -nofpe is no longer supported
   exit 1
 }
 
@@ -33,7 +33,7 @@ rndgen=
 rmbsmp=
 steps="make test"
 makej=
-nofpe=
+###nofpe=
 dlp=
 dlpset=0
 
@@ -125,8 +125,8 @@ for arg in $*; do
     fi
   elif [ "$arg" == "-makej" ]; then
     makej=-makej
-  elif [ "$arg" == "-nofpe" ]; then
-    nofpe=-nofpe
+  ###elif [ "$arg" == "-nofpe" ]; then
+  ###  nofpe=-nofpe
   else
     echo "ERROR! Invalid option '$arg'"; usage
   fi  
@@ -169,7 +169,7 @@ for step in $steps; do
             args="${args} ${alpaka}" # optionally disable alpaka tests
             args="${args} ${rndgen}" # optionally use common random numbers or curand on host
             args="${args} ${rmbsmp}" # optionally use rambo or bridge on host
-            args="${args} ${nofpe}" # optionally disable FPEs
+            ###args="${args} ${nofpe}" # optionally disable FPEs
             args="${args} -avxall" # avx, fptype, helinl and hrdcod are now supported for all processes
             if [ "${step}" == "makeclean" ]; then
               printf "\n%80s\n" |tr " " "*"
