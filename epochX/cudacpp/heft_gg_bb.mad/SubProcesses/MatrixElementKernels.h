@@ -44,7 +44,7 @@ namespace mg5amcCpu
   public:
 
     // Destructor
-    virtual ~MatrixElementKernelBase();
+    virtual ~MatrixElementKernelBase() {}
 
     // Compute good helicities (returns nGoodHel, the number of good helicity combinations out of ncomb)
     virtual int computeGoodHelicities() = 0;
@@ -54,6 +54,9 @@ namespace mg5amcCpu
 
     // Is this a host or device kernel?
     virtual bool isOnDevice() const = 0;
+
+    // Dump signalling FPEs (#831 and #837)
+    static void dumpSignallingFPEs();
 
   protected:
 
@@ -98,7 +101,7 @@ namespace mg5amcCpu
                              const size_t nevt );
 
     // Destructor
-    virtual ~MatrixElementKernelHost() {}
+    virtual ~MatrixElementKernelHost() { MatrixElementKernelBase::dumpSignallingFPEs(); }
 
     // Compute good helicities (returns nGoodHel, the number of good helicity combinations out of ncomb)
     int computeGoodHelicities() override final;
@@ -150,7 +153,7 @@ namespace mg5amcCpu
                                const size_t gputhreads );
 
     // Destructor
-    virtual ~MatrixElementKernelDevice() {}
+    virtual ~MatrixElementKernelDevice() { MatrixElementKernelBase::dumpSignallingFPEs(); }
 
     // Reset gpublocks and gputhreads
     void setGrid( const int gpublocks, const int gputhreads );
