@@ -10,7 +10,45 @@
 #include "MemoryAccessMomenta.h"
 #include "MemoryBuffers.h"
 
+#include <cfenv> // for fetestexcept
 #include <sstream>
+
+//============================================================================
+
+#ifdef MGONGPUCPP_GPUIMPL
+namespace mg5amcGpu
+#else
+namespace mg5amcCpu
+#endif
+{
+  //--------------------------------------------------------------------------
+
+  void MatrixElementKernelBase::dumpSignallingFPEs()
+  {
+    // New strategy for issue #831: add a final report of FPEs
+    // Note: normally only underflow or inexact will be reported here
+    // (divbyzero, invalid and overflow are configured by feenablexcept to send a SIGFPE signal)
+    // Note: this is now called in the individual destructors of MEK classes rather than in that of MatrixElementKernelBase(#837)
+    std::string fpes;
+    if( std::fetestexcept( FE_DIVBYZERO ) ) fpes += " FE_DIVBYZERO";
+    if( std::fetestexcept( FE_INVALID ) ) fpes += " FE_INVALID";
+    if( std::fetestexcept( FE_OVERFLOW ) ) fpes += " FE_OVERFLOW";
+    if( std::fetestexcept( FE_UNDERFLOW ) ) fpes += " FE_UNDERFLOW";
+    if( std::fetestexcept( FE_INEXACT ) ) fpes += " FE_INEXACT";
+    std::cerr << "INFO: ";
+#ifdef MGONGPUCPP_GPUIMPL
+    //std::cerr << "mg5amcGpu::~MatrixElementKernelBase: ";
+#else
+    //std::cerr << "mg5amcCpu::~MatrixElementKernelBase: ";
+#endif
+    if( fpes == "" )
+      std::cerr << "No Floating Point Exceptions are signalling" << std::endl;
+    else
+      std::cerr << "The following Floating Point Exceptions are signalling:" << fpes << std::endl;
+  }
+
+  //--------------------------------------------------------------------------
+}
 
 //============================================================================
 
