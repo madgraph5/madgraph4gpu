@@ -19,6 +19,8 @@ void printFPEs()
     std::cerr << "Floating Point Exception: FE_UNDERFLOW reported" << std::endl;
   if( std::fetestexcept( FE_INEXACT ) ) // this should not throw a signal?
     std::cerr << "Floating Point Exception: FE_INEXACT reported" << std::endl;
+  //if( std::fetestexcept( FE_DENORMAL ) ) // this does not exist...
+  //  std::cerr << "Floating Point Exception: FE_DENORMAL reported" << std::endl;
 }
 
 void clearFPEs()
