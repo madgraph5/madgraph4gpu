@@ -23,11 +23,12 @@ namespace mg5amcCpu
 {
   //--------------------------------------------------------------------------
 
-  MatrixElementKernelBase::~MatrixElementKernelBase()
+  void MatrixElementKernelBase::dumpSignallingFPEs()
   {
     // New strategy for issue #831: add a final report of FPEs
     // Note: normally only underflow or inexact will be reported here
     // (divbyzero, invalid and overflow are configured by feenablexcept to send a SIGFPE signal)
+    // Note: this is now called in the individual destructors of MEK classes rather than in that of MatrixElementKernelBase(#837)
     std::string fpes;
     if( std::fetestexcept( FE_DIVBYZERO ) ) fpes += " FE_DIVBYZERO";
     if( std::fetestexcept( FE_INVALID ) ) fpes += " FE_INVALID";
