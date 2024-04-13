@@ -167,7 +167,7 @@ for step in $steps; do
               printf "*** ./madX.sh $args | tee $logfile"
               printf "\n%80s\n" |tr " " "*"
               mkdir -p $(dirname $logfile)
-              if ! ./madX.sh $args | tee $logfile; then status=2; fi
+              if ! ./madX.sh $args 2>&1 | tee $logfile; then status=2; fi
               if [ "${checkonly}" != "" ]; then
                 ./checkOnlyMerge.sh ${logfileold}
                 \rm -f ${logfile}
