@@ -9,6 +9,7 @@ scrdir=$(cd $(dirname $0); pwd)
 # By default, build and run all tests (use -makeonly to only build all tests)
 opts=
 suff=".mad"
+makeclean=-makeclean
 
 # Parse command line arguments
 ggttggg=-ggttggg
@@ -32,6 +33,10 @@ while [ "$1" != "" ]; do
     # Only build all tests instead of building and running them?
     opts+=" -makeonly"
     shift
+  elif [ "$1" == "-nomakeclean" ]; then
+    # Skip -makeclean (e.g. for brand new generated/downloaded code)
+    makeclean=
+    shift
   elif [ "$1" == "-hip" ]; then
     #### Random numbers use hiprand instead of curand?
     ###rndhst=-hirhst
@@ -46,7 +51,7 @@ while [ "$1" != "" ]; do
     bsm=$1
     shift
   else
-    echo "Usage: $0 [-short] [-e] [-sa] [-makeonly] [-hip] [-bsmonly|-nobsm]"
+    echo "Usage: $0 [-short] [-e] [-sa] [-makeonly] [-nomakeclean] [-hip] [-bsmonly|-nobsm]"
     exit 1
   fi
 done
@@ -60,7 +65,7 @@ started="STARTED  AT $(date)"
 
 # (36/102) Six logs (double/float/mixed x hrd0/hrd1 x inl0) in each of the six SM processes
 \rm -rf gg_ttggg${suff}/lib/build.none_*
-cmd="./tput/teeThroughputX.sh -mix -hrd -makej -eemumu -ggtt -ggttg -ggttgg -gqttq $ggttggg -makeclean ${opts}"
+cmd="./tput/teeThroughputX.sh -mix -hrd -makej -eemumu -ggtt -ggttg -ggttgg -gqttq $ggttggg ${makeclean} ${opts}"
 tmp1=$(mktemp)
 if [ "${bsm}" != "-bsmonly" ]; then
   $cmd; status=$?
@@ -73,7 +78,7 @@ ended1="$cmd\nENDED(1) AT $(date) [Status=$status]"
 # (48/102) Four extra logs (double/float x hrd0/hrd1 x inl1) only in three of the six SM processes
 \rm -rf gg_ttg${suff}/lib/build.none_*
 \rm -rf gg_ttggg${suff}/lib/build.none_*
-cmd="./tput/teeThroughputX.sh -flt -hrd -makej -eemumu -ggtt -ggttgg -inlonly -makeclean ${opts}"
+cmd="./tput/teeThroughputX.sh -flt -hrd -makej -eemumu -ggtt -ggttgg -inlonly ${makeclean} ${opts}"
 tmp2=$(mktemp)
 if [ "${bsm}" != "-bsmonly" ]; then
   $cmd; status=$?
@@ -84,7 +89,7 @@ fi
 ended2="$cmd\nENDED(2) AT $(date) [Status=$status]"
 
 # (60/102) Two extra logs (double/float x hrd0 x inl0 + bridge) in all six SM processes (rebuild from cache)
-cmd="./tput/teeThroughputX.sh -makej -eemumu -ggtt -ggttg -gqttq -ggttgg $ggttggg -flt -bridge -makeclean ${opts}"
+cmd="./tput/teeThroughputX.sh -makej -eemumu -ggtt -ggttg -gqttq -ggttgg $ggttggg -flt -bridge ${makeclean} ${opts}"
 if [ "${bsm}" != "-bsmonly" ]; then
   $cmd; status=$?
 else
@@ -120,7 +125,7 @@ fi
 ended6="$cmd\nENDED(6) AT $(date) [Status=$status]"
 
 # (102/102) Six extra logs (double/float/mixed x hrd0/hrd1 x inl0) only in the four BSM processes
-cmd="./tput/teeThroughputX.sh -mix -hrd -makej -susyggtt -susyggt1t1 -smeftggtttt -heftggbb -makeclean ${opts}"
+cmd="./tput/teeThroughputX.sh -mix -hrd -makej -susyggtt -susyggt1t1 -smeftggtttt -heftggbb ${makeclean} ${opts}"
 tmp3=$(mktemp)
 if [ "${bsm}" != "-nobsm" ]; then
   $cmd; status=$?
@@ -149,8 +154,8 @@ echo -e "$ended7"
 if [ "$ggttggg" == "" ]; then
   echo
   echo "To complete the test for ggttggg type:"
-  echo "  ./tput/teeThroughputX.sh -flt -hrd -makej -ggttggg -makeclean ${opts}"
-  echo "  ./tput/teeThroughputX.sh -makej -ggttggg -flt -bridge -makeclean ${opts}"
+  echo "  ./tput/teeThroughputX.sh -flt -hrd -makej -ggttggg ${makeclean} ${opts}"
+  echo "  ./tput/teeThroughputX.sh -makej -ggttggg -flt -bridge ${makeclean} ${opts}"
 fi
 
 # Print out any errors in the logs
