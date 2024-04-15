@@ -33,7 +33,7 @@ class CPPMEInterface(madevent_interface.MadEventCmdShell):
         if 'cwd' in opts and os.path.basename(opts['cwd']) == 'Source':
             path = pjoin(opts['cwd'], 'make_opts')
             common_run_interface.CommonRunCmd.update_make_opts_full(path,
-                {'FPTYPE': self.run_card['floating_type'] })
+                {'FPTYPE': self.run_card['cudacpp_fptype'] })
             misc.sprint('FPTYPE checked')
         cudacpp_supported_backends = [ 'fortran', 'cuda', 'hip', 'cpp', 'cppnone', 'cppsse4', 'cppavx2', 'cpp512y', 'cpp512z', 'cppauto' ]
         if args and args[0][0] == 'madevent' and hasattr(self, 'run_card'):            
@@ -73,7 +73,7 @@ class CPPRunCard(banner_mod.RunCardLO):
     def reset_makeopts(self, old_value, new_value, name):
         if not hasattr(self, 'path'):
             raise Exception
-        if name == 'floating_type':
+        if name == 'cudacpp_fptype':
             common_run_interface.CommonRunCmd.update_make_opts_full({'FPTYPE': new_value})
         else:
             raise Exception
@@ -85,7 +85,7 @@ class CPPRunCard(banner_mod.RunCardLO):
 
     def default_setup(self):
         super().default_setup()
-        self.add_param('floating_type', 'm', include=False, hidden=True,
+        self.add_param('cudacpp_fptype', 'm', include=False, hidden=True,
                        fct_mod=(self.reset_makeopts,(),{}),
                        allowed=['m','d','f'],
                        comment='floating point precision: f (single), d (double), m (mixed: double for amplitudes, single for colors)'
