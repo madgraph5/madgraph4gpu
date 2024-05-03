@@ -1781,7 +1781,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                         res.append("if( channelIds != 0 )")
                         res.append("{")
                         res.append("  channelids_sv = CID_ACCESS::kernelAccessConst( channelIds );")
-                        res.append("#ifdef __CUDACC__")
+                        res.append("#if defined __CUDACC__ or !defined MGONGPU_CPPSIMD")
                         res.append("  if( channelids_sv == %i ) numerators_sv += cxabs2( amp_sv[0] );" % diagram.get('number'))
                         res.append("  denominators_sv += cxabs2( amp_sv[0] );")
                         res.append("#else")

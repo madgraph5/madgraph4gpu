@@ -195,8 +195,12 @@
             targetamp[icolC] = fptype_sv{ 0 };
           else
             targetamp[icolC] = targetamp[icolC - 1];
+#ifdef MGONGPU_CPPSIMD
           for( int i = 0; i < neppV; ++i )
             if( mgOnGpu::icolamp[channelIdC[i]][icolC] ) targetamp[icolC][i] += jamp2_sv[icolC][i];
+#else
+          if( mgOnGpu::icolamp[channelIdC][icolC] ) targetamp[icolC] += jamp2_sv[icolC];
+#endif
         }
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
         fptype_sv targetamp2[ncolor] = { 0 };
