@@ -1,9 +1,11 @@
-/*
- * memory.h
- *
- *  Created on: 19.11.2020
- *      Author: shageboeck
- */
+// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Created by: S. Hageboeck for the MG5aMC CUDACPP plugin.
+//
+// Copyright (C) 2021-2023 Argonne National Laboratory.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Modified by: N. Nichols (2021-2023) for the MG5aMC SYCL plugin.
+//==========================================================================
 
 #ifndef MEMORY_H
 #define MEMORY_H 1

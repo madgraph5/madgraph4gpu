@@ -38,9 +38,9 @@ Parameters_%(model_name)s::getInstance()
 void
 Parameters_%(model_name)s::setIndependentParameters( SLHAReader& slha )
 {
-  zero = 0; // define "zero"
-  ZERO = 0; // define "zero"
-  //std::vector<int> indices(2, 0); // prepare a vector for indices
+  zero = 0;                         // define "zero"
+  ZERO = 0;                         // define "zero"
+  std::vector<int> indices( 2, 0 ); // prepare a vector for indices
   %(set_independent_parameters)s
 }
 

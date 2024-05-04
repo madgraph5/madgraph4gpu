@@ -1,3 +1,11 @@
+# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Licensed under the GNU Lesser General Public License (version 3 or later).
+# Created by: O. Mattelaer (Sep 2021) for the MG5aMC CUDACPP plugin.
+# Further modified by: O. Mattelaer, A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
+#
+# Copyright (C) 2021-2023 Argonne National Laboratory.
+# Licensed under the GNU Lesser General Public License (version 3 or later).
+# Modified by: N. Nichols (2021-2023) for the MG5aMC SYCL plugin.
 import os
 pjoin = os.path.join
 
@@ -114,18 +122,21 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
     # [NB: mgOnGpuConfig.h and check_sa.cu are handled through dedicated methods]
     ###s = MG5DIR + '/madgraph/iolibs/template_files/'
     s = PLUGINDIR + '/madgraph/iolibs/template_files/'
-    from_template = {'.': [s+'CMake/CMakeLists.txt'],
+    from_template = {'.': [s+'CMake/CMakeLists.txt',
+                           s+'COPYRIGHT', s+'COPYING', s+'COPYING.LESSER' ],
                      'CMake': [s+'CMake/Compilers.txt', s+'CMake/Platforms.txt', s+'CMake/Macros.txt'],
                      'src': [s+'gpu/rambo.h', s+'read_slha.h', s+'read_slha.cc',
-                             s+'gpu/mgOnGpuTypes.h', s+'gpu/mgOnGpuCxtypes.h', s+'gpu/mgOnGpuVectors.h', s+'gpu/extras.h',
+                             s+'gpu/mgOnGpuTypes.h', s+'gpu/mgOnGpuCxtypes.h', s+'gpu/mgOnGpuVectors.h', s+'gpu/extras.h', s+'gpu/sycl_ext_complex.hpp',
                              s+'CMake/src/CMakeLists.txt'],
                      'SubProcesses': [s+'gpu/timer.h', s+'gpu/timermap.h', s+'gpu/Memory.h', 
                                       s+'gpu/runTest.cc', s+'gpu/testxxx.cc', s+'gpu/testxxx_cc_ref.txt',
+                                      s+'gpu/CommonRandomNumbers.h',
                                       s+'gpu/Bridge.h',
                                       s+'gpu/fbridge.cc', s+'gpu/fbridge.inc', s+'gpu/fsampler.cc', s+'gpu/fsampler.inc',
                                       s+'gpu/perf.py', s+'gpu/profile.sh',
                                       s+'CMake/SubProcesses/CMakeLists.txt']}
     to_link_in_P = ['timer.h', 'timermap.h', 'Memory.h', 'runTest.cc', 'testxxx.cc', 'testxxx_cc_ref.txt', 'perf.py', 'profile.sh',
+                    'CommonRandomNumbers.h',
                     'Bridge.h',
                     'fbridge.cc', 'fbridge.inc', 'fsampler.cc', 'fsampler.inc',
 
