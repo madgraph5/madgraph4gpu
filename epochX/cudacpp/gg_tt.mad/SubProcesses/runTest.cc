@@ -42,6 +42,7 @@ struct CPUTest : public CUDA_CPU_TestBase
   // [NB the hst/dev memory arrays must be initialised in the constructor, see issue #290]
   CPPProcess process;
   HostBufferRndNumMomenta hstRndmom;
+  HostBufferChannelIds hstChannelIds;
   HostBufferMomenta hstMomenta;
   HostBufferGs hstGs;
   HostBufferRndNumHelicity hstRndHel;
@@ -61,6 +62,7 @@ struct CPUTest : public CUDA_CPU_TestBase
     : CUDA_CPU_TestBase( refFileName )
     , process( /*verbose=*/false )
     , hstRndmom( nevt )
+    , hstChannelIds( nevt )
     , hstMomenta( nevt )
     , hstGs( nevt )
     , hstRndHel( nevt )
@@ -99,10 +101,9 @@ struct CPUTest : public CUDA_CPU_TestBase
   {
     constexpr fptype fixedG = 1.2177157847767195; // fixed G for aS=0.118 (hardcoded for now in check_sa.cc, fcheck_sa.f, runTest.cc)
     for( unsigned int i = 0; i < nevt; ++i ) hstGs[i] = fixedG;
-    MatrixElementKernelHost mek( hstMomenta, hstGs, hstRndHel, hstRndCol, hstMatrixElements, hstSelHel, hstSelCol, nevt );
+    MatrixElementKernelHost mek( hstMomenta, hstGs, hstRndHel, hstRndCol, hstChannelIds, hstMatrixElements, hstSelHel, hstSelCol, nevt );
     if( iiter == 0 ) mek.computeGoodHelicities();
-    constexpr unsigned int channelId = 0; // TEMPORARY? disable multi-channel in runTest.exe #466
-    mek.computeMatrixElements( channelId );
+    mek.computeMatrixElements();
   }
 
   fptype getMomentum( std::size_t ievt, unsigned int ipar, unsigned int ip4 ) const override
@@ -141,11 +142,13 @@ struct CUDATest : public CUDA_CPU_TestBase
   PinnedHostBufferRndNumHelicity hstRndHel;
   PinnedHostBufferRndNumColor hstRndCol;
   PinnedHostBufferWeights hstWeights;
+  PinnedHostBufferChannelIds hstChannelIds;
   PinnedHostBufferMatrixElements hstMatrixElements;
   PinnedHostBufferSelectedHelicity hstSelHel;
   PinnedHostBufferSelectedColor hstSelCol;
   PinnedHostBufferHelicityMask hstIsGoodHel;
   DeviceBufferRndNumMomenta devRndmom;
+  DeviceBufferChannelIds devChannelIds;
   DeviceBufferMomenta devMomenta;
   DeviceBufferGs devGs;
   DeviceBufferRndNumHelicity devRndHel;
@@ -165,6 +168,7 @@ struct CUDATest : public CUDA_CPU_TestBase
     : CUDA_CPU_TestBase( refFileName )
     , process( /*verbose=*/false )
     , hstRndmom( nevt )
+    , hstChannelIds( nevt )
     , hstMomenta( nevt )
     , hstGs( nevt )
     , hstRndHel( nevt )
@@ -175,6 +179,7 @@ struct CUDATest : public CUDA_CPU_TestBase
     , hstSelCol( nevt )
     , hstIsGoodHel( CPPProcess::ncomb )
     , devRndmom( nevt )
+    , devChannelIds( nevt )
     , devMomenta( nevt )
     , devGs( nevt )
     , devRndHel( nevt )
@@ -188,6 +193,8 @@ struct CUDATest : public CUDA_CPU_TestBase
     // FIXME: the process instance can happily go out of scope because it is only needed to read parameters?
     // FIXME: the CPPProcess should really be a singleton?
     process.initProc( "../../Cards/param_card.dat" );
+    std::fill_n( hstChannelIds.data(), nevt, 0 );
+    copyDeviceFromHost( devChannelIds, hstChannelIds );
   }
 
   virtual ~CUDATest() {}
@@ -219,10 +226,9 @@ struct CUDATest : public CUDA_CPU_TestBase
     constexpr fptype fixedG = 1.2177157847767195; // fixed G for aS=0.118 (hardcoded for now in check_sa.cc, fcheck_sa.f, runTest.cc)
     for( unsigned int i = 0; i < nevt; ++i ) hstGs[i] = fixedG;
     copyDeviceFromHost( devGs, hstGs ); // BUG FIX #566
-    MatrixElementKernelDevice mek( devMomenta, devGs, devRndHel, devRndCol, devMatrixElements, devSelHel, devSelCol, gpublocks, gputhreads );
+    MatrixElementKernelDevice mek( devMomenta, devGs, devRndHel, devRndCol, devChannelIds, devMatrixElements, devSelHel, devSelCol, gpublocks, gputhreads );
     if( iiter == 0 ) mek.computeGoodHelicities();
-    constexpr unsigned int channelId = 0; // TEMPORARY? disable multi-channel in runTest.exe #466
-    mek.computeMatrixElements( channelId );
+    mek.computeMatrixElements();
     copyHostFromDevice( hstMatrixElements, devMatrixElements );
   }
 
