@@ -77,7 +77,7 @@
 #*********************************************************************
    0  = nhel          ! using helicities importance sampling or not.
                              ! 0: sum over helicity, 1: importance sampling
-   2  = sde_strategy  ! default integration strategy (hep-ph/2021.00773)
+   1  = sde_strategy  ! default integration strategy (hep-ph/2021.00773)
                              ! 1 is old strategy (using amp square)
 			     ! 2 is new strategy (using only the denominator)
 #*********************************************************************
@@ -92,11 +92,11 @@
 #*********************************************************************
 # Compilation flag. 
 #*********************************************************************   
-   -O = global_flag ! fortran optimization flag use for the all code.
+   -O3 -ffast-math -fbounds-check = global_flag ! build flags for all Fortran code (for a fair comparison to cudacpp; default is -O)
    --fast-math  = aloha_flag ! fortran optimization flag for aloha function. Suggestions: '-ffast-math'
    -O3 = matrix_flag ! fortran optimization flag for matrix.f function. Suggestions: '-O3'
-   16 = vector_size ! size of fortran arrays allocated in the multi-event API for SIMD/GPU (VECSIZE_MEMMAX)
-   1 = nb_wrap ! total number of wrap/frontwave
+   16384 = vector_size ! size of fortran arrays allocated in the multi-event API for SIMD/GPU (VECSIZE_MEMMAX)
+   1 = nb_warp ! total number of warp/frontwave
 			     
 #*********************************************************************
 # Customization (custom cuts/scale/bias/...)                         *
@@ -162,5 +162,5 @@ systematics = systematics_program ! none, systematics [python], SysCalc [deprece
 #************************************************************************
  d = floating_type ! floating point precision: f (single), d (double), m (mixed: double for amplitudes, single for colors)
  auto = avx_level ! SIMD vectorization level: none, sse4, avx2, 512y, 512z, auto
- CUDA = cudacpp_backend ! CUDACPP backend: FORTRAN, CPP, CUDA
+ CPP = cudacpp_backend ! CUDACPP backend: FORTRAN, CPP, CUDA
 

@@ -79,8 +79,8 @@ namespace mg5amcCpu
   int BridgeKernelHost::computeGoodHelicities()
   {
     constexpr bool goodHelOnly = true;
-    constexpr unsigned int channelId = 0; // disable multi-channel for helicity filtering
-    m_bridge.cpu_sequence( m_fortranMomenta.data(), m_gs.data(), m_rndhel.data(), m_rndcol.data(), nullptr, m_matrixElements.data(), m_selhel.data(), m_selcol.data(), goodHelOnly );
+    constexpr unsigned int* channelId = nullptr; // disable multi-channel for helicity filtering
+    m_bridge.cpu_sequence( m_fortranMomenta.data(), m_gs.data(), m_rndhel.data(), m_rndcol.data(), channelId, m_matrixElements.data(), m_selhel.data(), m_selcol.data(), goodHelOnly );
     return m_bridge.nGoodHel();
   }
 
@@ -137,7 +137,8 @@ namespace mg5amcGpu
   int BridgeKernelDevice::computeGoodHelicities()
   {
     constexpr bool goodHelOnly = true;
-    m_bridge.gpu_sequence( m_fortranMomenta.data(), m_gs.data(), m_rndhel.data(), m_rndcol.data(), nullptr, m_matrixElements.data(), m_selhel.data(), m_selcol.data(), goodHelOnly );
+    constexpr unsigned int* channelId = nullptr;
+    m_bridge.gpu_sequence( m_fortranMomenta.data(), m_gs.data(), m_rndhel.data(), m_rndcol.data(), channelId, m_matrixElements.data(), m_selhel.data(), m_selcol.data(), goodHelOnly );
     return m_bridge.nGoodHel();
   }
 

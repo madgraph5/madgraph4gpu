@@ -118,7 +118,7 @@ C     Cannot make a selection with all PDFs to zero, so we return now
       ENDIF
       END
 
-      SUBROUTINE SELECT_GROUPING(IMIRROR, IPROC, ICONF, WGT, IWRAP)
+      SUBROUTINE SELECT_GROUPING(IMIRROR, IPROC, ICONF, WGT, IWARP)
       USE DISCRETESAMPLER
       IMPLICIT NONE
 C     
@@ -134,7 +134,7 @@ C     OUTPUT
 C     
 C     iconf, iproc, imirror
 C     
-      INTEGER  IWRAP
+      INTEGER  IWARP
       INTEGER IVEC
       DOUBLE PRECISION WGT(*)
       INTEGER IMIRROR, IPROC, ICONF
@@ -210,8 +210,8 @@ C     all, then we pick a point based on PDF only.
  50     CONTINUE
 C       Update weigth w.r.t SELPROC normalized to selection probability
 
-        DO I=1, WRAP_SIZE
-          IVEC = (IWRAP -1) *WRAP_SIZE + I
+        DO I=1, WARP_SIZE
+          IVEC = (IWARP -1) *WARP_SIZE + I
           WGT(IVEC)=WGT(IVEC)*(SUMPROB/SELPROC(IMIRROR,IPROC,ICONF))
         ENDDO
 
@@ -219,8 +219,8 @@ C       Update weigth w.r.t SELPROC normalized to selection probability
 C       We are using the grouped_processes grid and it is initialized.
         CALL DS_GET_POINT('grouped_processes',R,LMAPPED
      $   ,MC_GROUPED_PROC_JACOBIAN,'norm',(/'PDF_convolution'/))
-        DO I=1, WRAP_SIZE
-          IVEC = (IWRAP -1) *WRAP_SIZE + I
+        DO I=1, WARP_SIZE
+          IVEC = (IWARP -1) *WARP_SIZE + I
           WGT(IVEC)=WGT(IVEC)*MC_GROUPED_PROC_JACOBIAN
         ENDDO
         CALL MAP_1_TO_3(LMAPPED,MAXSPROC,2,ICONF,IPROC,IMIRROR)
@@ -249,7 +249,7 @@ C     ******************************************************
       DOUBLE PRECISION ALL_XBK(2,*)
       DOUBLE PRECISION ALL_Q2FACT(2,*)
       DOUBLE PRECISION ALL_CM_RAP(*)
-      INTEGER ICONF_VEC(NB_WRAP), IPROC, IMIRROR_VEC(NB_WRAP)
+      INTEGER ICONF_VEC(NB_WARP), IPROC, IMIRROR_VEC(NB_WARP)
       DOUBLE PRECISION ALL_OUT(*)
       INCLUDE 'maxconfigs.inc'
       INCLUDE 'maxamps.inc'
@@ -287,7 +287,7 @@ C     IB gives which beam is which (for mirror processes)
       LOGICAL CUTSDONE,CUTSPASSED
       COMMON/TO_CUTSDONE/CUTSDONE,CUTSPASSED
 
-      INTEGER I, CURR_WRAP
+      INTEGER I, CURR_WARP
       INTEGER GROUPED_MC_GRID_STATUS
 
       INTEGER                                      LPP(2)
@@ -349,15 +349,15 @@ C       ENDIF
 
       ENDDO
 
-      DO CURR_WRAP=1, NB_WRAP
-        DO I=(CURR_WRAP-1)*WRAP_SIZE+1,CURR_WRAP*WRAP_SIZE
+      DO CURR_WARP=1, NB_WARP
+        DO I=(CURR_WARP-1)*WARP_SIZE+1,CURR_WARP*WARP_SIZE
           IF(ALL_OUT(I).GT.0D0)THEN
 C           Update summed weight and number of events
-            SUMWGT(IMIRROR_VEC(CURR_WRAP),IPROC,ICONF_VEC(CURR_WRAP))
-     $       =SUMWGT(IMIRROR_VEC(CURR_WRAP),IPROC,ICONF_VEC(CURR_WRAP))
+            SUMWGT(IMIRROR_VEC(CURR_WARP),IPROC,ICONF_VEC(CURR_WARP))
+     $       =SUMWGT(IMIRROR_VEC(CURR_WARP),IPROC,ICONF_VEC(CURR_WARP))
      $       +DABS(ALL_OUT(I)*ALL_WGT(I))
-            NUMEVTS(IMIRROR_VEC(CURR_WRAP),IPROC,ICONF_VEC(CURR_WRAP))
-     $       =NUMEVTS(IMIRROR_VEC(CURR_WRAP),IPROC,ICONF_VEC(CURR_WRAP)
+            NUMEVTS(IMIRROR_VEC(CURR_WARP),IPROC,ICONF_VEC(CURR_WARP))
+     $       =NUMEVTS(IMIRROR_VEC(CURR_WARP),IPROC,ICONF_VEC(CURR_WARP)
      $       )+1
           ENDIF
         ENDDO
@@ -935,7 +935,7 @@ C     ****************************************************
       INCLUDE 'maxconfigs.inc'
       INCLUDE 'nexternal.inc'
       INCLUDE 'maxamps.inc'
-      INCLUDE 'vector.inc'  ! defines VECSIZE_MEMMAX/WRAP_SIZE
+      INCLUDE 'vector.inc'  ! defines VECSIZE_MEMMAX/WARP_SIZE
       INCLUDE 'coupl.inc'  ! needs VECSIZE_MEMMAX (defined in vector.inc)
       INCLUDE 'run.inc'
 C     
@@ -949,8 +949,8 @@ C
       DOUBLE PRECISION ALL_OUT(VECSIZE_MEMMAX)
       DOUBLE PRECISION DSIGPROC
       INTEGER ICONF,IPROC,IMIRROR,IMODE
-      INTEGER ICONF_VEC(NB_WRAP), IMIRROR_VEC(NB_WRAP)
-      INTEGER CURR_WRAP, IWRAP
+      INTEGER ICONF_VEC(NB_WARP), IMIRROR_VEC(NB_WARP)
+      INTEGER CURR_WARP, IWARP
       INTEGER SYMCONF(0:LMAXCONFIGS)
       INTEGER CONFSUB(MAXSPROC,LMAXCONFIGS)
       INTEGER VECSIZE_USED
@@ -994,39 +994,39 @@ C
         STOP 25
       ENDIF
       LAST_ICONF = 0
-      IWRAP = 0  ! position within the current wrap
-      CURR_WRAP = 1  ! current_wrap used
+      IWARP = 0  ! position within the current warp
+      CURR_WARP = 1  ! current_warp used
       DO IVEC=1, VECSIZE_USED
-        IWRAP = IWRAP + 1
-        IF (IWRAP.EQ.1) THEN
-          IF (LAST_ICONF.EQ.-1.OR.LAST_ICONF.NE.ICONF_VEC(CURR_WRAP))
+        IWARP = IWARP + 1
+        IF (IWARP.EQ.1) THEN
+          IF (LAST_ICONF.EQ.-1.OR.LAST_ICONF.NE.ICONF_VEC(CURR_WARP))
      $      THEN
-            ICONFIG=SYMCONF(ICONF_VEC(CURR_WRAP))
+            ICONFIG=SYMCONF(ICONF_VEC(CURR_WARP))
             DO I=1,MAXSPROC
-              SUBDIAG(I) = CONFSUB(I,SYMCONF(ICONF_VEC(CURR_WRAP)))
+              SUBDIAG(I) = CONFSUB(I,SYMCONF(ICONF_VEC(CURR_WARP)))
             ENDDO
           ENDIF
-C         ICONF = ICONF_VEC(CURR_WRAP)
-C         IMIRROR = IMIRROR_VEC(CURR_WRAP)
+C         ICONF = ICONF_VEC(CURR_WARP)
+C         IMIRROR = IMIRROR_VEC(CURR_WARP)
         ENDIF
 C       Set momenta according to this permutation
         CALL SWITCHMOM(ALL_P(1,IVEC),ALL_P1(0,1,IVEC),PERMS(1
      $   ,MAPCONFIG(ICONFIG)),JC,NEXTERNAL)
-        LAST_ICONF = ICONF_VEC(CURR_WRAP)
-        IF (IWRAP.EQ.WRAP_SIZE) THEN
-          CURR_WRAP = CURR_WRAP + 1
-          IWRAP = 0
+        LAST_ICONF = ICONF_VEC(CURR_WARP)
+        IF (IWARP.EQ.WARP_SIZE) THEN
+          CURR_WARP = CURR_WARP + 1
+          IWARP = 0
         ENDIF
       ENDDO
       LAST_ICONF=-1
 
-      DO CURR_WRAP=1,NB_WRAP
+      DO CURR_WARP=1,NB_WARP
         IB(1)=0  ! This is set in auto_dsigX. set it to zero to create segfault if used at wrong time
         IB(2)=0  ! Same
-        IMIRROR = IMIRROR_VEC(CURR_WRAP)
+        IMIRROR = IMIRROR_VEC(CURR_WARP)
         IF(IMIRROR.EQ.2)THEN
 C         Flip momenta (rotate around x axis)
-          DO IVEC = (CURR_WRAP-1)*WRAP_SIZE+1,CURR_WRAP*WRAP_SIZE
+          DO IVEC = (CURR_WARP-1)*WARP_SIZE+1,CURR_WARP*WARP_SIZE
             DO I=1,NEXTERNAL
               ALL_P1(2,I, IVEC)=-ALL_P1(2,I,IVEC)
               ALL_P1(3,I, IVEC)=-ALL_P1(3,I,IVEC)
@@ -1038,7 +1038,7 @@ C         Flip momenta (rotate around x axis)
             IB(1) = 0
             IB(2) = 0
 C           Flip beam identity -> moved to auto_dsigX (since depend of
-C            the wrap)
+C            the warp)
           ENDDO
 
         ENDIF
@@ -1059,9 +1059,9 @@ C            the wrap)
      $ ,IMIRROR_VEC,VECSIZE_USED)  ! g g > t t~
 
 C     FLIPPING BACK IF NEEDED
-      DO CURR_WRAP=1,NB_WRAP
-        IF (IMIRROR_VEC(CURR_WRAP).EQ.2) THEN
-          DO IVEC = (CURR_WRAP-1)*WRAP_SIZE+1,CURR_WRAP*WRAP_SIZE
+      DO CURR_WARP=1,NB_WARP
+        IF (IMIRROR_VEC(CURR_WARP).EQ.2) THEN
+          DO IVEC = (CURR_WARP-1)*WARP_SIZE+1,CURR_WARP*WARP_SIZE
             DO I=1,NEXTERNAL
               ALL_P1(2,I,IVEC)=-ALL_P1(2,I,IVEC)
               ALL_P1(3,I,IVEC)=-ALL_P1(3,I,IVEC)

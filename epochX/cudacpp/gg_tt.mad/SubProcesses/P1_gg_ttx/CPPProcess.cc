@@ -18,13 +18,13 @@
 
 #include "HelAmps_sm.h"
 #include "MemoryAccessAmplitudes.h"
+#include "MemoryAccessChIds.h"
 #include "MemoryAccessCouplings.h"
 #include "MemoryAccessCouplingsFixed.h"
 #include "MemoryAccessGs.h"
 #include "MemoryAccessMatrixElements.h"
 #include "MemoryAccessMomenta.h"
 #include "MemoryAccessWavefunctions.h"
-#include "MemoryAccessChIds.h"
 
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
 #include "MemoryAccessDenominators.h"
@@ -142,17 +142,17 @@ namespace mg5amcCpu
   // In C++, this function computes the ME for a single event "page" or SIMD vector (or for two in "mixed" precision mode, nParity=2)
   __device__ INLINE void /* clang-format off */
   calculate_wavefunctions( int ihel,
-                           const fptype* allmomenta,       // input: momenta[nevt*npar*4]
-                           const fptype* allcouplings,     // input: couplings[nevt*ndcoup*2]
-                           fptype* allMEs,                 // output: allMEs[nevt], |M|^2 running_sum_over_helicities
+                           const fptype* allmomenta,        // input: momenta[nevt*npar*4]
+                           const fptype* allcouplings,      // input: couplings[nevt*ndcoup*2]
+                           fptype* allMEs,                  // output: allMEs[nevt], |M|^2 running_sum_over_helicities
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                           const unsigned int* channelIds, // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
-                           fptype* allNumerators,          // output: multichannel numerators[nevt], running_sum_over_helicities
-                           fptype* allDenominators,        // output: multichannel denominators[nevt], running_sum_over_helicities
+                           const unsigned int* channelIds,  // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
+                           fptype* allNumerators,           // output: multichannel numerators[nevt], running_sum_over_helicities
+                           fptype* allDenominators,         // output: multichannel denominators[nevt], running_sum_over_helicities
 #endif
-                           fptype_sv* jamp2_sv             // output: jamp2[nParity][ncolor][neppV] for color choice (nullptr if disabled)
+                           fptype_sv* jamp2_sv              // output: jamp2[nParity][ncolor][neppV] for color choice (nullptr if disabled)
 #ifndef MGONGPUCPP_GPUIMPL
-                           , const int ievt00              // input: first event number in current C++ event page (for CUDA, ievt depends on threadid)
+                           , const int ievt00               // input: first event number in current C++ event page (for CUDA, ievt depends on threadid)
 #endif
                            )
   //ALWAYS_INLINE // attributes are not permitted in a function definition
@@ -212,6 +212,7 @@ namespace mg5amcCpu
     // [jamp: sum (for one event or event page) of the invariant amplitudes for all Feynman diagrams in a given color combination]
     cxtype_sv jamp_sv[ncolor] = {}; // all zeros (NB: vector cxtype_v IS initialized to 0, but scalar cxtype is NOT, if "= {}" is missing!)
 
+    // local variable for channel ids
     uint_sv channelids_sv;
 
     // === Calculate wavefunctions and amplitudes for all diagrams in all processes         ===
@@ -293,15 +294,17 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 1
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[2], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if ( channelIds != 0 ) {
+      if( channelIds != 0 )
+      {
         channelids_sv = CID_ACCESS::kernelAccessConst( channelIds );
-#ifdef __CUDACC__
-        if ( channelids_sv == 1 ) numerators_sv += cxabs2( amp_sv[0] );
+#if defined __CUDACC__ or !defined MGONGPU_CPPSIMD
+        if( channelids_sv == 1 ) numerators_sv += cxabs2( amp_sv[0] );
         denominators_sv += cxabs2( amp_sv[0] );
 #else
-        for (int i = 0; i < neppV; ++i ) {
-            if ( channelids_sv[i] == 1 ) numerators_sv += cxabs2( amp_sv[0] );
-            denominators_sv += cxabs2( amp_sv[0] );
+        for( int i = 0; i < neppV; ++i )
+        {
+          if( channelids_sv[i] == 1 ) numerators_sv += cxabs2( amp_sv[0] );
+          denominators_sv += cxabs2( amp_sv[0] );
         }
 #endif
       }
@@ -317,15 +320,17 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 2
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[4], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if ( channelIds != 0 ) {
+      if( channelIds != 0 )
+      {
         channelids_sv = CID_ACCESS::kernelAccessConst( channelIds );
-#ifdef __CUDACC__
-        if ( channelids_sv == 2 ) numerators_sv += cxabs2( amp_sv[0] );
+#if defined __CUDACC__ or !defined MGONGPU_CPPSIMD
+        if( channelids_sv == 2 ) numerators_sv += cxabs2( amp_sv[0] );
         denominators_sv += cxabs2( amp_sv[0] );
 #else
-        for (int i = 0; i < neppV; ++i ) {
-            if ( channelids_sv[i] == 2 ) numerators_sv += cxabs2( amp_sv[0] );
-            denominators_sv += cxabs2( amp_sv[0] );
+        for( int i = 0; i < neppV; ++i )
+        {
+          if( channelids_sv[i] == 2 ) numerators_sv += cxabs2( amp_sv[0] );
+          denominators_sv += cxabs2( amp_sv[0] );
         }
 #endif
       }
@@ -340,15 +345,17 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 3
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[4], w_fp[2], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if ( channelIds != 0 ) {
+      if( channelIds != 0 )
+      {
         channelids_sv = CID_ACCESS::kernelAccessConst( channelIds );
-#ifdef __CUDACC__
-        if ( channelids_sv == 3 ) numerators_sv += cxabs2( amp_sv[0] );
+#if defined __CUDACC__ or !defined MGONGPU_CPPSIMD
+        if( channelids_sv == 3 ) numerators_sv += cxabs2( amp_sv[0] );
         denominators_sv += cxabs2( amp_sv[0] );
 #else
-        for (int i = 0; i < neppV; ++i ) {
-            if ( channelids_sv[i] == 3 ) numerators_sv += cxabs2( amp_sv[0] );
-            denominators_sv += cxabs2( amp_sv[0] );
+        for( int i = 0; i < neppV; ++i )
+        {
+          if( channelids_sv[i] == 3 ) numerators_sv += cxabs2( amp_sv[0] );
+          denominators_sv += cxabs2( amp_sv[0] );
         }
 #endif
       }
@@ -862,20 +869,20 @@ namespace mg5amcCpu
   // Evaluate |M|^2, part independent of incoming flavour
 
   __global__ void /* clang-format off */
-  sigmaKin( const fptype* allmomenta,       // input: momenta[nevt*npar*4]
-            const fptype* allcouplings,     // input: couplings[nevt*ndcoup*2]
-            const fptype* allrndhel,        // input: random numbers[nevt] for helicity selection
-            const fptype* allrndcol,        // input: random numbers[nevt] for color selection
-            fptype* allMEs,                 // output: allMEs[nevt], |M|^2 final_avg_over_helicities
+  sigmaKin( const fptype* allmomenta,        // input: momenta[nevt*npar*4]
+            const fptype* allcouplings,      // input: couplings[nevt*ndcoup*2]
+            const fptype* allrndhel,         // input: random numbers[nevt] for helicity selection
+            const fptype* allrndcol,         // input: random numbers[nevt] for color selection
+            fptype* allMEs,                  // output: allMEs[nevt], |M|^2 final_avg_over_helicities
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-            const unsigned int* channelIds, // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
-            fptype* allNumerators,          // output: multichannel numerators[nevt], running_sum_over_helicities
-            fptype* allDenominators,        // output: multichannel denominators[nevt], running_sum_over_helicities
+            const unsigned int* channelIds,  // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
+            fptype* allNumerators,           // output: multichannel numerators[nevt], running_sum_over_helicities
+            fptype* allDenominators,         // output: multichannel denominators[nevt], running_sum_over_helicities
 #endif
-            int* allselhel,                 // output: helicity selection[nevt]
-            int* allselcol                  // output: helicity selection[nevt]
+            int* allselhel,                  // output: helicity selection[nevt]
+            int* allselcol                   // output: helicity selection[nevt]
 #ifndef MGONGPUCPP_GPUIMPL
-            , const int nevt                // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+            , const int nevt                 // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
             ) /* clang-format on */
   {
@@ -978,7 +985,7 @@ namespace mg5amcCpu
     // Event-by-event random choice of color #402
     if( channelIds[0] != 0 ) // no event-by-event choice of color if channelId == 0 (fix FPE #783)
     {
-      uint channelIdC = CID_ACCESS::kernelAccessConst(channelIds) - 1; // coloramps.h uses the C array indexing starting at 0
+      uint channelIdC = CID_ACCESS::kernelAccessConst( channelIds ) - 1; // coloramps.h uses the C array indexing starting at 0
       fptype targetamp[ncolor] = { 0 };
       for( int icolC = 0; icolC < ncolor; icolC++ )
       {
@@ -1093,7 +1100,7 @@ namespace mg5amcCpu
       // Event-by-event random choice of color #402
       if( channelIds[0] != 0 ) // no event-by-event choice of color if channelId == 0 (fix FPE #783)
       {
-        uint_sv channelIdC = CID_ACCESS::kernelAccessConst(channelIds) - 1; // coloramps.h uses the C array indexing starting at 0
+        uint_sv channelIdC = CID_ACCESS::kernelAccessConst( channelIds ) - 1; // coloramps.h uses the C array indexing starting at 0
         fptype_sv targetamp[ncolor] = { 0 };
         for( int icolC = 0; icolC < ncolor; icolC++ )
         {
@@ -1101,8 +1108,12 @@ namespace mg5amcCpu
             targetamp[icolC] = fptype_sv{ 0 };
           else
             targetamp[icolC] = targetamp[icolC - 1];
-          for (int i = 0; i < neppV; ++i)
-            if (mgOnGpu::icolamp[channelIdC[i]][icolC]) targetamp[icolC][i] += jamp2_sv[icolC][i];
+#ifdef MGONGPU_CPPSIMD
+          for( int i = 0; i < neppV; ++i )
+            if( mgOnGpu::icolamp[channelIdC[i]][icolC] ) targetamp[icolC][i] += jamp2_sv[icolC][i];
+#else
+          if( mgOnGpu::icolamp[channelIdC][icolC] ) targetamp[icolC] += jamp2_sv[icolC];
+#endif
         }
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
         fptype_sv targetamp2[ncolor] = { 0 };
@@ -1112,7 +1123,7 @@ namespace mg5amcCpu
             targetamp2[icolC] = fptype_sv{ 0 };
           else
             targetamp2[icolC] = targetamp2[icolC - 1];
-          for (int i = 0; i < neppV; ++id_t)
+          for( int i = 0; i < neppV; ++i )
             if( mgOnGpu::icolamp[channelIdC[i]][icolC] ) targetamp2[icolC][i] += jamp2_sv[ncolor + icolC][i];
         }
 #endif

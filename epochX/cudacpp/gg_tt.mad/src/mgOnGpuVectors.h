@@ -118,14 +118,14 @@ namespace mg5amcCpu
 
   // --- Type definition (using vector compiler extensions: need -march=...)
 #ifdef __clang__ // https://clang.llvm.org/docs/LanguageExtensions.html#vectors-and-extended-vectors
-  typedef unsigned int uint_v __attribue__( ( ext_vector_type( neppV )));
+  typedef unsigned int uint_v __attribue__( ( ext_vector_type( neppV ) ) );
 #if defined MGONGPU_FPTYPE_DOUBLE
   typedef long int bool_v __attribute__( ( ext_vector_type( neppV ) ) ); // bbbb
 #elif defined MGONGPU_FPTYPE_FLOAT
   typedef int bool_v __attribute__( ( ext_vector_type( neppV ) ) );                         // bbbb
 #endif
 #else // gcc
-  typedef unsigned int uint_v __attribute__( ( vector_size( neppV * sizeof( unsigned int ))));
+  typedef unsigned int uint_v __attribute__( ( vector_size( neppV * sizeof( unsigned int ) ) ) );
 #if defined MGONGPU_FPTYPE_DOUBLE
   typedef long int bool_v __attribute__( ( vector_size( neppV * sizeof( long int ) ) ) ); // bbbb
 #elif defined MGONGPU_FPTYPE_FLOAT

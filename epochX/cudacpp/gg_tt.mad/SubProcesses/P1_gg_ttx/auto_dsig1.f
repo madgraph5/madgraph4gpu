@@ -328,7 +328,7 @@ C
 C     local
 C     
       DOUBLE PRECISION P1(0:3, NEXTERNAL)
-      INTEGER IVEC, CURR_WRAP, IWRAP
+      INTEGER IVEC, CURR_WARP, IWARP
       INTEGER CHANNELS(VECSIZE_MEMMAX)
 C     
 C     DATA
@@ -348,16 +348,16 @@ C     Continue only if IMODE is 0, 4 or 5
       IF(IMODE.NE.0.AND.IMODE.NE.4.AND.IMODE.NE.5) RETURN
 
 
-      DO CURR_WRAP=1, NB_WRAP
-        IF(IMIRROR_VEC(CURR_WRAP).EQ.1)THEN
+      DO CURR_WARP=1, NB_WARP
+        IF(IMIRROR_VEC(CURR_WARP).EQ.1)THEN
           IB(1) = 1
           IB(2) = 2
         ELSE
           IB(1) = 2
           IB(2) = 1
         ENDIF
-        DO IWRAP=1, WRAP_SIZE
-          IVEC = (CURR_WRAP-1)*WRAP_SIZE+IWRAP
+        DO IWARP=1, WARP_SIZE
+          IVEC = (CURR_WARP-1)*WARP_SIZE+IWARP
           IF (ABS(LPP(IB(1))).GE.1) THEN
 C           LP=SIGN(1,LPP(IB(1)))
             G1(IVEC)=PDG2PDF(LPP(IB(1)),0, IB(1),ALL_XBK(IB(1),IVEC)
@@ -368,8 +368,8 @@ C           LP=SIGN(1,LPP(IB(2)))
             G2(IVEC)=PDG2PDF(LPP(IB(2)),0, IB(2),ALL_XBK(IB(2),IVEC)
      $       ,DSQRT(ALL_Q2FACT(IB(2), IVEC)))
           ENDIF
-        ENDDO  ! IWRAP LOOP
-      ENDDO  ! CURRWRAP LOOP
+        ENDDO  ! IWARP LOOP
+      ENDDO  ! CURRWARP LOOP
       ALL_PD(0,:) = 0D0
       IPROC = 0
       IPROC=IPROC+1  ! g g > t t~
@@ -385,16 +385,16 @@ C           LP=SIGN(1,LPP(IB(2)))
         RETURN
       ENDIF
 
-      DO CURR_WRAP=1, NB_WRAP
-        IF(IMIRROR_VEC(CURR_WRAP).EQ.1)THEN
+      DO CURR_WARP=1, NB_WARP
+        IF(IMIRROR_VEC(CURR_WARP).EQ.1)THEN
           IB(1) = 1
           IB(2) = 2
         ELSE
           IB(1) = 2
           IB(2) = 1
         ENDIF
-        DO IWRAP=1, WRAP_SIZE
-          IVEC = (CURR_WRAP-1)*WRAP_SIZE+IWRAP
+        DO IWARP=1, WARP_SIZE
+          IVEC = (CURR_WARP-1)*WARP_SIZE+IWARP
 C         Do not need those three here. do I?	 
           XBK(:) = ALL_XBK(:,IVEC)
 C         CM_RAP = ALL_CM_RAP(IVEC)
@@ -409,7 +409,7 @@ C         Select a flavor combination (need to do here for right sign)
             R=R-DABS(ALL_PD(IPSEL,IVEC))/ALL_PD(0,IVEC)
           ENDDO
 
-          CHANNELS(IVEC) = CONFSUB(1,SYMCONF(ICONF_VEC(CURR_WRAP)))
+          CHANNELS(IVEC) = CONFSUB(1,SYMCONF(ICONF_VEC(CURR_WARP)))
           SUBDIAG(1) = CHANNELS(IVEC)  ! only valid if a single process
           CHANNEL = SUBDIAG(1)
 
@@ -424,8 +424,8 @@ C         Select a flavor combination (need to do here for right sign)
           ENDIF
           CALL RANMAR(HEL_RAND(IVEC))
           CALL RANMAR(COL_RAND(IVEC))
-        ENDDO  ! end loop on IWRAP/IVEC	 
-      ENDDO  ! end loop on the CURR_WRAP
+        ENDDO  ! end loop on IWARP/IVEC	 
+      ENDDO  ! end loop on the CURR_WARP
       CALL SMATRIX1_MULTI(P_MULTI, HEL_RAND, COL_RAND, CHANNELS,
      $  ALL_OUT , SELECTED_HEL, SELECTED_COL, VECSIZE_USED)
 
@@ -580,10 +580,10 @@ C
           WRITE(6,*) 'ERROR  ! The cudacpp bridge only supports LIMHEL=0'
           STOP
         ENDIF
-        IF ( FIRST ) THEN ! exclude first pass (helicity filtering) from timers (#461)
-          CALL FBRIDGESEQUENCE_NOMULTICHANNEL( FBRIDGE_PBRIDGE, ! multi channel disabled for helicity filtering
-     &      P_MULTI, ALL_G, HEL_RAND, COL_RAND, OUT2,
-     &      SELECTED_HEL2, SELECTED_COL2 )
+        IF ( FIRST ) THEN  ! exclude first pass (helicity filtering) from timers (#461)
+          CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE, P_MULTI, ALL_G,
+     &      HEL_RAND, COL_RAND, 0, OUT2,
+     &      SELECTED_HEL2, SELECTED_COL2 ) ! 0: multi channel disabled for helicity filtering
           FIRST = .FALSE.
 C         ! This is a workaround for
 C          https://github.com/oliviermattelaer/mg5amc_test/issues/22
@@ -602,16 +602,16 @@ C          (see PR #486)
         ENDIF
         CALL COUNTERS_SMATRIX1MULTI_START( 0, VECSIZE_USED )  ! cudacpp=0
         IF ( .NOT. MULTI_CHANNEL ) THEN
-          CALL FBRIDGESEQUENCE_NOMULTICHANNEL( FBRIDGE_PBRIDGE, ! multi channel disabled
-     &      P_MULTI, ALL_G, HEL_RAND, COL_RAND, OUT2,
-     &      SELECTED_HEL2, SELECTED_COL2 )
+          CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE, P_MULTI, ALL_G,
+     &      HEL_RAND, COL_RAND, 0, OUT2,
+     &      SELECTED_HEL2, SELECTED_COL2 ) ! 0: multi channel disabled
         ELSE
           IF( SDE_STRAT.NE.1 ) THEN
             WRITE(6,*) 'ERROR  ! The cudacpp bridge requires SDE=1' ! multi channel single-diagram enhancement strategy
             STOP
           ENDIF
           CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE, P_MULTI, ALL_G,
-     &      HEL_RAND, COL_RAND, CHANNELS, OUT2,
+     &      HEL_RAND, COL_RAND, CHANNELS(1), OUT2,
      &      SELECTED_HEL2, SELECTED_COL2 ) ! 1-N: multi channel enabled
         ENDIF
         CALL COUNTERS_SMATRIX1MULTI_STOP( 0 )  ! cudacpp=0

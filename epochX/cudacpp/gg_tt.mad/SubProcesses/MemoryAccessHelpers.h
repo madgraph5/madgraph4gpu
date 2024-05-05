@@ -13,7 +13,7 @@
 //----------------------------------------------------------------------------
 
 // A templated helper class that includes the boilerplate code for MemoryAccess classes
-template<class T, typename FT=fptype>
+template<class T, typename FT = fptype>
 class MemoryAccessHelper
 {
 public:
@@ -80,13 +80,12 @@ public:
   {
     return ieventAccessField( const_cast<FT*>( buffer ), ievt, args... );
   }
-
 };
 
 //----------------------------------------------------------------------------
 
 // A templated helper class that includes the boilerplate code for KernelAccess classes
-template<class T, bool onDevice, typename FT=fptype>
+template<class T, bool onDevice, typename FT = fptype>
 class KernelAccessHelper : public MemoryAccessHelper<T, FT>
 {
 public:

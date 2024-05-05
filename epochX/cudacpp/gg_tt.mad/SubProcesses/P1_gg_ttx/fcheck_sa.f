@@ -19,8 +19,6 @@ c     INTEGER IEXTERNAL
       DOUBLE PRECISION GS(NEVTMAX)
       DOUBLE PRECISION RNDHEL(NEVTMAX) ! not yet used
       DOUBLE PRECISION RNDCOL(NEVTMAX) ! not yet used
-      INTEGER*4 CHANID(NEVTMAX)
-      PARAMETER(CHANID=0) ! TEMPORARY? disable multi-channel in fcheck.exe and fgcheck.exe #466
       DOUBLE PRECISION MES(NEVTMAX)
       INTEGER*4 SELHEL(NEVTMAX) ! not yet used
       INTEGER*4 SELCOL(NEVTMAX) ! not yet used
