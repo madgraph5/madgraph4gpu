@@ -1372,35 +1372,8 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     // [jamp: sum (for one event or event page) of the invariant amplitudes for all Feynman diagrams in a given color combination]
     cxtype_sv jamp_sv[ncolor] = {}; // all zeros (NB: vector cxtype_v IS initialized to 0, but scalar cxtype is NOT, if "= {}" is missing!)
 
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+    // local variable for channel ids
     uint_sv channelids_sv;
-    bool channelidvalues = true;
-    if( channelIds == 0 )
-    {
-      channelidvalues = false;
-    }
-    else
-    {
-      channelids_sv = CID_ACCESS::kernelAccessConst( channelIds );
-#if defined __CUDACC__ or !defined MGONGPU_CPPSIMD
-      if( channelids_sv == 0 )
-      {
-        channelidvalues = false;
-      }
-#else
-      for( int i = 0; i < neppV; ++i )
-      {
-        if( channelids_sv[i] == 0 )
-        {
-          channelidvalues = false;
-        }
-        // else {
-        //   assert(channelidvalues == true && "ChannelId SIMD type contains 0 and non 0 values");
-        // }
-      }
-#endif
-    }
-#endif
 
     // === Calculate wavefunctions and amplitudes for all diagrams in all processes         ===
     // === (for one event in CUDA, for one - or two in mixed mode - SIMD event pages in C++ ===
@@ -1905,8 +1878,9 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                         ###res.append("if( channelId == %i ) numerators_sv += cxabs2( amp_sv[0] );" % diag_to_config[id_amp]) # BUG #472
                         ###res.append("if( channelId == %i ) numerators_sv += cxabs2( amp_sv[0] );" % id_amp) # wrong fix for BUG #472
                         res.append("#ifdef MGONGPU_SUPPORTS_MULTICHANNEL")
-                        res.append("if( channelidvalues )")
+                        res.append("if( channelIds != 0 )")
                         res.append("{")
+                        res.append("  channelids_sv = CID_ACCESS::kernelAccessConst( channelIds );")
                         res.append("#if defined __CUDACC__ or !defined MGONGPU_CPPSIMD")
                         res.append("  if( channelids_sv == %i ) numerators_sv += cxabs2( amp_sv[0] );" % diagram.get('number'))
                         res.append("  denominators_sv += cxabs2( amp_sv[0] );")
