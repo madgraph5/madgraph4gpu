@@ -212,8 +212,35 @@ namespace mg5amcCpu
     // [jamp: sum (for one event or event page) of the invariant amplitudes for all Feynman diagrams in a given color combination]
     cxtype_sv jamp_sv[ncolor] = {}; // all zeros (NB: vector cxtype_v IS initialized to 0, but scalar cxtype is NOT, if "= {}" is missing!)
 
-    // local variable for channel ids
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     uint_sv channelids_sv;
+    bool channelidvalues = true;
+    if( channelIds == 0 )
+    {
+      channelidvalues = false;
+    }
+    else
+    {
+      channelids_sv = CID_ACCESS::kernelAccessConst( channelIds );
+#if defined __CUDACC__ or !defined MGONGPU_CPPSIMD
+      if( channelids_sv == 0 )
+      {
+        channelidvalues = false;
+      }
+#else
+      for( int i = 0; i < neppV; ++i )
+      {
+        if ( channelids_sv[i] == 0 )
+        {
+          channelidvalues = false;
+        }
+        // else {
+        //   assert(channelidvalues == true && "ChannelId SIMD type contains 0 and non 0 values");
+        // }
+      }
+#endif
+    }
+#endif
 
     // === Calculate wavefunctions and amplitudes for all diagrams in all processes         ===
     // === (for one event in CUDA, for one - or two in mixed mode - SIMD event pages in C++ ===
@@ -294,9 +321,8 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 1
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[2], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelIds != 0 )
+      if( channelidvalues )
       {
-        channelids_sv = CID_ACCESS::kernelAccessConst( channelIds );
 #if defined __CUDACC__ or !defined MGONGPU_CPPSIMD
         if( channelids_sv == 1 ) numerators_sv += cxabs2( amp_sv[0] );
         denominators_sv += cxabs2( amp_sv[0] );
@@ -320,9 +346,8 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 2
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[4], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelIds != 0 )
+      if( channelidvalues )
       {
-        channelids_sv = CID_ACCESS::kernelAccessConst( channelIds );
 #if defined __CUDACC__ or !defined MGONGPU_CPPSIMD
         if( channelids_sv == 2 ) numerators_sv += cxabs2( amp_sv[0] );
         denominators_sv += cxabs2( amp_sv[0] );
@@ -345,7 +370,7 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 3
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[4], w_fp[2], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelIds != 0 )
+      if( channelidvalues )
       {
         channelids_sv = CID_ACCESS::kernelAccessConst( channelIds );
 #if defined __CUDACC__ or !defined MGONGPU_CPPSIMD
