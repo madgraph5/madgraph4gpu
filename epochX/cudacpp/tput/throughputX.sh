@@ -12,7 +12,7 @@ topdir=$(cd $scrdir; cd ../../..; pwd)
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggh][-susyggtt][-susyggt1t1][-smeftggtttt]> [-nocpp|[-avxall][-nocuda][-noneonly][-sse4only][-avx2only][-512yonly][-512zonly]] [-sa] [-noalpaka] [-flt|-fltonly|-mix|-mixonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-omp] [-makeonly|-makeclean|-makecleanonly|-dryrun] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest] [-nofpe] [-v] [-dlp <dyld_library_path>]"
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-nocpp|[-avxall][-nocuda][-noneonly][-sse4only][-avx2only][-512yonly][-512zonly]] [-sa] [-noalpaka] [-flt|-fltonly|-mix|-mixonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-omp] [-makeonly|-makeclean|-makecleanonly|-dryrun] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest] [-v] [-dlp <dyld_library_path>]" # -nofpe is no longer supported
   exit 1
 }
 
@@ -27,7 +27,7 @@ ggttg=0
 ggttgg=0
 ggttggg=0
 gqttq=0
-heftggh=0
+heftggbb=0
 susyggtt=0
 susyggt1t1=0
 smeftggtttt=0
@@ -54,7 +54,7 @@ div=0
 req=0
 detailed=0
 gtest=0
-nofpe=0
+###nofpe=0
 verbose=0
 
 dlp=
@@ -93,9 +93,9 @@ while [ "$1" != "" ]; do
     if [ "$gqttq" == "0" ]; then procs+=${procs:+ }$1; fi
     gqttq=1
     shift
-  elif [ "$1" == "-heftggh" ]; then
-    if [ "$heftggh" == "0" ]; then procs+=${procs:+ }$1; fi
-    heftggh=1
+  elif [ "$1" == "-heftggbb" ]; then
+    if [ "$heftggbb" == "0" ]; then procs+=${procs:+ }$1; fi
+    heftggbb=1
     shift
   elif [ "$1" == "-susyggtt" ]; then
     if [ "$susyggtt" == "0" ]; then procs+=${procs:+ }$1; fi
@@ -238,9 +238,9 @@ while [ "$1" != "" ]; do
     if [ "${cpp}" == "0" ]; then echo "ERROR! Options -gtest and -nocpp are incompatible"; usage; fi
     gtest=1
     shift
-  elif [ "$1" == "-nofpe" ]; then
-    nofpe=1
-    shift
+  ###elif [ "$1" == "-nofpe" ]; then
+  ###  nofpe=1
+  ###  shift
   elif [ "$1" == "-v" ]; then
     verbose=1
     shift
@@ -262,22 +262,18 @@ if [ "${dlp}" != "" ]; then
   export DYLD_LIBRARY_PATH=$dlp
 fi
 
-# Enable FPEs in check.exe by default (see #733)
-if [ "${nofpe}" == "0" ]; then
-  echo "export CUDACPP_RUNTIME_ENABLEFPE=on"
-  export CUDACPP_RUNTIME_ENABLEFPE=on
-else
-  echo "unset CUDACPP_RUNTIME_ENABLEFPE"
-  unset CUDACPP_RUNTIME_ENABLEFPE
-fi
+# FPEs are now enabled by default and cannot be disabled in the code (#831)
+# The CUDACPP_RUNTIME_ENABLEFPE env variable (#733) is no longer used anywhere
+###if [ "${nofpe}" == "0" ]; then
+###  echo "export CUDACPP_RUNTIME_ENABLEFPE=on"
+###  export CUDACPP_RUNTIME_ENABLEFPE=on
+###else
+###  echo "unset CUDACPP_RUNTIME_ENABLEFPE"
+###  unset CUDACPP_RUNTIME_ENABLEFPE
+###fi
 
 # Check that at least one process has been selected
-if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ] && [ "${gqttq}" == "0" ] && [ "${heftggh}" == "0" ] && [ "${susyggtt}" == "0" ] && [ "${susyggt1t1}" == "0" ] && [ "${smeftggtttt}" == "0" ]; then usage; fi
-
-# Check that heftggh does not run in .mad mode
-###if [ "${heftggh}" == "1" ] && [ "${suffs/.mad\/}" != "${suffs}" ]; then
-###  echo "ERROR! Invalid option -heftggh for .mad directories"; exit 1
-###fi
+if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ] && [ "${gqttq}" == "0" ] && [ "${heftggbb}" == "0" ] && [ "${susyggtt}" == "0" ] && [ "${susyggt1t1}" == "0" ] && [ "${smeftggtttt}" == "0" ]; then usage; fi
 
 # Define the default simds if none are defined
 if [ "${simds}" == "" ]; then simds="none 512y"; fi
@@ -330,9 +326,8 @@ function showdir()
     elif [ "${proc}" == "-gqttq" ]; then 
       ###dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_gu_ttxu
       dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_gux_ttxux # only 1 out of 2 for now
-    elif [ "${proc}" == "-heftggh" ]; then 
-      ###echo "ERROR! Options -mad and -madonly are not supported with -heftggh"; exit 1
-      dir=$topdir/epochX/${bckend}/heft_gg_h${suff}SubProcesses/P1_gg_h
+    elif [ "${proc}" == "-heftggbb" ]; then 
+      dir=$topdir/epochX/${bckend}/heft_gg_bb${suff}SubProcesses/P1_gg_bbx
     elif [ "${proc}" == "-susyggtt" ]; then 
       dir=$topdir/epochX/${bckend}/susy_gg_tt${suff}SubProcesses/P1_gg_ttx
     elif [ "${proc}" == "-susyggt1t1" ]; then 
@@ -354,8 +349,8 @@ function showdir()
     elif [ "${proc}" == "-gqttq" ]; then 
       ###dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_Sigma_sm_gu_ttxu
       dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_Sigma_sm_gux_ttxux # only 1 out of 2 for now
-    elif [ "${proc}" == "-heftggh" ]; then 
-      dir=$topdir/epochX/${bckend}/heft_gg_h${suff}SubProcesses/P1_Sigma_heft_gg_h
+    elif [ "${proc}" == "-heftggbb" ]; then 
+      dir=$topdir/epochX/${bckend}/heft_gg_bb${suff}SubProcesses/P1_Sigma_heft_gg_bbx
     elif [ "${proc}" == "-susyggtt" ]; then 
       dir=$topdir/epochX/${bckend}/susy_gg_tt${suff}SubProcesses/P1_Sigma_MSSM_SLHA2_gg_ttx
     elif [ "${proc}" == "-susyggt1t1" ]; then 
@@ -509,6 +504,7 @@ function runExe() {
   ###pattern="${pattern}|COMMON RANDOM|CURAND HOST \(CUDA"
   pattern="${pattern}|ERROR"
   pattern="${pattern}|WARNING"
+  pattern="${pattern}|Floating Point Exception"
   pattern="${pattern}|EvtsPerSec\[Rmb" # TEMPORARY! for rambo timing tests
   pattern="${pattern}|EvtsPerSec\[Matrix" # TEMPORARY! OLD C++/CUDA CODE
   if [ "${ab3}" == "1" ]; then pattern="${pattern}|3a|3b"; fi
@@ -551,7 +547,7 @@ function cmpExe() {
     echo "ERROR! Fortran calculation (F77${tag} crashed"
   else
     # NB skip python comparison if Fortran returned NaN or crashed, otherwise python returns an error status and the following tests are not executed
-    python3 -c "me1=${me1}; me2=${me2}; reldif=abs((me2-me1)/me1); print('Relative difference =', reldif); ok = reldif <= 5E-3; print ( '%s (relative difference %s 5E-3)' % ( ('OK','<=') if ok else ('ERROR','>') ) )"
+    python3 -c "me1=${me1}; me2=${me2}; reldif=abs((me2-me1)/me1); print('Relative difference =', reldif); ok = reldif <= 5E-3; print ( '%s (relative difference %s 5E-3)' % ( ('OK','<=') if ok else ('ERROR','>') ) )" 2>&1
   fi
 }
 
@@ -662,10 +658,10 @@ for exe in $exes; do
     if [ "${exe/build.512z}" != "${exe}" ]; then echo "$exe is not supported (no avx512vl in /proc/cpuinfo)"; continue; fi
   fi
   if [ "${exe%%/gcheck*}" != "${exe}" ] && [ "$gpuTxt" == "none" ]; then continue; fi
-  if [ "${exe%%/heft_gg_h*}" != "${exe}" ]; then 
-    # For heftggh: 2->1 process, hence all events are identical and random numbers are ignored, use bare minimum 1 8 1
-    exeArgs="-p 1 8 1"
-    ncuArgs="-p 1 8 1"
+  if [ "${exe%%/heft_gg_bb*}" != "${exe}" ]; then 
+    # For heftggbb, use the same settings as for ggtt
+    exeArgs="-p 2048 256 2"
+    ncuArgs="-p 2048 256 1"
   elif [ "${exe%%/smeft_gg_tttt*}" != "${exe}" ]; then 
     # For smeftggtttt, use the same settings as for ggttggg (may be far too short!)
     exeArgs="-p 1 256 2"

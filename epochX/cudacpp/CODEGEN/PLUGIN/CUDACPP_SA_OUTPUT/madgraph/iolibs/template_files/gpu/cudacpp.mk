@@ -86,7 +86,7 @@ TESTDIR =
 endif
 ifneq ($(GTEST_ROOT),)
 GTESTLIBDIR = $(GTEST_ROOT)/lib64/
-GTESTLIBS = $(GTESTLIBDIR)/libgtest.a $(GTESTLIBDIR)/libgtest_main.a
+GTESTLIBS = $(GTESTLIBDIR)/libgtest.a
 GTESTINC = -I$(GTEST_ROOT)/include
 else
 GTESTLIBDIR =
@@ -801,16 +801,20 @@ $(testmain): $(BUILDDIR)/testxxx_cu.o
 $(testmain): cu_objects_exe += $(BUILDDIR)/testxxx_cu.o # Comment out this line to skip the CUDA test of xxx functions
 endif
 
+ifneq ($(UNAME_S),Darwin) # Disable testmisc on Darwin (workaround for issue #838)
 $(BUILDDIR)/testmisc.o: $(GTESTLIBS)
 $(BUILDDIR)/testmisc.o: INCFLAGS += $(GTESTINC)
 $(testmain): $(BUILDDIR)/testmisc.o
 $(testmain): cxx_objects_exe += $(BUILDDIR)/testmisc.o # Comment out this line to skip the C++ miscellaneous tests
+endif
 
 ifneq ($(GPUCC),)
+ifneq ($(UNAME_S),Darwin) # Disable testmisc on Darwin (workaround for issue #838)
 $(BUILDDIR)/testmisc_cu.o: $(GTESTLIBS)
 $(BUILDDIR)/testmisc_cu.o: INCFLAGS += $(GTESTINC)
 $(testmain): $(BUILDDIR)/testmisc_cu.o
 $(testmain): cu_objects_exe += $(BUILDDIR)/testmisc_cu.o # Comment out this line to skip the CUDA miscellaneous tests
+endif
 endif
 
 $(BUILDDIR)/runTest.o: $(GTESTLIBS)
@@ -833,7 +837,8 @@ endif
 
 $(testmain): $(GTESTLIBS)
 $(testmain): INCFLAGS +=  $(GTESTINC)
-$(testmain): LIBFLAGS += -L$(GTESTLIBDIR) -lgtest -lgtest_main
+$(testmain): LIBFLAGS += -L$(GTESTLIBDIR) -lgtest
+###$(testmain): LIBFLAGS += -lgtest_main # no longer necessary since we added main() to testxxx.cc
 
 ifneq ($(OMPFLAGS),)
 ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
