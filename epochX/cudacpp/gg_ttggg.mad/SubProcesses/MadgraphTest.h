@@ -203,10 +203,9 @@ protected:
   }
 };
 
-// WARNING: before the split of C++ and CUDA builds, both CPU and GPU tests were linked together into the same executable;
-// it was therefore necessary to prevent multiply-defined symbols by only compiling this when "#ifndef MGONGPUCPP_GPUIMPL";
-// now that runTest.exe only contains either CPU or GPU tests, this is no longer necessary!
-//#ifndef MGONGPUCPP_GPUIMPL
+// Since we link both the CPU-only and GPU tests into the same executable, we prevent
+// a multiply defined symbol by only compiling this in the non-CUDA phase:
+#ifndef MGONGPUCPP_GPUIMPL
 
 /// Compare momenta and matrix elements.
 /// This uses an implementation of TestDriverBase to run a madgraph workflow,
@@ -319,9 +318,6 @@ TEST_P( MadgraphTest, CompareMomentaAndME )
   }
 }
 
-// WARNING: before the split of C++ and CUDA builds, both CPU and GPU tests were linked together into the same executable;
-// it was therefore necessary to prevent multiply-defined symbols by only compiling this when "#ifndef MGONGPUCPP_GPUIMPL";
-// now that runTest.exe only contains either CPU or GPU tests, this is no longer necessary!
-//#endif // MGONGPUCPP_GPUIMPL
+#endif // MGONGPUCPP_GPUIMPL
 
 #endif /* MADGRAPHTEST_H_ */
