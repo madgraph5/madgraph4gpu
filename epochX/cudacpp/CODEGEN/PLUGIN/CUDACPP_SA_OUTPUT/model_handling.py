@@ -930,10 +930,10 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
                     # Comment out the default UFO assignment of mdl_sqrt__aS (from aS) and of G (from mdl_sqrt__aS), but keep them for reference
                     # (WARNING! This Python CODEGEN code essentially assumes that this refers precisely and only to mdl_sqrt__aS and G)
                     dcoupsetdpar.append( '    ' + line.replace('constexpr double', '//const fptype_sv') )
-                ###elif pdep.name == 'mdl_G__exp__2' : # added for UFO mg5amcnlo#89 (double in susy, complex in smeft), now fixed, may be removed
-                ###    # Hardcode a custom assignment (valid for both SUSY and SMEFT) instead of replacing double or complex by fptype in 'line'
-                ###    dcoupsetdpar.append('        const fptype_sv ' + pdep.name + ' = G * G;' )
-                ###elif pdep.name == 'mdl_G__exp__3' : # added for UFO mg5amcnlo#89 (double in susy, complex in smeft), now fixed, may be removed
+                elif pdep.name == 'mdl_G__exp__2' : # added for UFO mg5amcnlo#89 (complex in susy, should be double as in heft/smeft), not yet fixed
+                    # Hardcode a custom assignment (valid for both SUSY and SMEFT) instead of replacing double or complex by fptype in 'line'
+                    dcoupsetdpar.append('        const fptype_sv ' + pdep.name + ' = G * G;' )
+                ###elif pdep.name == 'mdl_G__exp__3' : # added for UFO mg5amcnlo#89 (complex in smeft, should be double), now fixed, may be removed
                 ###    # Hardcode a custom assignment (valid for both SUSY and SMEFT) instead of replacing double or complex by fptype in 'line'
                 ###    dcoupsetdpar.append('        const fptype_sv ' + pdep.name + ' = G * G * G;' )
                 elif pdep.name in gparameters:
