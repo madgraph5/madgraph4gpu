@@ -58,8 +58,7 @@ namespace mg5amcCpu
     // (none)
 
     // Model parameters dependent on aS
-    //double mdl_sqrt__aS, G, mdl_gHgg2, mdl_gHgg4, mdl_gHgg5, mdl_G__exp__2, mdl_gHgg1, mdl_gHgg3, mdl_dWH; // now computed event-by-event (running alphas #373)
-    //cxsmpl<double> mdl_G__exp__3; // now computed event-by-event (running alphas #373)
+    //double mdl_sqrt__aS, G, mdl_gHgg2, mdl_gHgg4, mdl_gHgg5, mdl_G__exp__2, mdl_gHgg1, mdl_gHgg3, mdl_G__exp__3, mdl_dWH; // now computed event-by-event (running alphas #373)
 
     // Model couplings dependent on aS
     //cxsmpl<double> GC_7, GC_6, GC_8; // now computed event-by-event (running alphas #373)
@@ -474,7 +473,7 @@ namespace mg5amcCpu
     //constexpr double mdl_G__exp__2 = ( ( G ) * ( G ) ); // now computed event-by-event (running alphas #373)
     //constexpr double mdl_gHgg1 = mdl_G__exp__2 / ( 48. * ( ( M_PI ) * ( M_PI ) ) ); // now computed event-by-event (running alphas #373)
     //constexpr double mdl_gHgg3 = ( aS * G ) / ( 60. * M_PI ); // now computed event-by-event (running alphas #373)
-    //constexpr cxsmpl<double> mdl_G__exp__3 = ( ( G ) * ( G ) * ( G ) ); // now computed event-by-event (running alphas #373)
+    //constexpr double mdl_G__exp__3 = ( ( G ) * ( G ) * ( G ) ); // now computed event-by-event (running alphas #373)
     //constexpr double mdl_dWH = mdl_WH * ( -0.24161 * mdl_dGf + 0.96644 * mdl_dgw + 0.4832199999999999 * mdl_dkH - 0.11186509426655467 * mdl_dWW + ( 0.36410378449238195 * mdl_cHj3 * mdl_vevhat__exp__2 ) / mdl_LambdaSMEFT__exp__2 + ( 0.17608307708657747 * mdl_cHl3 * mdl_vevhat__exp__2 ) / mdl_LambdaSMEFT__exp__2 + ( 0.1636 * mdl_cHG * mdl_MT__exp__2 * mdl_vevhat__exp__2 ) / ( mdl_LambdaSMEFT__exp__2 * ( -0.5 * mdl_gHgg2 * mdl_MH__exp__2 + mdl_gHgg1 * mdl_MT__exp__2 ) ) + ( mdl_cHW * ( -0.35937785117066967 * mdl_gHaa * mdl_gHza + 0.006164 * mdl_cth * mdl_gHaa * mdl_sth + 0.00454 * mdl_gHza * mdl_sth__exp__2 ) * mdl_vevhat__exp__2 ) / ( mdl_gHaa * mdl_gHza * mdl_LambdaSMEFT__exp__2 ) + ( mdl_cHWB * ( -0.00454 * mdl_cth * mdl_gHza * mdl_sth + mdl_gHaa * ( -0.0030819999999999997 + 0.006163999999999999 * mdl_sth__exp__2 ) ) * mdl_vevhat__exp__2 ) / ( mdl_gHaa * mdl_gHza * mdl_LambdaSMEFT__exp__2 ) + ( mdl_cHB * ( -0.006163999999999999 * mdl_cth * mdl_gHaa * mdl_sth - 0.00454 * mdl_gHza * ( -1. + mdl_sth__exp__2 ) ) * mdl_vevhat__exp__2 ) / ( mdl_gHaa * mdl_gHza * mdl_LambdaSMEFT__exp__2 ) + mdl_dWHc + mdl_dWHb + mdl_dWHta ); // now computed event-by-event (running alphas #373)
 
     // Model couplings dependent on aS
@@ -586,7 +585,7 @@ namespace mg5amcCpu
         const fptype_sv mdl_G__exp__2 = ( ( G ) * ( G ) );
         const fptype_sv mdl_gHgg1 = mdl_G__exp__2 / ( 48. * ( ( M_PI ) * ( M_PI ) ) );
         const fptype_sv mdl_gHgg3 = ( aS * G ) / ( 60. * M_PI );
-        constexpr cxsmpl<double> mdl_G__exp__3 = ( ( G ) * ( G ) * ( G ) );
+        const fptype_sv mdl_G__exp__3 = ( ( G ) * ( G ) * ( G ) );
         const fptype_sv mdl_dWH = mdl_WH * ( -0.24161 * mdl_dGf + 0.96644 * mdl_dgw + 0.4832199999999999 * mdl_dkH - 0.11186509426655467 * mdl_dWW + ( 0.36410378449238195 * mdl_cHj3 * mdl_vevhat__exp__2 ) / mdl_LambdaSMEFT__exp__2 + ( 0.17608307708657747 * mdl_cHl3 * mdl_vevhat__exp__2 ) / mdl_LambdaSMEFT__exp__2 + ( 0.1636 * mdl_cHG * mdl_MT__exp__2 * mdl_vevhat__exp__2 ) / ( mdl_LambdaSMEFT__exp__2 * ( -0.5 * mdl_gHgg2 * mdl_MH__exp__2 + mdl_gHgg1 * mdl_MT__exp__2 ) ) + ( mdl_cHW * ( -0.35937785117066967 * mdl_gHaa * mdl_gHza + 0.006164 * mdl_cth * mdl_gHaa * mdl_sth + 0.00454 * mdl_gHza * mdl_sth__exp__2 ) * mdl_vevhat__exp__2 ) / ( mdl_gHaa * mdl_gHza * mdl_LambdaSMEFT__exp__2 ) + ( mdl_cHWB * ( -0.00454 * mdl_cth * mdl_gHza * mdl_sth + mdl_gHaa * ( -0.0030819999999999997 + 0.006163999999999999 * mdl_sth__exp__2 ) ) * mdl_vevhat__exp__2 ) / ( mdl_gHaa * mdl_gHza * mdl_LambdaSMEFT__exp__2 ) + ( mdl_cHB * ( -0.006163999999999999 * mdl_cth * mdl_gHaa * mdl_sth - 0.00454 * mdl_gHza * ( -1. + mdl_sth__exp__2 ) ) * mdl_vevhat__exp__2 ) / ( mdl_gHaa * mdl_gHza * mdl_LambdaSMEFT__exp__2 ) + mdl_dWHc + mdl_dWHb + mdl_dWHta );
         // Model couplings dependent on aS
         out.GC_7 = G;
@@ -618,7 +617,7 @@ namespace mg5amcCpu
         const fptype mdl_G__exp__2 = ( ( G ) * ( G ) );
         const fptype mdl_gHgg1 = mdl_G__exp__2 / ( 48. * ( ( M_PI ) * ( M_PI ) ) );
         const fptype mdl_gHgg3 = ( aS * G ) / ( 60. * M_PI );
-        constexpr cxsmpl<double> mdl_G__exp__3 = ( ( G ) * ( G ) * ( G ) );
+        const fptype mdl_G__exp__3 = ( ( G ) * ( G ) * ( G ) );
         const fptype mdl_dWH = mdl_WH * ( -0.24161 * mdl_dGf + 0.96644 * mdl_dgw + 0.4832199999999999 * mdl_dkH - 0.11186509426655467 * mdl_dWW + ( 0.36410378449238195 * mdl_cHj3 * mdl_vevhat__exp__2 ) / mdl_LambdaSMEFT__exp__2 + ( 0.17608307708657747 * mdl_cHl3 * mdl_vevhat__exp__2 ) / mdl_LambdaSMEFT__exp__2 + ( 0.1636 * mdl_cHG * mdl_MT__exp__2 * mdl_vevhat__exp__2 ) / ( mdl_LambdaSMEFT__exp__2 * ( -0.5 * mdl_gHgg2 * mdl_MH__exp__2 + mdl_gHgg1 * mdl_MT__exp__2 ) ) + ( mdl_cHW * ( -0.35937785117066967 * mdl_gHaa * mdl_gHza + 0.006164 * mdl_cth * mdl_gHaa * mdl_sth + 0.00454 * mdl_gHza * mdl_sth__exp__2 ) * mdl_vevhat__exp__2 ) / ( mdl_gHaa * mdl_gHza * mdl_LambdaSMEFT__exp__2 ) + ( mdl_cHWB * ( -0.00454 * mdl_cth * mdl_gHza * mdl_sth + mdl_gHaa * ( -0.0030819999999999997 + 0.006163999999999999 * mdl_sth__exp__2 ) ) * mdl_vevhat__exp__2 ) / ( mdl_gHaa * mdl_gHza * mdl_LambdaSMEFT__exp__2 ) + ( mdl_cHB * ( -0.006163999999999999 * mdl_cth * mdl_gHaa * mdl_sth - 0.00454 * mdl_gHza * ( -1. + mdl_sth__exp__2 ) ) * mdl_vevhat__exp__2 ) / ( mdl_gHaa * mdl_gHza * mdl_LambdaSMEFT__exp__2 ) + mdl_dWHc + mdl_dWHb + mdl_dWHta );
         // Model couplings dependent on aS
         const cxtype GC_7 = G;
