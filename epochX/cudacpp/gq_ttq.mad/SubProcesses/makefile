@@ -151,7 +151,7 @@ else
   override LIBFLAGSRPATH = -Wl,-rpath,'$$ORIGIN/$(LIBDIR)'
 endif
 
-.PHONY: madevent_fortran_link madevent_cuda_link madevent_cpp_link
+.PHONY: madevent_fortran_link madevent_cuda_link madevent_hip_link madevent_cpp_link
 
 madevent_fortran_link: $(PROG)_fortran
 	rm -f $(PROG)
