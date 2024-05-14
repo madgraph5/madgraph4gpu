@@ -197,6 +197,17 @@ namespace mg5amcCpu
   }
 #endif
 
+#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+  inline std::ostream&
+  operator<<( std::ostream& out, const fptype2_v& v )
+  {
+    out << "{ " << v[0];
+    for( int i = 1; i < neppV2; i++ ) out << ", " << v[i];
+    out << " }";
+    return out;
+  }
+#endif
+
 #ifdef MGONGPU_CPPSIMD
   inline std::ostream&
   operator<<( std::ostream& out, const cxtype_v& v )

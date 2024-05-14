@@ -295,13 +295,14 @@ TEST_P( MadgraphTest, CompareMomentaAndME )
         {
           const fptype pMadg = testDriver->getMomentum( ievt, ipar, icomp );
           const fptype pOrig = referenceData[iiter].momenta[ievt][ipar][icomp];
-          const fptype relDelta = fabs( ( pMadg - pOrig ) / pOrig );
-          if( relDelta > toleranceMomenta )
+          //const fptype relDelta = fabs( ( pMadg - pOrig ) / pOrig ); // computing relDelta may lead to FPEs
+          const fptype delta = fabs( pMadg - pOrig );
+          if( delta > toleranceMomenta * fabs( pOrig ) ) // better than "relDelta > toleranceMomenta"
           {
             momentumErrors << std::setprecision( 15 ) << std::scientific << "\nparticle " << ipar << "\tcomponent " << icomp
                            << "\n\t madGraph:  " << std::setw( 22 ) << pMadg
                            << "\n\t reference: " << std::setw( 22 ) << pOrig
-                           << "\n\t rel delta: " << std::setw( 22 ) << relDelta << " exceeds tolerance of " << toleranceMomenta;
+                           << "\n\t relative delta exceeds tolerance of " << toleranceMomenta;
           }
         }
         ASSERT_TRUE( momentumErrors.str().empty() ) << momentumErrors.str();

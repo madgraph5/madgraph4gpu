@@ -55,7 +55,7 @@ status=$?
 ended1="(SM tests)\nENDED(1) AT $(date) [Status=$status]"
 
 if [ "${bsm}" != "-nobsm" ]; then
-  ${scrdir}/teeMadX.sh -susyggtt -susyggt1t1 -smeftggtttt $flts $makeclean $rmrdat $add10x
+  ${scrdir}/teeMadX.sh -heftggbb -susyggtt -susyggt1t1 -smeftggtttt $flts $makeclean $rmrdat $add10x
 fi
 status=$?
 ended2="(BSM tests)\nENDED(1) AT $(date) [Status=$status]"

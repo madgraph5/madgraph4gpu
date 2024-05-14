@@ -27,6 +27,8 @@ jobs:
       fail-fast: false
     steps:
     - uses: actions/checkout@v2
+    - name: github PR info
+      run: date; echo github.event.pull_request.head.sha='${{ github.event.pull_request.head.sha }}'
     - name: make info
       run: make BACKEND=${{ matrix.backend }} FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} -f cudacpp.mk info
     - name: make
@@ -45,6 +47,8 @@ jobs:
       fail-fast: false
     steps:
     - uses: actions/checkout@v2
+    - name: github PR info
+      run: date; echo github.event.pull_request.head.sha='${{ github.event.pull_request.head.sha }}'
     - name: make info
       run: make BACKEND=${{ matrix.backend }} OMPFLAGS= FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} -f cudacpp.mk info
     - name: make
@@ -66,6 +70,8 @@ jobs:
     - uses: actions/checkout@v2
     - name: path
       run: echo "PATH=$PATH"
+    - name: github PR info
+      run: date; echo github.event.pull_request.head.sha='${{ github.event.pull_request.head.sha }}'
     - name: make info
       run: make BACKEND=${{ matrix.backend }} FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} -f cudacpp.mk info
     - name: make

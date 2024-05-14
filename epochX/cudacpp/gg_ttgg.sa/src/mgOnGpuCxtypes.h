@@ -172,7 +172,8 @@ namespace mg5amcCpu
   inline __host__ std::ostream&
   operator<<( std::ostream& out, const cxsmpl<FP>& c )
   {
-    out << std::complex<FP>( c.real(), c.imag() );
+    //out << std::complex<FP>( c.real(), c.imag() );
+    out << "(" << c.real() << ", " << c.imag() << ")"; // add a space after the comma
     return out;
   }
 
@@ -480,7 +481,8 @@ namespace mg5amcCpu
   inline __host__ std::ostream&
   operator<<( std::ostream& out, const cxtype& c )
   {
-    out << std::complex<double>( cxreal( c ), cximag( c ) );
+    //out << std::complex<double>( cxreal( c ), cximag( c ) );
+    out << "(" << cxreal( c ) << ", " << cximag( c ) << ")"; // add a space after the comma
     return out;
   }
 
@@ -541,7 +543,8 @@ namespace mg5amcCpu
   inline __host__ std::ostream&
   operator<<( std::ostream& out, const cxtype& c )
   {
-    out << std::complex<float>( cxreal( c ), cximag( c ) );
+    //out << std::complex<float>( cxreal( c ), cximag( c ) );
+    out << "(" << cxreal( c ) << ", " << cximag( c ) << ")"; // add a space after the comma
     return out;
   }
 

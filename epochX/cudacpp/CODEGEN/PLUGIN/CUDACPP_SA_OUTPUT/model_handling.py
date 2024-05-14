@@ -834,6 +834,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             # Note: this seemed enough to fix SUSY processes, but not EFT processes
             for coupdep in self.coups_dep.values():
                 if param.name in coupdep.expr:
+                ###if ' '+param.name+' ' in coupdep.expr: # this is not enough, see review of PR #824 and mg5amcnlo#90
                     if param.type == 'real':
                         bsmparam_indep_real_used.append( param.name )
                     elif param.type == 'complex':
@@ -842,6 +843,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             # Note: this was later added to also fix EFT processes (related to #616)
             for pardep in self.params_dep:
                 if param.name in pardep.expr:
+                ###if param.name in pardep.expr: # this is not enough, see review of PR #824 and mg5amcnlo#90
                     if param.type == 'real':
                         bsmparam_indep_real_used.append( param.name )
                     elif param.type == 'complex':
@@ -928,12 +930,12 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
                     # Comment out the default UFO assignment of mdl_sqrt__aS (from aS) and of G (from mdl_sqrt__aS), but keep them for reference
                     # (WARNING! This Python CODEGEN code essentially assumes that this refers precisely and only to mdl_sqrt__aS and G)
                     dcoupsetdpar.append( '    ' + line.replace('constexpr double', '//const fptype_sv') )
-                elif pdep.name == 'mdl_G__exp__2' : # bug fix: fptype, not double nor complex (UFO SUSY and SMEFT even disagree on this?)
-                    # Hardcode a custom assignment (valid for both SUSY and SMEFT) instead of replacing double or complex in 'line'
+                elif pdep.name == 'mdl_G__exp__2' : # added for UFO mg5amcnlo#89 (complex in susy, should be double as in heft/smeft), not yet fixed
+                    # Hardcode a custom assignment (valid for both SUSY and SMEFT) instead of replacing double or complex by fptype in 'line'
                     dcoupsetdpar.append('        const fptype_sv ' + pdep.name + ' = G * G;' )
-                elif pdep.name == 'mdl_G__exp__3' : # bug fix: fptype, not double nor complex (UFO SUSY and SMEFT even disagree on this?)
-                    # Hardcode a custom assignment (valid for both SUSY and SMEFT) instead of replacing double or complex in 'line'
-                    dcoupsetdpar.append('        const fptype_sv ' + pdep.name + ' = G * G * G;' )
+                ###elif pdep.name == 'mdl_G__exp__3' : # added for UFO mg5amcnlo#89 (complex in smeft, should be double), now fixed, may be removed
+                ###    # Hardcode a custom assignment (valid for both SUSY and SMEFT) instead of replacing double or complex by fptype in 'line'
+                ###    dcoupsetdpar.append('        const fptype_sv ' + pdep.name + ' = G * G * G;' )
                 elif pdep.name in gparameters:
                     # Skip the default UFO assignment from aS (if any?!) of aS and mdl_sqrt__aS, as these are now derived from G
                     # (WARNING! no path to this statement! aS is not in params_dep, while mdl_sqrt__aS is handled in 'if not foundG' above)
@@ -1235,7 +1237,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             replace_dict['cipd2tipd'] = '//memcpy( cIPD, tIPD, nIPD * sizeof( fptype ) ); // nIPD=0'
             replace_dict['cipddump'] = ''
             replace_dict['cipdhrdcod'] = '//__device__ const fptype* cIPD = nullptr; // unused as nIPD=0'
-        # FIXME! Here there should be different code generated depending on MGONGPUCPP_NBSMINDEPPARAM_GT_0...
+        # FIXME! Here there should be different code generated depending on MGONGPUCPP_NBSMINDEPPARAM_GT_0 (issue #827)
         replace_dict['all_helicities'] = self.get_helicity_matrix(self.matrix_elements[0])
         replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace('helicities', 'tHel')
         color_amplitudes = [me.get_color_amplitudes() for me in self.matrix_elements] # as in OneProcessExporterCPP.get_process_function_definitions
@@ -1342,10 +1344,12 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
 #endif
 #endif /* clang-format on */
     mgDebug( 0, __FUNCTION__ );
-    //printf( \"calculate_wavefunctions: ihel=%2d\\n\", ihel );
+    //bool debug = true;
 #ifndef MGONGPUCPP_GPUIMPL
-    //printf( \"calculate_wavefunctions: ievt00=%d\\n\", ievt00 );
-#endif""")
+    //debug = ( ievt00 >= 64 && ievt00 < 80 && ihel == 3 ); // example: debug #831
+    //if( debug ) printf( "calculate_wavefunctions: ievt00=%d\\n", ievt00 );
+#endif
+    //if( debug ) printf( "calculate_wavefunctions: ihel=%d\\n", ihel );""")
             nwavefuncs = self.matrix_elements[0].get_number_of_wavefunctions()
             ret_lines.append("""
     // The variable nwf (which is specific to each P1 subdirectory, #644) is only used here

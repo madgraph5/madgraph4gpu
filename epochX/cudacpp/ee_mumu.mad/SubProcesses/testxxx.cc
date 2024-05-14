@@ -19,7 +19,7 @@
 
 #include <array>
 #include <cassert>
-#include <cfenv> // debug #701 (see https://stackoverflow.com/a/17473528)
+#include <cfenv> // for signal and SIGFPE (see https://stackoverflow.com/a/17473528)
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -38,14 +38,14 @@ namespace mg5amcGpu
 namespace mg5amcCpu
 #endif
 {
-  std::string FPEhandlerMessage = "unknown";
-  int FPEhandlerIevt = -1;
-  inline void FPEhandler( int sig )
+  std::string fpeHandlerMessage = "unknown";
+  int fpeHandlerIevt = -1;
+  inline void fpeHandlerTestxxx( int sig )
   {
 #ifdef MGONGPUCPP_GPUIMPL
-    std::cerr << "Floating Point Exception (GPU): '" << FPEhandlerMessage << "' ievt=" << FPEhandlerIevt << std::endl;
+    std::cerr << "Floating Point Exception (GPU): '" << fpeHandlerMessage << "' ievt=" << fpeHandlerIevt << std::endl;
 #else
-    std::cerr << "Floating Point Exception (CPU neppV=" << neppV << "): '" << FPEhandlerMessage << "' ievt=" << FPEhandlerIevt << std::endl;
+    std::cerr << "Floating Point Exception (CPU neppV=" << neppV << "): '" << fpeHandlerMessage << "' ievt=" << fpeHandlerIevt << std::endl;
 #endif
     exit( 1 );
   }
@@ -59,13 +59,7 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
   using namespace mg5amcCpu;
 #endif
 #ifndef __APPLE__ // test #701 (except on MacOS where feenableexcept is not defined #730)
-  const char* enableFPEc = getenv( "CUDACPP_RUNTIME_ENABLEFPE" );
-  const bool enableFPE = ( enableFPEc != 0 ) && ( std::string( enableFPEc ) != "" );
-  if( enableFPE )
-  {
-    feenableexcept( FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW ); // debug #701
-    signal( SIGFPE, FPEhandler );
-  }
+  auto fpeHandlerDefault = signal( SIGFPE, fpeHandlerTestxxx );
 #endif
   constexpr bool dumpEvents = false;       // dump the expected output of the test?
   constexpr bool testEvents = !dumpEvents; // run the test?
@@ -294,8 +288,8 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
   {
     if( debug ) std::cout << "Prepare test " << xxx << " ievt=" << ievt << std::endl;
     resetHstMomentaToPar0();
-    FPEhandlerMessage = xxx;
-    FPEhandlerIevt = ievt;
+    fpeHandlerMessage = xxx;
+    fpeHandlerIevt = ievt;
     if( std::string( xxx ) == "ipzxxx" || std::string( xxx ) == "opzxxx" || std::string( xxx ) == "imzxxx" || std::string( xxx ) == "omzxxx" || std::string( xxx ) == "ixzxxx" || std::string( xxx ) == "oxzxxx" )
     {
       // Modify hstMomenta so that ALL events have the momenta of a single ievt
@@ -428,12 +422,20 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
     dumpFile.close();
     std::cout << "INFO: New reference data dumped to file '" << dumpFileName << "'" << std::endl;
   }
-#ifndef __APPLE__ // test #701 (except on MacOS where fedisableexcept is not defined #730)
-  if( enableFPE )
-  {
-    fedisableexcept( FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW ); // debug #701
-  }
+#ifndef __APPLE__ // test #701 (except on MacOS where feenableexcept is not defined #730)
+  signal( SIGFPE, fpeHandlerDefault );
 #endif
 }
 
 //==========================================================================
+
+// Main function (see https://google.github.io/googletest/primer.html#writing-the-main-function)
+// (NB: currently a single main links both C++ and CUDA tests - define it only in the C++ testxxx.o)
+#ifndef MGONGPUCPP_GPUIMPL
+int
+main( int argc, char** argv )
+{
+  testing::InitGoogleTest( &argc, argv );
+  return RUN_ALL_TESTS();
+}
+#endif
