@@ -582,7 +582,7 @@ namespace mg5amcCpu
         const fptype_sv mdl_gHgg2 = ( -7. * aS ) / ( 720. * M_PI );
         const fptype_sv mdl_gHgg4 = aS / ( 360. * M_PI );
         const fptype_sv mdl_gHgg5 = aS / ( 20. * M_PI );
-        const fptype_sv mdl_G__exp__2 = ( ( G ) * ( G ) );
+        const fptype_sv mdl_G__exp__2 = G * G;
         const fptype_sv mdl_gHgg1 = mdl_G__exp__2 / ( 48. * ( ( M_PI ) * ( M_PI ) ) );
         const fptype_sv mdl_gHgg3 = ( aS * G ) / ( 60. * M_PI );
         const fptype_sv mdl_G__exp__3 = ( ( G ) * ( G ) * ( G ) );
@@ -614,7 +614,7 @@ namespace mg5amcCpu
         const fptype mdl_gHgg2 = ( -7. * aS ) / ( 720. * M_PI );
         const fptype mdl_gHgg4 = aS / ( 360. * M_PI );
         const fptype mdl_gHgg5 = aS / ( 20. * M_PI );
-        const fptype mdl_G__exp__2 = ( ( G ) * ( G ) );
+        const fptype mdl_G__exp__2 = G * G;
         const fptype mdl_gHgg1 = mdl_G__exp__2 / ( 48. * ( ( M_PI ) * ( M_PI ) ) );
         const fptype mdl_gHgg3 = ( aS * G ) / ( 60. * M_PI );
         const fptype mdl_G__exp__3 = ( ( G ) * ( G ) * ( G ) );
