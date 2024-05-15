@@ -58,8 +58,7 @@ namespace mg5amcCpu
     // (none)
 
     // Model parameters dependent on aS
-    //double mdl_sqrt__aS, G; // now computed event-by-event (running alphas #373)
-    //cxsmpl<double> mdl_G__exp__2; // now computed event-by-event (running alphas #373)
+    //double mdl_sqrt__aS, G, mdl_G__exp__2; // now computed event-by-event (running alphas #373)
 
     // Model couplings dependent on aS
     //cxsmpl<double> GC_6, GC_51; // now computed event-by-event (running alphas #373)
@@ -750,7 +749,7 @@ namespace mg5amcCpu
     // Model parameters dependent on aS
     //constexpr double mdl_sqrt__aS = constexpr_sqrt( aS ); // now computed event-by-event (running alphas #373)
     //constexpr double G = 2. * mdl_sqrt__aS * constexpr_sqrt( M_PI ); // now computed event-by-event (running alphas #373)
-    //constexpr cxsmpl<double> mdl_G__exp__2 = ( ( G ) * ( G ) ); // now computed event-by-event (running alphas #373)
+    //constexpr double mdl_G__exp__2 = ( ( G ) * ( G ) ); // now computed event-by-event (running alphas #373)
 
     // Model couplings dependent on aS
     //constexpr cxsmpl<double> GC_6 = -G; // now computed event-by-event (running alphas #373)

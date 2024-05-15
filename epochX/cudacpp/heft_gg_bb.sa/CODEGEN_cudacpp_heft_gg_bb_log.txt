@@ -51,8 +51,8 @@ Note that you can still compile and run aMC@NLO with the built-in PDFs
  MG5_aMC> set lhapdf /PATH/TO/lhapdf-config
 
 Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
-Using default eps viewer "evince". Set another one in ./input/mg5_configuration.txt
-Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
+No valid eps viewer found. Please set in ./input/mg5_configuration.txt
+No valid web browser found. Please set in ./input/mg5_configuration.txt
 import /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg_bb.mg
 The import format was not given, so we guess it as command
 set stdout_level DEBUG
@@ -62,6 +62,54 @@ set auto_convert_model T
 save options auto_convert_model
 save configuration file to /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/mg5amcnlo/input/mg5_configuration.txt
 import model heft
+[1;60mINFO: download model from https://madgraph.mi.infn.it/Downloads/models/heft.tgz to the following directory: /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/mg5amcnlo/models [0m
+--2024-05-15 12:50:52--  https://madgraph.mi.infn.it/Downloads/models/heft.tgz
+Resolving madgraph.mi.infn.it (madgraph.mi.infn.it)... 192.135.21.75
+Connecting to madgraph.mi.infn.it (madgraph.mi.infn.it)|192.135.21.75|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 50876 (50K) [application/x-gzip]
+Saving to: ‘tmp.tgz’
+
+     0K .......... .......... .......... .......... ......... 100% 2.79M=0.02s
+
+2024-05-15 12:50:52 (2.79 MB/s) - ‘tmp.tgz’ saved [50876/50876]
+
+heft/
+heft/write_param_card.py
+heft/restrict_ckm.dat
+heft/couplings.py
+heft/HEFT_UFO.log
+heft/lorentz.py
+heft/__init__.py
+heft/__pycache__/
+heft/particles.py
+heft/object_library.py
+heft/restrict_default.dat
+heft/restrict_zeromass_ckm.dat
+heft/restrict_no_b_mass.dat
+heft/function_library.py
+heft/parameters.py
+heft/py3_model.pkl
+heft/coupling_orders.py
+heft/restrict_no_tau_mass.dat
+heft/vertices.py
+heft/restrict_no_masses.dat
+heft/__pycache__/write_param_card.cpython-311.pyc
+heft/__pycache__/parameters.cpython-311.pyc
+heft/__pycache__/function_library.cpython-311.pyc
+heft/__pycache__/coupling_orders.cpython-311.pyc
+heft/__pycache__/object_library.cpython-311.pyc
+heft/__pycache__/couplings.cpython-311.pyc
+heft/__pycache__/particles.cpython-311.pyc
+heft/__pycache__/vertices.cpython-311.pyc
+heft/__pycache__/lorentz.cpython-311.pyc
+heft/__pycache__/__init__.cpython-311.pyc
+INFO: reload from .py file 
+INFO: load particles 
+INFO: load vertices 
+[1;34mWARNING: coupling GC_13=-(complex(0,1)*GH) has direct dependence in aS but has QCD order set to 0. Automatic computation of scale uncertainty can be wrong for such model. [0m
+[1;34mWARNING: coupling GC_16=(complex(0,1)*Gphi)/8. has direct dependence in aS but has QCD order set to 0. Automatic computation of scale uncertainty can be wrong for such model. [0m
+[1;32mDEBUG: model prefixing  takes 0.005690574645996094 [0m
 INFO: Restrict model heft with file models/heft/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: s u w+ at order: QED=1 [0m
@@ -157,7 +205,7 @@ ALOHA: aloha creates VVS3 routines[0m
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFS2 routines[0m
-ALOHA: aloha creates 4 routines in  0.283 s
+ALOHA: aloha creates 4 routines in  0.249 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVS3
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -174,7 +222,7 @@ INFO: Created files Parameters_heft.h and Parameters_heft.cc in directory
 INFO: /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg_bb/src/. and /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg_bb/src/. 
 quit
 
-real	0m0.681s
-user	0m0.624s
-sys	0m0.053s
+real	0m1.060s
+user	0m0.751s
+sys	0m0.075s
 Code generation completed in 1 seconds
