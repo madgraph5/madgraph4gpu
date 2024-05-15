@@ -60,7 +60,11 @@ INCFLAGS = -I.
 OPTFLAGS = -O3 # this ends up in GPUFLAGS too (should it?), cannot add -Ofast or -ffast-math here
 
 # Dependency on src directory
-MG5AMC_COMMONLIB = mg5amc_common
+ifeq ($(GPUCC),)
+MG5AMC_COMMONLIB = mg5amc_common_cpp
+else
+MG5AMC_COMMONLIB = mg5amc_common_$(GPUSUFFIX)
+endif
 LIBFLAGS = -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
 INCFLAGS += -I../../src
 
