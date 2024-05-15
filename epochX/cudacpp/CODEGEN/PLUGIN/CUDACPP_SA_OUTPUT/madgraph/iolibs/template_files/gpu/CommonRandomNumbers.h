@@ -1,7 +1,7 @@
 // Copyright (C) 2020-2024 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: S. Hageboeck (Nov 2020) for the MG5aMC CUDACPP plugin.
-// Further modified by: A. Valassi (2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: A. Valassi (2024) for the MG5aMC CUDACPP plugin.
 
 #ifndef COMMONRANDOMNUMBERS_H_
 #define COMMONRANDOMNUMBERS_H_ 1
