@@ -98,7 +98,11 @@ endif
 # NB1: there are no CUDA targets in src as we avoid RDC!
 # NB2: CUDA includes for curand.h are no longer needed in the C++ code anywhere in src!
 
-MG5AMC_COMMONLIB = mg5amc_common
+ifeq ($(GPUCC),)
+MG5AMC_COMMONLIB = mg5amc_common_cpp
+else
+MG5AMC_COMMONLIB = mg5amc_common_$(GPUSUFFIX)
+endif
 
 # Explicitly define the default goal (this is not necessary as it is the first target, which is implicitly the default goal)
 .DEFAULT_GOAL := all.$(TAG)
