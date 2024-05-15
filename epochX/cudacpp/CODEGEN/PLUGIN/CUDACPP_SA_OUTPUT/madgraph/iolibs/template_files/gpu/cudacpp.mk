@@ -1064,10 +1064,10 @@ endif
 
 #-------------------------------------------------------------------------------
 
-# Target: check (execute runTest.exe, and compare check.exe with fcheck.exe)
-# [NB THIS IS WHAT IS USED IN THE GITHUB CI!]
-# [FIXME: SHOULD CHANGE THE TARGET NAME "check" THAT HAS NOTHING TO DO WITH "check.exe"]
-check: runTest cmpFcheck
+# Target: 'make test' (execute runTest.exe, and compare check.exe with fcheck.exe)
+# [NB: THIS IS WHAT IS TESTED IN THE GITHUB CI!]
+# [NB: This used to be called 'make check' but the name has been changed as this has nothing to do with 'check.exe']
+test: runTest cmpFcheck
 
 # Target: runTest (run the C++ or CUDA/HIP test executable runTest.exe)
 runTest: all.$(TAG)
