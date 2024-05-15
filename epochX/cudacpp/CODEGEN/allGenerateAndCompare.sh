@@ -38,6 +38,9 @@ cd $(dirname $0)/..
 ./CODEGEN/generateAndCompare.sh -q smeft_gg_tttt
 ./CODEGEN/generateAndCompare.sh -q smeft_gg_tttt --mad
 
+./CODEGEN/generateAndCompare.sh -q ewdim6_ud_wz
+./CODEGEN/generateAndCompare.sh -q ewdim6_ud_wz --mad
+
 ./CODEGEN/generateAndCompare.sh -q gg_tt01g --mad
 
 ./CODEGEN/generateAndCompare.sh -q pp_tt012j --mad
