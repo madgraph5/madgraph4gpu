@@ -259,8 +259,9 @@ fi
 # Check that at least one process has been selected
 if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ] && [ "${gqttq}" == "0" ] && [ "${heftggbb}" == "0" ] && [ "${susyggtt}" == "0" ] && [ "${susyggt1t1}" == "0" ] && [ "${smeftggtttt}" == "0" ]; then usage; fi
 
-# Define the default bblds if none are defined
-if [ "${bblds}" == "" ]; then bblds="cuda avx2"; fi
+# Define the default bblds if none are defined (use ${bbldsall} which is translated back to 'make -bldall')
+###if [ "${bblds}" == "" ]; then bblds="cuda avx2"; fi # this fails if cuda is not installed
+if [ "${bblds}" == "" ]; then bblds="${bbldsall}"; fi # this succeeds if cuda is not installed because cudacpp.mk excludes it
 
 # Use only the .auto process directories in the alpaka directory
 if [ "$bckend" == "alpaka" ]; then
