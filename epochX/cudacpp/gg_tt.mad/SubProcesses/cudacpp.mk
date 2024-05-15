@@ -54,69 +54,6 @@ endif
 
 #-------------------------------------------------------------------------------
 
-#=== Configure common compiler flags for C++ and CUDA/HIP
-
-INCFLAGS = -I.
-OPTFLAGS = -O3 # this ends up in GPUFLAGS too (should it?), cannot add -Ofast or -ffast-math here
-
-# Dependency on src directory
-ifeq ($(GPUCC),)
-MG5AMC_COMMONLIB = mg5amc_common_cpp
-else
-MG5AMC_COMMONLIB = mg5amc_common_$(GPUSUFFIX)
-endif
-LIBFLAGS = -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
-INCFLAGS += -I../../src
-
-# Compiler-specific googletest build directory (#125 and #738)
-ifneq ($(shell $(CXX) --version | grep '^Intel(R) oneAPI DPC++/C++ Compiler'),)
-  override CXXNAME = icpx$(shell $(CXX) --version | head -1 | cut -d' ' -f5)
-else ifneq ($(shell $(CXX) --version | egrep '^clang'),)
-  override CXXNAME = clang$(shell $(CXX) --version | head -1 | cut -d' ' -f3)
-else ifneq ($(shell $(CXX) --version | grep '^g++ (GCC)'),)
-  override CXXNAME = gcc$(shell $(CXX) --version | head -1 | cut -d' ' -f3)
-else
-  override CXXNAME = unknown
-endif
-###$(info CXXNAME=$(CXXNAME))
-override CXXNAMESUFFIX = _$(CXXNAME)
-
-# Export CXXNAMESUFFIX (so that there is no need to check/define it again in cudacpp_test.mk)
-export CXXNAMESUFFIX
-
-# Dependency on test directory
-# Within the madgraph4gpu git repo: by default use a common gtest installation in <topdir>/test (optionally use an external or local gtest)
-# Outside the madgraph4gpu git repo: by default do not build the tests (optionally use an external or local gtest)
-###GTEST_ROOT = /cvmfs/sft.cern.ch/lcg/releases/gtest/1.11.0-21e8c/x86_64-centos8-gcc11-opt/# example of an external gtest installation
-###LOCALGTEST = yes# comment this out (or use make LOCALGTEST=yes) to build tests using a local gtest installation
-TESTDIRCOMMON = ../../../../../test
-TESTDIRLOCAL = ../../test
-ifneq ($(wildcard $(GTEST_ROOT)),)
-  TESTDIR =
-else ifneq ($(LOCALGTEST),)
-  TESTDIR=$(TESTDIRLOCAL)
-  GTEST_ROOT = $(TESTDIR)/googletest/install$(CXXNAMESUFFIX)
-else ifneq ($(wildcard ../../../../../epochX/cudacpp/CODEGEN),)
-  TESTDIR = $(TESTDIRCOMMON)
-  GTEST_ROOT = $(TESTDIR)/googletest/install$(CXXNAMESUFFIX)
-else
-  TESTDIR =
-endif
-ifneq ($(GTEST_ROOT),)
-  GTESTLIBDIR = $(GTEST_ROOT)/lib64/
-  GTESTLIBS = $(GTESTLIBDIR)/libgtest.a
-  GTESTINC = -I$(GTEST_ROOT)/include
-else
-  GTESTLIBDIR =
-  GTESTLIBS =
-  GTESTINC =
-endif
-###$(info GTEST_ROOT = $(GTEST_ROOT))
-###$(info LOCALGTEST = $(LOCALGTEST))
-###$(info TESTDIR = $(TESTDIR))
-
-#-------------------------------------------------------------------------------
-
 #=== Redefine BACKEND if the current value is 'cppauto'
 
 # Set the default BACKEND choice corresponding to 'cppauto' (the 'best' C++ vectorization available: eventually use native instead?)
@@ -341,6 +278,69 @@ ifneq ($(GPUCC),)
     override GPUCC:=ccache $(GPUCC)
   endif
 endif
+
+#-------------------------------------------------------------------------------
+
+#=== Configure common compiler flags for C++ and CUDA/HIP
+
+INCFLAGS = -I.
+OPTFLAGS = -O3 # this ends up in GPUFLAGS too (should it?), cannot add -Ofast or -ffast-math here
+
+# Dependency on src directory
+ifeq ($(GPUCC),)
+MG5AMC_COMMONLIB = mg5amc_common_cpp
+else
+MG5AMC_COMMONLIB = mg5amc_common_$(GPUSUFFIX)
+endif
+LIBFLAGS = -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
+INCFLAGS += -I../../src
+
+# Compiler-specific googletest build directory (#125 and #738)
+ifneq ($(shell $(CXX) --version | grep '^Intel(R) oneAPI DPC++/C++ Compiler'),)
+  override CXXNAME = icpx$(shell $(CXX) --version | head -1 | cut -d' ' -f5)
+else ifneq ($(shell $(CXX) --version | egrep '^clang'),)
+  override CXXNAME = clang$(shell $(CXX) --version | head -1 | cut -d' ' -f3)
+else ifneq ($(shell $(CXX) --version | grep '^g++ (GCC)'),)
+  override CXXNAME = gcc$(shell $(CXX) --version | head -1 | cut -d' ' -f3)
+else
+  override CXXNAME = unknown
+endif
+###$(info CXXNAME=$(CXXNAME))
+override CXXNAMESUFFIX = _$(CXXNAME)
+
+# Export CXXNAMESUFFIX (so that there is no need to check/define it again in cudacpp_test.mk)
+export CXXNAMESUFFIX
+
+# Dependency on test directory
+# Within the madgraph4gpu git repo: by default use a common gtest installation in <topdir>/test (optionally use an external or local gtest)
+# Outside the madgraph4gpu git repo: by default do not build the tests (optionally use an external or local gtest)
+###GTEST_ROOT = /cvmfs/sft.cern.ch/lcg/releases/gtest/1.11.0-21e8c/x86_64-centos8-gcc11-opt/# example of an external gtest installation
+###LOCALGTEST = yes# comment this out (or use make LOCALGTEST=yes) to build tests using a local gtest installation
+TESTDIRCOMMON = ../../../../../test
+TESTDIRLOCAL = ../../test
+ifneq ($(wildcard $(GTEST_ROOT)),)
+  TESTDIR =
+else ifneq ($(LOCALGTEST),)
+  TESTDIR=$(TESTDIRLOCAL)
+  GTEST_ROOT = $(TESTDIR)/googletest/install$(CXXNAMESUFFIX)
+else ifneq ($(wildcard ../../../../../epochX/cudacpp/CODEGEN),)
+  TESTDIR = $(TESTDIRCOMMON)
+  GTEST_ROOT = $(TESTDIR)/googletest/install$(CXXNAMESUFFIX)
+else
+  TESTDIR =
+endif
+ifneq ($(GTEST_ROOT),)
+  GTESTLIBDIR = $(GTEST_ROOT)/lib64/
+  GTESTLIBS = $(GTESTLIBDIR)/libgtest.a
+  GTESTINC = -I$(GTEST_ROOT)/include
+else
+  GTESTLIBDIR =
+  GTESTLIBS =
+  GTESTINC =
+endif
+###$(info GTEST_ROOT = $(GTEST_ROOT))
+###$(info LOCALGTEST = $(LOCALGTEST))
+###$(info TESTDIR = $(TESTDIR))
 
 #-------------------------------------------------------------------------------
 
