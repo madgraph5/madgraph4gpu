@@ -699,7 +699,7 @@ for exe in $exes; do
   runExe $exe "$exeArgs"
   if [ "${exe%%/check*}" != "${exe}" ]; then 
     if [ "${maketype}" != "-dryrun" ]; then
-      obj=${exe%%/check*}/CPPProcess_cpp.o; $scrdir/simdSymSummary.sh -stripdir ${obj} -dumptotmp # comment out -dumptotmp to keep full objdump
+      obj=${exe%%.exe}; obj=${obj/check/CPPProcess}.o; $scrdir/simdSymSummary.sh -stripdir ${obj} -dumptotmp # comment out -dumptotmp to keep full objdump
     fi
     if [ "${omp}" == "1" ]; then 
       echo "-------------------------------------------------------------------------"
