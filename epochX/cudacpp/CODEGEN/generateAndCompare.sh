@@ -199,6 +199,9 @@ function codeGenAndDiff()
     susy_gg_ulul)
       cmd="import model MSSM_SLHA2; generate g g > ul ul~"
       ;;
+    ewdim6_ud_wz) # as suggested by Zenny (see #615)
+      cmd="import model EWdim6; generate u d~ > w+ z"
+      ;;
     atlas)
       cmd="import model sm-no_b_mass
       define p = g u c d s b u~ c~ d~ s~ b~
