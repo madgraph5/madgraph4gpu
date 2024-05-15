@@ -608,12 +608,12 @@ override RUNTIME =
 
 
 ifeq ($(GPUCC),)
-  cxx_checkmain=$(BUILDDIR)/check.exe
-  cxx_fcheckmain=$(BUILDDIR)/fcheck.exe
+  cxx_checkmain=$(BUILDDIR)/check_cpp.exe
+  cxx_fcheckmain=$(BUILDDIR)/fcheck_cpp.exe
   cxx_testmain=$(BUILDDIR)/runTest_cpp.exe
 else
-  gpu_checkmain=$(BUILDDIR)/gcheck.exe
-  gpu_fcheckmain=$(BUILDDIR)/fgcheck.exe
+  gpu_checkmain=$(BUILDDIR)/check_$(GPUSUFFIX).exe
+  gpu_fcheckmain=$(BUILDDIR)/fcheck_$(GPUSUFFIX).exe
   gpu_testmain=$(BUILDDIR)/runTest_$(GPUSUFFIX).exe
 endif
 
