@@ -606,15 +606,13 @@ override RUNTIME =
 #=== Makefile TARGETS and build rules below
 #===============================================================================
 
-cxx_main=$(BUILDDIR)/check.exe
-fcxx_main=$(BUILDDIR)/fcheck.exe
 
-ifneq ($(GPUCC),)
-  gpu_main=$(BUILDDIR)/gcheck.exe
-  fgpu_main=$(BUILDDIR)/fgcheck.exe
+ifeq ($(GPUCC),)
+  cxx_checkmain=$(BUILDDIR)/check.exe
+  cxx_fcheckmain=$(BUILDDIR)/fcheck.exe
 else
-  gpu_main=
-  fgpu_main=
+  gpu_checkmain=$(BUILDDIR)/gcheck.exe
+  gpu_fcheckmain=$(BUILDDIR)/fgcheck.exe
 endif
 
 ifeq ($(GPUCC),)
@@ -628,9 +626,9 @@ endif
 
 # First target (default goal)
 ifneq ($(GPUCC),)
-all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(gpu_main) $(fgpu_main) $(if $(GTESTLIBS),$(testmain))
+all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(gpu_checkmain) $(gpu_fcheckmain) $(if $(GTESTLIBS),$(testmain))
 else
-all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_main) $(fcxx_main) $(if $(GTESTLIBS),$(testmain))
+all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_checkmain) $(cxx_fcheckmain) $(if $(GTESTLIBS),$(testmain))
 endif
 
 # Target (and build options): debug
@@ -760,19 +758,19 @@ endif
 #-------------------------------------------------------------------------------
 
 # Target (and build rules): C++ and CUDA/HIP standalone executables
-$(cxx_main): LIBFLAGS += $(CXXLIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
-$(cxx_main): $(BUILDDIR)/check_sa.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).so $(cxx_objects_exe) $(BUILDDIR)/CurandRandomNumberKernel.o $(BUILDDIR)/HiprandRandomNumberKernel.o
+$(cxx_checkmain): LIBFLAGS += $(CXXLIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
+$(cxx_checkmain): $(BUILDDIR)/check_sa.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).so $(cxx_objects_exe) $(BUILDDIR)/CurandRandomNumberKernel.o $(BUILDDIR)/HiprandRandomNumberKernel.o
 	$(CXX) -o $@ $(BUILDDIR)/check_sa.o $(OMPFLAGS) -ldl -pthread $(LIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CXXLIB) $(cxx_objects_exe) $(BUILDDIR)/CurandRandomNumberKernel.o $(BUILDDIR)/HiprandRandomNumberKernel.o $(RNDLIBFLAGS)
 
 ifneq ($(GPUCC),)
 ifneq ($(shell $(CXX) --version | grep ^Intel),)
-$(gpu_main): LIBFLAGS += -lintlc # compile with icpx and link with GPUCC (undefined reference to `_intel_fast_memcpy')
-$(gpu_main): LIBFLAGS += -lsvml # compile with icpx and link with GPUCC (undefined reference to `__svml_cos4_l9')
+$(gpu_checkmain): LIBFLAGS += -lintlc # compile with icpx and link with GPUCC (undefined reference to `_intel_fast_memcpy')
+$(gpu_checkmain): LIBFLAGS += -lsvml # compile with icpx and link with GPUCC (undefined reference to `__svml_cos4_l9')
 else ifneq ($(shell $(CXX) --version | grep ^nvc++),) # support nvc++ #531
-$(gpu_main): LIBFLAGS += -L$(patsubst %bin/nvc++,%lib,$(subst ccache ,,$(CXX))) -lnvhpcatm -lnvcpumath -lnvc
+$(gpu_checkmain): LIBFLAGS += -L$(patsubst %bin/nvc++,%lib,$(subst ccache ,,$(CXX))) -lnvhpcatm -lnvcpumath -lnvc
 endif
-$(gpu_main): LIBFLAGS += $(GPULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
-$(gpu_main): $(BUILDDIR)/check_sa_$(GPUSUFFIX).o $(LIBDIR)/lib$(MG5AMC_GPULIB).so $(gpu_objects_exe) $(BUILDDIR)/CurandRandomNumberKernel_$(GPUSUFFIX).o $(BUILDDIR)/HiprandRandomNumberKernel_$(GPUSUFFIX).o
+$(gpu_checkmain): LIBFLAGS += $(GPULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
+$(gpu_checkmain): $(BUILDDIR)/check_sa_$(GPUSUFFIX).o $(LIBDIR)/lib$(MG5AMC_GPULIB).so $(gpu_objects_exe) $(BUILDDIR)/CurandRandomNumberKernel_$(GPUSUFFIX).o $(BUILDDIR)/HiprandRandomNumberKernel_$(GPUSUFFIX).o
 	$(GPUCC) -o $@ $(BUILDDIR)/check_sa_$(GPUSUFFIX).o $(LIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_GPULIB) $(gpu_objects_exe) $(BUILDDIR)/CurandRandomNumberKernel_$(GPUSUFFIX).o $(BUILDDIR)/HiprandRandomNumberKernel_$(GPUSUFFIX).o $(RNDLIBFLAGS)
 endif
 
@@ -793,10 +791,10 @@ $(BUILDDIR)/%.o : %.f *.inc
 ###$(BUILDDIR)/fcheck_sa.o : $(INCDIR)/fbridge.inc
 
 ifeq ($(UNAME_S),Darwin)
-$(fcxx_main): LIBFLAGS += -L$(shell dirname $(shell $(FC) --print-file-name libgfortran.dylib)) # add path to libgfortran on Mac #375
+$(cxx_fcheckmain): LIBFLAGS += -L$(shell dirname $(shell $(FC) --print-file-name libgfortran.dylib)) # add path to libgfortran on Mac #375
 endif
-$(fcxx_main): LIBFLAGS += $(CXXLIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
-$(fcxx_main): $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).so $(cxx_objects_exe)
+$(cxx_fcheckmain): LIBFLAGS += $(CXXLIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
+$(cxx_fcheckmain): $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).so $(cxx_objects_exe)
 ifneq ($(findstring hipcc,$(GPUCC)),) # link fortran/c++/hip using $FC when hipcc is used #802
 	$(FC) -o $@ $(BUILDDIR)/fcheck_sa.o $(OMPFLAGS) $(BUILDDIR)/fsampler.o $(LIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_CXXLIB) $(cxx_objects_exe) -lstdc++
 else
@@ -805,14 +803,14 @@ endif
 
 ifneq ($(GPUCC),)
 ifneq ($(shell $(CXX) --version | grep ^Intel),)
-$(fgpu_main): LIBFLAGS += -lintlc # compile with icpx and link with GPUCC (undefined reference to `_intel_fast_memcpy')
-$(fgpu_main): LIBFLAGS += -lsvml # compile with icpx and link with GPUCC (undefined reference to `__svml_cos4_l9')
+$(gpu_fcheckmain): LIBFLAGS += -lintlc # compile with icpx and link with GPUCC (undefined reference to `_intel_fast_memcpy')
+$(gpu_fcheckmain): LIBFLAGS += -lsvml # compile with icpx and link with GPUCC (undefined reference to `__svml_cos4_l9')
 endif
 ifeq ($(UNAME_S),Darwin)
-$(fgpu_main): LIBFLAGS += -L$(shell dirname $(shell $(FC) --print-file-name libgfortran.dylib)) # add path to libgfortran on Mac #375
+$(gpu_fcheckmain): LIBFLAGS += -L$(shell dirname $(shell $(FC) --print-file-name libgfortran.dylib)) # add path to libgfortran on Mac #375
 endif
-$(fgpu_main): LIBFLAGS += $(GPULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
-$(fgpu_main): $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler_$(GPUSUFFIX).o $(LIBDIR)/lib$(MG5AMC_GPULIB).so $(gpu_objects_exe)
+$(gpu_fcheckmain): LIBFLAGS += $(GPULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
+$(gpu_fcheckmain): $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler_$(GPUSUFFIX).o $(LIBDIR)/lib$(MG5AMC_GPULIB).so $(gpu_objects_exe)
 ifneq ($(findstring hipcc,$(GPUCC)),) # link fortran/c++/hip using $FC when hipcc is used #802
 	$(FC) -o $@ $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler_$(GPUSUFFIX).o $(LIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_GPULIB) $(gpu_objects_exe) -lstdc++ -L$(shell dirname $(shell $(GPUCC) -print-prog-name=clang))/../../lib -lamdhip64
 else
