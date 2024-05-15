@@ -648,7 +648,7 @@ $(BUILDDIR)/.build.$(TAG):
 ifeq ($(shell $(CXX) --version | grep ^nvc++),)
 $(BUILDDIR)/CrossSectionKernels.o: CXXFLAGS := $(filter-out -ffast-math,$(CXXFLAGS))
 $(BUILDDIR)/CrossSectionKernels.o: CXXFLAGS += -fno-fast-math
-$(BUILDDIR)/gCrossSectionKernels.o: GPUFLAGS += $(XCOMPILERFLAG) -fno-fast-math
+$(BUILDDIR)/CrossSectionKernels_$(GPUSUFFIX).o: GPUFLAGS += $(XCOMPILERFLAG) -fno-fast-math
 endif
 
 # Apply special build flags only to check_sa[_$(GPUSUFFIX)].o (NVTX in timermap.h, #679)
@@ -681,7 +681,7 @@ endif
 ###ifneq ($(shell $(CXX) --version | egrep '^(clang|Apple clang|Intel)'),)
 ###$(BUILDDIR)/CrossSectionKernels.o: CXXFLAGS += -Wno-overriding-t-option
 ###ifneq ($(GPUCC),)
-###$(BUILDDIR)/gCrossSectionKernels.o: GPUFLAGS += $(XCOMPILERFLAG) -Wno-overriding-t-option
+###$(BUILDDIR)/CrossSectionKernels_$(GPUSUFFIX).o: GPUFLAGS += $(XCOMPILERFLAG) -Wno-overriding-t-option
 ###endif
 ###endif
 
