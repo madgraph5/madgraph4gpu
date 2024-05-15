@@ -617,7 +617,11 @@ else
   fgpu_main=
 endif
 
-testmain=$(BUILDDIR)/runTest.exe
+ifeq ($(GPUCC),)
+  testmain=$(BUILDDIR)/runTest_cpp.exe
+else
+  testmain=$(BUILDDIR)/runTest_$(GPUSUFFIX).exe
+endif
 
 # Explicitly define the default goal (this is not necessary as it is the first target, which is implicitly the default goal)
 .DEFAULT_GOAL := all.$(TAG)
