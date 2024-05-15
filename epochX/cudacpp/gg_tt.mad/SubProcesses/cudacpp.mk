@@ -621,10 +621,10 @@ endif
 .DEFAULT_GOAL := all.$(TAG)
 
 # First target (default goal)
-ifneq ($(GPUCC),)
-all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(gpu_checkmain) $(gpu_fcheckmain) $(if $(GTESTLIBS),$(gpu_testmain))
-else
+ifeq ($(GPUCC),)
 all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_checkmain) $(cxx_fcheckmain) $(if $(GTESTLIBS),$(cxx_testmain))
+else
+all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(gpu_checkmain) $(gpu_fcheckmain) $(if $(GTESTLIBS),$(gpu_testmain))
 endif
 
 # Target (and build options): debug
