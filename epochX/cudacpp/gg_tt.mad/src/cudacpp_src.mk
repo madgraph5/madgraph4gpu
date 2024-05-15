@@ -140,21 +140,21 @@ endif
 #-------------------------------------------------------------------------------
 
 cxx_objects=$(addprefix $(BUILDDIR)/, read_slha_cpp.o)
-ifneq ($(GPUCC),)
-  gpu_objects=$(addprefix $(BUILDDIR)/, Parameters_sm_$(GPUSUFFIX).o)
-else
+ifeq ($(GPUCC),)
   cxx_objects+=$(addprefix $(BUILDDIR)/, Parameters_sm_cpp.o)
+else
+  gpu_objects=$(addprefix $(BUILDDIR)/, Parameters_sm_$(GPUSUFFIX).o)
 endif
 
 # Target (and build rules): common (src) library
-ifneq ($(GPUCC),)
-$(LIBDIR)/lib$(MG5AMC_COMMONLIB).so : $(cxx_objects) $(gpu_objects)
-	@if [ ! -d $(LIBDIR) ]; then echo "mkdir -p $(LIBDIR)"; mkdir -p $(LIBDIR); fi
-	$(GPUCC) -shared -o $@ $(cxx_objects) $(gpu_objects) $(LDFLAGS)
-else
+ifeq ($(GPUCC),)
 $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so : $(cxx_objects)
 	@if [ ! -d $(LIBDIR) ]; then echo "mkdir -p $(LIBDIR)"; mkdir -p $(LIBDIR); fi
 	$(CXX) -shared -o $@ $(cxx_objects) $(LDFLAGS)
+else
+$(LIBDIR)/lib$(MG5AMC_COMMONLIB).so : $(cxx_objects) $(gpu_objects)
+	@if [ ! -d $(LIBDIR) ]; then echo "mkdir -p $(LIBDIR)"; mkdir -p $(LIBDIR); fi
+	$(GPUCC) -shared -o $@ $(cxx_objects) $(gpu_objects) $(LDFLAGS)
 endif
 
 #-------------------------------------------------------------------------------
