@@ -77,7 +77,7 @@ INFO: load vertices
 [1;32mDEBUG: MG5 converter defines FFFF26 to Gamma(-2,-4,-3)*Gamma(-2,2,-6)*Gamma(-1,-6,-5)*Gamma(-1,4,-4)*ProjP(-5,1)*ProjP(-3,3) + Gamma(-2,-4,-3)*Gamma(-2,4,-6)*Gamma(-1,-6,-5)*Gamma(-1,2,-4)*ProjP(-5,3)*ProjP(-3,1) + Gamma(-2,-4,-3)*Gamma(-2,2,-6)*Gamma(-1,-6,-5)*Gamma(-1,4,-4)*ProjM(-5,1)*ProjM(-3,3) + Gamma(-2,-4,-3)*Gamma(-2,4,-6)*Gamma(-1,-6,-5)*Gamma(-1,2,-4)*ProjM(-5,3)*ProjM(-3,1) [0m
 [1;32mDEBUG: MG5 converter defines FFFF27 to ProjP(2,1)*ProjP(4,3) + ProjM(2,1)*ProjM(4,3) [0m
 [1;32mDEBUG: MG5 converter defines FFFF112 to ProjM(2,3)*ProjM(4,1) + ProjP(2,3)*ProjP(4,1) [0m
-[1;32mDEBUG: model prefixing  takes 0.1475965976715088 [0m
+[1;32mDEBUG: model prefixing  takes 0.14701032638549805 [0m
 INFO: Change particles name to pass to MG5 convention 
 Defined multiparticle p = g u c d s u~ c~ d~ s~
 Defined multiparticle j = g u c d s u~ c~ d~ s~
@@ -92,7 +92,7 @@ INFO: Please specify coupling orders to bypass this step.
 INFO: Trying coupling order WEIGHTED<=4: WEIGTHED IS QCD+2*QED+99*SMHLOOP+99*NP+99*NPshifts+99*NPprop+99*NPcpv+NPcbb+NPcbB+NPcbBB+NPcbd1+NPcbd8+NPcbe+NPcbG+NPcbH+NPcbj1+NPcbj8+NPcbl+NPcbu1+NPcbu8+NPcbW+NPcdB+NPcdd1+NPcdd8+NPcdG+NPcdH+NPcdW+NPceB+NPced+NPcee+NPceH+NPceu+NPceW+NPcG+NPcGtil+NPcH+NPcHB+NPcHbox+NPcHbq+NPcHBtil+NPcHd+NPcHDD+NPcHe+NPcHG+NPcHGtil+NPcHj1+NPcHj3+NPcHl1+NPcHl3+NPcHQ1+NPcHQ3+NPcHt+NPcHtb+NPcHu+NPcHud+NPcHW+NPcHWB+NPcHWBtil+NPcHWtil+NPcjd1+NPcjd8+NPcje+NPcjj11+NPcjj18+NPcjj31+NPcjj38+NPcjQbd1+NPcjQbd8+NPcjQtu1+NPcjQtu8+NPcjtQd1+NPcjtQd8+NPcju1+NPcju8+NPcjujd1+NPcjujd11+NPcjujd8+NPcjujd81+NPcjuQb1+NPcjuQb8+NPcld+NPcle+NPclebQ+NPcledj+NPcleju1+NPcleju3+NPcleQt1+NPcleQt3+NPclj1+NPclj3+NPcll+NPcll1+NPclu+NPcQb1+NPcQb8+NPcQd1+NPcQd8+NPcQe+NPcQj11+NPcQj18+NPcQj31+NPcQj38+NPcQl1+NPcQl3+NPcQQ1+NPcQQ8+NPcQt1+NPcQt8+NPcQtjd1+NPcQtjd8+NPcQtQb1+NPcQtQb8+NPcQu1+NPcQu8+NPcQujb1+NPcQujb8+NPctB+NPctb1+NPctb8+NPctd1+NPctd8+NPcte+NPctG+NPctH+NPctj1+NPctj8+NPctl+NPctt+NPctu1+NPctu8+NPctW+NPcuB+NPcud1+NPcud8+NPcuG+NPcuH+NPcutbd1+NPcutbd8+NPcuu1+NPcuu8+NPcuW+NPcW+NPcWtil+NPQjujb8 
 INFO: Trying process: g g > t t~ t t~ WEIGHTED<=4 @1  
 INFO: Process has 72 diagrams 
-1 processes with 72 diagrams generated in 3.945 s
+1 processes with 72 diagrams generated in 3.917 s
 Total: 1 processes with 72 diagrams
 output standalone_cudacpp ../TMPOUT/CODEGEN_cudacpp_smeft_gg_tttt
 Load PLUGIN.CUDACPP_OUTPUT
@@ -115,7 +115,7 @@ INFO: Creating files in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TM
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_smeft_gg_tttt/SubProcesses/P1_Sigma_SMEFTsim_topU3l_MwScheme_UFO_gg_ttxttx/./CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_smeft_gg_tttt/SubProcesses/P1_Sigma_SMEFTsim_topU3l_MwScheme_UFO_gg_ttxttx/./CPPProcess.cc
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_smeft_gg_tttt/SubProcesses/P1_Sigma_SMEFTsim_topU3l_MwScheme_UFO_gg_ttxttx/. 
-Generated helas calls for 1 subprocesses (72 diagrams) in 0.198 s
+Generated helas calls for 1 subprocesses (72 diagrams) in 0.196 s
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 205][0m [0m
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV5 routines[0m
@@ -123,7 +123,7 @@ ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 routines[0m
 ALOHA: aloha creates VVVV9 routines[0m
 ALOHA: aloha creates VVVV10 routines[0m
-ALOHA: aloha creates 5 routines in  0.334 s
+ALOHA: aloha creates 5 routines in  0.338 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV5
 <class 'aloha.create_aloha.AbstractRoutine'> VVV5
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -143,7 +143,7 @@ INFO: Created files Parameters_SMEFTsim_topU3l_MwScheme_UFO.h and Parameters_SME
 INFO: /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_smeft_gg_tttt/src/. and /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_smeft_gg_tttt/src/. 
 quit
 
-real	0m5.419s
-user	0m5.327s
-sys	0m0.067s
-Code generation completed in 6 seconds
+real	0m5.392s
+user	0m5.280s
+sys	0m0.075s
+Code generation completed in 5 seconds
