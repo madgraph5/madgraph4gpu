@@ -610,15 +610,11 @@ override RUNTIME =
 ifeq ($(GPUCC),)
   cxx_checkmain=$(BUILDDIR)/check.exe
   cxx_fcheckmain=$(BUILDDIR)/fcheck.exe
+  cxx_testmain=$(BUILDDIR)/runTest_cpp.exe
 else
   gpu_checkmain=$(BUILDDIR)/gcheck.exe
   gpu_fcheckmain=$(BUILDDIR)/fgcheck.exe
-endif
-
-ifeq ($(GPUCC),)
-  testmain=$(BUILDDIR)/runTest_cpp.exe
-else
-  testmain=$(BUILDDIR)/runTest_$(GPUSUFFIX).exe
+  gpu_testmain=$(BUILDDIR)/runTest_$(GPUSUFFIX).exe
 endif
 
 # Explicitly define the default goal (this is not necessary as it is the first target, which is implicitly the default goal)
@@ -626,9 +622,9 @@ endif
 
 # First target (default goal)
 ifneq ($(GPUCC),)
-all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(gpu_checkmain) $(gpu_fcheckmain) $(if $(GTESTLIBS),$(testmain))
+all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(gpu_checkmain) $(gpu_fcheckmain) $(if $(GTESTLIBS),$(gpu_testmain))
 else
-all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_checkmain) $(cxx_fcheckmain) $(if $(GTESTLIBS),$(testmain))
+all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_checkmain) $(cxx_fcheckmain) $(if $(GTESTLIBS),$(cxx_testmain))
 endif
 
 # Target (and build options): debug
@@ -825,80 +821,91 @@ ifeq ($(GPUCC),)
 $(BUILDDIR)/testxxx.o: $(GTESTLIBS)
 $(BUILDDIR)/testxxx.o: INCFLAGS += $(GTESTINC)
 $(BUILDDIR)/testxxx.o: testxxx_cc_ref.txt
-$(testmain): $(BUILDDIR)/testxxx.o
-$(testmain): cxx_objects_exe += $(BUILDDIR)/testxxx.o # Comment out this line to skip the C++ test of xxx functions
+$(cxx_testmain): $(BUILDDIR)/testxxx.o
+$(cxx_testmain): cxx_objects_exe += $(BUILDDIR)/testxxx.o # Comment out this line to skip the C++ test of xxx functions
 else
 $(BUILDDIR)/testxxx_$(GPUSUFFIX).o: $(GTESTLIBS)
 $(BUILDDIR)/testxxx_$(GPUSUFFIX).o: INCFLAGS += $(GTESTINC)
 $(BUILDDIR)/testxxx_$(GPUSUFFIX).o: testxxx_cc_ref.txt
-$(testmain): $(BUILDDIR)/testxxx_$(GPUSUFFIX).o
-$(testmain): gpu_objects_exe += $(BUILDDIR)/testxxx_$(GPUSUFFIX).o # Comment out this line to skip the CUDA/HIP test of xxx functions
+$(gpu_testmain): $(BUILDDIR)/testxxx_$(GPUSUFFIX).o
+$(gpu_testmain): gpu_objects_exe += $(BUILDDIR)/testxxx_$(GPUSUFFIX).o # Comment out this line to skip the CUDA/HIP test of xxx functions
 endif
 
 ifneq ($(UNAME_S),Darwin) # Disable testmisc on Darwin (workaround for issue #838)
 ifeq ($(GPUCC),)
 $(BUILDDIR)/testmisc.o: $(GTESTLIBS)
 $(BUILDDIR)/testmisc.o: INCFLAGS += $(GTESTINC)
-$(testmain): $(BUILDDIR)/testmisc.o
-$(testmain): cxx_objects_exe += $(BUILDDIR)/testmisc.o # Comment out this line to skip the C++ miscellaneous tests
+$(cxx_testmain): $(BUILDDIR)/testmisc.o
+$(cxx_testmain): cxx_objects_exe += $(BUILDDIR)/testmisc.o # Comment out this line to skip the C++ miscellaneous tests
 else
 $(BUILDDIR)/testmisc_$(GPUSUFFIX).o: $(GTESTLIBS)
 $(BUILDDIR)/testmisc_$(GPUSUFFIX).o: INCFLAGS += $(GTESTINC)
-$(testmain): $(BUILDDIR)/testmisc_$(GPUSUFFIX).o
-$(testmain): gpu_objects_exe += $(BUILDDIR)/testmisc_$(GPUSUFFIX).o # Comment out this line to skip the CUDA/HIP miscellaneous tests
+$(gpu_testmain): $(BUILDDIR)/testmisc_$(GPUSUFFIX).o
+$(gpu_testmain): gpu_objects_exe += $(BUILDDIR)/testmisc_$(GPUSUFFIX).o # Comment out this line to skip the CUDA/HIP miscellaneous tests
 endif
 endif
 
 ifeq ($(GPUCC),)
 $(BUILDDIR)/runTest.o: $(GTESTLIBS)
 $(BUILDDIR)/runTest.o: INCFLAGS += $(GTESTINC)
-$(testmain): $(BUILDDIR)/runTest.o
-$(testmain): cxx_objects_exe += $(BUILDDIR)/runTest.o
+$(cxx_testmain): $(BUILDDIR)/runTest.o
+$(cxx_testmain): cxx_objects_exe += $(BUILDDIR)/runTest.o
 else
 $(BUILDDIR)/runTest_$(GPUSUFFIX).o: $(GTESTLIBS)
 $(BUILDDIR)/runTest_$(GPUSUFFIX).o: INCFLAGS += $(GTESTINC)
 ifneq ($(shell $(CXX) --version | grep ^Intel),)
-$(testmain): LIBFLAGS += -lintlc # compile with icpx and link with GPUCC (undefined reference to `_intel_fast_memcpy')
-$(testmain): LIBFLAGS += -lsvml # compile with icpx and link with GPUCC (undefined reference to `__svml_cos4_l9')
+$(gpu_testmain): LIBFLAGS += -lintlc # compile with icpx and link with GPUCC (undefined reference to `_intel_fast_memcpy')
+$(gpu_testmain): LIBFLAGS += -lsvml # compile with icpx and link with GPUCC (undefined reference to `__svml_cos4_l9')
 else ifneq ($(shell $(CXX) --version | grep ^nvc++),) # support nvc++ #531
-$(testmain): LIBFLAGS += -L$(patsubst %bin/nvc++,%lib,$(subst ccache ,,$(CXX))) -lnvhpcatm -lnvcpumath -lnvc
+$(gpu_testmain): LIBFLAGS += -L$(patsubst %bin/nvc++,%lib,$(subst ccache ,,$(CXX))) -lnvhpcatm -lnvcpumath -lnvc
 endif
-$(testmain): $(BUILDDIR)/runTest_$(GPUSUFFIX).o
-$(testmain): gpu_objects_exe  += $(BUILDDIR)/runTest_$(GPUSUFFIX).o
+$(gpu_testmain): $(BUILDDIR)/runTest_$(GPUSUFFIX).o
+$(gpu_testmain): gpu_objects_exe  += $(BUILDDIR)/runTest_$(GPUSUFFIX).o
 endif
 
-$(testmain): $(GTESTLIBS)
-$(testmain): INCFLAGS +=  $(GTESTINC)
-$(testmain): LIBFLAGS += -L$(GTESTLIBDIR) -lgtest
-###$(testmain): LIBFLAGS += -lgtest_main # no longer necessary since we added main() to testxxx.cc
+ifeq ($(GPUCC),)
+$(cxx_testmain): $(GTESTLIBS)
+$(cxx_testmain): INCFLAGS +=  $(GTESTINC)
+$(cxx_testmain): LIBFLAGS += -L$(GTESTLIBDIR) -lgtest # adding also -lgtest_main is no longer necessary since we added main() to testxxx.cc
+else
+$(gpu_testmain): $(GTESTLIBS)
+$(gpu_testmain): INCFLAGS +=  $(GTESTINC)
+$(gpu_testmain): LIBFLAGS += -L$(GTESTLIBDIR) -lgtest # adding also -lgtest_main is no longer necessary since we added main() to testxxx.cc
+endif
 
+ifeq ($(GPUCC),) # if at all, OMP is used only in CXX builds (not in GPU builds)
 ifneq ($(OMPFLAGS),)
 ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
-$(testmain): LIBFLAGS += -liomp5 # see #578 (not '-qopenmp -static-intel' as in https://stackoverflow.com/questions/45909648)
+$(cxx_testmain): LIBFLAGS += -liomp5 # see #578 (not '-qopenmp -static-intel' as in https://stackoverflow.com/questions/45909648)
 else ifneq ($(shell $(CXX) --version | egrep '^clang'),)
-$(testmain): LIBFLAGS += -L $(shell dirname $(shell $(CXX) -print-file-name=libc++.so)) -lomp # see #604
+$(cxx_testmain): LIBFLAGS += -L $(shell dirname $(shell $(CXX) -print-file-name=libc++.so)) -lomp # see #604
 ###else ifneq ($(shell $(CXX) --version | egrep '^Apple clang'),)
-###$(testmain): LIBFLAGS += ???? # OMP is not supported yet by cudacpp for Apple clang (see #578 and #604)
+###$(cxx_testmain): LIBFLAGS += ???? # OMP is not supported yet by cudacpp for Apple clang (see #578 and #604)
 else
-$(testmain): LIBFLAGS += -lgomp
+$(cxx_testmain): LIBFLAGS += -lgomp
+endif
 endif
 endif
 
 # Test quadmath in testmisc.cc tests for constexpr_math #627
-###$(testmain): LIBFLAGS += -lquadmath
+###ifeq ($(GPUCC),)
+###$(cxx_testmain): LIBFLAGS += -lquadmath
+###else
+###$(gpu_testmain): LIBFLAGS += -lquadmath
+###endif
 
 # Bypass std::filesystem completely to ease portability on LUMI #803
-#ifneq ($(findstring hipcc,$(GPUCC)),)
-#$(testmain): LIBFLAGS += -lstdc++fs
-#endif
+###ifneq ($(findstring hipcc,$(GPUCC)),)
+###$(gpu_testmain): LIBFLAGS += -lstdc++fs
+###endif
 
 ifeq ($(GPUCC),) # link only runTest.o
-$(testmain): LIBFLAGS += $(CXXLIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
-$(testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects_lib) $(cxx_objects_exe) $(GTESTLIBS)
+$(cxx_testmain): LIBFLAGS += $(CXXLIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
+$(cxx_testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects_lib) $(cxx_objects_exe) $(GTESTLIBS)
 	$(CXX) -o $@ $(cxx_objects_lib) $(cxx_objects_exe) -ldl -pthread $(LIBFLAGS)
 else # link only runTest_$(GPUSUFFIX).o (new: in the past, this was linking both runTest.o and runTest_$(GPUSUFFIX).o)
-$(testmain): LIBFLAGS += $(GPULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
-$(testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(gpu_objects_lib) $(gpu_objects_exe) $(GTESTLIBS)
+$(gpu_testmain): LIBFLAGS += $(GPULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
+$(gpu_testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(gpu_objects_lib) $(gpu_objects_exe) $(GTESTLIBS)
 ifneq ($(findstring hipcc,$(GPUCC)),) # link fortran/c++/hip using $FC when hipcc is used #802
 	$(FC) -o $@ $(gpu_objects_lib) $(gpu_objects_exe) -ldl $(LIBFLAGS) -lstdc++ -lpthread  -L$(shell dirname $(shell $(GPUCC) -print-prog-name=clang))/../../lib -lamdhip64
 else
