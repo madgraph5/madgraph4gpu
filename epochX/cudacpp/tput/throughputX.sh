@@ -219,7 +219,7 @@ while [ "$1" != "" ]; do
     detailed=1
     shift
   elif [ "$1" == "-gtest" ]; then
-    # For simplicity a gtest runTest.exe is executed for each build where check.exe or gcheck.exe is executed
+    # For simplicity a gtest runTest_xxx.exe is executed for each build where check_xxx.exe is executed
     gtest=1
     shift
   ###elif [ "$1" == "-nofpe" ]; then
@@ -393,9 +393,9 @@ for dir in $dirs; do
         for bbld in cuda hip none sse4 avx2 512y 512z; do
           if [ "${bblds}" == "${bbldsall}" ] || [ "${bblds/${bbld}}" != "${bblds}" ]; then 
             if [ "${bbld}" == "cuda" ] || [ "${bbld}" == "hip" ]; then
-              exes="$exes $dir/build.${bbld}_${fptype}_inl${helinl}${hrdsuf}/gcheck.exe"
+              exes="$exes $dir/build.${bbld}_${fptype}_inl${helinl}${hrdsuf}/check_${bbld}.exe"
             else
-              exes="$exes $dir/build.${bbld}_${fptype}_inl${helinl}${hrdsuf}/check.exe"
+              exes="$exes $dir/build.${bbld}_${fptype}_inl${helinl}${hrdsuf}/check_cpp.exe"
             fi
           fi
         done
@@ -479,7 +479,7 @@ function runExe() {
   if [ "${maketype}" == "-dryrun" ]; then return; fi
   pattern="Process|fptype_sv|OMP threads|EvtsPerSec\[MECalc|MeanMatrix|FP precision|TOTAL       :"
   # Optionally add other patterns here for some specific configurations (e.g. clang)
-  if [ "${exe%%/gcheck*}" != "${exe}" ]; then pattern="${pattern}|EvtsPerSec\[Matrix"; fi
+  if [ "${exe%%/check_cuda*}" != "${exe}" ] || [ "${exe%%/check_hip*}" != "${exe}" ]; then pattern="${pattern}|EvtsPerSec\[Matrix"; fi
   pattern="${pattern}|Workflow"
   ###pattern="${pattern}|CUCOMPLEX"
   ###pattern="${pattern}|COMMON RANDOM|CURAND HOST \(CUDA"
@@ -511,7 +511,6 @@ function runExe() {
 function cmpExe() {
   exe=$1
   exef=${exe/\/check//fcheck}
-  exef=${exef/\/gcheck//fgcheck}
   argsf="2 64 2"
   args="--common -p ${argsf}"
   echo "cmpExe $exe $args"
@@ -520,7 +519,7 @@ function cmpExe() {
   tmp=$(mktemp)
   me1=$(${exe} ${args} 2>${tmp} | grep MeanMatrix | awk '{print $4}'); cat ${tmp}
   me2=$(${exef} ${argsf} 2>${tmp} | grep Average | awk '{print $4}'); cat ${tmp}
-  if [ "${exe%%/gcheck*}" != "${exe}" ]; then tag="/GPU)"; else tag="/C++) "; fi
+  if [ "${exe%%/check_cuda*}" != "${exe}" ] || [ "${exe%%/check_hip*}" != "${exe}" ]; then tag="/GPU)"; else tag="/C++) "; fi
   echo -e "Avg ME (C++${tag}   = ${me1}\nAvg ME (F77${tag}   = ${me2}"
   if [ "${me2}" == "NaN" ]; then
     echo "ERROR! Fortran calculation (F77${tag} returned NaN"
@@ -716,8 +715,7 @@ for exe in $exes; do
   fi
   if [ "${gtest}" == "1" ]; then
     echo "-------------------------------------------------------------------------"
-    exe2=${exe/gcheck/runTest} # first try to replace gcheck.exe
-    exe2=${exe2/check/runTest} # then try to replace check.exe instead
+    exe2=${exe/check/runTest} # replace check_xxx.exe by runTest_xxx.exe
     echo "runExe $exe2"
     $exe2 2>&1 | tail -1
     if [ ${PIPESTATUS[0]} -ne "0" ]; then exit 1; fi 
