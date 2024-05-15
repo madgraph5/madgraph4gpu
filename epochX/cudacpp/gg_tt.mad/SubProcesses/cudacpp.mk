@@ -1060,51 +1060,50 @@ endif
 
 #-------------------------------------------------------------------------------
 
-# Target: check (run the C++ test executable)
+# Target: check (execute runTest.exe, and compare check.exe with fcheck.exe)
 # [NB THIS IS WHAT IS USED IN THE GITHUB CI!]
 # [FIXME: SHOULD CHANGE THE TARGET NAME "check" THAT HAS NOTHING TO DO WITH "check.exe"]
-ifneq ($(GPUCC),)
-check: runTest cmpFGcheck
-else
 check: runTest cmpFcheck
+
+# Target: runTest (run the C++ or CUDA/HIP test executable runTest.exe)
+runTest: all.$(TAG)
+ifeq ($(GPUCC),)
+	$(RUNTIME) $(BUILDDIR)/runTest_cpp.exe
+else
+	$(RUNTIME) $(BUILDDIR)/runTest_$(GPUSUFFIX).exe
 endif
 
-# Target: runTest (run the C++ test executable runTest.exe)
-runTest: all.$(TAG)
-	$(RUNTIME) $(BUILDDIR)/runTest.exe
-
-# Target: runCheck (run the C++ standalone executable check.exe, with a small number of events)
+# Target: runCheck (run the C++ or CUDA/HIP standalone executable check.exe, with a small number of events)
 runCheck: all.$(TAG)
-	$(RUNTIME) $(BUILDDIR)/check.exe -p 2 32 2
+ifeq ($(GPUCC),)
+	$(RUNTIME) $(BUILDDIR)/check_cpp.exe -p 2 32 2
+else
+	$(RUNTIME) $(BUILDDIR)/check_$(GPUSUFFIX).exe -p 2 32 2
+endif
 
-# Target: runGcheck (run the CUDA/HIP standalone executable gcheck.exe, with a small number of events)
-runGcheck: all.$(TAG)
-	$(RUNTIME) $(BUILDDIR)/gcheck.exe -p 2 32 2
-
-# Target: runFcheck (run the Fortran standalone executable - with C++ MEs - fcheck.exe, with a small number of events)
+# Target: runFcheck (run the Fortran standalone executable - with C++ or CUDA/HIP MEs - fcheck.exe, with a small number of events)
 runFcheck: all.$(TAG)
-	$(RUNTIME) $(BUILDDIR)/fcheck.exe 2 32 2
+ifeq ($(GPUCC),)
+	$(RUNTIME) $(BUILDDIR)/fcheck_cpp.exe 2 32 2
+else
+	$(RUNTIME) $(BUILDDIR)/fcheck_$(GPUSUFFIX).exe 2 32 2
+endif
 
-# Target: runFGcheck (run the Fortran standalone executable - with CUDA/HIP MEs - fgcheck.exe, with a small number of events)
-runFGcheck: all.$(TAG)
-	$(RUNTIME) $(BUILDDIR)/fgcheck.exe 2 32 2
-
-# Target: cmpFcheck (compare ME results from the C++ and Fortran with C++ MEs standalone executables, with a small number of events)
+# Target: cmpFcheck (compare ME results from the C++/CUDA/HIP and Fortran with C++/CUDA/HIP MEs standalone executables, with a small number of events)
 cmpFcheck: all.$(TAG)
 	@echo
-	@echo "$(BUILDDIR)/check.exe --common -p 2 32 2"
-	@echo "$(BUILDDIR)/fcheck.exe 2 32 2"
-	@me1=$(shell $(RUNTIME) $(BUILDDIR)/check.exe --common -p 2 32 2 | grep MeanMatrix | awk '{print $$4}'); me2=$(shell $(RUNTIME) $(BUILDDIR)/fcheck.exe 2 32 2 | grep Average | awk '{print $$4}'); echo "Avg ME (C++/C++)    = $${me1}"; echo "Avg ME (F77/C++)    = $${me2}"; if [ "$${me2}" == "NaN" ]; then echo "ERROR! Fortran calculation (F77/C++) returned NaN"; elif [ "$${me2}" == "" ]; then echo "ERROR! Fortran calculation (F77/C++) crashed"; else python3 -c "me1=$${me1}; me2=$${me2}; reldif=abs((me2-me1)/me1); print('Relative difference =', reldif); ok = reldif <= 2E-4; print ( '%s (relative difference %s 2E-4)' % ( ('OK','<=') if ok else ('ERROR','>') ) ); import sys; sys.exit(0 if ok else 1)"; fi
-
-# Target: cmpFGcheck (compare ME results from the CUDA/HIP and Fortran with CUDA/HIP MEs standalone executables, with a small number of events)
-cmpFGcheck: all.$(TAG)
-	@echo
-	@echo "$(BUILDDIR)/gcheck.exe --common -p 2 32 2"
-	@echo "$(BUILDDIR)/fgcheck.exe 2 32 2"
-	@me1=$(shell $(RUNTIME) $(BUILDDIR)/gcheck.exe --common -p 2 32 2 | grep MeanMatrix | awk '{print $$4}'); me2=$(shell $(RUNTIME) $(BUILDDIR)/fgcheck.exe 2 32 2 | grep Average | awk '{print $$4}'); echo "Avg ME (C++/GPU)   = $${me1}"; echo "Avg ME (F77/GPU)   = $${me2}"; if [ "$${me2}" == "NaN" ]; then echo "ERROR! Fortran calculation (F77/GPU) crashed"; elif [ "$${me2}" == "" ]; then echo "ERROR! Fortran calculation (F77/GPU) crashed"; else python3 -c "me1=$${me1}; me2=$${me2}; reldif=abs((me2-me1)/me1); print('Relative difference =', reldif); ok = reldif <= 2E-4; print ( '%s (relative difference %s 2E-4)' % ( ('OK','<=') if ok else ('ERROR','>') ) ); import sys; sys.exit(0 if ok else 1)"; fi
+ifeq ($(GPUCC),)
+	@echo "$(BUILDDIR)/check_cpp.exe --common -p 2 32 2"
+	@echo "$(BUILDDIR)/fcheck_cpp.exe 2 32 2"
+	@me1=$(shell $(RUNTIME) $(BUILDDIR)/check_cpp.exe --common -p 2 32 2 | grep MeanMatrix | awk '{print $$4}'); me2=$(shell $(RUNTIME) $(BUILDDIR)/fcheck_cpp.exe 2 32 2 | grep Average | awk '{print $$4}'); echo "Avg ME (C++/C++)    = $${me1}"; echo "Avg ME (F77/C++)    = $${me2}"; if [ "$${me2}" == "NaN" ]; then echo "ERROR! Fortran calculation (F77/C++) returned NaN"; elif [ "$${me2}" == "" ]; then echo "ERROR! Fortran calculation (F77/C++) crashed"; else python3 -c "me1=$${me1}; me2=$${me2}; reldif=abs((me2-me1)/me1); print('Relative difference =', reldif); ok = reldif <= 2E-4; print ( '%s (relative difference %s 2E-4)' % ( ('OK','<=') if ok else ('ERROR','>') ) ); import sys; sys.exit(0 if ok else 1)"; fi
+else
+	@echo "$(BUILDDIR)/check_$(GPUSUFFIX).exe --common -p 2 32 2"
+	@echo "$(BUILDDIR)/fcheck_$(GPUSUFFIX).exe 2 32 2"
+	@me1=$(shell $(RUNTIME) $(BUILDDIR)/check_$(GPUSUFFIX).exe --common -p 2 32 2 | grep MeanMatrix | awk '{print $$4}'); me2=$(shell $(RUNTIME) $(BUILDDIR)/fcheck_$(GPUSUFFIX).exe 2 32 2 | grep Average | awk '{print $$4}'); echo "Avg ME (C++/GPU)   = $${me1}"; echo "Avg ME (F77/GPU)   = $${me2}"; if [ "$${me2}" == "NaN" ]; then echo "ERROR! Fortran calculation (F77/GPU) crashed"; elif [ "$${me2}" == "" ]; then echo "ERROR! Fortran calculation (F77/GPU) crashed"; else python3 -c "me1=$${me1}; me2=$${me2}; reldif=abs((me2-me1)/me1); print('Relative difference =', reldif); ok = reldif <= 2E-4; print ( '%s (relative difference %s 2E-4)' % ( ('OK','<=') if ok else ('ERROR','>') ) ); import sys; sys.exit(0 if ok else 1)"; fi
+endif
 
 # Target: cuda-memcheck (run the CUDA standalone executable gcheck.exe with a small number of events through cuda-memcheck)
 cuda-memcheck: all.$(TAG)
-	$(RUNTIME) $(CUDA_HOME)/bin/cuda-memcheck --check-api-memory-access yes --check-deprecated-instr yes --check-device-heap yes --demangle full --language c --leak-check full --racecheck-report all --report-api-errors all --show-backtrace yes --tool memcheck --track-unused-memory yes $(BUILDDIR)/gcheck.exe -p 2 32 2
+	$(RUNTIME) $(CUDA_HOME)/bin/cuda-memcheck --check-api-memory-access yes --check-deprecated-instr yes --check-device-heap yes --demangle full --language c --leak-check full --racecheck-report all --report-api-errors all --show-backtrace yes --tool memcheck --track-unused-memory yes $(BUILDDIR)/check_$(GPUSUFFIX).exe -p 2 32 2
 
 #-------------------------------------------------------------------------------
