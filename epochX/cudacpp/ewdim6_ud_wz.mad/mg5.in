@@ -1,0 +1,5 @@
+set stdout_level DEBUG
+set zerowidth_tchannel F
+import model EWdim6
+generate u d~ > w+ z
+output madevent_simd ewdim6_ud_wz.mad --hel_recycling=False --vector_size=32 
