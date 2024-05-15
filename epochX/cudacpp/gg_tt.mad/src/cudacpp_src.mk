@@ -126,7 +126,7 @@ $(LIBDIR)/.build.$(TAG):
 #-------------------------------------------------------------------------------
 
 # Generic target and build rules: objects from C++ compilation
-$(BUILDDIR)/%.o : %.cc *.h $(BUILDDIR)/.build.$(TAG)
+$(BUILDDIR)/%_cpp.o : %.cc *.h $(BUILDDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	$(CXX) $(CPPFLAGS) $(INCFLAGS) $(CXXFLAGS) -c $< -o $@
 
@@ -139,11 +139,11 @@ endif
 
 #-------------------------------------------------------------------------------
 
-cxx_objects=$(addprefix $(BUILDDIR)/, read_slha.o)
+cxx_objects=$(addprefix $(BUILDDIR)/, read_slha_cpp.o)
 ifneq ($(GPUCC),)
   gpu_objects=$(addprefix $(BUILDDIR)/, Parameters_sm_$(GPUSUFFIX).o)
 else
-  cxx_objects+=$(addprefix $(BUILDDIR)/, Parameters_sm.o)
+  cxx_objects+=$(addprefix $(BUILDDIR)/, Parameters_sm_cpp.o)
 endif
 
 # Target (and build rules): common (src) library
