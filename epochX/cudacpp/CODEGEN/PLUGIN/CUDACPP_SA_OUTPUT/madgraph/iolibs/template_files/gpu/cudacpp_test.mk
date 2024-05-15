@@ -1,7 +1,7 @@
 # Copyright (C) 2020-2024 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: S. Hageboeck (Dec 2020) for the CUDACPP plugin.
-# Modified by: A. Valassi (2020-2023) for the CUDACPP plugin.
+# Further modified by: A. Valassi (2020-2024) for the CUDACPP plugin.
 
 THISDIR = $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
