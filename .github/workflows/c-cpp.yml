@@ -33,8 +33,8 @@ jobs:
       run: make BACKEND=${{ matrix.backend }} FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} -f cudacpp.mk info
     - name: make
       run: make BACKEND=${{ matrix.backend }} FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }}
-    - name: make check
-      run: make BACKEND=${{ matrix.backend }} FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} -f cudacpp.mk check
+    - name: make test
+      run: make BACKEND=${{ matrix.backend }} FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} -f cudacpp.mk test
   CPU_MAC:
     runs-on: macos-latest
     env:
@@ -53,8 +53,8 @@ jobs:
       run: make BACKEND=${{ matrix.backend }} OMPFLAGS= FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} -f cudacpp.mk info
     - name: make
       run: make BACKEND=${{ matrix.backend }} OMPFLAGS= FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }}
-    - name: make check
-      run: make BACKEND=${{ matrix.backend }} OMPFLAGS= FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} -f cudacpp.mk check
+    - name: make test
+      run: make BACKEND=${{ matrix.backend }} OMPFLAGS= FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} -f cudacpp.mk test
   GPU:
     runs-on: self-hosted
     env:
@@ -76,5 +76,5 @@ jobs:
       run: make BACKEND=${{ matrix.backend }} FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} -f cudacpp.mk info
     - name: make
       run: make BACKEND=${{ matrix.backend }} FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }}
-    - name: make check
-      run: make BACKEND=${{ matrix.backend }} FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} -f cudacpp.mk check
+    - name: make test
+      run: make BACKEND=${{ matrix.backend }} FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} -f cudacpp.mk test
