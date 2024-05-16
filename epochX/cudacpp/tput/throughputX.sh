@@ -637,7 +637,7 @@ for exe in $exes; do
     if [ "${exe/build.512y}" != "${exe}" ]; then echo "$exe is not supported (no avx512vl in /proc/cpuinfo)"; continue; fi
     if [ "${exe/build.512z}" != "${exe}" ]; then echo "$exe is not supported (no avx512vl in /proc/cpuinfo)"; continue; fi
   fi
-  if [ "${exe%%/gcheck*}" != "${exe}" ] && [ "$gpuTxt" == "none" ]; then continue; fi
+  if [[ "${exe%%/check_cuda*}" != "${exe}" || "${exe%%/check_hip*}" != "${exe}" ]] && [ "$gpuTxt" == "none" ]; then pattern="${pattern}|EvtsPerSec\[Matrix"; fi
   if [ "${exe%%/heft_gg_bb*}" != "${exe}" ]; then 
     # For heftggbb, use the same settings as for ggtt
     exeArgs="-p 2048 256 2"
@@ -697,7 +697,7 @@ for exe in $exes; do
   cd $exeDir/.. # workaround for reading '../../Cards/param_card.dat' without setting MG5AMC_CARD_PATH
   unset OMP_NUM_THREADS
   runExe $exe "$exeArgs"
-  if [ "${exe%%/check*}" != "${exe}" ]; then 
+  if [ "${exe%%/check_cpp*}" != "${exe}" ]; then 
     if [ "${maketype}" != "-dryrun" ]; then
       obj=${exe%%.exe}; obj=${obj/check/CPPProcess}.o; $scrdir/simdSymSummary.sh -stripdir ${obj} -dumptotmp # comment out -dumptotmp to keep full objdump
     fi
@@ -707,7 +707,7 @@ for exe in $exes; do
       runExe $exe "$exeArgs"
       unset OMP_NUM_THREADS
     fi
-  elif [ "${exe%%/gcheck*}" != "${exe}" ] ||  [ "${exe%%/alpcheck*}" != "${exe}" ]; then 
+  elif [[ "${exe%%/check_cuda*}" != "${exe}" || "${exe%%/check_hip*}" != "${exe}" ]] || [ "${exe%%/alpcheck*}" != "${exe}" ]; then
     runNcu $exe "$ncuArgs"
     if [ "${div}" == "1" ]; then runNcuDiv $exe; fi
     if [ "${req}" == "1" ]; then runNcuReq $exe "$ncuArgs"; fi
