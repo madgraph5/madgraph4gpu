@@ -614,14 +614,17 @@ echo -e "On $HOSTNAME [CPU: $cpuTxt] [GPU: $gpuTxt]:"
 BMKEXEARGS="" # if BMKEXEARGS is set, exeArgs is set equal to BMKEXEARGS, while exeArgs2 is set to ""
 BMKMULTIPLIER=1 # the pre-defined numbers of iterations (including those in BMKEXEARGS) are multiplied by BMKMULTIPLIER
 
-lastExe=
+###lastExe=
+lastExeDir=
 ###echo "exes=$exes"
 for exe in $exes; do
   ###echo EXE=$exe; continue
   exeArgs2=""
-  if [ "$(basename $exe)" != "$lastExe" ]; then
+  ###if [ "$(basename $exe)" != "$lastExe" ]; then
+  if [ "$(basename $(dirname $exe))" != "$lastExeDir" ]; then
     echo "========================================================================="
-    lastExe=$(basename $exe)
+    ###lastExe=$(basename $exe)
+    lastExeDir=$(basename $(dirname $exe))
   else
     echo "-------------------------------------------------------------------------"
   fi
