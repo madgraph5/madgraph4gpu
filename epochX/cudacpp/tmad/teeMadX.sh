@@ -9,7 +9,7 @@ cd $scrdir
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gguu][-gqttq]> [-flt|-fltonly|-mix|-mixonly] [-makeonly] [-makeclean] [-rmrdat] [+10x] [-checkonly]" > /dev/stderr
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gguu][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-flt|-fltonly|-mix|-mixonly] [-makeonly] [-makeclean] [-rmrdat] [+10x] [-checkonly]" > /dev/stderr
   exit 1
 }
 
@@ -21,6 +21,10 @@ ggttgg=
 ggttggg=
 gguu=
 gqttq=
+heftggbb=
+susyggtt=
+susyggt1t1=
+smeftggtttt=
 
 suffs="mad"
 fptypes="d"
@@ -63,6 +67,18 @@ for arg in $*; do
   elif [ "$arg" == "-gqttq" ]; then
     if [ "$gqttq" == "" ]; then procs+=${procs:+ }${arg}; fi
     gqttq=$arg
+  elif [ "$arg" == "-heftggbb" ]; then
+    if [ "$heftggbb" == "" ]; then procs+=${procs:+ }${arg}; fi
+    heftggbb=$arg
+  elif [ "$arg" == "-susyggtt" ]; then
+    if [ "$susyggtt" == "" ]; then procs+=${procs:+ }${arg}; fi
+    susyggtt=$arg
+  elif [ "$arg" == "-susyggt1t1" ]; then
+    if [ "$susyggt1t1" == "" ]; then procs+=${procs:+ }${arg}; fi
+    susyggt1t1=$arg
+  elif [ "$arg" == "-smeftggtttt" ]; then
+    if [ "$smeftggtttt" == "" ]; then procs+=${procs:+ }${arg}; fi
+    smeftggtttt=$arg
   elif [ "$arg" == "-flt" ]; then
     if [ "${fptypes}" != "d" ] && [ "${fptypes}" != "d f" ]; then echo "ERROR! Options -flt, -fltonly, -mix and -mixonly are incompatible"; usage; fi
     fptypes="d f"
@@ -151,7 +167,7 @@ for step in $steps; do
               printf "*** ./madX.sh $args | tee $logfile"
               printf "\n%80s\n" |tr " " "*"
               mkdir -p $(dirname $logfile)
-              if ! ./madX.sh $args | tee $logfile; then status=2; fi
+              if ! ./madX.sh $args 2>&1 | tee $logfile; then status=2; fi
               if [ "${checkonly}" != "" ]; then
                 ./checkOnlyMerge.sh ${logfileold}
                 \rm -f ${logfile}

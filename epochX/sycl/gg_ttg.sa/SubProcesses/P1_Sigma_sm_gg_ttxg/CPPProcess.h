@@ -1,3 +1,14 @@
+// Copyright (C) 2010 The MadGraph5_aMC@NLO development team and contributors.
+// Created by: J. Alwall (Oct 2010) for the MG5aMC CPP backend.
+//==========================================================================
+// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Modified by: S. Roiser (Feb 2020) for the MG5aMC CUDACPP plugin.
+// Further modified by: O. Mattelaer, S. Roiser, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
+//==========================================================================
+// Copyright (C) 2021-2023 Argonne National Laboratory.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Modified by: N. Nichols (2021-2023) for the MG5aMC SYCL plugin.
 //==========================================================================
 // This file has been automatically generated for SYCL standalone by
 // MadGraph5_aMC@NLO v. 3.5.0_lo_vect, 2023-01-26
@@ -63,7 +74,34 @@ namespace Proc
   template <typename FPType>
   constexpr FPType independent_parameters[] { (FPType)Parameters_sm::mdl_MT, (FPType)Parameters_sm::mdl_WT };
 #endif
+}
 
+
+// --- Physics process-specific constants that are best declared at compile time
+// dimensions of 4-momenta (E,px,py,pz)
+#define CPPPROCESS_NP4 4
+
+// #particles in the initial state (incoming): e.g. 2 (e+ e-) for e+ e- -> mu+ mu-
+#define CPPPROCESS_NPARI 2
+
+// #particles in the final state (outgoing): e.g. 2 (mu+ mu-) for e+ e- -> mu+ mu-
+#define CPPPROCESS_NPARF 3
+
+// #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
+#define CPPPROCESS_NPAR 5
+
+// #helicity combinations: e.g. 16 for e+ e- -> mu+ mu- (2**4 = fermion spin up/down ** npar)
+#define CPPPROCESS_NCOMB 32
+
+// dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
+#define CPPPROCESS_NW6 6
+
+// #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
+#define CPPPROCESS_NWF 12
+  
+
+namespace Proc
+{
   //==========================================================================
   // A class for calculating the matrix elements for
   // Process: g g > t t~ g WEIGHTED<=3 @1
@@ -108,13 +146,6 @@ namespace Proc
   public:
 
     // Hardcoded parameters for this process (constant class variables)
-    //static const int ninitial = mgOnGpu::npari;
-    //static const int nexternal = 5; // mgOnGpu::npar (nexternal was nioparticles)
-    //static const int nprocesses = 1; // FIXME: assume process.nprocesses == 1
-    //static const int nwavefuncs = 6; // mgOnGpu::nwf
-    //static const int namplitudes = 18;
-    //static const int ncomb = 32; // mgOnGpu::ncomb
-    //static const int wrows = 12; // mgOnGpu::nw6;
 
   private:
 
@@ -144,8 +175,8 @@ namespace Proc
   //--------------------------------------------------------------------------
 
   SYCL_EXTERNAL
-  void sigmaKin_getGoodHel( const vector4* __restrict__ allmomenta, // input: momenta[nevt*npar*4]
-                            bool* isGoodHel,                        // output: isGoodHel[ncomb] - device array
+  void sigmaKin_getGoodHel( const vector4* __restrict__ allmomenta, // input: momenta[nevt*CPPPROCESS_NPAR*4]
+                            bool* isGoodHel,                        // output: isGoodHel[CPPPROCESS_NCOMB] - device array
                             const signed char* __restrict__ cHel,
                             const cxtype_sv* __restrict__ COUPs,
                             const fptype* __restrict__ cIPD
@@ -153,7 +184,7 @@ namespace Proc
 
   //--------------------------------------------------------------------------
 
-  size_t sigmaKin_setGoodHel( const bool* isGoodHel, size_t* goodHel ); // input: isGoodHel[ncomb] - host array
+  size_t sigmaKin_setGoodHel( const bool* isGoodHel, size_t* goodHel ); // input: isGoodHel[CPPPROCESS_NCOMB] - host array
 
   //--------------------------------------------------------------------------
 

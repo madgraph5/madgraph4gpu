@@ -12,7 +12,7 @@ topdir=$(cd $scrdir; cd ../../..; pwd)
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggh]> [-nocpp|[-avxall][-nocuda][-noneonly][-sse4only][-avx2only][-512yonly][-512zonly]] [-sa] [-noalpaka] [-flt|-fltonly|-mix|-mixonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-omp] [-makeonly|-makeclean|-makecleanonly|-dryrun] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest] [-nofpe] [-v] [-dlp <dyld_library_path>]"
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-nocpp|[-avxall][-nocuda][-noneonly][-sse4only][-avx2only][-512yonly][-512zonly]] [-sa] [-noalpaka] [-flt|-fltonly|-mix|-mixonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-omp] [-makeonly|-makeclean|-makecleanonly|-dryrun] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest] [-v] [-dlp <dyld_library_path>]" # -nofpe is no longer supported
   exit 1
 }
 
@@ -27,7 +27,10 @@ ggttg=0
 ggttgg=0
 ggttggg=0
 gqttq=0
-heftggh=0
+heftggbb=0
+susyggtt=0
+susyggt1t1=0
+smeftggtttt=0
 
 suffs=".mad/"
 
@@ -51,7 +54,7 @@ div=0
 req=0
 detailed=0
 gtest=0
-nofpe=0
+###nofpe=0
 verbose=0
 
 dlp=
@@ -90,9 +93,21 @@ while [ "$1" != "" ]; do
     if [ "$gqttq" == "0" ]; then procs+=${procs:+ }$1; fi
     gqttq=1
     shift
-  elif [ "$1" == "-heftggh" ]; then
-    if [ "$heftggh" == "0" ]; then procs+=${procs:+ }$1; fi
-    heftggh=1
+  elif [ "$1" == "-heftggbb" ]; then
+    if [ "$heftggbb" == "0" ]; then procs+=${procs:+ }$1; fi
+    heftggbb=1
+    shift
+  elif [ "$1" == "-susyggtt" ]; then
+    if [ "$susyggtt" == "0" ]; then procs+=${procs:+ }$1; fi
+    susyggtt=1
+    shift
+  elif [ "$1" == "-susyggt1t1" ]; then
+    if [ "$susyggt1t1" == "0" ]; then procs+=${procs:+ }$1; fi
+    susyggt1t1=1
+    shift
+  elif [ "$1" == "-smeftggtttt" ]; then
+    if [ "$smeftggtttt" == "0" ]; then procs+=${procs:+ }$1; fi
+    smeftggtttt=1
     shift
   elif [ "$1" == "-sa" ]; then
     suffs=".sa/"
@@ -187,6 +202,9 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-curhst" ]; then
     rndgen=" -${1}"
     shift
+  ###elif [ "$1" == "-hirhst" ]; then
+  ###  rndgen=" -${1}"
+  ###  shift
   elif [ "$1" == "-rmbhst" ]; then
     rmbsmp=" -${1}"
     shift
@@ -220,9 +238,9 @@ while [ "$1" != "" ]; do
     if [ "${cpp}" == "0" ]; then echo "ERROR! Options -gtest and -nocpp are incompatible"; usage; fi
     gtest=1
     shift
-  elif [ "$1" == "-nofpe" ]; then
-    nofpe=1
-    shift
+  ###elif [ "$1" == "-nofpe" ]; then
+  ###  nofpe=1
+  ###  shift
   elif [ "$1" == "-v" ]; then
     verbose=1
     shift
@@ -235,6 +253,7 @@ while [ "$1" != "" ]; do
     usage
   fi
 done
+###echo procs=$procs
 ###exit 1
 
 # Workaround for MacOS SIP (SystemIntegrity Protection): set DYLD_LIBRARY_PATH In subprocesses
@@ -243,22 +262,18 @@ if [ "${dlp}" != "" ]; then
   export DYLD_LIBRARY_PATH=$dlp
 fi
 
-# Enable FPEs in check.exe by default (see #733)
-if [ "${nofpe}" == "0" ]; then
-  echo "export CUDACPP_RUNTIME_ENABLEFPE=on"
-  export CUDACPP_RUNTIME_ENABLEFPE=on
-else
-  echo "unset CUDACPP_RUNTIME_ENABLEFPE"
-  unset CUDACPP_RUNTIME_ENABLEFPE
-fi
+# FPEs are now enabled by default and cannot be disabled in the code (#831)
+# The CUDACPP_RUNTIME_ENABLEFPE env variable (#733) is no longer used anywhere
+###if [ "${nofpe}" == "0" ]; then
+###  echo "export CUDACPP_RUNTIME_ENABLEFPE=on"
+###  export CUDACPP_RUNTIME_ENABLEFPE=on
+###else
+###  echo "unset CUDACPP_RUNTIME_ENABLEFPE"
+###  unset CUDACPP_RUNTIME_ENABLEFPE
+###fi
 
 # Check that at least one process has been selected
-if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ] && [ "${gqttq}" == "0" ] && [ "${heftggh}" == "0" ]; then usage; fi
-
-# Check that heftggh does not run in .mad mode
-if [ "${heftggh}" == "1" ] && [ "${suffs/.mad\/}" != "${suffs}" ]; then
-  echo "ERROR! Invalid option -heftggh for .mad directories"; exit 1
-fi
+if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ] && [ "${gqttq}" == "0" ] && [ "${heftggbb}" == "0" ] && [ "${susyggtt}" == "0" ] && [ "${susyggt1t1}" == "0" ] && [ "${smeftggtttt}" == "0" ]; then usage; fi
 
 # Define the default simds if none are defined
 if [ "${simds}" == "" ]; then simds="none 512y"; fi
@@ -311,8 +326,14 @@ function showdir()
     elif [ "${proc}" == "-gqttq" ]; then 
       ###dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_gu_ttxu
       dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_gux_ttxux # only 1 out of 2 for now
-    elif [ "${proc}" == "-heftggh" ]; then 
-      echo "ERROR! Options -mad and -madonly are not supported with -heftggh"; exit 1
+    elif [ "${proc}" == "-heftggbb" ]; then 
+      dir=$topdir/epochX/${bckend}/heft_gg_bb${suff}SubProcesses/P1_gg_bbx
+    elif [ "${proc}" == "-susyggtt" ]; then 
+      dir=$topdir/epochX/${bckend}/susy_gg_tt${suff}SubProcesses/P1_gg_ttx
+    elif [ "${proc}" == "-susyggt1t1" ]; then 
+      dir=$topdir/epochX/${bckend}/susy_gg_t1t1${suff}SubProcesses/P1_gg_t1t1x
+    elif [ "${proc}" == "-smeftggtttt" ]; then 
+      dir=$topdir/epochX/${bckend}/smeft_gg_tttt${suff}SubProcesses/P1_gg_ttxttx
     fi
   else
     if [ "${proc}" == "-eemumu" ]; then 
@@ -328,8 +349,14 @@ function showdir()
     elif [ "${proc}" == "-gqttq" ]; then 
       ###dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_Sigma_sm_gu_ttxu
       dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_Sigma_sm_gux_ttxux # only 1 out of 2 for now
-    elif [ "${proc}" == "-heftggh" ]; then 
-      dir=$topdir/epochX/${bckend}/heft_gg_h${suff}/SubProcesses/P1_Sigma_heft_gg_h
+    elif [ "${proc}" == "-heftggbb" ]; then 
+      dir=$topdir/epochX/${bckend}/heft_gg_bb${suff}SubProcesses/P1_Sigma_heft_gg_bbx
+    elif [ "${proc}" == "-susyggtt" ]; then 
+      dir=$topdir/epochX/${bckend}/susy_gg_tt${suff}SubProcesses/P1_Sigma_MSSM_SLHA2_gg_ttx
+    elif [ "${proc}" == "-susyggt1t1" ]; then 
+      dir=$topdir/epochX/${bckend}/susy_gg_t1t1${suff}SubProcesses/P1_Sigma_MSSM_SLHA2_gg_t1t1x
+    elif [ "${proc}" == "-smeftggtttt" ]; then 
+      dir=$topdir/epochX/${bckend}/smeft_gg_tttt${suff}SubProcesses/P1_Sigma_SMEFTsim_topU3l_MwScheme_UFO_gg_ttxttx
     fi
   fi
   echo $dir
@@ -349,9 +376,9 @@ for proc in $procs; do
   done
 done
 if [ "$dirs" == "" ]; then echo "ERROR! no valid directories found?"; exit 1; fi  
+###echo dirs=$dirs
 
 exes=
-
 for dir in $dirs; do
   
   #=====================================
@@ -393,6 +420,7 @@ for dir in $dirs; do
   fi
 
 done
+###echo exes=$exes
 
 ##########################################################################
 # PART 2 - build the executables which should be run
@@ -410,6 +438,7 @@ else
   # Iterate over all directories (the first one will build googletest)
   gtestlibs=0
   for dir in $dirs; do
+    ###echo "Building in $dir" # FIXME: add a check that this $dir exists
     export USEBUILDDIR=1
     pushd $dir >& /dev/null
     echo "Building in $(pwd)"
@@ -475,6 +504,7 @@ function runExe() {
   ###pattern="${pattern}|COMMON RANDOM|CURAND HOST \(CUDA"
   pattern="${pattern}|ERROR"
   pattern="${pattern}|WARNING"
+  pattern="${pattern}|Floating Point Exception"
   pattern="${pattern}|EvtsPerSec\[Rmb" # TEMPORARY! for rambo timing tests
   pattern="${pattern}|EvtsPerSec\[Matrix" # TEMPORARY! OLD C++/CUDA CODE
   if [ "${ab3}" == "1" ]; then pattern="${pattern}|3a|3b"; fi
@@ -517,12 +547,13 @@ function cmpExe() {
     echo "ERROR! Fortran calculation (F77${tag} crashed"
   else
     # NB skip python comparison if Fortran returned NaN or crashed, otherwise python returns an error status and the following tests are not executed
-    python3 -c "me1=${me1}; me2=${me2}; reldif=abs((me2-me1)/me1); print('Relative difference =', reldif); ok = reldif <= 5E-3; print ( '%s (relative difference %s 5E-3)' % ( ('OK','<=') if ok else ('ERROR','>') ) )"
+    python3 -c "me1=${me1}; me2=${me2}; reldif=abs((me2-me1)/me1); print('Relative difference =', reldif); ok = reldif <= 5E-3; print ( '%s (relative difference %s 5E-3)' % ( ('OK','<=') if ok else ('ERROR','>') ) )" 2>&1
   fi
 }
 
 # Profile #registers and %divergence only
 function runNcu() {
+  if ! ncu -v > /dev/null 2>&1; then return; fi
   if [ "${maketype}" == "-dryrun" ]; then return; fi
   exe=$1
   args="$2"
@@ -545,6 +576,7 @@ function runNcu() {
 # See https://docs.nvidia.com/gameworks/content/developertools/desktop/analysis/report/cudaexperiments/kernellevel/branchstatistics.htm
 # See https://docs.nvidia.com/gameworks/content/developertools/desktop/analysis/report/cudaexperiments/sourcelevel/divergentbranch.htm
 function runNcuDiv() {
+  if ! ncu -v > /dev/null 2>&1; then return; fi
   if [ "${maketype}" == "-dryrun" ]; then return; fi
   exe=$1
   args="-p 1 32 1"
@@ -567,6 +599,7 @@ function runNcuDiv() {
 
 # Profiles sectors and requests
 function runNcuReq() {
+  if ! ncu -v > /dev/null 2>&1; then return; fi
   if [ "${maketype}" == "-dryrun" ]; then return; fi
   exe=$1
   ncuArgs="$2"
@@ -580,7 +613,13 @@ function runNcuReq() {
   set +x
 }
 
-if nvidia-smi -L > /dev/null 2>&1; then gpuTxt="$(nvidia-smi -L | wc -l)x $(nvidia-smi -L | awk '{print $3,$4}' | sort -u)"; else gpuTxt=none; fi
+if nvidia-smi -L > /dev/null 2>&1; then
+  gpuTxt="$(nvidia-smi -L | wc -l)x $(nvidia-smi -L | awk '{print $3,$4}' | sort -u)"
+elif rocm-smi -i > /dev/null 2>&1; then
+  gpuTxt="$(rocm-smi --showproductname | grep 'Card series' | awk '{print $5,$6,$7}')"
+else
+  gpuTxt=none
+fi
 if [ "${unames}" == "Darwin" ]; then 
   cpuTxt=$(sysctl -h machdep.cpu.brand_string)
   cpuTxt=${cpuTxt/machdep.cpu.brand_string: }
@@ -619,10 +658,24 @@ for exe in $exes; do
     if [ "${exe/build.512z}" != "${exe}" ]; then echo "$exe is not supported (no avx512vl in /proc/cpuinfo)"; continue; fi
   fi
   if [ "${exe%%/gcheck*}" != "${exe}" ] && [ "$gpuTxt" == "none" ]; then continue; fi
-  if [ "${exe%%/heft_gg_h*}" != "${exe}" ]; then 
-    # For heftggh: 2->1 process, hence all events are identical and random numbers are ignored, use bare minimum 1 8 1
-    exeArgs="-p 1 8 1"
-    ncuArgs="-p 1 8 1"
+  if [ "${exe%%/heft_gg_bb*}" != "${exe}" ]; then 
+    # For heftggbb, use the same settings as for ggtt
+    exeArgs="-p 2048 256 2"
+    ncuArgs="-p 2048 256 1"
+  elif [ "${exe%%/smeft_gg_tttt*}" != "${exe}" ]; then 
+    # For smeftggtttt, use the same settings as for ggttggg (may be far too short!)
+    exeArgs="-p 1 256 2"
+    ncuArgs="-p 1 256 1"
+    # For smeftggtttt, use the same settings as for ggttggg (may be far too short!)
+    exeArgs2="-p 64 256 1"
+  elif [ "${exe%%/susy_gg_tt*}" != "${exe}" ]; then 
+    # For susyggtt, use the same settings as for SM ggtt
+    exeArgs="-p 2048 256 2"
+    ncuArgs="-p 2048 256 1"
+  elif [ "${exe%%/susy_gg_t1t1*}" != "${exe}" ]; then 
+    # For susyggt1t1, use the same settings as for SM ggtt
+    exeArgs="-p 2048 256 2"
+    ncuArgs="-p 2048 256 1"
   elif [ "${exe%%/gq_ttq*}" != "${exe}" ]; then 
     # For gqttq, use the same settings as for ggttg
     exeArgs="-p 64 256 10"

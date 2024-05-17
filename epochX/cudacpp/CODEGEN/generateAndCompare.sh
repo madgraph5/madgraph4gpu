@@ -1,8 +1,8 @@
 #!/bin/bash
-# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Copyright (C) 2020-2024 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: A. Valassi (Sep 2021) for the MG5aMC CUDACPP plugin.
-# Further modified by: A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
+# Further modified by: A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
 
 set -e # fail on error
 
@@ -31,6 +31,9 @@ function codeGenAndDiff()
       ;;
     gg_ttggg)
       cmd="generate g g > t t~ g g g"
+      ;;
+    gg_ttgggg)
+      cmd="generate g g > t t~ g g g g"
       ;;
     gg_tt01g)
       cmd="generate g g > t t~; add process g g > t t~ g"
@@ -103,6 +106,31 @@ function codeGenAndDiff()
       generate p p > t t~ z @0
       add process p p > t t~ z j @1"
       ;;
+    nobm_gu_ttxwpd)
+      cmd="import model sm-no_b_mass
+      generate g u > t t~ w+ d"
+      ;;
+    nobm_pp_eejjj)
+      cmd="import model sm-no_b_mass
+      define p = p b b~
+      define j = p
+      generate p p > e+ e- j j j @3"
+      ;;
+    nobm_pp_eejjjj)
+      cmd="import model sm-no_b_mass
+      define p = p b b~
+      define j = p
+      generate p p > e+ e- j j j j @4"
+      ;;
+    gg_eegguu)
+      cmd="generate g g > e+ e- g g u u~"
+      ;;
+    #nobm_gg_eegguu) # essentially the same code as gg_eegguu
+    #  cmd="import model sm-no_b_mass
+    #  define p = p b b~
+    #  define j = p
+    #  generate g g > e+ e- g g u u~"
+    #  ;;
     loop_nobm_gg_tt)
       cmd="import model loop_sm-no_b_mass
       generate g g > t t~"
@@ -125,11 +153,51 @@ function codeGenAndDiff()
     heft_gg_h)
       cmd="set auto_convert_model T; import model heft; generate g g > h"
       ;;
+    gg_bb)
+      cmd="generate g g > b b~" # for comparison: 3 SM diagrams
+      ;;
+    heft_gg_bb)
+      ###cmd="set auto_convert_model T; import model heft; generate g g > b b~" # 3 SM diagrams (as in SM gg_bb)
+      cmd="set auto_convert_model T; import model heft; generate g g > b b~ HIW<=1" # 4 diagrams (3 SM plus 1 HEFT): fix #828
+      ;;
+    heft_gg_h_bb)
+      cmd="set auto_convert_model T; import model heft; generate g g > h > b b~" # 1 HEFT diagram
+      ;;
     smeft_gg_tttt)
       cmd="set auto_convert_model T; import model SMEFTsim_topU3l_MwScheme_UFO -massless_4t; generate g g > t t~ t t~"
       ;;
     susy_gg_tt)
       cmd="import model MSSM_SLHA2; generate g g > t t~"
+      ;;
+    susy_gg_tttt)
+      cmd="import model MSSM_SLHA2; generate g g > t t~ t t~"
+      ;;
+    susy_gq_ttq)
+      cmd="import model MSSM_SLHA2; define q = u c d s u~ c~ d~ s~; generate g q > t t~ q"
+      ;;
+    susy_gq_ttllq)
+      cmd="import model MSSM_SLHA2; define q = u c d s u~ c~ d~ s~; generate g q > t t~ l- l+ q"
+      ;;
+    ###susy_gu_ttllu)
+    ###  cmd="import model MSSM_SLHA2; generate g u > t t~ l- l+ u"
+    ###  ;;
+    ###susy_gux_ttllux)
+    ###  cmd="import model MSSM_SLHA2; generate g u~ > t t~ l- l+ u~"
+    ###  ;;
+    ###susy_gd_ttlld)
+    ###  cmd="import model MSSM_SLHA2; generate g d > t t~ l- l+ d"
+    ###  ;;
+    ###susy_gdx_ttlldx)
+    ###  cmd="import model MSSM_SLHA2; generate g d~ > t t~ l- l+ d~"
+    ###  ;;
+    susy_gg_gogo)
+      cmd="import model MSSM_SLHA2; generate g g > go go"
+      ;;
+    susy_gg_t1t1)
+      cmd="import model MSSM_SLHA2; generate g g > t1 t1~"
+      ;;
+    susy_gg_ulul)
+      cmd="import model MSSM_SLHA2; generate g g > ul ul~"
       ;;
     atlas)
       cmd="import model sm-no_b_mass
@@ -208,9 +276,9 @@ function codeGenAndDiff()
     elif [ "${OUTBCK}" == "madonly" ]; then # $SCRBCK=cudacpp and $OUTBCK=madonly
       echo "output madevent ${outproc} ${helrecopt} --vector_size=${vecsize}" >> ${outproc}.mg
     elif [ "${OUTBCK}" == "mad" ]; then # $SCRBCK=cudacpp and $OUTBCK=mad
-      echo "output madevent ${outproc} ${helrecopt} --vector_size=${vecsize} --me_exporter=standalone_cudacpp" >> ${outproc}.mg
+      echo "output madevent_simd ${outproc} ${helrecopt} --vector_size=${vecsize} " >> ${outproc}.mg
     elif [ "${OUTBCK}" == "madcpp" ]; then # $SCRBCK=cudacpp and $OUTBCK=madcpp
-      echo "output madevent ${outproc} ${helrecopt} --vector_size=32 --me_exporter=standalone_cpp" >> ${outproc}.mg
+      echo "output madevent_simd ${outproc} ${helrecopt} --vector_size=32" >> ${outproc}.mg
     elif [ "${OUTBCK}" == "madgpu" ]; then # $SCRBCK=cudacpp and $OUTBCK=madgpu
       echo "output madevent ${outproc} ${helrecopt} --vector_size=32 --me_exporter=standalone_gpu" >> ${outproc}.mg
     else # $SCRBCK=cudacpp and $OUTBCK=cudacpp, cpp or gpu
@@ -220,14 +288,17 @@ function codeGenAndDiff()
     cat ${outproc}.mg
     echo -e "--------------------------------------------------\n"
     ###{ strace -f -o ${outproc}_strace.txt python3 ./bin/mg5_aMC ${outproc}.mg ; } >& ${outproc}_log.txt
-    { time python3 ./bin/mg5_aMC ${outproc}.mg ; } >& ${outproc}_log.txt
+    { time python3 ./bin/mg5_aMC ${outproc}.mg || true ; } >& ${outproc}_log.txt
     cat ${outproc}_log.txt | egrep -v '(Crash Annotation)' > ${outproc}_log.txt.new # remove firefox 'glxtest: libEGL initialize failed' errors
     \mv ${outproc}_log.txt.new ${outproc}_log.txt
   fi
+  echo "Code generation completed in $SECONDS seconds" >> ${outproc}_log.txt
   # Check the code generation log for errors 
   if [ -d ${outproc} ] && ! grep -q "Please report this bug" ${outproc}_log.txt; then
     ###cat ${outproc}_log.txt; exit 0 # FOR DEBUGGING
     cat ${MG5AMC_HOME}/${outproc}_log.txt | { egrep 'INFO: (Try|Creat|Organiz|Process)' || true; }
+    echo ""
+    cat ${MG5AMC_HOME}/${outproc}_log.txt | grep 'Code generation'
   else
     echo "*** ERROR! Code generation failed"
     cat ${MG5AMC_HOME}/${outproc}_log.txt
@@ -625,6 +696,7 @@ fi
 ###fi
 
 # Generate the chosen process (this will always replace the existing code directory and create a .BKP)
+SECONDS=0 # bash built-in
 export CUDACPP_CODEGEN_PATCHLEVEL=${PATCHLEVEL}
 codeGenAndDiff $proc "$cmd"
 
@@ -649,4 +721,6 @@ fi
 
 echo
 echo "********************************************************************************"
+echo
+echo "Code generation and additional checks completed in $SECONDS seconds"
 echo

@@ -1,7 +1,7 @@
-# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Copyright (C) 2020-2024 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: O. Mattelaer (Sep 2021) for the MG5aMC CUDACPP plugin.
-# Further modified by: O. Mattelaer, A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
+# Further modified by: O. Mattelaer, A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
 
 # AV - Rename the plugin as CUDACPP_OUTPUT (was CUDACPP_SA_OUTPUT)
 # [NB: madgraph4gpu's directory CUDACPP_SA_OUTPUT is copied to mg5amcnlo as directory CUDACPP_OUTPUT]
@@ -35,6 +35,9 @@ else:
     new_output = { 'madevent_simd' : output.SIMD_ProcessExporter,
                    'madevent_gpu' : output.GPU_ProcessExporter,
                    'standalone_cudacpp' : output.PLUGIN_ProcessExporter,
+                   # the following one are used for the second exporter class 
+                   # (not really needed so far but interesting if need
+                   #  specialization in the futur) 
                    'standalone_simd' :  output.SIMD_ProcessExporter,
                    'standalone_cuda' :  output.GPU_ProcessExporter,
                   }

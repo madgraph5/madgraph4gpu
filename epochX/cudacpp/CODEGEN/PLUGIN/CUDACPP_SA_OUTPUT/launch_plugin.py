@@ -1,7 +1,7 @@
-# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Copyright (C) 2020-2024 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: O. Mattelaer (Aug 2023) for the MG5aMC CUDACPP plugin.
-# Further modified by: O. Mattelaer, A. Valassi (2023) for the MG5aMC CUDACPP plugin.
+# Further modified by: O. Mattelaer, A. Valassi (2024) for the MG5aMC CUDACPP plugin.
 
 import logging
 import os
@@ -103,7 +103,7 @@ class CPPRunCard(banner_mod.RunCardLO):
                        fct_mod=(self.reset_makeopts,(),{}),
                        allowed=['auto', 'none', 'sse4', 'avx2','512y','512z'])
         self.add_param('cudacpp_backend', 'CPP', include=False, hidden=False,
-                       allowed=['Fortan', 'CPP', 'CUDA'])
+                       allowed=['Fortran', 'CPP', 'CUDA'])
         self['vector_size'] = 16 # already setup in default class (just change value)
         self['aloha_flag'] = '--fast-math'
         self['matrix_flag'] = '-O3'

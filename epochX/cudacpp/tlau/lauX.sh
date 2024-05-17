@@ -10,34 +10,37 @@ scrdir=$(cd $(dirname $0); pwd)
 
 function usage()
 {
-  echo "Usage:   $0 <-FORTRAN|-CUDA|-CPP> <proc>"
-  echo "Example: $0 -CPP gg_tt"
+  echo "Usage:   $0 <-FORTRAN|-CUDA|-CPP> <procdir>"
+  echo "Example: $0 -CPP gg_tt.mad"
   exit 1
 }
 
 bckend=
 proc=
-suff=.mad
 while [ "$1" != "" ]; do
   if [ "$1" == "-FORTRAN" ] || [ "$1" == "-CUDA" ] || [ "$1" == "-CPP" ]; then
-    if [ "$bckend" == "" ]; then bckend=${1/-/}; else echo "ERROR! Backend already set"; usage; fi
-  elif [ "$proc" == "" ]; then
-    proc=${1}
+    if [ "${bckend}" == "" ]; then bckend=${1/-/}; else echo "ERROR! Backend already set"; usage; fi
+  elif [ "${proc}" == "" ]; then
+    proc=$1
   else
     echo "ERROR! Invalid option '$1': process directory already set to '${proc}'"
     usage
   fi
   shift
 done
-if [ "$bckend" == "" ]; then echo "ERROR! No backend was specified"; usage; fi
+if [ "${bckend}" == "" ]; then echo "ERROR! No backend was specified"; usage; fi
 if [ "$proc" == "" ]; then echo "ERROR! No process directory was specified"; usage; fi
-if [ ! -d ${proc}${suff} ]; then echo "ERROR! Process directory '${proc}' does not exist"; usage; fi
+
+suff=.mad
+if [ "${proc}" == "${proc%${suff}}" ]; then echo "ERROR! Process directory does not end in '${suff}'"; usage; fi
+proc=${proc%${suff}}
 
 cd $(dirname $0)/..
 echo "Execute $(basename $0) for process ${proc} and backend ${bckend} in directory $(pwd)"
 procdir=$(pwd)/${proc}${suff}
-cd $procdir
-resultsdir=${scrdir}/logs_${proc/_}_${bckend/}
+if [ ! -d ${procdir} ]; then echo "ERROR! Process directory '${procdir}' does not exist"; usage; fi
+cd ${procdir}
+resultsdir=${scrdir}/logs_${proc//_}_${bckend/}
 
 function getnevt()
 {
@@ -88,6 +91,8 @@ cp bin/internal/gen_ximprove.py bin/internal/gen_ximprove.py.BKP # save the init
 sed -i "s/'int', 8192,'Number of points/'int', 1000,'Number of points/" bin/internal/madevent_interface.py # just in case
 sed -i "s/'int', 1, 'Number of iterations'/'int', 5, 'Number of iterations'/" bin/internal/madevent_interface.py # just in case
 cp bin/internal/madevent_interface.py bin/internal/madevent_interface.py.BKP # save the initial file
+cp Source/make_opts Source/make_opts.BKP # save the initial file
+cp Source/param_card.inc Source/param_card.inc.BKP # save the initial file
 
 # Set the number of events and iterations in the survey step
 sed -i "s/'int', 1000,'Number of points/'int', 8192,'Number of points/" bin/internal/madevent_interface.py
@@ -126,6 +131,8 @@ mv Cards/run_card.dat.BKP Cards/run_card.dat # restore the initial file
 mv Source/run_card.inc.BKP Source/run_card.inc # restore the initial file
 mv bin/internal/gen_ximprove.py.BKP bin/internal/gen_ximprove.py # restore the initial file
 mv bin/internal/madevent_interface.py.BKP bin/internal/madevent_interface.py # restore the initial file
+mv Source/make_opts.BKP Source/make_opts # restore the initial file
+mv Source/param_card.inc.BKP Source/param_card.inc # restore the initial file
 
 # Add an 80-character separator
 echo ""

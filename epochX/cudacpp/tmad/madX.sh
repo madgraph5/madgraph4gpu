@@ -4,6 +4,9 @@
 # Created by: A. Valassi (Mar 2022) for the MG5aMC CUDACPP plugin.
 
 set +x # not verbose
+
+# [NB: set -e may lead to unexpected silent failures if ((..)) arithmetic expressions have a result equal to 0]
+# [See https://www.gnu.org/software/bash/manual/html_node/Conditional-Constructs.html and https://stackoverflow.com/a/66824545]
 set -e # fail on error
 
 scrdir=$(cd $(dirname $0); pwd)
@@ -24,7 +27,7 @@ export CUDACPP_RUNTIME_VECSIZEUSED=${NLOOP}
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gguu][-gqttq]> [-d] [-fltonly|-mixonly] [-makeonly|-makeclean|-makecleanonly] [-rmrdat] [+10x] [-checkonly] [-nocleanup]" > /dev/stderr
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gguu][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-d] [-fltonly|-mixonly] [-makeonly|-makeclean|-makecleanonly] [-rmrdat] [+10x] [-checkonly] [-nocleanup]" > /dev/stderr
   echo "(NB: OMP_NUM_THREADS is taken as-is from the caller's environment)"
   exit 1
 }
@@ -42,6 +45,10 @@ ggttgg=0
 ggttggg=0
 gguu=0
 gqttq=0
+heftggbb=0
+susyggtt=0
+susyggt1t1=0
+smeftggtttt=0
 
 fptype="d"
 
@@ -81,6 +88,18 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-gqttq" ]; then
     gqttq=1
     shift
+  elif [ "$1" == "-heftggbb" ]; then
+    heftggbb=1
+    shift
+  elif [ "$1" == "-susyggtt" ]; then
+    susyggtt=1
+    shift
+  elif [ "$1" == "-susyggt1t1" ]; then
+    susyggt1t1=1
+    shift
+  elif [ "$1" == "-smeftggtttt" ]; then
+    smeftggtttt=1
+    shift
   elif [ "$1" == "-fltonly" ]; then
     if [ "${fptype}" != "d" ] && [ "${fptype}" != "$1" ]; then
       echo "ERROR! Options -fltonly and -mixonly are incompatible"; usage
@@ -118,7 +137,7 @@ done
 ###exit 1
 
 # Check that at least one process has been selected
-if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ] && [ "${gguu}" == "0" ] && [ "${gqttq}" == "0" ]; then usage; fi
+if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ] && [ "${gguu}" == "0" ] && [ "${gqttq}" == "0" ] && [ "${heftggbb}" == "0" ] && [ "${susyggtt}" == "0" ] && [ "${susyggt1t1}" == "0" ] && [ "${smeftggtttt}" == "0" ]; then usage; fi
 
 # Always test only the .mad/ directories (hardcoded)
 suffs=".mad/"
@@ -131,13 +150,16 @@ if [ "${fptype}" == "f" ]; then
 elif [ "${fptype}" == "m" ]; then
   xsecthr="2E-4" # FIXME #537 (AV: by "fixme" I probably meant a stricter tolerance could be used, maybe E-5?)
 else
-  xsecthr="2E-14"
+  ###xsecthr="2E-14" # fails when updating gpucpp in PR #811
+  xsecthr="3E-14"
 fi
 
 # Determine the working directory below topdir based on suff, bckend and <process>
 function showdir()
 {
   if [ "${suff}" == ".mad/" ]; then
+    # FIXME? These checks should rather be 'if [ "${proc}" == "-ggtt" ]; then'?
+    # FIXME? More generally, this script now accepts several processes but is only able to handle one?
     if [ "${eemumu}" == "1" ]; then 
       dir=$topdir/epochX/${bckend}/ee_mumu${suff}SubProcesses/P1_epem_mupmum
     elif [ "${ggtt}" == "1" ]; then 
@@ -153,9 +175,19 @@ function showdir()
       ###dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_gux_ttxux # 2nd of two (test only one for now)
     elif [ "${gguu}" == "1" ]; then 
       dir=$topdir/epochX/${bckend}/gg_uu${suff}SubProcesses/P1_gg_uux
+    elif [ "${heftggbb}" == "1" ]; then 
+      dir=$topdir/epochX/${bckend}/heft_gg_bb${suff}SubProcesses/P1_gg_bbx
+    elif [ "${susyggtt}" == "1" ]; then 
+      dir=$topdir/epochX/${bckend}/susy_gg_tt${suff}SubProcesses/P1_gg_ttx
+    elif [ "${susyggt1t1}" == "1" ]; then 
+      dir=$topdir/epochX/${bckend}/susy_gg_t1t1${suff}SubProcesses/P1_gg_t1t1x
+    elif [ "${smeftggtttt}" == "1" ]; then 
+      dir=$topdir/epochX/${bckend}/smeft_gg_tttt${suff}SubProcesses/P1_gg_ttxttx
+    ###else
+    ###  echo "INTERNAL ERROR! Unknown process '${proc}'" > /dev/stderr; exit 1 # this should never happen
     fi
   else
-    echo "INTERNAL ERROR! tmad tests only make sense in .mad directories"; exit 1 # this should never happen (suff=.mad/ is hardcoded)
+    echo "INTERNAL ERROR! tmad tests only make sense in .mad directories" > /dev/stderr; exit 1 # this should never happen (suff=.mad/ is hardcoded)
   fi
   echo $dir
 }
@@ -177,6 +209,14 @@ function getnevt()
     nevt=8192 # use the same settings as for ggttg
   elif [ "${gqttq}" == "1" ]; then
     nevt=8192 # use the same settings as for ggttg
+  elif [ "${heftggbb}" == "1" ]; then
+    nevt=8192 # use the same settings as for SM ggtt
+  elif [ "${susyggtt}" == "1" ]; then
+    nevt=8192 # use the same settings as for SM ggtt
+  elif [ "${susyggt1t1}" == "1" ]; then
+    nevt=8192 # use the same settings as for SM ggtt
+  elif [ "${smeftggtttt}" == "1" ]; then
+    nevt=8192 # use the same settings as for SM ggttg
   else
     echo "ERROR! Unknown process" > /dev/stderr; usage
   fi
@@ -199,6 +239,14 @@ function getgridmax()
   elif [ "${gguu}" == "1" ]; then
     echo 16384 32 # same total grid dimension as 2048 256
   elif [ "${gqttq}" == "1" ]; then
+    echo 16384 32 # same total grid dimension as 2048 256
+  elif [ "${heftggbb}" == "1" ]; then
+    echo 16384 32 # same total grid dimension as 2048 256
+  elif [ "${susyggtt}" == "1" ]; then
+    echo 16384 32 # same total grid dimension as 2048 256
+  elif [ "${susyggt1t1}" == "1" ]; then
+    echo 16384 32 # same total grid dimension as 2048 256
+  elif [ "${smeftggtttt}" == "1" ]; then
     echo 16384 32 # same total grid dimension as 2048 256
   else
     echo "ERROR! Unknown process" > /dev/stderr; usage
@@ -225,6 +273,14 @@ function getinputfile()
     tmp=$tmpdir/input_gguu
   elif [ "${gqttq}" == "1" ]; then 
     tmp=$tmpdir/input_gqttq
+  elif [ "${heftggbb}" == "1" ]; then 
+    tmp=$tmpdir/input_heftggbb
+  elif [ "${susyggtt}" == "1" ]; then 
+    tmp=$tmpdir/input_susyggtt
+  elif [ "${susyggt1t1}" == "1" ]; then 
+    tmp=$tmpdir/input_susyggt1t1
+  elif [ "${smeftggtttt}" == "1" ]; then 
+    tmp=$tmpdir/input_smeftggtttt
   else
     echo "ERROR! cannot determine input file name"; exit 1
   fi
@@ -288,25 +344,25 @@ function runcheck()
     txt="GCHECK($NLOOP)"
     cmd=${cmd/.\//.\/build.none_${fptype}_inl0_hrd0\/}
     nthr=32
-    (( nblk = NLOOP/nthr )) # NB integer division
-    (( nloop2 = nblk*nthr ))
+    (( nblk = NLOOP/nthr )) || true # integer division (NB: bash double parenthesis fails if the result is 0)
+    (( nloop2 = nblk*nthr )) || true
     if [ "$NLOOP" != "$nloop2" ]; then echo "ERROR! NLOOP($nloop) != nloop2($nloop2)"; exit 1; fi
     nevt=$(getnevt)
   elif [ "${cmd/check}" != "$cmd" ]; then
     txt="CHECK($NLOOP)"
     cmd=${cmd/.\//.\/build.${avx}_${fptype}_inl0_hrd0\/}
     nthr=32
-    (( nblk = NLOOP/nthr )) # NB integer division
-    (( nloop2 = nblk*nthr ))
-    if [ "$NLOOP" != "$nloop2" ]; then echo "ERROR! NLOOP($nloop) != nloop2($nloop2)"; exit 1; fi
+    (( nblk = NLOOP/nthr )) || true # integer division (NB: bash double parenthesis fails if the result is 0)
+    (( nloop2 = nblk*nthr )) || true
+    if [ "$NLOOP" != "$nloop2" ]; then echo "ERROR! NLOOP($NLOOP) != nloop2($nloop2)"; exit 1; fi
     nevt=$(getnevt)
   else
     echo "ERROR! Unknown check executable '$cmd'"; exit 1
   fi
   (( ngrid = nthr*nblk ))
   if [ $ngrid -gt $nevt ]; then nevt=$ngrid; fi # do run at least 8192 events in gcheck8192
-  (( nite = nevt/ngrid )) # NB integer division
-  (( nevt2 = ngrid*nite ))
+  (( nite = nevt/ngrid )) || true # integer division (NB: bash double parenthesis fails if the result is 0)
+  (( nevt2 = ngrid*nite )) || true
   if [ "$nevt" != "$nevt2" ]; then echo "ERROR! nevt($nevt) != nevt2($nevt2)=ngrid($ngrid)*nite($nite)"; exit 1; fi
   pattern="Process|Workflow|EvtsPerSec\[MECalc"
   echo -e "\n*** EXECUTE $txt -p $nblk $nthr $nite --bridge ***"
@@ -360,16 +416,16 @@ function runmadevent()
   echo " [XSECTION] ChannelId = ${chid}"
   xsec=$(cat ${tmp} | grep --binary-files=text 'Cross sec =' | awk '{print 0+$NF}')
   xsec2=$(cat ${tmp} | grep --binary-files=text 'Actual xsec' | awk '{print $NF}')
-  if [ "${fbm}" != "" ]; then
+  if [ "${xsec}" == "" ]; then
+    echo -e " [XSECTION] ERROR! No cross section in log file:\n   $tmp\n   ..."
+    tail -10 $tmp
+    exit 1
+  elif [ "${fbm}" != "" ]; then
     echo " [XSECTION] Cross section = ${xsec} [${xsec2}] fbridge_mode=${fbm}"
   elif [ "${xsec2}" != "" ]; then
     echo " [XSECTION] Cross section = ${xsec} [${xsec2}]"
   elif [ "${xsec}" != "" ]; then
     echo " [XSECTION] Cross section = ${xsec}"
-  else
-    echo -e " [XSECTION] ERROR! No cross section in log file:\n   $tmp\n   ..."
-    tail -10 $tmp
-    exit 1
   fi
   evtf=$(cat ${tmp} | grep --binary-files=text 'events.' | grep 'Found' | awk '{print $2}')
   evtw=$(cat ${tmp} | grep --binary-files=text 'events.' | grep 'Wrote' | awk '{print $2}')
@@ -386,6 +442,7 @@ function runmadevent()
   cat ${tmp} | grep --binary-files=text COUNTERS
   set -e # fail on error
   xsecnew=${xsec2}
+  ###echo "Extracted results from $tmp"
 }
 
 ##########################################################################
@@ -420,7 +477,13 @@ printf "\nOMP_NUM_THREADS=$OMP_NUM_THREADS\n"
 
 printf "\nDATE: $(date '+%Y-%m-%d_%H:%M:%S')\n\n"
 
-if nvidia-smi -L > /dev/null 2>&1; then gpuTxt="$(nvidia-smi -L | wc -l)x $(nvidia-smi -L | awk '{print $3,$4}' | sort -u)"; else gpuTxt=none; fi
+if nvidia-smi -L > /dev/null 2>&1; then
+  gpuTxt="$(nvidia-smi -L | wc -l)x $(nvidia-smi -L | awk '{print $3,$4}' | sort -u)"
+elif rocm-smi -i > /dev/null 2>&1; then
+  gpuTxt="$(rocm-smi --showproductname | grep 'Card series' | awk '{print $5,$6,$7}')"
+else
+  gpuTxt=none
+fi
 if [ "${unames}" == "Darwin" ]; then 
   cpuTxt=$(sysctl -h machdep.cpu.brand_string)
   cpuTxt=${cpuTxt/machdep.cpu.brand_string: }

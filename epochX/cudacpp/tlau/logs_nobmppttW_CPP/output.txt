@@ -1,0 +1,99 @@
+START: Sat Nov 25 09:46:36 AM CET 2023
+************************************************************
+*                                                          *
+*                      W E L C O M E to                    *
+*             M A D G R A P H 5 _ a M C @ N L O            *
+*                      M A D E V E N T                     *
+*                                                          *
+*                 *                       *                *
+*                   *        * *        *                  *
+*                     * * * * 5 * * * *                    *
+*                   *        * *        *                  *
+*                 *                       *                *
+*                                                          *
+*         VERSION 3.5.2_lo_vect                            *
+*                                                          *
+*    The MadGraph5_aMC@NLO Development Team - Find us at   *
+*    https://server06.fynu.ucl.ac.be/projects/madgraph     *
+*                                                          *
+*               Type 'help' for in-line help.              *
+*                                                          *
+************************************************************
+INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/nobm_pp_ttW.mad/Cards/me5_configuration.txt  
+INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/nobm_pp_ttW.mad/Cards/me5_configuration.txt  
+Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
+Using default eps viewer "evince". Set another one in ./input/mg5_configuration.txt
+No valid web browser found. Please set in ./input/mg5_configuration.txt
+generate_events -f
+Generating 100 events with run name run_01
+survey  run_01 
+INFO: compile directory 
+[1;34mNot able to open file /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/nobm_pp_ttW.mad/crossx.html since no program configured.Please set one in ./input/mg5_configuration.txt[0m
+compile Source Directory
+Using random number seed offset = 21
+INFO: Running Survey 
+Creating Jobs
+Working on SubProcesses
+INFO:     P1_gu_ttxwpd  
+INFO: Building madevent in madevent_interface.py with 'CPP' matrix elements 
+INFO:     P1_gd_ttxwmu  
+INFO: Building madevent in madevent_interface.py with 'CPP' matrix elements 
+INFO:     P1_gux_ttxwmdx  
+INFO: Building madevent in madevent_interface.py with 'CPP' matrix elements 
+INFO:     P1_gdx_ttxwpux  
+INFO: Building madevent in madevent_interface.py with 'CPP' matrix elements 
+INFO:     P1_udx_ttxwpg  
+INFO: Building madevent in madevent_interface.py with 'CPP' matrix elements 
+INFO:     P1_dux_ttxwmg  
+INFO: Building madevent in madevent_interface.py with 'CPP' matrix elements 
+INFO:     P0_udx_ttxwp  
+INFO: Building madevent in madevent_interface.py with 'CPP' matrix elements 
+INFO:     P0_dux_ttxwm  
+INFO: Building madevent in madevent_interface.py with 'CPP' matrix elements 
+INFO:  Idle: 1,  Running: 0,  Completed: 31 [ current time: 09h47 ] 
+INFO:  Idle: 0,  Running: 1,  Completed: 31 [ current time: 09h47 ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 32 [  1.2s  ] 
+INFO: End survey 
+refine 100
+Creating Jobs
+INFO: Refine results to 100 
+INFO: Generating 100.0 unweighted events. 
+sum of cpu time of last step: 1m13s
+INFO: Effective Luminosity 94.04886141815001 pb^-1 
+INFO: need to improve 0 channels 
+- Current estimate of cross-section: 1.2759325119999998 +- 0.007916457882495807
+    P1_gu_ttxwpd 
+    P1_gd_ttxwmu 
+    P1_gux_ttxwmdx 
+    P1_gdx_ttxwpux 
+    P1_udx_ttxwpg 
+    P1_dux_ttxwmg 
+    P0_udx_ttxwp 
+    P0_dux_ttxwm 
+INFO:  Idle: 0,  Running: 0,  Completed: 0 [ current time: 09h47 ] 
+INFO: Combining runs 
+sum of cpu time of last step: 1m13s
+INFO: finish refine 
+refine 100 --treshold=0.9
+No need for second refine due to stability of cross-section
+INFO: Combining Events 
+combination of events done in 0.5814721584320068 s 
+  === Results Summary for run: run_01 tag: tag_1 ===
+
+     Cross-section :   1.276 +- 0.007916 pb
+     Nb of events :  100
+ 
+INFO: No version of lhapdf. Can not run systematics computation 
+store_events
+INFO: Storing parton level results 
+INFO: End Parton 
+reweight -from_cards
+decay_events -from_cards
+INFO: storing files of previous run 
+INFO: Done 
+quit
+INFO:  
+137.85user 20.60system 0:51.40elapsed 308%CPU (0avgtext+0avgdata 106088maxresident)k
+1192inputs+689768outputs (72major+4437573minor)pagefaults 0swaps
+END: Sat Nov 25 09:47:27 AM CET 2023
+ELAPSED: 51 seconds
