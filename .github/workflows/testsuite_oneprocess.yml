@@ -98,7 +98,7 @@ jobs:
       id: cache-restore
       # See https://github.com/actions/cache
       # See https://github.com/actions/cache/blob/main/tips-and-workarounds.md#update-a-cache
-      uses: actions/cache/restore@v3
+      uses: actions/cache/restore@v4
       with:
         path: |
           CCACHE_DIR
@@ -123,7 +123,7 @@ jobs:
     - name: update_cache # update caches after the builds but before the tests (which may fail even if builds succeed)
       id: cache-update
       # See https://github.com/actions/cache
-      uses: actions/cache/save@v3
+      uses: actions/cache/save@v4
       with:
         path: |
           CCACHE_DIR
