@@ -123,7 +123,7 @@ jobs:
     - name: update_codegen_cache # update codegen caches
       id: codegen-cache-update
       # See https://github.com/actions/cache
-      uses: actions/cache/save@v3
+      uses: actions/cache/save@v4
       with:
         path: |
           epochX/cudacpp/${{ inputs.process }}
@@ -183,7 +183,7 @@ jobs:
       id: codegen-cache-restore
       # See https://github.com/actions/cache
       # See https://github.com/actions/cache/blob/main/tips-and-workarounds.md#update-a-cache
-      uses: actions/cache/restore@v3
+      uses: actions/cache/restore@v4
       with:
         path: |
           epochX/cudacpp/${{ inputs.process }}
@@ -195,7 +195,7 @@ jobs:
       id: build-cache-restore
       # See https://github.com/actions/cache
       # See https://github.com/actions/cache/blob/main/tips-and-workarounds.md#update-a-cache
-      uses: actions/cache/restore@v3
+      uses: actions/cache/restore@v4
       with:
         path: |
           CCACHE_DIR
@@ -217,7 +217,7 @@ jobs:
     - name: update_build_cache # update build caches after the builds but before the tests (which may fail even if builds succeed)
       id: build-cache-update
       # See https://github.com/actions/cache
-      uses: actions/cache/save@v3
+      uses: actions/cache/save@v4
       with:
         path: |
           CCACHE_DIR
