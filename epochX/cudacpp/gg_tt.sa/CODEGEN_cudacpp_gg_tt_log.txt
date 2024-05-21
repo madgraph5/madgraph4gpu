@@ -62,7 +62,7 @@ generate g g > t t~
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.0057544708251953125 [0m
+[1;32mDEBUG: model prefixing  takes 0.0057947635650634766 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -199,6 +199,6 @@ INFO: /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_tt/s
 quit
 
 real	0m0.555s
-user	0m0.507s
-sys	0m0.045s
-Code generation completed in 0 seconds
+user	0m0.490s
+sys	0m0.062s
+Code generation completed in 1 seconds
