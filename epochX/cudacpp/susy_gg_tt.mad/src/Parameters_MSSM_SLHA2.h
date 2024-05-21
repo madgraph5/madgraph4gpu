@@ -58,8 +58,7 @@ namespace mg5amcCpu
     // (none)
 
     // Model parameters dependent on aS
-    //double mdl_sqrt__aS, G; // now computed event-by-event (running alphas #373)
-    //cxsmpl<double> mdl_G__exp__2; // now computed event-by-event (running alphas #373)
+    //double mdl_sqrt__aS, G, mdl_G__exp__2; // now computed event-by-event (running alphas #373)
 
     // Model couplings dependent on aS
     //cxsmpl<double> GC_6, GC_51; // now computed event-by-event (running alphas #373)
@@ -750,7 +749,7 @@ namespace mg5amcCpu
     // Model parameters dependent on aS
     //constexpr double mdl_sqrt__aS = constexpr_sqrt( aS ); // now computed event-by-event (running alphas #373)
     //constexpr double G = 2. * mdl_sqrt__aS * constexpr_sqrt( M_PI ); // now computed event-by-event (running alphas #373)
-    //constexpr cxsmpl<double> mdl_G__exp__2 = ( ( G ) * ( G ) ); // now computed event-by-event (running alphas #373)
+    //constexpr double mdl_G__exp__2 = ( ( G ) * ( G ) ); // now computed event-by-event (running alphas #373)
 
     // Model couplings dependent on aS
     //constexpr cxsmpl<double> GC_6 = -G; // now computed event-by-event (running alphas #373)
@@ -823,7 +822,7 @@ namespace mg5amcCpu
         //const fptype_sv mdl_sqrt__aS = constexpr_sqrt( aS );
         //const fptype_sv G = 2. * mdl_sqrt__aS * constexpr_sqrt( M_PI );
         // *** NB Compute all dependent parameters, including aS, in terms of G rather than in terms of aS ***
-        const fptype_sv mdl_G__exp__2 = G * G;
+        const fptype_sv mdl_G__exp__2 = ( ( G ) * ( G ) );
         // Model couplings dependent on aS
         out.GC_6 = -G;
         out.GC_51 = -( cI * G * mdl_I51x11 );
@@ -844,7 +843,7 @@ namespace mg5amcCpu
         //const fptype mdl_sqrt__aS = constexpr_sqrt( aS );
         //const fptype G = 2. * mdl_sqrt__aS * constexpr_sqrt( M_PI );
         // *** NB Compute all dependent parameters, including aS, in terms of G rather than in terms of aS ***
-        const fptype mdl_G__exp__2 = G * G;
+        const fptype mdl_G__exp__2 = ( ( G ) * ( G ) );
         // Model couplings dependent on aS
         const cxtype GC_6 = -G;
         const cxtype GC_51 = -( cI * G * mdl_I51x11 );
