@@ -219,7 +219,7 @@ while [ "$1" != "" ]; do
     detailed=1
     shift
   elif [ "$1" == "-gtest" ]; then
-    # For simplicity a gtest runTest.exe is executed for each build where check.exe or gcheck.exe is executed
+    # For simplicity a gtest runTest_xxx.exe is executed for each build where check_xxx.exe is executed
     gtest=1
     shift
   ###elif [ "$1" == "-nofpe" ]; then
@@ -393,9 +393,9 @@ for dir in $dirs; do
         for bbld in cuda hip none sse4 avx2 512y 512z; do
           if [ "${bblds}" == "${bbldsall}" ] || [ "${bblds/${bbld}}" != "${bblds}" ]; then 
             if [ "${bbld}" == "cuda" ] || [ "${bbld}" == "hip" ]; then
-              exes="$exes $dir/build.${bbld}_${fptype}_inl${helinl}${hrdsuf}/gcheck.exe"
+              exes="$exes $dir/build.${bbld}_${fptype}_inl${helinl}${hrdsuf}/check_${bbld}.exe"
             else
-              exes="$exes $dir/build.${bbld}_${fptype}_inl${helinl}${hrdsuf}/check.exe"
+              exes="$exes $dir/build.${bbld}_${fptype}_inl${helinl}${hrdsuf}/check_cpp.exe"
             fi
           fi
         done
@@ -479,7 +479,7 @@ function runExe() {
   if [ "${maketype}" == "-dryrun" ]; then return; fi
   pattern="Process|fptype_sv|OMP threads|EvtsPerSec\[MECalc|MeanMatrix|FP precision|TOTAL       :"
   # Optionally add other patterns here for some specific configurations (e.g. clang)
-  if [ "${exe%%/gcheck*}" != "${exe}" ]; then pattern="${pattern}|EvtsPerSec\[Matrix"; fi
+  if [ "${exe%%/check_cuda*}" != "${exe}" ] || [ "${exe%%/check_hip*}" != "${exe}" ]; then pattern="${pattern}|EvtsPerSec\[Matrix"; fi
   pattern="${pattern}|Workflow"
   ###pattern="${pattern}|CUCOMPLEX"
   ###pattern="${pattern}|COMMON RANDOM|CURAND HOST \(CUDA"
@@ -511,7 +511,6 @@ function runExe() {
 function cmpExe() {
   exe=$1
   exef=${exe/\/check//fcheck}
-  exef=${exef/\/gcheck//fgcheck}
   argsf="2 64 2"
   args="--common -p ${argsf}"
   echo "cmpExe $exe $args"
@@ -520,7 +519,7 @@ function cmpExe() {
   tmp=$(mktemp)
   me1=$(${exe} ${args} 2>${tmp} | grep MeanMatrix | awk '{print $4}'); cat ${tmp}
   me2=$(${exef} ${argsf} 2>${tmp} | grep Average | awk '{print $4}'); cat ${tmp}
-  if [ "${exe%%/gcheck*}" != "${exe}" ]; then tag="/GPU)"; else tag="/C++) "; fi
+  if [ "${exe%%/check_cuda*}" != "${exe}" ] || [ "${exe%%/check_hip*}" != "${exe}" ]; then tag="/GPU)"; else tag="/C++) "; fi
   echo -e "Avg ME (C++${tag}   = ${me1}\nAvg ME (F77${tag}   = ${me2}"
   if [ "${me2}" == "NaN" ]; then
     echo "ERROR! Fortran calculation (F77${tag} returned NaN"
@@ -615,14 +614,17 @@ echo -e "On $HOSTNAME [CPU: $cpuTxt] [GPU: $gpuTxt]:"
 BMKEXEARGS="" # if BMKEXEARGS is set, exeArgs is set equal to BMKEXEARGS, while exeArgs2 is set to ""
 BMKMULTIPLIER=1 # the pre-defined numbers of iterations (including those in BMKEXEARGS) are multiplied by BMKMULTIPLIER
 
-lastExe=
+###lastExe=
+lastExeDir=
 ###echo "exes=$exes"
 for exe in $exes; do
   ###echo EXE=$exe; continue
   exeArgs2=""
-  if [ "$(basename $exe)" != "$lastExe" ]; then
+  ###if [ "$(basename $exe)" != "$lastExe" ]; then
+  if [ "$(basename $(dirname $exe))" != "$lastExeDir" ]; then
     echo "========================================================================="
-    lastExe=$(basename $exe)
+    ###lastExe=$(basename $exe)
+    lastExeDir=$(basename $(dirname $exe))
   else
     echo "-------------------------------------------------------------------------"
   fi
@@ -638,7 +640,7 @@ for exe in $exes; do
     if [ "${exe/build.512y}" != "${exe}" ]; then echo "$exe is not supported (no avx512vl in /proc/cpuinfo)"; continue; fi
     if [ "${exe/build.512z}" != "${exe}" ]; then echo "$exe is not supported (no avx512vl in /proc/cpuinfo)"; continue; fi
   fi
-  if [ "${exe%%/gcheck*}" != "${exe}" ] && [ "$gpuTxt" == "none" ]; then continue; fi
+  if [[ "${exe%%/check_cuda*}" != "${exe}" || "${exe%%/check_hip*}" != "${exe}" ]] && [ "$gpuTxt" == "none" ]; then pattern="${pattern}|EvtsPerSec\[Matrix"; fi
   if [ "${exe%%/heft_gg_bb*}" != "${exe}" ]; then 
     # For heftggbb, use the same settings as for ggtt
     exeArgs="-p 2048 256 2"
@@ -698,9 +700,9 @@ for exe in $exes; do
   cd $exeDir/.. # workaround for reading '../../Cards/param_card.dat' without setting MG5AMC_CARD_PATH
   unset OMP_NUM_THREADS
   runExe $exe "$exeArgs"
-  if [ "${exe%%/check*}" != "${exe}" ]; then 
+  if [ "${exe%%/check_cpp*}" != "${exe}" ]; then 
     if [ "${maketype}" != "-dryrun" ]; then
-      obj=${exe%%/check*}/CPPProcess.o; $scrdir/simdSymSummary.sh -stripdir ${obj} -dumptotmp # comment out -dumptotmp to keep full objdump
+      obj=${exe%%.exe}; obj=${obj/check/CPPProcess}.o; $scrdir/simdSymSummary.sh -stripdir ${obj} -dumptotmp # comment out -dumptotmp to keep full objdump
     fi
     if [ "${omp}" == "1" ]; then 
       echo "-------------------------------------------------------------------------"
@@ -708,7 +710,7 @@ for exe in $exes; do
       runExe $exe "$exeArgs"
       unset OMP_NUM_THREADS
     fi
-  elif [ "${exe%%/gcheck*}" != "${exe}" ] ||  [ "${exe%%/alpcheck*}" != "${exe}" ]; then 
+  elif [[ "${exe%%/check_cuda*}" != "${exe}" || "${exe%%/check_hip*}" != "${exe}" ]] || [ "${exe%%/alpcheck*}" != "${exe}" ]; then
     runNcu $exe "$ncuArgs"
     if [ "${div}" == "1" ]; then runNcuDiv $exe; fi
     if [ "${req}" == "1" ]; then runNcuReq $exe "$ncuArgs"; fi
@@ -716,8 +718,7 @@ for exe in $exes; do
   fi
   if [ "${gtest}" == "1" ]; then
     echo "-------------------------------------------------------------------------"
-    exe2=${exe/gcheck/runTest} # first try to replace gcheck.exe
-    exe2=${exe2/check/runTest} # then try to replace check.exe instead
+    exe2=${exe/check/runTest} # replace check_xxx.exe by runTest_xxx.exe
     echo "runExe $exe2"
     $exe2 2>&1 | tail -1
     if [ ${PIPESTATUS[0]} -ne "0" ]; then exit 1; fi 
