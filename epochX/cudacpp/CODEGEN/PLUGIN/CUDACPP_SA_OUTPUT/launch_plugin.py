@@ -52,7 +52,6 @@ template_on = \
 """#***********************************************************************
 # SIMD/GPU configuration for the CUDACPP plugin
 #************************************************************************
- %(avx_level)s = avx_level ! SIMD vectorization level: none, sse4, avx2, 512y, 512z, auto
  %(cudacpp_backend)s = cudacpp_backend ! CUDACPP backend: fortran, cuda, hip, cpp, cppnone, cppsse4, cppavx2, cpp512y, cpp512z, cppauto
 """
 
