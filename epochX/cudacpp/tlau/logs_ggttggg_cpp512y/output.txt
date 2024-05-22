@@ -1,0 +1,103 @@
+START: Wed Dec 20 02:31:22 AM CET 2023
+************************************************************
+*                                                          *
+*                      W E L C O M E to                    *
+*             M A D G R A P H 5 _ a M C @ N L O            *
+*                      M A D E V E N T                     *
+*                                                          *
+*                 *                       *                *
+*                   *        * *        *                  *
+*                     * * * * 5 * * * *                    *
+*                   *        * *        *                  *
+*                 *                       *                *
+*                                                          *
+*         VERSION 3.5.2_lo_vect                            *
+*                                                          *
+*    The MadGraph5_aMC@NLO Development Team - Find us at   *
+*    https://server06.fynu.ucl.ac.be/projects/madgraph     *
+*                                                          *
+*               Type 'help' for in-line help.              *
+*                                                          *
+************************************************************
+INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttggg.mad/Cards/me5_configuration.txt  
+INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttggg.mad/Cards/me5_configuration.txt  
+Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
+Using default eps viewer "evince". Set another one in ./input/mg5_configuration.txt
+Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
+generate_events -f
+Generating 100 events with run name run_01
+survey  run_01 
+INFO: compile directory 
+compile Source Directory
+Using random number seed offset = 21
+INFO: Running Survey 
+Creating Jobs
+Working on SubProcesses
+INFO:     P1_gg_ttxggg  
+INFO: Building madevent in madevent_interface.py with 'cpp512y' matrix elements 
+INFO:  Idle: 57,  Running: 3,  Completed: 0 [ current time: 02h33 ] 
+INFO:  Idle: 55,  Running: 4,  Completed: 1 [  3m 11s  ] 
+INFO:  Idle: 51,  Running: 4,  Completed: 5 [  6m 22s  ] 
+INFO:  Idle: 47,  Running: 4,  Completed: 9 [  9m 33s  ] 
+INFO:  Idle: 45,  Running: 4,  Completed: 11 [  9m 37s  ] 
+INFO:  Idle: 43,  Running: 4,  Completed: 13 [  12m 48s  ] 
+INFO:  Idle: 39,  Running: 4,  Completed: 17 [  15m 58s  ] 
+INFO:  Idle: 35,  Running: 4,  Completed: 21 [  19m 11s  ] 
+INFO:  Idle: 31,  Running: 4,  Completed: 25 [  22m 25s  ] 
+INFO:  Idle: 27,  Running: 4,  Completed: 29 [  25m 36s  ] 
+INFO:  Idle: 25,  Running: 4,  Completed: 31 [  25m 39s  ] 
+INFO:  Idle: 23,  Running: 4,  Completed: 33 [  28m 48s  ] 
+INFO:  Idle: 21,  Running: 4,  Completed: 35 [  28m 54s  ] 
+INFO:  Idle: 19,  Running: 4,  Completed: 37 [  32m 1s  ] 
+INFO:  Idle: 17,  Running: 4,  Completed: 39 [  32m 6s  ] 
+INFO:  Idle: 15,  Running: 4,  Completed: 41 [  35m 19s  ] 
+INFO:  Idle: 13,  Running: 4,  Completed: 43 [  35m 23s  ] 
+INFO:  Idle: 12,  Running: 4,  Completed: 44 [  35m 27s  ] 
+INFO:  Idle: 11,  Running: 4,  Completed: 45 [  38m 31s  ] 
+INFO:  Idle: 9,  Running: 4,  Completed: 47 [  38m 38s  ] 
+INFO:  Idle: 7,  Running: 4,  Completed: 49 [  41m 43s  ] 
+INFO:  Idle: 6,  Running: 4,  Completed: 50 [  41m 46s  ] 
+INFO:  Idle: 5,  Running: 4,  Completed: 51 [  41m 50s  ] 
+INFO:  Idle: 3,  Running: 4,  Completed: 53 [  44m 56s  ] 
+INFO:  Idle: 1,  Running: 4,  Completed: 55 [  45m 1s  ] 
+INFO:  Idle: 0,  Running: 3,  Completed: 57 [  46m 42s  ] 
+INFO:  Idle: 0,  Running: 2,  Completed: 58 [  48m 6s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 60 [  48m 12s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 60 [  48m 12s  ] 
+INFO: End survey 
+refine 100
+Creating Jobs
+INFO: Refine results to 100 
+INFO: Generating 100.0 unweighted events. 
+sum of cpu time of last step: 3h08m12s
+INFO: Effective Luminosity 0.12205643917421105 pb^-1 
+INFO: need to improve 0 channels 
+- Current estimate of cross-section: 983.1517354748004 +- 9.88525528315308
+    P1_gg_ttxggg 
+INFO:  Idle: 0,  Running: 0,  Completed: 0 [ current time: 03h21 ] 
+INFO: Combining runs 
+sum of cpu time of last step: 3h08m12s
+INFO: finish refine 
+refine 100 --treshold=0.9
+No need for second refine due to stability of cross-section
+INFO: Combining Events 
+combination of events done in 0.372575044631958 s 
+  === Results Summary for run: run_01 tag: tag_1 ===
+
+     Cross-section :   983.2 +- 9.885 pb
+     Nb of events :  100
+ 
+INFO: No version of lhapdf. Can not run systematics computation 
+store_events
+INFO: Storing parton level results 
+INFO: End Parton 
+reweight -from_cards
+decay_events -from_cards
+INFO: storing files of previous run 
+INFO: Done 
+quit
+INFO:  
+11424.09user 16.89system 49:54.04elapsed 382%CPU (0avgtext+0avgdata 890464maxresident)k
+0inputs+341856outputs (80major+1731517minor)pagefaults 0swaps
+END: Wed Dec 20 03:21:16 AM CET 2023
+ELAPSED: 2994 seconds
