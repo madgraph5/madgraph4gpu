@@ -1,10 +1,10 @@
 // Copyright (C) 2010 The MadGraph5_aMC@NLO development team and contributors.
 // Created by: J. Alwall (Oct 2010) for the MG5aMC CPP backend.
 //==========================================================================
-// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Copyright (C) 2020-2024 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Modified by: A. Valassi (Sep 2021) for the MG5aMC CUDACPP plugin.
-// Further modified by: A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
 //==========================================================================
 // This file has been automatically generated for CUDA/C++ standalone by
 // MadGraph5_aMC@NLO v. 3.5.3_lo_vect, 2023-12-23
@@ -86,6 +86,10 @@ namespace mg5amcCpu
 
     // Print couplings that are changed event by event
     //void printDependentCouplings(); // now computed event-by-event (running alphas #373)
+
+    // BSM parameters that do not depend on alphaS but are needed in the computation of alphaS-dependent couplings;
+    static constexpr int nBsmIndepParam = 0;
+    //double mdl_bsmIndepParam[nBsmIndepParam];
 
   private:
 
@@ -184,6 +188,10 @@ namespace mg5amcCpu
 
     // Print couplings that are changed event by event
     //void printDependentCouplings(); // now computed event-by-event (running alphas #373)
+
+    // BSM parameters that do not depend on alphaS but are needed in the computation of alphaS-dependent couplings;
+    constexpr int nBsmIndepParam = 0;
+    //__device__ constexpr double mdl_bsmIndepParam[nBsmIndepParam] = { (none) };
   }
 
 } // end namespace mg5amcGpu/mg5amcCpu
@@ -222,24 +230,53 @@ namespace mg5amcCpu
 #ifdef MGONGPU_HARDCODE_PARAM
       using namespace Parameters_sm;
 #else
-      // SM implementation - no special handling of non-hardcoded parameters (PR #625)
+      // No special handling of non-hardcoded parameters (no additional BSM parameters needed in constant memory)
 #endif
       // NB: hardcode cxtype cI(0,1) instead of cxtype (or hardcoded cxsmpl) mdl_complexi (which exists in Parameters_sm) because:
       // (1) mdl_complexi is always (0,1); (2) mdl_complexi is undefined in device code; (3) need cxsmpl conversion to cxtype in code below
       const cxtype cI( 0., 1. );
       DependentCouplings_sv out;
-      // Begin SM implementation - no special handling of vectors of floats as in EFT (#439)
+#if not( defined MGONGPU_CPPSIMD && defined MGONGPU_FPTYPE_FLOAT )
+      // Couplings are (scalar, or vector of) doubles, or scalar floats - default implementation
       {
         const fptype_sv& G = G_sv;
         // Model parameters dependent on aS
         //const fptype_sv mdl_sqrt__aS = constexpr_sqrt( aS );
         //const fptype_sv G = 2. * mdl_sqrt__aS * constexpr_sqrt( M_PI );
+        // *** NB Compute all dependent parameters, including aS, in terms of G rather than in terms of aS ***
         const fptype_sv mdl_G__exp__2 = ( ( G ) * ( G ) );
         // Model couplings dependent on aS
         out.GC_11 = cI * G;
         out.GC_10 = -G;
       }
-      // End SM implementation - no special handling of vectors of floats as in EFT (#439)
+#else
+      // Couplings are VECTORS OF FLOATS: #439 special handling is needed (variable Gs are vector floats, fixed parameters are scalar doubles)
+      // Use an explicit loop to avoid <<error: conversion of scalar ‘double’ to vector ‘fptype_sv’ {aka ‘__vector(8) float’} involves truncation>>
+      // Problems may come e.g. in EFTs from multiplying a vector float (related to aS-dependent G) by a scalar double (aS-independent parameters)
+      // (NB in pure SM processes this special handling is not needed, but we keep it here for simplicity, see PR #824)
+      fptype_v GC_11r_v;
+      fptype_v GC_11i_v;
+      fptype_v GC_10r_v;
+      fptype_v GC_10i_v;
+      for( int i = 0; i < neppV; i++ )
+      {
+        const fptype& G = G_sv[i];
+        // Model parameters dependent on aS
+        //const fptype mdl_sqrt__aS = constexpr_sqrt( aS );
+        //const fptype G = 2. * mdl_sqrt__aS * constexpr_sqrt( M_PI );
+        // *** NB Compute all dependent parameters, including aS, in terms of G rather than in terms of aS ***
+        const fptype mdl_G__exp__2 = ( ( G ) * ( G ) );
+        // Model couplings dependent on aS
+        const cxtype GC_11 = cI * G;
+        const cxtype GC_10 = -G;
+        GC_11r_v[i] = cxreal( GC_11 );
+        GC_11i_v[i] = cximag( GC_11 );
+        GC_10r_v[i] = cxreal( GC_10 );
+        GC_10i_v[i] = cximag( GC_10 );
+      }
+      out.GC_11 = cxtype_v( GC_11r_v, GC_11i_v );
+      out.GC_10 = cxtype_v( GC_10r_v, GC_10i_v );
+#endif
       return out;
     }
 #ifdef MGONGPUCPP_GPUIMPL

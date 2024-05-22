@@ -1,17 +1,17 @@
 ! Copyright (C) 2010 The MadGraph5_aMC@NLO development team and contributors.
 ! Created by: J. Alwall (Jul 2010) for the MG5aMC CPP backend.
 !==========================================================================
-! Copyright (C) 2020-2023 CERN and UCLouvain.
+! Copyright (C) 2020-2024 CERN and UCLouvain.
 ! Licensed under the GNU Lesser General Public License (version 3 or later).
 ! Modified by: A. Valassi (Sep 2021) for the MG5aMC CUDACPP plugin.
-! Further modified by: J. Teig, A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
+! Further modified by: J. Teig, A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
 !==========================================================================
 
       // *** COLOR CHOICE BELOW ***
       // Store the leading color flows for choice of color
       if( jamp2_sv ) // disable color choice if nullptr
         for( int icolC = 0; icolC < ncolor; icolC++ )
-          jamp2_sv[ncolor * iParity + icolC] += cxabs2( jamp_sv[icolC] );
+          jamp2_sv[ncolor * iParity + icolC] += cxabs2( jamp_sv[icolC] ); // may underflow #831
 
       // *** COLOR MATRIX BELOW ***
       // (This method used to be called %(process_class_name)s::matrix_%(proc_name)s(%(matrix_args)s)?)
@@ -74,6 +74,7 @@
 #endif
       for( int icol = 0; icol < ncolor; icol++ )
       {
+        //if( debug ) printf( "calculate_wavefunctions... icol=%%d\n", icol );
 #ifndef MGONGPUCPP_GPUIMPL
         // === C++ START ===
         // Diagonal terms
@@ -99,7 +100,7 @@
           ztempR_sv += cf2.value[icol][jcol] * jampRj_sv;
           ztempI_sv += cf2.value[icol][jcol] * jampIj_sv;
         }
-        fptype2_sv deltaMEs2 = ( jampRi_sv * ztempR_sv + jampIi_sv * ztempI_sv );
+        fptype2_sv deltaMEs2 = ( jampRi_sv * ztempR_sv + jampIi_sv * ztempI_sv ); // may underflow #831
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
         deltaMEs_previous += fpvsplit0( deltaMEs2 );
         deltaMEs += fpvsplit1( deltaMEs2 );

@@ -1,10 +1,10 @@
 ! Copyright (C) 2010 The MadGraph5_aMC@NLO development team and contributors.
 ! Created by: J. Alwall (Jul 2010) for the MG5aMC CPP backend.
 !==========================================================================
-! Copyright (C) 2020-2023 CERN and UCLouvain.
+! Copyright (C) 2020-2024 CERN and UCLouvain.
 ! Licensed under the GNU Lesser General Public License (version 3 or later).
 ! Modified by: A. Valassi (Sep 2021) for the MG5aMC CUDACPP plugin.
-! Further modified by: J. Teig, A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
+! Further modified by: J. Teig, A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
 !==========================================================================
 //==========================================================================
 // Class member functions for calculating the matrix elements for
@@ -40,6 +40,13 @@ namespace mg5amcCpu
   // For CUDA performance, hardcoded constexpr's would be better: fewer registers and a tiny throughput increase
   // However, physics parameters are user-defined through card files: use CUDA constant memory instead (issue #39)
   // [NB if hardcoded parameters are used, it's better to define them here to avoid silent shadowing (issue #263)]
+  constexpr int nIPD = %(nipd)i; // SM independent parameters used in this CPPProcess.cc (FIXME? rename as sm_IndepParam?)
+  // Note: in the Python code generator, nIPD == nparam, while nIPC <= nicoup, because (see #823)
+  // nIPC may vary from one P*/CPPProcess.cc to another, while nicoup is defined in src/Param.h and is common to all P*
+  constexpr int nIPC = %(nipc)i; // SM independent couplings used in this CPPProcess.cc (FIXME? rename as sm_IndepCoupl?)
+  static_assert( nIPC <= nicoup );
+  static_assert( nIPD >= 0 ); // Hack to avoid build warnings when nIPD==0 is unused
+  static_assert( nIPC >= 0 ); // Hack to avoid build warnings when nIPC==0 is unused
 #ifdef MGONGPU_HARDCODE_PARAM
   %(cipdhrdcod)s
   %(cipchrdcod)s
@@ -58,12 +65,12 @@ namespace mg5amcCpu
   // For simplicity, keep this code hardcoded also for SM processes (a nullptr is needed as in the case nBsm == 0)
 #ifdef MGONGPUCPP_NBSMINDEPPARAM_GT_0
 #ifdef MGONGPU_HARDCODE_PARAM
-  __device__ const double* bsmIndepParam = Parameters_MSSM_SLHA2::mdl_bsmIndepParam;
+  __device__ const double* bsmIndepParam = Parameters_%(model_name)s::mdl_bsmIndepParam;
 #else
 #ifdef MGONGPUCPP_GPUIMPL
-  __device__ __constant__ double bsmIndepParam[Parameters_MSSM_SLHA2::nBsmIndepParam];
+  __device__ __constant__ double bsmIndepParam[Parameters_%(model_name)s::nBsmIndepParam];
 #else
-  static double bsmIndepParam[Parameters_MSSM_SLHA2::nBsmIndepParam];
+  static double bsmIndepParam[Parameters_%(model_name)s::nBsmIndepParam];
 #endif
 #endif
 #else
@@ -110,6 +117,7 @@ namespace mg5amcCpu
 #else
     memcpy( cHel, tHel, ncomb * npar * sizeof( short ) );
 #endif
+    fpeEnable(); // enable SIGFPE traps for Floating Point Exceptions
   }
 
   //--------------------------------------------------------------------------
@@ -144,11 +152,20 @@ namespace mg5amcCpu
     %(cipcassign)s
 #ifdef MGONGPUCPP_GPUIMPL
     %(cipd2tipdSym)s
-    %(cipc2tipcSym)s%(bsmMemcpySym)s
+    %(cipc2tipcSym)s
+#ifdef MGONGPUCPP_NBSMINDEPPARAM_GT_0
+    if( Parameters_%(model_name)s::nBsmIndepParam > 0 )
+      gpuMemcpyToSymbol( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters_%(model_name)s::nBsmIndepParam * sizeof( double ) );
+#endif
 #else
     %(cipd2tipd)s
-    %(cipc2tipc)s%(bsmMemcpy)s
-#endif%(cipddump)s%(cipcdump)s%(bsmdump)s
+    %(cipc2tipc)s
+#ifdef MGONGPUCPP_NBSMINDEPPARAM_GT_0
+    if( Parameters_%(model_name)s::nBsmIndepParam > 0 )
+      memcpy( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters_%(model_name)s::nBsmIndepParam * sizeof( double ) );
+#endif
+#endif%(cipddump)s%(cipcdump)s
+    //for ( int i=0; i<Parameters_%(model_name)s::nBsmIndepParam; i++ ) std::cout << std::setprecision(17) << "m_pars->mdl_bsmIndepParam[i] = " << m_pars->mdl_bsmIndepParam[i] << std::endl;
   }
 #else
   // Initialize process (with hardcoded parameters)

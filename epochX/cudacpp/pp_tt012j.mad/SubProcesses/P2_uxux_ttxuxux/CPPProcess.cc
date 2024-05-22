@@ -1,10 +1,10 @@
 // Copyright (C) 2010 The MadGraph5_aMC@NLO development team and contributors.
 // Created by: J. Alwall (Oct 2010) for the MG5aMC CPP backend.
 //==========================================================================
-// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Copyright (C) 2020-2024 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Modified by: S. Roiser (Feb 2020) for the MG5aMC CUDACPP plugin.
-// Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, J. Teig, A. Valassi, Z. Wettersten (2020-2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, J. Teig, A. Valassi, Z. Wettersten (2020-2024) for the MG5aMC CUDACPP plugin.
 //==========================================================================
 // This file has been automatically generated for CUDA/C++ standalone by
 // MadGraph5_aMC@NLO v. 3.5.3_lo_vect, 2023-12-23
@@ -33,6 +33,8 @@
 
 #include <algorithm>
 #include <array>
+#include <cfenv>  // for feenableexcept, fegetexcept and FE_XXX
+#include <cfloat> // for FLT_MIN
 #include <cstring>
 #include <iomanip>
 #include <iostream>
@@ -41,6 +43,47 @@
 // Test ncu metrics for CUDA thread divergence
 #undef MGONGPU_TEST_DIVERGENCE
 //#define MGONGPU_TEST_DIVERGENCE 1
+
+//--------------------------------------------------------------------------
+
+// Enable FPE traps (see #701, #733, #831 - except on MacOS where feenableexcept is not defined #730)
+// [NB1: Fortran default is -ffpe-trap=none, i.e. FPE traps are not enabled, https://gcc.gnu.org/onlinedocs/gfortran/Debugging-Options.html]
+// [NB2: Fortran default is -ffpe-summary=invalid,zero,overflow,underflow,denormal, i.e. warn at the end on STOP]
+inline void
+fpeEnable()
+{
+  static bool first = true; // FIXME: quick and dirty hack to do this only once (can be removed when separate C++/CUDA builds are implemented)
+  if( !first ) return;
+  first = false;
+#ifndef __APPLE__ // on MacOS feenableexcept is not defined #730
+  //int fpes = fegetexcept();
+  //std::cout << "fpeEnable: analyse fegetexcept()=" << fpes << std::endl;
+  //std::cout << "fpeEnable:     FE_DIVBYZERO is" << ( ( fpes & FE_DIVBYZERO ) ? " " : " NOT " ) << "enabled" << std::endl;
+  //std::cout << "fpeEnable:     FE_INEXACT is" << ( ( fpes & FE_INEXACT ) ? " " : " NOT " ) << "enabled" << std::endl;
+  //std::cout << "fpeEnable:     FE_INVALID is" << ( ( fpes & FE_INVALID ) ? " " : " NOT " ) << "enabled" << std::endl;
+  //std::cout << "fpeEnable:     FE_OVERFLOW is" << ( ( fpes & FE_OVERFLOW ) ? " " : " NOT " ) << "enabled" << std::endl;
+  //std::cout << "fpeEnable:     FE_UNDERFLOW is" << ( ( fpes & FE_UNDERFLOW ) ? " " : " NOT " ) << "enabled" << std::endl;
+  constexpr bool enableFPE = true; // this is hardcoded and no longer controlled by getenv( "CUDACPP_RUNTIME_ENABLEFPE" )
+  if( enableFPE )
+  {
+    std::cout << "INFO: The following Floating Point Exceptions will cause SIGFPE program aborts: FE_DIVBYZERO, FE_INVALID, FE_OVERFLOW" << std::endl;
+    feenableexcept( FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW ); // new strategy #831 (do not enable FE_UNDERFLOW)
+    //fpes = fegetexcept();
+    //std::cout << "fpeEnable: analyse fegetexcept()=" << fpes << std::endl;
+    //std::cout << "fpeEnable:     FE_DIVBYZERO is" << ( ( fpes & FE_DIVBYZERO ) ? " " : " NOT " ) << "enabled" << std::endl;
+    //std::cout << "fpeEnable:     FE_INEXACT is" << ( ( fpes & FE_INEXACT ) ? " " : " NOT " ) << "enabled" << std::endl;
+    //std::cout << "fpeEnable:     FE_INVALID is" << ( ( fpes & FE_INVALID ) ? " " : " NOT " ) << "enabled" << std::endl;
+    //std::cout << "fpeEnable:     FE_OVERFLOW is" << ( ( fpes & FE_OVERFLOW ) ? " " : " NOT " ) << "enabled" << std::endl;
+    //std::cout << "fpeEnable:     FE_UNDERFLOW is" << ( ( fpes & FE_UNDERFLOW ) ? " " : " NOT " ) << "enabled" << std::endl;
+  }
+  else
+  {
+    //std::cout << "INFO: Do not enable SIGFPE traps for Floating Point Exceptions" << std::endl;
+  }
+#else
+  //std::cout << "INFO: Keep default SIGFPE settings because feenableexcept is not available on MacOS" << std::endl;
+#endif
+}
 
 //==========================================================================
 // Class member functions for calculating the matrix elements for
@@ -79,16 +122,23 @@ namespace mg5amcCpu
   // For CUDA performance, hardcoded constexpr's would be better: fewer registers and a tiny throughput increase
   // However, physics parameters are user-defined through card files: use CUDA constant memory instead (issue #39)
   // [NB if hardcoded parameters are used, it's better to define them here to avoid silent shadowing (issue #263)]
+  constexpr int nIPD = 2; // SM independent parameters used in this CPPProcess.cc (FIXME? rename as sm_IndepParam?)
+  // Note: in the Python code generator, nIPD == nparam, while nIPC <= nicoup, because (see #823)
+  // nIPC may vary from one P*/CPPProcess.cc to another, while nicoup is defined in src/Param.h and is common to all P*
+  constexpr int nIPC = 0; // SM independent couplings used in this CPPProcess.cc (FIXME? rename as sm_IndepCoupl?)
+  static_assert( nIPC <= nicoup );
+  static_assert( nIPD >= 0 ); // Hack to avoid build warnings when nIPD==0 is unused
+  static_assert( nIPC >= 0 ); // Hack to avoid build warnings when nIPC==0 is unused
 #ifdef MGONGPU_HARDCODE_PARAM
-  __device__ const fptype cIPD[2] = { (fptype)Parameters_sm::mdl_MT, (fptype)Parameters_sm::mdl_WT };
-  __device__ const fptype* cIPC = nullptr; // unused as nicoup=0
+  __device__ const fptype cIPD[nIPD] = { (fptype)Parameters_sm::mdl_MT, (fptype)Parameters_sm::mdl_WT };
+  __device__ const fptype* cIPC = nullptr; // unused as nIPC=0
 #else
 #ifdef MGONGPUCPP_GPUIMPL
-  __device__ __constant__ fptype cIPD[2];
-  __device__ __constant__ fptype* cIPC = nullptr; // unused as nicoup=0
+  __device__ __constant__ fptype cIPD[nIPD];
+  __device__ __constant__ fptype* cIPC = nullptr; // unused as nIPC=0
 #else
-  static fptype cIPD[2];
-  static fptype* cIPC = nullptr; // unused as nicoup=0
+  static fptype cIPD[nIPD];
+  static fptype* cIPC = nullptr; // unused as nIPC=0
 #endif
 #endif
 
@@ -97,12 +147,12 @@ namespace mg5amcCpu
   // For simplicity, keep this code hardcoded also for SM processes (a nullptr is needed as in the case nBsm == 0)
 #ifdef MGONGPUCPP_NBSMINDEPPARAM_GT_0
 #ifdef MGONGPU_HARDCODE_PARAM
-  __device__ const double* bsmIndepParam = Parameters_MSSM_SLHA2::mdl_bsmIndepParam;
+  __device__ const double* bsmIndepParam = Parameters_sm::mdl_bsmIndepParam;
 #else
 #ifdef MGONGPUCPP_GPUIMPL
-  __device__ __constant__ double bsmIndepParam[Parameters_MSSM_SLHA2::nBsmIndepParam];
+  __device__ __constant__ double bsmIndepParam[Parameters_sm::nBsmIndepParam];
 #else
-  static double bsmIndepParam[Parameters_MSSM_SLHA2::nBsmIndepParam];
+  static double bsmIndepParam[Parameters_sm::nBsmIndepParam];
 #endif
 #endif
 #else
@@ -178,10 +228,12 @@ namespace mg5amcCpu
 #endif
 #endif /* clang-format on */
     mgDebug( 0, __FUNCTION__ );
-    //printf( "calculate_wavefunctions: ihel=%2d\n", ihel );
+    //bool debug = true;
 #ifndef MGONGPUCPP_GPUIMPL
-    //printf( "calculate_wavefunctions: ievt00=%d\n", ievt00 );
+    //debug = ( ievt00 >= 64 && ievt00 < 80 && ihel == 3 ); // example: debug #831
+    //if( debug ) printf( "calculate_wavefunctions: ievt00=%d\n", ievt00 );
 #endif
+    //if( debug ) printf( "calculate_wavefunctions: ihel=%d\n", ihel );
 
     // The variable nwf (which is specific to each P1 subdirectory, #644) is only used here
     // It is hardcoded here because various attempts to hardcode it in CPPProcess.h at generation time gave the wrong result...
@@ -218,7 +270,8 @@ namespace mg5amcCpu
 #ifndef MGONGPUCPP_GPUIMPL
       const int ievt0 = ievt00 + iParity * neppV;
 #endif
-      constexpr size_t nxcoup = ndcoup + nicoup; // both dependent and independent couplings
+      //constexpr size_t nxcoup = ndcoup + nicoup; // both dependent and independent couplings (BUG #823)
+      constexpr size_t nxcoup = ndcoup + nIPC; // both dependent and independent couplings (FIX #823)
       const fptype* allCOUPs[nxcoup];
 #ifdef __CUDACC__
 #pragma nv_diagnostic push
@@ -226,7 +279,8 @@ namespace mg5amcCpu
 #endif
       for( size_t idcoup = 0; idcoup < ndcoup; idcoup++ )
         allCOUPs[idcoup] = CD_ACCESS::idcoupAccessBufferConst( allcouplings, idcoup ); // dependent couplings, vary event-by-event
-      for( size_t iicoup = 0; iicoup < nicoup; iicoup++ )
+      //for( size_t iicoup = 0; iicoup < nicoup; iicoup++ )                             // BUG #823
+      for( size_t iicoup = 0; iicoup < nIPC; iicoup++ )                                 // FIX #823
         allCOUPs[ndcoup + iicoup] = CI_ACCESS::iicoupAccessBufferConst( cIPC, iicoup ); // independent couplings, fixed for all events
 #ifdef MGONGPUCPP_GPUIMPL
 #ifdef __CUDACC__
@@ -247,7 +301,8 @@ namespace mg5amcCpu
       const fptype* COUPs[nxcoup];
       for( size_t idcoup = 0; idcoup < ndcoup; idcoup++ )
         COUPs[idcoup] = CD_ACCESS::ieventAccessRecordConst( allCOUPs[idcoup], ievt0 ); // dependent couplings, vary event-by-event
-      for( size_t iicoup = 0; iicoup < nicoup; iicoup++ )
+      //for( size_t iicoup = 0; iicoup < nicoup; iicoup++ ) // BUG #823
+      for( size_t iicoup = 0; iicoup < nIPC; iicoup++ )     // FIX #823
         COUPs[ndcoup + iicoup] = allCOUPs[ndcoup + iicoup]; // independent couplings, fixed for all events
       fptype* MEs = E_ACCESS::ieventAccessRecord( allMEs, ievt0 );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
@@ -505,7 +560,7 @@ namespace mg5amcCpu
       // Store the leading color flows for choice of color
       if( jamp2_sv ) // disable color choice if nullptr
         for( int icolC = 0; icolC < ncolor; icolC++ )
-          jamp2_sv[ncolor * iParity + icolC] += cxabs2( jamp_sv[icolC] );
+          jamp2_sv[ncolor * iParity + icolC] += cxabs2( jamp_sv[icolC] ); // may underflow #831
 
       // *** COLOR MATRIX BELOW ***
       // (This method used to be called CPPProcess::matrix_2_uxux_ttxuxux()?)
@@ -581,6 +636,7 @@ namespace mg5amcCpu
 #endif
       for( int icol = 0; icol < ncolor; icol++ )
       {
+        //if( debug ) printf( "calculate_wavefunctions... icol=%d\n", icol );
 #ifndef MGONGPUCPP_GPUIMPL
         // === C++ START ===
         // Diagonal terms
@@ -606,7 +662,7 @@ namespace mg5amcCpu
           ztempR_sv += cf2.value[icol][jcol] * jampRj_sv;
           ztempI_sv += cf2.value[icol][jcol] * jampIj_sv;
         }
-        fptype2_sv deltaMEs2 = ( jampRi_sv * ztempR_sv + jampIi_sv * ztempI_sv );
+        fptype2_sv deltaMEs2 = ( jampRi_sv * ztempR_sv + jampIi_sv * ztempI_sv ); // may underflow #831
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
         deltaMEs_previous += fpvsplit0( deltaMEs2 );
         deltaMEs += fpvsplit1( deltaMEs2 );
@@ -740,6 +796,7 @@ namespace mg5amcCpu
 #else
     memcpy( cHel, tHel, ncomb * npar * sizeof( short ) );
 #endif
+    fpeEnable(); // enable SIGFPE traps for Floating Point Exceptions
   }
 
   //--------------------------------------------------------------------------
@@ -776,16 +833,25 @@ namespace mg5amcCpu
     m_masses.push_back( m_pars->ZERO );
     // Read physics parameters like masses and couplings from user configuration files (static: initialize once)
     // Then copy them to CUDA constant memory (issue #39) or its C++ emulation in file-scope static memory
-    const fptype tIPD[2] = { (fptype)m_pars->mdl_MT, (fptype)m_pars->mdl_WT };
-    //const cxtype tIPC[0] = { ... }; // nicoup=0
+    const fptype tIPD[nIPD] = { (fptype)m_pars->mdl_MT, (fptype)m_pars->mdl_WT };
+    //const cxtype tIPC[0] = { ... }; // nIPC=0
 #ifdef MGONGPUCPP_GPUIMPL
-    gpuMemcpyToSymbol( cIPD, tIPD, 2 * sizeof( fptype ) );
-    //gpuMemcpyToSymbol( cIPC, tIPC, 0 * sizeof( cxtype ) ); // nicoup=0
-#else
-    memcpy( cIPD, tIPD, 2 * sizeof( fptype ) );
-    //memcpy( cIPC, tIPC, 0 * sizeof( cxtype ) ); // nicoup=0
+    gpuMemcpyToSymbol( cIPD, tIPD, nIPD * sizeof( fptype ) );
+    //gpuMemcpyToSymbol( cIPC, tIPC, 0 * sizeof( cxtype ) ); // nIPC=0
+#ifdef MGONGPUCPP_NBSMINDEPPARAM_GT_0
+    if( Parameters_sm::nBsmIndepParam > 0 )
+      gpuMemcpyToSymbol( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters_sm::nBsmIndepParam * sizeof( double ) );
 #endif
-    //for ( int i=0; i<2; i++ ) std::cout << std::setprecision(17) << "tIPD[i] = " << tIPD[i] << std::endl;
+#else
+    memcpy( cIPD, tIPD, nIPD * sizeof( fptype ) );
+    //memcpy( cIPC, tIPC, nIPC * sizeof( cxtype ) ); // nIPC=0
+#ifdef MGONGPUCPP_NBSMINDEPPARAM_GT_0
+    if( Parameters_sm::nBsmIndepParam > 0 )
+      memcpy( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters_sm::nBsmIndepParam * sizeof( double ) );
+#endif
+#endif
+    //for ( int i=0; i<nIPD; i++ ) std::cout << std::setprecision(17) << "tIPD[i] = " << tIPD[i] << std::endl;
+    //for ( int i=0; i<Parameters_sm::nBsmIndepParam; i++ ) std::cout << std::setprecision(17) << "m_pars->mdl_bsmIndepParam[i] = " << m_pars->mdl_bsmIndepParam[i] << std::endl;
   }
 #else
   // Initialize process (with hardcoded parameters)

@@ -1,0 +1,47 @@
+<file>######################################################################
+## VALIDITY RULE FOR THE PARAM_CARD   ####
+######################################################################
+<zero>
+</zero>
+<one>
+     dsqmix 1    1 # 
+     dsqmix 2    2 # 
+     dsqmix 4    4 # 
+     dsqmix 5    5 # 
+     selmix 1    1 # 
+     selmix 2    2 # 
+     selmix 4    4 # 
+     selmix 5    5 # 
+     snumix 1    1 # 
+     snumix 2    2 # 
+     snumix 3    3 # 
+     upmns 1    1 # 
+     upmns 2    2 # 
+     upmns 3    3 # 
+     usqmix 1    1 # 
+     usqmix 2    2 # 
+     usqmix 4    4 # 
+     usqmix 5    5 # 
+     vckm 1    1 # 
+     vckm 2    2 # 
+     vckm 3    3 # 
+</one>
+<identical>
+     msd2 2    2 : 1    1 # 
+     mse2 2    2 : 1    1 # 
+     msl2 2    2 : 1    1 # 
+     msq2 2    2 : 1    1 # 
+     msu2 2    2 : 1    1 # 
+     mass 1000014 : 1000012 # 
+     mass 1000013 : 1000011 # 
+     mass 2000013 : 2000011 # 
+     mass 1000004 : 1000002 # 
+     mass 2000004 : 2000002 # 
+     mass 1000003 : 1000001 # 
+     mass 2000003 : 2000001 # 
+</identical>
+<opposite>
+</opposite>
+<constraint>
+</constraint>
+</file>

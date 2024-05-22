@@ -1,8 +1,8 @@
 #!/bin/bash
-# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Copyright (C) 2020-2024 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: A. Valassi (Sep 2021) for the MG5aMC CUDACPP plugin.
-# Further modified by: A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
+# Further modified by: A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
 
 set -e # fail on error
 
@@ -106,6 +106,10 @@ function codeGenAndDiff()
       generate p p > t t~ z @0
       add process p p > t t~ z j @1"
       ;;
+    nobm_gu_ttxwpd)
+      cmd="import model sm-no_b_mass
+      generate g u > t t~ w+ d"
+      ;;
     nobm_pp_eejjj)
       cmd="import model sm-no_b_mass
       define p = p b b~
@@ -149,11 +153,51 @@ function codeGenAndDiff()
     heft_gg_h)
       cmd="set auto_convert_model T; import model heft; generate g g > h"
       ;;
+    gg_bb)
+      cmd="generate g g > b b~" # for comparison: 3 SM diagrams
+      ;;
+    heft_gg_bb)
+      ###cmd="set auto_convert_model T; import model heft; generate g g > b b~" # 3 SM diagrams (as in SM gg_bb)
+      cmd="set auto_convert_model T; import model heft; generate g g > b b~ HIW<=1" # 4 diagrams (3 SM plus 1 HEFT): fix #828
+      ;;
+    heft_gg_h_bb)
+      cmd="set auto_convert_model T; import model heft; generate g g > h > b b~" # 1 HEFT diagram
+      ;;
     smeft_gg_tttt)
       cmd="set auto_convert_model T; import model SMEFTsim_topU3l_MwScheme_UFO -massless_4t; generate g g > t t~ t t~"
       ;;
     susy_gg_tt)
       cmd="import model MSSM_SLHA2; generate g g > t t~"
+      ;;
+    susy_gg_tttt)
+      cmd="import model MSSM_SLHA2; generate g g > t t~ t t~"
+      ;;
+    susy_gq_ttq)
+      cmd="import model MSSM_SLHA2; define q = u c d s u~ c~ d~ s~; generate g q > t t~ q"
+      ;;
+    susy_gq_ttllq)
+      cmd="import model MSSM_SLHA2; define q = u c d s u~ c~ d~ s~; generate g q > t t~ l- l+ q"
+      ;;
+    ###susy_gu_ttllu)
+    ###  cmd="import model MSSM_SLHA2; generate g u > t t~ l- l+ u"
+    ###  ;;
+    ###susy_gux_ttllux)
+    ###  cmd="import model MSSM_SLHA2; generate g u~ > t t~ l- l+ u~"
+    ###  ;;
+    ###susy_gd_ttlld)
+    ###  cmd="import model MSSM_SLHA2; generate g d > t t~ l- l+ d"
+    ###  ;;
+    ###susy_gdx_ttlldx)
+    ###  cmd="import model MSSM_SLHA2; generate g d~ > t t~ l- l+ d~"
+    ###  ;;
+    susy_gg_gogo)
+      cmd="import model MSSM_SLHA2; generate g g > go go"
+      ;;
+    susy_gg_t1t1)
+      cmd="import model MSSM_SLHA2; generate g g > t1 t1~"
+      ;;
+    susy_gg_ulul)
+      cmd="import model MSSM_SLHA2; generate g g > ul ul~"
       ;;
     atlas)
       cmd="import model sm-no_b_mass

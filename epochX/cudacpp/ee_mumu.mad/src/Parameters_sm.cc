@@ -1,10 +1,10 @@
 // Copyright (C) 2010 The MadGraph5_aMC@NLO development team and contributors.
 // Created by: J. Alwall (Oct 2010) for the MG5aMC CPP backend.
 //==========================================================================
-// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Copyright (C) 2020-2024 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Modified by: A. Valassi (Sep 2021) for the MG5aMC CUDACPP plugin.
-// Further modified by: J. Teig, A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: J. Teig, A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
 //==========================================================================
 // This file has been automatically generated for CUDA/C++ standalone by
 // MadGraph5_aMC@NLO v. 3.5.3_lo_vect, 2023-12-23
@@ -91,6 +91,8 @@ Parameters_sm::setIndependentParameters( SLHAReader& slha )
   mdl_ee__exp__2 = ( ( mdl_ee ) * ( mdl_ee ) );
   mdl_sw__exp__2 = ( ( mdl_sw ) * ( mdl_sw ) );
   mdl_cw__exp__2 = ( ( mdl_cw ) * ( mdl_cw ) );
+  // BSM parameters that do not depend on alphaS but are needed in the computation of alphaS-dependent couplings;
+  // (none)
 }
 
 void
