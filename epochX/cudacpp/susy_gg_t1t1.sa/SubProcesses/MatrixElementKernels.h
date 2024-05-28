@@ -1,7 +1,7 @@
-// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Copyright (C) 2020-2024 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: A. Valassi (Jan 2022) for the MG5aMC CUDACPP plugin.
-// Further modified by: J. Teig, A. Valassi (2022-2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: J. Teig, A. Valassi (2022-2024) for the MG5aMC CUDACPP plugin.
 
 #ifndef MATRIXELEMENTKERNELS_H
 #define MATRIXELEMENTKERNELS_H 1
@@ -55,6 +55,9 @@ namespace mg5amcCpu
     // Is this a host or device kernel?
     virtual bool isOnDevice() const = 0;
 
+    // Dump signalling FPEs (#831 and #837)
+    static void dumpSignallingFPEs();
+
   protected:
 
     // The buffer for the input momenta
@@ -98,7 +101,7 @@ namespace mg5amcCpu
                              const size_t nevt );
 
     // Destructor
-    virtual ~MatrixElementKernelHost() {}
+    virtual ~MatrixElementKernelHost() { MatrixElementKernelBase::dumpSignallingFPEs(); }
 
     // Compute good helicities (returns nGoodHel, the number of good helicity combinations out of ncomb)
     int computeGoodHelicities() override final;
@@ -109,8 +112,10 @@ namespace mg5amcCpu
     // Is this a host or device kernel?
     bool isOnDevice() const override final { return false; }
 
+  private:
+
     // Does this host system support the SIMD used in the matrix element calculation?
-    // [NB: SIMD vectorization in mg5amc C++ code is currently only used in the ME calculations below MatrixElementKernelHost!]
+    // [NB: this is private, SIMD vectorization in mg5amc C++ code is currently only used in the ME calculations below MatrixElementKernelHost!]
     static bool hostSupportsSIMD( const bool verbose = true );
 
   private:
@@ -148,7 +153,7 @@ namespace mg5amcCpu
                                const size_t gputhreads );
 
     // Destructor
-    virtual ~MatrixElementKernelDevice() {}
+    virtual ~MatrixElementKernelDevice() { MatrixElementKernelBase::dumpSignallingFPEs(); }
 
     // Reset gpublocks and gputhreads
     void setGrid( const int gpublocks, const int gputhreads );

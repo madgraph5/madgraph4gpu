@@ -17,10 +17,10 @@ add10x="+10x"
 
 while [ "$1" != "" ]; do
   if [ "$1" == "-short" ]; then
-    short=1 # all but ggttggg
+    short=1 # all (possibly including bsm) but ggttggg
     shift
   elif [ "$1" == "-ggttggg" ]; then
-    short=-1 # only ggttggg
+    short=-1 # only ggttggg (implies no bsm!)
     shift
   elif [ "$1" == "-makeclean" ]; then
     makeclean=$1
@@ -55,7 +55,9 @@ status=$?
 ended1="(SM tests)\nENDED(1) AT $(date) [Status=$status]"
 
 if [ "${bsm}" != "-nobsm" ]; then
-  ${scrdir}/teeMadX.sh -susyggtt -susyggt1t1 -smeftggtttt $flts $makeclean $rmrdat $add10x
+  if [ "$short" != "-1" ]; then
+    ${scrdir}/teeMadX.sh -heftggbb -susyggtt -susyggt1t1 -smeftggtttt $flts $makeclean $rmrdat $add10x
+  fi
 fi
 status=$?
 ended2="(BSM tests)\nENDED(1) AT $(date) [Status=$status]"

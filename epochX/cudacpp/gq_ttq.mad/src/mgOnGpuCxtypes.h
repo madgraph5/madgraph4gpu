@@ -1,7 +1,7 @@
-// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Copyright (C) 2020-2024 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: A. Valassi (Jan 2022, based on earlier work by D. Smith) for the MG5aMC CUDACPP plugin.
-// Further modified by: J. Teig, A. Valassi (2022-2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: J. Teig, A. Valassi (2022-2024) for the MG5aMC CUDACPP plugin.
 
 #ifndef MGONGPUCXTYPES_H
 #define MGONGPUCXTYPES_H 1
@@ -172,7 +172,8 @@ namespace mg5amcCpu
   inline __host__ std::ostream&
   operator<<( std::ostream& out, const cxsmpl<FP>& c )
   {
-    out << std::complex<FP>( c.real(), c.imag() );
+    //out << std::complex<FP>( c.real(), c.imag() );
+    out << "(" << c.real() << ", " << c.imag() << ")"; // add a space after the comma
     return out;
   }
 
@@ -480,7 +481,8 @@ namespace mg5amcCpu
   inline __host__ std::ostream&
   operator<<( std::ostream& out, const cxtype& c )
   {
-    out << std::complex<double>( cxreal( c ), cximag( c ) );
+    //out << std::complex<double>( cxreal( c ), cximag( c ) );
+    out << "(" << cxreal( c ) << ", " << cximag( c ) << ")"; // add a space after the comma
     return out;
   }
 
@@ -541,7 +543,8 @@ namespace mg5amcCpu
   inline __host__ std::ostream&
   operator<<( std::ostream& out, const cxtype& c )
   {
-    out << std::complex<float>( cxreal( c ), cximag( c ) );
+    //out << std::complex<float>( cxreal( c ), cximag( c ) );
+    out << "(" << cxreal( c ) << ", " << cximag( c ) << ")"; // add a space after the comma
     return out;
   }
 

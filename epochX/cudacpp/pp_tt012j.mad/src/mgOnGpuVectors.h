@@ -1,7 +1,7 @@
-// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Copyright (C) 2020-2024 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: A. Valassi (Nov 2020) for the MG5aMC CUDACPP plugin.
-// Further modified by: A. Valassi, Z. Wettersten (2020-2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: A. Valassi, Z. Wettersten (2020-2024) for the MG5aMC CUDACPP plugin.
 
 #ifndef MGONGPUVECTORS_H
 #define MGONGPUVECTORS_H 1
@@ -192,6 +192,17 @@ namespace mg5amcCpu
   {
     out << "{ " << v[0];
     for( int i = 1; i < neppV; i++ ) out << ", " << v[i];
+    out << " }";
+    return out;
+  }
+#endif
+
+#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+  inline std::ostream&
+  operator<<( std::ostream& out, const fptype2_v& v )
+  {
+    out << "{ " << v[0];
+    for( int i = 1; i < neppV2; i++ ) out << ", " << v[i];
     out << " }";
     return out;
   }

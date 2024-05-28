@@ -1,8 +1,8 @@
 #!/bin/bash
-# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Copyright (C) 2020-2024 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: A. Valassi (Sep 2021) for the MG5aMC CUDACPP plugin.
-# Further modified by: A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
+# Further modified by: A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
 
 set -e # fail on error
 
@@ -106,6 +106,10 @@ function codeGenAndDiff()
       generate p p > t t~ z @0
       add process p p > t t~ z j @1"
       ;;
+    nobm_gu_ttxwpd)
+      cmd="import model sm-no_b_mass
+      generate g u > t t~ w+ d"
+      ;;
     nobm_pp_eejjj)
       cmd="import model sm-no_b_mass
       define p = p b b~
@@ -149,14 +153,15 @@ function codeGenAndDiff()
     heft_gg_h)
       cmd="set auto_convert_model T; import model heft; generate g g > h"
       ;;
-    gg_bb) # for comparison: 3 diagrams
-      cmd="generate g g > b b~"
+    gg_bb)
+      cmd="generate g g > b b~" # for comparison: 3 SM diagrams
       ;;
-    heft_gg_bb) # 3 diagrams (as in gg_bb)
-      cmd="set auto_convert_model T; import model heft; generate g g > b b~"
+    heft_gg_bb)
+      ###cmd="set auto_convert_model T; import model heft; generate g g > b b~" # 3 SM diagrams (as in SM gg_bb)
+      cmd="set auto_convert_model T; import model heft; generate g g > b b~ HIW<=1" # 4 diagrams (3 SM plus 1 HEFT): fix #828
       ;;
-    heft_gg_h_bb) # 1 diagram (out of 3 in heft_gg_bb)
-      cmd="set auto_convert_model T; import model heft; generate g g > h > b b~"
+    heft_gg_h_bb)
+      cmd="set auto_convert_model T; import model heft; generate g g > h > b b~" # 1 HEFT diagram
       ;;
     smeft_gg_tttt)
       cmd="set auto_convert_model T; import model SMEFTsim_topU3l_MwScheme_UFO -massless_4t; generate g g > t t~ t t~"

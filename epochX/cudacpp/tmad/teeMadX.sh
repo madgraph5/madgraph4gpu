@@ -2,6 +2,7 @@
 # Copyright (C) 2020-2023 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: A. Valassi (May 2022) for the MG5aMC CUDACPP plugin.
+# Further modified by: A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
 
 scrdir=$(cd $(dirname $0); pwd)
 bckend=$(basename $(cd $scrdir; cd ..; pwd)) # cudacpp or alpaka
@@ -9,7 +10,7 @@ cd $scrdir
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gguu][-gqttq][-susyggtt][-susyggt1t1][-smeftggtttt]> [-flt|-fltonly|-mix|-mixonly] [-makeonly] [-makeclean] [-rmrdat] [+10x] [-checkonly]" > /dev/stderr
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gguu][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-flt|-fltonly|-mix|-mixonly] [-makeonly] [-makeclean] [-rmrdat] [+10x] [-checkonly]" > /dev/stderr
   exit 1
 }
 
@@ -21,6 +22,7 @@ ggttgg=
 ggttggg=
 gguu=
 gqttq=
+heftggbb=
 susyggtt=
 susyggt1t1=
 smeftggtttt=
@@ -66,6 +68,9 @@ for arg in $*; do
   elif [ "$arg" == "-gqttq" ]; then
     if [ "$gqttq" == "" ]; then procs+=${procs:+ }${arg}; fi
     gqttq=$arg
+  elif [ "$arg" == "-heftggbb" ]; then
+    if [ "$heftggbb" == "" ]; then procs+=${procs:+ }${arg}; fi
+    heftggbb=$arg
   elif [ "$arg" == "-susyggtt" ]; then
     if [ "$susyggtt" == "" ]; then procs+=${procs:+ }${arg}; fi
     susyggtt=$arg
@@ -140,7 +145,7 @@ for step in $steps; do
           for hrdcod in $hrdcods; do
             hrd=; if [ "${hrdcod}" == "1" ]; then hrd=" -hrdonly"; fi
             args="${proc}${flt}${inl}${hrd}${deb}${rmrdat}${add10x}${checkonly} ${dlp}"
-            ###args="${args} -avxall" # avx, fptype, helinl and hrdcod are now supported for all processes
+            ###args="${args} -bldall" # avx, fptype, helinl and hrdcod are now supported for all processes
             if [ "${step}" == "makeclean" ]; then
               printf "\n%80s\n" |tr " " "*"
               printf "*** ./madX.sh -makecleanonly $args"
@@ -163,7 +168,7 @@ for step in $steps; do
               printf "*** ./madX.sh $args | tee $logfile"
               printf "\n%80s\n" |tr " " "*"
               mkdir -p $(dirname $logfile)
-              if ! ./madX.sh $args | tee $logfile; then status=2; fi
+              if ! ./madX.sh $args 2>&1 | tee $logfile; then status=2; fi
               if [ "${checkonly}" != "" ]; then
                 ./checkOnlyMerge.sh ${logfileold}
                 \rm -f ${logfile}

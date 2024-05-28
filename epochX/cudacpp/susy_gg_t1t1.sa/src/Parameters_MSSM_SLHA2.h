@@ -1,10 +1,10 @@
 // Copyright (C) 2010 The MadGraph5_aMC@NLO development team and contributors.
 // Created by: J. Alwall (Oct 2010) for the MG5aMC CPP backend.
 //==========================================================================
-// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Copyright (C) 2020-2024 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Modified by: A. Valassi (Sep 2021) for the MG5aMC CUDACPP plugin.
-// Further modified by: A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
 //==========================================================================
 // This file has been automatically generated for CUDA/C++ standalone by
 // MadGraph5_aMC@NLO v. 3.5.3_lo_vect, 2023-12-23
@@ -58,8 +58,7 @@ namespace mg5amcCpu
     // (none)
 
     // Model parameters dependent on aS
-    //double mdl_sqrt__aS, G; // now computed event-by-event (running alphas #373)
-    //cxsmpl<double> mdl_G__exp__2; // now computed event-by-event (running alphas #373)
+    //double mdl_sqrt__aS, G, mdl_G__exp__2; // now computed event-by-event (running alphas #373)
 
     // Model couplings dependent on aS
     //cxsmpl<double> GC_6, GC_55, GC_57, GC_90; // now computed event-by-event (running alphas #373)
@@ -750,7 +749,7 @@ namespace mg5amcCpu
     // Model parameters dependent on aS
     //constexpr double mdl_sqrt__aS = constexpr_sqrt( aS ); // now computed event-by-event (running alphas #373)
     //constexpr double G = 2. * mdl_sqrt__aS * constexpr_sqrt( M_PI ); // now computed event-by-event (running alphas #373)
-    //constexpr cxsmpl<double> mdl_G__exp__2 = ( ( G ) * ( G ) ); // now computed event-by-event (running alphas #373)
+    //constexpr double mdl_G__exp__2 = ( ( G ) * ( G ) ); // now computed event-by-event (running alphas #373)
 
     // Model couplings dependent on aS
     //constexpr cxsmpl<double> GC_6 = -G; // now computed event-by-event (running alphas #373)
@@ -834,7 +833,7 @@ namespace mg5amcCpu
         //const fptype_sv mdl_sqrt__aS = constexpr_sqrt( aS );
         //const fptype_sv G = 2. * mdl_sqrt__aS * constexpr_sqrt( M_PI );
         // *** NB Compute all dependent parameters, including aS, in terms of G rather than in terms of aS ***
-        const fptype_sv mdl_G__exp__2 = G * G;
+        const fptype_sv mdl_G__exp__2 = ( ( G ) * ( G ) );
         // Model couplings dependent on aS
         out.GC_6 = -G;
         out.GC_55 = -( cI * G * (cxtype)mdl_I51x33 ) - cI * G * (cxtype)mdl_I52x33;
@@ -861,7 +860,7 @@ namespace mg5amcCpu
         //const fptype mdl_sqrt__aS = constexpr_sqrt( aS );
         //const fptype G = 2. * mdl_sqrt__aS * constexpr_sqrt( M_PI );
         // *** NB Compute all dependent parameters, including aS, in terms of G rather than in terms of aS ***
-        const fptype mdl_G__exp__2 = G * G;
+        const fptype mdl_G__exp__2 = ( ( G ) * ( G ) );
         // Model couplings dependent on aS
         const cxtype GC_6 = -G;
         const cxtype GC_55 = -( cI * G * (cxtype)mdl_I51x33 ) - cI * G * (cxtype)mdl_I52x33;

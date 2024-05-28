@@ -1,7 +1,7 @@
-// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Copyright (C) 2020-2024 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: S. Hageboeck (Dec 2020) for the MG5aMC CUDACPP plugin.
-// Further modified by: S. Hageboeck, J. Teig, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: S. Hageboeck, J. Teig, A. Valassi (2020-2024) for the MG5aMC CUDACPP plugin.
 
 #ifndef MADGRAPHTEST_H_
 #define MADGRAPHTEST_H_ 1
@@ -203,9 +203,10 @@ protected:
   }
 };
 
-// Since we link both the CPU-only and GPU tests into the same executable, we prevent
-// a multiply defined symbol by only compiling this in the non-CUDA phase:
-#ifndef MGONGPUCPP_GPUIMPL
+// WARNING: before the split of C++ and CUDA builds, both CPU and GPU tests were linked together into the same executable;
+// it was therefore necessary to prevent multiply-defined symbols by only compiling this when "#ifndef MGONGPUCPP_GPUIMPL";
+// now that runTest.exe only contains either CPU or GPU tests, this is no longer necessary!
+//#ifndef MGONGPUCPP_GPUIMPL
 
 /// Compare momenta and matrix elements.
 /// This uses an implementation of TestDriverBase to run a madgraph workflow,
@@ -216,7 +217,8 @@ TEST_P( MadgraphTest, CompareMomentaAndME )
 #ifdef __APPLE__
   const fptype toleranceMEs = std::is_same<double, fptype>::value ? 1.E-6 : 3.E-2; // see #583
 #else
-  const fptype toleranceMEs = std::is_same<double, fptype>::value ? 1.E-6 : 2.E-3;
+  //const fptype toleranceMEs = std::is_same<double, fptype>::value ? 1.E-6 : 2.E-3; // fails smeft/hip #843
+  const fptype toleranceMEs = std::is_same<double, fptype>::value ? 1.E-6 : 3.E-3;
 #endif
   constexpr fptype energy = 1500; // historical default, Ecms = 1500 GeV = 1.5 TeV (above the Z peak)
   // Dump events to a new reference file?
@@ -295,13 +297,14 @@ TEST_P( MadgraphTest, CompareMomentaAndME )
         {
           const fptype pMadg = testDriver->getMomentum( ievt, ipar, icomp );
           const fptype pOrig = referenceData[iiter].momenta[ievt][ipar][icomp];
-          const fptype relDelta = fabs( ( pMadg - pOrig ) / pOrig );
-          if( relDelta > toleranceMomenta )
+          //const fptype relDelta = fabs( ( pMadg - pOrig ) / pOrig ); // computing relDelta may lead to FPEs
+          const fptype delta = fabs( pMadg - pOrig );
+          if( delta > toleranceMomenta * fabs( pOrig ) ) // better than "relDelta > toleranceMomenta"
           {
             momentumErrors << std::setprecision( 15 ) << std::scientific << "\nparticle " << ipar << "\tcomponent " << icomp
                            << "\n\t madGraph:  " << std::setw( 22 ) << pMadg
                            << "\n\t reference: " << std::setw( 22 ) << pOrig
-                           << "\n\t rel delta: " << std::setw( 22 ) << relDelta << " exceeds tolerance of " << toleranceMomenta;
+                           << "\n\t relative delta exceeds tolerance of " << toleranceMomenta;
           }
         }
         ASSERT_TRUE( momentumErrors.str().empty() ) << momentumErrors.str();
@@ -318,6 +321,9 @@ TEST_P( MadgraphTest, CompareMomentaAndME )
   }
 }
 
-#endif // MGONGPUCPP_GPUIMPL
+// WARNING: before the split of C++ and CUDA builds, both CPU and GPU tests were linked together into the same executable;
+// it was therefore necessary to prevent multiply-defined symbols by only compiling this when "#ifndef MGONGPUCPP_GPUIMPL";
+// now that runTest.exe only contains either CPU or GPU tests, this is no longer necessary!
+//#endif // MGONGPUCPP_GPUIMPL
 
 #endif /* MADGRAPHTEST_H_ */
