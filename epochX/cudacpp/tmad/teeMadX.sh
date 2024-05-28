@@ -2,6 +2,7 @@
 # Copyright (C) 2020-2023 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: A. Valassi (May 2022) for the MG5aMC CUDACPP plugin.
+# Further modified by: A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
 
 scrdir=$(cd $(dirname $0); pwd)
 bckend=$(basename $(cd $scrdir; cd ..; pwd)) # cudacpp or alpaka
@@ -148,7 +149,7 @@ for step in $steps; do
           for hrdcod in $hrdcods; do
             hrd=; if [ "${hrdcod}" == "1" ]; then hrd=" -hrdonly"; fi
             args="${proc}${flt}${inl}${hrd}${deb}${rmrdat}${add10x}${checkonly} ${dlp}"
-            ###args="${args} -avxall" # avx, fptype, helinl and hrdcod are now supported for all processes
+            ###args="${args} -bldall" # avx, fptype, helinl and hrdcod are now supported for all processes
             if [ "${step}" == "makeclean" ]; then
               printf "\n%80s\n" |tr " " "*"
               printf "*** ./madX.sh -makecleanonly $args"
