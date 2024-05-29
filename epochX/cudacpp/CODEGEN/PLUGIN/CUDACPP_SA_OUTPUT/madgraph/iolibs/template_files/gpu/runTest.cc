@@ -73,7 +73,7 @@ struct CPUTest : public CUDA_CPU_TestBase
     , hstSelHel( nevt )
     , hstSelCol( nevt )
     , hstIsGoodHel( CPPProcess::ncomb )
-    , pmek( new MatrixElementKernelHost( hstMomenta, hstGs, hstRndHel, hstRndCol, hstChannelIds, hstSelHel, hstSelCol, nevt ) )
+    , pmek( new MatrixElementKernelHost( hstMomenta, hstGs, hstRndHel, hstRndCol, hstChannelIds, hstMatrixElements, hstSelHel, hstSelCol, nevt ) )
   {
     // FIXME: the process instance can happily go out of scope because it is only needed to read parameters?
     // FIXME: the CPPProcess should really be a singleton?
