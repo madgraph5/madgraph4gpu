@@ -59,6 +59,12 @@ set stdout_level DEBUG
 set output information to level: 10
 set zerowidth_tchannel F
 import model EWdim6
+[1;60mINFO: This model [version 1.1] is provided by C. Degrande (email: n/a). Please cite 1205.4231 [0m
+INFO: load particles 
+INFO: load vertices 
+[1;34mWARNING: coupling GC_13=-(complex(0,1)*GH) has direct dependence in aS but has QCD order set to 0. Automatic computation of scale uncertainty can be wrong for such model. [0m
+[1;34mWARNING: coupling GC_104=(CphidL2*complex(0,1)*GH*vev**2)/1.e6 has direct dependence in aS but has QCD order set to 0. Automatic computation of scale uncertainty can be wrong for such model. [0m
+[1;32mDEBUG: model prefixing  takes 0.012878894805908203 [0m
 INFO: Restrict model EWdim6 with file models/EWdim6/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: a a h at order: HIW=1, NP=2 [0m
@@ -170,10 +176,10 @@ It has been validated for the last time with version: 3.5.2[0m
 [1mAddition matrix-element will be done with PLUGIN: CUDACPP_OUTPUT[0m
 [1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
 [1;32mDEBUG:  cformat = [0m standalone_simd [1;30m[export_cpp.py at line 3071][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter) [1;30m[output.py at line 161][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter) [1;30m[output.py at line 162][0m [0m
 INFO: initialize a new directory: CODEGEN_mad_ewdim6_ud_wz 
 INFO: remove old information in CODEGEN_mad_ewdim6_ud_wz 
-[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.copy_template (initialise the directory) [1;30m[output.py at line 166][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.copy_template (initialise the directory) [1;30m[output.py at line 167][0m [0m
 [1;34mWARNING: File exists /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_ewdim6_ud_wz [0m
 INFO: Creating subdirectories in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_ewdim6_ud_wz 
 [1;34mWARNING: File exists /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_ewdim6_ud_wz/Cards [0m
@@ -183,7 +189,7 @@ INFO: Generating Helas calls for process: u d~ > w+ z HIG<=1 HIW<=1 NP<=2 WEIGHT
 INFO: Processing color information for process: u d~ > w+ z HIG<=1 HIW<=1 NP<=2 @1 
 INFO: Creating files in directory P1_udx_wpz 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1148][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7fd5abe0da90> [1;30m[export_v4.py at line 6261][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f0faf765fa0> [1;30m[export_v4.py at line 6261][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -199,7 +205,7 @@ INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./.
 INFO: Generating Feynman diagrams for Process: u d~ > w+ z HIG<=1 HIW<=1 NP<=2 WEIGHTED<=6 @1 
 INFO: Finding symmetric diagrams for subprocess group udx_wpz 
 Generated helas calls for 1 subprocesses (1 diagrams) in 0.003 s
-Wrote files for 6 helas calls in 0.101 s
+Wrote files for 6 helas calls in 0.102 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV2 routines[0m
 ALOHA: aloha creates VVV2 routines[0m
@@ -209,8 +215,8 @@ ALOHA: aloha creates VVV6 routines[0m
 ALOHA: aloha creates VVV7 routines[0m
 ALOHA: aloha creates VVV8 routines[0m
 ALOHA: aloha creates VVV9 routines[0m
-ALOHA: aloha creates 8 routines in  0.635 s
-[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 204][0m [0m
+ALOHA: aloha creates 8 routines in  0.658 s
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 205][0m [0m
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV2 routines[0m
 ALOHA: aloha creates VVV2 routines[0m
@@ -221,7 +227,7 @@ ALOHA: aloha creates VVV7 routines[0m
 ALOHA: aloha creates VVV8 routines[0m
 ALOHA: aloha creates VVV9 routines[0m
 ALOHA: aloha creates VVV2_3_5_6_7_8_9 routines[0m
-ALOHA: aloha creates 17 routines in  0.759 s
+ALOHA: aloha creates 17 routines in  0.777 s
 <class 'aloha.create_aloha.AbstractRoutine'> FFV2
 <class 'aloha.create_aloha.AbstractRoutine'> VVV2
 <class 'aloha.create_aloha.AbstractRoutine'> VVV3
@@ -259,16 +265,16 @@ Hunk #2 succeeded at 163 (offset 20 lines).
 Hunk #3 succeeded at 250 (offset 29 lines).
 Hunk #4 succeeded at 287 (offset 38 lines).
 Hunk #5 succeeded at 332 (offset 38 lines).
-[1;32mDEBUG:  p.returncode = [0m 0 [1;30m[output.py at line 240][0m [0m
+[1;32mDEBUG:  p.returncode = [0m 0 [1;30m[output.py at line 241][0m [0m
 Output to directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_ewdim6_ud_wz done.
 Type "launch" to generate events from this process, or see
 /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_ewdim6_ud_wz/README
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m3.055s
-user	0m2.715s
-sys	0m0.223s
+real	0m3.083s
+user	0m2.825s
+sys	0m0.220s
 Code generation completed in 3 seconds
 ************************************************************
 *                                                          *
