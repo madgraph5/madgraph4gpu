@@ -599,7 +599,7 @@ INFO: Created files Parameters_MSSM_SLHA2.h and Parameters_MSSM_SLHA2.cc in dire
 INFO: /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gg_t1t1/src/. and /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gg_t1t1/src/. 
 quit
 
-real	0m1.432s
-user	0m1.351s
-sys	0m0.061s
-Code generation completed in 2 seconds
+real	0m1.421s
+user	0m1.348s
+sys	0m0.062s
+Code generation completed in 1 seconds
