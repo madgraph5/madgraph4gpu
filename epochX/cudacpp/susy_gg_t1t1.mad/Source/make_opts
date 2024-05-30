@@ -1,7 +1,7 @@
 DEFAULT_CPP_COMPILER=g++
 DEFAULT_F2PY_COMPILER=f2py3
 DEFAULT_F_COMPILER=gfortran
-GLOBAL_FLAG=-O2 -ffast-math -fbounds-check -fno-tree-vectorize
+GLOBAL_FLAG=-O2 -ffast-math -fbounds-check -fno-tree-vectorize -g
 MACFLAG=
 MG5AMC_VERSION=SpecifiedByMG5aMCAtRunTime
 PYTHIA8_PATH=NotInstalled
