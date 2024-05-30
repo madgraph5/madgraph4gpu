@@ -467,7 +467,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 
                 # need to add the unary operator before the coupling                
                 if mydict['coup'] != 'one': # but in case where the coupling is not used (one)
-                    mydict['pre_coup'] = 'Ccoeff *  %s' % mydict['pre_coup'] 
+                    mydict['pre_coup'] = 'Ccoeff * %s' % mydict['pre_coup'] 
                 if not aloha.complex_mass:
                     # This affects 'denom = COUP' in HelAmps_sm.cc
                     if self.routine.denominator:
