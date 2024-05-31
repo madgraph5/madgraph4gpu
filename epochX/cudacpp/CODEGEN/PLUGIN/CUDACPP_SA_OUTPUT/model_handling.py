@@ -1536,7 +1536,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         for config in config_subproc_map:
             if set(config) == set([0]):
                 continue
-            lines.append("     {%i, %i}," % (config[0], iconfig))
+            lines.append("    { %i, %i }," % (config[0], iconfig))
             iconfig += 1
         replace_dict['diag_to_channel'] = '\n'.join(lines)
         misc.sprint(replace_dict)
