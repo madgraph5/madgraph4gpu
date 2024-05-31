@@ -13,7 +13,7 @@ topdir=$(cd $scrdir; cd ../../..; pwd)
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-bldall][-cudaonly][-hiponly][-noneonly][-sse4only][-avx2only][-512yonly][-512zonly] [-sa] [-noalpaka] [-flt|-fltonly|-mix|-mixonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-omp] [-makeonly|-makeclean|-makecleanonly|-dryrun] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest] [-v] [-dlp <dyld_library_path>]" # -nofpe is no longer supported
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt][-ewdim6udwz]> [-bldall][-cudaonly][-hiponly][-noneonly][-sse4only][-avx2only][-512yonly][-512zonly] [-sa] [-noalpaka] [-flt|-fltonly|-mix|-mixonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-omp] [-makeonly|-makeclean|-makecleanonly|-dryrun] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest] [-v] [-dlp <dyld_library_path>]" # -nofpe is no longer supported
   exit 1
 }
 
@@ -32,6 +32,7 @@ heftggbb=0
 susyggtt=0
 susyggt1t1=0
 smeftggtttt=0
+ewdim6udwz=0
 
 suffs=".mad/"
 
@@ -107,6 +108,10 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-smeftggtttt" ]; then
     if [ "$smeftggtttt" == "0" ]; then procs+=${procs:+ }$1; fi
     smeftggtttt=1
+    shift
+  elif [ "$1" == "-ewdim6udwz" ]; then
+    if [ "$ewdim6udwz" == "0" ]; then procs+=${procs:+ }$1; fi
+    ewdim6udwz=1
     shift
   elif [ "$1" == "-sa" ]; then
     suffs=".sa/"
@@ -257,7 +262,7 @@ fi
 ###fi
 
 # Check that at least one process has been selected
-if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ] && [ "${gqttq}" == "0" ] && [ "${heftggbb}" == "0" ] && [ "${susyggtt}" == "0" ] && [ "${susyggt1t1}" == "0" ] && [ "${smeftggtttt}" == "0" ]; then usage; fi
+if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ] && [ "${gqttq}" == "0" ] && [ "${heftggbb}" == "0" ] && [ "${susyggtt}" == "0" ] && [ "${susyggt1t1}" == "0" ] && [ "${smeftggtttt}" == "0" ] && [ "${ewdim6udwz}" == "0" ]; then usage; fi
 
 # Define the default bblds if none are defined (use ${bbldsall} which is translated back to 'make -bldall')
 ###if [ "${bblds}" == "" ]; then bblds="cuda avx2"; fi # this fails if cuda is not installed
@@ -319,6 +324,8 @@ function showdir()
       dir=$topdir/epochX/${bckend}/susy_gg_t1t1${suff}SubProcesses/P1_gg_t1t1x
     elif [ "${proc}" == "-smeftggtttt" ]; then 
       dir=$topdir/epochX/${bckend}/smeft_gg_tttt${suff}SubProcesses/P1_gg_ttxttx
+    elif [ "${proc}" == "-ewdim6udwz" ]; then 
+      dir=$topdir/epochX/${bckend}/ewdim6_ud_wz${suff}/SubProcesses/P1_udx_wpz
     fi
   else
     if [ "${proc}" == "-eemumu" ]; then 
@@ -342,6 +349,8 @@ function showdir()
       dir=$topdir/epochX/${bckend}/susy_gg_t1t1${suff}SubProcesses/P1_Sigma_MSSM_SLHA2_gg_t1t1x
     elif [ "${proc}" == "-smeftggtttt" ]; then 
       dir=$topdir/epochX/${bckend}/smeft_gg_tttt${suff}SubProcesses/P1_Sigma_SMEFTsim_topU3l_MwScheme_UFO_gg_ttxttx
+    elif [ "${proc}" == "-ewdim6udwz" ]; then 
+      dir=$topdir/epochX/${bckend}/ewdim6_ud_wz${suff}/SubProcesses/P1_Sigma_EWdim6_udx_wpz
     fi
   fi
   echo $dir
@@ -641,15 +650,15 @@ for exe in $exes; do
     if [ "${exe/build.512z}" != "${exe}" ]; then echo "$exe is not supported (no avx512vl in /proc/cpuinfo)"; continue; fi
   fi
   if [[ "${exe%%/check_cuda*}" != "${exe}" || "${exe%%/check_hip*}" != "${exe}" ]] && [ "$gpuTxt" == "none" ]; then pattern="${pattern}|EvtsPerSec\[Matrix"; fi
-  if [ "${exe%%/heft_gg_bb*}" != "${exe}" ]; then 
-    # For heftggbb, use the same settings as for ggtt
+  if [ "${exe%%/ewdim6_ud_wz*}" != "${exe}" ]; then 
+    # For ewdim6udwz, use the same settings as for SM ggtt
     exeArgs="-p 2048 256 2"
     ncuArgs="-p 2048 256 1"
   elif [ "${exe%%/smeft_gg_tttt*}" != "${exe}" ]; then 
-    # For smeftggtttt, use the same settings as for ggttggg (may be far too short!)
+    # For smeftggtttt, use the same settings as for SM ggttggg (may be far too short!)
     exeArgs="-p 1 256 2"
     ncuArgs="-p 1 256 1"
-    # For smeftggtttt, use the same settings as for ggttggg (may be far too short!)
+    # For smeftggtttt, use the same settings as for SM ggttggg (may be far too short!)
     exeArgs2="-p 64 256 1"
   elif [ "${exe%%/susy_gg_tt*}" != "${exe}" ]; then 
     # For susyggtt, use the same settings as for SM ggtt
@@ -657,6 +666,10 @@ for exe in $exes; do
     ncuArgs="-p 2048 256 1"
   elif [ "${exe%%/susy_gg_t1t1*}" != "${exe}" ]; then 
     # For susyggt1t1, use the same settings as for SM ggtt
+    exeArgs="-p 2048 256 2"
+    ncuArgs="-p 2048 256 1"
+  elif [ "${exe%%/heft_gg_bb*}" != "${exe}" ]; then 
+    # For heftggbb, use the same settings as for SM ggtt
     exeArgs="-p 2048 256 2"
     ncuArgs="-p 2048 256 1"
   elif [ "${exe%%/gq_ttq*}" != "${exe}" ]; then 

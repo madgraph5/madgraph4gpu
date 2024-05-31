@@ -1,0 +1,25 @@
+<file>######################################################################
+## VALIDITY RULE FOR THE PARAM_CARD   ####
+######################################################################
+<zero>
+     dim6 6 # 
+     dim6 7 # 
+     dim6 8 # 
+     wolfenstein 1 # 
+     wolfenstein 2 # 
+     wolfenstein 3 # 
+     wolfenstein 4 # 
+     yukawa 4 # 
+     yukawa 13 # 
+     mass 4 # 
+     mass 13 # 
+</zero>
+<one>
+</one>
+<identical>
+</identical>
+<opposite>
+</opposite>
+<constraint>
+</constraint>
+</file>

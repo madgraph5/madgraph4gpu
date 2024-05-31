@@ -1,0 +1,92 @@
+
+Building in /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/ewdim6_ud_wz.mad/SubProcesses/P1_udx_wpz
+OMPFLAGS=-fopenmp 
+AVX=512y
+FPTYPE=d
+HELINL=0
+HRDCOD=0
+HASCURAND=hasCurand
+HASHIPRAND=hasNoHiprand
+Building in BUILDDIR=build.512y_d_inl0_hrd0 for tag=512y_d_inl0_hrd0_hasCurand_hasNoHiprand (USEBUILDDIR is set = 1)
+make: Nothing to be done for 'gtestlibs'.
+CUDACPP_BUILDDIR='build.512y_d_inl0_hrd1'
+
+make USEBUILDDIR=1 AVX=none
+make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/ewdim6_ud_wz.mad/SubProcesses/P1_udx_wpz'
+CUDACPP_BUILDDIR='build.none_d_inl0_hrd1'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/ewdim6_ud_wz.mad/SubProcesses/P1_udx_wpz'
+
+make USEBUILDDIR=1 AVX=sse4
+make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/ewdim6_ud_wz.mad/SubProcesses/P1_udx_wpz'
+CUDACPP_BUILDDIR='build.sse4_d_inl0_hrd1'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/ewdim6_ud_wz.mad/SubProcesses/P1_udx_wpz'
+
+make USEBUILDDIR=1 AVX=avx2
+make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/ewdim6_ud_wz.mad/SubProcesses/P1_udx_wpz'
+CUDACPP_BUILDDIR='build.avx2_d_inl0_hrd1'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/ewdim6_ud_wz.mad/SubProcesses/P1_udx_wpz'
+
+make USEBUILDDIR=1 AVX=512y
+make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/ewdim6_ud_wz.mad/SubProcesses/P1_udx_wpz'
+CUDACPP_BUILDDIR='build.512y_d_inl0_hrd1'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/ewdim6_ud_wz.mad/SubProcesses/P1_udx_wpz'
+
+make USEBUILDDIR=1 AVX=512z
+make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/ewdim6_ud_wz.mad/SubProcesses/P1_udx_wpz'
+CUDACPP_BUILDDIR='build.512z_d_inl0_hrd1'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/ewdim6_ud_wz.mad/SubProcesses/P1_udx_wpz'
+
+DATE: 2024-05-16_16:38:06
+
+On itscrd90.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
+=========================================================================
+runExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/ewdim6_ud_wz.mad//SubProcesses/P1_udx_wpz/build.none_d_inl0_hrd1/gcheck.exe -p 2048 256 2 OMP=
+INFO: The following Floating Point Exceptions will cause SIGFPE program aborts: FE_DIVBYZERO, FE_INVALID, FE_OVERFLOW
+Process                     = SIGMA_EWDIM6_UDX_WPZ_CUDA [nvcc 12.0.140 (gcc 11.3.1)] [inlineHel=0] [hardcodePARAM=1]
+Workflow summary            = CUD:DBL+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
+FP precision                = DOUBLE (NaN/abnormal=0, zero=0)
+EvtsPerSec[Rmb+ME]     (23) = ( 4.836879e+07                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 1.277313e+08                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.409887e+08                 )  sec^-1
+MeanMatrixElemValue         = ( 1.527809e+04 +- 6.512095e+00 )  GeV^0
+TOTAL       :     0.539498 sec
+INFO: No Floating Point Exceptions have been reported
+     2,183,406,298      cycles                           #    2.819 GHz                    
+     3,190,164,839      instructions                     #    1.46  insn per cycle         
+       0.831588133 seconds time elapsed
+runNcu /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/ewdim6_ud_wz.mad//SubProcesses/P1_udx_wpz/build.none_d_inl0_hrd1/gcheck.exe -p 2048 256 1
+==PROF== Profiling "sigmaKin": launch__registers_per_thread 251
+==PROF== Profiling "sigmaKin": sm__sass_average_branch_targets_threads_uniform.pct 100%
+-------------------------------------------------------------------------
+cmpExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/ewdim6_ud_wz.mad//SubProcesses/P1_udx_wpz/build.none_d_inl0_hrd1/gcheck.exe --common -p 2 64 2
+cmpExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/ewdim6_ud_wz.mad//SubProcesses/P1_udx_wpz/build.none_d_inl0_hrd1/fgcheck.exe 2 64 2
+Avg ME (C++/CUDA)   = 1.527290e+04
+Avg ME (F77/CUDA)   = 15272.903845785788
+Relative difference = 2.518045550055317e-07
+OK (relative difference <= 5E-3)
+=========================================================================
+runExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/ewdim6_ud_wz.mad//SubProcesses/P1_udx_wpz/build.none_d_inl0_hrd1/check.exe -p 2048 256 2 OMP=
+INFO: The following Floating Point Exceptions will cause SIGFPE program aborts: FE_DIVBYZERO, FE_INVALID, FE_OVERFLOW
+Process                     = SIGMA_EWDIM6_UDX_WPZ_CPP [gcc 11.3.1] [inlineHel=0] [hardcodePARAM=1]
+Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/none+NAVBRK
+FP precision                = DOUBLE (NaN/abnormal=0, zero=0)
+Internal loops fptype_sv    = SCALAR ('none': ~vector[1], no SIMD)
+OMP threads / `nproc --all` = 1 / 4
+EvtsPerSec[Rmb+ME]     (23) = ( 1.801133e+05                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 1.847964e+05                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.847964e+05                 )  sec^-1
+MeanMatrixElemValue         = ( 1.527809e+04 +- 6.512095e+00 )  GeV^0
+TOTAL       :     5.925076 sec
+INFO: No Floating Point Exceptions have been reported
+    16,971,122,958      cycles                           #    2.862 GHz                    
+    43,022,059,326      instructions                     #    2.54  insn per cycle         
+       5.931162322 seconds time elapsed
+=Symbols in CPPProcess.o= (~sse4: 1007) (avx2:    0) (512y:    0) (512z:    0)
+-------------------------------------------------------------------------
+runExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/ewdim6_ud_wz.mad//SubProcesses/P1_udx_wpz/build.none_d_inl0_hrd1/runTest.exe
+ 2 FAILED TESTS
