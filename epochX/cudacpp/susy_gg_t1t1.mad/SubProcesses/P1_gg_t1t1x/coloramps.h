@@ -11,7 +11,7 @@
 namespace mgOnGpu
 {
 
-  __device__ std::map<int, int> diag_to_channel = {
+  __device__ constexpr std::map<int, int> diag_to_channel = {
     { 2, 0 },
     { 3, 1 },
     { 4, 2 },
