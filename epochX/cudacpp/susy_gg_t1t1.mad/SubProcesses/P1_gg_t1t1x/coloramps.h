@@ -11,21 +11,20 @@
 namespace mgOnGpu
 {
 
-  __device__ std::map<int,int> diag_to_channel = {
+  __device__ std::map<int, int> diag_to_channel = {
     { 2, 0 },
     { 3, 1 },
     { 4, 2 },
     { 5, 3 },
     { 6, 4 }, // note: a trailing comma in the initializer list is allowed
-  };          
+  };
 
   __device__ constexpr bool icolamp[5][2] = {
     { true, true },
     { true, true },
     { true, false },
     { true, false },
-    { false, true }
-  };
+    { false, true } };
 
 }
 #endif // COLORAMPS_H
