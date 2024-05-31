@@ -18,7 +18,7 @@ namespace mgOnGpu
     +1, // 3 --> 1
     +2, // 4 --> 2
     +3, // 5 --> 3
-    +4 //  6 --> 4
+    +4  // 6 --> 4
   };
 
   __device__ constexpr bool icolamp[5][2] = {
