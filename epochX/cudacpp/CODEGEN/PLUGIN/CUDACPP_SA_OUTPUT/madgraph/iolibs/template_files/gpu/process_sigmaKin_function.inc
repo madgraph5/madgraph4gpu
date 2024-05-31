@@ -4,7 +4,7 @@
 ! Copyright (C) 2020-2024 CERN and UCLouvain.
 ! Licensed under the GNU Lesser General Public License (version 3 or later).
 ! Modified by: A. Valassi (Sep 2021) for the MG5aMC CUDACPP plugin.
-! Further modified by: J. Teig, A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
+! Further modified by: O. Mattelaer, J. Teig, A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
 !==========================================================================
 
 #include "GpuAbstraction.h"
@@ -72,7 +72,7 @@
     // Event-by-event random choice of color #402
     if( channelId != 0 ) // no event-by-event choice of color if channelId == 0 (fix FPE #783)
     {
-      const unsigned int channelIdC = mgOnGpu::diag_to_channel[channelId]; // coloramps.h uses a channel ordering not the diagram id 
+      const unsigned int channelIdC = mgOnGpu::diag_to_channel[channelId]; // coloramps.h uses a channel ordering not the diagram id
       fptype targetamp[ncolor] = { 0 };
       for( int icolC = 0; icolC < ncolor; icolC++ )
       {
@@ -115,7 +115,7 @@
     // - firstprivate: give each thread its own copy, and initialise with value from outside
 #define _OMPLIST0 allcouplings, allMEs, allmomenta, allrndcol, allrndhel, allselcol, allselhel, cGoodHel, cNGoodHel, npagV2
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-#define _OMPLIST1 , allDenominators, allNumerators, channelId, mgOnGpu::icolamp,mgOnGpu::diag_to_channel
+#define _OMPLIST1 , allDenominators, allNumerators, channelId, mgOnGpu::icolamp, mgOnGpu::diag_to_channel
 #else
 #define _OMPLIST1
 #endif
@@ -187,7 +187,7 @@
       // Event-by-event random choice of color #402
       if( channelId != 0 ) // no event-by-event choice of color if channelId == 0 (fix FPE #783)
       {
-        const unsigned int channelIdC = mgOnGpu::diag_to_channel[channelId]; // coloramps.h uses a channel ordering not the diagram id 
+        const unsigned int channelIdC = mgOnGpu::diag_to_channel[channelId]; // coloramps.h uses a channel ordering not the diagram id
         fptype_sv targetamp[ncolor] = { 0 };
         for( int icolC = 0; icolC < ncolor; icolC++ )
         {
