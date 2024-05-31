@@ -72,7 +72,7 @@
     // Event-by-event random choice of color #402
     if( channelId != 0 ) // no event-by-event choice of color if channelId == 0 (fix FPE #783)
     {
-      const unsigned int channelIdC = channelId - 1; // coloramps.h uses the C array indexing starting at 0
+      const unsigned int channelIdC = mgOnGpu::diag_to_channel[channelId]; // coloramps.h uses a channel ordering not the diagram id 
       fptype targetamp[ncolor] = { 0 };
       for( int icolC = 0; icolC < ncolor; icolC++ )
       {
@@ -187,7 +187,7 @@
       // Event-by-event random choice of color #402
       if( channelId != 0 ) // no event-by-event choice of color if channelId == 0 (fix FPE #783)
       {
-        const unsigned int channelIdC = channelId - 1; // coloramps.h uses the C array indexing starting at 0
+        const unsigned int channelIdC = mgOnGpu::diag_to_channel[channelId]; // coloramps.h uses a channel ordering not the diagram id 
         fptype_sv targetamp[ncolor] = { 0 };
         for( int icolC = 0; icolC < ncolor; icolC++ )
         {
