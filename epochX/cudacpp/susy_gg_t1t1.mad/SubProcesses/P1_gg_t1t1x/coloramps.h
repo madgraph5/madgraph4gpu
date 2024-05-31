@@ -11,12 +11,14 @@
 namespace mgOnGpu
 {
 
-  __device__ std::map<int, int> diag_to_channel = {
-    { 2, 0 },
-    { 3, 1 },
-    { 4, 2 },
-    { 5, 3 },
-    { 6, 4 }, // note: a trailing comma in the initializer list is allowed
+  __device__ constexpr int diag_to_channel[7] = {
+    -1, // 0 --> None
+    -1, // 1 --> None
+    +0, // 2 --> 0
+    +1, // 3 --> 1
+    +2, // 4 --> 2
+    +3, // 5 --> 3
+    +4 //  6 --> 4
   };
 
   __device__ constexpr bool icolamp[5][2] = {
