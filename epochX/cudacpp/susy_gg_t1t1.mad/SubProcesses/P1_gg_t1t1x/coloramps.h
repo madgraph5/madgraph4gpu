@@ -16,7 +16,7 @@ namespace mgOnGpu
     { 3, 1 },
     { 4, 2 },
     { 5, 3 },
-    { 6, 4 },
+    { 6, 4 }, // note: a trailing comma in the initializer list is allowed
   };          
 
   __device__ constexpr bool icolamp[5][2] = {
