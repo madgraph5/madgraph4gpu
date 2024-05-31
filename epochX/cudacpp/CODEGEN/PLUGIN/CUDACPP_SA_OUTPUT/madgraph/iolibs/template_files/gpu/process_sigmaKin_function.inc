@@ -115,7 +115,7 @@
     // - firstprivate: give each thread its own copy, and initialise with value from outside
 #define _OMPLIST0 allcouplings, allMEs, allmomenta, allrndcol, allrndhel, allselcol, allselhel, cGoodHel, cNGoodHel, npagV2
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-#define _OMPLIST1 , allDenominators, allNumerators, channelId, mgOnGpu::icolamp
+#define _OMPLIST1 , allDenominators, allNumerators, channelId, mgOnGpu::icolamp,mgOnGpu::diag_to_channel
 #else
 #define _OMPLIST1
 #endif
