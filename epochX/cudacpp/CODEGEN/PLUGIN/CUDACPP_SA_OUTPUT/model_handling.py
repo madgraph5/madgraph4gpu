@@ -1530,14 +1530,22 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         # The following five lines from OneProcessExporterCPP.get_sigmaKin_lines (using OneProcessExporterCPP.get_icolamp_lines)
         replace_dict={}
 
-        lines = []
-        # Output only configs that have some corresponding diagrams
+        # Channel numbers are only defined for configs that have some corresponding diagrams
+        diag_to_channel = {}
         iconfig = 0
         for config in config_subproc_map:
-            if set(config) == set([0]):
-                continue
-            lines.append("    { %i, %i }," % (config[0], iconfig))
+            if set(config) == set([0]): continue
+            if config[0] in diag_to_channel: raise Exception( 'Internal error while generating coloramps.h:', config[0], 'is already in', diag_to_channel )
+            diag_to_channel[config[0]] = iconfig
             iconfig += 1
+        nb_diagmax = max(diag_to_channel.keys()) + 1
+        replace_dict['nb_diagmax'] = nb_diagmax
+        lines = []
+        for idiag in range( nb_diagmax ):
+            if idiag == nb_diagmax-1: sep='  // '
+            else: sep=', // '
+            if idiag in diag_to_channel: lines.append("    %+i%s%i --> %s"%( diag_to_channel[idiag], sep, idiag, diag_to_channel[idiag] ) )
+            else: lines.append("    %+i%s%i --> %s"%( -1, sep, idiag, 'None' ) )
         replace_dict['diag_to_channel'] = '\n'.join(lines)
         misc.sprint(replace_dict)
 
