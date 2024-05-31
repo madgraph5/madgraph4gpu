@@ -6,10 +6,15 @@
 #ifndef COLORAMPS_H
 #define COLORAMPS_H 1
 
+#include <map>
+
 namespace mgOnGpu
 {
 
-  __device__ constexpr bool icolamp[%(nb_channel)s][%(nb_color)s] = {
+    __device__ std::map<int,int> diag_to_channel = {
+        %(diag_to_channel)s
+  };          
+    __device__ constexpr bool icolamp[%(nb_channel)s][%(nb_color)s] = {
 %(is_LC)s
   };
 
