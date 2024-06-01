@@ -321,7 +321,19 @@ function codeGenAndDiff()
     # Generate matrix*.pdf files using ps2pdf and remove the original matrix*.ps (NB: this only works if ghostscript is installed)
     if which ps2pdf > /dev/null 2>&1; then
       for matrixps in ${outproc}/SubProcesses/P*/matrix*.ps; do
-        if ps2pdf $matrixps $(dirname $matrixps)/$(basename $matrixps .ps).pdf; then \rm -f $matrixps; fi
+        matrixpdf=$(dirname $matrixps)/$(basename $matrixps .ps).pdf
+        if ps2pdf $matrixps $matrixpdf; then
+          \rm -f $matrixps
+          # Strip PDF metadata from ps2pdf to make the file reproducible (use binary 'grep -a' for tests)
+          # Alternatively I tried pdftk (https://stackoverflow.com/questions/60738960) but this did not remove PdfID0 and PdfID1
+          # Use pdftk <file.pdf> dump_data to inspect the PDF metadata
+          cat $matrixpdf \
+            | awk -vdate="D:20240301000000+01'00'" '{print gensub("(^/ModDate\\().*(\\)>>endobj$)","\\1"date"\\2","g")}' \
+            | awk -vdate="D:20240301000000+01'00'" '{print gensub("(^/CreationDate\\().*(\\)$)","\\1"date"\\2","g")}' \
+            | awk -vid="0123456789abcdef0123456789abcdef" '{print gensub("(^/ID \\[<).*><.*(>\\]$)","\\1"id"><"id"\\2","g")}' \
+            > ${matrixpdf}.new
+          \mv ${matrixpdf}.new $matrixpdf
+        fi
       done
     fi
     # Remove card.jpg, diagrams.html and matrix*.jpg files (NB: these are only created if ghostscript is installed)
