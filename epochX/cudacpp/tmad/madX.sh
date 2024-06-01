@@ -257,6 +257,7 @@ function getgridmax()
 # Create an input file that is appropriate for the specific process
 function getinputfile()
 {
+  channelId=1 # use channelId=1 by default
   nevt=$(getnevt)
   tmpdir=/tmp/$USER
   mkdir -p $tmpdir
@@ -280,6 +281,7 @@ function getinputfile()
     tmp=$tmpdir/input_susyggtt
   elif [ "${susyggt1t1}" == "1" ]; then 
     tmp=$tmpdir/input_susyggt1t1
+    channelId=3 # channelId=1 does not exist in susyggt1t1 (issue #826)
   elif [ "${smeftggtttt}" == "1" ]; then 
     tmp=$tmpdir/input_smeftggtttt
   else
@@ -308,7 +310,7 @@ ${nevt} 1 1 ! Number of events and max and min iterations
 0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
 1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
 0 ! Helicity Sum/event 0=exact
-1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
+${channelId} ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 EOF
   echo ${tmp}
 }
