@@ -318,6 +318,12 @@ function codeGenAndDiff()
     # Note: treatcards run also regenerates vector.inc if vector_size has changed in the runcard
     ${outproc}/bin/madevent treatcards run >> ${outproc}_log.txt 2>&1 # AV BUG! THIS MAY SILENTLY FAIL (check if output contains "Please report this bug")
     ${outproc}/bin/madevent treatcards param >> ${outproc}_log.txt 2>&1 # AV BUG! THIS MAY SILENTLY FAIL (check if output contains "Please report this bug")
+    # Generate matrix*.pdf files using ps2pdf and remove the original matrix*.ps (NB: this only works if ghostscript is installed)
+    if which ps2pdf > /dev/null 2>&1; then
+      for matrixps in ${outproc}/SubProcesses/P*/matrix*.ps; do
+        if ps2pdf $matrixps $(dirname $matrixps)/$(basename $matrixps .ps).pdf; then \rm -f $matrixps; fi
+      done
+    fi
     # Remove card.jpg, diagrams.html and matrix*.jpg files (NB: these are only created if ghostscript is installed)
     \rm -f ${outproc}/SubProcesses/P*/card.jpg
     \rm -f ${outproc}/SubProcesses/P*/diagrams.html
