@@ -28,7 +28,7 @@ export CUDACPP_RUNTIME_VECSIZEUSED=${NLOOP}
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gguu][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-d] [-fltonly|-mixonly] [-makeonly|-makeclean|-makecleanonly] [-rmrdat] [+10x] [-checkonly] [-nocleanup]" > /dev/stderr
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gguu][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-d] [-fltonly|-mixonly] [-makeonly|-makeclean|-makecleanonly] [-rmrdat] [+10x] [-checkonly] [-nocleanup][-iconfig <iconfig>]" > /dev/stderr
   echo "(NB: OMP_NUM_THREADS is taken as-is from the caller's environment)"
   exit 1
 }
@@ -63,6 +63,8 @@ xfacs="1"
 checkonly=0
 
 nocleanup=0
+
+iconfig=
 
 while [ "$1" != "" ]; do
   if [ "$1" == "-d" ]; then
@@ -131,6 +133,9 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-nocleanup" ]; then
     nocleanup=1
     shift
+  elif [ "$1" == "-iconfig" ] && [ "$2" != "" ]; then
+    iconfig=$2
+    shift; shift
   else
     usage
   fi
@@ -257,7 +262,7 @@ function getgridmax()
 # Create an input file that is appropriate for the specific process
 function getinputfile()
 {
-  iconfig=1 # use iconfig=1 by default (NB: this does not mean channel_id=1 i.e. the first diagram, see #826)
+  iconfig_proc=1 # use iconfig=1 by default (NB: this does not mean channel_id=1 i.e. the first diagram, see #826)
   nevt=$(getnevt)
   tmpdir=/tmp/$USER
   mkdir -p $tmpdir
@@ -281,7 +286,7 @@ function getinputfile()
     tmp=$tmpdir/input_susyggtt
   elif [ "${susyggt1t1}" == "1" ]; then 
     tmp=$tmpdir/input_susyggt1t1
-    ###iconfig=2 # try to use a different iconfig in susyggt1t1 (issue #826)
+    ###iconfig_proc=2 # try to use a different iconfig in susyggt1t1 (issue #826)
   elif [ "${smeftggtttt}" == "1" ]; then 
     tmp=$tmpdir/input_smeftggtttt
   else
@@ -303,6 +308,7 @@ function getinputfile()
     echo "Usage: getinputfile <backend [-fortran][-cuda][-hip][-cpp]>"
     exit 1
   fi
+  if [ "${iconfig}" == "" ]; then iconfig=${iconfig_proc}; fi
   (( nevt = nevt*$xfac ))
   cat << EOF >> ${tmp}
 ${nevt} 1 1 ! Number of events and max and min iterations
