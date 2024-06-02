@@ -275,6 +275,7 @@ function getinputfile()
     tmp=$tmpdir/input_ggttg
   elif [ "${ggttgg}" == "1" ]; then 
     tmp=$tmpdir/input_ggttgg
+    iconfig_proc=104 # use iconfig=104 in ggttgg to check #855 SIGFPE fix (but issue #856 is pending: LHE color mismatch!)
   elif [ "${ggttggg}" == "1" ]; then 
     tmp=$tmpdir/input_ggttggg
   elif [ "${gguu}" == "1" ]; then 
@@ -287,7 +288,7 @@ function getinputfile()
     tmp=$tmpdir/input_susyggtt
   elif [ "${susyggt1t1}" == "1" ]; then 
     tmp=$tmpdir/input_susyggt1t1
-    ###iconfig_proc=2 # try to use a different iconfig in susyggt1t1 (issue #826)
+    iconfig_proc=2 # use iconfig=2 in susyggt1t1 to check #855 SIGFPE fix (but issue #826 is pending: no cross section!)
   elif [ "${smeftggtttt}" == "1" ]; then 
     tmp=$tmpdir/input_smeftggtttt
   else
