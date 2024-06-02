@@ -281,7 +281,7 @@ function getinputfile()
     tmp=$tmpdir/input_susyggtt
   elif [ "${susyggt1t1}" == "1" ]; then 
     tmp=$tmpdir/input_susyggt1t1
-    iconfig=2 # try to use a different iconfig in susyggt1t1 (issue #826)
+    ###iconfig=2 # try to use a different iconfig in susyggt1t1 (issue #826)
   elif [ "${smeftggtttt}" == "1" ]; then 
     tmp=$tmpdir/input_smeftggtttt
   else
