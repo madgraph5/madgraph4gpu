@@ -433,7 +433,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                         mydict['pre_%s' %c] = ''
                         mydict['post_%s'%c] = ''
                 # This affects '( *vertex ) = ' in HelAmps_sm.cc
-                out.write('    %(pre_vertex)svertex%(post_vertex)s = %(pre_coup)sCOUP%(post_coup)s * %(num)s;\n' % mydict)
+                out.write('    %(pre_vertex)svertex%(post_vertex)s = Ccoeff * %(pre_coup)sCOUP%(post_coup)s * %(num)s;\n' % mydict) # OM add Ccoeff (fix #825)
             else:
                 mydict= {}
                 if self.type2def['pointer_vertex'] in ['*']:
@@ -464,6 +464,9 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 else:
                     mydict['declnamedenom'] = 'denom' # AV
                     self.declaration.add(('complex','denom'))
+                # Need to add the unary operator before the coupling (OM fix for #825)
+                if mydict['coup'] != 'one': # but in case where the coupling is not used (one)
+                    mydict['pre_coup'] = 'Ccoeff * %s' % mydict['pre_coup']
                 if not aloha.complex_mass:
                     # This affects 'denom = COUP' in HelAmps_sm.cc
                     if self.routine.denominator:
