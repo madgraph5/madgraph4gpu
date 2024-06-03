@@ -323,7 +323,7 @@ function codeGenAndDiff()
       for matrixps in ${outproc}/SubProcesses/P*/matrix*.ps; do
         matrixpdf=$(dirname $matrixps)/$(basename $matrixps .ps).pdf
         if ps2pdf $matrixps $matrixpdf; then
-          \rm -f $matrixps
+          ###\rm -f $matrixps # keep also the .ps file as suggested by Olivier #854
           # Strip PDF metadata from ps2pdf to make the file reproducible (use binary 'grep -a' for tests)
           # Alternatively I tried pdftk (https://stackoverflow.com/questions/60738960) but this did not remove PdfID0/PdfID1 or XMP metadata
           # Use pdftk <file.pdf> dump_data to inspect the PDF metadata (but this does not include XMP metadata!)
