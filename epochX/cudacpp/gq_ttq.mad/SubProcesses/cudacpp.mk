@@ -387,6 +387,10 @@ else
   ###override OMPFLAGS = # disable OpenMP MT on all other platforms (default before #575)
 endif
 
+# Debug SIGFPE crash #845
+override OMPFLAGS=
+override OPTFLAGS=-g -O3
+
 #-------------------------------------------------------------------------------
 
 #=== Configure defaults and check if user-defined choices exist for RNDGEN (legacy!), HASCURAND, HASHIPRAND
