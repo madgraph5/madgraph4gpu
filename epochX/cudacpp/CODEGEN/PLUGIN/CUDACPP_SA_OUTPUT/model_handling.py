@@ -1531,21 +1531,45 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         # The following five lines from OneProcessExporterCPP.get_sigmaKin_lines (using OneProcessExporterCPP.get_icolamp_lines)
         replace_dict={}
 
-        lines = []
-        # Output only configs that have some corresponding diagrams
-        iconfig = 0
+
+        iconfig_to_diag = {}
+        diag_to_iconfig = {}
+        iconfig = 0 
         for config in config_subproc_map:
             if set(config) == set([0]):
                 continue
-            lines.append("     {%i, %i}," % (config[0], iconfig))
             iconfig += 1
+            iconfig_to_diag[iconfig] = config[0] 
+            diag_to_iconfig[config[0]] = iconfig
+
+        misc.sprint(iconfig_to_diag)
+        misc.sprint(diag_to_iconfig)
+
+        # Note that if the last diagram is/are not mapped to a channel nb_diag 
+        # will be smaller than the true number of diagram. This is fine for color
+        # but maybe not for something else.
+        nb_diag = max(config[0] for config in config_subproc_map)
+        # Output which diagrams correspond ot a channel to get information for valid color
+        lines = []
+        # Note: line for index 0 (no multi-channel is hardcoded in the template, so here we fill the array from index 1)
+        for diag in range(1, nb_diag+1):
+            if diag in diag_to_iconfig:
+                iconfig = diag_to_iconfig[diag]
+                channel = iconfig -1 # C convention 
+                text = "     %(channel)i, // channelId=%(diag)i (diagram=%(diag)i) i.e. channelIdC=%(channel)i --> iconfig=%(iconfig)i   " 
+            else:
+                iconfig = -1
+                channel = -1 
+                text = "     -1, // channelId=%(diag)i (diagram=%(diag)i): Not consider as a channel of integration (presence of 4 point interaction?)" 
+            lines.append(text % {'diag': diag, 'channel': channel, 'iconfig':  iconfig})  
+
         replace_dict['diag_to_channel'] = '\n'.join(lines)
-        misc.sprint(replace_dict)
 
         if self.include_multi_channel: # NB unnecessary as edit_coloramps is not called otherwise...
             multi_channel = self.get_multi_channel_dictionary(self.matrix_elements[0].get('diagrams'), self.include_multi_channel)
             replace_dict['is_LC'] = self.get_icolamp_lines(multi_channel, self.matrix_elements[0], 1)
             replace_dict['nb_channel'] = len(multi_channel)
+            replace_dict['nb_diag_plus_one'] = max(config[0] for config in config_subproc_map)+1
             replace_dict['nb_color'] = max(1,len(self.matrix_elements[0].get('color_basis')))
             
             misc.sprint(multi_channel)
@@ -1553,8 +1577,19 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             #raise Exception
             
             # AV extra formatting (e.g. gg_tt was "{{true,true};,{true,false};,{false,true};};")
-            replace_dict['is_LC'] = replace_dict['is_LC'].replace(',',', ').replace('{{','    { ').replace('};, {',' },\n    { ').replace('};};',' }')
-        ff.write(template % replace_dict)
+            split = replace_dict['is_LC'].split(';,') 
+            misc.sprint(replace_dict['is_LC'])
+            for i in range(len(split)): 
+                misc.sprint(split[i])
+                split[i] = '    ' + split[i].replace(',',', ').replace('{{', '{')
+                misc.sprint(split[i])
+                if '};};' in split[i]:
+                   split[i] = split[i][:-4] + '}, // channelIdC=%i' % i 
+                elif 'false' in split[i] or 'true' in split[i]:
+                    split[i] += ', // channelIdC=%i' % i
+                misc.sprint(split[i])
+            replace_dict['is_LC'] = '\n'.join(split)
+            ff.write(template % replace_dict)
         ff.close()
 
     # AV - new method
