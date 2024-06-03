@@ -175,6 +175,6 @@ INFO: /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg
 quit
 
 real	0m0.682s
-user	0m0.625s
-sys	0m0.051s
-Code generation completed in 0 seconds
+user	0m0.624s
+sys	0m0.049s
+Code generation completed in 1 seconds
