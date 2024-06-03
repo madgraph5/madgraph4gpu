@@ -2,18 +2,18 @@ Working directory (build): /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/g
 
 
 make USEBUILDDIR=1 BACKEND=cuda
-
 make USEBUILDDIR=1 BACKEND=cppnone
 
 make USEBUILDDIR=1 BACKEND=cppsse4
 
 make USEBUILDDIR=1 BACKEND=cppavx2
+
 make USEBUILDDIR=1 BACKEND=cpp512y
 make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
 make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
 make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
-make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
 
+make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
 make USEBUILDDIR=1 BACKEND=cpp512z
 make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
 make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
@@ -32,7 +32,7 @@ make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/
 
 OMP_NUM_THREADS=
 
-DATE: 2024-06-02_22:16:03
+DATE: 2024-06-03_08:35:05
 
 On itscrd90.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
 Working directory (run): /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg
@@ -58,9 +58,9 @@ Executing ' ./madevent_fortran < /tmp/avalassi/input_ggttgg_x1_fortran > /tmp/av
  [XSECTION] ChannelId = 112
  [XSECTION] Cross section = 0.4632 [0.46320556621222242] fbridge_mode=0
  [UNWEIGHT] Wrote 11 events (found 187 events)
- [COUNTERS] PROGRAM TOTAL          :    4.6224s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.2579s
- [COUNTERS] Fortran MEs      ( 1 ) :    4.3645s for     8192 events => throughput is 1.88E+03 events/s
+ [COUNTERS] PROGRAM TOTAL          :    4.7006s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.2599s
+ [COUNTERS] Fortran MEs      ( 1 ) :    4.4406s for     8192 events => throughput is 1.84E+03 events/s
 
 *** (1) EXECUTE MADEVENT_FORTRAN x1 (create events.lhe) ***
 --------------------
@@ -83,9 +83,9 @@ Executing ' ./madevent_fortran < /tmp/avalassi/input_ggttgg_x1_fortran > /tmp/av
  [XSECTION] ChannelId = 112
  [XSECTION] Cross section = 0.4632 [0.46320556621222242] fbridge_mode=0
  [UNWEIGHT] Wrote 11 events (found 168 events)
- [COUNTERS] PROGRAM TOTAL          :    4.6165s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.2540s
- [COUNTERS] Fortran MEs      ( 1 ) :    4.3625s for     8192 events => throughput is 1.88E+03 events/s
+ [COUNTERS] PROGRAM TOTAL          :    4.7005s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.2571s
+ [COUNTERS] Fortran MEs      ( 1 ) :    4.4435s for     8192 events => throughput is 1.84E+03 events/s
 
 *** (1) EXECUTE MADEVENT_FORTRAN x10 (create events.lhe) ***
 --------------------
@@ -108,9 +108,9 @@ Executing ' ./madevent_fortran < /tmp/avalassi/input_ggttgg_x10_fortran > /tmp/a
  [XSECTION] ChannelId = 112
  [XSECTION] Cross section = 0.2256 [0.22558083266099815] fbridge_mode=0
  [UNWEIGHT] Wrote 18 events (found 294 events)
- [COUNTERS] PROGRAM TOTAL          :   50.5574s
- [COUNTERS] Fortran Overhead ( 0 ) :    1.8890s
- [COUNTERS] Fortran MEs      ( 1 ) :   48.6684s for    90112 events => throughput is 1.85E+03 events/s
+ [COUNTERS] PROGRAM TOTAL          :   50.7843s
+ [COUNTERS] Fortran Overhead ( 0 ) :    1.8992s
+ [COUNTERS] Fortran MEs      ( 1 ) :   48.8851s for    90112 events => throughput is 1.84E+03 events/s
 
 *** (2-none) EXECUTE MADEVENT_CPP x1 (create events.lhe) ***
 --------------------
@@ -125,42 +125,34 @@ CUDACPP_RUNTIME_VECSIZEUSED = 8192
 104 ! ICONFIG number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 --------------------
 Executing ' ./build.none_f_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_ggttgg_x1_cudacpp > /tmp/avalassi/output_ggttgg_x1_cudacpp'
- [OPENMPTH] omp_get_max_threads/nproc = 1/4
- [NGOODHEL] ngoodhel/ncomb = 64/64
- [XSECTION] VECSIZE_USED = 8192
- [XSECTION] MultiChannel = TRUE
- [XSECTION] Configuration = 104
- [XSECTION] ChannelId = 112
- [XSECTION] Cross section = 0.4632 [0.46320716609204404] fbridge_mode=1
- [UNWEIGHT] Wrote 11 events (found 168 events)
- [COUNTERS] PROGRAM TOTAL          :    8.9166s
- [COUNTERS] Fortran Overhead ( 0 ) :    4.5182s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    4.3984s for     8192 events => throughput is 1.86E+03 events/s
 
-*** (2-none) Compare MADEVENT_CPP x1 xsec to MADEVENT_FORTRAN xsec ***
+Program received signal SIGFPE: Floating-point exception - erroneous arithmetic operation.
 
-OK! xsec from fortran (0.46320556621222242) and cpp (0.46320716609204404) differ by less than 4E-4 (3.453930475627587e-06)
+Backtrace for this error:
+#0  0x7fe2e1a23860 in ???
+#1  0x7fe2e1a22a05 in ???
+#2  0x7fe2e1654def in ???
+#3  0x44b5ff in ???
+#4  0x4087df in ???
+#5  0x409848 in ???
+#6  0x40bb83 in ???
+#7  0x40d1a9 in ???
+#8  0x45c804 in ???
+#9  0x434269 in ???
+#10  0x40371e in ???
+#11  0x7fe2e163feaf in ???
+#12  0x7fe2e163ff5f in ???
+#13  0x403844 in ???
+#14  0xffffffffffffffff in ???
+./madX.sh: line 388: 1458726 Floating point exception(core dumped) $timecmd $cmd < ${tmpin} > ${tmp}
+ERROR! ' ./build.none_f_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_ggttgg_x1_cudacpp > /tmp/avalassi/output_ggttgg_x1_cudacpp' failed
+ Running at P P   machine @    13000.000000000000       GeV
+ PDF set = nn23lo1
+ alpha_s(Mz)= 0.1300 running at 2 loops.
+ alpha_s(Mz)= 0.1300 running at 2 loops.
+ Renormalization scale set on event-by-event basis
+ Factorization   scale set on event-by-event basis
 
-*** (2-none) Compare MADEVENT_CPP x1 events.lhe to MADEVENT_FORTRAN events.lhe reference (including colors and helicities) ***
-ERROR! events.lhe.cpp.1 and events.lhe.ref.1 differ!
-diff /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/events.lhe.cpp.1 /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/events.lhe.ref.1 | head -20
-6,8c6,8
-<          -6    1    1    2    0  503  0.18965250326E+03 -0.37597274505E+02  0.12649008736E+03  0.28863535688E+03  0.17300000000E+03 0.  1.
-<          21    1    1    2  504  501  0.62170885397E+02  0.36618395894E+02  0.31153079182E+02  0.78591604204E+02  0.00000000000E+00 0.  1.
-<          21    1    1    2  505  504  0.17333851786E+01  0.11630357128E+03  0.45398068655E+02  0.12486196360E+03  0.00000000000E+00 0.  1.
----
->          -6    1    1    2    0  504  0.18965250326E+03 -0.37597274505E+02  0.12649008736E+03  0.28863535688E+03  0.17300000000E+03 0.  1.
->          21    1    1    2  504  503  0.62170885397E+02  0.36618395894E+02  0.31153079182E+02  0.78591604204E+02  0.00000000000E+00 0.  1.
->          21    1    1    2  505  501  0.17333851786E+01  0.11630357128E+03  0.45398068655E+02  0.12486196360E+03  0.00000000000E+00 0.  1.
-20c20
-<          21   -1    0    0  501  503 -0.00000000000E+00 -0.00000000000E+00 -0.12305922681E+04  0.12305922681E+04  0.00000000000E+00 0.  1.
----
->          21   -1    0    0  502  503 -0.00000000000E+00 -0.00000000000E+00 -0.12305922681E+04  0.12305922681E+04  0.00000000000E+00 0.  1.
-22c22
-<          -6    1    1    2    0  502 -0.16776755257E+03 -0.12342442113E+03 -0.43168412413E+03  0.50956817253E+03  0.17300000000E+03 0.  1.
----
->          -6    1    1    2    0  504 -0.16776755257E+03 -0.12342442113E+03 -0.43168412413E+03  0.50956817253E+03  0.17300000000E+03 0.  1.
-24c24
-<          21    1    1    2  505  504  0.14318120879E+02  0.15600982705E+02 -0.82469087380E+02  0.85144287067E+02  0.00000000000E+00 0. -1.
----
->          21    1    1    2  505  501  0.14318120879E+02  0.15600982705E+02 -0.82469087380E+02  0.85144287067E+02  0.00000000000E+00 0. -1.
+
+ getting user params
+Enter number of events and max and min iterations: 
