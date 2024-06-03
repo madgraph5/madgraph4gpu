@@ -947,7 +947,7 @@ namespace mg5amcCpu
     const cxtype_sv TMP2 = ( P1[0] * V2[2] - P1[1] * V2[3] - P1[2] * V2[4] - P1[3] * V2[5] );
     const cxtype_sv TMP3 = ( V2[2] * P3[0] - V2[3] * P3[1] - V2[4] * P3[2] - V2[5] * P3[3] );
     const cxtype_sv TMP4 = ( V3[2] * V2[2] - V3[3] * V2[3] - V3[4] * V2[4] - V3[5] * V2[5] );
-    const cxtype_sv denom = COUP / ( ( P1[0] * P1[0] ) - ( P1[1] * P1[1] ) - ( P1[2] * P1[2] ) - ( P1[3] * P1[3] ) - M1 * ( M1 - cI * W1 ) );
+    const cxtype_sv denom = Ccoeff * COUP / ( ( P1[0] * P1[0] ) - ( P1[1] * P1[1] ) - ( P1[2] * P1[2] ) - ( P1[3] * P1[3] ) - M1 * ( M1 - cI * W1 ) );
     V1[2] = denom * ( TMP4 * ( -cI * P2[0] + cI * P3[0] ) + ( V2[2] * ( -cI * TMP0 + cI * TMP1 ) + V3[2] * ( +cI * TMP2 - cI * TMP3 ) ) );
     V1[3] = denom * ( TMP4 * ( -cI * P2[1] + cI * P3[1] ) + ( V2[3] * ( -cI * TMP0 + cI * TMP1 ) + V3[3] * ( +cI * TMP2 - cI * TMP3 ) ) );
     V1[4] = denom * ( TMP4 * ( -cI * P2[2] + cI * P3[2] ) + ( V2[4] * ( -cI * TMP0 + cI * TMP1 ) + V3[4] * ( +cI * TMP2 - cI * TMP3 ) ) );
@@ -979,7 +979,7 @@ namespace mg5amcCpu
     const fptype_sv P3[4] = { +cxreal( S3[0] ), +cxreal( S3[1] ), +cximag( S3[1] ), +cximag( S3[0] ) };
     const cxtype_sv TMP5 = ( P2[0] * V1[2] - P2[1] * V1[3] - P2[2] * V1[4] - P2[3] * V1[5] );
     const cxtype_sv TMP6 = ( P3[0] * V1[2] - P3[1] * V1[3] - P3[2] * V1[4] - P3[3] * V1[5] );
-    ( *vertex ) = COUP * S2[2] * S3[2] * ( -cI * TMP5 + cI * TMP6 );
+    ( *vertex ) = Ccoeff * COUP * S2[2] * S3[2] * ( -cI * TMP5 + cI * TMP6 );
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -1009,7 +1009,7 @@ namespace mg5amcCpu
     const fptype_sv P2[4] = { -cxreal( S2[0] ), -cxreal( S2[1] ), -cximag( S2[1] ), -cximag( S2[0] ) };
     const cxtype_sv TMP5 = ( P2[0] * V1[2] - P2[1] * V1[3] - P2[2] * V1[4] - P2[3] * V1[5] );
     const cxtype_sv TMP6 = ( P3[0] * V1[2] - P3[1] * V1[3] - P3[2] * V1[4] - P3[3] * V1[5] );
-    const cxtype_sv denom = COUP / ( ( P2[0] * P2[0] ) - ( P2[1] * P2[1] ) - ( P2[2] * P2[2] ) - ( P2[3] * P2[3] ) - M2 * ( M2 - cI * W2 ) );
+    const cxtype_sv denom = Ccoeff * COUP / ( ( P2[0] * P2[0] ) - ( P2[1] * P2[1] ) - ( P2[2] * P2[2] ) - ( P2[3] * P2[3] ) - M2 * ( M2 - cI * W2 ) );
     S2[2] = denom * S3[2] * ( +cI * TMP5 - cI * TMP6 );
     mgDebug( 1, __FUNCTION__ );
     return;
@@ -1040,7 +1040,7 @@ namespace mg5amcCpu
     const fptype_sv P3[4] = { -cxreal( S3[0] ), -cxreal( S3[1] ), -cximag( S3[1] ), -cximag( S3[0] ) };
     const cxtype_sv TMP5 = ( P2[0] * V1[2] - P2[1] * V1[3] - P2[2] * V1[4] - P2[3] * V1[5] );
     const cxtype_sv TMP6 = ( P3[0] * V1[2] - P3[1] * V1[3] - P3[2] * V1[4] - P3[3] * V1[5] );
-    const cxtype_sv denom = COUP / ( ( P3[0] * P3[0] ) - ( P3[1] * P3[1] ) - ( P3[2] * P3[2] ) - ( P3[3] * P3[3] ) - M3 * ( M3 - cI * W3 ) );
+    const cxtype_sv denom = Ccoeff * COUP / ( ( P3[0] * P3[0] ) - ( P3[1] * P3[1] ) - ( P3[2] * P3[2] ) - ( P3[3] * P3[3] ) - M3 * ( M3 - cI * W3 ) );
     S3[2] = denom * S2[2] * ( +cI * TMP5 - cI * TMP6 );
     mgDebug( 1, __FUNCTION__ );
     return;
@@ -1068,7 +1068,7 @@ namespace mg5amcCpu
     cxtype_sv* vertex = A_ACCESS::kernelAccess( allvertexes );
     const cxtype cI = cxmake( 0., 1. );
     const cxtype_sv TMP7 = ( V2[2] * V1[2] - V2[3] * V1[3] - V2[4] * V1[4] - V2[5] * V1[5] );
-    ( *vertex ) = COUP * -cI * TMP7 * S4[2] * S3[2];
+    ( *vertex ) = Ccoeff * COUP * -cI * TMP7 * S4[2] * S3[2];
     mgDebug( 1, __FUNCTION__ );
     return;
   }

@@ -52,7 +52,6 @@ template_on = \
 """#***********************************************************************
 # SIMD/GPU configuration for the CUDACPP plugin
 #************************************************************************
- %(floating_type)s = floating_type ! floating point precision: f (single), d (double), m (mixed: double for amplitudes, single for colors)
  %(cudacpp_backend)s = cudacpp_backend ! CUDACPP backend: fortran, cuda, hip, cpp, cppnone, cppsse4, cppavx2, cpp512y, cpp512z, cppauto
 """
 
@@ -88,9 +87,11 @@ class CPPRunCard(banner_mod.RunCardLO):
 
     def default_setup(self):
         super().default_setup()
-        self.add_param('floating_type', 'd', include=False, hidden=False,
+        self.add_param('floating_type', 'm', include=False, hidden=True,
                        fct_mod=(self.reset_makeopts,(),{}),
-                       allowed=['m','d','f'])
+                       allowed=['m','d','f'],
+                       comment='floating point precision: f (single), d (double), m (mixed: double for amplitudes, single for colors)'
+                       )
         cudacpp_supported_backends = [ 'fortran', 'cuda', 'hip', 'cpp', 'cppnone', 'cppsse4', 'cppavx2', 'cpp512y', 'cpp512z', 'cppauto' ]
         self.add_param('cudacpp_backend', 'cpp', include=False, hidden=False,
                        allowed=cudacpp_supported_backends)
