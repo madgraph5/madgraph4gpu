@@ -1554,14 +1554,14 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         # Note: line for index 0 (no multi-channel is hardcoded in the template, so here we fill the array from index 1)
         for diag in range(1, nb_diag+1):
             if diag in diag_to_iconfig:
-                iconfig = diag_to_iconfig[diag]
-                channel = iconfig -1 # C convention 
-                text = "     %(channel)i, // channelId=%(diag)i (diagram=%(diag)i) i.e. channelIdC=%(channel)i --> iconfig=%(iconfig)i   " 
+                iconfigf = diag_to_iconfig[diag]
+                iconfigc = iconfigf - 1 # C convention 
+                text = "     %(iconfigc)i, // channelId=%(diag)i (diagram=%(diag)i) --> iconfig=%(iconfigf)i (f77 conv) and iconfigC=%(iconfigc)i (c conv)" 
             else:
-                iconfig = -1
-                channel = -1 
+                iconfigc = -1
+                iconfigf = -1
                 text = "     -1, // channelId=%(diag)i (diagram=%(diag)i): Not consider as a channel of integration (presence of 4 point interaction?)" 
-            lines.append(text % {'diag': diag, 'channel': channel, 'iconfig':  iconfig})  
+            lines.append(text % {'diag': diag, 'iconfigc':  iconfigc, 'iconfigf':iconfigf})  
 
         replace_dict['diag_to_channel'] = '\n'.join(lines)
 
@@ -1584,9 +1584,9 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
                 split[i] = '    ' + split[i].replace(',',', ').replace('{{', '{')
                 misc.sprint(split[i])
                 if '};};' in split[i]:
-                   split[i] = split[i][:-4] + '}, // channelIdC=%i' % i 
+                   split[i] = split[i][:-4] + '}, // iconfigC=%i, diag=%i' % (i, iconfig_to_diag[i+1]) 
                 elif 'false' in split[i] or 'true' in split[i]:
-                    split[i] += ', // channelIdC=%i' % i
+                    split[i] += ', // iconfigC=%i, diag=%i' % (i, iconfig_to_diag[i+1])
                 misc.sprint(split[i])
             replace_dict['is_LC'] = '\n'.join(split)
             ff.write(template % replace_dict)
