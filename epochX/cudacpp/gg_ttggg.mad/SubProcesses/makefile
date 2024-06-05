@@ -58,13 +58,15 @@ endif
 LINKLIBS = $(LINK_MADLOOP_LIB) $(LINK_LOOP_LIBS) -L$(LIBDIR) -ldhelas -ldsample -lmodel -lgeneric -lpdf -lcernlib $(llhapdf) -lbias 
 
 CUDACPP_MAKEFILE=cudacpp.mk
-CUDACPP_COMMONLIB=mg5amc_common
 processid_short=$(shell basename $(CURDIR) | awk -F_ '{print $$(NF-1)"_"$$NF}')
 ifeq ($(BACKEND),cuda)
+CUDACPP_COMMONLIB=mg5amc_common_cuda
 CUDACPP_BACKENDLIB=mg5amc_$(processid_short)_cuda
 else ifeq ($(BACKEND),hip)
+CUDACPP_COMMONLIB=mg5amc_common_hip
 CUDACPP_BACKENDLIB=mg5amc_$(processid_short)_hip
 else
+CUDACPP_COMMONLIB=mg5amc_common_cpp
 CUDACPP_BACKENDLIB=mg5amc_$(processid_short)_cpp
 endif
 

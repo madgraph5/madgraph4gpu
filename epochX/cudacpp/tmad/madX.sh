@@ -224,7 +224,7 @@ function getnevt()
   echo $nevt
 }
 
-# Determine the appropriate CUDA/HIP grid dimension for the specific process (to run the fastest gcheck)
+# Determine the appropriate CUDA/HIP grid dimension for the specific process (to run the fastest check_cuda or check_hip)
 function getgridmax()
 {
   if [ "${eemumu}" == "1" ]; then
@@ -313,14 +313,14 @@ EOF
   echo ${tmp}
 }
 
-# Run check.exe or gcheck.exe (depending on $1) and parse its output
+# Run check_(cpp|cuda|hip).exe (depending on $1) and parse its output
 function runcheck()
 {
-  if [ "$1" == "" ] || [ "$2" != "" ]; then echo "Usage: runcheck <check/gcheck executable>"; exit 1; fi
+  if [ "$1" == "" ] || [ "$2" != "" ]; then echo "Usage: runcheck <check_(cpp|cuda|hip) executable>"; exit 1; fi
   cmd=$1
   if [ "${cmd/gcheckmax128thr}" != "$cmd" ]; then
     txt="GCHECK(MAX128THR)"
-    cmd=${cmd/gcheckmax128thr/gcheck} # hack: run cuda/hip gcheck with tput fastest settings
+    cmd=${cmd/gcheckmax128thr/check_${backend}} # hack: run cuda/hip check with tput fastest settings
     cmd=${cmd/.\//.\/build.${backend}_${fptype}_inl0_hrd0\/}
     nblk=$(getgridmax | cut -d ' ' -f1)
     nthr=$(getgridmax | cut -d ' ' -f2)
@@ -328,7 +328,7 @@ function runcheck()
     (( nevt = nblk*nthr ))
   elif [ "${cmd/gcheckmax8thr}" != "$cmd" ]; then
     txt="GCHECK(MAX8THR)"
-    cmd=${cmd/gcheckmax8thr/gcheck} # hack: run cuda/hip gcheck with tput fastest settings
+    cmd=${cmd/gcheckmax8thr/check_${backend}} # hack: run cuda/hip check with tput fastest settings
     cmd=${cmd/.\//.\/build.${backend}_${fptype}_inl0_hrd0\/}
     nblk=$(getgridmax | cut -d ' ' -f1)
     nthr=$(getgridmax | cut -d ' ' -f2)
@@ -336,13 +336,14 @@ function runcheck()
     (( nevt = nblk*nthr ))
   elif [ "${cmd/gcheckmax}" != "$cmd" ]; then
     txt="GCHECK(MAX)"
-    cmd=${cmd/gcheckmax/gcheck} # hack: run cuda/hip gcheck with tput fastest settings
+    cmd=${cmd/gcheckmax/check_${backend}} # hack: run cuda/hip check with tput fastest settings
     cmd=${cmd/.\//.\/build.${backend}_${fptype}_inl0_hrd0\/}
     nblk=$(getgridmax | cut -d ' ' -f1)
     nthr=$(getgridmax | cut -d ' ' -f2)
     (( nevt = nblk*nthr ))
   elif [ "${cmd/gcheck}" != "$cmd" ]; then
     txt="GCHECK($NLOOP)"
+    cmd=${cmd/gcheck/check_${backend}}
     cmd=${cmd/.\//.\/build.${backend}_${fptype}_inl0_hrd0\/}
     nthr=32
     (( nblk = NLOOP/nthr )) || true # integer division (NB: bash double parenthesis fails if the result is 0)
@@ -351,6 +352,7 @@ function runcheck()
     nevt=$(getnevt)
   elif [ "${cmd/check}" != "$cmd" ]; then
     txt="CHECK($NLOOP)"
+    cmd=${cmd/check/check_cpp}
     cmd=${cmd/.\//.\/build.${backend}_${fptype}_inl0_hrd0\/}
     nthr=32
     (( nblk = NLOOP/nthr )) || true # integer division (NB: bash double parenthesis fails if the result is 0)

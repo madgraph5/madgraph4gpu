@@ -318,6 +318,31 @@ function codeGenAndDiff()
     # Note: treatcards run also regenerates vector.inc if vector_size has changed in the runcard
     ${outproc}/bin/madevent treatcards run >> ${outproc}_log.txt 2>&1 # AV BUG! THIS MAY SILENTLY FAIL (check if output contains "Please report this bug")
     ${outproc}/bin/madevent treatcards param >> ${outproc}_log.txt 2>&1 # AV BUG! THIS MAY SILENTLY FAIL (check if output contains "Please report this bug")
+    # Generate matrix*.pdf files using ps2pdf and remove the original matrix*.ps (NB: this only works if ghostscript is installed)
+    if which ps2pdf > /dev/null 2>&1; then
+      for matrixps in ${outproc}/SubProcesses/P*/matrix*.ps; do
+        matrixpdf=$(dirname $matrixps)/$(basename $matrixps .ps).pdf
+        if ps2pdf $matrixps $matrixpdf; then
+          ###\rm -f $matrixps # keep also the .ps file as suggested by Olivier #854
+          # Strip PDF metadata from ps2pdf to make the file reproducible (use binary 'grep -a' for tests)
+          # Alternatively I tried pdftk (https://stackoverflow.com/questions/60738960) but this did not remove PdfID0/PdfID1 or XMP metadata
+          # Use pdftk <file.pdf> dump_data to inspect the PDF metadata (but this does not include XMP metadata!)
+          cat $matrixpdf \
+            | awk -vdate="D:20240301000000+01'00'" '{print gensub("(^/ModDate\\().*(\\)>>endobj$)","\\1"date"\\2","g")}' \
+            | awk -vdate="D:20240301000000+01'00'" '{print gensub("(^/CreationDate\\().*(\\)$)","\\1"date"\\2","g")}' \
+            | awk -vid="0123456789abcdef0123456789abcdef" '{print gensub("(^/ID \\[<).*><.*(>\\]$)","\\1"id"><"id"\\2","g")}' \
+            | awk -vdate="2024-03-01T00:00:00+01:00" '{print gensub("(<xmp:ModifyDate>).*(</xmp:ModifyDate>)","\\1"date"\\2","g")}' \
+            | awk -vdate="2024-03-01T00:00:00+01:00" '{print gensub("(<xmp:CreateDate>).*(</xmp:CreateDate>)","\\1"date"\\2","g")}' \
+            | awk -vuuid="'uuid=01234567-89ab-cdef-0123-456789abcdef'" '{print gensub("(xapMM:DocumentID=).*(/>$)","\\1"uuid"\\2","g")}' \
+            > ${matrixpdf}.new
+          \mv ${matrixpdf}.new $matrixpdf
+        fi
+      done
+    fi
+    # Remove card.jpg, diagrams.html and matrix*.jpg files (NB: these are only created if ghostscript is installed)
+    \rm -f ${outproc}/SubProcesses/P*/card.jpg
+    \rm -f ${outproc}/SubProcesses/P*/diagrams.html
+    \rm -f ${outproc}/SubProcesses/P*/matrix*jpg
     # Cleanup
     \rm -f ${outproc}/crossx.html
     \rm -f ${outproc}/index.html

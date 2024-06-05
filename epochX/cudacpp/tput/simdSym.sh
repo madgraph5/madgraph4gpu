@@ -2,6 +2,7 @@
 # Copyright (C) 2020-2023 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: A. Valassi (Apr 2021) for the MG5aMC CUDACPP plugin.
+# Further modified by: A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
 
 #----------------------------------------------------------------------------------------------
 # See http://sponce.web.cern.ch/sponce/CSC/slides/PracticalVectorization.booklet.pdf
@@ -38,7 +39,7 @@ function countSyms() {
     printf "(%24s : %4d) " "'$sym'" $(cat $dump | awk '/^ +[[:xdigit:]]+:\t/' | cut -f3- | egrep "$sym" | wc -l)
   done; printf "\n"
 }
-#dump=$1; shift; countSyms $* # for debugging (./simdSym.sh ./build.none/CPPProcess.o.objdump 'addsd.*xmm')
+#dump=$1; shift; countSyms $* # for debugging (./simdSym.sh ./build.none/CPPProcess_cpp.o.objdump 'addsd.*xmm')
 
 function mainCountSyms() {
   # Command line arguments: select file
@@ -108,7 +109,7 @@ mainListSyms $*
 function mainCompareSyms() {
   allFileSyms=""
   for avx in none sse4 avx2 512y 512z; do
-    file=./build.$avx/CPPProcess.o
+    file=./build.$avx/CPPProcess_cpp.o
     fileSymsRaw=$file.symlist.raw
     mainListSyms $file > $fileSymsRaw
     ls -l $fileSymsRaw
@@ -117,7 +118,7 @@ function mainCompareSyms() {
   allSymList=all.symlist
   cat $allFileSyms | sort -u | awk -vf1= -vf2= -vf3=0 '{if ($1==f1 && $2==f2){f3+=$3} else {if(f1!=""){print f1,f2,f3};f1=$1;f2=$2;f3=$3}}END{print f1,f2,f3}' | sort -u -k 1,2 > $allSymList
   for avx in none sse4 avx2 512y 512z; do
-    file=./build.$avx/CPPProcess.o
+    file=./build.$avx/CPPProcess_cpp.o
     fileSymsRaw=$file.symlist.raw
     fileSyms=$file.symlist
     cat $fileSymsRaw | awk -vall=$allSymList -vfmt="%5s %15s %5d\n" -vtot=0 -veof=1 '{f1=$1; f2=$2; f3=$3; tot+=f3; while(f3>0){getline < all; if($1==f1 && $2==f2){printf fmt,$1,$2,f3; f3=0} else {printf fmt,$1,$2,0}}} END{while(getline < all){printf fmt,$1,$2,0};printf fmt,"TOTAL","",tot}' > $fileSyms
