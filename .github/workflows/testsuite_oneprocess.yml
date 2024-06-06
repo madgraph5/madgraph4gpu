@@ -95,7 +95,6 @@ jobs:
         GH_TOKEN: ${{ github.token }}
 
     - name: restore_cache
-      if: ${{ false }}
       id: cache-restore
       # See https://github.com/actions/cache
       # See https://github.com/actions/cache/blob/main/tips-and-workarounds.md#update-a-cache
