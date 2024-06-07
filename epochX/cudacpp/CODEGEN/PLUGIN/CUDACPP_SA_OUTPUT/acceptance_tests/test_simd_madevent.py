@@ -47,7 +47,7 @@ _pickle_path =os.path.join(_file_path, 'input_files')
 
 from madgraph import MG4DIR, MG5DIR, MadGraph5Error, InvalidCmd
 
-
+from tests.acceptance_tests.test_cmd_madevent import check_html_page
 pjoin = os.path.join
 
 
