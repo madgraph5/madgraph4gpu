@@ -1,0 +1,53 @@
+# This is a basic workflow to help you get started with Actions
+
+name: running acceptance test
+# Controls when the workflow will run
+#    branches: [ main LTS ]
+on:
+  # Triggers the workflow on push or pull request events but only for the 3.4.0 branch
+  push:
+    paths-ignore:
+      - 'docs/**'
+#      - '.github/**'
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+    inputs:
+      message:
+        description: 'running acceptance test'     
+        required: true
+
+env:
+  commitmsg: ${{ github.event.head_commit.message }}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+
+
+  SIMD_GG_TT_MIXED:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+        with:
+          submodules: 'true'
+      
+      # Runs a set of commands using the runners shell
+      - name: test one of the test testIO_AcceptanceProcOutputIOTests
+        run: |
+            cd $GITHUB_WORKSPACE
+            cd MG5aMC/mg5amcnlo/
+            cp input/.mg5_configuration_default.txt input/mg5_configuration.txt
+            cp Template/LO/Source/.make_opts Template/LO/Source/make_opts
+            ./tests/test_manager.py -p./PLUGIN/CUDACPP_OUTPUT/acceptance_tests/ test_ggtt_mixed 
+
+
+
