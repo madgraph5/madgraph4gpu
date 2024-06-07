@@ -47,7 +47,6 @@ _pickle_path =os.path.join(_file_path, 'input_files')
 
 from madgraph import MG4DIR, MG5DIR, MadGraph5Error, InvalidCmd
 
-from tests.acceptance_tests.test_cmd_madevent import *
 
 pjoin = os.path.join
 
@@ -55,12 +54,66 @@ pjoin = os.path.join
 #===============================================================================
 # TestCmd
 #===============================================================================
-class TestCPPfromfile(TestMEfromfile): # inherit from upstream test_cmd_madevent
+class TestCPPfromfile(unittest.TestCase): # inherit from upstream test_cmd_madevent
     """test that we can launch everything from a single file"""
 
- 
 
-    def test_ggtt_mixed(self):
+    def setUp(self):
+        
+        self.debuging = unittest.debug
+        if self.debuging:
+            self.path = pjoin(MG5DIR, 'ACC_TEST')
+            if os.path.exists(self.path):
+                 shutil.rmtree(self.path)
+            os.mkdir(self.path) 
+        else:
+            self.path = tempfile.mkdtemp(prefix='acc_test_mg5')
+        self.run_dir = pjoin(self.path, 'MGPROC') 
+        
+    
+    def tearDown(self):
+
+        if not self.debuging:
+            shutil.rmtree(self.path)
+        self.assertFalse(self.debuging)
+
+    def load_result(self, run_name):
+        
+        import madgraph.iolibs.save_load_object as save_load_object
+        import madgraph.madevent.gen_crossxhtml as gen_crossxhtml
+        
+        result = save_load_object.load_from_file(pjoin(self.run_dir,'HTML/results.pkl'))
+        return result[run_name]
+ 
+    def check_parton_output(self, run_name='run_01', target_event=100, cross=0, error=9e99, delta_event=0):
+        """Check that parton output exists and reach the targert for event"""
+                
+        # check that the number of event is fine:
+        data = self.load_result(run_name)
+        if target_event > 0:
+            if delta_event == 0:
+                self.assertEqual(target_event, int(data[0]['nb_event']))
+            else:
+                self.assertLessEqual(abs(int(data[0]['nb_event'])-target_event), delta_event)
+        self.assertIn('lhe', data[0].parton)
+        
+        if cross:
+            import math
+            new_error = math.sqrt(error**2 + float(data[0]['error'])**2)
+            self.assertLess(
+                abs(cross - float(data[0]['cross']))/new_error,
+                3,
+                'cross is %s and not %s. NB_SIGMA %s' % (float(data[0]['cross']), cross, float(data[0]['cross'])/new_error)
+            )
+            self.assertLess(float(data[0]['error']), 3 * error)
+            
+        check_html_page(self, pjoin(self.run_dir, 'crossx.html'))
+        if 'decayed' not in run_name:
+            check_html_page(self, pjoin(self.run_dir,'HTML', run_name, 'results.html'))
+
+
+
+    def test_simd_cpp_ggtt_mixed(self):
         """checking time of flight is working fine"""
 
         if logging.getLogger('madgraph').level <= 20:
@@ -83,6 +136,7 @@ class TestCPPfromfile(TestMEfromfile): # inherit from upstream test_cmd_madevent
                  output madevent_simd %s -f -nojpeg
                  launch  
                  set nevents 100
+                 set floating_type m
                  """ %self.run_dir
 
         open(pjoin(self.path, 'mg5_cmd'),'w').write(cmd)
@@ -112,3 +166,145 @@ class TestCPPfromfile(TestMEfromfile): # inherit from upstream test_cmd_madevent
         self.assertFalse(self.debuging)
     
 
+    def test_simd_cpp_eemumua_float(self):
+        """checking time of flight is working fine"""
+
+        if logging.getLogger('madgraph').level <= 20:
+            stdout=None
+            stderr=None
+        else:
+            devnull =open(os.devnull,'w')
+            stdout=devnull
+            stderr=devnull
+            
+        try:
+            shutil.rmtree('/tmp/MGPROCESS/')
+        except Exception as error:
+            pass
+        
+        cmd = """import model sm
+                 set automatic_html_opening False --no_save
+                 set notification_center False --no_save
+                 generate e+ e- > mu+ mu- a
+                 output madevent_simd %s -f -nojpeg
+                 launch  
+                 set nevents 100
+                 set floating_type f
+                 """ %self.run_dir
+
+        open(pjoin(self.path, 'mg5_cmd'),'w').write(cmd)
+        
+        subprocess.call([sys.executable, pjoin(MG5DIR, 'bin','mg5_aMC'), 
+                         pjoin(self.path, 'mg5_cmd')],
+                         #cwd=self.path,
+                        stdout=stdout, stderr=stderr)
+        
+        self.check_parton_output(cross=0.0239204, error=0.0002854)
+        event = '%s/Events/run_01/unweighted_events.lhe' % self.run_dir
+        if not os.path.exists(event):
+            misc.gunzip(event)
+        
+        lhefile = lhe_parser.EventFile(event)
+
+        nb_event = 0
+        for event in lhe_parser.EventFile(event):
+            event.check()
+            nb_event+=1
+
+        self.assertEqual(nb_event, 100)
+        
+        self.assertFalse(self.debuging)
+
+
+    def test_simd_cpp_heft_ggh_double(self):
+        """checking time of flight is working fine"""
+
+        if logging.getLogger('madgraph').level <= 20:
+            stdout=None
+            stderr=None
+        else:
+            devnull =open(os.devnull,'w')
+            stdout=devnull
+            stderr=devnull
+            
+        try:
+            shutil.rmtree('/tmp/MGPROCESS/')
+        except Exception as error:
+            pass
+        
+        cmd = """import model heft
+                 set automatic_html_opening False --no_save
+                 set notification_center False --no_save
+                 generate g g > h > a a
+                 output madevent_simd %s -f -nojpeg
+                 launch  
+                 set nevents 100
+                 set floating_type d
+                 """ %self.run_dir
+
+        open(pjoin(self.path, 'mg5_cmd'),'w').write(cmd)
+        
+        subprocess.call([sys.executable, pjoin(MG5DIR, 'bin','mg5_aMC'), 
+                         pjoin(self.path, 'mg5_cmd')],
+                         #cwd=self.path,
+                        stdout=stdout, stderr=stderr)
+        self.check_parton_output(cross=0.01859, error=0.0002853789088650386)
+        event = '%s/Events/run_01/unweighted_events.lhe' % self.run_dir
+        if not os.path.exists(event):
+            misc.gunzip(event)
+        
+        lhefile = lhe_parser.EventFile(event)
+        nb_event = 0
+        for event in lhe_parser.EventFile(event):
+            event.check()
+            nb_event+=1
+
+        self.assertEqual(nb_event, 100)
+
+
+    def test_simd_cpp_vector_size(self):
+        """checking time of flight is working fine"""
+
+
+        if logging.getLogger('madgraph').level <= 20:
+            stdout=None
+            stderr=None
+        else:
+            devnull =open(os.devnull,'w')
+            stdout=devnull
+            stderr=devnull
+            
+        try:
+            shutil.rmtree('/tmp/MGPROCESS/')
+        except Exception as error:
+            pass
+        
+        cmd = """import model sm
+                 set automatic_html_opening False --no_save
+                 set notification_center False --no_save
+                 generate p p > t t~
+                 output madevent_simd %s -f -nojpeg
+                 launch  
+                 set nevents 100
+                 set floating_type m
+                 set vector_size 16
+                 launch
+                 set vector_size 32
+                 launch
+                 set vector_size 64
+                 """ %self.run_dir
+
+        open(pjoin(self.path, 'mg5_cmd'),'w').write(cmd)
+        
+        subprocess.call([sys.executable, pjoin(MG5DIR, 'bin','mg5_aMC'), 
+                         pjoin(self.path, 'mg5_cmd')],
+                         #cwd=self.path,
+                        stdout=stdout, stderr=stderr)
+
+        self.check_parton_output(cross=505.5, error=2.749)
+        self.check_parton_output(cross=505.5, error=2.749, run_name='run_02')
+        self.check_parton_output(cross=505.5, error=2.749, run_name='run_03')
+
+        self.assertEqual(nb_event, 100)
+        
+        self.assertFalse(self.debuging)
