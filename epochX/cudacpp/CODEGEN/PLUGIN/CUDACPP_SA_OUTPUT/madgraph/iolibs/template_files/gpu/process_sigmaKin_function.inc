@@ -198,7 +198,7 @@
 #ifdef MGONGPU_CPPSIMD
           for( int i = 0; i < neppV; ++i )
           {
-            const unsigned int iconfigC = mgOnGpu::channelId_to_iconfigC[ichannelIds[i]];    
+            const unsigned int iconfigC = mgOnGpu::channelId_to_iconfigC[ichannelIds[i]];
             if( mgOnGpu::icolamp[iconfigC][icolC] ) targetamp[icolC][i] += jamp2_sv[icolC][i];
           }
 #else
@@ -218,7 +218,7 @@
 #ifdef MGONGPU_CPPSIMD
           for( int i = 0; i < neppV; ++i )
           {
-            const unsigned int iconfigC = mgOnGpu::channelId_to_iconfigC[ichannelIds[i]]; 
+            const unsigned int iconfigC = mgOnGpu::channelId_to_iconfigC[ichannelIds[i]];
             if( mgOnGpu::icolamp[iconfigC][icolC] ) targetamp2[icolC][i] += jamp2_sv[ncolor + icolC][i];
           }
 #else
