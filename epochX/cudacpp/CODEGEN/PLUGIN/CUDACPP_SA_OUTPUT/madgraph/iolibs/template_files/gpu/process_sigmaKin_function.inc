@@ -187,7 +187,7 @@
       // Event-by-event random choice of color #402
       if( channelIds[0] != 0 ) // no event-by-event choice of color if channelId == 0 (fix FPE #783)
       {
-        uint_sv iconfigC = mgOnGpu::channelId_to_iconfigC[CID_ACCESS::kernelAccessConst( channelIds )]; // coloramps.h uses a channel ordering not the diagram id
+        uint_sv ichannelIds = CID_ACCESS::kernelAccessConst( channelIds ); // coloramps.h uses a channel ordering not the diagram id
         fptype_sv targetamp[ncolor] = { 0 };
         for( int icolC = 0; icolC < ncolor; icolC++ )
         {
@@ -196,9 +196,12 @@
           else
             targetamp[icolC] = targetamp[icolC - 1];
 #ifdef MGONGPU_CPPSIMD
-          for( int i = 0; i < neppV; ++i )
-            if( mgOnGpu::icolamp[iconfigC[i]][icolC] ) targetamp[icolC][i] += jamp2_sv[icolC][i];
+          for( int i = 0; i < neppV; ++i ) {
+            const unsigned int iconfigC = mgOnGpu::channelId_to_iconfigC[ichannelIds[i]];    
+            if( mgOnGpu::icolamp[iconfigC][icolC] ) targetamp[icolC][i] += jamp2_sv[icolC][i];
+          }
 #else
+          const unsigned int iconfigC = mgOnGpu::channelId_to_iconfigC[CID_ACCESS::kernelAccessConst( channelIds )];
           if( mgOnGpu::icolamp[iconfigC][icolC] ) targetamp[icolC] += jamp2_sv[icolC];
 #endif
         }
@@ -211,8 +214,15 @@
             targetamp2[icolC] = fptype_sv{ 0 };
           else
             targetamp2[icolC] = targetamp2[icolC - 1];
-          for( int i = 0; i < neppV; ++i )
-            if( mgOnGpu::icolamp[iconfigC[i]][icolC] ) targetamp2[icolC][i] += jamp2_sv[ncolor + icolC][i];
+#ifdef MGONGPU_CPPSIMD
+          for( int i = 0; i < neppV; ++i ) {
+            const unsigned int iconfigC = mgOnGpu::channelId_to_iconfigC[ichannelIds[i]]; 
+            if( mgOnGpu::icolamp[iconfigC][icolC] ) targetamp2[icolC][i] += jamp2_sv[ncolor + icolC][i];
+          }
+#else 
+          const unsigned int iconfigC = mgOnGpu::channelId_to_iconfigC[CID_ACCESS::kernelAccessConst( channelIds )];
+          if( mgOnGpu::icolamp[iconfigC][icolC] ) targetamp2[icolC] += jamp2_sv[ncolor + icolC];
+#endif
         }
 #endif
         for( int ieppV = 0; ieppV < neppV; ++ieppV )
