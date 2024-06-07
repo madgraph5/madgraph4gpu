@@ -1437,8 +1437,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         self.edit_check_sa()
         self.edit_mgonGPU()
         self.edit_processidfile() # AV new file (NB this is Sigma-specific, should not be a symlink to Subprocesses)
-        if self.include_multi_channel:
-            self.edit_coloramps() # AV new file (NB this is Sigma-specific, should not be a symlink to Subprocesses)
+        
         self.edit_testxxx() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
         self.edit_memorybuffers() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
         self.edit_memoryaccesscouplings() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
@@ -1516,22 +1515,85 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         ff.write(template % replace_dict)
         ff.close()
 
+
+    def generate_subprocess_directory_end(self, **opt):
+        """ opt contain all local variable of the fortran original function"""
+        if self.include_multi_channel:
+            #self.edit_coloramps() # AV new file (NB this is Sigma-specific, should not be a symlink to Subprocesses)
+            subproc_diagrams_for_config = opt['subproc_diagrams_for_config']
+            misc.sprint(len(subproc_diagrams_for_config))
+            self.edit_coloramps( subproc_diagrams_for_config)
+
     # AV - new method
-    def edit_coloramps(self):
+    def edit_coloramps(self, config_subproc_map):
         """Generate coloramps.h"""
+
+
         ###misc.sprint('Entering PLUGIN_OneProcessExporter.edit_coloramps')
         template = open(pjoin(self.template_path,'gpu','coloramps.h'),'r').read()
         ff = open(pjoin(self.path, 'coloramps.h'),'w')
         # The following five lines from OneProcessExporterCPP.get_sigmaKin_lines (using OneProcessExporterCPP.get_icolamp_lines)
         replace_dict={}
+
+
+        iconfig_to_diag = {}
+        diag_to_iconfig = {}
+        iconfig = 0 
+        for config in config_subproc_map:
+            if set(config) == set([0]):
+                continue
+            iconfig += 1
+            iconfig_to_diag[iconfig] = config[0] 
+            diag_to_iconfig[config[0]] = iconfig
+
+        misc.sprint(iconfig_to_diag)
+        misc.sprint(diag_to_iconfig)
+
+        # Note that if the last diagram is/are not mapped to a channel nb_diag 
+        # will be smaller than the true number of diagram. This is fine for color
+        # but maybe not for something else.
+        nb_diag = max(config[0] for config in config_subproc_map)
+        # Output which diagrams correspond ot a channel to get information for valid color
+        lines = []
+        # Note: line for index 0 (no multi-channel is hardcoded in the template, so here we fill the array from index 1)
+        for diag in range(1, nb_diag+1):
+            if diag in diag_to_iconfig:
+                iconfigf = diag_to_iconfig[diag]
+                iconfigc = iconfigf - 1 # C convention 
+                text = "     %(iconfigc)i, // channelId=%(diag)i (diagram=%(diag)i) --> iconfig=%(iconfigf)i (f77 conv) and iconfigC=%(iconfigc)i (c conv)" 
+            else:
+                iconfigc = -1
+                iconfigf = -1
+                text = "     -1, // channelId=%(diag)i (diagram=%(diag)i): Not consider as a channel of integration (presence of 4 point interaction?)" 
+            lines.append(text % {'diag': diag, 'iconfigc':  iconfigc, 'iconfigf':iconfigf})  
+
+        replace_dict['diag_to_channel'] = '\n'.join(lines)
+
         if self.include_multi_channel: # NB unnecessary as edit_coloramps is not called otherwise...
             multi_channel = self.get_multi_channel_dictionary(self.matrix_elements[0].get('diagrams'), self.include_multi_channel)
             replace_dict['is_LC'] = self.get_icolamp_lines(multi_channel, self.matrix_elements[0], 1)
             replace_dict['nb_channel'] = len(multi_channel)
+            replace_dict['nb_diag_plus_one'] = max(config[0] for config in config_subproc_map)+1
             replace_dict['nb_color'] = max(1,len(self.matrix_elements[0].get('color_basis')))
+            
+            misc.sprint(multi_channel)
+            misc.sprint(self.path, os.getcwd())
+            #raise Exception
+            
             # AV extra formatting (e.g. gg_tt was "{{true,true};,{true,false};,{false,true};};")
-            replace_dict['is_LC'] = replace_dict['is_LC'].replace(',',', ').replace('{{','    { ').replace('};, {',' },\n    { ').replace('};};',' }')
-        ff.write(template % replace_dict)
+            split = replace_dict['is_LC'].split(';,') 
+            misc.sprint(replace_dict['is_LC'])
+            for i in range(len(split)): 
+                misc.sprint(split[i])
+                split[i] = '    ' + split[i].replace(',',', ').replace('{{', '{')
+                misc.sprint(split[i])
+                if '};};' in split[i]:
+                   split[i] = split[i][:-4] + '}, // iconfigC=%i, diag=%i' % (i, iconfig_to_diag[i+1]) 
+                elif 'false' in split[i] or 'true' in split[i]:
+                    split[i] += ', // iconfigC=%i, diag=%i' % (i, iconfig_to_diag[i+1])
+                misc.sprint(split[i])
+            replace_dict['is_LC'] = '\n'.join(split)
+            ff.write(template % replace_dict)
         ff.close()
 
     # AV - new method
@@ -1679,6 +1741,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         ret_lines = super().get_reset_jamp_lines(color_amplitudes)
         if ret_lines != '' : ret_lines = '    // Reset jamp (reset color flows)\n' + ret_lines # AV THIS SHOULD NEVER HAPPEN!
         return ret_lines
+
 
 #------------------------------------------------------------------------------------
 
