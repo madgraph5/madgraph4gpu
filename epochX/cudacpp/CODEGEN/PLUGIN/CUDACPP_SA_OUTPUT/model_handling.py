@@ -1306,17 +1306,17 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
   // In C++, this function computes the ME for a single event "page" or SIMD vector (or for two in "mixed" precision mode, nParity=2)
   __device__ INLINE void /* clang-format off */
   calculate_wavefunctions( int ihel,
-                           const fptype* allmomenta,      // input: momenta[nevt*npar*4]
-                           const fptype* allcouplings,    // input: couplings[nevt*ndcoup*2]
-                           fptype* allMEs,                // output: allMEs[nevt], |M|^2 running_sum_over_helicities
+                           const fptype* allmomenta,        // input: momenta[nevt*npar*4]
+                           const fptype* allcouplings,      // input: couplings[nevt*ndcoup*2]
+                           fptype* allMEs,                  // output: allMEs[nevt], |M|^2 running_sum_over_helicities
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                           const unsigned int channelId,  // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
-                           fptype* allNumerators,         // output: multichannel numerators[nevt], running_sum_over_helicities
-                           fptype* allDenominators,       // output: multichannel denominators[nevt], running_sum_over_helicities
+                           const unsigned int* channelIds,  // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
+                           fptype* allNumerators,           // output: multichannel numerators[nevt], running_sum_over_helicities
+                           fptype* allDenominators,         // output: multichannel denominators[nevt], running_sum_over_helicities
 #endif
-                           fptype_sv* jamp2_sv            // output: jamp2[nParity][ncolor][neppV] for color choice (nullptr if disabled)
+                           fptype_sv* jamp2_sv              // output: jamp2[nParity][ncolor][neppV] for color choice (nullptr if disabled)
 #ifndef MGONGPUCPP_GPUIMPL
-                           , const int ievt00             // input: first event number in current C++ event page (for CUDA, ievt depends on threadid)
+                           , const int ievt00               // input: first event number in current C++ event page (for CUDA, ievt depends on threadid)
 #endif
                            )
   //ALWAYS_INLINE // attributes are not permitted in a function definition
@@ -1332,6 +1332,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     using NUM_ACCESS = DeviceAccessNumerators;    // non-trivial access: buffer includes all events
     using DEN_ACCESS = DeviceAccessDenominators;  // non-trivial access: buffer includes all events
+    using CID_ACCESS = DeviceAccessChIds;
 #endif
 #else
     using namespace mg5amcCpu;
@@ -1344,6 +1345,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     using NUM_ACCESS = HostAccessNumerators;    // non-trivial access: buffer includes all events
     using DEN_ACCESS = HostAccessDenominators;  // non-trivial access: buffer includes all events
+    using CID_ACCESS = HostAccessChIds;
 #endif
 #endif /* clang-format on */
     mgDebug( 0, __FUNCTION__ );
@@ -1376,6 +1378,9 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     // Local variables for the given CUDA event (ievt) or C++ event page (ipagV)
     // [jamp: sum (for one event or event page) of the invariant amplitudes for all Feynman diagrams in a given color combination]
     cxtype_sv jamp_sv[ncolor] = {}; // all zeros (NB: vector cxtype_v IS initialized to 0, but scalar cxtype is NOT, if "= {}" is missing!)
+
+    // local variable for channel ids
+    uint_sv channelids_sv;
 
     // === Calculate wavefunctions and amplitudes for all diagrams in all processes         ===
     // === (for one event in CUDA, for one - or two in mixed mode - SIMD event pages in C++ ===
@@ -1943,8 +1948,20 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                         ###res.append("if( channelId == %i ) numerators_sv += cxabs2( amp_sv[0] );" % diag_to_config[id_amp]) # BUG #472
                         ###res.append("if( channelId == %i ) numerators_sv += cxabs2( amp_sv[0] );" % id_amp) # wrong fix for BUG #472
                         res.append("#ifdef MGONGPU_SUPPORTS_MULTICHANNEL")
-                        res.append("if( channelId == %i ) numerators_sv += cxabs2( amp_sv[0] );" % diagram.get('number'))
-                        res.append("if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );")
+                        res.append("if( channelIds != 0 )")
+                        res.append("{")
+                        res.append("  channelids_sv = CID_ACCESS::kernelAccessConst( channelIds );")
+                        res.append("#if defined __CUDACC__ or !defined MGONGPU_CPPSIMD")
+                        res.append("  if( channelids_sv == %i ) numerators_sv += cxabs2( amp_sv[0] );" % diagram.get('number'))
+                        res.append("  denominators_sv += cxabs2( amp_sv[0] );")
+                        res.append("#else")
+                        res.append("  for( int i = 0; i < neppV; ++i )")
+                        res.append("  {")
+                        res.append("    if( channelids_sv[i] == %i ) numerators_sv += cxabs2( amp_sv[0] );" % diagram.get('number'))
+                        res.append("    denominators_sv += cxabs2( amp_sv[0] );")
+                        res.append("  }")
+                        res.append("#endif")
+                        res.append("}")
                         res.append("#endif")
                 else:
                     res.append("#ifdef MGONGPU_SUPPORTS_MULTICHANNEL")

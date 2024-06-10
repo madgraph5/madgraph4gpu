@@ -16,6 +16,7 @@
 
 %(hel_amps_h)s
 #include "MemoryAccessAmplitudes.h"
+#include "MemoryAccessChIds.h"
 #include "MemoryAccessCouplings.h"
 #include "MemoryAccessCouplingsFixed.h"
 #include "MemoryAccessGs.h"
