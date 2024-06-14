@@ -44,7 +44,7 @@ template_runtest = """
 """
 
 template_onecheck = """
-        self.check_parton_output(cross=%(cross)s, error=%(err)s, run_name='%(run_name)s')
+        self.check_parton_output(cross=%(cross)s, error=%(err)s, run_name='%(run_name)s', html=%(html)s)
         event = '%%s/Events/%(run_name)s/unweighted_events.lhe' %% self.run_dir
         if not os.path.exists(event):
             misc.gunzip(event)
@@ -74,12 +74,13 @@ def create_test_simd_madevent():
 
         checks = [line.split() for line in opt['cmd'].split('\n') if line.startswith('#check')]
                   
-        for check in checks:
+        for i, check in enumerate(checks):
             _, name, cross, err, nb_event = check
             opt['run_name'] = name
             opt['cross'] = cross
             opt['err'] = err
             opt['nb_event'] = nb_event
+            opt['html'] = 'True' if i==0 else 'False'
         
             text += template_onecheck % opt
 

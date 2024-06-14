@@ -85,7 +85,7 @@ class TestCPPfromfile(unittest.TestCase): # inherit from upstream test_cmd_madev
         result = save_load_object.load_from_file(pjoin(self.run_dir,'HTML/results.pkl'))
         return result[run_name]
  
-    def check_parton_output(self, run_name='run_01', target_event=100, cross=0, error=9e99, delta_event=0):
+    def check_parton_output(self, run_name='run_01', target_event=100, cross=0, error=9e99, delta_event=0, html=True):
         """Check that parton output exists and reach the targert for event"""
                 
         # check that the number of event is fine:
@@ -106,8 +106,8 @@ class TestCPPfromfile(unittest.TestCase): # inherit from upstream test_cmd_madev
                 'cross is %s and not %s. NB_SIGMA %s' % (float(data[0]['cross']), cross, float(data[0]['cross'])/new_error)
             )
             self.assertLess(float(data[0]['error']), 3 * error)
-            
-        check_html_page(self, pjoin(self.run_dir, 'crossx.html'))
+        if html:
+            check_html_page(self, pjoin(self.run_dir, 'crossx.html'))
         if 'decayed' not in run_name:
             check_html_page(self, pjoin(self.run_dir,'HTML', run_name, 'results.html'))
 

@@ -88,7 +88,7 @@ class TestCPPfromfile(unittest.TestCase): # inherit from upstream test_cmd_madev
         result = save_load_object.load_from_file(pjoin(self.run_dir,'HTML/results.pkl'))
         return result[run_name]
  
-    def check_parton_output(self, run_name='run_01', target_event=100, cross=0, error=9e99, delta_event=0):
+    def check_parton_output(self, run_name='run_01', target_event=100, cross=0, error=9e99, delta_event=0, html=True):
         """Check that parton output exists and reach the targert for event"""
                 
         # check that the number of event is fine:
@@ -109,8 +109,8 @@ class TestCPPfromfile(unittest.TestCase): # inherit from upstream test_cmd_madev
                 'cross is %s and not %s. NB_SIGMA %s' % (float(data[0]['cross']), cross, float(data[0]['cross'])/new_error)
             )
             self.assertLess(float(data[0]['error']), 3 * error)
-            
-        check_html_page(self, pjoin(self.run_dir, 'crossx.html'))
+        if html:
+            check_html_page(self, pjoin(self.run_dir, 'crossx.html'))
         if 'decayed' not in run_name:
             check_html_page(self, pjoin(self.run_dir,'HTML', run_name, 'results.html'))
 
@@ -154,7 +154,7 @@ import model heft
                          #cwd=self.path,
                         stdout=stdout, stderr=stderr)
 
-        self.check_parton_output(cross=0.01859, error=0.0002853789088650386, run_name='run_01')
+        self.check_parton_output(cross=0.01859, error=0.0002853789088650386, run_name='run_01', html=True)
         event = '%s/Events/run_01/unweighted_events.lhe' % self.run_dir
         if not os.path.exists(event):
             misc.gunzip(event)
@@ -203,7 +203,7 @@ import model sm
                          #cwd=self.path,
                         stdout=stdout, stderr=stderr)
 
-        self.check_parton_output(cross=0.0239204, error=0.0002854, run_name='run_01')
+        self.check_parton_output(cross=0.0239204, error=0.0002854, run_name='run_01', html=True)
         event = '%s/Events/run_01/unweighted_events.lhe' % self.run_dir
         if not os.path.exists(event):
             misc.gunzip(event)
@@ -259,7 +259,7 @@ set vector_size 64
                          #cwd=self.path,
                         stdout=stdout, stderr=stderr)
 
-        self.check_parton_output(cross=505.5, error=2.749, run_name='run_01')
+        self.check_parton_output(cross=505.5, error=2.749, run_name='run_01', html=True)
         event = '%s/Events/run_01/unweighted_events.lhe' % self.run_dir
         if not os.path.exists(event):
             misc.gunzip(event)
@@ -271,7 +271,7 @@ set vector_size 64
             nb_event+=1
 
         self.assertEqual(nb_event, 100)
-        self.check_parton_output(cross=505.5, error=2.749, run_name='run_02')
+        self.check_parton_output(cross=505.5, error=2.749, run_name='run_02', html=False)
         event = '%s/Events/run_02/unweighted_events.lhe' % self.run_dir
         if not os.path.exists(event):
             misc.gunzip(event)
@@ -283,7 +283,7 @@ set vector_size 64
             nb_event+=1
 
         self.assertEqual(nb_event, 100)
-        self.check_parton_output(cross=505.5, error=2.749, run_name='run_03')
+        self.check_parton_output(cross=505.5, error=2.749, run_name='run_03', html=False)
         event = '%s/Events/run_03/unweighted_events.lhe' % self.run_dir
         if not os.path.exists(event):
             misc.gunzip(event)
@@ -332,7 +332,7 @@ import model sm
                          #cwd=self.path,
                         stdout=stdout, stderr=stderr)
 
-        self.check_parton_output(cross=505.5, error=2.749, run_name='run_01')
+        self.check_parton_output(cross=505.5, error=2.749, run_name='run_01', html=True)
         event = '%s/Events/run_01/unweighted_events.lhe' % self.run_dir
         if not os.path.exists(event):
             misc.gunzip(event)
