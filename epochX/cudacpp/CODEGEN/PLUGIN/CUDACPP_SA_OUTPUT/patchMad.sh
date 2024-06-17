@@ -50,7 +50,7 @@ touch ${dir}/Events/.keep # this file should already be present (mg5amcnlo copie
 if [ "${patchlevel}" == "2" ]; then
   cd ${dir}
   echo "DEBUG: cd ${PWD}; patch -p4 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.common"
-  if ! patch -p4 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.common; then status=1; fi  
+  if ! patch -f -p4 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.common; then status=1; fi  
   \rm -f Source/*.orig
   \rm -f bin/internal/*.orig
   cd - > /dev/null
@@ -62,7 +62,7 @@ for p1dir in ${dir}/SubProcesses/P*; do
   #cp -pr ${scrdir}/MG5aMC_patches/${dir_patches}/ompnumthreads.cc . # new file
   if [ "${patchlevel}" == "2" ]; then
     echo "DEBUG: cd ${PWD}; patch -p6 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.P1"
-    if ! patch -p6 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.P1; then status=1; fi      
+    if ! patch -f -p6 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.P1; then status=1; fi      
   fi
   \rm -f *.orig
   cd - > /dev/null

@@ -50,7 +50,7 @@
     {
       const int ihel = cGoodHel[ighel];
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators, jamp2_sv );
+      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelIds, allNumerators, allDenominators, jamp2_sv );
 #else
       calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, jamp2_sv );
 #endif
@@ -70,9 +70,9 @@
     }
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Event-by-event random choice of color #402
-    if( channelId != 0 ) // no event-by-event choice of color if channelId == 0 (fix FPE #783)
+    if( channelIds[0] != 0 ) // no event-by-event choice of color if channelId == 0 (fix FPE #783)
     {
-      const unsigned int channelIdC = channelId - 1; // coloramps.h uses the C array indexing starting at 0
+      const unsigned int iconfigC = mgOnGpu::channelId_to_iconfigC[CID_ACCESS::kernelAccessConst( channelIds )]; // coloramps.h uses a channel ordering not the diagram id
       fptype targetamp[ncolor] = { 0 };
       for( int icolC = 0; icolC < ncolor; icolC++ )
       {
@@ -80,7 +80,7 @@
           targetamp[icolC] = 0;
         else
           targetamp[icolC] = targetamp[icolC - 1];
-        if( mgOnGpu::icolamp[channelIdC][icolC] ) targetamp[icolC] += jamp2_sv[icolC];
+        if( mgOnGpu::icolamp[iconfigC][icolC] ) targetamp[icolC] += jamp2_sv[icolC];
       }
       //printf( "sigmaKin: ievt=%%4d rndcol=%%f\n", ievt, allrndcol[ievt] );
       for( int icolC = 0; icolC < ncolor; icolC++ )
@@ -115,7 +115,7 @@
     // - firstprivate: give each thread its own copy, and initialise with value from outside
 #define _OMPLIST0 allcouplings, allMEs, allmomenta, allrndcol, allrndhel, allselcol, allselhel, cGoodHel, cNGoodHel, npagV2
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-#define _OMPLIST1 , allDenominators, allNumerators, channelId, mgOnGpu::icolamp
+#define _OMPLIST1 , allDenominators, allNumerators, channelIds, mgOnGpu::icolamp, mgOnGpu::channelId_to_iconfigC
 #else
 #define _OMPLIST1
 #endif
@@ -139,7 +139,7 @@
       {
         const int ihel = cGoodHel[ighel];
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-        calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators, jamp2_sv, ievt00 );
+        calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelIds, allNumerators, allDenominators, jamp2_sv, ievt00 );
 #else
         calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, jamp2_sv, ievt00 );
 #endif
@@ -185,9 +185,9 @@
       }
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL // multichannel enabled (random color choice)
       // Event-by-event random choice of color #402
-      if( channelId != 0 ) // no event-by-event choice of color if channelId == 0 (fix FPE #783)
+      if( channelIds[0] != 0 ) // no event-by-event choice of color if channelId == 0 (fix FPE #783)
       {
-        const unsigned int channelIdC = channelId - 1; // coloramps.h uses the C array indexing starting at 0
+        uint_sv ichannelIds = CID_ACCESS::kernelAccessConst( channelIds ); // coloramps.h uses a channel ordering not the diagram id
         fptype_sv targetamp[ncolor] = { 0 };
         for( int icolC = 0; icolC < ncolor; icolC++ )
         {
@@ -195,9 +195,19 @@
             targetamp[icolC] = fptype_sv{ 0 };
           else
             targetamp[icolC] = targetamp[icolC - 1];
-          if( mgOnGpu::icolamp[channelIdC][icolC] ) targetamp[icolC] += jamp2_sv[icolC];
+#ifdef MGONGPU_CPPSIMD
+          for( int i = 0; i < neppV; ++i )
+          {
+            const unsigned int iconfigC = mgOnGpu::channelId_to_iconfigC[ichannelIds[i]];
+            if( mgOnGpu::icolamp[iconfigC][icolC] ) targetamp[icolC][i] += jamp2_sv[icolC][i];
+          }
+#else
+          const unsigned int iconfigC = mgOnGpu::channelId_to_iconfigC[CID_ACCESS::kernelAccessConst( channelIds )];
+          if( mgOnGpu::icolamp[iconfigC][icolC] ) targetamp[icolC] += jamp2_sv[icolC];
+#endif
         }
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+        const unsigned int iconfigC = mgOnGpu::channelId_to_iconfigC[channelId]; // coloramps.h uses a channel ordering not the diagram id
         fptype_sv targetamp2[ncolor] = { 0 };
         for( int icolC = 0; icolC < ncolor; icolC++ )
         {
@@ -205,7 +215,16 @@
             targetamp2[icolC] = fptype_sv{ 0 };
           else
             targetamp2[icolC] = targetamp2[icolC - 1];
-          if( mgOnGpu::icolamp[channelIdC][icolC] ) targetamp2[icolC] += jamp2_sv[ncolor + icolC];
+#ifdef MGONGPU_CPPSIMD
+          for( int i = 0; i < neppV; ++i )
+          {
+            const unsigned int iconfigC = mgOnGpu::channelId_to_iconfigC[ichannelIds[i]];
+            if( mgOnGpu::icolamp[iconfigC][icolC] ) targetamp2[icolC][i] += jamp2_sv[ncolor + icolC][i];
+          }
+#else
+          const unsigned int iconfigC = mgOnGpu::channelId_to_iconfigC[CID_ACCESS::kernelAccessConst( channelIds )];
+          if( mgOnGpu::icolamp[iconfigC][icolC] ) targetamp2[icolC] += jamp2_sv[ncolor + icolC];
+#endif
         }
 #endif
         for( int ieppV = 0; ieppV < neppV; ++ieppV )
@@ -252,7 +271,7 @@
 #ifdef MGONGPUCPP_GPUIMPL
     allMEs[ievt] /= helcolDenominators[0];
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    if( channelId > 0 ) allMEs[ievt] *= allNumerators[ievt] / allDenominators[ievt];
+    if( channelIds[0] != 0 ) allMEs[ievt] *= allNumerators[ievt] / allDenominators[ievt];
 #endif
 #else
     for( int ipagV = 0; ipagV < npagV; ++ipagV )
@@ -262,7 +281,7 @@
       fptype_sv& MEs_sv = E_ACCESS::kernelAccess( MEs );
       MEs_sv /= helcolDenominators[0];
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId > 0 )
+      if( channelIds[0] != 0 )
       {
         fptype* numerators = NUM_ACCESS::ieventAccessRecord( allNumerators, ievt0 );
         fptype* denominators = DEN_ACCESS::ieventAccessRecord( allDenominators, ievt0 );
