@@ -633,6 +633,15 @@ c     Variables for keeping track of jets
       external is_octet
       setclscales=.true.
 
+c Workaround for valgrind 'Conditional jump or move depends on uninitialised value(s)'
+c See https://github.com/madgraph5/madgraph4gpu/issues/868
+c FIXME: this is just a workaround to avoid uninitialised values and undefined behaviour...
+c FIXME: a real bug is probably hidden in the implementation...
+c FIXME: adding this workaround may change the bahviour of existing code...
+      do i=1,n_max_cl
+        goodjet(i)=.false. !!FIXME!! there is no reason to choose false instead of true here...
+      end do
+
       if(ickkw.le.0.and.xqcut.le.0d0.and.q2fact(1).gt.0.and.q2fact(2).gt.0.and.scale.gt.0) then
          if(use_syst)then
             s_scale(ivec)=scale
