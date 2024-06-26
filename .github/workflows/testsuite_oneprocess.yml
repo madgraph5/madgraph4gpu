@@ -51,12 +51,17 @@ jobs:
       actions: write # this is required to delete caches
       contents: read
     steps:
+    - name: split_prnum
+      # See https://stackoverflow.com/a/73467112
+      id: split
+      run: echo "::set-output name=prnum::${GITHUB_REF_NAME%%/*}"
     - name: cleanup_cache
       run: |
         gh extension install actions/gh-actions-cache
         REPO=${{ github.repository }}
         echo "Workflow run_id is ${{ github.run_id }}"
         echo "Workflow ref_name is ${{ github.ref_name }}"
+        echo "Workflow PR number is ${{ steps.split.outputs.prnum }}"
         #--- LIST CODEGEN CACHES FOR THIS RUN_ID
         echo "List codegencache keys for this run_id (start)"
         gh actions-cache list -R $REPO --sort created-at --order asc --key codegencache-${{ runner.os }}-${{ inputs.process }}-${{ github.run_id }}
@@ -102,11 +107,17 @@ jobs:
       with:
         submodules: 'true'
 
+    - name: split_prnum
+      # See https://stackoverflow.com/a/73467112
+      id: split
+      run: echo "::set-output name=prnum::${GITHUB_REF_NAME%%/*}"
+
     - name: HELLO_CODEGEN
       run: |
         echo "HELLO_CODEGEN ${{ inputs.process }} $(date)"
         echo "Workflow run_id is ${{ github.run_id }}"
         echo "Workflow ref_name is ${{ github.ref_name }}"
+        echo "Workflow PR number is ${{ steps.split.outputs.prnum }}"
         echo "Current directory is $(pwd)"
         echo "Current git commit is $(git log --oneline -n1 | cut -d' ' -f1)"
         # See https://github.com/actions/cache/blob/main/tips-and-workarounds.md#force-deletion-of-caches-overriding-default-cache-eviction-policy
@@ -135,6 +146,7 @@ jobs:
         echo "GOODBYE_CODEGEN ${{ inputs.process }} $(date)"
         echo "Workflow run_id is ${{ github.run_id }}"
         echo "Workflow ref_name is ${{ github.ref_name }}"
+        echo "Workflow PR number is ${{ steps.split.outputs.prnum }}"
         echo "Current directory is $(pwd)"
         echo "Current git commit is $(git log --oneline -n1 | cut -d' ' -f1)"
         REPO=${{ github.repository }}
@@ -165,11 +177,17 @@ jobs:
       with:
         submodules: 'true'
 
+    - name: split_prnum
+      # See https://stackoverflow.com/a/73467112
+      id: split
+      run: echo "::set-output name=prnum::${GITHUB_REF_NAME%%/*}"
+
     - name: HELLO_TESTSUITE
       run: |
         echo "HELLO_TESTSUITE ${{ inputs.process }} FPTYPE=${{ matrix.fptype }} $(date)"
         echo "Workflow run_id is ${{ github.run_id }}"
         echo "Workflow ref_name is ${{ github.ref_name }}"
+        echo "Workflow PR number is ${{ steps.split.outputs.prnum }}"
         echo "Current directory is $(pwd)"
         ###echo "Current git commit is $(git log --oneline -n1 | cut -d' ' -f1)"
         # See https://github.com/actions/cache/blob/main/tips-and-workarounds.md#force-deletion-of-caches-overriding-default-cache-eviction-policy
@@ -245,6 +263,7 @@ jobs:
         echo "GOODBYE_TESTSUITE ${{ inputs.process }} FPTYPE=${{ matrix.fptype }} $(date)"
         echo "Workflow run_id is ${{ github.run_id }}"
         echo "Workflow ref_name is ${{ github.ref_name }}"
+        echo "Workflow PR number is ${{ steps.split.outputs.prnum }}"
         echo "Current directory is $(pwd)"
         echo "Current git commit is $(git log --oneline -n1 | cut -d' ' -f1)"
         REPO=${{ github.repository }}
