@@ -34,7 +34,7 @@ jobs:
       matrix:
         # FIXME? Can the list of supported processes be specified only once in oneprocess.yml or allprocesses.yml?
         ###process: [ee_mumu, gg_tt, gg_ttg, gg_ttgg, gg_ttggg, gg_tt01g, gq_ttq, pp_tt012j, nobm_pp_ttW, susy_gg_tt, susy_gg_t1t1, smeft_gg_tttt, heft_gg_bb]
-        process: [gg_tt]
+        process: [gg_tt, gg_ttg]
         suffix: [mad, sa]
     uses: ./.github/workflows/testsuite_oneprocess.yml
     with:
