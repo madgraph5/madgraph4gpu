@@ -1,10 +1,10 @@
 // Copyright (C) 2010 The MadGraph5_aMC@NLO development team and contributors.
 // Created by: J. Alwall (Oct 2010) for the MG5aMC CPP backend.
 //==========================================================================
-// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Copyright (C) 2020-2024 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Modified by: A. Valassi (Sep 2021) for the MG5aMC CUDACPP plugin.
-// Further modified by: A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
 //==========================================================================
 // This file has been automatically generated for CUDA/C++ standalone by
 // MadGraph5_aMC@NLO v. 3.5.3_lo_vect, 2023-12-23
@@ -268,7 +268,7 @@ namespace mg5amcCpu
         //const fptype_sv mdl_sqrt__aS = constexpr_sqrt( aS );
         //const fptype_sv G = 2. * mdl_sqrt__aS * constexpr_sqrt( M_PI );
         // *** NB Compute all dependent parameters, including aS, in terms of G rather than in terms of aS ***
-        const fptype_sv mdl_G__exp__2 = G * G;
+        const fptype_sv mdl_G__exp__2 = ( ( G ) * ( G ) );
         const fptype_sv mdl_GH = -( mdl_G__exp__2 * ( 1. + ( 13. * mdl_MH__exp__6 ) / ( 16800. * mdl_MT__exp__6 ) + mdl_MH__exp__4 / ( 168. * mdl_MT__exp__4 ) + ( 7. * mdl_MH__exp__2 ) / ( 120. * mdl_MT__exp__2 ) ) ) / ( 12. * ( ( M_PI ) * ( M_PI ) ) * mdl_v );
         const fptype_sv mdl_Gphi = -( mdl_G__exp__2 * ( 1. + mdl_MH__exp__6 / ( 560. * mdl_MT__exp__6 ) + mdl_MH__exp__4 / ( 90. * mdl_MT__exp__4 ) + mdl_MH__exp__2 / ( 12. * mdl_MT__exp__2 ) ) ) / ( 8. * ( ( M_PI ) * ( M_PI ) ) * mdl_v );
         // Model couplings dependent on aS
@@ -294,7 +294,7 @@ namespace mg5amcCpu
         //const fptype mdl_sqrt__aS = constexpr_sqrt( aS );
         //const fptype G = 2. * mdl_sqrt__aS * constexpr_sqrt( M_PI );
         // *** NB Compute all dependent parameters, including aS, in terms of G rather than in terms of aS ***
-        const fptype mdl_G__exp__2 = G * G;
+        const fptype mdl_G__exp__2 = ( ( G ) * ( G ) );
         const fptype mdl_GH = -( mdl_G__exp__2 * ( 1. + ( 13. * mdl_MH__exp__6 ) / ( 16800. * mdl_MT__exp__6 ) + mdl_MH__exp__4 / ( 168. * mdl_MT__exp__4 ) + ( 7. * mdl_MH__exp__2 ) / ( 120. * mdl_MT__exp__2 ) ) ) / ( 12. * ( ( M_PI ) * ( M_PI ) ) * mdl_v );
         const fptype mdl_Gphi = -( mdl_G__exp__2 * ( 1. + mdl_MH__exp__6 / ( 560. * mdl_MT__exp__6 ) + mdl_MH__exp__4 / ( 90. * mdl_MT__exp__4 ) + mdl_MH__exp__2 / ( 12. * mdl_MT__exp__2 ) ) ) / ( 8. * ( ( M_PI ) * ( M_PI ) ) * mdl_v );
         // Model couplings dependent on aS

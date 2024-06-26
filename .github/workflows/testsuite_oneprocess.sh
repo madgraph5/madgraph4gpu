@@ -1,8 +1,8 @@
 #!/bin/bash
-# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Copyright (C) 2020-2024 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: A. Valassi (Oct 2023) for the MG5aMC CUDACPP plugin.
-# Further modified by: A. Valassi (2023) for the MG5aMC CUDACPP plugin.
+# Further modified by: A. Valassi (2023-2024) for the MG5aMC CUDACPP plugin.
 
 # Verbose script
 ###set -x
@@ -43,7 +43,6 @@ function codegen() {
     git checkout HEAD ${proc}/CODEGEN*.txt
     if [ "${proc%.mad}" != "${proc}" ]; then
       git checkout HEAD ${proc}/Cards/me5_configuration.txt
-      ###sed -i 's/DEFAULT_F2PY_COMPILER=f2py.*/DEFAULT_F2PY_COMPILER=f2py3/' ${proc}/Source/make_opts
       git checkout HEAD ${proc}/Source/make_opts
     fi
     echo "git diff (start)"
@@ -150,7 +149,8 @@ function build() {
       gtestlibs=1
       make -f cudacpp.mk gtestlibs
     fi
-    make -j avxall
+    # NB: 'make bldall' internally checks if 'which nvcc' and 'which hipcc' succeed before attempting to build cuda and hip
+    make -j bldall
     popd >& /dev/null
   done
 }
@@ -213,25 +213,36 @@ function tput_test() {
     # FIXME3: add fcheck.exe tests
     unamep=$(uname -p)
     unames=$(uname -s)
-    for simd in none sse4 avx2 512y 512z; do
-      # Skip tests for unsupported simd modes as done in tput tests (prevent illegal instruction crashes #791)
-      if [ "${unamep}" != "x86_64" ]; then
-        if [ "${simd}" == "avx2" ]; then echo; echo "(SKIP ${simd} which is not supported on ${unamep})"; continue; fi
-        if [ "${simd}" == "512y" ]; then echo; echo "(SKIP ${simd} which is not supported on ${unamep})"; continue; fi
-        if [ "${simd}" == "512z" ]; then echo; echo "(SKIP ${simd} which is not supported on ${unamep})"; continue; fi
-      elif [ "${unames}" == "Darwin" ]; then
-        if [ "${simd}" == "512y" ]; then echo; echo "(SKIP ${simd} which is not supported on ${unames})"; continue; fi
-        if [ "${simd}" == "512z" ]; then echo; echo "(SKIP ${simd} which is not supported on ${unames})"; continue; fi
-      elif [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" != "1" ]; then
-        if [ "${simd}" == "512y" ]; then echo; echo "(SKIP ${simd} which is not supported - no avx512vl in /proc/cpuinfo)"; continue; fi
-        if [ "${simd}" == "512z" ]; then echo; echo "(SKIP ${simd} which is not supported - no avx512vl in /proc/cpuinfo)"; continue; fi
+    for backend in cuda hip cppnone cppsse4 cppavx2 cpp512y cpp512z; do
+      # Skip GPU tests for NVidia and AMD unless nvcc and hipcc, respectively, are in PATH
+      if ! nvcc --version &> /dev/null; then
+        if [ "${backend}" == "cuda" ]; then echo; echo "(SKIP ${backend} because nvcc is missing on this node)"; continue; fi
+      elif ! hipcc --version &> /dev/null; then
+        if [ "${backend}" == "hip" ]; then echo; echo "(SKIP ${backend} because hipcc is missing on this node)"; continue; fi
       fi
-      if ls -d build.${simd}* > /dev/null 2>&1; then
-        bdirs="$(ls -d build.${simd}*)"
+      # Skip C++ tests for unsupported simd modes as done in tput tests (prevent illegal instruction crashes #791)
+      if [ "${unamep}" != "x86_64" ]; then
+        if [ "${backend}" == "cppavx2" ]; then echo; echo "(SKIP ${backend} which is not supported on ${unamep})"; continue; fi
+        if [ "${backend}" == "cpp512y" ]; then echo; echo "(SKIP ${backend} which is not supported on ${unamep})"; continue; fi
+        if [ "${backend}" == "cpp512z" ]; then echo; echo "(SKIP ${backend} which is not supported on ${unamep})"; continue; fi
+      elif [ "${unames}" == "Darwin" ]; then
+        if [ "${backend}" == "cpp512y" ]; then echo; echo "(SKIP ${backend} which is not supported on ${unames})"; continue; fi
+        if [ "${backend}" == "cpp512z" ]; then echo; echo "(SKIP ${backend} which is not supported on ${unames})"; continue; fi
+      elif [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" != "1" ]; then
+        if [ "${backend}" == "cpp512y" ]; then echo; echo "(SKIP ${backend} which is not supported - no avx512vl in /proc/cpuinfo)"; continue; fi
+        if [ "${backend}" == "cpp512z" ]; then echo; echo "(SKIP ${backend} which is not supported - no avx512vl in /proc/cpuinfo)"; continue; fi
+      fi
+      if ls -d build.${backend}* > /dev/null 2>&1; then
+        bdirs="$(ls -d build.${backend}*)"
         for bdir in ${bdirs}; do
           runExe ${bdir}/runTest.exe
-          runExe ${bdir}/check.exe -p 1 32 1
-          runExe ${bdir}/gcheck.exe -p 1 32 1
+          if [ -f ${bdir}/check.exe ]; then
+            runExe ${bdir}/check.exe -p 1 32 1
+          elif [ -f ${bdir}/gcheck.exe ]; then
+            runExe ${bdir}/gcheck.exe -p 1 32 1
+          else
+            echo "ERROR! Neither ${bdir}/check.exe nor ${bdir}/gcheck.exe was found?"; exit 1
+          fi
         done
       fi
     done
