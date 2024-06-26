@@ -266,13 +266,14 @@ function getinputfile()
 {
   nevt=$(getnevt)
   tmp=$tmpdir/input_${proc%.mad}_${backend}
+  iconfig=1
   cat << EOF >> ${tmp}
 ${nevt} 1 1 ! Number of events and max and min iterations
 0.000001 ! Accuracy (ignored because max iterations = min iterations)
 0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
 1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
 0 ! Helicity Sum/event 0=exact
-1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
+${iconfig} ! ICONFIG number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 EOF
   echo ${tmp}
 }
