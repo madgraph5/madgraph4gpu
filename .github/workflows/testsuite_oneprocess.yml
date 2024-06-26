@@ -202,9 +202,10 @@ jobs:
           CCACHE_DIR
           DOWNLOADS
           test/googletest
-        key: buildcache-${{ runner.os }}-${{ inputs.process }}-${{ matrix.fptype }}-${{ github.ref_name }}-${{ github.run_id }}
+        #key: buildcache-${{ runner.os }}-${{ inputs.process }}-${{ matrix.fptype }}-${{ github.ref_name }}-${{ github.run_id }}
+        key: buildcache-${{ runner.os }}-${{ inputs.process }}-${{ matrix.fptype }}-${{ github.run_id }}
         restore-keys:
-          buildcache-${{ runner.os }}-${{ inputs.process }}-${{ matrix.fptype }}-${{ github.ref_name }}
+          #buildcache-${{ runner.os }}-${{ inputs.process }}-${{ matrix.fptype }}-${{ github.ref_name }}
           buildcache-${{ runner.os }}-${{ inputs.process }}-${{ matrix.fptype }}
 
     - name: before_build
@@ -225,7 +226,8 @@ jobs:
           CCACHE_DIR
           DOWNLOADS
           test/googletest
-        key: buildcache-${{ runner.os }}-${{ inputs.process }}-${{ matrix.fptype }}-${{ github.ref_name }}-${{ github.run_id }}
+        #key: buildcache-${{ runner.os }}-${{ inputs.process }}-${{ matrix.fptype }}-${{ github.ref_name }}-${{ github.run_id }}
+        key: buildcache-${{ runner.os }}-${{ inputs.process }}-${{ matrix.fptype }}-${{ github.run_id }}
 
     - name: tput_test
       run: .github/workflows/testsuite_oneprocess.sh tput_test ${{ inputs.process }}
