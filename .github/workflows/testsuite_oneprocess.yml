@@ -67,21 +67,21 @@ jobs:
         gh actions-cache list -R $REPO --sort created-at --order asc --key codegencache-${{ runner.os }}-${{ inputs.process }}-${{ github.run_id }}
         echo "List codegencache keys for this run_id (end)"
         cacheKeysCodegen=$(gh actions-cache list -R $REPO --sort created-at --order asc --key codegencache-${{ runner.os }}-${{ inputs.process }}-${{ github.run_id }} | cut -f 1) # delete ALL codegen caches
-        #--- LIST BUILD CACHES FOR THIS REF_NAME (d)
-        echo "List buildcacheD keys for this ref_name (start)"
-        gh actions-cache list -R $REPO --sort created-at --order asc --key buildcache-${{ runner.os }}-${{ inputs.process }}-d-${{ github.ref_name }}
-        echo "List buildcacheD keys for this ref_name (end)"
-        cacheKeysBuildD=$(gh actions-cache list -R $REPO --sort created-at --order asc --key buildcache-${{ runner.os }}-${{ inputs.process }}-d-${{ github.ref_name }} | cut -f 1 | head --lines=-1) # keep only the most recent build cache
-        #--- LIST BUILD CACHES FOR THIS REF_NAME (f)
-        echo "List buildcacheF keys for this ref_name (start)"
-        gh actions-cache list -R $REPO --sort created-at --order asc --key buildcache-${{ runner.os }}-${{ inputs.process }}-f-${{ github.ref_name }}
-        echo "List buildcacheF keys for this ref_name (end)"
-        cacheKeysBuildF=$(gh actions-cache list -R $REPO --sort created-at --order asc --key buildcache-${{ runner.os }}-${{ inputs.process }}-f-${{ github.ref_name }} | cut -f 1 | head --lines=-1) # keep only the most recent build cache
-        #--- LIST BUILD CACHES FOR THIS REF_NAME (m)
-        echo "List buildcacheM keys for this ref_name (start)"
-        gh actions-cache list -R $REPO --sort created-at --order asc --key buildcache-${{ runner.os }}-${{ inputs.process }}-m-${{ github.ref_name }}
-        echo "List buildcacheM keys for this ref_name (end)"
-        cacheKeysBuildF=$(gh actions-cache list -R $REPO --sort created-at --order asc --key buildcache-${{ runner.os }}-${{ inputs.process }}-m-${{ github.ref_name }} | cut -f 1 | head --lines=-1) # keep only the most recent build cache
+        #--- LIST BUILD CACHES FOR THIS PRNUM (d)
+        echo "List buildcacheD keys for this prnum (start)"
+        gh actions-cache list -R $REPO --sort created-at --order asc --key buildcache-${{ runner.os }}-${{ inputs.process }}-d-${{ steps.split.outputs.prnum }}
+        echo "List buildcacheD keys for this prnum (end)"
+        cacheKeysBuildD=$(gh actions-cache list -R $REPO --sort created-at --order asc --key buildcache-${{ runner.os }}-${{ inputs.process }}-d-${{ steps.split.outputs.prnum }} | cut -f 1 | head --lines=-1) # keep only the most recent build cache
+        #--- LIST BUILD CACHES FOR THIS PRNUM (f)
+        echo "List buildcacheF keys for this prnum (start)"
+        gh actions-cache list -R $REPO --sort created-at --order asc --key buildcache-${{ runner.os }}-${{ inputs.process }}-f-${{ steps.split.outputs.prnum }}
+        echo "List buildcacheF keys for this prnum (end)"
+        cacheKeysBuildF=$(gh actions-cache list -R $REPO --sort created-at --order asc --key buildcache-${{ runner.os }}-${{ inputs.process }}-f-${{ steps.split.outputs.prnum }} | cut -f 1 | head --lines=-1) # keep only the most recent build cache
+        #--- LIST BUILD CACHES FOR THIS PRNUM (m)
+        echo "List buildcacheM keys for this prnum (start)"
+        gh actions-cache list -R $REPO --sort created-at --order asc --key buildcache-${{ runner.os }}-${{ inputs.process }}-m-${{ steps.split.outputs.prnum }}
+        echo "List buildcacheM keys for this prnum (end)"
+        cacheKeysBuildF=$(gh actions-cache list -R $REPO --sort created-at --order asc --key buildcache-${{ runner.os }}-${{ inputs.process }}-m-${{ steps.split.outputs.prnum }} | cut -f 1 | head --lines=-1) # keep only the most recent build cache
         #--- DELETE CODEGEN AND BUILD CACHES
         set +e # do not fail while deleting cache keys
         echo "Deleting codegen caches..."
@@ -225,10 +225,9 @@ jobs:
           CCACHE_DIR
           DOWNLOADS
           test/googletest
-        #key: buildcache-${{ runner.os }}-${{ inputs.process }}-${{ matrix.fptype }}-${{ github.ref_name }}-${{ github.run_id }}
-        key: buildcache-${{ runner.os }}-${{ inputs.process }}-${{ matrix.fptype }}-${{ github.run_id }}
-        restore-keys:
-          #buildcache-${{ runner.os }}-${{ inputs.process }}-${{ matrix.fptype }}-${{ github.ref_name }}
+        key: buildcache-${{ runner.os }}-${{ inputs.process }}-${{ matrix.fptype }}-${{ steps.split.outputs.prnum }}-${{ github.run_id }}
+        restore-keys: |
+          buildcache-${{ runner.os }}-${{ inputs.process }}-${{ matrix.fptype }}-${{ steps.split.outputs.prnum }}
           buildcache-${{ runner.os }}-${{ inputs.process }}-${{ matrix.fptype }}
 
     - name: before_build
@@ -249,8 +248,7 @@ jobs:
           CCACHE_DIR
           DOWNLOADS
           test/googletest
-        #key: buildcache-${{ runner.os }}-${{ inputs.process }}-${{ matrix.fptype }}-${{ github.ref_name }}-${{ github.run_id }}
-        key: buildcache-${{ runner.os }}-${{ inputs.process }}-${{ matrix.fptype }}-${{ github.run_id }}
+        key: buildcache-${{ runner.os }}-${{ inputs.process }}-${{ matrix.fptype }}-${{ steps.split.outputs.prnum }}-${{ github.run_id }}
 
     - name: tput_test
       run: .github/workflows/testsuite_oneprocess.sh tput_test ${{ inputs.process }}
