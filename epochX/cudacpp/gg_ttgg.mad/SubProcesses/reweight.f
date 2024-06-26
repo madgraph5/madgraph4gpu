@@ -633,6 +633,8 @@ c     Variables for keeping track of jets
       external is_octet
       setclscales=.true.
 
+       setclscales=.true.
+
 c Workaround for valgrind 'Conditional jump or move depends on uninitialised value(s)'
 c See https://github.com/mg5amcnlo/mg5amcnlo/issues/111
 c FIXME: this is just a workaround to avoid uninitialised values and undefined behaviour...
