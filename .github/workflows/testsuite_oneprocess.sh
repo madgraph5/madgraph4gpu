@@ -391,7 +391,7 @@ function tmad_test() {
     # ----------------------------------- 
     unamep=$(uname -p)
     unames=$(uname -s)
-    for backend in cppnone cppsse4 cppavx2 cpp512y cpp512z; do
+    for backend in none sse4 avx2 512y 512z; do # NB other parts of this script use backend name with stripped off leading 'cpp' 
       # Skip C++ tests for unsupported simd modes as done in tput tests (prevent illegal instruction crashes #791)
       if [ "$backend" == "512y" ] || [ "$backend" == "512z" ]; then 
         if [ "${unames}" == "Darwin" ]; then echo -e "\n*** (2-$backend) WARNING! SKIP MADEVENT_CPP (${backend} is not supported on ${unames}) ***"; continue; fi
