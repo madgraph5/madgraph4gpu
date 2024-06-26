@@ -54,7 +54,7 @@ jobs:
     - name: split_prnum
       # See https://stackoverflow.com/a/73467112
       id: split
-      run: echo "::set-output name=prnum::${GITHUB_REF_NAME%%/*}"
+      run: echo "::set-output name=prnum::PR${GITHUB_REF_NAME%%/*}"
     - name: cleanup_cache
       run: |
         gh extension install actions/gh-actions-cache
@@ -110,7 +110,7 @@ jobs:
     - name: split_prnum
       # See https://stackoverflow.com/a/73467112
       id: split
-      run: echo "::set-output name=prnum::${GITHUB_REF_NAME%%/*}"
+      run: echo "::set-output name=prnum::PR${GITHUB_REF_NAME%%/*}"
 
     - name: HELLO_CODEGEN
       run: |
@@ -180,7 +180,7 @@ jobs:
     - name: split_prnum
       # See https://stackoverflow.com/a/73467112
       id: split
-      run: echo "::set-output name=prnum::${GITHUB_REF_NAME%%/*}"
+      run: echo "::set-output name=prnum::PR${GITHUB_REF_NAME%%/*}"
 
     - name: HELLO_TESTSUITE
       run: |
