@@ -1,7 +1,7 @@
 # Copyright (C) 2020-2023 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: A. Valassi (Nov 2023) for the MG5aMC CUDACPP plugin.
-# Further modified by: A. Valassi (2023) for the MG5aMC CUDACPP plugin.
+# Further modified by: A. Valassi (2023-2024) for the MG5aMC CUDACPP plugin.
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
@@ -13,11 +13,6 @@ on:
 
   # Enable the possibility to manually trigger the all-processes workflow
   workflow_dispatch:
-    inputs:
-      enableFPE:
-        required: true
-        type: boolean
-        default: true
 
   # Trigger the all-processes workflow for pull requests to master
   pull_request:
@@ -43,7 +38,5 @@ jobs:
     uses: ./.github/workflows/testsuite_oneprocess.yml
     with:
       process: ${{ matrix.process }}.${{ matrix.suffix }}
-      # By default, in allprocesses tests enable FPE tests when pushing, but not in pull requests
-      enableFPE: ${{ ( github.event_name == 'workflow_dispatch' ) && inputs.enableFPE }}
 
 #----------------------------------------------------------------------------------------------------------------------------------

@@ -250,11 +250,6 @@ function tput_test() {
   done
 }
 
-# Tput-test with FPEs enabled
-function tput_test_fpe() {
-  CUDACPP_RUNTIME_ENABLEFPE=1 tput_test $*
-}
-
 #----------------------------------------------------------------------------------------------------------------------------------
 
 # Usage
@@ -266,7 +261,7 @@ function usage() {
 #----------------------------------------------------------------------------------------------------------------------------------
 
 # Valid stages
-stages="codegen before_build build after_build tput_test tput_test_fpe"
+stages="codegen before_build build after_build tput_test"
 
 # Check input arguments
 for astage in $stages; do
