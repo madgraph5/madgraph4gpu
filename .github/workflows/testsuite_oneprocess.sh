@@ -283,7 +283,9 @@ function runmadevent()
   if [ "$1" == "" ] || [ "$2" != "" ]; then echo "Usage: runmadevent <madevent executable>"; exit 1; fi
   cmd=$1
   tmpin=$(getinputfile)
-  cmd=${cmd/.\//.\/build.${backend}_${fptype}_inl0_hrd0\/}
+  if [ "${cmd/madevent_fortran}" == "$cmd" ]; then
+    cmd=${cmd/.\//.\/build.${backend}_${fptype}_inl0_hrd0\/} # skip this for fortran
+  fi
   if [ ! -f $tmpin ]; then echo "ERROR! Missing input file $tmpin"; exit 1; fi
   tmp=${tmpin/input/output}
   \rm -f ${tmp}; touch ${tmp}  
