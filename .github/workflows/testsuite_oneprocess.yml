@@ -188,8 +188,9 @@ jobs:
         path: |
           epochX/cudacpp/${{ inputs.process }}
         key: codegencache-${{ runner.os }}-${{ inputs.process }}-${{ github.run_id }}
+        # NB: only restore codegencache from this workflow run
         restore-keys:
-          codegencache-${{ runner.os }}-${{ inputs.process }}-${{ github.run_id }} ! NB: only restore codegencache from this workflow run
+          codegencache-${{ runner.os }}-${{ inputs.process }}-${{ github.run_id }}
 
     - name: restore_build_cache
       id: build-cache-restore
