@@ -357,6 +357,15 @@ function tmad_test() {
   echo "Current directory is $(pwd)"
   echo "FPTYPE=${FPTYPE}"
   fptype=${FPTYPE}
+  if [ "${fptype}" == "f" ]; then
+    ###xsecthr="2E-4" # fails for ggttggg with clang14 (2.8E-4)
+    xsecthr="4E-4"
+  elif [ "${fptype}" == "m" ]; then
+    xsecthr="2E-4" # FIXME #537 (AV: by "fixme" I probably meant a stricter tolerance could be used, maybe E-5?)
+  else
+    ###xsecthr="2E-14" # fails when updating gpucpp in PR #811
+    xsecthr="3E-14"
+  fi
   scrdir=$(cd $(pwd)/../tmad; pwd) # tmad script dir
   pdirs="$(ls -d SubProcesses/P*_*)"
   for pdir in ${pdirs}; do
