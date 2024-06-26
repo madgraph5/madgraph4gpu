@@ -230,6 +230,9 @@ jobs:
     - name: tput_test
       run: .github/workflows/testsuite_oneprocess.sh tput_test ${{ inputs.process }}
 
+    - name: tmad_test
+      run: .github/workflows/testsuite_oneprocess.sh tmad_test ${{ inputs.process }}
+
     - name: GOODBYE_TESTSUITE
       run: |
         echo "GOODBYE_TESTSUITE ${{ inputs.process }} FPTYPE=${{ matrix.fptype }} $(date)"
