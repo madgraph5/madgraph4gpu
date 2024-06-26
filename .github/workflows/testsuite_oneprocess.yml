@@ -72,6 +72,11 @@ jobs:
         gh actions-cache list -R $REPO --sort created-at --order asc --key buildcache-${{ runner.os }}-${{ inputs.process }}-f-${{ github.ref_name }}
         echo "List buildcacheF keys for this ref_name (end)"
         cacheKeysBuildF=$(gh actions-cache list -R $REPO --sort created-at --order asc --key buildcache-${{ runner.os }}-${{ inputs.process }}-f-${{ github.ref_name }} | cut -f 1 | head --lines=-1) # keep only the most recent build cache
+        #--- LIST BUILD CACHES FOR THIS REF_NAME (m)
+        echo "List buildcacheM keys for this ref_name (start)"
+        gh actions-cache list -R $REPO --sort created-at --order asc --key buildcache-${{ runner.os }}-${{ inputs.process }}-m-${{ github.ref_name }}
+        echo "List buildcacheM keys for this ref_name (end)"
+        cacheKeysBuildF=$(gh actions-cache list -R $REPO --sort created-at --order asc --key buildcache-${{ runner.os }}-${{ inputs.process }}-m-${{ github.ref_name }} | cut -f 1 | head --lines=-1) # keep only the most recent build cache
         #--- DELETE CODEGEN AND BUILD CACHES
         set +e # do not fail while deleting cache keys
         echo "Deleting codegen caches..."
@@ -148,7 +153,7 @@ jobs:
     strategy:
       fail-fast: false # e.g. do not stop 'd' job if 'f' job has failed (fail-fast is true by default)
       matrix:
-        fptype: [d, f]
+        fptype: [d, f, m]
 
     env:
       FPTYPE: ${{ matrix.fptype }}
