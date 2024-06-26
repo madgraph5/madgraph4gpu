@@ -356,6 +356,7 @@ function tmad_test() {
   cd ${topdir}/epochX/cudacpp/${proc}
   echo "Current directory is $(pwd)"
   echo "FPTYPE=${FPTYPE}"
+  fptype=${FPTYPE}
   scrdir=$(cd $(pwd)/../tmad; pwd) # tmad script dir
   pdirs="$(ls -d SubProcesses/P*_*)"
   for pdir in ${pdirs}; do
