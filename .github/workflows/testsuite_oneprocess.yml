@@ -55,21 +55,23 @@ jobs:
       run: |
         gh extension install actions/gh-actions-cache
         REPO=${{ github.repository }}
+        echo "Workflow run_id is ${{ github.run_id }}"
+        echo "Workflow ref_name is ${{ github.ref_name }}"
         #--- LIST CODEGEN CACHES FOR THIS RUN_ID
         echo "List codegencache keys for this run_id (start)"
         gh actions-cache list -R $REPO --sort created-at --order asc --key codegencache-${{ runner.os }}-${{ inputs.process }}-${{ github.run_id }}
         echo "List codegencache keys for this run_id (end)"
         cacheKeysCodegen=$(gh actions-cache list -R $REPO --sort created-at --order asc --key codegencache-${{ runner.os }}-${{ inputs.process }}-${{ github.run_id }} | cut -f 1) # delete ALL codegen caches
-        #--- LIST BUILD CACHES (d)
-        echo "List buildcache keys (start)"
-        gh actions-cache list -R $REPO --sort created-at --order asc --key buildcache-${{ runner.os }}-${{ inputs.process }}-d
-        echo "List buildcache keys (end)"
-        cacheKeysBuildD=$(gh actions-cache list -R $REPO --sort created-at --order asc --key buildcache-${{ runner.os }}-${{ inputs.process }}-d | cut -f 1 | head --lines=-1) # keep only the most recent build cache
-        #--- LIST BUILD CACHES (f)
-        echo "List buildcache keys (start)"
-        gh actions-cache list -R $REPO --sort created-at --order asc --key buildcache-${{ runner.os }}-${{ inputs.process }}-f
-        echo "List buildcache keys (end)"
-        cacheKeysBuildF=$(gh actions-cache list -R $REPO --sort created-at --order asc --key buildcache-${{ runner.os }}-${{ inputs.process }}-f | cut -f 1 | head --lines=-1) # keep only the most recent build cache
+        #--- LIST BUILD CACHES FOR THIS REF_NAME (d)
+        echo "List buildcacheD keys for this ref_name (start)"
+        gh actions-cache list -R $REPO --sort created-at --order asc --key buildcache-${{ runner.os }}-${{ inputs.process }}-d-${{ github.ref_name }}
+        echo "List buildcacheD keys for this ref_name (end)"
+        cacheKeysBuildD=$(gh actions-cache list -R $REPO --sort created-at --order asc --key buildcache-${{ runner.os }}-${{ inputs.process }}-d-${{ github.ref_name }} | cut -f 1 | head --lines=-1) # keep only the most recent build cache
+        #--- LIST BUILD CACHES FOR THIS REF_NAME (f)
+        echo "List buildcacheF keys for this ref_name (start)"
+        gh actions-cache list -R $REPO --sort created-at --order asc --key buildcache-${{ runner.os }}-${{ inputs.process }}-f-${{ github.ref_name }}
+        echo "List buildcacheF keys for this ref_name (end)"
+        cacheKeysBuildF=$(gh actions-cache list -R $REPO --sort created-at --order asc --key buildcache-${{ runner.os }}-${{ inputs.process }}-f-${{ github.ref_name }} | cut -f 1 | head --lines=-1) # keep only the most recent build cache
         #--- DELETE CODEGEN AND BUILD CACHES
         set +e # do not fail while deleting cache keys
         echo "Deleting codegen caches..."
@@ -99,6 +101,7 @@ jobs:
       run: |
         echo "HELLO_CODEGEN ${{ inputs.process }} $(date)"
         echo "Workflow run_id is ${{ github.run_id }}"
+        echo "Workflow ref_name is ${{ github.ref_name }}"
         echo "Current directory is $(pwd)"
         echo "Current git commit is $(git log --oneline -n1 | cut -d' ' -f1)"
         # See https://github.com/actions/cache/blob/main/tips-and-workarounds.md#force-deletion-of-caches-overriding-default-cache-eviction-policy
@@ -126,6 +129,7 @@ jobs:
       run: |
         echo "GOODBYE_CODEGEN ${{ inputs.process }}! $(date)"
         echo "Workflow run_id is ${{ github.run_id }}"
+        echo "Workflow ref_name is ${{ github.ref_name }}"
         echo "Current directory is $(pwd)"
         echo "Current git commit is $(git log --oneline -n1 | cut -d' ' -f1)"
         REPO=${{ github.repository }}
@@ -160,6 +164,7 @@ jobs:
       run: |
         echo "HELLO_TESTSUITE ${{ inputs.process }} FPTYPE=${{ matrix.fptype }} $(date)"
         echo "Workflow run_id is ${{ github.run_id }}"
+        echo "Workflow ref_name is ${{ github.ref_name }}"
         echo "Current directory is $(pwd)"
         ###echo "Current git commit is $(git log --oneline -n1 | cut -d' ' -f1)"
         # See https://github.com/actions/cache/blob/main/tips-and-workarounds.md#force-deletion-of-caches-overriding-default-cache-eviction-policy
@@ -196,8 +201,9 @@ jobs:
           CCACHE_DIR
           DOWNLOADS
           test/googletest
-        key: buildcache-${{ runner.os }}-${{ inputs.process }}-${{ matrix.fptype }}-${{ github.run_id }}
+        key: buildcache-${{ runner.os }}-${{ inputs.process }}-${{ matrix.fptype }}-${{ github.ref_name }}-${{ github.run_id }}
         restore-keys:
+          buildcache-${{ runner.os }}-${{ inputs.process }}-${{ matrix.fptype }}-${{ github.ref_name }}
           buildcache-${{ runner.os }}-${{ inputs.process }}-${{ matrix.fptype }}
 
     - name: before_build
@@ -218,7 +224,7 @@ jobs:
           CCACHE_DIR
           DOWNLOADS
           test/googletest
-        key: buildcache-${{ runner.os }}-${{ inputs.process }}-${{ matrix.fptype }}-${{ github.run_id }}
+        key: buildcache-${{ runner.os }}-${{ inputs.process }}-${{ matrix.fptype }}-${{ github.ref_name }}-${{ github.run_id }}
 
     - name: tput_test
       run: .github/workflows/testsuite_oneprocess.sh tput_test ${{ inputs.process }}
@@ -227,6 +233,7 @@ jobs:
       run: |
         echo "GOODBYE_TESTSUITE ${{ inputs.process }} FPTYPE=${{ matrix.fptype }}! $(date)"
         echo "Workflow run_id is ${{ github.run_id }}"
+        echo "Workflow ref_name is ${{ github.ref_name }}"
         echo "Current directory is $(pwd)"
         echo "Current git commit is $(git log --oneline -n1 | cut -d' ' -f1)"
         REPO=${{ github.repository }}
