@@ -127,7 +127,7 @@ jobs:
 
     - name: GOODBYE_CODEGEN
       run: |
-        echo "GOODBYE_CODEGEN ${{ inputs.process }}! $(date)"
+        echo "GOODBYE_CODEGEN ${{ inputs.process }} $(date)"
         echo "Workflow run_id is ${{ github.run_id }}"
         echo "Workflow ref_name is ${{ github.ref_name }}"
         echo "Current directory is $(pwd)"
@@ -232,7 +232,7 @@ jobs:
 
     - name: GOODBYE_TESTSUITE
       run: |
-        echo "GOODBYE_TESTSUITE ${{ inputs.process }} FPTYPE=${{ matrix.fptype }}! $(date)"
+        echo "GOODBYE_TESTSUITE ${{ inputs.process }} FPTYPE=${{ matrix.fptype }} $(date)"
         echo "Workflow run_id is ${{ github.run_id }}"
         echo "Workflow ref_name is ${{ github.ref_name }}"
         echo "Current directory is $(pwd)"
