@@ -28,7 +28,7 @@ export CUDACPP_RUNTIME_VECSIZEUSED=${NLOOP}
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gguu][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-d] [-fltonly|-mixonly] [-makeonly|-makeclean|-makecleanonly] [-rmrdat] [+10x] [-checkonly] [-nocleanup]" > /dev/stderr
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gguu][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-d] [-fltonly|-mixonly] [-makeonly|-makeclean|-makecleanonly] [-rmrdat] [+10x] [-checkonly] [-nocleanup][-iconfig <iconfig>]" > /dev/stderr
   echo "(NB: OMP_NUM_THREADS is taken as-is from the caller's environment)"
   exit 1
 }
@@ -63,6 +63,8 @@ xfacs="1"
 checkonly=0
 
 nocleanup=0
+
+iconfig=
 
 while [ "$1" != "" ]; do
   if [ "$1" == "-d" ]; then
@@ -131,6 +133,9 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-nocleanup" ]; then
     nocleanup=1
     shift
+  elif [ "$1" == "-iconfig" ] && [ "$2" != "" ]; then
+    iconfig=$2
+    shift; shift
   else
     usage
   fi
@@ -258,6 +263,7 @@ function getgridmax()
 # Create an input file that is appropriate for the specific process
 function getinputfile()
 {
+  iconfig_proc=1 # use iconfig=1 by default (NB: this does not mean channel_id=1 i.e. the first diagram, see #826)
   nevt=$(getnevt)
   tmpdir=/tmp/$USER
   mkdir -p $tmpdir
@@ -269,6 +275,7 @@ function getinputfile()
     tmp=$tmpdir/input_ggttg
   elif [ "${ggttgg}" == "1" ]; then 
     tmp=$tmpdir/input_ggttgg
+    iconfig_proc=104 # use iconfig=104 in ggttgg to check #855 SIGFPE fix (but issue #856 is pending: LHE color mismatch!)
   elif [ "${ggttggg}" == "1" ]; then 
     tmp=$tmpdir/input_ggttggg
   elif [ "${gguu}" == "1" ]; then 
@@ -281,6 +288,7 @@ function getinputfile()
     tmp=$tmpdir/input_susyggtt
   elif [ "${susyggt1t1}" == "1" ]; then 
     tmp=$tmpdir/input_susyggt1t1
+    iconfig_proc=2 # use iconfig=2 in susyggt1t1 to check #855 SIGFPE fix (but issue #826 is pending: no cross section!)
   elif [ "${smeftggtttt}" == "1" ]; then 
     tmp=$tmpdir/input_smeftggtttt
   else
@@ -302,6 +310,7 @@ function getinputfile()
     echo "Usage: getinputfile <backend [-fortran][-cuda][-hip][-cpp]>"
     exit 1
   fi
+  if [ "${iconfig}" == "" ]; then iconfig=${iconfig_proc}; fi
   (( nevt = nevt*$xfac ))
   cat << EOF >> ${tmp}
 ${nevt} 1 1 ! Number of events and max and min iterations
@@ -309,7 +318,7 @@ ${nevt} 1 1 ! Number of events and max and min iterations
 0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
 1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
 0 ! Helicity Sum/event 0=exact
-1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
+${iconfig} ! ICONFIG number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 EOF
   echo ${tmp}
 }
