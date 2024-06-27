@@ -539,6 +539,8 @@ if [ $BYPASS_KNOWN_ISSUES -eq 1 ] && [ $status -ne 0 ]; then
     ###if [ "${proc%.mad}" == "gq_ttq" ]; then bypassIssue "SIGFPE crash in rotxxx in ${proc%.mad} for FPTYPE=d,f,m (#855)"; fi
     ###if [ "${proc%.mad}" == "pp_tt012j" ]; then bypassIssue "SIGFPE crash in rotxxx in ${proc%.mad} for FPTYPE=d,f,m (#855)"; fi
     ###if [ "${proc%.mad}" == "nobm_pp_ttW" ]; then bypassIssue "#SIGFPE crash in rotxxx in ${proc%.mad} for FPTYPE=d,f,m (#855)"; fi
+    # Final printout
+    if [ $status -ne 0 ]; then echo "[testsuite_oneprocess.sh] $stage ($proc) FPTYPE=${FPTYPE}: issue will not be bypassed, test has FAILED"; fi
   fi
 fi
 exit $status
