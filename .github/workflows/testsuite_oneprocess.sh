@@ -534,11 +534,11 @@ if [ $BYPASS_KNOWN_ISSUES -eq 1 ] && [ $status -ne 0 ]; then
   # Known issues in tmad_test
   if [ "$stage" == "tmad_test" ]; then
     # No cross section for susy_gg_t1t1 (#826)
-    if [ "${proc%.mad}" == "susy_gg_t1t1" ]; then bypassIssue "No cross section in ${proc%.mad} for FPTYPE=d,f,m (#826)"; fi
+    ###if [ "${proc%.mad}" == "susy_gg_t1t1" ]; then bypassIssue "No cross section in ${proc%.mad} for FPTYPE=d,f,m (#826)"; fi
     # SIGFPE crashes in rotxxx (#855)
-    if [ "${proc%.mad}" == "gq_ttq" ]; then bypassIssue "SIGFPE crash in rotxxx in ${proc%.mad} for FPTYPE=d,f,m (#855)"; fi
-    if [ "${proc%.mad}" == "pp_tt012j" ]; then bypassIssue "SIGFPE crash in rotxxx in ${proc%.mad} for FPTYPE=d,f,m (#855)"; fi
-    if [ "${proc%.mad}" == "nobm_pp_ttW" ]; then bypassIssue "#SIGFPE crash in rotxxx in ${proc%.mad} for FPTYPE=d,f,m (#855)"; fi
+    ###if [ "${proc%.mad}" == "gq_ttq" ]; then bypassIssue "SIGFPE crash in rotxxx in ${proc%.mad} for FPTYPE=d,f,m (#855)"; fi
+    ###if [ "${proc%.mad}" == "pp_tt012j" ]; then bypassIssue "SIGFPE crash in rotxxx in ${proc%.mad} for FPTYPE=d,f,m (#855)"; fi
+    ###if [ "${proc%.mad}" == "nobm_pp_ttW" ]; then bypassIssue "#SIGFPE crash in rotxxx in ${proc%.mad} for FPTYPE=d,f,m (#855)"; fi
   fi
 fi
 exit $status
