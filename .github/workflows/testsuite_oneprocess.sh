@@ -272,6 +272,7 @@ function getinputfile()
   nevt=$(getnevt)
   tmp=$tmpdir/input_${proc%.mad}_${backend}
   iconfig=1
+  if [ "${proc%.mad}" == "gg_ttgg" ]; then iconfig=104; fi # test iconfig=104 on gg_ttgg (LHE color mismatch #856?)
   cat << EOF >> ${tmp}
 ${nevt} 1 1 ! Number of events and max and min iterations
 0.000001 ! Accuracy (ignored because max iterations = min iterations)
