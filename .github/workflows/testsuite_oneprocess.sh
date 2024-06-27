@@ -257,6 +257,7 @@ function tput_test() {
 function getnevt()
 {
   nevt=32 # HARDCODED xfac=QUICK SETTING (tmad tests use 8192 for xfac=1 and 81920 for xfac=10)
+  # FIXME? check that nevt is a multiple of NLOOP?
   echo $nevt
 }
 
@@ -283,6 +284,9 @@ function runmadevent()
 {
   if [ "$1" == "" ] || [ "$2" != "" ]; then echo "Usage: runmadevent <madevent executable>"; exit 1; fi
   cmd=$1
+  NLOOP=32
+  unset CUDACPP_RUNTIME_FBRIDGEMODE
+  export CUDACPP_RUNTIME_VECSIZEUSED=${NLOOP}
   tmpin=$(getinputfile)
   if [ "${cmd/madevent_fortran}" == "$cmd" ]; then
     cmd=${cmd/.\//.\/build.${backend}_${fptype}_inl0_hrd0\/} # skip this for fortran
