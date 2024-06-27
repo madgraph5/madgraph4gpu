@@ -1,16 +1,3 @@
-diff --git b/epochX/cudacpp/gg_tt.mad/Source/DHELAS/aloha_functions.f a/epochX/cudacpp/gg_tt.mad/Source/DHELAS/aloha_functions.f
-index 657387a58..d0ec1dbde 100644
---- b/epochX/cudacpp/gg_tt.mad/Source/DHELAS/aloha_functions.f
-+++ a/epochX/cudacpp/gg_tt.mad/Source/DHELAS/aloha_functions.f
-@@ -1201,7 +1201,7 @@ c       real    prot(0:3)      : four-momentum p in the rotated frame
- c
-       implicit none
-       double precision p(0:3),q(0:3),prot(0:3),qt2,qt,psgn,qq,p1
--
-+      volatile qt, p1, qq ! prevent optimizations with -O3 (workaround for SIGFPE #855)
-       double precision rZero, rOne
-       parameter( rZero = 0.0d0, rOne = 1.0d0 )
- 
 diff --git b/epochX/cudacpp/gg_tt.mad/Source/genps.inc a/epochX/cudacpp/gg_tt.mad/Source/genps.inc
 index a59181c70..af7e0efbc 100644
 --- b/epochX/cudacpp/gg_tt.mad/Source/genps.inc
