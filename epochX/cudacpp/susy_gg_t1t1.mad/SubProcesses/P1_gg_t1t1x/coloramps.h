@@ -25,21 +25,21 @@ namespace mgOnGpu /* clang-format off */
   // Note: iconfig=0 indicates invalid values, i.e. channels/diagrams with no single-diagram enhancement in the MadEvent sampling algorithm (presence of 4-point interaction?)
   // This array has N_diagrams elements, but only N_config <= N_diagrams valid (non-zero) values
   __device__ constexpr int channelIdC_to_iconfig[6] = { // note: a trailing comma in the initializer list is allowed
-    0, // CHANNEL_ID=1 (diagram=1) --> ICONFIG=None
-    1, // CHANNEL_ID=2 (diagram=2) --> ICONFIG=1
-    2, // CHANNEL_ID=3 (diagram=3) --> ICONFIG=2
-    3, // CHANNEL_ID=4 (diagram=4) --> ICONFIG=3
-    4, // CHANNEL_ID=5 (diagram=5) --> ICONFIG=4
-    5, // CHANNEL_ID=6 (diagram=6) --> ICONFIG=5
+    0, // CHANNEL_ID=1 i.e. DIAGRAM=1 --> ICONFIG=None
+    1, // CHANNEL_ID=2 i.e. DIAGRAM=2 --> ICONFIG=1
+    2, // CHANNEL_ID=3 i.e. DIAGRAM=3 --> ICONFIG=2
+    3, // CHANNEL_ID=4 i.e. DIAGRAM=4 --> ICONFIG=3
+    4, // CHANNEL_ID=5 i.e. DIAGRAM=5 --> ICONFIG=4
+    5, // CHANNEL_ID=6 i.e. DIAGRAM=6 --> ICONFIG=5
   };
 
   // Map iconfigC (in C indexing, i.e. iconfig-1) to the set of allowed colors
   // This array has N_config <= N_diagrams elements
   __device__ constexpr bool icolamp[5][2] = { // note: a trailing comma in the initializer list is allowed
     {  true,  true }, // ICONFIG=1 <-- CHANNEL_ID=2
-    {  true,  true }, // ICONFIG=2 <-- CHANNEL_ID=3
+    {  true, false }, // ICONFIG=2 <-- CHANNEL_ID=3
     {  true, false }, // ICONFIG=3 <-- CHANNEL_ID=4
-    {  true, false }, // ICONFIG=4 <-- CHANNEL_ID=5
+    { false,  true }, // ICONFIG=4 <-- CHANNEL_ID=5
     { false,  true }, // ICONFIG=5 <-- CHANNEL_ID=6
   }; /* clang-format on */
 
