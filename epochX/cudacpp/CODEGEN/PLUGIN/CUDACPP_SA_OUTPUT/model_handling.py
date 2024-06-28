@@ -1556,11 +1556,10 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             if diag in diag_to_iconfig:
                 iconfigf = diag_to_iconfig[diag]
                 iconfigftxt = '%i'%iconfigf
-                iconfigc = iconfigf - 1 # C convention 
             else:
                 iconfigf = 0
                 iconfigftxt = 'None'
-            text = "    %(iconfigf)i, // channelIdC=%(channelidc)i i.e. channelId=%(channelidf)i (diagram=%(diag)i) --> iconfig=%(iconfigftxt)s"
+            text = "    %(iconfigf)i, // CHANNEL_ID=%(channelidf)i (diagram=%(diag)i) --> ICONFIG=%(iconfigftxt)s"
             lines.append(text % {'diag':diag, 'channelidf':channelidf, 'channelidc':channelidc, 'iconfigf':iconfigf, 'iconfigftxt':iconfigftxt})
         replace_dict['diag_to_channel'] = '\n'.join(lines)
 
@@ -1578,11 +1577,10 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             # AV extra formatting (e.g. gg_tt was "{{true,true};,{true,false};,{false,true};};")
             ###misc.sprint(replace_dict['is_LC'])
             split = replace_dict['is_LC'].replace('{{','{').replace('};};','}').split(';,')
-            misc.sprint(replace_dict['is_LC'])
-            for i in range(len(split)): 
-                ###misc.sprint(split[i])
-                split[i] = '    ' + split[i].replace(',',', ').replace('true',' true').replace('{','{ ').replace('}',' }')
-                split[i] += ', // iconfigC=%i i.e. iconfig=%i <-- diagram=%i' % (i, i+1, iconfig_to_diag[i+1])
+            for iconfigc in range(len(split)): 
+                ###misc.sprint(split[iconfigc])
+                split[iconfigc] = '    ' + split[iconfigc].replace(',',', ').replace('true',' true').replace('{','{ ').replace('}',' }')
+                split[iconfigc] += ', // ICONFIG=%i <-- CHANNEL_ID=%i' % (iconfigc+1, iconfig_to_diag[iconfigc+1])
             replace_dict['is_LC'] = '\n'.join(split)
             ff.write(template % replace_dict)
         ff.close()
