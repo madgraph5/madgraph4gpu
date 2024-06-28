@@ -3153,7 +3153,9 @@ namespace mg5amcCpu
     // Event-by-event random choice of color #402
     if( channelId != 0 ) // no event-by-event choice of color if channelId == 0 (fix FPE #783)
     {
-      const unsigned int iconfigC = mgOnGpu::channelId_to_iconfigC[channelId]; // coloramps.h uses a channel ordering not the diagram id
+      const unsigned int channelIdC = channelId - 1;                           // channelIdC_to_iconfig in coloramps.h uses the C array indexing starting at 0
+      const unsigned int iconfig = mgOnGpu::channelIdC_to_iconfig[channelIdC]; // map N_diagrams to N_config <= N_diagrams configs (fix LHE color mismatch #856: see also #826, #852, #853)
+      const unsigned int iconfigC = iconfig - 1;                               // icolamp in coloramps.h uses the C array indexing starting at 0
       fptype targetamp[ncolor] = { 0 };
       for( int icolC = 0; icolC < ncolor; icolC++ )
       {
@@ -3196,7 +3198,7 @@ namespace mg5amcCpu
     // - firstprivate: give each thread its own copy, and initialise with value from outside
 #define _OMPLIST0 allcouplings, allMEs, allmomenta, allrndcol, allrndhel, allselcol, allselhel, cGoodHel, cNGoodHel, npagV2
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-#define _OMPLIST1 , allDenominators, allNumerators, channelId, mgOnGpu::icolamp, mgOnGpu::channelId_to_iconfigC
+#define _OMPLIST1 , allDenominators, allNumerators, channelId, mgOnGpu::icolamp, mgOnGpu::channelIdC_to_iconfig
 #else
 #define _OMPLIST1
 #endif
@@ -3268,7 +3270,9 @@ namespace mg5amcCpu
       // Event-by-event random choice of color #402
       if( channelId != 0 ) // no event-by-event choice of color if channelId == 0 (fix FPE #783)
       {
-        const unsigned int iconfigC = mgOnGpu::channelId_to_iconfigC[channelId]; // coloramps.h uses a channel ordering not the diagram id
+        const unsigned int channelIdC = channelId - 1;                           // channelIdC_to_iconfig in coloramps.h uses the C array indexing starting at 0
+        const unsigned int iconfig = mgOnGpu::channelIdC_to_iconfig[channelIdC]; // map N_diagrams to N_config <= N_diagrams configs (fix LHE color mismatch #856: see also #826, #852, #853)
+        const unsigned int iconfigC = iconfig - 1;                               // icolamp in coloramps.h uses the C array indexing starting at 0
         fptype_sv targetamp[ncolor] = { 0 };
         for( int icolC = 0; icolC < ncolor; icolC++ )
         {
@@ -3279,7 +3283,9 @@ namespace mg5amcCpu
           if( mgOnGpu::icolamp[iconfigC][icolC] ) targetamp[icolC] += jamp2_sv[icolC];
         }
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
-        const unsigned int iconfigC = mgOnGpu::channelId_to_iconfigC[channelId]; // coloramps.h uses a channel ordering not the diagram id
+        const unsigned int channelIdC = channelId - 1;                           // channelIdC_to_iconfig in coloramps.h uses the C array indexing starting at 0
+        const unsigned int iconfig = mgOnGpu::channelIdC_to_iconfig[channelIdC]; // map N_diagrams to N_config <= N_diagrams configs (fix LHE color mismatch #856: see also #826, #852, #853)
+        const unsigned int iconfigC = iconfig - 1;                               // icolamp in coloramps.h uses the C array indexing starting at 0
         fptype_sv targetamp2[ncolor] = { 0 };
         for( int icolC = 0; icolC < ncolor; icolC++ )
         {
