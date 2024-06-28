@@ -539,9 +539,9 @@ if [ $BYPASS_KNOWN_ISSUES -eq 1 ] && [ $status -ne 0 ]; then
   # Known issues in tmad_test
   if [ "$stage" == "tmad_test" ]; then
     # No cross section in susy_gg_t1t1 (#826)
-    ###if [ "${proc%.mad}" == "susy_gg_t1t1" ]; then bypassIssue "No cross section in ${proc%.mad} for FPTYPE=d,f,m (#826)"; fi
+    if [ "${proc%.mad}" == "susy_gg_t1t1" ]; then bypassIssue "No cross section in ${proc%.mad} for FPTYPE=d,f,m (#826)"; fi
     # Cross section mismatch in pp_tt012j for P2_gu_ttxgu (#872)
-    ###if [ "${proc%.mad}" == "pp_tt012j" ]; then bypassIssue "Cross section mismatch for P2_gu_ttxgu in ${proc%.mad} for FPTYPE=d,f,m (#856)"; fi
+    if [ "${proc%.mad}" == "pp_tt012j" ]; then bypassIssue "Cross section mismatch for P2_gu_ttxgu in ${proc%.mad} for FPTYPE=d,f,m (#856)"; fi
     # Final printout
     if [ $status -ne 0 ]; then echo "[testsuite_oneprocess.sh] $stage ($proc) FPTYPE=${FPTYPE}: issue will not be bypassed, test has FAILED"; fi
   fi
