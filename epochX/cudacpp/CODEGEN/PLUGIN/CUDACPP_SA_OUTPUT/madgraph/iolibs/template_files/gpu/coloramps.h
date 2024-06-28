@@ -6,7 +6,7 @@
 #ifndef COLORAMPS_H
 #define COLORAMPS_H 1
 
-namespace mgOnGpu
+namespace mgOnGpu /* clang-format off */
 {
   // Summary of numbering and indexing conventions for the relevant concepts (see issue #826 and PR #852)
   // - Diagram number (no variable) in [1, N_diagrams]: all values are allowed (N_diagrams distinct values)
@@ -20,7 +20,7 @@ namespace mgOnGpu
   // - Config number ("iconfig" in C, ICONFIG in F) in [1, N_config]: all values are allowed (N_config <= N_diagrams distinct values)
   // - Config number in C indexing: "iconfigC" = iconfig - 1
   //   => this number (with C indexing) is used as the index of the icolamp array below
-  
+
   // Map channelIdC (in C indexing, i.e. channelId-1) to iconfig (in F indexing)
   // Note: iconfig=0 indicates invalid values, i.e. channels/diagrams with no single-diagram enhancement in the MadEvent sampling algorithm (presence of 4-point interaction?)
   // This array has N_diagrams elements, but only N_config <= N_diagrams valid (non-zero) values
@@ -32,7 +32,7 @@ namespace mgOnGpu
   // This array has N_config <= N_diagrams elements
   __device__ constexpr bool icolamp[%(nb_channel)s][%(nb_color)s] = { // note: a trailing comma in the initializer list is allowed
 %(is_LC)s
-  };
+  }; /* clang-format on */
 
 }
 #endif // COLORAMPS_H
