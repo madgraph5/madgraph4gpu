@@ -1548,6 +1548,8 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         # will be smaller than the true number of diagram. This is fine for color
         # but maybe not for something else.
         nb_diag = max(config[0] for config in config_subproc_map)
+        import math
+        ndigits = str(int(math.log10(nb_diag))+1)
         # Output which diagrams correspond ot a channel to get information for valid color
         lines = []
         for diag in range(1, nb_diag+1):
@@ -1559,8 +1561,8 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             else:
                 iconfigf = 0
                 iconfigftxt = 'None'
-            text = "    %(iconfigf)i, // CHANNEL_ID=%(channelidf)i (diagram=%(diag)i) --> ICONFIG=%(iconfigftxt)s"
-            lines.append(text % {'diag':diag, 'channelidf':channelidf, 'channelidc':channelidc, 'iconfigf':iconfigf, 'iconfigftxt':iconfigftxt})
+            text = '    %(iconfigf)NNNNi, // CHANNEL_ID=%(channelidf)-NNNNi i.e. DIAGRAM=%(diag)-NNNNi --> ICONFIG=%(iconfigftxt)s'.replace('NNNN',ndigits)
+            lines.append(text % {'diag':diag, 'channelidf':channelidf, 'iconfigf':iconfigf, 'iconfigftxt':iconfigftxt})
         replace_dict['channelc2iconfig_lines'] = '\n'.join(lines)
 
         if self.include_multi_channel: # NB unnecessary as edit_coloramps is not called otherwise...
@@ -1577,10 +1579,11 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             # AV extra formatting (e.g. gg_tt was "{{true,true};,{true,false};,{false,true};};")
             ###misc.sprint(replace_dict['icolamp_lines'])
             split = replace_dict['icolamp_lines'].replace('{{','{').replace('};};','}').split(';,')
+            text=', // ICONFIG=%-NNNNi <-- CHANNEL_ID=%i'.replace('NNNN',ndigits)
             for iconfigc in range(len(split)): 
                 ###misc.sprint(split[iconfigc])
                 split[iconfigc] = '    ' + split[iconfigc].replace(',',', ').replace('true',' true').replace('{','{ ').replace('}',' }')
-                split[iconfigc] += ', // ICONFIG=%i <-- CHANNEL_ID=%i' % (iconfigc+1, iconfig_to_diag[iconfigc+1])
+                split[iconfigc] += text % (iconfigc+1, iconfig_to_diag[iconfigc+1])
             replace_dict['icolamp_lines'] = '\n'.join(split)
             ff.write(template % replace_dict)
         ff.close()
