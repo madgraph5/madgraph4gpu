@@ -387,6 +387,9 @@ else
   ###override OMPFLAGS = # disable OpenMP MT on all other platforms (default before #575)
 endif
 
+# Optionally disable OMP
+override OMPFLAGS =
+
 #-------------------------------------------------------------------------------
 
 #=== Configure defaults and check if user-defined choices exist for RNDGEN (legacy!), HASCURAND, HASHIPRAND
