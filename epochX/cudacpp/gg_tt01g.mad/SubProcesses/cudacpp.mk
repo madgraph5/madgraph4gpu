@@ -369,6 +369,8 @@ endif
 
 #=== Configure defaults for OMPFLAGS
 
+###OMPFLAGS= # FOR DEBUGGING ONLY (disable OMP)
+
 # To build without OpenMP, you must set externally OMPFLAGS to an empty string (#758)
 ifeq ($(origin OMPFLAGS),undefined)
   ###$(info OMPFLAGS was not set externally: will override it to a default value)

@@ -89,7 +89,7 @@ ifeq ($(shell $(CXX) --version | grep ^nvc++),)
   CXXFLAGS += -ffast-math # see issue #117
 endif
 ###CXXFLAGS+= -Ofast # performance is not different from --fast-math
-CXXFLAGS+= -g # FOR DEBUGGING ONLY
+###CXXFLAGS+= -g # FOR DEBUGGING ONLY
 
 # Optionally add debug flags to display the full list of flags (eg on Darwin)
 ###CXXFLAGS+= -v
@@ -369,7 +369,7 @@ endif
 
 #=== Configure defaults for OMPFLAGS
 
-OMPFLAGS= # FOR DEBUGGING ONLY (disable OMP)
+###OMPFLAGS= # FOR DEBUGGING ONLY (disable OMP)
 
 # To build without OpenMP, you must set externally OMPFLAGS to an empty string (#758)
 ifeq ($(origin OMPFLAGS),undefined)
