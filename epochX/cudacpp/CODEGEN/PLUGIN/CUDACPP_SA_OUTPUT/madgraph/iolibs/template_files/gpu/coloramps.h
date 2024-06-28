@@ -11,12 +11,12 @@
 namespace mgOnGpu
 {
 
-  __device__ constexpr int diag_to_channel[%(nb_diagmax)s] = {
-%(diag_to_channel)s
+    __device__ std::map<int,int> diag_to_channel = {
+        %(diag_to_channel)s
+  };          
+    __device__ constexpr bool icolamp[%(nb_channel)s][%(nb_color)s] = {
+%(is_LC)s
   };
-
-  __device__ constexpr bool icolamp[%(nb_channel)s][%(nb_color)s] = {
-%(is_LC)s };
 
 }
 #endif // COLORAMPS_H
