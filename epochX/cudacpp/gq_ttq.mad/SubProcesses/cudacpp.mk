@@ -89,7 +89,7 @@ ifeq ($(shell $(CXX) --version | grep ^nvc++),)
   CXXFLAGS += -ffast-math # see issue #117
 endif
 ###CXXFLAGS+= -Ofast # performance is not different from --fast-math
-CXXFLAGS+= -g # FOR DEBUGGING ONLY
+###CXXFLAGS+= -g # FOR DEBUGGING ONLY
 
 # Optionally add debug flags to display the full list of flags (eg on Darwin)
 ###CXXFLAGS+= -v
@@ -386,9 +386,6 @@ else
   override OMPFLAGS = -fopenmp # enable OpenMP MT by default on all other platforms
   ###override OMPFLAGS = # disable OpenMP MT on all other platforms (default before #575)
 endif
-
-# Optionally disable OMP
-override OMPFLAGS =
 
 #-------------------------------------------------------------------------------
 
