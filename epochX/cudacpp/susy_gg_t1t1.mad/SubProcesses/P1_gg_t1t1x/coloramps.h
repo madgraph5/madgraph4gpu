@@ -6,7 +6,7 @@
 #ifndef COLORAMPS_H
 #define COLORAMPS_H 1
 
-namespace mgOnGpu
+namespace mgOnGpu /* clang-format off */
 {
   // Summary of numbering and indexing conventions for the relevant concepts (see issue #826 and PR #852)
   // - Diagram number (no variable) in [1, N_diagrams]: all values are allowed (N_diagrams distinct values)
@@ -20,28 +20,28 @@ namespace mgOnGpu
   // - Config number ("iconfig" in C, ICONFIG in F) in [1, N_config]: all values are allowed (N_config <= N_diagrams distinct values)
   // - Config number in C indexing: "iconfigC" = iconfig - 1
   //   => this number (with C indexing) is used as the index of the icolamp array below
-  
+
   // Map channelIdC (in C indexing, i.e. channelId-1) to iconfig (in F indexing)
   // Note: iconfig=0 indicates invalid values, i.e. channels/diagrams with no single-diagram enhancement in the MadEvent sampling algorithm (presence of 4-point interaction?)
   // This array has N_diagrams elements, but only N_config <= N_diagrams valid (non-zero) values
   __device__ constexpr int channelIdC_to_iconfig[6] = { // note: a trailing comma in the initializer list is allowed
-    0, // channelIdC=0 i.e. channelId=1 (diagram=1) --> iconfig=None
-    1, // channelIdC=1 i.e. channelId=2 (diagram=2) --> iconfig=1
-    2, // channelIdC=2 i.e. channelId=3 (diagram=3) --> iconfig=2
-    3, // channelIdC=3 i.e. channelId=4 (diagram=4) --> iconfig=3
-    4, // channelIdC=4 i.e. channelId=5 (diagram=5) --> iconfig=4
-    5, // channelIdC=5 i.e. channelId=6 (diagram=6) --> iconfig=5
+    0, // CHANNEL_ID=1 (diagram=1) --> ICONFIG=None
+    1, // CHANNEL_ID=2 (diagram=2) --> ICONFIG=1
+    2, // CHANNEL_ID=3 (diagram=3) --> ICONFIG=2
+    3, // CHANNEL_ID=4 (diagram=4) --> ICONFIG=3
+    4, // CHANNEL_ID=5 (diagram=5) --> ICONFIG=4
+    5, // CHANNEL_ID=6 (diagram=6) --> ICONFIG=5
   };
 
   // Map iconfigC (in C indexing, i.e. iconfig-1) to the set of allowed colors
   // This array has N_config <= N_diagrams elements
   __device__ constexpr bool icolamp[5][2] = { // note: a trailing comma in the initializer list is allowed
-    {  true,  true }, // iconfigC=0 i.e. iconfig=1 <-- diagram=2
-    {  true,  true }, // iconfigC=1 i.e. iconfig=2 <-- diagram=3
-    {  true, false }, // iconfigC=2 i.e. iconfig=3 <-- diagram=4
-    {  true, false }, // iconfigC=3 i.e. iconfig=4 <-- diagram=5
-    { false,  true }, // iconfigC=4 i.e. iconfig=5 <-- diagram=6
-  };
+    {  true,  true }, // ICONFIG=1 <-- CHANNEL_ID=2
+    {  true,  true }, // ICONFIG=2 <-- CHANNEL_ID=3
+    {  true, false }, // ICONFIG=3 <-- CHANNEL_ID=4
+    {  true, false }, // ICONFIG=4 <-- CHANNEL_ID=5
+    { false,  true }, // ICONFIG=5 <-- CHANNEL_ID=6
+  }; /* clang-format on */
 
 }
 #endif // COLORAMPS_H
