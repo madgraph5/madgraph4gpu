@@ -1561,11 +1561,11 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
                 iconfigftxt = 'None'
             text = "    %(iconfigf)i, // CHANNEL_ID=%(channelidf)i (diagram=%(diag)i) --> ICONFIG=%(iconfigftxt)s"
             lines.append(text % {'diag':diag, 'channelidf':channelidf, 'channelidc':channelidc, 'iconfigf':iconfigf, 'iconfigftxt':iconfigftxt})
-        replace_dict['diag_to_channel'] = '\n'.join(lines)
+        replace_dict['channelc2iconfig_lines'] = '\n'.join(lines)
 
         if self.include_multi_channel: # NB unnecessary as edit_coloramps is not called otherwise...
             multi_channel = self.get_multi_channel_dictionary(self.matrix_elements[0].get('diagrams'), self.include_multi_channel)
-            replace_dict['is_LC'] = self.get_icolamp_lines(multi_channel, self.matrix_elements[0], 1)
+            replace_dict['icolamp_lines'] = self.get_icolamp_lines(multi_channel, self.matrix_elements[0], 1)
             replace_dict['nb_channel'] = len(multi_channel)
             replace_dict['nb_diag'] = max(config[0] for config in config_subproc_map)
             replace_dict['nb_color'] = max(1,len(self.matrix_elements[0].get('color_basis')))
@@ -1575,13 +1575,13 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             #raise Exception
             
             # AV extra formatting (e.g. gg_tt was "{{true,true};,{true,false};,{false,true};};")
-            ###misc.sprint(replace_dict['is_LC'])
-            split = replace_dict['is_LC'].replace('{{','{').replace('};};','}').split(';,')
+            ###misc.sprint(replace_dict['icolamp_lines'])
+            split = replace_dict['icolamp_lines'].replace('{{','{').replace('};};','}').split(';,')
             for iconfigc in range(len(split)): 
                 ###misc.sprint(split[iconfigc])
                 split[iconfigc] = '    ' + split[iconfigc].replace(',',', ').replace('true',' true').replace('{','{ ').replace('}',' }')
                 split[iconfigc] += ', // ICONFIG=%i <-- CHANNEL_ID=%i' % (iconfigc+1, iconfig_to_diag[iconfigc+1])
-            replace_dict['is_LC'] = '\n'.join(split)
+            replace_dict['icolamp_lines'] = '\n'.join(split)
             ff.write(template % replace_dict)
         ff.close()
 

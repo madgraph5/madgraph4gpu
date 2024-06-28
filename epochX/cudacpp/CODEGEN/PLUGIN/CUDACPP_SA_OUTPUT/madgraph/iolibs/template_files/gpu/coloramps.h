@@ -25,13 +25,13 @@ namespace mgOnGpu /* clang-format off */
   // Note: iconfig=0 indicates invalid values, i.e. channels/diagrams with no single-diagram enhancement in the MadEvent sampling algorithm (presence of 4-point interaction?)
   // This array has N_diagrams elements, but only N_config <= N_diagrams valid (non-zero) values
   __device__ constexpr int channelIdC_to_iconfig[%(nb_diag)i] = { // note: a trailing comma in the initializer list is allowed
-%(diag_to_channel)s
+%(channelc2iconfig_lines)s
   };
 
   // Map iconfigC (in C indexing, i.e. iconfig-1) to the set of allowed colors
   // This array has N_config <= N_diagrams elements
   __device__ constexpr bool icolamp[%(nb_channel)s][%(nb_color)s] = { // note: a trailing comma in the initializer list is allowed
-%(is_LC)s
+%(icolamp_lines)s
   }; /* clang-format on */
 
 }
