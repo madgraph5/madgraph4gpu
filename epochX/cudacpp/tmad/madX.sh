@@ -14,6 +14,10 @@ scrdir=$(cd $(dirname $0); pwd)
 bckend=$(basename $(cd $scrdir; cd ..; pwd)) # cudacpp or alpaka
 topdir=$(cd $scrdir; cd ../../..; pwd)
 
+# Disable OpenMP in tmad tests
+# To do this, set OMPFLAGS externally to an empty string (#758)
+export OMPFLAGS=
+
 # HARDCODE NLOOP HERE (may improve this eventually...)
 NLOOP=8192
 

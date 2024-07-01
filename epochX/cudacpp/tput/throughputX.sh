@@ -11,6 +11,10 @@ scrdir=$(cd $(dirname $0); pwd)
 bckend=$(basename $(cd $scrdir; cd ..; pwd)) # cudacpp or alpaka
 topdir=$(cd $scrdir; cd ../../..; pwd)
 
+# Disable OpenMP in tput tests
+# To do this, set OMPFLAGS externally to an empty string (#758)
+export OMPFLAGS=
+
 function usage()
 {
   echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-bldall][-cudaonly][-hiponly][-noneonly][-sse4only][-avx2only][-512yonly][-512zonly] [-sa] [-noalpaka] [-flt|-fltonly|-mix|-mixonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-omp] [-makeonly|-makeclean|-makecleanonly|-dryrun] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest] [-v] [-dlp <dyld_library_path>]" # -nofpe is no longer supported
