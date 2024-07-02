@@ -27,8 +27,8 @@ namespace mgOnGpu
   //   => this number (with C indexing) is used as the index of the icolamp array below
 
   // Map channelIdC (in C indexing, i.e. channelId-1) to iconfig (in F indexing)
-  // Note: iconfig=0 indicates invalid values, i.e. channels/diagrams with no single-diagram enhancement in the MadEvent sampling algorithm (presence of 4-point interaction?)
-  // This array has N_diagrams elements, but only N_config <= N_diagrams valid (non-zero) values
+  // Note: iconfig=-1 indicates channels/diagrams with no associated iconfig for single-diagram enhancement in the MadEvent sampling algorithm (presence of 4-point interaction?)
+  // This array has N_diagrams elements, but only N_config <= N_diagrams valid values (iconfig>0)
   __device__ constexpr int channelIdC_to_iconfig[%(nb_diag)i] = { // note: a trailing comma in the initializer list is allowed
 %(channelc2iconfig_lines)s
   };

@@ -27,15 +27,15 @@ namespace mgOnGpu
   //   => this number (with C indexing) is used as the index of the icolamp array below
 
   // Map channelIdC (in C indexing, i.e. channelId-1) to iconfig (in F indexing)
-  // Note: iconfig=0 indicates invalid values, i.e. channels/diagrams with no single-diagram enhancement in the MadEvent sampling algorithm (presence of 4-point interaction?)
-  // This array has N_diagrams elements, but only N_config <= N_diagrams valid (non-zero) values
+  // Note: iconfig=-1 indicates channels/diagrams with no associated iconfig for single-diagram enhancement in the MadEvent sampling algorithm (presence of 4-point interaction?)
+  // This array has N_diagrams elements, but only N_config <= N_diagrams valid values (iconfig>0)
   __device__ constexpr int channelIdC_to_iconfig[6] = { // note: a trailing comma in the initializer list is allowed
-    0, // CHANNEL_ID=1 i.e. DIAGRAM=1 --> ICONFIG=None
-    1, // CHANNEL_ID=2 i.e. DIAGRAM=2 --> ICONFIG=1
-    2, // CHANNEL_ID=3 i.e. DIAGRAM=3 --> ICONFIG=2
-    3, // CHANNEL_ID=4 i.e. DIAGRAM=4 --> ICONFIG=3
-    4, // CHANNEL_ID=5 i.e. DIAGRAM=5 --> ICONFIG=4
-    5, // CHANNEL_ID=6 i.e. DIAGRAM=6 --> ICONFIG=5
+    -1, // CHANNEL_ID=1 i.e. DIAGRAM=1 --> ICONFIG=-1 (diagram with no associated iconfig for single-diagram enhancement)
+     1, // CHANNEL_ID=2 i.e. DIAGRAM=2 --> ICONFIG=1
+     2, // CHANNEL_ID=3 i.e. DIAGRAM=3 --> ICONFIG=2
+     3, // CHANNEL_ID=4 i.e. DIAGRAM=4 --> ICONFIG=3
+     4, // CHANNEL_ID=5 i.e. DIAGRAM=5 --> ICONFIG=4
+     5, // CHANNEL_ID=6 i.e. DIAGRAM=6 --> ICONFIG=5
   };
 
   // Map iconfigC (in C indexing, i.e. iconfig-1) to the set of allowed colors

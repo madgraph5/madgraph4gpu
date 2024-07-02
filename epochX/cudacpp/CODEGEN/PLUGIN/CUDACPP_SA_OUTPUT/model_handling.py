@@ -1550,6 +1550,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         nb_diag = max(config[0] for config in config_subproc_map)
         import math
         ndigits = str(int(math.log10(nb_diag))+1)
+        ndigits1 = str(int(math.log10(nb_diag))+2)
         # Output which diagrams correspond ot a channel to get information for valid color
         lines = []
         for diag in range(1, nb_diag+1):
@@ -1559,9 +1560,9 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
                 iconfigf = diag_to_iconfig[diag]
                 iconfigftxt = '%i'%iconfigf
             else:
-                iconfigf = 0
-                iconfigftxt = 'None'
-            text = '    %(iconfigf)NNNNi, // CHANNEL_ID=%(channelidf)-NNNNi i.e. DIAGRAM=%(diag)-NNNNi --> ICONFIG=%(iconfigftxt)s'.replace('NNNN',ndigits)
+                iconfigf = -1
+                iconfigftxt = '-1 (diagram with no associated iconfig for single-diagram enhancement)'
+            text = '    %(iconfigf)NNNN1i, // CHANNEL_ID=%(channelidf)-NNNNi i.e. DIAGRAM=%(diag)-NNNNi --> ICONFIG=%(iconfigftxt)s'.replace('NNNN1',ndigits1).replace('NNNN',ndigits)
             lines.append(text % {'diag':diag, 'channelidf':channelidf, 'iconfigf':iconfigf, 'iconfigftxt':iconfigftxt})
         replace_dict['channelc2iconfig_lines'] = '\n'.join(lines)
 
