@@ -1578,14 +1578,14 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             #raise Exception
             
             # AV extra formatting (e.g. gg_tt was "{{true,true};,{true,false};,{false,true};};")
-            ###misc.sprint(replace_dict['icolamp_lines'])
-            split = replace_dict['icolamp_lines'].replace('{{','{').replace('};};','}').split(';,')
+            ###misc.sprint(replace_dict['is_LC'])
+            split = replace_dict['is_LC'].replace('{{','{').replace('};};','}').split(';,')
             text=', // ICONFIG=%-NNNNi <-- CHANNEL_ID=%i'.replace('NNNN',ndigits)
             for iconfigc in range(len(split)): 
                 ###misc.sprint(split[iconfigc])
                 split[iconfigc] = '    ' + split[iconfigc].replace(',',', ').replace('true',' true').replace('{','{ ').replace('}',' }')
                 split[iconfigc] += text % (iconfigc+1, iconfig_to_diag[iconfigc+1])
-            replace_dict['icolamp_lines'] = '\n'.join(split)
+            replace_dict['is_LC'] = '\n'.join(split)
             ff.write(template % replace_dict)
         ff.close()
 
