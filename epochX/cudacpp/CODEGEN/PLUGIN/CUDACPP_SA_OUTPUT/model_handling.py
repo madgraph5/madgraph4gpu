@@ -1562,7 +1562,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             else:
                 iconfigf = -1
                 iconfigftxt = '-1 (diagram with no associated iconfig for single-diagram enhancement)'
-            text = '    %(iconfigf)NNNN1i, // CHANNEL_ID=%(channelidf)-NNNNi i.e. DIAGRAM=%(diag)-NNNNi --> ICONFIG=%(iconfigftxt)s'.replace('NNNN1',ndigits1).replace('NNNN',ndigits)
+            text = '    %(iconfigf){0}i, // CHANNEL_ID=%(channelidf)-{0}i i.e. DIAGRAM=%(diag)-{0}i --> ICONFIG=%(iconfigftxt)s'.format(ndigits1)
             lines.append(text % {'diag':diag, 'channelidf':channelidf, 'iconfigf':iconfigf, 'iconfigftxt':iconfigftxt})
         replace_dict['channelc2iconfig_lines'] = '\n'.join(lines)
 
