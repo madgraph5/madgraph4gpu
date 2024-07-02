@@ -1579,7 +1579,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             # AV extra formatting (e.g. gg_tt was "{{true,true};,{true,false};,{false,true};};")
             ###misc.sprint(replace_dict['is_LC'])
             split = replace_dict['is_LC'].replace('{{','{').replace('};};','}').split(';,')
-            text=', // ICONFIG=%-NNNNi <-- CHANNEL_ID=%i'.replace('NNNN',ndigits)
+            text=', // ICONFIG=%-{0}i <-- CHANNEL_ID=%i'.format(ndigits)
             for iconfigc in range(len(split)): 
                 ###misc.sprint(split[iconfigc])
                 split[iconfigc] = '    ' + split[iconfigc].replace(',',', ').replace('true',' true').replace('{','{ ').replace('}',' }')
