@@ -403,8 +403,8 @@ namespace mg5amcCpu
       // *** COLOR CHOICE BELOW ***
       // Store the leading color flows for choice of color
       if( jamp2_sv ) // disable color choice if nullptr
-        for( int icolC = 0; icolC < ncolor; icolC++ )
-          jamp2_sv[ncolor * iParity + icolC] += cxabs2( jamp_sv[icolC] ); // may underflow #831
+        for( int icol = 0; icol < ncolor; icol++ )
+          jamp2_sv[ncolor * iParity + icol] += cxabs2( jamp_sv[icol] ); // may underflow #831
 
       // *** COLOR MATRIX BELOW ***
       // (This method used to be called CPPProcess::matrix_1_gg_t1t1x()?)
@@ -1012,6 +1012,7 @@ namespace mg5amcCpu
       // NB (see #877): in the array channel2iconfig, the input index uses C indexing (channelId -1), the output index uses F indexing (iconfig)
       const unsigned int iconfig = mgOnGpu::channel2iconfig[channelId - 1]; // map N_diagrams to N_config <= N_diagrams configs (fix LHE color mismatch #856: see also #826, #852, #853)
       fptype targetamp[ncolor] = { 0 };
+      // NB (see #877): explicitly use 'icolC' rather than 'icol' to indicate that icolC uses C indexing in [0, N_colors-1]
       for( int icolC = 0; icolC < ncolor; icolC++ )
       {
         if( icolC == 0 )
@@ -1129,6 +1130,7 @@ namespace mg5amcCpu
         // NB (see #877): in the array channel2iconfig, the input index uses C indexing (channelId -1), the output index uses F indexing (iconfig)
         const unsigned int iconfig = mgOnGpu::channel2iconfig[channelId - 1]; // map N_diagrams to N_config <= N_diagrams configs (fix LHE color mismatch #856: see also #826, #852, #853)
         fptype_sv targetamp[ncolor] = { 0 };
+        // NB (see #877): explicitly use 'icolC' rather than 'icol' to indicate that icolC uses C indexing in [0, N_colors-1]
         for( int icolC = 0; icolC < ncolor; icolC++ )
         {
           if( icolC == 0 )

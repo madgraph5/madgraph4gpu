@@ -75,6 +75,7 @@
       // NB (see #877): in the array channel2iconfig, the input index uses C indexing (channelId -1), the output index uses F indexing (iconfig)
       const unsigned int iconfig = mgOnGpu::channel2iconfig[channelId - 1]; // map N_diagrams to N_config <= N_diagrams configs (fix LHE color mismatch #856: see also #826, #852, #853)
       fptype targetamp[ncolor] = { 0 };
+      // NB (see #877): explicitly use 'icolC' rather than 'icol' to indicate that icolC uses C indexing in [0, N_colors-1]
       for( int icolC = 0; icolC < ncolor; icolC++ )
       {
         if( icolC == 0 )
@@ -192,6 +193,7 @@
         // NB (see #877): in the array channel2iconfig, the input index uses C indexing (channelId -1), the output index uses F indexing (iconfig)
         const unsigned int iconfig = mgOnGpu::channel2iconfig[channelId - 1]; // map N_diagrams to N_config <= N_diagrams configs (fix LHE color mismatch #856: see also #826, #852, #853)
         fptype_sv targetamp[ncolor] = { 0 };
+        // NB (see #877): explicitly use 'icolC' rather than 'icol' to indicate that icolC uses C indexing in [0, N_colors-1]
         for( int icolC = 0; icolC < ncolor; icolC++ )
         {
           if( icolC == 0 )
