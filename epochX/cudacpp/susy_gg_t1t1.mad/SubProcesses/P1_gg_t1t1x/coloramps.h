@@ -20,16 +20,16 @@ namespace mgOnGpu
   //   => this number (with F indexing as in ps/pdf output) is passed around as an API argument between cudacpp functions
   //   Note: the old API passes around a single CHANNEL_ID (and uses CHANNEL_ID=0 to indicate no-multichannel mode, but this is not used in coloramps.h),
   //   while the new API passes around an array of CHANNEL_ID's (and uses a NULL array pointer to indicate no-multichannel mode)
-  // - Channel number in C indexing: "channelIdC" = channelID - 1
-  //   => this number (with C indexing) is used as the index of the channelIdC_to_iconfig array below
+  // - Channel number in C indexing: "channelID - 1"
+  //   => this number (with C indexing) is used as the index of the channel2iconfig array below
   // - Config number ("iconfig" in C, ICONFIG in F) in [1, N_config]: all values are allowed (N_config <= N_diagrams distinct values)
   // - Config number in C indexing: "iconfigC" = iconfig - 1
   //   => this number (with C indexing) is used as the index of the icolamp array below
 
-  // Map channelIdC (in C indexing, i.e. channelId-1) to iconfig (in F indexing)
+  // Map channel to iconfig (e.g. "iconfig = channel2iconfig[channelId - 1]": input index uses C indexing, output index uses F indexing)
   // Note: iconfig=-1 indicates channels/diagrams with no associated iconfig for single-diagram enhancement in the MadEvent sampling algorithm (presence of 4-point interaction?)
   // This array has N_diagrams elements, but only N_config <= N_diagrams valid values (iconfig>0)
-  __device__ constexpr int channelIdC_to_iconfig[6] = { // note: a trailing comma in the initializer list is allowed
+  __device__ constexpr int channel2iconfig[6] = { // note: a trailing comma in the initializer list is allowed
     -1, // CHANNEL_ID=1 i.e. DIAGRAM=1 --> ICONFIG=-1 (diagram with no associated iconfig for single-diagram enhancement)
      1, // CHANNEL_ID=2 i.e. DIAGRAM=2 --> ICONFIG=1
      2, // CHANNEL_ID=3 i.e. DIAGRAM=3 --> ICONFIG=2
