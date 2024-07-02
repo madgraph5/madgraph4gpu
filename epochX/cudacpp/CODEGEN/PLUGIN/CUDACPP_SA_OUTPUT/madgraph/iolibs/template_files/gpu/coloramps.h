@@ -23,7 +23,7 @@ namespace mgOnGpu
   // - Channel number in C indexing: "channelID - 1"
   //   => this number (with C indexing) is used as the index of the channel2iconfig array below
   // - Config number ("iconfig" in C, ICONFIG in F) in [1, N_config]: all values are allowed (N_config <= N_diagrams distinct values)
-  // - Config number in C indexing: "iconfigC" = iconfig - 1
+  // - Config number in C indexing: "iconfig - 1"
   //   => this number (with C indexing) is used as the index of the icolamp array below
 
   // Map channel to iconfig (e.g. "iconfig = channel2iconfig[channelId - 1]": input index uses C indexing, output index uses F indexing)
@@ -33,7 +33,7 @@ namespace mgOnGpu
 %(channelc2iconfig_lines)s
   };
 
-  // Map iconfigC (in C indexing, i.e. iconfig-1) to the set of allowed colors
+  // Map iconfig to the mask of allowed colors (e.g. "colormask = icolamp[iconfig - 1]": input index uses C indexing)
   // This array has N_config <= N_diagrams elements
   __device__ constexpr bool icolamp[%(nb_channel)s][%(nb_color)s] = { // note: a trailing comma in the initializer list is allowed
 %(icolamp_lines)s
