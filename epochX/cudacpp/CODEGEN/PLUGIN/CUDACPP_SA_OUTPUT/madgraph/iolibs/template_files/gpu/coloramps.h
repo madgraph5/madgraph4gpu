@@ -36,7 +36,7 @@ namespace mgOnGpu
   // Map iconfig to the mask of allowed colors (e.g. "colormask = icolamp[iconfig - 1]": input index uses C indexing)
   // This array has N_config <= N_diagrams elements
   __device__ constexpr bool icolamp[%(nb_channel)s][%(nb_color)s] = { // note: a trailing comma in the initializer list is allowed
-%(icolamp_lines)s
+%(is_LC)s
   };
 
 }
