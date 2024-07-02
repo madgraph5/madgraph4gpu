@@ -10,8 +10,8 @@
       // *** COLOR CHOICE BELOW ***
       // Store the leading color flows for choice of color
       if( jamp2_sv ) // disable color choice if nullptr
-        for( int icolC = 0; icolC < ncolor; icolC++ )
-          jamp2_sv[ncolor * iParity + icolC] += cxabs2( jamp_sv[icolC] ); // may underflow #831
+        for( int icol = 0; icol < ncolor; icol++ )
+          jamp2_sv[ncolor * iParity + icol] += cxabs2( jamp_sv[icol] ); // may underflow #831
 
       // *** COLOR MATRIX BELOW ***
       // (This method used to be called %(process_class_name)s::matrix_%(proc_name)s(%(matrix_args)s)?)
