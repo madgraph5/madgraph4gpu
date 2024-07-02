@@ -1568,7 +1568,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
 
         if self.include_multi_channel: # NB unnecessary as edit_coloramps is not called otherwise...
             multi_channel = self.get_multi_channel_dictionary(self.matrix_elements[0].get('diagrams'), self.include_multi_channel)
-            replace_dict['icolamp_lines'] = self.get_icolamp_lines(multi_channel, self.matrix_elements[0], 1)
+            replace_dict['is_LC'] = self.get_icolamp_lines(multi_channel, self.matrix_elements[0], 1)
             replace_dict['nb_channel'] = len(multi_channel)
             replace_dict['nb_diag'] = max(config[0] for config in config_subproc_map)
             replace_dict['nb_color'] = max(1,len(self.matrix_elements[0].get('color_basis')))
