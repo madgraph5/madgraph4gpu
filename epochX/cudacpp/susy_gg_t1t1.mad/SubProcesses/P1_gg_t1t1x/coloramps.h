@@ -6,7 +6,12 @@
 #ifndef COLORAMPS_H
 #define COLORAMPS_H 1
 
-namespace mgOnGpu /* clang-format off */
+// Note: strictly speaking the check '#ifdef MGONGPU_SUPPORTS_MULTICHANNEL' is not needed here,
+// because coloramps.h is not included otherwise, but adding it does not harm and makes the code clearer
+
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL /* clang-format off */
+
+namespace mgOnGpu
 {
   // Summary of numbering and indexing conventions for the relevant concepts (see issue #826 and PR #852)
   // - Diagram number (no variable) in [1, N_diagrams]: all values are allowed (N_diagrams distinct values)
@@ -41,7 +46,9 @@ namespace mgOnGpu /* clang-format off */
     {  true, false }, // ICONFIG=3 <-- CHANNEL_ID=4
     { false,  true }, // ICONFIG=4 <-- CHANNEL_ID=5
     { false,  true }, // ICONFIG=5 <-- CHANNEL_ID=6
-  }; /* clang-format on */
+  };
 
 }
+#endif /* clang-format on */
+
 #endif // COLORAMPS_H
