@@ -62,7 +62,7 @@ generate g g > t t~ g g
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.005668163299560547 [0m
+[1;32mDEBUG: model prefixing  takes 0.005374431610107422 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -155,7 +155,7 @@ INFO: Please specify coupling orders to bypass this step.
 INFO: Trying coupling order WEIGHTED<=4: WEIGTHED IS QCD+2*QED 
 INFO: Trying process: g g > t t~ g g WEIGHTED<=4 @1  
 INFO: Process has 123 diagrams 
-1 processes with 123 diagrams generated in 0.157 s
+1 processes with 123 diagrams generated in 0.163 s
 Total: 1 processes with 123 diagrams
 output madevent_simd ../TMPOUT/CODEGEN_mad_gg_ttgg --hel_recycling=False --vector_size=32
 Load PLUGIN.CUDACPP_OUTPUT
@@ -178,7 +178,7 @@ INFO: Generating Helas calls for process: g g > t t~ g g WEIGHTED<=4 @1
 INFO: Processing color information for process: g g > t t~ g g @1 
 INFO: Creating files in directory P1_gg_ttxgg 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1151][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f015c815370> [1;30m[export_v4.py at line 6264][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f6c5567d370> [1;30m[export_v4.py at line 6264][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -202,15 +202,15 @@ INFO: Finding symmetric diagrams for subprocess group gg_ttxgg
 [1;32mDEBUG:  'get_icolamp_lines CPP',mapconfigs = [0m get_icolamp_lines CPP {1: [1], 2: [2], 3: [3], 4: [4], 5: [5], 6: [6], 7: [7], 8: [8], 9: [9], 10: [10], 11: [11], 12: [12], 13: [13], 14: [14], 15: [15], 16: [16], 17: [17], 18: [18], 19: [19], 20: [20], 21: [21], 22: [22], 23: [23], 24: [24], 25: [25], 26: [26], 27: [27], 28: [28], 29: [29], 30: [30], 31: [32], 32: [33], 33: [34], 34: [35], 35: [36], 36: [37], 37: [38], 38: [39], 39: [40], 40: [41], 41: [42], 42: [43], 43: [44], 44: [45], 45: [46], 46: [48], 47: [49], 48: [50], 49: [51], 50: [52], 51: [53], 52: [54], 53: [55], 54: [56], 55: [58], 56: [59], 57: [60], 58: [61], 59: [62], 60: [63], 61: [64], 62: [65], 63: [66], 64: [67], 65: [68], 66: [69], 67: [70], 68: [71], 69: [72], 70: [74], 71: [75], 72: [76], 73: [77], 74: [78], 75: [79], 76: [80], 77: [81], 78: [82], 79: [83], 80: [84], 81: [85], 82: [86], 83: [87], 84: [88], 85: [89], 86: [90], 87: [91], 88: [93], 89: [94], 90: [95], 91: [96], 92: [97], 93: [98], 94: [100], 95: [101], 96: [102], 97: [103], 98: [104], 99: [105], 100: [107], 101: [108], 102: [109], 103: [110], 104: [111], 105: [112]} [1;30m[export_cpp.py at line 1773][0m [0m
 [1;32mDEBUG:  multi_channel = [0m {1: [1], 2: [2], 3: [3], 4: [4], 5: [5], 6: [6], 7: [7], 8: [8], 9: [9], 10: [10], 11: [11], 12: [12], 13: [13], 14: [14], 15: [15], 16: [16], 17: [17], 18: [18], 19: [19], 20: [20], 21: [21], 22: [22], 23: [23], 24: [24], 25: [25], 26: [26], 27: [27], 28: [28], 29: [29], 30: [30], 31: [32], 32: [33], 33: [34], 34: [35], 35: [36], 36: [37], 37: [38], 38: [39], 39: [40], 40: [41], 41: [42], 42: [43], 43: [44], 44: [45], 45: [46], 46: [48], 47: [49], 48: [50], 49: [51], 50: [52], 51: [53], 52: [54], 53: [55], 54: [56], 55: [58], 56: [59], 57: [60], 58: [61], 59: [62], 60: [63], 61: [64], 62: [65], 63: [66], 64: [67], 65: [68], 66: [69], 67: [70], 68: [71], 69: [72], 70: [74], 71: [75], 72: [76], 73: [77], 74: [78], 75: [79], 76: [80], 77: [81], 78: [82], 79: [83], 80: [84], 81: [85], 82: [86], 83: [87], 84: [88], 85: [89], 86: [90], 87: [91], 88: [93], 89: [94], 90: [95], 91: [96], 92: [97], 93: [98], 94: [100], 95: [101], 96: [102], 97: [103], 98: [104], 99: [105], 100: [107], 101: [108], 102: [109], 103: [110], 104: [111], 105: [112]} [1;30m[model_handling.py at line 1575][0m [0m
 [1;32mDEBUG:  self.path, os.getcwd() = [0m . /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_gg_ttgg/SubProcesses/P1_gg_ttxgg [1;30m[model_handling.py at line 1576][0m [0m
-Generated helas calls for 1 subprocesses (123 diagrams) in 0.418 s
-Wrote files for 222 helas calls in 0.713 s
+Generated helas calls for 1 subprocesses (123 diagrams) in 0.442 s
+Wrote files for 222 helas calls in 0.719 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 routines[0m
 ALOHA: aloha creates VVVV3 routines[0m
 ALOHA: aloha creates VVVV4 routines[0m
-ALOHA: aloha creates 5 routines in  0.330 s
+ALOHA: aloha creates 5 routines in  0.334 s
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 205][0m [0m
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
@@ -218,7 +218,7 @@ ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 routines[0m
 ALOHA: aloha creates VVVV3 routines[0m
 ALOHA: aloha creates VVVV4 routines[0m
-ALOHA: aloha creates 10 routines in  0.312 s
+ALOHA: aloha creates 10 routines in  0.311 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -267,9 +267,9 @@ Type "launch" to generate events from this process, or see
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m3.801s
-user	0m3.510s
-sys	0m0.278s
+real	0m4.373s
+user	0m3.546s
+sys	0m0.277s
 Code generation completed in 4 seconds
 ************************************************************
 *                                                          *
