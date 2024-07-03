@@ -1566,15 +1566,21 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         replace_dict['channelc2iconfig_lines'] = '\n'.join(lines)
 
         if self.include_multi_channel: # NB unnecessary as edit_coloramps is not called otherwise...
-            multi_channel = self.get_multi_channel_dictionary(self.matrix_elements[0].get('diagrams'), self.include_multi_channel)
-            replace_dict['is_LC'] = self.get_icolamp_lines(multi_channel, self.matrix_elements[0], 1)
-            replace_dict['nb_channel'] = len(multi_channel)
+            #multi_channel = self.get_multi_channel_dictionary(self.matrix_elements[0].get('diagrams'), self.include_multi_channel)
+            
+            subproc_to_confdiag = {}
+            for config in config_subproc_map:
+                for subproc, diag in enumerate(config):
+                    try:
+                        subproc_to_confdiag[subproc].append(diag)
+                    except KeyError:
+                        subproc_to_confdiag[subproc] = [diag]
+            
+            replace_dict['is_LC'] = self.get_icolamp_lines(subproc_to_confdiag[0], self.matrix_elements[0], 1)
+            replace_dict['nb_channel'] = len(subproc_to_confdiag[0])
             replace_dict['nb_diag'] = max(config[0] for config in config_subproc_map)
             replace_dict['nb_color'] = max(1,len(self.matrix_elements[0].get('color_basis')))
             
-            misc.sprint(multi_channel)
-            misc.sprint(self.path, os.getcwd())
-            #raise Exception
             
             # AV extra formatting (e.g. gg_tt was "{{true,true};,{true,false};,{false,true};};")
             ###misc.sprint(replace_dict['is_LC'])
