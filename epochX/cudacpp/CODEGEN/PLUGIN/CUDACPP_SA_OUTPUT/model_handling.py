@@ -1768,9 +1768,13 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
                 #else:
                 #    self.proc_characteristic['single_color'] = False
         colamps = ijamp + 1
-        for iconfig, num_diag in enumerate(mapconfigs):  
-            # mapconfigs can be a list or a dictionary.
-            # In case of dictionary the num_diag will be the key of the dictionary.    
+        for iconfig, num_diag_key in enumerate(mapconfigs):  
+            # Variable mapconfigs can be a list or a dictionary.
+            # [AV fix bug #114: icolamp array is different in Fortran and CPP]
+            # OLD implementation: in case of dictionary, the num_diag will be the key of the dictionary.    
+            ###num_diag = num_diag_key
+            # NEW implementation: num_diag is the value of the dictionary, extracting the first list element, and adding +1 (F77/CPP indexing?)
+            num_diag = mapconfigs[num_diag_key][0]+1
             if num_diag == 0:
                 continue
             # List of True or False 
