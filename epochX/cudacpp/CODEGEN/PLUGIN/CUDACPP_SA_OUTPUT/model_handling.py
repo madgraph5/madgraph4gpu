@@ -1549,7 +1549,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         # but maybe not for something else.
         nb_diag = max(config[0] for config in config_subproc_map)
         import math
-        ndigits = str(int(math.log10(nb_diag))+1)
+        ndigits = str(int(math.log10(nb_diag))+1+1) # the additional +1 is for the -sign
         # Output which diagrams correspond ot a channel to get information for valid color
         lines = []
         for diag in range(1, nb_diag+1):
@@ -1559,15 +1559,15 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
                 iconfigf = diag_to_iconfig[diag]
                 iconfigftxt = '%i'%iconfigf
             else:
-                iconfigf = 0
-                iconfigftxt = 'None'
-            text = '    %(iconfigf)NNNNi, // CHANNEL_ID=%(channelidf)-NNNNi i.e. DIAGRAM=%(diag)-NNNNi --> ICONFIG=%(iconfigftxt)s'.replace('NNNN',ndigits)
+                iconfigf = -1
+                iconfigftxt = '-1 (diagram with no associated iconfig for single-diagram enhancement)'
+            text = '    %(iconfigf){0}i, // CHANNEL_ID=%(channelidf)-{0}i i.e. DIAGRAM=%(diag)-{0}i --> ICONFIG=%(iconfigftxt)s'.format(ndigits)
             lines.append(text % {'diag':diag, 'channelidf':channelidf, 'iconfigf':iconfigf, 'iconfigftxt':iconfigftxt})
         replace_dict['channelc2iconfig_lines'] = '\n'.join(lines)
 
         if self.include_multi_channel: # NB unnecessary as edit_coloramps is not called otherwise...
             multi_channel = self.get_multi_channel_dictionary(self.matrix_elements[0].get('diagrams'), self.include_multi_channel)
-            replace_dict['icolamp_lines'] = self.get_icolamp_lines(multi_channel, self.matrix_elements[0], 1)
+            replace_dict['is_LC'] = self.get_icolamp_lines(multi_channel, self.matrix_elements[0], 1)
             replace_dict['nb_channel'] = len(multi_channel)
             replace_dict['nb_diag'] = max(config[0] for config in config_subproc_map)
             replace_dict['nb_color'] = max(1,len(self.matrix_elements[0].get('color_basis')))
@@ -1577,14 +1577,14 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             #raise Exception
             
             # AV extra formatting (e.g. gg_tt was "{{true,true};,{true,false};,{false,true};};")
-            ###misc.sprint(replace_dict['icolamp_lines'])
-            split = replace_dict['icolamp_lines'].replace('{{','{').replace('};};','}').split(';,')
-            text=', // ICONFIG=%-NNNNi <-- CHANNEL_ID=%i'.replace('NNNN',ndigits)
+            ###misc.sprint(replace_dict['is_LC'])
+            split = replace_dict['is_LC'].replace('{{','{').replace('};};','}').split(';,')
+            text=', // ICONFIG=%-{0}i <-- CHANNEL_ID=%i'.format(ndigits)
             for iconfigc in range(len(split)): 
                 ###misc.sprint(split[iconfigc])
                 split[iconfigc] = '    ' + split[iconfigc].replace(',',', ').replace('true',' true').replace('{','{ ').replace('}',' }')
                 split[iconfigc] += text % (iconfigc+1, iconfig_to_diag[iconfigc+1])
-            replace_dict['icolamp_lines'] = '\n'.join(split)
+            replace_dict['is_LC'] = '\n'.join(split)
             ff.write(template % replace_dict)
         ff.close()
 

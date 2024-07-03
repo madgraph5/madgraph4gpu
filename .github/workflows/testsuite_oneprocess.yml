@@ -120,6 +120,9 @@ jobs:
         echo "Workflow PR number is ${{ steps.split.outputs.prnum }}"
         echo "Current directory is $(pwd)"
         echo "Current git commit is $(git log --oneline -n1 | cut -d' ' -f1)"
+        echo "=== START git log for current git commit"
+        git log -n1
+        echo "===  END  git log for current git commit"
         # See https://github.com/actions/cache/blob/main/tips-and-workarounds.md#force-deletion-of-caches-overriding-default-cache-eviction-policy
         gh extension install actions/gh-actions-cache
         REPO=${{ github.repository }}
@@ -189,7 +192,7 @@ jobs:
         echo "Workflow ref_name is ${{ github.ref_name }}"
         echo "Workflow PR number is ${{ steps.split.outputs.prnum }}"
         echo "Current directory is $(pwd)"
-        ###echo "Current git commit is $(git log --oneline -n1 | cut -d' ' -f1)"
+        echo "Current git commit is $(git log --oneline -n1 | cut -d' ' -f1)"
         # See https://github.com/actions/cache/blob/main/tips-and-workarounds.md#force-deletion-of-caches-overriding-default-cache-eviction-policy
         gh extension install actions/gh-actions-cache
         REPO=${{ github.repository }}
