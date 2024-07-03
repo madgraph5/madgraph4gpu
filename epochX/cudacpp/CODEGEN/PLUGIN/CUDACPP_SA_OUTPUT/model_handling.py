@@ -1734,6 +1734,50 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         if ret_lines != '' : ret_lines = '    // Reset jamp (reset color flows)\n' + ret_lines # AV THIS SHOULD NEVER HAPPEN!
         return ret_lines
 
+    # AV - overload the export_cpp.OneProcessExporterGPU method (copy as-is for the moment)
+    def get_icolamp_lines(self, mapconfigs, matrix_element, num_matrix_element):
+        """Return the ICOLAMP matrix, showing which JAMPs contribute to which configs (diagrams)."""
+        ret_list = []
+        booldict = {False: "false", True: "true"}
+        # Only want to include leading color flows, so find max_Nc
+        color_basis = matrix_element.get('color_basis')
+        if not color_basis:
+            # No color, so only one color factor. Simply write a ".true." 
+            # for each config (i.e., each diagram with only 3 particle
+            # vertices
+            text = " {{%s}}" % ','.join(['true']* len(mapconfigs))
+            return text
+        # There is a color basis - create a list showing which JAMPs have
+        # contributions to which configs
+        # We don't want to include the power of Nc's which come from the potential
+        # loop color trace (i.e. in the case of a closed fermion loop for example)
+        # so we subtract it here when computing max_Nc
+        max_Nc = max(sum([[(v[4]-v[5]) for v in val] for val in color_basis.values()],[]))
+        # Create dictionary between diagram number and JAMP number
+        diag_jamp = {}
+        for ijamp, col_basis_elem in \
+                enumerate(sorted(matrix_element.get('color_basis').keys())):
+            for diag_tuple in matrix_element.get('color_basis')[col_basis_elem]:
+                # Only use color flows with Nc == max_Nc. However, notice that
+                # we don't want to include the Nc power coming from the loop
+                # in this counting.
+                if (diag_tuple[4]-diag_tuple[5]) == max_Nc:
+                    diag_num = diag_tuple[0] + 1
+                    # Add this JAMP number to this diag_num
+                    diag_jamp[diag_num] = diag_jamp.setdefault(diag_num, []) + [ijamp+1]
+                #else:
+                #    self.proc_characteristic['single_color'] = False
+        colamps = ijamp + 1
+        for iconfig, num_diag in enumerate(mapconfigs):  
+            # mapconfigs can be a list or a dictionary.
+            # In case of dictionary the num_diag will be the key of the dictionary.    
+            if num_diag == 0:
+                continue
+            # List of True or False 
+            bool_list = [(i + 1 in diag_jamp[num_diag]) for i in range(colamps)]
+            # Add line
+            ret_list.append("{%s};" % ','.join(["%s" % booldict[b] for b in bool_list]))
+        return '{%s};' % ','.join(ret_list)
 
 #------------------------------------------------------------------------------------
 
