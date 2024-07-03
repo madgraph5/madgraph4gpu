@@ -536,6 +536,8 @@ if [ $BYPASS_KNOWN_ISSUES -eq 1 ] && [ $status -ne 0 ]; then
   if [ "$stage" == "tmad_test" ]; then
     # No cross section in susy_gg_t1t1 (#826)
     ###if [ "${proc%.mad}" == "susy_gg_t1t1" ]; then bypassIssue "No cross section in ${proc%.mad} for FPTYPE=d,f,m (#826)"; fi
+    # LHE color mismatch in gg_ttgg for iconfig=104 (#856)
+    ###if [ "${proc%.mad}" == "gg_ttgg" ]; then bypassIssue "LHE color mismatch for iconfig=104 in ${proc%.mad} for FPTYPE=d,f,m (#856)"; fi
     # Cross section mismatch in pp_tt012j for P2_gu_ttxgu (#872)
     ###if [ "${proc%.mad}" == "pp_tt012j" ]; then bypassIssue "Cross section mismatch for P2_gu_ttxgu in ${proc%.mad} for FPTYPE=d,f,m (#856)"; fi
     # Final printout
