@@ -314,20 +314,24 @@ export CXXNAMESUFFIX
 # Dependency on test directory
 # Within the madgraph4gpu git repo: by default use a common gtest installation in <topdir>/test (optionally use an external or local gtest)
 # Outside the madgraph4gpu git repo: by default do not build the tests (optionally use an external or local gtest)
+# Do not build the tests if USEGTEST is equal to 0 (default inside launch_plugin.py, see https://github.com/madgraph5/madgraph4gpu/issues/878)
 ###GTEST_ROOT = /cvmfs/sft.cern.ch/lcg/releases/gtest/1.11.0-21e8c/x86_64-centos8-gcc11-opt/# example of an external gtest installation
 ###LOCALGTEST = yes# comment this out (or use make LOCALGTEST=yes) to build tests using a local gtest installation
 TESTDIRCOMMON = ../../../../../test
 TESTDIRLOCAL = ../../test
-ifneq ($(wildcard $(GTEST_ROOT)),)
-  TESTDIR =
+ifeq ($(USEGTEST),0)
+  TESTDIR=
+  GTEST_ROOT=
+else ifneq ($(wildcard $(GTEST_ROOT)),)
+  TESTDIR=
 else ifneq ($(LOCALGTEST),)
   TESTDIR=$(TESTDIRLOCAL)
-  GTEST_ROOT = $(TESTDIR)/googletest/install$(CXXNAMESUFFIX)
+  GTEST_ROOT=$(TESTDIR)/googletest/install$(CXXNAMESUFFIX)
 else ifneq ($(wildcard ../../../../../epochX/cudacpp/CODEGEN),)
-  TESTDIR = $(TESTDIRCOMMON)
-  GTEST_ROOT = $(TESTDIR)/googletest/install$(CXXNAMESUFFIX)
+  TESTDIR=$(TESTDIRCOMMON)
+  GTEST_ROOT= $(TESTDIR)/googletest/install$(CXXNAMESUFFIX)
 else
-  TESTDIR =
+  TESTDIR=
 endif
 ifneq ($(GTEST_ROOT),)
   GTESTLIBDIR = $(GTEST_ROOT)/lib64/
