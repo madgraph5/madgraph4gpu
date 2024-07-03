@@ -61,7 +61,7 @@ set zerowidth_tchannel F
 define j = p
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.005822896957397461 [0m
+[1;32mDEBUG: model prefixing  takes 0.005620479583740234 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -378,7 +378,7 @@ INFO: Process s~ u~ > t t~ u~ s~ added to mirror process u~ s~ > t t~ u~ s~
 INFO: Process s~ c~ > t t~ c~ s~ added to mirror process c~ s~ > t t~ c~ s~ 
 INFO: Process s~ d~ > t t~ d~ s~ added to mirror process d~ s~ > t t~ d~ s~ 
 INFO: Crossed process found for s~ s~ > t t~ s~ s~, reuse diagrams. 
-65 processes with 1119 diagrams generated in 1.812 s
+65 processes with 1119 diagrams generated in 1.825 s
 Total: 83 processes with 1202 diagrams
 output madevent_simd ../TMPOUT/CODEGEN_mad_pp_tt012j --hel_recycling=False --vector_size=32
 Load PLUGIN.CUDACPP_OUTPUT
@@ -500,7 +500,7 @@ INFO: Combined process d d~ > t t~ WEIGHTED<=2 with process u u~ > t t~ WEIGHTED
 INFO: Combined process s s~ > t t~ WEIGHTED<=2 with process u u~ > t t~ WEIGHTED<=2 
 INFO: Creating files in directory P2_gg_ttxgg 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1151][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f6fe3203430> [1;30m[export_v4.py at line 6261][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f2414cf4430> [1;30m[export_v4.py at line 6261][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -523,7 +523,7 @@ INFO: Finding symmetric diagrams for subprocess group gg_ttxgg
 [1;32mDEBUG:  self.path, os.getcwd() = [0m . /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_gg_ttxgg [1;30m[model_handling.py at line 1576][0m [0m
 INFO: Creating files in directory P2_gg_ttxuux 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1151][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f6fe335f250> [1;30m[export_v4.py at line 6261][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f2414e65250> [1;30m[export_v4.py at line 6261][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -546,7 +546,7 @@ INFO: Finding symmetric diagrams for subprocess group gg_ttxuux
 [1;32mDEBUG:  self.path, os.getcwd() = [0m . /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_gg_ttxuux [1;30m[model_handling.py at line 1576][0m [0m
 INFO: Creating files in directory P2_gu_ttxgu 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1151][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f6fe34f6b20> [1;30m[export_v4.py at line 6261][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f2414fe7b20> [1;30m[export_v4.py at line 6261][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -569,7 +569,7 @@ INFO: Finding symmetric diagrams for subprocess group gu_ttxgu
 [1;32mDEBUG:  self.path, os.getcwd() = [0m . /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_gu_ttxgu [1;30m[model_handling.py at line 1576][0m [0m
 INFO: Creating files in directory P2_gux_ttxgux 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1151][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f6fe354fd60> [1;30m[export_v4.py at line 6261][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f2415040d60> [1;30m[export_v4.py at line 6261][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -592,7 +592,7 @@ INFO: Finding symmetric diagrams for subprocess group gux_ttxgux
 [1;32mDEBUG:  self.path, os.getcwd() = [0m . /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_gux_ttxgux [1;30m[model_handling.py at line 1576][0m [0m
 INFO: Creating files in directory P2_uux_ttxgg 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1151][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f6fe38bf4f0> [1;30m[export_v4.py at line 6261][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f24153b04f0> [1;30m[export_v4.py at line 6261][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -615,7 +615,7 @@ INFO: Finding symmetric diagrams for subprocess group uux_ttxgg
 [1;32mDEBUG:  self.path, os.getcwd() = [0m . /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_uux_ttxgg [1;30m[model_handling.py at line 1576][0m [0m
 INFO: Creating files in directory P1_gg_ttxg 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1151][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f6fe38bf4f0> [1;30m[export_v4.py at line 6261][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f24153b04f0> [1;30m[export_v4.py at line 6261][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -638,7 +638,7 @@ INFO: Finding symmetric diagrams for subprocess group gg_ttxg
 [1;32mDEBUG:  self.path, os.getcwd() = [0m . /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P1_gg_ttxg [1;30m[model_handling.py at line 1576][0m [0m
 INFO: Creating files in directory P2_uu_ttxuu 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1151][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f6fe34d8310> [1;30m[export_v4.py at line 6261][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f2414fc8310> [1;30m[export_v4.py at line 6261][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -661,7 +661,7 @@ INFO: Finding symmetric diagrams for subprocess group uu_ttxuu
 [1;32mDEBUG:  self.path, os.getcwd() = [0m . /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_uu_ttxuu [1;30m[model_handling.py at line 1576][0m [0m
 INFO: Creating files in directory P2_uux_ttxuux 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1151][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f6fe34d8820> [1;30m[export_v4.py at line 6261][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f2414fc8820> [1;30m[export_v4.py at line 6261][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -684,7 +684,7 @@ INFO: Finding symmetric diagrams for subprocess group uux_ttxuux
 [1;32mDEBUG:  self.path, os.getcwd() = [0m . /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_uux_ttxuux [1;30m[model_handling.py at line 1576][0m [0m
 INFO: Creating files in directory P2_uxux_ttxuxux 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1151][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f6fe35009a0> [1;30m[export_v4.py at line 6261][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f2414ff19a0> [1;30m[export_v4.py at line 6261][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -707,7 +707,7 @@ INFO: Finding symmetric diagrams for subprocess group uxux_ttxuxux
 [1;32mDEBUG:  self.path, os.getcwd() = [0m . /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_uxux_ttxuxux [1;30m[model_handling.py at line 1576][0m [0m
 INFO: Creating files in directory P2_uc_ttxuc 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1151][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f6fe350ce50> [1;30m[export_v4.py at line 6261][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f2414ffee50> [1;30m[export_v4.py at line 6261][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -730,7 +730,7 @@ INFO: Finding symmetric diagrams for subprocess group uc_ttxuc
 [1;32mDEBUG:  self.path, os.getcwd() = [0m . /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_uc_ttxuc [1;30m[model_handling.py at line 1576][0m [0m
 INFO: Creating files in directory P2_uux_ttxccx 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1151][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f6fe34e49d0> [1;30m[export_v4.py at line 6261][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f2414fd59d0> [1;30m[export_v4.py at line 6261][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -753,7 +753,7 @@ INFO: Finding symmetric diagrams for subprocess group uux_ttxccx
 [1;32mDEBUG:  self.path, os.getcwd() = [0m . /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_uux_ttxccx [1;30m[model_handling.py at line 1576][0m [0m
 INFO: Creating files in directory P2_ucx_ttxucx 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1151][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f6fe354f4f0> [1;30m[export_v4.py at line 6261][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f24150404f0> [1;30m[export_v4.py at line 6261][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -776,7 +776,7 @@ INFO: Finding symmetric diagrams for subprocess group ucx_ttxucx
 [1;32mDEBUG:  self.path, os.getcwd() = [0m . /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_ucx_ttxucx [1;30m[model_handling.py at line 1576][0m [0m
 INFO: Creating files in directory P2_uxcx_ttxuxcx 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1151][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f6fe34e46d0> [1;30m[export_v4.py at line 6261][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f2414fd56d0> [1;30m[export_v4.py at line 6261][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -799,7 +799,7 @@ INFO: Finding symmetric diagrams for subprocess group uxcx_ttxuxcx
 [1;32mDEBUG:  self.path, os.getcwd() = [0m . /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_uxcx_ttxuxcx [1;30m[model_handling.py at line 1576][0m [0m
 INFO: Creating files in directory P1_gu_ttxu 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1151][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f6fe31e58b0> [1;30m[export_v4.py at line 6261][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f2414cd68b0> [1;30m[export_v4.py at line 6261][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -822,7 +822,7 @@ INFO: Finding symmetric diagrams for subprocess group gu_ttxu
 [1;32mDEBUG:  self.path, os.getcwd() = [0m . /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P1_gu_ttxu [1;30m[model_handling.py at line 1576][0m [0m
 INFO: Creating files in directory P1_gux_ttxux 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1151][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f6fe34ddbe0> [1;30m[export_v4.py at line 6261][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f2414fcebe0> [1;30m[export_v4.py at line 6261][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -845,7 +845,7 @@ INFO: Finding symmetric diagrams for subprocess group gux_ttxux
 [1;32mDEBUG:  self.path, os.getcwd() = [0m . /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P1_gux_ttxux [1;30m[model_handling.py at line 1576][0m [0m
 INFO: Creating files in directory P1_uux_ttxg 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1151][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f6fe3513d90> [1;30m[export_v4.py at line 6261][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f2415004d90> [1;30m[export_v4.py at line 6261][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -868,7 +868,7 @@ INFO: Finding symmetric diagrams for subprocess group uux_ttxg
 [1;32mDEBUG:  self.path, os.getcwd() = [0m . /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P1_uux_ttxg [1;30m[model_handling.py at line 1576][0m [0m
 INFO: Creating files in directory P0_gg_ttx 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1151][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f6fe3555730> [1;30m[export_v4.py at line 6261][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f2415046730> [1;30m[export_v4.py at line 6261][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -891,7 +891,7 @@ INFO: Finding symmetric diagrams for subprocess group gg_ttx
 [1;32mDEBUG:  self.path, os.getcwd() = [0m . /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P0_gg_ttx [1;30m[model_handling.py at line 1576][0m [0m
 INFO: Creating files in directory P0_uux_ttx 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1151][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f6fe3555af0> [1;30m[export_v4.py at line 6261][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f2415046af0> [1;30m[export_v4.py at line 6261][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -912,15 +912,15 @@ INFO: Finding symmetric diagrams for subprocess group uux_ttx
 [1;32mDEBUG:  diag_to_iconfig = [0m {1: 1} [1;30m[model_handling.py at line 1545][0m [0m
 [1;32mDEBUG:  multi_channel = [0m {1: [0]} [1;30m[model_handling.py at line 1575][0m [0m
 [1;32mDEBUG:  self.path, os.getcwd() = [0m . /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P0_uux_ttx [1;30m[model_handling.py at line 1576][0m [0m
-Generated helas calls for 18 subprocesses (372 diagrams) in 1.277 s
-Wrote files for 810 helas calls in 3.611 s
+Generated helas calls for 18 subprocesses (372 diagrams) in 1.291 s
+Wrote files for 810 helas calls in 4.623 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 routines[0m
 ALOHA: aloha creates VVVV3 routines[0m
 ALOHA: aloha creates VVVV4 routines[0m
-ALOHA: aloha creates 5 routines in  0.334 s
+ALOHA: aloha creates 5 routines in  0.338 s
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 205][0m [0m
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
@@ -928,7 +928,7 @@ ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 routines[0m
 ALOHA: aloha creates VVVV3 routines[0m
 ALOHA: aloha creates VVVV4 routines[0m
-ALOHA: aloha creates 10 routines in  0.311 s
+ALOHA: aloha creates 10 routines in  0.313 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -1139,10 +1139,10 @@ Type "launch" to generate events from this process, or see
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m14.263s
-user	0m10.361s
-sys	0m0.844s
-Code generation completed in 15 seconds
+real	0m12.631s
+user	0m10.323s
+sys	0m0.922s
+Code generation completed in 13 seconds
 ************************************************************
 *                                                          *
 *                      W E L C O M E to                    *
