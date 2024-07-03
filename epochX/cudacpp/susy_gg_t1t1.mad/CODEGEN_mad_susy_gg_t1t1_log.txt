@@ -554,7 +554,7 @@ INFO: Please specify coupling orders to bypass this step.
 INFO: Trying coupling order WEIGHTED<=2: WEIGTHED IS QCD+2*QED 
 INFO: Trying process: g g > t1 t1~ WEIGHTED<=2 @1  
 INFO: Process has 6 diagrams 
-1 processes with 6 diagrams generated in 0.121 s
+1 processes with 6 diagrams generated in 0.123 s
 Total: 1 processes with 6 diagrams
 output madevent_simd ../TMPOUT/CODEGEN_mad_susy_gg_t1t1 --hel_recycling=False --vector_size=32
 Load PLUGIN.CUDACPP_OUTPUT
@@ -563,7 +563,7 @@ It has been validated for the last time with version: 3.5.2[0m
 [1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
 [1mAddition matrix-element will be done with PLUGIN: CUDACPP_OUTPUT[0m
 [1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
-[1;32mDEBUG:  cformat = [0m standalone_simd [1;30m[export_cpp.py at line 3077][0m [0m
+[1;32mDEBUG:  cformat = [0m standalone_simd [1;30m[export_cpp.py at line 3071][0m [0m
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter) [1;30m[output.py at line 162][0m [0m
 INFO: initialize a new directory: CODEGEN_mad_susy_gg_t1t1 
 INFO: remove old information in CODEGEN_mad_susy_gg_t1t1 
@@ -577,43 +577,40 @@ INFO: Generating Helas calls for process: g g > t1 t1~ WEIGHTED<=2 @1
 INFO: Processing color information for process: g g > t1 t1~ @1 
 INFO: Creating files in directory P1_gg_t1t1x 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1151][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7fa4a2932af0> [1;30m[export_v4.py at line 6264][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7fecba2b0100> [1;30m[export_v4.py at line 6261][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
-[1;32mDEBUG:  'get_icolamp_lines CPP',mapconfigs = [0m get_icolamp_lines CPP {1: [1], 2: [2], 3: [3], 4: [4], 5: [5]} [1;30m[export_cpp.py at line 1773][0m [0m
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
 [1;32mDEBUG:  proc_id = [0m 1 [1;30m[export_cpp.py at line 710][0m [0m
 [1;32mDEBUG:  config_map = [0m [0, 1, 2, 3, 4, 5] [1;30m[export_cpp.py at line 711][0m [0m
 [1;32mDEBUG:  subproc_number = [0m 0 [1;30m[export_cpp.py at line 712][0m [0m
 [1;32mDEBUG:  Done [1;30m[export_cpp.py at line 713][0m [0m
-[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1874][0m [0m
-[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1874][0m [0m
-[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1874][0m [0m
-[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1874][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
 INFO: Generating Feynman diagrams for Process: g g > t1 t1~ WEIGHTED<=2 @1 
-[1;32mDEBUG:  'get_icolamp_lines F77',mapconfigs = [0m get_icolamp_lines F77 [2, 3, 4, 5, 6] [1;30m[export_v4.py at line 1189][0m [0m
 INFO: Finding symmetric diagrams for subprocess group gg_t1t1x 
-[1;32mDEBUG:  os.getcwd() = [0m /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_susy_gg_t1t1/SubProcesses/P1_gg_t1t1x [1;30m[export_v4.py at line 6441][0m [0m
+[1;32mDEBUG:  os.getcwd() = [0m /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_susy_gg_t1t1/SubProcesses/P1_gg_t1t1x [1;30m[export_v4.py at line 6438][0m [0m
 [1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 5 [1;30m[model_handling.py at line 1519][0m [0m
 [1;32mDEBUG:  iconfig_to_diag = [0m {1: 2, 2: 3, 3: 4, 4: 5, 5: 6} [1;30m[model_handling.py at line 1544][0m [0m
 [1;32mDEBUG:  diag_to_iconfig = [0m {2: 1, 3: 2, 4: 3, 5: 4, 6: 5} [1;30m[model_handling.py at line 1545][0m [0m
-[1;32mDEBUG:  'get_icolamp_lines CPP',mapconfigs = [0m get_icolamp_lines CPP {1: [1], 2: [2], 3: [3], 4: [4], 5: [5]} [1;30m[export_cpp.py at line 1773][0m [0m
 [1;32mDEBUG:  multi_channel = [0m {1: [1], 2: [2], 3: [3], 4: [4], 5: [5]} [1;30m[model_handling.py at line 1575][0m [0m
 [1;32mDEBUG:  self.path, os.getcwd() = [0m . /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_susy_gg_t1t1/SubProcesses/P1_gg_t1t1x [1;30m[model_handling.py at line 1576][0m [0m
 Generated helas calls for 1 subprocesses (6 diagrams) in 0.008 s
-Wrote files for 16 helas calls in 0.137 s
+Wrote files for 16 helas calls in 0.130 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
 ALOHA: aloha creates VSS1 routines[0m
 ALOHA: aloha creates VVSS1 routines[0m
-ALOHA: aloha creates 3 routines in  0.214 s
+ALOHA: aloha creates 3 routines in  0.184 s
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 205][0m [0m
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
 ALOHA: aloha creates VSS1 routines[0m
 ALOHA: aloha creates VVSS1 routines[0m
-ALOHA: aloha creates 6 routines in  0.181 s
+ALOHA: aloha creates 6 routines in  0.188 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> VSS1
 <class 'aloha.create_aloha.AbstractRoutine'> VSS1
@@ -655,10 +652,10 @@ Type "launch" to generate events from this process, or see
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m3.054s
-user	0m2.734s
-sys	0m0.268s
-Code generation completed in 4 seconds
+real	0m6.763s
+user	0m2.726s
+sys	0m0.305s
+Code generation completed in 6 seconds
 ************************************************************
 *                                                          *
 *                      W E L C O M E to                    *

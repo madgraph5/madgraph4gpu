@@ -561,7 +561,7 @@ Load PLUGIN.CUDACPP_OUTPUT
 [1;34mPlugin PLUGIN.CUDACPP_OUTPUT has marked as NOT being validated with this version: 3.5.3_lo_vect. 
 It has been validated for the last time with version: 3.5.2[0m
 [1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
-[1;32mDEBUG:  cformat = [0m plugin [1;30m[export_cpp.py at line 3077][0m [0m
+[1;32mDEBUG:  cformat = [0m plugin [1;30m[export_cpp.py at line 3071][0m [0m
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter) [1;30m[output.py at line 162][0m [0m
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.copy_template (initialise the directory) [1;30m[output.py at line 167][0m [0m
 INFO: Creating subdirectories in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gg_tt 
@@ -582,7 +582,7 @@ Generated helas calls for 1 subprocesses (3 diagrams) in 0.006 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
 ALOHA: aloha creates FFV1 routines[0m
-ALOHA: aloha creates 2 routines in  0.135 s
+ALOHA: aloha creates 2 routines in  0.138 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -597,7 +597,7 @@ INFO: Created files Parameters_MSSM_SLHA2.h and Parameters_MSSM_SLHA2.cc in dire
 INFO: /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gg_tt/src/. and /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gg_tt/src/. 
 quit
 
-real	0m1.455s
-user	0m1.200s
-sys	0m0.055s
-Code generation completed in 2 seconds
+real	0m4.279s
+user	0m1.207s
+sys	0m0.067s
+Code generation completed in 4 seconds
