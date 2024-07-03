@@ -1032,7 +1032,7 @@ namespace mg5amcCpu
     // Event-by-event random choice of color #402
     if( channelIds[0] != 0 ) // no event-by-event choice of color if channelId == 0 (fix FPE #783)
     {
-      uint channelIdC = CID_ACCESS::kernelAccessConst( channelIds ) - 1; // coloramps.h uses the C array indexing starting at 0
+      const unsigned int iconfigC = mgOnGpu::channelId_to_iconfigC[CID_ACCESS::kernelAccessConst( channelIds )]; // coloramps.h uses a channel ordering not the diagram id
       fptype targetamp[ncolor] = { 0 };
       for( int icolC = 0; icolC < ncolor; icolC++ )
       {
@@ -1040,7 +1040,7 @@ namespace mg5amcCpu
           targetamp[icolC] = 0;
         else
           targetamp[icolC] = targetamp[icolC - 1];
-        if( mgOnGpu::icolamp[channelIdC][icolC] ) targetamp[icolC] += jamp2_sv[icolC];
+        if( mgOnGpu::icolamp[iconfigC][icolC] ) targetamp[icolC] += jamp2_sv[icolC];
       }
       //printf( "sigmaKin: ievt=%4d rndcol=%f\n", ievt, allrndcol[ievt] );
       for( int icolC = 0; icolC < ncolor; icolC++ )
@@ -1075,7 +1075,7 @@ namespace mg5amcCpu
     // - firstprivate: give each thread its own copy, and initialise with value from outside
 #define _OMPLIST0 allcouplings, allMEs, allmomenta, allrndcol, allrndhel, allselcol, allselhel, cGoodHel, cNGoodHel, npagV2
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-#define _OMPLIST1 , allDenominators, allNumerators, channelIds, mgOnGpu::icolamp
+#define _OMPLIST1 , allDenominators, allNumerators, channelIds, mgOnGpu::icolamp, mgOnGpu::channelId_to_iconfigC
 #else
 #define _OMPLIST1
 #endif
@@ -1147,7 +1147,7 @@ namespace mg5amcCpu
       // Event-by-event random choice of color #402
       if( channelIds[0] != 0 ) // no event-by-event choice of color if channelId == 0 (fix FPE #783)
       {
-        uint_sv channelIdC = CID_ACCESS::kernelAccessConst( channelIds ) - 1; // coloramps.h uses the C array indexing starting at 0
+        uint_sv ichannelIds = CID_ACCESS::kernelAccessConst( channelIds ); // coloramps.h uses a channel ordering not the diagram id
         fptype_sv targetamp[ncolor] = { 0 };
         for( int icolC = 0; icolC < ncolor; icolC++ )
         {
@@ -1157,12 +1157,17 @@ namespace mg5amcCpu
             targetamp[icolC] = targetamp[icolC - 1];
 #ifdef MGONGPU_CPPSIMD
           for( int i = 0; i < neppV; ++i )
-            if( mgOnGpu::icolamp[channelIdC[i]][icolC] ) targetamp[icolC][i] += jamp2_sv[icolC][i];
+          {
+            const unsigned int iconfigC = mgOnGpu::channelId_to_iconfigC[ichannelIds[i]];
+            if( mgOnGpu::icolamp[iconfigC][icolC] ) targetamp[icolC][i] += jamp2_sv[icolC][i];
+          }
 #else
-          if( mgOnGpu::icolamp[channelIdC][icolC] ) targetamp[icolC] += jamp2_sv[icolC];
+          const unsigned int iconfigC = mgOnGpu::channelId_to_iconfigC[CID_ACCESS::kernelAccessConst( channelIds )];
+          if( mgOnGpu::icolamp[iconfigC][icolC] ) targetamp[icolC] += jamp2_sv[icolC];
 #endif
         }
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+        const unsigned int iconfigC = mgOnGpu::channelId_to_iconfigC[channelId]; // coloramps.h uses a channel ordering not the diagram id
         fptype_sv targetamp2[ncolor] = { 0 };
         for( int icolC = 0; icolC < ncolor; icolC++ )
         {
@@ -1170,8 +1175,16 @@ namespace mg5amcCpu
             targetamp2[icolC] = fptype_sv{ 0 };
           else
             targetamp2[icolC] = targetamp2[icolC - 1];
+#ifdef MGONGPU_CPPSIMD
           for( int i = 0; i < neppV; ++i )
-            if( mgOnGpu::icolamp[channelIdC[i]][icolC] ) targetamp2[icolC][i] += jamp2_sv[ncolor + icolC][i];
+          {
+            const unsigned int iconfigC = mgOnGpu::channelId_to_iconfigC[ichannelIds[i]];
+            if( mgOnGpu::icolamp[iconfigC][icolC] ) targetamp2[icolC][i] += jamp2_sv[ncolor + icolC][i];
+          }
+#else
+          const unsigned int iconfigC = mgOnGpu::channelId_to_iconfigC[CID_ACCESS::kernelAccessConst( channelIds )];
+          if( mgOnGpu::icolamp[iconfigC][icolC] ) targetamp2[icolC] += jamp2_sv[ncolor + icolC];
+#endif
         }
 #endif
         for( int ieppV = 0; ieppV < neppV; ++ieppV )
