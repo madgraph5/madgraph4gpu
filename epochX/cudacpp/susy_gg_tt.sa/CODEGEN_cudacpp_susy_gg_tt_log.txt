@@ -561,7 +561,7 @@ Load PLUGIN.CUDACPP_OUTPUT
 [1;34mPlugin PLUGIN.CUDACPP_OUTPUT has marked as NOT being validated with this version: 3.5.3_lo_vect. 
 It has been validated for the last time with version: 3.5.2[0m
 [1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
-[1;32mDEBUG:  cformat = [0m plugin [1;30m[export_cpp.py at line 3071][0m [0m
+[1;32mDEBUG:  cformat = [0m plugin [1;30m[export_cpp.py at line 3070][0m [0m
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter) [1;30m[output.py at line 162][0m [0m
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.copy_template (initialise the directory) [1;30m[output.py at line 167][0m [0m
 INFO: Creating subdirectories in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gg_tt 
@@ -597,7 +597,7 @@ INFO: Created files Parameters_MSSM_SLHA2.h and Parameters_MSSM_SLHA2.cc in dire
 INFO: /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gg_tt/src/. and /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gg_tt/src/. 
 quit
 
-real	0m1.258s
-user	0m1.183s
-sys	0m0.069s
-Code generation completed in 2 seconds
+real	0m1.585s
+user	0m1.186s
+sys	0m0.068s
+Code generation completed in 1 seconds

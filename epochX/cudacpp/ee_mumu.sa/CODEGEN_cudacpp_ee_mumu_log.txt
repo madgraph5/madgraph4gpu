@@ -62,7 +62,7 @@ generate e+ e- > mu+ mu-
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.005700588226318359 [0m
+[1;32mDEBUG: model prefixing  takes 0.005326509475708008 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -154,14 +154,14 @@ INFO: Checking for minimal orders which gives processes.
 INFO: Please specify coupling orders to bypass this step. 
 INFO: Trying process: e+ e- > mu+ mu- WEIGHTED<=4 @1  
 INFO: Process has 2 diagrams 
-1 processes with 2 diagrams generated in 0.005 s
+1 processes with 2 diagrams generated in 0.004 s
 Total: 1 processes with 2 diagrams
 output standalone_cudacpp ../TMPOUT/CODEGEN_cudacpp_ee_mumu
 Load PLUGIN.CUDACPP_OUTPUT
 [1;34mPlugin PLUGIN.CUDACPP_OUTPUT has marked as NOT being validated with this version: 3.5.3_lo_vect. 
 It has been validated for the last time with version: 3.5.2[0m
 [1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
-[1;32mDEBUG:  cformat = [0m plugin [1;30m[export_cpp.py at line 3071][0m [0m
+[1;32mDEBUG:  cformat = [0m plugin [1;30m[export_cpp.py at line 3070][0m [0m
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter) [1;30m[output.py at line 162][0m [0m
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.copy_template (initialise the directory) [1;30m[output.py at line 167][0m [0m
 INFO: Creating subdirectories in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_ee_mumu 
@@ -203,7 +203,7 @@ INFO: Created files Parameters_sm.h and Parameters_sm.cc in directory
 INFO: /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_ee_mumu/src/. and /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_ee_mumu/src/. 
 quit
 
-real	0m0.760s
-user	0m0.599s
-sys	0m0.049s
-Code generation completed in 1 seconds
+real	0m0.646s
+user	0m0.590s
+sys	0m0.051s
+Code generation completed in 0 seconds

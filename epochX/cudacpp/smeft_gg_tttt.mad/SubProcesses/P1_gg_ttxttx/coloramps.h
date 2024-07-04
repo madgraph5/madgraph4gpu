@@ -173,10 +173,10 @@ namespace mgOnGpu
     { false,  true, false, false, false, false,  true, false, false, false, false, false }, // ICONFIG=64  <-- CHANNEL_ID=64
     { false, false, false,  true, false, false, false, false, false, false, false, false }, // ICONFIG=65  <-- CHANNEL_ID=65
     { false, false, false,  true,  true, false, false, false, false, false, false, false }, // ICONFIG=66  <-- CHANNEL_ID=66
-    { false,  true,  true, false, false,  true,  true, false, false,  true,  true, false }, // ICONFIG=67  <-- CHANNEL_ID=68
-    { false,  true, false, false, false,  true,  true, false, false, false,  true, false }, // ICONFIG=68  <-- CHANNEL_ID=69
-    { false, false,  true, false, false,  true,  true, false, false,  true, false, false }, // ICONFIG=69  <-- CHANNEL_ID=71
-    {  true, false, false,  true,  true, false, false,  true,  true, false, false,  true }, // ICONFIG=70  <-- CHANNEL_ID=72
+    { false,  true, false, false, false,  true,  true, false, false, false,  true, false }, // ICONFIG=67  <-- CHANNEL_ID=68
+    { false, false,  true, false, false,  true,  true, false, false,  true, false, false }, // ICONFIG=68  <-- CHANNEL_ID=69
+    {  true, false, false, false,  true, false, false,  true, false, false, false,  true }, // ICONFIG=69  <-- CHANNEL_ID=71
+    { false, false, false,  true,  true, false, false,  true,  true, false, false, false }, // ICONFIG=70  <-- CHANNEL_ID=72
   };
 
 }
