@@ -1,7 +1,7 @@
 // Copyright (C) 2020-2024 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: A. Valassi (Nov 2020) for the MG5aMC CUDACPP plugin.
-// Further modified by: A. Valassi, Z. Wettersten (2020-2024) for the MG5aMC CUDACPP plugin.
+// Further modified by: S. Roiser, A. Valassi, Z. Wettersten (2020-2024) for the MG5aMC CUDACPP plugin.
 
 #ifndef MGONGPUVECTORS_H
 #define MGONGPUVECTORS_H 1
@@ -118,7 +118,7 @@ namespace mg5amcCpu
 
   // --- Type definition (using vector compiler extensions: need -march=...)
 #ifdef __clang__ // https://clang.llvm.org/docs/LanguageExtensions.html#vectors-and-extended-vectors
-  typedef unsigned int uint_v __attribue__( ( ext_vector_type( neppV ) ) );
+  typedef unsigned int uint_v __attribute__( ( ext_vector_type( neppV ) ) );
 #if defined MGONGPU_FPTYPE_DOUBLE
   typedef long int bool_v __attribute__( ( ext_vector_type( neppV ) ) ); // bbbb
 #elif defined MGONGPU_FPTYPE_FLOAT
