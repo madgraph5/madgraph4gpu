@@ -42,9 +42,9 @@ namespace mgOnGpu
   // This array has N_config <= N_diagrams elements
   __device__ constexpr bool icolamp[5][2] = { // note: a trailing comma in the initializer list is allowed
     {  true,  true }, // ICONFIG=1  <-- CHANNEL_ID=2
-    {  true,  true }, // ICONFIG=2  <-- CHANNEL_ID=3
+    {  true, false }, // ICONFIG=2  <-- CHANNEL_ID=3
     {  true, false }, // ICONFIG=3  <-- CHANNEL_ID=4
-    {  true, false }, // ICONFIG=4  <-- CHANNEL_ID=5
+    { false,  true }, // ICONFIG=4  <-- CHANNEL_ID=5
     { false,  true }, // ICONFIG=5  <-- CHANNEL_ID=6
   };
 
