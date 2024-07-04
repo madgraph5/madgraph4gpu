@@ -16,8 +16,8 @@ echo "Executing $0 $*"; echo
 topdir=$(cd $(dirname $0)/../..; pwd)
 
 # Bypass known issues?
-###BYPASS_KNOWN_ISSUES=0 # do not bypass known issues (fail)
-BYPASS_KNOWN_ISSUES=1 # bypass known issues (do not fail)
+BYPASS_KNOWN_ISSUES=0 # do not bypass known issues (fail)
+###BYPASS_KNOWN_ISSUES=1 # bypass known issues (do not fail)
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
