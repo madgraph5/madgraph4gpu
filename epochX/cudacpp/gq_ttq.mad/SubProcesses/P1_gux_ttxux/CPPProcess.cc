@@ -1248,7 +1248,6 @@ namespace mg5amcCpu
 #endif
         }
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
-        const unsigned int iconfigC = mgOnGpu::channelId_to_iconfigC[channelId]; // coloramps.h uses a channel ordering not the diagram id
         fptype_sv targetamp2[ncolor] = { 0 };
         for( int icolC = 0; icolC < ncolor; icolC++ )
         {
