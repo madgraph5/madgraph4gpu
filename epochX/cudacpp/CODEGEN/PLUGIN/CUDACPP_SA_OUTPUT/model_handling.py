@@ -1108,7 +1108,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
 
 import madgraph.iolibs.files as files
 import madgraph.various.misc as misc
-
+import madgraph.iolibs.export_v4 as export_v4
 # AV - define a custom OneProcessExporter
 # (NB: enable this via PLUGIN_ProcessExporter.oneprocessclass in output.py)
 # (NB: use this directly also in PLUGIN_UFOModelConverter.read_template_file)
@@ -1523,7 +1523,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     def edit_coloramps(self, config_subproc_map):
         """Generate coloramps.h"""
 
-
+        misc.sprint(config_subproc_map)
         ###misc.sprint('Entering PLUGIN_OneProcessExporter.edit_coloramps')
         template = open(pjoin(self.template_path,'gpu','coloramps.h'),'r').read()
         ff = open(pjoin(self.path, 'coloramps.h'),'w')
@@ -1566,18 +1566,9 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         replace_dict['channelc2iconfig_lines'] = '\n'.join(lines)
 
         if self.include_multi_channel: # NB unnecessary as edit_coloramps is not called otherwise...
-            #multi_channel = self.get_multi_channel_dictionary(self.matrix_elements[0].get('diagrams'), self.include_multi_channel)
-            
-            subproc_to_confdiag = {}
-            for config in config_subproc_map:
-                for subproc, diag in enumerate(config):
-                    try:
-                        subproc_to_confdiag[subproc].append(diag)
-                    except KeyError:
-                        subproc_to_confdiag[subproc] = [diag]
-            
-            replace_dict['is_LC'] = self.get_icolamp_lines(subproc_to_confdiag[0], self.matrix_elements[0], 1)
-            replace_dict['nb_channel'] = len(subproc_to_confdiag[0])
+            subproc_to_confdiag = export_v4.ProcessExporterFortranMEGroup.get_confdiag_from_group_mapconfig(config_subproc_map, 0)             
+            replace_dict['is_LC'] = self.get_icolamp_lines(subproc_to_confdiag, self.matrix_elements[0], 1)
+            replace_dict['nb_channel'] = len(subproc_to_confdiag)
             replace_dict['nb_diag'] = max(config[0] for config in config_subproc_map)
             replace_dict['nb_color'] = max(1,len(self.matrix_elements[0].get('color_basis')))
             
