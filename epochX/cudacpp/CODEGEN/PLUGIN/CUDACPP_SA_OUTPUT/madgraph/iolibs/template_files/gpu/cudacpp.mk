@@ -373,22 +373,38 @@ endif
 
 #=== Configure defaults for OMPFLAGS
 
-# Set the default OMPFLAGS choice
-ifneq ($(findstring hipcc,$(GPUCC)),)
-  override OMPFLAGS = # disable OpenMP MT when using hipcc #802
-else ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
-  override OMPFLAGS = -fopenmp
-  ###override OMPFLAGS = # disable OpenMP MT on Intel (was ok without GPUCC but not ok with GPUCC before #578)
-else ifneq ($(shell $(CXX) --version | egrep '^(clang)'),)
-  override OMPFLAGS = -fopenmp
-  ###override OMPFLAGS = # disable OpenMP MT on clang (was not ok without or with nvcc before #578)
-###else ifneq ($(shell $(CXX) --version | egrep '^(Apple clang)'),) # AV for Mac (Apple clang compiler)
-else ifeq ($(UNAME_S),Darwin) # OM for Mac (any compiler)
-  override OMPFLAGS = # AV disable OpenMP MT on Apple clang (builds fail in the CI #578)
-  ###override OMPFLAGS = -fopenmp # OM reenable OpenMP MT on Apple clang? (AV Oct 2023: this still fails in the CI)
+###OMPFLAGS= # FOR DEBUGGING ONLY (disable OMP)
+
+# To build without OpenMP, you must set externally OMPFLAGS to an empty string (#758)
+ifeq ($(origin OMPFLAGS),undefined)
+  ###$(info OMPFLAGS was not set externally: will override it to a default value)
+  override override_OMPFLAGS=true
+else ifeq ($(OMPFLAGS),)
+  $(info OMPFLAGS was set externally to an empty string: will build without OpenMP)
+  override override_OMPFLAGS=false
 else
-  override OMPFLAGS = -fopenmp # enable OpenMP MT by default on all other platforms
-  ###override OMPFLAGS = # disable OpenMP MT on all other platforms (default before #575)
+  ###$(info OMPFLAGS was set externally to a non-empty string: will override it to a default value)
+  override override_OMPFLAGS=true
+endif
+
+# Set the default OMPFLAGS choice
+ifeq ($(override_OMPFLAGS),true)
+  ifneq ($(findstring hipcc,$(GPUCC)),)
+    override OMPFLAGS = # disable OpenMP MT when using hipcc #802
+  else ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
+    override OMPFLAGS = -fopenmp
+    ###override OMPFLAGS = # disable OpenMP MT on Intel (was ok without GPUCC but not ok with GPUCC before #578)
+  else ifneq ($(shell $(CXX) --version | egrep '^(clang)'),)
+    override OMPFLAGS = -fopenmp
+    ###override OMPFLAGS = # disable OpenMP MT on clang (was not ok without or with nvcc before #578)
+  ###else ifneq ($(shell $(CXX) --version | egrep '^(Apple clang)'),) # AV for Mac (Apple clang compiler)
+  else ifeq ($(UNAME_S),Darwin) # OM for Mac (any compiler)
+    override OMPFLAGS = # AV disable OpenMP MT on Apple clang (builds fail in the CI #578)
+    ###override OMPFLAGS = -fopenmp # OM reenable OpenMP MT on Apple clang? (AV Oct 2023: this still fails in the CI)
+  else
+    override OMPFLAGS = -fopenmp # enable OpenMP MT by default on all other platforms
+    ###override OMPFLAGS = # disable OpenMP MT on all other platforms (default before #575)
+  endif
 endif
 
 #-------------------------------------------------------------------------------
