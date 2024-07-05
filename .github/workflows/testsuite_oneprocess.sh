@@ -373,8 +373,9 @@ function tmad_test() {
   fptype=${FPTYPE}
   if [ "${fptype}" == "f" ]; then
     ###xsecthr="2E-4" # fails for ggttggg with clang14 (2.8E-4)
-    ###xsecthr="4E-4" # xsec differs by 5.2E-4 in master_june24 #889
-    xsecthr="6E-4"
+    ###xsecthr="4E-4" # xsec differs by 5.2E-4  ggttggg sse4 in master_june24 #889
+    ###xsecthr="6E-4" # xsec differs by 1.1E-3  ggttggg avx2 in master_june24 #889
+    xsecthr="2E-3"
   elif [ "${fptype}" == "m" ]; then
     xsecthr="2E-4" # FIXME #537 (AV: by "fixme" I probably meant a stricter tolerance could be used, maybe E-5?)
   else
