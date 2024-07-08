@@ -13,6 +13,8 @@ PLUGINDIR = os.path.dirname( __file__ )
 import logging
 logger = logging.getLogger('madgraph.PLUGIN.CUDACPP_OUTPUT.model_handling')
 
+wanted_ordered_couplings = []
+
 #------------------------------------------------------------------------------------
 
 # AV - import the independent 2nd copy of the export_cpp module (as PLUGIN_export_cpp), previously loaded in output.py
@@ -1098,9 +1100,9 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
                     % (os.path.split(model_h_file)[-1], os.path.split(model_h_file)[0] ) )
 
     def prepare_couplings(self, wanted_couplings = []):
-        super().prepare_couplings(wanted_couplings)
+        super().prepare_couplings(wanted_ordered_couplings)
         # the two lines below fix #748, i.e. they re-order the dictionary keys following the order in wanted_couplings
-        running_wanted_couplings = [value for value in wanted_couplings if value in self.coups_dep]
+        running_wanted_couplings = [value for value in wanted_ordered_couplings if value in self.coups_dep]
         ordered_dict = [(k, self.coups_dep[k]) for k in running_wanted_couplings]
         self.coups_dep = dict((x, y) for x, y in ordered_dict)
 
@@ -1787,10 +1789,12 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                 aliastxt = 'PARAM'
                 name = 'cIPD'
             elif model.is_running_coupling(coup):
+                if coup not in wanted_ordered_couplings: wanted_ordered_couplings.append(coup)
                 alias = self.couporderdep
                 aliastxt = 'COUPD'
                 name = 'cIPC'
             else:
+                if coup not in wanted_ordered_couplings: wanted_ordered_couplings.append(coup)
                 alias = self.couporderindep
                 aliastxt = 'COUPI'
                 name = 'cIPC'
