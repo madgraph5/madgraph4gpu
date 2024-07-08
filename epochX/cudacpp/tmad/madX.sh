@@ -16,7 +16,7 @@ topdir=$(cd $scrdir; cd ../../..; pwd)
 
 # HARDCODE NLOOP HERE (may improve this eventually...)
 ###NLOOP=8192
-NLOOP=32 # DEBUG #885 and #887
+NLOOP=64 # DEBUG #885 and #887
 
 # Workaround for #498 on juwels
 host=$(hostname)
