@@ -257,9 +257,6 @@ namespace mg5amcCpu
     // [jamp: sum (for one event or event page) of the invariant amplitudes for all Feynman diagrams in a given color combination]
     cxtype_sv jamp_sv[ncolor] = {}; // all zeros (NB: vector cxtype_v IS initialized to 0, but scalar cxtype is NOT, if "= {}" is missing!)
 
-    // local variable for channel ids
-    uint_sv channelids_sv;
-
     // === Calculate wavefunctions and amplitudes for all diagrams in all processes         ===
     // === (for one event in CUDA, for one - or two in mixed mode - SIMD event pages in C++ ===
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
@@ -321,6 +318,9 @@ namespace mg5amcCpu
       // Numerators and denominators for the current event (CUDA) or SIMD event page (C++)
       fptype_sv& numerators_sv = NUM_ACCESS::kernelAccess( numerators );
       fptype_sv& denominators_sv = DEN_ACCESS::kernelAccess( denominators );
+      uint_sv channelids_sv; // this is only filled (and used) if channelIds != 0
+      if( channelIds != 0 )
+        channelids_sv = CID_ACCESS::kernelAccessConst( channelIds ); // fix #895
 #endif
 
       // *** DIAGRAM 1 OF 3 ***
@@ -341,7 +341,6 @@ namespace mg5amcCpu
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelIds != 0 )
       {
-        channelids_sv = CID_ACCESS::kernelAccessConst( channelIds );
 #if defined __CUDACC__ or !defined MGONGPU_CPPSIMD
         if( channelids_sv == 1 ) numerators_sv += cxabs2( amp_sv[0] );
         denominators_sv += cxabs2( amp_sv[0] );
@@ -367,7 +366,6 @@ namespace mg5amcCpu
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelIds != 0 )
       {
-        channelids_sv = CID_ACCESS::kernelAccessConst( channelIds );
 #if defined __CUDACC__ or !defined MGONGPU_CPPSIMD
         if( channelids_sv == 2 ) numerators_sv += cxabs2( amp_sv[0] );
         denominators_sv += cxabs2( amp_sv[0] );
@@ -392,7 +390,6 @@ namespace mg5amcCpu
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelIds != 0 )
       {
-        channelids_sv = CID_ACCESS::kernelAccessConst( channelIds );
 #if defined __CUDACC__ or !defined MGONGPU_CPPSIMD
         if( channelids_sv == 3 ) numerators_sv += cxabs2( amp_sv[0] );
         denominators_sv += cxabs2( amp_sv[0] );
