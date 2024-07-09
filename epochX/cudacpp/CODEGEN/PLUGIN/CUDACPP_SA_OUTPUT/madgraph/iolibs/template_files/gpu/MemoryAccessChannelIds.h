@@ -1,9 +1,10 @@
-// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Copyright (C) 2020-2024 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: S. Roiser (Dec 2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: A. Valassi (2024) for the MG5aMC CUDACPP plugin.
 
-#ifndef MemoryAccessChIds_H
-#define MemoryAccessChIds_H 1
+#ifndef MemoryAccessChannelIds_H
+#define MemoryAccessChannelIds_H 1
 
 #include "mgOnGpuConfig.h"
 
@@ -20,16 +21,16 @@ namespace mg5amcCpu
 {
   //----------------------------------------------------------------------------
 
-  // A class describing the internal layout of memory buffers for Channel Ids
+  // A class describing the internal layout of memory buffers for channel ids
   // This implementation uses a plain ARRAY[nevt]
   // [If many implementations are used, a suffix _ARRAYv1 should be appended to the class name]
-  class MemoryAccessChIdsBase //_ARRAYv1
+  class MemoryAccessChannelIdsBase //_ARRAYv1
   {
   private:
 
-    friend class MemoryAccessHelper<MemoryAccessChIdsBase, unsigned int>;
-    friend class KernelAccessHelper<MemoryAccessChIdsBase, true, unsigned int>;
-    friend class KernelAccessHelper<MemoryAccessChIdsBase, false, unsigned int>;
+    friend class MemoryAccessHelper<MemoryAccessChannelIdsBase, unsigned int>;
+    friend class KernelAccessHelper<MemoryAccessChannelIdsBase, true, unsigned int>;
+    friend class KernelAccessHelper<MemoryAccessChannelIdsBase, false, unsigned int>;
 
     //--------------------------------------------------------------------------
     // NB all KernelLaunchers assume that memory access can be decomposed as "accessField = decodeRecord( accessRecord )"
@@ -62,33 +63,33 @@ namespace mg5amcCpu
 
   // A class providing access to memory buffers for a given event, based on explicit event numbers
   // Its methods use the MemoryAccessHelper templates - note the use of the template keyword in template function instantiations
-  class MemoryAccessChIds : public MemoryAccessChIdsBase
+  class MemoryAccessChannelIds : public MemoryAccessChannelIdsBase
   {
   public:
 
     // Locate an event record (output) in a memory buffer (input) from the given event number (input)
     // [Signature (non-const) ===> unsigned int* ieventAccessRecord( unsigned int* buffer, const int ievt ) <===]
-    static constexpr auto ieventAccessRecord = MemoryAccessHelper<MemoryAccessChIdsBase, unsigned int>::ieventAccessRecord;
+    static constexpr auto ieventAccessRecord = MemoryAccessHelper<MemoryAccessChannelIdsBase, unsigned int>::ieventAccessRecord;
 
     // Locate an event record (output) in a memory buffer (input) from the given event number (input)
     // [Signature (const) ===> const unsigned int* ieventAccessRecordConst( const unsigned int* buffer, const int ievt ) <===]
-    static constexpr auto ieventAccessRecordConst = MemoryAccessHelper<MemoryAccessChIdsBase, unsigned int>::ieventAccessRecordConst;
+    static constexpr auto ieventAccessRecordConst = MemoryAccessHelper<MemoryAccessChannelIdsBase, unsigned int>::ieventAccessRecordConst;
 
     // Locate a field (output) of an event record (input) from the given field indexes (input)
     // [Signature (non-const) ===> unsigned int& decodeRecord( unsigned int* buffer ) <===]
-    static constexpr auto decodeRecord = MemoryAccessHelper<MemoryAccessChIdsBase, unsigned int>::decodeRecord;
+    static constexpr auto decodeRecord = MemoryAccessHelper<MemoryAccessChannelIdsBase, unsigned int>::decodeRecord;
 
     // Locate a field (output) of an event record (input) from the given field indexes (input)
     // [Signature (const) ===> const unsigned int& decodeRecordConst( const unsigned int* buffer ) <===]
-    static constexpr auto decodeRecordConst = MemoryAccessHelper<MemoryAccessChIdsBase, unsigned int>::template decodeRecordConst<>;
+    static constexpr auto decodeRecordConst = MemoryAccessHelper<MemoryAccessChannelIdsBase, unsigned int>::template decodeRecordConst<>;
 
     // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
     // [Signature (non-const) ===> unsigned int& ieventAccess( unsigned int* buffer, const ievt ) <===]
-    static constexpr auto ieventAccess = MemoryAccessHelper<MemoryAccessChIdsBase, unsigned int>::template ieventAccessField<>;
+    static constexpr auto ieventAccess = MemoryAccessHelper<MemoryAccessChannelIdsBase, unsigned int>::template ieventAccessField<>;
 
     // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
     // [Signature (const) ===> const unsigned int& ieventAccessConst( const unsigned int* buffer, const ievt ) <===]
-    static constexpr auto ieventAccessConst = MemoryAccessHelper<MemoryAccessChIdsBase, unsigned int>::template ieventAccessFieldConst<>;
+    static constexpr auto ieventAccessConst = MemoryAccessHelper<MemoryAccessChannelIdsBase, unsigned int>::template ieventAccessFieldConst<>;
   };
 
   //----------------------------------------------------------------------------
@@ -96,16 +97,16 @@ namespace mg5amcCpu
   // A class providing access to memory buffers for a given event, based on implicit kernel rules
   // Its methods use the KernelAccessHelper template - note the use of the template keyword in template function instantiations
   template<bool onDevice>
-  class KernelAccessChIds
+  class KernelAccessChannelIds
   {
   public:
 
-    // Expose selected functions from MemoryAccessChIds
-    static constexpr auto ieventAccessRecord = MemoryAccessChIds::ieventAccessRecord;
+    // Expose selected functions from MemoryAccessChannelIds
+    static constexpr auto ieventAccessRecord = MemoryAccessChannelIds::ieventAccessRecord;
 
     // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
     // [Signature (non-const, SCALAR) ===> unsigned int& kernelAccess( unsigned int* buffer ) <===]
-    static constexpr auto kernelAccess_s = KernelAccessHelper<MemoryAccessChIdsBase, onDevice, unsigned int>::template kernelAccessField<>; // requires cuda 11.4
+    static constexpr auto kernelAccess_s = KernelAccessHelper<MemoryAccessChannelIdsBase, onDevice, unsigned int>::template kernelAccessField<>; // requires cuda 11.4
 
     // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal)
     // [Signature (non-const, SCALAR OR VECTOR) ===> uint_sv& kernelAccess( unsigned int* buffer ) <===]
@@ -125,7 +126,7 @@ namespace mg5amcCpu
 
     // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
     // [Signature (const, SCALAR) ===> const unsigned int& kernelAccessConst( const unsigned int* buffer ) <===]
-    static constexpr auto kernelAccessConst_s = KernelAccessHelper<MemoryAccessChIdsBase, onDevice, unsigned int>::template kernelAccessFieldConst<>; // requires cuda 11.4
+    static constexpr auto kernelAccessConst_s = KernelAccessHelper<MemoryAccessChannelIdsBase, onDevice, unsigned int>::template kernelAccessFieldConst<>; // requires cuda 11.4
 
     // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal)
     // [Signature (const, SCALAR OR VECTOR) ===> const uint_sv& kernelAccess( const unsigned int* buffer ) <===]
@@ -146,11 +147,11 @@ namespace mg5amcCpu
 
   //----------------------------------------------------------------------------
 
-  typedef KernelAccessChIds<false> HostAccessChIds;
-  typedef KernelAccessChIds<true> DeviceAccessChIds;
+  typedef KernelAccessChannelIds<false> HostAccessChannelIds;
+  typedef KernelAccessChannelIds<true> DeviceAccessChannelIds;
 
   //----------------------------------------------------------------------------
 
 } // end namespace mg5amcGpu/mg5amcCpu
 
-#endif // MemoryAccessChIds_H
+#endif // MemoryAccessChannelIds_H
