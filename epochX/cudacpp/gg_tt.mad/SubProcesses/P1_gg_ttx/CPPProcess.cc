@@ -320,9 +320,25 @@ namespace mg5amcCpu
       // Numerators and denominators for the current event (CUDA) or SIMD event page (C++)
       fptype_sv& numerators_sv = NUM_ACCESS::kernelAccess( numerators );
       fptype_sv& denominators_sv = DEN_ACCESS::kernelAccess( denominators );
-      uint_sv channelids_sv; // this is only filled (and used) if channelIds != nullptr
+      // SCALAR channelId for the current event (CUDA) or for the whole SIMD event page (C++)
+      // The cudacpp implementation ASSUMES (and checks! #898) that all channelIds are the same in a SIMD event page
+      unsigned int channelId = 0; // convention inside this function: 0 indicates the nomultichannel case (allChannelIds == nullptr)
       if( channelIds != nullptr )
-        channelids_sv = CID_ACCESS::kernelAccessConst( channelIds ); // fix #895
+      {
+        uint_sv channelIds_sv = CID_ACCESS::kernelAccessConst( channelIds ); // fix #895 (compute this only once for all diagrams)
+#if defined __CUDACC__ or !defined MGONGPU_CPPSIMD
+        // NB: channelIds_sv is a scalar in CUDA or no-SIMD C++
+        channelId = channelIds_sv;
+#else
+        // NB: channelIds_sv is a vector in SIMD C++
+        channelId = channelIds_sv[0];    // element[0]
+        for( int i = 1; i < neppV; ++i ) // elements[1...neppV-1]
+        {
+          assert( channelId == channelIds_sv[i] ); // SANITY CHECK #898: check that all events in a SIMD vector have the same channelId
+        }
+#endif
+        assert( channelId > 0 ); // SANITY CHECK: scalar channelId must be > 0 if multichannel is enabled (allChannelIds != nullptr)
+      }
 #endif
 
       // *** DIAGRAM 1 OF 3 ***
@@ -341,18 +357,8 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 1
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[2], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelIds != nullptr )
-      {
-#if defined __CUDACC__ or !defined MGONGPU_CPPSIMD
-        if( channelids_sv == 1 ) numerators_sv += cxabs2( amp_sv[0] );
-#else
-        for( int i = 0; i < neppV; ++i )
-        {
-          if( channelids_sv[i] == 1 ) numerators_sv[i] += cxabs2( amp_sv[0] )[i];
-        }
-#endif
-        denominators_sv += cxabs2( amp_sv[0] );
-      }
+      if( channelId == 1 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -365,18 +371,8 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 2
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[4], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelIds != nullptr )
-      {
-#if defined __CUDACC__ or !defined MGONGPU_CPPSIMD
-        if( channelids_sv == 2 ) numerators_sv += cxabs2( amp_sv[0] );
-#else
-        for( int i = 0; i < neppV; ++i )
-        {
-          if( channelids_sv[i] == 2 ) numerators_sv[i] += cxabs2( amp_sv[0] )[i];
-        }
-#endif
-        denominators_sv += cxabs2( amp_sv[0] );
-      }
+      if( channelId == 2 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[0] -= amp_sv[0];
 
@@ -388,18 +384,8 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 3
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[4], w_fp[2], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelIds != nullptr )
-      {
-#if defined __CUDACC__ or !defined MGONGPU_CPPSIMD
-        if( channelids_sv == 3 ) numerators_sv += cxabs2( amp_sv[0] );
-#else
-        for( int i = 0; i < neppV; ++i )
-        {
-          if( channelids_sv[i] == 3 ) numerators_sv[i] += cxabs2( amp_sv[0] )[i];
-        }
-#endif
-        denominators_sv += cxabs2( amp_sv[0] );
-      }
+      if( channelId == 3 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
       jamp_sv[1] -= amp_sv[0];
 
@@ -948,7 +934,7 @@ namespace mg5amcCpu
     // Remember: in CUDA this is a kernel for one event, in c++ this processes n events
     const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    using CID_ACCESS = DeviceAccessChannelIds;
+    using CID_ACCESS = DeviceAccessChannelIds; // non-trivial access: buffer includes all events
 #endif
 #else
     //assert( (size_t)(allmomenta) % mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]

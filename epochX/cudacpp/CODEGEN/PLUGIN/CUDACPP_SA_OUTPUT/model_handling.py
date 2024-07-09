@@ -1919,9 +1919,25 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
       // Numerators and denominators for the current event (CUDA) or SIMD event page (C++)
       fptype_sv& numerators_sv = NUM_ACCESS::kernelAccess( numerators );
       fptype_sv& denominators_sv = DEN_ACCESS::kernelAccess( denominators );
-      uint_sv channelids_sv; // this is only filled (and used) if channelIds != nullptr
+      // SCALAR channelId for the current event (CUDA) or for the whole SIMD event page (C++)
+      // The cudacpp implementation ASSUMES (and checks! #898) that all channelIds are the same in a SIMD event page
+      unsigned int channelId = 0; // convention inside this function: 0 indicates the nomultichannel case (allChannelIds == nullptr)
       if( channelIds != nullptr )
-        channelids_sv = CID_ACCESS::kernelAccessConst( channelIds ); // fix #895
+      {
+        uint_sv channelIds_sv = CID_ACCESS::kernelAccessConst( channelIds ); // fix #895 (compute this only once for all diagrams)
+#if defined __CUDACC__ or !defined MGONGPU_CPPSIMD
+        // NB: channelIds_sv is a scalar in CUDA or no-SIMD C++
+        channelId = channelIds_sv;
+#else
+        // NB: channelIds_sv is a vector in SIMD C++
+        channelId = channelIds_sv[0];    // element[0]
+        for( int i = 1; i < neppV; ++i ) // elements[1...neppV-1]
+        {
+          assert( channelId == channelIds_sv[i] ); // SANITY CHECK #898: check that all events in a SIMD vector have the same channelId
+        }
+#endif
+        assert( channelId > 0 ); // SANITY CHECK: scalar channelId must be > 0 if multichannel is enabled (allChannelIds != nullptr)
+      }
 #endif""")
         diagrams = matrix_element.get('diagrams')
         diag_to_config = {}
@@ -1952,18 +1968,8 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                         ###res.append("if( channelId == %i ) numerators_sv += cxabs2( amp_sv[0] );" % diag_to_config[id_amp]) # BUG #472
                         ###res.append("if( channelId == %i ) numerators_sv += cxabs2( amp_sv[0] );" % id_amp) # wrong fix for BUG #472
                         res.append("#ifdef MGONGPU_SUPPORTS_MULTICHANNEL")
-                        res.append("if( channelIds != nullptr )")
-                        res.append("{")
-                        res.append("#if defined __CUDACC__ or !defined MGONGPU_CPPSIMD")
-                        res.append("  if( channelids_sv == %i ) numerators_sv += cxabs2( amp_sv[0] );" % diagram.get('number'))
-                        res.append("#else")
-                        res.append("  for( int i = 0; i < neppV; ++i )")
-                        res.append("  {")
-                        res.append("    if( channelids_sv[i] == %i ) numerators_sv[i] += cxabs2( amp_sv[0] )[i];" % diagram.get('number'))
-                        res.append("  }")
-                        res.append("#endif")
-                        res.append("  denominators_sv += cxabs2( amp_sv[0] );")
-                        res.append("}")
+                        res.append("if( channelId == %i ) numerators_sv += cxabs2( amp_sv[0] );" % diagram.get('number'))
+                        res.append("if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );")
                         res.append("#endif")
                 else:
                     res.append("#ifdef MGONGPU_SUPPORTS_MULTICHANNEL")
