@@ -1332,7 +1332,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     using NUM_ACCESS = DeviceAccessNumerators;    // non-trivial access: buffer includes all events
     using DEN_ACCESS = DeviceAccessDenominators;  // non-trivial access: buffer includes all events
-    using CID_ACCESS = DeviceAccessChIds;
+    using CID_ACCESS = DeviceAccessChannelIds;    // non-trivial access: buffer includes all events
 #endif
 #else
     using namespace mg5amcCpu;
@@ -1345,7 +1345,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     using NUM_ACCESS = HostAccessNumerators;    // non-trivial access: buffer includes all events
     using DEN_ACCESS = HostAccessDenominators;  // non-trivial access: buffer includes all events
-    using CID_ACCESS = HostAccessChIds;
+    using CID_ACCESS = HostAccessChannelIds;    // non-trivial access: buffer includes all events
 #endif
 #endif /* clang-format on */
     mgDebug( 0, __FUNCTION__ );

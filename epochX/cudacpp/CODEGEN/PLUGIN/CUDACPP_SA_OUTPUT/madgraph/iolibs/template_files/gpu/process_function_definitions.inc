@@ -465,7 +465,7 @@ namespace mg5amcCpu
     // Remember: in CUDA this is a kernel for one event, in c++ this processes n events
     const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    using CID_ACCESS = DeviceAccessChIds;
+    using CID_ACCESS = DeviceAccessChannelIds;
 #endif
 #else
     //assert( (size_t)(allmomenta) %% mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
@@ -474,7 +474,7 @@ namespace mg5amcCpu
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     using NUM_ACCESS = HostAccessNumerators;   // non-trivial access: buffer includes all events
     using DEN_ACCESS = HostAccessDenominators; // non-trivial access: buffer includes all events
-    using CID_ACCESS = HostAccessChIds;
+    using CID_ACCESS = HostAccessChannelIds;   // non-trivial access: buffer includes all events
 #endif
 #endif
 
