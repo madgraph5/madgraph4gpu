@@ -189,7 +189,7 @@ namespace mg5amcCpu
                            const fptype* allcouplings,      // input: couplings[nevt*ndcoup*2]
                            fptype* allMEs,                  // output: allMEs[nevt], |M|^2 running_sum_over_helicities
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                           const unsigned int* channelIds,  // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
+                           const unsigned int* channelIds,  // input: multichannel channel id (1 to #diagrams); 0 to disable single-diagram enhancement
                            fptype* allNumerators,           // output: multichannel numerators[nevt], running_sum_over_helicities
                            fptype* allDenominators,         // output: multichannel denominators[nevt], running_sum_over_helicities
 #endif
@@ -795,7 +795,7 @@ namespace mg5amcCpu
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
       constexpr fptype_sv* jamp2_sv = nullptr; // no need for color selection during helicity filtering
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      constexpr unsigned int* channelId = nullptr; // disable single-diagram channel enhancement
+      constexpr unsigned int* channelId = nullptr; // disable multichannel single-diagram enhancement
       calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators, jamp2_sv );
 #else
       calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, jamp2_sv );
@@ -859,7 +859,7 @@ namespace mg5amcCpu
         constexpr fptype_sv* jamp2_sv = nullptr; // no need for color selection during helicity filtering
         //std::cout << "sigmaKin_getGoodHel ihel=" << ihel << ( isGoodHel[ihel] ? " true" : " false" ) << std::endl;
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-        constexpr unsigned int* channelId = nullptr; // disable single-diagram channel enhancement
+        constexpr unsigned int* channelId = nullptr; // disable multichannel single-diagram enhancement
         calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators, jamp2_sv, ievt00 );
 #else
         calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, jamp2_sv, ievt00 );
@@ -922,7 +922,7 @@ namespace mg5amcCpu
             const fptype* allrndcol,         // input: random numbers[nevt] for color selection
             fptype* allMEs,                  // output: allMEs[nevt], |M|^2 final_avg_over_helicities
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-            const unsigned int* channelIds,  // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
+            const unsigned int* channelIds,  // input: multichannel channel id (1 to #diagrams); 0 to disable single-diagram enhancement
             fptype* allNumerators,           // output: multichannel numerators[nevt], running_sum_over_helicities
             fptype* allDenominators,         // output: multichannel denominators[nevt], running_sum_over_helicities
 #endif

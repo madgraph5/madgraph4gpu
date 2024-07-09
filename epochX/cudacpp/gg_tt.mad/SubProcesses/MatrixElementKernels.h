@@ -28,7 +28,7 @@ namespace mg5amcCpu
                              const BufferGs& gs,                   // input: gs for alphaS
                              const BufferRndNumHelicity& rndhel,   // input: random numbers for helicity selection
                              const BufferRndNumColor& rndcol,      // input: random numbers for color selection
-                             const BufferChannelIds& chanIds,      // input: channel Ids
+                             const BufferChannelIds& channelIds,   // input: channel ids for single-diagram enhancement
                              BufferMatrixElements& matrixElements, // output: matrix elements
                              BufferSelectedHelicity& selhel,       // output: helicity selection
                              BufferSelectedColor& selcol )         // output: color selection
@@ -36,7 +36,7 @@ namespace mg5amcCpu
       , m_gs( gs )
       , m_rndhel( rndhel )
       , m_rndcol( rndcol )
-      , m_chanIds( chanIds )
+      , m_channelIds( channelIds )
       , m_matrixElements( matrixElements )
       , m_selhel( selhel )
       , m_selcol( selcol )
@@ -74,8 +74,8 @@ namespace mg5amcCpu
     // The buffer for the random numbers for color selection
     const BufferRndNumColor& m_rndcol;
 
-    // The buffer for the channel Ids for each ME
-    const BufferChannelIds& m_chanIds;
+    // The buffer for the channel ids for single-diagram enhancement
+    const BufferChannelIds& m_channelIds;
 
     // The buffer for the output matrix elements
     BufferMatrixElements& m_matrixElements;
@@ -100,7 +100,7 @@ namespace mg5amcCpu
                              const BufferGs& gs,                   // input: gs for alphaS
                              const BufferRndNumHelicity& rndhel,   // input: random numbers for helicity selection
                              const BufferRndNumColor& rndcol,      // input: random numbers for color selection
-                             const BufferChannelIds& chanIds,      // input: channel Ids
+                             const BufferChannelIds& channelIds,   // input: channel ids for single-diagram enhancement
                              BufferMatrixElements& matrixElements, // output: matrix elements
                              BufferSelectedHelicity& selhel,       // output: helicity selection
                              BufferSelectedColor& selcol,          // output: color selection
@@ -152,7 +152,7 @@ namespace mg5amcCpu
                                const BufferGs& gs,                   // input: gs for alphaS
                                const BufferRndNumHelicity& rndhel,   // input: random numbers for helicity selection
                                const BufferRndNumColor& rndcol,      // input: random numbers for color selection
-                               const BufferChannelIds& chanIds,      // input: channel Ids
+                               const BufferChannelIds& channelIds,   // input: channel ids for single-diagram enhancement
                                BufferMatrixElements& matrixElements, // output: matrix elements
                                BufferSelectedHelicity& selhel,       // output: helicity selection
                                BufferSelectedColor& selcol,          // output: color selection
