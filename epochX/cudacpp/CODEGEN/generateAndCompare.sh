@@ -314,8 +314,9 @@ function codeGenAndDiff()
     # Force the use of WARP_SIZE=32 and NB_WARP=512 i.e. VECSIZE_MEMMAX=16384 (NEW CODE AFTER JUNE24 WARP_SIZE)
     ###sed -i 's/16 = vector_size/32 = vector_size/' ${outproc}/Cards/run_card.dat 
     ###sed -i 's/1 = nb_warp/512 = nb_warp/' ${outproc}/Cards/run_card.dat 
-    # Force the use of WARP_SIZE=1 and NB_WARP=512 i.e. VECSIZE_MEMMAX=32 is identical to VECSIZE_USED in tmad tests (workaround for crash #885)
+    # Force the use of WARP_SIZE=32 and NB_WARP=2 i.e. VECSIZE_MEMMAX=64 is identical to (TEMPORARY) VECSIZE_USED=64 in tmad tests (workaround for crash #885)
     sed -i 's/16 = vector_size/32 = vector_size/' ${outproc}/Cards/run_card.dat 
+    sed -i 's/1 = nb_warp/2 = nb_warp/' ${outproc}/Cards/run_card.dat 
     # Force the use of fast-math in Fortran builds
     sed -i 's/-O = global_flag.*/-O3 -ffast-math -fbounds-check = global_flag ! build flags for all Fortran code (for a fair comparison to cudacpp; default is -O)/' ${outproc}/Cards/run_card.dat
     # Generate run_card.inc and param_card.inc (include stdout and stderr in the code generation log which is later checked for errors)
