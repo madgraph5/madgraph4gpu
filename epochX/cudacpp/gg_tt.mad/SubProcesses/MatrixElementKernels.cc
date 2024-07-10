@@ -269,7 +269,8 @@ namespace mg5amcGpu
     constexpr unsigned int sharedMemSize = ntpbMAX * sizeof( float );
 #endif
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    gpuLaunchKernelSharedMem( sigmaKin, m_gpublocks, m_gputhreads, sharedMemSize, m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), m_channelIds.data(), m_numerators.data(), m_denominators.data(), m_selhel.data(), m_selcol.data() );
+    const unsigned int* pChannelIds = ( useChannelIds ? m_channelIds.data() : nullptr );
+    gpuLaunchKernelSharedMem( sigmaKin, m_gpublocks, m_gputhreads, sharedMemSize, m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), pChannelIds, m_numerators.data(), m_denominators.data(), m_selhel.data(), m_selcol.data() );
 #else
     gpuLaunchKernelSharedMem( sigmaKin, m_gpublocks, m_gputhreads, sharedMemSize, m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), m_selhel.data(), m_selcol.data() );
 #endif
