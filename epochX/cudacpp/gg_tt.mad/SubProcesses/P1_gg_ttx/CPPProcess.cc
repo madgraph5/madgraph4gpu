@@ -1027,7 +1027,7 @@ namespace mg5amcCpu
     }
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Event-by-event random choice of color #402
-    if( channelIds[0] != 0 ) // no event-by-event choice of color if channelId == 0 (fix FPE #783)
+    if( channelIds != nullptr ) // no event-by-event choice of color if channelIds == nullptr (fix FPE #783, fix segfault #892)
     {
       const unsigned int iconfigC = mgOnGpu::channelId_to_iconfigC[CID_ACCESS::kernelAccessConst( channelIds )]; // coloramps.h uses a channel ordering not the diagram id
       fptype targetamp[ncolor] = { 0 };
@@ -1142,7 +1142,7 @@ namespace mg5amcCpu
       }
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL // multichannel enabled (random color choice)
       // Event-by-event random choice of color #402
-      if( channelIds[0] != 0 ) // no event-by-event choice of color if channelId == 0 (fix FPE #783)
+      if( channelIds != nullptr ) // no event-by-event choice of color if channelIds == nullptr (fix FPE #783, fix segfault #892)
       {
         uint_sv ichannelIds = CID_ACCESS::kernelAccessConst( channelIds ); // coloramps.h uses a channel ordering not the diagram id
         fptype_sv targetamp[ncolor] = { 0 };
@@ -1228,7 +1228,7 @@ namespace mg5amcCpu
 #ifdef MGONGPUCPP_GPUIMPL
     allMEs[ievt] /= helcolDenominators[0];
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    if( channelIds[0] != 0 ) allMEs[ievt] *= allNumerators[ievt] / allDenominators[ievt];
+    if( channelIds != nullptr ) allMEs[ievt] *= allNumerators[ievt] / allDenominators[ievt]; // fix segfault #892 (not 'channelIds[0] != 0')
 #endif
 #else
     for( int ipagV = 0; ipagV < npagV; ++ipagV )
@@ -1238,7 +1238,7 @@ namespace mg5amcCpu
       fptype_sv& MEs_sv = E_ACCESS::kernelAccess( MEs );
       MEs_sv /= helcolDenominators[0];
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelIds[0] != 0 )
+      if( channelIds != nullptr ) // fix segfault #892 (not 'channelIds[0] != 0')
       {
         fptype* numerators = NUM_ACCESS::ieventAccessRecord( allNumerators, ievt0 );
         fptype* denominators = DEN_ACCESS::ieventAccessRecord( allDenominators, ievt0 );
