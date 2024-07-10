@@ -33,6 +33,8 @@ struct CUDA_CPU_TestBase : public TestDriverBase
   static_assert( gputhreads <= mgOnGpu::ntpbMAX, "ERROR! #threads/block should be <= ntpbMAX" );
   CUDA_CPU_TestBase( const std::string& refFileName )
     : TestDriverBase( npar, refFileName ) {}
+  // Does this test use channelIds?
+  virtual bool useChannelIds() const = 0;
 };
 
 #ifndef MGONGPUCPP_GPUIMPL
@@ -53,7 +55,9 @@ struct CPUTest : public CUDA_CPU_TestBase
   HostBufferSelectedColor hstSelCol;
   HostBufferHelicityMask hstIsGoodHel;
   std::unique_ptr<MatrixElementKernelBase> pmek;
-  const bool useChannelIds = false; // TEMPORARY? disable multi-channel in runTest.exe #466
+
+  // Does this test use channelIds?
+  bool useChannelIds() const override final { return false; } // TEMPORARY? disable multi-channel in runTest.exe #466
 
   // Create a process object
   // Read param_card and set parameters
@@ -106,7 +110,7 @@ struct CPUTest : public CUDA_CPU_TestBase
     for( unsigned int i = 0; i < nevt; ++i ) hstGs[i] = fixedG;
     // [AV: there is no need to fill channelId arrays if runTest.exe uses no-multichannel]
     if( iiter == 0 ) pmek->computeGoodHelicities();
-    pmek->computeMatrixElements( useChannelIds );
+    pmek->computeMatrixElements( useChannelIds() );
   }
 
   fptype getMomentum( std::size_t ievt, unsigned int ipar, unsigned int ip4 ) const override
@@ -162,7 +166,9 @@ struct CUDATest : public CUDA_CPU_TestBase
   DeviceBufferSelectedColor devSelCol;
   DeviceBufferHelicityMask devIsGoodHel;
   std::unique_ptr<MatrixElementKernelBase> pmek;
-  const bool useChannelIds = false; // TEMPORARY? disable multi-channel in runTest.exe #466
+
+  // Does this test use channelIds?
+  bool useChannelIds() const override final { return false; } // TEMPORARY? disable multi-channel in runTest.exe #466
 
   // Create a process object
   // Read param_card and set parameters
@@ -232,7 +238,7 @@ struct CUDATest : public CUDA_CPU_TestBase
     copyDeviceFromHost( devGs, hstGs ); // BUG FIX #566
     // [AV: there is no need to fill channelId arrays if runTest.exe uses no-multichannel]
     if( iiter == 0 ) pmek->computeGoodHelicities();
-    pmek->computeMatrixElements( useChannelIds );
+    pmek->computeMatrixElements( useChannelIds() );
     copyHostFromDevice( hstMatrixElements, devMatrixElements );
   }
 
