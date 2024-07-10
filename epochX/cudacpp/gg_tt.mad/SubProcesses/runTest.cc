@@ -103,8 +103,10 @@ struct CPUTest : public CUDA_CPU_TestBase
   {
     constexpr fptype fixedG = 1.2177157847767195; // fixed G for aS=0.118 (hardcoded for now in check_sa.cc, fcheck_sa.f, runTest.cc)
     for( unsigned int i = 0; i < nevt; ++i ) hstGs[i] = fixedG;
+    // [AV: there is no need to fill channelId arrays if runTest.exe uses no-multichannel]
     if( iiter == 0 ) pmek->computeGoodHelicities();
-    pmek->computeMatrixElements();
+    constexpr bool useChannelIds = false; // TEMPORARY? disable multi-channel in runTest.exe #466
+    pmek->computeMatrixElements( useChannelIds );
   }
 
   fptype getMomentum( std::size_t ievt, unsigned int ipar, unsigned int ip4 ) const override
@@ -196,8 +198,6 @@ struct CUDATest : public CUDA_CPU_TestBase
     // FIXME: the process instance can happily go out of scope because it is only needed to read parameters?
     // FIXME: the CPPProcess should really be a singleton?
     process.initProc( "../../Cards/param_card.dat" );
-    std::fill_n( hstChannelIds.data(), nevt, 0 );
-    copyDeviceFromHost( devChannelIds, hstChannelIds );
   }
 
   virtual ~CUDATest() {}
@@ -229,8 +229,10 @@ struct CUDATest : public CUDA_CPU_TestBase
     constexpr fptype fixedG = 1.2177157847767195; // fixed G for aS=0.118 (hardcoded for now in check_sa.cc, fcheck_sa.f, runTest.cc)
     for( unsigned int i = 0; i < nevt; ++i ) hstGs[i] = fixedG;
     copyDeviceFromHost( devGs, hstGs ); // BUG FIX #566
+    // [AV: there is no need to fill channelId arrays if runTest.exe uses no-multichannel]
     if( iiter == 0 ) pmek->computeGoodHelicities();
-    pmek->computeMatrixElements();
+    constexpr bool useChannelIds = false; // TEMPORARY? disable multi-channel in runTest.exe #466
+    pmek->computeMatrixElements( useChannelIds );
     copyHostFromDevice( hstMatrixElements, devMatrixElements );
   }
 
