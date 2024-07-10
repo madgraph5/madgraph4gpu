@@ -186,6 +186,7 @@ ifeq ($(BACKEND),cuda)
   GPUFLAGS += -use_fast_math
 
   # Extra build warnings
+  GPUFLAGS += $(XCOMPILERFLAG) -Wunused-parameter
   ###GPUFLAGS += $(XCOMPILERFLAG) -Wall $(XCOMPILERFLAG) -Wextra $(XCOMPILERFLAG) -Wshadow
 
   # CUDA includes and NVTX
