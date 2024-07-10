@@ -109,12 +109,14 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  void MatrixElementKernelHost::computeMatrixElements()
+  void MatrixElementKernelHost::computeMatrixElements( const bool useChannelIds )
   {
     computeDependentCouplings( m_gs.data(), m_couplings.data(), m_gs.size() );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), m_channelIds.data(), m_numerators.data(), m_denominators.data(), m_selhel.data(), m_selcol.data(), nevt() );
+    const unsigned int* pChannelIds = ( useChannelIds ? m_channelIds.data() : nullptr );
+    sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), pChannelIds, m_numerators.data(), m_denominators.data(), m_selhel.data(), m_selcol.data(), nevt() );
 #else
+    static_assert( useChannelIds == false );
     sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), m_selhel.data(), m_selcol.data(), nevt() );
 #endif
   }
@@ -258,7 +260,7 @@ namespace mg5amcGpu
 
   //--------------------------------------------------------------------------
 
-  void MatrixElementKernelDevice::computeMatrixElements()
+  void MatrixElementKernelDevice::computeMatrixElements( const bool useChannelIds )
   {
     gpuLaunchKernel( computeDependentCouplings, m_gpublocks, m_gputhreads, m_gs.data(), m_couplings.data() );
 #ifndef MGONGPU_NSIGHT_DEBUG
