@@ -266,7 +266,7 @@ export GPUSUFFIX
 
 #=== Configure ccache for C++ and CUDA/HIP builds
 
-# Enable ccache if USECCACHE=1
+# Enable ccache only if USECCACHE=1
 ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
   override CXX:=ccache $(CXX)
 endif
@@ -369,22 +369,9 @@ endif
 
 #=== Configure defaults for OMPFLAGS
 
-###OMPFLAGS= # FOR DEBUGGING ONLY (disable OMP)
-
-# To build without OpenMP, you must set externally OMPFLAGS to an empty string (#758)
-ifeq ($(origin OMPFLAGS),undefined)
-  ###$(info OMPFLAGS was not set externally: will override it to a default value)
-  override override_OMPFLAGS=true
-else ifeq ($(OMPFLAGS),)
-  $(info OMPFLAGS was set externally to an empty string: will build without OpenMP)
-  override override_OMPFLAGS=false
-else
-  ###$(info OMPFLAGS was set externally to a non-empty string: will override it to a default value)
-  override override_OMPFLAGS=true
-endif
-
-# Set the default OMPFLAGS choice
-ifeq ($(override_OMPFLAGS),true)
+# Disable OpenMP by default: enable OpenMP only if USEOPENMP=1 (#758)
+ifeq ($(USEOPENMP),1)
+  ###$(info USEOPENMP==1: will build with OpenMP if possible)
   ifneq ($(findstring hipcc,$(GPUCC)),)
     override OMPFLAGS = # disable OpenMP MT when using hipcc #802
   else ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
@@ -401,6 +388,9 @@ ifeq ($(override_OMPFLAGS),true)
     override OMPFLAGS = -fopenmp # enable OpenMP MT by default on all other platforms
     ###override OMPFLAGS = # disable OpenMP MT on all other platforms (default before #575)
   endif
+else
+  ###$(info USEOPENMP!=1: will build without OpenMP)
+  override OMPFLAGS =
 endif
 
 #-------------------------------------------------------------------------------
