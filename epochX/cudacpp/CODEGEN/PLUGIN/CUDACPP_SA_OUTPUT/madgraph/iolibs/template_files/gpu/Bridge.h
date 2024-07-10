@@ -335,18 +335,19 @@ namespace mg5amcCpu
       std::copy( rndhel, rndhel + m_nevt, m_hstRndHel.data() );
       std::copy( rndcol, rndcol + m_nevt, m_hstRndCol.data() );
     }
-    if( channelIds ) memcpy( m_hstChannelIds.data(), channelIds, m_nevt * sizeof( unsigned int ) );
+    const bool useChannelIds = ( channelIds != nullptr ) && ( !goodHelOnly );
+    if( useChannelIds ) memcpy( m_hstChannelIds.data(), channelIds, m_nevt * sizeof( unsigned int ) );
     copyDeviceFromHost( m_devGs, m_hstGs );
     copyDeviceFromHost( m_devRndHel, m_hstRndHel );
     copyDeviceFromHost( m_devRndCol, m_hstRndCol );
+    if( useChannelIds ) copyDeviceFromHost( m_devChannelIds, m_hstChannelIds );
     if( m_nGoodHel < 0 )
     {
       m_nGoodHel = m_pmek->computeGoodHelicities();
       if( m_nGoodHel < 0 ) throw std::runtime_error( "Bridge gpu_sequence: computeGoodHelicities returned nGoodHel<0" );
     }
     if( goodHelOnly ) return;
-    copyDeviceFromHost( m_devChannelIds, m_hstChannelIds );
-    m_pmek->computeMatrixElements();
+    m_pmek->computeMatrixElements( useChannelIds );
     copyHostFromDevice( m_hstMEs, m_devMEs );
     flagAbnormalMEs( m_hstMEs.data(), m_nevt );
     copyHostFromDevice( m_hstSelHel, m_devSelHel );
@@ -391,14 +392,15 @@ namespace mg5amcCpu
       std::copy( rndhel, rndhel + m_nevt, m_hstRndHel.data() );
       std::copy( rndcol, rndcol + m_nevt, m_hstRndCol.data() );
     }
+    const bool useChannelIds = ( channelIds != nullptr ) && ( !goodHelOnly );
+    if( useChannelIds ) memcpy( m_hstChannelIds.data(), channelIds, m_nevt * sizeof( unsigned int ) );
     if( m_nGoodHel < 0 )
     {
       m_nGoodHel = m_pmek->computeGoodHelicities();
       if( m_nGoodHel < 0 ) throw std::runtime_error( "Bridge cpu_sequence: computeGoodHelicities returned nGoodHel<0" );
     }
     if( goodHelOnly ) return;
-    if( channelIds ) memcpy( m_hstChannelIds.data(), channelIds, m_nevt * sizeof( unsigned int ) );
-    m_pmek->computeMatrixElements();
+    m_pmek->computeMatrixElements( useChannelIds );
     flagAbnormalMEs( m_hstMEs.data(), m_nevt );
     if constexpr( std::is_same_v<FORTRANFPTYPE, fptype> )
     {

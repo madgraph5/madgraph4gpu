@@ -369,7 +369,9 @@ main( int argc, char** argv )
   DeviceBufferGs devGs( nevt );
 #endif
 
-// Memory buffer for channelIDs
+  // Memory buffer for channelIDs
+  // [AV: channelId arrays are needed to keep a simpler signature for MatrixElementKernel constructors]
+  // [but they are not used internally (fix #892) as long as check.exe uses no-multichannel (see #896)]
 #ifndef MGONGPUCPP_GPUIMPL
   HostBufferChannelIds hstChannelIds( nevt );
 #else
@@ -379,12 +381,12 @@ main( int argc, char** argv )
 
   // Hardcode Gs for now (eventually they should come from Fortran MadEvent)
   // Hardcode channelID to 0
-  constexpr unsigned int channelId = 0; // TEMPORARY? disable multi-channel in check.exe and gcheck.exe #466
+  //constexpr unsigned int channelId = 0; // TEMPORARY? disable multi-channel in check.exe and gcheck.exe #466
   for( unsigned int i = 0; i < nevt; ++i )
   {
     constexpr fptype fixedG = 1.2177157847767195; // fixed G for aS=0.118 (hardcoded for now in check_sa.cc, fcheck_sa.f, runTest.cc)
     hstGs[i] = fixedG;
-    hstChannelIds[i] = channelId;
+    //hstChannelIds[i] = channelId; // AV ChannelId arrays are not needed in check.exe (fix #892) as long as check.exe uses no-multichannel (see #896)
     //if ( i > 0 ) hstGs[i] = 0; // try hardcoding G only for event 0
     //hstGs[i] = i;
   }
@@ -658,7 +660,8 @@ main( int argc, char** argv )
     // --- 3a. SigmaKin
     const std::string skinKey = "3a SigmaKin";
     timermap.start( skinKey );
-    pmek->computeMatrixElements();
+    constexpr bool useChannelIds = false; // TEMPORARY? disable multi-channel in check.exe and gcheck.exe #466
+    pmek->computeMatrixElements( useChannelIds );
 
     // *** STOP THE NEW OLD-STYLE TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
     wv3atime += timermap.stop(); // calc only
