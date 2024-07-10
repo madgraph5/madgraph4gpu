@@ -230,7 +230,8 @@ namespace mg5amcGpu
 
   //--------------------------------------------------------------------------
 
-  void MatrixElementKernelDevice::setGrid( const int gpublocks, const int gputhreads )
+  // FIXME! The relevance of this function should be reassessed (#543 and #902)
+  void MatrixElementKernelDevice::setGrid( const int /*gpublocks*/, const int /*gputhreads*/ )
   {
     if( m_gpublocks == 0 ) throw std::runtime_error( "MatrixElementKernelDevice: gpublocks must be > 0 in setGrid" );
     if( m_gputhreads == 0 ) throw std::runtime_error( "MatrixElementKernelDevice: gputhreads must be > 0 in setGrid" );
