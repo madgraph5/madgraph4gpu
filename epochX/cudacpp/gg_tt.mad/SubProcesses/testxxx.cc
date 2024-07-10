@@ -40,7 +40,7 @@ namespace mg5amcCpu
 {
   std::string fpeHandlerMessage = "unknown";
   int fpeHandlerIevt = -1;
-  inline void fpeHandlerTestxxx( int sig )
+  inline void fpeHandlerTestxxx( int /*sig*/ )
   {
 #ifdef MGONGPUCPP_GPUIMPL
     std::cerr << "Floating Point Exception (GPU): '" << fpeHandlerMessage << "' ievt=" << fpeHandlerIevt << std::endl;
