@@ -38,6 +38,7 @@ struct CUDA_CPU_TestBase : public TestDriverBase
 };
 
 #ifndef MGONGPUCPP_GPUIMPL
+template<bool USECHANNELIDS>
 struct CPUTest : public CUDA_CPU_TestBase
 {
   // Struct data members (process, and memory structures for random numbers, momenta, matrix elements and weights on host and device)
@@ -57,7 +58,7 @@ struct CPUTest : public CUDA_CPU_TestBase
   std::unique_ptr<MatrixElementKernelBase> pmek;
 
   // Does this test use channelIds?
-  bool useChannelIds() const override final { return false; } // TEMPORARY? disable multi-channel in runTest.exe #466
+  bool useChannelIds() const override final { return USECHANNELIDS; }
 
   // Create a process object
   // Read param_card and set parameters
@@ -128,6 +129,7 @@ struct CPUTest : public CUDA_CPU_TestBase
 #endif
 
 #ifdef MGONGPUCPP_GPUIMPL
+template<bool USECHANNELIDS>
 struct CUDATest : public CUDA_CPU_TestBase
 {
   // Reset the device when our test goes out of scope. Note that this should happen after
@@ -168,7 +170,7 @@ struct CUDATest : public CUDA_CPU_TestBase
   std::unique_ptr<MatrixElementKernelBase> pmek;
 
   // Does this test use channelIds?
-  bool useChannelIds() const override final { return false; } // TEMPORARY? disable multi-channel in runTest.exe #466
+  bool useChannelIds() const override final { return USECHANNELIDS; }
 
   // Create a process object
   // Read param_card and set parameters
@@ -261,16 +263,16 @@ struct CUDATest : public CUDA_CPU_TestBase
 // Google macro is in https://github.com/google/googletest/blob/master/googletest/include/gtest/gtest-param-test.h
 #define TESTID_CPU( s ) s##_CPU
 #define XTESTID_CPU( s ) TESTID_CPU( s )
-#define MG_INSTANTIATE_TEST_SUITE_CPU( prefix, test_suite_name ) \
-INSTANTIATE_TEST_SUITE_P( prefix, \
+#define MG_INSTANTIATE_TEST_SUITE_CPU( prefix, test_suite_name )
+INSTANTIATE_TEST_SUITE_P( prefix,          \
                           test_suite_name, \
-                          testing::Values( new CPUTest( MG_EPOCH_REFERENCE_FILE_NAME ) ) );
+                          testing::Values( new CPUTest<false>( MG_EPOCH_REFERENCE_FILE_NAME ) ) ); // OLD: disable multi-channel in runTest.exe #466
 #define TESTID_GPU( s ) s##_GPU
 #define XTESTID_GPU( s ) TESTID_GPU( s )
 #define MG_INSTANTIATE_TEST_SUITE_GPU( prefix, test_suite_name ) \
 INSTANTIATE_TEST_SUITE_P( prefix, \
                           test_suite_name, \
-                          testing::Values( new CUDATest( MG_EPOCH_REFERENCE_FILE_NAME ) ) );
+                          testing::Values( new CUDATest<false>( MG_EPOCH_REFERENCE_FILE_NAME ) ) ); // OLD: disable multi-channel in runTest.exe #466
 
 #ifdef MGONGPUCPP_GPUIMPL
 MG_INSTANTIATE_TEST_SUITE_GPU( XTESTID_GPU( MG_EPOCH_PROCESS_ID ), MadgraphTest );
