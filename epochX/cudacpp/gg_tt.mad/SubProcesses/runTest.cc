@@ -56,9 +56,6 @@ struct CPUTest : public CUDA_CPU_TestBase
   HostBufferHelicityMask hstIsGoodHel;
   std::unique_ptr<MatrixElementKernelBase> pmek;
 
-  // Does this test use channelIds?
-  bool useChannelIds() const override final { return false; } // TEMPORARY? disable multi-channel in runTest.exe #466
-
   // Create a process object
   // Read param_card and set parameters
   // ** WARNING EVIL EVIL **
@@ -125,6 +122,20 @@ struct CPUTest : public CUDA_CPU_TestBase
     return MemoryAccessMatrixElements::ieventAccessConst( hstMatrixElements.data(), ievt );
   }
 };
+
+// Old test with multi-channel disabled
+struct CPUTestNoMultiChannel : public CPUTest
+{
+  // Does this test use channelIds?
+  bool useChannelIds() const override final { return false; } // TEMPORARY? disable multi-channel in runTest.exe #466
+
+  // Constructor
+  CPUTestNoMultiChannel( const std::string& refFileName )
+    : CPUTest( refFileName ) {}
+
+  // Destructor
+  virtual ~CPUTestNoMultiChannel() {}
+};  
 #endif
 
 #ifdef MGONGPUCPP_GPUIMPL
@@ -166,9 +177,6 @@ struct CUDATest : public CUDA_CPU_TestBase
   DeviceBufferSelectedColor devSelCol;
   DeviceBufferHelicityMask devIsGoodHel;
   std::unique_ptr<MatrixElementKernelBase> pmek;
-
-  // Does this test use channelIds?
-  bool useChannelIds() const override final { return false; } // TEMPORARY? disable multi-channel in runTest.exe #466
 
   // Create a process object
   // Read param_card and set parameters
@@ -254,26 +262,40 @@ struct CUDATest : public CUDA_CPU_TestBase
     return MemoryAccessMatrixElements::ieventAccessConst( hstMatrixElements.data(), ievt );
   }
 };
+
+// Old test with multi-channel disabled
+struct CUDATestNoMultiChannel : public CUDATest
+{
+  // Does this test use channelIds?
+  bool useChannelIds() const override final { return false; } // TEMPORARY? disable multi-channel in runTest.exe #466
+
+  // Constructor
+  CUDATestNoMultiChannel( const std::string& refFileName )
+    : CUDATest( refFileName ) {}
+
+  // Destructor
+  virtual ~CUDATestNoMultiChannel() {}
+};  
 #endif /* clang-format off */
 
 // Use two levels of macros to force stringification at the right level
 // (see https://gcc.gnu.org/onlinedocs/gcc-3.0.1/cpp_3.html#SEC17 and https://stackoverflow.com/a/3419392)
 // Google macro is in https://github.com/google/googletest/blob/master/googletest/include/gtest/gtest-param-test.h
-#define TESTID_CPU( s ) s##_CPU
-#define XTESTID_CPU( s ) TESTID_CPU( s )
-#define MG_INSTANTIATE_TEST_SUITE_CPU( prefix, test_suite_name ) \
+#define TESTID_CPU1( s ) s##_CPU_NOMULTICHANNEL
+#define XTESTID_CPU1( s ) TESTID_CPU1( s )
+#define MG_INSTANTIATE_TEST_SUITE_CPU1( prefix, test_suite_name ) \
 INSTANTIATE_TEST_SUITE_P( prefix, \
                           test_suite_name, \
-                          testing::Values( new CPUTest( MG_EPOCH_REFERENCE_FILE_NAME ) ) );
-#define TESTID_GPU( s ) s##_GPU
-#define XTESTID_GPU( s ) TESTID_GPU( s )
-#define MG_INSTANTIATE_TEST_SUITE_GPU( prefix, test_suite_name ) \
+                          testing::Values( new CPUTestNoMultiChannel( MG_EPOCH_REFERENCE_FILE_NAME ) ) );
+#define TESTID_GPU1( s ) s##_GPU_NOMULTICHANNEL
+#define XTESTID_GPU1( s ) TESTID_GPU1( s )
+#define MG_INSTANTIATE_TEST_SUITE_GPU1( prefix, test_suite_name ) \
 INSTANTIATE_TEST_SUITE_P( prefix, \
                           test_suite_name, \
-                          testing::Values( new CUDATest( MG_EPOCH_REFERENCE_FILE_NAME ) ) );
+                          testing::Values( new CUDATestNoMultiChannel( MG_EPOCH_REFERENCE_FILE_NAME ) ) );
 
 #ifdef MGONGPUCPP_GPUIMPL
-MG_INSTANTIATE_TEST_SUITE_GPU( XTESTID_GPU( MG_EPOCH_PROCESS_ID ), MadgraphTest );
+MG_INSTANTIATE_TEST_SUITE_GPU1( XTESTID_GPU1( MG_EPOCH_PROCESS_ID ), MadgraphTest );
 #else
-MG_INSTANTIATE_TEST_SUITE_CPU( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), MadgraphTest );
+MG_INSTANTIATE_TEST_SUITE_CPU1( XTESTID_CPU1( MG_EPOCH_PROCESS_ID ), MadgraphTest );
 #endif /* clang-format on */
