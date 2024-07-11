@@ -19,7 +19,8 @@ CXXFLAGS += -Igoogletest/googletest/include/ -std=c++11
 all: googletest/$(INSTALLDIR)/lib64/libgtest.a
 
 googletest/CMakeLists.txt:
-	git clone https://github.com/google/googletest.git -b release-1.11.0 googletest
+	git clone https://github.com/google/googletest.git -b v1.14.0 googletest
+#	git clone https://github.com/google/googletest.git -b release-1.11.0 googletest
 
 googletest/$(BUILDDIR)/Makefile: googletest/CMakeLists.txt
 	mkdir -p googletest/$(BUILDDIR)
