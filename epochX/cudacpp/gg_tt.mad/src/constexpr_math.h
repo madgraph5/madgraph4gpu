@@ -150,6 +150,8 @@ namespace mg5amcCpu
       assert( xx >= 0 && "The argument of constexpr_sin_quad is assumed to be in [0,2*pi)" );
       assert( xx < 2 * constexpr_pi && "The argument of constexpr_sin_quad is assumed to be in [0,2*pi)" );
     }
+    CONSTEXPRMATHVAR long double xxminuspi = xx - constexpr_pi;
+    CONSTEXPRMATHVAR long double twopiminusxx = 2 * constexpr_pi - xx;
 #ifdef CONSTEXPR_MATH_DEBUG
     static size_t call = 0;
     if( !assume0to2Pi ) call = 0;
@@ -157,26 +159,29 @@ namespace mg5amcCpu
     if( call > 10 )
     {
       std::cout << std::setprecision( 40 );
-      std::cout << "constexpr_sin_quad call=" << call << " xx=" << xx << std::endl;
+      std::cout << "constexpr_sin_quad call=" << call << std::endl
+                << "  xx=" << xx << std::endl
+                << "  (xx-pi)=" << xxminuspi << std::endl
+                << "  (2pi-xx)=" << twopiminusxx << std::endl;
       std::cout << std::setprecision( 6 );
       if( xx < 0 ) // 1. [-inf, 0)
-        std::cout << "-- case 1 (xx < 0)" << std::endl;
+        std::cout << "  -- case 1 (xx < 0)" << std::endl;
       else if( xx < constexpr_pi_by_4 ) // 2. [0/4*pi, 1/4*pi)
-        std::cout << "-- case 2 (xx < 1 * pi/4)" << std::endl;
+        std::cout << "  -- case 2 (xx < 1 * pi/4)" << std::endl;
       else if( xx < constexpr_pi_by_2 ) // 3. [1/4*pi, 2/4*pi)
-        std::cout << "-- case 3 (xx < 2 * pi/4)" << std::endl;
+        std::cout << "  -- case 3 (xx < 2 * pi/4)" << std::endl;
       else if( xx < 3 * constexpr_pi_by_4 ) // 4. [2/4*pi, 3/4*pi)
-        std::cout << "-- case 4 (xx < 3 * pi/4)" << std::endl;
+        std::cout << "  -- case 4 (xx < 3 * pi/4)" << std::endl;
       else if( xx < constexpr_pi ) // 5. [3/4*pi, 4/4*pi)
-        std::cout << "-- case 5 (xx < 4 * pi/4)" << std::endl;
+        std::cout << "  -- case 5 (xx < 4 * pi/4)" << std::endl;
       else if( xx < 2 * constexpr_pi ) // 6. [4/4*pi, 8/4*pi)
-        std::cout << "-- case 6 (xx < 8 * pi/4)" << std::endl;
+        std::cout << "  -- case 6 (xx < 8 * pi/4)" << std::endl;
       else // 7. [8/4*pi, +inf)
-        std::cout << "-- case 7 (xx < inf)" << std::endl;
+        std::cout << "  -- case 7 (xx < inf)" << std::endl;
     }
     assert( call < 20 );
 #endif
-    if( xx < 0 ) // 1. [-inf, 0)
+    if( xx < 0 ) // 1. (-inf, 0]
       return constexpr_sin_quad( mapIn0to2Pi( xx ), true );
     else if( xx < constexpr_pi_by_4 ) // 2. [0/4*pi, 1/4*pi)
       return sinTaylor( xx );
