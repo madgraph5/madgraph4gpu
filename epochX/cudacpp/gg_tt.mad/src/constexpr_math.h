@@ -128,9 +128,11 @@ namespace mg5amcCpu
       return sinTaylor( constexpr_pi_by_2 - xx );
     else if( xx < 3 * constexpr_pi_by_4 ) // [2/4*pi, 3/4*pi)
       return -sinTaylor( xx - constexpr_pi_by_2 );
-    else if( xx < constexpr_pi ) // [3/4*pi, 4/4*pi)
+    //else if( xx < constexpr_pi ) // [3/4*pi, 4/4*pi) *** INFINITE RECURSION! BUG #903 ***
+    else if( xx <= constexpr_pi ) // [3/4*pi, 4/4*pi] *** FIX BUG #903 ***
       return -constexpr_sqrt( 1 - constexpr_pow( sinTaylor( constexpr_pi - xx ), 2 ) );
-    else if( xx < 2 * constexpr_pi ) // [4/4*pi, 8/4*pi)
+    //else if( xx < 2 * constexpr_pi ) // [4/4*pi, 8/4*pi) *** INFINITE RECURSION! BUG #903 ***
+    else if( xx < 2 * constexpr_pi ) // (4/4*pi, 8/4*pi) *** FIX BUG #903 ***
       return constexpr_cos_quad( 2 * constexpr_pi - xx, true );
     else // [8/4*pi, +inf)
       return constexpr_cos_quad( mapIn0to2Pi( xx ), true );
@@ -150,9 +152,9 @@ namespace mg5amcCpu
       assert( xx >= 0 && "The argument of constexpr_sin_quad is assumed to be in [0,2*pi)" );
       assert( xx < 2 * constexpr_pi && "The argument of constexpr_sin_quad is assumed to be in [0,2*pi)" );
     }
+#ifdef CONSTEXPR_MATH_DEBUG
     CONSTEXPRMATHVAR long double xxminuspi = xx - constexpr_pi;
     CONSTEXPRMATHVAR long double twopiminusxx = 2 * constexpr_pi - xx;
-#ifdef CONSTEXPR_MATH_DEBUG
     static size_t call = 0;
     if( !assume0to2Pi ) call = 0;
     else call++;
