@@ -863,8 +863,8 @@ ifneq ($(UNAME_S),Darwin) # Disable testmisc on Darwin (workaround for issue #83
 ifeq ($(GPUCC),)
 $(BUILDDIR)/testmisc_cpp.o: $(GTESTLIBS)
 $(BUILDDIR)/testmisc_cpp.o: INCFLAGS += $(GTESTINC)
-#$(cxx_testmain): $(BUILDDIR)/testmisc_cpp.o
-#$(cxx_testmain): cxx_objects_exe += $(BUILDDIR)/testmisc_cpp.o # Comment out this line to skip the C++ miscellaneous tests
+$(cxx_testmain): $(BUILDDIR)/testmisc_cpp.o
+$(cxx_testmain): cxx_objects_exe += $(BUILDDIR)/testmisc_cpp.o # Comment out this line to skip the C++ miscellaneous tests
 else
 $(BUILDDIR)/testmisc_$(GPUSUFFIX).o: $(GTESTLIBS)
 $(BUILDDIR)/testmisc_$(GPUSUFFIX).o: INCFLAGS += $(GTESTINC)
