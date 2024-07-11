@@ -801,9 +801,11 @@ endif
 #-------------------------------------------------------------------------------
 
 # Generic target and build rules: objects from Fortran compilation
+# (NB In this makefile, this only applies to fcheck_sa_fortran.o)
+# (NB -fPIC was added to fix clang16 build #904, but this seems better for other cases too and is consistent to c++ and cuda builds)
 $(BUILDDIR)/%_fortran.o : %.f *.inc
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	$(FC) -I. -c $< -o $@
+	$(FC) -I. -fPIC -c $< -o $@
 
 # Generic target and build rules: objects from Fortran compilation
 ###$(BUILDDIR)/%_fortran.o : %.f *.inc
@@ -816,8 +818,6 @@ $(BUILDDIR)/%_fortran.o : %.f *.inc
 
 ifeq ($(UNAME_S),Darwin)
 $(cxx_fcheckmain): LIBFLAGS += -L$(shell dirname $(shell $(FC) --print-file-name libgfortran.dylib)) # add path to libgfortran on Mac #375
-else ifneq ($(shell $(CXX) --version | egrep '^clang'),)
-$(cxx_fcheckmain): LIBFLAGS += -no-pie # fix clang16 build #904 (see https://github.com/harvard-acc/ALADDIN/issues/35#issuecomment-716271605)
 endif
 $(cxx_fcheckmain): LIBFLAGS += $(CXXLIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(cxx_fcheckmain): $(BUILDDIR)/fcheck_sa_fortran.o $(BUILDDIR)/fsampler_cpp.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).so $(cxx_objects_exe)
