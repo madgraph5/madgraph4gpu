@@ -884,8 +884,8 @@ $(cxx_testmain): cxx_objects_exe += $(BUILDDIR)/testmisc_cpp.o # Comment out thi
 else
 $(BUILDDIR)/testmisc_$(GPUSUFFIX).o: $(GTESTLIBS)
 $(BUILDDIR)/testmisc_$(GPUSUFFIX).o: INCFLAGS += $(GTESTINC)
-#$(gpu_testmain): $(BUILDDIR)/testmisc_$(GPUSUFFIX).o
-#$(gpu_testmain): gpu_objects_exe += $(BUILDDIR)/testmisc_$(GPUSUFFIX).o # Comment out this line to skip the CUDA/HIP miscellaneous tests
+$(gpu_testmain): $(BUILDDIR)/testmisc_$(GPUSUFFIX).o
+$(gpu_testmain): gpu_objects_exe += $(BUILDDIR)/testmisc_$(GPUSUFFIX).o # Comment out this line to skip the CUDA/HIP miscellaneous tests
 endif
 endif
 
