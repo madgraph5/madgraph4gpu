@@ -380,6 +380,8 @@ ifeq ($(USEOPENMP),1)
     ###override OMPFLAGS = # disable OpenMP MT on Intel (was ok without GPUCC but not ok with GPUCC before #578)
   else ifneq ($(shell $(CXX) --version | egrep '^clang version 16'),)
     override OMPFLAGS = # disable OpenMP on clang16 #904
+  else ifneq ($(shell $(CXX) --version | egrep '^clang version 17'),)
+    override OMPFLAGS = # disable OpenMP on clang17 #904
   else ifneq ($(shell $(CXX) --version | egrep '^(clang)'),)
     override OMPFLAGS = -fopenmp
     ###override OMPFLAGS = # disable OpenMP MT on clang (was not ok without or with nvcc before #578)
