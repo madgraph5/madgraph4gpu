@@ -83,8 +83,11 @@ namespace mg5amcCpu
   // Taylor expansion : x - x**3/3! + x**5/5!
   CONSTEXPRMATHFUN long double sinTaylor( const long double xx )
   {
-    assert( xx >= 0 && "The argument of sinTaylor is assumed to be in [0,pi/4)" );
-    assert( xx < constexpr_pi_by_4 && "The argument of sinTaylor is assumed to be in [0,pi/4)" );
+#ifdef CONSTEXPR_MATH_DEBUG
+    if ( xx < 0 || xx >= constexpr_pi_by_4 ) std::cout << "sinTaylor xx=" << xx << std::endl;
+#endif
+    assert( xx >= 0 && "The argument of sinTaylor is lower than the expected range [0,pi/4)" );
+    assert( xx < constexpr_pi_by_4 && "The argument of sinTaylor is higher than the expected range [0,pi/4)" );
     long double sinx = 0;
     int ipow = 1;
     long double delta = xx;
@@ -124,15 +127,18 @@ namespace mg5amcCpu
       return constexpr_cos_quad( mapIn0to2Pi( xx ), true );
     else if( xx < constexpr_pi_by_4 ) // [0/4*pi, 1/4*pi)
       return constexpr_sqrt( 1 - constexpr_pow( sinTaylor( xx ), 2 ) );
-    else if( xx < constexpr_pi_by_2 ) // [1/4*pi, 2/4*pi)
+    else if( xx == constexpr_pi_by_4 ) // [1/4*pi] *** NEW (3rd FIX FOR #903)
+      return constexpr_sqrt( 0.5 );
+    //else if( xx < constexpr_pi_by_2 ) // [1/4*pi, 2/4*pi) *** OLD (BUG #903 assert fails in sinTaylor)
+    else if( xx < constexpr_pi_by_2 ) // (1/4*pi, 2/4*pi) *** NEW (3rd FIX FOR #903)
       return sinTaylor( constexpr_pi_by_2 - xx );
     else if( xx < 3 * constexpr_pi_by_4 ) // [2/4*pi, 3/4*pi)
       return -sinTaylor( xx - constexpr_pi_by_2 );
-    //else if( xx < constexpr_pi ) // [3/4*pi, 4/4*pi) *** INFINITE RECURSION! BUG #903 ***
-    else if( xx <= constexpr_pi ) // [3/4*pi, 4/4*pi] *** FIX BUG #903 ***
+    //else if( xx < constexpr_pi ) // [3/4*pi, 4/4*pi) *** OLD (BUG #903 infinite recursion)
+    else if( xx <= constexpr_pi ) // [3/4*pi, 4/4*pi] *** NEW (2nd FIX FOR #903)
       return -constexpr_sqrt( 1 - constexpr_pow( sinTaylor( constexpr_pi - xx ), 2 ) );
-    //else if( xx < 2 * constexpr_pi ) // [4/4*pi, 8/4*pi) *** INFINITE RECURSION! BUG #903 ***
-    else if( xx < 2 * constexpr_pi ) // (4/4*pi, 8/4*pi) *** FIX BUG #903 ***
+    //else if( xx < 2 * constexpr_pi ) // [4/4*pi, 8/4*pi) *** OLD (BUG #903 infinite recursion)
+    else if( xx < 2 * constexpr_pi ) // (4/4*pi, 8/4*pi) *** NEW (2nd FIX FOR #903)
       return constexpr_cos_quad( 2 * constexpr_pi - xx, true );
     else // [8/4*pi, +inf)
       return constexpr_cos_quad( mapIn0to2Pi( xx ), true );
@@ -187,15 +193,18 @@ namespace mg5amcCpu
       return constexpr_sin_quad( mapIn0to2Pi( xx ), true );
     else if( xx < constexpr_pi_by_4 ) // 2. [0/4*pi, 1/4*pi)
       return sinTaylor( xx );
-    else if( xx < constexpr_pi_by_2 ) // 3. [1/4*pi, 2/4*pi)
+    else if( xx == constexpr_pi_by_4 ) // 2bis. [1/4*pi] *** NEW (3rd FIX FOR #903)
+      return constexpr_sqrt( 0.5 );
+    //else if( xx < constexpr_pi_by_2 ) // 3. [1/4*pi, 2/4*pi) *** OLD (BUG #903 assert fails in sinTaylor)
+    else if( xx < constexpr_pi_by_2 ) // 3. (1/4*pi, 2/4*pi) *** NEW (3rd FIX FOR #903)
       return constexpr_sqrt( 1 - constexpr_pow( sinTaylor( constexpr_pi_by_2 - xx ), 2 ) );
     else if( xx < 3 * constexpr_pi_by_4 ) // 4. [2/4*pi, 3/4*pi)
       return constexpr_sqrt( 1 - constexpr_pow( sinTaylor( xx - constexpr_pi_by_2 ), 2 ) );
-    //else if( xx < constexpr_pi ) // 5. [3/4*pi, 4/4*pi) *** INFINITE RECURSION! BUG #903 ***
-    else if( xx <= constexpr_pi ) // 5. [3/4*pi, 4/4*pi] *** FIX BUG #903 ***
+    //else if( xx < constexpr_pi ) // 5. [3/4*pi, 4/4*pi) *** OLD (BUG #903 infinite recursion)
+    else if( xx <= constexpr_pi ) // 5. [3/4*pi, 4/4*pi] *** NEW (1st FIX FOR #903)
       return sinTaylor( constexpr_pi - xx );
-    //else if( xx < 2 * constexpr_pi ) // 6. [4/4*pi, 8/4*pi) *** INFINITE RECURSION! BUG #903 ***
-    else if( xx < 2 * constexpr_pi ) // 6. (4/4*pi, 8/4*pi) *** FIX BUG #903 ***
+    //else if( xx < 2 * constexpr_pi ) // 6. [4/4*pi, 8/4*pi) *** OLD (BUG #903 infinite recursion)
+    else if( xx < 2 * constexpr_pi ) // 6. (4/4*pi, 8/4*pi) *** NEW (1st FIX FOR #903)
       return -constexpr_sin_quad( 2 * constexpr_pi - xx, true );
     else // 7. [8/4*pi, +inf)
       return constexpr_sin_quad( mapIn0to2Pi( xx ), true );
