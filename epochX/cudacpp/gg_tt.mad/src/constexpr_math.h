@@ -43,6 +43,9 @@ namespace mg5amcCpu
       : std::numeric_limits<long double>::quiet_NaN();
   }
 
+  // SQRT constants
+  constexpr long double constexpr_sqrt2 = constexpr_sqrt( 2 );
+
   // Constexpr implementation of floor (see https://stackoverflow.com/a/66146159)
   constexpr int constexpr_floor( const long double xx )
   {
@@ -84,7 +87,7 @@ namespace mg5amcCpu
   CONSTEXPRMATHFUN long double sinTaylor( const long double xx )
   {
 #ifdef CONSTEXPR_MATH_DEBUG
-    if ( xx < 0 || xx >= constexpr_pi_by_4 ) std::cout << "sinTaylor xx=" << xx << std::endl;
+    if( xx < 0 || xx >= constexpr_pi_by_4 ) std::cout << "sinTaylor xx=" << xx << std::endl;
 #endif
     assert( xx >= 0 && "The argument of sinTaylor is lower than the expected range [0,pi/4)" );
     assert( xx < constexpr_pi_by_4 && "The argument of sinTaylor is higher than the expected range [0,pi/4)" );
@@ -109,6 +112,47 @@ namespace mg5amcCpu
     return sinx;
   }
 
+#ifdef CONSTEXPR_MATH_DEBUG
+  // Debug printouts for trig functions
+  inline void debug_constexpr_trig( const long double xx, size_t call )
+  {
+    CONSTEXPRMATHVAR long double xxminuspi = xx - constexpr_pi;
+    CONSTEXPRMATHVAR long double twopiminusxx = 2 * constexpr_pi - xx;
+    std::cout << std::setprecision( 40 );
+    std::cout << "constexpr_sin_quad call=" << call << std::endl
+              << "  xx=" << xx << std::endl
+              << "  (xx-pi)=" << xxminuspi << std::endl
+              << "  (2pi-xx)=" << twopiminusxx << std::endl;
+    std::cout << std::setprecision( 6 );
+    if( xx < 0 ) // (-inf, 0)
+      std::cout << "  -- case 1 (xx < 0)" << std::endl;
+    else if( xx == 0 ) // [0] *** NEW
+      std::cout << "  -- case 2 (xx == 0)" << std::endl;
+    else if( xx < constexpr_pi_by_4 ) // (0, 1/4*pi)
+      std::cout << "  -- case 3 (xx < pi/4)" << std::endl;
+    else if( xx == constexpr_pi_by_4 ) // [1/4*pi] *** NEW (3rd fix #903 assert fails)
+      std::cout << "  -- case 4 (xx == pi/4)" << std::endl;
+    else if( xx < constexpr_pi_by_2 ) // (1/4*pi, 1/2*pi)
+      std::cout << "  -- case 5 (xx < pi/2)" << std::endl;
+    else if( xx == constexpr_pi_by_2 ) // [1/2*pi] ** NEW
+      std::cout << "  -- case 6 (xx == pi/2)" << std::endl;
+    else if( xx < 3 * constexpr_pi_by_4 ) // (1/2*pi, 3/4*pi)
+      std::cout << "  -- case 7 (xx < 3*pi/4)" << std::endl;
+    else if( xx == 3 * constexpr_pi_by_4 ) // [3/4*pi] ** NEW
+      std::cout << "  -- case 8 (xx == 3*pi/4)" << std::endl;
+    else if( xx < constexpr_pi ) // (3/4*pi, pi)
+      std::cout << "  -- case 9 (xx < pi)" << std::endl;
+    else if( xx == constexpr_pi ) // [pi] *** NEW (2nd fix #903 infinite recursion)
+      std::cout << "  -- case 10 (xx == pi)" << std::endl;
+    else if( xx < 2 * constexpr_pi ) // (pi, 2*pi)
+      std::cout << "  -- case 11 (xx < 2*pi)" << std::endl;
+    else if( xx == 2 * constexpr_pi ) // [2*pi] ** NEW
+      std::cout << "  -- case 12 (xx == 2*pi)" << std::endl;
+    else // (2*pi, +inf)
+      std::cout << "  -- case 13 (xx > 2*pi)" << std::endl;
+  }
+#endif
+
   // Mapping to [0,2*pi) range (long double signature)
   constexpr long double mapIn0to2Pi( const long double xx )
   {
@@ -123,24 +167,40 @@ namespace mg5amcCpu
       assert( xx >= 0 && "The argument of constexpr_cos_quad is assumed to be in [0,2*pi)" );
       assert( xx < 2 * constexpr_pi && "The argument of constexpr_cos_quad is assumed to be in [0,2*pi)" );
     }
-    if( xx < 0 )
+#ifdef CONSTEXPR_MATH_DEBUG
+    static size_t call = 0;
+    if( !assume0to2Pi )
+      call = 0;
+    else
+      call++;
+    if( call > 10 ) debug_constexpr_trig( xx, call );
+    assert( call < 20 );
+#endif
+    if( xx < 0 ) // (-inf, 0)
       return constexpr_cos_quad( mapIn0to2Pi( xx ), true );
-    else if( xx < constexpr_pi_by_4 ) // [0/4*pi, 1/4*pi)
+    else if( xx == 0 ) // [0] *** NEW
+      return 1;
+    else if( xx < constexpr_pi_by_4 ) // (0, 1/4*pi)
       return constexpr_sqrt( 1 - constexpr_pow( sinTaylor( xx ), 2 ) );
-    else if( xx == constexpr_pi_by_4 ) // [1/4*pi] *** NEW (3rd FIX FOR #903)
-      return constexpr_sqrt( 0.5 );
-    //else if( xx < constexpr_pi_by_2 ) // [1/4*pi, 2/4*pi) *** OLD (BUG #903 assert fails in sinTaylor)
-    else if( xx < constexpr_pi_by_2 ) // (1/4*pi, 2/4*pi) *** NEW (3rd FIX FOR #903)
+    else if( xx == constexpr_pi_by_4 ) // [1/4*pi] *** NEW (3rd fix #903 assert fails)
+      return 1 / constexpr_sqrt2;
+    else if( xx < constexpr_pi_by_2 ) // (1/4*pi, 1/2*pi)
       return sinTaylor( constexpr_pi_by_2 - xx );
-    else if( xx < 3 * constexpr_pi_by_4 ) // [2/4*pi, 3/4*pi)
+    else if( xx == constexpr_pi_by_2 ) // [1/2*pi] ** NEW
+      return 0;
+    else if( xx < 3 * constexpr_pi_by_4 ) // (1/2*pi, 3/4*pi)
       return -sinTaylor( xx - constexpr_pi_by_2 );
-    //else if( xx < constexpr_pi ) // [3/4*pi, 4/4*pi) *** OLD (BUG #903 infinite recursion)
-    else if( xx <= constexpr_pi ) // [3/4*pi, 4/4*pi] *** NEW (2nd FIX FOR #903)
+    else if( xx == 3 * constexpr_pi_by_4 ) // [3/4*pi] ** NEW
+      return -1 / constexpr_sqrt2;
+    else if( xx < constexpr_pi ) // (3/4*pi, pi)
       return -constexpr_sqrt( 1 - constexpr_pow( sinTaylor( constexpr_pi - xx ), 2 ) );
-    //else if( xx < 2 * constexpr_pi ) // [4/4*pi, 8/4*pi) *** OLD (BUG #903 infinite recursion)
-    else if( xx < 2 * constexpr_pi ) // (4/4*pi, 8/4*pi) *** NEW (2nd FIX FOR #903)
+    else if( xx == constexpr_pi ) // [pi] *** NEW (2nd fix #903 infinite recursion)
+      return -1;
+    else if( xx < 2 * constexpr_pi ) // (pi, 2*pi)
       return constexpr_cos_quad( 2 * constexpr_pi - xx, true );
-    else // [8/4*pi, +inf)
+    else if( xx == 2 * constexpr_pi ) // [2*pi] ** NEW
+      return 1;
+    else // (2*pi, +inf)
       return constexpr_cos_quad( mapIn0to2Pi( xx ), true );
   }
 
@@ -159,54 +219,39 @@ namespace mg5amcCpu
       assert( xx < 2 * constexpr_pi && "The argument of constexpr_sin_quad is assumed to be in [0,2*pi)" );
     }
 #ifdef CONSTEXPR_MATH_DEBUG
-    CONSTEXPRMATHVAR long double xxminuspi = xx - constexpr_pi;
-    CONSTEXPRMATHVAR long double twopiminusxx = 2 * constexpr_pi - xx;
     static size_t call = 0;
-    if( !assume0to2Pi ) call = 0;
-    else call++;
-    if( call > 10 )
-    {
-      std::cout << std::setprecision( 40 );
-      std::cout << "constexpr_sin_quad call=" << call << std::endl
-                << "  xx=" << xx << std::endl
-                << "  (xx-pi)=" << xxminuspi << std::endl
-                << "  (2pi-xx)=" << twopiminusxx << std::endl;
-      std::cout << std::setprecision( 6 );
-      if( xx < 0 ) // 1. [-inf, 0)
-        std::cout << "  -- case 1 (xx < 0)" << std::endl;
-      else if( xx < constexpr_pi_by_4 ) // 2. [0/4*pi, 1/4*pi)
-        std::cout << "  -- case 2 (xx < 1 * pi/4)" << std::endl;
-      else if( xx < constexpr_pi_by_2 ) // 3. [1/4*pi, 2/4*pi)
-        std::cout << "  -- case 3 (xx < 2 * pi/4)" << std::endl;
-      else if( xx < 3 * constexpr_pi_by_4 ) // 4. [2/4*pi, 3/4*pi)
-        std::cout << "  -- case 4 (xx < 3 * pi/4)" << std::endl;
-      else if( xx < constexpr_pi ) // 5. [3/4*pi, 4/4*pi)
-        std::cout << "  -- case 5 (xx < 4 * pi/4)" << std::endl;
-      else if( xx < 2 * constexpr_pi ) // 6. [4/4*pi, 8/4*pi)
-        std::cout << "  -- case 6 (xx < 8 * pi/4)" << std::endl;
-      else // 7. [8/4*pi, +inf)
-        std::cout << "  -- case 7 (xx < inf)" << std::endl;
-    }
+    if( !assume0to2Pi )
+      call = 0;
+    else
+      call++;
+    if( call > 10 ) debug_constexpr_trig( xx, call );
     assert( call < 20 );
 #endif
-    if( xx < 0 ) // 1. (-inf, 0]
+    if( xx < 0 ) // (-inf, 0)
       return constexpr_sin_quad( mapIn0to2Pi( xx ), true );
-    else if( xx < constexpr_pi_by_4 ) // 2. [0/4*pi, 1/4*pi)
+    else if( xx == 0 ) // [0] *** NEW
+      return 0;
+    else if( xx < constexpr_pi_by_4 ) // (0, 1/4*pi)
       return sinTaylor( xx );
-    else if( xx == constexpr_pi_by_4 ) // 2bis. [1/4*pi] *** NEW (3rd FIX FOR #903)
-      return constexpr_sqrt( 0.5 );
-    //else if( xx < constexpr_pi_by_2 ) // 3. [1/4*pi, 2/4*pi) *** OLD (BUG #903 assert fails in sinTaylor)
-    else if( xx < constexpr_pi_by_2 ) // 3. (1/4*pi, 2/4*pi) *** NEW (3rd FIX FOR #903)
+    else if( xx == constexpr_pi_by_4 ) // [1/4*pi] *** NEW (3rd fix #903 assert fails)
+      return 1 / constexpr_sqrt2;
+    else if( xx < constexpr_pi_by_2 ) // (1/4*pi, 1/2*pi)
       return constexpr_sqrt( 1 - constexpr_pow( sinTaylor( constexpr_pi_by_2 - xx ), 2 ) );
-    else if( xx < 3 * constexpr_pi_by_4 ) // 4. [2/4*pi, 3/4*pi)
+    else if( xx == constexpr_pi_by_2 ) // [1/2*pi] ** NEW
+      return 1;
+    else if( xx < 3 * constexpr_pi_by_4 ) // (1/2*pi, 3/4*pi)
       return constexpr_sqrt( 1 - constexpr_pow( sinTaylor( xx - constexpr_pi_by_2 ), 2 ) );
-    //else if( xx < constexpr_pi ) // 5. [3/4*pi, 4/4*pi) *** OLD (BUG #903 infinite recursion)
-    else if( xx <= constexpr_pi ) // 5. [3/4*pi, 4/4*pi] *** NEW (1st FIX FOR #903)
+    else if( xx == 3 * constexpr_pi_by_4 ) // [3/4*pi] ** NEW
+      return 1 / constexpr_sqrt2;
+    else if( xx < constexpr_pi ) // (3/4*pi, pi)
       return sinTaylor( constexpr_pi - xx );
-    //else if( xx < 2 * constexpr_pi ) // 6. [4/4*pi, 8/4*pi) *** OLD (BUG #903 infinite recursion)
-    else if( xx < 2 * constexpr_pi ) // 6. (4/4*pi, 8/4*pi) *** NEW (1st FIX FOR #903)
+    else if( xx == constexpr_pi ) // [pi] *** NEW (1st fix #903 infinite recursion)
+      return 0;
+    else if( xx < 2 * constexpr_pi ) // (pi, 2*pi)
       return -constexpr_sin_quad( 2 * constexpr_pi - xx, true );
-    else // 7. [8/4*pi, +inf)
+    else if( xx == 2 * constexpr_pi ) // [2*pi] ** NEW
+      return 0;
+    else // (2*pi, +inf)
       return constexpr_sin_quad( mapIn0to2Pi( xx ), true );
   }
 
