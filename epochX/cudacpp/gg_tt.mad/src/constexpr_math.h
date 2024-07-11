@@ -10,13 +10,18 @@
 
 #include <cassert>
 #include <cmath>
+#include <iomanip>
 #include <limits>
 
 // FOR DEBUGGING!
-#undef CONSTEXPR_MATH_DEBUG // no-debug
-//#define CONSTEXPR_MATH_DEBUG 1 // debug
+//#undef CONSTEXPR_MATH_DEBUG // no-debug
+#define CONSTEXPR_MATH_DEBUG 1 // debug
 #ifdef CONSTEXPR_MATH_DEBUG
-#define constexpr const
+#define CONSTEXPRMATHFUN inline
+#define CONSTEXPRMATHVAR const
+#else
+#define CONSTEXPRMATHFUN constexpr
+#define CONSTEXPRMATHVAR constexpr
 #endif
 
 // NB: namespaces mg5amcGpu and mg5amcCpu includes types which are defined in different ways for CPU and GPU builds (see #318 and #725)
@@ -76,7 +81,7 @@ namespace mg5amcCpu
 
   // Constexpr implementation of sin for 0<x<pi/4 (long double signature)
   // Taylor expansion : x - x**3/3! + x**5/5!
-  constexpr long double sinTaylor( const long double xx )
+  CONSTEXPRMATHFUN long double sinTaylor( const long double xx )
   {
     assert( xx >= 0 && "The argument of sinTaylor is assumed to be in [0,pi/4)" );
     assert( xx < constexpr_pi_by_4 && "The argument of sinTaylor is assumed to be in [0,pi/4)" );
@@ -88,13 +93,16 @@ namespace mg5amcCpu
       long double sinxlast = sinx;
       sinx += delta;
 #ifdef CONSTEXPR_MATH_DEBUG
-      std::cout << "ipow=" << ipow << ", delta=" << delta << ", sinx=" << sinx << std::endl; // for debugging (not constexpr)
+      //std::cout << "ipow=" << ipow << ", delta=" << delta << ", sinx=" << sinx << std::endl; // for debugging (not constexpr)
 #endif
       if( sinx == sinxlast ) break;
       // Next iteration
       ipow += 2;
       delta *= -xx * xx / ( ipow - 1 ) / ipow;
     }
+#ifdef CONSTEXPR_MATH_DEBUG
+    //std::cout << "ipow=" << ipow << ", delta=" << delta << ", sinx=" << sinx << std::endl; // for debugging (not constexpr)
+#endif
     return sinx;
   }
 
@@ -105,7 +113,7 @@ namespace mg5amcCpu
   }
 
   // Constexpr implementation of cos (long double signature)
-  constexpr long double constexpr_cos_quad( const long double xx, const bool assume0to2Pi = false )
+  CONSTEXPRMATHFUN long double constexpr_cos_quad( const long double xx, const bool assume0to2Pi = false )
   {
     if( assume0to2Pi )
     {
@@ -129,43 +137,69 @@ namespace mg5amcCpu
   }
 
   // Constexpr implementation of cos (double signature, internally implemented as long double)
-  constexpr double constexpr_cos( const double x )
+  CONSTEXPRMATHFUN double constexpr_cos( const double x )
   {
     return constexpr_cos_quad( x );
   }
 
   // Constexpr implementation of sin (long double signature)
-  constexpr long double constexpr_sin_quad( const long double xx, const bool assume0to2Pi = false )
+  CONSTEXPRMATHFUN long double constexpr_sin_quad( const long double xx, const bool assume0to2Pi = false )
   {
     if( assume0to2Pi )
     {
       assert( xx >= 0 && "The argument of constexpr_sin_quad is assumed to be in [0,2*pi)" );
       assert( xx < 2 * constexpr_pi && "The argument of constexpr_sin_quad is assumed to be in [0,2*pi)" );
     }
-    if( xx < 0 )
+#ifdef CONSTEXPR_MATH_DEBUG
+    static size_t call = 0;
+    if( !assume0to2Pi ) call = 0;
+    else call++;
+    if( call > 10 )
+    {
+      std::cout << std::setprecision( 40 );
+      std::cout << "constexpr_sin_quad call=" << call << " xx=" << xx << std::endl;
+      std::cout << std::setprecision( 6 );
+      if( xx < 0 ) // 1. [-inf, 0)
+        std::cout << "-- case 1 (xx < 0)" << std::endl;
+      else if( xx < constexpr_pi_by_4 ) // 2. [0/4*pi, 1/4*pi)
+        std::cout << "-- case 2 (xx < 1 * pi/4)" << std::endl;
+      else if( xx < constexpr_pi_by_2 ) // 3. [1/4*pi, 2/4*pi)
+        std::cout << "-- case 3 (xx < 2 * pi/4)" << std::endl;
+      else if( xx < 3 * constexpr_pi_by_4 ) // 4. [2/4*pi, 3/4*pi)
+        std::cout << "-- case 4 (xx < 3 * pi/4)" << std::endl;
+      else if( xx < constexpr_pi ) // 5. [3/4*pi, 4/4*pi)
+        std::cout << "-- case 5 (xx < 4 * pi/4)" << std::endl;
+      else if( xx < 2 * constexpr_pi ) // 6. [4/4*pi, 8/4*pi)
+        std::cout << "-- case 6 (xx < 8 * pi/4)" << std::endl;
+      else // 7. [8/4*pi, +inf)
+        std::cout << "-- case 7 (xx < inf)" << std::endl;
+    }
+    assert( call < 20 );
+#endif
+    if( xx < 0 ) // 1. [-inf, 0)
       return constexpr_sin_quad( mapIn0to2Pi( xx ), true );
-    else if( xx < constexpr_pi_by_4 ) // [0/4*pi, 1/4*pi)
+    else if( xx < constexpr_pi_by_4 ) // 2. [0/4*pi, 1/4*pi)
       return sinTaylor( xx );
-    else if( xx < constexpr_pi_by_2 ) // [1/4*pi, 2/4*pi)
+    else if( xx < constexpr_pi_by_2 ) // 3. [1/4*pi, 2/4*pi)
       return constexpr_sqrt( 1 - constexpr_pow( sinTaylor( constexpr_pi_by_2 - xx ), 2 ) );
-    else if( xx < 3 * constexpr_pi_by_4 ) // [2/4*pi, 3/4*pi)
+    else if( xx < 3 * constexpr_pi_by_4 ) // 4. [2/4*pi, 3/4*pi)
       return constexpr_sqrt( 1 - constexpr_pow( sinTaylor( xx - constexpr_pi_by_2 ), 2 ) );
-    else if( xx < constexpr_pi ) // [3/4*pi, 4/4*pi)
+    else if( xx < constexpr_pi ) // 5. [3/4*pi, 4/4*pi)
       return sinTaylor( constexpr_pi - xx );
-    else if( xx < 2 * constexpr_pi ) // [4/4*pi, 8/4*pi)
+    else if( xx < 2 * constexpr_pi ) // 6. [4/4*pi, 8/4*pi)
       return -constexpr_sin_quad( 2 * constexpr_pi - xx, true );
-    else // [8/4*pi, +inf)
+    else // 7. [8/4*pi, +inf)
       return constexpr_sin_quad( mapIn0to2Pi( xx ), true );
   }
 
   // Constexpr implementation of sin (double signature, internally implemented as long double)
-  constexpr double constexpr_sin( const double x )
+  CONSTEXPRMATHFUN double constexpr_sin( const double x )
   {
     return constexpr_sin_quad( x );
   }
 
   // Constexpr implementation of tan (long double signature)
-  constexpr long double constexpr_tan_quad( const long double xx, const bool assume0to2Pi = false )
+  CONSTEXPRMATHFUN long double constexpr_tan_quad( const long double xx, const bool assume0to2Pi = false )
   {
     if( assume0to2Pi )
     {
@@ -181,14 +215,14 @@ namespace mg5amcCpu
   }
 
   // Constexpr implementation of tan (double signature, internally implemented as long double)
-  constexpr double constexpr_tan( const double x )
+  CONSTEXPRMATHFUN double constexpr_tan( const double x )
   {
     return constexpr_tan_quad( x );
   }
 
   // Constexpr implementation of atan for -1<x<1 (long double signature)
   // Taylor expansion : x - x**3/3 + x**5/5...
-  constexpr long double atanTaylor( const long double xx )
+  CONSTEXPRMATHFUN long double atanTaylor( const long double xx )
   {
     assert( xx >= -1 && "The argument of atanTaylor is assumed to be in (-1,+1)" );
     assert( xx < 1 && "The argument of atanTaylor is assumed to be in (-1,+1)" );
@@ -200,7 +234,7 @@ namespace mg5amcCpu
       long double atanxlast = atanx;
       atanx += xpow / ipow;
 #ifdef CONSTEXPR_MATH_DEBUG
-      std::cout << "ipow=" << ipow << ", xpow=" << xpow << ", atanx=" << atanx << std::endl; // for debugging (not constexpr)
+      //std::cout << "ipow=" << ipow << ", xpow=" << xpow << ", atanx=" << atanx << std::endl; // for debugging (not constexpr)
 #endif
       if( atanx == atanxlast ) break;
       // Next iteration
@@ -211,7 +245,7 @@ namespace mg5amcCpu
   }
 
   // Constexpr implementation of atan (long double signature)
-  constexpr long double constexpr_atan_quad( const long double xx )
+  CONSTEXPRMATHFUN long double constexpr_atan_quad( const long double xx )
   {
     if( xx > 1 )
       return constexpr_pi_by_2 - atanTaylor( 1 / xx );
@@ -226,7 +260,7 @@ namespace mg5amcCpu
   }
 
   // Constexpr implementation of atan (double signature, internally implemented as long double)
-  constexpr double constexpr_atan( const double x )
+  CONSTEXPRMATHFUN double constexpr_atan( const double x )
   {
     return constexpr_atan_quad( x );
   }
