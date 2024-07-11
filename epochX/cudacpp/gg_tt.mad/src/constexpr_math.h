@@ -189,9 +189,11 @@ namespace mg5amcCpu
       return constexpr_sqrt( 1 - constexpr_pow( sinTaylor( constexpr_pi_by_2 - xx ), 2 ) );
     else if( xx < 3 * constexpr_pi_by_4 ) // 4. [2/4*pi, 3/4*pi)
       return constexpr_sqrt( 1 - constexpr_pow( sinTaylor( xx - constexpr_pi_by_2 ), 2 ) );
-    else if( xx < constexpr_pi ) // 5. [3/4*pi, 4/4*pi)
+    //else if( xx < constexpr_pi ) // 5. [3/4*pi, 4/4*pi) *** INFINITE RECURSION! BUG #903 ***
+    else if( xx <= constexpr_pi ) // 5. [3/4*pi, 4/4*pi] *** FIX BUG #903 ***
       return sinTaylor( constexpr_pi - xx );
-    else if( xx < 2 * constexpr_pi ) // 6. [4/4*pi, 8/4*pi)
+    //else if( xx < 2 * constexpr_pi ) // 6. [4/4*pi, 8/4*pi) *** INFINITE RECURSION! BUG #903 ***
+    else if( xx < 2 * constexpr_pi ) // 6. (4/4*pi, 8/4*pi) *** FIX BUG #903 ***
       return -constexpr_sin_quad( 2 * constexpr_pi - xx, true );
     else // 7. [8/4*pi, +inf)
       return constexpr_sin_quad( mapIn0to2Pi( xx ), true );
