@@ -394,6 +394,8 @@ ifeq ($(override_OMPFLAGS),true)
   else ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
     override OMPFLAGS = -fopenmp
     ###override OMPFLAGS = # disable OpenMP MT on Intel (was ok without GPUCC but not ok with GPUCC before #578)
+  else ifneq ($(shell $(CXX) --version | egrep '^clang version 16'),)
+    override OMPFLAGS = # disable OpenMP on clang16 #904
   else ifneq ($(shell $(CXX) --version | egrep '^(clang)'),)
     override OMPFLAGS = -fopenmp
     ###override OMPFLAGS = # disable OpenMP MT on clang (was not ok without or with nvcc before #578)
@@ -812,6 +814,8 @@ $(BUILDDIR)/%_fortran.o : %.f *.inc
 
 ifeq ($(UNAME_S),Darwin)
 $(cxx_fcheckmain): LIBFLAGS += -L$(shell dirname $(shell $(FC) --print-file-name libgfortran.dylib)) # add path to libgfortran on Mac #375
+else ifneq ($(shell $(CXX) --version | egrep '^clang'),)
+$(cxx_fcheckmain): LIBFLAGS += -no-pie # fix clang16 build #904 (see https://github.com/harvard-acc/ALADDIN/issues/35#issuecomment-716271605)
 endif
 $(cxx_fcheckmain): LIBFLAGS += $(CXXLIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(cxx_fcheckmain): $(BUILDDIR)/fcheck_sa_fortran.o $(BUILDDIR)/fsampler_cpp.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).so $(cxx_objects_exe)
