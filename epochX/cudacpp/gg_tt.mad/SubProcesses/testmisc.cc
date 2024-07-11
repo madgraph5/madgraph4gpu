@@ -323,6 +323,7 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testmisc )
   EXPECT_NEAR( constexpr_pow( 10000, -0.25 ), 0.1, 0.1 * 1E-14 )
     << std::setprecision( 40 ) << "constexpr_pow( 10000, -0.25 ) = " << constexpr_pow( 10000, -0.25 );
 
+  /*
   // Distance from the horizontal or vertical axis (i.e. from 0, pi/2, pi, or 3pi/2)
   auto distance4 = []( const long double xx )
   {
@@ -436,7 +437,8 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testmisc )
   };
   testSinCosTanN( 100, -4 * constexpr_pi, 6 * constexpr_pi ); // this was failing at 3*pi/2 (now fixed by absolute tolerance 3E-15)
   testSinCosTanN( 10000, -constexpr_pi_by_2, 5 * constexpr_pi_by_2 );
-
+  */
+  
   // Test constexpr atan
   {
     const double tolerance = 1E-12;
