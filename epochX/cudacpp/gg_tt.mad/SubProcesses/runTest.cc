@@ -137,11 +137,11 @@ struct CPUTestNoMultiChannel : public CPUTest
 
   // Constructor
   CPUTestNoMultiChannel( const std::string& refFileName )
-    : CPUTest( refFileName ) {}
+    : CPUTest( refFileName ) {} // suffix .txt
 
   // Destructor
   virtual ~CPUTestNoMultiChannel() {}
-};  
+};
 
 // New test with multi-channel enabled #896
 struct CPUTestMultiChannel : public CPUTest
@@ -151,11 +151,11 @@ struct CPUTestMultiChannel : public CPUTest
 
   // Constructor
   CPUTestMultiChannel( const std::string& refFileName )
-    : CPUTest( refFileName ) {}
+    : CPUTest( refFileName + "2" ) {} // suffix .txt2
 
   // Destructor
   virtual ~CPUTestMultiChannel() {}
-};  
+};
 #endif
 
 #ifdef MGONGPUCPP_GPUIMPL
@@ -288,11 +288,11 @@ struct CUDATestNoMultiChannel : public CUDATest
 
   // Constructor
   CUDATestNoMultiChannel( const std::string& refFileName )
-    : CUDATest( refFileName ) {}
+    : CUDATest( refFileName ) {} // suffix .txt
 
   // Destructor
   virtual ~CUDATestNoMultiChannel() {}
-};  
+};
 
 // New test with multi-channel enabled #896
 struct CUDATestMultiChannel : public CUDATest
@@ -302,11 +302,11 @@ struct CUDATestMultiChannel : public CUDATest
 
   // Constructor
   CUDATestMultiChannel( const std::string& refFileName )
-    : CUDATest( refFileName ) {}
+    : CUDATest( refFileName + "2" ) {} // suffix .txt2
 
   // Destructor
   virtual ~CUDATestMultiChannel() {}
-};  
+};
 #endif /* clang-format off */
 
 // AV July 2024 much simpler class structure without the presently-unnecessary googletest templates
