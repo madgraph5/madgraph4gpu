@@ -245,21 +245,35 @@ struct CUDATest : public CUDA_CPU_TestBase
 // Use two levels of macros to force stringification at the right level
 // (see https://gcc.gnu.org/onlinedocs/gcc-3.0.1/cpp_3.html#SEC17 and https://stackoverflow.com/a/3419392)
 // Google macro is in https://github.com/google/googletest/blob/master/googletest/include/gtest/gtest-param-test.h
-#define TESTID_CPU( s ) s##_CPU
-#define XTESTID_CPU( s ) TESTID_CPU( s )
-#define MG_INSTANTIATE_TEST_SUITE_CPU( prefix, test_suite_name ) \
+#define TESTID_CPU1( s ) s##_CPU1
+#define XTESTID_CPU1( s ) TESTID_CPU1( s )
+#define MG_INSTANTIATE_TEST_SUITE_CPU1( prefix, test_suite_name ) \
 INSTANTIATE_TEST_SUITE_P( prefix, \
                           test_suite_name, \
                           testing::Values( new CPUTest( MG_EPOCH_REFERENCE_FILE_NAME ) ) );
-#define TESTID_GPU( s ) s##_GPU
-#define XTESTID_GPU( s ) TESTID_GPU( s )
-#define MG_INSTANTIATE_TEST_SUITE_GPU( prefix, test_suite_name ) \
+#define TESTID_CPU2( s ) s##_CPU2
+#define XTESTID_CPU2( s ) TESTID_CPU2( s )
+#define MG_INSTANTIATE_TEST_SUITE_CPU2( prefix, test_suite_name ) \
+INSTANTIATE_TEST_SUITE_P( prefix, \
+                          test_suite_name, \
+                          testing::Values( new CPUTest( MG_EPOCH_REFERENCE_FILE_NAME ) ) );
+#define TESTID_GPU1( s ) s##_GPU1
+#define XTESTID_GPU1( s ) TESTID_GPU1( s )
+#define MG_INSTANTIATE_TEST_SUITE_GPU1( prefix, test_suite_name ) \
+INSTANTIATE_TEST_SUITE_P( prefix, \
+                          test_suite_name, \
+                          testing::Values( new CUDATest( MG_EPOCH_REFERENCE_FILE_NAME ) ) );
+#define TESTID_GPU2( s ) s##_GPU2
+#define XTESTID_GPU2( s ) TESTID_GPU2( s )
+#define MG_INSTANTIATE_TEST_SUITE_GPU2( prefix, test_suite_name ) \
 INSTANTIATE_TEST_SUITE_P( prefix, \
                           test_suite_name, \
                           testing::Values( new CUDATest( MG_EPOCH_REFERENCE_FILE_NAME ) ) );
 
 #ifdef MGONGPUCPP_GPUIMPL
-MG_INSTANTIATE_TEST_SUITE_GPU( XTESTID_GPU( MG_EPOCH_PROCESS_ID ), MadgraphTest );
+MG_INSTANTIATE_TEST_SUITE_GPU1( XTESTID_GPU1( MG_EPOCH_PROCESS_ID ), MadgraphTest );
+MG_INSTANTIATE_TEST_SUITE_GPU2( XTESTID_GPU2( MG_EPOCH_PROCESS_ID ), MadgraphTest );
 #else
-MG_INSTANTIATE_TEST_SUITE_CPU( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), MadgraphTest );
+MG_INSTANTIATE_TEST_SUITE_CPU1( XTESTID_CPU1( MG_EPOCH_PROCESS_ID ), MadgraphTest );
+MG_INSTANTIATE_TEST_SUITE_CPU2( XTESTID_CPU2( MG_EPOCH_PROCESS_ID ), MadgraphTest );
 #endif /* clang-format on */
