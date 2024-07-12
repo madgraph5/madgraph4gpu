@@ -258,10 +258,10 @@ MadgraphTest mgTest2( cppDriver2 );
 // Instantiate Google tests
 TEST( XTESTID1( MG_EPOCH_PROCESS_ID ), compareMomAndME )
 {
-  mgTest1.CompareMomentaAndME();
+  mgTest1.CompareMomentaAndME( *this );
 }
 TEST( XTESTID2( MG_EPOCH_PROCESS_ID ), compareMomAndME )
 {
-  mgTest2.CompareMomentaAndME();
+  mgTest2.CompareMomentaAndME( *this );
 }
 /* clang-format on */

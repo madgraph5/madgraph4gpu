@@ -167,12 +167,12 @@ class MadgraphTest
 public:
   MadgraphTest( TestDriverBase& testDriverRef ) : testDriver( &testDriverRef ) {}
   ~MadgraphTest() {}
-  void CompareMomentaAndME() const;
+  void CompareMomentaAndME( testing::Test& googleTest ) const; // NB: googleTest is ONLY needed for the HasFailure method...
 private:
   TestDriverBase* testDriver; // non-owning pointer
 };
 
-void MadgraphTest::CompareMomentaAndME() const
+void MadgraphTest::CompareMomentaAndME( testing::Test& googleTest ) const
 {
   const fptype toleranceMomenta = std::is_same<double, fptype>::value ? 1.E-10 : 4.E-2; // see #735
 #ifdef __APPLE__
@@ -205,7 +205,7 @@ void MadgraphTest::CompareMomentaAndME() const
   {
     referenceData = readReferenceData( refFileName );
   }
-  //ASSERT_FALSE( HasFailure() ); // It doesn't make any sense to continue if we couldn't read the reference file.
+  ASSERT_FALSE( googleTest.HasFailure() ); // It doesn't make any sense to continue if we couldn't read the reference file.
   // **************************************
   // *** START MAIN LOOP ON #ITERATIONS ***
   // **************************************
@@ -215,8 +215,7 @@ void MadgraphTest::CompareMomentaAndME() const
     testDriver->prepareMomenta( energy );
     testDriver->runSigmaKin( iiter );
     // --- Run checks on all events produced in this iteration
-    //for( std::size_t ievt = 0; ievt < testDriver->nevt && !HasFailure(); ++ievt )
-    for( std::size_t ievt = 0; ievt < testDriver->nevt; ++ievt )
+    for( std::size_t ievt = 0; ievt < testDriver->nevt && !googleTest.HasFailure(); ++ievt )
     {
       if( dumpEvents )
       {
