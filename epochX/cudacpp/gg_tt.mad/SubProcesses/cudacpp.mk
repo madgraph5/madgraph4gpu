@@ -378,6 +378,10 @@ ifeq ($(USEOPENMP),1)
   else ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
     override OMPFLAGS = -fopenmp
     ###override OMPFLAGS = # disable OpenMP MT on Intel (was ok without GPUCC but not ok with GPUCC before #578)
+  else ifneq ($(shell $(CXX) --version | egrep '^clang version 16'),)
+    override OMPFLAGS = # disable OpenMP on clang16 #904
+  else ifneq ($(shell $(CXX) --version | egrep '^clang version 17'),)
+    override OMPFLAGS = # disable OpenMP on clang17 #904
   else ifneq ($(shell $(CXX) --version | egrep '^(clang)'),)
     override OMPFLAGS = -fopenmp
     ###override OMPFLAGS = # disable OpenMP MT on clang (was not ok without or with nvcc before #578)
@@ -640,10 +644,20 @@ endif
 
 # Target (and build options): debug
 MAKEDEBUG=
-debug: OPTFLAGS   = -g -O0
+debug: OPTFLAGS = -g -O0
 debug: CUDA_OPTFLAGS = -G
 debug: MAKEDEBUG := debug
 debug: all.$(TAG)
+
+# Target (and build options): address sanitizer #207
+###CXXLIBFLAGSASAN =
+###GPULIBFLAGSASAN =
+###asan: OPTFLAGS = -g -O0 -fsanitize=address -fno-omit-frame-pointer
+###asan: CUDA_OPTFLAGS = -G $(XCOMPILERFLAG) -fsanitize=address $(XCOMPILERFLAG) -fno-omit-frame-pointer
+###asan: CXXLIBFLAGSASAN = -fsanitize=address
+###asan: GPULIBFLAGSASAN = -Xlinker -fsanitize=address -Xlinker -shared
+###asan: MAKEDEBUG := debug
+###asan: all.$(TAG)
 
 # Target: tag-specific build lockfiles
 override oldtagsb=`if [ -d $(BUILDDIR) ]; then find $(BUILDDIR) -maxdepth 1 -name '.build.*' ! -name '.build.$(TAG)' -exec echo $(shell pwd)/{} \; ; fi`
@@ -765,11 +779,13 @@ endif
 #-------------------------------------------------------------------------------
 
 # Target (and build rules): C++ and CUDA/HIP standalone executables
+###$(cxx_checkmain): LIBFLAGS += $(CXXLIBFLAGSASAN)
 $(cxx_checkmain): LIBFLAGS += $(CXXLIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(cxx_checkmain): $(BUILDDIR)/check_sa_cpp.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).so $(cxx_objects_exe) $(BUILDDIR)/CurandRandomNumberKernel_cpp.o $(BUILDDIR)/HiprandRandomNumberKernel_cpp.o
 	$(CXX) -o $@ $(BUILDDIR)/check_sa_cpp.o $(OMPFLAGS) -ldl -pthread $(LIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CXXLIB) $(cxx_objects_exe) $(BUILDDIR)/CurandRandomNumberKernel_cpp.o $(BUILDDIR)/HiprandRandomNumberKernel_cpp.o $(RNDLIBFLAGS)
 
 ifneq ($(GPUCC),)
+###$(gpu_checkmain): LIBFLAGS += $(GPULIBFLAGSASAN)
 ifneq ($(shell $(CXX) --version | grep ^Intel),)
 $(gpu_checkmain): LIBFLAGS += -lintlc # compile with icpx and link with GPUCC (undefined reference to `_intel_fast_memcpy')
 $(gpu_checkmain): LIBFLAGS += -lsvml # compile with icpx and link with GPUCC (undefined reference to `__svml_cos4_l9')
@@ -784,9 +800,11 @@ endif
 #-------------------------------------------------------------------------------
 
 # Generic target and build rules: objects from Fortran compilation
+# (NB In this makefile, this only applies to fcheck_sa_fortran.o)
+# (NB -fPIC was added to fix clang16 build #904, but this seems better for other cases too and is consistent to c++ and cuda builds)
 $(BUILDDIR)/%_fortran.o : %.f *.inc
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	$(FC) -I. -c $< -o $@
+	$(FC) -I. -fPIC -c $< -o $@
 
 # Generic target and build rules: objects from Fortran compilation
 ###$(BUILDDIR)/%_fortran.o : %.f *.inc
@@ -797,6 +815,7 @@ $(BUILDDIR)/%_fortran.o : %.f *.inc
 # Target (and build rules): Fortran standalone executables
 ###$(BUILDDIR)/fcheck_sa_fortran.o : $(INCDIR)/fbridge.inc
 
+###$(cxx_fcheckmain): LIBFLAGS += $(CXXLIBFLAGSASAN)
 ifeq ($(UNAME_S),Darwin)
 $(cxx_fcheckmain): LIBFLAGS += -L$(shell dirname $(shell $(FC) --print-file-name libgfortran.dylib)) # add path to libgfortran on Mac #375
 endif
@@ -809,6 +828,7 @@ else
 endif
 
 ifneq ($(GPUCC),)
+###$(gpu_fcheckmain): LIBFLAGS += $(GPULIBFLAGSASAN)
 ifneq ($(shell $(CXX) --version | grep ^Intel),)
 $(gpu_fcheckmain): LIBFLAGS += -lintlc # compile with icpx and link with GPUCC (undefined reference to `_intel_fast_memcpy')
 $(gpu_fcheckmain): LIBFLAGS += -lsvml # compile with icpx and link with GPUCC (undefined reference to `__svml_cos4_l9')
@@ -911,10 +931,12 @@ endif
 ###endif
 
 ifeq ($(GPUCC),) # link only runTest_cpp.o
+###$(cxx_testmain): LIBFLAGS += $(CXXLIBFLAGSASAN)
 $(cxx_testmain): LIBFLAGS += $(CXXLIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(cxx_testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects_lib) $(cxx_objects_exe) $(GTESTLIBS)
 	$(CXX) -o $@ $(cxx_objects_lib) $(cxx_objects_exe) -ldl -pthread $(LIBFLAGS)
 else # link only runTest_$(GPUSUFFIX).o (new: in the past, this was linking both runTest_cpp.o and runTest_$(GPUSUFFIX).o)
+###$(gpu_testmain): LIBFLAGS += $(GPULIBFLAGSASAN)
 $(gpu_testmain): LIBFLAGS += $(GPULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(gpu_testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(gpu_objects_lib) $(gpu_objects_exe) $(GTESTLIBS)
 ifneq ($(findstring hipcc,$(GPUCC)),) # link fortran/c++/hip using $FC when hipcc is used #802
