@@ -429,12 +429,27 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
 
 //==========================================================================
 
+// Reset the GPU after ALL tests have gone out of scope
+// (This was needed to avoid leaks in profilers, but compute-sanitizer reports no leaks, is it STILL needed?)
+// ========= NB: resetting the GPU too early causes segfaults that are very difficult to debug #907 =========
+// Try to use atexit (https://stackoverflow.com/a/14610501) but this still crashes!
+// ********* FIXME? avoid CUDA API calls in destructors? (see https://stackoverflow.com/a/16982503) *********
+void
+myexit()
+{
+#ifdef MGONGPUCPP_GPUIMPL
+  //checkGpu( gpuDeviceReset() ); // FIXME??? this still crashes! should systematically avoid CUDA calls in all destructors?
+#endif
+}
+
 // Main function (see https://google.github.io/googletest/primer.html#writing-the-main-function)
 // (NB: the test executables are now separate for C++ and CUDA, therefore main must be included all the time)
 // (NB: previously, '#ifndef MGONGPUCPP_GPUIMPL' was ensuring that main was only included once while linking both C++ and CUDA tests)
 int
 main( int argc, char** argv )
 {
+  atexit( myexit );
   testing::InitGoogleTest( &argc, argv );
-  return RUN_ALL_TESTS();
+  int status = RUN_ALL_TESTS();
+  return status;
 }
