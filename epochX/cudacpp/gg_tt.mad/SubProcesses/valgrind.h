@@ -1,3 +1,4 @@
+/* clang-format off */
 /* -*- c -*-
    ----------------------------------------------------------------
 
@@ -7166,3 +7167,4 @@ VALGRIND_PRINTF_BACKTRACE(const char *format, ...)
 #undef PLAT_amd64_solaris
 
 #endif   /* __VALGRIND_H */
+/* clang-format on */
