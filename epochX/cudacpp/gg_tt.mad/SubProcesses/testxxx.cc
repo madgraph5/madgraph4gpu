@@ -434,7 +434,8 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
 // ========= NB: resetting the GPU too early causes segfaults that are very difficult to debug #907 =========
 // Try to use atexit (https://stackoverflow.com/a/14610501) but this still crashes!
 // ********* FIXME? avoid CUDA API calls in destructors? (see https://stackoverflow.com/a/16982503) *********
-void myexit()
+void
+myexit()
 {
 #ifdef MGONGPUCPP_GPUIMPL
   //checkGpu( gpuDeviceReset() ); // FIXME??? this still crashes! should systematically avoid CUDA calls in all destructors?
@@ -450,5 +451,5 @@ main( int argc, char** argv )
   atexit( myexit );
   testing::InitGoogleTest( &argc, argv );
   int status = RUN_ALL_TESTS();
-  return status;  
+  return status;
 }

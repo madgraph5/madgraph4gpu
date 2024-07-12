@@ -165,14 +165,16 @@ public:
 class MadgraphTest
 {
 public:
-  MadgraphTest( TestDriverBase& testDriverRef ) : testDriver( &testDriverRef ) {}
+  MadgraphTest( TestDriverBase& testDriverRef )
+    : testDriver( &testDriverRef ) {}
   ~MadgraphTest() {}
   void CompareMomentaAndME( testing::Test& googleTest ) const; // NB: googleTest is ONLY needed for the HasFailure method...
 private:
   TestDriverBase* testDriver; // non-owning pointer
 };
 
-void MadgraphTest::CompareMomentaAndME( testing::Test& googleTest ) const
+void
+MadgraphTest::CompareMomentaAndME( testing::Test& googleTest ) const
 {
   const fptype toleranceMomenta = std::is_same<double, fptype>::value ? 1.E-10 : 4.E-2; // see #735
 #ifdef __APPLE__
