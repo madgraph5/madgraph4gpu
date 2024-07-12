@@ -123,16 +123,6 @@ struct CPUTest : public CUDA_CPU_TestBase
 #ifdef MGONGPUCPP_GPUIMPL
 struct CUDATest : public CUDA_CPU_TestBase
 {
-  // Reset the device when our test goes out of scope. Note that this should happen after
-  // the frees, i.e. be declared before the pointers to device memory.
-  struct DeviceReset
-  {
-    ~DeviceReset()
-    {
-      //checkGpu( gpuDeviceReset() ); // this is needed by cuda-memcheck --leak-check full
-    }
-  } deviceResetter;
-
   // Struct data members (process, and memory structures for random numbers, momenta, matrix elements and weights on host and device)
   // [NB the hst/dev memory arrays must be initialised in the constructor, see issue #290]
   CPPProcess process;
@@ -275,4 +265,11 @@ TEST( XTESTID2( MG_EPOCH_PROCESS_ID ), compareMomAndME )
 {
   mgTest2.CompareMomentaAndME();
 }
+struct DeviceReset
+{
+  ~DeviceReset()
+  {
+    checkGpu( gpuDeviceReset() ); // this is needed by cuda-memcheck --leak-check full
+  }
+} deviceResetter;
 /* clang-format on */
