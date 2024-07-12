@@ -12,6 +12,7 @@
 
 #include "constexpr_math.h"
 #include "epoch_process_id.h"
+#include "valgrind.h"
 
 #include <gtest/gtest.h>
 
@@ -334,9 +335,10 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testmisc )
   };
 
   // Test constexpr sin, cos, tan - specific, problematic, points
-  auto testSinCosTanX = []( const long double xx, const double tolerance, const bool debug = false, const long long istep = -999999999 )
+  auto testSinCosTanX = []( const long double xx, const double tolerance0, const bool debug = false, const long long istep = -999999999 )
   {
     const double x = (double)xx;
+    const double tolerance = tolerance0 * ( !RUNNING_ON_VALGRIND ? 1 : 1100 ); // higher tolerance when running through valgrind #906
     if( debug )
     {
       //std::cout << std::setprecision(40) << "testSinCosTanX: xx= " << xx << std::endl;
@@ -353,8 +355,26 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testmisc )
       << "x=" << x << ", x(0to2Pi)=" << mapIn0to2Pi( x ) << ", istep=" << istep;
     EXPECT_NEAR( std::cos( x ), constexpr_cos( x ), std::abs( std::cos( x ) * tolerance ) )
       << "x=" << x << ", x(0to2Pi)=" << mapIn0to2Pi( x ) << ", istep=" << istep;
-    EXPECT_NEAR( std::tan( x ), constexpr_tan( x ), std::abs( std::tan( x ) * tolerance ) )
-      << "x=" << x << ", x(0to2Pi)=" << mapIn0to2Pi( x ) << ", istep=" << istep;
+    if( !RUNNING_ON_VALGRIND )
+    {
+      EXPECT_NEAR( std::tan( x ), constexpr_tan( x ), std::abs( std::tan( x ) * tolerance ) )
+        << "x=" << x << ", x(0to2Pi)=" << mapIn0to2Pi( x ) << ", istep=" << istep;
+    }
+    else
+    {
+      // Higher tolerance when running through valgrind #906
+      const long double ctanx = constexpr_tan( x );
+      const long double taninf = 4E14; // declare tan(x) as "infinity if above this threshold
+      if( ctanx > -taninf && ctanx < taninf )
+        EXPECT_NEAR( std::tan( x ), ctanx, std::abs( std::tan( x ) * tolerance ) )
+          << "x=" << x << ", x(0to2Pi)=" << mapIn0to2Pi( x ) << ", istep=" << istep;
+      else if( ctanx > 0 )
+        EXPECT_GT( std::tan( x ), taninf )
+          << "x=" << x << ", x(0to2Pi)=" << mapIn0to2Pi( x ) << ", istep=" << istep;
+      else
+        EXPECT_LT( std::tan( x ), -taninf )
+          << "x=" << x << ", x(0to2Pi)=" << mapIn0to2Pi( x ) << ", istep=" << istep;
+    }
     std::cout << std::setprecision( 6 ); // default
   };
   testSinCosTanX( constexpr_pi, 1E-3, true );                                         // from math.h
@@ -425,13 +445,32 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testmisc )
     for( int istep = 0; istep < nstep + 1; istep++ )
     {
       double x = x0 + istep * ( x1 - x0 ) / nstep; // test this for double (else std::cos and std::sin use long double)
-      const double tolerance = toleranceForX( x );
+      const double tolerance0 = toleranceForX( x );
+      const double tolerance = tolerance0 * ( !RUNNING_ON_VALGRIND ? 1 : 1100 ); // higher tolerance when running through valgrind #906
       EXPECT_NEAR( std::sin( x ), constexpr_sin( x ), std::max( std::abs( std::sin( x ) * tolerance ), 3E-15 ) )
         << std::setprecision( 40 ) << "x=" << x << ", x(0to2Pi)=" << mapIn0to2Pi( x ) << ",\n istep=" << istep << ", distance4=" << distance4( x );
       EXPECT_NEAR( std::cos( x ), constexpr_cos( x ), std::max( std::abs( std::cos( x ) * tolerance ), 3E-15 ) )
         << std::setprecision( 40 ) << "x=" << x << ", x(0to2Pi)=" << mapIn0to2Pi( x ) << ",\n istep=" << istep << ", distance4=" << distance4( x );
-      EXPECT_NEAR( std::tan( x ), constexpr_tan( x ), std::max( std::abs( std::tan( x ) * tolerance ), 3E-15 ) )
-        << std::setprecision( 40 ) << "x=" << x << ", x(0to2Pi)=" << mapIn0to2Pi( x ) << ",\n istep=" << istep << ", distance4=" << distance4( x );
+      if( !RUNNING_ON_VALGRIND )
+      {
+        EXPECT_NEAR( std::tan( x ), constexpr_tan( x ), std::max( std::abs( std::tan( x ) * tolerance ), 3E-15 ) )
+          << std::setprecision( 40 ) << "x=" << x << ", x(0to2Pi)=" << mapIn0to2Pi( x ) << ",\n istep=" << istep << ", distance4=" << distance4( x );
+      }
+      else
+      {
+        // Higher tolerance when running through valgrind #906
+        const long double ctanx = constexpr_tan( x );
+        const long double taninf = 4E14; // declare tan(x) as "infinity if above this threshold
+        if( ctanx > -taninf && ctanx < taninf )
+          EXPECT_NEAR( std::tan( x ), constexpr_tan( x ), std::max( std::abs( std::tan( x ) * tolerance ), 3E-15 ) )
+            << std::setprecision( 40 ) << "x=" << x << ", x(0to2Pi)=" << mapIn0to2Pi( x ) << ",\n istep=" << istep << ", distance4=" << distance4( x );
+        else if( ctanx > 0 )
+          EXPECT_GT( std::tan( x ), taninf )
+            << std::setprecision( 40 ) << "x=" << x << ", x(0to2Pi)=" << mapIn0to2Pi( x ) << ",\n istep=" << istep << ", distance4=" << distance4( x );
+        else
+          EXPECT_LT( std::tan( x ), -taninf )
+            << std::setprecision( 40 ) << "x=" << x << ", x(0to2Pi)=" << mapIn0to2Pi( x ) << ",\n istep=" << istep << ", distance4=" << distance4( x );
+      }
     }
   };
   testSinCosTanN( 100, -4 * constexpr_pi, 6 * constexpr_pi ); // this was failing at 3*pi/2 (now fixed by absolute tolerance 3E-15)
