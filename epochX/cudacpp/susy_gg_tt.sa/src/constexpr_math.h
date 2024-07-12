@@ -13,9 +13,11 @@
 #include <iomanip>
 #include <limits>
 
-// FOR DEBUGGING!
-//#undef CONSTEXPR_MATH_DEBUG // no-debug
-#define CONSTEXPR_MATH_DEBUG 1 // debug
+// SWITCH ON/OFF DEBUGGING
+#undef CONSTEXPR_MATH_DEBUG // no-debug
+//#define CONSTEXPR_MATH_DEBUG 1 // debug
+
+// FOR DEBUGGING
 #ifdef CONSTEXPR_MATH_DEBUG
 #define CONSTEXPRMATHFUN inline
 #define CONSTEXPRMATHVAR const
