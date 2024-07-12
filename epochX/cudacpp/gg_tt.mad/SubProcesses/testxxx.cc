@@ -436,5 +436,11 @@ int
 main( int argc, char** argv )
 {
   testing::InitGoogleTest( &argc, argv );
-  return RUN_ALL_TESTS();
+  int status = RUN_ALL_TESTS();
+  // Reset the GPU after ALL tests have gone out of scope (possibly needed to avoid leaks in profilers)
+  // ***** NB: resetting the GPU too early causes segfaults that are very difficult to debug #907 *****
+#ifdef MGONGPUCPP_GPUIMPL
+  checkGpu( gpuDeviceReset() );
+#endif
+  return status;  
 }

@@ -255,7 +255,6 @@ MadgraphTest mgTest2( cppDriver2 );
 #define TESTID2( s ) s##_CPU_MADGRAPH2
 #define XTESTID2( s ) TESTID2( s )
 #endif
-
 // Instantiate Google tests
 TEST( XTESTID1( MG_EPOCH_PROCESS_ID ), compareMomAndME )
 {
@@ -265,11 +264,4 @@ TEST( XTESTID2( MG_EPOCH_PROCESS_ID ), compareMomAndME )
 {
   mgTest2.CompareMomentaAndME();
 }
-struct DeviceReset
-{
-  ~DeviceReset()
-  {
-    checkGpu( gpuDeviceReset() ); // this is needed by cuda-memcheck --leak-check full
-  }
-} deviceResetter;
 /* clang-format on */
