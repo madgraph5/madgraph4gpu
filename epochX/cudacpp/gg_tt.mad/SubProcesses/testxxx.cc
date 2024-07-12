@@ -437,7 +437,7 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
 void myexit()
 {
 #ifdef MGONGPUCPP_GPUIMPL
-  checkGpu( gpuDeviceReset() );
+  //checkGpu( gpuDeviceReset() ); // FIXME??? this still crashes! should systematically avoid CUDA calls in all destructors?
 #endif
 }
 
