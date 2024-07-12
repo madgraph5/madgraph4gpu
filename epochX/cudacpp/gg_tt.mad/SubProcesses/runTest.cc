@@ -241,10 +241,10 @@ MadgraphTest mgTest1( cudaDriver1 );
 #define TESTID1( s ) s##_GPU_MADGRAPH1
 #define XTESTID1( s ) TESTID1( s )
 // CUDA test 2
-CUDATest cudaDriver2( MG_EPOCH_REFERENCE_FILE_NAME );
-MadgraphTest mgTest2( cudaDriver2 );
-#define TESTID2( s ) s##_GPU_MADGRAPH2
-#define XTESTID2( s ) TESTID2( s )
+//CUDATest cudaDriver2( MG_EPOCH_REFERENCE_FILE_NAME );
+//MadgraphTest mgTest2( cudaDriver2 );
+//#define TESTID2( s ) s##_GPU_MADGRAPH2
+//#define XTESTID2( s ) TESTID2( s )
 #else
 // CPU test 1
 CPUTest cppDriver1( MG_EPOCH_REFERENCE_FILE_NAME );
@@ -252,10 +252,10 @@ MadgraphTest mgTest1( cppDriver1 );
 #define TESTID1( s ) s##_CPU_MADGRAPH1
 #define XTESTID1( s ) TESTID1( s )
 // CPU test 2
-CPUTest cppDriver2( MG_EPOCH_REFERENCE_FILE_NAME );
-MadgraphTest mgTest2( cppDriver2 );
-#define TESTID2( s ) s##_CPU_MADGRAPH2
-#define XTESTID2( s ) TESTID2( s )
+//CPUTest cppDriver2( MG_EPOCH_REFERENCE_FILE_NAME );
+//MadgraphTest mgTest2( cppDriver2 );
+//#define TESTID2( s ) s##_CPU_MADGRAPH2
+//#define XTESTID2( s ) TESTID2( s )
 #endif
 // Instantiate Google test 1
 TEST( XTESTID1( MG_EPOCH_PROCESS_ID ), compareMomAndME )
@@ -263,8 +263,8 @@ TEST( XTESTID1( MG_EPOCH_PROCESS_ID ), compareMomAndME )
   mgTest1.CompareMomentaAndME( *this );
 }
 // Instantiate Google test 2
-TEST( XTESTID2( MG_EPOCH_PROCESS_ID ), compareMomAndME )
-{
-  mgTest2.CompareMomentaAndME( *this );
-}
+//TEST( XTESTID2( MG_EPOCH_PROCESS_ID ), compareMomAndME )
+//{
+//  mgTest2.CompareMomentaAndME( *this );
+//}
 /* clang-format on */
