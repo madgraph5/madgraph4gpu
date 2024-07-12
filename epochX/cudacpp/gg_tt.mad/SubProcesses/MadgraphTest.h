@@ -97,29 +97,6 @@ namespace
  * Users need to implement:
  * - Functions to retrieve matrix element and 4-momenta. These are used in the tests.
  * - Driver functions that run the madgraph workflow.
- *
- * Usage:
- * ```
- * class TestImplementation : public TestDriverBase {
- *   <override all pure-virtual functions with Madgraph workflow>
- * }
- *
- * class TestImplementation2 : public TestDriverBase {
- *   <override all pure-virtual functions with a different Madgraph workflow>
- * }
- *
- * INSTANTIATE_TEST_SUITE_P( TestName,
- *                           MadgraphTest,
- *                           testing::Values( new TestImplementation, new TestImplementation2, ... ) );
- *```
- *
- * For adapting the test workflow, see the .cc and adapt
- *   TEST_P(MadgraphTest, CompareMomentaAndME)
- *
- * To add a test that should be runnable with all test implementations that derive from TestDriverBase, add a new
- *   TEST_P(MadgraphTest, <TestName>) {
- *     <test code>
- *   }
  */
 class TestDriverBase
 {
@@ -184,34 +161,18 @@ public:
 
 /**
  * Test class that's defining all tests to run with a Madgraph workflow.
- * The tests are defined below using TEST_P.
- * Instantiate them using:
- * ```
- * INSTANTIATE_TEST_SUITE_P( TestName,
- *                           MadgraphTest,
- *                           testing::Values( new TestImplementation, new TestImplementation2, ... ) );
- * ```
  */
-class MadgraphTest : public testing::TestWithParam<TestDriverBase*>
+class MadgraphTest
 {
-protected:
-  std::unique_ptr<TestDriverBase> testDriver;
-
-  MadgraphTest()
-    : TestWithParam(), testDriver( GetParam() )
-  {
-  }
+public:
+  MadgraphTest( TestDriverBase& testDriverRef ) : testDriver( &testDriverRef ) {}
+  ~MadgraphTest() {}
+  void CompareMomentaAndME() const;
+private:
+  TestDriverBase* testDriver; // non-owning pointer
 };
 
-// WARNING: before the split of C++ and CUDA builds, both CPU and GPU tests were linked together into the same executable;
-// it was therefore necessary to prevent multiply-defined symbols by only compiling this when "#ifndef MGONGPUCPP_GPUIMPL";
-// now that runTest.exe only contains either CPU or GPU tests, this is no longer necessary!
-//#ifndef MGONGPUCPP_GPUIMPL
-
-/// Compare momenta and matrix elements.
-/// This uses an implementation of TestDriverBase to run a madgraph workflow,
-/// and compares momenta and matrix elements with a reference file.
-TEST_P( MadgraphTest, CompareMomentaAndME )
+void MadgraphTest::CompareMomentaAndME() const
 {
   const fptype toleranceMomenta = std::is_same<double, fptype>::value ? 1.E-10 : 4.E-2; // see #735
 #ifdef __APPLE__
@@ -244,7 +205,7 @@ TEST_P( MadgraphTest, CompareMomentaAndME )
   {
     referenceData = readReferenceData( refFileName );
   }
-  ASSERT_FALSE( HasFailure() ); // It doesn't make any sense to continue if we couldn't read the reference file.
+  //ASSERT_FALSE( HasFailure() ); // It doesn't make any sense to continue if we couldn't read the reference file.
   // **************************************
   // *** START MAIN LOOP ON #ITERATIONS ***
   // **************************************
@@ -254,7 +215,8 @@ TEST_P( MadgraphTest, CompareMomentaAndME )
     testDriver->prepareMomenta( energy );
     testDriver->runSigmaKin( iiter );
     // --- Run checks on all events produced in this iteration
-    for( std::size_t ievt = 0; ievt < testDriver->nevt && !HasFailure(); ++ievt )
+    //for( std::size_t ievt = 0; ievt < testDriver->nevt && !HasFailure(); ++ievt )
+    for( std::size_t ievt = 0; ievt < testDriver->nevt; ++ievt )
     {
       if( dumpEvents )
       {
@@ -320,10 +282,5 @@ TEST_P( MadgraphTest, CompareMomentaAndME )
     std::cout << "Event dump written to " << dumpFileName << std::endl;
   }
 }
-
-// WARNING: before the split of C++ and CUDA builds, both CPU and GPU tests were linked together into the same executable;
-// it was therefore necessary to prevent multiply-defined symbols by only compiling this when "#ifndef MGONGPUCPP_GPUIMPL";
-// now that runTest.exe only contains either CPU or GPU tests, this is no longer necessary!
-//#endif // MGONGPUCPP_GPUIMPL
 
 #endif /* MADGRAPHTEST_H_ */

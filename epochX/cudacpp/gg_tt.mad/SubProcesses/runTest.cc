@@ -242,24 +242,37 @@ struct CUDATest : public CUDA_CPU_TestBase
 };
 #endif /* clang-format off */
 
-// Use two levels of macros to force stringification at the right level
-// (see https://gcc.gnu.org/onlinedocs/gcc-3.0.1/cpp_3.html#SEC17 and https://stackoverflow.com/a/3419392)
-// Google macro is in https://github.com/google/googletest/blob/master/googletest/include/gtest/gtest-param-test.h
-#define TESTID_CPU( s ) s##_CPU
-#define XTESTID_CPU( s ) TESTID_CPU( s )
-#define MG_INSTANTIATE_TEST_SUITE_CPU( prefix, test_suite_name ) \
-INSTANTIATE_TEST_SUITE_P( prefix, \
-                          test_suite_name, \
-                          testing::Values( new CPUTest( MG_EPOCH_REFERENCE_FILE_NAME ) ) );
-#define TESTID_GPU( s ) s##_GPU
-#define XTESTID_GPU( s ) TESTID_GPU( s )
-#define MG_INSTANTIATE_TEST_SUITE_GPU( prefix, test_suite_name ) \
-INSTANTIATE_TEST_SUITE_P( prefix, \
-                          test_suite_name, \
-                          testing::Values( new CUDATest( MG_EPOCH_REFERENCE_FILE_NAME ) ) );
-
+// AV July 2024 much simpler class structure without the presently-unnecessary googletest templates
+// This is meant as a workaround to prevent not-understood segfault #907 when adding a second test
 #ifdef MGONGPUCPP_GPUIMPL
-MG_INSTANTIATE_TEST_SUITE_GPU( XTESTID_GPU( MG_EPOCH_PROCESS_ID ), MadgraphTest );
+// CUDA tests
+CUDATest cudaDriver1( MG_EPOCH_REFERENCE_FILE_NAME );
+CUDATest cudaDriver2( MG_EPOCH_REFERENCE_FILE_NAME );
+MadgraphTest mgTest1( cudaDriver1 );
+MadgraphTest mgTest2( cudaDriver2 );
+#define TESTID1( s ) s##_GPU_MADGRAPH1
+#define XTESTID1( s ) TESTID1( s )
+#define TESTID2( s ) s##_GPU_MADGRAPH2
+#define XTESTID2( s ) TESTID2( s )
 #else
-MG_INSTANTIATE_TEST_SUITE_CPU( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), MadgraphTest );
-#endif /* clang-format on */
+// CPU tests
+CPUTest cppDriver1( MG_EPOCH_REFERENCE_FILE_NAME );
+CPUTest cppDriver2( MG_EPOCH_REFERENCE_FILE_NAME );
+MadgraphTest mgTest1( cppDriver1 );
+MadgraphTest mgTest2( cppDriver2 );
+#define TESTID1( s ) s##_CPU_MADGRAPH1
+#define XTESTID1( s ) TESTID1( s )
+#define TESTID2( s ) s##_CPU_MADGRAPH2
+#define XTESTID2( s ) TESTID2( s )
+#endif
+
+// Instantiate Google tests
+TEST( XTESTID1( MG_EPOCH_PROCESS_ID ), compareMomAndME )
+{
+  mgTest1.CompareMomentaAndME();
+}
+TEST( XTESTID2( MG_EPOCH_PROCESS_ID ), compareMomAndME )
+{
+  mgTest2.CompareMomentaAndME();
+}
+/* clang-format on */
