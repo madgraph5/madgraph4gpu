@@ -73,12 +73,16 @@ struct CPUTest : public CUDA_CPU_TestBase
     , hstIsGoodHel( CPPProcess::ncomb )
     , pmek( new MatrixElementKernelHost( hstMomenta, hstGs, hstRndHel, hstRndCol, hstMatrixElements, hstSelHel, hstSelCol, nevt ) )
   {
+    std::cout << "CPUTest ctor" << std::endl;
     // FIXME: the process instance can happily go out of scope because it is only needed to read parameters?
     // FIXME: the CPPProcess should really be a singleton?
     process.initProc( "../../Cards/param_card.dat" );
   }
 
-  virtual ~CPUTest() {}
+  virtual ~CPUTest()
+  {
+    std::cout << "CPUTest dtor" << std::endl;
+  }
 
   void prepareRandomNumbers( unsigned int iiter ) override
   {
@@ -188,12 +192,17 @@ struct CUDATest : public CUDA_CPU_TestBase
     , devIsGoodHel( CPPProcess::ncomb )
     , pmek( new MatrixElementKernelDevice( devMomenta, devGs, devRndHel, devRndCol, devMatrixElements, devSelHel, devSelCol, gpublocks, gputhreads ) )
   {
+    std::cout << "CUDATest ctor" << std::endl;
     // FIXME: the process instance can happily go out of scope because it is only needed to read parameters?
     // FIXME: the CPPProcess should really be a singleton?
     process.initProc( "../../Cards/param_card.dat" );
   }
 
-  virtual ~CUDATest() {}
+  virtual ~CUDATest()
+  {
+    std::cout << "CUDATest dtor" << std::endl;
+  }
+
 
   void prepareRandomNumbers( unsigned int iiter ) override
   {
