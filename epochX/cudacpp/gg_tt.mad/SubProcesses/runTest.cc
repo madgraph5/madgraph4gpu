@@ -73,16 +73,12 @@ struct CPUTest : public CUDA_CPU_TestBase
     , hstIsGoodHel( CPPProcess::ncomb )
     , pmek( new MatrixElementKernelHost( hstMomenta, hstGs, hstRndHel, hstRndCol, hstMatrixElements, hstSelHel, hstSelCol, nevt ) )
   {
-    std::cout << "CPUTest ctor" << std::endl;
     // FIXME: the process instance can happily go out of scope because it is only needed to read parameters?
     // FIXME: the CPPProcess should really be a singleton?
     process.initProc( "../../Cards/param_card.dat" );
   }
 
-  virtual ~CPUTest()
-  {
-    std::cout << "CPUTest dtor" << std::endl;
-  }
+  virtual ~CPUTest() {}
 
   void prepareRandomNumbers( unsigned int iiter ) override
   {
@@ -192,17 +188,12 @@ struct CUDATest : public CUDA_CPU_TestBase
     , devIsGoodHel( CPPProcess::ncomb )
     , pmek( new MatrixElementKernelDevice( devMomenta, devGs, devRndHel, devRndCol, devMatrixElements, devSelHel, devSelCol, gpublocks, gputhreads ) )
   {
-    std::cout << "CUDATest ctor" << std::endl;
     // FIXME: the process instance can happily go out of scope because it is only needed to read parameters?
     // FIXME: the CPPProcess should really be a singleton?
     process.initProc( "../../Cards/param_card.dat" );
   }
 
-  virtual ~CUDATest()
-  {
-    std::cout << "CUDATest dtor" << std::endl;
-  }
-
+  virtual ~CUDATest() {}
 
   void prepareRandomNumbers( unsigned int iiter ) override
   {
@@ -259,15 +250,14 @@ struct CUDATest : public CUDA_CPU_TestBase
 #define MG_INSTANTIATE_TEST_SUITE_CPU( prefix, test_suite_name ) \
 INSTANTIATE_TEST_SUITE_P( prefix, \
                           test_suite_name, \
-                          testing::Values( new CPUTest( MG_EPOCH_REFERENCE_FILE_NAME ), \
-                                           new CPUTest( MG_EPOCH_REFERENCE_FILE_NAME ) ) );
+                          testing::Values( new CPUTest( MG_EPOCH_REFERENCE_FILE_NAME ) ) );
 #define TESTID_GPU( s ) s##_GPU
 #define XTESTID_GPU( s ) TESTID_GPU( s )
 #define MG_INSTANTIATE_TEST_SUITE_GPU( prefix, test_suite_name ) \
 INSTANTIATE_TEST_SUITE_P( prefix, \
                           test_suite_name, \
-                          testing::Values( new CUDATest( MG_EPOCH_REFERENCE_FILE_NAME ), \
-                                           new CUDATest( MG_EPOCH_REFERENCE_FILE_NAME ) ) );
+                          testing::Values( new CUDATest( MG_EPOCH_REFERENCE_FILE_NAME ) ) );
+
 #ifdef MGONGPUCPP_GPUIMPL
 MG_INSTANTIATE_TEST_SUITE_GPU( XTESTID_GPU( MG_EPOCH_PROCESS_ID ), MadgraphTest );
 #else
