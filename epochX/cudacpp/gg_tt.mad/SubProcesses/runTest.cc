@@ -33,8 +33,6 @@ struct CUDA_CPU_TestBase : public TestDriverBase
   static_assert( gputhreads <= mgOnGpu::ntpbMAX, "ERROR! #threads/block should be <= ntpbMAX" );
   CUDA_CPU_TestBase( const std::string& refFileName )
     : TestDriverBase( npar, refFileName ) {}
-  // Does this test use channelIds?
-  virtual bool useChannelIds() const = 0;
 };
 
 #ifndef MGONGPUCPP_GPUIMPL
@@ -105,15 +103,10 @@ struct CPUTest : public CUDA_CPU_TestBase
   {
     constexpr fptype fixedG = 1.2177157847767195; // fixed G for aS=0.118 (hardcoded for now in check_sa.cc, fcheck_sa.f, runTest.cc)
     for( unsigned int i = 0; i < nevt; ++i ) hstGs[i] = fixedG;
-    for( unsigned int i = 0; i < nevt; ++i )
-    {
-      // Fill channelIds for multi-channel tests #896
-      // (NB: these are only used if useChannelIds == true)
-      const unsigned int channelId1 = 1;
-      hstChannelIds[i] = channelId1; // TEMPORARY: debug multichannel tests with channelId=1 for all events
-    }
+    // [AV: there is no need to fill channelId arrays if runTest.exe uses no-multichannel]
     if( iiter == 0 ) pmek->computeGoodHelicities();
-    pmek->computeMatrixElements( useChannelIds() );
+    constexpr bool useChannelIds = false; // TEMPORARY? disable multi-channel in runTest.exe #466
+    pmek->computeMatrixElements( useChannelIds );
   }
 
   fptype getMomentum( std::size_t ievt, unsigned int ipar, unsigned int ip4 ) const override
@@ -128,34 +121,6 @@ struct CPUTest : public CUDA_CPU_TestBase
     return MemoryAccessMatrixElements::ieventAccessConst( hstMatrixElements.data(), ievt );
   }
 };
-
-// Old test with multi-channel disabled #466
-struct CPUTestNoMultiChannel : public CPUTest
-{
-  // Does this test use channelIds?
-  bool useChannelIds() const override final { return false; }
-
-  // Constructor
-  CPUTestNoMultiChannel( const std::string& refFileName )
-    : CPUTest( refFileName ) {}
-
-  // Destructor
-  virtual ~CPUTestNoMultiChannel() {}
-};  
-
-// New test with multi-channel enabled #896
-struct CPUTestMultiChannel : public CPUTest
-{
-  // Does this test use channelIds?
-  bool useChannelIds() const override final { return true; }
-
-  // Constructor
-  CPUTestMultiChannel( const std::string& refFileName )
-    : CPUTest( refFileName ) {}
-
-  // Destructor
-  virtual ~CPUTestMultiChannel() {}
-};  
 #endif
 
 #ifdef MGONGPUCPP_GPUIMPL
@@ -264,16 +229,10 @@ struct CUDATest : public CUDA_CPU_TestBase
     constexpr fptype fixedG = 1.2177157847767195; // fixed G for aS=0.118 (hardcoded for now in check_sa.cc, fcheck_sa.f, runTest.cc)
     for( unsigned int i = 0; i < nevt; ++i ) hstGs[i] = fixedG;
     copyDeviceFromHost( devGs, hstGs ); // BUG FIX #566
-    for( unsigned int i = 0; i < nevt; ++i )
-    {
-      // Fill channelIds for multi-channel tests #896
-      // (NB: these are only used if useChannelIds == true)
-      const unsigned int channelId1 = 1;
-      hstChannelIds[i] = channelId1; // TEMPORARY: debug multichannel tests with channelId=1 for all events
-    }
-    copyDeviceFromHost( devChannelIds, hstChannelIds );
+    // [AV: there is no need to fill channelId arrays if runTest.exe uses no-multichannel]
     if( iiter == 0 ) pmek->computeGoodHelicities();
-    pmek->computeMatrixElements( useChannelIds() );
+    constexpr bool useChannelIds = false; // TEMPORARY? disable multi-channel in runTest.exe #466
+    pmek->computeMatrixElements( useChannelIds );
     copyHostFromDevice( hstMatrixElements, devMatrixElements );
   }
 
@@ -289,68 +248,26 @@ struct CUDATest : public CUDA_CPU_TestBase
     return MemoryAccessMatrixElements::ieventAccessConst( hstMatrixElements.data(), ievt );
   }
 };
-
-// Old test with multi-channel disabled #466
-struct CUDATestNoMultiChannel : public CUDATest
-{
-  // Does this test use channelIds?
-  bool useChannelIds() const override final { return false; }
-
-  // Constructor
-  CUDATestNoMultiChannel( const std::string& refFileName )
-    : CUDATest( refFileName ) {}
-
-  // Destructor
-  virtual ~CUDATestNoMultiChannel() {}
-};  
-
-// New test with multi-channel enabled #896
-struct CUDATestMultiChannel : public CUDATest
-{
-  // Does this test use channelIds?
-  bool useChannelIds() const override final { return true; }
-
-  // Constructor
-  CUDATestMultiChannel( const std::string& refFileName )
-    : CUDATest( refFileName ) {}
-
-  // Destructor
-  virtual ~CUDATestMultiChannel() {}
-};  
 #endif /* clang-format off */
 
 // Use two levels of macros to force stringification at the right level
 // (see https://gcc.gnu.org/onlinedocs/gcc-3.0.1/cpp_3.html#SEC17 and https://stackoverflow.com/a/3419392)
 // Google macro is in https://github.com/google/googletest/blob/master/googletest/include/gtest/gtest-param-test.h
-#define TESTID_CPU1( s ) s##_CPU_NOMULTICHANNEL
-#define XTESTID_CPU1( s ) TESTID_CPU1( s )
-#define MG_INSTANTIATE_TEST_SUITE_CPU1( prefix, test_suite_name ) \
+#define TESTID_CPU( s ) s##_CPU
+#define XTESTID_CPU( s ) TESTID_CPU( s )
+#define MG_INSTANTIATE_TEST_SUITE_CPU( prefix, test_suite_name ) \
 INSTANTIATE_TEST_SUITE_P( prefix, \
                           test_suite_name, \
-                          testing::Values( new CPUTestNoMultiChannel( MG_EPOCH_REFERENCE_FILE_NAME ) ) );
-#define TESTID_CPU2( s ) s##_CPU_MULTICHANNEL
-#define XTESTID_CPU2( s ) TESTID_CPU2( s )
-#define MG_INSTANTIATE_TEST_SUITE_CPU2( prefix, test_suite_name ) \
+                          testing::Values( new CPUTest( MG_EPOCH_REFERENCE_FILE_NAME ) ) );
+#define TESTID_GPU( s ) s##_GPU
+#define XTESTID_GPU( s ) TESTID_GPU( s )
+#define MG_INSTANTIATE_TEST_SUITE_GPU( prefix, test_suite_name ) \
 INSTANTIATE_TEST_SUITE_P( prefix, \
                           test_suite_name, \
-                          testing::Values( new CPUTestMultiChannel( MG_EPOCH_REFERENCE_FILE_NAME ) ) );
-#define TESTID_GPU1( s ) s##_GPU_NOMULTICHANNEL
-#define XTESTID_GPU1( s ) TESTID_GPU1( s )
-#define MG_INSTANTIATE_TEST_SUITE_GPU1( prefix, test_suite_name ) \
-INSTANTIATE_TEST_SUITE_P( prefix, \
-                          test_suite_name, \
-                          testing::Values( new CUDATestNoMultiChannel( MG_EPOCH_REFERENCE_FILE_NAME ) ) );
-#define TESTID_GPU2( s ) s##_GPU_MULTICHANNEL
-#define XTESTID_GPU2( s ) TESTID_GPU2( s )
-#define MG_INSTANTIATE_TEST_SUITE_GPU2( prefix, test_suite_name ) \
-INSTANTIATE_TEST_SUITE_P( prefix, \
-                          test_suite_name, \
-                          testing::Values( new CUDATestMultiChannel( MG_EPOCH_REFERENCE_FILE_NAME ) ) );
+                          testing::Values( new CUDATest( MG_EPOCH_REFERENCE_FILE_NAME ) ) );
 
 #ifdef MGONGPUCPP_GPUIMPL
-MG_INSTANTIATE_TEST_SUITE_GPU1( XTESTID_GPU1( MG_EPOCH_PROCESS_ID ), MadgraphTest );
-MG_INSTANTIATE_TEST_SUITE_GPU1( XTESTID_GPU2( MG_EPOCH_PROCESS_ID ), MadgraphTest );
+MG_INSTANTIATE_TEST_SUITE_GPU( XTESTID_GPU( MG_EPOCH_PROCESS_ID ), MadgraphTest );
 #else
-MG_INSTANTIATE_TEST_SUITE_CPU1( XTESTID_CPU1( MG_EPOCH_PROCESS_ID ), MadgraphTest );
-MG_INSTANTIATE_TEST_SUITE_CPU1( XTESTID_CPU2( MG_EPOCH_PROCESS_ID ), MadgraphTest );
+MG_INSTANTIATE_TEST_SUITE_CPU( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), MadgraphTest );
 #endif /* clang-format on */
