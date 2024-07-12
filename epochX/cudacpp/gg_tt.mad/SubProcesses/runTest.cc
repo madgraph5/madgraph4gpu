@@ -235,31 +235,34 @@ struct CUDATest : public CUDA_CPU_TestBase
 // AV July 2024 much simpler class structure without the presently-unnecessary googletest templates
 // This is meant as a workaround to prevent not-understood segfault #907 when adding a second test
 #ifdef MGONGPUCPP_GPUIMPL
-// CUDA tests
+// CUDA test 1
 CUDATest cudaDriver1( MG_EPOCH_REFERENCE_FILE_NAME );
-CUDATest cudaDriver2( MG_EPOCH_REFERENCE_FILE_NAME );
 MadgraphTest mgTest1( cudaDriver1 );
-MadgraphTest mgTest2( cudaDriver2 );
 #define TESTID1( s ) s##_GPU_MADGRAPH1
 #define XTESTID1( s ) TESTID1( s )
+// CUDA test 2
+CUDATest cudaDriver2( MG_EPOCH_REFERENCE_FILE_NAME );
+MadgraphTest mgTest2( cudaDriver2 );
 #define TESTID2( s ) s##_GPU_MADGRAPH2
 #define XTESTID2( s ) TESTID2( s )
 #else
-// CPU tests
+// CPU test 1
 CPUTest cppDriver1( MG_EPOCH_REFERENCE_FILE_NAME );
-CPUTest cppDriver2( MG_EPOCH_REFERENCE_FILE_NAME );
 MadgraphTest mgTest1( cppDriver1 );
-MadgraphTest mgTest2( cppDriver2 );
 #define TESTID1( s ) s##_CPU_MADGRAPH1
 #define XTESTID1( s ) TESTID1( s )
+// CPU test 2
+CPUTest cppDriver2( MG_EPOCH_REFERENCE_FILE_NAME );
+MadgraphTest mgTest2( cppDriver2 );
 #define TESTID2( s ) s##_CPU_MADGRAPH2
 #define XTESTID2( s ) TESTID2( s )
 #endif
-// Instantiate Google tests
+// Instantiate Google test 1
 TEST( XTESTID1( MG_EPOCH_PROCESS_ID ), compareMomAndME )
 {
   mgTest1.CompareMomentaAndME( *this );
 }
+// Instantiate Google test 2
 TEST( XTESTID2( MG_EPOCH_PROCESS_ID ), compareMomAndME )
 {
   mgTest2.CompareMomentaAndME( *this );
