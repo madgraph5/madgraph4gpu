@@ -129,7 +129,7 @@ struct CUDATest : public CUDA_CPU_TestBase
   {
     ~DeviceReset()
     {
-      checkGpu( gpuDeviceReset() ); // this is needed by cuda-memcheck --leak-check full
+      //checkGpu( gpuDeviceReset() ); // this is needed by cuda-memcheck --leak-check full
     }
   } deviceResetter;
 
