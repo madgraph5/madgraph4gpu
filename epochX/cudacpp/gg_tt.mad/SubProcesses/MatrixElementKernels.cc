@@ -23,6 +23,36 @@ namespace mg5amcCpu
 {
   //--------------------------------------------------------------------------
 
+  MatrixElementKernelBase::MatrixElementKernelBase( const BufferMomenta& momenta,         // input: momenta
+                                                    const BufferGs& gs,                   // input: gs for alphaS
+                                                    const BufferRndNumHelicity& rndhel,   // input: random numbers for helicity selection
+                                                    const BufferRndNumColor& rndcol,      // input: random numbers for color selection
+                                                    const BufferChannelIds& channelIds,   // input: channel ids for single-diagram enhancement
+                                                    BufferMatrixElements& matrixElements, // output: matrix elements
+                                                    BufferSelectedHelicity& selhel,       // output: helicity selection
+                                                    BufferSelectedColor& selcol )         // output: color selection
+    : m_momenta( momenta )
+    , m_gs( gs )
+    , m_rndhel( rndhel )
+    , m_rndcol( rndcol )
+    , m_channelIds( channelIds )
+    , m_matrixElements( matrixElements )
+    , m_selhel( selhel )
+    , m_selcol( selcol )
+  {
+    //std::cout << "DEBUG: MatrixElementKernelBase ctor " << this << std::endl;
+  }
+
+  //--------------------------------------------------------------------------
+
+  MatrixElementKernelBase::~MatrixElementKernelBase()
+  {
+    //std::cout << "DEBUG: MatrixElementKernelBase dtor " << this << std::endl;
+    MatrixElementKernelBase::dumpSignallingFPEs();
+  }
+
+  //--------------------------------------------------------------------------
+
   void MatrixElementKernelBase::dumpSignallingFPEs()
   {
     // New strategy for issue #831: add a final report of FPEs
@@ -87,6 +117,12 @@ namespace mg5amcCpu
     // [NB: SIMD vectorization in mg5amc C++ code is only used in the ME calculation below MatrixElementKernelHost!]
     if( !MatrixElementKernelHost::hostSupportsSIMD() )
       throw std::runtime_error( "Host does not support the SIMD implementation of MatrixElementKernelsHost" );
+  }
+
+  //--------------------------------------------------------------------------
+
+  MatrixElementKernelHost::~MatrixElementKernelHost()
+  {
   }
 
   //--------------------------------------------------------------------------
@@ -226,6 +262,12 @@ namespace mg5amcGpu
       sstr << "MatrixElementKernelHost: gputhreads should be a multiple of neppM=" << neppM;
       throw std::runtime_error( sstr.str() );
     }
+  }
+
+  //--------------------------------------------------------------------------
+
+  MatrixElementKernelDevice::~MatrixElementKernelDevice()
+  {
   }
 
   //--------------------------------------------------------------------------

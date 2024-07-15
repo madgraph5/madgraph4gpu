@@ -10,6 +10,8 @@
 
 #include "MemoryBuffers.h"
 
+#include <iostream>
+
 #ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 #else
@@ -31,22 +33,12 @@ namespace mg5amcCpu
                              const BufferChannelIds& channelIds,   // input: channel ids for single-diagram enhancement
                              BufferMatrixElements& matrixElements, // output: matrix elements
                              BufferSelectedHelicity& selhel,       // output: helicity selection
-                             BufferSelectedColor& selcol )         // output: color selection
-      : m_momenta( momenta )
-      , m_gs( gs )
-      , m_rndhel( rndhel )
-      , m_rndcol( rndcol )
-      , m_channelIds( channelIds )
-      , m_matrixElements( matrixElements )
-      , m_selhel( selhel )
-      , m_selcol( selcol )
-    {
-    }
+                             BufferSelectedColor& selcol );        // output: color selection
 
   public:
 
     // Destructor
-    virtual ~MatrixElementKernelBase() {}
+    virtual ~MatrixElementKernelBase();
 
     // Compute good helicities (returns nGoodHel, the number of good helicity combinations out of ncomb)
     virtual int computeGoodHelicities() = 0;
@@ -107,7 +99,7 @@ namespace mg5amcCpu
                              const size_t nevt );
 
     // Destructor
-    virtual ~MatrixElementKernelHost() { MatrixElementKernelBase::dumpSignallingFPEs(); }
+    virtual ~MatrixElementKernelHost();
 
     // Compute good helicities (returns nGoodHel, the number of good helicity combinations out of ncomb)
     int computeGoodHelicities() override final;
@@ -160,7 +152,7 @@ namespace mg5amcCpu
                                const size_t gputhreads );
 
     // Destructor
-    virtual ~MatrixElementKernelDevice() { MatrixElementKernelBase::dumpSignallingFPEs(); }
+    virtual ~MatrixElementKernelDevice();
 
     // Reset gpublocks and gputhreads
     void setGrid( const int gpublocks, const int gputhreads );
