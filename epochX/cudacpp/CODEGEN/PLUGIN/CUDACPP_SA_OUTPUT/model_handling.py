@@ -1311,7 +1311,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
                            const fptype* allcouplings,         // input: couplings[nevt*ndcoup*2]
                            fptype* allMEs,                     // output: allMEs[nevt], |M|^2 running_sum_over_helicities
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                           const unsigned int* allChannelIds,  // input: multichannel channelIds[nevt] (1 to #diagrams); nullptr to disable single-diagram enhancement
+                           const unsigned int* allChannelIds,  // input: multichannel channelIds[nevt] (1 to #diagrams); nullptr to disable single-diagram enhancement (fix #899)
                            fptype* allNumerators,              // output: multichannel numerators[nevt], running_sum_over_helicities
                            fptype* allDenominators,            // output: multichannel denominators[nevt], running_sum_over_helicities
 #endif
