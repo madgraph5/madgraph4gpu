@@ -68,24 +68,12 @@ namespace mg5amcCpu
   public:
 
     // Locate an event record (output) in a memory buffer (input) from the given event number (input)
-    // [Signature (non-const) ===> unsigned int* ieventAccessRecord( unsigned int* buffer, const int ievt ) <===]
-    static constexpr auto ieventAccessRecord = MemoryAccessHelper<MemoryAccessChannelIdsBase, unsigned int>::ieventAccessRecord;
-
-    // Locate an event record (output) in a memory buffer (input) from the given event number (input)
     // [Signature (const) ===> const unsigned int* ieventAccessRecordConst( const unsigned int* buffer, const int ievt ) <===]
     static constexpr auto ieventAccessRecordConst = MemoryAccessHelper<MemoryAccessChannelIdsBase, unsigned int>::ieventAccessRecordConst;
 
     // Locate a field (output) of an event record (input) from the given field indexes (input)
-    // [Signature (non-const) ===> unsigned int& decodeRecord( unsigned int* buffer ) <===]
-    static constexpr auto decodeRecord = MemoryAccessHelper<MemoryAccessChannelIdsBase, unsigned int>::decodeRecord;
-
-    // Locate a field (output) of an event record (input) from the given field indexes (input)
     // [Signature (const) ===> const unsigned int& decodeRecordConst( const unsigned int* buffer ) <===]
     static constexpr auto decodeRecordConst = MemoryAccessHelper<MemoryAccessChannelIdsBase, unsigned int>::template decodeRecordConst<>;
-
-    // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
-    // [Signature (non-const) ===> unsigned int& ieventAccess( unsigned int* buffer, const ievt ) <===]
-    static constexpr auto ieventAccess = MemoryAccessHelper<MemoryAccessChannelIdsBase, unsigned int>::template ieventAccessField<>;
 
     // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
     // [Signature (const) ===> const unsigned int& ieventAccessConst( const unsigned int* buffer, const ievt ) <===]
@@ -103,28 +91,6 @@ namespace mg5amcCpu
 
     // Expose selected functions from MemoryAccessChannelIds
     static constexpr auto ieventAccessRecordConst = MemoryAccessChannelIds::ieventAccessRecordConst;
-
-    /*
-    // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
-    // [Signature (non-const, SCALAR) ===> unsigned int& kernelAccess( unsigned int* buffer ) <===]
-    static constexpr auto kernelAccess_s = KernelAccessHelper<MemoryAccessChannelIdsBase, onDevice, unsigned int>::template kernelAccessField<>; // requires cuda 11.4
-
-    // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal)
-    // [Signature (non-const, SCALAR OR VECTOR) ===> uint_sv& kernelAccess( unsigned int* buffer ) <===]
-    static __host__ __device__ inline uint_sv&
-    kernelAccess( unsigned int* buffer )
-    {
-      unsigned int& out = kernelAccess_s( buffer );
-#ifndef MGONGPU_CPPSIMD
-      return out;
-#else
-      // NB: derived from MemoryAccessMomenta, restricting the implementation to contiguous aligned arrays (#435)
-      static_assert( mg5amcCpu::HostBufferChannelIds::isaligned() ); // ASSUME ALIGNED ARRAYS (reinterpret_cast will segfault otherwise!)
-      //assert( (size_t)( buffer ) % mgOnGpu::cppAlign == 0 ); // ASSUME ALIGNED ARRAYS (reinterpret_cast will segfault otherwise!)
-      return mg5amcCpu::uintvFromAlignedArray( out ); // SIMD bulk load of neppV, use reinterpret_cast
-#endif
-    }
-    */
 
     // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
     // [Signature (const, SCALAR) ===> const unsigned int& kernelAccessConst( const unsigned int* buffer ) <===]
