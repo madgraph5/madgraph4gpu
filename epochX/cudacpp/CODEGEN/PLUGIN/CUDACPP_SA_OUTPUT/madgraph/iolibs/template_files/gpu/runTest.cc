@@ -36,16 +36,24 @@ struct CUDA_CPU_TestBase : public TestDriverBase
   // Does this test use channelIds?
   virtual bool useChannelIds() const = 0;
   // Set channelId array (in the same way for CUDA and CPU tests)
-  static void setChannelIds( BufferChannelIds& hstChannelIds )
+  static constexpr unsigned int warpSize = 32; // FIXME: add a sanity check in madevent that this is the minimum? (would need to expose this from cudacpp to madevent)
+  static void setChannelIds( BufferChannelIds& hstChannelIds, std::size_t iiter )
   {
-    for( unsigned int i = 0; i < nevt; ++i )
+    // Fill channelIds for multi-channel tests #896
+    // (NB: these are only used if useChannelIds == true)
+    // TEMPORARY(0): debug multichannel tests with channelId=1 for all events
+    //for( unsigned int i = 0; i < nevt; ++i ) hstChannelIds[i] = 1;
+    // TEMPORARY(1): debug multichannel tests with channelId=1,2,..,ndiag,1,2,..ndiag,... (every event gets a different channel, no warps)
+    //for( unsigned int i = 0; i < nevt; ++i ) hstChannelIds[i] = 1 + i % CPPProcess::ndiagrams;
+    // FINAL(?) test implementation: 1111222233331111... (every 32-event warp gets a different channel)
+    static_assert( nevt % warpSize == 0, "ERROR! nevt should be a multiple of warpSize" );
+    constexpr unsigned int nWarp = nevt / warpSize;
+    for( unsigned int iWarp = 0; iWarp < nWarp; ++iWarp )
     {
-      // Fill channelIds for multi-channel tests #896
-      // (NB: these are only used if useChannelIds == true)
-      // TEMPORARY(0): debug multichannel tests with channelId=1 for all events
-      //hstChannelIds[i] = 1;
-      // TEMPORARY: debug multichannel tests with channelId=1,2,..,ndiag,1,2,..ndiag,... (every event gets a different channel, no warps)
-      hstChannelIds[i] = 1 + i % CPPProcess::ndiagrams;
+      const unsigned int channelId = 1 + ( iWarp + iiter * nWarp ) % CPPProcess::ndiagrams;
+      //std::cout << "CUDA_CPU_TestBase::setChannelIds: iWarp=" << iWarp << ", channelId=" << channelId << std::endl;
+      for( unsigned int i = 0; i < warpSize; ++i )
+        hstChannelIds[iWarp * warpSize + i] = channelId;
     }
   }
 };
@@ -118,7 +126,7 @@ struct CPUTest : public CUDA_CPU_TestBase
   {
     constexpr fptype fixedG = 1.2177157847767195; // fixed G for aS=0.118 (hardcoded for now in check_sa.cc, fcheck_sa.f, runTest.cc)
     for( unsigned int i = 0; i < nevt; ++i ) hstGs[i] = fixedG;
-    setChannelIds( hstChannelIds ); // fill channelIds for multi-channel tests #896
+    setChannelIds( hstChannelIds, iiter ); // fill channelIds for multi-channel tests #896
     if( iiter == 0 ) pmek->computeGoodHelicities();
     pmek->computeMatrixElements( useChannelIds() );
   }
@@ -260,8 +268,8 @@ struct CUDATest : public CUDA_CPU_TestBase
   {
     constexpr fptype fixedG = 1.2177157847767195; // fixed G for aS=0.118 (hardcoded for now in check_sa.cc, fcheck_sa.f, runTest.cc)
     for( unsigned int i = 0; i < nevt; ++i ) hstGs[i] = fixedG;
-    copyDeviceFromHost( devGs, hstGs ); // BUG FIX #566
-    setChannelIds( hstChannelIds );     // fill channelIds for multi-channel tests #896
+    copyDeviceFromHost( devGs, hstGs );    // BUG FIX #566
+    setChannelIds( hstChannelIds, iiter ); // fill channelIds for multi-channel tests #896
     copyDeviceFromHost( devChannelIds, hstChannelIds );
     if( iiter == 0 ) pmek->computeGoodHelicities();
     pmek->computeMatrixElements( useChannelIds() );
