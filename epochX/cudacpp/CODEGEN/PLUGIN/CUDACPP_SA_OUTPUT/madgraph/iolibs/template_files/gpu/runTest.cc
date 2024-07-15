@@ -33,6 +33,8 @@ struct CUDA_CPU_TestBase : public TestDriverBase
   static_assert( gputhreads <= mgOnGpu::ntpbMAX, "ERROR! #threads/block should be <= ntpbMAX" );
   CUDA_CPU_TestBase( const std::string& refFileName )
     : TestDriverBase( npar, refFileName ) {}
+  // Does this test use channelIds?
+  virtual bool useChannelIds() const = 0;
 };
 
 #ifndef MGONGPUCPP_GPUIMPL
@@ -103,10 +105,15 @@ struct CPUTest : public CUDA_CPU_TestBase
   {
     constexpr fptype fixedG = 1.2177157847767195; // fixed G for aS=0.118 (hardcoded for now in check_sa.cc, fcheck_sa.f, runTest.cc)
     for( unsigned int i = 0; i < nevt; ++i ) hstGs[i] = fixedG;
-    // [AV: there is no need to fill channelId arrays if runTest.exe uses no-multichannel]
+    for( unsigned int i = 0; i < nevt; ++i )
+    {
+      // Fill channelIds for multi-channel tests #896
+      // (NB: these are only used if useChannelIds == true)
+      const unsigned int channelId1 = 1;
+      hstChannelIds[i] = channelId1; // TEMPORARY: debug multichannel tests with channelId=1 for all events
+    }
     if( iiter == 0 ) pmek->computeGoodHelicities();
-    constexpr bool useChannelIds = false; // TEMPORARY? disable multi-channel in runTest.exe #466
-    pmek->computeMatrixElements( useChannelIds );
+    pmek->computeMatrixElements( useChannelIds() );
   }
 
   fptype getMomentum( std::size_t ievt, unsigned int ipar, unsigned int ip4 ) const override
@@ -120,6 +127,34 @@ struct CPUTest : public CUDA_CPU_TestBase
   {
     return MemoryAccessMatrixElements::ieventAccessConst( hstMatrixElements.data(), ievt );
   }
+};
+
+// Old test with multi-channel disabled #466
+struct CPUTestNoMultiChannel : public CPUTest
+{
+  // Does this test use channelIds?
+  bool useChannelIds() const override final { return false; }
+
+  // Constructor
+  CPUTestNoMultiChannel( const std::string& refFileName )
+    : CPUTest( refFileName ) {} // suffix .txt
+
+  // Destructor
+  virtual ~CPUTestNoMultiChannel() {}
+};
+
+// New test with multi-channel enabled #896
+struct CPUTestMultiChannel : public CPUTest
+{
+  // Does this test use channelIds?
+  bool useChannelIds() const override final { return true; }
+
+  // Constructor
+  CPUTestMultiChannel( const std::string& refFileName )
+    : CPUTest( refFileName + "2" ) {} // suffix .txt2
+
+  // Destructor
+  virtual ~CPUTestMultiChannel() {}
 };
 #endif
 
@@ -219,10 +254,16 @@ struct CUDATest : public CUDA_CPU_TestBase
     constexpr fptype fixedG = 1.2177157847767195; // fixed G for aS=0.118 (hardcoded for now in check_sa.cc, fcheck_sa.f, runTest.cc)
     for( unsigned int i = 0; i < nevt; ++i ) hstGs[i] = fixedG;
     copyDeviceFromHost( devGs, hstGs ); // BUG FIX #566
-    // [AV: there is no need to fill channelId arrays if runTest.exe uses no-multichannel]
+    for( unsigned int i = 0; i < nevt; ++i )
+    {
+      // Fill channelIds for multi-channel tests #896
+      // (NB: these are only used if useChannelIds == true)
+      const unsigned int channelId1 = 1;
+      hstChannelIds[i] = channelId1; // TEMPORARY: debug multichannel tests with channelId=1 for all events
+    }
+    copyDeviceFromHost( devChannelIds, hstChannelIds );
     if( iiter == 0 ) pmek->computeGoodHelicities();
-    constexpr bool useChannelIds = false; // TEMPORARY? disable multi-channel in runTest.exe #466
-    pmek->computeMatrixElements( useChannelIds );
+    pmek->computeMatrixElements( useChannelIds() );
     copyHostFromDevice( hstMatrixElements, devMatrixElements );
   }
 
@@ -238,41 +279,67 @@ struct CUDATest : public CUDA_CPU_TestBase
     return MemoryAccessMatrixElements::ieventAccessConst( hstMatrixElements.data(), ievt );
   }
 };
+
+// Old test with multi-channel disabled #466
+struct CUDATestNoMultiChannel : public CUDATest
+{
+  // Does this test use channelIds?
+  bool useChannelIds() const override final { return false; }
+
+  // Constructor
+  CUDATestNoMultiChannel( const std::string& refFileName )
+    : CUDATest( refFileName ) {} // suffix .txt
+
+  // Destructor
+  virtual ~CUDATestNoMultiChannel() {}
+};
+
+// New test with multi-channel enabled #896
+struct CUDATestMultiChannel : public CUDATest
+{
+  // Does this test use channelIds?
+  bool useChannelIds() const override final { return true; }
+
+  // Constructor
+  CUDATestMultiChannel( const std::string& refFileName )
+    : CUDATest( refFileName + "2" ) {} // suffix .txt2
+
+  // Destructor
+  virtual ~CUDATestMultiChannel() {}
+};
 #endif /* clang-format off */
 
 // AV July 2024 much simpler class structure without the presently-unnecessary googletest templates
 // This is meant as a workaround to prevent not-understood segfault #907 when adding a second test
 #ifdef MGONGPUCPP_GPUIMPL
 // CUDA test 1
-CUDATest cudaDriver1( MG_EPOCH_REFERENCE_FILE_NAME );
+CUDATestNoMultiChannel cudaDriver1( MG_EPOCH_REFERENCE_FILE_NAME );
 MadgraphTest mgTest1( cudaDriver1 );
-#define TESTID1( s ) s##_GPU_MADGRAPH1
-#define XTESTID1( s ) TESTID1( s )
+#define TESTID1( s ) s##_GPU_NOMULTICHANNEL
 // CUDA test 2
-//CUDATest cudaDriver2( MG_EPOCH_REFERENCE_FILE_NAME );
-//MadgraphTest mgTest2( cudaDriver2 );
-//#define TESTID2( s ) s##_GPU_MADGRAPH2
-//#define XTESTID2( s ) TESTID2( s )
+CUDATestMultiChannel cudaDriver2( MG_EPOCH_REFERENCE_FILE_NAME );
+MadgraphTest mgTest2( cudaDriver2 );
+#define TESTID2( s ) s##_GPU_MULTICHANNEL
 #else
 // CPU test 1
-CPUTest cppDriver1( MG_EPOCH_REFERENCE_FILE_NAME );
+CPUTestNoMultiChannel cppDriver1( MG_EPOCH_REFERENCE_FILE_NAME );
 MadgraphTest mgTest1( cppDriver1 );
-#define TESTID1( s ) s##_CPU_MADGRAPH1
-#define XTESTID1( s ) TESTID1( s )
+#define TESTID1( s ) s##_CPU_NOMULTICHANNEL
 // CPU test 2
-//CPUTest cppDriver2( MG_EPOCH_REFERENCE_FILE_NAME );
-//MadgraphTest mgTest2( cppDriver2 );
-//#define TESTID2( s ) s##_CPU_MADGRAPH2
-//#define XTESTID2( s ) TESTID2( s )
+CPUTestMultiChannel cppDriver2( MG_EPOCH_REFERENCE_FILE_NAME );
+MadgraphTest mgTest2( cppDriver2 );
+#define TESTID2( s ) s##_CPU_MULTICHANNEL
 #endif
 // Instantiate Google test 1
+#define XTESTID1( s ) TESTID1( s )
 TEST( XTESTID1( MG_EPOCH_PROCESS_ID ), compareMomAndME )
 {
   mgTest1.CompareMomentaAndME( *this );
 }
 // Instantiate Google test 2
-//TEST( XTESTID2( MG_EPOCH_PROCESS_ID ), compareMomAndME )
-//{
-//  mgTest2.CompareMomentaAndME( *this );
-//}
+#define XTESTID2( s ) TESTID2( s )
+TEST( XTESTID2( MG_EPOCH_PROCESS_ID ), compareMomAndME )
+{
+  mgTest2.CompareMomentaAndME( *this );
+}
 /* clang-format on */
