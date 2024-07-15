@@ -322,24 +322,7 @@ namespace mg5amcCpu
       fptype_sv& denominators_sv = DEN_ACCESS::kernelAccess( denominators );
       uint_sv channelids_sv; // this is only filled (and used) if channelIds != nullptr
       if( channelIds != nullptr )
-      {
         channelids_sv = CID_ACCESS::kernelAccessConst( channelIds ); // fix #895
-#ifndef __CUDACC__
-        // Add debug printouts to demonstrate bug #899
-        static int ievt0last = -1;
-        if( ievt0 > ievt0last && ihel == 0 && ievt0 < 16 )
-        {
-          ievt0last = ievt0;
-          std::cout << "channelids_sv " << ievt0;
-#ifdef MGONGPU_CPPSIMD
-          for( int i = 0; i < neppV; ++i ) std::cout << " " << channelids_sv[i];
-          std::cout << std::endl;
-#else
-          std::cout << " " << channelids_sv << std::endl;
-#endif
-        }
-#endif
-      }
 #endif
 
       // *** DIAGRAM 1 OF 3 ***
