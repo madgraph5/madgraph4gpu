@@ -1448,11 +1448,12 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         pathlib.Path(self.path + '/../../test/ref/.keepme').touch()
         ###template_ref = 'dump_CPUTest.'+self.process_name+'.txt'
         template_ref = self.template_path + '/../../../test/ref/' + 'dump_CPUTest.' + self.process_name + '.txt'
-        if os.path.exists( template_ref ):
-            ###misc.sprint( 'Copying test reference file: ', template_ref )
-            PLUGIN_export_cpp.cp( template_ref, self.path + '/../../test/ref' )
-        ###else:
-            ###misc.sprint( 'Test reference file does not exist and will not be copied: ', template_ref )
+        for ref in template_ref, template_ref + '2' : # two different reference files for tests without/with multichannel #896
+            if os.path.exists( ref ):
+                ###misc.sprint( 'Copying test reference file: ', ref )
+                PLUGIN_export_cpp.cp( ref, self.path + '/../../test/ref' )
+            ###else:
+                ###misc.sprint( 'Test reference file does not exist and will not be copied: ', ref )
 
     # SR - generate CMakeLists.txt file inside the P* directory
     def edit_CMakeLists(self):
