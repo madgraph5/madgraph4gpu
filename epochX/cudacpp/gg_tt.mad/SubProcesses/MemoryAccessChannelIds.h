@@ -1,6 +1,6 @@
 // Copyright (C) 2020-2024 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
-// Created by: S. Roiser (Dec 2023) for the MG5aMC CUDACPP plugin.
+// Created by: S. Roiser (Dec 2023, based on earlier work by A. Valassi) for the MG5aMC CUDACPP plugin.
 // Further modified by: A. Valassi (2024) for the MG5aMC CUDACPP plugin.
 
 #ifndef MemoryAccessChannelIds_H
@@ -102,8 +102,9 @@ namespace mg5amcCpu
   public:
 
     // Expose selected functions from MemoryAccessChannelIds
-    static constexpr auto ieventAccessRecord = MemoryAccessChannelIds::ieventAccessRecord;
+    static constexpr auto ieventAccessRecordConst = MemoryAccessChannelIds::ieventAccessRecordConst;
 
+    /*
     // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
     // [Signature (non-const, SCALAR) ===> unsigned int& kernelAccess( unsigned int* buffer ) <===]
     static constexpr auto kernelAccess_s = KernelAccessHelper<MemoryAccessChannelIdsBase, onDevice, unsigned int>::template kernelAccessField<>; // requires cuda 11.4
@@ -123,6 +124,7 @@ namespace mg5amcCpu
       return mg5amcCpu::uintvFromAlignedArray( out ); // SIMD bulk load of neppV, use reinterpret_cast
 #endif
     }
+    */
 
     // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
     // [Signature (const, SCALAR) ===> const unsigned int& kernelAccessConst( const unsigned int* buffer ) <===]

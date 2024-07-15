@@ -1307,17 +1307,17 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
   // In C++, this function computes the ME for a single event "page" or SIMD vector (or for two in "mixed" precision mode, nParity=2)
   __device__ INLINE void /* clang-format off */
   calculate_wavefunctions( int ihel,
-                           const fptype* allmomenta,        // input: momenta[nevt*npar*4]
-                           const fptype* allcouplings,      // input: couplings[nevt*ndcoup*2]
-                           fptype* allMEs,                  // output: allMEs[nevt], |M|^2 running_sum_over_helicities
+                           const fptype* allmomenta,           // input: momenta[nevt*npar*4]
+                           const fptype* allcouplings,         // input: couplings[nevt*ndcoup*2]
+                           fptype* allMEs,                     // output: allMEs[nevt], |M|^2 running_sum_over_helicities
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                           const unsigned int* channelIds,  // input: multichannel channel id (1 to #diagrams); nullptr to disable single-diagram enhancement
-                           fptype* allNumerators,           // output: multichannel numerators[nevt], running_sum_over_helicities
-                           fptype* allDenominators,         // output: multichannel denominators[nevt], running_sum_over_helicities
+                           const unsigned int* allChannelIds,  // input: multichannel channelIds[nevt] (1 to #diagrams); nullptr to disable single-diagram enhancement
+                           fptype* allNumerators,              // output: multichannel numerators[nevt], running_sum_over_helicities
+                           fptype* allDenominators,            // output: multichannel denominators[nevt], running_sum_over_helicities
 #endif
-                           fptype_sv* jamp2_sv              // output: jamp2[nParity][ncolor][neppV] for color choice (nullptr if disabled)
+                           fptype_sv* jamp2_sv                 // output: jamp2[nParity][ncolor][neppV] for color choice (nullptr if disabled)
 #ifndef MGONGPUCPP_GPUIMPL
-                           , const int ievt00               // input: first event number in current C++ event page (for CUDA, ievt depends on threadid)
+                           , const int ievt00                  // input: first event number in current C++ event page (for CUDA, ievt depends on threadid)
 #endif
                            )
   //ALWAYS_INLINE // attributes are not permitted in a function definition
@@ -1893,6 +1893,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       fptype* numerators = allNumerators;
       fptype* denominators = allDenominators;
+      const unsigned int* channelIds = allChannelIds; // fix bug #899
 #endif
 #else
       // C++ kernels take input/output buffers with momenta/MEs for one specific event (the first in the current event page)
@@ -1907,6 +1908,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       fptype* numerators = NUM_ACCESS::ieventAccessRecord( allNumerators, ievt0 );
       fptype* denominators = DEN_ACCESS::ieventAccessRecord( allDenominators, ievt0 );
+      const unsigned int* channelIds = ( allChannelIds != nullptr ? CID_ACCESS::ieventAccessRecordConst( allChannelIds, ievt0 ) : nullptr ); // fix bug #899
 #endif
 #endif
 
