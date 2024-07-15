@@ -45,7 +45,7 @@ struct CUDA_CPU_TestBase : public TestDriverBase
       // TEMPORARY(0): debug multichannel tests with channelId=1 for all events
       //hstChannelIds[i] = 1;
       // TEMPORARY: debug multichannel tests with channelId=1,2,..,ndiag,1,2,..ndiag,... (every event gets a different channel, no warps)
-      hstChannelIds[i] = 1 + i % CPPProcess::ndiagrams; 
+      hstChannelIds[i] = 1 + i % CPPProcess::ndiagrams;
     }
   }
 };
@@ -261,7 +261,7 @@ struct CUDATest : public CUDA_CPU_TestBase
     constexpr fptype fixedG = 1.2177157847767195; // fixed G for aS=0.118 (hardcoded for now in check_sa.cc, fcheck_sa.f, runTest.cc)
     for( unsigned int i = 0; i < nevt; ++i ) hstGs[i] = fixedG;
     copyDeviceFromHost( devGs, hstGs ); // BUG FIX #566
-    setChannelIds( hstChannelIds ); // fill channelIds for multi-channel tests #896
+    setChannelIds( hstChannelIds );     // fill channelIds for multi-channel tests #896
     copyDeviceFromHost( devChannelIds, hstChannelIds );
     if( iiter == 0 ) pmek->computeGoodHelicities();
     pmek->computeMatrixElements( useChannelIds() );
