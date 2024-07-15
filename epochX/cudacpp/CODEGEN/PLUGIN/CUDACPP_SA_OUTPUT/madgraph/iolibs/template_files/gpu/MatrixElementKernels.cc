@@ -11,6 +11,7 @@
 #include "MemoryBuffers.h"
 
 #include <cfenv> // for fetestexcept
+#include <iostream>
 #include <sstream>
 
 //============================================================================
@@ -39,17 +40,74 @@ namespace mg5amcCpu
     , m_matrixElements( matrixElements )
     , m_selhel( selhel )
     , m_selcol( selcol )
+#ifdef MGONGPU_CHANNELID_DEBUG
+    , m_nevtProcessedByChannel()
+#endif
   {
-    //std::cout << "DEBUG: MatrixElementKernelBase ctor " << this << std::endl;
+    std::cout << "DEBUG: MatrixElementKernelBase ctor " << this << std::endl;
+#ifdef MGONGPU_CHANNELID_DEBUG
+    for( size_t channelId = 0; channelId < CPPProcess::ndiagrams + 1; channelId++ ) // [0...ndiagrams] (TEMPORARY: 0=multichannel)
+      m_nevtProcessedByChannel[channelId] = 0;
+#endif
   }
 
   //--------------------------------------------------------------------------
 
   MatrixElementKernelBase::~MatrixElementKernelBase()
   {
-    //std::cout << "DEBUG: MatrixElementKernelBase dtor " << this << std::endl;
+    std::cout << "DEBUG: MatrixElementKernelBase dtor " << this << std::endl;
+#ifdef MGONGPU_CHANNELID_DEBUG
+    MatrixElementKernelBase::dumpNevtProcessedByChannel();
+#endif
     MatrixElementKernelBase::dumpSignallingFPEs();
   }
+
+  //--------------------------------------------------------------------------
+
+#ifdef MGONGPU_CHANNELID_DEBUG
+  void MatrixElementKernelBase::updateNevtProcessedByChannel( const unsigned int* pHstChannelIds, const size_t nevt )
+  {
+    if( pHstChannelIds != nullptr )
+    {
+      //std::cout << "DEBUG " << this << ": not nullptr " << nevt << std::endl;
+      for( unsigned int ievt = 0; ievt < nevt; ievt++ )
+      {
+        const size_t channelId = pHstChannelIds[ievt]; // Fortran indexing
+        //assert( channelId > 0 );
+        //assert( channelId < CPPProcess::ndiagrams );
+        m_nevtProcessedByChannel[channelId]++;
+      }
+    }
+    else
+    {
+      //std::cout << "DEBUG " << this << ": nullptr " << std::endl;
+      m_nevtProcessedByChannel[0] += nevt;
+    }
+  }
+#endif
+
+  //--------------------------------------------------------------------------
+
+#ifdef MGONGPU_CHANNELID_DEBUG
+  void MatrixElementKernelBase::dumpNevtProcessedByChannel()
+  {
+    size_t nevtProcessed = 0;
+    for( size_t channelId = 0; channelId < CPPProcess::ndiagrams + 1; channelId++ ) // [0...ndiagrams] (TEMPORARY: 0=multichannel)
+      nevtProcessed += m_nevtProcessedByChannel[channelId];
+    std::ostringstream sstr;
+    sstr << " {";
+    for( size_t channelId = 0; channelId < CPPProcess::ndiagrams + 1; channelId++ ) // [0...ndiagrams] (TEMPORARY: 0=multichannel)
+    {
+      if( m_nevtProcessedByChannel[channelId] > 0 )
+      {
+        if( sstr.str() != " {" ) sstr << ",";
+        sstr << " " << channelId << " : " << m_nevtProcessedByChannel[channelId];
+      }
+    }
+    sstr << " }";
+    std::cout << "DEBUG: MEKB processed " << nevtProcessed << " events across " << CPPProcess::ndiagrams << " channels" << sstr.str() << std::endl;
+  }
+#endif
 
   //--------------------------------------------------------------------------
 
@@ -99,10 +157,13 @@ namespace mg5amcCpu
     , m_denominators( nevt )
 #endif
   {
+    std::cout << "DEBUG: MatrixElementKernelHost ctor " << this << std::endl;
     if( m_momenta.isOnDevice() ) throw std::runtime_error( "MatrixElementKernelHost: momenta must be a host array" );
     if( m_matrixElements.isOnDevice() ) throw std::runtime_error( "MatrixElementKernelHost: matrixElements must be a host array" );
+    if( m_channelIds.isOnDevice() ) throw std::runtime_error( "MatrixElementKernelHost: channelIds must be a device array" );
     if( this->nevt() != m_momenta.nevt() ) throw std::runtime_error( "MatrixElementKernelHost: nevt mismatch with momenta" );
     if( this->nevt() != m_matrixElements.nevt() ) throw std::runtime_error( "MatrixElementKernelHost: nevt mismatch with matrixElements" );
+    if( this->nevt() != m_channelIds.nevt() ) throw std::runtime_error( "MatrixElementKernelHost: nevt mismatch with channelIds" );
     // Sanity checks for memory access (momenta buffer)
     constexpr int neppM = MemoryAccessMomenta::neppM; // AOSOA layout
     static_assert( ispoweroftwo( neppM ), "neppM is not a power of 2" );
@@ -154,6 +215,10 @@ namespace mg5amcCpu
 #else
     static_assert( useChannelIds == false );
     sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), m_selhel.data(), m_selcol.data(), nevt() );
+#endif
+#ifdef MGONGPU_CHANNELID_DEBUG
+    std::cout << "DEBUG: MatrixElementKernelHost::computeMatrixElements " << this << " " << ( useChannelIds ? "T" : "F" ) << " " << nevt() << std::endl;
+    MatrixElementKernelBase::updateNevtProcessedByChannel( pChannelIds, nevt() );
 #endif
   }
 
@@ -244,15 +309,20 @@ namespace mg5amcGpu
     , m_numerators( this->nevt() )
     , m_denominators( this->nevt() )
 #endif
+#ifdef MGONGPU_CHANNELID_DEBUG
+    , m_hstChannelIds( this->nevt() )
+#endif
     , m_gpublocks( gpublocks )
     , m_gputhreads( gputhreads )
   {
     if( !m_momenta.isOnDevice() ) throw std::runtime_error( "MatrixElementKernelDevice: momenta must be a device array" );
     if( !m_matrixElements.isOnDevice() ) throw std::runtime_error( "MatrixElementKernelDevice: matrixElements must be a device array" );
+    if( !m_channelIds.isOnDevice() ) throw std::runtime_error( "MatrixElementKernelDevice: channelIds must be a device array" ); // FIXME?!
     if( m_gpublocks == 0 ) throw std::runtime_error( "MatrixElementKernelDevice: gpublocks must be > 0" );
     if( m_gputhreads == 0 ) throw std::runtime_error( "MatrixElementKernelDevice: gputhreads must be > 0" );
     if( this->nevt() != m_momenta.nevt() ) throw std::runtime_error( "MatrixElementKernelDevice: nevt mismatch with momenta" );
     if( this->nevt() != m_matrixElements.nevt() ) throw std::runtime_error( "MatrixElementKernelDevice: nevt mismatch with matrixElements" );
+    if( this->nevt() != m_channelIds.nevt() ) throw std::runtime_error( "MatrixElementKernelDevice: nevt mismatch with channelIds" );
     // Sanity checks for memory access (momenta buffer)
     constexpr int neppM = MemoryAccessMomenta::neppM; // AOSOA layout
     static_assert( ispoweroftwo( neppM ), "neppM is not a power of 2" );
@@ -316,6 +386,12 @@ namespace mg5amcGpu
     gpuLaunchKernelSharedMem( sigmaKin, m_gpublocks, m_gputhreads, sharedMemSize, m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), pChannelIds, m_numerators.data(), m_denominators.data(), m_selhel.data(), m_selcol.data() );
 #else
     gpuLaunchKernelSharedMem( sigmaKin, m_gpublocks, m_gputhreads, sharedMemSize, m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), m_selhel.data(), m_selcol.data() );
+#endif
+#ifdef MGONGPU_CHANNELID_DEBUG
+    std::cout << "DEBUG: MatrixElementKernelDevice::computeMatrixElements " << this << " " << ( useChannelIds ? "T" : "F" ) << " " << nevt() << std::endl;
+    copyHostFromDevice( m_hstChannelIds, m_channelIds ); // FIXME?!
+    const unsigned int* pHstChannelIds = ( useChannelIds ? m_hstChannelIds.data() : nullptr );
+    MatrixElementKernelBase::updateNevtProcessedByChannel( pHstChannelIds, nevt() );
 #endif
     checkGpu( gpuPeekAtLastError() );
     checkGpu( gpuDeviceSynchronize() );

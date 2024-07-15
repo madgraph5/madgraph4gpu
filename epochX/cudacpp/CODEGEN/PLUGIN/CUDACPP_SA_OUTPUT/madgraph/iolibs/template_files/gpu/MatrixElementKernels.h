@@ -10,7 +10,7 @@
 
 #include "MemoryBuffers.h"
 
-#include <iostream>
+#include <map>
 
 #ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
@@ -49,6 +49,14 @@ namespace mg5amcCpu
     // Is this a host or device kernel?
     virtual bool isOnDevice() const = 0;
 
+#ifdef MGONGPU_CHANNELID_DEBUG
+    // Update number of events processed by channel
+    void updateNevtProcessedByChannel( const unsigned int* pHstChannelIds, const size_t nevt );
+
+    // Dump number of events processed by channel
+    void dumpNevtProcessedByChannel();
+#endif
+
     // Dump signalling FPEs (#831 and #837)
     static void dumpSignallingFPEs();
 
@@ -77,6 +85,11 @@ namespace mg5amcCpu
 
     // The buffer for the output color selection
     BufferSelectedColor& m_selcol;
+
+#ifdef MGONGPU_CHANNELID_DEBUG
+    // The events-per-channel counter for debugging
+    std::map<size_t, size_t> m_nevtProcessedByChannel;
+#endif
   };
 
   //--------------------------------------------------------------------------
@@ -177,6 +190,12 @@ namespace mg5amcCpu
 
     // The buffer for the event-by-event denominators of multichannel factors
     DeviceBufferDenominators m_denominators;
+#endif
+
+#ifdef MGONGPU_CHANNELID_DEBUG
+    // The **host** buffer for the channelId array
+    // FIXME? MEKD should accept a host buffer as an argument instead of a device buffer, so that a second copy can be avoided?
+    PinnedHostBufferChannelIds m_hstChannelIds;
 #endif
 
     // The number of blocks in the GPU grid

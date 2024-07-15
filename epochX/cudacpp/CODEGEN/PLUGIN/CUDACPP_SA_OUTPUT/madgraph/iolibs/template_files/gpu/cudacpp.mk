@@ -574,6 +574,14 @@ GPUFLAGS += $(XCOMPILERFLAG) -fPIC
 
 #-------------------------------------------------------------------------------
 
+#=== Configure channelid debugging
+ifneq ($(MG5AMC_CHANNELID_DEBUG),)
+  CXXFLAGS += -DMGONGPU_CHANNELID_DEBUG
+  GPUFLAGS += -DMGONGPU_CHANNELID_DEBUG
+endif
+
+#-------------------------------------------------------------------------------
+
 #=== Configure build directories and build lockfiles ===
 
 # Build lockfile "full" tag (defines full specification of build options that cannot be intermixed)
