@@ -345,14 +345,13 @@ namespace mg5amcCpu
       {
 #if defined __CUDACC__ or !defined MGONGPU_CPPSIMD
         if( channelids_sv == 1 ) numerators_sv += cxabs2( amp_sv[0] );
-        denominators_sv += cxabs2( amp_sv[0] );
 #else
         for( int i = 0; i < neppV; ++i )
         {
-          if( channelids_sv[i] == 1 ) numerators_sv += cxabs2( amp_sv[0] );
-          denominators_sv += cxabs2( amp_sv[0] );
+          if( channelids_sv[i] == 1 ) numerators_sv[i] += cxabs2( amp_sv[0] )[i];
         }
 #endif
+        denominators_sv += cxabs2( amp_sv[0] );
       }
 #endif
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
@@ -370,14 +369,13 @@ namespace mg5amcCpu
       {
 #if defined __CUDACC__ or !defined MGONGPU_CPPSIMD
         if( channelids_sv == 2 ) numerators_sv += cxabs2( amp_sv[0] );
-        denominators_sv += cxabs2( amp_sv[0] );
 #else
         for( int i = 0; i < neppV; ++i )
         {
-          if( channelids_sv[i] == 2 ) numerators_sv += cxabs2( amp_sv[0] );
-          denominators_sv += cxabs2( amp_sv[0] );
+          if( channelids_sv[i] == 2 ) numerators_sv[i] += cxabs2( amp_sv[0] )[i];
         }
 #endif
+        denominators_sv += cxabs2( amp_sv[0] );
       }
 #endif
       jamp_sv[0] -= amp_sv[0];
@@ -394,14 +392,13 @@ namespace mg5amcCpu
       {
 #if defined __CUDACC__ or !defined MGONGPU_CPPSIMD
         if( channelids_sv == 3 ) numerators_sv += cxabs2( amp_sv[0] );
-        denominators_sv += cxabs2( amp_sv[0] );
 #else
         for( int i = 0; i < neppV; ++i )
         {
-          if( channelids_sv[i] == 3 ) numerators_sv += cxabs2( amp_sv[0] );
-          denominators_sv += cxabs2( amp_sv[0] );
+          if( channelids_sv[i] == 3 ) numerators_sv[i] += cxabs2( amp_sv[0] )[i];
         }
 #endif
+        denominators_sv += cxabs2( amp_sv[0] );
       }
 #endif
       jamp_sv[1] -= amp_sv[0];
