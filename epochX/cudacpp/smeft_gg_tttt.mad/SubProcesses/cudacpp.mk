@@ -381,6 +381,12 @@ ifeq ($(USEOPENMP),1)
   else ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
     override OMPFLAGS = -fopenmp
     ###override OMPFLAGS = # disable OpenMP MT on Intel (was ok without GPUCC but not ok with GPUCC before #578)
+  else ifneq ($(shell $(CXX) --version | egrep '^clang version 16'),)
+    ###override OMPFLAGS = # disable OpenMP on clang16 #904
+    $(error OpenMP is not supported by cudacpp on clang16 - issue #904)
+  else ifneq ($(shell $(CXX) --version | egrep '^clang version 17'),)
+    ###override OMPFLAGS = # disable OpenMP on clang17 #904
+    $(error OpenMP is not supported by cudacpp on clang17 - issue #904)
   else ifneq ($(shell $(CXX) --version | egrep '^(clang)'),)
     override OMPFLAGS = -fopenmp
     ###override OMPFLAGS = # disable OpenMP MT on clang (was not ok without or with nvcc before #578)
@@ -787,9 +793,11 @@ endif
 #-------------------------------------------------------------------------------
 
 # Generic target and build rules: objects from Fortran compilation
+# (NB In this makefile, this only applies to fcheck_sa_fortran.o)
+# (NB -fPIC was added to fix clang16 build #904, but this seems better for other cases too and is consistent to c++ and cuda builds)
 $(BUILDDIR)/%_fortran.o : %.f *.inc
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	$(FC) -I. -c $< -o $@
+	$(FC) -I. -fPIC -c $< -o $@
 
 # Generic target and build rules: objects from Fortran compilation
 ###$(BUILDDIR)/%_fortran.o : %.f *.inc
