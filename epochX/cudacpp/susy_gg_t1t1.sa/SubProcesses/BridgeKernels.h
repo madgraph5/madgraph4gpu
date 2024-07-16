@@ -30,7 +30,6 @@ namespace mg5amcCpu
                       const BufferGs& gs,                   // input: gs for alphaS
                       const BufferRndNumHelicity& rndhel,   // input: random numbers for helicity selection
                       const BufferRndNumColor& rndcol,      // input: random numbers for color selection
-                      const BufferChannelIds& channelIds,   // input: channel ids for single-diagram enhancement
                       BufferMatrixElements& matrixElements, // output: matrix elements
                       BufferSelectedHelicity& selhel,       // output: helicity selection
                       BufferSelectedColor& selcol,          // output: color selection
@@ -61,7 +60,6 @@ namespace mg5amcCpu
                       const BufferGs& gs,                   // input: gs for alphaS
                       const BufferRndNumHelicity& rndhel,   // input: random numbers for helicity selection
                       const BufferRndNumColor& rndcol,      // input: random numbers for color selection
-                      const BufferChannelIds& channelIds,   // input: channel ids for single-diagram enhancement
                       BufferMatrixElements& matrixElements, // output: matrix elements
                       BufferSelectedHelicity& selhel,       // output: helicity selection
                       BufferSelectedColor& selcol,          // output: color selection
@@ -77,7 +75,7 @@ namespace mg5amcCpu
     int computeGoodHelicities() override final;
 
     // Compute matrix elements
-    void computeMatrixElements( const bool useChannelIds ) override final;
+    void computeMatrixElements( const unsigned int channelId ) override final;
 
     // Is this a host or device kernel?
     bool isOnDevice() const override final { return false; }
@@ -102,7 +100,6 @@ namespace mg5amcCpu
                         const BufferGs& gs,                   // input: gs for alphaS
                         const BufferRndNumHelicity& rndhel,   // input: random numbers for helicity selection
                         const BufferRndNumColor& rndcol,      // input: random numbers for color selection
-                        const BufferChannelIds& channelIds,   // input: channel ids for single-diagram enhancement
                         BufferMatrixElements& matrixElements, // output: matrix elements
                         BufferSelectedHelicity& selhel,       // output: helicity selection
                         BufferSelectedColor& selcol,          // output: color selection
@@ -119,7 +116,7 @@ namespace mg5amcCpu
     int computeGoodHelicities() override final;
 
     // Compute matrix elements
-    void computeMatrixElements( const bool useChannelIds ) override final;
+    void computeMatrixElements( const unsigned int channelId ) override final;
 
     // Is this a host or device kernel?
     bool isOnDevice() const override final { return true; }
