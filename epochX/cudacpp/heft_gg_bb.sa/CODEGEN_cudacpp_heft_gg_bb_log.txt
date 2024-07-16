@@ -145,7 +145,7 @@ INFO: Processing color information for process: g g > b b~ HIG<=1 HIW<=1 @1
 [1;32mDEBUG:    type(subproc_group)=<class 'madgraph.core.helas_objects.HelasMatrixElement'> [1;30m[output.py at line 200][0m [0m
 [1;32mDEBUG:    type(fortran_model)=<class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_GPUFOHelasCallWriter'> [1;30m[output.py at line 201][0m [0m
 [1;32mDEBUG:    type(me)=<class 'int'> me=0 [1;30m[output.py at line 202][0m [0m
-[1;32mDEBUG:  "need to link", self.to_link_in_P = [0m need to link ['nvtx.h', 'timer.h', 'timermap.h', 'ompnumthreads.h', 'GpuRuntime.h', 'GpuAbstraction.h', 'MemoryAccessHelpers.h', 'MemoryAccessVectors.h', 'MemoryAccessMatrixElements.h', 'MemoryAccessMomenta.h', 'MemoryAccessRandomNumbers.h', 'MemoryAccessWeights.h', 'MemoryAccessAmplitudes.h', 'MemoryAccessWavefunctions.h', 'MemoryAccessGs.h', 'MemoryAccessCouplingsFixed.h', 'MemoryAccessNumerators.h', 'MemoryAccessDenominators.h', 'MemoryAccessChIds.h', 'EventStatistics.h', 'CommonRandomNumbers.h', 'CrossSectionKernels.cc', 'CrossSectionKernels.h', 'MatrixElementKernels.cc', 'MatrixElementKernels.h', 'RamboSamplingKernels.cc', 'RamboSamplingKernels.h', 'RandomNumberKernels.h', 'CommonRandomNumberKernel.cc', 'CurandRandomNumberKernel.cc', 'HiprandRandomNumberKernel.cc', 'Bridge.h', 'BridgeKernels.cc', 'BridgeKernels.h', 'fbridge.cc', 'fbridge.inc', 'fsampler.cc', 'fsampler.inc', 'MadgraphTest.h', 'runTest.cc', 'testmisc.cc', 'testxxx_cc_ref.txt', 'cudacpp.mk', 'testxxx.cc', 'MemoryBuffers.h', 'MemoryAccessCouplings.h', 'perf.py', 'profile.sh'] [1;30m[output.py at line 203][0m [0m
+[1;32mDEBUG:  "need to link", self.to_link_in_P = [0m need to link ['nvtx.h', 'timer.h', 'timermap.h', 'ompnumthreads.h', 'GpuRuntime.h', 'GpuAbstraction.h', 'MemoryAccessHelpers.h', 'MemoryAccessVectors.h', 'MemoryAccessMatrixElements.h', 'MemoryAccessMomenta.h', 'MemoryAccessRandomNumbers.h', 'MemoryAccessWeights.h', 'MemoryAccessAmplitudes.h', 'MemoryAccessWavefunctions.h', 'MemoryAccessGs.h', 'MemoryAccessCouplingsFixed.h', 'MemoryAccessNumerators.h', 'MemoryAccessDenominators.h', 'MemoryAccessChannelIds.h', 'EventStatistics.h', 'CommonRandomNumbers.h', 'CrossSectionKernels.cc', 'CrossSectionKernels.h', 'MatrixElementKernels.cc', 'MatrixElementKernels.h', 'RamboSamplingKernels.cc', 'RamboSamplingKernels.h', 'RandomNumberKernels.h', 'CommonRandomNumberKernel.cc', 'CurandRandomNumberKernel.cc', 'HiprandRandomNumberKernel.cc', 'Bridge.h', 'BridgeKernels.cc', 'BridgeKernels.h', 'fbridge.cc', 'fbridge.inc', 'fsampler.cc', 'fsampler.inc', 'MadgraphTest.h', 'runTest.cc', 'testmisc.cc', 'testxxx_cc_ref.txt', 'valgrind.h', 'cudacpp.mk', 'testxxx.cc', 'MemoryBuffers.h', 'MemoryAccessCouplings.h', 'perf.py', 'profile.sh'] [1;30m[output.py at line 203][0m [0m
 INFO: Creating files in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg_bb/SubProcesses/P1_Sigma_heft_gg_bbx 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg_bb/SubProcesses/P1_Sigma_heft_gg_bbx/./CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg_bb/SubProcesses/P1_Sigma_heft_gg_bbx/./CPPProcess.cc
@@ -157,7 +157,7 @@ ALOHA: aloha creates VVS3 routines[0m
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFS2 routines[0m
-ALOHA: aloha creates 4 routines in  0.265 s
+ALOHA: aloha creates 4 routines in  0.274 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVS3
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -174,7 +174,7 @@ INFO: Created files Parameters_heft.h and Parameters_heft.cc in directory
 INFO: /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg_bb/src/. and /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg_bb/src/. 
 quit
 
-real	0m0.829s
-user	0m0.566s
-sys	0m0.061s
-Code generation completed in 0 seconds
+real	0m0.674s
+user	0m0.603s
+sys	0m0.050s
+Code generation completed in 1 seconds
