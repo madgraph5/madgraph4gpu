@@ -92,7 +92,7 @@ extern "C"
                 iimplC + 1,
                 smatrix1multi_totaltime[iimplC],
                 smatrix1multi_counter[iimplC],
-                smatrix1multi_counter[iimplC] / ( smatrix1multi_totaltime[iimplC] + .1 ) );
+                smatrix1multi_counter[iimplC] / smatrix1multi_totaltime[iimplC] );
     return;
   }
 }

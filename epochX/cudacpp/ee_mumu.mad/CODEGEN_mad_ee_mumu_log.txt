@@ -62,7 +62,7 @@ generate e+ e- > mu+ mu-
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.0055065155029296875 [0m
+[1;32mDEBUG: model prefixing  takes 0.005818367004394531 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -154,7 +154,7 @@ INFO: Checking for minimal orders which gives processes.
 INFO: Please specify coupling orders to bypass this step. 
 INFO: Trying process: e+ e- > mu+ mu- WEIGHTED<=4 @1  
 INFO: Process has 2 diagrams 
-1 processes with 2 diagrams generated in 0.004 s
+1 processes with 2 diagrams generated in 0.005 s
 Total: 1 processes with 2 diagrams
 output madevent_simd ../TMPOUT/CODEGEN_mad_ee_mumu --hel_recycling=False --vector_size=32
 Load PLUGIN.CUDACPP_OUTPUT
@@ -163,11 +163,11 @@ It has been validated for the last time with version: 3.5.2[0m
 [1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
 [1mAddition matrix-element will be done with PLUGIN: CUDACPP_OUTPUT[0m
 [1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
-[1;32mDEBUG:  cformat = [0m standalone_simd [1;30m[export_cpp.py at line 3070][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter) [1;30m[output.py at line 165][0m [0m
+[1;32mDEBUG:  cformat = [0m standalone_simd [1;30m[export_cpp.py at line 3071][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter) [1;30m[output.py at line 162][0m [0m
 INFO: initialize a new directory: CODEGEN_mad_ee_mumu 
 INFO: remove old information in CODEGEN_mad_ee_mumu 
-[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.copy_template (initialise the directory) [1;30m[output.py at line 170][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.copy_template (initialise the directory) [1;30m[output.py at line 167][0m [0m
 [1;34mWARNING: File exists /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_ee_mumu [0m
 INFO: Creating subdirectories in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_ee_mumu 
 [1;34mWARNING: File exists /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_ee_mumu/Cards [0m
@@ -176,8 +176,8 @@ INFO: Organizing processes into subprocess groups
 INFO: Generating Helas calls for process: e+ e- > mu+ mu- WEIGHTED<=4 @1 
 INFO: Processing color information for process: e+ e- > mu+ mu- @1 
 INFO: Creating files in directory P1_epem_mupmum 
-[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1151][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f3f043928e0> [1;30m[export_v4.py at line 6304][0m [0m
+[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1148][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7feecb09d3a0> [1;30m[export_v4.py at line 6261][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -186,36 +186,27 @@ INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./.
 [1;32mDEBUG:  config_map = [0m [1, 2] [1;30m[export_cpp.py at line 711][0m [0m
 [1;32mDEBUG:  subproc_number = [0m 0 [1;30m[export_cpp.py at line 712][0m [0m
 [1;32mDEBUG:  Done [1;30m[export_cpp.py at line 713][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
 [1;34mWARNING: vector code for lepton pdf not implemented. We removed the option to run dressed lepton [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
 INFO: Generating Feynman diagrams for Process: e+ e- > mu+ mu- WEIGHTED<=4 @1 
 INFO: Finding symmetric diagrams for subprocess group epem_mupmum 
-[1;32mDEBUG:  os.getcwd() = [0m /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_ee_mumu/SubProcesses/P1_epem_mupmum [1;30m[export_v4.py at line 6481][0m [0m
-[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 2 [1;30m[model_handling.py at line 1522][0m [0m
-[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2} [1;30m[model_handling.py at line 1547][0m [0m
-[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2} [1;30m[model_handling.py at line 1548][0m [0m
-[1;32mDEBUG:  multi_channel = [0m {1: [0], 2: [1]} [1;30m[model_handling.py at line 1577][0m [0m
-[1;32mDEBUG:  self.path, os.getcwd() = [0m . /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_ee_mumu/SubProcesses/P1_epem_mupmum [1;30m[model_handling.py at line 1578][0m [0m
-[1;32mDEBUG:  replace_dict['is_LC'] = [0m {{true};,{true};}; [1;30m[model_handling.py at line 1583][0m [0m
-[1;32mDEBUG:  split[i] = [0m {{true} [1;30m[model_handling.py at line 1585][0m [0m
-[1;32mDEBUG:  split[i] = [0m     {true} [1;30m[model_handling.py at line 1587][0m [0m
-[1;32mDEBUG:  split[i] = [0m     {true}, // iconfigC=0, diag=1 [1;30m[model_handling.py at line 1592][0m [0m
-[1;32mDEBUG:  split[i] = [0m {true};}; [1;30m[model_handling.py at line 1585][0m [0m
-[1;32mDEBUG:  split[i] = [0m     {true};}; [1;30m[model_handling.py at line 1587][0m [0m
-[1;32mDEBUG:  split[i] = [0m     {true}, // iconfigC=1, diag=2 [1;30m[model_handling.py at line 1592][0m [0m
 Generated helas calls for 1 subprocesses (2 diagrams) in 0.004 s
-Wrote files for 8 helas calls in 0.111 s
+Wrote files for 8 helas calls in 0.104 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFV2 routines[0m
 ALOHA: aloha creates FFV4 routines[0m
-ALOHA: aloha creates 3 routines in  0.200 s
-[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 208][0m [0m
+ALOHA: aloha creates 3 routines in  0.213 s
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 205][0m [0m
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFV2 routines[0m
 ALOHA: aloha creates FFV4 routines[0m
 ALOHA: aloha creates FFV2_4 routines[0m
-ALOHA: aloha creates 7 routines in  0.263 s
+ALOHA: aloha creates 7 routines in  0.280 s
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV2
@@ -237,7 +228,6 @@ If you want to make this value the default for future session, you can run 'save
 save configuration file to /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_ee_mumu/Cards/me5_configuration.txt
 INFO: Use Fortran compiler gfortran 
 INFO: Use c++ compiler g++ 
-INFO: Generate jpeg diagrams 
 INFO: Generate web pages 
 DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_ee_mumu; patch -p4 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.common
 patching file Source/genps.inc
@@ -246,24 +236,24 @@ patching file SubProcesses/makefile
 patching file bin/internal/gen_ximprove.py
 patching file bin/internal/madevent_interface.py
 DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_ee_mumu/SubProcesses/P1_epem_mupmum; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+patching file auto_dsig1.f
+Hunk #1 succeeded at 496 (offset 12 lines).
 patching file driver.f
-Hunk #2 succeeded at 272 (offset 1 line).
-Hunk #3 succeeded at 476 (offset 1 line).
 patching file matrix1.f
-Hunk #3 succeeded at 243 (offset 22 lines).
-Hunk #4 succeeded at 280 (offset 31 lines).
-Hunk #5 succeeded at 325 (offset 31 lines).
-[1;32mDEBUG:  p.returncode = [0m 0 [1;30m[output.py at line 244][0m [0m
+Hunk #3 succeeded at 230 (offset 9 lines).
+Hunk #4 succeeded at 267 (offset 18 lines).
+Hunk #5 succeeded at 312 (offset 18 lines).
+[1;32mDEBUG:  p.returncode = [0m 0 [1;30m[output.py at line 241][0m [0m
 Output to directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_ee_mumu done.
 Type "launch" to generate events from this process, or see
 /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_ee_mumu/README
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m2.217s
-user	0m1.816s
-sys	0m0.258s
-Code generation completed in 3 seconds
+real	0m1.985s
+user	0m1.747s
+sys	0m0.212s
+Code generation completed in 2 seconds
 ************************************************************
 *                                                          *
 *                      W E L C O M E to                    *
