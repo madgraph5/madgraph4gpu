@@ -62,7 +62,7 @@ generate g g > t t~ g g
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.005693197250366211 [0m
+[1;32mDEBUG: model prefixing  takes 0.005754947662353516 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -178,7 +178,7 @@ INFO: Generating Helas calls for process: g g > t t~ g g WEIGHTED<=4 @1
 INFO: Processing color information for process: g g > t t~ g g @1 
 INFO: Creating files in directory P1_gg_ttxgg 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1151][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f51c8d8ae50> [1;30m[export_v4.py at line 6304][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f1ad92b4e50> [1;30m[export_v4.py at line 6304][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -511,15 +511,15 @@ INFO: Finding symmetric diagrams for subprocess group gg_ttxgg
 [1;32mDEBUG:  split[i] = [0m {false,true,false,false,true,false,false,false,false,false,true,false,false,false,false,false,false,false,false,false,true,false,false,false};}; [1;30m[model_handling.py at line 1585][0m [0m
 [1;32mDEBUG:  split[i] = [0m     {false, true, false, false, true, false, false, false, false, false, true, false, false, false, false, false, false, false, false, false, true, false, false, false};}; [1;30m[model_handling.py at line 1587][0m [0m
 [1;32mDEBUG:  split[i] = [0m     {false, true, false, false, true, false, false, false, false, false, true, false, false, false, false, false, false, false, false, false, true, false, false, false}, // iconfigC=104, diag=113 [1;30m[model_handling.py at line 1592][0m [0m
-Generated helas calls for 1 subprocesses (123 diagrams) in 0.427 s
-Wrote files for 222 helas calls in 1.540 s
+Generated helas calls for 1 subprocesses (123 diagrams) in 0.423 s
+Wrote files for 222 helas calls in 1.533 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 routines[0m
 ALOHA: aloha creates VVVV3 routines[0m
 ALOHA: aloha creates VVVV4 routines[0m
-ALOHA: aloha creates 5 routines in  0.335 s
+ALOHA: aloha creates 5 routines in  0.332 s
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 208][0m [0m
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
@@ -527,7 +527,7 @@ ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 routines[0m
 ALOHA: aloha creates VVVV3 routines[0m
 ALOHA: aloha creates VVVV4 routines[0m
-ALOHA: aloha creates 10 routines in  0.315 s
+ALOHA: aloha creates 10 routines in  0.320 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -577,10 +577,10 @@ Type "launch" to generate events from this process, or see
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m4.666s
-user	0m4.353s
-sys	0m0.297s
-Code generation completed in 4 seconds
+real	0m5.469s
+user	0m4.357s
+sys	0m0.292s
+Code generation completed in 6 seconds
 ************************************************************
 *                                                          *
 *                      W E L C O M E to                    *

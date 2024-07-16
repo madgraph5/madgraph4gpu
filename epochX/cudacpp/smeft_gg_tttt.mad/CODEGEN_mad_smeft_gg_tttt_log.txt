@@ -77,7 +77,7 @@ INFO: load vertices
 [1;32mDEBUG: MG5 converter defines FFFF26 to Gamma(-2,-4,-3)*Gamma(-2,2,-6)*Gamma(-1,-6,-5)*Gamma(-1,4,-4)*ProjP(-5,1)*ProjP(-3,3) + Gamma(-2,-4,-3)*Gamma(-2,4,-6)*Gamma(-1,-6,-5)*Gamma(-1,2,-4)*ProjP(-5,3)*ProjP(-3,1) + Gamma(-2,-4,-3)*Gamma(-2,2,-6)*Gamma(-1,-6,-5)*Gamma(-1,4,-4)*ProjM(-5,1)*ProjM(-3,3) + Gamma(-2,-4,-3)*Gamma(-2,4,-6)*Gamma(-1,-6,-5)*Gamma(-1,2,-4)*ProjM(-5,3)*ProjM(-3,1) [0m
 [1;32mDEBUG: MG5 converter defines FFFF27 to ProjP(2,1)*ProjP(4,3) + ProjM(2,1)*ProjM(4,3) [0m
 [1;32mDEBUG: MG5 converter defines FFFF112 to ProjM(2,3)*ProjM(4,1) + ProjP(2,3)*ProjP(4,1) [0m
-[1;32mDEBUG: model prefixing  takes 0.13744091987609863 [0m
+[1;32mDEBUG: model prefixing  takes 0.13804244995117188 [0m
 INFO: Change particles name to pass to MG5 convention 
 Defined multiparticle p = g u c d s u~ c~ d~ s~
 Defined multiparticle j = g u c d s u~ c~ d~ s~
@@ -115,7 +115,7 @@ INFO: Generating Helas calls for process: g g > t t~ t t~ WEIGHTED<=4 @1
 INFO: Processing color information for process: g g > t t~ t t~ @1 
 INFO: Creating files in directory P1_gg_ttxttx 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1151][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f136614b100> [1;30m[export_v4.py at line 6304][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f5bc67cb100> [1;30m[export_v4.py at line 6304][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -343,7 +343,7 @@ INFO: Finding symmetric diagrams for subprocess group gg_ttxttx
 [1;32mDEBUG:  split[i] = [0m {true,false,false,true,true,false,false,true,true,false,false,true};}; [1;30m[model_handling.py at line 1585][0m [0m
 [1;32mDEBUG:  split[i] = [0m     {true, false, false, true, true, false, false, true, true, false, false, true};}; [1;30m[model_handling.py at line 1587][0m [0m
 [1;32mDEBUG:  split[i] = [0m     {true, false, false, true, true, false, false, true, true, false, false, true}, // iconfigC=69, diag=72 [1;30m[model_handling.py at line 1592][0m [0m
-Generated helas calls for 1 subprocesses (72 diagrams) in 0.188 s
+Generated helas calls for 1 subprocesses (72 diagrams) in 0.189 s
 Wrote files for 119 helas calls in 0.973 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV5 routines[0m
@@ -359,7 +359,7 @@ ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 routines[0m
 ALOHA: aloha creates VVVV9 routines[0m
 ALOHA: aloha creates VVVV10 routines[0m
-ALOHA: aloha creates 10 routines in  0.326 s
+ALOHA: aloha creates 10 routines in  0.330 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV5
 <class 'aloha.create_aloha.AbstractRoutine'> VVV5
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -406,9 +406,9 @@ Type "launch" to generate events from this process, or see
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m7.756s
-user	0m7.406s
-sys	0m0.318s
+real	0m8.656s
+user	0m7.417s
+sys	0m0.292s
 Code generation completed in 8 seconds
 ************************************************************
 *                                                          *
