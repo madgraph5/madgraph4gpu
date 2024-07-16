@@ -41,7 +41,20 @@
 
 #ifdef MGONGPUCPP_GPUIMPL // CUDA OR C++
 
-    // *** START OF PART 1a - CUDA (one event per CPU thread) ***
+    // *** START OF PART 1a - CUDA (one event per GPU thread) ***
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+    // SCALAR channelId for the current event (CUDA) or for the whole SIMD event page (C++)
+    // The cudacpp implementation ASSUMES (and checks! #898) that all channelIds are the same in a SIMD event page
+    unsigned int channelId = 0; // disable multichannel single-diagram enhancement unless allChannelIds != nullptr
+    if( allChannelIds != nullptr )
+    {
+      const unsigned int* channelIds = allChannelIds;                            // fix #899 (distinguish channelIds and allChannelIds)
+      const uint_sv channelIds_sv = CID_ACCESS::kernelAccessConst( channelIds ); // fix #895 (compute this only once for all diagrams)
+      // NB: channelIds_sv is a scalar in CUDA
+      channelId = channelIds_sv;
+      assert( channelId > 0 ); // SANITY CHECK: scalar channelId must be > 0 if multichannel is enabled (allChannelIds != nullptr)
+    }
+#endif
     // Running sum of partial amplitudes squared for event by event color selection (#402)
     // (for the single event processed in calculate_wavefunctions)
     fptype_sv jamp2_sv[nParity * ncolor] = { 0 };
@@ -50,7 +63,7 @@
     {
       const int ihel = cGoodHel[ighel];
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, allChannelIds, allNumerators, allDenominators, jamp2_sv );
+      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators, jamp2_sv );
 #else
       calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, jamp2_sv );
 #endif
@@ -70,9 +83,9 @@
     }
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Event-by-event random choice of color #402
-    if( allChannelIds != nullptr ) // no event-by-event choice of color if allChannelIds == nullptr (fix FPE #783, fix segfault #892)
+    if( channelId != 0 ) // no event-by-event choice of color if channelId == 0 (fix FPE #783)
     {
-      const unsigned int iconfigC = mgOnGpu::channelId_to_iconfigC[CID_ACCESS::kernelAccessConst( allChannelIds )]; // coloramps.h uses a channel ordering not the diagram id
+      const unsigned int iconfigC = mgOnGpu::channelId_to_iconfigC[channelId]; // coloramps.h uses a channel ordering not the diagram id
       fptype targetamp[ncolor] = { 0 };
       for( int icolC = 0; icolC < ncolor; icolC++ )
       {
@@ -93,7 +106,7 @@
       }
     }
 #endif
-    // *** END OF PART 1a - CUDA (one event per CPU thread) ***
+    // *** END OF PART 1a - CUDA (one event per GPU thread) ***
 
 #else // CUDA OR C++
 
@@ -125,21 +138,45 @@
 #endif // _OPENMP
     for( int ipagV2 = 0; ipagV2 < npagV2; ++ipagV2 )
     {
-      // Running sum of partial amplitudes squared for event by event color selection (#402)
-      // (jamp2[nParity][ncolor][neppV] for the SIMD vector - or the two SIMD vectors - of events processed in calculate_wavefunctions)
-      fptype_sv jamp2_sv[nParity * ncolor] = { 0 };
-      fptype_sv MEs_ighel[ncomb] = { 0 };    // sum of MEs for all good helicities up to ighel (for the first - and/or only - neppV page)
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
-      fptype_sv MEs_ighel2[ncomb] = { 0 };   // sum of MEs for all good helicities up to ighel (for the second neppV page)
       const int ievt00 = ipagV2 * neppV * 2; // loop on two SIMD pages (neppV events) at a time
 #else
       const int ievt00 = ipagV2 * neppV; // loop on one SIMD page (neppV events) at a time
+#endif
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+      // SCALAR channelId for the current event (CUDA) or for the whole SIMD event page (C++)
+      // The cudacpp implementation ASSUMES (and checks! #898) that all channelIds are the same in a SIMD event page
+      unsigned int channelId = 0; // disable multichannel single-diagram enhancement unless allChannelIds != nullptr
+      if( allChannelIds != nullptr )
+      {
+        const unsigned int* channelIds = CID_ACCESS::ieventAccessRecordConst( allChannelIds, ievt00 ); // fix bug #899/#911 (FIXME? ievt00 or ievt0??)
+        uint_sv channelIds_sv = CID_ACCESS::kernelAccessConst( channelIds );                           // fix #895 (compute this only once for all diagrams)
+#ifndef MGONGPU_CPPSIMD
+        // NB: channelIds_sv is a scalar in no-SIMD C++
+        channelId = channelIds_sv;
+#else
+        // NB: channelIds_sv is a vector in SIMD C++
+        channelId = channelIds_sv[0];    // element[0]
+        for( int i = 1; i < neppV; ++i ) // elements[1...neppV-1]
+        {
+          assert( channelId == channelIds_sv[i] ); // SANITY CHECK #898: check that all events in a SIMD vector have the same channelId
+        }
+#endif
+        assert( channelId > 0 ); // SANITY CHECK: scalar channelId must be > 0 if multichannel is enabled (allChannelIds != nullptr)
+      }
+#endif
+      // Running sum of partial amplitudes squared for event by event color selection (#402)
+      // (jamp2[nParity][ncolor][neppV] for the SIMD vector - or the two SIMD vectors - of events processed in calculate_wavefunctions)
+      fptype_sv jamp2_sv[nParity * ncolor] = { 0 };
+      fptype_sv MEs_ighel[ncomb] = { 0 };  // sum of MEs for all good helicities up to ighel (for the first - and/or only - neppV page)
+#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+      fptype_sv MEs_ighel2[ncomb] = { 0 }; // sum of MEs for all good helicities up to ighel (for the second neppV page)
 #endif
       for( int ighel = 0; ighel < cNGoodHel; ighel++ )
       {
         const int ihel = cGoodHel[ighel];
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-        calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, allChannelIds, allNumerators, allDenominators, jamp2_sv, ievt00 );
+        calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators, jamp2_sv, ievt00 );
 #else
         calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, jamp2_sv, ievt00 );
 #endif
@@ -185,9 +222,8 @@
       }
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL // multichannel enabled (random color choice)
       // Event-by-event random choice of color #402
-      if( allChannelIds != nullptr ) // no event-by-event choice of color if allChannelIds == nullptr (fix FPE #783, fix segfault #892)
+      if( channelId != 0 ) // no event-by-event choice of color if channelId == 0 (fix FPE #783)
       {
-        uint_sv ichannelIds = CID_ACCESS::kernelAccessConst( allChannelIds ); // coloramps.h uses a channel ordering not the diagram id
         fptype_sv targetamp[ncolor] = { 0 };
         for( int icolC = 0; icolC < ncolor; icolC++ )
         {
@@ -198,11 +234,11 @@
 #ifdef MGONGPU_CPPSIMD
           for( int i = 0; i < neppV; ++i )
           {
-            const unsigned int iconfigC = mgOnGpu::channelId_to_iconfigC[ichannelIds[i]];
+            const unsigned int iconfigC = mgOnGpu::channelId_to_iconfigC[channelId];
             if( mgOnGpu::icolamp[iconfigC][icolC] ) targetamp[icolC][i] += jamp2_sv[icolC][i];
           }
 #else
-          const unsigned int iconfigC = mgOnGpu::channelId_to_iconfigC[CID_ACCESS::kernelAccessConst( allChannelIds )];
+          const unsigned int iconfigC = mgOnGpu::channelId_to_iconfigC[channelId];
           if( mgOnGpu::icolamp[iconfigC][icolC] ) targetamp[icolC] += jamp2_sv[icolC];
 #endif
         }
@@ -217,11 +253,11 @@
 #ifdef MGONGPU_CPPSIMD
           for( int i = 0; i < neppV; ++i )
           {
-            const unsigned int iconfigC = mgOnGpu::channelId_to_iconfigC[ichannelIds[i]];
+            const unsigned int iconfigC = mgOnGpu::channelId_to_iconfigC[channelId];
             if( mgOnGpu::icolamp[iconfigC][icolC] ) targetamp2[icolC][i] += jamp2_sv[ncolor + icolC][i];
           }
 #else
-          const unsigned int iconfigC = mgOnGpu::channelId_to_iconfigC[CID_ACCESS::kernelAccessConst( allChannelIds )];
+          const unsigned int iconfigC = mgOnGpu::channelId_to_iconfigC[channelId];
           if( mgOnGpu::icolamp[iconfigC][icolC] ) targetamp2[icolC] += jamp2_sv[ncolor + icolC];
 #endif
         }
