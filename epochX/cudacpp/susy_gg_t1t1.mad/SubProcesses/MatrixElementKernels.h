@@ -49,16 +49,20 @@ namespace mg5amcCpu
     // Is this a host or device kernel?
     virtual bool isOnDevice() const = 0;
 
+    // Dump signalling FPEs (#831 and #837)
+    static void dumpSignallingFPEs();
+
 #ifdef MGONGPU_CHANNELID_DEBUG
+    // Add a MEK identifier for the channelId debug printout
+    void setTagForNevtProcessedByChannel( const std::string& tag ) { m_tag = tag; }
+
+  protected:
     // Update number of events processed by channel
     void updateNevtProcessedByChannel( const unsigned int* pHstChannelIds, const size_t nevt );
 
     // Dump number of events processed by channel
     void dumpNevtProcessedByChannel();
 #endif
-
-    // Dump signalling FPEs (#831 and #837)
-    static void dumpSignallingFPEs();
 
   protected:
 
@@ -89,6 +93,9 @@ namespace mg5amcCpu
 #ifdef MGONGPU_CHANNELID_DEBUG
     // The events-per-channel counter for debugging
     std::map<size_t, size_t> m_nevtProcessedByChannel;
+
+    // The tag for events-per-channel debugging
+    std::string m_tag;
 #endif
   };
 
