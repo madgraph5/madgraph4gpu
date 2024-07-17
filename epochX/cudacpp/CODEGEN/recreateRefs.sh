@@ -4,8 +4,7 @@ cudacppdir=$(cd $(dirname $0)/..; pwd)
 echo ${cudacppdir}
 
 cd ${cudacppdir}
-#for d in $(git ls-tree --name-only HEAD *.mad/SubProcesses/P* | grep 'P1_gg_tt'); do
-for d in gg_tt.mad/SubProcesses/P1_gg_ttx gg_ttg.mad/SubProcesses/P1_gg_ttxg; do
+for d in $(git ls-tree --name-only HEAD *.mad/SubProcesses/P*); do
   echo; echo "================================================================================="
   dd=${cudacppdir}/$d
   cd $dd
