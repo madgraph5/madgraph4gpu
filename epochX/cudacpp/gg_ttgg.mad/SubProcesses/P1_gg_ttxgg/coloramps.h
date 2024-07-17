@@ -145,6 +145,9 @@ namespace mgOnGpu
      105, // CHANNEL_ID=113  i.e. DIAGRAM=113  --> ICONFIG=105
   };
 
+  // The number N_config of channels/diagrams with an associated iconfig for single-diagram enhancement in the MadEvent sampling algorithm (#917)
+  __device__ constexpr unsigned int nconfigSDE = 105;
+
   // Map iconfig to the mask of allowed colors (e.g. "colormask = icolamp[iconfig - 1]": input index uses C indexing)
   // This array has N_config <= N_diagrams elements
   __device__ constexpr bool icolamp[105][24] = { // note: a trailing comma in the initializer list is allowed
