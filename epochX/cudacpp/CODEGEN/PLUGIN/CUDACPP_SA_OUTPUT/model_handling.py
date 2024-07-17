@@ -1108,7 +1108,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
 
 import madgraph.iolibs.files as files
 import madgraph.various.misc as misc
-
+import madgraph.iolibs.export_v4 as export_v4
 # AV - define a custom OneProcessExporter
 # (NB: enable this via PLUGIN_ProcessExporter.oneprocessclass in output.py)
 # (NB: use this directly also in PLUGIN_UFOModelConverter.read_template_file)
@@ -1526,7 +1526,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     def edit_coloramps(self, config_subproc_map):
         """Generate coloramps.h"""
 
-
+        misc.sprint(config_subproc_map)
         ###misc.sprint('Entering PLUGIN_OneProcessExporter.edit_coloramps')
         template = open(pjoin(self.template_path,'gpu','coloramps.h'),'r').read()
         ff = open(pjoin(self.path, 'coloramps.h'),'w')
@@ -1551,45 +1551,39 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         # will be smaller than the true number of diagram. This is fine for color
         # but maybe not for something else.
         nb_diag = max(config[0] for config in config_subproc_map)
+        import math
+        ndigits = str(int(math.log10(nb_diag))+1+1) # the additional +1 is for the -sign
         # Output which diagrams correspond ot a channel to get information for valid color
         lines = []
-        # Note: line for index 0 (no multi-channel is hardcoded in the template, so here we fill the array from index 1)
         for diag in range(1, nb_diag+1):
+            channelidf = diag
+            channelidc = channelidf - 1 # C convention 
             if diag in diag_to_iconfig:
                 iconfigf = diag_to_iconfig[diag]
-                iconfigc = iconfigf - 1 # C convention 
-                text = "     %(iconfigc)i, // channelId=%(diag)i (diagram=%(diag)i) --> iconfig=%(iconfigf)i (f77 conv) and iconfigC=%(iconfigc)i (c conv)" 
+                iconfigftxt = '%i'%iconfigf
             else:
-                iconfigc = -1
                 iconfigf = -1
-                text = "     -1, // channelId=%(diag)i (diagram=%(diag)i): Not consider as a channel of integration (presence of 4 point interaction?)" 
-            lines.append(text % {'diag': diag, 'iconfigc':  iconfigc, 'iconfigf':iconfigf})  
-
-        replace_dict['diag_to_channel'] = '\n'.join(lines)
+                iconfigftxt = '-1 (diagram with no associated iconfig for single-diagram enhancement)'
+            text = '    %(iconfigf){0}i, // CHANNEL_ID=%(channelidf)-{0}i i.e. DIAGRAM=%(diag)-{0}i --> ICONFIG=%(iconfigftxt)s'.format(ndigits)
+            lines.append(text % {'diag':diag, 'channelidf':channelidf, 'iconfigf':iconfigf, 'iconfigftxt':iconfigftxt})
+        replace_dict['channelc2iconfig_lines'] = '\n'.join(lines)
 
         if self.include_multi_channel: # NB unnecessary as edit_coloramps is not called otherwise...
-            multi_channel = self.get_multi_channel_dictionary(self.matrix_elements[0].get('diagrams'), self.include_multi_channel)
-            replace_dict['is_LC'] = self.get_icolamp_lines(multi_channel, self.matrix_elements[0], 1)
-            replace_dict['nb_channel'] = len(multi_channel)
-            replace_dict['nb_diag_plus_one'] = max(config[0] for config in config_subproc_map)+1
+            subproc_to_confdiag = export_v4.ProcessExporterFortranMEGroup.get_confdiag_from_group_mapconfig(config_subproc_map, 0)             
+            replace_dict['is_LC'] = self.get_icolamp_lines(subproc_to_confdiag, self.matrix_elements[0], 1)
+            replace_dict['nb_channel'] = len(subproc_to_confdiag)
+            replace_dict['nb_diag'] = max(config[0] for config in config_subproc_map)
             replace_dict['nb_color'] = max(1,len(self.matrix_elements[0].get('color_basis')))
             
-            misc.sprint(multi_channel)
-            misc.sprint(self.path, os.getcwd())
-            #raise Exception
             
             # AV extra formatting (e.g. gg_tt was "{{true,true};,{true,false};,{false,true};};")
-            split = replace_dict['is_LC'].split(';,') 
-            misc.sprint(replace_dict['is_LC'])
-            for i in range(len(split)): 
-                misc.sprint(split[i])
-                split[i] = '    ' + split[i].replace(',',', ').replace('{{', '{')
-                misc.sprint(split[i])
-                if '};};' in split[i]:
-                   split[i] = split[i][:-4] + '}, // iconfigC=%i, diag=%i' % (i, iconfig_to_diag[i+1]) 
-                elif 'false' in split[i] or 'true' in split[i]:
-                    split[i] += ', // iconfigC=%i, diag=%i' % (i, iconfig_to_diag[i+1])
-                misc.sprint(split[i])
+            ###misc.sprint(replace_dict['is_LC'])
+            split = replace_dict['is_LC'].replace('{{','{').replace('};};','}').split(';,')
+            text=', // ICONFIG=%-{0}i <-- CHANNEL_ID=%i'.format(ndigits)
+            for iconfigc in range(len(split)): 
+                ###misc.sprint(split[iconfigc])
+                split[iconfigc] = '    ' + split[iconfigc].replace(',',', ').replace('true',' true').replace('{','{ ').replace('}',' }')
+                split[iconfigc] += text % (iconfigc+1, iconfig_to_diag[iconfigc+1])
             replace_dict['is_LC'] = '\n'.join(split)
             ff.write(template % replace_dict)
         ff.close()

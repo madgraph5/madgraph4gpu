@@ -4,7 +4,7 @@
 ! Copyright (C) 2020-2024 CERN and UCLouvain.
 ! Licensed under the GNU Lesser General Public License (version 3 or later).
 ! Modified by: A. Valassi (Sep 2021) for the MG5aMC CUDACPP plugin.
-! Further modified by: J. Teig, A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
+! Further modified by: O. Mattelaer, J. Teig, A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
 !==========================================================================
 
 #include "GpuAbstraction.h"
@@ -85,15 +85,18 @@
     // Event-by-event random choice of color #402
     if( channelId != 0 ) // no event-by-event choice of color if channelId == 0 (fix FPE #783)
     {
-      const unsigned int iconfigC = mgOnGpu::channelId_to_iconfigC[channelId]; // coloramps.h uses a channel ordering not the diagram id
+      // NB (see #877): in the array channel2iconfig, the input index uses C indexing (channelId -1), the output index uses F indexing (iconfig)
+      const unsigned int iconfig = mgOnGpu::channel2iconfig[channelId - 1]; // map N_diagrams to N_config <= N_diagrams configs (fix LHE color mismatch #856: see also #826, #852, #853)
       fptype targetamp[ncolor] = { 0 };
+      // NB (see #877): explicitly use 'icolC' rather than 'icol' to indicate that icolC uses C indexing in [0, N_colors-1]
       for( int icolC = 0; icolC < ncolor; icolC++ )
       {
         if( icolC == 0 )
           targetamp[icolC] = 0;
         else
           targetamp[icolC] = targetamp[icolC - 1];
-        if( mgOnGpu::icolamp[iconfigC][icolC] ) targetamp[icolC] += jamp2_sv[icolC];
+        // NB (see #877): in the array icolamp, the input index uses C indexing (iconfig -1)
+        if( mgOnGpu::icolamp[iconfig - 1][icolC] ) targetamp[icolC] += jamp2_sv[icolC];
       }
       //printf( "sigmaKin: ievt=%%4d rndcol=%%f\n", ievt, allrndcol[ievt] );
       for( int icolC = 0; icolC < ncolor; icolC++ )
@@ -128,7 +131,7 @@
     // - firstprivate: give each thread its own copy, and initialise with value from outside
 #define _OMPLIST0 allcouplings, allMEs, allmomenta, allrndcol, allrndhel, allselcol, allselhel, cGoodHel, cNGoodHel, npagV2
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-#define _OMPLIST1 , allDenominators, allNumerators, allChannelIds, mgOnGpu::icolamp, mgOnGpu::channelId_to_iconfigC
+#define _OMPLIST1 , allDenominators, allNumerators, allChannelIds, mgOnGpu::icolamp, mgOnGpu::channel2iconfig
 #else
 #define _OMPLIST1
 #endif
@@ -224,23 +227,17 @@
       // Event-by-event random choice of color #402
       if( channelId != 0 ) // no event-by-event choice of color if channelId == 0 (fix FPE #783)
       {
+        // NB (see #877): in the array channel2iconfig, the input index uses C indexing (channelId -1), the output index uses F indexing (iconfig)
+        const unsigned int iconfig = mgOnGpu::channel2iconfig[channelId - 1]; // map N_diagrams to N_config <= N_diagrams configs (fix LHE color mismatch #856: see also #826, #852, #853)
         fptype_sv targetamp[ncolor] = { 0 };
+        // NB (see #877): explicitly use 'icolC' rather than 'icol' to indicate that icolC uses C indexing in [0, N_colors-1]
         for( int icolC = 0; icolC < ncolor; icolC++ )
         {
           if( icolC == 0 )
             targetamp[icolC] = fptype_sv{ 0 };
           else
             targetamp[icolC] = targetamp[icolC - 1];
-#ifdef MGONGPU_CPPSIMD
-          for( int i = 0; i < neppV; ++i )
-          {
-            const unsigned int iconfigC = mgOnGpu::channelId_to_iconfigC[channelId];
-            if( mgOnGpu::icolamp[iconfigC][icolC] ) targetamp[icolC][i] += jamp2_sv[icolC][i];
-          }
-#else
-          const unsigned int iconfigC = mgOnGpu::channelId_to_iconfigC[channelId];
-          if( mgOnGpu::icolamp[iconfigC][icolC] ) targetamp[icolC] += jamp2_sv[icolC];
-#endif
+          if( mgOnGpu::icolamp[iconfig - 1][icolC] ) targetamp[icolC] += jamp2_sv[icolC];
         }
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
         fptype_sv targetamp2[ncolor] = { 0 };
@@ -250,16 +247,8 @@
             targetamp2[icolC] = fptype_sv{ 0 };
           else
             targetamp2[icolC] = targetamp2[icolC - 1];
-#ifdef MGONGPU_CPPSIMD
-          for( int i = 0; i < neppV; ++i )
-          {
-            const unsigned int iconfigC = mgOnGpu::channelId_to_iconfigC[channelId];
-            if( mgOnGpu::icolamp[iconfigC][icolC] ) targetamp2[icolC][i] += jamp2_sv[ncolor + icolC][i];
-          }
-#else
-          const unsigned int iconfigC = mgOnGpu::channelId_to_iconfigC[channelId];
-          if( mgOnGpu::icolamp[iconfigC][icolC] ) targetamp2[icolC] += jamp2_sv[ncolor + icolC];
-#endif
+          // NB (see #877): in the array icolamp, the input index uses C indexing (iconfig -1)
+          if( mgOnGpu::icolamp[iconfig - 1][icolC] ) targetamp2[icolC] += jamp2_sv[ncolor + icolC];
         }
 #endif
         for( int ieppV = 0; ieppV < neppV; ++ieppV )
