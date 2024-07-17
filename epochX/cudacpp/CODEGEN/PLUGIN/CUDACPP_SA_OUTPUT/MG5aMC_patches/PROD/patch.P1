@@ -126,7 +126,7 @@ index 1124a9164..27a6e4674 100644
        open(unit=lun,file=tempname,status='old',ERR=20)
        fopened=.true.
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
-index e73e654d4..27fbe7302 100644
+index 8b73188ef..3a594ac59 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
 @@ -72,7 +72,10 @@ C
@@ -149,7 +149,7 @@ index e73e654d4..27fbe7302 100644
        NTRY(IMIRROR)=NTRY(IMIRROR)+1
        THIS_NTRY(IMIRROR) = THIS_NTRY(IMIRROR)+1
        DO I=1,NEXTERNAL
-@@ -217,6 +221,17 @@ C     ----------
+@@ -230,6 +234,17 @@ C            update.
            ENDIF
            IF(NTRY(IMIRROR).EQ.MAXTRIES)THEN
              ISHEL(IMIRROR)=MIN(ISUM_HEL,NGOOD(IMIRROR))
@@ -167,7 +167,7 @@ index e73e654d4..27fbe7302 100644
            ENDIF
          ENDIF
        ELSE IF (.NOT.INIT_MODE) THEN  ! random helicity 
-@@ -234,6 +249,7 @@ C       Include the Jacobian from helicity sampling
+@@ -247,6 +262,7 @@ C       Include the Jacobian from helicity sampling
          IHEL = HEL_PICKED
        ELSE
          ANS = 1D0
@@ -175,7 +175,7 @@ index e73e654d4..27fbe7302 100644
          RETURN
        ENDIF
        IF (ANS.NE.0D0.AND.(ISUM_HEL .NE. 1.OR.HEL_PICKED.EQ.-1)) THEN
-@@ -278,9 +294,8 @@ C           Set right sign for ANS, based on sign of chosen helicity
+@@ -291,9 +307,8 @@ C           Set right sign for ANS, based on sign of chosen helicity
          ENDIF
        ENDIF
        ANS=ANS/DBLE(IDEN)
