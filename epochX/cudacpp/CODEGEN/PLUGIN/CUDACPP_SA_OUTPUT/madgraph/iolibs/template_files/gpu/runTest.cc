@@ -16,7 +16,9 @@
 #include "MemoryBuffers.h"
 #include "RamboSamplingKernels.h"
 #include "RandomNumberKernels.h"
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
 #include "coloramps.h"
+#endif
 #include "epoch_process_id.h"
 
 #ifdef MGONGPUCPP_GPUIMPL
