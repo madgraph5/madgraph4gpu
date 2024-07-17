@@ -14,9 +14,11 @@ scrdir=$(cd $(dirname $0); pwd)
 bckend=$(basename $(cd $scrdir; cd ..; pwd)) # cudacpp or alpaka
 topdir=$(cd $scrdir; cd ../../..; pwd)
 
-# Disable OpenMP in tmad tests
-# To do this, set OMPFLAGS externally to an empty string (#758)
-export OMPFLAGS=
+# Enable OpenMP in tmad tests? (#758)
+###export USEOPENMP=1
+
+# Debug channelid in MatrixElementKernelBase?
+export MG5AMC_CHANNELID_DEBUG=1
 
 # HARDCODE NLOOP HERE (may improve this eventually...)
 NLOOP=8192
