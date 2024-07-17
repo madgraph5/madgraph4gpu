@@ -18,6 +18,9 @@ topdir=$(cd $(dirname $0)/../..; pwd)
 # Enable OpenMP in the CI tests? (#758)
 ###export USEOPENMP=1
 
+# Debug channelid in MatrixElementKernelBase?
+export MG5AMC_CHANNELID_DEBUG=1
+
 # Bypass known issues?
 BYPASS_KNOWN_ISSUES=0 # do not bypass known issues (fail)
 ###BYPASS_KNOWN_ISSUES=1 # bypass known issues (do not fail)
