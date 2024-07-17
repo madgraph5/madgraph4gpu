@@ -41,6 +41,7 @@ struct CUDA_CPU_TestBase : public TestDriverBase
   static void setChannelIds( BufferChannelIds& hstChannelIds, std::size_t iiter )
   {
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+    std::cout << "CUDA_CPU_TestBase::setChannelIds: ndiagrams=" << CPPProcess::ndiagrams << ", nconfig=" << mgOnGpu::nconfigSDE << std::endl;
     // Fill channelIds for multi-channel tests #896
     // (NB: these are only used if useChannelIds == true)
     // TEMPORARY(0): debug multichannel tests with channelId=1 for all events
@@ -55,9 +56,12 @@ struct CUDA_CPU_TestBase : public TestDriverBase
     {
       //const unsigned int channelId = 1 + ( iWarp + iiter * nWarp ) % CPPProcess::ndiagrams; // bug #917
       const int iconfig = 1 + ( iWarp + iiter * nWarp ) % mgOnGpu::nconfigSDE;
+      std::cout << "CUDA_CPU_TestBase::setChannelIds: iWarp=" << iWarp << ", iconfig=" << iconfig << std::endl;
       unsigned int channelId = 0;
       for( unsigned int idiagram = 1; idiagram < CPPProcess::ndiagrams; idiagram++ )
       {
+        std::cout << "CUDA_CPU_TestBase::setChannelIds DEBUG iconfig=" << iconfig
+                  << ", loop idiagram(iconfig)=" << idiagram << "(" << mgOnGpu::hostChannel2iconfig[idiagram] << ")" << std::endl;
         if( mgOnGpu::hostChannel2iconfig[idiagram] == iconfig )
         {
           channelId = idiagram + 1; // fix #917 (NB add +1 because channelId uses F indexing)
