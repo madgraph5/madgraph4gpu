@@ -1,7 +1,11 @@
-c  The following lines has been copy from the plugin
-c  template_file CUDACPP/madgraph/iolibs/template_files/gpu/smatrix_multi.f 
-c     and are designed to be put at the end of the smatrix$i_multi function part of the auto_dsig$i.f file
-c      
+c Copyright (C) 2020-2024 CERN and UCLouvain.
+c Licensed under the GNU Lesser General Public License (version 3 or later).
+c Created by: O. Mattelaer (Oct 2023) for the MG5aMC CUDACPP plugin.
+c Further modified by: O. Mattelaer, A. Valassi (2023-2024) for the MG5aMC CUDACPP plugin.
+c       ======================================================
+c       *START* Included from CUDACPP template smatrix_multi.f
+c       (into function smatrix$i_multi in auto_dsig$i.f)
+c       ======================================================
         call counters_smatrix1multi_stop( -1 ) ! fortran=-1
       ENDIF
 
@@ -87,3 +91,7 @@ c         ! This is a workaround for https://github.com/oliviermattelaer/mg5amc_
         WRITE (*,*) 'CHANNEL_ID =', CHANNELS(1)
         FIRST_CHID = .FALSE.
       ENDIF
+c       ======================================================
+c       **END** Included from CUDACPP template smatrix_multi.f
+c       ======================================================
+
