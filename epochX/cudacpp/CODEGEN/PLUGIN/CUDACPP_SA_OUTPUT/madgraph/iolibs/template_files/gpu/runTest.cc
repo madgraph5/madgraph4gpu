@@ -58,7 +58,8 @@ struct CUDA_CPU_TestBase : public TestDriverBase
       //const unsigned int channelId = 1 + ( iWarp + iiter * nWarp ) % CPPProcess::ndiagrams; // bug #917
       const int iconfig = 1 + ( iWarp + iiter * nWarp ) % mgOnGpu::nconfigSDE;
       unsigned int channelId = 0;
-      for( unsigned int idiagram = 1; idiagram < CPPProcess::ndiagrams; idiagram++ )
+      //for( unsigned int idiagram = 1; idiagram < CPPProcess::ndiagrams; idiagram++ ) // two bugs #920 and #919
+      for( unsigned int idiagram = 0; idiagram < mgOnGpu::nchannels; idiagram++ ) // fix #920 and work around #919
       {
         if( mgOnGpu::hostChannel2iconfig[idiagram] == iconfig )
         {
