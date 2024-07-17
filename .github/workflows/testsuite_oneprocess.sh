@@ -15,9 +15,8 @@
 echo "Executing $0 $*"; echo
 topdir=$(cd $(dirname $0)/../..; pwd)
 
-# Disable OpenMP in the CI tests
-# To do this, set OMPFLAGS externally to an empty string (#758)
-export OMPFLAGS=
+# Enable OpenMP in the CI tests? (#758)
+###export USEOPENMP=1
 
 # Bypass known issues?
 BYPASS_KNOWN_ISSUES=0 # do not bypass known issues (fail)
