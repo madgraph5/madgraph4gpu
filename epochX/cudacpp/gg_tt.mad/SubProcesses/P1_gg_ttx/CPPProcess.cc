@@ -1085,6 +1085,14 @@ namespace mg5amcCpu
           assert( channelId == channelIds_sv[i] ); // SANITY CHECK #898: check that all events in a SIMD vector have the same channelId
         }
 #endif
+        if( channelId == 0 )
+        {
+          std::cout << "INTERNAL ERROR! channelId == 0?" << std::endl;
+          std::cout << "DEBUG: allChannelIds=" << allChannelIds << ", nevt=" << nevt << std::endl;
+          std::cout << "DEBUG: allChannelIds[0..nevt]={";
+          for( int i = 0; i < nevt; ++i ) std::cout << allChannelIds[i] << ( i < nevt - 1 ? ", " : " " );
+          std::cout << "}" << std::endl;
+        }        
         assert( channelId > 0 ); // SANITY CHECK: scalar channelId must be > 0 if multichannel is enabled (allChannelIds != nullptr)
       }
 #endif

@@ -392,6 +392,13 @@ namespace mg5amcCpu
       std::copy( rndhel, rndhel + m_nevt, m_hstRndHel.data() );
       std::copy( rndcol, rndcol + m_nevt, m_hstRndCol.data() );
     }
+    std::cout << "DEBUG Bridge::cpu_sequence channelIds=" << channelIds << ", nevt=" << m_nevt << std::endl;
+    if( channelIds != nullptr )
+    {
+      std::cout << "DEBUG: channelIds[0..nevt]={";
+      for( unsigned int i = 0; i < m_nevt; ++i ) std::cout << channelIds[i] << ( i < m_nevt - 1 ? ", " : " " );
+      std::cout << "}" << std::endl;
+    }
     const bool useChannelIds = ( channelIds != nullptr ) && ( !goodHelOnly );
     if( useChannelIds ) memcpy( m_hstChannelIds.data(), channelIds, m_nevt * sizeof( unsigned int ) );
     if( m_nGoodHel < 0 )
