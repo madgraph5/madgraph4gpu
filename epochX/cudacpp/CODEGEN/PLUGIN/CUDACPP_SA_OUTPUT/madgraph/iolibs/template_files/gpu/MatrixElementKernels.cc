@@ -42,6 +42,7 @@ namespace mg5amcCpu
     , m_selcol( selcol )
 #ifdef MGONGPU_CHANNELID_DEBUG
     , m_nevtProcessedByChannel()
+    , m_tag()
 #endif
   {
     //std::cout << "DEBUG: MatrixElementKernelBase ctor " << this << std::endl;
@@ -101,12 +102,17 @@ namespace mg5amcCpu
       if( m_nevtProcessedByChannel[channelId] > 0 )
       {
         if( sstr.str() != " {" ) sstr << ",";
-        sstr << " " << channelId << " : " << m_nevtProcessedByChannel[channelId];
+        if( channelId == 0 )
+          sstr << " no-multichannel";
+        else
+          sstr << " " << channelId;
+        sstr << " : " << m_nevtProcessedByChannel[channelId];
       }
     }
     sstr << " }";
-    std::cout << "DEBUG: MEK " << this
-              << " processed " << nevtProcessed << " events across " << CPPProcess::ndiagrams << " channels" << sstr.str() << std::endl;
+    std::cout << "DEBUG: MEK " << this;
+    if( m_tag != "" ) std::cout << " " << m_tag;
+    std::cout << " processed " << nevtProcessed << " events across " << CPPProcess::ndiagrams << " channels" << sstr.str() << std::endl;
   }
 #endif
 
@@ -218,7 +224,7 @@ namespace mg5amcCpu
     sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), m_selhel.data(), m_selcol.data(), nevt() );
 #endif
 #ifdef MGONGPU_CHANNELID_DEBUG
-    std::cout << "DEBUG: MatrixElementKernelHost::computeMatrixElements " << this << " " << ( useChannelIds ? "T" : "F" ) << " " << nevt() << std::endl;
+    //std::cout << "DEBUG: MatrixElementKernelHost::computeMatrixElements " << this << " " << ( useChannelIds ? "T" : "F" ) << " " << nevt() << std::endl;
     MatrixElementKernelBase::updateNevtProcessedByChannel( pChannelIds, nevt() );
 #endif
   }

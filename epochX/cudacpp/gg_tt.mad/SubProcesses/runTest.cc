@@ -322,34 +322,37 @@ struct CUDATestMultiChannel : public CUDATest
 // This is meant as a workaround to prevent not-understood segfault #907 when adding a second test
 // Note: instantiate test2 first and test1 second to ensure that the channelid printout from the dtors comes from test1 first and test2 second
 #ifdef MGONGPUCPP_GPUIMPL
-// CUDA test 2
-CUDATestMultiChannel cudaDriver2( MG_EPOCH_REFERENCE_FILE_NAME );
-MadgraphTest mgTest2( cudaDriver2 );
+// CUDA test drivers
+CUDATestMultiChannel driver2( MG_EPOCH_REFERENCE_FILE_NAME );
 #define TESTID2( s ) s##_GPU_MULTICHANNEL
-// CUDA test 1
-CUDATestNoMultiChannel cudaDriver1( MG_EPOCH_REFERENCE_FILE_NAME );
-MadgraphTest mgTest1( cudaDriver1 );
+CUDATestNoMultiChannel driver1( MG_EPOCH_REFERENCE_FILE_NAME );
 #define TESTID1( s ) s##_GPU_NOMULTICHANNEL
 #else
-// CPU test 2
-CPUTestMultiChannel cppDriver2( MG_EPOCH_REFERENCE_FILE_NAME );
-MadgraphTest mgTest2( cppDriver2 );
+// CPU test drivers
+CPUTestMultiChannel driver2( MG_EPOCH_REFERENCE_FILE_NAME );
 #define TESTID2( s ) s##_CPU_MULTICHANNEL
-// CPU test 1
-CPUTestNoMultiChannel cppDriver1( MG_EPOCH_REFERENCE_FILE_NAME );
-MadgraphTest mgTest1( cppDriver1 );
+CPUTestNoMultiChannel driver1( MG_EPOCH_REFERENCE_FILE_NAME );
 #define TESTID1( s ) s##_CPU_NOMULTICHANNEL
 #endif
+// Madgraph tests
+MadgraphTest mgTest2( driver2 );
+MadgraphTest mgTest1( driver1 );
 // Instantiate Google test 1
 #define XTESTID1( s ) TESTID1( s )
 TEST( XTESTID1( MG_EPOCH_PROCESS_ID ), compareMomAndME )
 {
+#ifdef MGONGPU_CHANNELID_DEBUG
+  driver1.pmek->setTagForNevtProcessedByChannel( "(no multichannel)" );
+#endif
   mgTest1.CompareMomentaAndME( *this );
 }
 // Instantiate Google test 2
 #define XTESTID2( s ) TESTID2( s )
 TEST( XTESTID2( MG_EPOCH_PROCESS_ID ), compareMomAndME )
 {
+#ifdef MGONGPU_CHANNELID_DEBUG
+  driver2.pmek->setTagForNevtProcessedByChannel( "(channelid array)" );
+#endif
   mgTest2.CompareMomentaAndME( *this );
 }
 /* clang-format on */
