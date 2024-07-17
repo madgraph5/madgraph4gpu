@@ -14,6 +14,9 @@ topdir=$(cd $scrdir; cd ../../..; pwd)
 # Enable OpenMP in tput tests? (#758)
 ###export USEOPENMP=1
 
+# Debug channelid in MatrixElementKernelBase?
+export MG5AMC_CHANNELID_DEBUG=1
+
 function usage()
 {
   echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-bldall][-cudaonly][-hiponly][-noneonly][-sse4only][-avx2only][-512yonly][-512zonly] [-sa] [-noalpaka] [-flt|-fltonly|-mix|-mixonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-omp] [-makeonly|-makeclean|-makecleanonly|-dryrun] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest] [-v] [-dlp <dyld_library_path>]" # -nofpe is no longer supported
