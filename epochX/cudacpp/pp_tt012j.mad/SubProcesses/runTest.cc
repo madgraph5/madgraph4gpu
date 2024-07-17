@@ -16,6 +16,9 @@
 #include "MemoryBuffers.h"
 #include "RamboSamplingKernels.h"
 #include "RandomNumberKernels.h"
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+#include "coloramps.h"
+#endif
 #include "epoch_process_id.h"
 
 #ifdef MGONGPUCPP_GPUIMPL
@@ -39,22 +42,40 @@ struct CUDA_CPU_TestBase : public TestDriverBase
   static constexpr unsigned int warpSize = 32; // FIXME: add a sanity check in madevent that this is the minimum? (would need to expose this from cudacpp to madevent)
   static void setChannelIds( BufferChannelIds& hstChannelIds, std::size_t iiter )
   {
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Fill channelIds for multi-channel tests #896
     // (NB: these are only used if useChannelIds == true)
     // TEMPORARY(0): debug multichannel tests with channelId=1 for all events
     //for( unsigned int i = 0; i < nevt; ++i ) hstChannelIds[i] = 1;
     // TEMPORARY(1): debug multichannel tests with channelId=1,2,..,ndiag,1,2,..ndiag,... (every event gets a different channel, no warps)
     //for( unsigned int i = 0; i < nevt; ++i ) hstChannelIds[i] = 1 + i % CPPProcess::ndiagrams;
-    // FINAL(?) test implementation: 1111222233331111... (every 32-event warp gets a different channel)
+    // ALMOST FINAL test implementation: 1111222233331111... (every 32-event warp gets a different channel)
+    // FINAL(?) test implementation: 2222333344442222... (every 32-event warp gets a different channel, skip those without associated iconfig #917)
     static_assert( nevt % warpSize == 0, "ERROR! nevt should be a multiple of warpSize" );
     constexpr unsigned int nWarp = nevt / warpSize;
     for( unsigned int iWarp = 0; iWarp < nWarp; ++iWarp )
     {
-      const unsigned int channelId = 1 + ( iWarp + iiter * nWarp ) % CPPProcess::ndiagrams;
-      //std::cout << "CUDA_CPU_TestBase::setChannelIds: iWarp=" << iWarp << ", channelId=" << channelId << std::endl;
+      //const unsigned int channelId = 1 + ( iWarp + iiter * nWarp ) % CPPProcess::ndiagrams; // bug #917
+      const int iconfig = 1 + ( iWarp + iiter * nWarp ) % mgOnGpu::nconfigSDE;
+      unsigned int channelId = 0;
+      //for( unsigned int idiagram = 1; idiagram < CPPProcess::ndiagrams; idiagram++ ) // two bugs #920 and #919
+      for( unsigned int idiagram = 0; idiagram < mgOnGpu::nchannels; idiagram++ ) // fix #920 and work around #919
+      {
+        if( mgOnGpu::hostChannel2iconfig[idiagram] == iconfig )
+        {
+          channelId = idiagram + 1; // fix #917 (NB add +1 because channelId uses F indexing)
+          break;
+        }
+      }
+      assert( channelId > 0 ); // sanity check that the channelId for the given iconfig was found
+      std::cout << "CUDA_CPU_TestBase::setChannelIds: iWarp=" << iWarp << ", iconfig=" << iconfig << ", channelId=" << channelId << std::endl;
       for( unsigned int i = 0; i < warpSize; ++i )
         hstChannelIds[iWarp * warpSize + i] = channelId;
     }
+#else
+    // No-multichannel tests (set a DUMMY channelId=0 for all events, but this is in any case NOT USED!)
+    for( unsigned int i = 0; i < nevt; ++i ) hstChannelIds[i] = 0;
+#endif
   }
 };
 
@@ -323,19 +344,25 @@ struct CUDATestMultiChannel : public CUDATest
 // Note: instantiate test2 first and test1 second to ensure that the channelid printout from the dtors comes from test1 first and test2 second
 #ifdef MGONGPUCPP_GPUIMPL
 // CUDA test drivers
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
 CUDATestMultiChannel driver2( MG_EPOCH_REFERENCE_FILE_NAME );
 #define TESTID2( s ) s##_GPU_MULTICHANNEL
+#endif
 CUDATestNoMultiChannel driver1( MG_EPOCH_REFERENCE_FILE_NAME );
 #define TESTID1( s ) s##_GPU_NOMULTICHANNEL
 #else
 // CPU test drivers
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
 CPUTestMultiChannel driver2( MG_EPOCH_REFERENCE_FILE_NAME );
 #define TESTID2( s ) s##_CPU_MULTICHANNEL
+#endif
 CPUTestNoMultiChannel driver1( MG_EPOCH_REFERENCE_FILE_NAME );
 #define TESTID1( s ) s##_CPU_NOMULTICHANNEL
 #endif
 // Madgraph tests
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
 MadgraphTest mgTest2( driver2 );
+#endif
 MadgraphTest mgTest1( driver1 );
 // Instantiate Google test 1
 #define XTESTID1( s ) TESTID1( s )
@@ -347,6 +374,7 @@ TEST( XTESTID1( MG_EPOCH_PROCESS_ID ), compareMomAndME )
   mgTest1.CompareMomentaAndME( *this );
 }
 // Instantiate Google test 2
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
 #define XTESTID2( s ) TESTID2( s )
 TEST( XTESTID2( MG_EPOCH_PROCESS_ID ), compareMomAndME )
 {
@@ -355,4 +383,5 @@ TEST( XTESTID2( MG_EPOCH_PROCESS_ID ), compareMomAndME )
 #endif
   mgTest2.CompareMomentaAndME( *this );
 }
+#endif
 /* clang-format on */

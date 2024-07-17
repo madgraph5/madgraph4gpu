@@ -6,6 +6,8 @@
 #ifndef COLORAMPS_H
 #define COLORAMPS_H 1
 
+#include "CPPProcess.h"
+
 // Note: strictly speaking the check '#ifdef MGONGPU_SUPPORTS_MULTICHANNEL' is not needed here,
 // because coloramps.h is not included otherwise, but adding it does not harm and makes the code clearer
 
@@ -26,15 +28,38 @@ namespace mgOnGpu
   // - Config number in C indexing: "iconfig - 1"
   //   => this number (with C indexing) is used as the index of the icolamp array below
 
+  // The number of channels in the channel2iconfig array below
+  // !!!FIXME!!! This should be N_diagrams, but it is now different from CPPProcess::ndiagrams (see #919 and #910)
+  constexpr unsigned int nchannels = 1;
+#ifdef MGONGPUCPP_GPUIMPL
+  //static_assert( nchannels == mg5amcGpu::CPPProcess::ndiagrams, "mismatch between nchannels and ndiagrams?!" ); // sanity check #910 (fails #919)
+#else
+  //static_assert( nchannels == mg5amcCpu::CPPProcess::ndiagrams, "mismatch between nchannels and ndiagrams?!" ); // sanity check #910 (fails #919)
+#endif
+  
   // Map channel to iconfig (e.g. "iconfig = channel2iconfig[channelId - 1]": input index uses C indexing, output index uses F indexing)
   // Note: iconfig=-1 indicates channels/diagrams with no associated iconfig for single-diagram enhancement in the MadEvent sampling algorithm (presence of 4-point interaction?)
   // This array has N_diagrams elements, but only N_config <= N_diagrams valid values (iconfig>0)
+  // (NB: this array is created on the host in C++ code and on the device in GPU code, but a host copy is also needed in runTest #917)
   __device__ constexpr int channel2iconfig[1] = { // note: a trailing comma in the initializer list is allowed
      1, // CHANNEL_ID=1  i.e. DIAGRAM=1  --> ICONFIG=1
   };
 
+  // Host copy of the channel2iconfig array (this is needed in runTest #917)
+#ifndef MGONGPUCPP_GPUIMPL
+  constexpr const int* hostChannel2iconfig = channel2iconfig;
+#else
+  constexpr int hostChannel2iconfig[1] = { // note: a trailing comma in the initializer list is allowed
+     1, // CHANNEL_ID=1  i.e. DIAGRAM=1  --> ICONFIG=1
+  };
+#endif
+
+  // The number N_config of channels/diagrams with an associated iconfig for single-diagram enhancement in the MadEvent sampling algorithm (#917)
+  constexpr unsigned int nconfigSDE = 1;
+
   // Map iconfig to the mask of allowed colors (e.g. "colormask = icolamp[iconfig - 1]": input index uses C indexing)
   // This array has N_config <= N_diagrams elements
+  // (NB: this array is created on the host in C++ code and on the device in GPU code)
   __device__ constexpr bool icolamp[1][2] = { // note: a trailing comma in the initializer list is allowed
     { false,  true }, // ICONFIG=1  <-- CHANNEL_ID=1
   };
