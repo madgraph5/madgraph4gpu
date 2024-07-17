@@ -44,7 +44,7 @@ namespace mg5amcCpu
     , m_nevtProcessedByChannel()
 #endif
   {
-    std::cout << "DEBUG: MatrixElementKernelBase ctor " << this << std::endl;
+    //std::cout << "DEBUG: MatrixElementKernelBase ctor " << this << std::endl;
 #ifdef MGONGPU_CHANNELID_DEBUG
     for( size_t channelId = 0; channelId < CPPProcess::ndiagrams + 1; channelId++ ) // [0...ndiagrams] (TEMPORARY: 0=multichannel)
       m_nevtProcessedByChannel[channelId] = 0;
@@ -55,7 +55,7 @@ namespace mg5amcCpu
 
   MatrixElementKernelBase::~MatrixElementKernelBase()
   {
-    std::cout << "DEBUG: MatrixElementKernelBase dtor " << this << std::endl;
+    //std::cout << "DEBUG: MatrixElementKernelBase dtor " << this << std::endl;
 #ifdef MGONGPU_CHANNELID_DEBUG
     MatrixElementKernelBase::dumpNevtProcessedByChannel();
 #endif
@@ -105,7 +105,8 @@ namespace mg5amcCpu
       }
     }
     sstr << " }";
-    std::cout << "DEBUG: MEKB processed " << nevtProcessed << " events across " << CPPProcess::ndiagrams << " channels" << sstr.str() << std::endl;
+    std::cout << "DEBUG: MEK " << this
+              << " processed " << nevtProcessed << " events across " << CPPProcess::ndiagrams << " channels" << sstr.str() << std::endl;
   }
 #endif
 
@@ -157,7 +158,7 @@ namespace mg5amcCpu
     , m_denominators( nevt )
 #endif
   {
-    std::cout << "DEBUG: MatrixElementKernelHost ctor " << this << std::endl;
+    //std::cout << "DEBUG: MatrixElementKernelHost ctor " << this << std::endl;
     if( m_momenta.isOnDevice() ) throw std::runtime_error( "MatrixElementKernelHost: momenta must be a host array" );
     if( m_matrixElements.isOnDevice() ) throw std::runtime_error( "MatrixElementKernelHost: matrixElements must be a host array" );
     if( m_channelIds.isOnDevice() ) throw std::runtime_error( "MatrixElementKernelHost: channelIds must be a device array" );
