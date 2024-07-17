@@ -565,12 +565,10 @@ C
      &				 selected_col(IVEC)
      &				 )
         ENDDO
-C       The following lines has been copy from the plugin
-C       template_file
-C        CUDACPP/madgraph/iolibs/template_files/gpu/smatrix_multi.f 
-C       and are designed to be put at the end of the smatrix$i_multi
-C        function part of the auto_dsig$i.f file
-C       
+C       ======================================================
+C       *START* Included from CUDACPP template smatrix_multi.f
+C       (into function smatrix$i_multi in auto_dsig$i.f)
+C       ======================================================
         CALL COUNTERS_SMATRIX1MULTI_STOP( -1 )  ! fortran=-1
       ENDIF
 
@@ -658,6 +656,10 @@ C          (see PR #486)
                 WRITE (*,*) 'CHANNEL_ID =', CHANNELS(1)
                 FIRST_CHID = .FALSE.
               ENDIF
+C             ======================================================
+C             **END** Included from CUDACPP template smatrix_multi.f
+C             ======================================================
+
 
 
               RETURN
