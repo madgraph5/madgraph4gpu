@@ -29,15 +29,26 @@ namespace mgOnGpu
   // Map channel to iconfig (e.g. "iconfig = channel2iconfig[channelId - 1]": input index uses C indexing, output index uses F indexing)
   // Note: iconfig=-1 indicates channels/diagrams with no associated iconfig for single-diagram enhancement in the MadEvent sampling algorithm (presence of 4-point interaction?)
   // This array has N_diagrams elements, but only N_config <= N_diagrams valid values (iconfig>0)
+  // (NB: this array is created on the host in C++ code and on the device in GPU code, but a host copy is also needed in runTest #917)
   __device__ constexpr int channel2iconfig[%(nb_diag)i] = { // note: a trailing comma in the initializer list is allowed
 %(channelc2iconfig_lines)s
   };
 
+  // Host copy of the channel2iconfig array (this is needed in runTest #917)
+#ifndef MGONGPUCPP_GPUIMPL
+  constexpr const int* hostChannel2iconfig = channel2iconfig;
+#else
+  constexpr int hostChannel2iconfig[%(nb_diag)i] = { // note: a trailing comma in the initializer list is allowed
+%(channelc2iconfig_lines)s
+  };
+#endif
+
   // The number N_config of channels/diagrams with an associated iconfig for single-diagram enhancement in the MadEvent sampling algorithm (#917)
-  __device__ constexpr unsigned int nconfigSDE = %(nb_channel)s;
+  constexpr unsigned int nconfigSDE = %(nb_channel)s;
 
   // Map iconfig to the mask of allowed colors (e.g. "colormask = icolamp[iconfig - 1]": input index uses C indexing)
   // This array has N_config <= N_diagrams elements
+  // (NB: this array is created on the host in C++ code and on the device in GPU code)
   __device__ constexpr bool icolamp[%(nb_channel)s][%(nb_color)s] = { // note: a trailing comma in the initializer list is allowed
 %(is_LC)s
   };

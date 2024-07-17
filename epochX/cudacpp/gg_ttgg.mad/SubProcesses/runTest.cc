@@ -8,7 +8,6 @@
 
 #include "mgOnGpuConfig.h"
 
-#include "coloramps.h"
 #include "CPPProcess.h"
 #include "MadgraphTest.h"
 #include "MatrixElementKernels.h"
@@ -17,6 +16,7 @@
 #include "MemoryBuffers.h"
 #include "RamboSamplingKernels.h"
 #include "RandomNumberKernels.h"
+#include "coloramps.h"
 #include "epoch_process_id.h"
 
 #ifdef MGONGPUCPP_GPUIMPL
@@ -58,9 +58,9 @@ struct CUDA_CPU_TestBase : public TestDriverBase
       unsigned int channelId = 0;
       for( unsigned int idiagram = 1; idiagram < CPPProcess::ndiagrams; idiagram++ )
       {
-        if( mgOnGpu::channel2iconfig[idiagram] == iconfig )
+        if( mgOnGpu::hostChannel2iconfig[idiagram] == iconfig )
         {
-          channelId = idiagram+1; // fix #917 (NB add +1 because channelId uses F indexing)
+          channelId = idiagram + 1; // fix #917 (NB add +1 because channelId uses F indexing)
           break;
         }
       }
