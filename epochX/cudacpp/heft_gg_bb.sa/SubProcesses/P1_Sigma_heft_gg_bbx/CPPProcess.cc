@@ -1146,7 +1146,8 @@ namespace mg5amcCpu
           for( int icolC = 0; icolC < ncolor; icolC++ )
           {
 #if defined MGONGPU_CPPSIMD
-            const bool okcol = allrndcol[ievt] < ( targetamp[icolC][ieppV] / targetamp[ncolor - 1][ieppV] );
+            // Add volatile here to avoid SIGFPE crashes in FPTYPE=f cpp512z builds (#845)
+            volatile const bool okcol = allrndcol[ievt] < ( targetamp[icolC][ieppV] / targetamp[ncolor - 1][ieppV] );
 #else
             const bool okcol = allrndcol[ievt] < ( targetamp[icolC] / targetamp[ncolor - 1] );
 #endif

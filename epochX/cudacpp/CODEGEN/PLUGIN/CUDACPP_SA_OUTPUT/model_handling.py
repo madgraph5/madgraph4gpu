@@ -1526,7 +1526,6 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     def edit_coloramps(self, config_subproc_map):
         """Generate coloramps.h"""
 
-        misc.sprint(config_subproc_map)
         ###misc.sprint('Entering PLUGIN_OneProcessExporter.edit_coloramps')
         template = open(pjoin(self.template_path,'gpu','coloramps.h'),'r').read()
         ff = open(pjoin(self.path, 'coloramps.h'),'w')
