@@ -320,24 +320,25 @@ struct CUDATestMultiChannel : public CUDATest
 
 // AV July 2024 much simpler class structure without the presently-unnecessary googletest templates
 // This is meant as a workaround to prevent not-understood segfault #907 when adding a second test
+// Note: instantiate test2 first and test1 second to ensure that the channelid printout from the dtors comes from test1 first and test2 second
 #ifdef MGONGPUCPP_GPUIMPL
-// CUDA test 1
-CUDATestNoMultiChannel cudaDriver1( MG_EPOCH_REFERENCE_FILE_NAME );
-MadgraphTest mgTest1( cudaDriver1 );
-#define TESTID1( s ) s##_GPU_NOMULTICHANNEL
 // CUDA test 2
 CUDATestMultiChannel cudaDriver2( MG_EPOCH_REFERENCE_FILE_NAME );
 MadgraphTest mgTest2( cudaDriver2 );
 #define TESTID2( s ) s##_GPU_MULTICHANNEL
+// CUDA test 1
+CUDATestNoMultiChannel cudaDriver1( MG_EPOCH_REFERENCE_FILE_NAME );
+MadgraphTest mgTest1( cudaDriver1 );
+#define TESTID1( s ) s##_GPU_NOMULTICHANNEL
 #else
-// CPU test 1
-CPUTestNoMultiChannel cppDriver1( MG_EPOCH_REFERENCE_FILE_NAME );
-MadgraphTest mgTest1( cppDriver1 );
-#define TESTID1( s ) s##_CPU_NOMULTICHANNEL
 // CPU test 2
 CPUTestMultiChannel cppDriver2( MG_EPOCH_REFERENCE_FILE_NAME );
 MadgraphTest mgTest2( cppDriver2 );
 #define TESTID2( s ) s##_CPU_MULTICHANNEL
+// CPU test 1
+CPUTestNoMultiChannel cppDriver1( MG_EPOCH_REFERENCE_FILE_NAME );
+MadgraphTest mgTest1( cppDriver1 );
+#define TESTID1( s ) s##_CPU_NOMULTICHANNEL
 #endif
 // Instantiate Google test 1
 #define XTESTID1( s ) TESTID1( s )
