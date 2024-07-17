@@ -13,8 +13,6 @@ PLUGINDIR = os.path.dirname( __file__ )
 import logging
 logger = logging.getLogger('madgraph.PLUGIN.CUDACPP_OUTPUT.model_handling')
 
-wanted_ordered_dep_couplings = []
-wanted_ordered_indep_couplings = []
 
 #------------------------------------------------------------------------------------
 
@@ -1101,10 +1099,9 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
                     % (os.path.split(model_h_file)[-1], os.path.split(model_h_file)[0] ) )
 
     def prepare_couplings(self, wanted_couplings = []):
-        wanted_ordered_couplings = wanted_ordered_dep_couplings + wanted_ordered_indep_couplings
-        super().prepare_couplings(wanted_ordered_couplings)
+        super().prepare_couplings(wanted_couplings)
         # the two lines below fix #748, i.e. they re-order the dictionary keys following the order in wanted_couplings
-        running_wanted_couplings = [value for value in wanted_ordered_couplings if value in self.coups_dep]
+        running_wanted_couplings = [value for value in wanted_couplings if value in self.coups_dep]
         ordered_dict = [(k, self.coups_dep[k]) for k in running_wanted_couplings]
         self.coups_dep = dict((x, y) for x, y in ordered_dict)
 
@@ -1755,6 +1752,14 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
     #  - PLUGIN_GPUFOHelasCallWriter(GPUFOHelasCallWriter)
     #      This class
 
+
+    def __init__(self, *args, **opts):
+
+        self.wanted_ordered_dep_couplings = []
+        self.wanted_ordered_indep_couplings = []
+        super().__init__(*args,**opts)
+
+
     # AV - replace helas_call_writers.GPUFOHelasCallWriter method (improve formatting of CPPProcess.cc)
     # [GPUFOHelasCallWriter.format_coupling is called by GPUFOHelasCallWriter.get_external_line/generate_helas_call]
     # [GPUFOHelasCallWriter.get_external_line is called by GPUFOHelasCallWriter.get_external]
@@ -1791,12 +1796,12 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                 aliastxt = 'PARAM'
                 name = 'cIPD'
             elif model.is_running_coupling(coup):
-                if coup not in wanted_ordered_dep_couplings: wanted_ordered_dep_couplings.append(coup)
+                if coup not in self.wanted_ordered_dep_couplings: self.wanted_ordered_dep_couplings.append(coup)
                 alias = self.couporderdep
                 aliastxt = 'COUPD'
                 name = 'cIPC'
             else:
-                if coup not in wanted_ordered_indep_couplings: wanted_ordered_indep_couplings.append(coup)
+                if coup not in self.wanted_ordered_indep_couplings: self.wanted_ordered_indep_couplings.append(coup)
                 alias = self.couporderindep
                 aliastxt = 'COUPI'
                 name = 'cIPC'
@@ -1831,8 +1836,10 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                 call = call.replace('CD_ACCESS', 'CI_ACCESS')
                 call = call.replace('m_pars->%s%s' % (sign, coup),
                                     'COUPs[ndcoup + %s], %s' % (alias[coup]-len(self.couporderdep), '1.0' if not sign else '-1.0'))
+
             if newcoup:
                 self.couplings2order = self.couporderdep | self.couporderindep
+        model.cudacpp_wanted_ordered_couplings = self.wanted_ordered_dep_couplings + self.wanted_ordered_indep_couplings 
         return call
 
     # AV - new method for formatting wavefunction/amplitude calls
