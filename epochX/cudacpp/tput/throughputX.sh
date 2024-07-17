@@ -11,9 +11,8 @@ scrdir=$(cd $(dirname $0); pwd)
 bckend=$(basename $(cd $scrdir; cd ..; pwd)) # cudacpp or alpaka
 topdir=$(cd $scrdir; cd ../../..; pwd)
 
-# Disable OpenMP in tput tests
-# To do this, set OMPFLAGS externally to an empty string (#758)
-export OMPFLAGS=
+# Enable OpenMP in tput tests? (#758)
+###export USEOPENMP=1
 
 function usage()
 {
