@@ -116,6 +116,15 @@
 #undef MGONGPU_NSIGHT_DEBUG // only option in HIP or C++
 #endif
 
+// Choose whether to enable or disable channelid debug printouts
+#ifndef MGONGPU_SUPPORTS_MULTICHANNEL
+#undef MGONGPU_CHANNELID_DEBUG // multichannel is not enabled
+#else
+// By default, do not hardcode, but allow this macro to be set from outside with e.g. -DMGONGPU_CHANNELID_DEBUG
+//#undef MGONGPU_CHANNELID_DEBUG // default
+////#define MGONGPU_CHANNELID_DEBUG 1
+#endif
+
 // SANITY CHECKS (floating point precision for everything but color algebra #537)
 #if defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE_FLOAT
 #error You must CHOOSE (ONE AND) ONLY ONE of MGONGPU_FPTYPE_DOUBLE or defined MGONGPU_FPTYPE_FLOAT
