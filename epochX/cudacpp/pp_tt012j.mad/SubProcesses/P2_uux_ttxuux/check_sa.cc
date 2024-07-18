@@ -105,7 +105,7 @@ main( int argc, char** argv )
     HiprandHost = -2,
     HiprandDevice = 2
   };
-#if defined __CUDACC__
+#if defined __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
 #ifndef MGONGPU_HAS_NO_CURAND
   RandomNumberMode rndgen = RandomNumberMode::CurandDevice; // default on NVidia GPU if build has curand
 #else
@@ -162,7 +162,7 @@ main( int argc, char** argv )
     }
     else if( arg == "--curdev" )
     {
-#ifndef __CUDACC__
+#ifndef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
       throw std::runtime_error( "CurandDevice is not supported on CPUs or non-NVidia GPUs" );
 #elif defined MGONGPU_HAS_NO_CURAND
       throw std::runtime_error( "CurandDevice is not supported because this application was built without Curand support" );
@@ -458,14 +458,14 @@ main( int argc, char** argv )
   }
   else if( rndgen == RandomNumberMode::CurandDevice )
   {
-#ifdef MGONGPU_HAS_NO_CURAND
+#ifdef MGONGPU_HAS_NO_CURAND /* clang-format off */
     throw std::runtime_error( "INTERNAL ERROR! CurandDevice is not supported because this application was built without Curand support" ); // INTERNAL ERROR (no path to this statement)
-#elif defined __CUDACC__
+#elif defined __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
     const bool onDevice = true;
     prnk.reset( new CurandRandomNumberKernel( devRndmom, onDevice ) );
 #else
     throw std::logic_error( "INTERNAL ERROR! CurandDevice is not supported on CPUs or non-NVidia GPUs" );  // INTERNAL ERROR (no path to this statement)
-#endif
+#endif /* clang-format on */
   }
   else if( rndgen == RandomNumberMode::HiprandHost )
   {
@@ -812,7 +812,7 @@ main( int argc, char** argv )
     rndgentxt = "ROCRAND HOST";
   else if( rndgen == RandomNumberMode::HiprandDevice )
     rndgentxt = "ROCRAND DEVICE";
-#ifdef __CUDACC__
+#ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
   rndgentxt += " (CUDA code)";
 #elif defined __HIPCC__
   rndgentxt += " (HIP code)";
@@ -823,7 +823,7 @@ main( int argc, char** argv )
   // Workflow description summary
   std::string wrkflwtxt;
   // -- CUDA or HIP or C++?
-#ifdef __CUDACC__
+#ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
   wrkflwtxt += "CUD:";
 #elif defined __HIPCC__
   wrkflwtxt += "HIP:";
@@ -841,7 +841,7 @@ main( int argc, char** argv )
   wrkflwtxt += "???+"; // no path to this statement
 #endif
   // -- CUCOMPLEX or THRUST or STD or CXSIMPLE complex numbers?
-#ifdef __CUDACC__
+#ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
 #if defined MGONGPU_CUCXTYPE_CUCOMPLEX
   wrkflwtxt += "CUX:";
 #elif defined MGONGPU_CUCXTYPE_THRUST
@@ -961,7 +961,7 @@ main( int argc, char** argv )
 #endif
     // Dump all configuration parameters and all results
     std::cout << std::string( SEP79, '*' ) << std::endl
-#ifdef __CUDACC__
+#ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
               << "Process                     = " << XSTRINGIFY( MG_EPOCH_PROCESS_ID ) << "_CUDA"
 #elif defined __HIPCC__
               << "Process                     = " << XSTRINGIFY( MG_EPOCH_PROCESS_ID ) << "_HIP"

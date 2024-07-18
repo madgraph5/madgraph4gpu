@@ -396,7 +396,7 @@ namespace mg5amcGpu
     gpuLaunchKernelSharedMem( sigmaKin, m_gpublocks, m_gputhreads, sharedMemSize, m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), m_selhel.data(), m_selcol.data() );
 #endif
 #ifdef MGONGPU_CHANNELID_DEBUG
-    std::cout << "DEBUG: MatrixElementKernelDevice::computeMatrixElements " << this << " " << ( useChannelIds ? "T" : "F" ) << " " << nevt() << std::endl;
+    //std::cout << "DEBUG: MatrixElementKernelDevice::computeMatrixElements " << this << " " << ( useChannelIds ? "T" : "F" ) << " " << nevt() << std::endl;
     copyHostFromDevice( m_hstChannelIds, m_channelIds ); // FIXME?!
     const unsigned int* pHstChannelIds = ( useChannelIds ? m_hstChannelIds.data() : nullptr );
     MatrixElementKernelBase::updateNevtProcessedByChannel( pHstChannelIds, nevt() );
