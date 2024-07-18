@@ -457,7 +457,7 @@ namespace mg5amcCpu
   // The size (number of elements) per event in a memory buffer for color random numbers
   constexpr size_t sizePerEventChannelId = 1;
 
-#ifndef __CUDACC__
+#ifndef MGONGPUCPP_GPUIMPL // fix #893 (not __CUDACC__)
   // A class encapsulating a C++ host buffer for color random numbers
   typedef HostBuffer<unsigned int, sizePerEventChannelId, HostBufferALIGNED> HostBufferChannelIds;
 #else

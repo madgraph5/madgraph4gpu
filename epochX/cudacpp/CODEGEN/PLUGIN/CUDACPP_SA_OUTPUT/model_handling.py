@@ -1864,7 +1864,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         res.append("""//constexpr size_t nxcoup = ndcoup + nicoup; // both dependent and independent couplings (BUG #823)
       constexpr size_t nxcoup = ndcoup + nIPC; // both dependent and independent couplings (FIX #823)
       const fptype* allCOUPs[nxcoup];
-#ifdef __CUDACC__
+#ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
 #pragma nv_diagnostic push
 #pragma nv_diag_suppress 186 // e.g. <<warning #186-D: pointless comparison of unsigned integer with zero>>
 #endif
@@ -1874,7 +1874,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
       for( size_t iicoup = 0; iicoup < nIPC; iicoup++ )                                 // FIX #823
         allCOUPs[ndcoup + iicoup] = CI_ACCESS::iicoupAccessBufferConst( cIPC, iicoup ); // independent couplings, fixed for all events
 #ifdef MGONGPUCPP_GPUIMPL
-#ifdef __CUDACC__
+#ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
 #pragma nv_diagnostic pop
 #endif
       // CUDA kernels take input/output buffers with momenta/MEs for all events
