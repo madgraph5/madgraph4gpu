@@ -11,6 +11,7 @@
 #include "CPPProcess.h"
 #include "MadgraphTest.h"
 #include "MatrixElementKernels.h"
+#include "MemoryAccessChannelIds.h"
 #include "MemoryAccessMatrixElements.h"
 #include "MemoryAccessMomenta.h"
 #include "MemoryBuffers.h"
@@ -162,6 +163,11 @@ struct CPUTest : public CUDA_CPU_TestBase
   fptype getMatrixElement( std::size_t ievt ) const override
   {
     return MemoryAccessMatrixElements::ieventAccessConst( hstMatrixElements.data(), ievt );
+  }
+
+  int getChannelId( std::size_t ievt ) const override
+  {
+    return MemoryAccessChannelIds::ieventAccessConst( hstChannelIds.data(), ievt );
   }
 
   int getSelectedHelicity( std::size_t ievt ) const override
@@ -321,6 +327,11 @@ struct CUDATest : public CUDA_CPU_TestBase
   fptype getMatrixElement( std::size_t ievt ) const override
   {
     return MemoryAccessMatrixElements::ieventAccessConst( hstMatrixElements.data(), ievt );
+  }
+
+  int getChannelId( std::size_t ievt ) const override
+  {
+    return MemoryAccessChannelIds::ieventAccessConst( hstChannelIds.data(), ievt );
   }
 
   int getSelectedHelicity( std::size_t ievt ) const override
