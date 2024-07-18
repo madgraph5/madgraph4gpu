@@ -40,7 +40,7 @@ make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp
 make[1]: Nothing to be done for 'all'.
 make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttg.mad/SubProcesses/P1_gg_ttxg'
 
-DATE: 2024-07-17_15:15:09
+DATE: 2024-07-18_03:26:08
 
 On itscrd90.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
 =========================================================================
@@ -53,16 +53,16 @@ WARNING! Set grid in Bridge (nevt=16384, gpublocks=64, gputhreads=256, gpublocks
 Process                     = SIGMA_SM_GG_TTXG_CUDA [nvcc 12.0.140 (gcc 11.3.1)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:FLT+THX:CURHST+RMBHST+BRDDEV/none+NAVBRK
 FP precision                = FLOAT (NaN/abnormal=0, zero=0)
-EvtsPerSec[Rmb+ME]     (23) = ( 4.469819e+06                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 1.530429e+07                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 1.530429e+07                 )  sec^-1
+EvtsPerSec[Rmb+ME]     (23) = ( 4.633987e+06                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 1.640711e+07                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.640711e+07                 )  sec^-1
 MeanMatrixElemValue         = ( 1.009071e+02 +- 5.002295e+01 )  GeV^-2
-TOTAL       :     0.141927 sec
+TOTAL       :     0.137602 sec
 INFO: No Floating Point Exceptions have been reported
 INFO: No Floating Point Exceptions have been reported
-       510,592,984      cycles                           #    2.882 GHz                    
-       687,672,214      instructions                     #    1.35  insn per cycle         
-       0.179648143 seconds time elapsed
+       493,353,627      cycles                           #    2.888 GHz                    
+       681,492,187      instructions                     #    1.38  insn per cycle         
+       0.173685812 seconds time elapsed
 runNcu /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttg.mad/SubProcesses/P1_gg_ttxg/build.cuda_f_inl0_hrd0/check_cuda.exe -p 64 256 1 --bridge
 WARNING! Bridge selected: cannot use RamboDevice, will use RamboHost
 WARNING! RamboHost selected: cannot use CurandDevice, will use CurandHost
@@ -80,47 +80,16 @@ WARNING! Set grid in Bridge (nevt=524288, gpublocks=2048, gputhreads=256, gpublo
 Process                     = SIGMA_SM_GG_TTXG_CUDA [nvcc 12.0.140 (gcc 11.3.1)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:FLT+THX:CURHST+RMBHST+BRDDEV/none+NAVBRK
 FP precision                = FLOAT (NaN/abnormal=0, zero=0)
-EvtsPerSec[Rmb+ME]     (23) = ( 4.584109e+06                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 2.203627e+07                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 2.203627e+07                 )  sec^-1
+EvtsPerSec[Rmb+ME]     (23) = ( 4.649173e+06                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 2.255727e+07                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 2.255727e+07                 )  sec^-1
 MeanMatrixElemValue         = ( 6.737499e+02 +- 4.776369e+02 )  GeV^-2
-TOTAL       :     0.322639 sec
+TOTAL       :     0.319776 sec
 INFO: No Floating Point Exceptions have been reported
 INFO: No Floating Point Exceptions have been reported
-     1,131,201,574      cycles                           #    2.980 GHz                    
-     1,747,723,888      instructions                     #    1.55  insn per cycle         
-       0.382622905 seconds time elapsed
+     1,099,418,975      cycles                           #    2.945 GHz                    
+     1,740,949,850      instructions                     #    1.58  insn per cycle         
+       0.376624894 seconds time elapsed
 -------------------------------------------------------------------------
 runExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttg.mad/SubProcesses/P1_gg_ttxg/build.cuda_f_inl0_hrd0/runTest_cuda.exe
-INFO: No Floating Point Exceptions have been reported
--------------------------------------------------------------------------
-cmpExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttg.mad/SubProcesses/P1_gg_ttxg/build.cuda_f_inl0_hrd0/check_cuda.exe --common -p 2 64 2
-cmpExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttg.mad/SubProcesses/P1_gg_ttxg/build.cuda_f_inl0_hrd0/fcheck_cuda.exe 2 64 2
-Avg ME (C++/GPU)   = 1.412607e+00
-Avg ME (F77/GPU)   = 1.4132214305330990
-Relative difference = 0.0004349621183379836
-OK (relative difference <= 5E-3)
-=========================================================================
-Not found: /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttg.mad/SubProcesses/P1_gg_ttxg/build.hip_f_inl0_hrd0/check_hip.exe
-=========================================================================
-runExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttg.mad/SubProcesses/P1_gg_ttxg/build.none_f_inl0_hrd0/check_cpp.exe -p 64 256 10 --bridge OMP=
-INFO: The following Floating Point Exceptions will cause SIGFPE program aborts: FE_DIVBYZERO, FE_INVALID, FE_OVERFLOW
-WARNING! Instantiate host Bridge (nevt=16384)
-Process                     = SIGMA_SM_GG_TTXG_CPP [gcc 11.3.1] [inlineHel=0] [hardcodePARAM=0]
-Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+BRDHST/none+NAVBRK
-FP precision                = FLOAT (NaN/abnormal=0, zero=0)
-Internal loops fptype_sv    = SCALAR ('none': ~vector[1], no SIMD)
-EvtsPerSec[Rmb+ME]     (23) = ( 2.509075e+04                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 2.522176e+04                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 2.522176e+04                 )  sec^-1
-MeanMatrixElemValue         = ( 1.009236e+02 +- 5.002643e+01 )  GeV^-2
-TOTAL       :     6.552989 sec
-INFO: No Floating Point Exceptions have been reported
-INFO: No Floating Point Exceptions have been reported
-    19,258,978,209      cycles                           #    2.939 GHz                    
-    59,618,990,156      instructions                     #    3.10  insn per cycle         
-       6.557190214 seconds time elapsed
-=Symbols in CPPProcess_cpp.o= (~sse4:  959) (avx2:    0) (512y:    0) (512z:    0)
--------------------------------------------------------------------------
-runExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttg.mad/SubProcesses/P1_gg_ttxg/build.none_f_inl0_hrd0/runTest_cpp.exe
-DEBUG: MatrixElementKernelHost::computeMatrixElements 0xdf8fd0 T 256
+INFO: The following Floating Point Exceptions have been reported: FE_UNDERFLOW
