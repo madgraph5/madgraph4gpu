@@ -420,7 +420,7 @@ function runmadevent()
   fi
   $timecmd $cmd < ${tmpin} > ${tmp}
   if [ "$?" != "0" ]; then echo "ERROR! '$timecmd $cmd < ${tmpin} > ${tmp}' failed"; tail -10 $tmp; exit 1; fi
-  cat ${tmp} | grep --binary-files=text '^DEBUG'
+  cat ${tmp} | grep --binary-files=text '^DEBUG' | sed "s/MEK 0x......./MEK 0xxxxxxxx/"
   omp=$(cat ${tmp} | grep --binary-files=text 'omp_get_max_threads() =' | awk '{print $NF}')
   if [ "${omp}" == "" ]; then omp=1; fi # _OPENMP not defined in the Fortran #579
   nghel=$(cat ${tmp} | grep --binary-files=text 'NGOODHEL =' | awk '{print $NF}')
