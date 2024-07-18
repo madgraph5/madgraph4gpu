@@ -163,6 +163,18 @@ struct CPUTest : public CUDA_CPU_TestBase
   {
     return MemoryAccessMatrixElements::ieventAccessConst( hstMatrixElements.data(), ievt );
   }
+
+  int getSelectedHelicity( std::size_t ievt ) const override
+  {
+    //return MemoryAccessSelectedHelicity::ieventAccessConst( hstSelHel.data(), ievt ); // does not exist yet...
+    return hstSelHel.data()[ievt];
+  }
+
+  int getSelectedColor( std::size_t ievt ) const override
+  {
+    //return MemoryAccessSelectedColor::ieventAccessConst( hstSelCol.data(), ievt ); // does not exist yet...
+    return hstSelCol.data()[ievt];
+  }
 };
 
 // Old test with multi-channel disabled #466
@@ -295,6 +307,8 @@ struct CUDATest : public CUDA_CPU_TestBase
     if( iiter == 0 ) pmek->computeGoodHelicities();
     pmek->computeMatrixElements( useChannelIds() );
     copyHostFromDevice( hstMatrixElements, devMatrixElements );
+    copyHostFromDevice( hstSelHel, devSelHel );
+    copyHostFromDevice( hstSelCol, devSelCol );
   }
 
   fptype getMomentum( std::size_t ievt, unsigned int ipar, unsigned int ip4 ) const override
@@ -307,6 +321,18 @@ struct CUDATest : public CUDA_CPU_TestBase
   fptype getMatrixElement( std::size_t ievt ) const override
   {
     return MemoryAccessMatrixElements::ieventAccessConst( hstMatrixElements.data(), ievt );
+  }
+
+  int getSelectedHelicity( std::size_t ievt ) const override
+  {
+    //return MemoryAccessSelectedHelicity::ieventAccessConst( hstSelHel.data(), ievt ); // does not exist yet...
+    return hstSelHel.data()[ievt];
+  }
+
+  int getSelectedColor( std::size_t ievt ) const override
+  {
+    //return MemoryAccessSelectedColor::ieventAccessConst( hstSelCol.data(), ievt ); // does not exist yet...
+    return hstSelCol.data()[ievt];
   }
 };
 
