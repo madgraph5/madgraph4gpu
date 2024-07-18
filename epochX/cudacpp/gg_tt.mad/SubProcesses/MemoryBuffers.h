@@ -458,7 +458,7 @@ namespace mg5amcCpu
   constexpr size_t sizePerEventChannelId = 1;
 
 #ifndef MGONGPUCPP_GPUIMPL // fix #893 (not __CUDACC__)
-  // A class encapsulating a C++ host buffer for channnel ids
+  // A class encapsulating a C++ host buffer for channel ids
   typedef HostBuffer<unsigned int, sizePerEventChannelId, HostBufferALIGNED> HostBufferChannelIds;
 #else
   // A class encapsulating a CUDA pinned host buffer for channel ids
