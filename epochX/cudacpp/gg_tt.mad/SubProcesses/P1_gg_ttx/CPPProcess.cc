@@ -1018,10 +1018,10 @@ namespace mg5amcCpu
         printf( "INTERNAL ERROR! Cannot choose an event-by-event random color for channelId=%d which has no associated SDE iconfig\n", channelId );
         assert( iconfig > 0 ); // SANITY CHECK #917
       }
-      else if( iconfig > mgOnGpu::nconfigSDE )
+      else if( iconfig > (int)mgOnGpu::nconfigSDE )
       {
         printf( "INTERNAL ERROR! Cannot choose an event-by-event random color for channelId=%d (invalid SDE iconfig=%d\n > nconfig=%d)", channelId, iconfig, mgOnGpu::nconfigSDE );
-        assert( iconfig <= mgOnGpu::nconfigSDE ); // SANITY CHECK #917
+        assert( iconfig <= (int)mgOnGpu::nconfigSDE ); // SANITY CHECK #917
       }
       fptype targetamp[ncolor] = { 0 };
       // NB (see #877): explicitly use 'icolC' rather than 'icol' to indicate that icolC uses C indexing in [0, N_colors-1]
@@ -1176,10 +1176,10 @@ namespace mg5amcCpu
           printf( "INTERNAL ERROR! Cannot choose an event-by-event random color for channelId=%d which has no associated SDE iconfig\n", channelId );
           assert( iconfig > 0 ); // SANITY CHECK #917
         }
-        else if( iconfig > mgOnGpu::nconfigSDE )
+        else if( iconfig > (int)mgOnGpu::nconfigSDE )
         {
           printf( "INTERNAL ERROR! Cannot choose an event-by-event random color for channelId=%d (invalid SDE iconfig=%d\n > nconfig=%d)", channelId, iconfig, mgOnGpu::nconfigSDE );
-          assert( iconfig <= mgOnGpu::nconfigSDE ); // SANITY CHECK #917
+          assert( iconfig <= (int)mgOnGpu::nconfigSDE ); // SANITY CHECK #917
         }
         fptype_sv targetamp[ncolor] = { 0 };
         // NB (see #877): explicitly use 'icolC' rather than 'icol' to indicate that icolC uses C indexing in [0, N_colors-1]
