@@ -161,3 +161,7 @@ fi
 # Print out any errors in the logs
 echo
 if ! egrep -i '(error|fault|failed)' ./tput/logs_* -r; then echo "No errors found in logs"; fi
+
+# Print out the MEK channelid debugging output
+echo
+\grep MEK ${scrdir}/logs_*/* | sed "s|${scrdir}/logs_||" | sed 's|_mad.*DEBUG:||' | sort -u

@@ -524,7 +524,7 @@ function runTest() {
   pattern="${pattern}|Floating Point Exception"
   pattern="${pattern}|MEK"
   if [ "${verbose}" == "1" ]; then set -x; fi
-  $exe1 2>&1 | egrep "(${pattern})" | sed "s/MEK 0x......./MEK 0xxxxxxxx/"
+  $exe1 2>&1 | egrep "(${pattern})" | sed "s/MEK 0x.* (/MEK (/"
   set +x
 }
 
