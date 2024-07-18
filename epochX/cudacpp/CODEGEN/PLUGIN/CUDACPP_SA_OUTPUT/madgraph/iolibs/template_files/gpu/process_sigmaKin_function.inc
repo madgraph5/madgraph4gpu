@@ -85,6 +85,11 @@
     // Event-by-event random choice of color #402
     if( channelId != 0 ) // no event-by-event choice of color if channelId == 0 (fix FPE #783)
     {
+      if( channelId > mgOnGpu::nchannels )
+      {
+        printf( "INTERNAL ERROR! Cannot choose an event-by-event random color for channelId=%%d which is greater than nchannels=%%d\n", channelId, mgOnGpu::nchannels );
+        assert( channelId <= mgOnGpu::nchannels ); // SANITY CHECK #919 #910
+      }
       // NB (see #877): in the array channel2iconfig, the input index uses C indexing (channelId -1), the output index uses F indexing (iconfig)
       // NB (see #917): mgOnGpu::channel2iconfig returns an int (which may be -1), not an unsigned int!
       const int iconfig = mgOnGpu::channel2iconfig[channelId - 1]; // map N_diagrams to N_config <= N_diagrams configs (fix LHE color mismatch #856: see also #826, #852, #853)
@@ -92,6 +97,11 @@
       {
         printf( "INTERNAL ERROR! Cannot choose an event-by-event random color for channelId=%%d which has no associated SDE iconfig\n", channelId );
         assert( iconfig > 0 ); // SANITY CHECK #917
+      }
+      else if( iconfig > mgOnGpu::nconfigSDE )
+      {
+        printf( "INTERNAL ERROR! Cannot choose an event-by-event random color for channelId=%%d (invalid SDE iconfig=%%d\n > nconfig=%%d)", channelId, iconfig, mgOnGpu::nconfigSDE );
+        assert( iconfig <= mgOnGpu::nconfigSDE ); // SANITY CHECK #917
       }
       fptype targetamp[ncolor] = { 0 };
       // NB (see #877): explicitly use 'icolC' rather than 'icol' to indicate that icolC uses C indexing in [0, N_colors-1]
@@ -233,6 +243,11 @@
       // Event-by-event random choice of color #402
       if( channelId != 0 ) // no event-by-event choice of color if channelId == 0 (fix FPE #783)
       {
+        if( channelId > mgOnGpu::nchannels )
+        {
+          printf( "INTERNAL ERROR! Cannot choose an event-by-event random color for channelId=%%d which is greater than nchannels=%%d\n", channelId, mgOnGpu::nchannels );
+          assert( channelId <= mgOnGpu::nchannels ); // SANITY CHECK #919 #910
+        }
         // NB (see #877): in the array channel2iconfig, the input index uses C indexing (channelId -1), the output index uses F indexing (iconfig)
         // NB (see #917): mgOnGpu::channel2iconfig returns an int (which may be -1), not an unsigned int!
         const int iconfig = mgOnGpu::channel2iconfig[channelId - 1]; // map N_diagrams to N_config <= N_diagrams configs (fix LHE color mismatch #856: see also #826, #852, #853)
@@ -240,6 +255,11 @@
         {
           printf( "INTERNAL ERROR! Cannot choose an event-by-event random color for channelId=%%d which has no associated SDE iconfig\n", channelId );
           assert( iconfig > 0 ); // SANITY CHECK #917
+        }
+        else if( iconfig > mgOnGpu::nconfigSDE )
+        {
+          printf( "INTERNAL ERROR! Cannot choose an event-by-event random color for channelId=%%d (invalid SDE iconfig=%%d\n > nconfig=%%d)", channelId, iconfig, mgOnGpu::nconfigSDE );
+          assert( iconfig <= mgOnGpu::nconfigSDE ); // SANITY CHECK #917
         }
         fptype_sv targetamp[ncolor] = { 0 };
         // NB (see #877): explicitly use 'icolC' rather than 'icol' to indicate that icolC uses C indexing in [0, N_colors-1]
