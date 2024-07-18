@@ -44,6 +44,8 @@ struct CUDA_CPU_TestBase : public TestDriverBase
   static void setChannelIds( BufferChannelIds& hstChannelIds, std::size_t iiter )
   {
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+    static const char* debugC = getenv( "CUDACPP_RUNTEST_DEBUG" );
+    static const bool debug = ( debugC != 0 ) && ( std::string( debugC ) != "" );
     // Fill channelIds for multi-channel tests #896
     // (NB: these are only used if useChannelIds == true)
     // TEMPORARY(0): debug multichannel tests with channelId=1 for all events
@@ -69,7 +71,7 @@ struct CUDA_CPU_TestBase : public TestDriverBase
         }
       }
       assert( channelId > 0 ); // sanity check that the channelId for the given iconfig was found
-      std::cout << "CUDA_CPU_TestBase::setChannelIds: iWarp=" << iWarp << ", iconfig=" << iconfig << ", channelId=" << channelId << std::endl;
+      if( debug ) std::cout << "CUDA_CPU_TestBase::setChannelIds: iWarp=" << iWarp << ", iconfig=" << iconfig << ", channelId=" << channelId << std::endl;
       for( unsigned int i = 0; i < warpSize; ++i )
         hstChannelIds[iWarp * warpSize + i] = channelId;
     }
