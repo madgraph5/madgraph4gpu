@@ -19,7 +19,7 @@ export MG5AMC_CHANNELID_DEBUG=1
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-bldall][-cudaonly][-hiponly][-noneonly][-sse4only][-avx2only][-512yonly][-512zonly] [-sa] [-noalpaka] [-flt|-fltonly|-mix|-mixonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-omp] [-makeonly|-makeclean|-makecleanonly|-dryrun] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest] [-v] [-dlp <dyld_library_path>]" # -nofpe is no longer supported
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-bldall][-cudaonly][-hiponly][-noneonly][-sse4only][-avx2only][-512yonly][-512zonly] [-sa] [-noalpaka] [-flt|-fltonly|-mix|-mixonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-omp] [-makeonly|-makeclean|-makecleanonly|-dryrun] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest(default)|-nogtest] [-v] [-dlp <dyld_library_path>]" # -nofpe is no longer supported
   exit 1
 }
 
@@ -58,7 +58,7 @@ ab3=0
 div=0
 req=0
 detailed=0
-gtest=0
+gtest=
 ###nofpe=0
 verbose=0
 
@@ -225,8 +225,16 @@ while [ "$1" != "" ]; do
     detailed=1
     shift
   elif [ "$1" == "-gtest" ]; then
-    # For simplicity a gtest runTest_xxx.exe is executed for each build where check_xxx.exe is executed
+    if [ "$gtest" == "0" ]; then
+      echo "ERROR! Options -gtest and -nogtest are incompatible"; usage
+    fi
     gtest=1
+    shift
+  elif [ "$1" == "-nogtest" ]; then
+    if [ "$gtest" == "1" ]; then
+      echo "ERROR! Options -gtest and -nogtest are incompatible"; usage
+    fi
+    gtest=0
     shift
   ###elif [ "$1" == "-nofpe" ]; then
   ###  nofpe=1
@@ -243,6 +251,7 @@ while [ "$1" != "" ]; do
     usage
   fi
 done
+if [ "${gtest}" == "" ]; then gtest=1; fi
 ###echo procs=$procs
 ###exit 1
 
@@ -738,6 +747,7 @@ for exe in $exes; do
   fi
   if [ "${gtest}" == "1" ]; then
     echo "-------------------------------------------------------------------------"
+    # For simplicity a gtest runTest_xxx.exe is executed for each build where check_xxx.exe is executed
     exe2=${exe/check/runTest} # replace check_xxx.exe by runTest_xxx.exe
     runTest $exe2 2>&1
     if [ ${PIPESTATUS[0]} -ne "0" ]; then exit 1; fi 
