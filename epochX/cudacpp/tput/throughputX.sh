@@ -476,14 +476,14 @@ if [ "${maketype}" != "-dryrun" ]; then
 fi
 
 function runExe() {
-  exe=$1
+  exe1=$1
   args="$2"
   args="$args$rndgen$rmbsmp"
-  echo "runExe $exe $args OMP=$OMP_NUM_THREADS"
+  echo "runExe $exe1 $args OMP=$OMP_NUM_THREADS"
   if [ "${maketype}" == "-dryrun" ]; then return; fi
   pattern="Process|fptype_sv|OMP threads|EvtsPerSec\[MECalc|MeanMatrix|FP precision|TOTAL       :"
   # Optionally add other patterns here for some specific configurations (e.g. clang)
-  if [ "${exe%%/check_cuda*}" != "${exe}" ] || [ "${exe%%/check_hip*}" != "${exe}" ]; then pattern="${pattern}|EvtsPerSec\[Matrix"; fi
+  if [ "${exe1%%/check_cuda*}" != "${exe1}" ] || [ "${exe1%%/check_hip*}" != "${exe1}" ]; then pattern="${pattern}|EvtsPerSec\[Matrix"; fi
   pattern="${pattern}|Workflow"
   ###pattern="${pattern}|CUCOMPLEX"
   ###pattern="${pattern}|COMMON RANDOM|CURAND HOST \(CUDA"
@@ -500,21 +500,21 @@ function runExe() {
     pattern="${pattern}|elapsed"
     if [ "${detailed}" == "1" ]; then pattern="${pattern}|#"; fi
     if [ "${verbose}" == "1" ]; then set -x; fi
-    ###perf stat -d $exe $args 2>&1 | grep -v "Performance counter stats"
-    perf stat -d $exe $args 2>&1 | egrep "(${pattern})" | grep -v "Performance counter stats"
+    ###perf stat -d $exe1 $args 2>&1 | grep -v "Performance counter stats"
+    perf stat -d $exe1 $args 2>&1 | egrep "(${pattern})" | grep -v "Performance counter stats"
     set +x
   else
     # -- Older version using time
     # For TIMEFORMAT see https://www.gnu.org/software/bash/manual/html_node/Bash-Variables.html
     if [ "${verbose}" == "1" ]; then set -x; fi
-    TIMEFORMAT=$'real\t%3lR' && time $exe $args 2>&1 | egrep "(${pattern})"
+    TIMEFORMAT=$'real\t%3lR' && time $exe1 $args 2>&1 | egrep "(${pattern})"
     set +x
   fi
 }
 
 function runTest() {
-  exe=$1
-  echo "runTest $exe"
+  exe1=$1
+  echo "runTest $exe1"
   if [ "${maketype}" == "-dryrun" ]; then return; fi
   pattern="PASS|FAIL"
   pattern="${pattern}|ERROR"
@@ -522,22 +522,22 @@ function runTest() {
   pattern="${pattern}|Floating Point Exception"
   pattern="${pattern}|MEK"
   if [ "${verbose}" == "1" ]; then set -x; fi
-  $exe 2>&1 | egrep "(${pattern})" | sed "s/MEK 0x......./MEK 0xxxxxxxx/"
+  $exe1 2>&1 | egrep "(${pattern})" | sed "s/MEK 0x......./MEK 0xxxxxxxx/"
   set +x
 }
 
 function cmpExe() {
-  exe=$1
-  exef=${exe/\/check//fcheck}
+  exe1=$1
+  exef=${exe1/\/check//fcheck}
   argsf="2 64 2"
   args="--common -p ${argsf}"
-  echo "cmpExe $exe $args"
+  echo "cmpExe $exe1 $args"
   echo "cmpExe $exef $argsf"
   if [ "${maketype}" == "-dryrun" ]; then return; fi
   tmp=$(mktemp)
-  me1=$(${exe} ${args} 2>${tmp} | grep MeanMatrix | awk '{print $4}'); cat ${tmp}
+  me1=$(${exe1} ${args} 2>${tmp} | grep MeanMatrix | awk '{print $4}'); cat ${tmp}
   me2=$(${exef} ${argsf} 2>${tmp} | grep Average | awk '{print $4}'); cat ${tmp}
-  if [ "${exe%%/check_cuda*}" != "${exe}" ] || [ "${exe%%/check_hip*}" != "${exe}" ]; then tag="/GPU)"; else tag="/C++) "; fi
+  if [ "${exe1%%/check_cuda*}" != "${exe1}" ] || [ "${exe1%%/check_hip*}" != "${exe1}" ]; then tag="/GPU)"; else tag="/C++) "; fi
   echo -e "Avg ME (C++${tag}   = ${me1}\nAvg ME (F77${tag}   = ${me2}"
   if [ "${me2}" == "NaN" ]; then
     echo "ERROR! Fortran calculation (F77${tag} returned NaN"
@@ -553,14 +553,14 @@ function cmpExe() {
 function runNcu() {
   if ! ncu -v > /dev/null 2>&1; then return; fi
   if [ "${maketype}" == "-dryrun" ]; then return; fi
-  exe=$1
+  exe1=$1
   args="$2"
   args="$args$rndgen$rmbsmp"
-  echo "runNcu $exe $args"
+  echo "runNcu $exe1 $args"
   if [ "${verbose}" == "1" ]; then set -x; fi
-  #$(which ncu) --metrics launch__registers_per_thread,sm__sass_average_branch_targets_threads_uniform.pct --target-processes all --kernel-id "::sigmaKin:" --kernel-name-base function $exe $args | egrep '(sigmaKin|registers| sm)' | tr "\n" " " | awk '{print $1, $2, $3, $15, $17; print $1, $2, $3, $18, $20$19}'
+  #$(which ncu) --metrics launch__registers_per_thread,sm__sass_average_branch_targets_threads_uniform.pct --target-processes all --kernel-id "::sigmaKin:" --kernel-name-base function $exe1 $args | egrep '(sigmaKin|registers| sm)' | tr "\n" " " | awk '{print $1, $2, $3, $15, $17; print $1, $2, $3, $18, $20$19}'
   set +e # do not fail on error
-  out=$($(which ncu) --metrics launch__registers_per_thread,sm__sass_average_branch_targets_threads_uniform.pct --target-processes all --kernel-id "::sigmaKin:" --kernel-name-base function $exe $args)
+  out=$($(which ncu) --metrics launch__registers_per_thread,sm__sass_average_branch_targets_threads_uniform.pct --target-processes all --kernel-id "::sigmaKin:" --kernel-name-base function $exe1 $args)
   echo "$out" | egrep '(ERROR|WARNING)' # NB must escape $out in between quotes
   set -e # fail on error (after ncu and after egrep!)
   out=$(echo "${out}" | egrep '(sigmaKin|registers| sm)' | tr "\n" " ") # NB must escape $out in between quotes
@@ -576,17 +576,17 @@ function runNcu() {
 function runNcuDiv() {
   if ! ncu -v > /dev/null 2>&1; then return; fi
   if [ "${maketype}" == "-dryrun" ]; then return; fi
-  exe=$1
+  exe1=$1
   args="-p 1 32 1"
   args="$args$rndgen$rmbsmp"
-  ###echo "runNcuDiv $exe $args"
+  ###echo "runNcuDiv $exe1 $args"
   if [ "${verbose}" == "1" ]; then set -x; fi
-  ###$(which ncu) --query-metrics $exe $args
-  ###$(which ncu) --metrics regex:.*branch_targets.* --target-processes all --kernel-id "::sigmaKin:" --kernel-name-base function $exe $args
-  ###$(which ncu) --metrics regex:.*stalled_barrier.* --target-processes all --kernel-id "::sigmaKin:" --kernel-name-base function $exe $args
-  ###$(which ncu) --metrics sm__sass_average_branch_targets_threads_uniform.pct,smsp__warps_launched.sum,smsp__sass_branch_targets.sum,smsp__sass_branch_targets_threads_divergent.sum,smsp__sass_branch_targets_threads_uniform.sum --target-processes all --kernel-id "::sigmaKin:" --kernel-name-base function $exe $args | egrep '(sigmaKin| sm)' | tr "\n" " " | awk '{printf "%29s: %-51s %s\n", "", $18, $19; printf "%29s: %-51s %s\n", "", $22, $23; printf "%29s: %-51s %s\n", "", $20, $21; printf "%29s: %-51s %s\n", "", $24, $26}'
-  #$(which ncu) --metrics sm__sass_average_branch_targets_threads_uniform.pct,smsp__warps_launched.sum,smsp__sass_branch_targets.sum,smsp__sass_branch_targets_threads_divergent.sum,smsp__sass_branch_targets_threads_uniform.sum,smsp__sass_branch_targets.sum.per_second,smsp__sass_branch_targets_threads_divergent.sum.per_second,smsp__sass_branch_targets_threads_uniform.sum.per_second --target-processes all --kernel-id "::sigmaKin:" --kernel-name-base function $exe $args | egrep '(sigmaKin| sm)' | tr "\n" " " | awk '{printf "%29s: %-51s %-10s %s\n", "", $18, $19, $22$21; printf "%29s: %-51s %-10s %s\n", "", $28, $29, $32$31; printf "%29s: %-51s %-10s %s\n", "", $23, $24, $27$26; printf "%29s: %-51s %s\n", "", $33, $35}'
-  out=$($(which ncu) --metrics sm__sass_average_branch_targets_threads_uniform.pct,smsp__warps_launched.sum,smsp__sass_branch_targets.sum,smsp__sass_branch_targets_threads_divergent.sum,smsp__sass_branch_targets_threads_uniform.sum,smsp__sass_branch_targets.sum.per_second,smsp__sass_branch_targets_threads_divergent.sum.per_second,smsp__sass_branch_targets_threads_uniform.sum.per_second --target-processes all --kernel-id "::sigmaKin:" --kernel-name-base function $exe $args | egrep '(sigmaKin| sm)' | tr "\n" " ")
+  ###$(which ncu) --query-metrics $exe1 $args
+  ###$(which ncu) --metrics regex:.*branch_targets.* --target-processes all --kernel-id "::sigmaKin:" --kernel-name-base function $exe1 $args
+  ###$(which ncu) --metrics regex:.*stalled_barrier.* --target-processes all --kernel-id "::sigmaKin:" --kernel-name-base function $exe1 $args
+  ###$(which ncu) --metrics sm__sass_average_branch_targets_threads_uniform.pct,smsp__warps_launched.sum,smsp__sass_branch_targets.sum,smsp__sass_branch_targets_threads_divergent.sum,smsp__sass_branch_targets_threads_uniform.sum --target-processes all --kernel-id "::sigmaKin:" --kernel-name-base function $exe1 $args | egrep '(sigmaKin| sm)' | tr "\n" " " | awk '{printf "%29s: %-51s %s\n", "", $18, $19; printf "%29s: %-51s %s\n", "", $22, $23; printf "%29s: %-51s %s\n", "", $20, $21; printf "%29s: %-51s %s\n", "", $24, $26}'
+  #$(which ncu) --metrics sm__sass_average_branch_targets_threads_uniform.pct,smsp__warps_launched.sum,smsp__sass_branch_targets.sum,smsp__sass_branch_targets_threads_divergent.sum,smsp__sass_branch_targets_threads_uniform.sum,smsp__sass_branch_targets.sum.per_second,smsp__sass_branch_targets_threads_divergent.sum.per_second,smsp__sass_branch_targets_threads_uniform.sum.per_second --target-processes all --kernel-id "::sigmaKin:" --kernel-name-base function $exe1 $args | egrep '(sigmaKin| sm)' | tr "\n" " " | awk '{printf "%29s: %-51s %-10s %s\n", "", $18, $19, $22$21; printf "%29s: %-51s %-10s %s\n", "", $28, $29, $32$31; printf "%29s: %-51s %-10s %s\n", "", $23, $24, $27$26; printf "%29s: %-51s %s\n", "", $33, $35}'
+  out=$($(which ncu) --metrics sm__sass_average_branch_targets_threads_uniform.pct,smsp__warps_launched.sum,smsp__sass_branch_targets.sum,smsp__sass_branch_targets_threads_divergent.sum,smsp__sass_branch_targets_threads_uniform.sum,smsp__sass_branch_targets.sum.per_second,smsp__sass_branch_targets_threads_divergent.sum.per_second,smsp__sass_branch_targets_threads_uniform.sum.per_second --target-processes all --kernel-id "::sigmaKin:" --kernel-name-base function $exe1 $args | egrep '(sigmaKin| sm)' | tr "\n" " ")
   ###echo $out
   echo $out | awk -v key1="smsp__sass_branch_targets.sum" '{key2=key1".per_second"; val1="N/A"; val2=""; for (i=1; i<=NF; i++){if ($i==key1 && $(i+1)!="(!)") val1=$(i+1); if ($i==key2 && $(i+1)!="(!)") val2=$(i+2)$(i+1)}; printf "%29s: %-51s %-10s %s\n", "", key1, val1, val2}'
   echo $out | awk -v key1="smsp__sass_branch_targets_threads_uniform.sum" '{key2=key1".per_second"; val1="N/A"; val2=""; for (i=1; i<=NF; i++){if ($i==key1 && $(i+1)!="(!)") val1=$(i+1); if ($i==key2 && $(i+1)!="(!)") val2=$(i+2)$(i+1)}; printf "%29s: %-51s %-10s %s\n", "", key1, val1, val2}'
@@ -599,14 +599,14 @@ function runNcuDiv() {
 function runNcuReq() {
   if ! ncu -v > /dev/null 2>&1; then return; fi
   if [ "${maketype}" == "-dryrun" ]; then return; fi
-  exe=$1
+  exe1=$1
   ncuArgs="$2"
   ncuArgs="$ncuArgs$rndgen$rmbsmp"
   if [ "${verbose}" == "1" ]; then set -x; fi
   for args in "-p 1 1 1" "-p 1 4 1" "-p 1 8 1" "-p 1 32 1" "$ncuArgs"; do
-    ###echo "runNcuReq $exe $args"
+    ###echo "runNcuReq $exe1 $args"
     # NB This will print nothing if $args are invalid (eg "-p 1 4 1" when neppR=8)
-    $(which ncu) --metrics l1tex__t_sectors_pipe_lsu_mem_global_op_ld.sum,l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum,launch__registers_per_thread,sm__sass_average_branch_targets_threads_uniform.pct --target-processes all --kernel-id "::sigmaKin:" --kernel-name-base function $exe $args | egrep '(sigmaKin|registers| sm|l1tex)' | tr "\n" " " | awk -vtag="[$args]" '{print $1, $2, $3, $16"s", $17";", $19"s", $20, tag}'
+    $(which ncu) --metrics l1tex__t_sectors_pipe_lsu_mem_global_op_ld.sum,l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum,launch__registers_per_thread,sm__sass_average_branch_targets_threads_uniform.pct --target-processes all --kernel-id "::sigmaKin:" --kernel-name-base function $exe1 $args | egrep '(sigmaKin|registers| sm|l1tex)' | tr "\n" " " | awk -vtag="[$args]" '{print $1, $2, $3, $16"s", $17";", $19"s", $20, tag}'
   done
   set +x
 }
