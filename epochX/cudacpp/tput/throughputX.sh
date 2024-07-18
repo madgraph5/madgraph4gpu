@@ -512,6 +512,20 @@ function runExe() {
   fi
 }
 
+function runTest() {
+  exe=$1
+  echo "runTest $exe"
+  if [ "${maketype}" == "-dryrun" ]; then return; fi
+  pattern="PASS|FAIL"
+  pattern="${pattern}|ERROR"
+  pattern="${pattern}|WARNING"
+  pattern="${pattern}|Floating Point Exception"
+  pattern="${pattern}|MEK"
+  if [ "${verbose}" == "1" ]; then set -x; fi
+  $exe 2>&1 | egrep "(${pattern})" | sed "s/MEK 0x......./MEK 0xxxxxxxx/"
+  set +x
+}
+
 function cmpExe() {
   exe=$1
   exef=${exe/\/check//fcheck}
@@ -723,8 +737,7 @@ for exe in $exes; do
   if [ "${gtest}" == "1" ]; then
     echo "-------------------------------------------------------------------------"
     exe2=${exe/check/runTest} # replace check_xxx.exe by runTest_xxx.exe
-    echo "runExe $exe2"
-    $exe2 2>&1 | tail -1
+    runTest $exe2 2>&1
     if [ ${PIPESTATUS[0]} -ne "0" ]; then exit 1; fi 
   fi
   if [ "${bckend}" != "alpaka" ]; then
