@@ -74,4 +74,4 @@ for f in ${scrdir}/logs_*_mad/log_*; do echo $(cat $f | grep OK  | wc -l) $f; do
 
 # Print out the MEK channelid debugging output
 echo
-\grep MEK ${scrdir}/logs_*/* | sed "s|${scrdir}/logs_||" | sed 's|_mad.*DEBUG:||' | awk '{$3=""; print $0}' | sed 's|MEK |MEK|' | sort -u
+\grep MEK ${scrdir}/logs_*/* | sed "s|${scrdir}/logs_||" | sed 's|_mad.*DEBUG:||' | sort -u
