@@ -71,7 +71,12 @@ SLHAReader::read_slha_file( std::string file_name, bool verbose )
       const std::string file_name2 = std::filesystem::path( getenv( envpath ) ) / std::filesystem::path( file_name ).filename();
 #endif
       */
-      const std::string file_name2 = std::string( getenv( envpath ) ) + "/" + file_name; // bypass std::filesystem #803
+      const std::size_t foundsep = file_name.find_last_of( "/" ); // strip dirname from file_name #923
+      const std::string base_name = ( foundsep != std::string::npos ? file_name.substr( foundsep+1 ) : file_name );
+      const std::string file_name2 = std::string( getenv( envpath ) ) + "/" + base_name; // bypass std::filesystem #803
+      //std::cout << "file_name=" << file_name << std::endl;
+      //std::cout << "base_name=" << base_name << std::endl;
+      //std::cout << "file_name2=" << file_name2 << std::endl;
       param_card.open( file_name2.c_str(), std::ifstream::in );
       if( param_card.good() )
       {
