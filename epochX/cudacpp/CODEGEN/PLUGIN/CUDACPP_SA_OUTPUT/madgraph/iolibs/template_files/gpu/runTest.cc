@@ -40,7 +40,7 @@ struct CUDA_CPU_TestBase : public TestDriverBase
   // Does this test use channelIds?
   virtual bool useChannelIds() const = 0;
   // Set channelId array (in the same way for CUDA and CPU tests)
-  static constexpr unsigned int warpSize = 32; // FIXME: add a sanity check in madevent that this is the minimum? (would need to expose this from cudacpp to madevent)
+  static constexpr unsigned int warpSize = 4; // FIXME: add a sanity check in madevent that this is the minimum? (would need to expose this from cudacpp to madevent)
   static void setChannelIds( BufferChannelIds& hstChannelIds, std::size_t iiter )
   {
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
