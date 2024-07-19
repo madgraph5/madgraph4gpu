@@ -1083,12 +1083,10 @@ namespace mg5amcCpu
       const int ievt00 = ipagV2 * neppV; // loop on one SIMD page (neppV events) at a time
 #endif
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // SCALAR channelId for the current event (CUDA) or for the whole SIMD neppV event page(s) (C++)
-      // The cudacpp implementation ASSUMES (and checks! #898) that all channelIds are the same in a neppV SIMD event page
+      // SCALAR channelId for the whole SIMD neppV2 event page (C++), i.e. one or two neppV event page(s)
+      // The cudacpp implementation ASSUMES (and checks! #898) that all channelIds are the same in a neppV2 SIMD event page
+      // **NB! in "mixed" precision, using SIMD, calculate_wavefunctions computes MEs for TWO neppV pages with a single channelId! #924
       unsigned int channelId = 0; // disable multichannel single-diagram enhancement unless allChannelIds != nullptr
-#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
-      unsigned int channelId2 = 0; // disable multichannel single-diagram enhancement unless allChannelIds != nullptr
-#endif
       if( allChannelIds != nullptr )
       {
         // First - and/or only - neppV page of channels (iParity=0 => ievt0 = ievt00 + 0 * neppV)
@@ -1109,14 +1107,12 @@ namespace mg5amcCpu
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
         // Second neppV page of channels (iParity=1 => ievt0 = ievt00 + 1 * neppV)
         const unsigned int* channelIds2 = CID_ACCESS::ieventAccessRecordConst( allChannelIds, ievt00 + neppV ); // fix bug #899/#911
-        uint_sv channelIds2_sv = CID_ACCESS::kernelAccessConst( channelIds2 );                                  // fix #895 (compute this only once for all diagrams)
-        // NB: channelIds_sv is a vector in SIMD C++
-        channelId2 = channelIds2_sv[0];  // element[0]
-        for( int i = 1; i < neppV; ++i ) // elements[1...neppV-1]
+        uint_v channelIds2_v = CID_ACCESS::kernelAccessConst( channelIds2 );                                    // fix #895 (compute this only once for all diagrams)
+        // **NB! in "mixed" precision, using SIMD, calculate_wavefunctions computes MEs for TWO neppV pages with a single channelId! #924
+        for( int i = 0; i < neppV; ++i )
         {
-          assert( channelId2 == channelIds2_sv[i] ); // SANITY CHECK #898: check that all events in a SIMD vector have the same channelId
+          assert( channelId == channelIds2_v[i] ); // SANITY CHECKS #898 #924: all events in the 2nd SIMD vector have the same channelId as that of the 1st SIMD vector
         }
-        assert( channelId2 > 0 ); // SANITY CHECK: scalar channelId must be > 0 if multichannel is enabled (allChannelIds != nullptr)
 #endif
       }
 #endif
@@ -1131,6 +1127,7 @@ namespace mg5amcCpu
       {
         const int ihel = cGoodHel[ighel];
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+        // **NB! in "mixed" precision, using SIMD, calculate_wavefunctions computes MEs for TWO neppV pages with a single channelId! #924
         calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators, jamp2_sv, ievt00 );
 #else
         calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, jamp2_sv, ievt00 );
