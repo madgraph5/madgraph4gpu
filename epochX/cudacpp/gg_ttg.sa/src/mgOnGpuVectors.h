@@ -226,6 +226,17 @@ namespace mg5amcCpu
   }
 #endif
 
+#ifdef MGONGPU_CPPSIMD
+  inline std::ostream&
+  operator<<( std::ostream& out, const uint_v& v )
+  {
+    out << "{ " << v[0];
+    for( int i = 1; i < neppV; i++ ) out << ", " << v[i];
+    out << " }";
+    return out;
+  }
+#endif
+
   //--------------------------------------------------------------------------
 
   /*

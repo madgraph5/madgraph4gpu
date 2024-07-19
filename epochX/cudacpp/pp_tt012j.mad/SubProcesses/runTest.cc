@@ -11,6 +11,7 @@
 #include "CPPProcess.h"
 #include "MadgraphTest.h"
 #include "MatrixElementKernels.h"
+#include "MemoryAccessChannelIds.h"
 #include "MemoryAccessMatrixElements.h"
 #include "MemoryAccessMomenta.h"
 #include "MemoryBuffers.h"
@@ -43,6 +44,8 @@ struct CUDA_CPU_TestBase : public TestDriverBase
   static void setChannelIds( BufferChannelIds& hstChannelIds, std::size_t iiter )
   {
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+    static const char* debugC = getenv( "CUDACPP_RUNTEST_DEBUG" );
+    static const bool debug = ( debugC != 0 ) && ( std::string( debugC ) != "" );
     // Fill channelIds for multi-channel tests #896
     // (NB: these are only used if useChannelIds == true)
     // TEMPORARY(0): debug multichannel tests with channelId=1 for all events
@@ -68,7 +71,7 @@ struct CUDA_CPU_TestBase : public TestDriverBase
         }
       }
       assert( channelId > 0 ); // sanity check that the channelId for the given iconfig was found
-      std::cout << "CUDA_CPU_TestBase::setChannelIds: iWarp=" << iWarp << ", iconfig=" << iconfig << ", channelId=" << channelId << std::endl;
+      if( debug ) std::cout << "CUDA_CPU_TestBase::setChannelIds: iWarp=" << iWarp << ", iconfig=" << iconfig << ", channelId=" << channelId << std::endl;
       for( unsigned int i = 0; i < warpSize; ++i )
         hstChannelIds[iWarp * warpSize + i] = channelId;
     }
@@ -162,6 +165,23 @@ struct CPUTest : public CUDA_CPU_TestBase
   fptype getMatrixElement( std::size_t ievt ) const override
   {
     return MemoryAccessMatrixElements::ieventAccessConst( hstMatrixElements.data(), ievt );
+  }
+
+  int getChannelId( std::size_t ievt ) const override
+  {
+    return MemoryAccessChannelIds::ieventAccessConst( hstChannelIds.data(), ievt );
+  }
+
+  int getSelectedHelicity( std::size_t ievt ) const override
+  {
+    //return MemoryAccessSelectedHelicity::ieventAccessConst( hstSelHel.data(), ievt ); // does not exist yet...
+    return hstSelHel.data()[ievt];
+  }
+
+  int getSelectedColor( std::size_t ievt ) const override
+  {
+    //return MemoryAccessSelectedColor::ieventAccessConst( hstSelCol.data(), ievt ); // does not exist yet...
+    return hstSelCol.data()[ievt];
   }
 };
 
@@ -295,6 +315,8 @@ struct CUDATest : public CUDA_CPU_TestBase
     if( iiter == 0 ) pmek->computeGoodHelicities();
     pmek->computeMatrixElements( useChannelIds() );
     copyHostFromDevice( hstMatrixElements, devMatrixElements );
+    copyHostFromDevice( hstSelHel, devSelHel );
+    copyHostFromDevice( hstSelCol, devSelCol );
   }
 
   fptype getMomentum( std::size_t ievt, unsigned int ipar, unsigned int ip4 ) const override
@@ -307,6 +329,23 @@ struct CUDATest : public CUDA_CPU_TestBase
   fptype getMatrixElement( std::size_t ievt ) const override
   {
     return MemoryAccessMatrixElements::ieventAccessConst( hstMatrixElements.data(), ievt );
+  }
+
+  int getChannelId( std::size_t ievt ) const override
+  {
+    return MemoryAccessChannelIds::ieventAccessConst( hstChannelIds.data(), ievt );
+  }
+
+  int getSelectedHelicity( std::size_t ievt ) const override
+  {
+    //return MemoryAccessSelectedHelicity::ieventAccessConst( hstSelHel.data(), ievt ); // does not exist yet...
+    return hstSelHel.data()[ievt];
+  }
+
+  int getSelectedColor( std::size_t ievt ) const override
+  {
+    //return MemoryAccessSelectedColor::ieventAccessConst( hstSelCol.data(), ievt ); // does not exist yet...
+    return hstSelCol.data()[ievt];
   }
 };
 
