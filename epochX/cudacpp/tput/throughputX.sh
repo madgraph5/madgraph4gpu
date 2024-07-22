@@ -437,6 +437,8 @@ else
   # Iterate over all directories (the first one will build googletest)
   gtestlibs=0
   for dir in $dirs; do
+    bblds_dir=${bblds}
+    if [ "${dir/\/gg_ttggg${suff}}" != ${dir} ]; then bblds_dir=${bblds/hip}; fi # skip ggttggg builds on HIP #933
     ###echo "Building in $dir" # FIXME: add a check that this $dir exists
     export USEBUILDDIR=1
     pushd $dir >& /dev/null
@@ -456,10 +458,10 @@ else
 	export HELINL=$helinl
 	for fptype in $fptypes; do
           export FPTYPE=$fptype
-          if [ "${bblds}" == "${bbldsall}" ]; then
+          if [ "${bblds_dir}" == "${bbldsall}" ]; then
             make ${makef} ${makej} bldall; echo # (was: allow 'make avxall' again #536)
           else
-            for bbld in ${bblds}; do
+            for bbld in ${bblds_dir}; do
               make ${makef} ${makej} BACKEND=${bbld}; echo
             done
           fi
