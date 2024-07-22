@@ -552,6 +552,7 @@ C
       SAVE FIRST
       DATA FIRST/.TRUE./
 
+
       IF( FBRIDGE_MODE .LE. 0 ) THEN  ! (FortranOnly=0 or BothQuiet=-1 or BothDebug=-2)
 #endif
         CALL COUNTERS_SMATRIX1MULTI_START( -1, VECSIZE_USED )  ! fortran=-1
