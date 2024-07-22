@@ -1033,16 +1033,14 @@ namespace mg5amcCpu
           targetamp[icolC] = targetamp[icolC - 1];
         // NB (see #877): in the array icolamp, the input index uses C indexing (iconfig -1)
         if( mgOnGpu::icolamp[iconfig - 1][icolC] ) targetamp[icolC] += jamp2_sv[icolC];
-	if( ievt == 0 ) printf( "sigmaKin: iconfig=%d icolC=%d icolamp=%d targetamp=%f\n", iconfig, icolC, mgOnGpu::icolamp[iconfig - 1][icolC], targetamp[icolC] );
       }
       //printf( "sigmaKin: ievt=%4d rndcol=%f\n", ievt, allrndcol[ievt] );
       for( int icolC = 0; icolC < ncolor; icolC++ )
       {
-	if( ievt == 0 ) printf( "sigmaKin: ievt=%4d rndcol=%f icolC=%d target/total=%f\n", ievt, allrndcol[ievt], icolC, targetamp[icolC] / targetamp[ncolor - 1] );
         if( allrndcol[ievt] < ( targetamp[icolC] / targetamp[ncolor - 1] ) )
         {
           allselcol[ievt] = icolC + 1; // NB Fortran [1,ncolor], cudacpp [0,ncolor-1]
-          if( ievt == 0 ) printf( "sigmaKin: ievt=%d icol=%d\n", ievt, icolC+1 );
+          //printf( "sigmaKin: ievt=%d icol=%d\n", ievt, icolC+1 );
           break;
         }
       }
