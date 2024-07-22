@@ -10,7 +10,7 @@ cd $scrdir
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-sa] [-noalpaka] [-flt|-fltonly|-mix|-mixonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly] [-makeclean] [-makej] [-dlp <dyld_library_path>]" # -nofpe is no longer supported
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-nocuda] [-sa] [-noalpaka] [-flt|-fltonly|-mix|-mixonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly] [-makeclean] [-makej] [-dlp <dyld_library_path>]" # -nofpe is no longer supported
   exit 1
 }
 
@@ -25,6 +25,7 @@ heftggbb=
 susyggtt=
 susyggt1t1=
 smeftggtttt=
+bldall=-bldall
 suffs="mad" # DEFAULT code base: madevent + cudacpp as 2nd exporter (logs_*_mad)
 alpaka=
 fptypes="d"
@@ -74,6 +75,8 @@ for arg in $*; do
   elif [ "$arg" == "-smeftggtttt" ]; then
     if [ "$smeftggtttt" == "" ]; then procs+=${procs:+ }${arg}; fi
     smeftggtttt=$arg
+  elif [ "$arg" == "-nocuda" ]; then
+    bldall=-bldallnocuda
   elif [ "$arg" == "-sa" ]; then
     suffs="sa" # standalone_cudacpp code base (logs_*_sa)
   elif [ "$arg" == "-noalpaka" ]; then
@@ -171,7 +174,7 @@ for step in $steps; do
             args="${args} ${rndgen}" # optionally use common random numbers or curand on host
             args="${args} ${rmbsmp}" # optionally use rambo or bridge on host
             ###args="${args} ${nofpe}" # optionally disable FPEs
-            args="${args} -bldall" # avx, fptype, helinl and hrdcod are now supported for all processes
+            args="${args} ${bldall}" # avx, fptype, helinl and hrdcod are now supported for all processes
             if [ "${step}" == "makeclean" ]; then
               printf "\n%80s\n" |tr " " "*"
               printf "*** ./throughputX.sh -makecleanonly $args"

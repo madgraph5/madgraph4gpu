@@ -43,6 +43,7 @@ while [ "$1" != "" ]; do
     # See https://github.com/ROCm/hipRAND/issues/76
     # Random numbers use common (not hiprand) instead of curand?
     rndhst=-common
+    opts+=" -nocuda"
     shift
   elif [ "$1" == "-bsmonly" ] && [ "$bsm" != "-nobsm" ]; then
     bsm=$1
