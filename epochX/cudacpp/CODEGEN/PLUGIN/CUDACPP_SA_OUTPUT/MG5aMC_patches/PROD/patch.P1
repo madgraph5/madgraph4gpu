@@ -1,3 +1,25 @@
+diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
+index 02b31bd4c..ac6dae033 100644
+--- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
++++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
+@@ -551,16 +551,10 @@ C
+       LOGICAL FIRST
+       SAVE FIRST
+       DATA FIRST/.TRUE./
+-#else
+-      INTEGER FBRIDGE_MODE
+-#endif
+-      CALL COUNTERS_SMATRIX1MULTI_START( -1, VECSIZE_USED )  ! fortran=-1
+-
+-
+ 
+       IF( FBRIDGE_MODE .LE. 0 ) THEN  ! (FortranOnly=0 or BothQuiet=-1 or BothDebug=-2)
++#endif
+         CALL COUNTERS_SMATRIX1MULTI_START( -1, VECSIZE_USED )  ! fortran=-1
+-
+         DO IVEC=1, VECSIZE_USED
+           CALL SMATRIX1(P_MULTI(0,1,IVEC),
+      &	                         hel_rand(IVEC),
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
 index 1124a9164..27a6e4674 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
