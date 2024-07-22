@@ -287,12 +287,12 @@ MadgraphTest::CompareMomentaAndME( testing::Test& googleTest ) const
                  << std::setw( 4 ) << "r.ME" << std::scientific << std::setw( 15 + 8 )
                  << referenceData[iiter].MEs[ievt] << std::endl
                  << std::defaultfloat;
-      eventTrace << std::setw( 8 ) << "ChanId" << testDriver->getChannelId( ievt ) << "\n"
-                 << std::setw( 8 ) << "r.ChanId" << referenceData[iiter].ChanIds[ievt] << std::endl;
-      eventTrace << std::setw( 8 ) << "SelHel" << testDriver->getSelectedHelicity( ievt ) << "\n"
-                 << std::setw( 8 ) << "r.SelHel" << referenceData[iiter].SelHels[ievt] << std::endl;
-      eventTrace << std::setw( 8 ) << "SelCol" << testDriver->getSelectedColor( ievt ) << "\n"
-                 << std::setw( 8 ) << "r.SelCol" << referenceData[iiter].SelCols[ievt] << std::endl;
+      eventTrace << std::setw( 8 ) << "ChanId" << std::setw( 8 ) << testDriver->getChannelId( ievt ) << "\n"
+                 << std::setw( 8 ) << "r.ChanId" << std::setw( 8 ) << referenceData[iiter].ChanIds[ievt] << std::endl;
+      eventTrace << std::setw( 8 ) << "SelHel" << std::setw( 8 ) << testDriver->getSelectedHelicity( ievt ) << "\n"
+                 << std::setw( 8 ) << "r.SelHel" << std::setw( 8 ) << referenceData[iiter].SelHels[ievt] << std::endl;
+      eventTrace << std::setw( 8 ) << "SelCol" << std::setw( 8 ) << testDriver->getSelectedColor( ievt ) << "\n"
+                 << std::setw( 8 ) << "r.SelCol" << std::setw( 8 ) << referenceData[iiter].SelCols[ievt] << std::endl;
       SCOPED_TRACE( eventTrace.str() );
       // Compare Momenta
       for( unsigned int ipar = 0; ipar < testDriver->nparticle; ++ipar )

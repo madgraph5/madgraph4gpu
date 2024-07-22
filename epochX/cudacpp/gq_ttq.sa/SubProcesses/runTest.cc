@@ -88,7 +88,7 @@ struct CPUTest : public CUDA_CPU_TestBase
   // Struct data members (process, and memory structures for random numbers, momenta, matrix elements and weights on host and device)
   // [NB the hst/dev memory arrays must be initialised in the constructor, see issue #290]
   CPPProcess process;
-  HostBufferRndNumMomenta hstRndmom;
+  HostBufferRndNumMomenta hstRndMom;
   HostBufferChannelIds hstChannelIds;
   HostBufferMomenta hstMomenta;
   HostBufferGs hstGs;
@@ -109,7 +109,7 @@ struct CPUTest : public CUDA_CPU_TestBase
   CPUTest( const std::string& refFileName )
     : CUDA_CPU_TestBase( refFileName )
     , process( /*verbose=*/false )
-    , hstRndmom( nevt )
+    , hstRndMom( nevt )
     , hstChannelIds( nevt )
     , hstMomenta( nevt )
     , hstGs( nevt )
@@ -131,14 +131,22 @@ struct CPUTest : public CUDA_CPU_TestBase
 
   void prepareRandomNumbers( unsigned int iiter ) override
   {
-    CommonRandomNumberKernel rnk( hstRndmom );
+    // Random numbers for momenta
+    CommonRandomNumberKernel rnk( hstRndMom );
     rnk.seedGenerator( 1337 + iiter );
     rnk.generateRnarray();
+    // Random numbers for helicity and color selection (fix #931)
+    CommonRandomNumberKernel rnk2( hstRndHel );
+    rnk2.seedGenerator( 1338 + iiter );
+    rnk2.generateRnarray();
+    CommonRandomNumberKernel rnk3( hstRndCol );
+    rnk3.seedGenerator( 1339 + iiter );
+    rnk3.generateRnarray();
   }
 
   void prepareMomenta( fptype energy ) override
   {
-    RamboSamplingKernelHost rsk( energy, hstRndmom, hstMomenta, hstWeights, nevt );
+    RamboSamplingKernelHost rsk( energy, hstRndMom, hstMomenta, hstWeights, nevt );
     // --- 2a. Fill in momenta of initial state particles on the device
     rsk.getMomentaInitial();
     // --- 2b. Fill in momenta of final state particles using the RAMBO algorithm on the device
@@ -220,7 +228,7 @@ struct CUDATest : public CUDA_CPU_TestBase
   // Struct data members (process, and memory structures for random numbers, momenta, matrix elements and weights on host and device)
   // [NB the hst/dev memory arrays must be initialised in the constructor, see issue #290]
   CPPProcess process;
-  PinnedHostBufferRndNumMomenta hstRndmom;
+  PinnedHostBufferRndNumMomenta hstRndMom;
   PinnedHostBufferMomenta hstMomenta;
   PinnedHostBufferGs hstGs;
   PinnedHostBufferRndNumHelicity hstRndHel;
@@ -231,7 +239,7 @@ struct CUDATest : public CUDA_CPU_TestBase
   PinnedHostBufferSelectedHelicity hstSelHel;
   PinnedHostBufferSelectedColor hstSelCol;
   PinnedHostBufferHelicityMask hstIsGoodHel;
-  DeviceBufferRndNumMomenta devRndmom;
+  DeviceBufferRndNumMomenta devRndMom;
   DeviceBufferChannelIds devChannelIds;
   DeviceBufferMomenta devMomenta;
   DeviceBufferGs devGs;
@@ -252,7 +260,7 @@ struct CUDATest : public CUDA_CPU_TestBase
   CUDATest( const std::string& refFileName )
     : CUDA_CPU_TestBase( refFileName )
     , process( /*verbose=*/false )
-    , hstRndmom( nevt )
+    , hstRndMom( nevt )
     , hstChannelIds( nevt )
     , hstMomenta( nevt )
     , hstGs( nevt )
@@ -263,7 +271,7 @@ struct CUDATest : public CUDA_CPU_TestBase
     , hstSelHel( nevt )
     , hstSelCol( nevt )
     , hstIsGoodHel( CPPProcess::ncomb )
-    , devRndmom( nevt )
+    , devRndMom( nevt )
     , devChannelIds( nevt )
     , devMomenta( nevt )
     , devGs( nevt )
@@ -285,15 +293,25 @@ struct CUDATest : public CUDA_CPU_TestBase
 
   void prepareRandomNumbers( unsigned int iiter ) override
   {
-    CommonRandomNumberKernel rnk( hstRndmom );
+    // Random numbers for momenta
+    CommonRandomNumberKernel rnk( hstRndMom );
     rnk.seedGenerator( 1337 + iiter );
     rnk.generateRnarray();
-    copyDeviceFromHost( devRndmom, hstRndmom );
+    copyDeviceFromHost( devRndMom, hstRndMom );
+    // Random numbers for helicity and color selection (fix #931)
+    CommonRandomNumberKernel rnk2( hstRndHel );
+    rnk2.seedGenerator( 1338 + iiter );
+    rnk2.generateRnarray();
+    copyDeviceFromHost( devRndHel, hstRndHel );
+    CommonRandomNumberKernel rnk3( hstRndCol );
+    rnk3.seedGenerator( 1339 + iiter );
+    rnk3.generateRnarray();
+    copyDeviceFromHost( devRndCol, hstRndCol );
   }
 
   void prepareMomenta( fptype energy ) override
   {
-    RamboSamplingKernelDevice rsk( energy, devRndmom, devMomenta, devWeights, gpublocks, gputhreads );
+    RamboSamplingKernelDevice rsk( energy, devRndMom, devMomenta, devWeights, gpublocks, gputhreads );
     // --- 2a. Fill in momenta of initial state particles on the device
     rsk.getMomentaInitial();
     // --- 2b. Fill in momenta of final state particles using the RAMBO algorithm on the device

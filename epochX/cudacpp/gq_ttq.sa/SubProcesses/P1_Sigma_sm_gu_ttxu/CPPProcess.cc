@@ -1092,9 +1092,14 @@ namespace mg5amcCpu
         if( allrndcol[ievt] < ( targetamp[icolC] / targetamp[ncolor - 1] ) )
         {
           allselcol[ievt] = icolC + 1; // NB Fortran [1,ncolor], cudacpp [0,ncolor-1]
+          //printf( "sigmaKin: ievt=%d icol=%d\n", ievt, icolC+1 );
           break;
         }
       }
+    }
+    else
+    {
+      allselcol[ievt] = 0; // no color selected in Fortran range [1,ncolor] if channelId == 0 (see #931)
     }
 #endif
     // *** END OF PART 1a - CUDA (one event per GPU thread) ***
@@ -1283,6 +1288,7 @@ namespace mg5amcCpu
             if( okcol )
             {
               allselcol[ievt] = icolC + 1; // NB Fortran [1,ncolor], cudacpp [0,ncolor-1]
+              //printf( "sigmaKin: ievt=%d icol=%d\n", ievt, icolC+1 );
               break;
             }
           }
@@ -1294,9 +1300,22 @@ namespace mg5amcCpu
             if( allrndcol[ievt2] < ( targetamp2[icolC][ieppV] / targetamp2[ncolor - 1][ieppV] ) )
             {
               allselcol[ievt2] = icolC + 1; // NB Fortran [1,ncolor], cudacpp [0,ncolor-1]
+              //printf( "sigmaKin: ievt2=%d icol=%d\n", ievt2, icolC+1 );
               break;
             }
           }
+#endif
+        }
+      }
+      else
+      {
+        for( int ieppV = 0; ieppV < neppV; ++ieppV )
+        {
+          const int ievt = ievt00 + ieppV;
+          allselcol[ievt] = 0; // no color selected in Fortran range [1,ncolor] if channelId == 0 (see #931)
+#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+          const int ievt2 = ievt00 + ieppV + neppV;
+          allselcol[ievt2] = 0; // no color selected in Fortran range [1,ncolor] if channelId == 0 (see #931)
 #endif
         }
       }
