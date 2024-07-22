@@ -34,7 +34,7 @@ export CUDACPP_RUNTIME_VECSIZEUSED=${NLOOP}
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gguu][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-d] [-fltonly|-mixonly] [-makeonly|-makeclean|-makecleanonly] [-rmrdat] [+10x] [-checkonly] [-nocleanup][-iconfig <iconfig>]" > /dev/stderr
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gguu][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-d] [-hip] [-fltonly|-mixonly] [-makeonly|-makeclean|-makecleanonly] [-rmrdat] [+10x] [-checkonly] [-nocleanup][-iconfig <iconfig>]" > /dev/stderr
   echo "(NB: OMP_NUM_THREADS is taken as-is from the caller's environment)"
   exit 1
 }
@@ -56,6 +56,8 @@ heftggbb=0
 susyggtt=0
 susyggt1t1=0
 smeftggtttt=0
+
+hip=0
 
 fptype="d"
 
@@ -108,6 +110,9 @@ while [ "$1" != "" ]; do
     shift
   elif [ "$1" == "-smeftggtttt" ]; then
     smeftggtttt=1
+    shift
+  elif [ "$1" == "-hip" ]; then
+    hip=1
     shift
   elif [ "$1" == "-fltonly" ]; then
     if [ "${fptype}" != "d" ] && [ "${fptype}" != "$1" ]; then
@@ -483,10 +488,17 @@ for suff in $suffs; do
 
   if [ "${maketype}" == "-makeclean" ]; then make cleanall; echo; fi
   if [ "${maketype}" == "-makecleanonly" ]; then make cleanall; echo; continue; fi
-  ###make -j5 avxall # limit build parallelism of the old 'make avxall' to avoid "cudafe++ died due to signal 9" (#639)
-  make -j6 bldall # limit build parallelism also with the new 'make bldall'
-  ###make -j bldall
-
+  if [ "${hip}" == "0" ]; then
+    ###make -j5 avxall # limit build parallelism of the old 'make avxall' to avoid "cudafe++ died due to signal 9" (#639)
+    make -j6 bldall # limit build parallelism also with the new 'make bldall'
+    ###make -j bldall
+  else
+    bblds="hip cppnone cppsse4 cppavx2 cpp512y cpp512z" # skip cuda on LUMI always
+    if [ "${dir/\/gg_ttggg${suff}}" != ${dir} ]; then bblds=${bblds/hip}; fi # skip ggttggg builds on HIP #933
+    for bbld in ${bblds_dir}; do
+      make ${makef} -j BACKEND=${bbld}; echo
+    done
+  fi
 done
 
 if [ "${maketype}" == "-makecleanonly" ]; then printf "\nMAKE CLEANALL COMPLETED\n"; exit 0; fi
@@ -627,6 +639,7 @@ for suff in $suffs; do
       MADEVENT_GPU=MADEVENT_HIP
       if [ "$gpuTxt" == "none" ]; then echo -e "\n*** (3-$backend) WARNING! SKIP ${MADEVENT_GPU} (there is no GPU on this node) ***"; continue; fi
       if ! hipcc --version >& /dev/null; then echo -e "\n*** (3-$backend) WARNING! SKIP ${MADEVENT_GPU} (${backend} is not supported on this node) ***"; continue; fi
+      if [ "${dir/\/gg_ttggg${suff}}" != ${dir} ]; then echo -e "\n*** (3-$backend) WARNING! SKIP ${MADEVENT_GPU} (gg_ttggg is not supported on hip #933) ***"; continue; fi
     else
       echo "INTERNAL ERROR! Unknown backend ${backend}"; exit 1
     fi
