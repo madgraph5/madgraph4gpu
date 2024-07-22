@@ -7,9 +7,9 @@ c       *START* Included from CUDACPP template smatrix_multi.f
 c       (into function smatrix$i_multi in auto_dsig$i.f)
 c       ======================================================
         call counters_smatrix1multi_stop( -1 ) ! fortran=-1
+ #ifdef MG5AMC_MEEXPORTER_CUDACPP
       ENDIF
 
- #ifdef MG5AMC_MEEXPORTER_CUDACPP
       IF( FBRIDGE_MODE .EQ. 1 .OR. FBRIDGE_MODE .LT. 0 ) THEN ! (CppOnly=1 or BothQuiet=-1 or BothDebug=-2)
         IF( LIMHEL.NE.0 ) THEN
           WRITE(6,*) 'ERROR! The cudacpp bridge only supports LIMHEL=0'
