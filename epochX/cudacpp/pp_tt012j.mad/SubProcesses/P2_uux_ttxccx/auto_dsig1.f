@@ -694,16 +694,11 @@ C
       LOGICAL FIRST
       SAVE FIRST
       DATA FIRST/.TRUE./
-#else
-      INTEGER FBRIDGE_MODE
-#endif
-      CALL COUNTERS_SMATRIX1MULTI_START( -1, VECSIZE_USED )  ! fortran=-1
-
 
 
       IF( FBRIDGE_MODE .LE. 0 ) THEN  ! (FortranOnly=0 or BothQuiet=-1 or BothDebug=-2)
+#endif
         CALL COUNTERS_SMATRIX1MULTI_START( -1, VECSIZE_USED )  ! fortran=-1
-
         DO IVEC=1, VECSIZE_USED
           CALL SMATRIX1(P_MULTI(0,1,IVEC),
      &	                         hel_rand(IVEC),
@@ -720,9 +715,9 @@ C       *START* Included from CUDACPP template smatrix_multi.f
 C       (into function smatrix$i_multi in auto_dsig$i.f)
 C       ======================================================
         CALL COUNTERS_SMATRIX1MULTI_STOP( -1 )  ! fortran=-1
+#ifdef MG5AMC_MEEXPORTER_CUDACPP
       ENDIF
 
-#ifdef MG5AMC_MEEXPORTER_CUDACPP
       IF( FBRIDGE_MODE .EQ. 1 .OR. FBRIDGE_MODE .LT. 0 ) THEN  ! (CppOnly=1 or BothQuiet=-1 or BothDebug=-2)
         IF( LIMHEL.NE.0 ) THEN
           WRITE(6,*) 'ERROR  ! The cudacpp bridge only supports LIMHEL=0'
