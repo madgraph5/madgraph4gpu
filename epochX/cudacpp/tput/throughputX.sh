@@ -69,7 +69,7 @@ makef=
 ###makef="-f Makefile"
 
 # (Was: workaround to allow 'make avxall' when '-avxall' is specified #536)
-bbldsall="cuda hip none sse4 avx2 512y 512z"
+bbldsall="cuda hip cppnone cppsse4 cppavx2 cpp512y cpp512z"
 
 if [ "$bckend" != "alpaka" ]; then alpaka=0; fi # alpaka mode is only available in the alpaka directory
 
