@@ -1,0 +1,903 @@
+[1;31mNote that this is a development version.
+This version is intended for development/beta testing and NOT for production.
+This version has not been fully tested (if at all) and might have limited user support (if at all)[0m
+Running MG5 in debug mode
+************************************************************
+*                                                          *
+*                     W E L C O M E to                     *
+*              M A D G R A P H 5 _ a M C @ N L O           *
+*                                                          *
+*                                                          *
+*                 *                       *                *
+*                   *        * *        *                  *
+*                     * * * * 5 * * * *                    *
+*                   *        * *        *                  *
+*                 *                       *                *
+*                                                          *
+*         VERSION 3.5.3_lo_vect         2023-12-23         *
+[1;31m*                                                          *[1;0m
+[1;31m*          WARNING: UNKNOWN DEVELOPMENT VERSION.           *[1;0m
+[1;31m*            WARNING: DO NOT USE FOR PRODUCTION            *[1;0m
+[1;31m*                                                          *[1;0m
+*                                                          *
+*    The MadGraph5_aMC@NLO Development Team - Find us at   *
+*              http://madgraph.phys.ucl.ac.be/             *
+*                            and                           *
+*            http://amcatnlo.web.cern.ch/amcatnlo/         *
+*                                                          *
+*               Type 'help' for in-line help.              *
+*           Type 'tutorial' to learn how MG5 works         *
+*    Type 'tutorial aMCatNLO' to learn how aMC@NLO works   *
+*    Type 'tutorial MadLoop' to learn how MadLoop works    *
+*                                                          *
+************************************************************
+load MG5 configuration from input/mg5_configuration.txt 
+fastjet-config does not seem to correspond to a valid fastjet-config executable (v3+). We will use fjcore instead.
+ Please set the 'fastjet'variable to the full (absolute) /PATH/TO/fastjet-config (including fastjet-config).
+ MG5_aMC> set fastjet /PATH/TO/fastjet-config
+
+eMELA-config does not seem to correspond to a valid eMELA-config executable.
+ Please set the 'fastjet'variable to the full (absolute) /PATH/TO/eMELA-config (including eMELA-config).
+ MG5_aMC> set eMELA /PATH/TO/eMELA-config
+
+lhapdf-config does not seem to correspond to a valid lhapdf-config executable. 
+Please set the 'lhapdf' variable to the (absolute) /PATH/TO/lhapdf-config (including lhapdf-config).
+Note that you can still compile and run aMC@NLO with the built-in PDFs
+ MG5_aMC> set lhapdf /PATH/TO/lhapdf-config
+
+None does not seem to correspond to a valid lhapdf-config executable. 
+Please set the 'lhapdf' variable to the (absolute) /PATH/TO/lhapdf-config (including lhapdf-config).
+Note that you can still compile and run aMC@NLO with the built-in PDFs
+ MG5_aMC> set lhapdf /PATH/TO/lhapdf-config
+
+Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
+Using default eps viewer "evince". Set another one in ./input/mg5_configuration.txt
+Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
+import /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_pp_ttjj.mg
+The import format was not given, so we guess it as command
+set stdout_level DEBUG
+set output information to level: 10
+set zerowidth_tchannel F
+define j = p
+INFO: load particles 
+INFO: load vertices 
+[1;32mDEBUG: model prefixing  takes 0.005795955657958984 [0m
+INFO: Restrict model sm with file models/sm/restrict_default.dat . 
+[1;32mDEBUG: Simplifying conditional expressions [0m
+[1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: u b w+ at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: c d w+ at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: c b w+ at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: t d w+ at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: t s w+ at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: s u w+ at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: b u w+ at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: d c w+ at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: b c w+ at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: d t w+ at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: s t w+ at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: c c h at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: e- e- h at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: mu- mu- h at order: QED=1 [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_100', 1), ('GC_104', 1), ('GC_108', 1), ('GC_40', 1), ('GC_41', 1), ('GC_45', 1), ('GC_49', 1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_21', 1), ('GC_27', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_15', 1), ('GC_30', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_38', 1), ('GC_39', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_3', 1), ('GC_4', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_50', 1), ('GC_51', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_54', 1), ('GC_56', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_66', 1), ('GC_67', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_70', 1), ('GC_73', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_74', 1), ('GC_75', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_77', 1), ('GC_78', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_76', 1), ('GC_79', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_7', 1), ('GC_9', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_96', 1), ('GC_97', -1)  [0m
+[1;32mDEBUG: remove parameters: mdl_lamWS [0m
+[1;32mDEBUG: remove parameters: mdl_AWS [0m
+[1;32mDEBUG: remove parameters: mdl_rhoWS [0m
+[1;32mDEBUG: remove parameters: mdl_etaWS [0m
+[1;32mDEBUG: remove parameters: mdl_ymc [0m
+[1;32mDEBUG: remove parameters: mdl_yme [0m
+[1;32mDEBUG: remove parameters: mdl_ymm [0m
+[1;32mDEBUG: remove parameters: mdl_MC [0m
+[1;32mDEBUG: remove parameters: mdl_Me [0m
+[1;32mDEBUG: remove parameters: mdl_MM [0m
+[1;32mDEBUG: remove parameters: mdl_WTau [0m
+[1;32mDEBUG: remove parameters: mdl_lamWS__exp__2 [0m
+[1;32mDEBUG: remove parameters: mdl_CKM1x2 [0m
+[1;32mDEBUG: remove parameters: mdl_lamWS__exp__3 [0m
+[1;32mDEBUG: remove parameters: mdl_CKM1x3 [0m
+[1;32mDEBUG: remove parameters: mdl_CKM2x1 [0m
+[1;32mDEBUG: remove parameters: mdl_CKM2x3 [0m
+[1;32mDEBUG: remove parameters: mdl_CKM3x1 [0m
+[1;32mDEBUG: remove parameters: mdl_CKM3x2 [0m
+[1;32mDEBUG: remove parameters: mdl_conjg__CKM1x3 [0m
+[1;32mDEBUG: remove parameters: mdl_conjg__CKM2x3 [0m
+[1;32mDEBUG: remove parameters: mdl_conjg__CKM2x1 [0m
+[1;32mDEBUG: remove parameters: mdl_conjg__CKM3x1 [0m
+[1;32mDEBUG: remove parameters: mdl_conjg__CKM3x2 [0m
+[1;32mDEBUG: remove parameters: mdl_conjg__CKM1x2 [0m
+[1;32mDEBUG: remove parameters: mdl_yc [0m
+[1;32mDEBUG: remove parameters: mdl_ye [0m
+[1;32mDEBUG: remove parameters: mdl_ym [0m
+[1;32mDEBUG: remove parameters: mdl_I1x31 [0m
+[1;32mDEBUG: remove parameters: mdl_I1x32 [0m
+[1;32mDEBUG: remove parameters: mdl_I2x12 [0m
+[1;32mDEBUG: remove parameters: mdl_I2x13 [0m
+[1;32mDEBUG: remove parameters: mdl_I2x22 [0m
+[1;32mDEBUG: remove parameters: mdl_I2x23 [0m
+[1;32mDEBUG: remove parameters: mdl_I2x32 [0m
+[1;32mDEBUG: remove parameters: mdl_I3x21 [0m
+[1;32mDEBUG: remove parameters: mdl_I3x22 [0m
+[1;32mDEBUG: remove parameters: mdl_I3x23 [0m
+[1;32mDEBUG: remove parameters: mdl_I3x31 [0m
+[1;32mDEBUG: remove parameters: mdl_I3x32 [0m
+[1;32mDEBUG: remove parameters: mdl_I4x13 [0m
+[1;32mDEBUG: remove parameters: mdl_I4x23 [0m
+[1;32mDEBUG: remove parameters: mdl_CKM1x1 [0m
+[1;32mDEBUG: remove parameters: mdl_CKM2x2 [0m
+[1;32mDEBUG: fix parameter value: mdl_CKM3x3 [0m
+[1;32mDEBUG: fix parameter value: mdl_conjg__CKM3x3 [0m
+[1;32mDEBUG: remove parameters: mdl_conjg__CKM2x2 [0m
+[1;32mDEBUG: fix parameter value: mdl_conjg__CKM1x1 [0m
+INFO: Change particles name to pass to MG5 convention 
+Defined multiparticle p = g u c d s u~ c~ d~ s~
+Defined multiparticle j = g u c d s u~ c~ d~ s~
+Defined multiparticle l+ = e+ mu+
+Defined multiparticle l- = e- mu-
+Defined multiparticle vl = ve vm vt
+Defined multiparticle vl~ = ve~ vm~ vt~
+Defined multiparticle all = g u c d s u~ c~ d~ s~ a ve vm vt e- mu- ve~ vm~ vt~ e+ mu+ t b t~ b~ z w+ h w- ta- ta+
+Defined multiparticle j = g u c d s u~ c~ d~ s~
+generate p p > t t~ j j
+INFO: Checking for minimal orders which gives processes. 
+INFO: Please specify coupling orders to bypass this step. 
+INFO: Trying coupling order WEIGHTED<=4: WEIGTHED IS QCD+2*QED 
+INFO: Trying process: g g > t t~ g g WEIGHTED<=4 @1  
+INFO: Process has 123 diagrams 
+INFO: Trying process: g g > t t~ u u~ WEIGHTED<=4 @1  
+INFO: Process has 36 diagrams 
+INFO: Trying process: g g > t t~ u c~ WEIGHTED<=4 @1  
+INFO: Trying process: g g > t t~ c u~ WEIGHTED<=4 @1  
+INFO: Trying process: g g > t t~ c c~ WEIGHTED<=4 @1  
+INFO: Process has 36 diagrams 
+INFO: Trying process: g g > t t~ d d~ WEIGHTED<=4 @1  
+INFO: Process has 36 diagrams 
+INFO: Trying process: g g > t t~ d s~ WEIGHTED<=4 @1  
+INFO: Trying process: g g > t t~ s d~ WEIGHTED<=4 @1  
+INFO: Trying process: g g > t t~ s s~ WEIGHTED<=4 @1  
+INFO: Process has 36 diagrams 
+INFO: Crossed process found for g u > t t~ g u, reuse diagrams. 
+INFO: Crossed process found for g c > t t~ g c, reuse diagrams. 
+INFO: Crossed process found for g d > t t~ g d, reuse diagrams. 
+INFO: Crossed process found for g s > t t~ g s, reuse diagrams. 
+INFO: Crossed process found for g u~ > t t~ g u~, reuse diagrams. 
+INFO: Crossed process found for g c~ > t t~ g c~, reuse diagrams. 
+INFO: Crossed process found for g d~ > t t~ g d~, reuse diagrams. 
+INFO: Crossed process found for g s~ > t t~ g s~, reuse diagrams. 
+INFO: Process u g > t t~ g u added to mirror process g u > t t~ g u 
+INFO: Trying process: u u > t t~ u u WEIGHTED<=4 @1  
+INFO: Process has 14 diagrams 
+INFO: Trying process: u u > t t~ u c WEIGHTED<=4 @1  
+INFO: Trying process: u u > t t~ c c WEIGHTED<=4 @1  
+INFO: Trying process: u c > t t~ u u WEIGHTED<=4 @1  
+INFO: Trying process: u c > t t~ u c WEIGHTED<=4 @1  
+INFO: Process has 7 diagrams 
+INFO: Trying process: u c > t t~ c c WEIGHTED<=4 @1  
+INFO: Trying process: u d > t t~ u d WEIGHTED<=4 @1  
+INFO: Process has 7 diagrams 
+INFO: Trying process: u d > t t~ u s WEIGHTED<=4 @1  
+INFO: Trying process: u d > t t~ c d WEIGHTED<=4 @1  
+INFO: Trying process: u d > t t~ c s WEIGHTED<=4 @1  
+INFO: Trying process: u s > t t~ u d WEIGHTED<=4 @1  
+INFO: Trying process: u s > t t~ u s WEIGHTED<=4 @1  
+INFO: Process has 7 diagrams 
+INFO: Trying process: u s > t t~ c d WEIGHTED<=4 @1  
+INFO: Trying process: u s > t t~ c s WEIGHTED<=4 @1  
+INFO: Crossed process found for u u~ > t t~ g g, reuse diagrams. 
+INFO: Crossed process found for u u~ > t t~ u u~, reuse diagrams. 
+INFO: Crossed process found for u u~ > t t~ c c~, reuse diagrams. 
+INFO: Crossed process found for u u~ > t t~ d d~, reuse diagrams. 
+INFO: Crossed process found for u u~ > t t~ s s~, reuse diagrams. 
+INFO: Crossed process found for u c~ > t t~ u c~, reuse diagrams. 
+INFO: Crossed process found for u d~ > t t~ u d~, reuse diagrams. 
+INFO: Crossed process found for u s~ > t t~ u s~, reuse diagrams. 
+INFO: Process c g > t t~ g c added to mirror process g c > t t~ g c 
+INFO: Process c u > t t~ u c added to mirror process u c > t t~ u c 
+INFO: Trying process: c c > t t~ u u WEIGHTED<=4 @1  
+INFO: Trying process: c c > t t~ u c WEIGHTED<=4 @1  
+INFO: Trying process: c c > t t~ c c WEIGHTED<=4 @1  
+INFO: Process has 14 diagrams 
+INFO: Trying process: c d > t t~ u d WEIGHTED<=4 @1  
+INFO: Trying process: c d > t t~ u s WEIGHTED<=4 @1  
+INFO: Trying process: c d > t t~ c d WEIGHTED<=4 @1  
+INFO: Process has 7 diagrams 
+INFO: Trying process: c d > t t~ c s WEIGHTED<=4 @1  
+INFO: Trying process: c s > t t~ u d WEIGHTED<=4 @1  
+INFO: Trying process: c s > t t~ u s WEIGHTED<=4 @1  
+INFO: Trying process: c s > t t~ c d WEIGHTED<=4 @1  
+INFO: Trying process: c s > t t~ c s WEIGHTED<=4 @1  
+INFO: Process has 7 diagrams 
+INFO: Crossed process found for c u~ > t t~ c u~, reuse diagrams. 
+INFO: Crossed process found for c c~ > t t~ g g, reuse diagrams. 
+INFO: Crossed process found for c c~ > t t~ u u~, reuse diagrams. 
+INFO: Crossed process found for c c~ > t t~ c c~, reuse diagrams. 
+INFO: Crossed process found for c c~ > t t~ d d~, reuse diagrams. 
+INFO: Crossed process found for c c~ > t t~ s s~, reuse diagrams. 
+INFO: Crossed process found for c d~ > t t~ c d~, reuse diagrams. 
+INFO: Crossed process found for c s~ > t t~ c s~, reuse diagrams. 
+INFO: Process d g > t t~ g d added to mirror process g d > t t~ g d 
+INFO: Process d u > t t~ u d added to mirror process u d > t t~ u d 
+INFO: Process d c > t t~ c d added to mirror process c d > t t~ c d 
+INFO: Trying process: d d > t t~ d d WEIGHTED<=4 @1  
+INFO: Process has 14 diagrams 
+INFO: Trying process: d d > t t~ d s WEIGHTED<=4 @1  
+INFO: Trying process: d d > t t~ s s WEIGHTED<=4 @1  
+INFO: Trying process: d s > t t~ d d WEIGHTED<=4 @1  
+INFO: Trying process: d s > t t~ d s WEIGHTED<=4 @1  
+INFO: Process has 7 diagrams 
+INFO: Trying process: d s > t t~ s s WEIGHTED<=4 @1  
+INFO: Crossed process found for d u~ > t t~ d u~, reuse diagrams. 
+INFO: Crossed process found for d c~ > t t~ d c~, reuse diagrams. 
+INFO: Crossed process found for d d~ > t t~ g g, reuse diagrams. 
+INFO: Crossed process found for d d~ > t t~ u u~, reuse diagrams. 
+INFO: Crossed process found for d d~ > t t~ c c~, reuse diagrams. 
+INFO: Crossed process found for d d~ > t t~ d d~, reuse diagrams. 
+INFO: Crossed process found for d d~ > t t~ s s~, reuse diagrams. 
+INFO: Crossed process found for d s~ > t t~ d s~, reuse diagrams. 
+INFO: Process s g > t t~ g s added to mirror process g s > t t~ g s 
+INFO: Process s u > t t~ u s added to mirror process u s > t t~ u s 
+INFO: Process s c > t t~ c s added to mirror process c s > t t~ c s 
+INFO: Process s d > t t~ d s added to mirror process d s > t t~ d s 
+INFO: Trying process: s s > t t~ d d WEIGHTED<=4 @1  
+INFO: Trying process: s s > t t~ d s WEIGHTED<=4 @1  
+INFO: Trying process: s s > t t~ s s WEIGHTED<=4 @1  
+INFO: Process has 14 diagrams 
+INFO: Crossed process found for s u~ > t t~ s u~, reuse diagrams. 
+INFO: Crossed process found for s c~ > t t~ s c~, reuse diagrams. 
+INFO: Crossed process found for s d~ > t t~ s d~, reuse diagrams. 
+INFO: Crossed process found for s s~ > t t~ g g, reuse diagrams. 
+INFO: Crossed process found for s s~ > t t~ u u~, reuse diagrams. 
+INFO: Crossed process found for s s~ > t t~ c c~, reuse diagrams. 
+INFO: Crossed process found for s s~ > t t~ d d~, reuse diagrams. 
+INFO: Crossed process found for s s~ > t t~ s s~, reuse diagrams. 
+INFO: Process u~ g > t t~ g u~ added to mirror process g u~ > t t~ g u~ 
+INFO: Process u~ u > t t~ g g added to mirror process u u~ > t t~ g g 
+INFO: Process u~ u > t t~ u u~ added to mirror process u u~ > t t~ u u~ 
+INFO: Process u~ u > t t~ c c~ added to mirror process u u~ > t t~ c c~ 
+INFO: Process u~ u > t t~ d d~ added to mirror process u u~ > t t~ d d~ 
+INFO: Process u~ u > t t~ s s~ added to mirror process u u~ > t t~ s s~ 
+INFO: Process u~ c > t t~ c u~ added to mirror process c u~ > t t~ c u~ 
+INFO: Process u~ d > t t~ d u~ added to mirror process d u~ > t t~ d u~ 
+INFO: Process u~ s > t t~ s u~ added to mirror process s u~ > t t~ s u~ 
+INFO: Crossed process found for u~ u~ > t t~ u~ u~, reuse diagrams. 
+INFO: Crossed process found for u~ c~ > t t~ u~ c~, reuse diagrams. 
+INFO: Crossed process found for u~ d~ > t t~ u~ d~, reuse diagrams. 
+INFO: Crossed process found for u~ s~ > t t~ u~ s~, reuse diagrams. 
+INFO: Process c~ g > t t~ g c~ added to mirror process g c~ > t t~ g c~ 
+INFO: Process c~ u > t t~ u c~ added to mirror process u c~ > t t~ u c~ 
+INFO: Process c~ c > t t~ g g added to mirror process c c~ > t t~ g g 
+INFO: Process c~ c > t t~ u u~ added to mirror process c c~ > t t~ u u~ 
+INFO: Process c~ c > t t~ c c~ added to mirror process c c~ > t t~ c c~ 
+INFO: Process c~ c > t t~ d d~ added to mirror process c c~ > t t~ d d~ 
+INFO: Process c~ c > t t~ s s~ added to mirror process c c~ > t t~ s s~ 
+INFO: Process c~ d > t t~ d c~ added to mirror process d c~ > t t~ d c~ 
+INFO: Process c~ s > t t~ s c~ added to mirror process s c~ > t t~ s c~ 
+INFO: Process c~ u~ > t t~ u~ c~ added to mirror process u~ c~ > t t~ u~ c~ 
+INFO: Crossed process found for c~ c~ > t t~ c~ c~, reuse diagrams. 
+INFO: Crossed process found for c~ d~ > t t~ c~ d~, reuse diagrams. 
+INFO: Crossed process found for c~ s~ > t t~ c~ s~, reuse diagrams. 
+INFO: Process d~ g > t t~ g d~ added to mirror process g d~ > t t~ g d~ 
+INFO: Process d~ u > t t~ u d~ added to mirror process u d~ > t t~ u d~ 
+INFO: Process d~ c > t t~ c d~ added to mirror process c d~ > t t~ c d~ 
+INFO: Process d~ d > t t~ g g added to mirror process d d~ > t t~ g g 
+INFO: Process d~ d > t t~ u u~ added to mirror process d d~ > t t~ u u~ 
+INFO: Process d~ d > t t~ c c~ added to mirror process d d~ > t t~ c c~ 
+INFO: Process d~ d > t t~ d d~ added to mirror process d d~ > t t~ d d~ 
+INFO: Process d~ d > t t~ s s~ added to mirror process d d~ > t t~ s s~ 
+INFO: Process d~ s > t t~ s d~ added to mirror process s d~ > t t~ s d~ 
+INFO: Process d~ u~ > t t~ u~ d~ added to mirror process u~ d~ > t t~ u~ d~ 
+INFO: Process d~ c~ > t t~ c~ d~ added to mirror process c~ d~ > t t~ c~ d~ 
+INFO: Crossed process found for d~ d~ > t t~ d~ d~, reuse diagrams. 
+INFO: Crossed process found for d~ s~ > t t~ d~ s~, reuse diagrams. 
+INFO: Process s~ g > t t~ g s~ added to mirror process g s~ > t t~ g s~ 
+INFO: Process s~ u > t t~ u s~ added to mirror process u s~ > t t~ u s~ 
+INFO: Process s~ c > t t~ c s~ added to mirror process c s~ > t t~ c s~ 
+INFO: Process s~ d > t t~ d s~ added to mirror process d s~ > t t~ d s~ 
+INFO: Process s~ s > t t~ g g added to mirror process s s~ > t t~ g g 
+INFO: Process s~ s > t t~ u u~ added to mirror process s s~ > t t~ u u~ 
+INFO: Process s~ s > t t~ c c~ added to mirror process s s~ > t t~ c c~ 
+INFO: Process s~ s > t t~ d d~ added to mirror process s s~ > t t~ d d~ 
+INFO: Process s~ s > t t~ s s~ added to mirror process s s~ > t t~ s s~ 
+INFO: Process s~ u~ > t t~ u~ s~ added to mirror process u~ s~ > t t~ u~ s~ 
+INFO: Process s~ c~ > t t~ c~ s~ added to mirror process c~ s~ > t t~ c~ s~ 
+INFO: Process s~ d~ > t t~ d~ s~ added to mirror process d~ s~ > t t~ d~ s~ 
+INFO: Crossed process found for s~ s~ > t t~ s~ s~, reuse diagrams. 
+65 processes with 1119 diagrams generated in 1.777 s
+Total: 65 processes with 1119 diagrams
+output madevent_simd ../TMPOUT/CODEGEN_mad_pp_ttjj --hel_recycling=False --vector_size=32
+Load PLUGIN.CUDACPP_OUTPUT
+[1;34mPlugin PLUGIN.CUDACPP_OUTPUT has marked as NOT being validated with this version: 3.5.3_lo_vect. 
+It has been validated for the last time with version: 3.5.2[0m
+[1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
+[1mAddition matrix-element will be done with PLUGIN: CUDACPP_OUTPUT[0m
+[1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
+[1;32mDEBUG:  cformat = [0m standalone_simd [1;30m[export_cpp.py at line 3070][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter) [1;30m[output.py at line 162][0m [0m
+INFO: initialize a new directory: CODEGEN_mad_pp_ttjj 
+INFO: remove old information in CODEGEN_mad_pp_ttjj 
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.copy_template (initialise the directory) [1;30m[output.py at line 167][0m [0m
+[1;34mWARNING: File exists /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_pp_ttjj [0m
+INFO: Creating subdirectories in directory /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_pp_ttjj 
+[1;34mWARNING: File exists /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_pp_ttjj/Cards [0m
+[1;34mWARNING: File exists /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_pp_ttjj/SubProcesses [0m
+INFO: Organizing processes into subprocess groups 
+INFO: Generating Helas calls for process: g g > t t~ g g WEIGHTED<=4 @1 
+INFO: Processing color information for process: g g > t t~ g g @1 
+INFO: Generating Helas calls for process: g g > t t~ u u~ WEIGHTED<=4 @1 
+INFO: Processing color information for process: g g > t t~ u u~ @1 
+INFO: Combined process g g > t t~ c c~ WEIGHTED<=4 @1 with process g g > t t~ u u~ WEIGHTED<=4 @1 
+INFO: Combined process g g > t t~ d d~ WEIGHTED<=4 @1 with process g g > t t~ u u~ WEIGHTED<=4 @1 
+INFO: Combined process g g > t t~ s s~ WEIGHTED<=4 @1 with process g g > t t~ u u~ WEIGHTED<=4 @1 
+INFO: Generating Helas calls for process: g u > t t~ g u WEIGHTED<=4 @1 
+INFO: Processing color information for process: g u > t t~ g u @1 
+INFO: Combined process g c > t t~ g c WEIGHTED<=4 @1 with process g u > t t~ g u WEIGHTED<=4 @1 
+INFO: Combined process g d > t t~ g d WEIGHTED<=4 @1 with process g u > t t~ g u WEIGHTED<=4 @1 
+INFO: Combined process g s > t t~ g s WEIGHTED<=4 @1 with process g u > t t~ g u WEIGHTED<=4 @1 
+INFO: Generating Helas calls for process: g u~ > t t~ g u~ WEIGHTED<=4 @1 
+INFO: Processing color information for process: g u~ > t t~ g u~ @1 
+INFO: Combined process g c~ > t t~ g c~ WEIGHTED<=4 @1 with process g u~ > t t~ g u~ WEIGHTED<=4 @1 
+INFO: Combined process g d~ > t t~ g d~ WEIGHTED<=4 @1 with process g u~ > t t~ g u~ WEIGHTED<=4 @1 
+INFO: Combined process g s~ > t t~ g s~ WEIGHTED<=4 @1 with process g u~ > t t~ g u~ WEIGHTED<=4 @1 
+INFO: Generating Helas calls for process: u u~ > t t~ g g WEIGHTED<=4 @1 
+INFO: Processing color information for process: u u~ > t t~ g g @1 
+INFO: Combined process c c~ > t t~ g g WEIGHTED<=4 @1 with process u u~ > t t~ g g WEIGHTED<=4 @1 
+INFO: Combined process d d~ > t t~ g g WEIGHTED<=4 @1 with process u u~ > t t~ g g WEIGHTED<=4 @1 
+INFO: Combined process s s~ > t t~ g g WEIGHTED<=4 @1 with process u u~ > t t~ g g WEIGHTED<=4 @1 
+INFO: Generating Helas calls for process: u u > t t~ u u WEIGHTED<=4 @1 
+INFO: Processing color information for process: u u > t t~ u u @1 
+INFO: Generating Helas calls for process: u u~ > t t~ u u~ WEIGHTED<=4 @1 
+INFO: Processing color information for process: u u~ > t t~ u u~ @1 
+INFO: Combined process c c > t t~ c c WEIGHTED<=4 @1 with process u u > t t~ u u WEIGHTED<=4 @1 
+INFO: Combined process c c~ > t t~ c c~ WEIGHTED<=4 @1 with process u u~ > t t~ u u~ WEIGHTED<=4 @1 
+INFO: Combined process d d > t t~ d d WEIGHTED<=4 @1 with process u u > t t~ u u WEIGHTED<=4 @1 
+INFO: Combined process d d~ > t t~ d d~ WEIGHTED<=4 @1 with process u u~ > t t~ u u~ WEIGHTED<=4 @1 
+INFO: Combined process s s > t t~ s s WEIGHTED<=4 @1 with process u u > t t~ u u WEIGHTED<=4 @1 
+INFO: Combined process s s~ > t t~ s s~ WEIGHTED<=4 @1 with process u u~ > t t~ u u~ WEIGHTED<=4 @1 
+INFO: Generating Helas calls for process: u~ u~ > t t~ u~ u~ WEIGHTED<=4 @1 
+INFO: Processing color information for process: u~ u~ > t t~ u~ u~ @1 
+INFO: Combined process c~ c~ > t t~ c~ c~ WEIGHTED<=4 @1 with process u~ u~ > t t~ u~ u~ WEIGHTED<=4 @1 
+INFO: Combined process d~ d~ > t t~ d~ d~ WEIGHTED<=4 @1 with process u~ u~ > t t~ u~ u~ WEIGHTED<=4 @1 
+INFO: Combined process s~ s~ > t t~ s~ s~ WEIGHTED<=4 @1 with process u~ u~ > t t~ u~ u~ WEIGHTED<=4 @1 
+INFO: Generating Helas calls for process: u c > t t~ u c WEIGHTED<=4 @1 
+INFO: Processing color information for process: u c > t t~ u c @1 
+INFO: Combined process u d > t t~ u d WEIGHTED<=4 @1 with process u c > t t~ u c WEIGHTED<=4 @1 
+INFO: Combined process u s > t t~ u s WEIGHTED<=4 @1 with process u c > t t~ u c WEIGHTED<=4 @1 
+INFO: Generating Helas calls for process: u u~ > t t~ c c~ WEIGHTED<=4 @1 
+INFO: Processing color information for process: u u~ > t t~ c c~ @1 
+INFO: Combined process u u~ > t t~ d d~ WEIGHTED<=4 @1 with process u u~ > t t~ c c~ WEIGHTED<=4 @1 
+INFO: Combined process u u~ > t t~ s s~ WEIGHTED<=4 @1 with process u u~ > t t~ c c~ WEIGHTED<=4 @1 
+INFO: Generating Helas calls for process: u c~ > t t~ u c~ WEIGHTED<=4 @1 
+INFO: Processing color information for process: u c~ > t t~ u c~ @1 
+INFO: Combined process u d~ > t t~ u d~ WEIGHTED<=4 @1 with process u c~ > t t~ u c~ WEIGHTED<=4 @1 
+INFO: Combined process u s~ > t t~ u s~ WEIGHTED<=4 @1 with process u c~ > t t~ u c~ WEIGHTED<=4 @1 
+INFO: Combined process c d > t t~ c d WEIGHTED<=4 @1 with process u c > t t~ u c WEIGHTED<=4 @1 
+INFO: Combined process c s > t t~ c s WEIGHTED<=4 @1 with process u c > t t~ u c WEIGHTED<=4 @1 
+INFO: Combined process c u~ > t t~ c u~ WEIGHTED<=4 @1 with process u c~ > t t~ u c~ WEIGHTED<=4 @1 
+INFO: Combined process c c~ > t t~ u u~ WEIGHTED<=4 @1 with process u u~ > t t~ c c~ WEIGHTED<=4 @1 
+INFO: Combined process c c~ > t t~ d d~ WEIGHTED<=4 @1 with process u u~ > t t~ c c~ WEIGHTED<=4 @1 
+INFO: Combined process c c~ > t t~ s s~ WEIGHTED<=4 @1 with process u u~ > t t~ c c~ WEIGHTED<=4 @1 
+INFO: Combined process c d~ > t t~ c d~ WEIGHTED<=4 @1 with process u c~ > t t~ u c~ WEIGHTED<=4 @1 
+INFO: Combined process c s~ > t t~ c s~ WEIGHTED<=4 @1 with process u c~ > t t~ u c~ WEIGHTED<=4 @1 
+INFO: Combined process d s > t t~ d s WEIGHTED<=4 @1 with process u c > t t~ u c WEIGHTED<=4 @1 
+INFO: Combined process d u~ > t t~ d u~ WEIGHTED<=4 @1 with process u c~ > t t~ u c~ WEIGHTED<=4 @1 
+INFO: Combined process d c~ > t t~ d c~ WEIGHTED<=4 @1 with process u c~ > t t~ u c~ WEIGHTED<=4 @1 
+INFO: Combined process d d~ > t t~ u u~ WEIGHTED<=4 @1 with process u u~ > t t~ c c~ WEIGHTED<=4 @1 
+INFO: Combined process d d~ > t t~ c c~ WEIGHTED<=4 @1 with process u u~ > t t~ c c~ WEIGHTED<=4 @1 
+INFO: Combined process d d~ > t t~ s s~ WEIGHTED<=4 @1 with process u u~ > t t~ c c~ WEIGHTED<=4 @1 
+INFO: Combined process d s~ > t t~ d s~ WEIGHTED<=4 @1 with process u c~ > t t~ u c~ WEIGHTED<=4 @1 
+INFO: Combined process s u~ > t t~ s u~ WEIGHTED<=4 @1 with process u c~ > t t~ u c~ WEIGHTED<=4 @1 
+INFO: Combined process s c~ > t t~ s c~ WEIGHTED<=4 @1 with process u c~ > t t~ u c~ WEIGHTED<=4 @1 
+INFO: Combined process s d~ > t t~ s d~ WEIGHTED<=4 @1 with process u c~ > t t~ u c~ WEIGHTED<=4 @1 
+INFO: Combined process s s~ > t t~ u u~ WEIGHTED<=4 @1 with process u u~ > t t~ c c~ WEIGHTED<=4 @1 
+INFO: Combined process s s~ > t t~ c c~ WEIGHTED<=4 @1 with process u u~ > t t~ c c~ WEIGHTED<=4 @1 
+INFO: Combined process s s~ > t t~ d d~ WEIGHTED<=4 @1 with process u u~ > t t~ c c~ WEIGHTED<=4 @1 
+INFO: Generating Helas calls for process: u~ c~ > t t~ u~ c~ WEIGHTED<=4 @1 
+INFO: Processing color information for process: u~ c~ > t t~ u~ c~ @1 
+INFO: Combined process u~ d~ > t t~ u~ d~ WEIGHTED<=4 @1 with process u~ c~ > t t~ u~ c~ WEIGHTED<=4 @1 
+INFO: Combined process u~ s~ > t t~ u~ s~ WEIGHTED<=4 @1 with process u~ c~ > t t~ u~ c~ WEIGHTED<=4 @1 
+INFO: Combined process c~ d~ > t t~ c~ d~ WEIGHTED<=4 @1 with process u~ c~ > t t~ u~ c~ WEIGHTED<=4 @1 
+INFO: Combined process c~ s~ > t t~ c~ s~ WEIGHTED<=4 @1 with process u~ c~ > t t~ u~ c~ WEIGHTED<=4 @1 
+INFO: Combined process d~ s~ > t t~ d~ s~ WEIGHTED<=4 @1 with process u~ c~ > t t~ u~ c~ WEIGHTED<=4 @1 
+INFO: Creating files in directory P1_gg_ttxgg 
+[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1151][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f1a00e1ad00> [1;30m[export_v4.py at line 6261][0m [0m
+INFO: Creating files in directory . 
+FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
+FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
+INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
+[1;32mDEBUG:  proc_id = [0m 1 [1;30m[export_cpp.py at line 710][0m [0m
+[1;32mDEBUG:  config_map = [0m [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 0, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 0, 46, 47, 48, 49, 50, 51, 52, 53, 54, 0, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 0, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 0, 88, 89, 90, 91, 92, 93, 0, 94, 95, 96, 97, 98, 99, 0, 100, 101, 102, 103, 104, 105, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] [1;30m[export_cpp.py at line 711][0m [0m
+[1;32mDEBUG:  subproc_number = [0m 0 [1;30m[export_cpp.py at line 712][0m [0m
+[1;32mDEBUG:  Done [1;30m[export_cpp.py at line 713][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
+INFO: Generating Feynman diagrams for Process: g g > t t~ g g WEIGHTED<=4 @1 
+INFO: Finding symmetric diagrams for subprocess group gg_ttxgg 
+[1;32mDEBUG:  os.getcwd() = [0m /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_pp_ttjj/SubProcesses/P1_gg_ttxgg [1;30m[export_v4.py at line 6438][0m [0m
+[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 105 [1;30m[model_handling.py at line 1519][0m [0m
+[1;32mDEBUG:  iconfig_to_diag = [0m {1: 2, 2: 3, 3: 4, 4: 5, 5: 6, 6: 7, 7: 8, 8: 9, 9: 10, 10: 11, 11: 12, 12: 13, 13: 14, 14: 15, 15: 16, 16: 17, 17: 18, 18: 19, 19: 20, 20: 21, 21: 22, 22: 23, 23: 24, 24: 25, 25: 26, 26: 27, 27: 28, 28: 29, 29: 30, 30: 31, 31: 33, 32: 34, 33: 35, 34: 36, 35: 37, 36: 38, 37: 39, 38: 40, 39: 41, 40: 42, 41: 43, 42: 44, 43: 45, 44: 46, 45: 47, 46: 49, 47: 50, 48: 51, 49: 52, 50: 53, 51: 54, 52: 55, 53: 56, 54: 57, 55: 59, 56: 60, 57: 61, 58: 62, 59: 63, 60: 64, 61: 65, 62: 66, 63: 67, 64: 68, 65: 69, 66: 70, 67: 71, 68: 72, 69: 73, 70: 75, 71: 76, 72: 77, 73: 78, 74: 79, 75: 80, 76: 81, 77: 82, 78: 83, 79: 84, 80: 85, 81: 86, 82: 87, 83: 88, 84: 89, 85: 90, 86: 91, 87: 92, 88: 94, 89: 95, 90: 96, 91: 97, 92: 98, 93: 99, 94: 101, 95: 102, 96: 103, 97: 104, 98: 105, 99: 106, 100: 108, 101: 109, 102: 110, 103: 111, 104: 112, 105: 113} [1;30m[model_handling.py at line 1543][0m [0m
+[1;32mDEBUG:  diag_to_iconfig = [0m {2: 1, 3: 2, 4: 3, 5: 4, 6: 5, 7: 6, 8: 7, 9: 8, 10: 9, 11: 10, 12: 11, 13: 12, 14: 13, 15: 14, 16: 15, 17: 16, 18: 17, 19: 18, 20: 19, 21: 20, 22: 21, 23: 22, 24: 23, 25: 24, 26: 25, 27: 26, 28: 27, 29: 28, 30: 29, 31: 30, 33: 31, 34: 32, 35: 33, 36: 34, 37: 35, 38: 36, 39: 37, 40: 38, 41: 39, 42: 40, 43: 41, 44: 42, 45: 43, 46: 44, 47: 45, 49: 46, 50: 47, 51: 48, 52: 49, 53: 50, 54: 51, 55: 52, 56: 53, 57: 54, 59: 55, 60: 56, 61: 57, 62: 58, 63: 59, 64: 60, 65: 61, 66: 62, 67: 63, 68: 64, 69: 65, 70: 66, 71: 67, 72: 68, 73: 69, 75: 70, 76: 71, 77: 72, 78: 73, 79: 74, 80: 75, 81: 76, 82: 77, 83: 78, 84: 79, 85: 80, 86: 81, 87: 82, 88: 83, 89: 84, 90: 85, 91: 86, 92: 87, 94: 88, 95: 89, 96: 90, 97: 91, 98: 92, 99: 93, 101: 94, 102: 95, 103: 96, 104: 97, 105: 98, 106: 99, 108: 100, 109: 101, 110: 102, 111: 103, 112: 104, 113: 105} [1;30m[model_handling.py at line 1544][0m [0m
+INFO: Creating files in directory P1_gg_ttxuux 
+[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1151][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f19ffb10700> [1;30m[export_v4.py at line 6261][0m [0m
+INFO: Creating files in directory . 
+FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
+FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
+INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
+[1;32mDEBUG:  proc_id = [0m 1 [1;30m[export_cpp.py at line 710][0m [0m
+[1;32mDEBUG:  config_map = [0m [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 0, 34, 35] [1;30m[export_cpp.py at line 711][0m [0m
+[1;32mDEBUG:  subproc_number = [0m 1 [1;30m[export_cpp.py at line 712][0m [0m
+[1;32mDEBUG:  Done [1;30m[export_cpp.py at line 713][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
+INFO: Generating Feynman diagrams for Process: g g > t t~ u u~ WEIGHTED<=4 @1 
+INFO: Finding symmetric diagrams for subprocess group gg_ttxuux 
+[1;32mDEBUG:  os.getcwd() = [0m /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_pp_ttjj/SubProcesses/P1_gg_ttxuux [1;30m[export_v4.py at line 6438][0m [0m
+[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 35 [1;30m[model_handling.py at line 1519][0m [0m
+[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15, 16: 16, 17: 17, 18: 18, 19: 19, 20: 20, 21: 21, 22: 22, 23: 23, 24: 24, 25: 25, 26: 26, 27: 27, 28: 28, 29: 29, 30: 30, 31: 31, 32: 32, 33: 33, 34: 35, 35: 36} [1;30m[model_handling.py at line 1543][0m [0m
+[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15, 16: 16, 17: 17, 18: 18, 19: 19, 20: 20, 21: 21, 22: 22, 23: 23, 24: 24, 25: 25, 26: 26, 27: 27, 28: 28, 29: 29, 30: 30, 31: 31, 32: 32, 33: 33, 35: 34, 36: 35} [1;30m[model_handling.py at line 1544][0m [0m
+INFO: Creating files in directory P1_gu_ttxgu 
+[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1151][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f19ffb10700> [1;30m[export_v4.py at line 6261][0m [0m
+INFO: Creating files in directory . 
+FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
+FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
+INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
+[1;32mDEBUG:  proc_id = [0m 1 [1;30m[export_cpp.py at line 710][0m [0m
+[1;32mDEBUG:  config_map = [0m [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 0, 34, 35] [1;30m[export_cpp.py at line 711][0m [0m
+[1;32mDEBUG:  subproc_number = [0m 2 [1;30m[export_cpp.py at line 712][0m [0m
+[1;32mDEBUG:  Done [1;30m[export_cpp.py at line 713][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
+INFO: Generating Feynman diagrams for Process: g u > t t~ g u WEIGHTED<=4 @1 
+INFO: Finding symmetric diagrams for subprocess group gu_ttxgu 
+[1;32mDEBUG:  os.getcwd() = [0m /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_pp_ttjj/SubProcesses/P1_gu_ttxgu [1;30m[export_v4.py at line 6438][0m [0m
+[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 35 [1;30m[model_handling.py at line 1519][0m [0m
+[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15, 16: 16, 17: 17, 18: 18, 19: 19, 20: 20, 21: 21, 22: 22, 23: 23, 24: 24, 25: 25, 26: 26, 27: 27, 28: 28, 29: 29, 30: 30, 31: 31, 32: 32, 33: 33, 34: 35, 35: 36} [1;30m[model_handling.py at line 1543][0m [0m
+[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15, 16: 16, 17: 17, 18: 18, 19: 19, 20: 20, 21: 21, 22: 22, 23: 23, 24: 24, 25: 25, 26: 26, 27: 27, 28: 28, 29: 29, 30: 30, 31: 31, 32: 32, 33: 33, 35: 34, 36: 35} [1;30m[model_handling.py at line 1544][0m [0m
+INFO: Creating files in directory P1_gux_ttxgux 
+[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1151][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f19ffaad8b0> [1;30m[export_v4.py at line 6261][0m [0m
+INFO: Creating files in directory . 
+FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
+FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
+INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
+[1;32mDEBUG:  proc_id = [0m 1 [1;30m[export_cpp.py at line 710][0m [0m
+[1;32mDEBUG:  config_map = [0m [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 0, 34, 35] [1;30m[export_cpp.py at line 711][0m [0m
+[1;32mDEBUG:  subproc_number = [0m 3 [1;30m[export_cpp.py at line 712][0m [0m
+[1;32mDEBUG:  Done [1;30m[export_cpp.py at line 713][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
+INFO: Generating Feynman diagrams for Process: g u~ > t t~ g u~ WEIGHTED<=4 @1 
+INFO: Finding symmetric diagrams for subprocess group gux_ttxgux 
+[1;32mDEBUG:  os.getcwd() = [0m /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_pp_ttjj/SubProcesses/P1_gux_ttxgux [1;30m[export_v4.py at line 6438][0m [0m
+[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 35 [1;30m[model_handling.py at line 1519][0m [0m
+[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15, 16: 16, 17: 17, 18: 18, 19: 19, 20: 20, 21: 21, 22: 22, 23: 23, 24: 24, 25: 25, 26: 26, 27: 27, 28: 28, 29: 29, 30: 30, 31: 31, 32: 32, 33: 33, 34: 35, 35: 36} [1;30m[model_handling.py at line 1543][0m [0m
+[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15, 16: 16, 17: 17, 18: 18, 19: 19, 20: 20, 21: 21, 22: 22, 23: 23, 24: 24, 25: 25, 26: 26, 27: 27, 28: 28, 29: 29, 30: 30, 31: 31, 32: 32, 33: 33, 35: 34, 36: 35} [1;30m[model_handling.py at line 1544][0m [0m
+INFO: Creating files in directory P1_uux_ttxgg 
+[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1151][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f19ff80cc40> [1;30m[export_v4.py at line 6261][0m [0m
+INFO: Creating files in directory . 
+FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
+FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
+INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
+[1;32mDEBUG:  proc_id = [0m 1 [1;30m[export_cpp.py at line 710][0m [0m
+[1;32mDEBUG:  config_map = [0m [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 0, 34, 35] [1;30m[export_cpp.py at line 711][0m [0m
+[1;32mDEBUG:  subproc_number = [0m 4 [1;30m[export_cpp.py at line 712][0m [0m
+[1;32mDEBUG:  Done [1;30m[export_cpp.py at line 713][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
+INFO: Generating Feynman diagrams for Process: u u~ > t t~ g g WEIGHTED<=4 @1 
+INFO: Finding symmetric diagrams for subprocess group uux_ttxgg 
+[1;32mDEBUG:  os.getcwd() = [0m /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_pp_ttjj/SubProcesses/P1_uux_ttxgg [1;30m[export_v4.py at line 6438][0m [0m
+[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 35 [1;30m[model_handling.py at line 1519][0m [0m
+[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15, 16: 16, 17: 17, 18: 18, 19: 19, 20: 20, 21: 21, 22: 22, 23: 23, 24: 24, 25: 25, 26: 26, 27: 27, 28: 28, 29: 29, 30: 30, 31: 31, 32: 32, 33: 33, 34: 35, 35: 36} [1;30m[model_handling.py at line 1543][0m [0m
+[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15, 16: 16, 17: 17, 18: 18, 19: 19, 20: 20, 21: 21, 22: 22, 23: 23, 24: 24, 25: 25, 26: 26, 27: 27, 28: 28, 29: 29, 30: 30, 31: 31, 32: 32, 33: 33, 35: 34, 36: 35} [1;30m[model_handling.py at line 1544][0m [0m
+INFO: Creating files in directory P1_uu_ttxuu 
+[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1151][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f19ff73ec10> [1;30m[export_v4.py at line 6261][0m [0m
+INFO: Creating files in directory . 
+FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
+FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
+INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
+[1;32mDEBUG:  proc_id = [0m 1 [1;30m[export_cpp.py at line 710][0m [0m
+[1;32mDEBUG:  config_map = [0m [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14] [1;30m[export_cpp.py at line 711][0m [0m
+[1;32mDEBUG:  subproc_number = [0m 5 [1;30m[export_cpp.py at line 712][0m [0m
+[1;32mDEBUG:  Done [1;30m[export_cpp.py at line 713][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
+INFO: Generating Feynman diagrams for Process: u u > t t~ u u WEIGHTED<=4 @1 
+INFO: Finding symmetric diagrams for subprocess group uu_ttxuu 
+[1;32mDEBUG:  os.getcwd() = [0m /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_pp_ttjj/SubProcesses/P1_uu_ttxuu [1;30m[export_v4.py at line 6438][0m [0m
+[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 14 [1;30m[model_handling.py at line 1519][0m [0m
+[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14} [1;30m[model_handling.py at line 1543][0m [0m
+[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14} [1;30m[model_handling.py at line 1544][0m [0m
+INFO: Creating files in directory P1_uux_ttxuux 
+[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1151][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f19ff6ffac0> [1;30m[export_v4.py at line 6261][0m [0m
+INFO: Creating files in directory . 
+FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
+FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
+INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
+[1;32mDEBUG:  proc_id = [0m 1 [1;30m[export_cpp.py at line 710][0m [0m
+[1;32mDEBUG:  config_map = [0m [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14] [1;30m[export_cpp.py at line 711][0m [0m
+[1;32mDEBUG:  subproc_number = [0m 6 [1;30m[export_cpp.py at line 712][0m [0m
+[1;32mDEBUG:  Done [1;30m[export_cpp.py at line 713][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
+INFO: Generating Feynman diagrams for Process: u u~ > t t~ u u~ WEIGHTED<=4 @1 
+INFO: Finding symmetric diagrams for subprocess group uux_ttxuux 
+[1;32mDEBUG:  os.getcwd() = [0m /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_pp_ttjj/SubProcesses/P1_uux_ttxuux [1;30m[export_v4.py at line 6438][0m [0m
+[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 14 [1;30m[model_handling.py at line 1519][0m [0m
+[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14} [1;30m[model_handling.py at line 1543][0m [0m
+[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14} [1;30m[model_handling.py at line 1544][0m [0m
+INFO: Creating files in directory P1_uxux_ttxuxux 
+[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1151][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f19ff74bb80> [1;30m[export_v4.py at line 6261][0m [0m
+INFO: Creating files in directory . 
+FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
+FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
+INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
+[1;32mDEBUG:  proc_id = [0m 1 [1;30m[export_cpp.py at line 710][0m [0m
+[1;32mDEBUG:  config_map = [0m [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14] [1;30m[export_cpp.py at line 711][0m [0m
+[1;32mDEBUG:  subproc_number = [0m 7 [1;30m[export_cpp.py at line 712][0m [0m
+[1;32mDEBUG:  Done [1;30m[export_cpp.py at line 713][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
+INFO: Generating Feynman diagrams for Process: u~ u~ > t t~ u~ u~ WEIGHTED<=4 @1 
+INFO: Finding symmetric diagrams for subprocess group uxux_ttxuxux 
+[1;32mDEBUG:  os.getcwd() = [0m /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_pp_ttjj/SubProcesses/P1_uxux_ttxuxux [1;30m[export_v4.py at line 6438][0m [0m
+[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 14 [1;30m[model_handling.py at line 1519][0m [0m
+[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14} [1;30m[model_handling.py at line 1543][0m [0m
+[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14} [1;30m[model_handling.py at line 1544][0m [0m
+INFO: Creating files in directory P1_uc_ttxuc 
+[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1151][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f19ff7282e0> [1;30m[export_v4.py at line 6261][0m [0m
+INFO: Creating files in directory . 
+FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
+FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
+INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
+[1;32mDEBUG:  proc_id = [0m 1 [1;30m[export_cpp.py at line 710][0m [0m
+[1;32mDEBUG:  config_map = [0m [1, 2, 3, 4, 5, 6, 7] [1;30m[export_cpp.py at line 711][0m [0m
+[1;32mDEBUG:  subproc_number = [0m 8 [1;30m[export_cpp.py at line 712][0m [0m
+[1;32mDEBUG:  Done [1;30m[export_cpp.py at line 713][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
+INFO: Generating Feynman diagrams for Process: u c > t t~ u c WEIGHTED<=4 @1 
+INFO: Finding symmetric diagrams for subprocess group uc_ttxuc 
+[1;32mDEBUG:  os.getcwd() = [0m /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_pp_ttjj/SubProcesses/P1_uc_ttxuc [1;30m[export_v4.py at line 6438][0m [0m
+[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 7 [1;30m[model_handling.py at line 1519][0m [0m
+[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7} [1;30m[model_handling.py at line 1543][0m [0m
+[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7} [1;30m[model_handling.py at line 1544][0m [0m
+INFO: Creating files in directory P1_uux_ttxccx 
+[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1151][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f19ff74ba60> [1;30m[export_v4.py at line 6261][0m [0m
+INFO: Creating files in directory . 
+FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
+FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
+INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
+[1;32mDEBUG:  proc_id = [0m 1 [1;30m[export_cpp.py at line 710][0m [0m
+[1;32mDEBUG:  config_map = [0m [1, 2, 3, 4, 5, 6, 7] [1;30m[export_cpp.py at line 711][0m [0m
+[1;32mDEBUG:  subproc_number = [0m 9 [1;30m[export_cpp.py at line 712][0m [0m
+[1;32mDEBUG:  Done [1;30m[export_cpp.py at line 713][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
+INFO: Generating Feynman diagrams for Process: u u~ > t t~ c c~ WEIGHTED<=4 @1 
+INFO: Finding symmetric diagrams for subprocess group uux_ttxccx 
+[1;32mDEBUG:  os.getcwd() = [0m /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_pp_ttjj/SubProcesses/P1_uux_ttxccx [1;30m[export_v4.py at line 6438][0m [0m
+[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 7 [1;30m[model_handling.py at line 1519][0m [0m
+[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7} [1;30m[model_handling.py at line 1543][0m [0m
+[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7} [1;30m[model_handling.py at line 1544][0m [0m
+INFO: Creating files in directory P1_ucx_ttxucx 
+[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1151][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f19ff74ba60> [1;30m[export_v4.py at line 6261][0m [0m
+INFO: Creating files in directory . 
+FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
+FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
+INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
+[1;32mDEBUG:  proc_id = [0m 1 [1;30m[export_cpp.py at line 710][0m [0m
+[1;32mDEBUG:  config_map = [0m [1, 2, 3, 4, 5, 6, 7] [1;30m[export_cpp.py at line 711][0m [0m
+[1;32mDEBUG:  subproc_number = [0m 10 [1;30m[export_cpp.py at line 712][0m [0m
+[1;32mDEBUG:  Done [1;30m[export_cpp.py at line 713][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
+INFO: Generating Feynman diagrams for Process: u c~ > t t~ u c~ WEIGHTED<=4 @1 
+INFO: Finding symmetric diagrams for subprocess group ucx_ttxucx 
+[1;32mDEBUG:  os.getcwd() = [0m /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_pp_ttjj/SubProcesses/P1_ucx_ttxucx [1;30m[export_v4.py at line 6438][0m [0m
+[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 7 [1;30m[model_handling.py at line 1519][0m [0m
+[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7} [1;30m[model_handling.py at line 1543][0m [0m
+[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7} [1;30m[model_handling.py at line 1544][0m [0m
+INFO: Creating files in directory P1_uxcx_ttxuxcx 
+[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1151][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f19ffaad8e0> [1;30m[export_v4.py at line 6261][0m [0m
+INFO: Creating files in directory . 
+FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
+FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
+INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
+[1;32mDEBUG:  proc_id = [0m 1 [1;30m[export_cpp.py at line 710][0m [0m
+[1;32mDEBUG:  config_map = [0m [1, 2, 3, 4, 5, 6, 7] [1;30m[export_cpp.py at line 711][0m [0m
+[1;32mDEBUG:  subproc_number = [0m 11 [1;30m[export_cpp.py at line 712][0m [0m
+[1;32mDEBUG:  Done [1;30m[export_cpp.py at line 713][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
+INFO: Generating Feynman diagrams for Process: u~ c~ > t t~ u~ c~ WEIGHTED<=4 @1 
+INFO: Finding symmetric diagrams for subprocess group uxcx_ttxuxcx 
+[1;32mDEBUG:  os.getcwd() = [0m /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_pp_ttjj/SubProcesses/P1_uxcx_ttxuxcx [1;30m[export_v4.py at line 6438][0m [0m
+[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 7 [1;30m[model_handling.py at line 1519][0m [0m
+[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7} [1;30m[model_handling.py at line 1543][0m [0m
+[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7} [1;30m[model_handling.py at line 1544][0m [0m
+Generated helas calls for 12 subprocesses (337 diagrams) in 1.199 s
+Wrote files for 710 helas calls in 2.783 s
+ALOHA: aloha starts to compute helicity amplitudes
+ALOHA: aloha creates VVV1 routines[0m
+ALOHA: aloha creates FFV1 routines[0m
+ALOHA: aloha creates VVVV1 routines[0m
+ALOHA: aloha creates VVVV3 routines[0m
+ALOHA: aloha creates VVVV4 routines[0m
+ALOHA: aloha creates 5 routines in  0.323 s
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 205][0m [0m
+ALOHA: aloha starts to compute helicity amplitudes
+ALOHA: aloha creates VVV1 routines[0m
+ALOHA: aloha creates FFV1 routines[0m
+ALOHA: aloha creates VVVV1 routines[0m
+ALOHA: aloha creates VVVV3 routines[0m
+ALOHA: aloha creates VVVV4 routines[0m
+ALOHA: aloha creates 10 routines in  0.335 s
+<class 'aloha.create_aloha.AbstractRoutine'> VVV1
+<class 'aloha.create_aloha.AbstractRoutine'> VVV1
+<class 'aloha.create_aloha.AbstractRoutine'> FFV1
+<class 'aloha.create_aloha.AbstractRoutine'> FFV1
+<class 'aloha.create_aloha.AbstractRoutine'> FFV1
+<class 'aloha.create_aloha.AbstractRoutine'> FFV1
+<class 'aloha.create_aloha.AbstractRoutine'> VVVV1
+<class 'aloha.create_aloha.AbstractRoutine'> VVVV1
+<class 'aloha.create_aloha.AbstractRoutine'> VVVV3
+<class 'aloha.create_aloha.AbstractRoutine'> VVVV3
+<class 'aloha.create_aloha.AbstractRoutine'> VVVV4
+<class 'aloha.create_aloha.AbstractRoutine'> VVVV4
+FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_pp_ttjj/src/./HelAmps_sm.h
+INFO: Created file HelAmps_sm.h in directory /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_pp_ttjj/src/. 
+super_write_set_parameters_onlyfixMajorana (hardcoded=False)
+super_write_set_parameters_onlyfixMajorana (hardcoded=True)
+FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_pp_ttjj/src/./Parameters_sm.h
+FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_pp_ttjj/src/./Parameters_sm.cc
+INFO: Created files Parameters_sm.h and Parameters_sm.cc in directory 
+INFO: /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_pp_ttjj/src/. and /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_pp_ttjj/src/. 
+The option zerowidth_tchannel is modified [True] but will not be written in the configuration files.
+If you want to make this value the default for future session, you can run 'save options --all'
+save configuration file to /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_pp_ttjj/Cards/me5_configuration.txt
+INFO: Use Fortran compiler gfortran 
+INFO: Use c++ compiler g++ 
+INFO: Generate jpeg diagrams 
+INFO: Generate web pages 
+DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_pp_ttjj; patch -p4 -i /data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.common
+patching file Source/genps.inc
+patching file Source/makefile
+patching file SubProcesses/makefile
+patching file bin/internal/gen_ximprove.py
+patching file bin/internal/madevent_interface.py
+DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_pp_ttjj/SubProcesses/P1_gg_ttxgg; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+patching file auto_dsig1.f
+patching file driver.f
+patching file matrix1.f
+Hunk #2 succeeded at 191 (offset 48 lines).
+Hunk #3 succeeded at 269 (offset 48 lines).
+Hunk #4 succeeded at 297 (offset 48 lines).
+Hunk #5 succeeded at 342 (offset 48 lines).
+DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_pp_ttjj/SubProcesses/P1_gg_ttxuux; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+patching file auto_dsig1.f
+Hunk #1 succeeded at 517 (offset 33 lines).
+patching file driver.f
+patching file matrix1.f
+Hunk #1 succeeded at 75 (offset 3 lines).
+Hunk #2 succeeded at 194 (offset 51 lines).
+Hunk #3 succeeded at 272 (offset 51 lines).
+Hunk #4 succeeded at 300 (offset 51 lines).
+Hunk #5 succeeded at 345 (offset 51 lines).
+DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_pp_ttjj/SubProcesses/P1_gu_ttxgu; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+patching file auto_dsig1.f
+Hunk #1 succeeded at 528 (offset 44 lines).
+patching file driver.f
+patching file matrix1.f
+Hunk #1 succeeded at 75 (offset 3 lines).
+Hunk #2 succeeded at 194 (offset 51 lines).
+Hunk #3 succeeded at 272 (offset 51 lines).
+Hunk #4 succeeded at 300 (offset 51 lines).
+Hunk #5 succeeded at 345 (offset 51 lines).
+DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_pp_ttjj/SubProcesses/P1_gux_ttxgux; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+patching file auto_dsig1.f
+Hunk #1 succeeded at 528 (offset 44 lines).
+patching file driver.f
+patching file matrix1.f
+Hunk #1 succeeded at 75 (offset 3 lines).
+Hunk #2 succeeded at 194 (offset 51 lines).
+Hunk #3 succeeded at 272 (offset 51 lines).
+Hunk #4 succeeded at 300 (offset 51 lines).
+Hunk #5 succeeded at 345 (offset 51 lines).
+DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_pp_ttjj/SubProcesses/P1_uc_ttxuc; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+patching file auto_dsig1.f
+Hunk #1 succeeded at 555 (offset 71 lines).
+patching file driver.f
+patching file matrix1.f
+Hunk #1 succeeded at 77 (offset 5 lines).
+Hunk #2 succeeded at 196 (offset 53 lines).
+Hunk #3 succeeded at 274 (offset 53 lines).
+Hunk #4 succeeded at 302 (offset 53 lines).
+Hunk #5 succeeded at 347 (offset 53 lines).
+DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_pp_ttjj/SubProcesses/P1_ucx_ttxucx; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+patching file auto_dsig1.f
+Hunk #1 succeeded at 627 (offset 143 lines).
+patching file driver.f
+patching file matrix1.f
+Hunk #1 succeeded at 83 (offset 11 lines).
+Hunk #2 succeeded at 202 (offset 59 lines).
+Hunk #3 succeeded at 280 (offset 59 lines).
+Hunk #4 succeeded at 308 (offset 59 lines).
+Hunk #5 succeeded at 353 (offset 59 lines).
+DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_pp_ttjj/SubProcesses/P1_uu_ttxuu; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+patching file auto_dsig1.f
+Hunk #1 succeeded at 539 (offset 55 lines).
+patching file driver.f
+patching file matrix1.f
+Hunk #1 succeeded at 75 (offset 3 lines).
+Hunk #2 succeeded at 194 (offset 51 lines).
+Hunk #3 succeeded at 272 (offset 51 lines).
+Hunk #4 succeeded at 300 (offset 51 lines).
+Hunk #5 succeeded at 345 (offset 51 lines).
+DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_pp_ttjj/SubProcesses/P1_uux_ttxccx; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+patching file auto_dsig1.f
+Hunk #1 succeeded at 627 (offset 143 lines).
+patching file driver.f
+patching file matrix1.f
+Hunk #1 succeeded at 83 (offset 11 lines).
+Hunk #2 succeeded at 202 (offset 59 lines).
+Hunk #3 succeeded at 280 (offset 59 lines).
+Hunk #4 succeeded at 308 (offset 59 lines).
+Hunk #5 succeeded at 353 (offset 59 lines).
+DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_pp_ttjj/SubProcesses/P1_uux_ttxgg; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+patching file auto_dsig1.f
+Hunk #1 succeeded at 539 (offset 55 lines).
+patching file driver.f
+patching file matrix1.f
+Hunk #1 succeeded at 75 (offset 3 lines).
+Hunk #2 succeeded at 194 (offset 51 lines).
+Hunk #3 succeeded at 272 (offset 51 lines).
+Hunk #4 succeeded at 300 (offset 51 lines).
+Hunk #5 succeeded at 345 (offset 51 lines).
+DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_pp_ttjj/SubProcesses/P1_uux_ttxuux; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+patching file auto_dsig1.f
+Hunk #1 succeeded at 539 (offset 55 lines).
+patching file driver.f
+patching file matrix1.f
+Hunk #1 succeeded at 75 (offset 3 lines).
+Hunk #2 succeeded at 194 (offset 51 lines).
+Hunk #3 succeeded at 272 (offset 51 lines).
+Hunk #4 succeeded at 300 (offset 51 lines).
+Hunk #5 succeeded at 345 (offset 51 lines).
+DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_pp_ttjj/SubProcesses/P1_uxcx_ttxuxcx; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+patching file auto_dsig1.f
+Hunk #1 succeeded at 555 (offset 71 lines).
+patching file driver.f
+patching file matrix1.f
+Hunk #1 succeeded at 77 (offset 5 lines).
+Hunk #2 succeeded at 196 (offset 53 lines).
+Hunk #3 succeeded at 274 (offset 53 lines).
+Hunk #4 succeeded at 302 (offset 53 lines).
+Hunk #5 succeeded at 347 (offset 53 lines).
+DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_pp_ttjj/SubProcesses/P1_uxux_ttxuxux; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+patching file auto_dsig1.f
+Hunk #1 succeeded at 539 (offset 55 lines).
+patching file driver.f
+patching file matrix1.f
+Hunk #1 succeeded at 75 (offset 3 lines).
+Hunk #2 succeeded at 194 (offset 51 lines).
+Hunk #3 succeeded at 272 (offset 51 lines).
+Hunk #4 succeeded at 300 (offset 51 lines).
+Hunk #5 succeeded at 345 (offset 51 lines).
+[1;32mDEBUG:  p.returncode = [0m 0 [1;30m[output.py at line 241][0m [0m
+Output to directory /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_pp_ttjj done.
+Type "launch" to generate events from this process, or see
+/data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_pp_ttjj/README
+Run "open index.html" to see more information about this process.
+quit
+
+real	0m9.505s
+user	0m8.787s
+sys	0m0.667s
+Code generation completed in 10 seconds
+************************************************************
+*                                                          *
+*                      W E L C O M E to                    *
+*             M A D G R A P H 5 _ a M C @ N L O            *
+*                      M A D E V E N T                     *
+*                                                          *
+*                 *                       *                *
+*                   *        * *        *                  *
+*                     * * * * 5 * * * *                    *
+*                   *        * *        *                  *
+*                 *                       *                *
+*                                                          *
+*         VERSION 3.5.3_lo_vect                            *
+*                                                          *
+*    The MadGraph5_aMC@NLO Development Team - Find us at   *
+*    https://server06.fynu.ucl.ac.be/projects/madgraph     *
+*                                                          *
+*               Type 'help' for in-line help.              *
+*                                                          *
+************************************************************
+INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_pp_ttjj/Cards/me5_configuration.txt  
+INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/mg5amcnlo/input/mg5_configuration.txt  
+INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_pp_ttjj/Cards/me5_configuration.txt  
+Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
+Using default eps viewer "evince". Set another one in ./input/mg5_configuration.txt
+Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
+treatcards run
+quit
+INFO:  
+launch in debug mode
+************************************************************
+*                                                          *
+*                      W E L C O M E to                    *
+*             M A D G R A P H 5 _ a M C @ N L O            *
+*                      M A D E V E N T                     *
+*                                                          *
+*                 *                       *                *
+*                   *        * *        *                  *
+*                     * * * * 5 * * * *                    *
+*                   *        * *        *                  *
+*                 *                       *                *
+*                                                          *
+*         VERSION 3.5.3_lo_vect                            *
+*                                                          *
+*    The MadGraph5_aMC@NLO Development Team - Find us at   *
+*    https://server06.fynu.ucl.ac.be/projects/madgraph     *
+*                                                          *
+*               Type 'help' for in-line help.              *
+*                                                          *
+************************************************************
+INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_pp_ttjj/Cards/me5_configuration.txt  
+INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/mg5amcnlo/input/mg5_configuration.txt  
+INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_pp_ttjj/Cards/me5_configuration.txt  
+Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
+Using default eps viewer "evince". Set another one in ./input/mg5_configuration.txt
+Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
+treatcards param
+quit
+INFO:  
+launch in debug mode
