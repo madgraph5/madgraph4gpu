@@ -493,11 +493,13 @@ for suff in $suffs; do
     make -j6 bldall # limit build parallelism also with the new 'make bldall'
     ###make -j bldall
   else
+    export USEBUILDDIR=1
     bblds="hip cppnone cppsse4 cppavx2 cpp512y cpp512z" # skip cuda on LUMI always
     if [ "${dir/\/gg_ttggg${suff}}" != ${dir} ]; then bblds=${bblds/hip}; fi # skip ggttggg builds on HIP #933
-    for bbld in ${bblds_dir}; do
+    for bbld in ${bblds}; do
       make ${makef} -j BACKEND=${bbld}; echo
     done
+    unset USEBUILDDIR
   fi
 done
 
