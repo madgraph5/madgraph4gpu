@@ -11,6 +11,11 @@ opts=
 suff=".mad"
 makeclean=-makeclean
 
+# By default, build and run all backends
+# (AV private config: on itgold91 build and run only the C++ backends)
+bblds=
+if [ "$(hostname)" == "itgold91.cern.ch" ]; then bblds=-cpponly; fi
+
 # Parse command line arguments
 ggttggg=-ggttggg
 rndhst=-curhst
@@ -37,18 +42,17 @@ while [ "$1" != "" ]; do
     # Skip -makeclean (e.g. for brand new generated/downloaded code)
     makeclean=
     shift
-  ###elif [ "$1" == "-hip" ]; then
-  ###  #### Random numbers use hiprand instead of curand?
-  ###  ###rndhst=-hirhst
-  ###  # See https://github.com/ROCm/hipRAND/issues/76
-  ###  # Random numbers use common (not hiprand) instead of curand?
-  ###  rndhst=-common
-  ###  opts+=" -nocuda"
-  ###  shift
+  elif [ "$1" == "-hip" ]; then
+    if [ "${bblds}" != "" ] && [ "${bblds}" != "$1" ]; then echo "ERROR! Incompatible option $1: backend builds are already defined as '$bblds'"; usage; fi
+    bblds="$1"
+    shift
   elif [ "$1" == "-nocuda" ]; then
-    # Random numbers use common instead of curand
-    rndhst=-common
-    opts+=" -nocuda"
+    if [ "${bblds}" != "" ] && [ "${bblds}" != "$1" ]; then echo "ERROR! Incompatible option $1: backend builds are already defined as '$bblds'"; usage; fi
+    bblds="$1"
+    shift
+  elif [ "$1" == "-cpponly" ]; then
+    if [ "${bblds}" != "" ] && [ "${bblds}" != "$1" ]; then echo "ERROR! Incompatible option $1: backend builds are already defined as '$bblds'"; usage; fi
+    bblds="$1"
     shift
   elif [ "$1" == "-bsmonly" ] && [ "$bsm" != "-nobsm" ]; then
     bsm=$1
@@ -61,6 +65,24 @@ while [ "$1" != "" ]; do
     exit 1
   fi
 done
+
+# Define builds
+if [ "$bblds" == "-nocuda" ]; then
+  # Random numbers use common instead of curand
+  rndhst=-common
+  opts+=" -nocuda"
+elif [ "$bblds" == "-cpponly" ]; then
+  # Random numbers use common instead of curand
+  rndhst=-common
+  opts+=" -cpponly"
+###elif [ "$bblds" == "-hip" ]; then
+###  #### Random numbers use hiprand instead of curand?
+###  ###rndhst=-hirhst
+###  # See https://github.com/ROCm/hipRAND/issues/76
+###  # Random numbers use common (not hiprand) instead of curand?
+###  rndhst=-common
+###  opts+=" -nocuda"
+fi
 
 # This is a script to launch in one go all tests for the (4 or) 5 main processes in this repository
 # It reproduces the logs in tput at the time of commit c0c276840654575d9fa0c3f3c4a0088e57764dbc
