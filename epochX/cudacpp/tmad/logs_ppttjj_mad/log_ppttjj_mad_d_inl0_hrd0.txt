@@ -1,0 +1,177 @@
+Working directory (build): /data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/pp_ttjj.mad/SubProcesses/P1_gu_ttxgu
+
+make USEBUILDDIR=1 BACKEND=cuda
+
+make USEBUILDDIR=1 BACKEND=cppnone
+
+
+make USEBUILDDIR=1 BACKEND=cppsse4
+make USEBUILDDIR=1 BACKEND=cppavx2
+
+make USEBUILDDIR=1 BACKEND=cpp512y
+make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/pp_ttjj.mad/SubProcesses/P1_gu_ttxgu'
+make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/pp_ttjj.mad/SubProcesses/P1_gu_ttxgu'
+make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/pp_ttjj.mad/SubProcesses/P1_gu_ttxgu'
+make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/pp_ttjj.mad/SubProcesses/P1_gu_ttxgu'
+
+make USEBUILDDIR=1 BACKEND=cpp512z
+make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/pp_ttjj.mad/SubProcesses/P1_gu_ttxgu'
+make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/pp_ttjj.mad/SubProcesses/P1_gu_ttxgu'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/pp_ttjj.mad/SubProcesses/P1_gu_ttxgu'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/pp_ttjj.mad/SubProcesses/P1_gu_ttxgu'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/pp_ttjj.mad/SubProcesses/P1_gu_ttxgu'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/pp_ttjj.mad/SubProcesses/P1_gu_ttxgu'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/pp_ttjj.mad/SubProcesses/P1_gu_ttxgu'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/pp_ttjj.mad/SubProcesses/P1_gu_ttxgu'
+
+OMP_NUM_THREADS=
+
+DATE: 2024-07-23_14:02:28
+
+On itscrd90.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
+Working directory (run): /data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/pp_ttjj.mad/SubProcesses/P1_gu_ttxgu
+
+*** (1) EXECUTE MADEVENT_FORTRAN (create results.dat) ***
+--------------------
+CUDACPP_RUNTIME_FBRIDGEMODE = (not set)
+CUDACPP_RUNTIME_VECSIZEUSED = 8192
+--------------------
+8192 1 1 ! Number of events and max and min iterations
+0.000001 ! Accuracy (ignored because max iterations = min iterations)
+0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
+1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
+0 ! Helicity Sum/event 0=exact
+1 ! ICONFIG number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
+--------------------
+Executing ' ./madevent_fortran < /tmp/avalassi/input_ppttjj_x1_fortran > /tmp/avalassi/output_ppttjj_x1_fortran'
+ [OPENMPTH] omp_get_max_threads/nproc = 1/4
+ [NGOODHEL] ngoodhel/ncomb = 32/64
+ [XSECTION] VECSIZE_USED = 8192
+ [XSECTION] MultiChannel = TRUE
+ [XSECTION] Configuration = 1
+ [XSECTION] ChannelId = 1
+ [XSECTION] Cross section = 4.623 [4.6227143145325220] fbridge_mode=0
+ [UNWEIGHT] Wrote 82 events (found 547 events)
+ [COUNTERS] PROGRAM TOTAL          :    1.0697s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.3244s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.7453s for     8192 events => throughput is 1.10E+04 events/s
+
+*** (1) EXECUTE MADEVENT_FORTRAN x1 (create events.lhe) ***
+--------------------
+CUDACPP_RUNTIME_FBRIDGEMODE = (not set)
+CUDACPP_RUNTIME_VECSIZEUSED = 8192
+--------------------
+8192 1 1 ! Number of events and max and min iterations
+0.000001 ! Accuracy (ignored because max iterations = min iterations)
+0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
+1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
+0 ! Helicity Sum/event 0=exact
+1 ! ICONFIG number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
+--------------------
+Executing ' ./madevent_fortran < /tmp/avalassi/input_ppttjj_x1_fortran > /tmp/avalassi/output_ppttjj_x1_fortran'
+ [OPENMPTH] omp_get_max_threads/nproc = 1/4
+ [NGOODHEL] ngoodhel/ncomb = 32/64
+ [XSECTION] VECSIZE_USED = 8192
+ [XSECTION] MultiChannel = TRUE
+ [XSECTION] Configuration = 1
+ [XSECTION] ChannelId = 1
+ [XSECTION] Cross section = 4.623 [4.6227143145325220] fbridge_mode=0
+ [UNWEIGHT] Wrote 44 events (found 542 events)
+ [COUNTERS] PROGRAM TOTAL          :    1.0692s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.3205s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.7487s for     8192 events => throughput is 1.09E+04 events/s
+
+*** (1) EXECUTE MADEVENT_FORTRAN x10 (create events.lhe) ***
+--------------------
+CUDACPP_RUNTIME_FBRIDGEMODE = (not set)
+CUDACPP_RUNTIME_VECSIZEUSED = 8192
+--------------------
+81920 1 1 ! Number of events and max and min iterations
+0.000001 ! Accuracy (ignored because max iterations = min iterations)
+0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
+1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
+0 ! Helicity Sum/event 0=exact
+1 ! ICONFIG number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
+--------------------
+Executing ' ./madevent_fortran < /tmp/avalassi/input_ppttjj_x10_fortran > /tmp/avalassi/output_ppttjj_x10_fortran'
+ [OPENMPTH] omp_get_max_threads/nproc = 1/4
+ [NGOODHEL] ngoodhel/ncomb = 32
+32/64
+64
+ [XSECTION] VECSIZE_USED = 8192
+ [XSECTION] MultiChannel = TRUE
+ [XSECTION] Configuration = 1
+ [XSECTION] ChannelId = 1
+ [XSECTION] Cross section = 1.158 [1.1577677205008425] fbridge_mode=0
+ [UNWEIGHT] Wrote 749 events (found 1887 events)
+ [COUNTERS] PROGRAM TOTAL          :   11.4162s
+ [COUNTERS] Fortran Overhead ( 0 ) :    2.4686s
+ [COUNTERS] Fortran MEs      ( 1 ) :    8.9476s for    98304 events => throughput is 1.10E+04 events/s
+
+*** (2-none) EXECUTE MADEVENT_CPP x1 (create events.lhe) ***
+--------------------
+CUDACPP_RUNTIME_FBRIDGEMODE = (not set)
+CUDACPP_RUNTIME_VECSIZEUSED = 8192
+--------------------
+8192 1 1 ! Number of events and max and min iterations
+0.000001 ! Accuracy (ignored because max iterations = min iterations)
+0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
+1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
+0 ! Helicity Sum/event 0=exact
+1 ! ICONFIG number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
+--------------------
+Executing ' ./build.none_d_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_ppttjj_x1_cudacpp > /tmp/avalassi/output_ppttjj_x1_cudacpp'
+ [OPENMPTH] omp_get_max_threads/nproc = 1/4
+ [NGOODHEL] ngoodhel/ncomb = 32/64
+ [XSECTION] VECSIZE_USED = 8192
+ [XSECTION] MultiChannel = TRUE
+ [XSECTION] Configuration = 1
+ [XSECTION] ChannelId = 1
+ [XSECTION] Cross section = 4.623 [4.6227143145325211] fbridge_mode=1
+ [UNWEIGHT] Wrote 44 events (found 542 events)
+ [COUNTERS] PROGRAM TOTAL          :    1.8317s
+ [COUNTERS] Fortran Overhead ( 0 ) :    1.0660s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.7657s for     8192 events => throughput is 1.07E+04 events/s
+
+*** (2-none) Compare MADEVENT_CPP x1 xsec to MADEVENT_FORTRAN xsec ***
+
+OK! xsec from fortran (4.6227143145325220) and cpp (4.6227143145325211) differ by less than 3E-14 (2.220446049250313e-16)
+
+*** (2-none) Compare MADEVENT_CPP x1 events.lhe to MADEVENT_FORTRAN events.lhe reference (including colors and helicities) ***
+
+OK! events.lhe.cpp.1 and events.lhe.ref.1 are identical
+
+*** (2-none) EXECUTE MADEVENT_CPP x10 (create events.lhe) ***
+--------------------
+CUDACPP_RUNTIME_FBRIDGEMODE = (not set)
+CUDACPP_RUNTIME_VECSIZEUSED = 8192
+--------------------
+81920 1 1 ! Number of events and max and min iterations
+0.000001 ! Accuracy (ignored because max iterations = min iterations)
+0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
+1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
+0 ! Helicity Sum/event 0=exact
+1 ! ICONFIG number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
+--------------------
+Executing ' ./build.none_d_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_ppttjj_x10_cudacpp > /tmp/avalassi/output_ppttjj_x10_cudacpp'
+ [OPENMPTH] omp_get_max_threads/nproc = 1/4
+ [NGOODHEL] ngoodhel/ncomb = 32/64
+ [XSECTION] VECSIZE_USED = 8192
+ [XSECTION] MultiChannel = TRUE
+ [XSECTION] Configuration = 1
+ [XSECTION] ChannelId = 1
+ [XSECTION] Cross section = 1.162 [1.1620823242910145] fbridge_mode=1
+ [UNWEIGHT] Wrote 744 events (found 1718 events)
+ [COUNTERS] PROGRAM TOTAL          :   11.5641s
+ [COUNTERS] Fortran Overhead ( 0 ) :    3.0784s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    8.4857s for    90112 events => throughput is 1.06E+04 events/s
+
+*** (2-none) Compare MADEVENT_CPP x10 xsec to MADEVENT_FORTRAN xsec ***
+
+ERROR! xsec from fortran (1.1577677205008425) and cpp (1.1620823242910145) differ by more than 3E-14 (0.0037266575270431535)
