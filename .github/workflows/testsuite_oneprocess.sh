@@ -215,6 +215,7 @@ function tput_test() {
     echo "*******************************************************************************"
     echo
     echo "Testing in $(pwd)"
+    ECHO
     # FIXME1: this is just a quick test, eventually port here tput tests from throughputX.sh
     # (could move some throughputX.sh functions to a separate script included both here and there)
     # FIXME2: handle all d/f/m, inl0/1, hrd0/1 etc...
@@ -222,39 +223,55 @@ function tput_test() {
     unamep=$(uname -p)
     unames=$(uname -s)
     for backend in cuda hip cppnone cppsse4 cppavx2 cpp512y cpp512z; do
+      echo "-------------------------------------------------------------------------------"
+      echo "--- tput_test ${proc} ($(basename $(pwd))) BACKEND=${backend}" # debug #937
+      echo "-------------------------------------------------------------------------------"
+      echo " "
       # Skip GPU tests for NVidia and AMD unless nvcc and hipcc, respectively, are in PATH
       if ! nvcc --version &> /dev/null; then
-        if [ "${backend}" == "cuda" ]; then echo; echo "(SKIP ${backend} because nvcc is missing on this node)"; continue; fi
+        if [ "${backend}" == "cuda" ]; then echo " "; echo "(SKIP ${backend} because nvcc is missing on this node)"; continue; fi
       elif ! hipcc --version &> /dev/null; then
-        if [ "${backend}" == "hip" ]; then echo; echo "(SKIP ${backend} because hipcc is missing on this node)"; continue; fi
+        if [ "${backend}" == "hip" ]; then echo " "; echo "(SKIP ${backend} because hipcc is missing on this node)"; continue; fi
       fi
       # Skip C++ tests for unsupported simd modes as done in tput tests (prevent illegal instruction crashes #791)
       if [ "${unamep}" != "x86_64" ]; then
-        if [ "${backend}" == "cppavx2" ]; then echo; echo "(SKIP ${backend} which is not supported on ${unamep})"; continue; fi
-        if [ "${backend}" == "cpp512y" ]; then echo; echo "(SKIP ${backend} which is not supported on ${unamep})"; continue; fi
-        if [ "${backend}" == "cpp512z" ]; then echo; echo "(SKIP ${backend} which is not supported on ${unamep})"; continue; fi
+        if [ "${backend}" == "cppavx2" ]; then echo " "; echo "(SKIP ${backend} which is not supported on ${unamep})"; continue; fi
+        if [ "${backend}" == "cpp512y" ]; then echo " "; echo "(SKIP ${backend} which is not supported on ${unamep})"; continue; fi
+        if [ "${backend}" == "cpp512z" ]; then echo " "; echo "(SKIP ${backend} which is not supported on ${unamep})"; continue; fi
       elif [ "${unames}" == "Darwin" ]; then
-        if [ "${backend}" == "cpp512y" ]; then echo; echo "(SKIP ${backend} which is not supported on ${unames})"; continue; fi
-        if [ "${backend}" == "cpp512z" ]; then echo; echo "(SKIP ${backend} which is not supported on ${unames})"; continue; fi
+        if [ "${backend}" == "cpp512y" ]; then echo " "; echo "(SKIP ${backend} which is not supported on ${unames})"; continue; fi
+        if [ "${backend}" == "cpp512z" ]; then echo " "; echo "(SKIP ${backend} which is not supported on ${unames})"; continue; fi
       elif [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" != "1" ]; then
-        if [ "${backend}" == "cpp512y" ]; then echo; echo "(SKIP ${backend} which is not supported - no avx512vl in /proc/cpuinfo)"; continue; fi
-        if [ "${backend}" == "cpp512z" ]; then echo; echo "(SKIP ${backend} which is not supported - no avx512vl in /proc/cpuinfo)"; continue; fi
+        if [ "${backend}" == "cpp512y" ]; then echo " "; echo "(SKIP ${backend} which is not supported - no avx512vl in /proc/cpuinfo)"; continue; fi
+        if [ "${backend}" == "cpp512z" ]; then echo " "; echo "(SKIP ${backend} which is not supported - no avx512vl in /proc/cpuinfo)"; continue; fi
       fi
       # Execute the tests
-      if ls -d build.${backend}* > /dev/null 2>&1; then
-        bdirs="$(ls -d build.${backend}*)"
+      if [ "${backend}" == "cuda" ]; then
+        suffix=cuda
+      elif [ "${backend}" == "hip" ]; then
+        suffix=hip
+      else
+        suffix=cpp
+      fi
+      btag=${backend#cpp} # fix #937
+      if ls -d build.${btag}* > /dev/null 2>&1; then
+        echo " "
+        echo "DEBUG: loop through directories: $(ls -d build.${btag}*)"
+        bdirs="$(ls -d build.${btag}*)"
         for bdir in ${bdirs}; do
-          runExe ${bdir}/runTest.exe
-          if [ -f ${bdir}/check.exe ]; then
-            runExe ${bdir}/check.exe -p 1 32 1
-          elif [ -f ${bdir}/gcheck.exe ]; then
-            runExe ${bdir}/gcheck.exe -p 1 32 1
-          else
-            echo "ERROR! Neither ${bdir}/check.exe nor ${bdir}/gcheck.exe was found?"; exit 1
-          fi
+          echo " "
+          echo "DEBUG: execute tests in directory ${bdir}"
+          if [ ! -f ${bdir}/runTest_${suffix}.exe ]; then echo "ERROR! ${bdir}/runTest_${suffix}.exe not found?"; exit 1; fi
+          runExe ${bdir}/runTest_${suffix}.exe
+          if [ ! -f ${bdir}/check_${suffix}.exe ]; then echo "ERROR! ${bdir}/check_${suffix}.exe not found?"; exit 1; fi
+          runExe ${bdir}/check_${suffix}.exe -p 1 32 1
         done
+        echo " "
+      else
+        echo "(WARNING build.${btag}* directories not found)"
       fi
     done
+    echo "-------------------------------------------------------------------------------"
     popd >& /dev/null
   done
 }
