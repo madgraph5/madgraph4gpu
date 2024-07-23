@@ -75,6 +75,8 @@ for arg in $*; do
   elif [ "$arg" == "-smeftggtttt" ]; then
     if [ "$smeftggtttt" == "" ]; then procs+=${procs:+ }${arg}; fi
     smeftggtttt=$arg
+  elif [ "$arg" == "-cpponly" ]; then
+    bldall=-cpponly
   elif [ "$arg" == "-nocuda" ]; then
     bldall=-nocuda
   elif [ "$arg" == "-sa" ]; then
