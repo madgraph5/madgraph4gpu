@@ -58,10 +58,10 @@ The import format was not given, so we guess it as command
 set stdout_level DEBUG
 set output information to level: 10
 set zerowidth_tchannel F
-define q = u c d s u~ c~ d~ s~
+define q = u c d s
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.005767345428466797 [0m
+[1;32mDEBUG: model prefixing  takes 0.005717039108276367 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -149,7 +149,7 @@ Defined multiparticle l- = e- mu-
 Defined multiparticle vl = ve vm vt
 Defined multiparticle vl~ = ve~ vm~ vt~
 Defined multiparticle all = g u c d s u~ c~ d~ s~ a ve vm vt e- mu- ve~ vm~ vt~ e+ mu+ t b t~ b~ z w+ h w- ta- ta+
-Defined multiparticle q = u c d s u~ c~ d~ s~
+Defined multiparticle q = u c d s
 generate g q > t t~ g q
 INFO: Checking for minimal orders which gives processes. 
 INFO: Please specify coupling orders to bypass this step. 
@@ -166,12 +166,8 @@ INFO: Trying process: g d > t t~ g s WEIGHTED<=4 @1
 INFO: Trying process: g s > t t~ g d WEIGHTED<=4 @1  
 INFO: Trying process: g s > t t~ g s WEIGHTED<=4 @1  
 INFO: Process has 36 diagrams 
-INFO: Crossed process found for g u~ > t t~ g u~, reuse diagrams. 
-INFO: Crossed process found for g c~ > t t~ g c~, reuse diagrams. 
-INFO: Crossed process found for g d~ > t t~ g d~, reuse diagrams. 
-INFO: Crossed process found for g s~ > t t~ g s~, reuse diagrams. 
-8 processes with 288 diagrams generated in 0.458 s
-Total: 8 processes with 288 diagrams
+4 processes with 144 diagrams generated in 0.425 s
+Total: 4 processes with 144 diagrams
 output madevent_simd ../TMPOUT/CODEGEN_mad_gq_ttgq --hel_recycling=False --vector_size=32
 Load PLUGIN.CUDACPP_OUTPUT
 [1;34mPlugin PLUGIN.CUDACPP_OUTPUT has marked as NOT being validated with this version: 3.5.3_lo_vect. 
@@ -194,14 +190,9 @@ INFO: Processing color information for process: g u > t t~ g u @1
 INFO: Combined process g c > t t~ g c WEIGHTED<=4 @1 with process g u > t t~ g u WEIGHTED<=4 @1 
 INFO: Combined process g d > t t~ g d WEIGHTED<=4 @1 with process g u > t t~ g u WEIGHTED<=4 @1 
 INFO: Combined process g s > t t~ g s WEIGHTED<=4 @1 with process g u > t t~ g u WEIGHTED<=4 @1 
-INFO: Generating Helas calls for process: g u~ > t t~ g u~ WEIGHTED<=4 @1 
-INFO: Processing color information for process: g u~ > t t~ g u~ @1 
-INFO: Combined process g c~ > t t~ g c~ WEIGHTED<=4 @1 with process g u~ > t t~ g u~ WEIGHTED<=4 @1 
-INFO: Combined process g d~ > t t~ g d~ WEIGHTED<=4 @1 with process g u~ > t t~ g u~ WEIGHTED<=4 @1 
-INFO: Combined process g s~ > t t~ g s~ WEIGHTED<=4 @1 with process g u~ > t t~ g u~ WEIGHTED<=4 @1 
 INFO: Creating files in directory P1_gu_ttxgu 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1151][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f8bc82386d0> [1;30m[export_v4.py at line 6261][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f7bb5e72790> [1;30m[export_v4.py at line 6261][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -220,36 +211,15 @@ INFO: Finding symmetric diagrams for subprocess group gu_ttxgu
 [1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 35 [1;30m[model_handling.py at line 1519][0m [0m
 [1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15, 16: 16, 17: 17, 18: 18, 19: 19, 20: 20, 21: 21, 22: 22, 23: 23, 24: 24, 25: 25, 26: 26, 27: 27, 28: 29, 29: 30, 30: 31, 31: 32, 32: 33, 33: 34, 34: 35, 35: 36} [1;30m[model_handling.py at line 1543][0m [0m
 [1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15, 16: 16, 17: 17, 18: 18, 19: 19, 20: 20, 21: 21, 22: 22, 23: 23, 24: 24, 25: 25, 26: 26, 27: 27, 29: 28, 30: 29, 31: 30, 32: 31, 33: 32, 34: 33, 35: 34, 36: 35} [1;30m[model_handling.py at line 1544][0m [0m
-INFO: Creating files in directory P1_gux_ttxgux 
-[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1151][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f8bc7df2df0> [1;30m[export_v4.py at line 6261][0m [0m
-INFO: Creating files in directory . 
-FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
-FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
-INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
-[1;32mDEBUG:  proc_id = [0m 1 [1;30m[export_cpp.py at line 710][0m [0m
-[1;32mDEBUG:  config_map = [0m [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 0, 28, 29, 30, 31, 32, 33, 34, 35] [1;30m[export_cpp.py at line 711][0m [0m
-[1;32mDEBUG:  subproc_number = [0m 1 [1;30m[export_cpp.py at line 712][0m [0m
-[1;32mDEBUG:  Done [1;30m[export_cpp.py at line 713][0m [0m
-[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
-[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
-[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
-[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
-INFO: Generating Feynman diagrams for Process: g u~ > t t~ g u~ WEIGHTED<=4 @1 
-INFO: Finding symmetric diagrams for subprocess group gux_ttxgux 
-[1;32mDEBUG:  os.getcwd() = [0m /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_gq_ttgq/SubProcesses/P1_gux_ttxgux [1;30m[export_v4.py at line 6438][0m [0m
-[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 35 [1;30m[model_handling.py at line 1519][0m [0m
-[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15, 16: 16, 17: 17, 18: 18, 19: 19, 20: 20, 21: 21, 22: 22, 23: 23, 24: 24, 25: 25, 26: 26, 27: 27, 28: 29, 29: 30, 30: 31, 31: 32, 32: 33, 33: 34, 34: 35, 35: 36} [1;30m[model_handling.py at line 1543][0m [0m
-[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15, 16: 16, 17: 17, 18: 18, 19: 19, 20: 20, 21: 21, 22: 22, 23: 23, 24: 24, 25: 25, 26: 26, 27: 27, 29: 28, 30: 29, 31: 30, 32: 31, 33: 32, 34: 33, 35: 34, 36: 35} [1;30m[model_handling.py at line 1544][0m [0m
-Generated helas calls for 2 subprocesses (72 diagrams) in 0.272 s
-Wrote files for 146 helas calls in 0.514 s
+Generated helas calls for 1 subprocesses (36 diagrams) in 0.134 s
+Wrote files for 73 helas calls in 0.259 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVV1 routines[0m
 ALOHA: aloha creates VVVV1 routines[0m
 ALOHA: aloha creates VVVV3 routines[0m
 ALOHA: aloha creates VVVV4 routines[0m
-ALOHA: aloha creates 5 routines in  0.316 s
+ALOHA: aloha creates 5 routines in  0.314 s
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 205][0m [0m
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV1 routines[0m
@@ -257,7 +227,7 @@ ALOHA: aloha creates VVV1 routines[0m
 ALOHA: aloha creates VVVV1 routines[0m
 ALOHA: aloha creates VVVV3 routines[0m
 ALOHA: aloha creates VVVV4 routines[0m
-ALOHA: aloha creates 10 routines in  0.324 s
+ALOHA: aloha creates 10 routines in  0.309 s
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -298,16 +268,6 @@ Hunk #2 succeeded at 194 (offset 51 lines).
 Hunk #3 succeeded at 279 (offset 58 lines).
 Hunk #4 succeeded at 313 (offset 64 lines).
 Hunk #5 succeeded at 358 (offset 64 lines).
-DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_gq_ttgq/SubProcesses/P1_gux_ttxgux; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
-patching file auto_dsig1.f
-Hunk #1 succeeded at 528 (offset 44 lines).
-patching file driver.f
-patching file matrix1.f
-Hunk #1 succeeded at 75 (offset 3 lines).
-Hunk #2 succeeded at 194 (offset 51 lines).
-Hunk #3 succeeded at 279 (offset 58 lines).
-Hunk #4 succeeded at 313 (offset 64 lines).
-Hunk #5 succeeded at 358 (offset 64 lines).
 [1;32mDEBUG:  p.returncode = [0m 0 [1;30m[output.py at line 241][0m [0m
 Output to directory /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_gq_ttgq done.
 Type "launch" to generate events from this process, or see
@@ -315,10 +275,10 @@ Type "launch" to generate events from this process, or see
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m3.981s
-user	0m3.362s
-sys	0m0.313s
-Code generation completed in 4 seconds
+real	0m3.086s
+user	0m2.818s
+sys	0m0.255s
+Code generation completed in 3 seconds
 ************************************************************
 *                                                          *
 *                      W E L C O M E to                    *

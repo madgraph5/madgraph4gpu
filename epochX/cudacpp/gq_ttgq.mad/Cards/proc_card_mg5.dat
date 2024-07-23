@@ -38,14 +38,14 @@ set max_t_for_channel 99
 set nlo_mixed_expansion True
 set stdout_level DEBUG
 set zerowidth_tchannel F
-define q = u c d s u~ c~ d~ s~
+define q = u c d s
 define p = g u c d s u~ c~ d~ s~
 define j = g u c d s u~ c~ d~ s~
 define l+ = e+ mu+
 define l- = e- mu-
 define vl = ve vm vt
 define vl~ = ve~ vm~ vt~
-define q = u c d s u~ c~ d~ s~
+define q = u c d s
 generate g q > t t~ g q
 output madevent_simd ../TMPOUT/CODEGEN_mad_gq_ttgq --hel_recycling=Fal\
 se --vector_size=32

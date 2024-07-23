@@ -1,1 +1,1 @@
-../SubProcesses/P1_gux_ttxgux/maxamps.inc
+../SubProcesses/P1_gu_ttxgu/maxamps.inc
