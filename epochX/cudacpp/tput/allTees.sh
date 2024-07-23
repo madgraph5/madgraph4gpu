@@ -37,11 +37,16 @@ while [ "$1" != "" ]; do
     # Skip -makeclean (e.g. for brand new generated/downloaded code)
     makeclean=
     shift
-  elif [ "$1" == "-hip" ]; then
-    #### Random numbers use hiprand instead of curand?
-    ###rndhst=-hirhst
-    # See https://github.com/ROCm/hipRAND/issues/76
-    # Random numbers use common (not hiprand) instead of curand?
+  ###elif [ "$1" == "-hip" ]; then
+  ###  #### Random numbers use hiprand instead of curand?
+  ###  ###rndhst=-hirhst
+  ###  # See https://github.com/ROCm/hipRAND/issues/76
+  ###  # Random numbers use common (not hiprand) instead of curand?
+  ###  rndhst=-common
+  ###  opts+=" -nocuda"
+  ###  shift
+  elif [ "$1" == "-nocuda" ]; then
+    # Random numbers use common instead of curand
     rndhst=-common
     opts+=" -nocuda"
     shift
@@ -52,7 +57,7 @@ while [ "$1" != "" ]; do
     bsm=$1
     shift
   else
-    echo "Usage: $0 [-short] [-e] [-sa] [-makeonly] [-nomakeclean] [-hip] [-bsmonly|-nobsm]"
+    echo "Usage: $0 [-short] [-e] [-sa] [-makeonly] [-nomakeclean] [-nocuda] [-bsmonly|-nobsm]"
     exit 1
   fi
 done
