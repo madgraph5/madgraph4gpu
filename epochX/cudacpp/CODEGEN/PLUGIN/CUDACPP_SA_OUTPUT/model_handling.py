@@ -1419,14 +1419,14 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         """Generate mgOnGpuConfig.h, CPPProcess.cc, CPPProcess.h, check_sa.cc, gXXX.cu links"""
         ###misc.sprint('Entering PLUGIN_OneProcessExporter.generate_process_files')
         ###if self.include_multi_channel:
-        ###    misc.sprint('self.include_multi_channel is already defined: this is madevent+second_exporter mode') # FIXME? use self.in_madevent_mode instead?
-        if not self.include_multi_channel:
-            ###misc.sprint('self.include_multi_channel is not yet defined: this is standalone_cudacpp mode') # see issue #473
-            # AV: needed for (moved to?) standalone_cudacpp mode (but do we need those lines at all???)
-            # OM: this condition is likely wrong and need to be removed
-            if self.matrix_elements[0].get('has_mirror_process'):
-                self.matrix_elements[0].set('has_mirror_process', False)
-                self.nprocesses/=2
+        ###    misc.sprint('self.include_multi_channel is already defined: this is madevent+second_exporter mode')
+        ###else:
+        ###    misc.sprint('self.include_multi_channel is not yet defined: this is standalone_cudacpp mode') # see issue #473
+        ###if not self.include_multi_channel: # OM this condition is likely wrong and need to be removed (added in PR #754; removed in PR #935 to fix #872)
+        if True: # AV fix fortran/cudacpp xsec mismatch in pp processes (added back in PR #935 to fix #872); also needed for standalone cudacpp in any case
+           if self.matrix_elements[0].get('has_mirror_process'):
+              self.matrix_elements[0].set('has_mirror_process', False)
+              self.nprocesses/=2
         super(PLUGIN_export_cpp.OneProcessExporterGPU, self).generate_process_files()
         self.edit_CMakeLists()
         self.edit_check_sa()
