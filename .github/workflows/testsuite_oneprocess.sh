@@ -10,9 +10,14 @@
 # Automatic exit on error
 ###set -e
 
+# Hack to force "echo" to leave a blank line
+# (NB use a function because aliases are not inherited in subshells)
+# [The issue is similar to https://gitlab.com/gitlab-org/gitlab/-/issues/217231]
+function ECHO() { echo " "; }
+
 # Path to the top directory of madgraphgpu
 # In the CI this would be simply $(pwd), but allow the script to be run also outside the CI
-echo "Executing $0 $*"; echo
+echo "Executing $0 $*"; ECHO
 topdir=$(cd $(dirname $0)/../..; pwd)
 
 # Enable OpenMP in the CI tests? (#758)
@@ -35,7 +40,7 @@ function codegen() {
   # Generate code and check clang formatting
   cd ${topdir}/epochX/cudacpp
   echo "Current directory is $(pwd)"
-  echo 
+  ECHO 
   echo "*******************************************************************************"
   echo "*** code generation for ${proc}"
   echo "*******************************************************************************"
@@ -48,7 +53,7 @@ function codegen() {
   ###compare=1 # enable comparison to current git repo
   compare=0 # disable comparison to current git repo
   if [ "${compare}" != "0" ] && [ "$(git ls-tree --name-only HEAD ${proc})" != "" ]; then
-    echo
+    ECHO
     echo "Compare newly generated code for ${proc} to that in the madgraph4gpu github repository"
     git checkout HEAD ${proc}/CODEGEN*.txt
     if [ "${proc%.mad}" != "${proc}" ]; then
@@ -59,7 +64,7 @@ function codegen() {
     git diff --exit-code
     echo "git diff (end)"
   else
-    echo
+    ECHO
     echo "(SKIP comparison of newly generated code for ${proc} to that in the madgraph4gpu github repository)"
   fi
 }
@@ -84,10 +89,10 @@ function before_build() {
     mkdir ${topdir}/DOWNLOADS
     cd ${topdir}/DOWNLOADS
     echo "Current directory is $(pwd)"
-    echo
+    ECHO
     echo "wget -q https://github.com/ccache/ccache/releases/download/v4.8.3/ccache-4.8.3-linux-x86_64.tar.xz"
     wget -q https://github.com/ccache/ccache/releases/download/v4.8.3/ccache-4.8.3-linux-x86_64.tar.xz
-    echo
+    ECHO
     echo "tar -xvf ccache-4.8.3-linux-x86_64.tar.xz"
     tar -xvf ccache-4.8.3-linux-x86_64.tar.xz
   fi
@@ -97,7 +102,7 @@ function before_build() {
   # Set up ccache environment
   setup_ccache
   # Create the CCACHE_DIR directory if it was not retrieved from the cache
-  echo
+  ECHO
   if [ -d ${CCACHE_DIR} ]; then
     echo "Directory CCACHE_DIR=${CCACHE_DIR} already exists (retrieved from cache)"
   else
@@ -105,18 +110,18 @@ function before_build() {
     mkdir ${CCACHE_DIR}
   fi
   # Dump ccache status before the builds
-  echo
+  ECHO
   echo "ccache --version | head -1"
   ccache --version | head -1
-  echo
+  ECHO
   echo "CCACHE_DIR=${CCACHE_DIR}"
   echo "du -sm ${CCACHE_DIR}"
   du -sm ${CCACHE_DIR}
-  echo
+  ECHO
   echo "ccache -s (before the builds)"
   ccache -s
   # Check if googletest has already been installed and configured
-  echo
+  ECHO
   if [ -d ${topdir}/test/googletest ]; then
     echo "Directory ${topdir}/test/googletest already exists (retrieved from cache)"
     echo "ls ${topdir}/test/googletest (start)"
@@ -138,7 +143,7 @@ function build() {
   setup_ccache
   export USECCACHE=1 # enable ccache in madgraph4gpu builds
   export CXX=g++ # set up CXX that is needed by cudacpp.mk
-  ###echo; echo "$CXX --version"; $CXX --version
+  ###ECHO; echo "$CXX --version"; $CXX --version
   export USEBUILDDIR=1
   # Iterate over P* directories and build
   cd ${topdir}/epochX/cudacpp/${proc}
@@ -148,11 +153,11 @@ function build() {
   pdirs="$(ls -d SubProcesses/P*_*)"
   for pdir in ${pdirs}; do
     pushd $pdir >& /dev/null
-    echo
+    ECHO
     echo "*******************************************************************************"
     echo "*** build ${proc} ($(basename $(pwd)))"
     echo "*******************************************************************************"
-    echo
+    ECHO
     echo "Building in $(pwd)"
     if [ "${gtestlibs}" == "0" ]; then
       # Build googletest once and for all to avoid issues in parallel builds
@@ -172,20 +177,20 @@ function after_build() {
   # Set up ccache environment
   setup_ccache
   # Dump ccache status after the builds
-  echo
+  ECHO
   echo "CCACHE_DIR=${CCACHE_DIR}"
   echo "du -sm ${CCACHE_DIR}"
   du -sm ${CCACHE_DIR}
-  echo
+  ECHO
   echo "ccache -s (after the builds)"
   ccache -s
   # Check contents of googletest
-  echo
+  ECHO
   echo "ls ${topdir}/test/googletest (start)"
   ls ${topdir}/test/googletest
   echo "ls ${topdir}/test/googletest (end)"
   # Check contents of build directories
-  echo
+  ECHO
   echo "ls -d ${topdir}/epochX/cudacpp/*.*/SubProcesses/P*_*/build* (start)"
   ls -d ${topdir}/epochX/cudacpp/*.*/SubProcesses/P*_*/build*
   echo "ls -d ${topdir}/epochX/cudacpp/*.*/SubProcesses/P*_*/build* (end)"
@@ -194,7 +199,7 @@ function after_build() {
 #----------------------------------------------------------------------------------------------------------------------------------
 
 function runExe() {
-  echo
+  ECHO
   echo "Execute $*"
   if [ -f $1 ]; then $*; else echo "(SKIP missing $1)"; fi
 }
@@ -211,12 +216,13 @@ function tput_test() {
   pdirs="$(ls -d SubProcesses/P*_*)"
   for pdir in ${pdirs}; do
     pushd $pdir >& /dev/null
-    echo
+    ECHO
     echo "*******************************************************************************"
     echo "*** tput_test ${proc} ($(basename $(pwd)))"
     echo "*******************************************************************************"
-    echo
+    ECHO
     echo "Testing in $(pwd)"
+    ECHO
     # FIXME1: this is just a quick test, eventually port here tput tests from throughputX.sh
     # (could move some throughputX.sh functions to a separate script included both here and there)
     # FIXME2: handle all d/f/m, inl0/1, hrd0/1 etc...
@@ -224,39 +230,55 @@ function tput_test() {
     unamep=$(uname -p)
     unames=$(uname -s)
     for backend in cuda hip cppnone cppsse4 cppavx2 cpp512y cpp512z; do
+      echo "-------------------------------------------------------------------------------"
+      echo "--- tput_test ${proc} ($(basename $(pwd))) BACKEND=${backend}" # debug #937
+      echo "-------------------------------------------------------------------------------"
+      ECHO
       # Skip GPU tests for NVidia and AMD unless nvcc and hipcc, respectively, are in PATH
       if ! nvcc --version &> /dev/null; then
-        if [ "${backend}" == "cuda" ]; then echo; echo "(SKIP ${backend} because nvcc is missing on this node)"; continue; fi
+        if [ "${backend}" == "cuda" ]; then echo "(SKIP ${backend} because nvcc is missing on this node)"; ECHO; continue; fi
       elif ! hipcc --version &> /dev/null; then
-        if [ "${backend}" == "hip" ]; then echo; echo "(SKIP ${backend} because hipcc is missing on this node)"; continue; fi
+        if [ "${backend}" == "hip" ]; then echo "(SKIP ${backend} because hipcc is missing on this node)"; ECHO; continue; fi
       fi
       # Skip C++ tests for unsupported simd modes as done in tput tests (prevent illegal instruction crashes #791)
       if [ "${unamep}" != "x86_64" ]; then
-        if [ "${backend}" == "cppavx2" ]; then echo; echo "(SKIP ${backend} which is not supported on ${unamep})"; continue; fi
-        if [ "${backend}" == "cpp512y" ]; then echo; echo "(SKIP ${backend} which is not supported on ${unamep})"; continue; fi
-        if [ "${backend}" == "cpp512z" ]; then echo; echo "(SKIP ${backend} which is not supported on ${unamep})"; continue; fi
+        if [ "${backend}" == "cppavx2" ]; then echo "(SKIP ${backend} which is not supported on ${unamep})"; ECHO; continue; fi
+        if [ "${backend}" == "cpp512y" ]; then echo "(SKIP ${backend} which is not supported on ${unamep})"; ECHO; continue; fi
+        if [ "${backend}" == "cpp512z" ]; then echo "(SKIP ${backend} which is not supported on ${unamep})"; ECHO; continue; fi
       elif [ "${unames}" == "Darwin" ]; then
-        if [ "${backend}" == "cpp512y" ]; then echo; echo "(SKIP ${backend} which is not supported on ${unames})"; continue; fi
-        if [ "${backend}" == "cpp512z" ]; then echo; echo "(SKIP ${backend} which is not supported on ${unames})"; continue; fi
+        if [ "${backend}" == "cpp512y" ]; then echo "(SKIP ${backend} which is not supported on ${unames})"; ECHO; continue; fi
+        if [ "${backend}" == "cpp512z" ]; then echo "(SKIP ${backend} which is not supported on ${unames})"; ECHO; continue; fi
       elif [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" != "1" ]; then
-        if [ "${backend}" == "cpp512y" ]; then echo; echo "(SKIP ${backend} which is not supported - no avx512vl in /proc/cpuinfo)"; continue; fi
-        if [ "${backend}" == "cpp512z" ]; then echo; echo "(SKIP ${backend} which is not supported - no avx512vl in /proc/cpuinfo)"; continue; fi
+        if [ "${backend}" == "cpp512y" ]; then echo "(SKIP ${backend} which is not supported - no avx512vl in /proc/cpuinfo)"; ECHO; continue; fi
+        if [ "${backend}" == "cpp512z" ]; then echo "(SKIP ${backend} which is not supported - no avx512vl in /proc/cpuinfo)"; ECHO; continue; fi
       fi
       # Execute the tests
-      if ls -d build.${backend}* > /dev/null 2>&1; then
-        bdirs="$(ls -d build.${backend}*)"
+      if [ "${backend}" == "cuda" ]; then
+        suffix=cuda
+      elif [ "${backend}" == "hip" ]; then
+        suffix=hip
+      else
+        suffix=cpp
+      fi
+      btag=${backend#cpp} # fix #937
+      if ls -d build.${btag}* > /dev/null 2>&1; then
+        echo "DEBUG: loop through directories: $(ls -d build.${btag}*)"
+        bdirs="$(ls -d build.${btag}*)"
         for bdir in ${bdirs}; do
-          runExe ${bdir}/runTest.exe
-          if [ -f ${bdir}/check.exe ]; then
-            runExe ${bdir}/check.exe -p 1 32 1
-          elif [ -f ${bdir}/gcheck.exe ]; then
-            runExe ${bdir}/gcheck.exe -p 1 32 1
-          else
-            echo "ERROR! Neither ${bdir}/check.exe nor ${bdir}/gcheck.exe was found?"; exit 1
-          fi
+          ECHO
+          echo "DEBUG: execute tests in directory ${bdir}"
+          if [ ! -f ${bdir}/runTest_${suffix}.exe ]; then echo "ERROR! ${bdir}/runTest_${suffix}.exe not found?"; exit 1; fi
+          runExe ${bdir}/runTest_${suffix}.exe
+          if [ ! -f ${bdir}/check_${suffix}.exe ]; then echo "ERROR! ${bdir}/check_${suffix}.exe not found?"; exit 1; fi
+          runExe ${bdir}/check_${suffix}.exe -p 1 32 1
         done
+        ECHO
+      else
+        echo "(WARNING build.${btag}* directories not found)"
+        ECHO
       fi
     done
+    echo "-------------------------------------------------------------------------------"
     popd >& /dev/null
   done
 }
@@ -390,11 +412,11 @@ function tmad_test() {
   for pdir in ${pdirs}; do
     pushd $pdir >& /dev/null
     tmpdir=$(pwd) # use a local directory instead of /tmp as in the original tmad scripts
-    echo
+    ECHO
     echo "*******************************************************************************"
     echo "*** tmad_test ${proc} ($(basename $(pwd)))"
     echo "*******************************************************************************"
-    echo
+    ECHO
     echo "Testing in $(pwd)"
     echo "r=21" > ../randinit # hardcode randinit (just in case it is disturbed by the test in the previous pdir)
     # -----------------------------------
@@ -521,11 +543,11 @@ echo "[testsuite_oneprocess.sh] $stage ($proc) starting at $(date)"
 echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
 
 # Execute stage
-( set -e; $stage $proc) # execute this within a subprocess and fail immediately on error
+( set -e; $stage $proc ) # execute this within a subprocess and fail immediately on error
 status=$?
 
 # Finish
-echo
+ECHO
 echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
 if [ $status -eq 0 ]; then
   echo "[testsuite_oneprocess.sh] $stage ($proc) finished with status=$status (OK) at $(date)"
