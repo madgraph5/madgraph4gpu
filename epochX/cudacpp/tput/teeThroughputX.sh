@@ -75,8 +75,10 @@ for arg in $*; do
   elif [ "$arg" == "-smeftggtttt" ]; then
     if [ "$smeftggtttt" == "" ]; then procs+=${procs:+ }${arg}; fi
     smeftggtttt=$arg
+  elif [ "$arg" == "-cpponly" ]; then
+    bldall=-cpponly
   elif [ "$arg" == "-nocuda" ]; then
-    bldall=-bldallnocuda
+    bldall=-nocuda
   elif [ "$arg" == "-sa" ]; then
     suffs="sa" # standalone_cudacpp code base (logs_*_sa)
   elif [ "$arg" == "-noalpaka" ]; then

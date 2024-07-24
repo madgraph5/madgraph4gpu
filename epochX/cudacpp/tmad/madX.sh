@@ -488,16 +488,17 @@ for suff in $suffs; do
 
   if [ "${maketype}" == "-makeclean" ]; then make cleanall; echo; fi
   if [ "${maketype}" == "-makecleanonly" ]; then make cleanall; echo; continue; fi
-  if [ "${hip}" == "0" ]; then
+  if [ "${hip}" == "0" ] || [ "${dir/\/gg_ttggg${suff}}" == ${dir} ]; then # skip parallel bldall builds only for ggttggg on HIP #933
     ###make -j5 avxall # limit build parallelism of the old 'make avxall' to avoid "cudafe++ died due to signal 9" (#639)
     make -j6 bldall # limit build parallelism also with the new 'make bldall'
     ###make -j bldall
   else
-    bblds="hip cppnone cppsse4 cppavx2 cpp512y cpp512z" # skip cuda on LUMI always
-    if [ "${dir/\/gg_ttggg${suff}}" != ${dir} ]; then bblds=${bblds/hip}; fi # skip ggttggg builds on HIP #933
-    for bbld in ${bblds_dir}; do
+    export USEBUILDDIR=1
+    bblds="cppnone cppsse4 cppavx2 cpp512y cpp512z" # skip cuda on LUMI always; skip HIP for ggttggg builds #933
+    for bbld in ${bblds}; do
       make ${makef} -j BACKEND=${bbld}; echo
     done
+    unset USEBUILDDIR
   fi
 done
 
