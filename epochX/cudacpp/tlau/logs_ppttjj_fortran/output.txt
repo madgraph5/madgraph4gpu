@@ -1,4 +1,4 @@
-START: Thu Jul 25 04:24:43 PM CEST 2024
+START: Thu Jul 25 04:38:14 PM CEST 2024
 ************************************************************
 *                                                          *
 *                      W E L C O M E to                    *
@@ -57,36 +57,39 @@ INFO:     P1_ucx_ttxucx
 INFO: Building madevent in madevent_interface.py with 'fortran' matrix elements 
 INFO:     P1_uxcx_ttxuxcx  
 INFO: Building madevent in madevent_interface.py with 'fortran' matrix elements 
-INFO:  Idle: 81,  Running: 4,  Completed: 5 [ current time: 16h25 ] 
-INFO:  Idle: 80,  Running: 4,  Completed: 6 [  0.21s  ] 
-INFO:  Idle: 77,  Running: 4,  Completed: 9 [  18.9s  ] 
-INFO:  Idle: 73,  Running: 4,  Completed: 13 [  37.9s  ] 
-INFO:  Idle: 69,  Running: 4,  Completed: 17 [  43.8s  ] 
-INFO:  Idle: 67,  Running: 4,  Completed: 19 [  48.2s  ] 
-INFO:  Idle: 64,  Running: 4,  Completed: 22 [  53.2s  ] 
-INFO:  Idle: 60,  Running: 4,  Completed: 26 [  57.3s  ] 
-INFO:  Idle: 57,  Running: 4,  Completed: 29 [  1m 0s  ] 
-INFO:  Idle: 53,  Running: 4,  Completed: 33 [  1m 5s  ] 
-INFO:  Idle: 49,  Running: 4,  Completed: 37 [  1m 9s  ] 
-INFO:  Idle: 45,  Running: 4,  Completed: 41 [  1m 14s  ] 
-INFO:  Idle: 41,  Running: 4,  Completed: 45 [  1m 18s  ] 
-INFO:  Idle: 37,  Running: 4,  Completed: 49 [  1m 23s  ] 
-INFO:  Idle: 32,  Running: 4,  Completed: 54 [  1m 28s  ] 
-INFO:  Idle: 28,  Running: 4,  Completed: 58 [  1m 32s  ] 
-INFO:  Idle: 24,  Running: 4,  Completed: 62 [  1m 36s  ] 
-INFO:  Idle: 17,  Running: 4,  Completed: 69 [  1m 40s  ] 
-INFO:  Idle: 9,  Running: 4,  Completed: 77 [  1m 43s  ] 
-INFO:  Idle: 1,  Running: 4,  Completed: 85 [  1m 47s  ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 90 [  1m 49s  ] 
+INFO:  Idle: 78,  Running: 4,  Completed: 8 [ current time: 16h39 ] 
+INFO:  Idle: 77,  Running: 4,  Completed: 9 [  18.1s  ] 
+INFO:  Idle: 73,  Running: 4,  Completed: 13 [  37.5s  ] 
+INFO:  Idle: 69,  Running: 4,  Completed: 17 [  42.9s  ] 
+INFO:  Idle: 67,  Running: 4,  Completed: 19 [  47.7s  ] 
+INFO:  Idle: 64,  Running: 4,  Completed: 22 [  52.4s  ] 
+INFO:  Idle: 60,  Running: 4,  Completed: 26 [  57s  ] 
+INFO:  Idle: 56,  Running: 4,  Completed: 30 [  1m 1s  ] 
+INFO:  Idle: 53,  Running: 4,  Completed: 33 [  1m 4s  ] 
+INFO:  Idle: 49,  Running: 4,  Completed: 37 [  1m 10s  ] 
+INFO:  Idle: 47,  Running: 4,  Completed: 39 [  1m 14s  ] 
+INFO:  Idle: 45,  Running: 4,  Completed: 41 [  1m 20s  ] 
+INFO:  Idle: 43,  Running: 4,  Completed: 43 [  1m 23s  ] 
+INFO:  Idle: 41,  Running: 4,  Completed: 45 [  1m 28s  ] 
+INFO:  Idle: 40,  Running: 4,  Completed: 46 [  1m 31s  ] 
+INFO:  Idle: 37,  Running: 4,  Completed: 49 [  1m 37s  ] 
+INFO:  Idle: 36,  Running: 4,  Completed: 50 [  1m 41s  ] 
+INFO:  Idle: 32,  Running: 4,  Completed: 54 [  1m 47s  ] 
+INFO:  Idle: 28,  Running: 4,  Completed: 58 [  1m 52s  ] 
+INFO:  Idle: 24,  Running: 4,  Completed: 62 [  1m 55s  ] 
+INFO:  Idle: 17,  Running: 4,  Completed: 69 [  1m 59s  ] 
+INFO:  Idle: 11,  Running: 4,  Completed: 75 [  2m 2s  ] 
+INFO:  Idle: 2,  Running: 4,  Completed: 84 [  2m 6s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 90 [  2m 8s  ] 
 INFO: End survey 
 refine 100
 Creating Jobs
 INFO: Refine results to 100 
 INFO: Generating 100.0 unweighted events. 
-sum of cpu time of last step: 10m22s
-INFO: Effective Luminosity 0.08645344545516792 pb^-1 
+sum of cpu time of last step: 10m23s
+INFO: Effective Luminosity 0.06929694313031691 pb^-1 
 INFO: need to improve 1 channels 
-- Current estimate of cross-section: 1388.0302788190006 +- 13.174269302205891
+- Current estimate of cross-section: 1731.6781170900001 +- 22.413699302756378
     P1_gg_ttxgg 
     P1_gg_ttxuux 
     P1_gu_ttxgu 
@@ -100,19 +103,19 @@ Building madevent in madevent_interface.py with 'fortran' matrix elements
     P1_uux_ttxccx 
     P1_ucx_ttxucx 
     P1_uxcx_ttxuxcx 
-INFO:  Idle: 0,  Running: 1,  Completed: 0 [ current time: 16h27 ] 
+INFO:  Idle: 0,  Running: 1,  Completed: 0 [ current time: 16h41 ] 
 INFO:  Idle: 0,  Running: 0,  Completed: 1 [  7.5s  ] 
 INFO:  Idle: 0,  Running: 0,  Completed: 1 [  7.5s  ] 
 INFO: Combining runs 
-sum of cpu time of last step: 10m28s
+sum of cpu time of last step: 10m29s
 INFO: finish refine 
 refine 100 --treshold=0.9
 No need for second refine due to stability of cross-section
 INFO: Combining Events 
-combination of events done in 1.6702678203582764 s 
+combination of events done in 1.7160398960113525 s 
   === Results Summary for run: run_01 tag: tag_1 ===
 
-     Cross-section :   1366 +- 9.06 pb
+     Cross-section :   1688 +- 11.68 pb
      Nb of events :  100
  
 INFO: No version of lhapdf. Can not run systematics computation 
@@ -125,7 +128,7 @@ INFO: storing files of previous run
 INFO: Done 
 quit
 INFO:  
-690.19user 14.13system 3:13.89elapsed 363%CPU (0avgtext+0avgdata 100544maxresident)k
-0inputs+1006248outputs (3major+2585034minor)pagefaults 0swaps
-END: Thu Jul 25 04:27:57 PM CEST 2024
-ELAPSED: 194 seconds
+691.00user 14.14system 3:33.63elapsed 330%CPU (0avgtext+0avgdata 100580maxresident)k
+32inputs+1006464outputs (8major+2559751minor)pagefaults 0swaps
+END: Thu Jul 25 04:41:48 PM CEST 2024
+ELAPSED: 214 seconds
