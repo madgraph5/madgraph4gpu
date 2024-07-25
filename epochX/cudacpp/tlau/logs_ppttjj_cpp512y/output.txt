@@ -1,4 +1,4 @@
-START: Thu Jul 25 04:30:40 PM CEST 2024
+START: Thu Jul 25 04:49:24 PM CEST 2024
 ************************************************************
 *                                                          *
 *                      W E L C O M E to                    *
@@ -57,18 +57,20 @@ INFO:     P1_ucx_ttxucx
 INFO: Building madevent in madevent_interface.py with 'cpp512y' matrix elements 
 INFO:     P1_uxcx_ttxuxcx  
 INFO: Building madevent in madevent_interface.py with 'cpp512y' matrix elements 
-INFO:  Idle: 1,  Running: 2,  Completed: 87 [ current time: 16h33 ] 
-INFO:  Idle: 0,  Running: 3,  Completed: 87 [ current time: 16h33 ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 90 [  1.6s  ] 
+INFO:  Idle: 19,  Running: 4,  Completed: 67 [ current time: 16h51 ] 
+INFO:  Idle: 18,  Running: 4,  Completed: 68 [  0.4s  ] 
+INFO:  Idle: 11,  Running: 4,  Completed: 75 [  3.5s  ] 
+INFO:  Idle: 2,  Running: 4,  Completed: 84 [  6.5s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 90 [  8.4s  ] 
 INFO: End survey 
 refine 100
 Creating Jobs
 INFO: Refine results to 100 
 INFO: Generating 100.0 unweighted events. 
-sum of cpu time of last step: 6m00s
-INFO: Effective Luminosity 0.08645344545516792 pb^-1 
+sum of cpu time of last step: 6m01s
+INFO: Effective Luminosity 0.06929694313031691 pb^-1 
 INFO: need to improve 1 channels 
-- Current estimate of cross-section: 1388.0302788190006 +- 13.174269302205891
+- Current estimate of cross-section: 1731.6781170900001 +- 22.413699302756378
     P1_gg_ttxgg 
     P1_gg_ttxuux 
     P1_gu_ttxgu 
@@ -82,19 +84,19 @@ Building madevent in madevent_interface.py with 'cpp512y' matrix elements
     P1_uux_ttxccx 
     P1_ucx_ttxucx 
     P1_uxcx_ttxuxcx 
-INFO:  Idle: 0,  Running: 1,  Completed: 0 [ current time: 16h33 ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 1 [  5.4s  ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 1 [  5.4s  ] 
+INFO:  Idle: 0,  Running: 1,  Completed: 0 [ current time: 16h51 ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 1 [  5.3s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 1 [  5.3s  ] 
 INFO: Combining runs 
 sum of cpu time of last step: 6m05s
 INFO: finish refine 
 refine 100 --treshold=0.9
 No need for second refine due to stability of cross-section
 INFO: Combining Events 
-combination of events done in 1.7314889430999756 s 
+combination of events done in 1.7253239154815674 s 
   === Results Summary for run: run_01 tag: tag_1 ===
 
-     Cross-section :   1366 +- 9.06 pb
+     Cross-section :   1689 +- 11.68 pb
      Nb of events :  100
  
 INFO: No version of lhapdf. Can not run systematics computation 
@@ -107,7 +109,7 @@ INFO: storing files of previous run
 INFO: Done 
 quit
 INFO:  
-524.13user 26.73system 2:34.82elapsed 355%CPU (0avgtext+0avgdata 235552maxresident)k
-0inputs+1065928outputs (14major+5746100minor)pagefaults 0swaps
-END: Thu Jul 25 04:33:15 PM CEST 2024
-ELAPSED: 155 seconds
+453.80user 20.25system 2:13.93elapsed 353%CPU (0avgtext+0avgdata 235020maxresident)k
+0inputs+1046136outputs (21major+4116746minor)pagefaults 0swaps
+END: Thu Jul 25 04:51:38 PM CEST 2024
+ELAPSED: 134 seconds
