@@ -1,0 +1,495 @@
+[1;31mNote that this is a development version.
+This version is intended for development/beta testing and NOT for production.
+This version has not been fully tested (if at all) and might have limited user support (if at all)[0m
+Running MG5 in debug mode
+************************************************************
+*                                                          *
+*                     W E L C O M E to                     *
+*              M A D G R A P H 5 _ a M C @ N L O           *
+*                                                          *
+*                                                          *
+*                 *                       *                *
+*                   *        * *        *                  *
+*                     * * * * 5 * * * *                    *
+*                   *        * *        *                  *
+*                 *                       *                *
+*                                                          *
+*         VERSION 3.5.3_lo_vect         2023-12-23         *
+[1;31m*                                                          *[1;0m
+[1;31m*          WARNING: UNKNOWN DEVELOPMENT VERSION.           *[1;0m
+[1;31m*            WARNING: DO NOT USE FOR PRODUCTION            *[1;0m
+[1;31m*                                                          *[1;0m
+*                                                          *
+*    The MadGraph5_aMC@NLO Development Team - Find us at   *
+*              http://madgraph.phys.ucl.ac.be/             *
+*                            and                           *
+*            http://amcatnlo.web.cern.ch/amcatnlo/         *
+*                                                          *
+*               Type 'help' for in-line help.              *
+*           Type 'tutorial' to learn how MG5 works         *
+*    Type 'tutorial aMCatNLO' to learn how aMC@NLO works   *
+*    Type 'tutorial MadLoop' to learn how MadLoop works    *
+*                                                          *
+************************************************************
+load MG5 configuration from input/mg5_configuration.txt 
+fastjet-config does not seem to correspond to a valid fastjet-config executable (v3+). We will use fjcore instead.
+ Please set the 'fastjet'variable to the full (absolute) /PATH/TO/fastjet-config (including fastjet-config).
+ MG5_aMC> set fastjet /PATH/TO/fastjet-config
+
+eMELA-config does not seem to correspond to a valid eMELA-config executable.
+ Please set the 'fastjet'variable to the full (absolute) /PATH/TO/eMELA-config (including eMELA-config).
+ MG5_aMC> set eMELA /PATH/TO/eMELA-config
+
+lhapdf-config does not seem to correspond to a valid lhapdf-config executable. 
+Please set the 'lhapdf' variable to the (absolute) /PATH/TO/lhapdf-config (including lhapdf-config).
+Note that you can still compile and run aMC@NLO with the built-in PDFs
+ MG5_aMC> set lhapdf /PATH/TO/lhapdf-config
+
+None does not seem to correspond to a valid lhapdf-config executable. 
+Please set the 'lhapdf' variable to the (absolute) /PATH/TO/lhapdf-config (including lhapdf-config).
+Note that you can still compile and run aMC@NLO with the built-in PDFs
+ MG5_aMC> set lhapdf /PATH/TO/lhapdf-config
+
+Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
+Using default eps viewer "evince". Set another one in ./input/mg5_configuration.txt
+Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
+import /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_madonly_pp_ttjj.mg
+The import format was not given, so we guess it as command
+set stdout_level DEBUG
+set output information to level: 10
+set zerowidth_tchannel F
+define j = p
+INFO: load particles 
+INFO: load vertices 
+[1;32mDEBUG: model prefixing  takes 0.005704164505004883 [0m
+INFO: Restrict model sm with file models/sm/restrict_default.dat . 
+[1;32mDEBUG: Simplifying conditional expressions [0m
+[1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: u b w+ at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: c d w+ at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: c b w+ at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: t d w+ at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: t s w+ at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: s u w+ at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: b u w+ at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: d c w+ at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: b c w+ at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: d t w+ at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: s t w+ at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: c c h at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: e- e- h at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: mu- mu- h at order: QED=1 [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_100', 1), ('GC_104', 1), ('GC_108', 1), ('GC_40', 1), ('GC_41', 1), ('GC_45', 1), ('GC_49', 1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_21', 1), ('GC_27', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_15', 1), ('GC_30', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_38', 1), ('GC_39', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_3', 1), ('GC_4', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_50', 1), ('GC_51', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_54', 1), ('GC_56', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_66', 1), ('GC_67', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_70', 1), ('GC_73', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_74', 1), ('GC_75', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_77', 1), ('GC_78', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_76', 1), ('GC_79', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_7', 1), ('GC_9', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_96', 1), ('GC_97', -1)  [0m
+[1;32mDEBUG: remove parameters: mdl_lamWS [0m
+[1;32mDEBUG: remove parameters: mdl_AWS [0m
+[1;32mDEBUG: remove parameters: mdl_rhoWS [0m
+[1;32mDEBUG: remove parameters: mdl_etaWS [0m
+[1;32mDEBUG: remove parameters: mdl_ymc [0m
+[1;32mDEBUG: remove parameters: mdl_yme [0m
+[1;32mDEBUG: remove parameters: mdl_ymm [0m
+[1;32mDEBUG: remove parameters: mdl_MC [0m
+[1;32mDEBUG: remove parameters: mdl_Me [0m
+[1;32mDEBUG: remove parameters: mdl_MM [0m
+[1;32mDEBUG: remove parameters: mdl_WTau [0m
+[1;32mDEBUG: remove parameters: mdl_lamWS__exp__2 [0m
+[1;32mDEBUG: remove parameters: mdl_CKM1x2 [0m
+[1;32mDEBUG: remove parameters: mdl_lamWS__exp__3 [0m
+[1;32mDEBUG: remove parameters: mdl_CKM1x3 [0m
+[1;32mDEBUG: remove parameters: mdl_CKM2x1 [0m
+[1;32mDEBUG: remove parameters: mdl_CKM2x3 [0m
+[1;32mDEBUG: remove parameters: mdl_CKM3x1 [0m
+[1;32mDEBUG: remove parameters: mdl_CKM3x2 [0m
+[1;32mDEBUG: remove parameters: mdl_conjg__CKM1x3 [0m
+[1;32mDEBUG: remove parameters: mdl_conjg__CKM2x3 [0m
+[1;32mDEBUG: remove parameters: mdl_conjg__CKM2x1 [0m
+[1;32mDEBUG: remove parameters: mdl_conjg__CKM3x1 [0m
+[1;32mDEBUG: remove parameters: mdl_conjg__CKM3x2 [0m
+[1;32mDEBUG: remove parameters: mdl_conjg__CKM1x2 [0m
+[1;32mDEBUG: remove parameters: mdl_yc [0m
+[1;32mDEBUG: remove parameters: mdl_ye [0m
+[1;32mDEBUG: remove parameters: mdl_ym [0m
+[1;32mDEBUG: remove parameters: mdl_I1x31 [0m
+[1;32mDEBUG: remove parameters: mdl_I1x32 [0m
+[1;32mDEBUG: remove parameters: mdl_I2x12 [0m
+[1;32mDEBUG: remove parameters: mdl_I2x13 [0m
+[1;32mDEBUG: remove parameters: mdl_I2x22 [0m
+[1;32mDEBUG: remove parameters: mdl_I2x23 [0m
+[1;32mDEBUG: remove parameters: mdl_I2x32 [0m
+[1;32mDEBUG: remove parameters: mdl_I3x21 [0m
+[1;32mDEBUG: remove parameters: mdl_I3x22 [0m
+[1;32mDEBUG: remove parameters: mdl_I3x23 [0m
+[1;32mDEBUG: remove parameters: mdl_I3x31 [0m
+[1;32mDEBUG: remove parameters: mdl_I3x32 [0m
+[1;32mDEBUG: remove parameters: mdl_I4x13 [0m
+[1;32mDEBUG: remove parameters: mdl_I4x23 [0m
+[1;32mDEBUG: remove parameters: mdl_CKM1x1 [0m
+[1;32mDEBUG: remove parameters: mdl_CKM2x2 [0m
+[1;32mDEBUG: fix parameter value: mdl_CKM3x3 [0m
+[1;32mDEBUG: fix parameter value: mdl_conjg__CKM3x3 [0m
+[1;32mDEBUG: remove parameters: mdl_conjg__CKM2x2 [0m
+[1;32mDEBUG: fix parameter value: mdl_conjg__CKM1x1 [0m
+INFO: Change particles name to pass to MG5 convention 
+Defined multiparticle p = g u c d s u~ c~ d~ s~
+Defined multiparticle j = g u c d s u~ c~ d~ s~
+Defined multiparticle l+ = e+ mu+
+Defined multiparticle l- = e- mu-
+Defined multiparticle vl = ve vm vt
+Defined multiparticle vl~ = ve~ vm~ vt~
+Defined multiparticle all = g u c d s u~ c~ d~ s~ a ve vm vt e- mu- ve~ vm~ vt~ e+ mu+ t b t~ b~ z w+ h w- ta- ta+
+Defined multiparticle j = g u c d s u~ c~ d~ s~
+generate p p > t t~ j j
+INFO: Checking for minimal orders which gives processes. 
+INFO: Please specify coupling orders to bypass this step. 
+INFO: Trying coupling order WEIGHTED<=4: WEIGTHED IS QCD+2*QED 
+INFO: Trying process: g g > t t~ g g WEIGHTED<=4 @1  
+INFO: Process has 123 diagrams 
+INFO: Trying process: g g > t t~ u u~ WEIGHTED<=4 @1  
+INFO: Process has 36 diagrams 
+INFO: Trying process: g g > t t~ u c~ WEIGHTED<=4 @1  
+INFO: Trying process: g g > t t~ c u~ WEIGHTED<=4 @1  
+INFO: Trying process: g g > t t~ c c~ WEIGHTED<=4 @1  
+INFO: Process has 36 diagrams 
+INFO: Trying process: g g > t t~ d d~ WEIGHTED<=4 @1  
+INFO: Process has 36 diagrams 
+INFO: Trying process: g g > t t~ d s~ WEIGHTED<=4 @1  
+INFO: Trying process: g g > t t~ s d~ WEIGHTED<=4 @1  
+INFO: Trying process: g g > t t~ s s~ WEIGHTED<=4 @1  
+INFO: Process has 36 diagrams 
+INFO: Crossed process found for g u > t t~ g u, reuse diagrams. 
+INFO: Crossed process found for g c > t t~ g c, reuse diagrams. 
+INFO: Crossed process found for g d > t t~ g d, reuse diagrams. 
+INFO: Crossed process found for g s > t t~ g s, reuse diagrams. 
+INFO: Crossed process found for g u~ > t t~ g u~, reuse diagrams. 
+INFO: Crossed process found for g c~ > t t~ g c~, reuse diagrams. 
+INFO: Crossed process found for g d~ > t t~ g d~, reuse diagrams. 
+INFO: Crossed process found for g s~ > t t~ g s~, reuse diagrams. 
+INFO: Process u g > t t~ g u added to mirror process g u > t t~ g u 
+INFO: Trying process: u u > t t~ u u WEIGHTED<=4 @1  
+INFO: Process has 14 diagrams 
+INFO: Trying process: u u > t t~ u c WEIGHTED<=4 @1  
+INFO: Trying process: u u > t t~ c c WEIGHTED<=4 @1  
+INFO: Trying process: u c > t t~ u u WEIGHTED<=4 @1  
+INFO: Trying process: u c > t t~ u c WEIGHTED<=4 @1  
+INFO: Process has 7 diagrams 
+INFO: Trying process: u c > t t~ c c WEIGHTED<=4 @1  
+INFO: Trying process: u d > t t~ u d WEIGHTED<=4 @1  
+INFO: Process has 7 diagrams 
+INFO: Trying process: u d > t t~ u s WEIGHTED<=4 @1  
+INFO: Trying process: u d > t t~ c d WEIGHTED<=4 @1  
+INFO: Trying process: u d > t t~ c s WEIGHTED<=4 @1  
+INFO: Trying process: u s > t t~ u d WEIGHTED<=4 @1  
+INFO: Trying process: u s > t t~ u s WEIGHTED<=4 @1  
+INFO: Process has 7 diagrams 
+INFO: Trying process: u s > t t~ c d WEIGHTED<=4 @1  
+INFO: Trying process: u s > t t~ c s WEIGHTED<=4 @1  
+INFO: Crossed process found for u u~ > t t~ g g, reuse diagrams. 
+INFO: Crossed process found for u u~ > t t~ u u~, reuse diagrams. 
+INFO: Crossed process found for u u~ > t t~ c c~, reuse diagrams. 
+INFO: Crossed process found for u u~ > t t~ d d~, reuse diagrams. 
+INFO: Crossed process found for u u~ > t t~ s s~, reuse diagrams. 
+INFO: Crossed process found for u c~ > t t~ u c~, reuse diagrams. 
+INFO: Crossed process found for u d~ > t t~ u d~, reuse diagrams. 
+INFO: Crossed process found for u s~ > t t~ u s~, reuse diagrams. 
+INFO: Process c g > t t~ g c added to mirror process g c > t t~ g c 
+INFO: Process c u > t t~ u c added to mirror process u c > t t~ u c 
+INFO: Trying process: c c > t t~ u u WEIGHTED<=4 @1  
+INFO: Trying process: c c > t t~ u c WEIGHTED<=4 @1  
+INFO: Trying process: c c > t t~ c c WEIGHTED<=4 @1  
+INFO: Process has 14 diagrams 
+INFO: Trying process: c d > t t~ u d WEIGHTED<=4 @1  
+INFO: Trying process: c d > t t~ u s WEIGHTED<=4 @1  
+INFO: Trying process: c d > t t~ c d WEIGHTED<=4 @1  
+INFO: Process has 7 diagrams 
+INFO: Trying process: c d > t t~ c s WEIGHTED<=4 @1  
+INFO: Trying process: c s > t t~ u d WEIGHTED<=4 @1  
+INFO: Trying process: c s > t t~ u s WEIGHTED<=4 @1  
+INFO: Trying process: c s > t t~ c d WEIGHTED<=4 @1  
+INFO: Trying process: c s > t t~ c s WEIGHTED<=4 @1  
+INFO: Process has 7 diagrams 
+INFO: Crossed process found for c u~ > t t~ c u~, reuse diagrams. 
+INFO: Crossed process found for c c~ > t t~ g g, reuse diagrams. 
+INFO: Crossed process found for c c~ > t t~ u u~, reuse diagrams. 
+INFO: Crossed process found for c c~ > t t~ c c~, reuse diagrams. 
+INFO: Crossed process found for c c~ > t t~ d d~, reuse diagrams. 
+INFO: Crossed process found for c c~ > t t~ s s~, reuse diagrams. 
+INFO: Crossed process found for c d~ > t t~ c d~, reuse diagrams. 
+INFO: Crossed process found for c s~ > t t~ c s~, reuse diagrams. 
+INFO: Process d g > t t~ g d added to mirror process g d > t t~ g d 
+INFO: Process d u > t t~ u d added to mirror process u d > t t~ u d 
+INFO: Process d c > t t~ c d added to mirror process c d > t t~ c d 
+INFO: Trying process: d d > t t~ d d WEIGHTED<=4 @1  
+INFO: Process has 14 diagrams 
+INFO: Trying process: d d > t t~ d s WEIGHTED<=4 @1  
+INFO: Trying process: d d > t t~ s s WEIGHTED<=4 @1  
+INFO: Trying process: d s > t t~ d d WEIGHTED<=4 @1  
+INFO: Trying process: d s > t t~ d s WEIGHTED<=4 @1  
+INFO: Process has 7 diagrams 
+INFO: Trying process: d s > t t~ s s WEIGHTED<=4 @1  
+INFO: Crossed process found for d u~ > t t~ d u~, reuse diagrams. 
+INFO: Crossed process found for d c~ > t t~ d c~, reuse diagrams. 
+INFO: Crossed process found for d d~ > t t~ g g, reuse diagrams. 
+INFO: Crossed process found for d d~ > t t~ u u~, reuse diagrams. 
+INFO: Crossed process found for d d~ > t t~ c c~, reuse diagrams. 
+INFO: Crossed process found for d d~ > t t~ d d~, reuse diagrams. 
+INFO: Crossed process found for d d~ > t t~ s s~, reuse diagrams. 
+INFO: Crossed process found for d s~ > t t~ d s~, reuse diagrams. 
+INFO: Process s g > t t~ g s added to mirror process g s > t t~ g s 
+INFO: Process s u > t t~ u s added to mirror process u s > t t~ u s 
+INFO: Process s c > t t~ c s added to mirror process c s > t t~ c s 
+INFO: Process s d > t t~ d s added to mirror process d s > t t~ d s 
+INFO: Trying process: s s > t t~ d d WEIGHTED<=4 @1  
+INFO: Trying process: s s > t t~ d s WEIGHTED<=4 @1  
+INFO: Trying process: s s > t t~ s s WEIGHTED<=4 @1  
+INFO: Process has 14 diagrams 
+INFO: Crossed process found for s u~ > t t~ s u~, reuse diagrams. 
+INFO: Crossed process found for s c~ > t t~ s c~, reuse diagrams. 
+INFO: Crossed process found for s d~ > t t~ s d~, reuse diagrams. 
+INFO: Crossed process found for s s~ > t t~ g g, reuse diagrams. 
+INFO: Crossed process found for s s~ > t t~ u u~, reuse diagrams. 
+INFO: Crossed process found for s s~ > t t~ c c~, reuse diagrams. 
+INFO: Crossed process found for s s~ > t t~ d d~, reuse diagrams. 
+INFO: Crossed process found for s s~ > t t~ s s~, reuse diagrams. 
+INFO: Process u~ g > t t~ g u~ added to mirror process g u~ > t t~ g u~ 
+INFO: Process u~ u > t t~ g g added to mirror process u u~ > t t~ g g 
+INFO: Process u~ u > t t~ u u~ added to mirror process u u~ > t t~ u u~ 
+INFO: Process u~ u > t t~ c c~ added to mirror process u u~ > t t~ c c~ 
+INFO: Process u~ u > t t~ d d~ added to mirror process u u~ > t t~ d d~ 
+INFO: Process u~ u > t t~ s s~ added to mirror process u u~ > t t~ s s~ 
+INFO: Process u~ c > t t~ c u~ added to mirror process c u~ > t t~ c u~ 
+INFO: Process u~ d > t t~ d u~ added to mirror process d u~ > t t~ d u~ 
+INFO: Process u~ s > t t~ s u~ added to mirror process s u~ > t t~ s u~ 
+INFO: Crossed process found for u~ u~ > t t~ u~ u~, reuse diagrams. 
+INFO: Crossed process found for u~ c~ > t t~ u~ c~, reuse diagrams. 
+INFO: Crossed process found for u~ d~ > t t~ u~ d~, reuse diagrams. 
+INFO: Crossed process found for u~ s~ > t t~ u~ s~, reuse diagrams. 
+INFO: Process c~ g > t t~ g c~ added to mirror process g c~ > t t~ g c~ 
+INFO: Process c~ u > t t~ u c~ added to mirror process u c~ > t t~ u c~ 
+INFO: Process c~ c > t t~ g g added to mirror process c c~ > t t~ g g 
+INFO: Process c~ c > t t~ u u~ added to mirror process c c~ > t t~ u u~ 
+INFO: Process c~ c > t t~ c c~ added to mirror process c c~ > t t~ c c~ 
+INFO: Process c~ c > t t~ d d~ added to mirror process c c~ > t t~ d d~ 
+INFO: Process c~ c > t t~ s s~ added to mirror process c c~ > t t~ s s~ 
+INFO: Process c~ d > t t~ d c~ added to mirror process d c~ > t t~ d c~ 
+INFO: Process c~ s > t t~ s c~ added to mirror process s c~ > t t~ s c~ 
+INFO: Process c~ u~ > t t~ u~ c~ added to mirror process u~ c~ > t t~ u~ c~ 
+INFO: Crossed process found for c~ c~ > t t~ c~ c~, reuse diagrams. 
+INFO: Crossed process found for c~ d~ > t t~ c~ d~, reuse diagrams. 
+INFO: Crossed process found for c~ s~ > t t~ c~ s~, reuse diagrams. 
+INFO: Process d~ g > t t~ g d~ added to mirror process g d~ > t t~ g d~ 
+INFO: Process d~ u > t t~ u d~ added to mirror process u d~ > t t~ u d~ 
+INFO: Process d~ c > t t~ c d~ added to mirror process c d~ > t t~ c d~ 
+INFO: Process d~ d > t t~ g g added to mirror process d d~ > t t~ g g 
+INFO: Process d~ d > t t~ u u~ added to mirror process d d~ > t t~ u u~ 
+INFO: Process d~ d > t t~ c c~ added to mirror process d d~ > t t~ c c~ 
+INFO: Process d~ d > t t~ d d~ added to mirror process d d~ > t t~ d d~ 
+INFO: Process d~ d > t t~ s s~ added to mirror process d d~ > t t~ s s~ 
+INFO: Process d~ s > t t~ s d~ added to mirror process s d~ > t t~ s d~ 
+INFO: Process d~ u~ > t t~ u~ d~ added to mirror process u~ d~ > t t~ u~ d~ 
+INFO: Process d~ c~ > t t~ c~ d~ added to mirror process c~ d~ > t t~ c~ d~ 
+INFO: Crossed process found for d~ d~ > t t~ d~ d~, reuse diagrams. 
+INFO: Crossed process found for d~ s~ > t t~ d~ s~, reuse diagrams. 
+INFO: Process s~ g > t t~ g s~ added to mirror process g s~ > t t~ g s~ 
+INFO: Process s~ u > t t~ u s~ added to mirror process u s~ > t t~ u s~ 
+INFO: Process s~ c > t t~ c s~ added to mirror process c s~ > t t~ c s~ 
+INFO: Process s~ d > t t~ d s~ added to mirror process d s~ > t t~ d s~ 
+INFO: Process s~ s > t t~ g g added to mirror process s s~ > t t~ g g 
+INFO: Process s~ s > t t~ u u~ added to mirror process s s~ > t t~ u u~ 
+INFO: Process s~ s > t t~ c c~ added to mirror process s s~ > t t~ c c~ 
+INFO: Process s~ s > t t~ d d~ added to mirror process s s~ > t t~ d d~ 
+INFO: Process s~ s > t t~ s s~ added to mirror process s s~ > t t~ s s~ 
+INFO: Process s~ u~ > t t~ u~ s~ added to mirror process u~ s~ > t t~ u~ s~ 
+INFO: Process s~ c~ > t t~ c~ s~ added to mirror process c~ s~ > t t~ c~ s~ 
+INFO: Process s~ d~ > t t~ d~ s~ added to mirror process d~ s~ > t t~ d~ s~ 
+INFO: Crossed process found for s~ s~ > t t~ s~ s~, reuse diagrams. 
+65 processes with 1119 diagrams generated in 1.792 s
+Total: 65 processes with 1119 diagrams
+output madevent ../TMPOUT/CODEGEN_madonly_pp_ttjj --hel_recycling=False --vector_size=32
+INFO: initialize a new directory: CODEGEN_madonly_pp_ttjj 
+INFO: remove old information in CODEGEN_madonly_pp_ttjj 
+INFO: Organizing processes into subprocess groups 
+INFO: Generating Helas calls for process: g g > t t~ g g WEIGHTED<=4 @1 
+INFO: Processing color information for process: g g > t t~ g g @1 
+INFO: Generating Helas calls for process: g g > t t~ u u~ WEIGHTED<=4 @1 
+INFO: Processing color information for process: g g > t t~ u u~ @1 
+INFO: Combined process g g > t t~ c c~ WEIGHTED<=4 @1 with process g g > t t~ u u~ WEIGHTED<=4 @1 
+INFO: Combined process g g > t t~ d d~ WEIGHTED<=4 @1 with process g g > t t~ u u~ WEIGHTED<=4 @1 
+INFO: Combined process g g > t t~ s s~ WEIGHTED<=4 @1 with process g g > t t~ u u~ WEIGHTED<=4 @1 
+INFO: Generating Helas calls for process: g u > t t~ g u WEIGHTED<=4 @1 
+INFO: Processing color information for process: g u > t t~ g u @1 
+INFO: Combined process g c > t t~ g c WEIGHTED<=4 @1 with process g u > t t~ g u WEIGHTED<=4 @1 
+INFO: Combined process g d > t t~ g d WEIGHTED<=4 @1 with process g u > t t~ g u WEIGHTED<=4 @1 
+INFO: Combined process g s > t t~ g s WEIGHTED<=4 @1 with process g u > t t~ g u WEIGHTED<=4 @1 
+INFO: Generating Helas calls for process: g u~ > t t~ g u~ WEIGHTED<=4 @1 
+INFO: Processing color information for process: g u~ > t t~ g u~ @1 
+INFO: Combined process g c~ > t t~ g c~ WEIGHTED<=4 @1 with process g u~ > t t~ g u~ WEIGHTED<=4 @1 
+INFO: Combined process g d~ > t t~ g d~ WEIGHTED<=4 @1 with process g u~ > t t~ g u~ WEIGHTED<=4 @1 
+INFO: Combined process g s~ > t t~ g s~ WEIGHTED<=4 @1 with process g u~ > t t~ g u~ WEIGHTED<=4 @1 
+INFO: Generating Helas calls for process: u u~ > t t~ g g WEIGHTED<=4 @1 
+INFO: Processing color information for process: u u~ > t t~ g g @1 
+INFO: Combined process c c~ > t t~ g g WEIGHTED<=4 @1 with process u u~ > t t~ g g WEIGHTED<=4 @1 
+INFO: Combined process d d~ > t t~ g g WEIGHTED<=4 @1 with process u u~ > t t~ g g WEIGHTED<=4 @1 
+INFO: Combined process s s~ > t t~ g g WEIGHTED<=4 @1 with process u u~ > t t~ g g WEIGHTED<=4 @1 
+INFO: Generating Helas calls for process: u u > t t~ u u WEIGHTED<=4 @1 
+INFO: Processing color information for process: u u > t t~ u u @1 
+INFO: Generating Helas calls for process: u u~ > t t~ u u~ WEIGHTED<=4 @1 
+INFO: Processing color information for process: u u~ > t t~ u u~ @1 
+INFO: Combined process c c > t t~ c c WEIGHTED<=4 @1 with process u u > t t~ u u WEIGHTED<=4 @1 
+INFO: Combined process c c~ > t t~ c c~ WEIGHTED<=4 @1 with process u u~ > t t~ u u~ WEIGHTED<=4 @1 
+INFO: Combined process d d > t t~ d d WEIGHTED<=4 @1 with process u u > t t~ u u WEIGHTED<=4 @1 
+INFO: Combined process d d~ > t t~ d d~ WEIGHTED<=4 @1 with process u u~ > t t~ u u~ WEIGHTED<=4 @1 
+INFO: Combined process s s > t t~ s s WEIGHTED<=4 @1 with process u u > t t~ u u WEIGHTED<=4 @1 
+INFO: Combined process s s~ > t t~ s s~ WEIGHTED<=4 @1 with process u u~ > t t~ u u~ WEIGHTED<=4 @1 
+INFO: Generating Helas calls for process: u~ u~ > t t~ u~ u~ WEIGHTED<=4 @1 
+INFO: Processing color information for process: u~ u~ > t t~ u~ u~ @1 
+INFO: Combined process c~ c~ > t t~ c~ c~ WEIGHTED<=4 @1 with process u~ u~ > t t~ u~ u~ WEIGHTED<=4 @1 
+INFO: Combined process d~ d~ > t t~ d~ d~ WEIGHTED<=4 @1 with process u~ u~ > t t~ u~ u~ WEIGHTED<=4 @1 
+INFO: Combined process s~ s~ > t t~ s~ s~ WEIGHTED<=4 @1 with process u~ u~ > t t~ u~ u~ WEIGHTED<=4 @1 
+INFO: Generating Helas calls for process: u c > t t~ u c WEIGHTED<=4 @1 
+INFO: Processing color information for process: u c > t t~ u c @1 
+INFO: Combined process u d > t t~ u d WEIGHTED<=4 @1 with process u c > t t~ u c WEIGHTED<=4 @1 
+INFO: Combined process u s > t t~ u s WEIGHTED<=4 @1 with process u c > t t~ u c WEIGHTED<=4 @1 
+INFO: Generating Helas calls for process: u u~ > t t~ c c~ WEIGHTED<=4 @1 
+INFO: Processing color information for process: u u~ > t t~ c c~ @1 
+INFO: Combined process u u~ > t t~ d d~ WEIGHTED<=4 @1 with process u u~ > t t~ c c~ WEIGHTED<=4 @1 
+INFO: Combined process u u~ > t t~ s s~ WEIGHTED<=4 @1 with process u u~ > t t~ c c~ WEIGHTED<=4 @1 
+INFO: Generating Helas calls for process: u c~ > t t~ u c~ WEIGHTED<=4 @1 
+INFO: Processing color information for process: u c~ > t t~ u c~ @1 
+INFO: Combined process u d~ > t t~ u d~ WEIGHTED<=4 @1 with process u c~ > t t~ u c~ WEIGHTED<=4 @1 
+INFO: Combined process u s~ > t t~ u s~ WEIGHTED<=4 @1 with process u c~ > t t~ u c~ WEIGHTED<=4 @1 
+INFO: Combined process c d > t t~ c d WEIGHTED<=4 @1 with process u c > t t~ u c WEIGHTED<=4 @1 
+INFO: Combined process c s > t t~ c s WEIGHTED<=4 @1 with process u c > t t~ u c WEIGHTED<=4 @1 
+INFO: Combined process c u~ > t t~ c u~ WEIGHTED<=4 @1 with process u c~ > t t~ u c~ WEIGHTED<=4 @1 
+INFO: Combined process c c~ > t t~ u u~ WEIGHTED<=4 @1 with process u u~ > t t~ c c~ WEIGHTED<=4 @1 
+INFO: Combined process c c~ > t t~ d d~ WEIGHTED<=4 @1 with process u u~ > t t~ c c~ WEIGHTED<=4 @1 
+INFO: Combined process c c~ > t t~ s s~ WEIGHTED<=4 @1 with process u u~ > t t~ c c~ WEIGHTED<=4 @1 
+INFO: Combined process c d~ > t t~ c d~ WEIGHTED<=4 @1 with process u c~ > t t~ u c~ WEIGHTED<=4 @1 
+INFO: Combined process c s~ > t t~ c s~ WEIGHTED<=4 @1 with process u c~ > t t~ u c~ WEIGHTED<=4 @1 
+INFO: Combined process d s > t t~ d s WEIGHTED<=4 @1 with process u c > t t~ u c WEIGHTED<=4 @1 
+INFO: Combined process d u~ > t t~ d u~ WEIGHTED<=4 @1 with process u c~ > t t~ u c~ WEIGHTED<=4 @1 
+INFO: Combined process d c~ > t t~ d c~ WEIGHTED<=4 @1 with process u c~ > t t~ u c~ WEIGHTED<=4 @1 
+INFO: Combined process d d~ > t t~ u u~ WEIGHTED<=4 @1 with process u u~ > t t~ c c~ WEIGHTED<=4 @1 
+INFO: Combined process d d~ > t t~ c c~ WEIGHTED<=4 @1 with process u u~ > t t~ c c~ WEIGHTED<=4 @1 
+INFO: Combined process d d~ > t t~ s s~ WEIGHTED<=4 @1 with process u u~ > t t~ c c~ WEIGHTED<=4 @1 
+INFO: Combined process d s~ > t t~ d s~ WEIGHTED<=4 @1 with process u c~ > t t~ u c~ WEIGHTED<=4 @1 
+INFO: Combined process s u~ > t t~ s u~ WEIGHTED<=4 @1 with process u c~ > t t~ u c~ WEIGHTED<=4 @1 
+INFO: Combined process s c~ > t t~ s c~ WEIGHTED<=4 @1 with process u c~ > t t~ u c~ WEIGHTED<=4 @1 
+INFO: Combined process s d~ > t t~ s d~ WEIGHTED<=4 @1 with process u c~ > t t~ u c~ WEIGHTED<=4 @1 
+INFO: Combined process s s~ > t t~ u u~ WEIGHTED<=4 @1 with process u u~ > t t~ c c~ WEIGHTED<=4 @1 
+INFO: Combined process s s~ > t t~ c c~ WEIGHTED<=4 @1 with process u u~ > t t~ c c~ WEIGHTED<=4 @1 
+INFO: Combined process s s~ > t t~ d d~ WEIGHTED<=4 @1 with process u u~ > t t~ c c~ WEIGHTED<=4 @1 
+INFO: Generating Helas calls for process: u~ c~ > t t~ u~ c~ WEIGHTED<=4 @1 
+INFO: Processing color information for process: u~ c~ > t t~ u~ c~ @1 
+INFO: Combined process u~ d~ > t t~ u~ d~ WEIGHTED<=4 @1 with process u~ c~ > t t~ u~ c~ WEIGHTED<=4 @1 
+INFO: Combined process u~ s~ > t t~ u~ s~ WEIGHTED<=4 @1 with process u~ c~ > t t~ u~ c~ WEIGHTED<=4 @1 
+INFO: Combined process c~ d~ > t t~ c~ d~ WEIGHTED<=4 @1 with process u~ c~ > t t~ u~ c~ WEIGHTED<=4 @1 
+INFO: Combined process c~ s~ > t t~ c~ s~ WEIGHTED<=4 @1 with process u~ c~ > t t~ u~ c~ WEIGHTED<=4 @1 
+INFO: Combined process d~ s~ > t t~ d~ s~ WEIGHTED<=4 @1 with process u~ c~ > t t~ u~ c~ WEIGHTED<=4 @1 
+INFO: Creating files in directory P1_gg_ttxgg 
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
+INFO: Generating Feynman diagrams for Process: g g > t t~ g g WEIGHTED<=4 @1 
+INFO: Finding symmetric diagrams for subprocess group gg_ttxgg 
+INFO: Creating files in directory P1_gg_ttxqq 
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
+INFO: Generating Feynman diagrams for Process: g g > t t~ u u~ WEIGHTED<=4 @1 
+INFO: Finding symmetric diagrams for subprocess group gg_ttxqq 
+INFO: Creating files in directory P1_gq_ttxgq 
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
+INFO: Generating Feynman diagrams for Process: g u > t t~ g u WEIGHTED<=4 @1 
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
+INFO: Generating Feynman diagrams for Process: g u~ > t t~ g u~ WEIGHTED<=4 @1 
+INFO: Finding symmetric diagrams for subprocess group gq_ttxgq 
+INFO: Creating files in directory P1_qq_ttxgg 
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
+INFO: Generating Feynman diagrams for Process: u u~ > t t~ g g WEIGHTED<=4 @1 
+INFO: Finding symmetric diagrams for subprocess group qq_ttxgg 
+INFO: Creating files in directory P1_qq_ttxqq 
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
+INFO: Generating Feynman diagrams for Process: u u > t t~ u u WEIGHTED<=4 @1 
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
+INFO: Generating Feynman diagrams for Process: u u~ > t t~ u u~ WEIGHTED<=4 @1 
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
+INFO: Generating Feynman diagrams for Process: u~ u~ > t t~ u~ u~ WEIGHTED<=4 @1 
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
+INFO: Generating Feynman diagrams for Process: u c > t t~ u c WEIGHTED<=4 @1 
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
+INFO: Generating Feynman diagrams for Process: u u~ > t t~ c c~ WEIGHTED<=4 @1 
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
+INFO: Generating Feynman diagrams for Process: u c~ > t t~ u c~ WEIGHTED<=4 @1 
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m False True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
+[1;32mDEBUG:  vector, subproc_group,self.opt['vector_size'] = [0m 32 True 32 [1;30m[export_v4.py at line 1871][0m [0m
+INFO: Generating Feynman diagrams for Process: u~ c~ > t t~ u~ c~ WEIGHTED<=4 @1 
+INFO: Finding symmetric diagrams for subprocess group qq_ttxqq 
+Generated helas calls for 12 subprocesses (337 diagrams) in 1.234 s
+Wrote files for 710 helas calls in 1.766 s
+ALOHA: aloha starts to compute helicity amplitudes
+ALOHA: aloha creates VVV1 routines[0m
+ALOHA: aloha creates FFV1 routines[0m
+ALOHA: aloha creates VVVV1 routines[0m
+ALOHA: aloha creates VVVV3 routines[0m
+ALOHA: aloha creates VVVV4 routines[0m
+ALOHA: aloha creates 5 routines in  0.315 s
+The option zerowidth_tchannel is modified [True] but will not be written in the configuration files.
+If you want to make this value the default for future session, you can run 'save options --all'
+save configuration file to /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_madonly_pp_ttjj/Cards/me5_configuration.txt
+INFO: Use Fortran compiler gfortran 
+INFO: Use c++ compiler g++ 
+INFO: Generate jpeg diagrams 
+INFO: Generate web pages 
+Output to directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_madonly_pp_ttjj done.
+Type "launch" to generate events from this process, or see
+/data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_madonly_pp_ttjj/README
+Run "open index.html" to see more information about this process.
+quit
+
+real	0m7.893s
+user	0m7.305s
+sys	0m0.557s
+Code generation completed in 7 seconds
