@@ -14,8 +14,8 @@ make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp
 make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/pp_tt.mad/SubProcesses/P1_uux_ttx'
 make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/pp_tt.mad/SubProcesses/P1_uux_ttx'
 
-make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/pp_tt.mad/SubProcesses/P1_uux_ttx'
 make USEBUILDDIR=1 BACKEND=cpp512z
+make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/pp_tt.mad/SubProcesses/P1_uux_ttx'
 make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/pp_tt.mad/SubProcesses/P1_uux_ttx'
 make[1]: Nothing to be done for 'all'.
 make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/pp_tt.mad/SubProcesses/P1_uux_ttx'
@@ -32,7 +32,7 @@ make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/
 
 OMP_NUM_THREADS=
 
-DATE: 2024-07-26_15:42:59
+DATE: 2024-07-26_16:00:41
 
 On itscrd90.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
 Working directory (run): /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/pp_tt.mad/SubProcesses/P1_uux_ttx
@@ -50,7 +50,9 @@ CUDACPP_RUNTIME_VECSIZEUSED = 8192
 1 ! ICONFIG number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 --------------------
 Executing ' ./madevent_fortran < /tmp/avalassi/input_pptt_x1_fortran > /tmp/avalassi/output_pptt_x1_fortran'
+ RESET CUMULATIVE VARIABLE in SMATRIX1
  RESET CUMULATIVE VARIABLE
+ RESET CUMULATIVE VARIABLE in SAMPLE_FULL
  RESET CUMULATIVE VARIABLE
  [OPENMPTH] omp_get_max_threads/nproc = 1/4
  [NGOODHEL] ngoodhel/ncomb = 8/16
@@ -60,9 +62,9 @@ Executing ' ./madevent_fortran < /tmp/avalassi/input_pptt_x1_fortran > /tmp/aval
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 63.84 [63.839349162943535] fbridge_mode=0
  [UNWEIGHT] Wrote 2424 events (found 5627 events)
- [COUNTERS] PROGRAM TOTAL          :    0.7916s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.7819s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.0097s for     8192 events => throughput is 8.46E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.7761s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.7664s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.0096s for     8192 events => throughput is 8.49E+05 events/s
 
 *** (1) EXECUTE MADEVENT_FORTRAN x1 (create events.lhe) ***
 --------------------
@@ -77,7 +79,9 @@ CUDACPP_RUNTIME_VECSIZEUSED = 8192
 1 ! ICONFIG number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 --------------------
 Executing ' ./madevent_fortran < /tmp/avalassi/input_pptt_x1_fortran > /tmp/avalassi/output_pptt_x1_fortran'
+ RESET CUMULATIVE VARIABLE in SMATRIX1
  RESET CUMULATIVE VARIABLE
+ RESET CUMULATIVE VARIABLE in SAMPLE_FULL
  RESET CUMULATIVE VARIABLE
  [OPENMPTH] omp_get_max_threads/nproc = 1/4
  [NGOODHEL] ngoodhel/ncomb = 8/16
@@ -87,9 +91,9 @@ Executing ' ./madevent_fortran < /tmp/avalassi/input_pptt_x1_fortran > /tmp/aval
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 63.84 [63.839349162943535] fbridge_mode=0
  [UNWEIGHT] Wrote 1620 events (found 1622 events)
- [COUNTERS] PROGRAM TOTAL          :    0.3992s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.3891s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.0102s for     8192 events => throughput is 8.06E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.3777s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.3681s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.0096s for     8192 events => throughput is 8.54E+05 events/s
 
 *** (1) EXECUTE MADEVENT_FORTRAN x10 (create events.lhe) ***
 --------------------
@@ -104,9 +108,13 @@ CUDACPP_RUNTIME_VECSIZEUSED = 8192
 1 ! ICONFIG number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 --------------------
 Executing ' ./madevent_fortran < /tmp/avalassi/input_pptt_x10_fortran > /tmp/avalassi/output_pptt_x10_fortran'
+ RESET CUMULATIVE VARIABLE in SMATRIX1
  RESET CUMULATIVE VARIABLE
+ RESET CUMULATIVE VARIABLE in SAMPLE_FULL
  RESET CUMULATIVE VARIABLE
+ RESET CUMULATIVE VARIABLE in SMATRIX1
  RESET CUMULATIVE VARIABLE
+ RESET CUMULATIVE VARIABLE in SAMPLE_FULL
  RESET CUMULATIVE VARIABLE
  [OPENMPTH] omp_get_max_threads/nproc = 1/4
  [NGOODHEL] ngoodhel/ncomb = 8
@@ -118,9 +126,9 @@ Executing ' ./madevent_fortran < /tmp/avalassi/input_pptt_x10_fortran > /tmp/ava
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 64.33 [64.332743819208815] fbridge_mode=0
  [UNWEIGHT] Wrote 2093 events (found 2098 events)
- [COUNTERS] PROGRAM TOTAL          :    1.7046s
- [COUNTERS] Fortran Overhead ( 0 ) :    1.5820s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.1226s for   106496 events => throughput is 8.69E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    1.6526s
+ [COUNTERS] Fortran Overhead ( 0 ) :    1.5309s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.1217s for   106496 events => throughput is 8.75E+05 events/s
 
 *** (2-none) EXECUTE MADEVENT_CPP x1 (create events.lhe) ***
 --------------------
@@ -135,7 +143,9 @@ CUDACPP_RUNTIME_VECSIZEUSED = 8192
 1 ! ICONFIG number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 --------------------
 Executing ' ./build.none_d_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_pptt_x1_cudacpp > /tmp/avalassi/output_pptt_x1_cudacpp'
+ RESET CUMULATIVE VARIABLE in SMATRIX1_MULTI
  RESET CUMULATIVE VARIABLE
+ RESET CUMULATIVE VARIABLE in SAMPLE_FULL
  RESET CUMULATIVE VARIABLE
  [OPENMPTH] omp_get_max_threads/nproc = 1/4
  [NGOODHEL] ngoodhel/ncomb = 8/16
@@ -145,9 +155,9 @@ Executing ' ./build.none_d_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_pptt_x1_
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 63.84 [63.839349162943549] fbridge_mode=1
  [UNWEIGHT] Wrote 1620 events (found 1622 events)
- [COUNTERS] PROGRAM TOTAL          :    0.3920s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.3823s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0097s for     8192 events => throughput is 8.43E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.3892s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.3793s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0100s for     8192 events => throughput is 8.21E+05 events/s
 
 *** (2-none) Compare MADEVENT_CPP x1 xsec to MADEVENT_FORTRAN xsec ***
 
@@ -170,7 +180,9 @@ CUDACPP_RUNTIME_VECSIZEUSED = 8192
 1 ! ICONFIG number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 --------------------
 Executing ' ./build.none_d_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_pptt_x10_cudacpp > /tmp/avalassi/output_pptt_x10_cudacpp'
+ RESET CUMULATIVE VARIABLE in SMATRIX1_MULTI
  RESET CUMULATIVE VARIABLE
+ RESET CUMULATIVE VARIABLE in SAMPLE_FULL
  RESET CUMULATIVE VARIABLE
  [OPENMPTH] omp_get_max_threads/nproc = 1/4
  [NGOODHEL] ngoodhel/ncomb = 8/16
@@ -180,9 +192,9 @@ Executing ' ./build.none_d_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_pptt_x10
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 64.41 [64.407793169984316] fbridge_mode=1
  [UNWEIGHT] Wrote 1786 events (found 1791 events)
- [COUNTERS] PROGRAM TOTAL          :    1.4690s
- [COUNTERS] Fortran Overhead ( 0 ) :    1.3575s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.1115s for    90112 events => throughput is 8.08E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    1.4890s
+ [COUNTERS] Fortran Overhead ( 0 ) :    1.3774s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.1116s for    90112 events => throughput is 8.08E+05 events/s
 
 *** (2-none) Compare MADEVENT_CPP x10 xsec to MADEVENT_FORTRAN xsec ***
 
