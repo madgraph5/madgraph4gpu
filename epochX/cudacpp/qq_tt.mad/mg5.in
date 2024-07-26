@@ -1,6 +1,0 @@
-set stdout_level DEBUG
-set zerowidth_tchannel F
-define q = u c d s
-define q~ = u~ c~ d~ s~
-generate q q~ > t t~
-output madevent_simd qq_tt.mad --hel_recycling=False --vector_size=32 
