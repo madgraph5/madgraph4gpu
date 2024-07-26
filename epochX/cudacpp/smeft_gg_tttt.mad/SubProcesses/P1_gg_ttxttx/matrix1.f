@@ -277,7 +277,8 @@ C           Print the number of good helicities
                   NGOODHEL(IMIRROR)=NGOODHEL(IMIRROR)+1
                 ENDIF
               END DO
-              WRITE (6,*) 'NGOODHEL =', NGOODHEL(IMIRROR) ! no need to print imirror?
+              WRITE (6,*) 'IMIRROR =', IMIRROR
+              WRITE (6,*) 'NGOODHEL =', NGOODHEL(IMIRROR)
               WRITE (6,*) 'NCOMB =', NCOMB
             ENDIF
           ENDIF
