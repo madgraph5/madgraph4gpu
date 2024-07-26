@@ -1,10 +1,10 @@
 Working directory (build): /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/pp_tt.mad/SubProcesses/P1_uux_ttx
 
+
 make USEBUILDDIR=1 BACKEND=cuda
 
-
-
 make USEBUILDDIR=1 BACKEND=cppnone
+
 make USEBUILDDIR=1 BACKEND=cppsse4
 make USEBUILDDIR=1 BACKEND=cppavx2
 
@@ -13,9 +13,9 @@ make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp
 make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/pp_tt.mad/SubProcesses/P1_uux_ttx'
 make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/pp_tt.mad/SubProcesses/P1_uux_ttx'
 make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/pp_tt.mad/SubProcesses/P1_uux_ttx'
+make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/pp_tt.mad/SubProcesses/P1_uux_ttx'
 
 make USEBUILDDIR=1 BACKEND=cpp512z
-make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/pp_tt.mad/SubProcesses/P1_uux_ttx'
 make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/pp_tt.mad/SubProcesses/P1_uux_ttx'
 make[1]: Nothing to be done for 'all'.
 make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/pp_tt.mad/SubProcesses/P1_uux_ttx'
@@ -32,7 +32,7 @@ make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/
 
 OMP_NUM_THREADS=
 
-DATE: 2024-07-26_16:49:06
+DATE: 2024-07-26_17:24:33
 
 On itscrd90.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
 Working directory (run): /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/pp_tt.mad/SubProcesses/P1_uux_ttx
@@ -64,9 +64,9 @@ Executing ' ./madevent_fortran < /tmp/avalassi/input_pptt_x1_fortran > /tmp/aval
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 63.84 [63.839349162943535] fbridge_mode=0
  [UNWEIGHT] Wrote 2424 events (found 5627 events)
- [COUNTERS] PROGRAM TOTAL          :    0.7717s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.7623s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.0093s for     8192 events => throughput is 8.76E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.8125s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.8024s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.0102s for     8192 events => throughput is 8.06E+05 events/s
 
 *** (1) EXECUTE MADEVENT_FORTRAN x1 (create events.lhe) ***
 --------------------
@@ -95,9 +95,9 @@ Executing ' ./madevent_fortran < /tmp/avalassi/input_pptt_x1_fortran > /tmp/aval
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 63.84 [63.839349162943535] fbridge_mode=0
  [UNWEIGHT] Wrote 1620 events (found 1622 events)
- [COUNTERS] PROGRAM TOTAL          :    0.3811s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.3712s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.0099s for     8192 events => throughput is 8.30E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.3907s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.3810s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.0097s for     8192 events => throughput is 8.43E+05 events/s
 
 *** (1) EXECUTE MADEVENT_FORTRAN x10 (create events.lhe) ***
 --------------------
@@ -134,9 +134,9 @@ Executing ' ./madevent_fortran < /tmp/avalassi/input_pptt_x10_fortran > /tmp/ava
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 64.33 [64.332743819208815] fbridge_mode=0
  [UNWEIGHT] Wrote 2093 events (found 2098 events)
- [COUNTERS] PROGRAM TOTAL          :    1.6667s
- [COUNTERS] Fortran Overhead ( 0 ) :    1.5461s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.1207s for   106496 events => throughput is 8.83E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    1.7297s
+ [COUNTERS] Fortran Overhead ( 0 ) :    1.6034s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.1263s for   106496 events => throughput is 8.43E+05 events/s
 
 *** (2-none) EXECUTE MADEVENT_CPP x1 (create events.lhe) ***
 --------------------
@@ -154,20 +154,20 @@ Executing ' ./build.none_d_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_pptt_x1_
  RESET CUMULATIVE VARIABLE in SMATRIX1_MULTI
  RESET CUMULATIVE VARIABLE
  IMIRROR =           2
- NGOODHEL =          -1
+ NGOODHEL =           8
  RESET CUMULATIVE VARIABLE in SAMPLE_FULL
  RESET CUMULATIVE VARIABLE
  [OPENMPTH] omp_get_max_threads/nproc = 1/4
- [NGOODHEL] ngoodhel/ncomb = -1/16
+ [NGOODHEL] ngoodhel/ncomb = 8/16
  [XSECTION] VECSIZE_USED = 8192
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 63.84 [63.839349162943549] fbridge_mode=1
  [UNWEIGHT] Wrote 1620 events (found 1622 events)
- [COUNTERS] PROGRAM TOTAL          :    0.3797s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.3699s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0098s for     8192 events => throughput is 8.33E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.3924s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.3819s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0104s for     8192 events => throughput is 7.86E+05 events/s
 
 *** (2-none) Compare MADEVENT_CPP x1 xsec to MADEVENT_FORTRAN xsec ***
 
@@ -193,7 +193,7 @@ Executing ' ./build.none_d_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_pptt_x10
  RESET CUMULATIVE VARIABLE in SMATRIX1_MULTI
  RESET CUMULATIVE VARIABLE
  IMIRROR =           2
- NGOODHEL =          -1
+ NGOODHEL =           8
  RESET CUMULATIVE VARIABLE in SAMPLE_FULL
  RESET CUMULATIVE VARIABLE
  RESET CUMULATIVE VARIABLE in SMATRIX1_MULTI
@@ -203,7 +203,7 @@ Executing ' ./build.none_d_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_pptt_x10
  RESET CUMULATIVE VARIABLE in SAMPLE_FULL
  RESET CUMULATIVE VARIABLE
  [OPENMPTH] omp_get_max_threads/nproc = 1/4
- [NGOODHEL] ngoodhel/ncomb = -1
+ [NGOODHEL] ngoodhel/ncomb = 8
 8/16
 16
  [XSECTION] VECSIZE_USED = 8192
@@ -212,9 +212,9 @@ Executing ' ./build.none_d_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_pptt_x10
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 64.33 [64.332743819208815] fbridge_mode=1
  [UNWEIGHT] Wrote 2093 events (found 2098 events)
- [COUNTERS] PROGRAM TOTAL          :    1.7230s
- [COUNTERS] Fortran Overhead ( 0 ) :    1.5912s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.1318s for   106496 events => throughput is 8.08E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    1.7323s
+ [COUNTERS] Fortran Overhead ( 0 ) :    1.5999s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.1324s for   106496 events => throughput is 8.04E+05 events/s
 
 *** (2-none) Compare MADEVENT_CPP x10 xsec to MADEVENT_FORTRAN xsec ***
 
@@ -227,12 +227,12 @@ OK! events.lhe.cpp.10 and events.lhe.ref.10 are identical
 *** EXECUTE CHECK(8192) -p 256 32 1 --bridge ***
 Process                     = SIGMA_SM_UUX_TTX_CPP [gcc 11.3.1] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+BRDHST/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 8.024397e+05                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 7.786266e+05                 )  sec^-1
 
 *** EXECUTE CHECK(8192) -p 256 32 1 ***
 Process                     = SIGMA_SM_UUX_TTX_CPP [gcc 11.3.1] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 8.031882e+05                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 7.805678e+05                 )  sec^-1
 
 *** (2-sse4) EXECUTE MADEVENT_CPP x1 (create events.lhe) ***
 --------------------
@@ -250,20 +250,20 @@ Executing ' ./build.sse4_d_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_pptt_x1_
  RESET CUMULATIVE VARIABLE in SMATRIX1_MULTI
  RESET CUMULATIVE VARIABLE
  IMIRROR =           2
- NGOODHEL =          -1
+ NGOODHEL =           8
  RESET CUMULATIVE VARIABLE in SAMPLE_FULL
  RESET CUMULATIVE VARIABLE
  [OPENMPTH] omp_get_max_threads/nproc = 1/4
- [NGOODHEL] ngoodhel/ncomb = -1/16
+ [NGOODHEL] ngoodhel/ncomb = 8/16
  [XSECTION] VECSIZE_USED = 8192
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 63.84 [63.839349162943542] fbridge_mode=1
  [UNWEIGHT] Wrote 1620 events (found 1622 events)
- [COUNTERS] PROGRAM TOTAL          :    0.3744s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.3673s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0071s for     8192 events => throughput is 1.16E+06 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.3954s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.3882s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0073s for     8192 events => throughput is 1.13E+06 events/s
 
 *** (2-sse4) Compare MADEVENT_CPP x1 xsec to MADEVENT_FORTRAN xsec ***
 
@@ -289,7 +289,7 @@ Executing ' ./build.sse4_d_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_pptt_x10
  RESET CUMULATIVE VARIABLE in SMATRIX1_MULTI
  RESET CUMULATIVE VARIABLE
  IMIRROR =           2
- NGOODHEL =          -1
+ NGOODHEL =           8
  RESET CUMULATIVE VARIABLE in SAMPLE_FULL
  RESET CUMULATIVE VARIABLE
  RESET CUMULATIVE VARIABLE in SMATRIX1_MULTI
@@ -299,7 +299,7 @@ Executing ' ./build.sse4_d_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_pptt_x10
  RESET CUMULATIVE VARIABLE in SAMPLE_FULL
  RESET CUMULATIVE VARIABLE
  [OPENMPTH] omp_get_max_threads/nproc = 1/4
- [NGOODHEL] ngoodhel/ncomb = -1
+ [NGOODHEL] ngoodhel/ncomb = 8
 8/16
 16
  [XSECTION] VECSIZE_USED = 8192
@@ -308,9 +308,9 @@ Executing ' ./build.sse4_d_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_pptt_x10
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 64.33 [64.332743819208815] fbridge_mode=1
  [UNWEIGHT] Wrote 2093 events (found 2098 events)
- [COUNTERS] PROGRAM TOTAL          :    1.6766s
- [COUNTERS] Fortran Overhead ( 0 ) :    1.5852s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0914s for   106496 events => throughput is 1.17E+06 events/s
+ [COUNTERS] PROGRAM TOTAL          :    1.6847s
+ [COUNTERS] Fortran Overhead ( 0 ) :    1.5926s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0922s for   106496 events => throughput is 1.16E+06 events/s
 
 *** (2-sse4) Compare MADEVENT_CPP x10 xsec to MADEVENT_FORTRAN xsec ***
 
@@ -323,12 +323,12 @@ OK! events.lhe.cpp.10 and events.lhe.ref.10 are identical
 *** EXECUTE CHECK(8192) -p 256 32 1 --bridge ***
 Process                     = SIGMA_SM_UUX_TTX_CPP [gcc 11.3.1] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+BRDHST/sse4+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 1.104481e+06                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.119974e+06                 )  sec^-1
 
 *** EXECUTE CHECK(8192) -p 256 32 1 ***
 Process                     = SIGMA_SM_UUX_TTX_CPP [gcc 11.3.1] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/sse4+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 1.113504e+06                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.129933e+06                 )  sec^-1
 
 *** (2-avx2) EXECUTE MADEVENT_CPP x1 (create events.lhe) ***
 --------------------
@@ -346,20 +346,20 @@ Executing ' ./build.avx2_d_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_pptt_x1_
  RESET CUMULATIVE VARIABLE in SMATRIX1_MULTI
  RESET CUMULATIVE VARIABLE
  IMIRROR =           2
- NGOODHEL =          -1
+ NGOODHEL =           8
  RESET CUMULATIVE VARIABLE in SAMPLE_FULL
  RESET CUMULATIVE VARIABLE
  [OPENMPTH] omp_get_max_threads/nproc = 1/4
- [NGOODHEL] ngoodhel/ncomb = -1/16
+ [NGOODHEL] ngoodhel/ncomb = 8/16
  [XSECTION] VECSIZE_USED = 8192
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 63.84 [63.839349162943535] fbridge_mode=1
  [UNWEIGHT] Wrote 1620 events (found 1622 events)
- [COUNTERS] PROGRAM TOTAL          :    0.3853s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.3795s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0058s for     8192 events => throughput is 1.42E+06 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.3821s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.3770s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0052s for     8192 events => throughput is 1.58E+06 events/s
 
 *** (2-avx2) Compare MADEVENT_CPP x1 xsec to MADEVENT_FORTRAN xsec ***
 
@@ -385,7 +385,7 @@ Executing ' ./build.avx2_d_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_pptt_x10
  RESET CUMULATIVE VARIABLE in SMATRIX1_MULTI
  RESET CUMULATIVE VARIABLE
  IMIRROR =           2
- NGOODHEL =          -1
+ NGOODHEL =           8
  RESET CUMULATIVE VARIABLE in SAMPLE_FULL
  RESET CUMULATIVE VARIABLE
  RESET CUMULATIVE VARIABLE in SMATRIX1_MULTI
@@ -395,7 +395,7 @@ Executing ' ./build.avx2_d_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_pptt_x10
  RESET CUMULATIVE VARIABLE in SAMPLE_FULL
  RESET CUMULATIVE VARIABLE
  [OPENMPTH] omp_get_max_threads/nproc = 1/4
- [NGOODHEL] ngoodhel/ncomb = -1
+ [NGOODHEL] ngoodhel/ncomb = 8
 8/16
 16
  [XSECTION] VECSIZE_USED = 8192
@@ -404,9 +404,9 @@ Executing ' ./build.avx2_d_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_pptt_x10
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 64.33 [64.332743819208801] fbridge_mode=1
  [UNWEIGHT] Wrote 2093 events (found 2098 events)
- [COUNTERS] PROGRAM TOTAL          :    1.6640s
- [COUNTERS] Fortran Overhead ( 0 ) :    1.5924s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0716s for   106496 events => throughput is 1.49E+06 events/s
+ [COUNTERS] PROGRAM TOTAL          :    1.6627s
+ [COUNTERS] Fortran Overhead ( 0 ) :    1.5921s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0706s for   106496 events => throughput is 1.51E+06 events/s
 
 *** (2-avx2) Compare MADEVENT_CPP x10 xsec to MADEVENT_FORTRAN xsec ***
 
@@ -419,12 +419,12 @@ OK! events.lhe.cpp.10 and events.lhe.ref.10 are identical
 *** EXECUTE CHECK(8192) -p 256 32 1 --bridge ***
 Process                     = SIGMA_SM_UUX_TTX_CPP [gcc 11.3.1] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+BRDHST/avx2+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 1.486908e+06                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.453371e+06                 )  sec^-1
 
 *** EXECUTE CHECK(8192) -p 256 32 1 ***
 Process                     = SIGMA_SM_UUX_TTX_CPP [gcc 11.3.1] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/avx2+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 1.488900e+06                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.498047e+06                 )  sec^-1
 
 *** (2-512y) EXECUTE MADEVENT_CPP x1 (create events.lhe) ***
 --------------------
@@ -442,20 +442,20 @@ Executing ' ./build.512y_d_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_pptt_x1_
  RESET CUMULATIVE VARIABLE in SMATRIX1_MULTI
  RESET CUMULATIVE VARIABLE
  IMIRROR =           2
- NGOODHEL =          -1
+ NGOODHEL =           8
  RESET CUMULATIVE VARIABLE in SAMPLE_FULL
  RESET CUMULATIVE VARIABLE
  [OPENMPTH] omp_get_max_threads/nproc = 1/4
- [NGOODHEL] ngoodhel/ncomb = -1/16
+ [NGOODHEL] ngoodhel/ncomb = 8/16
  [XSECTION] VECSIZE_USED = 8192
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 63.84 [63.839349162943535] fbridge_mode=1
  [UNWEIGHT] Wrote 1620 events (found 1622 events)
- [COUNTERS] PROGRAM TOTAL          :    0.3734s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.3685s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0049s for     8192 events => throughput is 1.66E+06 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.3869s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.3820s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0049s for     8192 events => throughput is 1.67E+06 events/s
 
 *** (2-512y) Compare MADEVENT_CPP x1 xsec to MADEVENT_FORTRAN xsec ***
 
@@ -481,7 +481,7 @@ Executing ' ./build.512y_d_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_pptt_x10
  RESET CUMULATIVE VARIABLE in SMATRIX1_MULTI
  RESET CUMULATIVE VARIABLE
  IMIRROR =           2
- NGOODHEL =          -1
+ NGOODHEL =           8
  RESET CUMULATIVE VARIABLE in SAMPLE_FULL
  RESET CUMULATIVE VARIABLE
  RESET CUMULATIVE VARIABLE in SMATRIX1_MULTI
@@ -491,7 +491,7 @@ Executing ' ./build.512y_d_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_pptt_x10
  RESET CUMULATIVE VARIABLE in SAMPLE_FULL
  RESET CUMULATIVE VARIABLE
  [OPENMPTH] omp_get_max_threads/nproc = 1/4
- [NGOODHEL] ngoodhel/ncomb = -1
+ [NGOODHEL] ngoodhel/ncomb = 8
 8/16
 16
  [XSECTION] VECSIZE_USED = 8192
@@ -500,9 +500,9 @@ Executing ' ./build.512y_d_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_pptt_x10
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 64.33 [64.332743819208801] fbridge_mode=1
  [UNWEIGHT] Wrote 2093 events (found 2098 events)
- [COUNTERS] PROGRAM TOTAL          :    1.6481s
- [COUNTERS] Fortran Overhead ( 0 ) :    1.5850s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0631s for   106496 events => throughput is 1.69E+06 events/s
+ [COUNTERS] PROGRAM TOTAL          :    1.6497s
+ [COUNTERS] Fortran Overhead ( 0 ) :    1.5871s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0627s for   106496 events => throughput is 1.70E+06 events/s
 
 *** (2-512y) Compare MADEVENT_CPP x10 xsec to MADEVENT_FORTRAN xsec ***
 
@@ -515,12 +515,12 @@ OK! events.lhe.cpp.10 and events.lhe.ref.10 are identical
 *** EXECUTE CHECK(8192) -p 256 32 1 --bridge ***
 Process                     = SIGMA_SM_UUX_TTX_CPP [gcc 11.3.1] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+BRDHST/512y+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 1.608437e+06                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.630293e+06                 )  sec^-1
 
 *** EXECUTE CHECK(8192) -p 256 32 1 ***
 Process                     = SIGMA_SM_UUX_TTX_CPP [gcc 11.3.1] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/512y+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 1.719520e+06                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.733319e+06                 )  sec^-1
 
 *** (2-512z) EXECUTE MADEVENT_CPP x1 (create events.lhe) ***
 --------------------
@@ -538,20 +538,20 @@ Executing ' ./build.512z_d_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_pptt_x1_
  RESET CUMULATIVE VARIABLE in SMATRIX1_MULTI
  RESET CUMULATIVE VARIABLE
  IMIRROR =           2
- NGOODHEL =          -1
+ NGOODHEL =           8
  RESET CUMULATIVE VARIABLE in SAMPLE_FULL
  RESET CUMULATIVE VARIABLE
  [OPENMPTH] omp_get_max_threads/nproc = 1/4
- [NGOODHEL] ngoodhel/ncomb = -1/16
+ [NGOODHEL] ngoodhel/ncomb = 8/16
  [XSECTION] VECSIZE_USED = 8192
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 63.84 [63.839349162943535] fbridge_mode=1
  [UNWEIGHT] Wrote 1620 events (found 1622 events)
- [COUNTERS] PROGRAM TOTAL          :    0.3795s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.3708s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0087s for     8192 events => throughput is 9.38E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.3892s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.3806s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0086s for     8192 events => throughput is 9.55E+05 events/s
 
 *** (2-512z) Compare MADEVENT_CPP x1 xsec to MADEVENT_FORTRAN xsec ***
 
@@ -577,7 +577,7 @@ Executing ' ./build.512z_d_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_pptt_x10
  RESET CUMULATIVE VARIABLE in SMATRIX1_MULTI
  RESET CUMULATIVE VARIABLE
  IMIRROR =           2
- NGOODHEL =          -1
+ NGOODHEL =           8
  RESET CUMULATIVE VARIABLE in SAMPLE_FULL
  RESET CUMULATIVE VARIABLE
  RESET CUMULATIVE VARIABLE in SMATRIX1_MULTI
@@ -587,7 +587,7 @@ Executing ' ./build.512z_d_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_pptt_x10
  RESET CUMULATIVE VARIABLE in SAMPLE_FULL
  RESET CUMULATIVE VARIABLE
  [OPENMPTH] omp_get_max_threads/nproc = 1/4
- [NGOODHEL] ngoodhel/ncomb = -1
+ [NGOODHEL] ngoodhel/ncomb = 8
 8/16
 16
  [XSECTION] VECSIZE_USED = 8192
@@ -596,9 +596,9 @@ Executing ' ./build.512z_d_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_pptt_x10
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 64.33 [64.332743819208815] fbridge_mode=1
  [UNWEIGHT] Wrote 2093 events (found 2098 events)
- [COUNTERS] PROGRAM TOTAL          :    1.7046s
- [COUNTERS] Fortran Overhead ( 0 ) :    1.5913s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.1133s for   106496 events => throughput is 9.40E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    1.7043s
+ [COUNTERS] Fortran Overhead ( 0 ) :    1.5915s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.1128s for   106496 events => throughput is 9.44E+05 events/s
 
 *** (2-512z) Compare MADEVENT_CPP x10 xsec to MADEVENT_FORTRAN xsec ***
 
@@ -611,12 +611,12 @@ OK! events.lhe.cpp.10 and events.lhe.ref.10 are identical
 *** EXECUTE CHECK(8192) -p 256 32 1 --bridge ***
 Process                     = SIGMA_SM_UUX_TTX_CPP [gcc 11.3.1] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+BRDHST/512z+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 9.178282e+05                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 8.924841e+05                 )  sec^-1
 
 *** EXECUTE CHECK(8192) -p 256 32 1 ***
 Process                     = SIGMA_SM_UUX_TTX_CPP [gcc 11.3.1] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/512z+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 9.325982e+05                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 9.177639e+05                 )  sec^-1
 
 *** (3-cuda) EXECUTE MADEVENT_CUDA x1 (create events.lhe) ***
 --------------------
@@ -634,20 +634,20 @@ Executing ' ./build.cuda_d_inl0_hrd0/madevent_cuda < /tmp/avalassi/input_pptt_x1
  RESET CUMULATIVE VARIABLE in SMATRIX1_MULTI
  RESET CUMULATIVE VARIABLE
  IMIRROR =           2
- NGOODHEL =          -1
+ NGOODHEL =           8
  RESET CUMULATIVE VARIABLE in SAMPLE_FULL
  RESET CUMULATIVE VARIABLE
  [OPENMPTH] omp_get_max_threads/nproc = 1/4
- [NGOODHEL] ngoodhel/ncomb = -1/16
+ [NGOODHEL] ngoodhel/ncomb = 8/16
  [XSECTION] VECSIZE_USED = 8192
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 63.84 [63.839349162943542] fbridge_mode=1
  [UNWEIGHT] Wrote 1620 events (found 1622 events)
- [COUNTERS] PROGRAM TOTAL          :    0.8042s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.8034s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0008s for     8192 events => throughput is 1.07E+07 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.8129s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.8124s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0005s for     8192 events => throughput is 1.53E+07 events/s
 
 *** (3-cuda) Compare MADEVENT_CUDA x1 xsec to MADEVENT_FORTRAN xsec ***
 
@@ -673,7 +673,7 @@ Executing ' ./build.cuda_d_inl0_hrd0/madevent_cuda < /tmp/avalassi/input_pptt_x1
  RESET CUMULATIVE VARIABLE in SMATRIX1_MULTI
  RESET CUMULATIVE VARIABLE
  IMIRROR =           2
- NGOODHEL =          -1
+ NGOODHEL =           8
  RESET CUMULATIVE VARIABLE in SAMPLE_FULL
  RESET CUMULATIVE VARIABLE
  RESET CUMULATIVE VARIABLE in SMATRIX1_MULTI
@@ -683,7 +683,7 @@ Executing ' ./build.cuda_d_inl0_hrd0/madevent_cuda < /tmp/avalassi/input_pptt_x1
  RESET CUMULATIVE VARIABLE in SAMPLE_FULL
  RESET CUMULATIVE VARIABLE
  [OPENMPTH] omp_get_max_threads/nproc = 1/4
- [NGOODHEL] ngoodhel/ncomb = -1
+ [NGOODHEL] ngoodhel/ncomb = 8
 8/16
 16
  [XSECTION] VECSIZE_USED = 8192
@@ -692,9 +692,9 @@ Executing ' ./build.cuda_d_inl0_hrd0/madevent_cuda < /tmp/avalassi/input_pptt_x1
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 64.33 [64.332743819208801] fbridge_mode=1
  [UNWEIGHT] Wrote 2093 events (found 2098 events)
- [COUNTERS] PROGRAM TOTAL          :    2.0375s
- [COUNTERS] Fortran Overhead ( 0 ) :    2.0308s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0067s for   106496 events => throughput is 1.59E+07 events/s
+ [COUNTERS] PROGRAM TOTAL          :    2.0269s
+ [COUNTERS] Fortran Overhead ( 0 ) :    2.0207s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0062s for   106496 events => throughput is 1.71E+07 events/s
 
 *** (3-cuda) Compare MADEVENT_CUDA x10 xsec to MADEVENT_FORTRAN xsec ***
 
@@ -707,42 +707,42 @@ OK! events.lhe.cuda.10 and events.lhe.ref.10 are identical
 *** EXECUTE GCHECK(8192) -p 256 32 1 --bridge ***
 Process                     = SIGMA_SM_UUX_TTX_CUDA [nvcc 12.0.140 (gcc 11.3.1)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:DBL+THX:CURHST+RMBHST+BRDDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 2.669239e+07                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 2.814037e+07                 )  sec^-1
 
 *** EXECUTE GCHECK(8192) -p 256 32 1 ***
 Process                     = SIGMA_SM_UUX_TTX_CUDA [nvcc 12.0.140 (gcc 11.3.1)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:DBL+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 1.345266e+08                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.338431e+08                 )  sec^-1
 
 *** EXECUTE GCHECK(MAX) -p 16384 32 1 --bridge ***
 Process                     = SIGMA_SM_UUX_TTX_CUDA [nvcc 12.0.140 (gcc 11.3.1)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:DBL+THX:CURHST+RMBHST+BRDDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 3.798672e+07                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 3.947200e+07                 )  sec^-1
 
 *** EXECUTE GCHECK(MAX) -p 16384 32 1 ***
 Process                     = SIGMA_SM_UUX_TTX_CUDA [nvcc 12.0.140 (gcc 11.3.1)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:DBL+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 4.334775e+08                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 4.356958e+08                 )  sec^-1
 
 *** EXECUTE GCHECK(MAX128THR) -p 4096 128 1 --bridge ***
 Process                     = SIGMA_SM_UUX_TTX_CUDA [nvcc 12.0.140 (gcc 11.3.1)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:DBL+THX:CURHST+RMBHST+BRDDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 3.799161e+07                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 3.945975e+07                 )  sec^-1
 
 *** EXECUTE GCHECK(MAX128THR) -p 4096 128 1 ***
 Process                     = SIGMA_SM_UUX_TTX_CUDA [nvcc 12.0.140 (gcc 11.3.1)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:DBL+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 4.434914e+08                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 4.429818e+08                 )  sec^-1
 
 *** EXECUTE GCHECK(MAX8THR) -p 65536 8 1 --bridge ***
 Process                     = SIGMA_SM_UUX_TTX_CUDA [nvcc 12.0.140 (gcc 11.3.1)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:DBL+THX:CURHST+RMBHST+BRDDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 3.782070e+07                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 3.954280e+07                 )  sec^-1
 
 *** EXECUTE GCHECK(MAX8THR) -p 65536 8 1 ***
 Process                     = SIGMA_SM_UUX_TTX_CUDA [nvcc 12.0.140 (gcc 11.3.1)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:DBL+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 1.345368e+08                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.344837e+08                 )  sec^-1
 
 *** (3-hip) WARNING! SKIP MADEVENT_HIP (hip is not supported on this node) ***
 
