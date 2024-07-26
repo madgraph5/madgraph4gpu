@@ -231,7 +231,6 @@ c                  write(*,*) 'put point in sample kevent', kevent, 'allow_updat
                   call sample_put_point(all_wgt(i),all_x(1,i),iter,ipole, i.eq.VECSIZE_USED) !Store result
                enddo
                if (VECSIZE_USED.ne.1.and.force_reset)then
-                 write(*,*) "RESET CUMULATIVE VARIABLE in SAMPLE_FULL"
                   call reset_cumulative_variable()
                   force_reset=.false.
                endif
