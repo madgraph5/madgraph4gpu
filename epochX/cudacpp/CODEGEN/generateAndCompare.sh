@@ -95,6 +95,9 @@ function codeGenAndDiff()
     uu_ttg)
       cmd="generate u u~ > t t~ g"
       ;;
+    qq_tt)
+      cmd="define q = u c d s; define q~ = u~ c~ d~ s~; generate q q~ > t t~"
+      ;;
     bb_tt)
       cmd="generate b b~ > t t~"
       ;;
