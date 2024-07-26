@@ -1,4 +1,0 @@
-set stdout_level DEBUG
-set zerowidth_tchannel F
-generate u u~ > t t~
-output madevent_simd uu_tt.mad --hel_recycling=False --vector_size=32 
