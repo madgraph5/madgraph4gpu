@@ -1,6 +1,0 @@
-set stdout_level DEBUG
-set zerowidth_tchannel F
-define j = p
-
-generate p p > t t~ j j
-output madevent pp_ttjj.madonly --hel_recycling=False --vector_size=32
