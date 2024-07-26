@@ -1,8 +1,8 @@
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
-index 4fbb8e6ba..f9e2335de 100644
+index 4fbb8e6ba..e454337d4 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
-@@ -484,23 +484,140 @@ C
+@@ -484,23 +484,148 @@ C
        INTEGER VECSIZE_USED
  
        INTEGER IVEC
@@ -33,11 +33,14 @@ index 4fbb8e6ba..f9e2335de 100644
 +      INTEGER*4 NWARNINGS
 +      SAVE NWARNINGS
 +      DATA NWARNINGS/0/
-+      
-+      LOGICAL FIRST
++
++      INTEGER IMIRROR, IPROC
++      COMMON/TO_MIRROR/IMIRROR, IPROC
++
++      LOGICAL FIRST(2)
 +      SAVE FIRST
-+      DATA FIRST/.TRUE./
-+      
++      DATA FIRST/.TRUE., .TRUE./
++
 +      IF( FBRIDGE_MODE .LE. 0 ) THEN ! (FortranOnly=0 or BothQuiet=-1 or BothDebug=-2)
 +#endif
 +        call counters_smatrix1multi_start( -1, VECSIZE_USED ) ! fortran=-1
@@ -76,12 +79,16 @@ index 4fbb8e6ba..f9e2335de 100644
 +          WRITE(6,*) 'ERROR! The cudacpp bridge only supports LIMHEL=0'
 +          STOP
 +        ENDIF
-+        IF ( FIRST ) THEN ! exclude first pass (helicity filtering) from timers (#461)
-+          CALL FBRIDGESEQUENCE_NOMULTICHANNEL( FBRIDGE_PBRIDGE, ! multi channel disabled for helicity filtering
-+     &      P_MULTI, ALL_G, HEL_RAND, COL_RAND, OUT2,
-+     &      SELECTED_HEL2, SELECTED_COL2 )
-+          FIRST = .FALSE.
-+c         ! This is a workaround for https://github.com/oliviermattelaer/mg5amc_test/issues/22 (see PR #486)
++        IF ( FIRST(IMIRROR) ) THEN ! exclude first pass (helicity filtering) from timers (#461)
++c         Compute helicities only for the first IMIRROR in cudacpp (see #872) - NB this may be IMIRROR=2!?
++          IF( FIRST(1) .AND. FIRST(2) ) THEN
++            CALL FBRIDGESEQUENCE_NOMULTICHANNEL( FBRIDGE_PBRIDGE, ! multi channel disabled for helicity filtering
++     &        P_MULTI, ALL_G, HEL_RAND, COL_RAND, OUT2,
++     &        SELECTED_HEL2, SELECTED_COL2 )
++          ENDIF
++          FIRST(IMIRROR) = .FALSE.
++c         ... But do call reset_cumulative_variable also for the second IMIRROR in cudacpp (FIX #872)
++c         This is a workaround for https://github.com/oliviermattelaer/mg5amc_test/issues/22 (see PR #486)
 +          IF( FBRIDGE_MODE .EQ. 1 ) THEN ! (CppOnly=1 : SMATRIX1 is not called at all)
 +            CALL RESET_CUMULATIVE_VARIABLE() ! mimic 'avoid bias of the initialization' within SMATRIX1
 +          ENDIF
@@ -91,6 +98,7 @@ index 4fbb8e6ba..f9e2335de 100644
 +     &        ' in total number of helicities', NTOTHEL, NCOMB
 +            STOP
 +          ENDIF
++          WRITE (6,*) 'IMIRROR =', IMIRROR
 +          WRITE (6,*) 'NGOODHEL =', NGOODHEL
 +          WRITE (6,*) 'NCOMB =', NCOMB
 +        ENDIF
@@ -284,7 +292,7 @@ index 1124a9164..27a6e4674 100644
        open(unit=lun,file=tempname,status='old',ERR=20)
        fopened=.true.
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
-index e73e654d4..27fbe7302 100644
+index e73e654d4..fbd77b316 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
 @@ -72,7 +72,10 @@ C
@@ -307,7 +315,7 @@ index e73e654d4..27fbe7302 100644
        NTRY(IMIRROR)=NTRY(IMIRROR)+1
        THIS_NTRY(IMIRROR) = THIS_NTRY(IMIRROR)+1
        DO I=1,NEXTERNAL
-@@ -217,6 +221,17 @@ C     ----------
+@@ -217,6 +221,18 @@ C     ----------
            ENDIF
            IF(NTRY(IMIRROR).EQ.MAXTRIES)THEN
              ISHEL(IMIRROR)=MIN(ISUM_HEL,NGOOD(IMIRROR))
@@ -319,13 +327,14 @@ index e73e654d4..27fbe7302 100644
 +                  NGOODHEL(IMIRROR)=NGOODHEL(IMIRROR)+1
 +                ENDIF
 +              END DO
-+              WRITE (6,*) 'NGOODHEL =', NGOODHEL(IMIRROR) ! no need to print imirror?
++              WRITE (6,*) 'IMIRROR =', IMIRROR
++              WRITE (6,*) 'NGOODHEL =', NGOODHEL(IMIRROR)
 +              WRITE (6,*) 'NCOMB =', NCOMB
 +            ENDIF
            ENDIF
          ENDIF
        ELSE IF (.NOT.INIT_MODE) THEN  ! random helicity 
-@@ -234,6 +249,7 @@ C       Include the Jacobian from helicity sampling
+@@ -234,6 +250,7 @@ C       Include the Jacobian from helicity sampling
          IHEL = HEL_PICKED
        ELSE
          ANS = 1D0
@@ -333,7 +342,7 @@ index e73e654d4..27fbe7302 100644
          RETURN
        ENDIF
        IF (ANS.NE.0D0.AND.(ISUM_HEL .NE. 1.OR.HEL_PICKED.EQ.-1)) THEN
-@@ -278,9 +294,8 @@ C           Set right sign for ANS, based on sign of chosen helicity
+@@ -278,9 +295,8 @@ C           Set right sign for ANS, based on sign of chosen helicity
          ENDIF
        ENDIF
        ANS=ANS/DBLE(IDEN)
