@@ -565,9 +565,12 @@ C
       SAVE NWARNINGS
       DATA NWARNINGS/0/
       
-      LOGICAL FIRST
+      INTEGER IMIRROR, IPROC
+      COMMON/TO_MIRROR/IMIRROR, IPROC
+
+      LOGICAL FIRST(2)
       SAVE FIRST
-      DATA FIRST/.TRUE./
+      DATA FIRST/.TRUE., .TRUE./
       
       IF( FBRIDGE_MODE .LE. 0 ) THEN ! (FortranOnly=0 or BothQuiet=-1 or BothDebug=-2)
 #endif
@@ -596,12 +599,16 @@ C
           WRITE(6,*) 'ERROR! The cudacpp bridge only supports LIMHEL=0'
           STOP
         ENDIF
-        IF ( FIRST ) THEN ! exclude first pass (helicity filtering) from timers (#461)
-          CALL FBRIDGESEQUENCE_NOMULTICHANNEL( FBRIDGE_PBRIDGE, ! multi channel disabled for helicity filtering
-     &      P_MULTI, ALL_G, HEL_RAND, COL_RAND, OUT2,
-     &      SELECTED_HEL2, SELECTED_COL2 )
-          FIRST = .FALSE.
-c         ! This is a workaround for https://github.com/oliviermattelaer/mg5amc_test/issues/22 (see PR #486)
+        IF ( FIRST(IMIRROR) ) THEN ! exclude first pass (helicity filtering) from timers (#461)
+          FIRST(IMIRROR) = .FALSE.
+c         Compute helicities only for IMIRROR=1 in cudacpp (see #872)...
+          IF( IMIRROR.EQ.1 ) THEN
+            CALL FBRIDGESEQUENCE_NOMULTICHANNEL( FBRIDGE_PBRIDGE, ! multi channel disabled for helicity filtering
+     &        P_MULTI, ALL_G, HEL_RAND, COL_RAND, OUT2,
+     &        SELECTED_HEL2, SELECTED_COL2 )
+          ENDIF
+c         ... But do call reset_cumulative_variable also for IMIRROR=2 in cudacpp (see #872)
+c         This is a workaround for https://github.com/oliviermattelaer/mg5amc_test/issues/22 (see PR #486)
           IF( FBRIDGE_MODE .EQ. 1 ) THEN ! (CppOnly=1 : SMATRIX1 is not called at all)
             write(*,*) "RESET CUMULATIVE VARIABLE in SMATRIX1_MULTI"
             CALL RESET_CUMULATIVE_VARIABLE() ! mimic 'avoid bias of the initialization' within SMATRIX1
@@ -612,6 +619,7 @@ c         ! This is a workaround for https://github.com/oliviermattelaer/mg5amc_
      &        ' in total number of helicities', NTOTHEL, NCOMB
             STOP
           ENDIF
+          WRITE (6,*) 'IMIRROR =', IMIRROR
           WRITE (6,*) 'NGOODHEL =', NGOODHEL
           WRITE (6,*) 'NCOMB =', NCOMB
         ENDIF
