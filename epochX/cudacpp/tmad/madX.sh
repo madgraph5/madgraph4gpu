@@ -32,7 +32,7 @@ export CUDACPP_RUNTIME_VECSIZEUSED=${NLOOP}
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gguu][-gqttq][-pptt012j][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-d] [-fltonly|-mixonly] [-makeonly|-makeclean|-makecleanonly] [-rmrdat] [+10x] [-checkonly] [-nocleanup][-iconfig <iconfig>]" > /dev/stderr
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gguu][-gqttq][-qqtt][-pptt][-pptt012j][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-d] [-fltonly|-mixonly] [-makeonly|-makeclean|-makecleanonly] [-rmrdat] [+10x] [-checkonly] [-nocleanup][-iconfig <iconfig>]" > /dev/stderr
   echo "(NB: OMP_NUM_THREADS is taken as-is from the caller's environment)"
   exit 1
 }
@@ -50,6 +50,8 @@ ggttgg=0
 ggttggg=0
 gguu=0
 gqttq=0
+qqtt=0
+pptt=0
 pptt012j=0
 heftggbb=0
 susyggtt=0
@@ -95,6 +97,12 @@ while [ "$1" != "" ]; do
     shift
   elif [ "$1" == "-gqttq" ]; then
     gqttq=1
+    shift
+  elif [ "$1" == "-qqtt" ]; then
+    qqtt=1
+    shift
+  elif [ "$1" == "-pptt" ]; then
+    pptt=1
     shift
   elif [ "$1" == "-pptt012j" ]; then
     pptt012j=1
@@ -151,7 +159,7 @@ done
 ###exit 1
 
 # Check that at least one process has been selected
-if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ] && [ "${gguu}" == "0" ] && [ "${gqttq}" == "0" ] && [ "${pptt012j}" == "0" ] && [ "${heftggbb}" == "0" ] && [ "${susyggtt}" == "0" ] && [ "${susyggt1t1}" == "0" ] && [ "${smeftggtttt}" == "0" ]; then usage; fi
+if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ] && [ "${gguu}" == "0" ] && [ "${gqttq}" == "0" ] && [ "${qqtt}" == "0" ] && [ "${pptt}" == "0" ] && [ "${pptt012j}" == "0" ] && [ "${heftggbb}" == "0" ] && [ "${susyggtt}" == "0" ] && [ "${susyggt1t1}" == "0" ] && [ "${smeftggtttt}" == "0" ]; then usage; fi
 
 # Always test only the .mad/ directories (hardcoded)
 suffs=".mad/"
@@ -189,8 +197,12 @@ function showdir()
     elif [ "${gqttq}" == "1" ]; then 
       dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_gu_ttxu # 1st of two (test only one for now)
       ###dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_gux_ttxux # 2nd of two (test only one for now)
+    elif [ "${qqtt}" == "1" ]; then 
+      dir=$topdir/epochX/${bckend}/qq_tt${suff}SubProcesses/P1_uux_ttx # alternative small scale test for issue #872
+    elif [ "${pptt}" == "1" ]; then 
+      dir=$topdir/epochX/${bckend}/pp_tt${suff}SubProcesses/P1_uux_ttx # alternative small scale test for issue #872
     elif [ "${pptt012j}" == "1" ]; then 
-      dir=$topdir/epochX/${bckend}/pp_tt012j${suff}SubProcesses/P2_gu_ttxgu
+      dir=$topdir/epochX/${bckend}/pp_tt012j${suff}SubProcesses/P2_gu_ttxgu # initial test showing issue #872
     elif [ "${heftggbb}" == "1" ]; then 
       dir=$topdir/epochX/${bckend}/heft_gg_bb${suff}SubProcesses/P1_gg_bbx
     elif [ "${susyggtt}" == "1" ]; then 
@@ -225,6 +237,10 @@ function getnevt()
     nevt=8192 # use the same settings as for ggttg
   elif [ "${gqttq}" == "1" ]; then
     nevt=8192 # use the same settings as for ggttg
+  elif [ "${qqtt}" == "1" ]; then 
+    nevt=8192 # use the same settings as for ggtt
+  elif [ "${pptt}" == "1" ]; then 
+    nevt=8192 # use the same settings as for ggtt
   elif [ "${pptt012j}" == "1" ]; then 
     nevt=8192 # use the same settings as for ggttgg
   elif [ "${heftggbb}" == "1" ]; then
@@ -258,6 +274,10 @@ function getgridmax()
   elif [ "${gguu}" == "1" ]; then
     echo 16384 32 # same total grid dimension as 2048 256
   elif [ "${gqttq}" == "1" ]; then
+    echo 16384 32 # same total grid dimension as 2048 256
+  elif [ "${qqtt}" == "1" ]; then 
+    echo 16384 32 # same total grid dimension as 2048 256
+  elif [ "${pptt}" == "1" ]; then 
     echo 16384 32 # same total grid dimension as 2048 256
   elif [ "${pptt012j}" == "1" ]; then 
     echo 16384 32 # same total grid dimension as 2048 256
@@ -296,6 +316,10 @@ function getinputfile()
     tmp=$tmpdir/input_gguu
   elif [ "${gqttq}" == "1" ]; then 
     tmp=$tmpdir/input_gqttq
+  elif [ "${qqtt}" == "1" ]; then 
+    tmp=$tmpdir/input_qqtt
+  elif [ "${pptt}" == "1" ]; then 
+    tmp=$tmpdir/input_pptt
   elif [ "${pptt012j}" == "1" ]; then 
     tmp=$tmpdir/input_pptt012j
   elif [ "${heftggbb}" == "1" ]; then 
