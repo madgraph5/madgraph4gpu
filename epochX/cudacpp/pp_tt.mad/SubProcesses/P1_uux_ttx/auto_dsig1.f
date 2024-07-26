@@ -600,14 +600,14 @@ C
           STOP
         ENDIF
         IF ( FIRST(IMIRROR) ) THEN ! exclude first pass (helicity filtering) from timers (#461)
-          FIRST(IMIRROR) = .FALSE.
-c         Compute helicities only for IMIRROR=1 in cudacpp (see #872)...
-          IF( IMIRROR.EQ.1 ) THEN
+c         Compute helicities only for the first IMIRROR in cudacpp (see #872) - NB this may be IMIRROR=2!?
+          IF( FIRST(1) .AND. FIRST(2) ) THEN
             CALL FBRIDGESEQUENCE_NOMULTICHANNEL( FBRIDGE_PBRIDGE, ! multi channel disabled for helicity filtering
      &        P_MULTI, ALL_G, HEL_RAND, COL_RAND, OUT2,
      &        SELECTED_HEL2, SELECTED_COL2 )
           ENDIF
-c         ... But do call reset_cumulative_variable also for IMIRROR=2 in cudacpp (see #872)
+          FIRST(IMIRROR) = .FALSE.
+c         ... But do call reset_cumulative_variable also for the second IMIRROR in cudacpp (FIX #872)
 c         This is a workaround for https://github.com/oliviermattelaer/mg5amc_test/issues/22 (see PR #486)
           IF( FBRIDGE_MODE .EQ. 1 ) THEN ! (CppOnly=1 : SMATRIX1 is not called at all)
             write(*,*) "RESET CUMULATIVE VARIABLE in SMATRIX1_MULTI"
