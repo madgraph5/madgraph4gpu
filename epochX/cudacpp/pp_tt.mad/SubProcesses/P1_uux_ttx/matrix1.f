@@ -187,6 +187,7 @@ C     ----------
           ENDIF
         ENDDO
         IF(NTRY(IMIRROR).EQ.(MAXTRIES+1)) THEN
+          write(*,*) "RESET CUMULATIVE VARIABLE in SMATRIX1"
           CALL RESET_CUMULATIVE_VARIABLE()  ! avoid biais of the initialization
         ENDIF
         IF (ISUM_HEL.NE.0) THEN

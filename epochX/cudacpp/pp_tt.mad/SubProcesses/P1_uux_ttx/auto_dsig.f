@@ -688,6 +688,7 @@ C       To do this check we must *not* used the cached varianble
 C        grouped_MC_grid_status
         IF(DS_GET_DIM_STATUS('grouped_processes').GE.1) THEN
           CALL DS_UPDATE_GRID('grouped_processes')
+          write(*,*) "RESET CUMULATIVE VARIABLE in DSIG"
           CALL RESET_CUMULATIVE_VARIABLE()
         ENDIF
       ENDIF
