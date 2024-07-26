@@ -1114,16 +1114,12 @@ namespace mg5amcCpu
   {
     mgDebugInitialise();
 
-    // SANITY CHECKS for cudacpp code generation (see issues #272 and #343 and PRs #619, #626, #360, #396, #754 and #764)
-    // NB (AV July 2024): cudacpp is presently unsable to handle mirror processes, so they should be disabled also in Fortran (see issue #872 and PR #935)
+    // SANITY CHECKS for cudacpp code generation (see issues #272 and #343 and PRs #619, #626, #360, #396 and #754)
     // These variable are not used anywhere else in the code and their scope is limited to this sanity check
     {
-      // SANITY CHECKS FOR NPROCESSES
       // nprocesses == 2 may happen for "mirror processes" such as P0_uux_ttx within pp_tt012j (see PR #754)
       constexpr int nprocesses = 1;
-      //static_assert( nprocesses == 1 || nprocesses == 2, "Assume nprocesses == 1 or 2" ); // AV: THIS IS WRONG AND LEADS TO BUG #872 (was introduced in PR #764 after PR #754)
-      static_assert( nprocesses == 1, "Assume nprocesses == 1" ); // AV: SANITY CHECK AGAINST BUG #872 (fortran/cudacpp xsec mismatch in pp_tt012j)
-      // SANITY CHECKS FOR PROCESS_ID
+      static_assert( nprocesses == 1 || nprocesses == 2, "Assume nprocesses == 1 or 2" );
       constexpr int process_id = 1; // code generation source: madevent + cudacpp exporter
       static_assert( process_id == 1, "Assume process_id == 1" );
     }

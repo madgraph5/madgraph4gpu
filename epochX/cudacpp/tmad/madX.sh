@@ -190,8 +190,7 @@ function showdir()
       dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_gu_ttxu # 1st of two (test only one for now)
       ###dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_gux_ttxux # 2nd of two (test only one for now)
     elif [ "${pptt012j}" == "1" ]; then 
-      ###dir=$topdir/epochX/${bckend}/pp_tt012j${suff}SubProcesses/P2_gu_ttxgu # initial test showing issue #872
-      dir=$topdir/epochX/${bckend}/pp_tt012j${suff}SubProcesses/P0_uux_ttx # alternative small scale test for issue #872
+      dir=$topdir/epochX/${bckend}/pp_tt012j${suff}SubProcesses/P2_gu_ttxgu
     elif [ "${heftggbb}" == "1" ]; then 
       dir=$topdir/epochX/${bckend}/heft_gg_bb${suff}SubProcesses/P1_gg_bbx
     elif [ "${susyggtt}" == "1" ]; then 
