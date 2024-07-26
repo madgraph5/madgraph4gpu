@@ -564,14 +564,14 @@ C
       INTEGER*4 NWARNINGS
       SAVE NWARNINGS
       DATA NWARNINGS/0/
-      
+
       INTEGER IMIRROR, IPROC
       COMMON/TO_MIRROR/IMIRROR, IPROC
 
       LOGICAL FIRST(2)
       SAVE FIRST
       DATA FIRST/.TRUE., .TRUE./
-      
+
       IF( FBRIDGE_MODE .LE. 0 ) THEN ! (FortranOnly=0 or BothQuiet=-1 or BothDebug=-2)
 #endif
         call counters_smatrix1multi_start( -1, VECSIZE_USED ) ! fortran=-1
