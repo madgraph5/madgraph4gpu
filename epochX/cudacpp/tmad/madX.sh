@@ -464,7 +464,7 @@ function runmadevent()
   mch=$(cat ${tmp} | grep --binary-files=text 'MULTI_CHANNEL =' | awk '{print $NF}')
   conf=$(cat ${tmp} | grep --binary-files=text 'Running Configuration Number:' | awk '{print $NF}')
   chid=$(cat ${tmp} | grep --binary-files=text 'CHANNEL_ID =' | awk '{print $NF}')
-  cat ${tmp} | grep --binary-files=text 'RESET CUMULATIVE VARIABLE' # TEMPORARY (DEBUG #872)
+  cat ${tmp} | egrep --binary-files=text '(RESET CUMULATIVE VARIABLE|IMIRROR|NGOODHEL)' # TEMPORARY (DEBUG #872)
   echo " [OPENMPTH] omp_get_max_threads/nproc = ${omp}/$(nproc --all)"
   echo " [NGOODHEL] ngoodhel/ncomb = ${nghel}/${ncomb}"
   echo " [XSECTION] VECSIZE_USED = ${nbp}"
