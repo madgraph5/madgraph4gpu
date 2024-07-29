@@ -457,8 +457,16 @@ function runmadevent()
   cat ${tmp} | grep --binary-files=text '^DEBUG'
   omp=$(cat ${tmp} | grep --binary-files=text 'omp_get_max_threads() =' | awk '{print $NF}')
   if [ "${omp}" == "" ]; then omp=1; fi # _OPENMP not defined in the Fortran #579
-  nghel=$(cat ${tmp} | grep --binary-files=text 'NGOODHEL =' | head -1 | awk '{print $NF}') # only once #872
-  ncomb=$(cat ${tmp} | grep --binary-files=text 'NCOMB =' | head -1 | awk '{print $NF}') # only once #872
+  if [ $(cat ${tmp} | grep --binary-files=text 'NGOODHEL =' | wc -l) -gt 2 ]; then echo "ERROR! More than 2 NGOODHEL in ${tmp}"; cat ${tmp} | grep --binary-files=text 'NGOODHEL ='; exit 1; fi
+  if [ $(cat ${tmp} | grep --binary-files=text 'NCOMB =' | wc -l) -gt 2 ]; then echo "ERROR! More than 2 NCOMB in ${tmp}"; cat ${tmp} | grep --binary-files=text 'NCOMB ='; exit 1; fi
+  nghel1=$(cat ${tmp} | grep --binary-files=text 'NGOODHEL =' | head -1 | awk '{print $NF}') # first occurrence #872
+  ncomb1=$(cat ${tmp} | grep --binary-files=text 'NCOMB =' | head -1 | awk '{print $NF}') # first occurrence #872
+  nghel2=$(cat ${tmp} | grep --binary-files=text 'NGOODHEL =' | tail -n +2 | awk '{print $NF}') # optional second occurrence #872
+  ncomb2=$(cat ${tmp} | grep --binary-files=text 'NCOMB =' | tail -n +2 | awk '{print $NF}') # optional second occurrence #872
+  if [ "${nghel2}" == "" ] && [ "${ncomb2}" != "" ]; then echo "ERROR! Empty nghel2, non-empty ncomb2='${ncomb2}'"; exit 1; fi
+  if [ "${nghel2}" != "" ] && [ "${ncomb2}" == "" ]; then echo "ERROR! Empty ncomb2, non-empty nghel2='${nghel2}'"; exit 1; fi
+  if [ "${ncomb2}" != "" ] && [ "${ncomb2}" != "${ncomb1}" ]; then echo "ERROR! Mismatch ncomb1='${ncomb1}' nghel2='${ncomb2}'"; exit 1; fi
+  if [ "${nghel2}" != "" ] && [ "${nghel2}" != "${nghel1}" ]; then echo "ERROR! Mismatch nghel1='${nghel1}' nghel2='${nghel2}'"; exit 1; fi
   fbm=$(cat ${tmp} | grep --binary-files=text 'FBRIDGE_MODE (.*) =' | awk '{print $NF}')
   nbp=$(cat ${tmp} | grep --binary-files=text 'VECSIZE_USED (.*) =' | awk '{print $NF}')
   mch=$(cat ${tmp} | grep --binary-files=text 'MULTI_CHANNEL =' | awk '{print $NF}')
@@ -466,7 +474,7 @@ function runmadevent()
   chid=$(cat ${tmp} | grep --binary-files=text 'CHANNEL_ID =' | awk '{print $NF}')
   ###cat ${tmp} | egrep --binary-files=text '(RESET CUMULATIVE VARIABLE|IMIRROR|NGOODHEL)' # TEMPORARY (DEBUG #872)
   echo " [OPENMPTH] omp_get_max_threads/nproc = ${omp}/$(nproc --all)"
-  echo " [NGOODHEL] ngoodhel/ncomb = ${nghel}/${ncomb}"
+  echo " [NGOODHEL] ngoodhel/ncomb = ${nghel1}/${ncomb1}"
   echo " [XSECTION] VECSIZE_USED = ${nbp}"
   echo " [XSECTION] MultiChannel = ${mch}"
   echo " [XSECTION] Configuration = ${conf}"
