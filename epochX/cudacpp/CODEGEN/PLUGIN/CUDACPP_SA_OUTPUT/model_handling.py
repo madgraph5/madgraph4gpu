@@ -1796,12 +1796,14 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                 aliastxt = 'PARAM'
                 name = 'cIPD'
             elif model.is_running_coupling(coup):
-                if coup not in self.wanted_ordered_dep_couplings: self.wanted_ordered_dep_couplings.append(coup)
+                if coup not in self.wanted_ordered_dep_couplings: 
+                    self.wanted_ordered_dep_couplings.append(coup)
                 alias = self.couporderdep
                 aliastxt = 'COUPD'
                 name = 'cIPC'
             else:
-                if coup not in self.wanted_ordered_indep_couplings: self.wanted_ordered_indep_couplings.append(coup)
+                if coup not in self.wanted_ordered_indep_couplings: 
+                    self.wanted_ordered_indep_couplings.append(coup)
                 alias = self.couporderindep
                 aliastxt = 'COUPI'
                 name = 'cIPC'
