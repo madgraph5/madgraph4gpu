@@ -1,8 +1,8 @@
 #!/bin/bash
-# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Copyright (C) 2020-2024 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: A. Valassi (Mar 2022) for the MG5aMC CUDACPP plugin.
-# Further modified by: A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
+# Further modified by: A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
 
 set +x # not verbose
 
@@ -13,6 +13,10 @@ set -e # fail on error
 scrdir=$(cd $(dirname $0); pwd)
 bckend=$(basename $(cd $scrdir; cd ..; pwd)) # cudacpp or alpaka
 topdir=$(cd $scrdir; cd ../../..; pwd)
+
+# Disable OpenMP in tmad tests
+# To do this, set OMPFLAGS externally to an empty string (#758)
+export OMPFLAGS=
 
 # HARDCODE NLOOP HERE (may improve this eventually...)
 NLOOP=8192
@@ -28,7 +32,7 @@ export CUDACPP_RUNTIME_VECSIZEUSED=${NLOOP}
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gguu][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-d] [-fltonly|-mixonly] [-makeonly|-makeclean|-makecleanonly] [-rmrdat] [+10x] [-checkonly] [-nocleanup]" > /dev/stderr
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gguu][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-d] [-fltonly|-mixonly] [-makeonly|-makeclean|-makecleanonly] [-rmrdat] [+10x] [-checkonly] [-nocleanup][-iconfig <iconfig>]" > /dev/stderr
   echo "(NB: OMP_NUM_THREADS is taken as-is from the caller's environment)"
   exit 1
 }
@@ -63,6 +67,8 @@ xfacs="1"
 checkonly=0
 
 nocleanup=0
+
+iconfig=
 
 while [ "$1" != "" ]; do
   if [ "$1" == "-d" ]; then
@@ -131,6 +137,9 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-nocleanup" ]; then
     nocleanup=1
     shift
+  elif [ "$1" == "-iconfig" ] && [ "$2" != "" ]; then
+    iconfig=$2
+    shift; shift
   else
     usage
   fi
@@ -221,10 +230,11 @@ function getnevt()
   else
     echo "ERROR! Unknown process" > /dev/stderr; usage
   fi
+  # FIXME? check that nevt is a multiple of NLOOP?
   echo $nevt
 }
 
-# Determine the appropriate CUDA/HIP grid dimension for the specific process (to run the fastest gcheck)
+# Determine the appropriate CUDA/HIP grid dimension for the specific process (to run the fastest check_cuda or check_hip)
 function getgridmax()
 {
   if [ "${eemumu}" == "1" ]; then
@@ -257,6 +267,7 @@ function getgridmax()
 # Create an input file that is appropriate for the specific process
 function getinputfile()
 {
+  iconfig_proc=1 # use iconfig=1 by default (NB: this does not mean channel_id=1 i.e. the first diagram, see #826)
   nevt=$(getnevt)
   tmpdir=/tmp/$USER
   mkdir -p $tmpdir
@@ -268,6 +279,7 @@ function getinputfile()
     tmp=$tmpdir/input_ggttg
   elif [ "${ggttgg}" == "1" ]; then 
     tmp=$tmpdir/input_ggttgg
+    iconfig_proc=104 # use iconfig=104 in ggttgg to check #855 SIGFPE fix (but issue #856 is pending: LHE color mismatch!)
   elif [ "${ggttggg}" == "1" ]; then 
     tmp=$tmpdir/input_ggttggg
   elif [ "${gguu}" == "1" ]; then 
@@ -280,6 +292,7 @@ function getinputfile()
     tmp=$tmpdir/input_susyggtt
   elif [ "${susyggt1t1}" == "1" ]; then 
     tmp=$tmpdir/input_susyggt1t1
+    iconfig_proc=2 # use iconfig=2 in susyggt1t1 to check #855 SIGFPE fix (but issue #826 is pending: no cross section!)
   elif [ "${smeftggtttt}" == "1" ]; then 
     tmp=$tmpdir/input_smeftggtttt
   else
@@ -301,6 +314,7 @@ function getinputfile()
     echo "Usage: getinputfile <backend [-fortran][-cuda][-hip][-cpp]>"
     exit 1
   fi
+  if [ "${iconfig}" == "" ]; then iconfig=${iconfig_proc}; fi
   (( nevt = nevt*$xfac ))
   cat << EOF >> ${tmp}
 ${nevt} 1 1 ! Number of events and max and min iterations
@@ -308,19 +322,19 @@ ${nevt} 1 1 ! Number of events and max and min iterations
 0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
 1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
 0 ! Helicity Sum/event 0=exact
-1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
+${iconfig} ! ICONFIG number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 EOF
   echo ${tmp}
 }
 
-# Run check.exe or gcheck.exe (depending on $1) and parse its output
+# Run check_(cpp|cuda|hip).exe (depending on $1) and parse its output
 function runcheck()
 {
-  if [ "$1" == "" ] || [ "$2" != "" ]; then echo "Usage: runcheck <check/gcheck executable>"; exit 1; fi
+  if [ "$1" == "" ] || [ "$2" != "" ]; then echo "Usage: runcheck <check_(cpp|cuda|hip) executable>"; exit 1; fi
   cmd=$1
   if [ "${cmd/gcheckmax128thr}" != "$cmd" ]; then
     txt="GCHECK(MAX128THR)"
-    cmd=${cmd/gcheckmax128thr/gcheck} # hack: run cuda/hip gcheck with tput fastest settings
+    cmd=${cmd/gcheckmax128thr/check_${backend}} # hack: run cuda/hip check with tput fastest settings
     cmd=${cmd/.\//.\/build.${backend}_${fptype}_inl0_hrd0\/}
     nblk=$(getgridmax | cut -d ' ' -f1)
     nthr=$(getgridmax | cut -d ' ' -f2)
@@ -328,7 +342,7 @@ function runcheck()
     (( nevt = nblk*nthr ))
   elif [ "${cmd/gcheckmax8thr}" != "$cmd" ]; then
     txt="GCHECK(MAX8THR)"
-    cmd=${cmd/gcheckmax8thr/gcheck} # hack: run cuda/hip gcheck with tput fastest settings
+    cmd=${cmd/gcheckmax8thr/check_${backend}} # hack: run cuda/hip check with tput fastest settings
     cmd=${cmd/.\//.\/build.${backend}_${fptype}_inl0_hrd0\/}
     nblk=$(getgridmax | cut -d ' ' -f1)
     nthr=$(getgridmax | cut -d ' ' -f2)
@@ -336,13 +350,14 @@ function runcheck()
     (( nevt = nblk*nthr ))
   elif [ "${cmd/gcheckmax}" != "$cmd" ]; then
     txt="GCHECK(MAX)"
-    cmd=${cmd/gcheckmax/gcheck} # hack: run cuda/hip gcheck with tput fastest settings
+    cmd=${cmd/gcheckmax/check_${backend}} # hack: run cuda/hip check with tput fastest settings
     cmd=${cmd/.\//.\/build.${backend}_${fptype}_inl0_hrd0\/}
     nblk=$(getgridmax | cut -d ' ' -f1)
     nthr=$(getgridmax | cut -d ' ' -f2)
     (( nevt = nblk*nthr ))
   elif [ "${cmd/gcheck}" != "$cmd" ]; then
     txt="GCHECK($NLOOP)"
+    cmd=${cmd/gcheck/check_${backend}}
     cmd=${cmd/.\//.\/build.${backend}_${fptype}_inl0_hrd0\/}
     nthr=32
     (( nblk = NLOOP/nthr )) || true # integer division (NB: bash double parenthesis fails if the result is 0)
@@ -351,6 +366,7 @@ function runcheck()
     nevt=$(getnevt)
   elif [ "${cmd/check}" != "$cmd" ]; then
     txt="CHECK($NLOOP)"
+    cmd=${cmd/check/check_cpp}
     cmd=${cmd/.\//.\/build.${backend}_${fptype}_inl0_hrd0\/}
     nthr=32
     (( nblk = NLOOP/nthr )) || true # integer division (NB: bash double parenthesis fails if the result is 0)
