@@ -205,9 +205,10 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
         return out
     # AV (default from OM's tutorial) - add a debug printout
     def convert_model(self, model, wanted_lorentz=[], wanted_coupling=[]):
-        misc.sprint('Entering PLUGIN_ProcessExporter.convert_model (create the model)')
+        if hasattr(model , 'cudacpp_wanted_ordered_couplings'):
+            wanted_coupling = model.cudacpp_wanted_ordered_couplings
+            del model.cudacpp_wanted_ordered_couplings
         return super().convert_model(model, wanted_lorentz, wanted_coupling)
-
 
     # AV (default from OM's tutorial) - add a debug printout
     def finalize(self, matrix_element, cmdhistory, MG5options, outputflag):
