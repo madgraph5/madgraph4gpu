@@ -1802,7 +1802,8 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                 aliastxt = 'COUPD'
                 name = 'cIPC'
             else:
-                if coup not in self.wanted_ordered_indep_couplings: self.wanted_ordered_indep_couplings.append(coup)
+                if coup not in self.wanted_ordered_indep_couplings: 
+                    self.wanted_ordered_indep_couplings.append(coup)
                 alias = self.couporderindep
                 aliastxt = 'COUPI'
                 name = 'cIPC'
