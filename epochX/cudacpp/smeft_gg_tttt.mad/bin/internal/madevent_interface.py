@@ -3614,17 +3614,8 @@ Beware that this can be dangerous for local multicore runs.""")
                 logger.info('    %s ' % subdir)
     
                 if os.path.exists(pjoin(Pdir, 'ajob1')):
-
-                    cudacpp_backend = self.run_card['cudacpp_backend'] # the default value is defined in banner.py
-                    logger.info("Building madevent in madevent_interface.py with '%s' matrix elements"%cudacpp_backend)
-                    cudacpp_supported_backends = [ 'fortran', 'cuda', 'hip', 'cpp', 'cppnone', 'cppsse4', 'cppavx2', 'cpp512y', 'cpp512z', 'cppauto' ]
-                    if cudacpp_backend in cudacpp_supported_backends :
-                        self.compile(['madevent_' + cudacpp_backend + '_link'], cwd=Pdir)
-                    else:
-                        raise Exception( "Invalid cudacpp_backend='%s': supported backends are %s"%supported_backends )
-                        ###logger.info("Building madevent with ALL (FORTRAN/CPP/CUDA) matrix elements (cudacpp_backend=%s)"%cudacpp_backend)
-                        ###self.compile(['all'], cwd=Pdir)
-
+                    self.compile(['madevent'], cwd=Pdir)
+                    
                     alljobs = misc.glob('ajob*', Pdir)
                     
                     #remove associated results.dat (ensure to not mix with all data)
