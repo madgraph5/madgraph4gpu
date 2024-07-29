@@ -135,29 +135,28 @@ Load PLUGIN.CUDACPP_OUTPUT
 It has been validated for the last time with version: 3.5.2[0m
 [1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
 [1;32mDEBUG:  cformat = [0m plugin [1;30m[export_cpp.py at line 3070][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter) [1;30m[output.py at line 165][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.copy_template (initialise the directory) [1;30m[output.py at line 170][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter) [1;30m[output.py at line 162][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.copy_template (initialise the directory) [1;30m[output.py at line 167][0m [0m
 INFO: Creating subdirectories in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg_bb 
 INFO: Organizing processes into subprocess groups 
 INFO: Generating Helas calls for process: g g > b b~ HIG<=1 HIW<=1 @1 
 INFO: Processing color information for process: g g > b b~ HIG<=1 HIW<=1 @1 
-[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.generate_subprocess_directory (create the directory) [1;30m[output.py at line 199][0m [0m
-[1;32mDEBUG:    type(subproc_group)=<class 'madgraph.core.helas_objects.HelasMatrixElement'> [1;30m[output.py at line 200][0m [0m
-[1;32mDEBUG:    type(fortran_model)=<class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_GPUFOHelasCallWriter'> [1;30m[output.py at line 201][0m [0m
-[1;32mDEBUG:    type(me)=<class 'int'> me=0 [1;30m[output.py at line 202][0m [0m
-[1;32mDEBUG:  "need to link", self.to_link_in_P = [0m need to link ['nvtx.h', 'timer.h', 'timermap.h', 'ompnumthreads.h', 'GpuRuntime.h', 'GpuAbstraction.h', 'MemoryAccessHelpers.h', 'MemoryAccessVectors.h', 'MemoryAccessMatrixElements.h', 'MemoryAccessMomenta.h', 'MemoryAccessRandomNumbers.h', 'MemoryAccessWeights.h', 'MemoryAccessAmplitudes.h', 'MemoryAccessWavefunctions.h', 'MemoryAccessGs.h', 'MemoryAccessCouplingsFixed.h', 'MemoryAccessNumerators.h', 'MemoryAccessDenominators.h', 'MemoryAccessChannelIds.h', 'EventStatistics.h', 'CommonRandomNumbers.h', 'CrossSectionKernels.cc', 'CrossSectionKernels.h', 'MatrixElementKernels.cc', 'MatrixElementKernels.h', 'RamboSamplingKernels.cc', 'RamboSamplingKernels.h', 'RandomNumberKernels.h', 'CommonRandomNumberKernel.cc', 'CurandRandomNumberKernel.cc', 'HiprandRandomNumberKernel.cc', 'Bridge.h', 'BridgeKernels.cc', 'BridgeKernels.h', 'fbridge.cc', 'fbridge.inc', 'fsampler.cc', 'fsampler.inc', 'MadgraphTest.h', 'runTest.cc', 'testmisc.cc', 'testxxx_cc_ref.txt', 'valgrind.h', 'cudacpp.mk', 'testxxx.cc', 'MemoryBuffers.h', 'MemoryAccessCouplings.h', 'perf.py', 'profile.sh'] [1;30m[output.py at line 203][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.generate_subprocess_directory (create the directory) [1;30m[output.py at line 196][0m [0m
+[1;32mDEBUG:    type(subproc_group)=<class 'madgraph.core.helas_objects.HelasMatrixElement'> [1;30m[output.py at line 197][0m [0m
+[1;32mDEBUG:    type(fortran_model)=<class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_GPUFOHelasCallWriter'> [1;30m[output.py at line 198][0m [0m
+[1;32mDEBUG:    type(me)=<class 'int'> me=0 [1;30m[output.py at line 199][0m [0m
+[1;32mDEBUG:  "need to link", self.to_link_in_P = [0m need to link ['nvtx.h', 'timer.h', 'timermap.h', 'ompnumthreads.h', 'GpuRuntime.h', 'GpuAbstraction.h', 'MemoryAccessHelpers.h', 'MemoryAccessVectors.h', 'MemoryAccessMatrixElements.h', 'MemoryAccessMomenta.h', 'MemoryAccessRandomNumbers.h', 'MemoryAccessWeights.h', 'MemoryAccessAmplitudes.h', 'MemoryAccessWavefunctions.h', 'MemoryAccessGs.h', 'MemoryAccessCouplingsFixed.h', 'MemoryAccessNumerators.h', 'MemoryAccessDenominators.h', 'EventStatistics.h', 'CommonRandomNumbers.h', 'CrossSectionKernels.cc', 'CrossSectionKernels.h', 'MatrixElementKernels.cc', 'MatrixElementKernels.h', 'RamboSamplingKernels.cc', 'RamboSamplingKernels.h', 'RandomNumberKernels.h', 'CommonRandomNumberKernel.cc', 'CurandRandomNumberKernel.cc', 'HiprandRandomNumberKernel.cc', 'Bridge.h', 'BridgeKernels.cc', 'BridgeKernels.h', 'fbridge.cc', 'fbridge.inc', 'fsampler.cc', 'fsampler.inc', 'MadgraphTest.h', 'runTest.cc', 'testmisc.cc', 'testxxx_cc_ref.txt', 'valgrind.h', 'cudacpp.mk', 'testxxx.cc', 'MemoryBuffers.h', 'MemoryAccessCouplings.h', 'perf.py', 'profile.sh'] [1;30m[output.py at line 200][0m [0m
 INFO: Creating files in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg_bb/SubProcesses/P1_Sigma_heft_gg_bbx 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg_bb/SubProcesses/P1_Sigma_heft_gg_bbx/./CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg_bb/SubProcesses/P1_Sigma_heft_gg_bbx/./CPPProcess.cc
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg_bb/SubProcesses/P1_Sigma_heft_gg_bbx/. 
 Generated helas calls for 1 subprocesses (4 diagrams) in 0.008 s
-[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 208][0m [0m
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVS3 routines[0m
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFS2 routines[0m
-ALOHA: aloha creates 4 routines in  0.268 s
+ALOHA: aloha creates 4 routines in  0.271 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVS3
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -174,7 +173,7 @@ INFO: Created files Parameters_heft.h and Parameters_heft.cc in directory
 INFO: /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg_bb/src/. and /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg_bb/src/. 
 quit
 
-real	0m0.669s
-user	0m0.609s
-sys	0m0.044s
+real	0m0.657s
+user	0m0.598s
+sys	0m0.055s
 Code generation completed in 1 seconds
