@@ -251,6 +251,24 @@ C           Print the number of good helicities
               WRITE (6,*) 'IMIRROR =', IMIRROR
               WRITE (6,*) 'NGOODHEL =', NGOODHEL(IMIRROR)
               WRITE (6,*) 'NCOMB =', NCOMB
+C           SANITY CHECK: check that the two lists of good helicities are identical
+C           (see madgraph4gpu #872, #935, #941)
+              IF (NGOODHEL(1).NE.-1 .AND. NGOODHEL(2).NE.-1) THEN
+                IF (NGOODHEL(1) .NE. NGOODHEL(2)) THEN
+                  WRITE (6,*) 'ERROR! IMIRROR=1,2 mismatch for NGOODHEL',
+     $              NGOODHEL(1), NGOODHEL(2)
+                  STOP
+                ENDIF
+                DO I=1,NCOMB
+                  IF (GOODHEL(I,1) .NEQV. GOODHEL(I,2)) THEN
+                    WRITE (6,*) 'ERROR! IMIRROR=1,2 mismatch for GOODHEL',
+     $                I, GOODHEL(I,1), GOODHEL(I,2)
+                    STOP
+                  ENDIF
+                END DO
+                WRITE (6,*) 'Helicity lists from IMIRROR=1,2 match',
+     $            NGOODHEL(1), NGOODHEL(2)
+              ENDIF
             ENDIF
           ENDIF
         ENDIF
