@@ -292,7 +292,7 @@ index 1124a9164..27a6e4674 100644
        open(unit=lun,file=tempname,status='old',ERR=20)
        fopened=.true.
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
-index e73e654d4..fbd77b316 100644
+index e73e654d4..1f71cc2ca 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
 @@ -72,7 +72,10 @@ C
@@ -315,7 +315,7 @@ index e73e654d4..fbd77b316 100644
        NTRY(IMIRROR)=NTRY(IMIRROR)+1
        THIS_NTRY(IMIRROR) = THIS_NTRY(IMIRROR)+1
        DO I=1,NEXTERNAL
-@@ -217,6 +221,18 @@ C     ----------
+@@ -217,6 +221,36 @@ C     ----------
            ENDIF
            IF(NTRY(IMIRROR).EQ.MAXTRIES)THEN
              ISHEL(IMIRROR)=MIN(ISUM_HEL,NGOOD(IMIRROR))
@@ -330,11 +330,29 @@ index e73e654d4..fbd77b316 100644
 +              WRITE (6,*) 'IMIRROR =', IMIRROR
 +              WRITE (6,*) 'NGOODHEL =', NGOODHEL(IMIRROR)
 +              WRITE (6,*) 'NCOMB =', NCOMB
++C           SANITY CHECK: check that the two lists of good helicities are identical
++C           (see madgraph4gpu #872, #935, #941)
++              IF (NGOODHEL(1).NE.-1 .AND. NGOODHEL(2).NE.-1) THEN
++                IF (NGOODHEL(1) .NE. NGOODHEL(2)) THEN
++                  WRITE (6,*) 'ERROR! IMIRROR=1,2 mismatch for NGOODHEL',
++     $              NGOODHEL(1), NGOODHEL(2)
++                  STOP
++                ENDIF
++                DO I=1,NCOMB
++                  IF (GOODHEL(I,1) .NEQV. GOODHEL(I,2)) THEN
++                    WRITE (6,*) 'ERROR! IMIRROR=1,2 mismatch for GOODHEL',
++     $                I, GOODHEL(I,1), GOODHEL(I,2)
++                    STOP
++                  ENDIF
++                END DO
++                WRITE (6,*) 'Helicity lists from IMIRROR=1,2 match',
++     $            NGOODHEL(1), NGOODHEL(2)
++              ENDIF
 +            ENDIF
            ENDIF
          ENDIF
        ELSE IF (.NOT.INIT_MODE) THEN  ! random helicity 
-@@ -234,6 +250,7 @@ C       Include the Jacobian from helicity sampling
+@@ -234,6 +268,7 @@ C       Include the Jacobian from helicity sampling
          IHEL = HEL_PICKED
        ELSE
          ANS = 1D0
@@ -342,7 +360,7 @@ index e73e654d4..fbd77b316 100644
          RETURN
        ENDIF
        IF (ANS.NE.0D0.AND.(ISUM_HEL .NE. 1.OR.HEL_PICKED.EQ.-1)) THEN
-@@ -278,9 +295,8 @@ C           Set right sign for ANS, based on sign of chosen helicity
+@@ -278,9 +313,8 @@ C           Set right sign for ANS, based on sign of chosen helicity
          ENDIF
        ENDIF
        ANS=ANS/DBLE(IDEN)
