@@ -347,17 +347,18 @@ class RWGT_ProcessExporter(PLUGIN_ProcessExporter):
     rwgt_names = []
     proc_lines = []
     
-    
     s = PLUGINDIR + '/madgraph/iolibs/template_files/'
     from_template = {'.': [s+'.clang-format', s+'CMake/CMakeLists.txt',
                            s+'COPYRIGHT', s+'COPYING', s+'COPYING.LESSER' ],
                      'CMake': [s+'CMake/Compilers.txt', s+'CMake/Platforms.txt', s+'CMake/Macros.txt'],
                      'src': [s+'gpu/rambo.h', s+'read_slha.h', s+'read_slha.cc',
                              s+'gpu/mgOnGpuFptypes.h', s+'gpu/mgOnGpuCxtypes.h', s+'gpu/mgOnGpuVectors.h',
+                             s+'gpu/constexpr_math.h',
+                             s+'gpu/cudacpp_config.mk',
                              s+'CMake/src/CMakeLists.txt',
                              s+'REX/REX.cc', s+'REX/teawREX.cc', 
                              s+'REX/REX.h', s+'REX/teawREX.h', 
-                             s+'REX/rwgt_instance.h', s+'REX/rwgt_instance.cc'],
+                             s+'REX/rwgt_instance.h', s+'REX/rwgt_instance.cc' ],
                      'SubProcesses': [s+'gpu/nvtx.h', s+'gpu/timer.h', s+'gpu/timermap.h',
                                       s+'gpu/ompnumthreads.h', s+'gpu/GpuRuntime.h', s+'gpu/GpuAbstraction.h',
                                       s+'gpu/MemoryAccessHelpers.h', s+'gpu/MemoryAccessVectors.h',
@@ -378,14 +379,9 @@ class RWGT_ProcessExporter(PLUGIN_ProcessExporter):
                                       s+'gpu/testmisc.cc', s+'gpu/testxxx_cc_ref.txt',
                                       s+'gpu/perf.py', s+'gpu/profile.sh',
                                       s+'CMake/SubProcesses/CMakeLists.txt',
-                                      s+'gpu/cudacpp_rex_driver.mk',
+                                      s+'gpu/cudacpp_driver.mk',
                                       s+'REX/rwgt_instance.h', s+'REX/REX.h', s+'REX/teawREX.h'],
                      'test': [s+'gpu/cudacpp_test.mk']}
-
-#    from_template['SubProcesses'].append(s+'REX/rwgt_instance.h')
-#    from_template['SubProcesses'].append(s+'REX/REX.hpp')
-#    from_template['SubProcesses'].append(s+'REX/teawREX.hpp')
-#    from_template['SubProcesses'].append(s+'gpu/cudacpp_rex_driver.mk')
 
     to_link_in_P = ['nvtx.h', 'timer.h', 'timermap.h',
                     'ompnumthreads.h', 'GpuRuntime.h', 'GpuAbstraction.h',
@@ -412,11 +408,77 @@ class RWGT_ProcessExporter(PLUGIN_ProcessExporter):
                     'perf.py', 'profile.sh',
                     'rwgt_instance.h', 'REX.h', 'teawREX.h']
     
+#     s = PLUGINDIR + '/madgraph/iolibs/template_files/'
+#     from_template = {'.': [s+'.clang-format', s+'CMake/CMakeLists.txt',
+#                            s+'COPYRIGHT', s+'COPYING', s+'COPYING.LESSER' ],
+#                      'CMake': [s+'CMake/Compilers.txt', s+'CMake/Platforms.txt', s+'CMake/Macros.txt'],
+#                      'src': [s+'gpu/rambo.h', s+'read_slha.h', s+'read_slha.cc',
+#                              s+'gpu/mgOnGpuFptypes.h', s+'gpu/mgOnGpuCxtypes.h', s+'gpu/mgOnGpuVectors.h',
+#                              s+'CMake/src/CMakeLists.txt',
+#                              s+'REX/REX.cc', s+'REX/teawREX.cc', 
+#                              s+'REX/REX.h', s+'REX/teawREX.h', 
+#                              s+'REX/rwgt_instance.h', s+'REX/rwgt_instance.cc'],
+#                      'SubProcesses': [s+'gpu/nvtx.h', s+'gpu/timer.h', s+'gpu/timermap.h',
+#                                       s+'gpu/ompnumthreads.h', s+'gpu/GpuRuntime.h', s+'gpu/GpuAbstraction.h',
+#                                       s+'gpu/MemoryAccessHelpers.h', s+'gpu/MemoryAccessVectors.h',
+#                                       s+'gpu/MemoryAccessMatrixElements.h', s+'gpu/MemoryAccessMomenta.h',
+#                                       s+'gpu/MemoryAccessRandomNumbers.h', s+'gpu/MemoryAccessWeights.h',
+#                                       s+'gpu/MemoryAccessAmplitudes.h', s+'gpu/MemoryAccessWavefunctions.h',
+#                                       s+'gpu/MemoryAccessGs.h', s+'gpu/MemoryAccessCouplingsFixed.h',
+#                                       s+'gpu/MemoryAccessNumerators.h', s+'gpu/MemoryAccessDenominators.h',
+#                                       s+'gpu/EventStatistics.h', s+'gpu/CommonRandomNumbers.h',
+#                                       s+'gpu/CrossSectionKernels.cc', s+'gpu/CrossSectionKernels.h',
+#                                       s+'gpu/MatrixElementKernels.cc', s+'gpu/MatrixElementKernels.h',
+#                                       s+'gpu/RamboSamplingKernels.cc', s+'gpu/RamboSamplingKernels.h',
+#                                       s+'gpu/RandomNumberKernels.h', s+'gpu/CommonRandomNumberKernel.cc',
+#                                       s+'gpu/CurandRandomNumberKernel.cc', s+'gpu/HiprandRandomNumberKernel.cc',
+#                                       s+'gpu/Bridge.h', s+'gpu/BridgeKernels.cc', s+'gpu/BridgeKernels.h',
+#                                       s+'gpu/fbridge.cc', s+'gpu/fbridge.inc', s+'gpu/fsampler.cc', s+'gpu/fsampler.inc',
+#                                       s+'gpu/MadgraphTest.h', s+'gpu/runTest.cc',
+#                                       s+'gpu/testmisc.cc', s+'gpu/testxxx_cc_ref.txt',
+#                                       s+'gpu/perf.py', s+'gpu/profile.sh',
+#                                       s+'CMake/SubProcesses/CMakeLists.txt',
+#                                       s+'gpu/cudacpp_rex_driver.mk',
+#                                       s+'REX/rwgt_instance.h', s+'REX/REX.h', s+'REX/teawREX.h'],
+#                      'test': [s+'gpu/cudacpp_test.mk']}
+
+# #    from_template['SubProcesses'].append(s+'REX/rwgt_instance.h')
+# #    from_template['SubProcesses'].append(s+'REX/REX.hpp')
+# #    from_template['SubProcesses'].append(s+'REX/teawREX.hpp')
+# #    from_template['SubProcesses'].append(s+'gpu/cudacpp_rex_driver.mk')
+
+#     to_link_in_P = ['nvtx.h', 'timer.h', 'timermap.h',
+#                     'ompnumthreads.h', 'GpuRuntime.h', 'GpuAbstraction.h',
+#                     'MemoryAccessHelpers.h', 'MemoryAccessVectors.h',
+#                     'MemoryAccessMatrixElements.h', 'MemoryAccessMomenta.h',
+#                     'MemoryAccessRandomNumbers.h', 'MemoryAccessWeights.h',
+#                     'MemoryAccessAmplitudes.h', 'MemoryAccessWavefunctions.h',
+#                     'MemoryAccessGs.h', 'MemoryAccessCouplingsFixed.h',
+#                     'MemoryAccessNumerators.h', 'MemoryAccessDenominators.h',
+#                     'EventStatistics.h', 'CommonRandomNumbers.h',
+#                     'CrossSectionKernels.cc', 'CrossSectionKernels.h',
+#                     'MatrixElementKernels.cc', 'MatrixElementKernels.h',
+#                     'RamboSamplingKernels.cc', 'RamboSamplingKernels.h',
+#                     'RandomNumberKernels.h', 'CommonRandomNumberKernel.cc',
+#                     'CurandRandomNumberKernel.cc', 'HiprandRandomNumberKernel.cc',
+#                     'Bridge.h', 'BridgeKernels.cc', 'BridgeKernels.h',
+#                     'fbridge.cc', 'fbridge.inc', 'fsampler.cc', 'fsampler.inc',
+#                     'MadgraphTest.h', 'runTest.cc',
+#                     'testmisc.cc', 'testxxx_cc_ref.txt',
+#                     'cudacpp.mk', # this is generated from a template in Subprocesses but we still link it in P1
+#                     'testxxx.cc', # this is generated from a template in Subprocesses but we still link it in P1
+#                     'MemoryBuffers.h', # this is generated from a template in Subprocesses but we still link it in P1
+#                     'MemoryAccessCouplings.h', # this is generated from a template in Subprocesses but we still link it in P1
+#                     'perf.py', 'profile.sh',
+#                     'rwgt_instance.h', 'REX.h', 'teawREX.h']
+    
 #    to_link_in_P.append('rwgt_instance.h')
 #    to_link_in_P.append('REX.hpp')
 #    to_link_in_P.append('teawREX.hpp')
     
-    template_Sub_make = pjoin(PLUGINDIR, 'madgraph', 'iolibs', 'template_files','gpu','cudacpp_rex_runner.mk')
+    template_src_make = pjoin(PLUGINDIR, 'madgraph' ,'iolibs', 'template_files','gpu','cudacpp_src.mk')
+    template_tst_make = pjoin(PLUGINDIR, 'madgraph', 'iolibs', 'template_files','gpu','cudacpp_test.mk')
+    template_Sub_make = pjoin(PLUGINDIR, 'madgraph', 'iolibs', 'template_files','gpu','cudacpp_runner.mk')
     
     # def generate_subprocess_directory(self, subproc_group, fortran_model, me=None):
     #     misc.sprint('Entering PLUGIN_ProcessExporter.generate_subprocess_directory (create the directory)')
@@ -465,10 +527,13 @@ class RWGT_ProcessExporter(PLUGIN_ProcessExporter):
         replace_dict['multiprocess_lines'] = "\n".join(self.proc_lines)
         replace_dict['include_lines'] = ''
         replace_dict['run_set'] = ''
+        replace_dict['fbridge_vec'] = ''
         for name in self.rwgt_names:
             replace_dict['include_lines'] += '#include "%s/rwgt_runner.h"\n' % name
-            replace_dict['run_set'] += '%s::runner,' % name
+            replace_dict['run_set'] += '%s::getEventSet(),' % name
+            replace_dict['fbridge_vec'] += '%s::bridgeConstr(),' % name
         replace_dict['run_set'] = replace_dict['run_set'][:-1]
+        replace_dict['fbridge_vec'] = replace_dict['fbridge_vec'][:-1]
         template_path = os.path.join( PLUGINDIR, 'madgraph', 'iolibs', 'template_files' )
         template = open(pjoin(template_path,'REX', 'rwgt_driver.inc'),'r').read()
         ff = open(pjoin(self.dir_path, 'SubProcesses', 'rwgt_driver.cc'),'w')

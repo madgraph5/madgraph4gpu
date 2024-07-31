@@ -2112,16 +2112,37 @@ class PLUGIN_OneProcessExporterRwgt(PLUGIN_OneProcessExporter):
         """Return string with particle ids and status in the REX std::pair format"""
         return ",".join(["{\"%i\",\"%i\"}" % (leg.get('state'), leg.get('id')) \
             for leg in process.get('legs')]).replace('0', '-1')
+    
+    def get_rwgt_legs_vec(self, processes):
+        """Return string with vectors of particle ids and statuses"""
+        prtSets = []
+        for k in range(len(processes)):
+            prtSets.append("{" + self.get_rwgt_legs(processes[k]) + "}")
+        return ",".join(prtSets)
         
     def get_init_prts_vec(self, process):
         """Return string with initial state particle ids for use in REX event sorting"""
         prts = ",".join(["\"%i\"" % leg.get('id') for leg in process.get('legs') if leg.get('state') == 0])
         return "{" + prts + "}"
     
+    def get_init_prts_vecs(self, processes):
+        """Return string with vectors of initial state particle ids"""
+        prtSets = []
+        for k in range(len(processes)):
+            prtSets.append(self.get_init_prts_vec(processes[k]))
+        return ",".join(prtSets)
+    
     def get_fin_prts_vec(self, process):
         """Return string with final state particle ids for use in REX event sorting"""
         prts = ",".join(["\"%i\"" % leg.get('id') for leg in process.get('legs') if leg.get('state') == 1])
         return "{" + prts + "}"
+    
+    def get_fin_prts_vecs(self, processes):
+        """Return string with vectors of final state particle ids"""
+        prtSets = []
+        for k in range(len(processes)):
+            prtSets.append(self.get_fin_prts_vec(processes[k]))
+        return ",".join(prtSets)
         
     def get_rwgt_procMap(self, process):
         """Return string with particle states and order in the REX procMap format"""
@@ -2163,6 +2184,16 @@ class PLUGIN_OneProcessExporterRwgt(PLUGIN_OneProcessExporter):
         with open(os.path.join(self.path, 'rwgt_runner.h'), 'w') as ff:
             ff.write(rwgt_h)
     
+    def edit_rwgt_header(self):
+        """Adds process-specific details to the rwgt_runner.h template"""
+        replace_dict = super().get_process_class_definitions(write=False)
+        replace_dict['process_namespace'] = self.get_proc_dir()
+        replace_dict['info_lines'] = PLUGIN_export_cpp.get_mg5_info_lines()
+        template = open(pjoin(self.template_path,'REX', 'rwgt_runner.h'),'r').read()
+        ff = open(pjoin(self.path, 'rwgt_runner.h'),'w')
+        ff.write(template % replace_dict)
+        ff.close()
+    
     def edit_rwgt_runner(self):
         """Create the rwgt_runner.cc file for the REX reweighting"""
         ###misc.sprint('Entering PLUGIN_OneProcessExporterRwgt.edit_rwgt_runner')
@@ -2172,11 +2203,10 @@ class PLUGIN_OneProcessExporterRwgt(PLUGIN_OneProcessExporter):
 #        rwgt_runner = self.get_proc_dir() + self.rwgt_template
         replace_dict['process_namespace'] = self.get_proc_dir()
         replace_dict['info_lines'] = PLUGIN_export_cpp.get_mg5_info_lines()
-        replace_dict['init_prt_ids'] = self.get_init_prts_vec(self.matrix_elements[0].get('processes')[0])
-        replace_dict['fin_prt_ids'] = self.get_fin_prts_vec(self.matrix_elements[0].get('processes')[0])
-        replace_dict['process_event'] = self.get_rwgt_legs(self.matrix_elements[0].get('processes')[0])
+        replace_dict['init_prt_ids'] = self.get_init_prts_vecs(self.matrix_elements[0].get('processes'))
+        replace_dict['fin_prt_ids'] = self.get_fin_prts_vecs(self.matrix_elements[0].get('processes'))
+        replace_dict['process_events'] = self.get_rwgt_legs_vec(self.matrix_elements[0].get('processes'))
         template = open(pjoin(self.template_path,'REX', 'rwgt_runner.inc'),'r').read()
-        self.write_rwgt_header()
         ff = open(pjoin(self.path, 'rwgt_runner.cc'),'w')
         ff.write(template % replace_dict)
         ff.close()
@@ -2188,7 +2218,8 @@ class PLUGIN_OneProcessExporterRwgt(PLUGIN_OneProcessExporter):
         """Generate mgOnGpuConfig.h, CPPProcess.cc, CPPProcess.h, check_sa.cc, gXXX.cu links"""
         misc.sprint('Entering RWGT_OneProcessExporter.generate_process_files')
         super().generate_process_files()
-        misc.sprint('Generating rwgt_runner file')
+        misc.sprint('Generating rwgt_runner files')
+        self.edit_rwgt_header()
         self.edit_rwgt_runner()
         misc.sprint('Finished generating rwgt files')
         
