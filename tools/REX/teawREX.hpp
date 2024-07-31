@@ -122,7 +122,7 @@ namespace REX::teaw
             for( auto line : procLines )
             {
                 auto strtPt = line.find("set");
-                auto words = *REX::nuWordSplitter( line );
+                auto words = *REX::nuWordSplitter( line.substr(strtPt) );
                 auto currBlock = words[1]; 
                 auto loc = std::find_if( blocks.begin(), blocks.end(), 
                 [&]( std::string_view block ){ return (block == currBlock); } );
@@ -165,7 +165,8 @@ namespace REX::teaw
 
         void rwgtCard::parse( bool parseOnline ) {
             auto strt = srcCard.find("launch");
-            while( auto commPos = srcCard.find_last_of("#", strt) > srcCard.find_last_of("\n", strt) ){ 
+            auto commPos = srcCard.find_last_of("#", strt);
+            while(  commPos > srcCard.find_last_of("\n", strt) ){ 
                 if( commPos == REX::npos ){
                     break;
                 }
@@ -376,7 +377,7 @@ namespace REX::teaw
                 throw std::runtime_error( "No or multiple function(s) for evaluating scattering amplitudes has been provided." );
             //ZW FIX THIS
             initMEs = {};
-            for( auto k = 0 ; k < eventFile.subProcs.size() ; ++k )
+            for( size_t k = 0 ; k < eventFile.subProcs.size() ; ++k )
             {
                 auto ins = meEvals[*(eventFile.subProcs[k]->process)]( *(momenta[k]), *(gS[k]) );
                 initMEs.push_back( std::make_shared<std::vector<double>>( ins->begin(), ins->begin() + wgts[k]->size() ) );
@@ -405,9 +406,9 @@ namespace REX::teaw
         }
         void rwgtRunner::setNormWgtsMultiME(){
             meNormWgts = std::vector<std::shared_ptr<std::vector<double>>>( initMEs.size() );
-            for( auto k = 0 ; k < wgts.size() ; ++k ){
+            for( size_t k = 0 ; k < wgts.size() ; ++k ){
                 meNormWgts[k] = std::make_shared<std::vector<double>>( wgts[k]->size() );
-                for( auto i = 0 ; i < wgts[k]->size() ; ++i ){
+                for( size_t i = 0 ; i < wgts[k]->size() ; ++i ){
                     meNormWgts[k]->at( i ) = wgts[k]->at( i ) / initMEs[k]->at( i );
                 }
             }
@@ -418,7 +419,7 @@ namespace REX::teaw
             if( !oneME() ){ setMEs(args...); } 
             //if( initMEs->size() != wgts[0]->size() )
             //    throw std::runtime_error( "Inconsistent number of events and event weights." );
-            for( auto k = 0; k < initMEs.size() ; ++k ){
+            for( size_t k = 0; k < initMEs.size() ; ++k ){
                 if( initMEs[k]->size() != wgts[k]->size() )
                     throw std::runtime_error( "Inconsistent number of events and event weights." );
             }
@@ -426,7 +427,7 @@ namespace REX::teaw
             else { setNormWgtsMultiME(); }
             normWgtSet = true;
         }
-        bool rwgtRunner::singleRwgtIter( std::shared_ptr<REX::lesHouchesCard> slhaParams, std::shared_ptr<REX::lheNode> lheFile, size_t currId ){
+        bool rwgtRunner::singleRwgtIter( std::shared_ptr<REX::lesHouchesCard> slhaParams, std::shared_ptr<REX::lheNode> lheIn, size_t currId ){
             if( !normWgtSet )
                 throw std::runtime_error( "Normalised original weights (wgt/|ME|) not evaluated -- new weights cannot be calculated." );
             if( !setParamCard( slhaParams ) )
@@ -438,7 +439,7 @@ namespace REX::teaw
             }
             else{
                 std::vector<std::shared_ptr<std::vector<double>>> nuMEs = {};
-                for( auto k = 0 ; k < eventFile.subProcs.size() ; ++k )
+                for( size_t k = 0 ; k < eventFile.subProcs.size() ; ++k )
                 {
                     nuMEs.push_back(meEvals[*eventFile.subProcs[k]->process]( *(momenta[k]), *(gS[k]) ));
                 }
@@ -447,10 +448,10 @@ namespace REX::teaw
             }
             //ZW IF MULTIPLE TYPES
             REX::newWgt nuWgt( rwgtSets->rwgtRuns[currId].comRunProc(), newWGTs );
-            lheFile->addWgt( 0, nuWgt );
+            lheIn->addWgt( 0, nuWgt );
             return true;
         }
-        bool rwgtRunner::singleRwgtIter( std::shared_ptr<REX::lesHouchesCard> slhaParams, std::shared_ptr<REX::lheNode> lheFile, size_t currId, std::string& id ){
+        bool rwgtRunner::singleRwgtIter( std::shared_ptr<REX::lesHouchesCard> slhaParams, std::shared_ptr<REX::lheNode> lheIn, size_t currId, std::string& id ){
             if( !normWgtSet )
                 throw std::runtime_error( "Normalised original weights (wgt/|ME|) not evaluated -- new weights cannot be calculated." );
             if( !setParamCard( slhaParams ) )
@@ -462,7 +463,7 @@ namespace REX::teaw
             }
             else{
                 std::vector<std::shared_ptr<std::vector<double>>> nuMEs = {};
-                for( auto k = 0 ; k < eventFile.subProcs.size() ; ++k )
+                for( size_t k = 0 ; k < eventFile.subProcs.size() ; ++k )
                 {
                     nuMEs.push_back(meEvals[*eventFile.subProcs[k]->process]( *(momenta[k]), *(gS[k]) ));
                 }
@@ -471,10 +472,10 @@ namespace REX::teaw
             }
             //ZW IF MULTIPLE TYPES
             REX::newWgt nuWgt( rwgtSets->rwgtRuns[currId].comRunProc(), newWGTs, id );
-            lheFile->addWgt( 0, nuWgt );
+            lheIn->addWgt( 0, nuWgt );
             return true;
         }
-        bool rwgtRunner::singleRwgtIter( std::shared_ptr<REX::lesHouchesCard> slhaParams, std::shared_ptr<REX::lheNode> lheFile, size_t currId, REX::event& ev ){
+        bool rwgtRunner::singleRwgtIter( std::shared_ptr<REX::lesHouchesCard> slhaParams, std::shared_ptr<REX::lheNode> lheIn, size_t currId, REX::event& ev ){
             if( !normWgtSet )
                 throw std::runtime_error( "Normalised original weights (wgt/|ME|) not evaluated -- new weights cannot be calculated." );
             if( !setParamCard( slhaParams ) )
@@ -487,7 +488,7 @@ namespace REX::teaw
             }
             else{
                 std::vector<std::shared_ptr<std::vector<double>>> nuMEs = {};
-                for( auto k = 0 ; k < eventFile.subProcs.size() ; ++k )
+                for( size_t k = 0 ; k < eventFile.subProcs.size() ; ++k )
                 {
                     nuMEs.push_back(meEvals[*eventFile.subProcs[k]->process]( *(momenta[k]), *(gS[k]) ));
                 }
@@ -496,10 +497,10 @@ namespace REX::teaw
             }
             //ZW IF MULTIPLE TYPES
             REX::newWgt nuWgt( rwgtSets->rwgtRuns[currId].comRunProc(), newWGTs );
-            lheFile->addWgt( 0, nuWgt );
+            lheIn->addWgt( 0, nuWgt );
             return true;
         }
-        bool rwgtRunner::singleRwgtIter( std::shared_ptr<REX::lesHouchesCard> slhaParams, std::shared_ptr<REX::lheNode> lheFile, size_t currId, 
+        bool rwgtRunner::singleRwgtIter( std::shared_ptr<REX::lesHouchesCard> slhaParams, std::shared_ptr<REX::lheNode> lheIn, size_t currId, 
         std::string& id, REX::event& ev ){
             if( !normWgtSet )
                 throw std::runtime_error( "Normalised original weights (wgt/|ME|) not evaluated -- new weights cannot be calculated." );
@@ -512,7 +513,7 @@ namespace REX::teaw
             }
             else{
                 std::vector<std::shared_ptr<std::vector<double>>> nuMEs = {};
-                for( auto k = 0 ; k < eventFile.subProcs.size() ; ++k )
+                for( size_t k = 0 ; k < eventFile.subProcs.size() ; ++k )
                 {
                     nuMEs.push_back(meEvals[*eventFile.subProcs[k]->process]( *(momenta[k]), *(gS[k]) ));
                 }
@@ -521,11 +522,11 @@ namespace REX::teaw
             }
             //ZW IF MULTIPLE TYPES
             REX::newWgt nuWgt( rwgtSets->rwgtRuns[currId].comRunProc(), newWGTs, id );
-            lheFile->addWgt( 0, nuWgt );
+            lheIn->addWgt( 0, nuWgt );
             return true;
         }
-        bool rwgtRunner::lheFileWriter( std::shared_ptr<REX::lheNode> lheFile, std::string outputDir ){
-            bool writeSuccess = REX::filePusher( outputDir, *lheFile->nodeWriter() );
+        bool rwgtRunner::lheFileWriter( std::shared_ptr<REX::lheNode> lheIn, std::string outputDir ){
+            bool writeSuccess = REX::filePusher( outputDir, *lheIn->nodeWriter() );
             if( !writeSuccess )
                 throw std::runtime_error( "Failed to write LHE file." );
             return true;

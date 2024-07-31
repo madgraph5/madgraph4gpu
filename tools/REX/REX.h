@@ -42,10 +42,11 @@
 // referred to as strings unless the difference is relevant
 namespace REX
 {
-    #pragma warning( push )
-    #pragma warning( disable : 4101)
-    static const size_t npos = -1;
-    #pragma warning( pop ) 
+    //#pragma warning( push )
+    //#pragma warning( disable : 4101)
+    static const size_t npos = (size_t)-1;
+    #define UNUSED(x) (void)(x)
+    //#pragma warning( pop ) 
 
     using sortFcn = std::function<std::shared_ptr<std::vector<size_t>>(std::vector<std::string_view>)>;
     using statSort = std::function<std::shared_ptr<std::vector<size_t>>(std::string_view, std::vector<std::string_view>)>;
@@ -320,6 +321,9 @@ namespace REX
         event( xmlTree& originFile );
         event( xmlTree* originFile );
         event( std::shared_ptr<xmlTree> originFile );
+        event( const event& original );
+        event( event* original );
+        event( std::shared_ptr<event> original );
         bool prtsAreMod();
         bool headIsMod();
         bool isSpecSort() const;
@@ -338,7 +342,7 @@ namespace REX
         std::map<std::string_view, std::vector<std::string_view>> procMap;
         std::map<std::string_view, std::vector<size_t>> procOrder;
         sortFcn eventSort = []( std::vector<std::string_view> vec ){ return stoiSort( vec ); };
-        statSort specSort = []( std::string_view stat, std::vector<std::string_view> vec ){ return stoiSort( vec ); };
+        statSort specSort = []( std::string_view stat, std::vector<std::string_view> vec ){ UNUSED(stat); return stoiSort( vec ); };
         bool specSorted = false;
         bool initProcMap(bool hard = false);
         bool initProcMap( sortFcn sorter, bool hard = false );
@@ -365,6 +369,29 @@ namespace REX
         std::map<std::string_view, std::vector<size_t>> &getProcOrder(sortFcn sorter);
         std::map<std::string_view, std::vector<std::string_view>> &getProc(statSort sorter);
         std::map<std::string_view, std::vector<size_t>> &getProcOrder(statSort sorter);
+    };
+
+    using eventComparison = std::function<bool(event&, event&, std::vector<std::string>&)>;
+
+    using eventSetComp = std::function<bool(event&, std::vector<std::string>&)>;
+
+    struct eventSet{
+        eventSet();
+        eventSet( const eventSet& nuEvents );
+        eventSet( std::vector<event>& nuEvents );
+        eventSet( std::vector<std::shared_ptr<event>>& nuEvents );
+        void setRelStats( std::vector<std::string>& nuStats );
+        void addEvent( event& nuEvent );
+        void addEvent( std::shared_ptr<event> nuEvent );
+        void addEvent( std::vector<event>& nuEvents );
+        void addEvent( std::vector<std::shared_ptr<event>> nuEvents );
+        void setComp( eventSetComp nuComp );
+        bool belongs( event& nuEvent );
+        bool belongs( std::shared_ptr<event> nuEvent );
+    protected:
+        std::vector<event> events;
+        std::vector<std::string> relStats = {"-1", "1"};
+        eventSetComp comp;
     };
 
     struct paramVal{
@@ -692,7 +719,7 @@ namespace REX
         std::shared_ptr<initNode> init = std::make_shared<initNode>(xmlFile, start);
         std::vector<std::string_view> relStat = {"-1", "1"};
         sortFcn particleSort = []( std::vector<std::string_view> prts ){ return stoiSort(prts); };
-        statSort statParticleSort = []( std::string_view dummy, std::vector<std::string_view> prts ){ return stoiSort(prts); };
+        statSort statParticleSort = []( std::string_view dummy, std::vector<std::string_view> prts ){ UNUSED(dummy); return stoiSort(prts); };
         virtual void headerWriter();
         virtual void initWriter();
         virtual void eventWriter();
@@ -737,17 +764,28 @@ namespace REX
         statSort sorter );
     };
 
+    struct transSkel {
+    public:
+        std::vector<std::vector<std::shared_ptr<REX::event>>> procSets;
+        std::vector<std::shared_ptr<std::vector<bool>>> relProcs;
+        std::vector<bool> relEvSet;
+        transSkel();
+        transSkel( transSkel& skeleton );
+        transSkel( lheNode& lheFile, std::vector<eventSet>& evSet );
+        transSkel( std::shared_ptr<lheNode> lheFile, std::vector<eventSet>& evSet );
+    };
+
     struct transMonoLHE {
     public:
         evtInfo evtsHead;
         prtInfo evtsData;
         std::shared_ptr<event> process;
-        transMonoLHE( const std::vector<std::shared_ptr<REX::event>>& lheFile = {}, const int nPrt = 8 );
-        transMonoLHE( const std::vector<std::shared_ptr<REX::event>>& lheFile, const int nPrt, const std::vector<std::string_view>& statVec );
-        transMonoLHE( const std::vector<std::shared_ptr<REX::event>>& lheFile, const int nPrt, 
+        transMonoLHE( const std::vector<std::shared_ptr<REX::event>> lheFile = {}, const int nPrt = 8 );
+        transMonoLHE( const std::vector<std::shared_ptr<REX::event>> lheFile, const int nPrt, const std::vector<std::string_view>& statVec );
+        transMonoLHE( const std::vector<std::shared_ptr<REX::event>> lheFile, const int nPrt, 
         sortFcn sorter,
         std::vector<std::string_view> statVec = { "-1", "1" } );
-        transMonoLHE( const std::vector<std::shared_ptr<REX::event>>& lheFile, const int nPrt, 
+        transMonoLHE( const std::vector<std::shared_ptr<REX::event>> lheFile, const int nPrt, 
         statSort sorter,
         std::vector<std::string_view> statVec = { "-1", "1" } );
     };
@@ -767,6 +805,7 @@ namespace REX
         statSort sorter, 
         const std::vector<std::string_view>& statVec = { "-1", "1" } );
         transLHE( lheNode& lheFile, const std::vector<std::string_view>& statVec );
+        transLHE( transSkel& skeleton );
         std::shared_ptr<std::vector<double>> vectorFlat( std::vector<std::shared_ptr<std::vector<double>>> vecVec );
     };
 

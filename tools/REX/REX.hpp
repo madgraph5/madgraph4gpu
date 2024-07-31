@@ -489,7 +489,7 @@ namespace REX
         xmlNode::xmlNode(){ modded = false; return; }
         xmlNode::xmlNode( const std::string_view originFile, const size_t& begin, const std::vector<std::shared_ptr<xmlNode>>& childs ){
             modded = false;
-            xmlFile = originFile;
+            xmlFile = originFile.substr( begin );
             structure = xmlTree( originFile );
             faux = structure.isFaux();
             start = structure.getStart();
@@ -497,8 +497,8 @@ namespace REX
             size_t trueStart = xmlFile.find_first_not_of("< \n\r\f\t\v", start+1);
             name = xmlFile.substr( trueStart, xmlFile.find_first_of(">/ \n\r\f\t\v", trueStart) - trueStart );
             content = xmlFile.substr( structure.getContStart(), structure.getContEnd() - structure.getContStart() );
-            for( auto& child : *(structure.getChildren()) ){
-                children.push_back( std::make_shared<xmlNode>( *child ) );
+            for( auto child : childs ){
+                children.push_back( child );
             }
         }
         xmlNode::xmlNode( xmlTree &tree ){ 
@@ -814,7 +814,7 @@ namespace REX
             if( isModded() || !isWritten() ){
             headWriter( incId );
             contWriter();
-            childWriter( );
+            childWriter( hasChildren );
             endWriter();
             writtenSelf = std::make_shared<std::string>( nodeHeader + nodeContent + nodeEnd );
             modded = false;
@@ -1450,9 +1450,9 @@ namespace REX
             hasBeenProc = true;
             return true;
         }
-        bool event::inRwgtChild( std::string_view name ){ 
+        bool event::inRwgtChild( std::string_view nameIn ){ 
             for( auto child : childRwgt->getChildren() ){ 
-                for( auto tag : child->getTags() ){ if(clStringComp(tag->getVal(), name)){ return true; } }
+                for( auto tag : child->getTags() ){ if(clStringComp(tag->getVal(), nameIn)){ return true; } }
             }
             return false;
         }
@@ -1577,7 +1577,7 @@ namespace REX
         }
 
     event& makeEv( std::vector<std::pair<int,int>>& particles ){
-        auto returnEvent = event( particles );
+        static auto returnEvent = event( particles );
         return returnEvent;
     }
 
@@ -1906,6 +1906,7 @@ namespace REX
         initNode::initNode( const std::string_view originFile, const size_t& begin, bool parseOnline )
         : xmlNode( originFile, begin ){
             content = originFile.substr( structure.getContStart(), structure.getContEnd() - structure.getContStart() );
+            if( parseOnline ){ parse( parseOnline ); }
         }
         initNode::initNode( xmlNode& node, bool parseOnline ) : xmlNode( node ){
             content = xmlFile.substr( structure.getContStart(), structure.getContEnd() - structure.getContStart() );

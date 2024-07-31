@@ -15,6 +15,7 @@
 #include "rwgt_instance.h"
 #include <cstdlib>
 #include <typeinfo>
+#include <memory>
 %(include_lines)s
 
 int usage( char* argv0, int ret = 1 )
@@ -93,23 +94,40 @@ int main( int argc, char** argv ){
     }}
     
 
-    // ZW : include rwgt_instances(s)
+    static REX::teaw::rwgtFiles fileCol( lheFilePath, slhaPath, rwgtCardPath );
 
-    std::vector<rwgt::instance> runSet = {%(run_set)s};
+    static std::vector<REX::eventSet> runSet = {%(run_set)s};
+
 //    std::vector<rwgt::instance> runSet;
-    REX::teaw::rwgtFiles fileCol( lheFilePath, slhaPath, rwgtCardPath );
-    fileCol.initCards();
+    static REX::transSkel loadEvs = fileCol.initCards( runSet );
 
-    REX::teaw::ampCall subProcSet;
+    fileCol.initDoubles();
 
-    for( auto proc : runSet ){
-        subProcSet.insert( REX::teaw::ampPair( proc.procEventInt, proc.bridgeCall ) );
+//    static std::vector<std::function<rwgt::fBridge&( std::vector<REX::event>&, unsigned int )>> fBridgeConstr;
+    static std::vector<rwgt::fBridge> fBridgeVec = {%(fbridge_vec)s};
+
+    static std::vector<rwgt::fBridge> bridges;
+    
+    static std::vector<REX::teaw::amplitude> amps;
+
+    for( size_t k = 0 ; k < runSet.size() ; ++k ){
+        if( !loadEvs.relEvSet[k] ){ continue; }
+        fBridgeVec[k].init( loadEvs.procSets[k], 32 );
+        bridges.push_back( fBridgeVec[k] );
+        REX::teaw::amplitude currAmp = std::bind(&rwgt::fBridge::bridgeCall, &bridges.back(), std::placeholders::_1, std::placeholders::_2);
+        amps.push_back( currAmp );
     }
+
+    // REX::teaw::ampCall subProcSet;
+
+    // for( auto proc : runSet ){
+    //     subProcSet.insert( REX::teaw::ampPair( proc.procEventInt, proc.bridgeCall ) );
+    // }
 
     //auto bridgeCont = fbridgeRunner( fileCol.getLhe() );
 
     //std::function<std::shared_ptr<std::vector<FORTRANFPTYPE>>( std::vector<double>&, std::vector<double>& )> scatteringAmplitude = bridgeCont.scatAmp;
-    REX::teaw::rwgtRunner driver( fileCol, subProcSet );
+    REX::teaw::rwgtRunner driver( fileCol, amps );
 
 
     driver.runRwgt( outputPath ); 

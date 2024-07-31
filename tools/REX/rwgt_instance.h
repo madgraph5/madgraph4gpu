@@ -15,13 +15,49 @@
 
 #include "teawREX.h"
 
-namespace rwgt{
+/**
+ * The floating point precision used in Fortran arrays.
+ * This is presently hardcoded to double precision (REAL*8).
+ */
+using FORTRANFPTYPE = double; // for Fortran double precision (REAL*8) arrays
+//using FORTRANFPTYPE = float; // for Fortran single precision (REAL*4) arrays
 
-    using FORTRANFPTYPE = double;
+
+namespace rwgt{
 
     //ZW: Function for calculating the number of remaining events in a warp
     // in order to pad the input arrays to a multiple of the warp size
     unsigned int warpRemain( unsigned int nEvt, unsigned int nWarp = 32 );
+
+    // ZW: bridgeWrapper needs args: nEvs, nPar, nMom, moms, gs, rndhel, rndcol, selhel, selcol, chanId
+    using bridgeWrapper = std::function<std::shared_ptr<std::vector<FORTRANFPTYPE>>( int&, int&, int&, std::vector<FORTRANFPTYPE>&, std::vector<FORTRANFPTYPE>&, std::vector<FORTRANFPTYPE>&, std::vector<FORTRANFPTYPE>&, std::vector<int>&,std::vector<int>&, unsigned int& )>;
+
+    struct fBridge{
+        std::vector<FORTRANFPTYPE> rndHel;
+        std::vector<FORTRANFPTYPE> rndCol;
+        std::vector<int> selHel;
+        std::vector<int> selCol;
+        unsigned int chanId = 0;
+        int nMom = 4;
+        int nWarp;
+        int nWarpRemain;
+        int nEvt;
+        int fauxNEvt;
+        int nPar;
+        bridgeWrapper bridge;
+        fBridge();
+        fBridge( REX::event& process );
+        fBridge( std::vector<REX::event>& process, unsigned int warpSize = 32 );
+        fBridge( std::vector<std::shared_ptr<REX::event>> process, unsigned int warpSize = 32 );
+        fBridge( const fBridge& source );
+        void init( std::vector<REX::event>& process, unsigned int warpSize = 32 );
+        void init( std::vector<std::shared_ptr<REX::event>> process, unsigned int warpSize = 32 );
+        void bridgeSetup( unsigned int& noEvts, unsigned int warpSize = 32);
+        void bridgeSetup( std::vector<FORTRANFPTYPE>& evVec, unsigned int warpSize = 32);
+        void bridgeSetup( std::shared_ptr<std::vector<FORTRANFPTYPE>>& evVec, unsigned int warpSize = 32);
+        void setBridge( bridgeWrapper& amp );
+        std::shared_ptr<std::vector<FORTRANFPTYPE>> bridgeCall( std::vector<FORTRANFPTYPE>& momenta, std::vector<FORTRANFPTYPE>& alphaS );
+    };
 
     struct instance{
         std::vector<std::pair<int,int>> procEventInt;
