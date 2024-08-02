@@ -79,25 +79,29 @@ function lauX_cleanup()
 # Clean builds before launch
 lauX_makeclean >& /dev/null
 
-# Clean config before launch
-rm -rf ${resultsdir}; mkdir ${resultsdir}
-lauX_cleanup
-rm -f SubProcesses/ME5_debug
-echo "r=21" > SubProcesses/randinit # just in case a previous test was not cleaned up
+# Back up config before launch
 cp SubProcesses/randinit SubProcesses/randinit.BKP # save the initial file
-sed -i "s/.* = nevents/  10000 = nevents/" Cards/run_card.dat # just in case
-sed -i "s/.* = cudacpp_backend/ cpp = cudacpp_backend/" Cards/run_card.dat # just in case
-sed -i "s/.* = gridpack/  False = gridpack/" Cards/run_card.dat # just in case
 cp Cards/run_card.dat Cards/run_card.dat.BKP # save the initial file
-sed -i "s/      NEVENTS = .*/      NEVENTS = 10000/" Source/run_card.inc # just in case
 cp Source/run_card.inc Source/run_card.inc.BKP # save the initial file
-sed -i "s/8192 1 1/%(event)s         %(maxiter)s           %(miniter)s/" bin/internal/gen_ximprove.py # just in case
 cp bin/internal/gen_ximprove.py bin/internal/gen_ximprove.py.BKP # save the initial file
-sed -i "s/'int', 8192,'Number of points/'int', 1000,'Number of points/" bin/internal/madevent_interface.py # just in case
-sed -i "s/'int', 1, 'Number of iterations'/'int', 5, 'Number of iterations'/" bin/internal/madevent_interface.py # just in case
 cp bin/internal/madevent_interface.py bin/internal/madevent_interface.py.BKP # save the initial file
 cp Source/make_opts Source/make_opts.BKP # save the initial file
 cp Source/param_card.inc Source/param_card.inc.BKP # save the initial file
+
+# Clean config before launch
+# (NB: "just in case" actions below should normally keep the defaults of generated code in the repo?)
+# (NB: but some small differences have been observed, e.g. "False     = gridpack" vs "False = gridpack")
+rm -rf ${resultsdir}; mkdir ${resultsdir}
+lauX_cleanup
+rm -f SubProcesses/ME5_debug
+echo "r=21" > SubProcesses/randinit # just in case
+sed -i "s/.* = nevents/  10000 = nevents/" Cards/run_card.dat # just in case
+sed -i "s/.* = cudacpp_backend/ cpp = cudacpp_backend/" Cards/run_card.dat # just in case
+sed -i "s/.* = gridpack/  False = gridpack/" Cards/run_card.dat # just in case
+sed -i "s/      NEVENTS = .*/      NEVENTS = 10000/" Source/run_card.inc # just in case
+sed -i "s/8192 1 1/%(event)s         %(maxiter)s           %(miniter)s/" bin/internal/gen_ximprove.py # just in case
+sed -i "s/'int', 8192,'Number of points/'int', 1000,'Number of points/" bin/internal/madevent_interface.py # just in case
+sed -i "s/'int', 1, 'Number of iterations'/'int', 5, 'Number of iterations'/" bin/internal/madevent_interface.py # just in case
 
 # Set the number of events and iterations in the survey step
 sed -i "s/'int', 1000,'Number of points/'int', 8192,'Number of points/" bin/internal/madevent_interface.py
