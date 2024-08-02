@@ -347,15 +347,14 @@ index 348c283be..64b33c4f1 100644
 +distclean: cleanall # Clean all fortran and cudacpp builds as well as the googletest installation
 +	$(MAKE) -f $(CUDACPP_MAKEFILE) distclean
 diff --git b/epochX/cudacpp/gg_tt.mad/bin/internal/madevent_interface.py a/epochX/cudacpp/gg_tt.mad/bin/internal/madevent_interface.py
-index 8c509e83f..e25129d9c 100755
+index 8c509e83f..b61a1814e 100755
 --- b/epochX/cudacpp/gg_tt.mad/bin/internal/madevent_interface.py
 +++ a/epochX/cudacpp/gg_tt.mad/bin/internal/madevent_interface.py
-@@ -3967,6 +3967,8 @@ Beware that this can be dangerous for local multicore runs.""")
+@@ -3967,6 +3967,7 @@ Beware that this can be dangerous for local multicore runs.""")
          for P in Pdir: 
              allG = misc.glob('G*', path=P)
              for G in allG:
-+                if G.endswith('GpuAbstraction.h'): continue
-+                if G.endswith('GpuRuntime.h'): continue
++                if not os.path.isdir(G): continue
                  if pjoin(P, G) not in Gdir:
                      logger.debug('removing %s', pjoin(P,G))
                      shutil.rmtree(pjoin(P,G))
