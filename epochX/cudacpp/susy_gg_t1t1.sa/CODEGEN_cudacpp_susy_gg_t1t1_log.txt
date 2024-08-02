@@ -554,7 +554,7 @@ INFO: Please specify coupling orders to bypass this step.
 INFO: Trying coupling order WEIGHTED<=2: WEIGTHED IS QCD+2*QED 
 INFO: Trying process: g g > t1 t1~ WEIGHTED<=2 @1  
 INFO: Process has 6 diagrams 
-1 processes with 6 diagrams generated in 0.125 s
+1 processes with 6 diagrams generated in 0.124 s
 Total: 1 processes with 6 diagrams
 output standalone_cudacpp ../TMPOUT/CODEGEN_cudacpp_susy_gg_t1t1
 Load PLUGIN.CUDACPP_OUTPUT
@@ -582,7 +582,7 @@ ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
 ALOHA: aloha creates VSS1 routines[0m
 ALOHA: aloha creates VVSS1 routines[0m
-ALOHA: aloha creates 3 routines in  0.183 s
+ALOHA: aloha creates 3 routines in  0.185 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> VSS1
 <class 'aloha.create_aloha.AbstractRoutine'> VSS1
@@ -599,6 +599,6 @@ INFO: /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gg
 quit
 
 real	0m1.342s
-user	0m1.266s
-sys	0m0.061s
+user	0m1.248s
+sys	0m0.080s
 Code generation completed in 1 seconds
