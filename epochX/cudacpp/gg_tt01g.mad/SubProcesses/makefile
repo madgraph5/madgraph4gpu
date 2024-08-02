@@ -116,6 +116,8 @@ else
 all: $(PROG)_fortran $(CUDACPP_BUILDDIR)/$(PROG)_cpp
 endif
 
+# Disable OpenMP by default: enable OpenMP only if USEOPENMP=1 (#758)
+ifeq ($(USEOPENMP),1)
 ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
 override OMPFLAGS = -fopenmp
 LINKLIBS += -liomp5 # see #578
@@ -127,6 +129,7 @@ else ifneq ($(shell $(CXX) --version | egrep '^Apple clang'),)
 override OMPFLAGS = # OMP is not supported yet by cudacpp for Apple clang
 else
 override OMPFLAGS = -fopenmp
+endif
 endif
 
 $(PROG)_fortran: $(PROCESS) $(DSIG) auto_dsig.o $(LIBS) $(MATRIX) counters.o ompnumthreads.o
@@ -160,24 +163,24 @@ madevent_fortran_link: $(PROG)_fortran
 	ln -s $(PROG)_fortran $(PROG)
 
 madevent_cuda_link:
-	$(MAKE) BACKEND=cuda $(CUDACPP_BUILDDIR)/$(PROG)_cuda
+	$(MAKE) USEGTEST=0 BACKEND=cuda $(CUDACPP_BUILDDIR)/$(PROG)_cuda
 	rm -f $(PROG)
 	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cuda $(PROG)
 
 madevent_hip_link:
-	$(MAKE) BACKEND=hip $(CUDACPP_BUILDDIR)/$(PROG)_hip
+	$(MAKE) USEGTEST=0 BACKEND=hip $(CUDACPP_BUILDDIR)/$(PROG)_hip
 	rm -f $(PROG)
 	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_hip $(PROG)
 
 madevent_cpp_link:
-	$(MAKE) BACKEND=cppauto $(CUDACPP_BUILDDIR)/$(PROG)_cpp
+	$(MAKE) USEGTEST=0 BACKEND=cppauto $(CUDACPP_BUILDDIR)/$(PROG)_cpp
 	rm -f $(PROG)
 	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
 
 override SUPPORTED_AVXS = cppnone cppsse4 cppavx2 cpp512y cpp512z cppauto
 madevent_%_link:
 	@if [ '$(words $(filter $*, $(SUPPORTED_AVXS)))' != '1' ]; then echo "ERROR! Invalid target '$@' (supported madevent_cpp*_link targets are: $(foreach avx,$(SUPPORTED_AVXS),'madevent_cpp$(avx)_link'))"; exit 1; fi
-	$(MAKE) BACKEND=$* $(CUDACPP_BUILDDIR)/$(PROG)_cpp
+	$(MAKE) USEGTEST=0 BACKEND=$* $(CUDACPP_BUILDDIR)/$(PROG)_cpp
 	rm -f $(PROG)
 	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
 

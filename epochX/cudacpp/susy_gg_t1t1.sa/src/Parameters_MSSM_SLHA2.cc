@@ -848,10 +848,10 @@ Parameters_MSSM_SLHA2::setDependentParameters() // now computed event-by-event (
 void
 Parameters_MSSM_SLHA2::setDependentCouplings() // now computed event-by-event (running alphas #373)
 {
+  GC_90 = mdl_complexi * mdl_G__exp__2 * mdl_I74x33 + mdl_complexi * mdl_G__exp__2 * mdl_I75x33;
   GC_6 = -G;
   GC_55 = -( mdl_complexi * G * mdl_I51x33 ) - mdl_complexi * G * mdl_I52x33;
   GC_57 = -( mdl_complexi * G * mdl_I51x36 ) - mdl_complexi * G * mdl_I52x36;
-  GC_90 = mdl_complexi * mdl_G__exp__2 * mdl_I74x33 + mdl_complexi * mdl_G__exp__2 * mdl_I75x33;
 }
 */
 
@@ -1503,9 +1503,9 @@ void
 Parameters_MSSM_SLHA2::printDependentCouplings() // now computed event-by-event (running alphas #373)
 {
   std::cout << "MSSM_SLHA2 model couplings dependent on event kinematics:" << std::endl;
+  std::cout << std::setw( 20 ) << "GC_90 = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << GC_90 << std::endl;
   std::cout << std::setw( 20 ) << "GC_6 = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << GC_6 << std::endl;
   std::cout << std::setw( 20 ) << "GC_55 = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << GC_55 << std::endl;
   std::cout << std::setw( 20 ) << "GC_57 = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << GC_57 << std::endl;
-  std::cout << std::setw( 20 ) << "GC_90 = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << GC_90 << std::endl;
 }
 */

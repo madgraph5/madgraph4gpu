@@ -1,20 +1,24 @@
-c  The following lines has been copy from the plugin
-c  template_file CUDACPP/madgraph/iolibs/template_files/gpu/smatrix_multi.f 
-c     and are designed to be put at the end of the smatrix$i_multi function part of the auto_dsig$i.f file
-c      
+c Copyright (C) 2020-2024 CERN and UCLouvain.
+c Licensed under the GNU Lesser General Public License (version 3 or later).
+c Created by: O. Mattelaer (Oct 2023) for the MG5aMC CUDACPP plugin.
+c Further modified by: O. Mattelaer, A. Valassi (2023-2024) for the MG5aMC CUDACPP plugin.
+c       ======================================================
+c       *START* Included from CUDACPP template smatrix_multi.f
+c       (into function smatrix$i_multi in auto_dsig$i.f)
+c       ======================================================
         call counters_smatrix1multi_stop( -1 ) ! fortran=-1
+ #ifdef MG5AMC_MEEXPORTER_CUDACPP
       ENDIF
 
- #ifdef MG5AMC_MEEXPORTER_CUDACPP
       IF( FBRIDGE_MODE .EQ. 1 .OR. FBRIDGE_MODE .LT. 0 ) THEN ! (CppOnly=1 or BothQuiet=-1 or BothDebug=-2)
         IF( LIMHEL.NE.0 ) THEN
           WRITE(6,*) 'ERROR! The cudacpp bridge only supports LIMHEL=0'
           STOP
         ENDIF
         IF ( FIRST ) THEN ! exclude first pass (helicity filtering) from timers (#461)
-          CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE, P_MULTI, ALL_G,
-     &      HEL_RAND, COL_RAND, 0, OUT2,
-     &      SELECTED_HEL2, SELECTED_COL2 ) ! 0: multi channel disabled for helicity filtering
+          CALL FBRIDGESEQUENCE_NOMULTICHANNEL( FBRIDGE_PBRIDGE, ! multi channel disabled for helicity filtering
+     &      P_MULTI, ALL_G, HEL_RAND, COL_RAND, OUT2,
+     &      SELECTED_HEL2, SELECTED_COL2 )
           FIRST = .FALSE.
 c         ! This is a workaround for https://github.com/oliviermattelaer/mg5amc_test/issues/22 (see PR #486)
           IF( FBRIDGE_MODE .EQ. 1 ) THEN ! (CppOnly=1 : SMATRIX1 is not called at all)
@@ -31,16 +35,16 @@ c         ! This is a workaround for https://github.com/oliviermattelaer/mg5amc_
         ENDIF
         call counters_smatrix1multi_start( 0, VECSIZE_USED ) ! cudacpp=0
         IF ( .NOT. MULTI_CHANNEL ) THEN
-          CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE, P_MULTI, ALL_G,
-     &      HEL_RAND, COL_RAND, 0, OUT2,
-     &      SELECTED_HEL2, SELECTED_COL2 ) ! 0: multi channel disabled
+          CALL FBRIDGESEQUENCE_NOMULTICHANNEL( FBRIDGE_PBRIDGE, ! multi channel disabled
+     &      P_MULTI, ALL_G, HEL_RAND, COL_RAND, OUT2,
+     &      SELECTED_HEL2, SELECTED_COL2 )
         ELSE
           IF( SDE_STRAT.NE.1 ) THEN
             WRITE(6,*) 'ERROR! The cudacpp bridge requires SDE=1' ! multi channel single-diagram enhancement strategy
             STOP
           ENDIF
           CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE, P_MULTI, ALL_G,
-     &      HEL_RAND, COL_RAND, CHANNELS(1), OUT2,
+     &      HEL_RAND, COL_RAND, CHANNELS, OUT2,
      &      SELECTED_HEL2, SELECTED_COL2 ) ! 1-N: multi channel enabled
         ENDIF
         call counters_smatrix1multi_stop( 0 ) ! cudacpp=0
@@ -87,3 +91,7 @@ c         ! This is a workaround for https://github.com/oliviermattelaer/mg5amc_
         WRITE (*,*) 'CHANNEL_ID =', CHANNELS(1)
         FIRST_CHID = .FALSE.
       ENDIF
+c       ======================================================
+c       **END** Included from CUDACPP template smatrix_multi.f
+c       ======================================================
+

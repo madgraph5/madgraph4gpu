@@ -1,8 +1,8 @@
 #!/bin/bash
-# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Copyright (C) 2020-2024 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: A. Valassi (Mar 2022) for the MG5aMC CUDACPP plugin.
-# Further modified by: A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
+# Further modified by: A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
 
 set +x # not verbose
 
@@ -13,6 +13,12 @@ set -e # fail on error
 scrdir=$(cd $(dirname $0); pwd)
 bckend=$(basename $(cd $scrdir; cd ..; pwd)) # cudacpp or alpaka
 topdir=$(cd $scrdir; cd ../../..; pwd)
+
+# Enable OpenMP in tmad tests? (#758)
+###export USEOPENMP=1
+
+# Debug channelid in MatrixElementKernelBase?
+export MG5AMC_CHANNELID_DEBUG=1
 
 # HARDCODE NLOOP HERE (may improve this eventually...)
 NLOOP=8192
@@ -28,7 +34,7 @@ export CUDACPP_RUNTIME_VECSIZEUSED=${NLOOP}
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gguu][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-d] [-fltonly|-mixonly] [-makeonly|-makeclean|-makecleanonly] [-rmrdat] [+10x] [-checkonly] [-nocleanup]" > /dev/stderr
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gguu][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-d] [-hip] [-fltonly|-mixonly] [-makeonly|-makeclean|-makecleanonly] [-rmrdat] [+10x] [-checkonly] [-nocleanup][-iconfig <iconfig>]" > /dev/stderr
   echo "(NB: OMP_NUM_THREADS is taken as-is from the caller's environment)"
   exit 1
 }
@@ -51,6 +57,8 @@ susyggtt=0
 susyggt1t1=0
 smeftggtttt=0
 
+hip=0
+
 fptype="d"
 
 maketype=
@@ -63,6 +71,8 @@ xfacs="1"
 checkonly=0
 
 nocleanup=0
+
+iconfig=
 
 while [ "$1" != "" ]; do
   if [ "$1" == "-d" ]; then
@@ -101,6 +111,9 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-smeftggtttt" ]; then
     smeftggtttt=1
     shift
+  elif [ "$1" == "-hip" ]; then
+    hip=1
+    shift
   elif [ "$1" == "-fltonly" ]; then
     if [ "${fptype}" != "d" ] && [ "${fptype}" != "$1" ]; then
       echo "ERROR! Options -fltonly and -mixonly are incompatible"; usage
@@ -131,6 +144,9 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-nocleanup" ]; then
     nocleanup=1
     shift
+  elif [ "$1" == "-iconfig" ] && [ "$2" != "" ]; then
+    iconfig=$2
+    shift; shift
   else
     usage
   fi
@@ -221,6 +237,7 @@ function getnevt()
   else
     echo "ERROR! Unknown process" > /dev/stderr; usage
   fi
+  # FIXME? check that nevt is a multiple of NLOOP?
   echo $nevt
 }
 
@@ -257,6 +274,7 @@ function getgridmax()
 # Create an input file that is appropriate for the specific process
 function getinputfile()
 {
+  iconfig_proc=1 # use iconfig=1 by default (NB: this does not mean channel_id=1 i.e. the first diagram, see #826)
   nevt=$(getnevt)
   tmpdir=/tmp/$USER
   mkdir -p $tmpdir
@@ -268,6 +286,7 @@ function getinputfile()
     tmp=$tmpdir/input_ggttg
   elif [ "${ggttgg}" == "1" ]; then 
     tmp=$tmpdir/input_ggttgg
+    iconfig_proc=104 # use iconfig=104 in ggttgg to check #855 SIGFPE fix (but issue #856 is pending: LHE color mismatch!)
   elif [ "${ggttggg}" == "1" ]; then 
     tmp=$tmpdir/input_ggttggg
   elif [ "${gguu}" == "1" ]; then 
@@ -280,6 +299,7 @@ function getinputfile()
     tmp=$tmpdir/input_susyggtt
   elif [ "${susyggt1t1}" == "1" ]; then 
     tmp=$tmpdir/input_susyggt1t1
+    iconfig_proc=2 # use iconfig=2 in susyggt1t1 to check #855 SIGFPE fix (but issue #826 is pending: no cross section!)
   elif [ "${smeftggtttt}" == "1" ]; then 
     tmp=$tmpdir/input_smeftggtttt
   else
@@ -301,6 +321,7 @@ function getinputfile()
     echo "Usage: getinputfile <backend [-fortran][-cuda][-hip][-cpp]>"
     exit 1
   fi
+  if [ "${iconfig}" == "" ]; then iconfig=${iconfig_proc}; fi
   (( nevt = nevt*$xfac ))
   cat << EOF >> ${tmp}
 ${nevt} 1 1 ! Number of events and max and min iterations
@@ -308,7 +329,7 @@ ${nevt} 1 1 ! Number of events and max and min iterations
 0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
 1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
 0 ! Helicity Sum/event 0=exact
-1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
+${iconfig} ! ICONFIG number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 EOF
   echo ${tmp}
 }
@@ -404,7 +425,7 @@ function runmadevent()
   fi
   $timecmd $cmd < ${tmpin} > ${tmp}
   if [ "$?" != "0" ]; then echo "ERROR! '$timecmd $cmd < ${tmpin} > ${tmp}' failed"; tail -10 $tmp; exit 1; fi
-  cat ${tmp} | grep --binary-files=text '^DEBUG'
+  cat ${tmp} | grep --binary-files=text '^DEBUG' | sed "s/MEK 0x.* processed/MEK processed/"
   omp=$(cat ${tmp} | grep --binary-files=text 'omp_get_max_threads() =' | awk '{print $NF}')
   if [ "${omp}" == "" ]; then omp=1; fi # _OPENMP not defined in the Fortran #579
   nghel=$(cat ${tmp} | grep --binary-files=text 'NGOODHEL =' | awk '{print $NF}')
@@ -467,10 +488,18 @@ for suff in $suffs; do
 
   if [ "${maketype}" == "-makeclean" ]; then make cleanall; echo; fi
   if [ "${maketype}" == "-makecleanonly" ]; then make cleanall; echo; continue; fi
-  ###make -j5 avxall # limit build parallelism of the old 'make avxall' to avoid "cudafe++ died due to signal 9" (#639)
-  make -j6 bldall # limit build parallelism also with the new 'make bldall'
-  ###make -j bldall
-
+  if [ "${hip}" == "0" ] || [ "${dir/\/gg_ttggg${suff}}" == ${dir} ]; then # skip parallel bldall builds only for ggttggg on HIP #933
+    ###make -j5 avxall # limit build parallelism of the old 'make avxall' to avoid "cudafe++ died due to signal 9" (#639)
+    make -j6 bldall # limit build parallelism also with the new 'make bldall'
+    ###make -j bldall
+  else
+    export USEBUILDDIR=1
+    bblds="cppnone cppsse4 cppavx2 cpp512y cpp512z" # skip cuda on LUMI always; skip HIP for ggttggg builds #933
+    for bbld in ${bblds}; do
+      make ${makef} -j BACKEND=${bbld}; echo
+    done
+    unset USEBUILDDIR
+  fi
 done
 
 if [ "${maketype}" == "-makecleanonly" ]; then printf "\nMAKE CLEANALL COMPLETED\n"; exit 0; fi
@@ -611,6 +640,7 @@ for suff in $suffs; do
       MADEVENT_GPU=MADEVENT_HIP
       if [ "$gpuTxt" == "none" ]; then echo -e "\n*** (3-$backend) WARNING! SKIP ${MADEVENT_GPU} (there is no GPU on this node) ***"; continue; fi
       if ! hipcc --version >& /dev/null; then echo -e "\n*** (3-$backend) WARNING! SKIP ${MADEVENT_GPU} (${backend} is not supported on this node) ***"; continue; fi
+      if [ "${dir/\/gg_ttggg${suff}}" != ${dir} ]; then echo -e "\n*** (3-$backend) WARNING! SKIP ${MADEVENT_GPU} (gg_ttggg is not supported on hip #933) ***"; continue; fi
     else
       echo "INTERNAL ERROR! Unknown backend ${backend}"; exit 1
     fi

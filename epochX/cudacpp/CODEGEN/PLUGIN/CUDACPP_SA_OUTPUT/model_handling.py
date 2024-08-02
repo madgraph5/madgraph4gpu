@@ -13,6 +13,7 @@ PLUGINDIR = os.path.dirname( __file__ )
 import logging
 logger = logging.getLogger('madgraph.PLUGIN.CUDACPP_OUTPUT.model_handling')
 
+
 #------------------------------------------------------------------------------------
 
 # AV - import the independent 2nd copy of the export_cpp module (as PLUGIN_export_cpp), previously loaded in output.py
@@ -1108,7 +1109,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
 
 import madgraph.iolibs.files as files
 import madgraph.various.misc as misc
-
+import madgraph.iolibs.export_v4 as export_v4
 # AV - define a custom OneProcessExporter
 # (NB: enable this via PLUGIN_ProcessExporter.oneprocessclass in output.py)
 # (NB: use this directly also in PLUGIN_UFOModelConverter.read_template_file)
@@ -1168,6 +1169,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         replace_dict['nincoming'] = nincoming
         replace_dict['noutcoming'] = nexternal - nincoming
         replace_dict['nbhel'] = self.matrix_elements[0].get_helicity_combinations() # number of helicity combinations
+        replace_dict['ndiagrams'] = len(self.matrix_elements[0].get('diagrams')) # AV FIXME #910: elsewhere matrix_element.get('diagrams') and max(config[0]...
         file = self.read_template_file(self.process_class_template) % replace_dict # HACK! ignore write=False case
         file = '\n'.join( file.split('\n')[8:] ) # skip first 8 lines in process_class.inc (copyright)
         return file
@@ -1304,19 +1306,20 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
   // (similarly, it also ADDS the numerator and denominator for a given ihel to their running sums over helicities)
   // In CUDA, this device function computes the ME for a single event
   // In C++, this function computes the ME for a single event "page" or SIMD vector (or for two in "mixed" precision mode, nParity=2)
+  // *** NB: calculate_wavefunction accepts a SCALAR channelId because it is GUARANTEED that all events in a SIMD vector have the same channelId #898 ***
   __device__ INLINE void /* clang-format off */
   calculate_wavefunctions( int ihel,
-                           const fptype* allmomenta,        // input: momenta[nevt*npar*4]
-                           const fptype* allcouplings,      // input: couplings[nevt*ndcoup*2]
-                           fptype* allMEs,                  // output: allMEs[nevt], |M|^2 running_sum_over_helicities
+                           const fptype* allmomenta,      // input: momenta[nevt*npar*4]
+                           const fptype* allcouplings,    // input: couplings[nevt*ndcoup*2]
+                           fptype* allMEs,                // output: allMEs[nevt], |M|^2 running_sum_over_helicities
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                           const unsigned int* channelIds,  // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
-                           fptype* allNumerators,           // output: multichannel numerators[nevt], running_sum_over_helicities
-                           fptype* allDenominators,         // output: multichannel denominators[nevt], running_sum_over_helicities
+                           const unsigned int channelId,  // input: multichannel SCALAR channelId (1 to #diagrams, 0 to disable SDE) for this event or SIMD vector
+                           fptype* allNumerators,         // output: multichannel numerators[nevt], running_sum_over_helicities
+                           fptype* allDenominators,       // output: multichannel denominators[nevt], running_sum_over_helicities
 #endif
-                           fptype_sv* jamp2_sv              // output: jamp2[nParity][ncolor][neppV] for color choice (nullptr if disabled)
+                           fptype_sv* jamp2_sv            // output: jamp2[nParity][ncolor][neppV] for color choice (nullptr if disabled)
 #ifndef MGONGPUCPP_GPUIMPL
-                           , const int ievt00               // input: first event number in current C++ event page (for CUDA, ievt depends on threadid)
+                           , const int ievt00             // input: first event number in current C++ event page (for CUDA, ievt depends on threadid)
 #endif
                            )
   //ALWAYS_INLINE // attributes are not permitted in a function definition
@@ -1332,7 +1335,6 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     using NUM_ACCESS = DeviceAccessNumerators;    // non-trivial access: buffer includes all events
     using DEN_ACCESS = DeviceAccessDenominators;  // non-trivial access: buffer includes all events
-    using CID_ACCESS = DeviceAccessChIds;
 #endif
 #else
     using namespace mg5amcCpu;
@@ -1345,7 +1347,6 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     using NUM_ACCESS = HostAccessNumerators;    // non-trivial access: buffer includes all events
     using DEN_ACCESS = HostAccessDenominators;  // non-trivial access: buffer includes all events
-    using CID_ACCESS = HostAccessChIds;
 #endif
 #endif /* clang-format on */
     mgDebug( 0, __FUNCTION__ );
@@ -1378,9 +1379,6 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     // Local variables for the given CUDA event (ievt) or C++ event page (ipagV)
     // [jamp: sum (for one event or event page) of the invariant amplitudes for all Feynman diagrams in a given color combination]
     cxtype_sv jamp_sv[ncolor] = {}; // all zeros (NB: vector cxtype_v IS initialized to 0, but scalar cxtype is NOT, if "= {}" is missing!)
-
-    // local variable for channel ids
-    uint_sv channelids_sv;
 
     // === Calculate wavefunctions and amplitudes for all diagrams in all processes         ===
     // === (for one event in CUDA, for one - or two in mixed mode - SIMD event pages in C++ ===
@@ -1451,11 +1449,12 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         pathlib.Path(self.path + '/../../test/ref/.keepme').touch()
         ###template_ref = 'dump_CPUTest.'+self.process_name+'.txt'
         template_ref = self.template_path + '/../../../test/ref/' + 'dump_CPUTest.' + self.process_name + '.txt'
-        if os.path.exists( template_ref ):
-            ###misc.sprint( 'Copying test reference file: ', template_ref )
-            PLUGIN_export_cpp.cp( template_ref, self.path + '/../../test/ref' )
-        ###else:
-            ###misc.sprint( 'Test reference file does not exist and will not be copied: ', template_ref )
+        for ref in template_ref, template_ref + '2' : # two different reference files for tests without/with multichannel #896
+            if os.path.exists( ref ):
+                ###misc.sprint( 'Copying test reference file: ', ref )
+                PLUGIN_export_cpp.cp( ref, self.path + '/../../test/ref' )
+            ###else:
+                ###misc.sprint( 'Test reference file does not exist and will not be copied: ', ref )
 
     # SR - generate CMakeLists.txt file inside the P* directory
     def edit_CMakeLists(self):
@@ -1528,7 +1527,6 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     def edit_coloramps(self, config_subproc_map):
         """Generate coloramps.h"""
 
-
         ###misc.sprint('Entering PLUGIN_OneProcessExporter.edit_coloramps')
         template = open(pjoin(self.template_path,'gpu','coloramps.h'),'r').read()
         ff = open(pjoin(self.path, 'coloramps.h'),'w')
@@ -1553,45 +1551,39 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         # will be smaller than the true number of diagram. This is fine for color
         # but maybe not for something else.
         nb_diag = max(config[0] for config in config_subproc_map)
+        import math
+        ndigits = str(int(math.log10(nb_diag))+1+1) # the additional +1 is for the -sign
         # Output which diagrams correspond ot a channel to get information for valid color
         lines = []
-        # Note: line for index 0 (no multi-channel is hardcoded in the template, so here we fill the array from index 1)
         for diag in range(1, nb_diag+1):
+            channelidf = diag
+            channelidc = channelidf - 1 # C convention 
             if diag in diag_to_iconfig:
                 iconfigf = diag_to_iconfig[diag]
-                iconfigc = iconfigf - 1 # C convention 
-                text = "     %(iconfigc)i, // channelId=%(diag)i (diagram=%(diag)i) --> iconfig=%(iconfigf)i (f77 conv) and iconfigC=%(iconfigc)i (c conv)" 
+                iconfigftxt = '%i'%iconfigf
             else:
-                iconfigc = -1
                 iconfigf = -1
-                text = "     -1, // channelId=%(diag)i (diagram=%(diag)i): Not consider as a channel of integration (presence of 4 point interaction?)" 
-            lines.append(text % {'diag': diag, 'iconfigc':  iconfigc, 'iconfigf':iconfigf})  
-
-        replace_dict['diag_to_channel'] = '\n'.join(lines)
+                iconfigftxt = '-1 (diagram with no associated iconfig for single-diagram enhancement)'
+            text = '    %(iconfigf){0}i, // CHANNEL_ID=%(channelidf)-{0}i i.e. DIAGRAM=%(diag)-{0}i --> ICONFIG=%(iconfigftxt)s'.format(ndigits)
+            lines.append(text % {'diag':diag, 'channelidf':channelidf, 'iconfigf':iconfigf, 'iconfigftxt':iconfigftxt})
+        replace_dict['channelc2iconfig_lines'] = '\n'.join(lines)
 
         if self.include_multi_channel: # NB unnecessary as edit_coloramps is not called otherwise...
-            multi_channel = self.get_multi_channel_dictionary(self.matrix_elements[0].get('diagrams'), self.include_multi_channel)
-            replace_dict['is_LC'] = self.get_icolamp_lines(multi_channel, self.matrix_elements[0], 1)
-            replace_dict['nb_channel'] = len(multi_channel)
-            replace_dict['nb_diag_plus_one'] = max(config[0] for config in config_subproc_map)+1
+            subproc_to_confdiag = export_v4.ProcessExporterFortranMEGroup.get_confdiag_from_group_mapconfig(config_subproc_map, 0)             
+            replace_dict['is_LC'] = self.get_icolamp_lines(subproc_to_confdiag, self.matrix_elements[0], 1)
+            replace_dict['nb_channel'] = len(subproc_to_confdiag)
+            replace_dict['nb_diag'] = max(config[0] for config in config_subproc_map)
             replace_dict['nb_color'] = max(1,len(self.matrix_elements[0].get('color_basis')))
             
-            misc.sprint(multi_channel)
-            misc.sprint(self.path, os.getcwd())
-            #raise Exception
             
             # AV extra formatting (e.g. gg_tt was "{{true,true};,{true,false};,{false,true};};")
-            split = replace_dict['is_LC'].split(';,') 
-            misc.sprint(replace_dict['is_LC'])
-            for i in range(len(split)): 
-                misc.sprint(split[i])
-                split[i] = '    ' + split[i].replace(',',', ').replace('{{', '{')
-                misc.sprint(split[i])
-                if '};};' in split[i]:
-                   split[i] = split[i][:-4] + '}, // iconfigC=%i, diag=%i' % (i, iconfig_to_diag[i+1]) 
-                elif 'false' in split[i] or 'true' in split[i]:
-                    split[i] += ', // iconfigC=%i, diag=%i' % (i, iconfig_to_diag[i+1])
-                misc.sprint(split[i])
+            ###misc.sprint(replace_dict['is_LC'])
+            split = replace_dict['is_LC'].replace('{{','{').replace('};};','}').split(';,')
+            text=', // ICONFIG=%-{0}i <-- CHANNEL_ID=%i'.format(ndigits)
+            for iconfigc in range(len(split)): 
+                ###misc.sprint(split[iconfigc])
+                split[iconfigc] = '    ' + split[iconfigc].replace(',',', ').replace('true',' true').replace('{','{ ').replace('}',' }')
+                split[iconfigc] += text % (iconfigc+1, iconfig_to_diag[iconfigc+1])
             replace_dict['is_LC'] = '\n'.join(split)
             ff.write(template % replace_dict)
         ff.close()
@@ -1763,6 +1755,14 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
     #  - PLUGIN_GPUFOHelasCallWriter(GPUFOHelasCallWriter)
     #      This class
 
+
+    def __init__(self, *args, **opts):
+
+        self.wanted_ordered_dep_couplings = []
+        self.wanted_ordered_indep_couplings = []
+        super().__init__(*args,**opts)
+
+
     # AV - replace helas_call_writers.GPUFOHelasCallWriter method (improve formatting of CPPProcess.cc)
     # [GPUFOHelasCallWriter.format_coupling is called by GPUFOHelasCallWriter.get_external_line/generate_helas_call]
     # [GPUFOHelasCallWriter.get_external_line is called by GPUFOHelasCallWriter.get_external]
@@ -1799,10 +1799,14 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                 aliastxt = 'PARAM'
                 name = 'cIPD'
             elif model.is_running_coupling(coup):
+                if coup not in self.wanted_ordered_dep_couplings: 
+                    self.wanted_ordered_dep_couplings.append(coup)
                 alias = self.couporderdep
                 aliastxt = 'COUPD'
                 name = 'cIPC'
             else:
+                if coup not in self.wanted_ordered_indep_couplings: 
+                    self.wanted_ordered_indep_couplings.append(coup)
                 alias = self.couporderindep
                 aliastxt = 'COUPI'
                 name = 'cIPC'
@@ -1837,8 +1841,10 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                 call = call.replace('CD_ACCESS', 'CI_ACCESS')
                 call = call.replace('m_pars->%s%s' % (sign, coup),
                                     'COUPs[ndcoup + %s], %s' % (alias[coup]-len(self.couporderdep), '1.0' if not sign else '-1.0'))
+
             if newcoup:
                 self.couplings2order = self.couporderdep | self.couporderindep
+        model.cudacpp_wanted_ordered_couplings = self.wanted_ordered_dep_couplings + self.wanted_ordered_indep_couplings 
         return call
 
     # AV - new method for formatting wavefunction/amplitude calls
@@ -1873,7 +1879,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         res.append("""//constexpr size_t nxcoup = ndcoup + nicoup; // both dependent and independent couplings (BUG #823)
       constexpr size_t nxcoup = ndcoup + nIPC; // both dependent and independent couplings (FIX #823)
       const fptype* allCOUPs[nxcoup];
-#ifdef __CUDACC__
+#ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
 #pragma nv_diagnostic push
 #pragma nv_diag_suppress 186 // e.g. <<warning #186-D: pointless comparison of unsigned integer with zero>>
 #endif
@@ -1883,7 +1889,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
       for( size_t iicoup = 0; iicoup < nIPC; iicoup++ )                                 // FIX #823
         allCOUPs[ndcoup + iicoup] = CI_ACCESS::iicoupAccessBufferConst( cIPC, iicoup ); // independent couplings, fixed for all events
 #ifdef MGONGPUCPP_GPUIMPL
-#ifdef __CUDACC__
+#ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
 #pragma nv_diagnostic pop
 #endif
       // CUDA kernels take input/output buffers with momenta/MEs for all events
@@ -1948,20 +1954,8 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                         ###res.append("if( channelId == %i ) numerators_sv += cxabs2( amp_sv[0] );" % diag_to_config[id_amp]) # BUG #472
                         ###res.append("if( channelId == %i ) numerators_sv += cxabs2( amp_sv[0] );" % id_amp) # wrong fix for BUG #472
                         res.append("#ifdef MGONGPU_SUPPORTS_MULTICHANNEL")
-                        res.append("if( channelIds != 0 )")
-                        res.append("{")
-                        res.append("  channelids_sv = CID_ACCESS::kernelAccessConst( channelIds );")
-                        res.append("#if defined __CUDACC__ or !defined MGONGPU_CPPSIMD")
-                        res.append("  if( channelids_sv == %i ) numerators_sv += cxabs2( amp_sv[0] );" % diagram.get('number'))
-                        res.append("  denominators_sv += cxabs2( amp_sv[0] );")
-                        res.append("#else")
-                        res.append("  for( int i = 0; i < neppV; ++i )")
-                        res.append("  {")
-                        res.append("    if( channelids_sv[i] == %i ) numerators_sv += cxabs2( amp_sv[0] );" % diagram.get('number'))
-                        res.append("    denominators_sv += cxabs2( amp_sv[0] );")
-                        res.append("  }")
-                        res.append("#endif")
-                        res.append("}")
+                        res.append("if( channelId == %i ) numerators_sv += cxabs2( amp_sv[0] );" % diagram.get('number'))
+                        res.append("if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );")
                         res.append("#endif")
                 else:
                     res.append("#ifdef MGONGPU_SUPPORTS_MULTICHANNEL")

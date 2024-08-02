@@ -38,6 +38,7 @@ public:
   {
     if( file_name != "" ) read_slha_file( file_name, verbose );
   }
+  static std::string get_exe_path();
   void read_slha_file( std::string file_name, bool verbose );
   double get_block_entry( std::string block_name, std::vector<int> indices, double def_val = 0 );
   double get_block_entry( std::string block_name, int index, double def_val = 0 );
