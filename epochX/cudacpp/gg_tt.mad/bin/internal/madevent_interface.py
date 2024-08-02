@@ -3967,8 +3967,7 @@ Beware that this can be dangerous for local multicore runs.""")
         for P in Pdir: 
             allG = misc.glob('G*', path=P)
             for G in allG:
-                if G.endswith('GpuAbstraction.h'): continue
-                if G.endswith('GpuRuntime.h'): continue
+                if not os.path.isdir(G): continue
                 if pjoin(P, G) not in Gdir:
                     logger.debug('removing %s', pjoin(P,G))
                     shutil.rmtree(pjoin(P,G))
