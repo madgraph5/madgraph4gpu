@@ -84,17 +84,18 @@ class CPPRunCard(banner_mod.RunCardLO):
         return
 
     def default_setup(self):
-        # Comments by AV:
-        # - 'include=True' would add "CUDACPP_BACKEND = 'cpp'" to run_card.inc (note that there is no fct_mod
-        # - 'include=True' would add "CUDACPP_FPTYPE = 'm'" to run_card.inc only if fct_mod is removed (else codegen fails, run_card.inc not found)
         super().default_setup()
-        self.add_param('cudacpp_fptype', 'm', include=False, hidden=True,
-                       fct_mod=(self.reset_makeopts,(),{}),
+        self.add_param('cudacpp_fptype', 'm',
+                       include=False, # AV: 'include=True' would add "CUDACPP_FPTYPE = 'm'" to run_card.inc (if fct_mod is removed, else codegen fails)
+                       hidden=False, # AV: hidden='False' gives warning "run_card missed argument cudacpp_fptype. Takes default: m" but no code change?
+                       fct_mod=(self.reset_makeopts,(),{}), # AV: I assume this forces a 'make cleanavx' if FPTYPE changes?
                        allowed=['m','d','f'],
-                       comment='floating point precision: f (single), d (double), m (mixed: double for amplitudes, single for colors)'
+                       comment='floating point precision: f (single), d (double), m (mixed: double for amplitudes, single for colors)' # AV: unused?
                        )
         cudacpp_supported_backends = [ 'fortran', 'cuda', 'hip', 'cpp', 'cppnone', 'cppsse4', 'cppavx2', 'cpp512y', 'cpp512z', 'cppauto' ]
-        self.add_param('cudacpp_backend', 'cpp', include=False, hidden=False,
+        self.add_param('cudacpp_backend', 'cpp',
+                       include=False, # AV: 'include=True' would add "CUDACPP_BACKEND = 'cpp'" to run_card.inc
+                       hidden=False, # AV: this does not seem to make any difference? keep False anyway and keep cudacpp_backend in runcard template
                        allowed=cudacpp_supported_backends)
         self['vector_size'] = 16 # already setup in default class (just change value)
         self['aloha_flag'] = '--fast-math'
