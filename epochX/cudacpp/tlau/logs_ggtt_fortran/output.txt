@@ -1,4 +1,4 @@
-START: Mon Aug  5 03:46:00 PM CEST 2024
+START: Mon Aug  5 04:11:33 PM CEST 2024
 ************************************************************
 *                                                          *
 *                      W E L C O M E to                    *
@@ -36,9 +36,9 @@ Working on SubProcesses
 INFO:     P1_gg_ttx  
 Pre-building madevent in madevent_interface.py with ALL matrix elements
 Building madevent in madevent_interface.py with 'fortran' matrix elements
-INFO:  Idle: 1,  Running: 0,  Completed: 0 [ current time: 15h46 ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 1 [  2.9s  ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 1 [  2.9s  ] 
+INFO:  Idle: 1,  Running: 0,  Completed: 0 [ current time: 16h11 ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 1 [  2.8s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 1 [  2.8s  ] 
 INFO: End survey 
 refine 10000
 Creating Jobs
@@ -51,16 +51,16 @@ INFO: need to improve 1 channels
     P1_gg_ttx 
 Pre-building madevent in madevent_interface.py with ALL matrix elements
 Building madevent in madevent_interface.py with 'fortran' matrix elements
-INFO:  Idle: 7,  Running: 4,  Completed: 0 [ current time: 15h46 ] 
-INFO:  Idle: 2,  Running: 4,  Completed: 5 [  3.2s  ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 11 [  4.8s  ] 
+INFO:  Idle: 7,  Running: 4,  Completed: 0 [ current time: 16h11 ] 
+INFO:  Idle: 2,  Running: 4,  Completed: 5 [  3.3s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 11 [  4.9s  ] 
 INFO: Combining runs 
 sum of cpu time of last step: 23 seconds
 INFO: finish refine 
 refine 10000 --treshold=0.9
 No need for second refine due to stability of cross-section
 INFO: Combining Events 
-combination of events done in 2.1688029766082764 s 
+combination of events done in 2.1742801666259766 s 
   === Results Summary for run: run_01 tag: tag_1 ===
 
      Cross-section :   440.1 +- 0.547 pb
@@ -76,7 +76,7 @@ INFO: storing files of previous run
 INFO: Done 
 quit
 INFO:  
-43.36user 6.78system 0:20.14elapsed 248%CPU (0avgtext+0avgdata 91796maxresident)k
-0inputs+507032outputs (10major+1345814minor)pagefaults 0swaps
-END: Mon Aug  5 03:46:20 PM CEST 2024
+43.42user 6.81system 0:20.04elapsed 250%CPU (0avgtext+0avgdata 91768maxresident)k
+0inputs+507016outputs (10major+1344940minor)pagefaults 0swaps
+END: Mon Aug  5 04:11:53 PM CEST 2024
 ELAPSED: 20 seconds

@@ -1,4 +1,4 @@
-START: Mon Aug  5 03:44:31 PM CEST 2024
+START: Mon Aug  5 04:11:53 PM CEST 2024
 ************************************************************
 *                                                          *
 *                      W E L C O M E to                    *
@@ -36,9 +36,9 @@ Working on SubProcesses
 INFO:     P1_gg_ttx  
 Pre-building madevent in madevent_interface.py with ALL matrix elements
 Building madevent in madevent_interface.py with 'cuda' matrix elements
-INFO:  Idle: 1,  Running: 0,  Completed: 0 [ current time: 15h44 ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 1 [  4.1s  ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 1 [  4.1s  ] 
+INFO:  Idle: 1,  Running: 0,  Completed: 0 [ current time: 16h11 ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 1 [  4s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 1 [  4s  ] 
 INFO: End survey 
 refine 10000
 Creating Jobs
@@ -51,7 +51,7 @@ INFO: need to improve 1 channels
     P1_gg_ttx 
 Pre-building madevent in madevent_interface.py with ALL matrix elements
 Building madevent in madevent_interface.py with 'cuda' matrix elements
-INFO:  Idle: 7,  Running: 4,  Completed: 0 [ current time: 15h44 ] 
+INFO:  Idle: 7,  Running: 4,  Completed: 0 [ current time: 16h12 ] 
 INFO:  Idle: 2,  Running: 4,  Completed: 5 [  3.5s  ] 
 INFO:  Idle: 0,  Running: 0,  Completed: 11 [  5.4s  ] 
 INFO: Combining runs 
@@ -60,7 +60,7 @@ INFO: finish refine
 refine 10000 --treshold=0.9
 No need for second refine due to stability of cross-section
 INFO: Combining Events 
-combination of events done in 2.1941936016082764 s 
+combination of events done in 2.185755729675293 s 
   === Results Summary for run: run_01 tag: tag_1 ===
 
      Cross-section :   440.1 +- 0.547 pb
@@ -76,7 +76,7 @@ INFO: storing files of previous run
 INFO: Done 
 quit
 INFO:  
-40.77user 10.27system 0:22.67elapsed 225%CPU (0avgtext+0avgdata 233540maxresident)k
-0inputs+509096outputs (9major+1452446minor)pagefaults 0swaps
-END: Mon Aug  5 03:44:54 PM CEST 2024
-ELAPSED: 23 seconds
+23.46user 5.51system 0:14.32elapsed 202%CPU (0avgtext+0avgdata 233464maxresident)k
+0inputs+403112outputs (3major+435834minor)pagefaults 0swaps
+END: Mon Aug  5 04:12:07 PM CEST 2024
+ELAPSED: 14 seconds
