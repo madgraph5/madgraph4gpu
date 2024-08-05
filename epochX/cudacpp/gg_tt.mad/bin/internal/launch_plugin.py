@@ -40,7 +40,8 @@ class CPPMEInterface(madevent_interface.MadEventCmdShell):
             cudacpp_backend = self.run_card['cudacpp_backend'].lower() # the default value is defined in launch_plugin.py
             logger.info("Building madevent in madevent_interface.py with '%s' matrix elements"%cudacpp_backend)
             if cudacpp_backend in cudacpp_supported_backends :
-                args[0][0] = 'BACKEND=' + cudacpp_backend + ' madevent_' + cudacpp_backend + '_link'
+                args[0][0] = 'madevent_' + cudacpp_backend + '_link'
+                args[0][1] = 'BACKEND=' + cudacpp_backend
             else:
                 raise Exception( "Invalid cudacpp_backend='%s': supported backends are %s"%supported_backends )
             return misc.compile(nb_core=self.options['nb_core'], *args, **opts)
