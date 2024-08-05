@@ -47,14 +47,15 @@ class CPPMEInterface(madevent_interface.MadEventCmdShell):
         else:
             return misc.compile(nb_core=self.options['nb_core'], *args, **opts)
 
-# Phase-Space Optimization ------------------------------------------------------------------------------------
+# CUDACPP runcard block ------------------------------------------------------------------------------------
 template_on = \
 """#***********************************************************************
 # SIMD/GPU configuration for the CUDACPP plugin
 #************************************************************************
  %(cudacpp_backend)s = cudacpp_backend ! CUDACPP backend: fortran, cuda, hip, cpp, cppnone, cppsse4, cppavx2, cpp512y, cpp512z, cppauto
+#*** WARNING! Do not change the cudacpp runcard below! Users should normally change only the cudacpp_backend card ***
+ %(cudacpp_fptype)s = cudacpp_fptype ! CUDACPP floating point precision: f (single), d (double), m (mixed: double for amplitudes, single for colors)
 """
-
 template_off = ''
 plugin_block = banner_mod.RunBlock('simd', template_on=template_on, template_off=template_off)
 
@@ -87,15 +88,14 @@ class CPPRunCard(banner_mod.RunCardLO):
         super().default_setup()
         self.add_param('cudacpp_fptype', 'm',
                        include=False, # AV: 'include=True' would add "CUDACPP_FPTYPE = 'm'" to run_card.inc (if fct_mod is removed, else codegen fails)
-                       hidden=False, # AV: hidden='False' gives warning "run_card missed argument cudacpp_fptype. Takes default: m" but no code change?
+                       hidden=False, # AV: add cudacpp_backend to runcard template and keep 'hidden='False'
                        fct_mod=(self.reset_makeopts,(),{}), # AV: I assume this forces a 'make cleanavx' if FPTYPE changes?
-                       allowed=['m','d','f'],
-                       comment='floating point precision: f (single), d (double), m (mixed: double for amplitudes, single for colors)' # AV: unused?
+                       allowed=['m','d','f']
                        )
         cudacpp_supported_backends = [ 'fortran', 'cuda', 'hip', 'cpp', 'cppnone', 'cppsse4', 'cppavx2', 'cpp512y', 'cpp512z', 'cppauto' ]
         self.add_param('cudacpp_backend', 'cpp',
                        include=False, # AV: 'include=True' would add "CUDACPP_BACKEND = 'cpp'" to run_card.inc
-                       hidden=False, # AV: this does not seem to make any difference? keep False anyway and keep cudacpp_backend in runcard template
+                       hidden=False, # AV: keep cudacpp_backend in runcard template and keep 'hidden='False'
                        allowed=cudacpp_supported_backends)
         self['vector_size'] = 16 # already setup in default class (just change value)
         self['aloha_flag'] = '--fast-math'
