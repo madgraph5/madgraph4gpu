@@ -84,6 +84,7 @@ echo "r=21" > SubProcesses/randinit # just in case a previous test was not clean
 cp SubProcesses/randinit SubProcesses/randinit.BKP # save the initial file
 sed -i "s/.* = nevents/  10000 = nevents/" Cards/run_card.dat # just in case
 sed -i "s/.* = cudacpp_backend/ cpp = cudacpp_backend/" Cards/run_card.dat # just in case
+sed -i "s/.* = cudacpp_bldall/ False = cudacpp_bldall/" Cards/run_card.dat # just in case
 cp Cards/run_card.dat Cards/run_card.dat.BKP # save the initial file
 sed -i "s/      NEVENTS = .*/      NEVENTS = 10000/" Source/run_card.inc # just in case
 cp Source/run_card.inc Source/run_card.inc.BKP # save the initial file
@@ -108,6 +109,9 @@ sed -i "s/ 10000 = nevents/ ${nevt} = nevents/" Cards/run_card.dat
 
 # Set the backend in run_card.dat
 sed -i "s/ cpp = cudacpp_backend/${bckend} = cudacpp_backend/" Cards/run_card.dat
+
+# Configure bldall in run_card.dat
+sed -i "s/.* = cudacpp_bldall/ True = cudacpp_bldall/" Cards/run_card.dat
 
 # Launch (generate_events)
 # (BUG #683: generate_events does not return an error code even if it fails)
