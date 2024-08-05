@@ -37,6 +37,10 @@ class CPPMEInterface(madevent_interface.MadEventCmdShell):
             misc.sprint('FPTYPE checked')
         cudacpp_supported_backends = [ 'fortran', 'cuda', 'hip', 'cpp', 'cppnone', 'cppsse4', 'cppavx2', 'cpp512y', 'cpp512z', 'cppauto' ]
         if args and args[0][0] == 'madevent' and hasattr(self, 'run_card'):            
+            if self.run_card['cudacpp_bldall'] == 'True': # pre-build all backends #945
+                logger.info("Pre-building madevent in madevent_interface.py with ALL matrix elements")
+                args[0][0] = 'bldall'
+                misc.compile(nb_core=self.options['nb_core'], *args, **opts)
             cudacpp_backend = self.run_card['cudacpp_backend'].lower() # the default value is defined in launch_plugin.py
             logger.info("Building madevent in madevent_interface.py with '%s' matrix elements"%cudacpp_backend)
             if cudacpp_backend in cudacpp_supported_backends :
@@ -55,6 +59,7 @@ template_on = \
  %(cudacpp_backend)s = cudacpp_backend ! CUDACPP backend: fortran, cuda, hip, cpp, cppnone, cppsse4, cppavx2, cpp512y, cpp512z, cppauto
 #*** WARNING! Do not change the cudacpp runcard below! Users should normally change only the cudacpp_backend card ***
  %(cudacpp_fptype)s = cudacpp_fptype ! CUDACPP floating point precision: f (single), d (double), m (mixed: double for amplitudes, single for colors)
+ %(cudacpp_bldall)s = cudacpp_bldall ! CUDACPP build all available backends in separate build directories: False, True
 """
 template_off = ''
 plugin_block = banner_mod.RunBlock('simd', template_on=template_on, template_off=template_off)
@@ -76,6 +81,8 @@ class CPPRunCard(banner_mod.RunCardLO):
             raise Exception
         if name == 'cudacpp_fptype':
             common_run_interface.CommonRunCmd.update_make_opts_full({'FPTYPE': new_value})
+        elif name == 'cudacpp_bldall':
+            raise Exception('Cannot change cudacpp_bldall')
         else:
             raise Exception
         Sourcedir = pjoin(os.path.dirname(os.path.dirname(self.path)), 'Source')
@@ -96,6 +103,12 @@ class CPPRunCard(banner_mod.RunCardLO):
                        hidden=False, # AV: add cudacpp_backend to runcard template and keep 'hidden='False'
                        fct_mod=(self.reset_makeopts,(),{}), # AV: I assume this forces a 'make cleanavx' if FPTYPE changes?
                        allowed=['m','d','f']
+                       )
+        self.add_param('cudacpp_bldall', 'False',
+                       include=False, # AV: no need to add this parameter to run_card.inc
+                       hidden=False, # AV: add cudacpp_bldall to runcard template and keep 'hidden='False'
+                       fct_mod=(self.reset_makeopts,(),{}), # AV: I assume this will raise an exception if cudacpp_bldall changes?
+                       allowed=['False','True']
                        )
         self['vector_size'] = 16 # already setup in default class (just change value)
         self['aloha_flag'] = '--fast-math'
