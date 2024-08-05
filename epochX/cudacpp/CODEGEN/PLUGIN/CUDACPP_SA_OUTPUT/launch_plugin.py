@@ -84,6 +84,7 @@ class CPPRunCard(banner_mod.RunCardLO):
         return
 
     def default_setup(self):
+	# Comments by AV: 'include=True' would add "CUDACPP_BACKEND = 'cpp'" to run_card.inc
         super().default_setup()
         self.add_param('cudacpp_fptype', 'm', include=False, hidden=True,
                        fct_mod=(self.reset_makeopts,(),{}),
@@ -91,7 +92,7 @@ class CPPRunCard(banner_mod.RunCardLO):
                        comment='floating point precision: f (single), d (double), m (mixed: double for amplitudes, single for colors)'
                        )
         cudacpp_supported_backends = [ 'fortran', 'cuda', 'hip', 'cpp', 'cppnone', 'cppsse4', 'cppavx2', 'cpp512y', 'cpp512z', 'cppauto' ]
-        self.add_param('cudacpp_backend', 'cpp', include=False, hidden=False,
+        self.add_param('cudacpp_backend', 'cpp', include=True, hidden=False,
                        allowed=cudacpp_supported_backends)
         self['vector_size'] = 16 # already setup in default class (just change value)
         self['aloha_flag'] = '--fast-math'
