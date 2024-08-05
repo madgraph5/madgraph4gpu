@@ -170,18 +170,18 @@ else
 endif
 
 madevent_cuda_link:
-	$(MAKE) USEGTEST=0 USEBUILDDIR=1 BACKEND=cuda madevent_cudacpp_link
+	$(MAKE) USEGTEST=0 USEBUILDDIR=1 BACKEND=cuda FPTYPE=$(FPTYPE) madevent_cudacpp_link
 
 madevent_hip_link:
-	$(MAKE) USEGTEST=0 USEBUILDDIR=1 BACKEND=hip madevent_cudacpp_link
+	$(MAKE) USEGTEST=0 USEBUILDDIR=1 BACKEND=hip FPTYPE=$(FPTYPE) madevent_cudacpp_link
 
 madevent_cpp_link:
-	$(MAKE) USEGTEST=0 USEBUILDDIR=1 BACKEND=cppauto madevent_cudacpp_link
+	$(MAKE) USEGTEST=0 USEBUILDDIR=1 BACKEND=cppauto FPTYPE=$(FPTYPE) madevent_cudacpp_link
 
 override SUPPORTED_AVXS = cppnone cppsse4 cppavx2 cpp512y cpp512z cppauto
 madevent_%_link:
 	@if [ '$(words $(filter $*, $(SUPPORTED_AVXS)))' != '1' ]; then echo "ERROR! Invalid target '$@' (supported madevent_cpp*_link targets are: $(foreach avx,$(SUPPORTED_AVXS),'madevent_$(avx)_link'))"; exit 1; fi
-	$(MAKE) USEGTEST=0 USEBUILDDIR=1 BACKEND=$* madevent_cudacpp_link
+	$(MAKE) USEGTEST=0 USEBUILDDIR=1 BACKEND=$* FPTYPE=$(FPTYPE) madevent_cudacpp_link
 	rm -f $(PROG)
 	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
 
