@@ -10,7 +10,7 @@ scrdir=$(cd $(dirname $0); pwd)
 
 function usage()
 {
-  echo "Usage:   $0 -<backend> <procdir>"
+  echo "Usage:   $0 -<backend> [-nomakeclean] <procdir>"
   echo "         (supported <backend> values: fortran, cuda, hip, cppnone, cppsse4, cppavx2, cpp512y, cpp512z)"
   echo "Example: $0 -cppavx2 gg_tt.mad"
   exit 1
@@ -18,9 +18,12 @@ function usage()
 
 bckend=
 proc=
+makeclean=1
 while [ "$1" != "" ]; do
   if [ "$1" == "-fortran" ] || [ "$1" == "-cuda" ] || [ "$1" == "-hip" ] || [ "$1" == "-cppnone" ] || [ "$1" == "-cppsse4" ] || [ "$1" == "-cppavx2" ] || [ "$1" == "-cpp512y" ] || [ "$1" == "-cpp512z" ]; then
     if [ "${bckend}" == "" ]; then bckend=${1/-/}; else echo "ERROR! Backend already set"; usage; fi
+  elif [ "$1" == "-nomakeclean" ]; then
+    makeclean=0
   elif [ "${proc}" == "" ]; then
     proc=$1
   else
@@ -62,7 +65,12 @@ function getnevt()
 
 function lauX_makeclean()
 {
-  for d in SubProcesses/P*; do cd $d; make cleanall; cd -; break; done
+  if [ "${makeclean}" == "1" ]; then
+    echo "INFO: clean all builds"
+    for d in SubProcesses/P*; do cd $d; make cleanall > /dev/null; cd - > /dev/null; break; done
+  else
+    echo "WARNING! Keep all builds (-nomakeclean option was specified)"
+  fi
 }
 
 function lauX_cleanup()
@@ -74,7 +82,7 @@ function lauX_cleanup()
 }
 
 # Clean builds before launch
-lauX_makeclean >& /dev/null
+lauX_makeclean
 
 # Clean config before launch
 rm -rf ${resultsdir}; mkdir ${resultsdir}
