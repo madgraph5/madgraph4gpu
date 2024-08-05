@@ -86,17 +86,17 @@ class CPPRunCard(banner_mod.RunCardLO):
 
     def default_setup(self):
         super().default_setup()
+        cudacpp_supported_backends = [ 'fortran', 'cuda', 'hip', 'cpp', 'cppnone', 'cppsse4', 'cppavx2', 'cpp512y', 'cpp512z', 'cppauto' ]
+        self.add_param('cudacpp_backend', 'cpp',
+                       include=False, # AV: 'include=True' would add "CUDACPP_BACKEND = 'cpp'" to run_card.inc
+                       hidden=False, # AV: keep cudacpp_backend in runcard template and keep 'hidden='False'
+                       allowed=cudacpp_supported_backends)
         self.add_param('cudacpp_fptype', 'm',
                        include=False, # AV: 'include=True' would add "CUDACPP_FPTYPE = 'm'" to run_card.inc (if fct_mod is removed, else codegen fails)
                        hidden=False, # AV: add cudacpp_backend to runcard template and keep 'hidden='False'
                        fct_mod=(self.reset_makeopts,(),{}), # AV: I assume this forces a 'make cleanavx' if FPTYPE changes?
                        allowed=['m','d','f']
                        )
-        cudacpp_supported_backends = [ 'fortran', 'cuda', 'hip', 'cpp', 'cppnone', 'cppsse4', 'cppavx2', 'cpp512y', 'cpp512z', 'cppauto' ]
-        self.add_param('cudacpp_backend', 'cpp',
-                       include=False, # AV: 'include=True' would add "CUDACPP_BACKEND = 'cpp'" to run_card.inc
-                       hidden=False, # AV: keep cudacpp_backend in runcard template and keep 'hidden='False'
-                       allowed=cudacpp_supported_backends)
         self['vector_size'] = 16 # already setup in default class (just change value)
         self['aloha_flag'] = '--fast-math'
         self['matrix_flag'] = '-O3'
