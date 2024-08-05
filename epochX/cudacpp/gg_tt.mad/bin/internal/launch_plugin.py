@@ -84,10 +84,12 @@ class CPPRunCard(banner_mod.RunCardLO):
         return
 
     def default_setup(self):
-	# Comments by AV: 'include=True' would add "CUDACPP_BACKEND = 'cpp'" to run_card.inc
+        # Comments by AV:
+        # - 'include=True' would add "CUDACPP_BACKEND = 'cpp'" to run_card.inc (note that there is no fct_mod
+        # - 'include=True' would add "CUDACPP_FPTYPE = 'm'" to run_card.inc only if fct_mod is removed (else codegen fails, run_card.inc not found)
         super().default_setup()
-        self.add_param('cudacpp_fptype', 'm', include=False, hidden=True,
-                       fct_mod=(self.reset_makeopts,(),{}),
+        self.add_param('cudacpp_fptype', 'm', include=True, hidden=True,
+                       #fct_mod=(self.reset_makeopts,(),{}),
                        allowed=['m','d','f'],
                        comment='floating point precision: f (single), d (double), m (mixed: double for amplitudes, single for colors)'
                        )
