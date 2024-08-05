@@ -362,5 +362,3 @@
 
       MXXPART_ANTIPART(1) = .FALSE.
 
-      CUDACPP_FPTYPE = 'm'
-
