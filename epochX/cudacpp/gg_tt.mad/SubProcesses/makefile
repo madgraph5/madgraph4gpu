@@ -176,7 +176,7 @@ madevent_cpp_link:
 
 override SUPPORTED_AVXS = cppnone cppsse4 cppavx2 cpp512y cpp512z cppauto
 madevent_%_link:
-	@if [ '$(words $(filter $*, $(SUPPORTED_AVXS)))' != '1' ]; then echo "ERROR! Invalid target '$@' (supported madevent_cpp*_link targets are: $(foreach avx,$(SUPPORTED_AVXS),'madevent_cpp$(avx)_link'))"; exit 1; fi
+	@if [ '$(words $(filter $*, $(SUPPORTED_AVXS)))' != '1' ]; then echo "ERROR! Invalid target '$@' (supported madevent_cpp*_link targets are: $(foreach avx,$(SUPPORTED_AVXS),'madevent_$(avx)_link'))"; exit 1; fi
 	$(MAKE) USEGTEST=0 BACKEND=$* $(CUDACPP_BUILDDIR)/$(PROG)_cpp
 	rm -f $(PROG)
 	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
