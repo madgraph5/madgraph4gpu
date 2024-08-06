@@ -23,7 +23,7 @@
 # Number of events and rnd seed                                      *
 # Warning: Do not generate more than 1M events in a single run       *
 #*********************************************************************
-  10000 = nevents ! Number of unweighted events requested 
+  100 = nevents ! Number of unweighted events requested 
   0   = iseed   ! rnd seed (0=assigned automatically=default))
 #*********************************************************************
 # Collider type and energy                                           *
@@ -233,8 +233,8 @@ systematics = systematics_program ! none, systematics [python], SysCalc [deprece
 #***********************************************************************
 # SIMD/GPU configuration for the CUDACPP plugin
 #************************************************************************
- cpp = cudacpp_backend ! CUDACPP backend: fortran, cuda, hip, cpp, cppnone, cppsse4, cppavx2, cpp512y, cpp512z, cppauto
+cuda = cudacpp_backend ! CUDACPP backend: fortran, cuda, hip, cpp, cppnone, cppsse4, cppavx2, cpp512y, cpp512z, cppauto
 #*** WARNING! Do not change the cudacpp runcard below! Users should normally change only the cudacpp_backend card ***
  m = cudacpp_fptype ! CUDACPP floating point precision: f (single), d (double), m (mixed: double for amplitudes, single for colors)
- False = cudacpp_bldall ! CUDACPP build all available backends in separate build directories: False, True
+ True = cudacpp_bldall ! CUDACPP build all available backends in separate build directories: False, True
 
