@@ -36,11 +36,31 @@ if [ "${bckend}" == "" ]; then echo "ERROR! No backend was specified"; usage; fi
 if [ "$proc" == "" ]; then echo "ERROR! No process directory was specified"; usage; fi
 
 if [ "${bckend}" == "ALL" ]; then
-  for b in fortran cuda cppnone cppsse4 cppavx2 cpp512y cpp512z; do
+  for b in fortran cuda hip cppnone cppsse4 cppavx2 cpp512y cpp512z; do
     $0 -${b} ${nomakeclean} ${proc}
     nomakeclean=-nomakeclean # respect user input only on the first test, then keep the builds
   done
   exit 0 # successful termination on all backends (and skip the rest of this file)
+fi
+
+function exit0()
+{
+  echo ""
+  echo "********************************************************************************"
+  echo ""
+  exit 0
+}
+
+if [ "${bckend}" == "cuda" ]; then
+  if ! nvidia-smi -L > /dev/null 2>&1; then
+    echo "WARNING! No NVidia GPU was found: skip backend ${bckend}"
+    exit0
+  fi
+elif [ "${bckend}" == "hip" ]; then
+  if ! rocm-smi -i > /dev/null 2>&1; then
+    echo "WARNING! No AMD GPU was found: skip backend ${bckend}"
+    exit0
+  fi
 fi
 
 suff=.mad
@@ -160,7 +180,5 @@ mv bin/internal/madevent_interface.py.BKP bin/internal/madevent_interface.py # r
 mv Source/make_opts.BKP Source/make_opts # restore the initial file
 mv Source/param_card.inc.BKP Source/param_card.inc # restore the initial file
 
-# Add an 80-character separator
-echo ""
-echo "********************************************************************************"
-echo ""
+# Add an 80-character separator and exit
+exit0
