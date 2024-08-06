@@ -381,10 +381,7 @@ C     Continue only if IMODE is 0, 4 or 5
         RETURN
       ENDIF
 
-      write(6,*) 'maxproc=', maxproc
       DO IVEC=1,VECSIZE_USED
-        write(6,*) 'ivec, all_pd(0,ivec) =', ivec, all_pd(0,ivec)
-        write(6,*) 'all_pd(0,ivec) == 0?', all_pd(0,ivec).eq.0
 C       Do not need those three here do I?	 
         XBK(:) = ALL_XBK(:,IVEC)
 C       CM_RAP = ALL_CM_RAP(IVEC)
