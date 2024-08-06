@@ -10,7 +10,7 @@ scrdir=$(cd $(dirname $0); pwd)
 
 function usage()
 {
-  echo "Usage:   $0 [-<backend> [-nomakeclean]|-ALL] <procdir>"
+  echo "Usage:   $0 [-<backend> [-nomakeclean]|-ALL] [-rndoff <integer_offset|x10>] <procdir>"
   echo "         (supported <backend> values: fortran, cuda, hip, cppnone, cppsse4, cppavx2, cpp512y, cpp512z)"
   echo "Example: $0 -cppavx2 gg_tt.mad"
   exit 1
@@ -19,11 +19,15 @@ function usage()
 bckend=
 proc=
 nomakeclean=
+rndoff=0
 while [ "$1" != "" ]; do
   if [ "$1" == "-fortran" ] || [ "$1" == "-cuda" ] || [ "$1" == "-hip" ] || [ "$1" == "-cppnone" ] || [ "$1" == "-cppsse4" ] || [ "$1" == "-cppavx2" ] || [ "$1" == "-cpp512y" ] || [ "$1" == "-cpp512z" ] || [ "$1" == "-ALL" ]; then
     if [ "${bckend}" == "" ]; then bckend=${1/-/}; else echo "ERROR! Backend already set"; usage; fi
   elif [ "$1" == "-nomakeclean" ]; then
     nomakeclean=$1
+  elif [ "$1" == "-rndoff" ]; then
+    rndoff=$2
+    shift
   elif [ "${proc}" == "" ]; then
     proc=$1
   else
@@ -37,11 +41,29 @@ if [ "$proc" == "" ]; then echo "ERROR! No process directory was specified"; usa
 
 if [ "${bckend}" == "ALL" ]; then
   for b in fortran cuda hip cppnone cppsse4 cppavx2 cpp512y cpp512z; do
-    $0 -${b} ${nomakeclean} ${proc}
+    $0 -${b} ${nomakeclean} ${proc} -rndoff ${rndoff}
     nomakeclean=-nomakeclean # respect user input only on the first test, then keep the builds
   done
-  exit 0 # successful termination on all backends (and skip the rest of this file)
+  exit 0 # successful termination on each loop (and skip the rest of this file)
 fi
+
+resultsdir=${scrdir}/logs_${proc//_}_${bckend/}
+
+if [ "${rndoff}" == "x10" ]; then
+  for i in $(seq 0 9); do
+    $0 -${bckend} ${nomakeclean} ${proc} -rndoff ${i}
+    nomakeclean=-nomakeclean # respect user input only on the first test, then keep the builds
+  done
+  more ${resultsdir}/*txt | \egrep '(Cross-section :)'
+  exit 0 # successful termination on each loop (and skip the rest of this file)
+elif [ ${rndoff} -lt 0 ]; then
+  echo "ERROR! Invalid rndoff=${rndoff}"
+  exit 1
+fi
+
+outfile=output.txt
+if [ "${rndoff}" != "0" ]; then outfile=output${rndoff}.txt; fi
+(( rndseed = 21 + ${rndoff} ))
 
 function exit0()
 {
@@ -72,7 +94,6 @@ echo "Execute $(basename $0) for process ${proc} and backend ${bckend} in direct
 procdir=$(pwd)/${proc}${suff}
 if [ ! -d ${procdir} ]; then echo "ERROR! Process directory '${procdir}' does not exist"; usage; fi
 cd ${procdir}
-resultsdir=${scrdir}/logs_${proc//_}_${bckend/}
 
 function getnevt()
 {
@@ -113,7 +134,7 @@ function lauX_cleanup()
 lauX_makeclean
 
 # Clean config before launch
-rm -rf ${resultsdir}; mkdir ${resultsdir}
+if [ "${rndoff}" == "0" ]; then rm -rf ${resultsdir}; mkdir ${resultsdir}; fi
 lauX_cleanup
 rm -f SubProcesses/ME5_debug
 echo "r=21" > SubProcesses/randinit # just in case a previous test was not cleaned up
@@ -131,6 +152,9 @@ sed -i "s/'int', 1, 'Number of iterations'/'int', 5, 'Number of iterations'/" bi
 cp bin/internal/madevent_interface.py bin/internal/madevent_interface.py.BKP # save the initial file
 cp Source/make_opts Source/make_opts.BKP # save the initial file
 cp Source/param_card.inc Source/param_card.inc.BKP # save the initial file
+
+# Set the random seed
+echo "r=${rndseed}" > SubProcesses/randinit # just in case a previous test was not cleaned up
 
 # Set the number of events and iterations in the survey step
 sed -i "s/'int', 1000,'Number of points/'int', 8192,'Number of points/" bin/internal/madevent_interface.py
@@ -153,22 +177,23 @@ sed -i "s/.* = cudacpp_bldall/ True = cudacpp_bldall/" Cards/run_card.dat
 # (BUG #683: generate_events does not return an error code even if it fails)
 ###set -x # verbose
 START=$(date +%s)
-echo "START: $(date)"  |& tee ${resultsdir}/output.txt
-MG5AMC_CARD_PATH=$(pwd)/Cards time ./bin/generate_events -f |& tee -a ${resultsdir}/output.txt
-echo "END: $(date)" |& tee -a ${resultsdir}/output.txt
+echo "START: $(date)"  |& tee ${resultsdir}/${outfile}
+MG5AMC_CARD_PATH=$(pwd)/Cards time ./bin/generate_events -f |& tee -a ${resultsdir}/${outfile}
+echo "END: $(date)" |& tee -a ${resultsdir}/${outfile}
 END=$(date +%s)
-echo "ELAPSED: $((END-START)) seconds" |& tee -a ${resultsdir}/output.txt
+echo "ELAPSED: $((END-START)) seconds" |& tee -a ${resultsdir}/${outfile}
 ###set +x # not verbose
 
-# Process and keep results
-\rm HTML/results.pkl
-mv Events ${resultsdir}; mv HTML ${resultsdir}
-gunzip ${resultsdir}/Events/run_01/unweighted_events.lhe.gz
-
-# FIXME! No need to keep events in git, there is no lhe file comparison yet anyway (20-DEC-2023)
-\rm ${resultsdir}/Events/run_01/unweighted_events.lhe
-\rm ${resultsdir}/Events/run_01/run_01_tag_1_banner.txt
-touch ${resultsdir}/Events/run_01/.keep
+# Process and keep results (only for the default rndoff)
+if [ "${rndoff}" == "0" ]; then
+  \rm HTML/results.pkl
+  mv Events ${resultsdir}; mv HTML ${resultsdir}
+  gunzip ${resultsdir}/Events/run_01/unweighted_events.lhe.gz
+  # FIXME! No need to keep events in git, there is no lhe file comparison yet anyway (20-DEC-2023)
+  \rm ${resultsdir}/Events/run_01/unweighted_events.lhe
+  \rm ${resultsdir}/Events/run_01/run_01_tag_1_banner.txt
+  touch ${resultsdir}/Events/run_01/.keep
+fi
 
 # Clean config after launch
 lauX_cleanup
