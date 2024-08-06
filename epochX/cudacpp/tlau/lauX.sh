@@ -10,7 +10,7 @@ scrdir=$(cd $(dirname $0); pwd)
 
 function usage()
 {
-  echo "Usage:   $0 -<backend> <procdir>"
+  echo "Usage:   $0 [-<backend> [-nomakeclean]|-ALL] <procdir>"
   echo "         (supported <backend> values: fortran, cuda, hip, cppnone, cppsse4, cppavx2, cpp512y, cpp512z)"
   echo "Example: $0 -cppavx2 gg_tt.mad"
   exit 1
@@ -18,9 +18,12 @@ function usage()
 
 bckend=
 proc=
+nomakeclean=
 while [ "$1" != "" ]; do
-  if [ "$1" == "-fortran" ] || [ "$1" == "-cuda" ] || [ "$1" == "-hip" ] || [ "$1" == "-cppnone" ] || [ "$1" == "-cppsse4" ] || [ "$1" == "-cppavx2" ] || [ "$1" == "-cpp512y" ] || [ "$1" == "-cpp512z" ]; then
+  if [ "$1" == "-fortran" ] || [ "$1" == "-cuda" ] || [ "$1" == "-hip" ] || [ "$1" == "-cppnone" ] || [ "$1" == "-cppsse4" ] || [ "$1" == "-cppavx2" ] || [ "$1" == "-cpp512y" ] || [ "$1" == "-cpp512z" ] || [ "$1" == "-ALL" ]; then
     if [ "${bckend}" == "" ]; then bckend=${1/-/}; else echo "ERROR! Backend already set"; usage; fi
+  elif [ "$1" == "-nomakeclean" ]; then
+    nomakeclean=$1
   elif [ "${proc}" == "" ]; then
     proc=$1
   else
@@ -31,6 +34,14 @@ while [ "$1" != "" ]; do
 done
 if [ "${bckend}" == "" ]; then echo "ERROR! No backend was specified"; usage; fi
 if [ "$proc" == "" ]; then echo "ERROR! No process directory was specified"; usage; fi
+
+if [ "${bckend}" == "ALL" ]; then
+  for b in fortran cuda cppnone cppsse4 cppavx2 cpp512y cpp512z; do
+    $0 -${b} ${nomakeclean} ${proc}
+    nomakeclean=-nomakeclean # respect user input only on the first test, then keep the builds
+  done
+  exit 0 # successful termination on all backends (and skip the rest of this file)
+fi
 
 suff=.mad
 if [ "${proc}" == "${proc%${suff}}" ]; then echo "ERROR! Process directory does not end in '${suff}'"; usage; fi
@@ -62,7 +73,12 @@ function getnevt()
 
 function lauX_makeclean()
 {
-  for d in SubProcesses/P*; do cd $d; make cleanall; cd -; break; done
+  if [ "${nomakeclean}" == "" ]; then
+    echo "INFO: clean all builds"
+    for d in SubProcesses/P*; do cd $d; make cleanall > /dev/null; cd - > /dev/null; break; done
+  else
+    echo "WARNING! Keep all builds (-nomakeclean option was specified)"
+  fi
 }
 
 function lauX_cleanup()
@@ -74,7 +90,7 @@ function lauX_cleanup()
 }
 
 # Clean builds before launch
-lauX_makeclean >& /dev/null
+lauX_makeclean
 
 # Clean config before launch
 rm -rf ${resultsdir}; mkdir ${resultsdir}
@@ -84,6 +100,7 @@ echo "r=21" > SubProcesses/randinit # just in case a previous test was not clean
 cp SubProcesses/randinit SubProcesses/randinit.BKP # save the initial file
 sed -i "s/.* = nevents/  10000 = nevents/" Cards/run_card.dat # just in case
 sed -i "s/.* = cudacpp_backend/ cpp = cudacpp_backend/" Cards/run_card.dat # just in case
+sed -i "s/.* = cudacpp_bldall/ False = cudacpp_bldall/" Cards/run_card.dat # just in case
 cp Cards/run_card.dat Cards/run_card.dat.BKP # save the initial file
 sed -i "s/      NEVENTS = .*/      NEVENTS = 10000/" Source/run_card.inc # just in case
 cp Source/run_card.inc Source/run_card.inc.BKP # save the initial file
@@ -108,6 +125,9 @@ sed -i "s/ 10000 = nevents/ ${nevt} = nevents/" Cards/run_card.dat
 
 # Set the backend in run_card.dat
 sed -i "s/ cpp = cudacpp_backend/${bckend} = cudacpp_backend/" Cards/run_card.dat
+
+# Configure bldall in run_card.dat
+sed -i "s/.* = cudacpp_bldall/ True = cudacpp_bldall/" Cards/run_card.dat
 
 # Launch (generate_events)
 # (BUG #683: generate_events does not return an error code even if it fails)

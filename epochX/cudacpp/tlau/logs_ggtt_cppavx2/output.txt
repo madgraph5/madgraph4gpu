@@ -1,4 +1,4 @@
-START: Mon Aug  5 04:12:46 PM CEST 2024
+START: Mon Aug  5 04:14:49 PM CEST 2024
 ************************************************************
 *                                                          *
 *                      W E L C O M E to                    *
@@ -35,8 +35,8 @@ Creating Jobs
 Working on SubProcesses
 INFO:     P1_gg_ttx  
 Pre-building madevent in madevent_interface.py with ALL matrix elements
-Building madevent in madevent_interface.py with 'cpp512y' matrix elements
-INFO:  Idle: 1,  Running: 0,  Completed: 0 [ current time: 16h12 ] 
+Building madevent in madevent_interface.py with 'cppavx2' matrix elements
+INFO:  Idle: 1,  Running: 0,  Completed: 0 [ current time: 16h14 ] 
 INFO:  Idle: 0,  Running: 0,  Completed: 1 [  2.7s  ] 
 INFO:  Idle: 0,  Running: 0,  Completed: 1 [  2.7s  ] 
 INFO: End survey 
@@ -50,17 +50,17 @@ INFO: need to improve 1 channels
 - Current estimate of cross-section: 442.293 +- 4.035736223404597
     P1_gg_ttx 
 Pre-building madevent in madevent_interface.py with ALL matrix elements
-Building madevent in madevent_interface.py with 'cpp512y' matrix elements
-INFO:  Idle: 7,  Running: 4,  Completed: 0 [ current time: 16h12 ] 
+Building madevent in madevent_interface.py with 'cppavx2' matrix elements
+INFO:  Idle: 7,  Running: 4,  Completed: 0 [ current time: 16h14 ] 
 INFO:  Idle: 2,  Running: 4,  Completed: 5 [  2.9s  ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 11 [  4.3s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 11 [  4.4s  ] 
 INFO: Combining runs 
 sum of cpu time of last step: 21 seconds
 INFO: finish refine 
 refine 10000 --treshold=0.9
 No need for second refine due to stability of cross-section
 INFO: Combining Events 
-combination of events done in 2.16316819190979 s 
+combination of events done in 2.1775732040405273 s 
   === Results Summary for run: run_01 tag: tag_1 ===
 
      Cross-section :   440.1 +- 0.547 pb
@@ -76,7 +76,7 @@ INFO: storing files of previous run
 INFO: Done 
 quit
 INFO:  
-24.32user 2.02system 0:12.74elapsed 206%CPU (0avgtext+0avgdata 95356maxresident)k
-0inputs+403112outputs (2major+357321minor)pagefaults 0swaps
-END: Mon Aug  5 04:12:59 PM CEST 2024
-ELAPSED: 13 seconds
+24.57user 1.95system 0:12.11elapsed 218%CPU (0avgtext+0avgdata 95364maxresident)k
+0inputs+403112outputs (2major+353650minor)pagefaults 0swaps
+END: Mon Aug  5 04:15:01 PM CEST 2024
+ELAPSED: 12 seconds

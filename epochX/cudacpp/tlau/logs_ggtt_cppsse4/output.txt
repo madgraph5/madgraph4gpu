@@ -1,4 +1,4 @@
-START: Mon Aug  5 04:12:46 PM CEST 2024
+START: Mon Aug  5 04:12:21 PM CEST 2024
 ************************************************************
 *                                                          *
 *                      W E L C O M E to                    *
@@ -35,10 +35,10 @@ Creating Jobs
 Working on SubProcesses
 INFO:     P1_gg_ttx  
 Pre-building madevent in madevent_interface.py with ALL matrix elements
-Building madevent in madevent_interface.py with 'cpp512y' matrix elements
+Building madevent in madevent_interface.py with 'cppsse4' matrix elements
 INFO:  Idle: 1,  Running: 0,  Completed: 0 [ current time: 16h12 ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 1 [  2.7s  ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 1 [  2.7s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 1 [  2.8s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 1 [  2.8s  ] 
 INFO: End survey 
 refine 10000
 Creating Jobs
@@ -50,17 +50,17 @@ INFO: need to improve 1 channels
 - Current estimate of cross-section: 442.293 +- 4.035736223404597
     P1_gg_ttx 
 Pre-building madevent in madevent_interface.py with ALL matrix elements
-Building madevent in madevent_interface.py with 'cpp512y' matrix elements
+Building madevent in madevent_interface.py with 'cppsse4' matrix elements
 INFO:  Idle: 7,  Running: 4,  Completed: 0 [ current time: 16h12 ] 
-INFO:  Idle: 2,  Running: 4,  Completed: 5 [  2.9s  ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 11 [  4.3s  ] 
+INFO:  Idle: 2,  Running: 4,  Completed: 5 [  3s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 11 [  4.6s  ] 
 INFO: Combining runs 
-sum of cpu time of last step: 21 seconds
+sum of cpu time of last step: 22 seconds
 INFO: finish refine 
 refine 10000 --treshold=0.9
 No need for second refine due to stability of cross-section
 INFO: Combining Events 
-combination of events done in 2.16316819190979 s 
+combination of events done in 2.187422752380371 s 
   === Results Summary for run: run_01 tag: tag_1 ===
 
      Cross-section :   440.1 +- 0.547 pb
@@ -76,7 +76,7 @@ INFO: storing files of previous run
 INFO: Done 
 quit
 INFO:  
-24.32user 2.02system 0:12.74elapsed 206%CPU (0avgtext+0avgdata 95356maxresident)k
-0inputs+403112outputs (2major+357321minor)pagefaults 0swaps
-END: Mon Aug  5 04:12:59 PM CEST 2024
-ELAPSED: 13 seconds
+25.40user 2.02system 0:12.42elapsed 220%CPU (0avgtext+0avgdata 95340maxresident)k
+0inputs+403112outputs (1major+355669minor)pagefaults 0swaps
+END: Mon Aug  5 04:12:33 PM CEST 2024
+ELAPSED: 12 seconds
