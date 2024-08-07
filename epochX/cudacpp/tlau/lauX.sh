@@ -234,8 +234,8 @@ cp SubProcesses/randinit SubProcesses/randinit.BKP # save the initial file
 cp Cards/run_card.dat Cards/run_card.dat.BKP # save the initial file
 cp Cards/grid_card.dat Cards/grid_card.dat.BKP # save the initial file
 cp Source/run_card.inc Source/run_card.inc.BKP # save the initial file
-cp bin/internal/gen_ximprove.py bin/internal/gen_ximprove.py.BKP # save the initial file
-cp bin/internal/madevent_interface.py bin/internal/madevent_interface.py.BKP # save the initial file
+cp bin/internal/gen_ximprove.py bin_internal_gen_ximprove.py.BKP # save the initial file
+cp bin/internal/madevent_interface.py bin_internal_madevent_interface.py.BKP # save the initial file
 cp Source/make_opts Source/make_opts.BKP # save the initial file
 cp Source/param_card.inc Source/param_card.inc.BKP # save the initial file
 
@@ -313,8 +313,8 @@ mv SubProcesses/randinit.BKP SubProcesses/randinit # restore the initial file
 mv Cards/run_card.dat.BKP Cards/run_card.dat # restore the initial file
 mv Cards/grid_card.dat.BKP Cards/grid_card.dat # restore the initial file
 mv Source/run_card.inc.BKP Source/run_card.inc # restore the initial file
-mv bin/internal/gen_ximprove.py.BKP bin/internal/gen_ximprove.py # restore the initial file
-mv bin/internal/madevent_interface.py.BKP bin/internal/madevent_interface.py # restore the initial file
+mv bin_internal_gen_ximprove.py.BKP bin/internal/gen_ximprove.py # restore the initial file
+mv bin_internal_madevent_interface.py.BKP bin/internal/madevent_interface.py # restore the initial file
 mv Source/make_opts.BKP Source/make_opts # restore the initial file
 mv Source/param_card.inc.BKP Source/param_card.inc # restore the initial file
 
