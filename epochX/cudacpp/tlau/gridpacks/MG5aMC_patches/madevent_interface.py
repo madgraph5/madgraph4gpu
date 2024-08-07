@@ -6637,12 +6637,13 @@ class GridPackCmd(MadEventCmd):
         self.write_gridcard(nb_event, seed, gran) # set readonly on True if needed
         self.prepare_local_dir()                  # move to gridpack dir or create local structure
         # Now it's time to run!
+        print("__CUDACPP_DEBUG: GridPackCmd.__init__ is about to call self.launch")
         if me_dir and nb_event and seed:
             self.launch(nb_event, seed)
         else:
             raise MadGraph5Error('Gridpack run failed: ' + str(me_dir) + str(nb_event) + \
                   str(seed))
-
+        print("__CUDACPP_DEBUG: GridPackCmd.__init__ returned from self.launch")
 
     def update_status(self, *args, **opts):
         return
@@ -6721,8 +6722,9 @@ class GridPackCmd(MadEventCmd):
 
     def launch(self, nb_event, seed):
         """ launch the generation for the grid """
-
+        print("__CUDACPP_DEBUG: GridPackCmd.launch starting")
         # 1) Restore the default data
+        print("__CUDACPP_DEBUG: GridPackCmd.launch (1) restore_data")
         logger.info('generate %s events' % nb_event)
         self.set_run_name('GridRun_%s' % seed)
         if not self.readonly:
@@ -6741,14 +6743,16 @@ class GridPackCmd(MadEventCmd):
                 random.seed(self.run_card['python_seed'])  
                 random.mg_seedset = self.run_card['python_seed']         
         # 2) Run the refine for the grid
+        print("__CUDACPP_DEBUG: GridPackCmd.launch (2) refine4grid")
         self.update_status('Generating Events', level=None)
         #misc.call([pjoin(self.me_dir,'bin','refine4grid'),
         #                str(nb_event), '0', 'Madevent','1','GridRun_%s' % seed],
         #                cwd=self.me_dir)
         self.refine4grid(nb_event)
-
         # 3) Combine the events/pythia/...
+        print("__CUDACPP_DEBUG: GridPackCmd.launch (3a) combine_events")
         self.exec_cmd('combine_events')
+        print("__CUDACPP_DEBUG: GridPackCmd.launch (3b) store_events")
         if not self.readonly:
             self.exec_cmd('store_events')
             self.print_results_in_shell(self.results.current)
@@ -6761,10 +6765,11 @@ class GridPackCmd(MadEventCmd):
             self.exec_cmd('systematics %s --from_card' % 
                           pjoin('Events', self.run_name, 'unweighted_events.lhe.gz'),
                                                postcmd=False,printcmd=False)
-            
+        print("__CUDACPP_DEBUG: GridPackCmd.launch finished")
 
     def refine4grid(self, nb_event):
         """Special refine for gridpack run."""
+        print("__CUDACPP_DEBUG: GridPackCmd.refine4grid starting")
         self.nb_refine += 1
         
         precision = nb_event
@@ -6793,6 +6798,7 @@ class GridPackCmd(MadEventCmd):
         #print 'run combine!!!'
         #combine_runs.CombineRuns(self.me_dir)
         
+        print("__CUDACPP_DEBUG: GridPackCmd.refine4grid finished") # ?!? what is the code after return ?!?
         return
         #update html output
         Presults = sum_html.collect_result(self)
