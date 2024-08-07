@@ -10,8 +10,9 @@ scrdir=$(cd $(dirname $0); pwd)
 
 function usage()
 {
-  echo "Usage:   $0 -<backend> <procdir> [-grid] [-nomakeclean]|-ALL] [-rndoff <integer_offset|x10>]"
+  echo "Usage:   $0 -<backend> <procdir> [-nomakeclean] [-rndoff <integer_offset|x10>] [-togridpack]"
   echo "         (supported <backend> values: fortran, cuda, hip, cppnone, cppsse4, cppavx2, cpp512y, cpp512z)"
+  echo "         (*special* <backend> value: ALL processes all available backends)"
   echo "Example: $0 -cppavx2 gg_tt.mad"
   exit 1
 }
@@ -24,26 +25,30 @@ rndoff=0
 while [ "$1" != "" ]; do
   if [ "$1" == "-fortran" ] || [ "$1" == "-cuda" ] || [ "$1" == "-hip" ] || [ "$1" == "-cppnone" ] || [ "$1" == "-cppsse4" ] || [ "$1" == "-cppavx2" ] || [ "$1" == "-cpp512y" ] || [ "$1" == "-cpp512z" ] || [ "$1" == "-ALL" ]; then
     if [ "${bckend}" == "" ]; then bckend=${1/-/}; else echo "ERROR! Backend already set"; usage; fi
-  elif [ "$1" == "-grid" ]; then
+  elif [ "$1" == "-togridpack" ]; then
     grid=${1}
   elif [ "$1" == "-nomakeclean" ]; then
     nomakeclean=$1
   elif [ "$1" == "-rndoff" ]; then
     rndoff=$2
     shift
+  elif [ "${1#-}" != "${1}" ]; then
+    echo "ERROR! Invalid option '$1'"
+    usage
   elif [ "${proc}" == "" ]; then
     proc=$1
   else
-    echo "ERROR! Invalid option '$1': process directory already set to '${proc}'"
+    echo "ERROR! Invalid input '$1': process directory already set to '${proc}'"
     usage
   fi
   shift
 done
 if [ "${bckend}" == "" ]; then echo "ERROR! No backend was specified"; usage; fi
 if [ "$proc" == "" ]; then echo "ERROR! No process directory was specified"; usage; fi
+if [ "${grid}" == "-togridpack" ] && [ "${rndoff}" != "0" ]; then echo "ERROR! ${grid} and -rndoff are not compatible"; exit 1; fi
 
 if [ "${bckend}" == "ALL" ]; then
-  if [ "${grid}" != "" ]; then echo "ERROR! -grid and -ALL are not compatible"; exit 1; fi # temporary?
+  if [ "${grid}" == "-togridpack" ]; then echo "ERROR! ${grid} and -ALL are not compatible"; exit 1; fi # temporary?
   for b in fortran cuda hip cppnone cppsse4 cppavx2 cpp512y cpp512z; do
     $0 -${b} ${nomakeclean} ${proc} -rndoff ${rndoff}
     nomakeclean=-nomakeclean # respect user input only on the first test, then keep the builds
@@ -51,10 +56,14 @@ if [ "${bckend}" == "ALL" ]; then
   exit 0 # successful termination on each loop (and skip the rest of this file)
 fi
 
+gridpackdir=${scrdir}/gridpacks/${proc}
 suff=.mad
 if [ "${proc}" == "${proc%${suff}}" ]; then echo "ERROR! Process directory does not end in '${suff}'"; usage; fi
 proc=${proc%${suff}}
 resultsdir=${scrdir}/logs_${proc//_}_${bckend/}
+if [ "${grid}" == "-togridpack" ]; then
+  resultsdir=${gridpackdir}
+fi
 
 if [ "${rndoff}" == "x10" ]; then
   for i in $(seq 0 9); do
@@ -131,6 +140,16 @@ function lauX_cleanup()
   rm -f SubProcesses/results.dat
   rm -rf Events HTML; mkdir Events HTML; touch Events/.keep HTML/.keep
   for d in SubProcesses/P*; do cd $d; rm -rf gensym input_app.txt symfact.dat G[0-9]* ajob[0-9]*; cd - > /dev/null; done
+  if [ "${grid}" == "-togridpack" ]; then
+    rm -rf bin/TheChopper-pl
+    rm -rf bin/clean4grid
+    rm -rf bin/compile
+    rm -rf bin/gridrun
+    rm -rf bin/internal/gen_ximprove
+    rm -rf bin/refine4grid
+    rm -rf bin/replace.pl
+    rm -rf bin/run.sh
+  fi
 }
 
 # Clean builds before launch
@@ -139,6 +158,7 @@ lauX_makeclean
 # Back up config before launch
 cp SubProcesses/randinit SubProcesses/randinit.BKP # save the initial file
 cp Cards/run_card.dat Cards/run_card.dat.BKP # save the initial file
+cp Cards/grid_card.dat Cards/grid_card.dat.BKP # save the initial file
 cp Source/run_card.inc Source/run_card.inc.BKP # save the initial file
 cp bin/internal/gen_ximprove.py bin/internal/gen_ximprove.py.BKP # save the initial file
 cp bin/internal/madevent_interface.py bin/internal/madevent_interface.py.BKP # save the initial file
@@ -179,7 +199,7 @@ sed -i "s/ 10000 = nevents/ ${nevt} = nevents/" Cards/run_card.dat
 sed -i "s/ cpp = cudacpp_backend/${bckend} = cudacpp_backend/" Cards/run_card.dat
 
 # Set gridpack mode in run_card.dat
-if [ "${grid}" != "" ]; then sed -i "s/.* = gridpack/  True = gridpack/" Cards/run_card.dat; fi
+if [ "${grid}" == "-togridpack" ]; then sed -i "s/.* = gridpack/  True = gridpack/" Cards/run_card.dat; fi
 
 # Configure bldall in run_card.dat
 sed -i "s/.* = cudacpp_bldall/ True = cudacpp_bldall/" Cards/run_card.dat
@@ -196,11 +216,14 @@ END=$(date +%s)
 echo "ELAPSED: $((END-START)) seconds" |& tee -a ${resultsdir}/${outfile}
 ###set +x # not verbose
 
-# Skip cleanup (for the moment?) in gridpack mode
-if [ "${grid}" != "" ]; then exit 0; fi
+# Copy output gridpack to tlau/gridpacks directory
+if [ "${grid}" == "-togridpack" ]; then
+  mv run_01_gridpack.tar.gz ${gridpackdir}/run_01_gridpack.tar.gz
+  echo "Gridpack created: ${gridpackdir}/run_01_gridpack.tar.gz"
+fi
 
 # Process and keep results (only for the default rndoff)
-if [ "${rndoff}" == "0" ]; then
+if [ "${grid}" != "-togridpack" ] && [ "${rndoff}" == "0" ]; then
   \rm HTML/results.pkl
   mv Events ${resultsdir}; mv HTML ${resultsdir}
   gunzip ${resultsdir}/Events/run_01/unweighted_events.lhe.gz
@@ -214,6 +237,7 @@ fi
 lauX_cleanup
 mv SubProcesses/randinit.BKP SubProcesses/randinit # restore the initial file
 mv Cards/run_card.dat.BKP Cards/run_card.dat # restore the initial file
+mv Cards/grid_card.dat.BKP Cards/grid_card.dat # restore the initial file
 mv Source/run_card.inc.BKP Source/run_card.inc # restore the initial file
 mv bin/internal/gen_ximprove.py.BKP bin/internal/gen_ximprove.py # restore the initial file
 mv bin/internal/madevent_interface.py.BKP bin/internal/madevent_interface.py # restore the initial file
