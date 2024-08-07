@@ -1388,7 +1388,8 @@ class gen_ximprove_v4(gen_ximprove):
                     break
                 info = jobs[j]
                 info['script_name'] = 'ajob%i' % script_number
-                info['keeplog'] = 'false'
+                ###info['keeplog'] = 'false'
+                info['keeplog'] = 'true' # for __CUDACPP_DEBUG
                 if "base_directory" not in info:
                     info["base_directory"] = "./"
                 fsock.write(template_text % info)
