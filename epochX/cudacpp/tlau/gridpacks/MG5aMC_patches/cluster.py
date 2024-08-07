@@ -731,15 +731,8 @@ class MultiCore(Cluster):
         if isinstance(stdout, str):
             stdout = open(stdout, 'w')
         if isinstance(stderr, str):
-            stdout = open(stderr, 'w')
-        if stdout is None and stderr is None:
-            # AV capture output using subprocess.run instead of subprocess.call
-            # See https://docs.python.org/3/library/subprocess.html#subprocess.run
-            ###return subprocess.call( [prog] + argument, stdout=stdout, stderr=stderr, cwd=cwd )
-            return subprocess.run( [prog] + argument, cwd=cwd, capture_output=True )
-        else:
-            # AV this is essentially subprocess.call( [prog] + argument, stdout=stdout, stderr=stderr, cwd=cwd )
-            return misc.call([prog] + argument, stdout=stdout, stderr=stderr, cwd=cwd) 
+            stdout = open(stderr, 'w')        
+        return misc.call([prog] + argument, stdout=stdout, stderr=stderr, cwd=cwd) 
         print("__CUDACPP_DEBUG: MultiCore.launch_and_wait finished '" + prog + "'")
 
     def remove(self, error=None):
