@@ -497,6 +497,9 @@ namespace REX
             size_t trueStart = xmlFile.find_first_not_of("< \n\r\f\t\v", start+1);
             name = xmlFile.substr( trueStart, xmlFile.find_first_of(">/ \n\r\f\t\v", trueStart) - trueStart );
             content = xmlFile.substr( structure.getContStart(), structure.getContEnd() - structure.getContStart() );
+            for( auto child : *structure.getChildren() ){
+                children.push_back( std::make_shared<xmlNode>(*child) );
+            }
             for( auto child : childs ){
                 children.push_back( child );
             }
@@ -602,8 +605,9 @@ namespace REX
         }
         void xmlNode::endWriter() {
             if( isFaux() ){ return; }
-            auto endSt = xmlFile.find_last_of("<", end);
-            nodeEnd = xmlFile.substr( endSt, end - endSt );
+            //auto endSt = xmlFile.find_last_of("<", end);
+            //nodeEnd = xmlFile.substr( endSt, end - endSt );
+            nodeEnd = "</" + std::string(name) + ">\n";
         }
         void xmlNode::contWriter() {
             if( hasChildren() ){
@@ -1496,6 +1500,7 @@ namespace REX
             nodeContent = "\n" + *header.getContent();
             for( auto prt : prts ){
                 nodeContent += *prt->getContent();
+                if( nodeContent.back() != '\n' ){ nodeContent += "\n"; }
             }
         }
         void event::childWriter() {
@@ -3246,7 +3251,35 @@ namespace REX
                 }
             }
         }
-        transSkel::transSkel( std::shared_ptr<lheNode> lheFile, std::vector<eventSet>& evSet ) : transSkel(*lheFile, evSet){};
+        transSkel::transSkel( std::shared_ptr<lheNode> lheFile, std::vector<eventSet>& evSet ) {
+            this->relProcs = evProcOrder( *lheFile, evSet );
+            this->relEvSet = std::vector<bool>(evSet.size(), false);
+            for ( size_t k = 0 ; k < this->relProcs.size() ; ++k )
+            {
+                if( std::find(this->relProcs[k]->begin(), this->relProcs[k]->end(), true) != this->relProcs[k]->end() )
+                {
+                    this->relEvSet[k] = true;
+                }
+            }
+            this->procSets = std::vector<std::vector<std::shared_ptr<REX::event>>>(std::count(this->relEvSet.begin(), this->relEvSet.end(), true));
+            auto evs = lheFile->getEvents();
+            size_t j = 0;
+            for( size_t k = 0 ; k < this->relEvSet.size() ; ++k )
+            {
+                if( this->relEvSet[k] )
+                {
+                    this->procSets[j] = std::vector<std::shared_ptr<REX::event>>();
+                    for( size_t m = 0 ; m < relProcs[k]->size() ; ++m )
+                    {
+                        if( relProcs[k]->at(m) )
+                        {
+                            this->procSets[j].push_back(evs[m]);
+                        }
+                    }
+                    ++j;
+                }
+            }
+        }
 
     // ZW: transposed LHE file with a single process type
         transMonoLHE::transMonoLHE( const std::vector<std::shared_ptr<REX::event>> lheFile , const int nPrt ){

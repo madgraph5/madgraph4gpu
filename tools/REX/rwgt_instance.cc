@@ -25,13 +25,17 @@ namespace rwgt{
 
     //ZW: Function for padding the input arrays to a multiple of the warp size
     template<typename T>
-    std::vector<T>& warpPad( std::vector<T>& input, unsigned int nWarp = 32 ){
+    void warpPad( std::vector<T>& input, unsigned int nWarp = 32 ){
         auto nEvt = input.size();
         auto nWarpRemain = warpRemain( nEvt, nWarp );
         auto fauxNEvt = nEvt + nWarpRemain;
-        auto output = std::vector<T>( fauxNEvt );
-        std::copy( input.begin(), input.end(), output.begin());
-        return output;
+//        auto output = std::vector<T>( fauxNEvt );
+//        std::copy( input.begin(), input.end(), output.begin());
+//        input.resize( fauxNEvt );
+        for( size_t k = nEvt - nWarpRemain ; k < fauxNEvt ; ++k ){
+            input.push_back( input[k] );
+        }
+        return;
     }
 
     fBridge::fBridge(){}
@@ -133,8 +137,8 @@ namespace rwgt{
         //     }
         // }
         if( this->bridge == nullptr) throw std::runtime_error("fBridge object not defined.");
-        alphaS = warpPad( alphaS, nWarp );
-        momenta = warpPad( momenta, nWarp * nPar * nMom );
+        warpPad( alphaS, nWarp );
+        warpPad( momenta, nWarp * nPar * nMom );
         auto evalScatAmps = this->bridge(fauxNEvt, nPar, nMom, momenta, alphaS, rndHel, rndCol, selHel, selCol, chanId );
         alphaS.resize( nEvt );
         momenta.resize( nEvt * nPar * nMom );

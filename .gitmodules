@@ -2,3 +2,7 @@
 	path = MG5aMC/mg5amcnlo
 	url = https://github.com/zeniheisser/mg5amcnlo/
 	branch = rexCPP
+[submodule "MG5aMC/"]
+	url = git@github.com:zeniheisser/mg5amcnlo.git
+[submodule "MG5aMC"]
+	url = git@github.com:zeniheisser/mg5amcnlo.git

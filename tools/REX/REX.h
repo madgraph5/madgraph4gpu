@@ -85,7 +85,7 @@ namespace REX
         xmlTree();
         xmlTree( std::string_view file );
         xmlTree( std::string_view file, size_t& strt, size_t& nd );
-        auto& getChildren(){ return children; }
+        auto getChildren(){ return children; }
         std::string_view& getOrigin(){ return origin; }
         size_t getStart(){ return start; }
         size_t getEnd(){ return end; }

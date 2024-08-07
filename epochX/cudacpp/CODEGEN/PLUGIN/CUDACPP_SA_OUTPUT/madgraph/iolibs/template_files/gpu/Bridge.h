@@ -261,7 +261,11 @@ namespace mg5amcCpu
     // FIXME: the process instance can happily go out of scope because it is only needed to read parameters?
     // FIXME: the CPPProcess should really be a singleton? what if fbridgecreate is called from several Fortran threads?
     CPPProcess process( /*verbose=*/false );
-    std::string paramCard = "../../Cards/param_card.dat";
+//#ifdef _LIBCOMP_
+    std::string paramCard = "../Cards/param_card.dat";
+//#else
+//    std::string paramCard = "../../Cards/param_card.dat";
+//#endif
     /*
 #ifdef __HIPCC__
     if( !std::experimental::filesystem::exists( paramCard ) ) paramCard = "../" + paramCard;

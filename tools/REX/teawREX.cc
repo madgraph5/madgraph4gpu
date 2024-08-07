@@ -121,7 +121,9 @@ namespace REX::teaw
             auto procLines = *REX::nuLineSplitter( procString );
             for( auto line : procLines )
             {
+                if( line.find_first_not_of(" \n\r\f\t\v") == '#' ){ continue; }
                 auto strtPt = line.find("set");
+                if( strtPt == REX::npos ){ continue; }
                 auto words = *REX::nuWordSplitter( line.substr(strtPt) );
                 auto currBlock = words[1]; 
                 auto loc = std::find_if( blocks.begin(), blocks.end(), 
@@ -142,11 +144,11 @@ namespace REX::teaw
         rwgtProc::rwgtProc( REX::lesHouchesCard slhaSet, std::string_view rwgtSet, bool parseOnline )
         {
             if( rwgtSet == "" ){ return; }
-            auto strtLi = rwgtSet.find( "\n", rwgtSet.find("launch") ) + 1;
-            auto endLi = rwgtSet.find("\n", strtLi);
-            while( rwgtSet[rwgtSet.find_first_not_of("\n ", endLi)] == 's' )
-            { endLi = rwgtSet.find( "\n", endLi + 1 ); }
-            procString = rwgtSet.substr( strtLi, endLi - strtLi );
+            auto strtLi = rwgtSet.find_first_not_of( " \n\r\f\n\v" );
+            if( strtLi == REX::npos ){ return; }
+            auto launchPos = rwgtSet.find("launch", strtLi + 1);
+            auto commLinePos = rwgtSet.find("#*", strtLi + 1);
+            procString = rwgtSet.substr( strtLi, std::min(launchPos, commLinePos) - strtLi );
             if( parseOnline ){ parse(); }
         }
         std::shared_ptr<REX::lesHouchesCard> rwgtProc::outWrite( const REX::lesHouchesCard& paramOrig ){
@@ -163,62 +165,104 @@ namespace REX::teaw
         }
         std::string_view rwgtProc::comRunProc(){ return procString; }
 
-        void rwgtCard::parse( bool parseOnline ) {
-            auto strt = srcCard.find("launch");
-            auto commPos = srcCard.find_last_of("#", strt);
-            while(  commPos > srcCard.find_last_of("\n", strt) ){ 
-                if( commPos == REX::npos ){
-                    break;
-                }
-                strt = srcCard.find("launch", strt + 6 );
-            }
-            while( auto chPos = srcCard.find( "set" ) < strt ){
-                if( srcCard.find_last_of("#", chPos) > srcCard.find_last_of("\n", chPos) ){ chPos = srcCard.find("change", strt + 6 ); continue; }
-                opts.push_back( srcCard.substr( chPos, srcCard.find("\n", chPos) - chPos ) );
-            }
-            std::vector<size_t> lnchPos({strt}); 
-            auto nuLnch = srcCard.find( "launch", strt + 6 );
-            while ( nuLnch != std::string_view::npos )
+        // void rwgtCard::parse( bool parseOnline ) {
+        //     auto strt = srcCard.find("launch");
+        //     auto commPos = srcCard.find_last_of("#", strt);
+        //     while(  commPos > srcCard.find_last_of("\n", strt) ){ 
+        //         if( commPos == REX::npos ){
+        //             break;
+        //         }
+        //         strt = srcCard.find("launch", strt + 6 );
+        //     }
+        //     while( auto chPos = srcCard.find( "set" ) < strt ){
+        //         if( srcCard.find_last_of("#", chPos) > srcCard.find_last_of("\n", chPos) ){ chPos = srcCard.find("change", strt + 6 ); continue; }
+        //         opts.push_back( srcCard.substr( chPos, srcCard.find("\n", chPos) - chPos ) );
+        //     }
+        //     std::vector<size_t> lnchPos({strt}); 
+        //     auto nuLnch = srcCard.find( "launch", strt + 6 );
+        //     while ( nuLnch != std::string_view::npos )
+        //     {
+        //         if( srcCard.find_last_of("#", nuLnch) < srcCard.find_last_of("\n", nuLnch) ){ lnchPos.push_back(nuLnch); }
+        //         nuLnch = srcCard.find( "launch", nuLnch + 6 );
+        //     }
+        //     for( size_t k = 0 ; k < lnchPos.size() - 1 ; ++k )
+        //     {
+        //         auto strtLi = srcCard.find( "set", lnchPos[k] );
+        //         rwgtRuns.push_back( rwgtProc( slhaCard, srcCard.substr( strtLi, lnchPos[k+1] - strtLi ), parseOnline ) );
+        //         if( srcCard.find( "--", lnchPos[k] ) < strtLi ){
+        //             auto strtPos = srcCard.find( "--", lnchPos[k] );
+        //             while( (strtPos < strtLi ) && (strtPos!= std::string_view::npos) ){
+        //                 auto nuStrtPos = std::min( srcCard.find( "\n", strtPos ), srcCard.find( "--", strtPos + 1 ));
+        //                 rwgtRuns[ rwgtRuns.size() - 1 ].rwgtOpts.push_back( srcCard.substr( strtPos, nuStrtPos - strtPos ) );
+        //                 if( rwgtRuns[ rwgtRuns.size() - 1 ].rwgtOpts[ rwgtRuns[ rwgtRuns.size() - 1 ].rwgtOpts.size() - 1 ].substr(2,11) == "rwgt_name"){
+        //                     rwgtRuns[ rwgtRuns.size() - 1 ].rwgtName = rwgtRuns[ rwgtRuns.size() - 1 ].
+        //                         rwgtOpts[ rwgtRuns[ rwgtRuns.size() - 1 ].rwgtOpts.size() - 1 ].substr( 11, nuStrtPos - strtPos - 11 );
+        //                 }
+        //                 if( nuStrtPos == srcCard.find( "\n", strtPos ) ){ break; }
+        //                 strtPos = nuStrtPos;
+        //             }
+        //         }
+        //     }
+        //     size_t endLi = srcCard.find( "\n", lnchPos[ lnchPos.size() - 1 ] );
+        //     if( srcCard.substr( endLi + 1, 3 ) == "set" ){
+        //         while( srcCard.substr( endLi + 1, 3 ) == "set" )
+        //         {
+        //             endLi = srcCard.find( "\n", endLi + 1 );
+        //         }
+        //         rwgtRuns.push_back( rwgtProc( slhaCard, srcCard.substr( lnchPos[lnchPos.size()-1], endLi - lnchPos[lnchPos.size()-1] ), parseOnline ) );
+        //     }
+        //     rwgtProcs = std::vector<std::string_view>(); rwgtProcs.reserve( rwgtRuns.size() );
+        //     rwgtNames.reserve( rwgtRuns.size() );
+        //     int p = 1;
+        //     for( auto run : rwgtRuns ){
+        //         rwgtProcs.push_back( run.comRunProc() );
+        //         if( run.rwgtName == "" ){
+        //             rwgtNames.push_back( "rwgt_" + std::to_string( p++ ) );
+        //         } else {
+        //             rwgtNames.push_back( std::string(run.rwgtName) );
+        //         }
+        //     }
+        // }
+        void rwgtCard::parse( bool parseOnline ){
+            auto allLaunchPos = REX::nuFindEach( this->srcCard, "launch" );
+            std::vector<size_t> lnchPos;
+            lnchPos.reserve( allLaunchPos->size() );
+            for( auto pos : *allLaunchPos )
             {
-                if( srcCard.find_last_of("#", nuLnch) < srcCard.find_last_of("\n", nuLnch) ){ lnchPos.push_back(nuLnch); }
-                nuLnch = srcCard.find( "launch", nuLnch + 6 );
+                if( pos == 0 ){ lnchPos.push_back(pos); continue; }
+                if( srcCard.find_last_of("#", pos) < srcCard.find_last_of("\n", pos) ){ lnchPos.push_back(pos); }
             }
-            for( size_t k = 0 ; k < lnchPos.size() - 1 ; ++k )
+            lnchPos.push_back( REX::npos );
+            auto preamble = REX::nuLineSplitter( srcCard.substr( 0, lnchPos[0] - 1 ) );
+            for( auto line : *preamble )
             {
-                auto strtLi = srcCard.find( "set", lnchPos[k] );
-                rwgtRuns.push_back( rwgtProc( slhaCard, srcCard.substr( strtLi, lnchPos[k+1] - strtLi ), parseOnline ) );
-                if( srcCard.find( "--", lnchPos[k] ) < strtLi ){
-                    auto strtPos = srcCard.find( "--", lnchPos[k] );
-                    while( (strtPos < strtLi ) && (strtPos!= std::string_view::npos) ){
-                        auto nuStrtPos = std::min( srcCard.find( "\n", strtPos ), srcCard.find( "--", strtPos + 1 ));
-                        rwgtRuns[ rwgtRuns.size() - 1 ].rwgtOpts.push_back( srcCard.substr( strtPos, nuStrtPos - strtPos ) );
-                        if( rwgtRuns[ rwgtRuns.size() - 1 ].rwgtOpts[ rwgtRuns[ rwgtRuns.size() - 1 ].rwgtOpts.size() - 1 ].substr(2,11) == "rwgt_name"){
-                            rwgtRuns[ rwgtRuns.size() - 1 ].rwgtName = rwgtRuns[ rwgtRuns.size() - 1 ].
-                                rwgtOpts[ rwgtRuns[ rwgtRuns.size() - 1 ].rwgtOpts.size() - 1 ].substr( 11, nuStrtPos - strtPos - 11 );
-                        }
-                        if( nuStrtPos == srcCard.find( "\n", strtPos ) ){ break; }
-                        strtPos = nuStrtPos;
+                if( line[line.find_first_not_of(" \n\r\f\t\v")] == '#' ){ continue; }
+                opts.push_back( line );
+            }
+            for( size_t k = 0 ; k < lnchPos.size() - 1 ; ++k ){
+                auto setPos = srcCard.find( "set", lnchPos[k] );
+                if( setPos == REX::npos ){ continue; }
+                rwgtRuns.push_back( rwgtProc( slhaCard, srcCard.substr( setPos, lnchPos[k+1] - setPos ), parseOnline ) );
+                auto possNamePos = srcCard.find_first_of( "-\n#", lnchPos[k] );
+                if( srcCard[possNamePos] == '-' ){
+                    auto endLine = srcCard.find( "\n", possNamePos );
+                    auto opts = srcCard.substr( possNamePos, endLine - possNamePos );
+                    rwgtRuns[ rwgtRuns.size() - 1 ].rwgtOpts.push_back( opts );
+                    auto namePos = opts.find( "rwgt_name" );
+                    if( namePos != REX::npos ){
+                        auto endName = opts.find_first_of( " \n\r\f\t\v", namePos );
+                        rwgtNames.push_back( std::string( opts.substr( namePos + 9, endName - namePos - 9 ) ) );
+                    } else {
+                        rwgtNames.push_back( "rwgt_" + std::to_string( k + 1 ) );
                     }
+                } else {
+                    rwgtNames.push_back( "rwgt_" + std::to_string( k + 1 ) );
                 }
-            }
-            size_t endLi = srcCard.find( "\n", lnchPos[ lnchPos.size() - 1 ] );
-            if( srcCard.substr( endLi + 1, 3 ) == "set" ){
-                while( srcCard.substr( endLi + 1, 3 ) == "set" )
-                {
-                    endLi = srcCard.find( "\n", endLi + 1 );
-                }
-                rwgtRuns.push_back( rwgtProc( slhaCard, srcCard.substr( lnchPos[lnchPos.size()-1], endLi - lnchPos[lnchPos.size()-1] ), parseOnline ) );
+                rwgtRuns[ rwgtRuns.size() - 1 ].rwgtName = rwgtNames[ rwgtNames.size() - 1 ];
             }
             rwgtProcs = std::vector<std::string_view>(); rwgtProcs.reserve( rwgtRuns.size() );
-            rwgtNames.reserve( rwgtRuns.size() );
-            int p = 1;
             for( auto run : rwgtRuns ){
                 rwgtProcs.push_back( run.comRunProc() );
-                if( run.rwgtName == "" ){
-                    rwgtNames.push_back( "rwgt_" + std::to_string( p++ ) );
-                } else {
-                    rwgtNames.push_back( std::string(run.rwgtName) );
-                }
             }
         }
         rwgtCard::rwgtCard( std::string_view reweight_card ){
@@ -315,7 +359,7 @@ namespace REX::teaw
         void rwgtCollection::setSkeleton( std::vector<REX::eventSet>& evSets ){
             if( lheFile == nullptr || rwgtSets == nullptr || slhaParameters == nullptr )
                 throw std::runtime_error( "One or more of the necessary files (SLHA parameter card, LHE event storage file, and MadGraph-format reweight card) have not been initialised." );
-            this->lheSkeleton = transSkel( lheFile, evSets );
+            this->lheSkeleton = transSkel( this->lheFile, evSets );
             this->skeleton = true;
         }
         void rwgtCollection::setDoublesFromSkeleton(){
@@ -520,10 +564,10 @@ namespace REX::teaw
             }
             else{
                 std::vector<std::shared_ptr<std::vector<double>>> nuMEs = {};
-                // for( size_t k = 0 ; k < eventFile.subProcs.size() ; ++k )
-                // {
-                //     nuMEs.push_back(meEvals[*eventFile.subProcs[k]->process]( *(momenta[k]), *(gS[k]) ));
-                // }
+                for( size_t k = 0 ; k < eventFile.subProcs.size() ; ++k )
+                {
+                    nuMEs.push_back(meVec[k]( *(momenta[k]), *(gS[k]) ));
+                }
                 std::shared_ptr<std::vector<double>> newMEs = eventFile.vectorFlat( nuMEs );
                 newWGTs = REX::vecElemMult( *newMEs, *normWgt );
             }
