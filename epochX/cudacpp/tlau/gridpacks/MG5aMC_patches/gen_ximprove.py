@@ -1956,6 +1956,14 @@ class gen_ximprove_gridpack(gen_ximprove_v4):
             print("__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event will call launch_and_wait '" + exe + "'")
             cluster.onecore.launch_and_wait(exe, cwd=pwd, packet_member=j['packet'])
             print("__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event back from launch_and_wait '" + exe + "'")
+            print("__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event starting dumping logs from '" + exe + "'")
+            for log in glob.glob(pwd+'/G*/GridRun_21_app.log'):
+                print(log)
+                with open(log, 'r') as f:
+                    for line in f.readlines():
+                        if 'COUNTERS' in line:
+                            print(line, end='') # line already contains '\n'
+            print("__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event finished dumping logs from '" + exe + "'")
         write_dir = '.' if self.readonly else pjoin(self.me_dir, 'SubProcesses')
 
         self.check_events(goal_lum, to_refine, jobs, write_dir)
