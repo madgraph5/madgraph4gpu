@@ -1,6 +1,6 @@
-START: Wed Aug  7 02:04:14 PM CEST 2024
+START: Wed Aug  7 02:04:47 PM CEST 2024
 CUDACPP_RUNTIME_DISABLEFPE is not set
-lrwxrwxrwx. 1 avalassi zg 35 Aug  7 14:04 madevent/SubProcesses/P1_gg_ttx/madevent -> build.none_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 14:04 madevent/SubProcesses/P1_gg_ttx/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
 Now generating 10000 events with random seed 21 and granularity 1
 ************************************************************
 *                                                          *
@@ -45,5 +45,5 @@ INFO: No version of lhapdf. Can not run systematics computation
 decay_events -from_cards
 DONE
 write ./events.lhe.gz
-END: Wed Aug  7 02:04:22 PM CEST 2024
-ELAPSED: 8 seconds
+END: Wed Aug  7 02:04:54 PM CEST 2024
+ELAPSED: 7 seconds
