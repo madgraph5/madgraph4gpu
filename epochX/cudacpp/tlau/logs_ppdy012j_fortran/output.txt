@@ -1,4 +1,4 @@
-START: Tue Aug  6 01:21:17 PM CEST 2024
+START: Tue Aug  6 12:36:28 PM CEST 2024
 ************************************************************
 *                                                          *
 *                      W E L C O M E to                    *
@@ -261,10 +261,10 @@ Building madevent in madevent_interface.py with 'fortran' matrix elements
 INFO:     P0_ddx_taptam  
 Pre-building madevent in madevent_interface.py with ALL matrix elements
 Building madevent in madevent_interface.py with 'fortran' matrix elements
-INFO:  Idle: 1,  Running: 3,  Completed: 314 [ current time: 13h22 ] 
-INFO:  Idle: 0,  Running: 4,  Completed: 314 [ current time: 13h22 ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 318 [  3.5s  ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 318 [  3.5s  ] 
+INFO:  Idle: 1,  Running: 1,  Completed: 316 [ current time: 12h38 ] 
+INFO:  Idle: 0,  Running: 2,  Completed: 316 [ current time: 12h38 ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 318 [  3.2s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 318 [  3.2s  ] 
 INFO: End survey 
 refine 100
 Creating Jobs
@@ -350,14 +350,14 @@ INFO: need to improve 0 channels
     P0_ddx_epem 
     P0_uux_taptam 
     P0_ddx_taptam 
-INFO:  Idle: 0,  Running: 0,  Completed: 0 [ current time: 13h22 ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 0 [ current time: 12h38 ] 
 INFO: Combining runs 
 sum of cpu time of last step: 22m10s
 INFO: finish refine 
 refine 100 --treshold=0.9
 No need for second refine due to stability of cross-section
 INFO: Combining Events 
-combination of events done in 22.116079807281494 s 
+combination of events done in 22.231958627700806 s 
   === Results Summary for run: run_01 tag: tag_1 ===
 
      Cross-section :   2.27e+04 +- 24.88 pb
@@ -373,7 +373,7 @@ INFO: storing files of previous run
 INFO: Done 
 quit
 INFO:  
-1308.34user 46.37system 1:47.64elapsed 1258%CPU (0avgtext+0avgdata 101372maxresident)k
-0inputs+11621832outputs (1414major+12441756minor)pagefaults 0swaps
-END: Tue Aug  6 01:23:05 PM CEST 2024
-ELAPSED: 108 seconds
+1742.28user 159.90system 2:39.09elapsed 1195%CPU (0avgtext+0avgdata 101356maxresident)k
+0inputs+14552992outputs (8028major+48563953minor)pagefaults 0swaps
+END: Tue Aug  6 12:39:07 PM CEST 2024
+ELAPSED: 159 seconds
