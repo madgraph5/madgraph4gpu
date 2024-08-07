@@ -10,7 +10,7 @@ scrdir=$(cd $(dirname $0); pwd)
 
 function usage()
 {
-  echo "Usage:   $0 -<backend> <procdir> [-nomakeclean] [-rndoff <integer_offset|x10>] [-togridpack]"
+  echo "Usage:   $0 -<backend> <procdir> [-nomakeclean] [-rndoff <integer_offset|x10>] [-togridpack|-fromgridpack]"
   echo "         (supported <backend> values: fortran, cuda, hip, cppnone, cppsse4, cppavx2, cpp512y, cpp512z)"
   echo "         (*special* <backend> value: ALL processes all available backends)"
   echo "Example: $0 -cppavx2 gg_tt.mad"
@@ -25,7 +25,9 @@ rndoff=0
 while [ "$1" != "" ]; do
   if [ "$1" == "-fortran" ] || [ "$1" == "-cuda" ] || [ "$1" == "-hip" ] || [ "$1" == "-cppnone" ] || [ "$1" == "-cppsse4" ] || [ "$1" == "-cppavx2" ] || [ "$1" == "-cpp512y" ] || [ "$1" == "-cpp512z" ] || [ "$1" == "-ALL" ]; then
     if [ "${bckend}" == "" ]; then bckend=${1/-/}; else echo "ERROR! Backend already set"; usage; fi
-  elif [ "$1" == "-togridpack" ]; then
+  elif [ "$1" == "-togridpack" ] && [ "${grid}" == "" ]; then
+    grid=${1}
+  elif [ "$1" == "-fromgridpack" ] && [ "${grid}" == "" ]; then
     grid=${1}
   elif [ "$1" == "-nomakeclean" ]; then
     nomakeclean=$1
@@ -44,8 +46,8 @@ while [ "$1" != "" ]; do
   shift
 done
 if [ "${bckend}" == "" ]; then echo "ERROR! No backend was specified"; usage; fi
-if [ "$proc" == "" ]; then echo "ERROR! No process directory was specified"; usage; fi
-if [ "${grid}" == "-togridpack" ] && [ "${rndoff}" != "0" ]; then echo "ERROR! ${grid} and -rndoff are not compatible"; exit 1; fi
+if [ "${proc}" == "" ]; then echo "ERROR! No process directory was specified"; usage; fi
+if [ "${grid}" != "" ] && [ "${rndoff}" != "0" ]; then echo "ERROR! ${grid} and -rndoff are not compatible"; exit 1; fi
 
 if [ "${bckend}" == "ALL" ]; then
   if [ "${grid}" == "-togridpack" ]; then echo "ERROR! ${grid} and -ALL are not compatible"; exit 1; fi # temporary?
@@ -60,14 +62,17 @@ gridpackdir=${scrdir}/gridpacks/${proc}
 suff=.mad
 if [ "${proc}" == "${proc%${suff}}" ]; then echo "ERROR! Process directory does not end in '${suff}'"; usage; fi
 proc=${proc%${suff}}
-resultsdir=${scrdir}/logs_${proc//_}_${bckend/}
+resultsdir=${scrdir}/logs_${proc//_}_${bckend}
 if [ "${grid}" == "-togridpack" ]; then
   resultsdir=${gridpackdir}
+elif [ "${grid}" == "-fromgridpack" ]; then
+  resultsdir=${gridpackdir/gridpacks/fromgridpacks}/${bckend}
+  rm -rf ${resultsdir}; mkdir -p ${resultsdir}
 fi
 
 if [ "${rndoff}" == "x10" ]; then
   for i in $(seq 0 9); do
-    $0 -${bckend} ${nomakeclean} ${proc} -rndoff ${i}
+    $0 -${bckend} ${nomakeclean} ${proc} ${grid} -rndoff ${i}
     nomakeclean=-nomakeclean # respect user input only on the first test, then keep the builds
   done
   more ${resultsdir}/*txt | \egrep '(Cross-section :)'
@@ -79,7 +84,6 @@ fi
 
 outfile=output.txt
 if [ "${rndoff}" != "0" ]; then outfile=output${rndoff}.txt; fi
-(( rndseed = 21 + ${rndoff} ))
 
 function exit0()
 {
@@ -101,12 +105,6 @@ elif [ "${bckend}" == "hip" ]; then
   fi
 fi
 
-cd $(dirname $0)/..
-echo "Execute $(basename $0) for process ${proc} and backend ${bckend} in directory $(pwd)"
-procdir=$(pwd)/${proc}${suff}
-if [ ! -d ${procdir} ]; then echo "ERROR! Process directory '${procdir}' does not exist"; usage; fi
-cd ${procdir}
-
 function getnevt()
 {
   if [ "${proc}" == "gg_tt" ]; then
@@ -123,6 +121,37 @@ function getnevt()
   fi
   echo $nevt
 }
+
+# Get the random seed
+(( rndseed = 21 + ${rndoff} ))
+
+# Get the number of unweighted events to generate
+nevt=$(getnevt)
+
+# --- OPTION 2: RUN FROM GRIDPACK ---
+if [ "${grid}" == "-fromgridpack" ]; then
+  echo "Execute $(basename $0) for process ${proc} and backend ${bckend} from gridpack directory $(pwd)"
+  if [ ! -d ${gridpackdir} ]; then echo "ERROR! Gridpack directory '${gridpackdir}' does not exist"; usage; fi
+  cd ${gridpackdir}
+  rm -rf madevent run.sh events.lhe*
+  tar -xzf run_01_gridpack.tar.gz
+  START=$(date +%s)
+  echo "START: $(date)" |& tee ${resultsdir}/${outfile}
+  if [ -v CUDACPP_RUNTIME_DISABLEFPE ]; then echo CUDACPP_RUNTIME_DISABLEFPE is set |& tee -a ${resultsdir}/${outfile}; else echo CUDACPP_RUNTIME_DISABLEFPE is not set |& tee -a ${resultsdir}/${outfile}; fi # temporary? (debug FPEs in CMS DY #942)
+  ls -l madevent/SubProcesses/P*/madevent |& tee -a ${resultsdir}/${outfile}
+  ./run.sh ${nevt} ${rndseed} |& tee -a ${resultsdir}/${outfile}
+  echo "END: $(date)" |& tee -a ${resultsdir}/${outfile}
+  END=$(date +%s)
+  echo "ELAPSED: $((END-START)) seconds" |& tee -a ${resultsdir}/${outfile}
+  exit0
+fi
+  
+# --- OPTION 1: RUN FROM SOURCE CODE (AND OPTIONALLY CREATE A GRIDPACK) ---
+cd $(dirname $0)/..
+echo "Execute $(basename $0) for process ${proc} and backend ${bckend} in directory $(pwd)"
+procdir=$(pwd)/${proc}${suff}
+if [ ! -d ${procdir} ]; then echo "ERROR! Process directory '${procdir}' does not exist"; usage; fi
+cd ${procdir}
 
 function lauX_makeclean()
 {
@@ -192,7 +221,6 @@ sed -i "s/'int', 5, 'Number of iterations'/'int', 1, 'Number of iterations'/" bi
 sed -i "s/%(event)s         %(maxiter)s           %(miniter)s/8192 1 1/" bin/internal/gen_ximprove.py
 
 # Set the number of unweighted events in run_card.dat
-nevt=$(getnevt)
 sed -i "s/ 10000 = nevents/ ${nevt} = nevents/" Cards/run_card.dat
 
 # Set the backend in run_card.dat
@@ -208,7 +236,7 @@ sed -i "s/.* = cudacpp_bldall/ True = cudacpp_bldall/" Cards/run_card.dat
 # (BUG #683: generate_events does not return an error code even if it fails)
 ###set -x # verbose
 START=$(date +%s)
-echo "START: $(date)"  |& tee ${resultsdir}/${outfile}
+echo "START: $(date)" |& tee ${resultsdir}/${outfile}
 if [ -v CUDACPP_RUNTIME_DISABLEFPE ]; then echo CUDACPP_RUNTIME_DISABLEFPE is set |& tee -a ${resultsdir}/${outfile}; else echo CUDACPP_RUNTIME_DISABLEFPE is not set |& tee -a ${resultsdir}/${outfile}; fi # temporary? (debug FPEs in CMS DY #942)
 MG5AMC_CARD_PATH=$(pwd)/Cards time ./bin/generate_events -f |& tee -a ${resultsdir}/${outfile}
 echo "END: $(date)" |& tee -a ${resultsdir}/${outfile}
