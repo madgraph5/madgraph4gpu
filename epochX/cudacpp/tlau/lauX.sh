@@ -128,6 +128,29 @@ function getnevt()
 # Get the number of unweighted events to generate
 nevt=$(getnevt)
 
+function showcpugpu()
+{
+  unames=$(uname -s)
+  unamep=$(uname -p)
+  if nvidia-smi -L > /dev/null 2>&1; then
+    gpuTxt="$(nvidia-smi -L | wc -l)x $(nvidia-smi -L | awk '{print $3,$4}' | sort -u)"
+  elif rocm-smi -i > /dev/null 2>&1; then
+    gpuTxt="$(rocm-smi --showproductname | grep 'Card series' | awk '{print $5,$6,$7}')"
+  else
+    gpuTxt=none
+  fi
+  if [ "${unames}" == "Darwin" ]; then 
+    cpuTxt=$(sysctl -h machdep.cpu.brand_string)
+    cpuTxt=${cpuTxt/machdep.cpu.brand_string: }
+  elif [ "${unamep}" == "ppc64le" ]; then 
+    cpuTxt=$(cat /proc/cpuinfo | grep ^machine | awk '{print substr($0,index($0,"Power"))", "}')$(cat /proc/cpuinfo | grep ^cpu | head -1 | awk '{print substr($0,index($0,"POWER"))}')
+  else
+    cpuTxt=$(cat /proc/cpuinfo | grep '^model name' |& head -1 | awk '{i0=index($0,"Intel"); if (i0==0) i0=index($0,"AMD"); i1=index($0," @"); if (i1>0) {print substr($0,i0,i1-i0)} else {print substr($0,i0)}}')
+  fi
+  cpuTxt="${cpuTxt} (nproc=$(nproc))"
+  echo -e "On $HOSTNAME [CPU: $cpuTxt] [GPU: $gpuTxt]:"
+}
+
 # --- OPTION 2: RUN FROM GRIDPACK ---
 if [ "${grid}" == "-fromgridpack" ]; then
   echo "Execute $(basename $0) for process ${proc} and backend ${bckend} from gridpack directory $(pwd)"
@@ -135,6 +158,17 @@ if [ "${grid}" == "-fromgridpack" ]; then
   cd ${gridpackdir}
   rm -rf madevent run.sh events.lhe*
   tar -xzf run_01_gridpack.tar.gz
+  # Configure gridpack patches
+  dir=madevent/bin/internal
+  pushd $dir >& /dev/null
+  echo "INFO: configure gridpack patches in ${dir}"
+  mv madevent_interface.py madevent_interface.py.BKP
+  mv gen_ximprove.py gen_ximprove.py.BKP
+  mv cluster.py cluster.py.BKP
+  \cp ../../../../MG5aMC_patches/madevent_interface.py .
+  \cp ../../../../MG5aMC_patches/gen_ximprove.py .
+  \cp ../../../../MG5aMC_patches/cluster.py .
+  popd >& /dev/null
   # Configure the appropriate backend
   for dir in madevent/SubProcesses/P*; do
     pushd $dir >& /dev/null
@@ -151,12 +185,13 @@ if [ "${grid}" == "-fromgridpack" ]; then
     fi
     \rm -f madevent
     ln -sf $exe madevent
-    popd >& /dev/null
     echo "----> madevent symlink will now point to $exe"
+    popd >& /dev/null
   done
   # Run the test for the appropriate backend
   START=$(date +%s)
   echo "START: $(date)" |& tee ${resultsdir}/${outfile}
+  showcpugpu |& tee -a ${resultsdir}/${outfile}
   if [ -v CUDACPP_RUNTIME_DISABLEFPE ]; then echo CUDACPP_RUNTIME_DISABLEFPE is set |& tee -a ${resultsdir}/${outfile}; else echo CUDACPP_RUNTIME_DISABLEFPE is not set |& tee -a ${resultsdir}/${outfile}; fi # temporary? (debug FPEs in CMS DY #942)
   ls -l madevent/SubProcesses/P*/madevent |& tee -a ${resultsdir}/${outfile}
   ./run.sh ${nevt} ${rndseed} |& tee -a ${resultsdir}/${outfile}
@@ -210,8 +245,8 @@ cp SubProcesses/randinit SubProcesses/randinit.BKP # save the initial file
 cp Cards/run_card.dat Cards/run_card.dat.BKP # save the initial file
 cp Cards/grid_card.dat Cards/grid_card.dat.BKP # save the initial file
 cp Source/run_card.inc Source/run_card.inc.BKP # save the initial file
-cp bin/internal/gen_ximprove.py bin/internal/gen_ximprove.py.BKP # save the initial file
-cp bin/internal/madevent_interface.py bin/internal/madevent_interface.py.BKP # save the initial file
+cp bin/internal/gen_ximprove.py bin_internal_gen_ximprove.py.BKP # save the initial file
+cp bin/internal/madevent_interface.py bin_internal_madevent_interface.py.BKP # save the initial file
 cp Source/make_opts Source/make_opts.BKP # save the initial file
 cp Source/param_card.inc Source/param_card.inc.BKP # save the initial file
 
@@ -258,6 +293,7 @@ sed -i "s/.* = cudacpp_bldall/ True = cudacpp_bldall/" Cards/run_card.dat
 ###set -x # verbose
 START=$(date +%s)
 echo "START: $(date)" |& tee ${resultsdir}/${outfile}
+showcpugpu |& tee -a ${resultsdir}/${outfile}
 if [ -v CUDACPP_RUNTIME_DISABLEFPE ]; then echo CUDACPP_RUNTIME_DISABLEFPE is set |& tee -a ${resultsdir}/${outfile}; else echo CUDACPP_RUNTIME_DISABLEFPE is not set |& tee -a ${resultsdir}/${outfile}; fi # temporary? (debug FPEs in CMS DY #942)
 MG5AMC_CARD_PATH=$(pwd)/Cards time ./bin/generate_events -f |& tee -a ${resultsdir}/${outfile}
 echo "END: $(date)" |& tee -a ${resultsdir}/${outfile}
@@ -288,8 +324,8 @@ mv SubProcesses/randinit.BKP SubProcesses/randinit # restore the initial file
 mv Cards/run_card.dat.BKP Cards/run_card.dat # restore the initial file
 mv Cards/grid_card.dat.BKP Cards/grid_card.dat # restore the initial file
 mv Source/run_card.inc.BKP Source/run_card.inc # restore the initial file
-mv bin/internal/gen_ximprove.py.BKP bin/internal/gen_ximprove.py # restore the initial file
-mv bin/internal/madevent_interface.py.BKP bin/internal/madevent_interface.py # restore the initial file
+mv bin_internal_gen_ximprove.py.BKP bin/internal/gen_ximprove.py # restore the initial file
+mv bin_internal_madevent_interface.py.BKP bin/internal/madevent_interface.py # restore the initial file
 mv Source/make_opts.BKP Source/make_opts # restore the initial file
 mv Source/param_card.inc.BKP Source/param_card.inc # restore the initial file
 
