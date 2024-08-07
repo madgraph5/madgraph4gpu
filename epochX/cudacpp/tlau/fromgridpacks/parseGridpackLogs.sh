@@ -12,12 +12,19 @@ if [ ! -d $procdir ]; then
   exit 1
 fi
 
-for outfile in $procdir/*/output.txt; do
+for backend in fortran cppnone cppsse4 cppavx2 cpp512y cpp512z cuda hip; do
+  outfile=$procdir/${backend}/output.txt
   echo $outfile
-  cat $outfile | grep "__CUDACPP_DEBUG: GridPackCmd.launch finished" | sed 's/__CUDACPP_DEBUG: /----> /'
-  for msg in "PROGRAM TOTAL   " "Fortran Overhead" "Fortran MEs     "; do
-    cat $outfile | grep "\[COUNTERS\]" | grep "${msg}" | sed 's/s for.*//' | sed 's/s$//' \
-      | awk -vmsg="${msg}" -vttot=0 '{jtot=$NF; ttot += jtot}; END{print "[madevent COUNTERS]", msg, ttot}'
-  done
+  if [ ! -f $outfile ]; then
+    echo "File not found: SKIP backend ${backend}"
+  else
+    if [ "${backend}" == "fortran" ]; then msgME="Fortran MEs     "; else msgME="CudaCpp MEs     "; fi
+    cat $outfile | grep "__CUDACPP_DEBUG: GridPackCmd.launch finished" \
+      | sed 's/__CUDACPP_DEBUG: GridPackCmd.launch finished in/[GridPackCmd.launch] OVERALL TOTAL   /'
+    for msg in "PROGRAM TOTAL   " "Fortran Overhead" "${msgME}"; do
+      cat $outfile | grep "\[COUNTERS\]" | grep "${msg}" | sed 's/s for.*//' | sed 's/s$//' \
+        | awk -vmsg="${msg}" -vttot=0 '{jtot=$NF; ttot += jtot}; END{print "[madevent COUNTERS] ", msg, ttot}'
+    done
+  fi
   echo "--------------------------------------------------------------------------------"
 done
