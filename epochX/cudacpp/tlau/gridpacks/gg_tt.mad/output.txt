@@ -1,0 +1,69 @@
+START: Wed Aug  7 12:35:46 PM CEST 2024
+CUDACPP_RUNTIME_DISABLEFPE is not set
+************************************************************
+*                                                          *
+*                      W E L C O M E to                    *
+*             M A D G R A P H 5 _ a M C @ N L O            *
+*                      M A D E V E N T                     *
+*                                                          *
+*                 *                       *                *
+*                   *        * *        *                  *
+*                     * * * * 5 * * * *                    *
+*                   *        * *        *                  *
+*                 *                       *                *
+*                                                          *
+*         VERSION 3.5.3_lo_vect                            *
+*                                                          *
+*    The MadGraph5_aMC@NLO Development Team - Find us at   *
+*    https://server06.fynu.ucl.ac.be/projects/madgraph     *
+*                                                          *
+*               Type 'help' for in-line help.              *
+*                                                          *
+************************************************************
+INFO: load configuration from /data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/gg_tt.mad/Cards/me5_configuration.txt  
+INFO: load configuration from /data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/gg_tt.mad/Cards/me5_configuration.txt  
+Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
+No valid eps viewer found. Please set in ./input/mg5_configuration.txt
+Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
+generate_events -f
+Generating gridpack with run name run_01
+survey  run_01 --accuracy=0.01 --points=2000 --iterations=8 --gridpack=.true.
+INFO: compile directory 
+compile Source Directory
+Using random number seed offset = 21
+INFO: Running Survey 
+Creating Jobs
+Working on SubProcesses
+INFO:     P1_gg_ttx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:  Idle: 1,  Running: 0,  Completed: 0 [ current time: 12h35 ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 1 [  1.8s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 1 [  1.8s  ] 
+sum of cpu time of last step: 2 seconds
+  === Results Summary for run: run_01 tag: tag_1 ===
+
+     Cross-section :   442.3 +- 4.036 pb
+     Nb of events :  0
+ 
+INFO: End survey 
+combine_events
+INFO: Combining Events 
+combination of events done in 0.002616405487060547 s 
+store_events
+INFO: Storing parton level results 
+INFO: End Parton 
+decay_events -from_cards
+create_gridpack
+INFO: Creating gridpack 
+P1_gg_ttx
+Cleaning  SubProcesses. 
+INFO: gridpack created 
+quit
+INFO: storing files of previous run 
+INFO: Done 
+INFO:  
+17.17user 2.95system 0:08.06elapsed 249%CPU (0avgtext+0avgdata 91752maxresident)k
+1144inputs+288384outputs (127major+996717minor)pagefaults 0swaps
+END: Wed Aug  7 12:35:55 PM CEST 2024
+ELAPSED: 9 seconds
