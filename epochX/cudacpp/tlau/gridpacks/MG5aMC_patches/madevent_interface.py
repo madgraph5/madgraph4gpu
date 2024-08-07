@@ -6637,13 +6637,13 @@ class GridPackCmd(MadEventCmd):
         self.write_gridcard(nb_event, seed, gran) # set readonly on True if needed
         self.prepare_local_dir()                  # move to gridpack dir or create local structure
         # Now it's time to run!
-        print("__CUDACPP_DEBUG: GridPackCmd.__init__ is about to call self.launch")
+        print("__CUDACPP_DEBUG: GridPackCmd.__init__ will call self.launch")
         if me_dir and nb_event and seed:
             self.launch(nb_event, seed)
         else:
             raise MadGraph5Error('Gridpack run failed: ' + str(me_dir) + str(nb_event) + \
                   str(seed))
-        print("__CUDACPP_DEBUG: GridPackCmd.__init__ returned from self.launch")
+        print("__CUDACPP_DEBUG: GridPackCmd.__init__ back from self.launch")
 
     def update_status(self, *args, **opts):
         return

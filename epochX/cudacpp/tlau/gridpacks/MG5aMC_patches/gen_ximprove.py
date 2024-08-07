@@ -1068,7 +1068,7 @@ class gen_ximprove(object):
         
     def launch(self):
         """running """  
-        
+        print("__CUDACPP_DEBUG: gen_ximprove.launch starting")
         #start the run
         self.handle_seed()
         self.results = sum_html.collect_result(self.cmd, 
@@ -1079,6 +1079,7 @@ class gen_ximprove(object):
         else:
             # We run to achieve a given precision
             self.get_job_for_precision()
+        print("__CUDACPP_DEBUG: gen_ximprove.launch finished")
 
 
     def configure(self, opt):
@@ -1817,7 +1818,6 @@ class gen_ximprove_share(gen_ximprove, gensym):
     
     
 class gen_ximprove_gridpack(gen_ximprove_v4):
-    
     min_iter = 1    
     max_iter = 13
     max_request_event = 1e12         # split jobs if a channel if it needs more than that 
@@ -1881,6 +1881,7 @@ class gen_ximprove_gridpack(gen_ximprove_v4):
     def get_job_for_event(self):
         """generate the script in order to generate a given number of event"""
         # correspond to write_gen in the fortran version
+        print("__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event starting")
         
         
         goal_lum, to_refine = self.find_job_for_event()
@@ -1951,10 +1952,13 @@ class gen_ximprove_gridpack(gen_ximprove_v4):
             os.chmod(exe, st.st_mode | stat.S_IEXEC)
 
             # run the code\
+            print("__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event will call launch_and_wait '" + exe + "'")
             cluster.onecore.launch_and_wait(exe, cwd=pwd, packet_member=j['packet'])
+            print("__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event back from launch_and_wait '" + exe + "'")
         write_dir = '.' if self.readonly else pjoin(self.me_dir, 'SubProcesses')
 
         self.check_events(goal_lum, to_refine, jobs, write_dir)
+        print("__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event finished")
     
     def check_events(self, goal_lum, to_refine, jobs, Sdir):
         """check that we get the number of requested events if not resubmit."""
