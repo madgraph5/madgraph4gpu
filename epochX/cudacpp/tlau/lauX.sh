@@ -10,20 +10,27 @@ scrdir=$(cd $(dirname $0); pwd)
 
 function usage()
 {
-  echo "Usage:   $0 -<backend> [-grid] <procdir>"
+  echo "Usage:   $0 -<backend> <procdir> [-grid] [-nomakeclean]|-ALL] [-rndoff <integer_offset|x10>]"
   echo "         (supported <backend> values: fortran, cuda, hip, cppnone, cppsse4, cppavx2, cpp512y, cpp512z)"
   echo "Example: $0 -cppavx2 gg_tt.mad"
   exit 1
 }
 
 bckend=
-grid=
 proc=
+grid=
+nomakeclean=
+rndoff=0
 while [ "$1" != "" ]; do
-  if [ "$1" == "-fortran" ] || [ "$1" == "-cuda" ] || [ "$1" == "-hip" ] || [ "$1" == "-cppnone" ] || [ "$1" == "-cppsse4" ] || [ "$1" == "-cppavx2" ] || [ "$1" == "-cpp512y" ] || [ "$1" == "-cpp512z" ]; then
+  if [ "$1" == "-fortran" ] || [ "$1" == "-cuda" ] || [ "$1" == "-hip" ] || [ "$1" == "-cppnone" ] || [ "$1" == "-cppsse4" ] || [ "$1" == "-cppavx2" ] || [ "$1" == "-cpp512y" ] || [ "$1" == "-cpp512z" ] || [ "$1" == "-ALL" ]; then
     if [ "${bckend}" == "" ]; then bckend=${1/-/}; else echo "ERROR! Backend already set"; usage; fi
   elif [ "$1" == "-grid" ]; then
     grid=${1}
+  elif [ "$1" == "-nomakeclean" ]; then
+    nomakeclean=$1
+  elif [ "$1" == "-rndoff" ]; then
+    rndoff=$2
+    shift
   elif [ "${proc}" == "" ]; then
     proc=$1
   else
@@ -35,16 +42,60 @@ done
 if [ "${bckend}" == "" ]; then echo "ERROR! No backend was specified"; usage; fi
 if [ "$proc" == "" ]; then echo "ERROR! No process directory was specified"; usage; fi
 
+if [ "${bckend}" == "ALL" ]; then
+  for b in fortran cuda hip cppnone cppsse4 cppavx2 cpp512y cpp512z; do
+    $0 -${b} ${nomakeclean} ${proc} -rndoff ${rndoff}
+    nomakeclean=-nomakeclean # respect user input only on the first test, then keep the builds
+  done
+  exit 0 # successful termination on each loop (and skip the rest of this file)
+fi
+
 suff=.mad
 if [ "${proc}" == "${proc%${suff}}" ]; then echo "ERROR! Process directory does not end in '${suff}'"; usage; fi
 proc=${proc%${suff}}
+resultsdir=${scrdir}/logs_${proc//_}_${bckend/}
+
+if [ "${rndoff}" == "x10" ]; then
+  for i in $(seq 0 9); do
+    $0 -${bckend} ${nomakeclean} ${proc} -rndoff ${i}
+    nomakeclean=-nomakeclean # respect user input only on the first test, then keep the builds
+  done
+  more ${resultsdir}/*txt | \egrep '(Cross-section :)'
+  exit 0 # successful termination on each loop (and skip the rest of this file)
+elif [ ${rndoff} -lt 0 ]; then
+  echo "ERROR! Invalid rndoff=${rndoff}"
+  exit 1
+fi
+
+outfile=output.txt
+if [ "${rndoff}" != "0" ]; then outfile=output${rndoff}.txt; fi
+(( rndseed = 21 + ${rndoff} ))
+
+function exit0()
+{
+  echo ""
+  echo "********************************************************************************"
+  echo ""
+  exit 0
+}
+
+if [ "${bckend}" == "cuda" ]; then
+  if ! nvidia-smi -L > /dev/null 2>&1; then
+    echo "WARNING! No NVidia GPU was found: skip backend ${bckend}"
+    exit0
+  fi
+elif [ "${bckend}" == "hip" ]; then
+  if ! rocm-smi -i > /dev/null 2>&1; then
+    echo "WARNING! No AMD GPU was found: skip backend ${bckend}"
+    exit0
+  fi
+fi
 
 cd $(dirname $0)/..
 echo "Execute $(basename $0) for process ${proc} and backend ${bckend} in directory $(pwd)"
 procdir=$(pwd)/${proc}${suff}
 if [ ! -d ${procdir} ]; then echo "ERROR! Process directory '${procdir}' does not exist"; usage; fi
 cd ${procdir}
-resultsdir=${scrdir}/logs_${proc//_}_${bckend/}
 
 function getnevt()
 {
@@ -65,7 +116,12 @@ function getnevt()
 
 function lauX_makeclean()
 {
-  for d in SubProcesses/P*; do cd $d; make cleanall; cd -; break; done
+  if [ "${nomakeclean}" == "" ]; then
+    echo "INFO: clean all builds"
+    for d in SubProcesses/P*; do cd $d; make cleanall > /dev/null; cd - > /dev/null; break; done
+  else
+    echo "WARNING! Keep all builds (-nomakeclean option was specified)"
+  fi
 }
 
 function lauX_cleanup()
@@ -77,7 +133,7 @@ function lauX_cleanup()
 }
 
 # Clean builds before launch
-lauX_makeclean >& /dev/null
+lauX_makeclean
 
 # Back up config before launch
 cp SubProcesses/randinit SubProcesses/randinit.BKP # save the initial file
@@ -91,17 +147,21 @@ cp Source/param_card.inc Source/param_card.inc.BKP # save the initial file
 # Clean config before launch
 # (NB: "just in case" actions below should normally keep the defaults of generated code in the repo?)
 # (NB: but some small differences have been observed, e.g. "False     = gridpack" vs "False = gridpack")
-rm -rf ${resultsdir}; mkdir ${resultsdir}
+if [ "${rndoff}" == "0" ]; then rm -rf ${resultsdir}; mkdir ${resultsdir}; fi
 lauX_cleanup
 rm -f SubProcesses/ME5_debug
 echo "r=21" > SubProcesses/randinit # just in case
 sed -i "s/.* = nevents/  10000 = nevents/" Cards/run_card.dat # just in case
 sed -i "s/.* = cudacpp_backend/ cpp = cudacpp_backend/" Cards/run_card.dat # just in case
+sed -i "s/.* = cudacpp_bldall/ False = cudacpp_bldall/" Cards/run_card.dat # just in case
 sed -i "s/.* = gridpack/  False = gridpack/" Cards/run_card.dat # just in case
 sed -i "s/      NEVENTS = .*/      NEVENTS = 10000/" Source/run_card.inc # just in case
 sed -i "s/8192 1 1/%(event)s         %(maxiter)s           %(miniter)s/" bin/internal/gen_ximprove.py # just in case
 sed -i "s/'int', 8192,'Number of points/'int', 1000,'Number of points/" bin/internal/madevent_interface.py # just in case
 sed -i "s/'int', 1, 'Number of iterations'/'int', 5, 'Number of iterations'/" bin/internal/madevent_interface.py # just in case
+
+# Set the random seed
+echo "r=${rndseed}" > SubProcesses/randinit # just in case a previous test was not cleaned up
 
 # Set the number of events and iterations in the survey step
 sed -i "s/'int', 1000,'Number of points/'int', 8192,'Number of points/" bin/internal/madevent_interface.py
@@ -120,29 +180,34 @@ sed -i "s/ cpp = cudacpp_backend/${bckend} = cudacpp_backend/" Cards/run_card.da
 # Set gridpack mode in run_card.dat
 if [ "${grid}" != "" ]; then sed -i "s/.* = gridpack/  True = gridpack/" Cards/run_card.dat; fi
 
+# Configure bldall in run_card.dat
+sed -i "s/.* = cudacpp_bldall/ True = cudacpp_bldall/" Cards/run_card.dat
+
 # Launch (generate_events)
 # (BUG #683: generate_events does not return an error code even if it fails)
 ###set -x # verbose
 START=$(date +%s)
-echo "START: $(date)"  |& tee ${resultsdir}/output.txt
-MG5AMC_CARD_PATH=$(pwd)/Cards time ./bin/generate_events -f |& tee -a ${resultsdir}/output.txt
-echo "END: $(date)" |& tee -a ${resultsdir}/output.txt
+echo "START: $(date)"  |& tee ${resultsdir}/${outfile}
+if [ -v CUDACPP_RUNTIME_DISABLEFPE ]; then echo CUDACPP_RUNTIME_DISABLEFPE is set |& tee -a ${resultsdir}/${outfile}; else echo CUDACPP_RUNTIME_DISABLEFPE is not set |& tee -a ${resultsdir}/${outfile}; fi # temporary? (debug FPEs in CMS DY #942)
+MG5AMC_CARD_PATH=$(pwd)/Cards time ./bin/generate_events -f |& tee -a ${resultsdir}/${outfile}
+echo "END: $(date)" |& tee -a ${resultsdir}/${outfile}
 END=$(date +%s)
-echo "ELAPSED: $((END-START)) seconds" |& tee -a ${resultsdir}/output.txt
+echo "ELAPSED: $((END-START)) seconds" |& tee -a ${resultsdir}/${outfile}
 ###set +x # not verbose
 
 # Skip cleanup (for the moment?) in gridpack mode
 if [ "${grid}" != "" ]; then exit 0; fi
 
-# Process and keep results
-\rm HTML/results.pkl
-mv Events ${resultsdir}; mv HTML ${resultsdir}
-gunzip ${resultsdir}/Events/run_01/unweighted_events.lhe.gz
-
-# FIXME! No need to keep events in git, there is no lhe file comparison yet anyway (20-DEC-2023)
-\rm ${resultsdir}/Events/run_01/unweighted_events.lhe
-\rm ${resultsdir}/Events/run_01/run_01_tag_1_banner.txt
-touch ${resultsdir}/Events/run_01/.keep
+# Process and keep results (only for the default rndoff)
+if [ "${rndoff}" == "0" ]; then
+  \rm HTML/results.pkl
+  mv Events ${resultsdir}; mv HTML ${resultsdir}
+  gunzip ${resultsdir}/Events/run_01/unweighted_events.lhe.gz
+  # FIXME! No need to keep events in git, there is no lhe file comparison yet anyway (20-DEC-2023)
+  \rm ${resultsdir}/Events/run_01/unweighted_events.lhe
+  \rm ${resultsdir}/Events/run_01/run_01_tag_1_banner.txt
+  touch ${resultsdir}/Events/run_01/.keep
+fi
 
 # Clean config after launch
 lauX_cleanup
@@ -154,7 +219,5 @@ mv bin/internal/madevent_interface.py.BKP bin/internal/madevent_interface.py # r
 mv Source/make_opts.BKP Source/make_opts # restore the initial file
 mv Source/param_card.inc.BKP Source/param_card.inc # restore the initial file
 
-# Add an 80-character separator
-echo ""
-echo "********************************************************************************"
-echo ""
+# Add an 80-character separator and exit
+exit0
