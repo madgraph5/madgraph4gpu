@@ -47,6 +47,9 @@ if [ "${bckend}" == "ALL" ]; then
   exit 0 # successful termination on each loop (and skip the rest of this file)
 fi
 
+suff=.mad
+if [ "${proc}" == "${proc%${suff}}" ]; then echo "ERROR! Process directory does not end in '${suff}'"; usage; fi
+proc=${proc%${suff}}
 resultsdir=${scrdir}/logs_${proc//_}_${bckend/}
 
 if [ "${rndoff}" == "x10" ]; then
@@ -84,10 +87,6 @@ elif [ "${bckend}" == "hip" ]; then
     exit0
   fi
 fi
-
-suff=.mad
-if [ "${proc}" == "${proc%${suff}}" ]; then echo "ERROR! Process directory does not end in '${suff}'"; usage; fi
-proc=${proc%${suff}}
 
 cd $(dirname $0)/..
 echo "Execute $(basename $0) for process ${proc} and backend ${bckend} in directory $(pwd)"
