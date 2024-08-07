@@ -1,4 +1,5 @@
-START: Wed Aug  7 12:35:46 PM CEST 2024
+START: Wed Aug  7 04:24:41 PM CEST 2024
+On itgold91.cern.ch [CPU: Intel(R) Xeon(R) Gold 6326 CPU (nproc=32)] [GPU: none]:
 CUDACPP_RUNTIME_DISABLEFPE is not set
 ************************************************************
 *                                                          *
@@ -37,7 +38,7 @@ Working on SubProcesses
 INFO:     P1_gg_ttx  
 Pre-building madevent in madevent_interface.py with ALL matrix elements
 Building madevent in madevent_interface.py with 'fortran' matrix elements
-INFO:  Idle: 1,  Running: 0,  Completed: 0 [ current time: 12h35 ] 
+INFO:  Idle: 1,  Running: 0,  Completed: 0 [ current time: 16h24 ] 
 INFO:  Idle: 0,  Running: 0,  Completed: 1 [  1.8s  ] 
 INFO:  Idle: 0,  Running: 0,  Completed: 1 [  1.8s  ] 
 sum of cpu time of last step: 2 seconds
@@ -49,7 +50,7 @@ sum of cpu time of last step: 2 seconds
 INFO: End survey 
 combine_events
 INFO: Combining Events 
-combination of events done in 0.002616405487060547 s 
+combination of events done in 0.0027005672454833984 s 
 store_events
 INFO: Storing parton level results 
 INFO: End Parton 
@@ -63,7 +64,7 @@ quit
 INFO: storing files of previous run 
 INFO: Done 
 INFO:  
-17.17user 2.95system 0:08.06elapsed 249%CPU (0avgtext+0avgdata 91752maxresident)k
-1144inputs+288384outputs (127major+996717minor)pagefaults 0swaps
-END: Wed Aug  7 12:35:55 PM CEST 2024
-ELAPSED: 9 seconds
+17.02user 3.01system 0:07.92elapsed 252%CPU (0avgtext+0avgdata 91800maxresident)k
+288inputs+285808outputs (283major+992446minor)pagefaults 0swaps
+END: Wed Aug  7 04:24:49 PM CEST 2024
+ELAPSED: 8 seconds
