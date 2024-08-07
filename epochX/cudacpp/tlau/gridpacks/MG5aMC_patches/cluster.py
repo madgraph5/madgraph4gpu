@@ -727,11 +727,13 @@ class MultiCore(Cluster):
     def launch_and_wait(self, prog, argument=[], cwd=None, stdout=None, 
                                 stderr=None, log=None, **opts):
         """launch one job and wait for it"""    
+        print("__CUDACPP_DEBUG: MultiCore.launch_and_wait starting '" + prog + "'")
         if isinstance(stdout, str):
             stdout = open(stdout, 'w')
         if isinstance(stderr, str):
             stdout = open(stderr, 'w')        
         return misc.call([prog] + argument, stdout=stdout, stderr=stderr, cwd=cwd) 
+        print("__CUDACPP_DEBUG: MultiCore.launch_and_wait finished '" + prog + "'")
 
     def remove(self, error=None):
         """Ensure that all thread are killed"""
