@@ -30,6 +30,7 @@ import shutil
 import stat
 import sys
 import six
+import time # for __CUDACPP_DEBUG
 from six.moves import range
 from six.moves import zip
 
@@ -1069,6 +1070,7 @@ class gen_ximprove(object):
     def launch(self):
         """running """  
         print("__CUDACPP_DEBUG: gen_ximprove.launch starting")
+        cudacpp_start = time.perf_counter()
         #start the run
         self.handle_seed()
         self.results = sum_html.collect_result(self.cmd, 
@@ -1079,7 +1081,9 @@ class gen_ximprove(object):
         else:
             # We run to achieve a given precision
             self.get_job_for_precision()
-        print("__CUDACPP_DEBUG: gen_ximprove.launch finished")
+        cudacpp_end = time.perf_counter()
+        cudacpp_length = cudacpp_end - cudacpp_start
+        print("__CUDACPP_DEBUG: gen_ximprove.launch finished in %.4f seconds"%cudacpp_length)
 
 
     def configure(self, opt):
@@ -1883,7 +1887,7 @@ class gen_ximprove_gridpack(gen_ximprove_v4):
         """generate the script in order to generate a given number of event"""
         # correspond to write_gen in the fortran version
         print("__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event starting")
-        
+        cudacpp_start = time.perf_counter()
         
         goal_lum, to_refine = self.find_job_for_event()
 
@@ -1956,7 +1960,6 @@ class gen_ximprove_gridpack(gen_ximprove_v4):
             print("__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event will call launch_and_wait '" + exe + "'")
             cluster.onecore.launch_and_wait(exe, cwd=pwd, packet_member=j['packet'])
             print("__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event back from launch_and_wait '" + exe + "'")
-            print("__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event starting dumping logs from '" + exe + "'")
             for log in glob.glob(pwd+'/G*/GridRun_21_app.log'):
                 print(log)
                 with open(log, 'r') as f:
@@ -1967,7 +1970,9 @@ class gen_ximprove_gridpack(gen_ximprove_v4):
         write_dir = '.' if self.readonly else pjoin(self.me_dir, 'SubProcesses')
 
         self.check_events(goal_lum, to_refine, jobs, write_dir)
-        print("__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event finished")
+        cudacpp_end = time.perf_counter()
+        cudacpp_length = cudacpp_end - cudacpp_start
+        print("__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event finished in %.4f seconds"%cudacpp_length)
     
     def check_events(self, goal_lum, to_refine, jobs, Sdir):
         """check that we get the number of requested events if not resubmit."""

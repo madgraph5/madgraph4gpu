@@ -6723,6 +6723,7 @@ class GridPackCmd(MadEventCmd):
     def launch(self, nb_event, seed):
         """ launch the generation for the grid """
         print("__CUDACPP_DEBUG: GridPackCmd.launch starting")
+        cudacpp_start = time.perf_counter()
         # 1) Restore the default data
         print("__CUDACPP_DEBUG: GridPackCmd.launch (1) restore_data")
         logger.info('generate %s events' % nb_event)
@@ -6765,11 +6766,14 @@ class GridPackCmd(MadEventCmd):
             self.exec_cmd('systematics %s --from_card' % 
                           pjoin('Events', self.run_name, 'unweighted_events.lhe.gz'),
                                                postcmd=False,printcmd=False)
-        print("__CUDACPP_DEBUG: GridPackCmd.launch finished")
+        cudacpp_end = time.perf_counter()
+        cudacpp_length = cudacpp_end - cudacpp_start
+        print("__CUDACPP_DEBUG: GridPackCmd.launch finished in %.4f seconds"%cudacpp_length)
 
     def refine4grid(self, nb_event):
         """Special refine for gridpack run."""
         print("__CUDACPP_DEBUG: GridPackCmd.refine4grid starting")
+        cudacpp_start = time.perf_counter()
         self.nb_refine += 1
         
         precision = nb_event
@@ -6798,8 +6802,10 @@ class GridPackCmd(MadEventCmd):
         #print 'run combine!!!'
         #combine_runs.CombineRuns(self.me_dir)
         
-        print("__CUDACPP_DEBUG: GridPackCmd.refine4grid finished") # ?!? what is the code after return ?!?
-        return
+        cudacpp_end = time.perf_counter()
+        cudacpp_length = cudacpp_end - cudacpp_start
+        print("__CUDACPP_DEBUG: GridPackCmd.refine4grid finished in %.4f seconds"%cudacpp_length)
+        return # ?!? what is the code after return ?!?
         #update html output
         Presults = sum_html.collect_result(self)
         cross, error = Presults.xsec, Presults.xerru
