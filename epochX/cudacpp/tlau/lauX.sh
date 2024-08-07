@@ -43,6 +43,7 @@ if [ "${bckend}" == "" ]; then echo "ERROR! No backend was specified"; usage; fi
 if [ "$proc" == "" ]; then echo "ERROR! No process directory was specified"; usage; fi
 
 if [ "${bckend}" == "ALL" ]; then
+  if [ "${grid}" != "" ]; then echo "ERROR! -grid and -ALL are not compatible"; exit 1; fi # temporary?
   for b in fortran cuda hip cppnone cppsse4 cppavx2 cpp512y cpp512z; do
     $0 -${b} ${nomakeclean} ${proc} -rndoff ${rndoff}
     nomakeclean=-nomakeclean # respect user input only on the first test, then keep the builds
