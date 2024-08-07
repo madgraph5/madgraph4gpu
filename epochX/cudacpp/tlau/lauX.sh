@@ -52,7 +52,7 @@ if [ "${grid}" != "" ] && [ "${rndoff}" != "0" ]; then echo "ERROR! ${grid} and 
 if [ "${bckend}" == "ALL" ]; then
   if [ "${grid}" == "-togridpack" ]; then echo "ERROR! ${grid} and -ALL are not compatible"; exit 1; fi # temporary?
   for b in fortran cuda hip cppnone cppsse4 cppavx2 cpp512y cpp512z; do
-    $0 -${b} ${nomakeclean} ${proc} -rndoff ${rndoff}
+    $0 -${b} ${nomakeclean} ${proc} -rndoff ${rndoff} ${grid}
     nomakeclean=-nomakeclean # respect user input only on the first test, then keep the builds
   done
   exit 0 # successful termination on each loop (and skip the rest of this file)
@@ -135,11 +135,32 @@ if [ "${grid}" == "-fromgridpack" ]; then
   cd ${gridpackdir}
   rm -rf madevent run.sh events.lhe*
   tar -xzf run_01_gridpack.tar.gz
+  # Configure the appropriate backend
+  for dir in madevent/SubProcesses/P*; do
+    pushd $dir >& /dev/null
+    echo "INFO: redefine madevent symlink for backend ${bckend} in ${dir}"
+    if [ "${bckend}" == "fortran" ]; then
+      exe=$(\ls madevent_fortran)
+    else
+      exe=$(\ls build.*${bckend/cpp/}*/madevent_*)
+    fi
+    if [ "$(echo ${exe} | wc -w)" == "0" ]; then
+      echo "ERROR! No madevent executable found for backend $bckend"; exit 1
+    elif [ "$(echo ${exe} | wc -w)" != "1" ]; then
+      echo "ERROR! Too many madevent executables found for backend $bckend:"; echo "$exe"; exit 1
+    fi
+    \rm -f madevent
+    ln -sf $exe madevent
+    popd >& /dev/null
+    echo "----> madevent symlink will now point to $exe"
+  done
+  # Run the test for the appropriate backend
   START=$(date +%s)
   echo "START: $(date)" |& tee ${resultsdir}/${outfile}
   if [ -v CUDACPP_RUNTIME_DISABLEFPE ]; then echo CUDACPP_RUNTIME_DISABLEFPE is set |& tee -a ${resultsdir}/${outfile}; else echo CUDACPP_RUNTIME_DISABLEFPE is not set |& tee -a ${resultsdir}/${outfile}; fi # temporary? (debug FPEs in CMS DY #942)
   ls -l madevent/SubProcesses/P*/madevent |& tee -a ${resultsdir}/${outfile}
   ./run.sh ${nevt} ${rndseed} |& tee -a ${resultsdir}/${outfile}
+  mv events* ${resultsdir}
   echo "END: $(date)" |& tee -a ${resultsdir}/${outfile}
   END=$(date +%s)
   echo "ELAPSED: $((END-START)) seconds" |& tee -a ${resultsdir}/${outfile}
