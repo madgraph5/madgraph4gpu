@@ -1953,7 +1953,12 @@ class gen_ximprove_gridpack(gen_ximprove_v4):
 
             # run the code\
             print("__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event will call launch_and_wait '" + exe + "'")
-            cluster.onecore.launch_and_wait(exe, cwd=pwd, packet_member=j['packet'])
+            ###cluster.onecore.launch_and_wait(exe, cwd=pwd, packet_member=j['packet'])
+            completedprocess = cluster.onecore.launch_and_wait(exe, cwd=pwd, packet_member=j['packet'])
+            print("__CUDACPP_DEBUG: stdout is the following")
+            print(completedprocess.stdout)
+            print("__CUDACPP_DEBUG: stderr is the following")
+            print(completedprocess.stderr)
             print("__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event back from launch_and_wait '" + exe + "'")
         write_dir = '.' if self.readonly else pjoin(self.me_dir, 'SubProcesses')
 
