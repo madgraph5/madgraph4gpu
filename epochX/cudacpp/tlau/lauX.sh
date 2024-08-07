@@ -128,6 +128,29 @@ function getnevt()
 # Get the number of unweighted events to generate
 nevt=$(getnevt)
 
+function showcpugpu()
+{
+  unames=$(uname -s)
+  unamep=$(uname -p)
+  if nvidia-smi -L > /dev/null 2>&1; then
+    gpuTxt="$(nvidia-smi -L | wc -l)x $(nvidia-smi -L | awk '{print $3,$4}' | sort -u)"
+  elif rocm-smi -i > /dev/null 2>&1; then
+    gpuTxt="$(rocm-smi --showproductname | grep 'Card series' | awk '{print $5,$6,$7}')"
+  else
+    gpuTxt=none
+  fi
+  if [ "${unames}" == "Darwin" ]; then 
+    cpuTxt=$(sysctl -h machdep.cpu.brand_string)
+    cpuTxt=${cpuTxt/machdep.cpu.brand_string: }
+  elif [ "${unamep}" == "ppc64le" ]; then 
+    cpuTxt=$(cat /proc/cpuinfo | grep ^machine | awk '{print substr($0,index($0,"Power"))", "}')$(cat /proc/cpuinfo | grep ^cpu | head -1 | awk '{print substr($0,index($0,"POWER"))}')
+  else
+    cpuTxt=$(cat /proc/cpuinfo | grep '^model name' |& head -1 | awk '{i0=index($0,"Intel"); if (i0==0) i0=index($0,"AMD"); i1=index($0," @"); if (i1>0) {print substr($0,i0,i1-i0)} else {print substr($0,i0)}}')
+  fi
+  cpuTxt="${cpuTxt} (nproc=$(nproc))"
+  echo -e "On $HOSTNAME [CPU: $cpuTxt] [GPU: $gpuTxt]:"
+}
+
 # --- OPTION 2: RUN FROM GRIDPACK ---
 if [ "${grid}" == "-fromgridpack" ]; then
   echo "Execute $(basename $0) for process ${proc} and backend ${bckend} from gridpack directory $(pwd)"
@@ -157,6 +180,7 @@ if [ "${grid}" == "-fromgridpack" ]; then
   # Run the test for the appropriate backend
   START=$(date +%s)
   echo "START: $(date)" |& tee ${resultsdir}/${outfile}
+  showcpugpu |& tee -a ${resultsdir}/${outfile}
   if [ -v CUDACPP_RUNTIME_DISABLEFPE ]; then echo CUDACPP_RUNTIME_DISABLEFPE is set |& tee -a ${resultsdir}/${outfile}; else echo CUDACPP_RUNTIME_DISABLEFPE is not set |& tee -a ${resultsdir}/${outfile}; fi # temporary? (debug FPEs in CMS DY #942)
   ls -l madevent/SubProcesses/P*/madevent |& tee -a ${resultsdir}/${outfile}
   ./run.sh ${nevt} ${rndseed} |& tee -a ${resultsdir}/${outfile}
@@ -258,6 +282,7 @@ sed -i "s/.* = cudacpp_bldall/ True = cudacpp_bldall/" Cards/run_card.dat
 ###set -x # verbose
 START=$(date +%s)
 echo "START: $(date)" |& tee ${resultsdir}/${outfile}
+showcpugpu |& tee -a ${resultsdir}/${outfile}
 if [ -v CUDACPP_RUNTIME_DISABLEFPE ]; then echo CUDACPP_RUNTIME_DISABLEFPE is set |& tee -a ${resultsdir}/${outfile}; else echo CUDACPP_RUNTIME_DISABLEFPE is not set |& tee -a ${resultsdir}/${outfile}; fi # temporary? (debug FPEs in CMS DY #942)
 MG5AMC_CARD_PATH=$(pwd)/Cards time ./bin/generate_events -f |& tee -a ${resultsdir}/${outfile}
 echo "END: $(date)" |& tee -a ${resultsdir}/${outfile}
