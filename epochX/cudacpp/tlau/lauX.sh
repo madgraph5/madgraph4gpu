@@ -158,6 +158,13 @@ if [ "${grid}" == "-fromgridpack" ]; then
   cd ${gridpackdir}
   rm -rf madevent run.sh events.lhe*
   tar -xzf run_01_gridpack.tar.gz
+  # Configure gridpack patches
+  dir=madevent/bin/internal
+  pushd $dir >& /dev/null
+  echo "INFO: configure gridpack patches in ${dir}"
+  mv madevent_interface.py madevent_interface.py.BKP
+  \cp ../../../../MG5aMC_patches/madevent_interface.py .
+  popd >& /dev/null
   # Configure the appropriate backend
   for dir in madevent/SubProcesses/P*; do
     pushd $dir >& /dev/null
@@ -174,8 +181,8 @@ if [ "${grid}" == "-fromgridpack" ]; then
     fi
     \rm -f madevent
     ln -sf $exe madevent
-    popd >& /dev/null
     echo "----> madevent symlink will now point to $exe"
+    popd >& /dev/null
   done
   # Run the test for the appropriate backend
   START=$(date +%s)
