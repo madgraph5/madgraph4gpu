@@ -1,4 +1,4 @@
-START: Tue Aug  6 01:21:17 PM CEST 2024
+START: Tue Aug  6 01:26:39 PM CEST 2024
 ************************************************************
 *                                                          *
 *                      W E L C O M E to                    *
@@ -29,7 +29,7 @@ Generating 100 events with run name run_01
 survey  run_01 
 INFO: compile directory 
 compile Source Directory
-Using random number seed offset = 21
+Using random number seed offset = 24
 INFO: Running Survey 
 Creating Jobs
 Working on SubProcesses
@@ -261,19 +261,19 @@ Building madevent in madevent_interface.py with 'fortran' matrix elements
 INFO:     P0_ddx_taptam  
 Pre-building madevent in madevent_interface.py with ALL matrix elements
 Building madevent in madevent_interface.py with 'fortran' matrix elements
-INFO:  Idle: 1,  Running: 3,  Completed: 314 [ current time: 13h22 ] 
-INFO:  Idle: 0,  Running: 4,  Completed: 314 [ current time: 13h22 ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 318 [  3.5s  ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 318 [  3.5s  ] 
+INFO:  Idle: 1,  Running: 3,  Completed: 314 [ current time: 13h28 ] 
+INFO:  Idle: 0,  Running: 4,  Completed: 314 [ current time: 13h28 ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 318 [  3.2s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 318 [  3.2s  ] 
 INFO: End survey 
 refine 100
 Creating Jobs
 INFO: Refine results to 100 
 INFO: Generating 100.0 unweighted events. 
-sum of cpu time of last step: 22m10s
-INFO: Effective Luminosity 0.005286395092042003 pb^-1 
+sum of cpu time of last step: 22m07s
+INFO: Effective Luminosity 0.005308167362824588 pb^-1 
 INFO: need to improve 0 channels 
-- Current estimate of cross-section: 22699.778944 +- 24.883887513199372
+- Current estimate of cross-section: 22606.672284000004 +- 25.982101016390413
     P2_gg_epemuux 
     P2_gg_epemddx 
     P2_gg_taptamuux 
@@ -350,17 +350,17 @@ INFO: need to improve 0 channels
     P0_ddx_epem 
     P0_uux_taptam 
     P0_ddx_taptam 
-INFO:  Idle: 0,  Running: 0,  Completed: 0 [ current time: 13h22 ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 0 [ current time: 13h28 ] 
 INFO: Combining runs 
-sum of cpu time of last step: 22m10s
+sum of cpu time of last step: 22m07s
 INFO: finish refine 
 refine 100 --treshold=0.9
 No need for second refine due to stability of cross-section
 INFO: Combining Events 
-combination of events done in 22.116079807281494 s 
+combination of events done in 21.426584482192993 s 
   === Results Summary for run: run_01 tag: tag_1 ===
 
-     Cross-section :   2.27e+04 +- 24.88 pb
+     Cross-section :   2.261e+04 +- 25.98 pb
      Nb of events :  100
  
 INFO: No version of lhapdf. Can not run systematics computation 
@@ -373,7 +373,7 @@ INFO: storing files of previous run
 INFO: Done 
 quit
 INFO:  
-1308.34user 46.37system 1:47.64elapsed 1258%CPU (0avgtext+0avgdata 101372maxresident)k
-0inputs+11621832outputs (1414major+12441756minor)pagefaults 0swaps
-END: Tue Aug  6 01:23:05 PM CEST 2024
-ELAPSED: 108 seconds
+1305.01user 46.53system 1:46.75elapsed 1265%CPU (0avgtext+0avgdata 101376maxresident)k
+16inputs+11466400outputs (1430major+12474464minor)pagefaults 0swaps
+END: Tue Aug  6 01:28:26 PM CEST 2024
+ELAPSED: 107 seconds
