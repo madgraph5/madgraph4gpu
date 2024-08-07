@@ -163,7 +163,9 @@ if [ "${grid}" == "-fromgridpack" ]; then
   pushd $dir >& /dev/null
   echo "INFO: configure gridpack patches in ${dir}"
   mv madevent_interface.py madevent_interface.py.BKP
+  mv gen_ximprove.py gen_ximprove.py.BKP
   \cp ../../../../MG5aMC_patches/madevent_interface.py .
+  \cp ../../../../MG5aMC_patches/gen_ximprove.py .
   popd >& /dev/null
   # Configure the appropriate backend
   for dir in madevent/SubProcesses/P*; do
