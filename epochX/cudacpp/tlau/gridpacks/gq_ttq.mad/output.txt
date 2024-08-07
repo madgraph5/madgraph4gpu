@@ -1,4 +1,4 @@
-START: Wed Aug  7 04:37:53 PM CEST 2024
+START: Wed Aug  7 04:43:14 PM CEST 2024
 On itgold91.cern.ch [CPU: Intel(R) Xeon(R) Gold 6326 CPU (nproc=32)] [GPU: none]:
 CUDACPP_RUNTIME_DISABLEFPE is not set
 ************************************************************
@@ -36,11 +36,13 @@ INFO: Running Survey
 Creating Jobs
 Working on SubProcesses
 INFO:     P1_gu_ttxu  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
 Building madevent in madevent_interface.py with 'fortran' matrix elements
 INFO:     P1_gux_ttxux  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
 Building madevent in madevent_interface.py with 'fortran' matrix elements
-INFO:  Idle: 1,  Running: 2,  Completed: 1 [ current time: 16h37 ] 
-INFO:  Idle: 0,  Running: 3,  Completed: 1 [ current time: 16h37 ] 
+INFO:  Idle: 1,  Running: 1,  Completed: 2 [ current time: 16h43 ] 
+INFO:  Idle: 0,  Running: 2,  Completed: 2 [ current time: 16h43 ] 
 INFO:  Idle: 0,  Running: 0,  Completed: 4 [  1.6s  ] 
 sum of cpu time of last step: 7 seconds
   === Results Summary for run: run_01 tag: tag_1 ===
@@ -51,7 +53,7 @@ sum of cpu time of last step: 7 seconds
 INFO: End survey 
 combine_events
 INFO: Combining Events 
-combination of events done in 0.003682851791381836 s 
+combination of events done in 0.0036368370056152344 s 
 store_events
 INFO: Storing parton level results 
 INFO: End Parton 
@@ -66,7 +68,7 @@ quit
 INFO: storing files of previous run 
 INFO: Done 
 INFO:  
-22.44user 1.57system 0:07.92elapsed 303%CPU (0avgtext+0avgdata 95828maxresident)k
-680inputs+268400outputs (403major+609342minor)pagefaults 0swaps
-END: Wed Aug  7 04:38:01 PM CEST 2024
-ELAPSED: 8 seconds
+159.69user 14.32system 0:17.58elapsed 989%CPU (0avgtext+0avgdata 268488maxresident)k
+680inputs+578192outputs (482major+6011875minor)pagefaults 0swaps
+END: Wed Aug  7 04:43:32 PM CEST 2024
+ELAPSED: 18 seconds
