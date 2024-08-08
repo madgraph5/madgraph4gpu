@@ -1,4 +1,4 @@
-START: Wed Aug  7 08:53:34 PM CEST 2024
+START: Thu Aug  8 09:05:29 AM CEST 2024
 On itgold91.cern.ch [CPU: Intel(R) Xeon(R) Gold 6326 CPU (nproc=32)] [GPU: none]:
 CUDACPP_RUNTIME_DISABLEFPE is set
 ************************************************************
@@ -287,25 +287,21 @@ Building madevent in madevent_interface.py with 'fortran' matrix elements
 INFO:     P0_dxsx_taptamgdxsx  
 Pre-building madevent in madevent_interface.py with ALL matrix elements
 Building madevent in madevent_interface.py with 'fortran' matrix elements
-INFO:  Idle: 39,  Running: 32,  Completed: 1753 [ current time: 21h07 ] 
-INFO:  Idle: 38,  Running: 32,  Completed: 1754 [ current time: 21h07 ] 
-INFO:  Idle: 31,  Running: 32,  Completed: 1761 [  3.5s  ] 
-INFO:  Idle: 18,  Running: 32,  Completed: 1774 [  6.7s  ] 
-INFO:  Idle: 10,  Running: 32,  Completed: 1782 [  9.8s  ] 
-INFO:  Idle: 0,  Running: 29,  Completed: 1795 [  13.4s  ] 
-INFO:  Idle: 0,  Running: 19,  Completed: 1805 [  16.4s  ] 
-INFO:  Idle: 0,  Running: 11,  Completed: 1813 [  19.6s  ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 1824 [  21.9s  ] 
-sum of cpu time of last step: 5h59m08s
+INFO:  Idle: 20,  Running: 31,  Completed: 1773 [ current time: 09h11 ] 
+INFO:  Idle: 19,  Running: 32,  Completed: 1773 [ current time: 09h11 ] 
+INFO:  Idle: 0,  Running: 31,  Completed: 1793 [  3s  ] 
+INFO:  Idle: 0,  Running: 14,  Completed: 1810 [  6.1s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 1824 [  7.8s  ] 
+sum of cpu time of last step: 3h13m56s
   === Results Summary for run: run_01 tag: tag_1 ===
 
-     Cross-section :   1.069e+04 +- 27.84 pb
+     Cross-section :   139.4 +- 0.6185 pb
      Nb of events :  0
  
 INFO: End survey 
 combine_events
 INFO: Combining Events 
-combination of events done in 0.41349196434020996 s 
+combination of events done in 0.3937568664550781 s 
 store_events
 INFO: Storing parton level results 
 INFO: End Parton 
@@ -402,7 +398,7 @@ quit
 INFO: storing files of previous run 
 INFO: Done 
 INFO:  
-26470.32user 549.43system 16:19.34elapsed 2758%CPU (0avgtext+0avgdata 1119336maxresident)k
-251256inputs+31085672outputs (6402major+219118214minor)pagefaults 0swaps
-END: Wed Aug  7 09:09:53 PM CEST 2024
-ELAPSED: 979 seconds
+11662.02user 249.60system 8:06.23elapsed 2449%CPU (0avgtext+0avgdata 76640maxresident)k
+289688inputs+22151728outputs (3133major+71995085minor)pagefaults 0swaps
+END: Thu Aug  8 09:13:35 AM CEST 2024
+ELAPSED: 486 seconds
