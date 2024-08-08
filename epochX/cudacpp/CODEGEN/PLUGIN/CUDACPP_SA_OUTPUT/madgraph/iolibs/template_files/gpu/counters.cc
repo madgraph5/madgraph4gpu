@@ -86,7 +86,7 @@ extern "C"
                   iimplC2TXT( iimplC ),
                   iimplC + 1,
                   smatrix1multi_totaltime[iimplC] );
-      }    
+      }
     }
     return;
   }
