@@ -299,14 +299,6 @@ index e73e654d4..27fbe7302 100644
  C     
  C     This is just to temporarily store the reference grid for
  C      helicity of the DiscreteSampler so as to obtain its number of
-@@ -140,6 +143,7 @@ C     ----------
- C     BEGIN CODE
- C     ----------
- 
-+      call counters_smatrix1_start()
-       NTRY(IMIRROR)=NTRY(IMIRROR)+1
-       THIS_NTRY(IMIRROR) = THIS_NTRY(IMIRROR)+1
-       DO I=1,NEXTERNAL
 @@ -217,6 +221,17 @@ C     ----------
            ENDIF
            IF(NTRY(IMIRROR).EQ.MAXTRIES)THEN
@@ -325,22 +317,3 @@ index e73e654d4..27fbe7302 100644
            ENDIF
          ENDIF
        ELSE IF (.NOT.INIT_MODE) THEN  ! random helicity 
-@@ -234,6 +249,7 @@ C       Include the Jacobian from helicity sampling
-         IHEL = HEL_PICKED
-       ELSE
-         ANS = 1D0
-+        call counters_smatrix1_stop()
-         RETURN
-       ENDIF
-       IF (ANS.NE.0D0.AND.(ISUM_HEL .NE. 1.OR.HEL_PICKED.EQ.-1)) THEN
-@@ -278,9 +294,8 @@ C           Set right sign for ANS, based on sign of chosen helicity
-         ENDIF
-       ENDIF
-       ANS=ANS/DBLE(IDEN)
--
-       CALL SELECT_COLOR(RCOL, JAMP2, ICONFIG,1,  ICOL)
--
-+      call counters_smatrix1_stop()
-       END
- 
- 
