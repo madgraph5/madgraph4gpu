@@ -643,7 +643,7 @@ C
       
       IF( FBRIDGE_MODE .LE. 0 ) THEN ! (FortranOnly=0 or BothQuiet=-1 or BothDebug=-2)
 #endif
-        call counters_smatrix1multi_start( -1, VECSIZE_USED ) ! fortran=-1
+        call counters_smatrix1multi_start( -1, VECSIZE_USED ) ! fortranMEs=-1
 !$OMP PARALLEL
 !$OMP DO
         DO IVEC=1, VECSIZE_USED
@@ -659,7 +659,7 @@ C
         ENDDO
 !$OMP END DO
 !$OMP END PARALLEL
-        call counters_smatrix1multi_stop( -1 ) ! fortran=-1
+        call counters_smatrix1multi_stop( -1 ) ! fortranMEs=-1
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
       ENDIF
 
@@ -669,9 +669,10 @@ C
           STOP
         ENDIF
         IF ( FIRST ) THEN ! exclude first pass (helicity filtering) from timers (#461)
+          call counters_smatrix1multi_start( 1, VECSIZE_USED ) ! cudacppHEL=1
           CALL FBRIDGESEQUENCE_NOMULTICHANNEL( FBRIDGE_PBRIDGE, ! multi channel disabled for helicity filtering
      &      P_MULTI, ALL_G, HEL_RAND, COL_RAND, OUT2,
-     &      SELECTED_HEL2, SELECTED_COL2 )
+     &      SELECTED_HEL2, SELECTED_COL2, .TRUE.) ! quit after computing helicities
           FIRST = .FALSE.
 c         ! This is a workaround for https://github.com/oliviermattelaer/mg5amc_test/issues/22 (see PR #486)
           IF( FBRIDGE_MODE .EQ. 1 ) THEN ! (CppOnly=1 : SMATRIX1 is not called at all)
@@ -685,22 +686,23 @@ c         ! This is a workaround for https://github.com/oliviermattelaer/mg5amc_
           ENDIF
           WRITE (6,*) 'NGOODHEL =', NGOODHEL
           WRITE (6,*) 'NCOMB =', NCOMB
+          call counters_smatrix1multi_stop( 1 ) ! cudacppHEL=1
         ENDIF
-        call counters_smatrix1multi_start( 0, VECSIZE_USED ) ! cudacpp=0
+        call counters_smatrix1multi_start( 0, VECSIZE_USED ) ! cudacppMEs=0
         IF ( .NOT. MULTI_CHANNEL ) THEN
           CALL FBRIDGESEQUENCE_NOMULTICHANNEL( FBRIDGE_PBRIDGE, ! multi channel disabled
      &      P_MULTI, ALL_G, HEL_RAND, COL_RAND, OUT2,
-     &      SELECTED_HEL2, SELECTED_COL2 )
+     &      SELECTED_HEL2, SELECTED_COL2, .FALSE.) ! do not quit after computing helicities
         ELSE
           IF( SDE_STRAT.NE.1 ) THEN
             WRITE(6,*) 'ERROR! The cudacpp bridge requires SDE=1' ! multi channel single-diagram enhancement strategy
             STOP
           ENDIF
-          CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE, P_MULTI, ALL_G,
+          CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE, P_MULTI, ALL_G, ! multi channel enabled
      &      HEL_RAND, COL_RAND, CHANNEL, OUT2,
-     &      SELECTED_HEL2, SELECTED_COL2 ) ! 1-N: multi channel enabled
+     &      SELECTED_HEL2, SELECTED_COL2, .FALSE.) ! do not quit after computing helicities
         ENDIF
-        call counters_smatrix1multi_stop( 0 ) ! cudacpp=0
+        call counters_smatrix1multi_stop( 0 ) ! cudacppMEs=0
       ENDIF
 
       IF( FBRIDGE_MODE .LT. 0 ) THEN ! (BothQuiet=-1 or BothDebug=-2)
