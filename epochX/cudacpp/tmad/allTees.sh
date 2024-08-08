@@ -44,11 +44,11 @@ started="STARTED  AT $(date)"
 
 if [ "${bsm}" != "-bsmonly" ]; then
   if [ "$short" == "1" ]; then
-    ${scrdir}/teeMadX.sh -eemumu -ggtt -ggttg -ggttgg -gqttq $flts $makeclean $rmrdat $add10x
+    ${scrdir}/teeMadX.sh -eemumu -ggtt -ggttg -ggttgg -gqttq -pptt $flts $makeclean $rmrdat $add10x
   elif [ "$short" == "-1" ]; then
     ${scrdir}/teeMadX.sh -ggttggg $flts $makeclean $rmrdat $add10x
   else
-    ${scrdir}/teeMadX.sh -eemumu -ggtt -ggttg -ggttgg -gqttq -ggttggg $flts $makeclean $rmrdat $add10x
+    ${scrdir}/teeMadX.sh -eemumu -ggtt -ggttg -ggttgg -gqttq -pptt -ggttggg $flts $makeclean $rmrdat $add10x
   fi
 fi
 status=$?

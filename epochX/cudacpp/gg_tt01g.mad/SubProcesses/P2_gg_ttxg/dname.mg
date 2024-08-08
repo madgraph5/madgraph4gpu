@@ -1,1 +1,0 @@
-DIRNAME=P2_gg_ttxg

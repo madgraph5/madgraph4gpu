@@ -1,2 +1,0 @@
-P2_gg_ttxg
-P1_gg_ttx
