@@ -38,13 +38,16 @@ index 617f10b93..00c73099a 100644
 +cleanall: cleanSource # THIS IS THE ONE
 +	for i in `ls -d ../SubProcesses/P*`; do cd $$i; make cleanavxs; cd -; done;
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
-index 348c283be..64b33c4f1 100644
+index 348c283be..504e41ea5 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
-@@ -1,6 +1,37 @@
+@@ -1,6 +1,40 @@
 +SHELL := /bin/bash
 +
  include ../../Source/make_opts
++
++# Export the relevant settings from make_opts to builds using the cudacpp makefile
++export FPTYPE
 +
 +# Determine CUDACPP_BUILDDIR based on the user-defined choices of BACKEND, FPTYPE, HELINL, HRDCOD and USEBUILDDIR (#829)
 +# Stop with an error if BACKEND=cuda and nvcc is missing or if BACKEND=hip and hipcc is missing
@@ -79,7 +82,7 @@ index 348c283be..64b33c4f1 100644
  # Load additional dependencies of the bias module, if present
  ifeq (,$(wildcard ../bias_dependencies))
  BIASDEPENDENCIES =
-@@ -24,7 +55,20 @@ else
+@@ -24,7 +58,20 @@ else
      MADLOOP_LIB =
  endif
  
@@ -101,7 +104,7 @@ index 348c283be..64b33c4f1 100644
  
  LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libgammaUPC.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS)
  
-@@ -43,41 +87,145 @@ ifeq ($(strip $(MATRIX_HEL)),)
+@@ -43,41 +90,147 @@ ifeq ($(strip $(MATRIX_HEL)),)
  endif
  
  
@@ -142,7 +145,9 @@ index 348c283be..64b33c4f1 100644
 +else
 +all: $(PROG)_fortran $(CUDACPP_BUILDDIR)/$(PROG)_cpp
 +endif
-+
+ 
+-$(LIBDIR)libmodel.$(libext): ../../Cards/param_card.dat
+-	cd ../../Source/MODEL; make
 +ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
 +override OMPFLAGS = -fopenmp
 +LINKLIBS += -liomp5 # see #578
@@ -156,12 +161,10 @@ index 348c283be..64b33c4f1 100644
 +override OMPFLAGS = -fopenmp
 +endif
  
--$(LIBDIR)libmodel.$(libext): ../../Cards/param_card.dat
--	cd ../../Source/MODEL; make
+-$(LIBDIR)libgeneric.$(libext): ../../Cards/run_card.dat
 +$(PROG)_fortran: $(PROCESS) $(DSIG) auto_dsig.o $(LIBS) $(MATRIX) counters.o ompnumthreads.o
 +	$(FC) -o $(PROG)_fortran $(PROCESS) $(DSIG) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o $(LDFLAGS)
- 
--$(LIBDIR)libgeneric.$(libext): ../../Cards/run_card.dat
++
 +$(LIBS): .libs
 +
 +.libs: ../../Cards/param_card.dat ../../Cards/run_card.dat
@@ -189,32 +192,34 @@ index 348c283be..64b33c4f1 100644
 +	rm -f $(PROG)
 +	ln -s $(PROG)_fortran $(PROG)
 +
-+madevent_cuda_link:
-+	$(MAKE) USEGTEST=0 BACKEND=cuda $(CUDACPP_BUILDDIR)/$(PROG)_cuda
++madevent_cudacpp_link: all
 +	rm -f $(PROG)
++ifeq ($(BACKEND),cuda)
 +	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cuda $(PROG)
-+
-+madevent_hip_link:
-+	$(MAKE) USEGTEST=0 BACKEND=hip $(CUDACPP_BUILDDIR)/$(PROG)_hip
-+	rm -f $(PROG)
++else ifeq ($(BACKEND),hip)
 +	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_hip $(PROG)
-+
-+madevent_cpp_link:
-+	$(MAKE) USEGTEST=0 BACKEND=cppauto $(CUDACPP_BUILDDIR)/$(PROG)_cpp
-+	rm -f $(PROG)
++else
 +	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
++endif
++
++madevent_cuda_link:
++	$(MAKE) USEGTEST=0 USEBUILDDIR=1 BACKEND=cuda madevent_cudacpp_link
  
 -$(LIBDIR)libpdf.$(libext): 
 -	cd ../../Source/PDF; make
-+override SUPPORTED_AVXS = cppnone cppsse4 cppavx2 cpp512y cpp512z cppauto
-+madevent_%_link:
-+	@if [ '$(words $(filter $*, $(SUPPORTED_AVXS)))' != '1' ]; then echo "ERROR! Invalid target '$@' (supported madevent_cpp*_link targets are: $(foreach avx,$(SUPPORTED_AVXS),'madevent_cpp$(avx)_link'))"; exit 1; fi
-+	$(MAKE) USEGTEST=0 BACKEND=$* $(CUDACPP_BUILDDIR)/$(PROG)_cpp
-+	rm -f $(PROG)
-+	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
++madevent_hip_link:
++	$(MAKE) USEGTEST=0 USEBUILDDIR=1 BACKEND=hip madevent_cudacpp_link
  
 -$(LIBDIR)libgammaUPC.$(libext):
 -	cd ../../Source/PDF/gammaUPC; make
++madevent_cpp_link:
++	$(MAKE) USEGTEST=0 USEBUILDDIR=1 BACKEND=cppauto madevent_cudacpp_link
++
++override SUPPORTED_AVXS = cppnone cppsse4 cppavx2 cpp512y cpp512z cppauto
++madevent_%_link:
++	@if [ '$(words $(filter $*, $(SUPPORTED_AVXS)))' != '1' ]; then echo "ERROR! Invalid target '$@' (supported madevent_cpp*_link targets are: $(foreach avx,$(SUPPORTED_AVXS),'madevent_$(avx)_link'))"; exit 1; fi
++	$(MAKE) USEGTEST=0 USEBUILDDIR=1 BACKEND=$* madevent_cudacpp_link
++
 +# Building $(PROG)_cpp no longer builds $(PROG)_cuda if CUDACPP_BACKENDLIB for cuda exists (this was the case in the past to allow cpp-only builds #503)
 +$(CUDACPP_BUILDDIR)/$(PROG)_cpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o ompnumthreads.o $(CUDACPP_BUILDDIR)/.cudacpplibs
 +	$(FC) -o $@ $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_BACKENDLIB) $(LIBFLAGSRPATH) $(LDFLAGS)
@@ -263,7 +268,7 @@ index 348c283be..64b33c4f1 100644
  
  # Dependencies
  
-@@ -97,5 +245,80 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
+@@ -97,5 +250,80 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
  	 run_config.inc
  initcluster.o: message.inc
  
