@@ -554,7 +554,7 @@ INFO: Please specify coupling orders to bypass this step.
 INFO: Trying coupling order WEIGHTED<=2: WEIGTHED IS QCD+2*QED 
 INFO: Trying process: g g > t1 t1~ WEIGHTED<=2 @1  
 INFO: Process has 6 diagrams 
-1 processes with 6 diagrams generated in 0.123 s
+1 processes with 6 diagrams generated in 0.124 s
 Total: 1 processes with 6 diagrams
 output standalone_cudacpp ../TMPOUT/CODEGEN_cudacpp_susy_gg_t1t1
 Load PLUGIN.CUDACPP_OUTPUT
@@ -598,7 +598,7 @@ INFO: Created files Parameters_MSSM_SLHA2.h and Parameters_MSSM_SLHA2.cc in dire
 INFO: /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gg_t1t1/src/. and /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gg_t1t1/src/. 
 quit
 
-real	0m1.496s
-user	0m1.252s
-sys	0m0.082s
+real	0m1.342s
+user	0m1.248s
+sys	0m0.080s
 Code generation completed in 1 seconds
