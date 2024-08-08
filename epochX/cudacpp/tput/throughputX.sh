@@ -11,13 +11,15 @@ scrdir=$(cd $(dirname $0); pwd)
 bckend=$(basename $(cd $scrdir; cd ..; pwd)) # cudacpp or alpaka
 topdir=$(cd $scrdir; cd ../../..; pwd)
 
-# Disable OpenMP in tput tests
-# To do this, set OMPFLAGS externally to an empty string (#758)
-export OMPFLAGS=
+# Enable OpenMP in tput tests? (#758)
+###export USEOPENMP=1
+
+# Debug channelid in MatrixElementKernelBase?
+export MG5AMC_CHANNELID_DEBUG=1
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-bldall][-cudaonly][-hiponly][-noneonly][-sse4only][-avx2only][-512yonly][-512zonly] [-sa] [-noalpaka] [-flt|-fltonly|-mix|-mixonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-omp] [-makeonly|-makeclean|-makecleanonly|-dryrun] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest] [-v] [-dlp <dyld_library_path>]" # -nofpe is no longer supported
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-bldall|-nocuda|-cpponly|-cudaonly|-hiponly|-noneonly|-sse4only|-avx2only|-512yonly|-512zonly] [-sa] [-noalpaka] [-flt|-fltonly|-mix|-mixonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-omp] [-makeonly|-makeclean|-makecleanonly|-dryrun] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest(default)|-nogtest] [-v] [-dlp <dyld_library_path>]" # -nofpe is no longer supported
   exit 1
 }
 
@@ -56,7 +58,7 @@ ab3=0
 div=0
 req=0
 detailed=0
-gtest=0
+gtest=
 ###nofpe=0
 verbose=0
 
@@ -67,7 +69,7 @@ makef=
 ###makef="-f Makefile"
 
 # (Was: workaround to allow 'make avxall' when '-avxall' is specified #536)
-bbldsall="cuda hip none sse4 avx2 512y 512z"
+bbldsall="cuda hip cppnone cppsse4 cppavx2 cpp512y cpp512z"
 
 if [ "$bckend" != "alpaka" ]; then alpaka=0; fi # alpaka mode is only available in the alpaka directory
 
@@ -121,6 +123,15 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-bldall" ]; then
     if [ "${bblds}" != "" ]; then echo "ERROR! Incompatible option $1: backend builds are already defined as '$bblds'"; usage; fi
     bblds="${bbldsall}"
+    shift
+  elif [ "$1" == "-nocuda" ]; then
+    if [ "${bblds}" != "" ]; then echo "ERROR! Incompatible option $1: backend builds are already defined as '$bblds'"; usage; fi
+    bblds="${bbldsall/cuda}"
+    shift
+  elif [ "$1" == "-cpponly" ]; then
+    if [ "${bblds}" != "" ]; then echo "ERROR! Incompatible option $1: backend builds are already defined as '$bblds'"; usage; fi
+    bblds="${bbldsall/cuda}"
+    bblds="${bblds/hip}"
     shift
   elif [ "$1" == "-cudaonly" ]; then
     if [ "${bblds}" != "" ]; then echo "ERROR! Incompatible option $1: backend builds are already defined as '$bblds'"; usage; fi
@@ -223,8 +234,16 @@ while [ "$1" != "" ]; do
     detailed=1
     shift
   elif [ "$1" == "-gtest" ]; then
-    # For simplicity a gtest runTest_xxx.exe is executed for each build where check_xxx.exe is executed
+    if [ "$gtest" == "0" ]; then
+      echo "ERROR! Options -gtest and -nogtest are incompatible"; usage
+    fi
     gtest=1
+    shift
+  elif [ "$1" == "-nogtest" ]; then
+    if [ "$gtest" == "1" ]; then
+      echo "ERROR! Options -gtest and -nogtest are incompatible"; usage
+    fi
+    gtest=0
     shift
   ###elif [ "$1" == "-nofpe" ]; then
   ###  nofpe=1
@@ -241,6 +260,7 @@ while [ "$1" != "" ]; do
     usage
   fi
 done
+if [ "${gtest}" == "" ]; then gtest=1; fi
 ###echo procs=$procs
 ###exit 1
 
@@ -426,6 +446,8 @@ else
   # Iterate over all directories (the first one will build googletest)
   gtestlibs=0
   for dir in $dirs; do
+    bblds_dir=${bblds}
+    if [ "${dir/\/gg_ttggg${suff}}" != ${dir} ]; then bblds_dir=${bblds/hip}; fi # skip ggttggg builds on HIP #933
     ###echo "Building in $dir" # FIXME: add a check that this $dir exists
     export USEBUILDDIR=1
     pushd $dir >& /dev/null
@@ -445,10 +467,10 @@ else
 	export HELINL=$helinl
 	for fptype in $fptypes; do
           export FPTYPE=$fptype
-          if [ "${bblds}" == "${bbldsall}" ]; then
+          if [ "${bblds_dir}" == "${bbldsall}" ]; then
             make ${makef} ${makej} bldall; echo # (was: allow 'make avxall' again #536)
           else
-            for bbld in ${bblds}; do
+            for bbld in ${bblds_dir}; do
               make ${makef} ${makej} BACKEND=${bbld}; echo
             done
           fi
@@ -522,7 +544,7 @@ function runTest() {
   pattern="${pattern}|Floating Point Exception"
   pattern="${pattern}|MEK"
   if [ "${verbose}" == "1" ]; then set -x; fi
-  $exe1 2>&1 | egrep "(${pattern})" | sed "s/MEK 0x......./MEK 0xxxxxxxx/"
+  $exe1 2>&1 | egrep "(${pattern})" | sed "s/MEK 0x.* (/MEK (/"
   set +x
 }
 
@@ -736,6 +758,7 @@ for exe in $exes; do
   fi
   if [ "${gtest}" == "1" ]; then
     echo "-------------------------------------------------------------------------"
+    # For simplicity a gtest runTest_xxx.exe is executed for each build where check_xxx.exe is executed
     exe2=${exe/check/runTest} # replace check_xxx.exe by runTest_xxx.exe
     runTest $exe2 2>&1
     if [ ${PIPESTATUS[0]} -ne "0" ]; then exit 1; fi 

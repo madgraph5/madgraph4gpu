@@ -36,7 +36,7 @@ C - MOMENTA: the input 4-momenta Fortran array
 C - GS:      the input Gs (running QCD coupling constant alphas) Fortran array
 C - RNDHEL:  the input random number Fortran array for helicity selection
 C - RNDCOL:  the input random number Fortran array for color selection
-C - CHANID:  the input Feynman diagram to enhance in multi-channel mode if 1 to n
+C - CHANID:  the input array of channels (Feynman diagrams) to enhance
 C - MES:     the output matrix element Fortran array
 C - SELHEL:  the output selected helicity Fortran array
 C - SELCOL:  the output selected color Fortran array
@@ -49,7 +49,7 @@ C
          DOUBLE PRECISION GS(*)
          DOUBLE PRECISION RNDHEL(*)
          DOUBLE PRECISION RNDCOL(*)
-         INTEGER*4 CHANID
+         INTEGER*4 CHANID(*)
          DOUBLE PRECISION MES(*)
          INTEGER*4 SELHEL(*)
          INTEGER*4 SELCOL(*)
