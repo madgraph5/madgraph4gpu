@@ -404,7 +404,9 @@ C           Set right sign for ANS, based on sign of chosen helicity
         ENDIF
       ENDIF
       ANS=ANS/DBLE(IDEN)
+
       CALL SELECT_COLOR(RCOL, JAMP2, ICONFIG,1,  ICOL)
+
       END
 
 
