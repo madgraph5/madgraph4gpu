@@ -21,15 +21,16 @@ extern "C"
 {
   // Now: fortran=-1, cudacpp=0
   // Eventually: fortran=-1, cuda=0, cpp/none=1, cpp/sse4=2, etc...
-  constexpr unsigned int nimplC = 2;
+  constexpr unsigned int nimplC = 3;
   constexpr unsigned int iimplF2C( int iimplF ) { return iimplF + 1; }
   const char* iimplC2TXT( int iimplC )
   {
     const int iimplF = iimplC - 1;
     switch( iimplF )
     {
-      case -1: return "Fortran"; break;
-      case +0: return "CudaCpp"; break;
+      case -1: return "Fortran MEs"; break;
+      case +0: return "CudaCpp MEs"; break;
+      case +1: return "CudaCpp HEL"; break;
       default: assert( false ); break;
     }
   }
@@ -71,7 +72,7 @@ extern "C"
     printf( " [COUNTERS] Fortran Overhead ( 0 ) : %9.4fs\n", overhead_totaltime );
     for( unsigned int iimplC = 0; iimplC < nimplC; iimplC++ )
       if( smatrix1multi_counter[iimplC] > 0 )
-        printf( " [COUNTERS] %7s MEs      ( %1d ) : %9.4fs for %8d events => throughput is %8.2E events/s\n",
+        printf( " [COUNTERS] %11s      ( %1d ) : %9.4fs for %8d events => throughput is %8.2E events/s\n",
                 iimplC2TXT( iimplC ),
                 iimplC + 1,
                 smatrix1multi_totaltime[iimplC],
