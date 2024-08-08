@@ -1,4 +1,4 @@
-START: Thu Aug  8 09:29:15 AM CEST 2024
+START: Thu Aug  8 09:05:29 AM CEST 2024
 On itgold91.cern.ch [CPU: Intel(R) Xeon(R) Gold 6326 CPU (nproc=32)] [GPU: none]:
 CUDACPP_RUNTIME_DISABLEFPE is set
 ************************************************************
@@ -287,77 +287,21 @@ Building madevent in madevent_interface.py with 'fortran' matrix elements
 INFO:     P0_dxsx_taptamgdxsx  
 Pre-building madevent in madevent_interface.py with ALL matrix elements
 Building madevent in madevent_interface.py with 'fortran' matrix elements
-INFO:  Idle: 554,  Running: 32,  Completed: 1238 [ current time: 09h37 ] 
-INFO:  Idle: 553,  Running: 32,  Completed: 1239 [  0.067s  ] 
-INFO:  Idle: 540,  Running: 32,  Completed: 1252 [  3.5s  ] 
-INFO:  Idle: 525,  Running: 32,  Completed: 1267 [  6.9s  ] 
-INFO:  Idle: 515,  Running: 32,  Completed: 1277 [  9.9s  ] 
-INFO:  Idle: 504,  Running: 32,  Completed: 1288 [  13s  ] 
-INFO:  Idle: 495,  Running: 32,  Completed: 1297 [  19.1s  ] 
-INFO:  Idle: 488,  Running: 32,  Completed: 1304 [  22.5s  ] 
-INFO:  Idle: 477,  Running: 32,  Completed: 1315 [  25.5s  ] 
-INFO:  Idle: 467,  Running: 32,  Completed: 1325 [  29.8s  ] 
-INFO:  Idle: 463,  Running: 32,  Completed: 1329 [  33.9s  ] 
-INFO:  Idle: 453,  Running: 32,  Completed: 1339 [  37.3s  ] 
-INFO:  Idle: 438,  Running: 32,  Completed: 1354 [  40.9s  ] 
-INFO:  Idle: 434,  Running: 32,  Completed: 1358 [  44.5s  ] 
-INFO:  Idle: 430,  Running: 32,  Completed: 1362 [  48.2s  ] 
-INFO:  Idle: 422,  Running: 32,  Completed: 1370 [  51.6s  ] 
-INFO:  Idle: 406,  Running: 32,  Completed: 1386 [  54.8s  ] 
-INFO:  Idle: 403,  Running: 32,  Completed: 1389 [  58.4s  ] 
-INFO:  Idle: 400,  Running: 32,  Completed: 1392 [  1m 1s  ] 
-INFO:  Idle: 392,  Running: 32,  Completed: 1400 [  1m 4s  ] 
-INFO:  Idle: 379,  Running: 32,  Completed: 1413 [  1m 7s  ] 
-INFO:  Idle: 371,  Running: 32,  Completed: 1421 [  1m 12s  ] 
-INFO:  Idle: 365,  Running: 32,  Completed: 1427 [  1m 16s  ] 
-INFO:  Idle: 358,  Running: 32,  Completed: 1434 [  1m 19s  ] 
-INFO:  Idle: 343,  Running: 32,  Completed: 1449 [  1m 22s  ] 
-INFO:  Idle: 339,  Running: 32,  Completed: 1453 [  1m 27s  ] 
-INFO:  Idle: 330,  Running: 32,  Completed: 1462 [  1m 30s  ] 
-INFO:  Idle: 310,  Running: 32,  Completed: 1482 [  1m 34s  ] 
-INFO:  Idle: 307,  Running: 32,  Completed: 1485 [  1m 37s  ] 
-INFO:  Idle: 296,  Running: 32,  Completed: 1496 [  1m 40s  ] 
-INFO:  Idle: 281,  Running: 32,  Completed: 1511 [  1m 44s  ] 
-INFO:  Idle: 275,  Running: 32,  Completed: 1517 [  1m 47s  ] 
-INFO:  Idle: 264,  Running: 32,  Completed: 1528 [  1m 50s  ] 
-INFO:  Idle: 250,  Running: 32,  Completed: 1542 [  1m 53s  ] 
-INFO:  Idle: 242,  Running: 32,  Completed: 1550 [  1m 56s  ] 
-INFO:  Idle: 234,  Running: 32,  Completed: 1558 [  2m 0s  ] 
-INFO:  Idle: 217,  Running: 32,  Completed: 1575 [  2m 3s  ] 
-INFO:  Idle: 211,  Running: 32,  Completed: 1581 [  2m 6s  ] 
-INFO:  Idle: 202,  Running: 32,  Completed: 1590 [  2m 9s  ] 
-INFO:  Idle: 187,  Running: 32,  Completed: 1605 [  2m 13s  ] 
-INFO:  Idle: 179,  Running: 32,  Completed: 1613 [  2m 17s  ] 
-INFO:  Idle: 166,  Running: 32,  Completed: 1626 [  2m 20s  ] 
-INFO:  Idle: 157,  Running: 32,  Completed: 1635 [  2m 23s  ] 
-INFO:  Idle: 146,  Running: 32,  Completed: 1646 [  2m 26s  ] 
-INFO:  Idle: 137,  Running: 32,  Completed: 1655 [  2m 29s  ] 
-INFO:  Idle: 123,  Running: 32,  Completed: 1669 [  2m 32s  ] 
-INFO:  Idle: 115,  Running: 32,  Completed: 1677 [  2m 36s  ] 
-INFO:  Idle: 103,  Running: 32,  Completed: 1689 [  2m 39s  ] 
-INFO:  Idle: 88,  Running: 32,  Completed: 1704 [  2m 43s  ] 
-INFO:  Idle: 82,  Running: 32,  Completed: 1710 [  2m 47s  ] 
-INFO:  Idle: 66,  Running: 32,  Completed: 1726 [  2m 50s  ] 
-INFO:  Idle: 58,  Running: 32,  Completed: 1734 [  2m 53s  ] 
-INFO:  Idle: 50,  Running: 32,  Completed: 1742 [  2m 56s  ] 
-INFO:  Idle: 36,  Running: 32,  Completed: 1756 [  2m 59s  ] 
-INFO:  Idle: 29,  Running: 32,  Completed: 1763 [  3m 3s  ] 
-INFO:  Idle: 17,  Running: 32,  Completed: 1775 [  3m 6s  ] 
-INFO:  Idle: 7,  Running: 32,  Completed: 1785 [  3m 9s  ] 
-INFO:  Idle: 0,  Running: 26,  Completed: 1798 [  3m 12s  ] 
-INFO:  Idle: 0,  Running: 18,  Completed: 1806 [  3m 15s  ] 
-INFO:  Idle: 0,  Running: 7,  Completed: 1817 [  3m 19s  ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 1824 [  3m 21s  ] 
-sum of cpu time of last step: 5h58m36s
+INFO:  Idle: 20,  Running: 31,  Completed: 1773 [ current time: 09h11 ] 
+INFO:  Idle: 19,  Running: 32,  Completed: 1773 [ current time: 09h11 ] 
+INFO:  Idle: 0,  Running: 31,  Completed: 1793 [  3s  ] 
+INFO:  Idle: 0,  Running: 14,  Completed: 1810 [  6.1s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 1824 [  7.8s  ] 
+sum of cpu time of last step: 3h13m56s
   === Results Summary for run: run_01 tag: tag_1 ===
 
-     Cross-section :   1.069e+04 +- 27.84 pb
+     Cross-section :   139.4 +- 0.6185 pb
      Nb of events :  0
  
 INFO: End survey 
 combine_events
 INFO: Combining Events 
-combination of events done in 0.4129469394683838 s 
+combination of events done in 0.3937568664550781 s 
 store_events
 INFO: Storing parton level results 
 INFO: End Parton 
@@ -454,7 +398,7 @@ quit
 INFO: storing files of previous run 
 INFO: Done 
 INFO:  
-21405.16user 230.79system 13:06.06elapsed 2752%CPU (0avgtext+0avgdata 104704maxresident)k
-251256inputs+29116856outputs (2721major+69653265minor)pagefaults 0swaps
-END: Thu Aug  8 09:42:21 AM CEST 2024
-ELAPSED: 786 seconds
+11662.02user 249.60system 8:06.23elapsed 2449%CPU (0avgtext+0avgdata 76640maxresident)k
+289688inputs+22151728outputs (3133major+71995085minor)pagefaults 0swaps
+END: Thu Aug  8 09:13:35 AM CEST 2024
+ELAPSED: 486 seconds
