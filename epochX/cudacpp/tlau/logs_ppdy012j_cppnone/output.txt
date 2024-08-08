@@ -1,0 +1,420 @@
+START: Wed Aug  7 09:50:55 AM CEST 2024
+CUDACPP_RUNTIME_DISABLEFPE is set
+************************************************************
+*                                                          *
+*                      W E L C O M E to                    *
+*             M A D G R A P H 5 _ a M C @ N L O            *
+*                      M A D E V E N T                     *
+*                                                          *
+*                 *                       *                *
+*                   *        * *        *                  *
+*                     * * * * 5 * * * *                    *
+*                   *        * *        *                  *
+*                 *                       *                *
+*                                                          *
+*         VERSION 3.5.3_lo_vect                            *
+*                                                          *
+*    The MadGraph5_aMC@NLO Development Team - Find us at   *
+*    https://server06.fynu.ucl.ac.be/projects/madgraph     *
+*                                                          *
+*               Type 'help' for in-line help.              *
+*                                                          *
+************************************************************
+INFO: load configuration from /data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/pp_dy012j.mad/Cards/me5_configuration.txt  
+INFO: load configuration from /data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/pp_dy012j.mad/Cards/me5_configuration.txt  
+Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
+No valid eps viewer found. Please set in ./input/mg5_configuration.txt
+Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
+generate_events -f
+Generating 100 events with run name run_01
+survey  run_01 
+INFO: compile directory 
+compile Source Directory
+Using random number seed offset = 21
+INFO: Running Survey 
+Creating Jobs
+Working on SubProcesses
+INFO:     P2_gg_epemuux  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_gg_epemddx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_gg_taptamuux  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_gg_taptamddx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_gu_epemgu  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_gd_epemgd  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_gux_epemgux  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_gdx_epemgdx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_gu_taptamgu  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_gd_taptamgd  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_gux_taptamgux  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_gdx_taptamgdx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_uu_epemuu  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_uux_epemuux  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_dd_epemdd  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_ddx_epemddx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_uxux_epemuxux  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_dxdx_epemdxdx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_ud_epemud  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_uc_epemuc  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_uux_epemddx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_uux_epemccx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_udx_epemudx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+INFO: The following Floating Point Exceptions have been reported: FE_INVALID
+INFO: The following Floating Point Exceptions have been reported: FE_INVALID
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_ucx_epemucx  
+INFO: The following Floating Point Exceptions have been reported: FE_INVALID
+INFO: The following Floating Point Exceptions have been reported: FE_INVALID
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_dc_epemdc  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_ds_epemds  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+INFO: The following Floating Point Exceptions have been reported: FE_INVALID
+INFO: The following Floating Point Exceptions have been reported: FE_INVALID
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_dux_epemdux  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+INFO: The following Floating Point Exceptions have been reported: FE_INVALID
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_ddx_epemuux  
+INFO: The following Floating Point Exceptions have been reported: FE_INVALID
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+INFO: The following Floating Point Exceptions have been reported: FE_INVALID
+INFO: The following Floating Point Exceptions have been reported: FE_INVALID
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_ddx_epemssx  
+INFO: The following Floating Point Exceptions have been reported: FE_INVALID
+INFO: The following Floating Point Exceptions have been reported: FE_INVALID
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_dsx_epemdsx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_uxdx_epemuxdx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_uxcx_epemuxcx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_dxcx_epemdxcx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_dxsx_epemdxsx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+INFO: The following Floating Point Exceptions have been reported: FE_INVALID
+INFO: The following Floating Point Exceptions have been reported: FE_INVALID
+INFO: The following Floating Point Exceptions have been reported: FE_INVALID
+INFO: The following Floating Point Exceptions have been reported: FE_INVALID
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_uu_taptamuu  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+INFO: The following Floating Point Exceptions have been reported: FE_INVALID
+INFO: The following Floating Point Exceptions have been reported: FE_INVALID
+INFO: The following Floating Point Exceptions have been reported: FE_INVALID
+INFO: The following Floating Point Exceptions have been reported: FE_INVALID
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_uux_taptamuux  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_dd_taptamdd  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_ddx_taptamddx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_uxux_taptamuxux  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_dxdx_taptamdxdx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_ud_taptamud  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_uc_taptamuc  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_uux_taptamddx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_uux_taptamccx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_udx_taptamudx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_ucx_taptamucx  
+INFO: The following Floating Point Exceptions have been reported: FE_INVALID
+INFO: The following Floating Point Exceptions have been reported: FE_INVALID
+INFO: The following Floating Point Exceptions have been reported: FE_INVALID
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+INFO: The following Floating Point Exceptions have been reported: FE_INVALID
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_dc_taptamdc  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_ds_taptamds  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+INFO: The following Floating Point Exceptions have been reported: FE_INVALID
+INFO: The following Floating Point Exceptions have been reported: FE_INVALID
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_dux_taptamdux  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_ddx_taptamuux  
+INFO: The following Floating Point Exceptions have been reported: FE_INVALID
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+INFO: The following Floating Point Exceptions have been reported: FE_INVALID
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_ddx_taptamssx  
+INFO: The following Floating Point Exceptions have been reported: FE_INVALID
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+INFO: The following Floating Point Exceptions have been reported: FE_INVALID
+INFO: The following Floating Point Exceptions have been reported: FE_INVALID
+INFO: The following Floating Point Exceptions have been reported: FE_INVALID
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_dsx_taptamdsx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_uxdx_taptamuxdx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_uxcx_taptamuxcx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_dxcx_taptamdxcx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_dxsx_taptamdxsx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+INFO: The following Floating Point Exceptions have been reported: FE_INVALID
+INFO: The following Floating Point Exceptions have been reported: FE_INVALID
+INFO: The following Floating Point Exceptions have been reported: FE_INVALID
+INFO: The following Floating Point Exceptions have been reported: FE_INVALID
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_uux_epemgg  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+INFO: The following Floating Point Exceptions have been reported: FE_INVALID
+INFO: The following Floating Point Exceptions have been reported: FE_INVALID
+INFO: The following Floating Point Exceptions have been reported: FE_INVALID
+INFO: The following Floating Point Exceptions have been reported: FE_INVALID
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_ddx_epemgg  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_uux_taptamgg  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P2_ddx_taptamgg  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P1_gu_epemu  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P1_gd_epemd  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P1_gux_epemux  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P1_gdx_epemdx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P1_gu_taptamu  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P1_gd_taptamd  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P1_gux_taptamux  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P1_gdx_taptamdx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P1_uux_epemg  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P1_ddx_epemg  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P1_uux_taptamg  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P1_ddx_taptamg  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P0_uux_epem  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P0_ddx_epem  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P0_uux_taptam  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:     P0_ddx_taptam  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cppnone' matrix elements
+INFO:  Idle: 1,  Running: 3,  Completed: 314 [ current time: 09h52 ] 
+INFO:  Idle: 0,  Running: 4,  Completed: 314 [ current time: 09h52 ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 318 [  3.3s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 318 [  3.3s  ] 
+INFO: End survey 
+refine 100
+Creating Jobs
+INFO: Refine results to 100 
+INFO: Generating 100.0 unweighted events. 
+sum of cpu time of last step: 24m47s
+INFO: Effective Luminosity 0.005286395068753692 pb^-1 
+INFO: need to improve 0 channels 
+- Current estimate of cross-section: 22699.779044 +- 24.883887513199372
+    P2_gg_epemuux 
+    P2_gg_epemddx 
+    P2_gg_taptamuux 
+    P2_gg_taptamddx 
+    P2_gu_epemgu 
+    P2_gd_epemgd 
+    P2_gux_epemgux 
+    P2_gdx_epemgdx 
+    P2_gu_taptamgu 
+    P2_gd_taptamgd 
+    P2_gux_taptamgux 
+    P2_gdx_taptamgdx 
+    P2_uu_epemuu 
+    P2_uux_epemuux 
+    P2_dd_epemdd 
+    P2_ddx_epemddx 
+    P2_uxux_epemuxux 
+    P2_dxdx_epemdxdx 
+    P2_ud_epemud 
+    P2_uc_epemuc 
+    P2_uux_epemddx 
+    P2_uux_epemccx 
+    P2_udx_epemudx 
+    P2_ucx_epemucx 
+    P2_dc_epemdc 
+    P2_ds_epemds 
+    P2_dux_epemdux 
+    P2_ddx_epemuux 
+    P2_ddx_epemssx 
+    P2_dsx_epemdsx 
+    P2_uxdx_epemuxdx 
+    P2_uxcx_epemuxcx 
+    P2_dxcx_epemdxcx 
+    P2_dxsx_epemdxsx 
+    P2_uu_taptamuu 
+    P2_uux_taptamuux 
+    P2_dd_taptamdd 
+    P2_ddx_taptamddx 
+    P2_uxux_taptamuxux 
+    P2_dxdx_taptamdxdx 
+    P2_ud_taptamud 
+    P2_uc_taptamuc 
+    P2_uux_taptamddx 
+    P2_uux_taptamccx 
+    P2_udx_taptamudx 
+    P2_ucx_taptamucx 
+    P2_dc_taptamdc 
+    P2_ds_taptamds 
+    P2_dux_taptamdux 
+    P2_ddx_taptamuux 
+    P2_ddx_taptamssx 
+    P2_dsx_taptamdsx 
+    P2_uxdx_taptamuxdx 
+    P2_uxcx_taptamuxcx 
+    P2_dxcx_taptamdxcx 
+    P2_dxsx_taptamdxsx 
+    P2_uux_epemgg 
+    P2_ddx_epemgg 
+    P2_uux_taptamgg 
+    P2_ddx_taptamgg 
+    P1_gu_epemu 
+    P1_gd_epemd 
+    P1_gux_epemux 
+    P1_gdx_epemdx 
+    P1_gu_taptamu 
+    P1_gd_taptamd 
+    P1_gux_taptamux 
+    P1_gdx_taptamdx 
+    P1_uux_epemg 
+    P1_ddx_epemg 
+    P1_uux_taptamg 
+    P1_ddx_taptamg 
+    P0_uux_epem 
+    P0_ddx_epem 
+    P0_uux_taptam 
+    P0_ddx_taptam 
+INFO:  Idle: 0,  Running: 0,  Completed: 0 [ current time: 09h52 ] 
+INFO: Combining runs 
+sum of cpu time of last step: 24m47s
+INFO: finish refine 
+refine 100 --treshold=0.9
+No need for second refine due to stability of cross-section
+INFO: Combining Events 
+combination of events done in 22.10733985900879 s 
+  === Results Summary for run: run_01 tag: tag_1 ===
+
+     Cross-section :   2.27e+04 +- 24.88 pb
+     Nb of events :  100
+ 
+INFO: No version of lhapdf. Can not run systematics computation 
+store_events
+INFO: Storing parton level results 
+INFO: End Parton 
+reweight -from_cards
+decay_events -from_cards
+INFO: storing files of previous run 
+INFO: Done 
+quit
+INFO:  
+1465.31user 49.43system 1:50.75elapsed 1367%CPU (0avgtext+0avgdata 107232maxresident)k
+16inputs+11624336outputs (1390major+13788479minor)pagefaults 0swaps
+END: Wed Aug  7 09:52:46 AM CEST 2024
+ELAPSED: 111 seconds

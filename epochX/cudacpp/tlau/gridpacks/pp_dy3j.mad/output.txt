@@ -1,0 +1,456 @@
+START: Thu Aug  8 05:49:50 PM CEST 2024
+On itgold91.cern.ch [CPU: Intel(R) Xeon(R) Gold 6326 CPU (nproc=32)] [GPU: none]:
+CUDACPP_RUNTIME_DISABLEFPE is set
+************************************************************
+*                                                          *
+*                      W E L C O M E to                    *
+*             M A D G R A P H 5 _ a M C @ N L O            *
+*                      M A D E V E N T                     *
+*                                                          *
+*                 *                       *                *
+*                   *        * *        *                  *
+*                     * * * * 5 * * * *                    *
+*                   *        * *        *                  *
+*                 *                       *                *
+*                                                          *
+*         VERSION 3.5.3_lo_vect                            *
+*                                                          *
+*    The MadGraph5_aMC@NLO Development Team - Find us at   *
+*    https://server06.fynu.ucl.ac.be/projects/madgraph     *
+*                                                          *
+*               Type 'help' for in-line help.              *
+*                                                          *
+************************************************************
+INFO: load configuration from /data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/pp_dy3j.mad/Cards/me5_configuration.txt  
+INFO: load configuration from /data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/pp_dy3j.mad/Cards/me5_configuration.txt  
+Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
+No valid eps viewer found. Please set in ./input/mg5_configuration.txt
+Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
+generate_events -f
+Generating gridpack with run name run_01
+survey  run_01 --accuracy=0.01 --points=2000 --iterations=8 --gridpack=.true.
+INFO: compile directory 
+compile Source Directory
+Using random number seed offset = 21
+INFO: Running Survey 
+Creating Jobs
+Working on SubProcesses
+INFO:     P0_gg_epemguux  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_gg_epemgddx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_gg_taptamguux  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_gg_taptamgddx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_gu_epemggu  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_gd_epemggd  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_gux_epemggux  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_gdx_epemggdx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_gu_taptamggu  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_gd_taptamggd  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_gux_taptamggux  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_gdx_taptamggdx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_uux_epemggg  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_ddx_epemggg  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_uux_taptamggg  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_ddx_taptamggg  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_gu_epemuuux  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_gd_epemdddx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_gux_epemuuxux  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_gdx_epemddxdx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_gu_epemuddx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_gu_epemuccx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_gd_epemudux  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_gd_epemdssx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_gux_epemduxdx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_gux_epemcuxcx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_gdx_epemuuxdx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_gdx_epemsdxsx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_gu_taptamuuux  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_gd_taptamdddx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_gux_taptamuuxux  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_gdx_taptamddxdx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_gu_taptamuddx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_gu_taptamuccx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_gd_taptamudux  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_gd_taptamdssx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_gux_taptamduxdx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_gux_taptamcuxcx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_gdx_taptamuuxdx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_gdx_taptamsdxsx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_uu_epemguu  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_uux_epemguux  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_dd_epemgdd  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_ddx_epemgddx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_uxux_epemguxux  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_dxdx_epemgdxdx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_ud_epemgud  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_uc_epemguc  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_uux_epemgddx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_uux_epemgccx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_udx_epemgudx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_ucx_epemgucx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_dc_epemgdc  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_ds_epemgds  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_dux_epemgdux  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_ddx_epemguux  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_ddx_epemgssx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_dsx_epemgdsx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_uxdx_epemguxdx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_uxcx_epemguxcx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_dxcx_epemgdxcx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_dxsx_epemgdxsx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_uu_taptamguu  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_uux_taptamguux  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_dd_taptamgdd  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_ddx_taptamgddx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_uxux_taptamguxux  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_dxdx_taptamgdxdx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_ud_taptamgud  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_uc_taptamguc  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_uux_taptamgddx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_uux_taptamgccx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_udx_taptamgudx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_ucx_taptamgucx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_dc_taptamgdc  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_ds_taptamgds  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_dux_taptamgdux  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_ddx_taptamguux  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_ddx_taptamgssx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_dsx_taptamgdsx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_uxdx_taptamguxdx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_uxcx_taptamguxcx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_dxcx_taptamgdxcx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:     P0_dxsx_taptamgdxsx  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'fortran' matrix elements
+INFO:  Idle: 499,  Running: 32,  Completed: 1293 [ current time: 17h58 ] 
+INFO:  Idle: 498,  Running: 32,  Completed: 1294 [ current time: 17h58 ] 
+INFO:  Idle: 495,  Running: 32,  Completed: 1297 [  5.4s  ] 
+INFO:  Idle: 488,  Running: 32,  Completed: 1304 [  8.8s  ] 
+INFO:  Idle: 479,  Running: 32,  Completed: 1313 [  11.9s  ] 
+INFO:  Idle: 467,  Running: 32,  Completed: 1325 [  16.2s  ] 
+INFO:  Idle: 463,  Running: 32,  Completed: 1329 [  20.1s  ] 
+INFO:  Idle: 453,  Running: 32,  Completed: 1339 [  24.1s  ] 
+INFO:  Idle: 438,  Running: 32,  Completed: 1354 [  27.5s  ] 
+INFO:  Idle: 434,  Running: 32,  Completed: 1358 [  31s  ] 
+INFO:  Idle: 430,  Running: 32,  Completed: 1362 [  34.4s  ] 
+INFO:  Idle: 422,  Running: 32,  Completed: 1370 [  38s  ] 
+INFO:  Idle: 406,  Running: 32,  Completed: 1386 [  41.1s  ] 
+INFO:  Idle: 404,  Running: 32,  Completed: 1388 [  44.2s  ] 
+INFO:  Idle: 401,  Running: 32,  Completed: 1391 [  47.9s  ] 
+INFO:  Idle: 392,  Running: 32,  Completed: 1400 [  51.1s  ] 
+INFO:  Idle: 380,  Running: 32,  Completed: 1412 [  54.2s  ] 
+INFO:  Idle: 371,  Running: 32,  Completed: 1421 [  59.6s  ] 
+INFO:  Idle: 365,  Running: 32,  Completed: 1427 [  1m 2s  ] 
+INFO:  Idle: 358,  Running: 32,  Completed: 1434 [  1m 5s  ] 
+INFO:  Idle: 343,  Running: 32,  Completed: 1449 [  1m 9s  ] 
+INFO:  Idle: 339,  Running: 32,  Completed: 1453 [  1m 14s  ] 
+INFO:  Idle: 330,  Running: 32,  Completed: 1462 [  1m 17s  ] 
+INFO:  Idle: 310,  Running: 32,  Completed: 1482 [  1m 20s  ] 
+INFO:  Idle: 307,  Running: 32,  Completed: 1485 [  1m 24s  ] 
+INFO:  Idle: 295,  Running: 32,  Completed: 1497 [  1m 27s  ] 
+INFO:  Idle: 280,  Running: 32,  Completed: 1512 [  1m 30s  ] 
+INFO:  Idle: 275,  Running: 32,  Completed: 1517 [  1m 33s  ] 
+INFO:  Idle: 264,  Running: 32,  Completed: 1528 [  1m 37s  ] 
+INFO:  Idle: 249,  Running: 32,  Completed: 1543 [  1m 40s  ] 
+INFO:  Idle: 242,  Running: 32,  Completed: 1550 [  1m 43s  ] 
+INFO:  Idle: 234,  Running: 32,  Completed: 1558 [  1m 46s  ] 
+INFO:  Idle: 216,  Running: 32,  Completed: 1576 [  1m 49s  ] 
+INFO:  Idle: 211,  Running: 32,  Completed: 1581 [  1m 53s  ] 
+INFO:  Idle: 203,  Running: 32,  Completed: 1589 [  1m 56s  ] 
+INFO:  Idle: 187,  Running: 32,  Completed: 1605 [  1m 59s  ] 
+INFO:  Idle: 179,  Running: 32,  Completed: 1613 [  2m 3s  ] 
+INFO:  Idle: 166,  Running: 32,  Completed: 1626 [  2m 6s  ] 
+INFO:  Idle: 156,  Running: 32,  Completed: 1636 [  2m 9s  ] 
+INFO:  Idle: 146,  Running: 32,  Completed: 1646 [  2m 13s  ] 
+INFO:  Idle: 137,  Running: 32,  Completed: 1655 [  2m 16s  ] 
+INFO:  Idle: 122,  Running: 32,  Completed: 1670 [  2m 19s  ] 
+INFO:  Idle: 115,  Running: 32,  Completed: 1677 [  2m 23s  ] 
+INFO:  Idle: 103,  Running: 32,  Completed: 1689 [  2m 26s  ] 
+INFO:  Idle: 89,  Running: 32,  Completed: 1703 [  2m 29s  ] 
+INFO:  Idle: 83,  Running: 32,  Completed: 1709 [  2m 32s  ] 
+INFO:  Idle: 71,  Running: 32,  Completed: 1721 [  2m 36s  ] 
+INFO:  Idle: 59,  Running: 32,  Completed: 1733 [  2m 39s  ] 
+INFO:  Idle: 53,  Running: 32,  Completed: 1739 [  2m 42s  ] 
+INFO:  Idle: 38,  Running: 32,  Completed: 1754 [  2m 45s  ] 
+INFO:  Idle: 29,  Running: 32,  Completed: 1763 [  2m 49s  ] 
+INFO:  Idle: 16,  Running: 32,  Completed: 1776 [  2m 53s  ] 
+INFO:  Idle: 5,  Running: 32,  Completed: 1787 [  2m 56s  ] 
+INFO:  Idle: 0,  Running: 24,  Completed: 1800 [  3m 0s  ] 
+INFO:  Idle: 0,  Running: 16,  Completed: 1808 [  3m 3s  ] 
+INFO:  Idle: 0,  Running: 1,  Completed: 1823 [  3m 7s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 1824 [  3m 7s  ] 
+sum of cpu time of last step: 5h58m47s
+  === Results Summary for run: run_01 tag: tag_1 ===
+
+     Cross-section :   1.069e+04 +- 27.84 pb
+     Nb of events :  0
+ 
+INFO: End survey 
+combine_events
+INFO: Combining Events 
+combination of events done in 0.4154214859008789 s 
+store_events
+INFO: Storing parton level results 
+INFO: End Parton 
+decay_events -from_cards
+create_gridpack
+INFO: Creating gridpack 
+P0_gg_epemguux
+P0_gg_epemgddx
+P0_gg_taptamguux
+P0_gg_taptamgddx
+P0_gu_epemggu
+P0_gd_epemggd
+P0_gux_epemggux
+P0_gdx_epemggdx
+P0_gu_taptamggu
+P0_gd_taptamggd
+P0_gux_taptamggux
+P0_gdx_taptamggdx
+P0_uux_epemggg
+P0_ddx_epemggg
+P0_uux_taptamggg
+P0_ddx_taptamggg
+P0_gu_epemuuux
+P0_gd_epemdddx
+P0_gux_epemuuxux
+P0_gdx_epemddxdx
+P0_gu_epemuddx
+P0_gu_epemuccx
+P0_gd_epemudux
+P0_gd_epemdssx
+P0_gux_epemduxdx
+P0_gux_epemcuxcx
+P0_gdx_epemuuxdx
+P0_gdx_epemsdxsx
+P0_gu_taptamuuux
+P0_gd_taptamdddx
+P0_gux_taptamuuxux
+P0_gdx_taptamddxdx
+P0_gu_taptamuddx
+P0_gu_taptamuccx
+P0_gd_taptamudux
+P0_gd_taptamdssx
+P0_gux_taptamduxdx
+P0_gux_taptamcuxcx
+P0_gdx_taptamuuxdx
+P0_gdx_taptamsdxsx
+P0_uu_epemguu
+P0_uux_epemguux
+P0_dd_epemgdd
+P0_ddx_epemgddx
+P0_uxux_epemguxux
+P0_dxdx_epemgdxdx
+P0_ud_epemgud
+P0_uc_epemguc
+P0_uux_epemgddx
+P0_uux_epemgccx
+P0_udx_epemgudx
+P0_ucx_epemgucx
+P0_dc_epemgdc
+P0_ds_epemgds
+P0_dux_epemgdux
+P0_ddx_epemguux
+P0_ddx_epemgssx
+P0_dsx_epemgdsx
+P0_uxdx_epemguxdx
+P0_uxcx_epemguxcx
+P0_dxcx_epemgdxcx
+P0_dxsx_epemgdxsx
+P0_uu_taptamguu
+P0_uux_taptamguux
+P0_dd_taptamgdd
+P0_ddx_taptamgddx
+P0_uxux_taptamguxux
+P0_dxdx_taptamgdxdx
+P0_ud_taptamgud
+P0_uc_taptamguc
+P0_uux_taptamgddx
+P0_uux_taptamgccx
+P0_udx_taptamgudx
+P0_ucx_taptamgucx
+P0_dc_taptamgdc
+P0_ds_taptamgds
+P0_dux_taptamgdux
+P0_ddx_taptamguux
+P0_ddx_taptamgssx
+P0_dsx_taptamgdsx
+P0_uxdx_taptamguxdx
+P0_uxcx_taptamguxcx
+P0_dxcx_taptamgdxcx
+P0_dxsx_taptamgdxsx
+Cleaning  SubProcesses.................................................................................... 
+INFO: gridpack created 
+quit
+INFO: storing files of previous run 
+INFO: Done 
+INFO:  
+21587.33user 257.26system 13:13.13elapsed 2754%CPU (0avgtext+0avgdata 139452maxresident)k
+251256inputs+29183152outputs (3024major+75620400minor)pagefaults 0swaps
+END: Thu Aug  8 06:03:03 PM CEST 2024
+ELAPSED: 793 seconds

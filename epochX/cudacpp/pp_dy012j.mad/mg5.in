@@ -1,0 +1,13 @@
+set stdout_level DEBUG
+set zerowidth_tchannel F
+import model sm-no_b_mass
+define p = u d c s b u~ d~ c~ s~ b~ g
+define j = p
+define ell+ = e+ mu+ ta+
+define ell- = e- mu- ta-
+define nu = ve vm vt
+define nubar = ve~ vm~ vt~
+generate p p > ell+ ell- @0
+add process p p > ell+ ell- j @1
+add process p p > ell+ ell- j j @2
+output madevent_simd pp_dy012j.mad --hel_recycling=False --vector_size=32 

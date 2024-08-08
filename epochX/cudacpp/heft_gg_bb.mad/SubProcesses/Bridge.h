@@ -109,9 +109,9 @@ namespace mg5amcCpu
      * @param rndcol the pointer to the input random numbers for color selection
      * @param channelId the Feynman diagram to enhance in multi-channel mode if 1 to n (disable multi-channel if 0)
      * @param mes the pointer to the output matrix elements
-     * @param goodHelOnly quit after computing good helicities?
      * @param selhel the pointer to the output selected helicities
      * @param selcol the pointer to the output selected colors
+     * @param goodHelOnly quit after computing good helicities?
      */
     void gpu_sequence( const FORTRANFPTYPE* momenta,
                        const FORTRANFPTYPE* gs,

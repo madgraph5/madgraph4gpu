@@ -1,0 +1,9 @@
+# Copyright (C) 2020-2024 CERN and UCLouvain.
+# Licensed under the GNU Lesser General Public License (version 3 or later).
+# Created by: S. Roiser (Feb 2022) for the MG5aMC CUDACPP plugin.
+# Further modified by: S. Roiser (2022-2024) for the MG5aMC CUDACPP plugin.
+
+SUBDIRLIST(SUBDIRS)
+FOREACH(subdir ${SUBDIRS})
+  ADD_SUBDIRECTORY(${subdir})
+ENDFOREACH()

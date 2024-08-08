@@ -40,10 +40,11 @@ C - CHANID:  the input Feynman diagram to enhance in multi-channel mode if 1 to 
 C - MES:     the output matrix element Fortran array
 C - SELHEL:  the output selected helicity Fortran array
 C - SELCOL:  the output selected color Fortran array
+C - HELONLY: input flag, quit after computing good helicities?
 C
       INTERFACE
          SUBROUTINE FBRIDGESEQUENCE(PBRIDGE, MOMENTA, GS,
-     &     RNDHEL, RNDCOL, CHANID, MES, SELHEL, SELCOL)
+     &     RNDHEL, RNDCOL, CHANID, MES, SELHEL, SELCOL, HELONLY)
          INTEGER*8 PBRIDGE
          DOUBLE PRECISION MOMENTA(*)
          DOUBLE PRECISION GS(*)
@@ -53,6 +54,7 @@ C
          DOUBLE PRECISION MES(*)
          INTEGER*4 SELHEL(*)
          INTEGER*4 SELCOL(*)
+         LOGICAL HELONLY
          END SUBROUTINE FBRIDGESEQUENCE
       END INTERFACE
 
@@ -66,10 +68,11 @@ C - RNDCOL:  the input random number Fortran array for color selection
 C - MES:     the output matrix element Fortran array
 C - SELHEL:  the output selected helicity Fortran array
 C - SELCOL:  the output selected color Fortran array
+C - HELONLY: input flag, quit after computing good helicities?
 C
       INTERFACE
          SUBROUTINE FBRIDGESEQUENCE_NOMULTICHANNEL(PBRIDGE, MOMENTA, GS,
-     &     RNDHEL, RNDCOL, MES, SELHEL, SELCOL)
+     &     RNDHEL, RNDCOL, MES, SELHEL, SELCOL, HELONLY)
          INTEGER*8 PBRIDGE
          DOUBLE PRECISION MOMENTA(*)
          DOUBLE PRECISION GS(*)
@@ -78,6 +81,7 @@ C
          DOUBLE PRECISION MES(*)
          INTEGER*4 SELHEL(*)
          INTEGER*4 SELCOL(*)
+         LOGICAL HELONLY
          END SUBROUTINE FBRIDGESEQUENCE_NOMULTICHANNEL
       END INTERFACE
 
