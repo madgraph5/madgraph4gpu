@@ -102,6 +102,7 @@ namespace REX::teaw
         REX::transSkel& getSkeleton( std::vector<REX::eventSet>& evSets );
         rwgtCollection();
         rwgtCollection( std::shared_ptr<REX::lheNode> lhe, std::shared_ptr<REX::lesHouchesCard> slha, std::shared_ptr<rwgtCard> rwgts );
+        rwgtCollection( const rwgtCollection& rwgts );
     protected:
         template<class... Args>
         void setDoubles(Args&&... args);
@@ -117,6 +118,7 @@ namespace REX::teaw
         bool slhaSet = false;
         bool rwgtSet = false;
         bool skeleton = false;
+        bool doublesSet = false;
         REX::transLHE eventFile;
         REX::transSkel lheSkeleton;
     };
@@ -127,6 +129,7 @@ namespace REX::teaw
         void setLhePath( std::string_view path );
         rwgtFiles();
         rwgtFiles( std::string_view lhe_card, std::string_view slha_card, std::string_view reweight_card );
+        rwgtFiles( const rwgtFiles& rwgts );
         REX::transSkel& initCards( std::vector<REX::eventSet>& evSets);
         void initDoubles();
         template<class... Args>
@@ -134,9 +137,13 @@ namespace REX::teaw
         template<class... Args>
         void initCards( std::string_view lhe_card, std::string_view slha_card, std::string_view reweight_card, Args&&... args );
     protected:
+        bool rwgtPulled();
+        bool slhaPulled();
+        bool lhePulled();
         void pullRwgt();
         void pullSlha();
         void pullLhe();
+        bool initialised = false;
         std::string rwgtPath;
         std::string lhePath;
         std::string slhaPath;
@@ -157,6 +164,7 @@ namespace REX::teaw
         rwgtRunner( rwgtFiles& rwgts, std::vector<amplitude>& meCalcs );
         rwgtRunner( std::string_view lhe_card, std::string_view slha_card, std::string_view reweight_card,
         amplitude meCalc );
+        rwgtRunner(const rwgtRunner& rwgts);
         //rwgtRunner( std::string_view lhe_card, std::string_view slha_card, std::string_view reweight_card,
         //ampCall meCalcs );
         bool oneME();

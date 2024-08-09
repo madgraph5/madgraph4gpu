@@ -35,9 +35,7 @@ namespace mg5amcCpu
     if( std::fetestexcept( FE_OVERFLOW ) ) fpes += " FE_OVERFLOW";
     if( std::fetestexcept( FE_UNDERFLOW ) ) fpes += " FE_UNDERFLOW";
     //if( std::fetestexcept( FE_INEXACT ) ) fpes += " FE_INEXACT"; // do not print this out: this would almost always signal!
-    if( fpes == "" )
-      std::cout << "INFO: No Floating Point Exceptions have been reported" << std::endl;
-    else
+    if( fpes != "" )
       std::cerr << "INFO: The following Floating Point Exceptions have been reported:" << fpes << std::endl;
   }
 
@@ -163,14 +161,13 @@ namespace mg5amcCpu
 #endif
     if( verbose )
     {
-      if( tag == "none" )
-        std::cout << "INFO: The application does not require the host to support any AVX feature" << std::endl;
-      else if( ok && known )
-        std::cout << "INFO: The application is built for " << tag << " and the host supports it" << std::endl;
-      else if( ok )
+      if( tag != "none" ){
+        //std::cout << "INFO: The application does not require the host to support any AVX feature" << std::endl;
+      if( ok && !known )
         std::cout << "WARNING: The application is built for " << tag << " but it is unknown if the host supports it" << std::endl;
-      else
+      else if ( !ok && known )
         std::cout << "ERROR! The application is built for " << tag << " but the host does not support it" << std::endl;
+    }
     }
     return ok;
   }

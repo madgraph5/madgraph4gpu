@@ -514,6 +514,11 @@ namespace REX
             end = structure.getEnd(); 
             size_t trueStart = xmlFile.find_first_not_of("< \n\r\f\t\v", start); 
             name = xmlFile.substr( trueStart, xmlFile.find_first_of(">/ \n\r\f\t\v", trueStart) - trueStart );
+            auto possTags = xmlFile.substr(trueStart + name.size(), structure.getContStart() - trueStart - name.size() );
+            if( possTags.find("=") != npos ){ 
+                size_t eqSgn = possTags.find("="); 
+                while( eqSgn < possTags.size() ){ tags.push_back( xmlTagParser( possTags, eqSgn ) ); } 
+            }
             content = xmlFile.substr( structure.getContStart(), structure.getContEnd() - structure.getContStart() ); 
             for( auto& child : *(structure.getChildren()) ){ 
                 children.push_back( std::make_shared<xmlNode>( *child ) ); 
@@ -3306,6 +3311,11 @@ namespace REX
             evtsData = prtInfo(lheFile, nPrt, statVec, sorter);
             process = lheFile[0];
         }
+        transMonoLHE::transMonoLHE( const transMonoLHE& lheFile ){
+            evtsHead = lheFile.evtsHead;
+            evtsData = lheFile.evtsData;
+            process = lheFile.process;
+        }
 
     // ZW: transposed LHE file ordered by subprocess
         transLHE::transLHE(){ return; }
@@ -3368,6 +3378,10 @@ namespace REX
             { 
                 subProcs[k] = std::make_shared<transMonoLHE>( skeleton.procSets[k], skeleton.procSets[k].at(0)->getNprt() );
             }
+        }
+        transLHE::transLHE( const transLHE& lheFile ){
+            relProcs = lheFile.relProcs;
+            subProcs = lheFile.subProcs;
         }
 //        template <typename T>
         std::shared_ptr<std::vector<double>> transLHE::vectorFlat( std::vector<std::shared_ptr<std::vector<double>>> vecVec )

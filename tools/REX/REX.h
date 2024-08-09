@@ -788,6 +788,7 @@ namespace REX
         transMonoLHE( const std::vector<std::shared_ptr<REX::event>> lheFile, const int nPrt, 
         statSort sorter,
         std::vector<std::string_view> statVec = { "-1", "1" } );
+        transMonoLHE( const transMonoLHE& lheFile );
     };
 
     struct transLHE {
@@ -806,6 +807,7 @@ namespace REX
         const std::vector<std::string_view>& statVec = { "-1", "1" } );
         transLHE( lheNode& lheFile, const std::vector<std::string_view>& statVec );
         transLHE( transSkel& skeleton );
+        transLHE( const transLHE& lheFile );
         std::shared_ptr<std::vector<double>> vectorFlat( std::vector<std::shared_ptr<std::vector<double>>> vecVec );
     };
 

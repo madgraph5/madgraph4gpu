@@ -250,11 +250,11 @@ namespace mg5amcCpu
         throw std::logic_error( "Bridge constructor: FIXME! cannot choose gputhreads" ); // this should never happen!
       m_gpublocks = m_nevt / m_gputhreads;
     }
-    std::cout << "WARNING! Instantiate device Bridge (nevt=" << m_nevt << ", gpublocks=" << m_gpublocks << ", gputhreads=" << m_gputhreads
-              << ", gpublocks*gputhreads=" << m_gpublocks * m_gputhreads << ")" << std::endl;
+    //std::cout << "WARNING! Instantiate device Bridge (nevt=" << m_nevt << ", gpublocks=" << m_gpublocks << ", gputhreads=" << m_gputhreads
+    //          << ", gpublocks*gputhreads=" << m_gpublocks * m_gputhreads << ")" << std::endl;
     m_pmek.reset( new MatrixElementKernelDevice( m_devMomentaC, m_devGs, m_devRndHel, m_devRndCol, m_devMEs, m_devSelHel, m_devSelCol, m_gpublocks, m_gputhreads ) );
 #else
-    std::cout << "WARNING! Instantiate host Bridge (nevt=" << m_nevt << ")" << std::endl;
+    //std::cout << "WARNING! Instantiate host Bridge (nevt=" << m_nevt << ")" << std::endl;
     m_pmek.reset( new MatrixElementKernelHost( m_hstMomentaC, m_hstGs, m_hstRndHel, m_hstRndCol, m_hstMEs, m_hstSelHel, m_hstSelCol, m_nevt ) );
 #endif // MGONGPUCPP_GPUIMPL
     // Create a process object, read param card and set parameters

@@ -329,6 +329,19 @@ namespace REX::teaw
             setSlha( slha );
             setRwgt( rwgts );
         }
+        rwgtCollection::rwgtCollection( const rwgtCollection& rwgts ){
+            rwgtSets = rwgts.rwgtSets;
+            slhaParameters = rwgts.slhaParameters;
+            lheFile = rwgts.lheFile;
+            wgts = rwgts.wgts;
+            gS = rwgts.gS;
+            momenta = rwgts.momenta;
+            lheFileSet = rwgts.lheFileSet;
+            slhaSet = rwgts.slhaSet;
+            rwgtSet = rwgts.rwgtSet;
+            skeleton = rwgts.skeleton;
+            eventFile = rwgts.eventFile;
+        }
         REX::transSkel& rwgtCollection::getSkeleton(){
             if( !this->skeleton )
                 throw std::runtime_error( "Skeleton has not been set." );
@@ -343,6 +356,11 @@ namespace REX::teaw
         void rwgtCollection::setDoubles(Args&&... args){
             if( lheFile == nullptr || rwgtSets == nullptr || slhaParameters == nullptr )
                 throw std::runtime_error( "One or more of the necessary files (SLHA parameter card, LHE event storage file, and MadGraph-format reweight card) have not been initialised." );
+            if( this->doublesSet ){ return; }
+            if( this->skeleton ){
+                this->setDoublesFromSkeleton();
+                return;
+            }
             REX::lheRetDs returnBools; returnBools.xwgtup = true; returnBools.aqcdup = true; returnBools.pup = true;
             eventFile = REX::transLHE( *lheFile, args... );
             auto vecOfVecs = REX::lheValDoubles( eventFile, returnBools );
@@ -355,16 +373,18 @@ namespace REX::teaw
                 gS.push_back( vecOfVecs->at( 3*k + 1 ) ); 
                 momenta.push_back( vecOfVecs->at( 3*k + 2 ) );
             }
+            this->doublesSet = true;
         }
         void rwgtCollection::setSkeleton( std::vector<REX::eventSet>& evSets ){
             if( lheFile == nullptr || rwgtSets == nullptr || slhaParameters == nullptr )
                 throw std::runtime_error( "One or more of the necessary files (SLHA parameter card, LHE event storage file, and MadGraph-format reweight card) have not been initialised." );
-            this->lheSkeleton = transSkel( this->lheFile, evSets );
+            this->lheSkeleton = REX::transSkel( this->lheFile, evSets );
             this->skeleton = true;
         }
         void rwgtCollection::setDoublesFromSkeleton(){
             if( !this->skeleton )
                 throw std::runtime_error( "Skeleton has not been set." );
+            if( this->doublesSet ){ return; }
             REX::lheRetDs returnBools; returnBools.xwgtup = true; returnBools.aqcdup = true; returnBools.pup = true;
             this->eventFile = REX::transLHE( this->lheSkeleton );
             auto vecOfVecs = REX::lheValDoubles( eventFile, returnBools );
@@ -376,8 +396,12 @@ namespace REX::teaw
                 gS.push_back( vecOfVecs->at( 3*k + 1 ) ); 
                 momenta.push_back( vecOfVecs->at( 3*k + 2 ) );
             }
+            this->doublesSet = true;
         }
 
+        bool rwgtFiles::rwgtPulled(){ return (rewgtCard != nullptr); }
+        bool rwgtFiles::slhaPulled(){ return (slhaCard != nullptr); }
+        bool rwgtFiles::lhePulled(){ return (lheCard != nullptr); }
         void rwgtFiles::setRwgtPath( std::string_view path ){ rwgtPath = path; }
         void rwgtFiles::setSlhaPath( std::string_view path ){ slhaPath = path; }
         void rwgtFiles::setLhePath( std::string_view path ){ lhePath = path; }
@@ -387,17 +411,29 @@ namespace REX::teaw
             setSlhaPath( slha_card );
             setLhePath( lhe_card );
         }
+        rwgtFiles::rwgtFiles( const rwgtFiles& rwgts ) : rwgtCollection( rwgts ){
+            rwgtPath = rwgts.rwgtPath;
+            slhaPath = rwgts.slhaPath;
+            lhePath = rwgts.lhePath;
+            rewgtCard = rwgts.rewgtCard;
+            slhaCard = rwgts.slhaCard;
+            lheCard = rwgts.lheCard;
+            initialised = rwgts.initialised;
+        }
         REX::transSkel& rwgtFiles::initCards( std::vector<REX::eventSet>& evSets ){
+            if( initialised ){ return getSkeleton( evSets ); }
             if( rwgtPath == "" || slhaPath == "" || lhePath == "" )
                 throw std::runtime_error( "Paths to reweight card, parameter card, or LHE file have not been set" );
             this->pullRwgt(); this->pullSlha(); this->pullLhe();
             this->setLhe( *lheCard );
             this->setSlha( std::make_shared<REX::lesHouchesCard>( *slhaCard ) );
             this->setRwgt( std::make_shared<rwgtCard>( *rewgtCard, *slhaParameters, true ) );
+            this->initialised = true;
             return this->getSkeleton( evSets );
         }
         template<class... Args>
         void rwgtFiles::initCards(Args&&... args){
+            if( initialised ){ return; }
             if( rwgtPath == "" || slhaPath == "" || lhePath == "" )
                 throw std::runtime_error( "Paths to reweight card, parameter card, or LHE file have not been set" );
             pullRwgt(); pullSlha(); pullLhe();
@@ -405,6 +441,7 @@ namespace REX::teaw
             setSlha( std::make_shared<REX::lesHouchesCard>( *slhaCard ) );
             setRwgt( std::make_shared<rwgtCard>( *rewgtCard, *slhaParameters, true ) );
             setDoubles(args...);
+            initialised = true;
         }
         template<class... Args>
         void rwgtFiles::initCards( std::string_view lhe_card, std::string_view slha_card, std::string_view reweight_card, Args&&... args ){
@@ -412,6 +449,7 @@ namespace REX::teaw
             setSlhaPath( slha_card );
             setRwgtPath( reweight_card );
             initCards(args...);
+            initialised = true;
         }
         void rwgtFiles::initDoubles(){
             if( !this->skeleton )
@@ -419,12 +457,15 @@ namespace REX::teaw
             this->setDoublesFromSkeleton();
         }
         void rwgtFiles::pullRwgt(){
+            if( this->rwgtPulled() ){ return; }
             rewgtCard = REX::filePuller( rwgtPath );
         }
         void rwgtFiles::pullSlha(){
+            if( this->slhaPulled() ){ return; }
             slhaCard = REX::filePuller( slhaPath );
         }
         void rwgtFiles::pullLhe(){
+            if( this->lhePulled() ){ return; }
             lheCard = REX::filePuller( lhePath );
         }
 
@@ -454,6 +495,18 @@ namespace REX::teaw
         amplitude meCalc ) : rwgtFiles( lhe_card, slha_card, reweight_card ){
             meEval = meCalc;
             meInit = true;
+        }
+        rwgtRunner::rwgtRunner( const rwgtRunner& rwgts ) : rwgtFiles( rwgts ){
+            this->meInit = rwgts.meInit;
+            this->meCompInit = rwgts.meCompInit;
+            this->meSet = rwgts.meSet;
+            this->normWgtSet = rwgts.normWgtSet;
+            this->meEval = rwgts.meEval;
+            this->meVec = rwgts.meVec;
+            this->initMEs = rwgts.initMEs;
+            this->meNormWgts = rwgts.meNormWgts;
+            this->normWgt = rwgts.normWgt;
+            this->rwgtGroup = rwgts.rwgtGroup;
         }
         // rwgtRunner::rwgtRunner( std::string_view lhe_card, std::string_view slha_card, std::string_view reweight_card,
         // ampCall meCalcs ) : rwgtFiles( lhe_card, slha_card, reweight_card ){
